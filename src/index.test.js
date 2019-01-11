@@ -7,7 +7,6 @@ it('ajv works', ()=>{
       'lt_three': { 'type': 'number', 'maximum': 3 }
     }
   };
-  var foo = '';
   var validate = new Ajv().compile(schema);
   var good_data = {
     'a_string': 'asdf',
