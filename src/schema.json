@@ -1,0 +1,6 @@
+{
+  "properties": {
+    "a_string": {"type": "string"},
+    "lt_three": { "type": "number", "maximum": 3 }
+  }
+}
