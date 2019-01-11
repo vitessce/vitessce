@@ -9,6 +9,10 @@ die() { set +v; echo "$*" 1>&2 ; sleep 1; exit 1; }
 
 export CI=true
 
+start lint
+./node_modules/eslint/bin/eslint.js src
+end lint
+
 start test
 npm test
 end test
