@@ -1,3 +1,5 @@
 extends:
   - react-app
   - eslint:recommended
+rules:
+  no-console: [2, { "allow": ["warn", "error"] }]

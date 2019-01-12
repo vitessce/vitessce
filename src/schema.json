@@ -5,20 +5,35 @@
   "description": "Event types for the HuBMAP Tool",
   "type": "object",
   "required": ["verb", "object"],
-  "oneOf": [
-    {
+  "oneOf": [ {"$ref": "#/definitions/AddCells"} ],
+  "definitions": {
+    "AddCells": {
+      "additionalProperties": false,
       "properties": {
         "verb": {
           "enum": ["AddCells"]
         },
         "object": {
-          "type": "object",
-          "additionalProperties": {}
+          "patternProperties": {
+            "^\\w": {
+              "additionalProperties": false,
+              "properties": {
+                "boundary_poly": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
-      },
-      "additionalProperties": false
-
+      }
     }
-
-  ]
+  }
 }
