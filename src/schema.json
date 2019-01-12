@@ -5,8 +5,29 @@
   "description": "Event types for the HuBMAP Tool",
   "type": "object",
   "required": ["verb", "object"],
-  "oneOf": [ {"$ref": "#/definitions/AddCells"} ],
+  "oneOf": [
+    {"$ref": "#/definitions/AddCells"},
+    {"$ref": "#/definitions/AddMolecules"}
+  ],
   "definitions": {
+    "coord": {
+      "type": "array",
+      "maxItems": 2,
+      "minItems": 2,
+      "items": {
+        "type": "number"
+      }
+    },
+    "rgb": {
+      "type": "array",
+      "maxItems": 3,
+      "minItems": 3,
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 255
+      }
+    },
     "AddCells": {
       "additionalProperties": false,
       "properties": {
@@ -20,15 +41,28 @@
               "properties": {
                 "boundary_poly": {
                   "type": "array",
-                  "items": {
-                    "type": "array",
-                    "maxItems": 2,
-                    "minItems": 2,
-                    "items": {
-                      "type": "number"
-                    }
-                  }
+                  "items": { "$ref": "#/definitions/coord" }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "AddMolecules": {
+      "additionalProperties": false,
+      "properties": {
+        "verb": {
+          "enum": ["AddMolecules"]
+        },
+        "object": {
+          "additionalProperties": false,
+          "patternProperties": {
+            "^\\w": {
+              "additionalProperties": false,
+              "properties": {
+                "gene_id": { "type": "string" },
+                "position": { "$ref": "#/definitions/coord" }
               }
             }
           }

@@ -1,0 +1,9 @@
+{
+  "verb": "AddMolecules",
+  "object": {
+    "molecule-42": {
+      "gene_id": "gene-42",
+      "position": [1234, 2345]
+    }
+  }
+}
