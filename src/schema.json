@@ -84,10 +84,18 @@
               "type": "array",
               "items": {
                 "type": "array",
-                "items": {}
+                "items": { "$ref": "#/definitions/rgb" }
               }
             },
-            "boundary_rect": {}
+            "boundary_rect": {
+              "additionalProperties": false,
+              "properties": {
+                "top": { "type": "number" },
+                "bottom": { "type": "number" },
+                "left": { "type": "number" },
+                "right": { "type": "number" }
+              }
+            }
           }
         }
       }
