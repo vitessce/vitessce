@@ -7,7 +7,8 @@
   "required": ["verb", "object"],
   "oneOf": [
     {"$ref": "#/definitions/AddCells"},
-    {"$ref": "#/definitions/AddMolecules"}
+    {"$ref": "#/definitions/AddMolecules"},
+    {"$ref": "#/definitions/AddRGBImagery"}
   ],
   "definitions": {
     "coord": {
@@ -65,6 +66,28 @@
                 "position": { "$ref": "#/definitions/coord" }
               }
             }
+          }
+        }
+      }
+    },
+    "AddRGBImagery": {
+      "additionalProperties": false,
+      "properties": {
+        "verb": {
+          "enum": ["AddRGBImagery"]
+        },
+        "object": {
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "imagery": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {}
+              }
+            },
+            "boundary_rect": {}
           }
         }
       }
