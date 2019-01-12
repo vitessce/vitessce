@@ -1,0 +1,16 @@
+{
+  "verb": "AddRGBImagery",
+  "object": {
+    "name": "Interesting stain",
+    "imagery": [
+      [[0, 0, 0], [10, 10, 10]],
+      [[255, 255, 255], [0, 0, 0]]
+    ],
+    "boundary_rect": {
+      "top": 0,
+      "left": 0,
+      "right": 3000,
+      "bottom": 3000
+    }
+  }
+}

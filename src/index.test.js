@@ -1,11 +1,15 @@
 import Ajv from 'ajv';
 
-it('ajv works', async (done)=>{
+describe('API', ()=>{
   var schema = require('./schema.json');
   var validate = new Ajv().compile(schema);
-  var good_data = require('./api-fixtures/good.json');
-  var bad_data = require('./api-fixtures/bad.json');
-  expect(validate(good_data)).toEqual(true);
-  expect(validate(bad_data)).toEqual(false);
-  done();
+  var fixtures = ['AddCells', 'AddMolecules', 'AddRGBImagery'];
+  fixtures.forEach((f) => {
+    it(`handles ${f}`, ()=>{
+      var data = require(`./api-fixtures/${f}.json`);
+      var valid = validate(data);
+      if (!valid) { console.warn(validate.errors); }
+      expect(valid).toEqual(true);
+    })
+  })
 });
