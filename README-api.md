@@ -32,159 +32,80 @@ decided now.
 
 These events populate the component:
 
-```
-AddCells({
-  "cell-42": {
-    "boundary_poly": [[1234, 2345], [1235, 2366], ...],
-    ...
-  },
-  ...
-})
-
-AddMolecules({
-  "molecule-42": {
-    "gene_id": "gene-42",
-    "position": [1234, 2345]
-  },
-  ...
-})
-
-AddRGBImagery({
-  "name": "Interesting stain",
-  "imagery": [
-    [[r, g, b], [r, g, b], ...],
-    [[r, g, b], [r, g, b], ...],
-    ....
-  ],
-  "boundary_rect": {
-    "top": 0,
-    "left": 0,
-    "right": 3000,
-    "bottom": 3000
-  }
-})
-
-AddScaleImagery({
-  "name": "Interesting black-white",
-  "imagery": [
-    [[value], [value], ...],
-    [[value], [value], ...],
-    ....
-  ],
-  "color_scale": {
-    0: [0, 0, 0],
-    1: [1, 1, 1]
-  }
-  "boundary_rect": {
-    "top": 0,
-    "left": 0,
-    "right": 3000,
-    "bottom": 3000
-  }
-})
-```
+- [`AddCells`](src/api-fixtures/AddCells.json)
+- [`AddMolecules`](src/api-fixtures/AddMolecules.json)
+- [`AddRGBImagery`](src/api-fixtures/AddRGBImagery.json)
+- [`AddBWImagery`](src/api-fixtures/AddBWImagery.json)
 
 These events update the state:
 
-```
-HoverGene("gene-42")
-HoverMolecule("molecule-42")
-HoverCell("cell-42")
+- `HoverGene`
+- `HoverMolecule`
+- `HoverCell`
 
-SelectGenes(["gene-42", ...])
-SelectMolecules(["molecule-42", ...])
-SelectCells(["cell-42", ...])
+- `SelectGenes`
+- `SelectMolecules`
+- `SelectCells`
 
-ColorCellsByScale({
-  "cells": {"cell-42": 0.5, ...},
-  "color_scale": {
-    0: [0, 0, 0],
-    1: [1, 1, 1]
-  }
-})
-ColorCellsByCategory({
-  "cells": {"cell-42": "category-1", ...},
-  "color_categories": {"category-1": [0, 0, 0], ...}
-})
+- [`ColorCellsByScale`](src/api-fixtures/ColorCellsByScale.json)
+- [`ColorCellsByCategory`](src/api-fixtures/ColorCellsByCategory.json)
 
-ColorMoleculesByScale(...)
-ColorMoleculesByCategory(...)
+- `ColorGenesByScale`
+- `ColorGenesByCategory`
 
-ColorGenesByScale(...)
-ColorGenesByCategory(...)
+- `ColorMoleculesByScale`
+- `ColorMoleculesByCategory`
 
-CreateCellSets(...)
-CreateMoleculeSets(...)
-CreateGeneSets(...)
+- `CreateCellSets`
+- `CreateMoleculeSets`
+- `CreateGeneSets`
 
-DeleteCellSets(...)
-DeleteMoleculeSets(...)
-DeleteGeneSets(...)
+- `DeleteCellSets`
+- `DeleteMoleculeSets`
+- `DeleteGeneSets`
 ```
 
 These events are emitted:
 
-```
-HoverGene("gene-42")
-HoverMolecule("molecule-42")
-HoverCell("cell-42")
+- `HoverGene`
+- `HoverMolecule`
+- `HoverCell`
 
-SelectGenes(["gene-42", ...])
-SelectMolecules(["molecule-42", ...])
-SelectCells(["cell-42", ...])
+- `SelectGenes`
+- `SelectMolecules`
+- `SelectCells`
 ```
 
 ## tSNE Component
 
 These events populate the component:
 
-```
-AddCells({
-  "cell-42": {
-    "tsne": [1234, 2345],
-    ...
-  },
-  ...
-})
-```
+- [`AddCells`](src/api-fixtures/AddCells.json)
 
 These events update the state:
 
-```
-ColorCellsByScale(...)
-ColorCellsByCategory(...)
+- [`ColorCellsByScale`](src/api-fixtures/ColorCellsByScale.json)
+- [`ColorCellsByCategory`](src/api-fixtures/ColorCellsByCategory.json)
 
-HoverCell(...)
-SelectCells(...)
-```
+- `HoverCell`
+- `SelectCells`
 
 These events are emitted:
 
-```
-HoverCell(...)
-SelectCells(...)
-```
+- `HoverCell`
+- `SelectCells`
 
 ## Heatmap Component
 
 These events populate the component:
 
-```
-AddCells({
-  "cell-42": {
-    "gene_expression": {"gene-42": 1234, ...},
-    ...
-  },
-  ...
-})
-```
+- [`AddCells`](src/api-fixtures/AddCells.json)
 
 These events update the state:
 
-```
-ColorCellsByScale(...)
-ColorCellsByCategory(...)
+- `ColorCellsByScale`
+- `ColorCellsByCategory`
 
-ColorGenesByScale(...)
-ColorGenesByCategory(...)
-```
+- `ColorGenesByScale`
+- `ColorGenesByCategory`
+
