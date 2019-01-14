@@ -8,7 +8,8 @@
   "oneOf": [
     {"$ref": "#/definitions/AddCells"},
     {"$ref": "#/definitions/AddMolecules"},
-    {"$ref": "#/definitions/AddRGBImagery"}
+    {"$ref": "#/definitions/AddRGBImagery"},
+    {"$ref": "#/definitions/AddBWImagery"}
   ],
   "definitions": {
     "coord": {
@@ -27,6 +28,15 @@
         "type": "number",
         "minimum": 0,
         "maximum": 255
+      }
+    },
+    "rect": {
+      "additionalProperties": false,
+      "properties": {
+        "top": { "type": "number" },
+        "bottom": { "type": "number" },
+        "left": { "type": "number" },
+        "right": { "type": "number" }
       }
     },
     "AddCells": {
@@ -87,15 +97,33 @@
                 "items": { "$ref": "#/definitions/rgb" }
               }
             },
-            "boundary_rect": {
-              "additionalProperties": false,
-              "properties": {
-                "top": { "type": "number" },
-                "bottom": { "type": "number" },
-                "left": { "type": "number" },
-                "right": { "type": "number" }
+            "boundary_rect": { "$ref": "#/definitions/rect" }
+          }
+        }
+      }
+    },
+    "AddBWImagery": {
+      "additionalProperties": false,
+      "properties": {
+        "verb": {
+          "enum": ["AddBWImagery"]
+        },
+        "object": {
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "imagery": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
               }
-            }
+            },
+            "boundary_rect": { "$ref": "#/definitions/rect" }
           }
         }
       }
