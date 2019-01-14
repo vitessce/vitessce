@@ -36,7 +36,7 @@ These events populate the component:
 | [`AddCells`](src/api-fixtures/AddCells.json) |  | [`AddMolecules`](src/api-fixtures/AddMolecules.json) |
 
 - [`AddRGBImagery`](src/api-fixtures/AddRGBImagery.json)
-- [`AddBWImagery`](src/api-fixtures/AddBWImagery.json
+- [`AddBWImagery`](src/api-fixtures/AddBWImagery.json)
 
 (Linnarsson Lab data doesn't have any base imagery, so not sure what we need to support here...
 Perhaps just an img src would be sufficient? And I'm not sure what kind of image registration
