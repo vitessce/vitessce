@@ -1,0 +1,16 @@
+{
+  "verb": "ColorCellsByScale",
+  "object": {
+    "cells": {"cell-42": 0.5, "cell-43": 0.999},
+    "color_scale": [
+      {
+        "value": 0,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "value": 1,
+        "rgb": [255, 255, 255]
+      }
+    ]
+  }
+}
