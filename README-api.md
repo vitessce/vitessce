@@ -67,7 +67,6 @@ These events update the state:
 
 - [`ColorCellsByScale`](src/api-fixtures/ColorCellsByScale.json)
 - [`ColorCellsByCategory`](src/api-fixtures/ColorCellsByCategory.json)
-
 - `HoverCell`
 - `SelectCells`
 
@@ -84,8 +83,8 @@ These events populate the component:
 
 These events update the state:
 
-- `ColorCellsByScale`
-- `ColorCellsByCategory`
+| cells | genes | molecules |
+| ----- | ----- | --------- |
+| `ColorCellsByScale` | `ColorGenesByScale` | |
+| `ColorCellsByCategory` | `ColorGenesByCategory` | |
 
-- `ColorGenesByScale`
-- `ColorGenesByCategory`
