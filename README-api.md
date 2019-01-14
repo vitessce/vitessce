@@ -32,41 +32,30 @@ decided now.
 
 These events populate the component:
 
-- [`AddCells`](src/api-fixtures/AddCells.json)
-- [`AddMolecules`](src/api-fixtures/AddMolecules.json)
+| cells | genes | molecules |
+| ----- | ----- | --------- |
+| [`AddCells`](src/api-fixtures/AddCells.json) |  | [`AddMolecules`](src/api-fixtures/AddMolecules.json) |
+
 - [`AddRGBImagery`](src/api-fixtures/AddRGBImagery.json)
 - [`AddBWImagery`](src/api-fixtures/AddBWImagery.json)
 
 These events update the state:
 
-- `HoverGene`
-- `HoverMolecule`
-- `HoverCell`
-- `SelectGenes`
-- `SelectMolecules`
-- `SelectCells`
-- [`ColorCellsByScale`](src/api-fixtures/ColorCellsByScale.json)
-- [`ColorCellsByCategory`](src/api-fixtures/ColorCellsByCategory.json)
-- `ColorGenesByScale`
-- `ColorGenesByCategory`
-- `ColorMoleculesByScale`
-- `ColorMoleculesByCategory`
-- `CreateCellSets`
-- `CreateMoleculeSets`
-- `CreateGeneSets`
-- `DeleteCellSets`
-- `DeleteMoleculeSets`
-- `DeleteGeneSets`
+| cells | genes | molecules |
+| ----- | ----- | --------- |
+| `HoverCell` | `HoverGene` | `HoverMolecule` |
+| `SelectCells` | `SelectGenes` | `SelectMolecules` |
+| [`ColorCellsByScale`](src/api-fixtures/ColorCellsByScale.json) | `ColorGenesByScale` | `ColorMoleculesByScale` |
+| [`ColorCellsByCategory`](src/api-fixtures/ColorCellsByCategory.json) | `ColorGenesByCategory` | `ColorMoleculesByCategory` |
+| `CreateCellSets` | `CreateGeneSets` | `CreateMoleculeSets` |
+| `DeleteCellSets` | `DeleteGeneSets` | `DeleteGeneSets` |
 
 These events are emitted:
 
-- `HoverGene`
-- `HoverMolecule`
-- `HoverCell`
-
-- `SelectGenes`
-- `SelectMolecules`
-- `SelectCells`
+| cells | genes | molecules |
+| ----- | ----- | --------- |
+| `HoverCell` | `HoverGene` | `HoverMolecule` |
+| `SelectCells` | `SelectGenes` | `SelectMolecules` |
 
 ## tSNE Component
 
