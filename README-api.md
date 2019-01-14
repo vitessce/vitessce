@@ -63,7 +63,6 @@ These events update the state:
 - `DeleteCellSets`
 - `DeleteMoleculeSets`
 - `DeleteGeneSets`
-```
 
 These events are emitted:
 
@@ -74,7 +73,6 @@ These events are emitted:
 - `SelectGenes`
 - `SelectMolecules`
 - `SelectCells`
-```
 
 ## tSNE Component
 
@@ -108,4 +106,3 @@ These events update the state:
 
 - `ColorGenesByScale`
 - `ColorGenesByCategory`
-
