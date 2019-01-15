@@ -6,15 +6,15 @@ import './index.css';
 const CELL = 'cell';
 const CELL_ADD = CELL + '.add';
 
-class FileManager extends React.Component {
+class FileManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
     this.state = {value: ''};
 
-    this.handleChange = this.handleChange.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
-  handleChange(event) {
+  onChange(event) {
     const value = event.target.value
     this.setState({value: value});
     PubSub.publish(CELL_ADD, value);
@@ -22,15 +22,21 @@ class FileManager extends React.Component {
 
   render() {
     return (
-      <p>
-        filemanager:
-        <input
-          value={this.state.value}
-          onChange={this.handleChange}
-        ></input>
-      </p>
+      <FileManager onChange={this.onChange} value={this.state.value}></FileManager>
     );
   }
+}
+
+function FileManager(props) {
+  return (
+    <p>
+      filemanager:
+      <input
+        value={props.value}
+        onChange={props.onChange}
+      ></input>
+    </p>
+  );
 }
 
 class SpatialSubscriber extends React.Component {
@@ -68,7 +74,7 @@ function Spatial(props) {
 }
 
 ReactDOM.render(
-  <FileManager />,
+  <FileManagerPublisher />,
   document.getElementById('filemanager')
 );
 
