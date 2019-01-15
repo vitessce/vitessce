@@ -33,7 +33,8 @@ class FileManager extends React.Component {
   }
 }
 
-class Spatial extends React.Component {
+class SpatialSubscriber extends React.Component {
+  // All the pubsub communication goes in the wrapper class.
   constructor(props) {
     super(props);
     this.state = {value: ''};
@@ -54,9 +55,16 @@ class Spatial extends React.Component {
 
   render() {
     return (
-      <p>spatial: {this.state.value}</p>
+      <Spatial value={this.state.value}></Spatial>
     );
   }
+}
+
+function Spatial(props) {
+  // The real business logic goes inside.
+  return (
+    <p>spatial: {props.value}</p>
+  );
 }
 
 ReactDOM.render(
@@ -65,6 +73,6 @@ ReactDOM.render(
 );
 
 ReactDOM.render(
-  <Spatial />,
+  <SpatialSubscriber />,
   document.getElementById('spatial')
 );
