@@ -1,14 +1,13 @@
 import React, {Component} from 'react';
 import {render} from 'react-dom';
-import DeckGL, {ScatterplotLayer} from 'deck.gl';
+import DeckGL, {ScatterplotLayer, PolygonLayer} from 'deck.gl';
 
 // Set your mapbox token here
-const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
 const MALE_COLOR = [0, 128, 255];
 const FEMALE_COLOR = [255, 0, 128];
 
 // Source data CSV
-const DATA_URL =
+const SCATTERPLOT_DATA_URL =
   'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/scatterplot/manhattan.json'; // eslint-disable-line
 
 export const INITIAL_VIEW_STATE = {
@@ -23,16 +22,38 @@ export const INITIAL_VIEW_STATE = {
 export class App extends Component {
   _renderLayers() {
     const {
-      data = DATA_URL,
+      scatterplot_data = SCATTERPLOT_DATA_URL,
       radius = 30,
       maleColor = MALE_COLOR,
       femaleColor = FEMALE_COLOR
     } = this.props;
 
+    const polygon_data = [ { contour: [[-74, 40.7], [-74.01, 40.7], [-74.01, 40.71], [-74, 40.71]] } ];
+
     return [
+      new PolygonLayer({
+        id: 'polygon-layer',
+        data: polygon_data,
+        pickable: true,
+        stroked: true,
+        filled: true,
+        wireframe: true,
+        lineWidthMinPixels: 1,
+        getPolygon: d => d.contour,
+        getElevation: d => 0,
+        getFillColor: d => [255, 0, 0],
+        getLineColor: [80, 80, 80],
+        getLineWidth: 1,
+        onHover: ({object, x, y}) => {
+          //const tooltip = `${object.zipcode}\nPopulation: ${object.population}`;
+          /* Update tooltip
+             http://deck.gl/#/documentation/developer-guide/adding-interactivity?section=example-display-a-tooltip-for-hovered-object
+          */
+        }
+      }),
       new ScatterplotLayer({
         id: 'scatter-plot',
-        data,
+        data: scatterplot_data,
         radiusScale: radius,
         radiusMinPixels: 0.25,
         getPosition: d => [d[0], d[1], 0],
@@ -46,7 +67,7 @@ export class App extends Component {
   }
 
   render() {
-    const {viewState, controller = true, baseMap = true} = this.props;
+    const {viewState, controller = true} = this.props;
 
     return (
       <DeckGL
