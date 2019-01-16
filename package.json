@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "ajv": "^6.6.2",
+    "deck.gl": "^6.3.4",
     "pubsub-js": "^1.7.0",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
