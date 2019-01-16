@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {render} from 'react-dom';
-import {StaticMap} from 'react-map-gl';
 import DeckGL, {ScatterplotLayer} from 'deck.gl';
 
 // Set your mapbox token here
@@ -56,14 +55,6 @@ export class App extends Component {
         viewState={viewState}
         controller={controller}
       >
-        {baseMap && (
-          <StaticMap
-            reuseMaps
-            mapStyle="mapbox://styles/mapbox/light-v9"
-            preventStyleDiffing={true}
-            mapboxApiAccessToken={MAPBOX_TOKEN}
-          />
-        )}
       </DeckGL>
     );
   }

@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-import renderToDOM from './scatterplot'
+import { renderToDOM } from './scatterplot'
 
 const CELL = 'cell';
 const CELL_ADD = CELL + '.add';
@@ -74,6 +74,8 @@ function Spatial(props) {
     <p>spatial: {props.value}</p>
   );
 }
+
+renderToDOM(document.getElementById('scatterplot'))
 
 ReactDOM.render(
   <FileManagerPublisher />,
