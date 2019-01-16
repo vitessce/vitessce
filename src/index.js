@@ -1,145 +1,84 @@
+import PubSub from 'pubsub-js';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-function Square(props) {
+const CELL = 'cell';
+const CELL_ADD = CELL + '.add';
+
+class FileManagerPublisher extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {value: ''};
+
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(event) {
+    const value = event.target.value
+    this.setState({value: value});
+    PubSub.publish(CELL_ADD, value);
+  }
+
+  render() {
+    return (
+      <FileManager onChange={this.onChange} value={this.state.value}></FileManager>
+    );
+  }
+}
+
+function FileManager(props) {
   return (
-    <button className="square" onClick={props.onClick}>
-      {props.value}
-    </button>
+    <p>
+      filemanager:
+      <input
+        value={props.value}
+        onChange={props.onChange}
+      ></input>
+    </p>
   );
 }
 
-class Board extends React.Component {
-  renderSquare(i) {
-    return (
-      <Square
-        value={this.props.squares[i]}
-        onClick={() => this.props.onClick(i)}
-      />
-    );
-  }
-
-  renderRow(i) {
-    return (
-      <div className="board-row">
-        {this.renderSquare(i)}
-        {this.renderSquare(i + 1)}
-        {this.renderSquare(i + 2)}
-      </div>
-    )
-  }
-
-  render() {
-    return (
-      <div>
-        {this.renderRow(0)}
-        {this.renderRow(3)}
-        {this.renderRow(6)}
-      </div>
-    );
-  }
-}
-
-class Game extends React.Component {
+class SpatialSubscriber extends React.Component {
+  // All the pubsub communication goes in the wrapper class.
   constructor(props) {
     super(props);
-    this.state = {
-      history: [{
-        squares: Array(9).fill(null)
-      }],
-      stepNumber: 0,
-      xIsNext: true
-    };
+    this.state = {value: ''};
   }
 
-  handleClick(i) {
-    const history = this.state.history.slice(0, this.state.stepNumber + 1);
-    const current = history[history.length - 1];
-    const squares = current.squares.slice();
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
-    this.setState({
-      history: history.concat([{
-        squares: squares
-      }]),
-      stepNumber: history.length,
-      xIsNext: !this.state.xIsNext,
-    });
+  componentWillMount() {
+    this.token = PubSub.subscribe(CELL, this.subscriber.bind(this));
   }
 
-  jumpTo(step) {
-    this.setState({
-      stepNumber: step,
-      xIsNext: (step % 2) === 0,
-    });
+  componentWillUnmount() {
+    PubSub.unsubscribe(this.token);
   }
-  
+
+  subscriber(msg, data) {
+    console.warn('Spatial component received:', msg, data);
+    this.setState({value: data});
+  }
+
   render() {
-    const history = this.state.history;
-    const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
-
-    const moves = history.map((step, move) => {
-      const desc = move ?
-        'Go to move #' + move :
-        'Go to game start';
-      return (
-        <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
-        </li>
-      );
-    });
-
-    let status;
-    if (winner) {
-      status = 'Winner: ' + winner;
-    } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-    }
-
     return (
-      <div className="game">
-        <div className="game-board">
-          <Board
-            squares={current.squares}
-            onClick={(i) => this.handleClick(i)}
-          />
-        </div>
-        <div className="game-info">
-          <div>{status}</div>
-          <ol>{moves}</ol>
-        </div>
-      </div>
+      <Spatial value={this.state.value}></Spatial>
     );
   }
 }
 
-// ========================================
+function Spatial(props) {
+  // The real business logic goes inside.
+  return (
+    <p>spatial: {props.value}</p>
+  );
+}
 
 ReactDOM.render(
-  <Game />,
-  document.getElementById('root')
+  <FileManagerPublisher />,
+  document.getElementById('filemanager')
 );
 
-function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
-}
+ReactDOM.render(
+  <SpatialSubscriber />,
+  document.getElementById('spatial')
+);

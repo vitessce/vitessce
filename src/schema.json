@@ -53,6 +53,12 @@
                 "boundary_poly": {
                   "type": "array",
                   "items": { "$ref": "#/definitions/coord" }
+                },
+                "tsne": { "$ref": "#/definitions/coord" },
+                "gene_expression": {
+                  "patternProperties": {
+                    "^\\w": { "type": "number" }
+                  }
                 }
               }
             }
