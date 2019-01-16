@@ -3,6 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+import renderToDOM from './scatterplot'
+
 const CELL = 'cell';
 const CELL_ADD = CELL + '.add';
 
