@@ -42,6 +42,7 @@ export class App extends Component {
           center: [0, 0, 0],
           rotation: 0
         }],
+        tintColor: [300, 300, 300], // https://github.com/uber/deck.gl/issues/2585
         modelMatrix: new Matrix4().scale([400,200,200])
       }),
       new PolygonLayer({
