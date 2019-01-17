@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {render} from 'react-dom';
 import DeckGL, {ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
+import {Matrix4} from 'math.gl';
 import {BitmapLayer} from '@deck.gl/experimental-layers';
 
 // Set your mapbox token here
@@ -11,7 +12,7 @@ const FEMALE_COLOR = [255, 0, 128];
 export const INITIAL_VIEW_STATE = {
   longitude: 0,
   latitude: 0,
-  zoom: .001,
+  zoom: 1,
   maxZoom: 20,
   pitch: 0,
   bearing: 0,
@@ -39,9 +40,9 @@ export class App extends Component {
         data: [{
           imageUrl: imgUrl,
           center: [0, 0, 0],
-          rotation: 0,
-          zoom: 100
-        }]
+          rotation: 0
+        }],
+        modelMatrix: new Matrix4().scale([400,200,200])
       }),
       new PolygonLayer({
         id: 'polygon-layer',
