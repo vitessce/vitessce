@@ -28,7 +28,7 @@ export class App extends Component {
       femaleColor = FEMALE_COLOR
     } = this.props;
 
-    const polygon_data = [ { contour: [[0, 57], [-65, 41], [-73, 32], [-74, 40]] } ];
+    const polygon_data = [ { contour: [[-20, -20], [-65, -10], [-80, 0], [-70, 40]] } ];
 
     const imgUrl = 'https://docs.higlass.io/_images/higlass-heatmap-screenshot.png';
 
