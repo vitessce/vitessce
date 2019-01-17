@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@deck.gl/experimental-layers": "^6.3.4",
     "ajv": "^6.6.2",
+    "deck.gl": "^6.3.4",
+    "math.gl": "^2.2.0",
     "pubsub-js": "^1.7.0",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
