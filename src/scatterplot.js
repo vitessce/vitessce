@@ -1,38 +1,38 @@
 import React, {Component} from 'react';
 import {render} from 'react-dom';
-import DeckGL, {ScatterplotLayer, PolygonLayer} from 'deck.gl';
+import DeckGL, {ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, OrthographicView}
+  from 'deck.gl';
+import {BitmapLayer} from '@deck.gl/experimental-layers';
 
 // Set your mapbox token here
 const MALE_COLOR = [0, 128, 255];
 const FEMALE_COLOR = [255, 0, 128];
 
-// Source data CSV
-const SCATTERPLOT_DATA_URL =
-  'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/scatterplot/manhattan.json'; // eslint-disable-line
-
 export const INITIAL_VIEW_STATE = {
   longitude: -74,
-  latitude: 40.7,
-  zoom: 11,
-  maxZoom: 16,
+  latitude: 40,
+  zoom: 0.3,
+  maxZoom: 10,
   pitch: 0,
-  bearing: 0
+  bearing: 0,
+  offset: [0, 0] // Required: https://github.com/uber/deck.gl/issues/2580
 };
 
 export class App extends Component {
   _renderLayers() {
     const {
-      scatterplot_data = SCATTERPLOT_DATA_URL,
-      radius = 30,
+      scatterplot_data = [[-74, 57, 1], [-65, 41, 2], [-73, 32, 1], [-74, 40, 2]],
+      radius = 5,
       maleColor = MALE_COLOR,
       femaleColor = FEMALE_COLOR
     } = this.props;
 
-    const polygon_data = [ { contour: [[-74, 40.7], [-74.01, 40.7], [-74.01, 40.71], [-74, 40.71]] } ];
+    const polygon_data = [ { contour: [[-74, 57], [-65, 41], [-73, 32], [-74, 40]] } ];
 
     return [
       new PolygonLayer({
         id: 'polygon-layer',
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: polygon_data,
         pickable: true,
         stroked: true,
@@ -53,6 +53,7 @@ export class App extends Component {
       }),
       new ScatterplotLayer({
         id: 'scatter-plot',
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: scatterplot_data,
         radiusScale: radius,
         radiusMinPixels: 0.25,
@@ -71,6 +72,7 @@ export class App extends Component {
 
     return (
       <DeckGL
+        views={[new OrthographicView()]}
         layers={this._renderLayers()}
         initialViewState={INITIAL_VIEW_STATE}
         viewState={viewState}
