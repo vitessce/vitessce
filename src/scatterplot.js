@@ -9,10 +9,10 @@ const MALE_COLOR = [0, 128, 255];
 const FEMALE_COLOR = [255, 0, 128];
 
 export const INITIAL_VIEW_STATE = {
-  longitude: -74,
-  latitude: 40,
-  zoom: 0.3,
-  maxZoom: 10,
+  longitude: 0,
+  latitude: 0,
+  zoom: .001,
+  maxZoom: 20,
   pitch: 0,
   bearing: 0,
   offset: [0, 0] // Required: https://github.com/uber/deck.gl/issues/2580
@@ -27,9 +27,22 @@ export class App extends Component {
       femaleColor = FEMALE_COLOR
     } = this.props;
 
-    const polygon_data = [ { contour: [[-74, 57], [-65, 41], [-73, 32], [-74, 40]] } ];
+    const polygon_data = [ { contour: [[0, 57], [-65, 41], [-73, 32], [-74, 40]] } ];
+
+    const imgUrl = 'https://docs.higlass.io/_images/higlass-heatmap-screenshot.png';
 
     return [
+      new BitmapLayer({
+        id: 'bitmap-layer',
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        images: [imgUrl],
+        data: [{
+          imageUrl: imgUrl,
+          center: [0, 0, 0],
+          rotation: 0,
+          zoom: 100
+        }]
+      }),
       new PolygonLayer({
         id: 'polygon-layer',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
