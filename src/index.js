@@ -1,7 +1,9 @@
 import PubSub from 'pubsub-js';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import FileDrop from 'react-file-drop';
+import './css/index.css';
+import './css/file-drop.css';
 
 import { renderToDOM } from './scatterplot'
 
@@ -30,14 +32,20 @@ class FileManagerPublisher extends React.Component {
 }
 
 function FileManager(props) {
+  const handleDrop = (files, event) => {
+    console.warn(files, event);
+  };
   return (
-    <p>
+    <div>
       filemanager:
       <input
         value={props.value}
         onChange={props.onChange}
       ></input>
-    </p>
+      <FileDrop onDrop={handleDrop}>
+        Drop some files here!
+      </FileDrop>
+    </div>
   );
 }
 
@@ -75,7 +83,7 @@ function Spatial(props) {
   );
 }
 
-renderToDOM(document.getElementById('scatterplot'))
+// renderToDOM(document.getElementById('scatterplot'))
 
 ReactDOM.render(
   <FileManagerPublisher />,
