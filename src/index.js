@@ -5,7 +5,7 @@ import FileDrop from 'react-file-drop';
 import './css/index.css';
 import './css/file-drop.css';
 
-import { renderToDOM } from './scatterplot'
+import { renderToDOM } from './spatial'
 
 const CELL = 'cell';
 const CELL_ADD = CELL + '.add';
@@ -49,7 +49,7 @@ function FileManager(props) {
   );
 }
 
-class SpatialSubscriber extends React.Component {
+class TsneSubscriber extends React.Component {
   // All the pubsub communication goes in the wrapper class.
   constructor(props) {
     super(props);
@@ -71,19 +71,19 @@ class SpatialSubscriber extends React.Component {
 
   render() {
     return (
-      <Spatial value={this.state.value}></Spatial>
+      <Tsne value={this.state.value}></Tsne>
     );
   }
 }
 
-function Spatial(props) {
+function Tsne(props) {
   // The real business logic goes inside.
   return (
-    <p>spatial: {props.value}</p>
+    <p>tsne: {props.value}</p>
   );
 }
 
-// renderToDOM(document.getElementById('scatterplot'))
+renderToDOM(document.getElementById('spatial'))
 
 ReactDOM.render(
   <FileManagerPublisher />,
@@ -91,6 +91,6 @@ ReactDOM.render(
 );
 
 ReactDOM.render(
-  <SpatialSubscriber />,
-  document.getElementById('spatial')
+  <TsneSubscriber />,
+  document.getElementById('tsne')
 );
