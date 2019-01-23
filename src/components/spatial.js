@@ -21,9 +21,10 @@ export const INITIAL_VIEW_STATE = {
 };
 
 export class SpatialSubscriber extends React.Component {
-  // constructor(props) {
-  //   super(props);
-  // }
+  constructor(props) {
+    super(props);
+    this.state = {baseImgUrl: undefined};
+  }
 
   componentWillMount() {
     this.imageToken = PubSub.subscribe(IMAGE_ADD, this.imageAddSubscriber.bind(this));
@@ -33,38 +34,44 @@ export class SpatialSubscriber extends React.Component {
     PubSub.unsubscribe(this.imageToken);
   }
 
-  imageAddSubscriber(msg, data) {
-    console.warn('TODO', data)
-    // this.setState({value: data});
+  imageAddSubscriber(msg, file) {
+    console.warn('add image');
+    this.setState({baseImgUrl: URL.createObjectURL(file)});
   }
 
   render() {
+    console.warn('spatialSub render');
     return (
-      <Spatial/>
+      <Spatial baseImgUrl={this.state.baseImgUrl}/>
     );
   }
 }
 
 export class Spatial extends React.Component {
+  constructor(props) {
+    super(props);
+    console.warn('Spatial', props.baseImgUrl);
+    //this.state = {baseImgUrl: undefined};
+  }
+
   _renderLayers() {
     const {
       scatterplot_data = [[-74, 57, 1], [-65, 41, 2], [-73, 32, 1], [-74, 40, 2]],
       radius = 5,
       maleColor = MALE_COLOR,
-      femaleColor = FEMALE_COLOR
+      femaleColor = FEMALE_COLOR,
+      baseImgUrl = undefined
     } = this.props;
 
     const polygon_data = [ { contour: [[-20, -20], [-65, -10], [-80, 0], [-70, 40]] } ];
-
-    const imgUrl = 'https://docs.higlass.io/_images/higlass-heatmap-screenshot.png';
 
     return [
       new BitmapLayer({
         id: 'bitmap-layer',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        images: [imgUrl],
+        images: [baseImgUrl],
         data: [{
-          imageUrl: imgUrl,
+          imageUrl: baseImgUrl,
           center: [0, 0, 0],
           rotation: 0
         }],
@@ -109,6 +116,7 @@ export class Spatial extends React.Component {
   }
 
   render() {
+    console.warn('spatial render');
     const {viewState, controller = true} = this.props;
 
     return (

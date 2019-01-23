@@ -19,7 +19,7 @@ export class FileManagerPublisher extends React.Component {
         PubSub.publish(IMAGE_ADD, file);
         break;
       default:
-        PubSub.publish(WARNING_ADD, `"${extension}" is not recognized.`);
+        PubSub.publish(WARNING_ADD, `File extension "${extension}" is not recognized.`);
     }
   }
 
@@ -41,13 +41,12 @@ export class FileManager extends React.Component {
   }
 
   handleDrop(files, event) {
-    var filesState = this.state.files.slice();
+    var filesCopy = this.state.files.slice();
     for (const f of files) {
-      console.warn(f);
-      filesState.push(f.name);
+      filesCopy.push(f.name);
       this.props.onAddFile(f);
     }
-    var newState = {files: filesState};
+    var newState = {files: filesCopy};
     this.setState(newState);
   }
 
