@@ -4,7 +4,6 @@ import PubSub from 'pubsub-js';
 import { CELL } from '../events';
 
 export class TsneSubscriber extends React.Component {
-  // All the pubsub communication goes in the wrapper class.
   constructor(props) {
     super(props);
     this.state = {value: ''};

@@ -1,8 +1,10 @@
-import React, {Component} from 'react';
+import React from 'react';
 import DeckGL, {ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
 import {Matrix4} from 'math.gl';
 import {BitmapLayer} from '@deck.gl/experimental-layers';
+import PubSub from 'pubsub-js';
+import { IMAGE_ADD } from '../events';
 
 // Set your mapbox token here
 const MALE_COLOR = [0, 128, 255];
@@ -18,7 +20,32 @@ export const INITIAL_VIEW_STATE = {
   offset: [0, 0] // Required: https://github.com/uber/deck.gl/issues/2580
 };
 
-export class Spatial extends Component {
+export class SpatialSubscriber extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  componentWillMount() {
+    this.imageToken = PubSub.subscribe(IMAGE_ADD, this.imageAddSubscriber.bind(this));
+  }
+
+  componentWillUnmount() {
+    PubSub.unsubscribe(this.imageToken);
+  }
+
+  imageAddSubscriber(msg, data) {
+    console.warn(data)
+    // this.setState({value: data});
+  }
+
+  render() {
+    return (
+      <Spatial/>
+    );
+  }
+}
+
+export class Spatial extends React.Component {
   _renderLayers() {
     const {
       scatterplot_data = [[-74, 57, 1], [-65, 41, 2], [-73, 32, 1], [-74, 40, 2]],

@@ -5,7 +5,7 @@ import './css/file-drop.css';
 import './css/index.css';
 
 import { FileManagerPublisher } from './components/fileManager';
-import { Spatial } from './components/spatial';
+import { SpatialSubscriber } from './components/spatial';
 import { TsneSubscriber } from './components/tsne';
 
 
@@ -20,6 +20,6 @@ ReactDOM.render(
 );
 
 ReactDOM.render(
-  <Spatial />,
+  <SpatialSubscriber />,
   document.getElementById('spatial')
 );
