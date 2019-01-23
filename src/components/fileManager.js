@@ -9,10 +9,10 @@ export class FileManagerPublisher extends React.Component {
     super(props);
     this.state = {value: ''};
 
-    this.onChange = this.onChange.bind(this);
+    this.onChange = this.handleChange.bind(this);
   }
 
-  onChange(event) {
+  handleChange(event) {
     const value = event.target.value
     this.setState({value: value});
     PubSub.publish(CELL_ADD, value);
@@ -20,25 +20,39 @@ export class FileManagerPublisher extends React.Component {
 
   render() {
     return (
-      <FileManager onChange={this.onChange} value={this.state.value}></FileManager>
+      <FileManager onChange={this.handleChange} value={this.state.value}></FileManager>
     );
   }
 }
 
-export function FileManager(props) {
-  const handleDrop = (files, event) => {
-    console.warn(files, event);
-  };
-  return (
-    <div>
-      filemanager:
-      <input
-        value={props.value}
-        onChange={props.onChange}
-      ></input>
-      <FileDrop onDrop={handleDrop}>
-        Drop some files here!
-      </FileDrop>
-    </div>
-  );
+export class FileManager extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      files: []
+    };
+
+    this.handleDrop = this.handleDrop.bind(this);
+  }
+
+  handleDrop(files, event) {
+    var filesState = this.state.files.slice();
+    for (const f of files) {
+      filesState.push(f.name);
+    }
+    this.setState({files: filesState});
+  }
+
+  render() {
+    const message = this.state.files.length
+      ? this.state.files
+      : 'Drop files here';
+    return (
+      <div>
+        <FileDrop onDrop={this.handleDrop}>
+          {message}
+        </FileDrop>
+      </div>
+    );
+  }
 }
