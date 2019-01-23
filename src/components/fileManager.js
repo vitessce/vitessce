@@ -15,9 +15,15 @@ export class FileManagerPublisher extends React.Component {
   onAddFile(file) {
     const extension = file.name.match(/\..*/)[0];
     switch (extension) {
-      case '.png':
-        PubSub.publish(IMAGE_ADD, file);
+      case '.png': {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = function() {
+          PubSub.publish(IMAGE_ADD, {url: url, width: this.width, height: this.height});
+        }
+        img.src = url;
         break;
+      }
       default:
         PubSub.publish(WARNING_ADD, `File extension "${extension}" is not recognized.`);
     }

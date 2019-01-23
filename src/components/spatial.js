@@ -34,13 +34,13 @@ export class SpatialSubscriber extends React.Component {
     PubSub.unsubscribe(this.imageToken);
   }
 
-  imageAddSubscriber(msg, file) {
-    this.setState({baseImgUrl: URL.createObjectURL(file)});
+  imageAddSubscriber(msg, baseImg) {
+    this.setState({baseImg: baseImg});
   }
 
   render() {
     return (
-      <Spatial baseImgUrl={this.state.baseImgUrl}/>
+      <Spatial baseImg={this.state.baseImg}/>
     );
   }
 }
@@ -51,25 +51,28 @@ function renderLayers(props) {
     radius = 5,
     maleColor = MALE_COLOR,
     femaleColor = FEMALE_COLOR,
-    baseImgUrl = undefined
+    baseImg = undefined
   } = props;
 
   const polygon_data = [ { contour: [[-20, -20], [-65, -10], [-80, 0], [-70, 40]] } ];
 
   var layers = [];
-  if (baseImgUrl) {
+  if (baseImg) {
+    const scale = [baseImg.width, baseImg.height, 1];
+    console.log('scale', scale);
     layers.push(
       new BitmapLayer({
         id: 'bitmap-layer',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        images: [baseImgUrl],
+        images: [baseImg.url],
         data: [{
-          imageUrl: baseImgUrl,
+          imageUrl: baseImg.url,
           center: [0, 0, 0],
           rotation: 0
         }],
         opacity: 1,
-        modelMatrix: new Matrix4().scale([400,200,200])
+        // By default, loads as a 1x1 image.
+        modelMatrix: new Matrix4().scale(scale)
       })
     );
   }
