@@ -1,5 +1,12 @@
 extends:
   - react-app
   - eslint:recommended
+  - plugin:react/recommended
+plugins:
+  - react
+settings:
+  react:
+    version: detect
 rules:
-  no-console: [2, { "allow": ["warn", "error"] }]
+  no-console: [2, { "allow": ["warn", "error"]}]
+  react/prop-types': 0 # TODO: When we're stable, validate props

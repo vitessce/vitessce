@@ -21,9 +21,9 @@ export const INITIAL_VIEW_STATE = {
 };
 
 export class SpatialSubscriber extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+  // constructor(props) {
+  //   super(props);
+  // }
 
   componentWillMount() {
     this.imageToken = PubSub.subscribe(IMAGE_ADD, this.imageAddSubscriber.bind(this));
