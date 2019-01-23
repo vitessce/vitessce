@@ -9,18 +9,16 @@ export class FileManagerPublisher extends React.Component {
     super(props);
     this.state = {value: ''};
 
-    this.onChange = this.handleChange.bind(this);
+    this.onAddFile = this.onAddFile.bind(this);
   }
 
-  handleChange(event) {
-    const value = event.target.value
-    this.setState({value: value});
-    PubSub.publish(CELL_ADD, value);
+  onAddFile(file) {
+    PubSub.publish(CELL_ADD, file);
   }
 
   render() {
     return (
-      <FileManager onChange={this.handleChange} value={this.state.value}></FileManager>
+      <FileManager onAddFile={this.onAddFile} value={this.state.value}></FileManager>
     );
   }
 }
@@ -39,13 +37,15 @@ export class FileManager extends React.Component {
     var filesState = this.state.files.slice();
     for (const f of files) {
       filesState.push(f.name);
+      this.props.onAddFile(f.name)
     }
-    this.setState({files: filesState});
+    var newState = {files: filesState};
+    this.setState(newState);
   }
 
   render() {
     const files = this.state.files.map(
-      file => <li className="list-group-item">{file}</li>
+      file => <li className="list-group-item" key={file}>{file}</li>
     );
 
     const message = files.length

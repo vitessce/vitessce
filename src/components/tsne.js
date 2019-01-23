@@ -19,7 +19,6 @@ export class TsneSubscriber extends React.Component {
   }
 
   subscriber(msg, data) {
-    console.warn('Spatial component received:', msg, data);
     this.setState({value: data});
   }
 
