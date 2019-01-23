@@ -2,7 +2,7 @@ import PubSub from 'pubsub-js';
 import React from 'react';
 import FileDrop from 'react-file-drop';
 
-import { IMAGE_ADD } from '../events'
+import { IMAGE_ADD, WARNING_ADD } from '../events'
 
 export class FileManagerPublisher extends React.Component {
   constructor(props) {
@@ -19,7 +19,7 @@ export class FileManagerPublisher extends React.Component {
         PubSub.publish(IMAGE_ADD, file);
         break;
       default:
-        console.warn(`"${extension}" is not recognized.`)
+        PubSub.publish(WARNING_ADD, `"${extension}" is not recognized.`);
     }
   }
 
