@@ -44,8 +44,12 @@ export class FileManager extends React.Component {
   }
 
   render() {
-    const message = this.state.files.length
-      ? this.state.files
+    const files = this.state.files.map(
+      file => <li className="list-group-item">{file}</li>
+    );
+
+    const message = files.length
+      ? <ul className="list-group">{files}</ul>
       : 'Drop files here';
     return (
       <div>
