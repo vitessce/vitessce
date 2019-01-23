@@ -1,6 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-
+import PropTypes from 'prop-types';
 import { CELL } from '../events';
 
 export class TsneSubscriber extends React.Component {
@@ -33,4 +33,8 @@ export function Tsne(props) {
   return (
     <p>tsne: {props.value}</p>
   );
+}
+
+Tsne.propTypes = {
+  value: PropTypes.string
 }
