@@ -3,6 +3,7 @@ import DeckGL, {ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, OrthographicV
   from 'deck.gl';
 import {Matrix4} from 'math.gl';
 import {BitmapLayer} from '@deck.gl/experimental-layers';
+import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import { IMAGE_ADD } from '../events';
 
@@ -59,7 +60,6 @@ function renderLayers(props) {
   var layers = [];
   if (baseImg) {
     const scale = [baseImg.width, baseImg.height, 1];
-    console.log('scale', scale);
     layers.push(
       new BitmapLayer({
         id: 'bitmap-layer',
@@ -130,4 +130,9 @@ export function Spatial(props) {
     >
     </DeckGL>
   );
+}
+
+Spatial.propTypes = {
+  viewState: PropTypes.object,
+  controller: PropTypes.bool
 }

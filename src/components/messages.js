@@ -1,5 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
+import PropTypes from 'prop-types';
 
 import { WARNING } from '../events';
 
@@ -32,4 +33,8 @@ export function Message(props) {
   return (
     <p>{props.message}</p>
   );
+}
+
+Message.propTypes = {
+  message: PropTypes.string
 }

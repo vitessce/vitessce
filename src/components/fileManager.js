@@ -1,6 +1,7 @@
 import PubSub from 'pubsub-js';
 import React from 'react';
 import FileDrop from 'react-file-drop';
+import PropTypes from 'prop-types';
 
 import { IMAGE_ADD, WARNING_ADD } from '../events'
 
@@ -72,4 +73,8 @@ export class FileManager extends React.Component {
       </div>
     );
   }
+}
+
+FileManager.propTypes = {
+  onAddFile: PropTypes.func
 }
