@@ -68,7 +68,7 @@ function renderLayers(props) {
           center: [0, 0, 0],
           rotation: 0
         }],
-        tintColor: [300, 300, 300], // https://github.com/uber/deck.gl/issues/2585
+        opacity: 1,
         modelMatrix: new Matrix4().scale([400,200,200])
       })
     );
