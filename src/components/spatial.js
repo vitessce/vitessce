@@ -34,7 +34,7 @@ export class SpatialSubscriber extends React.Component {
   }
 
   imageAddSubscriber(msg, data) {
-    console.warn(data)
+    console.warn('TODO', data)
     // this.setState({value: data});
   }
 

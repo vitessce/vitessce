@@ -2,7 +2,7 @@ import PubSub from 'pubsub-js';
 import React from 'react';
 import FileDrop from 'react-file-drop';
 
-import { CELL_ADD } from '../events'
+import { IMAGE_ADD } from '../events'
 
 export class FileManagerPublisher extends React.Component {
   constructor(props) {
@@ -13,7 +13,14 @@ export class FileManagerPublisher extends React.Component {
   }
 
   onAddFile(file) {
-    PubSub.publish(CELL_ADD, file);
+    const extension = file.name.match(/\..*/)[0];
+    switch (extension) {
+      case '.png':
+        PubSub.publish(IMAGE_ADD, file);
+        break;
+      default:
+        console.warn(`"${extension}" is not recognized.`)
+    }
   }
 
   render() {
@@ -36,8 +43,9 @@ export class FileManager extends React.Component {
   handleDrop(files, event) {
     var filesState = this.state.files.slice();
     for (const f of files) {
+      console.warn(f);
       filesState.push(f.name);
-      this.props.onAddFile(f.name)
+      this.props.onAddFile(f);
     }
     var newState = {files: filesState};
     this.setState(newState);
