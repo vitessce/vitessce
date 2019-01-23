@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './css/index.css';
+
 import './css/file-drop.css';
+import './css/index.css';
 
 import { FileManagerPublisher } from './components/fileManager';
 import { Spatial } from './components/spatial';
