@@ -1,81 +1,13 @@
-import PubSub from 'pubsub-js';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 
-import { renderToDOM } from './scatterplot'
+import './css/file-drop.css';
+import './css/index.css';
 
-const CELL = 'cell';
-const CELL_ADD = CELL + '.add';
+import { FileManagerPublisher } from './components/fileManager';
+import { Spatial } from './components/spatial';
+import { TsneSubscriber } from './components/tsne';
 
-class FileManagerPublisher extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {value: ''};
-
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange(event) {
-    const value = event.target.value
-    this.setState({value: value});
-    PubSub.publish(CELL_ADD, value);
-  }
-
-  render() {
-    return (
-      <FileManager onChange={this.onChange} value={this.state.value}></FileManager>
-    );
-  }
-}
-
-function FileManager(props) {
-  return (
-    <p>
-      filemanager:
-      <input
-        value={props.value}
-        onChange={props.onChange}
-      ></input>
-    </p>
-  );
-}
-
-class SpatialSubscriber extends React.Component {
-  // All the pubsub communication goes in the wrapper class.
-  constructor(props) {
-    super(props);
-    this.state = {value: ''};
-  }
-
-  componentWillMount() {
-    this.token = PubSub.subscribe(CELL, this.subscriber.bind(this));
-  }
-
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.token);
-  }
-
-  subscriber(msg, data) {
-    console.warn('Spatial component received:', msg, data);
-    this.setState({value: data});
-  }
-
-  render() {
-    return (
-      <Spatial value={this.state.value}></Spatial>
-    );
-  }
-}
-
-function Spatial(props) {
-  // The real business logic goes inside.
-  return (
-    <p>spatial: {props.value}</p>
-  );
-}
-
-renderToDOM(document.getElementById('scatterplot'))
 
 ReactDOM.render(
   <FileManagerPublisher />,
@@ -83,6 +15,11 @@ ReactDOM.render(
 );
 
 ReactDOM.render(
-  <SpatialSubscriber />,
+  <TsneSubscriber />,
+  document.getElementById('tsne')
+);
+
+ReactDOM.render(
+  <Spatial />,
   document.getElementById('spatial')
 );

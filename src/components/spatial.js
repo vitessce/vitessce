@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {render} from 'react-dom';
 import DeckGL, {ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
 import {Matrix4} from 'math.gl';
@@ -19,7 +18,7 @@ export const INITIAL_VIEW_STATE = {
   offset: [0, 0] // Required: https://github.com/uber/deck.gl/issues/2580
 };
 
-export class App extends Component {
+export class Spatial extends Component {
   _renderLayers() {
     const {
       scatterplot_data = [[-74, 57, 1], [-65, 41, 2], [-73, 32, 1], [-74, 40, 2]],
@@ -96,8 +95,4 @@ export class App extends Component {
       </DeckGL>
     );
   }
-}
-
-export function renderToDOM(container) {
-  render(<App />, container);
 }

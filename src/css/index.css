@@ -1,0 +1,7 @@
+.file-drop {
+  overflow: scroll;
+}
+
+.file-drop > .file-drop-target {
+  text-align: left;
+}
