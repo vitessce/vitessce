@@ -7,18 +7,12 @@ import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import { IMAGE_ADD, MOLECULES_ADD } from '../events';
 
-// Set your mapbox token here
-const MALE_COLOR = [0, 128, 255];
-const FEMALE_COLOR = [255, 0, 128];
-
 export const INITIAL_VIEW_STATE = {
-  longitude: 0,
-  latitude: 0,
-  zoom: 1,
-  maxZoom: 20,
+  zoom: 2, // TODO: zoom=3 or above does not work?
+  maxZoom: 40, // This is enough for the Linnarson lab data, but should be derived?
   pitch: 0,
   bearing: 0,
-  offset: [0, 0] // Required: https://github.com/uber/deck.gl/issues/2580
+  offset: [10000, 10000] // Required: https://github.com/uber/deck.gl/issues/2580
 };
 
 export class SpatialSubscriber extends React.Component {
@@ -42,29 +36,26 @@ export class SpatialSubscriber extends React.Component {
   }
 
   moleculesAddSubscriber(msg, molecules) {
-    console.warn(molecules);
     this.setState({molecules: molecules});
   }
 
   render() {
     return (
-      <Spatial baseImg={this.state.baseImg}/>
+      <Spatial baseImg={this.state.baseImg} molecules={this.state.molecules}/>
     );
   }
 }
 
 function renderLayers(props) {
   const {
-    scatterplot_data = [[-74, 57, 1], [-65, 41, 2], [-73, 32, 1], [-74, 40, 2]],
-    radius = 5,
-    maleColor = MALE_COLOR,
-    femaleColor = FEMALE_COLOR,
-    baseImg = undefined
+    baseImg = undefined,
+    molecules = undefined
   } = props;
 
   const polygon_data = [ { contour: [[-20, -20], [-65, -10], [-80, 0], [-70, 40]] } ];
 
   var layers = [];
+
   if (baseImg) {
     const scale = [baseImg.width, baseImg.height, 1];
     layers.push(
@@ -83,6 +74,7 @@ function renderLayers(props) {
       })
     );
   }
+
   layers.push(
     new PolygonLayer({
       id: 'polygon-layer',
@@ -106,21 +98,27 @@ function renderLayers(props) {
       }
     })
   );
-  layers.push(
-    new ScatterplotLayer({
-      id: 'scatter-plot',
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      data: scatterplot_data,
-      radiusScale: radius,
-      radiusMinPixels: 0.25,
-      getPosition: d => [d[0], d[1], 0],
-      getColor: d => (d[2] === 1 ? maleColor : femaleColor),
-      getRadius: 1,
-      updateTriggers: {
-        getColor: [maleColor, femaleColor]
-      }
-    })
-  );
+
+  if (molecules) {
+    var scatterplot_data = [];
+    for (const [molecule, coords] of Object.entries(molecules)) {
+      console.warn('TODO: Use molecule in scatterplot_data: ' + molecule);
+      scatterplot_data = scatterplot_data.concat(coords);
+    }
+    layers.push(
+      new ScatterplotLayer({
+        id: 'scatter-plot',
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        data: scatterplot_data,
+        // TODO: How do the other radius attributes work?
+        // If it were possible to have dots that remained the same size,
+        // regardless of zoom, would we prefer that?
+        getRadius: 6,
+        getPosition: d => [d[0], d[1], 0],
+        getColor: d => [0, 128, 255],
+      })
+    );
+  }
   return layers;
 }
 
