@@ -103,9 +103,13 @@ function renderLayers(props) {
 
   if (molecules) {
     var scatterplot_data = [];
+    var index = 0;
     for (const [molecule, coords] of Object.entries(molecules)) {
       console.warn('TODO: Use molecule in scatterplot_data: ' + molecule);
-      scatterplot_data = scatterplot_data.concat(coords);
+      scatterplot_data = scatterplot_data.concat(
+        coords.map(([x,y]) => [x,y,index])
+      );
+      index++;
     }
     layers.push(
       new ScatterplotLayer({
