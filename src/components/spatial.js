@@ -5,7 +5,7 @@ import {Matrix4} from 'math.gl';
 import {BitmapLayer} from '@deck.gl/experimental-layers';
 import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
-import { IMAGE_ADD } from '../events';
+import { IMAGE_ADD, MOLECULES_ADD } from '../events';
 
 // Set your mapbox token here
 const MALE_COLOR = [0, 128, 255];
@@ -29,14 +29,21 @@ export class SpatialSubscriber extends React.Component {
 
   componentWillMount() {
     this.imageToken = PubSub.subscribe(IMAGE_ADD, this.imageAddSubscriber.bind(this));
+    this.moleculesToken = PubSub.subscribe(MOLECULES_ADD, this.moleculesAddSubscriber.bind(this));
   }
 
   componentWillUnmount() {
     PubSub.unsubscribe(this.imageToken);
+    PubSub.unsubscribe(this.moleculesToken);
   }
 
   imageAddSubscriber(msg, baseImg) {
     this.setState({baseImg: baseImg});
+  }
+
+  moleculesAddSubscriber(msg, molecules) {
+    console.warn(molecules);
+    this.setState({molecules: molecules});
   }
 
   render() {
