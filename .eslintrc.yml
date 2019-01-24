@@ -9,4 +9,3 @@ settings:
     version: detect
 rules:
   no-console: [2, { "allow": ["warn", "error"]}]
-  react/prop-types': 0 # TODO: When we're stable, validate props
