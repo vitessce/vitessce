@@ -1,8 +1,9 @@
 import PubSub from 'pubsub-js';
 import React from 'react';
 import FileDrop from 'react-file-drop';
+import PropTypes from 'prop-types';
 
-import { CELL_ADD } from '../events'
+import { IMAGE_ADD, WARNING_ADD } from '../events'
 
 export class FileManagerPublisher extends React.Component {
   constructor(props) {
@@ -13,7 +14,20 @@ export class FileManagerPublisher extends React.Component {
   }
 
   onAddFile(file) {
-    PubSub.publish(CELL_ADD, file);
+    const extension = file.name.match(/\..*/)[0];
+    switch (extension) {
+      case '.png': {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = function() {
+          PubSub.publish(IMAGE_ADD, {url: url, width: this.width, height: this.height});
+        }
+        img.src = url;
+        break;
+      }
+      default:
+        PubSub.publish(WARNING_ADD, `File extension "${extension}" is not recognized.`);
+    }
   }
 
   render() {
@@ -34,12 +48,12 @@ export class FileManager extends React.Component {
   }
 
   handleDrop(files, event) {
-    var filesState = this.state.files.slice();
+    var filesCopy = this.state.files.slice();
     for (const f of files) {
-      filesState.push(f.name);
-      this.props.onAddFile(f.name)
+      filesCopy.push(f.name);
+      this.props.onAddFile(f);
     }
-    var newState = {files: filesState};
+    var newState = {files: filesCopy};
     this.setState(newState);
   }
 
@@ -59,4 +73,8 @@ export class FileManager extends React.Component {
       </div>
     );
   }
+}
+
+FileManager.propTypes = {
+  onAddFile: PropTypes.func
 }

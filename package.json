@@ -7,6 +7,7 @@
     "ajv": "^6.6.2",
     "deck.gl": "^6.3.4",
     "math.gl": "^2.2.0",
+    "prop-types": "^15.6.2",
     "pubsub-js": "^1.7.0",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
@@ -26,6 +27,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "eslint": "^5.6.0"
+    "eslint": "^5.6.0",
+    "eslint-plugin-react": "^7.12.4"
   }
 }
