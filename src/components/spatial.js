@@ -9,10 +9,11 @@ import { IMAGE_ADD, MOLECULES_ADD } from '../events';
 
 export const INITIAL_VIEW_STATE = {
   zoom: 2, // TODO: zoom=3 or above does not work?
-  maxZoom: 40, // This is enough for the Linnarson lab data, but should be derived?
+  maxZoom: 40, // TODO: derive from user data
   pitch: 0,
   bearing: 0,
   offset: [10000, 10000] // Required: https://github.com/uber/deck.gl/issues/2580
+  // TODO: derive from user data
 };
 
 export class SpatialSubscriber extends React.Component {
@@ -57,7 +58,8 @@ function renderLayers(props) {
   var layers = [];
 
   if (baseImg) {
-    const scale = [baseImg.width, baseImg.height, 1];
+    const multiplier = 200; // TODO: derive from filename?
+    const scale = [baseImg.width * multiplier, baseImg.height * multiplier, 1];
     layers.push(
       new BitmapLayer({
         id: 'bitmap-layer',
