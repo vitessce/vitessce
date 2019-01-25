@@ -1,7 +1,7 @@
 const ADD = '.add'
 
-export const CELL = 'cell';
-export const CELL_ADD = CELL + ADD;
+export const CELLS = 'cells';
+export const CELLS_ADD = CELLS + ADD;
 
 export const IMAGE = 'image';
 export const IMAGE_ADD = IMAGE + ADD;

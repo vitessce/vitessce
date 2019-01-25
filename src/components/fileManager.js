@@ -3,7 +3,7 @@ import React from 'react';
 import FileDrop from 'react-file-drop';
 import PropTypes from 'prop-types';
 
-import { IMAGE_ADD, WARNING_ADD, MOLECULES_ADD } from '../events'
+import { IMAGE_ADD, WARNING_ADD, MOLECULES_ADD, CELLS_ADD } from '../events'
 
 export class FileManagerPublisher extends React.Component {
   constructor(props) {
@@ -23,6 +23,16 @@ export class FileManagerPublisher extends React.Component {
           PubSub.publish(IMAGE_ADD, {url: url, width: this.width, height: this.height});
         }
         img.src = url;
+        break;
+      }
+      case '.cells.json': {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const json = event.target.result;
+          const cells = JSON.parse(json);
+          PubSub.publish(CELLS_ADD, cells);
+        }
+        reader.readAsText(file);
         break;
       }
       case '.molecules.json': {
