@@ -6,7 +6,7 @@ import './css/index.css';
 
 import { FileManagerPublisher } from './components/fileManager';
 import { MessagesSubscriber } from './components/messages';
-import { SpatialSubscriber } from './components/spatial/index';
+import { SpatialSubscriber } from './components/spatial/';
 import { TsneSubscriber } from './components/tsne';
 
 function render(react, id) {
