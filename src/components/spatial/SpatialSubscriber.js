@@ -1,6 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { IMAGE_ADD, MOLECULES_ADD } from '../../events';
+import { IMAGE_ADD, MOLECULES_ADD, CELLS_ADD } from '../../events';
 import Spatial from './Spatial';
 
 
@@ -13,6 +13,7 @@ export class SpatialSubscriber extends React.Component {
   componentWillMount() {
     this.imageToken = PubSub.subscribe(IMAGE_ADD, this.imageAddSubscriber.bind(this));
     this.moleculesToken = PubSub.subscribe(MOLECULES_ADD, this.moleculesAddSubscriber.bind(this));
+    this.cellsToken = PubSub.subscribe(CELLS_ADD, this.cellsAddSubscriber.bind(this));
   }
 
   componentWillUnmount() {
@@ -28,9 +29,17 @@ export class SpatialSubscriber extends React.Component {
     this.setState({molecules: molecules});
   }
 
+  cellsAddSubscriber(msg, cells) {
+    this.setState({cells: cells});
+  }
+
   render() {
     return (
-      <Spatial baseImg={this.state.baseImg} molecules={this.state.molecules}/>
+      <Spatial
+        baseImg={this.state.baseImg}
+        molecules={this.state.molecules}
+        cells={this.state.cells}
+      />
     );
   }
 }

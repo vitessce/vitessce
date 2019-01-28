@@ -13,8 +13,6 @@ function renderLayers(props) {
     cells = undefined
   } = props;
 
-  const polygon_data = [ { contour: [[-20, -20], [-65, -10], [-80, 0], [-70, 40]] } ];
-
   var layers = [];
 
   if (baseImg) {
@@ -37,29 +35,33 @@ function renderLayers(props) {
     );
   }
 
-  layers.push(
-    new PolygonLayer({
-      id: 'polygon-layer',
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      data: polygon_data,
-      pickable: true,
-      stroked: true,
-      filled: true,
-      wireframe: true,
-      lineWidthMinPixels: 1,
-      getPolygon: d => d.contour,
-      getElevation: d => 0,
-      getFillColor: d => [255, 0, 0],
-      getLineColor: [80, 80, 80],
-      getLineWidth: 1,
-      onHover: ({object, x, y}) => {
-        //const tooltip = `${object.zipcode}\nPopulation: ${object.population}`;
-        /* Update tooltip
-           http://deck.gl/#/documentation/developer-guide/adding-interactivity?section=example-display-a-tooltip-for-hovered-object
-        */
-      }
-    })
-  );
+  //if (cells) {
+    const polygonData = [ { contour: [[10000, 10000], [10000, 10100], [10100, 10100], [10100, 10000]] } ];
+
+    layers.push(
+      new PolygonLayer({
+        id: 'polygon-layer',
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        data: polygonData,
+        pickable: true,
+        stroked: true,
+        filled: true,
+        wireframe: true,
+        lineWidthMinPixels: 1,
+        getPolygon: d => d.contour,
+        getElevation: d => 0,
+        getFillColor: d => [255, 0, 0],
+        getLineColor: [80, 80, 80],
+        getLineWidth: 1,
+        onHover: ({object, x, y}) => {
+          //const tooltip = `${object.zipcode}\nPopulation: ${object.population}`;
+          /* Update tooltip
+             http://deck.gl/#/documentation/developer-guide/adding-interactivity?section=example-display-a-tooltip-for-hovered-object
+          */
+        }
+      })
+    );
+  //}
 
   if (molecules) {
     var scatterplot_data = [];
@@ -101,6 +103,7 @@ function renderLayers(props) {
       })
     );
   }
+  console.log(layers)
   return layers;
 }
 
