@@ -67,7 +67,7 @@ function renderLayers(props) {
     for (const [molecule, coords] of Object.entries(molecules)) {
       console.warn('TODO: Use molecule in scatterplot_data: ' + molecule);
       scatterplot_data = scatterplot_data.concat(
-        coords.map(([x,y]) => [x,y,index])
+        coords.map(([x,y]) => [x,y,index]) // eslint-disable-line no-loop-func
       );
       index++;
     }
