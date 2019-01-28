@@ -18,7 +18,7 @@ export class TsneSubscriber extends React.Component {
   }
 
   subscriber(msg, data) {
-    this.setState({value: data});
+    this.setState({value: `${Object.keys(data).length} cells`});
   }
 
   render() {
