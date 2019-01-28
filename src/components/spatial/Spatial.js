@@ -35,33 +35,36 @@ function renderLayers(props) {
     );
   }
 
-  //if (cells) {
-    const polygonData = [ { contour: [[10000, 10000], [10000, 10100], [10100, 10100], [10100, 10000]] } ];
-
+  if (cells) {
     layers.push(
       new PolygonLayer({
         id: 'polygon-layer',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        data: polygonData,
+        data: Object.entries(cells),
         pickable: true,
         stroked: true,
         filled: true,
         wireframe: true,
         lineWidthMinPixels: 1,
-        getPolygon: d => d.contour,
-        getElevation: d => 0,
-        getFillColor: d => [255, 0, 0],
+        getPolygon: function(cellEntry) {
+          const [id, cell] = cellEntry
+          return cell.poly
+            ? cell.poly // TODO: every cell should have a poly!
+            : [[10000, 10000], [10000, 10100], [10100, 10100], [10100, 10000]];
+        },
+        getElevation: 0,
+        getFillColor: [255, 0, 0],
         getLineColor: [80, 80, 80],
         getLineWidth: 1,
-        onHover: ({object, x, y}) => {
-          //const tooltip = `${object.zipcode}\nPopulation: ${object.population}`;
-          /* Update tooltip
-             http://deck.gl/#/documentation/developer-guide/adding-interactivity?section=example-display-a-tooltip-for-hovered-object
-          */
-        }
+        // onHover: ({object, x, y}) => {
+        //   //const tooltip = `${object.zipcode}\nPopulation: ${object.population}`;
+        //   /* Update tooltip
+        //      http://deck.gl/#/documentation/developer-guide/adding-interactivity?section=example-display-a-tooltip-for-hovered-object
+        //   */
+        // }
       })
     );
-  //}
+  }
 
   if (molecules) {
     var scatterplot_data = [];
