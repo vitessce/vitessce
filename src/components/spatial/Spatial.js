@@ -5,6 +5,26 @@ import {Matrix4} from 'math.gl';
 import {BitmapLayer} from '@deck.gl/experimental-layers';
 import PropTypes from 'prop-types';
 
+function square(x, y) {
+  return [[x, y+100], [x+100, y], [x, y-100], [x-100, y]]
+}
+
+// TODO: Dynamic palette generation? Or set by user?
+// from http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12#type=qualitative&scheme=Paired&n=12
+const PALETTE = [
+  [166,206,227],
+  [31,120,180],
+  [178,223,138],
+  [51,160,44],
+  [251,154,153],
+  [227,26,28],
+  [253,191,111],
+  [255,127,0],
+  [202,178,214],
+  [106,61,154],
+  [255,255,153],
+  [177,89,40]
+];
 
 function renderLayers(props) {
   const {
@@ -36,6 +56,12 @@ function renderLayers(props) {
   }
 
   if (cells) {
+    var clusterColors = {};
+    for (const cell of Object.values(cells)) {
+      if (! clusterColors[cell.cluster]) {
+        clusterColors[cell.cluster] = PALETTE[Object.keys(clusterColors).length % PALETTE.length]
+      }
+    }
     layers.push(
       new PolygonLayer({
         id: 'polygon-layer',
@@ -50,10 +76,10 @@ function renderLayers(props) {
           const cell = cellEntry[1]
           return cell.poly
             ? cell.poly // TODO: every cell should have a poly!
-            : [[10000, 10000], [10000, 10100], [10100, 10100], [10100, 10000]];
+            : square(cell.xy[0], cell.xy[1]);
         },
         getElevation: 0,
-        getFillColor: [255, 0, 0],
+        getFillColor: cellEntry => clusterColors[cellEntry[1].cluster],
         getLineColor: [80, 80, 80],
         getLineWidth: 1,
         // onHover: ({object, x, y}) => {
@@ -76,22 +102,6 @@ function renderLayers(props) {
       );
       index++;
     }
-    // TODO: Dynamic palette generation? Or set by user?
-    // from http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12#type=qualitative&scheme=Paired&n=12
-    const palette = [
-      [166,206,227],
-      [31,120,180],
-      [178,223,138],
-      [51,160,44],
-      [251,154,153],
-      [227,26,28],
-      [253,191,111],
-      [255,127,0],
-      [202,178,214],
-      [106,61,154],
-      [255,255,153],
-      [177,89,40]
-    ];
     layers.push(
       new ScatterplotLayer({
         id: 'scatter-plot',
@@ -102,7 +112,7 @@ function renderLayers(props) {
         // regardless of zoom, would we prefer that?
         getRadius: 6,
         getPosition: d => [d[0], d[1], 0],
-        getColor: d => palette[d[2] % palette.length]
+        getColor: d => PALETTE[d[2] % PALETTE.length]
       })
     );
   }
