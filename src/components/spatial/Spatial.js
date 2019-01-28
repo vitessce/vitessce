@@ -47,7 +47,7 @@ function renderLayers(props) {
         wireframe: true,
         lineWidthMinPixels: 1,
         getPolygon: function(cellEntry) {
-          const [id, cell] = cellEntry
+          const cell = cellEntry[1]
           return cell.poly
             ? cell.poly // TODO: every cell should have a poly!
             : [[10000, 10000], [10000, 10100], [10100, 10100], [10100, 10000]];
@@ -106,7 +106,6 @@ function renderLayers(props) {
       })
     );
   }
-  console.log(layers)
   return layers;
 }
 
