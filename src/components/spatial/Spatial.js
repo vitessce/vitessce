@@ -77,9 +77,7 @@ function renderLayers(props) {
         lineWidthMinPixels: 1,
         getPolygon: function(cellEntry) {
           const cell = cellEntry[1]
-          return cell.poly
-            ? cell.poly // TODO: every cell should have a poly!
-            : square(cell.xy[0], cell.xy[1]);
+          return cell.poly ? cell.poly : square(cell.xy[0], cell.xy[1]);
         },
         getElevation: 0,
         getFillColor: cellEntry => clusterColors[cellEntry[1].cluster],
