@@ -126,11 +126,13 @@ export default function Spatial(props) {
   const {viewState, controller = true} = props;
 
   const INITIAL_VIEW_STATE = {
-    zoom: 2, // TODO: zoom=3 or above does not work?
+    zoom: 1, // TODO: zoom=3 or above does not work?
     maxZoom: 40, // TODO: derive from user data
     pitch: 0,
     bearing: 0,
     offset: [10000, 10000] // Required: https://github.com/uber/deck.gl/issues/2580
+    // Right now, offset is related to zoom...
+    // If zoom=2, offset should be halved: [5000, 5000].
     // TODO: derive from user data
   };
 
