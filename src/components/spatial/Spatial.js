@@ -120,27 +120,60 @@ function renderLayers(props) {
   return layers;
 }
 
-export default function Spatial(props) {
-  const {viewState, controller = true} = props;
+const INITIAL_VIEW_STATE = {
+  zoom: 1, // Too close, but with zoom!=1, offset needs to change.
+  // If zoom=2, offset should be halved: [5000, 5000].
+  // https://github.com/uber/deck.gl/issues/2638
+  maxZoom: 80, // Controls how far you can zoom out: default is too limited.
+  offset: [10000, 10000] // Required: https://github.com/uber/deck.gl/issues/2580
+  // TODO: derive from user data
+};
 
-  const INITIAL_VIEW_STATE = {
-    zoom: 1, // TODO: zoom=3 or above does not work?
-    maxZoom: 40, // TODO: derive from user data
-    pitch: 0,
-    bearing: 0,
-    offset: [10000, 10000] // Required: https://github.com/uber/deck.gl/issues/2580
-    // Right now, offset is related to zoom...
+function viewState(props) {
+  const {
+    molecules = undefined,
+    cells = undefined
+  } = props;
+
+  if (!molecules && !cells) {
+    return INITIAL_VIEW_STATE;
+  }
+
+  var [minX, maxX, minY, maxY] = [Infinity, -Infinity, Infinity, -Infinity];
+  if (molecules) {
+    for (const coords of Object.values(molecules)) {
+      for (const coord of coords) {
+        if (coord[0] < minX) { minX = coord[0] }
+        if (coord[0] > maxX) { maxX = coord[0] }
+        if (coord[1] < minY) { minY = coord[1] }
+        if (coord[1] > maxY) { maxY = coord[1] }
+        console.log(minX, maxX, minY, maxY)
+      }
+    }
+  }
+
+  const x = (maxX + minX) / 2;
+  const y = (maxY + minY) / 2
+  console.log(x,y);
+
+  return {
+    offset: [x, y],
+    zoom: 1, // Too close, but with zoom!=1, offset needs to change.
     // If zoom=2, offset should be halved: [5000, 5000].
-    // TODO: derive from user data
+    // https://github.com/uber/deck.gl/issues/2638
+    maxZoom: 80, // Controls how far you can zoom out: default is too limited.
   };
+}
+
+export default function Spatial(props) {
 
   return (
     <DeckGL
       views={[new OrthographicView()]}
       layers={renderLayers(props)}
       initialViewState={INITIAL_VIEW_STATE}
-      viewState={viewState}
-      controller={controller}
+      //viewState={viewState(props)}
+      controller={true}
     >
     </DeckGL>
   );
