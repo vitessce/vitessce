@@ -129,33 +129,36 @@ const INITIAL_VIEW_STATE = {
   // TODO: derive from user data
 };
 
-function viewState(props) {
-  const {
-    molecules = undefined
-  } = props;
-
-  if (!molecules) {
-    // TODO: also sniff cells
-    return INITIAL_VIEW_STATE;
-  }
-
-  var state = Object.create(INITIAL_VIEW_STATE);
-  var [minX, maxX, minY, maxY] = [Infinity, -Infinity, Infinity, -Infinity];
-  if (molecules) {
-    for (const coords of Object.values(molecules)) {
-      for (const coord of coords) {
-        if (coord[0] < minX) { minX = coord[0] }
-        if (coord[0] > maxX) { maxX = coord[0] }
-        if (coord[1] < minY) { minY = coord[1] }
-        if (coord[1] > maxY) { maxY = coord[1] }
-      }
-    }
-    const x = (maxX + minX) / 2;
-    const y = (maxY + minY) / 2;
-    state.offset = [x, y];
-  }
-  return state;
-}
+// function viewState(props) {
+//   const {
+//     molecules = undefined
+//   } = props;
+//
+//   if (!molecules) {
+//     // TODO: also sniff cells
+//     console.log('abort');
+//     return INITIAL_VIEW_STATE;
+//   }
+//
+//   var {...state} = INITIAL_VIEW_STATE;
+//   var [minX, maxX, minY, maxY] = [Infinity, -Infinity, Infinity, -Infinity];
+//   if (molecules) {
+//     for (const coords of Object.values(molecules)) {
+//       for (const coord of coords) {
+//         if (coord[0] < minX) { minX = coord[0] }
+//         if (coord[0] > maxX) { maxX = coord[0] }
+//         if (coord[1] < minY) { minY = coord[1] }
+//         if (coord[1] > maxY) { maxY = coord[1] }
+//       }
+//     }
+//     const x = (maxX + minX) / 2;
+//     const y = (maxY + minY) / 2;
+//     state.offset = [x, y];
+//   }
+//
+//   console.log(state);
+//   return state;
+// }
 
 export default function Spatial(props) {
 
@@ -163,7 +166,7 @@ export default function Spatial(props) {
     <DeckGL
       views={[new OrthographicView()]}
       layers={renderLayers(props)}
-      initialViewState={viewState(props)}
+      initialViewState={INITIAL_VIEW_STATE}
       controller={true}
     >
     </DeckGL>
