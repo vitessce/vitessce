@@ -26,6 +26,7 @@ const PALETTE = [
   [177,89,40]
 ];
 
+
 function renderLayers(props) {
   const {
     baseImg = undefined,
@@ -68,6 +69,8 @@ function renderLayers(props) {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: Object.entries(cells),
         pickable: true,
+        onHover: info => console.log('Cell Hovered:', info),
+        onClick: info => console.log('Cell Clicked:', info),
         stroked: true,
         filled: true,
         wireframe: true,
