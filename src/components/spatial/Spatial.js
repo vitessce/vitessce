@@ -69,8 +69,8 @@ function renderLayers(props) {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: Object.entries(cells),
         pickable: true,
-        onHover: info => console.log('Cell Hovered:', info),
-        onClick: info => console.log('Cell Clicked:', info),
+        // onHover: info => console.log('Cell Hovered:', info),
+        // onClick: info => console.log('Cell Clicked:', info),
         stroked: true,
         filled: true,
         wireframe: true,
@@ -131,14 +131,15 @@ const INITIAL_VIEW_STATE = {
 
 function viewState(props) {
   const {
-    molecules = undefined,
-    cells = undefined
+    molecules = undefined
   } = props;
 
-  if (!molecules && !cells) {
+  if (!molecules) {
+    // TODO: also sniff cells
     return INITIAL_VIEW_STATE;
   }
 
+  var state = Object.create(INITIAL_VIEW_STATE);
   var [minX, maxX, minY, maxY] = [Infinity, -Infinity, Infinity, -Infinity];
   if (molecules) {
     for (const coords of Object.values(molecules)) {
@@ -147,22 +148,13 @@ function viewState(props) {
         if (coord[0] > maxX) { maxX = coord[0] }
         if (coord[1] < minY) { minY = coord[1] }
         if (coord[1] > maxY) { maxY = coord[1] }
-        console.log(minX, maxX, minY, maxY)
       }
     }
+    const x = (maxX + minX) / 2;
+    const y = (maxY + minY) / 2;
+    state.offset = [x, y];
   }
-
-  const x = (maxX + minX) / 2;
-  const y = (maxY + minY) / 2
-  console.log(x,y);
-
-  return {
-    offset: [x, y],
-    zoom: 1, // Too close, but with zoom!=1, offset needs to change.
-    // If zoom=2, offset should be halved: [5000, 5000].
-    // https://github.com/uber/deck.gl/issues/2638
-    maxZoom: 80, // Controls how far you can zoom out: default is too limited.
-  };
+  return state;
 }
 
 export default function Spatial(props) {
@@ -171,8 +163,7 @@ export default function Spatial(props) {
     <DeckGL
       views={[new OrthographicView()]}
       layers={renderLayers(props)}
-      initialViewState={INITIAL_VIEW_STATE}
-      //viewState={viewState(props)}
+      initialViewState={viewState(props)}
       controller={true}
     >
     </DeckGL>
