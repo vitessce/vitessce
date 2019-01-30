@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 import PropTypes from 'prop-types';
 import { CELLS } from '../events';
 
-export class TsneSubscriber extends React.Component {
+export class HeatmapSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {value: ''};
@@ -23,18 +23,18 @@ export class TsneSubscriber extends React.Component {
 
   render() {
     return (
-      <Tsne value={this.state.value}></Tsne>
+      <Heatmap value={this.state.value}></Heatmap>
     );
   }
 }
 
-export function Tsne(props) {
+export function Heatmap(props) {
   // The real business logic goes inside.
   return (
-    <p>tsne placeholder: {props.value}</p>
+    <p>heatmap placeholder: {props.value}</p>
   );
 }
 
-Tsne.propTypes = {
+Heatmap.propTypes = {
   value: PropTypes.string
 }

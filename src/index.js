@@ -6,8 +6,9 @@ import './css/index.css';
 
 import { FileManagerPublisher } from './components/fileManager';
 import { MessagesSubscriber } from './components/messages';
-import { SpatialSubscriber } from './components/spatial/';
 import { TsneSubscriber } from './components/tsne';
+import { HeatmapSubscriber } from './components/heatmap';
+import { SpatialSubscriber } from './components/spatial/';
 
 function render(react, id) {
   ReactDOM.render(react, document.getElementById(id));
@@ -16,4 +17,5 @@ function render(react, id) {
 render(<FileManagerPublisher />, 'filemanager');
 render(<MessagesSubscriber />, 'messages');
 render(<TsneSubscriber />, 'tsne');
+render(<HeatmapSubscriber />, 'heatmap');
 render(<SpatialSubscriber />, 'spatial');

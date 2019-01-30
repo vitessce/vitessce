@@ -17,21 +17,22 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
     <title>HuBMAP</title>
   </head>
-  <body>
+  <body style="overflow: hidden;"><!-- TODO: Figure out fixed panes -->
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
     <div class="container-fluid">
       <div class="row">
-        <div id="sidebar" class="col-lg-3 col-md-4 col-sm-6 my-3">
-          <div id="filemanager" class="card card-body bg-light"></div>
-          <br/>
-          <div id="messages" class="card card-body bg-light"></div>
-          <br/>
-          <div id="tsne" class="card card-body bg-light"></div>
+        <div id="sidebar" class="col-lg-4 col-md-5 col-sm-6">
+          <div class="card card-body bg-light my-3" style="height: 30%;">
+            <div id="filemanager"></div>
+            <div id="messages"></div>
+          </div>
+          <div id="tsne" class="card card-body bg-light my-3" style="height: 65%;"></div>
         </div>
-        <div id="main" class="col-lg-9 col-md-8 col-sm-6 my-3">
-          <div id="spatial" class="card card-body bg-light" style="height: 100%;"></div>
+        <div id="main" class="col-lg-8 col-md-7 col-sm-6">
+          <div id="spatial" class="card card-body bg-light my-3" style="height: 60%;"></div>
+          <div id="heatmap" class="card card-body bg-light my-3" style="height: 35%;"></div>
         </div>
       </div>
     </div>
