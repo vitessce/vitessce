@@ -1,7 +1,7 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 import { CELLS } from '../../events';
-import Tsne from './tsne';
+import Tsne from './Tsne';
 
 export class TsneSubscriber extends React.Component {
   constructor(props) {

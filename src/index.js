@@ -6,7 +6,7 @@ import './css/index.css';
 
 import { FileManagerPublisher } from './components/fileManager';
 import { MessagesSubscriber } from './components/messages';
-import { TsneSubscriber } from './components/tsne';
+import { TsneSubscriber } from './components/tsne/';
 import { HeatmapSubscriber } from './components/heatmap/';
 import { SpatialSubscriber } from './components/spatial/';
 
