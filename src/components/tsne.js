@@ -1,7 +1,7 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 import PropTypes from 'prop-types';
-import { CELL } from '../events';
+import { CELLS } from '../events';
 
 export class TsneSubscriber extends React.Component {
   constructor(props) {
@@ -10,7 +10,7 @@ export class TsneSubscriber extends React.Component {
   }
 
   componentWillMount() {
-    this.token = PubSub.subscribe(CELL, this.subscriber.bind(this));
+    this.token = PubSub.subscribe(CELLS, this.subscriber.bind(this));
   }
 
   componentWillUnmount() {
@@ -18,7 +18,7 @@ export class TsneSubscriber extends React.Component {
   }
 
   subscriber(msg, data) {
-    this.setState({value: data});
+    this.setState({value: `${Object.keys(data).length} cells`});
   }
 
   render() {

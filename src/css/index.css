@@ -5,3 +5,7 @@
 .file-drop > .file-drop-target {
   text-align: left;
 }
+
+html, body, .container-fluid, .row {
+  height:100%;
+}

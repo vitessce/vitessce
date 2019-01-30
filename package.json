@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@deck.gl/experimental-layers": "^6.3.4",
+    "@deck.gl/experimental-layers": "^6.4.0",
     "ajv": "^6.6.2",
-    "deck.gl": "^6.3.4",
+    "deck.gl": "^6.4.0",
     "math.gl": "^2.2.0",
     "prop-types": "^15.6.2",
     "pubsub-js": "^1.7.0",
