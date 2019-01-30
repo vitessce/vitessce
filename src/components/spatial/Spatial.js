@@ -121,11 +121,8 @@ function renderLayers(props) {
 }
 
 const INITIAL_VIEW_STATE = {
-  zoom: 1, // Too close, but with zoom!=1, offset needs to change.
-  // If zoom=2, offset should be halved: [5000, 5000].
-  // https://github.com/uber/deck.gl/issues/2638
-  maxZoom: 80, // Controls how far you can zoom out: default is too limited.
-  offset: [10000, 10000] // Required: https://github.com/uber/deck.gl/issues/2580
+  zoom: -5,
+  offset: [460, 640] // Required: https://github.com/uber/deck.gl/issues/2580
 };
 
 // function viewState(props) {
@@ -167,6 +164,7 @@ export default function Spatial(props) {
       layers={renderLayers(props)}
       initialViewState={INITIAL_VIEW_STATE}
       controller={true}
+      //onViewStateChange={({viewState}) => {console.log(viewState)}}
     >
     </DeckGL>
   );
