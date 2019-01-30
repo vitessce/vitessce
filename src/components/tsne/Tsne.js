@@ -28,8 +28,12 @@ function renderLayers(props) {
 
   if (cells) {
     var scatterplotData = [];
+    var clusterColors = {};
     for (const [cellId, cell] of Object.entries(cells)) {
-      scatterplotData.push(cell.tsne);
+      scatterplotData.push([cell.tsne[0], cell.tsne[1], cell.cluster]);
+      if (! clusterColors[cell.cluster]) {
+        clusterColors[cell.cluster] = PALETTE[Object.keys(clusterColors).length % PALETTE.length]
+      }
     }
     layers.push(
       new ScatterplotLayer({
@@ -38,7 +42,7 @@ function renderLayers(props) {
         data: scatterplotData,
         getRadius: 0.5,
         getPosition: d => [d[0], d[1], 0],
-        getColor: d => [255, 0, 0] //PALETTE[d[2] % PALETTE.length]
+        getColor: d => clusterColors[d[2]]
       })
     );
   }
