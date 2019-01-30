@@ -1,6 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { CELLS } from '../../events';
+import { CELLS_ADD } from '../../events';
 import Tsne from './Tsne';
 
 export class TsneSubscriber extends React.Component {
@@ -10,20 +10,20 @@ export class TsneSubscriber extends React.Component {
   }
 
   componentWillMount() {
-    this.token = PubSub.subscribe(CELLS, this.subscriber.bind(this));
+    this.moleculesToken = PubSub.subscribe(CELLS_ADD, this.cellsAddSubscriber.bind(this));
   }
 
   componentWillUnmount() {
-    PubSub.unsubscribe(this.token);
+    PubSub.unsubscribe(this.moleculesToken);
   }
 
-  subscriber(msg, data) {
-    this.setState({value: `${Object.keys(data).length} cells`});
+  cellsAddSubscriber(msg, cells) {
+    this.setState({cells: cells});
   }
 
   render() {
     return (
-      <Tsne value={this.state.value}></Tsne>
+      <Tsne cells={this.state.cells}></Tsne>
     );
   }
 }
