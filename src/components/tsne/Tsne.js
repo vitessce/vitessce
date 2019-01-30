@@ -1,5 +1,5 @@
 import React from 'react';
-import DeckGL, {ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, OrthographicView}
+import DeckGL, {ScatterplotLayer, COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
 
 // TODO: Dynamic palette generation? Or set by user?
@@ -29,7 +29,7 @@ function renderLayers(props) {
   if (cells) {
     var scatterplotData = [];
     var clusterColors = {};
-    for (const [cellId, cell] of Object.entries(cells)) {
+    for (const cell of Object.values(cells)) {
       scatterplotData.push([cell.tsne[0], cell.tsne[1], cell.cluster]);
       if (! clusterColors[cell.cluster]) {
         clusterColors[cell.cluster] = PALETTE[Object.keys(clusterColors).length % PALETTE.length]
