@@ -111,7 +111,7 @@ function renderLayers(props) {
         // TODO: How do the other radius attributes work?
         // If it were possible to have dots that remained the same size,
         // regardless of zoom, would we prefer that?
-        getRadius: 6,
+        getRadius: 10,
         getPosition: d => [d[0], d[1], 0],
         getColor: d => PALETTE[d[2] % PALETTE.length]
       })
@@ -126,7 +126,6 @@ const INITIAL_VIEW_STATE = {
   // https://github.com/uber/deck.gl/issues/2638
   maxZoom: 80, // Controls how far you can zoom out: default is too limited.
   offset: [10000, 10000] // Required: https://github.com/uber/deck.gl/issues/2580
-  // TODO: derive from user data
 };
 
 // function viewState(props) {
