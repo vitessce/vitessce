@@ -19,6 +19,7 @@ export class SpatialSubscriber extends React.Component {
   componentWillUnmount() {
     PubSub.unsubscribe(this.imageToken);
     PubSub.unsubscribe(this.moleculesToken);
+    PubSub.unsubscribe(this.cellsToken);
   }
 
   imageAddSubscriber(msg, baseImg) {

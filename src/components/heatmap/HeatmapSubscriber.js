@@ -1,7 +1,7 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import PropTypes from 'prop-types';
-import { CELLS } from '../events';
+import { CELLS } from '../../events';
+import Heatmap from './Heatmap';
 
 export class HeatmapSubscriber extends React.Component {
   constructor(props) {
@@ -26,15 +26,4 @@ export class HeatmapSubscriber extends React.Component {
       <Heatmap value={this.state.value}></Heatmap>
     );
   }
-}
-
-export function Heatmap(props) {
-  // The real business logic goes inside.
-  return (
-    <p>heatmap placeholder: {props.value}</p>
-  );
-}
-
-Heatmap.propTypes = {
-  value: PropTypes.string
 }
