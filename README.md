@@ -1,8 +1,9 @@
-# HuBMAP Tool
+# 🚄  vitessce
 
-Under construction!
+Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
-Viewer for HuBMAP data. Configuration defaults are taken from the React tutorial.
+The scripts at [vitessce-data](http://github.com/hms-dbmi/vitessce-data/)
+may be used to get correctly formatted input files. 
 
 ```
 $ npm install
