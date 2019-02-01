@@ -31,14 +31,15 @@
     </div>
 
 
-    <!-- TODO: Is there some way to reuse demo/src/index.{html,js}?  -->
+    <!-- TODO: Is there a way to reuse demo/src/index.{html,js} but just load static JS?  -->
     <script crossorigin src="https://unpkg.com/react@16.7.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16.7.0/umd/react-dom.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/vitessce@0.0.1/umd/vitessce.min.js"></script>
+    <!-- <script crossorigin src="https://unpkg.com/vitessce@0.0.1/umd/vitessce.min.js"></script> -->
+    <script src="../../umd/vitessce.js"></script>
     <script>
       ReactDOM.render(
-        React.createElement(Vitessce, null, null),
-        document.getElementById('main')
+        React.createElement(vitessce.FileManagerPublisher, null, null),
+        document.getElementById('filemanager')
       );
     </script>
 

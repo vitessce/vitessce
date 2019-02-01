@@ -1,5 +1,13 @@
-export { HeatmapSubscriber } from './components/heatmap/'
-export { SpatialSubscriber } from './components/spatial/'
-export { TsneSubscriber } from './components/tsne/'
-export { FileManagerPublisher } from './components/fileManager'
-export { MessagesSubscriber } from './components/messages'
+import { HeatmapSubscriber } from './components/heatmap/'
+import { SpatialSubscriber } from './components/spatial/'
+import { TsneSubscriber } from './components/tsne/'
+import { FileManagerPublisher } from './components/fileManager'
+import { MessagesSubscriber } from './components/messages'
+
+export default {
+    HeatmapSubscriber,
+    SpatialSubscriber,
+    TsneSubscriber,
+    FileManagerPublisher,
+    MessagesSubscriber
+};
