@@ -1,4 +1,4 @@
-# hubmap-tool
+# Vitessce API Requirements
 
 New requested features:
 - Given a set, color it. / name it
