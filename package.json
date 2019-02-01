@@ -1,6 +1,6 @@
 {
   "name": "vitessce",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Vitessce React component",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -34,10 +34,10 @@
   "devDependencies": {
     "nwb": "0.23.x"
   },
-  "author": "",
-  "homepage": "",
+  "author": "C McCallum",
+  "homepage": "https://github.com/hms-dbmi/vitessce/",
   "license": "MIT",
-  "repository": "",
+  "repository": "https://github.com/hms-dbmi/vitessce/",
   "keywords": [
     "react-component"
   ]
