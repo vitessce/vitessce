@@ -1,21 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, {Component} from 'react'
 
-import './css/file-drop.css';
-import './css/index.css';
+// TODO: This came with nwb... how should I use it for this project?
 
-import { FileManagerPublisher } from './components/fileManager';
-import { MessagesSubscriber } from './components/messages';
-import { TsneSubscriber } from './components/tsne/';
-import { HeatmapSubscriber } from './components/heatmap/';
-import { SpatialSubscriber } from './components/spatial/';
-
-function render(react, id) {
-  ReactDOM.render(react, document.getElementById(id));
+export default class extends Component {
+  render() {
+    return <div>
+      <h2>Welcome to React components</h2>
+    </div>
+  }
 }
-
-render(<FileManagerPublisher />, 'filemanager');
-render(<MessagesSubscriber />, 'messages');
-render(<TsneSubscriber />, 'tsne');
-render(<HeatmapSubscriber />, 'heatmap');
-render(<SpatialSubscriber />, 'spatial');
