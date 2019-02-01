@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
+import expect from 'expect'
 
-describe('API', ()=>{
+describe('Schema', ()=>{
   var schema = require('./schema.json');
   var validate = new Ajv().compile(schema);
   var fixtures = ['AddCells', 'AddMolecules', 'AddRGBImagery', 'AddBWImagery'];
