@@ -3,11 +3,9 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <!--
-    TODO: If we stick with Bootstrap, consider checking in the CSS.
-    -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="theme-color" content="#000000">
+    <!-- TODO: If we stick with Bootstrap, consider checking in the CSS. -->
+    <link rel="stylesheet" href="../../umd/main.dda536a3.css">
+    <!-- TODO: Is there a way to avoid the hash in the filename? -->
     <title>🚄  Vitessce</title>
   </head>
   <body style="overflow: hidden;"><!-- TODO: Figure out fixed panes -->
@@ -31,16 +29,23 @@
     </div>
 
 
-    <!-- TODO: Is there a way to reuse demo/src/index.{html,js} but just load static JS?  -->
     <script crossorigin src="https://unpkg.com/react@16.7.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16.7.0/umd/react-dom.production.min.js"></script>
     <!-- <script crossorigin src="https://unpkg.com/vitessce@0.0.1/umd/vitessce.min.js"></script> -->
     <script src="../../umd/vitessce.js"></script>
     <script>
-      ReactDOM.render(
-        React.createElement(vitessce.FileManagerPublisher, null, null),
-        document.getElementById('filemanager')
-      );
+    (function() {
+      function render(react, id) {
+        ReactDOM.render(
+          React.createElement(react, null, null),
+          document.getElementById(id));
+      }
+      render(vitessce.FileManagerPublisher, 'filemanager');
+      render(vitessce.MessagesSubscriber, 'messages');
+      render(vitessce.TsneSubscriber, 'tsne');
+      render(vitessce.HeatmapSubscriber, 'heatmap');
+      render(vitessce.SpatialSubscriber, 'spatial');
+    })();
     </script>
 
 
