@@ -9,15 +9,32 @@
       <h1>Tsne component</h1>
       <div id="tsne"></div>
     </div>
-
-    <!-- TODO: Is there a way to reuse demo/src/index.{html,js} but just load static JS?  -->
     <script crossorigin src="https://unpkg.com/react@16.7.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16.7.0/umd/react-dom.production.min.js"></script>
     <!-- <script crossorigin src="https://unpkg.com/vitessce@0.0.1/umd/vitessce.min.js"></script> -->
     <script src="../../umd/vitessce.js"></script>
     <script>
       ReactDOM.render(
-        React.createElement(vitessce.Tsne, null, null),
+        React.createElement(vitessce.Tsne, {
+          cells: {
+            '42': {cluster: 'A', 'tsne': [-12, 6]},
+            '43': {cluster: 'A', 'tsne': [-14, 5]},
+            '44': {cluster: 'A', 'tsne': [-10, 4]},
+            '45': {cluster: 'A', 'tsne': [-16, 4]},
+            '46': {cluster: 'A', 'tsne': [-15, 3]},
+            '52': {cluster: 'B', 'tsne': [13, -20]},
+            '53': {cluster: 'B', 'tsne': [14, -21]},
+            '54': {cluster: 'B', 'tsne': [15, -20]},
+            '55': {cluster: 'B', 'tsne': [15, -21]},
+            '56': {cluster: 'B', 'tsne': [14, -29]},
+            '57': {cluster: 'B', 'tsne': [12, -26]},
+            '58': {cluster: 'C', 'tsne': [18, 33]},
+            '59': {cluster: 'C', 'tsne': [19, 32]},
+            '60': {cluster: 'C', 'tsne': [16, 32]},
+            '61': {cluster: 'C', 'tsne': [14, 30]},
+            '62': {cluster: 'C', 'tsne': [14, 31]}
+          }
+        }, null),
         document.getElementById('tsne')
       );
     </script>
