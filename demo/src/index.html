@@ -6,33 +6,11 @@
     <!--
     TODO: If we stick with Bootstrap, consider checking in the CSS.
     -->
-    <!--
-    These came with create-react-app:
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="theme-color" content="#000000">
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
-    -->
     <title>🚄  Vitessce</title>
   </head>
-  <body style="overflow: hidden;"><!-- TODO: Figure out fixed panes -->
+  <body id="app">
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
-    <div class="container-fluid">
-      <div class="row">
-        <div id="sidebar" class="col-lg-4 col-md-5 col-sm-6">
-          <div class="card card-body bg-light my-3" style="height: 30%;">
-            <div id="filemanager"></div>
-            <div id="messages"></div>
-          </div>
-          <div id="tsne" class="card card-body bg-light my-3" style="height: 65%;"></div>
-        </div>
-        <div id="main" class="col-lg-8 col-md-7 col-sm-6">
-          <div id="spatial" class="card card-body bg-light my-3" style="height: 60%;"></div>
-          <div id="heatmap" class="card card-body bg-light my-3" style="height: 35%;"></div>
-        </div>
-      </div>
-    </div>
   </body>
 </html>
