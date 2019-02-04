@@ -3,23 +3,23 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <!-- TODO: If we stick with Bootstrap, consider checking in the CSS. -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vitessce@0.0.3/umd/main.dda536a3.css">
-    <!-- TODO: Is there a way to avoid the hash in the filename? -->
+
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vitessce@0.0.2/umd/main.dda536a3.css"> -->
+    <link rel="stylesheet" href="../../umd/main.d7afaf61.css">
+
     <title>🚄  Vitessce</title>
   </head>
-  <body style="overflow: hidden;"><!-- TODO: Figure out fixed panes -->
+  <body id="app">
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
 
-    <div id="app"></div>
-
     <script crossorigin src="https://unpkg.com/react@16.7.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16.7.0/umd/react-dom.production.min.js"></script>
-    <script crossorigin src="https://cdn.jsdelivr.net/npm/vitessce@0.0.3/umd/vitessce.min.js"></script>
-    <!-- For development: -->
-    <!-- <script src="../../umd/vitessce.js"></script> -->
+
+    <!-- <script crossorigin src="https://cdn.jsdelivr.net/npm/vitessce@0.0.3/umd/vitessce.min.js"></script> -->
+    <script src="../../umd/vitessce.js"></script>
+
     <script>
       vitessce.renderApp('app');
     </script>

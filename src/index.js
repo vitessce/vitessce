@@ -6,9 +6,11 @@ import './css/file-drop.css'
 import { Heatmap } from './components/heatmap/'
 import { Spatial } from './components/spatial/'
 import { Tsne } from './components/tsne/'
+import renderApp from './app'
 
 export default {
     Heatmap,
     Spatial,
-    Tsne
+    Tsne,
+    renderApp
 };
