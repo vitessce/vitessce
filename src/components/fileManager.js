@@ -32,14 +32,16 @@ export class FileManagerPublisher extends React.Component {
           const json = event.target.result;
           const cells = JSON.parse(json);
 
-          var schema = require('./schema.cells.json'); //require(`schema${extension}`);
-          var validate = new Ajv().compile(schema);
-          var valid = validate(cells);
+          // TODO: Move to constructor?
+          var schema = require('./schemas/cells.schema.json');
+          var validateCells = new Ajv().compile(schema);
+
+          var valid = validateCells(cells);
           if (valid) {
             PubSub.publish(CELLS_ADD, cells);
           } else {
-            PubSub.publish(WARNING_ADD, `Error reading ${file}: details in console.`);
-            console.warn(validate.errors);
+            PubSub.publish(WARNING_ADD, `Error reading ${file.name}: details in console.`);
+            console.warn(JSON.stringify(validateCells.errors, null, 2));
           }
         }
         reader.readAsText(file);
