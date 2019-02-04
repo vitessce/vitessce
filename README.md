@@ -5,7 +5,7 @@ Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 ## Demo
 
 Input data is provided (for now) by a drag and drop interface.
-You can download a small sample [input files](https://github.com/hms-dbmi/vitessce-data/tree/master/fake-files/output-expected),
+You can download sample [input files](https://github.com/hms-dbmi/vitessce-data/tree/master/fake-files/output-expected),
 or you can checkout and run [`vitessce-data`](https://github.com/hms-dbmi/vitessce-data)
 to generate a full data set.
 
