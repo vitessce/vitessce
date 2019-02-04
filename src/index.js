@@ -1,21 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+// The CSS imports are just here to be included in the UMD build,
+// so they can be referenced through unpkg.
+import './css/index.css'
+import './css/file-drop.css'
 
-import './css/file-drop.css';
-import './css/index.css';
+import { HeatmapSubscriber, Heatmap } from './components/heatmap/'
+import { SpatialSubscriber, Spatial } from './components/spatial/'
+import { TsneSubscriber, Tsne } from './components/tsne/'
+import { FileManagerPublisher } from './components/fileManager'
+import { MessagesSubscriber } from './components/messages'
 
-import { FileManagerPublisher } from './components/fileManager';
-import { MessagesSubscriber } from './components/messages';
-import { TsneSubscriber } from './components/tsne/';
-import { HeatmapSubscriber } from './components/heatmap/';
-import { SpatialSubscriber } from './components/spatial/';
-
-function render(react, id) {
-  ReactDOM.render(react, document.getElementById(id));
-}
-
-render(<FileManagerPublisher />, 'filemanager');
-render(<MessagesSubscriber />, 'messages');
-render(<TsneSubscriber />, 'tsne');
-render(<HeatmapSubscriber />, 'heatmap');
-render(<SpatialSubscriber />, 'spatial');
+export default {
+    HeatmapSubscriber, Heatmap,
+    SpatialSubscriber, Spatial,
+    TsneSubscriber, Tsne,
+    FileManagerPublisher,
+    MessagesSubscriber
+};

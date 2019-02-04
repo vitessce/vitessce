@@ -7,7 +7,43 @@
   <body>
     <div class="container">
       <h1>Spatial component</h1>
-      <p>TODO</p>
+      <div id="spatial"></div>
     </div>
+    <script crossorigin src="https://unpkg.com/react@16.7.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16.7.0/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/vitessce@0.0.2/umd/vitessce.min.js"></script>
+    <!-- For development: -->
+    <!-- <script src="../../umd/vitessce.js"></script> -->
+    <script>
+      ReactDOM.render(
+        React.createElement(vitessce.Spatial, {
+          cells: {
+           '42': {
+              cluster: 'Curl',
+              poly: [
+                [20000, 20000],[19900, 20100],
+                [19900, 20300],[20100, 20300],
+                [20100, 20100],[20200, 20000],
+                [20200, 19800],[20100, 19700],
+                [19900, 19700],[19800, 19800],
+                [19900, 19900],[20000, 19800],
+                [20100, 19900],[20000, 20000]
+              ]
+            },
+            '43': {
+               cluster: 'Dot',
+               xy: [20000, 20500]
+             }
+          },
+          molecules: {
+            'Dilithium':[[20000, 20475]],
+            'Ice9':[[20025, 20500]],
+            'Kryptonite':[[20000, 20525]],
+            'Mithril':[[19975, 20500]]
+          }
+        }, null),
+        document.getElementById('spatial')
+      );
+    </script>
   </body>
 </html>
