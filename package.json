@@ -1,7 +1,7 @@
 {
   "name": "vitessce",
-  "version": "0.0.2",
-  "description": "Vitessce React component",
+  "version": "0.0.3",
+  "description": "Vitessce app and React component library",
   "main": "lib/index.js",
   "module": "es/index.js",
   "files": [
