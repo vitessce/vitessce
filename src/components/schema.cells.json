@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/hms-dbmi/vitessce/#cells",
+  "title": "Vitessce cell data",
+  "type": "object",
+  "patternProperties": {
+    "^\\w": {
+      "additionalProperties": false,
+      "properties": {
+        "tsne": {
+          "type": "array"
+        },
+        "cluster": {
+          "type": "string"
+        },
+        "genes": {
+          "type": "object"
+        },
+        "poly": {
+          "type": "array"
+        }
+      }
+    }
+  }
+}

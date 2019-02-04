@@ -1,3 +1,4 @@
+import Ajv from 'ajv';
 import PubSub from 'pubsub-js';
 import React from 'react';
 import FileDrop from 'react-file-drop';
@@ -30,7 +31,16 @@ export class FileManagerPublisher extends React.Component {
         reader.onload = function(event) {
           const json = event.target.result;
           const cells = JSON.parse(json);
-          PubSub.publish(CELLS_ADD, cells);
+
+          var schema = require('./schema.cells.json'); //require(`schema${extension}`);
+          var validate = new Ajv().compile(schema);
+          var valid = validate(cells);
+          if (valid) {
+            PubSub.publish(CELLS_ADD, cells);
+          } else {
+            PubSub.publish(WARNING_ADD, `Error reading ${file}: details in console.`);
+            console.warn(validate.errors);
+          }
         }
         reader.readAsText(file);
         break;
