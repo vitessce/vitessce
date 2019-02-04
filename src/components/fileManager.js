@@ -32,7 +32,6 @@ export class FileManagerPublisher extends React.Component {
           const json = event.target.result;
           const cells = JSON.parse(json);
 
-          // TODO: Move to constructor?
           var schema = require('./schemas/cells.schema.json');
           var validateCells = new Ajv().compile(schema);
 
@@ -52,7 +51,17 @@ export class FileManagerPublisher extends React.Component {
         reader.onload = function(event) {
           const json = event.target.result;
           const molecules = JSON.parse(json);
-          PubSub.publish(MOLECULES_ADD, molecules);
+
+          var schema = require('./schemas/molecules.schema.json');
+          var validateMolecules = new Ajv().compile(schema);
+
+          var valid = validateMolecules(molecules);
+          if (valid) {
+            PubSub.publish(MOLECULES_ADD, molecules);
+          } else {
+            PubSub.publish(WARNING_ADD, `Error reading ${file.name}: details in console.`);
+            console.warn(JSON.stringify(validateMolecules.errors, null, 2));
+          }
         }
         reader.readAsText(file);
         break;

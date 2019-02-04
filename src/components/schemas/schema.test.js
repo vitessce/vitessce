@@ -22,15 +22,31 @@ describe('cells.schema.json', ()=>{
       var valid = validate(data);
       expect(valid).toEqual(false);
       expect(validate.errors).toEqual(message);
+    })
+  })
+});
 
-      // {
-      //   keyword: 'type',
-      //   dataPath: '['778'].tsne[1]',
-      //   schemaPath: '#/definitions/coord/items/type',
-      //   params: Object{type: ...},
-      //   message: 'should be number'
-      // }]
+describe('molecules.schema.json', ()=>{
+  var schema = require('./molecules.schema.json');
+  var validate = new Ajv().compile(schema);
+  var goodFixtures = ['good.molecules.json'];
+  goodFixtures.forEach((f) => {
+    it(`handles ${f}`, ()=>{
+      var data = require(`./fixtures/${f}`);
+      var valid = validate(data);
+      if (!valid) { console.warn(validate.errors); }
+      expect(valid).toEqual(true);
+    })
+  });
 
+  var badFixtures = [['bad.molecules.json', 'bad.molecules.message.json']];
+  badFixtures.forEach(([input, output]) => {
+    it(`handles ${input}`, ()=>{
+      var data = require(`./fixtures/${input}`);
+      var message = require(`./fixtures/${output}`);
+      var valid = validate(data);
+      expect(valid).toEqual(false);
+      expect(validate.errors).toEqual(message);
     })
   })
 });
