@@ -3,13 +3,22 @@
   "$id": "https://github.com/hms-dbmi/vitessce/#cells",
   "title": "Vitessce cell data",
   "type": "object",
+  "definitions": {
+    "coord": {
+      "type": "array",
+      "maxItems": 2,
+      "minItems": 2,
+      "items": {
+        "type": "number"
+      }
+    }
+  },
   "patternProperties": {
     "^\\w": {
       "additionalProperties": false,
       "properties": {
-        "tsne": {
-          "type": "array"
-        },
+        "tsne": { "$ref": "#/definitions/coord" },
+        "xy": { "$ref": "#/definitions/coord" },
         "cluster": {
           "type": "string"
         },
@@ -17,10 +26,8 @@
           "type": "object"
         },
         "poly": {
-          "type": "array"
-        },
-        "xy": {
-          "type": "array"
+          "type": "array",
+          "items": { "$ref": "#/definitions/coord" }
         }
       }
     }
