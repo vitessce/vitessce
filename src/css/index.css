@@ -9,3 +9,7 @@
 html, body, .container-fluid, .row {
   height:100%;
 }
+
+body {
+  overflow: hidden;
+}
