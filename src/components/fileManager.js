@@ -30,7 +30,13 @@ export class FileManagerPublisher extends React.Component {
         const reader = new FileReader();
         reader.onload = function(event) {
           const json = event.target.result;
-          const cells = JSON.parse(json);
+          try {
+            var cells = JSON.parse(json);
+          } catch (e) {
+            PubSub.publish(WARNING_ADD, `Invalid JSON: ${file.name}. Details in console.`);
+            console.warn(e);
+            return;
+          }
 
           var schema = require('./schemas/cells.schema.json');
           var validateCells = new Ajv().compile(schema);
@@ -39,7 +45,7 @@ export class FileManagerPublisher extends React.Component {
           if (valid) {
             PubSub.publish(CELLS_ADD, cells);
           } else {
-            PubSub.publish(WARNING_ADD, `Error reading ${file.name}: details in console.`);
+            PubSub.publish(WARNING_ADD, `JSON violates schema: ${file.name}. Details in console.`);
             console.warn(JSON.stringify(validateCells.errors, null, 2));
           }
         }
@@ -50,7 +56,13 @@ export class FileManagerPublisher extends React.Component {
         const reader = new FileReader();
         reader.onload = function(event) {
           const json = event.target.result;
-          const molecules = JSON.parse(json);
+          try {
+            var molecules = JSON.parse(json);
+          } catch (e) {
+            PubSub.publish(WARNING_ADD, `Invalid JSON: ${file.name}. Details in console.`);
+            console.warn(e);
+            return;
+          }
 
           var schema = require('./schemas/molecules.schema.json');
           var validateMolecules = new Ajv().compile(schema);
@@ -59,7 +71,7 @@ export class FileManagerPublisher extends React.Component {
           if (valid) {
             PubSub.publish(MOLECULES_ADD, molecules);
           } else {
-            PubSub.publish(WARNING_ADD, `Error reading ${file.name}: details in console.`);
+            PubSub.publish(WARNING_ADD, `JSON violates schema: ${file.name}. Details in console.`);
             console.warn(JSON.stringify(validateMolecules.errors, null, 2));
           }
         }
