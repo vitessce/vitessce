@@ -8,22 +8,24 @@
       "type": "array",
       "maxItems": 2,
       "minItems": 2,
-      "items": {
-        "type": "number"
-      }
+      "items": { "type": "number" }
     }
   },
   "patternProperties": {
-    "^\\w": {
+    ".": {
       "additionalProperties": false,
       "properties": {
         "tsne": { "$ref": "#/definitions/coord" },
         "xy": { "$ref": "#/definitions/coord" },
-        "cluster": {
-          "type": "string"
-        },
+        "cluster": { "type": "string" },
         "genes": {
-          "type": "object"
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
         },
         "poly": {
           "type": "array",
