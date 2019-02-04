@@ -1,3 +1,4 @@
+import Ajv from 'ajv';
 import PubSub from 'pubsub-js';
 import React from 'react';
 import FileDrop from 'react-file-drop';
@@ -29,8 +30,24 @@ export class FileManagerPublisher extends React.Component {
         const reader = new FileReader();
         reader.onload = function(event) {
           const json = event.target.result;
-          const cells = JSON.parse(json);
-          PubSub.publish(CELLS_ADD, cells);
+          try {
+            var cells = JSON.parse(json);
+          } catch (e) {
+            PubSub.publish(WARNING_ADD, `Invalid JSON: ${file.name}. Details in console.`);
+            console.warn(e);
+            return;
+          }
+
+          var schema = require('./schemas/cells.schema.json');
+          var validateCells = new Ajv().compile(schema);
+
+          var valid = validateCells(cells);
+          if (valid) {
+            PubSub.publish(CELLS_ADD, cells);
+          } else {
+            PubSub.publish(WARNING_ADD, `JSON violates schema: ${file.name}. Details in console.`);
+            console.warn(JSON.stringify(validateCells.errors, null, 2));
+          }
         }
         reader.readAsText(file);
         break;
@@ -39,8 +56,24 @@ export class FileManagerPublisher extends React.Component {
         const reader = new FileReader();
         reader.onload = function(event) {
           const json = event.target.result;
-          const molecules = JSON.parse(json);
-          PubSub.publish(MOLECULES_ADD, molecules);
+          try {
+            var molecules = JSON.parse(json);
+          } catch (e) {
+            PubSub.publish(WARNING_ADD, `Invalid JSON: ${file.name}. Details in console.`);
+            console.warn(e);
+            return;
+          }
+
+          var schema = require('./schemas/molecules.schema.json');
+          var validateMolecules = new Ajv().compile(schema);
+
+          var valid = validateMolecules(molecules);
+          if (valid) {
+            PubSub.publish(MOLECULES_ADD, molecules);
+          } else {
+            PubSub.publish(WARNING_ADD, `JSON violates schema: ${file.name}. Details in console.`);
+            console.warn(JSON.stringify(validateMolecules.errors, null, 2));
+          }
         }
         reader.readAsText(file);
         break;
