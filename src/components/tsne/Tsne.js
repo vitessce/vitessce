@@ -40,6 +40,8 @@ function renderLayers(props) {
         id: 'tsne-scatter-plot',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: scatterplotData,
+        pickable: true,
+        autoHighlight: true,
         getRadius: 0.5,
         getPosition: d => [d[0], d[1], 0],
         getColor: d => clusterColors[d[2]]

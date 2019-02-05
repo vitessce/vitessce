@@ -69,6 +69,7 @@ function renderLayers(props) {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: Object.entries(cells),
         pickable: true,
+        autoHighlight: true,
         // onHover: info => console.log('Cell Hovered:', info),
         // onClick: info => console.log('Cell Clicked:', info),
         stroked: true,
