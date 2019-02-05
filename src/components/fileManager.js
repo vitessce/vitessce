@@ -79,29 +79,33 @@ export class FileManager extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      files: []
+      fileNames: []
     };
 
     this.handleDrop = this.handleDrop.bind(this);
   }
 
   handleDrop(files, event) {
-    var filesCopy = this.state.files.slice();
+    var fileNamesCopy = this.state.fileNames.slice();
     for (const f of files) {
-      filesCopy.push(f.name);
+      if (! fileNamesCopy.includes(f.name)) {
+        // Do not add duplicate entries to list...
+        fileNamesCopy.push(f.name);
+      }
+      // ... but we do update the data.
+      // This is easy, and good enough for now.
       this.props.onAddFile(f);
     }
-    var newState = {files: filesCopy};
-    this.setState(newState);
+    this.setState({fileNames: fileNamesCopy});
   }
 
   render() {
-    const files = this.state.files.map(
-      file => <li className="list-group-item" key={file}>{file}</li>
+    const fileList = this.state.fileNames.map(
+      fileName => <li className="list-group-item" key={fileName}>{fileName}</li>
     );
 
-    const message = files.length
-      ? <ul className="list-group">{files}</ul>
+    const message = fileList.length
+      ? <ul className="list-group">{fileList}</ul>
       : 'Drop files here';
     return (
       <div>
