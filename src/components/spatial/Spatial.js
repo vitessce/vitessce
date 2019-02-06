@@ -1,9 +1,8 @@
 import React from 'react';
 import DeckGL, {ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
-import {Matrix4} from 'math.gl';
-import {BitmapLayer} from '@deck.gl/experimental-layers';
 import PropTypes from 'prop-types';
+
 
 function square(x, y) {
   return [[x, y+100], [x+100, y], [x, y-100], [x-100, y]]
@@ -29,32 +28,33 @@ const PALETTE = [
 
 function renderLayers(props) {
   const {
-    baseImg = undefined,
+    // baseImg = undefined,
     molecules = undefined,
-    cells = undefined
+    cells = undefined,
+    updateStatus = (message) => { console.warn(`Spatial updateStatus: ${message}`)}
   } = props;
 
   var layers = [];
 
-  if (baseImg) {
-    const multiplier = 200; // TODO: derive from filename?
-    const scale = [baseImg.width * multiplier, baseImg.height * multiplier, 1];
-    layers.push(
-      new BitmapLayer({
-        id: 'bitmap-layer',
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        images: [baseImg.url],
-        data: [{
-          imageUrl: baseImg.url,
-          center: [0, 0, 0],
-          rotation: 0
-        }],
-        opacity: 1,
-        // By default, loads as a 1x1 image.
-        modelMatrix: new Matrix4().scale(scale)
-      })
-    );
-  }
+  // if (baseImg) {
+  //   const multiplier = 200; // TODO: derive from filename?
+  //   const scale = [baseImg.width * multiplier, baseImg.height * multiplier, 1];
+  //   layers.push(
+  //     new BitmapLayer({
+  //       id: 'bitmap-layer',
+  //       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+  //       images: [baseImg.url],
+  //       data: [{
+  //         imageUrl: baseImg.url,
+  //         center: [0, 0, 0],
+  //         rotation: 0
+  //       }],
+  //       opacity: 1,
+  //       // By default, loads as a 1x1 image.
+  //       modelMatrix: new Matrix4().scale(scale)
+  //     })
+  //   );
+  // }
 
   if (cells) {
     var clusterColors = {};
@@ -69,8 +69,7 @@ function renderLayers(props) {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: Object.entries(cells),
         pickable: true,
-        // onHover: info => console.log('Cell Hovered:', info),
-        // onClick: info => console.log('Cell Clicked:', info),
+        autoHighlight: true,
         stroked: true,
         filled: true,
         wireframe: true,
@@ -83,23 +82,22 @@ function renderLayers(props) {
         getFillColor: cellEntry => clusterColors[cellEntry[1].cluster],
         getLineColor: [80, 80, 80],
         getLineWidth: 1,
-        // onHover: ({object, x, y}) => {
-        //   //const tooltip = `${object.zipcode}\nPopulation: ${object.population}`;
-        //   /* Update tooltip
-        //      http://deck.gl/#/documentation/developer-guide/adding-interactivity?section=example-display-a-tooltip-for-hovered-object
-        //   */
-        // }
+        onHover: info => {
+          if (info.object) { updateStatus(`Cluster: ${info.object[1].cluster}`) }
+        }
+        //onClick: info => console.log('Clicked:', info)
       })
     );
   }
 
   if (molecules) {
-    var scatterplot_data = [];
+    var scatterplotData = [];
     var index = 0;
     for (const [molecule, coords] of Object.entries(molecules)) {
-      console.warn('TODO: Use molecule in scatterplot_data: ' + molecule);
-      scatterplot_data = scatterplot_data.concat(
-        coords.map(([x,y]) => [x,y,index]) // eslint-disable-line no-loop-func
+      scatterplotData = scatterplotData.concat(
+        coords.map(([x,y]) => [x,y,index,molecule]) // eslint-disable-line no-loop-func
+        // TODO: Using an object would be more clear, but is there a performance penalty,
+        // either in time or memory?
       );
       index++;
     }
@@ -107,13 +105,18 @@ function renderLayers(props) {
       new ScatterplotLayer({
         id: 'scatter-plot',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        data: scatterplot_data,
+        data: scatterplotData,
+        pickable: true,
+        autoHighlight: true,
         // TODO: How do the other radius attributes work?
         // If it were possible to have dots that remained the same size,
         // regardless of zoom, would we prefer that?
         getRadius: 10,
         getPosition: d => [d[0], d[1], 0],
-        getColor: d => PALETTE[d[2] % PALETTE.length]
+        getColor: d => PALETTE[d[2] % PALETTE.length],
+        onHover: info => {
+          if (info.object) { updateStatus(`Gene: ${info.object[3]}`) }
+        }
       })
     );
   }

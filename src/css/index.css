@@ -6,10 +6,6 @@
   text-align: left;
 }
 
-html, body, .container-fluid, .row {
-  height:100%;
-}
-
-body {
-  overflow: hidden;
+html,body {
+  height: 100%;
 }

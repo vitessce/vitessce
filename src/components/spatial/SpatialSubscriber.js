@@ -1,6 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { IMAGE_ADD, MOLECULES_ADD, CELLS_ADD } from '../../events';
+import { IMAGE_ADD, MOLECULES_ADD, CELLS_ADD, STATUS_INFO } from '../../events';
 import Spatial from './Spatial';
 
 
@@ -40,6 +40,7 @@ export class SpatialSubscriber extends React.Component {
         baseImg={this.state.baseImg}
         molecules={this.state.molecules}
         cells={this.state.cells}
+        updateStatus={(message) => PubSub.publish(STATUS_INFO, message)}
       />
     );
   }

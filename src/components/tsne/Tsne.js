@@ -21,7 +21,8 @@ const PALETTE = [
 
 function renderLayers(props) {
   const {
-    cells = undefined
+    cells = undefined,
+    updateStatus = (message) => { console.warn(`Tsne updateStatus: ${message}`)}
   } = props;
 
   var layers = [];
@@ -40,9 +41,14 @@ function renderLayers(props) {
         id: 'tsne-scatter-plot',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: scatterplotData,
+        pickable: true,
+        autoHighlight: true,
         getRadius: 0.5,
         getPosition: d => [d[0], d[1], 0],
-        getColor: d => clusterColors[d[2]]
+        getColor: d => clusterColors[d[2]],
+        onHover: info => {
+          if (info.object) { updateStatus(`Cluster: ${info.object[2]}`) }
+        }
       })
     );
   }
