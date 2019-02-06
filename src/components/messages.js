@@ -7,7 +7,7 @@ import { STATUS } from '../events';
 export class MessagesSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {message: ''};
+    this.state = {message: undefined};
   }
 
   componentWillMount() {
@@ -30,9 +30,9 @@ export class MessagesSubscriber extends React.Component {
 }
 
 export function Message(props) {
-  return (
-    <p>{props.message}</p>
-  );
+  return props.message
+    ? <p>{props.message}</p>
+    : <p>Sample data is available <a href='https://github.com/hms-dbmi/vitessce-data/tree/master/fake-files/output-expected'>here</a>.</p>;
 }
 
 Message.propTypes = {

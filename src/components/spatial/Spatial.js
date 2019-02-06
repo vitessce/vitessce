@@ -89,12 +89,6 @@ function renderLayers(props) {
         getLineColor: [80, 80, 80],
         getLineWidth: 1,
         onHover: info => PubSub.publish(STATUS_INFO, `Cluster: ${info.object[1].cluster}`),
-        // onHover: ({object, x, y}) => {
-        //   //const tooltip = `${object.zipcode}\nPopulation: ${object.population}`;
-        //   /* Update tooltip
-        //      http://deck.gl/#/documentation/developer-guide/adding-interactivity?section=example-display-a-tooltip-for-hovered-object
-        //   */
-        //
         onClick: info => console.log('Clicked:', info)
       })
     );
