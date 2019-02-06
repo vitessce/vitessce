@@ -4,7 +4,7 @@ import React from 'react';
 import FileDrop from 'react-file-drop';
 import PropTypes from 'prop-types';
 
-import { STATUS_WARN, MOLECULES_ADD, CELLS_ADD } from '../events'
+import { STATUS_WARN, STATUS_INFO, MOLECULES_ADD, CELLS_ADD } from '../events'
 
 // function loadPng(file) {
 //   const url = URL.createObjectURL(file);
@@ -32,6 +32,8 @@ function parseJson(file, schema, topic) {
     var valid = validate(data);
     if (valid) {
       PubSub.publish(topic, data);
+      PubSub.publish(STATUS_INFO, ' ');
+      // Clear "Please wait...". Empty string would bring back welcome message.
     } else {
       PubSub.publish(STATUS_WARN, `JSON violates schema: ${file.name}. Details in console.`);
       console.warn(JSON.stringify(validate.errors, null, 2));
@@ -60,6 +62,7 @@ export class FileManagerPublisher extends React.Component {
         break;
       }
       case '.molecules.json': {
+        PubSub.publish(STATUS_WARN, 'Loading molecules will take a moment; Please wait...');
         parseJson(file, require('./schemas/molecules.schema.json'), MOLECULES_ADD);
         break;
       }
