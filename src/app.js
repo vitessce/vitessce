@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { FileManagerPublisher } from './components/fileManager';
-import { MessagesSubscriber } from './components/messages';
+import { StatusSubscriber } from './components/status/';
 import { TsneSubscriber } from './components/tsne/';
 import { HeatmapSubscriber } from './components/heatmap/';
 import { SpatialSubscriber } from './components/spatial/';
@@ -25,7 +25,7 @@ export default function renderApp(id) {
     <div class="container-fluid d-flex h-100 px-0">
       <div class="${left}">
         <div id="filemanager" class="${card}"></div>
-        <div id="messages" class="${card}"></div>
+        <div id="status" class="${card}"></div>
         <div id="tsne" class="${card}" style="height: 50%;"></div>
       </div>
       <div class="${right}">
@@ -36,7 +36,7 @@ export default function renderApp(id) {
   `;
 
   renderComponent(<FileManagerPublisher />, 'filemanager');
-  renderComponent(<MessagesSubscriber />, 'messages');
+  renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
   renderComponent(<SpatialSubscriber />, 'spatial');

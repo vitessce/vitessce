@@ -1,10 +1,10 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import PropTypes from 'prop-types';
+import Status from './Status'
 
-import { STATUS_WARN, STATUS_INFO } from '../events';
+import { STATUS_WARN, STATUS_INFO } from '../../events';
 
-export class MessagesSubscriber extends React.Component {
+export class StatusSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {message: undefined};
@@ -30,18 +30,7 @@ export class MessagesSubscriber extends React.Component {
 
   render() {
     return (
-      <Message warn={this.state.warn} message={this.state.message}></Message>
+      <Status warn={this.state.warn} message={this.state.message}/>
     );
   }
-}
-
-export function Message(props) {
-  return props.message
-    ? <p className={props.warn ? 'alert alert-warning' : ''}>{props.message}</p>
-    : <p className='alert alert-info'>Sample data is available <a href='https://github.com/hms-dbmi/vitessce-data/tree/master/fake-files/output-expected'>here</a>.</p>;
-}
-
-Message.propTypes = {
-  message: PropTypes.string,
-  warn: PropTypes.boolean
 }
