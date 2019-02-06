@@ -1,6 +1,8 @@
 import React from 'react';
 import DeckGL, {ScatterplotLayer, COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
+import PubSub from 'pubsub-js';
+import { STATUS_INFO } from '../../events'
 
 // TODO: Dynamic palette generation? Or set by user?
 // from http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12#type=qualitative&scheme=Paired&n=12
@@ -44,7 +46,12 @@ function renderLayers(props) {
         autoHighlight: true,
         getRadius: 0.5,
         getPosition: d => [d[0], d[1], 0],
-        getColor: d => clusterColors[d[2]]
+        getColor: d => clusterColors[d[2]],
+        onHover: info => {
+          if (info.object) {
+            PubSub.publish(STATUS_INFO, `Cluster: ${info.object[2]}`);
+          }
+        }
       })
     );
   }

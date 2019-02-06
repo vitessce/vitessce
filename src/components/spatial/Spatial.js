@@ -74,8 +74,6 @@ function renderLayers(props) {
         data: Object.entries(cells),
         pickable: true,
         autoHighlight: true,
-        // onHover: info => console.log('Cell Hovered:', info),
-        // onClick: info => console.log('Cell Clicked:', info),
         stroked: true,
         filled: true,
         wireframe: true,
@@ -88,8 +86,12 @@ function renderLayers(props) {
         getFillColor: cellEntry => clusterColors[cellEntry[1].cluster],
         getLineColor: [80, 80, 80],
         getLineWidth: 1,
-        onHover: info => PubSub.publish(STATUS_INFO, `Cluster: ${info.object[1].cluster}`),
-        onClick: info => console.log('Clicked:', info)
+        onHover: info => {
+          if (info.object) {
+            PubSub.publish(STATUS_INFO, `Cluster: ${info.object[1].cluster}`);
+          }
+        }
+        //onClick: info => console.log('Clicked:', info)
       })
     );
   }
@@ -116,7 +118,7 @@ function renderLayers(props) {
         // regardless of zoom, would we prefer that?
         getRadius: 10,
         getPosition: d => [d[0], d[1], 0],
-        getColor: d => PALETTE[d[2] % PALETTE.length]
+        getColor: d => PALETTE[d[2] % PALETTE.length],
       })
     );
   }
