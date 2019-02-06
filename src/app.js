@@ -15,20 +15,22 @@ function renderComponent(react, id) {
 }
 
 export default function renderApp(id) {
+  const card = 'card card-body bg-light my-2';
+  const [lLg, lMd, lSm] = [4, 5, 6];
+  const [rLg, rMd, rSm] = [12 - lLg, 12 - lMd, 12 - lSm];
+  const col = 'd-flex flex-column pr-2';
+  const left = `${col} col-lg-${lLg} col-md-${lMd} col-sm-${lSm}`;
+  const right = `${col} col-lg-${rLg} col-md-${rMd} col-sm-${rSm}`;
   document.getElementById(id).innerHTML = `
-    <div class="container-fluid">
-      <div class="row">
-        <div id="sidebar" class="col-lg-4 col-md-5 col-sm-6">
-          <div class="card card-body bg-light my-3" style="height: 30%;">
-            <div id="filemanager"></div>
-            <div id="messages"></div>
-          </div>
-          <div id="tsne" class="card card-body bg-light my-3" style="height: 65%;"></div>
-        </div>
-        <div id="main" class="col-lg-8 col-md-7 col-sm-6">
-          <div id="spatial" class="card card-body bg-light my-3" style="height: 60%;"></div>
-          <div id="heatmap" class="card card-body bg-light my-3" style="height: 35%;"></div>
-        </div>
+    <div class="container-fluid d-flex h-100 px-0">
+      <div class="${left}">
+        <div id="filemanager" class="${card}"></div>
+        <div id="messages" class="${card}"></div>
+        <div id="tsne" class="${card}" style="height: 50%;"></div>
+      </div>
+      <div class="${right}">
+        <div id="spatial" class="${card}" style="height: 60%;"></div>
+        <div id="heatmap" class="${card}" style="min-height: 200px;"></div>
       </div>
     </div>
   `;

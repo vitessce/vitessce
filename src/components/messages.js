@@ -2,7 +2,7 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import PropTypes from 'prop-types';
 
-import { STATUS } from '../events';
+import { STATUS_WARN, STATUS_INFO } from '../events';
 
 export class MessagesSubscriber extends React.Component {
   constructor(props) {
@@ -11,20 +11,26 @@ export class MessagesSubscriber extends React.Component {
   }
 
   componentWillMount() {
-    this.token = PubSub.subscribe(STATUS, this.subscriber.bind(this));
+    this.warnToken = PubSub.subscribe(STATUS_WARN, this.warnSubscriber.bind(this));
+    this.infoToken = PubSub.subscribe(STATUS_INFO, this.infoSubscriber.bind(this));
   }
 
   componentWillUnmount() {
-    PubSub.unsubscribe(this.token);
+    PubSub.unsubscribe(this.warnToken);
+    PubSub.unsubscribe(this.infoToken);
   }
 
-  subscriber(msg, data) {
-    this.setState({message: data});
+  warnSubscriber(msg, data) {
+    this.setState({warn: true, message: data});
+  }
+
+  infoSubscriber(msg, data) {
+    this.setState({warn: false, message: data});
   }
 
   render() {
     return (
-      <Message message={this.state.message}></Message>
+      <Message warn={this.state.warn} message={this.state.message}></Message>
     );
   }
 }
