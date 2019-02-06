@@ -1,6 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { CELLS_ADD } from '../../events';
+import { CELLS_ADD, STATUS_INFO } from '../../events';
 import Tsne from './Tsne';
 
 export class TsneSubscriber extends React.Component {
@@ -23,7 +23,7 @@ export class TsneSubscriber extends React.Component {
 
   render() {
     return (
-      <Tsne cells={this.state.cells}></Tsne>
+      <Tsne cells={this.state.cells} updateStatus={(message) => PubSub.publish(STATUS_INFO, message)}/>
     );
   }
 }

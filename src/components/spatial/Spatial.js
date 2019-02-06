@@ -1,12 +1,7 @@
 import React from 'react';
-import PubSub from 'pubsub-js';
 import DeckGL, {ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
-import {Matrix4} from 'math.gl';
-import {BitmapLayer} from '@deck.gl/experimental-layers';
 import PropTypes from 'prop-types';
-
-import { STATUS_INFO } from '../../events'
 
 
 function square(x, y) {
@@ -33,32 +28,33 @@ const PALETTE = [
 
 function renderLayers(props) {
   const {
-    baseImg = undefined,
+    // baseImg = undefined,
     molecules = undefined,
-    cells = undefined
+    cells = undefined,
+    updateStatus = (message) => { console.warn(`Spatial updateStatus: ${message}`)}
   } = props;
 
   var layers = [];
 
-  if (baseImg) {
-    const multiplier = 200; // TODO: derive from filename?
-    const scale = [baseImg.width * multiplier, baseImg.height * multiplier, 1];
-    layers.push(
-      new BitmapLayer({
-        id: 'bitmap-layer',
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        images: [baseImg.url],
-        data: [{
-          imageUrl: baseImg.url,
-          center: [0, 0, 0],
-          rotation: 0
-        }],
-        opacity: 1,
-        // By default, loads as a 1x1 image.
-        modelMatrix: new Matrix4().scale(scale)
-      })
-    );
-  }
+  // if (baseImg) {
+  //   const multiplier = 200; // TODO: derive from filename?
+  //   const scale = [baseImg.width * multiplier, baseImg.height * multiplier, 1];
+  //   layers.push(
+  //     new BitmapLayer({
+  //       id: 'bitmap-layer',
+  //       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+  //       images: [baseImg.url],
+  //       data: [{
+  //         imageUrl: baseImg.url,
+  //         center: [0, 0, 0],
+  //         rotation: 0
+  //       }],
+  //       opacity: 1,
+  //       // By default, loads as a 1x1 image.
+  //       modelMatrix: new Matrix4().scale(scale)
+  //     })
+  //   );
+  // }
 
   if (cells) {
     var clusterColors = {};
@@ -87,9 +83,7 @@ function renderLayers(props) {
         getLineColor: [80, 80, 80],
         getLineWidth: 1,
         onHover: info => {
-          if (info.object) {
-            PubSub.publish(STATUS_INFO, `Cluster: ${info.object[1].cluster}`);
-          }
+          if (info.object) { updateStatus(`Cluster: ${info.object[1].cluster}`) }
         }
         //onClick: info => console.log('Clicked:', info)
       })

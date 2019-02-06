@@ -4,16 +4,16 @@ import React from 'react';
 import FileDrop from 'react-file-drop';
 import PropTypes from 'prop-types';
 
-import { IMAGE_ADD, STATUS_WARN, MOLECULES_ADD, CELLS_ADD } from '../events'
+import { STATUS_WARN, MOLECULES_ADD, CELLS_ADD } from '../events'
 
-function loadPng(file) {
-  const url = URL.createObjectURL(file);
-  const img = new Image();
-  img.onload = function() {
-    PubSub.publish(IMAGE_ADD, {url: url, width: this.width, height: this.height});
-  }
-  img.src = url;
-}
+// function loadPng(file) {
+//   const url = URL.createObjectURL(file);
+//   const img = new Image();
+//   img.onload = function() {
+//     PubSub.publish(IMAGE_ADD, {url: url, width: this.width, height: this.height});
+//   }
+//   img.src = url;
+// }
 
 function parseJson(file, schema, topic) {
   const reader = new FileReader();
@@ -51,10 +51,10 @@ export class FileManagerPublisher extends React.Component {
   onAddFile(file) {
     const extension = file.name.match(/\..*/)[0];
     switch (extension) {
-      case '.png': {
-        loadPng(file);
-        break;
-      }
+      // case '.png': {
+      //   loadPng(file);
+      //   break;
+      // }
       case '.cells.json': {
         parseJson(file, require('./schemas/cells.schema.json'), CELLS_ADD);
         break;
