@@ -91,12 +91,13 @@ function renderLayers(props) {
   }
 
   if (molecules) {
-    var scatterplot_data = [];
+    var scatterplotData = [];
     var index = 0;
     for (const [molecule, coords] of Object.entries(molecules)) {
-      console.warn('TODO: Use molecule in scatterplot_data: ' + molecule);
-      scatterplot_data = scatterplot_data.concat(
-        coords.map(([x,y]) => [x,y,index]) // eslint-disable-line no-loop-func
+      scatterplotData = scatterplotData.concat(
+        coords.map(([x,y]) => [x,y,index,molecule]) // eslint-disable-line no-loop-func
+        // TODO: Using an object would be more clear, but is there a performance penalty,
+        // either in time or memory?
       );
       index++;
     }
@@ -104,7 +105,7 @@ function renderLayers(props) {
       new ScatterplotLayer({
         id: 'scatter-plot',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        data: scatterplot_data,
+        data: scatterplotData,
         pickable: true,
         autoHighlight: true,
         // TODO: How do the other radius attributes work?
@@ -113,6 +114,9 @@ function renderLayers(props) {
         getRadius: 10,
         getPosition: d => [d[0], d[1], 0],
         getColor: d => PALETTE[d[2] % PALETTE.length],
+        onHover: info => {
+          if (info.object) { updateStatus(`Gene: ${info.object[3]}`) }
+        }
       })
     );
   }
