@@ -1,9 +1,13 @@
 import React from 'react';
+import PubSub from 'pubsub-js';
 import DeckGL, {ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
 import {Matrix4} from 'math.gl';
 import {BitmapLayer} from '@deck.gl/experimental-layers';
 import PropTypes from 'prop-types';
+
+import { STATUS_INFO } from '../../events'
+
 
 function square(x, y) {
   return [[x, y+100], [x+100, y], [x, y-100], [x-100, y]]
@@ -84,12 +88,14 @@ function renderLayers(props) {
         getFillColor: cellEntry => clusterColors[cellEntry[1].cluster],
         getLineColor: [80, 80, 80],
         getLineWidth: 1,
+        onHover: info => PubSub.publish(STATUS_INFO, `Cluster: ${info.object[1].cluster}`),
         // onHover: ({object, x, y}) => {
         //   //const tooltip = `${object.zipcode}\nPopulation: ${object.population}`;
         //   /* Update tooltip
         //      http://deck.gl/#/documentation/developer-guide/adding-interactivity?section=example-display-a-tooltip-for-hovered-object
         //   */
-        // }
+        //
+        onClick: info => console.log('Clicked:', info)
       })
     );
   }
@@ -109,6 +115,8 @@ function renderLayers(props) {
         id: 'scatter-plot',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: scatterplot_data,
+        pickable: true,
+        autoHighlight: true,
         // TODO: How do the other radius attributes work?
         // If it were possible to have dots that remained the same size,
         // regardless of zoom, would we prefer that?

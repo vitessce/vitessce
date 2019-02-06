@@ -4,7 +4,7 @@ import React from 'react';
 import FileDrop from 'react-file-drop';
 import PropTypes from 'prop-types';
 
-import { IMAGE_ADD, WARNING_ADD, MOLECULES_ADD, CELLS_ADD } from '../events'
+import { IMAGE_ADD, STATUS_WARN, MOLECULES_ADD, CELLS_ADD } from '../events'
 
 function loadPng(file) {
   const url = URL.createObjectURL(file);
@@ -22,7 +22,7 @@ function parseJson(file, schema, topic) {
     try {
       var data = JSON.parse(json);
     } catch (e) {
-      PubSub.publish(WARNING_ADD, `Invalid JSON: ${file.name}. Details in console.`);
+      PubSub.publish(STATUS_WARN, `Invalid JSON: ${file.name}. Details in console.`);
       console.warn(e);
       return;
     }
@@ -33,7 +33,7 @@ function parseJson(file, schema, topic) {
     if (valid) {
       PubSub.publish(topic, data);
     } else {
-      PubSub.publish(WARNING_ADD, `JSON violates schema: ${file.name}. Details in console.`);
+      PubSub.publish(STATUS_WARN, `JSON violates schema: ${file.name}. Details in console.`);
       console.warn(JSON.stringify(validate.errors, null, 2));
     }
   }
@@ -64,7 +64,7 @@ export class FileManagerPublisher extends React.Component {
         break;
       }
       default:
-        PubSub.publish(WARNING_ADD, `File extension "${extension}" is not recognized.`);
+        PubSub.publish(STATUS_WARN, `File extension "${extension}" is not recognized.`);
     }
   }
 
