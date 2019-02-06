@@ -37,10 +37,11 @@ export class MessagesSubscriber extends React.Component {
 
 export function Message(props) {
   return props.message
-    ? <p>{props.message}</p>
-    : <p>Sample data is available <a href='https://github.com/hms-dbmi/vitessce-data/tree/master/fake-files/output-expected'>here</a>.</p>;
+    ? <p className={props.warn ? 'alert alert-warning' : ''}>{props.message}</p>
+    : <p className='alert alert-info'>Sample data is available <a href='https://github.com/hms-dbmi/vitessce-data/tree/master/fake-files/output-expected'>here</a>.</p>;
 }
 
 Message.propTypes = {
-  message: PropTypes.string
+  message: PropTypes.string,
+  warn: PropTypes.boolean
 }
