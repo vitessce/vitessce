@@ -26,18 +26,12 @@ const PALETTE = [
   [177,89,40]
 ];
 
-function renderLayers(props) {
+function renderLayers(props, selectedCellIds) {
   const {
     // baseImg = undefined,
     molecules = undefined,
     cells = undefined,
     updateStatus = (message) => { console.warn(`Spatial updateStatus: ${message}`)},
-    selectedCellIds = [
-      '4000', '4001', '4002', '4003', '4004',
-      '4010', '4011', '4012', '4013', '4014',
-      '4020', '4021', '4032', '4043', '4044',
-      '4050', '4051', '4052', '4053', '4054'
-    ]
   } = props;
 
   var layers = [];
@@ -170,16 +164,21 @@ const INITIAL_VIEW_STATE = {
 
 
 export default class Spatial extends React.Component {
-  // constructor(props) {
-  //   super(props);
-  //   this.state = {selectedCellIds: undefined};
-  // }
+  constructor(props) {
+    super(props);
+    this.state = {selectedCellIds: [
+      '4000', '4001', '4002', '4003', '4004',
+      '4010', '4011', '4012', '4013', '4014',
+      '4020', '4021', '4032', '4043', '4044',
+      '4050', '4051', '4052', '4053', '4054'
+    ]};
+  }
 
   render() {
     return (
       <DeckGL
         views={[new OrthographicView()]}
-        layers={renderLayers(this.props)}
+        layers={renderLayers(this.props, this.state.selectedCellIds)}
         initialViewState={INITIAL_VIEW_STATE}
         controller={true}
         //onViewStateChange={({viewState}) => {console.log(viewState)}}
