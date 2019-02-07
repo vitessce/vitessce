@@ -7,7 +7,7 @@ export default class SelectablePolygonLayer extends PolygonLayer {
     const overlayProps = {
       id: `selected-${id}`,
       getFillColor: [64,64,64],
-      data: data,
+      data: data.filter(isSelected),
       ...rest
     };
 

@@ -69,6 +69,7 @@ function renderLayers(props) {
         id: 'polygon-layer',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: Object.entries(cells),
+        isSelected: cellEntry => cellEntry[0] % 2,
         pickable: true,
         autoHighlight: true,
         stroked: true,
