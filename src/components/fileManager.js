@@ -66,12 +66,12 @@ export class FileManagerPublisher extends React.Component {
       //   break;
       // }
       case '.cells.json': {
-        parseJson(file, require('./schemas/cells.schema.json'), CELLS_ADD);
+        parseJson(file, require('../schemas/cells.schema.json'), CELLS_ADD);
         break;
       }
       case '.molecules.json': {
         warn('Loading molecules will take a moment; Please wait...');
-        parseJson(file, require('./schemas/molecules.schema.json'), MOLECULES_ADD);
+        parseJson(file, require('../schemas/molecules.schema.json'), MOLECULES_ADD);
         break;
       }
       default:

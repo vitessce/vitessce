@@ -1,6 +1,7 @@
 import React from 'react';
-import DeckGL, {ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, OrthographicView}
+import DeckGL, {ScatterplotLayer, COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
+import {SelectablePolygonLayer} from '../../layers/'
 import PropTypes from 'prop-types';
 
 
@@ -64,7 +65,7 @@ function renderLayers(props) {
       }
     }
     layers.push(
-      new PolygonLayer({
+      new SelectablePolygonLayer({
         id: 'polygon-layer',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: Object.entries(cells),
