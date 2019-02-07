@@ -9,5 +9,5 @@ export default function Status(props) {
 
 Status.propTypes = {
   message: PropTypes.string,
-  warn: PropTypes.boolean
+  warn: PropTypes.bool
 }
