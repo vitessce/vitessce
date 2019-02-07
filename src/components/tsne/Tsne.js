@@ -40,10 +40,8 @@ export default class Tsne extends React.Component {
     var layers = [];
 
     if (cells) {
-      var scatterplotData = [];
       var clusterColors = {};
       for (const cell of Object.values(cells)) {
-        scatterplotData.push([cell.tsne[0], cell.tsne[1], cell.cluster]);
         if (! clusterColors[cell.cluster]) {
           clusterColors[cell.cluster] = PALETTE[Object.keys(clusterColors).length % PALETTE.length]
         }
@@ -51,15 +49,35 @@ export default class Tsne extends React.Component {
       layers.push(
         new SelectableScatterplotLayer({
           id: 'tsne-scatter-plot',
+          isSelected: cellEntry => {
+            return this.state.selectedCellIds[cellEntry[0]]
+          },
           coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-          data: scatterplotData,
+          data: Object.entries(cells),
           pickable: true,
           autoHighlight: true,
           getRadius: 0.5,
-          getPosition: d => [d[0], d[1], 0],
-          getColor: d => clusterColors[d[2]],
+          getPosition: cellEntry => {
+            const cell = cellEntry[1]
+            return [cell.tsne[0], cell.tsne[1], 0];
+          },
+          getColor: cellEntry => clusterColors[cellEntry[1].cluster],
           onHover: info => {
-            if (info.object) { updateStatus(`Cluster: ${info.object[2]}`) }
+            if (info.object) { updateStatus(`Cluster: ${info.object[1].cluster}`) }
+          },
+          onClick: info => {
+            const cellId = info.object[0];
+            if (this.state.selectedCellIds[cellId]) {
+              this.setState((state) => {
+                delete state.selectedCellIds[cellId];
+                return {selectedCellIds: state.selectedCellIds}
+              })
+            } else {
+              this.setState((state) => {
+                state.selectedCellIds[cellId] = true;
+                return {selectedCellIds: state.selectedCellIds}
+              })
+            }
           }
         })
       );
