@@ -3,8 +3,16 @@ import {PolygonLayer} from 'deck.gl';
 
 export default class SelectablePolygonLayer extends PolygonLayer {
   renderLayers() {
-    console.log('rendering!');
-    return super.renderLayers();
+    var {id, getFillColor, data, isSelected, ...rest} = this.props;
+    const overlayProps = {
+      id: `selected-${id}`,
+      getFillColor: [64,64,64],
+      data: data,
+      ...rest
+    };
+
+    const overlay = new PolygonLayer(overlayProps)
+    return [...super.renderLayers(), overlay];
   }
 }
 
