@@ -59,7 +59,12 @@ export default class Spatial extends React.Component {
       // baseImg = undefined,
       molecules = undefined,
       cells = undefined,
-      updateStatus = (message) => { console.warn(`Spatial updateStatus: ${message}`)},
+      updateStatus = (message) => {
+        console.warn(`Spatial updateStatus: ${message}`)
+      },
+      updateCellsSelection = (cellsSelection) => {
+        console.warn(`Tsne updateCellsSelection: ${cellsSelection}`);
+      }
     } = this.props;
 
     var layers = [];
@@ -87,11 +92,13 @@ export default class Spatial extends React.Component {
             if (this.state.selectedCellIds[cellId]) {
               this.setState((state) => {
                 delete state.selectedCellIds[cellId];
+                updateCellsSelection(state.selectedCellIds);
                 return {selectedCellIds: state.selectedCellIds}
               })
             } else {
               this.setState((state) => {
                 state.selectedCellIds[cellId] = true;
+                updateCellsSelection(state.selectedCellIds);
                 return {selectedCellIds: state.selectedCellIds}
               })
             }
@@ -153,5 +160,6 @@ Spatial.propTypes = {
   controller: PropTypes.bool,
   molecules: PropTypes.object,
   cells: PropTypes.object,
-  updateStatus: PropTypes.func
+  updateStatus: PropTypes.func,
+  updateCellsSelection: PropTypes.func
 }

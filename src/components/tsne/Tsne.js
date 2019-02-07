@@ -1,8 +1,9 @@
 import React from 'react';
-import DeckGL, {COORDINATE_SYSTEM, OrthographicView}
+import DeckGL, {OrthographicView}
   from 'deck.gl';
 import {SelectableScatterplotLayer} from '../../layers/'
 import {cellLayerDefaultProps, PALETTE} from '../utils'
+import PropTypes from 'prop-types';
 
 
 const INITIAL_VIEW_STATE = {
@@ -19,7 +20,12 @@ export default class Tsne extends React.Component {
   renderLayers(props) {
     const {
       cells = undefined,
-      updateStatus = (message) => { console.warn(`Tsne updateStatus: ${message}`) }
+      updateStatus = (message) => {
+        console.warn(`Tsne updateStatus: ${message}`);
+      },
+      updateCellsSelection = (cellsSelection) => {
+        console.warn(`Tsne updateCellsSelection: ${cellsSelection}`);
+      }
     } = this.props;
 
     var layers = [];
@@ -48,11 +54,13 @@ export default class Tsne extends React.Component {
             if (this.state.selectedCellIds[cellId]) {
               this.setState((state) => {
                 delete state.selectedCellIds[cellId];
+                updateCellsSelection(state.selectedCellIds);
                 return {selectedCellIds: state.selectedCellIds}
               })
             } else {
               this.setState((state) => {
                 state.selectedCellIds[cellId] = true;
+                updateCellsSelection(state.selectedCellIds);
                 return {selectedCellIds: state.selectedCellIds}
               })
             }
@@ -76,4 +84,12 @@ export default class Tsne extends React.Component {
       />
     );
   }
+}
+
+Tsne.propTypes = {
+  viewState: PropTypes.object,
+  controller: PropTypes.bool,
+  cells: PropTypes.object,
+  updateStatus: PropTypes.func,
+  updateCellsSelection: PropTypes.func
 }

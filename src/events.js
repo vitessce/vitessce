@@ -2,6 +2,7 @@ const ADD = '.add'
 
 export const CELLS = 'cells';
 export const CELLS_ADD = CELLS + ADD;
+export const CELLS_SELECTION = CELLS + '.selection';
 
 export const IMAGE = 'image';
 export const IMAGE_ADD = IMAGE + ADD;
