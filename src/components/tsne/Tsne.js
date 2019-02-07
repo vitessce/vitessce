@@ -1,6 +1,7 @@
 import React from 'react';
-import DeckGL, {ScatterplotLayer, COORDINATE_SYSTEM, OrthographicView}
+import DeckGL, {COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
+import {SelectableScatterplotLayer} from '../../layers/'
 
 // TODO: Dynamic palette generation? Or set by user?
 // from http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12#type=qualitative&scheme=Paired&n=12
@@ -33,7 +34,7 @@ export default class Tsne extends React.Component {
   renderLayers(props) {
     const {
       cells = undefined,
-      updateStatus = (message) => { console.warn(`Tsne updateStatus: ${message}`)}
+      updateStatus = (message) => { console.warn(`Tsne updateStatus: ${message}`) }
     } = this.props;
 
     var layers = [];
@@ -48,7 +49,7 @@ export default class Tsne extends React.Component {
         }
       }
       layers.push(
-        new ScatterplotLayer({
+        new SelectableScatterplotLayer({
           id: 'tsne-scatter-plot',
           coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
           data: scatterplotData,
