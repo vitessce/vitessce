@@ -26,14 +26,18 @@ const PALETTE = [
   [177,89,40]
 ];
 
-
 function renderLayers(props) {
   const {
     // baseImg = undefined,
     molecules = undefined,
     cells = undefined,
     updateStatus = (message) => { console.warn(`Spatial updateStatus: ${message}`)},
-    selectedCellIds = []
+    selectedCellIds = [
+      '4000', '4001', '4002', '4003', '4004',
+      '4010', '4011', '4012', '4013', '4014',
+      '4020', '4021', '4032', '4043', '4044',
+      '4050', '4051', '4052', '4053', '4054'
+    ]
   } = props;
 
   var layers = [];
@@ -87,7 +91,8 @@ function renderLayers(props) {
         getLineWidth: 1,
         onHover: info => {
           if (info.object) { updateStatus(`Cluster: ${info.object[1].cluster}`) }
-        }
+        },
+        onClick: info => { console.log('TODO: Toggle selection'); },
         //onClick: info => console.log('Clicked:', info)
       })
     );
@@ -162,21 +167,29 @@ const INITIAL_VIEW_STATE = {
 //   return state;
 // }
 
-export default function Spatial(props) {
 
-  return (
-    <DeckGL
-      views={[new OrthographicView()]}
-      layers={renderLayers(props)}
-      initialViewState={INITIAL_VIEW_STATE}
-      controller={true}
-      //onViewStateChange={({viewState}) => {console.log(viewState)}}
-    >
-    </DeckGL>
-  );
+
+export default class Spatial extends React.Component {
+  // constructor(props) {
+  //   super(props);
+  //   this.state = {selectedCellIds: undefined};
+  // }
+
+  render() {
+    return (
+      <DeckGL
+        views={[new OrthographicView()]}
+        layers={renderLayers(this.props)}
+        initialViewState={INITIAL_VIEW_STATE}
+        controller={true}
+        //onViewStateChange={({viewState}) => {console.log(viewState)}}
+      />
+    );
+  }
 }
 
-Spatial.propTypes = {
-  viewState: PropTypes.object,
-  controller: PropTypes.bool
-}
+
+// Spatial.propTypes = {
+//   viewState: PropTypes.object,
+//   controller: PropTypes.bool
+// }
