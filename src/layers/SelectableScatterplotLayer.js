@@ -1,6 +1,6 @@
 import {ScatterplotLayer} from 'deck.gl';
 
-export default class SelectablePolygonLayer extends ScatterplotLayer {
+export default class SelectableScatterplotLayer extends ScatterplotLayer {
   renderLayers() {
     var {id, getColor, data, isSelected, ...rest} = this.props;
     const selectedOverlayProps = {
@@ -15,4 +15,4 @@ export default class SelectablePolygonLayer extends ScatterplotLayer {
   }
 }
 
-SelectablePolygonLayer.layerName = 'SelectablePolygonLayer';
+SelectableScatterplotLayer.layerName = 'SelectablePolygonLayer';
