@@ -32,7 +32,8 @@ function renderLayers(props) {
     // baseImg = undefined,
     molecules = undefined,
     cells = undefined,
-    updateStatus = (message) => { console.warn(`Spatial updateStatus: ${message}`)}
+    updateStatus = (message) => { console.warn(`Spatial updateStatus: ${message}`)},
+    selectedCellIds = []
   } = props;
 
   var layers = [];
@@ -69,7 +70,7 @@ function renderLayers(props) {
         id: 'polygon-layer',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         data: Object.entries(cells),
-        isSelected: cellEntry => cellEntry[0] % 2,
+        isSelected: cellEntry => selectedCellIds.includes(cellEntry[0]),
         pickable: true,
         autoHighlight: true,
         stroked: true,
