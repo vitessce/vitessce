@@ -175,7 +175,10 @@ export default class Spatial extends React.Component {
 }
 
 
-// Spatial.propTypes = {
-//   viewState: PropTypes.object,
-//   controller: PropTypes.bool
-// }
+Spatial.propTypes = {
+  viewState: PropTypes.object,
+  controller: PropTypes.bool,
+  molecules: PropTypes.object,
+  cells: PropTypes.object,
+  updateStatus: PropTypes.func
+}
