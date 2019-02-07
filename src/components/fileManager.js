@@ -15,6 +15,15 @@ import { STATUS_WARN, STATUS_INFO, MOLECULES_ADD, CELLS_ADD } from '../events'
 //   img.src = url;
 // }
 
+function warn(message) {
+  PubSub.publish(STATUS_WARN, message);
+}
+
+function clearWarning() {
+  PubSub.publish(STATUS_INFO, ' ');
+  // Empty string is false-y and would bring back default welcome message.
+}
+
 function parseJson(file, schema, topic) {
   const reader = new FileReader();
   reader.onload = function(event) {
@@ -22,7 +31,7 @@ function parseJson(file, schema, topic) {
     try {
       var data = JSON.parse(json);
     } catch (e) {
-      PubSub.publish(STATUS_WARN, `Invalid JSON: ${file.name}. Details in console.`);
+      warn(`Invalid JSON: ${file.name}. Details in console.`);
       console.warn(e);
       return;
     }
@@ -32,10 +41,9 @@ function parseJson(file, schema, topic) {
     var valid = validate(data);
     if (valid) {
       PubSub.publish(topic, data);
-      PubSub.publish(STATUS_INFO, ' ');
-      // Clear "Please wait...". Empty string would bring back welcome message.
+      clearWarning();
     } else {
-      PubSub.publish(STATUS_WARN, `JSON violates schema: ${file.name}. Details in console.`);
+      warn(`JSON violates schema: ${file.name}. Details in console.`);
       console.warn(JSON.stringify(validate.errors, null, 2));
     }
   }
@@ -58,16 +66,16 @@ export class FileManagerPublisher extends React.Component {
       //   break;
       // }
       case '.cells.json': {
-        parseJson(file, require('./schemas/cells.schema.json'), CELLS_ADD);
+        parseJson(file, require('../schemas/cells.schema.json'), CELLS_ADD);
         break;
       }
       case '.molecules.json': {
-        PubSub.publish(STATUS_WARN, 'Loading molecules will take a moment; Please wait...');
-        parseJson(file, require('./schemas/molecules.schema.json'), MOLECULES_ADD);
+        warn('Loading molecules will take a moment; Please wait...');
+        parseJson(file, require('../schemas/molecules.schema.json'), MOLECULES_ADD);
         break;
       }
       default:
-        PubSub.publish(STATUS_WARN, `File extension "${extension}" is not recognized.`);
+        warn(`File extension "${extension}" is not recognized.`);
     }
   }
 
