@@ -2,29 +2,13 @@ import React from 'react';
 import DeckGL, {ScatterplotLayer, COORDINATE_SYSTEM, OrthographicView}
   from 'deck.gl';
 import {SelectablePolygonLayer} from '../../layers/'
+import {cellLayerDefaultProps, PALETTE} from '../utils'
 import PropTypes from 'prop-types';
 
 
 function square(x, y) {
   return [[x, y+100], [x+100, y], [x, y-100], [x-100, y]]
 }
-
-// TODO: Dynamic palette generation? Or set by user?
-// from http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12#type=qualitative&scheme=Paired&n=12
-const PALETTE = [
-  [166,206,227],
-  [31,120,180],
-  [178,223,138],
-  [51,160,44],
-  [251,154,153],
-  [227,26,28],
-  [253,191,111],
-  [255,127,0],
-  [202,178,214],
-  [106,61,154],
-  [255,255,153],
-  [177,89,40]
-];
 
 const INITIAL_VIEW_STATE = {
   zoom: -5,
@@ -67,7 +51,6 @@ const INITIAL_VIEW_STATE = {
 export default class Spatial extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {selectedCellIds: {}};
   }
 
   renderLayers() {
@@ -75,7 +58,13 @@ export default class Spatial extends React.Component {
       // baseImg = undefined,
       molecules = undefined,
       cells = undefined,
-      updateStatus = (message) => { console.warn(`Spatial updateStatus: ${message}`)},
+      selectedCellIds = {},
+      updateStatus = (message) => {
+        console.warn(`Spatial updateStatus: ${message}`)
+      },
+      updateCellsSelection = (cellsSelection) => {
+        console.warn(`Spatial updateCellsSelection: ${cellsSelection}`);
+      }
     } = this.props;
 
     var layers = [];
@@ -90,40 +79,25 @@ export default class Spatial extends React.Component {
       layers.push(
         new SelectablePolygonLayer({
           id: 'polygon-layer',
-          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-          data: Object.entries(cells),
-          isSelected: cellEntry => this.state.selectedCellIds[cellEntry[0]],
-          pickable: true,
-          autoHighlight: true,
-          stroked: true,
-          filled: true,
+          isSelected: cellEntry => selectedCellIds[cellEntry[0]],
           wireframe: true,
           lineWidthMinPixels: 1,
           getPolygon: function(cellEntry) {
             const cell = cellEntry[1]
             return cell.poly ? cell.poly : square(cell.xy[0], cell.xy[1]);
           },
-          getElevation: 0,
           getFillColor: cellEntry => clusterColors[cellEntry[1].cluster],
-          getLineColor: [80, 80, 80],
-          getLineWidth: 1,
-          onHover: info => {
-            if (info.object) { updateStatus(`Cluster: ${info.object[1].cluster}`) }
-          },
           onClick: info => {
             const cellId = info.object[0];
-            if (this.state.selectedCellIds[cellId]) {
-              this.setState((state) => {
-                delete state.selectedCellIds[cellId];
-                return {selectedCellIds: state.selectedCellIds}
-              })
+            if (selectedCellIds[cellId]) {
+              delete selectedCellIds[cellId];
+              updateCellsSelection(selectedCellIds);
             } else {
-              this.setState((state) => {
-                state.selectedCellIds[cellId] = true;
-                return {selectedCellIds: state.selectedCellIds}
-              })
+              selectedCellIds[cellId] = true;
+              updateCellsSelection(selectedCellIds);
             }
-          }
+          },
+          ...cellLayerDefaultProps(cells, updateStatus)
         })
       );
     }
@@ -180,5 +154,7 @@ Spatial.propTypes = {
   controller: PropTypes.bool,
   molecules: PropTypes.object,
   cells: PropTypes.object,
-  updateStatus: PropTypes.func
+  selectedCellIds: PropTypes.object,
+  updateStatus: PropTypes.func,
+  updateCellsSelection: PropTypes.func
 }

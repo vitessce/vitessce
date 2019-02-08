@@ -1,29 +1,39 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { CELLS } from '../../events';
+import { CELLS_ADD, CELLS_SELECTION } from '../../events';
 import Heatmap from './Heatmap';
 
 export class HeatmapSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: ''};
+    this.state = {selectedCellIds: {}, cells: {}};
   }
 
   componentWillMount() {
-    this.token = PubSub.subscribe(CELLS, this.subscriber.bind(this));
+    this.cellsAddToken = PubSub.subscribe(CELLS_ADD, this.cellsAddSubscriber.bind(this));
+    this.cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this));
   }
 
   componentWillUnmount() {
-    PubSub.unsubscribe(this.token);
+    PubSub.unsubscribe(this.cellsAddToken);
+    PubSub.unsubscribe(this.cellsSelectionToken);
   }
 
-  subscriber(msg, data) {
-    this.setState({value: `${Object.keys(data).length} cells`});
+  cellsAddSubscriber(msg, data) {
+    this.setState({cells: data});
+  }
+
+  cellsSelectionSubscriber(msg, data) {
+    this.setState({selectedCellIds: data});
   }
 
   render() {
+    const cellCount = Object.keys(this.state.cells).length;
+    const selectionCount = Object.keys(this.state.selectedCellIds).length;
     return (
-      <Heatmap value={this.state.value}></Heatmap>
+      <Heatmap
+        value={`Cells: ${cellCount}; Selected: ${selectionCount}`}
+      />
     );
   }
 }
