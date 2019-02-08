@@ -51,7 +51,6 @@ const INITIAL_VIEW_STATE = {
 export default class Spatial extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {selectedCellIds: {}};
   }
 
   renderLayers() {
@@ -59,11 +58,12 @@ export default class Spatial extends React.Component {
       // baseImg = undefined,
       molecules = undefined,
       cells = undefined,
+      selectedCellIds = {},
       updateStatus = (message) => {
         console.warn(`Spatial updateStatus: ${message}`)
       },
       updateCellsSelection = (cellsSelection) => {
-        console.warn(`Tsne updateCellsSelection: ${cellsSelection}`);
+        console.warn(`Spatial updateCellsSelection: ${cellsSelection}`);
       }
     } = this.props;
 
@@ -79,7 +79,7 @@ export default class Spatial extends React.Component {
       layers.push(
         new SelectablePolygonLayer({
           id: 'polygon-layer',
-          isSelected: cellEntry => this.state.selectedCellIds[cellEntry[0]],
+          isSelected: cellEntry => selectedCellIds[cellEntry[0]],
           wireframe: true,
           lineWidthMinPixels: 1,
           getPolygon: function(cellEntry) {
@@ -89,18 +89,12 @@ export default class Spatial extends React.Component {
           getFillColor: cellEntry => clusterColors[cellEntry[1].cluster],
           onClick: info => {
             const cellId = info.object[0];
-            if (this.state.selectedCellIds[cellId]) {
-              this.setState((state) => {
-                delete state.selectedCellIds[cellId];
-                updateCellsSelection(state.selectedCellIds);
-                return {selectedCellIds: state.selectedCellIds}
-              })
+            if (selectedCellIds[cellId]) {
+              delete selectedCellIds[cellId];
+              updateCellsSelection(selectedCellIds);
             } else {
-              this.setState((state) => {
-                state.selectedCellIds[cellId] = true;
-                updateCellsSelection(state.selectedCellIds);
-                return {selectedCellIds: state.selectedCellIds}
-              })
+              selectedCellIds[cellId] = true;
+              updateCellsSelection(selectedCellIds);
             }
           },
           ...cellLayerDefaultProps(cells, updateStatus)
@@ -160,6 +154,7 @@ Spatial.propTypes = {
   controller: PropTypes.bool,
   molecules: PropTypes.object,
   cells: PropTypes.object,
+  selectedCellIds: PropTypes.object,
   updateStatus: PropTypes.func,
   updateCellsSelection: PropTypes.func
 }

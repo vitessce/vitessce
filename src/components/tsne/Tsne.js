@@ -14,7 +14,6 @@ const INITIAL_VIEW_STATE = {
 export default class Tsne extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {selectedCellIds: {}};
   }
 
   renderLayers(props) {
@@ -25,7 +24,8 @@ export default class Tsne extends React.Component {
       },
       updateCellsSelection = (cellsSelection) => {
         console.warn(`Tsne updateCellsSelection: ${cellsSelection}`);
-      }
+      },
+      selectedCellIds = {}
     } = this.props;
 
     var layers = [];
@@ -40,9 +40,7 @@ export default class Tsne extends React.Component {
       layers.push(
         new SelectableScatterplotLayer({
           id: 'tsne-scatter-plot',
-          isSelected: cellEntry => {
-            return this.state.selectedCellIds[cellEntry[0]]
-          },
+          isSelected: cellEntry => selectedCellIds[cellEntry[0]],
           getRadius: 0.5,
           getPosition: cellEntry => {
             const cell = cellEntry[1]
@@ -51,18 +49,12 @@ export default class Tsne extends React.Component {
           getColor: cellEntry => clusterColors[cellEntry[1].cluster],
           onClick: info => {
             const cellId = info.object[0];
-            if (this.state.selectedCellIds[cellId]) {
-              this.setState((state) => {
-                delete state.selectedCellIds[cellId];
-                updateCellsSelection(state.selectedCellIds);
-                return {selectedCellIds: state.selectedCellIds}
-              })
+            if (selectedCellIds[cellId]) {
+              delete selectedCellIds[cellId];
+              updateCellsSelection(selectedCellIds);
             } else {
-              this.setState((state) => {
-                state.selectedCellIds[cellId] = true;
-                updateCellsSelection(state.selectedCellIds);
-                return {selectedCellIds: state.selectedCellIds}
-              })
+              selectedCellIds[cellId] = true;
+              updateCellsSelection(selectedCellIds);
             }
           },
           ...cellLayerDefaultProps(cells, updateStatus)
@@ -90,6 +82,7 @@ Tsne.propTypes = {
   viewState: PropTypes.object,
   controller: PropTypes.bool,
   cells: PropTypes.object,
+  selectedCellIds: PropTypes.object,
   updateStatus: PropTypes.func,
   updateCellsSelection: PropTypes.func
 }

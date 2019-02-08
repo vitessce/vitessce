@@ -6,7 +6,7 @@ import Tsne from './Tsne';
 export class TsneSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: ''};
+    this.state = {cells: {}, selectedCellIds: {}};
   }
 
   componentWillMount() {
@@ -31,6 +31,7 @@ export class TsneSubscriber extends React.Component {
     return (
       <Tsne
         cells={this.state.cells}
+        selectedCellIds={this.state.selectedCellIds}
         updateStatus={(message) => PubSub.publish(STATUS_INFO, message)}
         updateCellsSelection={(selectedCellIds) => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
       />

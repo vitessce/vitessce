@@ -7,7 +7,7 @@ import Spatial from './Spatial';
 export class SpatialSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {baseImgUrl: undefined};
+    this.state = {baseImgUrl: undefined, cells: {}, selectedCellIds: {}};
   }
 
   componentWillMount() {
@@ -46,6 +46,7 @@ export class SpatialSubscriber extends React.Component {
         baseImg={this.state.baseImg}
         molecules={this.state.molecules}
         cells={this.state.cells}
+        selectedCellIds={this.state.selectedCellIds}
         updateStatus={(message) => PubSub.publish(STATUS_INFO, message)}
         updateCellsSelection={(selectedCellIds) => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
       />
