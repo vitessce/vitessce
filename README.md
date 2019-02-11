@@ -39,3 +39,7 @@ GitHub Pages, with static HTML being checked into `docs/` on the
 The demo pulls our Javascript from NPM, via unpkg. Right now, new versions
 are pushed to NPM by hand: Update the version number in `package.json` and run
 `npm publish`.
+
+## Documentation
+
+- [Slides on software engineering](https://docs.google.com/presentation/d/1uW3J83LYaa67M9ZKe15AQw_h06QiFJBzpBickbRFcCY)
