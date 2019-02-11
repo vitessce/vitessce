@@ -142,6 +142,15 @@ export default class Spatial extends React.Component {
         layers={this.renderLayers()}
         initialViewState={INITIAL_VIEW_STATE}
         controller={true}
+        getCursor={
+          (interactionState) => {
+            if (this.props.isRectangleSelection) {
+              return 'crosshair';
+            } else {
+              return interactionState.isDragging ? 'grabbing' : 'default'
+            }
+          }
+        }
         //onViewStateChange={({viewState}) => {console.log(viewState)}}
       />
     );
@@ -156,5 +165,6 @@ Spatial.propTypes = {
   cells: PropTypes.object,
   selectedCellIds: PropTypes.object,
   updateStatus: PropTypes.func,
-  updateCellsSelection: PropTypes.func
+  updateCellsSelection: PropTypes.func,
+  isRectangleSelection: PropTypes.bool
 }
