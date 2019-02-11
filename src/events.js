@@ -13,3 +13,7 @@ export const STATUS_INFO = STATUS + '.info';
 
 export const MOLECULES = 'molecules';
 export const MOLECULES_ADD = MOLECULES + ADD;
+
+export const SELECTION_MODE_SET = 'selection-mode.set';
+export const POINT = 'point';
+export const RECT = 'rect';

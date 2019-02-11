@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import PubSub from 'pubsub-js';
+
+import { SELECTION_MODE_SET, POINT, RECT } from '../events'
 
 function IconButton(props) {
   const {src, alt, onClick, isActive=false} = props;
@@ -22,9 +25,6 @@ IconButton.propTypes = {
   isActive: PropTypes.bool
 }
 
-const POINT = 'point';
-const RECT = 'rect';
-
 export class ToolPicker extends React.Component {
 
   constructor(props) {
@@ -34,26 +34,14 @@ export class ToolPicker extends React.Component {
     this.activateRectangleMode = this.activateRectangleMode.bind(this);
   }
 
-  // componentWillMount() {
-  //   this.warnToken = PubSub.subscribe(STATUS_WARN, this.warnSubscriber.bind(this));
-  // }
-
-  // componentWillUnmount() {
-  //   PubSub.unsubscribe(this.warnToken);
-  // }
-
-  // warnSubscriber(msg, data) {
-  //   this.setState({warn: true, message: data});
-  // }
-
   activatePointMode() {
     this.setState({activeTool: POINT});
-    console.log('point!');
+    PubSub.publish(SELECTION_MODE_SET, POINT);
   }
 
   activateRectangleMode() {
     this.setState({activeTool: RECT});
-    console.log('rect!');
+    PubSub.publish(SELECTION_MODE_SET, RECT);
   }
 
   render() {
