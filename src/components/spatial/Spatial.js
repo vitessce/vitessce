@@ -51,6 +51,17 @@ const INITIAL_VIEW_STATE = {
 export default class Spatial extends React.Component {
   constructor(props) {
     super(props);
+    this.onClick = this.onClick.bind(this);
+    this.layers = this.renderLayers();
+  }
+
+  onClick(event) {
+    if (this.props.isRectangleSelection) {
+      console.warn('TODO: Selection; client xy:', event.clientX, event.clientY,
+                    'page', event.pageX, event.pageY,
+                    'screen', event.screenX, event.screenY);
+      // TODO: Need viewport.unproject?
+    }
   }
 
   renderLayers() {
@@ -136,23 +147,27 @@ export default class Spatial extends React.Component {
   }
 
   render() {
+    const layers = this.renderLayers();
+    //console.warn('unproject:', layers[0].unproject(0,0))
     return (
-      <DeckGL
-        views={[new OrthographicView()]}
-        layers={this.renderLayers()}
-        initialViewState={INITIAL_VIEW_STATE}
-        controller={true}
-        getCursor={
-          (interactionState) => {
-            if (this.props.isRectangleSelection) {
-              return 'crosshair';
-            } else {
-              return interactionState.isDragging ? 'grabbing' : 'default'
+      <div onClick={this.onClick}>
+        <DeckGL
+          views={[new OrthographicView()]}
+          layers={layers}
+          initialViewState={INITIAL_VIEW_STATE}
+          controller={true}
+          getCursor={
+            (interactionState) => {
+              if (this.props.isRectangleSelection) {
+                return 'crosshair';
+              } else {
+                return interactionState.isDragging ? 'grabbing' : 'default'
+              }
             }
           }
-        }
-        //onViewStateChange={({viewState}) => {console.log(viewState)}}
-      />
+          //onViewStateChange={({viewState}) => {console.log(viewState)}}
+        />
+      </div>
     );
   }
 }
