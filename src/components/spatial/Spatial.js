@@ -51,16 +51,25 @@ const INITIAL_VIEW_STATE = {
 export default class Spatial extends React.Component {
   constructor(props) {
     super(props);
-    this.onClick = this.onClick.bind(this);
+    this.onDrag = this.onDrag.bind(this);
+    this.onDragStart = this.onDragStart.bind(this);
+    this.onDragEnd = this.onDragEnd.bind(this);
     this.layers = this.renderLayers();
   }
 
-  onClick(event) {
+  onDragStart(event) {
     if (this.props.isRectangleSelection) {
-      console.warn('TODO: Selection; client xy:', event.clientX, event.clientY,
-                    'page', event.pageX, event.pageY,
-                    'screen', event.screenX, event.screenY);
-      // TODO: Need viewport.unproject?
+      console.warn('TODO: dragStart:', event);
+    }
+  }
+  onDragEnd(event) {
+    if (this.props.isRectangleSelection) {
+      console.warn('TODO: dragEnd:', event);
+    }
+  }
+  onDrag(event) {
+    if (this.props.isRectangleSelection) {
+      console.warn('TODO: drag:', event);
     }
   }
 
@@ -148,14 +157,21 @@ export default class Spatial extends React.Component {
 
   render() {
     const layers = this.renderLayers();
-    //console.warn('unproject:', layers[0].unproject(0,0))
+    const view = new OrthographicView();
+    console.warn('context', view.context);
+    //console.warn('unproject?', layers[0].unproject, layers[0].unproject([0,0]));
+    //  onDrag={this.onDrag}
     return (
-      <div onClick={this.onClick}>
+      <div>
         <DeckGL
-          views={[new OrthographicView()]}
+          views={[view]}
           layers={layers}
           initialViewState={INITIAL_VIEW_STATE}
-          controller={true}
+          controller={
+            {
+              dragPan: ! this.props.isRectangleSelection
+            }
+          }
           getCursor={
             (interactionState) => {
               if (this.props.isRectangleSelection) {
@@ -165,6 +181,10 @@ export default class Spatial extends React.Component {
               }
             }
           }
+
+          onDrag={this.onDrag}
+          onDragStart={this.onDragStart}
+          onDragEnd={this.onDragEnd}
           //onViewStateChange={({viewState}) => {console.log(viewState)}}
         />
       </div>
