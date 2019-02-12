@@ -59,18 +59,22 @@ export default class Spatial extends React.Component {
 
   onDragStart(event) {
     if (this.props.isRectangleSelection) {
+      this.dragStartCoordinate = event.coordinate
       console.warn('TODO: dragStart:', event);
     }
   }
   onDragEnd(event) {
-    if (this.props.isRectangleSelection) {
-      console.warn('TODO: dragEnd:', event);
-    }
+    const dragEndCoordinate = event.coordinate;
+    const xMin = Math.min(this.dragStartCoordinate[0], dragEndCoordinate[0]);
+    const yMin = Math.min(this.dragStartCoordinate[1], dragEndCoordinate[1]);
+    const xMax = Math.max(this.dragStartCoordinate[0], dragEndCoordinate[0]);
+    const yMax = Math.max(this.dragStartCoordinate[1], dragEndCoordinate[1]);
+    const width = xMax - xMin;
+    const height = yMax - yMin;
+    console.log('TODO: pickObjects', /*this.deck.pickObjects(*/xMin, yMin, width, height/*)*/);
   }
   onDrag(event) {
-    if (this.props.isRectangleSelection) {
-      console.warn('TODO: drag:', event);
-    }
+    // TODO: Draw marquee?
   }
 
   renderLayers() {
@@ -156,39 +160,29 @@ export default class Spatial extends React.Component {
   }
 
   render() {
-    const layers = this.renderLayers();
-    const view = new OrthographicView();
-    console.warn('context', view.context);
-    //console.warn('unproject?', layers[0].unproject, layers[0].unproject([0,0]));
-    //  onDrag={this.onDrag}
-    return (
-      <div>
-        <DeckGL
-          views={[view]}
-          layers={layers}
-          initialViewState={INITIAL_VIEW_STATE}
-          controller={
-            {
-              dragPan: ! this.props.isRectangleSelection
-            }
-          }
-          getCursor={
-            (interactionState) => {
-              if (this.props.isRectangleSelection) {
-                return 'crosshair';
-              } else {
-                return interactionState.isDragging ? 'grabbing' : 'default'
-              }
-            }
-          }
-
-          onDrag={this.onDrag}
-          onDragStart={this.onDragStart}
-          onDragEnd={this.onDragEnd}
-          //onViewStateChange={({viewState}) => {console.log(viewState)}}
-        />
-      </div>
-    );
+    var props = {
+      views: [new OrthographicView()],
+      layers: this.renderLayers(),
+      initialViewState: INITIAL_VIEW_STATE
+    }
+    if (this.props.isRectangleSelection) {
+      props = {
+        controller: {dragPan: false},
+        getCursor: interactionState => 'crosshair',
+        onDrag: this.onDrag,
+        onDragStart: this.onDragStart,
+        onDragEnd: this.onDragEnd,
+        ...props
+      }
+    } else {
+      props = {
+        controller: true,
+        getCursor: interactionState => interactionState.isDragging ? 'grabbing' : 'default',
+        ...props
+      }
+    }
+    this.deck = <DeckGL {...props}/>
+    return this.deck;
   }
 }
 
