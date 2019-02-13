@@ -22,10 +22,11 @@ export default function renderApp(id) {
   const col = 'd-flex flex-column px-2';
   const left = `${col} col-lg-${lLg} col-md-${lMd} col-sm-${lSm}`;
   const right = `${col} col-lg-${rLg} col-md-${rMd} col-sm-${rSm}`;
+  // Card around toolpicker seemed like a waste of space
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-100 p-2">
       <div class="${left}">
-        <div id="toolpicker" class="${card}"></div>
+        <div id="toolpicker"></div>
         <div id="filemanager" class="${card}"></div>
         <div id="status" class="${card}"></div>
         <div id="tsne" class="${card}" style="height: 50%;"></div>

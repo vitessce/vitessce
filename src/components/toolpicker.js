@@ -48,13 +48,13 @@ export class ToolPicker extends React.Component {
     return (
       <div>
         <IconButton
-          src="inkscape/tool_pointer.svg"
+          src="material/near_me.svg"
           alt="pointer tool"
           onClick={this.activatePointMode}
           isActive={this.state.activeTool === POINT}
         />
         <IconButton
-          src="inkscape/snap_bounding_box_center.svg"
+          src="material/selection.svg"
           alt="select rectangle"
           onClick={this.activateRectangleMode}
           isActive={this.state.activeTool === RECT}
