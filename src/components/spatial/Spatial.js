@@ -15,39 +15,6 @@ const INITIAL_VIEW_STATE = {
   offset: [460, 640] // Required: https://github.com/uber/deck.gl/issues/2580
 };
 
-// function viewState(props) {
-//   const {
-//     molecules = undefined
-//   } = props;
-//
-//   if (!molecules) {
-//     // TODO: also sniff cells
-//     console.log('abort');
-//     return INITIAL_VIEW_STATE;
-//   }
-//
-//   var {...state} = INITIAL_VIEW_STATE;
-//   var [minX, maxX, minY, maxY] = [Infinity, -Infinity, Infinity, -Infinity];
-//   if (molecules) {
-//     for (const coords of Object.values(molecules)) {
-//       for (const coord of coords) {
-//         if (coord[0] < minX) { minX = coord[0] }
-//         if (coord[0] > maxX) { maxX = coord[0] }
-//         if (coord[1] < minY) { minY = coord[1] }
-//         if (coord[1] > maxY) { maxY = coord[1] }
-//       }
-//     }
-//     const x = (maxX + minX) / 2;
-//     const y = (maxY + minY) / 2;
-//     state.offset = [x, y];
-//   }
-//
-//   console.log(state);
-//   return state;
-// }
-
-
-
 export default class Spatial extends React.Component {
   constructor(props) {
     super(props);
@@ -62,6 +29,11 @@ export default class Spatial extends React.Component {
       console.warn('TODO: dragStart:', event);
     }
   }
+  // onDrag(event) {
+  //   if (this.props.isRectangleSelection) {
+  //     //  TODO: Draw marquee?
+  //   }
+  // }
   onDragEnd(event) {
     if (this.props.isRectangleSelection) {
       const dragEndCoordinate = event.coordinate;
@@ -88,11 +60,6 @@ export default class Spatial extends React.Component {
       this.props.updateCellsSelection(selectedCellIdsSet);
     }
   }
-  // onDrag(event) {
-  //   if (this.props.isRectangleSelection) {
-  //     //  TODO: Draw marquee?
-  //   }
-  // }
 
   renderLayers() {
     const {
