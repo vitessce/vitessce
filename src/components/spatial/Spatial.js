@@ -54,7 +54,6 @@ export default class Spatial extends React.Component {
     this.onDrag = this.onDrag.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
-    this.layers = this.renderLayers();
   }
 
   onDragStart(event) {
@@ -69,9 +68,19 @@ export default class Spatial extends React.Component {
     const yMin = Math.min(this.dragStartCoordinate[1], dragEndCoordinate[1]);
     const xMax = Math.max(this.dragStartCoordinate[0], dragEndCoordinate[0]);
     const yMax = Math.max(this.dragStartCoordinate[1], dragEndCoordinate[1]);
-    const width = xMax - xMin;
-    const height = yMax - yMin;
-    console.log('TODO: pickObjects', /*this.deck.pickObjects(*/xMin, yMin, width, height/*)*/);
+    // The built-in pickObjects is limited in the size of the region that can be selected.
+    // https://github.com/uber/deck.gl/issues/2658#issuecomment-463293063
+
+    // TODO: Implement quadtree? But it's probably fast enough.
+    // TODO: I don't trust xy from raw data... but clean it up, and then use it, instead.
+    const selectedCellIds = Object.entries(this.props.cells).filter(
+      ([id, cell]) =>
+        cell.poly[0][0] > xMin
+        && cell.poly[0][0] < xMax
+        && cell.poly[0][1] > yMin
+        && cell.poly[0][1] < yMax
+    ).map(([id, cell]) => id);
+    this.props.updateCellsSelection(selectedCellIds);
   }
   onDrag(event) {
     // TODO: Draw marquee?
@@ -181,8 +190,7 @@ export default class Spatial extends React.Component {
         ...props
       }
     }
-    this.deck = <DeckGL {...props}/>
-    return this.deck;
+    return <DeckGL {...props}/>;
   }
 }
 
