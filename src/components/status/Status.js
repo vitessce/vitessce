@@ -2,9 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default function Status(props) {
+  const url = 'https://github.com/hms-dbmi/vitessce-data/tree/master/fake-files/output-expected';
+  const infoClass = 'alert alert-info my-0';
+  const warningClass = 'alert alert-warning my-0';
   return props.message
-    ? <p className={props.warn ? 'alert alert-warning' : ''}>{props.message}</p>
-    : <p className='alert alert-info'>Sample data is available <a href='https://github.com/hms-dbmi/vitessce-data/tree/master/fake-files/output-expected'>here</a>.</p>;
+    ? <p className={props.warn ? warningClass : infoClass}>{props.message}</p>
+    : <p className={infoClass}>Sample data is available <a href={url}>here</a>.</p>;
 }
 
 Status.propTypes = {
