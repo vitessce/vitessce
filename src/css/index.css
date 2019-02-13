@@ -9,3 +9,9 @@
 html,body {
   height: 100%;
 }
+
+.btn.icon {
+  padding: 0.2em;
+  height: 2em;
+  width: 2em;
+}
