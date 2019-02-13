@@ -89,12 +89,12 @@ export default class Spatial extends React.Component {
           id: 'polygon-layer',
           isSelected: cellEntry => selectedCellIds[cellEntry[0]],
           wireframe: true,
-          lineWidthMinPixels: 1,
+          lineWidthMinPixels: 15,
           getPolygon: function(cellEntry) {
             const cell = cellEntry[1]
             return cell.poly ? cell.poly : square(cell.xy[0], cell.xy[1]);
           },
-          getFillColor: cellEntry => clusterColors[cellEntry[1].cluster],
+          getColor: cellEntry => clusterColors[cellEntry[1].cluster],
           onClick: info => {
             const cellId = info.object[0];
             if (selectedCellIds[cellId]) {
