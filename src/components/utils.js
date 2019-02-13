@@ -9,7 +9,6 @@ export function cellLayerDefaultProps(cells, updateStatus) {
     stroked: true,
     filled: true,
     getElevation: 0,
-    getLineColor: [80, 80, 80],
     getLineWidth: 0,
     onHover: info => {
       if (info.object) { updateStatus(`Cluster: ${info.object[1].cluster}`) }

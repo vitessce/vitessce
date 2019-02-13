@@ -42,6 +42,8 @@ export default class Tsne extends React.Component {
           id: 'tsne-scatter-plot',
           isSelected: cellEntry => selectedCellIds[cellEntry[0]],
           getRadius: 0.5,
+          lineWidthMinPixels: 0.1,
+          stroked: true,
           getPosition: cellEntry => {
             const cell = cellEntry[1]
             return [cell.tsne[0], cell.tsne[1], 0];

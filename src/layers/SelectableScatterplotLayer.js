@@ -5,14 +5,15 @@ export default class SelectableScatterplotLayer extends CompositeLayer {
     var {id, getColor, data, isSelected, ...rest} = this.props;
     const overlayProps = {
       id: `selected-${id}`,
-      getColor: [64,64,64],
-      lineWidthMinPixels: 1,
+      getFillColor: getColor,
+      getLineColor: getColor,
       data: data.filter(isSelected),
       ...rest
     };
     const baseProps = {
       id: `base-${id}`,
-      getColor: getColor,
+      getLineColor: getColor,
+      getFillColor: [255,255,255],
       data: data,
       ...rest
     };
