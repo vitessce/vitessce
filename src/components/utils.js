@@ -1,4 +1,5 @@
 import {COORDINATE_SYSTEM} from 'deck.gl';
+import { POINT, RECT } from '../events';
 
 export function cellLayerDefaultProps(cells, updateStatus) {
   return {
@@ -12,6 +13,24 @@ export function cellLayerDefaultProps(cells, updateStatus) {
     getLineWidth: 0,
     onHover: info => {
       if (info.object) { updateStatus(`Cluster: ${info.object[1].cluster}`) }
+    }
+  }
+}
+
+export function SelectionModeMixin(superclass) {
+  return class extends superclass {
+    selectionModeSetSubscriber(msg, mode) {
+      if (mode === POINT) {
+        this.setState({isRectangleSelection: false});
+      } else if (mode === RECT) {
+        this.setState({isRectangleSelection: true});
+      } else {
+        throw new Error(`Unrecognized mode: ${mode}`)
+      }
+    }
+
+    cellsSelectionSubscriber(msg, cellIds) {
+      this.setState({selectedCellIds: cellIds});
     }
   }
 }
