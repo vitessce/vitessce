@@ -27,7 +27,7 @@ function parseJson(file, schema, topic) {
     var valid = validate(data);
     if (valid) {
       PubSub.publish(topic, data);
-      clearWarning();
+      clearWarning(file.name);
     } else {
       warn(`JSON violates schema: ${file.name}. Details in console.`);
       console.warn(JSON.stringify(validate.errors, null, 2));
@@ -36,8 +36,8 @@ function parseJson(file, schema, topic) {
   reader.readAsText(file);
 }
 
-function clearWarning() {
-  PubSub.publish(STATUS_INFO, ' ');
+function clearWarning(fileName) {
+  PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
   // Empty string is false-y and would bring back default welcome message.
 }
 

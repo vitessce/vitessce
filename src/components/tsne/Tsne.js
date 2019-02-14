@@ -1,19 +1,19 @@
-import React from 'react';
-import DeckGL, {OrthographicView}
-  from 'deck.gl';
 import {SelectableScatterplotLayer} from '../../layers/'
 import {cellLayerDefaultProps, PALETTE} from '../utils'
 import PropTypes from 'prop-types';
+import AbstractSelectableComponent from '../AbstractSelectableComponent'
 
 
-const INITIAL_VIEW_STATE = {
-  zoom: 2,
-  offset: [0, 0] // Required: https://github.com/uber/deck.gl/issues/2580
-};
+export default class Tsne extends AbstractSelectableComponent {
+  getInitialViewState() {
+    return {
+      zoom: 2,
+      offset: [0, 0] // Required: https://github.com/uber/deck.gl/issues/2580
+    };
+  }
 
-export default class Tsne extends React.Component {
-  constructor(props) {
-    super(props);
+  getCellCoords(cell) {
+    return cell.tsne;
   }
 
   renderLayers(props) {
@@ -42,6 +42,8 @@ export default class Tsne extends React.Component {
           id: 'tsne-scatter-plot',
           isSelected: cellEntry => selectedCellIds[cellEntry[0]],
           getRadius: 0.5,
+          lineWidthMinPixels: 0.1,
+          stroked: true,
           getPosition: cellEntry => {
             const cell = cellEntry[1]
             return [cell.tsne[0], cell.tsne[1], 0];
@@ -64,23 +66,12 @@ export default class Tsne extends React.Component {
 
     return layers;
   }
-
-  render() {
-    return (
-      <DeckGL
-        views={[new OrthographicView()]}
-        layers={this.renderLayers()}
-        initialViewState={INITIAL_VIEW_STATE}
-        controller={true}
-        //onViewStateChange={({viewState}) => {console.log(viewState)}}
-      />
-    );
-  }
 }
 
 Tsne.propTypes = {
   viewState: PropTypes.object,
   controller: PropTypes.bool,
+  isRectangleSelection: PropTypes.bool,
   cells: PropTypes.object,
   selectedCellIds: PropTypes.object,
   updateStatus: PropTypes.func,

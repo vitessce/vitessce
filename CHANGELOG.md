@@ -4,6 +4,7 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 ### Added
 - Distinguish pan and single-select mode from drag-to-select.
+- Drag-to-select supported for both Spatial and Tsne: Selection state is linked.
 ### Changed
 ### Removed
 

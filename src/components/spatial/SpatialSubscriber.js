@@ -2,12 +2,13 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import {
   IMAGE_ADD, MOLECULES_ADD, CELLS_ADD, STATUS_INFO,
-  CELLS_SELECTION, SELECTION_MODE_SET, POINT, RECT
+  CELLS_SELECTION, SELECTION_MODE_SET
 } from '../../events';
 import Spatial from './Spatial';
+import AbstractSelectionSubscriberComponent from '../AbstractSelectionSubscriberComponent'
 
 
-export class SpatialSubscriber extends React.Component {
+export class SpatialSubscriber extends AbstractSelectionSubscriberComponent {
   constructor(props) {
     super(props);
     this.state = {baseImgUrl: undefined, cells: {}, selectedCellIds: {}, isRectangleSelection: false};
@@ -17,14 +18,18 @@ export class SpatialSubscriber extends React.Component {
     this.imageToken = PubSub.subscribe(IMAGE_ADD, this.imageAddSubscriber.bind(this));
     this.moleculesToken = PubSub.subscribe(MOLECULES_ADD, this.moleculesAddSubscriber.bind(this));
     this.cellsAddToken = PubSub.subscribe(CELLS_ADD, this.cellsAddSubscriber.bind(this));
+
     this.cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this));
     this.selectionModeSetToken = PubSub.subscribe(SELECTION_MODE_SET, this.selectionModeSetSubscriber.bind(this));
   }
 
   componentWillUnmount() {
     PubSub.unsubscribe(this.imageToken);
+
     PubSub.unsubscribe(this.moleculesToken);
+
     PubSub.unsubscribe(this.cellsAddToken);
+
     PubSub.unsubscribe(this.cellsSelectionToken);
     PubSub.unsubscribe(this.selectionModeSetToken);
   }
@@ -39,20 +44,6 @@ export class SpatialSubscriber extends React.Component {
 
   cellsAddSubscriber(msg, cells) {
     this.setState({cells: cells});
-  }
-
-  cellsSelectionSubscriber(msg, cellIds) {
-    this.setState({selectedCellIds: cellIds});
-  }
-
-  selectionModeSetSubscriber(msg, mode) {
-    if (mode === POINT) {
-      this.setState({isRectangleSelection: false});
-    } else if (mode === RECT) {
-      this.setState({isRectangleSelection: true});
-    } else {
-      throw new Error(`Unrecognized mode: ${mode}`)
-    }
   }
 
   render() {

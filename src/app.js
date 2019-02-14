@@ -26,9 +26,9 @@ export default function renderApp(id) {
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-100 p-2">
       <div class="${left}">
-        <div id="toolpicker"></div>
+        <div id="toolpicker" class="my-2"></div>
         <div id="filemanager" class="${card}"></div>
-        <div id="status" class="${card}"></div>
+        <div id="status" class="my-2"></div>
         <div id="tsne" class="${card}" style="height: 50%;"></div>
       </div>
       <div class="${right}">
