@@ -2,10 +2,10 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import { CELLS_ADD, CELLS_SELECTION, STATUS_INFO, SELECTION_MODE_SET } from '../../events';
 import Tsne from './Tsne';
-import { SelectionModeMixin } from '../utils'
+import AbstractSelectionSubscriberComponent from '../AbstractSelectionSubscriberComponent'
 
 
-export class TsneSubscriber extends SelectionModeMixin(React.Component) {
+export class TsneSubscriber extends AbstractSelectionSubscriberComponent {
   constructor(props) {
     super(props);
     this.state = {cells: {}, selectedCellIds: {}};

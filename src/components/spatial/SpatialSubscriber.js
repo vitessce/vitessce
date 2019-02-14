@@ -5,10 +5,10 @@ import {
   CELLS_SELECTION, SELECTION_MODE_SET
 } from '../../events';
 import Spatial from './Spatial';
-import { SelectionModeMixin } from '../utils'
+import AbstractSelectionSubscriberComponent from '../AbstractSelectionSubscriberComponent'
 
 
-export class SpatialSubscriber extends SelectionModeMixin(React.Component) {
+export class SpatialSubscriber extends AbstractSelectionSubscriberComponent {
   constructor(props) {
     super(props);
     this.state = {baseImgUrl: undefined, cells: {}, selectedCellIds: {}, isRectangleSelection: false};
