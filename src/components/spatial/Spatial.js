@@ -25,8 +25,7 @@ export default class Spatial extends React.Component {
 
   onDragStart(event) {
     if (this.props.isRectangleSelection) {
-      this.dragStartCoordinate = event.coordinate
-      console.warn('TODO: dragStart:', event);
+      this.dragStartCoordinate = event.coordinate;
     }
   }
   // onDrag(event) {

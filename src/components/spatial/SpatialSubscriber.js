@@ -25,8 +25,11 @@ export class SpatialSubscriber extends SelectionModeMixin(React.Component) {
 
   componentWillUnmount() {
     PubSub.unsubscribe(this.imageToken);
+
     PubSub.unsubscribe(this.moleculesToken);
+
     PubSub.unsubscribe(this.cellsAddToken);
+
     PubSub.unsubscribe(this.cellsSelectionToken);
     PubSub.unsubscribe(this.selectionModeSetToken);
   }
