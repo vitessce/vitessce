@@ -10,17 +10,19 @@ function square(x, y) {
   return [[x, y+100], [x+100, y], [x, y-100], [x-100, y]]
 }
 
-const INITIAL_VIEW_STATE = {
-  zoom: -5,
-  offset: [460, 640] // Required: https://github.com/uber/deck.gl/issues/2580
-};
-
 export default class Spatial extends React.Component {
   constructor(props) {
     super(props);
     // this.onDrag = this.onDrag.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
+  }
+
+  getInitialViewState() {
+    return {
+      zoom: -5,
+      offset: [460, 640] // Required: https://github.com/uber/deck.gl/issues/2580
+    };
   }
 
   onDragStart(event) {
@@ -146,7 +148,7 @@ export default class Spatial extends React.Component {
     var props = {
       views: [new OrthographicView()],
       layers: this.renderLayers(),
-      initialViewState: INITIAL_VIEW_STATE
+      initialViewState: this.getInitialViewState()
     }
     if (this.props.isRectangleSelection) {
       props = {

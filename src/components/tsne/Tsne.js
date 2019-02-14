@@ -6,17 +6,19 @@ import {cellLayerDefaultProps, PALETTE} from '../utils'
 import PropTypes from 'prop-types';
 
 
-const INITIAL_VIEW_STATE = {
-  zoom: 2,
-  offset: [0, 0] // Required: https://github.com/uber/deck.gl/issues/2580
-};
-
 export default class Tsne extends React.Component {
   constructor(props) {
     super(props);
     // this.onDrag = this.onDrag.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
+  }
+
+  getInitialViewState() {
+    return {
+      zoom: 2,
+      offset: [0, 0] // Required: https://github.com/uber/deck.gl/issues/2580
+    };
   }
 
   onDragStart(event) {
@@ -111,7 +113,7 @@ export default class Tsne extends React.Component {
     var props = {
       views: [new OrthographicView()],
       layers: this.renderLayers(),
-      initialViewState: INITIAL_VIEW_STATE
+      initialViewState: this.getInitialViewState()
     }
     if (this.props.isRectangleSelection) {
       props = {
