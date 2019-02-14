@@ -1,5 +1,16 @@
 import {PolygonLayer, ScatterplotLayer, CompositeLayer} from 'deck.gl';
 
+function fade(x) {
+  return 255-(255-x)/4
+}
+
+function fadeFunction(colorFunction) {
+  return (cell) => {
+    var rgb = colorFunction(cell);
+    return [fade(rgb[0]), fade(rgb[1]), fade(rgb[2])]
+  }
+}
+
 function overlayBaseProps(props) {
   const {id, getColor, data, isSelected, ...rest} = props;
   return {
@@ -12,8 +23,11 @@ function overlayBaseProps(props) {
     },
     base: {
       id: `base-${id}`,
-      getLineColor: getColor,
-      getFillColor: [255,255,255],
+      getLineColor: fadeFunction(getColor),
+      getFillColor: fadeFunction(getColor),
+      // Alternatively: contrast outlines with solids:
+      // getLineColor: getColor,
+      // getFillColor: [255,255,255],
       data: data,
       ...rest
     }
