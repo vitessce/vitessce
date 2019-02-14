@@ -1,23 +1,16 @@
-import React from 'react';
-import DeckGL, {ScatterplotLayer, COORDINATE_SYSTEM, OrthographicView}
+import {ScatterplotLayer, COORDINATE_SYSTEM}
   from 'deck.gl';
 import {SelectablePolygonLayer} from '../../layers/'
 import {cellLayerDefaultProps, PALETTE} from '../utils'
 import PropTypes from 'prop-types';
+import AbstractSelectableReactComponent from '../AbstractSelectableReactComponent'
 
 
 function square(x, y) {
   return [[x, y+100], [x+100, y], [x, y-100], [x-100, y]]
 }
 
-export default class Spatial extends React.Component {
-  constructor(props) {
-    super(props);
-    // this.onDrag = this.onDrag.bind(this);
-    this.onDragStart = this.onDragStart.bind(this);
-    this.onDragEnd = this.onDragEnd.bind(this);
-  }
-
+export default class Spatial extends AbstractSelectableReactComponent {
   getInitialViewState() {
     return {
       zoom: -5,
@@ -25,11 +18,6 @@ export default class Spatial extends React.Component {
     };
   }
 
-  onDragStart(event) {
-    if (this.props.isRectangleSelection) {
-      this.dragStartCoordinate = event.coordinate;
-    }
-  }
   // onDrag(event) {
   //   if (this.props.isRectangleSelection) {
   //     //  TODO: Draw marquee?
@@ -142,31 +130,6 @@ export default class Spatial extends React.Component {
       );
     }
     return layers;
-  }
-
-  render() {
-    var props = {
-      views: [new OrthographicView()],
-      layers: this.renderLayers(),
-      initialViewState: this.getInitialViewState()
-    }
-    if (this.props.isRectangleSelection) {
-      props = {
-        controller: {dragPan: false},
-        getCursor: interactionState => 'crosshair',
-        onDrag: this.onDrag,
-        onDragStart: this.onDragStart,
-        onDragEnd: this.onDragEnd,
-        ...props
-      }
-    } else {
-      props = {
-        controller: true,
-        getCursor: interactionState => interactionState.isDragging ? 'grabbing' : 'default',
-        ...props
-      }
-    }
-    return <DeckGL {...props}/>;
   }
 }
 
