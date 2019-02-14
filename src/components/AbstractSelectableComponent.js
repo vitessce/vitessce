@@ -3,7 +3,7 @@ import DeckGL, {OrthographicView} from 'deck.gl';
 import PropTypes from 'prop-types';
 
 
-export default class AbstractSelectableReactComponent extends React.Component {
+export default class AbstractSelectableComponent extends React.Component {
   constructor(props) {
     super(props);
     // this.onDrag = this.onDrag.bind(this);
@@ -71,7 +71,7 @@ export default class AbstractSelectableReactComponent extends React.Component {
   }
 }
 
-AbstractSelectableReactComponent.propTypes = {
+AbstractSelectableComponent.propTypes = {
   viewState: PropTypes.object,
   controller: PropTypes.bool,
   molecules: PropTypes.object,

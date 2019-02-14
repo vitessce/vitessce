@@ -3,14 +3,14 @@ import {ScatterplotLayer, COORDINATE_SYSTEM}
 import {SelectablePolygonLayer} from '../../layers/'
 import {cellLayerDefaultProps, PALETTE} from '../utils'
 import PropTypes from 'prop-types';
-import AbstractSelectableReactComponent from '../AbstractSelectableReactComponent'
+import AbstractSelectableComponent from '../AbstractSelectableComponent'
 
 
 function square(x, y) {
   return [[x, y+100], [x+100, y], [x, y-100], [x-100, y]]
 }
 
-export default class Spatial extends AbstractSelectableReactComponent {
+export default class Spatial extends AbstractSelectableComponent {
   getInitialViewState() {
     return {
       zoom: -5,

@@ -1,10 +1,10 @@
 import {SelectableScatterplotLayer} from '../../layers/'
 import {cellLayerDefaultProps, PALETTE} from '../utils'
 import PropTypes from 'prop-types';
-import AbstractSelectableReactComponent from '../AbstractSelectableReactComponent'
+import AbstractSelectableComponent from '../AbstractSelectableComponent'
 
 
-export default class Tsne extends AbstractSelectableReactComponent {
+export default class Tsne extends AbstractSelectableComponent {
   getInitialViewState() {
     return {
       zoom: 2,
