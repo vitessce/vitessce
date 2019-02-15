@@ -76,8 +76,6 @@ export default class AbstractSelectableComponent extends React.Component {
     return [new PolygonLayer({
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       id: 'selection-rectangle',
-      wireframe: true,
-      lineWidthMinPixels: 15,
       data: [this.state.selectionRectangle],
       getPolygon: function(bounds) {
         return [
@@ -87,8 +85,10 @@ export default class AbstractSelectableComponent extends React.Component {
           [bounds.xMin, bounds.yMax]
         ];
       },
-      filled: false,
-      getLineColor: [128, 128, 128],
+      getFillColor: [0,0,0],
+      opacity: 0.05,
+      lineWidthMaxPixels: 0,
+      filled: true,
       getElevation: 0,
     })]
   }
