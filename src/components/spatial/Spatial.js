@@ -101,7 +101,7 @@ export default class Spatial extends AbstractSelectableComponent {
         })
       );
     }
-    
+
     return layers;
   }
 }
