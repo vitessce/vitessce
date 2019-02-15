@@ -87,7 +87,7 @@ export default class AbstractSelectableComponent extends React.Component {
           [bounds.xMin, bounds.yMax]
         ];
       },
-      getFillColor: [128, 128, 128],
+      filled: false,
       getLineColor: [128, 128, 128],
       getElevation: 0,
     })]
