@@ -72,18 +72,21 @@ export default class Spatial extends AbstractSelectableComponent {
     }
 
     if (molecules) {
-      var scatterplotData = [];
-      var index = 0;
-      for (const [molecule, coords] of Object.entries(molecules)) {
-        scatterplotData = scatterplotData.concat(
-          coords.map(([x,y]) => [x,y,index,molecule]) // eslint-disable-line no-loop-func
-          // TODO: Using an object would be more clear, but is there a performance penalty,
-          // either in time or memory?
-        );
-        index++;
-      }
-      layers.push(
-        new ScatterplotLayer({
+      // Right now the molecules scatterplot does not change,
+      // so we do not need to regenerate the object.
+      // We do not want React to look at it, so it is not part of the state.
+      if (! this.scatterplotLayer) {
+        var scatterplotData = [];
+        var index = 0;
+        for (const [molecule, coords] of Object.entries(molecules)) {
+          scatterplotData = scatterplotData.concat(
+            coords.map(([x,y]) => [x,y,index,molecule]) // eslint-disable-line no-loop-func
+            // TODO: Using an object would be more clear, but is there a performance penalty,
+            // either in time or memory?
+          );
+          index++;
+        }
+        this.scatterplotLayer = new ScatterplotLayer({
           id: 'scatter-plot',
           coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
           data: scatterplotData,
@@ -98,9 +101,11 @@ export default class Spatial extends AbstractSelectableComponent {
           onHover: info => {
             if (info.object) { updateStatus(`Gene: ${info.object[3]}`) }
           }
-        })
-      );
+        });
+      }
+      layers.push(this.scatterplotLayer);
     }
+
     return layers;
   }
 }
