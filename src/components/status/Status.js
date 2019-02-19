@@ -7,10 +7,16 @@ export default function Status(props) {
   const warningClass = 'alert alert-warning my-0';
   return props.message
     ? <p className={props.warn ? warningClass : infoClass}>{props.message}</p>
-    : <p className={infoClass}>Sample data is available <a href={url}>here</a>.</p>;
+    : (
+      <p className={infoClass}>
+Sample data is available
+        <a href={url}>here</a>
+.
+      </p>
+    );
 }
 
 Status.propTypes = {
   message: PropTypes.string,
-  warn: PropTypes.bool
-}
+  warn: PropTypes.bool,
+};

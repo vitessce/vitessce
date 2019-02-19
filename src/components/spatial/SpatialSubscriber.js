@@ -2,16 +2,18 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import {
   IMAGE_ADD, MOLECULES_ADD, CELLS_ADD, STATUS_INFO,
-  CELLS_SELECTION, SELECTION_MODE_SET
+  CELLS_SELECTION, SELECTION_MODE_SET,
 } from '../../events';
 import Spatial from './Spatial';
-import AbstractSelectionSubscriberComponent from '../AbstractSelectionSubscriberComponent'
+import AbstractSelectionSubscriberComponent from '../AbstractSelectionSubscriberComponent';
 
 
 export class SpatialSubscriber extends AbstractSelectionSubscriberComponent {
   constructor(props) {
     super(props);
-    this.state = {baseImgUrl: undefined, cells: {}, selectedCellIds: {}, isRectangleSelection: false};
+    this.state = {
+      baseImgUrl: undefined, cells: {}, selectedCellIds: {}, isRectangleSelection: false,
+    };
   }
 
   componentWillMount() {
@@ -35,15 +37,15 @@ export class SpatialSubscriber extends AbstractSelectionSubscriberComponent {
   }
 
   imageAddSubscriber(msg, baseImg) {
-    this.setState({baseImg: baseImg});
+    this.setState({ baseImg });
   }
 
   moleculesAddSubscriber(msg, molecules) {
-    this.setState({molecules: molecules});
+    this.setState({ molecules });
   }
 
   cellsAddSubscriber(msg, cells) {
-    this.setState({cells: cells});
+    this.setState({ cells });
   }
 
   render() {
@@ -54,8 +56,8 @@ export class SpatialSubscriber extends AbstractSelectionSubscriberComponent {
         cells={this.state.cells}
         selectedCellIds={this.state.selectedCellIds}
         isRectangleSelection={this.state.isRectangleSelection}
-        updateStatus={(message) => PubSub.publish(STATUS_INFO, message)}
-        updateCellsSelection={(selectedCellIds) => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
+        updateStatus={message => PubSub.publish(STATUS_INFO, message)}
+        updateCellsSelection={selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
       />
     );
   }

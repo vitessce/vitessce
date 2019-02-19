@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { ToolPicker } from './components/toolpicker'
+import { ToolPicker } from './components/toolpicker';
 import { FileManagerPublisher } from './components/filemanager';
-import { StatusSubscriber } from './components/status/';
-import { TsneSubscriber } from './components/tsne/';
-import { HeatmapSubscriber } from './components/heatmap/';
-import { SpatialSubscriber } from './components/spatial/';
+import { StatusSubscriber } from './components/status';
+import { TsneSubscriber } from './components/tsne';
+import { HeatmapSubscriber } from './components/heatmap';
+import { SpatialSubscriber } from './components/spatial';
 
 import './css/file-drop.css';
 import './css/index.css';

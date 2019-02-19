@@ -7,16 +7,16 @@ export default class FileManager extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      fileNames: []
+      fileNames: [],
     };
 
     this.handleDrop = this.handleDrop.bind(this);
   }
 
   handleDrop(files, event) {
-    var fileNamesCopy = this.state.fileNames.slice();
+    const fileNamesCopy = this.state.fileNames.slice();
     for (const f of files) {
-      if (! fileNamesCopy.includes(f.name)) {
+      if (!fileNamesCopy.includes(f.name)) {
         // Do not add duplicate entries to list...
         fileNamesCopy.push(f.name);
       }
@@ -24,12 +24,12 @@ export default class FileManager extends React.Component {
       // This is easy, and good enough for now.
       this.props.onAddFile(f);
     }
-    this.setState({fileNames: fileNamesCopy});
+    this.setState({ fileNames: fileNamesCopy });
   }
 
   render() {
     const fileList = this.state.fileNames.map(
-      fileName => <li className="list-group-item" key={fileName}>{fileName}</li>
+      fileName => <li className="list-group-item" key={fileName}>{fileName}</li>,
     );
 
     const message = fileList.length
@@ -46,5 +46,5 @@ export default class FileManager extends React.Component {
 }
 
 FileManager.propTypes = {
-  onAddFile: PropTypes.func
-}
+  onAddFile: PropTypes.func,
+};

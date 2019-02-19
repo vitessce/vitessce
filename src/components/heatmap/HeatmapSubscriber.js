@@ -6,7 +6,7 @@ import Heatmap from './Heatmap';
 export class HeatmapSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {selectedCellIds: {}, cells: {}};
+    this.state = { selectedCellIds: {}, cells: {} };
   }
 
   componentWillMount() {
@@ -20,11 +20,11 @@ export class HeatmapSubscriber extends React.Component {
   }
 
   cellsAddSubscriber(msg, data) {
-    this.setState({cells: data});
+    this.setState({ cells: data });
   }
 
   cellsSelectionSubscriber(msg, data) {
-    this.setState({selectedCellIds: data});
+    this.setState({ selectedCellIds: data });
   }
 
   render() {

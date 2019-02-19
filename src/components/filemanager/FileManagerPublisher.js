@@ -2,9 +2,11 @@ import Ajv from 'ajv';
 import PubSub from 'pubsub-js';
 import React from 'react';
 
-import { STATUS_WARN, STATUS_INFO, MOLECULES_ADD, CELLS_ADD } from '../../events'
+import {
+  STATUS_WARN, STATUS_INFO, MOLECULES_ADD, CELLS_ADD,
+} from '../../events';
 
-import FileManager from './FileManager'
+import FileManager from './FileManager';
 
 function warn(message) {
   PubSub.publish(STATUS_WARN, message);
@@ -12,7 +14,7 @@ function warn(message) {
 
 function parseJson(file, schema, topic) {
   const reader = new FileReader();
-  reader.onload = function(event) {
+  reader.onload = function (event) {
     const json = event.target.result;
     try {
       var data = JSON.parse(json);
@@ -22,9 +24,9 @@ function parseJson(file, schema, topic) {
       return;
     }
 
-    var validate = new Ajv().compile(schema);
+    const validate = new Ajv().compile(schema);
 
-    var valid = validate(data);
+    const valid = validate(data);
     if (valid) {
       PubSub.publish(topic, data);
       clearWarning(file.name);
@@ -32,7 +34,7 @@ function parseJson(file, schema, topic) {
       warn(`JSON violates schema: ${file.name}. Details in console.`);
       console.warn(JSON.stringify(validate.errors, null, 2));
     }
-  }
+  };
   reader.readAsText(file);
 }
 
@@ -44,7 +46,7 @@ function clearWarning(fileName) {
 export class FileManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: ''};
+    this.state = { value: '' };
 
     this.onAddFile = this.onAddFile.bind(this);
   }
@@ -72,7 +74,7 @@ export class FileManagerPublisher extends React.Component {
 
   render() {
     return (
-      <FileManager onAddFile={this.onAddFile} value={this.state.value}></FileManager>
+      <FileManager onAddFile={this.onAddFile} value={this.state.value} />
     );
   }
 }
