@@ -11,6 +11,8 @@ function square(x, y) {
 }
 
 export default class Spatial extends AbstractSelectableComponent {
+  // These are called from superclass, so they need to belong to instance, I think.
+  // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
     return {
       zoom: -5,
@@ -18,6 +20,7 @@ export default class Spatial extends AbstractSelectableComponent {
     };
   }
 
+  // eslint-disable-next-line class-methods-use-this
   getCellCoords(cell) {
     return cell.poly[0];
   }
@@ -40,11 +43,11 @@ export default class Spatial extends AbstractSelectableComponent {
 
     if (cells) {
       const clusterColors = {};
-      for (const cell of Object.values(cells)) {
+      Object.values(cells).forEach((cell) => {
         if (!clusterColors[cell.cluster]) {
           clusterColors[cell.cluster] = PALETTE[Object.keys(clusterColors).length % PALETTE.length];
         }
-      }
+      });
       layers.push(
         new SelectablePolygonLayer({
           id: 'polygon-layer',
@@ -77,15 +80,13 @@ export default class Spatial extends AbstractSelectableComponent {
       // We do not want React to look at it, so it is not part of the state.
       if (!this.scatterplotLayer) {
         let scatterplotData = [];
-        let index = 0;
-        for (const [molecule, coords] of Object.entries(molecules)) {
+        Object.entries(molecules).forEach(([molecule, coords], index) => {
           scatterplotData = scatterplotData.concat(
             coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
             // TODO: Using an object would be more clear, but is there a performance penalty,
             // either in time or memory?
           );
-          index++;
-        }
+        });
         this.scatterplotLayer = new ScatterplotLayer({
           id: 'scatter-plot',
           coordinateSystem: COORDINATE_SYSTEM.IDENTITY,

@@ -68,9 +68,9 @@ export default class AbstractSelectableComponent extends React.Component {
         },
       ).map(([id, cell]) => id);
       const selectedCellIdsSet = {};
-      for (const id of selectedCellIds) {
+      selectedCellIds.forEach((id) => {
         selectedCellIdsSet[id] = true;
-      }
+      });
       updateCellsSelection(selectedCellIdsSet);
     }
   }

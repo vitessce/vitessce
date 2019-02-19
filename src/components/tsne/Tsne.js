@@ -5,6 +5,8 @@ import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
 
 export default class Tsne extends AbstractSelectableComponent {
+  // These are called from superclass, so they need to belong to instance, I think.
+  // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
     return {
       zoom: 2,
@@ -12,6 +14,7 @@ export default class Tsne extends AbstractSelectableComponent {
     };
   }
 
+  // eslint-disable-next-line class-methods-use-this
   getCellCoords(cell) {
     return cell.tsne;
   }
@@ -32,11 +35,11 @@ export default class Tsne extends AbstractSelectableComponent {
 
     if (cells) {
       const clusterColors = {};
-      for (const cell of Object.values(cells)) {
+      Object.values(cells).forEach((cell) => {
         if (!clusterColors[cell.cluster]) {
           clusterColors[cell.cluster] = PALETTE[Object.keys(clusterColors).length % PALETTE.length];
         }
-      }
+      });
       layers.push(
         new SelectableScatterplotLayer({
           id: 'tsne-scatter-plot',

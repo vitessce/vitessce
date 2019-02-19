@@ -16,7 +16,7 @@ export default class FileManager extends React.Component {
   handleDrop(files) {
     const { fileNames } = this.state;
     const fileNamesCopy = fileNames.slice();
-    for (const f of files) {
+    Array.from(files).forEach((f) => {
       if (!fileNamesCopy.includes(f.name)) {
         // Do not add duplicate entries to list...
         fileNamesCopy.push(f.name);
@@ -24,7 +24,7 @@ export default class FileManager extends React.Component {
       // ... but we do update the data.
       // This is easy, and good enough for now.
       this.props.onAddFile(f);
-    }
+    });
     this.setState({ fileNames: fileNamesCopy });
   }
 
