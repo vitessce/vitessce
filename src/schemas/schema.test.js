@@ -1,6 +1,9 @@
 import Ajv from 'ajv';
 import expect from 'expect';
 
+/* eslint-disable import/no-dynamic-require */
+/* eslint-disable global-require */
+
 describe('cells.schema.json', () => {
   const schema = require('./cells.schema.json');
   const validate = new Ajv().compile(schema);
