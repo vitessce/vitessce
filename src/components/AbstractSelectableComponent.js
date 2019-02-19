@@ -59,14 +59,14 @@ export default class AbstractSelectableComponent extends React.Component {
 
       // TODO: Implement quadtree? But it's probably fast enough.
       const selectedCellIds = Object.entries(cells).filter(
-        ([id, cell]) => {
+        ([id, cell]) => { // eslint-disable-line no-unused-vars
           const coords = this.getCellCoords(cell);
           return coords[0] > xMin
             && coords[0] < xMax
             && coords[1] > yMin
             && coords[1] < yMax;
         },
-      ).map(([id, cell]) => id);
+      ).map(([id, cell]) => id); // eslint-disable-line no-unused-vars
       const selectedCellIdsSet = {};
       selectedCellIds.forEach((id) => {
         selectedCellIdsSet[id] = true;
