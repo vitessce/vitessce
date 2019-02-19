@@ -13,8 +13,9 @@ export default class FileManager extends React.Component {
     this.handleDrop = this.handleDrop.bind(this);
   }
 
-  handleDrop(files, event) {
-    const fileNamesCopy = this.state.fileNames.slice();
+  handleDrop(files) {
+    const { fileNames } = this.state;
+    const fileNamesCopy = fileNames.slice();
     for (const f of files) {
       if (!fileNamesCopy.includes(f.name)) {
         // Do not add duplicate entries to list...
@@ -28,7 +29,8 @@ export default class FileManager extends React.Component {
   }
 
   render() {
-    const fileList = this.state.fileNames.map(
+    const { fileNames } = this.state;
+    const fileList = fileNames.map(
       fileName => <li className="list-group-item" key={fileName}>{fileName}</li>,
     );
 

@@ -73,8 +73,9 @@ export default class FileManagerPublisher extends React.Component {
   }
 
   render() {
+    const { value } = this.state;
     return (
-      <FileManager onAddFile={this.onAddFile} value={this.state.value} />
+      <FileManager onAddFile={this.onAddFile} value={value} />
     );
   }
 }

@@ -10,5 +10,6 @@ settings:
     version: detect
 rules:
   no-console: [2, { "allow": ["warn", "error"]}]
-  react/jsx-filename-extension: [0]  # Imports don't work if I change extension.
+  react/jsx-filename-extension: [0]  # Imports don't work if I change extension. TODO?
   react/sort-comp: [0]  # Non-alphabetical groupings can make more sense.
+  react/jsx-one-expression-per-line: [0]  # Makes punctuation after tab awkward.
