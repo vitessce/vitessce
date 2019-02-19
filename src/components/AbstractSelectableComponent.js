@@ -76,15 +76,13 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   renderSelectionRectangleLayers() {
-    const { isRectangleSelection } = this.props;
-    const { selectionRectangle } = this.state;
-    if (!isRectangleSelection || !this.dragStartCoordinate) {
+    if (!this.state.selectionRectangle || !this.dragStartCoordinate) {
       return [];
     }
     return [new PolygonLayer({
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       id: 'selection-rectangle',
-      data: [selectionRectangle],
+      data: [this.state.selectionRectangle],
       getPolygon(bounds) {
         return [
           [bounds.xMin, bounds.yMin],
