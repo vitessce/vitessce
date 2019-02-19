@@ -21,7 +21,7 @@ export default class Spatial extends AbstractSelectableComponent {
 
   // eslint-disable-next-line class-methods-use-this
   getCellCoords(cell) {
-    return cell.poly[0];
+    return cell.xy;
   }
 
   renderLayers() {
