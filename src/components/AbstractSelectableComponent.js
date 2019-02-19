@@ -1,5 +1,5 @@
 import React from 'react';
-import DeckGL, {OrthographicView, PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
+import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import PropTypes from 'prop-types';
 
 
@@ -11,111 +11,119 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onDragEnd = this.onDragEnd.bind(this);
     this.onDragOrEnd = this.onDragOrEnd.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
-    this.state = {selectionRectangle: undefined};
+    this.state = { selectionRectangle: undefined };
   }
 
   getDragRectangle(event) {
-    const start = this.dragStartCoordinate
+    const start = this.dragStartCoordinate;
     const end = event.coordinate;
     return {
       xMin: Math.min(start[0], end[0]),
       yMin: Math.min(start[1], end[1]),
       xMax: Math.max(start[0], end[0]),
-      yMax: Math.max(start[1], end[1])
-    }
+      yMax: Math.max(start[1], end[1]),
+    };
   }
 
   onDragStart(event) {
-    if (this.props.isRectangleSelection) {
+    const { isRectangleSelection } = this.props;
+    if (isRectangleSelection) {
       this.dragStartCoordinate = event.coordinate;
     }
   }
 
   onDrag(event) {
-    if (this.props.isRectangleSelection && event.coordinate) {
-      this.setState({selectionRectangle: this.getDragRectangle(event)});
+    const { isRectangleSelection } = this.props;
+    if (isRectangleSelection && event.coordinate) {
+      this.setState({ selectionRectangle: this.getDragRectangle(event) });
       this.onDragOrEnd(event);
     }
   }
 
   onDragEnd(event) {
-    if (this.props.isRectangleSelection) {
-      this.setState({selectionRectangle: undefined});
+    const { isRectangleSelection } = this.props;
+    if (isRectangleSelection) {
+      this.setState({ selectionRectangle: undefined });
       this.onDragOrEnd(event);
     }
   }
 
   onDragOrEnd(event) {
-    if (this.props.isRectangleSelection && event.coordinate) {
-      const {xMin, yMin, xMax, yMax} = this.getDragRectangle(event);
+    const { cells, isRectangleSelection, updateCellsSelection } = this.props;
+    if (isRectangleSelection && event.coordinate) {
+      const {
+        xMin, yMin, xMax, yMax,
+      } = this.getDragRectangle(event);
       // The built-in pickObjects is limited in the size of the region that can be selected.
       // https://github.com/uber/deck.gl/issues/2658#issuecomment-463293063
 
       // TODO: Implement quadtree? But it's probably fast enough.
-      const selectedCellIds = Object.entries(this.props.cells).filter(
-        ([id, cell]) => {
+      const selectedCellIds = Object.entries(cells).filter(
+        ([id, cell]) => { // eslint-disable-line no-unused-vars
           const coords = this.getCellCoords(cell);
           return coords[0] > xMin
             && coords[0] < xMax
             && coords[1] > yMin
-            && coords[1] < yMax
-        }
-      ).map(([id, cell]) => id);
-      var selectedCellIdsSet = {};
-      for (const id of selectedCellIds) {
+            && coords[1] < yMax;
+        },
+      ).map(([id, cell]) => id); // eslint-disable-line no-unused-vars
+      const selectedCellIdsSet = {};
+      selectedCellIds.forEach((id) => {
         selectedCellIdsSet[id] = true;
-      }
-      this.props.updateCellsSelection(selectedCellIdsSet);
+      });
+      updateCellsSelection(selectedCellIdsSet);
     }
   }
 
   renderSelectionRectangleLayers() {
-    if (! this.state.selectionRectangle || ! this.dragStartCoordinate ) {
+    const { selectionRectangle } = this.state;
+    if (!selectionRectangle || !this.dragStartCoordinate) {
       return [];
     }
     return [new PolygonLayer({
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       id: 'selection-rectangle',
-      data: [this.state.selectionRectangle],
-      getPolygon: function(bounds) {
+      data: [selectionRectangle],
+      getPolygon(bounds) {
         return [
           [bounds.xMin, bounds.yMin],
           [bounds.xMax, bounds.yMin],
           [bounds.xMax, bounds.yMax],
-          [bounds.xMin, bounds.yMax]
+          [bounds.xMin, bounds.yMax],
         ];
       },
-      getFillColor: [0,0,0],
+      getFillColor: [0, 0, 0],
       opacity: 0.05,
       lineWidthMaxPixels: 0,
       filled: true,
       getElevation: 0,
-    })]
+    })];
   }
 
   render() {
-    var props = {
+    const { isRectangleSelection } = this.props;
+    let props = {
       views: [new OrthographicView()],
       layers: this.renderLayers().concat(this.renderSelectionRectangleLayers()),
-      initialViewState: this.getInitialViewState()
-    }
-    if (this.props.isRectangleSelection) {
+      initialViewState: this.getInitialViewState(),
+    };
+    if (isRectangleSelection) {
       props = {
-        controller: {dragPan: false},
-        getCursor: interactionState => 'crosshair',
+        controller: { dragPan: false },
+        getCursor: () => 'crosshair',
         onDrag: this.onDrag,
         onDragStart: this.onDragStart,
         onDragEnd: this.onDragEnd,
-        ...props
-      }
+        ...props,
+      };
     } else {
       props = {
         controller: true,
-        getCursor: interactionState => interactionState.isDragging ? 'grabbing' : 'default',
-        ...props
-      }
+        getCursor: interactionState => (interactionState.isDragging ? 'grabbing' : 'default'),
+        ...props,
+      };
     }
-    return <DeckGL {...props}/>;
+    return <DeckGL {...props} />;
   }
 }
 
@@ -127,5 +135,5 @@ AbstractSelectableComponent.propTypes = {
   selectedCellIds: PropTypes.object,
   updateStatus: PropTypes.func,
   updateCellsSelection: PropTypes.func,
-  isRectangleSelection: PropTypes.bool
-}
+  isRectangleSelection: PropTypes.bool,
+};

@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { ToolPicker } from './components/toolpicker'
+import ToolMenu from './components/ToolMenu';
 import { FileManagerPublisher } from './components/filemanager';
-import { StatusSubscriber } from './components/status/';
-import { TsneSubscriber } from './components/tsne/';
-import { HeatmapSubscriber } from './components/heatmap/';
-import { SpatialSubscriber } from './components/spatial/';
+import { StatusSubscriber } from './components/status';
+import { TsneSubscriber } from './components/tsne';
+import { HeatmapSubscriber } from './components/heatmap';
+import { SpatialSubscriber } from './components/spatial';
 
 import './css/file-drop.css';
 import './css/index.css';
@@ -26,7 +26,7 @@ export default function renderApp(id) {
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-100 p-2">
       <div class="${left}">
-        <div id="toolpicker" class="my-2"></div>
+        <div id="toolmenu" class="my-2"></div>
         <div id="filemanager" class="${card}"></div>
         <div id="status" class="my-2"></div>
         <div id="tsne" class="${card}" style="height: 50%;"></div>
@@ -38,7 +38,7 @@ export default function renderApp(id) {
     </div>
   `;
 
-  renderComponent(<ToolPicker />, 'toolpicker');
+  renderComponent(<ToolMenu />, 'toolmenu');
   renderComponent(<FileManagerPublisher />, 'filemanager');
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');

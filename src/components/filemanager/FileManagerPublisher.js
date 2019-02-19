@@ -2,38 +2,18 @@ import Ajv from 'ajv';
 import PubSub from 'pubsub-js';
 import React from 'react';
 
-import { STATUS_WARN, STATUS_INFO, MOLECULES_ADD, CELLS_ADD } from '../../events'
+import {
+  STATUS_WARN, STATUS_INFO, MOLECULES_ADD, CELLS_ADD,
+} from '../../events';
 
-import FileManager from './FileManager'
+import FileManager from './FileManager';
+
+import cellsSchema from '../../schemas/cells.schema.json';
+import moleculesSchema from '../../schemas/molecules.schema.json';
+
 
 function warn(message) {
   PubSub.publish(STATUS_WARN, message);
-}
-
-function parseJson(file, schema, topic) {
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const json = event.target.result;
-    try {
-      var data = JSON.parse(json);
-    } catch (e) {
-      warn(`Invalid JSON: ${file.name}. Details in console.`);
-      console.warn(e);
-      return;
-    }
-
-    var validate = new Ajv().compile(schema);
-
-    var valid = validate(data);
-    if (valid) {
-      PubSub.publish(topic, data);
-      clearWarning(file.name);
-    } else {
-      warn(`JSON violates schema: ${file.name}. Details in console.`);
-      console.warn(JSON.stringify(validate.errors, null, 2));
-    }
-  }
-  reader.readAsText(file);
 }
 
 function clearWarning(fileName) {
@@ -41,15 +21,40 @@ function clearWarning(fileName) {
   // Empty string is false-y and would bring back default welcome message.
 }
 
-export class FileManagerPublisher extends React.Component {
+function parseJson(file, schema, topic) {
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const json = event.target.result;
+    let data;
+    try {
+      data = JSON.parse(json);
+    } catch (e) {
+      warn(`Invalid JSON: ${file.name}. Details in console.`);
+      console.warn(e);
+      return;
+    }
+
+    const validate = new Ajv().compile(schema);
+
+    const valid = validate(data);
+    if (valid) {
+      PubSub.publish(topic, data);
+      clearWarning(file.name);
+    } else {
+      warn(`JSON violates schema: ${file.name}. Details in console.`);
+      console.warn(JSON.stringify(validate.errors, null, 2));
+    }
+  };
+  reader.readAsText(file);
+}
+
+export default class FileManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: ''};
-
-    this.onAddFile = this.onAddFile.bind(this);
+    this.state = { value: '' };
   }
 
-  onAddFile(file) {
+  static onAddFile(file) {
     const extension = file.name.match(/\..*/)[0];
     switch (extension) {
       // case '.png': {
@@ -57,12 +62,12 @@ export class FileManagerPublisher extends React.Component {
       //   break;
       // }
       case '.cells.json': {
-        parseJson(file, require('../../schemas/cells.schema.json'), CELLS_ADD);
+        parseJson(file, cellsSchema, CELLS_ADD);
         break;
       }
       case '.molecules.json': {
         warn('Loading molecules will take a moment; Please wait...');
-        parseJson(file, require('../../schemas/molecules.schema.json'), MOLECULES_ADD);
+        parseJson(file, moleculesSchema, MOLECULES_ADD);
         break;
       }
       default:
@@ -71,8 +76,9 @@ export class FileManagerPublisher extends React.Component {
   }
 
   render() {
+    const { value } = this.state;
     return (
-      <FileManager onAddFile={this.onAddFile} value={this.state.value}></FileManager>
+      <FileManager onAddFile={FileManagerPublisher.onAddFile} value={value} />
     );
   }
 }

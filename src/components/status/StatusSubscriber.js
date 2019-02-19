@@ -1,13 +1,13 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import Status from './Status'
+import Status from './Status';
 
 import { STATUS_WARN, STATUS_INFO } from '../../events';
 
-export class StatusSubscriber extends React.Component {
+export default class StatusSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {message: undefined};
+    this.state = { message: undefined };
   }
 
   componentWillMount() {
@@ -21,16 +21,17 @@ export class StatusSubscriber extends React.Component {
   }
 
   warnSubscriber(msg, data) {
-    this.setState({warn: true, message: data});
+    this.setState({ warn: true, message: data });
   }
 
   infoSubscriber(msg, data) {
-    this.setState({warn: false, message: data});
+    this.setState({ warn: false, message: data });
   }
 
   render() {
+    const { warn, message } = this.state;
     return (
-      <Status warn={this.state.warn} message={this.state.message}/>
+      <Status warn={warn} message={message} />
     );
   }
 }
