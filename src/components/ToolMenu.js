@@ -27,7 +27,7 @@ IconButton.propTypes = {
   isActive: PropTypes.bool,
 };
 
-export class ToolPicker extends React.Component {
+export default class ToolMenu extends React.Component {
   constructor(props) {
     super(props);
     this.state = { activeTool: POINT };
@@ -46,19 +46,20 @@ export class ToolPicker extends React.Component {
   }
 
   render() {
+    const { activeTool } = this.state;
     return (
       <div>
         <IconButton
           src="material/near_me.svg"
           alt="pointer tool"
           onClick={this.activatePointMode}
-          isActive={this.state.activeTool === POINT}
+          isActive={activeTool === POINT}
         />
         <IconButton
           src="material/selection.svg"
           alt="select rectangle"
           onClick={this.activateRectangleMode}
-          isActive={this.state.activeTool === RECT}
+          isActive={activeTool === RECT}
         />
       </div>
     );

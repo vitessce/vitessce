@@ -32,8 +32,9 @@ export default class HeatmapSubscriber extends React.Component {
   }
 
   render() {
-    const cellCount = Object.keys(this.state.cells).length;
-    const selectionCount = Object.keys(this.state.selectedCellIds).length;
+    const { cells, selectedCellIds } = this.state;
+    const cellCount = Object.keys(cells).length;
+    const selectionCount = Object.keys(selectedCellIds).length;
     return (
       <Heatmap
         value={`Cells: ${cellCount}; Selected: ${selectionCount}`}

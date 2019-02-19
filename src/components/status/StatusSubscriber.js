@@ -29,8 +29,9 @@ export default class StatusSubscriber extends React.Component {
   }
 
   render() {
+    const { warn, message } = this.state;
     return (
-      <Status warn={this.state.warn} message={this.state.message} />
+      <Status warn={warn} message={message} />
     );
   }
 }

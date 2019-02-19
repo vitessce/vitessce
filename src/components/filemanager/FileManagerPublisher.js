@@ -12,12 +12,18 @@ function warn(message) {
   PubSub.publish(STATUS_WARN, message);
 }
 
+function clearWarning(fileName) {
+  PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
+  // Empty string is false-y and would bring back default welcome message.
+}
+
 function parseJson(file, schema, topic) {
   const reader = new FileReader();
-  reader.onload = function (event) {
+  reader.onload = (event) => {
     const json = event.target.result;
+    let data;
     try {
-      var data = JSON.parse(json);
+      data = JSON.parse(json);
     } catch (e) {
       warn(`Invalid JSON: ${file.name}. Details in console.`);
       console.warn(e);
@@ -36,11 +42,6 @@ function parseJson(file, schema, topic) {
     }
   };
   reader.readAsText(file);
-}
-
-function clearWarning(fileName) {
-  PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
-  // Empty string is false-y and would bring back default welcome message.
 }
 
 export default class FileManagerPublisher extends React.Component {
