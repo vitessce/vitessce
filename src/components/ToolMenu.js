@@ -14,6 +14,7 @@ function IconButton(props) {
     <button
       className={isActive ? active : inactive}
       onClick={onClick}
+      type="button"
     >
       <img src={src} alt={alt} />
     </button>

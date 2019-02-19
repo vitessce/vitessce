@@ -19,7 +19,7 @@ export default class Tsne extends AbstractSelectableComponent {
     return cell.tsne;
   }
 
-  renderLayers(props) {
+  renderLayers() {
     const {
       cells = undefined,
       updateStatus = (message) => {
