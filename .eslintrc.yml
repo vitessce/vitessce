@@ -2,6 +2,7 @@ extends:
   - react-app
   - eslint:recommended
   - plugin:react/recommended
+  - airbnb
 plugins:
   - react
 settings:
