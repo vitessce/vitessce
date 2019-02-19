@@ -26,27 +26,31 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   onDragStart(event) {
-    if (this.props.isRectangleSelection) {
+    const { isRectangleSelection } = this.props;
+    if (isRectangleSelection) {
       this.dragStartCoordinate = event.coordinate;
     }
   }
 
   onDrag(event) {
-    if (this.props.isRectangleSelection && event.coordinate) {
+    const { isRectangleSelection } = this.props;
+    if (isRectangleSelection && event.coordinate) {
       this.setState({ selectionRectangle: this.getDragRectangle(event) });
       this.onDragOrEnd(event);
     }
   }
 
   onDragEnd(event) {
-    if (this.props.isRectangleSelection) {
+    const { isRectangleSelection } = this.props;
+    if (isRectangleSelection) {
       this.setState({ selectionRectangle: undefined });
       this.onDragOrEnd(event);
     }
   }
 
   onDragOrEnd(event) {
-    if (this.props.isRectangleSelection && event.coordinate) {
+    const { cells, isRectangleSelection, updateCellsSelection } = this.props;
+    if (isRectangleSelection && event.coordinate) {
       const {
         xMin, yMin, xMax, yMax,
       } = this.getDragRectangle(event);
@@ -54,7 +58,7 @@ export default class AbstractSelectableComponent extends React.Component {
       // https://github.com/uber/deck.gl/issues/2658#issuecomment-463293063
 
       // TODO: Implement quadtree? But it's probably fast enough.
-      const selectedCellIds = Object.entries(this.props.cells).filter(
+      const selectedCellIds = Object.entries(cells).filter(
         ([id, cell]) => {
           const coords = this.getCellCoords(cell);
           return coords[0] > xMin
@@ -67,18 +71,20 @@ export default class AbstractSelectableComponent extends React.Component {
       for (const id of selectedCellIds) {
         selectedCellIdsSet[id] = true;
       }
-      this.props.updateCellsSelection(selectedCellIdsSet);
+      updateCellsSelection(selectedCellIdsSet);
     }
   }
 
   renderSelectionRectangleLayers() {
-    if (!this.state.selectionRectangle || !this.dragStartCoordinate) {
+    const { isRectangleSelection } = this.props;
+    const { selectionRectangle } = this.state;
+    if (!isRectangleSelection || !this.dragStartCoordinate) {
       return [];
     }
     return [new PolygonLayer({
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       id: 'selection-rectangle',
-      data: [this.state.selectionRectangle],
+      data: [selectionRectangle],
       getPolygon(bounds) {
         return [
           [bounds.xMin, bounds.yMin],
@@ -96,12 +102,13 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   render() {
+    const { isRectangleSelection } = this.props;
     let props = {
       views: [new OrthographicView()],
       layers: this.renderLayers().concat(this.renderSelectionRectangleLayers()),
       initialViewState: this.getInitialViewState(),
     };
-    if (this.props.isRectangleSelection) {
+    if (isRectangleSelection) {
       props = {
         controller: { dragPan: false },
         getCursor: interactionState => 'crosshair',
