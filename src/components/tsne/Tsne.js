@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { SelectableScatterplotLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -70,13 +69,3 @@ export default class Tsne extends AbstractSelectableComponent {
     return layers;
   }
 }
-
-Tsne.propTypes = {
-  viewState: PropTypes.object,
-  controller: PropTypes.bool,
-  isRectangleSelection: PropTypes.bool,
-  cells: PropTypes.object,
-  selectedCellIds: PropTypes.object,
-  updateStatus: PropTypes.func,
-  updateCellsSelection: PropTypes.func,
-};

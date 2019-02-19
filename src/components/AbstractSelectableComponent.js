@@ -1,6 +1,5 @@
 import React from 'react';
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
-import PropTypes from 'prop-types';
 
 
 export default class AbstractSelectableComponent extends React.Component {
@@ -126,14 +125,3 @@ export default class AbstractSelectableComponent extends React.Component {
     return <DeckGL {...props} />;
   }
 }
-
-AbstractSelectableComponent.propTypes = {
-  viewState: PropTypes.object,
-  controller: PropTypes.bool,
-  molecules: PropTypes.object,
-  cells: PropTypes.object,
-  selectedCellIds: PropTypes.object,
-  updateStatus: PropTypes.func,
-  updateCellsSelection: PropTypes.func,
-  isRectangleSelection: PropTypes.bool,
-};
