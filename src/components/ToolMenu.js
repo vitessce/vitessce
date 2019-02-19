@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 
 import { SELECTION_MODE_SET, POINT, RECT } from '../events';
@@ -20,13 +19,6 @@ function IconButton(props) {
     </button>
   );
 }
-
-IconButton.propTypes = {
-  src: PropTypes.string,
-  alt: PropTypes.string,
-  onClick: PropTypes.func,
-  isActive: PropTypes.bool,
-};
 
 export default class ToolMenu extends React.Component {
   constructor(props) {

@@ -1,6 +1,5 @@
 import { ScatterplotLayer, COORDINATE_SYSTEM }
   from 'deck.gl';
-import PropTypes from 'prop-types';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -110,15 +109,3 @@ export default class Spatial extends AbstractSelectableComponent {
     return layers;
   }
 }
-
-
-Spatial.propTypes = {
-  viewState: PropTypes.object,
-  controller: PropTypes.bool,
-  molecules: PropTypes.object,
-  cells: PropTypes.object,
-  selectedCellIds: PropTypes.object,
-  updateStatus: PropTypes.func,
-  updateCellsSelection: PropTypes.func,
-  isRectangleSelection: PropTypes.bool,
-};

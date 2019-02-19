@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 export default function Heatmap(props) {
   // The real business logic goes inside.
@@ -11,7 +10,3 @@ export default function Heatmap(props) {
     </p>
   );
 }
-
-Heatmap.propTypes = {
-  value: PropTypes.string,
-};

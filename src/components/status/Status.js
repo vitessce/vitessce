@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 export default function Status(props) {
   const url = 'https://github.com/hms-dbmi/vitessce-data/tree/master/fake-files/output-expected';
@@ -15,8 +14,3 @@ export default function Status(props) {
       </p>
     );
 }
-
-Status.propTypes = {
-  message: PropTypes.string,
-  warn: PropTypes.bool,
-};

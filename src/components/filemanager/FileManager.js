@@ -1,6 +1,5 @@
 import React from 'react';
 import FileDrop from 'react-file-drop';
-import PropTypes from 'prop-types';
 
 
 export default class FileManager extends React.Component {
@@ -47,7 +46,3 @@ export default class FileManager extends React.Component {
     );
   }
 }
-
-FileManager.propTypes = {
-  onAddFile: PropTypes.func,
-};
