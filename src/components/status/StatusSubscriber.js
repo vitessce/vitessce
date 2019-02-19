@@ -4,7 +4,7 @@ import Status from './Status';
 
 import { STATUS_WARN, STATUS_INFO } from '../../events';
 
-export class StatusSubscriber extends React.Component {
+export default class StatusSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = { message: undefined };

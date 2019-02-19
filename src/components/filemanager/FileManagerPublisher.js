@@ -43,7 +43,7 @@ function clearWarning(fileName) {
   // Empty string is false-y and would bring back default welcome message.
 }
 
-export class FileManagerPublisher extends React.Component {
+export default class FileManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
     this.state = { value: '' };

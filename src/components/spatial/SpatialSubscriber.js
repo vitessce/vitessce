@@ -8,7 +8,7 @@ import Spatial from './Spatial';
 import AbstractSelectionSubscriberComponent from '../AbstractSelectionSubscriberComponent';
 
 
-export class SpatialSubscriber extends AbstractSelectionSubscriberComponent {
+export default class SpatialSubscriber extends AbstractSelectionSubscriberComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -21,8 +21,12 @@ export class SpatialSubscriber extends AbstractSelectionSubscriberComponent {
     this.moleculesToken = PubSub.subscribe(MOLECULES_ADD, this.moleculesAddSubscriber.bind(this));
     this.cellsAddToken = PubSub.subscribe(CELLS_ADD, this.cellsAddSubscriber.bind(this));
 
-    this.cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this));
-    this.selectionModeSetToken = PubSub.subscribe(SELECTION_MODE_SET, this.selectionModeSetSubscriber.bind(this));
+    this.cellsSelectionToken = PubSub.subscribe(
+      CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
+    );
+    this.selectionModeSetToken = PubSub.subscribe(
+      SELECTION_MODE_SET, this.selectionModeSetSubscriber.bind(this),
+    );
   }
 
   componentWillUnmount() {

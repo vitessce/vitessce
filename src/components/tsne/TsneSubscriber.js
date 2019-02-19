@@ -7,7 +7,7 @@ import Tsne from './Tsne';
 import AbstractSelectionSubscriberComponent from '../AbstractSelectionSubscriberComponent';
 
 
-export class TsneSubscriber extends AbstractSelectionSubscriberComponent {
+export default class TsneSubscriber extends AbstractSelectionSubscriberComponent {
   constructor(props) {
     super(props);
     this.state = { cells: {}, selectedCellIds: {} };
@@ -16,8 +16,12 @@ export class TsneSubscriber extends AbstractSelectionSubscriberComponent {
   componentWillMount() {
     this.cellsAddToken = PubSub.subscribe(CELLS_ADD, this.cellsAddSubscriber.bind(this));
 
-    this.cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this));
-    this.selectionModeSetToken = PubSub.subscribe(SELECTION_MODE_SET, this.selectionModeSetSubscriber.bind(this));
+    this.cellsSelectionToken = PubSub.subscribe(
+      CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
+    );
+    this.selectionModeSetToken = PubSub.subscribe(
+      SELECTION_MODE_SET, this.selectionModeSetSubscriber.bind(this),
+    );
   }
 
   componentWillUnmount() {
