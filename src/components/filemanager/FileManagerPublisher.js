@@ -8,6 +8,10 @@ import {
 
 import FileManager from './FileManager';
 
+import cellsSchema from '../../schemas/cells.schema.json';
+import moleculesSchema from '../../schemas/molecules.schema.json';
+
+
 function warn(message) {
   PubSub.publish(STATUS_WARN, message);
 }
@@ -48,11 +52,9 @@ export default class FileManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
     this.state = { value: '' };
-
-    this.onAddFile = this.onAddFile.bind(this);
   }
 
-  onAddFile(file) {
+  static onAddFile(file) {
     const extension = file.name.match(/\..*/)[0];
     switch (extension) {
       // case '.png': {
@@ -60,12 +62,12 @@ export default class FileManagerPublisher extends React.Component {
       //   break;
       // }
       case '.cells.json': {
-        parseJson(file, require('../../schemas/cells.schema.json'), CELLS_ADD);
+        parseJson(file, cellsSchema, CELLS_ADD);
         break;
       }
       case '.molecules.json': {
         warn('Loading molecules will take a moment; Please wait...');
-        parseJson(file, require('../../schemas/molecules.schema.json'), MOLECULES_ADD);
+        parseJson(file, moleculesSchema, MOLECULES_ADD);
         break;
       }
       default:
@@ -76,7 +78,7 @@ export default class FileManagerPublisher extends React.Component {
   render() {
     const { value } = this.state;
     return (
-      <FileManager onAddFile={this.onAddFile} value={value} />
+      <FileManager onAddFile={FileManagerPublisher.onAddFile} value={value} />
     );
   }
 }

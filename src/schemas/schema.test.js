@@ -1,4 +1,6 @@
 import Ajv from 'ajv';
+// TODO: We already have this, so an extra install seems unnecessary.
+// eslint-disable-next-line import/no-extraneous-dependencies
 import expect from 'expect';
 
 /* eslint-disable import/no-dynamic-require */
