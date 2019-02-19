@@ -110,7 +110,7 @@ export default class AbstractSelectableComponent extends React.Component {
     if (isRectangleSelection) {
       props = {
         controller: { dragPan: false },
-        getCursor: interactionState => 'crosshair',
+        getCursor: () => 'crosshair',
         onDrag: this.onDrag,
         onDragStart: this.onDragStart,
         onDragEnd: this.onDragEnd,
