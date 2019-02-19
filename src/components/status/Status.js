@@ -10,9 +10,8 @@ export default function Status(props) {
     ? <p className={warn ? warningClass : infoClass}>{message}</p>
     : (
       <p className={infoClass}>
-Sample data is available
-        <a href={url}>here</a>
-.
+        Sample data is available
+        <a href={url}>here</a>.
       </p>
     );
 }
