@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import ToolMenu from './components/ToolMenu';
-import { FileManagerPublisher } from './components/filemanager';
+import { FileManagerPublisher, loadDefaults } from './components/filemanager';
 import { StatusSubscriber } from './components/status';
 import { TsneSubscriber } from './components/tsne';
 import { HeatmapSubscriber } from './components/heatmap';
@@ -44,4 +44,9 @@ export default function renderApp(id) {
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
   renderComponent(<SpatialSubscriber />, 'spatial');
+
+  setTimeout(() => {
+    // TODO: Possible race conditions? setTimeout should be avoided.
+    loadDefaults();
+  }, 1000);
 }

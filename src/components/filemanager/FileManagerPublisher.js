@@ -21,6 +21,26 @@ function clearWarning(fileName) {
   // Empty string is false-y and would bring back default welcome message.
 }
 
+export function loadDefaults() {
+  // TODO: Copy and pasted from parseJson.
+  // TODO: Clarify goals.
+  fetch('https://s3.amazonaws.com/vitessce-data/linnarsson.cells.json')
+    .then((response) => {
+      response.json().then((data) => {
+        const validate = new Ajv().compile(cellsSchema);
+        const valid = validate(data);
+        const fileName = 'linnarsson.cells.json';
+        if (valid) {
+          PubSub.publish(CELLS_ADD, data);
+          clearWarning(fileName);
+        } else {
+          warn(`JSON violates schema: ${fileName}. Details in console.`);
+          console.warn(JSON.stringify(validate.errors, null, 2));
+        }
+      });
+    });
+}
+
 function parseJson(file, schema, topic) {
   const reader = new FileReader();
   reader.onload = (event) => {
