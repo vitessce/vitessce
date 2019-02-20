@@ -3,6 +3,9 @@ import PubSub from 'pubsub-js';
 
 import { SELECTION_MODE_SET, POINT, RECT } from '../events';
 
+import nearMe from '../assets/material/near_me.svg';
+import selection from '../assets/material/selection.svg';
+
 function IconButton(props) {
   const {
     src, alt, onClick, isActive = false,
@@ -43,13 +46,13 @@ export default class ToolMenu extends React.Component {
     return (
       <div>
         <IconButton
-          src="material/near_me.svg"
+          src={nearMe}
           alt="pointer tool"
           onClick={this.activatePointMode}
           isActive={activeTool === POINT}
         />
         <IconButton
-          src="material/selection.svg"
+          src={selection}
           alt="select rectangle"
           onClick={this.activateRectangleMode}
           isActive={activeTool === RECT}
