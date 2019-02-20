@@ -43,13 +43,13 @@ export default class ToolMenu extends React.Component {
     return (
       <div>
         <IconButton
-          src="material/near_me.svg"
+          src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
           alt="pointer tool"
           onClick={this.activatePointMode}
           isActive={activeTool === POINT}
         />
         <IconButton
-          src="material/selection.svg"
+          src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
           alt="select rectangle"
           onClick={this.activateRectangleMode}
           isActive={activeTool === RECT}
