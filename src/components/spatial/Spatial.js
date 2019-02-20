@@ -6,7 +6,7 @@ import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
 
 function square(x, y) {
-  return [[x, y + 100], [x + 100, y], [x, y - 100], [x - 100, y]];
+  return [[x, y + 5], [x + 5, y], [x, y - 5], [x - 5, y]];
 }
 
 export default class Spatial extends AbstractSelectableComponent {
@@ -14,8 +14,8 @@ export default class Spatial extends AbstractSelectableComponent {
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
     return {
-      zoom: -5,
-      offset: [460, 640], // Required: https://github.com/uber/deck.gl/issues/2580
+      zoom: -3,
+      offset: [0, 0], // Required: https://github.com/uber/deck.gl/issues/2580
     };
   }
 
@@ -52,7 +52,7 @@ export default class Spatial extends AbstractSelectableComponent {
           id: 'polygon-layer',
           isSelected: cellEntry => selectedCellIds[cellEntry[0]],
           wireframe: true,
-          lineWidthMinPixels: 15,
+          lineWidthMinPixels: 1,
           getPolygon(cellEntry) {
             const cell = cellEntry[1];
             return cell.poly ? cell.poly : square(cell.xy[0], cell.xy[1]);
@@ -95,7 +95,7 @@ export default class Spatial extends AbstractSelectableComponent {
           // TODO: How do the other radius attributes work?
           // If it were possible to have dots that remained the same size,
           // regardless of zoom, would we prefer that?
-          getRadius: 10,
+          getRadius: 1,
           getPosition: d => [d[0], d[1], 0],
           getColor: d => PALETTE[d[2] % PALETTE.length],
           onHover: (info) => {
