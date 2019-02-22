@@ -15,7 +15,7 @@ function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
 
-export default function renderApp(id) {
+function renderComponents(id) {
   const card = 'card card-body bg-light my-2';
   const [lLg, lMd, lSm] = [4, 5, 6];
   const [rLg, rMd, rSm] = [12 - lLg, 12 - lMd, 12 - lSm];
@@ -49,4 +49,31 @@ export default function renderApp(id) {
     // TODO: Possible race conditions? setTimeout should be avoided.
     loadDefaults();
   }, 1000);
+}
+
+function renderDatasetPicker(id) {
+  document.getElementById(id).innerHTML = `
+    <div class="container-fluid d-flex h-50">
+      <div class="card card-body bg-light py-2" style="width: 100%; max-width: 330px; margin: auto;" >
+        <form method="GET">
+          <h1>🚄  Vitessce</h1>
+          <div class="py-2">
+            <select name="dataset" class="btn btn-outline-dark">
+              <option value="linnarsson">Linnarsson - osmFISH</option>
+            </select>
+          </div>
+          <input type="submit" class="btn btn-outline-primary btn-sm">
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+export default function renderApp(id) {
+  const dataset = new URLSearchParams(window.location.search).get('dataset');
+  if (dataset) {
+    renderComponents(id, dataset);
+  } else {
+    renderDatasetPicker(id);
+  }
 }
