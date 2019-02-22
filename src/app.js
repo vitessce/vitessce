@@ -11,6 +11,24 @@ import { SpatialSubscriber } from './components/spatial';
 import './css/file-drop.css';
 import './css/index.css';
 
+const FAKE_API = {
+  'linnarsson-2018': {
+    name: 'Linnarsson - osmFISH',
+    data: [
+      {
+        name: 'Cells',
+        type: 'CELLS',
+        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.cells.json',
+      },
+      {
+        name: 'Molecules',
+        type: 'MOLECULES',
+        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.molecules.json',
+      },
+    ],
+  },
+};
+
 function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
@@ -54,19 +72,22 @@ function renderComponents(id) {
 function renderDatasetPicker(id) {
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-50">
-      <div class="card card-body bg-light py-2" style="width: 100%; max-width: 330px; margin: auto;" >
+      <div class="card card-body bg-light" style="width: 100%; max-width: 330px; margin: auto;" >
         <form method="GET">
           <h1>🚄  Vitessce</h1>
-          <div class="py-2">
-            <select name="dataset" class="btn btn-outline-dark">
-              <option value="linnarsson">Linnarsson - osmFISH</option>
-            </select>
-          </div>
+          <div class="py-2" id="dataset-picker"></div>
           <input type="submit" class="btn btn-outline-primary btn-sm">
         </form>
       </div>
     </div>
   `;
+
+  renderComponent(
+    <select name="dataset" className="btn btn-outline-dark">
+      <option value="linnarsson">Linnarsson - osmFISH</option>
+    </select>,
+    'dataset-picker',
+  );
 }
 
 export default function renderApp(id) {
