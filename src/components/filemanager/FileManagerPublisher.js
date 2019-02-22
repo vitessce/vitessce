@@ -16,9 +16,8 @@ function warn(message) {
   PubSub.publish(STATUS_WARN, message);
 }
 
-function clearWarning(fileName) {
+function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
-  // Empty string is false-y and would bring back default welcome message.
 }
 
 export function loadLayer(layer) {
@@ -34,11 +33,14 @@ export function loadLayer(layer) {
   fetch(url)
     .then((response) => {
       response.json().then((data) => {
+        if (type === 'MOLECULES') {
+          warn(null); // Clear default warning... Find better approach?
+        }
         const validate = new Ajv().compile(typeToSchema[type]);
         const valid = validate(data);
         if (valid) {
           PubSub.publish(typeToEvent[type], data);
-          clearWarning(name);
+          info(name);
         } else {
           warn(`JSON from ${url} violates ${type} schema. Details in console.`);
           console.warn(JSON.stringify(validate.errors, null, 2));
