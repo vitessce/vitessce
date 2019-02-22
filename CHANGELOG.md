@@ -1,6 +1,11 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Added
+### Changed
+- Faster updates to selected cell set using deck.gl picking.
+
 ## [0.0.5] - 2019-02-20
 ### Added
 - Distinguish pan and single-select mode from drag-to-select.

@@ -11,6 +11,7 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onDragOrEnd = this.onDragOrEnd.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
     this.state = { selectionRectangle: undefined };
+    this.deckGlRef = React.createRef();
   }
 
   getDragRectangle(event) {
@@ -57,6 +58,21 @@ export default class AbstractSelectableComponent extends React.Component {
       // https://github.com/uber/deck.gl/issues/2658#issuecomment-463293063
 
       // TODO: Implement quadtree? But it's probably fast enough.
+
+      // ??? Only works if x and y coordinates are positive.
+      // const object = this.deckGlRef.current.pickObject({ x: xMax, y: yMax });
+      // console.log(xMax, yMax, object);
+
+      const bounds = {
+        x: xMin,
+        y: yMin,
+        width: xMax - xMin,
+        height: yMax - yMin,
+        // layerIds
+      };
+      const objects = this.deckGlRef.current.pickObjects(bounds);
+      console.log('bounds', bounds, 'objects?', objects);
+
       const selectedCellIds = Object.entries(cells).filter(
         ([id, cell]) => { // eslint-disable-line no-unused-vars
           const coords = this.getCellCoords(cell);
@@ -122,6 +138,6 @@ export default class AbstractSelectableComponent extends React.Component {
         ...props,
       };
     }
-    return <DeckGL {...props} />;
+    return <DeckGL ref={this.deckGlRef} {...props} />;
   }
 }
