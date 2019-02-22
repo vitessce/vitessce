@@ -11,7 +11,7 @@ import { SpatialSubscriber } from './components/spatial';
 import './css/file-drop.css';
 import './css/index.css';
 
-const FAKE_API = {
+const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
     name: 'Linnarsson - osmFISH',
     data: [
@@ -26,6 +26,10 @@ const FAKE_API = {
         url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.molecules.json',
       },
     ],
+  },
+  'todo-2019': {
+    name: 'TODO',
+    data: [],
   },
 };
 
@@ -69,7 +73,19 @@ function renderComponents(id) {
   }, 1000);
 }
 
-function renderDatasetPicker(id) {
+function DatasetPicker(props) {
+  const { datasets } = props;
+  const options = Object.entries(datasets).map(
+    ([id, dataset]) => <option value={id} key={id}>{dataset.name}</option>,
+  );
+  return (
+    <select name="dataset" className="btn btn-outline-dark">
+      {options}
+    </select>
+  );
+}
+
+function renderWelcome(id) {
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-50">
       <div class="card card-body bg-light" style="width: 100%; max-width: 330px; margin: auto;" >
@@ -81,13 +97,7 @@ function renderDatasetPicker(id) {
       </div>
     </div>
   `;
-
-  renderComponent(
-    <select name="dataset" className="btn btn-outline-dark">
-      <option value="linnarsson">Linnarsson - osmFISH</option>
-    </select>,
-    'dataset-picker',
-  );
+  renderComponent(<DatasetPicker datasets={FAKE_API_RESPONSE} />, 'dataset-picker');
 }
 
 export default function renderApp(id) {
@@ -95,6 +105,6 @@ export default function renderApp(id) {
   if (dataset) {
     renderComponents(id, dataset);
   } else {
-    renderDatasetPicker(id);
+    renderWelcome(id);
   }
 }
