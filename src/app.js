@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import ToolMenu from './components/ToolMenu';
-import { FileManagerPublisher, loadDefaults } from './components/filemanager';
+import { FileManagerPublisher } from './components/filemanager';
 import { StatusSubscriber } from './components/status';
 import { TsneSubscriber } from './components/tsne';
 import { HeatmapSubscriber } from './components/heatmap';
@@ -14,7 +14,7 @@ import './css/index.css';
 const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
     name: 'Linnarsson - osmFISH',
-    data: [
+    layers: [
       {
         name: 'Cells',
         type: 'CELLS',
@@ -29,7 +29,7 @@ const FAKE_API_RESPONSE = {
   },
   'todo-2019': {
     name: 'TODO',
-    data: [],
+    layers: [],
   },
 };
 
@@ -37,7 +37,8 @@ function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
 
-function renderComponents(id) {
+function renderComponents(id, datasetId) {
+  const { layers } = FAKE_API_RESPONSE[datasetId];
   const card = 'card card-body bg-light my-2';
   const [lLg, lMd, lSm] = [4, 5, 6];
   const [rLg, rMd, rSm] = [12 - lLg, 12 - lMd, 12 - lSm];
@@ -61,16 +62,11 @@ function renderComponents(id) {
   `;
 
   renderComponent(<ToolMenu />, 'toolmenu');
-  renderComponent(<FileManagerPublisher />, 'filemanager');
+  renderComponent(<FileManagerPublisher layers={layers} />, 'filemanager');
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
   renderComponent(<SpatialSubscriber />, 'spatial');
-
-  setTimeout(() => {
-    // TODO: Possible race conditions? setTimeout should be avoided.
-    loadDefaults();
-  }, 1000);
 }
 
 function DatasetPicker(props) {
@@ -101,9 +97,9 @@ function renderWelcome(id) {
 }
 
 export default function renderApp(id) {
-  const dataset = new URLSearchParams(window.location.search).get('dataset');
-  if (dataset) {
-    renderComponents(id, dataset);
+  const datasetId = new URLSearchParams(window.location.search).get('dataset');
+  if (datasetId) {
+    renderComponents(id, datasetId);
   } else {
     renderWelcome(id);
   }
