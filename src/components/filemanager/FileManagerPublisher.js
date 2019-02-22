@@ -48,11 +48,6 @@ export function loadLayer(layer) {
 }
 
 export default class FileManagerPublisher extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { value: '' };
-  }
-
   componentDidMount() {
     const { layers } = this.props;
     layers.forEach((layer) => {
@@ -61,9 +56,11 @@ export default class FileManagerPublisher extends React.Component {
   }
 
   render() {
-    const { value } = this.state;
+    // If there is an error, the layer will still be listed in the UI...
+    // but this is a lot simpler: Feels ok to me.
+    const { layers } = this.props;
     return (
-      <FileManager onAddFile={FileManagerPublisher.onAddFile} value={value} />
+      <FileManager layerNames={layers.map(layer => layer.name)} />
     );
   }
 }
