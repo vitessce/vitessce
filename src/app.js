@@ -8,7 +8,6 @@ import { TsneSubscriber } from './components/tsne';
 import { HeatmapSubscriber } from './components/heatmap';
 import { SpatialSubscriber } from './components/spatial';
 
-import './css/file-drop.css';
 import './css/index.css';
 
 const FAKE_API_RESPONSE = {
