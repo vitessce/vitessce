@@ -6,7 +6,6 @@ export default function Status(props) {
   const { info, warn } = props;
   const messages = [];
   if (info) {
-    console.info(info);
     messages.push(<p className={infoClass} key="info">{info}</p>);
   }
   if (warn) {

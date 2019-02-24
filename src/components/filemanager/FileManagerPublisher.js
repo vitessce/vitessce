@@ -58,7 +58,7 @@ export default class FileManagerPublisher extends React.Component {
   }
 
   render() {
-    // If there is an error, the layer will still be listed in the UI...
+    // If there is an error while loading, the layer will still be listed in the UI...
     // but this is a lot simpler: Feels ok to me.
     const { layers } = this.props;
     return (
