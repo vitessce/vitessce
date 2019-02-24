@@ -16,89 +16,53 @@ function warn(message) {
   PubSub.publish(STATUS_WARN, message);
 }
 
-function clearWarning(fileName) {
+function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
-  // Empty string is false-y and would bring back default welcome message.
 }
 
-export function loadDefaults() {
-  // TODO: Copy and pasted from parseJson.
-  // TODO: Clarify goals.
-  fetch('https://s3.amazonaws.com/vitessce-data/linnarsson.cells.json')
+export function loadLayer(layer) {
+  const { name, type, url } = layer;
+  const typeToSchema = {
+    CELLS: cellsSchema,
+    MOLECULES: moleculesSchema,
+  };
+  const typeToEvent = {
+    CELLS: CELLS_ADD,
+    MOLECULES: MOLECULES_ADD,
+  };
+  fetch(url)
     .then((response) => {
       response.json().then((data) => {
-        const validate = new Ajv().compile(cellsSchema);
+        if (type === 'MOLECULES') {
+          warn(null); // Clear default warning... Find better approach?
+        }
+        const validate = new Ajv().compile(typeToSchema[type]);
         const valid = validate(data);
-        const fileName = 'linnarsson.cells.json';
         if (valid) {
-          PubSub.publish(CELLS_ADD, data);
-          clearWarning(fileName);
+          PubSub.publish(typeToEvent[type], data);
+          info(name);
         } else {
-          warn(`JSON violates schema: ${fileName}. Details in console.`);
+          warn(`JSON from ${url} violates ${type} schema. Details in console.`);
           console.warn(JSON.stringify(validate.errors, null, 2));
         }
       });
     });
 }
 
-function parseJson(file, schema, topic) {
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const json = event.target.result;
-    let data;
-    try {
-      data = JSON.parse(json);
-    } catch (e) {
-      warn(`Invalid JSON: ${file.name}. Details in console.`);
-      console.warn(e);
-      return;
-    }
-
-    const validate = new Ajv().compile(schema);
-
-    const valid = validate(data);
-    if (valid) {
-      PubSub.publish(topic, data);
-      clearWarning(file.name);
-    } else {
-      warn(`JSON violates schema: ${file.name}. Details in console.`);
-      console.warn(JSON.stringify(validate.errors, null, 2));
-    }
-  };
-  reader.readAsText(file);
-}
-
 export default class FileManagerPublisher extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { value: '' };
-  }
-
-  static onAddFile(file) {
-    const extension = file.name.match(/\..*/)[0];
-    switch (extension) {
-      // case '.png': {
-      //   loadPng(file);
-      //   break;
-      // }
-      case '.cells.json': {
-        parseJson(file, cellsSchema, CELLS_ADD);
-        break;
-      }
-      case '.molecules.json': {
-        warn('Loading molecules will take a moment; Please wait...');
-        parseJson(file, moleculesSchema, MOLECULES_ADD);
-        break;
-      }
-      default:
-        warn(`File extension "${extension}" is not recognized.`);
-    }
+  componentDidMount() {
+    const { layers } = this.props;
+    layers.forEach((layer) => {
+      loadLayer(layer);
+    });
   }
 
   render() {
-    const { value } = this.state;
+    // If there is an error while loading, the layer will still be listed in the UI...
+    // but this is a lot simpler: Feels ok to me.
+    const { layers } = this.props;
     return (
-      <FileManager onAddFile={FileManagerPublisher.onAddFile} value={value} />
+      <FileManager layerNames={layers.map(layer => layer.name)} />
     );
   }
 }

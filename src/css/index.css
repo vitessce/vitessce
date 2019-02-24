@@ -1,11 +1,3 @@
-.file-drop {
-  overflow: scroll;
-}
-
-.file-drop > .file-drop-target {
-  text-align: left;
-}
-
 html,body {
   height: 100%;
 }
