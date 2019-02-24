@@ -1,6 +1,12 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## in progress
+### Added
+- Welcome screen where user picks dataset.
+### Removed
+- No longer supports drag and drop to add file. 
+
 ## [0.0.5] - 2019-02-20
 ### Added
 - Distinguish pan and single-select mode from drag-to-select.
