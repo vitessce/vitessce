@@ -45,7 +45,11 @@ export default class Spatial extends AbstractSelectableComponent {
 
     return new SelectablePolygonLayer({
       id: 'polygon-layer',
-      isSelected: cellEntry => selectedCellIds[cellEntry[0]],
+      isSelected: cellEntry => (
+        Object.keys(selectedCellIds).length
+          ? selectedCellIds[cellEntry[0]]
+          : true // If nothing is selected, everything is selected.
+      ),
       wireframe: true,
       lineWidthMinPixels: 1,
       getPolygon(cellEntry) {

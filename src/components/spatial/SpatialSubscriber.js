@@ -17,9 +17,15 @@ export default class SpatialSubscriber extends AbstractSelectionSubscriberCompon
   }
 
   componentWillMount() {
-    this.imageToken = PubSub.subscribe(IMAGE_ADD, this.imageAddSubscriber.bind(this));
-    this.moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, this.moleculesAddSubscriber.bind(this));
-    this.cellsAddToken = PubSub.subscribe(CELLS_ADD, this.cellsAddSubscriber.bind(this));
+    this.imageToken = PubSub.subscribe(
+      IMAGE_ADD, this.imageAddSubscriber.bind(this),
+    );
+    this.moleculesAddToken = PubSub.subscribe(
+      MOLECULES_ADD, this.moleculesAddSubscriber.bind(this),
+    );
+    this.cellsAddToken = PubSub.subscribe(
+      CELLS_ADD, this.cellsAddSubscriber.bind(this),
+    );
 
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
