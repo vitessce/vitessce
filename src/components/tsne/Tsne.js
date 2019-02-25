@@ -42,7 +42,11 @@ export default class Tsne extends AbstractSelectableComponent {
       layers.push(
         new SelectableScatterplotLayer({
           id: 'tsne-scatter-plot',
-          isSelected: cellEntry => selectedCellIds[cellEntry[0]],
+          isSelected: cellEntry => (
+            Object.keys(selectedCellIds).length
+              ? selectedCellIds[cellEntry[0]]
+              : true // If nothing is selected, everything is selected.
+          ),
           getRadius: 0.5,
           lineWidthMinPixels: 0.1,
           stroked: true,

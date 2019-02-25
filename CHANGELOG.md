@@ -4,8 +4,9 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## in progress
 ### Added
 - Welcome screen where user picks dataset.
+- All the cells are selected on start.
 ### Removed
-- No longer supports drag and drop to add file. 
+- No longer supports drag and drop to add file.
 
 ## [0.0.5] - 2019-02-20
 ### Added

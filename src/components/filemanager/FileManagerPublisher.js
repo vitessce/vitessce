@@ -20,7 +20,7 @@ function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
 }
 
-export function loadLayer(layer) {
+function loadLayer(layer) {
   const { name, type, url } = layer;
   const typeToSchema = {
     CELLS: cellsSchema,
