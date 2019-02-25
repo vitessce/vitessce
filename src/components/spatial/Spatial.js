@@ -1,6 +1,6 @@
 import { ScatterplotLayer, COORDINATE_SYSTEM }
   from 'deck.gl';
-import { SelectablePolygonLayer } from '../../layers';
+import { SelectablePolygonLayer, MatrixLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
@@ -22,6 +22,10 @@ export default class Spatial extends AbstractSelectableComponent {
   // eslint-disable-next-line class-methods-use-this
   getCellCoords(cell) {
     return cell.xy;
+  }
+
+  renderMatrixLayer() {
+    return new MatrixLayer();
   }
 
   renderCellLayer() {
@@ -112,6 +116,9 @@ export default class Spatial extends AbstractSelectableComponent {
     } = this.props;
 
     const layers = [];
+
+    // TODO: imagery
+    layers.push(this.renderMatrixLayer());
 
     if (cells) {
       layers.push(this.renderCellLayer());
