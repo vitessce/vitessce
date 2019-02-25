@@ -1,7 +1,7 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## in progress
+## [0.0.6] - 2019-02-25
 ### Added
 - Welcome screen where user picks dataset.
 - All the cells are selected on start.
