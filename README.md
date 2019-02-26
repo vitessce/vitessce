@@ -4,7 +4,7 @@ Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
 ## Demo
 
-The [demo](https://hms-dbmi.github.io/vitessce/) features data from
+The [demo](https://hms-dbmi.github.io/vitessce/demos) features data from
 the [Linnarson Lab](http://linnarssonlab.org/osmFISH/availability/).
 
 ## Development
@@ -22,10 +22,10 @@ The development server will refresh the browser as you edit the code.
 
 ### Live demo
 
-The [demo](https://hms-dbmi.github.io/vitessce/) is hosted by
+The [demo](https://hms-dbmi.github.io/vitessce/demos) is hosted by
 GitHub Pages, with static HTML being checked into `docs/` on the
-`master` branch. Before release, you can preview it locally
-by commenting and uncommenting the CSS and the script tag in `index.html`.
+`master` branch. (Before release, you can preview it locally
+by commenting and uncommenting the CSS and the script tag in `index.html`.)
 
 ### NPM
 
@@ -41,9 +41,12 @@ Update the version number in `package.json` and run `npm publish`.
 
 - List of data sets is hardcoded in `app.js`.
 - `vitessce-data` puts files on S3, and `FileManagerPublisher` pulls them down and checks that they conform to schema.
-- Rather than being a single React app, each component is independent, with communication facilitated by PubSubJS. 
+- Rather than being a single React app, each component is independent, with communication facilitated by PubSubJS.
 - `Publisher`/`Subscriber` components could be reused in a separate application which would use the same PubSubJS events...
 - or the wrapped components could be reused in other React apps.
+
+JSDocs and simple examples of the library in use are available in the
+[documentation](https://hms-dbmi.github.io/vitessce/).
 
 ### Presentations
 - [Lab group presentation](https://docs.google.com/presentation/d/1uW3J83LYaa67M9ZKe15AQw_h06QiFJBzpBickbRFcCY): focusses on software engineering choices.

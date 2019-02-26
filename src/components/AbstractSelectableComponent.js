@@ -1,7 +1,10 @@
 import React from 'react';
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 
-
+/**
+ Abstract React component: Provides drag-to-select functionality to subclasses.
+ @param {Object} props React props
+ */
 export default class AbstractSelectableComponent extends React.Component {
   constructor(props) {
     super(props);
