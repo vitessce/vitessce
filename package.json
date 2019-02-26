@@ -23,6 +23,7 @@
     "@deck.gl/experimental-layers": "^6.4.0",
     "ajv": "^6.6.2",
     "deck.gl": "^6.4.0",
+    "luma.gl": "^6.4.2",
     "math.gl": "^2.2.0",
     "prop-types": "^15.6.2",
     "pubsub-js": "^1.7.0",

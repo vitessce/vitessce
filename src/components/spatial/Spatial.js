@@ -1,6 +1,6 @@
 import { ScatterplotLayer, COORDINATE_SYSTEM }
   from 'deck.gl';
-import { SelectablePolygonLayer, MatrixLayer } from '../../layers';
+import { SelectablePolygonLayer, MeshLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
@@ -25,7 +25,7 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   renderMatrixLayer() {
-    return new MatrixLayer();
+    return new MeshLayer();
   }
 
   renderCellLayer() {
