@@ -11,6 +11,7 @@ function square(x, y) {
 
 /**
  React component which expresses the spatial relationships between cells and molecules.
+ {@link ../demos/spatial.html Component demo}.
  @param {Object} props React props
  @param {Object} props.cells Cell data; Should conform to
  {@link https://github.com/hms-dbmi/vitessce/blob/master/src/schemas/cells.schema.json schema}.
