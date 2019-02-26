@@ -4,6 +4,7 @@ import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
 /**
 React component which renders a scatterplot from cell data, typically tSNE.
+{@link ../demos/tsne.html Component demo}.
 @param {Object} props React props
 @param {Object} props.cells Cell data; Should conform to
 {@link https://github.com/hms-dbmi/vitessce/blob/master/src/schemas/cells.schema.json schema}.
