@@ -2,7 +2,16 @@ import { SelectableScatterplotLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
-
+/**
+React component which renders a scatterplot from cell data, typically tSNE.
+@param {Object} props React props
+@param {Object} props.cells Cell data; Should conform to
+{@link https://github.com/hms-dbmi/vitessce/blob/master/src/schemas/cells.schema.json schema}.
+@param {Object} props.selectedCellIds Set of currently selected cells.
+(Only keys are used; Values should be true.)
+@param {Function} props.updateStatus Called when there is a message for the user.
+@param {Function} props.updateCellsSelection Called when the selected set is updated.
+*/
 export default class Tsne extends AbstractSelectableComponent {
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
