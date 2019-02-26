@@ -4,7 +4,7 @@ Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
 ## Demo
 
-The [demo](https://hms-dbmi.github.io/vitessce/) features data from
+The [demo](https://hms-dbmi.github.io/vitessce/demos) features data from
 the [Linnarson Lab](http://linnarssonlab.org/osmFISH/availability/).
 
 ## Development
