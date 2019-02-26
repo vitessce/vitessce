@@ -4,6 +4,7 @@ import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.
 /**
  Abstract React component: Provides drag-to-select functionality to subclasses.
  @param {Object} props React props
+ @param {Boolean} props.isRectangleSelection True if we are in rectangle selection mode.
  */
 export default class AbstractSelectableComponent extends React.Component {
   constructor(props) {
@@ -104,27 +105,27 @@ export default class AbstractSelectableComponent extends React.Component {
 
   render() {
     const { isRectangleSelection } = this.props;
-    let props = {
+    let deckProps = {
       views: [new OrthographicView()],
       layers: this.renderLayers().concat(this.renderSelectionRectangleLayers()),
       initialViewState: this.getInitialViewState(),
     };
     if (isRectangleSelection) {
-      props = {
+      deckProps = {
         controller: { dragPan: false },
         getCursor: () => 'crosshair',
         onDrag: this.onDrag,
         onDragStart: this.onDragStart,
         onDragEnd: this.onDragEnd,
-        ...props,
+        ...deckProps,
       };
     } else {
-      props = {
+      deckProps = {
         controller: true,
         getCursor: interactionState => (interactionState.isDragging ? 'grabbing' : 'default'),
-        ...props,
+        ...deckProps,
       };
     }
-    return <DeckGL {...props} />;
+    return <DeckGL {...deckProps} />;
   }
 }
