@@ -6,7 +6,7 @@ import {
   STATUS_WARN, STATUS_INFO, MOLECULES_ADD, CELLS_ADD,
 } from '../../events';
 
-import FileManager from './FileManager';
+import LayerManager from './LayerManager';
 
 import cellsSchema from '../../schemas/cells.schema.json';
 import moleculesSchema from '../../schemas/molecules.schema.json';
@@ -49,7 +49,7 @@ function loadLayer(layer) {
     });
 }
 
-export default class FileManagerPublisher extends React.Component {
+export default class LayerManagerPublisher extends React.Component {
   componentDidMount() {
     const { layers } = this.props;
     layers.forEach((layer) => {
@@ -62,7 +62,7 @@ export default class FileManagerPublisher extends React.Component {
     // but this is a lot simpler: Feels ok to me.
     const { layers } = this.props;
     return (
-      <FileManager layerNames={layers.map(layer => layer.name)} />
+      <LayerManager layerNames={layers.map(layer => layer.name)} />
     );
   }
 }
