@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import ToolMenu from './components/ToolMenu';
-import { FileManagerPublisher } from './components/filemanager';
+import { LayerManagerPublisher } from './components/layermanager';
 import { StatusSubscriber } from './components/status';
 import { TsneSubscriber } from './components/tsne';
 import { HeatmapSubscriber } from './components/heatmap';
@@ -16,14 +16,14 @@ const FAKE_API_RESPONSE = {
     description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
     layers: [
       {
-        name: 'Cells',
-        type: 'CELLS',
-        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.cells.json',
-      },
-      {
         name: 'Molecules',
         type: 'MOLECULES',
         url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.molecules.json',
+      },
+      {
+        name: 'Cells',
+        type: 'CELLS',
+        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.cells.json',
       },
     ],
   },
@@ -82,7 +82,7 @@ function renderDataset(id, datasetId) {
     <div class="container-fluid d-flex h-100 p-2">
       <div class="${left}">
         <div id="toolmenu" class="my-2"></div>
-        <div id="filemanager" class="${card}"></div>
+        <div id="layermanager" class="${card}"></div>
         <div id="status" class="my-2"></div>
         <div id="tsne" class="${card}" style="height: 50%;"></div>
       </div>
@@ -94,7 +94,7 @@ function renderDataset(id, datasetId) {
   `;
 
   renderComponent(<ToolMenu />, 'toolmenu');
-  renderComponent(<FileManagerPublisher layers={layers} />, 'filemanager');
+  renderComponent(<LayerManagerPublisher layers={layers} />, 'layermanager');
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
