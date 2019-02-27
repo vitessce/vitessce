@@ -13,6 +13,7 @@ import './css/index.css';
 const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
     name: 'Linnarsson - osmFISH',
+    description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
     layers: [
       {
         name: 'Cells',
@@ -26,17 +27,49 @@ const FAKE_API_RESPONSE = {
       },
     ],
   },
-  'todo-2019': {
-    name: 'TODO',
-    layers: [],
-  },
 };
 
 function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
 
-function renderComponents(id, datasetId) {
+function DatasetPicker(props) {
+  const { datasets } = props;
+  const links = Object.entries(datasets).map(
+    ([id, dataset]) => (
+      <a
+        href={`?dataset=${id}`}
+        className="list-group-item list-group-item-action flex-column align-items-start"
+      >
+        <div className="d-flex w-100 justify-content-between">
+          <h5>{dataset.name}</h5>
+        </div>
+        <p>{dataset.description}</p>
+      </a>
+    ),
+  );
+  return (
+    <div className="list-group">
+      {links}
+    </div>
+  );
+}
+
+function renderWelcome(id) {
+  document.getElementById(id).innerHTML = `
+    <div class="container-fluid d-flex h-50">
+      <div class="card card-body bg-light" style="width: 100%; max-width: 330px; margin: auto;" >
+        <form method="GET">
+          <h1>🚄  Vitessce</h1>
+          <div class="py-2" id="dataset-picker"></div>
+        </form>
+      </div>
+    </div>
+  `;
+  renderComponent(<DatasetPicker datasets={FAKE_API_RESPONSE} />, 'dataset-picker');
+}
+
+function renderDataset(id, datasetId) {
   const { layers } = FAKE_API_RESPONSE[datasetId];
   const card = 'card card-body bg-light my-2';
   const [lLg, lMd, lSm] = [4, 5, 6];
@@ -68,37 +101,10 @@ function renderComponents(id, datasetId) {
   renderComponent(<SpatialSubscriber />, 'spatial');
 }
 
-function DatasetPicker(props) {
-  const { datasets } = props;
-  const options = Object.entries(datasets).map(
-    ([id, dataset]) => <option value={id} key={id}>{dataset.name}</option>,
-  );
-  return (
-    <select name="dataset" className="btn btn-outline-dark">
-      {options}
-    </select>
-  );
-}
-
-function renderWelcome(id) {
-  document.getElementById(id).innerHTML = `
-    <div class="container-fluid d-flex h-50">
-      <div class="card card-body bg-light" style="width: 100%; max-width: 330px; margin: auto;" >
-        <form method="GET">
-          <h1>🚄  Vitessce</h1>
-          <div class="py-2" id="dataset-picker"></div>
-          <input type="submit" class="btn btn-outline-primary btn-sm">
-        </form>
-      </div>
-    </div>
-  `;
-  renderComponent(<DatasetPicker datasets={FAKE_API_RESPONSE} />, 'dataset-picker');
-}
-
 export default function renderApp(id) {
   const datasetId = new URLSearchParams(window.location.search).get('dataset');
   if (datasetId) {
-    renderComponents(id, datasetId);
+    renderDataset(id, datasetId);
   } else {
     renderWelcome(id);
   }
