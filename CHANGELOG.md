@@ -4,6 +4,9 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## in progress
 ### Added
 - Component diagram and minimal documentation of library.
+- Make space for a brief description of the dataset on the welcome page.
+### Changed
+- Swap "Cells" and "Molecules" in the LayerManager list.
 
 ## [0.0.6] - 2019-02-25
 ### Added
