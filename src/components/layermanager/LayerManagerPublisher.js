@@ -3,11 +3,12 @@ import PubSub from 'pubsub-js';
 import React from 'react';
 
 import {
-  STATUS_WARN, STATUS_INFO, MOLECULES_ADD, CELLS_ADD,
+  STATUS_WARN, STATUS_INFO, IMAGES_ADD, MOLECULES_ADD, CELLS_ADD,
 } from '../../events';
 
 import LayerManager from './LayerManager';
 
+import imagesSchema from '../../schemas/images.schema.json';
 import cellsSchema from '../../schemas/cells.schema.json';
 import moleculesSchema from '../../schemas/molecules.schema.json';
 
@@ -23,10 +24,12 @@ function info(fileName) {
 function loadLayer(layer) {
   const { name, type, url } = layer;
   const typeToSchema = {
+    IMAGES: imagesSchema,
     CELLS: cellsSchema,
     MOLECULES: moleculesSchema,
   };
   const typeToEvent = {
+    IMAGES: IMAGES_ADD,
     CELLS: CELLS_ADD,
     MOLECULES: MOLECULES_ADD,
   };

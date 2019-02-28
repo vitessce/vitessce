@@ -1,7 +1,7 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 import {
-  IMAGE_ADD, MOLECULES_ADD, CELLS_ADD, STATUS_INFO,
+  IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, STATUS_INFO,
   CELLS_SELECTION, SELECTION_MODE_SET,
 } from '../../events';
 import Spatial from './Spatial';
@@ -12,13 +12,13 @@ export default class SpatialSubscriber extends AbstractSelectionSubscriberCompon
   constructor(props) {
     super(props);
     this.state = {
-      baseImgUrl: undefined, cells: {}, selectedCellIds: {}, isRectangleSelection: false,
+      background: undefined, cells: {}, selectedCellIds: {}, isRectangleSelection: false,
     };
   }
 
   componentWillMount() {
-    this.imageToken = PubSub.subscribe(
-      IMAGE_ADD, this.imageAddSubscriber.bind(this),
+    this.imageAddToken = PubSub.subscribe(
+      IMAGES_ADD, this.imageAddSubscriber.bind(this),
     );
     this.moleculesAddToken = PubSub.subscribe(
       MOLECULES_ADD, this.moleculesAddSubscriber.bind(this),
@@ -36,18 +36,16 @@ export default class SpatialSubscriber extends AbstractSelectionSubscriberCompon
   }
 
   componentWillUnmount() {
-    PubSub.unsubscribe(this.imageToken);
-
+    PubSub.unsubscribe(this.imageAddToken);
     PubSub.unsubscribe(this.moleculesAddToken);
-
     PubSub.unsubscribe(this.cellsAddToken);
 
     PubSub.unsubscribe(this.cellsSelectionToken);
     PubSub.unsubscribe(this.selectionModeSetToken);
   }
 
-  imageAddSubscriber(msg, baseImg) {
-    this.setState({ baseImg });
+  imageAddSubscriber(msg, background) {
+    this.setState({ background });
   }
 
   moleculesAddSubscriber(msg, molecules) {
@@ -61,13 +59,7 @@ export default class SpatialSubscriber extends AbstractSelectionSubscriberCompon
   render() {
     return (
       <Spatial
-        background={{
-          x: -500,
-          y: -200,
-          width: 1000,
-          height: 400,
-          href: 'http://gehlenborglab.org/assets/img/site/hero_backbay.jpg',
-        }}
+        background={this.state.background}
         molecules={this.state.molecules}
         cells={this.state.cells}
         selectedCellIds={this.state.selectedCellIds}
