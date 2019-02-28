@@ -9,6 +9,7 @@ import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.
 export default class AbstractSelectableComponent extends React.Component {
   constructor(props) {
     super(props);
+    this.renderBackgroundFromView = this.renderBackgroundFromView.bind(this);
     this.renderBackground = this.renderBackground.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onDrag = this.onDrag.bind(this);
@@ -105,7 +106,24 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   renderBackground() { // eslint-disable-line class-methods-use-this
-    // no-op
+    // No-op
+  }
+
+  renderBackgroundFromView(viewProps) { // eslint-disable-line class-methods-use-this
+    const {
+      x, y, width, height, viewport,
+    } = viewProps;
+    const nwCoords = viewport.unproject([x, y]);
+    const seCoords = viewport.unproject([x + width, y + height]);
+    const unproWidth = seCoords[0] - nwCoords[0];
+    const unproHeight = seCoords[1] - nwCoords[1];
+    const unprojectedProps = {
+      x: nwCoords[0],
+      y: nwCoords[1],
+      width: unproWidth,
+      height: unproHeight,
+    };
+    return this.renderBackground(unprojectedProps);
   }
 
   render() {
@@ -133,7 +151,7 @@ export default class AbstractSelectableComponent extends React.Component {
     }
     return (
       <DeckGL {...deckProps}>
-        {this.renderBackground}
+        {this.renderBackgroundFromView}
       </DeckGL>
     );
   }
