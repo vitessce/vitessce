@@ -9,6 +9,7 @@ import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.
 export default class AbstractSelectableComponent extends React.Component {
   constructor(props) {
     super(props);
+    this.renderBackground = this.renderBackground.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onDrag = this.onDrag.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -103,6 +104,10 @@ export default class AbstractSelectableComponent extends React.Component {
     })];
   }
 
+  renderBackground() { // eslint-disable-line class-methods-use-this
+    // no-op
+  }
+
   render() {
     const { isRectangleSelection } = this.props;
     let deckProps = {
@@ -128,18 +133,7 @@ export default class AbstractSelectableComponent extends React.Component {
     }
     return (
       <DeckGL {...deckProps}>
-        {({x, y, width, height, viewState, viewport}) => {
-          // {x, y, width, height, viewState, viewport}
-          const nwCoords = viewport.unproject([x, y]);
-          const seCoords = viewport.unproject([x + width, y + height]);
-          const unproWidth = seCoords[0] - nwCoords[0];
-          const unproHeight = seCoords[1] - nwCoords[1];
-          return (
-            <svg viewBox={`${nwCoords[0]} ${nwCoords[1]} ${unproWidth} ${unproHeight}`}>
-              <circle cx="0" cy="0" r="1100" />
-            </svg>
-          );
-        }}
+        {this.renderBackground}
       </DeckGL>
     );
   }

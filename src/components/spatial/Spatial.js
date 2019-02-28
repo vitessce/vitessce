@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { ScatterplotLayer, COORDINATE_SYSTEM }
   from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
@@ -116,6 +118,21 @@ export default class Spatial extends AbstractSelectableComponent {
         if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
       },
     });
+  }
+
+  renderBackground(viewProps) { // eslint-disable-line class-methods-use-this
+    const {
+      x, y, width, height, viewport,
+    } = viewProps;
+    const nwCoords = viewport.unproject([x, y]);
+    const seCoords = viewport.unproject([x + width, y + height]);
+    const unproWidth = seCoords[0] - nwCoords[0];
+    const unproHeight = seCoords[1] - nwCoords[1];
+    return (
+      <svg viewBox={`${nwCoords[0]} ${nwCoords[1]} ${unproWidth} ${unproHeight}`}>
+        <circle cx="0" cy="0" r="1100" />
+      </svg>
+    );
   }
 
   renderLayers() {
