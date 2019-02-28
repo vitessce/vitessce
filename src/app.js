@@ -26,8 +26,8 @@ const FAKE_API_RESPONSE = {
         url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.cells.json',
       },
       {
-        name: 'Image',
-        type: 'IMAGE',
+        name: 'Images',
+        type: 'IMAGES',
         url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.polyt.json',
       },
     ],
