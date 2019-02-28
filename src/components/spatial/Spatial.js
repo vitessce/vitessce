@@ -125,6 +125,9 @@ export default class Spatial extends AbstractSelectableComponent {
       x, y, width, height,
     } = viewProps;
     const { background } = this.props;
+    // TODO: Need to get a real mapping for the coordinates.
+    background.x = -background.width / 2;
+    background.y = -background.height / 2;
     return background && (
       <svg viewBox={`${x} ${y} ${width} ${height}`}>
         <image
