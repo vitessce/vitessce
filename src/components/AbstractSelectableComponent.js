@@ -126,6 +126,21 @@ export default class AbstractSelectableComponent extends React.Component {
         ...deckProps,
       };
     }
-    return <DeckGL {...deckProps} />;
+    return (
+      <DeckGL {...deckProps}>
+        {({x, y, width, height, viewState, viewport}) => {
+          // {x, y, width, height, viewState, viewport}
+          const nwCoords = viewport.unproject([x, y]);
+          const seCoords = viewport.unproject([x + width, y + height]);
+          const unproWidth = seCoords[0] - nwCoords[0];
+          const unproHeight = seCoords[1] - nwCoords[1];
+          return (
+            <svg viewBox={`${nwCoords[0]} ${nwCoords[1]} ${unproWidth} ${unproHeight}`}>
+              <circle cx="0" cy="0" r="1100" />
+            </svg>
+          );
+        }}
+      </DeckGL>
+    );
   }
 }

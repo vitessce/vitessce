@@ -126,8 +126,6 @@ export default class Spatial extends AbstractSelectableComponent {
 
     const layers = [];
 
-    // TODO: imagery
-
     if (cells) {
       layers.push(this.renderCellLayer());
     }
