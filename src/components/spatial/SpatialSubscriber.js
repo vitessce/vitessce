@@ -61,7 +61,13 @@ export default class SpatialSubscriber extends AbstractSelectionSubscriberCompon
   render() {
     return (
       <Spatial
-        baseImg={this.state.baseImg}
+        background={{
+          x: -500,
+          y: -200,
+          width: 1000,
+          height: 400,
+          href: 'http://gehlenborglab.org/assets/img/site/hero_backbay.jpg',
+        }}
         molecules={this.state.molecules}
         cells={this.state.cells}
         selectedCellIds={this.state.selectedCellIds}

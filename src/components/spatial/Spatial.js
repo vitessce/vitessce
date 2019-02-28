@@ -124,14 +124,15 @@ export default class Spatial extends AbstractSelectableComponent {
     const {
       x, y, width, height,
     } = viewProps;
+    const { background } = this.props;
     return (
       <svg viewBox={`${x} ${y} ${width} ${height}`}>
         <image
-          x="-500"
-          y="-200"
-          width="1000"
-          height="400"
-          href="http://gehlenborglab.org/assets/img/site/hero_backbay.jpg"
+          x={background.x}
+          y={background.y}
+          width={background.width}
+          height={background.height}
+          href={background.href}
         />
       </svg>
     );
