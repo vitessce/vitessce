@@ -25,6 +25,11 @@ const FAKE_API_RESPONSE = {
         type: 'CELLS',
         url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.cells.json',
       },
+      {
+        name: 'Images',
+        type: 'IMAGES',
+        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.polyt.json',
+      },
     ],
   },
 };

@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { ScatterplotLayer, COORDINATE_SYSTEM }
   from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
@@ -118,6 +120,27 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
+  renderBackground(viewProps) { // eslint-disable-line class-methods-use-this
+    const {
+      x, y, width, height,
+    } = viewProps;
+    const { background } = this.props;
+    // TODO: Need to get a real mapping for the coordinates.
+    background.x = -background.width / 2;
+    background.y = -background.height / 2;
+    return background && (
+      <svg viewBox={`${x} ${y} ${width} ${height}`}>
+        <image
+          x={background.x}
+          y={background.y}
+          width={background.width}
+          height={background.height}
+          href={background.href}
+        />
+      </svg>
+    );
+  }
+
   renderLayers() {
     const {
       molecules = undefined,
@@ -125,8 +148,6 @@ export default class Spatial extends AbstractSelectableComponent {
     } = this.props;
 
     const layers = [];
-
-    // TODO: imagery
 
     if (cells) {
       layers.push(this.renderCellLayer());
