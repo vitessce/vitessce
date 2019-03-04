@@ -18,6 +18,9 @@ $ npm start
 
 The development server will refresh the browser as you edit the code.
 
+To run all the Travis checks: `./test.sh`;
+to run just the unit tests: `npm run test:watch`.
+
 ## Deployment
 
 ### Live demo
