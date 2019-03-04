@@ -5,13 +5,13 @@ module.exports = {
     umd: {
       global: 'vitessce',
       externals: {
-        react: 'React'
-      }
-    }
+        react: 'React',
+      },
+    },
   },
   webpack: {
     html: {
-      template: 'demo/src/index.html'
-    }
-  }
-}
+      template: 'demo/src/index.html',
+    },
+  },
+};

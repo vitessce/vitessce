@@ -1,14 +1,14 @@
 import React from 'react';
 
-import { ScatterplotLayer, COORDINATE_SYSTEM }
-  from 'deck.gl';
+import { ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
 
-function square(x, y) {
-  return [[x, y + 5], [x + 5, y], [x, y - 5], [x - 5, y]];
+export function square(x, y) {
+  const r = 5;
+  return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
 
 /**
