@@ -1,5 +1,6 @@
 import React from 'react';
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import QuadTree from 'simple-quadtree';
 
 /**
  Abstract React component: Provides drag-to-select functionality to subclasses.
@@ -35,6 +36,19 @@ export default class AbstractSelectableComponent extends React.Component {
     if (isRectangleSelection) {
       this.dragStartCoordinate = event.coordinate;
     }
+
+    if (!this.cellQuadTree) {
+      const { cells } = this.props;
+      this.cellQuadTree = QuadTree(-1500, -1500, 3000, 3000);
+      // Centers of cells should fit 2000 x 2000, but give a margin to be safe.
+      // TODO: This is also used for tSNE, and there these dimensions are excessive.
+      Object.entries(cells).forEach(([id, cell]) => {
+        const coords = this.getCellCoords(cell);
+        this.cellQuadTree.put({
+          x: coords[0], y: coords[1], w: 0, h: 0, id,
+        });
+      });
+    }
   }
 
   onDrag(event) {
@@ -54,27 +68,25 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   onDragOrEnd(event) {
-    const { cells, isRectangleSelection, updateCellsSelection } = this.props;
+    const { isRectangleSelection, updateCellsSelection } = this.props;
     if (isRectangleSelection && event.coordinate) {
       const {
         xMin, yMin, xMax, yMax,
       } = this.getDragRectangle(event);
       // The built-in pickObjects is limited in the size of the region that can be selected.
       // https://github.com/uber/deck.gl/issues/2658#issuecomment-463293063
+      // (and it would also be limited in resolution of features it can pick.)
 
-      // TODO: Implement quadtree? But it's probably fast enough.
-      const selectedCellIds = Object.entries(cells).filter(
-        ([id, cell]) => { // eslint-disable-line no-unused-vars
-          const coords = this.getCellCoords(cell);
-          return coords[0] > xMin
-            && coords[0] < xMax
-            && coords[1] > yMin
-            && coords[1] < yMax;
-        },
-      ).map(([id, cell]) => id); // eslint-disable-line no-unused-vars
+      // I've had other problems as well: Either not working at all,
+      // or only picking objects with positive coordinates.
+
       const selectedCellIdsSet = {};
-      selectedCellIds.forEach((id) => {
-        selectedCellIdsSet[id] = true;
+      const qtBounds = {
+        x: xMin, y: yMin, w: xMax - xMin, h: yMax - yMin,
+      };
+      const cellObjs = this.cellQuadTree.get(qtBounds);
+      cellObjs.forEach((obj) => {
+        selectedCellIdsSet[obj.id] = true;
       });
       updateCellsSelection(selectedCellIdsSet);
     }
