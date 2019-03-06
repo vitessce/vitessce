@@ -1,18 +1,16 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 import {
-  IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, STATUS_INFO,
-  CELLS_SELECTION, SELECTION_MODE_SET,
+  IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, STATUS_INFO, CELLS_SELECTION,
 } from '../../events';
 import Spatial from './Spatial';
-import AbstractSelectionSubscriberComponent from '../AbstractSelectionSubscriberComponent';
 
 
-export default class SpatialSubscriber extends AbstractSelectionSubscriberComponent {
+export default class SpatialSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      background: undefined, cells: {}, selectedCellIds: {}, isRectangleSelection: false,
+      background: undefined, cells: {}, selectedCellIds: {},
     };
   }
 
@@ -30,9 +28,10 @@ export default class SpatialSubscriber extends AbstractSelectionSubscriberCompon
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
-    this.selectionModeSetToken = PubSub.subscribe(
-      SELECTION_MODE_SET, this.selectionModeSetSubscriber.bind(this),
-    );
+  }
+
+  cellsSelectionSubscriber(msg, cellIds) {
+    this.setState({ selectedCellIds: cellIds });
   }
 
   componentWillUnmount() {
@@ -41,7 +40,6 @@ export default class SpatialSubscriber extends AbstractSelectionSubscriberCompon
     PubSub.unsubscribe(this.cellsAddToken);
 
     PubSub.unsubscribe(this.cellsSelectionToken);
-    PubSub.unsubscribe(this.selectionModeSetToken);
   }
 
   imageAddSubscriber(msg, background) {
@@ -58,15 +56,16 @@ export default class SpatialSubscriber extends AbstractSelectionSubscriberCompon
 
   render() {
     return (
+      /* eslint-disable react/destructuring-assignment */
       <Spatial
         background={this.state.background}
         molecules={this.state.molecules}
         cells={this.state.cells}
         selectedCellIds={this.state.selectedCellIds}
-        isRectangleSelection={this.state.isRectangleSelection}
         updateStatus={message => PubSub.publish(STATUS_INFO, message)}
         updateCellsSelection={selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
       />
+      /* eslint-enable */
     );
   }
 }

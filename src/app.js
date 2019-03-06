@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import ToolMenu from './components/ToolMenu';
 import { LayerManagerPublisher } from './components/layermanager';
 import { StatusSubscriber } from './components/status';
 import { TsneSubscriber } from './components/tsne';
@@ -75,31 +74,48 @@ function renderWelcome(id) {
 }
 
 function renderDataset(id, datasetId) {
-  const { layers } = FAKE_API_RESPONSE[datasetId];
+  const { layers, name, description } = FAKE_API_RESPONSE[datasetId];
   const card = 'card card-body bg-light my-2';
-  const [lLg, lMd, lSm] = [4, 5, 6];
-  const [rLg, rMd, rSm] = [12 - lLg, 12 - lMd, 12 - lSm];
+  const [sideLg, sideMd] = [3, 4];
+  const [middleLg, middleMd] = [12 - 2 * sideLg, 12 - 2 * sideMd];
   const col = 'd-flex flex-column px-2';
-  const left = `${col} col-lg-${lLg} col-md-${lMd} col-sm-${lSm}`;
-  const right = `${col} col-lg-${rLg} col-md-${rMd} col-sm-${rSm}`;
+  const side = `${col} col-lg-${sideLg} col-md-${sideMd}`;
+  const middle = `${col} col-lg-${middleLg} col-md-${middleMd}`;
   // Card around toolpicker seemed like a waste of space
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-100 p-2">
-      <div class="${left}">
-        <div id="toolmenu" class="my-2"></div>
-        <div id="layermanager" class="${card}"></div>
-        <div id="status" class="my-2"></div>
-        <div id="tsne" class="${card}" style="height: 50%;"></div>
+      <div class="${side}">
+        <div id="layermanager"><!-- No UI exposure --></div>
+        <div class="d-flex flex-column h-25">
+          <div id="title" class="${card}"></div>
+        </div>
+        <div id="status" class="my-2 d-flex flex-column h-25"></div>
+        <div class="d-flex flex-column h-50">
+          <div>tSNE</div>
+          <div id="tsne" class="${card}"></div>
+        </div>
       </div>
-      <div class="${right}">
-        <div id="spatial" class="${card}" style="height: 60%;"></div>
-        <div id="heatmap" class="${card}" style="min-height: 200px;"></div>
+      <div class="${middle}">
+        <div class="d-flex flex-column h-75">
+          <div>Spatial</div>
+          <div id="spatial" class="${card}"></div>
+        </div>
+        <div class="d-flex flex-column h-25">
+          <div>Heatmap</div>
+          <div id="heatmap" class="${card}"></div>
+        </div>
+      </div>
+      <div class="${side}">
+        <div class="d-flex flex-column h-100">
+          <div>Molecules</div>
+          <div id="molecules" class="${card}"></div>
+        </div>
       </div>
     </div>
   `;
 
-  renderComponent(<ToolMenu />, 'toolmenu');
   renderComponent(<LayerManagerPublisher layers={layers} />, 'layermanager');
+  renderComponent(<React.Fragment><h4>{name}</h4><p>{description}</p></React.Fragment>, 'title');
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
