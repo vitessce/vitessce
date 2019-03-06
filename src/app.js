@@ -86,7 +86,6 @@ function renderDataset(id, datasetId) {
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-100 p-2">
       <div class="${side}">
-        <div id="toolmenu" class="my-2"></div>
         <div id="layermanager" class="${card}"></div>
         <div id="status" class="my-2"></div>
         <div class="d-flex flex-column h-50">
@@ -113,7 +112,6 @@ function renderDataset(id, datasetId) {
     </div>
   `;
 
-  renderComponent(<ToolMenu />, 'toolmenu');
   renderComponent(<LayerManagerPublisher layers={layers} />, 'layermanager');
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');

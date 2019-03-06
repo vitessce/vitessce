@@ -1,6 +1,7 @@
 import React from 'react';
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import QuadTree from 'simple-quadtree';
+import ToolMenu from './ToolMenu';
 
 /**
  Abstract React component: Provides drag-to-select functionality to subclasses.
@@ -162,9 +163,12 @@ export default class AbstractSelectableComponent extends React.Component {
       };
     }
     return (
-      <DeckGL {...deckProps}>
-        {this.renderBackgroundFromView}
-      </DeckGL>
+      <React.Fragment>
+        <ToolMenu/>
+        <DeckGL {...deckProps}>
+          {this.renderBackgroundFromView}
+        </DeckGL>
+      </React.Fragment>
     );
   }
 }

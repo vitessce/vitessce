@@ -41,7 +41,7 @@ export default class ToolMenu extends React.Component {
   render() {
     const { activeTool } = this.state;
     return (
-      <div>
+      <div style={{ zIndex: 1000 }}>
         <IconButton
           src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
           alt="pointer tool"
