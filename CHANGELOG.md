@@ -7,6 +7,8 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Make space for a brief description of the dataset on the welcome page.
 - Load background imagery.
 - More unit tests.
+- Label each component.
+- Replace global selection tools with in-component tools.
 ### Changed
 - Swap "Cells" and "Molecules" in the LayerManager list.
 - Use a quadtree to identify the cells in the selected region.
