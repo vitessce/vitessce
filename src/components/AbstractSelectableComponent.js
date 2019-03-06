@@ -6,7 +6,6 @@ import ToolMenu from './ToolMenu';
 /**
  Abstract React component: Provides drag-to-select functionality to subclasses.
  @param {Object} props React props
- @param {Boolean} props.isRectangleSelection True if we are in rectangle selection mode.
  */
 export default class AbstractSelectableComponent extends React.Component {
   constructor(props) {
@@ -18,7 +17,10 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onDragEnd = this.onDragEnd.bind(this);
     this.onDragOrEnd = this.onDragOrEnd.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
-    this.state = { selectionRectangle: undefined };
+    this.state = {
+      selectionRectangle: undefined,
+      isSelecting: false,
+    };
   }
 
   getDragRectangle(event) {
@@ -33,8 +35,8 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   onDragStart(event) {
-    const { isRectangleSelection } = this.props;
-    if (isRectangleSelection) {
+    const { isSelecting } = this.state;
+    if (isSelecting) {
       this.dragStartCoordinate = event.coordinate;
     }
 
@@ -53,24 +55,25 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   onDrag(event) {
-    const { isRectangleSelection } = this.props;
-    if (isRectangleSelection && event.coordinate) {
+    const { isSelecting } = this.state;
+    if (isSelecting && event.coordinate) {
       this.setState({ selectionRectangle: this.getDragRectangle(event) });
       this.onDragOrEnd(event);
     }
   }
 
   onDragEnd(event) {
-    const { isRectangleSelection } = this.props;
-    if (isRectangleSelection) {
+    const { isSelecting } = this.state;
+    if (isSelecting) {
       this.setState({ selectionRectangle: undefined });
       this.onDragOrEnd(event);
     }
   }
 
   onDragOrEnd(event) {
-    const { isRectangleSelection, updateCellsSelection } = this.props;
-    if (isRectangleSelection && event.coordinate) {
+    const { isSelecting } = this.state;
+    const { updateCellsSelection } = this.props;
+    if (isSelecting && event.coordinate) {
       const {
         xMin, yMin, xMax, yMax,
       } = this.getDragRectangle(event);
@@ -140,13 +143,23 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   render() {
-    const { isRectangleSelection } = this.props;
+    const { isSelecting } = this.state;
+
+    const toolProps = {
+      setSelectingMode: () => { this.setState({ isSelecting: true }); },
+      setPointingMode: () => { this.setState({ isSelecting: false }); },
+      /* eslint-disable react/destructuring-assignment */
+      isSelectingMode: () => this.state.isSelecting,
+      isPointingMode: () => !this.state.isSelecting,
+      /* esline-enable */
+    };
+
     let deckProps = {
       views: [new OrthographicView()],
       layers: this.renderLayers().concat(this.renderSelectionRectangleLayers()),
       initialViewState: this.getInitialViewState(),
     };
-    if (isRectangleSelection) {
+    if (isSelecting) {
       deckProps = {
         controller: { dragPan: false },
         getCursor: () => 'crosshair',
@@ -164,7 +177,7 @@ export default class AbstractSelectableComponent extends React.Component {
     }
     return (
       <React.Fragment>
-        <ToolMenu/>
+        <ToolMenu {...toolProps} />
         <DeckGL {...deckProps}>
           {this.renderBackgroundFromView}
         </DeckGL>

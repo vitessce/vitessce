@@ -1,11 +1,8 @@
 import React from 'react';
-import PubSub from 'pubsub-js';
-
-import { SELECTION_MODE_SET, POINT, RECT } from '../events';
 
 function IconButton(props) {
   const {
-    src, alt, onClick, isActive = false,
+    src, alt, onClick, isActive,
   } = props;
   const inactive = 'btn btn-outline-secondary mr-2 icon';
   const active = `${inactive} active`;
@@ -20,41 +17,24 @@ function IconButton(props) {
   );
 }
 
-export default class ToolMenu extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { activeTool: POINT };
-    this.activatePointMode = this.activatePointMode.bind(this);
-    this.activateRectangleMode = this.activateRectangleMode.bind(this);
-  }
-
-  activatePointMode() {
-    this.setState({ activeTool: POINT });
-    PubSub.publish(SELECTION_MODE_SET, POINT);
-  }
-
-  activateRectangleMode() {
-    this.setState({ activeTool: RECT });
-    PubSub.publish(SELECTION_MODE_SET, RECT);
-  }
-
-  render() {
-    const { activeTool } = this.state;
-    return (
-      <div style={{ zIndex: 1000 }}>
-        <IconButton
-          src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
-          alt="pointer tool"
-          onClick={this.activatePointMode}
-          isActive={activeTool === POINT}
-        />
-        <IconButton
-          src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
-          alt="select rectangle"
-          onClick={this.activateRectangleMode}
-          isActive={activeTool === RECT}
-        />
-      </div>
-    );
-  }
+export default function ToolMenu(props) {
+  const {
+    setPointingMode, setSelectingMode, isPointingMode, isSelectingMode,
+  } = props;
+  return (
+    <div style={{ zIndex: 1000 }}>
+      <IconButton
+        src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
+        alt="pointer tool"
+        onClick={setPointingMode}
+        isActive={isPointingMode()}
+      />
+      <IconButton
+        src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
+        alt="select rectangle"
+        onClick={setSelectingMode}
+        isActive={isSelectingMode()}
+      />
+    </div>
+  );
 }
