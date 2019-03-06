@@ -89,11 +89,20 @@ function renderDataset(id, datasetId) {
         <div id="toolmenu" class="my-2"></div>
         <div id="layermanager" class="${card}"></div>
         <div id="status" class="my-2"></div>
-        <div id="tsne" class="${card}" style="height: 50%;"></div>
+        <div class="d-flex flex-column h-50">
+          <div>tSNE</div>
+          <div id="tsne" class="${card}"></div>
+        </div>
       </div>
       <div class="${right}">
-        <div id="spatial" class="${card}" style="height: 60%;"></div>
-        <div id="heatmap" class="${card}" style="min-height: 200px;"></div>
+        <div class="d-flex flex-column h-75">
+          <div>Spatial</div>
+          <div id="spatial" class="${card}"></div>
+        </div>
+        <div class="d-flex flex-column h-25">
+          <div>Heatmap</div>
+          <div id="heatmap" class="${card}"></div>
+        </div>
       </div>
     </div>
   `;
