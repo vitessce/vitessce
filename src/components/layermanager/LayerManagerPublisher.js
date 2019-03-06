@@ -6,8 +6,6 @@ import {
   STATUS_WARN, STATUS_INFO, IMAGES_ADD, MOLECULES_ADD, CELLS_ADD,
 } from '../../events';
 
-import LayerManager from './LayerManager';
-
 import imagesSchema from '../../schemas/images.schema.json';
 import cellsSchema from '../../schemas/cells.schema.json';
 import moleculesSchema from '../../schemas/molecules.schema.json';
@@ -61,11 +59,7 @@ export default class LayerManagerPublisher extends React.Component {
   }
 
   render() {
-    // If there is an error while loading, the layer will still be listed in the UI...
-    // but this is a lot simpler: Feels ok to me.
-    const { layers } = this.props;
-    return (
-      <LayerManager layerNames={layers.map(layer => layer.name)} />
-    );
+    // No UI, but if we wanted a list of layers again, it would go here.
+    return <React.Fragment />;
   }
 }

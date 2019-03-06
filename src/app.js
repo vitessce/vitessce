@@ -74,7 +74,7 @@ function renderWelcome(id) {
 }
 
 function renderDataset(id, datasetId) {
-  const { layers } = FAKE_API_RESPONSE[datasetId];
+  const { layers, name, description } = FAKE_API_RESPONSE[datasetId];
   const card = 'card card-body bg-light my-2';
   const [sideLg, sideMd] = [3, 4];
   const [middleLg, middleMd] = [12 - 2 * sideLg, 12 - 2 * sideMd];
@@ -85,8 +85,11 @@ function renderDataset(id, datasetId) {
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-100 p-2">
       <div class="${side}">
-        <div id="layermanager" class="${card}"></div>
-        <div id="status" class="my-2"></div>
+        <div id="layermanager"><!-- No UI exposure --></div>
+        <div class="d-flex flex-column h-25">
+          <div id="title" class="${card}"></div>
+        </div>
+        <div id="status" class="my-2 d-flex flex-column h-25"></div>
         <div class="d-flex flex-column h-50">
           <div>tSNE</div>
           <div id="tsne" class="${card}"></div>
@@ -112,6 +115,7 @@ function renderDataset(id, datasetId) {
   `;
 
   renderComponent(<LayerManagerPublisher layers={layers} />, 'layermanager');
+  renderComponent(<React.Fragment><h4>{name}</h4><p>{description}</p></React.Fragment>, 'title');
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
