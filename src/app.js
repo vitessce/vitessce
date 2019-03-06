@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import ToolMenu from './components/ToolMenu';
 import { LayerManagerPublisher } from './components/layermanager';
 import { StatusSubscriber } from './components/status';
 import { TsneSubscriber } from './components/tsne';
