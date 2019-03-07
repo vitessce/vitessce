@@ -47,9 +47,13 @@ export default class AbstractSelectableComponent extends React.Component {
       // TODO: This is also used for tSNE, and there these dimensions are excessive.
       Object.entries(cells).forEach(([id, cell]) => {
         const coords = this.getCellCoords(cell);
-        this.cellQuadTree.put({
-          x: coords[0], y: coords[1], w: 0, h: 0, id,
-        });
+        if (coords) {
+          this.cellQuadTree.put({
+            x: coords[0], y: coords[1], w: 0, h: 0, id,
+          });
+        } else {
+          console.warn('missing coords for object');
+        }
       });
     }
   }
@@ -73,7 +77,7 @@ export default class AbstractSelectableComponent extends React.Component {
   onDragOrEnd(event) {
     const { isSelecting } = this.state;
     const { updateCellsSelection } = this.props;
-    if (isSelecting && event.coordinate) {
+    if (isSelecting && event.coordinate && updateCellsSelection) {
       const {
         xMin, yMin, xMax, yMax,
       } = this.getDragRectangle(event);
