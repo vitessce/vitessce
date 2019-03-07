@@ -4,6 +4,7 @@ import { ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
+import LayersMenu from './LayersMenu';
 
 
 export function square(x, y) {
@@ -142,13 +143,7 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
-    return (
-      <div className="ml-auto card p-2">
-        <div><input type="checkbox" /> Molecules</div>
-        <div><input type="checkbox" /> Cells</div>
-        <div><input type="checkbox" /> Imagery</div>
-      </div>
-    );
+    return <LayersMenu />;
   }
 
   renderLayers() {
