@@ -6,6 +6,7 @@ export default class LayersMenu extends React.Component {
     this.state = {};
 
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.checkbox = this.checkbox.bind(this);
   }
 
   handleInputChange(event) {
@@ -17,12 +18,26 @@ export default class LayersMenu extends React.Component {
     });
   }
 
+  checkbox(name) {
+    return (
+      <div>
+        <input
+          type="checkbox"
+          name={name}
+          onChange={this.handleInputChange}
+          value={this.state[name]}
+        />
+        &nbsp;{name}
+      </div>
+    );
+  }
+
   render() {
     return (
       <div className="ml-auto card p-2">
-        <div><input type="checkbox" name="molecules" onChange={this.handleInputChange} value={this.state.molecules} /> Molecules</div>
-        <div><input type="checkbox" name="cells" onChange={this.handleInputChange} value={this.state.cells} /> Cells</div>
-        <div><input type="checkbox" name="imagery" onChange={this.handleInputChange} value={this.state.imagery} /> Imagery</div>
+        {this.checkbox('molecules')}
+        {this.checkbox('cells')}
+        {this.checkbox('imagery')}
       </div>
     );
   }
