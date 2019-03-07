@@ -142,6 +142,10 @@ export default class AbstractSelectableComponent extends React.Component {
     return this.renderBackground(unprojectedProps);
   }
 
+  renderLayersMenu() { // eslint-disable-line class-methods-use-this
+    // No-op
+  }
+
   render() {
     const { isSelecting } = this.state;
 
@@ -177,7 +181,10 @@ export default class AbstractSelectableComponent extends React.Component {
     }
     return (
       <React.Fragment>
-        <ToolMenu {...toolProps} />
+        <div className="d-flex" style={{ zIndex: 1000 }}>
+          <ToolMenu {...toolProps} />
+          {this.renderLayersMenu()}
+        </div>
         <DeckGL {...deckProps}>
           {this.renderBackgroundFromView}
         </DeckGL>

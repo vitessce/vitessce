@@ -22,7 +22,7 @@ export default function ToolMenu(props) {
     setPointingMode, setSelectingMode, isPointingMode, isSelectingMode,
   } = props;
   return (
-    <div style={{ zIndex: 1000 }}>
+    <div>
       <IconButton
         src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
         alt="pointer tool"

@@ -4,6 +4,7 @@ import { ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
+import LayersMenu from './LayersMenu';
 
 
 export function square(x, y) {
@@ -25,6 +26,16 @@ export function square(x, y) {
  @param {Function} props.updateCellsSelection Called when the selected set is updated.
  */
 export default class Spatial extends AbstractSelectableComponent {
+  constructor(props) {
+    super(props);
+    this.state.layers = {
+      molecules: true,
+      cells: true,
+      imagery: true,
+    };
+    this.setLayersState = this.setLayersState.bind(this);
+  }
+
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
@@ -124,11 +135,12 @@ export default class Spatial extends AbstractSelectableComponent {
     const {
       x, y, width, height,
     } = viewProps;
+    const layerIsVisible = this.state.layers;
     const { background } = this.props;
     // TODO: Need to get a real mapping for the coordinates.
     background.x = -background.width / 2;
     background.y = -background.height / 2;
-    return background && (
+    return background && layerIsVisible.imagery && (
       <svg viewBox={`${x} ${y} ${width} ${height}`}>
         <image
           x={background.x}
@@ -141,28 +153,43 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
+  setLayersState(layers) {
+    this.setState({ layers });
+  }
+
+  renderLayersMenu() { // eslint-disable-line class-methods-use-this
+    return (
+      <LayersMenu
+        layersState={this.state.layers}
+        setLayersState={this.setLayersState}
+      />
+    );
+  }
+
   renderLayers() {
     const {
       molecules = undefined,
       cells = undefined,
     } = this.props;
 
-    const layers = [];
+    const layerIsVisible = this.state.layers;
 
-    if (cells) {
-      layers.push(this.renderCellLayer());
+    const layerList = [];
+
+    if (cells && layerIsVisible.cells) {
+      layerList.push(this.renderCellLayer());
     }
 
-    if (molecules) {
+    if (molecules && layerIsVisible.molecules) {
       // Right now the molecules scatterplot does not change,
       // so we do not need to regenerate the object.
       // And, we do not want React to look at it, so it is not part of the state.
       if (!this.moleculesLayer) {
         this.moleculesLayer = this.renderMoleculesLayer();
       }
-      layers.push(this.moleculesLayer);
+      layerList.push(this.moleculesLayer);
     }
 
-    return layers;
+    return layerList;
   }
 }
