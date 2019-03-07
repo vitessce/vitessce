@@ -34,9 +34,6 @@ function loadLayer(layer) {
   fetch(url)
     .then((response) => {
       response.json().then((data) => {
-        if (type === 'MOLECULES') {
-          warn(null); // Clear default warning... Find better approach?
-        }
         const validate = new Ajv().compile(typeToSchema[type]);
         const valid = validate(data);
         if (valid) {
