@@ -1,7 +1,7 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## in progress
+## [0.0.7] - 2019-03-07
 ### Added
 - Component diagram and minimal documentation of library.
 - Make space for a brief description of the dataset on the welcome page.
