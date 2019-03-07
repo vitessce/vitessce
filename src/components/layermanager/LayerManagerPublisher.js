@@ -77,6 +77,22 @@ export default class LayerManagerPublisher extends React.Component {
 
   render() {
     const { pleaseWait } = this.state;
-    return pleaseWait ? <div>Please wait...</div> : <React.Fragment />;
+    if (pleaseWait) {
+      return (
+        <React.Fragment>
+          <div className="modal" style={{ display: 'block' }}>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-body">
+                  <p>Please wait...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop show" />
+        </React.Fragment>
+      );
+    }
+    return <React.Fragment />;
   }
 }
