@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 import React from 'react';
 
 import {
-  STATUS_WARN, STATUS_INFO, IMAGES_ADD, MOLECULES_ADD, CELLS_ADD,
+  STATUS_WARN, STATUS_INFO, IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, CLEAR_PLEASE_WAIT,
 } from '../../events';
 
 import imagesSchema from '../../schemas/images.schema.json';
@@ -34,9 +34,6 @@ function loadLayer(layer) {
   fetch(url)
     .then((response) => {
       response.json().then((data) => {
-        if (type === 'MOLECULES') {
-          warn(null); // Clear default warning... Find better approach?
-        }
         const validate = new Ajv().compile(typeToSchema[type]);
         const valid = validate(data);
         if (valid) {
@@ -51,6 +48,23 @@ function loadLayer(layer) {
 }
 
 export default class LayerManagerPublisher extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      pleaseWait: true,
+    };
+  }
+
+  clearPleaseWait() {
+    this.setState({ pleaseWait: false });
+  }
+
+  componentWillMount() {
+    this.clearPleaseWaitToken = PubSub.subscribe(
+      CLEAR_PLEASE_WAIT, this.clearPleaseWait.bind(this),
+    );
+  }
+
   componentDidMount() {
     const { layers } = this.props;
     layers.forEach((layer) => {
@@ -59,7 +73,23 @@ export default class LayerManagerPublisher extends React.Component {
   }
 
   render() {
-    // No UI, but if we wanted a list of layers again, it would go here.
+    const { pleaseWait } = this.state;
+    if (pleaseWait) {
+      return (
+        <React.Fragment>
+          <div className="modal" style={{ display: 'block' }}>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-body">
+                  <p>Please wait...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop show" />
+        </React.Fragment>
+      );
+    }
     return <React.Fragment />;
   }
 }

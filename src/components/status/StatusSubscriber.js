@@ -7,7 +7,7 @@ import { STATUS_WARN, STATUS_INFO } from '../../events';
 export default class StatusSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { warn: 'Data is loading...', info: null };
+    this.state = { warn: null, info: null };
   }
 
   componentWillMount() {
