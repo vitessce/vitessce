@@ -9,7 +9,6 @@ export default class LayersMenu extends React.Component {
   }
 
   handleInputChange(event) {
-    console.log('handle', event);
     const { target } = event;
     const { checked, name } = target;
     // In the future?: target.type === 'checkbox' ? target.checked : target.value;
@@ -20,7 +19,6 @@ export default class LayersMenu extends React.Component {
   }
 
   checkbox(name, value) {
-    console.log(name, value);
     return (
       <div key={name}>
         <input
@@ -35,7 +33,6 @@ export default class LayersMenu extends React.Component {
   }
 
   render() {
-    console.log('RENDER!!!');
     const { layersState } = this.props;
     const entries = Object.entries(layersState);
     const checkboxes = entries.map(([name, value]) => this.checkbox(name, value));

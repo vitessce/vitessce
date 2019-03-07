@@ -153,7 +153,6 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   setLayersState(layers) {
-    console.log('set', layers);
     this.setState({ layers });
   }
 
@@ -172,22 +171,24 @@ export default class Spatial extends AbstractSelectableComponent {
       cells = undefined,
     } = this.props;
 
-    const layers = [];
+    const layerIsVisible = this.state.layers;
 
-    if (cells) {
-      layers.push(this.renderCellLayer());
+    const layerList = [];
+
+    if (cells && layerIsVisible.cells) {
+      layerList.push(this.renderCellLayer());
     }
 
-    if (molecules) {
+    if (molecules && layerIsVisible.molecules) {
       // Right now the molecules scatterplot does not change,
       // so we do not need to regenerate the object.
       // And, we do not want React to look at it, so it is not part of the state.
       if (!this.moleculesLayer) {
         this.moleculesLayer = this.renderMoleculesLayer();
       }
-      layers.push(this.moleculesLayer);
+      layerList.push(this.moleculesLayer);
     }
 
-    return layers;
+    return layerList;
   }
 }
