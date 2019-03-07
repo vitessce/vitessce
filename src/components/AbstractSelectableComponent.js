@@ -177,7 +177,14 @@ export default class AbstractSelectableComponent extends React.Component {
     }
     return (
       <React.Fragment>
-        <ToolMenu {...toolProps} />
+        <div className="d-flex" style={{ zIndex: 1000 }}>
+          <ToolMenu {...toolProps} />
+          <div className="ml-auto card p-2">
+            <div><input type="checkbox" /> Molecules</div>
+            <div><input type="checkbox" /> Cells</div>
+            <div><input type="checkbox" /> Imagery</div>
+          </div>
+        </div>
         <DeckGL {...deckProps}>
           {this.renderBackgroundFromView}
         </DeckGL>
