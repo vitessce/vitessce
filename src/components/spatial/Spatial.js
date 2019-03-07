@@ -141,6 +141,16 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
+  renderLayersMenu() { // eslint-disable-line class-methods-use-this
+    return (
+      <div className="ml-auto card p-2">
+        <div><input type="checkbox" /> Molecules</div>
+        <div><input type="checkbox" /> Cells</div>
+        <div><input type="checkbox" /> Imagery</div>
+      </div>
+    );
+  }
+
   renderLayers() {
     const {
       molecules = undefined,
