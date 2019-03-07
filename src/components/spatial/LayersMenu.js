@@ -33,11 +33,11 @@ export default class LayersMenu extends React.Component {
   }
 
   render() {
+    const { layers } = this.props;
+    const checkboxes = layers.map(name => this.checkbox(name));
     return (
       <div className="ml-auto card p-2">
-        {this.checkbox('molecules')}
-        {this.checkbox('cells')}
-        {this.checkbox('imagery')}
+        {checkboxes}
       </div>
     );
   }

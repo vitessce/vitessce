@@ -143,7 +143,7 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
-    return <LayersMenu />;
+    return <LayersMenu layers={['molecules', 'cells', 'imagery']} />;
   }
 
   renderLayers() {
