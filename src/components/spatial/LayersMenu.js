@@ -3,29 +3,31 @@ import React from 'react';
 export default class LayersMenu extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
 
-    this.handleInputChange = this.handleInputChange.bind(this);
     this.checkbox = this.checkbox.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   handleInputChange(event) {
-    const { target, name } = event;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
+    console.log('handle', event);
+    const { target } = event;
+    const { checked, name } = target;
+    // In the future?: target.type === 'checkbox' ? target.checked : target.value;
 
-    this.setState({
-      [name]: value,
-    });
+    const { layersState, setLayersState } = this.props;
+    layersState[name] = checked;
+    setLayersState(layersState);
   }
 
-  checkbox(name) {
+  checkbox(name, value) {
+    console.log(name, value);
     return (
-      <div>
+      <div key={name}>
         <input
           type="checkbox"
           name={name}
           onChange={this.handleInputChange}
-          value={this.state[name]}
+          checked={value}
         />
         &nbsp;{name}
       </div>
@@ -33,8 +35,10 @@ export default class LayersMenu extends React.Component {
   }
 
   render() {
-    const { layers } = this.props;
-    const checkboxes = layers.map(name => this.checkbox(name));
+    console.log('RENDER!!!');
+    const { layersState } = this.props;
+    const entries = Object.entries(layersState);
+    const checkboxes = entries.map(([name, value]) => this.checkbox(name, value));
     return (
       <div className="ml-auto card p-2">
         {checkboxes}

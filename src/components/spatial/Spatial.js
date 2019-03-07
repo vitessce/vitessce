@@ -26,6 +26,16 @@ export function square(x, y) {
  @param {Function} props.updateCellsSelection Called when the selected set is updated.
  */
 export default class Spatial extends AbstractSelectableComponent {
+  constructor(props) {
+    super(props);
+    this.state.layers = {
+      molecules: true,
+      cells: true,
+      imagery: true,
+    };
+    this.setLayersState = this.setLayersState.bind(this);
+  }
+
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
@@ -142,8 +152,18 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
+  setLayersState(layers) {
+    console.log('set', layers);
+    this.setState({ layers });
+  }
+
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
-    return <LayersMenu layers={['molecules', 'cells', 'imagery']} />;
+    return (
+      <LayersMenu
+        layersState={this.state.layers}
+        setLayersState={this.setLayersState}
+      />
+    );
   }
 
   renderLayers() {
