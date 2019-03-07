@@ -1,10 +1,13 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 import {
-  IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, STATUS_INFO, CELLS_SELECTION,
+  IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
 } from '../../events';
 import Spatial from './Spatial';
 
+function clearPleaseWait() {
+  PubSub.publish(CLEAR_PLEASE_WAIT, true);
+}
 
 export default class SpatialSubscriber extends React.Component {
   constructor(props) {
@@ -64,6 +67,7 @@ export default class SpatialSubscriber extends React.Component {
         selectedCellIds={this.state.selectedCellIds}
         updateStatus={message => PubSub.publish(STATUS_INFO, message)}
         updateCellsSelection={selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
+        clearPleaseWait={clearPleaseWait}
       />
       /* eslint-enable */
     );

@@ -1,5 +1,7 @@
 const ADD = '.add';
 
+export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
+
 export const IMAGES = 'images';
 export const IMAGES_ADD = IMAGES + ADD;
 

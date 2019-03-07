@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 import React from 'react';
 
 import {
-  STATUS_WARN, STATUS_INFO, IMAGES_ADD, MOLECULES_ADD, CELLS_ADD,
+  STATUS_WARN, STATUS_INFO, IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, CLEAR_PLEASE_WAIT,
 } from '../../events';
 
 import imagesSchema from '../../schemas/images.schema.json';
@@ -51,6 +51,23 @@ function loadLayer(layer) {
 }
 
 export default class LayerManagerPublisher extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      pleaseWait: true,
+    };
+  }
+
+  clearPleaseWait() {
+    this.setState({ pleaseWait: false });
+  }
+
+  componentWillMount() {
+    this.clearPleaseWaitToken = PubSub.subscribe(
+      CLEAR_PLEASE_WAIT, this.clearPleaseWait.bind(this),
+    );
+  }
+
   componentDidMount() {
     const { layers } = this.props;
     layers.forEach((layer) => {
@@ -59,7 +76,7 @@ export default class LayerManagerPublisher extends React.Component {
   }
 
   render() {
-    // No UI, but if we wanted a list of layers again, it would go here.
-    return <React.Fragment />;
+    const { pleaseWait } = this.state;
+    return pleaseWait ? <div>Please wait...</div> : <React.Fragment />;
   }
 }
