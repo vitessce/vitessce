@@ -10,7 +10,11 @@ export default class Genes extends React.Component {
 
   handleInputChange(event) {
     const { target } = event;
-    console.warn('TODO', this, target);
+    const { checked, name } = target;
+
+    const { genesState, setGenesState } = this.props;
+    genesState[name] = checked;
+    setGenesState(genesState);
   }
 
   radio(name, value) {
@@ -28,8 +32,10 @@ export default class Genes extends React.Component {
   }
 
   render() {
-    const { genes } = this.props;
-    const radioButtons = genes.map(geneId => this.radio(geneId, false));
+    const { genesState } = this.props;
+    const radioButtons = Object.entries(genesState).map(
+      ([geneId, value]) => this.radio(geneId, value),
+    );
     return (
       <React.Fragment>
         {radioButtons}

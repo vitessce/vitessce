@@ -24,8 +24,10 @@ export default class GenesSubscriber extends React.Component {
 
   render() {
     const { genes } = this.state;
+    const genesState = {};
+    genes.forEach((gene) => { genesState[gene] = false; });
     return (
-      <Genes genes={genes} />
+      <Genes genesState={genesState} setGenesState={() => {}} />
     );
   }
 }
