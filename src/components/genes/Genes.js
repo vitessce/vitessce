@@ -10,11 +10,9 @@ export default class Genes extends React.Component {
 
   handleInputChange(event) {
     const { target } = event;
-    const { checked, name } = target;
-
-    const { genesState, setGenesState } = this.props;
-    genesState[name] = checked;
-    setGenesState(genesState);
+    const { name } = target;
+    const { setSelectedGene } = this.props;
+    setSelectedGene(name);
   }
 
   radio(name, value) {

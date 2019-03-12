@@ -7,7 +7,8 @@ import { GENES_ADD } from '../../events';
 export default class GenesSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { genes: null };
+    this.state = { genes: {} };
+    this.setSelectedGene = this.setSelectedGene.bind(this);
   }
 
   componentWillMount() {
@@ -19,15 +20,26 @@ export default class GenesSubscriber extends React.Component {
   }
 
   genesAddSubscriber(msg, genes) {
-    this.setState({ genes });
+    const genesObject = {};
+    genes.forEach((gene) => { genesObject[gene] = false; });
+    this.setState({ genes: genesObject });
+  }
+
+  setSelectedGene(geneId) {
+    this.setState((state) => {
+      const newState = { genes: {} };
+      Object.keys(state.genes).forEach((k) => { newState.genes[k] = geneId === k; });
+      return newState;
+    });
   }
 
   render() {
     const { genes } = this.state;
-    const genesState = {};
-    genes.forEach((gene) => { genesState[gene] = false; });
     return (
-      <Genes genesState={genesState} setGenesState={() => {}} />
+      <Genes
+        genesState={genes}
+        setSelectedGene={this.setSelectedGene}
+      />
     );
   }
 }
