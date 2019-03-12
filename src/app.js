@@ -9,6 +9,7 @@ import { SpatialSubscriber } from './components/spatial';
 
 import './css/index.css';
 
+const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.8/linnarsson-2018';
 const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
     name: 'Linnarsson - osmFISH',
@@ -17,17 +18,17 @@ const FAKE_API_RESPONSE = {
       {
         name: 'Molecules',
         type: 'MOLECULES',
-        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.molecules.json',
+        url: `${urlPrefix}/linnarsson.molecules.json`,
       },
       {
         name: 'Cells',
         type: 'CELLS',
-        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.cells.json',
+        url: `${urlPrefix}/linnarsson.cells.json`,
       },
       {
         name: 'Images',
         type: 'IMAGES',
-        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.polyt.json',
+        url: `${urlPrefix}/linnarsson.nuclei.json`,
       },
     ],
   },

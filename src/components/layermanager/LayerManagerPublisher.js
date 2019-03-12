@@ -40,10 +40,17 @@ function loadLayer(layer) {
           PubSub.publish(typeToEvent[type], data);
           info(name);
         } else {
-          warn(`JSON from ${url} violates ${type} schema. Details in console.`);
-          console.warn(JSON.stringify(validate.errors, null, 2));
+          const failureReason = JSON.stringify(validate.errors, null, 2);
+          warn(`Error while validating ${name}. Details in console.`);
+          console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
         }
+      }, (failureReason) => {
+        warn(`Error while parsing ${name}. Details in console.`);
+        console.warn(`"${name}" (${type}) from ${url}: parse failed`, failureReason);
       });
+    }, (failureReason) => {
+      warn(`Error while fetching ${name}. Details in console.`);
+      console.warn(`"${name}" (${type}) from ${url}: fetch failed`, failureReason);
     });
 }
 
