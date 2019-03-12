@@ -6,6 +6,7 @@ import { StatusSubscriber } from './components/status';
 import { TsneSubscriber } from './components/tsne';
 import { HeatmapSubscriber } from './components/heatmap';
 import { SpatialSubscriber } from './components/spatial';
+import { GenesSubscriber } from './components/genes';
 
 import './css/index.css';
 
@@ -29,6 +30,11 @@ const FAKE_API_RESPONSE = {
         name: 'Images',
         type: 'IMAGES',
         url: `${urlPrefix}/linnarsson.nuclei.json`,
+      },
+      {
+        name: 'Genes',
+        type: 'GENES',
+        url: `${urlPrefix}/linnarsson.genes.json`,
       },
     ],
   },
@@ -92,7 +98,7 @@ function renderDataset(id, datasetId) {
         </div>
         <div id="status" class="my-2 d-flex flex-column h-25"></div>
         <div class="d-flex flex-column h-50">
-          <div>tSNE</div>
+          <div>t-SNE</div>
           <div id="tsne" class="${card}"></div>
         </div>
       </div>
@@ -108,8 +114,8 @@ function renderDataset(id, datasetId) {
       </div>
       <div class="${side}">
         <div class="d-flex flex-column h-100">
-          <div>Molecules</div>
-          <div id="molecules" class="${card}"></div>
+          <div>Genes</div>
+          <div id="genes" class="${card}" style="overflow: scroll;"></div>
         </div>
       </div>
     </div>
@@ -121,6 +127,7 @@ function renderDataset(id, datasetId) {
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
   renderComponent(<SpatialSubscriber />, 'spatial');
+  renderComponent(<GenesSubscriber />, 'genes');
 }
 
 export default function renderApp(id) {

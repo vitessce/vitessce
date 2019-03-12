@@ -2,6 +2,9 @@ const ADD = '.add';
 
 export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
 
+export const GENES = 'genes';
+export const GENES_ADD = GENES + ADD;
+
 export const IMAGES = 'images';
 export const IMAGES_ADD = IMAGES + ADD;
 

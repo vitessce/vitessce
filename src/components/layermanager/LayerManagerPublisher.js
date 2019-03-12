@@ -3,13 +3,15 @@ import PubSub from 'pubsub-js';
 import React from 'react';
 
 import {
-  STATUS_WARN, STATUS_INFO, IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, CLEAR_PLEASE_WAIT,
+  STATUS_WARN, STATUS_INFO,
+  IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, GENES_ADD,
+  CLEAR_PLEASE_WAIT,
 } from '../../events';
 
 import imagesSchema from '../../schemas/images.schema.json';
 import cellsSchema from '../../schemas/cells.schema.json';
 import moleculesSchema from '../../schemas/molecules.schema.json';
-
+import genesSchema from '../../schemas/genes.schema.json';
 
 function warn(message) {
   PubSub.publish(STATUS_WARN, message);
@@ -25,11 +27,13 @@ function loadLayer(layer) {
     IMAGES: imagesSchema,
     CELLS: cellsSchema,
     MOLECULES: moleculesSchema,
+    GENES: genesSchema,
   };
   const typeToEvent = {
     IMAGES: IMAGES_ADD,
     CELLS: CELLS_ADD,
     MOLECULES: MOLECULES_ADD,
+    GENES: GENES_ADD,
   };
   fetch(url)
     .then((response) => {
