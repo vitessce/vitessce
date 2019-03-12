@@ -94,7 +94,7 @@ function renderDataset(id, datasetId) {
       <div class="${side}">
         <div id="layermanager"><!-- No UI exposure --></div>
         <div class="d-flex flex-column h-25">
-          <div id="title" class="${card}"></div>
+          <div id="title" class="${card}" style="overflow: scroll;"></div>
         </div>
         <div id="status" class="my-2 d-flex flex-column h-25"></div>
         <div class="d-flex flex-column h-50">
