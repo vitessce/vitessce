@@ -15,7 +15,14 @@ const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
     name: 'Linnarsson - osmFISH',
     description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
-    layers: ['cells', 'clusters', 'factors', 'genes', 'molecules', 'neighborhoods'].map(name => ({
+    layers: [
+      'cells',
+      'clusters',
+      'factors',
+      'genes',
+      'molecules',
+      'neighborhoods',
+    ].map(name => ({
       name,
       type: name.toUpperCase(),
       url: `${urlPrefix}/linnarsson.${name}.json`,
