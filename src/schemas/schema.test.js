@@ -7,7 +7,7 @@ import expect from 'expect';
 /* eslint-disable global-require */
 
 describe('schemas', () => {
-  ['cells', 'molecules'].forEach((type) => {
+  ['cells', 'molecules', 'genes'].forEach((type) => {
     const schemaFile = `${type}.schema.json`;
     describe(schemaFile, () => {
       const schema = require(`./${schemaFile}`);
