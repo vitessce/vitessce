@@ -1,11 +1,11 @@
 [
   {
-    "dataPath": "['778'].tsne[1]",
-    "keyword": "type",
-    "message": "should be number",
+    "dataPath": "['4031::4028::4008'].poly",
+    "keyword": "minItems",
+    "message": "should NOT have fewer than 3 items",
     "params": {
-      "type": "number"
+      "limit": 3
     },
-    "schemaPath": "#/definitions/coord/items/type"
+    "schemaPath": "#/patternProperties/./properties/poly/minItems"
   }
 ]
