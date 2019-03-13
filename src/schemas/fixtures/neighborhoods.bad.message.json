@@ -1,0 +1,11 @@
+[
+  {
+    "dataPath": "['778'].tsne[1]",
+    "keyword": "type",
+    "message": "should be number",
+    "params": {
+      "type": "number"
+    },
+    "schemaPath": "#/definitions/coord/items/type"
+  }
+]

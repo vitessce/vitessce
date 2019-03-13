@@ -7,13 +7,24 @@ import expect from 'expect';
 /* eslint-disable global-require */
 
 describe('schemas', () => {
-  ['cells', 'molecules', 'genes', 'factors'].forEach((type) => {
+  [
+    'cells',
+    // 'clusters',
+    'factors',
+    'genes',
+    'images',
+    'molecules',
+    // 'neighborhoods',
+  ].forEach((type) => {
     const schemaFile = `${type}.schema.json`;
     describe(schemaFile, () => {
       const schema = require(`./${schemaFile}`);
       const validate = new Ajv().compile(schema);
 
-      const goodFixture = `${type}.good.json`;
+      const [goodFixture, badFixture, badMessage] = [
+        'good', 'bad', 'bad.message',
+      ].map(stem => `${type}.${stem}.json`);
+
       it(`handles ${goodFixture}`, () => {
         const data = require(`./fixtures/${goodFixture}`);
         const valid = validate(data);
@@ -21,7 +32,6 @@ describe('schemas', () => {
         expect(valid).toEqual(true);
       });
 
-      const [badFixture, badMessage] = [`${type}.bad.json`, `${type}.bad.message.json`];
       it(`handles ${badFixture}`, () => {
         const data = require(`./fixtures/${badFixture}`);
         const message = require(`./fixtures/${badMessage}`);
