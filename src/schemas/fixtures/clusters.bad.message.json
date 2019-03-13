@@ -1,11 +1,13 @@
 [
   {
-    "dataPath": ".matrix[2][0]",
-    "keyword": "type",
-    "message": "should be number",
+    "dataPath": ".matrix[0][0]",
+    "keyword": "maximum",
+    "message": "should be <= 1",
     "params": {
-      "type": "number"
+      "comparison": "<=",
+      "exclusive": false,
+      "limit": 1
     },
-    "schemaPath": "#/definitions/matrix/items/items/type"
+    "schemaPath": "#/definitions/matrix/items/items/maximum"
   }
 ]

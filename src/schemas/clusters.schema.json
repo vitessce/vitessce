@@ -13,7 +13,9 @@
       "items": {
         "type": "array",
         "items": {
-          "type": "number"
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
         }
       }
     }
