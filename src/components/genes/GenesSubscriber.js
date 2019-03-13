@@ -32,7 +32,7 @@ export default class GenesSubscriber extends React.Component {
   render() {
     const { genes, selectedId } = this.state;
     const genesSelected = {
-      SHOW_ALL: selectedId === SHOW_ALL,
+      [SHOW_ALL]: selectedId === SHOW_ALL,
     };
     Object.keys(genes).forEach((geneId) => {
       genesSelected[geneId] = geneId === selectedId;
