@@ -1,1 +1,30 @@
-{}
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/hms-dbmi/vitessce/#factors",
+  "title": "Vitessce factor data",
+  "type": "object",
+  "definitions": {
+    "positiveIntegerValues": {
+      "type": "object",
+      "patternProperties": {
+        ".": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "arrayOfStrings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "patternProperties": {
+    ".": {
+      "additionalProperties": false,
+      "properties": {
+        "map": { "$ref": "#/definitions/arrayOfStrings" },
+        "cells": { "$ref": "#/definitions/positiveIntegerValues" }
+      }
+    }
+  }
+}
