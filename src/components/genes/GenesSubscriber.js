@@ -4,10 +4,12 @@ import Genes from './Genes';
 
 import { GENES_ADD } from '../../events';
 
+const SHOW_ALL = 'Show all';
+
 export default class GenesSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { genes: {}, selectedId: null };
+    this.state = { genes: {}, selectedId: SHOW_ALL };
     this.setSelectedGene = this.setSelectedGene.bind(this);
   }
 
@@ -29,7 +31,9 @@ export default class GenesSubscriber extends React.Component {
 
   render() {
     const { genes, selectedId } = this.state;
-    const genesSelected = {};
+    const genesSelected = {
+      SHOW_ALL: selectedId === SHOW_ALL,
+    };
     Object.keys(genes).forEach((geneId) => {
       genesSelected[geneId] = geneId === selectedId;
     });
