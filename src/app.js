@@ -15,28 +15,18 @@ const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
     name: 'Linnarsson - osmFISH',
     description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
-    layers: [
+    layers: ['cells', 'clusters', 'factors', 'genes', 'molecules', 'neighborhoods'].map(name => ({
+      name,
+      type: name.toUpperCase(),
+      url: `${urlPrefix}/linnarsson.${name}.json`,
+    })).concat([
       {
-        name: 'Molecules',
-        type: 'MOLECULES',
-        url: `${urlPrefix}/linnarsson.molecules.json`,
-      },
-      {
-        name: 'Cells',
-        type: 'CELLS',
-        url: `${urlPrefix}/linnarsson.cells.json`,
-      },
-      {
-        name: 'Images',
+        name: 'images',
         type: 'IMAGES',
         url: `${urlPrefix}/linnarsson.nuclei.json`,
       },
-      {
-        name: 'Genes',
-        type: 'GENES',
-        url: `${urlPrefix}/linnarsson.genes.json`,
-      },
-    ],
+      // TODO: add polyT
+    ]),
   },
 };
 
