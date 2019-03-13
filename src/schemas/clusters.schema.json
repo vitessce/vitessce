@@ -12,18 +12,16 @@
       "type": "array",
       "items": {
         "type": "array",
-        "items": "number"
+        "items": {
+          "type": "number"
+        }
       }
     }
   },
-  "patternProperties": {
-    ".": {
-      "additionalProperties": false,
-      "properties": {
-        "rows": { "$ref": "#/definitions/stringArray" },
-        "cols": { "$ref": "#/definitions/stringArray" },
-        "matrix": { "$ref": "#/definitions/matrix" }
-      }
-    }
+  "additionalProperties": false,
+  "properties": {
+    "rows": { "$ref": "#/definitions/stringArray" },
+    "cols": { "$ref": "#/definitions/stringArray" },
+    "matrix": { "$ref": "#/definitions/matrix" }
   }
 }

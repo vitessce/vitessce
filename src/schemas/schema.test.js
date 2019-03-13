@@ -9,7 +9,7 @@ import expect from 'expect';
 describe('schemas', () => {
   [
     'cells',
-    // 'clusters',
+    'clusters',
     'factors',
     'genes',
     'images',
