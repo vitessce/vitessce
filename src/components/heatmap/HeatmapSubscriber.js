@@ -1,7 +1,8 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { FACTORS_ADD } from '../../events';
+import { FACTORS_ADD, CELLS_COLOR } from '../../events';
 import Heatmap from './Heatmap';
+import { PALETTE } from '../utils';
 
 export default class HeatmapSubscriber extends React.Component {
   constructor(props) {
@@ -24,8 +25,22 @@ export default class HeatmapSubscriber extends React.Component {
     this.setState({ factors });
   }
 
-  setSelectedFactor(factorId) {
-    this.setState({ selectedId: factorId });
+  setSelectedFactor(selectedId) {
+    this.setState({ selectedId });
+    const { factors } = this.state;
+    const cellColors = {};
+
+    const factorColors = {};
+    Object.entries(factors[selectedId].cells).forEach(
+      ([cellId, factorIndex]) => {
+        if (!factorColors[factorIndex]) {
+          const nextColorIndex = Object.keys(factorColors).length;
+          factorColors[factorIndex] = PALETTE[nextColorIndex % PALETTE.length];
+        }
+        cellColors[cellId] = factorColors[factorIndex];
+      },
+    );
+    PubSub.publish(CELLS_COLOR, cellColors);
   }
 
   render() {

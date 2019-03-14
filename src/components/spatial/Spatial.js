@@ -82,7 +82,7 @@ export default class Spatial extends AbstractSelectableComponent {
         const cell = cellEntry[1];
         return cell.poly ? cell.poly : square(cell.xy[0], cell.xy[1]);
       },
-      getColor: cellEntry => clusterColors[cellEntry[1].cluster],
+      getColor: cellEntry => this.props.cellColors[cellEntry[0]],
       onClick: (info) => {
         const cellId = info.object[0];
         if (selectedCellIds[cellId]) {

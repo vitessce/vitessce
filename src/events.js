@@ -5,6 +5,7 @@ export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
 export const CELLS = 'cells';
 export const CELLS_ADD = CELLS + ADD;
 export const CELLS_SELECTION = `${CELLS}.selection`;
+export const CELLS_COLOR = `${CELLS}.color`;
 
 export const CLUSTERS = 'clusters';
 export const CLUSTERS_ADD = CLUSTERS + ADD;
