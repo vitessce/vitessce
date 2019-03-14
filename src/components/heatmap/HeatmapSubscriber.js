@@ -3,12 +3,11 @@ import PubSub from 'pubsub-js';
 import { FACTORS_ADD } from '../../events';
 import Heatmap from './Heatmap';
 
-const SHOW_ALL = 'Show all';
-
 export default class HeatmapSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { factors: {}, selectedId: SHOW_ALL };
+    this.state = { factors: {}, selectedId: 'cluster' };
+    this.setSelectedFactor = this.setSelectedFactor.bind(this);
   }
 
   componentWillMount() {
@@ -31,9 +30,7 @@ export default class HeatmapSubscriber extends React.Component {
 
   render() {
     const { factors, selectedId } = this.state;
-    const factorsSelected = {
-      [SHOW_ALL]: selectedId === SHOW_ALL,
-    };
+    const factorsSelected = {};
     Object.keys(factors).forEach((factorId) => {
       factorsSelected[factorId] = factorId === selectedId;
     });
