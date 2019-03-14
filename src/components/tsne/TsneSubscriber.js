@@ -9,7 +9,7 @@ import Tsne from './Tsne';
 export default class TsneSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { cells: {}, selectedCellIds: {}, cellColors: {} };
+    this.state = { cells: {}, selectedCellIds: {}, cellColors: null };
   }
 
   componentWillMount() {

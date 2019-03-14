@@ -1,5 +1,5 @@
 import { SelectableScatterplotLayer } from '../../layers';
-import { cellLayerDefaultProps, PALETTE } from '../utils';
+import { cellLayerDefaultProps } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
 /**
@@ -58,7 +58,9 @@ export default class Tsne extends AbstractSelectableComponent {
             const cell = cellEntry[1];
             return [cell.tsne[0], cell.tsne[1], 0];
           },
-          getColor: cellEntry => this.props.cellColors[cellEntry[0]],
+          getColor: cellEntry => (
+            this.props.cellColors ? this.props.cellColors[cellEntry[0]] : [0, 0, 0]
+          ),
           onClick: (info) => {
             const cellId = info.object[0];
             if (selectedCellIds[cellId]) {
