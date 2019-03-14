@@ -62,13 +62,6 @@ export default class Spatial extends AbstractSelectableComponent {
       },
     } = this.props;
 
-    const clusterColors = {};
-    Object.values(cells).forEach((cell) => {
-      if (!clusterColors[cell.cluster]) {
-        clusterColors[cell.cluster] = PALETTE[Object.keys(clusterColors).length % PALETTE.length];
-      }
-    });
-
     return new SelectablePolygonLayer({
       id: 'polygon-layer',
       isSelected: cellEntry => (

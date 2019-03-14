@@ -31,7 +31,6 @@ export default class SpatialSubscriber extends React.Component {
     this.cellsAddToken = PubSub.subscribe(
       CELLS_ADD, this.cellsAddSubscriber.bind(this),
     );
-
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
@@ -40,17 +39,16 @@ export default class SpatialSubscriber extends React.Component {
     );
   }
 
-  cellsSelectionSubscriber(msg, cellIds) {
-    this.setState({ selectedCellIds: cellIds });
-  }
-
   componentWillUnmount() {
     PubSub.unsubscribe(this.imageAddToken);
     PubSub.unsubscribe(this.moleculesAddToken);
     PubSub.unsubscribe(this.cellsAddToken);
-
     PubSub.unsubscribe(this.cellsSelectionToken);
     PubSub.unsubscribe(this.cellsColorToken);
+  }
+
+  cellsSelectionSubscriber(msg, cellIds) {
+    this.setState({ selectedCellIds: cellIds });
   }
 
   imageAddSubscriber(msg, background) {

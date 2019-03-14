@@ -43,12 +43,6 @@ export default class Tsne extends AbstractSelectableComponent {
     const layers = [];
 
     if (cells) {
-      const clusterColors = {};
-      Object.values(cells).forEach((cell) => {
-        if (!clusterColors[cell.cluster]) {
-          clusterColors[cell.cluster] = PALETTE[Object.keys(clusterColors).length % PALETTE.length];
-        }
-      });
       layers.push(
         new SelectableScatterplotLayer({
           id: 'tsne-scatter-plot',
@@ -64,7 +58,7 @@ export default class Tsne extends AbstractSelectableComponent {
             const cell = cellEntry[1];
             return [cell.tsne[0], cell.tsne[1], 0];
           },
-          getColor: cellEntry => clusterColors[cellEntry[1].cluster],
+          getColor: cellEntry => this.props.cellColors[cellEntry[0]],
           onClick: (info) => {
             const cellId = info.object[0];
             if (selectedCellIds[cellId]) {
