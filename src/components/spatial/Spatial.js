@@ -126,16 +126,17 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  renderBackground(viewProps) { // eslint-disable-line class-methods-use-this
-    const { background } = this.props;
+  renderImages(viewProps) { // eslint-disable-line class-methods-use-this
+    const { images } = this.props;
     const layerIsVisible = this.state.layers;
-    if (background && layerIsVisible.imagery) {
+    if (images && layerIsVisible.imagery) {
       const {
         x, y, width, height,
       } = viewProps;
+      const image = images[0];
       // TODO: Need to get a real mapping for the coordinates.
-      background.x = -background.width / 2;
-      background.y = -background.height / 2;
+      image.x = -image.width / 2;
+      image.y = -image.height / 2;
       return (
         <svg viewBox={`${x} ${y} ${width} ${height}`}>
           <image
@@ -147,7 +148,7 @@ export default class Spatial extends AbstractSelectableComponent {
             // y={background.y}
             // width={background.width}
             // height={background.height}
-            href={background.href}
+            href={image.href}
           />
         </svg>
       );

@@ -1,11 +1,11 @@
 [
   {
-    "dataPath": ".height",
+    "dataPath": "",
     "keyword": "type",
-    "message": "should be number",
+    "message": "should be array",
     "params": {
-      "type": "number"
+      "type": "array"
     },
-    "schemaPath": "#/properties/height/type"
+    "schemaPath": "#/type"
   }
 ]

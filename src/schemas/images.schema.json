@@ -2,12 +2,19 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/hms-dbmi/vitessce/#images",
   "title": "Vitessce image data",
-  "type": "object",
-  "properties": {
-    "x": { "type": "number" },
-    "y": { "type": "number" },
-    "width": { "type": "number" },
-    "height": { "type": "number" },
-    "href": { "type": "string" }
-  }
+  "type": "array",
+  "definitions": {
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "width": { "type": "number" },
+        "height": { "type": "number" },
+        "href": { "type": "string" }
+      }
+    }
+  },
+  "items": { "$ref": "#/definitions/image" }
 }
