@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default class Heatmap extends React.Component {
+export default class Genes extends React.Component {
   constructor(props) {
     super(props);
 
@@ -11,8 +11,8 @@ export default class Heatmap extends React.Component {
   handleInputChange(event) {
     const { target } = event;
     const { name } = target;
-    const { setSelectedFactor } = this.props;
-    setSelectedFactor(name);
+    const { setSelectedGene } = this.props;
+    setSelectedGene(name);
   }
 
   radio(name, value) {
@@ -30,9 +30,9 @@ export default class Heatmap extends React.Component {
   }
 
   render() {
-    const { factorsSelected } = this.props;
-    const radioButtons = Object.entries(factorsSelected).map(
-      ([factorId, value]) => this.radio(factorId, value),
+    const { genesSelected } = this.props;
+    const radioButtons = Object.entries(genesSelected).map(
+      ([geneId, value]) => this.radio(geneId, value),
     );
     return (
       <React.Fragment>

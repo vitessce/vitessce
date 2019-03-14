@@ -6,30 +6,34 @@ import { StatusSubscriber } from './components/status';
 import { TsneSubscriber } from './components/tsne';
 import { HeatmapSubscriber } from './components/heatmap';
 import { SpatialSubscriber } from './components/spatial';
+import { GenesSubscriber } from './components/genes';
 
 import './css/index.css';
 
+const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.8/linnarsson-2018';
 const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
     name: 'Linnarsson - osmFISH',
     description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
     layers: [
+      'cells',
+      'clusters',
+      'factors',
+      'genes',
+      'molecules',
+      'neighborhoods',
+    ].map(name => ({
+      name,
+      type: name.toUpperCase(),
+      url: `${urlPrefix}/linnarsson.${name}.json`,
+    })).concat([
       {
-        name: 'Molecules',
-        type: 'MOLECULES',
-        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.molecules.json',
-      },
-      {
-        name: 'Cells',
-        type: 'CELLS',
-        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.cells.json',
-      },
-      {
-        name: 'Images',
+        name: 'images',
         type: 'IMAGES',
-        url: 'https://s3.amazonaws.com/vitessce-data/linnarsson.polyt.json',
+        url: `${urlPrefix}/linnarsson.nuclei.json`,
       },
-    ],
+      // TODO: add polyT
+    ]),
   },
 };
 
@@ -87,11 +91,11 @@ function renderDataset(id, datasetId) {
       <div class="${side}">
         <div id="layermanager"><!-- No UI exposure --></div>
         <div class="d-flex flex-column h-25">
-          <div id="title" class="${card}"></div>
+          <div id="title" class="${card}" style="overflow: scroll;"></div>
         </div>
         <div id="status" class="my-2 d-flex flex-column h-25"></div>
         <div class="d-flex flex-column h-50">
-          <div>tSNE</div>
+          <div>t-SNE</div>
           <div id="tsne" class="${card}"></div>
         </div>
       </div>
@@ -107,8 +111,8 @@ function renderDataset(id, datasetId) {
       </div>
       <div class="${side}">
         <div class="d-flex flex-column h-100">
-          <div>Molecules</div>
-          <div id="molecules" class="${card}"></div>
+          <div>Genes</div>
+          <div id="genes" class="${card}" style="overflow: scroll;"></div>
         </div>
       </div>
     </div>
@@ -120,6 +124,7 @@ function renderDataset(id, datasetId) {
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
   renderComponent(<SpatialSubscriber />, 'spatial');
+  renderComponent(<GenesSubscriber />, 'genes');
 }
 
 export default function renderApp(id) {

@@ -1,43 +1,58 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { CELLS_ADD, CELLS_SELECTION } from '../../events';
+import { FACTORS_ADD, CELLS_COLOR } from '../../events';
 import Heatmap from './Heatmap';
+import { PALETTE } from '../utils';
 
 export default class HeatmapSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { selectedCellIds: {}, cells: {} };
+    this.state = { factors: {}, selectedId: 'cluster' };
+    this.setSelectedFactor = this.setSelectedFactor.bind(this);
   }
 
   componentWillMount() {
-    this.cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, this.cellsAddSubscriber.bind(this),
-    );
-    this.cellsSelectionToken = PubSub.subscribe(
-      CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
+    this.factorsAddToken = PubSub.subscribe(
+      FACTORS_ADD, this.factorsAddSubscriber.bind(this),
     );
   }
 
   componentWillUnmount() {
-    PubSub.unsubscribe(this.cellsAddToken);
-    PubSub.unsubscribe(this.cellsSelectionToken);
+    PubSub.unsubscribe(this.factorsAddToken);
   }
 
-  cellsAddSubscriber(msg, data) {
-    this.setState({ cells: data });
+  factorsAddSubscriber(msg, factors) {
+    this.setState({ factors });
   }
 
-  cellsSelectionSubscriber(msg, data) {
-    this.setState({ selectedCellIds: data });
+  setSelectedFactor(selectedId) {
+    this.setState({ selectedId });
+    const { factors } = this.state;
+    const cellColors = {};
+
+    const factorColors = {};
+    Object.entries(factors[selectedId].cells).forEach(
+      ([cellId, factorIndex]) => {
+        if (!factorColors[factorIndex]) {
+          const nextColorIndex = Object.keys(factorColors).length;
+          factorColors[factorIndex] = PALETTE[nextColorIndex % PALETTE.length];
+        }
+        cellColors[cellId] = factorColors[factorIndex];
+      },
+    );
+    PubSub.publish(CELLS_COLOR, cellColors);
   }
 
   render() {
-    const { cells, selectedCellIds } = this.state;
-    const cellCount = Object.keys(cells).length;
-    const selectionCount = Object.keys(selectedCellIds).length;
+    const { factors, selectedId } = this.state;
+    const factorsSelected = {};
+    Object.keys(factors).forEach((factorId) => {
+      factorsSelected[factorId] = factorId === selectedId;
+    });
     return (
       <Heatmap
-        value={`Cells: ${cellCount}; Selected: ${selectionCount}`}
+        factorsSelected={factorsSelected}
+        setSelectedFactor={this.setSelectedFactor}
       />
     );
   }

@@ -1,7 +1,8 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 import {
-  IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
+  IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, CELLS_COLOR,
+  STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -13,7 +14,10 @@ export default class SpatialSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      background: undefined, cells: {}, selectedCellIds: {},
+      background: undefined,
+      cells: {},
+      selectedCellIds: {},
+      cellColors: null,
     };
   }
 
@@ -27,22 +31,24 @@ export default class SpatialSubscriber extends React.Component {
     this.cellsAddToken = PubSub.subscribe(
       CELLS_ADD, this.cellsAddSubscriber.bind(this),
     );
-
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
-  }
-
-  cellsSelectionSubscriber(msg, cellIds) {
-    this.setState({ selectedCellIds: cellIds });
+    this.cellsColorToken = PubSub.subscribe(
+      CELLS_COLOR, this.cellsColorSubscriber.bind(this),
+    );
   }
 
   componentWillUnmount() {
     PubSub.unsubscribe(this.imageAddToken);
     PubSub.unsubscribe(this.moleculesAddToken);
     PubSub.unsubscribe(this.cellsAddToken);
-
     PubSub.unsubscribe(this.cellsSelectionToken);
+    PubSub.unsubscribe(this.cellsColorToken);
+  }
+
+  cellsSelectionSubscriber(msg, cellIds) {
+    this.setState({ selectedCellIds: cellIds });
   }
 
   imageAddSubscriber(msg, background) {
@@ -57,6 +63,10 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ cells });
   }
 
+  cellsColorSubscriber(msg, cellColors) {
+    this.setState({ cellColors });
+  }
+
   render() {
     return (
       /* eslint-disable react/destructuring-assignment */
@@ -65,6 +75,7 @@ export default class SpatialSubscriber extends React.Component {
         molecules={this.state.molecules}
         cells={this.state.cells}
         selectedCellIds={this.state.selectedCellIds}
+        cellColors={this.state.cellColors}
         updateStatus={message => PubSub.publish(STATUS_INFO, message)}
         updateCellsSelection={selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
         clearPleaseWait={clearPleaseWait}

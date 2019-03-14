@@ -1,0 +1,11 @@
+[
+  {
+    "dataPath": "['subcluster'].cells['778']",
+    "keyword": "type",
+    "message": "should be integer",
+    "params": {
+      "type": "integer"
+    },
+    "schemaPath": "#/definitions/positiveIntegerValues/patternProperties/./type"
+  }
+]

@@ -62,13 +62,6 @@ export default class Spatial extends AbstractSelectableComponent {
       },
     } = this.props;
 
-    const clusterColors = {};
-    Object.values(cells).forEach((cell) => {
-      if (!clusterColors[cell.cluster]) {
-        clusterColors[cell.cluster] = PALETTE[Object.keys(clusterColors).length % PALETTE.length];
-      }
-    });
-
     return new SelectablePolygonLayer({
       id: 'polygon-layer',
       isSelected: cellEntry => (
@@ -82,7 +75,9 @@ export default class Spatial extends AbstractSelectableComponent {
         const cell = cellEntry[1];
         return cell.poly ? cell.poly : square(cell.xy[0], cell.xy[1]);
       },
-      getColor: cellEntry => clusterColors[cellEntry[1].cluster],
+      getColor: cellEntry => (
+        this.props.cellColors ? this.props.cellColors[cellEntry[0]] : [0, 0, 0]
+      ),
       onClick: (info) => {
         const cellId = info.object[0];
         if (selectedCellIds[cellId]) {

@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/hms-dbmi/vitessce/#clusters",
+  "title": "Vitessce cluster data",
+  "type": "object",
+  "definitions": {
+    "stringArray": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "matrix": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "rows": { "$ref": "#/definitions/stringArray" },
+    "cols": { "$ref": "#/definitions/stringArray" },
+    "matrix": { "$ref": "#/definitions/matrix" }
+  }
+}

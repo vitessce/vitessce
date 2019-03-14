@@ -7,49 +7,34 @@ import expect from 'expect';
 /* eslint-disable global-require */
 
 describe('schemas', () => {
-  describe('cells.schema.json', () => {
-    const schema = require('./cells.schema.json');
-    const validate = new Ajv().compile(schema);
-    const goodFixtures = ['good.cells.json'];
-    goodFixtures.forEach((f) => {
-      it(`handles ${f}`, () => {
-        const data = require(`./fixtures/${f}`);
+  [
+    'cells',
+    'clusters',
+    'factors',
+    'genes',
+    'images',
+    'molecules',
+    'neighborhoods',
+  ].forEach((type) => {
+    const schemaFile = `${type}.schema.json`;
+    describe(schemaFile, () => {
+      const schema = require(`./${schemaFile}`);
+      const validate = new Ajv().compile(schema);
+
+      const [goodFixture, badFixture, badMessage] = [
+        'good', 'bad', 'bad.message',
+      ].map(stem => `${type}.${stem}.json`);
+
+      it(`handles ${goodFixture}`, () => {
+        const data = require(`./fixtures/${goodFixture}`);
         const valid = validate(data);
         if (!valid) { console.warn(validate.errors); }
         expect(valid).toEqual(true);
       });
-    });
 
-    const badFixtures = [['bad.cells.tsne.json', 'bad.cells.tsne.message.json']];
-    badFixtures.forEach(([input, output]) => {
-      it(`handles ${input}`, () => {
-        const data = require(`./fixtures/${input}`);
-        const message = require(`./fixtures/${output}`);
-        const valid = validate(data);
-        expect(valid).toEqual(false);
-        expect(validate.errors).toEqual(message);
-      });
-    });
-  });
-
-  describe('molecules.schema.json', () => {
-    const schema = require('./molecules.schema.json');
-    const validate = new Ajv().compile(schema);
-    const goodFixtures = ['good.molecules.json'];
-    goodFixtures.forEach((f) => {
-      it(`handles ${f}`, () => {
-        const data = require(`./fixtures/${f}`);
-        const valid = validate(data);
-        if (!valid) { console.warn(validate.errors); }
-        expect(valid).toEqual(true);
-      });
-    });
-
-    const badFixtures = [['bad.molecules.json', 'bad.molecules.message.json']];
-    badFixtures.forEach(([input, output]) => {
-      it(`handles ${input}`, () => {
-        const data = require(`./fixtures/${input}`);
-        const message = require(`./fixtures/${output}`);
+      it(`handles ${badFixture}`, () => {
+        const data = require(`./fixtures/${badFixture}`);
+        const message = require(`./fixtures/${badMessage}`);
         const valid = validate(data);
         expect(valid).toEqual(false);
         expect(validate.errors).toEqual(message);

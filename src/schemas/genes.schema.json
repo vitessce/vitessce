@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/hms-dbmi/vitessce/#genes",
+  "title": "Vitessce gene data",
+  "type": "object",
+  "definitions": {
+    "positiveIntegerValues": {
+      "type": "object",
+      "patternProperties": {
+        ".": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "patternProperties": {
+    ".": {
+      "additionalProperties": false,
+      "properties": {
+        "max": { "type": "number" },
+        "cells": { "$ref": "#/definitions/positiveIntegerValues" }
+      }
+    }
+  }
+}

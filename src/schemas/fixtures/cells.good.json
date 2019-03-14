@@ -4,7 +4,9 @@
        -58.13238525390625,
        5.219181060791016
     ],
-    "cluster": "Inhibitory CP",
+    "factors": {
+      "cluster": "Inhibitory CP"
+    },
     "genes": {
        "Gad2": 35,
        "Slc32a1": 41
