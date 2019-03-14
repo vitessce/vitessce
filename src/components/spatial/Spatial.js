@@ -139,10 +139,14 @@ export default class Spatial extends AbstractSelectableComponent {
       return (
         <svg viewBox={`${x} ${y} ${width} ${height}`}>
           <image
-            x={background.x}
-            y={background.y}
-            width={background.width}
-            height={background.height}
+            x={-2000}
+            y={-2200}
+            width={4400}
+            height={4400}
+            // x={background.x}
+            // y={background.y}
+            // width={background.width}
+            // height={background.height}
             href={background.href}
           />
         </svg>
