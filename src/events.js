@@ -6,6 +6,9 @@ export const CELLS = 'cells';
 export const CELLS_ADD = CELLS + ADD;
 export const CELLS_SELECTION = `${CELLS}.selection`;
 
+export const CLUSTERS = 'clusters';
+export const CLUSTERS_ADD = CLUSTERS + ADD;
+
 export const FACTORS = 'factors';
 export const FACTORS_ADD = FACTORS + ADD;
 
