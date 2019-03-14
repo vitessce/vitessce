@@ -2,7 +2,7 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import Genes from './Genes';
 
-import { GENES_ADD } from '../../events';
+import { GENES_ADD, CELLS_COLOR } from '../../events';
 
 const SHOW_ALL = 'Show all';
 
@@ -25,8 +25,19 @@ export default class GenesSubscriber extends React.Component {
     this.setState({ genes });
   }
 
-  setSelectedGene(geneId) {
-    this.setState({ selectedId: geneId });
+  setSelectedGene(selectedId) {
+    this.setState({ selectedId });
+    const { genes } = this.state;
+    const cellColors = {};
+
+    const { cells, max } = genes[selectedId];
+    Object.entries(cells).forEach(
+      ([cellId, value]) => {
+        const scaled = 255 * value / max;
+        cellColors[cellId] = [scaled, scaled, scaled];
+      },
+    );
+    PubSub.publish(CELLS_COLOR, cellColors);
   }
 
   render() {
