@@ -6,8 +6,6 @@ import Genes from './Genes';
 
 import { GENES_ADD, CELLS_COLOR } from '../../events';
 
-const SHOW_ALL = 'Show all';
-
 function rgb(hexString) {
   return [
     parseInt(hexString.slice(1, 3), 16),
@@ -19,7 +17,7 @@ function rgb(hexString) {
 export default class GenesSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { genes: {}, selectedId: SHOW_ALL };
+    this.state = { genes: {}, selectedId: null };
     this.setSelectedGene = this.setSelectedGene.bind(this);
   }
 
@@ -52,9 +50,7 @@ export default class GenesSubscriber extends React.Component {
 
   render() {
     const { genes, selectedId } = this.state;
-    const genesSelected = {
-      [SHOW_ALL]: selectedId === SHOW_ALL,
-    };
+    const genesSelected = {};
     Object.keys(genes).forEach((geneId) => {
       genesSelected[geneId] = geneId === selectedId;
     });
