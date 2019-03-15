@@ -148,15 +148,17 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  renderImages(viewProps) { // eslint-disable-line class-methods-use-this
-    const { images } = this.props;
-    const layerIsVisible = this.state.layers;
-    if (images && layerIsVisible.imagery) {
+  renderImages(viewProps) {
+    if (!this.props.images) {
+      return null;
+    }
+    const imageNames = Object.keys(this.props.images);
+    const firstImageName = imageNames[0];
+    const image = this.props.images[firstImageName];
+    if (image && this.state.layers[firstImageName]) {
       const {
         x, y, width, height,
       } = viewProps;
-      const arbitraryKey = Object.keys(images)[0];
-      const image = images[arbitraryKey];
       // TODO: Need to get a real mapping for the coordinates.
       image.x = -image.width / 2;
       image.y = -image.height / 2;
