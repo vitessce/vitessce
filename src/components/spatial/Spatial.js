@@ -15,14 +15,20 @@ export function square(x, y) {
 /**
  React component which expresses the spatial relationships between cells and molecules.
  {@link ../demos/spatial.html Component demo}.
+
  @param {Object} props React props
+
  @param {Object} props.cells Cell data; Should conform to
  {@link https://github.com/hms-dbmi/vitessce/blob/master/src/schemas/cells.schema.json schema}.
+
  @param {Object} props.molecules Molecule data; Should conform to
  {@link https://github.com/hms-dbmi/vitessce/blob/master/src/schemas/molecules.schema.json schema}.
+
  @param {Object} props.selectedCellIds Set of currently selected cells.
  (Only keys are used; Values should be true.)
+
  @param {Function} props.updateStatus Called when there is a message for the user.
+
  @param {Function} props.updateCellsSelection Called when the selected set is updated.
  */
 export default class Spatial extends AbstractSelectableComponent {
@@ -31,9 +37,21 @@ export default class Spatial extends AbstractSelectableComponent {
     this.state.layers = {
       molecules: true,
       cells: true,
-      imagery: true,
     };
     this.setLayersState = this.setLayersState.bind(this);
+  }
+
+  componentDidUpdate() {
+    const imageNames = Object.keys(this.props.images);
+    const layerNames = Object.keys(this.state.layers);
+    if (layerNames.indexOf(imageNames[0]) < 0) {
+      this.setState((prevState) => {
+        imageNames.forEach((name) => {
+          prevState.layers[name] = true;
+        });
+        return prevState;
+      });
+    }
   }
 
   // These are called from superclass, so they need to belong to instance, I think.
