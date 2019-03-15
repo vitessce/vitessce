@@ -14,7 +14,7 @@ export default class SpatialSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      background: undefined,
+      images: undefined,
       cells: {},
       selectedCellIds: {},
       cellColors: null,
@@ -22,8 +22,8 @@ export default class SpatialSubscriber extends React.Component {
   }
 
   componentWillMount() {
-    this.imageAddToken = PubSub.subscribe(
-      IMAGES_ADD, this.imageAddSubscriber.bind(this),
+    this.imagesAddToken = PubSub.subscribe(
+      IMAGES_ADD, this.imagesAddSubscriber.bind(this),
     );
     this.moleculesAddToken = PubSub.subscribe(
       MOLECULES_ADD, this.moleculesAddSubscriber.bind(this),
@@ -40,7 +40,7 @@ export default class SpatialSubscriber extends React.Component {
   }
 
   componentWillUnmount() {
-    PubSub.unsubscribe(this.imageAddToken);
+    PubSub.unsubscribe(this.imagesAddToken);
     PubSub.unsubscribe(this.moleculesAddToken);
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
@@ -51,8 +51,8 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ selectedCellIds: cellIds });
   }
 
-  imageAddSubscriber(msg, background) {
-    this.setState({ background });
+  imagesAddSubscriber(msg, images) {
+    this.setState({ images });
   }
 
   moleculesAddSubscriber(msg, molecules) {
@@ -71,7 +71,7 @@ export default class SpatialSubscriber extends React.Component {
     return (
       /* eslint-disable react/destructuring-assignment */
       <Spatial
-        background={this.state.background}
+        images={this.state.images}
         molecules={this.state.molecules}
         cells={this.state.cells}
         selectedCellIds={this.state.selectedCellIds}

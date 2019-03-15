@@ -10,8 +10,8 @@ import ToolMenu from './ToolMenu';
 export default class AbstractSelectableComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.renderBackgroundFromView = this.renderBackgroundFromView.bind(this);
-    this.renderBackground = this.renderBackground.bind(this);
+    this.renderImagesFromView = this.renderImagesFromView.bind(this);
+    this.renderImages = this.renderImages.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onDrag = this.onDrag.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -125,11 +125,11 @@ export default class AbstractSelectableComponent extends React.Component {
     })];
   }
 
-  renderBackground() { // eslint-disable-line class-methods-use-this
+  renderImages() { // eslint-disable-line class-methods-use-this
     // No-op
   }
 
-  renderBackgroundFromView(viewProps) { // eslint-disable-line class-methods-use-this
+  renderImagesFromView(viewProps) { // eslint-disable-line class-methods-use-this
     const {
       x, y, width, height, viewport,
     } = viewProps;
@@ -143,7 +143,7 @@ export default class AbstractSelectableComponent extends React.Component {
       width: unproWidth,
       height: unproHeight,
     };
-    return this.renderBackground(unprojectedProps);
+    return this.renderImages(unprojectedProps);
   }
 
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
@@ -190,7 +190,7 @@ export default class AbstractSelectableComponent extends React.Component {
           {this.renderLayersMenu()}
         </div>
         <DeckGL {...deckProps}>
-          {this.renderBackgroundFromView}
+          {this.renderImagesFromView}
         </DeckGL>
       </React.Fragment>
     );

@@ -20,20 +20,14 @@ const FAKE_API_RESPONSE = {
       'clusters',
       'factors',
       'genes',
+      'images',
       'molecules',
       'neighborhoods',
     ].map(name => ({
       name,
       type: name.toUpperCase(),
       url: `${urlPrefix}/linnarsson.${name}.json`,
-    })).concat([
-      {
-        name: 'images',
-        type: 'IMAGES',
-        url: `${urlPrefix}/linnarsson.nuclei.json`,
-      },
-      // TODO: add polyT
-    ]),
+    })),
   },
 };
 

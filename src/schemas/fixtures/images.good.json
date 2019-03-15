@@ -1,5 +1,12 @@
 {
-  "href": "https://s3.amazonaws.com/vitessce-data/fake.png",
-  "height": 10,
-  "width": 10
+  "polyT": {
+    "width": 10334,
+    "height": 6346,
+    "href": "https://s3.amazonaws.com/vitessce-data/0.0.8/linnarsson-2018/linnarsson.images.polyT.png"
+  },
+  "nuclei": {
+    "width": 10334,
+    "height": 6346,
+    "href": "https://s3.amazonaws.com/vitessce-data/0.0.8/linnarsson-2018/linnarsson.images.nuclei.png"
+  }
 }

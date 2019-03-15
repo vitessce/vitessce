@@ -15,14 +15,20 @@ export function square(x, y) {
 /**
  React component which expresses the spatial relationships between cells and molecules.
  {@link ../demos/spatial.html Component demo}.
+
  @param {Object} props React props
+
  @param {Object} props.cells Cell data; Should conform to
  {@link https://github.com/hms-dbmi/vitessce/blob/master/src/schemas/cells.schema.json schema}.
+
  @param {Object} props.molecules Molecule data; Should conform to
  {@link https://github.com/hms-dbmi/vitessce/blob/master/src/schemas/molecules.schema.json schema}.
+
  @param {Object} props.selectedCellIds Set of currently selected cells.
  (Only keys are used; Values should be true.)
+
  @param {Function} props.updateStatus Called when there is a message for the user.
+
  @param {Function} props.updateCellsSelection Called when the selected set is updated.
  */
 export default class Spatial extends AbstractSelectableComponent {
@@ -31,9 +37,25 @@ export default class Spatial extends AbstractSelectableComponent {
     this.state.layers = {
       molecules: true,
       cells: true,
-      imagery: true,
     };
     this.setLayersState = this.setLayersState.bind(this);
+  }
+
+  componentDidUpdate() {
+    const imageNames = Object.keys(this.props.images);
+    const layerNames = Object.keys(this.state.layers);
+    if (layerNames.indexOf(imageNames[0]) < 0) {
+      // This is not ideal, but it should be OK as long as the `if` prevents an infinite loop.
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState((prevState) => {
+        imageNames.forEach((name) => {
+          // TODO: clone object and return copy?
+          // eslint-disable-next-line no-param-reassign
+          prevState.layers[name] = true;
+        });
+        return prevState;
+      });
+    }
   }
 
   // These are called from superclass, so they need to belong to instance, I think.
@@ -126,29 +148,37 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  renderBackground(viewProps) { // eslint-disable-line class-methods-use-this
-    const { background } = this.props;
-    const layerIsVisible = this.state.layers;
-    if (background && layerIsVisible.imagery) {
-      const {
-        x, y, width, height,
-      } = viewProps;
-      // TODO: Need to get a real mapping for the coordinates.
-      background.x = -background.width / 2;
-      background.y = -background.height / 2;
-      return (
-        <svg viewBox={`${x} ${y} ${width} ${height}`}>
-          <image
-            x={background.x}
-            y={background.y}
-            width={background.width}
-            height={background.height}
-            href={background.href}
-          />
-        </svg>
-      );
+  renderImages(viewProps) {
+    if (!this.props.images) {
+      return null;
     }
-    return null;
+    const imageNames = Object.keys(this.props.images).reverse();
+    // We want the z-order to be the opposite of the order listed.
+    const visibleImageNames = imageNames.filter(name => this.state.layers[name]);
+    const visibleImages = visibleImageNames.map(name => this.props.images[name]);
+    const svgImages = visibleImages.map(image => (
+      // TODO: Actually use supplied metadata!
+      <image
+        key={image.href}
+        x={-2000}
+        y={-2200}
+        width={4400}
+        height={4400}
+        // x={background.x}
+        // y={background.y}
+        // width={background.width}
+        // height={background.height}
+        href={image.href}
+      />
+    ));
+    const {
+      x, y, width, height,
+    } = viewProps;
+    return (
+      <svg viewBox={`${x} ${y} ${width} ${height}`}>
+        {svgImages}
+      </svg>
+    );
   }
 
   setLayersState(layers) {
