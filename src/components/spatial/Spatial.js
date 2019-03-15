@@ -152,14 +152,12 @@ export default class Spatial extends AbstractSelectableComponent {
     if (!this.props.images) {
       return null;
     }
-    const {
-      x, y, width, height,
-    } = viewProps;
     const imageNames = Object.keys(this.props.images).reverse();
     // We want the z-order to be the opposite of the order listed.
     const visibleImageNames = imageNames.filter(name => this.state.layers[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
     const svgImages = visibleImages.map(image => (
+      // TODO: Actually use supplied metadata!
       <image
         x={-2000}
         y={-2200}
@@ -172,6 +170,9 @@ export default class Spatial extends AbstractSelectableComponent {
         href={image.href}
       />
     ));
+    const {
+      x, y, width, height,
+    } = viewProps;
     return (
       <svg viewBox={`${x} ${y} ${width} ${height}`}>
         {svgImages}
@@ -211,12 +212,12 @@ export default class Spatial extends AbstractSelectableComponent {
       // so we do not need to regenerate the object.
       // And, we do not want React to look at it, so it is not part of the state.
       if (!this.moleculesLayer) {
-        // TODO: this.moleculesLayer = this.renderMoleculesLayer();
+        this.moleculesLayer = this.renderMoleculesLayer();
         if (this.props.clearPleaseWait) {
           this.props.clearPleaseWait();
         }
       }
-      // TODO: layerList.push(this.moleculesLayer);
+      layerList.push(this.moleculesLayer);
     }
 
     return layerList;
