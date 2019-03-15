@@ -7,6 +7,9 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Toggle between factor values: Spatial and t-SNE categorical colors are updated.
 - Toggle between gene expression levels: Spatial and t-SNE continuous colors are updated.
 - Toggle between multiple imagery layers.
+### Changed
+- The stained imagery is positioned and scaled better, but still slightly off.
+- No outlines on cell polygons.
 
 ## [0.0.7] - 2019-03-07
 ### Added
