@@ -11,7 +11,13 @@ export function cellLayerDefaultProps(cells, updateStatus) {
     getElevation: 0,
     getLineWidth: 0,
     onHover: (info) => {
-      if (info.object) { updateStatus(`Cluster: ${info.object[1].cluster}`); }
+      if (info.object) {
+        updateStatus(
+          Object.entries(info.object[1].factors).map(
+            ([factor, value]) => `${factor}: ${value}`,
+          ).join('; '),
+        );
+      }
     },
   };
 }

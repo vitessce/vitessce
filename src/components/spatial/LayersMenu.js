@@ -37,7 +37,7 @@ export default class LayersMenu extends React.Component {
     const entries = Object.entries(layersState);
     const checkboxes = entries.map(([name, value]) => this.checkbox(name, value));
     return (
-      <div className="ml-auto card p-2">
+      <div className="ml-auto card p-2 on-top">
         {checkboxes}
       </div>
     );

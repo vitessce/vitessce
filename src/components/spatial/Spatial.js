@@ -91,12 +91,11 @@ export default class Spatial extends AbstractSelectableComponent {
           ? selectedCellIds[cellEntry[0]]
           : true // If nothing is selected, everything is selected.
       ),
-      wireframe: true,
-      lineWidthMinPixels: 1,
       getPolygon(cellEntry) {
         const cell = cellEntry[1];
         return cell.poly ? cell.poly : square(cell.xy[0], cell.xy[1]);
       },
+      stroked: false,
       getColor: cellEntry => (
         this.props.cellColors ? this.props.cellColors[cellEntry[0]] : [0, 0, 0]
       ),

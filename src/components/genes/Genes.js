@@ -31,7 +31,9 @@ export default class Genes extends React.Component {
 
   render() {
     const { genesSelected } = this.props;
-    const radioButtons = Object.entries(genesSelected).map(
+    const radioButtons = Object.entries(genesSelected).sort(
+      (a, b) => a[0].localeCompare(b[0]),
+    ).map(
       ([geneId, value]) => this.radio(geneId, value),
     );
     return (
