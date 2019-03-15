@@ -152,33 +152,31 @@ export default class Spatial extends AbstractSelectableComponent {
     if (!this.props.images) {
       return null;
     }
-    const imageNames = Object.keys(this.props.images);
-    const firstImageName = imageNames[0];
-    const image = this.props.images[firstImageName];
-    if (image && this.state.layers[firstImageName]) {
-      const {
-        x, y, width, height,
-      } = viewProps;
-      // TODO: Need to get a real mapping for the coordinates.
-      image.x = -image.width / 2;
-      image.y = -image.height / 2;
-      return (
-        <svg viewBox={`${x} ${y} ${width} ${height}`}>
-          <image
-            x={-2000}
-            y={-2200}
-            width={4400}
-            height={4400}
-            // x={background.x}
-            // y={background.y}
-            // width={background.width}
-            // height={background.height}
-            href={image.href}
-          />
-        </svg>
-      );
-    }
-    return null;
+    const {
+      x, y, width, height,
+    } = viewProps;
+    const imageNames = Object.keys(this.props.images).reverse();
+    // We want the z-order to be the opposite of the order listed.
+    const visibleImageNames = imageNames.filter(name => this.state.layers[name]);
+    const visibleImages = visibleImageNames.map(name => this.props.images[name]);
+    const svgImages = visibleImages.map(image => (
+      <image
+        x={-2000}
+        y={-2200}
+        width={4400}
+        height={4400}
+        // x={background.x}
+        // y={background.y}
+        // width={background.width}
+        // height={background.height}
+        href={image.href}
+      />
+    ));
+    return (
+      <svg viewBox={`${x} ${y} ${width} ${height}`}>
+        {svgImages}
+      </svg>
+    );
   }
 
   setLayersState(layers) {
