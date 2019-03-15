@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/hms-dbmi/vitessce/#images",
   "title": "Vitessce image data",
-  "type": "array",
+  "type": "object",
   "definitions": {
     "image": {
       "type": "object",
@@ -16,5 +16,7 @@
       }
     }
   },
-  "items": { "$ref": "#/definitions/image" }
+  "patternProperties": {
+    ".": { "$ref": "#/definitions/image" }
+  }
 }

@@ -133,7 +133,8 @@ export default class Spatial extends AbstractSelectableComponent {
       const {
         x, y, width, height,
       } = viewProps;
-      const image = images[0];
+      const arbitraryKey = Object.keys(images)[0];
+      const image = images[arbitraryKey];
       // TODO: Need to get a real mapping for the coordinates.
       image.x = -image.width / 2;
       image.y = -image.height / 2;
