@@ -188,12 +188,12 @@ export default class Spatial extends AbstractSelectableComponent {
       // so we do not need to regenerate the object.
       // And, we do not want React to look at it, so it is not part of the state.
       if (!this.moleculesLayer) {
-        this.moleculesLayer = this.renderMoleculesLayer();
+        // TODO: this.moleculesLayer = this.renderMoleculesLayer();
         if (this.props.clearPleaseWait) {
           this.props.clearPleaseWait();
         }
       }
-      layerList.push(this.moleculesLayer);
+      // TODO: layerList.push(this.moleculesLayer);
     }
 
     return layerList;
