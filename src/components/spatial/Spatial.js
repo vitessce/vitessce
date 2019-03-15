@@ -45,8 +45,12 @@ export default class Spatial extends AbstractSelectableComponent {
     const imageNames = Object.keys(this.props.images);
     const layerNames = Object.keys(this.state.layers);
     if (layerNames.indexOf(imageNames[0]) < 0) {
+      // This is not ideal, but it should be OK as long as the `if` prevents an infinite loop.
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState((prevState) => {
         imageNames.forEach((name) => {
+          // TODO: clone object and return copy?
+          // eslint-disable-next-line no-param-reassign
           prevState.layers[name] = true;
         });
         return prevState;
