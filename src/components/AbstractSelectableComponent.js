@@ -185,7 +185,7 @@ export default class AbstractSelectableComponent extends React.Component {
     }
     return (
       <React.Fragment>
-        <div className="d-flex" style={{ zIndex: 1000 }}>
+        <div className="d-flex">
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
         </div>

@@ -8,3 +8,7 @@ html,body {
   width: 2em;
   background-color: white;
 }
+
+.on-top {
+  z-index: 1000;
+}
