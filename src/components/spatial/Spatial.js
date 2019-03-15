@@ -159,6 +159,7 @@ export default class Spatial extends AbstractSelectableComponent {
     const svgImages = visibleImages.map(image => (
       // TODO: Actually use supplied metadata!
       <image
+        key={image.href}
         x={-2000}
         y={-2200}
         width={4400}
