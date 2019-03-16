@@ -37,6 +37,7 @@ export default class Spatial extends AbstractSelectableComponent {
     this.state.layers = {
       molecules: true,
       cells: true,
+      neighborhoods: true,
     };
     this.setLayersState = this.setLayersState.bind(this);
   }
@@ -147,6 +148,13 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
+  renderNeighborhoodsLayer() {
+    const {
+      neighborhoods = undefined,
+    } = this.props;
+    console.log('HERE!!!!!!!!!!');
+  }
+
   renderImages(viewProps) {
     if (!this.props.images) {
       return null;
@@ -192,6 +200,7 @@ export default class Spatial extends AbstractSelectableComponent {
     const {
       molecules = undefined,
       cells = undefined,
+      neighborhoods = undefined,
     } = this.props;
 
     const layerIsVisible = this.state.layers;
@@ -200,6 +209,10 @@ export default class Spatial extends AbstractSelectableComponent {
 
     if (cells && layerIsVisible.cells) {
       layerList.push(this.renderCellLayer());
+    }
+
+    if (neighborhoods && layerIsVisible.neighborhoods) {
+      layerList.push(this.renderNeighborhoodsLayer());
     }
 
     if (molecules && layerIsVisible.molecules) {
