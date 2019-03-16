@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -152,7 +152,22 @@ export default class Spatial extends AbstractSelectableComponent {
     const {
       neighborhoods = undefined,
     } = this.props;
-    console.log('HERE!!!!!!!!!!');
+
+    return new PolygonLayer({
+      id: 'neighborhoods-layer',
+      getPolygon(neighborhoodsEntry) {
+        const neighborhood = neighborhoodsEntry[1];
+        return neighborhood.poly;
+      },
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      data: Object.entries(neighborhoods),
+      pickable: true,
+      autoHighlight: true,
+      stroked: true,
+      filled: false,
+      getElevation: 0,
+      getLineWidth: 10,
+    });
   }
 
   renderImages(viewProps) {
