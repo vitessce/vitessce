@@ -1,7 +1,7 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## in progress
+## [0.0.8] - 2019-03-16
 ### Added
 - Load and validate JSON for clusters, categorical factors, gene expression levels, and cell neighborhoods.
 - Toggle between factor values: Spatial and t-SNE categorical colors are updated.
