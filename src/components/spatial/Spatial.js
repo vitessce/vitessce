@@ -156,13 +156,12 @@ export default class Spatial extends AbstractSelectableComponent {
     const visibleImageNames = imageNames.filter(name => this.state.layers[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
     const svgImages = visibleImages.map(image => (
-      // TODO: Actually use supplied metadata!
       <image
         key={image.href}
-        x={image.x - image.width / 2}
+        x={image.x}
         y={image.y}
-        width={image.width * 1.65}
-        height={image.height * 1.65}
+        width={image.width}
+        height={image.height}
         href={image.href}
       />
     ));
