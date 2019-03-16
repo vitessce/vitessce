@@ -62,8 +62,8 @@ export default class Spatial extends AbstractSelectableComponent {
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
     return {
-      zoom: -3,
-      offset: [0, 0], // Required: https://github.com/uber/deck.gl/issues/2580
+      zoom: -6.5,
+      offset: [200, 200], // Required: https://github.com/uber/deck.gl/issues/2580
     };
   }
 
