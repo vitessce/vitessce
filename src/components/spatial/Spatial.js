@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -37,6 +37,7 @@ export default class Spatial extends AbstractSelectableComponent {
     this.state.layers = {
       molecules: true,
       cells: true,
+      neighborhoods: true,
     };
     this.setLayersState = this.setLayersState.bind(this);
   }
@@ -62,8 +63,8 @@ export default class Spatial extends AbstractSelectableComponent {
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
     return {
-      zoom: -3,
-      offset: [0, 0], // Required: https://github.com/uber/deck.gl/issues/2580
+      zoom: -6.5,
+      offset: [200, 200], // Required: https://github.com/uber/deck.gl/issues/2580
     };
   }
 
@@ -138,12 +139,34 @@ export default class Spatial extends AbstractSelectableComponent {
       // TODO: How do the other radius attributes work?
       // If it were possible to have dots that remained the same size,
       // regardless of zoom, would we prefer that?
-      getRadius: 1,
+      getRadius: 10,
       getPosition: d => [d[0], d[1], 0],
       getColor: d => PALETTE[d[2] % PALETTE.length],
       onHover: (info) => {
         if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
       },
+    });
+  }
+
+  renderNeighborhoodsLayer() {
+    const {
+      neighborhoods = undefined,
+    } = this.props;
+
+    return new PolygonLayer({
+      id: 'neighborhoods-layer',
+      getPolygon(neighborhoodsEntry) {
+        const neighborhood = neighborhoodsEntry[1];
+        return neighborhood.poly;
+      },
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      data: Object.entries(neighborhoods),
+      pickable: true,
+      autoHighlight: true,
+      stroked: true,
+      filled: false,
+      getElevation: 0,
+      getLineWidth: 10,
     });
   }
 
@@ -156,17 +179,12 @@ export default class Spatial extends AbstractSelectableComponent {
     const visibleImageNames = imageNames.filter(name => this.state.layers[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
     const svgImages = visibleImages.map(image => (
-      // TODO: Actually use supplied metadata!
       <image
         key={image.href}
-        x={-2000}
-        y={-2200}
-        width={4400}
-        height={4400}
-        // x={background.x}
-        // y={background.y}
-        // width={background.width}
-        // height={background.height}
+        x={image.x}
+        y={image.y}
+        width={image.width}
+        height={image.height}
         href={image.href}
       />
     ));
@@ -197,6 +215,7 @@ export default class Spatial extends AbstractSelectableComponent {
     const {
       molecules = undefined,
       cells = undefined,
+      neighborhoods = undefined,
     } = this.props;
 
     const layerIsVisible = this.state.layers;
@@ -205,6 +224,10 @@ export default class Spatial extends AbstractSelectableComponent {
 
     if (cells && layerIsVisible.cells) {
       layerList.push(this.renderCellLayer());
+    }
+
+    if (neighborhoods && layerIsVisible.neighborhoods) {
+      layerList.push(this.renderNeighborhoodsLayer());
     }
 
     if (molecules && layerIsVisible.molecules) {

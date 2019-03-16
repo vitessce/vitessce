@@ -1,7 +1,7 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 import {
-  IMAGES_ADD, MOLECULES_ADD, CELLS_ADD, CELLS_COLOR,
+  IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
   STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
 } from '../../events';
 import Spatial from './Spatial';
@@ -28,6 +28,9 @@ export default class SpatialSubscriber extends React.Component {
     this.moleculesAddToken = PubSub.subscribe(
       MOLECULES_ADD, this.moleculesAddSubscriber.bind(this),
     );
+    this.neighborhoodsAddToken = PubSub.subscribe(
+      NEIGHBORHOODS_ADD, this.neighborhoodsAddSubscriber.bind(this),
+    );
     this.cellsAddToken = PubSub.subscribe(
       CELLS_ADD, this.cellsAddSubscriber.bind(this),
     );
@@ -42,6 +45,7 @@ export default class SpatialSubscriber extends React.Component {
   componentWillUnmount() {
     PubSub.unsubscribe(this.imagesAddToken);
     PubSub.unsubscribe(this.moleculesAddToken);
+    PubSub.unsubscribe(this.neighborhoodsAddToken);
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
     PubSub.unsubscribe(this.cellsColorToken);
@@ -59,6 +63,10 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ molecules });
   }
 
+  neighborhoodsAddSubscriber(msg, neighborhoods) {
+    this.setState({ neighborhoods });
+  }
+
   cellsAddSubscriber(msg, cells) {
     this.setState({ cells });
   }
@@ -73,6 +81,7 @@ export default class SpatialSubscriber extends React.Component {
       <Spatial
         images={this.state.images}
         molecules={this.state.molecules}
+        neighborhoods={this.state.neighborhoods}
         cells={this.state.cells}
         selectedCellIds={this.state.selectedCellIds}
         cellColors={this.state.cellColors}

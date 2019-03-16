@@ -1,6 +1,13 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.9] - 2019-03-17
+### Added
+- Neighborhoods layer: no interactivity, and it's obvious that the source data has some problems.
+### Changed
+- Got the image registration right, finally.
+- Initial viewport is hardcoded: Data is no longer centered on (0, 0) origin.
+
 ## [0.0.8] - 2019-03-16
 ### Added
 - Load and validate JSON for clusters, categorical factors, gene expression levels, and cell neighborhoods.
