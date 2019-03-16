@@ -138,7 +138,7 @@ export default class Spatial extends AbstractSelectableComponent {
       // TODO: How do the other radius attributes work?
       // If it were possible to have dots that remained the same size,
       // regardless of zoom, would we prefer that?
-      getRadius: 1,
+      getRadius: 10,
       getPosition: d => [d[0], d[1], 0],
       getColor: d => PALETTE[d[2] % PALETTE.length],
       onHover: (info) => {
@@ -159,14 +159,10 @@ export default class Spatial extends AbstractSelectableComponent {
       // TODO: Actually use supplied metadata!
       <image
         key={image.href}
-        x={-2000}
-        y={-2200}
-        width={4400}
-        height={4400}
-        // x={background.x}
-        // y={background.y}
-        // width={background.width}
-        // height={background.height}
+        x={image.x - image.width / 2}
+        y={image.y}
+        width={image.width * 1.65}
+        height={image.height * 1.65}
         href={image.href}
       />
     ));

@@ -10,7 +10,7 @@ import { GenesSubscriber } from './components/genes';
 
 import './css/index.css';
 
-const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.8/linnarsson-2018';
+const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.9/linnarsson-2018';
 const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
     name: 'Linnarsson - osmFISH',
