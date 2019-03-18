@@ -5,8 +5,7 @@ export default class Heatmap extends React.Component {
   constructor(props) {
     super(props);
 
-    this.renderRadio = this.renderRadio.bind(this);
-    this.renderCanvas = this.renderCanvas.bind(this);
+    this.Radio = this.Radio.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
@@ -17,7 +16,7 @@ export default class Heatmap extends React.Component {
     setSelectedFactor(name);
   }
 
-  renderRadio(name, value) {
+  Radio(name, value) {
     return (
       <div key={name}>
         <input
@@ -32,14 +31,14 @@ export default class Heatmap extends React.Component {
   }
 
   render() {
-    const { factorsSelected } = this.props;
+    const { factorsSelected, clusters } = this.props;
     const radioButtons = Object.entries(factorsSelected).map(
-      ([factorId, value]) => this.renderRadio(factorId, value),
+      ([factorId, value]) => this.Radio(factorId, value),
     );
     return (
       <React.Fragment>
         {radioButtons}
-        <HeatmapCanvas />
+        <HeatmapCanvas clusters={clusters} />
       </React.Fragment>
     );
   }
