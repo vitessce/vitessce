@@ -6,8 +6,8 @@ import {
 } from '../../events';
 import Spatial from './Spatial';
 
-function clearPleaseWait() {
-  PubSub.publish(CLEAR_PLEASE_WAIT, true);
+function clearPleaseWait(layerName) {
+  PubSub.publish(CLEAR_PLEASE_WAIT, layerName);
 }
 
 export default class SpatialSubscriber extends React.Component {
@@ -79,12 +79,7 @@ export default class SpatialSubscriber extends React.Component {
     return (
       /* eslint-disable react/destructuring-assignment */
       <Spatial
-        images={this.state.images}
-        molecules={this.state.molecules}
-        neighborhoods={this.state.neighborhoods}
-        cells={this.state.cells}
-        selectedCellIds={this.state.selectedCellIds}
-        cellColors={this.state.cellColors}
+        {... this.state}
         updateStatus={message => PubSub.publish(STATUS_INFO, message)}
         updateCellsSelection={selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
         clearPleaseWait={clearPleaseWait}

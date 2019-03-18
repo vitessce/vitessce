@@ -74,19 +74,32 @@ function loadLayer(layer) {
 export default class LayerManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      pleaseWait: true,
-    };
+    // TODO: We would like to wait for every layer to load,
+    // but for now just list those which we actually use.
+    // const layerNames = props.layers.map(layer => layer.name);
+    const layerNames = ['molecules', 'neighborhoods', 'cells'];
+    const pleaseWaits = {};
+    layerNames.forEach((name) => { pleaseWaits[name] = true; });
+    this.state = { pleaseWaits };
   }
 
-  clearPleaseWait() {
-    this.setState({ pleaseWait: false });
+  clearPleaseWait(event, layerName) {
+    this.setState((prevState) => {
+      // TODO: Do not mutate
+      // eslint-disable-next-line no-param-reassign
+      prevState.pleaseWaits[layerName] = false;
+      return prevState;
+    });
   }
 
   componentWillMount() {
     this.clearPleaseWaitToken = PubSub.subscribe(
       CLEAR_PLEASE_WAIT, this.clearPleaseWait.bind(this),
     );
+  }
+
+  componentWillUnmount() {
+    PubSub.unsubscribe(this.clearPleaseWaitToken);
   }
 
   componentDidMount() {
@@ -97,8 +110,13 @@ export default class LayerManagerPublisher extends React.Component {
   }
 
   render() {
-    const { pleaseWait } = this.state;
-    if (pleaseWait) {
+    const { pleaseWaits } = this.state;
+    const unloadedLayers = Object.entries(pleaseWaits).filter(
+      ([name, stillWaiting]) => stillWaiting, // eslint-disable-line no-unused-vars
+    ).map(
+      ([name, stillWaiting]) => name, // eslint-disable-line no-unused-vars
+    );
+    if (unloadedLayers.length) {
       return (
         <React.Fragment>
           <div className="modal" style={{ display: 'block' }}>

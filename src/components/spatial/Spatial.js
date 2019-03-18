@@ -34,17 +34,19 @@ export function square(x, y) {
 export default class Spatial extends AbstractSelectableComponent {
   constructor(props) {
     super(props);
-    this.state.layers = {
+    this.state.layerIsVisible = {
       molecules: true,
       cells: true,
       neighborhoods: true,
     };
-    this.setLayersState = this.setLayersState.bind(this);
+    this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
   }
 
   componentDidUpdate() {
     const imageNames = Object.keys(this.props.images);
-    const layerNames = Object.keys(this.state.layers);
+    const layerNames = Object.keys(this.state.layerIsVisible);
+
+    // Add imagery to layerIsVisible UI toggle list, if not already present.
     if (layerNames.indexOf(imageNames[0]) < 0) {
       // This is not ideal, but it should be OK as long as the `if` prevents an infinite loop.
       // eslint-disable-next-line react/no-did-update-set-state
@@ -52,7 +54,7 @@ export default class Spatial extends AbstractSelectableComponent {
         imageNames.forEach((name) => {
           // TODO: clone object and return copy?
           // eslint-disable-next-line no-param-reassign
-          prevState.layers[name] = true;
+          prevState.layerIsVisible[name] = true;
         });
         return prevState;
       });
@@ -176,7 +178,7 @@ export default class Spatial extends AbstractSelectableComponent {
     }
     const imageNames = Object.keys(this.props.images).reverse();
     // We want the z-order to be the opposite of the order listed.
-    const visibleImageNames = imageNames.filter(name => this.state.layers[name]);
+    const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
     const svgImages = visibleImages.map(image => (
       <image
@@ -198,15 +200,15 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
-  setLayersState(layers) {
+  setLayerIsVisible(layers) {
     this.setState({ layers });
   }
 
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
     return (
       <LayersMenu
-        layersState={this.state.layers}
-        setLayersState={this.setLayersState}
+        layerIsVisible={this.state.layerIsVisible}
+        setLayerIsVisible={this.setLayerIsVisible}
       />
     );
   }
@@ -218,16 +220,18 @@ export default class Spatial extends AbstractSelectableComponent {
       neighborhoods = undefined,
     } = this.props;
 
-    const layerIsVisible = this.state.layers;
+    const { layerIsVisible } = this.state;
 
     const layerList = [];
 
     if (cells && layerIsVisible.cells) {
       layerList.push(this.renderCellLayer());
+      this.props.clearPleaseWait('cells');
     }
 
     if (neighborhoods && layerIsVisible.neighborhoods) {
       layerList.push(this.renderNeighborhoodsLayer());
+      this.props.clearPleaseWait('neighborhoods');
     }
 
     if (molecules && layerIsVisible.molecules) {
@@ -237,7 +241,7 @@ export default class Spatial extends AbstractSelectableComponent {
       if (!this.moleculesLayer) {
         this.moleculesLayer = this.renderMoleculesLayer();
         if (this.props.clearPleaseWait) {
-          this.props.clearPleaseWait();
+          this.props.clearPleaseWait('molecules');
         }
       }
       layerList.push(this.moleculesLayer);
