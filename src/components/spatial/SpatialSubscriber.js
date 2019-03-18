@@ -6,8 +6,8 @@ import {
 } from '../../events';
 import Spatial from './Spatial';
 
-function clearPleaseWait() {
-  PubSub.publish(CLEAR_PLEASE_WAIT, true);
+function clearPleaseWait(layerName) {
+  PubSub.publish(CLEAR_PLEASE_WAIT, layerName);
 }
 
 export default class SpatialSubscriber extends React.Component {

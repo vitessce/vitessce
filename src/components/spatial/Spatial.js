@@ -224,10 +224,12 @@ export default class Spatial extends AbstractSelectableComponent {
 
     if (cells && layerIsVisible.cells) {
       layerList.push(this.renderCellLayer());
+      this.props.clearPleaseWait('cells');
     }
 
     if (neighborhoods && layerIsVisible.neighborhoods) {
       layerList.push(this.renderNeighborhoodsLayer());
+      this.props.clearPleaseWait('neighborhoods');
     }
 
     if (molecules && layerIsVisible.molecules) {
@@ -237,7 +239,7 @@ export default class Spatial extends AbstractSelectableComponent {
       if (!this.moleculesLayer) {
         this.moleculesLayer = this.renderMoleculesLayer();
         if (this.props.clearPleaseWait) {
-          this.props.clearPleaseWait();
+          this.props.clearPleaseWait('molecules');
         }
       }
       layerList.push(this.moleculesLayer);
