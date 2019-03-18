@@ -40,6 +40,7 @@ export default class Spatial extends AbstractSelectableComponent {
       cells: true,
       neighborhoods: true,
     };
+    this.setLayersState = this.setLayersState.bind(this);
   }
 
   componentDidUpdate() {
@@ -197,6 +198,10 @@ export default class Spatial extends AbstractSelectableComponent {
         {svgImages}
       </svg>
     );
+  }
+
+  setLayersState(layers) {
+    this.setState({ layers });
   }
 
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
