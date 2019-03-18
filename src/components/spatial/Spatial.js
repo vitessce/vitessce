@@ -35,7 +35,7 @@ export default class Spatial extends AbstractSelectableComponent {
   constructor(props) {
     super(props);
     console.log('Spatial props (constructor) >>>', props);
-    this.state.layers = {
+    this.state.layerIsVisible = {
       molecules: true,
       cells: true,
       neighborhoods: true,
@@ -43,8 +43,9 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   componentDidUpdate() {
+    console.log('Spatial.componentDidUpdate; props:', this.props, 'state:', this.state)
     const imageNames = Object.keys(this.props.images);
-    const layerNames = Object.keys(this.state.layers);
+    const layerNames = Object.keys(this.state.layerIsVisible);
     if (layerNames.indexOf(imageNames[0]) < 0) {
       // This is not ideal, but it should be OK as long as the `if` prevents an infinite loop.
       // eslint-disable-next-line react/no-did-update-set-state
@@ -52,7 +53,7 @@ export default class Spatial extends AbstractSelectableComponent {
         imageNames.forEach((name) => {
           // TODO: clone object and return copy?
           // eslint-disable-next-line no-param-reassign
-          prevState.layers[name] = true;
+          prevState.layerIsVisible[name] = true;
         });
         return prevState;
       });
@@ -176,7 +177,7 @@ export default class Spatial extends AbstractSelectableComponent {
     }
     const imageNames = Object.keys(this.props.images).reverse();
     // We want the z-order to be the opposite of the order listed.
-    const visibleImageNames = imageNames.filter(name => this.state.layers[name]);
+    const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
     const svgImages = visibleImages.map(image => (
       <image
@@ -201,7 +202,7 @@ export default class Spatial extends AbstractSelectableComponent {
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
     return (
       <LayersMenu
-        layersState={this.state.layers}
+        layersState={this.state.layerIsVisible}
         setLayersState={this.setLayersState}
       />
     );
@@ -214,7 +215,7 @@ export default class Spatial extends AbstractSelectableComponent {
       neighborhoods = undefined,
     } = this.props;
 
-    const layerIsVisible = this.state.layers;
+    const { layerIsVisible } = this.state;
 
     const layerList = [];
 
