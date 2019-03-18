@@ -40,7 +40,7 @@ export default class Spatial extends AbstractSelectableComponent {
       cells: true,
       neighborhoods: true,
     };
-    this.setLayersState = this.setLayersState.bind(this);
+    this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
   }
 
   componentDidUpdate() {
@@ -200,15 +200,15 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
-  setLayersState(layers) {
+  setLayerIsVisible(layers) {
     this.setState({ layers });
   }
 
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
     return (
       <LayersMenu
-        layersState={this.state.layerIsVisible}
-        setLayersState={this.setLayersState}
+        layerIsVisible={this.state.layerIsVisible}
+        setLayerIsVisible={this.setLayerIsVisible}
       />
     );
   }

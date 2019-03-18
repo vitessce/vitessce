@@ -13,9 +13,9 @@ export default class LayersMenu extends React.Component {
     const { checked, name } = target;
     // In the future?: target.type === 'checkbox' ? target.checked : target.value;
 
-    const { layersState, setLayersState } = this.props;
-    layersState[name] = checked;
-    setLayersState(layersState);
+    const { layerIsVisible, setLayerIsVisible } = this.props;
+    layerIsVisible[name] = checked;
+    setLayerIsVisible(layerIsVisible);
   }
 
   checkbox(name, value) {
@@ -33,8 +33,8 @@ export default class LayersMenu extends React.Component {
   }
 
   render() {
-    const { layersState } = this.props;
-    const entries = Object.entries(layersState);
+    const { layerIsVisible } = this.props;
+    const entries = Object.entries(layerIsVisible);
     const checkboxes = entries.map(([name, value]) => this.checkbox(name, value));
     return (
       <div className="ml-auto card p-2 on-top">
