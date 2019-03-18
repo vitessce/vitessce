@@ -75,12 +75,17 @@ export default class LayerManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      pleaseWait: true,
+      pleaseWaits: { fakeLayer: true },
     };
   }
 
   clearPleaseWait() {
-    this.setState({ pleaseWait: false });
+    this.setState((prevState) => {
+      // TODO: Do not mutate
+      // eslint-disable-next-line no-param-reassign
+      prevState.pleaseWaits.fakeLayer = false;
+      return prevState;
+    });
   }
 
   componentWillMount() {
@@ -97,8 +102,8 @@ export default class LayerManagerPublisher extends React.Component {
   }
 
   render() {
-    const { pleaseWait } = this.state;
-    if (pleaseWait) {
+    const { pleaseWaits } = this.state;
+    if (pleaseWaits.fakeLayer) {
       return (
         <React.Fragment>
           <div className="modal" style={{ display: 'block' }}>
