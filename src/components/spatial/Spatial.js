@@ -34,7 +34,6 @@ export function square(x, y) {
 export default class Spatial extends AbstractSelectableComponent {
   constructor(props) {
     super(props);
-    console.log('Spatial props (constructor) >>>', props);
     this.state.layerIsVisible = {
       molecules: true,
       cells: true,
@@ -44,7 +43,6 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   componentDidUpdate() {
-    console.log('Spatial.componentDidUpdate; props:', this.props, 'state:', this.state)
     const imageNames = Object.keys(this.props.images);
     const layerNames = Object.keys(this.state.layerIsVisible);
 
