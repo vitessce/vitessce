@@ -1,6 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { FACTORS_ADD, CELLS_COLOR } from '../../events';
+import { FACTORS_ADD, CELLS_COLOR, CLUSTERS_ADD } from '../../events';
 import Heatmap from './Heatmap';
 import { PALETTE } from '../utils';
 
@@ -15,14 +15,22 @@ export default class HeatmapSubscriber extends React.Component {
     this.factorsAddToken = PubSub.subscribe(
       FACTORS_ADD, this.factorsAddSubscriber.bind(this),
     );
+    this.clustersAddToken = PubSub.subscribe(
+      CLUSTERS_ADD, this.clustersAddSubscriber.bind(this),
+    );
   }
 
   componentWillUnmount() {
     PubSub.unsubscribe(this.factorsAddToken);
+    PubSub.unsubscribe(this.clustersAddToken);
   }
 
   factorsAddSubscriber(msg, factors) {
     this.setState({ factors });
+  }
+
+  clustersAddSubscriber(msg, clusters) {
+    this.setState({ clusters });
   }
 
   setSelectedFactor(selectedId) {
@@ -44,7 +52,7 @@ export default class HeatmapSubscriber extends React.Component {
   }
 
   render() {
-    const { factors, selectedId } = this.state;
+    const { factors, clusters, selectedId } = this.state;
     const factorsSelected = {};
     Object.keys(factors).forEach((factorId) => {
       factorsSelected[factorId] = factorId === selectedId;
@@ -53,6 +61,7 @@ export default class HeatmapSubscriber extends React.Component {
       <Heatmap
         factorsSelected={factorsSelected}
         setSelectedFactor={this.setSelectedFactor}
+        clusters={clusters}
       />
     );
   }

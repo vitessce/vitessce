@@ -5,14 +5,7 @@ import { interpolateViridis } from 'd3-scale-chromatic';
 import Genes from './Genes';
 
 import { GENES_ADD, CELLS_COLOR } from '../../events';
-
-function rgb(hexString) {
-  return [
-    parseInt(hexString.slice(1, 3), 16),
-    parseInt(hexString.slice(3, 5), 16),
-    parseInt(hexString.slice(5, 7), 16),
-  ];
-}
+import { rgb } from '../utils';
 
 export default class GenesSubscriber extends React.Component {
   constructor(props) {

@@ -44,10 +44,9 @@ export default class Spatial extends AbstractSelectableComponent {
 
   componentDidUpdate() {
     const imageNames = Object.keys(this.props.images);
-    const layerNames = Object.keys(this.state.layerIsVisible);
 
     // Add imagery to layerIsVisible UI toggle list, if not already present.
-    if (layerNames.indexOf(imageNames[0]) < 0) {
+    if (!(imageNames[0] in this.state.layerIsVisible)) {
       // This is not ideal, but it should be OK as long as the `if` prevents an infinite loop.
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState((prevState) => {
