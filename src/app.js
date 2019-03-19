@@ -76,7 +76,7 @@ function renderDataset(id, datasetId) {
   const { layers, name, description } = FAKE_API_RESPONSE[datasetId];
   const card = 'card card-body my-2';
   const cardLight = `${card} bg-light`;
-  const cardDark = `${card} bg-dark`;
+  const cardDark = `${card} bg-black`; // bg-black is not a built-in.
   const [sideLg, sideMd] = [3, 4];
   const [middleLg, middleMd] = [12 - 2 * sideLg, 12 - 2 * sideMd];
   const col = 'd-flex flex-column px-2';

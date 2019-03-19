@@ -18,3 +18,7 @@ html,body {
   image-rendering: pixelated; /* Chrome */
   image-rendering: -moz-crisp-edges; /* FF */
  }
+
+ .bg-black {
+   background-color: black;
+ }
