@@ -40,7 +40,7 @@ export default class HeatmapCanvas extends React.Component {
     }
     return (
       <canvas
-        style={{ height: '100%' }}
+        style={{ height: '100%', imageRendering: 'pixelated' }}
         ref={(c) => { this.canvasRef = c; }}
         width={clusters.cols.length}
         height={clusters.rows.length}
