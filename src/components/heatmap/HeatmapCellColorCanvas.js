@@ -1,30 +1,26 @@
 import React from 'react';
-import { interpolateViridis } from 'd3-scale-chromatic';
 
-import { rgb } from '../utils';
-
-export default class HeatmapSelectionCanvas extends React.Component {
+export default class HeatmapCellColorCanvas extends React.Component {
   shouldComponentUpdate(nextProps) {
-    return !!nextProps.clusters;
+    return !!nextProps.clusters && !!nextProps.cellColors;
   }
 
   componentDidUpdate() {
     const ctx = this.canvasRef.getContext('2d');
 
-    const { clusters } = this.props;
+    const { clusters, cellColors } = this.props;
     const width = clusters.cols.length;
     const height = 1;
 
     const imageData = ctx.createImageData(width, height);
-    const row = clusters.matrix[0];
-    row.forEach((value, x) => {
+    clusters.cols.forEach((cellId, x) => {
       const offset = x * 4;
-      // Math.sqrt is arbitrary, but I wanted to improve the contrast.
-      const rgbTriple = rgb(interpolateViridis(Math.sqrt(value)));
+      const cellColor = cellColors[cellId];
+
       /* eslint-disable prefer-destructuring */
-      imageData.data[offset + 0] = rgbTriple[0];
-      imageData.data[offset + 1] = rgbTriple[1];
-      imageData.data[offset + 2] = rgbTriple[2];
+      imageData.data[offset + 0] = cellColor[0];
+      imageData.data[offset + 1] = cellColor[1];
+      imageData.data[offset + 2] = cellColor[2];
       /* eslint-enable */
       imageData.data[offset + 3] = 255;
     });
