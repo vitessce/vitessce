@@ -74,7 +74,9 @@ function renderWelcome(id) {
 
 function renderDataset(id, datasetId) {
   const { layers, name, description } = FAKE_API_RESPONSE[datasetId];
-  const card = 'card card-body bg-light my-2';
+  const card = 'card card-body my-2';
+  const cardLight = `${card} bg-light`;
+  const cardDark = `${card} bg-dark`;
   const [sideLg, sideMd] = [3, 4];
   const [middleLg, middleMd] = [12 - 2 * sideLg, 12 - 2 * sideMd];
   const col = 'd-flex flex-column px-2';
@@ -86,32 +88,32 @@ function renderDataset(id, datasetId) {
       <div class="${side}">
         <div id="layermanager"><!-- No UI exposure --></div>
         <div class="d-flex flex-column h-25">
-          <div id="title" class="${card}" style="overflow: scroll;"></div>
+          <div id="title" class="${cardLight}" style="overflow: scroll;"></div>
         </div>
         <div id="status" class="my-2 d-flex flex-column h-25"></div>
         <div class="d-flex flex-column h-50">
           <div>t-SNE</div>
-          <div id="tsne" class="${card}"></div>
+          <div id="tsne" class="${cardDark}"></div>
         </div>
       </div>
       <div class="${middle}">
         <div class="d-flex flex-column h-75">
           <div>Spatial</div>
-          <div id="spatial" class="${card}"></div>
+          <div id="spatial" class="${cardDark}"></div>
         </div>
         <div class="d-flex flex-column h-25">
           <div>Heatmap</div>
-          <div id="heatmap" class="${card}"></div>
+          <div id="heatmap" class="${cardLight}"></div>
         </div>
       </div>
       <div class="${side}">
         <div class="d-flex flex-column h-25">
           <div>Factors</div>
-          <div id="factors" class="${card}" style="overflow: scroll;"></div>
+          <div id="factors" class="${cardLight}" style="overflow: scroll;"></div>
         </div>
         <div class="d-flex flex-column h-75">
           <div>Genes</div>
-          <div id="genes" class="${card}" style="overflow: scroll;"></div>
+          <div id="genes" class="${cardLight}" style="overflow: scroll;"></div>
         </div>
       </div>
     </div>
