@@ -12,3 +12,9 @@ html,body {
 .on-top {
   z-index: 1000;
 }
+
+.pixelated {
+  /* https://stackoverflow.com/questions/7615009/disable-interpolation-when-scaling-a-canvas */
+  image-rendering: pixelated; /* Chrome */
+  image-rendering: -moz-crisp-edges; /* FF */
+ }
