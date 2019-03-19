@@ -7,6 +7,7 @@ import { TsneSubscriber } from './components/tsne';
 import { HeatmapSubscriber } from './components/heatmap';
 import { SpatialSubscriber } from './components/spatial';
 import { GenesSubscriber } from './components/genes';
+import { FactorsSubscriber } from './components/factors';
 
 import './css/index.css';
 
@@ -104,7 +105,11 @@ function renderDataset(id, datasetId) {
         </div>
       </div>
       <div class="${side}">
-        <div class="d-flex flex-column h-100">
+        <div class="d-flex flex-column h-25">
+          <div>Factors</div>
+          <div id="factors" class="${card}" style="overflow: scroll;"></div>
+        </div>
+        <div class="d-flex flex-column h-75">
           <div>Genes</div>
           <div id="genes" class="${card}" style="overflow: scroll;"></div>
         </div>
@@ -118,6 +123,7 @@ function renderDataset(id, datasetId) {
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
   renderComponent(<SpatialSubscriber />, 'spatial');
+  renderComponent(<FactorsSubscriber />, 'factors');
   renderComponent(<GenesSubscriber />, 'genes');
 }
 
