@@ -1,11 +1,10 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { interpolateViridis } from 'd3-scale-chromatic';
 
 import Genes from './Genes';
 
 import { GENES_ADD, CELLS_COLOR } from '../../events';
-import { rgb } from '../utils';
+import { interpolateColors } from '../utils';
 
 export default class GenesSubscriber extends React.Component {
   constructor(props) {
@@ -35,7 +34,7 @@ export default class GenesSubscriber extends React.Component {
     const logMax = Math.log(max);
     Object.entries(cells).forEach(
       ([cellId, value]) => {
-        cellColors[cellId] = rgb((interpolateViridis(Math.log(value) / logMax)));
+        cellColors[cellId] = interpolateColors(Math.log(value) / logMax);
       },
     );
     PubSub.publish(CELLS_COLOR, cellColors);

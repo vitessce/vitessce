@@ -1,7 +1,5 @@
 import React from 'react';
-import { interpolateViridis } from 'd3-scale-chromatic';
-
-import { rgb } from '../utils';
+import { interpolateColors } from '../utils';
 
 export default class HeatmapDataCanvas extends React.Component {
   shouldComponentUpdate(nextProps) {
@@ -20,7 +18,7 @@ export default class HeatmapDataCanvas extends React.Component {
       row.forEach((value, x) => {
         const offset = (y * width + x) * 4;
         // Math.sqrt is arbitrary, but I wanted to improve the contrast.
-        const rgbTriple = rgb(interpolateViridis(Math.sqrt(value)));
+        const rgbTriple = interpolateColors(Math.sqrt(value));
         /* eslint-disable prefer-destructuring */
         imageData.data[offset + 0] = rgbTriple[0];
         imageData.data[offset + 1] = rgbTriple[1];

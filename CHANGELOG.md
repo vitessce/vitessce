@@ -3,7 +3,7 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## in progress
 ### Added
-- Roll up the layers list when not hovered.
+- Roll down the layers list when hovered.
 
 ## [0.0.10] - 2019-03-19
 ### Added

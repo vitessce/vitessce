@@ -1,4 +1,5 @@
 import { COORDINATE_SYSTEM } from 'deck.gl';
+import { interpolatePlasma } from 'd3-scale-chromatic';
 
 export function cellLayerDefaultProps(cells, updateStatus) {
   return {
@@ -39,10 +40,14 @@ export const PALETTE = [
   [177, 89, 40],
 ];
 
-export function rgb(hexString) {
+function rgb(hexString) {
   return [
     parseInt(hexString.slice(1, 3), 16),
     parseInt(hexString.slice(3, 5), 16),
     parseInt(hexString.slice(5, 7), 16),
   ];
+}
+
+export function interpolateColors(zeroToOne) {
+  return rgb((interpolatePlasma(zeroToOne)));
 }
