@@ -43,16 +43,15 @@ export default class TsneSubscriber extends React.Component {
   }
 
   render() {
+    const { cells, selectedCellIds, cellColors } = this.state;
     return (
-      /* eslint-disable react/destructuring-assignment */
       <Tsne
-        cells={this.state.cells}
-        selectedCellIds={this.state.selectedCellIds}
-        cellColors={this.state.cellColors}
+        cells={cells}
+        selectedCellIds={selectedCellIds}
+        cellColors={cellColors}
         updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-        updateCellsSelection={selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
+        updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
       />
-      /* eslint-enable */
     );
   }
 }

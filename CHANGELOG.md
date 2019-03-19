@@ -1,6 +1,14 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.10] - 2019-03-19
+### Added
+- Heatmap: Gene expression levels occupy most of the space; Above, there are bands showing
+the currently selected cell set, and the current cell coloring.
+### Changed
+- Spatial and t-SNE backgrounds are now black.
+- Move the Factor radio buttons to their own component, above Genes.
+
 ## [0.0.9] - 2019-03-17
 ### Added
 - Neighborhoods layer: no interactivity, and it's obvious that the source data has some problems.

@@ -1,67 +1,51 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { FACTORS_ADD, CELLS_COLOR, CLUSTERS_ADD } from '../../events';
+import { CELLS_COLOR, CLUSTERS_ADD, CELLS_SELECTION } from '../../events';
 import Heatmap from './Heatmap';
-import { PALETTE } from '../utils';
 
 export default class HeatmapSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { factors: {}, selectedId: 'cluster' };
-    this.setSelectedFactor = this.setSelectedFactor.bind(this);
+    this.state = { clusters: null, selectedCellIds: {}, cellColors: null };
   }
 
   componentWillMount() {
-    this.factorsAddToken = PubSub.subscribe(
-      FACTORS_ADD, this.factorsAddSubscriber.bind(this),
-    );
     this.clustersAddToken = PubSub.subscribe(
       CLUSTERS_ADD, this.clustersAddSubscriber.bind(this),
+    );
+    this.cellsColorToken = PubSub.subscribe(
+      CELLS_COLOR, this.cellsColorSubscriber.bind(this),
+    );
+    this.cellsSelectionToken = PubSub.subscribe(
+      CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
   }
 
   componentWillUnmount() {
-    PubSub.unsubscribe(this.factorsAddToken);
     PubSub.unsubscribe(this.clustersAddToken);
-  }
-
-  factorsAddSubscriber(msg, factors) {
-    this.setState({ factors });
+    PubSub.unsubscribe(this.cellsColorToken);
+    PubSub.unsubscribe(this.cellsSelectionToken);
   }
 
   clustersAddSubscriber(msg, clusters) {
     this.setState({ clusters });
   }
 
-  setSelectedFactor(selectedId) {
-    this.setState({ selectedId });
-    const { factors } = this.state;
-    const cellColors = {};
+  cellsSelectionSubscriber(msg, cellIds) {
+    this.setState({ selectedCellIds: cellIds });
+  }
 
-    const factorColors = {};
-    Object.entries(factors[selectedId].cells).forEach(
-      ([cellId, factorIndex]) => {
-        if (!factorColors[factorIndex]) {
-          const nextColorIndex = Object.keys(factorColors).length;
-          factorColors[factorIndex] = PALETTE[nextColorIndex % PALETTE.length];
-        }
-        cellColors[cellId] = factorColors[factorIndex];
-      },
-    );
-    PubSub.publish(CELLS_COLOR, cellColors);
+  cellsColorSubscriber(msg, cellColors) {
+    this.setState({ cellColors });
   }
 
   render() {
-    const { factors, clusters, selectedId } = this.state;
-    const factorsSelected = {};
-    Object.keys(factors).forEach((factorId) => {
-      factorsSelected[factorId] = factorId === selectedId;
-    });
+    const { clusters, selectedCellIds, cellColors } = this.state;
     return (
       <Heatmap
-        factorsSelected={factorsSelected}
-        setSelectedFactor={this.setSelectedFactor}
         clusters={clusters}
+        selectedCellIds={selectedCellIds}
+        cellColors={cellColors}
       />
     );
   }

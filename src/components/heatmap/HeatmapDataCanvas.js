@@ -3,14 +3,13 @@ import { interpolateViridis } from 'd3-scale-chromatic';
 
 import { rgb } from '../utils';
 
-export default class HeatmapCanvas extends React.Component {
+export default class HeatmapDataCanvas extends React.Component {
   shouldComponentUpdate(nextProps) {
     return !!nextProps.clusters;
   }
 
   componentDidUpdate() {
     const ctx = this.canvasRef.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
 
     const { clusters } = this.props;
     const width = clusters.cols.length;
@@ -34,17 +33,21 @@ export default class HeatmapCanvas extends React.Component {
   }
 
   render() {
+    const { style } = this.props;
     let { clusters } = this.props;
     if (!clusters) {
-      clusters = { rows: [], cols: [] };
+      clusters = { rows: [], cols: [], matrix: [] };
     }
     return (
-      <canvas
-        style={{ height: '100%' }}
-        ref={(c) => { this.canvasRef = c; }}
-        width={clusters.cols.length}
-        height={clusters.rows.length}
-      />
+      <React.Fragment>
+        <canvas
+          className="pixelated"
+          style={style}
+          ref={(c) => { this.canvasRef = c; }}
+          width={clusters.cols.length}
+          height={clusters.rows.length}
+        />
+      </React.Fragment>
     );
   }
 }
