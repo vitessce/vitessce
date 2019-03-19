@@ -6,8 +6,8 @@ export default function Heatmap(props) {
   const { clusters } = props;
   return (
     <React.Fragment>
-      <HeatmapSelectionCanvas clusters={clusters} style={{ height: '25%' }} />
-      <HeatmapDataCanvas clusters={clusters} style={{ height: '75%' }} />
+      <HeatmapSelectionCanvas clusters={clusters} style={{ height: '10%' }} />
+      <HeatmapDataCanvas clusters={clusters} style={{ height: '90%' }} />
     </React.Fragment>
   );
 }

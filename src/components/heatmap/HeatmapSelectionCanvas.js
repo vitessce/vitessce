@@ -35,7 +35,7 @@ export default class HeatmapSelectionCanvas extends React.Component {
     const { style } = this.props;
     let { clusters } = this.props;
     if (!clusters) {
-      clusters = { rows: [], cols: [] };
+      clusters = { rows: [], cols: [], matrix: [] };
     }
     return (
       <React.Fragment>
