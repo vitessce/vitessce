@@ -4,6 +4,8 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## in progress
 ### Added
 - Roll down the layers list when hovered.
+### Changed
+- Improve contrast against black background.
 
 ## [0.0.10] - 2019-03-19
 ### Added
