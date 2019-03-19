@@ -9,6 +9,20 @@ html,body {
   background-color: white;
 }
 
+.roll-up {
+  height: 2em; /* Matches .btn.icon */
+  overflow: hidden;
+}
+.roll-up:hover {
+  animation-name: roll-up;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+}
+@keyframes roll-up {
+  0% { height: 2em; }
+  100% { height: 100%; }
+}
+
 .on-top {
   z-index: 1000;
 }

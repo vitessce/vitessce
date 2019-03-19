@@ -1,6 +1,10 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## in progress
+### Added
+- Roll up the layers list when not hovered.
+
 ## [0.0.10] - 2019-03-19
 ### Added
 - Heatmap: Gene expression levels occupy most of the space; Above, there are bands showing
