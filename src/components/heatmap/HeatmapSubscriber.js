@@ -45,9 +45,13 @@ export default class HeatmapSubscriber extends React.Component {
     const { clusters, selectedCellIds, cellColors } = this.state;
     const cellsCount = clusters ? clusters.cols.length : 0;
     const genesCount = clusters ? clusters.rows.length : 0;
+    const selectedCount = selectedCellIds ? Object.keys(selectedCellIds).length : 0;
     return (
       <React.Fragment>
-        <div>Heatmap ({cellsCount} cells &times; {genesCount} genes)</div>
+        <div>
+          Heatmap ({cellsCount} cells &times; {genesCount} genes,
+          with {selectedCount} cells selected)
+        </div>
         <div className={LIGHT_CARD}>
           <Heatmap
             clusters={clusters}
