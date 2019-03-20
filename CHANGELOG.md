@@ -7,6 +7,7 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Component titles give summary stats about data.
 ### Changed
 - Change color scales, styling of unselected cells, and marquee rendering, to improve contrast.
+- Only update selected set at end of drag.
 
 ## [0.0.10] - 2019-03-19
 ### Added
