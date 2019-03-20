@@ -36,3 +36,7 @@ html,body {
  .bg-black {
    background-color: black;
  }
+
+ .scroll {
+   overflow: scroll;
+ }

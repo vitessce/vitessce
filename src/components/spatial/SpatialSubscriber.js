@@ -1,5 +1,8 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
+import shortNumber from 'short-number';
+
+import { DARK_CARD } from '../classNames';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
   STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
@@ -76,14 +79,32 @@ export default class SpatialSubscriber extends React.Component {
   }
 
   render() {
+    const { cells, molecules } = this.state;
+    const cellsCount = cells ? Object.keys(cells).length : 0;
+    const moleculesCount = molecules ? Object.keys(molecules).length : 0;
+    const locationsCount = molecules
+      ? Object.values(molecules).map(l => l.length).reduce((a, b) => a + b, 0) : 0;
     return (
       /* eslint-disable react/destructuring-assignment */
-      <Spatial
-        {... this.state}
-        updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-        updateCellsSelection={selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
-        clearPleaseWait={clearPleaseWait}
-      />
+      <React.Fragment>
+        <div>
+          Spatial
+          ({cellsCount} cells, {moleculesCount} molecules
+          at {shortNumber(locationsCount)} locations)
+        </div>
+        <div className={DARK_CARD}>
+          <Spatial
+            {... this.state}
+            updateStatus={
+              message => PubSub.publish(STATUS_INFO, message)
+            }
+            updateCellsSelection={
+              selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)
+            }
+            clearPleaseWait={clearPleaseWait}
+          />
+        </div>
+      </React.Fragment>
       /* eslint-enable */
     );
   }
