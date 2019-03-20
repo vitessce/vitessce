@@ -94,10 +94,7 @@ function renderDataset(id, datasetId) {
         <div id="tsne" class="d-flex flex-column h-50"></div>
       </div>
       <div class="${middle}">
-        <div class="d-flex flex-column h-75">
-          <div>Spatial</div>
-          <div id="spatial" class="${cardDark}"></div>
-        </div>
+        <div id="spatial" class="d-flex flex-column h-75"></div>
         <div class="d-flex flex-column h-25">
           <div>Heatmap</div>
           <div id="heatmap" class="${cardLight}"></div>

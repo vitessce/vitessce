@@ -76,14 +76,30 @@ export default class SpatialSubscriber extends React.Component {
   }
 
   render() {
+    const { cells, molecules } = this.state;
+    const cellsCount = Object.keys(cells).length;
+    const moleculesCount = Object.keys(molecules).length;
+    const locationsCount = Object.values(molecules).map(l => l.length).reduce((a, b) => a + b, 0);
     return (
       /* eslint-disable react/destructuring-assignment */
-      <Spatial
-        {... this.state}
-        updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-        updateCellsSelection={selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)}
-        clearPleaseWait={clearPleaseWait}
-      />
+      <React.Fragment>
+        <div>
+          Spatial
+          ({cellsCount} cells, {moleculesCount} molecules at {locationsCount} locations)
+        </div>
+        <div id="spatial" className="card card-body my-2 bg-black">
+          <Spatial
+            {... this.state}
+            updateStatus={
+              message => PubSub.publish(STATUS_INFO, message)
+            }
+            updateCellsSelection={
+              selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)
+            }
+            clearPleaseWait={clearPleaseWait}
+          />
+        </div>
+      </React.Fragment>
       /* eslint-enable */
     );
   }
