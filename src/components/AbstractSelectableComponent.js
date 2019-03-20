@@ -15,7 +15,7 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onDragStart = this.onDragStart.bind(this);
     this.onDrag = this.onDrag.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
-    this.onDragOrEnd = this.onDragOrEnd.bind(this);
+    this.onUpdateSelection = this.onUpdateSelection.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
     this.state = {
       selectionRectangle: undefined,
@@ -62,7 +62,10 @@ export default class AbstractSelectableComponent extends React.Component {
     const { isSelecting } = this.state;
     if (isSelecting && event.coordinate) {
       this.setState({ selectionRectangle: this.getDragRectangle(event) });
-      this.onDragOrEnd(event);
+      // TODO: https://github.com/hms-dbmi/vitessce/issues/111
+      // Changing the selected set during drag was too slow... Could it be faster?
+      //
+      // this.onUpdateSelection(event);
     }
   }
 
@@ -70,11 +73,11 @@ export default class AbstractSelectableComponent extends React.Component {
     const { isSelecting } = this.state;
     if (isSelecting) {
       this.setState({ selectionRectangle: undefined });
-      this.onDragOrEnd(event);
+      this.onUpdateSelection(event);
     }
   }
 
-  onDragOrEnd(event) {
+  onUpdateSelection(event) {
     const { isSelecting } = this.state;
     const { updateCellsSelection } = this.props;
     if (isSelecting && event.coordinate && updateCellsSelection) {
