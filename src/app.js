@@ -76,7 +76,6 @@ function renderDataset(id, datasetId) {
   const { layers, name, description } = FAKE_API_RESPONSE[datasetId];
   const card = 'card card-body my-2';
   const cardLight = `${card} bg-light`;
-  const cardDark = `${card} bg-black`; // bg-black is not a built-in.
   const [sideLg, sideMd] = [3, 4];
   const [middleLg, middleMd] = [12 - 2 * sideLg, 12 - 2 * sideMd];
   const col = 'd-flex flex-column px-2';
@@ -95,16 +94,10 @@ function renderDataset(id, datasetId) {
       </div>
       <div class="${middle}">
         <div id="spatial" class="d-flex flex-column h-75"></div>
-        <div class="d-flex flex-column h-25">
-          <div>Heatmap</div>
-          <div id="heatmap" class="${cardLight}"></div>
-        </div>
+        <div id="heatmap" class="d-flex flex-column h-25"></div>
       </div>
       <div class="${side}">
-        <div class="d-flex flex-column h-25">
-          <div>Factors</div>
-          <div id="factors" class="${cardLight}" style="overflow: scroll;"></div>
-        </div>
+        <div id="factors" class="d-flex flex-column h-25"></div>
         <div class="d-flex flex-column h-75">
           <div>Genes</div>
           <div id="genes" class="${cardLight}" style="overflow: scroll;"></div>

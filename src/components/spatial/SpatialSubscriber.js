@@ -1,5 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
+import shortNumber from 'short-number';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
   STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
@@ -77,17 +78,19 @@ export default class SpatialSubscriber extends React.Component {
 
   render() {
     const { cells, molecules } = this.state;
-    const cellsCount = Object.keys(cells).length;
-    const moleculesCount = Object.keys(molecules).length;
-    const locationsCount = Object.values(molecules).map(l => l.length).reduce((a, b) => a + b, 0);
+    const cellsCount = cells ? Object.keys(cells).length : 0;
+    const moleculesCount = molecules ? Object.keys(molecules).length : 0;
+    const locationsCount = molecules
+      ? Object.values(molecules).map(l => l.length).reduce((a, b) => a + b, 0) : 0;
     return (
       /* eslint-disable react/destructuring-assignment */
       <React.Fragment>
         <div>
           Spatial
-          ({cellsCount} cells, {moleculesCount} molecules at {locationsCount} locations)
+          ({cellsCount} cells, {moleculesCount} molecules
+          at {shortNumber(locationsCount)} locations)
         </div>
-        <div id="spatial" className="card card-body my-2 bg-black">
+        <div className="card card-body my-2 bg-black">
           <Spatial
             {... this.state}
             updateStatus={

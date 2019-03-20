@@ -48,14 +48,21 @@ export default class FactorsSubscriber extends React.Component {
   render() {
     const { factors, selectedId } = this.state;
     const factorsSelected = {};
-    Object.keys(factors).forEach((factorId) => {
+    const factorsKeys = Object.keys(factors);
+    factorsKeys.forEach((factorId) => {
       factorsSelected[factorId] = factorId === selectedId;
     });
     return (
-      <Factors
-        factorsSelected={factorsSelected}
-        setSelectedFactor={this.setSelectedFactor}
-      />
+      <React.Fragment>
+        <div>Factors ({factorsKeys.length})</div>
+        <div className="card card-body my-2 bg-light">
+          <Factors
+            factorsSelected={factorsSelected}
+            setSelectedFactor={this.setSelectedFactor}
+            className="card card-body my-2 bg-light"
+          />
+        </div>
+      </React.Fragment>
     );
   }
 }
