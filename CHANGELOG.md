@@ -1,7 +1,7 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## in progress
+## [0.0.11] - 2019-03-20
 ### Added
 - Roll up the layers list when not hovered.
 - Component titles give summary stats about data.
