@@ -4,6 +4,8 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## in progress
 ### Added
 - Roll up the layers list when not hovered.
+- Component titles give summary stats about data.
+- Change color scales, styling of unselected cells, and marquee rendering, to improve contrast.
 
 ## [0.0.10] - 2019-03-19
 ### Added
