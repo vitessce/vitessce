@@ -116,6 +116,13 @@ export default class LayerManagerPublisher extends React.Component {
     ).map(
       ([name, stillWaiting]) => name, // eslint-disable-line no-unused-vars
     );
+
+    const ua = navigator.userAgent;
+    // Somewhat fragile, but simple, and has limitted use.
+    if (!ua.includes('Chrome') && !ua.includes('Firefox')) {
+      PubSub.publish(STATUS_WARN, 'Warning: Base imagery does not load in Safari; Consider using Firefox or Chrome.');
+    }
+
     if (unloadedLayers.length) {
       return (
         <React.Fragment>
