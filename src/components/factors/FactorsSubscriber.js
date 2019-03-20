@@ -10,7 +10,7 @@ import { FACTORS_ADD, CELLS_COLOR } from '../../events';
 export default class FactorsSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { factors: {}, selectedId: 'cluster' };
+    this.state = { factors: {} };
     this.setSelectedFactor = this.setSelectedFactor.bind(this);
   }
 
