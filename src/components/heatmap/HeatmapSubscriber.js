@@ -1,5 +1,7 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
+
+import { LIGHT_CARD } from '../classNames';
 import { CELLS_COLOR, CLUSTERS_ADD, CELLS_SELECTION } from '../../events';
 import Heatmap from './Heatmap';
 
@@ -41,12 +43,23 @@ export default class HeatmapSubscriber extends React.Component {
 
   render() {
     const { clusters, selectedCellIds, cellColors } = this.state;
+    const cellsCount = clusters ? clusters.cols.length : 0;
+    const genesCount = clusters ? clusters.rows.length : 0;
+    const selectedCount = selectedCellIds ? Object.keys(selectedCellIds).length : 0;
     return (
-      <Heatmap
-        clusters={clusters}
-        selectedCellIds={selectedCellIds}
-        cellColors={cellColors}
-      />
+      <React.Fragment>
+        <div>
+          Heatmap ({cellsCount} cells &times; {genesCount} genes,
+          with {selectedCount} cells selected)
+        </div>
+        <div className={LIGHT_CARD}>
+          <Heatmap
+            clusters={clusters}
+            selectedCellIds={selectedCellIds}
+            cellColors={cellColors}
+          />
+        </div>
+      </React.Fragment>
     );
   }
 }

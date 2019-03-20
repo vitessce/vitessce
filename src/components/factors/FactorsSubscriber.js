@@ -4,6 +4,7 @@ import PubSub from 'pubsub-js';
 import Factors from './Factors';
 import { PALETTE } from '../utils';
 
+import { SCROLL_CARD } from '../classNames';
 import { FACTORS_ADD, CELLS_COLOR } from '../../events';
 
 export default class FactorsSubscriber extends React.Component {
@@ -48,14 +49,20 @@ export default class FactorsSubscriber extends React.Component {
   render() {
     const { factors, selectedId } = this.state;
     const factorsSelected = {};
-    Object.keys(factors).forEach((factorId) => {
+    const factorsKeys = Object.keys(factors);
+    factorsKeys.forEach((factorId) => {
       factorsSelected[factorId] = factorId === selectedId;
     });
     return (
-      <Factors
-        factorsSelected={factorsSelected}
-        setSelectedFactor={this.setSelectedFactor}
-      />
+      <React.Fragment>
+        <div>Factors ({factorsKeys.length})</div>
+        <div className={SCROLL_CARD}>
+          <Factors
+            factorsSelected={factorsSelected}
+            setSelectedFactor={this.setSelectedFactor}
+          />
+        </div>
+      </React.Fragment>
     );
   }
 }

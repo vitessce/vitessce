@@ -4,6 +4,7 @@ import { interpolateViridis } from 'd3-scale-chromatic';
 
 import Genes from './Genes';
 
+import { SCROLL_CARD } from '../classNames';
 import { GENES_ADD, CELLS_COLOR } from '../../events';
 import { rgb } from '../utils';
 
@@ -44,14 +45,20 @@ export default class GenesSubscriber extends React.Component {
   render() {
     const { genes, selectedId } = this.state;
     const genesSelected = {};
-    Object.keys(genes).forEach((geneId) => {
+    const genesKeys = Object.keys(genes);
+    genesKeys.forEach((geneId) => {
       genesSelected[geneId] = geneId === selectedId;
     });
     return (
-      <Genes
-        genesSelected={genesSelected}
-        setSelectedGene={this.setSelectedGene}
-      />
+      <React.Fragment>
+        <div>Genes ({genesKeys.length})</div>
+        <div className={SCROLL_CARD}>
+          <Genes
+            genesSelected={genesSelected}
+            setSelectedGene={this.setSelectedGene}
+          />
+        </div>
+      </React.Fragment>
     );
   }
 }
