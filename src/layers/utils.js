@@ -1,5 +1,5 @@
 function fade(x) {
-  return 255 - (255 - x) / 4;
+  return x / 3;
 }
 
 function fadeFunction(colorFunction) {
