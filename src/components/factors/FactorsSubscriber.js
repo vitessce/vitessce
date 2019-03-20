@@ -4,6 +4,7 @@ import PubSub from 'pubsub-js';
 import Factors from './Factors';
 import { PALETTE } from '../utils';
 
+import { SCROLL_CARD } from '../classNames';
 import { FACTORS_ADD, CELLS_COLOR } from '../../events';
 
 export default class FactorsSubscriber extends React.Component {
@@ -55,11 +56,10 @@ export default class FactorsSubscriber extends React.Component {
     return (
       <React.Fragment>
         <div>Factors ({factorsKeys.length})</div>
-        <div className="card card-body my-2 bg-light">
+        <div className={SCROLL_CARD}>
           <Factors
             factorsSelected={factorsSelected}
             setSelectedFactor={this.setSelectedFactor}
-            className="card card-body my-2 bg-light"
           />
         </div>
       </React.Fragment>

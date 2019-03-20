@@ -98,10 +98,7 @@ function renderDataset(id, datasetId) {
       </div>
       <div class="${side}">
         <div id="factors" class="d-flex flex-column h-25"></div>
-        <div class="d-flex flex-column h-75">
-          <div>Genes</div>
-          <div id="genes" class="${cardLight}" style="overflow: scroll;"></div>
-        </div>
+        <div id="genes" class="d-flex flex-column h-75"></div>
       </div>
     </div>
   `;

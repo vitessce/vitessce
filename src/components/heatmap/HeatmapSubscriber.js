@@ -1,5 +1,7 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
+
+import { LIGHT_CARD } from '../classNames';
 import { CELLS_COLOR, CLUSTERS_ADD, CELLS_SELECTION } from '../../events';
 import Heatmap from './Heatmap';
 
@@ -46,7 +48,7 @@ export default class HeatmapSubscriber extends React.Component {
     return (
       <React.Fragment>
         <div>Heatmap ({cellsCount} cells &times; {genesCount} genes)</div>
-        <div className="card card-body my-2 bg-light">
+        <div className={LIGHT_CARD}>
           <Heatmap
             clusters={clusters}
             selectedCellIds={selectedCellIds}
