@@ -118,7 +118,7 @@ export default class LayerManagerPublisher extends React.Component {
     );
 
     const ua = navigator.userAgent;
-    // Somewhat fragile, but simple, and has limitted use.
+    // Somewhat fragile, but simple, and good enough for this.
     if (!ua.includes('Chrome') && !ua.includes('Firefox')) {
       PubSub.publish(STATUS_WARN, 'Warning: Base imagery does not load in Safari; Consider using Firefox or Chrome.');
     }
