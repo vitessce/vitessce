@@ -79,10 +79,13 @@ export default class Spatial extends AbstractSelectableComponent {
       cells = undefined,
       selectedCellIds = {},
       updateStatus = (message) => {
-        console.warn(`Spatial updateStatus: ${message}`);
+        console.warn(`updateStatus not provided: ${message}`);
       },
       updateCellsSelection = (cellsSelection) => {
-        console.warn(`Spatial updateCellsSelection: ${cellsSelection}`);
+        console.warn(`updateCellsSelection not provided: ${cellsSelection}`);
+      },
+      updateCellHover = (cellId) => {
+        console.warn(`updateCellHover not provided: ${cellId}`);
       },
     } = this.props;
 
@@ -111,8 +114,12 @@ export default class Spatial extends AbstractSelectableComponent {
           updateCellsSelection(selectedCellIds);
         }
       },
-      ...cellLayerDefaultProps(cells, updateStatus),
+      ...cellLayerDefaultProps(cells, updateStatus, updateCellHover),
     });
+  }
+
+  renderCellHoverLayer() {
+    console.log('TODO: Linked hover layer; cellId:', this.props.cellHoverId);
   }
 
   renderMoleculesLayer() {
@@ -222,6 +229,10 @@ export default class Spatial extends AbstractSelectableComponent {
     const { layerIsVisible } = this.state;
 
     const layerList = [];
+
+    if (cells && layerIsVisible.cells && this.props.cellHoverId) {
+      layerList.push(this.renderCellHoverLayer());
+    }
 
     if (cells && layerIsVisible.cells) {
       layerList.push(this.renderCellLayer());

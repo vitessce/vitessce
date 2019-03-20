@@ -5,7 +5,7 @@ import shortNumber from 'short-number';
 import { DARK_CARD } from '../classNames';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
-  STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
+  STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT, CELLS_HOVER,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -43,6 +43,12 @@ export default class SpatialSubscriber extends React.Component {
     this.cellsColorToken = PubSub.subscribe(
       CELLS_COLOR, this.cellsColorSubscriber.bind(this),
     );
+    this.cellsColorToken = PubSub.subscribe(
+      CELLS_COLOR, this.cellsColorSubscriber.bind(this),
+    );
+    this.cellsHoverToken = PubSub.subscribe(
+      CELLS_HOVER, this.cellsHoverSubscriber.bind(this),
+    );
   }
 
   componentWillUnmount() {
@@ -52,6 +58,7 @@ export default class SpatialSubscriber extends React.Component {
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
     PubSub.unsubscribe(this.cellsColorToken);
+    PubSub.unsubscribe(this.cellsHoverToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
@@ -78,6 +85,10 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ cellColors });
   }
 
+  cellsHoverSubscriber(msg, cellHoverId) {
+    this.setState({ cellHoverId });
+  }
+
   render() {
     const { cells, molecules } = this.state;
     const cellsCount = cells ? Object.keys(cells).length : 0;
@@ -100,6 +111,9 @@ export default class SpatialSubscriber extends React.Component {
             }
             updateCellsSelection={
               selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)
+            }
+            updateCellHover={
+              cellHoverId => PubSub.publish(CELLS_HOVER, cellHoverId)
             }
             clearPleaseWait={clearPleaseWait}
           />

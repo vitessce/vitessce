@@ -1,7 +1,7 @@
 import { COORDINATE_SYSTEM } from 'deck.gl';
 import { interpolatePlasma } from 'd3-scale-chromatic';
 
-export function cellLayerDefaultProps(cells, updateStatus) {
+export function cellLayerDefaultProps(cells, updateStatus, updateHoverId) {
   return {
     coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
     data: Object.entries(cells),
@@ -18,6 +18,7 @@ export function cellLayerDefaultProps(cells, updateStatus) {
             ([factor, value]) => `${factor}: ${value}`,
           ).join('; '),
         );
+        updateHoverId(info.object[0]);
       }
     },
   };
