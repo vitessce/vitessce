@@ -44,14 +44,20 @@ export default class TsneSubscriber extends React.Component {
 
   render() {
     const { cells, selectedCellIds, cellColors } = this.state;
+    const cellsCount = Object.keys(cells).length;
     return (
-      <Tsne
-        cells={cells}
-        selectedCellIds={selectedCellIds}
-        cellColors={cellColors}
-        updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-        updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
-      />
+      <React.Fragment>
+        <div>t-SNE ({cellsCount} cells)</div>
+        <div className="card card-body my-2 bg-black">
+          <Tsne
+            cells={cells}
+            selectedCellIds={selectedCellIds}
+            cellColors={cellColors}
+            updateStatus={message => PubSub.publish(STATUS_INFO, message)}
+            updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
+          />
+        </div>
+      </React.Fragment>
     );
   }
 }

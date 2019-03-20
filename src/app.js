@@ -91,10 +91,7 @@ function renderDataset(id, datasetId) {
           <div id="title" class="${cardLight}" style="overflow: scroll;"></div>
         </div>
         <div id="status" class="my-2 d-flex flex-column h-25"></div>
-        <div class="d-flex flex-column h-50">
-          <div>t-SNE</div>
-          <div id="tsne" class="${cardDark}"></div>
-        </div>
+        <div id="tsne" class="d-flex flex-column h-50"></div>
       </div>
       <div class="${middle}">
         <div class="d-flex flex-column h-75">
