@@ -37,13 +37,14 @@ function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
 
-function DatasetPicker(props) {
+export function DatasetPicker(props) {
   const { datasets } = props;
   const links = Object.entries(datasets).map(
     ([id, dataset]) => (
       <a
         href={`?dataset=${id}`}
         className="list-group-item list-group-item-action flex-column align-items-start"
+        key={id}
       >
         <div className="d-flex w-100 justify-content-between">
           <h5>{dataset.name}</h5>

@@ -1,1 +1,1 @@
-export LayerManagerPublisher from './LayerManagerPublisher';
+export { default as LayerManagerPublisher } from './LayerManagerPublisher';

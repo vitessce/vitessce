@@ -1,2 +1,2 @@
-export FactorsSubscriber from './FactorsSubscriber';
-export Factors from './Factors';
+export { default as FactorsSubscriber } from './FactorsSubscriber';
+export { default as Factors } from './Factors';

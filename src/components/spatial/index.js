@@ -1,2 +1,2 @@
-export SpatialSubscriber from './SpatialSubscriber';
-export Spatial from './Spatial';
+export { default as SpatialSubscriber } from './SpatialSubscriber';
+export { default as Spatial } from './Spatial';

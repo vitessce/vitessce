@@ -40,7 +40,7 @@ export const PALETTE = [
   [177, 89, 40],
 ];
 
-function rgb(hexString) {
+export function rgb(hexString) {
   return [
     parseInt(hexString.slice(1, 3), 16),
     parseInt(hexString.slice(3, 5), 16),
