@@ -6,8 +6,8 @@ import { IconButton } from './ToolMenu';
 
 configure({ adapter: new Adapter() });
 
-describe('ToolMenu', () => {
-  describe('IconButton', () => {
+describe('ToolMenu.js', () => {
+  describe('<IconButton />', () => {
     it('has .active if isActive', () => {
       const wrapper = shallow(<IconButton isActive />);
       expect(wrapper.find('.active').length).toEqual(1);

@@ -1,14 +1,14 @@
 import expect from 'expect';
 import { rgb, interpolateColors } from './utils';
 
-describe('components/utils', () => {
-  describe('rgb', () => {
+describe('components/utils.js', () => {
+  describe('rgb()', () => {
     it('maps hex values to arrays', () => {
       expect(rgb('#FF0000')).toEqual([255, 0, 0]);
     });
   });
 
-  describe('interpolateColors', () => {
+  describe('interpolateColors()', () => {
     it('maps 0 to dark cool color', () => {
       expect(interpolateColors(0)).toEqual([13, 8, 135]);
     });

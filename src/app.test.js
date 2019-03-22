@@ -6,8 +6,8 @@ import { DatasetPicker } from './app';
 
 configure({ adapter: new Adapter() });
 
-describe('app', () => {
-  describe('DatasetPicker', () => {
+describe('app.js', () => {
+  describe('<DatasetPicker />', () => {
     it('is empty if datasets is empty', () => {
       const wrapper = shallow(<DatasetPicker datasets={{}} />);
       expect(wrapper.find('a').length).toEqual(0);

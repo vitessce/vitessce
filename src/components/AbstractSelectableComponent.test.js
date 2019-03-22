@@ -1,7 +1,7 @@
 import expect from 'expect';
 import AbstractSelectableComponent from './AbstractSelectableComponent';
 
-describe('AbstractSelectableComponent', () => {
+describe('AbstractSelectableComponent.js', () => {
   describe('getDragRectangle()', () => {
     it('gives the right coordinates', () => {
       const component = new AbstractSelectableComponent();
