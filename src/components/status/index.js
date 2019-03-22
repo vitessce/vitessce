@@ -1,2 +1,2 @@
-export StatusSubscriber from './StatusSubscriber';
-export Status from './Status';
+export { default as StatusSubscriber } from './StatusSubscriber';
+export { default as Status } from './Status';

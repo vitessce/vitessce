@@ -37,7 +37,7 @@ function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
 
-function DatasetPicker(props) {
+export function DatasetPicker(props) {
   const { datasets } = props;
   const links = Object.entries(datasets).map(
     ([id, dataset]) => (

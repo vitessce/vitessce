@@ -1,2 +1,2 @@
-export TsneSubscriber from './TsneSubscriber';
-export Tsne from './Tsne';
+export { default as TsneSubscriber } from './TsneSubscriber';
+export { default as Tsne } from './Tsne';
