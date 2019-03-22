@@ -1,6 +1,6 @@
 import React from 'react';
 
-function IconButton(props) {
+export function IconButton(props) {
   const {
     src, alt, onClick, isActive,
   } = props;
