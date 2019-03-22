@@ -1,6 +1,4 @@
 import Ajv from 'ajv';
-// TODO: We already have this, so an extra install seems unnecessary.
-// eslint-disable-next-line import/no-extraneous-dependencies
 import expect from 'expect';
 
 /* eslint-disable import/no-dynamic-require */
@@ -25,14 +23,14 @@ describe('schemas', () => {
         'good', 'bad', 'bad.message',
       ].map(stem => `${type}.${stem}.json`);
 
-      it(`handles ${goodFixture}`, () => {
+      it(`passes ${goodFixture}`, () => {
         const data = require(`./fixtures/${goodFixture}`);
         const valid = validate(data);
         if (!valid) { console.warn(validate.errors); }
         expect(valid).toEqual(true);
       });
 
-      it(`handles ${badFixture}`, () => {
+      it(`fails ${badFixture}`, () => {
         const data = require(`./fixtures/${badFixture}`);
         const message = require(`./fixtures/${badMessage}`);
         const valid = validate(data);
