@@ -62,10 +62,13 @@ export function DatasetPicker(props) {
 
 function renderWelcome(id) {
   document.getElementById(id).innerHTML = `
-    <div class="container-fluid d-flex h-50">
+    <div class="container-fluid d-flex">
       <div class="${LIGHT_CARD}" style="width: 100%; max-width: 330px; margin: auto;" >
         <form method="GET">
           <h1>🚄  Vitessce</h1>
+          <div>
+            Nils will specify additional text that goes here.
+          </div>
           <div class="py-2" id="dataset-picker"></div>
         </form>
       </div>
