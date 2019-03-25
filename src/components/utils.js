@@ -49,5 +49,6 @@ export function rgb(hexString) {
 }
 
 export function interpolateColors(zeroToOne) {
-  return rgb((interpolatePlasma(zeroToOne)));
+  // The lowest 25% does not have good contrast.
+  return rgb((interpolatePlasma(zeroToOne / 0.75 + 0.25)));
 }

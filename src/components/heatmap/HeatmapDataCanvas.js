@@ -17,8 +17,7 @@ export default class HeatmapDataCanvas extends React.Component {
     clusters.matrix.forEach((row, y) => {
       row.forEach((value, x) => {
         const offset = (y * width + x) * 4;
-        // Math.sqrt is arbitrary, but I wanted to improve the contrast.
-        const rgbTriple = interpolateColors(Math.sqrt(value));
+        const rgbTriple = interpolateColors(value);
         /* eslint-disable prefer-destructuring */
         imageData.data[offset + 0] = rgbTriple[0];
         imageData.data[offset + 1] = rgbTriple[1];

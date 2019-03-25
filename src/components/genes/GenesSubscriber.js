@@ -32,10 +32,9 @@ export default class GenesSubscriber extends React.Component {
     const cellColors = {};
 
     const { cells, max } = genes[selectedId];
-    const logMax = Math.log(max);
     Object.entries(cells).forEach(
       ([cellId, value]) => {
-        cellColors[cellId] = interpolateColors(Math.log(value) / logMax);
+        cellColors[cellId] = interpolateColors(value / max);
       },
     );
     PubSub.publish(CELLS_COLOR, cellColors);
