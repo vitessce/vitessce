@@ -83,7 +83,7 @@ function renderDataset(id, datasetId) {
   const middle = `${col} col-lg-${middleLg} col-md-${middleMd}`;
   // Card around toolpicker seemed like a waste of space
   document.getElementById(id).innerHTML = `
-    <div class="container-fluid d-flex h-100 p-2">
+    <div class="container-fluid d-flex h-75 pt-2 pl-2 pr-2">
       <div class="${side}">
         <div id="layermanager"><!-- No UI exposure --></div>
         <div class="d-flex flex-column h-25">
@@ -93,12 +93,16 @@ function renderDataset(id, datasetId) {
         <div id="tsne" class="d-flex flex-column h-50"></div>
       </div>
       <div class="${middle}">
-        <div id="spatial" class="d-flex flex-column h-75"></div>
-        <div id="heatmap" class="d-flex flex-column h-25"></div>
+        <div id="spatial" class="d-flex flex-column h-100"></div>
       </div>
       <div class="${side}">
         <div id="factors" class="d-flex flex-column h-25"></div>
         <div id="genes" class="d-flex flex-column h-75"></div>
+      </div>
+    </div>
+    <div class="container-fluid d-flex h-25 pb-2 pl-2 pr-2">
+      <div class="${col} col-lg-12">
+        <div id="heatmap" class="d-flex flex-column h-100"></div>
       </div>
     </div>
   `;
