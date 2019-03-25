@@ -67,7 +67,7 @@ function renderWelcome(id) {
         <form method="GET">
           <h1>🚄  Vitessce</h1>
           <div>
-            Nils will specify additional text that goes here.
+            TODO: Nils will specify additional text that goes here.
           </div>
           <div class="py-2" id="dataset-picker"></div>
         </form>
