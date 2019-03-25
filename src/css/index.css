@@ -2,6 +2,16 @@ html,body {
   height: 100%;
 }
 
+body {
+  background-color: #333;
+}
+.bg-light {
+  background-color: lightgrey!important;
+}
+.title {
+  color: lightgrey;
+}
+
 .btn.icon {
   padding: 0.2em;
   height: 2em;
@@ -25,6 +35,10 @@ html,body {
 
 .on-top {
   z-index: 1000;
+  opacity: .65;
+}
+.on-top:hover {
+  opacity: .90;
 }
 
 .pixelated {

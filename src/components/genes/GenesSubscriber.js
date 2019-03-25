@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 
 import Genes from './Genes';
 
-import { SCROLL_CARD } from '../classNames';
+import { SCROLL_CARD, TITLE_CARD } from '../classNames';
 import { GENES_ADD, CELLS_COLOR } from '../../events';
 import { interpolateColors } from '../utils';
 
@@ -32,10 +32,9 @@ export default class GenesSubscriber extends React.Component {
     const cellColors = {};
 
     const { cells, max } = genes[selectedId];
-    const logMax = Math.log(max);
     Object.entries(cells).forEach(
       ([cellId, value]) => {
-        cellColors[cellId] = interpolateColors(Math.log(value) / logMax);
+        cellColors[cellId] = interpolateColors(value / max);
       },
     );
     PubSub.publish(CELLS_COLOR, cellColors);
@@ -50,7 +49,7 @@ export default class GenesSubscriber extends React.Component {
     });
     return (
       <React.Fragment>
-        <div>Genes ({genesKeys.length})</div>
+        <div className={TITLE_CARD}>Genes ({genesKeys.length})</div>
         <div className={SCROLL_CARD}>
           <Genes
             genesSelected={genesSelected}

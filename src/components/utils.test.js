@@ -10,11 +10,7 @@ describe('components/utils.js', () => {
 
   describe('interpolateColors()', () => {
     it('maps 0 to dark cool color', () => {
-      expect(interpolateColors(0)).toEqual([13, 8, 135]);
-    });
-
-    it('maps 0.5 to medium color', () => {
-      expect(interpolateColors(0.5)).toEqual([204, 71, 120]);
+      expect(interpolateColors(0)).toEqual([126, 3, 168]);
     });
 
     it('maps 1 to bright warm color', () => {

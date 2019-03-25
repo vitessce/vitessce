@@ -1,6 +1,11 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## in progress
+### Added
+### Changed
+- Dark color scheme, with better contrast when colored.
+
 ## [0.0.11] - 2019-03-20
 ### Added
 - Roll up the layers list when not hovered.

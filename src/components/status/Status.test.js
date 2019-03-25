@@ -15,13 +15,12 @@ describe('Status.js', () => {
 
     it('shows info', () => {
       const wrapper = shallow(<Status info="INFO" />);
-      expect(wrapper.find('.alert-info').text()).toEqual('INFO');
+      expect(wrapper.text()).toEqual('INFO');
     });
 
     it('shows both', () => {
       const wrapper = shallow(<Status info="INFO" warn="WARN" />);
-      expect(wrapper.find('.alert-info').text()).toEqual('INFO');
-      expect(wrapper.find('.alert-warning').text()).toEqual('WARN');
+      expect(wrapper.text()).toEqual('INFOWARN');
     });
   });
 });
