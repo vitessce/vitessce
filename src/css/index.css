@@ -3,10 +3,13 @@ html,body {
 }
 
 body {
-  background-color: darkgrey;
+  background-color: #333;
 }
 .bg-light {
   background-color: lightgrey!important;
+}
+.title {
+  color: lightgrey;
 }
 
 .btn.icon {
