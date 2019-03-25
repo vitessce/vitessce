@@ -2,7 +2,7 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import shortNumber from 'short-number';
 
-import { DARK_CARD } from '../classNames';
+import { BLACK_CARD } from '../classNames';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
   STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
@@ -92,7 +92,7 @@ export default class SpatialSubscriber extends React.Component {
           ({cellsCount} cells, {moleculesCount} molecules
           at {shortNumber(locationsCount)} locations)
         </div>
-        <div className={DARK_CARD}>
+        <div className={BLACK_CARD}>
           <Spatial
             {... this.state}
             updateStatus={

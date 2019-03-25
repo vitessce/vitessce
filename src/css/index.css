@@ -2,6 +2,13 @@ html,body {
   height: 100%;
 }
 
+body {
+  background-color: darkgrey;
+}
+.bg-light {
+  background-color: lightgrey!important;
+}
+
 .btn.icon {
   padding: 0.2em;
   height: 2em;

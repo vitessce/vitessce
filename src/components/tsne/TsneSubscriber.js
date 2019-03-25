@@ -1,7 +1,7 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 
-import { DARK_CARD } from '../classNames';
+import { BLACK_CARD } from '../classNames';
 import {
   CELLS_ADD, CELLS_SELECTION, CELLS_COLOR, STATUS_INFO,
 } from '../../events';
@@ -50,7 +50,7 @@ export default class TsneSubscriber extends React.Component {
     return (
       <React.Fragment>
         <div>t-SNE ({cellsCount} cells)</div>
-        <div className={DARK_CARD}>
+        <div className={BLACK_CARD}>
           <Tsne
             cells={cells}
             selectedCellIds={selectedCellIds}
