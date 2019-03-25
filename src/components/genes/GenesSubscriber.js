@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 
 import Genes from './Genes';
 
-import { SCROLL_CARD } from '../classNames';
+import { SCROLL_CARD, TITLE_CARD } from '../classNames';
 import { GENES_ADD, CELLS_COLOR } from '../../events';
 import { interpolateColors } from '../utils';
 
@@ -50,7 +50,7 @@ export default class GenesSubscriber extends React.Component {
     });
     return (
       <React.Fragment>
-        <div>Genes ({genesKeys.length})</div>
+        <div className={TITLE_CARD}>Genes ({genesKeys.length})</div>
         <div className={SCROLL_CARD}>
           <Genes
             genesSelected={genesSelected}
