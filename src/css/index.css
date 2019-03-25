@@ -35,6 +35,10 @@ body {
 
 .on-top {
   z-index: 1000;
+  opacity: .65;
+}
+.on-top:hover {
+  opacity: .90;
 }
 
 .pixelated {
