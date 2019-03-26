@@ -117,7 +117,7 @@ function renderDataset(id, datasetId) {
   `;
 
   renderComponent(<LayerManagerPublisher layers={layers} />, 'layermanager');
-  renderComponent(<div><h4>{name}</h4><p>{description}</p></div>, 'title');
+  renderComponent(<div><p>{name}</p><p className="details">{description}</p></div>, 'title');
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');

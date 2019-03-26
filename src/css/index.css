@@ -22,6 +22,10 @@ body {
 .scroll {
   overflow: scroll;
 }
+.details {
+  font-size: 80%;
+  opacity: 0.8;
+}
 
 
 /* Spatial and t-SNE controls */
