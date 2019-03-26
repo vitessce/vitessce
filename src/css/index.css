@@ -14,6 +14,7 @@ body {
 }
 .bg-black {
   background-color: black;
+  color: lightgrey;
 }
 .title {
   color: lightgrey;

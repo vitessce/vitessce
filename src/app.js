@@ -43,7 +43,7 @@ export function DatasetPicker(props) {
     ([id, dataset]) => (
       <a
         href={`?dataset=${id}`}
-        className="list-group-item list-group-item-action flex-column align-items-start"
+        className="list-group-item list-group-item-action flex-column align-items-start bg-black"
         key={id}
       >
         <div className="d-flex w-100 justify-content-between">
@@ -67,7 +67,10 @@ function renderWelcome(id) {
         <form method="GET">
           <h1>🚄  Vitessce</h1>
           <div>
-            TODO: Nils will specify additional text that goes here.
+            This is a demo of key concepts for a visual integration tool for exploration
+            of (spatial) single-cell experiment data.
+            This demo focusses on scalable, linked visualizations that support both
+            spatial and non-spatial representation of cell-level and molecule-level data.
           </div>
           <div class="py-2" id="dataset-picker"></div>
         </form>
