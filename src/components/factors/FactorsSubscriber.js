@@ -55,7 +55,12 @@ export default class FactorsSubscriber extends React.Component {
     });
     return (
       <React.Fragment>
-        <div className={TITLE_CARD}>Factors ({factorsKeys.length})</div>
+        <div className="title d-flex justify-content-between align-items-baseline">
+          Factors
+          <span className="details">
+            ({factorsKeys.length} factors)
+          </span>
+        </div>
         <div className={SCROLL_CARD}>
           <Factors
             factorsSelected={factorsSelected}
