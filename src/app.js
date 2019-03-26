@@ -11,6 +11,7 @@ import { FactorsSubscriber } from './components/factors';
 
 import './css/index.css';
 import { SCROLL_CARD, LIGHT_CARD } from './components/classNames';
+import TitleInfo from './components/TitleInfo';
 
 const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018';
 const FAKE_API_RESPONSE = {
@@ -24,7 +25,7 @@ const FAKE_API_RESPONSE = {
       'genes',
       'images',
       'molecules',
-      'neighborhoods',
+      // 'neighborhoods',
     ].map(name => ({
       name,
       type: name.toUpperCase(),
@@ -43,7 +44,7 @@ export function DatasetPicker(props) {
     ([id, dataset]) => (
       <a
         href={`?dataset=${id}`}
-        className="list-group-item list-group-item-action flex-column align-items-start"
+        className="list-group-item list-group-item-action flex-column align-items-start bg-black"
         key={id}
       >
         <div className="d-flex w-100 justify-content-between">
@@ -67,7 +68,13 @@ function renderWelcome(id) {
         <form method="GET">
           <h1>🚄  Vitessce</h1>
           <div>
-            TODO: Nils will specify additional text that goes here.
+            <p>
+              This is a demo of key concepts for a visual integration tool for exploration
+              of (spatial) single-cell experiment data.
+              This demo focusses on scalable, linked visualizations that support both
+              spatial and non-spatial representation of cell-level and molecule-level data.
+            </p>
+            Select a data set below:
           </div>
           <div class="py-2" id="dataset-picker"></div>
         </form>
@@ -79,20 +86,18 @@ function renderWelcome(id) {
 
 function renderDataset(id, datasetId) {
   const { layers, name, description } = FAKE_API_RESPONSE[datasetId];
-  const [sideLg, sideMd] = [3, 4];
-  const [middleLg, middleMd] = [12 - 2 * sideLg, 12 - 2 * sideMd];
+  const [sideBig, sideSmall] = [3, 4];
+  const [middleBig, middleSmall] = [12 - 2 * sideBig, 12 - 2 * sideSmall];
   const col = 'd-flex flex-column px-2';
-  const side = `${col} col-lg-${sideLg} col-md-${sideMd}`;
-  const middle = `${col} col-lg-${middleLg} col-md-${middleMd}`;
+  const side = `${col} col-md-${sideBig} col-sm-${sideSmall}`;
+  const middle = `${col} col-md-${middleBig} col-sm-${middleSmall}`;
   // Card around toolpicker seemed like a waste of space
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-75 pt-2 pl-2 pr-2">
+      <div id="layermanager"><!-- No UI exposure --></div>
       <div class="${side}">
-        <div id="layermanager"><!-- No UI exposure --></div>
-        <div class="d-flex flex-column h-25">
-          <div id="title" class="${SCROLL_CARD}"></div>
-        </div>
-        <div id="status" class="my-2 d-flex flex-column h-25"></div>
+        <div id="description" class="d-flex flex-column h-25"></div>
+        <div id="status" class="d-flex flex-column h-25"></div>
         <div id="tsne" class="d-flex flex-column h-50"></div>
       </div>
       <div class="${middle}">
@@ -111,13 +116,25 @@ function renderDataset(id, datasetId) {
   `;
 
   renderComponent(<LayerManagerPublisher layers={layers} />, 'layermanager');
-  renderComponent(<div><h4>{name}</h4><p>{description}</p></div>, 'title');
+  renderComponent(<Description description={`${name}: ${description}`} />, 'description');
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
   renderComponent(<SpatialSubscriber />, 'spatial');
   renderComponent(<FactorsSubscriber />, 'factors');
   renderComponent(<GenesSubscriber />, 'genes');
+}
+
+function Description(props) {
+  const { description } = props;
+  return (
+    <React.Fragment>
+      <TitleInfo title="Data Set" />
+      <div className={SCROLL_CARD}>
+        <p className="details">{description}</p>
+      </div>
+    </React.Fragment>
+  );
 }
 
 export default function renderApp(id) {

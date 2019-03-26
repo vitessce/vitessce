@@ -5,22 +5,19 @@ import HeatmapCellColorCanvas from './HeatmapCellColorCanvas';
 
 export default function Heatmap(props) {
   const { clusters, selectedCellIds, cellColors } = props;
-  const canvasStyle = { height: '10%', outline: 'lightgrey 1px solid' };
-  const spacerStyle = { height: '5%' };
+  const canvasStyle = { height: '15%' };
   return (
     <React.Fragment>
-      <HeatmapCellSelectionCanvas
-        clusters={clusters}
-        selectedCellIds={selectedCellIds}
-        style={canvasStyle}
-      />
-      <div style={spacerStyle} />
       <HeatmapCellColorCanvas
         clusters={clusters}
         cellColors={cellColors}
         style={canvasStyle}
       />
-      <div style={spacerStyle} />
+      <HeatmapCellSelectionCanvas
+        clusters={clusters}
+        selectedCellIds={selectedCellIds}
+        style={canvasStyle}
+      />
       <HeatmapDataCanvas
         clusters={clusters}
         style={{ ...canvasStyle, height: '70%' }}

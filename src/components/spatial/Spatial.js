@@ -37,7 +37,7 @@ export default class Spatial extends AbstractSelectableComponent {
     this.state.layerIsVisible = {
       molecules: true,
       cells: true,
-      neighborhoods: true,
+      // neighborhoods: true,
     };
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
   }
