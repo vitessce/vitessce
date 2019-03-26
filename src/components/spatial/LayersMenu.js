@@ -38,7 +38,7 @@ export default class LayersMenu extends React.Component {
     const checkboxes = entries.map(([name, value]) => this.checkbox(name, value));
     return (
       <div className="ml-auto card p-2 tool roll-up">
-        <div>Layers:</div>
+        <div>Layers ▼</div>
         {checkboxes}
       </div>
     );
