@@ -51,8 +51,8 @@ export default class TsneSubscriber extends React.Component {
     return (
       <React.Fragment>
         <TitleInfo
-          Title="t-SNE"
-          Info={`${cellsCount} cells`}
+          title="t-SNE"
+          info={`${cellsCount} cells`}
         />
         <div className={BLACK_CARD}>
           <Tsne

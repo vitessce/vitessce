@@ -97,7 +97,7 @@ function renderDataset(id, datasetId) {
       <div id="layermanager"><!-- No UI exposure --></div>
       <div class="${side}">
         <div id="description" class="d-flex flex-column h-25"></div>
-        <div id="status" class="my-2 d-flex flex-column h-25"></div>
+        <div id="status" class="d-flex flex-column h-25"></div>
         <div id="tsne" class="d-flex flex-column h-50"></div>
       </div>
       <div class="${middle}">
