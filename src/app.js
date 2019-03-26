@@ -11,6 +11,7 @@ import { FactorsSubscriber } from './components/factors';
 
 import './css/index.css';
 import { SCROLL_CARD, LIGHT_CARD } from './components/classNames';
+import TitleInfo from './components/TitleInfo';
 
 const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018';
 const FAKE_API_RESPONSE = {
@@ -93,11 +94,9 @@ function renderDataset(id, datasetId) {
   // Card around toolpicker seemed like a waste of space
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-75 pt-2 pl-2 pr-2">
+      <div id="layermanager"><!-- No UI exposure --></div>
       <div class="${side}">
-        <div id="layermanager"><!-- No UI exposure --></div>
-        <div class="d-flex flex-column h-25">
-          <div id="title" class="${SCROLL_CARD}"></div>
-        </div>
+        <div id="description" class="d-flex flex-column h-25"></div>
         <div id="status" class="my-2 d-flex flex-column h-25"></div>
         <div id="tsne" class="d-flex flex-column h-50"></div>
       </div>
@@ -117,13 +116,25 @@ function renderDataset(id, datasetId) {
   `;
 
   renderComponent(<LayerManagerPublisher layers={layers} />, 'layermanager');
-  renderComponent(<div><p>{name}</p><p className="details">{description}</p></div>, 'title');
+  renderComponent(<Description description={`${name}: ${description}`} />, 'description');
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
   renderComponent(<SpatialSubscriber />, 'spatial');
   renderComponent(<FactorsSubscriber />, 'factors');
   renderComponent(<GenesSubscriber />, 'genes');
+}
+
+function Description(props) {
+  const { description } = props;
+  return (
+    <React.Fragment>
+      <TitleInfo title="Data set" />
+      <div className={SCROLL_CARD}>
+        <p className="details">{description}</p>
+      </div>
+    </React.Fragment>
+  );
 }
 
 export default function renderApp(id) {
