@@ -9,8 +9,14 @@ body {
   background-color: #222!important;
   color: lightgrey;
 }
+.bg-black {
+  background-color: black;
+}
 .title {
   color: lightgrey;
+}
+.scroll {
+  overflow: scroll;
 }
 
 .btn.icon {
@@ -66,12 +72,4 @@ input[type="radio"]:checked {
   /* https://stackoverflow.com/questions/7615009/disable-interpolation-when-scaling-a-canvas */
   image-rendering: pixelated; /* Chrome */
   image-rendering: -moz-crisp-edges; /* FF */
- }
-
- .bg-black {
-   background-color: black;
- }
-
- .scroll {
-   overflow: scroll;
  }
