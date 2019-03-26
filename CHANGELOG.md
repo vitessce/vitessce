@@ -1,10 +1,15 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## in progress
+## [0.0.12] - 2019-03-26
 ### Added
+- Heatmap is row-normed. (This is a change in `vitessce-data`.)
+- Borders on heatmap components... but this will be reverted.
+- Cells are visible on initial load.
 ### Changed
-- Dark color scheme, with better contrast when colored.
+- Dark color scheme, with better contrast when colored
+- Heatmap spans the entire bottom.
+
 
 ## [0.0.11] - 2019-03-20
 ### Added
