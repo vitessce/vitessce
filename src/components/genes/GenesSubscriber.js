@@ -51,7 +51,7 @@ export default class GenesSubscriber extends React.Component {
     return (
       <React.Fragment>
         <TitleInfo
-          title="Expression levels"
+          title="Expression Levels"
           info={`${genesKeys.length} genes`}
         />
         <div className={SCROLL_CARD}>

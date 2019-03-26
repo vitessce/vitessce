@@ -129,7 +129,7 @@ function Description(props) {
   const { description } = props;
   return (
     <React.Fragment>
-      <TitleInfo title="Data set" />
+      <TitleInfo title="Data Set" />
       <div className={SCROLL_CARD}>
         <p className="details">{description}</p>
       </div>
