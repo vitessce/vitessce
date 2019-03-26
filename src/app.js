@@ -25,7 +25,7 @@ const FAKE_API_RESPONSE = {
       'genes',
       'images',
       'molecules',
-      'neighborhoods',
+      // 'neighborhoods',
     ].map(name => ({
       name,
       type: name.toUpperCase(),
