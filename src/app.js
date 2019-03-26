@@ -67,10 +67,13 @@ function renderWelcome(id) {
         <form method="GET">
           <h1>🚄  Vitessce</h1>
           <div>
-            This is a demo of key concepts for a visual integration tool for exploration
-            of (spatial) single-cell experiment data.
-            This demo focusses on scalable, linked visualizations that support both
-            spatial and non-spatial representation of cell-level and molecule-level data.
+            <p>
+              This is a demo of key concepts for a visual integration tool for exploration
+              of (spatial) single-cell experiment data.
+              This demo focusses on scalable, linked visualizations that support both
+              spatial and non-spatial representation of cell-level and molecule-level data.
+            </p>
+            Select a data set below:
           </div>
           <div class="py-2" id="dataset-picker"></div>
         </form>
