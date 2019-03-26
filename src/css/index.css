@@ -49,11 +49,12 @@ body {
   0% { height: 2em; }
   100% { height: 100%; }
 }
-.on-top {
+.tool {
   z-index: 1000;
   opacity: .65;
+  color: black;
 }
-.on-top:hover {
+.tool:hover {
   opacity: .90;
 }
 
