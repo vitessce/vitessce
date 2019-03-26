@@ -12,7 +12,7 @@ import { FactorsSubscriber } from './components/factors';
 import './css/index.css';
 import { SCROLL_CARD, LIGHT_CARD } from './components/classNames';
 
-const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.9/linnarsson-2018';
+const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018';
 const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
     name: 'Linnarsson - osmFISH',
