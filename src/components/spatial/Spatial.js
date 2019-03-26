@@ -42,6 +42,11 @@ export default class Spatial extends AbstractSelectableComponent {
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
   }
 
+  static defaultProps = {
+    clearPleaseWait: (layer) => { console.warn(`"clearPleaseWait" not provided; layer: ${layer}`); },
+  };
+
+
   componentDidUpdate() {
     const imageNames = Object.keys(this.props.images);
 
