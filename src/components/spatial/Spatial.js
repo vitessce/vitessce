@@ -2,7 +2,7 @@ import React from 'react';
 
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
-import { cellLayerDefaultProps, PALETTE } from '../utils';
+import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
 
@@ -99,7 +99,7 @@ export default class Spatial extends AbstractSelectableComponent {
       },
       stroked: false,
       getColor: cellEntry => (
-        this.props.cellColors ? this.props.cellColors[cellEntry[0]] : [0, 0, 0]
+        this.props.cellColors ? this.props.cellColors[cellEntry[0]] : DEFAULT_COLOR
       ),
       onClick: (info) => {
         const cellId = info.object[0];
