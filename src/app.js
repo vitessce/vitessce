@@ -86,11 +86,11 @@ function renderWelcome(id) {
 
 function renderDataset(id, datasetId) {
   const { layers, name, description } = FAKE_API_RESPONSE[datasetId];
-  const [sideLg, sideMd] = [3, 4];
-  const [middleLg, middleMd] = [12 - 2 * sideLg, 12 - 2 * sideMd];
+  const [sideBig, sideSmall] = [3, 4];
+  const [middleBig, middleSmall] = [12 - 2 * sideBig, 12 - 2 * sideSmall];
   const col = 'd-flex flex-column px-2';
-  const side = `${col} col-lg-${sideLg} col-md-${sideMd}`;
-  const middle = `${col} col-lg-${middleLg} col-md-${middleMd}`;
+  const side = `${col} col-md-${sideBig} col-sm-${sideSmall}`;
+  const middle = `${col} col-md-${middleBig} col-sm-${middleSmall}`;
   // Card around toolpicker seemed like a waste of space
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-75 pt-2 pl-2 pr-2">
