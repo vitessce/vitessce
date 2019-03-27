@@ -74,9 +74,6 @@ function loadLayer(layer) {
 export default class LayerManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
-    // TODO: We would like to wait for every layer to load,
-    // but for now just list those which we actually use.
-    // const layerNames = props.layers.map(layer => layer.name);
     const layerNames = [
       'molecules',
       // 'neighborhoods',
@@ -89,7 +86,7 @@ export default class LayerManagerPublisher extends React.Component {
 
   clearPleaseWait(event, layerName) {
     this.setState((prevState) => {
-      // TODO: Do not mutate
+      // TODO: Do not mutate! https://github.com/hms-dbmi/vitessce/issues/148
       // eslint-disable-next-line no-param-reassign
       prevState.pleaseWaits[layerName] = false;
       return prevState;

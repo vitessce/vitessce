@@ -56,7 +56,7 @@ export default class Spatial extends AbstractSelectableComponent {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState((prevState) => {
         imageNames.forEach((name) => {
-          // TODO: clone object and return copy?
+          // TODO: Do not mutate! https://github.com/hms-dbmi/vitessce/issues/148
           // eslint-disable-next-line no-param-reassign
           prevState.layerIsVisible[name] = true;
         });
@@ -142,9 +142,6 @@ export default class Spatial extends AbstractSelectableComponent {
       data: scatterplotData,
       pickable: true,
       autoHighlight: true,
-      // TODO: How do the other radius attributes work?
-      // If it were possible to have dots that remained the same size,
-      // regardless of zoom, would we prefer that?
       getRadius: 10,
       getPosition: d => [d[0], d[1], 0],
       getColor: d => PALETTE[d[2] % PALETTE.length],

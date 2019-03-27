@@ -43,8 +43,6 @@ export default class AbstractSelectableComponent extends React.Component {
     if (!this.cellQuadTree) {
       const { cells } = this.props;
       this.cellQuadTree = QuadTree(-1500, -1500, 3000, 3000);
-      // Centers of cells should fit 2000 x 2000, but give a margin to be safe.
-      // TODO: This is also used for tSNE, and there these dimensions are excessive.
       Object.entries(cells).forEach(([id, cell]) => {
         const coords = this.getCellCoords(cell);
         if (coords) {
@@ -62,10 +60,9 @@ export default class AbstractSelectableComponent extends React.Component {
     const { isSelecting } = this.state;
     if (isSelecting && event.coordinate) {
       this.setState({ selectionRectangle: this.getDragRectangle(event) });
-      // TODO: https://github.com/hms-dbmi/vitessce/issues/111
-      // Changing the selected set during drag was too slow... Could it be faster?
-      //
-      // this.onUpdateSelection(event);
+      // If you want to update selection during drag, un-comment this:
+      //   this.onUpdateSelection(event);
+      // See: https://github.com/hms-dbmi/vitessce/issues/111
     }
   }
 
