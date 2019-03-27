@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import VitessceGridLayout from './VitessceGridLayout'
 import { LayerManagerPublisher } from './components/layermanager';
 import { StatusSubscriber } from './components/status';
 import { TsneSubscriber } from './components/tsne';
@@ -137,10 +138,14 @@ function Description(props) {
   );
 }
 
+function renderGrid(id) {
+  renderComponent(<VitessceGridLayout />, id);
+}
+
 export default function renderApp(id) {
   const datasetId = new URLSearchParams(window.location.search).get('dataset');
   if (datasetId) {
-    renderDataset(id, datasetId);
+    renderGrid(id, datasetId);
   } else {
     renderWelcome(id);
   }
