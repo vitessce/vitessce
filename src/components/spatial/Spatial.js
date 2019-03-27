@@ -132,8 +132,6 @@ export default class Spatial extends AbstractSelectableComponent {
     Object.entries(molecules).forEach(([molecule, coords], index) => {
       scatterplotData = scatterplotData.concat(
         coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
-        // TODO: Using an object would be more clear, but is there a performance penalty,
-        // either in time or memory?
       );
     });
     return new ScatterplotLayer({
