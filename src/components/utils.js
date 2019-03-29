@@ -25,8 +25,7 @@ export function cellLayerDefaultProps(cells, updateStatus) {
 
 export const DEFAULT_COLOR = [128, 128, 128];
 
-// TODO: Dynamic palette generation? Or set by user?
-// from http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12#type=qualitative&scheme=Paired&n=12
+// From http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12#type=qualitative&scheme=Paired&n=12
 export const PALETTE = [
   [166, 206, 227],
   [31, 120, 180],

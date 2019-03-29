@@ -14,8 +14,6 @@ node_modules/eslint/bin/eslint.js src
 end lint
 
 start jsdoc
-# TODO: Make this part of the real build process,
-# and host jsdocs at unpkg, or something like that.
 NEW_DOCS=/tmp/jsdocs
 OLD_DOCS=docs/jsdocs
 node_modules/documentation/bin/documentation.js \
