@@ -5,16 +5,13 @@ node_js:
   - 8
 
 cache:
-  # Caches $HOME/.npm when npm ci is default script command
-  # Caches node_modules in all other cases
-  npm: true
   directories:
+    # I think it defaults to this:
+    - node_modules
+    # Default if "npm ci" were the script, but non-empty, so include it explicitly:
     - ~/.npm
-    # we also need to cache folder with Cypress binary
+    # Cypress binary is here:
     - ~/.cache
 
 script:
   - ./test.sh
-  # TODO: Do these contain anything?
-  - ls ~/.npm
-  - ls ~/.cache
