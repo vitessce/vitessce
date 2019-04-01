@@ -2,12 +2,16 @@ extends:
   - react-app
   - eslint:recommended
   - plugin:react/recommended
+  - plugin:cypress/recommended
   - airbnb
 plugins:
   - react
+  - cypress
 settings:
   react:
     version: detect
+env:
+  cypress/globals: true
 rules:
   no-console: [2, { "allow": ["warn", "error"]}]
   react/jsx-filename-extension: [0]  # Imports don't work if I change extension.
