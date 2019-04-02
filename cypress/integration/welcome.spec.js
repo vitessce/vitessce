@@ -1,7 +1,7 @@
 Cypress.on('window:before:load', (win) => {
   // Forces fallback to XHR, so cypress can mock response.
   //
-  // Use this work-around:
+  // Using this work-around:
   // https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
   //
   // until this feature is implemented:
