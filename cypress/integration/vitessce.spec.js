@@ -43,7 +43,31 @@ describe('Vitessce', () => {
     cy.get('.modal-body').should('be.visible');
     // TODO: Confirm clear.
 
+    // Data Set:
+    cy.contains('Linnarsson - osmFISH');
+    cy.contains('Spatial organization of the');
+
+    // Status:
+    // Contents will depend on load order, so not sure how to make a good test
+    // that won't have race condition problems.
+
+    // Spatial:
+    cy.contains('1 molecules');
+    cy.contains('3 locations');
+
+    // Heatmap:
     cy.contains('3 cells × 3 genes');
     cy.contains('with 0 cells selected');
+
+    // Factors:
+    cy.contains('2 factors');
+    cy.contains('subcluster');
+
+    // Expression Levels:
+    cy.contains('2 genes');
+    cy.contains('Slc32a1');
+
+    // t-SNE:
+    // TODO
   });
 });
