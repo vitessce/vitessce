@@ -1,9 +1,14 @@
 # Changelog
 Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## in progress
+### Added
+- Add Cypress.io tests.
+- Thank-you to NIH on the front page.
+
 ## [0.0.13] - 2019-03-26
 ### Changed
-- Lots of display tweaks.
+- Lots of display tweaks to create a consistent dark color scheme.
 
 ## [0.0.12] - 2019-03-26
 ### Added

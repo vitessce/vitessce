@@ -12,6 +12,9 @@ body {
   background-color: #222!important;
   color: lightgrey;
 }
+.bg-light a {
+  color: #9bb7d6;
+}
 .bg-black {
   background-color: black;
   color: lightgrey;
