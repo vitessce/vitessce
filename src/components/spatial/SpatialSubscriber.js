@@ -96,6 +96,7 @@ export default class SpatialSubscriber extends React.Component {
         <div className={BLACK_CARD}>
           <Spatial
             {... this.state}
+            view={this.props.view}
             updateStatus={
               message => PubSub.publish(STATUS_INFO, message)
             }

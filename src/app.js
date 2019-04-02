@@ -18,6 +18,12 @@ const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
     name: 'Linnarsson - osmFISH',
     description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
+    views: {
+      spatial: {
+        zoom: -6.5,
+        offset: [200, 200],
+      },
+    },
     layers: [
       'cells',
       'clusters',
@@ -93,13 +99,14 @@ function renderWelcome(id) {
 }
 
 function renderDataset(id, datasetId) {
-  const { layers, name, description } = FAKE_API_RESPONSE[datasetId];
+  const {
+    layers, views, name, description,
+  } = FAKE_API_RESPONSE[datasetId];
   const [sideBig, sideSmall] = [3, 4];
   const [middleBig, middleSmall] = [12 - 2 * sideBig, 12 - 2 * sideSmall];
   const col = 'd-flex flex-column px-2';
   const side = `${col} col-md-${sideBig} col-sm-${sideSmall}`;
   const middle = `${col} col-md-${middleBig} col-sm-${middleSmall}`;
-  // Card around toolpicker seemed like a waste of space
   document.getElementById(id).innerHTML = `
     <div class="container-fluid d-flex h-75 pt-2 pl-2 pr-2">
       <div id="layermanager"><!-- No UI exposure --></div>
@@ -128,7 +135,7 @@ function renderDataset(id, datasetId) {
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');
   renderComponent(<HeatmapSubscriber />, 'heatmap');
-  renderComponent(<SpatialSubscriber />, 'spatial');
+  renderComponent(<SpatialSubscriber view={views.spatial} />, 'spatial');
   renderComponent(<FactorsSubscriber />, 'factors');
   renderComponent(<GenesSubscriber />, 'genes');
 }

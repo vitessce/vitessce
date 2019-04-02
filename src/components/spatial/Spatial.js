@@ -40,6 +40,7 @@ export default class Spatial extends AbstractSelectableComponent {
       // neighborhoods: true,
     };
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
+    this.getInitialViewState = this.getInitialViewState.bind(this);
   }
 
   static defaultProps = {
@@ -71,10 +72,7 @@ export default class Spatial extends AbstractSelectableComponent {
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
-    return {
-      zoom: -6.5,
-      offset: [200, 200], // Required: https://github.com/uber/deck.gl/issues/2580
-    };
+    return this.props.view;
   }
 
   // eslint-disable-next-line class-methods-use-this
