@@ -1,6 +1,8 @@
 import React from 'react';
 import { interpolateColors } from '../utils';
 
+import { setImageDataRGBA } from './utils';
+
 export default class HeatmapDataCanvas extends React.Component {
   shouldComponentUpdate(nextProps) {
     return !!nextProps.clusters;
@@ -18,12 +20,7 @@ export default class HeatmapDataCanvas extends React.Component {
       row.forEach((value, x) => {
         const offset = (y * width + x) * 4;
         const rgbTriple = interpolateColors(value);
-        /* eslint-disable prefer-destructuring */
-        imageData.data[offset + 0] = rgbTriple[0];
-        imageData.data[offset + 1] = rgbTriple[1];
-        imageData.data[offset + 2] = rgbTriple[2];
-        /* eslint-enable */
-        imageData.data[offset + 3] = 255;
+        setImageDataRGBA(imageData, offset, ...rgbTriple, 255);
       });
     });
     ctx.putImageData(imageData, 0, 0);
@@ -36,15 +33,13 @@ export default class HeatmapDataCanvas extends React.Component {
       clusters = { rows: [], cols: [], matrix: [] };
     }
     return (
-      <React.Fragment>
-        <canvas
-          className="pixelated"
-          style={style}
-          ref={(c) => { this.canvasRef = c; }}
-          width={clusters.cols.length}
-          height={clusters.rows.length}
-        />
-      </React.Fragment>
+      <canvas
+        className="pixelated"
+        style={style}
+        ref={(c) => { this.canvasRef = c; }}
+        width={clusters.cols.length}
+        height={clusters.rows.length}
+      />
     );
   }
 }
