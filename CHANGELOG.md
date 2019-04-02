@@ -6,6 +6,8 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add Cypress.io tests.
 - Thank-you to NIH on the front page.
 - Add Google Analytics to all pages.
+### Changed
+- Spatial viewport is part of the initial FAKE_API_RESPONSE, instead of being hardcoded.
 
 ## [0.0.13] - 2019-03-26
 ### Changed
