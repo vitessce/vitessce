@@ -5,6 +5,7 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - Add Cypress.io tests.
 - Thank-you to NIH on the front page.
+- Add Google Analytics to all pages.
 
 ## [0.0.13] - 2019-03-26
 ### Changed
