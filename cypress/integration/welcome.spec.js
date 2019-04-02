@@ -12,13 +12,13 @@ Cypress.on('window:before:load', (win) => {
 
 describe('Vitessce', () => {
   beforeEach(() => {
-    const base = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018/';
+    const base = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018';
     cy.server();
-    // TODO: images, cells, molecules
-    ['clusters', 'genes', 'factors', 'neighborhoods'].forEach(
+    // TODO: cells
+    ['molecules', 'images', 'clusters', 'genes', 'factors', 'neighborhoods'].forEach(
       (type) => {
         cy.route(
-          `${base}linnarsson.${type}.json`,
+          `${base}/linnarsson.${type}.json`,
           `fixture:../../src/schemas/fixtures/${type}.good.json`,
         );
       },
