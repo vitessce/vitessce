@@ -63,7 +63,7 @@ export function DatasetPicker(props) {
 
 function renderWelcome(id) {
   document.getElementById(id).innerHTML = `
-    <div class="container-fluid d-flex">
+    <div class="container-fluid d-flex flex-column align-items-end">
       <div class="${LIGHT_CARD}" style="width: 100%; max-width: 330px; margin: auto;" >
         <form method="GET">
           <h1>🚄  Vitessce</h1>
@@ -78,6 +78,14 @@ function renderWelcome(id) {
           </div>
           <div class="py-2" id="dataset-picker"></div>
         </form>
+      </div>
+      <div class="${LIGHT_CARD}" style="width: 100%;">
+        <p>
+          Vitessce is supported by the NIH Common Fund, through the
+          <a href="https://commonfund.nih.gov/HuBMAP">Human BioMolecular Atlas Program (HuBMAP)</a>,
+          Integration, Visualization & Engagement (HIVE) Initiative,
+          RFA-RM-18-001.
+        </p>
       </div>
     </div>
   `;
