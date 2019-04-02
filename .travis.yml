@@ -4,5 +4,14 @@ language: node_js
 node_js:
   - 8
 
+cache:
+  directories:
+    # I think it defaults to this:
+    - node_modules
+    # Default if "npm ci" were the script, but non-empty, so include it explicitly:
+    - ~/.npm
+    # Cypress binary is here:
+    - ~/.cache
+
 script:
   - ./test.sh
