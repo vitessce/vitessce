@@ -14,8 +14,7 @@ describe('Vitessce', () => {
   beforeEach(() => {
     const base = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018';
     cy.server();
-    // TODO: cells
-    ['molecules', 'images', 'clusters', 'genes', 'factors', 'neighborhoods'].forEach(
+    ['cells', 'molecules', 'images', 'clusters', 'genes', 'factors', 'neighborhoods'].forEach(
       (type) => {
         cy.route(
           `${base}/linnarsson.${type}.json`,
@@ -33,15 +32,12 @@ describe('Vitessce', () => {
       .click();
     cy.contains('Please wait');
     cy.get('.modal-body').should('be.visible');
-    // TODO: Confirm clear.
-    // TODO: Confirm new URL.
   });
 
   it('loads details', () => {
     cy.visit('/?dataset=linnarsson-2018');
     cy.contains('Please wait');
     cy.get('.modal-body').should('be.visible');
-    // TODO: Confirm clear.
 
     // Data Set:
     cy.contains('Linnarsson - osmFISH');
@@ -52,6 +48,7 @@ describe('Vitessce', () => {
     // that won't have race condition problems.
 
     // Spatial:
+    cy.contains('1 cells');
     cy.contains('1 molecules');
     cy.contains('3 locations');
 
@@ -68,6 +65,8 @@ describe('Vitessce', () => {
     cy.contains('Slc32a1');
 
     // t-SNE:
-    // TODO
+    // Has same number of cells as Spatial.
+
+    cy.get('.modal-body').should('not.be.visible');
   });
 });

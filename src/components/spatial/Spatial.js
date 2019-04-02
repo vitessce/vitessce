@@ -48,6 +48,9 @@ export default class Spatial extends AbstractSelectableComponent {
 
 
   componentDidUpdate() {
+    if (!this.props.images) {
+      return;
+    }
     const imageNames = Object.keys(this.props.images);
 
     // Add imagery to layerIsVisible UI toggle list, if not already present.
