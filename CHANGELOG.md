@@ -3,8 +3,8 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## in progress
 ### Added
-- Cypress.io tests
-- Thank-you to funder
+- Add Cypress.io tests.
+- Thank-you to NIH on the front page.
 
 ## [0.0.13] - 2019-03-26
 ### Changed
