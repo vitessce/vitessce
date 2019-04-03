@@ -82,7 +82,7 @@ function renderWelcome(id) {
             </p>
             Select a data set below:
           </div>
-          <div class="py-2" id="dataset-picker"></div>
+          <div class="py-2" id="dataset-list"></div>
         </form>
       </div>
       <div class="${LIGHT_CARD}" style="width: 100%;">
@@ -95,7 +95,7 @@ function renderWelcome(id) {
       </div>
     </div>
   `;
-  renderComponent(<DatasetList datasets={FAKE_API_RESPONSE} />, 'dataset-picker');
+  renderComponent(<DatasetList datasets={FAKE_API_RESPONSE} />, 'dataset-list');
 }
 
 function renderDataset(id, datasetId) {
