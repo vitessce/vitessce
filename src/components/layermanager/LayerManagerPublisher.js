@@ -76,7 +76,7 @@ export default class LayerManagerPublisher extends React.Component {
     super(props);
     const pleaseWaits = {
       molecules: true,
-      // 'neighborhoods',
+      images: true,
       cells: true,
       clusters: true,
       genes: true,

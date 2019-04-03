@@ -176,6 +176,9 @@ export default class Spatial extends AbstractSelectableComponent {
     if (!this.props.images) {
       return null;
     }
+    if (this.props.clearPleaseWait) {
+      this.props.clearPleaseWait('images');
+    }
     const imageNames = Object.keys(this.props.images).reverse();
     // We want the z-order to be the opposite of the order listed.
     const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
