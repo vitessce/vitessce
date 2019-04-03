@@ -131,13 +131,14 @@ function VitessceGrid(props) {
     },
     // Bottom:
     {
-      i: 'heatmap', x: 0, y: 5, w: 1, h: 2,
+      i: 'heatmap', x: 0, y: 5, w: 12, h: 2,
     },
   ];
+
   return (
     <React.Fragment>
       <LayerManagerPublisher layers={layers} />
-      <GridLayout className="layout" layout={layout} cols={12} rowHeight={100} width={800}>
+      <GridLayout className="layout" layout={layout} cols={12} rowHeight={150} width={800}>
         <div key="description"><Description description={`${name}: ${description}`} /></div>
         <div key="status"><StatusSubscriber /></div>
         <div key="tsne"><TsneSubscriber /></div>
