@@ -3,7 +3,9 @@ import PubSub from 'pubsub-js';
 
 import { BLACK_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
-import { CELLS_COLOR, CLUSTERS_ADD, CELLS_SELECTION } from '../../events';
+import {
+  CELLS_COLOR, CLUSTERS_ADD, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
+} from '../../events';
 import Heatmap from './Heatmap';
 
 export default class HeatmapSubscriber extends React.Component {
@@ -59,6 +61,9 @@ export default class HeatmapSubscriber extends React.Component {
             clusters={clusters}
             selectedCellIds={selectedCellIds}
             cellColors={cellColors}
+            clearPleaseWait={
+              layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+            }
           />
         </div>
       </React.Fragment>

@@ -4,7 +4,12 @@ import HeatmapCellSelectionCanvas from './HeatmapCellSelectionCanvas';
 import HeatmapCellColorCanvas from './HeatmapCellColorCanvas';
 
 export default function Heatmap(props) {
-  const { clusters, selectedCellIds, cellColors } = props;
+  const {
+    clusters, selectedCellIds, cellColors, clearPleaseWait,
+  } = props;
+  if (clearPleaseWait && clusters) {
+    clearPleaseWait('clusters');
+  }
   return (
     <React.Fragment>
       <HeatmapCellColorCanvas

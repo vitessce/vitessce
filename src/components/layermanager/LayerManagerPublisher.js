@@ -78,6 +78,7 @@ export default class LayerManagerPublisher extends React.Component {
       'molecules',
       // 'neighborhoods',
       'cells',
+      'clusters',
     ];
     const pleaseWaits = {};
     layerNames.forEach((name) => { pleaseWaits[name] = true; });
