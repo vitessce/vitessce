@@ -74,14 +74,9 @@ function loadLayer(layer) {
 export default class LayerManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
-    const pleaseWaits = {
-      molecules: true,
-      images: true,
-      cells: true,
-      clusters: true,
-      genes: true,
-      factors: true,
-    };
+    const { layers } = this.props;
+    const pleaseWaits = {};
+    layers.map(layer => layer.name).forEach((name) => { pleaseWaits[name] = true; });
     this.state = { pleaseWaits };
   }
 
@@ -116,18 +111,18 @@ export default class LayerManagerPublisher extends React.Component {
   }
 
   render() {
+    const ua = navigator.userAgent;
+    // Somewhat fragile, but simple, and good enough for this.
+    if (!ua.includes('Chrome') && !ua.includes('Firefox')) {
+      PubSub.publish(STATUS_WARN, 'Warning: Base imagery does not load in Safari; Consider using Firefox or Chrome.');
+    }
+
     const { pleaseWaits } = this.state;
     const unloadedLayers = Object.entries(pleaseWaits).filter(
       ([name, stillWaiting]) => stillWaiting, // eslint-disable-line no-unused-vars
     ).map(
       ([name, stillWaiting]) => name, // eslint-disable-line no-unused-vars
     );
-
-    const ua = navigator.userAgent;
-    // Somewhat fragile, but simple, and good enough for this.
-    if (!ua.includes('Chrome') && !ua.includes('Firefox')) {
-      PubSub.publish(STATUS_WARN, 'Warning: Base imagery does not load in Safari; Consider using Firefox or Chrome.');
-    }
 
     if (unloadedLayers.length) {
       return (
