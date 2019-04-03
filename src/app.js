@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import GridLayout from 'react-grid-layout';
 
 import { LayerManagerPublisher } from './components/layermanager';
 import { StatusSubscriber } from './components/status';
@@ -10,6 +11,9 @@ import { GenesSubscriber } from './components/genes';
 import { FactorsSubscriber } from './components/factors';
 
 import './css/index.css';
+import '../node_modules/react-grid-layout/css/styles.css';
+import '../node_modules/react-resizable/css/styles.css';
+
 import { SCROLL_CARD, LIGHT_CARD } from './components/classNames';
 import TitleInfo from './components/TitleInfo';
 
@@ -134,10 +138,26 @@ function renderDataset(id, datasetId) {
   renderComponent(<Description description={`${name}: ${description}`} />, 'description');
   renderComponent(<StatusSubscriber />, 'status');
   renderComponent(<TsneSubscriber />, 'tsne');
-  renderComponent(<HeatmapSubscriber />, 'heatmap');
+  renderComponent(<VitessceGrid />, 'heatmap');
   renderComponent(<SpatialSubscriber view={views.spatial} />, 'spatial');
   renderComponent(<FactorsSubscriber />, 'factors');
   renderComponent(<GenesSubscriber />, 'genes');
+}
+
+function VitessceGrid() {
+  // layout is an array of objects, see the demo for more complete usage
+  const layout = [
+    {
+      i: 'heatmap', x: 0, y: 0, w: 1, h: 2,
+    },
+  ];
+  return (
+    <GridLayout className="layout" layout={layout} cols={12} rowHeight={30} width={1200}>
+      <div key="heatmap">
+        <HeatmapSubscriber />
+      </div>
+    </GridLayout>
+  );
 }
 
 function Description(props) {
