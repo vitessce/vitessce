@@ -30,7 +30,10 @@ export default class Factors extends React.Component {
   }
 
   render() {
-    const { factorsSelected } = this.props;
+    const { factorsSelected, clearPleaseWait } = this.props;
+    if (clearPleaseWait && factorsSelected) {
+      clearPleaseWait('factors');
+    }
     const radioButtons = Object.entries(factorsSelected).map(
       ([factorId, value]) => this.Radio(factorId, value),
     );

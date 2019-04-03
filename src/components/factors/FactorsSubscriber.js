@@ -6,7 +6,7 @@ import { PALETTE } from '../utils';
 
 import { SCROLL_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
-import { FACTORS_ADD, CELLS_COLOR } from '../../events';
+import { FACTORS_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT } from '../../events';
 
 export default class FactorsSubscriber extends React.Component {
   constructor(props) {
@@ -64,6 +64,9 @@ export default class FactorsSubscriber extends React.Component {
           <Factors
             factorsSelected={factorsSelected}
             setSelectedFactor={this.setSelectedFactor}
+            clearPleaseWait={
+              layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+            }
           />
         </div>
       </React.Fragment>

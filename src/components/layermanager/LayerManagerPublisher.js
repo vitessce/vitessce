@@ -80,6 +80,7 @@ export default class LayerManagerPublisher extends React.Component {
       cells: true,
       clusters: true,
       genes: true,
+      factors: true,
     };
     this.state = { pleaseWaits };
   }
