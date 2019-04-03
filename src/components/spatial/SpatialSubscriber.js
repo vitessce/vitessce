@@ -10,10 +10,6 @@ import {
 } from '../../events';
 import Spatial from './Spatial';
 
-function clearPleaseWait(layerName) {
-  PubSub.publish(CLEAR_PLEASE_WAIT, layerName);
-}
-
 export default class SpatialSubscriber extends React.Component {
   constructor(props) {
     super(props);
@@ -103,7 +99,9 @@ export default class SpatialSubscriber extends React.Component {
             updateCellsSelection={
               selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)
             }
-            clearPleaseWait={clearPleaseWait}
+            clearPleaseWait={
+              layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+            }
           />
         </div>
       </React.Fragment>
