@@ -89,6 +89,10 @@ export default class LayerManagerPublisher extends React.Component {
       // TODO: Do not mutate! https://github.com/hms-dbmi/vitessce/issues/148
       // eslint-disable-next-line no-param-reassign
       prevState.pleaseWaits[layerName] = false;
+      const waitingOn = Object.entries(prevState.pleaseWaits)
+        .filter(entry => entry[1])
+        .map(entry => entry[0]);
+      console.warn('Still waiting on:', waitingOn);
       return prevState;
     });
   }
