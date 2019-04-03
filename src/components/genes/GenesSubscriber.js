@@ -5,7 +5,7 @@ import Genes from './Genes';
 
 import { SCROLL_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
-import { GENES_ADD, CELLS_COLOR } from '../../events';
+import { GENES_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT } from '../../events';
 import { interpolateColors } from '../utils';
 
 export default class GenesSubscriber extends React.Component {
@@ -58,6 +58,9 @@ export default class GenesSubscriber extends React.Component {
           <Genes
             genesSelected={genesSelected}
             setSelectedGene={this.setSelectedGene}
+            clearPleaseWait={
+              layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+            }
           />
         </div>
       </React.Fragment>

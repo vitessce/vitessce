@@ -74,14 +74,13 @@ function loadLayer(layer) {
 export default class LayerManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
-    const layerNames = [
-      'molecules',
+    const pleaseWaits = {
+      molecules: true,
       // 'neighborhoods',
-      'cells',
-      'clusters',
-    ];
-    const pleaseWaits = {};
-    layerNames.forEach((name) => { pleaseWaits[name] = true; });
+      cells: true,
+      clusters: true,
+      genes: true,
+    };
     this.state = { pleaseWaits };
   }
 
