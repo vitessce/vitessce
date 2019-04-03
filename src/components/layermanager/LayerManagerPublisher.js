@@ -92,7 +92,7 @@ export default class LayerManagerPublisher extends React.Component {
       const waitingOn = Object.entries(prevState.pleaseWaits)
         .filter(entry => entry[1])
         .map(entry => entry[0]);
-      console.warn('Still waiting on:', waitingOn);
+      console.warn('cleared:', layerName, '-> still waiting on:', waitingOn);
       return prevState;
     });
   }
