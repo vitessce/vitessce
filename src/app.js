@@ -102,61 +102,51 @@ function renderWelcome(id) {
   renderComponent(<DatasetList datasets={FAKE_API_RESPONSE} />, 'dataset-list');
 }
 
-function renderDataset(id, datasetId) {
+function VitessceGrid(props) {
+  const { datasetId } = props;
   const {
     layers, views, name, description,
   } = FAKE_API_RESPONSE[datasetId];
-  const [sideBig, sideSmall] = [3, 4];
-  const [middleBig, middleSmall] = [12 - 2 * sideBig, 12 - 2 * sideSmall];
-  const col = 'd-flex flex-column px-2';
-  const side = `${col} col-md-${sideBig} col-sm-${sideSmall}`;
-  const middle = `${col} col-md-${middleBig} col-sm-${middleSmall}`;
-  document.getElementById(id).innerHTML = `
-    <div class="container-fluid d-flex h-75 pt-2 pl-2 pr-2">
-      <div id="layermanager"><!-- No UI exposure --></div>
-      <div class="${side}">
-        <div id="description" class="d-flex flex-column h-25"></div>
-        <div id="status" class="d-flex flex-column h-25"></div>
-        <div id="tsne" class="d-flex flex-column h-50"></div>
-      </div>
-      <div class="${middle}">
-        <div id="spatial" class="d-flex flex-column h-100"></div>
-      </div>
-      <div class="${side}">
-        <div id="factors" class="d-flex flex-column h-25"></div>
-        <div id="genes" class="d-flex flex-column h-75"></div>
-      </div>
-    </div>
-    <div class="container-fluid d-flex h-25 pb-2 pl-2 pr-2">
-      <div class="${col} col-lg-12">
-        <div id="heatmap" class="d-flex flex-column h-100"></div>
-      </div>
-    </div>
-  `;
-
-  renderComponent(<LayerManagerPublisher layers={layers} />, 'layermanager');
-  renderComponent(<Description description={`${name}: ${description}`} />, 'description');
-  renderComponent(<StatusSubscriber />, 'status');
-  renderComponent(<TsneSubscriber />, 'tsne');
-  renderComponent(<VitessceGrid />, 'heatmap');
-  renderComponent(<SpatialSubscriber view={views.spatial} />, 'spatial');
-  renderComponent(<FactorsSubscriber />, 'factors');
-  renderComponent(<GenesSubscriber />, 'genes');
-}
-
-function VitessceGrid() {
-  // layout is an array of objects, see the demo for more complete usage
   const layout = [
+    // Left:
     {
-      i: 'heatmap', x: 0, y: 0, w: 1, h: 2,
+      i: 'description', x: 0, y: 0, w: 3, h: 1,
+    },
+    {
+      i: 'status', x: 0, y: 1, w: 3, h: 1,
+    },
+    {
+      i: 'tsne', x: 0, y: 2, w: 3, h: 2,
+    },
+    // Middle:
+    {
+      i: 'spatial', x: 3, y: 0, w: 6, h: 4,
+    },
+    // Right:
+    {
+      i: 'factors', x: 9, y: 0, w: 3, h: 2,
+    },
+    {
+      i: 'genes', x: 9, y: 2, w: 3, h: 2,
+    },
+    // Bottom:
+    {
+      i: 'heatmap', x: 0, y: 5, w: 1, h: 2,
     },
   ];
   return (
-    <GridLayout className="layout" layout={layout} cols={12} rowHeight={30} width={1200}>
-      <div key="heatmap">
-        <HeatmapSubscriber />
-      </div>
-    </GridLayout>
+    <React.Fragment>
+      <LayerManagerPublisher layers={layers} />
+      <GridLayout className="layout" layout={layout} cols={12} rowHeight={100} width={800}>
+        <div key="description"><Description description={`${name}: ${description}`} /></div>
+        <div key="status"><StatusSubscriber /></div>
+        <div key="tsne"><TsneSubscriber /></div>
+        <div key="spatial"><SpatialSubscriber view={views.spatial} /></div>
+        <div key="factors"><FactorsSubscriber /></div>
+        <div key="genes"><GenesSubscriber /></div>
+        <div key="heatmap"><HeatmapSubscriber /></div>
+      </GridLayout>
+    </React.Fragment>
   );
 }
 
@@ -175,7 +165,7 @@ function Description(props) {
 export default function renderApp(id) {
   const datasetId = new URLSearchParams(window.location.search).get('dataset');
   if (datasetId) {
-    renderDataset(id, datasetId);
+    renderComponent(<VitessceGrid datasetId={datasetId} />, id);
   } else {
     renderWelcome(id);
   }
