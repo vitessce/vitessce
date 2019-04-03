@@ -74,13 +74,8 @@ function loadLayer(layer) {
 export default class LayerManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
-    const layerNames = [
-      'molecules',
-      // 'neighborhoods',
-      'cells',
-    ];
     const pleaseWaits = {};
-    layerNames.forEach((name) => { pleaseWaits[name] = true; });
+    props.layers.map(layer => layer.name).forEach((name) => { pleaseWaits[name] = true; });
     this.state = { pleaseWaits };
   }
 
@@ -89,6 +84,11 @@ export default class LayerManagerPublisher extends React.Component {
       // TODO: Do not mutate! https://github.com/hms-dbmi/vitessce/issues/148
       // eslint-disable-next-line no-param-reassign
       prevState.pleaseWaits[layerName] = false;
+      const waitingOn =
+        Object.entries(prevState.pleaseWaits)
+          .filter(entry => entry[1])
+          .map(entry => entry[0]);
+      console.log('still waiting on', waitingOn);
       return prevState;
     });
   }

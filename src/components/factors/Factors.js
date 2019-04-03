@@ -8,6 +8,10 @@ export default class Factors extends React.Component {
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
+  static defaultProps = {
+    clearPleaseWait: (layer) => { console.warn(`"clearPleaseWait" not provided; layer: ${layer}`); },
+  };
+
   handleInputChange(event) {
     const { target } = event;
     const { name } = target;
