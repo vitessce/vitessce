@@ -44,7 +44,7 @@ function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
 
-export function DatasetPicker(props) {
+export function DatasetList(props) {
   const { datasets } = props;
   const links = Object.entries(datasets).map(
     ([id, dataset]) => (
@@ -95,7 +95,7 @@ function renderWelcome(id) {
       </div>
     </div>
   `;
-  renderComponent(<DatasetPicker datasets={FAKE_API_RESPONSE} />, 'dataset-picker');
+  renderComponent(<DatasetList datasets={FAKE_API_RESPONSE} />, 'dataset-picker');
 }
 
 function renderDataset(id, datasetId) {
