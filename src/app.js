@@ -31,7 +31,7 @@ const FAKE_API_RESPONSE = {
       'genes',
       'images',
       'molecules',
-      // 'neighborhoods',
+      'neighborhoods',
     ].map(name => ({
       name,
       type: name.toUpperCase(),
@@ -44,7 +44,7 @@ function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
 
-export function DatasetPicker(props) {
+export function DatasetList(props) {
   const { datasets } = props;
   const links = Object.entries(datasets).map(
     ([id, dataset]) => (
@@ -82,7 +82,7 @@ function renderWelcome(id) {
             </p>
             Select a data set below:
           </div>
-          <div class="py-2" id="dataset-picker"></div>
+          <div class="py-2" id="dataset-list"></div>
         </form>
       </div>
       <div class="${LIGHT_CARD}" style="width: 100%;">
@@ -95,7 +95,7 @@ function renderWelcome(id) {
       </div>
     </div>
   `;
-  renderComponent(<DatasetPicker datasets={FAKE_API_RESPONSE} />, 'dataset-picker');
+  renderComponent(<DatasetList datasets={FAKE_API_RESPONSE} />, 'dataset-list');
 }
 
 function renderDataset(id, datasetId) {

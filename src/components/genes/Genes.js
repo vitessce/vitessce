@@ -30,7 +30,10 @@ export default class Genes extends React.Component {
   }
 
   render() {
-    const { genesSelected } = this.props;
+    const { genesSelected, clearPleaseWait } = this.props;
+    if (clearPleaseWait && genesSelected) {
+      clearPleaseWait('genes');
+    }
     const radioButtons = Object.entries(genesSelected).sort(
       (a, b) => a[0].localeCompare(b[0]),
     ).map(

@@ -74,13 +74,9 @@ function loadLayer(layer) {
 export default class LayerManagerPublisher extends React.Component {
   constructor(props) {
     super(props);
-    const layerNames = [
-      'molecules',
-      // 'neighborhoods',
-      'cells',
-    ];
+    const { layers } = this.props;
     const pleaseWaits = {};
-    layerNames.forEach((name) => { pleaseWaits[name] = true; });
+    layers.map(layer => layer.name).forEach((name) => { pleaseWaits[name] = true; });
     this.state = { pleaseWaits };
   }
 
@@ -89,6 +85,10 @@ export default class LayerManagerPublisher extends React.Component {
       // TODO: Do not mutate! https://github.com/hms-dbmi/vitessce/issues/148
       // eslint-disable-next-line no-param-reassign
       prevState.pleaseWaits[layerName] = false;
+      const waitingOn = Object.entries(prevState.pleaseWaits)
+        .filter(entry => entry[1])
+        .map(entry => entry[0]);
+      if (waitingOn.length) console.warn('cleared:', layerName, '-> still waiting on:', waitingOn);
       return prevState;
     });
   }
@@ -111,18 +111,18 @@ export default class LayerManagerPublisher extends React.Component {
   }
 
   render() {
+    const ua = navigator.userAgent;
+    // Somewhat fragile, but simple, and good enough for this.
+    if (!ua.includes('Chrome') && !ua.includes('Firefox')) {
+      PubSub.publish(STATUS_WARN, 'Warning: Base imagery does not load in Safari; Consider using Firefox or Chrome.');
+    }
+
     const { pleaseWaits } = this.state;
     const unloadedLayers = Object.entries(pleaseWaits).filter(
       ([name, stillWaiting]) => stillWaiting, // eslint-disable-line no-unused-vars
     ).map(
       ([name, stillWaiting]) => name, // eslint-disable-line no-unused-vars
     );
-
-    const ua = navigator.userAgent;
-    // Somewhat fragile, but simple, and good enough for this.
-    if (!ua.includes('Chrome') && !ua.includes('Firefox')) {
-      PubSub.publish(STATUS_WARN, 'Warning: Base imagery does not load in Safari; Consider using Firefox or Chrome.');
-    }
 
     if (unloadedLayers.length) {
       return (
