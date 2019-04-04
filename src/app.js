@@ -138,7 +138,14 @@ function VitessceGrid(props) {
   return (
     <React.Fragment>
       <LayerManagerPublisher layers={layers} />
-      <GridLayout className="layout" layout={layout} cols={12} rowHeight={150} width={800}>
+      <GridLayout
+        className="layout"
+        layout={layout}
+        cols={12}
+        rowHeight={150}
+        width={800}
+        draggableCancel=".card"
+      >
         <div key="description"><Description description={`${name}: ${description}`} /></div>
         <div key="status"><StatusSubscriber /></div>
         <div key="tsne"><TsneSubscriber /></div>
