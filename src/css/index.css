@@ -5,6 +5,23 @@ body {
   background-color: #333;
 }
 
+/* Flex grid items */
+
+.react-grid-item {
+  /* emulate bootstrap .flex-column: */
+  -webkit-box-orient: vertical!important;
+  -webkit-box-direction: normal!important;
+  -ms-flex-direction: column!important;
+  flex-direction: column!important;
+
+  /* emulate bootstrap .d-flex: */
+  display: -webkit-box!important;
+  display: -ms-flexbox!important;
+  display: flex!important;
+
+  /* So the resize handle position looks correct: */
+  padding-right: 10px;
+}
 
 /* Tool styles */
 
@@ -21,6 +38,10 @@ body {
 }
 .title {
   color: lightgrey;
+  cursor: grab;
+}
+.title:active {
+  cursor: grabbing;
 }
 .scroll {
   overflow: scroll;

@@ -7,15 +7,15 @@ import { DatasetList } from './app';
 configure({ adapter: new Adapter() });
 
 describe('app.js', () => {
-  describe('<DatasetPicker />', () => {
-    it('is empty if datasets is empty', () => {
-      const wrapper = shallow(<DatasetList datasets={{}} />);
+  describe('<DatasetList />', () => {
+    it('is empty if configs is empty', () => {
+      const wrapper = shallow(<DatasetList configs={[]} />);
       expect(wrapper.find('a').length).toEqual(0);
     });
 
     it('has one if datasets has one', () => {
-      const datasets = { fake: { name: 'NAME', description: 'DESCRIPTION' } };
-      const wrapper = shallow(<DatasetList datasets={datasets} />);
+      const configs = [{ name: 'foo', id: 'bar', description: 'Foo? Bar!' }];
+      const wrapper = shallow(<DatasetList configs={configs} />);
       expect(wrapper.find('a').length).toEqual(1);
     });
   });

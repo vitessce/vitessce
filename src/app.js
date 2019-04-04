@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Responsive, WidthProvider } from 'react-grid-layout';
 
 import { LayerManagerPublisher } from './components/layermanager';
 import { StatusSubscriber } from './components/status';
@@ -10,53 +11,32 @@ import { GenesSubscriber } from './components/genes';
 import { FactorsSubscriber } from './components/factors';
 
 import './css/index.css';
+import '../node_modules/react-grid-layout/css/styles.css';
+import '../node_modules/react-resizable/css/styles.css';
+
 import { SCROLL_CARD, LIGHT_CARD } from './components/classNames';
 import TitleInfo from './components/TitleInfo';
 
-const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018';
-const FAKE_API_RESPONSE = {
-  'linnarsson-2018': {
-    name: 'Linnarsson - osmFISH',
-    description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
-    views: {
-      spatial: {
-        zoom: -6.5,
-        offset: [200, 200],
-      },
-    },
-    layers: [
-      'cells',
-      'clusters',
-      'factors',
-      'genes',
-      'images',
-      'molecules',
-      'neighborhoods',
-    ].map(name => ({
-      name,
-      type: name.toUpperCase(),
-      url: `${urlPrefix}/linnarsson.${name}.json`,
-    })),
-  },
-};
+import { makeGridLayout } from './layoutUtils';
+import { listConfig, getConfig } from './api';
 
 function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
 
 export function DatasetList(props) {
-  const { datasets } = props;
-  const links = Object.entries(datasets).map(
-    ([id, dataset]) => (
+  const { configs } = props;
+  const links = configs.map(
+    ({ id, name, description }) => (
       <a
         href={`?dataset=${id}`}
         className="list-group-item list-group-item-action flex-column align-items-start bg-black"
         key={id}
       >
         <div className="d-flex w-100 justify-content-between">
-          <h5>{dataset.name}</h5>
+          <h5>{name}</h5>
         </div>
-        <p>{dataset.description}</p>
+        <p>{description}</p>
       </a>
     ),
   );
@@ -95,49 +75,66 @@ function renderWelcome(id) {
       </div>
     </div>
   `;
-  renderComponent(<DatasetList datasets={FAKE_API_RESPONSE} />, 'dataset-list');
+  renderComponent(<DatasetList configs={listConfig()} />, 'dataset-list');
 }
 
-function renderDataset(id, datasetId) {
+function VitessceGrid(props) {
   const {
-    layers, views, name, description,
-  } = FAKE_API_RESPONSE[datasetId];
-  const [sideBig, sideSmall] = [3, 4];
-  const [middleBig, middleSmall] = [12 - 2 * sideBig, 12 - 2 * sideSmall];
-  const col = 'd-flex flex-column px-2';
-  const side = `${col} col-md-${sideBig} col-sm-${sideSmall}`;
-  const middle = `${col} col-md-${middleBig} col-sm-${middleSmall}`;
-  document.getElementById(id).innerHTML = `
-    <div class="container-fluid d-flex h-75 pt-2 pl-2 pr-2">
-      <div id="layermanager"><!-- No UI exposure --></div>
-      <div class="${side}">
-        <div id="description" class="d-flex flex-column h-25"></div>
-        <div id="status" class="d-flex flex-column h-25"></div>
-        <div id="tsne" class="d-flex flex-column h-50"></div>
-      </div>
-      <div class="${middle}">
-        <div id="spatial" class="d-flex flex-column h-100"></div>
-      </div>
-      <div class="${side}">
-        <div id="factors" class="d-flex flex-column h-25"></div>
-        <div id="genes" class="d-flex flex-column h-75"></div>
-      </div>
-    </div>
-    <div class="container-fluid d-flex h-25 pb-2 pl-2 pr-2">
-      <div class="${col} col-lg-12">
-        <div id="heatmap" class="d-flex flex-column h-100"></div>
-      </div>
-    </div>
-  `;
+    layers, views, name, description, columnLayout, gridLayout,
+  } = props;
 
-  renderComponent(<LayerManagerPublisher layers={layers} />, 'layermanager');
-  renderComponent(<Description description={`${name}: ${description}`} />, 'description');
-  renderComponent(<StatusSubscriber />, 'status');
-  renderComponent(<TsneSubscriber />, 'tsne');
-  renderComponent(<HeatmapSubscriber />, 'heatmap');
-  renderComponent(<SpatialSubscriber view={views.spatial} />, 'spatial');
-  renderComponent(<FactorsSubscriber />, 'factors');
-  renderComponent(<GenesSubscriber />, 'genes');
+  const ResponsiveGridLayout = WidthProvider(Responsive);
+
+  const cols = {};
+  const layouts = {};
+  const breakpoints = {};
+
+  if (columnLayout) {
+    Object.entries(columnLayout.columns).forEach(
+      ([width, columnXs]) => {
+        cols[width] = columnXs[columnXs.length - 1];
+        layouts[width] = makeGridLayout(columnXs, columnLayout.layout);
+        breakpoints[width] = width;
+      },
+    );
+  } else {
+    const id = 'ID';
+    cols[id] = 12;
+    layouts[id] = gridLayout;
+    breakpoints[id] = 1000; // Arbitrary
+  }
+
+  const maxY = Math.max(
+    ...Object.values(layouts).map(
+      layout => Math.max(
+        ...layout.map(xywh => xywh.y + xywh.h),
+      ),
+    ),
+  );
+
+  const padding = 10;
+  return (
+    <React.Fragment>
+      <LayerManagerPublisher layers={layers} />
+      <ResponsiveGridLayout
+        className="layout"
+        cols={cols}
+        layouts={layouts}
+        breakpoints={breakpoints}
+        rowHeight={window.innerHeight / maxY - padding}
+        containerPadding={[padding, padding]}
+        draggableHandle=".title"
+      >
+        <div key="description"><Description description={`${name}: ${description}`} /></div>
+        <div key="status"><StatusSubscriber /></div>
+        <div key="tsne"><TsneSubscriber /></div>
+        <div key="spatial"><SpatialSubscriber view={views.spatial} /></div>
+        <div key="factors"><FactorsSubscriber /></div>
+        <div key="genes"><GenesSubscriber /></div>
+        <div key="heatmap"><HeatmapSubscriber /></div>
+      </ResponsiveGridLayout>
+    </React.Fragment>
+  );
 }
 
 function Description(props) {
@@ -155,7 +152,8 @@ function Description(props) {
 export default function renderApp(id) {
   const datasetId = new URLSearchParams(window.location.search).get('dataset');
   if (datasetId) {
-    renderDataset(id, datasetId);
+    const config = getConfig(datasetId);
+    renderComponent(<VitessceGrid {...config} />, id);
   } else {
     renderWelcome(id);
   }
