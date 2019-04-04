@@ -28,13 +28,19 @@ const configs = {
     ...linnarssonBase,
     name: 'Linnarsson (responsive layout)',
     columnLayout: {
-      description: { x: 0, y: 0 },
-      status: { x: 0, y: 1 },
-      tsne: { x: 0, y: 2, h: 2 },
-      spatial: { x: 1, y: 0, h: 4 },
-      factors: { x: 2, y: 0, h: 2 },
-      genes: { x: 2, y: 2, h: 2 },
-      heatmap: { x: 0, y: 4, w: 3 },
+      columns: {
+        1000: [0, 3, 9, 12],
+        800: [0, 4, 8, 12],
+      },
+      layout: {
+        description: { x: 0, y: 0 },
+        status: { x: 0, y: 1 },
+        tsne: { x: 0, y: 2, h: 2 },
+        spatial: { x: 1, y: 0, h: 4 },
+        factors: { x: 2, y: 0, h: 2 },
+        genes: { x: 2, y: 2, h: 2 },
+        heatmap: { x: 0, y: 4, w: 3 },
+      },
     },
   },
   'linnarsson-2018-non-responsive': {

@@ -85,20 +85,33 @@ function VitessceGrid(props) {
 
   const ResponsiveGridLayout = WidthProvider(Responsive);
 
-  const layouts = columnLayout ? {
-    lg: makeGridLayout([0, 3, 9, 12], columnLayout),
-    md: makeGridLayout([0, 4, 8, 12], columnLayout),
-  } : { lg: gridLayout };
+  const cols = {};
+  const layouts = {};
+  const breakpoints = {};
+
+  if (columnLayout) {
+    Object.entries(columnLayout.columns).forEach(
+      ([width, columnXs]) => {
+        cols[width] = columnXs[columnXs.length - 1];
+        layouts[width] = makeGridLayout(columnXs, columnLayout.layout);
+        breakpoints[width] = width;
+      },
+    );
+  } else {
+    const id = 'ID';
+    cols[id] = 12;
+    layouts[id] = gridLayout;
+    breakpoints[id] = 1000; // Arbitrary
+  }
 
   return (
     <React.Fragment>
       <LayerManagerPublisher layers={layers} />
       <ResponsiveGridLayout
         className="layout"
-        cols={{
-          lg: 12, md: 12, sm: 12, xs: 12, xxs: 12,
-        }}
+        cols={cols}
         layouts={layouts}
+        breakpoints={breakpoints}
         rowHeight={150}
         width={800}
         draggableHandle=".title"
