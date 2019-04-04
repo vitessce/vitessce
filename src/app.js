@@ -78,10 +78,9 @@ function renderWelcome(id) {
 }
 
 function VitessceGrid(props) {
-  const { datasetId } = props;
   const {
     layers, views, name, description, columnLayout, gridLayout,
-  } = getConfig(datasetId);
+  } = props;
 
   const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -113,7 +112,6 @@ function VitessceGrid(props) {
         layouts={layouts}
         breakpoints={breakpoints}
         rowHeight={150}
-        width={800}
         draggableHandle=".title"
       >
         <div key="description"><Description description={`${name}: ${description}`} /></div>
@@ -143,7 +141,8 @@ function Description(props) {
 export default function renderApp(id) {
   const datasetId = new URLSearchParams(window.location.search).get('dataset');
   if (datasetId) {
-    renderComponent(<VitessceGrid datasetId={datasetId} />, id);
+    const config = getConfig(datasetId);
+    renderComponent(<VitessceGrid {...config} />, id);
   } else {
     renderWelcome(id);
   }
