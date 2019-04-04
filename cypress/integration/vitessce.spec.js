@@ -28,7 +28,7 @@ describe('Vitessce', () => {
     cy.visit('/');
     cy.contains('Vitessce');
     cy.contains('This is a demo');
-    cy.contains('Linnarsson - osmFISH')
+    cy.contains('Linnarsson (responsive layout)')
       .click();
     // This part seems to be fragile: Might run too fast?
     // cy.contains('Please wait');
@@ -41,7 +41,7 @@ describe('Vitessce', () => {
     cy.get('.modal-body').should('be.visible');
 
     // Data Set:
-    cy.contains('Linnarsson - osmFISH');
+    cy.contains('Linnarsson (responsive layout)');
     cy.contains('Spatial organization of the');
 
     // Status:

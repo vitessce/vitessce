@@ -25,7 +25,7 @@ function renderComponent(react, id) {
 }
 
 export function DatasetList(props) {
-  const { configs } = props
+  const { configs } = props;
   const links = configs.map(
     ({ id, name, description }) => (
       <a
