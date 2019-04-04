@@ -30,6 +30,15 @@ const FAKE_API_RESPONSE = {
         offset: [200, 200],
       },
     },
+    columnLayout: {
+      description: { x: 0, y: 0 },
+      status: { x: 0, y: 1 },
+      tsne: { x: 0, y: 2, h: 2 },
+      spatial: { x: 1, y: 0, h: 4 },
+      factors: { x: 2, y: 0, h: 2 },
+      genes: { x: 2, y: 2, h: 2 },
+      heatmap: { x: 0, y: 4, w: 3 },
+    },
     layers: [
       'cells',
       'clusters',
@@ -107,25 +116,15 @@ function renderWelcome(id) {
 function VitessceGrid(props) {
   const { datasetId } = props;
   const {
-    layers, views, name, description,
+    layers, views, name, description, columnLayout, gridLayout,
   } = FAKE_API_RESPONSE[datasetId];
 
   const ResponsiveGridLayout = WidthProvider(Responsive);
 
-  const colLayout = {
-    description: { x: 0, y: 0 },
-    status: { x: 0, y: 1 },
-    tsne: { x: 0, y: 2, h: 2 },
-    spatial: { x: 1, y: 0, h: 4 },
-    factors: { x: 2, y: 0, h: 2 },
-    genes: { x: 2, y: 2, h: 2 },
-    heatmap: { x: 0, y: 4, w: 3 },
-  };
-
-  const layouts = {
-    lg: makeGridLayout([0, 3, 9, 12], colLayout),
-    md: makeGridLayout([0, 4, 8, 12], colLayout),
-  };
+  const layouts = columnLayout ? {
+    lg: makeGridLayout([0, 3, 9, 12], columnLayout),
+    md: makeGridLayout([0, 4, 8, 12], columnLayout),
+  } : { lg: gridLayout };
 
   return (
     <React.Fragment>
