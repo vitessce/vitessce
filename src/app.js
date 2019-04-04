@@ -110,34 +110,28 @@ function VitessceGrid(props) {
 
   const ResponsiveGridLayout = WidthProvider(Responsive);
 
+  const lgColLayout = {
+    description: { x: 0, y: 0 },
+    status: { x: 0, y: 1 },
+    tsne: { x: 0, y: 2, h: 2 },
+    spatial: { x: 1, y: 0, h: 4 },
+    factors: { x: 2, y: 0, h: 2 },
+    genes: { x: 2, y: 2, h: 2 },
+    heatmap: { x: 0, y: 4, w: 3 },
+  };
+  const lgColXs = [0, 3, 9];
+  const lgColWs = [3, 6, 3];
+  const lgLayout = Object.entries(lgColLayout).map(([id, spec]) => ({
+    i: id,
+    y: spec.y,
+    h: spec.h || 1,
+    x: lgColXs[spec.x],
+    w: lgColWs[spec.x],
+  }));
+
+  console.log('>>>>', lgLayout);
   const layouts = {
-    lg: [
-      // Left:
-      {
-        i: 'description', x: 0, y: 0, w: 3, h: 1,
-      },
-      {
-        i: 'status', x: 0, y: 1, w: 3, h: 1,
-      },
-      {
-        i: 'tsne', x: 0, y: 2, w: 3, h: 2,
-      },
-      // Middle:
-      {
-        i: 'spatial', x: 3, y: 0, w: 6, h: 4,
-      },
-      // Right:
-      {
-        i: 'factors', x: 9, y: 0, w: 3, h: 2,
-      },
-      {
-        i: 'genes', x: 9, y: 2, w: 3, h: 2,
-      },
-      // Bottom:
-      {
-        i: 'heatmap', x: 0, y: 5, w: 12, h: 2,
-      },
-    ],
+    lg: lgLayout,
   };
 
   return (
