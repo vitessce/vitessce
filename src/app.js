@@ -18,60 +18,24 @@ import { SCROLL_CARD, LIGHT_CARD } from './components/classNames';
 import TitleInfo from './components/TitleInfo';
 
 import { makeGridLayout } from './layoutUtils';
-
-const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018';
-const FAKE_API_RESPONSE = {
-  'linnarsson-2018': {
-    name: 'Linnarsson - osmFISH',
-    description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
-    views: {
-      spatial: {
-        zoom: -6.5,
-        offset: [200, 200],
-      },
-    },
-    columnLayout: {
-      description: { x: 0, y: 0 },
-      status: { x: 0, y: 1 },
-      tsne: { x: 0, y: 2, h: 2 },
-      spatial: { x: 1, y: 0, h: 4 },
-      factors: { x: 2, y: 0, h: 2 },
-      genes: { x: 2, y: 2, h: 2 },
-      heatmap: { x: 0, y: 4, w: 3 },
-    },
-    layers: [
-      'cells',
-      'clusters',
-      'factors',
-      'genes',
-      'images',
-      'molecules',
-      'neighborhoods',
-    ].map(name => ({
-      name,
-      type: name.toUpperCase(),
-      url: `${urlPrefix}/linnarsson.${name}.json`,
-    })),
-  },
-};
+import { listConfig, getConfig } from './api';
 
 function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
 
-export function DatasetList(props) {
-  const { datasets } = props;
-  const links = Object.entries(datasets).map(
-    ([id, dataset]) => (
+export function DatasetList() {
+  const links = listConfig().map(
+    ({ id, name, description }) => (
       <a
         href={`?dataset=${id}`}
         className="list-group-item list-group-item-action flex-column align-items-start bg-black"
         key={id}
       >
         <div className="d-flex w-100 justify-content-between">
-          <h5>{dataset.name}</h5>
+          <h5>{name}</h5>
         </div>
-        <p>{dataset.description}</p>
+        <p>{description}</p>
       </a>
     ),
   );
@@ -110,14 +74,14 @@ function renderWelcome(id) {
       </div>
     </div>
   `;
-  renderComponent(<DatasetList datasets={FAKE_API_RESPONSE} />, 'dataset-list');
+  renderComponent(<DatasetList />, 'dataset-list');
 }
 
 function VitessceGrid(props) {
   const { datasetId } = props;
   const {
     layers, views, name, description, columnLayout, gridLayout,
-  } = FAKE_API_RESPONSE[datasetId];
+  } = getConfig(datasetId);
 
   const ResponsiveGridLayout = WidthProvider(Responsive);
 
