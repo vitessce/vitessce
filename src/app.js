@@ -103,6 +103,15 @@ function VitessceGrid(props) {
     breakpoints[id] = 1000; // Arbitrary
   }
 
+  const maxY = Math.max(
+    ...Object.values(layouts).map(
+      layout => Math.max(
+        ...layout.map(xywh => xywh.y + xywh.h),
+      ),
+    ),
+  );
+
+  const padding = 10;
   return (
     <React.Fragment>
       <LayerManagerPublisher layers={layers} />
@@ -111,7 +120,8 @@ function VitessceGrid(props) {
         cols={cols}
         layouts={layouts}
         breakpoints={breakpoints}
-        rowHeight={150}
+        rowHeight={window.innerHeight / maxY - padding}
+        containerPadding={[padding, padding]}
         draggableHandle=".title"
       >
         <div key="description"><Description description={`${name}: ${description}`} /></div>
