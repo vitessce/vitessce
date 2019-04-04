@@ -17,6 +17,8 @@ import '../node_modules/react-resizable/css/styles.css';
 import { SCROLL_CARD, LIGHT_CARD } from './components/classNames';
 import TitleInfo from './components/TitleInfo';
 
+import { makeGridLayout } from './layoutUtils';
+
 const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018';
 const FAKE_API_RESPONSE = {
   'linnarsson-2018': {
@@ -110,7 +112,7 @@ function VitessceGrid(props) {
 
   const ResponsiveGridLayout = WidthProvider(Responsive);
 
-  const lgColLayout = {
+  const colLayout = {
     description: { x: 0, y: 0 },
     status: { x: 0, y: 1 },
     tsne: { x: 0, y: 2, h: 2 },
@@ -119,19 +121,10 @@ function VitessceGrid(props) {
     genes: { x: 2, y: 2, h: 2 },
     heatmap: { x: 0, y: 4, w: 3 },
   };
-  const lgColXs = [0, 3, 9];
-  const lgColWs = [3, 6, 3];
-  const lgLayout = Object.entries(lgColLayout).map(([id, spec]) => ({
-    i: id,
-    y: spec.y,
-    h: spec.h || 1,
-    x: lgColXs[spec.x],
-    w: lgColWs[spec.x],
-  }));
 
-  console.log('>>>>', lgLayout);
   const layouts = {
-    lg: lgLayout,
+    lg: makeGridLayout([0, 3, 9, 12], colLayout),
+    md: makeGridLayout([0, 4, 8, 12], colLayout),
   };
 
   return (
