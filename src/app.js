@@ -144,7 +144,7 @@ function VitessceGrid(props) {
         cols={12}
         rowHeight={150}
         width={800}
-        draggableCancel=".card"
+        draggableHandle=".title"
       >
         <div key="description"><Description description={`${name}: ${description}`} /></div>
         <div key="status"><StatusSubscriber /></div>
