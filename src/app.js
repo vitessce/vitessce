@@ -24,8 +24,9 @@ function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
 }
 
-export function DatasetList() {
-  const links = listConfig().map(
+export function DatasetList(props) {
+  const { configs } = props
+  const links = configs.map(
     ({ id, name, description }) => (
       <a
         href={`?dataset=${id}`}
@@ -74,7 +75,7 @@ function renderWelcome(id) {
       </div>
     </div>
   `;
-  renderComponent(<DatasetList />, 'dataset-list');
+  renderComponent(<DatasetList configs={listConfig()} />, 'dataset-list');
 }
 
 function VitessceGrid(props) {
