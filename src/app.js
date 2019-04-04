@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import GridLayout from 'react-grid-layout';
+import { Responsive, WidthProvider } from 'react-grid-layout';
 
 import { LayerManagerPublisher } from './components/layermanager';
 import { StatusSubscriber } from './components/status';
@@ -107,41 +107,48 @@ function VitessceGrid(props) {
   const {
     layers, views, name, description,
   } = FAKE_API_RESPONSE[datasetId];
-  const layout = [
-    // Left:
-    {
-      i: 'description', x: 0, y: 0, w: 3, h: 1,
-    },
-    {
-      i: 'status', x: 0, y: 1, w: 3, h: 1,
-    },
-    {
-      i: 'tsne', x: 0, y: 2, w: 3, h: 2,
-    },
-    // Middle:
-    {
-      i: 'spatial', x: 3, y: 0, w: 6, h: 4,
-    },
-    // Right:
-    {
-      i: 'factors', x: 9, y: 0, w: 3, h: 2,
-    },
-    {
-      i: 'genes', x: 9, y: 2, w: 3, h: 2,
-    },
-    // Bottom:
-    {
-      i: 'heatmap', x: 0, y: 5, w: 12, h: 2,
-    },
-  ];
+
+  const ResponsiveGridLayout = WidthProvider(Responsive);
+
+  const layouts = {
+    lg: [
+      // Left:
+      {
+        i: 'description', x: 0, y: 0, w: 3, h: 1,
+      },
+      {
+        i: 'status', x: 0, y: 1, w: 3, h: 1,
+      },
+      {
+        i: 'tsne', x: 0, y: 2, w: 3, h: 2,
+      },
+      // Middle:
+      {
+        i: 'spatial', x: 3, y: 0, w: 6, h: 4,
+      },
+      // Right:
+      {
+        i: 'factors', x: 9, y: 0, w: 3, h: 2,
+      },
+      {
+        i: 'genes', x: 9, y: 2, w: 3, h: 2,
+      },
+      // Bottom:
+      {
+        i: 'heatmap', x: 0, y: 5, w: 12, h: 2,
+      },
+    ],
+  };
 
   return (
     <React.Fragment>
       <LayerManagerPublisher layers={layers} />
-      <GridLayout
+      <ResponsiveGridLayout
         className="layout"
-        layout={layout}
-        cols={12}
+        cols={{
+          lg: 12, md: 12, sm: 12, xs: 12, xxs: 12,
+        }}
+        layouts={layouts}
         rowHeight={150}
         width={800}
         draggableHandle=".title"
@@ -153,7 +160,7 @@ function VitessceGrid(props) {
         <div key="factors"><FactorsSubscriber /></div>
         <div key="genes"><GenesSubscriber /></div>
         <div key="heatmap"><HeatmapSubscriber /></div>
-      </GridLayout>
+      </ResponsiveGridLayout>
     </React.Fragment>
   );
 }
