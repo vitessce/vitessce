@@ -2,11 +2,11 @@ import React from 'react';
 import Adapter from 'enzyme-adapter-react-16';
 import { shallow, configure } from 'enzyme';
 import expect from 'expect';
-import { DatasetList } from './app';
+import { DatasetList } from './components';
 
 configure({ adapter: new Adapter() });
 
-describe('app.js', () => {
+describe('app/component.js', () => {
   describe('<DatasetList />', () => {
     it('is empty if configs is empty', () => {
       const wrapper = shallow(<DatasetList configs={[]} />);
