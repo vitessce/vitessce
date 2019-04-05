@@ -42,7 +42,7 @@ export function DatasetList(props) {
 
 export function VitessceGrid(props) {
   const {
-    layers, views, name, description, columnLayout, gridLayout,
+    layers, views, name, description, responsiveLayout, staticLayout,
   } = props;
 
   const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -51,11 +51,11 @@ export function VitessceGrid(props) {
   const layouts = {};
   const breakpoints = {};
 
-  if (columnLayout) {
-    Object.entries(columnLayout.columns).forEach(
+  if (responsiveLayout) {
+    Object.entries(responsiveLayout.columns).forEach(
       ([width, columnXs]) => {
         cols[width] = columnXs[columnXs.length - 1];
-        layouts[width] = makeGridLayout(columnXs, columnLayout.layout);
+        layouts[width] = makeGridLayout(columnXs, responsiveLayout.layout);
         breakpoints[width] = width;
       },
     );
@@ -63,7 +63,7 @@ export function VitessceGrid(props) {
     const id = 'ID';
     const columnCount = 12;
     cols[id] = columnCount;
-    layouts[id] = makeGridLayout(range(columnCount + 1), gridLayout);
+    layouts[id] = makeGridLayout(range(columnCount + 1), staticLayout);
     breakpoints[id] = 1000;
     // Default has different numbers of columns at different widths,
     // so we do need to override that to ensure the same number of columns,

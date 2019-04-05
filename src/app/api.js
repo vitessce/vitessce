@@ -24,10 +24,10 @@ const linnarssonBase = {
 };
 
 const configs = {
-  'linnarsson-2018': {
+  'linnarsson-2018-responsive': {
     ...linnarssonBase,
     name: 'Linnarsson (responsive layout)',
-    columnLayout: {
+    responsiveLayout: {
       columns: {
         1000: [0, 3, 9, 12],
         800: [0, 4, 8, 12],
@@ -43,11 +43,11 @@ const configs = {
       },
     },
   },
-  'linnarsson-2018-non-responsive': {
+  'linnarsson-2018-static': {
     ...linnarssonBase,
-    name: 'Linnarsson (non-responsive layout)',
+    name: 'Linnarsson (static layout)',
     /* eslint-disable object-curly-newline */
-    gridLayout: {
+    staticLayout: {
       description: { x: 0, y: 0, w: 3, h: 1 },
       status: { x: 0, y: 1, w: 3, h: 1 },
       tsne: { x: 0, y: 2, w: 3, h: 2 },
