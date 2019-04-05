@@ -47,15 +47,15 @@ const configs = {
     ...linnarssonBase,
     name: 'Linnarsson (non-responsive layout)',
     /* eslint-disable object-curly-newline */
-    gridLayout: [
-      { i: 'description', x: 0, y: 0, w: 3, h: 1 },
-      { i: 'status', x: 0, y: 1, w: 3, h: 1 },
-      { i: 'tsne', x: 0, y: 2, w: 3, h: 2 },
-      { i: 'spatial', x: 3, y: 0, w: 6, h: 4 },
-      { i: 'factors', x: 9, y: 0, w: 3, h: 2 },
-      { i: 'genes', x: 9, y: 2, w: 3, h: 2 },
-      { i: 'heatmap', x: 0, y: 5, w: 12, h: 2 },
-    ],
+    gridLayout: {
+      description: { x: 0, y: 0, w: 3, h: 1 },
+      status: { x: 0, y: 1, w: 3, h: 1 },
+      tsne: { x: 0, y: 2, w: 3, h: 2 },
+      spatial: { x: 3, y: 0, w: 6, h: 4 },
+      factors: { x: 9, y: 0, w: 3, h: 2 },
+      genes: { x: 9, y: 2, w: 3, h: 2 },
+      heatmap: { x: 0, y: 5, w: 12, h: 2 },
+    },
     /* eslint-enable */
   },
 };

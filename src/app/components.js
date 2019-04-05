@@ -62,7 +62,7 @@ export function VitessceGrid(props) {
   } else {
     const id = 'ID';
     cols[id] = 12;
-    layouts[id] = gridLayout;
+    layouts[id] = makeGridLayout([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], gridLayout);
     breakpoints[id] = 1000; // Arbitrary
   }
 
