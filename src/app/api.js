@@ -24,10 +24,10 @@ const linnarssonBase = {
 };
 
 const configs = {
-  'linnarsson-2018': {
+  'linnarsson-2018-responsive': {
     ...linnarssonBase,
     name: 'Linnarsson (responsive layout)',
-    columnLayout: {
+    responsiveLayout: {
       columns: {
         1000: [0, 3, 9, 12],
         800: [0, 4, 8, 12],
@@ -43,19 +43,19 @@ const configs = {
       },
     },
   },
-  'linnarsson-2018-non-responsive': {
+  'linnarsson-2018-static': {
     ...linnarssonBase,
-    name: 'Linnarsson (non-responsive layout)',
+    name: 'Linnarsson (static layout)',
     /* eslint-disable object-curly-newline */
-    gridLayout: [
-      { i: 'description', x: 0, y: 0, w: 3, h: 1 },
-      { i: 'status', x: 0, y: 1, w: 3, h: 1 },
-      { i: 'tsne', x: 0, y: 2, w: 3, h: 2 },
-      { i: 'spatial', x: 3, y: 0, w: 6, h: 4 },
-      { i: 'factors', x: 9, y: 0, w: 3, h: 2 },
-      { i: 'genes', x: 9, y: 2, w: 3, h: 2 },
-      { i: 'heatmap', x: 0, y: 5, w: 12, h: 2 },
-    ],
+    staticLayout: {
+      description: { x: 0, y: 0, w: 3, h: 1 },
+      status: { x: 0, y: 1, w: 3, h: 1 },
+      tsne: { x: 0, y: 2, w: 3, h: 2 },
+      spatial: { x: 3, y: 0, w: 6, h: 4 },
+      factors: { x: 9, y: 0, w: 3, h: 2 },
+      genes: { x: 9, y: 2, w: 3, h: 2 },
+      heatmap: { x: 0, y: 4, w: 12, h: 1 },
+    },
     /* eslint-enable */
   },
 };

@@ -1,3 +1,3 @@
-import renderApp from '../../src/app';
+import renderApp from '../../src/app/app';
 
 renderApp('app');

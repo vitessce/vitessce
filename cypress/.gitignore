@@ -1,1 +1,5 @@
+# Cypress takes screenshots, but we want to be sure not to commit them!
 screenshots
+
+# Cypress re-creates this directory, but our fixtures are actually under /src.
+fixtures

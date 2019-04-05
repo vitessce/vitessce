@@ -35,8 +35,13 @@ describe('Vitessce', () => {
     // cy.get('.modal-body').should('be.visible');
   });
 
-  it('loads details', () => {
-    cy.visit('/?dataset=linnarsson-2018');
+  it('loads details (static)', () => {
+    cy.visit('/?dataset=linnarsson-2018-static');
+    cy.contains('Linnarsson (static layout)');
+  });
+
+  it('loads details (responsive)', () => {
+    cy.visit('/?dataset=linnarsson-2018-responsive');
     cy.contains('Please wait');
     cy.get('.modal-body').should('be.visible');
 
