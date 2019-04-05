@@ -63,7 +63,10 @@ export function VitessceGrid(props) {
     const id = 'ID';
     cols[id] = 12;
     layouts[id] = makeGridLayout([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], gridLayout);
-    breakpoints[id] = 1000; // Arbitrary
+    breakpoints[id] = 1000;
+    // Default has different numbers of columns at different widths,
+    // so we do need to override that to ensure the same number of columns,
+    // regardless of window width.
   }
 
   const maxY = Math.max(

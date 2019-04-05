@@ -54,7 +54,7 @@ const configs = {
       spatial: { x: 3, y: 0, w: 6, h: 4 },
       factors: { x: 9, y: 0, w: 3, h: 2 },
       genes: { x: 9, y: 2, w: 3, h: 2 },
-      heatmap: { x: 0, y: 5, w: 12, h: 2 },
+      heatmap: { x: 0, y: 4, w: 12, h: 1 },
     },
     /* eslint-enable */
   },
