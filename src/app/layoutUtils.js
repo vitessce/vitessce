@@ -15,3 +15,17 @@ export function makeGridLayout(colXs, colLayout) {
     w: sum(colWs.slice(spec.x, spec.x + (spec.w || 1))),
   }));
 }
+
+export function range(end) {
+  return Array.from(Array(end).keys());
+}
+
+export function getMaxRows(layouts) {
+  return Math.max(
+    ...Object.values(layouts).map(
+      layout => Math.max(
+        ...layout.map(xywh => xywh.y + xywh.h),
+      ),
+    ),
+  );
+}

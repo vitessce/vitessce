@@ -14,7 +14,7 @@ import { SCROLL_CARD } from '../components/classNames';
 
 import TitleInfo from '../components/TitleInfo';
 
-import { makeGridLayout } from './layoutUtils';
+import { makeGridLayout, range, getMaxRows } from './layoutUtils';
 
 
 export function DatasetList(props) {
@@ -61,21 +61,16 @@ export function VitessceGrid(props) {
     );
   } else {
     const id = 'ID';
-    cols[id] = 12;
-    layouts[id] = makeGridLayout([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], gridLayout);
+    const columnCount = 12;
+    cols[id] = columnCount;
+    layouts[id] = makeGridLayout(range(columnCount + 1), gridLayout);
     breakpoints[id] = 1000;
     // Default has different numbers of columns at different widths,
     // so we do need to override that to ensure the same number of columns,
     // regardless of window width.
   }
 
-  const maxY = Math.max(
-    ...Object.values(layouts).map(
-      layout => Math.max(
-        ...layout.map(xywh => xywh.y + xywh.h),
-      ),
-    ),
-  );
+  const maxRows = getMaxRows(layouts);
 
   const padding = 10;
   return (
@@ -86,7 +81,7 @@ export function VitessceGrid(props) {
         cols={cols}
         layouts={layouts}
         breakpoints={breakpoints}
-        rowHeight={window.innerHeight / maxY - padding}
+        rowHeight={window.innerHeight / maxRows - padding}
         containerPadding={[padding, padding]}
         draggableHandle=".title"
       >
