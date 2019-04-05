@@ -6,7 +6,7 @@ import { DatasetList } from './components';
 
 configure({ adapter: new Adapter() });
 
-describe('app/component.js', () => {
+describe('app/components.js', () => {
   describe('<DatasetList />', () => {
     it('is empty if configs is empty', () => {
       const wrapper = shallow(<DatasetList configs={[]} />);
