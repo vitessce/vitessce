@@ -2,20 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 
-import { LayerManagerPublisher } from './components/layermanager';
-import { StatusSubscriber } from './components/status';
-import { TsneSubscriber } from './components/tsne';
-import { HeatmapSubscriber } from './components/heatmap';
-import { SpatialSubscriber } from './components/spatial';
-import { GenesSubscriber } from './components/genes';
-import { FactorsSubscriber } from './components/factors';
+import { LayerManagerPublisher } from '../components/layermanager';
+import { StatusSubscriber } from '../components/status';
+import { TsneSubscriber } from '../components/tsne';
+import { HeatmapSubscriber } from '../components/heatmap';
+import { SpatialSubscriber } from '../components/spatial';
+import { GenesSubscriber } from '../components/genes';
+import { FactorsSubscriber } from '../components/factors';
 
-import './css/index.css';
-import '../node_modules/react-grid-layout/css/styles.css';
-import '../node_modules/react-resizable/css/styles.css';
+import '../css/index.css';
+import '../../node_modules/react-grid-layout/css/styles.css';
+import '../../node_modules/react-resizable/css/styles.css';
 
-import { SCROLL_CARD, LIGHT_CARD } from './components/classNames';
-import TitleInfo from './components/TitleInfo';
+import { SCROLL_CARD, LIGHT_CARD } from '../components/classNames';
+import TitleInfo from '../components/TitleInfo';
 
 import { makeGridLayout } from './layoutUtils';
 import { listConfig, getConfig } from './api';
