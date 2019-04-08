@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/hms-dbmi/vitessce/#dataset",
+  "title": "Vitessce data set",
+  "type": "object",
+  "definitions": {
+    "layout": {
+      "type": "object",
+      "patternProperties": {
+        ".": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "integer" },
+            "y": { "type": "integer" },
+            "w": { "type": "integer" },
+            "h": { "type": "integer" },
+          }
+        }
+      }
+    },
+    "responsiveLayout": {
+      "type": "object",
+      "properties": {
+        "columns": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "type": "array",
+              "items": { "type": "number" }
+            }
+          }
+        },
+        "layout": { "type": "#/definitions/layout" }
+      }
+    },
+    "views": {
+      "type": "object",
+      "properties": {
+        "spatial": {
+          "type": "object",
+          "properties": {
+            "zoom": { "type": "number" },
+            "offset": {
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2,
+              "items": { "type": "number" }
+            }
+          }
+        },
+        "layout": { "type": "#/definitions/layout" }
+      }
+    }
+  },
+  "properties": {
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "views": { "type": "#/definitions/views" },
+    "layers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "responsiveLayout": { "type": "#/definitions/responsiveLayout" },
+    "staticLayout": { "type": "#/definitions/layout" }
+  }
+}
