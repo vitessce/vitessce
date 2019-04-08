@@ -13,7 +13,7 @@
             "x": { "type": "integer" },
             "y": { "type": "integer" },
             "w": { "type": "integer" },
-            "h": { "type": "integer" },
+            "h": { "type": "integer" }
           }
         }
       }
@@ -30,7 +30,7 @@
             }
           }
         },
-        "layout": { "type": "#/definitions/layout" }
+        "layout": { "$ref": "#/definitions/layout" }
       }
     },
     "views": {
@@ -48,19 +48,19 @@
             }
           }
         },
-        "layout": { "type": "#/definitions/layout" }
+        "layout": { "$ref": "#/definitions/layout" }
       }
     }
   },
   "properties": {
     "name": { "type": "string" },
     "description": { "type": "string" },
-    "views": { "type": "#/definitions/views" },
+    "views": { "$ref": "#/definitions/views" },
     "layers": {
       "type": "array",
       "items": { "type": "string" }
     },
-    "responsiveLayout": { "type": "#/definitions/responsiveLayout" },
-    "staticLayout": { "type": "#/definitions/layout" }
+    "responsiveLayout": { "$ref": "#/definitions/responsiveLayout" },
+    "staticLayout": { "$ref": "#/definitions/layout" }
   }
 }
