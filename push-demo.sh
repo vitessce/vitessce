@@ -7,6 +7,6 @@ set -o pipefail
 npm run build
 BRANCH=`git rev-parse --abbrev-ref HEAD`
 HASH=`git rev-parse --short HEAD`
-PATH="vitessce-data/demos/$BRANCH/$HASH"
-aws s3 cp --recursive demo/dist s3://$PATH
-open https://s3.amazonaws.com/$PATH
+URL_PATH="vitessce-data/demos/$BRANCH/$HASH"
+aws s3 cp --recursive demo/dist s3://$URL_PATH
+open https://s3.amazonaws.com/$URL_PATH/index.html
