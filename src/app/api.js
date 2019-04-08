@@ -1,3 +1,7 @@
+import Ajv from 'ajv';
+
+import datasetSchema from '../schemas/dataset.schema.json';
+
 const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018';
 
 const linnarssonBase = {
@@ -69,5 +73,12 @@ export function listConfig() {
 }
 
 export function getConfig(id) {
-  return configs[id];
+  const datasetConfig = configs[id];
+  const validate = new Ajv().compile(datasetSchema);
+  const valid = validate(datasetConfig);
+  if (!valid) {
+    const failureReason = JSON.stringify(validate.errors, null, 2);
+    console.warn('dataset validation failed', failureReason);
+  }
+  return datasetConfig;
 }

@@ -6,8 +6,13 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add Cypress.io tests.
 - Thank-you to NIH on the front page.
 - Add Google Analytics to all pages.
+- "Please wait" now waits for all layers.
+- Use [`react-grid-layout`](https://github.com/STRML/react-grid-layout) for draggable panes;
+Layouts can be specified either responsively, or with fixed grid positions. Grid height is
+based on window height at load.
 ### Changed
 - Spatial viewport is part of the initial FAKE_API_RESPONSE, instead of being hardcoded.
+- Neighborhoods are enabled, but hidden by default.
 
 ## [0.0.13] - 2019-03-26
 ### Changed
