@@ -10,6 +10,7 @@ Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Use [`react-grid-layout`](https://github.com/STRML/react-grid-layout) for draggable panes;
 Layouts can be specified either responsively, or with fixed grid positions. Grid height is
 based on window height at load.
+- Script to push demos to S3, without making a new release.
 ### Changed
 - Spatial viewport is part of the initial FAKE_API_RESPONSE, instead of being hardcoded.
 - Neighborhoods are enabled, but hidden by default.
