@@ -58,7 +58,14 @@
     "views": { "$ref": "#/definitions/views" },
     "layers": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "url": { "type": "string" }
+        }
+      }
     },
     "responsiveLayout": { "$ref": "#/definitions/responsiveLayout" },
     "staticLayout": { "$ref": "#/definitions/layout" }
