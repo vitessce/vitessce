@@ -23,9 +23,15 @@ to run just the unit tests: `npm run test:watch`.
 
 ## Deployment
 
-### Live demo
+### Demos
 
-The [demo](https://hms-dbmi.github.io/vitessce/demos) is hosted by
+Quick demos of the current branch can be pushed to S3:
+
+```
+$ ./push-demo.sh
+```
+
+The official release [demo](https://hms-dbmi.github.io/vitessce/demos) is hosted by
 GitHub Pages, with static HTML being checked into `docs/` on the
 `master` branch. (Before release, you can preview it locally
 by commenting and uncommenting the CSS and the script tag in `index.html`.)
