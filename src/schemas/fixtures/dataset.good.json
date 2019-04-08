@@ -1,0 +1,27 @@
+{
+  "name": "fake dataset",
+  "description": "Spatial organization of the somatosensory cortex",
+  "views": {
+    "spatial": {
+      "zoom": -6.5,
+      "offset": [200, 200]
+    }
+  },
+  "layers": [
+    {
+      "name": "fake",
+      "type": "FAKE",
+      "url": "http://example.com"
+    }
+  ],
+  "responsiveLayout": {
+    "columns": {
+      "1000": [0, 3, 9, 12],
+      "800": [0, 4, 8, 12]
+    },
+    "layout": {
+      "description": { "x": 0, "y": 0 },
+      "status": { "x": 1, "y": 1, "w": 1, "h": 1 }
+    }
+  }
+}
