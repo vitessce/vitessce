@@ -36,8 +36,8 @@ const configs = {
       columns: {
         // First two columns are equal,
         // third column is constant;
-        // Grid cell width stays roughly constant,
-        // but more columns are available in a wider window.
+        // Grid cell width stays constant,
+        // but more grid cells are available in a wider window.
         1400: [0, 6, 12, 14],
         1200: [0, 5, 10, 12],
         1000: [0, 4, 8, 10],

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { HiGlassComponent } from 'higlass';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
@@ -197,9 +198,47 @@ export default class Spatial extends AbstractSelectableComponent {
       x, y, width, height,
     } = viewProps;
     return (
-      <svg viewBox={`${x} ${y} ${width} ${height}`}>
-        {svgImages}
-      </svg>
+      <HiGlassComponent
+        options={{ bounded: true, isDarkTheme: true }}
+        viewConfig={
+          /* eslint-disable */
+{
+          editable: false,
+          zoomFixed: false,
+          views: [
+            {
+              initialXDomain: [0, 454330],
+              initialYDomain: [0, 149278],
+              tracks: {
+                center: [
+                  {
+                    type: 'image-tiles',
+                    // server: 'http://resgen.io/api/v1/',
+                    // tilesetUid: 'eq9t-f0vReCuHnm8wc2mDA',
+                    server: 'https://vcg-higlass.rc.fas.harvard.edu/api/v1/',
+                    tilesetUid: 'rio-hk',
+                  },
+                ],
+              },
+              layout: {
+                w: 12,
+                h: 12,
+                x: 0,
+                y: 0,
+                moved: false,
+                static: false,
+              },
+            },
+          ],
+          zoomLocks: { locksByViewUid: {}, locksDict: {} },
+          locationLocks: { locksByViewUid: {}, locksDict: {} },
+}
+          /* eslint-disable */
+        }
+      />
+      // <svg viewBox={`${x} ${y} ${width} ${height}`}>
+      //   {svgImages}
+      // </svg>
     );
   }
 
