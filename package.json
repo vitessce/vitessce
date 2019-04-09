@@ -22,7 +22,10 @@
     "cypress:run": "cypress run"
   },
   "dependencies": {
+    "@deck.gl/core": "^6.4.9",
     "@deck.gl/experimental-layers": "^6.4.7",
+    "@deck.gl/geo-layers": "^7.0.0-alpha.4",
+    "@deck.gl/layers": "^6.4.9",
     "ajv": "^6.10.0",
     "d3-scale-chromatic": "^1.3.3",
     "deck.gl": "^6.4.7",

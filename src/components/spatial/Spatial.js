@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { TileLayer } from '@deck.gl/geo-layers';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -172,6 +173,16 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
+  renderTileLayer() { // eslint-disable-line class-methods-use-this
+    return new TileLayer({
+      id: 'tile-layer',
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      getTileData: ({ x, y, z }) => {
+        console.log(x, y, z); // eslint-disable-line no-console
+      },
+    });
+  }
+
   renderImages(viewProps) {
     if (!this.props.images) {
       return null;
@@ -246,6 +257,8 @@ export default class Spatial extends AbstractSelectableComponent {
       if (!this.moleculesLayer) this.moleculesLayer = this.renderMoleculesLayer();
       layerList.push(this.moleculesLayer);
     }
+
+    layerList.push(this.renderTileLayer());
 
     return layerList;
   }
