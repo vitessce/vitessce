@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
-import { TileLayer } from '@deck.gl/geo-layers';
+import TileLayer from '../../tile-layer/tile-layer';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
