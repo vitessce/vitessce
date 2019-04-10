@@ -47,15 +47,36 @@ export function getTileIndices(viewport, maxZoom, minZoom, maxIdentityCoordinate
   const bbox = getBoundingBox(viewport, !maxIdentityCoordinate);
 
   const [minX, minY] = maxIdentityCoordinate ?
-    [bbox[0] / maxIdentityCoordinate, bbox[1] / maxIdentityCoordinate]
+    [bbox[0], bbox[1]]
     : lngLatToWorld([bbox[0], bbox[3]], viewport.scale).map(pixelsToTileIndex);
   const [maxX, maxY] = maxIdentityCoordinate ?
-    [bbox[2] / maxIdentityCoordinate, bbox[3] / maxIdentityCoordinate]
+    [bbox[2], bbox[3]]
     : lngLatToWorld([bbox[2], bbox[1]], viewport.scale).map(pixelsToTileIndex);
 
   const indices = [];
 
-  console.log('minX, maxX, minY, maxY', minX, maxX, minY, maxY);
+  // console.log('minX, minY, maxX, maxY', minX, minY, maxX, maxY);
+
+  const tilesZ = z + 8; // TODO: pass as config?
+  const tilesSize = maxIdentityCoordinate / 2 ** tilesZ;
+  const tilesMinX = Math.floor(minX / tilesSize);
+  const tilesMinY = Math.floor(minY / tilesSize);
+  const tilesMaxX = Math.ceil(maxX / tilesSize);
+  const tilesMaxY = Math.ceil(maxY / tilesSize);
+
+  // console.log('tilesMinX, tilesMinY, tilesMaxX, tilesMaxY', tilesMinX, tilesMinY, tilesMaxX, tilesMaxY);
+
+  for (let x = tilesMinX; x <= tilesMaxX; x++) {
+    for (let y = tilesMinY; y <= tilesMaxY; y++) {
+      // if (maxZoom && z > maxZoom) {
+      //   indices.push(getAdjustedTileIndex({x, y, z}, maxZoom));
+      // } else {
+      indices.push({x, y, z: tilesZ});
+    }
+  }
+
+  // console.log('indices', indices);
+
   // TODO: Reenable, when identity coordinate is sorted out.
   // for (let x = minX; x <= maxX; x++) {
   //   for (let y = minY; y <= maxY; y++) {
