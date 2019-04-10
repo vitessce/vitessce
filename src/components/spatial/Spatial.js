@@ -178,8 +178,10 @@ export default class Spatial extends AbstractSelectableComponent {
       id: 'tile-layer',
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       getTileData: ({ x, y, z }) => {
-        console.log(x, y, z); // eslint-disable-line no-console
+        console.log('getTileData', x, y, z); // eslint-disable-line no-console
+        return Promise(); // TODO
       },
+      maxIdentityCoordinate: 65536, // TODO: Needs to be configured
     });
   }
 

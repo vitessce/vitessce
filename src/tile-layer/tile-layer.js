@@ -15,10 +15,10 @@ const defaultProps = {
 
 export default class TileLayer extends CompositeLayer {
   initializeState() {
-    const {maxZoom, minZoom, getTileData, onTileError} = this.props;
+    const {maxZoom, minZoom, getTileData, onTileError, maxIdentityCoordinate} = this.props;
     this.state = {
       tiles: [],
-      tileCache: new TileCache({getTileData, maxZoom, minZoom, onTileError}),
+      tileCache: new TileCache({getTileData, maxZoom, minZoom, onTileError, maxIdentityCoordinate}),
       isLoaded: false
     };
   }
