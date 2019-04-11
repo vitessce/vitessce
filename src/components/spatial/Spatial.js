@@ -1,6 +1,8 @@
 import React from 'react';
 
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { BitmapLayer } from '@deck.gl/experimental-layers';
+
 import TileLayer from '../../tile-layer/tile-layer';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
@@ -185,6 +187,18 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
+  renderBitmapLayer() { // eslint-disable-line class-methods-use-this
+    return new BitmapLayer({
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      id: 'bitmap-layer',
+      bitmap: 'https://vcg-higlass.rc.fas.harvard.edu/api/v1/tiles/?raw=1&d=rio-hk.7.8.8',
+      bounds: [0, 10000, 10000, 0],
+      // desaturate: 0,
+      // transparentColor: [0, 0, 0, 0],
+      // tintColor: [255, 255, 255],
+    });
+  }
+
   renderImages(viewProps) {
     if (!this.props.images) {
       return null;
@@ -212,6 +226,14 @@ export default class Spatial extends AbstractSelectableComponent {
     return (
       <svg viewBox={`${x} ${y} ${width} ${height}`}>
         {svgImages}
+        <image
+          key="foo"
+          x={0}
+          y={0}
+          width={1000}
+          height={1000}
+          href="https://vcg-higlass.rc.fas.harvard.edu/api/v1/tiles/?raw=1&d=rio-hk.7.8.8"
+        />
       </svg>
     );
   }
@@ -260,7 +282,9 @@ export default class Spatial extends AbstractSelectableComponent {
       layerList.push(this.moleculesLayer);
     }
 
-    layerList.push(this.renderTileLayer());
+    // layerList.push(this.renderTileLayer());
+    // layerList.push(this.renderBitmapLayer());
+    // console.log('layerList', layerList);
 
     return layerList;
   }
