@@ -192,10 +192,17 @@ export default class Spatial extends AbstractSelectableComponent {
       },
     };
     const ref = React.createRef();
-    const hglibContainer = <div id="demo" ref={ref} />;
-    const domain = [0, 300000000, 10000000, 31000000];
+    const hglibContainer = (
+      <div
+        ref={ref}
+        style={{
+          height: '100%',
+        }}
+      />
+    );
+    const domain = [10000000, 310000000, 10000000, 31000000];
     setTimeout(() => {
-      console.log('>>>>', ref.current);
+      console.log('HiGlass div:', ref.current);
       trackViewer(
         ref.current,
         domain,
