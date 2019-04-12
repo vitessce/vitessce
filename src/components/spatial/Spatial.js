@@ -5,6 +5,7 @@ import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
+import trackViewer from './trackViewer';
 
 
 export function square(x, y) {
@@ -44,7 +45,7 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   static defaultProps = {
-    clearPleaseWait: (layer) => { console.warn(`"clearPleaseWait" not provided; layer: ${layer}`); },
+    clearPleaseWait: (layer) => { console.warn(`'clearPleaseWait' not provided; layer: ${layer}`); },
   };
 
 
@@ -172,36 +173,68 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  renderImages(viewProps) {
+  renderImages(viewProps) { // eslint-disable-line class-methods-use-this
     if (!this.props.images) {
       return null;
     }
     if (this.props.clearPleaseWait) {
       this.props.clearPleaseWait('images');
     }
-    const imageNames = Object.keys(this.props.images).reverse();
-    // We want the z-order to be the opposite of the order listed.
-    const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
-    const visibleImages = visibleImageNames.map(name => this.props.images[name]);
-    const svgImages = visibleImages.map(image => (
-      <image
-        key={image.href}
-        x={image.x}
-        y={image.y}
-        width={image.width}
-        height={image.height}
-        href={image.href}
-      />
-    ));
-    const {
-      x, y, width, height,
-    } = viewProps;
-    return (
-      <svg viewBox={`${x} ${y} ${width} ${height}`}>
-        {svgImages}
-      </svg>
-    );
+    const trackConfig = {
+      server: '//higlass.io/api/v1',
+      tilesetUid: 'CQMd6V_cRw6iCI_-Unl3PQ',
+      type: 'heatmap',
+      options: {
+        colorRange: ['white', '#000'],
+        heatmapValueScaling: 'log',
+        scaleStartPercent: 0,
+        scaleEndPercent: 1,
+      },
+    };
+    const ref = React.createRef();
+    const hglibContainer = <div id="demo" ref={ref} />;
+    const domain = [0, 300000000, 10000000, 31000000];
+    setTimeout(() => {
+      console.log('>>>>', ref.current);
+      trackViewer(
+        ref.current,
+        domain,
+        trackConfig,
+      );
+    });
+    return hglibContainer;
   }
+
+  // renderImages(viewProps) {
+  //   if (!this.props.images) {
+  //     return null;
+  //   }
+  //   if (this.props.clearPleaseWait) {
+  //     this.props.clearPleaseWait('images');
+  //   }
+  //   const imageNames = Object.keys(this.props.images).reverse();
+  //   // We want the z-order to be the opposite of the order listed.
+  //   const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
+  //   const visibleImages = visibleImageNames.map(name => this.props.images[name]);
+  //   const svgImages = visibleImages.map(image => (
+  //     <image
+  //       key={image.href}
+  //       x={image.x}
+  //       y={image.y}
+  //       width={image.width}
+  //       height={image.height}
+  //       href={image.href}
+  //     />
+  //   ));
+  //   const {
+  //     x, y, width, height,
+  //   } = viewProps;
+  //   return (
+  //     <svg viewBox={`${x} ${y} ${width} ${height}`}>
+  //       {svgImages}
+  //     </svg>
+  //   );
+  // }
 
   setLayerIsVisible(layers) {
     this.setState({ layers });

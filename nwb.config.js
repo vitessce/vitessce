@@ -6,6 +6,9 @@ module.exports = {
       global: 'vitessce',
       externals: {
         react: 'React',
+        'react-dom': 'ReactDom',
+        higlass: 'HiGlass',
+        'pixi.js': 'PIXI',
       },
     },
   },
