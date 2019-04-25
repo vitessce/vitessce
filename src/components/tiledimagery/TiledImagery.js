@@ -20,10 +20,15 @@ class OpenSeaDragon extends React.Component {
 
   initSeaDragon() {
     const { tileSources } = this.props;
-    OpenSeadragon({
+    const viewer = OpenSeadragon({
       id: this.id,
       showNavigationControl: false,
       tileSources,
+    });
+    viewer.addHandler('open', () => {
+      // Callback is necessary: If invoked immediately, it doesn't work.
+      const rect = viewer.viewport.imageToViewportRectangle(500, 200, 100, 100);
+      viewer.viewport.fitBounds(rect, false);
     });
   }
 
@@ -36,7 +41,7 @@ class OpenSeaDragon extends React.Component {
   }
 }
 
-export default function TiledImagery(props) {
+export default function TiledImagery(props) { // eslint-disable-line no-unused-vars
   return (
     <React.Fragment>
       <TitleInfo
