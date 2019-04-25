@@ -1,6 +1,9 @@
 import { viewer } from 'higlass';
 
 export default function trackViewer(element, [xMin, xMax, yMin, yMax], trackConfig) {
+  if (!trackConfig.options) {
+    trackConfig.options = {};
+  }
   if (!trackConfig.options.colorbarPosition) {
     trackConfig.options.colorbarPosition = 'hidden';
     // If the colorbar were all SVG, I could change the colorbar Z position,

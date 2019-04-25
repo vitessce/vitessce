@@ -181,15 +181,11 @@ export default class Spatial extends AbstractSelectableComponent {
       this.props.clearPleaseWait('images');
     }
     const trackConfig = {
-      server: '//higlass.io/api/v1',
-      tilesetUid: 'CQMd6V_cRw6iCI_-Unl3PQ',
-      type: 'heatmap',
-      options: {
-        colorRange: ['white', '#000'],
-        heatmapValueScaling: 'log',
-        scaleStartPercent: 0,
-        scaleEndPercent: 1,
-      },
+      type: 'image-tiles',
+      // server: 'http://resgen.io/api/v1/',
+      // tilesetUid: 'eq9t-f0vReCuHnm8wc2mDA',
+      server: 'https://vcg-higlass.rc.fas.harvard.edu/api/v1/',
+      tilesetUid: 'rio-hk',
     };
     const ref = React.createRef();
     const hglibContainer = (
@@ -200,7 +196,7 @@ export default class Spatial extends AbstractSelectableComponent {
         }}
       />
     );
-    const domain = [10000000, 310000000, 10000000, 31000000];
+    const domain = [0, 454330, 0, 149278];
     setTimeout(() => {
       console.log('HiGlass div:', ref.current);
       trackViewer(
