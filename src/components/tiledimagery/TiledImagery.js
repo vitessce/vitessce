@@ -7,18 +7,20 @@ import { BLACK_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
 
 class OpenSeaDragon extends React.Component {
+  constructor(props) {
+    super(props);
+    this.id = 'random-id';
+  }
+
   render() {
-    const { id } = this.props;
     return (
-      <div id={id} style={{ height: '100%', width: '100%' }} />
+      <div id={this.id} style={{ height: '100%', width: '100%' }} />
     );
   }
 
   initSeaDragon() {
-    const { id, image, type } = this.props;
-
     OpenSeadragon({
-      id,
+      id: this.id,
       showNavigationControl: false,
       tileSources: {
         type: 'image',
@@ -36,9 +38,6 @@ class OpenSeaDragon extends React.Component {
     return false;
   }
 }
-
-OpenSeaDragon.defaultProps = { id: 'ocd-viewer', type: 'legacy-image-pyramid' };
-
 
 export default function TiledImagery(props) {
   return (
