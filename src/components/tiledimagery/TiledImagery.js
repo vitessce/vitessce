@@ -9,7 +9,7 @@ import TitleInfo from '../TitleInfo';
 class OpenSeaDragon extends React.Component {
   constructor(props) {
     super(props);
-    this.id = 'random-id';
+    this.id = `id-${Math.random()}`;
   }
 
   render() {
