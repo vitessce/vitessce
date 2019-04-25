@@ -19,14 +19,11 @@ class OpenSeaDragon extends React.Component {
   }
 
   initSeaDragon() {
+    const { tileSources } = this.props;
     OpenSeadragon({
       id: this.id,
       showNavigationControl: false,
-      tileSources: {
-        type: 'image',
-        url: 'http://gehlenborglab.org/assets/img/site/hero_backbay.jpg',
-        buildPyramid: false,
-      },
+      tileSources,
     });
   }
 
@@ -47,7 +44,13 @@ export default function TiledImagery(props) {
         info=""
       />
       <div className={BLACK_CARD}>
-        <OpenSeaDragon type="image" image="http://gehlenborglab.org/assets/img/site/hero_backbay.jpg" />
+        <OpenSeaDragon
+          tileSources={{
+            type: 'image',
+            url: 'http://gehlenborglab.org/assets/img/site/hero_backbay.jpg',
+            buildPyramid: false,
+          }}
+        />
       </div>
     </React.Fragment>
   );
