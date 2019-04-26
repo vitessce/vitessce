@@ -2,7 +2,7 @@ import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
 
-const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.12/linnarsson-2018';
+const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.14/linnarsson-2018';
 
 const linnarssonBase = {
   description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',

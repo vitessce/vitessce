@@ -12,7 +12,7 @@
         "y": { "type": "number" },
         "width": { "type": "number" },
         "height": { "type": "number" },
-        "href": { "type": "string" }
+        "tileSource": { "type": "object" }
       }
     }
   },

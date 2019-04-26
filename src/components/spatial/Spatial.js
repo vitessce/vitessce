@@ -183,13 +183,7 @@ export default class Spatial extends AbstractSelectableComponent {
     // We want the z-order to be the opposite of the order listed.
     const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
-    const tileSources = visibleImages.map(image => (
-      {
-        type: 'image',
-        url: image.href,
-        buildPyramid: false,
-      }
-    ));
+    const tileSources = visibleImages.map(image => image.tileSource);
     return (
       <OpenSeadragonComponent
         tileSources={tileSources}
