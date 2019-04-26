@@ -9,7 +9,6 @@ import { HeatmapSubscriber } from '../components/heatmap';
 import { SpatialSubscriber } from '../components/spatial';
 import { GenesSubscriber } from '../components/genes';
 import { FactorsSubscriber } from '../components/factors';
-import { TiledImagery } from '../components/tiledimagery';
 
 import { SCROLL_CARD } from '../components/classNames';
 
@@ -90,7 +89,6 @@ export function VitessceGrid(props) {
         <div key="status"><StatusSubscriber /></div>
         <div key="tsne"><TsneSubscriber /></div>
         <div key="spatial"><SpatialSubscriber view={views.spatial} /></div>
-        <div key="tiledimagery"><TiledImagery /></div>
         <div key="factors"><FactorsSubscriber /></div>
         <div key="genes"><GenesSubscriber /></div>
         <div key="heatmap"><HeatmapSubscriber /></div>
