@@ -14,6 +14,11 @@ export default class OpenSeadragonComponent extends React.Component {
     );
   }
 
+  zoomTo(x, y, width, height) {
+    const rect = this.viewer.viewport.imageToViewportRectangle(x, y, width, height);
+    this.viewer.viewport.fitBounds(rect, true);
+  }
+
   initSeaDragon() {
     const {
       tileSources,
@@ -26,8 +31,7 @@ export default class OpenSeadragonComponent extends React.Component {
     });
     this.viewer.addHandler('open', () => {
       // Callback is necessary: If invoked immediately, it doesn't work.
-      const rect = this.viewer.viewport.imageToViewportRectangle(x, y, width, height);
-      this.viewer.viewport.fitBounds(rect, true);
+      this.zoomTo(x, y, width, height);
     });
   }
 
@@ -35,12 +39,11 @@ export default class OpenSeadragonComponent extends React.Component {
     this.initSeaDragon();
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     const {
       x, y, width, height,
     } = nextProps;
-    const rect = this.viewer.viewport.imageToViewportRectangle(x, y, width, height);
-    this.viewer.viewport.fitBounds(rect, true);
+    this.zoomTo(x, y, width, height);
     return false;
   }
 }
