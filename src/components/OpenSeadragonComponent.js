@@ -5,12 +5,11 @@ export default class OpenSeadragonComponent extends React.Component {
   constructor(props) {
     super(props);
     this.id = `id-${Math.random()}`;
-    this.myRef = React.createRef();
   }
 
   render() {
     return (
-      <div id={this.id} style={{ height: '100%', width: '100%' }} ref={this.myRef} />
+      <div id={this.id} style={{ height: '100%', width: '100%' }} />
     );
   }
 
