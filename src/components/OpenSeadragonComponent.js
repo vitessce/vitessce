@@ -39,10 +39,22 @@ export default class OpenSeadragonComponent extends React.Component {
   }
 
   shouldComponentUpdate(nextProps) {
+    const { tileSources } = this.props;
     const {
       x, y, width, height,
     } = nextProps;
-    this.zoomTo(x, y, width, height);
+    if (tileSources.length !== nextProps.tileSources.length) {
+      // This assumes that tileSources are not modified in place,
+      // and that all tileSources changes involve a change in length.
+      this.viewer.removeAllHandlers('open');
+      this.viewer.addHandler('open', () => {
+        this.zoomTo(x, y, width, height);
+      });
+      // We need to re-add the open handler because the coordinates to zoomTo are new.
+      this.viewer.open(nextProps.tileSources);
+    } else {
+      this.zoomTo(x, y, width, height);
+    }
     return false;
   }
 }
