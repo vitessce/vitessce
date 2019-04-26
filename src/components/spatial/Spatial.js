@@ -5,7 +5,7 @@ import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
-
+import OpenSeadragonComponent from '../OpenSeadragonComponent';
 
 export function square(x, y) {
   const r = 5;
@@ -183,23 +183,18 @@ export default class Spatial extends AbstractSelectableComponent {
     // We want the z-order to be the opposite of the order listed.
     const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
-    const svgImages = visibleImages.map(image => (
-      <image
-        key={image.href}
-        x={image.x}
-        y={image.y}
-        width={image.width}
-        height={image.height}
-        href={image.href}
-      />
+    const tileSources = visibleImages.map(image => (
+      {
+        type: 'image',
+        url: image.href,
+        buildPyramid: false,
+      }
     ));
-    const {
-      x, y, width, height,
-    } = viewProps;
     return (
-      <svg viewBox={`${x} ${y} ${width} ${height}`}>
-        {svgImages}
-      </svg>
+      <OpenSeadragonComponent
+        tileSources={tileSources}
+        {...viewProps}
+      />
     );
   }
 

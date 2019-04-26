@@ -2,7 +2,7 @@ import React from 'react';
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import QuadTree from 'simple-quadtree';
 import ToolMenu from './ToolMenu';
-import OpenSeadragonComponent from './OpenSeadragonComponent';
+
 /**
  Abstract React component: Provides drag-to-select functionality to subclasses.
  @param {Object} props React props
@@ -143,21 +143,7 @@ export default class AbstractSelectableComponent extends React.Component {
       width: unproWidth,
       height: unproHeight,
     };
-    // TODO: Fix this
-    //return this.renderImages(unprojectedProps);
-    if (this.props.clearPleaseWait) {
-      this.props.clearPleaseWait('images');
-    }
-    return (
-      <OpenSeadragonComponent
-        tileSources={{
-          type: 'image',
-          url: 'http://gehlenborglab.org/assets/img/site/hero_backbay.jpg',
-          buildPyramid: false,
-        }}
-        {...unprojectedProps}
-      />
-    );
+    return this.renderImages(unprojectedProps);
   }
 
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
