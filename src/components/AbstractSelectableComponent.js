@@ -144,6 +144,9 @@ export default class AbstractSelectableComponent extends React.Component {
       height: unproHeight,
     };
     //return this.renderImages(unprojectedProps);
+    if (this.props.clearPleaseWait) {
+      this.props.clearPleaseWait('images');
+    }
     return (
       <OpenSeadragonComponent
         tileSources={{

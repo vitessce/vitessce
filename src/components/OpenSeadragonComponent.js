@@ -27,7 +27,7 @@ export default class OpenSeadragonComponent extends React.Component {
     this.viewer.addHandler('open', () => {
       // Callback is necessary: If invoked immediately, it doesn't work.
       const rect = this.viewer.viewport.imageToViewportRectangle(x, y, width, height);
-      this.viewer.viewport.fitBounds(rect, false);
+      this.viewer.viewport.fitBounds(rect, true);
     });
   }
 
@@ -40,7 +40,7 @@ export default class OpenSeadragonComponent extends React.Component {
       x, y, width, height,
     } = nextProps;
     const rect = this.viewer.viewport.imageToViewportRectangle(x, y, width, height);
-    this.viewer.viewport.fitBounds(rect, false);
+    this.viewer.viewport.fitBounds(rect, true);
     return false;
   }
 }
