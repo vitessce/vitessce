@@ -143,6 +143,7 @@ export default class AbstractSelectableComponent extends React.Component {
       width: unproWidth,
       height: unproHeight,
     };
+    // TODO: Fix this
     //return this.renderImages(unprojectedProps);
     if (this.props.clearPleaseWait) {
       this.props.clearPleaseWait('images');
