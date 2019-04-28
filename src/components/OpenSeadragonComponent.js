@@ -50,7 +50,7 @@ export default class OpenSeadragonComponent extends React.Component {
       this.viewer.addHandler('open', () => {
         this.zoomTo(x, y, width, height);
       });
-      // We need to re-add the open handler because the coordinates to zoomTo are new.
+      // We need to re-add the open handler because the coordinate to zoomTo are new.
       this.viewer.open(nextProps.tileSources);
     } else {
       this.zoomTo(x, y, width, height);

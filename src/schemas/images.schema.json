@@ -8,10 +8,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "x": { "type": "number" },
-        "y": { "type": "number" },
-        "width": { "type": "number" },
-        "height": { "type": "number" },
+        "sample": { "type": "number" },
         "tileSource": { "type": "object" }
       }
     }

@@ -184,9 +184,23 @@ export default class Spatial extends AbstractSelectableComponent {
     const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
     const tileSources = visibleImages.map(image => image.tileSource);
+    // return (
+    //   <OpenSeadragonComponent
+    //     tileSources={tileSources}
+    //     {...viewProps}
+    //   />
+    // );
+    // TODO: Fix this
     return (
       <OpenSeadragonComponent
-        tileSources={tileSources}
+        tileSources={
+          ['https://libimages1.princeton.edu/loris/pudl0001%2F4609321%2Fs42%2F00000001.jp2/info.json']
+          // {
+          //   type: 'image',
+          //   url: 'http://gehlenborglab.org/assets/img/site/hero_backbay.jpg',
+          //   buildPyramid: false,
+          // }
+        }
         {...viewProps}
       />
     );
