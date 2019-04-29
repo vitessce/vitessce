@@ -1,7 +1,6 @@
 # Changelog
-Vitessce adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## in progress
+## [0.0.14] - 2019-04-29
 ### Added
 - Add Cypress.io tests.
 - Thank-you to NIH on the front page.
