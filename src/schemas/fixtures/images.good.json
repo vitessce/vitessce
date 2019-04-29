@@ -1,12 +1,10 @@
 {
   "polyT": {
-    "width": 10334,
-    "height": 6346,
-    "href": "https://s3.amazonaws.com/vitessce-data/0.0.8/linnarsson-2018/linnarsson.images.polyT.png"
+    "sample": 4,
+    "tileSource": "https://s3.amazonaws.com/vitessce-data/FAKE.json"
   },
   "nuclei": {
-    "width": 10334,
-    "height": 6346,
-    "href": "https://s3.amazonaws.com/vitessce-data/0.0.8/linnarsson-2018/linnarsson.images.nuclei.png"
+    "sample": 4,
+    "tileSource": "https://s3.amazonaws.com/vitessce-data/NOT-FOR-REAL.json"
   }
 }
