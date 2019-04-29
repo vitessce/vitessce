@@ -14,7 +14,12 @@ export default class OpenSeadragonComponent extends React.Component {
   }
 
   zoomTo(x, y, width, height, sample) {
+    // TODO: We sometimes get TypeErrors... Some kind of race condition.
+    // Until I understand the problem better, just exit early
+    // if the data we need is not available.
+    if (!this.viewer.world.getItemAt) return;
     const tiledImage = this.viewer.world.getItemAt(0);
+    if (!tiledImage) return;
     const rect = tiledImage.imageToViewportRectangle(
       x / sample, y / sample, width / sample, height / sample,
     );
