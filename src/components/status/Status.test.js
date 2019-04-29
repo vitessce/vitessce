@@ -6,21 +6,28 @@ import Status from './Status';
 
 configure({ adapter: new Adapter() });
 
+function assertElementHasText(wrapper, query, text) {
+  expect(wrapper.find(query).text()).toEqual(text);
+}
+
 describe('Status.js', () => {
   describe('<Status />', () => {
     it('shows warning', () => {
       const wrapper = shallow(<Status warn="WARN" />);
-      expect(wrapper.find('.alert-warning').text()).toEqual('WARN');
+      assertElementHasText(wrapper, '.alert-warning', 'WARN');
     });
 
     it('shows info', () => {
       const wrapper = shallow(<Status info="INFO" />);
-      expect(wrapper.text()).toEqual('<TitleInfo />INFO');
+      assertElementHasText(wrapper, '[className="details"]', 'INFO');
+      // The warning also has the "details" class, among others,
+      // so ".details" is not sufficient.
     });
 
     it('shows both', () => {
       const wrapper = shallow(<Status info="INFO" warn="WARN" />);
-      expect(wrapper.text()).toEqual('<TitleInfo />INFOWARN');
+      assertElementHasText(wrapper, '[className="details"]', 'INFO');
+      assertElementHasText(wrapper, '.alert-warning', 'WARN');
     });
   });
 });
