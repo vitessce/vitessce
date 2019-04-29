@@ -184,10 +184,16 @@ export default class Spatial extends AbstractSelectableComponent {
     const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
     const tileSources = visibleImages.map(image => image.tileSource);
+    const samples = visibleImages.map(image => image.sample);
+    const firstSample = samples[0];
+    if (!samples.every(sample => sample === firstSample)) {
+      // This is easiest for now: if the data changes, we can change.
+      throw new Error(`Samples for all images must match: ${this.props.images}`);
+    }
     return (
       <OpenSeadragonComponent
         tileSources={tileSources}
-        sample={8}
+        sample={firstSample}
         {...viewProps}
       />
     );
