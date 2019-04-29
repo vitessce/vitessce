@@ -1,5 +1,5 @@
 import renderApp from './app';
 
-export default {
+export {
   renderApp,
 };

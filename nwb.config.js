@@ -6,8 +6,6 @@ module.exports = {
       global: 'vitessce',
       externals: {
         react: 'React',
-        openseadragon: 'openseadragon',
-        // TODO: Confirm that our package is not bloated.
       },
     },
   },
