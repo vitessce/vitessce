@@ -5,7 +5,7 @@ import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
-
+import OpenSeadragonComponent from '../OpenSeadragonComponent';
 
 export function square(x, y) {
   const r = 5;
@@ -183,23 +183,19 @@ export default class Spatial extends AbstractSelectableComponent {
     // We want the z-order to be the opposite of the order listed.
     const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
-    const svgImages = visibleImages.map(image => (
-      <image
-        key={image.href}
-        x={image.x}
-        y={image.y}
-        width={image.width}
-        height={image.height}
-        href={image.href}
-      />
-    ));
-    const {
-      x, y, width, height,
-    } = viewProps;
+    const tileSources = visibleImages.map(image => image.tileSource);
+    const samples = visibleImages.map(image => image.sample);
+    const firstSample = samples[0];
+    if (!samples.every(sample => sample === firstSample)) {
+      // This is easiest for now: if the data changes, we can change.
+      throw new Error(`Samples for all images must match: ${this.props.images}`);
+    }
     return (
-      <svg viewBox={`${x} ${y} ${width} ${height}`}>
-        {svgImages}
-      </svg>
+      <OpenSeadragonComponent
+        tileSources={tileSources}
+        sample={firstSample}
+        {...viewProps}
+      />
     );
   }
 

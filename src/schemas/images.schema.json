@@ -8,11 +8,13 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "x": { "type": "number" },
-        "y": { "type": "number" },
-        "width": { "type": "number" },
-        "height": { "type": "number" },
-        "href": { "type": "string" }
+        "sample": { "type": "number" },
+        "tileSource": {
+          "oneOf": [
+            { "type": "object" },
+            { "type": "string", "format": "uri" }
+          ]
+        }
       }
     }
   },
