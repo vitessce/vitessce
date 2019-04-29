@@ -194,7 +194,61 @@ export default class Spatial extends AbstractSelectableComponent {
     return (
       <OpenSeadragonComponent
         tileSources={
-          ['https://libimages1.princeton.edu/loris/pudl0001%2F4609321%2Fs42%2F00000001.jp2/info.json']
+          [
+            {
+              "tiles": [
+                {
+                  "width": 1024,
+                  "scaleFactors": [
+                    1,
+                    2,
+                    4,
+                    8,
+                    16,
+                    32
+                  ]
+                }
+              ],
+              "protocol": "http://iiif.io/api/image",
+              "sizes": [
+                {
+                  "width": 164,
+                  "height": 225
+                },
+                {
+                  "width": 328,
+                  "height": 450
+                },
+                {
+                  "width": 655,
+                  "height": 900
+                },
+                {
+                  "width": 1309,
+                  "height": 1800
+                },
+                {
+                  "width": 2617,
+                  "height": 3600
+                },
+                {
+                  "width": 5233,
+                  "height": 7200
+                }
+              ],
+              "height": 7200,
+              "width": 5233,
+              "@context": "http://iiif.io/api/image/2/context.json",
+              "@id": "https://libimages1.princeton.edu/loris/pudl0001%2F4609321%2Fs42%2F00000001.jp2"
+            }
+          ]
+
+          // works!
+          // ['https://libimages1.princeton.edu/loris/pudl0001%2F4609321%2Fs42%2F00000001.jp2/info.json']
+
+          // TODO: needs host
+          // https://s3.amazonaws.com/vitessce-data/0.0.14/linnarsson-2018/linnarsson.tiles/linnarsson.images.nuclei/info.json
+
           // {
           //   type: 'image',
           //   url: 'http://gehlenborglab.org/assets/img/site/hero_backbay.jpg',
