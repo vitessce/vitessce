@@ -52,16 +52,15 @@ export default class GenesSubscriber extends React.Component {
       <TitleInfo
         title="Expression Levels"
         info={`${genesKeys.length} genes`}
+        isScroll
       >
-        <div className={SCROLL_CARD}>
-          <Genes
-            genesSelected={genesSelected}
-            setSelectedGene={this.setSelectedGene}
-            clearPleaseWait={
-              layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-            }
-          />
-        </div>
+        <Genes
+          genesSelected={genesSelected}
+          setSelectedGene={this.setSelectedGene}
+          clearPleaseWait={
+            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+          }
+        />
       </TitleInfo>
     );
   }

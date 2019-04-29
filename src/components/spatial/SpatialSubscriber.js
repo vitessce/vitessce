@@ -88,21 +88,19 @@ export default class SpatialSubscriber extends React.Component {
         info={`${cellsCount} cells, ${moleculesCount} molecules
               at ${shortNumber(locationsCount)} locations`}
       >
-        <div className={BLACK_CARD}>
-          <Spatial
-            {... this.state}
-            view={this.props.view}
-            updateStatus={
-              message => PubSub.publish(STATUS_INFO, message)
-            }
-            updateCellsSelection={
-              selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)
-            }
-            clearPleaseWait={
-              layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-            }
-          />
-        </div>
+        <Spatial
+          {... this.state}
+          view={this.props.view}
+          updateStatus={
+            message => PubSub.publish(STATUS_INFO, message)
+          }
+          updateCellsSelection={
+            selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)
+          }
+          clearPleaseWait={
+            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+          }
+        />
       </TitleInfo>
       /* eslint-enable */
     );

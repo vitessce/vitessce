@@ -10,8 +10,6 @@ import { SpatialSubscriber } from '../components/spatial';
 import { GenesSubscriber } from '../components/genes';
 import { FactorsSubscriber } from '../components/factors';
 
-import { SCROLL_CARD } from '../components/classNames';
-
 import TitleInfo from '../components/TitleInfo';
 
 import { makeGridLayout, range, getMaxRows } from './layoutUtils';
@@ -100,10 +98,8 @@ export function VitessceGrid(props) {
 function Description(props) {
   const { description } = props;
   return (
-    <TitleInfo title="Data Set">
-      <div className={SCROLL_CARD}>
-        <p className="details">{description}</p>
-      </div>
+    <TitleInfo title="Data Set" isScroll>
+      <p className="details">{description}</p>
     </TitleInfo>
   );
 }

@@ -1,5 +1,4 @@
 import React from 'react';
-import { SCROLL_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
 
 export default function Status(props) {
@@ -14,10 +13,8 @@ export default function Status(props) {
     messages.push(<p className={warnClass} key="warn">{warn}</p>);
   }
   return (
-    <TitleInfo title="Status">
-      <div className={SCROLL_CARD}>
-        {messages}
-      </div>
+    <TitleInfo title="Status" isScroll>
+      {messages}
     </TitleInfo>
   );
 }

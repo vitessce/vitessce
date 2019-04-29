@@ -4,7 +4,6 @@ import PubSub from 'pubsub-js';
 import Factors from './Factors';
 import { PALETTE } from '../utils';
 
-import { SCROLL_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
 import { FACTORS_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT } from '../../events';
 
@@ -58,16 +57,15 @@ export default class FactorsSubscriber extends React.Component {
       <TitleInfo
         title="Factors"
         info={`${factorsKeys.length} factors`}
+        isScroll
       >
-        <div className={SCROLL_CARD}>
-          <Factors
-            factorsSelected={factorsSelected}
-            setSelectedFactor={this.setSelectedFactor}
-            clearPleaseWait={
-              layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-            }
-          />
-        </div>
+        <Factors
+          factorsSelected={factorsSelected}
+          setSelectedFactor={this.setSelectedFactor}
+          clearPleaseWait={
+            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+          }
+        />
       </TitleInfo>
     );
   }

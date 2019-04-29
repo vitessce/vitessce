@@ -55,16 +55,14 @@ export default class HeatmapSubscriber extends React.Component {
         info={`${cellsCount} cells × ${genesCount} genes,
                with ${selectedCount} cells selected`}
       >
-        <div className={BLACK_CARD}>
-          <Heatmap
-            clusters={clusters}
-            selectedCellIds={selectedCellIds}
-            cellColors={cellColors}
-            clearPleaseWait={
-              layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-            }
-          />
-        </div>
+        <Heatmap
+          clusters={clusters}
+          selectedCellIds={selectedCellIds}
+          cellColors={cellColors}
+          clearPleaseWait={
+            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+          }
+        />
       </TitleInfo>
     );
   }

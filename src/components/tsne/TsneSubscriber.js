@@ -1,7 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 
-import { BLACK_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
 import {
   CELLS_ADD, CELLS_SELECTION, CELLS_COLOR, STATUS_INFO,
@@ -53,15 +52,13 @@ export default class TsneSubscriber extends React.Component {
         title="t-SNE"
         info={`${cellsCount} cells`}
       >
-        <div className={BLACK_CARD}>
-          <Tsne
-            cells={cells}
-            selectedCellIds={selectedCellIds}
-            cellColors={cellColors}
-            updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-            updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
-          />
-        </div>
+        <Tsne
+          cells={cells}
+          selectedCellIds={selectedCellIds}
+          cellColors={cellColors}
+          updateStatus={message => PubSub.publish(STATUS_INFO, message)}
+          updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
+        />
       </TitleInfo>
     );
   }
