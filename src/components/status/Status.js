@@ -14,11 +14,10 @@ export default function Status(props) {
     messages.push(<p className={warnClass} key="warn">{warn}</p>);
   }
   return (
-    <React.Fragment>
-      <TitleInfo title="Status" />
+    <TitleInfo title="Status">
       <div className={SCROLL_CARD}>
         {messages}
       </div>
-    </React.Fragment>
+    </TitleInfo>
   );
 }

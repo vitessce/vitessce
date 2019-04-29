@@ -55,11 +55,10 @@ export default class FactorsSubscriber extends React.Component {
       factorsSelected[factorId] = factorId === selectedId;
     });
     return (
-      <React.Fragment>
-        <TitleInfo
-          title="Factors"
-          info={`${factorsKeys.length} factors`}
-        />
+      <TitleInfo
+        title="Factors"
+        info={`${factorsKeys.length} factors`}
+      >
         <div className={SCROLL_CARD}>
           <Factors
             factorsSelected={factorsSelected}
@@ -69,7 +68,7 @@ export default class FactorsSubscriber extends React.Component {
             }
           />
         </div>
-      </React.Fragment>
+      </TitleInfo>
     );
   }
 }

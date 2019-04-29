@@ -100,11 +100,10 @@ export function VitessceGrid(props) {
 function Description(props) {
   const { description } = props;
   return (
-    <React.Fragment>
-      <TitleInfo title="Data Set" />
+    <TitleInfo title="Data Set">
       <div className={SCROLL_CARD}>
         <p className="details">{description}</p>
       </div>
-    </React.Fragment>
+    </TitleInfo>
   );
 }

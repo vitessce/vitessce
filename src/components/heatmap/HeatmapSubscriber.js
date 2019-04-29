@@ -50,12 +50,11 @@ export default class HeatmapSubscriber extends React.Component {
     const genesCount = clusters ? clusters.rows.length : 0;
     const selectedCount = selectedCellIds ? Object.keys(selectedCellIds).length : 0;
     return (
-      <React.Fragment>
-        <TitleInfo
-          title="Heatmap"
-          info={`${cellsCount} cells × ${genesCount} genes,
-                 with ${selectedCount} cells selected`}
-        />
+      <TitleInfo
+        title="Heatmap"
+        info={`${cellsCount} cells × ${genesCount} genes,
+               with ${selectedCount} cells selected`}
+      >
         <div className={BLACK_CARD}>
           <Heatmap
             clusters={clusters}
@@ -66,7 +65,7 @@ export default class HeatmapSubscriber extends React.Component {
             }
           />
         </div>
-      </React.Fragment>
+      </TitleInfo>
     );
   }
 }

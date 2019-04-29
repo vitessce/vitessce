@@ -49,11 +49,10 @@ export default class GenesSubscriber extends React.Component {
       genesSelected[geneId] = geneId === selectedId;
     });
     return (
-      <React.Fragment>
-        <TitleInfo
-          title="Expression Levels"
-          info={`${genesKeys.length} genes`}
-        />
+      <TitleInfo
+        title="Expression Levels"
+        info={`${genesKeys.length} genes`}
+      >
         <div className={SCROLL_CARD}>
           <Genes
             genesSelected={genesSelected}
@@ -63,7 +62,7 @@ export default class GenesSubscriber extends React.Component {
             }
           />
         </div>
-      </React.Fragment>
+      </TitleInfo>
     );
   }
 }

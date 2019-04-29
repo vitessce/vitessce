@@ -83,12 +83,11 @@ export default class SpatialSubscriber extends React.Component {
       ? Object.values(molecules).map(l => l.length).reduce((a, b) => a + b, 0) : 0;
     return (
       /* eslint-disable react/destructuring-assignment */
-      <React.Fragment>
-        <TitleInfo
-          title="Spatial"
-          info={`${cellsCount} cells, ${moleculesCount} molecules
-                at ${shortNumber(locationsCount)} locations`}
-        />
+      <TitleInfo
+        title="Spatial"
+        info={`${cellsCount} cells, ${moleculesCount} molecules
+              at ${shortNumber(locationsCount)} locations`}
+      >
         <div className={BLACK_CARD}>
           <Spatial
             {... this.state}
@@ -104,7 +103,7 @@ export default class SpatialSubscriber extends React.Component {
             }
           />
         </div>
-      </React.Fragment>
+      </TitleInfo>
       /* eslint-enable */
     );
   }

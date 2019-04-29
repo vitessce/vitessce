@@ -49,11 +49,10 @@ export default class TsneSubscriber extends React.Component {
     const { cells, selectedCellIds, cellColors } = this.state;
     const cellsCount = Object.keys(cells).length;
     return (
-      <React.Fragment>
-        <TitleInfo
-          title="t-SNE"
-          info={`${cellsCount} cells`}
-        />
+      <TitleInfo
+        title="t-SNE"
+        info={`${cellsCount} cells`}
+      >
         <div className={BLACK_CARD}>
           <Tsne
             cells={cells}
@@ -63,7 +62,7 @@ export default class TsneSubscriber extends React.Component {
             updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
           />
         </div>
-      </React.Fragment>
+      </TitleInfo>
     );
   }
 }
