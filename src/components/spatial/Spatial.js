@@ -184,18 +184,9 @@ export default class Spatial extends AbstractSelectableComponent {
     const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
     const visibleImages = visibleImageNames.map(name => this.props.images[name]);
     const tileSources = visibleImages.map(image => image.tileSource);
-    // return (
-    //   <OpenSeadragonComponent
-    //     tileSources={tileSources}
-    //     {...viewProps}
-    //   />
-    // );
-    // TODO: Fix this
     return (
       <OpenSeadragonComponent
-        tileSources={
-          ['https://s3.amazonaws.com/vitessce-data/0.0.14/linnarsson-2018/linnarsson.tiles/linnarsson.images.nuclei/info.json']
-        }
+        tileSources={tileSources}
         {...viewProps}
       />
     );

@@ -9,7 +9,12 @@
       "additionalProperties": false,
       "properties": {
         "sample": { "type": "number" },
-        "tileSource": { "type": "object" }
+        "tileSource": {
+          "oneOf": [
+            { "type": "object" },
+            { "type": "string", "format": "uri" }
+          ]
+        }
       }
     }
   },
