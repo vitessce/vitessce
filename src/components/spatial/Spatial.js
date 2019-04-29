@@ -187,6 +187,7 @@ export default class Spatial extends AbstractSelectableComponent {
     return (
       <OpenSeadragonComponent
         tileSources={tileSources}
+        sample={8}
         {...viewProps}
       />
     );

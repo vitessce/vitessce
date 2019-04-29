@@ -14,11 +14,12 @@ export default class OpenSeadragonComponent extends React.Component {
   }
 
   zoomTo(x, y, width, height, sample) {
-    // TODO: We sometimes get TypeErrors... Some kind of race condition.
+    // TODO: We sometimes get TypeErrors... Some kind of race condition?
     // Until I understand the problem better, just exit early
     // if the data we need is not available.
     if (!this.viewer.world.getItemAt) return;
     const tiledImage = this.viewer.world.getItemAt(0);
+    // TODO: ... and we also got a TypeError here.
     if (!tiledImage) return;
     const rect = tiledImage.imageToViewportRectangle(
       x / sample, y / sample, width / sample, height / sample,
@@ -28,7 +29,7 @@ export default class OpenSeadragonComponent extends React.Component {
 
   initSeaDragon() {
     const {
-      tileSources,
+      tileSources, sample,
       x, y, width, height,
     } = this.props;
     this.viewer = OpenSeadragon({
@@ -36,7 +37,6 @@ export default class OpenSeadragonComponent extends React.Component {
       showNavigationControl: false,
       tileSources,
     });
-    const sample = 8; // TODO: pull from config
     this.viewer.addHandler('open', () => {
       // Callback is necessary: If invoked immediately, it doesn't work.
       this.zoomTo(x, y, width, height, sample);
@@ -48,11 +48,10 @@ export default class OpenSeadragonComponent extends React.Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { tileSources } = this.props;
+    const { tileSources, sample } = this.props;
     const {
       x, y, width, height,
     } = nextProps;
-    const sample = 8; // TODO: pull from config
     if (tileSources.length !== nextProps.tileSources.length) {
       // This assumes that tileSources are not modified in place,
       // and that all tileSources changes involve a change in length.
@@ -65,6 +64,7 @@ export default class OpenSeadragonComponent extends React.Component {
     } else {
       this.zoomTo(x, y, width, height, sample);
     }
+    // React should not re-render the component:
     return false;
   }
 }
