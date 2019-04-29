@@ -1,3 +1,5 @@
+import { urlPrefix } from '../../src/app/api';
+
 Cypress.on('window:before:load', (win) => {
   // Forces fallback to XHR, so cypress can mock response.
   //
@@ -12,12 +14,13 @@ Cypress.on('window:before:load', (win) => {
 
 describe('Vitessce', () => {
   beforeEach(() => {
-    const base = 'https://s3.amazonaws.com/vitessce-data/0.0.14/linnarsson-2018';
-    cy.server();
+    // Any request we do not explicitly route will return 404,
+    // so we won't end up depending on outside resources by accident.
+    cy.server({ force404: true });
     ['cells', 'molecules', 'images', 'clusters', 'genes', 'factors', 'neighborhoods'].forEach(
       (type) => {
         cy.route(
-          `${base}/linnarsson.${type}.json`,
+          `${urlPrefix}/linnarsson.${type}.json`,
           `fixture:../../src/schemas/fixtures/${type}.good.json`,
         );
       },

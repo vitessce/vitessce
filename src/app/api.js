@@ -2,7 +2,8 @@ import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
 
-const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.14/linnarsson-2018';
+// Used by the cypress tests: They route API requests to the fixtures instead.
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.14/linnarsson-2018';
 
 const linnarssonBase = {
   description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
