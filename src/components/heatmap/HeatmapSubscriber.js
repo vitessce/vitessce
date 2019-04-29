@@ -1,7 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 
-import { BLACK_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
 import {
   CELLS_COLOR, CLUSTERS_ADD, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
@@ -50,23 +49,20 @@ export default class HeatmapSubscriber extends React.Component {
     const genesCount = clusters ? clusters.rows.length : 0;
     const selectedCount = selectedCellIds ? Object.keys(selectedCellIds).length : 0;
     return (
-      <React.Fragment>
-        <TitleInfo
-          title="Heatmap"
-          info={`${cellsCount} cells × ${genesCount} genes,
-                 with ${selectedCount} cells selected`}
+      <TitleInfo
+        title="Heatmap"
+        info={`${cellsCount} cells × ${genesCount} genes,
+               with ${selectedCount} cells selected`}
+      >
+        <Heatmap
+          clusters={clusters}
+          selectedCellIds={selectedCellIds}
+          cellColors={cellColors}
+          clearPleaseWait={
+            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+          }
         />
-        <div className={BLACK_CARD}>
-          <Heatmap
-            clusters={clusters}
-            selectedCellIds={selectedCellIds}
-            cellColors={cellColors}
-            clearPleaseWait={
-              layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-            }
-          />
-        </div>
-      </React.Fragment>
+      </TitleInfo>
     );
   }
 }

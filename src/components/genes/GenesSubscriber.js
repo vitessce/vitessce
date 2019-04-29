@@ -3,7 +3,6 @@ import PubSub from 'pubsub-js';
 
 import Genes from './Genes';
 
-import { SCROLL_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
 import { GENES_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT } from '../../events';
 import { interpolateColors } from '../utils';
@@ -49,21 +48,19 @@ export default class GenesSubscriber extends React.Component {
       genesSelected[geneId] = geneId === selectedId;
     });
     return (
-      <React.Fragment>
-        <TitleInfo
-          title="Expression Levels"
-          info={`${genesKeys.length} genes`}
+      <TitleInfo
+        title="Expression Levels"
+        info={`${genesKeys.length} genes`}
+        isScroll
+      >
+        <Genes
+          genesSelected={genesSelected}
+          setSelectedGene={this.setSelectedGene}
+          clearPleaseWait={
+            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+          }
         />
-        <div className={SCROLL_CARD}>
-          <Genes
-            genesSelected={genesSelected}
-            setSelectedGene={this.setSelectedGene}
-            clearPleaseWait={
-              layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-            }
-          />
-        </div>
-      </React.Fragment>
+      </TitleInfo>
     );
   }
 }

@@ -1,5 +1,8 @@
 # Changelog
 
+## in progress
+- The `<TitleInfo>` component now takes children, and our JSX is tidier.
+
 ## [0.0.14] - 2019-04-29
 ### Added
 - Add Cypress.io tests.
