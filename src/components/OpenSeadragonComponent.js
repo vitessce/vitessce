@@ -13,9 +13,11 @@ export default class OpenSeadragonComponent extends React.Component {
     );
   }
 
-  zoomTo(x, y, width, height) {
+  zoomTo(x, y, width, height, sample) {
     const tiledImage = this.viewer.world.getItemAt(0);
-    const rect = tiledImage.imageToViewportRectangle(x / 8, y / 8, width / 8, height / 8); // TODO: pull from config
+    const rect = tiledImage.imageToViewportRectangle(
+      x / sample, y / sample, width / sample, height / sample,
+    );
     this.viewer.viewport.fitBounds(rect, true);
   }
 
@@ -29,9 +31,10 @@ export default class OpenSeadragonComponent extends React.Component {
       showNavigationControl: false,
       tileSources,
     });
+    const sample = 8; // TODO: pull from config
     this.viewer.addHandler('open', () => {
       // Callback is necessary: If invoked immediately, it doesn't work.
-      this.zoomTo(x, y, width, height);
+      this.zoomTo(x, y, width, height, sample);
     });
   }
 
@@ -44,17 +47,18 @@ export default class OpenSeadragonComponent extends React.Component {
     const {
       x, y, width, height,
     } = nextProps;
+    const sample = 8; // TODO: pull from config
     if (tileSources.length !== nextProps.tileSources.length) {
       // This assumes that tileSources are not modified in place,
       // and that all tileSources changes involve a change in length.
       this.viewer.removeAllHandlers('open');
       this.viewer.addHandler('open', () => {
-        this.zoomTo(x, y, width, height);
+        this.zoomTo(x, y, width, height, sample);
       });
       // We need to re-add the open handler because the coordinate to zoomTo are new.
       this.viewer.open(nextProps.tileSources);
     } else {
-      this.zoomTo(x, y, width, height);
+      this.zoomTo(x, y, width, height, sample);
     }
     return false;
   }
