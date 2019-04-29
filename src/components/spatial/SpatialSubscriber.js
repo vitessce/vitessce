@@ -2,7 +2,6 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import shortNumber from 'short-number';
 
-import { BLACK_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,

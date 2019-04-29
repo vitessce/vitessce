@@ -1,7 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 
-import { BLACK_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
 import {
   CELLS_COLOR, CLUSTERS_ADD, CELLS_SELECTION, CLEAR_PLEASE_WAIT,

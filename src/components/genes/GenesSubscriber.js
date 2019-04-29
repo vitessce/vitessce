@@ -3,7 +3,6 @@ import PubSub from 'pubsub-js';
 
 import Genes from './Genes';
 
-import { SCROLL_CARD } from '../classNames';
 import TitleInfo from '../TitleInfo';
 import { GENES_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT } from '../../events';
 import { interpolateColors } from '../utils';
