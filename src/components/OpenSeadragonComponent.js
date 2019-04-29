@@ -14,7 +14,8 @@ export default class OpenSeadragonComponent extends React.Component {
   }
 
   zoomTo(x, y, width, height) {
-    const rect = this.viewer.viewport.imageToViewportRectangle(x, y, width, height);
+    const tiledImage = this.viewer.world.getItemAt(0);
+    const rect = tiledImage.imageToViewportRectangle(x, y, width, height);
     this.viewer.viewport.fitBounds(rect, true);
   }
 
