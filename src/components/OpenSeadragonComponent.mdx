@@ -11,6 +11,7 @@ A wrapper around [OpenSeadragon](https://openseadragon.github.io/).
 The normal UI controls are hidden and the viewport is controlled by the React props instead.
 
 <Playground>
+  <p>Pointer to IIIF info.json:</p>
   <div style={{width: '200px', height: '150px'}}>
     <OpenSeadragonComponent
       tileSources={[
@@ -23,13 +24,31 @@ The normal UI controls are hidden and the viewport is controlled by the React pr
       height={6000}
     />
   </div>
+  <p>Inline configuration with reference to plain, untiled image:</p>
+  <div style={{width: '200px', height: '150px'}}>
+    <OpenSeadragonComponent
+      tileSources={[
+        {
+          type: 'image',
+          url: 'http://gehlenborglab.org/assets/img/site/hero_backbay.jpg',
+          buildPyramid: false,
+        }
+      ]}
+      x={200}
+      y={200}
+      width={400}
+      height={300}
+    />
+  </div>
 </Playground>
 
 The component will fill the full height and width of its parent,
 so something like the parent `<div>` is necessary.
+
 The `tileSources` prop is passed through to OpenSeadragon,
-so any supported format can also be handled here.
-The `sample` prop scales the other coordinates:
+so any supported format can be handled.
+
+The optional `sample` prop scales the other coordinates:
 It is useful if the image has been down-sampled,
 but you would still like `x`, `y`, `width`, and `height`
 to reference the original coordinate system.
