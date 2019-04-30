@@ -19,7 +19,9 @@
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "docz:dev": "docz dev",
+    "docz:build": "docz build"
   },
   "dependencies": {
     "@deck.gl/experimental-layers": "^6.4.7",
@@ -30,8 +32,8 @@
     "openseadragon": "^2.4.0",
     "prop-types": "^15.7.2",
     "pubsub-js": "^1.7.0",
-    "react": "^16.8.5",
-    "react-dom": "^16.8.5",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
     "react-grid-layout": "^0.16.6",
     "react-scripts": "^2.1.8",
     "short-number": "^1.0.6",
@@ -40,6 +42,8 @@
   "devDependencies": {
     "cypress": "^3.2.0",
     "documentation": "^9.3.1",
+    "docz": "^1.0.4",
+    "docz-theme-default": "^1.0.4",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.2",
     "eslint": "^5.15.3",

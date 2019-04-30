@@ -9,11 +9,11 @@
 - Thank-you to NIH on the front page.
 - Add Google Analytics to all pages.
 - "Please wait" now waits for all layers.
-- Use [`react-grid-layout`](https://github.com/STRML/react-grid-layout) for draggable panes;
+- Use [react-grid-layout](https://github.com/STRML/react-grid-layout) for draggable panes;
 Layouts can be specified either responsively, or with fixed grid positions. Grid height is
 based on window height at load.
-- Script to push demos to S3, without making a new release.
-- Use OpenSeadragon for tiled imagery.
+- Script (`push-demo.sh`) to push demo to S3, without making a new release.
+- Use [OpenSeadragon](http://openseadragon.github.io/) for tiled imagery.
 ### Changed
 - Spatial viewport is part of the initial FAKE_API_RESPONSE, instead of being hardcoded.
 - Neighborhoods are enabled, but hidden by default.
