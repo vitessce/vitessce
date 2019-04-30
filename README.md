@@ -46,14 +46,6 @@ Update the version number in `package.json` and run `npm publish`.
 
 ### Overview
 
-[<img alt="Component diagram" src="https://docs.google.com/drawings/d/e/2PACX-1vSoB3YGPxOTKnFOpYHeHX4JruHnibGXruM36uAZtuvPQNM3a7F4uS3q4b5jwGNQ6TJ7bQ9IPB32rdle/pub?w=996&h=532">](https://docs.google.com/drawings/d/1vS6wP1vs5QepLhXGDRww7LR505HJ-aIqnGn9O19f6xg/edit)
-
-- List of data sets is hardcoded in `app.js`.
-- [`vitessce-data`](https://github.com/hms-dbmi/vitessce-data) puts files on S3, and `LayerManagerPublisher` pulls them down and checks that they conform to schema.
-- Rather than being a single React app, each component is independent, with communication facilitated by PubSubJS.
-- `Publisher`/`Subscriber` components could be reused in a separate application which would use the same PubSubJS events...
-- or the wrapped components could be reused in other React apps.
-
 JSDocs and simple examples of the library in use are available in the
 [documentation](https://hms-dbmi.github.io/vitessce/).
 
