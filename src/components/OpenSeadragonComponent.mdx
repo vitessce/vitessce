@@ -1,0 +1,35 @@
+---
+name: OpenSeadragonComponent
+---
+
+import { Playground } from 'docz'
+import OpenSeadragonComponent from './OpenSeadragonComponent';
+
+# OpenSeadragonComponent
+
+A wrapper around [OpenSeadragon](https://openseadragon.github.io/).
+The normal UI controls are hidden and the viewport is controlled by the React props instead.
+
+<Playground>
+  <div style={{width: '200px', height: '150px'}}>
+    <OpenSeadragonComponent
+      tileSources={[
+        "https://libimages1.princeton.edu/loris/pudl0001%2F4609321%2Fs42%2F00000001.jp2/info.json"
+      ]}
+      sample={4}
+      x={14000}
+      y={23000}
+      width={8000}
+      height={6000}
+    />
+  </div>
+</Playground>
+
+The component will fill the full height and width of its parent,
+so something like the parent `<div>` is necessary.
+The `tileSources` prop is passed through to OpenSeadragon,
+so any supported format can also be handled here.
+The `sample` prop scales the other coordinates:
+It is useful if the image has been down-sampled,
+but you would still like `x`, `y`, `width`, and `height`
+to reference the original coordinate system.
