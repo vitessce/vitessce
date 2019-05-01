@@ -1,7 +1,7 @@
 import React from 'react';
 import { interpolateColors } from '../utils';
 
-import { setImageDataRGBA } from './utils';
+import { setImageDataRGBA, getImageRendering } from './utils';
 
 export default class HeatmapDataCanvas extends React.Component {
   paintCanvas() {
@@ -46,10 +46,10 @@ export default class HeatmapDataCanvas extends React.Component {
     if (!clusters) {
       clusters = { rows: [], cols: [], matrix: [] };
     }
+    const imageRendering = getImageRendering();
     return (
       <canvas
-        className="pixelated"
-        style={{ height, imageRendering: 'pixelated' }}
+        style={{ height, imageRendering }}
         ref={(c) => { this.canvasRef = c; }}
         width={clusters.cols.length}
         height={clusters.rows.length}

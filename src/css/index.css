@@ -103,12 +103,3 @@ input[type="radio"] {
 input[type="radio"]:checked {
   background-clip: unset;
 }
-
-
-/* Heatmap */
-
-.pixelated {
-  /* https://stackoverflow.com/questions/7615009/disable-interpolation-when-scaling-a-canvas */
-  image-rendering: pixelated; /* Chrome */
-  image-rendering: -moz-crisp-edges; /* FF */
- }
