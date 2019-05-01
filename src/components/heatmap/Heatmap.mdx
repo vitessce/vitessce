@@ -13,7 +13,7 @@ A basic cell-by-gene heatmap.
 Cells and genes should both be clustered before being passed to this component.
 
 <Playground>
-  <div style={{width: '500px', height: '200px'}}>
+  <div style={{width: '500px', height: '200px', flex: '1 1 auto', display: 'flex', flexDirection: 'column'}}>
     <Heatmap
       clusters={{
         rows: ['gene-1', 'gene-2', 'gene-3', 'gene-4', 'gene-5'],
