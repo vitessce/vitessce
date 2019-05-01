@@ -6,41 +6,44 @@ menu: Published Components
 
 import { Playground } from 'docz'
 import Heatmap from './Heatmap';
+import { rows, cols, matrix, selectedCellIds, cellColors } from './fake'
 
 # Heatmap
 
 A basic cell-by-gene heatmap.
-Cells and genes should both be clustered before being passed to this component.
 
 <Playground>
-  <div style={{width: '500px', height: '200px', flex: '1 1 auto', display: 'flex', flexDirection: 'column'}}>
+  <div style={{
+    width: '400px',
+    height: '100px',
+    flex: '1 1 auto',
+    display: 'flex',
+    flexDirection: 'column'
+  }}>
     <Heatmap
+      cellColors={ cellColors }
+      selectedCellIds={ selectedCellIds }
       clusters={{
-        rows: ['gene-1', 'gene-2', 'gene-3', 'gene-4', 'gene-5'],
-        cols: ['cell-1', 'cell-2', 'cell-3', 'cell-4', 'cell-5', 'cell-6', 'cell-7', 'cell-8'],
-        matrix: [
-          [0.6, 0.7, 0.8, 0.9, 0.1, 0.2, 0.1, 0.2],
-          [0.8, 0.7, 0.9, 0.8, 0.2, 0.1, 0.2, 0.1],
-          [0.1, 0.1, 0.1, 0.1, 0.5, 0.5, 0.9, 0.9],
-          [0.2, 0.1, 0.2, 0.1, 0.4, 0.4, 0.9, 0.9],
-          [0.2, 0.2, 0.2, 0.2, 0.9, 0.9, 0.5, 0.5],
-        ]
-      }}
-      selectedCellIds={{
-        'cell-1': true,
-        'cell-2': true,
-        'cell-4': true
-      }}
-      cellColors={{
-        'cell-1': [0, 0, 255],
-        'cell-2': [0, 0, 255],
-        'cell-3': [255, 0, 255],
-        'cell-4': [255, 0, 255],
-        'cell-5': [255, 0, 255],
-        'cell-6': [255, 0, 255],
-        'cell-7': [255, 0, 0],
-        'cell-8': [255, 0, 0]
+        rows: rows,
+        cols: cols,
+        matrix: matrix
       }}
     />
   </div>
 </Playground>
+
+The overall size and layout of the heatmap is set by the containing element.
+
+Three props are required: `clusters`, `selectedCellIds`, and `cellColors`.
+
+The `clusters` prop in turn has three properties:
+  - `rows`, a list of row IDs,
+  - `cols`, a list of column IDs,
+  - `matrix`, a list of row values, with each value between 0 and 1.
+
+The `selectedCellIds` prop is an object: Keys are column IDs,
+and if the value is true, it is regarded as selected.
+
+The `cellColors` prop is an object: Keys are column IDs,
+and values are RGB triples, with each value between 0 and 255.
+These colors might represent categories or continuous values.
