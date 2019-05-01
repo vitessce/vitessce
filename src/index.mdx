@@ -1,7 +1,32 @@
 ---
-name: Hello world
+name: Getting Started
+route: /index
 ---
 
-# Hello world
+# Getting Started
 
-Hello, I'm a mdx file!
+Vitessce ("Visual Integration Tool for Exploration of Spatial Single-Cell Experiments")
+is both an app, and set of reusable React components.
+In like manner, this documentation is addressed both to developers of the app,
+and to others who just want to reuse components.
+
+- Vitessce developers should begin with the [README](https://github.com/hms-dbmi/vitessce#readme),
+and then find the sections here which are useful.
+- Outside developers can jump straight to the "Published Components".
+
+## Architecture
+
+[<img alt="Component diagram" src="https://docs.google.com/drawings/d/e/2PACX-1vSoB3YGPxOTKnFOpYHeHX4JruHnibGXruM36uAZtuvPQNM3a7F4uS3q4b5jwGNQ6TJ7bQ9IPB32rdle/pub?w=650"/>](https://docs.google.com/drawings/d/1vS6wP1vs5QepLhXGDRww7LR505HJ-aIqnGn9O19f6xg/edit)
+
+- List of data sets is hardcoded in `app.js`...
+some day, we'll have a real API to pull this from.
+- [`vitessce-data`](https://github.com/hms-dbmi/vitessce-data) puts files on S3, and `LayerManagerPublisher` pulls them down and checks that they conform to schema.
+- Rather than being a single React app, each component is independent,
+with communication facilitated by [PubSubJS](https://github.com/mroderick/PubSubJS#readme).
+  - `Publisher`/`Subscriber` are only useful with the particular event system we are using...
+  - but the wrapped components can be reused in other React apps.
+- The overall window layout is managed by `VitessceGrid` (using [react-grid-layout](https://github.com/STRML/react-grid-layout#readme)),
+  - and this is not coupled to the components it contains
+- In the `Spatial` component different visualization technologies are positioned on top each other.
+  - [DeckGL](http://deck.gl/) handles vector data.
+  - [OpenSeadragon](https://openseadragon.github.io/) provides the background imagery.
