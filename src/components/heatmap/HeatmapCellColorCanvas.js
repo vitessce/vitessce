@@ -38,7 +38,7 @@ export default class HeatmapCellColorCanvas extends React.Component {
   }
 
   render() {
-    const { style } = this.props;
+    const { height } = this.props;
     let { clusters } = this.props;
     if (!clusters) {
       clusters = { rows: [], cols: [], matrix: [] };
@@ -46,7 +46,7 @@ export default class HeatmapCellColorCanvas extends React.Component {
     return (
       <canvas
         className="pixelated"
-        style={style}
+        style={{ height }}
         ref={(c) => { this.canvasRef = c; }}
         width={clusters.cols.length}
         height={1}

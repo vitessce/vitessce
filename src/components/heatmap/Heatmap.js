@@ -15,16 +15,16 @@ export default function Heatmap(props) {
       <HeatmapCellColorCanvas
         clusters={clusters}
         cellColors={cellColors}
-        style={{ height: '15%' }}
+        height="15%"
       />
       <HeatmapCellSelectionCanvas
         clusters={clusters}
         selectedCellIds={selectedCellIds}
-        style={{ height: '15%' }}
+        height="15%"
       />
       <HeatmapDataCanvas
         clusters={clusters}
-        style={{ height: '70%' }}
+        height="70%"
       />
     </React.Fragment>
   );

@@ -11,13 +11,11 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
     const height = 1;
 
     const imageData = ctx.createImageData(width, height);
-    console.log(selectedCellIds)
     clusters.cols.forEach((cellId, x) => {
       const offset = x * 4;
       const selected = selectedCellIds[cellId];
       setImageDataRGBA(imageData, offset, 128, 128, 128, selected ? 255 : 0);
     });
-    console.log('data', imageData)
     ctx.putImageData(imageData, 0, 0);
   }
 
@@ -40,7 +38,7 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
   }
 
   render() {
-    const { style } = this.props;
+    const { height } = this.props;
     let { clusters } = this.props;
     if (!clusters) {
       clusters = { rows: [], cols: [], matrix: [] };
@@ -48,7 +46,7 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
     return (
       <canvas
         className="pixelated"
-        style={style}
+        style={{ height }}
         ref={(c) => { this.canvasRef = c; }}
         width={clusters.cols.length}
         height={1}
