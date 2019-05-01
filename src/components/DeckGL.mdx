@@ -1,0 +1,37 @@
+---
+name: DeckGL
+route: /DeckGL
+menu: Internal Components
+---
+
+import { Playground } from 'docz'
+import DeckGL, { OrthographicView, ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
+
+# DeckGL
+
+<Playground>
+  <div style={{height: '200px', width: '200px'}}>
+    <DeckGL
+      views={[
+        new OrthographicView()
+      ]}
+      layers={[
+        new ScatterplotLayer({
+          id: 'foobar',
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          data: [
+            [0, 0], [10, 10], [20, 20], [30, 30], [40, 40],
+            [-30, 30], [-40, 40],
+            [-30, -30], [-40, -40],
+            [30, -30], [40, -40],
+          ],
+          filled: true,
+          getPosition: d => d,
+          getRadius: 5,
+        })
+      ]}
+    />
+  </div>
+</Playground>
+
+Hello?
