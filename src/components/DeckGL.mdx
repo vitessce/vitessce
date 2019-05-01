@@ -1,7 +1,7 @@
 ---
 name: DeckGL
 route: /DeckGL
-menu: Internal Components
+menu: Third Party
 ---
 
 import { Playground } from 'docz'
@@ -21,9 +21,9 @@ import DeckGL, { OrthographicView, ScatterplotLayer, COORDINATE_SYSTEM } from 'd
           coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
           data: [
             [0, 0], [10, 10], [20, 20], [30, 30], [40, 40],
-            [-30, 30], [-40, 40],
-            [-30, -30], [-40, -40],
-            [30, -30], [40, -40],
+            [-40, 40],
+            [-40, -40],
+            [40, -40],
           ],
           filled: true,
           getPosition: d => d,
@@ -34,4 +34,15 @@ import DeckGL, { OrthographicView, ScatterplotLayer, COORDINATE_SYSTEM } from 'd
   </div>
 </Playground>
 
-Hello?
+(For more details, see the [deck.gl documentation](http://deck.gl/#/documentation/overview/introduction).)
+DeckGL is behind many of the visualizations in Vitessce, and it has worked worked very well.
+That said, it is really aimed at geospatial data, and there have been a few things I've tripped over:
+- Always remember to include `coordinateSystem: COORDINATE_SYSTEM.IDENTITY` on every layer.
+It is not the default, but without it, nothing is rendered.
+- Many layers are obviously geographic, but for others the limitation is less clear.
+I was trying to use `TileLayer`, but [had problems](https://github.com/uber/deck.gl/issues/2931).
+Non-geographic tiled imagery would need some explicit declaration of the dimensions of the imagery,
+but there is not a way to give that with the current library.
+- Picking points (ie, determining whether a given point lies within any of the provided polygons)
+depends on the current scale. I was using data with very large absolute coordinates,
+and found that deck.gl was trying to allocate a correspondingly large raster.
