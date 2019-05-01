@@ -3,11 +3,7 @@ import React from 'react';
 import { setImageDataRGBA } from './utils';
 
 export default class HeatmapCellColorCanvas extends React.Component {
-  shouldComponentUpdate(nextProps) {
-    return !!nextProps.clusters && !!nextProps.cellColors;
-  }
-
-  componentDidUpdate() {
+  paintCanvas() {
     const ctx = this.canvasRef.getContext('2d');
 
     const { clusters, cellColors } = this.props;
@@ -21,6 +17,24 @@ export default class HeatmapCellColorCanvas extends React.Component {
       setImageDataRGBA(imageData, offset, ...cellColor, 255);
     });
     ctx.putImageData(imageData, 0, 0);
+  }
+
+  hasRequiredProps(props) { // eslint-disable-line class-methods-use-this
+    return !!props.clusters && !!props.cellColors;
+  }
+
+  componentDidMount() {
+    if (this.hasRequiredProps(this.props)) {
+      this.paintCanvas();
+    }
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return this.hasRequiredProps(nextProps);
+  }
+
+  componentDidUpdate() {
+    this.paintCanvas();
   }
 
   render() {

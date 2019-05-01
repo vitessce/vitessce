@@ -3,11 +3,7 @@ import React from 'react';
 import { setImageDataRGBA } from './utils';
 
 export default class HeatmapCellSelectionCanvas extends React.Component {
-  shouldComponentUpdate(nextProps) {
-    return !!nextProps.clusters && !!nextProps.selectedCellIds;
-  }
-
-  componentDidUpdate() {
+  paintCanvas() {
     const ctx = this.canvasRef.getContext('2d');
 
     const { clusters, selectedCellIds } = this.props;
@@ -15,12 +11,32 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
     const height = 1;
 
     const imageData = ctx.createImageData(width, height);
+    console.log(selectedCellIds)
     clusters.cols.forEach((cellId, x) => {
       const offset = x * 4;
       const selected = selectedCellIds[cellId];
       setImageDataRGBA(imageData, offset, 128, 128, 128, selected ? 255 : 0);
     });
+    console.log('data', imageData)
     ctx.putImageData(imageData, 0, 0);
+  }
+
+  hasRequiredProps(props) { // eslint-disable-line class-methods-use-this
+    return !!props.clusters && !!props.selectedCellIds;
+  }
+
+  componentDidMount() {
+    if (this.hasRequiredProps(this.props)) {
+      this.paintCanvas();
+    }
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return this.hasRequiredProps(nextProps);
+  }
+
+  componentDidUpdate() {
+    this.paintCanvas();
   }
 
   render() {
