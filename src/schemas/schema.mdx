@@ -1,0 +1,56 @@
+---
+name: Input Validation
+route: /schema
+---
+
+import PrettyJsonSchema from './PrettyJsonSchema';
+
+import cellsSchema from './cells.schema.json';
+import clusterSchema from './clusters.schema.json';
+import datasetSchema from './dataset.schema.json';
+import factorsSchema from './factors.schema.json';
+import genesSchema from './genes.schema.json';
+import imagesSchema from './images.schema.json';
+import moleculesSchema from './molecules.schema.json';
+import neighborhoodsSchema from './neighborhoods.schema.json';
+
+# Input Validation
+
+JSON Schema is used to validate each response we receive from the (fake) API.
+If a response fails validation, there will be a warning in the UI,
+and a more information error log in the console.
+
+(The summaries below are intended to be concise and human-readable;
+Consult the [source code](https://github.com/hms-dbmi/vitessce/tree/master/src/schemas) they aren't.)
+
+## Dataset
+
+<PrettyJsonSchema>{datasetSchema}</PrettyJsonSchema>
+
+## Cells
+
+<PrettyJsonSchema>{cellsSchema}</PrettyJsonSchema>
+
+## Clusters
+
+<PrettyJsonSchema>{clusterSchema}</PrettyJsonSchema>
+
+## Factors
+
+<PrettyJsonSchema>{factorsSchema}</PrettyJsonSchema>
+
+## Genes
+
+<PrettyJsonSchema>{genesSchema}</PrettyJsonSchema>
+
+## Images
+
+<PrettyJsonSchema>{imagesSchema}</PrettyJsonSchema>
+
+## Molecules
+
+<PrettyJsonSchema>{moleculesSchema}</PrettyJsonSchema>
+
+## Neighborboods
+
+<PrettyJsonSchema>{neighborhoodsSchema}</PrettyJsonSchema>
