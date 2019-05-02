@@ -14,9 +14,9 @@ DOCZ_DEST='demo/dist/docs' DOCZ_BASE="/$URL_PATH/docs/" npm run docz:build
 TARGET_URL="https://s3.amazonaws.com/$URL_PATH/docs/index.html"
 aws s3 cp --recursive demo/dist s3://$URL_PATH
 
-# Update the list of demos:
-DATE_TIME=`date "+%Y-%m-%d %H:%M:%S"`
-echo "- $DATE_TIME: [`$BRANCH/$HASH`]($TARGET_URL)" >> demos.md
+# Update the list of demos? Reenable if it would be useful.
+# DATE_TIME=`date "+%Y-%m-%d %H:%M:%S"`
+# echo "- $DATE_TIME: [$BRANCH/$HASH]($TARGET_URL)" >> demos.md
 
 # Update github pages to point to latest:
 echo '
