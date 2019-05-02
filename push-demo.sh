@@ -28,4 +28,4 @@ DATE_TIME=`date "+%Y-%m-%d %H:%M:%S"`
 echo "- $DATE_TIME: [`$BRANCH/$HASH`]($TARGET_URL)" >> docs/index.md
 
 aws s3 cp --recursive demo/dist s3://$URL_PATH
-open https://s3.amazonaws.com/$URL_PATH/docs/index
+open "$TARGET_URL"
