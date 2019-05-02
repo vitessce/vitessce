@@ -6,3 +6,7 @@ export function setImageDataRGBA(imageData, offset, r, g, b, a) {
   imageData.data[offset + 3] = a;
   /* eslint-enable */
 }
+
+export function getImageRendering() {
+  return /Chrome/.test(navigator.userAgent) ? 'pixelated' : 'crisp-edges';
+}

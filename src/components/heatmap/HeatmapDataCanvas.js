@@ -1,14 +1,10 @@
 import React from 'react';
 import { interpolateColors } from '../utils';
 
-import { setImageDataRGBA } from './utils';
+import { setImageDataRGBA, getImageRendering } from './utils';
 
 export default class HeatmapDataCanvas extends React.Component {
-  shouldComponentUpdate(nextProps) {
-    return !!nextProps.clusters;
-  }
-
-  componentDidUpdate() {
+  paintCanvas() {
     const ctx = this.canvasRef.getContext('2d');
 
     const { clusters } = this.props;
@@ -26,16 +22,34 @@ export default class HeatmapDataCanvas extends React.Component {
     ctx.putImageData(imageData, 0, 0);
   }
 
+  hasRequiredProps(props) { // eslint-disable-line class-methods-use-this
+    return !!props.clusters;
+  }
+
+  componentDidMount() {
+    if (this.hasRequiredProps(this.props)) {
+      this.paintCanvas();
+    }
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return this.hasRequiredProps(nextProps);
+  }
+
+  componentDidUpdate() {
+    this.paintCanvas();
+  }
+
   render() {
-    const { style } = this.props;
+    const { height } = this.props;
     let { clusters } = this.props;
     if (!clusters) {
       clusters = { rows: [], cols: [], matrix: [] };
     }
+    const imageRendering = getImageRendering();
     return (
       <canvas
-        className="pixelated"
-        style={style}
+        style={{ height, imageRendering }}
         ref={(c) => { this.canvasRef = c; }}
         width={clusters.cols.length}
         height={clusters.rows.length}

@@ -13,7 +13,7 @@ export default class OpenSeadragonComponent extends React.Component {
     );
   }
 
-  zoomTo(x, y, width, height, sample) {
+  zoomTo(x, y, width, height, sample = 1) {
     // TODO: We sometimes get TypeErrors... Some kind of race condition?
     // Until I understand the problem better, just exit early
     // if the data we need is not available.

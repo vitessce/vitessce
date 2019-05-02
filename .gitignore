@@ -5,6 +5,7 @@
 /node_modules
 /umd
 npm-debug.log*
+.docz
 
 # misc
 .DS_Store

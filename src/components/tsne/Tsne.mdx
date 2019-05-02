@@ -1,0 +1,32 @@
+---
+name: Tsne
+route: /Tsne
+menu: Broken Examples
+---
+
+import { Playground } from 'docz'
+import Tsne from './Tsne';
+
+# Tsne
+
+A basic scatterplot.
+
+**TODO:** This example is producing an error: `TypeError: Cannot call a class as a function`.
+
+<Playground>
+  <div style={{
+    width: '200px',
+    height: '200px',
+  }}>
+    <Tsne
+    />
+  </div>
+</Playground>
+
+```
+      cells={{
+        '42': {cluster: 'A', 'tsne': [-12, 6]},
+        '52': {cluster: 'B', 'tsne': [13, -20]},
+        '62': {cluster: 'C', 'tsne': [14, 31]}
+      }}
+```
