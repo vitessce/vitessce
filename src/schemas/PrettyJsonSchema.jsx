@@ -15,12 +15,26 @@ function stripAddProps(yamlString) {
   return yamlString.replace(/\s+additionalProperties: false/g, '');
 }
 
+function valuesAre(yamlString) {
+  return yamlString.replace(/patternProperties:\s+\./g, 'Object values are');
+}
+
+function hasProperties(yamlString) {
+  return yamlString.replace(/\.:\s+properties:/g, 'Each value has these properties:');
+}
+
 function pretty(title, obj) {
+  // This is entirely ad-hoc:
+  // It woks well for our schema, but no assertion that it should work for anyone else.
   if (!obj) return '';
   return (
     <>
       <h3>{title}</h3>
-      <pre>{stripAddProps(abbreviateRef(abbreviateType(yaml.safeDump(obj))))}</pre>
+      <pre>
+        {hasProperties(valuesAre(stripAddProps(
+          abbreviateRef(abbreviateType(yaml.safeDump(obj))),
+        )))}
+      </pre>
     </>
   );
 }
@@ -34,7 +48,7 @@ export default function PrettyJsonSchema(props) {
   return (
     <blockquote>
       {pretty('Definitions', definitions)}
-      {pretty('Pattern Properties', patternProperties)}
+      {pretty('Properties', patternProperties)}
       {pretty('Properties', properties)}
     </blockquote>
   );
