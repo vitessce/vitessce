@@ -1,7 +1,11 @@
 # Changelog
 
 ## in progress
+### Added
 - The `<TitleInfo>` component now takes children, and our JSX is tidier.
+- Using [docz](https://www.docz.site/) for documentation, and add to the push script.
+### Changed
+- Make Heatmap more usable as a standalone.
 
 ## [0.0.14] - 2019-04-29
 ### Added
