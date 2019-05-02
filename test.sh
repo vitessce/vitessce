@@ -15,16 +15,6 @@ start lint
 eslint src
 end lint
 
-start jsdoc
-NEW_DOCS=/tmp/jsdocs
-OLD_DOCS=docs/jsdocs
-documentation build src/index.js \
-  --format html --sort-order alpha --output $NEW_DOCS
-rm -rf $NEW_DOCS/assets/fonts
-diff -r $OLD_DOCS $NEW_DOCS > /dev/null \
-  || die "JSDocs not up-to-date: 'rm -rf $OLD_DOCS && cp -a $NEW_DOCS $OLD_DOCS'"
-end jsdoc
-
 start test
 npm test
 end test
