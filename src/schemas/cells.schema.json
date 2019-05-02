@@ -6,8 +6,8 @@
   "definitions": {
     "coord": {
       "type": "array",
-      "maxItems": 2,
       "minItems": 2,
+      "maxItems": 2,
       "items": { "type": "number" }
     },
     "positiveIntegerValues": {
