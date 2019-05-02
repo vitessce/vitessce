@@ -13,7 +13,6 @@ DOCZ_DEST='demo/dist/docs' DOCZ_BASE="/$URL_PATH/docs/" npm run docz:build
 # and push to S3.
 TARGET_URL="https://s3.amazonaws.com/$URL_PATH/docs/index.html"
 aws s3 cp --recursive demo/dist s3://$URL_PATH
-open "$TARGET_URL"
 
 # Update the list of demos:
 DATE_TIME=`date "+%Y-%m-%d %H:%M:%S"`
@@ -28,3 +27,6 @@ Redirecting to latest version.
 </body>
 </html>
 ' > docs/index.html
+
+# Open in browser and see if it works:
+open "$TARGET_URL"
