@@ -4,8 +4,11 @@
 ### Added
 - The `<TitleInfo>` component now takes children, and our JSX is tidier.
 - Using [docz](https://www.docz.site/) for documentation, and add to the push script.
+- Each JSON schema now checks that we are getting all and only the expected fields...
+and we have a sort-of schema for the schema to make sure these checks are in place.
 ### Changed
 - Make Heatmap more usable as a standalone.
+- Fix (?) the scrollbars which had spontaneously appeared.
 
 ## [0.0.14] - 2019-04-29
 ### Added
