@@ -21,6 +21,7 @@
   "patternProperties": {
     ".": {
       "additionalProperties": false,
+      "required": ["map", "cells"],
       "properties": {
         "map": { "$ref": "#/definitions/arrayOfStrings" },
         "cells": { "$ref": "#/definitions/positiveIntegerValues" }

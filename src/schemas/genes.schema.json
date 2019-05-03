@@ -17,6 +17,7 @@
   "patternProperties": {
     ".": {
       "additionalProperties": false,
+      "required": ["max", "cells"],
       "properties": {
         "max": { "type": "number" },
         "cells": { "$ref": "#/definitions/positiveIntegerValues" }
