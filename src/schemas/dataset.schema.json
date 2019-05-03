@@ -9,6 +9,8 @@
       "patternProperties": {
         ".": {
           "type": "object",
+          "additionalProperties": false,
+          "required": ["x", "y"],
           "properties": {
             "x": { "type": "integer" },
             "y": { "type": "integer" },
@@ -20,6 +22,8 @@
     },
     "responsiveLayout": {
       "type": "object",
+      "additionalProperties": false,
+      "required": ["columns", "layout"],
       "properties": {
         "columns": {
           "type": "object",
@@ -35,9 +39,13 @@
     },
     "views": {
       "type": "object",
+      "additionalProperties": false,
+      "required": ["spatial"],
       "properties": {
         "spatial": {
           "type": "object",
+          "additionalProperties": false,
+          "required": ["zoom", "offset"],
           "properties": {
             "zoom": { "type": "number" },
             "offset": {
@@ -47,11 +55,12 @@
               "items": { "type": "number" }
             }
           }
-        },
-        "layout": { "$ref": "#/definitions/layout" }
+        }
       }
     }
   },
+  "additionalProperties": false,
+  "required": ["name", "description", "views", "layers"],
   "properties": {
     "name": { "type": "string" },
     "description": { "type": "string" },
@@ -60,6 +69,8 @@
       "type": "array",
       "items": {
         "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "type", "url"],
         "properties": {
           "name": { "type": "string" },
           "type": { "type": "string" },

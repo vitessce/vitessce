@@ -31,10 +31,10 @@
   "patternProperties": {
     ".": {
       "additionalProperties": false,
+      "required": ["tsne", "xy", "genes", "factors", "poly"],
       "properties": {
         "tsne": { "$ref": "#/definitions/coord" },
         "xy": { "$ref": "#/definitions/coord" },
-        "cluster": { "type": "string" },
         "genes": { "$ref": "#/definitions/positiveIntegerValues" },
         "factors": { "$ref": "#/definitions/stringValues" },
         "poly": {

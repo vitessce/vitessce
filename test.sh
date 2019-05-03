@@ -25,6 +25,10 @@ cypress run
 echo 'NOTE: Server is still running.'
 end cypress
 
+start schema
+./src/schemas/schema-schema.sh
+end schema
+
 start build
 npm run build
 end build

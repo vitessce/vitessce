@@ -7,6 +7,7 @@
     "image": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["sample", "tileSource"],
       "properties": {
         "sample": { "type": "number" },
         "tileSource": {

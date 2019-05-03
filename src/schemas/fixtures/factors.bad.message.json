@@ -1,11 +1,11 @@
 [
   {
-    "dataPath": "['subcluster'].cells['778']",
-    "keyword": "type",
-    "message": "should be integer",
+    "dataPath": "['subcluster']",
+    "keyword": "required",
+    "message": "should have required property 'map'",
     "params": {
-      "type": "integer"
+      "missingProperty": "map"
     },
-    "schemaPath": "#/definitions/positiveIntegerValues/patternProperties/./type"
+    "schemaPath": "#/patternProperties/./required"
   }
 ]

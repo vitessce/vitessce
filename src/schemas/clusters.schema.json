@@ -21,6 +21,7 @@
     }
   },
   "additionalProperties": false,
+  "required": ["rows", "cols", "matrix"],
   "properties": {
     "rows": { "$ref": "#/definitions/stringArray" },
     "cols": { "$ref": "#/definitions/stringArray" },
