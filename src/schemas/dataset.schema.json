@@ -63,6 +63,7 @@
   "required": ["name", "description", "views", "layers"],
   "properties": {
     "name": { "type": "string" },
+    "public": { "type": "boolean" },
     "description": { "type": "string" },
     "views": { "$ref": "#/definitions/views" },
     "layers": {
