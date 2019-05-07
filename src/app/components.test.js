@@ -21,45 +21,37 @@ describe('app/components.js', () => {
   });
 
   describe('resolveLayout', () => {
-    const layout = {
-      description: { x: 0, y: 0 },
-      status: {
-        x: 1, y: 1, w: 1, h: 1,
+    const layout = [
+      { component: 'FooBar', x: 0, y: 0 },
+      {
+        component: 'FooBar', props: { foo: 'bar' }, x: 1, y: 1, w: 1, h: 1,
       },
-    };
+    ];
     it('handles responsive', () => {
       const { cols, layouts, breakpoints } = resolveLayout({
         columns: {
           1000: [0, 3, 9, 12],
           800: [0, 4, 8, 12],
         },
-        // OLD:
         layout,
-        // TODO:
-        // layout: [
-        //   { component: 'FooBar', x: 0, y: 0 },
-        //   {
-        //     component: 'FooBar', props: { foo: 'bar' }, x: 1, y: 1, w: 1, h: 1,
-        //   },
-        // ],
       });
       expect(cols).toEqual({ 800: 12, 1000: 12 });
       expect(layouts).toEqual(
         {
           800: [
             {
-              h: 1, i: 'description', w: 4, x: 0, y: 0,
+              h: 1, i: '0_0', w: 4, x: 0, y: 0,
             },
             {
-              h: 1, i: 'status', w: 4, x: 4, y: 1,
+              h: 1, i: '1_1', w: 4, x: 4, y: 1,
             },
           ],
           1000: [
             {
-              h: 1, i: 'description', w: 3, x: 0, y: 0,
+              h: 1, i: '0_0', w: 3, x: 0, y: 0,
             },
             {
-              h: 1, i: 'status', w: 6, x: 3, y: 1,
+              h: 1, i: '1_1', w: 6, x: 3, y: 1,
             },
           ],
         },
@@ -80,10 +72,10 @@ describe('app/components.js', () => {
         {
           ID: [
             {
-              h: 1, i: 'description', w: 1, x: 0, y: 0,
+              h: 1, i: '0', w: 1, x: 0, y: 0,
             },
             {
-              h: 1, i: 'status', w: 1, x: 1, y: 1,
+              h: 1, i: '1', w: 1, x: 1, y: 1,
             },
           ],
         },
