@@ -5,10 +5,10 @@ import TitleInfo from '../TitleInfo';
 import {
   CELLS_ADD, CELLS_SELECTION, CELLS_COLOR, STATUS_INFO,
 } from '../../events';
-import Tsne from './Tsne';
+import Scatterplot from './Scatterplot';
 
 
-export default class TsneSubscriber extends React.Component {
+export default class ScatterplotSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = { cells: {}, selectedCellIds: {}, cellColors: null };
@@ -52,7 +52,7 @@ export default class TsneSubscriber extends React.Component {
         title="t-SNE"
         info={`${cellsCount} cells`}
       >
-        <Tsne
+        <Scatterplot
           cells={cells}
           selectedCellIds={selectedCellIds}
           cellColors={cellColors}

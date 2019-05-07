@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.14/linnarsson-2018';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.15/linnarsson-2018';
 
 const linnarssonBase = {
   description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
@@ -48,7 +48,7 @@ const configs = {
       layout: {
         description: { x: 0, y: 0 },
         status: { x: 0, y: 1 },
-        tsne: { x: 0, y: 2, h: 2 },
+        scatterplot: { x: 0, y: 2, h: 2 },
         spatial: { x: 1, y: 0, h: 4 },
         factors: { x: 2, y: 0, h: 2 },
         genes: { x: 2, y: 2, h: 2 },
@@ -63,7 +63,7 @@ const configs = {
     staticLayout: {
       description: { x: 0, y: 0, w: 3, h: 1 },
       status: { x: 0, y: 1, w: 3, h: 1 },
-      tsne: { x: 0, y: 2, w: 3, h: 2 },
+      scatterplot: { x: 0, y: 2, w: 3, h: 2 },
       spatial: { x: 3, y: 0, w: 6, h: 4 },
       factors: { x: 9, y: 0, w: 3, h: 2 },
       genes: { x: 9, y: 2, w: 3, h: 2 },

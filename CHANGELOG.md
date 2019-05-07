@@ -6,6 +6,7 @@
 - Using [docz](https://www.docz.site/) for documentation, and add to the push script.
 - Each JSON schema now checks that we are getting all and only the expected fields...
 and we have a sort-of schema for the schema to make sure these checks are in place.
+- Handle arbitrary mappings, not just t-SNE. Now computing PCA in vitessce-data.
 ### Changed
 - Make Heatmap more usable as a standalone.
 - Fix (?) the scrollbars which had spontaneously appeared.

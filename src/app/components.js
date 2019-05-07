@@ -4,7 +4,7 @@ import { Responsive, WidthProvider } from 'react-grid-layout';
 
 import { LayerManagerPublisher } from '../components/layermanager';
 import { StatusSubscriber } from '../components/status';
-import { TsneSubscriber } from '../components/tsne';
+import { ScatterplotSubscriber } from '../components/scatterplot';
 import { HeatmapSubscriber } from '../components/heatmap';
 import { SpatialSubscriber } from '../components/spatial';
 import { GenesSubscriber } from '../components/genes';
@@ -85,7 +85,7 @@ export function VitessceGrid(props) {
       >
         <div key="description"><Description description={`${name}: ${description}`} /></div>
         <div key="status"><StatusSubscriber /></div>
-        <div key="tsne"><TsneSubscriber /></div>
+        <div key="scatterplot"><ScatterplotSubscriber /></div>
         <div key="spatial"><SpatialSubscriber view={views.spatial} /></div>
         <div key="factors"><FactorsSubscriber /></div>
         <div key="genes"><GenesSubscriber /></div>

@@ -3,22 +3,9 @@ import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
 /**
-React component which renders a scatterplot from cell data, typically tSNE.
-{@link ../demos/tsne.html Component demo}.
-
-@param {Object} props React props
-
-@param {Object} props.cells Cell data; Should conform to
-{@link https://github.com/hms-dbmi/vitessce/blob/master/src/schemas/cells.schema.json schema}.
-
-@param {Object} props.selectedCellIds Set of currently selected cells.
-(Only keys are used; Values should be true.)
-
-@param {Function} props.updateStatus Called when there is a message for the user.
-
-@param {Function} props.updateCellsSelection Called when the selected set is updated.
+React component which renders a scatterplot from cell data, typically tSNE or PCA.
 */
-export default class Tsne extends AbstractSelectableComponent {
+export default class Scatterplot extends AbstractSelectableComponent {
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
@@ -30,17 +17,19 @@ export default class Tsne extends AbstractSelectableComponent {
 
   // eslint-disable-next-line class-methods-use-this
   getCellCoords(cell) {
-    return cell.tsne;
+    return cell.mappings.tsne;
+    // TODO: Make generic.
+    // TODO: Check if it's even needed?
   }
 
   renderLayers() {
     const {
       cells = undefined,
       updateStatus = (message) => {
-        console.warn(`Tsne updateStatus: ${message}`);
+        console.warn(`Scatterplot updateStatus: ${message}`);
       },
       updateCellsSelection = (cellsSelection) => {
-        console.warn(`Tsne updateCellsSelection: ${cellsSelection}`);
+        console.warn(`Scatterplot updateCellsSelection: ${cellsSelection}`);
       },
       selectedCellIds = {},
     } = this.props;
@@ -50,7 +39,7 @@ export default class Tsne extends AbstractSelectableComponent {
     if (cells) {
       layers.push(
         new SelectableScatterplotLayer({
-          id: 'tsne-scatter-plot',
+          id: 'scatterplot',
           isSelected: cellEntry => (
             Object.keys(selectedCellIds).length
               ? selectedCellIds[cellEntry[0]]
@@ -61,7 +50,7 @@ export default class Tsne extends AbstractSelectableComponent {
           stroked: true,
           getPosition: (cellEntry) => {
             const cell = cellEntry[1];
-            return [cell.tsne[0], cell.tsne[1], 0];
+            return [cell.mappings.tsne[0], cell.mappings.tsne[1], 0];
           },
           getColor: cellEntry => (
             this.props.cellColors ? this.props.cellColors[cellEntry[0]] : DEFAULT_COLOR
