@@ -64,7 +64,6 @@ describe('app/components.js', () => {
 
     it('handles static', () => {
       const { cols, layouts, breakpoints } = resolveLayout(
-        // TODO: OLD
         layout,
       );
       expect(cols).toEqual({ ID: 12 });
@@ -72,10 +71,10 @@ describe('app/components.js', () => {
         {
           ID: [
             {
-              h: 1, i: '0', w: 1, x: 0, y: 0,
+              h: 1, i: '0_0', w: 1, x: 0, y: 0,
             },
             {
-              h: 1, i: '1', w: 1, x: 1, y: 1,
+              h: 1, i: '1_1', w: 1, x: 1, y: 1,
             },
           ],
         },

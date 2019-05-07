@@ -43,20 +43,21 @@ export function resolveLayout(layout) {
   const layouts = {};
   const breakpoints = {};
   const components = {};
+  const positions = {};
+
+  (('layout' in layout) ? layout.layout : layout).forEach(
+    (def) => {
+      const id = `${def.x}_${def.y}`;
+      components[id] = {
+        component: def.component, props: def.props,
+      };
+      positions[id] = {
+        id, x: def.x, y: def.y, w: def.w, h: def.h,
+      };
+    },
+  );
 
   if ('layout' in layout) {
-    const positions = {};
-    layout.layout.forEach(
-      (def) => {
-        const id = `${def.x}_${def.y}`;
-        components[id] = {
-          component: def.component, props: def.props,
-        };
-        positions[id] = {
-          id, x: def.x, y: def.y, w: def.w, h: def.h,
-        };
-      },
-    );
     Object.entries(layout.columns).forEach(
       ([width, columnXs]) => {
         cols[width] = columnXs[columnXs.length - 1];
@@ -69,7 +70,7 @@ export function resolveLayout(layout) {
     const id = 'ID';
     const columnCount = 12;
     cols[id] = columnCount;
-    layouts[id] = makeGridLayout(range(columnCount + 1), layout);
+    layouts[id] = makeGridLayout(range(columnCount + 1), positions);
     breakpoints[id] = 1000;
     // Default has different numbers of columns at different widths,
     // so we do need to override that to ensure the same number of columns,
