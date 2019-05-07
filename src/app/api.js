@@ -7,12 +7,6 @@ export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.15/linnarss
 
 const linnarssonBase = {
   description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
-  views: {
-    spatial: {
-      zoom: -6.5,
-      offset: [200, 200],
-    },
-  },
   layers: [
     'cells',
     'clusters',

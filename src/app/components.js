@@ -38,35 +38,41 @@ export function DatasetList(props) {
   );
 }
 
-export function VitessceGrid(props) {
-  const {
-    layers, views, name, description, responsiveLayout, staticLayout,
-  } = props;
-
-  const ResponsiveGridLayout = WidthProvider(Responsive);
-
+export function resolveLayout(layout) {
   const cols = {};
   const layouts = {};
   const breakpoints = {};
 
-  if (responsiveLayout) {
-    Object.entries(responsiveLayout.columns).forEach(
+  if ('layout' in layout) {
+    Object.entries(layout.columns).forEach(
       ([width, columnXs]) => {
         cols[width] = columnXs[columnXs.length - 1];
-        layouts[width] = makeGridLayout(columnXs, responsiveLayout.layout);
+        layouts[width] = makeGridLayout(columnXs, layout.layout);
         breakpoints[width] = width;
       },
     );
   } else {
+    // static layout
     const id = 'ID';
     const columnCount = 12;
     cols[id] = columnCount;
-    layouts[id] = makeGridLayout(range(columnCount + 1), staticLayout);
+    layouts[id] = makeGridLayout(range(columnCount + 1), layout);
     breakpoints[id] = 1000;
     // Default has different numbers of columns at different widths,
     // so we do need to override that to ensure the same number of columns,
     // regardless of window width.
   }
+  return { cols, layouts, breakpoints };
+}
+
+export function VitessceGrid(props) {
+  const {
+    layers, name, description, responsiveLayout, staticLayout,
+  } = props;
+
+  const ResponsiveGridLayout = WidthProvider(Responsive);
+
+  const { cols, layouts, breakpoints } = resolveLayout(responsiveLayout || staticLayout);
 
   const maxRows = getMaxRows(layouts);
 
