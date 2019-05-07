@@ -22,13 +22,28 @@ describe('app/components.js', () => {
 
   describe('resolveLayout', () => {
     const layout = [
-      { component: 'FooBar', x: 0, y: 0 },
+      { component: 'NoProps', x: 0, y: 0 },
       {
-        component: 'FooBar', props: { foo: 'bar' }, x: 1, y: 1, w: 1, h: 1,
+        component: 'HasProps', props: { foo: 'bar' }, x: 1, y: 1, w: 1, h: 1,
       },
     ];
+    const expectedComponents = {
+      '0_0': {
+        component: 'NoProps',
+        props: {},
+      },
+      '1_1': {
+        component: 'HasProps',
+        props: {
+          foo: 'bar',
+        },
+      },
+    };
+
     it('handles responsive', () => {
-      const { cols, layouts, breakpoints } = resolveLayout({
+      const {
+        cols, layouts, breakpoints, components,
+      } = resolveLayout({
         columns: {
           1000: [0, 3, 9, 12],
           800: [0, 4, 8, 12],
@@ -60,10 +75,13 @@ describe('app/components.js', () => {
         800: '800',
         1000: '1000',
       });
+      expect(components).toEqual(expectedComponents);
     });
 
     it('handles static', () => {
-      const { cols, layouts, breakpoints } = resolveLayout(
+      const {
+        cols, layouts, breakpoints, components,
+      } = resolveLayout(
         layout,
       );
       expect(cols).toEqual({ ID: 12 });
@@ -80,6 +98,7 @@ describe('app/components.js', () => {
         },
       );
       expect(breakpoints).toEqual({ ID: 1000 });
+      expect(components).toEqual(expectedComponents);
     });
   });
 });

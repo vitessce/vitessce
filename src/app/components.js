@@ -49,7 +49,7 @@ export function resolveLayout(layout) {
     (def) => {
       const id = `${def.x}_${def.y}`;
       components[id] = {
-        component: def.component, props: def.props,
+        component: def.component, props: def.props || {},
       };
       positions[id] = {
         id, x: def.x, y: def.y, w: def.w, h: def.h,
@@ -76,7 +76,9 @@ export function resolveLayout(layout) {
     // so we do need to override that to ensure the same number of columns,
     // regardless of window width.
   }
-  return { cols, layouts, breakpoints };
+  return {
+    cols, layouts, breakpoints, components,
+  };
 }
 
 export function VitessceGrid(props) {
