@@ -85,7 +85,7 @@ export function VitessceGrid(props) {
       >
         <div key="description"><Description description={`${name}: ${description}`} /></div>
         <div key="status"><StatusSubscriber /></div>
-        <div key="scatterplot"><ScatterplotSubscriber /></div>
+        <div key="scatterplot-tsne"><ScatterplotSubscriber /></div>
         <div key="spatial"><SpatialSubscriber view={views.spatial} /></div>
         <div key="factors"><FactorsSubscriber /></div>
         <div key="genes"><GenesSubscriber /></div>
