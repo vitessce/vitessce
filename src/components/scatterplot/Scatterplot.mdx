@@ -1,13 +1,13 @@
 ---
-name: Tsne
-route: /Tsne
+name: Scatterplot
+route: /Scatterplot
 menu: Broken Examples
 ---
 
 import { Playground } from 'docz'
-import Tsne from './Tsne';
+import Scatterplot from './Scatterplot';
 
-# Tsne
+# Scatterplot
 
 A basic scatterplot.
 
@@ -18,15 +18,15 @@ A basic scatterplot.
     width: '200px',
     height: '200px',
   }}>
-    <Tsne
+    <Scatterplot
     />
   </div>
 </Playground>
 
 ```
-      cells={{
-        '42': {cluster: 'A', 'tsne': [-12, 6]},
-        '52': {cluster: 'B', 'tsne': [13, -20]},
-        '62': {cluster: 'C', 'tsne': [14, 31]}
-      }}
+cells={{
+  '42': {cluster: 'A', 'mappings': {'tsne': [-12, 6]}},
+  '52': {cluster: 'B', 'mappings': {'tsne': [13, -20]}},
+  '62': {cluster: 'C', 'mappings': {'tsne': [14, 31]}}
+}}
 ```

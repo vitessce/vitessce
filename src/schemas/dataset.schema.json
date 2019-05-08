@@ -5,18 +5,18 @@
   "type": "object",
   "definitions": {
     "layout": {
-      "type": "object",
-      "patternProperties": {
-        ".": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["x", "y"],
-          "properties": {
-            "x": { "type": "integer" },
-            "y": { "type": "integer" },
-            "w": { "type": "integer" },
-            "h": { "type": "integer" }
-          }
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["component", "x", "y"],
+        "properties": {
+          "component": { "type": "string" },
+          "props": { "type": "object" },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "w": { "type": "integer" },
+          "h": { "type": "integer" }
         }
       }
     },
@@ -36,36 +36,14 @@
         },
         "layout": { "$ref": "#/definitions/layout" }
       }
-    },
-    "views": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["spatial"],
-      "properties": {
-        "spatial": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["zoom", "offset"],
-          "properties": {
-            "zoom": { "type": "number" },
-            "offset": {
-              "type": "array",
-              "maxItems": 2,
-              "minItems": 2,
-              "items": { "type": "number" }
-            }
-          }
-        }
-      }
     }
   },
   "additionalProperties": false,
-  "required": ["name", "description", "views", "layers"],
+  "required": ["name", "description", "layers"],
   "properties": {
     "name": { "type": "string" },
     "public": { "type": "boolean" },
     "description": { "type": "string" },
-    "views": { "$ref": "#/definitions/views" },
     "layers": {
       "type": "array",
       "items": {

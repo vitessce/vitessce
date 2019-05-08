@@ -5,10 +5,10 @@ import TitleInfo from '../TitleInfo';
 import {
   CELLS_ADD, CELLS_SELECTION, CELLS_COLOR, STATUS_INFO,
 } from '../../events';
-import Tsne from './Tsne';
+import Scatterplot from './Scatterplot';
 
 
-export default class TsneSubscriber extends React.Component {
+export default class ScatterplotSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = { cells: {}, selectedCellIds: {}, cellColors: null };
@@ -46,14 +46,16 @@ export default class TsneSubscriber extends React.Component {
 
   render() {
     const { cells, selectedCellIds, cellColors } = this.state;
+    const { mapping } = this.props;
     const cellsCount = Object.keys(cells).length;
     return (
       <TitleInfo
-        title="t-SNE"
+        title={`Scatterplot (${mapping})`}
         info={`${cellsCount} cells`}
       >
-        <Tsne
+        <Scatterplot
           cells={cells}
+          mapping={mapping}
           selectedCellIds={selectedCellIds}
           cellColors={cellColors}
           updateStatus={message => PubSub.publish(STATUS_INFO, message)}

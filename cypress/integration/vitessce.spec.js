@@ -40,7 +40,7 @@ describe('Vitessce', () => {
 
   it('loads details (static)', () => {
     cy.visit('/?dataset=linnarsson-2018-static');
-    cy.contains('Linnarsson (static layout)');
+    cy.contains('Linnarsson (static layout): Spatial organization');
   });
 
   it('loads details (responsive)', () => {
@@ -49,8 +49,7 @@ describe('Vitessce', () => {
     cy.get('.modal-body').should('be.visible');
 
     // Data Set:
-    cy.contains('Linnarsson (responsive layout)');
-    cy.contains('Spatial organization of the');
+    cy.contains('Linnarsson: Spatial organization');
 
     // Status:
     // Contents will depend on load order, so not sure how to make a good test
@@ -73,8 +72,9 @@ describe('Vitessce', () => {
     cy.contains('2 genes');
     cy.contains('Slc32a1');
 
-    // t-SNE:
-    // Has same number of cells as Spatial.
+    // Scatterplots:
+    cy.contains('Scatterplot (tsne)');
+    cy.contains('Scatterplot (pca)');
 
     // Fails on Travis: Another race condition?
     // cy.get('.modal-body').should('not.be.visible');

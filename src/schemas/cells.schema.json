@@ -31,9 +31,14 @@
   "patternProperties": {
     ".": {
       "additionalProperties": false,
-      "required": ["tsne", "xy", "genes", "factors", "poly"],
+      "required": ["mappings", "xy", "genes", "factors", "poly"],
       "properties": {
-        "tsne": { "$ref": "#/definitions/coord" },
+        "mappings": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "$ref": "#/definitions/coord" }
+          }
+        },
         "xy": { "$ref": "#/definitions/coord" },
         "genes": { "$ref": "#/definitions/positiveIntegerValues" },
         "factors": { "$ref": "#/definitions/stringValues" },
