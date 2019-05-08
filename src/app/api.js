@@ -55,7 +55,7 @@ const configs = {
         },
         {
           component: 'ScatterplotSubscriber',
-          props: {}, // TODO: mapping: 'tsne'
+          props: { mapping: 'tsne' },
           x: 0, y: 2, h: 2,
         },
         {
@@ -67,6 +67,11 @@ const configs = {
             },
           },
           x: 1, y: 0, h: 2,
+        },
+        {
+          component: 'ScatterplotSubscriber',
+          props: { mapping: 'pca' },
+          x: 1, y: 2, h: 2,
         },
         {
           component: 'FactorsSubscriber',

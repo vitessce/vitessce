@@ -25,6 +25,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
   renderLayers() {
     const {
       cells = undefined,
+      mapping,
       updateStatus = (message) => {
         console.warn(`Scatterplot updateStatus: ${message}`);
       },
@@ -49,8 +50,8 @@ export default class Scatterplot extends AbstractSelectableComponent {
           lineWidthMinPixels: 0.1,
           stroked: true,
           getPosition: (cellEntry) => {
-            const cell = cellEntry[1];
-            return [cell.mappings.tsne[0], cell.mappings.tsne[1], 0];
+            const mappedCell = cellEntry[1].mappings[mapping];
+            return [mappedCell[0], mappedCell[1], 0];
           },
           getColor: cellEntry => (
             this.props.cellColors ? this.props.cellColors[cellEntry[0]] : DEFAULT_COLOR

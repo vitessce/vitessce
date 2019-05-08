@@ -46,14 +46,16 @@ export default class ScatterplotSubscriber extends React.Component {
 
   render() {
     const { cells, selectedCellIds, cellColors } = this.state;
+    const { mapping } = this.props;
     const cellsCount = Object.keys(cells).length;
     return (
       <TitleInfo
-        title="t-SNE"
+        title={`Scatterplot (${mapping})`}
         info={`${cellsCount} cells`}
       >
         <Scatterplot
           cells={cells}
+          mapping={mapping}
           selectedCellIds={selectedCellIds}
           cellColors={cellColors}
           updateStatus={message => PubSub.publish(STATUS_INFO, message)}
