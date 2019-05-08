@@ -101,7 +101,7 @@ export function VitessceGrid(props) {
     cols, layouts, breakpoints, components,
   } = resolveLayout(responsiveLayout || staticLayout);
 
-  // TODO: Try 'import *' instead
+  // TODO: Try 'import *' instead? https://github.com/hms-dbmi/vitessce/issues/190
   const componentRegistry = {
     Description,
     StatusSubscriber,

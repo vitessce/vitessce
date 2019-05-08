@@ -7,6 +7,8 @@
 - Each JSON schema now checks that we are getting all and only the expected fields...
 and we have a sort-of schema for the schema to make sure these checks are in place.
 - Handle arbitrary mappings, not just t-SNE. Now computing PCA in vitessce-data.
+- Flexible configuration: load components by name, or have multiple instances
+of the same type of component.
 ### Changed
 - Make Heatmap more usable as a standalone.
 - Fix (?) the scrollbars which had spontaneously appeared.
