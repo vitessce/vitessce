@@ -144,7 +144,7 @@ const configs = {
           options: { bounded: true },
           viewConfig: higlassViewConf,
         },
-        x: 1, y: 1, w: 10, h: 1,
+        x: 1, y: 0, w: 10, h: 1,
       },
     ],
   },
