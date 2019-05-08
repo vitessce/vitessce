@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
+import higlassViewConf from './higlass-viewconf.json';
 
 // Used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.15/linnarsson-2018';
@@ -131,9 +132,24 @@ const configs = {
         x: 0, y: 4, w: 12, h: 1,
       },
     ],
-    /* eslint-enable */
+  },
+  'higlass-component-demo': {
+    description: '???',
+    layers: [],
+    name: 'HiGlass component demo',
+    staticLayout: [
+      {
+        component: 'HiGlassComponent',
+        props: {
+          options: { bounded: true },
+          viewConfig: higlassViewConf,
+        },
+        x: 1, y: 1, w: 10, h: 1,
+      },
+    ],
   },
 };
+/* eslint-enable */
 
 export function listConfig() {
   return Object.entries(configs).filter(

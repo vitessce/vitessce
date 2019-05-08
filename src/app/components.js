@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { HiGlassComponent } from 'higlass';
+
 import { Responsive, WidthProvider } from 'react-grid-layout';
 
 import { LayerManagerPublisher } from '../components/layermanager';
@@ -110,6 +112,7 @@ export function VitessceGrid(props) {
     FactorsSubscriber,
     GenesSubscriber,
     HeatmapSubscriber,
+    HiGlassComponent,
   };
 
   const layoutChildren = Object.entries(components).map(([k, v]) => {
