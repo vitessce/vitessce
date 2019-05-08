@@ -47,7 +47,7 @@ export function resolveLayout(layout) {
 
   (('layout' in layout) ? layout.layout : layout).forEach(
     (def) => {
-      const id = `${def.x}_${def.y}`;
+      const id = `r${def.x}_c${def.y}`;
       components[id] = {
         component: def.component, props: def.props || {},
       };
@@ -81,17 +81,43 @@ export function resolveLayout(layout) {
   };
 }
 
+function Description(props) {
+  const { description } = props;
+  return (
+    <TitleInfo title="Data Set" isScroll>
+      <p className="details">{description}</p>
+    </TitleInfo>
+  );
+}
+
 export function VitessceGrid(props) {
   const {
-    layers, name, description, responsiveLayout, staticLayout,
+    layers, responsiveLayout, staticLayout,
   } = props;
 
   const ResponsiveGridLayout = WidthProvider(Responsive);
 
-  const { cols, layouts, breakpoints } = resolveLayout(responsiveLayout || staticLayout);
+  const {
+    cols, layouts, breakpoints, components,
+  } = resolveLayout(responsiveLayout || staticLayout);
+
+  // TODO: Try 'import *' instead
+  const componentRegistry = {
+    Description,
+    StatusSubscriber,
+    ScatterplotSubscriber,
+    SpatialSubscriber,
+    FactorsSubscriber,
+    GenesSubscriber,
+    HeatmapSubscriber,
+  };
+
+  const layoutChildren = Object.entries(components).map(([k, v]) => {
+    const Component = componentRegistry[v.component];
+    return <div key={k}><Component {... v.props} /></div>;
+  });
 
   const maxRows = getMaxRows(layouts);
-
   const padding = 10;
   return (
     <React.Fragment>
@@ -105,23 +131,8 @@ export function VitessceGrid(props) {
         containerPadding={[padding, padding]}
         draggableHandle=".title"
       >
-        <div key="description"><Description description={`${name}: ${description}`} /></div>
-        <div key="status"><StatusSubscriber /></div>
-        <div key="scatterplot-tsne"><ScatterplotSubscriber /></div>
-        <div key="spatial"><SpatialSubscriber view={views.spatial} /></div>
-        <div key="factors"><FactorsSubscriber /></div>
-        <div key="genes"><GenesSubscriber /></div>
-        <div key="heatmap"><HeatmapSubscriber /></div>
+        {layoutChildren}
       </ResponsiveGridLayout>
     </React.Fragment>
-  );
-}
-
-function Description(props) {
-  const { description } = props;
-  return (
-    <TitleInfo title="Data Set" isScroll>
-      <p className="details">{description}</p>
-    </TitleInfo>
   );
 }

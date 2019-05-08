@@ -28,11 +28,11 @@ describe('app/components.js', () => {
       },
     ];
     const expectedComponents = {
-      '0_0': {
+      r0_c0: {
         component: 'NoProps',
         props: {},
       },
-      '1_1': {
+      r1_c1: {
         component: 'HasProps',
         props: {
           foo: 'bar',
@@ -55,18 +55,18 @@ describe('app/components.js', () => {
         {
           800: [
             {
-              h: 1, i: '0_0', w: 4, x: 0, y: 0,
+              h: 1, i: 'r0_c0', w: 4, x: 0, y: 0,
             },
             {
-              h: 1, i: '1_1', w: 4, x: 4, y: 1,
+              h: 1, i: 'r1_c1', w: 4, x: 4, y: 1,
             },
           ],
           1000: [
             {
-              h: 1, i: '0_0', w: 3, x: 0, y: 0,
+              h: 1, i: 'r0_c0', w: 3, x: 0, y: 0,
             },
             {
-              h: 1, i: '1_1', w: 6, x: 3, y: 1,
+              h: 1, i: 'r1_c1', w: 6, x: 3, y: 1,
             },
           ],
         },
@@ -89,10 +89,10 @@ describe('app/components.js', () => {
         {
           ID: [
             {
-              h: 1, i: '0_0', w: 1, x: 0, y: 0,
+              h: 1, i: 'r0_c0', w: 1, x: 0, y: 0,
             },
             {
-              h: 1, i: '1_1', w: 1, x: 1, y: 1,
+              h: 1, i: 'r1_c1', w: 1, x: 1, y: 1,
             },
           ],
         },
