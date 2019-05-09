@@ -140,6 +140,7 @@ const configs = {
     staticLayout: [
       {
         component: 'HiGlassComponent',
+        stylesheets: ['https://unpkg.com/higlass@1.2.6/dist/hglib.css'],
         props: {
           options: { bounded: true },
           viewConfig: higlassViewConf,

@@ -117,7 +117,13 @@ export function VitessceGrid(props) {
 
   const layoutChildren = Object.entries(components).map(([k, v]) => {
     const Component = componentRegistry[v.component];
-    return <div key={k}><Component {... v.props} /></div>;
+    const styleLinks = (v.stylesheets || []).map(url => <link rel="stylesheet" href={url} />);
+    return (
+      <div key={k}>
+        {styleLinks}
+        <Component {... v.props} />
+      </div>
+    );
   });
 
   const maxRows = getMaxRows(layouts);
