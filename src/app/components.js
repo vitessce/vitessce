@@ -1,16 +1,10 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 
 import { HiGlassComponent } from 'higlass';
 
 import { Responsive, WidthProvider } from 'react-grid-layout';
 
 import { LayerManagerPublisher } from '../components/layermanager';
-import { StatusSubscriber } from '../components/status';
-import { ScatterplotSubscriber } from '../components/scatterplot';
-import { HeatmapSubscriber } from '../components/heatmap';
-import { SpatialSubscriber } from '../components/spatial';
-import { GenesSubscriber } from '../components/genes';
-import { FactorsSubscriber } from '../components/factors';
 
 import TitleInfo from '../components/TitleInfo';
 
@@ -106,12 +100,12 @@ export function VitessceGrid(props) {
   // TODO: Try 'import *' instead? https://github.com/hms-dbmi/vitessce/issues/190
   const componentRegistry = {
     Description,
-    StatusSubscriber,
-    ScatterplotSubscriber,
-    SpatialSubscriber,
-    FactorsSubscriber,
-    GenesSubscriber,
-    HeatmapSubscriber,
+    StatusSubscriber: React.lazy(() => import('../components/status/StatusSubscriber.js')),
+    ScatterplotSubscriber: React.lazy(() => import('../components/scatterplot/ScatterplotSubscriber.js')),
+    SpatialSubscriber: React.lazy(() => import('../components/spatial/SpatialSubscriber.js')),
+    FactorsSubscriber: React.lazy(() => import('../components/factors/FactorsSubscriber.js')),
+    GenesSubscriber: React.lazy(() => import('../components/genes/GenesSubscriber.js')),
+    HeatmapSubscriber: React.lazy(() => import('../components/heatmap/HeatmapSubscriber.js')),
     HiGlassComponent,
   };
 
@@ -121,7 +115,9 @@ export function VitessceGrid(props) {
     return (
       <div key={k}>
         {styleLinks}
-        <Component {... v.props} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <Component {... v.props} />
+        </Suspense>
       </div>
     );
   });
