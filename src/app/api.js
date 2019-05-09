@@ -111,7 +111,7 @@ const configs = {
     staticLayout: [
       { component: 'HiGlassComponent',
         props: {
-          options: { bounded: true },
+          options: { bounded: true, editable: false },
           viewConfig: higlassViewConf,
         },
         x: 1, y: 0, w: 10, h: 1 },
