@@ -1,13 +1,9 @@
 import React, { Suspense } from 'react';
 
-import { HiGlassComponent } from 'higlass';
-
 import { Responsive, WidthProvider } from 'react-grid-layout';
 
 import { LayerManagerPublisher } from '../components/layermanager';
-
-import TitleInfo from '../components/TitleInfo';
-
+import { getComponent } from './componentRegistry';
 import { makeGridLayout, range, getMaxRows } from './layoutUtils';
 
 
@@ -77,15 +73,6 @@ export function resolveLayout(layout) {
   };
 }
 
-function Description(props) {
-  const { description } = props;
-  return (
-    <TitleInfo title="Data Set" isScroll>
-      <p className="details">{description}</p>
-    </TitleInfo>
-  );
-}
-
 export function VitessceGrid(props) {
   const {
     layers, responsiveLayout, staticLayout,
@@ -97,20 +84,8 @@ export function VitessceGrid(props) {
     cols, layouts, breakpoints, components,
   } = resolveLayout(responsiveLayout || staticLayout);
 
-  // TODO: Try 'import *' instead? https://github.com/hms-dbmi/vitessce/issues/190
-  const componentRegistry = {
-    Description,
-    StatusSubscriber: React.lazy(() => import('../components/status/StatusSubscriber.js')),
-    ScatterplotSubscriber: React.lazy(() => import('../components/scatterplot/ScatterplotSubscriber.js')),
-    SpatialSubscriber: React.lazy(() => import('../components/spatial/SpatialSubscriber.js')),
-    FactorsSubscriber: React.lazy(() => import('../components/factors/FactorsSubscriber.js')),
-    GenesSubscriber: React.lazy(() => import('../components/genes/GenesSubscriber.js')),
-    HeatmapSubscriber: React.lazy(() => import('../components/heatmap/HeatmapSubscriber.js')),
-    HiGlassComponent,
-  };
-
   const layoutChildren = Object.entries(components).map(([k, v]) => {
-    const Component = componentRegistry[v.component];
+    const Component = getComponent(v.component);
     const styleLinks = (v.stylesheets || []).map(url => <link rel="stylesheet" href={url} />);
     return (
       <div key={k}>

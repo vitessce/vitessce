@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { HiGlassComponent } from 'higlass';
-
 import TitleInfo from '../components/TitleInfo';
 
 function Description(props) {
@@ -21,9 +19,9 @@ const registry = {
   FactorsSubscriber: React.lazy(() => import('../components/factors/FactorsSubscriber.js')),
   GenesSubscriber: React.lazy(() => import('../components/genes/GenesSubscriber.js')),
   HeatmapSubscriber: React.lazy(() => import('../components/heatmap/HeatmapSubscriber.js')),
-  HiGlassComponent,
+  HiGlassComponent: React.lazy(() => import('../external-components/StyledHiGlass.js')),
 };
 
-export default function getComponent(name) {
+export function getComponent(name) {
   return registry[name];
 }
