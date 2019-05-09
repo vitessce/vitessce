@@ -20,6 +20,7 @@ const registry = {
   GenesSubscriber: React.lazy(() => import('../components/genes/GenesSubscriber.js')),
   HeatmapSubscriber: React.lazy(() => import('../components/heatmap/HeatmapSubscriber.js')),
   HiGlassComponent: React.lazy(() => import('../external-components/StyledHiGlass.js')),
+  HiGlassWrappedComponent: React.lazy(() => import('../external-components/WrappedStyledHiGlass.js')),
 };
 
 export function getComponent(name) {

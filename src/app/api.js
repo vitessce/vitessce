@@ -117,6 +117,19 @@ const configs = {
         x: 1, y: 0, w: 10, h: 1 },
     ],
   },
+  'higlass-wrapped-component-demo': {
+    description: '???',
+    layers: [],
+    name: 'HiGlass wrapped component demo',
+    staticLayout: [
+      { component: 'HiGlassWrappedComponent',
+        props: {
+          options: { bounded: true, editable: false },
+          viewConfig: higlassViewConf,
+        },
+        x: 1, y: 0, w: 10, h: 1 },
+    ],
+  },
 };
 /* eslint-enable */
 
