@@ -12,10 +12,6 @@
         "required": ["component", "x", "y"],
         "properties": {
           "component": { "type": "string" },
-          "stylesheets": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
           "props": { "type": "object" },
           "x": { "type": "integer" },
           "y": { "type": "integer" },
