@@ -1,6 +1,12 @@
 import React from 'react';
 
 import TitleInfo from '../components/TitleInfo';
+import StatusSubscriber from '../components/status/StatusSubscriber';
+import ScatterplotSubscriber from '../components/scatterplot/ScatterplotSubscriber';
+import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
+import FactorsSubscriber from '../components/factors/FactorsSubscriber';
+import GenesSubscriber from '../components/genes/GenesSubscriber';
+import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 
 function Description(props) {
   const { description } = props;
@@ -13,14 +19,16 @@ function Description(props) {
 
 const registry = {
   Description,
-  StatusSubscriber: React.lazy(() => import('../components/status/StatusSubscriber.js')),
-  ScatterplotSubscriber: React.lazy(() => import('../components/scatterplot/ScatterplotSubscriber.js')),
-  SpatialSubscriber: React.lazy(() => import('../components/spatial/SpatialSubscriber.js')),
-  FactorsSubscriber: React.lazy(() => import('../components/factors/FactorsSubscriber.js')),
-  GenesSubscriber: React.lazy(() => import('../components/genes/GenesSubscriber.js')),
-  HeatmapSubscriber: React.lazy(() => import('../components/heatmap/HeatmapSubscriber.js')),
+  StatusSubscriber,
+  ScatterplotSubscriber,
+  SpatialSubscriber,
+  FactorsSubscriber,
+  GenesSubscriber,
+  HeatmapSubscriber,
   HiGlassComponent: React.lazy(() => import('../external-components/StyledHiGlass.js')),
   HiGlassWrappedComponent: React.lazy(() => import('../external-components/WrappedStyledHiGlass.js')),
+  // TODO: Our Higlass demos don't actually need any data layers to load...
+  // but when they do, we'll need to resolve https://github.com/hms-dbmi/vitessce/issues/197
 };
 
 export function getComponent(name) {
