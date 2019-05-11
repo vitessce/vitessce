@@ -5,7 +5,7 @@ import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
-import OpenSeadragonComponent from '../OpenSeadragonComponent';
+import OpenSeadragonComponent from '../../vendor/OpenSeadragonComponent';
 
 export function square(x, y) {
   const r = 5;
