@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
+import higlassViewConf from './higlass-viewconf.json';
 
 // Used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.15/linnarsson-2018';
@@ -24,6 +25,7 @@ const linnarssonBase = {
 
 
 /* eslint-disable object-property-newline */
+/* eslint-disable object-curly-newline */
 const configs = {
   'linnarsson-2018': {
     ...linnarssonBase,
@@ -42,49 +44,33 @@ const configs = {
         600: [0, 2, 4, 8],
       },
       layout: [
-        {
-          component: 'Description',
+        { component: 'Description',
           props: {
             description: 'Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
           },
-          x: 0, y: 0,
-        },
-        {
-          component: 'StatusSubscriber',
-          x: 0, y: 1,
-        },
-        {
-          component: 'ScatterplotSubscriber',
+          x: 0, y: 0 },
+        { component: 'StatusSubscriber',
+          x: 0, y: 1 },
+        { component: 'ScatterplotSubscriber',
           props: { mapping: 'tsne' },
-          x: 0, y: 2, h: 2,
-        },
-        {
-          component: 'SpatialSubscriber',
+          x: 0, y: 2, h: 2 },
+        { component: 'SpatialSubscriber',
           props: {
             view: {
               zoom: -6.5,
               offset: [200, 200],
             },
           },
-          x: 1, y: 0, h: 2,
-        },
-        {
-          component: 'ScatterplotSubscriber',
+          x: 1, y: 0, h: 2 },
+        { component: 'ScatterplotSubscriber',
           props: { mapping: 'pca' },
-          x: 1, y: 2, h: 2,
-        },
-        {
-          component: 'FactorsSubscriber',
-          x: 2, y: 0, h: 2,
-        },
-        {
-          component: 'GenesSubscriber',
-          x: 2, y: 2, h: 2,
-        },
-        {
-          component: 'HeatmapSubscriber',
-          x: 0, y: 4, w: 3,
-        },
+          x: 1, y: 2, h: 2 },
+        { component: 'FactorsSubscriber',
+          x: 2, y: 0, h: 2 },
+        { component: 'GenesSubscriber',
+          x: 2, y: 2, h: 2 },
+        { component: 'HeatmapSubscriber',
+          x: 0, y: 4, w: 3 },
       ],
     },
   },
@@ -92,48 +78,60 @@ const configs = {
     ...linnarssonBase,
     name: 'Linnarsson (static layout)',
     staticLayout: [
-      {
-        component: 'Description',
+      { component: 'Description',
         props: {
           description: 'Linnarsson (static layout): Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
         },
-        x: 0, y: 0, w: 3, h: 1,
-      },
-      {
-        component: 'StatusSubscriber',
-        x: 0, y: 1, w: 3, h: 1,
-      },
-      {
-        component: 'ScatterplotSubscriber',
+        x: 0, y: 0, w: 3, h: 1 },
+      { component: 'StatusSubscriber',
+        x: 0, y: 1, w: 3, h: 1 },
+      { component: 'ScatterplotSubscriber',
         props: { mapping: 'tsne' },
-        x: 0, y: 2, w: 3, h: 2,
-      },
-      {
-        component: 'SpatialSubscriber',
+        x: 0, y: 2, w: 3, h: 2 },
+      { component: 'SpatialSubscriber',
         props: {
           view: {
             zoom: -6.5,
             offset: [200, 200],
           },
         },
-        x: 3, y: 0, w: 6, h: 4,
-      },
-      {
-        component: 'FactorsSubscriber',
-        x: 9, y: 0, w: 3, h: 2,
-      },
-      {
-        component: 'GenesSubscriber',
-        x: 9, y: 2, w: 3, h: 2,
-      },
-      {
-        component: 'HeatmapSubscriber',
-        x: 0, y: 4, w: 12, h: 1,
-      },
+        x: 3, y: 0, w: 6, h: 4 },
+      { component: 'FactorsSubscriber',
+        x: 9, y: 0, w: 3, h: 2 },
+      { component: 'GenesSubscriber',
+        x: 9, y: 2, w: 3, h: 2 },
+      { component: 'HeatmapSubscriber',
+        x: 0, y: 4, w: 12, h: 1 },
     ],
-    /* eslint-enable */
+  },
+  'higlass-component-demo': {
+    description: '???',
+    layers: [],
+    name: 'HiGlass component demo',
+    staticLayout: [
+      { component: 'HiGlassComponent',
+        props: {
+          options: { bounded: true, editable: false },
+          viewConfig: higlassViewConf,
+        },
+        x: 1, y: 0, w: 10, h: 1 },
+    ],
+  },
+  'higlass-wrapped-component-demo': {
+    description: '???',
+    layers: [],
+    name: 'HiGlass wrapped component demo',
+    staticLayout: [
+      { component: 'HiGlassWrappedComponent',
+        props: {
+          options: { bounded: true, editable: false },
+          viewConfig: higlassViewConf,
+        },
+        x: 1, y: 0, w: 10, h: 1 },
+    ],
   },
 };
+/* eslint-enable */
 
 export function listConfig() {
   return Object.entries(configs).filter(

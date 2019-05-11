@@ -1,17 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 
 import { Responsive, WidthProvider } from 'react-grid-layout';
 
 import { LayerManagerPublisher } from '../components/layermanager';
-import { StatusSubscriber } from '../components/status';
-import { ScatterplotSubscriber } from '../components/scatterplot';
-import { HeatmapSubscriber } from '../components/heatmap';
-import { SpatialSubscriber } from '../components/spatial';
-import { GenesSubscriber } from '../components/genes';
-import { FactorsSubscriber } from '../components/factors';
-
-import TitleInfo from '../components/TitleInfo';
-
+import { getComponent } from './componentRegistry';
 import { makeGridLayout, range, getMaxRows } from './layoutUtils';
 
 
@@ -81,15 +73,6 @@ export function resolveLayout(layout) {
   };
 }
 
-function Description(props) {
-  const { description } = props;
-  return (
-    <TitleInfo title="Data Set" isScroll>
-      <p className="details">{description}</p>
-    </TitleInfo>
-  );
-}
-
 export function VitessceGrid(props) {
   const {
     layers, responsiveLayout, staticLayout,
@@ -101,20 +84,17 @@ export function VitessceGrid(props) {
     cols, layouts, breakpoints, components,
   } = resolveLayout(responsiveLayout || staticLayout);
 
-  // TODO: Try 'import *' instead? https://github.com/hms-dbmi/vitessce/issues/190
-  const componentRegistry = {
-    Description,
-    StatusSubscriber,
-    ScatterplotSubscriber,
-    SpatialSubscriber,
-    FactorsSubscriber,
-    GenesSubscriber,
-    HeatmapSubscriber,
-  };
-
   const layoutChildren = Object.entries(components).map(([k, v]) => {
-    const Component = componentRegistry[v.component];
-    return <div key={k}><Component {... v.props} /></div>;
+    const Component = getComponent(v.component);
+    const styleLinks = (v.stylesheets || []).map(url => <link rel="stylesheet" href={url} />);
+    return (
+      <div key={k}>
+        {styleLinks}
+        <Suspense fallback={<div>Loading...</div>}>
+          <Component {... v.props} />
+        </Suspense>
+      </div>
+    );
   });
 
   const maxRows = getMaxRows(layouts);
