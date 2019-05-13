@@ -25,8 +25,8 @@ const registry = {
   FactorsSubscriber,
   GenesSubscriber,
   HeatmapSubscriber,
-  HiGlassComponent: React.lazy(() => import('../external-components/StyledHiGlass.js')),
-  HiGlassWrappedComponent: React.lazy(() => import('../external-components/WrappedStyledHiGlass.js')),
+  HiGlassComponent: React.lazy(() => import('../vendor/StyledHiGlass.js')),
+  HiGlassWrappedComponent: React.lazy(() => import('../vendor/WrappedStyledHiGlass.js')),
   // TODO: Our Higlass demos don't actually need any data layers to load...
   // but when they do, we'll need to resolve https://github.com/hms-dbmi/vitessce/issues/197
 };
