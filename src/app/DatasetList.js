@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function DatasetList(props) {
+export default function DatasetList(props) {
   const { configs } = props;
   const links = configs.map(
     ({ id, name, description }) => (

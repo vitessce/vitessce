@@ -6,7 +6,7 @@ import '../css/index.css';
 import '../../node_modules/react-grid-layout/css/styles.css';
 import '../../node_modules/react-resizable/css/styles.css';
 
-import { DatasetList } from './components';
+import DatasetList from './DatasetList';
 import { LayerManagerPublisher } from '../components/layermanager';
 
 import { LIGHT_CARD } from '../components/classNames';
