@@ -24,7 +24,7 @@ export default function renderApp(id) {
       <React.Fragment>
         <LayerManagerPublisher layers={config.layers} />
         <VitessceGrid
-          layout={config.responsiveLayout}
+          layout={config.responsiveLayout || config.staticLayout}
           getComponent={getComponent}
         />,
       </React.Fragment>,
