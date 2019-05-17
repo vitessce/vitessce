@@ -4,7 +4,7 @@
   "title": "Vitessce data set",
   "type": "object",
   "definitions": {
-    "layout": {
+    "components": {
       "type": "array",
       "items": {
         "type": "object",
@@ -23,7 +23,7 @@
     "responsiveLayout": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["columns", "layout"],
+      "required": ["columns", "components"],
       "properties": {
         "columns": {
           "type": "object",
@@ -34,7 +34,7 @@
             }
           }
         },
-        "layout": { "$ref": "#/definitions/layout" }
+        "components": { "$ref": "#/definitions/components" }
       }
     }
   },
@@ -58,6 +58,6 @@
       }
     },
     "responsiveLayout": { "$ref": "#/definitions/responsiveLayout" },
-    "staticLayout": { "$ref": "#/definitions/layout" }
+    "staticLayout": { "$ref": "#/definitions/components" }
   }
 }
