@@ -1,10 +1,9 @@
 import React from 'react';
-import { listConfigs } from './api';
 
 import { LIGHT_CARD } from '../components/classNames';
 
-function DatasetList() {
-  const configs = listConfigs();
+function DatasetList(props) {
+  const { configs } = props;
   const links = configs.map(
     ({ id, name, description }) => (
       <a
@@ -26,12 +25,13 @@ function DatasetList() {
   );
 }
 
-export default function Welcome() {
+export default function Welcome(props) {
+  const { configs } = props;
   return (
     <div className="container-fluid d-flex flex-column align-items-end">
       <div className={LIGHT_CARD} style={{ width: '100%', maxWidth: '330px', margin: 'auto' }}>
         <form method="GET">
-          <h1><span role="img" aria-label="Fast Train">🚄 </span> Vitessce</h1>
+          <h1><span role="img" aria-label="fast train!">🚄 </span> Vitessce</h1>
           <div>
             <p>
               This is a demo of key concepts for a visual integration tool for exploration
@@ -41,7 +41,7 @@ export default function Welcome() {
             </p>
             Select a data set below:
           </div>
-          <DatasetList />
+          <DatasetList configs={configs} />
         </form>
       </div>
       <div className={LIGHT_CARD} style={{ width: '100%' }}>

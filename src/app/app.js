@@ -9,7 +9,7 @@ import '../../node_modules/react-resizable/css/styles.css';
 import Welcome from './Welcome';
 import { LayerManagerPublisher } from '../components/layermanager';
 
-import { getConfig } from './api';
+import { getConfig, listConfigs } from './api';
 import getComponent from './componentRegistry';
 
 function renderComponent(react, id) {
@@ -31,8 +31,9 @@ export default function renderApp(id) {
       id,
     );
   } else {
+    const configs = listConfigs(datasetId);
     renderComponent(
-      <Welcome />,
+      <Welcome configs={configs} />,
       id,
     );
   }
