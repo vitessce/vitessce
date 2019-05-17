@@ -133,7 +133,7 @@ const configs = {
 };
 /* eslint-enable */
 
-export function listConfig() {
+export function listConfigs() {
   return Object.entries(configs).filter(
     entry => entry[1].public,
   ).map(
