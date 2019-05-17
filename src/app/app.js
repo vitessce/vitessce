@@ -1,15 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import VitessceGrid from 'vitessce-grid';
 
 import '../css/index.css';
 import '../../node_modules/react-grid-layout/css/styles.css';
 import '../../node_modules/react-resizable/css/styles.css';
 
-import { DatasetList, VitessceGrid } from './components';
+import { DatasetList } from './components';
 
 import { LIGHT_CARD } from '../components/classNames';
 
 import { listConfig, getConfig } from './api';
+import getComponent from './componentRegistry';
 
 function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
@@ -50,7 +52,13 @@ export default function renderApp(id) {
   const datasetId = new URLSearchParams(window.location.search).get('dataset');
   if (datasetId) {
     const config = getConfig(datasetId);
-    renderComponent(<VitessceGrid {...config} />, id);
+    renderComponent(
+      <VitessceGrid
+        layout={config.responsiveLayout}
+        getComponent={getComponent}
+      />,
+      id,
+    );
   } else {
     renderWelcome(id);
   }

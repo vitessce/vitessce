@@ -43,7 +43,7 @@ const configs = {
         800: [0, 3, 6, 8],
         600: [0, 2, 4, 8],
       },
-      layout: [
+      components: [
         { component: 'Description',
           props: {
             description: 'Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH',

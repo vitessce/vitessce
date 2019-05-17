@@ -31,6 +31,6 @@ const registry = {
   // but when they do, we'll need to resolve https://github.com/hms-dbmi/vitessce/issues/197
 };
 
-export function getComponent(name) {
+export default function getComponent(name) {
   return registry[name];
 }
