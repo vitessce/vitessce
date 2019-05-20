@@ -3,9 +3,9 @@ set -o errexit
 set -o pipefail
 
 BRANCH=`git rev-parse --abbrev-ref HEAD`
-DATE_TIME=`date "+%Y-%m-%d %H:%M:%S"`
+DATE=`date "+%Y-%m-%d"`
 HASH=`git rev-parse --short HEAD`
-URL_PATH="vitessce-data/demos/$DATE_TIME/$HASH"
+URL_PATH="vitessce-data/demos/$DATE/$HASH"
 
 # Build demo ...
 npm run build
@@ -15,7 +15,7 @@ DOCZ_DEST='demo/dist/docs' DOCZ_BASE="/$URL_PATH/docs/" npm run docz:build
 TARGET_URL="https://s3.amazonaws.com/$URL_PATH/docs/index.html"
 aws s3 cp --recursive demo/dist s3://$URL_PATH
 
-echo "- $DATE_TIME: [$BRANCH]($TARGET_URL)" >> demos.md
+echo "- $DATE: [$BRANCH]($TARGET_URL)" >> demos.md
 
 echo '
 <html>
