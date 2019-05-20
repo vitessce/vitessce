@@ -22,6 +22,7 @@ export default class PubSubVitessceGrid extends React.Component {
           layout={config.responsiveLayout || config.staticLayout}
           getComponent={getComponent}
           onAllReady={() => { this.setState({ allReady: true }); }}
+          draggableHandle=".title"
         />,
       </React.Fragment>
     );
