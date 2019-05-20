@@ -2,7 +2,8 @@
 
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
-- [Latest docs and demo](https://hms-dbmi.github.io/vitessce/)
+- [Latest stable release](https://hms-dbmi.github.io/vitessce/)
+- [Latest development release](https://hms-dbmi.github.io/vitessce/dev.html)
 
 ## Data
 
@@ -23,7 +24,7 @@ The development server will refresh the browser as you edit the code.
 
 - To run all the Travis checks: `./test.sh`
 - To run just the unit tests: `npm run test:watch`
-- To develop components in a sandbox: `npm run docz:dev`
+- To generate documentation: `npm run docz:dev`
 
 ## Deployment
 
