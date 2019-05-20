@@ -13,6 +13,8 @@ export default class StatusSubscriber extends React.Component {
   componentWillMount() {
     this.warnToken = PubSub.subscribe(STATUS_WARN, this.warnSubscriber.bind(this));
     this.infoToken = PubSub.subscribe(STATUS_INFO, this.infoSubscriber.bind(this));
+    const { onReady } = this.props;
+    onReady();
   }
 
   componentWillUnmount() {

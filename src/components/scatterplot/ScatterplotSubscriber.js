@@ -24,6 +24,8 @@ export default class ScatterplotSubscriber extends React.Component {
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
+    const { onReady } = this.props;
+    onReady();
   }
 
   componentWillUnmount() {

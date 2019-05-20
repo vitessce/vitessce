@@ -9,7 +9,8 @@ import GenesSubscriber from '../components/genes/GenesSubscriber';
 import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 
 function Description(props) {
-  const { description } = props;
+  const { description, onReady } = props;
+  onReady();
   return (
     <TitleInfo title="Data Set" isScroll>
       <p className="details">{description}</p>
