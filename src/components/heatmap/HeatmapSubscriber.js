@@ -25,6 +25,11 @@ export default class HeatmapSubscriber extends React.Component {
     );
   }
 
+  componentDidMount() {
+    const { onReady } = this.props;
+    onReady();
+  }
+
   componentWillUnmount() {
     PubSub.unsubscribe(this.clustersAddToken);
     PubSub.unsubscribe(this.cellsColorToken);

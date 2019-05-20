@@ -14,6 +14,7 @@ of the same type of component.
 ### Changed
 - Make Heatmap more usable as a standalone.
 - Fix (?) the scrollbars which had spontaneously appeared.
+- Factor out the grid machinery into a separate package, `vitessce-grid`.
 
 ## [0.0.14] - 2019-04-29
 ### Added

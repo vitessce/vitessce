@@ -26,6 +26,11 @@ export default class ScatterplotSubscriber extends React.Component {
     );
   }
 
+  componentDidMount() {
+    const { onReady } = this.props;
+    onReady();
+  }
+
   componentWillUnmount() {
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsColorToken);

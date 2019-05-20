@@ -8,13 +8,20 @@ import FactorsSubscriber from '../components/factors/FactorsSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
 import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 
-function Description(props) {
-  const { description } = props;
-  return (
-    <TitleInfo title="Data Set" isScroll>
-      <p className="details">{description}</p>
-    </TitleInfo>
-  );
+class Description extends React.Component {
+  componentDidMount() {
+    const { onReady } = this.props;
+    onReady();
+  }
+
+  render() {
+    const { description } = this.props;
+    return (
+      <TitleInfo title="Data Set" isScroll>
+        <p className="details">{description}</p>
+      </TitleInfo>
+    );
+  }
 }
 
 const registry = {

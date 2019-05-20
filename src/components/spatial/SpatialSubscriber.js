@@ -41,6 +41,11 @@ export default class SpatialSubscriber extends React.Component {
     );
   }
 
+  componentDidMount() {
+    const { onReady } = this.props;
+    onReady();
+  }
+
   componentWillUnmount() {
     PubSub.unsubscribe(this.imagesAddToken);
     PubSub.unsubscribe(this.moleculesAddToken);

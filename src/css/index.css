@@ -39,10 +39,6 @@ body {
 }
 .title {
   color: lightgrey;
-  cursor: grab;
-}
-.title:active {
-  cursor: grabbing;
 }
 .scroll {
   overflow-y: auto;
