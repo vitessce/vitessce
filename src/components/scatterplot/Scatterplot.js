@@ -17,9 +17,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
 
   // eslint-disable-next-line class-methods-use-this
   getCellCoords(cell) {
-    return cell.mappings.tsne;
-    // TODO: Make generic.
-    // TODO: Check if it's even needed?
+    return cell.mappings[this.props.mapping];
   }
 
   renderLayers() {
