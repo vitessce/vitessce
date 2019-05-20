@@ -18,6 +18,9 @@ export default class FactorsSubscriber extends React.Component {
     this.factorsAddToken = PubSub.subscribe(
       FACTORS_ADD, this.factorsAddSubscriber.bind(this),
     );
+  }
+
+  componentDidMount() {
     const { onReady } = this.props;
     onReady();
   }

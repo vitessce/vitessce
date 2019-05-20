@@ -39,6 +39,9 @@ export default class SpatialSubscriber extends React.Component {
     this.cellsColorToken = PubSub.subscribe(
       CELLS_COLOR, this.cellsColorSubscriber.bind(this),
     );
+  }
+
+  componentDidMount() {
     const { onReady } = this.props;
     onReady();
   }

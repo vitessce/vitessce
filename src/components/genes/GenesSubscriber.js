@@ -16,6 +16,9 @@ export default class GenesSubscriber extends React.Component {
 
   componentWillMount() {
     this.genesAddToken = PubSub.subscribe(GENES_ADD, this.genesAddSubscriber.bind(this));
+  }
+
+  componentDidMount() {
     const { onReady } = this.props;
     onReady();
   }
