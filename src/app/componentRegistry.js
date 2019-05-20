@@ -10,13 +10,11 @@ import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 
 class Description extends React.Component {
   componentDidMount() {
-    console.log('componentDidMount?');
     const { onReady } = this.props;
     onReady();
   }
 
   render() {
-    console.log('render?');
     const { description } = this.props;
     return (
       <TitleInfo title="Data Set" isScroll>
