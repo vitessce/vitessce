@@ -51,9 +51,9 @@ export default class OpenSeadragonComponent extends React.Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { tileSources, sample } = this.props;
+    const { tileSources } = this.props;
     const {
-      x, y, width, height,
+      x, y, width, height, sample,
     } = nextProps;
     if (tileSources.length !== nextProps.tileSources.length) {
       // This assumes that tileSources are not modified in place,
