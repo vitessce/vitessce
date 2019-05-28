@@ -7,6 +7,9 @@ DATE=`date "+%Y-%m-%d"`
 HASH=`git rev-parse --short HEAD`
 URL_PATH="vitessce-data/demos/$DATE/$HASH"
 
+die() { set +v; echo "$*" 1>&2 ; exit 1; }
+git diff --quiet || die 'Uncommitted changes: Stash or commit before pushing demo.'
+
 # Build demo ...
 npm run build
 # and docs ...
