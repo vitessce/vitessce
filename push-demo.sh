@@ -16,12 +16,15 @@ npm run build
 # (Because the DOCZ_BASE is baked in, we need to do this twice,
 # once with the long staging path, and once with the short production path.
 # I am open to alternative proposals!)
+DIST_DIR='demo/dist/'
 STAGING_DIR='staging-docs'
-DOCZ_DEST="demo/dist/$STAGING_DIR" DOCZ_BASE="/$DEMO_URL_PATH/$STAGING_DIR/" npm run docz:build
+DOCZ_DEST="$DIST_DIR$STAGING_DIR" DOCZ_BASE="/$DEMO_URL_PATH/$STAGING_DIR/" npm run docz:build
 PROD_DIR='prod-docs'
-DOCZ_DEST="demo/dist/$PROD_DIR" DOCZ_BASE="/$PROD_DIR/" npm run docz:build
+DOCZ_DEST="$DIST_DIR$PROD_DIR" DOCZ_BASE="/$PROD_DIR/" npm run docz:build
+# and add an error page for vitessce.io...
+cp error.html $DIST_DIR
 # and push to S3.
-aws s3 cp --recursive demo/dist s3://$DEMO_URL_PATH
+aws s3 cp --recursive $DIST_DIR s3://$DEMO_URL_PATH
 TARGET_URL="https://s3.amazonaws.com/$DEMO_URL_PATH/$STAGING_DIR/index.html"
 
 echo "- $DATE: [$BRANCH]($TARGET_URL)" >> demos.md
