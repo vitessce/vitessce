@@ -12,18 +12,21 @@ RE="$S3_BASE$S3_BUCKET$S3_PATH"
 [[ "$@" =~ "$RE" ]] || die "Expected URL to match $RE"
 # The regexes here are flexible, so it should work
 # whether you give it the app URL, or the doc URL
-S3_SRC_PATH=$( echo "$@" | perl -pne 's{^.*'"$S3_BASE"'}{}; s{/index.html}{}; s{/docs}{}; s{/$}{}' )
+S3_SRC_PATH=$( echo "$@" | perl -pne 's{^.*'"$S3_BASE"'}{}; s{/index.html}{}; s{/[^/]+-docs}{}; s{/$}{}' )
 
 S3_SRC="s3://$S3_SRC_PATH"
 S3_TARGET='s3://vitessce.io'
 
-read -p "Are you sure you want to copy $S3_SRC to $S3_TARGET? " -n 1 -r
+b=$(tput bold)
+n=$(tput sgr0)
+read -p "Are you sure you want to clear $b$S3_TARGET$n and copy $b$S3_SRC$n to it? [y/n]" -n 1 -r
 echo # move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-  aws s3 cp --quiet \
-            --acl public-read \
+  aws s3 rm --recursive $S3_TARGET
+  aws s3 cp --acl public-read \
             --recursive \
             $S3_SRC $S3_TARGET
   open http://vitessce.io
+  echo 'Done. NOTE: Your browser may have cached an older verion; Reload if necessary.'
 fi
