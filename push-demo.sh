@@ -15,7 +15,7 @@ npm run build
 # and docs ...
 # (Because the DOCZ_BASE is baked in, we need to do this twice,
 # once with the long staging path, and once with the short production path.
-# I am open to alternative proposals!)
+# I am open to other approaches!)
 DIST_DIR='demo/dist/'
 STAGING_DIR='staging-docs'
 DOCZ_DEST="$DIST_DIR$STAGING_DIR" DOCZ_BASE="/$DEMO_URL_PATH/$STAGING_DIR/" npm run docz:build
