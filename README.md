@@ -28,15 +28,21 @@ The development server will refresh the browser as you edit the code.
 
 ## Deployment
 
-### Demo
+### App and docs
 
-Quick demos of the current branch can be pushed to S3:
+To build the current branch and push to S3:
 
 ```
 $ ./push-demo.sh
 ```
 
-### Release
+If it looks good, copy it to vitessce.io:
+
+```
+$ ./copy-prod.sh https://s3.amazonaws.com/vitessce-data/demos/YOUR-DEMO-PATH
+```
+
+### NPM Release
 
 New versions of the library are pushed to NPM by hand:
 Update the version number in `package.json` and run `npm publish`.
