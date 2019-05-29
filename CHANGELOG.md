@@ -12,6 +12,8 @@ of the same type of component.
 - Half-baked proof-of-concept integration with HiGlass.
 - Separate registry that holds Name -> Component mappings.
 - Easy deployment to vitessce.io.
+- Friendlier error page on AWS deployment.
+- Display current version info in deployed demo.
 ### Changed
 - Make Heatmap more usable as a standalone.
 - Fix (?) the scrollbars which had spontaneously appeared.

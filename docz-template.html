@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+  <head>
+    <meta charset="UTF-8">
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-96954979-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-96954979-2');
+    </script>
+
+    <meta name="description" content="{{ description }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ title }}</title>
+    {{ head }}
+    <style>
+      a > h1 {
+        display: none;
+        /*
+        We want to hide the title link in the sidebar,
+        and there isn't an ID or class to select.
+        (The link goes to "/", and it uses html history.
+        https://github.com/hms-dbmi/vitessce/issues/206)
+        */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    {{ footer }}
+  </body>
+</html>
