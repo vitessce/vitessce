@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { LIGHT_CARD } from '../components/classNames';
+import version from '../version.json';
 
 function DatasetList(props) {
   const { configs } = props;
@@ -60,6 +61,9 @@ export default function Welcome(props) {
             <li><a href="https://github.com/hms-dbmi/vitessce">GitHub</a></li>
             <li><a href="https://www.npmjs.com/package/vitessce">NPM</a></li>
           </ul>
+        </p>
+        <p>
+          This demployment: branch={version.branch} | hash={version.hash} | date={version.date}
         </p>
       </div>
     </div>
