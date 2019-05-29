@@ -11,6 +11,7 @@ and we have a sort-of schema for the schema to make sure these checks are in pla
 of the same type of component.
 - Half-baked proof-of-concept integration with HiGlass.
 - Separate registry that holds Name -> Component mappings.
+- Easy deployment to vitessce.io.
 ### Changed
 - Make Heatmap more usable as a standalone.
 - Fix (?) the scrollbars which had spontaneously appeared.
