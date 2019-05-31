@@ -82,11 +82,17 @@ export default function Welcome(props) {
   const { configs } = props;
   return (
     <div className="container-fluid">
-      <div className={LIGHT_CARD} style={{ maxWidth: '400px' }}>
-        <Form configs={configs} />
-      </div>
-      <div className={LIGHT_CARD} style={{ width: '100%' }}>
-        <Info />
+      <div className="row">
+        <div className="col-5">
+          <div className={LIGHT_CARD}>
+            <Form configs={configs} />
+          </div>
+        </div>
+        <div className="col-7">
+          <div className={LIGHT_CARD}>
+            <Info />
+          </div>
+        </div>
       </div>
     </div>
   );
