@@ -30,12 +30,19 @@ export default function Welcome(props) {
   const { configs } = props;
   return (
     <div className="container-fluid d-flex flex-column align-items-end">
-      <div className={LIGHT_CARD} style={{ width: '100%', maxWidth: '330px', margin: 'auto' }}>
+      <div className={LIGHT_CARD} style={{ width: '100%', maxWidth: '400px', margin: 'auto' }}>
         <form method="GET">
           <h1><span role="img" aria-label="fast train!">🚄 </span> Vitessce</h1>
-          <div>
-            Select a data set:
+          <div>URL of dataset:</div>
+
+          <div className="input-group mb-3">
+            <input type="text" name="url" className="form-control" style={{ background: 'lightgrey' }} />
+            <div className="input-group-append">
+              <button className="btn btn-outline-secondary" type="button">Load</button>
+            </div>
           </div>
+
+          <div>or select a dataset:</div>
           <DatasetList configs={configs} />
         </form>
       </div>
