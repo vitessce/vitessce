@@ -38,7 +38,7 @@ To build the current branch and push to S3:
 $ ./push-demo.sh
 ```
 
-If it looks good, copy it to vitessce.io:
+Do a last [manual test](TESTING.md) of the deployment. If it looks good, copy it to vitessce.io:
 
 ```
 $ ./copy-prod.sh https://s3.amazonaws.com/vitessce-data/demos/YOUR-DEMO-PATH
