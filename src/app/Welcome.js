@@ -36,7 +36,7 @@ function Form(props) {
       <div className="input-group mb-3">
         <input type="text" name="url" className="form-control" style={{ background: 'lightgrey' }} />
         <div className="input-group-append">
-          <button className="btn btn-outline-secondary" type="button">Load</button>
+          <button className="btn btn-outline-secondary" type="submit">Load</button>
         </div>
       </div>
 
@@ -65,12 +65,12 @@ function Info() {
       </p>
       <p>
         More information:
-        <ul>
-          <li><a href="prod-docs/index.html">Documentation</a></li>
-          <li><a href="https://github.com/hms-dbmi/vitessce">GitHub</a></li>
-          <li><a href="https://www.npmjs.com/package/vitessce">NPM</a></li>
-        </ul>
       </p>
+      <ul>
+        <li><a href="prod-docs/index.html">Documentation</a></li>
+        <li><a href="https://github.com/hms-dbmi/vitessce">GitHub</a></li>
+        <li><a href="https://www.npmjs.com/package/vitessce">NPM</a></li>
+      </ul>
       <p>
         This demployment: branch={version.branch} | hash={version.hash} | date={version.date}
       </p>

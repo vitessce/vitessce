@@ -47,7 +47,9 @@ body {
   font-size: 80%;
   opacity: 0.8;
 }
-
+pre {
+  color: lightgrey;
+}
 
 /* Spatial and t-SNE controls */
 
