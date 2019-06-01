@@ -1,8 +1,7 @@
 # Test protocol
 
 This doesn't replace automated tests, but we do want a detailed explanation of the functionality.
-The description below should work for any deployment- any differences between
-localhost, s3 staging, and vitessce.io are noted.
+The description below should work for any deployment-- Except for the documentation link, noted below.
 
 ## Welcome Page
 
@@ -12,6 +11,9 @@ localhost, s3 staging, and vitessce.io are noted.
  - A link to HuBMAP, and thanks to the NIH for funding
  - Links to documentation, GitHub, and NPM.
  - Info about the current deployment.
+
+ There is an input field where the URL of a config could be given.
+ You can also paste a data URI like this: `data:,{"name":"FAKE", "description":"fake dataset", "layers":[], "responsiveLayout":{"columns": {"1000": [0,1]}, "components": [{"component":"Description", "props":{"description": "Hello World"}, "x":0, "y": 0}]}}`
 
  (The link to documentation will only work on vitessce.io:
    On s3, change `prod-docs` to `demo-docs`;

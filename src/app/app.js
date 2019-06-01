@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Ajv from 'ajv';
+
+import datasetSchema from '../schemas/dataset.schema.json';
 
 import { LIGHT_CARD } from '../components/classNames';
 
@@ -56,7 +59,19 @@ function renderResponse(response, id) {
     response.text().then((text) => {
       try {
         const config = JSON.parse(text);
-        renderComponent(<PubSubVitessceGrid config={config} />, id);
+        const validate = new Ajv().compile(datasetSchema);
+        const valid = validate(config);
+        if (!valid) {
+          const failureReason = JSON.stringify(validate.errors, null, 2);
+          renderComponent(
+            <Warning
+              title="Config validation failed"
+              preformatted={failureReason}
+            />, id,
+          );
+        } else {
+          renderComponent(<PubSubVitessceGrid config={config} />, id);
+        }
       } catch (e) {
         renderComponent(
           <Warning
