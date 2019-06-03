@@ -38,6 +38,40 @@ describe('Vitessce', () => {
     // cy.get('.modal-body').should('be.visible');
   });
 
+  it('loads data URI', () => {
+    const message = 'Hello World!';
+    const config = {
+      name: '-',
+      description: '-',
+      layers: [],
+      responsiveLayout: {
+        columns: { 1000: [0, 1] },
+        components: [
+          {
+            component: 'Description',
+            props: {
+              description: message,
+            },
+            x: 0,
+            y: 0,
+          },
+        ],
+      },
+    };
+    // Without a route, Cypress tries to proxy the request,
+    // and that doesn't seem to work for data URIs.
+    const uri = 'data:,JSON-HERE';
+    cy.route({
+      url: uri,
+      response: config,
+    });
+
+    cy.visit('/');
+    cy.get('input[name=url]').type(uri);
+    cy.get('button').click();
+    cy.contains(message);
+  });
+
   it('loads details (static)', () => {
     cy.visit('/?dataset=linnarsson-2018-static');
     cy.contains('Linnarsson (static layout): Spatial organization');
