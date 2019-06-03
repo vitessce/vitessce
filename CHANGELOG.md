@@ -14,10 +14,12 @@ of the same type of component.
 - Easy deployment to vitessce.io.
 - Friendlier error page on AWS deployment.
 - Display current version info in deployed demo.
+- Can now specify the URL of a JSON config to load.
 ### Changed
 - Make Heatmap more usable as a standalone.
 - Fix (?) the scrollbars which had spontaneously appeared.
 - Factor out the grid machinery into a separate package, `vitessce-grid`.
+- More information on the Welcome page, so changed it to a two-column layout.
 
 ## [0.0.14] - 2019-04-29
 ### Added
