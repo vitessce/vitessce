@@ -2,8 +2,9 @@
 
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
-- [Latest stable release](https://hms-dbmi.github.io/vitessce/)
-- [Latest development release](https://hms-dbmi.github.io/vitessce/dev.html)
+- [Latest release demo](https://vitessce.io/)
+- [Older demos](demos.md)
+- [Older versions on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
 
 ![Vitessce screenshot](https://user-images.githubusercontent.com/730388/58634506-78472580-82b9-11e9-9df8-a1362de73818.png)
 
@@ -30,7 +31,7 @@ The development server will refresh the browser as you edit the code.
 
 ## Deployment
 
-### App and docs
+### Demo
 
 To build the current branch and push to S3:
 
@@ -38,16 +39,22 @@ To build the current branch and push to S3:
 $ ./push-demo.sh
 ```
 
-Do a last [manual test](TESTING.md) of the deployment. If it looks good, copy it to vitessce.io:
+This will open the demo deployment in your browser.
+
+### Release
+
+If you haven't already, push a fresh demo and
+do a last [manual test](TESTING.md) of the deployment.
+If it looks good, copy it to vitessce.io:
 
 ```
-$ ./copy-prod.sh https://s3.amazonaws.com/vitessce-data/demos/YOUR-DEMO-PATH
+$ ./copy-prod.sh https://{url returned by push-demo.sh}
 ```
 
-### NPM Release
-
-New versions of the library are pushed to NPM by hand:
+We publish to the NPM registry by hand:
 Update the version number in `package.json` and run `npm publish`.
+
+Finally, update the CHANGELOG.md to point to the new release on NPM.
 
 ## Old Presentations
 
