@@ -33,13 +33,17 @@ The development server will refresh the browser as you edit the code.
 
 ### Demo
 
-To build the current branch and push to S3:
-
+To build the current branch and push to S3, first confirm that you have installed the AWS CLI and are in the appropriate AWS account:
+```
+$ aws iam list-account-aliases --query 'AccountAliases[0]'
+"gehlenborglab"
+```
+and then run this script:
 ```
 $ ./push-demo.sh
 ```
 
-This will open the demo deployment in your browser.
+This will build, push to S3, and finally open the demo deployment in your browser.
 
 ### Release
 
