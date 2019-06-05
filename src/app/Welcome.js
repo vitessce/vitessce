@@ -72,7 +72,7 @@ function Info() {
         <li><a href="https://www.npmjs.com/package/vitessce">NPM</a></li>
       </ul>
       <p>
-        This demployment: branch={version.branch} | hash={version.hash} | date={version.date}
+        This deployment: branch={version.branch} | hash={version.hash} | date={version.date}
       </p>
     </React.Fragment>
   );
