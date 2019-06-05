@@ -44,5 +44,6 @@ Redirecting to latest version.
 </html>
 ' > docs/dev.html
 
+echo "Deployed to $TARGET_URL"
 # Open in browser and see if it works:
 open "$TARGET_URL"

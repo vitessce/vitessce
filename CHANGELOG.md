@@ -1,6 +1,6 @@
 # Changelog
 
-## in progress
+## 0.0.15 - in progress
 ### Added
 - The `<TitleInfo>` component now takes children, and our JSX is tidier.
 - Using [docz](https://www.docz.site/) for documentation, and add to the push script.
@@ -21,7 +21,7 @@ of the same type of component.
 - Factor out the grid machinery into a separate package, `vitessce-grid`.
 - More information on the Welcome page, so changed it to a two-column layout.
 
-## [0.0.14] - 2019-04-29
+## [0.0.14](https://www.npmjs.com/package/vitessce/v/0.0.14) - 2019-04-29
 ### Added
 - Add Cypress.io tests.
 - Thank-you to NIH on the front page.
@@ -36,11 +36,11 @@ based on window height at load.
 - Spatial viewport is part of the initial FAKE_API_RESPONSE, instead of being hardcoded.
 - Neighborhoods are enabled, but hidden by default.
 
-## [0.0.13] - 2019-03-26
+## [0.0.13](https://www.npmjs.com/package/vitessce/v/0.0.13) - 2019-03-26
 ### Changed
 - Lots of display tweaks to create a consistent dark color scheme.
 
-## [0.0.12] - 2019-03-26
+## [0.0.12](https://www.npmjs.com/package/vitessce/v/0.0.12) - 2019-03-26
 ### Added
 - Heatmap is row-normed. (This is a change in `vitessce-data`.)
 - Borders on heatmap components... but this will be reverted.
@@ -49,7 +49,7 @@ based on window height at load.
 - Dark color scheme, with better contrast when colored
 - Heatmap spans the entire bottom.
 
-## [0.0.11] - 2019-03-20
+## [0.0.11](https://www.npmjs.com/package/vitessce/v/0.0.11) - 2019-03-20
 ### Added
 - Roll up the layers list when not hovered.
 - Component titles give summary stats about data.
@@ -57,7 +57,7 @@ based on window height at load.
 - Change color scales, styling of unselected cells, and marquee rendering, to improve contrast.
 - Only update selected set at end of drag.
 
-## [0.0.10] - 2019-03-19
+## [0.0.10](https://www.npmjs.com/package/vitessce/v/0.0.10) - 2019-03-19
 ### Added
 - Heatmap: Gene expression levels occupy most of the space; Above, there are bands showing
 the currently selected cell set, and the current cell coloring.
@@ -65,14 +65,14 @@ the currently selected cell set, and the current cell coloring.
 - Spatial and t-SNE backgrounds are now black.
 - Move the Factor radio buttons to their own component, above Genes.
 
-## [0.0.9] - 2019-03-17
+## [0.0.9](https://www.npmjs.com/package/vitessce/v/0.0.9) - 2019-03-17
 ### Added
 - Neighborhoods layer: no interactivity, and it's obvious that the source data has some problems.
 ### Changed
 - Got the image registration right, finally.
 - Initial viewport is hardcoded: Data is no longer centered on (0, 0) origin.
 
-## [0.0.8] - 2019-03-16
+## [0.0.8](https://www.npmjs.com/package/vitessce/v/0.0.8) - 2019-03-16
 ### Added
 - Load and validate JSON for clusters, categorical factors, gene expression levels, and cell neighborhoods.
 - Toggle between factor values: Spatial and t-SNE categorical colors are updated.
@@ -82,7 +82,7 @@ the currently selected cell set, and the current cell coloring.
 - The stained imagery is positioned and scaled better, but still slightly off.
 - No outlines on cell polygons.
 
-## [0.0.7] - 2019-03-07
+## [0.0.7](https://www.npmjs.com/package/vitessce/v/0.0.7) - 2019-03-07
 ### Added
 - Component diagram and minimal documentation of library.
 - Make space for a brief description of the dataset on the welcome page.
@@ -96,14 +96,14 @@ the currently selected cell set, and the current cell coloring.
 ### Changed
 - Use a quadtree to identify the cells in the selected region.
 
-## [0.0.6] - 2019-02-25
+## [0.0.6](https://www.npmjs.com/package/vitessce/v/0.0.6) - 2019-02-25
 ### Added
 - Welcome screen where user picks dataset.
 - All the cells are selected on start.
 ### Removed
 - No longer supports drag and drop to add file.
 
-## [0.0.5] - 2019-02-20
+## [0.0.5](https://www.npmjs.com/package/vitessce/v/0.0.5) - 2019-02-20
 ### Added
 - Distinguish pan and single-select mode from drag-to-select.
 - Drag-to-select supported for both Spatial and Tsne: Selection state is linked.
@@ -114,7 +114,7 @@ the currently selected cell set, and the current cell coloring.
 - Assume data has been scaled to fit a 2000 pixel-wide window, centered on the origin,
   and adjust line widths and dot sizes accordingly.
 
-## [0.0.4] - 2019-02-08
+## [0.0.4](https://www.npmjs.com/package/vitessce/v/0.0.4) - 2019-02-08
 ### Added
 - Drag and drop JSON files representing cells and molecules.
 - There is a helpful link to the sample data download.
