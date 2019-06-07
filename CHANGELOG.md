@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.15 - in progress
+## [0.0.15](https://www.npmjs.com/package/vitessce/v/0.0.15) - 2019-06-07
 ### Added
 - The `<TitleInfo>` component now takes children, and our JSX is tidier.
 - Using [docz](https://www.docz.site/) for documentation, and add to the push script.
