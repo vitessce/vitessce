@@ -31,17 +31,17 @@ function Form(props) {
   return (
     <form method="GET">
       <h1><span role="img" aria-label="fast train!">🚄 </span> Vitessce</h1>
-      <div>URL of dataset:</div>
+      <div>Select a dataset:</div>
+      <DatasetList configs={configs} />
 
+      <br />
+      <div>Or specify URL of configuration:</div>
       <div className="input-group mb-3">
         <input type="text" name="url" className="form-control" style={{ background: 'lightgrey' }} />
         <div className="input-group-append">
           <button className="btn btn-outline-secondary" type="submit">Load</button>
         </div>
       </div>
-
-      <div>or select a dataset:</div>
-      <DatasetList configs={configs} />
     </form>
   );
 }
