@@ -71,6 +71,9 @@ export default class Spatial extends AbstractSelectableComponent {
       updateStatus = (message) => {
         console.warn(`Spatial updateStatus: ${message}`);
       },
+      updateCellsHover = (cellId) => {
+        console.warn(`Spatial updateCellsHover: ${cellId}`);
+      },
       updateCellsSelection = (cellsSelection) => {
         console.warn(`Spatial updateCellsSelection: ${cellsSelection}`);
       },
@@ -101,7 +104,7 @@ export default class Spatial extends AbstractSelectableComponent {
           updateCellsSelection(selectedCellIds);
         }
       },
-      ...cellLayerDefaultProps(cells, updateStatus),
+      ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover),
     });
   }
 

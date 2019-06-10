@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_ADD, CELLS_SELECTION, CELLS_COLOR, STATUS_INFO,
+  CELLS_ADD, CELLS_SELECTION, CELLS_COLOR, CELLS_HOVER, STATUS_INFO,
 } from '../../events';
 import Scatterplot from './Scatterplot';
 
@@ -11,7 +11,9 @@ import Scatterplot from './Scatterplot';
 export default class ScatterplotSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { cells: {}, selectedCellIds: {}, cellColors: null };
+    this.state = {
+      cells: {}, selectedCellIds: {}, cellColors: null, hoveredCellId: null,
+    };
   }
 
   componentWillMount() {
@@ -24,6 +26,9 @@ export default class ScatterplotSubscriber extends React.Component {
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
+    this.cellsHoverToken = PubSub.subscribe(
+      CELLS_HOVER, this.cellsHoverSubscriber.bind(this),
+    );
   }
 
   componentDidMount() {
@@ -35,10 +40,15 @@ export default class ScatterplotSubscriber extends React.Component {
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsColorToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
+    PubSub.unsubscribe(this.cellsHoverToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
     this.setState({ selectedCellIds: cellIds });
+  }
+
+  cellsHoverSubscriber(msg, cellId) {
+    this.setState({ hoveredCellId: cellId });
   }
 
   cellsColorSubscriber(msg, cellColors) {
@@ -50,7 +60,9 @@ export default class ScatterplotSubscriber extends React.Component {
   }
 
   render() {
-    const { cells, selectedCellIds, cellColors } = this.state;
+    const {
+      cells, selectedCellIds, hoveredCellId, cellColors,
+    } = this.state;
     const { mapping } = this.props;
     const cellsCount = Object.keys(cells).length;
     return (
@@ -62,9 +74,11 @@ export default class ScatterplotSubscriber extends React.Component {
           cells={cells}
           mapping={mapping}
           selectedCellIds={selectedCellIds}
+          hoveredCellId={hoveredCellId}
           cellColors={cellColors}
           updateStatus={message => PubSub.publish(STATUS_INFO, message)}
           updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
+          updateCellsHover={hoveredId => PubSub.publish(CELLS_HOVER, hoveredId)}
         />
       </TitleInfo>
     );

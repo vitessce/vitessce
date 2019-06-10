@@ -5,7 +5,7 @@ import HeatmapCellColorCanvas from './HeatmapCellColorCanvas';
 
 export default function Heatmap(props) {
   const {
-    clusters, selectedCellIds, cellColors, clearPleaseWait,
+    clusters, selectedCellIds, hoveredCellId, cellColors, clearPleaseWait,
   } = props;
   if (clearPleaseWait && clusters) {
     clearPleaseWait('clusters');
@@ -20,6 +20,7 @@ export default function Heatmap(props) {
       <HeatmapCellSelectionCanvas
         clusters={clusters}
         selectedCellIds={selectedCellIds}
+        hoveredCellId={hoveredCellId}
         height="15%"
       />
       <HeatmapDataCanvas

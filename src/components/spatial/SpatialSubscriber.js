@@ -5,7 +5,7 @@ import shortNumber from 'short-number';
 import TitleInfo from '../TitleInfo';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
-  STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
+  STATUS_INFO, CELLS_SELECTION, CELLS_HOVER, CLEAR_PLEASE_WAIT,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -16,6 +16,7 @@ export default class SpatialSubscriber extends React.Component {
       images: undefined,
       cells: {},
       selectedCellIds: {},
+      hoveredCellId: null,
       cellColors: null,
     };
   }
@@ -36,6 +37,9 @@ export default class SpatialSubscriber extends React.Component {
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
+    this.cellsHoverToken = PubSub.subscribe(
+      CELLS_HOVER, this.cellsHoverSubscriber.bind(this),
+    );
     this.cellsColorToken = PubSub.subscribe(
       CELLS_COLOR, this.cellsColorSubscriber.bind(this),
     );
@@ -52,11 +56,16 @@ export default class SpatialSubscriber extends React.Component {
     PubSub.unsubscribe(this.neighborhoodsAddToken);
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
+    PubSub.unsubscribe(this.cellsHoverToken);
     PubSub.unsubscribe(this.cellsColorToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
     this.setState({ selectedCellIds: cellIds });
+  }
+
+  cellsHoverSubscriber(msg, cellId) {
+    this.setState({ hoveredCellId: cellId });
   }
 
   imagesAddSubscriber(msg, images) {
@@ -100,6 +109,9 @@ export default class SpatialSubscriber extends React.Component {
           }
           updateCellsSelection={
             selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)
+          }
+          updateCellsHover={
+            hoveredCellId => PubSub.publish(CELLS_HOVER, hoveredCellId)
           }
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
