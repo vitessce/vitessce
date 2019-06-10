@@ -118,5 +118,4 @@ describe('Vitessce', () => {
     cy.visit('/?dataset=nonexistent-dataset');
     cy.contains('No such dataset');
   });
-  
 });
