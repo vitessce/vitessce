@@ -91,7 +91,17 @@ export default function renderApp(id) {
 
   if (datasetId) {
     const config = getConfig(datasetId);
-    renderComponent(<PubSubVitessceGrid config={config} />, id);
+    if (!config) {
+      // If the config value is undefined, show a warning message
+      renderComponent(
+        <Warning
+          title="No such dataset"
+          unformatted="The dataset configuration could not be found."
+        />, id,
+      );
+    } else {
+      renderComponent(<PubSubVitessceGrid config={config} />, id);
+    }
   } else if (datasetUrl) {
     fetch(datasetUrl)
       .then(response => renderResponse(response, id))
