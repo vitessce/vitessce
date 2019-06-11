@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { ScatterplotLayer, PolygonLayer, TextLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -108,6 +108,29 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
+  renderHoveredCellLayer() {
+    const {
+      cells = undefined,
+      hoveredCellId = null,
+    } = this.props;
+    
+    return new TextLayer({
+      id: 'text-layer-hover',
+      data: [
+        cells[hoveredCellId],
+      ],
+      pickable: false,
+      getPosition: cell => [cell.xy[0], cell.xy[1], 0],
+      getText: () => 'Hovered',
+      getSize: 32,
+      getAngle: 0,
+      getColor: [255, 255, 255],
+      getTextAnchor: 'middle',
+      getAlignmentBaseline: 'center',
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+    });
+  }
+
   renderMoleculesLayer() {
     const {
       molecules = undefined,
@@ -205,6 +228,7 @@ export default class Spatial extends AbstractSelectableComponent {
       cells = undefined,
       neighborhoods = undefined,
       clearPleaseWait,
+      hoveredCellId,
     } = this.props;
 
     const { layerIsVisible } = this.state;
@@ -214,6 +238,10 @@ export default class Spatial extends AbstractSelectableComponent {
     if (cells && clearPleaseWait) clearPleaseWait('cells');
     if (cells && layerIsVisible.cells) {
       layerList.push(this.renderCellLayer());
+    }
+
+    if (cells && layerIsVisible.cells && hoveredCellId) {
+      layerList.push(this.renderHoveredCellLayer());
     }
 
     if (neighborhoods && clearPleaseWait) clearPleaseWait('neighborhoods');

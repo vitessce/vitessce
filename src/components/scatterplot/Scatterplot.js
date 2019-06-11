@@ -1,3 +1,4 @@
+import { TextLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { SelectableScatterplotLayer } from '../../layers';
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -34,6 +35,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
         console.warn(`Scatterplot updateCellsHover: ${cellId}`);
       },
       selectedCellIds = {},
+      hoveredCellId = null,
     } = this.props;
 
     const layers = [];
@@ -70,6 +72,26 @@ export default class Scatterplot extends AbstractSelectableComponent {
           ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover),
         }),
       );
+
+      if (hoveredCellId) {
+        layers.push(
+          new TextLayer({
+            id: 'scatterplot-hover',
+            data: [
+              cells[hoveredCellId].mappings[mapping],
+            ],
+            pickable: false,
+            getPosition: cellCoordinates => [cellCoordinates[0], cellCoordinates[1], 0],
+            getText: () => 'Hovered',
+            getSize: 32,
+            getAngle: 0,
+            getColor: [255, 255, 255],
+            getTextAnchor: 'middle',
+            getAlignmentBaseline: 'center',
+            coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          }),
+        );
+      }
     }
 
     return layers;
