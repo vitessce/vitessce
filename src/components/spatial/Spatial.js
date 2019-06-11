@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ScatterplotLayer, PolygonLayer, TextLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -113,20 +113,22 @@ export default class Spatial extends AbstractSelectableComponent {
       cells = undefined,
       hoveredCellId = null,
     } = this.props;
-    
-    return new TextLayer({
-      id: 'text-layer-hover',
+
+
+    return new ScatterplotLayer({
+      id: 'spatial-cell-hover',
       data: [
         cells[hoveredCellId],
       ],
       pickable: false,
+      filled: false,
+      stroked: true,
       getPosition: cell => [cell.xy[0], cell.xy[1], 0],
-      getText: () => 'Hovered',
-      getSize: 32,
-      getAngle: 0,
-      getColor: [255, 255, 255],
-      getTextAnchor: 'middle',
-      getAlignmentBaseline: 'center',
+      getRadius: 800,
+      getLineColor: [255, 255, 255],
+      lineWidthMinPixels: 0.1,
+      getLineWidth: 200,
+      getElevation: 0,
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
     });
   }

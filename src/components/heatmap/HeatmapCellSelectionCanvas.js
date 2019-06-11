@@ -6,7 +6,7 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
   paintCanvas() {
     const ctx = this.canvasRef.getContext('2d');
 
-    const { clusters, selectedCellIds } = this.props;
+    const { clusters, hoveredCellId, selectedCellIds } = this.props;
     const width = clusters.cols.length;
     const height = 1;
 
@@ -15,6 +15,9 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
       const offset = x * 4;
       const selected = selectedCellIds[cellId];
       setImageDataRGBA(imageData, offset, 128, 128, 128, selected ? 255 : 0);
+      if (cellId === hoveredCellId) {
+        setImageDataRGBA(imageData, offset, 255, 0, 0, 255);
+      }
     });
     ctx.putImageData(imageData, 0, 0);
   }
