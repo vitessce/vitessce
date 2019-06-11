@@ -39,7 +39,7 @@ echo '
 <html>
 <head><meta http-equiv="refresh" content="2; url='"$TARGET_URL"'"></head>
 <body>
-Redirecting to latest version.
+Redirecting to latest demo.
 </body>
 </html>
 ' > docs/dev.html
