@@ -200,9 +200,9 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
-  renderCellEmphasis(viewport) { // eslint-disable-line class-methods-use-this
+  renderCellEmphasis(viewInfo) { // eslint-disable-line class-methods-use-this
     return (
-      <CellEmphasisSubscriber mapping={null} viewport={viewport} />
+      <CellEmphasisSubscriber mapping={null} viewInfo={viewInfo} />
     );
   }
 

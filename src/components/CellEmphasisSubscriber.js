@@ -29,13 +29,13 @@ export default class CellEmphasisSubscriber extends React.Component {
   render() {
     const {
       mapping,
-      viewport,
+      viewInfo,
     } = this.props;
     return (
       <CellEmphasis
         {... this.state}
         mapping={mapping}
-        viewport={viewport}
+        viewInfo={viewInfo}
       />
     );
   }

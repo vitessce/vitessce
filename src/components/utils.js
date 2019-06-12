@@ -13,7 +13,6 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover) {
     getLineWidth: 0,
     onHover: (info) => {
       if (info.object) {
-        console.log(info);
         updateStatus(
           Object.entries(info.object[1].factors).map(
             ([factor, value]) => `${factor}: ${value}`,
