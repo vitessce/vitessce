@@ -1,7 +1,9 @@
 import { COORDINATE_SYSTEM } from 'deck.gl';
 import { interpolatePlasma } from 'd3-scale-chromatic';
+import debounce from 'lodash.debounce';
 
 export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover) {
+  const clearCellsHover = debounce(updateCellsHover, 750, { trailing: true }, null);
   return {
     coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
     data: Object.entries(cells),
@@ -19,6 +21,8 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover) {
           ).join('; '),
         );
         updateCellsHover(info.object[0]);
+      } else {
+        clearCellsHover();
       }
     },
   };
