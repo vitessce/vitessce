@@ -5,7 +5,7 @@ import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
-import CellEmphasis from '../CellEmphasis';
+import CellEmphasisSubscriber from '../CellEmphasisSubscriber';
 import OpenSeadragonComponent from '../../vendor/OpenSeadragonComponent';
 
 export function square(x, y) {
@@ -200,9 +200,9 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
-  renderCellEmphasis() { // eslint-disable-line class-methods-use-this
+  renderCellEmphasis(viewport) { // eslint-disable-line class-methods-use-this
     return (
-      <CellEmphasis {...this.props} />
+      <CellEmphasisSubscriber mapping={null} viewport={viewport} />
     );
   }
 

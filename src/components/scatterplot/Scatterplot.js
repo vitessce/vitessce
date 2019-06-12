@@ -23,9 +23,12 @@ export default class Scatterplot extends AbstractSelectableComponent {
     return cell.mappings[this.props.mapping];
   }
 
-  renderCellEmphasis() { // eslint-disable-line class-methods-use-this
+  renderCellEmphasis(viewport) { // eslint-disable-line class-methods-use-this
+    const {
+      mapping,
+    } = this.props;
     return (
-      <CellEmphasisSubscriber />
+      <CellEmphasisSubscriber mapping={mapping} viewport={viewport} />
     );
   }
 

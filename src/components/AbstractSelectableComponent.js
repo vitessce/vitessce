@@ -17,6 +17,7 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onDragEnd = this.onDragEnd.bind(this);
     this.onUpdateSelection = this.onUpdateSelection.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
+    this.viewport = null;
     this.state = {
       selectionRectangle: undefined,
       isSelecting: false,
@@ -133,6 +134,7 @@ export default class AbstractSelectableComponent extends React.Component {
     const {
       x, y, width, height, viewport,
     } = viewProps;
+    this.viewport = viewport;
     const nwCoords = viewport.unproject([x, y]);
     const seCoords = viewport.unproject([x + width, y + height]);
     const unproWidth = seCoords[0] - nwCoords[0];
@@ -194,7 +196,7 @@ export default class AbstractSelectableComponent extends React.Component {
           {this.renderLayersMenu()}
         </div>
         <div className="d-flex">
-          {this.renderCellEmphasis()}
+          {this.renderCellEmphasis(this.viewport)}
         </div>
         <DeckGL {...deckProps}>
           {this.renderImagesFromView}
