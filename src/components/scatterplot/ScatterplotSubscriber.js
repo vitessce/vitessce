@@ -12,7 +12,7 @@ export default class ScatterplotSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cells: {}, selectedCellIds: {}, cellColors: null, hoveredCellId: null,
+      cells: {}, selectedCellIds: {}, cellColors: null,
     };
   }
 
@@ -26,9 +26,6 @@ export default class ScatterplotSubscriber extends React.Component {
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
-    this.cellsHoverToken = PubSub.subscribe(
-      CELLS_HOVER, this.cellsHoverSubscriber.bind(this),
-    );
   }
 
   componentDidMount() {
@@ -40,15 +37,10 @@ export default class ScatterplotSubscriber extends React.Component {
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsColorToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
-    PubSub.unsubscribe(this.cellsHoverToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
     this.setState({ selectedCellIds: cellIds });
-  }
-
-  cellsHoverSubscriber(msg, cellId) {
-    this.setState({ hoveredCellId: cellId });
   }
 
   cellsColorSubscriber(msg, cellColors) {
@@ -61,7 +53,7 @@ export default class ScatterplotSubscriber extends React.Component {
 
   render() {
     const {
-      cells, selectedCellIds, hoveredCellId, cellColors,
+      cells, selectedCellIds, cellColors,
     } = this.state;
     const { mapping } = this.props;
     const cellsCount = Object.keys(cells).length;
@@ -74,11 +66,10 @@ export default class ScatterplotSubscriber extends React.Component {
           cells={cells}
           mapping={mapping}
           selectedCellIds={selectedCellIds}
-          hoveredCellId={hoveredCellId}
           cellColors={cellColors}
           updateStatus={message => PubSub.publish(STATUS_INFO, message)}
           updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
-          updateCellsHover={hoveredId => PubSub.publish(CELLS_HOVER, hoveredId)}
+          updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
         />
       </TitleInfo>
     );

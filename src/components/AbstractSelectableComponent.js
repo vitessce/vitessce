@@ -150,6 +150,10 @@ export default class AbstractSelectableComponent extends React.Component {
     // No-op
   }
 
+  renderCellEmphasis() { // eslint-disable-line class-methods-use-this
+    // No-op
+  }
+
   render() {
     const { isSelecting } = this.state;
 
@@ -188,6 +192,9 @@ export default class AbstractSelectableComponent extends React.Component {
         <div className="d-flex">
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
+        </div>
+        <div className="d-flex">
+          {this.renderCellEmphasis()}
         </div>
         <DeckGL {...deckProps}>
           {this.renderImagesFromView}

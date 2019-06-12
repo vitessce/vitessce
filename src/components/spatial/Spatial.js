@@ -5,6 +5,7 @@ import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
+import CellEmphasis from '../CellEmphasis';
 import OpenSeadragonComponent from '../../vendor/OpenSeadragonComponent';
 
 export function square(x, y) {
@@ -71,8 +72,8 @@ export default class Spatial extends AbstractSelectableComponent {
       updateStatus = (message) => {
         console.warn(`Spatial updateStatus: ${message}`);
       },
-      updateCellsHover = (cellId) => {
-        console.warn(`Spatial updateCellsHover: ${cellId}`);
+      updateCellsHover = (hoverInfo) => {
+        console.warn(`Spatial updateCellsHover: ${hoverInfo.cellId}`);
       },
       updateCellsSelection = (cellsSelection) => {
         console.warn(`Spatial updateCellsSelection: ${cellsSelection}`);
@@ -105,31 +106,6 @@ export default class Spatial extends AbstractSelectableComponent {
         }
       },
       ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover),
-    });
-  }
-
-  renderHoveredCellLayer() {
-    const {
-      cells = undefined,
-      hoveredCellId = null,
-    } = this.props;
-
-
-    return new ScatterplotLayer({
-      id: 'spatial-cell-hover',
-      data: [
-        cells[hoveredCellId],
-      ],
-      pickable: false,
-      filled: false,
-      stroked: true,
-      getPosition: cell => [cell.xy[0], cell.xy[1], 0],
-      getRadius: 800,
-      getLineColor: [255, 255, 255],
-      lineWidthMinPixels: 0.1,
-      getLineWidth: 200,
-      getElevation: 0,
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
     });
   }
 
@@ -224,13 +200,18 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
+  renderCellEmphasis() { // eslint-disable-line class-methods-use-this
+    return (
+      <CellEmphasis {...this.props} />
+    );
+  }
+
   renderLayers() {
     const {
       molecules = undefined,
       cells = undefined,
       neighborhoods = undefined,
       clearPleaseWait,
-      hoveredCellId,
     } = this.props;
 
     const { layerIsVisible } = this.state;
@@ -240,10 +221,6 @@ export default class Spatial extends AbstractSelectableComponent {
     if (cells && clearPleaseWait) clearPleaseWait('cells');
     if (cells && layerIsVisible.cells) {
       layerList.push(this.renderCellLayer());
-    }
-
-    if (cells && layerIsVisible.cells && hoveredCellId) {
-      layerList.push(this.renderHoveredCellLayer());
     }
 
     if (neighborhoods && clearPleaseWait) clearPleaseWait('neighborhoods');

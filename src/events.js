@@ -6,7 +6,7 @@ export const CELLS = 'cells';
 export const CELLS_ADD = CELLS + ADD;
 export const CELLS_SELECTION = `${CELLS}.selection`;
 export const CELLS_COLOR = `${CELLS}.color`;
-export const CELLS_HOVER = `${CELLS}.hover`;
+export const CELLS_HOVER = `${CELLS}_hover`;
 
 export const CLUSTERS = 'clusters';
 export const CLUSTERS_ADD = CLUSTERS + ADD;

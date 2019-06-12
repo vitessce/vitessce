@@ -1,6 +1,8 @@
-import { ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import React from 'react';
+
 import { SelectableScatterplotLayer } from '../../layers';
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
+import CellEmphasisSubscriber from '../CellEmphasisSubscriber';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
 /**
@@ -21,6 +23,12 @@ export default class Scatterplot extends AbstractSelectableComponent {
     return cell.mappings[this.props.mapping];
   }
 
+  renderCellEmphasis() { // eslint-disable-line class-methods-use-this
+    return (
+      <CellEmphasisSubscriber />
+    );
+  }
+
   renderLayers() {
     const {
       cells = undefined,
@@ -31,15 +39,13 @@ export default class Scatterplot extends AbstractSelectableComponent {
       updateCellsSelection = (cellsSelection) => {
         console.warn(`Scatterplot updateCellsSelection: ${cellsSelection}`);
       },
-      updateCellsHover = (cellId) => {
-        console.warn(`Scatterplot updateCellsHover: ${cellId}`);
+      updateCellsHover = (hoverInfo) => {
+        console.warn(`Scatterplot updateCellsHover: ${hoverInfo.cellId}`);
       },
       selectedCellIds = {},
-      hoveredCellId = null,
     } = this.props;
 
     const layers = [];
-
     if (cells) {
       layers.push(
         new SelectableScatterplotLayer({
@@ -72,27 +78,6 @@ export default class Scatterplot extends AbstractSelectableComponent {
           ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover),
         }),
       );
-
-      if (hoveredCellId) {
-        layers.push(
-          new ScatterplotLayer({
-            id: 'scatterplot-cell-hover',
-            data: [
-              cells[hoveredCellId].mappings[mapping],
-            ],
-            pickable: false,
-            filled: false,
-            stroked: true,
-            getPosition: cellCoordinates => [cellCoordinates[0], cellCoordinates[1], 0],
-            getRadius: 2.0,
-            getLineColor: [255, 255, 255],
-            lineWidthMinPixels: 0.1,
-            getLineWidth: 0.5,
-            getElevation: 0,
-            coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-          }),
-        );
-      }
     }
 
     return layers;
