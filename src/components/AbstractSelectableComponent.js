@@ -20,10 +20,10 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
     this.viewInfo = {
-        viewport: null,
-        view: new OrthographicView(),
-        width: null,
-        height: null,
+      viewport: null,
+      view: new OrthographicView(),
+      width: null,
+      height: null,
     };
     this.state = {
       selectionRectangle: undefined,
@@ -159,7 +159,11 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   onViewStateChange({ viewState }) { // eslint-disable-next-line class-methods-use-this
-    this.viewInfo.viewport = this.viewInfo.view.makeViewport({ viewState, width: this.width, height: this.height });
+    this.viewInfo.viewport = this.viewInfo.view.makeViewport({
+      viewState,
+      width: this.width,
+      height: this.height,
+    });
   }
 
   renderLayersMenu() { // eslint-disable-line class-methods-use-this

@@ -18,8 +18,14 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover) {
             ([factor, value]) => `${factor}: ${value}`,
           ).join('; '),
         );
-        updateCellsHover({ cellId: info.object[0], x: info.x, y: info.y, mappings: info.object[1].mappings, xy: info.object[1].xy });
+        updateCellsHover({
+          cellId: info.object[0],
+          x: info.x,
+          y: info.y,
+          mappings: { xy: info.object[1].xy, ...info.object[1].mappings },
+        });
       } else {
+        // Clear the currently-hovered cell info by passing null
         updateCellsHover(null);
       }
     },
