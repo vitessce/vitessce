@@ -113,4 +113,9 @@ describe('Vitessce', () => {
     // Fails on Travis: Another race condition?
     // cy.get('.modal-body').should('not.be.visible');
   });
+
+  it('loads a warning message for undefined dataset config', () => {
+    cy.visit('/?dataset=nonexistent-dataset');
+    cy.contains('No such dataset');
+  });
 });
