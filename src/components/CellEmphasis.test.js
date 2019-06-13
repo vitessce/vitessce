@@ -72,7 +72,17 @@ describe('CellEmphasis.js', () => {
         viewInfo={fakeViewInfoInside}
         uuid={2}
       />);
-      expect(wrapper.find('div').hasClass('cell-tooltip')).toEqual(true);
+      expect(wrapper.find('div').children().length).toEqual(2);
+    });
+
+    it('does not appear if uuid matches', () => {
+      const wrapper = shallow(<CellEmphasis
+        hoveredCellInfo={fakeHoveredCellInfo}
+        mapping="xy"
+        viewInfo={fakeViewInfoInside}
+        uuid={1}
+      />);
+      expect(wrapper.find('div').length).toEqual(false);
     });
 
     it('does not appear if projected coordinates are outside boundaries, below', () => {
