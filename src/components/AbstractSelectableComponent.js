@@ -1,4 +1,5 @@
 import React from 'react';
+import uuidv4 from 'uuid/v4';
 
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import QuadTree from 'simple-quadtree';
@@ -19,6 +20,10 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onUpdateSelection = this.onUpdateSelection.bind(this);
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
+    // Create a UUID so that hover events
+    // know from which DeckGL element they were generated
+    this.uuid = uuidv4();
+
     // Store view and viewport information in a mutable object,
     // which can be passed by reference as a parameter to `renderCellEmphasis()`.
     this.viewInfo = {
@@ -220,7 +225,7 @@ export default class AbstractSelectableComponent extends React.Component {
           {this.renderLayersMenu()}
         </div>
         <div className="d-flex">
-          {this.renderCellEmphasis(this.viewInfo)}
+          {this.renderCellEmphasis(this.viewInfo, this.uuid)}
         </div>
         <DeckGL {...deckProps}>
           {this.renderImagesFromView}

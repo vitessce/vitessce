@@ -30,12 +30,17 @@ export default class CellEmphasisSubscriber extends React.Component {
     const {
       mapping,
       viewInfo,
+      uuid,
     } = this.props;
+    const {
+      hoveredCellInfo,
+    } = this.state;
     return (
       <CellEmphasis
-        {... this.state}
+        hoveredCellInfo={hoveredCellInfo}
         mapping={mapping}
         viewInfo={viewInfo}
+        uuid={uuid}
       />
     );
   }

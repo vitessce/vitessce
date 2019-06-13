@@ -23,12 +23,12 @@ export default class Scatterplot extends AbstractSelectableComponent {
     return cell.mappings[this.props.mapping];
   }
 
-  renderCellEmphasis(viewInfo) { // eslint-disable-line class-methods-use-this
+  renderCellEmphasis(viewInfo, uuid) { // eslint-disable-line class-methods-use-this
     const {
       mapping,
     } = this.props;
     return (
-      <CellEmphasisSubscriber mapping={mapping} viewInfo={viewInfo} />
+      <CellEmphasisSubscriber uuid={uuid} mapping={mapping} viewInfo={viewInfo} />
     );
   }
 
@@ -78,7 +78,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
               updateCellsSelection(selectedCellIds);
             }
           },
-          ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover),
+          ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, this.uuid),
         }),
       );
     }

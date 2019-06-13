@@ -38,6 +38,7 @@
     "react-scripts": "^2.1.8",
     "short-number": "^1.0.6",
     "simple-quadtree": "^0.1.3",
+    "uuid": "^3.3.2",
     "vitessce-grid": "0.0.4"
   },
   "devDependencies": {

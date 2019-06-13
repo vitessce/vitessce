@@ -105,7 +105,7 @@ export default class Spatial extends AbstractSelectableComponent {
           updateCellsSelection(selectedCellIds);
         }
       },
-      ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover),
+      ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, this.uuid),
     });
   }
 
@@ -200,9 +200,9 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
-  renderCellEmphasis(viewInfo) { // eslint-disable-line class-methods-use-this
+  renderCellEmphasis(viewInfo, uuid) { // eslint-disable-line class-methods-use-this
     return (
-      <CellEmphasisSubscriber mapping="xy" viewInfo={viewInfo} />
+      <CellEmphasisSubscriber uuid={uuid} mapping="xy" viewInfo={viewInfo} />
     );
   }
 

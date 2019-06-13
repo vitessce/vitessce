@@ -5,6 +5,7 @@ export default function CellEmphasis(props) {
     hoveredCellInfo = null,
     mapping,
     viewInfo,
+    uuid,
   } = props;
   if (hoveredCellInfo && viewInfo.viewport && mapping) {
     // Convert the DeckGL coordinates to pixel coordinates
@@ -14,7 +15,7 @@ export default function CellEmphasis(props) {
     const y = projectedXY[1];
     // Only show the tooltip element if the hovered cell
     // is within the current DeckGL zoom boundaries
-    if (x >= 0 && x <= viewInfo.width && y >= 0 && y <= viewInfo.height) {
+    if (hoveredCellInfo.uuid !== uuid && x >= 0 && x <= viewInfo.width && y >= 0 && y <= viewInfo.height) {
       // Position a circle-shaped <div> element on top of the hovered cell
       return (
         <div

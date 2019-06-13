@@ -1,7 +1,7 @@
 import { COORDINATE_SYSTEM } from 'deck.gl';
 import { interpolatePlasma } from 'd3-scale-chromatic';
 
-export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover) {
+export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid) {
   return {
     coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
     data: Object.entries(cells),
@@ -23,6 +23,7 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover) {
           x: info.x,
           y: info.y,
           mappings: { xy: info.object[1].xy, ...info.object[1].mappings },
+          uuid,
         });
       } else {
         // Clear the currently-hovered cell info by passing null
