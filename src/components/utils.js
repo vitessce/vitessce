@@ -20,8 +20,6 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
         );
         updateCellsHover({
           cellId: info.object[0],
-          x: info.x,
-          y: info.y,
           mappings: { xy: info.object[1].xy, ...info.object[1].mappings },
           uuid,
           status: Object.entries(info.object[1].factors).map(
