@@ -165,7 +165,7 @@ export default class AbstractSelectableComponent extends React.Component {
     return this.renderImages(unprojectedProps);
   }
 
-  onViewStateChange({ viewState }) { // eslint-disable-next-line class-methods-use-this
+  onViewStateChange({ viewState }) {
     // Update the viewport field of the `viewInfo` object
     // to satisfy child components (e.g. CellEmphasis) that depend on an
     // up-to-date viewport instance (to perform projections)
