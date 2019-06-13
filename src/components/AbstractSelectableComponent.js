@@ -184,6 +184,10 @@ export default class AbstractSelectableComponent extends React.Component {
     // No-op
   }
 
+  renderStatusTooltip() { // eslint-disable-line class-methods-use-this
+    // No-op
+  }
+
   render() {
     const { isSelecting } = this.state;
 
@@ -226,6 +230,9 @@ export default class AbstractSelectableComponent extends React.Component {
         </div>
         <div className="d-flex">
           {this.renderCellEmphasis(this.viewInfo, this.uuid)}
+        </div>
+        <div className="d-flex">
+          {this.renderStatusTooltip(this.viewInfo, this.uuid)}
         </div>
         <DeckGL {...deckProps}>
           {this.renderImagesFromView}

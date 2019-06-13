@@ -49,11 +49,9 @@ const configs = {
             description: 'Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
           },
           x: 0, y: 0 },
-        { component: 'StatusSubscriber',
-          x: 0, y: 1 },
         { component: 'ScatterplotSubscriber',
           props: { mapping: 'tsne' },
-          x: 0, y: 2, h: 2 },
+          x: 0, y: 2, h: 3 },
         { component: 'SpatialSubscriber',
           props: {
             view: {
@@ -83,11 +81,9 @@ const configs = {
           description: 'Linnarsson (static layout): Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
         },
         x: 0, y: 0, w: 3, h: 1 },
-      { component: 'StatusSubscriber',
-        x: 0, y: 1, w: 3, h: 1 },
       { component: 'ScatterplotSubscriber',
         props: { mapping: 'tsne' },
-        x: 0, y: 2, w: 3, h: 2 },
+        x: 0, y: 2, w: 3, h: 3 },
       { component: 'SpatialSubscriber',
         props: {
           view: {

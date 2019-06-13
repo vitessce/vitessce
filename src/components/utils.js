@@ -24,6 +24,9 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
           y: info.y,
           mappings: { xy: info.object[1].xy, ...info.object[1].mappings },
           uuid,
+          status: Object.entries(info.object[1].factors).map(
+            ([factor, value]) => `${factor}: ${value}`,
+          ).join('; '),
         });
       } else {
         // Clear the currently-hovered cell info by passing null
