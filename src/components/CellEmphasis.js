@@ -15,9 +15,11 @@ export default function CellEmphasis(props) {
     const y = projectedXY[1];
     // Only show the tooltip element if the hovered cell
     // is within the current DeckGL zoom boundaries
+    // and if the uuid of the tooltip does not match
+    // the one that triggered the hover effect
     if (hoveredCellInfo.uuid !== uuid
         && x >= 0 && x <= viewInfo.width && y >= 0 && y <= viewInfo.height) {
-      // Position a circle-shaped <div> element on top of the hovered cell
+      // Position a crosshair shape on top of the hovered cell
       return (
         <div>
           <div
