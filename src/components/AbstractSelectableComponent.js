@@ -219,9 +219,7 @@ export default class AbstractSelectableComponent extends React.Component {
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
         </div>
-        <div className="d-flex">
-          {this.renderCellEmphasis(this.viewInfo)}
-        </div>
+        {this.renderCellEmphasis(this.viewInfo)}
         <DeckGL {...deckProps}>
           {this.renderImagesFromView}
         </DeckGL>
