@@ -19,6 +19,8 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onUpdateSelection = this.onUpdateSelection.bind(this);
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
+    // Store view and viewport information in a mutable object,
+    // which can be passed by reference as a parameter to `renderCellEmphasis()`.
     this.viewInfo = {
       viewport: null,
       view: new OrthographicView(),
@@ -159,6 +161,9 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   onViewStateChange({ viewState }) { // eslint-disable-next-line class-methods-use-this
+    // Update the viewport field of the `viewInfo` object
+    // to satisfy child components (e.g. CellEmphasis) that depend on an
+    // up-to-date viewport instance (to perform projections)
     this.viewInfo.viewport = this.viewInfo.view.makeViewport({
       viewState,
       width: this.width,
