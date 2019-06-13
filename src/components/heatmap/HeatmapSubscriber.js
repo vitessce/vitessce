@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_COLOR, CLUSTERS_ADD, CELLS_SELECTION, CELLS_HOVER, CLEAR_PLEASE_WAIT,
+  CELLS_COLOR, CLUSTERS_ADD, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
 } from '../../events';
 import Heatmap from './Heatmap';
 
