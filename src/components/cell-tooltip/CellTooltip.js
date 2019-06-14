@@ -11,7 +11,7 @@ export default function CellTooltip(props) {
   if (!hoveredCellInfo || !viewInfo || !uuid || !viewInfo.viewport || !mapping) {
     return null;
   }
-  // Convert the DeckGL coordinates to pixel coordinates
+  // Convert the DeckGL coordinates to pixel coordinates.
   const [x, y] = viewInfo.viewport.project(hoveredCellInfo.mappings[mapping]);
   // Check if out of bounds.
   if (x < 0 || x > viewInfo.width || y < 0 || y > viewInfo.height) {

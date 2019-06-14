@@ -33,7 +33,7 @@ export default class CellTooltipSubscriber extends React.Component {
 
   viewInfoSubscriber(msg, viewInfo) {
     const { uuid } = this.props;
-    // Only use the viewInfo if it corresponds to the view associated with the tooltip
+    // Only use the viewInfo if it corresponds to the view associated with the tooltip.
     if (viewInfo && viewInfo.uuid && uuid === viewInfo.uuid) {
       this.setState({ viewInfo });
     }

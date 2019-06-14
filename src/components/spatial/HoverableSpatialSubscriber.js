@@ -6,7 +6,7 @@ import CellTooltipSubscriber from '../cell-tooltip/CellTooltipSubscriber';
 
 export default function HoverableSpatialSubscriber(props) {
   // Create a UUID so that hover events
-  // know from which DeckGL element they were generated
+  // know from which DeckGL element they were generated.
   const uuid = uuidv4();
   return (
     <SpatialSubscriber {...props} uuid={uuid}>

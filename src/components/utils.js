@@ -27,7 +27,7 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
           ).join('; '),
         });
       } else {
-        // Clear the currently-hovered cell info by passing null
+        // Clear the currently-hovered cell info by passing null.
         updateCellsHover(null);
       }
     },

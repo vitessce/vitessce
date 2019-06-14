@@ -143,7 +143,7 @@ export default class AbstractSelectableComponent extends React.Component {
     const {
       x, y, width, height, viewport,
     } = viewProps;
-    // Capture the viewport, width, and height values from DeckGL instantiation to be used later
+    // Capture the viewport, width, and height values from DeckGL instantiation to be used later.
     this.viewInfo.viewport = viewport;
     this.viewInfo.width = width;
     this.viewInfo.height = height;
@@ -174,7 +174,7 @@ export default class AbstractSelectableComponent extends React.Component {
     } = this.props;
     // Update the viewport field of the `viewInfo` object
     // to satisfy components (e.g. CellTooltip) that depend on an
-    // up-to-date viewport instance (to perform projections)
+    // up-to-date viewport instance (to perform projections).
     this.viewInfo.viewport = (new OrthographicView()).makeViewport({
       viewState,
       width: this.width,
