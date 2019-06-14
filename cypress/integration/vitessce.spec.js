@@ -107,7 +107,7 @@ describe('Vitessce', () => {
     cy.contains('Slc32a1');
 
     // Scatterplots:
-    cy.contains('Scatterplot (tsne)');
+    cy.contains('Scatterplot (t-SNE)');
     cy.contains('Scatterplot (pca)');
 
     // Fails on Travis: Another race condition?
