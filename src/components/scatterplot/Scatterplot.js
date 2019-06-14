@@ -4,7 +4,6 @@ import { SelectableScatterplotLayer } from '../../layers';
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
 import CellEmphasisSubscriber from '../CellEmphasisSubscriber';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
-import StatusTooltipSubscriber from '../StatusTooltipSubscriber';
 
 /**
 React component which renders a scatterplot from cell data, typically tSNE or PCA.
@@ -30,15 +29,6 @@ export default class Scatterplot extends AbstractSelectableComponent {
     } = this.props;
     return (
       <CellEmphasisSubscriber uuid={uuid} mapping={mapping} viewInfo={viewInfo} />
-    );
-  }
-
-  renderStatusTooltip(viewInfo, uuid) {
-    const {
-      mapping,
-    } = this.props;
-    return (
-      <StatusTooltipSubscriber uuid={uuid} mapping={mapping} viewInfo={viewInfo} />
     );
   }
 

@@ -15,13 +15,28 @@ export default function CellEmphasis(props) {
   const [x, y] = viewInfo.viewport.project(hoveredCellInfo.mappings[mapping]);
   // Only show the tooltip element if the hovered cell
   // is within the current DeckGL zoom boundaries
-  // and if the uuid of the tooltip does not match
-  // the one that triggered the hover effect
-  if (hoveredCellInfo.uuid === uuid
-    || x < 0 || x > viewInfo.width || y < 0 || y > viewInfo.height) {
+  if (x < 0 || x > viewInfo.width || y < 0 || y > viewInfo.height) {
     return null;
   }
-  // Position a crosshair shape on top of the hovered cell
+  // If the uuid of the tooltip does match
+  // the one that triggered the hover effect,
+  // position tooltip with status text next to the hovered cell
+  if (hoveredCellInfo.uuid === uuid) {
+    return (
+      <div
+        className="cell-tooltip card bg-light"
+        style={{
+          left: `${x + 20}px`,
+          top: `${y - 120}px`,
+        }}
+      >
+        <p className="details">{hoveredCellInfo.status}</p>
+      </div>
+    );
+  }
+  // If the uuid of the tooltip does not match
+  // the one that triggered the hover effect,
+  // position a crosshair shape on top of the hovered cell
   return (
     <div>
       <div

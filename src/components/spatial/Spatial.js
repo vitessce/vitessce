@@ -7,7 +7,6 @@ import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
 import CellEmphasisSubscriber from '../CellEmphasisSubscriber';
 import OpenSeadragonComponent from '../../vendor/OpenSeadragonComponent';
-import StatusTooltipSubscriber from '../StatusTooltipSubscriber';
 
 export function square(x, y) {
   const r = 5;
@@ -204,12 +203,6 @@ export default class Spatial extends AbstractSelectableComponent {
   renderCellEmphasis(viewInfo, uuid) { // eslint-disable-line class-methods-use-this
     return (
       <CellEmphasisSubscriber uuid={uuid} mapping="xy" viewInfo={viewInfo} />
-    );
-  }
-
-  renderStatusTooltip(viewInfo, uuid) { // eslint-disable-line class-methods-use-this
-    return (
-      <StatusTooltipSubscriber uuid={uuid} mapping="xy" viewInfo={viewInfo} />
     );
   }
 
