@@ -4,7 +4,7 @@ import datasetSchema from '../schemas/dataset.schema.json';
 import higlassViewConf from './higlass-viewconf.json';
 
 // Used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.15/linnarsson-2018';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/toslchan';
 
 const linnarssonBase = {
   description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
@@ -50,7 +50,7 @@ const configs = {
           },
           x: 0, y: 0 },
         { component: 'ScatterplotSubscriber',
-          props: { mapping: 'tsne' },
+          props: { mapping: 't-SNE' },
           x: 0, y: 2, h: 3 },
         { component: 'SpatialSubscriber',
           props: {
@@ -82,7 +82,7 @@ const configs = {
         },
         x: 0, y: 0, w: 3, h: 1 },
       { component: 'ScatterplotSubscriber',
-        props: { mapping: 'tsne' },
+        props: { mapping: 't-SNE' },
         x: 0, y: 2, w: 3, h: 3 },
       { component: 'SpatialSubscriber',
         props: {
