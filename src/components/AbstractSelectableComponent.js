@@ -19,7 +19,7 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onUpdateSelection = this.onUpdateSelection.bind(this);
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
-    const { uuid = null } = props;
+    const { uuid = null } = props || {};
     // Store view and viewport information in a mutable object.
     this.viewInfo = {
       viewport: null,
