@@ -20,8 +20,7 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
     const { uuid = null } = props;
-    // Store view and viewport information in a mutable object,
-    // which can be passed by reference as a parameter to `renderCellTooltip()`.
+    // Store view and viewport information in a mutable object.
     this.viewInfo = {
       viewport: null,
       width: null,
