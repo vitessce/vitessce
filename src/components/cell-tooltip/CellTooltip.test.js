@@ -41,14 +41,14 @@ describe('CellTooltip.js', () => {
       expect(wrapper.find('div').children().length).toEqual(2);
     });
 
-    it('tooltip appears if projected coordinates are within boundaries and uuid does match', () => {
+    it('does not appear if projected coordinates are within boundaries and uuid does match', () => {
       const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={fakeViewInfoInside}
         uuid={1}
       />);
-      expect(wrapper.find('div').children().length).toEqual(1);
+      expect(wrapper.find('div').length).toEqual(0);
     });
 
     it('does not appear if projected coordinates are outside boundaries, below', () => {
