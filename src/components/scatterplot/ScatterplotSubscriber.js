@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_ADD, CELLS_SELECTION, CELLS_COLOR, CELLS_HOVER, STATUS_INFO,
+  CELLS_ADD, CELLS_SELECTION, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEWINFO,
 } from '../../events';
 import Scatterplot from './Scatterplot';
 
@@ -55,14 +55,16 @@ export default class ScatterplotSubscriber extends React.Component {
     const {
       cells, selectedCellIds, cellColors,
     } = this.state;
-    const { mapping } = this.props;
+    const { mapping, uuid = null } = this.props;
     const cellsCount = Object.keys(cells).length;
     return (
       <TitleInfo
         title={`Scatterplot (${mapping})`}
         info={`${cellsCount} cells`}
       >
+        {this.props.children}
         <Scatterplot
+          uuid={uuid}
           cells={cells}
           mapping={mapping}
           selectedCellIds={selectedCellIds}
@@ -70,6 +72,7 @@ export default class ScatterplotSubscriber extends React.Component {
           updateStatus={message => PubSub.publish(STATUS_INFO, message)}
           updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
           updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
+          updateViewInfo={viewInfo => PubSub.publish(VIEWINFO, viewInfo)}
         />
       </TitleInfo>
     );

@@ -5,7 +5,6 @@ import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
-import CellEmphasisSubscriber from '../CellEmphasisSubscriber';
 import OpenSeadragonComponent from '../../vendor/OpenSeadragonComponent';
 
 export function square(x, y) {
@@ -78,6 +77,7 @@ export default class Spatial extends AbstractSelectableComponent {
       updateCellsSelection = (cellsSelection) => {
         console.warn(`Spatial updateCellsSelection: ${cellsSelection}`);
       },
+      uuid = null,
     } = this.props;
 
     return new SelectablePolygonLayer({
@@ -105,7 +105,7 @@ export default class Spatial extends AbstractSelectableComponent {
           updateCellsSelection(selectedCellIds);
         }
       },
-      ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, this.uuid),
+      ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid),
     });
   }
 
@@ -197,12 +197,6 @@ export default class Spatial extends AbstractSelectableComponent {
         layerIsVisible={this.state.layerIsVisible}
         setLayerIsVisible={this.setLayerIsVisible}
       />
-    );
-  }
-
-  renderCellEmphasis(viewInfo, uuid) { // eslint-disable-line class-methods-use-this
-    return (
-      <CellEmphasisSubscriber uuid={uuid} mapping="xy" viewInfo={viewInfo} />
     );
   }
 

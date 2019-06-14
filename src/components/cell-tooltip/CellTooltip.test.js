@@ -2,7 +2,7 @@ import React from 'react';
 import Adapter from 'enzyme-adapter-react-16';
 import { shallow, configure } from 'enzyme';
 import expect from 'expect';
-import CellEmphasis from './CellEmphasis';
+import CellTooltip from './CellTooltip';
 
 configure({ adapter: new Adapter() });
 
@@ -13,60 +13,26 @@ const fakeHoveredCellInfo = {
   status: 'subcluster: Hippocampus; cluster: Excitatory neurons',
 };
 
-const fakeViewInfoInside = {
+const makeFakeViewInfo = (x, y) => ({
   width: 10,
   height: 10,
   viewport: {
     project() {
-      return [5, 5];
+      return [x, y];
     },
   },
-};
+});
 
-const fakeViewInfoOutsideAbove = {
-  width: 10,
-  height: 10,
-  viewport: {
-    project() {
-      return [0, -1];
-    },
-  },
-};
+const fakeViewInfoInside = makeFakeViewInfo(5, 5);
+const fakeViewInfoOutsideAbove = makeFakeViewInfo(0, -1);
+const fakeViewInfoOutsideBelow = makeFakeViewInfo(0, 11);
+const fakeViewInfoOutsideLeft = makeFakeViewInfo(-1, 0);
+const fakeViewInfoOutsideRight = makeFakeViewInfo(11, 0);
 
-const fakeViewInfoOutsideBelow = {
-  width: 10,
-  height: 10,
-  viewport: {
-    project() {
-      return [0, 11];
-    },
-  },
-};
-
-const fakeViewInfoOutsideLeft = {
-  width: 10,
-  height: 10,
-  viewport: {
-    project() {
-      return [-1, 0];
-    },
-  },
-};
-
-const fakeViewInfoOutsideRight = {
-  width: 10,
-  height: 10,
-  viewport: {
-    project() {
-      return [11, 0];
-    },
-  },
-};
-
-describe('CellEmphasis.js', () => {
-  describe('<CellEmphasis />', () => {
+describe('CellTooltip.js', () => {
+  describe('<CellTooltip />', () => {
     it('crosshair appears if projected coordinates are within boundaries and uuid does not match', () => {
-      const wrapper = shallow(<CellEmphasis
+      const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={fakeViewInfoInside}
@@ -76,7 +42,7 @@ describe('CellEmphasis.js', () => {
     });
 
     it('tooltip appears if projected coordinates are within boundaries and uuid does match', () => {
-      const wrapper = shallow(<CellEmphasis
+      const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={fakeViewInfoInside}
@@ -86,7 +52,7 @@ describe('CellEmphasis.js', () => {
     });
 
     it('does not appear if projected coordinates are outside boundaries, below', () => {
-      const wrapper = shallow(<CellEmphasis
+      const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={fakeViewInfoOutsideBelow}
@@ -96,7 +62,7 @@ describe('CellEmphasis.js', () => {
     });
 
     it('does not appear if projected coordinates are outside boundaries, above', () => {
-      const wrapper = shallow(<CellEmphasis
+      const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={fakeViewInfoOutsideAbove}
@@ -106,7 +72,7 @@ describe('CellEmphasis.js', () => {
     });
 
     it('does not appear if projected coordinates are outside boundaries, left', () => {
-      const wrapper = shallow(<CellEmphasis
+      const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={fakeViewInfoOutsideLeft}
@@ -116,7 +82,7 @@ describe('CellEmphasis.js', () => {
     });
 
     it('does not appear if projected coordinates are outside boundaries, right', () => {
-      const wrapper = shallow(<CellEmphasis
+      const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={fakeViewInfoOutsideRight}

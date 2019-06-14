@@ -2,6 +2,8 @@ const ADD = '.add';
 
 export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
 
+export const VIEWINFO = 'viewinfo';
+
 export const CELLS = 'cells';
 export const CELLS_ADD = CELLS + ADD;
 export const CELLS_SELECTION = `${CELLS}.selection`;

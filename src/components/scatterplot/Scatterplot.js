@@ -1,8 +1,5 @@
-import React from 'react';
-
 import { SelectableScatterplotLayer } from '../../layers';
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
-import CellEmphasisSubscriber from '../CellEmphasisSubscriber';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 
 /**
@@ -23,15 +20,6 @@ export default class Scatterplot extends AbstractSelectableComponent {
     return cell.mappings[this.props.mapping];
   }
 
-  renderCellEmphasis(viewInfo, uuid) {
-    const {
-      mapping,
-    } = this.props;
-    return (
-      <CellEmphasisSubscriber uuid={uuid} mapping={mapping} viewInfo={viewInfo} />
-    );
-  }
-
   renderLayers() {
     const {
       cells = undefined,
@@ -46,6 +34,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
         console.warn(`Scatterplot updateCellsHover: ${hoverInfo.cellId}`);
       },
       selectedCellIds = {},
+      uuid = null,
     } = this.props;
 
     const layers = [];
@@ -78,7 +67,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
               updateCellsSelection(selectedCellIds);
             }
           },
-          ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, this.uuid),
+          ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid),
         }),
       );
     }
