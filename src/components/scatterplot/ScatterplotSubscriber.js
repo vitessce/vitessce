@@ -55,14 +55,14 @@ export default class ScatterplotSubscriber extends React.Component {
     const {
       cells, selectedCellIds, cellColors,
     } = this.state;
-    const { mapping, uuid = null } = this.props;
+    const { mapping, uuid = null, children } = this.props;
     const cellsCount = Object.keys(cells).length;
     return (
       <TitleInfo
         title={`Scatterplot (${mapping})`}
         info={`${cellsCount} cells`}
       >
-        {this.props.children}
+        {children}
         <Scatterplot
           uuid={uuid}
           cells={cells}
