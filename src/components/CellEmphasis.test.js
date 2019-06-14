@@ -65,7 +65,7 @@ const fakeViewInfoOutsideRight = {
 
 describe('CellEmphasis.js', () => {
   describe('<CellEmphasis />', () => {
-    it('appears if projected coordinates are within boundaries', () => {
+    it('crosshair appears if projected coordinates are within boundaries and uuid does not match', () => {
       const wrapper = shallow(<CellEmphasis
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
@@ -75,14 +75,14 @@ describe('CellEmphasis.js', () => {
       expect(wrapper.find('div').children().length).toEqual(2);
     });
 
-    it('does not appear if uuid matches', () => {
+    it('tooltip appears if projected coordinates are within boundaries and uuid does match', () => {
       const wrapper = shallow(<CellEmphasis
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={fakeViewInfoInside}
         uuid={1}
       />);
-      expect(wrapper.find('div').length).toEqual(false);
+      expect(wrapper.find('div').children().length).toEqual(1);
     });
 
     it('does not appear if projected coordinates are outside boundaries, below', () => {
