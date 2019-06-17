@@ -108,8 +108,8 @@ export default class SpatialSubscriber extends React.Component {
             hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)
           }
           updateViewInfo={
-              viewInfo => PubSub.publish(VIEW_INFO, viewInfo)
-        }
+            viewInfo => PubSub.publish(VIEW_INFO, viewInfo)
+          }
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
