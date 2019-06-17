@@ -23,19 +23,13 @@ const makeFakeViewInfo = (x, y) => ({
   },
 });
 
-const fakeViewInfoInside = makeFakeViewInfo(5, 5);
-const fakeViewInfoOutsideAbove = makeFakeViewInfo(0, -1);
-const fakeViewInfoOutsideBelow = makeFakeViewInfo(0, 11);
-const fakeViewInfoOutsideLeft = makeFakeViewInfo(-1, 0);
-const fakeViewInfoOutsideRight = makeFakeViewInfo(11, 0);
-
 describe('CellTooltip.js', () => {
   describe('<CellTooltip />', () => {
     it('crosshair appears if projected coordinates are within boundaries and uuid does not match', () => {
       const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
-        viewInfo={fakeViewInfoInside}
+        viewInfo={makeFakeViewInfo(5, 5)}
         uuid={2}
       />);
       expect(wrapper.find('div').children().length).toEqual(2);
@@ -45,7 +39,7 @@ describe('CellTooltip.js', () => {
       const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
-        viewInfo={fakeViewInfoInside}
+        viewInfo={makeFakeViewInfo(5, 5)}
         uuid={1}
       />);
       expect(wrapper.find('div').length).toEqual(0);
@@ -55,7 +49,7 @@ describe('CellTooltip.js', () => {
       const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
-        viewInfo={fakeViewInfoOutsideBelow}
+        viewInfo={makeFakeViewInfo(0, 11)}
         uuid={2}
       />);
       expect(wrapper.find('div').length).toEqual(0);
@@ -65,7 +59,7 @@ describe('CellTooltip.js', () => {
       const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
-        viewInfo={fakeViewInfoOutsideAbove}
+        viewInfo={makeFakeViewInfo(0, -1)}
         uuid={2}
       />);
       expect(wrapper.find('div').length).toEqual(0);
@@ -75,7 +69,7 @@ describe('CellTooltip.js', () => {
       const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
-        viewInfo={fakeViewInfoOutsideLeft}
+        viewInfo={makeFakeViewInfo(-1, 0)}
         uuid={2}
       />);
       expect(wrapper.find('div').length).toEqual(0);
@@ -85,7 +79,7 @@ describe('CellTooltip.js', () => {
       const wrapper = shallow(<CellTooltip
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
-        viewInfo={fakeViewInfoOutsideRight}
+        viewInfo={makeFakeViewInfo(11, 0)}
         uuid={2}
       />);
       expect(wrapper.find('div').length).toEqual(0);
