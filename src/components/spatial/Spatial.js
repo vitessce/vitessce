@@ -71,9 +71,13 @@ export default class Spatial extends AbstractSelectableComponent {
       updateStatus = (message) => {
         console.warn(`Spatial updateStatus: ${message}`);
       },
+      updateCellsHover = (hoverInfo) => {
+        console.warn(`Spatial updateCellsHover: ${hoverInfo.cellId}`);
+      },
       updateCellsSelection = (cellsSelection) => {
         console.warn(`Spatial updateCellsSelection: ${cellsSelection}`);
       },
+      uuid = null,
     } = this.props;
 
     return new SelectablePolygonLayer({
@@ -101,7 +105,7 @@ export default class Spatial extends AbstractSelectableComponent {
           updateCellsSelection(selectedCellIds);
         }
       },
-      ...cellLayerDefaultProps(cells, updateStatus),
+      ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid),
     });
   }
 

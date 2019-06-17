@@ -5,7 +5,7 @@ import shortNumber from 'short-number';
 import TitleInfo from '../TitleInfo';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
-  STATUS_INFO, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
+  STATUS_INFO, CELLS_SELECTION, CELLS_HOVER, CLEAR_PLEASE_WAIT, VIEWINFO,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -81,6 +81,7 @@ export default class SpatialSubscriber extends React.Component {
 
   render() {
     const { cells, molecules } = this.state;
+    const { uuid = null, children } = this.props;
     const cellsCount = cells ? Object.keys(cells).length : 0;
     const moleculesCount = molecules ? Object.keys(molecules).length : 0;
     const locationsCount = molecules
@@ -92,15 +93,23 @@ export default class SpatialSubscriber extends React.Component {
         info={`${cellsCount} cells, ${moleculesCount} molecules
               at ${shortNumber(locationsCount)} locations`}
       >
+        {children}
         <Spatial
           {... this.state}
           view={this.props.view}
+          uuid={uuid}
           updateStatus={
             message => PubSub.publish(STATUS_INFO, message)
           }
           updateCellsSelection={
             selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)
           }
+          updateCellsHover={
+            hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)
+          }
+          updateViewInfo={
+              viewInfo => PubSub.publish(VIEWINFO, viewInfo)
+        }
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
