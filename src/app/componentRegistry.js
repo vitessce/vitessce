@@ -7,6 +7,8 @@ import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
 import FactorsSubscriber from '../components/factors/FactorsSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
 import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
+import HoverableScatterplotSubscriber from '../components/scatterplot/HoverableScatterplotSubscriber';
+import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSubscriber';
 
 class Description extends React.Component {
   componentDidMount() {
@@ -32,6 +34,8 @@ const registry = {
   FactorsSubscriber,
   GenesSubscriber,
   HeatmapSubscriber,
+  HoverableScatterplotSubscriber,
+  HoverableSpatialSubscriber,
   HiGlassComponent: React.lazy(() => import('../vendor/StyledHiGlass.js')),
   HiGlassWrappedComponent: React.lazy(() => import('../vendor/WrappedStyledHiGlass.js')),
   // TODO: Our Higlass demos don't actually need any data layers to load...

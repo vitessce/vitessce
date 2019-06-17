@@ -1,4 +1,5 @@
 import React from 'react';
+
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import QuadTree from 'simple-quadtree';
 import ToolMenu from './ToolMenu';
@@ -16,7 +17,16 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onDrag = this.onDrag.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
     this.onUpdateSelection = this.onUpdateSelection.bind(this);
+    this.onViewStateChange = this.onViewStateChange.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
+    const { uuid = null } = props || {};
+    // Store view and viewport information in a mutable object.
+    this.viewInfo = {
+      viewport: null,
+      width: null,
+      height: null,
+      uuid,
+    };
     this.state = {
       selectionRectangle: undefined,
       isSelecting: false,
@@ -133,6 +143,16 @@ export default class AbstractSelectableComponent extends React.Component {
     const {
       x, y, width, height, viewport,
     } = viewProps;
+    // Capture the viewport, width, and height values from DeckGL instantiation to be used later.
+    this.viewInfo.viewport = viewport;
+    this.viewInfo.width = width;
+    this.viewInfo.height = height;
+    const {
+      updateViewInfo = () => {
+        console.warn('AbstractSelectableComponent updateViewInfo from renderImagesFromView');
+      },
+    } = this.props;
+    updateViewInfo(this.viewInfo);
     const nwCoords = viewport.unproject([x, y]);
     const seCoords = viewport.unproject([x + width, y + height]);
     const unproWidth = seCoords[0] - nwCoords[0];
@@ -144,6 +164,23 @@ export default class AbstractSelectableComponent extends React.Component {
       height: unproHeight,
     };
     return this.renderImages(unprojectedProps);
+  }
+
+  onViewStateChange({ viewState }) {
+    const {
+      updateViewInfo = () => {
+        console.warn('AbstractSelectableComponent updateViewInfo from onViewStateChange');
+      },
+    } = this.props;
+    // Update the viewport field of the `viewInfo` object
+    // to satisfy components (e.g. CellTooltip) that depend on an
+    // up-to-date viewport instance (to perform projections).
+    this.viewInfo.viewport = (new OrthographicView()).makeViewport({
+      viewState,
+      width: this.width,
+      height: this.height,
+    });
+    updateViewInfo(this.viewInfo);
   }
 
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
@@ -166,6 +203,7 @@ export default class AbstractSelectableComponent extends React.Component {
       views: [new OrthographicView()],
       layers: this.renderLayers().concat(this.renderSelectionRectangleLayers()),
       initialViewState: this.getInitialViewState(),
+      onViewStateChange: this.onViewStateChange,
     };
     if (isSelecting) {
       deckProps = {

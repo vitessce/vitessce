@@ -102,3 +102,34 @@ input[type="radio"] {
 input[type="radio"]:checked {
   background-clip: unset;
 }
+
+/* Cell Tooltips */
+.cell-emphasis {
+    z-index: 5;
+    position: absolute;
+    pointer-events: none;
+    background-color: white;
+}
+
+.cell-tooltip {
+    z-index: 1001;
+    position: absolute;
+    pointer-events: none;
+    height: 100px;
+    box-sizing: border-box;
+    opacity: 0;
+    padding: 1.25rem;
+
+    animation-name: cell-tooltip;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes cell-tooltip {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}

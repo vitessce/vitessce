@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_ADD, CELLS_SELECTION, CELLS_COLOR, STATUS_INFO,
+  CELLS_ADD, CELLS_SELECTION, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEWINFO,
 } from '../../events';
 import Scatterplot from './Scatterplot';
 
@@ -11,7 +11,9 @@ import Scatterplot from './Scatterplot';
 export default class ScatterplotSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { cells: {}, selectedCellIds: {}, cellColors: null };
+    this.state = {
+      cells: {}, selectedCellIds: {}, cellColors: null,
+    };
   }
 
   componentWillMount() {
@@ -50,21 +52,27 @@ export default class ScatterplotSubscriber extends React.Component {
   }
 
   render() {
-    const { cells, selectedCellIds, cellColors } = this.state;
-    const { mapping } = this.props;
+    const {
+      cells, selectedCellIds, cellColors,
+    } = this.state;
+    const { mapping, uuid = null, children } = this.props;
     const cellsCount = Object.keys(cells).length;
     return (
       <TitleInfo
         title={`Scatterplot (${mapping})`}
         info={`${cellsCount} cells`}
       >
+        {children}
         <Scatterplot
+          uuid={uuid}
           cells={cells}
           mapping={mapping}
           selectedCellIds={selectedCellIds}
           cellColors={cellColors}
           updateStatus={message => PubSub.publish(STATUS_INFO, message)}
           updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
+          updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
+          updateViewInfo={viewInfo => PubSub.publish(VIEWINFO, viewInfo)}
         />
       </TitleInfo>
     );

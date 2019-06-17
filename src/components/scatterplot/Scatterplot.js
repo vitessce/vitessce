@@ -30,11 +30,14 @@ export default class Scatterplot extends AbstractSelectableComponent {
       updateCellsSelection = (cellsSelection) => {
         console.warn(`Scatterplot updateCellsSelection: ${cellsSelection}`);
       },
+      updateCellsHover = (hoverInfo) => {
+        console.warn(`Scatterplot updateCellsHover: ${hoverInfo.cellId}`);
+      },
       selectedCellIds = {},
+      uuid = null,
     } = this.props;
 
     const layers = [];
-
     if (cells) {
       layers.push(
         new SelectableScatterplotLayer({
@@ -64,7 +67,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
               updateCellsSelection(selectedCellIds);
             }
           },
-          ...cellLayerDefaultProps(cells, updateStatus),
+          ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid),
         }),
       );
     }

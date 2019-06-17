@@ -10,7 +10,9 @@ import Heatmap from './Heatmap';
 export default class HeatmapSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { clusters: null, selectedCellIds: {}, cellColors: null };
+    this.state = {
+      clusters: null, selectedCellIds: {}, cellColors: null,
+    };
   }
 
   componentWillMount() {
@@ -49,7 +51,9 @@ export default class HeatmapSubscriber extends React.Component {
   }
 
   render() {
-    const { clusters, selectedCellIds, cellColors } = this.state;
+    const {
+      clusters, selectedCellIds, cellColors,
+    } = this.state;
     const cellsCount = clusters ? clusters.cols.length : 0;
     const genesCount = clusters ? clusters.rows.length : 0;
     const selectedCount = selectedCellIds ? Object.keys(selectedCellIds).length : 0;
