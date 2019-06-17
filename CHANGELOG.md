@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.16 - in progress
+### Added
+- Linked hover effect between spatial and other views.
+### Changed
+- Using Deck.gl's built in picking instead of quadtree.
+
 ## [0.0.15](https://www.npmjs.com/package/vitessce/v/0.0.15) - 2019-06-07
 ### Added
 - The `<TitleInfo>` component now takes children, and our JSX is tidier.
