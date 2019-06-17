@@ -1,7 +1,6 @@
 import React from 'react';
 
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
-import QuadTree from 'simple-quadtree';
 import ToolMenu from './ToolMenu';
 
 /**
@@ -19,6 +18,7 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onUpdateSelection = this.onUpdateSelection.bind(this);
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
+    this.deckRef = React.createRef();
     const { uuid = null } = props || {};
     // Store view and viewport information in a mutable object.
     this.viewInfo = {
@@ -48,21 +48,6 @@ export default class AbstractSelectableComponent extends React.Component {
     const { isSelecting } = this.state;
     if (isSelecting) {
       this.dragStartCoordinate = event.coordinate;
-    }
-
-    if (!this.cellQuadTree) {
-      const { cells } = this.props;
-      this.cellQuadTree = QuadTree(-1500, -1500, 3000, 3000);
-      Object.entries(cells).forEach(([id, cell]) => {
-        const coords = this.getCellCoords(cell);
-        if (coords) {
-          this.cellQuadTree.put({
-            x: coords[0], y: coords[1], w: 0, h: 0, id,
-          });
-        } else {
-          console.warn('missing coords for object');
-        }
-      });
     }
   }
 
@@ -99,12 +84,24 @@ export default class AbstractSelectableComponent extends React.Component {
       // or only picking objects with positive coordinates.
 
       const selectedCellIdsSet = {};
-      const qtBounds = {
-        x: xMin, y: yMin, w: xMax - xMin, h: yMax - yMin,
+
+      const { viewport } = this.viewInfo;
+
+      const nwCoords = viewport.project([xMin, yMin]);
+      const seCoords = viewport.project([xMax, yMax]);
+      const proWidth = seCoords[0] - nwCoords[0];
+      const proHeight = seCoords[1] - nwCoords[1];
+      const projectedProps = {
+        x: nwCoords[0],
+        y: nwCoords[1],
+        width: proWidth,
+        height: proHeight,
       };
-      const cellObjs = this.cellQuadTree.get(qtBounds);
-      cellObjs.forEach((obj) => {
-        selectedCellIdsSet[obj.id] = true;
+      const pickedObjects = this.deckRef.current.pickObjects(projectedProps);
+
+      const cellObjIds = pickedObjects.map(cellObj => cellObj.object[0]);
+      cellObjIds.forEach((cellObjId) => {
+        selectedCellIdsSet[cellObjId] = true;
       });
       updateCellsSelection(selectedCellIdsSet);
     }
@@ -209,8 +206,8 @@ export default class AbstractSelectableComponent extends React.Component {
       deckProps = {
         controller: { dragPan: false },
         getCursor: () => 'crosshair',
-        onDrag: this.onDrag,
         onDragStart: this.onDragStart,
+        onDrag: this.onDrag,
         onDragEnd: this.onDragEnd,
         ...deckProps,
       };
@@ -227,7 +224,7 @@ export default class AbstractSelectableComponent extends React.Component {
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
         </div>
-        <DeckGL {...deckProps}>
+        <DeckGL ref={this.deckRef} {...deckProps}>
           {this.renderImagesFromView}
         </DeckGL>
       </React.Fragment>
