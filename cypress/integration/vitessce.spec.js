@@ -108,7 +108,7 @@ describe('Vitessce', () => {
 
     // Scatterplots:
     cy.contains('Scatterplot (t-SNE)');
-    cy.contains('Scatterplot (pca)');
+    cy.contains('Scatterplot (PCA)');
 
     // Fails on Travis: Another race condition?
     // cy.get('.modal-body').should('not.be.visible');
