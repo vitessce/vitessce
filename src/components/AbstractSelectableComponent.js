@@ -189,9 +189,9 @@ export default class AbstractSelectableComponent extends React.Component {
     const { tool } = this.state;
 
     const toolProps = {
-      setTool: (toolUpdate) => { this.setState({ tool: toolUpdate }); },
+      setActiveTool: (toolUpdate) => { this.setState({ tool: toolUpdate }); },
       /* eslint-disable react/destructuring-assignment */
-      isTool: toolCheck => (toolCheck === this.state.tool),
+      isActiveTool: toolCheck => (toolCheck === this.state.tool),
       /* esline-enable */
     };
 
