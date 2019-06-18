@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { POINTER, SELECT_RECTANGLE } from './tools';
+
 export function IconButton(props) {
   const {
     src, alt, onClick, isActive,
@@ -18,22 +20,20 @@ export function IconButton(props) {
 }
 
 export default function ToolMenu(props) {
-  const {
-    setPointingMode, setSelectingMode, isPointingMode, isSelectingMode,
-  } = props;
+  const { setActiveTool, isActiveTool } = props;
   return (
     <div className="tool">
       <IconButton
         src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
         alt="pointer tool"
-        onClick={setPointingMode}
-        isActive={isPointingMode()}
+        onClick={() => setActiveTool(POINTER)}
+        isActive={isActiveTool(POINTER)}
       />
       <IconButton
         src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
         alt="select rectangle"
-        onClick={setSelectingMode}
-        isActive={isSelectingMode()}
+        onClick={() => setActiveTool(SELECT_RECTANGLE)}
+        isActive={isActiveTool(SELECT_RECTANGLE)}
       />
     </div>
   );

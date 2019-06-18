@@ -2,6 +2,7 @@ import React from 'react';
 
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import ToolMenu from './ToolMenu';
+import { POINTER, SELECT_RECTANGLE } from './tools';
 
 /**
  Abstract React component: Provides drag-to-select functionality to subclasses.
@@ -29,7 +30,7 @@ export default class AbstractSelectableComponent extends React.Component {
     };
     this.state = {
       selectionRectangle: undefined,
-      isSelecting: false,
+      tool: POINTER,
     };
   }
 
@@ -45,15 +46,15 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   onDragStart(event) {
-    const { isSelecting } = this.state;
-    if (isSelecting) {
+    const { tool } = this.state;
+    if (tool === SELECT_RECTANGLE) {
       this.dragStartCoordinate = event.coordinate;
     }
   }
 
   onDrag(event) {
-    const { isSelecting } = this.state;
-    if (isSelecting && event.coordinate) {
+    const { tool } = this.state;
+    if (tool === SELECT_RECTANGLE && event.coordinate) {
       this.setState({ selectionRectangle: this.getDragRectangle(event) });
       // If you want to update selection during drag, un-comment this:
       //   this.onUpdateSelection(event);
@@ -62,17 +63,17 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   onDragEnd(event) {
-    const { isSelecting } = this.state;
-    if (isSelecting) {
+    const { tool } = this.state;
+    if (tool === SELECT_RECTANGLE) {
       this.setState({ selectionRectangle: undefined });
       this.onUpdateSelection(event);
     }
   }
 
   onUpdateSelection(event) {
-    const { isSelecting } = this.state;
+    const { tool } = this.state;
     const { updateCellsSelection } = this.props;
-    if (isSelecting && event.coordinate && updateCellsSelection) {
+    if (tool === SELECT_RECTANGLE && event.coordinate && updateCellsSelection) {
       const {
         xMin, yMin, xMax, yMax,
       } = this.getDragRectangle(event);
@@ -185,14 +186,12 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   render() {
-    const { isSelecting } = this.state;
+    const { tool } = this.state;
 
     const toolProps = {
-      setSelectingMode: () => { this.setState({ isSelecting: true }); },
-      setPointingMode: () => { this.setState({ isSelecting: false }); },
+      setActiveTool: (toolUpdate) => { this.setState({ tool: toolUpdate }); },
       /* eslint-disable react/destructuring-assignment */
-      isSelectingMode: () => this.state.isSelecting,
-      isPointingMode: () => !this.state.isSelecting,
+      isActiveTool: toolCheck => (toolCheck === this.state.tool),
       /* esline-enable */
     };
 
@@ -202,7 +201,7 @@ export default class AbstractSelectableComponent extends React.Component {
       initialViewState: this.getInitialViewState(),
       onViewStateChange: this.onViewStateChange,
     };
-    if (isSelecting) {
+    if (tool === SELECT_RECTANGLE) {
       deckProps = {
         controller: { dragPan: false },
         getCursor: () => 'crosshair',
