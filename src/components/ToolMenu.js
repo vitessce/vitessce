@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { POINTER, SELECT_RECTANGLE, SELECT_POLYGON } from './tools';
+import { POINTER, SELECT_RECTANGLE } from './tools';
 
 export function IconButton(props) {
   const {
@@ -20,26 +20,20 @@ export function IconButton(props) {
 }
 
 export default function ToolMenu(props) {
-  const { setTool, getTool } = props;
+  const { setTool, isTool } = props;
   return (
     <div className="tool">
       <IconButton
         src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
         alt="pointer tool"
         onClick={() => setTool(POINTER)}
-        isActive={(getTool() === POINTER)}
+        isActive={isTool(POINTER)}
       />
       <IconButton
         src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
         alt="select rectangle"
         onClick={() => setTool(SELECT_RECTANGLE)}
-        isActive={(getTool() === SELECT_RECTANGLE)}
-      />
-      <IconButton
-        src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
-        alt="select polygon"
-        onClick={() => setTool(SELECT_POLYGON)}
-        isActive={(getTool() === SELECT_POLYGON)}
+        isActive={isTool(SELECT_RECTANGLE)}
       />
     </div>
   );

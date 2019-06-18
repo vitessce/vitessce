@@ -2,7 +2,7 @@ import React from 'react';
 
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import ToolMenu from './ToolMenu';
-import { POINTER, SELECT_RECTANGLE, SELECT_POLYGON } from './tools';
+import { POINTER, SELECT_RECTANGLE } from './tools';
 
 /**
  Abstract React component: Provides drag-to-select functionality to subclasses.
@@ -191,7 +191,7 @@ export default class AbstractSelectableComponent extends React.Component {
     const toolProps = {
       setTool: (toolUpdate) => { this.setState({ tool: toolUpdate }); },
       /* eslint-disable react/destructuring-assignment */
-      getTool: () => this.state.tool,
+      isTool: toolCheck => (toolCheck === this.state.tool),
       /* esline-enable */
     };
 
