@@ -26,7 +26,7 @@ export default function CellTooltip(props) {
   const length = 20;
   // If we're _not_ in the component that triggered the event, show the crosshair.
   return (
-    <div>
+    <React.Fragment>
       <div
         className="cell-emphasis"
         style={{
@@ -45,6 +45,6 @@ export default function CellTooltip(props) {
           height: `${width}px`,
         }}
       />
-    </div>
+    </React.Fragment>
   );
 }

@@ -5,7 +5,7 @@ import shortNumber from 'short-number';
 import TitleInfo from '../TitleInfo';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
-  STATUS_INFO, CELLS_SELECTION, CELLS_HOVER, CLEAR_PLEASE_WAIT, VIEWINFO,
+  STATUS_INFO, CELLS_SELECTION, CELLS_HOVER, CLEAR_PLEASE_WAIT, VIEW_INFO,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -108,8 +108,8 @@ export default class SpatialSubscriber extends React.Component {
             hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)
           }
           updateViewInfo={
-              viewInfo => PubSub.publish(VIEWINFO, viewInfo)
-        }
+            viewInfo => PubSub.publish(VIEW_INFO, viewInfo)
+          }
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }

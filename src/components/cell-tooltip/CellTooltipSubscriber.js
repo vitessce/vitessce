@@ -1,7 +1,7 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 
-import { CELLS_HOVER, VIEWINFO } from '../../events';
+import { CELLS_HOVER, VIEW_INFO } from '../../events';
 import CellTooltip from './CellTooltip';
 
 export default class CellTooltipSubscriber extends React.Component {
@@ -18,7 +18,7 @@ export default class CellTooltipSubscriber extends React.Component {
       CELLS_HOVER, this.cellsHoverSubscriber.bind(this),
     );
     this.viewInfoToken = PubSub.subscribe(
-      VIEWINFO, this.viewInfoSubscriber.bind(this),
+      VIEW_INFO, this.viewInfoSubscriber.bind(this),
     );
   }
 
