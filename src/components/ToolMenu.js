@@ -20,20 +20,20 @@ export function IconButton(props) {
 }
 
 export default function ToolMenu(props) {
-  const { setTool, isTool } = props;
+  const { setActiveTool, isActiveTool } = props;
   return (
     <div className="tool">
       <IconButton
         src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
         alt="pointer tool"
-        onClick={() => setTool(POINTER)}
-        isActive={isTool(POINTER)}
+        onClick={() => setActiveTool(POINTER)}
+        isActive={isActiveTool(POINTER)}
       />
       <IconButton
         src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
         alt="select rectangle"
-        onClick={() => setTool(SELECT_RECTANGLE)}
-        isActive={isTool(SELECT_RECTANGLE)}
+        onClick={() => setActiveTool(SELECT_RECTANGLE)}
+        isActive={isActiveTool(SELECT_RECTANGLE)}
       />
     </div>
   );
