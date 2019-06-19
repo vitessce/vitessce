@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { POINTER, SELECT_RECTANGLE } from './tools';
+import { SELECTION_TYPE } from 'nebula.gl';
 
 export function IconButton(props) {
   const {
@@ -26,14 +26,20 @@ export default function ToolMenu(props) {
       <IconButton
         src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
         alt="pointer tool"
-        onClick={() => setActiveTool(POINTER)}
-        isActive={isActiveTool(POINTER)}
+        onClick={() => setActiveTool(null)}
+        isActive={isActiveTool(null)}
       />
       <IconButton
         src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
         alt="select rectangle"
-        onClick={() => setActiveTool(SELECT_RECTANGLE)}
-        isActive={isActiveTool(SELECT_RECTANGLE)}
+        onClick={() => setActiveTool(SELECTION_TYPE.RECTANGLE)}
+        isActive={isActiveTool(SELECTION_TYPE.RECTANGLE)}
+      />
+      <IconButton
+        src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
+        alt="select polygon"
+        onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
+        isActive={isActiveTool(SELECTION_TYPE.POLYGON)}
       />
     </div>
   );

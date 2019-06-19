@@ -1,8 +1,8 @@
 import React from 'react';
 
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { SelectionLayer, SELECTION_TYPE } from 'nebula.gl';
 import ToolMenu from './ToolMenu';
-import { POINTER, SELECT_RECTANGLE } from './tools';
 
 /**
  Abstract React component: Provides drag-to-select functionality to subclasses.
@@ -13,12 +13,8 @@ export default class AbstractSelectableComponent extends React.Component {
     super(props);
     this.renderImagesFromView = this.renderImagesFromView.bind(this);
     this.renderImages = this.renderImages.bind(this);
-    this.onDragStart = this.onDragStart.bind(this);
-    this.onDrag = this.onDrag.bind(this);
-    this.onDragEnd = this.onDragEnd.bind(this);
-    this.onUpdateSelection = this.onUpdateSelection.bind(this);
     this.onViewStateChange = this.onViewStateChange.bind(this);
-    this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
+    this.renderSelectionLayers = this.renderSelectionLayers.bind(this);
     this.deckRef = React.createRef();
     const { uuid = null } = props || {};
     // Store view and viewport information in a mutable object.
@@ -29,107 +25,29 @@ export default class AbstractSelectableComponent extends React.Component {
       uuid,
     };
     this.state = {
-      selectionRectangle: undefined,
-      tool: POINTER,
+      tool: null,
+      pickingInfos: undefined,
     };
   }
 
-  getDragRectangle(event) {
-    const start = this.dragStartCoordinate;
-    const end = event.coordinate;
-    return {
-      xMin: Math.min(start[0], end[0]),
-      yMin: Math.min(start[1], end[1]),
-      xMax: Math.max(start[0], end[0]),
-      yMax: Math.max(start[1], end[1]),
-    };
-  }
-
-  onDragStart(event) {
+  renderSelectionLayers() {
     const { tool } = this.state;
-    if (tool === SELECT_RECTANGLE) {
-      this.dragStartCoordinate = event.coordinate;
-    }
-  }
-
-  onDrag(event) {
-    const { tool } = this.state;
-    if (tool === SELECT_RECTANGLE && event.coordinate) {
-      this.setState({ selectionRectangle: this.getDragRectangle(event) });
-      // If you want to update selection during drag, un-comment this:
-      //   this.onUpdateSelection(event);
-      // See: https://github.com/hms-dbmi/vitessce/issues/111
-    }
-  }
-
-  onDragEnd(event) {
-    const { tool } = this.state;
-    if (tool === SELECT_RECTANGLE) {
-      this.setState({ selectionRectangle: undefined });
-      this.onUpdateSelection(event);
-    }
-  }
-
-  onUpdateSelection(event) {
-    const { tool } = this.state;
-    const { updateCellsSelection } = this.props;
-    if (tool === SELECT_RECTANGLE && event.coordinate && updateCellsSelection) {
-      const {
-        xMin, yMin, xMax, yMax,
-      } = this.getDragRectangle(event);
-      // The built-in pickObjects is limited in the size of the region that can be selected.
-      // https://github.com/uber/deck.gl/issues/2658#issuecomment-463293063
-      // (and it would also be limited in resolution of features it can pick.)
-
-      // I've had other problems as well: Either not working at all,
-      // or only picking objects with positive coordinates.
-
-      const selectedCellIdsSet = {};
-
-      const { viewport } = this.viewInfo;
-
-      const nwCoords = viewport.project([xMin, yMin]);
-      const seCoords = viewport.project([xMax, yMax]);
-      const proWidth = seCoords[0] - nwCoords[0];
-      const proHeight = seCoords[1] - nwCoords[1];
-      const projectedProps = {
-        x: nwCoords[0],
-        y: nwCoords[1],
-        width: proWidth,
-        height: proHeight,
-      };
-      const pickedObjects = this.deckRef.current.pickObjects(projectedProps);
-
-      const cellObjIds = pickedObjects.map(cellObj => cellObj.object[0]);
-      cellObjIds.forEach((cellObjId) => {
-        selectedCellIdsSet[cellObjId] = true;
-      });
-      updateCellsSelection(selectedCellIdsSet);
-    }
-  }
-
-  renderSelectionRectangleLayers() {
-    const { selectionRectangle } = this.state;
-    if (!selectionRectangle || !this.dragStartCoordinate) {
+    if (!tool) {
       return [];
     }
-    return [new PolygonLayer({
+    return [new SelectionLayer({
+      id: 'selection',
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      id: 'selection-rectangle',
-      data: [selectionRectangle],
-      getPolygon(bounds) {
-        return [
-          [bounds.xMin, bounds.yMin],
-          [bounds.xMax, bounds.yMin],
-          [bounds.xMax, bounds.yMax],
-          [bounds.xMin, bounds.yMax],
-        ];
+      selectionType: tool,
+      onSelect: (pickingInfos) => {
+        console.log(pickingInfos);
+        //this.setState({ pickingInfos });
       },
-      getFillColor: [255, 255, 255],
-      opacity: 0.05,
-      lineWidthMaxPixels: 0,
-      filled: true,
-      getElevation: 0,
+      layerIds: ['scatterplot'],
+      getTentativeFillColor: () => [255, 0, 255, 100],
+      getTentativeLineColor: () => [0, 0, 255, 255],
+      getTentativeLineDashArray: () => [0, 0],
+      lineWidthMinPixels: 3,
     })];
   }
 
@@ -138,6 +56,7 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   renderImagesFromView(viewProps) { // eslint-disable-line class-methods-use-this
+    console.log("rendering images from view");
     const {
       x, y, width, height, viewport,
     } = viewProps;
@@ -186,8 +105,6 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   render() {
-    const { tool } = this.state;
-
     const toolProps = {
       setActiveTool: (toolUpdate) => { this.setState({ tool: toolUpdate }); },
       /* eslint-disable react/destructuring-assignment */
@@ -195,28 +112,14 @@ export default class AbstractSelectableComponent extends React.Component {
       /* esline-enable */
     };
 
-    let deckProps = {
+    const deckProps = {
       views: [new OrthographicView()],
-      layers: this.renderLayers().concat(this.renderSelectionRectangleLayers()),
+      layers: this.renderLayers().concat(this.renderSelectionLayers()),
       initialViewState: this.getInitialViewState(),
       onViewStateChange: this.onViewStateChange,
+      controller: true,
+      getCursor: interactionState => (interactionState.isDragging ? 'grabbing' : 'default'),
     };
-    if (tool === SELECT_RECTANGLE) {
-      deckProps = {
-        controller: { dragPan: false },
-        getCursor: () => 'crosshair',
-        onDragStart: this.onDragStart,
-        onDrag: this.onDrag,
-        onDragEnd: this.onDragEnd,
-        ...deckProps,
-      };
-    } else {
-      deckProps = {
-        controller: true,
-        getCursor: interactionState => (interactionState.isDragging ? 'grabbing' : 'default'),
-        ...deckProps,
-      };
-    }
     return (
       <React.Fragment>
         <div className="d-flex">

@@ -161,6 +161,7 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   renderImages(viewProps) {
+      console.log("rendering images");
     if (!this.props.images) {
       return null;
     }
