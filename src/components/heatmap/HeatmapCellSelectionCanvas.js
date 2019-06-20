@@ -3,6 +3,11 @@ import React from 'react';
 import { setImageDataRGBA, getImageRendering } from './utils';
 
 export default class HeatmapCellSelectionCanvas extends React.Component {
+  constructor(props) {
+    super(props);
+    this.onMouseMove = this.onMouseMove.bind(this);
+  }
+
   paintCanvas() {
     const ctx = this.canvasRef.getContext('2d');
 
@@ -37,6 +42,38 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
     this.paintCanvas();
   }
 
+  onMouseMove(event) {
+    const {
+      cells,
+      clusters,
+      updateCellsHover = (hoverInfo) => {
+        console.warn(`HeatmapCellSelectionCanvas updateCellsHover: ${hoverInfo.cellId}`);
+      },
+    } = this.props;
+
+    // Compute x position relative to the canvas.
+    const rect = event.target.getBoundingClientRect();
+    const pixelX = (event.clientX - rect.left);
+    const { width } = rect;
+    // Cell columns are not exactly equal to individual pixels,
+    // so need to scale by number of cells.
+    const colX = Math.round((pixelX / width) * clusters.cols.length);
+    // Use the column x-coordinate too look up the cell ID.
+    const cellId = clusters.cols[colX];
+    if (cellId) {
+      // Use the cell ID to look up the cell information object.
+      const cellInfo = cells[cellId];
+      updateCellsHover({
+        cellId,
+        mappings: { xy: cellInfo.xy, ...cellInfo.mappings },
+        uuid: true,
+        status: Object.entries(cellInfo.factors).map(
+          ([factor, value]) => `${factor}: ${value}`,
+        ).join('; '),
+      });
+    }
+  }
+
   render() {
     const { height } = this.props;
     let { clusters } = this.props;
@@ -50,6 +87,7 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
         ref={(c) => { this.canvasRef = c; }}
         width={clusters.cols.length}
         height={1}
+        onMouseMove={this.onMouseMove}
       />
     );
   }
