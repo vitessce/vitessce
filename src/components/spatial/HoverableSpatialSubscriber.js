@@ -2,7 +2,7 @@ import React from 'react';
 import uuidv4 from 'uuid/v4';
 
 import SpatialSubscriber from './SpatialSubscriber';
-import CellTooltipSubscriber from '../cell-tooltip/CellTooltipSubscriber';
+import CellTooltipCrosshairSubscriber from '../cell-tooltip/CellTooltipCrosshairSubscriber';
 
 export default function HoverableSpatialSubscriber(props) {
   // Create a UUID so that hover events
@@ -10,7 +10,7 @@ export default function HoverableSpatialSubscriber(props) {
   const uuid = uuidv4();
   return (
     <SpatialSubscriber {...props} uuid={uuid}>
-      <CellTooltipSubscriber {...props} uuid={uuid} mapping="xy" />
+      <CellTooltipCrosshairSubscriber {...props} uuid={uuid} mapping="xy" />
     </SpatialSubscriber>
   );
 }

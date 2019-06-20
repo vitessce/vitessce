@@ -104,7 +104,7 @@ input[type="radio"]:checked {
 }
 
 /* Cell Tooltips */
-.cell-emphasis {
+.cell-emphasis-crosshair, .cell-emphasis-vertical {
     z-index: 5;
     position: absolute;
     pointer-events: none;

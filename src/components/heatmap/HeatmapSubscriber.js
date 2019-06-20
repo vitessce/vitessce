@@ -57,12 +57,14 @@ export default class HeatmapSubscriber extends React.Component {
     const cellsCount = clusters ? clusters.cols.length : 0;
     const genesCount = clusters ? clusters.rows.length : 0;
     const selectedCount = selectedCellIds ? Object.keys(selectedCellIds).length : 0;
+    const { children } = this.props;
     return (
       <TitleInfo
         title="Heatmap"
         info={`${cellsCount} cells × ${genesCount} genes,
                with ${selectedCount} cells selected`}
       >
+        {children}
         <Heatmap
           clusters={clusters}
           selectedCellIds={selectedCellIds}
