@@ -18,7 +18,7 @@ export default function CellTooltipVertical(props) {
     return null;
   }
   const width = 1;
-  const length = 30;
+  const length = 54;
   // If we're _not_ in the component that triggered the event, show the vertical line.
   return (
     <React.Fragment>

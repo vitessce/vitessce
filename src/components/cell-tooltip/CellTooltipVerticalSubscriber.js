@@ -28,7 +28,11 @@ export default class CellTooltipVerticalSubscriber extends React.Component {
   }
 
   cellsHoverSubscriber(msg, hoverInfo) {
-    this.setState({ hoveredCellInfo: hoverInfo });
+    const { hoveredCellInfo } = this.state;
+    if (!hoveredCellInfo || !hoverInfo
+        || (hoveredCellInfo && hoverInfo && hoveredCellInfo.cellId !== hoverInfo.cellId)) {
+      this.setState({ hoveredCellInfo: hoverInfo });
+    }
   }
 
   clustersAddSubscriber(msg, clusters) {
