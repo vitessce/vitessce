@@ -1,6 +1,12 @@
 import { COORDINATE_SYSTEM } from 'deck.gl';
 import { interpolatePlasma } from 'd3-scale-chromatic';
 
+export function makeCellStatusMessage(cellInfoFactors) {
+  return Object.entries(cellInfoFactors).map(
+    ([factor, value]) => `${factor}: ${value}`,
+  ).join('; ');
+}
+
 export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid) {
   return {
     coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
@@ -13,18 +19,12 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
     getLineWidth: 0,
     onHover: (info) => {
       if (info.object) {
-        updateStatus(
-          Object.entries(info.object[1].factors).map(
-            ([factor, value]) => `${factor}: ${value}`,
-          ).join('; '),
-        );
+        updateStatus(makeCellStatusMessage(info.object[1].factors));
         updateCellsHover({
           cellId: info.object[0],
           mappings: { xy: info.object[1].xy, ...info.object[1].mappings },
           uuid,
-          status: Object.entries(info.object[1].factors).map(
-            ([factor, value]) => `${factor}: ${value}`,
-          ).join('; '),
+          status: makeCellStatusMessage(info.object[1].factors),
         });
       } else {
         // Clear the currently-hovered cell info by passing null.

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { setImageDataRGBA, getImageRendering } from './utils';
+import { makeCellStatusMessage } from '../utils';
 
 export default class HeatmapCellSelectionCanvas extends React.Component {
   constructor(props) {
@@ -70,13 +71,9 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
         cellId,
         mappings: { xy: cellInfo.xy, ...cellInfo.mappings },
         uuid: true,
-        status: Object.entries(cellInfo.factors).map(
-          ([factor, value]) => `${factor}: ${value}`,
-        ).join('; '),
+        status: makeCellStatusMessage(cellInfo.factors),
       });
-      updateStatus(Object.entries(cellInfo.factors).map(
-        ([factor, value]) => `${factor}: ${value}`,
-      ).join('; '));
+      updateStatus(makeCellStatusMessage(cellInfo.factors));
     }
   }
 
