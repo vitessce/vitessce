@@ -22,7 +22,7 @@ export default class AbstractHeatmapCanvas extends React.Component {
 
     // Compute x position relative to the canvas.
     const rect = event.target.getBoundingClientRect();
-    const pixelX = (event.clientX - rect.left);
+    const pixelX = event.clientX - rect.left;
     const { width } = rect;
     // Cell columns are not exactly equal to individual pixels,
     // so need to scale by number of cells.
