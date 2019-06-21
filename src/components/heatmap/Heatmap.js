@@ -13,6 +13,9 @@ export default function Heatmap(props) {
     updateCellsHover = (hoverInfo) => {
       console.warn(`Heatmap updateCellsHover: ${hoverInfo.cellId}`);
     },
+    updateStatus = (message) => {
+      console.warn(`Heatmap updateStatus: ${message}`);
+    },
   } = props;
   if (clearPleaseWait && clusters) {
     clearPleaseWait('clusters');
@@ -29,6 +32,7 @@ export default function Heatmap(props) {
         clusters={clusters}
         selectedCellIds={selectedCellIds}
         updateCellsHover={updateCellsHover}
+        updateStatus={updateStatus}
         height="15%"
       />
       <HeatmapDataCanvas

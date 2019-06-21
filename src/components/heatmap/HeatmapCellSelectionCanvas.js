@@ -49,6 +49,9 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
       updateCellsHover = (hoverInfo) => {
         console.warn(`HeatmapCellSelectionCanvas updateCellsHover: ${hoverInfo.cellId}`);
       },
+      updateStatus = (message) => {
+        console.warn(`HeatmapCellSelectionCanvas updateStatus: ${message}`);
+      },
     } = this.props;
 
     // Compute x position relative to the canvas.
@@ -71,6 +74,9 @@ export default class HeatmapCellSelectionCanvas extends React.Component {
           ([factor, value]) => `${factor}: ${value}`,
         ).join('; '),
       });
+      updateStatus(Object.entries(cellInfo.factors).map(
+        ([factor, value]) => `${factor}: ${value}`,
+      ).join('; '));
     }
   }
 

@@ -3,7 +3,8 @@ import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_COLOR, CLUSTERS_ADD, CELLS_ADD, CELLS_SELECTION, CLEAR_PLEASE_WAIT, CELLS_HOVER,
+  CELLS_COLOR, CLUSTERS_ADD, CELLS_ADD, CELLS_SELECTION,
+  CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO,
 } from '../../events';
 import Heatmap from './Heatmap';
 
@@ -77,6 +78,7 @@ export default class HeatmapSubscriber extends React.Component {
           selectedCellIds={selectedCellIds}
           cellColors={cellColors}
           updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
+          updateStatus={message => PubSub.publish(STATUS_INFO, message)}
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
