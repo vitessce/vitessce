@@ -2,8 +2,9 @@ import React from 'react';
 import { interpolateColors } from '../utils';
 
 import { setImageDataRGBA, getImageRendering } from './utils';
+import AbstractHeatmapCanvas from './AbstractHeatmapCanvas';
 
-export default class HeatmapDataCanvas extends React.Component {
+export default class HeatmapDataCanvas extends AbstractHeatmapCanvas {
   paintCanvas() {
     const ctx = this.canvasRef.getContext('2d');
 
@@ -53,6 +54,7 @@ export default class HeatmapDataCanvas extends React.Component {
         ref={(c) => { this.canvasRef = c; }}
         width={clusters.cols.length}
         height={clusters.rows.length}
+        onMouseMove={this.onMouseMove}
       />
     );
   }

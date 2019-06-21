@@ -23,8 +23,11 @@ export default function Heatmap(props) {
   return (
     <React.Fragment>
       <HeatmapCellColorCanvas
+        cells={cells}
         clusters={clusters}
         cellColors={cellColors}
+        updateCellsHover={updateCellsHover}
+        updateStatus={updateStatus}
         height="15%"
       />
       <HeatmapCellSelectionCanvas
@@ -36,7 +39,10 @@ export default function Heatmap(props) {
         height="15%"
       />
       <HeatmapDataCanvas
+        cells={cells}
         clusters={clusters}
+        updateCellsHover={updateCellsHover}
+        updateStatus={updateStatus}
         height="70%"
       />
     </React.Fragment>
