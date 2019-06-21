@@ -31,7 +31,7 @@ export function onHeatmapMouseMove(event, props) {
   // Cell columns are not exactly equal to individual pixels,
   // so need to scale by number of cells.
   const colX = Math.floor((pixelX / width) * clusters.cols.length);
-  // Use the column x-coordinate too look up the cell ID.
+  // Use the column x-coordinate to look up the cell ID.
   const cellId = clusters.cols[colX];
   if (cellId) {
     // Use the cell ID to look up the cell information object.
