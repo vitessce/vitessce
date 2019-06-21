@@ -26,7 +26,7 @@ export default class AbstractHeatmapCanvas extends React.Component {
     const { width } = rect;
     // Cell columns are not exactly equal to individual pixels,
     // so need to scale by number of cells.
-    const colX = Math.round((pixelX / width) * clusters.cols.length);
+    const colX = Math.floor((pixelX / width) * clusters.cols.length);
     // Use the column x-coordinate too look up the cell ID.
     const cellId = clusters.cols[colX];
     if (cellId) {
