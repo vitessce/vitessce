@@ -22,6 +22,15 @@ body {
 
   /* So the resize handle position looks correct: */
   padding-right: 10px;
+  z-index: 1;
+}
+
+.react-grid-item > .card {
+    position: relative;
+    z-index: 1;
+}
+#deckgl-wrapper {
+    z-index: 1;
 }
 
 /* Tool styles */
@@ -115,14 +124,31 @@ input[type="radio"]:checked {
     z-index: 1001;
     position: absolute;
     pointer-events: none;
-    height: 100px;
+    height: auto;
     box-sizing: border-box;
     opacity: 0;
-    padding: 1.25rem;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid gray;
+
+    left: 10%;
+    top: 10%;
 
     animation-name: cell-tooltip;
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
+}
+
+.cell-tooltip-shift-left {
+    transform: translateX(-120%);
+}
+
+.cell-tooltip-shift-top {
+    transform: translateY(-120%);
+}
+
+.cell-tooltip-shift-top-left {
+    transform: translate(-120%, -120%);
 }
 
 @keyframes cell-tooltip {

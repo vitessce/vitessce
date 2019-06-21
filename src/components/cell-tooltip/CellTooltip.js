@@ -1,4 +1,5 @@
 import React from 'react';
+import CellTooltipText from './CellTooltipText';
 
 export default function CellTooltip(props) {
   const {
@@ -18,9 +19,11 @@ export default function CellTooltip(props) {
     return null;
   }
   // If we're in the component that triggered the event, do not show the crosshair.
+  // Instead, show a text tooltip populated with `hoveredCellInfo.status`.
   if (hoveredCellInfo.uuid === uuid) {
-    // In the future, potentially show a tooltip with `hoveredCellInfo.status`.
-    return null;
+    return (
+      <CellTooltipText status={hoveredCellInfo.status} x={x} y={y} />
+    );
   }
   const width = 1;
   const length = 20;
