@@ -1,15 +1,14 @@
 import expect from 'expect';
-import AbstractHeatmapCanvas from './AbstractHeatmapCanvas';
+import { onHeatmapMouseMove } from './utils';
 
-describe('AbstractHeatmapCanvas.js', () => {
+describe('utils.js', () => {
   describe('onMouseMove()', () => {
     it('selects the correct cell and calls updateCellsHover', (done) => {
-      const component = new AbstractHeatmapCanvas();
       // Pretend heatmap has 3 cells arranged with IDs [10, 20, 30].
       // Pretend the heatmap element is 100 pixels wide.
       // Pretend we hover over the pixel at x = 34.
       // We expect the cell with ID 20 to be selected.
-      component.props = {
+      const props = {
         cells: {
           10: {
             xy: 0,
@@ -35,7 +34,7 @@ describe('AbstractHeatmapCanvas.js', () => {
           done();
         },
       };
-      component.onMouseMove({
+      onHeatmapMouseMove({
         clientX: 34,
         target: {
           getBoundingClientRect() {
@@ -45,7 +44,7 @@ describe('AbstractHeatmapCanvas.js', () => {
             };
           },
         },
-      });
+      }, props);
     });
   });
 });
