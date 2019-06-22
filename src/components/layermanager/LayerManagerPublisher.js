@@ -124,7 +124,7 @@ export default class LayerManagerPublisher extends React.Component {
       ([name, stillWaiting]) => name, // eslint-disable-line no-unused-vars
     );
 
-    if (unloadedLayers.length - 1) {
+    if (unloadedLayers.length) {
       return (
         <React.Fragment>
           <div className="modal" style={{ display: 'block' }}>

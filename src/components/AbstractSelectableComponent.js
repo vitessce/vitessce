@@ -1,7 +1,8 @@
 import React from 'react';
 
 import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
-import { SelectionLayer, SELECTION_TYPE } from 'nebula.gl';
+import { SELECTION_TYPE } from 'nebula.gl';
+import SelectionLayer from '../layers/SelectionLayer';
 import ToolMenu from './ToolMenu';
 
 /**
@@ -32,6 +33,7 @@ export default class AbstractSelectableComponent extends React.Component {
 
   renderSelectionLayers() {
     const { tool } = this.state;
+    const { updateCellsSelection } = this.props;
     if (!tool) {
       return [];
     }
@@ -39,15 +41,21 @@ export default class AbstractSelectableComponent extends React.Component {
       id: 'selection',
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       selectionType: tool,
-      onSelect: (pickingInfos) => {
+      onSelect: ({ pickingInfos }) => {
         console.log(pickingInfos);
-        //this.setState({ pickingInfos });
+        const cellObjIds = pickingInfos.map(cellObj => cellObj.object[0]);
+        const selectedCellIdsSet = {};
+        cellObjIds.forEach((cellObjId) => {
+          selectedCellIdsSet[cellObjId] = true;
+        });
+        updateCellsSelection(selectedCellIdsSet);
       },
-      layerIds: ['scatterplot'],
-      getTentativeFillColor: () => [255, 0, 255, 100],
-      getTentativeLineColor: () => [0, 0, 255, 255],
-      getTentativeLineDashArray: () => [0, 0],
-      lineWidthMinPixels: 3,
+      layerIds: ['base-scatterplot'],
+      getTentativeFillColor: () => [255, 255, 255, 95],
+      getTentativeLineColor: () => [143, 143, 143, 255],
+      getTentativeLineDashArray: () => [7, 4],
+      lineWidthMinPixels: 2,
+      lineWidthMaxPixels: 2,
     })];
   }
 
@@ -56,7 +64,6 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   renderImagesFromView(viewProps) { // eslint-disable-line class-methods-use-this
-    console.log("rendering images from view");
     const {
       x, y, width, height, viewport,
     } = viewProps;
@@ -113,7 +120,7 @@ export default class AbstractSelectableComponent extends React.Component {
     };
 
     const deckProps = {
-      views: [new OrthographicView()],
+      views: [new OrthographicView({ id: 'ortho' })],
       layers: this.renderLayers().concat(this.renderSelectionLayers()),
       initialViewState: this.getInitialViewState(),
       onViewStateChange: this.onViewStateChange,
