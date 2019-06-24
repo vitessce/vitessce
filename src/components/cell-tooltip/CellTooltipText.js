@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export default function CellTooltipText(props) {
   const {
@@ -7,28 +7,29 @@ export default function CellTooltipText(props) {
     factors,
   } = props;
 
-  const el = useRef(null);
+  const ref = useRef(null);
   const offsetPercentage = 10;
 
   // Do collision detection based on the bounds of the parent (.card-body) element.
-  useLayoutEffect(() => {
-    const rect = el.current.parentNode.getBoundingClientRect();
+  useEffect(() => {
+    const el = ref.current;
+    const rect = el.parentNode.getBoundingClientRect();
     const { width, height } = rect;
     if (x > width / 2) {
-      el.current.style.transform = `translateX(-${100 + offsetPercentage}%)`;
+      el.style.transform = `translateX(-${100 + offsetPercentage}%)`;
     } else {
-      el.current.style.transform = `translateX(${offsetPercentage}%)`;
+      el.style.transform = `translateX(${offsetPercentage}%)`;
     }
     if (y > height / 2) {
-      el.current.style.transform = `${el.current.style.transform} translateY(-${100 + offsetPercentage}%)`;
+      el.style.transform = `${el.style.transform} translateY(-${100 + offsetPercentage}%)`;
     } else {
-      el.current.style.transform = `${el.current.style.transform} translateY(${offsetPercentage}%)`;
+      el.style.transform = `${el.style.transform} translateY(${offsetPercentage}%)`;
     }
   });
 
   return (
     <div
-      ref={el}
+      ref={ref}
       className="cell-tooltip bg-light"
       style={{
         left: `${x}px`,
