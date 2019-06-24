@@ -1,56 +1,44 @@
 import React from 'react';
 
-import { setImageDataRGBA, getImageRendering } from './utils';
+import { setImageDataRGBA, getImageRendering, onHeatmapMouseMove } from './utils';
 
-export default class HeatmapCellSelectionCanvas extends React.Component {
-  paintCanvas() {
-    const ctx = this.canvasRef.getContext('2d');
+function hasRequiredProps(props) {
+  return !!props.clusters && !!props.selectedCellIds;
+}
 
-    const { clusters, selectedCellIds } = this.props;
-    const width = clusters.cols.length;
-    const height = 1;
-
-    const imageData = ctx.createImageData(width, height);
-    clusters.cols.forEach((cellId, x) => {
-      const offset = x * 4;
-      const selected = selectedCellIds[cellId];
-      setImageDataRGBA(imageData, offset, 128, 128, 128, selected ? 255 : 0);
-    });
-    ctx.putImageData(imageData, 0, 0);
+function paintCanvas(canvasRef, props) {
+  if (!canvasRef || !hasRequiredProps(props)) {
+    return;
   }
+  const ctx = canvasRef.getContext('2d');
 
-  hasRequiredProps(props) { // eslint-disable-line class-methods-use-this
-    return !!props.clusters && !!props.selectedCellIds;
-  }
+  const { clusters, selectedCellIds } = props;
+  const width = clusters.cols.length;
+  const height = 1;
 
-  componentDidMount() {
-    if (this.hasRequiredProps(this.props)) {
-      this.paintCanvas();
-    }
-  }
+  const imageData = ctx.createImageData(width, height);
+  clusters.cols.forEach((cellId, x) => {
+    const offset = x * 4;
+    const selected = selectedCellIds[cellId];
+    setImageDataRGBA(imageData, offset, 128, 128, 128, selected ? 255 : 0);
+  });
+  ctx.putImageData(imageData, 0, 0);
+}
 
-  shouldComponentUpdate(nextProps) {
-    return this.hasRequiredProps(nextProps);
+export default function HeatmapCellSelectionCanvas(props) {
+  const { height } = props;
+  let { clusters } = props;
+  if (!clusters) {
+    clusters = { rows: [], cols: [], matrix: [] };
   }
-
-  componentDidUpdate() {
-    this.paintCanvas();
-  }
-
-  render() {
-    const { height } = this.props;
-    let { clusters } = this.props;
-    if (!clusters) {
-      clusters = { rows: [], cols: [], matrix: [] };
-    }
-    const imageRendering = getImageRendering();
-    return (
-      <canvas
-        style={{ height, imageRendering }}
-        ref={(c) => { this.canvasRef = c; }}
-        width={clusters.cols.length}
-        height={1}
-      />
-    );
-  }
+  const imageRendering = getImageRendering();
+  return (
+    <canvas
+      style={{ height, imageRendering }}
+      ref={c => paintCanvas(c, props)}
+      width={clusters.cols.length}
+      height={1}
+      onMouseMove={e => onHeatmapMouseMove(e, props)}
+    />
+  );
 }
