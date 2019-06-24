@@ -74,6 +74,33 @@ const configs = {
       ],
     },
   },
+  'linnarsson-2018-just-spatial': {
+    ...linnarssonBase,
+    name: 'Linnarsson (just spatial)',
+    responsiveLayout: {
+      columns: {
+        1400: [0, 12, 14],
+        1200: [0, 10, 12],
+        1000: [0, 8, 10],
+        800: [0, 6, 8],
+        600: [0, 4, 8],
+      },
+      components: [
+        { component: 'HoverableSpatialSubscriber',
+          props: {
+            view: {
+              zoom: -6.5,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 0, y: 0, h: 2 },
+        { component: 'FactorsSubscriber',
+          x: 1, y: 0, h: 1 },
+        { component: 'GenesSubscriber',
+          x: 1, y: 1, h: 1 },
+      ],
+    },
+  },
   'linnarsson-2018-static': {
     ...linnarssonBase,
     name: 'Linnarsson (static layout)',
@@ -105,7 +132,6 @@ const configs = {
   'linnarsson-2018-dozen': {
     ...linnarssonBase,
     name: 'Linnarsson (responsive layout, redundant components for performance testing)',
-    public: true,
     responsiveLayout: {
       columns: {
         // First two columns are equal,
