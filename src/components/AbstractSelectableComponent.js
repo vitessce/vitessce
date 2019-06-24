@@ -196,7 +196,7 @@ export default class AbstractSelectableComponent extends React.Component {
     };
 
     let deckProps = {
-      views: [new OrthographicView()],
+      views: [new OrthographicView({ id: 'ortho' })],
       layers: this.renderLayers().concat(this.renderSelectionRectangleLayers()),
       initialViewState: this.getInitialViewState(),
       onViewStateChange: this.onViewStateChange,
