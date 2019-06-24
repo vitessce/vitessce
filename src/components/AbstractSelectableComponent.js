@@ -97,7 +97,7 @@ export default class AbstractSelectableComponent extends React.Component {
       },
     } = this.props;
     // Update the viewport field of the `viewInfo` object
-    // to satisfy components (e.g. CellTooltip) that depend on an
+    // to satisfy components (e.g. CellTooltip2D) that depend on an
     // up-to-date viewport instance (to perform projections).
     this.viewInfo.viewport = (new OrthographicView()).makeViewport({
       viewState,

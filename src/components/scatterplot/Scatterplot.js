@@ -11,7 +11,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
   getInitialViewState() {
     return {
       zoom: 2,
-      offset: [0, 0], // Required: https://github.com/uber/deck.gl/issues/2580
+      target: [0, 0, 0], // Required: https://github.com/uber/deck.gl/issues/2580
     };
   }
 

@@ -31,6 +31,7 @@
     "@turf/helpers": "^6.1.4",
     "ajv": "^6.10.0",
     "d3-scale-chromatic": "^1.3.3",
+    "fromentries": "^1.1.0",
     "deck.gl": "^7.1.4",
     "higlass": "^1.5.7",
     "luma.gl": "^7.1.1",
