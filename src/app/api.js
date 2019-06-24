@@ -58,7 +58,7 @@ const configs = {
           props: {
             view: {
               zoom: -6.5,
-              offset: [200, 200],
+              target: [18000, 18000, 0],
             },
           },
           x: 1, y: 0, h: 2 },
@@ -90,7 +90,7 @@ const configs = {
         props: {
           view: {
             zoom: -6.5,
-            offset: [200, 200],
+            target: [18000, 18000, 0],
           },
         },
         x: 3, y: 0, w: 6, h: 4 },
@@ -123,7 +123,7 @@ const configs = {
           props: {
             view: {
               zoom: -6.5,
-              offset: [200, 200],
+              target: [18000, 18000, 0],
             },
           },
           x: 0, y: 0, h: 1 },
@@ -131,7 +131,7 @@ const configs = {
           props: {
             view: {
               zoom: -6.5,
-              offset: [200, 200],
+              target: [18000, 18000, 0],
             },
           },
           x: 0, y: 1, h: 1 },
@@ -139,7 +139,7 @@ const configs = {
           props: {
             view: {
               zoom: -6.5,
-              offset: [200, 200],
+              target: [18000, 18000, 0],
             },
           },
           x: 1, y: 0, h: 1 },
@@ -147,7 +147,7 @@ const configs = {
           props: {
             view: {
               zoom: -6.5,
-              offset: [200, 200],
+              target: [18000, 18000, 0],
             },
           },
           x: 1, y: 1, h: 1 },
