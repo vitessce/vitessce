@@ -15,16 +15,9 @@ export default function CellTooltipText(props) {
     const el = ref.current;
     const rect = el.parentNode.getBoundingClientRect();
     const { width, height } = rect;
-    if (x > width / 2) {
-      el.style.transform = `translateX(-${100 + offsetPercentage}%)`;
-    } else {
-      el.style.transform = `translateX(${offsetPercentage}%)`;
-    }
-    if (y > height / 2) {
-      el.style.transform = `${el.style.transform} translateY(-${100 + offsetPercentage}%)`;
-    } else {
-      el.style.transform = `${el.style.transform} translateY(${offsetPercentage}%)`;
-    }
+    const translateX = (x > width / 2) ? -(100 + offsetPercentage) : offsetPercentage;
+    const translateY = (y > height / 2) ? -(100 + offsetPercentage) : offsetPercentage;
+    el.style.transform = `translateX(${translateX}%) translateY(${translateY}%)`;
   });
 
   return (

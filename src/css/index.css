@@ -122,9 +122,6 @@ input[type="radio"]:checked {
     border-radius: 0.25rem;
     border: 1px solid gray;
 
-    left: 10%;
-    top: 10%;
-
     animation-name: cell-tooltip;
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
@@ -133,18 +130,6 @@ input[type="radio"]:checked {
 .cell-tooltip > table > tr > th, .cell-tooltip > table > tr > td {
     font-size: 80%;
     opacity: 0.8;
-}
-
-.cell-tooltip-shift-left {
-    transform: translateX(-120%);
-}
-
-.cell-tooltip-shift-top {
-    transform: translateY(-120%);
-}
-
-.cell-tooltip-shift-top-left {
-    transform: translate(-120%, -120%);
 }
 
 @keyframes cell-tooltip {
