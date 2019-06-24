@@ -1,5 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
+import fromEntries from 'fromentries';
 
 import { CELLS_HOVER, CLUSTERS_ADD } from '../../events';
 import CellTooltipVertical from './CellTooltipVertical';
@@ -36,7 +37,7 @@ export default class CellTooltipVerticalSubscriber extends React.Component {
   }
 
   clustersAddSubscriber(msg, clusters) {
-    this.clusterColMap = Object.fromEntries(clusters.cols.map((cellId, x) => [cellId, x]));
+    this.clusterColMap = fromEntries(clusters.cols.map((cellId, x) => [cellId, x]));
   }
 
   render() {
