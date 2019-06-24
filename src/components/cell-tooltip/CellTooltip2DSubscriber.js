@@ -2,9 +2,9 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 
 import { CELLS_HOVER, VIEW_INFO } from '../../events';
-import CellTooltip from './CellTooltip';
+import CellTooltip2D from './CellTooltip2D';
 
-export default class CellTooltipSubscriber extends React.Component {
+export default class CellTooltip2DSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -40,16 +40,10 @@ export default class CellTooltipSubscriber extends React.Component {
   }
 
   render() {
-    const {
-      mapping,
-      uuid,
-    } = this.props;
-    const {
-      hoveredCellInfo,
-      viewInfo,
-    } = this.state;
+    const { mapping, uuid } = this.props;
+    const { hoveredCellInfo, viewInfo } = this.state;
     return (
-      <CellTooltip
+      <CellTooltip2D
         hoveredCellInfo={hoveredCellInfo}
         mapping={mapping}
         viewInfo={viewInfo}

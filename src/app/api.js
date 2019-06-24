@@ -69,7 +69,7 @@ const configs = {
           x: 2, y: 0, h: 2 },
         { component: 'GenesSubscriber',
           x: 2, y: 2, h: 2 },
-        { component: 'HeatmapSubscriber',
+        { component: 'HoverableHeatmapSubscriber',
           x: 0, y: 4, w: 3 },
       ],
     },

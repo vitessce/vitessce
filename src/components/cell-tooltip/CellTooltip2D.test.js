@@ -2,7 +2,7 @@ import React from 'react';
 import Adapter from 'enzyme-adapter-react-16';
 import { shallow, configure } from 'enzyme';
 import expect from 'expect';
-import CellTooltip from './CellTooltip';
+import CellTooltip2D from './CellTooltip2D';
 
 configure({ adapter: new Adapter() });
 
@@ -23,20 +23,20 @@ const makeFakeViewInfo = (x, y) => ({
   },
 });
 
-describe('CellTooltip.js', () => {
-  describe('<CellTooltip />', () => {
+describe('CellTooltip2D.js', () => {
+  describe('<CellTooltip2D />', () => {
     it('crosshair appears if projected coordinates are within boundaries and uuid does not match', () => {
-      const wrapper = shallow(<CellTooltip
+      const wrapper = shallow(<CellTooltip2D
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={makeFakeViewInfo(5, 5)}
         uuid={2}
       />);
-      expect(wrapper.find('.cell-emphasis').length).toEqual(2);
+      expect(wrapper.find('.cell-emphasis-crosshair').length).toEqual(2);
     });
 
     it('does not appear if projected coordinates are within boundaries and uuid does match', () => {
-      const wrapper = shallow(<CellTooltip
+      const wrapper = shallow(<CellTooltip2D
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={makeFakeViewInfo(5, 5)}
@@ -46,7 +46,7 @@ describe('CellTooltip.js', () => {
     });
 
     it('does not appear if projected coordinates are outside boundaries, below', () => {
-      const wrapper = shallow(<CellTooltip
+      const wrapper = shallow(<CellTooltip2D
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={makeFakeViewInfo(0, 11)}
@@ -56,7 +56,7 @@ describe('CellTooltip.js', () => {
     });
 
     it('does not appear if projected coordinates are outside boundaries, above', () => {
-      const wrapper = shallow(<CellTooltip
+      const wrapper = shallow(<CellTooltip2D
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={makeFakeViewInfo(0, -1)}
@@ -66,7 +66,7 @@ describe('CellTooltip.js', () => {
     });
 
     it('does not appear if projected coordinates are outside boundaries, left', () => {
-      const wrapper = shallow(<CellTooltip
+      const wrapper = shallow(<CellTooltip2D
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={makeFakeViewInfo(-1, 0)}
@@ -76,7 +76,7 @@ describe('CellTooltip.js', () => {
     });
 
     it('does not appear if projected coordinates are outside boundaries, right', () => {
-      const wrapper = shallow(<CellTooltip
+      const wrapper = shallow(<CellTooltip2D
         hoveredCellInfo={fakeHoveredCellInfo}
         mapping="xy"
         viewInfo={makeFakeViewInfo(11, 0)}

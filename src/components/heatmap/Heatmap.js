@@ -5,6 +5,7 @@ import HeatmapCellColorCanvas from './HeatmapCellColorCanvas';
 
 export default function Heatmap(props) {
   const {
+    uuid,
     cells,
     clusters,
     selectedCellIds,
@@ -23,6 +24,7 @@ export default function Heatmap(props) {
   return (
     <React.Fragment>
       <HeatmapCellColorCanvas
+        uuid={uuid}
         cells={cells}
         clusters={clusters}
         cellColors={cellColors}
@@ -31,6 +33,7 @@ export default function Heatmap(props) {
         height="15%"
       />
       <HeatmapCellSelectionCanvas
+        uuid={uuid}
         cells={cells}
         clusters={clusters}
         selectedCellIds={selectedCellIds}
@@ -39,6 +42,7 @@ export default function Heatmap(props) {
         height="15%"
       />
       <HeatmapDataCanvas
+        uuid={uuid}
         cells={cells}
         clusters={clusters}
         updateCellsHover={updateCellsHover}
