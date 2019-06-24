@@ -2,7 +2,7 @@
 
 ## 0.0.16 - in progress
 ### Added
-- Linked hover effect between spatial and other views.
+- Linked hover effect between spatial, scatterplot, and heatmap.
 ### Changed
 - Using Deck.gl's built in picking instead of quadtree.
 

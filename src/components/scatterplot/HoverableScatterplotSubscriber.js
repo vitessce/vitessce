@@ -2,7 +2,7 @@ import React from 'react';
 import uuidv4 from 'uuid/v4';
 
 import ScatterplotSubscriber from './ScatterplotSubscriber';
-import CellTooltipSubscriber from '../cell-tooltip/CellTooltipSubscriber';
+import CellTooltip2DSubscriber from '../cell-tooltip/CellTooltip2DSubscriber';
 
 export default function HoverableScatterplotSubscriber(props) {
   // Create a UUID so that hover events
@@ -10,7 +10,7 @@ export default function HoverableScatterplotSubscriber(props) {
   const uuid = uuidv4();
   return (
     <ScatterplotSubscriber {...props} uuid={uuid}>
-      <CellTooltipSubscriber {...props} uuid={uuid} />
+      <CellTooltip2DSubscriber {...props} uuid={uuid} />
     </ScatterplotSubscriber>
   );
 }

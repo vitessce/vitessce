@@ -1,7 +1,7 @@
 import React from 'react';
 import CellTooltipText from './CellTooltipText';
 
-export default function CellTooltip(props) {
+export default function CellTooltip2D(props) {
   const {
     hoveredCellInfo,
     mapping,
@@ -31,7 +31,7 @@ export default function CellTooltip(props) {
   return (
     <React.Fragment>
       <div
-        className="cell-emphasis"
+        className="cell-emphasis-crosshair"
         style={{
           left: `${x - width / 2}px`,
           top: `${y - length / 2}px`,
@@ -40,7 +40,7 @@ export default function CellTooltip(props) {
         }}
       />
       <div
-        className="cell-emphasis"
+        className="cell-emphasis-crosshair"
         style={{
           left: `${x - length / 2}px`,
           top: `${y - width / 2}px`,
