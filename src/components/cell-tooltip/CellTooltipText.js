@@ -10,7 +10,7 @@ export default function CellTooltipText(props) {
   const el = useRef(null);
   const offsetPercentage = 10;
 
-  // Shift el horizontally if it is out of bounds by adding a css class.
+  // Do collision detection based on the bounds of the sibling deck.gl canvas element.
   useLayoutEffect(() => {
     const rect = el.current.parentNode.querySelector('#deckgl-overlay').getBoundingClientRect();
     const { width, height } = rect;
