@@ -19,7 +19,7 @@ export default function CellTooltip(props) {
     return null;
   }
   // If we're in the component that triggered the event, do not show the crosshair.
-  // Instead, show a text tooltip populated with `hoveredCellInfo.status`.
+  // Instead, show a text tooltip.
   if (hoveredCellInfo.uuid === uuid) {
     return (
       <CellTooltipText factors={hoveredCellInfo.factors} x={x} y={y} />
