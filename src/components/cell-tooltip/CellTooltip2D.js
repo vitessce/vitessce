@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function CellTooltipCrosshair(props) {
+export default function CellTooltip2D(props) {
   const {
     hoveredCellInfo,
     mapping,

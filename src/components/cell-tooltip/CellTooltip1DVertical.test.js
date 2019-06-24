@@ -2,7 +2,7 @@ import React from 'react';
 import Adapter from 'enzyme-adapter-react-16';
 import { shallow, configure } from 'enzyme';
 import expect from 'expect';
-import CellTooltipVertical from './CellTooltipVertical';
+import CellTooltip1DVertical from './CellTooltip1DVertical';
 
 configure({ adapter: new Adapter() });
 
@@ -13,10 +13,10 @@ const fakeHoveredCellInfo = {
   status: 'subcluster: Hippocampus; cluster: Excitatory neurons',
 };
 
-describe('CellTooltipVertical.js', () => {
-  describe('<CellTooltipVertical />', () => {
+describe('CellTooltip1DVertical.js', () => {
+  describe('<CellTooltip1DVertical />', () => {
     it('vertical highlight appears if uuid does not match', () => {
-      const wrapper = shallow(<CellTooltipVertical
+      const wrapper = shallow(<CellTooltip1DVertical
         hoveredCellInfo={fakeHoveredCellInfo}
         cellIndex={10}
         numCells={10}
@@ -26,7 +26,7 @@ describe('CellTooltipVertical.js', () => {
     });
 
     it('does not appear if uuid does match', () => {
-      const wrapper = shallow(<CellTooltipVertical
+      const wrapper = shallow(<CellTooltip1DVertical
         hoveredCellInfo={fakeHoveredCellInfo}
         cellX={10}
         uuid={1}
@@ -35,7 +35,7 @@ describe('CellTooltipVertical.js', () => {
     });
 
     it('does not appear if cellIndex prop was not provided', () => {
-      const wrapper = shallow(<CellTooltipVertical
+      const wrapper = shallow(<CellTooltip1DVertical
         hoveredCellInfo={fakeHoveredCellInfo}
         uuid={1}
       />);

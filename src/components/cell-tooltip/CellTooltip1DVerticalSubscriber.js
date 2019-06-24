@@ -3,9 +3,9 @@ import PubSub from 'pubsub-js';
 import fromEntries from 'fromentries';
 
 import { CELLS_HOVER, CLUSTERS_ADD } from '../../events';
-import CellTooltipVertical from './CellTooltipVertical';
+import CellTooltip1DVertical from './CellTooltip1DVertical';
 
-export default class CellTooltipVerticalSubscriber extends React.Component {
+export default class CellTooltip1DVerticalSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.clusterColMap = null;
@@ -41,12 +41,8 @@ export default class CellTooltipVerticalSubscriber extends React.Component {
   }
 
   render() {
-    const {
-      uuid,
-    } = this.props;
-    const {
-      hoveredCellInfo,
-    } = this.state;
+    const { uuid } = this.props;
+    const { hoveredCellInfo } = this.state;
     // It is possible that hoveredCellInfo is null if the mouse leaves a cell.
     if (!hoveredCellInfo || !this.clusterColMap) {
       return null;
@@ -54,7 +50,7 @@ export default class CellTooltipVerticalSubscriber extends React.Component {
     const cellIndex = this.clusterColMap[hoveredCellInfo.cellId];
     const numCells = Object.keys(this.clusterColMap).length;
     return (
-      <CellTooltipVertical
+      <CellTooltip1DVertical
         hoveredCellInfo={hoveredCellInfo}
         cellIndex={cellIndex}
         numCells={numCells}
