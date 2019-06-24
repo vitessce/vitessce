@@ -30,12 +30,14 @@ export default function CellTooltipText(props) {
       }}
     >
       <table>
-        {Object.keys(factors).map(key => (
-          <tr>
-            <th>{key}</th>
-            <td>{factors[key]}</td>
-          </tr>
-        ))}
+        <tbody>
+          {Object.keys(factors).map(key => (
+            <tr key={key}>
+              <th>{key}</th>
+              <td>{factors[key]}</td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
   );
