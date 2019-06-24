@@ -139,6 +139,11 @@ input[type="radio"]:checked {
     animation-fill-mode: forwards;
 }
 
+.cell-tooltip > table > tr > th, .cell-tooltip > table > tr > td {
+    font-size: 80%;
+    opacity: 0.8;
+}
+
 .cell-tooltip-shift-left {
     transform: translateX(-120%);
 }

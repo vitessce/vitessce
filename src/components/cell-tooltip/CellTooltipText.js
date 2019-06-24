@@ -4,7 +4,7 @@ export default function CellTooltipText(props) {
   const {
     x,
     y,
-    status,
+    factors,
   } = props;
 
   const el = useRef(null);
@@ -35,7 +35,15 @@ export default function CellTooltipText(props) {
         top: `${y}px`,
         width: '50%',
       }}
-    ><p className="details">{status}</p>
+    >
+      <table>
+        {Object.keys(factors).map(key => (
+          <tr>
+            <th>{key}</th>
+            <td>{factors[key]}</td>
+          </tr>
+        ))}
+      </table>
     </div>
   );
 }

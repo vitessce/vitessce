@@ -22,7 +22,7 @@ export default function CellTooltip(props) {
   // Instead, show a text tooltip populated with `hoveredCellInfo.status`.
   if (hoveredCellInfo.uuid === uuid) {
     return (
-      <CellTooltipText status={hoveredCellInfo.status} x={x} y={y} />
+      <CellTooltipText factors={hoveredCellInfo.factors} x={x} y={y} />
     );
   }
   const width = 1;
