@@ -37,7 +37,7 @@ export default class CellTooltipVerticalSubscriber extends React.Component {
   }
 
   clustersAddSubscriber(msg, clusters) {
-    this.clusterColMap = fromEntries(clusters.cols.map((cellId, x) => [cellId, x]));
+    this.clusterColMap = fromEntries(clusters.cols.map((cellId, i) => [cellId, i]));
   }
 
   render() {
@@ -47,14 +47,17 @@ export default class CellTooltipVerticalSubscriber extends React.Component {
     const {
       hoveredCellInfo,
     } = this.state;
-    let cellX = null;
-    if (hoveredCellInfo && this.clusterColMap) {
-      cellX = this.clusterColMap[hoveredCellInfo.cellId];
+    // It is possible that hoveredCellInfo is null if the mouse leaves a cell.
+    if (!hoveredCellInfo || !this.clusterColMap) {
+      return null;
     }
+    const cellIndex = this.clusterColMap[hoveredCellInfo.cellId];
+    const numCells = Object.keys(this.clusterColMap).length;
     return (
       <CellTooltipVertical
         hoveredCellInfo={hoveredCellInfo}
-        cellX={cellX}
+        cellIndex={cellIndex}
+        numCells={numCells}
         uuid={uuid}
       />
     );
