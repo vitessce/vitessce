@@ -15,6 +15,7 @@ export function getImageRendering() {
 
 export function onHeatmapMouseMove(event, props) {
   const {
+    uuid,
     cells,
     clusters,
     updateCellsHover = (hoverInfo) => {
@@ -39,7 +40,7 @@ export function onHeatmapMouseMove(event, props) {
     updateCellsHover({
       cellId,
       mappings: { xy: cellInfo.xy, ...cellInfo.mappings },
-      uuid: true,
+      uuid,
       factors: cellInfo.factors,
     });
     updateStatus(makeCellStatusMessage(cellInfo.factors));
