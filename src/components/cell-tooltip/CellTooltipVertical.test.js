@@ -18,7 +18,8 @@ describe('CellTooltipVertical.js', () => {
     it('vertical highlight appears if uuid does not match', () => {
       const wrapper = shallow(<CellTooltipVertical
         hoveredCellInfo={fakeHoveredCellInfo}
-        cellX={10}
+        cellIndex={10}
+        numCells={10}
         uuid={2}
       />);
       expect(wrapper.find('.cell-emphasis-vertical').length).toEqual(1);
@@ -33,7 +34,7 @@ describe('CellTooltipVertical.js', () => {
       expect(wrapper.find('div').length).toEqual(0);
     });
 
-    it('does not appear if cellX prop was not provided', () => {
+    it('does not appear if cellIndex prop was not provided', () => {
       const wrapper = shallow(<CellTooltipVertical
         hoveredCellInfo={fakeHoveredCellInfo}
         uuid={1}
