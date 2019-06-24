@@ -27,7 +27,6 @@ export default function CellTooltipText(props) {
       style={{
         left: `${x}px`,
         top: `${y}px`,
-        width: '50%',
       }}
     >
       <table>
