@@ -10,9 +10,9 @@ export default function CellTooltipText(props) {
   const el = useRef(null);
   const offsetPercentage = 10;
 
-  // Do collision detection based on the bounds of the sibling deck.gl canvas element.
+  // Do collision detection based on the bounds of the parent (.card-body) element.
   useLayoutEffect(() => {
-    const rect = el.current.parentNode.querySelector('#deckgl-overlay').getBoundingClientRect();
+    const rect = el.current.parentNode.getBoundingClientRect();
     const { width, height } = rect;
     if (x > width / 2) {
       el.current.style.transform = `translateX(-${100 + offsetPercentage}%)`;
