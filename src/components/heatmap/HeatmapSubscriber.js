@@ -3,7 +3,8 @@ import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_COLOR, CLUSTERS_ADD, CELLS_SELECTION, CLEAR_PLEASE_WAIT,
+  CELLS_COLOR, CLUSTERS_ADD, CELLS_ADD, CELLS_SELECTION,
+  CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO,
 } from '../../events';
 import Heatmap from './Heatmap';
 
@@ -11,13 +12,16 @@ export default class HeatmapSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      clusters: null, selectedCellIds: {}, cellColors: null,
+      cells: {}, clusters: null, selectedCellIds: {}, cellColors: null,
     };
   }
 
   componentWillMount() {
     this.clustersAddToken = PubSub.subscribe(
       CLUSTERS_ADD, this.clustersAddSubscriber.bind(this),
+    );
+    this.cellsAddToken = PubSub.subscribe(
+      CELLS_ADD, this.cellsAddSubscriber.bind(this),
     );
     this.cellsColorToken = PubSub.subscribe(
       CELLS_COLOR, this.cellsColorSubscriber.bind(this),
@@ -34,12 +38,17 @@ export default class HeatmapSubscriber extends React.Component {
 
   componentWillUnmount() {
     PubSub.unsubscribe(this.clustersAddToken);
+    PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsColorToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
   }
 
   clustersAddSubscriber(msg, clusters) {
     this.setState({ clusters });
+  }
+
+  cellsAddSubscriber(msg, cells) {
+    this.setState({ cells });
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
@@ -52,7 +61,7 @@ export default class HeatmapSubscriber extends React.Component {
 
   render() {
     const {
-      clusters, selectedCellIds, cellColors,
+      cells, clusters, selectedCellIds, cellColors,
     } = this.state;
     const cellsCount = clusters ? clusters.cols.length : 0;
     const genesCount = clusters ? clusters.rows.length : 0;
@@ -64,9 +73,12 @@ export default class HeatmapSubscriber extends React.Component {
                with ${selectedCount} cells selected`}
       >
         <Heatmap
+          cells={cells}
           clusters={clusters}
           selectedCellIds={selectedCellIds}
           cellColors={cellColors}
+          updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
+          updateStatus={message => PubSub.publish(STATUS_INFO, message)}
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
