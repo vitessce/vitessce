@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import CellTooltipText from './CellTooltipText';
 
 export default function CellTooltip1DVertical(props) {
   const {
@@ -11,26 +12,31 @@ export default function CellTooltip1DVertical(props) {
   if (!hoveredCellInfo || !uuid || !cellIndex || !numCells) {
     return null;
   }
-  // If we're in the component that triggered the event, do not show the vertical line.
-  if (hoveredCellInfo.uuid === uuid) {
-    // In the future, potentially show a tooltip with `hoveredCellInfo.status`.
-    return null;
-  }
+  const ref = useRef();
+  const [x, setX] = useState(0);
+  const [height, setHeight] = useState(0);
   const y = 0;
   const lineWidth = 1;
-  // Compute the x-position of the vertical emphasis element
-  // based on the width of the sibling canvas.
-  const ref = useRef(null);
+  // Compute the desired x-position of the element
+  // based on the width of the sibling heatmap canvas.
   useEffect(() => {
     const el = ref.current;
     // Obtain the width of the heatmap canvas.
     const { width } = el.parentNode.querySelector('canvas').getBoundingClientRect();
+    setX((cellIndex / numCells) * width);
     // Obtain the height of the entire parent card element.
-    const { height } = el.parentNode.getBoundingClientRect();
-    const x = (cellIndex / numCells) * width;
-    el.style.left = `${x - lineWidth / 2}px`;
-    el.style.height = `${height}px`;
+    setHeight(el.parentNode.getBoundingClientRect().height);
   });
+
+  // If we're in the component that triggered the event, do not show the vertical line.
+  // Instead, show a tooltip with text.
+  if (hoveredCellInfo.uuid === uuid) {
+    return (
+      <div ref={ref} className="cell-tooltip-wrapper">
+        <CellTooltipText factors={hoveredCellInfo.factors} x={x} y={y} />
+      </div>
+    );
+  }
   // If we're _not_ in the component that triggered the event, show the vertical line.
   return (
     <div
@@ -38,7 +44,9 @@ export default function CellTooltip1DVertical(props) {
       className="cell-emphasis-vertical"
       style={{
         top: `${y}px`,
+        left: `${x - lineWidth / 2}px`,
         width: `${lineWidth}px`,
+        height: `${height}px`,
       }}
     />
   );

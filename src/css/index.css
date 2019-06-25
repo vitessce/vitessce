@@ -116,6 +116,10 @@ input[type="radio"]:checked {
     transform: translateX(1.25rem);
 }
 
+.cell-tooltip-wrapper {
+    position: absolute;
+}
+
 .cell-tooltip {
     z-index: 1001;
     position: absolute;
