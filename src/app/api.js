@@ -3,26 +3,35 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 import higlassViewConf from './higlass-viewconf.json';
 
-// Used by the cypress tests: They route API requests to the fixtures instead.
+// Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.16/toslchan';
 
-const linnarssonBase = {
-  description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
-  layers: [
-    'cells',
-    'clusters',
-    'factors',
-    'genes',
-    'images',
-    'molecules',
-    'neighborhoods',
-  ].map(name => ({
+const description = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
+
+const layerNames = [
+  'cells',
+  'clusters',
+  'factors',
+  'genes',
+  'images',
+  'molecules',
+  'neighborhoods',
+];
+function layerNameToConfig(name) {
+  return {
     name,
     type: name.toUpperCase(),
     url: `${urlPrefix}/linnarsson.${name}.json`,
-  })),
+  };
+}
+const linnarssonBase = {
+  description,
+  layers: layerNames.map(layerNameToConfig),
 };
-
+const linnarssonBaseNoClusters = {
+  description,
+  layers: layerNames.filter(name => name !== 'clusters').map(layerNameToConfig),
+};
 
 /* eslint-disable object-property-newline */
 /* eslint-disable object-curly-newline */
@@ -46,7 +55,7 @@ const configs = {
       components: [
         { component: 'Description',
           props: {
-            description: 'Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
+            description: `Linnarsson: ${description}`,
           },
           x: 0, y: 0 },
         { component: 'StatusSubscriber',
@@ -75,7 +84,7 @@ const configs = {
     },
   },
   'linnarsson-2018-just-spatial': {
-    ...linnarssonBase,
+    ...linnarssonBaseNoClusters,
     name: 'Linnarsson (just spatial)',
     responsiveLayout: {
       columns: {
@@ -107,7 +116,7 @@ const configs = {
     staticLayout: [
       { component: 'Description',
         props: {
-          description: 'Linnarsson (static layout): Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
+          description: `Linnarsson (static layout): ${description}`,
         },
         x: 0, y: 0, w: 3, h: 1 },
       { component: 'ScatterplotSubscriber',
