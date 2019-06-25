@@ -42,6 +42,8 @@ export default class Scatterplot extends AbstractSelectableComponent {
       uuid = null,
     } = this.props;
 
+    const { tool } = this.state;
+
     const layers = [];
     if (cells) {
       layers.push(
@@ -63,6 +65,9 @@ export default class Scatterplot extends AbstractSelectableComponent {
             this.props.cellColors ? this.props.cellColors[cellEntry[0]] : DEFAULT_COLOR
           ),
           onClick: (info) => {
+            if (tool) {
+              return;
+            }
             const cellId = info.object[0];
             if (selectedCellIds[cellId]) {
               delete selectedCellIds[cellId];
