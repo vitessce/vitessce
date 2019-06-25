@@ -72,9 +72,9 @@ describe('Vitessce', () => {
     cy.contains(message);
   });
 
-  it('loads details (static)', () => {
-    cy.visit('/?dataset=linnarsson-2018-static');
-    cy.contains('Linnarsson (static layout): Spatial organization');
+  it('loads just-spatial', () => {
+    cy.visit('/?dataset=linnarsson-2018-just-spatial');
+    cy.contains('1 cells, 1 molecules at 3 locations');
   });
 
   it('loads details (responsive)', () => {
