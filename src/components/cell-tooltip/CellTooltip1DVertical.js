@@ -14,7 +14,8 @@ export default function CellTooltip1DVertical(props) {
   }
   const ref = useRef();
   const [x, setX] = useState(0);
-  const [height, setHeight] = useState(0);
+  const [parentHeight, setParentHeight] = useState(0);
+  const [parentWidth, setParentWidth] = useState(0);
   const y = 0;
   const lineWidth = 1;
   // Compute the desired x-position of the element
@@ -23,9 +24,11 @@ export default function CellTooltip1DVertical(props) {
     const el = ref.current;
     // Obtain the width of the heatmap canvas.
     const { width } = el.parentNode.querySelector('canvas').getBoundingClientRect();
-    setX((cellIndex / numCells) * width);
     // Obtain the height of the entire parent card element.
-    setHeight(el.parentNode.getBoundingClientRect().height);
+    const { height } = el.parentNode.closest('.card-body').getBoundingClientRect();
+    setX((cellIndex / numCells) * width);
+    setParentWidth(width);
+    setParentHeight(height);
   });
 
   // If we're in the component that triggered the event, do not show the vertical line.
@@ -33,7 +36,13 @@ export default function CellTooltip1DVertical(props) {
   if (hoveredCellInfo.uuid === uuid) {
     return (
       <div ref={ref} className="cell-tooltip-wrapper">
-        <CellTooltipText factors={hoveredCellInfo.factors} x={x} y={y} />
+        <CellTooltipText
+          factors={hoveredCellInfo.factors}
+          x={x}
+          y={y}
+          parentWidth={parentWidth}
+          parentHeight={parentHeight}
+        />
       </div>
     );
   }
@@ -46,7 +55,7 @@ export default function CellTooltip1DVertical(props) {
         top: `${y}px`,
         left: `${x - lineWidth / 2}px`,
         width: `${lineWidth}px`,
-        height: `${height}px`,
+        height: `${parentHeight}px`,
       }}
     />
   );
