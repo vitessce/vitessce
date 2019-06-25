@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-// Adopted from https://github.com/uber/nebula.gl/blob/master/modules/layers/src/layers/selection-layer.js
+// File adopted from nebula.gl's SelectionLayer
+// https://github.com/uber/nebula.gl/blob/master/modules/layers/src/layers/selection-layer.js
 import { CompositeLayer } from 'deck.gl';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
@@ -120,11 +121,6 @@ export default class SelectionLayer extends CompositeLayer {
     ];
 
     return layers;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  shouldUpdateState({ changeFlags: { stateChanged, propsOrDataChanged } }) {
-    return stateChanged || propsOrDataChanged;
   }
 }
 
