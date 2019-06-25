@@ -60,7 +60,7 @@ export default class SelectionLayer extends CompositeLayer {
   }
 
   _selectPolygonObjects(coordinates) {
-    const { layerIds, onSelect } = this.props;
+    const { layerIds, onSelect, getCellCoords } = this.props;
     const mousePoints = coordinates[0].map(c => this.context.viewport.project(c));
 
     const allX = mousePoints.map(mousePoint => mousePoint[0]);
@@ -75,19 +75,11 @@ export default class SelectionLayer extends CompositeLayer {
       width: maxX - x,
       height: maxY - y,
     };
-    const mousePointsPoly = turfPolygon([mousePoints]);
-    let pickingInfos = this.context.deck.pickObjects({
+    const polygon = turfPolygon(coordinates);
+    const pickingInfos = this.context.deck.pickObjects({
       ...rect,
       layerIds,
-    }); // .filter(info => booleanPointInPolygon(turfPoint([info.x, info.y]), mousePointsPoly));
-
-    const pickingPoints = pickingInfos.map(info => turfPoint([info.x, info.y]));
-
-    // TODO: figure out why the polygon isn't right, preventing us from checking which points are within.
-    console.log(JSON.stringify(mousePointsPoly));
-    console.log(JSON.stringify(pickingPoints));
-
-    pickingInfos = pickingInfos.filter(info => booleanPointInPolygon(turfPoint([info.x, info.y]), mousePointsPoly));
+    }).filter(info => booleanPointInPolygon(turfPoint(getCellCoords(info.object[1])), polygon));
 
     onSelect({ pickingInfos });
   }

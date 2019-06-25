@@ -64,6 +64,11 @@ export default class Spatial extends AbstractSelectableComponent {
     return cell.xy;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  getCellBaseLayerId() {
+    return 'base-polygon-layer';
+  }
+
   renderCellLayer() {
     const {
       cells = undefined,

@@ -20,6 +20,11 @@ export default class Scatterplot extends AbstractSelectableComponent {
     return cell.mappings[this.props.mapping];
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  getCellBaseLayerId() {
+    return 'base-scatterplot';
+  }
+
   renderLayers() {
     const {
       cells = undefined,

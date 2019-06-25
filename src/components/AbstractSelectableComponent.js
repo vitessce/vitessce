@@ -1,7 +1,6 @@
 import React from 'react';
 
-import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
-import { SELECTION_TYPE } from 'nebula.gl';
+import DeckGL, { OrthographicView, COORDINATE_SYSTEM } from 'deck.gl';
 import SelectionLayer from '../layers/SelectionLayer';
 import ToolMenu from './ToolMenu';
 
@@ -17,6 +16,7 @@ export default class AbstractSelectableComponent extends React.Component {
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.renderSelectionLayers = this.renderSelectionLayers.bind(this);
     this.deckRef = React.createRef();
+    this.getCellCoords = this.getCellCoords.bind(this);
     const { uuid = null } = props || {};
     // Store view and viewport information in a mutable object.
     this.viewInfo = {
@@ -27,8 +27,15 @@ export default class AbstractSelectableComponent extends React.Component {
     };
     this.state = {
       tool: null,
-      pickingInfos: undefined,
     };
+  }
+
+  getCellCoords() { // eslint-disable-line class-methods-use-this
+    // No-op
+  }
+
+  getCellBaseLayerId() { // eslint-disable-line class-methods-use-this
+    // No-op
   }
 
   renderSelectionLayers() {
@@ -39,10 +46,10 @@ export default class AbstractSelectableComponent extends React.Component {
     }
     return [new SelectionLayer({
       id: 'selection',
+      getCellCoords: this.getCellCoords,
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       selectionType: tool,
       onSelect: ({ pickingInfos }) => {
-        console.log(pickingInfos);
         const cellObjIds = pickingInfos.map(cellObj => cellObj.object[0]);
         const selectedCellIdsSet = {};
         cellObjIds.forEach((cellObjId) => {
@@ -50,7 +57,7 @@ export default class AbstractSelectableComponent extends React.Component {
         });
         updateCellsSelection(selectedCellIdsSet);
       },
-      layerIds: ['base-scatterplot'],
+      layerIds: [this.getCellBaseLayerId()],
       getTentativeFillColor: () => [255, 255, 255, 95],
       getTentativeLineColor: () => [143, 143, 143, 255],
       getTentativeLineDashArray: () => [7, 4],
