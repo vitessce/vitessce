@@ -1,6 +1,9 @@
 import React from 'react';
-
 import { SELECTION_TYPE } from 'nebula.gl';
+import pointerIcon from '../assets/near_me.svg';
+import selectRectangleIcon from '../assets/selection_rectangle.svg';
+import selectPolygonIcon from '../assets/selection_polygon.svg';
+
 
 export function IconButton(props) {
   const {
@@ -24,19 +27,19 @@ export default function ToolMenu(props) {
   return (
     <div className="tool">
       <IconButton
-        src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
+        src={pointerIcon}
         alt="pointer tool"
         onClick={() => setActiveTool(null)}
         isActive={isActiveTool(null)}
       />
       <IconButton
-        src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
+        src={selectRectangleIcon}
         alt="select rectangle"
         onClick={() => setActiveTool(SELECTION_TYPE.RECTANGLE)}
         isActive={isActiveTool(SELECTION_TYPE.RECTANGLE)}
       />
       <IconButton
-        src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
+        src={selectPolygonIcon}
         alt="select polygon"
         onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
         isActive={isActiveTool(SELECTION_TYPE.POLYGON)}
