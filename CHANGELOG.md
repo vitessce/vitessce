@@ -3,6 +3,7 @@
 ## 0.0.16 - in progress
 ### Added
 - Linked hover effect between spatial, scatterplot, and heatmap.
+- Tooltip for cell status text upon hover in spatial and scatterplot views.
 ### Changed
 - Using Deck.gl's built in picking instead of quadtree.
 
