@@ -104,6 +104,8 @@ export default class Spatial extends AbstractSelectableComponent {
       ),
       onClick: (info) => {
         if (tool) {
+          // If using a tool, prevent individual cell selection.
+          // Let SelectionLayer handle the clicks instead.
           return;
         }
         const cellId = info.object[0];
