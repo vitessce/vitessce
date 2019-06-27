@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.0.16 - in progress
+## 0.0.17 - in progress
+### Added
+- ...
+### Changed
+- ...
+
+## [0.0.16](https://www.npmjs.com/package/vitessce/v/0.0.16) - 2019-06-26
 ### Added
 - Linked hover effect between spatial, scatterplot, and heatmap.
 - Tooltip for cell status text upon hover in spatial and scatterplot views.
