@@ -44,6 +44,10 @@ export default class AbstractSelectableComponent extends React.Component {
     if (!tool) {
       return [];
     }
+
+    const { zoom } = this.getInitialViewState();
+    const editHandlePointRadius = 60 / (zoom + 16);
+
     return [new SelectionLayer({
       id: 'selection',
       getCellCoords: this.getCellCoords,
@@ -63,6 +67,11 @@ export default class AbstractSelectableComponent extends React.Component {
       getTentativeLineDashArray: () => [7, 4],
       lineWidthMinPixels: 2,
       lineWidthMaxPixels: 2,
+      getEditHandlePointColor: () => [0xff, 0xff, 0xff, 0xff],
+      getEditHandlePointRadius: () => editHandlePointRadius,
+      editHandlePointRadiusScale: 1,
+      editHandlePointRadiusMinPixels: editHandlePointRadius,
+      editHandlePointRadiusMaxPixels: 2 * editHandlePointRadius,
     })];
   }
 

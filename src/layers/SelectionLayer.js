@@ -40,6 +40,11 @@ const PASS_THROUGH_PROPS = [
   'getTentativeLineColor',
   'getTentativeFillColor',
   'getTentativeLineWidth',
+  'editHandlePointRadiusScale',
+  'editHandlePointRadiusMinPixels',
+  'editHandlePointRadiusMaxPixels',
+  'getEditHandlePointColor',
+  'getEditHandlePointRadius',
 ];
 
 export default class SelectionLayer extends CompositeLayer {
