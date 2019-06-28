@@ -8,4 +8,5 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2019-05-29: [mccalluc/fix-homepage](https://s3.amazonaws.com/vitessce-data/demos/2019-05-29/b375d66/staging-docs/index.html)
 - 2019-06-07: [master](https://s3.amazonaws.com/vitessce-data/demos/2019-06-07/ff8a33c/staging-docs/index.html)
 - 2019-06-24: [mccalluc/v0.0.16-rc](https://s3.amazonaws.com/vitessce-data/demos/2019-06-24/ac9972c/staging-docs/index.html)
+- 2019-06-27: [mccalluc/more-demos](https://s3.amazonaws.com/vitessce-data/demos/2019-06-27/d532cf2/staging-docs/index.html)
 - 2019-06-26: [mccalluc/0.0.16-rc2](https://s3.amazonaws.com/vitessce-data/demos/2019-06-26/8bf8f29/staging-docs/index.html)

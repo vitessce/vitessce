@@ -83,6 +83,53 @@ const configs = {
       ],
     },
   },
+  'linnarsson-2018-two-spatial': {
+    ...linnarssonBase,
+    name: 'Linnarsson (two spatial)',
+    responsiveLayout: {
+      columns: {
+        // First two columns are equal,
+        // third column is constant;
+        // Grid cell width stays roughly constant,
+        // but more columns are available in a wider window.
+        1400: [0, 6, 12, 14],
+        1200: [0, 5, 10, 12],
+        1000: [0, 4, 8, 10],
+        800: [0, 3, 6, 8],
+        600: [0, 2, 4, 8],
+      },
+      components: [
+        { component: 'HoverableSpatialSubscriber',
+          props: {
+            view: {
+              zoom: -8,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 0, y: 0, h: 2 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 't-SNE' },
+          x: 0, y: 2, h: 2 },
+        { component: 'HoverableSpatialSubscriber',
+          props: {
+            view: {
+              zoom: -6,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 1, y: 0, h: 2 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 'PCA' },
+          x: 1, y: 2, h: 2 },
+        { component: 'FactorsSubscriber',
+          x: 2, y: 0, h: 2 },
+        { component: 'GenesSubscriber',
+          x: 2, y: 2, h: 2 },
+        { component: 'HoverableHeatmapSubscriber',
+          x: 0, y: 4, w: 3 },
+      ],
+    },
+  },
   'linnarsson-2018-just-spatial': {
     ...linnarssonBaseNoClusters,
     name: 'Linnarsson (just spatial)',
