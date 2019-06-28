@@ -38,7 +38,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
       updateCellsHover = (hoverInfo) => {
         console.warn(`Scatterplot updateCellsHover: ${hoverInfo.cellId}`);
       },
-      selectedCellIds = {},
+      selectedCellIds = new Set(),
       uuid = null,
     } = this.props;
 
@@ -50,8 +50,8 @@ export default class Scatterplot extends AbstractSelectableComponent {
         new SelectableScatterplotLayer({
           id: 'scatterplot',
           isSelected: cellEntry => (
-            Object.keys(selectedCellIds).length
-              ? selectedCellIds[cellEntry[0]]
+            selectedCellIds.size
+              ? selectedCellIds.has(cellEntry[0])
               : true // If nothing is selected, everything is selected.
           ),
           getRadius: 0.5,
@@ -71,11 +71,11 @@ export default class Scatterplot extends AbstractSelectableComponent {
               return;
             }
             const cellId = info.object[0];
-            if (selectedCellIds[cellId]) {
-              delete selectedCellIds[cellId];
+            if (selectedCellIds.has(cellId)) {
+              selectedCellIds.delete(cellId);
               updateCellsSelection(selectedCellIds);
             } else {
-              selectedCellIds[cellId] = true;
+              selectedCellIds.add(cellId);
               updateCellsSelection(selectedCellIds);
             }
           },

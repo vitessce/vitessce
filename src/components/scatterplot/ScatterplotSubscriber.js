@@ -12,7 +12,7 @@ export default class ScatterplotSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cells: {}, selectedCellIds: {}, cellColors: null,
+      cells: {}, selectedCellIds: new Set(), cellColors: null,
     };
   }
 

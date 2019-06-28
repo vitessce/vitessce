@@ -54,12 +54,8 @@ export default class AbstractSelectableComponent extends React.Component {
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       selectionType: tool,
       onSelect: ({ pickingInfos }) => {
-        const cellObjIds = pickingInfos.map(cellObj => cellObj.object[0]);
-        const selectedCellIdsSet = {};
-        cellObjIds.forEach((cellObjId) => {
-          selectedCellIdsSet[cellObjId] = true;
-        });
-        updateCellsSelection(selectedCellIdsSet);
+        const cellIds = new Set(pickingInfos.map(cellObj => cellObj.object[0]));
+        updateCellsSelection(cellIds);
       },
       layerIds: [this.getCellBaseLayerId()],
       getTentativeFillColor: () => [255, 255, 255, 95],

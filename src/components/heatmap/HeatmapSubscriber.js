@@ -12,7 +12,7 @@ export default class HeatmapSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cells: {}, clusters: null, selectedCellIds: {}, cellColors: null,
+      cells: {}, clusters: null, selectedCellIds: new Set(), cellColors: null,
     };
   }
 
@@ -65,7 +65,7 @@ export default class HeatmapSubscriber extends React.Component {
     } = this.state;
     const cellsCount = clusters ? clusters.cols.length : 0;
     const genesCount = clusters ? clusters.rows.length : 0;
-    const selectedCount = selectedCellIds ? Object.keys(selectedCellIds).length : 0;
+    const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
     const { children, uuid } = this.props;
     return (
       <TitleInfo

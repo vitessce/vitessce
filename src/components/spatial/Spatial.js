@@ -72,7 +72,7 @@ export default class Spatial extends AbstractSelectableComponent {
   renderCellLayer() {
     const {
       cells = undefined,
-      selectedCellIds = {},
+      selectedCellIds = new Set(),
       updateStatus = (message) => {
         console.warn(`Spatial updateStatus: ${message}`);
       },
@@ -90,8 +90,8 @@ export default class Spatial extends AbstractSelectableComponent {
     return new SelectablePolygonLayer({
       id: 'polygon-layer',
       isSelected: cellEntry => (
-        Object.keys(selectedCellIds).length
-          ? selectedCellIds[cellEntry[0]]
+        selectedCellIds.size
+          ? selectedCellIds.has(cellEntry[0])
           : true // If nothing is selected, everything is selected.
       ),
       getPolygon(cellEntry) {
@@ -109,11 +109,11 @@ export default class Spatial extends AbstractSelectableComponent {
           return;
         }
         const cellId = info.object[0];
-        if (selectedCellIds[cellId]) {
-          delete selectedCellIds[cellId];
+        if (selectedCellIds.has(cellId)) {
+          selectedCellIds.delete(cellId);
           updateCellsSelection(selectedCellIds);
         } else {
-          selectedCellIds[cellId] = true;
+          selectedCellIds.add(cellId);
           updateCellsSelection(selectedCellIds);
         }
       },
