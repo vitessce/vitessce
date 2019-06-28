@@ -1,7 +1,9 @@
 import React from 'react';
 import { interpolateColors } from '../utils';
 
-import { setImageDataRGBA, getImageRendering, onHeatmapMouseMove } from './utils';
+import {
+  setImageDataRGBA, getImageRendering, onHeatmapMouseMove, onHeatmapMouseLeave,
+} from './utils';
 
 function hasRequiredProps(props) {
   return !!props.clusters;
@@ -41,7 +43,8 @@ export default function HeatmapDataCanvas(props) {
       ref={c => paintCanvas(c, props)}
       width={clusters.cols.length}
       height={clusters.rows.length}
-      onMouseMove={event => onHeatmapMouseMove(event, props)}
+      onMouseMove={event => onHeatmapMouseMove(event, props, true)}
+      onMouseLeave={e => onHeatmapMouseLeave(e, props)}
     />
   );
 }

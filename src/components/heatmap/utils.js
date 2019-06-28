@@ -13,16 +13,19 @@ export function getImageRendering() {
   return /Chrome/.test(navigator.userAgent) ? 'pixelated' : 'crisp-edges';
 }
 
-export function onHeatmapMouseMove(event, props) {
+export function onHeatmapMouseMove(event, props, considerGenes) {
   const {
     uuid,
     cells,
     clusters,
     updateCellsHover = (hoverInfo) => {
-      console.warn(`onHeatmapMouseMove updateCellsHover: ${hoverInfo.cellId}`);
+      console.warn(`onHeatmapMouseMove updateCellsHover: ${hoverInfo}`);
     },
     updateStatus = (message) => {
       console.warn(`onHeatmapMouseMove updateStatus: ${message}`);
+    },
+    updateGenesHover = (message) => {
+      console.warn(`onHeatmapMouseMove updateGenesHover: ${message}`);
     },
   } = props;
   // Compute x position relative to the canvas.
@@ -45,4 +48,27 @@ export function onHeatmapMouseMove(event, props) {
     });
     updateStatus(makeCellStatusMessage(cellInfo.factors));
   }
+
+  // Compute y position to get gene ID if mouse is moving in HeatmapDataCanvas.
+  if (considerGenes) {
+    const { height } = rect;
+    const pixelY = (event.clientY - rect.top);
+    const colY = Math.floor((pixelY / height) * clusters.rows.length);
+    const geneId = clusters.rows[colY];
+    updateGenesHover(geneId);
+  }
+}
+
+
+export function onHeatmapMouseLeave(event, props) {
+  const {
+    updateCellsHover = (hoverInfo) => {
+      console.warn(`onHeatmapMouseLeave updateCellsHover: ${hoverInfo}`);
+    },
+    updateGenesHover = (message) => {
+      console.warn(`onHeatmapMouseLeave updateGenesHover: ${message}`);
+    },
+  } = props;
+  updateCellsHover(null);
+  updateGenesHover(null);
 }

@@ -7,6 +7,7 @@ export default function CellTooltip1DVertical(props) {
     hoveredCellInfo,
     cellIndex,
     numCells,
+    hoveredGeneId,
     uuid,
   } = props;
   // Check that all data necessary to show the tooltip has been passed.
@@ -38,7 +39,10 @@ export default function CellTooltip1DVertical(props) {
     return (
       <div ref={ref} className="cell-tooltip-wrapper">
         <CellTooltipText
-          factors={hoveredCellInfo.factors}
+          factors={{
+            ...hoveredCellInfo.factors,
+            ...(hoveredGeneId ? { gene: hoveredGeneId } : {}),
+          }}
           x={x}
           y={y}
           parentWidth={parentWidth}

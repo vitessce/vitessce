@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { setImageDataRGBA, getImageRendering, onHeatmapMouseMove } from './utils';
+import {
+  setImageDataRGBA, getImageRendering, onHeatmapMouseMove, onHeatmapMouseLeave,
+} from './utils';
 
 
 function hasRequiredProps(props) {
@@ -41,6 +43,7 @@ export default function HeatmapCellColorCanvas(props) {
       width={clusters.cols.length}
       height={1}
       onMouseMove={e => onHeatmapMouseMove(e, props)}
+      onMouseLeave={e => onHeatmapMouseLeave(e, props)}
     />
   );
 }

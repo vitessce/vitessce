@@ -12,10 +12,13 @@ export default function Heatmap(props) {
     cellColors,
     clearPleaseWait,
     updateCellsHover = (hoverInfo) => {
-      console.warn(`Heatmap updateCellsHover: ${hoverInfo.cellId}`);
+      console.warn(`Heatmap updateCellsHover: ${hoverInfo}`);
     },
     updateStatus = (message) => {
       console.warn(`Heatmap updateStatus: ${message}`);
+    },
+    updateGenesHover = (hoverInfo) => {
+      console.warn(`Heatmap updateGenesHover: ${hoverInfo}`);
     },
   } = props;
   if (clearPleaseWait && clusters) {
@@ -47,6 +50,7 @@ export default function Heatmap(props) {
         clusters={clusters}
         updateCellsHover={updateCellsHover}
         updateStatus={updateStatus}
+        updateGenesHover={updateGenesHover}
         height="70%"
       />
     </React.Fragment>
