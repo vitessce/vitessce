@@ -49,6 +49,7 @@
     "vitessce-grid": "0.0.4"
   },
   "devDependencies": {
+    "@svgr/webpack": "^4.3.0",
     "cypress": "^3.2.0",
     "documentation": "^9.3.1",
     "docz": "^1.0.4",

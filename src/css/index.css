@@ -59,6 +59,9 @@ pre {
   width: 2em;
   background-color: white;
 }
+.btn.icon > svg {
+  vertical-align: middle;
+}
 .roll-up {
   height: 2em; /* Matches .btn.icon */
   overflow: hidden;
