@@ -11,7 +11,7 @@ export default function CellTooltipText(props) {
 
   const ref = useRef(null);
   const offsetPercentage = 10;
-  // Do collision detection based on the bounds of the parent (.card-body) element.
+  // Do collision detection based on the bounds of the tooltip ancestor element.
   useEffect(() => {
     const el = ref.current;
     const translateX = (x > parentWidth / 2) ? -(100 + offsetPercentage) : offsetPercentage;

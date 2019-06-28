@@ -1,5 +1,5 @@
 import React from 'react';
-import { SCROLL_CARD, BLACK_CARD } from './classNames';
+import { SCROLL_CARD, BLACK_CARD, TOOLTIP_ANCESTOR } from './classNames';
 
 export default function TitleInfo(props) {
   const {
@@ -15,7 +15,7 @@ export default function TitleInfo(props) {
         {title}
         <span className="details pl-2">{info}</span>
       </div>
-      <div className={childClassName}>
+      <div className={`${childClassName} ${TOOLTIP_ANCESTOR}`}>
         {children}
       </div>
     </React.Fragment>

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { TOOLTIP_ANCESTOR } from '../classNames';
 import CellTooltipText from './CellTooltipText';
 
 export default function CellTooltip1DVertical(props) {
@@ -25,7 +26,7 @@ export default function CellTooltip1DVertical(props) {
     // Obtain the width of the heatmap canvas.
     const { width } = el.parentNode.querySelector('canvas').getBoundingClientRect();
     // Obtain the height of the entire parent card element.
-    const { height } = el.parentNode.closest('.card-body').getBoundingClientRect();
+    const { height } = el.closest(`.${TOOLTIP_ANCESTOR}`).getBoundingClientRect();
     setX((cellIndex / numCells) * width);
     setParentWidth(width);
     setParentHeight(height);
