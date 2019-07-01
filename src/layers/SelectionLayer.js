@@ -1,11 +1,33 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-underscore-dangle */
 // File adopted from nebula.gl's SelectionLayer
 // https://github.com/uber/nebula.gl/blob/8e9c2ec8d7cf4ca7050909ed826eb847d5e2cd9c/modules/layers/src/layers/selection-layer.js
 import { CompositeLayer } from 'deck.gl';
+import uuidv4 from 'uuid/v4';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-
 import { EditableGeoJsonLayer, SELECTION_TYPE } from 'nebula.gl';
+import { ViewHandler } from '@nebula.gl/layers/dist/mode-handlers/view-handler';
+import { ModifyHandler } from '@nebula.gl/layers/dist/mode-handlers/modify-handler';
+import { ElevationHandler } from '@nebula.gl/layers/dist/mode-handlers/elevation-handler';
+import { ExtrudeHandler } from '@nebula.gl/layers/dist/mode-handlers/extrude-handler';
+import { RotateHandler } from '@nebula.gl/layers/dist/mode-handlers/rotate-handler';
+import { SnappableHandler } from '@nebula.gl/layers/dist/mode-handlers/snappable-handler';
+import { TranslateHandler } from '@nebula.gl/layers/dist/mode-handlers/translate-handler';
+import { DuplicateHandler } from '@nebula.gl/layers/dist/mode-handlers/duplicate-handler';
+import { ScaleHandler } from '@nebula.gl/layers/dist/mode-handlers/scale-handler';
+import { DrawPointHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-point-handler';
+import { DrawLineStringHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-line-string-handler';
+import { DrawPolygonHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-polygon-handler';
+import { Draw90DegreePolygonHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-90degree-polygon-handler';
+import { SplitPolygonHandler } from '@nebula.gl/layers/dist/mode-handlers/split-polygon-handler';
+import { DrawRectangleHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-rectangle-handler';
+import { DrawRectangleUsingThreePointsHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-rectangle-using-three-points-handler';
+import { DrawCircleFromCenterHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-circle-from-center-handler';
+import { DrawCircleByBoundingBoxHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-circle-by-bounding-box-handler';
+import { DrawEllipseByBoundingBoxHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-ellipse-by-bounding-box-handler';
+import { DrawEllipseUsingThreePointsHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-ellipse-using-three-points-handler';
+
 
 const defaultProps = {
   selectionType: SELECTION_TYPE.RECTANGLE,
@@ -17,8 +39,6 @@ const EMPTY_DATA = {
   type: 'FeatureCollection',
   features: [],
 };
-
-const LAYER_ID_GEOJSON = 'selection-geojson';
 
 const PASS_THROUGH_PROPS = [
   'lineWidthScale',
@@ -45,6 +65,7 @@ const PASS_THROUGH_PROPS = [
   'editHandlePointRadiusMaxPixels',
   'getEditHandlePointColor',
   'getEditHandlePointRadius',
+  'modeHandlers',
 ];
 
 export default class SelectionLayer extends CompositeLayer {
@@ -96,15 +117,43 @@ export default class SelectionLayer extends CompositeLayer {
       [SELECTION_TYPE.POLYGON]: 'drawPolygon',
     }[this.props.selectionType] || 'view';
 
-    const inheritedProps = {};
+    const inheritedProps = {
+      // Need to instantiate our own mode handler objects each time, otherwise
+      // they will be singletons and shared across all EditableGeoJsonLayer instances.
+      // See the following line for more details:
+      // https://github.com/uber/nebula.gl/blob/7a88b5240e4bea4e7d4530c0885d595e730146a3/modules/layers/src/layers/editable-geojson-layer.js#L147
+      modeHandlers: {
+        view: new ViewHandler(),
+        modify: new ModifyHandler(),
+        elevation: new ElevationHandler(),
+        extrude: new ExtrudeHandler(),
+        rotate: new RotateHandler(),
+        translate: new SnappableHandler(new TranslateHandler()),
+        duplicate: new DuplicateHandler(),
+        scale: new ScaleHandler(),
+        drawPoint: new DrawPointHandler(),
+        drawLineString: new DrawLineStringHandler(),
+        drawPolygon: new DrawPolygonHandler(),
+        draw90DegreePolygon: new Draw90DegreePolygonHandler(),
+        split: new SplitPolygonHandler(),
+        drawRectangle: new DrawRectangleHandler(),
+        drawRectangleUsing3Points: new DrawRectangleUsingThreePointsHandler(),
+        drawCircleFromCenter: new DrawCircleFromCenterHandler(),
+        drawCircleByBoundingBox: new DrawCircleByBoundingBoxHandler(),
+        drawEllipseByBoundingBox: new DrawEllipseByBoundingBoxHandler(),
+        drawEllipseUsing3Points: new DrawEllipseUsingThreePointsHandler(),
+      },
+    };
     PASS_THROUGH_PROPS.forEach((p) => {
       if (this.props[p] !== undefined) inheritedProps[p] = this.props[p];
     });
 
+    const uuid = uuidv4();
+
     const layers = [
       new EditableGeoJsonLayer(
         this.getSubLayerProps({
-          id: LAYER_ID_GEOJSON,
+          id: uuid,
           pickable: true,
           mode,
           selectedFeatureIndexes: [],
