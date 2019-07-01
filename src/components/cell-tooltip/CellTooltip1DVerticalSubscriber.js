@@ -12,6 +12,7 @@ export default class CellTooltip1DVerticalSubscriber extends React.Component {
     this.clusterRowMap = null;
     this.state = {
       hoveredCellInfo: null,
+      hoveredGeneInfo: null,
     };
   }
 
@@ -47,22 +48,22 @@ export default class CellTooltip1DVerticalSubscriber extends React.Component {
   }
 
   genesHoverSubscriber(msg, hoverInfo) {
-    const { hoveredGeneId } = this.state;
-    if (!hoveredGeneId || !hoverInfo
-        || (hoveredGeneId && hoverInfo && hoveredGeneId !== hoverInfo)) {
-      this.setState({ hoveredGeneId: hoverInfo });
+    const { hoveredGeneInfo } = this.state;
+    if (!hoveredGeneInfo || !hoverInfo
+        || (hoveredGeneInfo && hoverInfo && hoveredGeneInfo.geneId !== hoverInfo.geneId)) {
+      this.setState({ hoveredGeneInfo: hoverInfo });
     }
   }
 
   render() {
     const { uuid } = this.props;
-    const { hoveredCellInfo, hoveredGeneId } = this.state;
+    const { hoveredCellInfo, hoveredGeneInfo } = this.state;
     // It is possible that hoveredCellInfo is null if the mouse leaves a cell.
     if (!hoveredCellInfo || !this.clusterColMap) {
       return null;
     }
     const cellIndex = this.clusterColMap[hoveredCellInfo.cellId];
-    const geneIndex = this.clusterRowMap[hoveredGeneId];
+    const geneIndex = (hoveredGeneInfo ? this.clusterRowMap[hoveredGeneInfo.geneId] : null);
     const numCells = Object.keys(this.clusterColMap).length;
     const numGenes = Object.keys(this.clusterRowMap).length;
     return (
@@ -70,7 +71,7 @@ export default class CellTooltip1DVerticalSubscriber extends React.Component {
         hoveredCellInfo={hoveredCellInfo}
         cellIndex={cellIndex}
         numCells={numCells}
-        hoveredGeneId={hoveredGeneId}
+        hoveredGeneInfo={hoveredGeneInfo}
         geneIndex={geneIndex}
         numGenes={numGenes}
         uuid={uuid}

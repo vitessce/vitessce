@@ -131,7 +131,6 @@ input[type="radio"]:checked {
     padding: 0.5rem;
     border-radius: 0.25rem;
     border: 1px solid gray;
-    white-space: nowrap;
 
     animation-name: cell-tooltip;
     animation-duration: 0.5s;

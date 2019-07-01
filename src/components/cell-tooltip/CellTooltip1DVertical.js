@@ -7,7 +7,7 @@ export default function CellTooltip1DVertical(props) {
     hoveredCellInfo,
     cellIndex,
     numCells,
-    hoveredGeneId,
+    hoveredGeneInfo,
     geneIndex,
     numGenes,
     uuid,
@@ -55,7 +55,7 @@ export default function CellTooltip1DVertical(props) {
         <CellTooltipText
           factors={{
             ...hoveredCellInfo.factors,
-            ...(hoveredGeneId ? { gene: hoveredGeneId } : {}),
+            ...(hoveredGeneInfo ? { gene: hoveredGeneInfo.geneId } : {}),
           }}
           x={x}
           y={y}

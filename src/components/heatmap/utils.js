@@ -55,7 +55,7 @@ export function onHeatmapMouseMove(event, props, considerGenes) {
     const pixelY = (event.clientY - rect.top);
     const colY = Math.floor((pixelY / height) * clusters.rows.length);
     const geneId = clusters.rows[colY];
-    updateGenesHover(geneId);
+    updateGenesHover({ geneId });
   }
 }
 
