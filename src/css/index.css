@@ -116,11 +116,16 @@ input[type="radio"]:checked {
     transform: translateX(1.25rem);
 }
 
+.cell-tooltip-wrapper {
+    position: relative;
+}
+
 .cell-tooltip {
     z-index: 1001;
     position: absolute;
     pointer-events: none;
     height: auto;
+    width: auto;
     box-sizing: border-box;
     opacity: 0;
     padding: 0.5rem;
