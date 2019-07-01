@@ -8,6 +8,8 @@ export default function CellTooltip1DVertical(props) {
     cellIndex,
     numCells,
     hoveredGeneId,
+    geneIndex,
+    numGenes,
     uuid,
   } = props;
   // Check that all data necessary to show the tooltip has been passed.
@@ -16,9 +18,9 @@ export default function CellTooltip1DVertical(props) {
   }
   const ref = useRef();
   const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
   const [parentHeight, setParentHeight] = useState(0);
   const [parentWidth, setParentWidth] = useState(0);
-  const y = 0;
   const lineWidth = 1;
   // Compute the desired x-position of the element
   // based on the width of the sibling heatmap canvas.
@@ -31,6 +33,18 @@ export default function CellTooltip1DVertical(props) {
     setX((cellIndex / numCells) * width);
     setParentWidth(width);
     setParentHeight(height);
+    // Compute the y-coordinate of the current gene, considering the other two canvas elements.
+    if (geneIndex !== null && geneIndex !== undefined && numGenes) {
+      const heatmapCanvasElements = Array.from(el.parentNode.querySelectorAll('canvas').values());
+      const geneOffsetY = heatmapCanvasElements
+        .slice(0, -1)
+        .reduce((a, h) => (a + h.getBoundingClientRect().height), 0);
+      const geneHeatmapHeight = heatmapCanvasElements[heatmapCanvasElements.length - 1]
+        .getBoundingClientRect().height;
+      setY(geneOffsetY + (geneIndex / numGenes) * geneHeatmapHeight);
+    } else {
+      setY(0);
+    }
   });
 
   // If we're in the component that triggered the event, do not show the vertical line.
