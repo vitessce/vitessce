@@ -10,14 +10,16 @@ export default function CellTooltipText(props) {
   } = props;
 
   const ref = useRef(null);
+  const reduceSize = (parentWidth < 300);
   // Do collision detection based on the bounds of the tooltip ancestor element.
   useEffect(() => {
     const el = ref.current;
-    const offsetPercentage = (parentWidth < 200) ? -5 : 10;
+    const offsetPercentage = reduceSize ? -5 : 10;
     const translateX = (x > parentWidth / 2) ? -(100 + offsetPercentage) : offsetPercentage;
     const translateY = (y > parentHeight / 2) ? -(100 + offsetPercentage) : offsetPercentage;
-    const scale = (parentWidth < 200) ? 0.75 : 1.0;
+    const scale = reduceSize ? 0.75 : 1.0;
     el.style.transform = `translateX(${translateX}%) translateY(${translateY}%) scale(${scale})`;
+    el.style.whiteSpace = (reduceSize ? 'normal' : 'nowrap');
   });
 
   return (
