@@ -3,7 +3,6 @@
 // File adopted from nebula.gl's SelectionLayer
 // https://github.com/uber/nebula.gl/blob/8e9c2ec8d7cf4ca7050909ed826eb847d5e2cd9c/modules/layers/src/layers/selection-layer.js
 import { CompositeLayer } from 'deck.gl';
-import uuidv4 from 'uuid/v4';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { EditableGeoJsonLayer, SELECTION_TYPE } from 'nebula.gl';
@@ -39,6 +38,8 @@ const EMPTY_DATA = {
   type: 'FeatureCollection',
   features: [],
 };
+
+const LAYER_ID_GEOJSON = 'selection-geojson';
 
 const PASS_THROUGH_PROPS = [
   'lineWidthScale',
@@ -147,13 +148,10 @@ export default class SelectionLayer extends CompositeLayer {
     PASS_THROUGH_PROPS.forEach((p) => {
       if (this.props[p] !== undefined) inheritedProps[p] = this.props[p];
     });
-
-    const uuid = uuidv4();
-
     const layers = [
       new EditableGeoJsonLayer(
         this.getSubLayerProps({
-          id: uuid,
+          id: LAYER_ID_GEOJSON,
           pickable: true,
           mode,
           selectedFeatureIndexes: [],
