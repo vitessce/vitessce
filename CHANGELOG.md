@@ -2,7 +2,7 @@
 
 ## 0.0.17 - in progress
 ### Added
-- ...
+- Tooltip in heatmap
 ### Changed
 - ...
 
