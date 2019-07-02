@@ -3,6 +3,7 @@
 ## 0.0.17 - in progress
 ### Added
 - Polygon selection tool leveraging the Nebula.gl package.
+- Tooltip in heatmap
 ### Changed
 - ...
 
