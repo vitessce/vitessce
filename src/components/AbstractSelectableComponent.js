@@ -124,6 +124,7 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   render() {
+    const { tool } = this.state;
     const toolProps = {
       setActiveTool: (toolUpdate) => { this.setState({ tool: toolUpdate }); },
       /* eslint-disable react/destructuring-assignment */
@@ -131,14 +132,25 @@ export default class AbstractSelectableComponent extends React.Component {
       /* esline-enable */
     };
 
-    const deckProps = {
+    let deckProps = {
       views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
       layers: this.renderLayers().concat(this.renderSelectionLayers()),
       initialViewState: this.getInitialViewState(),
       onViewStateChange: this.onViewStateChange,
-      controller: true,
-      getCursor: interactionState => (interactionState.isDragging ? 'grabbing' : 'default'),
     };
+    if (tool) {
+      deckProps = {
+        controller: { dragPan: false },
+        getCursor: () => 'crosshair',
+        ...deckProps,
+      };
+    } else {
+      deckProps = {
+        controller: true,
+        getCursor: interactionState => (interactionState.isDragging ? 'grabbing' : 'default'),
+        ...deckProps,
+      };
+    }
     return (
       <React.Fragment>
         <div className="d-flex">
