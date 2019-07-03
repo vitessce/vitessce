@@ -15,7 +15,7 @@ export default class SpatialSubscriber extends React.Component {
     this.state = {
       images: undefined,
       cells: {},
-      selectedCellIds: {},
+      selectedCellIds: new Set(),
       cellColors: null,
     };
   }

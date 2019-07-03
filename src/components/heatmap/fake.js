@@ -7,10 +7,7 @@ export const matrix = [
   [0.2, 0.1, 0.2, 0.1, 0.4, 0.4, 0.9, 0.9],
   [0.2, 0.2, 0.2, 0.2, 0.9, 0.9, 0.5, 0.5],
 ];
-export const selectedCellIds = {
-  'cell-2': true,
-  'cell-4': true,
-};
+export const selectedCellIds = new Set(['cell-2', 'cell-4']);
 export const cellColors = {
   'cell-1': [0, 0, 255],
   'cell-2': [0, 0, 255],

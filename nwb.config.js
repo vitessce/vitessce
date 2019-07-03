@@ -13,5 +13,10 @@ module.exports = {
     html: {
       template: 'demo/src/index.html',
     },
+    rules: {
+      svg: {
+        loader: '@svgr/webpack',
+      },
+    },
   },
 };

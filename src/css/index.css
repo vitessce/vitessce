@@ -54,10 +54,13 @@ pre {
 /* Spatial and t-SNE controls */
 
 .btn.icon {
-  padding: 0.2em;
+  padding: 0;
   height: 2em;
   width: 2em;
   background-color: white;
+}
+.btn.icon > svg {
+  vertical-align: middle;
 }
 .roll-up {
   height: 2em; /* Matches .btn.icon */
