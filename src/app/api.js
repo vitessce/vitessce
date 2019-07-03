@@ -4,7 +4,7 @@ import datasetSchema from '../schemas/dataset.schema.json';
 import higlassViewConf from './higlass-viewconf.json';
 
 // Used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.16/toslchan';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/toslchan';
 
 const linnarssonBase = {
   description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
@@ -20,6 +20,18 @@ const linnarssonBase = {
     name,
     type: name.toUpperCase(),
     url: `${urlPrefix}/linnarsson.${name}.json`,
+  })),
+};
+
+const giottoBase = {
+  description: 'Giotto',
+  layers: [
+    'cells',
+    'factors',
+  ].map(name => ({
+    name,
+    type: name.toUpperCase(),
+    url: `${urlPrefix}/giotto.${name}.json`,
   })),
 };
 
@@ -129,6 +141,49 @@ const configs = {
         },
         x: 1, y: 0, w: 10, h: 1 },
     ],
+  },
+  'giotto-2019': {
+    ...giottoBase,
+    name: 'Giotto (responsive layout)',
+    public: true,
+    responsiveLayout: {
+      columns: {
+        // First two columns are equal,
+        // third column is constant;
+        // Grid cell width stays roughly constant,
+        // but more columns are available in a wider window.
+        1400: [0, 6, 12, 14],
+        1200: [0, 5, 10, 12],
+        1000: [0, 4, 8, 10],
+        800: [0, 3, 6, 8],
+        600: [0, 2, 4, 8],
+      },
+      components: [
+        { component: 'Description',
+          props: {
+            description: 'Giotto',
+          },
+          x: 0, y: 0 },
+        { component: 'StatusSubscriber',
+          x: 0, y: 1 },
+        { component: 'ScatterplotSubscriber',
+          props: { mapping: 't-SNE' },
+          x: 0, y: 2, h: 2 },
+        { component: 'SpatialSubscriber',
+          props: {
+            view: {
+              zoom: -4.5,
+              offset: [185, -40],
+            },
+          },
+          x: 1, y: 0, h: 2 },
+        { component: 'ScatterplotSubscriber',
+          props: { mapping: 'UMAP' },
+          x: 1, y: 2, h: 2 },
+        { component: 'FactorsSubscriber',
+          x: 2, y: 0, h: 4 },
+      ],
+    },
   },
 };
 /* eslint-enable */
