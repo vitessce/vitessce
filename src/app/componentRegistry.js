@@ -6,6 +6,7 @@ import ScatterplotSubscriber from '../components/scatterplot/ScatterplotSubscrib
 import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
 import FactorsSubscriber from '../components/factors/FactorsSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
+import CellSetsManagerSubscriber from '../components/user-defined-sets/CellSetsManagerSubscriber';
 import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 import HoverableScatterplotSubscriber from '../components/scatterplot/HoverableScatterplotSubscriber';
 import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSubscriber';
@@ -34,6 +35,7 @@ const registry = {
   SpatialSubscriber,
   FactorsSubscriber,
   GenesSubscriber,
+  CellSetsManagerSubscriber,
   HeatmapSubscriber,
   HoverableScatterplotSubscriber,
   HoverableSpatialSubscriber,
