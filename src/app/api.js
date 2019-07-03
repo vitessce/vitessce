@@ -145,7 +145,7 @@ const configs = {
   'giotto-2019': {
     ...giottoBase,
     name: 'Giotto (responsive layout)',
-    public: true,
+    public: false,
     responsiveLayout: {
       columns: {
         // First two columns are equal,
