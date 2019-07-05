@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.0.17 - in progress
+### Added
+- Polygon selection tool leveraging the Nebula.gl package.
+- Tooltip in heatmap
+### Changed
+- ...
+
+## [0.0.16](https://www.npmjs.com/package/vitessce/v/0.0.16) - 2019-06-26
+### Added
+- Linked hover effect between spatial, scatterplot, and heatmap.
+- Tooltip for cell status text upon hover in spatial and scatterplot views.
+### Changed
+- Using Deck.gl's built in picking instead of quadtree.
+
 ## [0.0.15](https://www.npmjs.com/package/vitessce/v/0.0.15) - 2019-06-07
 ### Added
 - The `<TitleInfo>` component now takes children, and our JSX is tidier.

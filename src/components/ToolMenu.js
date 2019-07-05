@@ -1,8 +1,13 @@
 import React from 'react';
+import { SELECTION_TYPE } from 'nebula.gl';
+import PointerIconSVG from '../assets/near_me.svg';
+import SelectRectangleIconSVG from '../assets/selection_rectangle.svg';
+import SelectPolygonIconSVG from '../assets/selection_polygon.svg';
+
 
 export function IconButton(props) {
   const {
-    src, alt, onClick, isActive,
+    alt, onClick, isActive, children,
   } = props;
   const inactive = 'btn btn-outline-secondary mr-2 icon';
   const active = `${inactive} active`;
@@ -11,30 +16,35 @@ export function IconButton(props) {
       className={isActive ? active : inactive}
       onClick={onClick}
       type="button"
+      title={alt}
     >
-      <img src={src} alt={alt} />
+      {children}
     </button>
   );
 }
 
 export default function ToolMenu(props) {
-  const {
-    setPointingMode, setSelectingMode, isPointingMode, isSelectingMode,
-  } = props;
+  const { setActiveTool, isActiveTool } = props;
   return (
     <div className="tool">
       <IconButton
-        src="https://s3.amazonaws.com/vitessce-data/assets/material/near_me.svg"
         alt="pointer tool"
-        onClick={setPointingMode}
-        isActive={isPointingMode()}
-      />
+        onClick={() => setActiveTool(null)}
+        isActive={isActiveTool(null)}
+      ><PointerIconSVG />
+      </IconButton>
       <IconButton
-        src="https://s3.amazonaws.com/vitessce-data/assets/material/selection.svg"
         alt="select rectangle"
-        onClick={setSelectingMode}
-        isActive={isSelectingMode()}
-      />
+        onClick={() => setActiveTool(SELECTION_TYPE.RECTANGLE)}
+        isActive={isActiveTool(SELECTION_TYPE.RECTANGLE)}
+      ><SelectRectangleIconSVG />
+      </IconButton>
+      <IconButton
+        alt="select polygon"
+        onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
+        isActive={isActiveTool(SELECTION_TYPE.POLYGON)}
+      ><SelectPolygonIconSVG />
+      </IconButton>
     </div>
   );
 }

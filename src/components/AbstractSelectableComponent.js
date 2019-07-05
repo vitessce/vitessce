@@ -1,6 +1,7 @@
 import React from 'react';
-import DeckGL, { OrthographicView, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
-import QuadTree from 'simple-quadtree';
+
+import DeckGL, { OrthographicView, COORDINATE_SYSTEM } from 'deck.gl';
+import SelectionLayer from '../layers/SelectionLayer';
 import ToolMenu from './ToolMenu';
 
 /**
@@ -12,116 +13,61 @@ export default class AbstractSelectableComponent extends React.Component {
     super(props);
     this.renderImagesFromView = this.renderImagesFromView.bind(this);
     this.renderImages = this.renderImages.bind(this);
-    this.onDragStart = this.onDragStart.bind(this);
-    this.onDrag = this.onDrag.bind(this);
-    this.onDragEnd = this.onDragEnd.bind(this);
-    this.onUpdateSelection = this.onUpdateSelection.bind(this);
-    this.renderSelectionRectangleLayers = this.renderSelectionRectangleLayers.bind(this);
+    this.onViewStateChange = this.onViewStateChange.bind(this);
+    this.renderSelectionLayers = this.renderSelectionLayers.bind(this);
+    this.deckRef = React.createRef();
+    this.getCellCoords = this.getCellCoords.bind(this);
+    const { uuid = null } = props || {};
+    // Store view and viewport information in a mutable object.
+    this.viewInfo = {
+      viewport: null,
+      width: null,
+      height: null,
+      uuid,
+    };
     this.state = {
-      selectionRectangle: undefined,
-      isSelecting: false,
+      tool: null,
     };
   }
 
-  getDragRectangle(event) {
-    const start = this.dragStartCoordinate;
-    const end = event.coordinate;
-    return {
-      xMin: Math.min(start[0], end[0]),
-      yMin: Math.min(start[1], end[1]),
-      xMax: Math.max(start[0], end[0]),
-      yMax: Math.max(start[1], end[1]),
-    };
+  getCellCoords() { // eslint-disable-line class-methods-use-this
+    // No-op
   }
 
-  onDragStart(event) {
-    const { isSelecting } = this.state;
-    if (isSelecting) {
-      this.dragStartCoordinate = event.coordinate;
-    }
-
-    if (!this.cellQuadTree) {
-      const { cells } = this.props;
-      this.cellQuadTree = QuadTree(-1500, -1500, 3000, 3000);
-      Object.entries(cells).forEach(([id, cell]) => {
-        const coords = this.getCellCoords(cell);
-        if (coords) {
-          this.cellQuadTree.put({
-            x: coords[0], y: coords[1], w: 0, h: 0, id,
-          });
-        } else {
-          console.warn('missing coords for object');
-        }
-      });
-    }
+  getCellBaseLayerId() { // eslint-disable-line class-methods-use-this
+    // No-op
   }
 
-  onDrag(event) {
-    const { isSelecting } = this.state;
-    if (isSelecting && event.coordinate) {
-      this.setState({ selectionRectangle: this.getDragRectangle(event) });
-      // If you want to update selection during drag, un-comment this:
-      //   this.onUpdateSelection(event);
-      // See: https://github.com/hms-dbmi/vitessce/issues/111
-    }
-  }
-
-  onDragEnd(event) {
-    const { isSelecting } = this.state;
-    if (isSelecting) {
-      this.setState({ selectionRectangle: undefined });
-      this.onUpdateSelection(event);
-    }
-  }
-
-  onUpdateSelection(event) {
-    const { isSelecting } = this.state;
+  renderSelectionLayers() {
+    const { tool } = this.state;
     const { updateCellsSelection } = this.props;
-    if (isSelecting && event.coordinate && updateCellsSelection) {
-      const {
-        xMin, yMin, xMax, yMax,
-      } = this.getDragRectangle(event);
-      // The built-in pickObjects is limited in the size of the region that can be selected.
-      // https://github.com/uber/deck.gl/issues/2658#issuecomment-463293063
-      // (and it would also be limited in resolution of features it can pick.)
-
-      // I've had other problems as well: Either not working at all,
-      // or only picking objects with positive coordinates.
-
-      const selectedCellIdsSet = {};
-      const qtBounds = {
-        x: xMin, y: yMin, w: xMax - xMin, h: yMax - yMin,
-      };
-      const cellObjs = this.cellQuadTree.get(qtBounds);
-      cellObjs.forEach((obj) => {
-        selectedCellIdsSet[obj.id] = true;
-      });
-      updateCellsSelection(selectedCellIdsSet);
-    }
-  }
-
-  renderSelectionRectangleLayers() {
-    const { selectionRectangle } = this.state;
-    if (!selectionRectangle || !this.dragStartCoordinate) {
+    if (!tool) {
       return [];
     }
-    return [new PolygonLayer({
+
+    const { zoom } = this.getInitialViewState();
+    const editHandlePointRadius = 60 / (zoom + 16);
+
+    return [new SelectionLayer({
+      id: 'selection',
+      getCellCoords: this.getCellCoords,
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      id: 'selection-rectangle',
-      data: [selectionRectangle],
-      getPolygon(bounds) {
-        return [
-          [bounds.xMin, bounds.yMin],
-          [bounds.xMax, bounds.yMin],
-          [bounds.xMax, bounds.yMax],
-          [bounds.xMin, bounds.yMax],
-        ];
+      selectionType: tool,
+      onSelect: ({ pickingInfos }) => {
+        const cellIds = new Set(pickingInfos.map(cellObj => cellObj.object[0]));
+        updateCellsSelection(cellIds);
       },
-      getFillColor: [255, 255, 255],
-      opacity: 0.05,
-      lineWidthMaxPixels: 0,
-      filled: true,
-      getElevation: 0,
+      layerIds: [this.getCellBaseLayerId()],
+      getTentativeFillColor: () => [255, 255, 255, 95],
+      getTentativeLineColor: () => [143, 143, 143, 255],
+      getTentativeLineDashArray: () => [7, 4],
+      lineWidthMinPixels: 2,
+      lineWidthMaxPixels: 2,
+      getEditHandlePointColor: () => [0xff, 0xff, 0xff, 0xff],
+      getEditHandlePointRadius: () => editHandlePointRadius,
+      editHandlePointRadiusScale: 1,
+      editHandlePointRadiusMinPixels: editHandlePointRadius,
+      editHandlePointRadiusMaxPixels: 2 * editHandlePointRadius,
     })];
   }
 
@@ -133,6 +79,16 @@ export default class AbstractSelectableComponent extends React.Component {
     const {
       x, y, width, height, viewport,
     } = viewProps;
+    // Capture the viewport, width, and height values from DeckGL instantiation to be used later.
+    this.viewInfo.viewport = viewport;
+    this.viewInfo.width = width;
+    this.viewInfo.height = height;
+    const {
+      updateViewInfo = () => {
+        console.warn('AbstractSelectableComponent updateViewInfo from renderImagesFromView');
+      },
+    } = this.props;
+    updateViewInfo(this.viewInfo);
     const nwCoords = viewport.unproject([x, y]);
     const seCoords = viewport.unproject([x + width, y + height]);
     const unproWidth = seCoords[0] - nwCoords[0];
@@ -146,34 +102,46 @@ export default class AbstractSelectableComponent extends React.Component {
     return this.renderImages(unprojectedProps);
   }
 
+  onViewStateChange({ viewState }) {
+    const {
+      updateViewInfo = () => {
+        console.warn('AbstractSelectableComponent updateViewInfo from onViewStateChange');
+      },
+    } = this.props;
+    // Update the viewport field of the `viewInfo` object
+    // to satisfy components (e.g. CellTooltip2D) that depend on an
+    // up-to-date viewport instance (to perform projections).
+    this.viewInfo.viewport = (new OrthographicView()).makeViewport({
+      viewState,
+      width: this.width,
+      height: this.height,
+    });
+    updateViewInfo(this.viewInfo);
+  }
+
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
     // No-op
   }
 
   render() {
-    const { isSelecting } = this.state;
-
+    const { tool } = this.state;
     const toolProps = {
-      setSelectingMode: () => { this.setState({ isSelecting: true }); },
-      setPointingMode: () => { this.setState({ isSelecting: false }); },
+      setActiveTool: (toolUpdate) => { this.setState({ tool: toolUpdate }); },
       /* eslint-disable react/destructuring-assignment */
-      isSelectingMode: () => this.state.isSelecting,
-      isPointingMode: () => !this.state.isSelecting,
+      isActiveTool: toolCheck => (toolCheck === this.state.tool),
       /* esline-enable */
     };
 
     let deckProps = {
-      views: [new OrthographicView()],
-      layers: this.renderLayers().concat(this.renderSelectionRectangleLayers()),
+      views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
+      layers: this.renderLayers().concat(this.renderSelectionLayers()),
       initialViewState: this.getInitialViewState(),
+      onViewStateChange: this.onViewStateChange,
     };
-    if (isSelecting) {
+    if (tool) {
       deckProps = {
         controller: { dragPan: false },
         getCursor: () => 'crosshair',
-        onDrag: this.onDrag,
-        onDragStart: this.onDragStart,
-        onDragEnd: this.onDragEnd,
         ...deckProps,
       };
     } else {
@@ -189,7 +157,7 @@ export default class AbstractSelectableComponent extends React.Component {
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
         </div>
-        <DeckGL {...deckProps}>
+        <DeckGL ref={this.deckRef} {...deckProps}>
           {this.renderImagesFromView}
         </DeckGL>
       </React.Fragment>

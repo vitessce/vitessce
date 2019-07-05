@@ -11,13 +11,18 @@ export default class Scatterplot extends AbstractSelectableComponent {
   getInitialViewState() {
     return {
       zoom: 2,
-      offset: [0, 0], // Required: https://github.com/uber/deck.gl/issues/2580
+      target: [0, 0, 0], // Required: https://github.com/uber/deck.gl/issues/2580
     };
   }
 
   // eslint-disable-next-line class-methods-use-this
   getCellCoords(cell) {
     return cell.mappings[this.props.mapping];
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getCellBaseLayerId() {
+    return 'base-scatterplot';
   }
 
   renderLayers() {
@@ -30,18 +35,23 @@ export default class Scatterplot extends AbstractSelectableComponent {
       updateCellsSelection = (cellsSelection) => {
         console.warn(`Scatterplot updateCellsSelection: ${cellsSelection}`);
       },
-      selectedCellIds = {},
+      updateCellsHover = (hoverInfo) => {
+        console.warn(`Scatterplot updateCellsHover: ${hoverInfo.cellId}`);
+      },
+      selectedCellIds = new Set(),
+      uuid = null,
     } = this.props;
 
-    const layers = [];
+    const { tool } = this.state;
 
+    const layers = [];
     if (cells) {
       layers.push(
         new SelectableScatterplotLayer({
           id: 'scatterplot',
           isSelected: cellEntry => (
-            Object.keys(selectedCellIds).length
-              ? selectedCellIds[cellEntry[0]]
+            selectedCellIds.size
+              ? selectedCellIds.has(cellEntry[0])
               : true // If nothing is selected, everything is selected.
           ),
           getRadius: 0.5,
@@ -55,16 +65,21 @@ export default class Scatterplot extends AbstractSelectableComponent {
             this.props.cellColors ? this.props.cellColors[cellEntry[0]] : DEFAULT_COLOR
           ),
           onClick: (info) => {
+            if (tool) {
+              // If using a tool, prevent individual cell selection.
+              // Let SelectionLayer handle the clicks instead.
+              return;
+            }
             const cellId = info.object[0];
-            if (selectedCellIds[cellId]) {
-              delete selectedCellIds[cellId];
+            if (selectedCellIds.has(cellId)) {
+              selectedCellIds.delete(cellId);
               updateCellsSelection(selectedCellIds);
             } else {
-              selectedCellIds[cellId] = true;
+              selectedCellIds.add(cellId);
               updateCellsSelection(selectedCellIds);
             }
           },
-          ...cellLayerDefaultProps(cells, updateStatus),
+          ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid),
         }),
       );
     }

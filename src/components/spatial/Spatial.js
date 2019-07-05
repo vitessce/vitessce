@@ -64,23 +64,34 @@ export default class Spatial extends AbstractSelectableComponent {
     return cell.xy;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  getCellBaseLayerId() {
+    return 'base-polygon-layer';
+  }
+
   renderCellLayer() {
     const {
       cells = undefined,
-      selectedCellIds = {},
+      selectedCellIds = new Set(),
       updateStatus = (message) => {
         console.warn(`Spatial updateStatus: ${message}`);
+      },
+      updateCellsHover = (hoverInfo) => {
+        console.warn(`Spatial updateCellsHover: ${hoverInfo.cellId}`);
       },
       updateCellsSelection = (cellsSelection) => {
         console.warn(`Spatial updateCellsSelection: ${cellsSelection}`);
       },
+      uuid = null,
     } = this.props;
+
+    const { tool } = this.state;
 
     return new SelectablePolygonLayer({
       id: 'polygon-layer',
       isSelected: cellEntry => (
-        Object.keys(selectedCellIds).length
-          ? selectedCellIds[cellEntry[0]]
+        selectedCellIds.size
+          ? selectedCellIds.has(cellEntry[0])
           : true // If nothing is selected, everything is selected.
       ),
       getPolygon(cellEntry) {
@@ -92,16 +103,21 @@ export default class Spatial extends AbstractSelectableComponent {
         this.props.cellColors ? this.props.cellColors[cellEntry[0]] : DEFAULT_COLOR
       ),
       onClick: (info) => {
+        if (tool) {
+          // If using a tool, prevent individual cell selection.
+          // Let SelectionLayer handle the clicks instead.
+          return;
+        }
         const cellId = info.object[0];
-        if (selectedCellIds[cellId]) {
-          delete selectedCellIds[cellId];
+        if (selectedCellIds.has(cellId)) {
+          selectedCellIds.delete(cellId);
           updateCellsSelection(selectedCellIds);
         } else {
-          selectedCellIds[cellId] = true;
+          selectedCellIds.add(cellId);
           updateCellsSelection(selectedCellIds);
         }
       },
-      ...cellLayerDefaultProps(cells, updateStatus),
+      ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid),
     });
   }
 

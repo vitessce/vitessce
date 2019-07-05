@@ -6,21 +6,31 @@ import higlassViewConf from './higlass-viewconf.json';
 // Used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/toslchan';
 
-const linnarssonBase = {
-  description: 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
-  layers: [
-    'cells',
-    'clusters',
-    'factors',
-    'genes',
-    'images',
-    'molecules',
-    'neighborhoods',
-  ].map(name => ({
+const description = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
+
+const layerNames = [
+  'cells',
+  'clusters',
+  'factors',
+  'genes',
+  'images',
+  'molecules',
+  'neighborhoods',
+];
+function layerNameToConfig(name) {
+  return {
     name,
     type: name.toUpperCase(),
     url: `${urlPrefix}/linnarsson.${name}.json`,
-  })),
+  };
+}
+const linnarssonBase = {
+  description,
+  layers: layerNames.map(layerNameToConfig),
+};
+const linnarssonBaseNoClusters = {
+  description,
+  layers: layerNames.filter(name => name !== 'clusters').map(layerNameToConfig),
 };
 
 const giottoBase = {
@@ -34,7 +44,6 @@ const giottoBase = {
     url: `${urlPrefix}/giotto.${name}.json`,
   })),
 };
-
 
 /* eslint-disable object-property-newline */
 /* eslint-disable object-curly-newline */
@@ -58,31 +67,105 @@ const configs = {
       components: [
         { component: 'Description',
           props: {
-            description: 'Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
+            description: `Linnarsson: ${description}`,
           },
           x: 0, y: 0 },
         { component: 'StatusSubscriber',
           x: 0, y: 1 },
-        { component: 'ScatterplotSubscriber',
+        { component: 'HoverableScatterplotSubscriber',
           props: { mapping: 't-SNE' },
           x: 0, y: 2, h: 2 },
-        { component: 'SpatialSubscriber',
+        { component: 'HoverableSpatialSubscriber',
           props: {
             view: {
               zoom: -6.5,
-              offset: [200, 200],
+              target: [18000, 18000, 0],
             },
           },
           x: 1, y: 0, h: 2 },
-        { component: 'ScatterplotSubscriber',
+        { component: 'HoverableScatterplotSubscriber',
           props: { mapping: 'PCA' },
           x: 1, y: 2, h: 2 },
         { component: 'FactorsSubscriber',
           x: 2, y: 0, h: 2 },
         { component: 'GenesSubscriber',
           x: 2, y: 2, h: 2 },
-        { component: 'HeatmapSubscriber',
+        { component: 'HoverableHeatmapSubscriber',
           x: 0, y: 4, w: 3 },
+      ],
+    },
+  },
+  'linnarsson-2018-two-spatial': {
+    ...linnarssonBase,
+    name: 'Linnarsson (two spatial)',
+    responsiveLayout: {
+      columns: {
+        // First two columns are equal,
+        // third column is constant;
+        // Grid cell width stays roughly constant,
+        // but more columns are available in a wider window.
+        1400: [0, 6, 12, 14],
+        1200: [0, 5, 10, 12],
+        1000: [0, 4, 8, 10],
+        800: [0, 3, 6, 8],
+        600: [0, 2, 4, 8],
+      },
+      components: [
+        { component: 'HoverableSpatialSubscriber',
+          props: {
+            view: {
+              zoom: -8,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 0, y: 0, h: 2 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 't-SNE' },
+          x: 0, y: 2, h: 2 },
+        { component: 'HoverableSpatialSubscriber',
+          props: {
+            view: {
+              zoom: -6,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 1, y: 0, h: 2 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 'PCA' },
+          x: 1, y: 2, h: 2 },
+        { component: 'FactorsSubscriber',
+          x: 2, y: 0, h: 2 },
+        { component: 'GenesSubscriber',
+          x: 2, y: 2, h: 2 },
+        { component: 'HoverableHeatmapSubscriber',
+          x: 0, y: 4, w: 3 },
+      ],
+    },
+  },
+  'linnarsson-2018-just-spatial': {
+    ...linnarssonBaseNoClusters,
+    name: 'Linnarsson (just spatial)',
+    responsiveLayout: {
+      columns: {
+        1400: [0, 12, 14],
+        1200: [0, 10, 12],
+        1000: [0, 8, 10],
+        800: [0, 6, 8],
+        600: [0, 4, 8],
+      },
+      components: [
+        { component: 'HoverableSpatialSubscriber',
+          props: {
+            view: {
+              zoom: -6.5,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 0, y: 0, h: 2 },
+        { component: 'FactorsSubscriber',
+          x: 1, y: 0, h: 1 },
+        { component: 'GenesSubscriber',
+          x: 1, y: 1, h: 1 },
       ],
     },
   },
@@ -92,11 +175,9 @@ const configs = {
     staticLayout: [
       { component: 'Description',
         props: {
-          description: 'Linnarsson (static layout): Spatial organization of the somatosensory cortex revealed by cyclic smFISH',
+          description: `Linnarsson (static layout): ${description}`,
         },
         x: 0, y: 0, w: 3, h: 1 },
-      { component: 'StatusSubscriber',
-        x: 0, y: 1, w: 3, h: 1 },
       { component: 'ScatterplotSubscriber',
         props: { mapping: 't-SNE' },
         x: 0, y: 2, w: 3, h: 2 },
@@ -104,7 +185,7 @@ const configs = {
         props: {
           view: {
             zoom: -6.5,
-            offset: [200, 200],
+            target: [18000, 18000, 0],
           },
         },
         x: 3, y: 0, w: 6, h: 4 },
@@ -115,6 +196,87 @@ const configs = {
       { component: 'HeatmapSubscriber',
         x: 0, y: 4, w: 12, h: 1 },
     ],
+  },
+  'linnarsson-2018-dozen': {
+    ...linnarssonBase,
+    name: 'Linnarsson (responsive layout, redundant components for performance testing)',
+    responsiveLayout: {
+      columns: {
+        // First two columns are equal,
+        // third column is constant;
+        // Grid cell width stays roughly constant,
+        // but more columns are available in a wider window.
+        1400: [0, 6, 12, 14],
+        1200: [0, 5, 10, 12],
+        1000: [0, 4, 8, 10],
+        800: [0, 3, 6, 8],
+        600: [0, 2, 4, 8],
+      },
+      components: [
+        { component: 'HoverableSpatialSubscriber',
+          props: {
+            view: {
+              zoom: -6.5,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 0, y: 0, h: 1 },
+        { component: 'HoverableSpatialSubscriber',
+          props: {
+            view: {
+              zoom: -6.5,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 0, y: 1, h: 1 },
+        { component: 'HoverableSpatialSubscriber',
+          props: {
+            view: {
+              zoom: -6.5,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 1, y: 0, h: 1 },
+        { component: 'HoverableSpatialSubscriber',
+          props: {
+            view: {
+              zoom: -6.5,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 1, y: 1, h: 1 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 't-SNE' },
+          x: 0, y: 2, h: 1 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 't-SNE' },
+          x: 0, y: 3, h: 1 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 't-SNE' },
+          x: 0, y: 4, h: 1 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 't-SNE' },
+          x: 0, y: 5, h: 1 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 'PCA' },
+          x: 1, y: 2, h: 1 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 'PCA' },
+          x: 1, y: 3, h: 1 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 'PCA' },
+          x: 1, y: 4, h: 1 },
+        { component: 'HoverableScatterplotSubscriber',
+          props: { mapping: 'PCA' },
+          x: 1, y: 5, h: 1 },
+        { component: 'FactorsSubscriber',
+          x: 2, y: 0, h: 2 },
+        { component: 'GenesSubscriber',
+          x: 2, y: 2, h: 2 },
+        { component: 'HeatmapSubscriber',
+          x: 2, y: 4, w: 1, h: 2 },
+      ],
+    },
   },
   'higlass-component-demo': {
     description: '???',
