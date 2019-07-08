@@ -1,73 +1,119 @@
 import expect from 'expect';
-import Sets from './sets';
+import {
+  setsReducer, SET_NAMED_SET, SELECT_NAMED_SET, DESELECT_NAMED_SET,
+  DESELECT_ALL_NAMED_SETS, SET_CURRENT_SET, CLEAR_CURRENT_SET,
+} from './sets';
 
 describe('sets.js', () => {
-  describe('getKeys()', () => {
+  describe('namedSets.keys()', () => {
     it('has no set keys when first instantiated', () => {
-      const sets = new Sets();
-      expect(sets.getKeys().length).toEqual(0);
+      const setsState = setsReducer(undefined, {});
+      expect(Array.from(setsState.namedSets.keys()).length).toEqual(0);
     });
-
     it('has one set key when one set is added', () => {
-      const sets = new Sets();
-      sets.setNamedSet('test', new Set([1, 2, 3]));
-      expect(sets.getKeys().length).toEqual(1);
-      expect(sets.getKeys()[0]).toEqual('test');
+      let setsState = setsReducer(undefined, {});
+      setsState = setsReducer(setsState, {
+        type: SET_NAMED_SET,
+        key: 'test',
+        set: new Set([1, 2, 3]),
+      });
+      expect(Array.from(setsState.namedSets.keys()).length).toEqual(1);
+      expect(Array.from(setsState.namedSets.keys())[0]).toEqual('test');
     });
   });
-  describe('getSelectedKeys()', () => {
+  describe('selectedKeys', () => {
     it('has no selected set keys if none have been selected', () => {
-      const sets = new Sets();
-      expect(sets.getSelectedKeys().length).toEqual(0);
-      sets.setNamedSet('test', new Set([1, 2, 3]));
-      expect(sets.getSelectedKeys().length).toEqual(0);
+      let setsState = setsReducer(undefined, {});
+      expect(setsState.selectedKeys.size).toEqual(0);
+      setsState = setsReducer(setsState, {
+        type: SET_NAMED_SET,
+        key: 'test',
+        set: new Set([1, 2, 3]),
+      });
+      expect(setsState.selectedKeys.size).toEqual(0);
     });
 
     it('has one selected set key when one set has been selected', () => {
-      const sets = new Sets();
-      sets.setNamedSet('test', new Set([1, 2, 3]));
-      sets.selectNamedSet('test');
-      expect(sets.getSelectedKeys().length).toEqual(1);
-      expect(sets.getSelectedKeys()[0]).toEqual('test');
+      let setsState = setsReducer(undefined, {});
+      setsState = setsReducer(setsState, {
+        type: SET_NAMED_SET,
+        key: 'test',
+        set: new Set([1, 2, 3]),
+      });
+      setsState = setsReducer(setsState, {
+        type: SELECT_NAMED_SET,
+        key: 'test',
+      });
+      expect(setsState.selectedKeys.size).toEqual(1);
     });
-  });
-
-  describe('deselectNamedSet()', () => {
     it('selects and deselects named sets', () => {
-      const sets = new Sets();
-      sets.setNamedSet('test', new Set([1, 2, 3]));
-      sets.selectNamedSet('test');
-      expect(sets.isSelectedKey('test')).toBeTruthy();
-      sets.deselectNamedSet('test');
-      expect(sets.isSelectedKey('test')).toBeFalsy();
+      let setsState = setsReducer(undefined, {});
+      setsState = setsReducer(setsState, {
+        type: SET_NAMED_SET,
+        key: 'test',
+        set: new Set([1, 2, 3]),
+      });
+      setsState = setsReducer(setsState, {
+        type: SELECT_NAMED_SET,
+        key: 'test',
+      });
+      expect(setsState.selectedKeys.has('test')).toBeTruthy();
+      setsState = setsReducer(setsState, {
+        type: DESELECT_NAMED_SET,
+        key: 'test',
+      });
+      expect(setsState.selectedKeys.has('test')).toBeFalsy();
     });
-  });
-  describe('deselectAllNamedSets()', () => {
+
     it('deselects all named sets', () => {
-      const sets = new Sets();
-      sets.setNamedSet('test', new Set([1, 2, 3]));
-      sets.selectNamedSet('test');
-      sets.setNamedSet('test2', new Set([4, 5, 6]));
-      sets.selectNamedSet('test2');
-      expect(sets.getSelectedKeys()).toEqual(['test', 'test2']);
-      sets.deselectAllNamedSets();
-      expect(sets.getSelectedKeys().length).toEqual(0);
+      let setsState = setsReducer(undefined, {});
+      setsState = setsReducer(setsState, {
+        type: SET_NAMED_SET,
+        key: 'test',
+        set: new Set([1, 2, 3]),
+      });
+      setsState = setsReducer(setsState, {
+        type: SELECT_NAMED_SET,
+        key: 'test',
+      });
+      setsState = setsReducer(setsState, {
+        type: SET_NAMED_SET,
+        key: 'test2',
+        set: new Set([4, 5, 6]),
+      });
+      setsState = setsReducer(setsState, {
+        type: SELECT_NAMED_SET,
+        key: 'test2',
+      });
+      expect(Array.from(setsState.selectedKeys)).toEqual(['test', 'test2']);
+      setsState = setsReducer(setsState, {
+        type: DESELECT_ALL_NAMED_SETS,
+      });
+      expect(setsState.selectedKeys.size).toEqual(0);
     });
   });
-  describe('getCurrentSet()', () => {
+  describe('currentSet', () => {
     it('gets the items in the current set', () => {
-      const sets = new Sets();
-      sets.setCurrentSet(new Set([1, 2, 3]));
-      expect(Array.from(sets.getCurrentSet().values())).toEqual([1, 2, 3]);
+      let setsState = setsReducer(undefined, {});
+      setsState = setsReducer(setsState, {
+        type: SET_CURRENT_SET,
+        key: 'test',
+        set: new Set([1, 2, 3]),
+      });
+      expect(Array.from(setsState.currentSet.values())).toEqual([1, 2, 3]);
     });
-  });
-  describe('clearCurrentSet()', () => {
     it('clears the items in the current set', () => {
-      const sets = new Sets();
-      sets.setCurrentSet(new Set([1, 2, 3]));
-      expect(sets.getCurrentSet().size).toEqual(3);
-      sets.clearCurrentSet();
-      expect(sets.getCurrentSet().size).toEqual(0);
+      let setsState = setsReducer(undefined, {});
+      setsState = setsReducer(setsState, {
+        type: SET_CURRENT_SET,
+        key: 'test',
+        set: new Set([1, 2, 3]),
+      });
+      expect(setsState.currentSet.size).toEqual(3);
+      setsState = setsReducer(setsState, {
+        type: CLEAR_CURRENT_SET,
+      });
+      expect(setsState.currentSet.size).toEqual(0);
     });
   });
 });

@@ -1,186 +1,87 @@
 import { Set as ImmutableSet, OrderedMap as ImmutableOrderedMap } from 'immutable';
 
-// Class for storing Set objects of string IDs (cell IDs, gene IDs, etc...).
-// The collection of sets is stored as a map whose values are Set objects.
-export default class Sets {
-  constructor(onChange) {
-    this.namedSets = ImmutableOrderedMap();
-    this.currentSet = ImmutableSet();
-    this.selectedKeys = ImmutableSet();
-    this.onChange = onChange || (() => {});
-  }
+export const SELECT_NAMED_SET = 'SELECT_NAMED_SET';
+export const DESELECT_NAMED_SET = 'DESELECT_NAMED_SET';
+export const SELECT_ALL_NAMED_SETS = 'SELECT_ALL_NAMED_SETS';
+export const DESELECT_ALL_NAMED_SETS = 'DESELECT_ALL_NAMED_SETS';
+export const RENAME_NAMED_SET = 'RENAME_NAMED_SET';
+export const SET_NAMED_SET = 'SET_NAMED_SET';
+export const DELETE_NAMED_SET = 'DELETE_NAMED_SET';
+export const DELETE_ALL_NAMED_SETS = 'DELETE_ALL_NAMED_SETS';
+export const SET_CURRENT_SET = 'SET_CURRENT_SET';
+export const CLEAR_CURRENT_SET = 'CLEAR_CURRENT_SET';
+export const NAME_CURRENT_SET = 'NAME_CURRENT_SET';
 
-  /**
-   * Get an array of all keys to the available named sets.
-   * @returns {string[]} The array of named set key strings.
-   */
-  getKeys() {
-    return Array.from(this.namedSets.keys());
-  }
-
-  /**
-   * Get a list of selected keys to the available named sets.
-   * @returns {string[]} The array of named set key strings.
-   */
-  getSelectedKeys() {
-    return Array.from(this.selectedKeys.values());
-  }
-
-  /**
-   * Determine whether a previously-defined set is currently selected.
-   * @param {string} key The key of the set of interest.
-   * @returns {boolean} Whether the named set is currently selected.
-   */
-  isSelectedKey(key) {
-    return this.selectedKeys.has(key);
-  }
-
-  /**
-   * @param {string} key The key of the set to select.
-   */
-  selectNamedSet(key) {
-    this.selectedKeys = this.selectedKeys.add(key);
-    this.onChange(this);
-  }
-
-  /**
-   * @param {string} key The key of the set to deselect.
-   */
-  deselectNamedSet(key) {
-    this.selectedKeys = this.selectedKeys.delete(key);
-    this.onChange(this);
-  }
-
-  /**
-   * Set all named sets to selected.
-   */
-  selectAllNamedSets() {
-    this.selectedKeys = ImmutableSet(this.getKeys());
-    this.onChange(this);
-  }
-
-  /**
-   * Clear the set of selected named sets.
-   */
-  deselectAllNamedSets() {
-    this.selectedKeys = ImmutableSet();
-    this.onChange(this);
-  }
-
-  renameSet(prevKey, nextKey) {
-    if (this.namedSets.has(prevKey)) {
-      const prevSet = this.namedSets.get(prevKey);
-      this.namedSets = this.namedSets.delete(prevSet);
-      this.namedSets = this.namedSets.set(nextKey, prevSet);
-      this.onChange(this);
+// Adapted from https://redux.js.org/recipes/reducing-boilerplate#reducers
+function createReducer(initialState, handlers) {
+  return function reducer(state = initialState, action) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (handlers.hasOwnProperty(action.type)) {
+      return handlers[action.type](state, action);
     }
-  }
-
-  /**
-   * Get the set of currently-selected items.
-   */
-  getCurrentSet() {
-    return this.currentSet;
-  }
-
-  /**
-   * Update the set of currently-selected items.
-   * @param {Set} set A currently-selected set of items.
-   */
-  setCurrentSet(set) {
-    this.currentSet = ImmutableSet(set);
-    this.onChange(this);
-  }
-
-  /**
-   * Clear the set of currently-selected items.
-   */
-  clearCurrentSet() {
-    this.currentSet = ImmutableSet();
-    this.onChange(this);
-  }
-
-  /**
-   * Store the current selection.
-   * as a new named set.
-     * @param {string} key The key to associate with the set.
-     * @param {boolean} clear Whether to also clear the current set after
-     */
-  nameCurrentSet(key, clear) {
-    const { currentSet } = this;
-    this.namedSets = this.namedSets.set(key, currentSet);
-    if (clear) {
-      this.currentSet = ImmutableSet();
-    }
-    this.onChange(this);
-  }
-
-  /**
-   * Store the current selection
-   * unioned with any selected named sets
-   * as a new named set.
-     * @param {string} key The key to associate with the set.
-     * @param {boolean} clear Whether to also clear the current set after
-     */
-  nameUnionedCurrentSet(key, clear) {
-    const currentSet = this.unionSelectedSets(true);
-    this.namedSets = this.namedSets.set(key, currentSet);
-    if (clear) {
-      this.currentSet = ImmutableSet();
-    }
-    this.onChange(this);
-  }
-
-  /**
-   * @param {string} key The key of the set to return.
-   * @returns {ImmutableSet} The set of interest.
-   */
-  getNamedSet(key) {
-    if (this.namedSets.has(key)) {
-      return this.namedSets.get(key);
-    }
-    return ImmutableSet();
-  }
-
-  /**
-   * @param {string} key The key of the set to return.
-   * @param {Set} set The set of items to associate with the key.
-   */
-  setNamedSet(key, set) {
-    this.namedSets = this.namedSets.set(key, ImmutableSet(set));
-    this.onChange(this);
-  }
-
-  /**
-   * @param {string} key The key of the set to delete.
-   */
-  deleteNamedSet(key) {
-    if (this.namedSets.has(key)) {
-      this.namedSets = this.namedSets.delete(key);
-      this.onChange(this);
-    }
-  }
-
-  /**
-   * Delete all named sets (and all selected keys).
-   */
-  deleteAllNamedSets() {
-    this.namedSets = ImmutableOrderedMap();
-    this.selectedKeys = ImmutableSet();
-    this.onChange(this);
-  }
-
-  /**
-   * Get a set that is the union of the currentSet set
-   * and the selected named sets.
-   * @param {boolean} includeCurrent Whether to include the items
-   * in the current set in the resulting set.
-   * @returns {ImmutableSet} The new set resulting from the union operation.
-   */
-  unionSelectedSets(includeCurrent) {
-    const base = (includeCurrent ? this.currentSet : ImmutableSet());
-    return this.selectedKeys
-      .map(k => this.namedSets.get(k))
-      .reduce((a, h) => a.union(h), base);
-  }
+    return state;
+  };
 }
+
+const initialState = {
+  namedSets: ImmutableOrderedMap(),
+  currentSet: ImmutableSet(),
+  selectedKeys: ImmutableSet(),
+};
+
+export const setsReducer = createReducer(initialState, {
+  [SELECT_NAMED_SET]: (state, action) => ({
+    ...state,
+    selectedKeys: state.selectedKeys.add(action.key),
+  }),
+  [DESELECT_NAMED_SET]: (state, action) => ({
+    ...state,
+    selectedKeys: state.selectedKeys.delete(action.key),
+  }),
+  [SELECT_ALL_NAMED_SETS]: state => ({
+    ...state,
+    selectedKeys: ImmutableSet(state.namedSets.keys()),
+  }),
+  [DESELECT_ALL_NAMED_SETS]: state => ({
+    ...state,
+    selectedKeys: ImmutableSet(),
+  }),
+  [SET_NAMED_SET]: (state, action) => ({
+    ...state,
+    namedSets: state.namedSets.set(action.key, ImmutableSet(action.set)),
+  }),
+  [DELETE_NAMED_SET]: (state, action) => {
+    if (state.namedSets.has(action.key)) {
+      return {
+        ...state,
+        namedSets: state.namedSets.delete(action.key),
+      };
+    }
+    return state;
+  },
+  [DELETE_ALL_NAMED_SETS]: state => ({
+    ...state,
+    namedSets: ImmutableOrderedMap(),
+    selectedKeys: ImmutableSet(),
+  }),
+  [RENAME_NAMED_SET]: (state, action) => {
+    if (state.namedSets.has(action.prevKey)) {
+      const prevSet = state.namedSets.get(action.prevKey);
+      return { ...state, namedSets: state.namedSets.delete(prevSet).set(action.nextKey, prevSet) };
+    }
+    return state;
+  },
+  [SET_CURRENT_SET]: (state, action) => ({
+    ...state,
+    currentSet: ImmutableSet(action.set),
+  }),
+  [CLEAR_CURRENT_SET]: state => ({
+    ...state,
+    currentSet: ImmutableSet(),
+  }),
+  [NAME_CURRENT_SET]: (action, state) => ({
+    ...state,
+    namedSets: state.namedSets.set(action.key, state.currentSet),
+    currentSet: (state.clear ? ImmutableSet() : state.currentSet),
+  }),
+});
