@@ -37,7 +37,6 @@ export default class CurrentSetManager extends React.Component {
     event.preventDefault();
     const { setName } = this.state;
     const { sets, onUpdateSets } = this.props;
-    console.log(sets);
     onUpdateSets(setsReducer(sets, {
       type: NAME_CURRENT_SET, key: setName, clear: true,
     }));
