@@ -1,0 +1,18 @@
+:local .radio {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* create custom radiobutton appearance */
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  padding: 6px !important; /* TODO: Only need "important" to override Bootstrap. */
+  /* background-color only for content */
+  background-clip: content-box;
+  border: 2px solid lightgrey;
+  background-color: lightgrey;
+  border-radius: 50%;
+}
+:local .radio:checked {
+  background-clip: unset;
+}

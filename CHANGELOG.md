@@ -4,6 +4,7 @@
 ### Added
 - Polygon selection tool leveraging the Nebula.gl package.
 - Tooltip in heatmap
+- WIP: Using CSS modules.
 ### Changed
 - ...
 
