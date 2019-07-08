@@ -1,10 +1,11 @@
 import React from 'react';
+import radioCss from '../../css/radio.module.css';
 
 export default class Genes extends React.Component {
   constructor(props) {
     super(props);
 
-    this.radio = this.radio.bind(this);
+    this.Radio = this.Radio.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
@@ -15,11 +16,12 @@ export default class Genes extends React.Component {
     setSelectedGene(name);
   }
 
-  radio(name, value) {
+  Radio(name, value) {
     return (
       <div key={name}>
         <input
           type="radio"
+          className={radioCss.radio}
           name={name}
           onChange={this.handleInputChange}
           checked={value}
@@ -37,7 +39,7 @@ export default class Genes extends React.Component {
     const radioButtons = Object.entries(genesSelected).sort(
       (a, b) => a[0].localeCompare(b[0]),
     ).map(
-      ([geneId, value]) => this.radio(geneId, value),
+      ([geneId, value]) => this.Radio(geneId, value),
     );
     return (
       <React.Fragment>
