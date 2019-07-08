@@ -36,7 +36,7 @@ export default class OpenSeadragonComponent extends React.Component {
       id: this.id,
       showNavigationControl: false,
       // OSD default is to change zoom on resize: Not what we want.
-      // See "setTimeout" below, and https://github.com/hms-dbmi/vitessce/issues/182
+      // See "setTimeout" below, and https://github.com/hubmapconsortium/vitessce/issues/182
       preserveImageSizeOnResize: true,
       tileSources,
     });
@@ -68,7 +68,7 @@ export default class OpenSeadragonComponent extends React.Component {
       // OSD does its own resizing as the div is resized, except their heuristic is different:
       // They change the zoom, and try to preserve the content on screen.
       // With a 0-timeout, we can zoom the "right" way after they zoom the "wrong" way.
-      // See "preserveImageSizeOnResize" above, and https://github.com/hms-dbmi/vitessce/issues/182
+      // See "preserveImageSizeOnResize" above, and https://github.com/hubmapconsortium/vitessce/issues/182
       setTimeout(() => { this.zoomTo(x, y, width, height, sample); }, 0);
     }
     // React should not re-render the component:
