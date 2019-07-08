@@ -69,9 +69,9 @@
     "wait-on": "^3.2.0"
   },
   "author": "C McCallum",
-  "homepage": "https://github.com/hms-dbmi/vitessce/",
+  "homepage": "https://github.com/hubmapconsortium/vitessce/",
   "license": "MIT",
-  "repository": "https://github.com/hms-dbmi/vitessce/",
+  "repository": "https://github.com/hubmapconsortium/vitessce/",
   "keywords": [
     "react-component"
   ]
