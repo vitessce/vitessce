@@ -79,7 +79,7 @@ export const setsReducer = createReducer(initialState, {
     ...state,
     currentSet: ImmutableSet(),
   }),
-  [NAME_CURRENT_SET]: (action, state) => ({
+  [NAME_CURRENT_SET]: (state, action) => ({
     ...state,
     namedSets: state.namedSets.set(action.key, state.currentSet),
     currentSet: (state.clear ? ImmutableSet() : state.currentSet),

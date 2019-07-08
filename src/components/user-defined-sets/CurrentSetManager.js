@@ -1,4 +1,5 @@
 import React from 'react';
+import { setsReducer, NAME_CURRENT_SET } from './sets';
 
 const CURRENT_SELECTION = 'Current selection';
 
@@ -20,7 +21,7 @@ export default class CurrentSetManager extends React.Component {
   startEditing(event) {
     event.preventDefault();
     const { sets } = this.props;
-    const nextIndex = sets.getKeys().length + 1;
+    const nextIndex = Array.from(sets.namedSets.keys()).length + 1;
     this.setState({ isEditing: true, setName: `Set ${nextIndex}` });
   }
 
@@ -35,8 +36,11 @@ export default class CurrentSetManager extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
     const { setName } = this.state;
-    const { sets } = this.props;
-    sets.nameCurrentSet(setName, true);
+    const { sets, onUpdateSets } = this.props;
+    console.log(sets);
+    onUpdateSets(setsReducer(sets, {
+      type: NAME_CURRENT_SET, key: setName, clear: true,
+    }));
     this.cancelEditing();
   }
 
@@ -84,7 +88,7 @@ export default class CurrentSetManager extends React.Component {
     const { sets } = this.props;
     const { isEditing } = this.state;
 
-    if (!sets || sets.getCurrentSet().size === 0) {
+    if (!sets || sets.currentSet.size === 0) {
       return (
         <table className="current-set-manager sets-manager-disabled">
           <tbody>

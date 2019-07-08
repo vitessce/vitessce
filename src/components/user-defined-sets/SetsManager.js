@@ -1,15 +1,21 @@
 import React from 'react';
 import CurrentSetManager from './CurrentSetManager';
 
-export default function SetsManager({ sets }) {
+export default function SetsManager(props) {
+  const {
+    sets,
+    onUpdateSets = (msg) => {
+      console.warn(`onUpdateSets from SetsManager ${msg}`);
+    },
+  } = props;
   return (
     <div className="sets-manager">
-      <CurrentSetManager sets={sets} />
+      <CurrentSetManager sets={sets} onUpdateSets={onUpdateSets} />
       <div className="named-set-list">
-        {sets.getKeys().map(key => (
+        {Array.from(sets.namedSets.keys()).map(key => (
           <div className="named-set" key={key}>
             {key}
-            <small>{sets.getNamedSet(key).size}</small>
+            <small>{sets.namedSets.get(key).size}</small>
           </div>
         ))}
       </div>

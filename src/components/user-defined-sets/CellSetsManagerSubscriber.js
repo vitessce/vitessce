@@ -3,15 +3,13 @@ import PubSub from 'pubsub-js';
 import { CELL_SETS, CELLS_SELECTION } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
-import Sets from './sets';
+import { setsReducer, SET_CURRENT_SET } from './sets';
 
 export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cellSets: new Sets((cellSets) => {
-        PubSub.publish(CELL_SETS, cellSets);
-      }),
+      cellSets: setsReducer(undefined, {}),
     };
   }
 
@@ -40,7 +38,12 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   cellsSelectionSubscriber(msg, cellIds) {
     const { cellSets } = this.state;
-    cellSets.setCurrentSet(cellIds);
+    this.setState({
+      cellSets: setsReducer(cellSets, {
+        type: SET_CURRENT_SET,
+        set: cellIds,
+      }),
+    });
   }
 
   render() {
@@ -53,6 +56,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
       >
         <SetsManager
           sets={cellSets}
+          onUpdateSets={sets => PubSub.publish(CELL_SETS, sets)}
         />
       </TitleInfo>
     );
