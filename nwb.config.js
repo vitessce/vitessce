@@ -9,6 +9,16 @@ module.exports = {
       },
     },
   },
+  babel: {
+    presets: [
+      [
+        'env',
+        {
+          exclude: ['transform-es2015-classes'],
+        },
+      ],
+    ],
+  },
   webpack: {
     html: {
       template: 'demo/src/index.html',

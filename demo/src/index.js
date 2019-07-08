@@ -1,3 +1,5 @@
-import renderApp from '../../src/app/app';
+// import renderApp from '../../src/app/app';
+//
+// renderApp('app');
 
-renderApp('app');
+import '../../src/web-components/VitessceSpatial';
