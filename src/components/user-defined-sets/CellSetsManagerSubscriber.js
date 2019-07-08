@@ -35,7 +35,6 @@ export default class CellSetsManagerSubscriber extends React.Component {
   }
 
   cellSetsSubscriber(msg, cellSets) {
-    console.log(cellSets);
     this.setState({ cellSets });
   }
 
