@@ -44,7 +44,7 @@ export default class Spatial extends AbstractSelectableComponent {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState((prevState) => {
         imageNames.forEach((name) => {
-          // TODO: Do not mutate! https://github.com/hms-dbmi/vitessce/issues/148
+          // TODO: Do not mutate! https://github.com/hubmapconsortium/vitessce/issues/148
           // eslint-disable-next-line no-param-reassign
           prevState.layerIsVisible[name] = true;
         });
