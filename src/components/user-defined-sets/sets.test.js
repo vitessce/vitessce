@@ -65,9 +65,9 @@ describe('sets.js', () => {
     it('clears the items in the current set', () => {
       const sets = new Sets();
       sets.setCurrentSet(new Set([1, 2, 3]));
-      expect(sets.getCurrentSet().size()).toEqual(3);
+      expect(sets.getCurrentSet().size).toEqual(3);
       sets.clearCurrentSet();
-      expect(sets.getCurrentSet().size()).toEqual(0);
+      expect(sets.getCurrentSet().size).toEqual(0);
     });
   });
 });
