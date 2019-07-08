@@ -1,6 +1,6 @@
 import React from 'react';
 import Adapter from 'enzyme-adapter-react-16';
-import { shallow, configure } from 'enzyme';
+import { mount, configure } from 'enzyme';
 import expect from 'expect';
 import PubSubVitessceGrid from './PubSubVitessceGrid';
 
@@ -24,11 +24,11 @@ describe('PubSubVitessceGrid.js', () => {
       };
 
       function FakeComponent() {
-        return <p>FakeComponent</p>;
+        return <p>FakeComponent!</p>;
       }
       const getComponent = () => FakeComponent;
-      const wrapper = shallow(<PubSubVitessceGrid config={config} getComponent={getComponent} />);
-      expect(wrapper.find('.p').length).toEqual(1);
+      const wrapper = mount(<PubSubVitessceGrid config={config} getComponent={getComponent} />);
+      expect(wrapper.debug()).toContain('FakeComponent!');
     });
   });
 });
