@@ -82,7 +82,7 @@ export default class LayerManagerPublisher extends React.Component {
 
   clearPleaseWait(event, layerName) {
     this.setState((prevState) => {
-      // TODO: Do not mutate! https://github.com/hms-dbmi/vitessce/issues/148
+      // TODO: Do not mutate! https://github.com/hubmapconsortium/vitessce/issues/148
       // eslint-disable-next-line no-param-reassign
       prevState.pleaseWaits[layerName] = false;
       const waitingOn = Object.entries(prevState.pleaseWaits)

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/hms-dbmi/vitessce/#cells",
+  "$id": "https://github.com/hubmapconsortium/vitessce/#cells",
   "title": "Vitessce cell data",
   "type": "object",
   "definitions": {

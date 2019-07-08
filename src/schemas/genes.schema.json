@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/hms-dbmi/vitessce/#genes",
+  "$id": "https://github.com/hubmapconsortium/vitessce/#genes",
   "title": "Vitessce gene data",
   "type": "object",
   "definitions": {
