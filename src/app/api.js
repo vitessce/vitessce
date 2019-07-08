@@ -302,7 +302,7 @@ const configs = {
           viewConfig: higlassViewConf,
         },
         x: 1, y: 0, w: 10, h: 1 },
-      ],
+    ],
   },
   'giotto-2019': {
     ...giottoBase,
