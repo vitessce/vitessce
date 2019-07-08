@@ -40,7 +40,7 @@ export default class Sets {
    */
   selectNamedSet(key) {
     this.selectedKeys = this.selectedKeys.add(key);
-    this.onChange();
+    this.onChange(this);
   }
 
   /**
@@ -48,7 +48,7 @@ export default class Sets {
    */
   deselectNamedSet(key) {
     this.selectedKeys = this.selectedKeys.delete(key);
-    this.onChange();
+    this.onChange(this);
   }
 
   /**
@@ -56,7 +56,7 @@ export default class Sets {
    */
   selectAllNamedSets() {
     this.selectedKeys = ImmutableSet(this.getKeys());
-    this.onChange();
+    this.onChange(this);
   }
 
   /**
@@ -64,7 +64,16 @@ export default class Sets {
    */
   deselectAllNamedSets() {
     this.selectedKeys = ImmutableSet();
-    this.onChange();
+    this.onChange(this);
+  }
+
+  renameSet(prevKey, nextKey) {
+    if (this.namedSets.has(prevKey)) {
+      const prevSet = this.namedSets.get(prevKey);
+      this.namedSets = this.namedSets.delete(prevSet);
+      this.namedSets = this.namedSets.set(nextKey, prevSet);
+      this.onChange(this);
+    }
   }
 
   /**
@@ -80,7 +89,7 @@ export default class Sets {
    */
   setCurrentSet(set) {
     this.currentSet = ImmutableSet(set);
-    this.onChange();
+    this.onChange(this);
   }
 
   /**
@@ -88,7 +97,7 @@ export default class Sets {
    */
   clearCurrentSet() {
     this.currentSet = ImmutableSet();
-    this.onChange();
+    this.onChange(this);
   }
 
   /**
@@ -103,7 +112,7 @@ export default class Sets {
     if (clear) {
       this.currentSet = ImmutableSet();
     }
-    this.onChange();
+    this.onChange(this);
   }
 
   /**
@@ -119,7 +128,7 @@ export default class Sets {
     if (clear) {
       this.currentSet = ImmutableSet();
     }
-    this.onChange();
+    this.onChange(this);
   }
 
   /**
@@ -139,7 +148,7 @@ export default class Sets {
    */
   setNamedSet(key, set) {
     this.namedSets = this.namedSets.set(key, ImmutableSet(set));
-    this.onChange();
+    this.onChange(this);
   }
 
   /**
@@ -148,7 +157,7 @@ export default class Sets {
   deleteNamedSet(key) {
     if (this.namedSets.has(key)) {
       this.namedSets = this.namedSets.delete(key);
-      this.onChange();
+      this.onChange(this);
     }
   }
 
@@ -158,7 +167,7 @@ export default class Sets {
   deleteAllNamedSets() {
     this.namedSets = ImmutableOrderedMap();
     this.selectedKeys = ImmutableSet();
-    this.onChange();
+    this.onChange(this);
   }
 
   /**

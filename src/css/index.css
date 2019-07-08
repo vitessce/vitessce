@@ -168,9 +168,6 @@ input[type="radio"]:checked {
     border: 0;
     width: 100%;
 }
-.sets-manager .current-set-manager .set-item-count {
-    font-size: 80%;
-}
 .sets-manager .current-set-manager .set-item-button {
     background-color: #fff;
     border: none;
@@ -195,4 +192,17 @@ input[type="radio"]:checked {
 }
 .sets-manager-disabled {
     color: dimgray;
+}
+
+.sets-manager .named-set-list {
+    margin-top: 6px;
+}
+
+
+.sets-manager .named-set-list .named-set {
+    font-size: 12px;
+}
+
+.sets-manager .named-set-list .named-set small {
+    margin-left: 10px;
 }

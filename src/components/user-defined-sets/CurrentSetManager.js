@@ -17,9 +17,11 @@ export default class CurrentSetManager extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  startEditing() {
+  startEditing(event) {
+    event.preventDefault();
     const { sets } = this.props;
-    this.setState({ isEditing: true, setName: `Set ${sets.size + 1}` });
+    const nextIndex = sets.getKeys().length + 1;
+    this.setState({ isEditing: true, setName: `Set ${nextIndex}` });
   }
 
   cancelEditing() {
@@ -31,31 +33,29 @@ export default class CurrentSetManager extends React.Component {
   }
 
   handleSubmit(event) {
-    console.log(this.state.setName);
     event.preventDefault();
+    const { setName } = this.state;
+    const { sets } = this.props;
+    sets.nameCurrentSet(setName, true);
+    this.cancelEditing();
   }
 
   // eslint-disable-next-line class-methods-use-this
   renderDisabled() {
     return (
-      <table className="current-set-manager sets-manager-disabled">
-        <tbody>
-          <tr>
-            <td className="set-name">{CURRENT_SELECTION}</td>
-            <td className="small set-item-count">0</td>
-            <td />
-          </tr>
-        </tbody>
-      </table>
+      <tr>
+        <td className="set-name">{CURRENT_SELECTION}</td>
+        <td />
+        <td />
+      </tr>
     );
   }
 
   renderEnabledStatic() {
-    const { sets } = this.props;
     return (
       <tr>
         <td className="set-name">{CURRENT_SELECTION}</td>
-        <td className="set-item-count">{sets.size}</td>
+        <td />
         <td>
           <button type="button" className="set-item-button set-item-save" onClick={this.startEditing}>Save</button>
         </td>
@@ -70,7 +70,7 @@ export default class CurrentSetManager extends React.Component {
         <td className="set-name">
           <input type="text" value={setName} onChange={this.handleChange} />
         </td>
-        <td className="set-item-count">
+        <td>
           <button type="button" className="set-item-button set-item-cancel" onClick={this.cancelEditing}>×</button>
         </td>
         <td>
@@ -84,7 +84,7 @@ export default class CurrentSetManager extends React.Component {
     const { sets } = this.props;
     const { isEditing } = this.state;
 
-    if (!sets || sets.size === 0) {
+    if (!sets || sets.getCurrentSet().size === 0) {
       return (
         <table className="current-set-manager sets-manager-disabled">
           <tbody>

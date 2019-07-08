@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_ADD, CELL_SETS, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO,
+  CELLS_ADD, CELL_SETS, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
 } from '../../events';
 import Scatterplot from './Scatterplot';
 
@@ -24,7 +24,7 @@ export default class ScatterplotSubscriber extends React.Component {
       CELLS_COLOR, this.cellsColorSubscriber.bind(this),
     );
     this.cellsSelectionToken = PubSub.subscribe(
-      CELL_SETS, this.cellsSelectionSubscriber.bind(this),
+      CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
   }
 
@@ -70,7 +70,7 @@ export default class ScatterplotSubscriber extends React.Component {
           selectedCellIds={selectedCellIds}
           cellColors={cellColors}
           updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-          updateCellsSelection={selectedIds => PubSub.publish(CELL_SETS, selectedIds)}
+          updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
           updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
           updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
         />
