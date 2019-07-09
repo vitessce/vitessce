@@ -1,5 +1,5 @@
 import React from 'react';
-import { setsReducer, NAME_CURRENT_SET } from './sets';
+import Sets from './sets';
 
 const CURRENT_SELECTION = 'Current selection';
 
@@ -37,9 +37,7 @@ export default class CurrentSetManager extends React.Component {
     event.preventDefault();
     const { setName } = this.state;
     const { sets, onUpdateSets } = this.props;
-    onUpdateSets(setsReducer(sets, {
-      type: NAME_CURRENT_SET, key: setName, clear: true,
-    }));
+    onUpdateSets(Sets.nameCurrentSet(sets, setName, true));
     this.cancelEditing();
   }
 
