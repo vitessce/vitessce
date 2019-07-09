@@ -38,10 +38,6 @@ const registry = {
   HoverableScatterplotSubscriber,
   HoverableSpatialSubscriber,
   HoverableHeatmapSubscriber,
-  HiGlassComponent: React.lazy(() => import('../vendor/StyledHiGlass.js')),
-  HiGlassWrappedComponent: React.lazy(() => import('../vendor/WrappedStyledHiGlass.js')),
-  // TODO: Our Higlass demos don't actually need any data layers to load...
-  // but when they do, we'll need to resolve https://github.com/hubmapconsortium/vitessce/issues/197
 };
 
 export default function getComponent(name) {
