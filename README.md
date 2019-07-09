@@ -8,10 +8,15 @@ Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
 ![Vitessce screenshot](https://user-images.githubusercontent.com/730388/58634506-78472580-82b9-11e9-9df8-a1362de73818.png)
 
+## Architecture
+
+![Architecture diagram](https://docs.google.com/drawings/d/e/2PACX-1vSoB3YGPxOTKnFOpYHeHX4JruHnibGXruM36uAZtuvPQNM3a7F4uS3q4b5jwGNQ6TJ7bQ9IPB32rdle/pub?w=650)
+
+For more information, see the [documentation](http://vitessce.io/prod-docs/index.html).
+
 ## Data
 
-The demo currently features data from the
-[Linnarsson Lab](http://linnarssonlab.org/osmFISH/availability/),
+The demo features data from several collaborators,
 with preprocessing done by [`vitessce-data`](https://github.com/hms-dbmi/vitessce-data).
 
 ## Development
