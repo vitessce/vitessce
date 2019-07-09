@@ -86,8 +86,10 @@ function renderResponse(response, id) {
 }
 
 export default function renderApp(id) {
-  const datasetId = new URLSearchParams(window.location.search).get('dataset');
-  const datasetUrl = new URLSearchParams(window.location.search).get('url');
+  const urlParams = new URLSearchParams(window.location.search);
+  const datasetId = urlParams.get('dataset');
+  const datasetUrl = urlParams.get('url');
+  const showAll = urlParams.get('show') === 'all';
 
   if (datasetId) {
     const config = getConfig(datasetId);
@@ -112,7 +114,7 @@ export default function renderApp(id) {
         />, id,
       ));
   } else {
-    const configs = listConfigs();
+    const configs = listConfigs(showAll);
     renderComponent(<Welcome configs={configs} />, id);
   }
 }
