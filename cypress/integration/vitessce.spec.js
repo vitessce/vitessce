@@ -28,9 +28,10 @@ describe('Vitessce', () => {
   });
 
   it('has title, blurb, and link to "Please wait"', () => {
-    cy.visit('/');
+    cy.visit('/?show=all');
     cy.contains('Vitessce');
     cy.contains('This is a demo');
+    cy.contains('(static layout)'); // Not public; requires "show=all".
     cy.contains('Linnarsson (responsive layout)')
       .click();
     // This part seems to be fragile: Might run too fast?

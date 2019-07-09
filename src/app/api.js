@@ -352,9 +352,9 @@ const configs = {
 };
 /* eslint-enable */
 
-export function listConfigs() {
+export function listConfigs(showAll) {
   return Object.entries(configs).filter(
-    entry => entry[1].public,
+    entry => showAll || entry[1].public,
   ).map(
     ([id, config]) => ({
       id,
