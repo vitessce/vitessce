@@ -45,6 +45,18 @@ const giottoBase = {
   })),
 };
 
+const mermaidBase = {
+  description: 'MERmaid',
+  layers: [
+    'cells',
+    'molecules',
+  ].map(name => ({
+    name,
+    type: name.toUpperCase(),
+    url: `${urlPrefix}/mermaid.${name}.json`,
+  })),
+};
+
 /* eslint-disable object-property-newline */
 /* eslint-disable object-curly-newline */
 const configs = {
@@ -344,6 +356,41 @@ const configs = {
           x: 1, y: 2, h: 2 },
         { component: 'FactorsSubscriber',
           x: 2, y: 0, h: 4 },
+      ],
+    },
+  },
+  'mermaid-2019': {
+    ...mermaidBase,
+    name: 'MERmaid (responsive layout)',
+    public: false,
+    responsiveLayout: {
+      columns: {
+        // First two columns are equal,
+        // third column is constant;
+        // Grid cell width stays roughly constant,
+        // but more columns are available in a wider window.
+        1400: [0, 6, 12],
+        1200: [0, 5, 10],
+        1000: [0, 4, 8],
+        800: [0, 3, 6],
+        600: [0, 2, 4],
+      },
+      components: [
+        { component: 'Description',
+          props: {
+            description: 'MERmaid',
+          },
+          x: 0, y: 0 },
+        { component: 'StatusSubscriber',
+          x: 0, y: 1 },
+        { component: 'SpatialSubscriber',
+          props: {
+            view: {
+              zoom: -1.8,
+              target: [10, -90, 0],
+            },
+          },
+          x: 1, y: 0, h: 2 },
       ],
     },
   },

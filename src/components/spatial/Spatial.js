@@ -141,7 +141,7 @@ export default class Spatial extends AbstractSelectableComponent {
       data: scatterplotData,
       pickable: true,
       autoHighlight: true,
-      getRadius: 10,
+      getRadius: 2,
       getPosition: d => [d[0], d[1], 0],
       getColor: d => PALETTE[d[2] % PALETTE.length],
       onHover: (info) => {
