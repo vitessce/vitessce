@@ -3,7 +3,6 @@ html,body {
 }
 body {
   background-color: #333;
-  overflow: hidden; /* Questionable: It's useful to have scratch space below you can scroll to. */
 }
 
 /* Flex grid items */
