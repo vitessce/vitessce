@@ -11,9 +11,9 @@ export default function SetsManager(props) {
   return (
     <div className="sets-manager">
       <CurrentSetManager sets={sets} onUpdateSets={onUpdateSets} />
-      <div className="named-set-list">
+      <div className="set-list">
         {Array.from(sets.namedSets.keys()).map(key => (
-          <div className="named-set" key={key}>
+          <div className="set-name" key={key}>
             {key}
             <small>{sets.namedSets.get(key).size}</small>
           </div>

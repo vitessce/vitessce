@@ -17,6 +17,9 @@ module.exports = {
       svg: {
         loader: '@svgr/webpack',
       },
+      sass: {
+        modules: true,
+      },
     },
   },
 };
