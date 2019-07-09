@@ -1,4 +1,4 @@
-import { Set as ImmutableSet, OrderedMap as ImmutableOrderedMap, isCollection } from 'immutable';
+import { Set as ImmutableSet, OrderedMap as ImmutableOrderedMap } from 'immutable';
 
 // Class for storing Set objects of string IDs (cell IDs, gene IDs, etc...).
 // The collection of sets is stored as a map whose values are Set objects.
