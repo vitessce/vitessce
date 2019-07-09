@@ -48,7 +48,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
     return (
       <TitleInfo
         title="Cell Sets"
-        info={`${0} sets`}
+        info={`${cellSets.namedSets.size} set${cellSets.namedSets.size !== 1 ? 's' : ''}`}
         isScroll
       >
         <SetsManager

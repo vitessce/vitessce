@@ -12,7 +12,7 @@ export default class CurrentSetManager extends React.Component {
     };
 
     this.startEditing = this.startEditing.bind(this);
-    this.cancelEditing = this.cancelEditing.bind(this);
+    this.stopEditing = this.stopEditing.bind(this);
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -25,7 +25,7 @@ export default class CurrentSetManager extends React.Component {
     this.setState({ isEditing: true, setName: `Set ${nextIndex}` });
   }
 
-  cancelEditing() {
+  stopEditing() {
     this.setState({ isEditing: false, setName: '' });
   }
 
@@ -38,11 +38,11 @@ export default class CurrentSetManager extends React.Component {
     const { setName } = this.state;
     const { sets, onUpdateSets } = this.props;
     onUpdateSets(Sets.nameCurrentSet(sets, setName, true));
-    this.cancelEditing();
+    this.stopEditing();
   }
 
   // eslint-disable-next-line class-methods-use-this
-  renderDisabled() {
+  Disabled() {
     return (
       <tr>
         <td className="set-name">{CURRENT_SELECTION}</td>
@@ -52,7 +52,7 @@ export default class CurrentSetManager extends React.Component {
     );
   }
 
-  renderEnabledStatic() {
+  EnabledStatic() {
     return (
       <tr>
         <td className="set-name">{CURRENT_SELECTION}</td>
@@ -64,7 +64,7 @@ export default class CurrentSetManager extends React.Component {
     );
   }
 
-  renderEnabledEditing() {
+  EnabledEditing() {
     const { setName } = this.state;
     return (
       <tr>
@@ -72,7 +72,7 @@ export default class CurrentSetManager extends React.Component {
           <input type="text" value={setName} onChange={this.handleChange} />
         </td>
         <td>
-          <button type="button" className="set-item-button set-item-cancel" onClick={this.cancelEditing}>×</button>
+          <button type="button" className="set-item-button set-item-cancel" onClick={this.stopEditing}>×</button>
         </td>
         <td>
           <button type="submit" className="set-item-button set-item-save">Save</button>
@@ -89,7 +89,7 @@ export default class CurrentSetManager extends React.Component {
       return (
         <table className="current-set-manager sets-manager-disabled">
           <tbody>
-            {this.renderDisabled()}
+            {this.Disabled()}
           </tbody>
         </table>
       );
@@ -99,8 +99,8 @@ export default class CurrentSetManager extends React.Component {
         <table className="current-set-manager">
           <tbody>
             {isEditing
-              ? this.renderEnabledEditing()
-              : this.renderEnabledStatic()
+              ? this.EnabledEditing()
+              : this.EnabledStatic()
             }
           </tbody>
         </table>
