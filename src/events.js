@@ -10,7 +10,7 @@ export const CELLS_SELECTION = `${CELLS}.selection`;
 export const CELLS_COLOR = `${CELLS}.color`;
 export const CELLS_HOVER = `${CELLS}.hover`;
 
-export const CELL_SETS = `${CELLS}.sets`;
+export const CELL_SETS_MODIFY = `${CELLS}.sets.modify`;
 
 export const CLUSTERS = 'clusters';
 export const CLUSTERS_ADD = CLUSTERS + ADD;
