@@ -22,7 +22,7 @@ export default class PubSubVitessceGrid extends React.Component {
           getComponent={getComponent}
           onAllReady={() => { this.setState({ allReady: true }); }}
           draggableHandle=".title"
-        />,
+        />
       </React.Fragment>
     );
   }
