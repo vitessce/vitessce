@@ -3,7 +3,6 @@ import React from 'react';
 import VitessceGrid from 'vitessce-grid';
 
 import { LayerManagerPublisher } from '../components/layermanager';
-import getComponent from './componentRegistry';
 
 
 export default class PubSubVitessceGrid extends React.Component {
@@ -13,7 +12,7 @@ export default class PubSubVitessceGrid extends React.Component {
   }
 
   render() {
-    const { config } = this.props;
+    const { config, getComponent } = this.props;
     const { allReady } = this.state;
     return (
       <React.Fragment>
@@ -23,7 +22,7 @@ export default class PubSubVitessceGrid extends React.Component {
           getComponent={getComponent}
           onAllReady={() => { this.setState({ allReady: true }); }}
           draggableHandle=".title"
-        />,
+        />
       </React.Fragment>
     );
   }

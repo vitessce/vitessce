@@ -4,11 +4,13 @@
 import { Heatmap } from './components/heatmap';
 import { Spatial } from './components/spatial';
 import { Scatterplot } from './components/scatterplot';
+import PubSubVitessceGrid from './app/PubSubVitessceGrid';
 import { renderApp } from './app';
 
 export default {
   Heatmap,
   Spatial,
   Scatterplot,
+  PubSubVitessceGrid,
   renderApp,
 };

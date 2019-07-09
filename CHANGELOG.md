@@ -3,10 +3,11 @@
 ## 0.0.17 - in progress
 ### Added
 - Polygon selection tool leveraging the Nebula.gl package.
-- Tooltip in heatmap
+- Tooltip in heatmap.
 - WIP: Using CSS modules.
 ### Changed
-- ...
+- PubSubVitessceGrid is now exported, and the registry lookup function is a parameter.
+A HiGlass demo no longer requires HiGlass to be checked in as part of this project.
 
 ## [0.0.16](https://www.npmjs.com/package/vitessce/v/0.0.16) - 2019-06-26
 ### Added

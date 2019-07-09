@@ -14,7 +14,7 @@ import Welcome from './Welcome';
 import PubSubVitessceGrid from './PubSubVitessceGrid';
 
 import { getConfig, listConfigs } from './api';
-
+import getComponent from './componentRegistry';
 
 function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));
@@ -47,6 +47,32 @@ function preformattedDetails(response) {
     url: ${response.url}`; // TODO: headers
 }
 
+function validateAndRender(config, id) {
+  if (!config) {
+    // If the config value is undefined, show a warning message
+    renderComponent(
+      <Warning
+        title="No such dataset"
+        unformatted="The dataset configuration could not be found."
+      />, id,
+    );
+    return;
+  }
+  const validate = new Ajv().compile(datasetSchema);
+  const valid = validate(config);
+  if (!valid) {
+    const failureReason = JSON.stringify(validate.errors, null, 2);
+    renderComponent(
+      <Warning
+        title="Config validation failed"
+        preformatted={failureReason}
+      />, id,
+    );
+    return;
+  }
+  renderComponent(<PubSubVitessceGrid config={config} getComponent={getComponent} />, id);
+}
+
 function renderResponse(response, id) {
   if (!response.ok) {
     renderComponent(
@@ -59,19 +85,7 @@ function renderResponse(response, id) {
     response.text().then((text) => {
       try {
         const config = JSON.parse(text);
-        const validate = new Ajv().compile(datasetSchema);
-        const valid = validate(config);
-        if (!valid) {
-          const failureReason = JSON.stringify(validate.errors, null, 2);
-          renderComponent(
-            <Warning
-              title="Config validation failed"
-              preformatted={failureReason}
-            />, id,
-          );
-        } else {
-          renderComponent(<PubSubVitessceGrid config={config} />, id);
-        }
+        validateAndRender(config, id);
       } catch (e) {
         renderComponent(
           <Warning
@@ -93,17 +107,7 @@ export default function renderApp(id) {
 
   if (datasetId) {
     const config = getConfig(datasetId);
-    if (!config) {
-      // If the config value is undefined, show a warning message
-      renderComponent(
-        <Warning
-          title="No such dataset"
-          unformatted="The dataset configuration could not be found."
-        />, id,
-      );
-    } else {
-      renderComponent(<PubSubVitessceGrid config={config} />, id);
-    }
+    validateAndRender(config, id);
   } else if (datasetUrl) {
     fetch(datasetUrl)
       .then(response => renderResponse(response, id))
