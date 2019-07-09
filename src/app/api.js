@@ -4,7 +4,7 @@ import datasetSchema from '../schemas/dataset.schema.json';
 import higlassViewConf from './higlass-viewconf.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/toslchan';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/mermaid';
 
 const description = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 
