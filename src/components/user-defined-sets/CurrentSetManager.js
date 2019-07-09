@@ -37,7 +37,7 @@ export default class CurrentSetManager extends React.Component {
     event.preventDefault();
     const { setName } = this.state;
     const { sets, onUpdateSets } = this.props;
-    onUpdateSets(Sets.nameCurrentSet(sets, setName, true));
+    onUpdateSets(Sets.nameCurrentSet(sets, setName, false));
     this.stopEditing();
   }
 

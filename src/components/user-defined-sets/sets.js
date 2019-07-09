@@ -1,4 +1,4 @@
-import { Set as ImmutableSet, OrderedMap as ImmutableOrderedMap } from 'immutable';
+import { Set as ImmutableSet, OrderedMap as ImmutableOrderedMap, isCollection } from 'immutable';
 
 // Class for storing Set objects of string IDs (cell IDs, gene IDs, etc...).
 // The collection of sets is stored as a map whose values are Set objects.
@@ -10,58 +10,7 @@ export default class Sets {
     static initialState = {
       namedSets: ImmutableOrderedMap(),
       currentSet: ImmutableSet(),
-      selectedKeys: ImmutableSet(),
     };
-
-    /**
-     * Marks a named set as selected based on its key.
-     * @param {object} state The current state.
-     * @param {string} key The key of the set to select.
-     * @returns {object} The new state.
-     */
-    static selectNamedSet(state, key) {
-      return {
-        ...state,
-        selectedKeys: state.selectedKeys.add(key),
-      };
-    }
-
-    /**
-     * Un-marks a named set as selected based on its key.
-     * @param {object} state The current state.
-     * @param {string} key The key of the set to deselect.
-     * @returns {object} The new state.
-     */
-    static deselectNamedSet(state, key) {
-      return {
-        ...state,
-        selectedKeys: state.selectedKeys.delete(key),
-      };
-    }
-
-    /**
-     * Marks all named sets as selected.
-     * @param {object} state The current state.
-     * @returns {object} The new state.
-     */
-    static selectAllNamedSets(state) {
-      return {
-        ...state,
-        selectedKeys: ImmutableSet(state.namedSets.keys()),
-      };
-    }
-
-    /**
-     * Un-marks all named sets as selected.
-     * @param {object} state The current state.
-     * @returns {object} The new state.
-     */
-    static deselectAllNamedSets(state) {
-      return {
-        ...state,
-        selectedKeys: ImmutableSet(),
-      };
-    }
 
     /**
      * Modifies the set entry for a named set.
@@ -102,7 +51,6 @@ export default class Sets {
       return {
         ...state,
         namedSets: ImmutableOrderedMap(),
-        selectedKeys: ImmutableSet(),
       };
     }
 
@@ -163,5 +111,49 @@ export default class Sets {
         namedSets: state.namedSets.set(key, state.currentSet),
         currentSet: (clear ? ImmutableSet() : state.currentSet),
       };
+    }
+
+    static serialize(state) {
+      const {
+        namedSets = ImmutableOrderedMap(),
+        currentSet = ImmutableSet(),
+      } = state;
+      return {
+        namedSets: namedSets.toArray(),
+        currentSet: currentSet.toArray(),
+      };
+    }
+
+    static unserialize(serializedState) {
+      const {
+        namedSets = [],
+        currentSet = [],
+      } = serializedState;
+      return {
+        namedSets: ImmutableOrderedMap(namedSets),
+        currentSet: ImmutableSet(currentSet),
+      };
+    }
+
+    static persist(state, setTypeKey, datasetKey) {
+      const serializedState = Sets.serialize(state);
+      const serializedSets = JSON.parse(localStorage.getItem('sets')) || {};
+      try {
+        serializedSets[setTypeKey][datasetKey] = serializedState;
+      } catch (e) {
+        serializedSets[setTypeKey] = {
+          [datasetKey]: serializedState,
+        };
+      }
+      localStorage.setItem('sets', JSON.stringify(serializedSets));
+    }
+
+    static restore(setTypeKey, datasetKey) {
+      try {
+        const serializedState = JSON.parse(localStorage.getItem('sets'))[setTypeKey][datasetKey];
+        return Sets.unserialize(serializedState);
+      } catch (e) {
+        return Sets.unserialize({});
+      }
     }
 }
