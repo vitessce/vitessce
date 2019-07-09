@@ -14,40 +14,6 @@ describe('sets.js', () => {
       expect(Array.from(setsState.namedSets.keys())[0]).toEqual('test');
     });
   });
-  describe('selectedKeys', () => {
-    it('has no selected set keys if none have been selected', () => {
-      let setsState = Sets.initialState;
-      expect(setsState.selectedKeys.size).toEqual(0);
-      setsState = Sets.setNamedSet(setsState, 'test', new Set([1, 2, 3]));
-      expect(setsState.selectedKeys.size).toEqual(0);
-    });
-
-    it('has one selected set key when one set has been selected', () => {
-      let setsState = Sets.initialState;
-      setsState = Sets.setNamedSet(setsState, 'test', new Set([1, 2, 3]));
-      setsState = Sets.selectNamedSet(setsState, 'test');
-      expect(setsState.selectedKeys.size).toEqual(1);
-    });
-    it('selects and deselects named sets', () => {
-      let setsState = Sets.initialState;
-      setsState = Sets.setNamedSet(setsState, 'test', new Set([1, 2, 3]));
-      setsState = Sets.selectNamedSet(setsState, 'test');
-      expect(setsState.selectedKeys.has('test')).toBeTruthy();
-      setsState = Sets.deselectNamedSet(setsState, 'test');
-      expect(setsState.selectedKeys.has('test')).toBeFalsy();
-    });
-
-    it('deselects all named sets', () => {
-      let setsState = Sets.initialState;
-      setsState = Sets.setNamedSet(setsState, 'test', new Set([1, 2, 3]));
-      setsState = Sets.selectNamedSet(setsState, 'test');
-      setsState = Sets.setNamedSet(setsState, 'test2', new Set([4, 5, 6]));
-      setsState = Sets.selectNamedSet(setsState, 'test2');
-      expect(Array.from(setsState.selectedKeys)).toEqual(['test', 'test2']);
-      setsState = Sets.deselectAllNamedSets(setsState);
-      expect(setsState.selectedKeys.size).toEqual(0);
-    });
-  });
   describe('currentSet', () => {
     it('gets the items in the current set', () => {
       let setsState = Sets.initialState;
