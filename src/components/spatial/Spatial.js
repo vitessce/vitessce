@@ -8,7 +8,7 @@ import LayersMenu from './LayersMenu';
 import OpenSeadragonComponent from '../../vendor/OpenSeadragonComponent';
 
 export function square(x, y) {
-  const r = 5;
+  const r = 50;
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
 
@@ -96,7 +96,7 @@ export default class Spatial extends AbstractSelectableComponent {
       ),
       getPolygon(cellEntry) {
         const cell = cellEntry[1];
-        return cell.poly ? cell.poly : square(cell.xy[0], cell.xy[1]);
+        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1]);
       },
       stroked: false,
       getColor: cellEntry => (

@@ -4,6 +4,7 @@
 ### Added
 - Polygon selection tool leveraging the Nebula.gl package.
 - Tooltip in heatmap.
+- WIP: Using CSS modules.
 ### Changed
 - PubSubVitessceGrid is now exported, and the registry lookup function is a parameter.
 A HiGlass demo no longer requires HiGlass to be checked in as part of this project.

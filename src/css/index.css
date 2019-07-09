@@ -84,28 +84,6 @@ pre {
   opacity: .90;
 }
 
-
-/* Option lists */
-
-input[type="radio"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  /* create custom radiobutton appearance */
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  padding: 6px;
-  /* background-color only for content */
-  background-clip: content-box;
-  border: 2px solid lightgrey;
-  background-color: lightgrey;
-  border-radius: 50%;
-}
-input[type="radio"]:checked {
-  background-clip: unset;
-}
-
 /* Cell Tooltips */
 .cell-emphasis-crosshair, .cell-emphasis-vertical {
     z-index: 5;

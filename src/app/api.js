@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.16/toslchan';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/toslchan';
 
 const description = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 
@@ -30,6 +30,18 @@ const linnarssonBase = {
 const linnarssonBaseNoClusters = {
   description,
   layers: layerNames.filter(name => name !== 'clusters').map(layerNameToConfig),
+};
+
+const giottoBase = {
+  description: 'Giotto',
+  layers: [
+    'cells',
+    'factors',
+  ].map(name => ({
+    name,
+    type: name.toUpperCase(),
+    url: `${urlPrefix}/giotto.${name}.json`,
+  })),
 };
 
 /* eslint-disable object-property-newline */
@@ -265,12 +277,55 @@ const configs = {
       ],
     },
   },
+  'giotto-2019': {
+    ...giottoBase,
+    name: 'Giotto (responsive layout)',
+    public: false,
+    responsiveLayout: {
+      columns: {
+        // First two columns are equal,
+        // third column is constant;
+        // Grid cell width stays roughly constant,
+        // but more columns are available in a wider window.
+        1400: [0, 6, 12, 14],
+        1200: [0, 5, 10, 12],
+        1000: [0, 4, 8, 10],
+        800: [0, 3, 6, 8],
+        600: [0, 2, 4, 8],
+      },
+      components: [
+        { component: 'Description',
+          props: {
+            description: 'Giotto',
+          },
+          x: 0, y: 0 },
+        { component: 'StatusSubscriber',
+          x: 0, y: 1 },
+        { component: 'ScatterplotSubscriber',
+          props: { mapping: 't-SNE' },
+          x: 0, y: 2, h: 2 },
+        { component: 'SpatialSubscriber',
+          props: {
+            view: {
+              zoom: -4.4,
+              target: [3800, -900, 0],
+            },
+          },
+          x: 1, y: 0, h: 2 },
+        { component: 'ScatterplotSubscriber',
+          props: { mapping: 'UMAP' },
+          x: 1, y: 2, h: 2 },
+        { component: 'FactorsSubscriber',
+          x: 2, y: 0, h: 4 },
+      ],
+    },
+  },
 };
 /* eslint-enable */
 
-export function listConfigs() {
+export function listConfigs(showAll) {
   return Object.entries(configs).filter(
-    entry => entry[1].public,
+    entry => showAll || entry[1].public,
   ).map(
     ([id, config]) => ({
       id,
