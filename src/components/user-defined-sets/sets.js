@@ -1,87 +1,167 @@
 import { Set as ImmutableSet, OrderedMap as ImmutableOrderedMap } from 'immutable';
 
-export const SELECT_NAMED_SET = 'SELECT_NAMED_SET';
-export const DESELECT_NAMED_SET = 'DESELECT_NAMED_SET';
-export const SELECT_ALL_NAMED_SETS = 'SELECT_ALL_NAMED_SETS';
-export const DESELECT_ALL_NAMED_SETS = 'DESELECT_ALL_NAMED_SETS';
-export const RENAME_NAMED_SET = 'RENAME_NAMED_SET';
-export const SET_NAMED_SET = 'SET_NAMED_SET';
-export const DELETE_NAMED_SET = 'DELETE_NAMED_SET';
-export const DELETE_ALL_NAMED_SETS = 'DELETE_ALL_NAMED_SETS';
-export const SET_CURRENT_SET = 'SET_CURRENT_SET';
-export const CLEAR_CURRENT_SET = 'CLEAR_CURRENT_SET';
-export const NAME_CURRENT_SET = 'NAME_CURRENT_SET';
+// Class for storing Set objects of string IDs (cell IDs, gene IDs, etc...).
+// The collection of sets is stored as a map whose values are Set objects.
+// Think of the static methods here as reducer action functions.
+// Motivation for using reducer pattern:
+// https://medium.com/@dan_abramov/you-might-not-need-redux-be46360cf367
 
-// Adapted from https://redux.js.org/recipes/reducing-boilerplate#reducers
-function createReducer(initialState, handlers) {
-  return function reducer(state = initialState, action) {
-    // eslint-disable-next-line no-prototype-builtins
-    if (handlers.hasOwnProperty(action.type)) {
-      return handlers[action.type](state, action);
-    }
-    return state;
-  };
-}
+export default class Sets {
+    static initialState = {
+      namedSets: ImmutableOrderedMap(),
+      currentSet: ImmutableSet(),
+      selectedKeys: ImmutableSet(),
+    };
 
-const initialState = {
-  namedSets: ImmutableOrderedMap(),
-  currentSet: ImmutableSet(),
-  selectedKeys: ImmutableSet(),
-};
-
-export const setsReducer = createReducer(initialState, {
-  [SELECT_NAMED_SET]: (state, action) => ({
-    ...state,
-    selectedKeys: state.selectedKeys.add(action.key),
-  }),
-  [DESELECT_NAMED_SET]: (state, action) => ({
-    ...state,
-    selectedKeys: state.selectedKeys.delete(action.key),
-  }),
-  [SELECT_ALL_NAMED_SETS]: state => ({
-    ...state,
-    selectedKeys: ImmutableSet(state.namedSets.keys()),
-  }),
-  [DESELECT_ALL_NAMED_SETS]: state => ({
-    ...state,
-    selectedKeys: ImmutableSet(),
-  }),
-  [SET_NAMED_SET]: (state, action) => ({
-    ...state,
-    namedSets: state.namedSets.set(action.key, ImmutableSet(action.set)),
-  }),
-  [DELETE_NAMED_SET]: (state, action) => {
-    if (state.namedSets.has(action.key)) {
+    /**
+     * Marks a named set as selected based on its key.
+     * @param {object} state The current state.
+     * @param {string} key The key of the set to select.
+     * @returns {object} The new state.
+     */
+    static selectNamedSet(state, key) {
       return {
         ...state,
-        namedSets: state.namedSets.delete(action.key),
+        selectedKeys: state.selectedKeys.add(key),
       };
     }
-    return state;
-  },
-  [DELETE_ALL_NAMED_SETS]: state => ({
-    ...state,
-    namedSets: ImmutableOrderedMap(),
-    selectedKeys: ImmutableSet(),
-  }),
-  [RENAME_NAMED_SET]: (state, action) => {
-    if (state.namedSets.has(action.prevKey)) {
-      const prevSet = state.namedSets.get(action.prevKey);
-      return { ...state, namedSets: state.namedSets.delete(prevSet).set(action.nextKey, prevSet) };
+
+    /**
+     * Un-marks a named set as selected based on its key.
+     * @param {object} state The current state.
+     * @param {string} key The key of the set to deselect.
+     * @returns {object} The new state.
+     */
+    static deselectNamedSet(state, key) {
+      return {
+        ...state,
+        selectedKeys: state.selectedKeys.delete(key),
+      };
     }
-    return state;
-  },
-  [SET_CURRENT_SET]: (state, action) => ({
-    ...state,
-    currentSet: ImmutableSet(action.set),
-  }),
-  [CLEAR_CURRENT_SET]: state => ({
-    ...state,
-    currentSet: ImmutableSet(),
-  }),
-  [NAME_CURRENT_SET]: (state, action) => ({
-    ...state,
-    namedSets: state.namedSets.set(action.key, state.currentSet),
-    currentSet: (state.clear ? ImmutableSet() : state.currentSet),
-  }),
-});
+
+    /**
+     * Marks all named sets as selected.
+     * @param {object} state The current state.
+     * @returns {object} The new state.
+     */
+    static selectAllNamedSets(state) {
+      return {
+        ...state,
+        selectedKeys: ImmutableSet(state.namedSets.keys()),
+      };
+    }
+
+    /**
+     * Un-marks all named sets as selected.
+     * @param {object} state The current state.
+     * @returns {object} The new state.
+     */
+    static deselectAllNamedSets(state) {
+      return {
+        ...state,
+        selectedKeys: ImmutableSet(),
+      };
+    }
+
+    /**
+     * Modifies the set entry for a named set.
+     * @param {object} state The current state.
+     * @param {string} key The set key.
+     * @param {Set} set The set value.
+     * @returns {object} The new state.
+     */
+    static setNamedSet(state, key, set) {
+      return {
+        ...state,
+        namedSets: state.namedSets.set(key, ImmutableSet(set)),
+      };
+    }
+
+    /**
+     * Deletes the set entry for a named set.
+     * @param {object} state The current state.
+     * @param {string} key The set key.
+     * @returns {object} The new state.
+     */
+    static deleteNamedSet(state, key) {
+      if (state.namedSets.has(key)) {
+        return {
+          ...state,
+          namedSets: state.namedSets.delete(key),
+        };
+      }
+      return state;
+    }
+
+    /**
+     * Deletes set entries for all named sets.
+     * @param {object} state The current state.
+     * @returns {object} The new state.
+     */
+    static deleteAllNamedSets(state) {
+      return {
+        ...state,
+        namedSets: ImmutableOrderedMap(),
+        selectedKeys: ImmutableSet(),
+      };
+    }
+
+    /**
+     * Deletes the set mapping for the set specified using prevKey,
+     * then maps the set value to nextKey.
+     * @param {object} state The current state.
+     * @param {string} prevKey The previous key for the set.
+     * @param {string} nextKey The new key for the set.
+     * @returns {object} The new state.
+     */
+    static renameNamedSet(state, prevKey, nextKey) {
+      if (state.namedSets.has(prevKey)) {
+        const prevSet = state.namedSets.get(prevKey);
+        return {
+          ...state,
+          namedSets: state.namedSets.delete(prevSet).set(nextKey, prevSet),
+        };
+      }
+      return state;
+    }
+
+    /**
+     * Modifies the set value for the current set.
+     * @param {object} state The current state.
+     * @param {Set} set The new current set value.
+     * @returns {object} The new state.
+     */
+    static setCurrentSet(state, set) {
+      return {
+        ...state,
+        currentSet: ImmutableSet(set),
+      };
+    }
+
+    /**
+     * Sets the current set value to an empty set.
+     * @param {object} state The current state.
+     * @returns {object} The new state.
+     */
+    static clearCurrentSet(state) {
+      return {
+        ...state,
+        currentSet: ImmutableSet(),
+      };
+    }
+
+    /**
+     * Copies the current set to a named set entry.
+     * @param {object} state The current state.
+     * @param {string} key The key for the named set mapping.
+     * @param {boolean} clear Whether to clear the current set after the copying. Default: false
+     * @returns {object} The new state.
+     */
+    static nameCurrentSet(state, key, clear) {
+      return {
+        ...state,
+        namedSets: state.namedSets.set(key, state.currentSet),
+        currentSet: (clear ? ImmutableSet() : state.currentSet),
+      };
+    }
+}
