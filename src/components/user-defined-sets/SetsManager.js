@@ -1,5 +1,6 @@
 import React from 'react';
 import CurrentSetManager from './CurrentSetManager';
+import NamedSetManager from './NamedSetManager';
 
 export default function SetsManager(props) {
   const {
@@ -11,14 +12,13 @@ export default function SetsManager(props) {
   return (
     <div className="sets-manager">
       <CurrentSetManager sets={sets} onUpdateSets={onUpdateSets} />
-      <div className="set-list">
-        {sets.namedSets.mapEntries(([key, set]) => [key, (
-          <div className="set-name" key={key}>
-            {key}
-            <small>{set.size}</small>
-          </div>
-        )]).toSet().toArray()}
-      </div>
+      <table className="set-list">
+        <tbody>
+          {sets.namedSets.mapEntries(([name]) => [name, (
+            <NamedSetManager key={name} sets={sets} name={name} onUpdateSets={onUpdateSets} />
+          )]).toSet().toArray()}
+        </tbody>
+      </table>
     </div>
   );
 }

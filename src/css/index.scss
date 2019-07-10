@@ -188,8 +188,33 @@ $set-name-height: 16px;
 
     .set-list {
         margin-top: 6px;
+        width: 100%;
         .set-name {
             margin-bottom: 4px;
+        }
+        .set-count {
+            text-align: right;
+        }
+        .set-edit {
+            text-align: right;
+            button {
+                -webkit-appearance: none;
+                background-color: #fff;
+                border: none;
+                border-radius: 2px;
+                color: #000;
+                text-align: center;
+                text-decoration: none;
+                height: $set-name-height;
+                line-height: $set-name-height;
+                display: inline-block;
+                margin: 0 auto;
+                padding: 0 4px;
+                cursor: pointer;
+                &:hover {
+                    background-color: #999;
+                }
+            }
         }
     }
 }

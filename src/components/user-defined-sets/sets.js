@@ -31,7 +31,7 @@ export function setNamedSet(state, name, set) {
      * @param {string} name The set name.
      * @returns {object} The new state.
      */
-/* export function deleteNamedSet(state, name) {
+export function deleteNamedSet(state, name) {
   if (state.namedSets.has(name)) {
     return {
       ...state,
@@ -39,7 +39,7 @@ export function setNamedSet(state, name, set) {
     };
   }
   return state;
-} */
+}
 
 /**
      * Deletes set entries for all named sets.
@@ -61,16 +61,16 @@ export function setNamedSet(state, name, set) {
      * @param {string} nextName The new name for the set.
      * @returns {object} The new state.
      */
-/* export function renameNamedSet(state, prevName, nextName) {
+export function renameNamedSet(state, prevName, nextName) {
   if (state.namedSets.has(prevName)) {
     const prevSet = state.namedSets.get(prevName);
     return {
       ...state,
-      namedSets: state.namedSets.delete(prevSet).set(nextName, prevSet),
+      namedSets: state.namedSets.delete(prevName).set(nextName, prevSet),
     };
   }
   return state;
-} */
+}
 
 /**
      * Modifies the set value for the current set.
