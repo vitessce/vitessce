@@ -1,5 +1,5 @@
 import React from 'react';
-import Sets from './sets';
+import * as Sets from './sets';
 
 const CURRENT_SELECTION = 'Current selection';
 
@@ -26,7 +26,7 @@ export default class CurrentSetManager extends React.Component {
   }
 
   stopEditing() {
-    this.setState({ isEditing: false, setName: '' });
+    this.setState({ isEditing: false });
   }
 
   handleChange(event) {
