@@ -15,22 +15,11 @@ describe('CurrentSetManager.js', () => {
       expect(wrapper.find('.sets-manager-disabled').length).toEqual(1);
     });
 
-    it('has start saving button but no input if current selection is not empty', () => {
+    it('has save button and input if current selection is not empty', () => {
       let setsState = Sets.initialState;
       setsState = Sets.setCurrentSet(setsState, new Set([1, 2, 3]));
       const wrapper = shallow(<CurrentSetManager sets={setsState} />);
-      expect(wrapper.find('.sets-manager-disabled').length).toEqual(0);
-      expect(wrapper.find('.set-item-save').length).toEqual(1);
-      expect(wrapper.find('input').length).toEqual(0);
-    });
-
-    it('has save button and input if start saving button was pressed', () => {
-      let setsState = Sets.initialState;
-      setsState = Sets.setCurrentSet(setsState, new Set([1, 2, 3]));
-      const wrapper = shallow(<CurrentSetManager sets={setsState} />);
-      const button = wrapper.find('.set-item-save');
-      button.simulate('click', { preventDefault: () => {} });
-      wrapper.update();
+      expect(wrapper.find('button.set-item-save').length).toEqual(1);
       expect(wrapper.find('input').length).toEqual(1);
     });
   });
