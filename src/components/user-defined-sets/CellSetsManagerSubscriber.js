@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 import { CELL_SETS_MODIFY, CELLS_SELECTION } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
-import Sets from './sets';
+import * as Sets from './sets';
 
 export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {

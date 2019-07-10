@@ -12,12 +12,12 @@ export default function SetsManager(props) {
     <div className="sets-manager">
       <CurrentSetManager sets={sets} onUpdateSets={onUpdateSets} />
       <div className="set-list">
-        {Array.from(sets.namedSets.keys()).reverse().map(key => (
+        {sets.namedSets.mapEntries(([key, set]) => [key, (
           <div className="set-name" key={key}>
             {key}
-            <small>{sets.namedSets.get(key).size}</small>
+            <small>{set.size}</small>
           </div>
-        ))}
+        )]).toSet().toArray()}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import expect from 'expect';
-import Sets from './sets';
+import * as Sets from './sets';
 
 describe('sets.js', () => {
   describe('namedSets.keys()', () => {

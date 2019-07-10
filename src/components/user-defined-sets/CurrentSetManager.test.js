@@ -3,7 +3,7 @@ import Adapter from 'enzyme-adapter-react-16';
 import { shallow, configure } from 'enzyme';
 import expect from 'expect';
 import CurrentSetManager from './CurrentSetManager';
-import Sets from './sets';
+import * as Sets from './sets';
 
 configure({ adapter: new Adapter() });
 

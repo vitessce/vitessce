@@ -1,5 +1,5 @@
 import React from 'react';
-import Sets from './sets';
+import * as Sets from './sets';
 
 export default class CurrentSetManager extends React.Component {
   constructor(props) {

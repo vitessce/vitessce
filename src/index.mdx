@@ -19,7 +19,7 @@ for an overview of our development process.
 
 - List of data sets is hardcoded in `app.js`...
 some day, we'll have a real API to pull this from.
-- [`vitessce-data`](https://github.com/hms-dbmi/vitessce-data) puts files on S3, and `LayerManagerPublisher` pulls them down and checks that they conform to schema.
+- [`vitessce-data`](https://github.com/hms-dbmi/vitessce-data) puts files on S3, and `LayerPublisher` pulls them down and checks that they conform to schema.
 - Rather than being a single React app, each component is independent,
 with communication facilitated by [PubSubJS](https://github.com/mroderick/PubSubJS#readme).
   - `Publisher`/`Subscriber` are only useful with the particular event system we are using...

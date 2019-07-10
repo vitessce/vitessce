@@ -2,7 +2,7 @@ import React from 'react';
 
 import VitessceGrid from 'vitessce-grid';
 
-import { LayerManagerPublisher } from '../components/layermanager';
+import { LayerPublisher } from '../components/layerpublisher';
 
 
 export default class PubSubVitessceGrid extends React.Component {
@@ -16,7 +16,7 @@ export default class PubSubVitessceGrid extends React.Component {
     const { allReady } = this.state;
     return (
       <React.Fragment>
-        { allReady && <LayerManagerPublisher layers={config.layers} /> }
+        { allReady && <LayerPublisher layers={config.layers} /> }
         <VitessceGrid
           layout={config.responsiveLayout || config.staticLayout}
           getComponent={getComponent}
