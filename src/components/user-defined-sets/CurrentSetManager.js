@@ -21,7 +21,7 @@ export default class CurrentSetManager extends React.Component {
   startEditing(event) {
     event.preventDefault();
     const { sets } = this.props;
-    const nextIndex = Array.from(sets.namedSets.keys()).length + 1;
+    const nextIndex = sets.namedSets.size + 1;
     this.setState({ isEditing: true, setName: `Set ${nextIndex}` });
   }
 
