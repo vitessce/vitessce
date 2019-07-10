@@ -1,14 +1,12 @@
 import React from 'react';
 import Sets from './sets';
 
-const CURRENT_SELECTION = 'Current selection';
-
 export default class CurrentSetManager extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       isEditing: false,
-      setName: '',
+      setName: undefined,
     };
 
     this.startEditing = this.startEditing.bind(this);
@@ -18,15 +16,19 @@ export default class CurrentSetManager extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  startEditing(event) {
-    event.preventDefault();
+  getNextSetName() {
     const { sets } = this.props;
     const nextIndex = Array.from(sets.namedSets.keys()).length + 1;
-    this.setState({ isEditing: true, setName: `Set ${nextIndex}` });
+    return `Set ${nextIndex}`;
+  }
+
+  startEditing(event) {
+    event.preventDefault();
+    this.setState({ isEditing: true, setName: this.getNextSetName() });
   }
 
   stopEditing() {
-    this.setState({ isEditing: false, setName: '' });
+    this.setState({ isEditing: false, setName: undefined });
   }
 
   handleChange(event) {
@@ -35,73 +37,48 @@ export default class CurrentSetManager extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    const { setName } = this.state;
+    const { isEditing, setName } = this.state;
     const { sets, onUpdateSets } = this.props;
-    onUpdateSets(Sets.nameCurrentSet(sets, setName, false));
+    onUpdateSets(Sets.nameCurrentSet(sets, (isEditing ? setName : this.getNextSetName()), false));
     this.stopEditing();
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  Disabled() {
-    return (
-      <tr>
-        <td className="set-name">{CURRENT_SELECTION}</td>
-        <td />
-        <td />
-      </tr>
-    );
-  }
-
-  EnabledStatic() {
-    return (
-      <tr>
-        <td className="set-name">{CURRENT_SELECTION}</td>
-        <td />
-        <td>
-          <button type="button" className="set-item-button set-item-save" onClick={this.startEditing}>Save</button>
-        </td>
-      </tr>
-    );
-  }
-
-  EnabledEditing() {
-    const { setName } = this.state;
-    return (
-      <tr>
-        <td className="set-name">
-          <input type="text" value={setName} onChange={this.handleChange} />
-        </td>
-        <td>
-          <button type="button" className="set-item-button set-item-cancel" onClick={this.stopEditing}>×</button>
-        </td>
-        <td>
-          <button type="submit" className="set-item-button set-item-save">Save</button>
-        </td>
-      </tr>
-    );
   }
 
   render() {
     const { sets } = this.props;
-    const { isEditing } = this.state;
 
     if (!sets || sets.currentSet.size === 0) {
       return (
         <table className="current-set-manager sets-manager-disabled">
           <tbody>
-            {this.Disabled()}
+            <tr>
+              <td className="set-name">
+                    No current selection
+              </td>
+              <td />
+              <td />
+            </tr>
           </tbody>
         </table>
       );
     }
+
+    const { setName, isEditing } = this.state;
+
     return (
       <form onSubmit={this.handleSubmit}>
         <table className="current-set-manager">
           <tbody>
-            {isEditing
-              ? this.EnabledEditing()
-              : this.EnabledStatic()
-            }
+            <tr>
+              <td className="set-name">
+                {isEditing
+                  ? (<input type="text" value={setName} onChange={this.handleChange} />)
+                  : (<input type="text" value={this.getNextSetName()} onFocus={this.startEditing} />)
+                  }
+              </td>
+              <td>
+                <button type="submit" className="set-item-button set-item-save">Save</button>
+              </td>
+            </tr>
           </tbody>
         </table>
       </form>

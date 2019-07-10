@@ -145,7 +145,6 @@ pre {
             color: #000;
             text-align: center;
             text-decoration: none;
-            vertical-align: middle;
             height: 16px;
             line-height: 16px;
             display: block;
@@ -154,11 +153,6 @@ pre {
             &.set-item-save {
                 font-size: 60%;
                 padding: 0px 4px;
-            }
-
-            &.set-item-cancel {
-                font-size: 80%;
-                padding: 0px 2px;
             }
         }
     }
