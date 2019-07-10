@@ -63,7 +63,6 @@ export default class CurrentSetManager extends React.Component {
     }
 
     const { setName, isEditing } = this.state;
-
     return (
       <form onSubmit={this.handleSubmit}>
         <table className="current-set-manager">
