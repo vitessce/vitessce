@@ -5,6 +5,7 @@
 - Polygon selection tool leveraging the Nebula.gl package.
 - Tooltip in heatmap.
 - WIP: Using CSS modules.
+- Cell set manager component with limited cell set naming functionality.
 ### Changed
 - PubSubVitessceGrid is now exported, and the registry lookup function is a parameter.
 A HiGlass demo no longer requires HiGlass to be checked in as part of this project.
