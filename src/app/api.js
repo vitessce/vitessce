@@ -369,20 +369,13 @@ const configs = {
         // third column is constant;
         // Grid cell width stays roughly constant,
         // but more columns are available in a wider window.
-        1400: [0, 6, 12],
-        1200: [0, 5, 10],
-        1000: [0, 4, 8],
-        800: [0, 3, 6],
-        600: [0, 2, 4],
+        1400: [0, 14],
+        1200: [0, 12],
+        1000: [0, 10],
+        800: [0, 8],
+        600: [0, 6],
       },
       components: [
-        { component: 'Description',
-          props: {
-            description: 'MERmaid',
-          },
-          x: 0, y: 0 },
-        { component: 'StatusSubscriber',
-          x: 0, y: 1 },
         { component: 'SpatialSubscriber',
           props: {
             view: {
@@ -390,7 +383,7 @@ const configs = {
               target: [10, -90, 0],
             },
           },
-          x: 1, y: 0, h: 2 },
+          x: 0, y: 0, h: 2 },
       ],
     },
   },
