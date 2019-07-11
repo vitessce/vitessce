@@ -97,6 +97,8 @@ export default class SpatialSubscriber extends React.Component {
         <Spatial
           {... this.state}
           view={this.props.view}
+          moleculeRadius={this.props.moleculeRadius}
+          cellRadius={this.props.cellRadius}
           uuid={uuid}
           updateStatus={
             message => PubSub.publish(STATUS_INFO, message)
@@ -119,3 +121,8 @@ export default class SpatialSubscriber extends React.Component {
     );
   }
 }
+
+SpatialSubscriber.defaultProps = {
+  cellRadius: 50,
+  moleculeRadius: 10,
+};

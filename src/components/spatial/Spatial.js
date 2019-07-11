@@ -7,8 +7,7 @@ import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
 import OpenSeadragonComponent from '../../vendor/OpenSeadragonComponent';
 
-export function square(x, y) {
-  const r = 50;
+export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
 
@@ -96,7 +95,7 @@ export default class Spatial extends AbstractSelectableComponent {
       ),
       getPolygon(cellEntry) {
         const cell = cellEntry[1];
-        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1]);
+        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], this.props.cellRadius);
       },
       stroked: false,
       getColor: cellEntry => (
@@ -141,7 +140,7 @@ export default class Spatial extends AbstractSelectableComponent {
       data: scatterplotData,
       pickable: true,
       autoHighlight: true,
-      getRadius: 2,
+      getRadius: this.props.moleculeRadius,
       getPosition: d => [d[0], d[1], 0],
       getColor: d => PALETTE[d[2] % PALETTE.length],
       onHover: (info) => {

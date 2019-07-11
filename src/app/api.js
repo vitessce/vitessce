@@ -1,7 +1,6 @@
 import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
-import higlassViewConf from './higlass-viewconf.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/mermaid';
@@ -289,32 +288,6 @@ const configs = {
           x: 2, y: 4, w: 1, h: 2 },
       ],
     },
-  },
-  'higlass-component-demo': {
-    description: '???',
-    layers: [],
-    name: 'HiGlass component demo',
-    staticLayout: [
-      { component: 'HiGlassComponent',
-        props: {
-          options: { bounded: true, editable: false },
-          viewConfig: higlassViewConf,
-        },
-        x: 1, y: 0, w: 10, h: 1 },
-    ],
-  },
-  'higlass-wrapped-component-demo': {
-    description: '???',
-    layers: [],
-    name: 'HiGlass wrapped component demo',
-    staticLayout: [
-      { component: 'HiGlassWrappedComponent',
-        props: {
-          options: { bounded: true, editable: false },
-          viewConfig: higlassViewConf,
-        },
-        x: 1, y: 0, w: 10, h: 1 },
-    ],
   },
   'giotto-2019': {
     ...giottoBase,
