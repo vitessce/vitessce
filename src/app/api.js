@@ -353,8 +353,9 @@ const configs = {
           props: {
             view: {
               zoom: -1.8,
-              target: [10, -90, 0],
+              target: [10, -70, 0],
             },
+            moleculeRadius: 2,
           },
           x: 0, y: 0, h: 2 },
       ],
