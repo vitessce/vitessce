@@ -39,7 +39,7 @@ export default function NamedSetManager(props) {
           )
           : (
             <td className="set-count">
-              <small>{set.size}</small>
+              <small>{set.length}</small>
             </td>
           )}
         {isEditing

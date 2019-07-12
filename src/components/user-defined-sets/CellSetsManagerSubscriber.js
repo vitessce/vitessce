@@ -9,7 +9,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cellSets: Sets.initialState,
+      cellSets: Sets.restore('cells', '123'),
     };
   }
 
@@ -53,7 +53,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
       >
         <SetsManager
           sets={cellSets}
-          onUpdateSets={sets => PubSub.publish(CELL_SETS_MODIFY, sets)}
+          onUpdateSets={(sets) => { PubSub.publish(CELL_SETS_MODIFY, sets); Sets.persist(sets, 'cells', '123'); }}
         />
       </TitleInfo>
     );

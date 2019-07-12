@@ -14,9 +14,9 @@ export default function SetsManager(props) {
       <CurrentSetManager sets={sets} onUpdateSets={onUpdateSets} />
       <table className="set-list">
         <tbody>
-          {sets.namedSets.mapEntries(([name]) => [name, (
+          {Object.keys(sets.namedSets).map(name => (
             <NamedSetManager key={name} sets={sets} name={name} onUpdateSets={onUpdateSets} />
-          )]).toSet().toArray()}
+          ))}
         </tbody>
       </table>
     </div>

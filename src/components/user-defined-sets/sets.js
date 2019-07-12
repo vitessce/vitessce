@@ -123,43 +123,21 @@ export function nameCurrentSet(state, name, clear) {
 // TODO: add tests when time to un-comment
 
 /**
- * @param {object} state The state object to serialize.
- * @returns {string} The serialized state object.
- */
-export function serialize(state) {
-  return JSON.stringify(state);
-}
-
-/**
- * @param {string} serializedState The serialized state object as a string.
- * @returns {object} The un-serialized state object.
- */
-export function unserialize(serializedState) {
-  const {
-    namedSets = {},
-    currentSet = [],
-  } = JSON.parse(serializedState);
-  return {
-    namedSets,
-    currentSet,
-  };
-}
-
-/**
  * @param {object} state A state object to persist to local storage.
  * @param {string} setTypeKey The type of object in the state, for example "cells" or "genes".
  * @param {string} datasetKey The dataset from which the sets come, for example "linnarson-2018".
  */
 export function persist(state, setTypeKey, datasetKey) {
-  const sets = unserialize(localStorage.getItem('sets'));
-  try {
-    sets[setTypeKey][datasetKey] = state;
-  } catch (e) {
+  const sets = store.get('sets') || {};
+  const stateToSave = { namedSets: state.namedSets };
+  if (sets.hasOwnProperty(setTypeKey)) {
+    sets[setTypeKey][datasetKey] = stateToSave;
+  } else {
     sets[setTypeKey] = {
-      [datasetKey]: state,
+      [datasetKey]: stateToSave,
     };
   }
-  localStorage.setItem('sets', serialize(sets));
+  store.set('sets', sets);
 }
 
 /**
@@ -168,9 +146,8 @@ export function persist(state, setTypeKey, datasetKey) {
  */
 export function restore(setTypeKey, datasetKey) {
   try {
-    const serializedState = localStorage.getItem('sets')[setTypeKey][datasetKey];
-    return unserialize(serializedState);
+    return { ...initialState, ...store.get('sets')[setTypeKey][datasetKey] };
   } catch (e) {
-    return {};
+    return initialState;
   }
 }
