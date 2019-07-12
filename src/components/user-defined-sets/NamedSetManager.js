@@ -32,7 +32,14 @@ export default function NamedSetManager(props) {
       <tr className="set-name">
         <td>
           {isEditing
-            ? <input value={setName} onChange={e => setSetName(e.target.value)} type="text" />
+            ? (
+              <input
+                value={setName}
+                onKeyDown={e => (e.keyCode === 13 ? renameSet() : null)}
+                onChange={e => setSetName(e.target.value)}
+                type="text"
+              />
+            )
             : <button type="button" className="select-button" onClick={() => updateCurrentSet(name)}>{name}</button>}
         </td>
         {isEditing

@@ -184,7 +184,7 @@ html,body {
               -webkit-appearance: none;
               background: transparent;
               color: lightgrey;
-              border: 0px solid red;
+              border: 0;
               cursor: pointer;
               padding: 0;
               box-sizing: border-box;
@@ -206,7 +206,7 @@ html,body {
           }
           .set-edit {
               text-align: right;
-              .edit-button {
+              button {
                   -webkit-appearance: none;
                   background-color: #fff;
                   border: none;
