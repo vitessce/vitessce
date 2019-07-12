@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/accessible-emoji */
 import React, { useState } from 'react';
 import * as Sets from './sets';
 
@@ -23,8 +24,8 @@ export default function NamedSetManager(props) {
     onUpdateSets(Sets.deleteNamedSet(sets, name));
   };
 
-  const updateCurrentSet = (name) => {
-    onUpdateSets(Sets.setCurrentSet(sets, sets.namedSets[name]));
+  const updateCurrentSet = (nameToSelect) => {
+    onUpdateSets(Sets.setCurrentSet(sets, sets.namedSets[nameToSelect]));
   };
 
   return (

@@ -1,6 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { CELL_SETS_MODIFY, CELLS_SELECTION, CELLS } from '../../events';
+import { CELL_SETS_MODIFY, CELLS_SELECTION } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import * as Sets from './sets';
