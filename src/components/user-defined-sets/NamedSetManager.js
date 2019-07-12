@@ -23,13 +23,17 @@ export default function NamedSetManager(props) {
     onUpdateSets(Sets.deleteNamedSet(sets, name));
   };
 
+  const updateCurrentSet = (name) => {
+    onUpdateSets(Sets.setCurrentSet(sets, sets.namedSets[name]));
+  };
+
   return (
     <React.Fragment>
       <tr className="set-name">
         <td>
           {isEditing
             ? <input value={setName} onChange={e => setSetName(e.target.value)} type="text" />
-            : name}
+            : <button type="button" className="select-button" onClick={() => updateCurrentSet(name)}>{name}</button>}
         </td>
         {isEditing
           ? (
@@ -50,7 +54,7 @@ export default function NamedSetManager(props) {
           )
           : (
             <td className="set-edit">
-              <button type="button" onClick={() => setIsEditing(true)}>✏️</button>
+              <button type="button" className="edit-button" onClick={() => setIsEditing(true)}>✏️</button>
             </td>
           )
         }

@@ -88,6 +88,9 @@ const configs = {
         { component: 'FactorsSubscriber',
           x: 2, y: 0, h: 1 },
         { component: 'CellSetsManagerSubscriber',
+          props: {
+            datasetId: 'linnarsson-2018',
+          },
           x: 2, y: 1, h: 1 },
         { component: 'GenesSubscriber',
           x: 2, y: 2, h: 2 },

@@ -1,15 +1,18 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { CELL_SETS_MODIFY, CELLS_SELECTION } from '../../events';
+import { CELL_SETS_MODIFY, CELLS_SELECTION, CELLS } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import * as Sets from './sets';
 
+const cellSetTypeKey = 'cells';
+
 export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
     super(props);
+    const { datasetId } = props;
     this.state = {
-      cellSets: Sets.restore('cells', '123'),
+      cellSets: Sets.restore(cellSetTypeKey, datasetId),
     };
   }
 
@@ -34,6 +37,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   cellSetsSubscriber(msg, cellSets) {
     this.setState({ cellSets });
+    PubSub.publish(CELLS_SELECTION, new Set(cellSets.currentSet));
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
@@ -45,6 +49,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   render() {
     const { cellSets } = this.state;
+    const { datasetId } = this.props;
     return (
       <TitleInfo
         title="Cell Sets"
@@ -53,7 +58,10 @@ export default class CellSetsManagerSubscriber extends React.Component {
       >
         <SetsManager
           sets={cellSets}
-          onUpdateSets={(sets) => { PubSub.publish(CELL_SETS_MODIFY, sets); Sets.persist(sets, 'cells', '123'); }}
+          onUpdateSets={(sets) => {
+            PubSub.publish(CELL_SETS_MODIFY, sets);
+            Sets.persist(sets, cellSetTypeKey, datasetId);
+          }}
         />
       </TitleInfo>
     );

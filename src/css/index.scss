@@ -180,6 +180,15 @@ $set-name-height: 16px;
         small {
             margin-left: 10px;
         }
+        .select-button {
+            -webkit-appearance: none;
+            background: transparent;
+            color: lightgrey;
+            border: 0px solid red;
+            cursor: pointer;
+            padding: 0;
+            box-sizing: border-box;
+        }
     }
 
     .sets-manager-disabled {
@@ -197,7 +206,7 @@ $set-name-height: 16px;
         }
         .set-edit {
             text-align: right;
-            button {
+            .edit-button {
                 -webkit-appearance: none;
                 background-color: #fff;
                 border: none;
