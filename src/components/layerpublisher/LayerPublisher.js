@@ -71,7 +71,7 @@ function loadLayer(layer) {
     });
 }
 
-export default class LayerManagerPublisher extends React.Component {
+export default class LayerPublisher extends React.Component {
   constructor(props) {
     super(props);
     const { layers } = this.props;
