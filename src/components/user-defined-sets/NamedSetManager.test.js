@@ -11,7 +11,7 @@ describe('NamedSetManager.js', () => {
   describe('<NamedSetManager />', () => {
     it('renders name and edit button when not editing', () => {
       let setsState = Sets.initialState;
-      setsState = Sets.setNamedSet(setsState, 'test', new Set([1, 2, 3]));
+      setsState = Sets.setNamedSet(setsState, 'test', [1, 2, 3]);
       const wrapper = shallow(<NamedSetManager sets={setsState} name="test" />);
       expect(wrapper.find('input').length).toEqual(0);
       expect(wrapper.find('button').length).toEqual(1);
@@ -19,7 +19,7 @@ describe('NamedSetManager.js', () => {
 
     it('renders input when editing', () => {
       let setsState = Sets.initialState;
-      setsState = Sets.setNamedSet(setsState, 'test', new Set([1, 2, 3]));
+      setsState = Sets.setNamedSet(setsState, 'test', [1, 2, 3]);
       const wrapper = shallow(<NamedSetManager sets={setsState} name="test" />);
       const button = wrapper.find('button');
       button.simulate('click', {});

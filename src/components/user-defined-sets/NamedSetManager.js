@@ -9,7 +9,7 @@ export default function NamedSetManager(props) {
       console.warn(`onUpdateSets from NamedSetManager ${msg}`);
     },
   } = props;
-  const set = sets.namedSets.get(name);
+  const set = sets.namedSets[name];
   const [isEditing, setIsEditing] = useState(false);
   const [setName, setSetName] = useState(name);
 

@@ -1,5 +1,5 @@
-import { Set as ImmutableSet, OrderedMap as ImmutableOrderedMap } from 'immutable';
-
+/* eslint-disable no-prototype-builtins */
+import store from 'store';
 // Functions for storing Set objects of string IDs (cell IDs, gene IDs, etc...).
 // The collection of sets is stored as a map whose values are Set objects.
 // Think of the static methods here as reducer action functions.
@@ -7,21 +7,28 @@ import { Set as ImmutableSet, OrderedMap as ImmutableOrderedMap } from 'immutabl
 // https://medium.com/@dan_abramov/you-might-not-need-redux-be46360cf367
 
 export const initialState = {
-  namedSets: ImmutableOrderedMap(),
-  currentSet: ImmutableSet(),
+  namedSets: {},
+  currentSet: [],
 };
+
+function toArray(set) {
+  if (Array.isArray(set)) {
+    return set;
+  }
+  return Array.from(set);
+}
 
 /**
  * Modifies the set entry for a named set.
  * @param {object} state The current state.
  * @param {string} name The set name.
- * @param {Set} set The set value.
+ * @param {array} set The set value.
  * @returns {object} The new state.
  */
 export function setNamedSet(state, name, set) {
   return {
     ...state,
-    namedSets: state.namedSets.set(name, ImmutableSet(set)),
+    namedSets: { ...state.namedSets, [name]: toArray(set) },
   };
 }
 
@@ -32,10 +39,12 @@ export function setNamedSet(state, name, set) {
      * @returns {object} The new state.
      */
 export function deleteNamedSet(state, name) {
-  if (state.namedSets.has(name)) {
+  if (state.namedSets.hasOwnProperty(name)) {
+    const newNamedSets = { ...state.namedSets };
+    delete newNamedSets[name];
     return {
       ...state,
-      namedSets: state.namedSets.delete(name),
+      namedSets: newNamedSets,
     };
   }
   return state;
@@ -49,7 +58,7 @@ export function deleteNamedSet(state, name) {
 /* export function deleteAllNamedSets(state) {
   return {
     ...state,
-    namedSets: ImmutableOrderedMap(),
+    namedSets: {},
   };
 } */
 
@@ -62,11 +71,12 @@ export function deleteNamedSet(state, name) {
      * @returns {object} The new state.
      */
 export function renameNamedSet(state, prevName, nextName) {
-  if (state.namedSets.has(prevName)) {
-    const prevSet = state.namedSets.get(prevName);
+  if (state.namedSets.hasOwnProperty(prevName)) {
+    const prevSet = state.namedSets[prevName];
+    const deletedState = deleteNamedSet(state, prevName);
     return {
-      ...state,
-      namedSets: state.namedSets.delete(prevName).set(nextName, prevSet),
+      ...deletedState,
+      namedSets: { ...deletedState.namedSets, [nextName]: prevSet },
     };
   }
   return state;
@@ -75,13 +85,13 @@ export function renameNamedSet(state, prevName, nextName) {
 /**
      * Modifies the set value for the current set.
      * @param {object} state The current state.
-     * @param {Set} set The new current set value.
+     * @param {array} set The new current set value.
      * @returns {object} The new state.
      */
 export function setCurrentSet(state, set) {
   return {
     ...state,
-    currentSet: ImmutableSet(set),
+    currentSet: toArray(set),
   };
 }
 
@@ -91,10 +101,7 @@ export function setCurrentSet(state, set) {
      * @returns {object} The new state.
      */
 export function clearCurrentSet(state) {
-  return {
-    ...state,
-    currentSet: ImmutableSet(),
-  };
+  return setCurrentSet(state, []);
 }
 
 /**
@@ -107,55 +114,63 @@ export function clearCurrentSet(state) {
 export function nameCurrentSet(state, name, clear) {
   return {
     ...state,
-    namedSets: state.namedSets.set(name, state.currentSet),
-    currentSet: (clear ? ImmutableSet() : state.currentSet),
+    namedSets: { ...state.namedSets, [name]: state.currentSet },
+    currentSet: (clear ? [] : state.currentSet),
   };
 }
 
 // TODO: better to do explicit checks than try-catch
-// TODO: serialization should go all the way to string
 // TODO: add tests when time to un-comment
 
-/* export function serialize(state) {
-  const {
-    namedSets = ImmutableOrderedMap(),
-    currentSet = ImmutableSet(),
-  } = state;
-  return {
-    namedSets: namedSets.toArray(),
-    currentSet: currentSet.toArray(),
-  };
-} */
+/**
+ * @param {object} state The state object to serialize.
+ * @returns {string} The serialized state object.
+ */
+export function serialize(state) {
+  return JSON.stringify(state);
+}
 
-/* export function unserialize(serializedState) {
+/**
+ * @param {string} serializedState The serialized state object as a string.
+ * @returns {object} The un-serialized state object.
+ */
+export function unserialize(serializedState) {
   const {
-    namedSets = [],
+    namedSets = {},
     currentSet = [],
-  } = serializedState;
+  } = JSON.parse(serializedState);
   return {
-    namedSets: ImmutableOrderedMap(namedSets),
-    currentSet: ImmutableSet(currentSet),
+    namedSets,
+    currentSet,
   };
-} */
+}
 
-/* export function persist(state, setTypeKey, datasetKey) {
-  const serializedState = serialize(state);
-  const serializedSets = JSON.parse(localStorage.getItem('sets')) || {};
+/**
+ * @param {object} state A state object to persist to local storage.
+ * @param {string} setTypeKey The type of object in the state, for example "cells" or "genes".
+ * @param {string} datasetKey The dataset from which the sets come, for example "linnarson-2018".
+ */
+export function persist(state, setTypeKey, datasetKey) {
+  const sets = unserialize(localStorage.getItem('sets'));
   try {
-    serializedSets[setTypeKey][datasetKey] = serializedState;
+    sets[setTypeKey][datasetKey] = state;
   } catch (e) {
-    serializedSets[setTypeKey] = {
-      [datasetKey]: serializedState,
+    sets[setTypeKey] = {
+      [datasetKey]: state,
     };
   }
-  localStorage.setItem('sets', JSON.stringify(serializedSets));
-} */
+  localStorage.setItem('sets', serialize(sets));
+}
 
-/* export function restore(setTypeKey, datasetKey) {
+/**
+ * @param {string} setTypeKey The type of object in the state, for example "cells" or "genes".
+ * @param {string} datasetKey The dataset from which the sets come, for example "linnarson-2018".
+ */
+export function restore(setTypeKey, datasetKey) {
   try {
-    const serializedState = JSON.parse(localStorage.getItem('sets'))[setTypeKey][datasetKey];
+    const serializedState = localStorage.getItem('sets')[setTypeKey][datasetKey];
     return unserialize(serializedState);
   } catch (e) {
-    return unserialize({});
+    return {};
   }
-} */
+}

@@ -18,7 +18,7 @@ export default class CurrentSetManager extends React.Component {
 
   getNextSetName() {
     const { sets } = this.props;
-    const nextIndex = Array.from(sets.namedSets.keys()).length + 1;
+    const nextIndex = Object.keys(sets.namedSets).length + 1;
     return `Set ${nextIndex}`;
   }
 
@@ -46,7 +46,7 @@ export default class CurrentSetManager extends React.Component {
   render() {
     const { sets } = this.props;
 
-    if (!sets || sets.currentSet.size === 0) {
+    if (!sets || sets.currentSet.length === 0) {
       return (
         <table className="current-set-manager sets-manager-disabled">
           <tbody>

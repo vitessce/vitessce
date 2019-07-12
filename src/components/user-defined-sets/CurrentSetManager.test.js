@@ -17,7 +17,7 @@ describe('CurrentSetManager.js', () => {
 
     it('has save button and input if current selection is not empty', () => {
       let setsState = Sets.initialState;
-      setsState = Sets.setCurrentSet(setsState, new Set([1, 2, 3]));
+      setsState = Sets.setCurrentSet(setsState, [1, 2, 3]);
       const wrapper = shallow(<CurrentSetManager sets={setsState} />);
       expect(wrapper.find('button.set-item-save').length).toEqual(1);
       expect(wrapper.find('input').length).toEqual(1);
