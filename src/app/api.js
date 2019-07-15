@@ -68,12 +68,9 @@ const configs = {
           props: {
             description: `Linnarsson: ${description}`,
           },
-          x: 0, y: 0 },
+          x: 0, y: 0, w: 1 },
         { component: 'StatusSubscriber',
           x: 0, y: 1 },
-        { component: 'HoverableScatterplotSubscriber',
-          props: { mapping: 't-SNE' },
-          x: 0, y: 2, h: 2 },
         { component: 'HoverableSpatialSubscriber',
           props: {
             view: {
@@ -85,15 +82,15 @@ const configs = {
         { component: 'HoverableScatterplotSubscriber',
           props: { mapping: 'PCA' },
           x: 1, y: 2, h: 2 },
-        { component: 'FactorsSubscriber',
-          x: 2, y: 0, h: 1 },
         { component: 'CellSetsManagerSubscriber',
           props: {
             datasetId: 'linnarsson-2018',
           },
-          x: 2, y: 1, h: 1 },
+          x: 0, y: 2, h: 2 },
         { component: 'GenesSubscriber',
           x: 2, y: 2, h: 2 },
+        { component: 'FactorsSubscriber',
+          x: 2, y: 0, h: 2 },
         { component: 'HoverableHeatmapSubscriber',
           x: 0, y: 4, w: 3 },
       ],

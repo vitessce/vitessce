@@ -3,7 +3,6 @@ import PubSub from 'pubsub-js';
 import { CELL_SETS_MODIFY, CELLS_SELECTION } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
-import * as Sets from './sets';
 
 const cellSetTypeKey = 'cells';
 
@@ -12,7 +11,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
     super(props);
     const { datasetId } = props;
     this.state = {
-      cellSets: Sets.restore(cellSetTypeKey, datasetId),
+      cellSets: null,
     };
   }
 
@@ -37,14 +36,14 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   cellSetsSubscriber(msg, cellSets) {
     this.setState({ cellSets });
-    PubSub.publish(CELLS_SELECTION, new Set(cellSets.currentSet));
+    /* PubSub.publish(CELLS_SELECTION, new Set(cellSets.currentSet)); */
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
     const { cellSets } = this.state;
-    this.setState({
+    /* this.setState({
       cellSets: Sets.setCurrentSet(cellSets, cellIds),
-    });
+    }); */
   }
 
   render() {
@@ -53,14 +52,12 @@ export default class CellSetsManagerSubscriber extends React.Component {
     return (
       <TitleInfo
         title="Cell Sets"
-        info={`${cellSets.namedSets.size} set${cellSets.namedSets.size !== 1 ? 's' : ''}`}
         isScroll
       >
         <SetsManager
           sets={cellSets}
           onUpdateSets={(sets) => {
             PubSub.publish(CELL_SETS_MODIFY, sets);
-            Sets.persist(sets, cellSetTypeKey, datasetId);
           }}
         />
       </TitleInfo>

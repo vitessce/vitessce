@@ -31,6 +31,7 @@
     "@turf/difference": "6.0.1",
     "@turf/helpers": "^6.1.4",
     "ajv": "^6.10.0",
+    "antd": "^3.20.3",
     "d3-scale-chromatic": "^1.3.3",
     "deck.gl": "^7.1.4",
     "fromentries": "^1.1.0",

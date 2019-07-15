@@ -134,123 +134,46 @@ html,body {
   $set-name-height: 16px;
   
   .sets-manager {
-      .current-set-manager {
-          border-bottom: 1px solid gray;
-          width: 100%;
-          height: 18px;
-  
-          .set-item-button {
-              -webkit-appearance: none;
-              background-color: #fff;
-              border: none;
-              border-radius: 2px;
-              color: #000;
-              text-align: center;
-              text-decoration: none;
-              height: $set-name-height;
-              line-height: $set-name-height;
-              display: block;
-              margin: 0 auto;
-  
-              &.set-item-save {
-                  font-size: 60%;
-                  padding: 0px 4px;
-              }
-          }
-      }
-  
-      .set-name {
-          font-size: 80%;
-          white-space: nowrap;
-          width: 100%;
-          height: $set-name-height;
-          line-height: $set-name-height;
-  
-          input {
-              -webkit-appearance: none;
-              font-size: 10px;
-              border-radius: 2px;
-              border: 0;
-              width: 100%;
-              display: block;
-              height: $set-name-height;
-              line-height: $set-name-height;
-          }
-  
-          small {
-              margin-left: 10px;
-          }
-          .select-button {
-              -webkit-appearance: none;
-              background: transparent;
-              color: lightgrey;
-              border: 0;
-              cursor: pointer;
-              padding: 0;
-              box-sizing: border-box;
-          }
-      }
-  
-      .sets-manager-disabled {
-          color: dimgray;
-      }
-  
-      .set-list {
-          margin-top: 6px;
-          width: 100%;
-          .set-name {
-              margin-bottom: 4px;
-          }
-          .set-count {
-              text-align: right;
-          }
-          .set-edit {
-              text-align: right;
-              button {
-                  -webkit-appearance: none;
-                  background-color: #fff;
-                  border: none;
-                  border-radius: 2px;
-                  color: #000;
-                  text-align: center;
-                  text-decoration: none;
-                  height: $set-name-height;
-                  line-height: $set-name-height;
-                  display: inline-block;
-                  margin: 0 auto;
-                  padding: 0 4px;
-                  cursor: pointer;
-                  &:hover {
-                      background-color: #999;
-                  }
-              }
-          }
-      }
+    .ant-tree {
+        color: inherit;
+    }
+    .ant-tabs {
+        color: inherit;
 
-      .set-io {
-          margin-top: 10px;
-            button {
-                font-size: 80%;
-                -webkit-appearance: none;
-                background-color: white;
-                border: 0;
-                border-radius: 2px;
-                text-decoration: none;
-                height: $set-name-height;
-                line-height: $set-name-height;
-                padding: 0 4px;
-                cursor: pointer;
-                width: 47.5%;
-                box-sizing: border-box;
-                &:hover {
-                    background-color: #999;
-                }
-                &:nth-child(1) {
-                    margin-right: 2.5%;
-                }
-                &:nth-child(2) {
-                    margin-left: 2.5%;
+        .ant-tabs-bar {
+            border-bottom: 1px solid #555;
+        }
+
+
+
+        .ant-tabs-nav .ant-tabs-tab-active {
+            font-weight: inherit;
+
+        }
+
+        &.ant-tabs-card .ant-tabs-card-bar {
+
+            .ant-tabs-nav-container {
+                height: 28px;
+            }
+
+            .ant-tabs-tab {
+                background-color: #6d6d6d;
+                border: 1px solid #6d6d6d;
+                height: 28px;
+                line-height: 26px;
+                padding: 0 6px;
+                &.ant-tabs-tab-active {
+                    background-color: #222;
+                    border: 1px solid #6d6d6d;
                 }
             }
-      }
+        }
+    }
+    .ant-tree li .ant-tree-node-content-wrapper {
+        color: inherit;
+        &:hover {
+            background-color: inherit;
+        }
+    }
   }
