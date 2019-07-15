@@ -3,58 +3,14 @@ import React from 'react';
 import { Tree, TreeNode } from './Tree';
 import 'antd/es/tree/style/index.css';
 
-const treeData = [
-  {
-    title: '0-0',
-    key: '0-0',
-    children: [
-      {
-        title: '0-0-0',
-        key: '0-0-0',
-        children: [
-          { title: '0-0-0-0', key: '0-0-0-0' },
-          { title: '0-0-0-1', key: '0-0-0-1' },
-          { title: '0-0-0-2', key: '0-0-0-2' },
-        ],
-      },
-      {
-        title: '0-0-1',
-        key: '0-0-1',
-        children: [
-          { title: '0-0-1-0', key: '0-0-1-0' },
-          { title: '0-0-1-1', key: '0-0-1-1' },
-          { title: '0-0-1-2', key: '0-0-1-2' },
-        ],
-      },
-      {
-        title: '0-0-2',
-        key: '0-0-2',
-      },
-    ],
-  },
-  {
-    title: '0-1',
-    key: '0-1',
-    children: [
-      { title: '0-1-0-0', key: '0-1-0-0' },
-      { title: '0-1-0-1', key: '0-1-0-1' },
-      { title: '0-1-0-2', key: '0-1-0-2' },
-    ],
-  },
-  {
-    title: '0-2',
-    key: '0-2',
-  },
-];
-
 export default class SetsManagerTab extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      expandedKeys: ['0-0-0', '0-0-1'],
+      expandedKeys: [],
       autoExpandParent: true,
-      checkedKeys: ['0-0-0'],
+      checkedKeys: [],
     };
 
     this.onCheck = this.onCheck.bind(this);
@@ -77,11 +33,11 @@ export default class SetsManagerTab extends React.Component {
   }
 
   renderTreeNodes(data) {
+    console.log(data);
     return data.map((item) => {
       if (item.children) {
         return (
           <TreeNode title={item.title} key={item.key} dataRef={item}>
-            <p>Test</p>
             {this.renderTreeNodes(item.children)}
           </TreeNode>
         );
@@ -92,7 +48,8 @@ export default class SetsManagerTab extends React.Component {
 
   render() {
     const {
-      sets,
+      setsTree,
+      tabRoot,
       onUpdateSets = (msg) => {
         console.warn(`onUpdateSets from SetsManager ${msg}`);
       },
@@ -108,7 +65,7 @@ export default class SetsManagerTab extends React.Component {
           onCheck={this.onCheck}
           checkedKeys={this.state.checkedKeys}
         >
-          {this.renderTreeNodes(treeData)}
+          {this.renderTreeNodes(tabRoot.getRenderData(true))}
         </Tree>
       </div>
     );

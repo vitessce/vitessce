@@ -27,6 +27,35 @@ export class TreeNode extends RcTreeNode {
     );
   }
 
+  renderSelector = () => {
+    const {
+      title,
+    } = this.props;
+    const {
+      rcTree: {
+        prefixCls,
+      },
+    } = this.context;
+
+    const wrapClass = `${prefixCls}-node-content-wrapper`;
+
+    // Title
+    const $title = <span className={`${prefixCls}-title`}>{title}</span>;
+
+    return (
+      <span
+        ref={this.setSelectHandle}
+        title={typeof title === 'string' ? title : ''}
+        className={classNames(
+          `${wrapClass}`,
+          `${wrapClass}-${this.getNodeState() || 'normal'}`,
+        )}
+      >
+        {$title}
+      </span>
+    );
+  };
+
   render() {
     const { loading } = this.props;
     const {

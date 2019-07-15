@@ -3,6 +3,7 @@ import PubSub from 'pubsub-js';
 import { CELL_SETS_MODIFY, CELLS_SELECTION } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
+import HSets from './sets';
 
 const cellSetTypeKey = 'cells';
 
@@ -11,7 +12,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
     super(props);
     const { datasetId } = props;
     this.state = {
-      cellSets: null,
+      cellSets: new HSets(),
     };
   }
 
@@ -55,7 +56,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
         isScroll
       >
         <SetsManager
-          sets={cellSets}
+          setsTree={cellSets}
           onUpdateSets={(sets) => {
             PubSub.publish(CELL_SETS_MODIFY, sets);
           }}

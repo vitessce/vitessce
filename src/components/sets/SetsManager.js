@@ -12,14 +12,9 @@ function callback(key) {
 }
 
 export default class SetsManager extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-
   render() {
     const {
-      sets,
+      setsTree,
       onUpdateSets = (msg) => {
         console.warn(`onUpdateSets from SetsManager ${msg}`);
       },
@@ -28,11 +23,12 @@ export default class SetsManager extends React.Component {
     return (
       <div className="sets-manager">
         <Tabs onChange={callback} type="card">
-          <TabPane tab="All" key="1">
-            <SetsManagerTab />
-          </TabPane>
+          {setsTree.tabRoots.map(tabRoot => (
+            <TabPane tab={tabRoot.name} key={tabRoot.name}>
+              <SetsManagerTab setsTree={setsTree} tabRoot={tabRoot} />
+            </TabPane>
+          ))}
         </Tabs>
-
       </div>
     );
   }

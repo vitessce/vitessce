@@ -136,6 +136,13 @@ html,body {
   .sets-manager {
     .ant-tree {
         color: inherit;
+
+        .ant-tree-showhide {
+            padding: 4px 4px;
+            vertical-align: middle;
+            height: 24px;
+            cursor: pointer;
+        }
     }
     .ant-tabs {
         color: inherit;
