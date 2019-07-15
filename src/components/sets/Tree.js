@@ -1,20 +1,88 @@
 import React from 'react';
 import RcTree, { TreeNode as RcTreeNode } from 'rc-tree';
+
+import {
+  getDataAndAria,
+} from 'rc-tree/es/util';
 import classNames from 'classnames';
 import Icon from 'antd/es/tree/../icon';
-import { ConfigConsumer, ConfigConsumerProps } from 'antd/es/tree/../config-provider';
+import { ConfigConsumer } from 'antd/es/tree/../config-provider';
 import { collapseMotion } from 'antd/es/tree/../_util/motion';
 
 export class TreeNode extends RcTreeNode {
+  renderShowHide = () => {
+    const { selected } = this.props;
+    const { rcTree: { prefixCls } } = this.context;
 
-}
-export class Tree extends React.Component {
-  constructor(props) {
-    super(props);
-    this.renderTree = this.renderTree.bind(this);
-    this.setTreeRef = this.setTreeRef.bind(this);
+    return (
+      <span
+        className={classNames(
+          `${prefixCls}-showhide`,
+          selected && `${prefixCls}-showhide-selected`,
+        )}
+        onClick={this.onSelectorClick}
+      >
+        <Icon type={(selected ? 'eye-invisible' : 'eye')} theme="filled" />
+      </span>
+    );
   }
 
+  render() {
+    const { loading } = this.props;
+    const {
+      className, style,
+      dragOver, dragOverGapTop, dragOverGapBottom,
+      isLeaf,
+      expanded, selected, checked, halfChecked,
+      ...otherProps
+    } = this.props;
+    const {
+      rcTree: {
+        prefixCls,
+        filterTreeNode,
+        draggable,
+      },
+    } = this.context;
+    const disabled = this.isDisabled();
+    const dataOrAriaAttributeProps = getDataAndAria(otherProps);
+
+    return (
+      <li
+        className={classNames(className, {
+          [`${prefixCls}-treenode-disabled`]: disabled,
+          [`${prefixCls}-treenode-switcher-${expanded ? 'open' : 'close'}`]: !isLeaf,
+          [`${prefixCls}-treenode-checkbox-checked`]: checked,
+          [`${prefixCls}-treenode-checkbox-indeterminate`]: halfChecked,
+          [`${prefixCls}-treenode-selected`]: selected,
+          [`${prefixCls}-treenode-loading`]: loading,
+
+          'drag-over': !disabled && dragOver,
+          'drag-over-gap-top': !disabled && dragOverGapTop,
+          'drag-over-gap-bottom': !disabled && dragOverGapBottom,
+          'filter-node': filterTreeNode && filterTreeNode(this),
+        })}
+
+        style={style}
+
+        role="treeitem"
+
+        onDragEnter={draggable ? this.onDragEnter : undefined}
+        onDragOver={draggable ? this.onDragOver : undefined}
+        onDragLeave={draggable ? this.onDragLeave : undefined}
+        onDrop={draggable ? this.onDrop : undefined}
+        onDragEnd={draggable ? this.onDragEnd : undefined}
+        {...dataOrAriaAttributeProps}
+      >
+        {this.renderSwitcher()}
+        {this.renderCheckbox()}
+        {this.renderShowHide()}
+        {this.renderSelector()}
+        {this.renderChildren()}
+      </li>
+    );
+  }
+}
+export class Tree extends React.Component {
     static defaultProps = {
       checkable: false,
       showIcon: false,
@@ -25,6 +93,11 @@ export class Tree extends React.Component {
       blockNode: false,
     };
 
+    constructor(props) {
+      super(props);
+      this.renderTree = this.renderTree.bind(this);
+      this.setTreeRef = this.setTreeRef.bind(this);
+    }
 
     renderSwitcherIcon(
       prefixCls,
@@ -50,7 +123,8 @@ export class Tree extends React.Component {
       const switcherCls = `${prefixCls}-switcher-icon`;
       if (isLeaf) {
         return null;
-      } if (switcherIcon) {
+      }
+      if (switcherIcon) {
         const switcherOriginCls = switcherIcon.props.className || '';
         return React.cloneElement(switcherIcon, {
           className: classNames(switcherOriginCls, switcherCls),
@@ -71,6 +145,7 @@ export class Tree extends React.Component {
         showIcon = Tree.defaultProps.showIcon,
         switcherIcon,
         blockNode = Tree.defaultProps.blockNode,
+        children,
       } = props;
       const { checkable = Tree.defaultProps.checkable } = props;
       const prefixCls = getPrefixCls('tree', customizePrefixCls);
@@ -87,7 +162,7 @@ export class Tree extends React.Component {
           switcherIcon={nodeProps => this.renderSwitcherIcon(prefixCls, switcherIcon, nodeProps)
         }
         >
-          {this.props.children}
+          {children}
         </RcTree>
       );
     }
