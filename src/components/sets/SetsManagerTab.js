@@ -10,14 +10,15 @@ export default class SetsManagerTab extends React.Component {
     this.state = {
       expandedKeys: [],
       autoExpandParent: true,
+      selectedKeys: [],
     };
 
     this.onCheck = this.onCheck.bind(this);
     this.onExpand = this.onExpand.bind(this);
+    this.onSelect = this.onSelect.bind(this);
   }
 
   onExpand(expandedKeys) {
-    console.log('onExpand', expandedKeys);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded children keys.
     this.setState({
@@ -27,10 +28,15 @@ export default class SetsManagerTab extends React.Component {
   }
 
   onCheck(checkedKeys) {
-    console.log('onCheck', checkedKeys);
     const { setsTree } = this.props;
     setsTree.setCheckedKeys(checkedKeys);
   }
+
+  onSelect(selectedKeys) {
+    const { setsTree } = this.props;
+    setsTree.setSelectedKeys(selectedKeys);
+  }
+
 
   renderTreeNodes(data) {
     return data.map((item) => {
@@ -55,12 +61,15 @@ export default class SetsManagerTab extends React.Component {
       <div className="sets-manager-tab">
         <Tree
           checkable
+          selectable
           blockNode
           onExpand={this.onExpand}
           expandedKeys={this.state.expandedKeys}
           autoExpandParent={this.state.autoExpandParent}
           onCheck={this.onCheck}
           checkedKeys={setsTree.checkedKeys}
+          onSelect={this.onSelect}
+          selectedKeys={setsTree.selectedKeys}
         >
           {this.renderTreeNodes(tabRoot.getRenderData(true))}
         </Tree>

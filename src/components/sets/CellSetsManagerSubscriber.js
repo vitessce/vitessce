@@ -44,9 +44,8 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   cellsSelectionSubscriber(msg, cellIds) {
     const { cellSets } = this.state;
-    /* this.setState({
-      cellSets: Sets.setCurrentSet(cellSets, cellIds),
-    }); */
+    console.log(cellSets);
+    cellSets.setCurrentSet(cellIds);
   }
 
   render() {

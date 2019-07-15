@@ -22,7 +22,7 @@ export class TreeNode extends RcTreeNode {
         )}
         onClick={this.onSelectorClick}
       >
-        <Icon type={(selected ? 'eye-invisible' : 'eye')} theme="filled" />
+        <Icon type={(selected ? 'eye' : 'eye-invisible')} theme="filled" />
       </span>
     );
   }
