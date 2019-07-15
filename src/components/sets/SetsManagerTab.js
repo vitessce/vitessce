@@ -1,7 +1,9 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
-import { Tree, TreeNode } from './Tree';
+import { Tree } from 'antd';
+import TreeNode from './TreeNode';
 import 'antd/es/tree/style/index.css';
+import 'antd/es/popover/style/index.css';
 
 export default class SetsManagerTab extends React.Component {
   constructor(props) {
@@ -10,12 +12,10 @@ export default class SetsManagerTab extends React.Component {
     this.state = {
       expandedKeys: [],
       autoExpandParent: true,
-      selectedKeys: [],
     };
 
     this.onCheck = this.onCheck.bind(this);
     this.onExpand = this.onExpand.bind(this);
-    this.onSelect = this.onSelect.bind(this);
   }
 
   onExpand(expandedKeys) {
@@ -30,11 +30,6 @@ export default class SetsManagerTab extends React.Component {
   onCheck(checkedKeys) {
     const { setsTree } = this.props;
     setsTree.setCheckedKeys(checkedKeys);
-  }
-
-  onSelect(selectedKeys) {
-    const { setsTree } = this.props;
-    setsTree.setSelectedKeys(selectedKeys);
   }
 
 
@@ -61,15 +56,12 @@ export default class SetsManagerTab extends React.Component {
       <div className="sets-manager-tab">
         <Tree
           checkable
-          selectable
           blockNode
           onExpand={this.onExpand}
           expandedKeys={this.state.expandedKeys}
           autoExpandParent={this.state.autoExpandParent}
           onCheck={this.onCheck}
           checkedKeys={setsTree.checkedKeys}
-          onSelect={this.onSelect}
-          selectedKeys={setsTree.selectedKeys}
         >
           {this.renderTreeNodes(tabRoot.getRenderData(true))}
         </Tree>

@@ -1,8 +1,8 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
 import { Tabs } from 'antd';
-import 'antd/es/tabs/style/index.css';
 import SetsManagerTab from './SetsManagerTab';
+import 'antd/es/tabs/style/index.css';
 
 const { TabPane } = Tabs;
 

@@ -82,18 +82,12 @@ export default class HSets {
       ],
     });
     this.tabRoots = [this.root, this.root.children[1].children[0]];
-    this.checkedKeys = [];
-    this.selectedKeys = ['Current Set'];
+    this.checkedKeys = ['Current Set'];
     this.onChange = onChange || (() => {});
   }
 
   setCheckedKeys(checkedKeys) {
     this.checkedKeys = checkedKeys;
-    this.onChange(this);
-  }
-
-  setSelectedKeys(selectedKeys) {
-    this.selectedKeys = selectedKeys;
     this.onChange(this);
   }
 
