@@ -143,6 +143,14 @@ html,body {
             height: 24px;
             cursor: pointer;
         }
+
+        &.ant-tree-block-node li .ant-tree-node-content-wrapper {
+            width: calc(100% - 64px);
+
+            .ant-tree-set-size {
+                float: right;
+            }
+        }
     }
     .ant-tabs {
         color: inherit;

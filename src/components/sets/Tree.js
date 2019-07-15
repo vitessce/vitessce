@@ -30,6 +30,7 @@ export class TreeNode extends RcTreeNode {
   renderSelector = () => {
     const {
       title,
+      size,
     } = this.props;
     const {
       rcTree: {
@@ -52,6 +53,7 @@ export class TreeNode extends RcTreeNode {
         )}
       >
         {$title}
+        <span className={`${prefixCls}-set-size`}>{size}</span>
       </span>
     );
   };

@@ -33,11 +33,10 @@ export default class SetsManagerTab extends React.Component {
   }
 
   renderTreeNodes(data) {
-    console.log(data);
     return data.map((item) => {
       if (item.children) {
         return (
-          <TreeNode title={item.title} key={item.key} dataRef={item}>
+          <TreeNode title={item.title} size={item.size} key={item.key} dataRef={item}>
             {this.renderTreeNodes(item.children)}
           </TreeNode>
         );
@@ -59,6 +58,7 @@ export default class SetsManagerTab extends React.Component {
       <div className="sets-manager-tab">
         <Tree
           checkable
+          blockNode
           onExpand={this.onExpand}
           expandedKeys={this.state.expandedKeys}
           autoExpandParent={this.state.autoExpandParent}

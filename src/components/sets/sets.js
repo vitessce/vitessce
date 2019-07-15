@@ -33,6 +33,7 @@ export class HSetsNode {
     return {
       title: this.name,
       key: this.name,
+      size: this.set ? this.set.length : 0,
       children: this.children ? this.children.map(child => child.getRenderData(false)) : undefined,
     };
   }
@@ -44,7 +45,39 @@ export default class HSets {
       name: 'All',
       children: [
         new HSetsNode({
-          name: 'Current Set', color: '#000', set: [],
+          name: 'Current Set',
+          color: '#000',
+          set: [],
+        }),
+        new HSetsNode({
+          name: 'Factors',
+          color: '#000',
+          children: [
+            new HSetsNode({
+              name: 'Oligodendrocytes',
+              color: '#000',
+              children: [
+                new HSetsNode({
+                  name: 'Oligodendrocyte Mature', color: '#000', set: [],
+                }),
+              ],
+            }),
+            new HSetsNode({
+              name: 'Inhibitory neurons',
+              color: '#000',
+              children: [
+                new HSetsNode({
+                  name: 'Inhibitory Pthlh', color: '#000', set: [],
+                }),
+                new HSetsNode({
+                  name: 'Inhibitory Kcnip2', color: '#000', set: [],
+                }),
+                new HSetsNode({
+                  name: 'Inhibitory CP', color: '#000', set: [],
+                }),
+              ],
+            }),
+          ],
         }),
       ],
     });
