@@ -40,7 +40,7 @@ export class HSetsNode {
 }
 
 export default class HSets {
-  constructor() {
+  constructor(onChange) {
     this.root = new HSetsNode({
       name: 'All',
       children: [
@@ -81,6 +81,13 @@ export default class HSets {
         }),
       ],
     });
-    this.tabRoots = [this.root];
+    this.tabRoots = [this.root, this.root.children[1].children[0]];
+    this.checkedKeys = [];
+    this.onChange = onChange || (() => {});
+  }
+
+  setCheckedKeys(checkedKeys) {
+    this.checkedKeys = checkedKeys;
+    this.onChange(this);
   }
 }

@@ -12,7 +12,9 @@ export default class CellSetsManagerSubscriber extends React.Component {
     super(props);
     const { datasetId } = props;
     this.state = {
-      cellSets: new HSets(),
+      cellSets: new HSets((obj) => {
+        PubSub.publish(CELL_SETS_MODIFY, obj);
+      }),
     };
   }
 
@@ -57,9 +59,6 @@ export default class CellSetsManagerSubscriber extends React.Component {
       >
         <SetsManager
           setsTree={cellSets}
-          onUpdateSets={(sets) => {
-            PubSub.publish(CELL_SETS_MODIFY, sets);
-          }}
         />
       </TitleInfo>
     );

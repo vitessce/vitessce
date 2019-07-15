@@ -10,7 +10,6 @@ export default class SetsManagerTab extends React.Component {
     this.state = {
       expandedKeys: [],
       autoExpandParent: true,
-      checkedKeys: [],
     };
 
     this.onCheck = this.onCheck.bind(this);
@@ -29,7 +28,8 @@ export default class SetsManagerTab extends React.Component {
 
   onCheck(checkedKeys) {
     console.log('onCheck', checkedKeys);
-    this.setState({ checkedKeys });
+    const { setsTree } = this.props;
+    setsTree.setCheckedKeys(checkedKeys);
   }
 
   renderTreeNodes(data) {
@@ -49,9 +49,6 @@ export default class SetsManagerTab extends React.Component {
     const {
       setsTree,
       tabRoot,
-      onUpdateSets = (msg) => {
-        console.warn(`onUpdateSets from SetsManager ${msg}`);
-      },
     } = this.props;
 
     return (
@@ -63,7 +60,7 @@ export default class SetsManagerTab extends React.Component {
           expandedKeys={this.state.expandedKeys}
           autoExpandParent={this.state.autoExpandParent}
           onCheck={this.onCheck}
-          checkedKeys={this.state.checkedKeys}
+          checkedKeys={setsTree.checkedKeys}
         >
           {this.renderTreeNodes(tabRoot.getRenderData(true))}
         </Tree>

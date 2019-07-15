@@ -15,9 +15,6 @@ export default class SetsManager extends React.Component {
   render() {
     const {
       setsTree,
-      onUpdateSets = (msg) => {
-        console.warn(`onUpdateSets from SetsManager ${msg}`);
-      },
     } = this.props;
 
     return (
