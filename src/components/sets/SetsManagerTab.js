@@ -1,9 +1,7 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
-import { Tree } from 'antd';
+import { Tree, TreeNode } from './Tree';
 import 'antd/es/tree/style/index.css';
-
-const { TreeNode } = Tree;
 
 const treeData = [
   {

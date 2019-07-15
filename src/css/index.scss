@@ -175,5 +175,9 @@ html,body {
         &:hover {
             background-color: inherit;
         }
+
+        &.ant-tree-node-selected {
+            background-color: inherit;
+        }
     }
   }
