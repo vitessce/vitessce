@@ -119,8 +119,23 @@ export function nameCurrentSet(state, name, clear) {
   };
 }
 
-// TODO: better to do explicit checks than try-catch
-// TODO: add tests when time to un-comment
+/**
+ * Merge a previously-exported state object with the initial state object to prepare for an import.
+ * @param {object} partialState A state object without the current set entry.
+ * @returns {object} A full state object.
+ */
+export function importMerge(partialState) {
+  return { ...initialState, ...partialState };
+}
+
+/**
+ * Clean a state object to prepare for an export.
+ * @param {object} state A state object.
+ * @returns {object} A cleaned partial state object (without the current set entry).
+ */
+export function exportClean(state) {
+  return { namedSets: state.namedSets };
+}
 
 /**
  * @param {object} state A state object to persist to local storage.
@@ -129,7 +144,7 @@ export function nameCurrentSet(state, name, clear) {
  */
 export function persist(state, setTypeKey, datasetKey) {
   const sets = store.get('sets') || {};
-  const stateToSave = { namedSets: state.namedSets };
+  const stateToSave = exportClean(state);
   if (sets.hasOwnProperty(setTypeKey)) {
     sets[setTypeKey][datasetKey] = stateToSave;
   } else {
@@ -146,7 +161,7 @@ export function persist(state, setTypeKey, datasetKey) {
  */
 export function restore(setTypeKey, datasetKey) {
   try {
-    return { ...initialState, ...store.get('sets')[setTypeKey][datasetKey] };
+    return importMerge(store.get('sets')[setTypeKey][datasetKey]);
   } catch (e) {
     return initialState;
   }
