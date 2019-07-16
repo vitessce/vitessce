@@ -25,6 +25,23 @@ export class HSetsNode {
     this.color = color;
     this.open = open;
     this.set = set;
+    this.editing = false;
+  }
+
+  isCurrentSet() {
+    return (this.key === `${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`);
+  }
+
+  startEditing() {
+    this.editing = true;
+  }
+
+  stopEditing() {
+    this.editing = false;
+  }
+
+  isEditing() {
+    return this.editing;
   }
 
   setChildren(children) {
@@ -37,15 +54,27 @@ export class HSetsNode {
         || (Array.isArray(this.children) && this.children.length === 0));
   }
 
-  getRenderData(root) {
-    if (root) {
-      return this.children ? this.children.map(child => child.getRenderData(false)) : [];
+  findNode(key) {
+    if (this.key === key) {
+      return this;
     }
+    // eslint-disable-next-line no-restricted-syntax
+    for (const child of this.children) {
+      const childResult = child.findNode(key);
+      if (childResult) {
+        return childResult;
+      }
+    }
+    return null;
+  }
+
+  getRenderProps() {
     return {
       title: this.name,
       key: this.key,
       size: this.set ? this.set.length : 0,
-      children: this.children ? this.children.map(child => child.getRenderData(false)) : undefined,
+      isCurrentSet: this.isCurrentSet(),
+      isEditing: this.isEditing(),
     };
   }
 
@@ -59,6 +88,7 @@ export class HSetsNode {
 
   updateChildKeys() {
     if (this.children && this.children.length > 0) {
+      // eslint-disable-next-line no-restricted-syntax
       for (const child of this.children) {
         const newChildKey = `${this.key}.${child.getKeyTail()}`;
         child.key = newChildKey;
@@ -138,12 +168,16 @@ export default class HSets {
   }
 
   setCurrentSet(set) {
-    this.root.children[0].set = Array.from(set);
+    this.findNode(`${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`).set = Array.from(set);
     this.onChange(this);
   }
 
+  findNode(key) {
+    return this.root.findNode(key);
+  }
+
   dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap, insertBottom) {
-    if (dragKey === 'all.current-set') {
+    if (dragKey === 'all.current-set' || dropKey === 'all.current-set') {
       return;
     }
     const loop = (data, key, callback) => {

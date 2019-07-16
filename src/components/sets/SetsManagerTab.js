@@ -53,16 +53,18 @@ export default class SetsManagerTab extends React.Component {
   }
 
 
-  renderTreeNodes(data) {
-    return data.map((item) => {
+  renderTreeNodes(nodes) {
+    return nodes.map((item) => {
       if (item.children) {
         return (
-          <TreeNode title={item.title} size={item.size} key={item.key} dataRef={item}>
+          <TreeNode {...item.getRenderProps()}>
             {this.renderTreeNodes(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode {...item} />;
+      return (
+        <TreeNode {...item.getRenderProps()} />
+      );
     });
   }
 
@@ -72,6 +74,11 @@ export default class SetsManagerTab extends React.Component {
       tabRoot,
     } = this.props;
 
+    const {
+      expandedKeys,
+      autoExpandParent,
+    } = this.state;
+
     return (
       <div className="sets-manager-tab">
         <Tree
@@ -79,14 +86,14 @@ export default class SetsManagerTab extends React.Component {
           checkable
           blockNode
           onExpand={this.onExpand}
-          expandedKeys={this.state.expandedKeys}
-          autoExpandParent={this.state.autoExpandParent}
+          expandedKeys={expandedKeys}
+          autoExpandParent={autoExpandParent}
           onCheck={this.onCheck}
           checkedKeys={setsTree.checkedKeys}
           onDragEnter={() => { }}
           onDrop={this.onDrop}
         >
-          {this.renderTreeNodes(tabRoot.getRenderData(true))}
+          {this.renderTreeNodes(tabRoot.children)}
         </Tree>
       </div>
     );

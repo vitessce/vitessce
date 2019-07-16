@@ -137,6 +137,12 @@ html,body {
     .ant-tree {
         color: inherit;
 
+        .ant-tree-current-set-input {
+            border-radius: 3px;
+            padding: 1px 4px;
+            border: 0;
+        }
+
         .ant-tree-showhide {
             padding: 4px 4px;
             vertical-align: middle;

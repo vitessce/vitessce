@@ -11,6 +11,8 @@ export default class TreeNode extends RcTreeNode {
     const {
       title,
       size,
+      isCurrentSet,
+      isEditing,
     } = this.props;
     const {
       rcTree: {
@@ -28,19 +30,22 @@ export default class TreeNode extends RcTreeNode {
         className={classNames(
           `${wrapClass}`,
           `${wrapClass}-${this.getNodeState() || 'normal'}`,
-          dragNodeHighlight && `${prefixCls}-node-selected`,
-          draggable && 'draggable',
+          (!isCurrentSet && dragNodeHighlight) && `${prefixCls}-node-selected`,
+          (!isCurrentSet && draggable) && 'draggable',
         )}
-        draggable={draggable || undefined}
-        aria-grabbed={draggable || undefined}
-        onDragStart={draggable ? this.onDragStart : undefined}
+        draggable={(!isCurrentSet && draggable) || undefined}
+        aria-grabbed={(!isCurrentSet && draggable) || undefined}
+        onDragStart={(!isCurrentSet && draggable) ? this.onDragStart : undefined}
       >
         <Popover
-          content={<p style={{ padding: '14px 16px', marginBottom: 0 }}>Content</p>}
+          content={<p style={{ padding: '14px 16px', marginBottom: 0 }}>Menu here...</p>}
           title={undefined}
           trigger="click"
-        >
+        > {isEditing || isCurrentSet ? (
+          <input value={title} type="text" className={`${prefixCls}-current-set-input`} />
+        ) : (
           <span className={`${prefixCls}-title`}>{title}</span>
+        )}
         </Popover>
         <span className={`${prefixCls}-set-size`}>{size}</span>
       </span>
