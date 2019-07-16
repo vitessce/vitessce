@@ -28,10 +28,11 @@ body {
 .bg-light {
   background-color: #222!important;
   color: lightgrey;
+  a {
+    color: #9bb7d6;
+  }
 }
-.bg-light a {
-  color: #9bb7d6;
-}
+
 .bg-black {
   background-color: black;
   color: lightgrey;
@@ -57,18 +58,18 @@ pre {
   height: 2em;
   width: 2em;
   background-color: white;
-}
-.btn.icon > svg {
-  vertical-align: middle;
+  > svg {
+    vertical-align: middle;
+  }
 }
 .roll-up {
   height: 2em; /* Matches .btn.icon */
   overflow: hidden;
-}
-.roll-up:hover {
-  animation-name: roll-up;
-  animation-duration: 0.5s;
-  animation-fill-mode: forwards;
+  &:hover {
+    animation-name: roll-up;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+  }
 }
 @keyframes roll-up {
   0% { height: 2em; }
@@ -78,9 +79,9 @@ pre {
   z-index: 1000;
   opacity: .65;
   color: black;
-}
-.tool:hover {
-  opacity: .90;
+  &:hover {
+    opacity: .90;
+  }
 }
 
 /* Cell Tooltips */
