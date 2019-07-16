@@ -16,6 +16,7 @@ export default class SetsManagerTab extends React.Component {
 
     this.onCheck = this.onCheck.bind(this);
     this.onExpand = this.onExpand.bind(this);
+    this.onDrop = this.onDrop.bind(this);
   }
 
   onExpand(expandedKeys) {
@@ -30,6 +31,25 @@ export default class SetsManagerTab extends React.Component {
   onCheck(checkedKeys) {
     const { setsTree } = this.props;
     setsTree.setCheckedKeys(checkedKeys);
+  }
+
+  onDrop(info) {
+    const {
+      setsTree,
+      tabRoot,
+    } = this.props;
+    const dropKey = info.node.props.eventKey;
+    const dragKey = info.dragNode.props.eventKey;
+    const dropPos = info.node.props.pos.split('-');
+    const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
+    const { dropToGap } = info;
+    const insertBottom = (
+      (info.node.props.children || []).length > 0 // Has children
+        && info.node.props.expanded // Is expanded
+        && dropPosition === 1 // On the bottom gap
+    );
+    setsTree.dragRearrange(tabRoot,
+      dropKey, dragKey, dropPosition, dropToGap, insertBottom);
   }
 
 
@@ -63,8 +83,8 @@ export default class SetsManagerTab extends React.Component {
           autoExpandParent={this.state.autoExpandParent}
           onCheck={this.onCheck}
           checkedKeys={setsTree.checkedKeys}
-          onDragEnter={(e) => { console.log(e); }}
-          onDrop={(e) => { console.log(e); }}
+          onDragEnter={() => { }}
+          onDrop={this.onDrop}
         >
           {this.renderTreeNodes(tabRoot.getRenderData(true))}
         </Tree>

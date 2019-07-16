@@ -1,12 +1,9 @@
 import React from 'react';
-import RcTree, { TreeNode as RcTreeNode } from 'rc-tree';
+import { TreeNode as RcTreeNode } from 'rc-tree';
 import { Popover } from 'antd';
 
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
-import Icon from 'antd/es/tree/../icon';
-import { ConfigConsumer } from 'antd/es/tree/../config-provider';
-import { collapseMotion } from 'antd/es/tree/../_util/motion';
 
 export default class TreeNode extends RcTreeNode {
   renderSelector = () => {
