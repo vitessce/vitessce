@@ -320,6 +320,7 @@ const configs = {
           x: 0, y: 2, h: 2 },
         { component: 'SpatialSubscriber',
           props: {
+            cellRadius: 50,
             view: {
               zoom: -4.4,
               target: [3800, -900, 0],

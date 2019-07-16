@@ -28,6 +28,7 @@ export default class Spatial extends AbstractSelectableComponent {
 
   static defaultProps = {
     clearPleaseWait: (layer) => { console.warn(`"clearPleaseWait" not provided; layer: ${layer}`); },
+    cellRadius: 10,
   };
 
 
@@ -85,7 +86,7 @@ export default class Spatial extends AbstractSelectableComponent {
     } = this.props;
 
     const { tool } = this.state;
-    const { radius } = this.props.cellRadius;
+    const { cellRadius } = this.props;
 
     return new SelectablePolygonLayer({
       id: 'polygon-layer',
@@ -96,7 +97,7 @@ export default class Spatial extends AbstractSelectableComponent {
       ),
       getPolygon(cellEntry) {
         const cell = cellEntry[1];
-        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
+        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], cellRadius);
       },
       stroked: false,
       getColor: cellEntry => (
