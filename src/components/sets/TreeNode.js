@@ -2,9 +2,7 @@ import React from 'react';
 import RcTree, { TreeNode as RcTreeNode } from 'rc-tree';
 import { Popover } from 'antd';
 
-import {
-  getDataAndAria,
-} from 'rc-tree/es/util';
+import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
 import Icon from 'antd/es/tree/../icon';
 import { ConfigConsumer } from 'antd/es/tree/../config-provider';
@@ -12,6 +10,7 @@ import { collapseMotion } from 'antd/es/tree/../_util/motion';
 
 export default class TreeNode extends RcTreeNode {
   renderSelector = () => {
+    const { dragNodeHighlight } = this.state;
     const {
       title,
       size,
@@ -19,6 +18,7 @@ export default class TreeNode extends RcTreeNode {
     const {
       rcTree: {
         prefixCls,
+        draggable,
       },
     } = this.context;
 
@@ -31,10 +31,15 @@ export default class TreeNode extends RcTreeNode {
         className={classNames(
           `${wrapClass}`,
           `${wrapClass}-${this.getNodeState() || 'normal'}`,
+          dragNodeHighlight && `${prefixCls}-node-selected`,
+          draggable && 'draggable',
         )}
+        draggable={draggable || undefined}
+        aria-grabbed={draggable || undefined}
+        onDragStart={draggable ? this.onDragStart : undefined}
       >
         <Popover
-          content={<p>Content</p>}
+          content={<p style={{ padding: '14px 16px', marginBottom: 0 }}>Content</p>}
           title={undefined}
           trigger="click"
         >
@@ -63,7 +68,6 @@ export default class TreeNode extends RcTreeNode {
     } = this.context;
     const disabled = this.isDisabled();
     const dataOrAriaAttributeProps = getDataAndAria(otherProps);
-
     return (
       <li
         className={classNames(className, {
@@ -79,11 +83,8 @@ export default class TreeNode extends RcTreeNode {
           'drag-over-gap-bottom': !disabled && dragOverGapBottom,
           'filter-node': filterTreeNode && filterTreeNode(this),
         })}
-
         style={style}
-
         role="treeitem"
-
         onDragEnter={draggable ? this.onDragEnter : undefined}
         onDragOver={draggable ? this.onDragOver : undefined}
         onDragLeave={draggable ? this.onDragLeave : undefined}

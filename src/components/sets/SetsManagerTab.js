@@ -55,6 +55,7 @@ export default class SetsManagerTab extends React.Component {
     return (
       <div className="sets-manager-tab">
         <Tree
+          draggable
           checkable
           blockNode
           onExpand={this.onExpand}
@@ -62,6 +63,8 @@ export default class SetsManagerTab extends React.Component {
           autoExpandParent={this.state.autoExpandParent}
           onCheck={this.onCheck}
           checkedKeys={setsTree.checkedKeys}
+          onDragEnter={(e) => { console.log(e); }}
+          onDrop={(e) => { console.log(e); }}
         >
           {this.renderTreeNodes(tabRoot.getRenderData(true))}
         </Tree>
