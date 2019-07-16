@@ -2,9 +2,15 @@
 import store from 'store';
 // Functions for storing hierarchical sets of string IDs (cell IDs, gene IDs, etc...).
 
+const CURRENT_SET_KEY = 'current-set';
+const CURRENT_SET_NAME = 'Current Set';
+const ALL_ROOT_KEY = 'all';
+const ALL_ROOT_NAME = 'All';
+
 export class HSetsNode {
   constructor(props) {
     const {
+      key,
       name,
       selected = false,
       open = false,
@@ -12,7 +18,7 @@ export class HSetsNode {
       children,
       set,
     } = props || {};
-    this.key = name;
+    this.key = key;
     this.name = name;
     this.children = children;
     this.selected = selected;
@@ -37,48 +43,83 @@ export class HSetsNode {
     }
     return {
       title: this.name,
-      key: this.name,
+      key: this.key,
       size: this.set ? this.set.length : 0,
       children: this.children ? this.children.map(child => child.getRenderData(false)) : undefined,
     };
+  }
+
+  getKeyTail() {
+    const i = this.key.lastIndexOf('.');
+    if (i === -1) {
+      return this.key;
+    }
+    return this.key.substring(i + 1);
+  }
+
+  updateChildKeys() {
+    if (this.children && this.children.length > 0) {
+      for (const child of this.children) {
+        const newChildKey = `${this.key}.${child.getKeyTail()}`;
+        child.key = newChildKey;
+        child.updateChildKeys();
+      }
+    }
   }
 }
 
 export default class HSets {
   constructor(onChange) {
     this.root = new HSetsNode({
-      name: 'All',
+      key: ALL_ROOT_KEY,
+      name: ALL_ROOT_NAME,
       children: [
         new HSetsNode({
-          name: 'Current Set',
+          key: 'all.current-set',
+          name: CURRENT_SET_NAME,
           color: '#000',
           set: [],
         }),
         new HSetsNode({
+          key: 'all.factors',
           name: 'Factors',
           color: '#000',
           children: [
             new HSetsNode({
+              key: 'all.factors.oligodendrocytes',
               name: 'Oligodendrocytes',
               color: '#000',
               children: [
                 new HSetsNode({
-                  name: 'Oligodendrocyte Mature', color: '#000', set: [],
+                  key: 'all.factors.oligodendrocytes.oligodendrocyte-mature',
+                  name: 'Oligodendrocyte Mature',
+                  color: '#000',
+                  set: [],
                 }),
               ],
             }),
             new HSetsNode({
+              key: 'all.factors.inhibitory-neurons',
               name: 'Inhibitory neurons',
               color: '#000',
               children: [
                 new HSetsNode({
-                  name: 'Inhibitory Pthlh', color: '#000', set: [],
+                  key: 'all.factors.inhibitory-neurons.inhibitory-pthlh',
+                  name: 'Inhibitory Pthlh',
+                  color: '#000',
+                  set: [],
                 }),
                 new HSetsNode({
-                  name: 'Inhibitory Kcnip2', color: '#000', set: [],
+                  key: 'all.factors.inhibitory-neurons.inhibitory-kcnip2',
+                  name: 'Inhibitory Kcnip2',
+                  color: '#000',
+                  set: [],
                 }),
                 new HSetsNode({
-                  name: 'Inhibitory CP', color: '#000', set: [],
+                  key: 'all.factors.inhibitory-neurons.inhibitory-cp',
+                  name: 'Inhibitory CP',
+                  color: '#000',
+                  set: [],
                 }),
               ],
             }),
@@ -87,7 +128,7 @@ export default class HSets {
       ],
     });
     this.tabRoots = [this.root, this.root.children[1].children[0]];
-    this.checkedKeys = ['Current Set'];
+    this.checkedKeys = ['all.current-set'];
     this.onChange = onChange || (() => {});
   }
 
@@ -102,6 +143,9 @@ export default class HSets {
   }
 
   dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap, insertBottom) {
+    if (dragKey === 'all.current-set') {
+      return;
+    }
     const loop = (data, key, callback) => {
       data.forEach((item, index, arr) => {
         if (item.key === key) {
@@ -151,6 +195,15 @@ export default class HSets {
     }
 
     tabRoot.setChildren(data);
+    tabRoot.updateChildKeys();
+    if (dragKey === 'all.current-set') {
+      this.root.setChildren([new HSetsNode({
+        key: 'all.current-set',
+        name: CURRENT_SET_NAME,
+        color: '#000',
+        set: [],
+      }), ...this.root.children]);
+    }
     this.onChange(this);
   }
 }
