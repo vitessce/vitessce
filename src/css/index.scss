@@ -23,30 +23,8 @@ body {
   padding-right: 10px;
 }
 
-/* Tool styles */
+/* In error message */
 
-.bg-light {
-  background-color: #222!important;
-  color: lightgrey;
-  a {
-    color: #9bb7d6;
-  }
-}
-
-.bg-black {
-  background-color: black;
-  color: lightgrey;
-}
-.title {
-  color: lightgrey;
-}
-.scroll {
-  overflow-y: auto;
-}
-.details {
-  font-size: 80%;
-  opacity: 0.8;
-}
 pre {
   color: lightgrey;
 }
