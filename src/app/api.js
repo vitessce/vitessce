@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/toslchan';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/mermaid';
 
 const description = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 
@@ -41,6 +41,18 @@ const giottoBase = {
     name,
     type: name.toUpperCase(),
     url: `${urlPrefix}/giotto.${name}.json`,
+  })),
+};
+
+const mermaidBase = {
+  description: 'MERmaid',
+  layers: [
+    'cells',
+    'molecules',
+  ].map(name => ({
+    name,
+    type: name.toUpperCase(),
+    url: `${urlPrefix}/mermaid.${name}.json`,
   })),
 };
 
@@ -311,6 +323,7 @@ const configs = {
           x: 0, y: 2, h: 2 },
         { component: 'SpatialSubscriber',
           props: {
+            cellRadius: 50,
             view: {
               zoom: -4.4,
               target: [3800, -900, 0],
@@ -322,6 +335,35 @@ const configs = {
           x: 1, y: 2, h: 2 },
         { component: 'FactorsSubscriber',
           x: 2, y: 0, h: 4 },
+      ],
+    },
+  },
+  'mermaid-2019': {
+    ...mermaidBase,
+    name: 'MERmaid (responsive layout)',
+    public: false,
+    responsiveLayout: {
+      columns: {
+        // First two columns are equal,
+        // third column is constant;
+        // Grid cell width stays roughly constant,
+        // but more columns are available in a wider window.
+        1400: [0, 14],
+        1200: [0, 12],
+        1000: [0, 10],
+        800: [0, 8],
+        600: [0, 6],
+      },
+      components: [
+        { component: 'SpatialSubscriber',
+          props: {
+            view: {
+              zoom: -1.8,
+              target: [10, -70, 0],
+            },
+            moleculeRadius: 2,
+          },
+          x: 0, y: 0, h: 2 },
       ],
     },
   },
