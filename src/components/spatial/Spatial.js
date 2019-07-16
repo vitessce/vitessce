@@ -85,6 +85,7 @@ export default class Spatial extends AbstractSelectableComponent {
     } = this.props;
 
     const { tool } = this.state;
+    const { radius } = this.props.cellRadius;
 
     return new SelectablePolygonLayer({
       id: 'polygon-layer',
@@ -95,7 +96,7 @@ export default class Spatial extends AbstractSelectableComponent {
       ),
       getPolygon(cellEntry) {
         const cell = cellEntry[1];
-        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], this.props.cellRadius);
+        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
       },
       stroked: false,
       getColor: cellEntry => (
