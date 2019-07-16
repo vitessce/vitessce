@@ -10,63 +10,58 @@ export default function NamedSetManager(props) {
       console.warn(`onUpdateSets from NamedSetManager ${msg}`);
     },
   } = props;
-  const set = sets.namedSets[name];
+  const set = sets.namedSets.get(name);
+  if (!set) {
+    return null;
+  }
   const [isEditing, setIsEditing] = useState(false);
   const [setName, setSetName] = useState(name);
 
-  const renameSet = () => {
+  function renameSet() {
     setIsEditing(false);
     onUpdateSets(Sets.renameNamedSet(sets, name, setName));
-  };
+  }
 
-  const deleteSet = () => {
+  function deleteSet() {
     setIsEditing(false);
     onUpdateSets(Sets.deleteNamedSet(sets, name));
-  };
+  }
 
-  const updateCurrentSet = (nameToSelect) => {
-    onUpdateSets(Sets.setCurrentSet(sets, sets.namedSets[nameToSelect]));
-  };
+  function updateCurrentSet(nameToSelect) {
+    onUpdateSets(Sets.setCurrentSet(sets, sets.namedSets.get(nameToSelect)));
+  }
 
-  return (
-    <React.Fragment>
+  if (isEditing) {
+    return (
       <tr className="set-name">
         <td>
-          {isEditing
-            ? (
-              <input
-                value={setName}
-                onKeyDown={e => (e.keyCode === 13 ? renameSet() : null)}
-                onChange={e => setSetName(e.target.value)}
-                type="text"
-              />
-            )
-            : <button type="button" className="select-button" onClick={() => updateCurrentSet(name)}>{name}</button>}
+          <input
+            value={setName}
+            onKeyDown={e => (e.keyCode === 13 ? renameSet() : null)}
+            onChange={e => setSetName(e.target.value)}
+            type="text"
+          />
         </td>
-        {isEditing
-          ? (
-            <td className="set-edit">
-              <button type="button" onClick={deleteSet}>🗑</button>
-            </td>
-          )
-          : (
-            <td className="set-count">
-              <small>{set.length}</small>
-            </td>
-          )}
-        {isEditing
-          ? (
-            <td className="set-edit">
-              <button type="button" onClick={renameSet}>💾</button>
-            </td>
-          )
-          : (
-            <td className="set-edit">
-              <button type="button" className="edit-button" onClick={() => setIsEditing(true)}>✏️</button>
-            </td>
-          )
-        }
+        <td className="set-edit">
+          <button type="button" onClick={deleteSet}>🗑</button>
+        </td>
+        <td className="set-edit">
+          <button type="button" onClick={renameSet}>💾</button>
+        </td>
       </tr>
-    </React.Fragment>
+    );
+  }
+  return (
+    <tr className="set-name">
+      <td>
+        <button type="button" className="select-button" onClick={() => updateCurrentSet(name)}>{name}</button>
+      </td>
+      <td className="set-count">
+        <small>{set.length}</small>
+      </td>
+      <td className="set-edit">
+        <button type="button" className="edit-button" onClick={() => setIsEditing(true)}>✏️</button>
+      </td>
+    </tr>
   );
 }

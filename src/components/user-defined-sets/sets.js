@@ -1,4 +1,3 @@
-/* eslint-disable no-prototype-builtins */
 import store from 'store';
 // Functions for storing Set objects of string IDs (cell IDs, gene IDs, etc...).
 // The collection of sets is stored as a map whose values are Set objects.
@@ -6,8 +5,10 @@ import store from 'store';
 // Motivation for using reducer pattern:
 // https://medium.com/@dan_abramov/you-might-not-need-redux-be46360cf367
 
+const SETS = 'sets';
+
 export const initialState = {
-  namedSets: {},
+  namedSets: new Map(),
   currentSet: [],
 };
 
@@ -28,7 +29,7 @@ function toArray(set) {
 export function setNamedSet(state, name, set) {
   return {
     ...state,
-    namedSets: { ...state.namedSets, [name]: toArray(set) },
+    namedSets: new Map([...Array.from(state.namedSets.entries()), [name, toArray(set)]]),
   };
 }
 
@@ -39,9 +40,9 @@ export function setNamedSet(state, name, set) {
      * @returns {object} The new state.
      */
 export function deleteNamedSet(state, name) {
-  if (state.namedSets.hasOwnProperty(name)) {
-    const newNamedSets = { ...state.namedSets };
-    delete newNamedSets[name];
+  if (state.namedSets.has(name)) {
+    const newNamedSets = new Map(Array.from(state.namedSets.entries()));
+    newNamedSets.delete(name);
     return {
       ...state,
       namedSets: newNamedSets,
@@ -71,13 +72,10 @@ export function deleteNamedSet(state, name) {
      * @returns {object} The new state.
      */
 export function renameNamedSet(state, prevName, nextName) {
-  if (state.namedSets.hasOwnProperty(prevName)) {
-    const prevSet = state.namedSets[prevName];
+  if (state.namedSets.has(prevName)) {
+    const prevSet = state.namedSets.get(prevName);
     const deletedState = deleteNamedSet(state, prevName);
-    return {
-      ...deletedState,
-      namedSets: { ...deletedState.namedSets, [nextName]: prevSet },
-    };
+    return setNamedSet(deletedState, nextName, prevSet);
   }
   return state;
 }
@@ -114,13 +112,10 @@ export function clearCurrentSet(state) {
 export function nameCurrentSet(state, name, clear) {
   return {
     ...state,
-    namedSets: { ...state.namedSets, [name]: state.currentSet },
+    namedSets: new Map([...Array.from(state.namedSets.entries()), [name, state.currentSet]]),
     currentSet: (clear ? [] : state.currentSet),
   };
 }
-
-// TODO: better to do explicit checks than try-catch
-// TODO: add tests when time to un-comment
 
 /**
  * @param {object} state A state object to persist to local storage.
@@ -128,16 +123,17 @@ export function nameCurrentSet(state, name, clear) {
  * @param {string} datasetKey The dataset from which the sets come, for example "linnarson-2018".
  */
 export function persist(state, setTypeKey, datasetKey) {
-  const sets = store.get('sets') || {};
-  const stateToSave = { namedSets: state.namedSets };
-  if (sets.hasOwnProperty(setTypeKey)) {
-    sets[setTypeKey][datasetKey] = stateToSave;
-  } else {
+  const sets = store.get(SETS) || {};
+  const stateToSave = { namedSets: Array.from(state.namedSets.entries()) };
+  // eslint-disable-next-line no-prototype-builtins
+  if (!sets.hasOwnProperty(setTypeKey)) {
     sets[setTypeKey] = {
       [datasetKey]: stateToSave,
     };
+  } else {
+    sets[setTypeKey][datasetKey] = stateToSave;
   }
-  store.set('sets', sets);
+  store.set(SETS, sets);
 }
 
 /**
@@ -145,9 +141,10 @@ export function persist(state, setTypeKey, datasetKey) {
  * @param {string} datasetKey The dataset from which the sets come, for example "linnarson-2018".
  */
 export function restore(setTypeKey, datasetKey) {
-  try {
-    return { ...initialState, ...store.get('sets')[setTypeKey][datasetKey] };
-  } catch (e) {
-    return initialState;
+  const sets = store.get(SETS) || {};
+  // eslint-disable-next-line no-prototype-builtins
+  if (sets.hasOwnProperty(setTypeKey) && sets[setTypeKey].hasOwnProperty(datasetKey)) {
+    return { ...initialState, namedSets: new Map(sets[setTypeKey][datasetKey].namedSets) };
   }
+  return initialState;
 }

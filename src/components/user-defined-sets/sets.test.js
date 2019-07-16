@@ -5,13 +5,13 @@ describe('sets.js', () => {
   describe('namedSets.keys()', () => {
     it('has no set keys when first instantiated', () => {
       const setsState = Sets.initialState;
-      expect(Object.keys(setsState.namedSets).length).toEqual(0);
+      expect(setsState.namedSets.size).toEqual(0);
     });
     it('has one set key when one set is added', () => {
       let setsState = Sets.initialState;
       setsState = Sets.setNamedSet(setsState, 'test', new Set([1, 2, 3]));
-      expect(Object.keys(setsState.namedSets).length).toEqual(1);
-      expect(Object.keys(setsState.namedSets)[0]).toEqual('test');
+      expect(setsState.namedSets.size).toEqual(1);
+      expect(Array.from(setsState.namedSets.keys())[0]).toEqual('test');
     });
   });
   describe('currentSet', () => {

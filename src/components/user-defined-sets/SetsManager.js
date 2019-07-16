@@ -14,7 +14,7 @@ export default function SetsManager(props) {
       <CurrentSetManager sets={sets} onUpdateSets={onUpdateSets} />
       <table className="set-list">
         <tbody>
-          {Object.keys(sets.namedSets).sort().map(name => (
+          {Array.from(sets.namedSets.keys()).sort().map(name => (
             <NamedSetManager key={name} sets={sets} name={name} onUpdateSets={onUpdateSets} />
           ))}
         </tbody>

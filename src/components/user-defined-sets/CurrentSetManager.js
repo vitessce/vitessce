@@ -18,7 +18,7 @@ export default class CurrentSetManager extends React.Component {
 
   getNextSetName() {
     const { sets } = this.props;
-    const nextIndex = Object.keys(sets.namedSets).length + 1;
+    const nextIndex = Array.from(sets.namedSets.keys()).length + 1;
     return `Set ${nextIndex}`;
   }
 
@@ -63,16 +63,20 @@ export default class CurrentSetManager extends React.Component {
     }
 
     const { setName, isEditing } = this.state;
+
+    const inputProps = {
+      value: (isEditing ? setName : this.getNextSetName()),
+      onChange: (isEditing ? this.handleChange : () => {}),
+      onFocus: (!isEditing ? this.startEditing : undefined),
+    };
+
     return (
       <form onSubmit={this.handleSubmit}>
         <table className="current-set-manager">
           <tbody>
             <tr>
               <td className="set-name">
-                {isEditing
-                  ? (<input type="text" value={setName} onChange={this.handleChange} />)
-                  : (<input type="text" value={this.getNextSetName()} onFocus={this.startEditing} />)
-                  }
+                <input type="text" {...inputProps} />
               </td>
               <td>
                 <button type="submit" className="set-item-button set-item-save">Save</button>

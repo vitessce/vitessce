@@ -9,7 +9,7 @@ configure({ adapter: new Adapter() });
 
 describe('NamedSetManager.js', () => {
   describe('<NamedSetManager />', () => {
-    it('renders name and edit button when not editing', () => {
+    it('does not render an input when edit button has not been clicked', () => {
       let setsState = Sets.initialState;
       setsState = Sets.setNamedSet(setsState, 'test', [1, 2, 3]);
       const wrapper = shallow(<NamedSetManager sets={setsState} name="test" />);
