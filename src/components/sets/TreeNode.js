@@ -5,6 +5,35 @@ import { Popover } from 'antd';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
 
+function CurrentSetNode(props) {
+  const {
+    title,
+    setKey,
+    prefixCls,
+    tree,
+  } = props;
+  return (
+    <input value={title} type="text" className={`${prefixCls}-current-set-input`} onChange={(e) => { tree.onChangeNodeName(setKey, e.target.value); }} />
+  );
+}
+
+function NamedSetNode(props) {
+  const {
+    title,
+    prefixCls,
+    isEditing,
+  } = props;
+  return (
+    <Popover
+      content={<p style={{ padding: '14px 16px', marginBottom: 0 }}>Menu here...</p>}
+      title={undefined}
+      trigger="click"
+    >
+      <span className={`${prefixCls}-title`}>{title}</span>
+    </Popover>
+  );
+}
+
 export default class TreeNode extends RcTreeNode {
   renderSelector = () => {
     const { dragNodeHighlight } = this.state;
@@ -12,7 +41,6 @@ export default class TreeNode extends RcTreeNode {
       title,
       size,
       isCurrentSet,
-      isEditing,
     } = this.props;
     const {
       rcTree: {
@@ -37,16 +65,11 @@ export default class TreeNode extends RcTreeNode {
         aria-grabbed={(!isCurrentSet && draggable) || undefined}
         onDragStart={(!isCurrentSet && draggable) ? this.onDragStart : undefined}
       >
-        <Popover
-          content={<p style={{ padding: '14px 16px', marginBottom: 0 }}>Menu here...</p>}
-          title={undefined}
-          trigger="click"
-        > {isEditing || isCurrentSet ? (
-          <input value={title} type="text" className={`${prefixCls}-current-set-input`} />
+        {isCurrentSet ? (
+          <CurrentSetNode {...this.props} prefixCls={prefixCls} />
         ) : (
-          <span className={`${prefixCls}-title`}>{title}</span>
+          <NamedSetNode {...this.props} prefixCls={prefixCls} />
         )}
-        </Popover>
         <span className={`${prefixCls}-set-size`}>{size}</span>
       </span>
     );

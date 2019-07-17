@@ -1,5 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 import store from 'store';
+import slugify from 'slugify';
 // Functions for storing hierarchical sets of string IDs (cell IDs, gene IDs, etc...).
 
 const CURRENT_SET_KEY = 'current-set';
@@ -10,7 +11,7 @@ const ALL_ROOT_NAME = 'All';
 export class HSetsNode {
   constructor(props) {
     const {
-      key,
+      setKey,
       name,
       selected = false,
       open = false,
@@ -18,7 +19,7 @@ export class HSetsNode {
       children,
       set,
     } = props || {};
-    this.key = key;
+    this.setKey = setKey;
     this.name = name;
     this.children = children;
     this.selected = selected;
@@ -29,7 +30,7 @@ export class HSetsNode {
   }
 
   isCurrentSet() {
-    return (this.key === `${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`);
+    return (this.setKey === `${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`);
   }
 
   startEditing() {
@@ -48,19 +49,23 @@ export class HSetsNode {
     this.children = children;
   }
 
+  setName(name) {
+    this.name = name;
+  }
+
   isLeaf() {
     return (this.children === undefined
         || this.children === null
         || (Array.isArray(this.children) && this.children.length === 0));
   }
 
-  findNode(key) {
-    if (this.key === key) {
+  findNode(setKey) {
+    if (this.setKey === setKey) {
       return this;
     }
     // eslint-disable-next-line no-restricted-syntax
     for (const child of this.children) {
-      const childResult = child.findNode(key);
+      const childResult = child.findNode(setKey);
       if (childResult) {
         return childResult;
       }
@@ -71,7 +76,8 @@ export class HSetsNode {
   getRenderProps() {
     return {
       title: this.name,
-      key: this.key,
+      key: this.setKey,
+      setKey: this.setKey,
       size: this.set ? this.set.length : 0,
       isCurrentSet: this.isCurrentSet(),
       isEditing: this.isEditing(),
@@ -79,19 +85,25 @@ export class HSetsNode {
   }
 
   getKeyTail() {
-    const i = this.key.lastIndexOf('.');
+    const i = this.setKey.lastIndexOf('.');
     if (i === -1) {
-      return this.key;
+      return this.setKey;
     }
-    return this.key.substring(i + 1);
+    return this.setKey.substring(i + 1);
+  }
+
+  setKeyTail(keyTail) {
+    const i = this.setKey.lastIndexOf('.');
+    const keyHead = this.setKey.substring(0, i + 1);
+    this.setKey = keyHead + keyTail;
   }
 
   updateChildKeys() {
     if (this.children && this.children.length > 0) {
       // eslint-disable-next-line no-restricted-syntax
       for (const child of this.children) {
-        const newChildKey = `${this.key}.${child.getKeyTail()}`;
-        child.key = newChildKey;
+        const newChildKey = `${this.setKey}.${child.getKeyTail()}`;
+        child.setKey = newChildKey;
         child.updateChildKeys();
       }
     }
@@ -101,79 +113,39 @@ export class HSetsNode {
 export default class HSets {
   constructor(onChange) {
     this.root = new HSetsNode({
-      key: ALL_ROOT_KEY,
+      setKey: ALL_ROOT_KEY,
       name: ALL_ROOT_NAME,
       children: [
         new HSetsNode({
-          key: 'all.current-set',
+          setKey: 'all.current-set',
           name: CURRENT_SET_NAME,
           color: '#000',
           set: [],
         }),
-        new HSetsNode({
-          key: 'all.factors',
+        /* new HSetsNode({
+          setKey: 'all.factors',
           name: 'Factors',
           color: '#000',
-          children: [
-            new HSetsNode({
-              key: 'all.factors.oligodendrocytes',
-              name: 'Oligodendrocytes',
-              color: '#000',
-              children: [
-                new HSetsNode({
-                  key: 'all.factors.oligodendrocytes.oligodendrocyte-mature',
-                  name: 'Oligodendrocyte Mature',
-                  color: '#000',
-                  set: [],
-                }),
-              ],
-            }),
-            new HSetsNode({
-              key: 'all.factors.inhibitory-neurons',
-              name: 'Inhibitory neurons',
-              color: '#000',
-              children: [
-                new HSetsNode({
-                  key: 'all.factors.inhibitory-neurons.inhibitory-pthlh',
-                  name: 'Inhibitory Pthlh',
-                  color: '#000',
-                  set: [],
-                }),
-                new HSetsNode({
-                  key: 'all.factors.inhibitory-neurons.inhibitory-kcnip2',
-                  name: 'Inhibitory Kcnip2',
-                  color: '#000',
-                  set: [],
-                }),
-                new HSetsNode({
-                  key: 'all.factors.inhibitory-neurons.inhibitory-cp',
-                  name: 'Inhibitory CP',
-                  color: '#000',
-                  set: [],
-                }),
-              ],
-            }),
-          ],
-        }),
+        }), */
       ],
     });
-    this.tabRoots = [this.root, this.root.children[1].children[0]];
+    this.tabRoots = [this.root];
     this.checkedKeys = ['all.current-set'];
-    this.onChange = onChange || (() => {});
+    this.onChange = onChange;
   }
 
   setCheckedKeys(checkedKeys) {
     this.checkedKeys = checkedKeys;
-    this.onChange(this);
+    this.emitUpdate();
   }
 
   setCurrentSet(set) {
     this.findNode(`${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`).set = Array.from(set);
-    this.onChange(this);
+    this.emitUpdate();
   }
 
-  findNode(key) {
-    return this.root.findNode(key);
+  findNode(setKey) {
+    return this.root.findNode(setKey);
   }
 
   dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap, insertBottom) {
@@ -182,7 +154,7 @@ export default class HSets {
     }
     const loop = (data, key, callback) => {
       data.forEach((item, index, arr) => {
-        if (item.key === key) {
+        if (item.setKey === key) {
           return callback(item, index, arr);
         }
         if (item.children) {
@@ -232,12 +204,31 @@ export default class HSets {
     tabRoot.updateChildKeys();
     if (dragKey === 'all.current-set') {
       this.root.setChildren([new HSetsNode({
-        key: 'all.current-set',
+        setKey: 'all.current-set',
         name: CURRENT_SET_NAME,
         color: '#000',
         set: [],
       }), ...this.root.children]);
     }
-    this.onChange(this);
+    this.emitUpdate();
+  }
+
+  onChangeNodeName(prevKey, newName) {
+    const node = this.findNode(prevKey);
+    node.setName(newName);
+    const newKeyTail = slugify(newName, { remove: /[.]/g });
+    node.setKeyTail(newKeyTail);
+    this.emitUpdate();
+  }
+
+  appendChild(node) {
+    this.root.setChildren([...this.root.children, node]);
+    this.emitUpdate();
+  }
+
+  emitUpdate() {
+    if (this.onChange) {
+      this.onChange(this);
+    }
   }
 }

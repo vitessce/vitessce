@@ -54,16 +54,19 @@ export default class SetsManagerTab extends React.Component {
 
 
   renderTreeNodes(nodes) {
+    const {
+      setsTree,
+    } = this.props;
     return nodes.map((item) => {
       if (item.children) {
         return (
-          <TreeNode {...item.getRenderProps()}>
+          <TreeNode tree={setsTree} {...item.getRenderProps()}>
             {this.renderTreeNodes(item.children)}
           </TreeNode>
         );
       }
       return (
-        <TreeNode {...item.getRenderProps()} />
+        <TreeNode tree={setsTree} {...item.getRenderProps()} />
       );
     });
   }
