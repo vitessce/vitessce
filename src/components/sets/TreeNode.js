@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React from 'react';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { Popover } from 'antd';
@@ -13,9 +15,24 @@ function CurrentSetNode(props) {
     tree,
   } = props;
   return (
-    <input value={title} type="text" className={`${prefixCls}-current-set-input`} onChange={(e) => { tree.onChangeNodeName(setKey, e.target.value); }} />
+    <input value={title} type="text" className={`${prefixCls}-current-set-input`} onChange={(e) => { tree.onChangeNodeName(setKey, e.target.value, true); }} />
   );
 }
+
+function NamedSetNodeMenu(props) {
+  const {
+    tree,
+    setKey,
+  } = props;
+  return (
+    <ul className="named-set-node-menu">
+      <li onClick={() => { tree.viewSet(setKey); }}>View</li>
+      <li>View children</li>
+      <li>View grandchildren</li>
+    </ul>
+  );
+}
+
 
 function NamedSetNode(props) {
   const {
@@ -25,7 +42,7 @@ function NamedSetNode(props) {
   } = props;
   return (
     <Popover
-      content={<p style={{ padding: '14px 16px', marginBottom: 0 }}>Menu here...</p>}
+      content={<NamedSetNodeMenu {...props} />}
       title={undefined}
       trigger="click"
     >
@@ -41,6 +58,7 @@ export default class TreeNode extends RcTreeNode {
       title,
       size,
       isCurrentSet,
+      isSelected,
     } = this.props;
     const {
       rcTree: {
@@ -58,7 +76,7 @@ export default class TreeNode extends RcTreeNode {
         className={classNames(
           `${wrapClass}`,
           `${wrapClass}-${this.getNodeState() || 'normal'}`,
-          (!isCurrentSet && dragNodeHighlight) && `${prefixCls}-node-selected`,
+          isSelected && `${prefixCls}-node-selected`,
           (!isCurrentSet && draggable) && 'draggable',
         )}
         draggable={(!isCurrentSet && draggable) || undefined}

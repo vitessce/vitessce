@@ -4,7 +4,7 @@ import slugify from 'slugify';
 // Functions for storing hierarchical sets of string IDs (cell IDs, gene IDs, etc...).
 
 const CURRENT_SET_KEY = 'current-set';
-const CURRENT_SET_NAME = 'Current Set';
+const CURRENT_SET_NAME = 'Current Selection';
 const ALL_ROOT_KEY = 'all';
 const ALL_ROOT_NAME = 'All';
 
@@ -13,20 +13,17 @@ export class HSetsNode {
     const {
       setKey,
       name,
-      selected = false,
-      open = false,
+      editing = false,
       color,
       children,
       set,
     } = props || {};
     this.setKey = setKey;
     this.name = name;
-    this.children = children;
-    this.selected = selected;
-    this.color = color;
-    this.open = open;
     this.set = set;
-    this.editing = false;
+    this.children = children;
+    this.color = color;
+    this.editing = editing;
   }
 
   isCurrentSet() {
@@ -63,6 +60,9 @@ export class HSetsNode {
     if (this.setKey === setKey) {
       return this;
     }
+    if (!this.children) {
+      return null;
+    }
     // eslint-disable-next-line no-restricted-syntax
     for (const child of this.children) {
       const childResult = child.findNode(setKey);
@@ -92,10 +92,14 @@ export class HSetsNode {
     return this.setKey.substring(i + 1);
   }
 
-  setKeyTail(keyTail) {
+  getKeyHead() {
     const i = this.setKey.lastIndexOf('.');
-    const keyHead = this.setKey.substring(0, i + 1);
-    this.setKey = keyHead + keyTail;
+    return this.setKey.substring(0, i);
+  }
+
+  setKeyTail(keyTail) {
+    const keyHead = this.getKeyHead();
+    this.setKey = `${keyHead}.${keyTail}`;
   }
 
   updateChildKeys() {
@@ -111,37 +115,41 @@ export class HSetsNode {
 }
 
 export default class HSets {
-  constructor(onChange) {
+  constructor(onTreeChange, onVisibilityChange) {
     this.root = new HSetsNode({
       setKey: ALL_ROOT_KEY,
       name: ALL_ROOT_NAME,
-      children: [
-        new HSetsNode({
-          setKey: 'all.current-set',
-          name: CURRENT_SET_NAME,
-          color: '#000',
-          set: [],
-        }),
-        /* new HSetsNode({
-          setKey: 'all.factors',
-          name: 'Factors',
-          color: '#000',
-        }), */
-      ],
+      children: [],
     });
     this.tabRoots = [this.root];
-    this.checkedKeys = ['all.current-set'];
-    this.onChange = onChange;
+    this.checkedKeys = [];
+    this.visibleKeys = [];
+    this.onTreeChange = onTreeChange;
+    this.onVisibilityChange = onVisibilityChange;
   }
 
   setCheckedKeys(checkedKeys) {
     this.checkedKeys = checkedKeys;
-    this.emitUpdate();
+    this.emitTreeUpdate();
   }
 
-  setCurrentSet(set) {
-    this.findNode(`${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`).set = Array.from(set);
-    this.emitUpdate();
+  setCurrentSet(set, visible) {
+    let currentSetNode = this.findNode(`${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`);
+    if (!currentSetNode) {
+      currentSetNode = new HSetsNode({
+        setKey: `${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`,
+        name: CURRENT_SET_NAME,
+        color: '#000',
+        editing: true,
+        set: [],
+      });
+      this.prependChild(currentSetNode);
+    }
+    currentSetNode.set = Array.from(set);
+    if (visible) {
+      this.visibleKeys = [currentSetNode.setKey];
+    }
+    this.emitTreeUpdate();
   }
 
   findNode(setKey) {
@@ -149,10 +157,11 @@ export default class HSets {
   }
 
   dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap, insertBottom) {
-    if (dragKey === 'all.current-set' || dropKey === 'all.current-set') {
+    if (dragKey === `${ALL_ROOT_KEY}.${CURRENT_SET_KEY}` || dropKey === `${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`) {
       return;
     }
     const loop = (data, key, callback) => {
+      // eslint-disable-next-line consistent-return
       data.forEach((item, index, arr) => {
         if (item.setKey === key) {
           return callback(item, index, arr);
@@ -202,33 +211,56 @@ export default class HSets {
 
     tabRoot.setChildren(data);
     tabRoot.updateChildKeys();
-    if (dragKey === 'all.current-set') {
-      this.root.setChildren([new HSetsNode({
-        setKey: 'all.current-set',
-        name: CURRENT_SET_NAME,
-        color: '#000',
-        set: [],
-      }), ...this.root.children]);
-    }
-    this.emitUpdate();
+    this.emitTreeUpdate();
   }
 
-  onChangeNodeName(prevKey, newName) {
+  onChangeNodeName(prevKey, newName, changeKey) {
     const node = this.findNode(prevKey);
     node.setName(newName);
-    const newKeyTail = slugify(newName, { remove: /[.]/g });
-    node.setKeyTail(newKeyTail);
-    this.emitUpdate();
+    if (changeKey) {
+      const newKeyTail = slugify(newName, { remove: /[.]/g });
+      node.setKeyTail(newKeyTail);
+      // Keep the node checked through the name change if necessary.
+      if (this.checkedKeys.includes(prevKey)) {
+        this.checkedKeys.splice(this.checkedKeys.indexOf(prevKey), 1, node.setKey);
+      }
+    }
+    // TODO: check for existence of duplicate keys before setting the key
+    this.emitTreeUpdate();
+  }
+
+  prependChild(node) {
+    this.root.setChildren([node, ...this.root.children]);
+    this.emitTreeUpdate();
   }
 
   appendChild(node) {
     this.root.setChildren([...this.root.children, node]);
-    this.emitUpdate();
+    this.emitTreeUpdate();
   }
 
-  emitUpdate() {
-    if (this.onChange) {
-      this.onChange(this);
+  viewSet(setKey) {
+    this.visibleKeys = [setKey];
+    this.emitVisibilityUpdate();
+  }
+
+  emitTreeUpdate() {
+    if (this.onTreeChange) {
+      this.onTreeChange(this);
+    }
+  }
+
+  emitVisibilityUpdate() {
+    if (this.onVisibilityChange) {
+      let cellIds = [];
+      // eslint-disable-next-line no-restricted-syntax
+      for (const setKey of this.visibleKeys) {
+        const node = this.findNode(setKey);
+        if (node && node.set && node.set.length > 0) {
+          cellIds = [...cellIds, ...node.set];
+        }
+      }
+      this.onVisibilityChange(new Set(cellIds));
     }
   }
 }

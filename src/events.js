@@ -11,6 +11,7 @@ export const CELLS_COLOR = `${CELLS}.color`;
 export const CELLS_HOVER = `${CELLS}.hover`;
 
 export const CELL_SETS_MODIFY = `${CELLS}.sets.modify`;
+export const CELL_SETS_VIEW = `${CELLS}.sets.view`;
 
 export const CLUSTERS = 'clusters';
 export const CLUSTERS_ADD = CLUSTERS + ADD;

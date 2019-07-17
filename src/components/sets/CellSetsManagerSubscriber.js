@@ -1,6 +1,8 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import { FACTORS_ADD, CELL_SETS_MODIFY, CELLS_SELECTION } from '../../events';
+import {
+  FACTORS_ADD, CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION,
+} from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import HSets, { HSetsNode } from './sets';
@@ -10,11 +12,17 @@ const cellSetTypeKey = 'cells';
 export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    const { datasetId } = props;
+    // const { datasetId } = props;
     this.state = {
-      cellSets: new HSets((obj) => {
-        PubSub.publish(CELL_SETS_MODIFY, obj);
-      }),
+      cellSets: new HSets(
+        (obj) => {
+          PubSub.publish(CELL_SETS_MODIFY, obj);
+        },
+        (cellIds) => {
+          PubSub.publish(CELL_SETS_VIEW, cellIds);
+          console.log(cellIds);
+        },
+      ),
     };
   }
 
@@ -47,10 +55,13 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   cellsSelectionSubscriber(msg, cellIds) {
     const { cellSets } = this.state;
-    console.log(cellSets);
-    cellSets.setCurrentSet(cellIds);
+    cellSets.setCurrentSet(cellIds, true);
   }
 
+  /**
+   * TODO: remove this function when the concept of factors is
+   * removed in favor of the hierarchical cell set representation.
+   */
   factorsAddSubscriber(msg, factors) {
     const { cellSets } = this.state;
     const clusters = factors.cluster.map.map((clusterKey, clusterIndex) => new HSetsNode({
@@ -70,7 +81,6 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   render() {
     const { cellSets } = this.state;
-    const { datasetId } = this.props;
     return (
       <TitleInfo
         title="Cell Sets"

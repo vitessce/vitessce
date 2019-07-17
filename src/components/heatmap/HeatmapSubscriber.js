@@ -4,7 +4,7 @@ import PubSub from 'pubsub-js';
 import TitleInfo from '../TitleInfo';
 import {
   CELLS_COLOR, CLUSTERS_ADD, CELLS_ADD, CELLS_SELECTION,
-  CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO,
+  CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
 } from '../../events';
 import Heatmap from './Heatmap';
 
@@ -29,6 +29,9 @@ export default class HeatmapSubscriber extends React.Component {
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
+    this.cellSetsViewToken = PubSub.subscribe(
+      CELL_SETS_VIEW, this.cellsSelectionSubscriber.bind(this),
+    );
   }
 
   componentDidMount() {
@@ -41,6 +44,7 @@ export default class HeatmapSubscriber extends React.Component {
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsColorToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
+    PubSub.unsubscribe(this.cellSetsViewToken);
   }
 
   clustersAddSubscriber(msg, clusters) {

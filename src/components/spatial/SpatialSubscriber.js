@@ -6,6 +6,7 @@ import TitleInfo from '../TitleInfo';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
   STATUS_INFO, CELLS_SELECTION, CELLS_HOVER, CLEAR_PLEASE_WAIT, VIEW_INFO,
+  CELL_SETS_VIEW,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -36,6 +37,9 @@ export default class SpatialSubscriber extends React.Component {
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
+    this.cellSetsViewToken = PubSub.subscribe(
+      CELL_SETS_VIEW, this.cellsSelectionSubscriber.bind(this),
+    );
     this.cellsColorToken = PubSub.subscribe(
       CELLS_COLOR, this.cellsColorSubscriber.bind(this),
     );
@@ -53,6 +57,7 @@ export default class SpatialSubscriber extends React.Component {
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
     PubSub.unsubscribe(this.cellsColorToken);
+    PubSub.unsubscribe(this.cellSetsViewToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {

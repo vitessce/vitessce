@@ -218,3 +218,16 @@ html,body {
         }
     }
 }
+.named-set-node-menu {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 0;
+
+    li {
+        padding: 4px 16px;
+        cursor: pointer;
+        &:not(:last-child) {
+            border-bottom: 1px solid gray;
+        }
+    }
+}
