@@ -5,6 +5,16 @@ import datasetSchema from '../schemas/dataset.schema.json';
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/mermaid';
 
+function makeLayerNameToConfig(datasetPrefix) {
+  return function layerNameToConfig(name) {
+    return {
+      name,
+      type: name.toUpperCase(),
+      url: `${urlPrefix}/${datasetPrefix}.${name}.json`,
+    };
+  };
+}
+
 const linnarssonLayerNames = [
   'cells',
   'clusters',
@@ -14,22 +24,16 @@ const linnarssonLayerNames = [
   'molecules',
   'neighborhoods',
 ];
-function layerNameToConfig(name) {
-  return {
-    name,
-    type: name.toUpperCase(),
-    url: `${urlPrefix}/linnarsson.${name}.json`,
-  };
-}
-
 const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
   description: linnarssonDescription,
-  layers: linnarssonLayerNames.map(layerNameToConfig),
+  layers: linnarssonLayerNames
+    .map(makeLayerNameToConfig('linnarsson')),
 };
 const linnarssonBaseNoClusters = {
   description: linnarssonDescription,
-  layers: linnarssonLayerNames.filter(name => name !== 'clusters').map(layerNameToConfig),
+  layers: linnarssonLayerNames.filter(name => name !== 'clusters')
+    .map(makeLayerNameToConfig('linnarsson')),
 };
 
 const driesDescription = 'Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data';
@@ -38,11 +42,7 @@ const driesBase = {
   layers: [
     'cells',
     'factors',
-  ].map(name => ({
-    name,
-    type: name.toUpperCase(),
-    url: `${urlPrefix}/giotto.${name}.json`,
-  })),
+  ].map(makeLayerNameToConfig('giotto')),
 };
 
 const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
@@ -51,11 +51,7 @@ const wangBase = {
   layers: [
     'cells',
     'molecules',
-  ].map(name => ({
-    name,
-    type: name.toUpperCase(),
-    url: `${urlPrefix}/mermaid.${name}.json`,
-  })),
+  ].map(makeLayerNameToConfig('mermaid')),
 };
 
 /* eslint-disable object-property-newline */
