@@ -32,7 +32,7 @@ const linnarssonBaseNoClusters = {
   layers: layerNames.filter(name => name !== 'clusters').map(layerNameToConfig),
 };
 
-const giottoBase = {
+const driesBase = {
   description: 'Giotto',
   layers: [
     'cells',
@@ -44,7 +44,7 @@ const giottoBase = {
   })),
 };
 
-const mermaidBase = {
+const wangBase = {
   description: 'MERmaid',
   layers: [
     'cells',
@@ -291,9 +291,9 @@ const configs = {
       ],
     },
   },
-  'giotto-2019': {
-    ...giottoBase,
-    name: 'Giotto (responsive layout)',
+  'dries-2019': {
+    ...driesBase,
+    name: 'Dries (responsive layout)',
     public: false,
     responsiveLayout: {
       columns: {
@@ -335,9 +335,9 @@ const configs = {
       ],
     },
   },
-  'mermaid-2019': {
-    ...mermaidBase,
-    name: 'MERmaid (responsive layout)',
+  'wang-2019': {
+    ...wangBase,
+    name: 'Wang (responsive layout)',
     public: false,
     responsiveLayout: {
       columns: {
