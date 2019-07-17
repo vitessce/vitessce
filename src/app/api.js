@@ -24,16 +24,17 @@ function layerNameToConfig(name) {
 
 const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
-  linnarssonDescription,
+  description: linnarssonDescription,
   layers: layerNames.map(layerNameToConfig),
 };
 const linnarssonBaseNoClusters = {
-  linnarssonDescription,
+  description: linnarssonDescription,
   layers: layerNames.filter(name => name !== 'clusters').map(layerNameToConfig),
 };
 
+const driesDescription = 'Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data';
 const driesBase = {
-  description: 'Giotto',
+  description: driesDescription,
   layers: [
     'cells',
     'factors',
@@ -44,8 +45,9 @@ const driesBase = {
   })),
 };
 
+const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
 const wangBase = {
-  description: 'MERmaid',
+  description: wangDescription,
   layers: [
     'cells',
     'molecules',
@@ -310,7 +312,7 @@ const configs = {
       components: [
         { component: 'Description',
           props: {
-            description: 'Giotto',
+            description: driesDescription,
           },
           x: 0, y: 0 },
         { component: 'StatusSubscriber',
