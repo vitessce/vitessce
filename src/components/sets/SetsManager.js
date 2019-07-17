@@ -39,6 +39,16 @@ export default class SetsManager extends React.Component {
           ))}
         </Tabs>
 
+        <span style={{
+          cursor: 'pointer', right: '70px', position: 'absolute', top: '7px',
+        }}
+        >u
+        </span>
+        <span style={{
+          cursor: 'pointer', right: '40px', position: 'absolute', top: '7px',
+        }}
+        >n
+        </span>
         <Popover
           content={<SetsManagerMenu />}
           title={undefined}

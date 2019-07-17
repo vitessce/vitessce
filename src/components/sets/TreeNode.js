@@ -29,6 +29,11 @@ function NamedSetNodeMenu(props) {
       <li onClick={() => { tree.viewSet(setKey); }}>View</li>
       <li>View children</li>
       <li>View grandchildren</li>
+      <li>Change color</li>
+      <li>Rename</li>
+      <li>Open in new tab</li>
+      <li>Set to union of children</li>
+      <li>Delete</li>
     </ul>
   );
 }
@@ -46,7 +51,10 @@ function NamedSetNode(props) {
       title={undefined}
       trigger="click"
     >
-      <span className={`${prefixCls}-title`}>{title}</span>
+      {isEditing
+        ? (<span className={`${prefixCls}-title`}>{title}</span>)
+        : (<span className={`${prefixCls}-title`}>{title}</span>)}
+
     </Popover>
   );
 }
