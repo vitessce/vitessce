@@ -6,13 +6,11 @@ import datasetSchema from '../schemas/dataset.schema.json';
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/mermaid';
 
 function makeLayerNameToConfig(datasetPrefix) {
-  return function layerNameToConfig(name) {
-    return {
-      name,
-      type: name.toUpperCase(),
-      url: `${urlPrefix}/${datasetPrefix}.${name}.json`,
-    };
-  };
+  return name => ({
+    name,
+    type: name.toUpperCase(),
+    url: `${urlPrefix}/${datasetPrefix}.${name}.json`,
+  });
 }
 
 const linnarssonLayerNames = [
