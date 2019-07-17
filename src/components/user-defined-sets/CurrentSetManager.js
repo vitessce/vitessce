@@ -67,7 +67,7 @@ export default class CurrentSetManager extends React.Component {
     const inputProps = {
       value: (isEditing ? setName : this.getNextSetName()),
       onChange: (isEditing ? this.handleChange : () => {}),
-      onFocus: (!isEditing ? this.startEditing : undefined),
+      onFocus: (isEditing ? undefined : this.startEditing),
     };
 
     return (
