@@ -5,7 +5,7 @@ import datasetSchema from '../schemas/dataset.schema.json';
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/mermaid';
 
-const layerNames = [
+const linnarssonLayerNames = [
   'cells',
   'clusters',
   'factors',
@@ -25,11 +25,11 @@ function layerNameToConfig(name) {
 const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
   description: linnarssonDescription,
-  layers: layerNames.map(layerNameToConfig),
+  layers: linnarssonLayerNames.map(layerNameToConfig),
 };
 const linnarssonBaseNoClusters = {
   description: linnarssonDescription,
-  layers: layerNames.filter(name => name !== 'clusters').map(layerNameToConfig),
+  layers: linnarssonLayerNames.filter(name => name !== 'clusters').map(layerNameToConfig),
 };
 
 const driesDescription = 'Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data';
