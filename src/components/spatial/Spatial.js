@@ -237,8 +237,8 @@ export default class Spatial extends AbstractSelectableComponent {
 
     if (molecules && clearPleaseWait) clearPleaseWait('molecules');
     if (molecules && layerIsVisible.molecules) {
-      // The render step is expensive but deck.gl v7 if we try to re-use
-      // a previously-instantiated layer.
+      // The render step is expensive but deck.gl v7 errors if we
+      // try to re-use a previously-instantiated layer.
       // https://github.com/hubmapconsortium/vitessce/issues/283
       layerList.push(this.renderMoleculesLayer());
     }
