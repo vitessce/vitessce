@@ -237,11 +237,10 @@ export default class Spatial extends AbstractSelectableComponent {
 
     if (molecules && clearPleaseWait) clearPleaseWait('molecules');
     if (molecules && layerIsVisible.molecules) {
-      // Right now the molecules scatterplot does not change,
-      // so we do not need to regenerate the object.
-      // And, we do not want React to look at it, so it is not part of the state.
-      if (!this.moleculesLayer) this.moleculesLayer = this.renderMoleculesLayer();
-      layerList.push(this.moleculesLayer);
+      // The render step is expensive but deck.gl v7 if we try to re-use
+      // a previously-instantiated layer.
+      // https://github.com/hubmapconsortium/vitessce/issues/283
+      layerList.push(this.renderMoleculesLayer());
     }
 
     return layerList;
