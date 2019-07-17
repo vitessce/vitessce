@@ -5,8 +5,6 @@ import datasetSchema from '../schemas/dataset.schema.json';
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/mermaid';
 
-const description = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
-
 const layerNames = [
   'cells',
   'clusters',
@@ -23,12 +21,14 @@ function layerNameToConfig(name) {
     url: `${urlPrefix}/linnarsson.${name}.json`,
   };
 }
+
+const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
-  description,
+  linnarssonDescription,
   layers: layerNames.map(layerNameToConfig),
 };
 const linnarssonBaseNoClusters = {
-  description,
+  linnarssonDescription,
   layers: layerNames.filter(name => name !== 'clusters').map(layerNameToConfig),
 };
 
@@ -78,7 +78,7 @@ const configs = {
       components: [
         { component: 'Description',
           props: {
-            description: `Linnarsson: ${description}`,
+            description: `Linnarsson: ${linnarssonDescription}`,
           },
           x: 0, y: 0 },
         { component: 'StatusSubscriber',
@@ -188,7 +188,7 @@ const configs = {
     staticLayout: [
       { component: 'Description',
         props: {
-          description: `Linnarsson (static layout): ${description}`,
+          description: `Linnarsson (static layout): ${linnarssonDescription}`,
         },
         x: 0, y: 0, w: 3, h: 1 },
       { component: 'ScatterplotSubscriber',
