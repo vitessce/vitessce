@@ -225,6 +225,9 @@ export default class Spatial extends AbstractSelectableComponent {
       Object.entries(molecules).forEach(([molecule, coords], index) => {
         this.moleculesData = this.moleculesData.concat(
           coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
+          // Because we use the inner function immediately,
+          // the eslint warning about closures is a red herring:
+          // The index and molecule values are correct.
         );
       });
     }
