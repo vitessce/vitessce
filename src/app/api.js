@@ -5,9 +5,15 @@ import datasetSchema from '../schemas/dataset.schema.json';
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/mermaid';
 
-const description = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
+function makeLayerNameToConfig(datasetPrefix) {
+  return name => ({
+    name,
+    type: name.toUpperCase(),
+    url: `${urlPrefix}/${datasetPrefix}.${name}.json`,
+  });
+}
 
-const layerNames = [
+const linnarssonLayerNames = [
   'cells',
   'clusters',
   'factors',
@@ -16,44 +22,34 @@ const layerNames = [
   'molecules',
   'neighborhoods',
 ];
-function layerNameToConfig(name) {
-  return {
-    name,
-    type: name.toUpperCase(),
-    url: `${urlPrefix}/linnarsson.${name}.json`,
-  };
-}
+const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
-  description,
-  layers: layerNames.map(layerNameToConfig),
+  description: linnarssonDescription,
+  layers: linnarssonLayerNames
+    .map(makeLayerNameToConfig('linnarsson')),
 };
 const linnarssonBaseNoClusters = {
-  description,
-  layers: layerNames.filter(name => name !== 'clusters').map(layerNameToConfig),
+  description: linnarssonDescription,
+  layers: linnarssonLayerNames.filter(name => name !== 'clusters')
+    .map(makeLayerNameToConfig('linnarsson')),
 };
 
-const giottoBase = {
-  description: 'Giotto',
+const driesDescription = 'Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data';
+const driesBase = {
+  description: driesDescription,
   layers: [
     'cells',
     'factors',
-  ].map(name => ({
-    name,
-    type: name.toUpperCase(),
-    url: `${urlPrefix}/giotto.${name}.json`,
-  })),
+  ].map(makeLayerNameToConfig('giotto')),
 };
 
-const mermaidBase = {
-  description: 'MERmaid',
+const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
+const wangBase = {
+  description: wangDescription,
   layers: [
     'cells',
     'molecules',
-  ].map(name => ({
-    name,
-    type: name.toUpperCase(),
-    url: `${urlPrefix}/mermaid.${name}.json`,
-  })),
+  ].map(makeLayerNameToConfig('mermaid')),
 };
 
 /* eslint-disable object-property-newline */
@@ -78,7 +74,7 @@ const configs = {
       components: [
         { component: 'Description',
           props: {
-            description: `Linnarsson: ${description}`,
+            description: `Linnarsson: ${linnarssonDescription}`,
           },
           x: 0, y: 0 },
         { component: 'StatusSubscriber',
@@ -188,7 +184,7 @@ const configs = {
     staticLayout: [
       { component: 'Description',
         props: {
-          description: `Linnarsson (static layout): ${description}`,
+          description: `Linnarsson (static layout): ${linnarssonDescription}`,
         },
         x: 0, y: 0, w: 3, h: 1 },
       { component: 'ScatterplotSubscriber',
@@ -291,9 +287,9 @@ const configs = {
       ],
     },
   },
-  'giotto-2019': {
-    ...giottoBase,
-    name: 'Giotto (responsive layout)',
+  'dries-2019': {
+    ...driesBase,
+    name: 'Dries (responsive layout)',
     public: false,
     responsiveLayout: {
       columns: {
@@ -310,7 +306,7 @@ const configs = {
       components: [
         { component: 'Description',
           props: {
-            description: 'Giotto',
+            description: driesDescription,
           },
           x: 0, y: 0 },
         { component: 'StatusSubscriber',
@@ -335,9 +331,9 @@ const configs = {
       ],
     },
   },
-  'mermaid-2019': {
-    ...mermaidBase,
-    name: 'MERmaid (responsive layout)',
+  'wang-2019': {
+    ...wangBase,
+    name: 'Wang (responsive layout)',
     public: false,
     responsiveLayout: {
       columns: {
