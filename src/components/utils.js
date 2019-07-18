@@ -10,7 +10,7 @@ export function makeCellStatusMessage(cellInfoFactors) {
 export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid) {
   return {
     coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-    data: Object.entries(cells),
+    data: cells,
     pickable: true,
     autoHighlight: true,
     stroked: true,
