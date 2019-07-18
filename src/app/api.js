@@ -351,8 +351,8 @@ const configs = {
         { component: 'SpatialSubscriber',
           props: {
             view: {
-              zoom: -1.8,
-              target: [10, -70, 0],
+              zoom: -1,
+              target: [0, 0, 0],
             },
             moleculeRadius: 2,
           },
