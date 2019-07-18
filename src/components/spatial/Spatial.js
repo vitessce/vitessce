@@ -214,9 +214,9 @@ export default class Spatial extends AbstractSelectableComponent {
 
   renderLayers() {
     const {
-      molecules = undefined,
-      cells = undefined,
-      neighborhoods = undefined,
+      molecules,
+      cells,
+      neighborhoods,
       clearPleaseWait,
     } = this.props;
 
