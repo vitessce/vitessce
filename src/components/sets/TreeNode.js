@@ -1,11 +1,22 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/no-autofocus */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React from 'react';
+import React, { useState } from 'react';
 import { TreeNode as RcTreeNode } from 'rc-tree';
-import { Popover } from 'antd';
+import { Popover, Icon } from 'antd';
 
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
+
+function levelNameFromIndex(i) {
+  if (i === 0) {
+    return 'children';
+  } if (i === 1) {
+    return 'grandchildren';
+  }
+  return `level ${i} descendants`;
+}
 
 function CurrentSetNode(props) {
   const {
@@ -23,50 +34,89 @@ function NamedSetNodeMenu(props) {
   const {
     tree,
     setKey,
+    level,
   } = props;
   return (
     <ul className="named-set-node-menu">
       <li onClick={() => { tree.viewSet(setKey); }}>View</li>
-      <li>View children</li>
-      <li>View grandchildren</li>
-      <li>Change color</li>
-      <li>Rename</li>
-      <li>Open in new tab</li>
-      <li>Set to union of children</li>
-      <li>Delete</li>
+      {Array.from(Array(level), (x, i) => i).map(i => (
+        <li key={`level-${i}`}>View {levelNameFromIndex(i)}</li>
+      ))}
+      <li onClick={() => { tree.onStartEditing(setKey); }}>Rename</li>
+      <li onClick={() => { tree.onDelete(setKey); }}>Delete</li>
     </ul>
+  );
+}
+
+function NamedSetNodeStatic(props) {
+  const {
+    title,
+    prefixCls,
+    tree,
+    setKey,
+  } = props;
+  return (
+    <React.Fragment>
+      <span onClick={() => { tree.viewSet(setKey); }} className={`${prefixCls}-title`}>{title}</span>
+      <Popover
+        content={<NamedSetNodeMenu {...props} />}
+        title={undefined}
+        trigger="click"
+      >
+        <Icon type="ellipsis" className="named-set-node-menu-trigger" />
+      </Popover>
+    </React.Fragment>
+  );
+}
+
+function NamedSetNodeEditing(props) {
+  const {
+    title,
+    prefixCls,
+    tree,
+    setKey,
+    wasPreviousCurrentSet,
+  } = props;
+  const [currentTitle, setCurrentTitle] = useState(title);
+  return (
+    <React.Fragment>
+      <input
+        autoFocus
+        className={`${prefixCls}-title-input`}
+        type="text"
+        value={currentTitle}
+        onChange={(e) => { setCurrentTitle(e.target.value); }}
+      />
+      <button
+        type="button"
+        className={`${prefixCls}-title-button`}
+        onClick={() => tree.onChangeNodeName(setKey, currentTitle, true, true)}
+      > {wasPreviousCurrentSet ? 'Save' : 'Rename'}
+      </button>
+    </React.Fragment>
   );
 }
 
 
 function NamedSetNode(props) {
   const {
-    title,
-    prefixCls,
     isEditing,
   } = props;
   return (
-    <Popover
-      content={<NamedSetNodeMenu {...props} />}
-      title={undefined}
-      trigger="click"
-    >
-      {isEditing
-        ? (<span className={`${prefixCls}-title`}>{title}</span>)
-        : (<span className={`${prefixCls}-title`}>{title}</span>)}
-
-    </Popover>
+    isEditing
+      ? (<NamedSetNodeEditing {...props} />)
+      : (<NamedSetNodeStatic {...props} />)
   );
 }
 
 export default class TreeNode extends RcTreeNode {
   renderSelector = () => {
-    const { dragNodeHighlight } = this.state;
     const {
       title,
       size,
       isCurrentSet,
       isSelected,
+      isEditing,
     } = this.props;
     const {
       rcTree: {
@@ -85,11 +135,11 @@ export default class TreeNode extends RcTreeNode {
           `${wrapClass}`,
           `${wrapClass}-${this.getNodeState() || 'normal'}`,
           isSelected && `${prefixCls}-node-selected`,
-          (!isCurrentSet && draggable) && 'draggable',
+          (!isCurrentSet && !isEditing && draggable) && 'draggable',
         )}
-        draggable={(!isCurrentSet && draggable) || undefined}
-        aria-grabbed={(!isCurrentSet && draggable) || undefined}
-        onDragStart={(!isCurrentSet && draggable) ? this.onDragStart : undefined}
+        draggable={(!isCurrentSet && !isEditing && draggable) || undefined}
+        aria-grabbed={(!isCurrentSet && !isEditing && draggable) || undefined}
+        onDragStart={(!isCurrentSet && !isEditing && draggable) ? this.onDragStart : undefined}
       >
         {isCurrentSet ? (
           <CurrentSetNode {...this.props} prefixCls={prefixCls} />

@@ -137,10 +137,17 @@ html,body {
     .ant-tree {
         color: inherit;
 
-        .ant-tree-current-set-input {
+        .ant-tree-current-set-input, .ant-tree-title-input {
             border-radius: 3px;
             padding: 1px 4px;
             border: 0;
+        }
+        .ant-tree-title-button {
+            border-radius: 3px;
+            padding: 1px 4px;
+            border: 0;
+            cursor: pointer;
+            margin-left: 4px;
         }
 
         .ant-tree-showhide {
@@ -230,4 +237,11 @@ html,body {
             border-bottom: 1px solid gray;
         }
     }
+}
+.named-set-node-menu-trigger {
+    font-size: 16px;
+    margin-left: 10px;
+    height: 20px;
+    line-height: 20px;
+    vertical-align: middle;
 }

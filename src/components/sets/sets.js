@@ -14,6 +14,7 @@ export class HSetsNode {
       setKey,
       name,
       editing = false,
+      wasPreviousCurrentSet = false,
       color,
       children,
       set,
@@ -24,6 +25,7 @@ export class HSetsNode {
     this.children = children;
     this.color = color;
     this.editing = editing;
+    this.wasPreviousCurrentSet = wasPreviousCurrentSet;
   }
 
   isCurrentSet() {
@@ -50,6 +52,10 @@ export class HSetsNode {
     this.name = name;
   }
 
+  setWasPreviousCurrentSet(v) {
+    this.wasPreviousCurrentSet = v;
+  }
+
   isLeaf() {
     return (this.children === undefined
         || this.children === null
@@ -73,6 +79,23 @@ export class HSetsNode {
     return null;
   }
 
+  findParentNode(setKey) {
+    if (!this.children || this.children.length === 0) {
+      return null;
+    }
+    // eslint-disable-next-line no-restricted-syntax
+    for (const child of this.children) {
+      if (child.setKey === setKey) {
+        return this;
+      }
+      const childResult = child.findParentNode(setKey);
+      if (childResult) {
+        return childResult;
+      }
+    }
+    return null;
+  }
+
   getRenderProps() {
     return {
       title: this.name,
@@ -81,6 +104,8 @@ export class HSetsNode {
       size: this.set ? this.set.length : 0,
       isCurrentSet: this.isCurrentSet(),
       isEditing: this.isEditing(),
+      level: this.getLevel(),
+      wasPreviousCurrentSet: this.wasPreviousCurrentSet,
     };
   }
 
@@ -95,6 +120,21 @@ export class HSetsNode {
   getKeyHead() {
     const i = this.setKey.lastIndexOf('.');
     return this.setKey.substring(0, i);
+  }
+
+  getLevel() {
+    if (!this.children || this.children.length === 0) {
+      return 0;
+    }
+    let maxLevel = 0;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const child of this.children) {
+      const potentialLevel = child.getLevel() + 1;
+      if (maxLevel < potentialLevel) {
+        maxLevel = potentialLevel;
+      }
+    }
+    return maxLevel;
   }
 
   setKeyTail(keyTail) {
@@ -142,6 +182,7 @@ export default class HSets {
         color: '#000',
         editing: true,
         set: [],
+        wasPreviousCurrentSet: true,
       });
       this.prependChild(currentSetNode);
     }
@@ -154,6 +195,10 @@ export default class HSets {
 
   findNode(setKey) {
     return this.root.findNode(setKey);
+  }
+
+  findParentNode(setKey) {
+    return this.root.findParentNode(setKey);
   }
 
   dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap, insertBottom) {
@@ -214,7 +259,26 @@ export default class HSets {
     this.emitTreeUpdate();
   }
 
-  onChangeNodeName(prevKey, newName, changeKey) {
+  onStartEditing(setKey) {
+    const node = this.findNode(setKey);
+    node.startEditing();
+    this.emitTreeUpdate();
+  }
+
+  onDelete(setKey) {
+    const parentNode = this.findParentNode(setKey);
+    if (!parentNode) {
+      return;
+    }
+    const nodeIndex = parentNode.children.find(c => c.setKey === setKey);
+    if (!nodeIndex) {
+      return;
+    }
+    parentNode.children.splice(nodeIndex, 1);
+    this.emitTreeUpdate();
+  }
+
+  onChangeNodeName(prevKey, newName, changeKey, stopEditing) {
     const node = this.findNode(prevKey);
     node.setName(newName);
     if (changeKey) {
@@ -225,7 +289,14 @@ export default class HSets {
         this.checkedKeys.splice(this.checkedKeys.indexOf(prevKey), 1, node.setKey);
       }
     }
+    if (stopEditing) {
+      node.stopEditing();
+      if (node.wasPreviousCurrentSet) {
+        node.setWasPreviousCurrentSet(false);
+      }
+    }
     // TODO: check for existence of duplicate keys before setting the key
+    // TODO: even better: never change key (tail) values. for current set use next integer in sequence
     this.emitTreeUpdate();
   }
 
