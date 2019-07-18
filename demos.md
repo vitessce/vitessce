@@ -12,3 +12,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2019-06-26: [mccalluc/0.0.16-rc2](https://s3.amazonaws.com/vitessce-data/demos/2019-06-26/8bf8f29/staging-docs/index.html)
 - 2019-07-09: [toslchan/mermaid/add-dataset](https://s3.amazonaws.com/vitessce-data/demos/2019-07-09/e65b127/staging-docs/index.html)
 - 2019-07-09: [keller-mark/cell-set-manager](https://s3.amazonaws.com/vitessce-data/demos/2019-07-09/e8f8138/staging-docs/index.html)
+- 2019-07-18: [mccalluc/0.0.17](https://s3.amazonaws.com/vitessce-data/demos/2019-07-18/2092ed1/staging-docs/index.html)
