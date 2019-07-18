@@ -222,13 +222,11 @@ export default class Spatial extends AbstractSelectableComponent {
 
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
-      let scatterplotData = [];
       Object.entries(molecules).forEach(([molecule, coords], index) => {
-        scatterplotData = scatterplotData.concat(
+        this.moleculesData = this.moleculesData.concat(
           coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
         );
       });
-      this.moleculesData = scatterplotData;
     }
     // Process cells data and cache into re-usable array.
     if (cells && this.cellsData.length === 0) {
