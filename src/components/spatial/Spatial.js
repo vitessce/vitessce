@@ -23,11 +23,12 @@ export default class Spatial extends AbstractSelectableComponent {
       neighborhoods: false,
     };
 
-    // Variables to hold data arrays that, after created,
-    // use the same array reference across renders.
-    this.moleculesData = undefined;
-    this.cellsData = undefined;
-    this.neighborhoodsData = undefined;
+    // In Deck.gl, layers are considered light weight, and
+    // can be created and destroyed quickly, if the data they wrap is stable.
+    // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
+    this.moleculesData = [];
+    this.cellsData = [];
+    this.neighborhoodsData = [];
 
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
     this.getInitialViewState = this.getInitialViewState.bind(this);
@@ -125,7 +126,7 @@ export default class Spatial extends AbstractSelectableComponent {
         }
       },
       visible: this.state.layerIsVisible.cells,
-      ...cellLayerDefaultProps(this.cellsData || [], updateStatus, updateCellsHover, uuid),
+      ...cellLayerDefaultProps(this.cellsData, updateStatus, updateCellsHover, uuid),
     });
   }
 
@@ -139,7 +140,7 @@ export default class Spatial extends AbstractSelectableComponent {
     return new ScatterplotLayer({
       id: 'scatter-plot',
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      data: this.moleculesData || [],
+      data: this.moleculesData,
       pickable: true,
       autoHighlight: true,
       getRadius: this.props.moleculeRadius,
@@ -160,7 +161,7 @@ export default class Spatial extends AbstractSelectableComponent {
         return neighborhood.poly;
       },
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      data: this.neighborhoodsData || [],
+      data: this.neighborhoodsData,
       pickable: true,
       autoHighlight: true,
       stroked: true,
@@ -220,7 +221,7 @@ export default class Spatial extends AbstractSelectableComponent {
     } = this.props;
 
     // Process molecules data and cache into re-usable array.
-    if (molecules && (!this.moleculesData || this.moleculesData.length === 0)) {
+    if (molecules && this.moleculesData.length === 0) {
       let scatterplotData = [];
       Object.entries(molecules).forEach(([molecule, coords], index) => {
         scatterplotData = scatterplotData.concat(
@@ -230,11 +231,11 @@ export default class Spatial extends AbstractSelectableComponent {
       this.moleculesData = scatterplotData;
     }
     // Process cells data and cache into re-usable array.
-    if (cells && (!this.cellsData || this.cellsData.length === 0)) {
+    if (cells && this.cellsData.length === 0) {
       this.cellsData = Object.entries(cells);
     }
     // Process neighborhoods data and cache into re-usable array.
-    if (neighborhoods && (!this.neighborhoodsData || this.neighborhoodsData.length === 0)) {
+    if (neighborhoods && this.neighborhoodsData.length === 0) {
       this.neighborhoodsData = Object.entries(neighborhoods);
     }
 
