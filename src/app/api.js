@@ -57,7 +57,7 @@ const wangBase = {
 const configs = {
   'linnarsson-2018': {
     ...linnarssonBase,
-    name: 'Linnarsson (responsive layout)',
+    name: 'Linnarsson',
     public: true,
     responsiveLayout: {
       columns: {
@@ -289,7 +289,7 @@ const configs = {
   },
   'dries-2019': {
     ...driesBase,
-    name: 'Dries (responsive layout)',
+    name: 'Dries',
     public: false,
     responsiveLayout: {
       columns: {
@@ -333,7 +333,7 @@ const configs = {
   },
   'wang-2019': {
     ...wangBase,
-    name: 'Wang (responsive layout)',
+    name: 'Wang',
     public: false,
     responsiveLayout: {
       columns: {
