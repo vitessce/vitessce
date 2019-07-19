@@ -290,7 +290,7 @@ const configs = {
   'dries-2019': {
     ...driesBase,
     name: 'Dries',
-    public: false,
+    public: true,
     responsiveLayout: {
       columns: {
         // First two columns are equal,
