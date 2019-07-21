@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.18/separate_scripts';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.18/rename_output';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -40,7 +40,7 @@ const driesBase = {
   layers: [
     'cells',
     'factors',
-  ].map(makeLayerNameToConfig('giotto')),
+].map(makeLayerNameToConfig('dries')),
 };
 
 const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
@@ -49,7 +49,7 @@ const wangBase = {
   layers: [
     'cells',
     'molecules',
-  ].map(makeLayerNameToConfig('mermaid')),
+].map(makeLayerNameToConfig('wang')),
 };
 
 /* eslint-disable object-property-newline */
