@@ -40,7 +40,7 @@ const driesBase = {
   layers: [
     'cells',
     'factors',
-].map(makeLayerNameToConfig('dries')),
+  ].map(makeLayerNameToConfig('dries')),
 };
 
 const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
@@ -49,7 +49,7 @@ const wangBase = {
   layers: [
     'cells',
     'molecules',
-].map(makeLayerNameToConfig('wang')),
+  ].map(makeLayerNameToConfig('wang')),
 };
 
 /* eslint-disable object-property-newline */
