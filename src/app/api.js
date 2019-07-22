@@ -48,7 +48,6 @@ const wangBase = {
   description: wangDescription,
   layers: [
     'cells',
-    'genes',
     'molecules',
   ].map(makeLayerNameToConfig('wang')),
 };
@@ -351,9 +350,7 @@ const configs = {
             },
             moleculeRadius: 2,
           },
-          x: 0, y: 0, h: 2 },
-        { component: 'GenesSubscriber',
-          x: 1, y: 0, h: 2 },
+          x: 0, y: 0, w: 2 },
       ],
     },
   },
