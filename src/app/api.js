@@ -94,9 +94,7 @@ const configs = {
           props: { mapping: 'PCA' },
           x: 1, y: 2, h: 2 },
         { component: 'FactorsSubscriber',
-          x: 2, y: 0, h: 1 },
-        { component: 'CellSetsManagerSubscriber',
-          x: 2, y: 1, h: 1 },
+          x: 2, y: 0, h: 2 },
         { component: 'GenesSubscriber',
           x: 2, y: 2, h: 2 },
         { component: 'HoverableHeatmapSubscriber',
@@ -334,7 +332,7 @@ const configs = {
   'wang-2019': {
     ...wangBase,
     name: 'Wang',
-    public: false,
+    public: true,
     responsiveLayout: {
       columns: {
         // First two columns are equal,
