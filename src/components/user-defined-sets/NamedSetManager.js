@@ -12,7 +12,7 @@ export default function NamedSetManager(props) {
   } = props;
   const set = sets.namedSets.get(name);
   if (!set) {
-    return null;
+    console.warn('Invalid set encountered in NamedSetManager');
   }
   const [isEditing, setIsEditing] = useState(false);
   const [setName, setSetName] = useState(name);
