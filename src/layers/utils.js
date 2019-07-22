@@ -29,7 +29,7 @@ export function overlayBaseProps(props) {
       // Alternatively: contrast outlines with solids:
       // getLineColor: getColor,
       // getFillColor: [255,255,255],
-      data: data.filter(() => true),
+      data: data.slice(),
       ...rest,
     },
   };
