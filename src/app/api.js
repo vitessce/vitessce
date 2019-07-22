@@ -22,30 +22,30 @@ const linnarssonLayerNames = [
   'molecules',
   'neighborhoods',
 ];
-const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
+const linnarssondescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
-  description: linnarssonDescription,
+  description: linnarssondescription,
   layers: linnarssonLayerNames
     .map(makeLayerNameToConfig('linnarsson')),
 };
 const linnarssonBaseNoClusters = {
-  description: linnarssonDescription,
+  description: linnarssondescription,
   layers: linnarssonLayerNames.filter(name => name !== 'clusters')
     .map(makeLayerNameToConfig('linnarsson')),
 };
 
-const driesDescription = 'Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data';
+const driesdescription = 'Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data';
 const driesBase = {
-  description: driesDescription,
+  description: driesdescription,
   layers: [
     'cells',
     'factors',
   ].map(makeLayerNameToConfig('dries')),
 };
 
-const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
+const wangdescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
 const wangBase = {
-  description: wangDescription,
+  description: wangdescription,
   layers: [
     'cells',
     'molecules',
@@ -72,17 +72,17 @@ const configs = {
         600: [0, 2, 4, 8],
       },
       components: [
-        { component: 'Description',
+        { component: 'description',
           props: {
-            description: `Linnarsson: ${linnarssonDescription}`,
+            description: `Linnarsson: ${linnarssondescription}`,
           },
           x: 0, y: 0 },
-        { component: 'StatusSubscriber',
+        { component: 'status',
           x: 0, y: 1 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 't-SNE' },
           x: 0, y: 2, h: 2 },
-        { component: 'HoverableSpatialSubscriber',
+        { component: 'spatial',
           props: {
             view: {
               zoom: -6.5,
@@ -90,14 +90,14 @@ const configs = {
             },
           },
           x: 1, y: 0, h: 2 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 'PCA' },
           x: 1, y: 2, h: 2 },
-        { component: 'FactorsSubscriber',
+        { component: 'factors',
           x: 2, y: 0, h: 2 },
-        { component: 'GenesSubscriber',
+        { component: 'genes',
           x: 2, y: 2, h: 2 },
-        { component: 'HoverableHeatmapSubscriber',
+        { component: 'heatmap',
           x: 0, y: 4, w: 3 },
       ],
     },
@@ -118,7 +118,7 @@ const configs = {
         600: [0, 2, 4, 8],
       },
       components: [
-        { component: 'HoverableSpatialSubscriber',
+        { component: 'spatial',
           props: {
             view: {
               zoom: -8,
@@ -126,10 +126,10 @@ const configs = {
             },
           },
           x: 0, y: 0, h: 2 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 't-SNE' },
           x: 0, y: 2, h: 2 },
-        { component: 'HoverableSpatialSubscriber',
+        { component: 'spatial',
           props: {
             view: {
               zoom: -6,
@@ -137,14 +137,14 @@ const configs = {
             },
           },
           x: 1, y: 0, h: 2 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 'PCA' },
           x: 1, y: 2, h: 2 },
-        { component: 'FactorsSubscriber',
+        { component: 'factors',
           x: 2, y: 0, h: 2 },
-        { component: 'GenesSubscriber',
+        { component: 'genes',
           x: 2, y: 2, h: 2 },
-        { component: 'HoverableHeatmapSubscriber',
+        { component: 'heatmap',
           x: 0, y: 4, w: 3 },
       ],
     },
@@ -161,7 +161,7 @@ const configs = {
         600: [0, 4, 8],
       },
       components: [
-        { component: 'HoverableSpatialSubscriber',
+        { component: 'spatial',
           props: {
             view: {
               zoom: -6.5,
@@ -169,9 +169,9 @@ const configs = {
             },
           },
           x: 0, y: 0, h: 2 },
-        { component: 'FactorsSubscriber',
+        { component: 'factors',
           x: 1, y: 0, h: 1 },
-        { component: 'GenesSubscriber',
+        { component: 'genes',
           x: 1, y: 1, h: 1 },
       ],
     },
@@ -180,15 +180,15 @@ const configs = {
     ...linnarssonBase,
     name: 'Linnarsson (static layout)',
     staticLayout: [
-      { component: 'Description',
+      { component: 'description',
         props: {
-          description: `Linnarsson (static layout): ${linnarssonDescription}`,
+          description: `Linnarsson (static layout): ${linnarssondescription}`,
         },
         x: 0, y: 0, w: 3, h: 1 },
-      { component: 'ScatterplotSubscriber',
+      { component: 'scatterplot',
         props: { mapping: 't-SNE' },
         x: 0, y: 2, w: 3, h: 2 },
-      { component: 'SpatialSubscriber',
+      { component: 'spatial',
         props: {
           view: {
             zoom: -6.5,
@@ -196,11 +196,11 @@ const configs = {
           },
         },
         x: 3, y: 0, w: 6, h: 4 },
-      { component: 'FactorsSubscriber',
+      { component: 'factors',
         x: 9, y: 0, w: 3, h: 2 },
-      { component: 'GenesSubscriber',
+      { component: 'genes',
         x: 9, y: 2, w: 3, h: 2 },
-      { component: 'HeatmapSubscriber',
+      { component: 'heatmap',
         x: 0, y: 4, w: 12, h: 1 },
     ],
   },
@@ -220,7 +220,7 @@ const configs = {
         600: [0, 2, 4, 8],
       },
       components: [
-        { component: 'HoverableSpatialSubscriber',
+        { component: 'spatial',
           props: {
             view: {
               zoom: -6.5,
@@ -228,7 +228,7 @@ const configs = {
             },
           },
           x: 0, y: 0, h: 1 },
-        { component: 'HoverableSpatialSubscriber',
+        { component: 'spatial',
           props: {
             view: {
               zoom: -6.5,
@@ -236,7 +236,7 @@ const configs = {
             },
           },
           x: 0, y: 1, h: 1 },
-        { component: 'HoverableSpatialSubscriber',
+        { component: 'spatial',
           props: {
             view: {
               zoom: -6.5,
@@ -244,7 +244,7 @@ const configs = {
             },
           },
           x: 1, y: 0, h: 1 },
-        { component: 'HoverableSpatialSubscriber',
+        { component: 'spatial',
           props: {
             view: {
               zoom: -6.5,
@@ -252,35 +252,35 @@ const configs = {
             },
           },
           x: 1, y: 1, h: 1 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 't-SNE' },
           x: 0, y: 2, h: 1 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 't-SNE' },
           x: 0, y: 3, h: 1 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 't-SNE' },
           x: 0, y: 4, h: 1 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 't-SNE' },
           x: 0, y: 5, h: 1 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 'PCA' },
           x: 1, y: 2, h: 1 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 'PCA' },
           x: 1, y: 3, h: 1 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 'PCA' },
           x: 1, y: 4, h: 1 },
-        { component: 'HoverableScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 'PCA' },
           x: 1, y: 5, h: 1 },
-        { component: 'FactorsSubscriber',
+        { component: 'factors',
           x: 2, y: 0, h: 2 },
-        { component: 'GenesSubscriber',
+        { component: 'genes',
           x: 2, y: 2, h: 2 },
-        { component: 'HeatmapSubscriber',
+        { component: 'heatmap',
           x: 2, y: 4, w: 1, h: 2 },
       ],
     },
@@ -302,17 +302,17 @@ const configs = {
         600: [0, 2, 4, 8],
       },
       components: [
-        { component: 'Description',
+        { component: 'description',
           props: {
-            description: driesDescription,
+            description: driesdescription,
           },
           x: 0, y: 0 },
-        { component: 'StatusSubscriber',
+        { component: 'status',
           x: 0, y: 1 },
-        { component: 'ScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 't-SNE' },
           x: 0, y: 2, h: 2 },
-        { component: 'SpatialSubscriber',
+        { component: 'spatial',
           props: {
             cellRadius: 50,
             view: {
@@ -321,10 +321,10 @@ const configs = {
             },
           },
           x: 1, y: 0, h: 2 },
-        { component: 'ScatterplotSubscriber',
+        { component: 'scatterplot',
           props: { mapping: 'UMAP' },
           x: 1, y: 2, h: 2 },
-        { component: 'FactorsSubscriber',
+        { component: 'factors',
           x: 2, y: 0, h: 4 },
       ],
     },
@@ -342,7 +342,7 @@ const configs = {
         600: [0, 4, 6],
       },
       components: [
-        { component: 'SpatialSubscriber',
+        { component: 'spatial',
           props: {
             view: {
               zoom: -1,

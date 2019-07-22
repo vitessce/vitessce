@@ -2,12 +2,9 @@ import React from 'react';
 
 import TitleInfo from '../components/TitleInfo';
 import StatusSubscriber from '../components/status/StatusSubscriber';
-import ScatterplotSubscriber from '../components/scatterplot/ScatterplotSubscriber';
-import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
 import FactorsSubscriber from '../components/factors/FactorsSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
 import CellSetsManagerSubscriber from '../components/user-defined-sets/CellSetsManagerSubscriber';
-import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 import HoverableScatterplotSubscriber from '../components/scatterplot/HoverableScatterplotSubscriber';
 import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSubscriber';
 import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSubscriber';
@@ -30,17 +27,14 @@ class Description extends React.Component {
 }
 
 const registry = {
-  Description,
-  StatusSubscriber,
-  ScatterplotSubscriber,
-  SpatialSubscriber,
-  FactorsSubscriber,
-  GenesSubscriber,
-  CellSetsManagerSubscriber,
-  HeatmapSubscriber,
-  HoverableScatterplotSubscriber,
-  HoverableSpatialSubscriber,
-  HoverableHeatmapSubscriber,
+  description: Description,
+  status: StatusSubscriber,
+  factors: FactorsSubscriber,
+  genes: GenesSubscriber,
+  cellSets: CellSetsManagerSubscriber,
+  scatterplot: HoverableScatterplotSubscriber,
+  spatial: HoverableSpatialSubscriber,
+  heatmap: HoverableHeatmapSubscriber,
 };
 
 export default function getComponent(name) {
