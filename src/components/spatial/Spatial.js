@@ -22,6 +22,14 @@ export default class Spatial extends AbstractSelectableComponent {
       cells: true,
       neighborhoods: false,
     };
+
+    // In Deck.gl, layers are considered light weight, and
+    // can be created and destroyed quickly, if the data they wrap is stable.
+    // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
+    this.moleculesData = [];
+    this.cellsData = [];
+    this.neighborhoodsData = [];
+
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
     this.getInitialViewState = this.getInitialViewState.bind(this);
   }
@@ -71,7 +79,6 @@ export default class Spatial extends AbstractSelectableComponent {
 
   renderCellLayer() {
     const {
-      cells = undefined,
       selectedCellIds = new Set(),
       updateStatus = (message) => {
         console.warn(`Spatial updateStatus: ${message}`);
@@ -118,28 +125,22 @@ export default class Spatial extends AbstractSelectableComponent {
           updateCellsSelection(selectedCellIds);
         }
       },
-      ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid),
+      visible: this.state.layerIsVisible.cells,
+      ...cellLayerDefaultProps(this.cellsData, updateStatus, updateCellsHover, uuid),
     });
   }
 
   renderMoleculesLayer() {
     const {
-      molecules = undefined,
       updateStatus = (message) => {
         console.warn(`Spatial updateStatus: ${message}`);
       },
     } = this.props;
 
-    let scatterplotData = [];
-    Object.entries(molecules).forEach(([molecule, coords], index) => {
-      scatterplotData = scatterplotData.concat(
-        coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
-      );
-    });
     return new ScatterplotLayer({
       id: 'scatter-plot',
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      data: scatterplotData,
+      data: this.moleculesData,
       pickable: true,
       autoHighlight: true,
       getRadius: this.props.moleculeRadius,
@@ -148,14 +149,11 @@ export default class Spatial extends AbstractSelectableComponent {
       onHover: (info) => {
         if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
       },
+      visible: this.state.layerIsVisible.molecules,
     });
   }
 
   renderNeighborhoodsLayer() {
-    const {
-      neighborhoods = undefined,
-    } = this.props;
-
     return new PolygonLayer({
       id: 'neighborhoods-layer',
       getPolygon(neighborhoodsEntry) {
@@ -163,13 +161,14 @@ export default class Spatial extends AbstractSelectableComponent {
         return neighborhood.poly;
       },
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      data: Object.entries(neighborhoods),
+      data: this.neighborhoodsData,
       pickable: true,
       autoHighlight: true,
       stroked: true,
       filled: false,
       getElevation: 0,
       getLineWidth: 10,
+      visible: this.state.layerIsVisible.neighborhoods,
     });
   }
 
@@ -215,34 +214,42 @@ export default class Spatial extends AbstractSelectableComponent {
 
   renderLayers() {
     const {
-      molecules = undefined,
-      cells = undefined,
-      neighborhoods = undefined,
+      molecules,
+      cells,
+      neighborhoods,
       clearPleaseWait,
     } = this.props;
 
-    const { layerIsVisible } = this.state;
-
-    const layerList = [];
-
-    if (cells && clearPleaseWait) clearPleaseWait('cells');
-    if (cells && layerIsVisible.cells) {
-      layerList.push(this.renderCellLayer());
+    // Process molecules data and cache into re-usable array.
+    if (molecules && this.moleculesData.length === 0) {
+      Object.entries(molecules).forEach(([molecule, coords], index) => {
+        this.moleculesData = this.moleculesData.concat(
+          coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
+          // Because we use the inner function immediately,
+          // the eslint warning about closures is a red herring:
+          // The index and molecule values are correct.
+        );
+      });
     }
+    // Process cells data and cache into re-usable array.
+    if (cells && this.cellsData.length === 0) {
+      this.cellsData = Object.entries(cells);
+    }
+    // Process neighborhoods data and cache into re-usable array.
+    if (neighborhoods && this.neighborhoodsData.length === 0) {
+      this.neighborhoodsData = Object.entries(neighborhoods);
+    }
+
+    // Append each layer to the list.
+    const layerList = [];
+    if (cells && clearPleaseWait) clearPleaseWait('cells');
+    layerList.push(this.renderCellLayer());
 
     if (neighborhoods && clearPleaseWait) clearPleaseWait('neighborhoods');
-    if (neighborhoods && layerIsVisible.neighborhoods) {
-      layerList.push(this.renderNeighborhoodsLayer());
-    }
+    layerList.push(this.renderNeighborhoodsLayer());
 
     if (molecules && clearPleaseWait) clearPleaseWait('molecules');
-    if (molecules && layerIsVisible.molecules) {
-      // Right now the molecules scatterplot does not change,
-      // so we do not need to regenerate the object.
-      // And, we do not want React to look at it, so it is not part of the state.
-      if (!this.moleculesLayer) this.moleculesLayer = this.renderMoleculesLayer();
-      layerList.push(this.moleculesLayer);
-    }
+    layerList.push(this.renderMoleculesLayer());
 
     return layerList;
   }
