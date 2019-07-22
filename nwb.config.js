@@ -2,12 +2,7 @@ module.exports = {
   type: 'react-component',
   npm: {
     esModules: true,
-    umd: {
-      global: 'vitessce',
-      externals: {
-        react: 'React',
-      },
-    },
+    umd: false,
   },
   webpack: {
     html: {

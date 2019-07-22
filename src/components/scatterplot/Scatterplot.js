@@ -79,7 +79,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
               updateCellsSelection(selectedCellIds);
             }
           },
-          ...cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid),
+          ...cellLayerDefaultProps(Object.entries(cells), updateStatus, updateCellsHover, uuid),
         }),
       );
     }
