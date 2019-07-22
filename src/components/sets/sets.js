@@ -1,9 +1,7 @@
 /* eslint-disable no-prototype-builtins */
-import store from 'store';
-import slugify from 'slugify';
-// Functions for storing hierarchical sets of string IDs (cell IDs, gene IDs, etc...).
+import uuidv4 from 'uuid/v4';
+// Storage of hierarchical sets of IDs (cell IDs, gene IDs, etc...).
 
-const CURRENT_SET_KEY = 'current-set';
 const CURRENT_SET_NAME = 'Current Selection';
 const ALL_ROOT_KEY = 'all';
 const ALL_ROOT_NAME = 'All';
@@ -14,6 +12,7 @@ export class HSetsNode {
       setKey,
       name,
       editing = false,
+      isCurrentSet = false,
       wasPreviousCurrentSet = false,
       color,
       children,
@@ -25,11 +24,8 @@ export class HSetsNode {
     this.children = children;
     this.color = color;
     this.editing = editing;
+    this.isCurrentSet = isCurrentSet;
     this.wasPreviousCurrentSet = wasPreviousCurrentSet;
-  }
-
-  isCurrentSet() {
-    return (this.setKey === `${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`);
   }
 
   startEditing() {
@@ -50,6 +46,10 @@ export class HSetsNode {
 
   setName(name) {
     this.name = name;
+  }
+
+  setIsCurrentSet(v) {
+    this.isCurrentSet = v;
   }
 
   setWasPreviousCurrentSet(v) {
@@ -96,15 +96,32 @@ export class HSetsNode {
     return null;
   }
 
+  findCurrentSetNode() {
+    if (this.isCurrentSet) {
+      return this;
+    }
+    if (!this.children) {
+      return null;
+    }
+    // eslint-disable-next-line no-restricted-syntax
+    for (const child of this.children) {
+      const childResult = child.findCurrentSetNode();
+      if (childResult) {
+        return childResult;
+      }
+    }
+    return null;
+  }
+
   getRenderProps() {
     return {
       title: this.name,
       key: this.setKey,
       setKey: this.setKey,
       size: this.set ? this.set.length : 0,
-      isCurrentSet: this.isCurrentSet(),
       isEditing: this.isEditing(),
       level: this.getLevel(),
+      isCurrentSet: this.isCurrentSet,
       wasPreviousCurrentSet: this.wasPreviousCurrentSet,
     };
   }
@@ -174,14 +191,16 @@ export default class HSets {
   }
 
   setCurrentSet(set, visible) {
-    let currentSetNode = this.findNode(`${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`);
+    let currentSetNode = this.findCurrentSetNode();
     if (!currentSetNode) {
+      const uuid = uuidv4();
       currentSetNode = new HSetsNode({
-        setKey: `${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`,
+        setKey: `${ALL_ROOT_KEY}.${uuid}`,
         name: CURRENT_SET_NAME,
         color: '#000',
         editing: true,
         set: [],
+        isCurrentSet: true,
         wasPreviousCurrentSet: true,
       });
       this.prependChild(currentSetNode);
@@ -193,6 +212,10 @@ export default class HSets {
     this.emitTreeUpdate();
   }
 
+  findCurrentSetNode() {
+    return this.root.findCurrentSetNode();
+  }
+
   findNode(setKey) {
     return this.root.findNode(setKey);
   }
@@ -202,7 +225,9 @@ export default class HSets {
   }
 
   dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap, insertBottom) {
-    if (dragKey === `${ALL_ROOT_KEY}.${CURRENT_SET_KEY}` || dropKey === `${ALL_ROOT_KEY}.${CURRENT_SET_KEY}`) {
+    const dragNode = this.findNode(dragKey);
+    const dropNode = this.findNode(dropKey);
+    if (dragNode.isCurrentSet || dropNode.isCurrentSet) {
       return;
     }
     const loop = (data, key, callback) => {
@@ -278,26 +303,20 @@ export default class HSets {
     this.emitTreeUpdate();
   }
 
-  onChangeNodeName(prevKey, newName, changeKey, stopEditing) {
+  onChangeNodeName(prevKey, newName, stopEditing) {
     const node = this.findNode(prevKey);
     node.setName(newName);
-    if (changeKey) {
-      const newKeyTail = slugify(newName, { remove: /[.]/g });
-      node.setKeyTail(newKeyTail);
-      // Keep the node checked through the name change if necessary.
-      if (this.checkedKeys.includes(prevKey)) {
-        this.checkedKeys.splice(this.checkedKeys.indexOf(prevKey), 1, node.setKey);
-      }
-    }
+
     if (stopEditing) {
       node.stopEditing();
       if (node.wasPreviousCurrentSet) {
         node.setWasPreviousCurrentSet(false);
       }
     }
+    if (node.isCurrentSet) {
+      node.setIsCurrentSet(false);
+    }
     // TODO: check for existence of duplicate keys before setting the key.
-    // TODO: even better: never change key (tail) values for
-    // current set use next integer in sequence.
     this.emitTreeUpdate();
   }
 

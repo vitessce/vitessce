@@ -1,12 +1,16 @@
 import expect from 'expect';
-import * as Sets from './sets';
+import { HSetsNode } from './sets';
 
-/* describe('sets.js', () => {
-  describe('namedSets.keys()', () => {
-    it('has no set keys when first instantiated', () => {
-      const setsState = Sets.initialState;
-      expect(Object.keys(setsState.namedSets).length).toEqual(0);
+describe('sets.js', () => {
+  describe('HSetsNode', () => {
+    it('can be instantiated', () => {
+      const node = new HSetsNode({
+        setKey: 'test',
+        name: 'Test Set',
+        color: '#000',
+        set: [],
+      });
+      expect(node.setKey).toEqual('test');
     });
   });
 });
-*/

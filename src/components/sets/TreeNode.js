@@ -26,7 +26,7 @@ function CurrentSetNode(props) {
     tree,
   } = props;
   return (
-    <input value={title} type="text" className={`${prefixCls}-current-set-input`} onChange={(e) => { tree.onChangeNodeName(setKey, e.target.value, true); }} />
+    <input value={title} type="text" className={`${prefixCls}-current-set-input`} onChange={(e) => { tree.onChangeNodeName(setKey, e.target.value); }} />
   );
 }
 
@@ -90,7 +90,7 @@ function NamedSetNodeEditing(props) {
       <button
         type="button"
         className={`${prefixCls}-title-button`}
-        onClick={() => tree.onChangeNodeName(setKey, currentTitle, true, true)}
+        onClick={() => tree.onChangeNodeName(setKey, currentTitle, true)}
       > {wasPreviousCurrentSet ? 'Save' : 'Rename'}
       </button>
     </React.Fragment>

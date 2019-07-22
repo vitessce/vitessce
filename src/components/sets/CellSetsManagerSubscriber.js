@@ -7,8 +7,6 @@ import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import HSets, { HSetsNode } from './sets';
 
-const cellSetTypeKey = 'cells';
-
 export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
     super(props);
@@ -20,7 +18,6 @@ export default class CellSetsManagerSubscriber extends React.Component {
         },
         (cellIds) => {
           PubSub.publish(CELL_SETS_VIEW, cellIds);
-          console.log(cellIds);
         },
       ),
     };

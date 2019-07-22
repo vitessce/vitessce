@@ -1,27 +1,10 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
-import { Tabs, Popover } from 'antd';
-import Icon from 'antd/es/tree/../icon';
+import { Tabs } from 'antd';
 import SetsManagerTab from './SetsManagerTab';
 import 'antd/es/tabs/style/index.css';
 
-
 const { TabPane } = Tabs;
-
-
-function callback(key) {
-  console.log(key);
-}
-
-
-function SetsManagerMenu(props) {
-  return (
-    <ul className="sets-manager-menu">
-      <li>Import</li>
-      <li>Export</li>
-    </ul>
-  );
-}
 
 export default class SetsManager extends React.Component {
   render() {
@@ -31,7 +14,7 @@ export default class SetsManager extends React.Component {
 
     return (
       <div className="sets-manager">
-        <Tabs onChange={callback} type="card">
+        <Tabs onChange={() => {}} type="card">
           {setsTree.tabRoots.map(tabRoot => (
             <TabPane tab={tabRoot.name} key={tabRoot.name}>
               <SetsManagerTab setsTree={setsTree} tabRoot={tabRoot} />
