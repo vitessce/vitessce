@@ -38,6 +38,7 @@ export default function CellTooltip1DVertical(props) {
     return (
       <div ref={ref} className="cell-tooltip-wrapper">
         <CellTooltipText
+          cellId={hoveredCellInfo.cellId}
           factors={hoveredCellInfo.factors}
           x={x}
           y={y}
