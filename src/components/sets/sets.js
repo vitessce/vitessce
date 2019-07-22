@@ -154,6 +154,16 @@ export class HSetsNode {
     return maxLevel;
   }
 
+  getDescendentsFlat(level) {
+    if (!this.children) {
+      return [];
+    }
+    if (level === 0) {
+      return this.children;
+    }
+    return this.children.flatMap(c => c.getDescendentsFlat(level - 1));
+  }
+
   setKeyTail(keyTail) {
     const keyHead = this.getKeyHead();
     this.setKey = `${keyHead}.${keyTail}`;
@@ -332,6 +342,13 @@ export default class HSets {
 
   viewSet(setKey) {
     this.visibleKeys = [setKey];
+    this.emitVisibilityUpdate();
+  }
+
+  viewSetDescendents(setKey, level) {
+    const node = this.findNode(setKey);
+    const descendentsOfInterest = node.getDescendentsFlat(level);
+    this.visibleKeys = descendentsOfInterest.map(d => d.setKey);
     this.emitVisibilityUpdate();
   }
 

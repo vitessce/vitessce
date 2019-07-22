@@ -1,0 +1,47 @@
+---
+name: Spatial
+route: /Spatial
+menu: Published Components
+---
+
+# Spatial
+
+Spatial data viewer: Overlays multiple layers of data, including
+points for molecules, polygons for cells, and base imagery.
+
+```
+<Spatial
+  cells={{
+   '42': {
+      poly: [
+        [0, 0],[-100, 100],
+        [-100, 300],[100, 300],
+      ]
+    },
+    '43': {
+       xy: [0, 500]
+     }
+  }},
+  molecules={{
+    'Dilithium': [[0, 475]],
+    'Ice9': [[25, 500]],
+    'Kryptonite': [[0, 525]],
+    'Mithril': [[-25, 500]]
+  }}
+  view={view}
+  moleculeRadius={1}
+  cellRadius={10}
+  updateStatus={ message => console.log(message) }
+  updateCellsSelection={ selectedCellIds => console.log(selectedCellIds) }
+  updateCellsHover={ hoverInfo => console.log(hoverInfo) }
+  updateViewInfo={ viewInfo => console.log(viewInfo) }
+  clearPleaseWait={ layerName => console.log(layerName) }
+/>
+```
+
+Cell locations can be given either as a polygon, or as a simple x-y coordinate.
+
+Molecules are provided as an object: The keys are the names or IDs of the species,
+the values are lists of x-y coordinates.
+
+Since different data sets have different intrinsic scales, a default radius for cells and molecules can be provided.

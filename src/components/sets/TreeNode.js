@@ -40,7 +40,7 @@ function NamedSetNodeMenu(props) {
     <ul className="named-set-node-menu">
       <li onClick={() => { tree.viewSet(setKey); }}>View</li>
       {Array.from(Array(level), (x, i) => i).map(i => (
-        <li key={`level-${i}`}>View {levelNameFromIndex(i)}</li>
+        <li key={`level-${i}`} onClick={() => { tree.viewSetDescendents(setKey, i); }}>View {levelNameFromIndex(i)}</li>
       ))}
       <li onClick={() => { tree.onStartEditing(setKey); }}>Rename</li>
       <li onClick={() => { tree.onDelete(setKey); }}>Delete</li>
