@@ -295,8 +295,9 @@ export default class HSets {
         node.setWasPreviousCurrentSet(false);
       }
     }
-    // TODO: check for existence of duplicate keys before setting the key
-    // TODO: even better: never change key (tail) values. for current set use next integer in sequence
+    // TODO: check for existence of duplicate keys before setting the key.
+    // TODO: even better: never change key (tail) values for
+    // current set use next integer in sequence.
     this.emitTreeUpdate();
   }
 
