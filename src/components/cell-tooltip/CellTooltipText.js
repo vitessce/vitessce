@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 export default function CellTooltipText(props) {
   const {
+    cellId,
     x,
     y,
     parentWidth,
@@ -33,6 +34,10 @@ export default function CellTooltipText(props) {
     >
       <table>
         <tbody>
+          <tr>
+            <th>Cell ID</th>
+            <td>{cellId}</td>
+          </tr>
           {Object.keys(factors).map(key => (
             <tr key={key}>
               <th>{key}</th>
