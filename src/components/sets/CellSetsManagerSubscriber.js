@@ -5,13 +5,13 @@ import {
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
-import HSets, { HSetsNode } from './sets';
+import SetsTree, { SetsTreeNode } from './sets';
 
 export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cellSets: new HSets(
+      cellSets: new SetsTree(
         (obj) => {
           PubSub.publish(CELL_SETS_MODIFY, obj);
         },
@@ -59,13 +59,13 @@ export default class CellSetsManagerSubscriber extends React.Component {
    */
   factorsAddSubscriber(msg, factors) {
     const { cellSets } = this.state;
-    const clusters = factors.cluster.map.map((clusterKey, clusterIndex) => new HSetsNode({
+    const clusters = factors.cluster.map.map((clusterKey, clusterIndex) => new SetsTreeNode({
       setKey: `all.${clusterKey}`,
       name: clusterKey,
       set: Object.entries(factors.cluster.cells).filter(c => c[1] === clusterIndex).map(c => c[0]),
     }));
 
-    cellSets.appendChild(new HSetsNode({
+    cellSets.appendChild(new SetsTreeNode({
       setKey: 'all.factors',
       name: 'Factors',
       children: clusters,
