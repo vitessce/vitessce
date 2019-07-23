@@ -14,4 +14,26 @@
   .cellTooltipWrapper {
       position: relative;
   }
+
+  .cellTooltip {
+      z-index: 1001;
+      position: absolute;
+      pointer-events: none;
+      height: auto;
+      width: auto;
+      box-sizing: border-box;
+      opacity: 0;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid gray;
+
+      // animation-name: cell-tooltip;
+      // animation-duration: 0.5s;
+      // animation-fill-mode: forwards;
+  }
+
+  .cellTooltip > table > tbody > tr > th, .cellTooltip > table > tbody > tr > td {
+      font-size: 80%;
+      opacity: 0.8;
+  }
 }

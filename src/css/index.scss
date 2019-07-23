@@ -57,28 +57,6 @@ pre {
 
 /* Cell Tooltips */
 
-.cell-tooltip {
-    z-index: 1001;
-    position: absolute;
-    pointer-events: none;
-    height: auto;
-    width: auto;
-    box-sizing: border-box;
-    opacity: 0;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    border: 1px solid gray;
-
-    animation-name: cell-tooltip;
-    animation-duration: 0.5s;
-    animation-fill-mode: forwards;
-}
-
-.cell-tooltip > table > tbody > tr > th, .cell-tooltip > table > tbody > tr > td {
-    font-size: 80%;
-    opacity: 0.8;
-}
-
 @keyframes cell-tooltip {
     from {
         opacity: 0;
