@@ -1,0 +1,13 @@
+:local {
+  .cellEmphasisCrosshair, .cellEmphasisVertical {
+      z-index: 5;
+      position: absolute;
+      pointer-events: none;
+      background-color: white;
+  }
+
+  .cellEmphasisVertical {
+      /* offset by the same amount as the container (.card-body) padding */
+      transform: translateX(1.25rem);
+  }
+}

@@ -32,7 +32,7 @@ describe('CellTooltip2D.js', () => {
         viewInfo={makeFakeViewInfo(5, 5)}
         uuid={2}
       />);
-      expect(wrapper.find('.cell-emphasis-crosshair').length).toEqual(2);
+      expect(wrapper.find('.cellEmphasisCrosshair').length).toEqual(2);
     });
 
     it('does not appear if projected coordinates are within boundaries and uuid does match', () => {

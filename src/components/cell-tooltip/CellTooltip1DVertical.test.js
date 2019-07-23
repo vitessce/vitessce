@@ -22,7 +22,7 @@ describe('CellTooltip1DVertical.js', () => {
         numCells={10}
         uuid={2}
       />);
-      expect(wrapper.find('.cell-emphasis-vertical').length).toEqual(1);
+      expect(wrapper.find('.cellEmphasisVertical').length).toEqual(1);
     });
 
     it('does not appear if uuid does match', () => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import CellTooltipText from './CellTooltipText';
+import cellCss from '../../css/cell.module.scss';
 
 export default function CellTooltip2D(props) {
   const {
@@ -38,7 +39,7 @@ export default function CellTooltip2D(props) {
   return (
     <React.Fragment>
       <div
-        className="cell-emphasis-crosshair"
+        className={cellCss.cellEmphasisCrosshair}
         style={{
           left: `${x - width / 2}px`,
           top: `${y - length / 2}px`,
@@ -47,7 +48,7 @@ export default function CellTooltip2D(props) {
         }}
       />
       <div
-        className="cell-emphasis-crosshair"
+        className={cellCss.cellEmphasisCrosshair}
         style={{
           left: `${x - length / 2}px`,
           top: `${y - width / 2}px`,

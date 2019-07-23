@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { TOOLTIP_ANCESTOR } from '../classNames';
 import CellTooltipText from './CellTooltipText';
+import cellCss from '../../css/cell.module.scss';
 
 export default function CellTooltip1DVertical(props) {
   const {
@@ -52,7 +53,7 @@ export default function CellTooltip1DVertical(props) {
   return (
     <div
       ref={ref}
-      className="cell-emphasis-vertical"
+      className={cellCss.cellEmphasisVertical}
       style={{
         top: `${y}px`,
         left: `${x - lineWidth / 2}px`,
