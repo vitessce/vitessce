@@ -11,6 +11,7 @@ import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 import HoverableScatterplotSubscriber from '../components/scatterplot/HoverableScatterplotSubscriber';
 import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSubscriber';
 import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSubscriber';
+import componentCss from '../css/component.module.scss';
 
 class Description extends React.Component {
   componentDidMount() {
@@ -22,7 +23,7 @@ class Description extends React.Component {
     const { description } = this.props;
     return (
       <TitleInfo title="Data Set" isScroll>
-        <p className="details">{description}</p>
+        <p className={componentCss.details}>{description}</p>
       </TitleInfo>
     );
   }

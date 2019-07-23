@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.17/mermaid';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.18/impute_wang_data';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -40,7 +40,7 @@ const driesBase = {
   layers: [
     'cells',
     'factors',
-  ].map(makeLayerNameToConfig('giotto')),
+  ].map(makeLayerNameToConfig('dries')),
 };
 
 const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
@@ -49,7 +49,7 @@ const wangBase = {
   layers: [
     'cells',
     'molecules',
-  ].map(makeLayerNameToConfig('mermaid')),
+  ].map(makeLayerNameToConfig('wang')),
 };
 
 /* eslint-disable object-property-newline */
@@ -340,26 +340,22 @@ const configs = {
     public: true,
     responsiveLayout: {
       columns: {
-        // First two columns are equal,
-        // third column is constant;
-        // Grid cell width stays roughly constant,
-        // but more columns are available in a wider window.
-        1400: [0, 14],
-        1200: [0, 12],
-        1000: [0, 10],
-        800: [0, 8],
-        600: [0, 6],
+        1400: [0, 12, 14],
+        1200: [0, 10, 12],
+        1000: [0, 8, 10],
+        800: [0, 6, 8],
+        600: [0, 4, 6],
       },
       components: [
         { component: 'SpatialSubscriber',
           props: {
             view: {
-              zoom: -1.8,
-              target: [10, -70, 0],
+              zoom: -1,
+              target: [0, 0, 0],
             },
             moleculeRadius: 2,
           },
-          x: 0, y: 0, h: 2 },
+          x: 0, y: 0, w: 2 },
       ],
     },
   },

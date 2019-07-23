@@ -1,5 +1,5 @@
 function fade(x) {
-  return x / 2;
+  return x / 3;
 }
 
 function fadeFunction(colorFunction) {
@@ -29,7 +29,7 @@ export function overlayBaseProps(props) {
       // Alternatively: contrast outlines with solids:
       // getLineColor: getColor,
       // getFillColor: [255,255,255],
-      data,
+      data: data.slice(),
       ...rest,
     },
   };

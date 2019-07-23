@@ -1,61 +1,72 @@
 html,body {
-    height: 100%;
+  height: 100%;
+}
+body {
+  background-color: #333;
+}
+
+/* Flex grid items */
+
+.react-grid-item {
+  /* emulate bootstrap .flex-column: */
+  -webkit-box-orient: vertical!important;
+  -webkit-box-direction: normal!important;
+  -ms-flex-direction: column!important;
+  flex-direction: column!important;
+
+  /* emulate bootstrap .d-flex: */
+  display: -webkit-box!important;
+  display: -ms-flexbox!important;
+  display: flex!important;
+
+  /* So the resize handle position looks correct: */
+  padding-right: 10px;
+}
+
+/* In error message */
+
+pre {
+  color: lightgrey;
+}
+
+/* Spatial and t-SNE controls */
+
+.btn.icon {
+  padding: 0;
+  height: 2em;
+  width: 2em;
+  background-color: white;
+  > svg {
+    vertical-align: middle;
   }
-  body {
-    background-color: #333;
+}
+.roll-up {
+  height: 2em; /* Matches .btn.icon */
+  overflow: hidden;
+  &:hover {
+    animation-name: roll-up;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
   }
-  
-  /* Flex grid items */
-  
-  .react-grid-item {
-    /* emulate bootstrap .flex-column: */
-    -webkit-box-orient: vertical!important;
-    -webkit-box-direction: normal!important;
-    -ms-flex-direction: column!important;
-    flex-direction: column!important;
-  
-    /* emulate bootstrap .d-flex: */
-    display: -webkit-box!important;
-    display: -ms-flexbox!important;
-    display: flex!important;
-  
-    /* So the resize handle position looks correct: */
-    padding-right: 10px;
+}
+@keyframes roll-up {
+  0% { height: 2em; }
+  100% { height: 100%; }
+}
+.tool {
+  z-index: 1000;
+  opacity: .65;
+  color: black;
+  &:hover {
+    opacity: .90;
   }
-  
-  /* Tool styles */
-  
-  .bg-light {
-    background-color: #222!important;
-    color: lightgrey;
-  }
-  .bg-light a {
-    color: #9bb7d6;
-  }
-  .bg-black {
-    background-color: black;
-    color: lightgrey;
-  }
-  .title {
-    color: lightgrey;
-  }
-  .scroll {
-    overflow-y: auto;
-  }
-  .details {
-    font-size: 80%;
-    opacity: 0.8;
-  }
-  pre {
-    color: lightgrey;
-  }
-  
-  /* Spatial and t-SNE controls */
-  
-  .btn.icon {
-    padding: 0;
-    height: 2em;
-    width: 2em;
+}
+
+/* Cell Tooltips */
+.cell-emphasis-crosshair, .cell-emphasis-vertical {
+    z-index: 5;
+    position: absolute;
+    pointer-events: none;
     background-color: white;
   }
   .btn.icon > svg {
