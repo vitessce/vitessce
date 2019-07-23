@@ -34,7 +34,7 @@ function CurrentSetNode(props) {
       value={title}
       type="text"
       className={`${prefixCls}-current-set-input`}
-      onChange={(e) => { tree.onChangeNodeName(setKey, e.target.value); }}
+      onChange={(e) => { tree.changeNodeName(setKey, e.target.value); }}
     />
   );
 }
@@ -49,12 +49,12 @@ function NamedSetNodeMenu(props) {
     <ul className="named-set-node-menu">
       <li onClick={() => { tree.viewSet(setKey); }}>View</li>
       {range(level).map(i => (
-        <li key={i} onClick={() => { tree.viewSetDescendents(setKey, i); }}>
+        <li key={i} onClick={() => { tree.viewSetDescendants(setKey, i); }}>
             View {levelNameFromIndex(i)}
         </li>
       ))}
-      <li onClick={() => { tree.onStartEditing(setKey); }}>Rename</li>
-      <li onClick={() => { tree.onDelete(setKey); }}>Delete</li>
+      <li onClick={() => { tree.startEditing(setKey); }}>Rename</li>
+      <li onClick={() => { tree.deleteNode(setKey); }}>Delete</li>
     </ul>
   );
 }
@@ -100,7 +100,7 @@ function NamedSetNodeEditing(props) {
       <button
         type="button"
         className={`${prefixCls}-title-button`}
-        onClick={() => tree.onChangeNodeName(setKey, currentTitle, true)}
+        onClick={() => tree.changeNodeName(setKey, currentTitle, true)}
       >
         {wasPreviousCurrentSet ? 'Save' : 'Rename'}
       </button>

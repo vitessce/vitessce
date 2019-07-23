@@ -70,26 +70,10 @@ export class SetsTreeNode {
     this.wasPreviousCurrentSet = v;
   }
 
-  findNode(setKey) {
-    if (this.setKey === setKey) {
-      return this;
-    }
-    if (!this.children) {
-      return null;
-    }
-    return findValue(this.children, child => child.findNode(setKey));
-  }
-
-  findParentNode(setKey) {
-    if (!this.children || this.children.length === 0) {
-      return null;
-    }
-    if (this.children.find(child => child.setKey === setKey)) {
-      return this;
-    }
-    return findValue(this.children, child => child.findParentNode(setKey));
-  }
-
+  /**
+   * Find the node with .isCurrentSet equal to true.
+   * @returns {SetsTreeNode} The current set node.
+   */
   findCurrentSetNode() {
     if (this.isCurrentSet) {
       return this;
@@ -100,6 +84,40 @@ export class SetsTreeNode {
     return findValue(this.children, child => child.findCurrentSetNode());
   }
 
+  /**
+   * Find a node of interest.
+   * @param {string} setKey The key of the node of interest.
+   * @returns {SetsTreeNode} The node of interest.
+   */
+  findNode(setKey) {
+    if (this.setKey === setKey) {
+      return this;
+    }
+    if (!this.children) {
+      return null;
+    }
+    return findValue(this.children, child => child.findNode(setKey));
+  }
+
+  /**
+   * Find parent of a node of interest.
+   * @param {string} setKey The key of the node of interest.
+   * @returns {SetsTreeNode} The parent of the node of interest.
+   */
+  findParentNode(setKey) {
+    if (!this.children || this.children.length === 0) {
+      return null;
+    }
+    if (this.children.find(child => child.setKey === setKey)) {
+      return this;
+    }
+    return findValue(this.children, child => child.findParentNode(setKey));
+  }
+
+  /**
+   * Get an object that can be used to render this node.
+   * @returns {object} The node's attributes represented as a flat object.
+   */
   getRenderProps() {
     return {
       title: this.name,
@@ -113,6 +131,10 @@ export class SetsTreeNode {
     };
   }
 
+  /**
+   * Get the last part of the key, after the final period.
+   * @returns {string} The tail of the key.
+   */
   getKeyTail() {
     const i = this.setKey.lastIndexOf('.');
     if (i === -1) {
@@ -121,11 +143,20 @@ export class SetsTreeNode {
     return this.setKey.substring(i + 1);
   }
 
+  /**
+   * Get the first part of the key, before the final period.
+   * @returns {string} The head of the key.
+   */
   getKeyHead() {
     const i = this.setKey.lastIndexOf('.');
     return this.setKey.substring(0, i);
   }
 
+  /**
+   * Return the level of the node relative to the "bottom" of the tree.
+   * @returns {integer} The level.
+   * 0 means leaf, 1 has children, 2 grandchildren, etc.
+   */
   getLevel() {
     if (!this.children || this.children.length === 0) {
       return 0;
@@ -140,19 +171,20 @@ export class SetsTreeNode {
     return maxLevel;
   }
 
-  getDescendentsFlat(level) {
+  /**
+   * Return a flat array of descendants at a particular level from this node.
+   * @param {integer} level The level of interest.
+   * 0 means children, 1 grandchildren, etc.
+   * @returns {SetsTreeNode[]} The array of nodes.
+   */
+  getDescendantsFlat(level) {
     if (!this.children) {
       return [];
     }
     if (level === 0) {
       return this.children;
     }
-    return this.children.flatMap(c => c.getDescendentsFlat(level - 1));
-  }
-
-  setKeyTail(keyTail) {
-    const keyHead = this.getKeyHead();
-    this.setKey = `${keyHead}.${keyTail}`;
+    return this.children.flatMap(c => c.getDescendantsFlat(level - 1));
   }
 
   updateChildKeys() {
@@ -328,7 +360,7 @@ export default class SetsTree {
    * Set isEditing to true for a node of interest.
    * @param {string} setKey The key of the node of interest.
    */
-  onStartEditing(setKey) {
+  startEditing(setKey) {
     const node = this.findNode(setKey);
     node.setIsEditing(true);
     this.emitTreeUpdate();
@@ -338,7 +370,7 @@ export default class SetsTree {
    * Delete a node of interest.
    * @param {string} setKey The key of the node of interest.
    */
-  onDelete(setKey) {
+  deleteNode(setKey) {
     const parentNode = this.findParentNode(setKey);
     if (!parentNode) {
       return;
@@ -357,7 +389,7 @@ export default class SetsTree {
    * @param {string} newName The new name value to assign.
    * @param {boolean} stopEditing Whether to also set isEditing to false.
    */
-  onChangeNodeName(setKey, newName, stopEditing) {
+  changeNodeName(setKey, newName, stopEditing) {
     const node = this.findNode(setKey);
     node.setName(newName);
 
@@ -376,19 +408,23 @@ export default class SetsTree {
 
   /**
    * Prepend a child to the root node's children array.
+   * May update node keys to reflect the new hierarchy.
    * @param {SetsTreeNode} node The child node to prepend.
    */
   prependChild(node) {
     this.root.setChildren([node, ...this.root.children]);
+    this.root.updateChildKeys();
     this.emitTreeUpdate();
   }
 
   /**
    * Append a child to the root node's children array.
+   * May update node keys to reflect the new hierarchy.
    * @param {SetsTreeNode} node The child node to append.
    */
   appendChild(node) {
     this.root.setChildren([...this.root.children, node]);
+    this.root.updateChildKeys();
     this.emitTreeUpdate();
   }
 
@@ -409,9 +445,9 @@ export default class SetsTree {
    * @param {string} setKey The key of the node of interest.
    * @param {integer} level The level of interest. 0 means children, 1 grandchildren, etc.
    */
-  viewSetDescendents(setKey, level) {
+  viewSetDescendants(setKey, level) {
     const node = this.findNode(setKey);
-    const descendentsOfInterest = node.getDescendentsFlat(level);
+    const descendentsOfInterest = node.getDescendantsFlat(level);
     this.visibleKeys = descendentsOfInterest.map(d => d.setKey);
     this.emitVisibilityUpdate();
   }
