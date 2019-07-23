@@ -38,37 +38,37 @@ export default class SetsManagerTab extends React.Component {
       setsTree,
       tabRoot,
     } = this.props;
-    const dropKey = info.node.props.eventKey;
-    const dragKey = info.dragNode.props.eventKey;
-    const dropPos = info.node.props.pos.split('-');
-    const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
+
+    const {
+      eventKey: dropKey,
+      pos,
+      children,
+      expanded,
+    } = info.node.props;
+    const { eventKey: dragKey } = info.dragNode.props;
     const { dropToGap } = info;
-    const insertBottom = (
-      (info.node.props.children || []).length > 0 // Has children
-        && info.node.props.expanded // Is expanded
-        && dropPosition === 1 // On the bottom gap
-    );
+
+    const dropPosition = info.dropPosition - Number(pos.split('-').slice().pop());
+
+    // Check if has children, is expanded, and is on the bottom gap.
+    const shouldInsertAtBottom = (children && children.length > 0
+        && expanded && dropPosition === 1);
+    // Update the tree based on the drag event.
     setsTree.dragRearrange(tabRoot,
-      dropKey, dragKey, dropPosition, dropToGap, insertBottom);
+      dropKey, dragKey, dropPosition, dropToGap, shouldInsertAtBottom);
   }
 
 
   renderTreeNodes(nodes) {
-    const {
-      setsTree,
-    } = this.props;
-    return nodes.map((item) => {
-      if (item.children) {
-        return (
-          <TreeNode tree={setsTree} {...item.getRenderProps()}>
-            {this.renderTreeNodes(item.children)}
-          </TreeNode>
-        );
-      }
-      return (
-        <TreeNode tree={setsTree} {...item.getRenderProps()} />
-      );
-    });
+    if (!nodes) {
+      return null;
+    }
+    const { setsTree } = this.props;
+    return nodes.map(item => (
+      <TreeNode tree={setsTree} {...item.getRenderProps()}>
+        {this.renderTreeNodes(item.children)}
+      </TreeNode>
+    ));
   }
 
   render() {
@@ -93,7 +93,6 @@ export default class SetsManagerTab extends React.Component {
           autoExpandParent={autoExpandParent}
           onCheck={this.onCheck}
           checkedKeys={setsTree.checkedKeys}
-          onDragEnter={() => { }}
           onDrop={this.onDrop}
         >
           {this.renderTreeNodes(tabRoot.children)}

@@ -6,11 +6,14 @@ export const VIEW_INFO = 'view.info';
 
 export const CELLS = 'cells';
 export const CELLS_ADD = CELLS + ADD;
+// Selection by the user via rectangle or polygon tool.
 export const CELLS_SELECTION = `${CELLS}.selection`;
 export const CELLS_COLOR = `${CELLS}.color`;
 export const CELLS_HOVER = `${CELLS}.hover`;
 
+// Modifications to the cell set tree structure.
 export const CELL_SETS_MODIFY = `${CELLS}.sets.modify`;
+// Viewing a previously-defined set or group of sets.
 export const CELL_SETS_VIEW = `${CELLS}.sets.view`;
 
 export const CLUSTERS = 'clusters';

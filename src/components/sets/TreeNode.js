@@ -9,6 +9,10 @@ import { Popover, Icon } from 'antd';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
 
+function range(stop) {
+  return Array.from(Array(stop), (x, i) => i);
+}
+
 function levelNameFromIndex(i) {
   if (i === 0) {
     return 'children';
@@ -26,7 +30,12 @@ function CurrentSetNode(props) {
     tree,
   } = props;
   return (
-    <input value={title} type="text" className={`${prefixCls}-current-set-input`} onChange={(e) => { tree.onChangeNodeName(setKey, e.target.value); }} />
+    <input
+      value={title}
+      type="text"
+      className={`${prefixCls}-current-set-input`}
+      onChange={(e) => { tree.onChangeNodeName(setKey, e.target.value); }}
+    />
   );
 }
 
@@ -39,8 +48,10 @@ function NamedSetNodeMenu(props) {
   return (
     <ul className="named-set-node-menu">
       <li onClick={() => { tree.viewSet(setKey); }}>View</li>
-      {Array.from(Array(level), (x, i) => i).map(i => (
-        <li key={`level-${i}`} onClick={() => { tree.viewSetDescendents(setKey, i); }}>View {levelNameFromIndex(i)}</li>
+      {range(level).map(i => (
+        <li key={i} onClick={() => { tree.viewSetDescendents(setKey, i); }}>
+            View {levelNameFromIndex(i)}
+        </li>
       ))}
       <li onClick={() => { tree.onStartEditing(setKey); }}>Rename</li>
       <li onClick={() => { tree.onDelete(setKey); }}>Delete</li>
@@ -60,7 +71,6 @@ function NamedSetNodeStatic(props) {
       <span onClick={() => { tree.viewSet(setKey); }} className={`${prefixCls}-title`}>{title}</span>
       <Popover
         content={<NamedSetNodeMenu {...props} />}
-        title={undefined}
         trigger="click"
       >
         <Icon type="ellipsis" className="named-set-node-menu-trigger" />
@@ -91,7 +101,8 @@ function NamedSetNodeEditing(props) {
         type="button"
         className={`${prefixCls}-title-button`}
         onClick={() => tree.onChangeNodeName(setKey, currentTitle, true)}
-      > {wasPreviousCurrentSet ? 'Save' : 'Rename'}
+      >
+        {wasPreviousCurrentSet ? 'Save' : 'Rename'}
       </button>
     </React.Fragment>
   );
@@ -126,20 +137,20 @@ export default class TreeNode extends RcTreeNode {
     } = this.context;
 
     const wrapClass = `${prefixCls}-node-content-wrapper`;
-
+    const isDraggable = (!isCurrentSet && !isEditing && draggable);
     return (
       <span
         ref={this.setSelectHandle}
-        title={typeof title === 'string' ? title : ''}
+        title={title}
         className={classNames(
-          `${wrapClass}`,
+          wrapClass,
           `${wrapClass}-${this.getNodeState() || 'normal'}`,
           isSelected && `${prefixCls}-node-selected`,
-          (!isCurrentSet && !isEditing && draggable) && 'draggable',
+          isDraggable && 'draggable',
         )}
-        draggable={(!isCurrentSet && !isEditing && draggable) || undefined}
-        aria-grabbed={(!isCurrentSet && !isEditing && draggable) || undefined}
-        onDragStart={(!isCurrentSet && !isEditing && draggable) ? this.onDragStart : undefined}
+        draggable={isDraggable}
+        aria-grabbed={isDraggable}
+        onDragStart={isDraggable ? this.onDragStart : undefined}
       >
         {isCurrentSet ? (
           <CurrentSetNode {...this.props} prefixCls={prefixCls} />

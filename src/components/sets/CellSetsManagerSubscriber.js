@@ -10,7 +10,6 @@ import HSets, { HSetsNode } from './sets';
 export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    // const { datasetId } = props;
     this.state = {
       cellSets: new HSets(
         (obj) => {
@@ -47,7 +46,6 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   cellSetsSubscriber(msg, cellSets) {
     this.setState({ cellSets });
-    /* PubSub.publish(CELLS_SELECTION, new Set(cellSets.currentSet)); */
   }
 
   cellsSelectionSubscriber(msg, cellIds) {

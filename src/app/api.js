@@ -76,7 +76,7 @@ const configs = {
           props: {
             description: `Linnarsson: ${linnarssonDescription}`,
           },
-          x: 0, y: 0, w: 1 },
+          x: 0, y: 0 },
         { component: 'StatusSubscriber',
           x: 0, y: 1 },
         { component: 'HoverableSpatialSubscriber',

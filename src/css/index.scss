@@ -198,6 +198,12 @@ html,body {
             }
         }
     }
+    .sets-manager-more-icon {
+        cursor: pointer;
+        right: 10px;
+        position: absolute;
+        top: 10px;
+    }
     .ant-tree li .ant-tree-node-content-wrapper {
         color: inherit;
         &:hover {

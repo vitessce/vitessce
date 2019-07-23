@@ -1,4 +1,3 @@
-/* eslint-disable no-prototype-builtins */
 import uuidv4 from 'uuid/v4';
 // Storage of hierarchical sets of IDs (cell IDs, gene IDs, etc...).
 
@@ -44,6 +43,10 @@ export class HSetsNode {
     this.children = children;
   }
 
+  setSetKey(setKey) {
+    this.setKey = setKey;
+  }
+
   setName(name) {
     this.name = name;
   }
@@ -69,14 +72,7 @@ export class HSetsNode {
     if (!this.children) {
       return null;
     }
-    // eslint-disable-next-line no-restricted-syntax
-    for (const child of this.children) {
-      const childResult = child.findNode(setKey);
-      if (childResult) {
-        return childResult;
-      }
-    }
-    return null;
+    return this.children.find(child => child.findNode(setKey));
   }
 
   findParentNode(setKey) {
@@ -103,14 +99,7 @@ export class HSetsNode {
     if (!this.children) {
       return null;
     }
-    // eslint-disable-next-line no-restricted-syntax
-    for (const child of this.children) {
-      const childResult = child.findCurrentSetNode();
-      if (childResult) {
-        return childResult;
-      }
-    }
-    return null;
+    return this.children.find(child => child.findCurrentSetNode());
   }
 
   getRenderProps() {
@@ -144,13 +133,12 @@ export class HSetsNode {
       return 0;
     }
     let maxLevel = 0;
-    // eslint-disable-next-line no-restricted-syntax
-    for (const child of this.children) {
+    this.children.forEach((child) => {
       const potentialLevel = child.getLevel() + 1;
       if (maxLevel < potentialLevel) {
         maxLevel = potentialLevel;
       }
-    }
+    });
     return maxLevel;
   }
 
@@ -170,14 +158,14 @@ export class HSetsNode {
   }
 
   updateChildKeys() {
-    if (this.children && this.children.length > 0) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const child of this.children) {
-        const newChildKey = `${this.setKey}.${child.getKeyTail()}`;
-        child.setKey = newChildKey;
-        child.updateChildKeys();
-      }
+    if (!this.children) {
+      return;
     }
+    this.children.forEach((child) => {
+      const newChildKey = `${this.setKey}.${child.getKeyTail()}`;
+      child.setSetKey(newChildKey);
+      child.updateChildKeys();
+    });
   }
 }
 
@@ -241,13 +229,11 @@ export default class HSets {
       return;
     }
     const loop = (data, key, callback) => {
-      // eslint-disable-next-line consistent-return
       data.forEach((item, index, arr) => {
         if (item.setKey === key) {
-          return callback(item, index, arr);
-        }
-        if (item.children) {
-          return loop(item.children, key, callback);
+          callback(item, index, arr);
+        } else if (item.children) {
+          loop(item.children, key, callback);
         }
       });
     };
@@ -361,13 +347,12 @@ export default class HSets {
   emitVisibilityUpdate() {
     if (this.onVisibilityChange) {
       let cellIds = [];
-      // eslint-disable-next-line no-restricted-syntax
-      for (const setKey of this.visibleKeys) {
+      this.visibleKeys.forEach((setKey) => {
         const node = this.findNode(setKey);
         if (node && node.set && node.set.length > 0) {
           cellIds = [...cellIds, ...node.set];
         }
-      }
+      });
       this.onVisibilityChange(new Set(cellIds));
     }
   }
