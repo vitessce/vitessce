@@ -23,6 +23,7 @@ export default function CellTooltip2D(props) {
   if (hoveredCellInfo.uuid === uuid) {
     return (
       <CellTooltipText
+        cellId={hoveredCellInfo.cellId}
         factors={hoveredCellInfo.factors}
         x={x}
         y={y}

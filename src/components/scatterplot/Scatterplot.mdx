@@ -1,0 +1,44 @@
+---
+name: Scatterplot
+route: /Scatterplot
+menu: Published Components
+---
+
+# Scatterplot
+
+A Deck.gl-backed scatterplot for cell data.
+
+Usage:
+
+```
+<Scatterplot
+  cells={{
+    '42': {'mappings': {'PCA': [-12, 6]}},
+    '52': {'mappings': {'PCA': [13, -20]}},
+    '62': {'mappings': {'PCA': [14, 31]}}
+  }}
+  mapping="PCA"
+  selectedCellIds={{
+    '42': true,
+    '52': true
+  }}
+  cellColors={{
+    '42': [255, 0, 0],
+    '52': [0, 255, 0],
+    '62': [0, 0, 255]
+  }}
+  updateStatus={message => console.log(message)}
+  updateCellsSelection={selectedIds => console.log(selectedIds)}
+  updateCellsHover={hoverInfo => console.log(hoverInfo)}
+  updateViewInfo={viewInfo => console.log(viewInfo)}
+/>
+```
+
+The overall size and layout of the scatterplot is set by the containing element.
+
+The `cells` and `mapping` properties are required.
+
+The values of `cells` include `mappings`, and the key given in `mapping` should match.
+
+You can also indicate that some cells should be rendered as selected with `selectedCellIds`,
+and colors can be given as RGB triples in `cellColors`.

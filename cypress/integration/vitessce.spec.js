@@ -28,8 +28,8 @@ describe('Vitessce', () => {
   });
 
   it('loads data URI', () => {
-    // The order of this test matters; if put after "hast title, blurb...",
-    // it will fail. Maybe later look into how second test changes things globally
+    // The order of this test matters; if put after "has title, blurb...",
+    // it will fail. Maybe later look into how second test changes things globally.
     const message = 'Hello World!';
     const config = {
       name: '-',

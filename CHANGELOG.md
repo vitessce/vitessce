@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.17 - in progress
+## [0.0.17](https://www.npmjs.com/package/vitessce/v/0.0.17) - 2019-07-19
 ### Added
 - Polygon selection tool leveraging the Nebula.gl package.
 - Tooltip in heatmap.
@@ -8,7 +8,7 @@
 - Cell set manager component with limited cell set naming functionality.
 ### Changed
 - PubSubVitessceGrid is now exported, and the registry lookup function is a parameter.
-A HiGlass demo no longer requires HiGlass to be checked in as part of this project.
+- A HiGlass demo no longer requires HiGlass to be checked in as part of this project.
 
 ## [0.0.16](https://www.npmjs.com/package/vitessce/v/0.0.16) - 2019-06-26
 ### Added

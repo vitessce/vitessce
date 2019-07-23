@@ -57,7 +57,7 @@ const wangBase = {
 const configs = {
   'linnarsson-2018': {
     ...linnarssonBase,
-    name: 'Linnarsson (responsive layout)',
+    name: 'Linnarsson',
     public: true,
     responsiveLayout: {
       columns: {
@@ -94,9 +94,7 @@ const configs = {
           props: { mapping: 'PCA' },
           x: 1, y: 2, h: 2 },
         { component: 'FactorsSubscriber',
-          x: 2, y: 0, h: 1 },
-        { component: 'CellSetsManagerSubscriber',
-          x: 2, y: 1, h: 1 },
+          x: 2, y: 0, h: 2 },
         { component: 'GenesSubscriber',
           x: 2, y: 2, h: 2 },
         { component: 'HoverableHeatmapSubscriber',
@@ -289,8 +287,8 @@ const configs = {
   },
   'dries-2019': {
     ...driesBase,
-    name: 'Dries (responsive layout)',
-    public: false,
+    name: 'Dries',
+    public: true,
     responsiveLayout: {
       columns: {
         // First two columns are equal,
@@ -333,30 +331,26 @@ const configs = {
   },
   'wang-2019': {
     ...wangBase,
-    name: 'Wang (responsive layout)',
-    public: false,
+    name: 'Wang',
+    public: true,
     responsiveLayout: {
       columns: {
-        // First two columns are equal,
-        // third column is constant;
-        // Grid cell width stays roughly constant,
-        // but more columns are available in a wider window.
-        1400: [0, 14],
-        1200: [0, 12],
-        1000: [0, 10],
-        800: [0, 8],
-        600: [0, 6],
+        1400: [0, 12, 14],
+        1200: [0, 10, 12],
+        1000: [0, 8, 10],
+        800: [0, 6, 8],
+        600: [0, 4, 6],
       },
       components: [
         { component: 'SpatialSubscriber',
           props: {
             view: {
-              zoom: -1.8,
-              target: [10, -70, 0],
+              zoom: -1,
+              target: [0, 0, 0],
             },
             moleculeRadius: 2,
           },
-          x: 0, y: 0, h: 2 },
+          x: 0, y: 0, w: 2 },
       ],
     },
   },

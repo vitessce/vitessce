@@ -1,0 +1,23 @@
+:local {
+  .bgLight {
+    background-color: #222!important;
+    color: lightgrey;
+    a {
+      color: #9bb7d6;
+    }
+  }
+  .bgBlack {
+    background-color: black;
+    color: lightgrey;
+  }
+  .title {
+    color: lightgrey;
+  }
+  .scroll {
+    overflow-y: auto;
+  }
+  .details {
+    font-size: 80%;
+    opacity: 0.8;
+  }
+}
