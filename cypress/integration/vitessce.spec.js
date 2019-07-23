@@ -20,23 +20,11 @@ describe('Vitessce', () => {
     ['cells', 'molecules', 'images', 'clusters', 'genes', 'factors', 'neighborhoods'].forEach(
       (type) => {
         cy.route(
-          `${urlPrefix}/linnarsson.${type}.json`,
+          `${urlPrefix}/linnarsson/linnarsson.${type}.json`,
           `fixture:../../src/schemas/fixtures/${type}.good.json`,
         );
       },
     );
-  });
-
-  it('has title, blurb, and link to "Please wait"', () => {
-    cy.visit('/?show=all');
-    cy.contains('Vitessce');
-    cy.contains('This is a demo');
-    cy.contains('(static layout)'); // Not public; requires "show=all".
-    cy.contains('Linnarsson (responsive layout)')
-      .click();
-    // This part seems to be fragile: Might run too fast?
-    // cy.contains('Please wait');
-    // cy.get('.modal-body').should('be.visible');
   });
 
   it('loads data URI', () => {
@@ -71,6 +59,18 @@ describe('Vitessce', () => {
     cy.get('input[name=url]').type(uri);
     cy.get('button').click();
     cy.contains(message);
+  });
+
+  it('has title, blurb, and link to "Please wait"', () => {
+    cy.visit('/?show=all');
+    cy.contains('Vitessce');
+    cy.contains('This is a demo');
+    cy.contains('(static layout)'); // Not public; requires "show=all".
+    cy.contains('Linnarsson (responsive layout)')
+      .click();
+    // This part seems to be fragile: Might run too fast?
+    // cy.contains('Please wait');
+    // cy.get('.modal-body').should('be.visible');
   });
 
   it('loads details (static)', () => {
