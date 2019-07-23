@@ -49,7 +49,7 @@ describe('Vitessce', () => {
         columns: { 1000: [0, 1] },
         components: [
           {
-            component: 'Description',
+            component: 'description',
             props: {
               description: message,
             },
