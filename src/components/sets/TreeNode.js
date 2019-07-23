@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-autofocus */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useState } from 'react';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { Popover, Icon } from 'antd';
@@ -20,6 +19,12 @@ function levelNameFromIndex(i) {
     return 'grandchildren';
   }
   return `level ${i} descendants`;
+}
+
+function callbackOnKeyPress(event, key, callback) {
+  if (event.key === key) {
+    callback();
+  }
 }
 
 function CurrentSetNode(props) {
@@ -45,16 +50,36 @@ function NamedSetNodeMenu(props) {
     setKey,
     level,
   } = props;
+
   return (
     <ul className="named-set-node-menu">
-      <li onClick={() => { tree.viewSet(setKey); }}>View</li>
+      <li
+        onClick={() => tree.viewSet(setKey)}
+        onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(setKey))}
+      >
+        View
+      </li>
       {range(level).map(i => (
-        <li key={i} onClick={() => { tree.viewSetDescendants(setKey, i); }}>
+        <li
+          key={i}
+          onClick={() => tree.viewSetDescendants(setKey, i)}
+          onKeyPress={e => callbackOnKeyPress(e, `${i}`, () => tree.viewSetDescendants(setKey, i))}
+        >
             View {levelNameFromIndex(i)}
         </li>
       ))}
-      <li onClick={() => { tree.startEditing(setKey); }}>Rename</li>
-      <li onClick={() => { tree.deleteNode(setKey); }}>Delete</li>
+      <li
+        onClick={() => tree.startEditing(setKey)}
+        onKeyPress={e => callbackOnKeyPress(e, 'r', () => tree.startEditing(setKey))}
+      >
+        Rename
+      </li>
+      <li
+        onClick={() => tree.deleteNode(setKey)}
+        onKeyPress={e => callbackOnKeyPress(e, 'd', () => tree.deleteNode(setKey))}
+      >
+        Delete
+      </li>
     </ul>
   );
 }
@@ -68,7 +93,13 @@ function NamedSetNodeStatic(props) {
   } = props;
   return (
     <React.Fragment>
-      <span onClick={() => { tree.viewSet(setKey); }} className={`${prefixCls}-title`}>{title}</span>
+      <span
+        onClick={() => { tree.viewSet(setKey); }}
+        onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(setKey))}
+        className={`${prefixCls}-title`}
+      >
+        {title}
+      </span>
       <Popover
         content={<NamedSetNodeMenu {...props} />}
         trigger="click"
