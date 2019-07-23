@@ -22,30 +22,30 @@ const linnarssonLayerNames = [
   'molecules',
   'neighborhoods',
 ];
-const linnarssondescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
+const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
-  description: linnarssondescription,
+  description: linnarssonDescription,
   layers: linnarssonLayerNames
     .map(makeLayerNameToConfig('linnarsson')),
 };
 const linnarssonBaseNoClusters = {
-  description: linnarssondescription,
+  description: linnarssonDescription,
   layers: linnarssonLayerNames.filter(name => name !== 'clusters')
     .map(makeLayerNameToConfig('linnarsson')),
 };
 
-const driesdescription = 'Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data';
+const driesDescription = 'Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data';
 const driesBase = {
-  description: driesdescription,
+  description: driesDescription,
   layers: [
     'cells',
     'factors',
   ].map(makeLayerNameToConfig('dries')),
 };
 
-const wangdescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
+const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
 const wangBase = {
-  description: wangdescription,
+  description: wangDescription,
   layers: [
     'cells',
     'molecules',
@@ -74,7 +74,7 @@ const configs = {
       components: [
         { component: 'description',
           props: {
-            description: `Linnarsson: ${linnarssondescription}`,
+            description: `Linnarsson: ${linnarssonDescription}`,
           },
           x: 0, y: 0 },
         { component: 'status',
@@ -182,7 +182,7 @@ const configs = {
     staticLayout: [
       { component: 'description',
         props: {
-          description: `Linnarsson (static layout): ${linnarssondescription}`,
+          description: `Linnarsson (static layout): ${linnarssonDescription}`,
         },
         x: 0, y: 0, w: 3, h: 1 },
       { component: 'scatterplot',
@@ -304,7 +304,7 @@ const configs = {
       components: [
         { component: 'description',
           props: {
-            description: driesdescription,
+            description: driesDescription,
           },
           x: 0, y: 0 },
         { component: 'status',
