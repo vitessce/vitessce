@@ -10,4 +10,8 @@
       /* offset by the same amount as the container (.card-body) padding */
       transform: translateX(1.25rem);
   }
+
+  .cellTooltipWrapper {
+      position: relative;
+  }
 }

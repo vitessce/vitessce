@@ -37,7 +37,7 @@ export default function CellTooltip1DVertical(props) {
   // Instead, show a tooltip with text.
   if (hoveredCellInfo.uuid === uuid) {
     return (
-      <div ref={ref} className="cell-tooltip-wrapper">
+      <div ref={ref} className={cellCss.cellTooltipWrapper}>
         <CellTooltipText
           cellId={hoveredCellInfo.cellId}
           factors={hoveredCellInfo.factors}
