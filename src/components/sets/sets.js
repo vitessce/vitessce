@@ -123,7 +123,6 @@ export class SetsTreeNode {
   getRenderProps() {
     return {
       title: this.name,
-      key: this.setKey,
       setKey: this.setKey,
       size: this.set ? this.set.length : 0,
       level: this.getLevel(),
@@ -437,11 +436,13 @@ export default class SetsTree {
     if (!parentNode) {
       return;
     }
-    const nodeIndex = parentNode.children.find(c => c.setKey === setKey);
-    if (!nodeIndex) {
+    const nodeIndex = parentNode.children.findIndex(c => c.setKey === setKey);
+    if (nodeIndex === -1) {
       return;
     }
     parentNode.children.splice(nodeIndex, 1);
+    // TODO: check if the node is a tabRoot
+    // TODO: check if the node key is in checkedKeys or visibleKeys
     this.emitTreeUpdate();
   }
 
