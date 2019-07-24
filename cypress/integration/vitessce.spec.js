@@ -27,9 +27,19 @@ describe('Vitessce', () => {
     );
   });
 
+  it('has title, blurb, and link to "Please wait"', () => {
+    cy.visit('/?show=all');
+    cy.contains('Vitessce');
+    cy.contains('This is a demo');
+    cy.contains('(static layout)'); // Not public; requires "show=all".
+    cy.contains('Linnarsson')
+      .click();
+    // This part seems to be fragile: Might run too fast?
+    // cy.contains('Please wait');
+    // cy.get('.modal-body').should('be.visible');
+  });
+
   it('loads data URI', () => {
-    // The order of this test matters; if put after "has title, blurb...",
-    // it will fail. Maybe later look into how second test changes things globally.
     const message = 'Hello World!';
     const config = {
       name: '-',
@@ -61,18 +71,6 @@ describe('Vitessce', () => {
     cy.get('input[name=url]').type(uri);
     cy.get('button').click();
     cy.contains(message);
-  });
-
-  it('has title, blurb, and link to "Please wait"', () => {
-    cy.visit('/?show=all');
-    cy.contains('Vitessce');
-    cy.contains('This is a demo');
-    cy.contains('(static layout)'); // Not public; requires "show=all".
-    cy.contains('Linnarsson (responsive layout)')
-      .click();
-    // This part seems to be fragile: Might run too fast?
-    // cy.contains('Please wait');
-    // cy.get('.modal-body').should('be.visible');
   });
 
   it('loads details (static)', () => {
