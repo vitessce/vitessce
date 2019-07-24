@@ -217,7 +217,7 @@ export default class SetsTree {
       name: ALL_ROOT_NAME,
       children: [],
     });
-    this.items = []; // Array of all items to be able to do complement operations.
+    this.items = [];
     this.tabRoots = [this.root];
     this.checkedKeys = [];
     this.visibleKeys = [];
@@ -225,10 +225,19 @@ export default class SetsTree {
     this.onVisibilityChange = onVisibilityChange;
   }
 
+  /**
+   * Set the array of all items to be able to do complement operations.
+   * @param {Array} items The array of items.
+   */
   setItems(items) {
     this.items = items;
   }
 
+  /**
+   * Compute the intersection of specified sets.
+   * @param {Array} setKeys An array of the sets of interest.
+   * @returns {Array} The resulting set as an array.
+   */
   getIntersection(setKeys) {
     const nodes = setKeys.map(key => this.findNode(key));
     if (!nodes || nodes.length === 0) {
@@ -239,6 +248,11 @@ export default class SetsTree {
       .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0]);
   }
 
+  /**
+   * Compute the union of specified sets.
+   * @param {Array} setKeys An array of the sets of interest.
+   * @returns {Array} The resulting set as an array.
+   */
   getUnion(setKeys) {
     const nodes = setKeys.map(key => this.findNode(key));
     if (!nodes || nodes.length === 0) {
@@ -249,6 +263,11 @@ export default class SetsTree {
       .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0]);
   }
 
+  /**
+   * Compute the complement of specified sets.
+   * @param {Array} setKeys An array of the sets of interest.
+   * @returns {Array} The resulting set as an array.
+   */
   getComplement(setKeys) {
     const primaryUnion = this.getUnion(setKeys);
     return this.items.filter(el => !primaryUnion.includes(el));
