@@ -217,11 +217,21 @@ pre {
             }
         }
     }
-    .sets-manager-more-icon {
+    .sets-manager-icon-bar {
         cursor: pointer;
-        right: 10px;
+        right: 20px;
         position: absolute;
-        top: 10px;
+        top: 12px;
+        i {
+            &:hover {
+                background-color: #444;
+
+                transition: background-color 0.5s;
+            }
+            border-radius: 4px;
+            padding: 3px 2px 0 2px;
+            margin-left: 10px;
+        }
     }
     .ant-tree li .ant-tree-node-content-wrapper {
         color: inherit;

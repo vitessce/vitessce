@@ -268,5 +268,99 @@ describe('sets.js', () => {
       }));
       tree.viewSet('all.test');
     });
+
+    it('can do a union operation', () => {
+      const tree = new SetsTree();
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-1',
+        name: 'Test 1',
+        set: [1, 2, 3],
+      }));
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-2',
+        name: 'Test 2',
+        set: [3, 4, 5],
+      }));
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-3',
+        name: 'Test 3',
+        set: [1, 4, 9, 10],
+      }));
+
+      const emptyResult = tree.getUnion([]);
+      expect(emptyResult.length).toEqual(0);
+
+      const singleSetResult = tree.getUnion(['all.test-1']);
+      expect(singleSetResult).toEqual([1, 2, 3]);
+
+      const doubleSetResult = tree.getUnion(['all.test-1', 'all.test-2']);
+      expect(doubleSetResult).toEqual([1, 2, 3, 4, 5]);
+
+      const tripleSetResult = tree.getUnion(['all.test-1', 'all.test-2', 'all.test-3']);
+      expect(tripleSetResult).toEqual([1, 2, 3, 4, 5, 9, 10]);
+    });
+
+    it('can do an intersection operation', () => {
+      const tree = new SetsTree();
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-1',
+        name: 'Test 1',
+        set: [1, 2, 3],
+      }));
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-2',
+        name: 'Test 2',
+        set: [3, 4, 5],
+      }));
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-3',
+        name: 'Test 3',
+        set: [3, 4, 9, 10],
+      }));
+
+      const emptyResult = tree.getIntersection([]);
+      expect(emptyResult.length).toEqual(0);
+
+      const singleSetResult = tree.getIntersection(['all.test-1']);
+      expect(singleSetResult).toEqual([1, 2, 3]);
+
+      const doubleSetResult = tree.getIntersection(['all.test-1', 'all.test-2']);
+      expect(doubleSetResult).toEqual([3]);
+
+      const tripleSetResult = tree.getIntersection(['all.test-1', 'all.test-2', 'all.test-3']);
+      expect(tripleSetResult).toEqual([3]);
+    });
+
+    it('can do a complement operation', () => {
+      const tree = new SetsTree();
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-1',
+        name: 'Test 1',
+        set: [1, 2, 3],
+      }));
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-2',
+        name: 'Test 2',
+        set: [3, 4, 5],
+      }));
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-3',
+        name: 'Test 3',
+        set: [1, 4, 9, 10],
+      }));
+      tree.setItems([1, 2, 3, 4, 5, 9, 10]);
+
+      const emptyResult = tree.getComplement([]);
+      expect(emptyResult.length).toEqual(7);
+
+      const singleSetResult = tree.getComplement(['all.test-1']);
+      expect(singleSetResult).toEqual([4, 5, 9, 10]);
+
+      const doubleSetResult = tree.getComplement(['all.test-1', 'all.test-2']);
+      expect(doubleSetResult).toEqual([9, 10]);
+
+      const tripleSetResult = tree.getComplement(['all.test-1', 'all.test-2', 'all.test-3']);
+      expect(tripleSetResult).toEqual([]);
+    });
   });
 });

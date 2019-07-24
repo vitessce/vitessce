@@ -217,11 +217,41 @@ export default class SetsTree {
       name: ALL_ROOT_NAME,
       children: [],
     });
+    this.items = []; // Array of all items to be able to do complement operations.
     this.tabRoots = [this.root];
     this.checkedKeys = [];
     this.visibleKeys = [];
     this.onTreeChange = onTreeChange;
     this.onVisibilityChange = onVisibilityChange;
+  }
+
+  setItems(items) {
+    this.items = items;
+  }
+
+  getIntersection(setKeys) {
+    const nodes = setKeys.map(key => this.findNode(key));
+    if (!nodes || nodes.length === 0) {
+      return [];
+    }
+    const nodeSets = nodes.map(node => node.set || []);
+    return nodeSets
+      .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0]);
+  }
+
+  getUnion(setKeys) {
+    const nodes = setKeys.map(key => this.findNode(key));
+    if (!nodes || nodes.length === 0) {
+      return [];
+    }
+    const nodeSets = nodes.map(node => node.set || []);
+    return nodeSets
+      .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0]);
+  }
+
+  getComplement(setKeys) {
+    const primaryUnion = this.getUnion(setKeys);
+    return this.items.filter(el => !primaryUnion.includes(el));
   }
 
   /**
