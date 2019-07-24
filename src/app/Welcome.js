@@ -2,6 +2,7 @@ import React from 'react';
 
 import { LIGHT_CARD } from '../components/classNames';
 import version from '../version.json';
+import componentCss from '../css/component.module.scss';
 
 function DatasetList(props) {
   const { configs } = props;
@@ -9,7 +10,7 @@ function DatasetList(props) {
     ({ id, name, description }) => (
       <a
         href={`?dataset=${id}`}
-        className="list-group-item list-group-item-action flex-column align-items-start bg-black"
+        className={`list-group-item list-group-item-action flex-column align-items-start ${componentCss.bgBlack}`}
         key={id}
       >
         <div className="d-flex w-100 justify-content-between">
