@@ -1,6 +1,6 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
-import { Tree } from 'antd';
+import Tree from 'antd/es/tree';
 import TreeNode from './TreeNode';
 import 'antd/es/tree/style/index.css';
 import 'antd/es/popover/style/index.css';

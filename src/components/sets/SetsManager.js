@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs } from 'antd';
+import Tabs from 'antd/es/tabs';
 import SetsManagerTab from './SetsManagerTab';
 import 'antd/es/tabs/style/index.css';
 

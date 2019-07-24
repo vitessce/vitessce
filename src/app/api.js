@@ -79,7 +79,7 @@ const configs = {
           x: 0, y: 0 },
         { component: 'status',
           x: 0, y: 1 },
-        { component: 'scatterplot',
+        { component: 'spatial',
           props: {
             view: {
               zoom: -6.5,

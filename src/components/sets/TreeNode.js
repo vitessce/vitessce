@@ -2,9 +2,9 @@
 /* eslint-disable jsx-a11y/no-autofocus */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useState } from 'react';
+import Popover from 'antd/es/popover';
+import Icon from 'antd/es/icon';
 import { TreeNode as RcTreeNode } from 'rc-tree';
-import { Popover, Icon } from 'antd';
-
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
 
