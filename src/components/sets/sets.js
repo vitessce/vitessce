@@ -29,6 +29,7 @@ export class SetsTreeNode {
     const {
       setKey,
       name,
+      isRoot = false,
       isEditing = false,
       isCurrentSet = false,
       wasPreviousCurrentSet = false,
@@ -41,6 +42,7 @@ export class SetsTreeNode {
     this.set = set;
     this.children = children;
     this.color = color;
+    this.isRoot = isRoot;
     this.isEditing = isEditing;
     this.isCurrentSet = isCurrentSet;
     this.wasPreviousCurrentSet = wasPreviousCurrentSet;
@@ -125,6 +127,7 @@ export class SetsTreeNode {
       setKey: this.setKey,
       size: this.set ? this.set.length : 0,
       level: this.getLevel(),
+      isRoot: this.isRoot,
       isEditing: this.isEditing,
       isCurrentSet: this.isCurrentSet,
       wasPreviousCurrentSet: this.wasPreviousCurrentSet,
@@ -216,6 +219,7 @@ export default class SetsTree {
       setKey: ALL_ROOT_KEY,
       name: ALL_ROOT_NAME,
       children: [],
+      isRoot: true,
     });
     this.items = [];
     this.tabRoots = [this.root];
@@ -280,6 +284,15 @@ export default class SetsTree {
   setCheckedKeys(checkedKeys) {
     this.checkedKeys = checkedKeys;
     this.emitTreeUpdate();
+  }
+
+  /**
+   * Set the array of visible node setKey values.
+   * @param {string[]} visibleKeys The array of setKey values to set as visible.
+   */
+  setVisibleKeys(visibleKeys) {
+    this.visibleKeys = visibleKeys;
+    this.emitVisibilityUpdate();
   }
 
   /**
@@ -499,6 +512,69 @@ export default class SetsTree {
     const descendentsOfInterest = node.getDescendantsFlat(level);
     this.visibleKeys = descendentsOfInterest.map(d => d.setKey);
     this.emitVisibilityUpdate();
+  }
+
+  /**
+   * Add a new tab root.
+   * @param {string} setKey The key of the node to be used as the tab root.
+   */
+  newTab(setKey) {
+    const node = this.findNode(setKey);
+    this.tabRoots = [...this.tabRoots, node];
+    this.emitTreeUpdate();
+  }
+
+  /**
+   * Import previously-exported sets.
+   * Assumes a hierarchical ordering.
+   * Will append the root of the import to the current root's children.
+   * @param {Array} data A previously-exported array of set objects.
+   */
+  import(data) {
+    if (!data || data.length < 1) {
+      return;
+    }
+    const firstNodeObj = data.shift();
+    const importRoot = new SetsTreeNode({
+      setKey: firstNodeObj.key,
+      name: firstNodeObj.name,
+      color: firstNodeObj.color,
+      set: firstNodeObj.set,
+    });
+
+    data.forEach((nodeObj) => {
+      const node = new SetsTreeNode({
+        setKey: nodeObj.key,
+        name: nodeObj.name,
+        color: nodeObj.color,
+        set: nodeObj.set,
+      });
+      const parentNode = importRoot.findNode(node.getKeyHead());
+      if (parentNode) {
+        parentNode.setChildren([...(parentNode.children || []), node]);
+      }
+    });
+    this.appendChild(importRoot);
+  }
+
+  /**
+   * Create an array that can be imported.
+   * @returns {Array} An array of plain objects.
+   */
+  export() {
+    const result = [];
+    let dfs = [this.root];
+    while (dfs.length > 0) {
+      const currNode = dfs.pop();
+      result.push({
+        key: currNode.setKey,
+        name: currNode.name,
+        color: currNode.color,
+        set: currNode.set,
+      });
+      dfs = dfs.concat(currNode.children || []);
+    }
+    return result;
   }
 
   /**

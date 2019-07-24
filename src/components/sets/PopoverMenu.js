@@ -31,7 +31,7 @@ function PopoverMenuList(props) {
 }
 
 export default function PopoverMenu(props) {
-  const { menuConfig, children } = props;
+  const { menuConfig, placement, children } = props;
 
   const [visible, setVisible] = useState(false);
 
@@ -42,6 +42,7 @@ export default function PopoverMenu(props) {
   return (
     <Popover
       content={<PopoverMenuList menuConfig={menuConfig} onClick={closePopover} />}
+      placement={placement}
       trigger="click"
       mouseEnterDelay={0}
       mouseLeaveDelay={0}

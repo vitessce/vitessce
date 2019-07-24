@@ -47,6 +47,11 @@ function makeNamedSetNodeMenuConfig(props) {
       }
     )),
     {
+      name: 'Open in new tab',
+      handler: () => tree.newTab(setKey),
+      handlerKey: 't',
+    },
+    {
       name: 'Rename',
       handler: () => tree.startEditing(setKey),
       handlerKey: 'r',
@@ -208,7 +213,7 @@ export default class TreeNode extends RcTreeNode {
         onDragEnter={draggable ? this.onDragEnter : undefined}
         onDragOver={draggable ? this.onDragOver : undefined}
         onDragLeave={draggable ? this.onDragLeave : undefined}
-        onDrop={draggable ? this.onDrop : undefined}
+        onDrop={draggable ? this.onDrop.bind(this) : undefined}
         onDragEnd={draggable ? this.onDragEnd : undefined}
         {...dataOrAriaAttributeProps}
       >
