@@ -1,31 +1,12 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-autofocus */
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useState } from 'react';
+import { Icon } from 'antd';
 import { TreeNode as RcTreeNode } from 'rc-tree';
-import { Popover, Icon } from 'antd';
-
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
+import PopoverMenu from './PopoverMenu';
+import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
 
-function range(stop) {
-  return Array.from(Array(stop), (x, i) => i);
-}
-
-function levelNameFromIndex(i) {
-  if (i === 0) {
-    return 'children';
-  } if (i === 1) {
-    return 'grandchildren';
-  }
-  return `level ${i} descendants`;
-}
-
-function callbackOnKeyPress(event, key, callback) {
-  if (event.key === key) {
-    callback();
-  }
-}
 
 function CurrentSetNode(props) {
   const {
@@ -36,6 +17,7 @@ function CurrentSetNode(props) {
   } = props;
   return (
     <input
+      autoFocus
       value={title}
       type="text"
       className={`${prefixCls}-current-set-input`}
@@ -44,44 +26,37 @@ function CurrentSetNode(props) {
   );
 }
 
-function NamedSetNodeMenu(props) {
+function makeNamedSetNodeMenuConfig(props) {
   const {
     tree,
     setKey,
     level,
   } = props;
 
-  return (
-    <ul className="named-set-node-menu">
-      <li
-        onClick={() => tree.viewSet(setKey)}
-        onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(setKey))}
-      >
-        View
-      </li>
-      {range(level).map(i => (
-        <li
-          key={i}
-          onClick={() => tree.viewSetDescendants(setKey, i)}
-          onKeyPress={e => callbackOnKeyPress(e, `${i}`, () => tree.viewSetDescendants(setKey, i))}
-        >
-            View {levelNameFromIndex(i)}
-        </li>
-      ))}
-      <li
-        onClick={() => tree.startEditing(setKey)}
-        onKeyPress={e => callbackOnKeyPress(e, 'r', () => tree.startEditing(setKey))}
-      >
-        Rename
-      </li>
-      <li
-        onClick={() => tree.deleteNode(setKey)}
-        onKeyPress={e => callbackOnKeyPress(e, 'd', () => tree.deleteNode(setKey))}
-      >
-        Delete
-      </li>
-    </ul>
-  );
+  return [
+    {
+      name: 'View',
+      handler: () => tree.viewSet(setKey),
+      handlerKey: 'v',
+    },
+    ...range(level).map(i => (
+      {
+        name: `View ${levelNameFromIndex(i)}`,
+        handler: () => tree.viewSetDescendants(setKey, i),
+        handlerKey: `${i}`,
+      }
+    )),
+    {
+      name: 'Rename',
+      handler: () => tree.startEditing(setKey),
+      handlerKey: 'r',
+    },
+    {
+      name: 'Delete',
+      handler: () => tree.deleteNode(setKey),
+      handlerKey: 'd',
+    },
+  ];
 }
 
 function NamedSetNodeStatic(props) {
@@ -93,19 +68,20 @@ function NamedSetNodeStatic(props) {
   } = props;
   return (
     <React.Fragment>
-      <span
+      <button
+        type="button"
         onClick={() => { tree.viewSet(setKey); }}
         onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(setKey))}
         className={`${prefixCls}-title`}
+        title={`View ${title}`}
       >
         {title}
-      </span>
-      <Popover
-        content={<NamedSetNodeMenu {...props} />}
-        trigger="click"
+      </button>
+      <PopoverMenu
+        menuConfig={makeNamedSetNodeMenuConfig(props)}
       >
-        <Icon type="ellipsis" className="named-set-node-menu-trigger" />
-      </Popover>
+        <Icon type="ellipsis" className="named-set-node-menu-trigger" title="More options" />
+      </PopoverMenu>
     </React.Fragment>
   );
 }
@@ -127,10 +103,11 @@ function NamedSetNodeEditing(props) {
         type="text"
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
+        onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => tree.changeNodeName(setKey, currentTitle, true))}
       />
       <button
         type="button"
-        className={`${prefixCls}-title-button`}
+        className={`${prefixCls}-title-save-button`}
         onClick={() => tree.changeNodeName(setKey, currentTitle, true)}
       >
         {wasPreviousCurrentSet ? 'Save' : 'Rename'}
