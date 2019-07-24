@@ -108,7 +108,9 @@ export default class Spatial extends AbstractSelectableComponent {
       },
       stroked: false,
       getColor: cellEntry => (
-        this.props.cellColors ? this.props.cellColors[cellEntry[0]] : DEFAULT_COLOR
+        this.props.cellColors
+          ? (this.props.cellColors[cellEntry[0]] || DEFAULT_COLOR)
+          : DEFAULT_COLOR
       ),
       onClick: (info) => {
         if (tool) {
