@@ -20,7 +20,7 @@ describe('Vitessce', () => {
     ['cells', 'molecules', 'images', 'clusters', 'genes', 'factors', 'neighborhoods'].forEach(
       (type) => {
         cy.route(
-          `${urlPrefix}/linnarsson.${type}.json`,
+          `${urlPrefix}/linnarsson/linnarsson.${type}.json`,
           `fixture:../../src/schemas/fixtures/${type}.good.json`,
         );
       },
