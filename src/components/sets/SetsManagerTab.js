@@ -19,7 +19,7 @@ export default class SetsManagerTab extends React.Component {
 
   onExpand(expandedKeys) {
     // We want autoExpandParent to be initially true so that we see the whole tree.
-    // But, when autoExpandParent is set to true, a parent cannot be collapsed 
+    // But, when autoExpandParent is set to true, a parent cannot be collapsed
     // if there are expanded children.
     // So upon an expansion interaction, we always want autoExpandParent to be false
     // to allow a parent with expanded children to collapse.

@@ -70,76 +70,52 @@ pre {
     position: absolute;
     pointer-events: none;
     background-color: $color-white;
-  }
-  .btn.icon > svg {
-    vertical-align: middle;
-  }
-  .roll-up {
-    height: 2em; /* Matches .btn.icon */
-    overflow: hidden;
-  }
-  .roll-up:hover {
-    animation-name: roll-up;
+}
+
+/* Cell Tooltips */
+.cell-emphasis-crosshair, .cell-emphasis-vertical {
+    z-index: 5;
+    position: absolute;
+    pointer-events: none;
+    background-color: $color-white;
+}
+
+.cell-emphasis-vertical {
+    /* offset by the same amount as the container (.card-body) padding */
+    transform: translateX(1.25rem);
+}
+  
+.cell-tooltip-wrapper {
+    position: relative;
+}
+
+.cell-tooltip {
+    z-index: 1001;
+    position: absolute;
+    pointer-events: none;
+    height: auto;
+    width: auto;
+    box-sizing: border-box;
+    opacity: 0;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid $color-gray;
+
+    animation-name: cell-tooltip;
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
-  }
-  @keyframes roll-up {
-    0% { height: 2em; }
-    100% { height: 100%; }
-  }
-  .tool {
-    z-index: 1000;
-    opacity: .65;
-    color: black;
-  }
-  .tool:hover {
-    opacity: .90;
-  }
+}
   
-  /* Cell Tooltips */
-  .cell-emphasis-crosshair, .cell-emphasis-vertical {
-      z-index: 5;
-      position: absolute;
-      pointer-events: none;
-      background-color: $color-white;
-  }
+.cell-tooltip > table > tbody > tr > th, .cell-tooltip > table > tbody > tr > td {
+    font-size: 80%;
+    opacity: 0.8;
+}
   
-  .cell-emphasis-vertical {
-      /* offset by the same amount as the container (.card-body) padding */
-      transform: translateX(1.25rem);
-  }
-  
-  .cell-tooltip-wrapper {
-      position: relative;
-  }
-  
-  .cell-tooltip {
-      z-index: 1001;
-      position: absolute;
-      pointer-events: none;
-      height: auto;
-      width: auto;
-      box-sizing: border-box;
-      opacity: 0;
-      padding: 0.5rem;
-      border-radius: 0.25rem;
-      border: 1px solid $color-gray;
-  
-      animation-name: cell-tooltip;
-      animation-duration: 0.5s;
-      animation-fill-mode: forwards;
-  }
-  
-  .cell-tooltip > table > tbody > tr > th, .cell-tooltip > table > tbody > tr > td {
-      font-size: 80%;
-      opacity: 0.8;
-  }
-  
-  @keyframes cell-tooltip {
-      from {
-          opacity: 0;
-      }
-      to {
-          opacity: 0.9;
-      }
-  }
+@keyframes cell-tooltip {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
