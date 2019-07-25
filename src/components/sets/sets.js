@@ -155,26 +155,19 @@ export class SetsTreeNode {
   /**
    * Return the level of the node relative to the "bottom" of the tree.
    * @returns {integer} The level.
-   * 0 means leaf, 1 has children, 2 grandchildren, etc.
+   *                    0 means leaf, 1 has children, 2 grandchildren, etc.
    */
   getLevel() {
     if (!this.children || this.children.length === 0) {
       return 0;
     }
-    let maxLevel = 0;
-    this.children.forEach((child) => {
-      const potentialLevel = child.getLevel() + 1;
-      if (maxLevel < potentialLevel) {
-        maxLevel = potentialLevel;
-      }
-    });
-    return maxLevel;
+    return Math.max(...this.children.map(child => child.getLevel() + 1));
   }
 
   /**
    * Return a flat array of descendants at a particular level from this node.
    * @param {integer} level The level of interest.
-   * 0 means children, 1 grandchildren, etc.
+   *                        0 means children, 1 grandchildren, etc.
    * @returns {SetsTreeNode[]} The array of nodes.
    */
   getDescendantsFlat(level) {
@@ -207,9 +200,9 @@ export default class SetsTree {
   /**
    * Create a SetsTree object.
      * @param {Function} onTreeChange Function called when the tree structure
-     * or values change.
+     *                                or values change.
      * @param {Function} onVisibilityChange Function called when the currently-visible
-     * sets array changes.
+     *                                      sets array changes.
      */
   constructor(onTreeChange, onVisibilityChange) {
     this.root = new SetsTreeNode({
@@ -295,63 +288,37 @@ export default class SetsTree {
    * @param {string} dragKey The key of the node that was dragged.
    * @param {integer} dropPosition The index of the drop.
    * @param {boolean} dropToGap Whether the dragNode should move
-   * between nodes or become a child.
+   *                            between nodes or become a child.
    * @param {boolean} insertBottom Whether the node should be appended to the bottom.
    */
   dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap, insertBottom) {
-    const dragNode = this.findNode(dragKey);
-    const dropNode = this.findNode(dropKey);
+    const dragNode = tabRoot.findNode(dragKey);
+    const dragParentNode = tabRoot.findParentNode(dragKey);
+    const dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
+    const dropNode = tabRoot.findNode(dropKey);
+    const dropParentNode = tabRoot.findParentNode(dropKey);
+    const dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
     if (dragNode.isCurrentSet || dropNode.isCurrentSet) {
       return;
     }
-    const loop = (data, key, callback) => {
-      data.forEach((item, index, arr) => {
-        if (item.setKey === key) {
-          callback(item, index, arr);
-        } else if (item.children) {
-          loop(item.children, key, callback);
-        }
-      });
-    };
-    const data = [...tabRoot.children];
 
-    // Find dragObject.
-    let dragObj;
-    loop(data, dragKey, (item, index, arr) => {
-      arr.splice(index, 1);
-      dragObj = item;
-    });
+    dropNode.setChildren(dropNode.children || []);
+    // Remove the dragged object from its current position.
+    dragParentNode.children.splice(dragNodeCurrIndex, 1);
 
     if (!dropToGap) {
-      // Set as last child of the dropKey node.
-      loop(data, dropKey, (item) => {
-        item.setChildren(item.children || []);
-        item.setChildren([...item.children, dragObj]);
-      });
+      // Set dragNode as last child of dropNode.
+      dropNode.setChildren([...dropNode.children, dragNode]);
     } else if (insertBottom) {
-      // Set as first child of the dropKey node.
-      loop(data, dropKey, (item) => {
-        item.setChildren(item.children || []);
-        const newChildren = [...item.children];
-        newChildren.unshift(dragObj);
-        item.setChildren(newChildren);
-      });
-    } else {
+      // Set dragNode as first child of the dropNode.
+      dropNode.setChildren([dragNode, ...dropNode.children]);
+    } else if (dropPosition === -1) {
       // Set at intermediate position within dropKey node's children.
-      let ar;
-      let i;
-      loop(data, dropKey, (item, index, arr) => {
-        ar = arr;
-        i = index;
-      });
-      if (dropPosition === -1) {
-        ar.splice(i, 0, dragObj);
-      } else {
-        ar.splice(i + 1, 0, dragObj);
-      }
+      dropNode.children.splice(dropNodeCurrIndex, 0, dragNode);
+    } else {
+      dropNode.children.splice(dropNodeCurrIndex + 1, 0, dragNode);
     }
 
-    tabRoot.setChildren(data);
     tabRoot.updateChildKeys();
     this.emitTreeUpdate();
   }
@@ -375,8 +342,8 @@ export default class SetsTree {
     if (!parentNode) {
       return;
     }
-    const nodeIndex = parentNode.children.find(c => c.setKey === setKey);
-    if (!nodeIndex) {
+    const nodeIndex = parentNode.children.findIndex(c => c.setKey === setKey);
+    if (nodeIndex === -1) {
       return;
     }
     parentNode.children.splice(nodeIndex, 1);

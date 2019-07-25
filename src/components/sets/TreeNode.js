@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/no-autofocus */
 import React, { useState } from 'react';
 import { Icon } from 'antd';
 import { TreeNode as RcTreeNode } from 'rc-tree';
@@ -12,15 +11,16 @@ function CurrentSetNode(props) {
   const {
     title,
     setKey,
-    prefixCls,
+    prefixClass,
     tree,
   } = props;
   return (
     <input
+      // eslint-disable-next-line jsx-a11y/no-autofocus
       autoFocus
       value={title}
       type="text"
-      className={`${prefixCls}-current-set-input`}
+      className={`${prefixClass}-current-set-input`}
       onChange={(e) => { tree.changeNodeName(setKey, e.target.value); }}
     />
   );
@@ -62,7 +62,7 @@ function makeNamedSetNodeMenuConfig(props) {
 function NamedSetNodeStatic(props) {
   const {
     title,
-    prefixCls,
+    prefixClass,
     tree,
     setKey,
   } = props;
@@ -72,7 +72,7 @@ function NamedSetNodeStatic(props) {
         type="button"
         onClick={() => { tree.viewSet(setKey); }}
         onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(setKey))}
-        className={`${prefixCls}-title`}
+        className={`${prefixClass}-title`}
         title={`View ${title}`}
       >
         {title}
@@ -89,7 +89,7 @@ function NamedSetNodeStatic(props) {
 function NamedSetNodeEditing(props) {
   const {
     title,
-    prefixCls,
+    prefixClass,
     tree,
     setKey,
     wasPreviousCurrentSet,
@@ -98,8 +98,9 @@ function NamedSetNodeEditing(props) {
   return (
     <React.Fragment>
       <input
+        // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
-        className={`${prefixCls}-title-input`}
+        className={`${prefixClass}-title-input`}
         type="text"
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
@@ -107,7 +108,7 @@ function NamedSetNodeEditing(props) {
       />
       <button
         type="button"
-        className={`${prefixCls}-title-save-button`}
+        className={`${prefixClass}-title-save-button`}
         onClick={() => tree.changeNodeName(setKey, currentTitle, true)}
       >
         {wasPreviousCurrentSet ? 'Save' : 'Rename'}
@@ -139,12 +140,12 @@ export default class TreeNode extends RcTreeNode {
     } = this.props;
     const {
       rcTree: {
-        prefixCls,
+        prefixCls: prefixClass,
         draggable,
       },
     } = this.context;
 
-    const wrapClass = `${prefixCls}-node-content-wrapper`;
+    const wrapClass = `${prefixClass}-node-content-wrapper`;
     const isDraggable = (!isCurrentSet && !isEditing && draggable);
     return (
       <span
@@ -153,7 +154,7 @@ export default class TreeNode extends RcTreeNode {
         className={classNames(
           wrapClass,
           `${wrapClass}-${this.getNodeState() || 'normal'}`,
-          isSelected && `${prefixCls}-node-selected`,
+          isSelected && `${prefixClass}-node-selected`,
           isDraggable && 'draggable',
         )}
         draggable={isDraggable}
@@ -161,11 +162,11 @@ export default class TreeNode extends RcTreeNode {
         onDragStart={isDraggable ? this.onDragStart : undefined}
       >
         {isCurrentSet ? (
-          <CurrentSetNode {...this.props} prefixCls={prefixCls} />
+          <CurrentSetNode {...this.props} prefixClass={prefixClass} />
         ) : (
-          <NamedSetNode {...this.props} prefixCls={prefixCls} />
+          <NamedSetNode {...this.props} prefixClass={prefixClass} />
         )}
-        <span className={`${prefixCls}-set-size`}>{size}</span>
+        <span className={`${prefixClass}-set-size`}>{size}</span>
       </span>
     );
   };
@@ -181,22 +182,22 @@ export default class TreeNode extends RcTreeNode {
     } = this.props;
     const {
       rcTree: {
-        prefixCls,
+        prefixCls: prefixClass,
         filterTreeNode,
         draggable,
       },
     } = this.context;
     const disabled = this.isDisabled();
-    const dataOrAriaAttributeProps = getDataAndAria(otherProps);
+    const dataAndAriaAttributeProps = getDataAndAria(otherProps);
     return (
       <li
         className={classNames(className, {
-          [`${prefixCls}-treenode-disabled`]: disabled,
-          [`${prefixCls}-treenode-switcher-${expanded ? 'open' : 'close'}`]: !isLeaf,
-          [`${prefixCls}-treenode-checkbox-checked`]: checked,
-          [`${prefixCls}-treenode-checkbox-indeterminate`]: halfChecked,
-          [`${prefixCls}-treenode-selected`]: selected,
-          [`${prefixCls}-treenode-loading`]: loading,
+          [`${prefixClass}-treenode-disabled`]: disabled,
+          [`${prefixClass}-treenode-switcher-${expanded ? 'open' : 'close'}`]: !isLeaf,
+          [`${prefixClass}-treenode-checkbox-checked`]: checked,
+          [`${prefixClass}-treenode-checkbox-indeterminate`]: halfChecked,
+          [`${prefixClass}-treenode-selected`]: selected,
+          [`${prefixClass}-treenode-loading`]: loading,
 
           'drag-over': !disabled && dragOver,
           'drag-over-gap-top': !disabled && dragOverGapTop,
@@ -210,7 +211,7 @@ export default class TreeNode extends RcTreeNode {
         onDragLeave={draggable ? this.onDragLeave : undefined}
         onDrop={draggable ? this.onDrop : undefined}
         onDragEnd={draggable ? this.onDragEnd : undefined}
-        {...dataOrAriaAttributeProps}
+        {...dataAndAriaAttributeProps}
       >
         {this.renderSwitcher()}
         {this.renderCheckbox()}

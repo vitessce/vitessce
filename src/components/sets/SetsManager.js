@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs } from 'antd';
 import SetsManagerTab from './SetsManagerTab';
 import 'antd/es/tabs/style/index.css';
+import './sets-manager.scss';
 
 const { TabPane } = Tabs;
 
