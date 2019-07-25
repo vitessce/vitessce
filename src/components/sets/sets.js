@@ -35,7 +35,7 @@ export class SetsTreeNode {
       color,
       children,
       set,
-    } = props || {};
+    } = props;
     this.setKey = setKey;
     this.name = name;
     this.set = set;
@@ -133,23 +133,20 @@ export class SetsTreeNode {
 
   /**
    * Get the last part of the key, after the final period.
+   * If no period, return the whole key string.
    * @returns {string} The tail of the key.
    */
   getKeyTail() {
-    const i = this.setKey.lastIndexOf('.');
-    if (i === -1) {
-      return this.setKey;
-    }
-    return this.setKey.substring(i + 1);
+    return this.setKey.match(/^(.*\.)*([^.]*)$/)[2];
   }
 
   /**
    * Get the first part of the key, before the final period.
+   * Assumes there will be at least one period.
    * @returns {string} The head of the key.
    */
   getKeyHead() {
-    const i = this.setKey.lastIndexOf('.');
-    return this.setKey.substring(0, i);
+    return this.setKey.match(/^(.*)\.[^.]*$/)[1];
   }
 
   /**
@@ -180,6 +177,10 @@ export class SetsTreeNode {
     return this.children.flatMap(c => c.getDescendantsFlat(level - 1));
   }
 
+  /**
+   * Update child keys, keeping the same key tails but updating
+   * key head "paths" to match the current tree structure.
+   */
   updateChildKeys() {
     if (!this.children) {
       return;
