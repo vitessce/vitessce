@@ -187,6 +187,7 @@ export class SetsTreeNode {
     }
     this.children.forEach((child) => {
       const newChildKey = `${this.setKey}.${child.getKeyTail()}`;
+      // TODO: check for existence of duplicate keys before setting the key.
       child.setSetKey(newChildKey);
       child.updateChildKeys();
     });
@@ -370,7 +371,6 @@ export default class SetsTree {
     if (node.isCurrentSet) {
       node.setIsCurrentSet(false);
     }
-    // TODO: check for existence of duplicate keys before setting the key.
     this.emitTreeUpdate();
   }
 
