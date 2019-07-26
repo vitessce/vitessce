@@ -1,5 +1,4 @@
 import React from 'react';
-import radioCss from '../../css/radio.module.css';
 
 export default class Factors extends React.Component {
   constructor(props) {
@@ -21,7 +20,7 @@ export default class Factors extends React.Component {
       <div key={name}>
         <input
           type="radio"
-          className={radioCss.radio}
+          className="radio"
           name={name}
           onChange={this.handleInputChange}
           checked={value}

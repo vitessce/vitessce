@@ -357,7 +357,7 @@ const configs = {
             moleculeRadius: 2,
           },
           x: 0, y: 0, h: 2 },
-        { component: 'GenesSubscriber',
+        { component: 'genes',
           x: 1, y: 0, h: 2 },
       ],
     },
