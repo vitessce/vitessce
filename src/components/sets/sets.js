@@ -1,4 +1,5 @@
 import uuidv4 from 'uuid/v4';
+import { DEFAULT_COLOR } from '../utils';
 
 const CURRENT_SET_NAME = 'Current Selection';
 const ALL_ROOT_KEY = 'all';
@@ -33,7 +34,7 @@ export class SetsTreeNode {
       isEditing = false,
       isCurrentSet = false,
       wasPreviousCurrentSet = false,
-      color = [255, 255, 255],
+      color = DEFAULT_COLOR,
       children,
       set,
     } = props;
