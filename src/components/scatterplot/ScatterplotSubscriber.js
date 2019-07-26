@@ -4,6 +4,7 @@ import PubSub from 'pubsub-js';
 import TitleInfo from '../TitleInfo';
 import {
   CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
+  CELL_SETS_VIEW,
 } from '../../events';
 import Scatterplot from './Scatterplot';
 
@@ -26,6 +27,9 @@ export default class ScatterplotSubscriber extends React.Component {
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
+    this.cellSetsViewToken = PubSub.subscribe(
+      CELL_SETS_VIEW, this.cellsSelectionSubscriber.bind(this),
+    );
   }
 
   componentDidMount() {
@@ -37,6 +41,7 @@ export default class ScatterplotSubscriber extends React.Component {
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsColorToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
+    PubSub.unsubscribe(this.cellSetsViewToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {

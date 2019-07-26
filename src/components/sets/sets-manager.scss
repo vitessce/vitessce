@@ -1,0 +1,135 @@
+@import '../../css/colors';
+@import './zoom';
+
+$set-name-height: 16px;
+
+@mixin input-minimal-sm {
+    border-radius: 3px;
+    padding: 1px 4px;
+    border: 0;
+}
+  
+.sets-manager {
+
+    .ant-tree {
+        color: inherit;
+
+        .ant-tree-title {
+            border: 0;
+            background: transparent;
+            color: $color-white;
+            cursor: pointer;
+        }
+
+        .ant-tree-current-set-input, .ant-tree-title-input {
+            @include input-minimal-sm();
+        }
+        .ant-tree-title-save-button {
+            @include input-minimal-sm();
+            cursor: pointer;
+            margin-left: 4px;
+        }
+      
+        .ant-tree-showhide {
+            padding: 4px 4px;
+            vertical-align: middle;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        &.ant-tree-block-node li .ant-tree-node-content-wrapper {
+            width: calc(100% - 64px);
+
+            .ant-tree-set-size {
+                float: right;
+            }
+        }
+
+        li .ant-tree-node-content-wrapper {
+            color: inherit;
+            &:hover {
+                background-color: inherit;
+            }
+            &.ant-tree-node-selected {
+                background-color: inherit;
+            }
+        }
+    }
+    .ant-tabs {
+        color: inherit;
+
+        .ant-tabs-bar {
+            border-bottom: 1px solid $color-gray-mid;
+        }
+
+        .ant-tabs-nav .ant-tabs-tab-active {
+            font-weight: inherit;
+        }
+
+        &.ant-tabs-card .ant-tabs-card-bar {
+
+            .ant-tabs-nav-container {
+                height: 28px;
+            }
+
+            .ant-tabs-tab {
+                background-color: $color-gray-mid;
+                border: 1px solid $color-gray-mid;
+                height: 28px;
+                line-height: 26px;
+                padding: 0 6px;
+                &.ant-tabs-tab-active {
+                    background-color: $color-gray-dark;
+                    border: 1px solid $color-gray-mid;
+                }
+            }
+        }
+    }
+    .sets-manager-more-icon {
+        cursor: pointer;
+        right: 10px;
+        position: absolute;
+        top: 10px;
+    }
+}
+.ant-popover .ant-popover-inner-content {
+    padding: 0;
+}
+.sets-manager-menu {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 0;
+
+    li {
+        padding: 4px 16px;
+        cursor: pointer;
+        &:not(:last-child) {
+            border-bottom: 1px solid $color-gray;
+        }
+    }
+}
+.named-set-node-menu {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 0;
+
+    li {
+        button {
+            border: 0;
+            padding: 4px 16px;
+            cursor: pointer;
+            width: 100%;
+            background-color: transparent;
+        }
+        &:not(:last-child) {
+            border-bottom: 1px solid $color-gray;
+        }
+    }
+}
+.named-set-node-menu-trigger {
+    font-size: 16px;
+    margin-left: 10px;
+    height: 20px;
+    line-height: 20px;
+    vertical-align: middle;
+}

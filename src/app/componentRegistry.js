@@ -4,7 +4,7 @@ import TitleInfo from '../components/TitleInfo';
 import StatusSubscriber from '../components/status/StatusSubscriber';
 import FactorsSubscriber from '../components/factors/FactorsSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
-import CellSetsManagerSubscriber from '../components/user-defined-sets/CellSetsManagerSubscriber';
+import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscriber';
 import HoverableScatterplotSubscriber from '../components/scatterplot/HoverableScatterplotSubscriber';
 import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSubscriber';
 import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSubscriber';

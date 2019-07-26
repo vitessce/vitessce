@@ -1,8 +1,10 @@
+@import './colors';
+
 html,body {
     height: 100%;
 }
 body {
-    background-color: #333;
+  background-color: $color-gray-dark;
 }
 
 /* Flex grid items */
@@ -25,7 +27,7 @@ body {
 
 /* In error message */
 pre {
-  color: lightgrey;
+  color: $color-gray-light;
 }
 
 @import './component.scss';
