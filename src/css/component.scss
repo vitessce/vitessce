@@ -1,23 +1,23 @@
-:local {
-  .bgLight {
+/* Tool styles */
+.bg-light {
     background-color: #222!important;
     color: lightgrey;
     a {
-      color: #9bb7d6;
+        color: #9bb7d6;
     }
-  }
-  .bgBlack {
+}
+.bg-black {
     background-color: black;
     color: lightgrey;
-  }
-  .title {
+}
+.title {
     color: lightgrey;
-  }
-  .scroll {
+}
+.scroll {
     overflow-y: auto;
-  }
-  .details {
+}
+.details {
     font-size: 80%;
     opacity: 0.8;
-  }
 }
+

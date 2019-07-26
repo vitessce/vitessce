@@ -1,7 +1,7 @@
 @import './colors';
 
 html,body {
-  height: 100%;
+    height: 100%;
 }
 body {
   background-color: $color-gray-dark;
@@ -10,112 +10,96 @@ body {
 /* Flex grid items */
 
 .react-grid-item {
-  /* emulate bootstrap .flex-column: */
-  -webkit-box-orient: vertical!important;
-  -webkit-box-direction: normal!important;
-  -ms-flex-direction: column!important;
-  flex-direction: column!important;
+    /* emulate bootstrap .flex-column: */
+    -webkit-box-orient: vertical!important;
+    -webkit-box-direction: normal!important;
+    -ms-flex-direction: column!important;
+    flex-direction: column!important;
 
-  /* emulate bootstrap .d-flex: */
-  display: -webkit-box!important;
-  display: -ms-flexbox!important;
-  display: flex!important;
+    /* emulate bootstrap .d-flex: */
+    display: -webkit-box!important;
+    display: -ms-flexbox!important;
+    display: flex!important;
 
-  /* So the resize handle position looks correct: */
-  padding-right: 10px;
+    /* So the resize handle position looks correct: */
+    padding-right: 10px;
 }
 
 /* In error message */
-
 pre {
   color: $color-gray-light;
 }
 
-/* Spatial and t-SNE controls */
+@import './component.scss';
+@import './radio.scss';
+@import './controls.scss';
+@import './tooltips.scss';
 
-.btn.icon {
-  padding: 0;
-  height: 2em;
-  width: 2em;
-  background-color: $color-white;
-  > svg {
-    vertical-align: middle;
-  }
-}
-.roll-up {
-  height: 2em; /* Matches .btn.icon */
-  overflow: hidden;
-  &:hover {
-    animation-name: roll-up;
-    animation-duration: 0.5s;
-    animation-fill-mode: forwards;
-  }
-}
-@keyframes roll-up {
-  0% { height: 2em; }
-  100% { height: 100%; }
-}
-.tool {
-  z-index: 1000;
-  opacity: .65;
-  color: $color-black;
-  &:hover {
-    opacity: .90;
-  }
-}
 
-/* Cell Tooltips */
-.cell-emphasis-crosshair, .cell-emphasis-vertical {
-    z-index: 5;
-    position: absolute;
-    pointer-events: none;
-    background-color: $color-white;
-}
+$set-name-height: 16px;
 
-/* Cell Tooltips */
-.cell-emphasis-crosshair, .cell-emphasis-vertical {
-    z-index: 5;
-    position: absolute;
-    pointer-events: none;
-    background-color: $color-white;
-}
+.sets-manager {
+    .current-set-manager {
+        border-bottom: 1px solid gray;
+        width: 100%;
+        height: 18px;
 
-.cell-emphasis-vertical {
-    /* offset by the same amount as the container (.card-body) padding */
-    transform: translateX(1.25rem);
-}
-  
-.cell-tooltip-wrapper {
-    position: relative;
-}
+        .set-item-button {
+            -webkit-appearance: none;
+            background-color: #fff;
+            border: none;
+            border-radius: 2px;
+            color: #000;
+            text-align: center;
+            text-decoration: none;
+            height: $set-name-height;
+            line-height: $set-name-height;
+            display: block;
+            margin: 0 auto;
 
-.cell-tooltip {
-    z-index: 1001;
-    position: absolute;
-    pointer-events: none;
-    height: auto;
-    width: auto;
-    box-sizing: border-box;
-    opacity: 0;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    border: 1px solid $color-gray;
+            &.set-item-save {
+                font-size: 60%;
+                padding: 0px 4px;
+            }
 
-    animation-name: cell-tooltip;
-    animation-duration: 0.5s;
-    animation-fill-mode: forwards;
-}
-  
-.cell-tooltip > table > tbody > tr > th, .cell-tooltip > table > tbody > tr > td {
-    font-size: 80%;
-    opacity: 0.8;
-}
-  
-@keyframes cell-tooltip {
-    from {
-        opacity: 0;
+            &.set-item-cancel {
+                font-size: 80%;
+                padding: 0px 2px;
+            }
+        }
     }
-    to {
-        opacity: 0.9;
+
+    .set-name {
+        font-size: 80%;
+        white-space: nowrap;
+        width: 100%;
+        height: $set-name-height;
+        line-height: $set-name-height;
+
+        input {
+            -webkit-appearance: none;
+            font-size: 10px;
+            border-radius: 2px;
+            border: 0;
+            width: 100%;
+            display: block;
+            height: $set-name-height;
+            line-height: $set-name-height;
+        }
+
+        small {
+            margin-left: 10px;
+        }
+    }
+
+    .sets-manager-disabled {
+        color: dimgray;
+    }
+
+    .set-list {
+        margin-top: 6px;
+        .set-name {
+            margin-bottom: 4px;
+        }
     }
 }
