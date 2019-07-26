@@ -397,22 +397,35 @@ export default class SetsTree {
   }
 
   /**
-   * Delete a node of interest.
+   * Delete a node of interest, and all of its children.
    * @param {string} setKey The key of the node of interest.
+   * @param {boolean} preventEmit Whether to prevent the emit event.
    */
-  deleteNode(setKey) {
+  deleteNode(setKey, preventEmit) {
+    const node = this.findNode(setKey);
     const parentNode = this.findParentNode(setKey);
-    if (!parentNode) {
+    if (!node || !parentNode) {
       return;
     }
+    if (node.children) {
+      node.children.forEach(c => this.deleteNode(c.setKey, true));
+    }
+    // Check whether the node is a tabRoot, remove the corresponding tab(s) if so.
+    this.tabRoots = this.tabRoots.reduce((a, h) => (h.setKey === setKey ? a : [...a, h]), []);
+    // Check whether the node is in checkedKeys, remove the corresponding key if so.
+    this.checkedKeys = this.checkedKeys.reduce((a, h) => (h === setKey ? a : [...a, h]), []);
+    // Check whether the node is in visibleKeys, remove the corresponding key if so.
+    this.visibleKeys = this.visibleKeys.reduce((a, h) => (h === setKey ? a : [...a, h]), []);
+
     const nodeIndex = parentNode.children.findIndex(c => c.setKey === setKey);
     if (nodeIndex === -1) {
       return;
     }
     parentNode.children.splice(nodeIndex, 1);
-    // TODO: check if the node is a tabRoot
-    // TODO: check if the node key is in checkedKeys or visibleKeys
-    this.emitTreeUpdate();
+    if (!preventEmit) {
+      this.emitTreeUpdate();
+      this.emitVisibilityUpdate();
+    }
   }
 
   /**
