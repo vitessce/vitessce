@@ -18,8 +18,11 @@ export default class SetsManagerTab extends React.Component {
   }
 
   onExpand(expandedKeys) {
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
+    // We want autoExpandParent to be initially true so that we see the whole tree.
+    // But, when autoExpandParent is set to true, a parent cannot be collapsed
+    // if there are expanded children.
+    // So upon an expansion interaction, we always want autoExpandParent to be false
+    // to allow a parent with expanded children to collapse.
     this.setState({
       expandedKeys,
       autoExpandParent: false,
@@ -48,7 +51,7 @@ export default class SetsManagerTab extends React.Component {
 
     const dropPosition = info.dropPosition - Number(pos.split('-').slice().pop());
 
-    // Check if has children, is expanded, and is on the bottom gap.
+    // Check whether it has children, is expanded, and is on the bottom gap.
     const shouldInsertAtBottom = (children && children.length > 0
         && expanded && dropPosition === 1);
     // Update the tree based on the drag event.

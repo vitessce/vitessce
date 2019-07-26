@@ -1,45 +1,52 @@
 import expect from 'expect';
 import SetsTree, { SetsTreeNode } from './sets';
 
-const node = new SetsTreeNode({
-  setKey: 'test',
-  name: 'Test Set',
-  color: '#000',
-  set: [],
-});
-const nodeWithChildren = new SetsTreeNode({
-  setKey: 'test',
-  name: 'Test Set',
-  children: [
-    new SetsTreeNode({
-      setKey: 'test-child',
-      name: 'Child of Test Set',
-    }),
-  ],
-});
-const nodeWithGrandchildren = new SetsTreeNode({
-  setKey: 'test',
-  name: 'Test Set',
-  children: [
-    new SetsTreeNode({
-      setKey: 'test-child',
-      name: 'Child of Test Set',
-      children: [
-        new SetsTreeNode({
-          setKey: 'test-grandchild-1',
-          name: 'Grandchild of Test Set',
-          isCurrentSet: true,
-        }),
-        new SetsTreeNode({
-          setKey: 'test-grandchild-2',
-          name: 'Grandchild of Test Set',
-        }),
-      ],
-    }),
-  ],
-});
 
 describe('sets.js', () => {
+  let node;
+  let nodeWithChildren;
+  let nodeWithGrandchildren;
+
+  beforeEach(() => {
+    node = new SetsTreeNode({
+      setKey: 'test',
+      name: 'Test Set',
+      color: '#000',
+      set: [],
+    });
+    nodeWithChildren = new SetsTreeNode({
+      setKey: 'test',
+      name: 'Test Set',
+      children: [
+        new SetsTreeNode({
+          setKey: 'test-child',
+          name: 'Child of Test Set',
+        }),
+      ],
+    });
+    nodeWithGrandchildren = new SetsTreeNode({
+      setKey: 'test',
+      name: 'Test Set',
+      children: [
+        new SetsTreeNode({
+          setKey: 'test-child',
+          name: 'Child of Test Set',
+          children: [
+            new SetsTreeNode({
+              setKey: 'test-grandchild-1',
+              name: 'Grandchild of Test Set',
+              isCurrentSet: true,
+            }),
+            new SetsTreeNode({
+              setKey: 'test-grandchild-2',
+              name: 'Grandchild of Test Set',
+            }),
+          ],
+        }),
+      ],
+    });
+  });
+
   describe('SetsTreeNode', () => {
     it('can be instantiated with properties', () => {
       expect(node.setKey).toEqual('test');
@@ -147,14 +154,21 @@ describe('sets.js', () => {
 
     it('can delete a node', () => {
       const tree = new SetsTree();
-      tree.prependChild(new SetsTreeNode({
-        setKey: 'test',
-        name: 'Test',
-        isEditing: false,
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-0',
+        name: 'Test 0',
       }));
-      expect(tree.findNode('all.test').setKey).toEqual('all.test');
-      tree.deleteNode('all.test');
-      expect(tree.findNode('all.test')).toEqual(null);
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-1',
+        name: 'Test 1',
+      }));
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test-2',
+        name: 'Test 2',
+      }));
+      expect(tree.findNode('all.test-1').setKey).toEqual('all.test-1');
+      tree.deleteNode('all.test-1');
+      expect(tree.findNode('all.test-1')).toEqual(null);
     });
 
     it('can change a node name', () => {

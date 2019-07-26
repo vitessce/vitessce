@@ -1,8 +1,10 @@
+@import './colors';
+
 html,body {
   height: 100%;
 }
 body {
-  background-color: #333;
+  background-color: $color-gray-dark;
 }
 
 /* Flex grid items */
@@ -26,7 +28,7 @@ body {
 /* In error message */
 
 pre {
-  color: lightgrey;
+  color: $color-gray-light;
 }
 
 /* Spatial and t-SNE controls */
@@ -35,7 +37,7 @@ pre {
   padding: 0;
   height: 2em;
   width: 2em;
-  background-color: white;
+  background-color: $color-white;
   > svg {
     vertical-align: middle;
   }
@@ -56,7 +58,7 @@ pre {
 .tool {
   z-index: 1000;
   opacity: .65;
-  color: black;
+  color: $color-black;
   &:hover {
     opacity: .90;
   }
@@ -67,560 +69,45 @@ pre {
     z-index: 5;
     position: absolute;
     pointer-events: none;
-    background-color: white;
-  }
-  .btn.icon > svg {
-    vertical-align: middle;
-  }
-  .roll-up {
-    height: 2em; /* Matches .btn.icon */
-    overflow: hidden;
-  }
-  .roll-up:hover {
-    animation-name: roll-up;
+    background-color: $color-white;
+}
+
+.cell-emphasis-vertical {
+    /* offset by the same amount as the container (.card-body) padding */
+    transform: translateX(1.25rem);
+}
+  
+.cell-tooltip-wrapper {
+    position: relative;
+}
+
+.cell-tooltip {
+    z-index: 1001;
+    position: absolute;
+    pointer-events: none;
+    height: auto;
+    width: auto;
+    box-sizing: border-box;
+    opacity: 0;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid $color-gray;
+
+    animation-name: cell-tooltip;
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
-  }
-  @keyframes roll-up {
-    0% { height: 2em; }
-    100% { height: 100%; }
-  }
-  .tool {
-    z-index: 1000;
-    opacity: .65;
-    color: black;
-  }
-  .tool:hover {
-    opacity: .90;
-  }
+}
   
-  /* Cell Tooltips */
-  .cell-emphasis-crosshair, .cell-emphasis-vertical {
-      z-index: 5;
-      position: absolute;
-      pointer-events: none;
-      background-color: white;
-  }
+.cell-tooltip > table > tbody > tr > th, .cell-tooltip > table > tbody > tr > td {
+    font-size: 80%;
+    opacity: 0.8;
+}
   
-  .cell-emphasis-vertical {
-      /* offset by the same amount as the container (.card-body) padding */
-      transform: translateX(1.25rem);
-  }
-  
-  .cell-tooltip-wrapper {
-      position: relative;
-  }
-  
-  .cell-tooltip {
-      z-index: 1001;
-      position: absolute;
-      pointer-events: none;
-      height: auto;
-      width: auto;
-      box-sizing: border-box;
-      opacity: 0;
-      padding: 0.5rem;
-      border-radius: 0.25rem;
-      border: 1px solid gray;
-  
-      animation-name: cell-tooltip;
-      animation-duration: 0.5s;
-      animation-fill-mode: forwards;
-  }
-  
-  .cell-tooltip > table > tbody > tr > th, .cell-tooltip > table > tbody > tr > td {
-      font-size: 80%;
-      opacity: 0.8;
-  }
-  
-  @keyframes cell-tooltip {
-      from {
-          opacity: 0;
-      }
-      to {
-          opacity: 0.9;
-      }
-  }
-  
-  $set-name-height: 16px;
-  
-  .sets-manager {
-    .ant-tree {
-        color: inherit;
-
-        .ant-tree-title {
-            border: 0;
-            background: transparent;
-            color: white;
-            cursor: pointer;
-        }
-
-        .ant-tree-current-set-input, .ant-tree-title-input {
-            border-radius: 3px;
-            padding: 1px 4px;
-            border: 0;
-        }
-        .ant-tree-title-save-button {
-            border-radius: 3px;
-            padding: 1px 4px;
-            border: 0;
-            cursor: pointer;
-            margin-left: 4px;
-        }
-        
-
-        .ant-tree-showhide {
-            padding: 4px 4px;
-            vertical-align: middle;
-            height: 24px;
-            cursor: pointer;
-        }
-
-        &.ant-tree-block-node li .ant-tree-node-content-wrapper {
-            width: calc(100% - 64px);
-
-            .ant-tree-set-size {
-                float: right;
-            }
-        }
+@keyframes cell-tooltip {
+    from {
+        opacity: 0;
     }
-    .ant-tabs {
-        color: inherit;
-
-        .ant-tabs-bar {
-            border-bottom: 1px solid #555;
-        }
-
-
-
-        .ant-tabs-nav .ant-tabs-tab-active {
-            font-weight: inherit;
-
-        }
-
-        &.ant-tabs-card .ant-tabs-card-bar {
-
-            .ant-tabs-nav-container {
-                height: 28px;
-            }
-
-            .ant-tabs-tab {
-                background-color: #6d6d6d;
-                border: 1px solid #6d6d6d;
-                height: 28px;
-                line-height: 26px;
-                padding: 0 6px;
-                &.ant-tabs-tab-active {
-                    background-color: #222;
-                    border: 1px solid #6d6d6d;
-                }
-            }
-        }
+    to {
+        opacity: 0.9;
     }
-    .sets-manager-icon-bar {
-        cursor: pointer;
-        right: 20px;
-        position: absolute;
-        top: 12px;
-        i {
-            border-radius: 4px;
-            padding: 3px 2px 0 2px;
-            margin-left: 10px;
-            &:hover {
-                background-color: #444;
-                transition: background-color 0.5s;
-            }
-        }
-    }
-    .ant-tree li .ant-tree-node-content-wrapper {
-        color: inherit;
-        &:hover {
-            background-color: inherit;
-        }
-
-        &.ant-tree-node-selected {
-            background-color: inherit;
-        }
-    }
-  }
-  .ant-popover .ant-popover-inner-content {
-    padding: 0;
-  }
-.sets-manager-menu {
-    list-style-type: none;
-    padding: 0;
-    margin-bottom: 0;
-
-    li {
-        padding: 4px 16px;
-        cursor: pointer;
-        &:not(:last-child) {
-            border-bottom: 1px solid gray;
-        }
-    }
-}
-.named-set-node-menu {
-    list-style-type: none;
-    padding: 0;
-    margin-bottom: 0;
-
-    li {
-        button {
-            border: 0;
-            padding: 4px 16px;
-            cursor: pointer;
-            width: 100%;
-            background-color: transparent;
-        }
-        &:not(:last-child) {
-            border-bottom: 1px solid gray;
-        }
-    }
-}
-.named-set-node-menu-trigger {
-    font-size: 16px;
-    margin-left: 10px;
-    height: 20px;
-    line-height: 20px;
-    vertical-align: middle;
-}
-
-
-/* Popover animation css compiled from antd/es/style/core/motion/zoom.less */
-
-.zoom-enter,
-.zoom-appear {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-leave {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-enter.zoom-enter-active,
-.zoom-appear.zoom-appear-active {
-  animation-name: antZoomIn;
-  animation-play-state: running;
-}
-.zoom-leave.zoom-leave-active {
-  animation-name: antZoomOut;
-  animation-play-state: running;
-  pointer-events: none;
-}
-.zoom-enter,
-.zoom-appear {
-  transform: scale(0);
-  opacity: 0;
-  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
-}
-.zoom-leave {
-  animation-timing-function: cubic-bezier(0.78, 0.14, 0.15, 0.86);
-}
-.zoom-big-enter,
-.zoom-big-appear {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-big-leave {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-big-enter.zoom-big-enter-active,
-.zoom-big-appear.zoom-big-appear-active {
-  animation-name: antZoomBigIn;
-  animation-play-state: running;
-}
-.zoom-big-leave.zoom-big-leave-active {
-  animation-name: antZoomBigOut;
-  animation-play-state: running;
-  pointer-events: none;
-}
-.zoom-big-enter,
-.zoom-big-appear {
-  transform: scale(0);
-  opacity: 0;
-  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
-}
-.zoom-big-leave {
-  animation-timing-function: cubic-bezier(0.78, 0.14, 0.15, 0.86);
-}
-.zoom-big-fast-enter,
-.zoom-big-fast-appear {
-  animation-duration: 0.1s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-big-fast-leave {
-  animation-duration: 0.1s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-big-fast-enter.zoom-big-fast-enter-active,
-.zoom-big-fast-appear.zoom-big-fast-appear-active {
-  animation-name: antZoomBigIn;
-  animation-play-state: running;
-}
-.zoom-big-fast-leave.zoom-big-fast-leave-active {
-  animation-name: antZoomBigOut;
-  animation-play-state: running;
-  pointer-events: none;
-}
-.zoom-big-fast-enter,
-.zoom-big-fast-appear {
-  transform: scale(0);
-  opacity: 0;
-  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
-}
-.zoom-big-fast-leave {
-  animation-timing-function: cubic-bezier(0.78, 0.14, 0.15, 0.86);
-}
-.zoom-up-enter,
-.zoom-up-appear {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-up-leave {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-up-enter.zoom-up-enter-active,
-.zoom-up-appear.zoom-up-appear-active {
-  animation-name: antZoomUpIn;
-  animation-play-state: running;
-}
-.zoom-up-leave.zoom-up-leave-active {
-  animation-name: antZoomUpOut;
-  animation-play-state: running;
-  pointer-events: none;
-}
-.zoom-up-enter,
-.zoom-up-appear {
-  transform: scale(0);
-  opacity: 0;
-  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
-}
-.zoom-up-leave {
-  animation-timing-function: cubic-bezier(0.78, 0.14, 0.15, 0.86);
-}
-.zoom-down-enter,
-.zoom-down-appear {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-down-leave {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-down-enter.zoom-down-enter-active,
-.zoom-down-appear.zoom-down-appear-active {
-  animation-name: antZoomDownIn;
-  animation-play-state: running;
-}
-.zoom-down-leave.zoom-down-leave-active {
-  animation-name: antZoomDownOut;
-  animation-play-state: running;
-  pointer-events: none;
-}
-.zoom-down-enter,
-.zoom-down-appear {
-  transform: scale(0);
-  opacity: 0;
-  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
-}
-.zoom-down-leave {
-  animation-timing-function: cubic-bezier(0.78, 0.14, 0.15, 0.86);
-}
-.zoom-left-enter,
-.zoom-left-appear {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-left-leave {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-left-enter.zoom-left-enter-active,
-.zoom-left-appear.zoom-left-appear-active {
-  animation-name: antZoomLeftIn;
-  animation-play-state: running;
-}
-.zoom-left-leave.zoom-left-leave-active {
-  animation-name: antZoomLeftOut;
-  animation-play-state: running;
-  pointer-events: none;
-}
-.zoom-left-enter,
-.zoom-left-appear {
-  transform: scale(0);
-  opacity: 0;
-  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
-}
-.zoom-left-leave {
-  animation-timing-function: cubic-bezier(0.78, 0.14, 0.15, 0.86);
-}
-.zoom-right-enter,
-.zoom-right-appear {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-right-leave {
-  animation-duration: 0.2s;
-  animation-fill-mode: both;
-  animation-play-state: paused;
-}
-.zoom-right-enter.zoom-right-enter-active,
-.zoom-right-appear.zoom-right-appear-active {
-  animation-name: antZoomRightIn;
-  animation-play-state: running;
-}
-.zoom-right-leave.zoom-right-leave-active {
-  animation-name: antZoomRightOut;
-  animation-play-state: running;
-  pointer-events: none;
-}
-.zoom-right-enter,
-.zoom-right-appear {
-  transform: scale(0);
-  opacity: 0;
-  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
-}
-.zoom-right-leave {
-  animation-timing-function: cubic-bezier(0.78, 0.14, 0.15, 0.86);
-}
-@keyframes antZoomIn {
-  0% {
-    transform: scale(0.2);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-@keyframes antZoomOut {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0.2);
-    opacity: 0;
-  }
-}
-@keyframes antZoomBigIn {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-@keyframes antZoomBigOut {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-}
-@keyframes antZoomUpIn {
-  0% {
-    transform: scale(0.8);
-    transform-origin: 50% 0%;
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    transform-origin: 50% 0%;
-  }
-}
-@keyframes antZoomUpOut {
-  0% {
-    transform: scale(1);
-    transform-origin: 50% 0%;
-  }
-  100% {
-    transform: scale(0.8);
-    transform-origin: 50% 0%;
-    opacity: 0;
-  }
-}
-@keyframes antZoomLeftIn {
-  0% {
-    transform: scale(0.8);
-    transform-origin: 0% 50%;
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    transform-origin: 0% 50%;
-  }
-}
-@keyframes antZoomLeftOut {
-  0% {
-    transform: scale(1);
-    transform-origin: 0% 50%;
-  }
-  100% {
-    transform: scale(0.8);
-    transform-origin: 0% 50%;
-    opacity: 0;
-  }
-}
-@keyframes antZoomRightIn {
-  0% {
-    transform: scale(0.8);
-    transform-origin: 100% 50%;
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    transform-origin: 100% 50%;
-  }
-}
-@keyframes antZoomRightOut {
-  0% {
-    transform: scale(1);
-    transform-origin: 100% 50%;
-  }
-  100% {
-    transform: scale(0.8);
-    transform-origin: 100% 50%;
-    opacity: 0;
-  }
-}
-@keyframes antZoomDownIn {
-  0% {
-    transform: scale(0.8);
-    transform-origin: 50% 100%;
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    transform-origin: 50% 100%;
-  }
-}
-@keyframes antZoomDownOut {
-  0% {
-    transform: scale(1);
-    transform-origin: 50% 100%;
-  }
-  100% {
-    transform: scale(0.8);
-    transform-origin: 50% 100%;
-    opacity: 0;
-  }
 }
