@@ -40,8 +40,23 @@ $set-name-height: 16px;
         &.ant-tree-block-node li .ant-tree-node-content-wrapper {
             width: calc(100% - 64px);
 
-            .ant-tree-set-size {
+            .ant-tree-title-right {
                 float: right;
+
+                .ant-tree-set-color {
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    margin-left: 16px;
+                    cursor: pointer;
+                    outline: currentcolor none medium;
+                    border-radius: 3px;
+                    box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 0px 1px inset;
+                }
+
+                .ant-tree-set-size {
+                    display: inline-block;
+                }
             }
         }
 

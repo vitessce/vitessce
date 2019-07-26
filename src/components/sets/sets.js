@@ -33,7 +33,7 @@ export class SetsTreeNode {
       isEditing = false,
       isCurrentSet = false,
       wasPreviousCurrentSet = false,
-      color,
+      color = '#F00',
       children,
       set,
     } = props;
@@ -70,6 +70,10 @@ export class SetsTreeNode {
 
   setWasPreviousCurrentSet(v) {
     this.wasPreviousCurrentSet = v;
+  }
+
+  setColor(v) {
+    this.color = v;
   }
 
   /**
@@ -125,6 +129,7 @@ export class SetsTreeNode {
       title: this.name,
       setKey: this.setKey,
       size: this.set ? this.set.length : 0,
+      color: this.color,
       level: this.getLevel(),
       isRoot: this.isRoot,
       isEditing: this.isEditing,
@@ -301,7 +306,6 @@ export default class SetsTree {
       currentSetNode = new SetsTreeNode({
         setKey: `${ALL_ROOT_KEY}.${uuid}`,
         name: CURRENT_SET_NAME,
-        color: '#000',
         set: [],
         isEditing: true,
         isCurrentSet: true,
@@ -394,6 +398,18 @@ export default class SetsTree {
     const node = this.findNode(setKey);
     node.setIsEditing(true);
     this.emitTreeUpdate();
+  }
+
+  /**
+   * Set the color for a node of interest.
+   * @param {string} setKey The key of the node of interest.
+   * @param {string} color The color value.
+   */
+  changeNodeColor(setKey, color) {
+    const node = this.findNode(setKey);
+    node.setColor(color);
+    this.emitTreeUpdate();
+    this.emitVisibilityUpdate();
   }
 
   /**
