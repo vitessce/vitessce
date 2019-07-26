@@ -2,11 +2,13 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import fromEntries from 'fromentries';
 import {
-  FACTORS_ADD, CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION, CELLS_ADD,
+  FACTORS_ADD, CELL_SETS_MODIFY, CELL_SETS_VIEW,
+  CELLS_SELECTION, CELLS_ADD, CELLS_COLOR,
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import SetsTree, { SetsTreeNode } from './sets';
+import { PALETTE } from '../utils';
 
 export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
@@ -16,7 +18,8 @@ export default class CellSetsManagerSubscriber extends React.Component {
         (obj) => {
           PubSub.publish(CELL_SETS_MODIFY, obj);
         },
-        (cellIds) => {
+        (cellIds, cellColors) => {
+          PubSub.publish(CELLS_COLOR, cellColors);
           PubSub.publish(CELL_SETS_VIEW, cellIds);
         },
       ),
@@ -96,12 +99,13 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
     const reverseSubclusterMap = fromEntries(factors.subcluster.map.map((v, i) => [v, i]));
 
-    const clusters = factors.cluster.map.map((clusterKey) => {
+    const clusters = factors.cluster.map.map((clusterKey, clusterIndex) => {
       const subclusters = [];
-      subclusterMappings[clusterKey].forEach((subclusterKey) => {
+      subclusterMappings[clusterKey].forEach((subclusterKey, subclusterIndex) => {
         subclusters.push(new SetsTreeNode({
           setKey: `all.${clusterKey}.${subclusterKey}`,
           name: subclusterKey,
+          color: PALETTE[subclusterIndex % PALETTE.length],
           set: Object.entries(factors.subcluster.cells)
             .filter(c => c[1] === reverseSubclusterMap[subclusterKey]).map(c => c[0]),
         }));
@@ -111,6 +115,9 @@ export default class CellSetsManagerSubscriber extends React.Component {
         setKey: `all.${clusterKey}`,
         name: clusterKey,
         children: subclusters,
+        color: PALETTE[clusterIndex % PALETTE.length],
+        set: Object.entries(factors.cluster.cells)
+          .filter(c => c[1] === clusterIndex).map(c => c[0]),
       });
     });
 

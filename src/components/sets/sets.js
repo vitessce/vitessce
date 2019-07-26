@@ -33,7 +33,7 @@ export class SetsTreeNode {
       isEditing = false,
       isCurrentSet = false,
       wasPreviousCurrentSet = false,
-      color = '#F00',
+      color = [255, 255, 255],
       children,
       set,
     } = props;
@@ -591,13 +591,17 @@ export default class SetsTree {
   emitVisibilityUpdate() {
     if (this.onVisibilityChange) {
       let cellIds = [];
+      const cellColors = {};
       this.visibleKeys.forEach((setKey) => {
         const node = this.findNode(setKey);
         if (node && node.set && node.set.length > 0) {
           cellIds = [...cellIds, ...node.set];
+          node.set.forEach((cellId) => {
+            cellColors[cellId] = node.color;
+          });
         }
       });
-      this.onVisibilityChange(new Set(cellIds));
+      this.onVisibilityChange(new Set(cellIds), cellColors);
     }
   }
 }
