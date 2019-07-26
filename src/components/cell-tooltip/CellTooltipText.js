@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import componentCss from '../../css/component.module.scss';
 
 export default function CellTooltipText(props) {
   const {
@@ -24,12 +23,10 @@ export default function CellTooltipText(props) {
     el.style.whiteSpace = (isNarrow ? 'normal' : 'nowrap');
   });
 
-  const className = `cell-tooltip ${componentCss.bgLight}`;
-
   return (
     <div
       ref={ref}
-      className={className}
+      className="cell-tooltip bg-light"
       style={{
         left: `${x}px`,
         top: `${y}px`,
