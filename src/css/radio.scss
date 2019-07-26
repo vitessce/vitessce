@@ -1,4 +1,4 @@
-:local .radio {
+.radio {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -12,7 +12,8 @@
   border: 2px solid lightgrey;
   background-color: lightgrey;
   border-radius: 50%;
-}
-:local .radio:checked {
-  background-clip: unset;
+
+  &:checked {
+    background-clip: unset;
+  }
 }
