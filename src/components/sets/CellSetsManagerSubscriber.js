@@ -1,5 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
+import fromEntries from 'fromentries';
 import {
   FACTORS_ADD, CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION, CELLS_ADD,
 } from '../../events';
@@ -93,7 +94,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
       'Ventricle': ['C. Plexus', 'Ependymal'],
     };
 
-    const reverseSubclusterMap = Object.fromEntries(factors.subcluster.map.map((v, i) => [v, i]));
+    const reverseSubclusterMap = fromEntries(factors.subcluster.map.map((v, i) => [v, i]));
 
     const clusters = factors.cluster.map.map((clusterKey) => {
       const subclusters = [];
