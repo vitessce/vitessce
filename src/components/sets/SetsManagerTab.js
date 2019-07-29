@@ -40,23 +40,14 @@ export default class SetsManagerTab extends React.Component {
       tabRoot,
     } = this.props;
 
-    const {
-      eventKey: dropKey,
-      pos,
-      children,
-      expanded,
-    } = info.node.props;
+    const { eventKey: dropKey } = info.node.props;
     const { eventKey: dragKey } = info.dragNode.props;
     const { dropToGap } = info;
 
-    const dropPosition = info.dropPosition - Number(pos.split('-').slice().pop());
+    const { dropPosition } = info;
 
-    // Check whether it has children, is expanded, and is on the bottom gap.
-    const shouldInsertAtBottom = (children && children.length > 0
-        && expanded && dropPosition === 1);
     // Update the tree based on the drag event.
-    setsTree.dragRearrange(tabRoot,
-      dropKey, dragKey, dropPosition, dropToGap, shouldInsertAtBottom);
+    setsTree.dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap);
   }
 
 
