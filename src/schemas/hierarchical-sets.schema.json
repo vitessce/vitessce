@@ -16,10 +16,10 @@
       }
     },
     "additionalProperties": false,
-    "required": ["datasetId", "setsTypeKey", "timestamp", "setsTree"],
+    "required": ["datasetId", "setsType", "timestamp", "setsTree"],
     "properties": {
       "datasetId": { "type": "string" },
-      "setsTypeKey": { "type": "string" },
+      "setsType": { "type": "string" },
       "timestamp": { "type": "string" },
       "setsTree": {
           "type": "array",

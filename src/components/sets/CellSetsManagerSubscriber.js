@@ -8,7 +8,7 @@ import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import SetsTree, { SetsTreeNode } from './sets';
 
-const setsTypeKey = 'cell';
+const setsType = 'cell';
 
 export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
@@ -143,7 +143,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
         <SetsManager
           setsTree={cellSets}
           datasetId={datasetId}
-          setsTypeKey={setsTypeKey}
+          setsType={setsType}
         />
       </TitleInfo>
     );

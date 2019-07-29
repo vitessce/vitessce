@@ -10,7 +10,7 @@ import SetComplementSVG from '../../assets/sets/complement.svg';
 import hierarchicalSetsSchema from '../../schemas/hierarchical-sets.schema.json';
 
 export default function SetsManagerActionBar(props) {
-  const { setsTree, datasetId, setsTypeKey } = props;
+  const { setsTree, datasetId, setsType } = props;
 
   function onUnion() {
     const checkedUnion = setsTree.getUnion(setsTree.checkedKeys);
@@ -58,8 +58,8 @@ export default function SetsManagerActionBar(props) {
           console.warn('import validation failed', failureReason);
         } else if (importData.datasetId !== datasetId) {
           console.warn('datasetId for import does not match the current datasetId');
-        } else if (importData.setsTypeKey !== setsTypeKey) {
-          console.warn('setsTypeKey for import does not match the current setsTypeKey');
+        } else if (importData.setsType !== setsType) {
+          console.warn('setsType for import does not match the current setsType');
         } else {
           setsTree.import(importData.setsTree, importData.timestamp);
         }
@@ -72,7 +72,7 @@ export default function SetsManagerActionBar(props) {
   function onExport() {
     const exportData = {
       datasetId,
-      setsTypeKey,
+      setsType,
       timestamp: (new Date().toLocaleString()),
       setsTree: setsTree.export(),
     };
@@ -82,7 +82,7 @@ export default function SetsManagerActionBar(props) {
     const exportName = datasetId;
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute('href', dataStr);
-    downloadAnchorNode.setAttribute('download', `${exportName}-${setsTypeKey}-sets.${fileExtension}`);
+    downloadAnchorNode.setAttribute('download', `${exportName}-${setsType}-sets.${fileExtension}`);
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
