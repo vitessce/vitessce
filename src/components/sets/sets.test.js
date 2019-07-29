@@ -376,5 +376,17 @@ describe('sets.js', () => {
       const tripleSetResult = tree.getComplement(['all.test-1', 'all.test-2', 'all.test-3']);
       expect(tripleSetResult).toEqual([]);
     });
+
+    it('can change node color', () => {
+      const tree = new SetsTree();
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test',
+        name: 'Test',
+        color: [0, 0, 0],
+      }));
+      expect(tree.findNode('all.test').color).toEqual([0, 0, 0]);
+      tree.changeNodeColor('all.test', [255, 255, 255]);
+      expect(tree.findNode('all.test').color).toEqual([255, 255, 255]);
+    });
   });
 });
