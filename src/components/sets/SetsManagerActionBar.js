@@ -58,6 +58,8 @@ export default function SetsManagerActionBar(props) {
           console.warn('import validation failed', failureReason);
         } else if (importData.datasetId !== datasetId) {
           console.warn('datasetId for import does not match the current datasetId');
+        } else if (importData.setsTypeKey !== setsTypeKey) {
+          console.warn('setsTypeKey for import does not match the current setsTypeKey');
         } else {
           setsTree.import(importData.setsTree, importData.timestamp);
         }
@@ -70,6 +72,7 @@ export default function SetsManagerActionBar(props) {
   function onExport() {
     const exportData = {
       datasetId,
+      setsTypeKey,
       timestamp: (new Date().toLocaleString()),
       setsTree: setsTree.export(),
     };
