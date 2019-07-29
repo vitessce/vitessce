@@ -67,10 +67,17 @@ export default class CellSetsManagerSubscriber extends React.Component {
   }
 
   /**
-   * TODO: remove this function when the concept of factors is
+   * TODO: Remove this function when the concept of factors is
    * removed in favor of the hierarchical cell set representation.
+   * This basically just allows us to demo the proof of concept
+   * of the factors being represented as hierarchical cell sets.
    */
   factorsAddSubscriber(msg, factors) {
+    const { datasetId } = this.props;
+    // This function is specific to the linnarson factors.
+    if (datasetId !== 'linnarsson-2018') {
+      return;
+    }
     const { cellSets } = this.state;
 
     const subclusterMappings = {

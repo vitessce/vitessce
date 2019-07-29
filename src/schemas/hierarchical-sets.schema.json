@@ -24,6 +24,7 @@
           "type": "array",
           "items": {
             "type": "object",
+            "additionalProperties": false,
             "required": ["key", "name"],
             "properties": {
               "key": { "type": "string" },
