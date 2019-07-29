@@ -11,19 +11,19 @@ export default function (props) {
 
   function onUnion() {
     const checkedUnion = setsTree.getUnion(setsTree.checkedKeys);
-    setsTree.setCurrentSet(checkedUnion, true);
+    setsTree.setCurrentSet(checkedUnion, true, 'Current union');
     setsTree.emitVisibilityUpdate();
   }
 
   function onIntersection() {
     const checkedIntersection = setsTree.getIntersection(setsTree.checkedKeys);
-    setsTree.setCurrentSet(checkedIntersection, true);
+    setsTree.setCurrentSet(checkedIntersection, true, 'Current intersection');
     setsTree.emitVisibilityUpdate();
   }
 
   function onComplement() {
     const checkedComplement = setsTree.getComplement(setsTree.checkedKeys);
-    setsTree.setCurrentSet(checkedComplement, true);
+    setsTree.setCurrentSet(checkedComplement, true, 'Current complement');
     setsTree.emitVisibilityUpdate();
   }
 

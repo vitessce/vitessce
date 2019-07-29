@@ -1,6 +1,6 @@
 import uuidv4 from 'uuid/v4';
 
-const CURRENT_SET_NAME = 'Current Selection';
+const CURRENT_SET_NAME = 'Current selection';
 const ALL_ROOT_KEY = 'all';
 const ALL_ROOT_NAME = 'All';
 
@@ -293,14 +293,14 @@ export default class SetsTree {
    * Set the current set's set array value.
    * @param {iterable} set The new set values.
    * @param {boolean} visible Whether to make the current set visible.
+   * @param {string} name If provided, will use this name over the default CURRENT_SET_NAME.
    */
-  setCurrentSet(set, visible) {
+  setCurrentSet(set, visible, name) {
     let currentSetNode = this.findCurrentSetNode();
     if (!currentSetNode) {
       const uuid = uuidv4();
       currentSetNode = new SetsTreeNode({
         setKey: `${ALL_ROOT_KEY}.${uuid}`,
-        name: CURRENT_SET_NAME,
         color: '#000',
         set: [],
         isEditing: true,
@@ -310,6 +310,11 @@ export default class SetsTree {
       this.prependChild(currentSetNode);
     }
     currentSetNode.set = Array.from(set);
+    if (name) {
+      currentSetNode.setName(name);
+    } else {
+      currentSetNode.setName(CURRENT_SET_NAME);
+    }
     if (visible) {
       this.visibleKeys = [currentSetNode.setKey];
     }
