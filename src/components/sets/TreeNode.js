@@ -22,6 +22,7 @@ function CurrentSetNode(props) {
       type="text"
       className={`${prefixClass}-current-set-input`}
       onChange={(e) => { tree.changeNodeName(setKey, e.target.value); }}
+      onFocus={e => e.target.select()}
     />
   );
 }
