@@ -2,9 +2,9 @@ import React from 'react';
 import { Icon } from 'antd';
 import 'antd/es/icon/style/index.css';
 import PopoverMenu from './PopoverMenu';
-import SetUnionSVG from '../../assets/set_union.svg';
-import SetIntersectionSVG from '../../assets/set_intersection.svg';
-import SetComplementSVG from '../../assets/set_complement.svg';
+import SetUnionSVG from '../../assets/sets/union.svg';
+import SetIntersectionSVG from '../../assets/sets/intersection.svg';
+import SetComplementSVG from '../../assets/sets/complement.svg';
 
 export default function (props) {
   const { setsTree } = props;
