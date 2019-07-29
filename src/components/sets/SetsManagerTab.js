@@ -42,9 +42,7 @@ export default class SetsManagerTab extends React.Component {
 
     const { eventKey: dropKey } = info.node.props;
     const { eventKey: dragKey } = info.dragNode.props;
-    const { dropToGap } = info;
-
-    const { dropPosition } = info;
+    const { dropToGap, dropPosition } = info;
 
     // Update the tree based on the drag event.
     setsTree.dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap);

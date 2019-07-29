@@ -403,5 +403,27 @@ describe('sets.js', () => {
       expect(factorsTree.findNode('all.factors').children[6].setKey).toEqual(dragKey);
       expect(factorsTree.findNode('all.factors').children[2].setKey).toEqual('all.factors.oligodendrocytes');
     });
+
+    it('can move a drag node up a level, below its parent node', () => {
+      const dragKey = 'all.factors.astrocyte';
+      const dropKey = 'all.factors';
+      const postDropDragKey = 'all.astrocyte';
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(7);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey, 1, true);
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(6);
+      expect(factorsTree.findNode('all').children[0].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all').children[1].setKey).toEqual(postDropDragKey);
+    });
+
+    it('can move a drag node up a level, above its parent node', () => {
+      const dragKey = 'all.factors.astrocyte';
+      const dropKey = 'all.factors';
+      const postDropDragKey = 'all.astrocyte';
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(7);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey, -1, true);
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(6);
+      expect(factorsTree.findNode('all').children[0].setKey).toEqual(postDropDragKey);
+      expect(factorsTree.findNode('all').children[1].setKey).toEqual(dropKey);
+    });
   });
 });
