@@ -404,7 +404,7 @@ export default class SetsTree {
   /**
    * Set the color for a node of interest.
    * @param {string} setKey The key of the node of interest.
-   * @param {string} color The color value.
+   * @param {Array} color The color value as [r, g, b].
    */
   changeNodeColor(setKey, color) {
     const node = this.findNode(setKey);
