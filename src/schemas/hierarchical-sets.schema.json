@@ -20,15 +20,17 @@
     "properties": {
       "datasetId": { "type": "string" },
       "timestamp": { "type": "string" },
-      "setsTree": { 
+      "setsTree": {
           "type": "array",
-          "items": { "type": "object" },
-          "required": ["key", "name"],
-          "properties": {
-            "key": { "type": "string" },
-            "name": { "type": "string" },
-            "color": { "$ref": "#/definitions/colorArray" },
-            "set": { "$ref": "#/definitions/stringArray" }
+          "items": {
+            "type": "object",
+            "required": ["key", "name"],
+            "properties": {
+              "key": { "type": "string" },
+              "name": { "type": "string" },
+              "color": { "$ref": "#/definitions/colorArray" },
+              "set": { "$ref": "#/definitions/stringArray" }
+            }
           }
         }
     }
