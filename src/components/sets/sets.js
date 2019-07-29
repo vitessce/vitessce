@@ -516,17 +516,16 @@ export default class SetsTree {
    * Assumes a hierarchical ordering.
    * Will append the root of the import to the current root's children.
    * @param {Array} data A previously-exported array of set objects.
+   * @param {string} exportTimestamp The timestamp string generated upon export.
    */
-  import(data) {
+  import(data, exportTimestamp) {
     if (!data || data.length < 1) {
       return;
     }
-    const firstNodeObj = data.shift();
+    const importTimestamp = (new Date().toLocaleString());
     const importRoot = new SetsTreeNode({
-      setKey: firstNodeObj.key,
-      name: firstNodeObj.name,
-      color: firstNodeObj.color,
-      set: firstNodeObj.set,
+      setKey: `export-${exportTimestamp}-import-${importTimestamp}`,
+      name: `Export ${exportTimestamp}`,
     });
 
     data.forEach((nodeObj) => {
@@ -536,10 +535,13 @@ export default class SetsTree {
         color: nodeObj.color,
         set: nodeObj.set,
       });
-      const parentNode = importRoot.findNode(node.getKeyHead());
-      if (parentNode) {
-        parentNode.setChildren([...(parentNode.children || []), node]);
+      let parentNode;
+      if (node.setKey.lastIndexOf('.') === -1) {
+        parentNode = importRoot;
+      } else {
+        parentNode = importRoot.findNode(node.getKeyHead());
       }
+      parentNode.setChildren([...(parentNode.children || []), node]);
     });
     this.appendChild(importRoot);
   }
@@ -550,11 +552,11 @@ export default class SetsTree {
    */
   export() {
     const result = [];
-    let dfs = [this.root];
+    let dfs = [...this.root.children];
     while (dfs.length > 0) {
       const currNode = dfs.pop();
       result.push({
-        key: currNode.setKey,
+        key: currNode.setKey.substring(ALL_ROOT_KEY.length + 1),
         name: currNode.name,
         color: currNode.color,
         set: currNode.set,

@@ -8,6 +8,8 @@ import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import SetsTree, { SetsTreeNode } from './sets';
 
+const setsTypeKey = 'cell';
+
 export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
     super(props);
@@ -125,6 +127,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   render() {
     const { cellSets } = this.state;
+    const { datasetId } = this.props;
     return (
       <TitleInfo
         title="Cell Sets"
@@ -132,6 +135,8 @@ export default class CellSetsManagerSubscriber extends React.Component {
       >
         <SetsManager
           setsTree={cellSets}
+          datasetId={datasetId}
+          setsTypeKey={setsTypeKey}
         />
       </TitleInfo>
     );

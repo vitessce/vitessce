@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/hubmapconsortium/vitessce/#hierarchical-sets",
+    "title": "Vitessce hierarchical sets data",
+    "type": "object",
+    "definitions": {
+      "stringArray": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "colorArray": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0, "maximum": 255 },
+          "minItems": 3,
+          "maxItems": 3
+      }
+    },
+    "additionalProperties": false,
+    "required": ["datasetId", "timestamp", "setsTree"],
+    "properties": {
+      "datasetId": { "type": "string" },
+      "timestamp": { "type": "string" },
+      "setsTree": { 
+          "type": "array",
+          "items": { "type": "object" },
+          "required": ["key", "name"],
+          "properties": {
+            "key": { "type": "string" },
+            "name": { "type": "string" },
+            "color": { "$ref": "#/definitions/colorArray" },
+            "set": { "$ref": "#/definitions/stringArray" }
+          }
+        }
+    }
+  }
+  

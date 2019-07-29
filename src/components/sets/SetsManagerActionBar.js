@@ -1,4 +1,5 @@
 import React from 'react';
+import Ajv from 'ajv';
 import { Icon } from 'antd';
 import 'antd/es/icon/style/index.css';
 import PopoverMenu from './PopoverMenu';
@@ -6,8 +7,10 @@ import SetUnionSVG from '../../assets/sets/union.svg';
 import SetIntersectionSVG from '../../assets/sets/intersection.svg';
 import SetComplementSVG from '../../assets/sets/complement.svg';
 
-export default function (props) {
-  const { setsTree } = props;
+import hierarchicalSetsSchema from '../../schemas/hierarchical-sets.schema.json';
+
+export default function SetsManagerActionBar(props) {
+  const { setsTree, datasetId, setsTypeKey } = props;
 
   function onUnion() {
     const checkedUnion = setsTree.getUnion(setsTree.checkedKeys);
@@ -46,7 +49,18 @@ export default function (props) {
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         const { result } = reader;
-        setsTree.import(JSON.parse(result));
+        const importData = JSON.parse(result);
+        // Validate the imported file.
+        const validate = new Ajv().compile(hierarchicalSetsSchema);
+        const valid = validate(importData);
+        if (!valid) {
+          const failureReason = JSON.stringify(validate.errors, null, 2);
+          console.warn('import validation failed', failureReason);
+        } else if (importData.datasetId !== datasetId) {
+          console.warn('datasetId for import does not match the current datasetId');
+        } else {
+          setsTree.import(importData.setsTree, importData.timestamp);
+        }
       }, false);
       reader.readAsText(files[0]);
     });
@@ -54,13 +68,18 @@ export default function (props) {
   }
 
   function onExport() {
+    const exportData = {
+      datasetId,
+      timestamp: (new Date().toLocaleString()),
+      setsTree: setsTree.export(),
+    };
     // eslint-disable-next-line prefer-template
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(setsTree.export()));
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportData));
     const fileExtension = 'json';
-    const exportName = 'test';
+    const exportName = datasetId;
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute('href', dataStr);
-    downloadAnchorNode.setAttribute('download', `${exportName}.${fileExtension}`);
+    downloadAnchorNode.setAttribute('download', `${exportName}-${setsTypeKey}-sets.${fileExtension}`);
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
