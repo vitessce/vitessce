@@ -291,15 +291,16 @@ export default class SetsTree {
    * @param {integer} dropPosition The index of the drop.
    * @param {boolean} dropToGap Whether the dragNode should move
    *                            between nodes or become a child.
-   * @param {boolean} insertBottom Whether the node should be appended to the bottom.
    */
-  dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap, insertBottom) {
+  dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap) {
     const dragNode = tabRoot.findNode(dragKey);
     const dragParentNode = tabRoot.findParentNode(dragKey);
-    const dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
+    let dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
+
     const dropNode = tabRoot.findNode(dropKey);
     const dropParentNode = tabRoot.findParentNode(dropKey);
-    const dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
+    let dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
+
     if (dragNode.isCurrentSet || dropNode.isCurrentSet) {
       return;
     }
@@ -308,17 +309,19 @@ export default class SetsTree {
     // Remove the dragged object from its current position.
     dragParentNode.children.splice(dragNodeCurrIndex, 1);
 
+    // Update index values after deleting the child node.
+    dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
+    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
+
     if (!dropToGap) {
       // Set dragNode as last child of dropNode.
       dropNode.setChildren([...dropNode.children, dragNode]);
-    } else if (insertBottom) {
-      // Set dragNode as first child of the dropNode.
-      dropNode.setChildren([dragNode, ...dropNode.children]);
     } else if (dropPosition === -1) {
-      // Set at intermediate position within dropKey node's children.
-      dropNode.children.splice(dropNodeCurrIndex, 0, dragNode);
+      // Set dragNode as first child of dropParentNode.
+      dropParentNode.setChildren([dragNode, ...dropParentNode.children]);
     } else {
-      dropNode.children.splice(dropNodeCurrIndex + 1, 0, dragNode);
+      dropParentNode.children
+        .splice(dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0), 0, dragNode);
     }
 
     tabRoot.updateChildKeys();
