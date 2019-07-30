@@ -6,6 +6,9 @@ import classNames from 'classnames';
 import PopoverMenu from './PopoverMenu';
 import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
 
+import EyeSVG from '../../assets/tools/eye.svg';
+import PenSVG from '../../assets/tools/pen.svg';
+import TrashSVG from '../../assets/tools/trash.svg';
 
 function CurrentSetNode(props) {
   const {
@@ -26,7 +29,7 @@ function CurrentSetNode(props) {
   );
 }
 
-function makeNamedSetNodeMenuConfig(props) {
+function makeNodeViewMenuConfig(props) {
   const {
     tree,
     setKey,
@@ -51,16 +54,6 @@ function makeNamedSetNodeMenuConfig(props) {
       handler: () => tree.newTab(setKey),
       handlerKey: 't',
     },
-    {
-      name: 'Rename',
-      handler: () => tree.startEditing(setKey),
-      handlerKey: 'r',
-    },
-    {
-      name: 'Delete',
-      handler: () => tree.deleteNode(setKey),
-      handlerKey: 'd',
-    },
   ];
 }
 
@@ -82,11 +75,27 @@ function NamedSetNodeStatic(props) {
       >
         {title}
       </button>
-      <PopoverMenu
-        menuConfig={makeNamedSetNodeMenuConfig(props)}
-      >
-        <Icon type="ellipsis" className="named-set-node-menu-trigger" title="More options" />
-      </PopoverMenu>
+      <span className="named-set-node-hover-container">
+        <PopoverMenu
+          menuConfig={makeNodeViewMenuConfig(props)}
+        >
+          <Icon component={EyeSVG} className="named-set-node-menu-trigger" title="View options" />
+        </PopoverMenu>
+        <Icon component={PenSVG} className="named-set-node-menu-trigger" title="Rename" onClick={() => tree.startEditing(setKey)} />
+        <PopoverMenu
+          menuConfig={[{
+            name: 'Delete',
+            handler: () => tree.deleteNode(setKey),
+            handlerKey: 'd',
+          }, {
+            name: 'Cancel',
+            handler: () => {},
+            handlerKey: 'x',
+          }]}
+        >
+          <Icon component={TrashSVG} className="named-set-node-menu-trigger" title="Delete" />
+        </PopoverMenu>
+      </span>
     </React.Fragment>
   );
 }

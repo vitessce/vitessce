@@ -148,3 +148,10 @@ $set-name-height: 16px;
     line-height: 20px;
     vertical-align: middle;
 }
+.named-set-node-hover-container {
+    opacity: 0;
+    transition: opacity 0.5s;
+    &:hover {
+        opacity: 1;
+    }
+}
