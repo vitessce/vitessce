@@ -1,6 +1,7 @@
 import React from 'react';
 import Ajv from 'ajv';
 import { Icon } from 'antd';
+import { version } from '../../../package.json';
 import 'antd/es/icon/style/index.css';
 import PopoverMenu from './PopoverMenu';
 import SetUnionSVG from '../../assets/sets/union.svg';
@@ -63,11 +64,13 @@ export default function SetsManagerActionBar(props) {
           onError(`Import validation failed: ${failureReason}`);
         } else if (importData.datasetId !== datasetId) {
           onError('The imported datasetId does not match the current datasetId.');
+        } else if (importData.version !== version) {
+          onError('The imported schema version is not compatible with the current schema version.');
         } else if (importData.setsType !== setsType) {
           onError('The imported setsType does not match the current setsType.');
         } else {
           onError(false); // Clear any previous import error.
-          setsTree.import(importData.setsTree, importData.timestamp);
+          setsTree.import(importData.setsTree, importData.setsName);
         }
       }, false);
       reader.readAsText(files[0]);
@@ -76,19 +79,20 @@ export default function SetsManagerActionBar(props) {
   }
 
   function onExport() {
+    const timestamp = (new Date().toLocaleString());
     const exportData = {
       datasetId,
+      setsName: `Export ${timestamp}`,
       setsType,
-      timestamp: (new Date().toLocaleString()),
+      version,
       setsTree: setsTree.export(),
     };
     // eslint-disable-next-line prefer-template
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportData));
     const fileExtension = 'json';
-    const exportName = datasetId;
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute('href', dataStr);
-    downloadAnchorNode.setAttribute('download', `${exportName}-${setsType}-sets.${fileExtension}`);
+    downloadAnchorNode.setAttribute('download', `${datasetId}-${setsType}-sets.${fileExtension}`);
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();

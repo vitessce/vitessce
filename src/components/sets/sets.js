@@ -536,16 +536,16 @@ export default class SetsTree {
    * Assumes a hierarchical ordering.
    * Will append the root of the import to the current root's children.
    * @param {Array} data A previously-exported array of set objects.
-   * @param {string} exportTimestamp The timestamp string generated upon export.
+   * @param {string} name The name for the new dummy ancestor node.
    */
-  import(data, exportTimestamp) {
+  import(data, name) {
     if (!data || data.length < 1) {
       return;
     }
-    const importTimestamp = (new Date().toLocaleString());
+    const uuid = uuidv4();
     const importRoot = new SetsTreeNode({
-      setKey: `export-${exportTimestamp}-import-${importTimestamp}`,
-      name: `Export ${exportTimestamp}`,
+      setKey: uuid,
+      name,
     });
 
     data.forEach((nodeObj) => {
