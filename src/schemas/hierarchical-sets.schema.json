@@ -10,7 +10,7 @@
       },
       "colorArray": {
           "type": "array",
-          "items": { "type": "number", "minimum": 0, "maximum": 255 },
+          "items": { "type": "integer", "minimum": 0, "maximum": 255 },
           "minItems": 3,
           "maxItems": 3
       }
