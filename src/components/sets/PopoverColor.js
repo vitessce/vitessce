@@ -30,7 +30,7 @@ export default function PopoverColor(props) {
           disableAlpha
           width={146}
           presetColors={presetColors}
-          color={color}
+          color={toHex(color)}
           onChangeComplete={handleChangeComplete}
         />
       )}
