@@ -106,6 +106,7 @@ function NamedSetNodeEditing(props) {
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
         onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => tree.changeNodeName(setKey, currentTitle, true))}
+        onFocus={e => (!wasPreviousCurrentSet ? e.target.select() : undefined)}
       />
       <button
         type="button"
