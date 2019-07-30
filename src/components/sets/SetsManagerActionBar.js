@@ -10,7 +10,12 @@ import SetComplementSVG from '../../assets/sets/complement.svg';
 import hierarchicalSetsSchema from '../../schemas/hierarchical-sets.schema.json';
 
 export default function SetsManagerActionBar(props) {
-  const { setsTree, datasetId, setsType } = props;
+  const {
+    setsTree, datasetId, setsType,
+    onError = (err) => {
+      console.warn(`SetsManagerActionBar onError: ${err}`);
+    },
+  } = props;
 
   function onUnion() {
     const checkedUnion = setsTree.getUnion(setsTree.checkedKeys);
@@ -38,12 +43,12 @@ export default function SetsManagerActionBar(props) {
     uploadInputNode.click();
     uploadInputNode.addEventListener('change', (event) => {
       if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
-        console.warn('The File APIs are not fully supported in this browser.');
+        onError('Local file reading APIs are not fully supported in this browser.');
         return;
       }
       const { files } = event.target;
       if (!files || files.length !== 1) {
-        console.warn('Incorrect number of files selected.');
+        onError('Incorrect number of files selected.');
         return;
       }
       const reader = new FileReader();
@@ -55,12 +60,13 @@ export default function SetsManagerActionBar(props) {
         const valid = validate(importData);
         if (!valid) {
           const failureReason = JSON.stringify(validate.errors, null, 2);
-          console.warn('import validation failed', failureReason);
+          onError(`Import validation failed: ${failureReason}`);
         } else if (importData.datasetId !== datasetId) {
-          console.warn('datasetId for import does not match the current datasetId');
+          onError('The imported datasetId does not match the current datasetId.');
         } else if (importData.setsType !== setsType) {
-          console.warn('setsType for import does not match the current setsType');
+          onError('The imported setsType does not match the current setsType.');
         } else {
+          onError(false); // Clear any previous import error.
           setsTree.import(importData.setsTree, importData.timestamp);
         }
       }, false);

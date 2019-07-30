@@ -2,7 +2,8 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import fromEntries from 'fromentries';
 import {
-  FACTORS_ADD, CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION, CELLS_ADD,
+  FACTORS_ADD, CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION,
+  CELLS_ADD, STATUS_WARN,
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
@@ -144,6 +145,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
           setsTree={cellSets}
           datasetId={datasetId}
           setsType={setsType}
+          onError={err => PubSub.publish(STATUS_WARN, err)}
         />
       </TitleInfo>
     );
