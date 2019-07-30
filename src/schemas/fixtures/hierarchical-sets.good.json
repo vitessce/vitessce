@@ -1,7 +1,8 @@
 {
-	"datasetId":"linnarsson-2018",
-	"setsType":"gene",
-	"timestamp":"7/30/2019, 1:33:31 PM",
+    "datasetId":"linnarsson-2018",
+    "version":"0.0.17",
+    "setsName": "Export 7/30/19",
+	"setsType":"cell",
 	"setsTree":[
 		{"key":"factors","name":"Factors"},
 		{"key":"factors.Vasculature","name":"Vasculature"},
