@@ -39,6 +39,7 @@
             ".": { "$ref": "#/definitions/coord" }
           }
         },
+        "xy": { "$ref": "#/definitions/coord" },
         "genes": { "$ref": "#/definitions/positiveIntegerValues" },
         "factors": { "$ref": "#/definitions/stringValues" },
         "poly": {
