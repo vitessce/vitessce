@@ -1,0 +1,11 @@
+{
+	"datasetId":"linnarsson-2018",
+	"setsType":"gene",
+	"timestamp":"7/30/2019, 1:33:31 PM",
+	"setsTree":[
+		{"key":"factors","name":"Factors"},
+		{"key":"factors.Vasculature","name":"Vasculature"},
+		{"key":"factors.Vasculature.Vascular Smooth Muscle","name":"Vascular Smooth Muscle","set":["85","260"]},
+		{"key":"factors.Vasculature.Endothelial","name":"Endothelial","color":[128,128,255],"set":["15","19","21","25"]}
+	]
+}

@@ -1,7 +1,7 @@
 import uuidv4 from 'uuid/v4';
 import { DEFAULT_COLOR } from '../utils';
 
-const CURRENT_SET_NAME = 'Current Selection';
+const CURRENT_SET_NAME = 'Current selection';
 const ALL_ROOT_KEY = 'all';
 const ALL_ROOT_NAME = 'All';
 
@@ -299,14 +299,14 @@ export default class SetsTree {
    * Set the current set's set array value.
    * @param {iterable} set The new set values.
    * @param {boolean} visible Whether to make the current set visible.
+   * @param {string} name If provided, will use this name over the default CURRENT_SET_NAME.
    */
-  setCurrentSet(set, visible) {
+  setCurrentSet(set, visible, name) {
     let currentSetNode = this.findCurrentSetNode();
     if (!currentSetNode) {
       const uuid = uuidv4();
       currentSetNode = new SetsTreeNode({
         setKey: `${ALL_ROOT_KEY}.${uuid}`,
-        name: CURRENT_SET_NAME,
         set: [],
         isEditing: true,
         isCurrentSet: true,
@@ -315,6 +315,11 @@ export default class SetsTree {
       this.prependChild(currentSetNode);
     }
     currentSetNode.set = Array.from(set);
+    if (name) {
+      currentSetNode.setName(name);
+    } else {
+      currentSetNode.setName(CURRENT_SET_NAME);
+    }
     if (visible) {
       this.visibleKeys = [currentSetNode.setKey];
     }
@@ -357,15 +362,16 @@ export default class SetsTree {
    * @param {integer} dropPosition The index of the drop.
    * @param {boolean} dropToGap Whether the dragNode should move
    *                            between nodes or become a child.
-   * @param {boolean} insertBottom Whether the node should be appended to the bottom.
    */
-  dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap, insertBottom) {
+  dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap) {
     const dragNode = tabRoot.findNode(dragKey);
     const dragParentNode = tabRoot.findParentNode(dragKey);
-    const dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
+    let dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
+
     const dropNode = tabRoot.findNode(dropKey);
     const dropParentNode = tabRoot.findParentNode(dropKey);
-    const dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
+    let dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
+
     if (dragNode.isCurrentSet || dropNode.isCurrentSet) {
       return;
     }
@@ -374,17 +380,19 @@ export default class SetsTree {
     // Remove the dragged object from its current position.
     dragParentNode.children.splice(dragNodeCurrIndex, 1);
 
+    // Update index values after deleting the child node.
+    dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
+    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
+
     if (!dropToGap) {
       // Set dragNode as last child of dropNode.
       dropNode.setChildren([...dropNode.children, dragNode]);
-    } else if (insertBottom) {
-      // Set dragNode as first child of the dropNode.
-      dropNode.setChildren([dragNode, ...dropNode.children]);
     } else if (dropPosition === -1) {
-      // Set at intermediate position within dropKey node's children.
-      dropNode.children.splice(dropNodeCurrIndex, 0, dragNode);
+      // Set dragNode as first child of dropParentNode.
+      dropParentNode.setChildren([dragNode, ...dropParentNode.children]);
     } else {
-      dropNode.children.splice(dropNodeCurrIndex + 1, 0, dragNode);
+      dropParentNode.children
+        .splice(dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0), 0, dragNode);
     }
 
     tabRoot.updateChildKeys();
@@ -528,17 +536,16 @@ export default class SetsTree {
    * Assumes a hierarchical ordering.
    * Will append the root of the import to the current root's children.
    * @param {Array} data A previously-exported array of set objects.
+   * @param {string} exportTimestamp The timestamp string generated upon export.
    */
-  import(data) {
+  import(data, exportTimestamp) {
     if (!data || data.length < 1) {
       return;
     }
-    const firstNodeObj = data.shift();
+    const importTimestamp = (new Date().toLocaleString());
     const importRoot = new SetsTreeNode({
-      setKey: firstNodeObj.key,
-      name: firstNodeObj.name,
-      color: firstNodeObj.color,
-      set: firstNodeObj.set,
+      setKey: `export-${exportTimestamp}-import-${importTimestamp}`,
+      name: `Export ${exportTimestamp}`,
     });
 
     data.forEach((nodeObj) => {
@@ -548,10 +555,13 @@ export default class SetsTree {
         color: nodeObj.color,
         set: nodeObj.set,
       });
-      const parentNode = importRoot.findNode(node.getKeyHead());
-      if (parentNode) {
-        parentNode.setChildren([...(parentNode.children || []), node]);
+      let parentNode;
+      if (node.setKey.lastIndexOf('.') === -1) {
+        parentNode = importRoot;
+      } else {
+        parentNode = importRoot.findNode(node.getKeyHead());
       }
+      parentNode.setChildren([...(parentNode.children || []), node]);
     });
     this.appendChild(importRoot);
   }
@@ -562,11 +572,11 @@ export default class SetsTree {
    */
   export() {
     const result = [];
-    let dfs = [this.root];
+    let dfs = [...this.root.children];
     while (dfs.length > 0) {
       const currNode = dfs.pop();
       result.push({
-        key: currNode.setKey,
+        key: currNode.setKey.substring(ALL_ROOT_KEY.length + 1),
         name: currNode.name,
         color: currNode.color,
         set: currNode.set,

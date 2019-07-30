@@ -1,8 +1,8 @@
 import React from 'react';
 import { SELECTION_TYPE } from 'nebula.gl';
-import PointerIconSVG from '../assets/near_me.svg';
-import SelectRectangleIconSVG from '../assets/selection_rectangle.svg';
-import SelectPolygonIconSVG from '../assets/selection_polygon.svg';
+import PointerIconSVG from '../assets/tools/near_me.svg';
+import SelectRectangleIconSVG from '../assets/tools/selection_rectangle.svg';
+import SelectPolygonIconSVG from '../assets/tools/selection_polygon.svg';
 
 
 export function IconButton(props) {

@@ -14,6 +14,7 @@ describe('schemas', () => {
     'molecules',
     'neighborhoods',
     'dataset',
+    'hierarchical-sets',
   ].forEach((type) => {
     const schemaFile = `${type}.schema.json`;
     describe(schemaFile, () => {

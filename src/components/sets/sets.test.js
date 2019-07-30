@@ -3,51 +3,50 @@ import SetsTree, { SetsTreeNode } from './sets';
 
 
 describe('sets.js', () => {
-  let node;
-  let nodeWithChildren;
-  let nodeWithGrandchildren;
-
-  beforeEach(() => {
-    node = new SetsTreeNode({
-      setKey: 'test',
-      name: 'Test Set',
-      color: '#000',
-      set: [],
-    });
-    nodeWithChildren = new SetsTreeNode({
-      setKey: 'test',
-      name: 'Test Set',
-      children: [
-        new SetsTreeNode({
-          setKey: 'test-child',
-          name: 'Child of Test Set',
-        }),
-      ],
-    });
-    nodeWithGrandchildren = new SetsTreeNode({
-      setKey: 'test',
-      name: 'Test Set',
-      children: [
-        new SetsTreeNode({
-          setKey: 'test-child',
-          name: 'Child of Test Set',
-          children: [
-            new SetsTreeNode({
-              setKey: 'test-grandchild-1',
-              name: 'Grandchild of Test Set',
-              isCurrentSet: true,
-            }),
-            new SetsTreeNode({
-              setKey: 'test-grandchild-2',
-              name: 'Grandchild of Test Set',
-            }),
-          ],
-        }),
-      ],
-    });
-  });
-
   describe('SetsTreeNode', () => {
+    let node;
+    let nodeWithChildren;
+    let nodeWithGrandchildren;
+
+    beforeEach(() => {
+      node = new SetsTreeNode({
+        setKey: 'test',
+        name: 'Test Set',
+        color: '#000',
+        set: [],
+      });
+      nodeWithChildren = new SetsTreeNode({
+        setKey: 'test',
+        name: 'Test Set',
+        children: [
+          new SetsTreeNode({
+            setKey: 'test-child',
+            name: 'Child of Test Set',
+          }),
+        ],
+      });
+      nodeWithGrandchildren = new SetsTreeNode({
+        setKey: 'test',
+        name: 'Test Set',
+        children: [
+          new SetsTreeNode({
+            setKey: 'test-child',
+            name: 'Child of Test Set',
+            children: [
+              new SetsTreeNode({
+                setKey: 'test-grandchild-1',
+                name: 'Grandchild of Test Set',
+                isCurrentSet: true,
+              }),
+              new SetsTreeNode({
+                setKey: 'test-grandchild-2',
+                name: 'Grandchild of Test Set',
+              }),
+            ],
+          }),
+        ],
+      });
+    });
     it('can be instantiated with properties', () => {
       expect(node.setKey).toEqual('test');
       expect(node.name).toEqual('Test Set');
@@ -117,6 +116,46 @@ describe('sets.js', () => {
   });
 
   describe('SetsTree', () => {
+    let factorsTree;
+
+    beforeEach(() => {
+      factorsTree = new SetsTree();
+      factorsTree.appendChild(new SetsTreeNode({
+        setKey: 'factors',
+        name: 'Factors',
+        children: [
+          new SetsTreeNode({
+            setKey: 'inhibitory-neurons',
+            name: 'Inhibitory neurons',
+          }),
+          new SetsTreeNode({
+            setKey: 'excitatory-neurons',
+            name: 'Excitatory neurons',
+          }),
+          new SetsTreeNode({
+            setKey: 'astrocyte',
+            name: 'Astrocyte',
+          }),
+          new SetsTreeNode({
+            setKey: 'oligodendrocytes',
+            name: 'Oligodendrocytes',
+          }),
+          new SetsTreeNode({
+            setKey: 'brain-immune',
+            name: 'Brain immune',
+          }),
+          new SetsTreeNode({
+            setKey: 'ventricle',
+            name: 'Ventricle',
+          }),
+          new SetsTreeNode({
+            setKey: 'vasculature',
+            name: 'Vasculature',
+          }),
+        ],
+      }));
+    });
+
     it('has a root node upon instantiation', () => {
       const tree = new SetsTree();
       expect(tree.root).toBeTruthy();
@@ -387,6 +426,110 @@ describe('sets.js', () => {
       expect(tree.findNode('all.test').color).toEqual([0, 0, 0]);
       tree.changeNodeColor('all.test', [255, 255, 255]);
       expect(tree.findNode('all.test').color).toEqual([255, 255, 255]);
+    });
+
+    it('can move a drag node to a drop node, making drag node the only child of drop node', () => {
+      const dragKey = 'all.factors.ventricle';
+      const dropKey = 'all.factors.excitatory-neurons';
+      const postDropDragKey = 'all.factors.excitatory-neurons.ventricle';
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(7);
+      expect(factorsTree.findNode(dropKey).children).toEqual(undefined);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey, undefined, false);
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(6);
+      expect(factorsTree.findNode(dropKey).children.length).toEqual(1);
+      expect(factorsTree.findNode(dropKey).children[0].setKey).toEqual(postDropDragKey);
+    });
+
+    it('can move a drag node to a drop node, making drag node the last child of drop node', () => {
+      const dragKey1 = 'all.factors.ventricle';
+      const dragKey2 = 'all.factors.vasculature';
+      const dropKey = 'all.factors.excitatory-neurons';
+      const postDropDragKey1 = 'all.factors.excitatory-neurons.ventricle';
+      const postDropDragKey2 = 'all.factors.excitatory-neurons.vasculature';
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(7);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey1, undefined, false);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey2, undefined, false);
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(5);
+      expect(factorsTree.findNode(dropKey).children.length).toEqual(2);
+      expect(factorsTree.findNode(dropKey).children[0].setKey).toEqual(postDropDragKey1);
+      expect(factorsTree.findNode(dropKey).children[1].setKey).toEqual(postDropDragKey2);
+    });
+
+    it('can move a drag node up, below a drop node, into the gap between two nodes', () => {
+      const dragKey = 'all.factors.ventricle';
+      const dropKey = 'all.factors.astrocyte';
+      expect(factorsTree.findNode('all.factors').children[2].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all.factors').children[5].setKey).toEqual(dragKey);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey, 3, true);
+      expect(factorsTree.findNode('all.factors').children[2].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all.factors').children[3].setKey).toEqual(dragKey);
+      expect(factorsTree.findNode('all.factors').children[5].setKey).toEqual('all.factors.brain-immune');
+    });
+
+    it('can move a drag node up, above a drop node, into the gap between two nodes', () => {
+      const dragKey = 'all.factors.ventricle';
+      const dropKey = 'all.factors.astrocyte';
+      expect(factorsTree.findNode('all.factors').children[2].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all.factors').children[5].setKey).toEqual(dragKey);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey, 1, true);
+      expect(factorsTree.findNode('all.factors').children[2].setKey).toEqual(dragKey);
+      expect(factorsTree.findNode('all.factors').children[3].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all.factors').children[5].setKey).toEqual('all.factors.brain-immune');
+    });
+
+    it('can move a drag node up, above a drop node that is a first child', () => {
+      const dragKey = 'all.factors.ventricle';
+      const dropKey = 'all.factors.inhibitory-neurons';
+      expect(factorsTree.findNode('all.factors').children[0].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all.factors').children[5].setKey).toEqual(dragKey);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey, -1, true);
+      expect(factorsTree.findNode('all.factors').children[0].setKey).toEqual(dragKey);
+      expect(factorsTree.findNode('all.factors').children[1].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all.factors').children[5].setKey).toEqual('all.factors.brain-immune');
+    });
+
+    it('can move a drag node down, above a drop node, into the gap between two nodes', () => {
+      const dragKey = 'all.factors.astrocyte';
+      const dropKey = 'all.factors.vasculature';
+      expect(factorsTree.findNode('all.factors').children[6].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all.factors').children[2].setKey).toEqual(dragKey);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey, 5, true);
+      expect(factorsTree.findNode('all.factors').children[6].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all.factors').children[5].setKey).toEqual(dragKey);
+      expect(factorsTree.findNode('all.factors').children[2].setKey).toEqual('all.factors.oligodendrocytes');
+    });
+
+    it('can move a drag node down, below a drop node that is a last child', () => {
+      const dragKey = 'all.factors.astrocyte';
+      const dropKey = 'all.factors.vasculature';
+      expect(factorsTree.findNode('all.factors').children[6].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all.factors').children[2].setKey).toEqual(dragKey);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey, 7, true);
+      expect(factorsTree.findNode('all.factors').children[5].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all.factors').children[6].setKey).toEqual(dragKey);
+      expect(factorsTree.findNode('all.factors').children[2].setKey).toEqual('all.factors.oligodendrocytes');
+    });
+
+    it('can move a drag node up a level, below its parent node', () => {
+      const dragKey = 'all.factors.astrocyte';
+      const dropKey = 'all.factors';
+      const postDropDragKey = 'all.astrocyte';
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(7);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey, 1, true);
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(6);
+      expect(factorsTree.findNode('all').children[0].setKey).toEqual(dropKey);
+      expect(factorsTree.findNode('all').children[1].setKey).toEqual(postDropDragKey);
+    });
+
+    it('can move a drag node up a level, above its parent node', () => {
+      const dragKey = 'all.factors.astrocyte';
+      const dropKey = 'all.factors';
+      const postDropDragKey = 'all.astrocyte';
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(7);
+      factorsTree.dragRearrange(factorsTree.root, dropKey, dragKey, -1, true);
+      expect(factorsTree.findNode('all.factors').children.length).toEqual(6);
+      expect(factorsTree.findNode('all').children[0].setKey).toEqual(postDropDragKey);
+      expect(factorsTree.findNode('all').children[1].setKey).toEqual(dropKey);
     });
   });
 });
