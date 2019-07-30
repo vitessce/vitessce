@@ -25,6 +25,7 @@ function CurrentSetNode(props) {
       type="text"
       className={`${prefixClass}-current-set-input`}
       onChange={(e) => { tree.changeNodeName(setKey, e.target.value); }}
+      onFocus={e => e.target.select()}
     />
   );
 }
@@ -119,6 +120,7 @@ function NamedSetNodeEditing(props) {
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
         onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => tree.changeNodeName(setKey, currentTitle, true))}
+        onFocus={e => (!wasPreviousCurrentSet ? e.target.select() : undefined)}
       />
       <button
         type="button"
