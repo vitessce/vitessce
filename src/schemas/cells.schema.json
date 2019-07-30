@@ -31,7 +31,7 @@
   "patternProperties": {
     ".": {
       "additionalProperties": false,
-      "required": ["mappings", "xy", "genes", "factors", "poly"],
+      "required": ["mappings", "genes", "factors", "poly"],
       "properties": {
         "mappings": {
           "type": "object",
@@ -39,7 +39,6 @@
             ".": { "$ref": "#/definitions/coord" }
           }
         },
-        "xy": { "$ref": "#/definitions/coord" },
         "genes": { "$ref": "#/definitions/positiveIntegerValues" },
         "factors": { "$ref": "#/definitions/stringValues" },
         "poly": {
