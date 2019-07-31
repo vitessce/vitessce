@@ -7,6 +7,10 @@ import PopoverMenu from './PopoverMenu';
 import PopoverColor from './PopoverColor';
 import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
 
+import EyeSVG from '../../assets/tools/eye.svg';
+import PenSVG from '../../assets/tools/pen.svg';
+import TrashSVG from '../../assets/tools/trash.svg';
+
 function CurrentSetNode(props) {
   const {
     title,
@@ -22,11 +26,12 @@ function CurrentSetNode(props) {
       type="text"
       className={`${prefixClass}-current-set-input`}
       onChange={(e) => { tree.changeNodeName(setKey, e.target.value); }}
+      onFocus={e => e.target.select()}
     />
   );
 }
 
-function makeNamedSetNodeMenuConfig(props) {
+function makeNodeViewMenuConfig(props) {
   const {
     tree,
     setKey,
@@ -51,16 +56,6 @@ function makeNamedSetNodeMenuConfig(props) {
       handler: () => tree.newTab(setKey),
       handlerKey: 't',
     },
-    {
-      name: 'Rename',
-      handler: () => tree.startEditing(setKey),
-      handlerKey: 'r',
-    },
-    {
-      name: 'Delete',
-      handler: () => tree.deleteNode(setKey),
-      handlerKey: 'd',
-    },
   ];
 }
 
@@ -71,6 +66,7 @@ function NamedSetNodeStatic(props) {
     tree,
     setKey,
   } = props;
+  const [visible, setVisible] = useState(false);
   return (
     <React.Fragment>
       <button
@@ -82,11 +78,34 @@ function NamedSetNodeStatic(props) {
       >
         {title}
       </button>
-      <PopoverMenu
-        menuConfig={makeNamedSetNodeMenuConfig(props)}
+      <span
+        className="named-set-node-menu-container"
+        style={{ opacity: (visible ? 1 : 0) }}
+        onMouseMove={() => setVisible(true)}
+        onMouseLeave={() => setVisible(false)}
       >
-        <Icon type="ellipsis" className="named-set-node-menu-trigger" title="More options" />
-      </PopoverMenu>
+        <PopoverMenu
+          menuConfig={makeNodeViewMenuConfig(props)}
+          onClose={() => setVisible(false)}
+        >
+          <Icon component={EyeSVG} className="named-set-node-menu-trigger" title="View options" />
+        </PopoverMenu>
+        <Icon component={PenSVG} className="named-set-node-menu-trigger" title="Rename" onClick={() => tree.startEditing(setKey)} />
+        <PopoverMenu
+          menuConfig={[{
+            name: 'Delete',
+            handler: () => tree.deleteNode(setKey),
+            handlerKey: 'd',
+          }, {
+            name: 'Cancel',
+            handler: () => {},
+            handlerKey: 'x',
+          }]}
+          onClose={() => setVisible(false)}
+        >
+          <Icon component={TrashSVG} className="named-set-node-menu-trigger" title="Delete" />
+        </PopoverMenu>
+      </span>
     </React.Fragment>
   );
 }
@@ -110,6 +129,7 @@ function NamedSetNodeEditing(props) {
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
         onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => tree.changeNodeName(setKey, currentTitle, true))}
+        onFocus={e => (!wasPreviousCurrentSet ? e.target.select() : undefined)}
       />
       <button
         type="button"

@@ -4,6 +4,7 @@ import { DEFAULT_COLOR } from '../utils';
 const CURRENT_SET_NAME = 'Current selection';
 const ALL_ROOT_KEY = 'all';
 const ALL_ROOT_NAME = 'All';
+const PATH_SEP = '\t';
 
 /**
  * Like .find but can return the truthy value rather than returning the element.
@@ -145,7 +146,7 @@ export class SetsTreeNode {
    * @returns {string} The tail of the key.
    */
   getKeyTail() {
-    return this.setKey.match(/^(.*\.)*([^.]*)$/)[2];
+    return this.setKey.match(new RegExp(`^(.*${PATH_SEP})*([^${PATH_SEP}]*)$`))[2];
   }
 
   /**
@@ -154,7 +155,7 @@ export class SetsTreeNode {
    * @returns {string} The head of the key.
    */
   getKeyHead() {
-    return this.setKey.match(/^(.*)\.[^.]*$/)[1];
+    return this.setKey.match(new RegExp(`^(.*)${PATH_SEP}[^${PATH_SEP}]*$`))[1];
   }
 
   /**
@@ -194,7 +195,7 @@ export class SetsTreeNode {
       return;
     }
     this.children.forEach((child) => {
-      const newChildKey = `${this.setKey}.${child.getKeyTail()}`;
+      const newChildKey = this.setKey + PATH_SEP + child.getKeyTail();
       // TODO: check for existence of duplicate keys before setting the key.
       child.setSetKey(newChildKey);
       child.updateChildKeys();
@@ -306,7 +307,7 @@ export default class SetsTree {
     if (!currentSetNode) {
       const uuid = uuidv4();
       currentSetNode = new SetsTreeNode({
-        setKey: `${ALL_ROOT_KEY}.${uuid}`,
+        setKey: ALL_ROOT_KEY + PATH_SEP + uuid,
         set: [],
         isEditing: true,
         isCurrentSet: true,
@@ -556,7 +557,7 @@ export default class SetsTree {
         set: nodeObj.set,
       });
       let parentNode;
-      if (node.setKey.lastIndexOf('.') === -1) {
+      if (node.setKey.lastIndexOf(PATH_SEP) === -1) {
         parentNode = importRoot;
       } else {
         parentNode = importRoot.findNode(node.getKeyHead());
@@ -576,7 +577,7 @@ export default class SetsTree {
     while (dfs.length > 0) {
       const currNode = dfs.pop();
       result.push({
-        key: currNode.setKey.substring(ALL_ROOT_KEY.length + 1),
+        key: currNode.setKey.substring(ALL_ROOT_KEY.length + PATH_SEP.length),
         name: currNode.name,
         color: currNode.color,
         set: currNode.set,

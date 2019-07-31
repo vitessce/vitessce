@@ -112,7 +112,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
       const subclusters = [];
       subclusterMappings[clusterKey].forEach((subclusterKey, subclusterIndex) => {
         subclusters.push(new SetsTreeNode({
-          setKey: `all.${clusterKey}.${subclusterKey}`,
+          setKey: `all\tfactors\t${clusterKey}\t${subclusterKey}`,
           name: subclusterKey,
           color: PALETTE[subclusterIndex % PALETTE.length],
           set: Object.entries(factors.subcluster.cells)
@@ -121,7 +121,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
       });
 
       return new SetsTreeNode({
-        setKey: `all.${clusterKey}`,
+        setKey: `all\tfactors\t${clusterKey}`,
         name: clusterKey,
         children: subclusters,
         color: PALETTE[clusterIndex % PALETTE.length],
@@ -131,7 +131,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
     });
 
     cellSets.appendChild(new SetsTreeNode({
-      setKey: 'all.factors',
+      setKey: 'all\tfactors',
       name: 'Factors',
       children: clusters,
     }));

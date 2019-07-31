@@ -59,7 +59,7 @@ class DrawRectangleByDraggingHandler extends ModeHandler {
     return result;
   }
 
-  handleStopDragging(event) {
+  handleStopDraggingOrClick(event) {
     const result = { editAction: null, cancelMapPan: false };
     const { isDragging, corner1 } = this;
 
@@ -76,6 +76,14 @@ class DrawRectangleByDraggingHandler extends ModeHandler {
     this.corner1 = undefined;
     this.isDragging = false;
     return editAction;
+  }
+
+  handleStopDragging(event) {
+    return this.handleStopDraggingOrClick(event);
+  }
+
+  handleClick(event) {
+    return this.handleStopDraggingOrClick(event);
   }
 }
 
