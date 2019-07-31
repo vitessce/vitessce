@@ -1,8 +1,9 @@
 import uuidv4 from 'uuid/v4';
 
-const CURRENT_SET_NAME = 'Current Selection';
+const CURRENT_SET_NAME = 'Current selection';
 const ALL_ROOT_KEY = 'all';
 const ALL_ROOT_NAME = 'All';
+const PATH_SEP = '\t';
 
 /**
  * Like .find but can return the truthy value rather than returning the element.
@@ -29,6 +30,7 @@ export class SetsTreeNode {
     const {
       setKey,
       name,
+      isRoot = false,
       isEditing = false,
       isCurrentSet = false,
       wasPreviousCurrentSet = false,
@@ -41,6 +43,7 @@ export class SetsTreeNode {
     this.set = set;
     this.children = children;
     this.color = color;
+    this.isRoot = isRoot;
     this.isEditing = isEditing;
     this.isCurrentSet = isCurrentSet;
     this.wasPreviousCurrentSet = wasPreviousCurrentSet;
@@ -121,10 +124,10 @@ export class SetsTreeNode {
   getRenderProps() {
     return {
       title: this.name,
-      key: this.setKey,
       setKey: this.setKey,
       size: this.set ? this.set.length : 0,
       level: this.getLevel(),
+      isRoot: this.isRoot,
       isEditing: this.isEditing,
       isCurrentSet: this.isCurrentSet,
       wasPreviousCurrentSet: this.wasPreviousCurrentSet,
@@ -137,7 +140,7 @@ export class SetsTreeNode {
    * @returns {string} The tail of the key.
    */
   getKeyTail() {
-    return this.setKey.match(/^(.*\.)*([^.]*)$/)[2];
+    return this.setKey.match(new RegExp(`^(.*${PATH_SEP})*([^${PATH_SEP}]*)$`))[2];
   }
 
   /**
@@ -146,7 +149,7 @@ export class SetsTreeNode {
    * @returns {string} The head of the key.
    */
   getKeyHead() {
-    return this.setKey.match(/^(.*)\.[^.]*$/)[1];
+    return this.setKey.match(new RegExp(`^(.*)${PATH_SEP}[^${PATH_SEP}]*$`))[1];
   }
 
   /**
@@ -186,7 +189,7 @@ export class SetsTreeNode {
       return;
     }
     this.children.forEach((child) => {
-      const newChildKey = `${this.setKey}.${child.getKeyTail()}`;
+      const newChildKey = this.setKey + PATH_SEP + child.getKeyTail();
       // TODO: check for existence of duplicate keys before setting the key.
       child.setSetKey(newChildKey);
       child.updateChildKeys();
@@ -211,12 +214,62 @@ export default class SetsTree {
       setKey: ALL_ROOT_KEY,
       name: ALL_ROOT_NAME,
       children: [],
+      isRoot: true,
     });
+    this.items = [];
     this.tabRoots = [this.root];
     this.checkedKeys = [];
     this.visibleKeys = [];
     this.onTreeChange = onTreeChange;
     this.onVisibilityChange = onVisibilityChange;
+  }
+
+  /**
+   * Set the array of all items to be able to do complement operations.
+   * @param {Array} items The array of items.
+   */
+  setItems(items) {
+    this.items = items;
+  }
+
+  /**
+   * Compute the intersection of specified sets.
+   * @param {Array} setKeys An array of the sets of interest.
+   * @returns {Array} The resulting set as an array.
+   */
+  getIntersection(setKeys) {
+    const nodes = setKeys.map(key => this.findNode(key));
+    if (!nodes || nodes.length === 0) {
+      return [];
+    }
+    const nodeSets = nodes.map(node => node.set || []);
+    return nodeSets
+      .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0]);
+  }
+
+  /**
+   * Compute the union of specified sets.
+   * @param {Array} setKeys An array of the sets of interest.
+   * @returns {Array} The resulting set as an array.
+   */
+  getUnion(setKeys) {
+    const nodes = setKeys.map(key => this.findNode(key));
+    if (!nodes || nodes.length === 0) {
+      return [];
+    }
+    const nodeSets = nodes.map(node => node.set || []);
+    return nodeSets
+      .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0]);
+  }
+
+  /**
+   * Compute the complement of specified sets.
+   * @param {Array} setKeys An array of the sets of interest.
+   * @returns {Array} The resulting set as an array.
+   */
+  getComplement(setKeys) {
+    const primaryUnion = this.getUnion(setKeys);
+    return this.items.filter(el => !primaryUnion.includes(el));
   }
 
   /**
@@ -229,17 +282,26 @@ export default class SetsTree {
   }
 
   /**
+   * Set the array of visible node setKey values.
+   * @param {string[]} visibleKeys The array of setKey values to set as visible.
+   */
+  setVisibleKeys(visibleKeys) {
+    this.visibleKeys = visibleKeys;
+    this.emitVisibilityUpdate();
+  }
+
+  /**
    * Set the current set's set array value.
    * @param {iterable} set The new set values.
    * @param {boolean} visible Whether to make the current set visible.
+   * @param {string} name If provided, will use this name over the default CURRENT_SET_NAME.
    */
-  setCurrentSet(set, visible) {
+  setCurrentSet(set, visible, name) {
     let currentSetNode = this.findCurrentSetNode();
     if (!currentSetNode) {
       const uuid = uuidv4();
       currentSetNode = new SetsTreeNode({
-        setKey: `${ALL_ROOT_KEY}.${uuid}`,
-        name: CURRENT_SET_NAME,
+        setKey: ALL_ROOT_KEY + PATH_SEP + uuid,
         color: '#000',
         set: [],
         isEditing: true,
@@ -249,6 +311,11 @@ export default class SetsTree {
       this.prependChild(currentSetNode);
     }
     currentSetNode.set = Array.from(set);
+    if (name) {
+      currentSetNode.setName(name);
+    } else {
+      currentSetNode.setName(CURRENT_SET_NAME);
+    }
     if (visible) {
       this.visibleKeys = [currentSetNode.setKey];
     }
@@ -339,20 +406,35 @@ export default class SetsTree {
   }
 
   /**
-   * Delete a node of interest.
+   * Delete a node of interest, and all of its children.
    * @param {string} setKey The key of the node of interest.
+   * @param {boolean} preventEmit Whether to prevent the emit event.
    */
-  deleteNode(setKey) {
+  deleteNode(setKey, preventEmit) {
+    const node = this.findNode(setKey);
     const parentNode = this.findParentNode(setKey);
-    if (!parentNode) {
+    if (!node || !parentNode) {
       return;
     }
+    if (node.children) {
+      node.children.forEach(c => this.deleteNode(c.setKey, true));
+    }
+    // Check whether the node is a tabRoot, remove the corresponding tab(s) if so.
+    this.tabRoots = this.tabRoots.reduce((a, h) => (h.setKey === setKey ? a : [...a, h]), []);
+    // Check whether the node is in checkedKeys, remove the corresponding key if so.
+    this.checkedKeys = this.checkedKeys.reduce((a, h) => (h === setKey ? a : [...a, h]), []);
+    // Check whether the node is in visibleKeys, remove the corresponding key if so.
+    this.visibleKeys = this.visibleKeys.reduce((a, h) => (h === setKey ? a : [...a, h]), []);
+
     const nodeIndex = parentNode.children.findIndex(c => c.setKey === setKey);
     if (nodeIndex === -1) {
       return;
     }
     parentNode.children.splice(nodeIndex, 1);
-    this.emitTreeUpdate();
+    if (!preventEmit) {
+      this.emitTreeUpdate();
+      this.emitVisibilityUpdate();
+    }
   }
 
   /**
@@ -421,6 +503,71 @@ export default class SetsTree {
     const descendentsOfInterest = node.getDescendantsFlat(level);
     this.visibleKeys = descendentsOfInterest.map(d => d.setKey);
     this.emitVisibilityUpdate();
+  }
+
+  /**
+   * Add a new tab root.
+   * @param {string} setKey The key of the node to be used as the tab root.
+   */
+  newTab(setKey) {
+    const node = this.findNode(setKey);
+    this.tabRoots = [...this.tabRoots, node];
+    this.emitTreeUpdate();
+  }
+
+  /**
+   * Import previously-exported sets.
+   * Assumes a hierarchical ordering.
+   * Will append the root of the import to the current root's children.
+   * @param {Array} data A previously-exported array of set objects.
+   * @param {string} name The name for the new dummy ancestor node.
+   */
+  import(data, name) {
+    if (!data || data.length < 1) {
+      return;
+    }
+    const uuid = uuidv4();
+    const importRoot = new SetsTreeNode({
+      setKey: uuid,
+      name,
+    });
+
+    data.forEach((nodeObj) => {
+      const node = new SetsTreeNode({
+        setKey: nodeObj.key,
+        name: nodeObj.name,
+        color: nodeObj.color,
+        set: nodeObj.set,
+      });
+      let parentNode;
+      if (node.setKey.lastIndexOf(PATH_SEP) === -1) {
+        parentNode = importRoot;
+      } else {
+        parentNode = importRoot.findNode(node.getKeyHead());
+      }
+      parentNode.setChildren([...(parentNode.children || []), node]);
+    });
+    this.appendChild(importRoot);
+  }
+
+  /**
+   * Create an array that can be imported.
+   * @returns {Array} An array of plain objects.
+   */
+  export() {
+    const result = [];
+    let dfs = [...this.root.children];
+    while (dfs.length > 0) {
+      const currNode = dfs.pop();
+      result.push({
+        key: currNode.setKey.substring(ALL_ROOT_KEY.length + PATH_SEP.length),
+        name: currNode.name,
+        color: currNode.color,
+        set: currNode.set,
+      });
+      dfs = dfs.concat(currNode.children || []);
+    }
+    return result;
   }
 
   /**

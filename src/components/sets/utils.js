@@ -19,6 +19,22 @@ export function range(stop) {
   return Array.from(Array(stop), (x, i) => i);
 }
 
+// From https://stackoverflow.com/a/13627586
+function ordinalSuffixOf(i) {
+  const j = i % 10;
+  const k = i % 100;
+  if (j === 1 && k !== 11) {
+    return `${i}st`;
+  }
+  if (j === 2 && k !== 12) {
+    return `${i}nd`;
+  }
+  if (j === 3 && k !== 13) {
+    return `${i}rd`;
+  }
+  return `${i}th`;
+}
+
 /**
  * Convert an integer to the name of the corresponding tree level.
  * Relative to the current node.
@@ -26,10 +42,5 @@ export function range(stop) {
  * @returns {string} The name.
  */
 export function levelNameFromIndex(i) {
-  if (i === 0) {
-    return 'children';
-  } if (i === 1) {
-    return 'grandchildren';
-  }
-  return `level ${i} descendants`;
+  return `${ordinalSuffixOf(i + 1)} descendants`;
 }

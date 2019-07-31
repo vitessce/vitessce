@@ -55,7 +55,7 @@ export default class SetsManagerTab extends React.Component {
     }
     const { setsTree } = this.props;
     return nodes.map(item => (
-      <TreeNode tree={setsTree} {...item.getRenderProps()}>
+      <TreeNode key={item.setKey} tree={setsTree} {...item.getRenderProps()}>
         {this.renderTreeNodes(item.children)}
       </TreeNode>
     ));
@@ -76,6 +76,7 @@ export default class SetsManagerTab extends React.Component {
       <div className="sets-manager-tab">
         <Tree
           draggable
+          checkable
           blockNode
           onExpand={this.onExpand}
           expandedKeys={expandedKeys}

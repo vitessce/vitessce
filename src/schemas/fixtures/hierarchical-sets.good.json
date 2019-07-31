@@ -1,0 +1,12 @@
+{
+    "datasetId":"linnarsson-2018",
+    "version":"0.0.17",
+    "setsName": "Export 7/30/19",
+	"setsType":"cell",
+	"setsTree":[
+		{"key":"factors","name":"Factors"},
+		{"key":"factors\tvasculature","name":"Vasculature"},
+		{"key":"factors\tvasculature\tvascular-smooth-muscle","name":"Vascular Smooth Muscle","set":["85","260"]},
+		{"key":"factors\tvasculature\tendothelial","name":"Endothelial","color":[128,128,255],"set":["15","19","21","25"]}
+	]
+}

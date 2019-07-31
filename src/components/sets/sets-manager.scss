@@ -59,7 +59,7 @@ $set-name-height: 16px;
         color: inherit;
 
         .ant-tabs-bar {
-            z-index: 10;
+            z-index: 1;
             padding-top: 1.25rem;
             margin-top: -1.25rem;
             border-bottom: 1px solid $color-gray-mid;
@@ -100,6 +100,22 @@ $set-name-height: 16px;
         right: 10px;
         position: absolute;
         top: 10px;
+    }
+    .sets-manager-icon-bar {
+        cursor: pointer;
+        right: 36px;
+        position: fixed;
+        top: 46px;
+        z-index: 2;
+        i {
+            border-radius: 4px;
+            padding: 3px 2px 0 2px;
+            margin-left: 10px;
+            &:hover {
+                background-color: #444;
+                transition: background-color 0.5s;
+            }
+        }
     }
 }
 .ant-popover .ant-popover-inner-content {
@@ -142,4 +158,8 @@ $set-name-height: 16px;
     height: 20px;
     line-height: 20px;
     vertical-align: middle;
+}
+
+.named-set-node-menu-container {
+    transition: opacity 0.25s;
 }
