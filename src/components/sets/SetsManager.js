@@ -9,6 +9,7 @@ const { TabPane } = Tabs;
 
 export default function SetsManager(props) {
   const { setsTree } = props;
+
   return (
     <div className="sets-manager">
       <Tabs type="card">

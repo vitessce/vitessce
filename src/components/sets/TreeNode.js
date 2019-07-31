@@ -65,6 +65,7 @@ function NamedSetNodeStatic(props) {
     tree,
     setKey,
   } = props;
+  const [visible, setVisible] = useState(false);
   return (
     <React.Fragment>
       <button
@@ -76,9 +77,15 @@ function NamedSetNodeStatic(props) {
       >
         {title}
       </button>
-      <span className="named-set-node-hover-container">
+      <span
+        className="named-set-node-menu-container"
+        style={{ opacity: (visible ? 1 : 0) }}
+        onMouseMove={() => setVisible(true)}
+        onMouseLeave={() => setVisible(false)}
+      >
         <PopoverMenu
           menuConfig={makeNodeViewMenuConfig(props)}
+          onClose={() => setVisible(false)}
         >
           <Icon component={EyeSVG} className="named-set-node-menu-trigger" title="View options" />
         </PopoverMenu>
@@ -93,6 +100,7 @@ function NamedSetNodeStatic(props) {
             handler: () => {},
             handlerKey: 'x',
           }]}
+          onClose={() => setVisible(false)}
         >
           <Icon component={TrashSVG} className="named-set-node-menu-trigger" title="Delete" />
         </PopoverMenu>
