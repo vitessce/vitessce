@@ -74,7 +74,7 @@ $set-name-height: 16px;
         color: inherit;
 
         .ant-tabs-bar {
-            z-index: 10;
+            z-index: 1;
             padding-top: 1.25rem;
             margin-top: -1.25rem;
             border-bottom: 1px solid $color-gray-mid;
@@ -118,9 +118,10 @@ $set-name-height: 16px;
     }
     .sets-manager-icon-bar {
         cursor: pointer;
-        right: 20px;
-        position: absolute;
-        top: 12px;
+        right: 36px;
+        position: fixed;
+        top: 46px;
+        z-index: 2;
         i {
             border-radius: 4px;
             padding: 3px 2px 0 2px;
