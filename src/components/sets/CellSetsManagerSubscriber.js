@@ -1,13 +1,12 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import fromEntries from 'fromentries';
 import {
-  FACTORS_ADD, CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION,
+  CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION,
   CELLS_ADD, STATUS_WARN,
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
-import SetsTree, { SetsTreeNode } from './sets';
+import SetsTree from './sets';
 
 const setsType = 'cell';
 
@@ -36,9 +35,6 @@ export default class CellSetsManagerSubscriber extends React.Component {
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
-    this.factorsAddToken = PubSub.subscribe(
-      FACTORS_ADD, this.factorsAddSubscriber.bind(this),
-    );
   }
 
   componentDidMount() {
@@ -50,7 +46,6 @@ export default class CellSetsManagerSubscriber extends React.Component {
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellSetsToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
-    PubSub.unsubscribe(this.factorsAddToken);
   }
 
   cellsAddSubscriber(msg, cells) {
@@ -65,72 +60,6 @@ export default class CellSetsManagerSubscriber extends React.Component {
   cellsSelectionSubscriber(msg, cellIds) {
     const { cellSets } = this.state;
     cellSets.setCurrentSet(cellIds, true);
-  }
-
-  /**
-   * TODO: Remove this function when the concept of factors is
-   * removed in favor of the hierarchical cell set representation.
-   * This basically just allows us to demo the proof of concept
-   * of the factors being represented as hierarchical cell sets.
-   */
-  factorsAddSubscriber(msg, factors) {
-    const { datasetId } = this.props;
-    // This function is specific to the linnarson factors.
-    if (datasetId !== 'linnarsson-2018') {
-      return;
-    }
-    const { cellSets } = this.state;
-
-    const subclusterMappings = {
-      'Inhibitory neurons': [
-        'Inhibitory Pthlh', 'Inhibitory Cnr1', 'Inhibitory IC', 'Inhibitory Vip',
-        'Inhibitory Crhbp', 'Inhibitory CP', 'Inhibitory Kcnip2',
-      ],
-      // eslint-disable-next-line quote-props
-      'Astrocyte': ['Astrocyte Gfap', 'Astrocyte Mfge8'],
-      'Brain immune': ['Perivascular Macrophages', 'Microglia'],
-      // eslint-disable-next-line quote-props
-      'Vasculature': ['Pericytes', 'Endothelial 1', 'Endothelial', 'Vascular Smooth Muscle'],
-      // eslint-disable-next-line quote-props
-      'Oligodendrocytes': [
-        'Oligodendrocyte COP', 'Oligodendrocyte Precursor cells',
-        'Oligodendrocyte MF', 'Oligodendrocyte Mature', 'Oligodendrocyte NF',
-      ],
-      'Excitatory neurons': [
-        'Pyramidal L2-3 L5', 'Pyramidal L3-4', 'pyramidal L4', 'Pyramidal L6', 'Pyramidal L2-3',
-        'Pyramidal Kcnip2', 'Pyramidal L5', 'Hippocampus', 'Pyramidal Cpne5',
-      ],
-      // eslint-disable-next-line quote-props
-      'Ventricle': ['C. Plexus', 'Ependymal'],
-    };
-
-    const reverseSubclusterMap = fromEntries(factors.subcluster.map.map((v, i) => [v, i]));
-
-    const clusters = factors.cluster.map.map((clusterKey) => {
-      const subclusters = [];
-      subclusterMappings[clusterKey].forEach((subclusterKey) => {
-        subclusters.push(new SetsTreeNode({
-          setKey: `all\tfactors\t${clusterKey}\t${subclusterKey}`,
-          name: subclusterKey,
-          set: Object.entries(factors.subcluster.cells)
-            .filter(c => c[1] === reverseSubclusterMap[subclusterKey]).map(c => c[0]),
-        }));
-      });
-
-      return new SetsTreeNode({
-        setKey: `all\tfactors\t${clusterKey}`,
-        name: clusterKey,
-        children: subclusters,
-      });
-    });
-
-    cellSets.appendChild(new SetsTreeNode({
-      setKey: 'all\tfactors',
-      name: 'Factors',
-      children: clusters,
-    }));
-
-    this.setState({ cellSets });
   }
 
   render() {
