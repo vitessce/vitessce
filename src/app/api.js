@@ -62,15 +62,12 @@ const configs = {
     public: true,
     responsiveLayout: {
       columns: {
-        // First two columns are equal,
-        // third column is constant;
         // Grid cell width stays roughly constant,
         // but more columns are available in a wider window.
-        1400: [0, 4, 8, 12, 14],
-        1200: [0, 4, 7, 10, 12],
+        1400: [0, 2, 7, 12, 14],
+        1200: [0, 2, 6, 10, 12],
         1000: [0, 2, 5, 8, 10],
         800: [0, 2, 4, 6, 8],
-        600: [0, 2, 4, 6, 8],
       },
       components: [
         { component: 'description',
@@ -89,7 +86,7 @@ const configs = {
           props: {
             view: {
               zoom: -6.5,
-              target: [18000, 18000, 0],
+              target: [16000, 20000, 0],
             },
           },
           x: 1, y: 0, h: 4 },
@@ -97,7 +94,13 @@ const configs = {
           props: { mapping: 'PCA' },
           x: 2, y: 0, h: 2 },
         { component: 'scatterplot',
-          props: { mapping: 't-SNE' },
+          props: {
+            mapping: 't-SNE',
+            view: {
+              zoom: -4,
+              target: [0, 0, 0],
+            },
+          },
           x: 2, y: 2, h: 2 },
         { component: 'factors',
           x: 3, y: 0, h: 2 },
