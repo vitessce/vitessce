@@ -1,8 +1,8 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 import {
-  FACTORS_ADD, CELL_SETS_MODIFY, CELL_SETS_VIEW,
-  CELLS_SELECTION, CELLS_ADD, CELLS_COLOR, STATUS_WARN,
+  CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION,
+  CELLS_ADD, STATUS_WARN, CELLS_COLOR,
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
