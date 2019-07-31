@@ -57,9 +57,21 @@ $set-name-height: 16px;
     }
     .ant-tabs {
         color: inherit;
+        display: flex;
+        flex-direction: column;
 
         .ant-tabs-bar {
+            z-index: 10;
+            padding-top: 1.25rem;
+            margin-top: -1.25rem;
             border-bottom: 1px solid $color-gray-mid;
+            background-color: #222;
+            width: calc(100% - 3.75rem);
+            position: fixed;
+        }
+
+        .ant-tabs-content {
+            margin-top: 40px;
         }
 
         .ant-tabs-nav .ant-tabs-tab-active {
