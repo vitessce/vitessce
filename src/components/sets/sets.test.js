@@ -520,20 +520,5 @@ describe('sets.js', () => {
       expect(factorsTree.findNode('all').children[0].setKey).toEqual(postDropDragKey);
       expect(factorsTree.findNode('all').children[1].setKey).toEqual(dropKey);
     });
-
-    it('can add a node as a new tab', () => {
-      expect(factorsTree.tabRoots.length).toEqual(1);
-      factorsTree.newTab(`all${PATH_SEP}factors`);
-      expect(factorsTree.tabRoots.length).toEqual(2);
-      expect(factorsTree.tabRoots[1].setKey).toEqual(`all${PATH_SEP}factors`);
-    });
-
-    it('can remove a tab', () => {
-      factorsTree.newTab(`all${PATH_SEP}factors`);
-      expect(factorsTree.tabRoots.length).toEqual(2);
-      factorsTree.closeTab(`all${PATH_SEP}factors`);
-      expect(factorsTree.tabRoots.length).toEqual(1);
-      expect(factorsTree.tabRoots[0].setKey).toEqual('all');
-    });
   });
 });

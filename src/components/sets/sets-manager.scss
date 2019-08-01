@@ -92,20 +92,7 @@ $set-name-height: 16px;
                     background-color: $color-gray-dark;
                     border: 1px solid $color-gray-mid;
                 }
-                .ant-tabs-close-x {
-                    color: white;
-                    margin-left: 5px;
-                    margin-right: -2px;
-                }
-
-                &:first-child .ant-tabs-close-x {
-                    display: none;
-                }
             }
-        }
-
-        .ant-tabs-extra-content {
-            display: none;
         }
     }
     .sets-manager-more-icon {
