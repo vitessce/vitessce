@@ -2,7 +2,7 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import {
   CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION,
-  CELLS_ADD, STATUS_WARN,
+  CELLS_ADD, STATUS_WARN, GRID_RESIZE,
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
@@ -35,6 +35,9 @@ export default class CellSetsManagerSubscriber extends React.Component {
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
     );
+    this.gridResizeToken = PubSub.subscribe(
+      GRID_RESIZE, this.gridResizeSubscriber.bind(this),
+    );
   }
 
   componentDidMount() {
@@ -62,8 +65,12 @@ export default class CellSetsManagerSubscriber extends React.Component {
     cellSets.setCurrentSet(cellIds, true);
   }
 
+  gridResizeSubscriber(msg, gridResizeEvent) {
+    this.setState({ gridResizeEvent });
+  }
+
   render() {
-    const { cellSets } = this.state;
+    const { cellSets, gridResizeEvent } = this.state;
     const { datasetId } = this.props;
     return (
       <TitleInfo
@@ -75,6 +82,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
           datasetId={datasetId}
           setsType={setsType}
           onError={err => PubSub.publish(STATUS_WARN, err)}
+          gridResizeEvent={gridResizeEvent}
         />
       </TitleInfo>
     );

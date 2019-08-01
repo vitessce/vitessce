@@ -55,7 +55,6 @@ describe('sets.js', () => {
       expect(node.set.length).toEqual(0);
       expect(node.children).toEqual(undefined);
       expect(node.isCurrentSet).toEqual(false);
-      expect(node.wasPreviousCurrentSet).toEqual(false);
       expect(node.isEditing).toEqual(false);
     });
 
@@ -218,27 +217,23 @@ describe('sets.js', () => {
         name: 'Test',
         isEditing: true,
         isCurrentSet: false,
-        wasPreviousCurrentSet: true,
       }));
       expect(tree.findNode(`all${PATH_SEP}test`).name).toEqual('Test');
       tree.changeNodeName(`all${PATH_SEP}test`, 'Harvard', false);
       expect(tree.findNode(`all${PATH_SEP}test`).name).toEqual('Harvard');
       expect(tree.findNode(`all${PATH_SEP}test`).isEditing).toEqual(true);
       expect(tree.findNode(`all${PATH_SEP}test`).isCurrentSet).toEqual(false);
-      expect(tree.findNode(`all${PATH_SEP}test`).wasPreviousCurrentSet).toEqual(true);
 
       tree.prependChild(new SetsTreeNode({
         setKey: 'current-set',
         name: 'Current selection',
         isEditing: true,
-        wasPreviousCurrentSet: true,
         isCurrentSet: true,
       }));
       tree.changeNodeName(`all${PATH_SEP}current-set`, 'MIT', true);
       expect(tree.findNode(`all${PATH_SEP}current-set`).name).toEqual('MIT');
       expect(tree.findNode(`all${PATH_SEP}current-set`).isEditing).toEqual(false);
       expect(tree.findNode(`all${PATH_SEP}current-set`).isCurrentSet).toEqual(false);
-      expect(tree.findNode(`all${PATH_SEP}current-set`).wasPreviousCurrentSet).toEqual(false);
     });
 
     it('can prepend a node to children of root', () => {

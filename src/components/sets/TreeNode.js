@@ -10,26 +10,6 @@ import EyeSVG from '../../assets/tools/eye.svg';
 import PenSVG from '../../assets/tools/pen.svg';
 import TrashSVG from '../../assets/tools/trash.svg';
 
-function CurrentSetNode(props) {
-  const {
-    title,
-    setKey,
-    prefixClass,
-    tree,
-  } = props;
-  return (
-    <input
-      // eslint-disable-next-line jsx-a11y/no-autofocus
-      autoFocus
-      value={title}
-      type="text"
-      className={`${prefixClass}-current-set-input`}
-      onChange={(e) => { tree.changeNodeName(setKey, e.target.value); }}
-      onFocus={e => e.target.select()}
-    />
-  );
-}
-
 function makeNodeViewMenuConfig(props) {
   const {
     tree,
@@ -65,31 +45,33 @@ function NamedSetNodeStatic(props) {
     tree,
     setKey,
   } = props;
-  const [visible, setVisible] = useState(false);
+  const [iconsVisible, setIconsVisible] = useState(false);
   return (
     <React.Fragment>
       <button
         type="button"
         onClick={() => { tree.viewSet(setKey); }}
         onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(setKey))}
+        onMouseMove={() => setIconsVisible(true)}
+        onMouseLeave={() => setIconsVisible(false)}
         className={`${prefixClass}-title`}
         title={`View ${title}`}
       >
         {title}
       </button>
       <span
-        className="named-set-node-menu-container"
-        style={{ opacity: (visible ? 1 : 0) }}
-        onMouseMove={() => setVisible(true)}
-        onMouseLeave={() => setVisible(false)}
+        className={`${prefixClass}-node-menu-trigger-container`}
+        style={{ opacity: (iconsVisible ? 1 : 0) }}
+        onMouseMove={() => setIconsVisible(true)}
+        onMouseLeave={() => setIconsVisible(false)}
       >
         <PopoverMenu
           menuConfig={makeNodeViewMenuConfig(props)}
-          onClose={() => setVisible(false)}
+          onClose={() => setIconsVisible(false)}
         >
-          <Icon component={EyeSVG} className="named-set-node-menu-trigger" title="View options" />
+          <Icon component={EyeSVG} className={`${prefixClass}-node-menu-trigger`} title="View options" />
         </PopoverMenu>
-        <Icon component={PenSVG} className="named-set-node-menu-trigger" title="Rename" onClick={() => tree.startEditing(setKey)} />
+        <Icon component={PenSVG} className={`${prefixClass}-node-menu-trigger`} title="Rename" onClick={() => tree.startEditing(setKey)} />
         <PopoverMenu
           menuConfig={[{
             name: 'Delete',
@@ -100,9 +82,9 @@ function NamedSetNodeStatic(props) {
             handler: () => {},
             handlerKey: 'x',
           }]}
-          onClose={() => setVisible(false)}
+          onClose={() => setIconsVisible(false)}
         >
-          <Icon component={TrashSVG} className="named-set-node-menu-trigger" title="Delete" />
+          <Icon component={TrashSVG} className={`${prefixClass}-node-menu-trigger`} title="Delete" />
         </PopoverMenu>
       </span>
     </React.Fragment>
@@ -115,7 +97,6 @@ function NamedSetNodeEditing(props) {
     prefixClass,
     tree,
     setKey,
-    wasPreviousCurrentSet,
   } = props;
   const [currentTitle, setCurrentTitle] = useState(title);
   return (
@@ -128,14 +109,14 @@ function NamedSetNodeEditing(props) {
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
         onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => tree.changeNodeName(setKey, currentTitle, true))}
-        onFocus={e => (!wasPreviousCurrentSet ? e.target.select() : undefined)}
+        onFocus={e => e.target.select()}
       />
       <button
         type="button"
         className={`${prefixClass}-title-save-button`}
         onClick={() => tree.changeNodeName(setKey, currentTitle, true)}
       >
-        {wasPreviousCurrentSet ? 'Save' : 'Rename'}
+        Save
       </button>
     </React.Fragment>
   );
@@ -145,9 +126,10 @@ function NamedSetNodeEditing(props) {
 function NamedSetNode(props) {
   const {
     isEditing,
+    isCurrentSet,
   } = props;
   return (
-    isEditing
+    (isEditing || isCurrentSet)
       ? (<NamedSetNodeEditing {...props} />)
       : (<NamedSetNodeStatic {...props} />)
   );
@@ -185,11 +167,7 @@ export default class TreeNode extends RcTreeNode {
         aria-grabbed={isDraggable}
         onDragStart={isDraggable ? this.onDragStart : undefined}
       >
-        {isCurrentSet ? (
-          <CurrentSetNode {...this.props} prefixClass={prefixClass} />
-        ) : (
-          <NamedSetNode {...this.props} prefixClass={prefixClass} />
-        )}
+        <NamedSetNode {...this.props} prefixClass={prefixClass} />
         <span className={`${prefixClass}-set-size`}>{size || null}</span>
       </span>
     );

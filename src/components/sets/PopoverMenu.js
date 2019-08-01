@@ -8,7 +8,7 @@ function PopoverMenuList(props) {
   const { menuConfig, onClick } = props;
 
   return (
-    <ul className="named-set-node-menu">
+    <ul className="popover-menu-list">
       {menuConfig.map(item => (
         <li key={item.name}>
           <button

@@ -14,44 +14,51 @@ $set-name-height: 16px;
     .ant-tree {
         color: inherit;
 
-        .ant-tree-title {
-            border: 0;
-            background: transparent;
-            color: $color-white;
-            cursor: pointer;
-        }
-
-        .ant-tree-current-set-input, .ant-tree-title-input {
-            @include input-minimal-sm();
-        }
-        .ant-tree-title-save-button {
-            @include input-minimal-sm();
-            cursor: pointer;
-            margin-left: 4px;
-        }
-      
-        .ant-tree-showhide {
-            padding: 4px 4px;
-            vertical-align: middle;
-            height: 24px;
-            cursor: pointer;
-        }
-
         &.ant-tree-block-node li .ant-tree-node-content-wrapper {
             width: calc(100% - 64px);
+            min-width: 260px;
+            display: inline-block;
+            position: relative;
 
-            .ant-tree-set-size {
-                float: right;
-            }
-        }
-
-        li .ant-tree-node-content-wrapper {
             color: inherit;
             &:hover {
                 background-color: inherit;
             }
             &.ant-tree-node-selected {
                 background-color: inherit;
+            }
+
+            .ant-tree-title {
+                border: 0;
+                background: transparent;
+                color: $color-white;
+                cursor: pointer;
+            }
+    
+            .ant-tree-title-input {
+                @include input-minimal-sm();
+            }
+
+            .ant-tree-title-save-button {
+                @include input-minimal-sm();
+                cursor: pointer;
+                margin-left: 4px;
+            }
+
+            .ant-tree-node-menu-trigger-container {
+                transition: opacity 0.25s;
+                .ant-tree-node-menu-trigger {
+                    font-size: 16px;
+                    margin-left: 10px;
+                    height: 20px;
+                    line-height: 20px;
+                    vertical-align: middle;
+                }
+            }
+
+            .ant-tree-set-size {
+                position: absolute;
+                right: 0;
             }
         }
     }
@@ -70,6 +77,12 @@ $set-name-height: 16px;
 
         .ant-tabs-content {
             margin-top: 40px;
+
+            .ant-tabs-tabpane {
+                .sets-manager-tab {
+                    min-width: 260px;
+                }
+            }
         }
 
         .ant-tabs-nav .ant-tabs-tab-active {
@@ -117,49 +130,58 @@ $set-name-height: 16px;
             }
         }
     }
+
+    &.sets-manager-narrow {
+        .ant-tree {
+            &.ant-tree-block-node li .ant-tree-node-content-wrapper {
+                .ant-tree-title {
+                    font-size: 12px;
+                    padding: 0;
+                    max-width: 80px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+
+                }
+                .ant-tree-title-input {
+                    width: 100px;
+                    font-size: 12px;
+                }
+                .ant-tree-title-save-button {
+                    font-size: 12px;
+                }
+                .ant-tree-node-menu-trigger-container {
+                    .ant-tree-node-menu-trigger {
+                        font-size: 12px;
+                        margin-left: 6px;
+                        height: 20px;
+                        line-height: 20px;
+                    }
+                }
+                .ant-tree-set-size {
+                    display: none;
+                }
+            }
+        }
+    }
 }
 .ant-popover .ant-popover-inner-content {
     padding: 0;
-}
-.sets-manager-menu {
-    list-style-type: none;
-    padding: 0;
-    margin-bottom: 0;
-
-    li {
-        padding: 4px 16px;
-        cursor: pointer;
-        &:not(:last-child) {
-            border-bottom: 1px solid $color-gray;
+    .popover-menu-list {
+        list-style-type: none;
+        padding: 0;
+        margin-bottom: 0;
+    
+        li {
+            button {
+                border: 0;
+                padding: 4px 16px;
+                cursor: pointer;
+                width: 100%;
+                background-color: transparent;
+            }
+            &:not(:last-child) {
+                border-bottom: 1px solid $color-gray;
+            }
         }
     }
-}
-.named-set-node-menu {
-    list-style-type: none;
-    padding: 0;
-    margin-bottom: 0;
-
-    li {
-        button {
-            border: 0;
-            padding: 4px 16px;
-            cursor: pointer;
-            width: 100%;
-            background-color: transparent;
-        }
-        &:not(:last-child) {
-            border-bottom: 1px solid $color-gray;
-        }
-    }
-}
-.named-set-node-menu-trigger {
-    font-size: 16px;
-    margin-left: 10px;
-    height: 20px;
-    line-height: 20px;
-    vertical-align: middle;
-}
-
-.named-set-node-menu-container {
-    transition: opacity 0.25s;
 }
