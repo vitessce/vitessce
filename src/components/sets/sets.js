@@ -420,7 +420,7 @@ export default class SetsTree {
       node.children.forEach(c => this.deleteNode(c.setKey, true));
     }
     // Check whether the node is a tabRoot, remove the corresponding tab(s) if so.
-    this.tabRoots = this.tabRoots.reduce((a, h) => (h.setKey === setKey ? a : [...a, h]), []);
+    this.closeTab(setKey, true);
     // Check whether the node is in checkedKeys, remove the corresponding key if so.
     this.checkedKeys = this.checkedKeys.reduce((a, h) => (h === setKey ? a : [...a, h]), []);
     // Check whether the node is in visibleKeys, remove the corresponding key if so.
@@ -513,6 +513,18 @@ export default class SetsTree {
     const node = this.findNode(setKey);
     this.tabRoots = [...this.tabRoots, node];
     this.emitTreeUpdate();
+  }
+
+  /**
+   * Remove a tab root by its key.
+   * @param {string} setKey The key of the tab root node to be removed.
+   * @param {boolean} preventEmit Whether to prevent the emit event.
+   */
+  closeTab(setKey, preventEmit) {
+    this.tabRoots = this.tabRoots.reduce((a, h) => (h.setKey === setKey ? a : [...a, h]), []);
+    if (!preventEmit) {
+      this.emitTreeUpdate();
+    }
   }
 
   /**
