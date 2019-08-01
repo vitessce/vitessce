@@ -511,7 +511,7 @@ export default class SetsTree {
    */
   newTab(setKey) {
     const node = this.findNode(setKey);
-    if (this.tabRoots.findIndex(t => t.setKey === setKey) === -1) {
+    if (!this.tabRoots.find(t => t.setKey === setKey)) {
       this.tabRoots = [...this.tabRoots, node];
       this.emitTreeUpdate();
     }
