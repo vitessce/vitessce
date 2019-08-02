@@ -23,6 +23,17 @@ function findValue(array, callback) {
 }
 
 /**
+ * Remove all instances of a value from an array,
+ * based on the result of a test function.
+ * @param {Array} array The array to iterate over.
+ * @param {Function} shouldRemove The test function. Returns boolean.
+ * @returns {Array} The array after removing items.
+ */
+function removeValue(array, shouldRemove) {
+  return array.reduce((a, h) => (shouldRemove(h) ? a : [...a, h]), []);
+}
+
+/**
  * Node class for SetsTree.
  */
 export class SetsTreeNode {
@@ -422,9 +433,9 @@ export default class SetsTree {
     // Check whether the node is a tabRoot, remove the corresponding tab(s) if so.
     this.closeTab(setKey, true);
     // Check whether the node is in checkedKeys, remove the corresponding key if so.
-    this.checkedKeys = this.checkedKeys.reduce((a, h) => (h === setKey ? a : [...a, h]), []);
+    this.checkedKeys = removeValue(this.checkedKeys, h => (h === setKey));
     // Check whether the node is in visibleKeys, remove the corresponding key if so.
-    this.visibleKeys = this.visibleKeys.reduce((a, h) => (h === setKey ? a : [...a, h]), []);
+    this.visibleKeys = removeValue(this.visibleKeys, h => (h === setKey));
 
     const nodeIndex = parentNode.children.findIndex(c => c.setKey === setKey);
     if (nodeIndex === -1) {
@@ -524,7 +535,7 @@ export default class SetsTree {
    * @param {boolean} preventEmit Whether to prevent the emit event.
    */
   closeTab(setKey, preventEmit) {
-    this.tabRoots = this.tabRoots.reduce((a, h) => (h.setKey === setKey ? a : [...a, h]), []);
+    this.tabRoots = removeValue(this.tabRoots, h => (h.setKey === setKey));
     if (!preventEmit) {
       this.emitTreeUpdate();
     }
