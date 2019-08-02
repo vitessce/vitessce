@@ -1,6 +1,5 @@
 import uuidv4 from 'uuid/v4';
-import fromEntries from 'fromentries';
-import { DEFAULT_COLOR } from '../utils';
+import { DEFAULT_COLOR, fromEntries } from '../utils';
 
 const CURRENT_SET_NAME = 'Current selection';
 const ALL_ROOT_KEY = 'all';

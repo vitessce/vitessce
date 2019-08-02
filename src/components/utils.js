@@ -64,3 +64,9 @@ export function interpolateColors(zeroToOne) {
   // The lowest 25% does not have good contrast.
   return rgb((interpolatePlasma(zeroToOne / 0.75 + 0.25)));
 }
+
+// Adapted from https://github.com/feross/fromentries/blob/29b52a850bb3a47c390937631c2638edf3443942/index.js
+export function fromEntries(iterable) {
+  return [...iterable]
+    .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {});
+}
