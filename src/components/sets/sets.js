@@ -1,4 +1,5 @@
 import uuidv4 from 'uuid/v4';
+import fromEntries from 'fromentries';
 import { DEFAULT_COLOR } from '../utils';
 
 const CURRENT_SET_NAME = 'Current selection';
@@ -602,17 +603,18 @@ export default class SetsTree {
    */
   emitVisibilityUpdate() {
     if (this.onVisibilityChange) {
-      let cellIds = [];
-      const cellColors = {};
+      let cellColorsArray = [];
       this.visibleKeys.forEach((setKey) => {
         const node = this.findNode(setKey);
         if (node && node.set && node.set.length > 0) {
-          cellIds = [...cellIds, ...node.set];
-          node.set.forEach((cellId) => {
-            cellColors[cellId] = node.color;
-          });
+          cellColorsArray = [
+            ...cellColorsArray,
+            ...node.set.map(cellId => [cellId, node.color]),
+          ];
         }
       });
+      const cellIds = cellColorsArray.map(c => c[0]);
+      const cellColors = fromEntries(cellColorsArray);
       this.onVisibilityChange(new Set(cellIds), cellColors);
     }
   }

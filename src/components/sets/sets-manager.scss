@@ -49,7 +49,7 @@ $set-name-height: 16px;
                     height: 16px;
                     margin-left: 16px;
                     cursor: pointer;
-                    outline: currentcolor none medium;
+                    outline: currentColor none medium;
                     border-radius: 3px;
                     box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 0px 1px inset;
                 }
@@ -177,4 +177,20 @@ $set-name-height: 16px;
 
 .named-set-node-menu-container {
     transition: opacity 0.25s;
+}
+
+.popover-color.twitter-picker {
+    box-shadow: none !important;
+    > div:nth-child(3) {
+        padding: 9px 9px 9px 9px !important;
+        transform: translate(2px, 0);
+    }
+    input {
+        width: 68px !important;
+    }
+
+    > div > span > div {
+        width: 22px !important;
+        height: 22px !important;
+    }
 }

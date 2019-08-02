@@ -1,12 +1,12 @@
 import React from 'react';
 import tinycolor from 'tinycolor2';
 import { Popover } from 'antd';
-import { SketchPicker } from 'react-color';
+import { TwitterPicker } from 'react-color';
 import 'antd/es/popover/style/index.css';
 import { PALETTE } from '../utils';
 
-function toHex(rgbArray) {
-  return `#${tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHex()}`;
+function toHexString(rgbArray) {
+  return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
 }
 
 export default function PopoverColor(props) {
@@ -21,16 +21,18 @@ export default function PopoverColor(props) {
     setColor([rgb.r, rgb.g, rgb.b]);
   }
 
-  const presetColors = PALETTE.map(toHex);
+  const presetColors = PALETTE.map(toHexString);
 
   return (
     <Popover
       content={(
-        <SketchPicker
+        <TwitterPicker
+          className="popover-color"
           disableAlpha
-          width={146}
-          presetColors={presetColors}
-          color={toHex(color)}
+          width={130}
+          triangle="hide"
+          colors={presetColors}
+          color={toHexString(color)}
           onChangeComplete={handleChangeComplete}
         />
       )}
@@ -41,7 +43,7 @@ export default function PopoverColor(props) {
     >
       <span
         className={`${prefixClass}-set-color`}
-        style={{ backgroundColor: toHex(color) }}
+        style={{ backgroundColor: toHexString(color) }}
       />
     </Popover>
   );
