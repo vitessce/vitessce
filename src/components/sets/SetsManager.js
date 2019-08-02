@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { Tabs } from 'antd';
 import SetsManagerTab from './SetsManagerTab';
 import SetsManagerActionBar from './SetsManagerActionBar';
