@@ -2,7 +2,7 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import {
   CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION,
-  CELLS_ADD, STATUS_WARN,
+  CELLS_ADD, STATUS_WARN, CELLS_COLOR,
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
@@ -18,7 +18,8 @@ export default class CellSetsManagerSubscriber extends React.Component {
         (obj) => {
           PubSub.publish(CELL_SETS_MODIFY, obj);
         },
-        (cellIds) => {
+        (cellIds, cellColors) => {
+          PubSub.publish(CELLS_COLOR, cellColors);
           PubSub.publish(CELL_SETS_VIEW, cellIds);
         },
       ),

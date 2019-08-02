@@ -4,6 +4,7 @@ import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
 import PopoverMenu from './PopoverMenu';
+import PopoverColor from './PopoverColor';
 import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
 
 import EyeSVG from '../../assets/tools/eye.svg';
@@ -156,8 +157,11 @@ function NamedSetNode(props) {
 export default class TreeNode extends RcTreeNode {
   renderSelector = () => {
     const {
+      tree,
+      setKey,
       title,
       size,
+      color,
       isCurrentSet,
       isSelected,
       isEditing,
@@ -190,7 +194,14 @@ export default class TreeNode extends RcTreeNode {
         ) : (
           <NamedSetNode {...this.props} prefixClass={prefixClass} />
         )}
-        <span className={`${prefixClass}-set-size`}>{size || null}</span>
+        <span className={`${prefixClass}-title-right`}>
+          <span className={`${prefixClass}-set-size`}>{size || null}</span>
+          <PopoverColor
+            prefixClass={prefixClass}
+            color={color}
+            setColor={c => tree.changeNodeColor(setKey, c)}
+          />
+        </span>
       </span>
     );
   };

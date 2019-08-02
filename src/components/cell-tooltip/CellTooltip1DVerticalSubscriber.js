@@ -1,6 +1,6 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
-import fromEntries from 'fromentries';
+import { fromEntries } from '../utils';
 
 import { CELLS_HOVER, CLUSTERS_ADD } from '../../events';
 import CellTooltip1DVertical from './CellTooltip1DVertical';

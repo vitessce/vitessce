@@ -1,4 +1,5 @@
 import uuidv4 from 'uuid/v4';
+import { DEFAULT_COLOR, fromEntries } from '../utils';
 
 const CURRENT_SET_NAME = 'Current selection';
 const ALL_ROOT_KEY = 'all';
@@ -34,7 +35,7 @@ export class SetsTreeNode {
       isEditing = false,
       isCurrentSet = false,
       wasPreviousCurrentSet = false,
-      color,
+      color = DEFAULT_COLOR,
       children,
       set,
     } = props;
@@ -71,6 +72,10 @@ export class SetsTreeNode {
 
   setWasPreviousCurrentSet(v) {
     this.wasPreviousCurrentSet = v;
+  }
+
+  setColor(v) {
+    this.color = v;
   }
 
   /**
@@ -126,6 +131,7 @@ export class SetsTreeNode {
       title: this.name,
       setKey: this.setKey,
       size: this.set ? this.set.length : 0,
+      color: this.color,
       level: this.getLevel(),
       isRoot: this.isRoot,
       isEditing: this.isEditing,
@@ -302,7 +308,6 @@ export default class SetsTree {
       const uuid = uuidv4();
       currentSetNode = new SetsTreeNode({
         setKey: ALL_ROOT_KEY + PATH_SEP + uuid,
-        color: '#000',
         set: [],
         isEditing: true,
         isCurrentSet: true,
@@ -403,6 +408,18 @@ export default class SetsTree {
     const node = this.findNode(setKey);
     node.setIsEditing(true);
     this.emitTreeUpdate();
+  }
+
+  /**
+   * Set the color for a node of interest.
+   * @param {string} setKey The key of the node of interest.
+   * @param {Array} color The color value as [r, g, b].
+   */
+  changeNodeColor(setKey, color) {
+    const node = this.findNode(setKey);
+    node.setColor(color);
+    this.emitTreeUpdate();
+    this.emitVisibilityUpdate();
   }
 
   /**
@@ -585,14 +602,19 @@ export default class SetsTree {
    */
   emitVisibilityUpdate() {
     if (this.onVisibilityChange) {
-      let cellIds = [];
+      let cellColorsArray = [];
       this.visibleKeys.forEach((setKey) => {
         const node = this.findNode(setKey);
         if (node && node.set && node.set.length > 0) {
-          cellIds = [...cellIds, ...node.set];
+          cellColorsArray = [
+            ...cellColorsArray,
+            ...node.set.map(cellId => [cellId, node.color]),
+          ];
         }
       });
-      this.onVisibilityChange(new Set(cellIds));
+      const cellIds = cellColorsArray.map(c => c[0]);
+      const cellColors = fromEntries(cellColorsArray);
+      this.onVisibilityChange(new Set(cellIds), cellColors);
     }
   }
 }

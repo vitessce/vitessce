@@ -417,6 +417,18 @@ describe('sets.js', () => {
       expect(tripleSetResult).toEqual([]);
     });
 
+    it('can change node color', () => {
+      const tree = new SetsTree();
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test',
+        name: 'Test',
+        color: [0, 0, 0],
+      }));
+      expect(tree.findNode(`all${PATH_SEP}test`).color).toEqual([0, 0, 0]);
+      tree.changeNodeColor(`all${PATH_SEP}test`, [255, 255, 255]);
+      expect(tree.findNode(`all${PATH_SEP}test`).color).toEqual([255, 255, 255]);
+    });
+
     it('can move a drag node to a drop node, making drag node the only child of drop node', () => {
       const dragKey = `all${PATH_SEP}factors${PATH_SEP}ventricle`;
       const dropKey = `all${PATH_SEP}factors${PATH_SEP}excitatory-neurons`;
