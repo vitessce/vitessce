@@ -45,7 +45,6 @@ export class SetsTreeNode {
       isRoot = false,
       isEditing = false,
       isCurrentSet = false,
-      wasPreviousCurrentSet = false,
       color = DEFAULT_COLOR,
       children,
       set,
@@ -78,10 +77,6 @@ export class SetsTreeNode {
 
   setIsCurrentSet(v) {
     this.isCurrentSet = v;
-  }
-
-  setWasPreviousCurrentSet(v) {
-    this.wasPreviousCurrentSet = v;
   }
 
   setColor(v) {

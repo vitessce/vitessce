@@ -17,12 +17,16 @@ $set-name-height: 16px;
             min-width: 260px;
             display: inline-block;
             position: relative;
+            color: inherit;
 
             .ant-tree-title-right {
-                float: right;
+                position: absolute;
+                right: 0;
 
                 .ant-tree-set-color {
                     display: inline-block;
+                    position: relative;
+                    top: 3px;
                     width: 16px;
                     height: 16px;
                     margin-left: 16px;
@@ -36,10 +40,7 @@ $set-name-height: 16px;
                     display: inline-block;
                 }
             }
-        }
-
-        li .ant-tree-node-content-wrapper {  // TODO: Why do we exclude &.ant-tree-block-node from these styles?
-            color: inherit;
+            
             &:hover {
                 background-color: inherit;
             }
@@ -69,10 +70,6 @@ $set-name-height: 16px;
                     line-height: 20px;
                     vertical-align: middle;
                 }
-            }
-            .ant-tree-set-size {
-                position: absolute;
-                right: 0;
             }
         }
     }
@@ -171,20 +168,9 @@ $set-name-height: 16px;
         }
     }
 }
-.named-set-node-menu-trigger {
-    font-size: 16px;
-    margin-left: 10px;
-    height: 20px;
-    line-height: 20px;
-    vertical-align: middle;
-}
-
-.named-set-node-menu-container {
-    transition: opacity 0.25s;
-}
-
 .popover-color.twitter-picker {
     box-shadow: none !important;
+    /* Sets margins around color picker and centers */
     > div:nth-child(3) {
         padding: 9px 9px 9px 9px !important;
         transform: translate(2px, 0);
@@ -192,7 +178,7 @@ $set-name-height: 16px;
     input {
         width: 68px !important;
     }
-
+    /* Sets smaller color squares */
     > div > span > div {
         width: 22px !important;
         height: 22px !important;

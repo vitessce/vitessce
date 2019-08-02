@@ -171,11 +171,7 @@ export default class TreeNode extends RcTreeNode {
         aria-grabbed={isDraggable}
         onDragStart={isDraggable ? this.onDragStart : undefined}
       >
-        {isCurrentSet ? (
-          <CurrentSetNode {...this.props} prefixClass={prefixClass} />
-        ) : (
-          <NamedSetNode {...this.props} prefixClass={prefixClass} />
-        )}
+        <NamedSetNode {...this.props} prefixClass={prefixClass} />
         <span className={`${prefixClass}-title-right`}>
           <span className={`${prefixClass}-set-size`}>{size || null}</span>
           <PopoverColor
