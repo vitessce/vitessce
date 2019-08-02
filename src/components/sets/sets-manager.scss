@@ -10,16 +10,13 @@ $set-name-height: 16px;
 }
   
 .sets-manager {
-
     .ant-tree {
         color: inherit;
-
         &.ant-tree-block-node li .ant-tree-node-content-wrapper {
             width: calc(100% - 64px);
             min-width: 260px;
             display: inline-block;
             position: relative;
-
             color: inherit;
             &:hover {
                 background-color: inherit;
@@ -27,24 +24,20 @@ $set-name-height: 16px;
             &.ant-tree-node-selected {
                 background-color: inherit;
             }
-
             .ant-tree-title {
                 border: 0;
                 background: transparent;
                 color: $color-white;
                 cursor: pointer;
             }
-    
             .ant-tree-title-input {
                 @include input-minimal-sm();
             }
-
             .ant-tree-title-save-button {
                 @include input-minimal-sm();
                 cursor: pointer;
                 margin-left: 4px;
             }
-
             .ant-tree-node-menu-trigger-container {
                 transition: opacity 0.25s;
                 .ant-tree-node-menu-trigger {
@@ -55,7 +48,6 @@ $set-name-height: 16px;
                     vertical-align: middle;
                 }
             }
-
             .ant-tree-set-size {
                 position: absolute;
                 right: 0;
@@ -64,7 +56,6 @@ $set-name-height: 16px;
     }
     .ant-tabs {
         color: inherit;
-
         .ant-tabs-bar {
             z-index: 1;
             padding-top: 1.25rem;
@@ -74,27 +65,21 @@ $set-name-height: 16px;
             width: calc(100% - 3.75rem);
             position: fixed;
         }
-
         .ant-tabs-content {
             margin-top: 40px;
-
             .ant-tabs-tabpane {
                 .sets-manager-tab {
                     min-width: 260px;
                 }
             }
         }
-
         .ant-tabs-nav .ant-tabs-tab-active {
             font-weight: inherit;
         }
-
         &.ant-tabs-card .ant-tabs-card-bar {
-
             .ant-tabs-nav-container {
                 height: 28px;
             }
-
             .ant-tabs-tab {
                 background-color: $color-gray-mid;
                 border: 1px solid $color-gray-mid;
@@ -130,39 +115,6 @@ $set-name-height: 16px;
             }
         }
     }
-
-    &.sets-manager-narrow {
-        .ant-tree {
-            &.ant-tree-block-node li .ant-tree-node-content-wrapper {
-                .ant-tree-title {
-                    font-size: 12px;
-                    padding: 0;
-                    max-width: 80px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-
-                }
-                .ant-tree-title-input {
-                    width: 100px;
-                    font-size: 12px;
-                }
-                .ant-tree-title-save-button {
-                    font-size: 12px;
-                }
-                .ant-tree-node-menu-trigger-container {
-                    .ant-tree-node-menu-trigger {
-                        font-size: 12px;
-                        margin-left: 6px;
-                        height: 20px;
-                        line-height: 20px;
-                    }
-                }
-                .ant-tree-set-size {
-                    display: none;
-                }
-            }
-        }
-    }
 }
 .ant-popover .ant-popover-inner-content {
     padding: 0;
@@ -170,7 +122,6 @@ $set-name-height: 16px;
         list-style-type: none;
         padding: 0;
         margin-bottom: 0;
-    
         li {
             button {
                 border: 0;

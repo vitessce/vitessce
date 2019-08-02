@@ -37,5 +37,3 @@ export const NEIGHBORHOODS_ADD = NEIGHBORHOODS + ADD;
 export const STATUS = 'status';
 export const STATUS_WARN = `${STATUS}.warn`;
 export const STATUS_INFO = `${STATUS}.info`;
-
-export const GRID_RESIZE = 'grid_resize';
