@@ -412,6 +412,18 @@ describe('sets.js', () => {
       expect(tripleSetResult).toEqual([]);
     });
 
+    it('can change node color', () => {
+      const tree = new SetsTree();
+      tree.appendChild(new SetsTreeNode({
+        setKey: 'test',
+        name: 'Test',
+        color: [0, 0, 0],
+      }));
+      expect(tree.findNode(`all${PATH_SEP}test`).color).toEqual([0, 0, 0]);
+      tree.changeNodeColor(`all${PATH_SEP}test`, [255, 255, 255]);
+      expect(tree.findNode(`all${PATH_SEP}test`).color).toEqual([255, 255, 255]);
+    });
+
     it('can move a drag node to a drop node, making drag node the only child of drop node', () => {
       const dragKey = `all${PATH_SEP}factors${PATH_SEP}ventricle`;
       const dropKey = `all${PATH_SEP}factors${PATH_SEP}excitatory-neurons`;
@@ -514,6 +526,21 @@ describe('sets.js', () => {
       expect(factorsTree.findNode(`all${PATH_SEP}factors`).children.length).toEqual(6);
       expect(factorsTree.findNode('all').children[0].setKey).toEqual(postDropDragKey);
       expect(factorsTree.findNode('all').children[1].setKey).toEqual(dropKey);
+    });
+
+    it('can add a node as a new tab', () => {
+      expect(factorsTree.tabRoots.length).toEqual(1);
+      factorsTree.newTab(`all${PATH_SEP}factors`);
+      expect(factorsTree.tabRoots.length).toEqual(2);
+      expect(factorsTree.tabRoots[1].setKey).toEqual(`all${PATH_SEP}factors`);
+    });
+
+    it('can remove a tab', () => {
+      factorsTree.newTab(`all${PATH_SEP}factors`);
+      expect(factorsTree.tabRoots.length).toEqual(2);
+      factorsTree.closeTab(`all${PATH_SEP}factors`);
+      expect(factorsTree.tabRoots.length).toEqual(1);
+      expect(factorsTree.tabRoots[0].setKey).toEqual('all');
     });
   });
 });
