@@ -64,7 +64,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
   }
 
   render() {
-    const { cellSets } = this.state;
+    const { cellSets, gridResizeEvent } = this.state;
     const { datasetId } = this.props;
     return (
       <TitleInfo
@@ -76,6 +76,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
           datasetId={datasetId}
           setsType={setsType}
           onError={err => PubSub.publish(STATUS_WARN, err)}
+          gridResizeEvent={gridResizeEvent}
         />
       </TitleInfo>
     );

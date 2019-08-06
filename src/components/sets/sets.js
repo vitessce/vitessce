@@ -45,7 +45,6 @@ export class SetsTreeNode {
       isRoot = false,
       isEditing = false,
       isCurrentSet = false,
-      wasPreviousCurrentSet = false,
       color = DEFAULT_COLOR,
       children,
       set,
@@ -58,7 +57,6 @@ export class SetsTreeNode {
     this.isRoot = isRoot;
     this.isEditing = isEditing;
     this.isCurrentSet = isCurrentSet;
-    this.wasPreviousCurrentSet = wasPreviousCurrentSet;
   }
 
   setIsEditing(v) {
@@ -79,10 +77,6 @@ export class SetsTreeNode {
 
   setIsCurrentSet(v) {
     this.isCurrentSet = v;
-  }
-
-  setWasPreviousCurrentSet(v) {
-    this.wasPreviousCurrentSet = v;
   }
 
   setColor(v) {
@@ -147,7 +141,6 @@ export class SetsTreeNode {
       isRoot: this.isRoot,
       isEditing: this.isEditing,
       isCurrentSet: this.isCurrentSet,
-      wasPreviousCurrentSet: this.wasPreviousCurrentSet,
     };
   }
 
@@ -322,7 +315,6 @@ export default class SetsTree {
         set: [],
         isEditing: true,
         isCurrentSet: true,
-        wasPreviousCurrentSet: true,
       });
       this.prependChild(currentSetNode);
     }
@@ -477,9 +469,6 @@ export default class SetsTree {
 
     if (stopEditing) {
       node.setIsEditing(false);
-      if (node.wasPreviousCurrentSet) {
-        node.setWasPreviousCurrentSet(false);
-      }
     }
     if (node.isCurrentSet) {
       node.setIsCurrentSet(false);

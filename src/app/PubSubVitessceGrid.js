@@ -1,9 +1,7 @@
 import React from 'react';
-
 import VitessceGrid from 'vitessce-grid';
 
 import { LayerPublisher } from '../components/layerpublisher';
-
 
 export default class PubSubVitessceGrid extends React.Component {
   constructor(props) {
