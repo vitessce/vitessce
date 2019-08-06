@@ -8,7 +8,7 @@ $set-name-height: 16px;
     padding: 1px 4px;
     border: 0;
 }
-  
+
 .sets-manager {
     .ant-tree {
         color: inherit;
@@ -19,6 +19,12 @@ $set-name-height: 16px;
             color: inherit;
 
             .ant-tree-title-right {
+                display: none;
+                // Not .draggable when name is being editted.
+                // Hide controls that overlap.
+            }
+            &.draggable .ant-tree-title-right {
+                display: inline-block;
                 position: absolute;
                 right: 10px;
 
@@ -39,7 +45,7 @@ $set-name-height: 16px;
                     display: inline-block;
                 }
             }
-            
+
             &:hover {
                 background-color: inherit;
             }
@@ -80,7 +86,7 @@ $set-name-height: 16px;
             margin-top: -1.25rem;
             border-bottom: 1px solid $color-gray-mid;
             background-color: #222;
-            /* Need calculation, since with fixed position, 
+            /* Need calculation, since with fixed position,
                 does not take padding into account. */
             width: calc(100% - 3.75rem);
             position: fixed;
