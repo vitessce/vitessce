@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.0.18 - in progress
+### Added
+- Close cell set tabs.
+- Color cell sets.
+- Split long menu of cell operations into smaller menus from icons.
+- Cell sets can be exported and imported as JSON.
+- Union, intersection, and complement of cell sets.
+- View all set descendants at a particular level.
+- More public demos.
+### Changed
+- Gave up on CSS modules. We'll still split out CSS into separate files, but the extra name-munging was just confusing.
+- Crosshairs are now full height and width.
+- S3 data is now organized by dataset.
+- Not making a UMD bundle any longer: It was very large, and slow.
+
 ## [0.0.17](https://www.npmjs.com/package/vitessce/v/0.0.17) - 2019-07-19
 ### Added
 - Polygon selection tool leveraging the Nebula.gl package.
