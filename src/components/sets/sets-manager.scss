@@ -60,6 +60,7 @@ $set-name-height: 16px;
             }
             .ant-tree-title-input {
                 @include input-minimal-sm();
+                width: calc(100% - 3em); // 3em = width of save button.
             }
             .ant-tree-title-save-button {
                 @include input-minimal-sm();
