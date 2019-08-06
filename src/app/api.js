@@ -64,10 +64,10 @@ const configs = {
       columns: {
         // Grid cell width stays roughly constant,
         // but more columns are available in a wider window.
-        1500: [0, 3, 8, 13, 15],
-        1300: [0, 3, 7, 11, 13],
-        1100: [0, 3, 6, 9, 11],
-        900: [0, 3, 5, 7, 9],
+        1600: [0, 4, 9, 14, 16],
+        1400: [0, 4, 8, 12, 14],
+        1200: [0, 4, 7, 10, 12],
+        1000: [0, 4, 6, 8, 10],
       },
       components: [
         { component: 'description',
