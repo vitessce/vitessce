@@ -13,14 +13,14 @@ $set-name-height: 16px;
     .ant-tree {
         color: inherit;
         &.ant-tree-block-node li .ant-tree-node-content-wrapper {
-            width: calc(100% - 64px);
+            width: 100%;
             display: inline-block;
             position: relative;
             color: inherit;
 
             .ant-tree-title-right {
                 position: absolute;
-                right: 0;
+                right: 10px;
 
                 .ant-tree-set-color {
                     display: inline-block;
@@ -80,6 +80,8 @@ $set-name-height: 16px;
             margin-top: -1.25rem;
             border-bottom: 1px solid $color-gray-mid;
             background-color: #222;
+            /* Need calculation, since with fixed position, 
+                does not take padding into account. */
             width: calc(100% - 3.75rem);
             position: fixed;
         }
