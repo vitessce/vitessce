@@ -8,20 +8,25 @@ $set-name-height: 16px;
     padding: 1px 4px;
     border: 0;
 }
-  
+
 .sets-manager {
     .ant-tree {
         color: inherit;
         &.ant-tree-block-node li .ant-tree-node-content-wrapper {
-            width: calc(100% - 64px);
-            min-width: 260px;
+            width: 100%;
             display: inline-block;
             position: relative;
             color: inherit;
 
             .ant-tree-title-right {
+                display: none;
+                // Not .draggable when name is being editted.
+                // Hide controls that overlap.
+            }
+            &.draggable .ant-tree-title-right {
+                display: inline-block;
                 position: absolute;
-                right: 0;
+                right: 10px;
 
                 .ant-tree-set-color {
                     display: inline-block;
@@ -40,7 +45,7 @@ $set-name-height: 16px;
                     display: inline-block;
                 }
             }
-            
+
             &:hover {
                 background-color: inherit;
             }
@@ -55,6 +60,7 @@ $set-name-height: 16px;
             }
             .ant-tree-title-input {
                 @include input-minimal-sm();
+                width: calc(100% - 3em); // 3em = width of save button.
             }
             .ant-tree-title-save-button {
                 @include input-minimal-sm();
@@ -81,16 +87,13 @@ $set-name-height: 16px;
             margin-top: -1.25rem;
             border-bottom: 1px solid $color-gray-mid;
             background-color: #222;
+            /* Need calculation, since with fixed position,
+                does not take padding into account. */
             width: calc(100% - 3.75rem);
             position: fixed;
         }
         .ant-tabs-content {
             margin-top: 40px;
-            .ant-tabs-tabpane {
-                .sets-manager-tab {
-                    min-width: 260px;
-                }
-            }
         }
         .ant-tabs-nav .ant-tabs-tab-active {
             font-weight: inherit;
