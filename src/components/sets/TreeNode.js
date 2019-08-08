@@ -24,6 +24,7 @@ function makeNodeViewMenuConfig(props) {
       handler: () => tree.viewSet(setKey),
       handlerKey: 'v',
     },
+    // Show view buttons for viewing descendants at each level.
     ...range(level).map(i => (
       {
         name: `View ${levelNameFromIndex(i)}`,
@@ -31,11 +32,12 @@ function makeNodeViewMenuConfig(props) {
         handlerKey: `${i}`,
       }
     )),
-    {
+    // Show new tab button if not a leaf node.
+    ...(level > 0 ? [{
       name: 'Open in new tab',
       handler: () => tree.newTab(setKey),
       handlerKey: 't',
-    },
+    }] : []),
   ];
 }
 
