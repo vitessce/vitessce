@@ -65,6 +65,11 @@ Update the version number in `package.json` and run `npm publish`.
 
 Finally, update the CHANGELOG.md to point to the new release on NPM.
 
+## Related Subsidiary Projects
+
+- [vitessce-data](https://github.com/hms-dbmi/vitessce-data)
+- [ome-tiff-tiler](https://github.com/hms-dbmi/ome-tiff-tiler)
+
 ## Old Presentations
 
 - [July 2019 lab meeting: Intern progress reports and HuBMAP collaboration](https://docs.google.com/presentation/d/10zanc_cHh-OcFvBeuJdKBpLnazjVh64pbbdD4kJQ7GY/edit?usp=sharing)
