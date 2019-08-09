@@ -73,8 +73,8 @@ export function handleImportTabular(props, result) {
     importedSetsTree.push({
       name: setNameArray[setNameArray.length - 1],
       key: setKey,
-      set: (!isEmpty ? setItems.map(d => d.itemId) : []),
       color: firstItem.setColor,
+      ...(!isEmpty ? { set: setItems.map(d => d.itemId) } : null),
     });
   });
   setsTree.import(importedSetsTree, makeImportName());
