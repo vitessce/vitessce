@@ -58,7 +58,7 @@ export function handleImportTabular(props, result) {
     setKey: row['Set Key'] || row['Set Name'].split(tabularHierarchySeparator).join(PATH_SEP),
     setColor: colorAsArray(row['Set Color']),
   }));
-    // Make array of unique set key strings.
+  // Make array of unique set key strings.
   const importedSetKeys = Array.from(new Set(importData.map(d => d.setKey)));
   // Construct the array representation of the tree required by the tree import function.
   const importedSetsTree = [];

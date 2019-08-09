@@ -82,7 +82,7 @@ export default function SetsManagerActionBar(props) {
   }
 
   /**
-   * Downloads a file to the browser.
+   * Downloads a file from the browser.
    * @param {string} exportHandler The function that converts the data to a string.
    * @param {string} fileExtension The extension of the file to be downloaded.
    */
