@@ -48,8 +48,8 @@ export function handleImportTabular(props, result) {
      * @returns {Array} The color as an array.
      */
   function colorAsArray(colorString) {
-    return Object.entries(tinycolor(colorString).toRgb())
-      .filter(c => c[0] !== 'a').map(c => c[1]);
+    const colorObj = tinycolor(colorString).toRgb();
+    return [colorObj.r, colorObj.g, colorObj.g];
   }
   // Fall back to set name if set key not provided.
   const importData = dsvParser.parse(result, row => ({
