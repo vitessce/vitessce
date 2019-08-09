@@ -24,29 +24,29 @@ function arraysEqual(a, b) {
 }
 
 /**
-   * Make a timestamped name for an import root node.
-   * @returns {string} A new name for an import node.
-   */
+ * Make a timestamped name for an import root node.
+ * @returns {string} A new name for an import node.
+ */
 function makeImportName() {
   const timestamp = (new Date()).toLocaleString();
   return `Import ${timestamp}`;
 }
 
 /**
-   * Handler for tabular (TSV) imports.
-   * @param {object} props The component props.
-   * @param {string} result The data passed from the onImport function as a string.
-   */
+ * Handler for tabular (TSV) imports.
+ * @param {object} props The component props.
+ * @param {string} result The data passed from the onImport function as a string.
+ */
 export function handleImportTabular(props, result) {
   const {
     setsTree,
   } = props;
   const dsvParser = dsvFormat(tabularColumnSeparator);
   /**
-     * Convert a string color representation to an array of [r,g,b].
-     * @param {string} colorString The color as a string.
-     * @returns {Array} The color as an array.
-     */
+    * Convert a string color representation to an array of [r,g,b].
+    * @param {string} colorString The color as a string.
+    * @returns {Array} The color as an array.
+    */
   function colorAsArray(colorString) {
     const colorObj = tinycolor(colorString).toRgb();
     return [colorObj.r, colorObj.g, colorObj.b];
@@ -81,10 +81,10 @@ export function handleImportTabular(props, result) {
 }
 
 /**
-   * Handler for JSON imports.
-   * @param {object} props The component props.
-   * @param {string} result The data passed from the onImport function as a string.
-   */
+ * Handler for JSON imports.
+ * @param {object} props The component props.
+ * @param {string} result The data passed from the onImport function as a string.
+ */
 export function handleImportJSON(props, result) {
   const {
     datasetId,
@@ -112,69 +112,74 @@ export function handleImportJSON(props, result) {
 }
 
 /**
-   * Convert the tree to a tabular representation and then a string.
-   * Uses set keys as unique set identifiers to allow repeated set names.
-   * @param {object} props The component props.
-   * @returns {string} The data in a string representation.
-   */
+ * Convert the tree to a tabular representation and then a string.
+ * Uses set keys as unique set identifiers to allow repeated set names.
+ * @param {object} props The component props.
+ * @returns {string} The data in a string representation.
+ */
 export function handleExportTabular(props) {
   const {
     setsTree,
   } = props;
   const exportedSetsTree = setsTree.export();
   const exportData = [];
-  let prevNodeNameArray = [exportedSetsTree[0].name];
-  let prevNodeKeyArray = [exportedSetsTree[0].key];
-  // Iterate over each set.
-  exportedSetsTree.forEach((node) => {
+  if (exportedSetsTree.length > 0) {
+    let prevNodeNameArray = [exportedSetsTree[0].name];
+    let prevNodeKeyArray = [exportedSetsTree[0].key];
+    // Iterate over each set.
+    exportedSetsTree.forEach((node) => {
     // Compute the hierarchical name for the current node,
     // assuming the array of exported nodes is sorted.
-    const currNodeKeyArray = node.key.split(PATH_SEP);
-    if (arraysEqual(currNodeKeyArray, prevNodeKeyArray)) {
+      const currNodeKeyArray = node.key.split(PATH_SEP);
+      if (arraysEqual(currNodeKeyArray, prevNodeKeyArray)) {
       // Do nothing, the node key and name are correct.
-    } else if (arraysEqual(
-      currNodeKeyArray.slice(0, currNodeKeyArray.length - 1),
-      prevNodeKeyArray,
-    )) {
+      } else if (arraysEqual(
+        currNodeKeyArray.slice(0, currNodeKeyArray.length - 1),
+        prevNodeKeyArray,
+      )) {
       // The current node is a child of the previous node, so update the prev key and name.
-      prevNodeKeyArray = currNodeKeyArray;
-      prevNodeNameArray.push(node.name);
-    } else if (currNodeKeyArray.length === 1) {
+        prevNodeKeyArray = currNodeKeyArray;
+        prevNodeNameArray.push(node.name);
+      } else if (currNodeKeyArray.length === 1) {
       // The current node is at the first level of the tree, so reset the prev key and name.
-      prevNodeNameArray = [node.name];
-      prevNodeKeyArray = currNodeKeyArray;
-    } else if (arraysEqual(
-      currNodeKeyArray.slice(0, currNodeKeyArray.length - 1),
-      prevNodeKeyArray.slice(0, prevNodeKeyArray.length - 1),
-    )) {
+        prevNodeNameArray = [node.name];
+        prevNodeKeyArray = currNodeKeyArray;
+      } else if (arraysEqual(
+        currNodeKeyArray.slice(0, currNodeKeyArray.length - 1),
+        prevNodeKeyArray.slice(0, prevNodeKeyArray.length - 1),
+      )) {
       // The current node is at the same level as the previous node but is different.
-      prevNodeKeyArray = currNodeKeyArray;
-      prevNodeNameArray = [...prevNodeNameArray.slice(0, prevNodeNameArray.length - 1), node.name];
-    }
-    // Within a set, iterate over each item to create a new row of the table.
-    if (node.set && node.set.length > 0) {
-      node.set.forEach((item) => {
+        prevNodeKeyArray = currNodeKeyArray;
+        prevNodeNameArray = [
+          ...prevNodeNameArray.slice(0, prevNodeNameArray.length - 1),
+          node.name,
+        ];
+      }
+      // Within a set, iterate over each item to create a new row of the table.
+      if (node.set && node.set.length > 0) {
+        node.set.forEach((item) => {
+          exportData.push({
+            'Item ID': item,
+            'Set Key': node.key,
+            'Set Name': prevNodeNameArray.join(tabularHierarchySeparator),
+            'Set Color': tinycolor({ r: node.color[0], g: node.color[1], b: node.color[2] })
+              .toHexString(),
+          });
+        });
+      } else {
         exportData.push({
-          'Item ID': item,
+          'Item ID': tabularNA,
           'Set Key': node.key,
           'Set Name': prevNodeNameArray.join(tabularHierarchySeparator),
           'Set Color': tinycolor({ r: node.color[0], g: node.color[1], b: node.color[2] })
             .toHexString(),
         });
-      });
-    } else {
-      exportData.push({
-        'Item ID': tabularNA,
-        'Set Key': node.key,
-        'Set Name': prevNodeNameArray.join(tabularHierarchySeparator),
-        'Set Color': tinycolor({ r: node.color[0], g: node.color[1], b: node.color[2] })
-          .toHexString(),
-      });
-    }
-  });
+      }
+    });
+  }
   // Export to tabular file and do the download.
   const csv = json2csv(exportData, {
-    fields: Object.keys(exportData[0]),
+    fields: ['Item ID', 'Set Key', 'Set Name', 'Set Color'],
     delimiter: tabularColumnSeparator,
   });
   const dataString = `data:text/${tabularFileExtension};charset=utf-8,${encodeURIComponent(csv)}`;
@@ -182,10 +187,10 @@ export function handleExportTabular(props) {
 }
 
 /**
-   * Download the sets tree in a JSON representation.
-   * @param {object} props The component props.
-   * @returns {string} The data in a string representation.
-   */
+ * Download the sets tree in a JSON representation.
+ * @param {object} props The component props.
+ * @returns {string} The data in a string representation.
+ */
 export function handleExportJSON(props) {
   const {
     datasetId,
@@ -198,7 +203,7 @@ export function handleExportJSON(props) {
     version,
     setsTree: setsTree.export(),
   };
-    // eslint-disable-next-line prefer-template
+  // eslint-disable-next-line prefer-template
   const dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportData));
   return dataString;
 }
