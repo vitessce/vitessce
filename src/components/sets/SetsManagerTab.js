@@ -48,7 +48,6 @@ export default class SetsManagerTab extends React.Component {
     setsTree.dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap);
   }
 
-
   renderTreeNodes(nodes) {
     if (!nodes) {
       return null;

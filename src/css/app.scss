@@ -1,0 +1,48 @@
+@import './index';
+
+html, body {
+    height: 100%;
+}
+body {
+    background-color: $color-gray-dark;
+}
+
+/* Flex grid items */
+.react-grid-item {
+    /* emulate bootstrap .flex-column: */
+    -webkit-box-orient: vertical!important;
+    -webkit-box-direction: normal!important;
+    -ms-flex-direction: column!important;
+    flex-direction: column!important;
+
+    /* emulate bootstrap .d-flex: */
+    display: -webkit-box!important;
+    display: -ms-flexbox!important;
+    display: flex!important;
+
+    /* So the resize handle position looks correct: */
+    padding-right: 10px;
+}
+
+/* Tool styles */
+.bg-light {
+    background-color: #222!important;
+    color: lightgrey;
+    a {
+        color: #9bb7d6;
+    }
+}
+.bg-black {
+    background-color: black;
+    color: lightgrey;
+}
+.title {
+    color: lightgrey;
+}
+.scroll {
+    overflow-y: auto;
+}
+.details {
+    font-size: 80%;
+    opacity: 0.8;
+}
