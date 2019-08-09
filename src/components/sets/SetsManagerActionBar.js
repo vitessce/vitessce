@@ -12,7 +12,6 @@ import {
   handleExportTabular, handleExportJSON,
 } from './io';
 
-
 export default function SetsManagerActionBar(props) {
   const {
     setsTree, datasetId, setsType,
@@ -50,8 +49,8 @@ export default function SetsManagerActionBar(props) {
 
   /**
    * Import a file, then process the imported data via the supplied handler function.
-   * @param {string} mimeType The accepted mime type for the file upload input.
    * @param {Function} importHandler The function to process the imported data.
+   * @param {string} mimeType The accepted mime type for the file upload input.
    * @returns {Function} An onImport function corresponding to the supplied parameters.
    */
   function onImport(importHandler, mimeType) {
@@ -84,8 +83,8 @@ export default function SetsManagerActionBar(props) {
 
   /**
    * Downloads a file to the browser.
-   * @param {string} dataString The data as a string.
-   * @param {string} fileName The name of the file to be downloaded.
+   * @param {string} exportHandler The function that converts the data to a string.
+   * @param {string} fileExtension The extension of the file to be downloaded.
    */
   function onExport(exportHandler, fileExtension) {
     return () => {

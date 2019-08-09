@@ -42,7 +42,6 @@ const correctExportedJSON = `data:text/json;charset=utf-8,%7B%22datasetId%22%3A%
 // eslint-disable-next-line quotes
 const correctExportedTSV = `data:text/tsv;charset=utf-8,%22Item%20ID%22%09%22Set%20Key%22%09%22Set%20Name%22%09%22Set%20Color%22%0A%22NA%22%09%22other-selection%22%09%22Other%20selection%22%09%22%23000000%22%0A%223085%22%09%22neurons%22%09%22Neurons%22%09%22%23808080%22%0A%221796%22%09%22neurons%09excitatory%22%09%22Neurons%3BExcitatory%20Neurons%22%09%22%23ffff99%22%0A%224723%22%09%22neurons%09excitatory%22%09%22Neurons%3BExcitatory%20Neurons%22%09%22%23ffff99%22%0A%224691%22%09%22neurons%09excitatory%22%09%22Neurons%3BExcitatory%20Neurons%22%09%22%23ffff99%22%0A%225699%22%09%22neurons%09inhibitory%22%09%22Neurons%3BInhibitory%20Neurons%22%09%22%23fdbf6f%22%0A%225824%22%09%22neurons%09inhibitory%22%09%22Neurons%3BInhibitory%20Neurons%22%09%22%23fdbf6f%22%0A%22NA%22%09%22empty-selection%22%09%22Empty%20selection%22%09%22%23808080%22%0A%221972%22%09%22another-selection%22%09%22Another%20selection%22%09%22%23808080%22%0A%224047%22%09%22another-selection%22%09%22Another%20selection%22%09%22%23808080%22`;
 
-
 describe('io.js', () => {
   describe('importing sets', () => {
     it('can import sets from a JSON file', (done) => {
