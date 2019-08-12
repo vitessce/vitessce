@@ -65,6 +65,7 @@ export function handleImportTabular(props, result) {
   // Iterate over each set and append to the tree array representation.
   importedSetKeys.forEach((setKey) => {
     const setItems = importData.filter(d => d.setKey === setKey);
+    // length === 1 because we include a parent item in the export.
     const isEmpty = setItems.length === 1 && setItems[0].itemId === tabularNA;
     // Use the first item of the set to get the set name and set color values
     // that will be used for the whole set.
