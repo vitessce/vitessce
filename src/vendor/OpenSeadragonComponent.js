@@ -13,7 +13,10 @@ export default class OpenSeadragonComponent extends React.Component {
     );
   }
 
-  zoomTo(x, y, width, height, sample = 1) {
+  zoomTo({
+    x, y, width, height,
+    sample = 1, translateX = 0, translateY = 0,
+  }) {
     // TODO: We sometimes get TypeErrors... Some kind of race condition?
     // Until I understand the problem better, just exit early
     // if the data we need is not available.
@@ -22,7 +25,10 @@ export default class OpenSeadragonComponent extends React.Component {
     // TODO: ... and we also got a TypeError here.
     if (!tiledImage) return;
     const rect = tiledImage.imageToViewportRectangle(
-      x / sample, y / sample, width / sample, height / sample,
+      (x + translateX) / sample,
+      (y + translateY) / sample,
+      width / sample,
+      height / sample,
     );
     this.viewer.viewport.fitBounds(rect, true);
   }
@@ -31,6 +37,7 @@ export default class OpenSeadragonComponent extends React.Component {
     const {
       tileSources, sample,
       x, y, width, height,
+      translateX, translateY,
     } = this.props;
     this.viewer = OpenSeadragon({
       id: this.id,
@@ -42,7 +49,9 @@ export default class OpenSeadragonComponent extends React.Component {
     });
     this.viewer.addHandler('open', () => {
       // Callback is necessary: If invoked immediately, it doesn't work.
-      this.zoomTo(x, y, width, height, sample);
+      this.zoomTo({
+        x, y, width, height, sample, translateX, translateY,
+      });
     });
   }
 
@@ -53,14 +62,16 @@ export default class OpenSeadragonComponent extends React.Component {
   shouldComponentUpdate(nextProps) {
     const { tileSources } = this.props;
     const {
-      x, y, width, height, sample,
+      x, y, width, height, sample, translateX, translateY,
     } = nextProps;
     if (tileSources.length !== nextProps.tileSources.length) {
       // This assumes that tileSources are not modified in place,
       // and that all tileSources changes involve a change in length.
       this.viewer.removeAllHandlers('open');
       this.viewer.addHandler('open', () => {
-        this.zoomTo(x, y, width, height, sample);
+        this.zoomTo({
+          x, y, width, height, sample, translateX, translateY,
+        });
       });
       // We need to re-add the open handler because the coordinate to zoomTo are new.
       this.viewer.open(nextProps.tileSources);
@@ -69,7 +80,11 @@ export default class OpenSeadragonComponent extends React.Component {
       // They change the zoom, and try to preserve the content on screen.
       // With a 0-timeout, we can zoom the "right" way after they zoom the "wrong" way.
       // See "preserveImageSizeOnResize" above, and https://github.com/hubmapconsortium/vitessce/issues/182
-      setTimeout(() => { this.zoomTo(x, y, width, height, sample); }, 0);
+      setTimeout(() => {
+        this.zoomTo({
+          x, y, width, height, sample, translateX, translateY,
+        });
+      }, 0);
     }
     // React should not re-render the component:
     return false;
