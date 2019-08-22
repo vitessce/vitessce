@@ -93,7 +93,7 @@ const configs = {
         { component: 'scatterplot',
           props: {
             mapping: 'PCA',
-            // Keep this without "view", to exercise our handling of the default.
+            // This intentionally does not have a  "view" prop, so that we can exercise using the default.
           },
           x: 2, y: 0, h: 2 },
         { component: 'scatterplot',
