@@ -3,6 +3,7 @@
 ## 0.0.18 - in progress
 ### Added
 - Initial zoom can be specified for scatterplots.
+- Allow background imagery to be translated horizontally and vertically.
 - Close cell set tabs.
 - Color cell sets.
 - Split long menu of cell operations into smaller menus from icons.
