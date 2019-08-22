@@ -9,7 +9,7 @@ export default class Scatterplot extends AbstractSelectableComponent {
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
-    return {
+    return this.props.view || {
       zoom: 2,
       target: [0, 0, 0], // Required: https://github.com/uber/deck.gl/issues/2580
     };

@@ -91,13 +91,16 @@ const configs = {
           },
           x: 1, y: 0, h: 4 },
         { component: 'scatterplot',
-          props: { mapping: 'PCA' },
+          props: {
+            mapping: 'PCA',
+            // This intentionally does not have a  "view" prop, so that we can exercise using the default.
+          },
           x: 2, y: 0, h: 2 },
         { component: 'scatterplot',
           props: {
             mapping: 't-SNE',
             view: {
-              zoom: -4,
+              zoom: 0.75,
               target: [0, 0, 0],
             },
           },
@@ -319,7 +322,13 @@ const configs = {
         { component: 'status',
           x: 0, y: 1 },
         { component: 'scatterplot',
-          props: { mapping: 't-SNE' },
+          props: {
+            mapping: 't-SNE',
+            view: {
+              zoom: 3,
+              target: [0, 0, 0],
+            },
+          },
           x: 0, y: 2, h: 2 },
         { component: 'spatial',
           props: {
@@ -331,7 +340,13 @@ const configs = {
           },
           x: 1, y: 0, h: 2 },
         { component: 'scatterplot',
-          props: { mapping: 'UMAP' },
+          props: {
+            mapping: 'UMAP',
+            view: {
+              zoom: 3,
+              target: [0, 0, 0],
+            },
+          },
           x: 1, y: 2, h: 2 },
         { component: 'factors',
           x: 2, y: 0, h: 4 },
