@@ -24,7 +24,7 @@ body {
     padding-right: 10px;
 }
 
-/* Fix grid title rendering on Chrome.
+/* Fix grid title rendering on Safari 12.0.
    Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
 .d-flex {
     flex-shrink: 0;
