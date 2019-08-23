@@ -134,6 +134,6 @@ export default class LayerPublisher extends React.Component {
         </React.Fragment>
       );
     }
-    return <React.Fragment />;
+    return null;
   }
 }
