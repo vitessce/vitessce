@@ -17,6 +17,9 @@ export default function SetsManagerActionBar(props) {
     setsTree, datasetId, setsType,
     onError = (err) => {
       console.warn(`SetsManagerActionBar onError: ${err}`);
+      // NOTE: Because this is used in the non-pubsub SetsManager,
+      // it would be inappropriate to use our STATUS_WARN event here...
+      // If we were to need that integration, a callback needs to be passed in.
     },
   } = props;
 
