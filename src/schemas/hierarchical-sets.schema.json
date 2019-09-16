@@ -16,11 +16,10 @@
       }
     },
     "additionalProperties": false,
-    "required": ["datasetId", "version", "setsName", "setsType", "setsTree"],
+    "required": ["datasetId", "version", "setsType", "setsTree"],
     "properties": {
       "datasetId": { "type": "string" },
       "version": { "type": "string" },
-      "setsName": { "type": "string" },
       "setsType": { "type": "string" },
       "setsTree": {
           "type": "array",
