@@ -4,7 +4,7 @@ import { DEFAULT_COLOR, fromEntries } from '../utils';
 const CURRENT_SET_NAME = 'Current selection';
 const ALL_ROOT_KEY = 'all';
 const ALL_ROOT_NAME = 'All';
-const PATH_SEP = '\t';
+export const PATH_SEP = '\t';
 
 /**
  * Like .find but can return the truthy value rather than returning the element.
