@@ -18,8 +18,8 @@ export default function SetsManagerActionBar(props) {
     onError = (err) => {
       console.warn(`SetsManagerActionBar onError: ${err}`);
       // NOTE: Because this is used in the non-pubsub SetsManager,
-      // it would be inappropriate to use our STATUS_WARN event here...
-      // If we were to need that integration, a callback needs to be passed in.
+      // it would be inappropriate to use our STATUS_WARN event as the default here.
+      // If we were to need that integration, a callback needs to be passed in as a prop.
     },
   } = props;
 
@@ -76,7 +76,11 @@ export default function SetsManagerActionBar(props) {
         const reader = new FileReader();
         reader.addEventListener('load', () => {
           const { result } = reader;
-          importHandler(props, result);
+          try {
+            importHandler(props, result);
+          } catch (e) {
+            onError(e.message);
+          }
         }, false);
         reader.readAsText(files[0]);
       });
