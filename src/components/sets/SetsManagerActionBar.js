@@ -128,19 +128,15 @@ export default function SetsManagerActionBar(props) {
         menuConfig={[{
           name: `Import ${tabularFileType}`,
           handler: onImport(handleImportTabular, `text/${tabularFileExtension}`),
-          handlerKey: 't',
         }, {
           name: 'Import JSON',
           handler: onImport(handleImportJSON, 'application/json'),
-          handlerKey: 'j',
         }, {
           name: `Export ${tabularFileType}`,
           handler: onExport(handleExportTabular, tabularFileExtension),
-          handlerKey: 's',
         }, {
           name: 'Export JSON',
           handler: onExport(handleExportJSON, 'json'),
-          handlerKey: 'o',
         }]}
       >
         <Icon type="more" />
