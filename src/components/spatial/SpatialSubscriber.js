@@ -19,6 +19,7 @@ export default class SpatialSubscriber extends React.Component {
       selectedCellIds: new Set(),
       cellColors: null,
     };
+    this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
   componentWillMount() {
@@ -97,6 +98,8 @@ export default class SpatialSubscriber extends React.Component {
         title="Spatial"
         info={`${cellsCount} cells, ${moleculesCount} molecules
               at ${shortNumber(locationsCount)} locations`}
+        name="spatial-component"
+        componentWillUnmount={this.componentWillUnmount}
       >
         {children}
         <Spatial

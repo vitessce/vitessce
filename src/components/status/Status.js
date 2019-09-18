@@ -13,7 +13,7 @@ export default function Status(props) {
     messages.push(<p className={warnClass} key="warn">{warn}</p>);
   }
   return (
-    <TitleInfo title="Status" isScroll>
+    <TitleInfo title="Status" isScroll name="status-component">
       {messages}
     </TitleInfo>
   );
