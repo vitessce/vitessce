@@ -1,101 +1,109 @@
 import React from 'react';
-import Ajv from 'ajv';
 import { Icon } from 'antd';
-import { version } from '../../../package.json';
 import 'antd/es/icon/style/index.css';
 import PopoverMenu from './PopoverMenu';
 import SetUnionSVG from '../../assets/sets/union.svg';
 import SetIntersectionSVG from '../../assets/sets/intersection.svg';
 import SetComplementSVG from '../../assets/sets/complement.svg';
 
-import hierarchicalSetsSchema from '../../schemas/hierarchical-sets.schema.json';
+import {
+  tabularFileType, tabularFileExtension,
+  handleImportTabular, handleImportJSON,
+  handleExportTabular, handleExportJSON,
+} from './io';
 
 export default function SetsManagerActionBar(props) {
   const {
     setsTree, datasetId, setsType,
     onError = (err) => {
       console.warn(`SetsManagerActionBar onError: ${err}`);
+      // NOTE: Because this is used in the non-pubsub SetsManager,
+      // it would be inappropriate to use our STATUS_WARN event as the default here.
+      // If we were to need that integration, a callback needs to be passed in as a prop.
     },
   } = props;
 
+  /**
+   * Perform the union set operation, updating the current set.
+   */
   function onUnion() {
     const checkedUnion = setsTree.getUnion(setsTree.checkedKeys);
     setsTree.setCurrentSet(checkedUnion, true, 'Current union');
     setsTree.emitVisibilityUpdate();
   }
 
+  /**
+   * Perform the intersection set operation, updating the current set.
+   */
   function onIntersection() {
     const checkedIntersection = setsTree.getIntersection(setsTree.checkedKeys);
     setsTree.setCurrentSet(checkedIntersection, true, 'Current intersection');
     setsTree.emitVisibilityUpdate();
   }
 
+  /**
+   * Perform the complement set operation, updating the current set.
+   */
   function onComplement() {
     const checkedComplement = setsTree.getComplement(setsTree.checkedKeys);
     setsTree.setCurrentSet(checkedComplement, true, 'Current complement');
     setsTree.emitVisibilityUpdate();
   }
 
-  function onImport() {
-    const uploadInputNode = document.createElement('input');
-    uploadInputNode.setAttribute('type', 'file');
-    uploadInputNode.setAttribute('accept', 'application/json');
-    document.body.appendChild(uploadInputNode); // required for firefox
-    uploadInputNode.click();
-    uploadInputNode.addEventListener('change', (event) => {
-      if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
-        onError('Local file reading APIs are not fully supported in this browser.');
-        return;
-      }
-      const { files } = event.target;
-      if (!files || files.length !== 1) {
-        onError('Incorrect number of files selected.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.addEventListener('load', () => {
-        const { result } = reader;
-        const importData = JSON.parse(result);
-        // Validate the imported file.
-        const validate = new Ajv().compile(hierarchicalSetsSchema);
-        const valid = validate(importData);
-        if (!valid) {
-          const failureReason = JSON.stringify(validate.errors, null, 2);
-          onError(`Import validation failed: ${failureReason}`);
-        } else if (importData.datasetId !== datasetId) {
-          onError('The imported datasetId does not match the current datasetId.');
-        } else if (importData.version !== version) {
-          onError('The imported schema version is not compatible with the current schema version.');
-        } else if (importData.setsType !== setsType) {
-          onError('The imported setsType does not match the current setsType.');
-        } else {
-          onError(false); // Clear any previous import error.
-          setsTree.import(importData.setsTree, importData.setsName);
+  /**
+   * Import a file, then process the imported data via the supplied handler function.
+   * @param {Function} importHandler The function to process the imported data.
+   * @param {string} mimeType The accepted mime type for the file upload input.
+   * @returns {Function} An onImport function corresponding to the supplied parameters.
+   */
+  function onImport(importHandler, mimeType) {
+    return () => {
+      const uploadInputNode = document.createElement('input');
+      uploadInputNode.setAttribute('type', 'file');
+      uploadInputNode.setAttribute('accept', mimeType);
+      document.body.appendChild(uploadInputNode); // required for firefox
+      uploadInputNode.click();
+      uploadInputNode.addEventListener('change', (event) => {
+        if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
+          onError('Local file reading APIs are not fully supported in this browser.');
+          return;
         }
-      }, false);
-      reader.readAsText(files[0]);
-    });
-    uploadInputNode.remove();
+        const { files } = event.target;
+        if (!files || files.length !== 1) {
+          onError('Incorrect number of files selected.');
+          return;
+        }
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          const { result } = reader;
+          try {
+            importHandler(props, result);
+          } catch (e) {
+            onError(e.message);
+          }
+        }, false);
+        reader.readAsText(files[0]);
+      });
+      uploadInputNode.remove();
+    };
   }
 
-  function onExport() {
-    const timestamp = (new Date().toLocaleString());
-    const exportData = {
-      datasetId,
-      setsName: `Export ${timestamp}`,
-      setsType,
-      version,
-      setsTree: setsTree.export(),
+  /**
+   * Downloads a file from the browser.
+   * @param {string} exportHandler The function that converts the data to a string.
+   * @param {string} fileExtension The extension of the file to be downloaded.
+   */
+  function onExport(exportHandler, fileExtension) {
+    return () => {
+      const dataString = exportHandler(props);
+      const fileName = `${datasetId}-${setsType}-sets.${fileExtension}`;
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute('href', dataString);
+      downloadAnchorNode.setAttribute('download', fileName);
+      document.body.appendChild(downloadAnchorNode); // required for firefox
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
     };
-    // eslint-disable-next-line prefer-template
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportData));
-    const fileExtension = 'json';
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute('href', dataStr);
-    downloadAnchorNode.setAttribute('download', `${datasetId}-${setsType}-sets.${fileExtension}`);
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
   }
 
   return (
@@ -118,13 +126,17 @@ export default function SetsManagerActionBar(props) {
       <PopoverMenu
         placement="bottom"
         menuConfig={[{
-          name: 'Import',
-          handler: onImport,
-          handlerKey: 'i',
+          name: `Import ${tabularFileType}`,
+          handler: onImport(handleImportTabular, `text/${tabularFileExtension}`),
         }, {
-          name: 'Export',
-          handler: onExport,
-          handlerKey: 'e',
+          name: 'Import JSON',
+          handler: onImport(handleImportJSON, 'application/json'),
+        }, {
+          name: `Export ${tabularFileType}`,
+          handler: onExport(handleExportTabular, tabularFileExtension),
+        }, {
+          name: 'Export JSON',
+          handler: onExport(handleExportJSON, 'json'),
         }]}
       >
         <Icon type="more" />

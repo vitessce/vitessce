@@ -137,6 +137,7 @@ export default class Spatial extends AbstractSelectableComponent {
       },
     } = this.props;
 
+    const getColor = d => PALETTE[d[2] % PALETTE.length];
     return new ScatterplotLayer({
       id: 'scatter-plot',
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
@@ -145,7 +146,8 @@ export default class Spatial extends AbstractSelectableComponent {
       autoHighlight: true,
       getRadius: this.props.moleculeRadius,
       getPosition: d => [d[0], d[1], 0],
-      getColor: d => PALETTE[d[2] % PALETTE.length],
+      getLineColor: getColor,
+      getFillColor: getColor,
       onHover: (info) => {
         if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
       },

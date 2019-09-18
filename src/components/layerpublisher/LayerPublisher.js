@@ -111,12 +111,6 @@ export default class LayerPublisher extends React.Component {
   }
 
   render() {
-    const ua = navigator.userAgent;
-    // Somewhat fragile, but simple, and good enough for this.
-    if (!ua.includes('Chrome') && !ua.includes('Firefox')) {
-      PubSub.publish(STATUS_WARN, 'Warning: Base imagery does not load in Safari; Consider using Firefox or Chrome.');
-    }
-
     const { pleaseWaits } = this.state;
     const unloadedLayers = Object.entries(pleaseWaits).filter(
       ([name, stillWaiting]) => stillWaiting, // eslint-disable-line no-unused-vars
@@ -140,6 +134,6 @@ export default class LayerPublisher extends React.Component {
         </React.Fragment>
       );
     }
-    return <React.Fragment />;
+    return null;
   }
 }
