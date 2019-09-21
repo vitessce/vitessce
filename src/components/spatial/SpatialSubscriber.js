@@ -98,7 +98,6 @@ export default class SpatialSubscriber extends React.Component {
         title="Spatial"
         info={`${cellsCount} cells, ${moleculesCount} molecules
               at ${shortNumber(locationsCount)} locations`}
-        name="spatial-component"
         componentWillUnmount={this.componentWillUnmount}
       >
         {children}

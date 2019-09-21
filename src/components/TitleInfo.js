@@ -25,7 +25,6 @@ export default function TitleInfo(props) {
       <div className={childClassName}>
         {children}
       </div>
-
     </React.Fragment>
     // "pl-2" only matters when the window is very narrow.
   );
