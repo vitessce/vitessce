@@ -58,7 +58,6 @@ export default class GenesSubscriber extends React.Component {
         title="Expression Levels"
         info={`${genesKeys.length} genes`}
         isScroll
-        name="genes-component"
         componentWillUnmount={this.componentWillUnmount}
       >
         <Genes

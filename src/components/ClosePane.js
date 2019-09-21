@@ -1,9 +1,7 @@
 import React from 'react';
 
-import CloseSVG from '../assets/main/close.svg';
-
 export default function ClosePane(props) {
-  const { name, componentWillUnmount } = props;
+  const { gridItemId, componentWillUnmount } = props;
 
   function onRemovePane(id) {
     document.getElementById(id).parentNode.remove();
@@ -13,14 +11,13 @@ export default function ClosePane(props) {
   }
 
   return (
-    <React.Fragment>
-      <i
-        className="anticon"
-        onClick={() => { onRemovePane(name); }}
-        title="close"
-      >
-        <CloseSVG />
-      </i>
-    </React.Fragment>
+    <button
+      type="button"
+      className="close-pane-button"
+      onClick={() => { onRemovePane(gridItemId); }}
+      title="close"
+    >
+      &#x00D7;
+    </button>
   );
 }

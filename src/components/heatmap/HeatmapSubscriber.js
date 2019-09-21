@@ -77,7 +77,6 @@ export default class HeatmapSubscriber extends React.Component {
         title="Heatmap"
         info={`${cellsCount} cells × ${genesCount} genes,
                with ${selectedCount} cells selected`}
-        name="heatmap-component"
         componentWillUnmount={this.componentWillUnmount}
       >
         {children}

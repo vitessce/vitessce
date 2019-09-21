@@ -64,7 +64,6 @@ export default class FactorsSubscriber extends React.Component {
         title="Factors"
         info={`${factorsKeys.length} factors`}
         isScroll
-        name="factors-component"
         componentWillUnmount={this.componentWillUnmount}
       >
         <Factors
