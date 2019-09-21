@@ -7,10 +7,6 @@ body {
     background-color: $color-gray-dark;
 }
 
-.close-button {
-
-}
-
 /* Flex grid items */
 .react-grid-item {
     /* emulate bootstrap .flex-column: */
@@ -32,6 +28,15 @@ body {
    Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
 .d-flex {
     flex-shrink: 0;
+}
+
+/* Styling for closing button on the grid items */
+.close-pane-button {
+    background: none;
+    border: none;
+    font-family: Ampersand;
+    color: $color-black;
+    margin-left: .5em;
 }
 
 /* Tool styles */
