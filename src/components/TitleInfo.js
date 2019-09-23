@@ -1,7 +1,7 @@
 import React from 'react';
 import uuidv4 from 'uuid/v4';
 import { SCROLL_CARD, BLACK_CARD } from './classNames';
-import ClosePane from './ClosePane';
+import ClosePaneButton from './ClosePaneButton';
 
 export default function TitleInfo(props) {
   const {
@@ -19,7 +19,7 @@ export default function TitleInfo(props) {
         {title}
         <span className="details pl-2">
           {info}&nbsp;
-          <ClosePane gridItemId={gridItemId} componentWillUnmount={componentWillUnmount} />
+          <ClosePaneButton gridItemId={gridItemId} componentWillUnmount={componentWillUnmount} />
         </span>
       </div>
       <div className={childClassName}>

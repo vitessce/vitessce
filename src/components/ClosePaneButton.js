@@ -2,14 +2,17 @@ import React from 'react';
 
 export default function ClosePane(props) {
   const { gridItemId, componentWillUnmount } = props;
-
   function onRemovePane(id) {
-    document.getElementById(id).parentNode.remove();
+    if (!id) {
+      throw new Error('Failed to close pane due to missing id.');
+    } else {
+      document.getElementById(id).parentNode.remove();
+    }
+    // typically to unsubscribe components to pubsub
     if (componentWillUnmount) {
       componentWillUnmount();
     }
   }
-
   return (
     <button
       type="button"
@@ -17,7 +20,7 @@ export default function ClosePane(props) {
       onClick={() => { onRemovePane(gridItemId); }}
       title="close"
     >
-      &#x00D7;
+      &#10006;
     </button>
   );
 }
