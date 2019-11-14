@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Vitessce demo</title>
+    <!-- <link href="https://unpkg.com/.....min.css" type="text/css" rel="stylesheet" /> -->
+  </head>
+
+  <body>
+    <p>
+      This demonstrates how to use
+      <a href="https://github.com/hubmapconsortium/vitessce/">Vitessce</a>
+      in static HTML.
+    </p>
+    <div id="vitessce"></div>
+
+    <!-- External libraries listed in nwb.config.js need to be loaded first: -->
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+
+    <!-- Load prov-vis. (In production, add a version number!) -->
+    <!-- <script src="https://unpkg.com/vitessce/umd/.....js"></script> -->
+    <!-- ... or "npm run build" to override the unpkg CDN and preview it locally.
+        (If not built, this will 404, and the CDN will still be used.) -->
+    <script src="./umd/vitessce/....js"></script>
+
+    <script type="module">
+      const viewConf = {};
+      vitessce.renderApp('vitessce', viewConf);
+    </script>
+  </body>
+</html>
