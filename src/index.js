@@ -5,7 +5,7 @@ import { Heatmap } from './components/heatmap';
 import { Spatial } from './components/spatial';
 import { Scatterplot } from './components/scatterplot';
 import PubSubVitessceGrid from './app/PubSubVitessceGrid';
-import { renderApp } from './app';
+import { renderApp, validateAndRender } from './app';
 
 export default {
   Heatmap,
@@ -13,4 +13,5 @@ export default {
   Scatterplot,
   PubSubVitessceGrid,
   renderApp,
+  validateAndRender
 };

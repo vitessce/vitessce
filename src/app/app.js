@@ -47,7 +47,7 @@ function preformattedDetails(response) {
     url: ${response.url}`; // TODO: headers
 }
 
-function validateAndRender(config, id) {
+export function validateAndRender(config, id) {
   if (!config) {
     // If the config value is undefined, show a warning message
     renderComponent(
@@ -99,7 +99,7 @@ function renderResponse(response, id) {
   }
 }
 
-export default function renderApp(id) {
+export function renderApp(id) {
   const urlParams = new URLSearchParams(window.location.search);
   const datasetId = urlParams.get('dataset');
   const datasetUrl = urlParams.get('url');

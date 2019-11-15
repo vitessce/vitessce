@@ -15,25 +15,39 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <title>🚄 Vitessce</title>
-
-    <link href="https://unpkg.com/vitessce/umd/main.418503b8.css" type="text/css" rel="stylesheet" />
-    <link href="../umd/main.418503b8.css" type="text/css" rel="stylesheet" />
   </head>
 
   <body>
-    <div id="vitessce"></div>
-
-    <!-- External libraries listed in nwb.config.js need to be loaded first: -->
-    <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
-
-    <!-- Load Vitessce. (In production, add a version number!) -->
-    <!-- <script src="https://unpkg.com/vitessce/umd/.....js"></script> -->
-    <!-- ... or "npm run build" to override the unpkg CDN and preview it locally.
-        (If not built, this will 404, and the CDN will still be used.) -->
-    <script src="../umd/vitessce.min.js"></script>
-
-    <script>
-      vitessce.renderApp('vitessce');
-    </script>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <h1>Vitessce</h1>
+          <p>This is a demo of key concepts for a
+            <b>v</b>isual
+            <b>i</b>ntegration
+            <b>t</b>ool for
+            <b>e</b>xploration of
+            <b>s</b>patial
+            <b>s</b>ingle-<b>c</b>ell
+            <b>e</b>xperiments.
+            This demo focusses on scalable, linked visualizations that support both spatial and non-spatial representation of cell-level and molecule-level data.
+          </p>
+          <p>Vitessce is supported by the NIH Common Fund, through the <a href="https://commonfund.nih.gov/HuBMAP">Human BioMolecular Atlas Program (HuBMAP)</a>, Integration, Visualization &amp; Engagement (HIVE) Initiative, RFA-RM-18-001.</p>
+          <p>More information:</p>
+          <ul>
+            <li><a href="https://github.com/hms-dbmi/vitessce">GitHub</a></li>
+            <li><a href="https://www.npmjs.com/package/vitessce">NPM</a></li>
+          </ul>
+          <hr />
+          <ul>
+            <li><a href="app.html">Demo App</a></li>
+            <li><a href="hello.html">Hello World</a></li>
+            <li>Heatmap Component</li>
+            <li>Spatial Component</li>
+            <li>Scatterplot Component</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
