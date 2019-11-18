@@ -75,7 +75,7 @@ export function validateAndRender(config, id, rowHeight) {
       config={config}
       getComponent={getComponent}
       rowHeight={rowHeight}
-    />, id
+    />, id,
   );
 }
 
