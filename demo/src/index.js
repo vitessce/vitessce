@@ -2,7 +2,7 @@ import { renderApp } from '../../src/app/app';
 
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.has('small')) {
-  renderApp('small-app');
+  renderApp('small-app', 100);
 } else {
   renderApp('full-app');
 }
