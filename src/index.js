@@ -13,5 +13,5 @@ export default {
   Scatterplot,
   PubSubVitessceGrid,
   renderApp,
-  validateAndRender
+  validateAndRender,
 };

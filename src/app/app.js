@@ -75,7 +75,8 @@ export function validateAndRender(config, id, rowHeight) {
       config={config}
       getComponent={getComponent}
       rowHeight={rowHeight}
-    />, id);
+    />, id
+  );
 }
 
 function renderResponse(response, id) {
@@ -104,7 +105,7 @@ function renderResponse(response, id) {
   }
 }
 
-export function renderApp(id, rowHeight=null) {
+export function renderApp(id, rowHeight = null) {
   const urlParams = new URLSearchParams(window.location.search);
   const datasetId = urlParams.get('dataset');
   const datasetUrl = urlParams.get('url');
@@ -112,7 +113,7 @@ export function renderApp(id, rowHeight=null) {
 
   if (datasetId) {
     const config = getConfig(datasetId);
-    validateAndRender(config, id, rowHeight=rowHeight);
+    validateAndRender(config, id, rowHeight);
   } else if (datasetUrl) {
     fetch(datasetUrl)
       .then(response => renderResponse(response, id))
