@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.18 - in progress
+## [0.0.18](https://www.npmjs.com/package/vitessce/v/0.0.18) - 2019-11-18
 ### Added
 - Initial zoom can be specified for scatterplots.
 - Allow background imagery to be translated horizontally and vertically.
