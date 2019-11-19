@@ -47,7 +47,7 @@ function preformattedDetails(response) {
     url: ${response.url}`; // TODO: headers
 }
 
-function validateAndRender(config, id) {
+export function validateAndRender(config, id, rowHeight) {
   if (!config) {
     // If the config value is undefined, show a warning message
     renderComponent(
@@ -70,7 +70,13 @@ function validateAndRender(config, id) {
     );
     return;
   }
-  renderComponent(<PubSubVitessceGrid config={config} getComponent={getComponent} />, id);
+  renderComponent(
+    <PubSubVitessceGrid
+      config={config}
+      getComponent={getComponent}
+      rowHeight={rowHeight}
+    />, id,
+  );
 }
 
 function renderResponse(response, id) {
@@ -99,7 +105,7 @@ function renderResponse(response, id) {
   }
 }
 
-export default function renderApp(id) {
+export function renderApp(id, rowHeight = null) {
   const urlParams = new URLSearchParams(window.location.search);
   const datasetId = urlParams.get('dataset');
   const datasetUrl = urlParams.get('url');
@@ -107,7 +113,7 @@ export default function renderApp(id) {
 
   if (datasetId) {
     const config = getConfig(datasetId);
-    validateAndRender(config, id);
+    validateAndRender(config, id, rowHeight);
   } else if (datasetUrl) {
     fetch(datasetUrl)
       .then(response => renderResponse(response, id))

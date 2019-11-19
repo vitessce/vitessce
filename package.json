@@ -53,7 +53,7 @@
     "tinycolor2": "^1.4.1",
     "turf": "^3.0.14",
     "uuid": "^3.3.2",
-    "vitessce-grid": "0.0.4"
+    "vitessce-grid": "0.0.5"
   },
   "devDependencies": {
     "@svgr/webpack": "^4.3.0",

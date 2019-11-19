@@ -6,6 +6,7 @@ import { LayerPublisher } from '../components/layerpublisher';
 export default class PubSubVitessceGrid extends React.Component {
   constructor(props) {
     super(props);
+    this.rowHeight = props.rowHeight;
     this.state = { allReady: false };
   }
 
@@ -17,6 +18,7 @@ export default class PubSubVitessceGrid extends React.Component {
         { allReady && <LayerPublisher layers={config.layers} /> }
         <VitessceGrid
           layout={config.responsiveLayout || config.staticLayout}
+          rowHeight={this.rowHeight}
           getComponent={getComponent}
           onAllReady={() => { this.setState({ allReady: true }); }}
           draggableHandle=".title"
