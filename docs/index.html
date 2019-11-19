@@ -14,6 +14,12 @@
     </script>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Load CSS from CDN. (In production, add a version number!) -->
+    <link rel="stylesheet" href="https://unpkg.com/vitessce/umd/main.84366ff2.css"/>
+    <!-- ... or override with local built with "npm run build": -->
+    <link rel="stylesheet" href="../umd/main.84366ff2.css"/>
+
     <title>🚄 Vitessce</title>
   </head>
 
@@ -41,15 +47,15 @@
           </ul>
           <hr />
           <p>Here's an example of embedding Vitessce as a component:</p>
-          <div id="vitessce" style="width: 500px;">
+          <div id="vitessce" style="width: 500px;"/>
+
+          <!-- See CSS in header! -->
 
           <!-- External libraries listed in nwb.config.js need to be loaded first: -->
           <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
-
-          <!-- Load Vitessce. (In production, add a version number!) -->
+          <!-- Load JS from CDN. (In production, add a version number!) -->
           <script src="https://unpkg.com/vitessce/umd/vitessce.min.js"></script>
-          <!-- ... or "npm run build" to override the unpkg CDN and preview it locally.
-              (If not built, this will 404, and the CDN will still be used.) -->
+          <!-- ... or override with local built with "npm run build": -->
           <script src="../umd/vitessce.min.js"></script>
 
           <script type="module">
