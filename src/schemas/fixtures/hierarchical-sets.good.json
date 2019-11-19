@@ -1,6 +1,6 @@
 {
     "datasetId":"linnarsson-2018",
-    "version":"0.0.17",
+    "version":"0.0.18",
 	"setsType":"cell",
 	"setsTree":[
 		{"key":"factors","name":"Factors"},
