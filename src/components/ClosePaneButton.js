@@ -5,7 +5,7 @@ export default function ClosePane(props) {
 
   function onRemovePane(titleDom) {
     if (!titleDom) {
-      throw new Error('Failed to close pane due to missing id.');
+      throw new Error('Failed to close pane due to missing ref.');
     } else {
       titleDom.current.parentNode.remove();
     }
