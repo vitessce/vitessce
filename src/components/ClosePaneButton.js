@@ -3,11 +3,11 @@ import React from 'react';
 export default function ClosePane(props) {
   const { componentWillUnmount, titleRef } = props;
 
-  function onRemovePane(titleDom) {
-    if (!titleDom) {
+  function onRemovePane(titleElement) {
+    if (!titleElement) {
       throw new Error('Failed to close pane due to missing ref.');
     } else {
-      titleDom.current.parentNode.remove();
+      titleElement.current.parentNode.remove();
     }
     // called to unsubscribe components to pubsub
     if (componentWillUnmount) {
