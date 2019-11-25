@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.18/reorganize_folders';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.18/tile_ometiff';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -52,6 +52,15 @@ const wangBase = {
     'genes',
   ].map(makeLayerNameToConfig('wang')),
 };
+
+const caoDescription = 'scRNA-seq data from early cardiac progenitor cells in mouse cardiogenesis';
+const caoBase = {
+  description: caoDescription,
+  layers: [
+    'cells',
+  ].map(makeLayerNameToConfig('cao')),
+};
+
 
 /* eslint-disable object-property-newline */
 /* eslint-disable object-curly-newline */
@@ -378,6 +387,25 @@ const configs = {
           x: 0, y: 0, h: 2 },
         { component: 'genes',
           x: 1, y: 0, h: 2 },
+      ],
+    },
+  },
+  'cao-2019': {
+    ...caoBase,
+    name: 'Cao',
+    public: false,
+    responsiveLayout: {
+      columns: {
+        1400: [0, 14],
+        1200: [0, 12],
+        1000: [0, 10],
+        800: [0, 8],
+        600: [0, 6],
+      },
+      components: [
+        { component: 'scatterplot',
+          props: { mapping: 't-SNE' },
+          x: 0, y: 0, h: 2 },
       ],
     },
   },
