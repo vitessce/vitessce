@@ -38,7 +38,6 @@ The development server will refresh the browser as you edit the code.
 
 - To run all the Travis checks: `./test.sh`
 - To run just the unit tests: `npm run test:watch`
-- To generate documentation: `npm run docz:dev`
 
 ## Deployment
 

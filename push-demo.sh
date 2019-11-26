@@ -18,15 +18,9 @@ echo '{
   "hash": "'$HASH'"
 }' > src/version.json
 npm run build
-# and docs ...
-# (Because the DOCZ_BASE is baked in, we need to do this twice,
-# once with the long staging path, and once with the short production path.
-# I am open to other approaches!)
+
 DIST_DIR='demo/dist/'
 STAGING_DIR='staging-docs'
-DOCZ_DEST="$DIST_DIR$STAGING_DIR" DOCZ_BASE="/$DEMO_URL_PATH/$STAGING_DIR/" npm run docz:build
-PROD_DIR='prod-docs'
-DOCZ_DEST="$DIST_DIR$PROD_DIR" DOCZ_BASE="/$PROD_DIR/" npm run docz:build
 # and add an error page for vitessce.io...
 cp error.html $DIST_DIR
 # and push to S3.
