@@ -18,7 +18,7 @@ export default function TitleInfo(props) {
         {title}
         <span className="details pl-2">
           {info}&nbsp;
-          <ClosePaneButton titleRef={titleRef} componentWillUnmount={componentWillUnmount} />
+          <ClosePaneButton childRef={titleRef} componentWillUnmount={componentWillUnmount} />
         </span>
       </div>
       <div className={childClassName}>
