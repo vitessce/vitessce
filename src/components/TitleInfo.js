@@ -16,9 +16,11 @@ export default function TitleInfo(props) {
         className="title d-flex justify-content-between align-items-baseline"
       >
         {title}
-        <span className="details pl-2">
-          {info}&nbsp;
-          <ClosePaneButton childRef={titleRef} componentWillUnmount={componentWillUnmount} />
+        <span className="details pl-2 align-items-end">
+          <span className="d-flex justify-content-between">
+            {info}
+            <ClosePaneButton childRef={titleRef} componentWillUnmount={componentWillUnmount} />
+          </span>
         </span>
       </div>
       <div className={childClassName}>
