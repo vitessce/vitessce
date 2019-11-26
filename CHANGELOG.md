@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.19 - in progress
+### Removed
+- Removed Docz and .mdx files.
+
 ## [0.0.18](https://www.npmjs.com/package/vitessce/v/0.0.18) - 2019-11-18
 ### Added
 - Initial zoom can be specified for scatterplots.
