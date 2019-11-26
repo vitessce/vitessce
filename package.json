@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^4.3.0",
-    "cypress": "^3.2.0",
+    "cypress": "^3.6.1",
     "documentation": "^9.3.1",
     "docz": "^1.0.4",
     "docz-theme-default": "^1.0.4",
