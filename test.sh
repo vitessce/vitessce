@@ -11,6 +11,11 @@ export CI=true
 
 PATH=$PATH:`npm bin`
 
+start changelog
+diff CHANGELOG.md <(curl https://raw.githubusercontent.com/hubmapconsortium/vitessce/master/CHANGELOG.md) \
+  && die 'Update CHANGELOG.md'
+end changelog
+
 start lint
 eslint src
 end lint

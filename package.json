@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^4.3.0",
-    "cypress": "^3.2.0",
+    "cypress": "^3.6.1",
     "documentation": "^9.3.1",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.2",
