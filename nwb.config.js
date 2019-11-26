@@ -13,6 +13,9 @@ module.exports = {
     html: {
       template: 'demo/src/index.html',
     },
+    extractCSS: {
+      filename: '[name].css'
+    },
     rules: {
       svg: {
         loader: '@svgr/webpack',
