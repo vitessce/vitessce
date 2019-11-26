@@ -3,6 +3,8 @@
 ## 0.0.19 - in progress
 ### Added
 - Travis checks that changelog was updated.
+### Changed
+- Update to NodeJS 10 on Travis
 
 ## [0.0.18](https://www.npmjs.com/package/vitessce/v/0.0.18) - 2019-11-18
 ### Added
