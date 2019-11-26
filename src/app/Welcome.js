@@ -68,7 +68,7 @@ function Info() {
       </p>
       <ul>
         <li><a href="prod-docs/index.html">Documentation</a></li>
-        <li><a href="https://github.com/hms-dbmi/vitessce">GitHub</a></li>
+        <li><a href="https://github.com/hubmapconsortium/vitessce">GitHub</a></li>
         <li><a href="https://www.npmjs.com/package/vitessce">NPM</a></li>
       </ul>
       <p>
