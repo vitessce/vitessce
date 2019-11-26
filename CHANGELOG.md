@@ -3,6 +3,8 @@
 ## 0.0.19 - in progress
 ### Added
 - Travis checks that changelog was updated.
+### Changed
+- CSS filename in UMD no longer contains hash.
 
 ## [0.0.18](https://www.npmjs.com/package/vitessce/v/0.0.18) - 2019-11-18
 ### Added
