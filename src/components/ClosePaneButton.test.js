@@ -19,7 +19,7 @@ describe('<ClosePaneButton />', () => {
     const parentDiv = document.createElement('div');
     parentDiv.setAttribute('id', 'parent-container');
     document.body.appendChild(parentDiv);
-    const wrapper = mount(<div id="mock-grid-item"><div ref={mockRef}><ClosePaneButton titleRef={mockRef} /></div></div>,
+    const wrapper = mount(<div id="mock-grid-item"><div ref={mockRef}><ClosePaneButton childRef={mockRef} /></div></div>,
       { attachTo: document.getElementById('parent-container') });
     wrapper.find('button').props().onClick();
     expect(document.getElementById('mock-grid-item')).toBe(null);
