@@ -24,6 +24,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
         },
       ),
     };
+    this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
   componentWillMount() {
@@ -70,6 +71,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
       <TitleInfo
         title="Cell Sets"
         isScroll
+        componentWillUnmount={this.componentWillUnmount}
       >
         <SetsManager
           setsTree={cellSets}

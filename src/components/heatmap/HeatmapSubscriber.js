@@ -14,6 +14,7 @@ export default class HeatmapSubscriber extends React.Component {
     this.state = {
       cells: {}, clusters: null, selectedCellIds: new Set(), cellColors: null,
     };
+    this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
   componentWillMount() {
@@ -76,6 +77,7 @@ export default class HeatmapSubscriber extends React.Component {
         title="Heatmap"
         info={`${cellsCount} cells × ${genesCount} genes,
                with ${selectedCount} cells selected`}
+        componentWillUnmount={this.componentWillUnmount}
       >
         {children}
         <Heatmap

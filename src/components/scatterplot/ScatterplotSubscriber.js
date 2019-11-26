@@ -15,6 +15,7 @@ export default class ScatterplotSubscriber extends React.Component {
     this.state = {
       cells: {}, selectedCellIds: new Set(), cellColors: null,
     };
+    this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
   componentWillMount() {
@@ -68,6 +69,7 @@ export default class ScatterplotSubscriber extends React.Component {
       <TitleInfo
         title={`Scatterplot (${mapping})`}
         info={`${cellsCount} cells`}
+        componentWillUnmount={this.componentWillUnmount}
       >
         {children}
         <Scatterplot

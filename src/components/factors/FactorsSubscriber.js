@@ -12,6 +12,7 @@ export default class FactorsSubscriber extends React.Component {
     super(props);
     this.state = { factors: {} };
     this.setSelectedFactor = this.setSelectedFactor.bind(this);
+    this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
   componentWillMount() {
@@ -63,6 +64,7 @@ export default class FactorsSubscriber extends React.Component {
         title="Factors"
         info={`${factorsKeys.length} factors`}
         isScroll
+        componentWillUnmount={this.componentWillUnmount}
       >
         <Factors
           factorsSelected={factorsSelected}

@@ -12,6 +12,7 @@ export default class GenesSubscriber extends React.Component {
     super(props);
     this.state = { genes: {}, selectedId: null };
     this.setSelectedGene = this.setSelectedGene.bind(this);
+    this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
   componentWillMount() {
@@ -57,6 +58,7 @@ export default class GenesSubscriber extends React.Component {
         title="Expression Levels"
         info={`${genesKeys.length} genes`}
         isScroll
+        componentWillUnmount={this.componentWillUnmount}
       >
         <Genes
           genesSelected={genesSelected}
