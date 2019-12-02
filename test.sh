@@ -36,4 +36,7 @@ end schema
 
 start build
 npm run build
+for F in vitessce.js vitessce.min.js main.css; do
+  [ -e umd/$F ] || die "$F is missing from UMD build"
+done
 end build
