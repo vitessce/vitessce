@@ -1,15 +1,4 @@
-@import 'colors';
-
-@import 'error';
-@import 'radio';
-@import 'tooltips';
-@import 'sets-manager';
-
-@import 'controls';
-
-.vitessce-container {
-  @include controls;
-
+@mixin app {
   .react-grid-layout {
       background-color: $color-gray-dark;
   }

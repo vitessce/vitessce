@@ -6,7 +6,7 @@ import datasetSchema from '../schemas/dataset.schema.json';
 
 import { LIGHT_CARD } from '../components/classNames';
 
-import '../css/app.scss';
+import '../css/index.scss';
 import '../../node_modules/react-grid-layout/css/styles.css';
 import '../../node_modules/react-resizable/css/styles.css';
 
