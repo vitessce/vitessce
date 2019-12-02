@@ -1,4 +1,10 @@
-@import './index';
+@import './colors';
+
+@import './error.scss';
+@import './radio.scss';
+@import './tooltips.scss';
+@import './sets-manager.scss';
+
 @import 'controls';
 
 .vitessce-container {
