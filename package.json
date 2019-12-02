@@ -19,9 +19,7 @@
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run",
-    "docz:dev": "docz dev",
-    "docz:build": "docz build"
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "@deck.gl/core": "^7.1.4",
@@ -59,8 +57,6 @@
     "@svgr/webpack": "^4.3.0",
     "cypress": "^3.6.1",
     "documentation": "^9.3.1",
-    "docz": "^1.0.4",
-    "docz-theme-default": "^1.0.4",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.2",
     "eslint": "^5.15.3",
