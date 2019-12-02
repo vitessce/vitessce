@@ -1,47 +1,49 @@
 /* Cell Tooltips */
-.cell-emphasis-crosshair, .cell-emphasis-vertical {
-    z-index: 5;
-    position: absolute;
-    pointer-events: none;
-    background-color: white;
-}
+@mixin tooltips {
+  .cell-emphasis-crosshair, .cell-emphasis-vertical {
+      z-index: 5;
+      position: absolute;
+      pointer-events: none;
+      background-color: white;
+  }
 
-.cell-emphasis-vertical {
-    /* offset by the same amount as the container (.card-body) padding */
-    transform: translateX(1.25rem);
-}
+  .cell-emphasis-vertical {
+      /* offset by the same amount as the container (.card-body) padding */
+      transform: translateX(1.25rem);
+  }
 
-.cell-tooltip-wrapper {
-    position: relative;
-}
+  .cell-tooltip-wrapper {
+      position: relative;
+  }
 
-.cell-tooltip {
-    z-index: 1001;
-    position: absolute;
-    pointer-events: none;
-    height: auto;
-    width: auto;
-    box-sizing: border-box;
-    opacity: 0;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    border: 1px solid gray;
+  .cell-tooltip {
+      z-index: 1001;
+      position: absolute;
+      pointer-events: none;
+      height: auto;
+      width: auto;
+      box-sizing: border-box;
+      opacity: 0;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid gray;
 
-    animation-name: cell-tooltip;
-    animation-duration: 0.5s;
-    animation-fill-mode: forwards;
+      animation-name: cell-tooltip;
+      animation-duration: 0.5s;
+      animation-fill-mode: forwards;
 
-    table > tbody > tr > th, table > tbody > tr > td {
-        font-size: 80%;
-        opacity: 0.8;
-    }
-}
+      table > tbody > tr > th, table > tbody > tr > td {
+          font-size: 80%;
+          opacity: 0.8;
+      }
+  }
 
-@keyframes cell-tooltip {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 0.9;
-    }
+  @keyframes cell-tooltip {
+      from {
+          opacity: 0;
+      }
+      to {
+          opacity: 0.9;
+      }
+  }
 }

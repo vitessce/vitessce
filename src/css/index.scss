@@ -1,14 +1,14 @@
 @import 'colors';
 
 @import 'app';
+@import 'controls';
 @import 'error';
 @import 'tooltips';
 @import 'sets-manager';
 
-@import 'controls';
-
 .vitessce-container {
-  @include controls;
   @include app;
+  @include controls;
   @include error;
+  @include tooltips;
 }
