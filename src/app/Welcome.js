@@ -5,18 +5,31 @@ import version from '../version.json';
 
 function DatasetList(props) {
   const { configs } = props;
+  const aClassName = 'list-group-item list-group-item-action flex-column align-items-start bg-black';
+  const divClassName = 'd-flex w-100 justify-content-between';
   const links = configs.map(
     ({ id, name, description }) => (
-      <a
-        href={`?dataset=${id}`}
-        className="list-group-item list-group-item-action flex-column align-items-start bg-black"
-        key={id}
-      >
-        <div className="d-flex w-100 justify-content-between">
-          <h5>{name}</h5>
-        </div>
-        <p>{description}</p>
-      </a>
+      <React.Fragment>
+        <a
+          href={`?dataset=${id}`}
+          className={aClassName}
+          key={id}
+        >
+          <div className={divClassName}>
+            <h5>{name}</h5>
+          </div>
+          <p>{description}</p>
+        </a>
+        <a
+          href={`?dataset=${id}&small`}
+          className={aClassName}
+          key={id}
+        >
+          <div className={divClassName}>
+            <h5>{name} (as component)</h5>
+          </div>
+        </a>
+      </React.Fragment>
     ),
   );
   return (
