@@ -5,6 +5,7 @@
 - Removed Docz and .mdx files.
 ### Added
 - Travis checks that changelog was updated.
+- Links to component demos.
 ### Changed
 - CSS filename in UMD no longer contains hash.
 - Update to NodeJS 10 on Travis.
