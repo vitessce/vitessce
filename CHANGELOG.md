@@ -1,6 +1,8 @@
 # Changelog
 
 ## 0.0.19 - in progress
+### Removed
+- Removed Docz and .mdx files.
 ### Added
 - Travis checks that changelog was updated.
 
