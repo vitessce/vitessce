@@ -66,7 +66,7 @@ function Info() {
         This is a demo of key concepts for
         a <b>v</b>isual <b>i</b>ntegration <b>t</b>ool
         for <b>e</b>xploration of
-        (<b>s</b>patial) <b>s</b>ingle-<b>c</b>ell <b>e</b>xperiment data.
+        <b>s</b>patial <b>s</b>ingle-<b>c</b>ell <b>e</b>xperiment data.
         This demo focusses on scalable, linked visualizations that support both
         spatial and non-spatial representation of cell-level and molecule-level data.
       </p>
@@ -80,7 +80,6 @@ function Info() {
         More information:
       </p>
       <ul>
-        <li><a href="prod-docs/index.html">Documentation</a></li>
         <li><a href="https://github.com/hubmapconsortium/vitessce">GitHub</a></li>
         <li><a href="https://www.npmjs.com/package/vitessce">NPM</a></li>
       </ul>
