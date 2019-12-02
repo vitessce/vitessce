@@ -1,4 +1,6 @@
 /* In error message */
-pre {
-    color: $color-gray-light;
+@mixin error {
+  pre {
+      color: $color-gray-light;
+  }
 }

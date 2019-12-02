@@ -11,4 +11,5 @@
 .vitessce-container {
   @include controls;
   @include app;
+  @include error;
 }
