@@ -21,10 +21,10 @@ with preprocessing done by [`vitessce-data`](https://github.com/hms-dbmi/vitessc
 
 ## Development
 
-First check your NodeJS version: It should work with NodeJS 8; it will [fail with NodeJS 12](https://github.com/hubmapconsortium/vitessce/issues/379).
+First check your NodeJS version: It should work with NodeJS 8 or 10; it will [fail with NodeJS 12](https://github.com/hubmapconsortium/vitessce/issues/379).
 ```
 $ node --version
-v8.16.2
+v10.17.0
 ```
 
 Checkout the project, `cd`, and then:
