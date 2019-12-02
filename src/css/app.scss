@@ -1,4 +1,9 @@
 @import './index';
+@import 'controls';
+
+.vitessce-container {
+  @include controls;
+}
 
 .react-grid-layout {
     background-color: $color-gray-dark;
