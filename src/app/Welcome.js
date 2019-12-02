@@ -81,7 +81,7 @@ function Info() {
 export default function Welcome(props) {
   const { configs } = props;
   return (
-    <div className="container-fluid">
+    <div className="container-fluid vitessce-container">
       <div className="row">
         <div className="col-5">
           <div className={LIGHT_CARD}>

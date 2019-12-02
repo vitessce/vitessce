@@ -9,63 +9,63 @@
 
 .vitessce-container {
   @include controls;
-}
 
-.react-grid-layout {
-    background-color: $color-gray-dark;
-}
+  .react-grid-layout {
+      background-color: $color-gray-dark;
+  }
 
-/* Flex grid items */
-.react-grid-item {
-    /* emulate bootstrap .flex-column: */
-    -webkit-box-orient: vertical!important;
-    -webkit-box-direction: normal!important;
-    -ms-flex-direction: column!important;
-    flex-direction: column!important;
+  /* Flex grid items */
+  .react-grid-item {
+      /* emulate bootstrap .flex-column: */
+      -webkit-box-orient: vertical!important;
+      -webkit-box-direction: normal!important;
+      -ms-flex-direction: column!important;
+      flex-direction: column!important;
 
-    /* emulate bootstrap .d-flex: */
-    display: -webkit-box!important;
-    display: -ms-flexbox!important;
-    display: flex!important;
+      /* emulate bootstrap .d-flex: */
+      display: -webkit-box!important;
+      display: -ms-flexbox!important;
+      display: flex!important;
 
-    /* So the resize handle position looks correct: */
-    padding-right: 10px;
-}
+      /* So the resize handle position looks correct: */
+      padding-right: 10px;
+  }
 
-/* Fix grid title rendering on Safari 12.0.
-   Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
-.d-flex {
-    flex-shrink: 0;
-}
+  /* Fix grid title rendering on Safari 12.0.
+     Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
+  .d-flex {
+      flex-shrink: 0;
+  }
 
-/* Styling for closing button on the grid items */
-.close-pane-button {
-    background: none;
-    border: none;
-    font-family: Ampersand;
-    color: $color-black;
-    margin-left: .5em;
-}
+  /* Styling for closing button on the grid items */
+  .close-pane-button {
+      background: none;
+      border: none;
+      font-family: Ampersand;
+      color: $color-black;
+      margin-left: .5em;
+  }
 
-/* Tool styles */
-.bg-light {
-    background-color: #222!important;
-    color: lightgrey;
-    a {
-        color: #9bb7d6;
-    }
-}
-.bg-black {
-    background-color: black;
-    color: lightgrey;
-}
-.title {
-    color: lightgrey;
-}
-.scroll {
-    overflow-y: auto;
-}
-.details {
-    font-size: 80%;
-    opacity: 0.8;
+  /* Tool styles */
+  .bg-light {
+      background-color: #222!important;
+      color: lightgrey;
+      a {
+          color: #9bb7d6;
+      }
+  }
+  .bg-black {
+      background-color: black;
+      color: lightgrey;
+  }
+  .title {
+      color: lightgrey;
+  }
+  .scroll {
+      overflow-y: auto;
+  }
+  .details {
+      font-size: 80%;
+      opacity: 0.8;
+  }
 }
