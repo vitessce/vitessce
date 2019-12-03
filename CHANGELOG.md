@@ -2,7 +2,7 @@
 
 ## 0.0.19 - in progress
 ### Removed
-- Removed Docz and .mdx files.
+- Removed Docz and .mdx files and update package.json.
 ### Added
 - Travis checks that changelog was updated.
 ### Changed
