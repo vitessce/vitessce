@@ -9,6 +9,12 @@ $set-name-height: 16px;
     border: 0;
 }
 
+// TODO: Is this used?
+// https://github.com/hubmapconsortium/vitessce/issues/395
+@include zoom;
+
+// TODO: When wrapped in a mixin, the cell-sets misrenders.
+// https://github.com/hubmapconsortium/vitessce/issues/396
 .sets-manager {
     .ant-tree {
         color: inherit;
