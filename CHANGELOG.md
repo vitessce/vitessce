@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.19 - in progress
+## 0.0.20 - in progress
+
+## [0.0.19](https://www.npmjs.com/package/vitessce/v/0.0.19) - 2019-12-10
 ### Removed
 - Removed Docz and .mdx files and update package.json.
 ### Added
