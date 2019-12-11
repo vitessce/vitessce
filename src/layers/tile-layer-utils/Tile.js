@@ -1,23 +1,13 @@
-// https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Lon..2Flat._to_tile_numbers_2
-export function tile2latLng(x, y, z) {
-  const lng = (x / Math.pow(2, z)) * 360 - 180;
-  const n = Math.PI - (2 * Math.PI * y) / Math.pow(2, z);
-  const lat = (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
-  return [lng, lat];
-}
-
-export function tile2boundingBox(x, y, z) {
-  const [west, north] = tile2latLng(x, y, z);
-  const [east, south] = tile2latLng(x + 1, y + 1, z);
-  return {west, north, east, south};
+function tile2boundingBox(x, y, z, maxHeight, maxWidth) {
+  return {west: (x * 256) * Math.pow(2, -1 * z), north: (y * 256) * Math.pow(2, -1 * z), east: Math.min(maxWidth, ((x+1) * 256) * Math.pow(2, -1 * z)), south: Math.min(maxHeight, ((y+1) * 256) * Math.pow(2, -1 * z))}
 }
 
 export default class Tile {
-  constructor({getTileData, x, y, z, onTileLoad, onTileError}) {
+  constructor({getTileData, x, y, z, onTileLoad, onTileError, maxHeight, maxWidth}) {
     this.x = x;
     this.y = y;
     this.z = z;
-    this.bbox = tile2boundingBox(x, y,z);
+    this.bbox = tile2boundingBox(x, y, z, maxHeight, maxWidth)
     this.isVisible = true;
     this.getTileData = getTileData;
     this._data = null;
