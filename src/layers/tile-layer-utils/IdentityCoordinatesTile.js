@@ -2,7 +2,7 @@ function tile2boundingBox(x, y, z, maxHeight, maxWidth) {
   return {west: (x * 256) * Math.pow(2, -1 * z), north: (y * 256) * Math.pow(2, -1 * z), east: Math.min(maxWidth, ((x+1) * 256) * Math.pow(2, -1 * z)), south: Math.min(maxHeight, ((y+1) * 256) * Math.pow(2, -1 * z))}
 }
 
-export default class Tile {
+export default class IdentityCoordinatesTile {
   constructor({getTileData, x, y, z, onTileLoad, onTileError, maxHeight, maxWidth}) {
     this.x = x;
     this.y = y;
@@ -50,4 +50,4 @@ export default class Tile {
     return Math.floor(tile.x / m) === x && Math.floor(tile.y / m) === y;
   }
 }
-Tile.layerName = 'Tile';
+IdentityCoordinatesTile.layerName = 'IdentityCoordinatesTile';
