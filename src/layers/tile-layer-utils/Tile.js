@@ -31,7 +31,7 @@ export default class Tile {
       return null;
     }
 
-    return Promise.resolve(this.getTileData({x, y, z, bbox}))
+    return this.getTileData({x, y, z})
       .then(buffers => {
         this._data = buffers;
         this._isLoaded = true;

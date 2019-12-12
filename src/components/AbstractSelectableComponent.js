@@ -11,9 +11,6 @@ import ToolMenu from './ToolMenu';
 export default class AbstractSelectableComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.renderImagesFromView = this.renderImagesFromView.bind(this);
-    this.renderImages = this.renderImages.bind(this);
-    this.onViewStateChange = this.onViewStateChange.bind(this);
     this.renderSelectionLayers = this.renderSelectionLayers.bind(this);
     this.deckRef = React.createRef();
     this.getCellCoords = this.getCellCoords.bind(this);
@@ -71,54 +68,6 @@ export default class AbstractSelectableComponent extends React.Component {
     })];
   }
 
-  renderImages() { // eslint-disable-line class-methods-use-this
-    // No-op
-  }
-
-  renderImagesFromView(viewProps) { // eslint-disable-line class-methods-use-this
-    const {
-      x, y, width, height, viewport,
-    } = viewProps;
-    // Capture the viewport, width, and height values from DeckGL instantiation to be used later.
-    this.viewInfo.viewport = viewport;
-    this.viewInfo.width = width;
-    this.viewInfo.height = height;
-    const {
-      updateViewInfo = () => {
-        console.warn('AbstractSelectableComponent updateViewInfo from renderImagesFromView');
-      },
-    } = this.props;
-    updateViewInfo(this.viewInfo);
-    const nwCoords = viewport.unproject([x, y]);
-    const seCoords = viewport.unproject([x + width, y + height]);
-    const unproWidth = seCoords[0] - nwCoords[0];
-    const unproHeight = seCoords[1] - nwCoords[1];
-    const unprojectedProps = {
-      x: nwCoords[0],
-      y: nwCoords[1],
-      width: unproWidth,
-      height: unproHeight,
-    };
-    return this.renderImages(unprojectedProps);
-  }
-
-  onViewStateChange({ viewState }) {
-    const {
-      updateViewInfo = () => {
-        console.warn('AbstractSelectableComponent updateViewInfo from onViewStateChange');
-      },
-    } = this.props;
-    // Update the viewport field of the `viewInfo` object
-    // to satisfy components (e.g. CellTooltip2D) that depend on an
-    // up-to-date viewport instance (to perform projections).
-    this.viewInfo.viewport = (new OrthographicView()).makeViewport({
-      viewState,
-      width: this.width,
-      height: this.height,
-    });
-    updateViewInfo(this.viewInfo);
-  }
-
   renderLayersMenu() { // eslint-disable-line class-methods-use-this
     // No-op
   }
@@ -136,7 +85,6 @@ export default class AbstractSelectableComponent extends React.Component {
       views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
       layers: this.renderLayers().concat(this.renderSelectionLayers()),
       initialViewState: this.getInitialViewState(),
-      onViewStateChange: this.onViewStateChange,
     };
     if (tool) {
       deckProps = {
@@ -157,9 +105,7 @@ export default class AbstractSelectableComponent extends React.Component {
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
         </div>
-        <DeckGL ref={this.deckRef} {...deckProps}>
-          {this.renderImagesFromView}
-        </DeckGL>
+        <DeckGL ref={this.deckRef} {...deckProps} />
       </React.Fragment>
     );
   }

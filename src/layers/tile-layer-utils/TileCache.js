@@ -1,4 +1,4 @@
-import Tile from './tile';
+import Tile from './Tile';
 import {getTileIndices} from './viewport-util';
 /**
  * Manages loading and purging of tiles data. This class caches recently visited tiles
@@ -51,6 +51,7 @@ export default class TileCache {
    */
   update(viewport) {
     const {_cache, _getTileData, _maxSize, _maxZoom, _minZoom} = this;
+
     this._markOldTiles();
     var tileIndices = getTileIndices(viewport, _maxZoom, _minZoom);
     if(tileIndices.length > 0) {

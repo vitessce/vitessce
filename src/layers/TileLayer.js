@@ -1,8 +1,18 @@
-import {CompositeLayer} from '@deck.gl/core';
-import TileCache from './tile-layer-utils/tile-cache';
-import {TileLayer as TL} from '@deck.gl/geo-layers'
+import TileCache from './tile-layer-utils/TileCache';
+import {TileLayer as TL} from 'deck.gl'
 
-export default class TileLayer extends TL {
+export class TileLayer extends TL {
+
+  initializeState() {
+    this.state = {
+      tiles: [],
+      isLoaded: false
+    };
+  }
+
+  shouldUpdateState({changeFlags}) {
+    return changeFlags.somethingChanged;
+  }
 
   updateState({props, oldProps, context, changeFlags}) {
     let {tileCache} = this.state;
@@ -20,8 +30,8 @@ export default class TileLayer extends TL {
         maxSize: maxCacheSize,
         maxZoom,
         minZoom,
-        maxHeight,
-        maxWidth,
+        maxHeight: 51669,
+        maxWidth: 31728,
         onTileLoad: this._onTileLoad.bind(this),
         onTileError: this._onTileError.bind(this)
       });
@@ -53,6 +63,56 @@ export default class TileLayer extends TL {
       return Math.ceil(minZoom);
     }
     return z;
+  }
+
+  _onTileLoad() {
+    const {onViewportLoaded} = this.props;
+    const currTiles = this.state.tiles;
+    const allCurrTilesLoaded = currTiles.every(tile => tile.isLoaded);
+    if (this.state.isLoaded !== allCurrTilesLoaded) {
+      this.setState({isLoaded: allCurrTilesLoaded});
+      if (allCurrTilesLoaded && onViewportLoaded) {
+        onViewportLoaded(currTiles.filter(tile => tile._data).map(tile => tile._data));
+      }
+    }
+  }
+
+  _onTileError(error) {
+    this.props.onTileError(error);
+    // errorred tiles should not block rendering, are considered "loaded" with empty data
+    this._onTileLoad();
+  }
+
+  getPickingInfo({info, sourceLayer}) {
+    info.sourceLayer = sourceLayer;
+    info.tile = sourceLayer.props.tile;
+    return info;
+  }
+
+  renderLayers() {
+    const {renderSubLayers, visible} = this.props;
+    const z = this.getLayerZoomLevel();
+    return this.state.tileCache.tiles.map(tile => {
+      // For a tile to be visible:
+      // - parent layer must be visible
+      // - tile must be visible in the current viewport
+      // - if all tiles are loaded, only display the tiles from the current z level
+      const isVisible = visible && tile.isVisible && (!this.state.isLoaded || tile.z === z);
+      // cache the rendered layer in the tile
+      if (!tile.layer) {
+        tile.layer = renderSubLayers(
+          Object.assign({}, this.props, {
+            id: `${this.id}-${tile.x}-${tile.y}-${tile.z}`,
+            data: tile.data,
+            visible: isVisible,
+            tile
+          })
+        );
+      } else if (tile.layer.props.visible !== isVisible) {
+        tile.layer = tile.layer.clone({visible: isVisible});
+      }
+      return tile.layer;
+    });
   }
 }
 
