@@ -1,4 +1,4 @@
-import Tile from './Tile';
+import IdentityCoordinatesTile from './IdentityCoordinatesTile';
 import {getTileIndices} from './viewport-util';
 /**
  * Manages loading and purging of tiles data. This class caches recently visited tiles
@@ -12,7 +12,7 @@ export default class TileCache {
    * Takes in a function that returns tile data, a cache size, and a max and a min zoom level.
    * Cache size defaults to 5 * number of tiles in the current viewport
    */
-  constructor({getTileData, maxSize, maxZoom, minZoom,maxHeight, maxWidth, onTileLoad, onTileError}) {
+  constructor({getTileData, maxSize, maxZoom, minZoom, maxHeight, maxWidth, onTileLoad, onTileError}) {
     // TODO: Instead of hardcode size, we should calculate how much memory left
     this._getTileData = getTileData;
     this._maxSize = maxSize;
@@ -53,22 +53,17 @@ export default class TileCache {
     const {_cache, _getTileData, _maxSize, _maxZoom, _minZoom} = this;
 
     this._markOldTiles();
-    var tileIndices = getTileIndices(viewport, _maxZoom, _minZoom);
+    var tileIndices = getTileIndices(viewport, _maxZoom, _minZoom).filter(
+      (e) =>{
+        (e.z > _minZoom && e.y >= 0 && e.x >= 0) ||
+        (e.z <= _minZoom && e.x == 0 && e.y == 0)
+      }
+    );
     if(tileIndices.length > 0) {
       if(tileIndices[0].z != _minZoom) {
         tileIndices.push(...this._expandIndices(tileIndices))
       }
-      tileIndices = tileIndices.filter((e) => (e.z > _minZoom && e.y >= 0 && e.x >= 0) || (e.z <= _minZoom && e.x == 0 && e.y == 0))
-      var [maxY, maxX] = [Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY]
-      for (var tileIndex in tileIndices) {
-        var tile = tileIndices[tileIndex]
-        if(tile.x > maxX)
-          maxX = tile.x
-        if(tile.y > maxY)
-          maxY = tile.y
-      }
-      maxX = Math.min(maxX, Math.floor(MAX_WIDTH / (256 * Math.pow(2, -1 * tileIndices[0].z))))
-      maxY = Math.min(maxY, Math.floor(MAX_HEIGHT / (256 * Math.pow(2, -1 * tileIndices[0].z))))
+      const  {maxY, maxX} = this._getMaxMinIndicies(tileIndices)
       tileIndices = tileIndices.filter((e) => (e.x <= maxX && e.y <= maxY))
       if (!tileIndices || tileIndices.length === 0) {
         return;
@@ -80,9 +75,7 @@ export default class TileCache {
       });
       let changed = false;
 
-      for (let i = 0; i < tileIndices.length; i++) {
-        const tileIndex = tileIndices[i];
-
+      Object.values(tileIndices).forEach((tileIndex) => {
         const {x, y, z} = tileIndex;
         let tile = this._getTile(x, y, z);
         if (!tile) {
@@ -101,7 +94,7 @@ export default class TileCache {
         }
         const tileId = this._getTileId(x, y, z);
         _cache.set(tileId, tile);
-      }
+      })
 
       if (changed) {
         // cache size is either the user defined maxSize or 5 * number of current tiles in the viewport.
@@ -150,20 +143,7 @@ export default class TileCache {
   }
 
   _expandIndices(tileIndices){
-    var [minX, minY, maxY, maxX] = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY]
-    for (var tileIndex in tileIndices) {
-      var tile = tileIndices[tileIndex]
-      if(tile.x > maxX)
-        maxX = tile.x
-      if(tile.y > maxY)
-        maxY = tile.y
-      if(tile.y < minY)
-        minY = tile.y
-      if(tile.x < minX)
-        minX = tile.x
-    }
-    maxX = Math.min(maxX, Math.floor(MAX_HEIGHT / (256 * Math.pow(2, -1 * tileIndices[0].z))))
-    maxY = Math.min(maxY, Math.floor(MAX_WIDTH / (256 * Math.pow(2, -1 * tileIndices[0].z))))
+    const  {minX, minY, maxY, maxX} = this._getMaxMinIndicies(tileIndices)
     var extraIndices = []
     for (var tileIndex in tileIndices) {
       var tile = tileIndices[tileIndex]
@@ -188,32 +168,30 @@ export default class TileCache {
   }
 
   _cacheLayersUp(tileIndices, minZoom) {
-    var extraIndices = []
+    var extraIndices = [];
     var zoom = tileIndices[0].z
     var [xIndices, yIndices] = [[], []]
-    tileIndices.forEach((e) => xIndices.push(e.x))
-    tileIndices.forEach((e) => yIndices.push(e.y))
-    var [x, y] = [this._median(xIndices), this._median(yIndices)]
+    tileIndices.forEach((e) => xIndices.push(e.x));
+    tileIndices.forEach((e) => yIndices.push(e.y));
+    const {minX, minY, maxY, maxX} = _getMaxMinIndicies(tileIndices);
+    const x = Math.floor((minX + maxX) / 2)
+    const y = Math.floor((minY + maxY) / 2)
     while(zoom > minZoom) {
       zoom = zoom - 1
-      var index = {x: Math.floor(x / Math.pow(2, -1 * zoom)), y: Math.floor(y / Math.pow(2, -1 * zoom)), z: zoom}
-      extraIndices.push(...this._expandIndices([index]))
-      extraIndices.push(index)
+      var index = {x: Math.floor(x / Math.pow(2, -1 * zoom)), y: Math.floor(y / Math.pow(2, -1 * zoom)), z: zoom};
+      extraIndices.push(...this._expandIndices([index]));
+      extraIndices.push(index);
     }
     return extraIndices
   }
 
-  _median(numbers) {
-    var median = 0, count = numbers.length;
-    numbers.sort();
-
-    if (count % 2 === 0) {  // is even
-        median = (numbers[count / 2 - 1] + numbers[count / 2]) / 2;
-    } else { // is odd
-        median = numbers[(count - 1) / 2];
-    }
-
-    return median;
+  _getMaxMinIndicies(tileIndices){
+    const scale = (256 * Math.pow(2, -1 * tileIndices[0].z))
+    const maxX = Math.min(Math.max(...tileIndices.map(tile => tile.x)), Math.floor(MAX_HEIGHT / scale));
+    const maxY = Math.min(Math.max(...tileIndices.map(tile => tile.y)), Math.floor(MAX_WIDTH / scale));
+    const minX = Math.min(...tileIndices.map(tile => tile.x));
+    const minY = Math.min(...tileIndices.map(tile => tile.y));
+    return {minX, minY, maxY, maxX}
   }
 
 }
