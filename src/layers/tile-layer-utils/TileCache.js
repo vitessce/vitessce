@@ -53,17 +53,12 @@ export default class TileCache {
     const {_cache, _getTileData, _maxSize, _maxZoom, _minZoom} = this;
 
     this._markOldTiles();
-    var tileIndices = getTileIndices(viewport, _maxZoom, _minZoom).filter(
-      (e) =>{
-        (e.z > _minZoom && e.y >= 0 && e.x >= 0) ||
-        (e.z <= _minZoom && e.x == 0 && e.y == 0)
-      }
-    );
+    var tileIndices = getTileIndices(viewport, _maxZoom, _minZoom)
     if(tileIndices.length > 0) {
-      if(tileIndices[0].z != _minZoom) {
-        tileIndices.push(...this._expandIndices(tileIndices))
-      }
       const  {maxY, maxX} = this._getMaxMinIndicies(tileIndices)
+      if(tileIndices[0].z != _minZoom) {
+        tileIndices.push(...this._expandIndices(tileIndices).filter((e) => (e.z > _minZoom && e.y >= 0 && e.x >= 0) || (e.z <= _minZoom && e.x == 0 && e.y == 0)))
+      }
       tileIndices = tileIndices.filter((e) => (e.x <= maxX && e.y <= maxY))
       if (!tileIndices || tileIndices.length === 0) {
         return;
@@ -79,7 +74,7 @@ export default class TileCache {
         const {x, y, z} = tileIndex;
         let tile = this._getTile(x, y, z);
         if (!tile) {
-          tile = new Tile({
+          tile = new IdentityCoordinatesTile({
             getTileData: _getTileData,
             x,
             y,
@@ -186,9 +181,10 @@ export default class TileCache {
   }
 
   _getMaxMinIndicies(tileIndices){
+    console.log(tileIndices)
     const scale = (256 * Math.pow(2, -1 * tileIndices[0].z))
-    const maxX = Math.min(Math.max(...tileIndices.map(tile => tile.x)), Math.floor(MAX_HEIGHT / scale));
-    const maxY = Math.min(Math.max(...tileIndices.map(tile => tile.y)), Math.floor(MAX_WIDTH / scale));
+    const maxX = Math.min(Math.max(...tileIndices.map(tile => tile.x)), Math.floor(MAX_WIDTH / scale));
+    const maxY = Math.min(Math.max(...tileIndices.map(tile => tile.y)), Math.floor(MAX_HEIGHT / scale));
     const minX = Math.min(...tileIndices.map(tile => tile.x));
     const minY = Math.min(...tileIndices.map(tile => tile.y));
     return {minX, minY, maxY, maxX}
