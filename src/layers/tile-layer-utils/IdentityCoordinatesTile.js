@@ -1,9 +1,16 @@
 function tile2boundingBox(x, y, z, maxHeight, maxWidth) {
-  return {west: (x * 256) * Math.pow(2, -1 * z), north: (y * 256) * Math.pow(2, -1 * z), east: Math.min(maxWidth, ((x+1) * 256) * Math.pow(2, -1 * z)), south: Math.min(maxHeight, ((y+1) * 256) * Math.pow(2, -1 * z))}
+  return {
+    west: (x * 256) * Math.pow(2, -1 * z),
+    north: (y * 256) * Math.pow(2, -1 * z),
+    east: Math.min(maxWidth, ((x + 1) * 256) * (2 ** (-1 * z))),
+    south: Math.min(maxHeight, ((y + 1) * 256) * (2 ** (-1 * z)))
+  }
 }
 
 export default class IdentityCoordinatesTile {
-  constructor({getTileData, x, y, z, onTileLoad, onTileError, maxHeight, maxWidth}) {
+  constructor({
+    getTileData, x, y, z, onTileLoad, onTileError, maxHeight, maxWidth
+  }) {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -18,20 +25,24 @@ export default class IdentityCoordinatesTile {
   }
 
   get data() {
+
     return this._data || this._loader;
+
   }
 
   get isLoaded() {
+
     return this._isLoaded;
+
   }
 
   _loadData() {
-    const {x, y, z, bbox} = this;
+    const { x, y, z, bbox } = this;
     if (!this.getTileData) {
       return null;
     }
 
-    return Promise.resolve(this.getTileData({x, y, z, bbox}))
+    return Promise.resolve(this.getTileData({ x, y, z, bbox }))
       .then(buffers => {
         this._data = buffers;
         this._isLoaded = true;
@@ -45,8 +56,8 @@ export default class IdentityCoordinatesTile {
   }
 
   isOverlapped(tile) {
-    const {x, y, z} = this;
-    const m = Math.pow(2, tile.z - z);
+    const { x, y, z } = this;
+    const m = 2 ** (tile.z - z);
     return Math.floor(tile.x / m) === x && Math.floor(tile.y / m) === y;
   }
 }

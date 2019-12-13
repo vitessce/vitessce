@@ -1,17 +1,18 @@
-import {CompositeLayer} from '@deck.gl/core';
-import TileCache from './tile-layer-utils/tile-cache';
-import {TileLayer} from '@deck.gl/geo-layers'
+import TileCache from './tile-layer-utils/TileCache';
+import { TileLayer } from 'deck.gl';
 
-export default class IdentityCoordinatesTileLayer extends TileLayer {
+export class IdentityCoordinatesTileLayer extends TileLayer {
 
-  updateState({props, oldProps, context, changeFlags}) {
-    let {tileCache} = this.state;
+  updateState({props, context, changeFlags}) {
+
+    let { tileCache } = this.state;
     if (
       !tileCache ||
-      (changeFlags.updateTriggersChanged &&
-        (changeFlags.updateTriggersChanged.all || changeFlags.updateTriggersChanged.getTileData))
+      (changeFlags.updateTriggersChanged
+        &&  (changeFlags.updateTriggersChanged.all
+          || changeFlags.updateTriggersChanged.getTileData))
     ) {
-      const {getTileData, maxZoom, minZoom, maxCacheSize, maxHeight, maxWidth} = props;
+      const { getTileData, maxZoom, minZoom, maxCacheSize, maxHeight, maxWidth } = props;
       if (tileCache) {
         tileCache.finalize();
       }
@@ -23,17 +24,17 @@ export default class IdentityCoordinatesTileLayer extends TileLayer {
         maxHeight,
         maxWidth,
         onTileLoad: this._onTileLoad.bind(this),
-        onTileError: this._onTileError.bind(this)
+        onTileError: this._onTileError.bind(this),
       });
-      this.setState({tileCache});
+      this.setState({ tileCache });
     } else if (changeFlags.updateTriggersChanged) {
       // if any updateTriggersChanged (other than getTileData), delete the layer
-      this.state.tileCache.tiles.forEach(tile => {
+      this.state.tileCache.tiles.forEach((tile) => {
         tile.layer = null;
       });
     }
 
-    const {viewport} = context;
+    const { viewport}  = context;
     if (changeFlags.viewportChanged && viewport.id !== 'DEFAULT-INITIAL-VIEWPORT') {
       const z = this.getLayerZoomLevel();
       tileCache.update(viewport);
@@ -45,12 +46,12 @@ export default class IdentityCoordinatesTileLayer extends TileLayer {
   }
 
   getLayerZoomLevel() {
-    const z = Math.ceil(this.context.viewport.zoom);
-    const {maxZoom, minZoom} = this.props;
+    var z = Math.ceil(this.context.viewport.zoom);
+    const { maxZoom, minZoom } = this.props;
     if (Number.isFinite(maxZoom) && z > maxZoom) {
-      return Math.floor(maxZoom);
+      z = Math.floor(maxZoom);
     } else if (Number.isFinite(minZoom) && z < minZoom) {
-      return Math.ceil(minZoom);
+      z = Math.ceil(minZoom);
     }
     return z;
   }
