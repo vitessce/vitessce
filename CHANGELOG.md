@@ -11,6 +11,7 @@
 ### Changed
 - CSS filename in UMD no longer contains hash.
 - Update to NodeJS 10 on Travis.
+- Removed OpenSeadragon in favor of deckgl
 
 ## [0.0.18](https://www.npmjs.com/package/vitessce/v/0.0.18) - 2019-11-18
 ### Added
