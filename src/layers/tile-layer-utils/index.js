@@ -1,1 +1,1 @@
-export { TileCache } from './TileCache'
+export TileCache from './TileCache';

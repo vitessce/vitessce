@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer } from 'deck.gl';
+import {
+  ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer,
+} from 'deck.gl';
 import { SelectablePolygonLayer, IdentityCoordinatesTileLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -13,12 +15,12 @@ export function square(x, y, r) {
 function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.addEventListener("load", () => resolve(img));
-    img.addEventListener("error", err => reject(err));
-    img.crossOrigin = "anonymous";
+    img.addEventListener('load', () => resolve(img));
+    img.addEventListener('error', err => reject(err));
+    img.crossOrigin = 'anonymous';
     img.src = src;
   });
-};
+}
 
 /**
  React component which expresses the spatial relationships between cells and molecules.
@@ -188,37 +190,39 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   renderImagesLayer() {
-    var layers = []
-    this.images.forEach((layer) => {layers.push(this._createTileLayer(layer))})
-    return layers
+    const layers = [];
+    this.images.forEach((layer) => { layers.push(this.createTileLayer(layer)); });
+    return layers;
   }
 
-  _createTileLayer(layer) {
-    var [layerType, source] = layer
+  createTileLayer(layer) {
+    const [layerType, source] = layer;
     return new IdentityCoordinatesTileLayer({
-        id:`${layerType}-tile-layer`,
-        pickable: true,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        maxCacheSize: 50,
-        getTileData: ({x, y, z}) => loadImage(`http://127.0.0.1:8081/linnarsson.images.${layerType}/${layerType}_files/${z + 16}/${x}_${y}.jpeg`),
-        //getTileData: ({x, y, z}) => load(`https://vitessce-data.s3.amazonaws.com/0.0.18/tile_ometiff/linnarsson/linnarsson.tiles/linnarsson.images.nuclei/nuclei_files/${z + 16}/${x}_${y}.jpeg`),
-        minZoom: -16,
-        maxZoom: 0,
-        tileSource: source.tileSource,
-        visible: this.state.layerIsVisible[layerType],
-        renderSubLayers: props => {
-          const {
-            bbox: {west, south, east, north}
-          } = props.tile;
-          var bml = new BitmapLayer(props, {
-            coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-            data: null,
-            image: props.data,
-            bounds: [west, south, east, north]
-          })
-          return bml;
-        }
-      })
+      id: `${layerType}-tile-layer`,
+      pickable: true,
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      maxCacheSize: 50,
+      getTileData: ({ x, y, z }) => loadImage(`http://127.0.0.1:8081/linnarsson.images.${layerType}/${layerType}_files/${z + 16}/${x}_${y}.jpeg`),
+      // getTileData: ({x, y, z}) => load(`https://vitessce-data.s3.amazonaws.com/0.0.18/tile_ometiff/linnarsson/linnarsson.tiles/linnarsson.images.nuclei/nuclei_files/${z + 16}/${x}_${y}.jpeg`),
+      minZoom: -16,
+      maxZoom: 0,
+      tileSource: source.tileSource,
+      visible: this.state.layerIsVisible[layerType],
+      renderSubLayers: (props) => {
+        const {
+          bbox: {
+            west, south, east, north,
+          },
+        } = props.tile;
+        const bml = new BitmapLayer(props, {
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          data: null,
+          image: props.data,
+          bounds: [west, south, east, north],
+        });
+        return bml;
+      },
+    });
   }
 
   setLayerIsVisible(layers) {
@@ -262,7 +266,7 @@ export default class Spatial extends AbstractSelectableComponent {
       this.neighborhoodsData = Object.entries(neighborhoods);
     }
     if (images && this.images.length === 0) {
-      this.images =  Object.entries(images);
+      this.images = Object.entries(images);
     }
 
     // Append each layer to the list.

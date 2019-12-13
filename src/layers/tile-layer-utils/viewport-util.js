@@ -1,5 +1,5 @@
-/* eslint-disable no-underscore-dangle*/
-/* eslint-disable class-methods-use-this*/
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable class-methods-use-this */
 
 const TILE_SIZE = 256;
 
@@ -38,8 +38,8 @@ export function getTileIndices(viewport, maxZoom, minZoom) {
   minY = Math.max(0, Math.floor(minY));
   maxY = Math.max(0, Math.ceil(maxY));
   const indices = [];
-  for (let x = minX; x < maxX; x+=1) {
-    for (let y = minY; y < maxY; y+=1) {
+  for (let x = minX; x < maxX; x += 1) {
+    for (let y = minY; y < maxY; y += 1) {
       indices.push({ x, y, z });
     }
   }
