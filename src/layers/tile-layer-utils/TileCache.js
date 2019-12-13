@@ -144,7 +144,7 @@ export default class TileCache {
   _getTileId(x, y, z) {
     return `${z}-${x}-${y}`;
   }
-  
+
   _expandIndices(minX, minY, maxY, maxX, z) {
     const extraIndices = [];
     for (let i = minX; i <= maxX; i += 1) {
@@ -193,10 +193,10 @@ export default class TileCache {
   _getMaxMinIndicies(tileIndices) {
     const scale = this.tileSize * (2 ** (-1 * tileIndices[0].z));
     const maxX = Math.min(
-      Math.max(...tileIndices.map(tile => tile.x)), Math.floor(MAX_WIDTH / scale),
+      Math.max(...tileIndices.map(tile => tile.x)), Math.floor(this.maxWidth / scale),
     );
     const maxY = Math.min(
-      Math.max(...tileIndices.map(tile => tile.y)), Math.floor(MAX_HEIGHT / scale),
+      Math.max(...tileIndices.map(tile => tile.y)), Math.floor(this.maxHeight / scale),
     );
     const minX = Math.min(...tileIndices.map(tile => tile.x));
     const minY = Math.min(...tileIndices.map(tile => tile.y));
