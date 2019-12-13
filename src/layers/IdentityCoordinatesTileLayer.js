@@ -50,7 +50,6 @@ export class IdentityCoordinatesTileLayer extends TileLayer {
       });
     }
     const { viewport } = context;
-    const { viewport}  = context;
     if (changeFlags.viewportChanged && viewport.id !== 'DEFAULT-INITIAL-VIEWPORT') {
       const z = this.getLayerZoomLevel();
       tileCache.update(viewport);
@@ -71,7 +70,7 @@ export class IdentityCoordinatesTileLayer extends TileLayer {
     }
     return z;
   }
-  
+
   _onTileLoad() {
     const { onViewportLoaded } = this.props;
     const currTiles = this.state.tiles;
