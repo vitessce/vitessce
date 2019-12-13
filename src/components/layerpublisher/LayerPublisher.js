@@ -47,7 +47,7 @@ function fetchDataFromDZI(layerType, data) {
   return fetch(data[layerType].tileSource).then(response => response.text())
     .then(str => (new window.DOMParser()).parseFromString(str, 'text/xml'))
     .then((layer) => {
-      const tileSource = data[layerType].tileSource
+      const { tileSource } = data[layerType];
       data[layerType].tileSource = tileSource.substring(0, tileSource.lastIndexOf('/')); // eslint-disable-line no-param-reassign
       // eslint-disable-next-line no-param-reassign
       data[layerType].Height = layer.getElementsByTagName('Size')[0].attributes.Height.value;
