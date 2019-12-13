@@ -8,8 +8,6 @@ import { getTileIndices } from './viewport-util';
  * Manages loading and purging of tiles data. This class caches recently visited tiles
  * and only create new tiles if they are present.
  */
-const MAX_WIDTH = 31728;
-const MAX_HEIGHT = 51669;
 
 export default class TileCache {
   /**
@@ -146,7 +144,7 @@ export default class TileCache {
   _getTileId(x, y, z) {
     return `${z}-${x}-${y}`;
   }
-
+  
   _expandIndices(minX, minY, maxY, maxX, z) {
     const extraIndices = [];
     for (let i = minX; i <= maxX; i += 1) {
