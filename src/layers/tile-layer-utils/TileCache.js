@@ -62,13 +62,7 @@ export default class TileCache {
       if(tileIndices[0].z != _minZoom) {
         tileIndices.push(...this._expandIndices(tileIndices))
       }
-      var [maxY, maxX] = [Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY]
-      Object.values(tileIndices).forEach((tileIndex) => {
-        if(tileIndex.x > maxX)
-          maxX = Math.min(tileIndex.x, Math.floor(MAX_WIDTH / (256 * Math.pow(2, -1 * tileIndices[0].z))))
-        if(tileIndex.y > maxY)
-          maxY = Math.min(tileIndex.y, Math.floor(MAX_HEIGHT / (256 * Math.pow(2, -1 * tileIndices[0].z))))
-      })
+      const  {maxY, maxX} = this._getMaxMinIndicies(tileIndices)
       tileIndices = tileIndices.filter((e) => (e.x <= maxX && e.y <= maxY))
       if (!tileIndices || tileIndices.length === 0) {
         return;
@@ -148,20 +142,7 @@ export default class TileCache {
   }
 
   _expandIndices(tileIndices){
-    var [minX, minY, maxY, maxX] = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY]
-    for (var tileIndex in tileIndices) {
-      var tile = tileIndices[tileIndex]
-      if(tile.x > maxX)
-        maxX = tile.x
-      if(tile.y > maxY)
-        maxY = tile.y
-      if(tile.y < minY)
-        minY = tile.y
-      if(tile.x < minX)
-        minX = tile.x
-    }
-    maxX = Math.min(maxX, Math.floor(MAX_HEIGHT / (256 * Math.pow(2, -1 * tileIndices[0].z))))
-    maxY = Math.min(maxY, Math.floor(MAX_WIDTH / (256 * Math.pow(2, -1 * tileIndices[0].z))))
+    const  {minX, minY, maxY, maxX} = this._getMaxMinIndicies(tileIndices)
     var extraIndices = []
     for (var tileIndex in tileIndices) {
       var tile = tileIndices[tileIndex]
@@ -191,7 +172,9 @@ export default class TileCache {
     var [xIndices, yIndices] = [[], []]
     tileIndices.forEach((e) => xIndices.push(e.x));
     tileIndices.forEach((e) => yIndices.push(e.y));
-    var [x, y] = [this._median(xIndices), this._median(yIndices)];
+    const {minX, minY, maxY, maxX} = _getMaxMinIndicies(tileIndices);
+    const x = Math.floor((minX + maxX) / 2)
+    const y = Math.floor((minY + maxY) / 2)
     while(zoom > minZoom) {
       zoom = zoom - 1
       var index = {x: Math.floor(x / Math.pow(2, -1 * zoom)), y: Math.floor(y / Math.pow(2, -1 * zoom)), z: zoom};
@@ -201,17 +184,13 @@ export default class TileCache {
     return extraIndices
   }
 
-  _median(numbers) {
-    var median = 0, count = numbers.length;
-    numbers.sort();
-
-    if (count % 2 === 0) {  // is even
-        median = (numbers[count / 2 - 1] + numbers[count / 2]) / 2;
-    } else { // is odd
-        median = numbers[(count - 1) / 2];
-    }
-
-    return median;
+  _getMaxMinIndicies(tileIndices){
+    const scale = (256 * Math.pow(2, -1 * tileIndices[0].z))
+    const maxX = Math.min(Math.max(...tileIndices.map(tile => tile.x)), Math.floor(MAX_HEIGHT / scale));
+    const maxY = Math.min(Math.max(...tileIndices.map(tile => tile.y)), Math.floor(MAX_WIDTH / scale));
+    const minX = Math.min(...tileIndices.map(tile => tile.x));
+    const minY = Math.min(...tileIndices.map(tile => tile.y));
+    return {minX, minY, maxY, maxX}
   }
 
 }
