@@ -59,10 +59,11 @@ export default class TileCache {
       }
     );
     if(tileIndices.length > 0) {
-      if(tileIndices[0].z != _minZoom) {
-        tileIndices.push(...this._expandIndices(tileIndices))
+      const z = tileIndices[0].z
+      if(z != _minZoom) {
+        tileIndices.push(...this._expandIndices({minX, minY, maxY, maxX, z}))
       }
-      const  {maxY, maxX} = this._getMaxMinIndicies(tileIndices)
+      const {maxY, maxX} = this._getMaxMinIndicies(tileIndices)
       tileIndices = tileIndices.filter((e) => (e.x <= maxX && e.y <= maxY))
       if (!tileIndices || tileIndices.length === 0) {
         return;
@@ -78,15 +79,12 @@ export default class TileCache {
         const {x, y, z} = tileIndex;
         let tile = this._getTile(x, y, z);
         if (!tile) {
-          tile = new Tile({
+          tile = new IdentityCoordinatesTile({
             getTileData: _getTileData,
             x,
             y,
             z,
-            onTileLoad: this.onTileLoad,
-            onTileError: this.onTileError,
-            maxHeight: this.maxHeight,
-            maxWidth: this.maxWidth
+            ...this
           });
           tile.isVisible = true;
           changed = true;
@@ -141,28 +139,24 @@ export default class TileCache {
     return `${z}-${x}-${y}`;
   }
 
-  _expandIndices(tileIndices){
-    const  {minX, minY, maxY, maxX} = this._getMaxMinIndicies(tileIndices)
+  _expandIndices(minX, minY, maxY, maxX, z){
     var extraIndices = []
-    for (var tileIndex in tileIndices) {
-      var tile = tileIndices[tileIndex]
-      if (tile.x == maxX)
-        extraIndices.push({x: tile.x + 1, y: tile.y, z: tile.z})
-        if (tile.y == maxY)
-          extraIndices.push({x: tile.x + 1, y: tile.y + 1, z: tile.z})
-        else if (tile.y == minY)
-          extraIndices.push({x: tile.x + 1, y: tile.y - 1, z: tile.z})
-      else if (tile.x == minX)
-        extraIndices.push({x: tile.x - 1, y: tile.y, z: tile.z})
-        if (tile.y == maxY)
-          extraIndices.push({x: tile.x - 1, y: tile.y + 1, z: tile.z})
-        else if (tile.y == minY)
-          extraIndices.push({x: tile.x - 1, y: tile.y - 1, z: tile.z})
-      else if (tile.y == maxY)
-        extraIndices.push({x: tile.x, y: tile.y + 1, z: tile.z})
-      else if (tile.y == minY)
-        extraIndices.push({x: tile.x, y: tile.y - 1, z: tile.z})
+    for (var i = minX; i <= maxX; i++) {
+      extraIndices.push({x: i, y: minY - 1, z: z})
+      extraIndices.push({x: i, y: maxY + 1, z: z})
+      extraIndices.push({x: i, y: minY, z: z})
+      extraIndices.push({x: i, y: maxY, z: z})
     }
+    for (var i = minY; i <= maxY; i++) {
+      extraIndices.push({x: minX - 1, y: i, z: z})
+      extraIndices.push({x: maxX + 1, y: i, z: z})
+      extraIndices.push({x: minX, y: i, z: z})
+      extraIndices.push({x: maxX, y: i, z: z})
+    }
+    extraIndices.push({x: minX - 1, y: minY - 1, z: z})
+    extraIndices.push({x: maxX + 1, y: minY - 1, z: z})
+    extraIndices.push({x: minX - 1, y: maxY + 1, z: z})
+    extraIndices.push({x: maxX + 1, y: maxY + 1, z: z})
     return extraIndices
   }
 
