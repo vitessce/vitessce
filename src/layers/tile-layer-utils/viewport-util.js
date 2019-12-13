@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle*/
+
 const TILE_SIZE = 256;
 
 function getBoundingBox(viewport) {

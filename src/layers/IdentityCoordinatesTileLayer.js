@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle*/
+
 import TileCache from './tile-layer-utils/TileCache';
 import {TileLayer} from 'deck.gl'
 

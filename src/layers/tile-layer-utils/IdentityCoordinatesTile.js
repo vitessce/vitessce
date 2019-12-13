@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle*/
+
 function tile2boundingBox(x, y, z, maxHeight, maxWidth) {
   return {
     west: (x * 256) * Math.pow(2, -1 * z),
