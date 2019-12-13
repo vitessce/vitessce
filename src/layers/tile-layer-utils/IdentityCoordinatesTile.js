@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle*/
+/* eslint-disable class-methods-use-this*/
 
 function tile2boundingBox(x, y, z, maxHeight, maxWidth) {
   return {

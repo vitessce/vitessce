@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle*/
+/* eslint-disable class-methods-use-this*/
 
 const TILE_SIZE = 256;
 

@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle*/
+/* eslint-disable class-methods-use-this*/
 
 import IdentityCoordinatesTile from './IdentityCoordinatesTile';
 import { getTileIndices } from './viewport-util';
