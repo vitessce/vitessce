@@ -1,4 +1,4 @@
-import IdentityCoordinatesTile from './Tile';
+import IdentityCoordinatesTile from './IdentityCoordinatesTile';
 import {getTileIndices} from './viewport-util';
 /**
  * Manages loading and purging of tiles data. This class caches recently visited tiles
