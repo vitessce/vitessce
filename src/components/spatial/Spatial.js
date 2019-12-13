@@ -206,6 +206,9 @@ export default class Spatial extends AbstractSelectableComponent {
       // getTileData: ({x, y, z}) => load(`https://vitessce-data.s3.amazonaws.com/0.0.18/tile_ometiff/linnarsson/linnarsson.tiles/linnarsson.images.nuclei/nuclei_files/${z + 16}/${x}_${y}.jpeg`),
       minZoom: -16,
       maxZoom: 0,
+      maxHeight: source.tileSource.Height,
+      maxWidth: source.tileSource.Width,
+      tileSize: source.tileSource.TileSize,
       tileSource: source.tileSource,
       visible: this.state.layerIsVisible[layerType],
       renderSubLayers: (props) => {

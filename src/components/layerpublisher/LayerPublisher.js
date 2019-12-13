@@ -16,6 +16,25 @@ import imagesSchema from '../../schemas/images.schema.json';
 import moleculesSchema from '../../schemas/molecules.schema.json';
 import neighborhoodsSchema from '../../schemas/neighborhoods.schema.json';
 
+const typeToSchema = {
+  CELLS: cellsSchema,
+  CLUSTERS: clustersSchema,
+  FACTORS: factorsSchema,
+  GENES: genesSchema,
+  IMAGES: imagesSchema,
+  MOLECULES: moleculesSchema,
+  NEIGHBORHOODS: neighborhoodsSchema,
+};
+const typeToEvent = {
+  CELLS: CELLS_ADD,
+  CLUSTERS: CLUSTERS_ADD,
+  FACTORS: FACTORS_ADD,
+  GENES: GENES_ADD,
+  IMAGES: IMAGES_ADD,
+  MOLECULES: MOLECULES_ADD,
+  NEIGHBORHOODS: NEIGHBORHOODS_ADD,
+};
+
 function warn(message) {
   PubSub.publish(STATUS_WARN, message);
 }
@@ -24,43 +43,55 @@ function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
 }
 
+function fetchDataFromDZI(layerType, data) {
+  return fetch(data[layerType].tileSource).then(response => response.text())
+    .then(str => (new window.DOMParser()).parseFromString(str, 'text/xml'))
+    .then((layer) => {
+      data[layerType].tileSource = {}; // eslint-disable-line no-param-reassign
+      // eslint-disable-next-line no-param-reassign
+      data[layerType].tileSource.Height = layer.getElementsByTagName('Size')[0].attributes.Height.value;
+      // eslint-disable-next-line no-param-reassign
+      data[layerType].tileSource.Width = layer.getElementsByTagName('Size')[0].attributes.Width.value;
+      // eslint-disable-next-line no-param-reassign
+      data[layerType].tileSource.TileSize = layer.getElementsByTagName('Image')[0].attributes.TileSize.value;
+      return data;
+    });
+}
+
+function fetchImageMetadata(data) {
+  return fetchDataFromDZI('nuclei', data).then(res => fetchDataFromDZI('polyT', res));
+}
+
+function publishLayer(data, type, name, url) {
+  const schema = typeToSchema[type];
+  if (!schema) {
+    throw Error(`No schema for ${type}`);
+  }
+  const validate = new Ajv().compile(schema);
+  const valid = validate(data);
+  if (valid) {
+    if (type === 'IMAGES') {
+      fetchImageMetadata(data).then((resData) => {
+        PubSub.publish(typeToEvent[type], resData);
+        info(name);
+      });
+    } else {
+      PubSub.publish(typeToEvent[type], data);
+      info(name);
+    }
+  } else {
+    const failureReason = JSON.stringify(validate.errors, null, 2);
+    warn(`Error while validating ${name}. Details in console.`);
+    console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
+  }
+}
+
 function loadLayer(layer) {
   const { name, type, url } = layer;
-  const typeToSchema = {
-    CELLS: cellsSchema,
-    CLUSTERS: clustersSchema,
-    FACTORS: factorsSchema,
-    GENES: genesSchema,
-    IMAGES: imagesSchema,
-    MOLECULES: moleculesSchema,
-    NEIGHBORHOODS: neighborhoodsSchema,
-  };
-  const typeToEvent = {
-    CELLS: CELLS_ADD,
-    CLUSTERS: CLUSTERS_ADD,
-    FACTORS: FACTORS_ADD,
-    GENES: GENES_ADD,
-    IMAGES: IMAGES_ADD,
-    MOLECULES: MOLECULES_ADD,
-    NEIGHBORHOODS: NEIGHBORHOODS_ADD,
-  };
   fetch(url)
     .then((response) => {
       response.json().then((data) => {
-        const schema = typeToSchema[type];
-        if (!schema) {
-          throw Error(`No schema for ${type}`);
-        }
-        const validate = new Ajv().compile(schema);
-        const valid = validate(data);
-        if (valid) {
-          PubSub.publish(typeToEvent[type], data);
-          info(name);
-        } else {
-          const failureReason = JSON.stringify(validate.errors, null, 2);
-          warn(`Error while validating ${name}. Details in console.`);
-          console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
-        }
+        publishLayer(data, { name, type, url });
       }, (failureReason) => {
         warn(`Error while parsing ${name}. Details in console.`);
         console.warn(`"${name}" (${type}) from ${url}: parse failed`, failureReason);

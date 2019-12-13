@@ -18,7 +18,7 @@ export default class TileCache {
    */
   constructor({
     getTileData, maxSize, maxZoom, minZoom,
-    maxHeight, maxWidth, onTileLoad, onTileError,
+    maxHeight, maxWidth, tileSize, onTileLoad, onTileError,
   }) {
     // TODO: Instead of hardcode size, we should calculate how much memory left
     this._getTileData = getTileData;
@@ -27,6 +27,7 @@ export default class TileCache {
     this.onTileLoad = onTileLoad;
     this.maxHeight = maxHeight;
     this.maxWidth = maxWidth;
+    this.tileSize = tileSize;
 
     // Maps tile id in string {z}-{x}-{y} to a Tile object
     this._cache = new Map();
@@ -62,7 +63,7 @@ export default class TileCache {
     } = this;
 
     this._markOldTiles();
-    let tileIndices = getTileIndices(viewport, _maxZoom, _minZoom);
+    let tileIndices = getTileIndices(viewport, _maxZoom, _minZoom, this.tileSize);
     if (tileIndices.length > 0) {
       const { maxY, maxX } = this._getMaxMinIndicies(tileIndices);
       if (tileIndices[0].z !== _minZoom) {
@@ -192,7 +193,7 @@ export default class TileCache {
   }
 
   _getMaxMinIndicies(tileIndices) {
-    const scale = 256 * (2 ** (-1 * tileIndices[0].z));
+    const scale = this.tileSize * (2 ** (-1 * tileIndices[0].z));
     const maxX = Math.min(
       Math.max(...tileIndices.map(tile => tile.x)), Math.floor(MAX_WIDTH / scale),
     );

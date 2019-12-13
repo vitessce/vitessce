@@ -36,8 +36,9 @@ export class IdentityCoordinatesTileLayer extends TileLayer {
         maxSize: maxCacheSize,
         maxZoom,
         minZoom,
-        maxHeight: 51669,
-        maxWidth: 31728,
+        maxHeight: props.maxHeight,
+        maxWidth: props.maxWidth,
+        tileSize: props.tileSize,
         onTileLoad: this._onTileLoad.bind(this),
         onTileError: this._onTileError.bind(this),
       });

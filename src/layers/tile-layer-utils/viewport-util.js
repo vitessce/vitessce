@@ -1,8 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 
-const TILE_SIZE = 256;
-
 function getBoundingBox(viewport) {
   const corners = [
     ...viewport.unproject([0, 0]),
@@ -12,7 +10,7 @@ function getBoundingBox(viewport) {
 }
 
 function pixelsToTileIndex(a) {
-  return a[0] / (TILE_SIZE * (2 ** (-1 * a[1])));
+  return a[0] / (a[2] * (2 ** (-1 * a[1])));
 }
 
 /**
@@ -20,14 +18,14 @@ function pixelsToTileIndex(a) {
  * than minZoom, return an empty array. If the current zoom level is greater than maxZoom,
  * return tiles that are on maxZoom.
  */
-export function getTileIndices(viewport, maxZoom, minZoom) {
+export function getTileIndices(viewport, maxZoom, minZoom, tileSize) {
   const z = Math.min(0, Math.ceil(viewport.zoom));
   if (z <= minZoom) {
     return [{ x: 0, y: 0, z: minZoom }];
   }
   const bbox = getBoundingBox(viewport);
-  let [minX, minY] = [[bbox[0], z], [bbox[1], z]].map(pixelsToTileIndex);
-  let [maxX, maxY] = [[bbox[2], z], [bbox[3], z]].map(pixelsToTileIndex);
+  let [minX, minY] = [[bbox[0], z, tileSize], [bbox[1], z, tileSize]].map(pixelsToTileIndex);
+  let [maxX, maxY] = [[bbox[2], z, tileSize], [bbox[3], z, tileSize]].map(pixelsToTileIndex);
   /*
       |  TILE  |  TILE  |  TILE  |
         |(minPixel)           |(maxPixel)
