@@ -174,7 +174,6 @@ export default class TileCache {
   }
 
   _getMaxMinIndicies(tileIndices){
-    console.log(tileIndices)
     const scale = (256 * Math.pow(2, -1 * tileIndices[0].z))
     const maxX = Math.min(Math.max(...tileIndices.map(tile => tile.x)), Math.floor(MAX_WIDTH / scale));
     const maxY = Math.min(Math.max(...tileIndices.map(tile => tile.y)), Math.floor(MAX_HEIGHT / scale));

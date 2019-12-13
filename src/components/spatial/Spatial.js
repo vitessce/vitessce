@@ -225,8 +225,7 @@ export default class Spatial extends AbstractSelectableComponent {
     this.setState({ layers });
   }
 
-  renderLayersMenu() {
-    console.log(this.state)// eslint-disable-line class-methods-use-this
+  renderLayersMenu() { // eslint-disable-line class-methods-use-this
     return (
       <LayersMenu
         layerIsVisible={this.state.layerIsVisible}
