@@ -47,13 +47,14 @@ function fetchDataFromDZI(layerType, data) {
   return fetch(data[layerType].tileSource).then(response => response.text())
     .then(str => (new window.DOMParser()).parseFromString(str, 'text/xml'))
     .then((layer) => {
-      data[layerType].tileSource = {}; // eslint-disable-line no-param-reassign
+      const tileSource = data[layerType].tileSource
+      data[layerType].tileSource = tileSource.substring(0, tileSource.lastIndexOf('/')); // eslint-disable-line no-param-reassign
       // eslint-disable-next-line no-param-reassign
-      data[layerType].tileSource.Height = layer.getElementsByTagName('Size')[0].attributes.Height.value;
+      data[layerType].Height = layer.getElementsByTagName('Size')[0].attributes.Height.value;
       // eslint-disable-next-line no-param-reassign
-      data[layerType].tileSource.Width = layer.getElementsByTagName('Size')[0].attributes.Width.value;
+      data[layerType].Width = layer.getElementsByTagName('Size')[0].attributes.Width.value;
       // eslint-disable-next-line no-param-reassign
-      data[layerType].tileSource.TileSize = layer.getElementsByTagName('Image')[0].attributes.TileSize.value;
+      data[layerType].TileSize = layer.getElementsByTagName('Image')[0].attributes.TileSize.value;
       return data;
     });
 }
@@ -91,7 +92,7 @@ function loadLayer(layer) {
   fetch(url)
     .then((response) => {
       response.json().then((data) => {
-        publishLayer(data, { name, type, url });
+        publishLayer(data, type, name, url);
       }, (failureReason) => {
         warn(`Error while parsing ${name}. Details in console.`);
         console.warn(`"${name}" (${type}) from ${url}: parse failed`, failureReason);
