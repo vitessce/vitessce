@@ -1,8 +1,8 @@
 import {CompositeLayer} from '@deck.gl/core';
-import TileCache from './tile-layer-utils/tile-cache';
+import TileCache from './tile-layer-utils/TileCache';
 import {TileLayer} from '@deck.gl/geo-layers'
 
-export default class IdentityCoordinatesTileLayer extends TileLayer {
+export class IdentityCoordinatesTileLayer extends TileLayer {
 
   initializeState() {
     this.state = {

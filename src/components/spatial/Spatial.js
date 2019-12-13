@@ -1,11 +1,10 @@
 import React from 'react';
 
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer } from 'deck.gl';
-import { SelectablePolygonLayer, TileLayer } from '../../layers';
+import { SelectablePolygonLayer, IdentityCoordinatesTileLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
-import OpenSeadragonComponent from '../../vendor/OpenSeadragonComponent';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
@@ -196,7 +195,7 @@ export default class Spatial extends AbstractSelectableComponent {
 
   _createTileLayer(layer) {
     var [layerType, source] = layer
-    return new TileLayer({
+    return new IdentityCoordinatesTileLayer({
         id:`${layerType}-tile-layer`,
         pickable: true,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
