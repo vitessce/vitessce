@@ -205,7 +205,6 @@ export default class Spatial extends AbstractSelectableComponent {
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       maxCacheSize: 50,
       getTileData: ({ x, y, z }) => loadImage(`${source.tileSource}/${layerType}_files/${z + 16}/${x}_${y}.jpeg`),
-      // getTileData: ({x, y, z}) => load(`https://vitessce-data.s3.amazonaws.com/0.0.18/tile_ometiff/linnarsson/linnarsson.tiles/linnarsson.images.nuclei/nuclei_files/${z + 16}/${x}_${y}.jpeg`),
       minZoom: Math.ceil(Math.log2(-1 * Math.max(source.height, source.width))),
       maxZoom: 0,
       maxHeight: source.height,

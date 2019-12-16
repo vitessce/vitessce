@@ -74,9 +74,9 @@ export default class AbstractSelectableComponent extends React.Component {
     // No-op
   }
 
-  initializeViewInfo(viewProps){
+  initializeViewInfo(viewProps) {
     const {
-      x, y, width, height, viewport,
+      width, height, viewport,
     } = viewProps;
     // Capture the viewport, width, and height values from DeckGL instantiation to be used later.
     this.viewInfo.viewport = viewport;
@@ -142,8 +142,8 @@ export default class AbstractSelectableComponent extends React.Component {
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
         </div>
-        <DeckGL ref={this.deckRef} {...deckProps} >
-        {this.initializeViewInfo}
+        <DeckGL ref={this.deckRef} {...deckProps}>
+          {this.initializeViewInfo}
         </DeckGL>
       </React.Fragment>
     );

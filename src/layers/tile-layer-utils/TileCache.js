@@ -117,7 +117,8 @@ export default class TileCache {
     const { _cache } = this;
     if (_cache.size > maxSize) {
       const iterator = _cache[Symbol.iterator]();
-      for (const cachedTile of iterator) { // eslint-disable-line no-restricted-syntax
+      // eslint-disable-next-line no-restricted-syntax no-unused-vars
+      for (const cachedTile of iterator) {
         if (_cache.size <= maxSize) {
           break;
         }
