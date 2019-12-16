@@ -14,6 +14,8 @@ export default class AbstractSelectableComponent extends React.Component {
     this.renderSelectionLayers = this.renderSelectionLayers.bind(this);
     this.deckRef = React.createRef();
     this.getCellCoords = this.getCellCoords.bind(this);
+    this.onViewStateChange = this.onViewStateChange.bind(this);
+    this.initializeViewInfo = this.initializeViewInfo.bind(this);
     const { uuid = null } = props || {};
     // Store view and viewport information in a mutable object.
     this.viewInfo = {
@@ -72,6 +74,40 @@ export default class AbstractSelectableComponent extends React.Component {
     // No-op
   }
 
+  initializeViewInfo(viewProps){
+    const {
+      x, y, width, height, viewport,
+    } = viewProps;
+    // Capture the viewport, width, and height values from DeckGL instantiation to be used later.
+    this.viewInfo.viewport = viewport;
+    this.viewInfo.width = width;
+    this.viewInfo.height = height;
+    const {
+      updateViewInfo = () => {
+        console.warn('AbstractSelectableComponent updateViewInfo from renderImagesFromView');
+      },
+    } = this.props;
+    updateViewInfo(this.viewInfo);
+  }
+
+
+  onViewStateChange({ viewState }) {
+    const {
+      updateViewInfo = () => {
+        console.warn('AbstractSelectableComponent updateViewInfo from onViewStateChange');
+      },
+    } = this.props;
+    // Update the viewport field of the `viewInfo` object
+    // to satisfy components (e.g. CellTooltip2D) that depend on an
+    // up-to-date viewport instance (to perform projections).
+    this.viewInfo.viewport = (new OrthographicView()).makeViewport({
+      viewState,
+      width: this.width,
+      height: this.height,
+    });
+    updateViewInfo(this.viewInfo);
+  }
+
   render() {
     const { tool } = this.state;
     const toolProps = {
@@ -79,6 +115,7 @@ export default class AbstractSelectableComponent extends React.Component {
       /* eslint-disable react/destructuring-assignment */
       isActiveTool: toolCheck => (toolCheck === this.state.tool),
       /* esline-enable */
+      onViewStateChange: this.onViewStateChange,
     };
 
     let deckProps = {
@@ -105,7 +142,9 @@ export default class AbstractSelectableComponent extends React.Component {
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
         </div>
-        <DeckGL ref={this.deckRef} {...deckProps} />
+        <DeckGL ref={this.deckRef} {...deckProps} >
+        {this.initializeViewInfo}
+        </DeckGL>
       </React.Fragment>
     );
   }
