@@ -50,11 +50,11 @@ function fetchDataFromDZI(layerType, data) {
       const { tileSource } = data[layerType];
       data[layerType].tileSource = tileSource.substring(0, tileSource.lastIndexOf('/')); // eslint-disable-line no-param-reassign
       // eslint-disable-next-line no-param-reassign
-      data[layerType].Height = layer.getElementsByTagName('Size')[0].attributes.Height.value;
+      data[layerType].height = layer.getElementsByTagName('Size')[0].attributes.Height.value;
       // eslint-disable-next-line no-param-reassign
-      data[layerType].Width = layer.getElementsByTagName('Size')[0].attributes.Width.value;
+      data[layerType].width = layer.getElementsByTagName('Size')[0].attributes.Width.value;
       // eslint-disable-next-line no-param-reassign
-      data[layerType].TileSize = layer.getElementsByTagName('Image')[0].attributes.TileSize.value;
+      data[layerType].tileSize = layer.getElementsByTagName('Image')[0].attributes.TileSize.value;
       return data;
     });
 }

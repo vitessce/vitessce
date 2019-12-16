@@ -13,6 +13,8 @@ export function square(x, y, r) {
 }
 
 function loadImage(src) {
+  // this function replaces load from loaders.gl which was not working as of
+  // this package version of deckgl (7.1.4)
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.addEventListener('load', () => resolve(img));
@@ -204,11 +206,11 @@ export default class Spatial extends AbstractSelectableComponent {
       maxCacheSize: 50,
       getTileData: ({ x, y, z }) => loadImage(`${source.tileSource}/${layerType}_files/${z + 16}/${x}_${y}.jpeg`),
       // getTileData: ({x, y, z}) => load(`https://vitessce-data.s3.amazonaws.com/0.0.18/tile_ometiff/linnarsson/linnarsson.tiles/linnarsson.images.nuclei/nuclei_files/${z + 16}/${x}_${y}.jpeg`),
-      minZoom: -16,
+      minZoom: Math.ceil(Math.log2(-1 * Math.max(source.height, source.width))),
       maxZoom: 0,
-      maxHeight: source.Height,
-      maxWidth: source.Width,
-      tileSize: source.TileSize,
+      maxHeight: source.height,
+      maxWidth: source.width,
+      tileSize: source.tileSize,
       tileSource: source.tileSource,
       visible: this.state.layerIsVisible[layerType],
       renderSubLayers: (props) => {
