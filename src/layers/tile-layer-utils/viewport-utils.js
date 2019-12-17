@@ -38,7 +38,7 @@ export function getTileIndices(viewport, maxZoom, minZoom, tileSize) {
   const indices = [];
   for (let x = minX; x < maxX; x += 1) {
     for (let y = minY; y < maxY; y += 1) {
-      indices.push({ x, z, y });
+      indices.push({ x, y, z });
     }
   }
   return indices;
