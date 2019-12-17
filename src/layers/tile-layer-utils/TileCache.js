@@ -3,7 +3,7 @@
 /* eslint-disable no-param-reassign */
 
 import IdentityCoordinatesTile from './IdentityCoordinatesTile';
-import { getTileIndices } from './viewport-util';
+import { getTileIndices } from './viewport-utils';
 /**
  * Manages loading and purging of tiles data. This class caches recently visited tiles
  * and only create new tiles if they are present.

@@ -9,8 +9,8 @@ function getBoundingBox(viewport) {
   return corners;
 }
 
-function pixelsToTileIndex(a) {
-  return a[0] / (a[2] * (2 ** (-1 * a[1])));
+function pixelsToTileIndex(pixels, z, tileSize) {
+  return pixels / (tileSize * (2 ** (-1 * z)));
 }
 
 /**
@@ -20,12 +20,12 @@ function pixelsToTileIndex(a) {
  */
 export function getTileIndices(viewport, maxZoom, minZoom, tileSize) {
   const z = Math.min(0, Math.ceil(viewport.zoom));
+
   if (z <= minZoom) {
     return [{ x: 0, y: 0, z: minZoom }];
   }
   const bbox = getBoundingBox(viewport);
-  let [minX, minY] = [[bbox[0], z, tileSize], [bbox[1], z, tileSize]].map(pixelsToTileIndex);
-  let [maxX, maxY] = [[bbox[2], z, tileSize], [bbox[3], z, tileSize]].map(pixelsToTileIndex);
+  let [minX, minY, maxX, maxY] = bbox.map(pixels => pixelsToTileIndex(pixels, z, tileSize));
   /*
       |  TILE  |  TILE  |  TILE  |
         |(minPixel)           |(maxPixel)
@@ -38,7 +38,7 @@ export function getTileIndices(viewport, maxZoom, minZoom, tileSize) {
   const indices = [];
   for (let x = minX; x < maxX; x += 1) {
     for (let y = minY; y < maxY; y += 1) {
-      indices.push({ x, y, z });
+      indices.push({ x, z, y });
     }
   }
   return indices;
