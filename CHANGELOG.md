@@ -1,11 +1,14 @@
 # Changelog
 
-## 0.0.19 - in progress
+## 0.0.20 - in progress
+
+## [0.0.19](https://www.npmjs.com/package/vitessce/v/0.0.19) - 2019-12-10
 ### Removed
-- Removed Docz and .mdx files.
+- Removed Docz and .mdx files and update package.json.
 ### Added
 - Travis checks that changelog was updated.
 - Links to component demos.
+- Top-level CSS rule to keep component styles from leaking out.
 ### Changed
 - CSS filename in UMD no longer contains hash.
 - Update to NodeJS 10 on Travis.

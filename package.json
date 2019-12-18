@@ -1,6 +1,6 @@
 {
   "name": "vitessce",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "Vitessce app and React component library",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -42,9 +42,9 @@
     "prop-types": "^15.7.2",
     "pubsub-js": "^1.7.0",
     "rc-tree": "^2.1.0",
-    "react": "16.8.6",
+    "react": "^16.8.6",
     "react-color": "^2.17.3",
-    "react-dom": "16.8.6",
+    "react-dom": "^16.8.6",
     "react-scripts": "^2.1.8",
     "short-number": "^1.0.6",
     "store": "^2.0.12",
@@ -56,7 +56,6 @@
   "devDependencies": {
     "@svgr/webpack": "^4.3.0",
     "cypress": "^3.6.1",
-    "documentation": "^9.3.1",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.2",
     "eslint": "^5.15.3",

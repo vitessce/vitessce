@@ -1,7 +1,14 @@
-@import './colors';
+@import 'colors';
 
-@import './error.scss';
-@import './radio.scss';
-@import './controls.scss';
-@import './tooltips.scss';
-@import './sets-manager.scss';
+@import 'app';
+@import 'controls';
+@import 'error';
+@import 'tooltips';
+@import 'sets-manager'; // TODO: Changing to mixin didn't work. See https://github.com/hubmapconsortium/vitessce/issues/396
+
+.vitessce-container {
+  @include app;
+  @include controls;
+  @include error;
+  @include tooltips;
+}

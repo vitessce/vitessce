@@ -14,7 +14,7 @@ export default class PubSubVitessceGrid extends React.Component {
     const { config, getComponent } = this.props;
     const { allReady } = this.state;
     return (
-      <React.Fragment>
+      <div className="vitessce-container">
         { allReady && <LayerPublisher layers={config.layers} /> }
         <VitessceGrid
           layout={config.responsiveLayout || config.staticLayout}
@@ -23,7 +23,7 @@ export default class PubSubVitessceGrid extends React.Component {
           onAllReady={() => { this.setState({ allReady: true }); }}
           draggableHandle=".title"
         />
-      </React.Fragment>
+      </div>
     );
   }
 }
