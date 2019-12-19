@@ -44,7 +44,7 @@ describe('tile-layer-utils/viewport-utils.js', () => {
       };
       expect(getTileIndices(viewport, 0, -16, 1000)).toEqual([
         { x: 0, y: 0, z: -2 }, { x: 0, y: 1, z: -2 }, { x: 0, y: 2, z: -2 },
-        { x: 1, y: 0, z: -2 }, { x: 1, y: 1, z: -2 }, { x: 1, y: 2, z: -2 }
+        { x: 1, y: 0, z: -2 }, { x: 1, y: 1, z: -2 }, { x: 1, y: 2, z: -2 },
       ]);
     });
 

@@ -9,8 +9,8 @@ function getBoundingBox(viewport) {
   return corners;
 }
 
-function pixelsToTileIndex(pixels, z, tileSize) {
-  return pixels / (tileSize * (2 ** (-1 * z)));
+function pixelsToTileIndex(pixelCount, z, tileSize) {
+  return pixelCount / (tileSize * (2 ** -z));
 }
 
 /**
