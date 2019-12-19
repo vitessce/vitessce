@@ -25,19 +25,19 @@ export function getTileIndices(viewport, maxZoom, minZoom, tileSize) {
     return [{ x: 0, y: 0, z: minZoom }];
   }
   const bbox = getBoundingBox(viewport);
-  let [minX, minY, maxX, maxY] = bbox.map(pixels => pixelsToTileIndex(pixels, z, tileSize));
+  const [minX, minY, maxX, maxY] = bbox.map(pixels => pixelsToTileIndex(pixels, z, tileSize));
   /*
       |  TILE  |  TILE  |  TILE  |
-        |(minPixel)           |(maxPixel)
-      |(minIndex)                |(maxIndex)
+        |(minX)                 |(maxX)
+      |(roundedMinX)             |(roundedMaxX)
    */
-  minX = Math.max(0, Math.floor(minX));
-  maxX = Math.max(0, Math.ceil(maxX));
-  minY = Math.max(0, Math.floor(minY));
-  maxY = Math.max(0, Math.ceil(maxY));
+  const roundedMinX = Math.max(0, Math.floor(minX));
+  const roundedMaxX = Math.max(0, Math.ceil(maxX));
+  const roundedMinY = Math.max(0, Math.floor(minY));
+  const roundedMaxY = Math.max(0, Math.ceil(maxY));
   const indices = [];
-  for (let x = minX; x < maxX; x += 1) {
-    for (let y = minY; y < maxY; y += 1) {
+  for (let x = roundedMinX; x < roundedMaxX; x += 1) {
+    for (let y = roundedMinY; y < roundedMaxY; y += 1) {
       indices.push({ x, y, z });
     }
   }
