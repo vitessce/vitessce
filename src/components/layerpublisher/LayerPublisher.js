@@ -43,24 +43,27 @@ function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
 }
 
-function fetchDataFromDZI(layerType, data) {
-  return fetch(data[layerType].tileSource).then(response => response.text())
+function fetchDataFromDZI(layerType, tileSource) {
+  return fetch(tileSource).then(response => response.text())
     .then(str => (new window.DOMParser()).parseFromString(str, 'text/xml'))
     .then((layer) => {
-      const { tileSource } = data[layerType];
-      data[layerType].tileSource = tileSource.substring(0, tileSource.lastIndexOf('/')); // eslint-disable-line no-param-reassign
-      // eslint-disable-next-line no-param-reassign
-      data[layerType].height = layer.getElementsByTagName('Size')[0].attributes.Height.value;
-      // eslint-disable-next-line no-param-reassign
-      data[layerType].width = layer.getElementsByTagName('Size')[0].attributes.Width.value;
-      // eslint-disable-next-line no-param-reassign
-      data[layerType].tileSize = layer.getElementsByTagName('Image')[0].attributes.TileSize.value;
-      return data;
+
+      const layerData = {}
+      if(layer.getElementsByTagName('Image')[0].attributes.Overlap.value != 0) {
+        console.error('Overlap is nonzero - image will have artifacts')
+      }
+      layerData.layerType = layerType
+      layerData.tileSource = tileSource.substring(0, tileSource.lastIndexOf('/'));
+      layerData.height = parseInt(layer.getElementsByTagName('Size')[0].attributes.Height.value);
+      layerData.width = parseInt(layer.getElementsByTagName('Size')[0].attributes.Width.value);
+      layerData.tileSize = parseInt(layer.getElementsByTagName('Image')[0].attributes.TileSize.value);
+      return layerData;
     });
 }
 
 function fetchImageMetadata(data) {
-  return fetchDataFromDZI('nuclei', data).then(res => fetchDataFromDZI('polyT', res));
+  const imagePlanes = Object.keys(data);
+  return Promise.all(imagePlanes.map(plane => fetchDataFromDZI(plane, data[plane].tileSource)));
 }
 
 function publishLayer(data, type, name, url) {
@@ -70,20 +73,21 @@ function publishLayer(data, type, name, url) {
   }
   const validate = new Ajv().compile(schema);
   const valid = validate(data);
-  if (valid) {
-    if (type === 'IMAGES') {
-      fetchImageMetadata(data).then((resData) => {
-        PubSub.publish(typeToEvent[type], resData);
-        info(name);
-      });
-    } else {
-      PubSub.publish(typeToEvent[type], data);
-      info(name);
-    }
-  } else {
+  if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
     warn(`Error while validating ${name}. Details in console.`);
     console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
+  }
+  if (type === 'IMAGES') {
+    var pubSubData = {}
+    fetchImageMetadata(data).then((resData) => {
+      resData.forEach((e) => pubSubData[e.layerType] = e)
+      PubSub.publish(typeToEvent[type], pubSubData);
+      info(name);
+    });
+  } else {
+    PubSub.publish(typeToEvent[type], data);
+    info(name);
   }
 }
 

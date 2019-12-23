@@ -2,6 +2,16 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-param-reassign */
 
+
+/*
+------------------------------------------
+THIS CODE IS FROM DECKGL MOSTLY
+IT IS AWAITING A PR THERE AND WILL
+THEN BE REMOVED IN FAVOR OF THAT
+------------------------------------------
+*/
+
+
 import IdentityCoordinatesTile from './IdentityCoordinatesTile';
 import { getTileIndices } from './viewport-utils';
 /**
@@ -14,6 +24,8 @@ export default class TileCache {
    * Takes in a function that returns tile data, a cache size, and a max and a min zoom level.
    * Cache size defaults to 5 * number of tiles in the current viewport
    */
+
+   // updated to include maxHeight and maxWidth
   constructor({
     getTileData, maxSize, maxZoom, minZoom,
     maxHeight, maxWidth, tileSize, onTileLoad, onTileError,
@@ -55,6 +67,8 @@ export default class TileCache {
    * @param {*} viewport
    * @param {*} onUpdate
    */
+
+   // this has been updated from deck.gl
   update(viewport) {
     const {
       _cache, _getTileData, _maxSize, _maxZoom, _minZoom,

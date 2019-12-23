@@ -13,8 +13,8 @@ export function square(x, y, r) {
 }
 
 function loadImage(src) {
-  // this function replaces load from loaders.gl which was not working as of
-  // this package version of deckgl (7.1.4)
+  // This function replaces load from loaders.gl (7.3.5) which was not working
+  // with this version of deckgl (7.1.4).
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.addEventListener('load', () => resolve(img));
@@ -62,7 +62,6 @@ export default class Spatial extends AbstractSelectableComponent {
       return;
     }
     const imageNames = Object.keys(this.props.images);
-
     // Add imagery to layerIsVisible UI toggle list, if not already present.
     if (!(imageNames[0] in this.state.layerIsVisible)) {
       // This is not ideal, but it should be OK as long as the `if` prevents an infinite loop.
@@ -191,7 +190,7 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  renderImagesLayer() {
+  renderImageLayers() {
     const layers = [];
     this.images.forEach((layer) => { layers.push(this.createTileLayer(layer)); });
     return layers;
@@ -199,13 +198,13 @@ export default class Spatial extends AbstractSelectableComponent {
 
   createTileLayer(layer) {
     const [layerType, source] = layer;
+    const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)))
     return new IdentityCoordinatesTileLayer({
-      id: `${layerType}-tile-layer`,
+      id: `${layerType}-${source.tileSource}-tile-layer`,
       pickable: true,
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      maxCacheSize: 50,
-      getTileData: ({ x, y, z }) => loadImage(`${source.tileSource}/${layerType}_files/${z + 16}/${x}_${y}.jpeg`),
-      minZoom: Math.ceil(Math.log2(-1 * Math.max(source.height, source.width))),
+      getTileData: ({ x, y, z }) => loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
+      minZoom: minZoom,
       maxZoom: 0,
       maxHeight: source.height,
       maxWidth: source.width,
@@ -277,7 +276,7 @@ export default class Spatial extends AbstractSelectableComponent {
     const layerList = [];
 
     if (images && clearPleaseWait) clearPleaseWait('images');
-    layerList.push(...this.renderImagesLayer());
+    layerList.push(...this.renderImageLayers());
 
     if (cells && clearPleaseWait) clearPleaseWait('cells');
     layerList.push(this.renderCellLayer());

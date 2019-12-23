@@ -1,6 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 
+/*
+------------------------------------------
+THIS CODE IS FROM DECKGL MOSTLY
+IT IS AWAITING A PR THERE AND WILL
+THEN BE REMOVED IN FAVOR OF THAT
+------------------------------------------
+*/
+
+// This has been changed from deck.gl
 function getBoundingBox(viewport) {
   const corners = [
     ...viewport.unproject([0, 0]),
@@ -18,6 +27,7 @@ function pixelsToTileIndex(pixelCount, z, tileSize) {
  * than minZoom, return an empty array. If the current zoom level is greater than maxZoom,
  * return tiles that are on maxZoom.
  */
+ // This has been changed from deck.gl
 export function getTileIndices(viewport, maxZoom, minZoom, tileSize) {
   const z = Math.min(0, Math.ceil(viewport.zoom));
 

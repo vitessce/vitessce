@@ -2,6 +2,14 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-vars */
 
+/*
+------------------------------------------
+THIS CODE IS FROM DECKGL MOSTLY
+IT IS AWAITING A PR THERE AND WILL
+THEN BE REMOVED IN FAVOR OF THAT
+------------------------------------------
+*/
+
 function tile2boundingBox(x, y, z, maxHeight, maxWidth, tileSize) {
   return {
     west: (x * tileSize) * (2 ** (-1 * z)),

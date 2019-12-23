@@ -2,6 +2,14 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-param-reassign */
 
+/*
+------------------------------------------
+THIS CODE IS FROM DECKGL MOSTLY
+IT IS AWAITING A PR THERE AND WILL
+THEN BE REMOVED IN FAVOR OF THAT
+------------------------------------------
+*/
+
 import { TileLayer } from 'deck.gl';
 import TileCache from './tile-layer-utils/TileCache';
 
@@ -17,6 +25,7 @@ export class IdentityCoordinatesTileLayer extends TileLayer {
     return changeFlags.somethingChanged;
   }
 
+  // passsing in maxHeight and maxWidth to the TileCache
   updateState({ props, context, changeFlags }) {
     let { tileCache } = this.state;
     if (
@@ -61,6 +70,7 @@ export class IdentityCoordinatesTileLayer extends TileLayer {
   }
 
   getLayerZoomLevel() {
+    // this changed from deck.gl
     let z = Math.ceil(this.context.viewport.zoom);
     const { maxZoom, minZoom } = this.props;
     if (Number.isFinite(maxZoom) && z > maxZoom) {
