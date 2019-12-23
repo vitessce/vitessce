@@ -51,6 +51,7 @@ function fetchDataFromDZI(layerType, tileSource) {
       const layerData = {}
       if(layer.getElementsByTagName('Image')[0].attributes.Overlap.value != 0) {
         console.error('Overlap is nonzero - image will have artifacts')
+        new Error('Tiles have overlap')
       }
       layerData.layerType = layerType
       layerData.tileSource = tileSource.substring(0, tileSource.lastIndexOf('/'));
