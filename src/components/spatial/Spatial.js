@@ -1,5 +1,5 @@
 import React from 'react';
-
+import {openArray, slice} from "zarr";
 import {
   ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer,
 } from 'deck.gl';
@@ -23,6 +23,26 @@ function loadImage(src) {
     img.src = src;
   });
 }
+
+function loadZarr(x, y, z, tileSize) {
+  var zarrZoom = z * -1
+  const config = {
+    store: "http://localhost:8080/",
+    path: `pyramid_${zarrZoom}.zarr`,
+    mode: "r"
+  };
+  var z_height;
+  var z_width;
+  var getDataSlice = openArray(config).then((arr) => {
+    var arr_slice = slice(0, tileSize * tileSize * 3);
+    return arr.get(arr_slice)
+  }).then((dataSlice) => {
+    return dataSlice
+  });
+  var getMetadata = fetch(`${config.store}${config.path}/.zattrs`).then(response => response.json()).then((data) => {z_height = data.height; z_width = data.width; return getDataSlice})
+  return getMetadata
+}
+
 
 /**
  React component which expresses the spatial relationships between cells and molecules.
@@ -203,7 +223,10 @@ export default class Spatial extends AbstractSelectableComponent {
       id: `${layerType}-${source.tileSource}-tile-layer`,
       pickable: true,
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      getTileData: ({ x, y, z }) => loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
+      getTileData: ({ x, y, z }) => {
+        return loadZarr(x, y, z, source.tileSize);
+        // return loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`)
+      },
       minZoom: minZoom,
       maxZoom: 0,
       maxHeight: source.height,
