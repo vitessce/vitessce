@@ -25,7 +25,7 @@ export default class TileCache {
    * Cache size defaults to 5 * number of tiles in the current viewport
    */
 
-   // updated to include maxHeight and maxWidth
+  // updated to include maxHeight and maxWidth
   constructor({
     getTileData, maxSize, maxZoom, minZoom,
     maxHeight, maxWidth, tileSize, onTileLoad, onTileError,
@@ -68,7 +68,7 @@ export default class TileCache {
    * @param {*} onUpdate
    */
 
-   // this has been updated from deck.gl
+  // this has been updated from deck.gl
   update(viewport) {
     const {
       _cache, _getTileData, _maxSize, _maxZoom, _minZoom,

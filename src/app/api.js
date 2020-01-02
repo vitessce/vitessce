@@ -9,7 +9,7 @@ function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
     name,
     type: name.toUpperCase(),
-    url: name=='images' ? 'http://127.0.0.1:8080/info.json' : `${urlPrefix}/${datasetPrefix}/${datasetPrefix}.${name}.json`,
+    url: `${urlPrefix}/${datasetPrefix}/${datasetPrefix}.${name}.json`,
   });
 }
 

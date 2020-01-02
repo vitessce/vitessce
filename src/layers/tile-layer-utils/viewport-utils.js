@@ -27,7 +27,7 @@ function pixelsToTileIndex(pixelCount, z, tileSize) {
  * than minZoom, return an empty array. If the current zoom level is greater than maxZoom,
  * return tiles that are on maxZoom.
  */
- // This has been changed from deck.gl
+// This has been changed from deck.gl
 export function getTileIndices(viewport, maxZoom, minZoom, tileSize) {
   const z = Math.min(0, Math.ceil(viewport.zoom));
 

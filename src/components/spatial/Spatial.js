@@ -198,13 +198,13 @@ export default class Spatial extends AbstractSelectableComponent {
 
   createTileLayer(layer) {
     const [layerType, source] = layer;
-    const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)))
+    const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)));
     return new IdentityCoordinatesTileLayer({
       id: `${layerType}-${source.tileSource}-tile-layer`,
       pickable: true,
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       getTileData: ({ x, y, z }) => loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
-      minZoom: minZoom,
+      minZoom,
       maxZoom: 0,
       maxHeight: source.height,
       maxWidth: source.width,
