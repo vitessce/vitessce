@@ -34,8 +34,10 @@ function loadZarr(x, y, z, tileSize) {
   var z_height;
   var z_width;
   var getDataSlice = openArray(config).then((arr) => {
-    var arr_slice = slice(0, tileSize * tileSize * 3);
-    return arr.get(arr_slice)
+    var arrSliceX = slice(x * tileSize, Math.min(z_width, (1 + x) * tileSize));
+    var arrSliceY = slice(y * tileSize, Math.min(z_height, (1 + y) * tileSize));
+    console.log(arrSliceX, arrSliceY)
+    return arr.get([arrSliceY, arrSliceX])
   }).then((dataSlice) => {
     return dataSlice
   });

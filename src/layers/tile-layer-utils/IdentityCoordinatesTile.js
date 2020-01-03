@@ -56,21 +56,26 @@ export default class IdentityCoordinatesTile {
 
     return this.getTileData({ x, y, z })
       .then((buffers) => {
-        buffers.data = buffers.data.map((e) => Math.floor(e / 2))
-        const texture = new Texture2D(this.layer.context.gl, {
-          width: 256,
-          height: 256,
-          format: GL.RGB,
-          data: buffers.data,
-          pixelStore: {
-            [GL.UNPACK_FLIP_Y_WEBGL]: true
-          },
-          mipmaps: true
-        });
-        this._data = buffers.data;
-        this._isLoaded = true;
-        this.onTileLoad(this);
-        return texture;
+        if(buffers.shape[0] !== 0 && buffers.shape[1] !== 0){
+          let flattenedBuffer = buffers.flatten()
+          const texture = new Texture2D(this.layer.context.gl, {
+            width: buffers.shape[1],
+            height: buffers.shape[0],
+            format: GL.RGB,
+            data: flattenedBuffer,
+            pixelStore: {
+              [GL.UNPACK_FLIP_Y_WEBGL]: true
+            },
+            mipmaps: true
+          });
+          this._data = texture;
+          this._isLoaded = true;
+          this.onTileLoad(this);
+          return texture;
+        }
+        else{
+          this._isLoaded = true;
+        }
       })
       .catch((err) => {
         this._isLoaded = true;
