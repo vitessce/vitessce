@@ -8,6 +8,9 @@ import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
 
+var zarrImagePyramidArray = [];
+var zarrMetaData = [];
+
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
@@ -31,18 +34,27 @@ function loadZarr(x, y, z, tileSize) {
     path: `pyramid_${zarrZoom}.zarr`,
     mode: "r"
   };
-  var z_height;
-  var z_width;
-  var getDataSlice = openArray(config).then((arr) => {
-    var arrSliceX = slice(x * tileSize, Math.min(z_width, (1 + x) * tileSize));
-    var arrSliceY = slice(y * tileSize, Math.min(z_height, (1 + y) * tileSize));
-    console.log(arrSliceX, arrSliceY)
-    return arr.get([arrSliceY, arrSliceX])
-  }).then((dataSlice) => {
-    return dataSlice
-  });
-  var getMetadata = fetch(`${config.store}${config.path}/.zattrs`).then(response => response.json()).then((data) => {z_height = data.height; z_width = data.width; return getDataSlice})
-  return getMetadata
+  if(zarrImagePyramidArray[zarrZoom] && zarrMetaData[zarrZoom]){
+    var arrSliceX = slice(x * tileSize, Math.min(zarrMetaData[zarrZoom].width, (1 + x) * tileSize));
+    var arrSliceY = slice(y * tileSize, Math.min(zarrMetaData[zarrZoom].height, (1 + y) * tileSize));
+    return zarrImagePyramidArray[zarrZoom].get([arrSliceY, arrSliceX]).then((dataSlice) => { return dataSlice })
+  } else{
+    var arrSliceX;
+    var arrSliceY;
+    var getMetadata = fetch(`${config.store}${config.path}/.zattrs`).then(response => response.json()).then((data) => {
+      zarrMetaData[zarrZoom] = {height: data.height, width: data.width};
+      arrSliceX = slice(x * tileSize, Math.min(zarrMetaData[zarrZoom].width, (1 + x) * tileSize));
+      arrSliceY = slice(y * tileSize, Math.min(zarrMetaData[zarrZoom].height, (1 + y) * tileSize));
+      return getDataSlice
+    })
+    var getDataSlice = openArray(config).then((arr) => {
+      zarrImagePyramidArray[zarrZoom] = arr
+      return arr.get([arrSliceY, arrSliceX])
+    }).then((dataSlice) => {
+      return dataSlice
+    });
+    return getMetadata
+  }
 }
 
 
@@ -229,6 +241,7 @@ export default class Spatial extends AbstractSelectableComponent {
         return loadZarr(x, y, z, source.tileSize);
         // return loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`)
       },
+      maxCacheSize: 100,
       minZoom: minZoom,
       maxZoom: 0,
       maxHeight: source.height,
