@@ -63,17 +63,17 @@ const tabularString = `"Item ID"	"Set Key"	"Set Name"	"Set Color"
 const jsonString = JSON.stringify({
   datasetId: 'linnarsson-2018',
   setsType: 'cell',
-  version: '0.0.18',
+  version: '0.0.20',
   setsTree: correctProcessedJSON,
 });
 
 const jsonPrefix = 'data:text/json;charset=utf-8,';
 const correctExportedJSON = jsonPrefix + encodeURIComponent(
   // Note the '//t' below: We want a literal '/t', so we escape the '/'.
-  '{"datasetId":"linnarsson-2018","setsType":"cell","version":"0.0.18","setsTree":[{"key":"other-selection","name":"Other selection","color":[0,0,0],"set":["cell_9","cell_10"]},{"key":"neurons","name":"Neurons","color":[0,0,0],"set":["cell_3"]},{"key":"neurons\\texcitatory","name":"Excitatory Neurons","color":[1,1,1],"set":["cell_6","cell_7","cell_8"]},{"key":"neurons\\tinhibitory","name":"Inhibitory Neurons","color":[1,0,0],"set":["cell_4","cell_5"]},{"key":"empty-selection","name":"Empty selection","color":[0,0,0]}]}',
+  '{"datasetId":"linnarsson-2018","setsType":"cell","version":"0.0.20","setsTree":[{"key":"other-selection","name":"Other selection","color":[0,0,0],"set":["cell_9","cell_10"]},{"key":"neurons","name":"Neurons","color":[0,0,0],"set":["cell_3"]},{"key":"neurons\\texcitatory","name":"Excitatory Neurons","color":[1,1,1],"set":["cell_6","cell_7","cell_8"]},{"key":"neurons\\tinhibitory","name":"Inhibitory Neurons","color":[1,0,0],"set":["cell_4","cell_5"]},{"key":"empty-selection","name":"Empty selection","color":[0,0,0]}]}',
 );
 const correctExportedEmptyJSON = jsonPrefix + encodeURIComponent(
-  '{"datasetId":"linnarsson-2018","setsType":"cell","version":"0.0.18","setsTree":[]}',
+  '{"datasetId":"linnarsson-2018","setsType":"cell","version":"0.0.20","setsTree":[]}',
 );
 
 const tsvPrefix = 'data:text/tsv;charset=utf-8,';

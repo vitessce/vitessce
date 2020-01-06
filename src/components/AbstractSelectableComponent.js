@@ -11,12 +11,11 @@ import ToolMenu from './ToolMenu';
 export default class AbstractSelectableComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.renderImagesFromView = this.renderImagesFromView.bind(this);
-    this.renderImages = this.renderImages.bind(this);
-    this.onViewStateChange = this.onViewStateChange.bind(this);
     this.renderSelectionLayers = this.renderSelectionLayers.bind(this);
     this.deckRef = React.createRef();
     this.getCellCoords = this.getCellCoords.bind(this);
+    this.onViewStateChange = this.onViewStateChange.bind(this);
+    this.initializeViewInfo = this.initializeViewInfo.bind(this);
     const { uuid = null } = props || {};
     // Store view and viewport information in a mutable object.
     this.viewInfo = {
@@ -71,13 +70,13 @@ export default class AbstractSelectableComponent extends React.Component {
     })];
   }
 
-  renderImages() { // eslint-disable-line class-methods-use-this
+  renderLayersMenu() { // eslint-disable-line class-methods-use-this
     // No-op
   }
 
-  renderImagesFromView(viewProps) { // eslint-disable-line class-methods-use-this
+  initializeViewInfo(viewProps) {
     const {
-      x, y, width, height, viewport,
+      width, height, viewport,
     } = viewProps;
     // Capture the viewport, width, and height values from DeckGL instantiation to be used later.
     this.viewInfo.viewport = viewport;
@@ -89,18 +88,8 @@ export default class AbstractSelectableComponent extends React.Component {
       },
     } = this.props;
     updateViewInfo(this.viewInfo);
-    const nwCoords = viewport.unproject([x, y]);
-    const seCoords = viewport.unproject([x + width, y + height]);
-    const unproWidth = seCoords[0] - nwCoords[0];
-    const unproHeight = seCoords[1] - nwCoords[1];
-    const unprojectedProps = {
-      x: nwCoords[0],
-      y: nwCoords[1],
-      width: unproWidth,
-      height: unproHeight,
-    };
-    return this.renderImages(unprojectedProps);
   }
+
 
   onViewStateChange({ viewState }) {
     const {
@@ -119,10 +108,6 @@ export default class AbstractSelectableComponent extends React.Component {
     updateViewInfo(this.viewInfo);
   }
 
-  renderLayersMenu() { // eslint-disable-line class-methods-use-this
-    // No-op
-  }
-
   render() {
     const { tool } = this.state;
     const toolProps = {
@@ -130,13 +115,13 @@ export default class AbstractSelectableComponent extends React.Component {
       /* eslint-disable react/destructuring-assignment */
       isActiveTool: toolCheck => (toolCheck === this.state.tool),
       /* esline-enable */
+      onViewStateChange: this.onViewStateChange,
     };
 
     let deckProps = {
       views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
       layers: this.renderLayers().concat(this.renderSelectionLayers()),
       initialViewState: this.getInitialViewState(),
-      onViewStateChange: this.onViewStateChange,
     };
     if (tool) {
       deckProps = {
@@ -158,7 +143,7 @@ export default class AbstractSelectableComponent extends React.Component {
           {this.renderLayersMenu()}
         </div>
         <DeckGL ref={this.deckRef} {...deckProps}>
-          {this.renderImagesFromView}
+          {this.initializeViewInfo}
         </DeckGL>
       </React.Fragment>
     );
