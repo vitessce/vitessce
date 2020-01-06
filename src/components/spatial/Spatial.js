@@ -34,8 +34,6 @@ export default class Spatial extends AbstractSelectableComponent {
       molecules: true,
       cells: true,
       neighborhoods: false,
-      polyT: true,
-      nuclei: true,
     };
 
     // In Deck.gl, layers are considered light weight, and
@@ -191,8 +189,7 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   renderImageLayers() {
-    const layers = [];
-    this.images.forEach((layer) => { layers.push(this.createTileLayer(layer)); });
+    const layers = this.images.map(layer => this.createTileLayer(layer));
     return layers;
   }
 

@@ -43,17 +43,16 @@ function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
 }
 
-function fetchDataFromDZI(layerType, tileSource) {
-  return fetch(tileSource).then(response => response.text())
+function fetchDataFromDZI(layerType, dziSource) {
+  return fetch(dziSource).then(response => response.text())
     .then(str => (new window.DOMParser()).parseFromString(str, 'text/xml'))
     .then((layer) => {
       const layerData = {};
-      if (layer.getElementsByTagName('Image')[0].attributes.Overlap.value !== 0) {
-        console.error('Overlap is nonzero - image will have artifacts');
-        throw new Error('Tiles have overlap');
+      if (Number(layer.getElementsByTagName('Image')[0].attributes.Overlap.value) !== 0) {
+        throw new Error('Overlap paramter is nonzero and should be 0');
       }
       layerData.layerType = layerType;
-      layerData.tileSource = tileSource.substring(0, tileSource.lastIndexOf('/'));
+      layerData.tileSource = dziSource.substring(0, dziSource.lastIndexOf('/'));
       layerData.height = Number(layer.getElementsByTagName('Size')[0].attributes.Height.value);
       layerData.width = Number(layer.getElementsByTagName('Size')[0].attributes.Width.value);
       layerData.tileSize = Number(layer.getElementsByTagName('Image')[0].attributes.TileSize.value);
