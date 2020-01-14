@@ -1,7 +1,7 @@
 import React from 'react';
 import {openArray, slice} from "zarr";
 import {
-  ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer,
+  ScatterplotLayer, PolygonLayer, BitmapLayer, COORDINATE_SYSTEM,
 } from 'deck.gl';
 import { SelectablePolygonLayer, IdentityCoordinatesTileLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
@@ -30,26 +30,27 @@ function loadImage(src) {
 function loadZarr(x, y, z, tileSize) {
   var zarrZoom = z * -1
   const config = {
-    store: "http://localhost:8080/",
+    store: "https://localhost:5000/",
     path: `pyramid_${zarrZoom}.zarr`,
     mode: "r"
   };
+  // hardcoded with 3 channels (for now)
+  const stride = tileSize * tileSize* 3
   if(zarrImagePyramidArray[zarrZoom] && zarrMetaData[zarrZoom]){
-    var arrSliceX = slice(x * tileSize, Math.min(zarrMetaData[zarrZoom].width, (1 + x) * tileSize));
-    var arrSliceY = slice(y * tileSize, Math.min(zarrMetaData[zarrZoom].height, (1 + y) * tileSize));
-    return zarrImagePyramidArray[zarrZoom].get([arrSliceY, arrSliceX]).then((dataSlice) => { return dataSlice })
+    const rowStride = stride * zarrMetaData[zarrZoom].width
+    var arrSlice = slice((y * rowStride) + (x * stride), (y * rowStride) + ((x + 1) * stride));
+    return zarrImagePyramidArray[zarrZoom].get([arrSlice,]).then((dataSlice) => { return dataSlice })
   } else{
-    var arrSliceX;
-    var arrSliceY;
+    var arrSlice;
     var getMetadata = fetch(`${config.store}${config.path}/.zattrs`).then(response => response.json()).then((data) => {
       zarrMetaData[zarrZoom] = {height: data.height, width: data.width};
-      arrSliceX = slice(x * tileSize, Math.min(zarrMetaData[zarrZoom].width, (1 + x) * tileSize));
-      arrSliceY = slice(y * tileSize, Math.min(zarrMetaData[zarrZoom].height, (1 + y) * tileSize));
+      const rowStride = stride * zarrMetaData[zarrZoom].width
+      arrSlice = slice((y * rowStride) + (x * stride), (y * rowStride) + ((x + 1) * stride));
       return getDataSlice
     })
     var getDataSlice = openArray(config).then((arr) => {
       zarrImagePyramidArray[zarrZoom] = arr
-      return arr.get([arrSliceY, arrSliceX])
+      return arr.get([arrSlice,])
     }).then((dataSlice) => {
       return dataSlice
     });
@@ -225,14 +226,13 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   renderImageLayers() {
-    const layers = [];
-    this.images.forEach((layer) => { layers.push(this.createTileLayer(layer)); });
+    const layers = this.images.map(layer => this.createTileLayer(layer));
     return layers;
   }
 
   createTileLayer(layer) {
     const [layerType, source] = layer;
-    const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)))
+    const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)));
     return new IdentityCoordinatesTileLayer({
       id: `${layerType}-${source.tileSource}-tile-layer`,
       pickable: true,

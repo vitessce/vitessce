@@ -16,8 +16,8 @@ function tile2boundingBox(x, y, z, maxHeight, maxWidth, tileSize) {
   return {
     west: (x * tileSize) * (2 ** (-1 * z)),
     north: (y * tileSize) * (2 ** (-1 * z)),
-    east: Math.min(maxWidth, ((x + 1) * tileSize) * (2 ** (-1 * z))),
-    south: Math.min(maxHeight, ((y + 1) * tileSize) * (2 ** (-1 * z))),
+    east: ((x + 1) * tileSize) * (2 ** (-1 * z)),
+    south: ((y + 1) * tileSize) * (2 ** (-1 * z)),
   };
 }
 
@@ -56,26 +56,23 @@ export default class IdentityCoordinatesTile {
 
     return this.getTileData({ x, y, z })
       .then((buffers) => {
-        if(buffers.shape[0] !== 0 && buffers.shape[1] !== 0){
-          let flattenedBuffer = buffers.flatten()
-          const texture = new Texture2D(this.layer.context.gl, {
-            width: buffers.shape[1],
-            height: buffers.shape[0],
-            format: GL.RGB,
-            data: flattenedBuffer,
-            pixelStore: {
-              [GL.UNPACK_FLIP_Y_WEBGL]: true
-            },
-            mipmaps: true
-          });
-          this._data = texture;
-          this._isLoaded = true;
-          this.onTileLoad(this);
-          return texture;
-        }
-        else{
-          this._isLoaded = true;
-        }
+        const texture = new Texture2D(this.layer.context.gl, {
+          width: 512,
+          height: 512,
+          // format: GL.RGB32UI,
+          // dataFormat: GL.RGB_INTEGER,
+          // type: GL.UNSIGNED_INT,
+          format: GL.RGB,
+          data: buffers.data,
+          pixelStore: {
+            [GL.UNPACK_FLIP_Y_WEBGL]: true
+          },
+          mipmaps: true
+        });
+        this._data = texture;
+        this._isLoaded = true;
+        this.onTileLoad(this);
+        return texture;
       })
       .catch((err) => {
         this._isLoaded = true;

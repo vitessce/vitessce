@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.20 - in progress
+## [0.0.20](https://www.npmjs.com/package/vitessce/v/0.0.20) - 2019-01-06
 ### changed
 - Removed OpenSeadragon in favor of deckgl
 
