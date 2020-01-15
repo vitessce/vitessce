@@ -59,6 +59,7 @@ export default class IdentityCoordinatesTile {
         const texture = new Texture2D(this.layer.context.gl, {
           width: 512,
           height: 512,
+          // options for 32 bit data
           // format: GL.RGB32UI,
           // dataFormat: GL.RGB_INTEGER,
           // type: GL.UNSIGNED_INT,

@@ -27,15 +27,15 @@ function loadImage(src) {
   });
 }
 
-function loadZarr(x, y, z, tileSize) {
+function loadZarr(x, y, z, tileSize, useHTTP2, tileSource) {
   var zarrZoom = z * -1
   const config = {
-    store: "https://localhost:5000/",
+    store: (useHTTP2 ? "https://localhost:5000/" : tileSource),
     path: `pyramid_${zarrZoom}.zarr`,
     mode: "r"
   };
   // hardcoded with 3 channels (for now)
-  const stride = tileSize * tileSize* 3
+  const stride = tileSize * tileSize * 3
   if(zarrImagePyramidArray[zarrZoom] && zarrMetaData[zarrZoom]){
     const rowStride = stride * zarrMetaData[zarrZoom].width
     var arrSlice = slice((y * rowStride) + (x * stride), (y * rowStride) + ((x + 1) * stride));
@@ -237,10 +237,14 @@ export default class Spatial extends AbstractSelectableComponent {
       id: `${layerType}-${source.tileSource}-tile-layer`,
       pickable: true,
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      getTileData: ({ x, y, z }) => {
-        return loadZarr(x, y, z, source.tileSize);
-        // return loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`)
-      },
+      getTileData: this.props.useZarr
+        ? ({ x, y, z }) => {
+          console.log(this)
+          return loadZarr(x, y, z, source.tileSize, this.props.useHTTP2, `${source.tileSource}/${layerType}_files/img_pyramid`)
+        }
+        : ({ x, y, z }) => {
+          return loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`)
+        },
       maxCacheSize: 100,
       minZoom: minZoom,
       maxZoom: 0,

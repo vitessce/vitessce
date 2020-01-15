@@ -87,7 +87,7 @@ export default class SpatialSubscriber extends React.Component {
 
   render() {
     const { cells, molecules } = this.state;
-    const { uuid = null, children } = this.props;
+    const { uuid = null, children, useZarr, useHTTP2 } = this.props;
     const cellsCount = cells ? Object.keys(cells).length : 0;
     const moleculesCount = molecules ? Object.keys(molecules).length : 0;
     const locationsCount = molecules
@@ -122,6 +122,8 @@ export default class SpatialSubscriber extends React.Component {
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
+          useZarr={useZarr}
+          useHTTP2={useHTTP2}
         />
       </TitleInfo>
       /* eslint-enable */

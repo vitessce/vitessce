@@ -58,7 +58,7 @@ const wangBase = {
 const configs = {
   'linnarsson-2018': {
     ...linnarssonBase,
-    name: 'Linnarsson',
+    name: 'Linnarsson (Image Tiles)',
     public: true,
     responsiveLayout: {
       columns: {
@@ -88,6 +88,130 @@ const configs = {
               zoom: -6.5,
               target: [16000, 20000, 0],
             },
+            useZarr: false,
+            useHTTP2: false,
+          },
+          x: 1, y: 0, h: 4 },
+        { component: 'scatterplot',
+          props: {
+            mapping: 'PCA',
+            // This intentionally does not have a  "view" prop,
+            // in order to have an example that uses the default.
+          },
+          x: 2, y: 0, h: 2 },
+        { component: 'scatterplot',
+          props: {
+            mapping: 't-SNE',
+            view: {
+              zoom: 0.75,
+              target: [0, 0, 0],
+            },
+          },
+          x: 2, y: 2, h: 2 },
+        { component: 'factors',
+          x: 3, y: 0, h: 2 },
+        { component: 'genes',
+          x: 3, y: 2, h: 2 },
+        { component: 'heatmap',
+          x: 1, y: 4, w: 3 },
+      ],
+    },
+  },
+  'linnarsson-2018-data-tiles-HTTP1': {
+    ...linnarssonBase,
+    name: 'Linnarsson (Data Tiles HTTP1)',
+    public: true,
+    responsiveLayout: {
+      columns: {
+        // Grid cell width stays roughly constant,
+        // but more columns are available in a wider window.
+        1500: [0, 3, 8, 13, 15],
+        1300: [0, 3, 7, 11, 13],
+        1100: [0, 3, 6, 9, 11],
+        900: [0, 3, 5, 7, 9],
+      },
+      components: [
+        { component: 'description',
+          props: {
+            description: `Linnarsson: ${linnarssonDescription}`,
+          },
+          x: 0, y: 0 },
+        { component: 'cellSets',
+          props: {
+            datasetId: 'linnarsson-2018',
+          },
+          x: 0, y: 1, h: 3 },
+        { component: 'status',
+          x: 0, y: 4 },
+        { component: 'spatial',
+          props: {
+            view: {
+              zoom: -6.5,
+              target: [16000, 20000, 0],
+            },
+            useZarr: true,
+            useHTTP2: false,
+          },
+          x: 1, y: 0, h: 4 },
+        { component: 'scatterplot',
+          props: {
+            mapping: 'PCA',
+            // This intentionally does not have a  "view" prop,
+            // in order to have an example that uses the default.
+          },
+          x: 2, y: 0, h: 2 },
+        { component: 'scatterplot',
+          props: {
+            mapping: 't-SNE',
+            view: {
+              zoom: 0.75,
+              target: [0, 0, 0],
+            },
+          },
+          x: 2, y: 2, h: 2 },
+        { component: 'factors',
+          x: 3, y: 0, h: 2 },
+        { component: 'genes',
+          x: 3, y: 2, h: 2 },
+        { component: 'heatmap',
+          x: 1, y: 4, w: 3 },
+      ],
+    },
+  },
+  'linnarsson-2018-data-tiles-HTTP2': {
+    ...linnarssonBase,
+    name: 'Linnarsson (Data Tiles HTTP2)',
+    public: true,
+    responsiveLayout: {
+      columns: {
+        // Grid cell width stays roughly constant,
+        // but more columns are available in a wider window.
+        1500: [0, 3, 8, 13, 15],
+        1300: [0, 3, 7, 11, 13],
+        1100: [0, 3, 6, 9, 11],
+        900: [0, 3, 5, 7, 9],
+      },
+      components: [
+        { component: 'description',
+          props: {
+            description: `Linnarsson: ${linnarssonDescription}`,
+          },
+          x: 0, y: 0 },
+        { component: 'cellSets',
+          props: {
+            datasetId: 'linnarsson-2018',
+          },
+          x: 0, y: 1, h: 3 },
+        { component: 'status',
+          x: 0, y: 4 },
+        { component: 'spatial',
+          props: {
+            view: {
+              zoom: -6.5,
+              target: [16000, 20000, 0],
+            },
+            useZarr: true,
+            useHTTP2: true,
           },
           x: 1, y: 0, h: 4 },
         { component: 'scatterplot',
