@@ -9,8 +9,6 @@ IT IS AWAITING A PR THERE AND WILL
 THEN BE REMOVED IN FAVOR OF THAT
 ------------------------------------------
 */
-import {Texture2D} from '@luma.gl/webgl'
-import GL from '@luma.gl/constants';
 
 function tile2boundingBox(x, y, z, maxHeight, maxWidth, tileSize) {
   return {
@@ -56,24 +54,10 @@ export default class IdentityCoordinatesTile {
 
     return this.getTileData({ x, y, z })
       .then((buffers) => {
-        const texture = new Texture2D(this.layer.context.gl, {
-          width: 512,
-          height: 512,
-          // options for 32 bit data
-          // format: GL.RGB32UI,
-          // dataFormat: GL.RGB_INTEGER,
-          // type: GL.UNSIGNED_INT,
-          format: GL.RGB,
-          data: buffers.data,
-          pixelStore: {
-            [GL.UNPACK_FLIP_Y_WEBGL]: true
-          },
-          mipmaps: true
-        });
-        this._data = texture;
+        this._data = buffers;
         this._isLoaded = true;
         this.onTileLoad(this);
-        return texture;
+        return buffers;
       })
       .catch((err) => {
         this._isLoaded = true;

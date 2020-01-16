@@ -1,5 +1,7 @@
 import React from 'react';
 import {openArray, slice} from "zarr";
+import {Texture2D} from '@luma.gl/webgl'
+import GL from '@luma.gl/constants';
 import {
   ScatterplotLayer, PolygonLayer, BitmapLayer, COORDINATE_SYSTEM,
 } from 'deck.gl';
@@ -27,10 +29,10 @@ function loadImage(src) {
   });
 }
 
-function loadZarr(x, y, z, tileSize, useHTTP2, tileSource) {
+function loadZarr(x, y, z, tileSize, useHTTP2, tileSource, gl) {
   var zarrZoom = z * -1
   const config = {
-    store: (useHTTP2 ? "https://localhost:5000/" : tileSource),
+    store: (useHTTP2 ? "https://localhost:5000/linnarsson_pyramid/" : 'https://vitessce-data.s3.amazonaws.com/test-data/linnarsson_pyramid/'),
     path: `pyramid_${zarrZoom}.zarr`,
     mode: "r"
   };
@@ -39,7 +41,23 @@ function loadZarr(x, y, z, tileSize, useHTTP2, tileSource) {
   if(zarrImagePyramidArray[zarrZoom] && zarrMetaData[zarrZoom]){
     const rowStride = stride * zarrMetaData[zarrZoom].width
     var arrSlice = slice((y * rowStride) + (x * stride), (y * rowStride) + ((x + 1) * stride));
-    return zarrImagePyramidArray[zarrZoom].get([arrSlice,]).then((dataSlice) => { return dataSlice })
+    return zarrImagePyramidArray[zarrZoom].get([arrSlice,]).then((dataSlice) => {
+      const texture = new Texture2D(gl, {
+        width: tileSize,
+        height: tileSize,
+        // options for 32/16 bit data
+        format: GL.RGB, //GL.RGB32UI/16UI
+        // dataFormat: GL.RGB_INTEGER,
+        // type: GL.UNSIGNED_SHORT,
+        //format: GL.RGB,
+        data: dataSlice.data,
+        pixelStore: {
+          [GL.UNPACK_FLIP_Y_WEBGL]: true
+        },
+        mipmaps: true //false for 32 and 16 bit, false for 8
+      });
+      return texture
+    })
   } else{
     var arrSlice;
     var getMetadata = fetch(`${config.store}${config.path}/.zattrs`).then(response => response.json()).then((data) => {
@@ -52,7 +70,21 @@ function loadZarr(x, y, z, tileSize, useHTTP2, tileSource) {
       zarrImagePyramidArray[zarrZoom] = arr
       return arr.get([arrSlice,])
     }).then((dataSlice) => {
-      return dataSlice
+      const texture = new Texture2D(gl, {
+        width: tileSize,
+        height: tileSize,
+        // options for 32/16 bit data
+        format: GL.RGB, //GL.RGB32UI/16UI
+        // dataFormat: GL.RGB_INTEGER,
+        // type: GL.UNSIGNED_SHORT,
+        //format: GL.RGB,
+        data: dataSlice.data,
+        pixelStore: {
+          [GL.UNPACK_FLIP_Y_WEBGL]: true
+        },
+        mipmaps: true //false for 32 and 16 bit, false for 8
+      });
+      return texture
     });
     return getMetadata
   }
@@ -239,8 +271,7 @@ export default class Spatial extends AbstractSelectableComponent {
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       getTileData: this.props.useZarr
         ? ({ x, y, z }) => {
-          console.log(this)
-          return loadZarr(x, y, z, source.tileSize, this.props.useHTTP2, `${source.tileSource}/${layerType}_files/img_pyramid`)
+          return loadZarr(x, y, z, source.tileSize, this.props.useHTTP2, `${source.tileSource}/${layerType}_files/img_pyramid`, this.state.gl)
         }
         : ({ x, y, z }) => {
           return loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`)
