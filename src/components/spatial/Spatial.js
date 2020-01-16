@@ -32,7 +32,7 @@ function loadImage(src) {
 function loadZarr(x, y, z, tileSize, useHTTP2, tileSource, gl) {
   var zarrZoom = z * -1
   const config = {
-    store: (useHTTP2 ? "https://localhost:5000/linnarsson_pyramid/" : 'https://vitessce-data.s3.amazonaws.com/test-data/linnarsson_pyramid/'),
+    store: (useHTTP2 ? "https://vitessce-linnarsson-test.storage.googleapis.com/test-data/linnarsson_pyramid/" : 'https://vitessce-data.s3.amazonaws.com/test-data/linnarsson_pyramid/'),
     path: `pyramid_${zarrZoom}.zarr`,
     mode: "r"
   };
