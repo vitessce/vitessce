@@ -1,5 +1,7 @@
 # Changelog
 
+- Added CSS styles to prevent unintentional text selection during grid item resize in Safari.
+
 ## [0.0.20](https://www.npmjs.com/package/vitessce/v/0.0.20) - 2019-01-06
 ### changed
 - Removed OpenSeadragon in favor of deckgl
