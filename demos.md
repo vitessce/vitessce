@@ -17,3 +17,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2019-07-22: [master](https://s3.amazonaws.com/vitessce-data/demos/2019-07-22/1869451/staging-docs/index.html)
 - 2019-08-06: [master](https://s3.amazonaws.com/vitessce-data/demos/2019-08-06/51ef18d/staging-docs/index.html)
 - 2020-01-16: [ilan-gold/data_layer](https://s3.amazonaws.com/vitessce-data/demos/2020-01-16/383bca3/staging-docs/index.html)
+- 2020-01-16: [ilan-gold/data_layer](https://s3.amazonaws.com/vitessce-data/demos/2020-01-16/782fee0/staging-docs/index.html)
