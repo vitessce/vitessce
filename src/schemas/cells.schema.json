@@ -31,7 +31,7 @@
   "patternProperties": {
     ".": {
       "additionalProperties": false,
-      "required": ["mappings"],
+      "required": [],
       "properties": {
         "mappings": {
           "type": "object",
