@@ -2,7 +2,8 @@
 
 ## 0.0.21 - in progress
 - Added styles to prevent unintentional text selection during grid item resize in Safari.
-- Loosen the cells schema to accomodate data from HuBMAP.
+- Loosen the cells schema to accommodate data from HuBMAP.
+- Until UI is available, dump viewconf to console.
 
 ## [0.0.20](https://www.npmjs.com/package/vitessce/v/0.0.20) - 2019-01-06
 ### changed

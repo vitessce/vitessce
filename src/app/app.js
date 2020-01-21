@@ -58,6 +58,7 @@ export function validateAndRender(config, id, rowHeight) {
     );
     return;
   }
+  console.debug('View configuration:', JSON.stringify(config, null, 2));
   const validate = new Ajv().compile(datasetSchema);
   const valid = validate(config);
   if (!valid) {
