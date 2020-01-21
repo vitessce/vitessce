@@ -60,8 +60,8 @@ export function validateAndRender(config, id, rowHeight) {
   }
   // NOTE: Remove when this is available in UI.
   console.groupCollapsed('View configuration');
-  console.debug(JSON.stringify(config, null, 2));
-  console.groupEnd()
+  console.info(JSON.stringify(config, null, 2));
+  console.groupEnd();
   const validate = new Ajv().compile(datasetSchema);
   const valid = validate(config);
   if (!valid) {
