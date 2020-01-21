@@ -6,7 +6,6 @@ import AbstractSelectableComponent from '../AbstractSelectableComponent';
 React component which renders a scatterplot from cell data, typically tSNE or PCA.
 */
 export default class Scatterplot extends AbstractSelectableComponent {
-
   static defaultProps = {
     clearPleaseWait: (layer) => { console.warn(`"clearPleaseWait" not provided; layer: ${layer}`); },
   };

@@ -4,7 +4,7 @@ import PubSub from 'pubsub-js';
 import TitleInfo from '../TitleInfo';
 import {
   CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
-  CELL_SETS_VIEW, CLEAR_PLEASE_WAIT
+  CELL_SETS_VIEW, CLEAR_PLEASE_WAIT,
 } from '../../events';
 import Scatterplot from './Scatterplot';
 
