@@ -4,7 +4,7 @@ import PubSub from 'pubsub-js';
 import TitleInfo from '../TitleInfo';
 import {
   CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
-  CELL_SETS_VIEW,
+  CELL_SETS_VIEW, CLEAR_PLEASE_WAIT
 } from '../../events';
 import Scatterplot from './Scatterplot';
 
@@ -83,6 +83,9 @@ export default class ScatterplotSubscriber extends React.Component {
           updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
           updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
           updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
+          clearPleaseWait={
+            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+          }
         />
       </TitleInfo>
     );
