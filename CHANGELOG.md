@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.22 - in progress
+### Added
+- Now, a plain scatterplot will also clear the please-wait.
+
 ## 0.0.21 - in progress
 - Added styles to prevent unintentional text selection during grid item resize in Safari.
 - Loosen the cells schema to accommodate data from HuBMAP.
