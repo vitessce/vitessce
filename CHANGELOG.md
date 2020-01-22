@@ -24,6 +24,7 @@
 - Removed Docz and .mdx files and update package.json.
 ### Added
 - Travis checks that changelog was updated.
+- Links to component demos.
 - Top-level CSS rule to keep component styles from leaking out.
 ### Changed
 - CSS filename in UMD no longer contains hash.

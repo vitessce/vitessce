@@ -57,7 +57,6 @@ const wangBase = {
 /* eslint-disable object-curly-newline */
 const configs = {
   'just-scatter': {
-    description: 'Linnarsson, just scatter and expression',
     public: false,
     layers: [
       {
@@ -66,7 +65,7 @@ const configs = {
         url: 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release/linnarsson/linnarsson.cells.json',
       },
     ],
-    name: 'Linnarsson',
+    name: 'Linnarsson, just scatterplot',
     staticLayout: [
       {
         component: 'scatterplot',
@@ -82,7 +81,6 @@ const configs = {
     ],
   },
   'just-scatter-expression': {
-    description: 'Linnarsson, just scatter and expression',
     public: false,
     layers: [
       {
@@ -96,7 +94,7 @@ const configs = {
         url: 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release/linnarsson/linnarsson.genes.json',
       },
     ],
-    name: 'Linnarsson',
+    name: 'Linnarsson, just scatterplot and expression',
     staticLayout: [
       {
         component: 'scatterplot',

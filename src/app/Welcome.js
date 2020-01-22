@@ -5,18 +5,24 @@ import version from '../version.json';
 
 function DatasetList(props) {
   const { configs } = props;
+  const aClassName = 'list-group-item list-group-item-action flex-column align-items-start bg-black';
   const links = configs.map(
     ({ id, name, description }) => (
-      <a
-        href={`?dataset=${id}`}
-        className="list-group-item list-group-item-action flex-column align-items-start bg-black"
-        key={id}
-      >
-        <div className="d-flex w-100 justify-content-between">
+      <div className={aClassName} key={id}>
+        <a
+          href={`?dataset=${id}`}
+          key={id}
+        >
           <h5>{name}</h5>
-        </div>
-        <p>{description}</p>
-      </a>
+          <p>{description}</p>
+        </a>
+        <a
+          href={`?dataset=${id}&small`}
+          style={{ fontSize: '75%' }}
+        >
+          {name} as component
+        </a>
+      </div>
     ),
   );
   return (
@@ -53,7 +59,7 @@ function Info() {
         This is a demo of key concepts for
         a <b>v</b>isual <b>i</b>ntegration <b>t</b>ool
         for <b>e</b>xploration of
-        (<b>s</b>patial) <b>s</b>ingle-<b>c</b>ell <b>e</b>xperiment data.
+        <b>s</b>patial <b>s</b>ingle-<b>c</b>ell <b>e</b>xperiment data.
         This demo focusses on scalable, linked visualizations that support both
         spatial and non-spatial representation of cell-level and molecule-level data.
       </p>
@@ -67,7 +73,6 @@ function Info() {
         More information:
       </p>
       <ul>
-        <li><a href="prod-docs/index.html">Documentation</a></li>
         <li><a href="https://github.com/hubmapconsortium/vitessce">GitHub</a></li>
         <li><a href="https://www.npmjs.com/package/vitessce">NPM</a></li>
       </ul>
