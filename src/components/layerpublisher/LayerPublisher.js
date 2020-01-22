@@ -91,7 +91,9 @@ function publishLayer(data, type, name, url) {
 }
 
 function loadLayer(layer) {
-  const { name, type, url, requestInit={} } = layer;
+  const {
+    name, type, url, requestInit = {},
+  } = layer;
   fetch(url, requestInit)
     .then((response) => {
       response.json().then((data) => {

@@ -63,10 +63,10 @@ const configs = {
       {
         name: 'cells',
         type: 'CELLS',
-        url: urlPrefix + '/linnarsson/linnarsson.cells.json',
+        url: `${urlPrefix}/linnarsson/linnarsson.cells.json`,
         requestInit: {
           method: 'GET',
-          headers: {'x-foo': 'bar'},
+          headers: { 'x-foo': 'bar' },
           // GET requests can not have body.
           // body: 'foo',
           mode: 'cors',
@@ -74,8 +74,8 @@ const configs = {
           cache: 'no-store',
           redirect: 'error',
           referrer: 'foo-bar',
-          integrity: 'foo'
-        }
+          integrity: 'foo',
+        },
       },
     ],
     name: 'Linnarsson',
