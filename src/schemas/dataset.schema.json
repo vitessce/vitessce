@@ -23,6 +23,7 @@
     "requestInit": {
       "type": "object",
       "additionalProperties": false,
+      "required": [],
       "properties": {
         "method": { "type": "string" },
         "headers": { "type": "object" },
