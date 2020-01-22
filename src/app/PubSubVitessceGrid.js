@@ -17,7 +17,7 @@ export default class PubSubVitessceGrid extends React.Component {
       <div className="vitessce-container">
         { allReady && <LayerPublisher layers={config.layers} /> }
         <VitessceGrid
-          layout={config.responsiveLayout || config.staticLayout}
+          layout={config.staticLayout}
           rowHeight={this.rowHeight}
           getComponent={getComponent}
           onAllReady={() => { this.setState({ allReady: true }); }}
