@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/hubmapconsortium/vitessce/#tiff",
+  "title": "Vitessce tiff tiling data",
+  "type": "object",
+  "definitions": {
+    "channel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tiffSource"],
+      "properties": {
+        "tiffSource": {
+          "oneOf": [
+            { "type": "object" },
+            { "type": "string", "format": "uri" }
+          ]
+        }
+      }
+    }
+  },
+  "patternProperties": {
+    ".": { "$ref": "#/definitions/tiff" }
+  }
+}

@@ -53,6 +53,14 @@ const wangBase = {
   ].map(makeLayerNameToConfig('wang')),
 };
 
+const vanderbiltDescription = 'High Bit Depth (uint16) Multiplex immunofluorescence Imaging';
+const vanderbiltBase = {
+  description: vanderbiltDescription,
+  layers: [
+    'tiff'
+  ].map(makeLayerNameToConfig('vanderbilt-data')),
+};
+
 /* eslint-disable object-property-newline */
 /* eslint-disable object-curly-newline */
 const configs = {
@@ -165,6 +173,7 @@ const configs = {
   'linnarsson-2018-just-spatial': {
     ...linnarssonBaseNoClusters,
     name: 'Linnarsson (just spatial)',
+    public: true,
     responsiveLayout: {
       columns: {
         1400: [0, 12, 14],
@@ -377,6 +386,33 @@ const configs = {
           },
           x: 0, y: 0, h: 2 },
         { component: 'genes',
+          x: 1, y: 0, h: 2 },
+      ],
+    },
+  },
+
+  'vanderbilt-mxif': {
+    ...vanderbiltBase,
+    name: 'Vanderbilt MXIF (just spatial)',
+    public: true,
+    responsiveLayout: {
+      columns: {
+        1400: [0, 12, 14],
+        1200: [0, 10, 12],
+        1000: [0, 8, 10],
+        800: [0, 6, 8],
+        600: [0, 4, 8],
+      },
+      components: [
+        { component: 'spatial',
+          props: {
+            view: {
+              zoom: -6.5,
+              target: [18000, 18000, 0],
+            },
+          },
+          x: 0, y: 0, h: 2 },
+        { component: 'sliders',
           x: 1, y: 0, h: 2 },
       ],
     },

@@ -24,6 +24,55 @@ function loadImage(src) {
   });
 }
 
+function loadZarr(source, tileSize, x, y, z) {
+  const zoom = -1 * z
+  const config = {
+    store: source,
+    path: `pyramid_${zoom}.zarr`,
+    mode: "r"
+  };
+  const stride = tileSize * tileSize
+  var arrSlice = slice(stride * y + stride * x, stride * y + stride * (x+1));
+  var getDataSlice = openArray(config).then((arr) => {
+    return arr.get([arrSlice,])
+  }).then((dataSlice) => {
+    const data = dataSlice.data
+    const formats = data instanceof Uint8Array
+    ? {
+        format: GL.R8UI,
+        dataFormat: GL.RED_INTEGER,
+        type: GL.UNSIGNED_BYTE,
+      }
+    : (
+      data instanceof Uint16Array
+        ? {
+            format: GL.R16UI,
+            dataFormat: GL.RED_INTEGER,
+            type: GL.UNSIGNED_SHORT,
+          }
+        : {
+            format: GL.R32UI,
+            dataFormat: GL.RED_INTEGER,
+            type: GL.UNSIGNED_INT,
+          }
+
+    )
+    return new Texture2D(gl, {
+      width: this.picSize,
+      height: this.picSize,
+      data: data,
+      // we don't want or need mimaps
+      mipmaps: false,
+      parameters: {
+        // NEAREST for integer data
+        [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
+        [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+      },
+      ...formats
+    }))
+  })
+}
+
 /**
  React component which expresses the spatial relationships between cells and molecules.
  */
@@ -200,7 +249,7 @@ export default class Spatial extends AbstractSelectableComponent {
       id: `${layerType}-${source.tileSource}-tile-layer`,
       pickable: true,
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      getTileData: ({ x, y, z }) => loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
+      getTileData: ({ x, y, z }) => loadZarr(source.tileSource, tileSize, x, y, z),
       minZoom,
       maxZoom: 0,
       maxHeight: source.height,
@@ -214,11 +263,13 @@ export default class Spatial extends AbstractSelectableComponent {
             west, south, east, north,
           },
         } = props.tile;
-        const bml = new BitmapLayer(props, {
-          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-          data: null,
-          image: props.data,
-          bounds: [west, south, east, north],
+        const bml = new XRLayer(props, {
+          id: `XR-Layer-${i}`,
+          pickable: false,
+          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+          rgbTextures: props.data,
+          sliderValues: this.props.sliderValues,
+          bounds: [west, south, east, north]
         });
         return bml;
       },

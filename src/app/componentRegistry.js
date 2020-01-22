@@ -8,6 +8,7 @@ import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscri
 import HoverableScatterplotSubscriber from '../components/scatterplot/HoverableScatterplotSubscriber';
 import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSubscriber';
 import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSubscriber';
+import SlidersSubscriber from '../components/sliders/Sliders';
 
 class Description extends React.Component {
   componentDidMount() {
@@ -34,6 +35,7 @@ const registry = {
   scatterplot: HoverableScatterplotSubscriber,
   spatial: HoverableSpatialSubscriber,
   heatmap: HoverableHeatmapSubscriber,
+  sliders: SlidersSubscriber,
 };
 
 export default function getComponent(name) {
