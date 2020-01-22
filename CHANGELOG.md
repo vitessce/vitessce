@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.23 - in progress
+### Added
+- HTTP headers to pass can be specified in the layers of the viewconf.
+
 ## [0.0.22](https://www.npmjs.com/package/vitessce/v/0.0.22) - 2019-01-22
 ### Added
 - Now, a plain scatterplot will also clear the please-wait.
