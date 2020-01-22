@@ -1,11 +1,15 @@
 # Changelog
 
 ## 0.0.22 - in progress
+### Added
+- Now, a plain scatterplot will also clear the please-wait.
 
 ## [0.0.21](https://www.npmjs.com/package/vitessce/v/0.0.21) - 2019-01-21
-- Added styles to prevent unintentional text selection during grid item resize in Safari.
-- Loosen the cells schema to accommodate data from HuBMAP.
+### Added
 - Until UI is available, dump viewconf to console.
+- Added styles to prevent unintentional text selection during grid item resize in Safari.
+### Changed
+- Loosen the cells schema to accommodate data from HuBMAP.
 
 ## [0.0.20](https://www.npmjs.com/package/vitessce/v/0.0.20) - 2019-01-06
 ### changed

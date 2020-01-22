@@ -6,6 +6,10 @@ import AbstractSelectableComponent from '../AbstractSelectableComponent';
 React component which renders a scatterplot from cell data, typically tSNE or PCA.
 */
 export default class Scatterplot extends AbstractSelectableComponent {
+  static defaultProps = {
+    clearPleaseWait: (layer) => { console.warn(`"clearPleaseWait" not provided; layer: ${layer}`); },
+  };
+
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
@@ -40,12 +44,14 @@ export default class Scatterplot extends AbstractSelectableComponent {
       },
       selectedCellIds = new Set(),
       uuid = null,
+      clearPleaseWait,
     } = this.props;
 
     const { tool } = this.state;
 
     const layers = [];
     if (cells) {
+      clearPleaseWait('cells');
       layers.push(
         new SelectableScatterplotLayer({
           id: 'scatterplot',
