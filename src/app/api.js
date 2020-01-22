@@ -408,7 +408,7 @@ const configs = {
           props: {
             view: {
               zoom: -6.5,
-              target: [18000, 18000, 0],
+              target: [20000, 20000, 0],
             },
           },
           x: 0, y: 0, h: 2 },

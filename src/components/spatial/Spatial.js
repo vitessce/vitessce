@@ -4,78 +4,79 @@ import {
   ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
 } from 'deck.gl';
 import { load } from '@loaders.gl/core';
-import { SelectablePolygonLayer } from '../../layers';
+import {Texture2D} from '@luma.gl/webgl'
+import GL from '@luma.gl/constants';
+import { SelectablePolygonLayer, XRLayer } from '../../layers';
 import { tileToBoundingBox, getTileIndices } from './tiling-utils';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
+import { slice, openArray } from 'zarr'
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
 
-function loadZarr(sourceChannels, tileSize, x, y, z) {
-  console.log(sourceChannels, tileSize, x, y, z)
-  const zoom = -1 * z
+async function loadZarr(sourceChannels, tileSize, x, y, z, width, gl) {
+  const zoom = z
   const textureNames = ['redTexture', 'greenTexture', 'blueTexture']
-  const config_list = sourceChannels.map((channel, i) => {
+  const configList = sourceChannels.map((channel, i) => {
     return {
       channelName: channel.name,
       channelType: textureNames[i],
       zarrConfig: {
-        store: channel.tileSource,
+        store: channel.tileSource + "/",
         path: `pyramid_${zoom}.zarr`,
         mode: "r"
       }
     }
   })
   const stride = tileSize * tileSize
-  var arrSlice = slice(stride * y + stride * x, stride * y + stride * (x+1));
-  var getDataSlice = Promise.all(configList.map((config) => {
-    return openArray(config.zarrConfig)
-    .then((arr) => {
-      return arr.get([arrSlice,])
-    }).then((dataSlice) => {
-      const data = dataSlice.data
-      const formats = data instanceof Uint8Array
-      ? {
-          format: GL.R8UI,
-          dataFormat: GL.RED_INTEGER,
-          type: GL.UNSIGNED_BYTE,
-        }
-      : (
-        data instanceof Uint16Array
-          ? {
-              format: GL.R16UI,
-              dataFormat: GL.RED_INTEGER,
-              type: GL.UNSIGNED_SHORT,
-            }
-          : {
-              format: GL.R32UI,
-              dataFormat: GL.RED_INTEGER,
-              type: GL.UNSIGNED_INT,
-            }
-      )
-      const channelType = config.channelType
-      return {
-        channelType: new Texture2D(gl, {
-          width: tileSize,
-          height: tileSize,
-          data: data,
-          // we don't want or need mimaps
-          mipmaps: false,
-          parameters: {
-            // NEAREST for integer data
-            [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-            [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-          },
-          ...formats
-        })
+  var arrSlice = slice(stride * 4 * y + stride * x, stride * 4 * y + stride * (x+1));
+  var configListPromises = configList.map((config) => getTexture(config, arrSlice, gl, tileSize))
+  var getDataTexture = Promise.all(configListPromises)
+  return await getDataTexture
+}
+
+async function getTexture(config, arrSlice, gl, tileSize){
+    var arr = await openArray(config.zarrConfig)
+    var dataSlice = await arr.get([arrSlice,])
+    const data = dataSlice.data
+    const formats = data instanceof Uint8Array
+    ? {
+        format: GL.R8UI,
+        dataFormat: GL.RED_INTEGER,
+        type: GL.UNSIGNED_BYTE,
       }
+    : (
+      data instanceof Uint16Array
+        ? {
+            format: GL.R16UI,
+            dataFormat: GL.RED_INTEGER,
+            type: GL.UNSIGNED_SHORT,
+          }
+        : {
+            format: GL.R32UI,
+            dataFormat: GL.RED_INTEGER,
+            type: GL.UNSIGNED_INT,
+          }
+    )
+    const channelType = config.channelType
+    const texObj = {}
+    texObj[channelType] = new Texture2D(gl, {
+      width: tileSize,
+      height: tileSize,
+      data: data,
+      // we don't want or need mimaps
+      mipmaps: false,
+      parameters: {
+        // NEAREST for integer data
+        [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
+        [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+      },
+      ...formats
     })
-  })).then((textureList) => {
-    return Object.assign({}, ...textureList)
-  })
+    return texObj
 }
 
 /**
@@ -251,42 +252,48 @@ export default class Spatial extends AbstractSelectableComponent {
   createTileLayer(layer) {
     const layerType = 'tiff'
     const source = layer;
-    const height = source.height * source.tileSize
-    const width = source.width * source.tileSize
-    const minZoomLevel = Math.floor(-1 * Math.log2(Math.max(source.height * source.tileSize, source.width * source.tileSize)));
-    return new BaseTileLayer({
-      id: `${layerType}-tile-layer`,
-      pickable: false,
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      getTileData: ({ x, y, z }) => loadZarr(source.channels, source.tileSize, x, y, z),
-      getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
-        return getTileIndices(viewport, maxZoomLevel, minZoomLevel, source.tileSize, width, height)
-      },
-      tileToBoundingBox: (x, y, z) => {
-        return tileToBoundingBox(x, y, z, height, width, source.tileSize)
-      },
-      minZoom: minZoomLevel,
-      maxZoom: 0,
-      visible: this.state.layerIsVisible[layerType],
-      renderSubLayers: (props) => {
-        const {
-          bbox: {
-            west, south, east, north,
-          },
-        } = props.tile;
-        const bml = new XRLayer(props, {
-          id: `XR-Layer-${Math.random()}`,
-          pickable: false,
-          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-          rgbTextures: props.data,
-          sliderValues: {
-            redSliderValue: 10000, greenSliderValue: 10000, blueSliderValue: 10000
-          },
-          bounds: [west, south, east, north]
-        });
-        return bml;
-      },
-    });
+    if(source.height){
+      const propSettings = {
+        height: source.height * source.tileSize,
+        width: source.width * source.tileSize
+      }
+      const minZoom = Math.floor(-1 * Math.log2(Math.max(propSettings.height, propSettings.width)));
+      return new BaseTileLayer({
+        id: `${layerType}-tile-layer`,
+        pickable: false,
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        getTileData: ({ x, y, z }) => loadZarr(source.channels, source.tileSize, x, y, -1 * z, source.width, this.state.gl),
+        getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
+          return getTileIndices(viewport, maxZoomLevel, minZoomLevel,
+            source.tileSize, propSettings.width, propSettings.height)
+        },
+        tileToBoundingBox: (x, y, z) => {
+          return tileToBoundingBox(x, y, z, propSettings.height, propSettings.width, source.tileSize)
+        },
+        minZoom,
+        maxZoom: 0,
+        visible: true,
+        renderSubLayers: (props) => {
+          const {
+            bbox: {
+              west, south, east, north,
+            },
+          } = props.tile;
+          console.log(props)
+          const xrl = new XRLayer(props, {
+            id: `XR-Layer-${Math.random()}`,
+            pickable: false,
+            coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+            rgbTextures: props.data,
+            sliderValues: {
+              redSliderValue: 10000, greenSliderValue: 10000, blueSliderValue: 10000
+            },
+            bounds: [west, south, east, north]
+          });
+          return xrl;
+        },
+      });
+    }
   }
 
   setLayerIsVisible(layers) {
@@ -344,8 +351,9 @@ export default class Spatial extends AbstractSelectableComponent {
 
     if (tiff && clearPleaseWait) clearPleaseWait('tiff');
     var layer = this.createTileLayer(this.tiff)
-    layerList.push(layer);
-
+    if(layer){
+      layerList.push(layer);
+    }
     if (cells && clearPleaseWait) clearPleaseWait('cells');
     // layerList.push(this.renderCellLayer());
 
