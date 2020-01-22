@@ -212,7 +212,7 @@ const configs = {
             target: [18000, 18000, 0],
           },
         },
-        x: 4, y: 0, w: 2, h: 1 },
+        x: 4, y: 0, w: 4, h: 1 },
       { component: 'spatial',
         props: {
           view: {
