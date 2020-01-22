@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.18/reorganize_folders';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -56,6 +56,65 @@ const wangBase = {
 /* eslint-disable object-property-newline */
 /* eslint-disable object-curly-newline */
 const configs = {
+  'just-scatter': {
+    description: 'Linnarsson, just scatter and expression',
+    public: false,
+    layers: [
+      {
+        name: 'cells',
+        type: 'CELLS',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release/linnarsson/linnarsson.cells.json',
+      },
+    ],
+    name: 'Linnarsson',
+    staticLayout: [
+      {
+        component: 'scatterplot',
+        props: {
+          mapping: 't-SNE',
+          view: {
+            zoom: 0.75,
+            target: [0, 0, 0],
+          },
+        },
+        x: 0, y: 0, w: 12, h: 2,
+      },
+    ],
+  },
+  'just-scatter-expression': {
+    description: 'Linnarsson, just scatter and expression',
+    public: false,
+    layers: [
+      {
+        name: 'cells',
+        type: 'CELLS',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release/linnarsson/linnarsson.cells.json',
+      },
+      {
+        name: 'genes',
+        type: 'GENES',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release/linnarsson/linnarsson.genes.json',
+      },
+    ],
+    name: 'Linnarsson',
+    staticLayout: [
+      {
+        component: 'scatterplot',
+        props: {
+          mapping: 't-SNE',
+          view: {
+            zoom: 0.75,
+            target: [0, 0, 0],
+          },
+        },
+        x: 0, y: 0, w: 8, h: 2,
+      },
+      {
+        component: 'genes',
+        x: 8, y: 2, w: 4, h: 2,
+      },
+    ],
+  },
   'linnarsson-2018': {
     ...linnarssonBase,
     name: 'Linnarsson',

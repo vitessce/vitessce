@@ -1,6 +1,19 @@
 # Changelog
 
-## 0.0.20 - in progress
+## [0.0.22](https://www.npmjs.com/package/vitessce/v/0.0.22) - 2019-01-22
+### Added
+- Now, a plain scatterplot will also clear the please-wait.
+
+## [0.0.21](https://www.npmjs.com/package/vitessce/v/0.0.21) - 2019-01-21
+### Added
+- Until UI is available, dump viewconf to console.
+- Added styles to prevent unintentional text selection during grid item resize in Safari.
+### Changed
+- Loosen the cells schema to accommodate data from HuBMAP.
+
+## [0.0.20](https://www.npmjs.com/package/vitessce/v/0.0.20) - 2019-01-06
+### changed
+- Removed OpenSeadragon in favor of deckgl
 
 ## [0.0.19](https://www.npmjs.com/package/vitessce/v/0.0.19) - 2019-12-10
 ### Removed

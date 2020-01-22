@@ -1,14 +1,27 @@
 import React from 'react';
 
-import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
-import { SelectablePolygonLayer } from '../../layers';
+import {
+  ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer,
+} from 'deck.gl';
+import { SelectablePolygonLayer, IdentityCoordinatesTileLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
-import OpenSeadragonComponent from '../../vendor/OpenSeadragonComponent';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
+}
+
+function loadImage(src) {
+  // This function replaces load from loaders.gl (7.3.5) which was not working
+  // with this version of deckgl (7.1.4).
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.addEventListener('load', () => resolve(img));
+    img.addEventListener('error', err => reject(err));
+    img.crossOrigin = 'anonymous';
+    img.src = src;
+  });
 }
 
 /**
@@ -29,7 +42,9 @@ export default class Spatial extends AbstractSelectableComponent {
     this.moleculesData = [];
     this.cellsData = [];
     this.neighborhoodsData = [];
-
+    this.images = [];
+    this.maxHeight = 0;
+    this.maxWidth = 0;
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
     this.getInitialViewState = this.getInitialViewState.bind(this);
   }
@@ -45,7 +60,6 @@ export default class Spatial extends AbstractSelectableComponent {
       return;
     }
     const imageNames = Object.keys(this.props.images);
-
     // Add imagery to layerIsVisible UI toggle list, if not already present.
     if (!(imageNames[0] in this.state.layerIsVisible)) {
       // This is not ideal, but it should be OK as long as the `if` prevents an infinite loop.
@@ -174,36 +188,41 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  renderImages(viewProps) {
-    if (!this.props.images) {
-      return null;
-    }
-    if (this.props.clearPleaseWait) {
-      this.props.clearPleaseWait('images');
-    }
-    const imageNames = Object.keys(this.props.images).reverse();
-    // We want the z-order to be the opposite of the order listed.
-    const visibleImageNames = imageNames.filter(name => this.state.layerIsVisible[name]);
-    const visibleImages = visibleImageNames.map(name => this.props.images[name]);
-    const tileSources = visibleImages.map(image => image.tileSource);
-    const samples = visibleImages.map(image => image.sample || 1);
-    const translateXs = visibleImages.map(image => image.translateX || 0);
-    const translateYs = visibleImages.map(image => image.translateY || 0);
-    if (!samples.every(sample => sample === samples[0])
-      && !translateXs.every(x => x === translateXs[0])
-      && !translateYs.every(y => y === translateYs[0])) {
-      // This is easiest for now: if the data changes, we can change.
-      throw new Error(`sample, translateX, and translateY must match for all images: ${this.props.images}`);
-    }
-    return (
-      <OpenSeadragonComponent
-        tileSources={tileSources}
-        sample={samples[0]}
-        translateX={translateXs[0]}
-        translateY={translateYs[0]}
-        {...viewProps}
-      />
-    );
+  renderImageLayers() {
+    const layers = this.images.map(layer => this.createTileLayer(layer));
+    return layers;
+  }
+
+  createTileLayer(layer) {
+    const [layerType, source] = layer;
+    const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)));
+    return new IdentityCoordinatesTileLayer({
+      id: `${layerType}-${source.tileSource}-tile-layer`,
+      pickable: true,
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      getTileData: ({ x, y, z }) => loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
+      minZoom,
+      maxZoom: 0,
+      maxHeight: source.height,
+      maxWidth: source.width,
+      tileSize: source.tileSize,
+      tileSource: source.tileSource,
+      visible: this.state.layerIsVisible[layerType],
+      renderSubLayers: (props) => {
+        const {
+          bbox: {
+            west, south, east, north,
+          },
+        } = props.tile;
+        const bml = new BitmapLayer(props, {
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          data: null,
+          image: props.data,
+          bounds: [west, south, east, north],
+        });
+        return bml;
+      },
+    });
   }
 
   setLayerIsVisible(layers) {
@@ -224,9 +243,9 @@ export default class Spatial extends AbstractSelectableComponent {
       molecules,
       cells,
       neighborhoods,
+      images,
       clearPleaseWait,
     } = this.props;
-
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
       Object.entries(molecules).forEach(([molecule, coords], index) => {
@@ -246,9 +265,16 @@ export default class Spatial extends AbstractSelectableComponent {
     if (neighborhoods && this.neighborhoodsData.length === 0) {
       this.neighborhoodsData = Object.entries(neighborhoods);
     }
+    if (images && this.images.length === 0) {
+      this.images = Object.entries(images);
+    }
 
     // Append each layer to the list.
     const layerList = [];
+
+    if (images && clearPleaseWait) clearPleaseWait('images');
+    layerList.push(...this.renderImageLayers());
+
     if (cells && clearPleaseWait) clearPleaseWait('cells');
     layerList.push(this.renderCellLayer());
 

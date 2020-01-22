@@ -58,3 +58,15 @@
       opacity: 0.8;
   }
 }
+
+.react-draggable-transparent-selection .react-grid-item {
+  /* These styles prevent text selection during resize drag interactions.
+     The react-draggable-transparent-selection class is added to the body 
+     element during resizing and removed after resizing has finished.
+     Not part of mixin because acts outside of .vitessce-container. */
+  -webkit-user-select: none !important;
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -o-user-select: none !important;
+  user-select: none !important;
+}
