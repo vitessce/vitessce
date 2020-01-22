@@ -17,7 +17,7 @@ export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
 
-async function loadZarr(sourceChannels, tileSize, x, y, z, width, gl) {
+function loadZarr(sourceChannels, tileSize, x, y, z, width, gl) {
   const zoom = z
   const textureNames = ['redTexture', 'greenTexture', 'blueTexture']
   const configList = sourceChannels.map((channel, i) => {
@@ -34,8 +34,7 @@ async function loadZarr(sourceChannels, tileSize, x, y, z, width, gl) {
   const stride = tileSize * tileSize
   var arrSlice = slice(stride * 4 * y + stride * x, stride * 4 * y + stride * (x+1));
   var configListPromises = configList.map((config) => getTexture(config, arrSlice, gl, tileSize))
-  var getDataTexture = Promise.all(configListPromises)
-  return await getDataTexture
+  return Promise.all(configListPromises).then((list) => list)
 }
 
 async function getTexture(config, arrSlice, gl, tileSize){
@@ -63,6 +62,7 @@ async function getTexture(config, arrSlice, gl, tileSize){
     )
     const channelType = config.channelType
     const texObj = {}
+    console.log(data)
     texObj[channelType] = new Texture2D(gl, {
       width: tileSize,
       height: tileSize,
@@ -86,9 +86,10 @@ export default class Spatial extends AbstractSelectableComponent {
   constructor(props) {
     super(props);
     this.state.layerIsVisible = {
-      molecules: true,
-      cells: true,
+      molecules: false,
+      cells: false,
       neighborhoods: false,
+      tiff: true
     };
 
     // In Deck.gl, layers are considered light weight, and
@@ -279,16 +280,16 @@ export default class Spatial extends AbstractSelectableComponent {
               west, south, east, north,
             },
           } = props.tile;
-          console.log(props)
           const xrl = new XRLayer(props, {
-            id: `XR-Layer-${Math.random()}`,
+            id: `XR-Layer-${west}-${south}-${east}-${north}`,
             pickable: false,
             coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
             rgbTextures: props.data,
             sliderValues: {
               redSliderValue: 10000, greenSliderValue: 10000, blueSliderValue: 10000
             },
-            bounds: [west, south, east, north]
+            bounds: [west, south, east, north],
+            visible: true
           });
           return xrl;
         },

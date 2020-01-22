@@ -1,6 +1,7 @@
 import GL from '@luma.gl/constants';
 import {Layer, project32} from '@deck.gl/core';
 import {Model, Geometry} from '@luma.gl/core';
+import {Texture2D} from '@luma.gl/webgl'
 import vs from './xr-layer-vertex';
 import fs from './xr-layer-fragment';
 
@@ -40,34 +41,61 @@ export default class XRLayer extends Layer {
     attributeManager.remove("instancePickingColors")
   }
 
-  updateState({props}) {
-    const {gl} = this.context;
-    if(props.rgbTextures){
-      this.setState({model: this._getModel(gl), rgbTextures: props.rgbTextures});
+  finalizeState() {
+    super.finalizeState();
+
+    if (this.state.rgbTextures) {
+      this.state.rgbTextures.delete();
+    }
+  }
+
+  updateState({props, oldProps, changeFlags}) {
+    // setup model first
+    if (changeFlags.extensionsChanged) {
+      const {gl} = this.context;
+      if (this.state.model) {
+        this.state.model.delete();
+      }
+      this.setState({model: this._getModel(gl)});
+      this.getAttributeManager().invalidateAll();
     }
 
+    if (props.rgbTextures !== oldProps.rgbTextures) {
+      this.loadTexture(props.rgbTextures);
+    }
+
+    const attributeManager = this.getAttributeManager();
+
+    if (props.bounds !== oldProps.bounds) {
+      attributeManager.invalidate('positions');
+    }
   }
 
   _getModel(gl) {
-    if(!this.state.model){
-      return new Model(
-        gl,
-        Object.assign({}, this.getShaders(), {
-          geometry: new Geometry({
-            drawMode: GL.TRIANGLE_FAN,
-            vertexCount: 4,
-            attributes: {
-              texCoords: new Float32Array([0, 1, 0, 0, 1, 0, 1, 1])
-            }
-          }),
-          isInstanced: false
-        })
-      );
-    } else{
-      return this.state.model
-    }
+     if (!gl) {
+       return null;
+     }
 
-  }
+     /*
+       0,0 --- 1,0
+        |       |
+       0,1 --- 1,1
+     */
+     return new Model(
+       gl,
+       Object.assign({}, this.getShaders(), {
+         id: this.props.id,
+         geometry: new Geometry({
+           drawMode: GL.TRIANGLE_FAN,
+           vertexCount: 4,
+           attributes: {
+             texCoords: new Float32Array([0, 1, 0, 0, 1, 0, 1, 1])
+           }
+         }),
+         isInstanced: false
+       })
+     );
+   }
 
   calculatePositions(attributes) {
     const {positions} = this.state;
@@ -110,6 +138,8 @@ export default class XRLayer extends Layer {
 
   draw({uniforms}) {
     const {rgbTextures, model} = this.state;
+    console.log(rgbTextures)
+    if(rgbTextures && model){
       model
         .setUniforms(
           Object.assign({}, uniforms, {
@@ -118,6 +148,19 @@ export default class XRLayer extends Layer {
           })
         )
         .draw();
+    }
+  }
+
+  loadTexture(textures) {
+    const {gl} = this.context;
+
+    if (this.state.rgbTextures) {
+      this.state.rgbTextures.delete();
+    }
+    textures.then((textureList) => {
+      this.setState({rgbTextures: Object.assign({}, ...textureList)});
+    })
+
   }
 }
 
