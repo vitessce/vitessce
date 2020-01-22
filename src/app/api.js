@@ -60,134 +60,102 @@ const configs = {
     ...linnarssonBase,
     name: 'Linnarsson',
     public: true,
-    responsiveLayout: {
-      columns: {
-        // Grid cell width stays roughly constant,
-        // but more columns are available in a wider window.
-        1500: [0, 3, 8, 13, 15],
-        1300: [0, 3, 7, 11, 13],
-        1100: [0, 3, 6, 9, 11],
-        900: [0, 3, 5, 7, 9],
-      },
-      components: [
-        { component: 'description',
-          props: {
-            description: `Linnarsson: ${linnarssonDescription}`,
+    staticLayout: [
+      { component: 'description',
+        props: {
+          description: `Linnarsson: ${linnarssonDescription}`,
+        },
+        x: 0, y: 0, w: 2, h: 2 },
+      { component: 'cellSets',
+        props: {
+          datasetId: 'linnarsson-2018',
+        },
+        x: 0, y: 1, w: 2, h: 2 },
+      { component: 'status',
+        x: 0, y: 4, w: 2, h: 2 },
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -6.5,
+            target: [16000, 20000, 0],
           },
-          x: 0, y: 0 },
-        { component: 'cellSets',
-          props: {
-            datasetId: 'linnarsson-2018',
+        },
+        x: 2, y: 0, w: 4, h: 4 },
+      { component: 'scatterplot',
+        props: {
+          mapping: 'PCA',
+          // This intentionally does not have a  "view" prop,
+          // in order to have an example that uses the default.
+        },
+        x: 6, y: 0, w: 4, h: 2 },
+      { component: 'scatterplot',
+        props: {
+          mapping: 't-SNE',
+          view: {
+            zoom: 0.75,
+            target: [0, 0, 0],
           },
-          x: 0, y: 1, h: 3 },
-        { component: 'status',
-          x: 0, y: 4 },
-        { component: 'spatial',
-          props: {
-            view: {
-              zoom: -6.5,
-              target: [16000, 20000, 0],
-            },
-          },
-          x: 1, y: 0, h: 4 },
-        { component: 'scatterplot',
-          props: {
-            mapping: 'PCA',
-            // This intentionally does not have a  "view" prop,
-            // in order to have an example that uses the default.
-          },
-          x: 2, y: 0, h: 2 },
-        { component: 'scatterplot',
-          props: {
-            mapping: 't-SNE',
-            view: {
-              zoom: 0.75,
-              target: [0, 0, 0],
-            },
-          },
-          x: 2, y: 2, h: 2 },
-        { component: 'factors',
-          x: 3, y: 0, h: 2 },
-        { component: 'genes',
-          x: 3, y: 2, h: 2 },
-        { component: 'heatmap',
-          x: 1, y: 4, w: 3 },
-      ],
-    },
+        },
+        x: 6, y: 2, w: 4, h: 2 },
+      { component: 'factors',
+        x: 10, y: 0, w: 2, h: 2 },
+      { component: 'genes',
+        x: 10, y: 2, w: 2, h: 2 },
+      { component: 'heatmap',
+        x: 3, y: 4, w: 10, h: 2 },
+    ],
   },
   'linnarsson-2018-two-spatial': {
     ...linnarssonBase,
     name: 'Linnarsson (two spatial)',
-    responsiveLayout: {
-      columns: {
-        // First two columns are equal,
-        // third column is constant;
-        // Grid cell width stays roughly constant,
-        // but more columns are available in a wider window.
-        1400: [0, 6, 12, 14],
-        1200: [0, 5, 10, 12],
-        1000: [0, 4, 8, 10],
-        800: [0, 3, 6, 8],
-        600: [0, 2, 4, 8],
-      },
-      components: [
-        { component: 'spatial',
-          props: {
-            view: {
-              zoom: -8,
-              target: [18000, 18000, 0],
-            },
+    staticLayout: [
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -8,
+            target: [18000, 18000, 0],
           },
-          x: 0, y: 0, h: 2 },
-        { component: 'scatterplot',
-          props: { mapping: 't-SNE' },
-          x: 0, y: 2, h: 2 },
-        { component: 'spatial',
-          props: {
-            view: {
-              zoom: -6,
-              target: [18000, 18000, 0],
-            },
+        },
+        x: 0, y: 0, w: 5, h: 2 },
+      { component: 'scatterplot',
+        props: { mapping: 't-SNE' },
+        x: 0, y: 2, w: 5, h: 2 },
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -6,
+            target: [18000, 18000, 0],
           },
-          x: 1, y: 0, h: 2 },
-        { component: 'scatterplot',
-          props: { mapping: 'PCA' },
-          x: 1, y: 2, h: 2 },
-        { component: 'factors',
-          x: 2, y: 0, h: 2 },
-        { component: 'genes',
-          x: 2, y: 2, h: 2 },
-        { component: 'heatmap',
-          x: 0, y: 4, w: 3 },
-      ],
-    },
+        },
+        x: 5, y: 0, w: 5, h: 2 },
+      { component: 'scatterplot',
+        props: { mapping: 'PCA' },
+        x: 5, y: 2, w: 5, h: 2 },
+      { component: 'factors',
+        x: 10, y: 0, w: 2, h: 2 },
+      { component: 'genes',
+        x: 10, y: 2, w: 2, h: 2 },
+      { component: 'heatmap',
+        x: 0, y: 4, w: 12 },
+    ],
   },
   'linnarsson-2018-just-spatial': {
     ...linnarssonBaseNoClusters,
     name: 'Linnarsson (just spatial)',
-    responsiveLayout: {
-      columns: {
-        1400: [0, 12, 14],
-        1200: [0, 10, 12],
-        1000: [0, 8, 10],
-        800: [0, 6, 8],
-        600: [0, 4, 8],
-      },
-      components: [
-        { component: 'spatial',
-          props: {
-            view: {
-              zoom: -6.5,
-              target: [18000, 18000, 0],
-            },
+    staticLayout: [
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -6.5,
+            target: [18000, 18000, 0],
           },
-          x: 0, y: 0, h: 2 },
-        { component: 'factors',
-          x: 1, y: 0, h: 1 },
-        { component: 'genes',
-          x: 1, y: 1, h: 1 },
-      ],
-    },
+        },
+        x: 0, y: 0, w: 10, h: 2 },
+      { component: 'factors',
+        x: 10, y: 0, w: 2, h: 1 },
+      { component: 'genes',
+        x: 10, y: 1, w: 2, h: 1 },
+    ],
   },
   'linnarsson-2018-static': {
     ...linnarssonBase,
@@ -219,167 +187,132 @@ const configs = {
   },
   'linnarsson-2018-dozen': {
     ...linnarssonBase,
-    name: 'Linnarsson (responsive layout, redundant components for performance testing)',
-    responsiveLayout: {
-      columns: {
-        // First two columns are equal,
-        // third column is constant;
-        // Grid cell width stays roughly constant,
-        // but more columns are available in a wider window.
-        1400: [0, 6, 12, 14],
-        1200: [0, 5, 10, 12],
-        1000: [0, 4, 8, 10],
-        800: [0, 3, 6, 8],
-        600: [0, 2, 4, 8],
-      },
-      components: [
-        { component: 'spatial',
-          props: {
-            view: {
-              zoom: -6.5,
-              target: [18000, 18000, 0],
-            },
+    name: 'Linnarsson (static layout, redundant components for performance testing)',
+    staticLayout: [
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -6.5,
+            target: [18000, 18000, 0],
           },
-          x: 0, y: 0, h: 1 },
-        { component: 'spatial',
-          props: {
-            view: {
-              zoom: -6.5,
-              target: [18000, 18000, 0],
-            },
+        },
+        x: 0, y: 0, w: 4, h: 1 },
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -6.5,
+            target: [18000, 18000, 0],
           },
-          x: 0, y: 1, h: 1 },
-        { component: 'spatial',
-          props: {
-            view: {
-              zoom: -6.5,
-              target: [18000, 18000, 0],
-            },
+        },
+        x: 0, y: 1, w: 4, h: 1 },
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -6.5,
+            target: [18000, 18000, 0],
           },
-          x: 1, y: 0, h: 1 },
-        { component: 'spatial',
-          props: {
-            view: {
-              zoom: -6.5,
-              target: [18000, 18000, 0],
-            },
+        },
+        x: 4, y: 0, w: 2, h: 1 },
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -6.5,
+            target: [18000, 18000, 0],
           },
-          x: 1, y: 1, h: 1 },
-        { component: 'scatterplot',
-          props: { mapping: 't-SNE' },
-          x: 0, y: 2, h: 1 },
-        { component: 'scatterplot',
-          props: { mapping: 't-SNE' },
-          x: 0, y: 3, h: 1 },
-        { component: 'scatterplot',
-          props: { mapping: 't-SNE' },
-          x: 0, y: 4, h: 1 },
-        { component: 'scatterplot',
-          props: { mapping: 't-SNE' },
-          x: 0, y: 5, h: 1 },
-        { component: 'scatterplot',
-          props: { mapping: 'PCA' },
-          x: 1, y: 2, h: 1 },
-        { component: 'scatterplot',
-          props: { mapping: 'PCA' },
-          x: 1, y: 3, h: 1 },
-        { component: 'scatterplot',
-          props: { mapping: 'PCA' },
-          x: 1, y: 4, h: 1 },
-        { component: 'scatterplot',
-          props: { mapping: 'PCA' },
-          x: 1, y: 5, h: 1 },
-        { component: 'factors',
-          x: 2, y: 0, h: 2 },
-        { component: 'genes',
-          x: 2, y: 2, h: 2 },
-        { component: 'heatmap',
-          x: 2, y: 4, w: 1, h: 2 },
-      ],
-    },
+        },
+        x: 4, y: 1, w: 4, h: 1 },
+      { component: 'scatterplot',
+        props: { mapping: 't-SNE' },
+        x: 0, y: 2, w: 4, h: 1 },
+      { component: 'scatterplot',
+        props: { mapping: 't-SNE' },
+        x: 0, y: 3, w: 4, h: 1 },
+      { component: 'scatterplot',
+        props: { mapping: 't-SNE' },
+        x: 0, y: 4, w: 4, h: 1 },
+      { component: 'scatterplot',
+        props: { mapping: 't-SNE' },
+        x: 0, y: 5, w: 4, h: 1 },
+      { component: 'scatterplot',
+        props: { mapping: 'PCA' },
+        x: 4, y: 2, w: 4, h: 1 },
+      { component: 'scatterplot',
+        props: { mapping: 'PCA' },
+        x: 4, y: 3, w: 4, h: 1 },
+      { component: 'scatterplot',
+        props: { mapping: 'PCA' },
+        x: 4, y: 4, w: 4, h: 1 },
+      { component: 'scatterplot',
+        props: { mapping: 'PCA' },
+        x: 4, y: 5, w: 4, h: 1 },
+      { component: 'factors',
+        x: 8, y: 0, w: 4, h: 2 },
+      { component: 'genes',
+        x: 8, y: 2, w: 4, h: 2 },
+      { component: 'heatmap',
+        x: 8, y: 4, w: 4, h: 2 },
+    ],
   },
   'dries-2019': {
     ...driesBase,
     name: 'Dries',
     public: true,
-    responsiveLayout: {
-      columns: {
-        // First two columns are equal,
-        // third column is constant;
-        // Grid cell width stays roughly constant,
-        // but more columns are available in a wider window.
-        1400: [0, 6, 12, 14],
-        1200: [0, 5, 10, 12],
-        1000: [0, 4, 8, 10],
-        800: [0, 3, 6, 8],
-        600: [0, 2, 4, 8],
-      },
-      components: [
-        { component: 'description',
-          props: {
-            description: driesDescription,
+    staticLayout: [
+      { component: 'description',
+        props: {
+          description: driesDescription,
+        },
+        x: 0, y: 0, w: 5, h: 2 },
+      { component: 'status',
+        x: 0, y: 1, w: 5, h: 2 },
+      { component: 'scatterplot',
+        props: {
+          mapping: 't-SNE',
+          view: {
+            zoom: 3,
+            target: [0, 0, 0],
           },
-          x: 0, y: 0 },
-        { component: 'status',
-          x: 0, y: 1 },
-        { component: 'scatterplot',
-          props: {
-            mapping: 't-SNE',
-            view: {
-              zoom: 3,
-              target: [0, 0, 0],
-            },
+        },
+        x: 0, y: 2, w: 5, h: 4 },
+      { component: 'spatial',
+        props: {
+          cellRadius: 50,
+          view: {
+            zoom: -4.4,
+            target: [3800, -900, 0],
           },
-          x: 0, y: 2, h: 2 },
-        { component: 'spatial',
-          props: {
-            cellRadius: 50,
-            view: {
-              zoom: -4.4,
-              target: [3800, -900, 0],
-            },
+        },
+        x: 5, y: 0, w: 5, h: 4 },
+      { component: 'scatterplot',
+        props: {
+          mapping: 'UMAP',
+          view: {
+            zoom: 3,
+            target: [0, 0, 0],
           },
-          x: 1, y: 0, h: 2 },
-        { component: 'scatterplot',
-          props: {
-            mapping: 'UMAP',
-            view: {
-              zoom: 3,
-              target: [0, 0, 0],
-            },
-          },
-          x: 1, y: 2, h: 2 },
-        { component: 'factors',
-          x: 2, y: 0, h: 4 },
-      ],
-    },
+        },
+        x: 5, y: 4, w: 5, h: 4 },
+      { component: 'factors',
+        x: 10, y: 0, w: 2, h: 8 },
+    ],
   },
   'wang-2019': {
     ...wangBase,
     name: 'Wang',
     public: true,
-    responsiveLayout: {
-      columns: {
-        1400: [0, 12, 14],
-        1200: [0, 10, 12],
-        1000: [0, 8, 10],
-        800: [0, 6, 8],
-        600: [0, 4, 6],
-      },
-      components: [
-        { component: 'spatial',
-          props: {
-            view: {
-              zoom: -1,
-              target: [0, 0, 0],
-            },
-            moleculeRadius: 2,
+    staticLayout: [
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -1,
+            target: [0, 0, 0],
           },
-          x: 0, y: 0, h: 2 },
-        { component: 'genes',
-          x: 1, y: 0, h: 2 },
-      ],
-    },
+          moleculeRadius: 2,
+        },
+        x: 0, y: 0, w: 10, h: 2 },
+      { component: 'genes',
+        x: 10, y: 0, w: 2, h: 2 },
+    ],
   },
 };
 /* eslint-enable */
