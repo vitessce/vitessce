@@ -102,7 +102,7 @@ const configs = {
       { component: 'genes',
         x: 10, y: 2, w: 2, h: 2 },
       { component: 'heatmap',
-        x: 3, y: 4, w: 10, h: 2 },
+        x: 2, y: 4, w: 10, h: 2 },
     ],
   },
   'linnarsson-2018-two-spatial': {
