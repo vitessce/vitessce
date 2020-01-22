@@ -191,11 +191,14 @@ export default class Spatial extends AbstractSelectableComponent {
       pickable: true,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       getTileData: ({ x, y, z }) => load(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
-      getTileIndices: (viewport, maxZoom, minZoom) => {
-        return getTileIndices(viewport, maxZoom, minZoom, source.tileSize, source.width, source.height)
+      // eslint-disable-next-line  arrow-body-style
+      getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
+        return getTileIndices(viewport, maxZoomLevel, minZoomLevel,
+          source.tileSize, source.width, source.height);
       },
+      // eslint-disable-next-line  arrow-body-style
       tileToBoundingBox: (x, y, z) => {
-        return tileToBoundingBox(x, y, z, source.height, source.width, source.tileSize)
+        return tileToBoundingBox(x, y, z, source.height, source.width, source.tileSize);
       },
       minZoom,
       maxZoom: 0,

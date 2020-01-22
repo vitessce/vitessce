@@ -55,7 +55,8 @@ describe('./tiling-utils.js', () => {
         height: 8000,
         width: 8000,
       };
-      expect(getTileIndices(viewport, 0, -16, 1000, 100000, 100000)).toEqual([{ x: 0, y: 0, z: -16 }]);
+      expect(getTileIndices(viewport, 0, -16, 1000, 100000, 100000))
+        .toEqual([{ x: 0, y: 0, z: -16 }]);
     });
 
     it('return a tile only up to the min/max', () => {
