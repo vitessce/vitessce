@@ -1,15 +1,16 @@
+
+export function tileToBoundingBox(x, y, z, maxHeight, maxWidth, tileSize) {
+  return {
+    west: (x * tileSize) * (2 ** (-1 * z)),
+    north: (y * tileSize) * (2 ** (-1 * z)),
+    east: Math.min(maxWidth, ((x + 1) * tileSize) * (2 ** (-1 * z))),
+    south: Math.min(maxHeight, ((y + 1) * tileSize) * (2 ** (-1 * z))),
+  };
+}
+
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 
-/*
-------------------------------------------
-THIS CODE IS FROM DECKGL MOSTLY
-IT IS AWAITING A PR THERE AND WILL
-THEN BE REMOVED IN FAVOR OF THAT
-------------------------------------------
-*/
-
-// This has been changed from deck.gl
 function getBoundingBox(viewport) {
   const corners = [
     ...viewport.unproject([0, 0]),
@@ -27,10 +28,11 @@ function pixelsToTileIndex(pixelCount, z, tileSize) {
  * than minZoom, return an empty array. If the current zoom level is greater than maxZoom,
  * return tiles that are on maxZoom.
  */
-// This has been changed from deck.gl
-export function getTileIndices(viewport, maxZoom, minZoom, tileSize) {
+export function getTileIndices(viewport, maxZoom, minZoom, tileSize, width, height) {
   const z = Math.min(0, Math.ceil(viewport.zoom));
-
+  const scale = tileSize * (2 ** (-1 * z));
+  const maxXTilePossible = Math.round(width / scale);
+  const maxYTilePossible = Math.round(height / scale);
   if (z <= minZoom) {
     return [{ x: 0, y: 0, z: minZoom }];
   }
@@ -42,9 +44,10 @@ export function getTileIndices(viewport, maxZoom, minZoom, tileSize) {
       |(roundedMinX)             |(roundedMaxX)
    */
   const roundedMinX = Math.max(0, Math.floor(minX));
-  const roundedMaxX = Math.max(0, Math.ceil(maxX));
+  const roundedMaxX = Math.min(maxXTilePossible, Math.max(0, Math.ceil(maxX)));
   const roundedMinY = Math.max(0, Math.floor(minY));
-  const roundedMaxY = Math.max(0, Math.ceil(maxY));
+  const roundedMaxY = Math.min(maxYTilePossible, Math.max(0, Math.ceil(maxY)));
+
   const indices = [];
   for (let x = roundedMinX; x < roundedMaxX; x += 1) {
     for (let y = roundedMinY; y < roundedMaxY; y += 1) {

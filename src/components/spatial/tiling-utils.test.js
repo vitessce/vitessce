@@ -1,7 +1,7 @@
 import expect from 'expect';
-import { getTileIndices } from './viewport-utils';
+import { getTileIndices } from './tiling-utils';
 
-describe('tile-layer-utils/viewport-utils.js', () => {
+describe('./tiling-utils.js', () => {
   describe('getTileIndices()', () => {
     it('return a 2 x 2 tile with no projection', () => {
       const viewport = {
@@ -10,7 +10,7 @@ describe('tile-layer-utils/viewport-utils.js', () => {
         height: 8000,
         width: 8000,
       };
-      expect(getTileIndices(viewport, 0, -16, 1000)).toEqual([
+      expect(getTileIndices(viewport, 0, -16, 1000, 100000, 100000)).toEqual([
         { x: 0, y: 0, z: -2 }, { x: 0, y: 1, z: -2 },
         { x: 1, y: 0, z: -2 }, { x: 1, y: 1, z: -2 },
       ]);
@@ -23,7 +23,7 @@ describe('tile-layer-utils/viewport-utils.js', () => {
         height: 8000,
         width: 8000,
       };
-      expect(getTileIndices(viewport, 0, -16, 1000)).toEqual([
+      expect(getTileIndices(viewport, 0, -16, 1000, 100000, 100000)).toEqual([
         { x: 0, y: 0, z: -2 }, { x: 0, y: 1, z: -2 }, { x: 0, y: 2, z: -2 },
         { x: 0, y: 3, z: -2 },
         { x: 1, y: 0, z: -2 }, { x: 1, y: 1, z: -2 }, { x: 1, y: 2, z: -2 },
@@ -42,7 +42,7 @@ describe('tile-layer-utils/viewport-utils.js', () => {
         height: 12000,
         width: 8000,
       };
-      expect(getTileIndices(viewport, 0, -16, 1000)).toEqual([
+      expect(getTileIndices(viewport, 0, -16, 1000, 100000, 100000)).toEqual([
         { x: 0, y: 0, z: -2 }, { x: 0, y: 1, z: -2 }, { x: 0, y: 2, z: -2 },
         { x: 1, y: 0, z: -2 }, { x: 1, y: 1, z: -2 }, { x: 1, y: 2, z: -2 },
       ]);
@@ -55,7 +55,18 @@ describe('tile-layer-utils/viewport-utils.js', () => {
         height: 8000,
         width: 8000,
       };
-      expect(getTileIndices(viewport, 0, -16, 1000)).toEqual([{ x: 0, y: 0, z: -16 }]);
+      expect(getTileIndices(viewport, 0, -16, 1000, 100000, 100000))
+      .toEqual([{ x: 0, y: 0, z: -16 }]);
+    });
+
+    it('return a tile only up to the min/max', () => {
+      const viewport = {
+        zoom: 0,
+        unproject: e => e,
+        height: 8000,
+        width: 8000,
+      };
+      expect(getTileIndices(viewport, 0, -16, 1000, 1000, 1000)).toEqual([{ x: 0, y: 0, z: 0 }]);
     });
   });
 });

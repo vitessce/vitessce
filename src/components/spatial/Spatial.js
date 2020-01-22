@@ -1,9 +1,11 @@
 import React from 'react';
 
 import {
-  ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer,
+  ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
 } from 'deck.gl';
-import { SelectablePolygonLayer, IdentityCoordinatesTileLayer } from '../../layers';
+import { load } from '@loaders.gl/core';
+import { SelectablePolygonLayer } from '../../layers';
+import { tileToBoundingBox, getTileIndices } from './tiling-utils';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
@@ -203,7 +205,7 @@ export default class Spatial extends AbstractSelectableComponent {
     const getColor = d => PALETTE[d[2] % PALETTE.length];
     return new ScatterplotLayer({
       id: 'scatter-plot',
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: this.moleculesData,
       pickable: true,
       autoHighlight: true,
@@ -225,7 +227,7 @@ export default class Spatial extends AbstractSelectableComponent {
         const neighborhood = neighborhoodsEntry[1];
         return neighborhood.poly;
       },
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: this.neighborhoodsData,
       pickable: true,
       autoHighlight: true,
@@ -245,17 +247,20 @@ export default class Spatial extends AbstractSelectableComponent {
   createTileLayer(layer) {
     const [layerType, source] = layer;
     const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)));
-    return new IdentityCoordinatesTileLayer({
+    return new BaseTileLayer({
       id: `${layerType}-${source.tileSource}-tile-layer`,
       pickable: true,
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      getTileData: ({ x, y, z }) => loadZarr(source.tileSource, tileSize, x, y, z),
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      getTileData: ({ x, y, z }) => load(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
+      getTileIndices: (viewport, maxZoomLevel, minZoomLevel) =>
+        getTileIndices(viewport, maxZoomLevel, minZoomLevel,
+          source.tileSize, source.width, source.height)
+      ,
+      tileToBoundingBox: (x, y, z) =>
+        tileToBoundingBox(x, y, z, source.height, source.width, source.tileSize)
+      ,
       minZoom,
       maxZoom: 0,
-      maxHeight: source.height,
-      maxWidth: source.width,
-      tileSize: source.tileSize,
-      tileSource: source.tileSource,
       visible: this.state.layerIsVisible[layerType],
       renderSubLayers: (props) => {
         const {
