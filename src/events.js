@@ -37,3 +37,6 @@ export const NEIGHBORHOODS_ADD = NEIGHBORHOODS + ADD;
 export const STATUS = 'status';
 export const STATUS_WARN = `${STATUS}.warn`;
 export const STATUS_INFO = `${STATUS}.info`;
+
+export const TIFF = 'tiff';
+export const TIFF_ADD = TIFF + ADD;

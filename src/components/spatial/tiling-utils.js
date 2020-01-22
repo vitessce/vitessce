@@ -29,6 +29,7 @@ function pixelsToTileIndex(pixelCount, z, tileSize) {
  * return tiles that are on maxZoom.
  */
 export function getTileIndices(viewport, maxZoom, minZoom, tileSize, width, height) {
+  console.log(viewport, maxZoom, minZoom, tileSize, width, height)
   const z = Math.min(0, Math.ceil(viewport.zoom));
   const scale = tileSize * (2 ** (-1 * z));
   const maxXTilePossible = Math.round(width / scale);

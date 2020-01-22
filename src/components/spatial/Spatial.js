@@ -14,64 +14,67 @@ export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
 
-function loadImage(src) {
-  // This function replaces load from loaders.gl (7.3.5) which was not working
-  // with this version of deckgl (7.1.4).
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.addEventListener('load', () => resolve(img));
-    img.addEventListener('error', err => reject(err));
-    img.crossOrigin = 'anonymous';
-    img.src = src;
-  });
-}
-
-function loadZarr(source, tileSize, x, y, z) {
+function loadZarr(sourceChannels, tileSize, x, y, z) {
+  console.log(sourceChannels, tileSize, x, y, z)
   const zoom = -1 * z
-  const config = {
-    store: source,
-    path: `pyramid_${zoom}.zarr`,
-    mode: "r"
-  };
+  const textureNames = ['redTexture', 'greenTexture', 'blueTexture']
+  const config_list = sourceChannels.map((channel, i) => {
+    return {
+      channelName: channel.name,
+      channelType: textureNames[i],
+      zarrConfig: {
+        store: channel.tileSource,
+        path: `pyramid_${zoom}.zarr`,
+        mode: "r"
+      }
+    }
+  })
   const stride = tileSize * tileSize
   var arrSlice = slice(stride * y + stride * x, stride * y + stride * (x+1));
-  var getDataSlice = openArray(config).then((arr) => {
-    return arr.get([arrSlice,])
-  }).then((dataSlice) => {
-    const data = dataSlice.data
-    const formats = data instanceof Uint8Array
-    ? {
-        format: GL.R8UI,
-        dataFormat: GL.RED_INTEGER,
-        type: GL.UNSIGNED_BYTE,
+  var getDataSlice = Promise.all(configList.map((config) => {
+    return openArray(config.zarrConfig)
+    .then((arr) => {
+      return arr.get([arrSlice,])
+    }).then((dataSlice) => {
+      const data = dataSlice.data
+      const formats = data instanceof Uint8Array
+      ? {
+          format: GL.R8UI,
+          dataFormat: GL.RED_INTEGER,
+          type: GL.UNSIGNED_BYTE,
+        }
+      : (
+        data instanceof Uint16Array
+          ? {
+              format: GL.R16UI,
+              dataFormat: GL.RED_INTEGER,
+              type: GL.UNSIGNED_SHORT,
+            }
+          : {
+              format: GL.R32UI,
+              dataFormat: GL.RED_INTEGER,
+              type: GL.UNSIGNED_INT,
+            }
+      )
+      const channelType = config.channelType
+      return {
+        channelType: new Texture2D(gl, {
+          width: tileSize,
+          height: tileSize,
+          data: data,
+          // we don't want or need mimaps
+          mipmaps: false,
+          parameters: {
+            // NEAREST for integer data
+            [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
+            [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+          },
+          ...formats
+        })
       }
-    : (
-      data instanceof Uint16Array
-        ? {
-            format: GL.R16UI,
-            dataFormat: GL.RED_INTEGER,
-            type: GL.UNSIGNED_SHORT,
-          }
-        : {
-            format: GL.R32UI,
-            dataFormat: GL.RED_INTEGER,
-            type: GL.UNSIGNED_INT,
-          }
-
-    )
-    return new Texture2D(gl, {
-      width: this.picSize,
-      height: this.picSize,
-      data: data,
-      // we don't want or need mimaps
-      mipmaps: false,
-      parameters: {
-        // NEAREST for integer data
-        [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-        [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-      },
-      ...formats
-    }))
+    })
+  })).then((textureList) => {
+    return Object.assign({}, ...textureList)
   })
 }
 
@@ -94,6 +97,7 @@ export default class Spatial extends AbstractSelectableComponent {
     this.cellsData = [];
     this.neighborhoodsData = [];
     this.images = [];
+    this.tiff = [];
     this.maxHeight = 0;
     this.maxWidth = 0;
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
@@ -245,21 +249,23 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   createTileLayer(layer) {
-    const [layerType, source] = layer;
-    const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)));
+    const layerType = 'tiff'
+    const source = layer;
+    const height = source.height * source.tileSize
+    const width = source.width * source.tileSize
+    const minZoomLevel = Math.floor(-1 * Math.log2(Math.max(source.height * source.tileSize, source.width * source.tileSize)));
     return new BaseTileLayer({
-      id: `${layerType}-${source.tileSource}-tile-layer`,
-      pickable: true,
+      id: `${layerType}-tile-layer`,
+      pickable: false,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      getTileData: ({ x, y, z }) => load(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
-      getTileIndices: (viewport, maxZoomLevel, minZoomLevel) =>
-        getTileIndices(viewport, maxZoomLevel, minZoomLevel,
-          source.tileSize, source.width, source.height)
-      ,
-      tileToBoundingBox: (x, y, z) =>
-        tileToBoundingBox(x, y, z, source.height, source.width, source.tileSize)
-      ,
-      minZoom,
+      getTileData: ({ x, y, z }) => loadZarr(source.channels, source.tileSize, x, y, z),
+      getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
+        return getTileIndices(viewport, maxZoomLevel, minZoomLevel, source.tileSize, width, height)
+      },
+      tileToBoundingBox: (x, y, z) => {
+        return tileToBoundingBox(x, y, z, height, width, source.tileSize)
+      },
+      minZoom: minZoomLevel,
       maxZoom: 0,
       visible: this.state.layerIsVisible[layerType],
       renderSubLayers: (props) => {
@@ -269,11 +275,13 @@ export default class Spatial extends AbstractSelectableComponent {
           },
         } = props.tile;
         const bml = new XRLayer(props, {
-          id: `XR-Layer-${i}`,
+          id: `XR-Layer-${Math.random()}`,
           pickable: false,
           coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
           rgbTextures: props.data,
-          sliderValues: this.props.sliderValues,
+          sliderValues: {
+            redSliderValue: 10000, greenSliderValue: 10000, blueSliderValue: 10000
+          },
           bounds: [west, south, east, north]
         });
         return bml;
@@ -301,6 +309,7 @@ export default class Spatial extends AbstractSelectableComponent {
       neighborhoods,
       images,
       clearPleaseWait,
+      tiff
     } = this.props;
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
@@ -324,22 +333,27 @@ export default class Spatial extends AbstractSelectableComponent {
     if (images && this.images.length === 0) {
       this.images = Object.entries(images);
     }
-
+    if (tiff && this.tiff.length === 0) {
+      this.tiff = tiff
+    }
     // Append each layer to the list.
     const layerList = [];
 
     if (images && clearPleaseWait) clearPleaseWait('images');
-    layerList.push(...this.renderImageLayers());
+    // layerList.push(...this.renderImageLayers());
+
+    if (tiff && clearPleaseWait) clearPleaseWait('tiff');
+    var layer = this.createTileLayer(this.tiff)
+    layerList.push(layer);
 
     if (cells && clearPleaseWait) clearPleaseWait('cells');
-    layerList.push(this.renderCellLayer());
+    // layerList.push(this.renderCellLayer());
 
     if (neighborhoods && clearPleaseWait) clearPleaseWait('neighborhoods');
-    layerList.push(this.renderNeighborhoodsLayer());
+    // layerList.push(this.renderNeighborhoodsLayer());
 
     if (molecules && clearPleaseWait) clearPleaseWait('molecules');
-    layerList.push(this.renderMoleculesLayer());
-
+    // layerList.push(this.renderMoleculesLayer());
     return layerList;
   }
 }
