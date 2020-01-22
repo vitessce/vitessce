@@ -191,12 +191,13 @@ export default class Spatial extends AbstractSelectableComponent {
       pickable: true,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       getTileData: ({ x, y, z }) => load(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
-      getTileIndices: (viewport, maxZoom, minZoom) => {
-        return getTileIndices(viewport, maxZoom, minZoom, source.tileSize, source.width, source.height)
-      },
-      tileToBoundingBox: (x, y, z) => {
-        return tileToBoundingBox(x, y, z, source.height, source.width, source.tileSize)
-      },
+      getTileIndices: (viewport, maxZoomLevel, minZoomLevel) =>
+        getTileIndices(viewport, maxZoomLevel, minZoomLevel,
+          source.tileSize, source.width, source.height)
+      ,
+      tileToBoundingBox: (x, y, z) =>
+        tileToBoundingBox(x, y, z, source.height, source.width, source.tileSize)
+      ,
       minZoom,
       maxZoom: 0,
       visible: this.state.layerIsVisible[layerType],
