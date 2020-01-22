@@ -64,6 +64,18 @@ const configs = {
         name: 'cells',
         type: 'CELLS',
         url: 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release/linnarsson/linnarsson.cells.json',
+        requestInit: {
+          method: 'GET',
+          headers: {'x-foo': 'bar'},
+          // // GET requests can not have body.
+          // // body: 'foo',
+          mode: 'cors',
+          credentials: 'omit',
+          cache: 'no-store',
+          redirect: 'error',
+          referrer: 'foo-bar',
+          integrity: 'foo'
+        }
       },
     ],
     name: 'Linnarsson',

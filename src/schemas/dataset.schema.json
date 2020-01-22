@@ -25,7 +25,7 @@
       "additionalProperties": false,
       "properties": {
         "method": { "type": "string" },
-        "headers": { "type": "string" },
+        "headers": { "type": "object" },
         "body": { "type": "string" },
         "mode": { "type": "string" },
         "credentials": { "type": "string" },
