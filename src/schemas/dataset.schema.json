@@ -19,23 +19,6 @@
           "h": { "type": "integer" }
         }
       }
-    },
-    "responsiveLayout": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["columns", "components"],
-      "properties": {
-        "columns": {
-          "type": "object",
-          "patternProperties": {
-            ".": {
-              "type": "array",
-              "items": { "type": "number" }
-            }
-          }
-        },
-        "components": { "$ref": "#/definitions/components" }
-      }
     }
   },
   "additionalProperties": false,
@@ -57,7 +40,6 @@
         }
       }
     },
-    "responsiveLayout": { "$ref": "#/definitions/responsiveLayout" },
     "staticLayout": { "$ref": "#/definitions/components" }
   }
 }

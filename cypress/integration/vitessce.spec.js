@@ -45,19 +45,17 @@ describe('Vitessce', () => {
       name: '-',
       description: '-',
       layers: [],
-      responsiveLayout: {
-        columns: { 1000: [0, 1] },
-        components: [
-          {
-            component: 'description',
-            props: {
-              description: message,
-            },
-            x: 0,
-            y: 0,
+      staticLayout: [
+        {
+          component: 'description',
+          props: {
+            description: message,
           },
-        ],
-      },
+          x: 0,
+          y: 0,
+          w: 12,
+        },
+      ],
     };
     // Without a route, Cypress tries to proxy the request,
     // and that doesn't seem to work for data URIs.
