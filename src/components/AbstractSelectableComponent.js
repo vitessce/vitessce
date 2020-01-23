@@ -89,7 +89,6 @@ export default class AbstractSelectableComponent extends React.Component {
         console.warn('AbstractSelectableComponent updateViewInfo from renderImagesFromView');
       },
     } = this.props;
-    console.log(this.viewInfo)
     updateViewInfo(this.viewInfo);
   }
 

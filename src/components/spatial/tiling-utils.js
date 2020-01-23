@@ -1,10 +1,10 @@
 
-export function tileToBoundingBox(x, y, z, tileSize) {
+export function tileToBoundingBox(x, y, z, maxHeight, maxWidth, tileSize) {
   return {
     west: (x * tileSize) * (2 ** (-1 * z)),
     north: (y * tileSize) * (2 ** (-1 * z)),
-    east: ((x + 1) * tileSize) * (2 ** (-1 * z)),
-    south: ((y + 1) * tileSize) * (2 ** (-1 * z)),
+    east: Math.min(maxWidth, ((x + 1) * tileSize) * (2 ** (-1 * z))),
+    south: Math.min(maxHeight, ((y + 1) * tileSize) * (2 ** (-1 * z))),
   };
 }
 
@@ -31,8 +31,8 @@ function pixelsToTileIndex(pixelCount, z, tileSize) {
 export function getTileIndices(viewport, maxZoom, minZoom, tileSize, width, height) {
   const z = Math.min(0, Math.ceil(viewport.zoom));
   const scale = tileSize * (2 ** (-1 * z));
-  const maxXTilePossible = width;
-  const maxYTilePossible = height;
+  const maxXTilePossible = Math.ceil(width / (scale));
+  const maxYTilePossible = Math.ceil(height / (scale));
   if (z <= minZoom) {
     return [{ x: 0, y: 0, z: minZoom }];
   }

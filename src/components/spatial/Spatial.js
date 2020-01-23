@@ -94,10 +94,10 @@ export default class Spatial extends AbstractSelectableComponent {
   constructor(props) {
     super(props);
     this.state.layerIsVisible = {
-      molecules: false,
-      cells: false,
+      molecules: true,
+      cells: true,
       neighborhoods: false,
-      tiff: true
+      tiff: false
     };
 
     // In Deck.gl, layers are considered light weight, and
@@ -143,7 +143,6 @@ export default class Spatial extends AbstractSelectableComponent {
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
-    console.log(this.props.view)
     return this.props.view;
   }
 
@@ -255,13 +254,50 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   renderImageLayers() {
-    const layers = this.images.map(layer => this.createTileLayer(layer));
+    const layers = this.images.map(layer => this.createImageTileLayer(layer));
     return layers;
   }
 
-  createTileLayer(layer) {
+  createImageTileLayer(layer) {
+    const [layerType, source] = layer;
+    const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)));
+    return new BaseTileLayer({
+      id: `${layerType}-${source.tileSource}-tile-layer`,
+      pickable: true,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      getTileData: ({ x, y, z }) => load(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
+      // eslint-disable-next-line  arrow-body-style
+      getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
+        return getTileIndices(viewport, maxZoomLevel, minZoomLevel,
+          source.tileSize, source.width, source.height);
+      },
+      // eslint-disable-next-line  arrow-body-style
+      tileToBoundingBox: (x, y, z) => {
+        return tileToBoundingBox(x, y, z, source.height, source.width, source.tileSize);
+      },
+      minZoom,
+      maxZoom: 0,
+      visible: this.state.layerIsVisible[layerType],
+      renderSubLayers: (props) => {
+        const {
+          bbox: {
+            west, south, east, north,
+          },
+        } = props.tile;
+        const bml = new BitmapLayer(props, {
+          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+          data: null,
+          image: props.data,
+          bounds: [west, south, east, north],
+        });
+        return bml;
+      },
+    });
+  }
+
+  createTIFFLayer() {
     const layerType = 'tiff'
-    const source = layer;
+    const source = this.tiff;
     if(source.height){
       const propSettings = {
         height: source.height * source.tileSize,
@@ -275,14 +311,14 @@ export default class Spatial extends AbstractSelectableComponent {
         getTileData: ({ x, y, z }) => loadZarr(source.channels, source.tileSize, x, y, -1 * z, Math.ceil(source.width / (2 ** -z)), this.state.gl, -minZoom),
         getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
           return getTileIndices(viewport, maxZoomLevel, minZoomLevel,
-            source.tileSize, source.width, source.height)
+            source.tileSize, source.width * source.tileSize, source.height * source.tileSize)
         },
         tileToBoundingBox: (x, y, z) => {
-          return tileToBoundingBox(x, y, z, source.tileSize)
+          return tileToBoundingBox(x, y, z, propSettings.height, propSettings.width, source.tileSize)
         },
         minZoom,
         maxZoom: 0,
-        visible: true,
+        visible: this.state.layerIsVisible.tiff,
         sliderValues: {
           redSliderValue: 10000,
           greenSliderValue: 10000,
@@ -302,7 +338,7 @@ export default class Spatial extends AbstractSelectableComponent {
             rgbTextures: props.data,
             sliderValues: sliderValues,
             bounds: [west, south, east, north],
-            visible: true
+            visible: this.state.layerIsVisible.tiff,
           });
           return xrl;
         },
@@ -361,21 +397,19 @@ export default class Spatial extends AbstractSelectableComponent {
     const layerList = [];
 
     if (images && clearPleaseWait) clearPleaseWait('images');
-    // layerList.push(...this.renderImageLayers());
+    layerList.push(...this.renderImageLayers());
 
     if (tiff && clearPleaseWait) clearPleaseWait('tiff');
-    var layer = this.createTileLayer(this.tiff)
-    if(layer){
-      layerList.push(layer);
-    }
+    layerList.push(this.createTIFFLayer())
+
     if (cells && clearPleaseWait) clearPleaseWait('cells');
-    // layerList.push(this.renderCellLayer());
+    layerList.push(this.renderCellLayer());
 
     if (neighborhoods && clearPleaseWait) clearPleaseWait('neighborhoods');
-    // layerList.push(this.renderNeighborhoodsLayer());
+    layerList.push(this.renderNeighborhoodsLayer());
 
     if (molecules && clearPleaseWait) clearPleaseWait('molecules');
-    // layerList.push(this.renderMoleculesLayer());
+    layerList.push(this.renderMoleculesLayer());
 
     return layerList;
   }
