@@ -126,7 +126,7 @@ export default class AbstractSelectableComponent extends React.Component {
 
     let deckProps = {
       views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
-      layers: (gl ? this.renderLayers() : []),
+      layers: (gl ? this.renderLayers().concat(this.renderSelectionLayers()) : []),
       initialViewState: this.getInitialViewState(),
     };
     if (tool) {
