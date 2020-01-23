@@ -5,7 +5,7 @@ import React from 'react';
 import {
   STATUS_WARN, STATUS_INFO,
   CELLS_ADD, CLUSTERS_ADD, FACTORS_ADD, GENES_ADD, IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD,
-  CLEAR_PLEASE_WAIT, TIFF_ADD
+  CLEAR_PLEASE_WAIT, TIFF_ADD,
 } from '../../events';
 
 import cellsSchema from '../../schemas/cells.schema.json';
@@ -35,7 +35,7 @@ const typeToEvent = {
   IMAGES: IMAGES_ADD,
   MOLECULES: MOLECULES_ADD,
   NEIGHBORHOODS: NEIGHBORHOODS_ADD,
-  TIFF: TIFF_ADD
+  TIFF: TIFF_ADD,
 };
 
 function warn(message) {

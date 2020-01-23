@@ -6,7 +6,7 @@ import TitleInfo from '../TitleInfo';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
   STATUS_INFO, CELLS_SELECTION, CELLS_HOVER, CLEAR_PLEASE_WAIT, VIEW_INFO,
-  CELL_SETS_VIEW, TIFF_ADD
+  CELL_SETS_VIEW, TIFF_ADD,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -18,7 +18,7 @@ export default class SpatialSubscriber extends React.Component {
       cells: {},
       selectedCellIds: new Set(),
       cellColors: null,
-      tiff: null
+      tiff: null,
     };
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }

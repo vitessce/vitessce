@@ -57,7 +57,7 @@ const vanderbiltDescription = 'High Bit Depth (uint16) Multiplex immunofluoresce
 const vanderbiltBase = {
   description: vanderbiltDescription,
   layers: [
-    'tiff'
+    'tiff',
   ].map(makeLayerNameToConfig('vanderbilt-data')),
 };
 
@@ -411,7 +411,7 @@ const configs = {
               target: [20000, 20000, 0],
             },
           },
-          x: 0, y: 0, h: 2 }
+          x: 0, y: 0, h: 2 },
       ],
     },
   },

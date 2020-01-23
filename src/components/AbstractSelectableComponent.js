@@ -16,7 +16,7 @@ export default class AbstractSelectableComponent extends React.Component {
     this.getCellCoords = this.getCellCoords.bind(this);
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.initializeViewInfo = this.initializeViewInfo.bind(this);
-    this._onWebGLInitialized = this._onWebGLInitialized.bind(this);
+    this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     const { uuid = null } = props || {};
     // Store view and viewport information in a mutable object.
     this.viewInfo = {
@@ -110,8 +110,8 @@ export default class AbstractSelectableComponent extends React.Component {
     updateViewInfo(this.viewInfo);
   }
 
-  _onWebGLInitialized(gl) {
-    this.setState({gl});
+  onWebGLInitialized(gl) {
+    this.setState({ gl });
   }
 
   render() {
@@ -126,7 +126,9 @@ export default class AbstractSelectableComponent extends React.Component {
 
     let deckProps = {
       views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
-      layers: (gl ? this.renderLayers().concat(this.renderSelectionLayers()) : []),
+      layers: (gl
+        ? this.renderLayers().concat(this.renderSelectionLayers())
+        : []),
       initialViewState: this.getInitialViewState(),
     };
     if (tool) {
@@ -148,7 +150,12 @@ export default class AbstractSelectableComponent extends React.Component {
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
         </div>
-        <DeckGL glOptions={{webgl2: true}} ref={this.deckRef} onWebGLInitialized={this._onWebGLInitialized} {...deckProps}>
+        <DeckGL
+          glOptions={{ webgl2: true }}
+          ref={this.deckRef}
+          onWebGLInitialized={this.onWebGLInitialized}
+          {...deckProps}
+        >
           {this.initializeViewInfo}
         </DeckGL>
       </React.Fragment>

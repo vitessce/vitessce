@@ -1,7 +1,6 @@
 import GL from '@luma.gl/constants';
-import {Layer, project32} from '@deck.gl/core';
-import {Model, Geometry} from '@luma.gl/core';
-import {Texture2D} from '@luma.gl/webgl'
+import { Layer, project32 } from '@deck.gl/core';
+import { Model, Geometry } from '@luma.gl/core';
 import vs from './xr-layer-vertex';
 import fs from './xr-layer-fragment';
 
@@ -17,7 +16,7 @@ const defaultProps = {
  */
 export default class XRLayer extends Layer {
   getShaders() {
-   return super.getShaders({vs, fs, modules: [project32]});
+    return super.getShaders({ vs, fs, modules: [project32] });
   }
 
   initializeState() {
@@ -29,34 +28,35 @@ export default class XRLayer extends Layer {
         type: GL.DOUBLE,
         fp64: this.use64bitPositions(),
         update: this.calculatePositions,
-        noAlloc: true
-      }
+        noAlloc: true,
+      },
     });
 
     this.setState({
       numInstances: 1,
-      positions: new Float64Array(12)
+      positions: new Float64Array(12),
     });
 
-    attributeManager.remove("instancePickingColors")
+    attributeManager.remove('instancePickingColors');
   }
 
   finalizeState() {
     super.finalizeState();
 
     if (this.state.rgbTextures) {
-      Object.values(this.state.rgbTextures).forEach((tex) => tex.delete());
+      Object.values(this.state.rgbTextures).forEach(tex => tex.delete());
     }
   }
 
-  updateState({props, oldProps, changeFlags}) {
+  updateState({ props, oldProps, changeFlags }) {
     // setup model first
     if (changeFlags.extensionsChanged) {
-      const {gl} = this.context;
+      const { gl } = this.context;
       if (this.state.model) {
         this.state.model.delete();
       }
-      this.setState({model: this._getModel(gl)});
+      // eslint-disable-next-line  no-underscore-dangle
+      this.setState({ model: this._getModel(gl) });
       this.getAttributeManager().invalidateAll();
     }
     if (changeFlags.dataChanged) {
@@ -70,35 +70,36 @@ export default class XRLayer extends Layer {
     }
   }
 
+  // eslint-disable-next-line  no-underscore-dangle
   _getModel(gl) {
-     if (!gl) {
-       return null;
-     }
+    if (!gl) {
+      return null;
+    }
 
-     /*
+    /*
        0,0 --- 1,0
         |       |
        0,1 --- 1,1
      */
-     return new Model(
-       gl,
-       Object.assign({}, this.getShaders(), {
-         id: this.props.id,
-         geometry: new Geometry({
-           drawMode: GL.TRIANGLE_FAN,
-           vertexCount: 4,
-           attributes: {
-             texCoords: new Float32Array([0, 1, 0, 0, 1, 0, 1, 1])
-           }
-         }),
-         isInstanced: false
-       })
-     );
-   }
+    return new Model(
+      gl,
+      Object.assign({}, this.getShaders(), {
+        id: this.props.id,
+        geometry: new Geometry({
+          drawMode: GL.TRIANGLE_FAN,
+          vertexCount: 4,
+          attributes: {
+            texCoords: new Float32Array([0, 1, 0, 0, 1, 0, 1, 1]),
+          },
+        }),
+        isInstanced: false,
+      }),
+    );
+  }
 
   calculatePositions(attributes) {
-    const {positions} = this.state;
-    const {bounds} = this.props;
+    const { positions } = this.state;
+    const { bounds } = this.props;
     // bounds as [minX, minY, maxX, maxY]
     /*
       (minX0, maxY3) ---- (maxX2, maxY3)
@@ -107,6 +108,7 @@ export default class XRLayer extends Layer {
              |                  |
       (minX0, minY1) ---- (maxX2, minY1)
    */
+    /* eslint-disable prefer-destructuring */
     positions[0] = bounds[0];
     positions[1] = bounds[1];
     positions[2] = 0;
@@ -122,37 +124,34 @@ export default class XRLayer extends Layer {
     positions[9] = bounds[2];
     positions[10] = bounds[1];
     positions[11] = 0;
+    /* eslint-disable prefer-destructuring */
 
+    // eslint-disable-next-line no-param-reassign
     attributes.value = positions;
   }
 
-  draw({uniforms}) {
-    const {rgbTextures, model} = this.state;
-    if(rgbTextures && model){
+  draw({ uniforms }) {
+    const { rgbTextures, model } = this.state;
+    if (rgbTextures && model) {
       model
         .setUniforms(
           Object.assign({}, uniforms, {
             ...this.props.sliderValues,
-            ...rgbTextures
-          })
+            ...rgbTextures,
+          }),
         )
         .draw();
     }
   }
 
   loadTexture(textures) {
-    const {gl} = this.context;
-
-    if(textures instanceof Promise){
+    if (textures instanceof Promise) {
       textures.then((textureList) => {
-        this.setState({rgbTextures: Object.assign({}, ...textureList)});
-      })
-    } else if(textures instanceof Object){
-      this.setState({rgbTextures: Object.assign({}, ...textures)});
+        this.setState({ rgbTextures: Object.assign({}, ...textureList) });
+      });
+    } else if (textures instanceof Object) {
+      this.setState({ rgbTextures: Object.assign({}, ...textures) });
     }
-
-
-
   }
 }
 
