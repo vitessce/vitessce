@@ -55,7 +55,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["name", "description", "layers"],
+  "required": ["name", "layers"],
   "properties": {
     "name": { "type": "string" },
     "public": { "type": "boolean" },

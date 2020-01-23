@@ -12,8 +12,10 @@ export CI=true
 PATH=$PATH:`npm bin`
 
 start changelog
-diff CHANGELOG.md <(curl https://raw.githubusercontent.com/hubmapconsortium/vitessce/master/CHANGELOG.md) \
-  && die 'Update CHANGELOG.md'
+if [ "$TRAVIS_BRANCH" != 'master' ]; then
+  diff CHANGELOG.md <(curl https://raw.githubusercontent.com/hubmapconsortium/vitessce/master/CHANGELOG.md) \
+    && die 'Update CHANGELOG.md'
+fi
 end changelog
 
 start lint

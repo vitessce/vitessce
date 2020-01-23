@@ -3,6 +3,8 @@
 ## 0.0.23 - in progress
 ### Added
 - HTTP headers to pass can be specified in the layers of the viewconf.
+### Changed
+- Fix merge-to-master builds on Travis.
 
 ## [0.0.22](https://www.npmjs.com/package/vitessce/v/0.0.22) - 2019-01-22
 ### Added
@@ -24,6 +26,7 @@
 - Removed Docz and .mdx files and update package.json.
 ### Added
 - Travis checks that changelog was updated.
+- Links to component demos.
 - Top-level CSS rule to keep component styles from leaking out.
 ### Changed
 - CSS filename in UMD no longer contains hash.
