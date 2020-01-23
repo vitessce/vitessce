@@ -62,7 +62,20 @@ const configs = {
       {
         name: 'cells',
         type: 'CELLS',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release/linnarsson/linnarsson.cells.json',
+        url: `${urlPrefix}/linnarsson/linnarsson.cells.json`,
+        requestInit: {
+          // Where the client checks that the value is from an enumeration,
+          // I've chosen one of the allowed values,
+          // but nothing on our S3 actually needs any of these.
+          method: 'GET',
+          headers: { 'x-foo': 'FAKE' },
+          mode: 'cors',
+          credentials: 'omit',
+          cache: 'no-store',
+          redirect: 'error',
+          referrer: 'FAKE',
+          integrity: 'FAKE',
+        },
       },
     ],
     name: 'Linnarsson, just scatterplot',

@@ -17,5 +17,6 @@ FAILURES=$(
 )
 
 if [[ $FAILURES ]]; then
-  die "$FAILURES"
+  die "Check that 'additionalProperties' & 'required' & 'properties' are provided:
+$FAILURES"
 fi

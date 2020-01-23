@@ -5,7 +5,18 @@
     {
       "name": "fake",
       "type": "FAKE",
-      "url": "http://example.com"
+      "url": "http://example.com",
+      "requestInit": {
+        "method": "POST",
+        "headers": {"x-foo": "bar"},
+        "body": "Body only valid with POSTs.",
+        "mode": "cors",
+        "credentials": "omit",
+        "cache": "no-store",
+        "redirect": "error",
+        "referrer": "foo-bar",
+        "integrity": "foo"
+      }
     }
   ],
   "responsiveLayout": {

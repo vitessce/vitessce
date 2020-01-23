@@ -20,6 +20,22 @@
         }
       }
     },
+    "requestInit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "method": { "type": "string" },
+        "headers": { "type": "object" },
+        "body": { "type": "string" },
+        "mode": { "type": "string" },
+        "credentials": { "type": "string" },
+        "cache": { "type": "string" },
+        "redirect": { "type": "string" },
+        "referrer": { "type": "string" },
+        "integrity": { "type": "string" }
+      }
+    },
     "responsiveLayout": {
       "type": "object",
       "additionalProperties": false,
@@ -53,7 +69,8 @@
         "properties": {
           "name": { "type": "string" },
           "type": { "type": "string" },
-          "url": { "type": "string" }
+          "url": { "type": "string" },
+          "requestInit": { "$ref": "#/definitions/requestInit" }
         }
       }
     },
