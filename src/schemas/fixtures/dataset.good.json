@@ -7,9 +7,9 @@
       "type": "FAKE",
       "url": "http://example.com",
       "requestInit": {
-        "method": "GET",
+        "method": "POST",
         "headers": {"x-foo": "bar"},
-        "body": "... but GET requests can't actually have a body, so this would fail.",
+        "body": "Body only valid with POSTs.",
         "mode": "cors",
         "credentials": "omit",
         "cache": "no-store",
