@@ -318,7 +318,7 @@ export default class Spatial extends AbstractSelectableComponent {
         },
         minZoom,
         maxZoom: 0,
-        visible: this.state.layerIsVisible.tiff,
+        visible: true,
         sliderValues: {
           redSliderValue: 10000,
           greenSliderValue: 10000,
@@ -338,7 +338,7 @@ export default class Spatial extends AbstractSelectableComponent {
             rgbTextures: props.data,
             sliderValues: sliderValues,
             bounds: [west, south, east, north],
-            visible: this.state.layerIsVisible.tiff,
+            visible: true,
           });
           return xrl;
         },
