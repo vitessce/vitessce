@@ -45,7 +45,7 @@ export default class XRLayer extends Layer {
     super.finalizeState();
 
     if (this.state.rgbTextures) {
-      this.state.rgbTextures.delete();
+      Object.values(this.state.rgbTextures).forEach((tex) => tex.delete());
     }
   }
 
@@ -59,8 +59,7 @@ export default class XRLayer extends Layer {
       this.setState({model: this._getModel(gl)});
       this.getAttributeManager().invalidateAll();
     }
-
-    if (props.rgbTextures !== oldProps.rgbTextures) {
+    if (changeFlags.dataChanged) {
       this.loadTexture(props.rgbTextures);
     }
 
@@ -138,7 +137,6 @@ export default class XRLayer extends Layer {
 
   draw({uniforms}) {
     const {rgbTextures, model} = this.state;
-    console.log(rgbTextures)
     if(rgbTextures && model){
       model
         .setUniforms(
@@ -154,12 +152,15 @@ export default class XRLayer extends Layer {
   loadTexture(textures) {
     const {gl} = this.context;
 
-    if (this.state.rgbTextures) {
-      this.state.rgbTextures.delete();
+    if(textures instanceof Promise){
+      textures.then((textureList) => {
+        this.setState({rgbTextures: Object.assign({}, ...textureList)});
+      })
+    } else if(textures instanceof Object){
+      this.setState({rgbTextures: Object.assign({}, ...textures)});
     }
-    textures.then((textureList) => {
-      this.setState({rgbTextures: Object.assign({}, ...textureList)});
-    })
+
+
 
   }
 }

@@ -89,6 +89,7 @@ export default class AbstractSelectableComponent extends React.Component {
         console.warn('AbstractSelectableComponent updateViewInfo from renderImagesFromView');
       },
     } = this.props;
+    console.log(this.viewInfo)
     updateViewInfo(this.viewInfo);
   }
 
@@ -126,7 +127,7 @@ export default class AbstractSelectableComponent extends React.Component {
 
     let deckProps = {
       views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
-      layers: (gl ? this.renderLayers().concat(this.renderSelectionLayers()) : []),
+      layers: (gl ? this.renderLayers() : []),
       initialViewState: this.getInitialViewState(),
     };
     if (tool) {
@@ -148,7 +149,7 @@ export default class AbstractSelectableComponent extends React.Component {
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
         </div>
-        <DeckGL ref={this.deckRef} onWebGLInitialized={this._onWebGLInitialized} {...deckProps}>
+        <DeckGL glOptions={{webgl2: true}} ref={this.deckRef} onWebGLInitialized={this._onWebGLInitialized} {...deckProps}>
           {this.initializeViewInfo}
         </DeckGL>
       </React.Fragment>

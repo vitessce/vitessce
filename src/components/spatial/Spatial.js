@@ -13,11 +13,15 @@ import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
 import { slice, openArray } from 'zarr'
 
+
+var tilingWidth = {}
+var zarrArrays = {}
+
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
 
-function loadZarr(sourceChannels, tileSize, x, y, z, width, gl) {
+function loadZarr(sourceChannels, tileSize, x, y, z, width, gl, minZoom) {
   const zoom = z
   const textureNames = ['redTexture', 'greenTexture', 'blueTexture']
   const configList = sourceChannels.map((channel, i) => {
@@ -32,13 +36,18 @@ function loadZarr(sourceChannels, tileSize, x, y, z, width, gl) {
     }
   })
   const stride = tileSize * tileSize
-  var arrSlice = slice(stride * 4 * y + stride * x, stride * 4 * y + stride * (x+1));
-  var configListPromises = configList.map((config) => getTexture(config, arrSlice, gl, tileSize))
+  var configListPromises = configList.map((config) => getTexture(config, gl, tileSize, x, y, z, stride, width))
   return Promise.all(configListPromises).then((list) => list)
 }
 
-async function getTexture(config, arrSlice, gl, tileSize){
-    var arr = await openArray(config.zarrConfig)
+async function getTexture(config, gl, tileSize, x, y, z, stride, width){
+    var arrSlice = slice(stride * width * y + stride * x, stride * width * y + stride * (x+1));
+    if(!zarrArrays[config.zarrConfig.store + config.zarrConfig.path]) {
+      var arr = await openArray(config.zarrConfig)
+      zarrArrays[config.zarrConfig.store + config.zarrConfig.path] = arr
+    } else {
+      arr = zarrArrays[config.zarrConfig.store + config.zarrConfig.path]
+    }
     var dataSlice = await arr.get([arrSlice,])
     const data = dataSlice.data
     const formats = data instanceof Uint8Array
@@ -62,7 +71,6 @@ async function getTexture(config, arrSlice, gl, tileSize){
     )
     const channelType = config.channelType
     const texObj = {}
-    console.log(data)
     texObj[channelType] = new Texture2D(gl, {
       width: tileSize,
       height: tileSize,
@@ -135,6 +143,7 @@ export default class Spatial extends AbstractSelectableComponent {
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
+    console.log(this.props.view)
     return this.props.view;
   }
 
@@ -263,31 +272,35 @@ export default class Spatial extends AbstractSelectableComponent {
         id: `${layerType}-tile-layer`,
         pickable: false,
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        getTileData: ({ x, y, z }) => loadZarr(source.channels, source.tileSize, x, y, -1 * z, source.width, this.state.gl),
+        getTileData: ({ x, y, z }) => loadZarr(source.channels, source.tileSize, x, y, -1 * z, Math.ceil(source.width / (2 ** -z)), this.state.gl, -minZoom),
         getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
           return getTileIndices(viewport, maxZoomLevel, minZoomLevel,
-            source.tileSize, propSettings.width, propSettings.height)
+            source.tileSize, source.width, source.height)
         },
         tileToBoundingBox: (x, y, z) => {
-          return tileToBoundingBox(x, y, z, propSettings.height, propSettings.width, source.tileSize)
+          return tileToBoundingBox(x, y, z, source.tileSize)
         },
         minZoom,
         maxZoom: 0,
         visible: true,
+        sliderValues: {
+          redSliderValue: 10000,
+          greenSliderValue: 10000,
+          blueSliderValue: 10000
+        },
         renderSubLayers: (props) => {
           const {
             bbox: {
               west, south, east, north,
             },
           } = props.tile;
+          const sliderValues = props.sliderValues
           const xrl = new XRLayer(props, {
             id: `XR-Layer-${west}-${south}-${east}-${north}`,
             pickable: false,
             coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
             rgbTextures: props.data,
-            sliderValues: {
-              redSliderValue: 10000, greenSliderValue: 10000, blueSliderValue: 10000
-            },
+            sliderValues: sliderValues,
             bounds: [west, south, east, north],
             visible: true
           });
@@ -363,6 +376,7 @@ export default class Spatial extends AbstractSelectableComponent {
 
     if (molecules && clearPleaseWait) clearPleaseWait('molecules');
     // layerList.push(this.renderMoleculesLayer());
+
     return layerList;
   }
 }
