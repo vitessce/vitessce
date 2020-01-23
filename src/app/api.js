@@ -64,16 +64,17 @@ const configs = {
         type: 'CELLS',
         url: `${urlPrefix}/linnarsson/linnarsson.cells.json`,
         requestInit: {
+          // Where the client checks that the value is from an enumeration,
+          // I've chosen one of the allowed values,
+          // but nothing on our S3 actually needs any of these.
           method: 'GET',
-          headers: { 'x-foo': 'bar' },
-          // GET requests can not have body.
-          // body: 'foo',
+          headers: { 'x-foo': 'FAKE' },
           mode: 'cors',
           credentials: 'omit',
           cache: 'no-store',
           redirect: 'error',
-          referrer: 'foo-bar',
-          integrity: 'foo',
+          referrer: 'FAKE',
+          integrity: 'FAKE',
         },
       },
     ],
