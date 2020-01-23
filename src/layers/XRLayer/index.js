@@ -1,1 +1,1 @@
-export XRLayer from './xr-layer';
+export { XRLayer } from './xr-layer';

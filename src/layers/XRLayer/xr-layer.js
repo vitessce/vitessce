@@ -14,7 +14,7 @@ const defaultProps = {
  * @param {number} props.transparentColor - color to interpret transparency to
  * @param {number} props.tintColor - color bias
  */
-export default class XRLayer extends Layer {
+export class XRLayer extends Layer {
   getShaders() {
     return super.getShaders({ vs, fs, modules: [project32] });
   }
