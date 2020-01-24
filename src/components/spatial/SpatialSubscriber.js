@@ -6,7 +6,7 @@ import TitleInfo from '../TitleInfo';
 import {
   IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
   STATUS_INFO, CELLS_SELECTION, CELLS_HOVER, CLEAR_PLEASE_WAIT, VIEW_INFO,
-  CELL_SETS_VIEW, TIFF_ADD,
+  CELL_SETS_VIEW, RASTER_ADD,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -18,7 +18,7 @@ export default class SpatialSubscriber extends React.Component {
       cells: {},
       selectedCellIds: new Set(),
       cellColors: null,
-      tiff: null,
+      raster: null,
     };
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
@@ -45,8 +45,8 @@ export default class SpatialSubscriber extends React.Component {
     this.cellsColorToken = PubSub.subscribe(
       CELLS_COLOR, this.cellsColorSubscriber.bind(this),
     );
-    this.tiffAddToken = PubSub.subscribe(
-      TIFF_ADD, this.tiffAddSubscriber.bind(this),
+    this.rasterAddToken = PubSub.subscribe(
+      RASTER_ADD, this.rasterAddSubscriber.bind(this),
     );
   }
 
@@ -63,7 +63,7 @@ export default class SpatialSubscriber extends React.Component {
     PubSub.unsubscribe(this.cellsSelectionToken);
     PubSub.unsubscribe(this.cellsColorToken);
     PubSub.unsubscribe(this.cellSetsViewToken);
-    PubSub.unsubscribe(this.tiffAddToken);
+    PubSub.unsubscribe(this.rasterAddToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
@@ -74,8 +74,8 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ images });
   }
 
-  tiffAddSubscriber(msg, tiff) {
-    this.setState({ tiff });
+  rasterAddSubscriber(msg, raster) {
+    this.setState({ raster });
   }
 
   moleculesAddSubscriber(msg, molecules) {

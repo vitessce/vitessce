@@ -22,6 +22,8 @@ export class XRLayer extends Layer {
   initializeState() {
     const attributeManager = this.getAttributeManager();
 
+    // positioning logic for the vertex shader to pass onwards
+    // this is standard DeckGL code that exists in almost all of their layers
     attributeManager.add({
       positions: {
         size: 3,
@@ -37,6 +39,8 @@ export class XRLayer extends Layer {
       positions: new Float64Array(12),
     });
 
+    // we don't want or need picking since it would mean
+    // we can't do high bit depth rendering (see deckgl docs for why)
     attributeManager.remove('instancePickingColors');
   }
 
@@ -59,6 +63,8 @@ export class XRLayer extends Layer {
       this.setState({ model: this._getModel(gl) });
       this.getAttributeManager().invalidateAll();
     }
+
+    // reload texture on data change
     if (changeFlags.dataChanged) {
       this.loadTexture(props.rgbTextures);
     }

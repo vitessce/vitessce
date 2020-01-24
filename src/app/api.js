@@ -57,7 +57,7 @@ const vanderbiltDescription = 'High Bit Depth (uint16) Multiplex immunofluoresce
 const vanderbiltBase = {
   description: vanderbiltDescription,
   layers: [
-    'tiff',
+    'raster',
   ].map(makeLayerNameToConfig('vanderbilt-data')),
 };
 
@@ -173,8 +173,7 @@ const configs = {
   'linnarsson-2018-just-spatial': {
     ...linnarssonBaseNoClusters,
     name: 'Linnarsson (just spatial)',
-    public: true,
-    responsiveLayout: {
+    staticLayout: {
       columns: {
         1400: [0, 12, 14],
         1200: [0, 10, 12],

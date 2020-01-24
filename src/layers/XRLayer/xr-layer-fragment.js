@@ -22,6 +22,9 @@ void main() {
   uvec4 redTextureColor = texture(redTexture, vTexCoord);
   uvec4 greenTextureColor = texture(greenTexture, vTexCoord);
   uvec4 blueTextureColor = texture(blueTexture, vTexCoord);
-  color = vec4(vec3(float(redTextureColor.r) / float(redSliderValue), float(greenTextureColor.r) / float(blueSliderValue), float(blueTextureColor.r) / float(greenSliderValue)), 1);
+  color = vec4(vec3(float(redTextureColor.r) / float(redSliderValue),
+                    float(greenTextureColor.r) / float(greenSliderValue),
+                    float(blueTextureColor.r) / float(blueSliderValue)),
+              1);
 }
 `;

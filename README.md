@@ -74,7 +74,7 @@ Finally, update the CHANGELOG.md to point to the new release on NPM.
 
 - [vitessce-grid](https://github.com/hms-dbmi/vitessce-grid): Wrapper for [`react-grid-layout`](https://github.com/STRML/react-grid-layout#readme)
 - [vitessce-data](https://github.com/hms-dbmi/vitessce-data): Scripts to generate sample data
-- [ome-tiff-tiler](https://github.com/hms-dbmi/ome-tiff-tiler): Docker container to generate tiles from OME-TIFF
+- [ome-tiff-tiler](https://github.com/hms-dbmi/ome-tiff-tiler): Docker container to generate tiles from OME-RASTER
 
 ## Old Presentations
 

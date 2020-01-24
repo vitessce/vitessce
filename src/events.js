@@ -38,5 +38,5 @@ export const STATUS = 'status';
 export const STATUS_WARN = `${STATUS}.warn`;
 export const STATUS_INFO = `${STATUS}.info`;
 
-export const TIFF = 'tiff';
-export const TIFF_ADD = TIFF + ADD;
+export const RASTER = 'raster';
+export const RASTER_ADD = RASTER + ADD;

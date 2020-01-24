@@ -5,7 +5,7 @@ import React from 'react';
 import {
   STATUS_WARN, STATUS_INFO,
   CELLS_ADD, CLUSTERS_ADD, FACTORS_ADD, GENES_ADD, IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD,
-  CLEAR_PLEASE_WAIT, TIFF_ADD,
+  CLEAR_PLEASE_WAIT, RASTER_ADD,
 } from '../../events';
 
 import cellsSchema from '../../schemas/cells.schema.json';
@@ -15,7 +15,7 @@ import genesSchema from '../../schemas/genes.schema.json';
 import imagesSchema from '../../schemas/images.schema.json';
 import moleculesSchema from '../../schemas/molecules.schema.json';
 import neighborhoodsSchema from '../../schemas/neighborhoods.schema.json';
-import tiffSchema from '../../schemas/tiff.schema.json';
+import rasterSchema from '../../schemas/raster.schema.json';
 
 const typeToSchema = {
   CELLS: cellsSchema,
@@ -25,7 +25,7 @@ const typeToSchema = {
   IMAGES: imagesSchema,
   MOLECULES: moleculesSchema,
   NEIGHBORHOODS: neighborhoodsSchema,
-  TIFF: tiffSchema,
+  RASTER: rasterSchema,
 };
 const typeToEvent = {
   CELLS: CELLS_ADD,
@@ -35,7 +35,7 @@ const typeToEvent = {
   IMAGES: IMAGES_ADD,
   MOLECULES: MOLECULES_ADD,
   NEIGHBORHOODS: NEIGHBORHOODS_ADD,
-  TIFF: TIFF_ADD,
+  RASTER: RASTER_ADD,
 };
 
 function warn(message) {

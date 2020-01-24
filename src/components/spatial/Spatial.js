@@ -13,41 +13,42 @@ import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
 
-const zarrArrays = {};
+const zarrArraysCache = {};
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
 
-async function getTexture(config, gl, tileSize, x, y, z, stride, width) {
-  const arrSlice = slice(stride * width * y + stride * x, stride * width * y + stride * (x + 1));
+// TODO: Clean all this up with
+// https://github.com/hubmapconsortium/vitessce/issues/422
+// and creation of new NPM published component
+// Currently this function fetches the channels from a set of zarr files whose
+// location is passed in as a config for a single "tile index"
+async function getTexture({
+  config, gl, tileSize, x, y, stride, tilingWidth,
+}) {
+  const xStride = stride * tilingWidth * y + stride * x;
+  const yStride = stride * tilingWidth * y + stride * (x + 1);
+  const arrSlice = slice(xStride, yStride);
   const zarrKey = config.zarrConfig.store + config.zarrConfig.path;
-  if (!zarrArrays[zarrKey]) {
-    zarrArrays[zarrKey] = await openArray(config.zarrConfig);
+  if (!(zarrKey in zarrArraysCache)) {
+    zarrArraysCache[zarrKey] = await openArray(config.zarrConfig);
   }
-  const arr = zarrArrays[zarrKey];
+  const arr = zarrArraysCache[zarrKey];
   const dataSlice = await arr.get([arrSlice]);
   const { data } = dataSlice;
-  // eslint-disable-next-line no-nested-ternary
-  const formats = data instanceof Uint8Array
-    ? {
-      format: GL.R8UI,
-      dataFormat: GL.RED_INTEGER,
-      type: GL.UNSIGNED_BYTE,
-    }
-    : (
-      data instanceof Uint16Array
-        ? {
-          format: GL.R16UI,
-          dataFormat: GL.RED_INTEGER,
-          type: GL.UNSIGNED_SHORT,
-        }
-        : {
-          format: GL.R32UI,
-          dataFormat: GL.RED_INTEGER,
-          type: GL.UNSIGNED_INT,
-        }
-    );
+  const isInt8 = data instanceof Uint8Array;
+  const isInt16 = data instanceof Uint16Array;
+  const isInt32 = data instanceof Uint32Array;
+  const formats = {
+    format: (isInt8 && GL.R8UI)
+         || (isInt16 && GL.R16UI)
+         || (isInt32 && GL.R32UI),
+    dataFormat: GL.RED_INTEGER,
+    type: (isInt8 && GL.UNSIGNED_BYTE)
+          || (isInt16 && GL.UNSIGNED_SHORT)
+          || (isInt32 && GL.UNSIGNED_INT),
+  };
   const { channelType } = config;
   const texObj = {};
   texObj[channelType] = new Texture2D(gl, {
@@ -66,22 +67,26 @@ async function getTexture(config, gl, tileSize, x, y, z, stride, width) {
   return texObj;
 }
 
-function loadZarr(sourceChannels, tileSize, x, y, z, width, gl) {
-  const zoom = z;
+function loadZarr({
+  sourceChannels, tileSize, x, y, z, width, gl,
+}) {
+  const tilingWidth = Math.ceil(width / (tileSize * (2 ** z)));
   const textureNames = ['redTexture', 'greenTexture', 'blueTexture'];
   const configList = sourceChannels.map((channel, i) => ({
     channelName: channel.name,
     channelType: textureNames[i],
     zarrConfig: {
       store: `${channel.tileSource}/`,
-      path: `pyramid_${zoom}.zarr`,
+      path: `pyramid_${z}.zarr`,
       mode: 'r',
     },
   }));
   const stride = tileSize * tileSize;
   // eslint-disable-next-line  arrow-body-style
   const configListPromises = configList.map((config) => {
-    return getTexture(config, gl, tileSize, x, y, z, stride, width);
+    return getTexture({
+      config, gl, tileSize, x, y, stride, tilingWidth,
+    });
   });
   return Promise.all(configListPromises).then(list => list);
 }
@@ -97,7 +102,7 @@ export default class Spatial extends AbstractSelectableComponent {
       molecules: true,
       cells: true,
       neighborhoods: false,
-      tiff: false,
+      raster: false,
     };
 
     // In Deck.gl, layers are considered light weight, and
@@ -107,7 +112,7 @@ export default class Spatial extends AbstractSelectableComponent {
     this.cellsData = [];
     this.neighborhoodsData = [];
     this.images = [];
-    this.tiff = [];
+    this.raster = [];
     this.maxHeight = 0;
     this.maxWidth = 0;
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
@@ -295,35 +300,42 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  createTIFFLayer() {
-    const layerType = 'tiff';
-    const source = this.tiff;
+  createRasterLayer() {
+    const layerType = 'raster';
+    const source = this.raster;
     if (source.height) {
       const propSettings = {
         height: source.height * source.tileSize,
         width: source.width * source.tileSize,
+        tileSize: source.tileSize,
+        sourceChannels: source.channels,
       };
-      const minZoom = Math.floor(-1 * Math.log2(Math.max(propSettings.height, propSettings.width)));
+      const minZoomLevel = Math.floor(
+        -1 * Math.log2(Math.max(propSettings.height, propSettings.width)),
+      );
       return new BaseTileLayer({
         id: `${layerType}-tile-layer`,
         pickable: false,
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
         // eslint-disable-next-line  arrow-body-style
         getTileData: ({ x, y, z }) => {
-          return loadZarr(source.channels, source.tileSize, x, y, -1 * z,
-            Math.ceil(source.width / (2 ** -z)), this.state.gl);
+          return loadZarr({
+            x, y, z: -1 * z, gl: this.state.gl, ...propSettings,
+          });
         },
         // eslint-disable-next-line  arrow-body-style
-        getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
-          return getTileIndices(viewport, maxZoomLevel, minZoomLevel, source.tileSize,
-            source.width * source.tileSize, source.height * source.tileSize);
+        getTileIndices: (viewport, maxZoom, minZoom) => {
+          return getTileIndices({
+            viewport, maxZoom, minZoom, ...propSettings,
+          });
         },
         // eslint-disable-next-line  arrow-body-style
         tileToBoundingBox: (x, y, z) => {
-          return tileToBoundingBox(x, y, z, propSettings.height,
-            propSettings.width, source.tileSize);
+          return tileToBoundingBox({
+            x, y, z, ...propSettings,
+          });
         },
-        minZoom,
+        minZoom: minZoomLevel,
         maxZoom: 0,
         visible: true,
         sliderValues: {
@@ -374,7 +386,7 @@ export default class Spatial extends AbstractSelectableComponent {
       neighborhoods,
       images,
       clearPleaseWait,
-      tiff,
+      raster,
     } = this.props;
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
@@ -398,8 +410,8 @@ export default class Spatial extends AbstractSelectableComponent {
     if (images && this.images.length === 0) {
       this.images = Object.entries(images);
     }
-    if (tiff && this.tiff.length === 0) {
-      this.tiff = tiff;
+    if (raster && this.raster.length === 0) {
+      this.raster = raster;
     }
     // Append each layer to the list.
     const layerList = [];
@@ -407,8 +419,8 @@ export default class Spatial extends AbstractSelectableComponent {
     if (images && clearPleaseWait) clearPleaseWait('images');
     layerList.push(...this.renderImageLayers());
 
-    if (tiff && clearPleaseWait) clearPleaseWait('tiff');
-    layerList.push(this.createTIFFLayer());
+    if (raster && clearPleaseWait) clearPleaseWait('raster');
+    layerList.push(this.createRasterLayer());
 
     if (cells && clearPleaseWait) clearPleaseWait('cells');
     layerList.push(this.renderCellLayer());
