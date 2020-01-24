@@ -55,7 +55,8 @@ async function getTexture({
     width: tileSize,
     height: tileSize,
     data,
-    // we don't want or need mimaps
+    // We don't want or need mimaps.
+    // https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap
     mipmaps: false,
     parameters: {
       // NEAREST for integer data
