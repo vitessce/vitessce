@@ -351,7 +351,7 @@ export default class Spatial extends AbstractSelectableComponent {
           } = props.tile;
           const { sliderValues } = props;
           const xrl = new XRLayer(props, {
-            id: `XR-Layer-${west}-${south}-${east}-${north}`,
+            id: `XR-Layer-w${west}-s${south}-e${east}-n${north}`,
             pickable: false,
             coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
             rgbTextures: props.data,
