@@ -31,7 +31,7 @@
   "patternProperties": {
     ".": {
       "additionalProperties": false,
-      "required": ["mappings", "xy", "genes", "factors", "poly"],
+      "required": [],
       "properties": {
         "mappings": {
           "type": "object",

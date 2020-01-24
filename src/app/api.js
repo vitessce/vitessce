@@ -56,6 +56,76 @@ const wangBase = {
 /* eslint-disable object-property-newline */
 /* eslint-disable object-curly-newline */
 const configs = {
+  'just-scatter': {
+    public: false,
+    layers: [
+      {
+        name: 'cells',
+        type: 'CELLS',
+        url: `${urlPrefix}/linnarsson/linnarsson.cells.json`,
+        requestInit: {
+          // Where the client checks that the value is from an enumeration,
+          // I've chosen one of the allowed values,
+          // but nothing on our S3 actually needs any of these.
+          method: 'GET',
+          headers: { 'x-foo': 'FAKE' },
+          mode: 'cors',
+          credentials: 'omit',
+          cache: 'no-store',
+          redirect: 'error',
+          referrer: 'FAKE',
+          integrity: 'FAKE',
+        },
+      },
+    ],
+    name: 'Linnarsson, just scatterplot',
+    staticLayout: [
+      {
+        component: 'scatterplot',
+        props: {
+          mapping: 't-SNE',
+          view: {
+            zoom: 0.75,
+            target: [0, 0, 0],
+          },
+        },
+        x: 0, y: 0, w: 12, h: 2,
+      },
+    ],
+  },
+  'just-scatter-expression': {
+    public: false,
+    layers: [
+      {
+        name: 'cells',
+        type: 'CELLS',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release/linnarsson/linnarsson.cells.json',
+      },
+      {
+        name: 'genes',
+        type: 'GENES',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release/linnarsson/linnarsson.genes.json',
+      },
+    ],
+    name: 'Linnarsson, just scatterplot and expression',
+    staticLayout: [
+      {
+        component: 'scatterplot',
+        props: {
+          mapping: 't-SNE',
+          view: {
+            zoom: 0.75,
+            target: [0, 0, 0],
+          },
+        },
+        x: 0, y: 0, w: 8, h: 2,
+      },
+      {
+        component: 'genes',
+        x: 8, y: 2, w: 4, h: 2,
+      },
+    ],
+  },
   'linnarsson-2018': {
     ...linnarssonBase,
     name: 'Linnarsson',
