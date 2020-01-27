@@ -25,17 +25,36 @@
       "additionalProperties": false,
       "required": [],
       "properties": {
-        "method": { "type": "string" },
-        "headers": { "type": "object" },
-        "body": { "type": "string" },
-        "mode": { "type": "string" },
-        "credentials": { "type": "string" },
-        "cache": { "type": "string" },
-        "redirect": { "type": "string" },
-        "referrer": { "type": "string" },
-        "integrity": { "type": "string" }
+        "method": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "body": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "string"
+        },
+        "cache": {
+          "type": "string"
+        },
+        "redirect": {
+          "type": "string"
+        },
+        "referrer": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string"
+        }
       }
-    },
+    }
+  },
   "additionalProperties": false,
   "required": ["name", "layers"],
   "properties": {
