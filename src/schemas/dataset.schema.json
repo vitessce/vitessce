@@ -25,32 +25,33 @@
       "additionalProperties": false,
       "required": [],
       "properties": {
-        "method": { "type": "string" },
-        "headers": { "type": "object" },
-        "body": { "type": "string" },
-        "mode": { "type": "string" },
-        "credentials": { "type": "string" },
-        "cache": { "type": "string" },
-        "redirect": { "type": "string" },
-        "referrer": { "type": "string" },
-        "integrity": { "type": "string" }
-      }
-    },
-    "responsiveLayout": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["columns", "components"],
-      "properties": {
-        "columns": {
-          "type": "object",
-          "patternProperties": {
-            ".": {
-              "type": "array",
-              "items": { "type": "number" }
-            }
-          }
+        "method": {
+          "type": "string"
         },
-        "components": { "$ref": "#/definitions/components" }
+        "headers": {
+          "type": "object"
+        },
+        "body": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "string"
+        },
+        "cache": {
+          "type": "string"
+        },
+        "redirect": {
+          "type": "string"
+        },
+        "referrer": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string"
+        }
       }
     }
   },
@@ -74,7 +75,6 @@
         }
       }
     },
-    "responsiveLayout": { "$ref": "#/definitions/responsiveLayout" },
     "staticLayout": { "$ref": "#/definitions/components" }
   }
 }
