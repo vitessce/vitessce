@@ -41,10 +41,12 @@ export default class PubSubVitessceGrid extends React.Component {
       const { name } = props.config;
       const dataSetSavedLayout = storageSavedLayouts[name];
       // update config layout with user's saved views
-      for (let i = 0; i < dataSetSavedLayout.length; i += 1) {
-        dataSetSavedLayout[i] = { ...props.config.staticLayout[i], ...dataSetSavedLayout[i] };
+      if (dataSetSavedLayout) {
+        for (let i = 0; i < dataSetSavedLayout.length; i += 1) {
+          dataSetSavedLayout[i] = { ...props.config.staticLayout[i], ...dataSetSavedLayout[i] };
+        }
+        return dataSetSavedLayout;
       }
-      if (dataSetSavedLayout) return dataSetSavedLayout;
       return props.config.staticLayout;
     };
     this.state = { allReady: false };
