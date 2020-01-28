@@ -4,30 +4,15 @@ import VitessceGrid from 'vitessce-grid';
 import { LayerPublisher } from '../components/layerpublisher';
 
 function getFromLS(key) {
-  let ls = {};
-  if (global.localStorage) {
+  let ls;
+  if (window.localStorage) {
     try {
-      ls = JSON.parse(global.localStorage.getItem(key)) || {};
+      ls = JSON.parse(window.localStorage.getItem(key)) || {};
     } catch (e) {
-      console.error('Error accessing vitGrid in local storage.');
+      console.error(`Error accessing ${key} in local storage.`);
     }
   }
   return ls;
-}
-
-function saveToLS(newLayout, config) {
-  // minimize what's saved in local storage
-  const compDimArr = newLayout.map(component => ({
-    x: component.x, y: component.y, w: component.w, h: component.h,
-  }));
-  if (global.localStorage) {
-    global.localStorage.setItem(
-      'vitGrid',
-      JSON.stringify({
-        [config.name]: compDimArr,
-      }),
-    );
-  }
 }
 
 const storageSavedLayouts = getFromLS('vitGrid');
@@ -54,7 +39,18 @@ export default class PubSubVitessceGrid extends React.Component {
   }
 
   onLayoutChange(layout) {
-    saveToLS(layout, this.config);
+    // minimize what's saved in local storage
+    const componentDimArr = layout.map(component => ({
+      x: component.x, y: component.y, w: component.w, h: component.h,
+    }));
+    if (window.localStorage) {
+      window.localStorage.setItem(
+        'vitGrid',
+        JSON.stringify({
+          [this.config.name]: componentDimArr,
+        }),
+      );
+    }
   }
 
   render() {
