@@ -5,6 +5,7 @@
 - HTTP headers to pass can be specified in the layers of the viewconf.
 ### Changed
 - Fix merge-to-master builds on Travis.
+- Removed bootstrap and moved the small set of bootstrap styles being used into an SCSS mixin.
 
 ## [0.0.22](https://www.npmjs.com/package/vitessce/v/0.0.22) - 2019-01-22
 ### Added
