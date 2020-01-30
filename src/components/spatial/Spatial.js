@@ -1,27 +1,17 @@
 import React from 'react';
 
 import {
-  ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer,
+  ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
 } from 'deck.gl';
-import { SelectablePolygonLayer, IdentityCoordinatesTileLayer } from '../../layers';
+import { load } from '@loaders.gl/core';
+import { SelectablePolygonLayer } from '../../layers';
+import { tileToBoundingBox, getTileIndices } from './tiling-utils';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
-}
-
-function loadImage(src) {
-  // This function replaces load from loaders.gl (7.3.5) which was not working
-  // with this version of deckgl (7.1.4).
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.addEventListener('load', () => resolve(img));
-    img.addEventListener('error', err => reject(err));
-    img.crossOrigin = 'anonymous';
-    img.src = src;
-  });
 }
 
 /**
@@ -154,7 +144,7 @@ export default class Spatial extends AbstractSelectableComponent {
     const getColor = d => PALETTE[d[2] % PALETTE.length];
     return new ScatterplotLayer({
       id: 'scatter-plot',
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: this.moleculesData,
       pickable: true,
       autoHighlight: true,
@@ -176,7 +166,7 @@ export default class Spatial extends AbstractSelectableComponent {
         const neighborhood = neighborhoodsEntry[1];
         return neighborhood.poly;
       },
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: this.neighborhoodsData,
       pickable: true,
       autoHighlight: true,
@@ -196,17 +186,22 @@ export default class Spatial extends AbstractSelectableComponent {
   createTileLayer(layer) {
     const [layerType, source] = layer;
     const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)));
-    return new IdentityCoordinatesTileLayer({
+    return new BaseTileLayer({
       id: `${layerType}-${source.tileSource}-tile-layer`,
       pickable: true,
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-      getTileData: ({ x, y, z }) => loadImage(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      getTileData: ({ x, y, z }) => load(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
+      // eslint-disable-next-line  arrow-body-style
+      getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
+        return getTileIndices(viewport, maxZoomLevel, minZoomLevel,
+          source.tileSize, source.width, source.height);
+      },
+      // eslint-disable-next-line  arrow-body-style
+      tileToBoundingBox: (x, y, z) => {
+        return tileToBoundingBox(x, y, z, source.height, source.width, source.tileSize);
+      },
       minZoom,
       maxZoom: 0,
-      maxHeight: source.height,
-      maxWidth: source.width,
-      tileSize: source.tileSize,
-      tileSource: source.tileSource,
       visible: this.state.layerIsVisible[layerType],
       renderSubLayers: (props) => {
         const {
@@ -215,7 +210,7 @@ export default class Spatial extends AbstractSelectableComponent {
           },
         } = props.tile;
         const bml = new BitmapLayer(props, {
-          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
           data: null,
           image: props.data,
           bounds: [west, south, east, north],

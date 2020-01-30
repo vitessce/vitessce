@@ -50,7 +50,7 @@ export default class AbstractSelectableComponent extends React.Component {
     return [new SelectionLayer({
       id: 'selection',
       getCellCoords: this.getCellCoords,
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       selectionType: tool,
       onSelect: ({ pickingInfos }) => {
         const cellIds = new Set(pickingInfos.map(cellObj => cellObj.object[0]));

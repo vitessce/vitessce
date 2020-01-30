@@ -9,7 +9,7 @@ export function makeCellStatusMessage(cellInfoFactors) {
 
 export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid) {
   return {
-    coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+    coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     data: cells,
     pickable: true,
     autoHighlight: true,
