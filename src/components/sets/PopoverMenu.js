@@ -46,6 +46,7 @@ export default function PopoverMenu(props) {
 
   return (
     <Popover
+      overlayClassName="vitessce-popover"
       content={<PopoverMenuList menuConfig={menuConfig} onClick={closePopover} />}
       placement={placement}
       trigger="click"

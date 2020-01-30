@@ -88,12 +88,12 @@ export default function Welcome(props) {
   return (
     <div className="container-fluid vitessce-container">
       <div className="row">
-        <div className="col-5">
+        <div className="welcome-col-left">
           <div className={LIGHT_CARD}>
             <Form configs={configs} />
           </div>
         </div>
-        <div className="col-7">
+        <div className="welcome-col-right">
           <div className={LIGHT_CARD}>
             <Info />
           </div>

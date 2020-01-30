@@ -57,6 +57,33 @@
       font-size: 80%;
       opacity: 0.8;
   }
+
+    .col-full {
+        -ms-flex: 0 0 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .welcome-col-left {
+        -ms-flex: 0 0 41.666667%;
+        flex: 0 0 41.666667%;
+        max-width: 41.666667%;
+    }
+  
+
+    .welcome-col-right {
+        -ms-flex: 0 0 58.333333%;
+        flex: 0 0 58.333333%;
+        max-width: 58.333333%;
+    }
+
+    .coll-full, .welcome-col-left, .welcome-col-right {
+        position: relative;
+        width: 100%;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+  
 }
 
 .react-draggable-transparent-selection .react-grid-item {
@@ -69,4 +96,20 @@
   -moz-user-select: none !important;
   -o-user-select: none !important;
   user-select: none !important;
+}
+
+
+body {
+    margin: 0;
+    color: #212529;
+    text-align: left;
+    background-color: #fff;
+}
+
+.container-fluid {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
 }
