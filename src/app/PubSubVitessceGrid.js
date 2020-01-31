@@ -15,23 +15,19 @@ function getFromLS(key) {
   return ls;
 }
 
-const storageSavedLayouts = getFromLS('vitGrid');
-
 export default class PubSubVitessceGrid extends React.Component {
   constructor(props) {
     super(props);
+    const storageSavedLayouts = getFromLS('vitGrid');
     this.rowHeight = props.rowHeight;
     this.config = props.config;
-    this.startLayout = () => {
-      const { name } = props.config;
-      const dataSetSavedLayout = storageSavedLayouts[name];
-      // update config layout with user's saved views
-      if (dataSetSavedLayout) {
-        for (let i = 0; i < dataSetSavedLayout.length; i += 1) {
-          dataSetSavedLayout[i] = { ...props.config.staticLayout[i], ...dataSetSavedLayout[i] };
-        }
-        return dataSetSavedLayout;
+    this.getStorageLayout = () => {
+      const dataSetSavedLayout = storageSavedLayouts[props.config.name] || [];
+      // update with user's saved configs
+      for (let i = 0; i < dataSetSavedLayout.length; i += 1) {
+        dataSetSavedLayout[i] = { ...props.config.staticLayout[i], ...dataSetSavedLayout[i] };
       }
+      if (dataSetSavedLayout.length) return dataSetSavedLayout;
       return props.config.staticLayout;
     };
     this.state = { allReady: false };
@@ -60,7 +56,7 @@ export default class PubSubVitessceGrid extends React.Component {
       <div className="vitessce-container">
         { allReady && <LayerPublisher layers={config.layers} /> }
         <VitessceGrid
-          layout={this.startLayout()}
+          layout={this.getStorageLayout()}
           rowHeight={this.rowHeight}
           getComponent={getComponent}
           onAllReady={() => { this.setState({ allReady: true }); }}
