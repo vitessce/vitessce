@@ -3,8 +3,11 @@
 ## 0.0.23 - in progress
 ### Added
 - HTTP headers to pass can be specified in the layers of the viewconf.
+- After a layout change, save the layout config in local storage.
+- If available, load layout config from local storage when opening a data set view.
 ### Changed
 - Fix merge-to-master builds on Travis.
+- Remove responsive layout capabilities to avoid browser resizing bugs.
 
 ## [0.0.22](https://www.npmjs.com/package/vitessce/v/0.0.22) - 2019-01-22
 ### Added
