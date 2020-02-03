@@ -28,6 +28,8 @@ import { DrawCircleByBoundingBoxHandler } from '@nebula.gl/layers/dist/mode-hand
 import { DrawEllipseByBoundingBoxHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-ellipse-by-bounding-box-handler';
 import { DrawEllipseUsingThreePointsHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-ellipse-using-three-points-handler';
 
+import { DrawRectangleMode, DrawPolygonMode, ViewMode } from '@nebula.gl/edit-modes';
+
 class DrawRectangleByDraggingHandler extends ModeHandler {
   constructor() {
     super();
@@ -36,6 +38,7 @@ class DrawRectangleByDraggingHandler extends ModeHandler {
   }
 
   handleStartDragging(event) {
+    console.log("start dragging");
     const result = { editAction: null, cancelMapPan: false };
     this.isDragging = true;
     const corner1 = event.groundCoords;
@@ -85,7 +88,17 @@ class DrawRectangleByDraggingHandler extends ModeHandler {
   handleClick(event) {
     return this.handleStopDraggingOrClick(event);
   }
+  
 }
+
+const MODE_MAP = {
+    [SELECTION_TYPE.RECTANGLE]: DrawRectangleMode,
+    [SELECTION_TYPE.POLYGON]: DrawPolygonMode
+};
+  
+const MODE_CONFIG_MAP = {
+    [SELECTION_TYPE.RECTANGLE]: { dragToDraw: true }
+};
 
 const defaultProps = {
   selectionType: SELECTION_TYPE.RECTANGLE,
@@ -172,10 +185,9 @@ export default class SelectionLayer extends CompositeLayer {
   }
 
   renderLayers() {
-    const mode = {
-      [SELECTION_TYPE.RECTANGLE]: 'drawRectangle',
-      [SELECTION_TYPE.POLYGON]: 'drawPolygon',
-    }[this.props.selectionType] || 'view';
+    
+    const mode = MODE_MAP[this.props.selectionType] || ViewMode;
+    const modeConfig = MODE_CONFIG_MAP[this.props.selectionType];
 
     const inheritedProps = {
       // Need to instantiate our own mode handler objects each time, otherwise
@@ -213,6 +225,7 @@ export default class SelectionLayer extends CompositeLayer {
           id: LAYER_ID_GEOJSON,
           pickable: true,
           mode,
+          modeConfig,
           selectedFeatureIndexes: [],
           data: EMPTY_DATA,
           onEdit: ({ updatedData, editType }) => {
