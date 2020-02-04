@@ -5,6 +5,7 @@
 - HTTP headers to pass can be specified in the layers of the viewconf.
 ### Changed
 - Fix merge-to-master builds on Travis.
+- Upgrade vitessce-grid to v0.0.6 to support pane closing.
 
 ## [0.0.22](https://www.npmjs.com/package/vitessce/v/0.0.22) - 2019-01-22
 ### Added
