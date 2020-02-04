@@ -26,17 +26,12 @@ import { DrawCircleFromCenterHandler } from '@nebula.gl/layers/dist/mode-handler
 import { DrawCircleByBoundingBoxHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-circle-by-bounding-box-handler';
 import { DrawEllipseByBoundingBoxHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-ellipse-by-bounding-box-handler';
 import { DrawEllipseUsingThreePointsHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-ellipse-using-three-points-handler';
-
 import { DrawRectangleMode, DrawPolygonMode, ViewMode } from '@nebula.gl/edit-modes';
 
 
 const MODE_MAP = {
   [SELECTION_TYPE.RECTANGLE]: DrawRectangleMode,
   [SELECTION_TYPE.POLYGON]: DrawPolygonMode,
-};
-
-const MODE_CONFIG_MAP = {
-  [SELECTION_TYPE.RECTANGLE]: { dragToDraw: true },
 };
 
 const defaultProps = {
@@ -125,7 +120,6 @@ export default class SelectionLayer extends CompositeLayer {
 
   renderLayers() {
     const mode = MODE_MAP[this.props.selectionType] || ViewMode;
-    const modeConfig = MODE_CONFIG_MAP[this.props.selectionType];
 
     const inheritedProps = {
       // Need to instantiate our own mode handler objects each time, otherwise
@@ -163,7 +157,6 @@ export default class SelectionLayer extends CompositeLayer {
           id: LAYER_ID_GEOJSON,
           pickable: true,
           mode,
-          modeConfig,
           selectedFeatureIndexes: [],
           data: EMPTY_DATA,
           onEdit: ({ updatedData, editType }) => {
