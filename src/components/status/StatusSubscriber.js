@@ -34,7 +34,7 @@ export default class StatusSubscriber extends React.Component {
   }
 
   render() {
-    const { warn, info} = this.state;
+    const { warn, info } = this.state;
     const { removeGridComponent } = this.props;
     return (
       <Status warn={warn} info={info} removeGridComponent={removeGridComponent} />
