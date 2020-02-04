@@ -31,12 +31,12 @@ import { DrawRectangleMode, DrawPolygonMode, ViewMode } from '@nebula.gl/edit-mo
 
 
 const MODE_MAP = {
-    [SELECTION_TYPE.RECTANGLE]: DrawRectangleMode,
-    [SELECTION_TYPE.POLYGON]: DrawPolygonMode
+  [SELECTION_TYPE.RECTANGLE]: DrawRectangleMode,
+  [SELECTION_TYPE.POLYGON]: DrawPolygonMode,
 };
-  
+
 const MODE_CONFIG_MAP = {
-    [SELECTION_TYPE.RECTANGLE]: { dragToDraw: true }
+  [SELECTION_TYPE.RECTANGLE]: { dragToDraw: true },
 };
 
 const defaultProps = {
@@ -124,7 +124,6 @@ export default class SelectionLayer extends CompositeLayer {
   }
 
   renderLayers() {
-
     const mode = MODE_MAP[this.props.selectionType] || ViewMode;
     const modeConfig = MODE_CONFIG_MAP[this.props.selectionType];
 
