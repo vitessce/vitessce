@@ -48,6 +48,7 @@ export default class GenesSubscriber extends React.Component {
 
   render() {
     const { genes, selectedId } = this.state;
+    const { removeGridComponent } = this.props;
     const genesSelected = {};
     const genesKeys = Object.keys(genes);
     genesKeys.forEach((geneId) => {
@@ -58,7 +59,7 @@ export default class GenesSubscriber extends React.Component {
         title="Expression Levels"
         info={`${genesKeys.length} genes`}
         isScroll
-        componentWillUnmount={this.componentWillUnmount}
+        removeGridComponent={removeGridComponent}
       >
         <Genes
           genesSelected={genesSelected}
