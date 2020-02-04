@@ -7,6 +7,7 @@
     font-weight: 400;
     line-height: 1.5;
     text-align: left;
+    box-sizing: border-box;
 
     .ant-popover-inner-content {
         padding: 0;
@@ -31,6 +32,10 @@
 
     .ant-popover-inner {
         box-sizing: border-box;
+    }
+
+    &> .ant-popover-content > .ant-popover-arrow, .ant-popover-placement-topLeft > .ant-popover-content > .ant-popover-arrow, .ant-popover-placement-topRight > .ant-popover-content > .ant-popover-arrow {
+        bottom: 7.3px !important;
     }
 
     button {

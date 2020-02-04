@@ -58,6 +58,13 @@
       opacity: 0.8;
   }
 
+    .coll-full, .welcome-col-left, .welcome-col-right {
+        position: relative;
+        width: 100%;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+
     .col-full {
         -ms-flex: 0 0 100%;
         flex: 0 0 100%;
@@ -75,13 +82,6 @@
         -ms-flex: 0 0 58.333333%;
         flex: 0 0 58.333333%;
         max-width: 58.333333%;
-    }
-
-    .coll-full, .welcome-col-left, .welcome-col-right {
-        position: relative;
-        width: 100%;
-        padding-right: 15px;
-        padding-left: 15px;
     }
   
 }
@@ -112,4 +112,5 @@ body {
     padding-left: 15px;
     margin-right: auto;
     margin-left: auto;
+    box-sizing: border-box;
 }

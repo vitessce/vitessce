@@ -9,8 +9,8 @@
 @import 'popover';
 
 .vitessce-container {
-  @include app;
   @include bootstrap-minimal;
+  @include app;
   @include controls;
   @include error;
   @include tooltips;
