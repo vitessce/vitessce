@@ -1,3 +1,4 @@
+import React from 'react';
 import { SCROLL_CARD, BLACK_CARD } from './classNames';
 import ClosePaneButton from './ClosePaneButton';
 
