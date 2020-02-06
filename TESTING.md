@@ -15,9 +15,6 @@ The description below should work for any deployment.
  There is an input field where the URL of a config could be given.
  You can also paste a data URI like this: `data:,{"name":"FAKE", "description":"fake dataset", "layers":[], "responsiveLayout":{"columns": {"1000": [0,1]}, "components": [{"component":"Description", "props":{"description": "Hello World"}, "x":0, "y": 0}]}}`
 
- (The link to documentation will only work on vitessce.io:
-   On s3, change `prod-docs` to `demo-docs`.)
-
 ## Application Layout
 
 Click on "Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH".

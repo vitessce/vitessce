@@ -10,9 +10,7 @@ S3_BUCKET='vitessce-data'
 S3_PATH='/demos/'
 RE="$S3_BASE$S3_BUCKET$S3_PATH"
 [[ "$@" =~ "$RE" ]] || die "Expected URL to match $RE"
-# The regexes here are flexible, so it should work
-# whether you give it the app URL, or the doc URL
-S3_SRC_PATH=$( echo "$@" | perl -pne 's{^.*'"$S3_BASE"'}{}; s{/index.html}{}; s{/[^/]+-docs}{}; s{/$}{}' )
+S3_SRC_PATH=$( echo "$@" | perl -pne 's{^.*'"$S3_BASE"'}{}; s{/index.html}{}; s{/$}{}' )
 
 S3_SRC="s3://$S3_SRC_PATH"
 S3_TARGET='s3://vitessce.io'

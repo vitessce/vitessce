@@ -28,15 +28,6 @@ TARGET_URL="https://s3.amazonaws.com/$DEMO_URL_PATH/index.html"
 
 echo "- $DATE: [$BRANCH]($TARGET_URL)" >> demos.md
 
-echo '
-<html>
-<head><meta http-equiv="refresh" content="2; url='"$TARGET_URL"'"></head>
-<body>
-Redirecting to latest demo.
-</body>
-</html>
-' > docs/dev.html
-
 echo "Deployed to $TARGET_URL"
 # Open in browser and see if it works:
 open "$TARGET_URL"
