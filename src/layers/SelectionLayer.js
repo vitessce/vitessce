@@ -5,9 +5,7 @@
 import { CompositeLayer } from 'deck.gl';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import bboxPolygon from '@turf/bbox-polygon';
 import { EditableGeoJsonLayer, SELECTION_TYPE } from 'nebula.gl';
-import { ModeHandler } from '@nebula.gl/layers/dist/mode-handlers/mode-handler';
 import { ViewHandler } from '@nebula.gl/layers/dist/mode-handlers/view-handler';
 import { ModifyHandler } from '@nebula.gl/layers/dist/mode-handlers/modify-handler';
 import { ElevationHandler } from '@nebula.gl/layers/dist/mode-handlers/elevation-handler';
@@ -22,70 +20,19 @@ import { DrawLineStringHandler } from '@nebula.gl/layers/dist/mode-handlers/draw
 import { DrawPolygonHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-polygon-handler';
 import { Draw90DegreePolygonHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-90degree-polygon-handler';
 import { SplitPolygonHandler } from '@nebula.gl/layers/dist/mode-handlers/split-polygon-handler';
+import { DrawRectangleHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-rectangle-handler';
 import { DrawRectangleUsingThreePointsHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-rectangle-using-three-points-handler';
 import { DrawCircleFromCenterHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-circle-from-center-handler';
 import { DrawCircleByBoundingBoxHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-circle-by-bounding-box-handler';
 import { DrawEllipseByBoundingBoxHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-ellipse-by-bounding-box-handler';
 import { DrawEllipseUsingThreePointsHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-ellipse-using-three-points-handler';
+import { DrawRectangleMode, DrawPolygonMode, ViewMode } from '@nebula.gl/edit-modes';
 
-class DrawRectangleByDraggingHandler extends ModeHandler {
-  constructor() {
-    super();
-    this.corner1 = undefined;
-    this.isDragging = false;
-  }
 
-  handleStartDragging(event) {
-    const result = { editAction: null, cancelMapPan: false };
-    this.isDragging = true;
-    const corner1 = event.groundCoords;
-    const corner2 = event.groundCoords;
-    this._setTentativeFeature(bboxPolygon([corner1[0], corner1[1], corner2[0], corner2[1]]));
-    this.corner1 = corner1;
-    return result;
-  }
-
-  handlePointerMove(event) {
-    const result = { editAction: null, cancelMapPan: false };
-    const { isDragging, corner1 } = this;
-
-    if (!isDragging || !corner1) {
-      // nothing to do yet
-      return result;
-    }
-
-    const corner2 = event.groundCoords;
-    this._setTentativeFeature(bboxPolygon([corner1[0], corner1[1], corner2[0], corner2[1]]));
-    return result;
-  }
-
-  handleStopDraggingOrClick(event) {
-    const result = { editAction: null, cancelMapPan: false };
-    const { isDragging, corner1 } = this;
-
-    if (!isDragging || !corner1) {
-      // nothing to do yet
-      return result;
-    }
-
-    const corner2 = event.groundCoords;
-    this._setTentativeFeature(bboxPolygon([corner1[0], corner1[1], corner2[0], corner2[1]]));
-    const tentativeFeature = this.getTentativeFeature();
-    const editAction = this.getAddFeatureOrBooleanPolygonAction(tentativeFeature.geometry);
-    this._setTentativeFeature(null);
-    this.corner1 = undefined;
-    this.isDragging = false;
-    return editAction;
-  }
-
-  handleStopDragging(event) {
-    return this.handleStopDraggingOrClick(event);
-  }
-
-  handleClick(event) {
-    return this.handleStopDraggingOrClick(event);
-  }
-}
+const MODE_MAP = {
+  [SELECTION_TYPE.RECTANGLE]: DrawRectangleMode,
+  [SELECTION_TYPE.POLYGON]: DrawPolygonMode,
+};
 
 const defaultProps = {
   selectionType: SELECTION_TYPE.RECTANGLE,
@@ -172,10 +119,7 @@ export default class SelectionLayer extends CompositeLayer {
   }
 
   renderLayers() {
-    const mode = {
-      [SELECTION_TYPE.RECTANGLE]: 'drawRectangle',
-      [SELECTION_TYPE.POLYGON]: 'drawPolygon',
-    }[this.props.selectionType] || 'view';
+    const mode = MODE_MAP[this.props.selectionType] || ViewMode;
 
     const inheritedProps = {
       // Need to instantiate our own mode handler objects each time, otherwise
@@ -196,7 +140,7 @@ export default class SelectionLayer extends CompositeLayer {
         drawPolygon: new DrawPolygonHandler(),
         draw90DegreePolygon: new Draw90DegreePolygonHandler(),
         split: new SplitPolygonHandler(),
-        drawRectangle: new DrawRectangleByDraggingHandler(),
+        drawRectangle: new DrawRectangleHandler(),
         drawRectangleUsing3Points: new DrawRectangleUsingThreePointsHandler(),
         drawCircleFromCenter: new DrawCircleFromCenterHandler(),
         drawCircleByBoundingBox: new DrawCircleByBoundingBoxHandler(),

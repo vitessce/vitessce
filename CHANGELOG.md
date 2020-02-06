@@ -6,6 +6,7 @@
 ### Changed
 - Fix merge-to-master builds on Travis.
 - Upgrade vitessce-grid to v0.0.6 to support pane closing.
+- Fixed broken rectangular selection tool (broke due to a `nebula.gl` upgrade from v0.12.0 to v0.17.1), but switched the interaction from dragging to clicking.
 
 ## [0.0.22](https://www.npmjs.com/package/vitessce/v/0.0.22) - 2019-01-22
 ### Added
