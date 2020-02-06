@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.23 - in progress
+## 0.0.24 - in progress
+
+## [0.0.23](https://www.npmjs.com/package/vitessce/v/0.0.23) - 2020-02-06
 ### Added
 - HTTP headers to pass can be specified in the layers of the viewconf.
 ### Changed
