@@ -12,6 +12,7 @@
   .roll-up {
       height: 2em; /* Matches .btn.icon */
       overflow: hidden;
+      background-color: white;
       &:hover {
           animation-name: roll-up;
           animation-duration: 0.5s;

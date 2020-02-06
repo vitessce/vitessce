@@ -1,14 +1,22 @@
 @import 'colors';
 
 @import 'app';
+@import 'bootstrap-minimal';
 @import 'controls';
 @import 'error';
 @import 'tooltips';
-@import 'sets-manager'; // TODO: Changing to mixin didn't work. See https://github.com/hubmapconsortium/vitessce/issues/396
+@import 'sets-manager';
+@import 'popover';
 
 .vitessce-container {
+  @include bootstrap-minimal;
   @include app;
   @include controls;
   @include error;
   @include tooltips;
+  @include sets-manager;
+}
+
+.vitessce-popover {
+  @include popover;
 }

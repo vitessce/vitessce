@@ -25,6 +25,7 @@ export default function PopoverColor(props) {
 
   return (
     <Popover
+      overlayClassName="vitessce-popover"
       content={(
         <TwitterPicker
           className="popover-color"

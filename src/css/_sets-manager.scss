@@ -1,195 +1,157 @@
 @import './colors';
 @import './zoom';
 
-$set-name-height: 16px;
-
 @mixin input-minimal-sm {
     border-radius: 3px;
     padding: 1px 4px;
     border: 0;
 }
 
-// TODO: Is this used?
-// https://github.com/hubmapconsortium/vitessce/issues/395
-@include zoom;
+@mixin sets-manager {
 
-// TODO: When wrapped in a mixin, the cell-sets misrenders.
-// https://github.com/hubmapconsortium/vitessce/issues/396
-.sets-manager {
-    .ant-tree {
-        color: inherit;
-        &.ant-tree-block-node li .ant-tree-node-content-wrapper {
-            width: 100%;
-            display: inline-block;
-            position: relative;
+    /* The zoom mixin contains styles for the popover transition animations. */
+    @include zoom;
+
+    .sets-manager {
+        .ant-tree {
             color: inherit;
-
-            .ant-tree-title-right {
-                display: none;
-                // Not .draggable when name is being editted.
-                // Hide controls that overlap.
-            }
-            &.draggable .ant-tree-title-right {
+            &.ant-tree-block-node li .ant-tree-node-content-wrapper {
                 display: inline-block;
-                position: absolute;
-                right: 10px;
+                position: relative;
+                color: inherit;
 
-                .ant-tree-set-color {
-                    display: inline-block;
-                    position: relative;
-                    top: 3px;
-                    width: 16px;
-                    height: 16px;
-                    margin-left: 16px;
-                    cursor: pointer;
-                    outline: currentColor none medium;
-                    border-radius: 3px;
-                    box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 0px 1px inset;
-                }
-
-                .ant-tree-set-size {
-                    display: inline-block;
-                }
-            }
-
-            &:hover {
-                background-color: inherit;
-            }
-            &.ant-tree-node-selected {
-                background-color: inherit;
-            }
-            .ant-tree-title {
-                border: 0;
-                background: transparent;
-                color: $color-white;
-                cursor: pointer;
-            }
-            .ant-tree-title-input {
-                @include input-minimal-sm();
-                width: calc(100% - 3em); // 3em = width of save button.
-            }
-            .ant-tree-title-save-button {
-                @include input-minimal-sm();
-                cursor: pointer;
-                margin-left: 4px;
-            }
-            .ant-tree-node-menu-trigger-container {
-                transition: opacity 0.25s;
-                .ant-tree-node-menu-trigger {
-                    font-size: 16px;
-                    margin-left: 10px;
-                    height: 20px;
-                    line-height: 20px;
-                    vertical-align: middle;
-                }
-            }
-        }
-    }
-    .ant-tabs {
-        color: inherit;
-        .ant-tabs-bar {
-            z-index: 1;
-            padding-top: 1.25rem;
-            margin-top: -1.25rem;
-            border-bottom: 1px solid $color-gray-mid;
-            background-color: #222;
-            /* Need calculation, since with fixed position,
-                does not take padding into account. */
-            width: calc(100% - 3.75rem);
-            position: fixed;
-        }
-        .ant-tabs-content {
-            margin-top: 40px;
-        }
-        .ant-tabs-nav .ant-tabs-tab-active {
-            font-weight: inherit;
-        }
-        &.ant-tabs-card .ant-tabs-card-bar {
-            .ant-tabs-nav-container {
-                height: 28px;
-            }
-            .ant-tabs-tab {
-                background-color: $color-gray-mid;
-                border: 1px solid $color-gray-mid;
-                height: 28px;
-                line-height: 26px;
-                padding: 0 6px;
-                &.ant-tabs-tab-active {
-                    background-color: $color-gray-dark;
-                    border: 1px solid $color-gray-mid;
-                }
-
-                .ant-tabs-close-x {
-                    color: white;
-                    margin-left: 5px;
-                    margin-right: -2px;
-                }
-
-                &:first-child .ant-tabs-close-x {
+                .ant-tree-title-right {
                     display: none;
+                    // Not .draggable when name is being editted.
+                    // Hide controls that overlap.
+                }
+                &.draggable .ant-tree-title-right {
+                    display: inline-block;
+                    position: absolute;
+                    right: 10px;
+
+                    .ant-tree-set-color {
+                        display: inline-block;
+                        position: relative;
+                        top: 3px;
+                        width: 16px;
+                        height: 16px;
+                        margin-left: 16px;
+                        cursor: pointer;
+                        outline: currentColor none medium;
+                        border-radius: 3px;
+                        box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 0px 1px inset;
+                    }
+
+                    .ant-tree-set-size {
+                        display: inline-block;
+                    }
+                }
+
+                &:hover {
+                    background-color: inherit;
+                }
+                &.ant-tree-node-selected {
+                    background-color: inherit;
+                }
+                .ant-tree-title {
+                    border: 0;
+                    background: transparent;
+                    color: $color-white;
+                    cursor: pointer;
+                }
+                .ant-tree-title-input {
+                    @include input-minimal-sm;
+                    width: calc(100% - 3em); // 3em = width of save button.
+                }
+                .ant-tree-title-save-button {
+                    @include input-minimal-sm;
+                    cursor: pointer;
+                    margin-left: 4px;
+                }
+                .ant-tree-node-menu-trigger-container {
+                    transition: opacity 0.25s;
+                    .ant-tree-node-menu-trigger {
+                        font-size: 16px;
+                        margin-left: 10px;
+                        height: 20px;
+                        line-height: 20px;
+                        vertical-align: middle;
+                    }
                 }
             }
         }
-        .ant-tabs-extra-content {
-            display: none;
+        .ant-tabs {
+            color: inherit;
+            .ant-tabs-bar {
+                z-index: 1;
+                padding-top: 1.25rem;
+                margin-top: -1.25rem;
+                border-bottom: 1px solid $color-gray-mid;
+                background-color: #222;
+                /* Need calculation, since with fixed position,
+                    does not take padding into account. */
+                width: calc(100% - 3.75rem);
+                position: fixed;
+            }
+            .ant-tabs-content {
+                margin-top: 40px;
+            }
+            .ant-tabs-nav .ant-tabs-tab-active {
+                font-weight: inherit;
+            }
+            &.ant-tabs-card .ant-tabs-card-bar {
+                .ant-tabs-nav-container {
+                    height: 28px;
+                }
+                .ant-tabs-tab {
+                    background-color: $color-gray-mid;
+                    border: 1px solid $color-gray-mid;
+                    height: 28px;
+                    line-height: 26px;
+                    padding: 0 6px;
+                    &.ant-tabs-tab-active {
+                        background-color: $color-gray-dark;
+                        border: 1px solid $color-gray-mid;
+                    }
+
+                    .ant-tabs-close-x {
+                        color: white;
+                        margin-left: 5px;
+                        margin-right: -2px;
+                    }
+
+                    &:first-child .ant-tabs-close-x {
+                        display: none;
+                    }
+                }
+            }
+            .ant-tabs-extra-content {
+                display: none;
+            }
         }
-    }
-    .sets-manager-more-icon {
-        cursor: pointer;
-        right: 10px;
-        position: absolute;
-        top: 10px;
-    }
-    .sets-manager-icon-bar {
-        cursor: pointer;
-        right: 36px;
-        position: fixed;
-        top: 46px;
-        z-index: 2;
-        i {
-            border-radius: 4px;
-            padding: 3px 2px 0 2px;
-            margin-left: 10px;
-            &:hover {
-                background-color: #444;
-                transition: background-color 0.5s;
+        .sets-manager-more-icon {
+            cursor: pointer;
+            right: 10px;
+            position: absolute;
+            top: 10px;
+        }
+        .sets-manager-icon-bar {
+            cursor: pointer;
+            right: 36px;
+            position: fixed;
+            top: 46px;
+            z-index: 2;
+            i {
+                border-radius: 4px;
+                padding: 3px 2px 0 2px;
+                margin-left: 10px;
+                &:hover {
+                    background-color: #444;
+                    transition: background-color 0.5s;
+                }
             }
         }
     }
-}
-.ant-popover .ant-popover-inner-content {
-    padding: 0;
-    .popover-menu-list {
-        list-style-type: none;
-        padding: 0;
-        margin-bottom: 0;
-        li {
-            button {
-                border: 0;
-                padding: 4px 16px;
-                cursor: pointer;
-                width: 100%;
-                background-color: transparent;
-            }
-            &:not(:last-child) {
-                border-bottom: 1px solid $color-gray;
-            }
-        }
-    }
-}
-.popover-color.twitter-picker {
-    box-shadow: none !important;
-    /* Sets margins around color picker and centers */
-    > div:nth-child(3) {
-        padding: 9px 9px 9px 9px !important;
-        transform: translate(2px, 0);
-    }
-    input {
-        width: 68px !important;
-    }
-    /* Sets smaller color squares */
-    > div > span > div {
-        width: 22px !important;
-        height: 22px !important;
-    }
+
 }
