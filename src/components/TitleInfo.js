@@ -1,25 +1,23 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { SCROLL_CARD, BLACK_CARD } from './classNames';
 import ClosePaneButton from './ClosePaneButton';
 
 export default function TitleInfo(props) {
   const {
-    title, info, children, isScroll, componentWillUnmount,
+    title, info, children, isScroll, removeGridComponent,
   } = props;
   const childClassName = isScroll ? SCROLL_CARD : BLACK_CARD;
-  const titleRef = useRef(null);
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <React.Fragment>
       <div
-        ref={titleRef}
         className="title d-flex justify-content-between align-items-baseline"
       >
         {title}
         <span className="details pl-2 align-items-end">
           <span className="d-flex justify-content-between">
             {info}
-            <ClosePaneButton childRef={titleRef} componentWillUnmount={componentWillUnmount} />
+            <ClosePaneButton removeGridComponent={removeGridComponent} />
           </span>
         </span>
       </div>

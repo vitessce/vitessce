@@ -5,6 +5,7 @@
 - HTTP headers to pass can be specified in the layers of the viewconf.
 ### Changed
 - Fix merge-to-master builds on Travis.
+- Upgrade vitessce-grid to v0.0.6 to support pane closing.
 - Removed bootstrap and moved the small set of bootstrap styles being used into an SCSS mixin.
 - Fixed broken rectangular selection tool (broke due to a `nebula.gl` upgrade from v0.12.0 to v0.17.1), but switched the interaction from dragging to clicking.
 

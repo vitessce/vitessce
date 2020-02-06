@@ -54,6 +54,7 @@ export default class FactorsSubscriber extends React.Component {
 
   render() {
     const { factors, selectedId } = this.state;
+    const { removeGridComponent } = this.props;
     const factorsSelected = {};
     const factorsKeys = Object.keys(factors);
     factorsKeys.forEach((factorId) => {
@@ -64,7 +65,7 @@ export default class FactorsSubscriber extends React.Component {
         title="Factors"
         info={`${factorsKeys.length} factors`}
         isScroll
-        componentWillUnmount={this.componentWillUnmount}
+        removeGridComponent={removeGridComponent}
       >
         <Factors
           factorsSelected={factorsSelected}

@@ -87,7 +87,7 @@ export default class SpatialSubscriber extends React.Component {
 
   render() {
     const { cells, molecules } = this.state;
-    const { uuid = null, children } = this.props;
+    const { uuid = null, children, removeGridComponent } = this.props;
     const cellsCount = cells ? Object.keys(cells).length : 0;
     const moleculesCount = molecules ? Object.keys(molecules).length : 0;
     const locationsCount = molecules
@@ -98,7 +98,7 @@ export default class SpatialSubscriber extends React.Component {
         title="Spatial"
         info={`${cellsCount} cells, ${moleculesCount} molecules
               at ${shortNumber(locationsCount)} locations`}
-        componentWillUnmount={this.componentWillUnmount}
+        removeGridComponent={removeGridComponent}
       >
         {children}
         <Spatial
