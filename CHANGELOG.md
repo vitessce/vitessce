@@ -2,7 +2,7 @@
 
 ## 0.0.24 - in progress
 ### Removed
-- Remove vestifial gh-pages.
+- Remove vestigial gh-pages.
 
 ## [0.0.23](https://www.npmjs.com/package/vitessce/v/0.0.23) - 2020-02-06
 ### Added
