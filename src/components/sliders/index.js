@@ -1,0 +1,1 @@
+export SlidersSubscriber from './SlidersSubscriber'

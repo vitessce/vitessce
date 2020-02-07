@@ -3,94 +3,17 @@ import React from 'react';
 import {
   ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
 } from 'deck.gl';
+import { MicroscopyViewerLayer } from '@hubmap/vitessce-image-viewer'
 import { load } from '@loaders.gl/core';
-import { Texture2D } from '@luma.gl/webgl';
-import GL from '@luma.gl/constants';
-import { slice, openArray } from 'zarr';
-import { SelectablePolygonLayer, XRLayer } from '../../layers';
+import { SelectablePolygonLayer } from '../../layers';
 import { tileToBoundingBox, getTileIndices } from './tiling-utils';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
 
-const zarrArraysCache = {};
-
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
-
-// TODO: Clean all this up with
-// https://github.com/hubmapconsortium/vitessce/issues/422
-// and creation of new NPM published component
-// Currently this function fetches the channels from a set of zarr files whose
-// location is passed in as a config for a single "tile index"
-async function getTexture({
-  config, gl, tileSize, x, y, stride, tilingWidth,
-}) {
-  const xStride = stride * tilingWidth * y + stride * x;
-  const yStride = stride * tilingWidth * y + stride * (x + 1);
-  const arrSlice = slice(xStride, yStride);
-  const zarrKey = config.zarrConfig.store + config.zarrConfig.path;
-  if (!(zarrKey in zarrArraysCache)) {
-    zarrArraysCache[zarrKey] = await openArray(config.zarrConfig);
-  }
-  const arr = zarrArraysCache[zarrKey];
-  const dataSlice = await arr.get([arrSlice]);
-  const { data } = dataSlice;
-  const isInt8 = data instanceof Uint8Array;
-  const isInt16 = data instanceof Uint16Array;
-  const isInt32 = data instanceof Uint32Array;
-  const formats = {
-    format: (isInt8 && GL.R8UI)
-         || (isInt16 && GL.R16UI)
-         || (isInt32 && GL.R32UI),
-    dataFormat: GL.RED_INTEGER,
-    type: (isInt8 && GL.UNSIGNED_BYTE)
-          || (isInt16 && GL.UNSIGNED_SHORT)
-          || (isInt32 && GL.UNSIGNED_INT),
-  };
-  const { channelType } = config;
-  const texObj = {};
-  texObj[channelType] = new Texture2D(gl, {
-    width: tileSize,
-    height: tileSize,
-    data,
-    // we don't want or need mimaps
-    mipmaps: false,
-    parameters: {
-      // NEAREST for integer data
-      [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-      [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-    },
-    ...formats,
-  });
-  return texObj;
-}
-
-function loadZarr({
-  sourceChannels, tileSize, x, y, z, width, gl,
-}) {
-  const tilingWidth = Math.ceil(width / (tileSize * (2 ** z)));
-  const textureNames = ['redTexture', 'greenTexture', 'blueTexture'];
-  const configList = sourceChannels.map((channel, i) => ({
-    channelName: channel.name,
-    channelType: textureNames[i],
-    zarrConfig: {
-      store: `${channel.tileSource}/`,
-      path: `pyramid_${z}.zarr`,
-      mode: 'r',
-    },
-  }));
-  const stride = tileSize * tileSize;
-  // eslint-disable-next-line  arrow-body-style
-  const configListPromises = configList.map((config) => {
-    return getTexture({
-      config, gl, tileSize, x, y, stride, tilingWidth,
-    });
-  });
-  return Promise.all(configListPromises).then(list => list);
-}
-
 
 /**
  React component which expresses the spatial relationships between cells and molecules.
@@ -304,64 +227,40 @@ export default class Spatial extends AbstractSelectableComponent {
     const layerType = 'raster';
     const source = this.raster;
     if (source.height) {
-      const propSettings = {
-        height: source.height * source.tileSize,
-        width: source.width * source.tileSize,
-        tileSize: source.tileSize,
-        sourceChannels: source.channels,
+      const rootTIFFUrl = 'https://vitessce-demo-data.storage.googleapis.com/test-data/VAN0001-RK-1-21_24-MxIF-mxIF_toIMS/';
+      const remoteData = {
+        tileSize: 256,
+        sourceChannels: {
+          'Cy3 - Synaptopodin (glomerular)': `${rootTIFFUrl}vanderbilt_test_Cy3 - Synaptopodin (glomerular).ome.tiff`,
+          'Cy5 - THP (thick limb)': `${rootTIFFUrl}vanderbilt_test_Cy5 - THP (thick limb).ome.tiff`,
+          'DAPI - Hoescht (nuclei)': `${rootTIFFUrl}vanderbilt_test_DAPI - Hoescht (nuclei).ome.tiff`,
+          'FITC - Laminin (basement membrane)': `${rootTIFFUrl}vanderbilt_test_FITC - Laminin (basement membrane).ome.tiff`
+        }
       };
-      const minZoomLevel = Math.floor(
-        -1 * Math.log2(Math.max(propSettings.height, propSettings.width)),
-      );
-      return new BaseTileLayer({
-        id: `${layerType}-tile-layer`,
-        pickable: false,
-        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        // eslint-disable-next-line  arrow-body-style
-        getTileData: ({ x, y, z }) => {
-          return loadZarr({
-            x, y, z: -1 * z, gl: this.state.gl, ...propSettings,
-          });
+      const propSettings = {
+        imageHeight: 141 * remoteData.tileSize,
+        imageWidth: 206 * remoteData.tileSize,
+        ...remoteData,
+        colorValues: {
+          'Cy3 - Synaptopodin (glomerular)': [255, 0, 0],
+          'Cy5 - THP (thick limb)': [0, 255, 0],
+          'DAPI - Hoescht (nuclei)': [0, 0, 255],
+          'FITC - Laminin (basement membrane)': [255, 128, 0]
         },
-        // eslint-disable-next-line  arrow-body-style
-        getTileIndices: (viewport, maxZoom, minZoom) => {
-          return getTileIndices({
-            viewport, maxZoom, minZoom, ...propSettings,
-          });
-        },
-        // eslint-disable-next-line  arrow-body-style
-        tileToBoundingBox: (x, y, z) => {
-          return tileToBoundingBox({
-            x, y, z, ...propSettings,
-          });
-        },
-        minZoom: minZoomLevel,
-        maxZoom: 0,
-        visible: true,
         sliderValues: {
-          redSliderValue: 10000,
-          greenSliderValue: 10000,
-          blueSliderValue: 10000,
+          'Cy3 - Synaptopodin (glomerular)': [0,10000],
+          'Cy5 - THP (thick limb)': [0,10000],
+          'DAPI - Hoescht (nuclei)': [0,10000],
+          'FITC - Laminin (basement membrane)': [0,10000]
         },
-        renderSubLayers: (props) => {
-          const {
-            bbox: {
-              west, south, east, north,
-            },
-          } = props.tile;
-          const { sliderValues } = props;
-          const xrl = new XRLayer(props, {
-            id: `XR-Layer-${west}-${south}-${east}-${north}`,
-            pickable: false,
-            coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-            rgbTextures: props.data,
-            sliderValues,
-            bounds: [west, south, east, north],
-            visible: true,
-          });
-          return xrl;
-        },
-      });
+        maxZoom: -9,
+        minZoom: -16
+      };
+      return new MicroscopyViewerLayer({
+        useTiff: true,
+        ...propSettings
+
+      })
     }
     return null;
   }
@@ -417,20 +316,21 @@ export default class Spatial extends AbstractSelectableComponent {
     const layerList = [];
 
     if (images && clearPleaseWait) clearPleaseWait('images');
-    layerList.push(...this.renderImageLayers());
+    // layerList.push(...this.renderImageLayers());
 
     if (raster && clearPleaseWait) clearPleaseWait('raster');
     layerList.push(this.createRasterLayer());
 
     if (cells && clearPleaseWait) clearPleaseWait('cells');
-    layerList.push(this.renderCellLayer());
+    // layerList.push(this.renderCellLayer());
 
     if (neighborhoods && clearPleaseWait) clearPleaseWait('neighborhoods');
-    layerList.push(this.renderNeighborhoodsLayer());
+    // layerList.push(this.renderNeighborhoodsLayer());
 
     if (molecules && clearPleaseWait) clearPleaseWait('molecules');
-    layerList.push(this.renderMoleculesLayer());
+    // layerList.push(this.renderMoleculesLayer());
 
+    console.log(layerList)
     return layerList;
   }
 }

@@ -411,6 +411,9 @@ const configs = {
             },
           },
           x: 0, y: 0, h: 2 },
+        { component: 'sliders',
+          x: 1, y:0, h:2
+        }
       ],
     },
   },
