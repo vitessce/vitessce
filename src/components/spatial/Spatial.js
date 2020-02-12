@@ -3,6 +3,7 @@ import React from 'react';
 import {
   ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
 } from 'deck.gl';
+import { SLIDERS_CHANGE } from '../../events';
 import { MicroscopyViewerLayer } from '@hubmap/vitessce-image-viewer'
 import { load } from '@loaders.gl/core';
 import { SelectablePolygonLayer } from '../../layers';
@@ -27,6 +28,7 @@ export default class Spatial extends AbstractSelectableComponent {
       neighborhoods: false,
       raster: false,
     };
+    this.state.sliderValues = {}
 
     // In Deck.gl, layers are considered light weight, and
     // can be created and destroyed quickly, if the data they wrap is stable.
@@ -72,6 +74,20 @@ export default class Spatial extends AbstractSelectableComponent {
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
     return this.props.view;
+  }
+
+  componentWillMount() {
+    this.slidersChangeToken = PubSub.subscribe(SLIDERS_CHANGE, this.onSlidersChange.bind(this));
+  }
+
+  componentWillUnmount() {
+    PubSub.unsubscribe(this.slidersChangeToken);
+  }
+
+  onSlidersChange(msg, sliderData) {
+    this.setState(prevState => {
+      return { sliderValues: { ...prevState.sliderValues, ...sliderData } };
+    });
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -227,19 +243,13 @@ export default class Spatial extends AbstractSelectableComponent {
     const layerType = 'raster';
     const source = this.raster;
     if (source.height) {
-      const rootTIFFUrl = 'https://vitessce-demo-data.storage.googleapis.com/test-data/VAN0001-RK-1-21_24-MxIF-mxIF_toIMS/';
       const remoteData = {
-        tileSize: 256,
-        sourceChannels: {
-          'Cy3 - Synaptopodin (glomerular)': `${rootTIFFUrl}vanderbilt_test_Cy3 - Synaptopodin (glomerular).ome.tiff`,
-          'Cy5 - THP (thick limb)': `${rootTIFFUrl}vanderbilt_test_Cy5 - THP (thick limb).ome.tiff`,
-          'DAPI - Hoescht (nuclei)': `${rootTIFFUrl}vanderbilt_test_DAPI - Hoescht (nuclei).ome.tiff`,
-          'FITC - Laminin (basement membrane)': `${rootTIFFUrl}vanderbilt_test_FITC - Laminin (basement membrane).ome.tiff`
-        }
+        tileSize: source.tile_size,
+        sourceChannels: source.channels
       };
       const propSettings = {
-        imageHeight: 141 * remoteData.tileSize,
-        imageWidth: 206 * remoteData.tileSize,
+        imageHeight: source.height,
+        imageWidth: source.width,
         ...remoteData,
         colorValues: {
           'Cy3 - Synaptopodin (glomerular)': [255, 0, 0],
@@ -247,13 +257,8 @@ export default class Spatial extends AbstractSelectableComponent {
           'DAPI - Hoescht (nuclei)': [0, 0, 255],
           'FITC - Laminin (basement membrane)': [255, 128, 0]
         },
-        sliderValues: {
-          'Cy3 - Synaptopodin (glomerular)': [0,10000],
-          'Cy5 - THP (thick limb)': [0,10000],
-          'DAPI - Hoescht (nuclei)': [0,10000],
-          'FITC - Laminin (basement membrane)': [0,10000]
-        },
-        maxZoom: -9,
+        sliderValues: this.state.sliderValues,
+        maxZoom: -8,
         minZoom: -16
       };
       return new MicroscopyViewerLayer({
@@ -330,7 +335,6 @@ export default class Spatial extends AbstractSelectableComponent {
     if (molecules && clearPleaseWait) clearPleaseWait('molecules');
     // layerList.push(this.renderMoleculesLayer());
 
-    console.log(layerList)
     return layerList;
   }
 }

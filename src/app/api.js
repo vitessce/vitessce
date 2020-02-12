@@ -58,7 +58,7 @@ const vanderbiltBase = {
   description: vanderbiltDescription,
   layers: [
     'raster',
-  ].map(makeLayerNameToConfig('vanderbilt-data')),
+  ].map(makeLayerNameToConfig('vanderbilt')),
 };
 
 /* eslint-disable object-property-newline */
@@ -397,28 +397,19 @@ const configs = {
     ...vanderbiltBase,
     name: 'Vanderbilt MXIF (just spatial)',
     public: true,
-    responsiveLayout: {
-      columns: {
-        1400: [0, 12, 14],
-        1200: [0, 10, 12],
-        1000: [0, 8, 10],
-        800: [0, 6, 8],
-        600: [0, 4, 8],
-      },
-      components: [
-        { component: 'spatial',
-          props: {
-            view: {
-              zoom: -6.5,
-              target: [20000, 20000, 0],
-            },
+    staticLayout: [
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -6.5,
+            target: [20000, 20000, 0],
           },
-          x: 0, y: 0, h: 2 },
-        { component: 'sliders',
-          x: 1, y:0, h:2
-        }
-      ],
-    },
+        },
+        x: 0, y: 0, w:10, h: 2 },
+      { component: 'sliders',
+        x: 10, y: 0, w: 2, h: 2
+      }
+    ],
   },
 };
 /* eslint-enable */

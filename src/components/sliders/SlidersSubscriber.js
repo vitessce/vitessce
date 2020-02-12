@@ -1,51 +1,65 @@
 import React from 'react';
 import PubSub from 'pubsub-js';
 
-import Sliders from './Sliders';
+import ChannelSlider from './ChannelSlider';
 
 import TitleInfo from '../TitleInfo';
-import { SLIDERS_ADD, SLIDERS_CHANGE } from '../../events';
+import { SLIDERS_CHANGE, RASTER_ADD } from '../../events';
 
 export default class SlidersSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { sliderValues: {}, colorValues: {} };
-    this.setSliderValue = this.setSliderValue.bind(this);
+    this.state = {channels:[]}
+    this.setChannelSliderValue = this.setSliderValue.bind(this);
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
   componentWillMount() {
-    this.slidersAddToken = PubSub.subscribe(SLIDERS_ADD, this.slidersAddSubscriber.bind(this));
+    this.rasterAddToken = PubSub.subscribe(RASTER_ADD, this.rasterAddSubscriber.bind(this));
+  }
+
+  componentDidMount() {
+    const { onReady } = this.props;
+    onReady();
   }
 
   componentWillUnmount() {
-    PubSub.unsubscribe(this.slidersAddToken);
+    PubSub.unsubscribe(this.rasterAddToken);
   }
 
-  slidersAddSubscriber(msg, sliderData) {
-    this.setState({ ...sliderData });
+  rasterAddSubscriber(msg, sliderData) {
+    const sliderValues = {}
+    const colorValues = {}
+    this.setState({ channels: [...Object.keys(sliderData.channels)] });
   }
 
   setSliderValue(sliderValue) {
-    this.setState(prevState => {
-      return { sliderValues: { ...prevState.sliderValues, ...sliderValue } };
-    });
-    PubSub.publish(SLIDER_CHANGE, sliderValue);
+    PubSub.publish(SLIDERS_CHANGE, sliderValue);
   }
 
   render() {
-    const { sliderValues, colorValues } = this.state;
+    const { channels } = this.state;
+    console.log(channels)
+    const channelSliders = channels.map((channel) => {
+      console.log(channel);
+      return(
+        <div key={`container-${channel}`}>
+          <ChannelSlider
+            channel={channel}
+            setSliderValue={this.setSliderValue}
+            max={65535}
+          />
+        </div>
+    )
+    })
+    console.log(channelSliders)
     return (
       <TitleInfo
         title="Channel Levels"
         isScroll
         componentWillUnmount={this.componentWillUnmount}
       >
-        <Sliders
-          sliderValues={sliderValues}
-          colorValues={colorValues}
-          setSliderValue={this.setSliderValue}
-        />
+        {channelSliders}
       </TitleInfo>
     );
   }
