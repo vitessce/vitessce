@@ -18,19 +18,25 @@
   </head>
   <body>
     <div id="full-app">
-      <!--
-        This is a hack, so we can toggle between app and component, without adding more logic inside.
-        If the url does not contain the "small" parameter, the content here will be replaced;
-        If it does contain "small", the inner div will be filled instead.
-      -->
-      Vitessce can either be a
-      <script>
-        const url = window.location.href.replace('small', '');
-        document.write('<a href="' + url + '">full-window app</a>,')
-      </script>
-      or a component in a fixed-size div:
-      <div style="width: 1000px; height: 400px">
-        <div id="small-app"></div>
+      <div class="container-fluid">
+        <div class="row p-2">
+          <div class="col">
+            <!--
+              This is a hack, so we can toggle between app and component, without adding more logic inside.
+              If the url does not contain the "small" parameter, the content here will be replaced;
+              If it does contain "small", the inner div will be filled instead.
+            -->
+            <a href="?">Vitessce</a> can either be a
+            <script>
+              const url = window.location.href.replace('small', '');
+              document.write('<a href="' + url + '">full-window app</a>,')
+            </script>
+            or a component in a larger page:
+            <div style="width: 1000px;">
+              <div id="small-app"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <noscript>

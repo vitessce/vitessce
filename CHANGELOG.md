@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.0.23 - in progress
+### Added
+- HTTP headers to pass can be specified in the layers of the viewconf.
+### Changed
+- Fix merge-to-master builds on Travis.
+
+## [0.0.22](https://www.npmjs.com/package/vitessce/v/0.0.22) - 2019-01-22
+### Added
+- Now, a plain scatterplot will also clear the please-wait.
+
+## [0.0.21](https://www.npmjs.com/package/vitessce/v/0.0.21) - 2019-01-21
+### Added
+- Until UI is available, dump viewconf to console.
+- Added styles to prevent unintentional text selection during grid item resize in Safari.
+### Changed
+- Loosen the cells schema to accommodate data from HuBMAP.
+
 ## [0.0.20](https://www.npmjs.com/package/vitessce/v/0.0.20) - 2019-01-06
 ### changed
 - Removed OpenSeadragon in favor of deckgl
@@ -9,6 +26,7 @@
 - Removed Docz and .mdx files and update package.json.
 ### Added
 - Travis checks that changelog was updated.
+- Links to component demos.
 - Top-level CSS rule to keep component styles from leaking out.
 ### Changed
 - CSS filename in UMD no longer contains hash.

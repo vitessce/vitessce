@@ -31,8 +31,8 @@ describe('Vitessce', () => {
     cy.visit('/?show=all');
     cy.contains('Vitessce');
     cy.contains('This is a demo');
-    cy.contains('(static layout)'); // Not public; requires "show=all".
-    cy.contains('Linnarsson')
+    cy.contains('just scatterplot as component'); // Not public; requires "show=all".
+    cy.contains('Linnarsson as component')
       .click();
     // This part seems to be fragile: Might run too fast?
     // cy.contains('Please wait');
@@ -45,19 +45,17 @@ describe('Vitessce', () => {
       name: '-',
       description: '-',
       layers: [],
-      responsiveLayout: {
-        columns: { 1000: [0, 1] },
-        components: [
-          {
-            component: 'description',
-            props: {
-              description: message,
-            },
-            x: 0,
-            y: 0,
+      staticLayout: [
+        {
+          component: 'description',
+          props: {
+            description: message,
           },
-        ],
-      },
+          x: 0,
+          y: 0,
+          w: 12,
+        },
+      ],
     };
     // Without a route, Cypress tries to proxy the request,
     // and that doesn't seem to work for data URIs.

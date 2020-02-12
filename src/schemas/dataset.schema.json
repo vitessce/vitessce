@@ -20,26 +20,43 @@
         }
       }
     },
-    "responsiveLayout": {
+    "requestInit": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["columns", "components"],
+      "required": [],
       "properties": {
-        "columns": {
-          "type": "object",
-          "patternProperties": {
-            ".": {
-              "type": "array",
-              "items": { "type": "number" }
-            }
-          }
+        "method": {
+          "type": "string"
         },
-        "components": { "$ref": "#/definitions/components" }
+        "headers": {
+          "type": "object"
+        },
+        "body": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "string"
+        },
+        "cache": {
+          "type": "string"
+        },
+        "redirect": {
+          "type": "string"
+        },
+        "referrer": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string"
+        }
       }
     }
   },
   "additionalProperties": false,
-  "required": ["name", "description", "layers"],
+  "required": ["name", "layers"],
   "properties": {
     "name": { "type": "string" },
     "public": { "type": "boolean" },
@@ -53,11 +70,11 @@
         "properties": {
           "name": { "type": "string" },
           "type": { "type": "string" },
-          "url": { "type": "string" }
+          "url": { "type": "string" },
+          "requestInit": { "$ref": "#/definitions/requestInit" }
         }
       }
     },
-    "responsiveLayout": { "$ref": "#/definitions/responsiveLayout" },
     "staticLayout": { "$ref": "#/definitions/components" }
   }
 }
