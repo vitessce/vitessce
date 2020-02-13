@@ -110,8 +110,7 @@ function loadLayer(layer) {
     }, (failureReason) => {
       warn(`Error while fetching ${name}. Details in console.`);
       console.warn(`"${name}" (${type}) from ${url}: fetch failed`, failureReason);
-    }
-  );
+    });
 }
 
 export default class LayerPublisher extends React.Component {
