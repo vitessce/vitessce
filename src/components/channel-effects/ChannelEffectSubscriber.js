@@ -7,7 +7,7 @@ import ChannelColorSelector from './ChannelColorSelector';
 import TitleInfo from '../TitleInfo';
 import { SLIDERS_CHANGE, RASTER_ADD, COLORS_CHANGE } from '../../events';
 
-export default class SlidersSubscriber extends React.Component {
+export default class ChannelEffectSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {channels:[]}

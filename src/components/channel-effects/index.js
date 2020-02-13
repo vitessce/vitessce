@@ -1,0 +1,1 @@
+export ChannelEffectSubscriber from './ChannelEffectSubscriber'
