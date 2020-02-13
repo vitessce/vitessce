@@ -59,7 +59,7 @@ export function validateAndRender(config, id, rowHeight) {
     return;
   }
   // NOTE: Remove when this is available in UI.
-  console.groupCollapsed('View configuration');
+  console.groupCollapsed('Vitessce view configuration');
   console.info(JSON.stringify(config, null, 2));
   console.groupEnd();
   const validate = new Ajv().compile(datasetSchema);
