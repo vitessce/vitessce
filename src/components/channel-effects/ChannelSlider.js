@@ -75,6 +75,8 @@ export default class ChannelSlider extends React.Component {
       this.setState({
         slider: withStyles({
           root: {
+            // align with how color-picker displays:
+            // https://github.com/casesandberg/react-color/blob/master/src/components/hue/Hue.js#L25
             color: `rgb(${Object.values(hslToRgb(hsl[0],1,.5))})`
           }
         })(Slider),

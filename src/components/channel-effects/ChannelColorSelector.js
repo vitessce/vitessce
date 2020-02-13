@@ -26,10 +26,12 @@ export default class ChannelColorSelector extends React.Component {
     const { colorValue } = this.state
     return(
       <React.Fragment>
+        <div style={{margin: "auto", width: "75%"}}>
           <HuePicker
             onChange={this.handleColorChange}
             color={colorValue}
           />
+        </div>
       </React.Fragment>
     )
   }
