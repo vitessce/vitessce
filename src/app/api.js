@@ -405,9 +405,9 @@ const configs = {
             target: [20000, 20000, 0],
           },
         },
-        x: 0, y: 0, w:10, h: 2 },
+        x: 0, y: 0, w:9, h: 2 },
       { component: 'sliders',
-        x: 10, y: 0, w: 2, h: 2
+        x: 9, y: 0, w: 3, h: 2
       }
     ],
   },

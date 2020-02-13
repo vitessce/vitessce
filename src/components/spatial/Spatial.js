@@ -3,7 +3,7 @@ import React from 'react';
 import {
   ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
 } from 'deck.gl';
-import { SLIDERS_CHANGE } from '../../events';
+import { SLIDERS_CHANGE, COLORS_CHANGE } from '../../events';
 import { MicroscopyViewerLayer } from '@hubmap/vitessce-image-viewer'
 import { load } from '@loaders.gl/core';
 import { SelectablePolygonLayer } from '../../layers';
@@ -29,6 +29,7 @@ export default class Spatial extends AbstractSelectableComponent {
       raster: false,
     };
     this.state.sliderValues = {}
+    this.state.colorValues = {}
 
     // In Deck.gl, layers are considered light weight, and
     // can be created and destroyed quickly, if the data they wrap is stable.
@@ -78,15 +79,23 @@ export default class Spatial extends AbstractSelectableComponent {
 
   componentWillMount() {
     this.slidersChangeToken = PubSub.subscribe(SLIDERS_CHANGE, this.onSlidersChange.bind(this));
+    this.colorsChangeToken = PubSub.subscribe(COLORS_CHANGE, this.onColorsChange.bind(this));
   }
 
   componentWillUnmount() {
     PubSub.unsubscribe(this.slidersChangeToken);
+    PubSub.unsubscribe(this.colorsChangeToken);
   }
 
   onSlidersChange(msg, sliderData) {
     this.setState(prevState => {
       return { sliderValues: { ...prevState.sliderValues, ...sliderData } };
+    });
+  }
+
+  onColorsChange(msg, colorData) {
+    this.setState(prevState => {
+      return { colorValues: { ...prevState.colorValues, ...colorData } };
     });
   }
 
@@ -240,7 +249,6 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   createRasterLayer() {
-    const layerType = 'raster';
     const source = this.raster;
     if (source.height) {
       const remoteData = {
@@ -251,12 +259,7 @@ export default class Spatial extends AbstractSelectableComponent {
         imageHeight: source.height,
         imageWidth: source.width,
         ...remoteData,
-        colorValues: {
-          'Cy3 - Synaptopodin (glomerular)': [255, 0, 0],
-          'Cy5 - THP (thick limb)': [0, 255, 0],
-          'DAPI - Hoescht (nuclei)': [0, 0, 255],
-          'FITC - Laminin (basement membrane)': [255, 128, 0]
-        },
+        colorValues: this.state.colorValues,
         sliderValues: this.state.sliderValues,
         maxZoom: -8,
         minZoom: -16

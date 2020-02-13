@@ -42,5 +42,7 @@ export const RASTER = 'raster';
 export const RASTER_ADD = RASTER + ADD;
 
 export const SLIDERS = 'sliders'
-export const SLIDERS_ADD = SLIDERS + ADD
 export const SLIDERS_CHANGE = SLIDERS + '.change'
+
+export const COLORS = 'colors'
+export const COLORS_CHANGE = COLORS + '.change'
