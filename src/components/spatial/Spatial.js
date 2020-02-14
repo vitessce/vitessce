@@ -3,7 +3,7 @@ import React from 'react';
 import {
   ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
 } from 'deck.gl';
-import { SLIDERS_CHANGE, COLORS_CHANGE } from '../../events';
+import { SLIDERS_CHANGE, COLORS_CHANGE, CHANNEL_TOGGLE } from '../../events';
 import { MicroscopyViewerLayer } from '@hubmap/vitessce-image-viewer'
 import { load } from '@loaders.gl/core';
 import { SelectablePolygonLayer } from '../../layers';
@@ -30,6 +30,7 @@ export default class Spatial extends AbstractSelectableComponent {
     };
     this.state.sliderValues = {}
     this.state.colorValues = {}
+    this.state.channelsOn = {}
 
     // In Deck.gl, layers are considered light weight, and
     // can be created and destroyed quickly, if the data they wrap is stable.
@@ -80,11 +81,13 @@ export default class Spatial extends AbstractSelectableComponent {
   componentWillMount() {
     this.slidersChangeToken = PubSub.subscribe(SLIDERS_CHANGE, this.onSlidersChange.bind(this));
     this.colorsChangeToken = PubSub.subscribe(COLORS_CHANGE, this.onColorsChange.bind(this));
+    this.channelsToggleToken = PubSub.subscribe(CHANNEL_TOGGLE, this.onChannelsToggle.bind(this));
   }
 
   componentWillUnmount() {
     PubSub.unsubscribe(this.slidersChangeToken);
     PubSub.unsubscribe(this.colorsChangeToken);
+    PubSub.unsubscribe(this.channelsToggleToken);
   }
 
   onSlidersChange(msg, sliderData) {
@@ -96,6 +99,12 @@ export default class Spatial extends AbstractSelectableComponent {
   onColorsChange(msg, colorData) {
     this.setState(prevState => {
       return { colorValues: { ...prevState.colorValues, ...colorData } };
+    });
+  }
+
+  onChannelsToggle(msg, channelOn) {
+    this.setState(prevState => {
+      return { channelsOn: { ...prevState.channelsOn, ...channelOn } };
     });
   }
 
@@ -255,12 +264,20 @@ export default class Spatial extends AbstractSelectableComponent {
         tileSize: source.tile_size,
         sourceChannels: source.channels
       };
+      const stateCopy = Object.assign({}, this.state)
+      const { colorValues, sliderValues, channelsOn } = stateCopy
+      const inputColorValues = {}
+      const inputSliderValues ={}
+      Object.keys(colorValues).forEach((channel) => {
+        inputColorValues[channel] = channelsOn[channel] ? colorValues[channel] : [0,0,0]
+        inputSliderValues[channel] = channelsOn[channel] ? sliderValues[channel] : [65535,65535]
+      })
       const propSettings = {
         imageHeight: source.height,
         imageWidth: source.width,
         ...remoteData,
-        colorValues: this.state.colorValues,
-        sliderValues: this.state.sliderValues,
+        colorValues: inputColorValues,
+        sliderValues: inputSliderValues,
         maxZoom: -8,
         minZoom: -16
       };

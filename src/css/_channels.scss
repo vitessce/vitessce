@@ -1,0 +1,24 @@
+.channel-container {
+  width: 100%;
+  display: flex;
+  position: relative;
+}
+
+.channel-set-color {
+    display: flex;
+    position: relative;
+    top: 5px;
+    width: 16px;
+    height: 16px;
+    margin-right: 16px;
+    cursor: pointer;
+    outline: currentColor none medium;
+    border-radius: 3px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 0px 1px inset;
+}
+
+.channel-checked {
+    display: flex;
+    position: relative;
+    margin-right: 10px;
+}

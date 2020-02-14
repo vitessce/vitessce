@@ -46,3 +46,6 @@ export const SLIDERS_CHANGE = SLIDERS + '.change'
 
 export const COLORS = 'colors'
 export const COLORS_CHANGE = COLORS + '.change'
+
+export const CHANNEL = 'channel'
+export const CHANNEL_TOGGLE = CHANNEL + '.toggle'
