@@ -163,7 +163,7 @@ export default class LayerPublisher extends React.Component {
     if (unloadedLayers.length) {
       return (
         <React.Fragment>
-          <div className="modal" style={{ display: 'block' }}>
+          <div className="modal">
             <div className="modal-dialog">
               <div className="modal-content">
                 <div className="modal-body">
