@@ -15,6 +15,7 @@
   @include error;
   @include tooltips;
   @include sets-manager;
+  position: relative; // So please-wait can be positioned absolutely.
 }
 
 .vitessce-popover {
