@@ -96,12 +96,17 @@ function loadLayer(layer) {
   } = layer;
   fetch(url, requestInit)
     .then((response) => {
-      response.json().then((data) => {
-        publishLayer(data, type, name, url);
-      }, (failureReason) => {
-        warn(`Error while parsing ${name}. Details in console.`);
-        console.warn(`"${name}" (${type}) from ${url}: parse failed`, failureReason);
-      });
+      if (response.ok) {
+        response.json().then((data) => {
+          publishLayer(data, type, name, url);
+        }, (failureReason) => {
+          warn(`Error while parsing ${name}. Details in console.`);
+          console.warn(`"${name}" (${type}) from ${url}: parse failed`, failureReason);
+        });
+      } else {
+        warn(`Error HTTP status from ${name}. Details in console.`);
+        console.warn(`"${name}" (${type}) from ${url}: HTTP failed`, response.headers);
+      }
     }, (failureReason) => {
       warn(`Error while fetching ${name}. Details in console.`);
       console.warn(`"${name}" (${type}) from ${url}: fetch failed`, failureReason);

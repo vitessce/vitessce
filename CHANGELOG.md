@@ -3,6 +3,7 @@
 ## 0.0.24 - in progress
 ### Removed
 - Remove vestigial gh-pages.
+- Check that HTTP status is good before trying to parse response.
 - Please-wait only applies to component.
 - Make scatterplot dot size a constant 1px.
 
