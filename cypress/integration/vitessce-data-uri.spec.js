@@ -13,6 +13,20 @@ Cypress.on('window:before:load', (win) => {
   delete win.fetch; // eslint-disable-line no-param-reassign
 });
 
+function loadConfig(config) {
+  // Without a route, Cypress tries to proxy the request,
+  // and that doesn't seem to work for data URIs.
+  const uri = 'data:,JSON-HERE';
+  cy.route({
+    url: uri,
+    response: config,
+  });
+
+  cy.visit('/');
+  cy.get('input[name=url]').type(uri);
+  cy.get('button').click();
+}
+
 describe('Vitessce Data URIs', () => {
   beforeEach(() => {
     // Any request we do not explicitly route will return 404,
@@ -46,17 +60,7 @@ describe('Vitessce Data URIs', () => {
         },
       ],
     };
-    // Without a route, Cypress tries to proxy the request,
-    // and that doesn't seem to work for data URIs.
-    const uri = 'data:,JSON-HERE';
-    cy.route({
-      url: uri,
-      response: config,
-    });
-
-    cy.visit('/');
-    cy.get('input[name=url]').type(uri);
-    cy.get('button').click();
+    loadConfig(config);
     cy.contains(message);
   });
 
@@ -80,33 +84,13 @@ describe('Vitessce Data URIs', () => {
         }
       ]
     };
-    // Without a route, Cypress tries to proxy the request,
-    // and that doesn't seem to work for data URIs.
-    const uri = 'data:,JSON-HERE';
-    cy.route({
-      url: uri,
-      response: config,
-    });
-
-    cy.visit('/');
-    cy.get('input[name=url]').type(uri);
-    cy.get('button').click();
+    loadConfig(config);
     cy.contains('Error while parsing cells.');
   });
 
   it('Handles errors from bad data URI', () => {
     const config = {'bad': 'config'};
-    // Without a route, Cypress tries to proxy the request,
-    // and that doesn't seem to work for data URIs.
-    const uri = 'data:,JSON-HERE';
-    cy.route({
-      url: uri,
-      response: config,
-    });
-
-    cy.visit('/');
-    cy.get('input[name=url]').type(uri);
-    cy.get('button').click();
+    loadConfig(config);
     cy.contains('Config validation failed');
     cy.contains('"additionalProperty": "bad"');
   });
