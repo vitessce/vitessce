@@ -149,6 +149,7 @@ export default class Spatial extends AbstractSelectableComponent {
       pickable: true,
       autoHighlight: true,
       getRadius: this.props.moleculeRadius,
+      radiusMaxPixels: 3,
       getPosition: d => [d[0], d[1], 0],
       getLineColor: getColor,
       getFillColor: getColor,

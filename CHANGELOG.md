@@ -4,6 +4,7 @@
 ### Removed
 - Remove vestigial gh-pages.
 - Please-wait only applies to component.
+- Make scatterplot dot size a constant 1px.
 
 ## [0.0.23](https://www.npmjs.com/package/vitessce/v/0.0.23) - 2020-02-06
 ### Added
