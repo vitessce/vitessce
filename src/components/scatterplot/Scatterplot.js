@@ -60,9 +60,8 @@ export default class Scatterplot extends AbstractSelectableComponent {
               ? selectedCellIds.has(cellEntry[0])
               : true // If nothing is selected, everything is selected.
           ),
-          getRadius: 0.5,
-          lineWidthMinPixels: 0.1,
-          stroked: true,
+          radiusMinPixels: 1,
+          radiusMaxPixels: 1,
           getPosition: (cellEntry) => {
             const mappedCell = cellEntry[1].mappings[mapping];
             return [mappedCell[0], mappedCell[1], 0];
