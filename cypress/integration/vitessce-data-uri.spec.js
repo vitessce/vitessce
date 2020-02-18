@@ -32,14 +32,6 @@ describe('Vitessce Data URIs', () => {
     // Any request we do not explicitly route will return 404,
     // so we won't end up depending on outside resources by accident.
     cy.server({ force404: true });
-    ['cells', 'molecules', 'images', 'clusters', 'genes', 'factors', 'neighborhoods'].forEach(
-      (type) => {
-        cy.route(
-          `${urlPrefix}/linnarsson/linnarsson.${type}.json`,
-          `fixture:../../src/schemas/fixtures/${type}.good.json`,
-        );
-      },
-    );
   });
 
   it('loads valid data URI', () => {
@@ -64,7 +56,7 @@ describe('Vitessce Data URIs', () => {
     cy.contains(message);
   });
 
-  it('Handles errors from bad URL in config', () => {
+  it('handles errors from bad URL in config', () => {
     const config = {
       "name": "fake",
       "description": "Good schema, Bad URL",
@@ -88,7 +80,7 @@ describe('Vitessce Data URIs', () => {
     cy.contains('Error while parsing cells.');
   });
 
-  it('Handles errors from bad data URI', () => {
+  it('handles errors from bad data URI', () => {
     const config = {'bad': 'config'};
     loadConfig(config);
     cy.contains('Config validation failed');
