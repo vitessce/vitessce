@@ -393,7 +393,7 @@ const configs = {
     ],
   },
 
-  'vanderbilt-mxif': {
+  'vanderbilt': {
     ...vanderbiltBase,
     name: 'Vanderbilt MXIF (just spatial)',
     public: true,
