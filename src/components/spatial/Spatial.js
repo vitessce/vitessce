@@ -259,33 +259,25 @@ export default class Spatial extends AbstractSelectableComponent {
 
   createRasterLayer() {
     const source = this.raster;
-    if (source.height) {
-      const remoteData = {
-        tileSize: source.tile_size,
-        sourceChannels: source.channels
-      };
-      const stateCopy = Object.assign({}, this.state)
-      const { colorValues, sliderValues, channelsOn } = stateCopy
-      const inputColorValues = {}
-      const inputSliderValues ={}
-      Object.keys(colorValues).forEach((channel) => {
-        inputColorValues[channel] = channelsOn[channel] ? colorValues[channel] : [0,0,0]
-        inputSliderValues[channel] = channelsOn[channel] ? sliderValues[channel] : [65535,65535]
-      })
-      const propSettings = {
-        imageHeight: source.height,
-        imageWidth: source.width,
-        ...remoteData,
-        colorValues: inputColorValues,
-        sliderValues: inputSliderValues,
-        maxZoom: -8,
-        minZoom: -16
-      };
-      return new MicroscopyViewerLayer({
-        useTiff: true,
-        ...propSettings
+    const { colorValues, sliderValues, channelsOn } = this.state
+    if ( colorValues && sliderValues && channelsOn && source.channels ){
+      if( Object.keys(source.channels).length == Object.keys(colorValues).length
+        && Object.keys(source.channels).length == Object.keys(sliderValues).length
+        && Object.keys(source.channels).length == Object.keys(channelsOn).length) {
+        const propSettings = {
+          sourceChannels: source.channels,
+          colorValues,
+          sliderValues,
+          channelsOn
+        };
+        const props = {
+          useTiff: true,
+          useZarr: false,
+          ...propSettings
 
-      })
+        }
+        return new MicroscopyViewerLayer(props)
+      }
     }
     return null;
   }

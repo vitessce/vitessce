@@ -4,7 +4,7 @@ import PubSub from 'pubsub-js';
 import ChannelSlider from './ChannelSlider';
 import PopoverColor from '../sets/PopoverColor';
 import { Checkbox } from 'antd';
-import { PALETTE } from '../utils';
+import { VIEWER_PALETTE } from '../utils';
 
 import TitleInfo from '../TitleInfo';
 import { SLIDERS_CHANGE, RASTER_ADD, COLORS_CHANGE, CHANNEL_TOGGLE } from '../../events';
@@ -34,7 +34,7 @@ export default class ChannelEffectSubscriber extends React.Component {
 
   rasterAddSubscriber(msg, sliderData) {
     Object.keys(sliderData.channels).sort().forEach((channel, i) => {
-      this.setColorValue({channel, color: PALETTE[i]})
+      this.setColorValue({channel, color: VIEWER_PALETTE[i]})
       this.toggleChannel(channel)
 
     })
@@ -62,14 +62,12 @@ export default class ChannelEffectSubscriber extends React.Component {
       PubSub.publish(CHANNEL_TOGGLE, channelOn);
       return { channelsOn: { ...prevState.channelsOn, ...channelOn } };
     })
-    console.log(this.state)
   }
 
   render() {
     const { colorValues, channelsOn } = this.state;
-    console.log(channelsOn)
     const channelSliders = Object.keys(colorValues).sort().map((channel, i) => {
-      const color = this.state.colorValues[channel] || PALETTE[i]
+      const color = this.state.colorValues[channel] || VIEWER_PALETTE[i]
       return(
         <div key={`container-${channel}`}>
           <p>{channel}</p>
