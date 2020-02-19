@@ -40,8 +40,6 @@ export default class ChannelSlider extends React.Component {
     if (Object.keys(colorData)[0] === this.channel) {
       const slider = withStyles({
         root: {
-          // align with how color-picker displays:
-          // https://github.com/casesandberg/react-color/blob/master/src/components/hue/Hue.js#L25
           color: `rgb(${colorData[this.channel]})`,
         },
       })(Slider);
