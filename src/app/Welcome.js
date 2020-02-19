@@ -59,12 +59,11 @@ function Info() {
         This is a demo of key concepts for a
         {
           'visual integration tool for exploration of spatial single cell experiments'.split(' ')
-          .map(
-            (word, i) =>
-              ['for', 'of'].includes(word)
+            .map(
+              (word, i) => (['for', 'of'].includes(word)
                 ? <span key={i}> {word}</span>
-                : <span key={i}> <b>{word[0]}</b>{word.slice(1)}</span>
-          )
+                : <span key={i}> <b>{word[0]}</b>{word.slice(1)}</span>),
+            )
         }.
         This demo focusses on scalable, linked visualizations that support both
         spatial and non-spatial representation of cell-level and molecule-level data.
