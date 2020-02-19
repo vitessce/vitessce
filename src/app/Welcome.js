@@ -86,16 +86,18 @@ function Info() {
 export default function Welcome(props) {
   const { configs } = props;
   return (
-    <div className="container-fluid vitessce-container">
-      <div className="row">
-        <div className="welcome-col-left">
-          <div className={LIGHT_CARD}>
-            <Form configs={configs} />
+    <div className="vitessce-container">
+      <div className="react-grid-layout container-fluid" style={{"height": "100vh"}}>
+        <div className="row">
+          <div className="welcome-col-left">
+            <div className={LIGHT_CARD}>
+              <Form configs={configs} />
+            </div>
           </div>
-        </div>
-        <div className="welcome-col-right">
-          <div className={LIGHT_CARD}>
-            <Info />
+          <div className="welcome-col-right">
+            <div className={LIGHT_CARD}>
+              <Info />
+            </div>
           </div>
         </div>
       </div>
