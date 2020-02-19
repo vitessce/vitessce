@@ -74,6 +74,7 @@ export default class ChannelEffectSubscriber extends React.Component {
             <Checkbox
               className="channel-checked"
               checked={channelsOn[channel]}
+              // eslint-disable-next-line no-unused-vars
               onChange={e => this.toggleChannel(channel)}
             />
             <PopoverColor

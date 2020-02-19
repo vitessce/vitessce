@@ -7,7 +7,7 @@ import { COLORS_CHANGE } from '../../events';
 export default class ChannelSlider extends React.Component {
   constructor(props) {
     super(props);
-    const { channel, setSliderValue } = props;
+    const { channel } = props;
     this.channel = channel;
     this.state = {
       sliderValue: [],
@@ -60,7 +60,7 @@ export default class ChannelSlider extends React.Component {
         <ColorSlider
           value={sliderValue}
           // eslint-disable-next-line no-unused-vars
-          onChange={(e,v) => this.handleSliderChange(v)}
+          onChange={(e, v) => this.handleSliderChange(v)}
           valueLabelDisplay="auto"
           getAriaLabel={() => this.channel}
           min={0}

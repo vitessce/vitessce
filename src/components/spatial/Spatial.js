@@ -271,15 +271,13 @@ export default class Spatial extends AbstractSelectableComponent {
           sourceChannels: source.channels,
           colorValues,
           sliderValues,
-          channelsOn
+          channelsOn,
 
         };
         return new MicroscopyViewerLayer(props);
       }
     }
-    else {
-      return null;
-    }
+    return null;
   }
 
   setLayerIsVisible(layers) {
