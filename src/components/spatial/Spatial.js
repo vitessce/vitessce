@@ -230,12 +230,12 @@ export default class Spatial extends AbstractSelectableComponent {
       getTileData: ({ x, y, z }) => load(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
       // eslint-disable-next-line  arrow-body-style
       getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
-        return getTileIndices(viewport, maxZoomLevel, minZoomLevel,
-          source.tileSize, source.width, source.height);
+        return getTileIndices({viewport, minZoom: minZoomLevel,
+          tileSize: source.tileSize, width: source.width, height: source.height});
       },
       // eslint-disable-next-line  arrow-body-style
       tileToBoundingBox: (x, y, z) => {
-        return tileToBoundingBox(x, y, z, source.height, source.width, source.tileSize);
+        return tileToBoundingBox({x, y, z, height: source.height, width: source.width, tileSize: source.tileSize});
       },
       minZoom,
       maxZoom: 0,
@@ -333,19 +333,19 @@ export default class Spatial extends AbstractSelectableComponent {
     const layerList = [];
 
     if (images && clearPleaseWait) clearPleaseWait('images');
-    // layerList.push(...this.renderImageLayers());
+    layerList.push(...this.renderImageLayers());
 
     if (raster && clearPleaseWait) clearPleaseWait('raster');
     layerList.push(this.createRasterLayer());
 
     if (cells && clearPleaseWait) clearPleaseWait('cells');
-    // layerList.push(this.renderCellLayer());
+    layerList.push(this.renderCellLayer());
 
     if (neighborhoods && clearPleaseWait) clearPleaseWait('neighborhoods');
-    // layerList.push(this.renderNeighborhoodsLayer());
+    layerList.push(this.renderNeighborhoodsLayer());
 
     if (molecules && clearPleaseWait) clearPleaseWait('molecules');
-    // layerList.push(this.renderMoleculesLayer());
+    layerList.push(this.renderMoleculesLayer());
 
     return layerList;
   }
