@@ -80,7 +80,7 @@ describe('Vitessce Data URIs', () => {
     cy.contains('Error HTTP status from cells.');
   });
 
-  it('handles errors from bad data URI', () => {
+  it('handles errors from bad view config', () => {
     const config = {'bad': 'config'};
     loadConfig(config);
     cy.contains('Config validation failed');
