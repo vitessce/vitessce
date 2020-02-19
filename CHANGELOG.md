@@ -1,12 +1,14 @@
 # Changelog
 
 ## 0.0.24 - in progress
-### Removed
-- Remove vestigial gh-pages.
-- Test error handling in Cypress.
+### Added
 - Check that HTTP status is good before trying to parse response.
 - Please-wait only applies to component.
-- Make scatterplot dot size a constant 1px.
+- Make scatterplot dot size a constant 1px, and molecules 3px.
+- Friendlier error if mapping in config doesn't match data.
+- Test error handling in Cypress.
+### Removed
+- Remove vestigial gh-pages.
 
 ## [0.0.23](https://www.npmjs.com/package/vitessce/v/0.0.23) - 2020-02-06
 ### Added
