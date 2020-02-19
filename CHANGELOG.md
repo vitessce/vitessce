@@ -7,6 +7,10 @@
 - Make scatterplot dot size a constant 1px.
 - Friendlier error if mapping in config doesn't match data.
 - Log a data-URI for the viewconf on load.
+- Restore dark background to homepage.
+
+### Changed
+- No more missing spaces when we spell out the acronym.
 
 ### Removed
 - Remove vestigial gh-pages.

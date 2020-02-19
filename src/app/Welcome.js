@@ -56,10 +56,17 @@ function Info() {
   return (
     <React.Fragment>
       <p>
-        This is a demo of key concepts for
-        a <b>v</b>isual <b>i</b>ntegration <b>t</b>ool
-        for <b>e</b>xploration of
-        <b>s</b>patial <b>s</b>ingle-<b>c</b>ell <b>e</b>xperiment data.
+        This is a demo of key concepts for a
+        {
+          'visual integration tool for exploration of spatial single cell experiments'.split(' ')
+            .map(
+              (word, i) => (['for', 'of'].includes(word)
+              /* eslint-disable react/no-array-index-key */
+                ? <span key={i}> {word}</span>
+                : <span key={i}> <b>{word[0]}</b>{word.slice(1)}</span>),
+              /* eslint-enable */
+            )
+        }.
         This demo focusses on scalable, linked visualizations that support both
         spatial and non-spatial representation of cell-level and molecule-level data.
       </p>
@@ -86,16 +93,18 @@ function Info() {
 export default function Welcome(props) {
   const { configs } = props;
   return (
-    <div className="container-fluid vitessce-container">
-      <div className="row">
-        <div className="welcome-col-left">
-          <div className={LIGHT_CARD}>
-            <Form configs={configs} />
+    <div className="vitessce-container">
+      <div className="react-grid-layout container-fluid" style={{ height: '100vh' }}>
+        <div className="row">
+          <div className="welcome-col-left">
+            <div className={LIGHT_CARD}>
+              <Form configs={configs} />
+            </div>
           </div>
-        </div>
-        <div className="welcome-col-right">
-          <div className={LIGHT_CARD}>
-            <Info />
+          <div className="welcome-col-right">
+            <div className={LIGHT_CARD}>
+              <Info />
+            </div>
           </div>
         </div>
       </div>
