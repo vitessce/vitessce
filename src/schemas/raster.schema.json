@@ -4,9 +4,11 @@
   "title": "Vitessce tiff data",
   "type": "object",
   "definitions": {
-    "height": { "type": "number" },
-    "width": { "type": "number" },
-    "tileSize": { "type": "number" },
-    "channels": {"type": "array"  }
+    "channels": {
+      "type": "object",
+      "patternProperties": {
+        ".*" : { "type": "string", "format": "uri" }
+      }
+    }
   }
 }
