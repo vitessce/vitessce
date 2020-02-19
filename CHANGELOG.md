@@ -6,6 +6,7 @@
 - Please-wait only applies to component.
 - Make scatterplot dot size a constant 1px.
 - Friendlier error if mapping in config doesn't match data.
+- Log a data-URI for the viewconf on load.
 - Restore dark background to homepage.
 
 ### Changed
