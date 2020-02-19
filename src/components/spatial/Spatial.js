@@ -265,22 +265,21 @@ export default class Spatial extends AbstractSelectableComponent {
       if (Object.keys(source.channels).length === Object.keys(colorValues).length
         && Object.keys(source.channels).length === Object.keys(sliderValues).length
         && Object.keys(source.channels).length === Object.keys(channelsOn).length) {
-        const propSettings = {
-          sourceChannels: source.channels,
-          colorValues,
-          sliderValues,
-          channelsOn,
-        };
         const props = {
           useTiff: true,
           useZarr: false,
-          ...propSettings,
+          sourceChannels: source.channels,
+          colorValues,
+          sliderValues,
+          channelsOn
 
         };
         return new MicroscopyViewerLayer(props);
       }
     }
-    return null;
+    else {
+      return null;
+    }
   }
 
   setLayerIsVisible(layers) {
