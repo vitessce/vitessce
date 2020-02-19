@@ -10,22 +10,23 @@ export default class ChannelSlider extends React.Component {
     const { channel, setSliderValue } = props;
     this.channel = channel;
     this.state = {
-      sliderValue: [0, 20000],
+      sliderValue: [],
       slider: null,
       colorValue: [],
     };
-    const slidersObj = {};
-    slidersObj[channel] = [0, 20000];
-    setSliderValue(slidersObj);
     this.handleSliderChange = this.handleSliderChange.bind(this);
   }
 
-  handleSliderChange(event, value) {
+  handleSliderChange(value) {
     const channelValue = {};
     channelValue[this.channel] = value;
     this.setState({ sliderValue: value });
     const { setSliderValue } = this.props;
     setSliderValue(channelValue);
+  }
+
+  componentDidMount() {
+    this.handleSliderChange([0, 20000]);
   }
 
   componentWillMount() {
@@ -58,7 +59,8 @@ export default class ChannelSlider extends React.Component {
       return (
         <ColorSlider
           value={sliderValue}
-          onChange={this.handleSliderChange}
+          // eslint-disable-next-line no-unused-vars
+          onChange={(e,v) => this.handleSliderChange(v)}
           valueLabelDisplay="auto"
           getAriaLabel={() => this.channel}
           min={0}
