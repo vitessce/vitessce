@@ -395,7 +395,7 @@ const configs = {
 
   vanderbilt: {
     ...vanderbiltBase,
-    name: 'Vanderbilt MXIF (just spatial)',
+    name: 'Vanderbilt MXIF',
     public: true,
     staticLayout: [
       { component: 'spatial',
