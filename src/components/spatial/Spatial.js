@@ -1,11 +1,11 @@
 import React from 'react';
-
+import PubSub from 'pubsub-js';
 import {
   ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
 } from 'deck.gl';
-import { SLIDERS_CHANGE, COLORS_CHANGE, CHANNEL_TOGGLE } from '../../events';
-import { MicroscopyViewerLayer } from '@hubmap/vitessce-image-viewer'
+import { MicroscopyViewerLayer } from '@hubmap/vitessce-image-viewer';
 import { load } from '@loaders.gl/core';
+import { SLIDERS_CHANGE, COLORS_CHANGE, CHANNEL_TOGGLE } from '../../events';
 import { SelectablePolygonLayer } from '../../layers';
 import { tileToBoundingBox, getTileIndices } from './tiling-utils';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
@@ -28,9 +28,9 @@ export default class Spatial extends AbstractSelectableComponent {
       neighborhoods: false,
       raster: false,
     };
-    this.state.sliderValues = {}
-    this.state.colorValues = {}
-    this.state.channelsOn = {}
+    this.state.sliderValues = {};
+    this.state.colorValues = {};
+    this.state.channelsOn = {};
 
     // In Deck.gl, layers are considered light weight, and
     // can be created and destroyed quickly, if the data they wrap is stable.
@@ -91,21 +91,15 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   onSlidersChange(msg, sliderData) {
-    this.setState(prevState => {
-      return { sliderValues: { ...prevState.sliderValues, ...sliderData } };
-    });
+    this.setState(prevState => ({ sliderValues: { ...prevState.sliderValues, ...sliderData } }));
   }
 
   onColorsChange(msg, colorData) {
-    this.setState(prevState => {
-      return { colorValues: { ...prevState.colorValues, ...colorData } };
-    });
+    this.setState(prevState => ({ colorValues: { ...prevState.colorValues, ...colorData } }));
   }
 
   onChannelsToggle(msg, channelOn) {
-    this.setState(prevState => {
-      return { channelsOn: { ...prevState.channelsOn, ...channelOn } };
-    });
+    this.setState(prevState => ({ channelsOn: { ...prevState.channelsOn, ...channelOn } }));
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -230,12 +224,19 @@ export default class Spatial extends AbstractSelectableComponent {
       getTileData: ({ x, y, z }) => load(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
       // eslint-disable-next-line  arrow-body-style
       getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
-        return getTileIndices({viewport, minZoom: minZoomLevel,
-          tileSize: source.tileSize, width: source.width, height: source.height});
+        return getTileIndices({
+          viewport,
+          minZoom: minZoomLevel,
+          tileSize: source.tileSize,
+          width: source.width,
+          height: source.height,
+        });
       },
       // eslint-disable-next-line  arrow-body-style
       tileToBoundingBox: (x, y, z) => {
-        return tileToBoundingBox({x, y, z, height: source.height, width: source.width, tileSize: source.tileSize});
+        return tileToBoundingBox({
+          x, y, z, height: source.height, width: source.width, tileSize: source.tileSize,
+        });
       },
       minZoom,
       maxZoom: 0,
@@ -259,24 +260,24 @@ export default class Spatial extends AbstractSelectableComponent {
 
   createRasterLayer() {
     const source = this.raster;
-    const { colorValues, sliderValues, channelsOn } = this.state
-    if ( colorValues && sliderValues && channelsOn && source.channels ){
-      if( Object.keys(source.channels).length == Object.keys(colorValues).length
-        && Object.keys(source.channels).length == Object.keys(sliderValues).length
-        && Object.keys(source.channels).length == Object.keys(channelsOn).length) {
+    const { colorValues, sliderValues, channelsOn } = this.state;
+    if (colorValues && sliderValues && channelsOn && source.channels) {
+      if (Object.keys(source.channels).length === Object.keys(colorValues).length
+        && Object.keys(source.channels).length === Object.keys(sliderValues).length
+        && Object.keys(source.channels).length === Object.keys(channelsOn).length) {
         const propSettings = {
           sourceChannels: source.channels,
           colorValues,
           sliderValues,
-          channelsOn
+          channelsOn,
         };
         const props = {
           useTiff: true,
           useZarr: false,
-          ...propSettings
+          ...propSettings,
 
-        }
-        return new MicroscopyViewerLayer(props)
+        };
+        return new MicroscopyViewerLayer(props);
       }
     }
     return null;

@@ -1,30 +1,31 @@
 import Slider from '@material-ui/core/Slider';
+import PubSub from 'pubsub-js';
 import { withStyles } from '@material-ui/core/styles';
-import { COLORS_CHANGE } from '../../events';
 import React from 'react';
+import { COLORS_CHANGE } from '../../events';
 
 export default class ChannelSlider extends React.Component {
-
   constructor(props) {
     super(props);
-    const { channel } = props
-    this.channel = channel
+    const { channel, setSliderValue } = props;
+    this.channel = channel;
     this.state = {
-      sliderValue: [0,20000],
+      sliderValue: [0, 20000],
       slider: null,
-      colorValue: []
-    }
-    const slidersObj = {}
-    slidersObj[channel] = [0,20000]
-    this.props.setSliderValue(slidersObj);
+      colorValue: [],
+    };
+    const slidersObj = {};
+    slidersObj[channel] = [0, 20000];
+    setSliderValue(slidersObj);
     this.handleSliderChange = this.handleSliderChange.bind(this);
   }
 
   handleSliderChange(event, value) {
-    var channelValue = {};
+    const channelValue = {};
     channelValue[this.channel] = value;
-    this.setState({sliderValue: value });
-    this.props.setSliderValue(channelValue);
+    this.setState({ sliderValue: value });
+    const { setSliderValue } = this.props;
+    setSliderValue(channelValue);
   }
 
   componentWillMount() {
@@ -36,26 +37,28 @@ export default class ChannelSlider extends React.Component {
   }
 
   onColorsChange(msg, colorData) {
-    if(Object.keys(colorData)[0] == this.channel){
+    if (Object.keys(colorData)[0] === this.channel) {
+      const slider = withStyles({
+        root: {
+          // align with how color-picker displays:
+          // https://github.com/casesandberg/react-color/blob/master/src/components/hue/Hue.js#L25
+          color: `rgb(${colorData[this.channel]})`,
+        },
+      })(Slider);
+      const colorValue = colorData[this.channel];
       this.setState({
-        slider: withStyles({
-          root: {
-            // align with how color-picker displays:
-            // https://github.com/casesandberg/react-color/blob/master/src/components/hue/Hue.js#L25
-            color: `rgb(${colorData[this.channel]})`
-          }
-        })(Slider),
-        colorValue: colorData[this.channel]
-      })
+        slider,
+        colorValue,
+      });
     }
   }
 
-  render(){
-    const { sliderValue, colorValue } = this.state
-    if(colorValue.length > 0) {
-      const ChannelSlider = this.state.slider
-      return(
-        <ChannelSlider
+  render() {
+    const { sliderValue, colorValue, slider } = this.state;
+    if (colorValue.length > 0) {
+      const ColorSlider = slider;
+      return (
+        <ColorSlider
           value={sliderValue}
           onChange={this.handleSliderChange}
           valueLabelDisplay="auto"
@@ -64,10 +67,9 @@ export default class ChannelSlider extends React.Component {
           max={65535}
           orientation="horizontal"
         />
-      )
+      );
     }
-    else{
-      return null
-    }
+
+    return null;
   }
 }

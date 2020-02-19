@@ -393,7 +393,7 @@ const configs = {
     ],
   },
 
-  'vanderbilt': {
+  vanderbilt: {
     ...vanderbiltBase,
     name: 'Vanderbilt MXIF (just spatial)',
     public: true,
@@ -405,10 +405,10 @@ const configs = {
             target: [20000, 20000, 0],
           },
         },
-        x: 0, y: 0, w:9, h: 2 },
+        x: 0, y: 0, w: 9, h: 2 },
       { component: 'channels',
-        x: 9, y: 0, w: 3, h: 2
-      }
+        x: 9, y: 0, w: 3, h: 2,
+      },
     ],
   },
 };

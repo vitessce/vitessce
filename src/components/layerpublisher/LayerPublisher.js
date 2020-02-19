@@ -128,7 +128,7 @@ export default class LayerPublisher extends React.Component {
       const waitingOn = Object.entries(prevState.pleaseWaits)
         .filter(entry => entry[1])
         .map(entry => entry[0]);
-      if(waitingOn.length > 0) {
+      if (waitingOn.length > 0) {
         console.warn(`cleared "${layerName}"; waiting on ${waitingOn.length}:`, waitingOn);
       }
       return prevState;

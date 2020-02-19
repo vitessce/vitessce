@@ -1,1 +1,1 @@
-export ChannelEffectSubscriber from './ChannelEffectSubscriber'
+export ChannelEffectSubscriber from './ChannelEffectSubscriber';

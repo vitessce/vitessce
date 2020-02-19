@@ -41,11 +41,11 @@ export const STATUS_INFO = `${STATUS}.info`;
 export const RASTER = 'raster';
 export const RASTER_ADD = RASTER + ADD;
 
-export const SLIDERS = 'sliders'
-export const SLIDERS_CHANGE = SLIDERS + '.change'
+export const SLIDERS = 'sliders';
+export const SLIDERS_CHANGE = `${SLIDERS}.change`;
 
-export const COLORS = 'colors'
-export const COLORS_CHANGE = COLORS + '.change'
+export const COLORS = 'colors';
+export const COLORS_CHANGE = `${COLORS}.change`;
 
-export const CHANNEL = 'channel'
-export const CHANNEL_TOGGLE = CHANNEL + '.toggle'
+export const CHANNEL = 'channel';
+export const CHANNEL_TOGGLE = `${CHANNEL}.toggle`;
