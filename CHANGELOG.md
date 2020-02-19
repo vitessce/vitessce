@@ -8,6 +8,9 @@
 - Friendlier error if mapping in config doesn't match data.
 - Restore dark background to homepage.
 
+### Changed
+- No more missing spaces when we spell out the acronym.
+
 ### Removed
 - Remove vestigial gh-pages.
 
