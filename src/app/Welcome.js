@@ -61,8 +61,10 @@ function Info() {
           'visual integration tool for exploration of spatial single cell experiments'.split(' ')
             .map(
               (word, i) => (['for', 'of'].includes(word)
+              /* eslint-disable react/no-array-index-key */
                 ? <span key={i}> {word}</span>
                 : <span key={i}> <b>{word[0]}</b>{word.slice(1)}</span>),
+              /* eslint-enable */
             )
         }.
         This demo focusses on scalable, linked visualizations that support both
