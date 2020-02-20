@@ -64,6 +64,7 @@ export default class ChannelSlider extends React.Component {
         onChange={(e, v) => this.handleSliderChange(v)}
         valueLabelDisplay="auto"
         getAriaLabel={() => this.channel}
+        channel={this.channel}
         min={0}
         max={65535}
         orientation="horizontal"

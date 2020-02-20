@@ -2,7 +2,7 @@ import React from 'react';
 import {
   ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
 } from 'deck.gl';
-import { MicroscopyViewerLayer } from '@hubmap/vitessce-image-viewer';
+import { VivViewerLayer } from '@hubmap/vitessce-image-viewer';
 import { load } from '@loaders.gl/core';
 import { SelectablePolygonLayer } from '../../layers';
 import { tileToBoundingBox, getTileIndices } from './tiling-utils';
@@ -253,7 +253,7 @@ export default class Spatial extends AbstractSelectableComponent {
           sliderValues,
           channelsOn,
         };
-        return new MicroscopyViewerLayer(props);
+        return new VivViewerLayer(props);
       }
     }
     return null;
