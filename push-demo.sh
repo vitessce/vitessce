@@ -20,23 +20,13 @@ echo '{
 npm run build
 
 DIST_DIR='demo/dist/'
-STAGING_DIR='staging-docs'
 # and add an error page for vitessce.io...
 cp error.html $DIST_DIR
 # and push to S3.
 aws s3 cp --recursive $DIST_DIR s3://$DEMO_URL_PATH
-TARGET_URL="https://s3.amazonaws.com/$DEMO_URL_PATH/$STAGING_DIR/index.html"
+TARGET_URL="https://s3.amazonaws.com/$DEMO_URL_PATH/index.html"
 
 echo "- $DATE: [$BRANCH]($TARGET_URL)" >> demos.md
-
-echo '
-<html>
-<head><meta http-equiv="refresh" content="2; url='"$TARGET_URL"'"></head>
-<body>
-Redirecting to latest demo.
-</body>
-</html>
-' > docs/dev.html
 
 echo "Deployed to $TARGET_URL"
 # Open in browser and see if it works:

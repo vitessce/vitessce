@@ -71,13 +71,13 @@ export default class HeatmapSubscriber extends React.Component {
     const cellsCount = clusters ? clusters.cols.length : 0;
     const genesCount = clusters ? clusters.rows.length : 0;
     const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
-    const { children, uuid } = this.props;
+    const { children, uuid, removeGridComponent } = this.props;
     return (
       <TitleInfo
         title="Heatmap"
         info={`${cellsCount} cells × ${genesCount} genes,
                with ${selectedCount} cells selected`}
-        componentWillUnmount={this.componentWillUnmount}
+        removeGridComponent={removeGridComponent}
       >
         {children}
         <Heatmap

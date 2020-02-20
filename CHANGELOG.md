@@ -1,10 +1,28 @@
 # Changelog
 
-## 0.0.23 - in progress
+## 0.0.24 - in progress
+### Added
+- Check that HTTP status is good before trying to parse response.
+- Please-wait only applies to component.
+- Make scatterplot dot size a constant 1px.
+- Friendlier error if mapping in config doesn't match data.
+- Log a data-URI for the viewconf on load.
+- Restore dark background to homepage.
+
+### Changed
+- No more missing spaces when we spell out the acronym.
+
+### Removed
+- Remove vestigial gh-pages.
+
+## [0.0.23](https://www.npmjs.com/package/vitessce/v/0.0.23) - 2020-02-06
 ### Added
 - HTTP headers to pass can be specified in the layers of the viewconf.
 ### Changed
 - Fix merge-to-master builds on Travis.
+- Upgrade vitessce-grid to v0.0.6 to support pane closing.
+- Removed bootstrap and moved the small set of bootstrap styles being used into an SCSS mixin.
+- Fixed broken rectangular selection tool (broke due to a `nebula.gl` upgrade from v0.12.0 to v0.17.1), but switched the interaction from dragging to clicking.
 
 ## [0.0.22](https://www.npmjs.com/package/vitessce/v/0.0.22) - 2019-01-22
 ### Added

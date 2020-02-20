@@ -3,7 +3,7 @@ import TitleInfo from '../TitleInfo';
 
 export default function Status(props) {
   const warnClass = 'alert alert-warning my-0 details';
-  const { info, warn } = props;
+  const { info, warn, removeGridComponent } = props;
   const messages = [];
   if (info) {
     messages.push(<p className="details" key="info">{info}</p>);
@@ -13,7 +13,7 @@ export default function Status(props) {
     messages.push(<p className={warnClass} key="warn">{warn}</p>);
   }
   return (
-    <TitleInfo title="Status" isScroll>
+    <TitleInfo title="Status" removeGridComponent={removeGridComponent} isScroll>
       {messages}
     </TitleInfo>
   );

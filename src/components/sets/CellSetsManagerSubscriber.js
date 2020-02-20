@@ -66,12 +66,12 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   render() {
     const { cellSets, gridResizeEvent } = this.state;
-    const { datasetId } = this.props;
+    const { datasetId, removeGridComponent } = this.props;
     return (
       <TitleInfo
         title="Cell Sets"
         isScroll
-        componentWillUnmount={this.componentWillUnmount}
+        removeGridComponent={removeGridComponent}
       >
         <SetsManager
           setsTree={cellSets}

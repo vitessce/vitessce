@@ -17,9 +17,9 @@ class Description extends React.Component {
   }
 
   render() {
-    const { description } = this.props;
+    const { description, removeGridComponent } = this.props;
     return (
-      <TitleInfo title="Data Set" isScroll>
+      <TitleInfo title="Data Set" removeGridComponent={removeGridComponent} isScroll>
         <p className="details">{description}</p>
       </TitleInfo>
     );
