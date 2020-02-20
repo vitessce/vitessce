@@ -53,7 +53,7 @@ const wangBase = {
   ].map(makeLayerNameToConfig('wang')),
 };
 
-const vanderbiltDescription = 'High Bit Depth (uint16) Multiplex immunofluorescence Imaging';
+const vanderbiltDescription = 'High Bit Depth (uint16) Multiplex Immunofluorescence Imaging';
 const vanderbiltBase = {
   description: vanderbiltDescription,
   layers: [
