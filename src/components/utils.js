@@ -52,14 +52,6 @@ export const PALETTE = [
   [177, 89, 40],
 ];
 
-export const VIEWER_PALETTE = [
-  [255, 127, 0],
-  [228, 26, 28],
-  [55, 126, 184],
-  [77, 175, 74],
-  [152, 78, 163],
-  [255, 255, 51],
-];
 
 export function rgb(hexString) {
   return [

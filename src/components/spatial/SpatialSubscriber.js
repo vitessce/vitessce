@@ -4,9 +4,21 @@ import shortNumber from 'short-number';
 
 import TitleInfo from '../TitleInfo';
 import {
-  IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
-  STATUS_INFO, CELLS_SELECTION, CELLS_HOVER, CLEAR_PLEASE_WAIT, VIEW_INFO,
-  CELL_SETS_VIEW, RASTER_ADD,
+  IMAGES_ADD,
+  MOLECULES_ADD,
+  NEIGHBORHOODS_ADD,
+  CELLS_ADD,
+  CELLS_COLOR,
+  STATUS_INFO,
+  CELLS_SELECTION,
+  CELLS_HOVER,
+  CLEAR_PLEASE_WAIT,
+  VIEW_INFO,
+  CELL_SETS_VIEW,
+  RASTER_ADD,
+  SLIDERS_CHANGE,
+  COLORS_CHANGE,
+  CHANNEL_TOGGLE,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -48,6 +60,9 @@ export default class SpatialSubscriber extends React.Component {
     this.rasterAddToken = PubSub.subscribe(
       RASTER_ADD, this.rasterAddSubscriber.bind(this),
     );
+    this.slidersChangeToken = PubSub.subscribe(SLIDERS_CHANGE, this.onSlidersChange.bind(this));
+    this.colorsChangeToken = PubSub.subscribe(COLORS_CHANGE, this.onColorsChange.bind(this));
+    this.channelToggleToken = PubSub.subscribe(CHANNEL_TOGGLE, this.onChannelToggle.bind(this));
   }
 
   componentDidMount() {
@@ -64,6 +79,9 @@ export default class SpatialSubscriber extends React.Component {
     PubSub.unsubscribe(this.cellsColorToken);
     PubSub.unsubscribe(this.cellSetsViewToken);
     PubSub.unsubscribe(this.rasterAddToken);
+    PubSub.unsubscribe(this.slidersChangeToken);
+    PubSub.unsubscribe(this.colorsChangeToken);
+    PubSub.unsubscribe(this.channelToggleToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
@@ -94,8 +112,21 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ cellColors });
   }
 
+  onSlidersChange(msg, sliderData) {
+    this.setState(prevState => ({ sliderValues: { ...prevState.sliderValues, ...sliderData } }));
+  }
+
+  onColorsChange(msg, rgbData) {
+    this.setState(prevState => ({ colorValues: { ...prevState.colorValues, ...rgbData } }));
+  }
+
+  onChannelToggle(msg, channelOn) {
+    this.setState(prevState => ({ channelsOn: { ...prevState.channelsOn, ...channelOn } }));
+  }
   render() {
-    const { cells, molecules } = this.state;
+    const {
+      cells, molecules, sliderValues, colorValues, channelsOn,
+    } = this.state;
     const { uuid = null, children } = this.props;
     const cellsCount = cells ? Object.keys(cells).length : 0;
     const moleculesCount = molecules ? Object.keys(molecules).length : 0;
@@ -131,6 +162,9 @@ export default class SpatialSubscriber extends React.Component {
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
+          sliderValues={sliderValues}
+          colorValues={colorValues}
+          channelsOn={channelsOn}
         />
       </TitleInfo>
       /* eslint-enable */

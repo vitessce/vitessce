@@ -8,7 +8,7 @@ import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscri
 import HoverableScatterplotSubscriber from '../components/scatterplot/HoverableScatterplotSubscriber';
 import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSubscriber';
 import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSubscriber';
-import ChannelEffectSubscriber from '../components/channel-effects/ChannelEffectSubscriber';
+import ChannelsSubscriber from '../components/channels/ChannelsSubscriber';
 
 class Description extends React.Component {
   componentDidMount() {
@@ -35,7 +35,7 @@ const registry = {
   scatterplot: HoverableScatterplotSubscriber,
   spatial: HoverableSpatialSubscriber,
   heatmap: HoverableHeatmapSubscriber,
-  channels: ChannelEffectSubscriber,
+  channels: ChannelsSubscriber,
 };
 
 export default function getComponent(name) {

@@ -111,6 +111,7 @@ export default class AbstractSelectableComponent extends React.Component {
   }
 
   onWebGLInitialized(gl) {
+    // gl needs to be initialized for us to use it in Texture creation
     this.setState({ gl });
   }
 
@@ -126,9 +127,8 @@ export default class AbstractSelectableComponent extends React.Component {
 
     let deckProps = {
       views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
-      layers: (gl
-        ? this.renderLayers().concat(this.renderSelectionLayers())
-        : []),
+      // gl needs to be initialized for us to use it in Texture creation
+      layers: gl ? this.renderLayers().concat(this.renderSelectionLayers()) : [],
       initialViewState: this.getInitialViewState(),
     };
     if (tool) {

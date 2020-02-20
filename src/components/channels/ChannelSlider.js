@@ -4,16 +4,23 @@ import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { COLORS_CHANGE } from '../../events';
 
+const INIT_RANGE = [0, 20000];
+
 export default class ChannelSlider extends React.Component {
   constructor(props) {
     super(props);
-    const { channel } = props;
+    const { channel, color, setSliderValue } = props;
     this.channel = channel;
     this.state = {
-      sliderValue: [],
-      slider: null,
-      colorValue: [],
+      sliderValue: INIT_RANGE,
+      slider: withStyles({
+        root: {
+          color: `rgb(${color})`,
+        },
+      })(Slider),
+      colorValue: color,
     };
+    setSliderValue({ [this.channel]: INIT_RANGE });
     this.handleSliderChange = this.handleSliderChange.bind(this);
   }
 
@@ -25,10 +32,6 @@ export default class ChannelSlider extends React.Component {
     setSliderValue(channelValue);
   }
 
-  componentDidMount() {
-    this.handleSliderChange([0, 20000]);
-  }
-
   componentWillMount() {
     this.colorsChangeToken = PubSub.subscribe(COLORS_CHANGE, this.onColorsChange.bind(this));
   }
@@ -37,14 +40,14 @@ export default class ChannelSlider extends React.Component {
     PubSub.unsubscribe(this.colorsChangeToken);
   }
 
-  onColorsChange(msg, colorData) {
-    if (Object.keys(colorData)[0] === this.channel) {
+  onColorsChange(msg, rgbData) {
+    if (Object.keys(rgbData)[0] === this.channel) {
       const slider = withStyles({
         root: {
-          color: `rgb(${colorData[this.channel]})`,
+          color: `rgb(${rgbData[this.channel]})`,
         },
       })(Slider);
-      const colorValue = colorData[this.channel];
+      const colorValue = rgbData[this.channel];
       this.setState({
         slider,
         colorValue,
@@ -54,22 +57,18 @@ export default class ChannelSlider extends React.Component {
 
   render() {
     const { sliderValue, colorValue, slider } = this.state;
-    if (colorValue.length > 0) {
-      const ColorSlider = slider;
-      return (
-        <ColorSlider
-          value={sliderValue}
-          // eslint-disable-next-line no-unused-vars
-          onChange={(e, v) => this.handleSliderChange(v)}
-          valueLabelDisplay="auto"
-          getAriaLabel={() => this.channel}
-          min={0}
-          max={65535}
-          orientation="horizontal"
-        />
-      );
-    }
-
-    return null;
+    const ColorSlider = slider;
+    return (
+      <ColorSlider
+        value={sliderValue}
+        // eslint-disable-next-line no-unused-vars
+        onChange={(e, v) => this.handleSliderChange(v)}
+        valueLabelDisplay="auto"
+        getAriaLabel={() => this.channel}
+        min={0}
+        max={65535}
+        orientation="horizontal"
+      />
+    );
   }
 }

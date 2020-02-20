@@ -5,7 +5,6 @@ import {
 } from 'deck.gl';
 import { MicroscopyViewerLayer } from '@hubmap/vitessce-image-viewer';
 import { load } from '@loaders.gl/core';
-import { SLIDERS_CHANGE, COLORS_CHANGE, CHANNEL_TOGGLE } from '../../events';
 import { SelectablePolygonLayer } from '../../layers';
 import { tileToBoundingBox, getTileIndices } from './tiling-utils';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
@@ -28,9 +27,6 @@ export default class Spatial extends AbstractSelectableComponent {
       neighborhoods: false,
       raster: false,
     };
-    this.state.sliderValues = {};
-    this.state.colorValues = {};
-    this.state.channelsOn = {};
 
     // In Deck.gl, layers are considered light weight, and
     // can be created and destroyed quickly, if the data they wrap is stable.
@@ -78,29 +74,6 @@ export default class Spatial extends AbstractSelectableComponent {
     return this.props.view;
   }
 
-  componentWillMount() {
-    this.slidersChangeToken = PubSub.subscribe(SLIDERS_CHANGE, this.onSlidersChange.bind(this));
-    this.colorsChangeToken = PubSub.subscribe(COLORS_CHANGE, this.onColorsChange.bind(this));
-    this.channelsToggleToken = PubSub.subscribe(CHANNEL_TOGGLE, this.onChannelsToggle.bind(this));
-  }
-
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.slidersChangeToken);
-    PubSub.unsubscribe(this.colorsChangeToken);
-    PubSub.unsubscribe(this.channelsToggleToken);
-  }
-
-  onSlidersChange(msg, sliderData) {
-    this.setState(prevState => ({ sliderValues: { ...prevState.sliderValues, ...sliderData } }));
-  }
-
-  onColorsChange(msg, colorData) {
-    this.setState(prevState => ({ colorValues: { ...prevState.colorValues, ...colorData } }));
-  }
-
-  onChannelsToggle(msg, channelOn) {
-    this.setState(prevState => ({ channelsOn: { ...prevState.channelsOn, ...channelOn } }));
-  }
 
   // eslint-disable-next-line class-methods-use-this
   getCellCoords(cell) {
@@ -235,7 +208,12 @@ export default class Spatial extends AbstractSelectableComponent {
       // eslint-disable-next-line  arrow-body-style
       tileToBoundingBox: (x, y, z) => {
         return tileToBoundingBox({
-          x, y, z, height: source.height, width: source.width, tileSize: source.tileSize,
+          x,
+          y,
+          z,
+          height: source.height,
+          width: source.width,
+          tileSize: source.tileSize,
         });
       },
       minZoom,
@@ -260,11 +238,14 @@ export default class Spatial extends AbstractSelectableComponent {
 
   createRasterLayer() {
     const source = this.raster;
-    const { colorValues, sliderValues, channelsOn } = this.state;
+    const { colorValues, sliderValues, channelsOn } = this.props;
     if (colorValues && sliderValues && channelsOn && source.channels) {
-      if (Object.keys(source.channels).length === Object.keys(colorValues).length
-        && Object.keys(source.channels).length === Object.keys(sliderValues).length
-        && Object.keys(source.channels).length === Object.keys(channelsOn).length) {
+      const channelsLength = Object.keys(source.channels).length;
+      if (
+        channelsLength === Object.keys(colorValues).length
+        && channelsLength === Object.keys(sliderValues).length
+        && channelsLength === Object.keys(channelsOn).length
+      ) {
         const props = {
           useTiff: true,
           useZarr: false,
@@ -272,7 +253,6 @@ export default class Spatial extends AbstractSelectableComponent {
           colorValues,
           sliderValues,
           channelsOn,
-
         };
         return new MicroscopyViewerLayer(props);
       }
