@@ -24,7 +24,7 @@
   "dependencies": {
     "@deck.gl/core": "^8.1.0-alpha.1",
     "@deck.gl/layers": "^8.1.0-alpha.1",
-    "@hubmap/vitessce-image-viewer": "0.0.5",
+    "@hubmap/vitessce-image-viewer": "0.0.6",
     "@loaders.gl/core": "^2.0.2",
     "@loaders.gl/loader-utils": "^2.0.2",
     "@luma.gl/constants": "^8.0.3",

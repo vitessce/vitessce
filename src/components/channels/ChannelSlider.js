@@ -25,7 +25,7 @@ export default class ChannelSlider extends React.Component {
   }
 
   handleSliderChange(value) {
-    const channelValue = {[this.channel]: value};
+    const channelValue = { [this.channel]: value };
     this.setState({ sliderValue: value });
     const { setSliderValue } = this.props;
     setSliderValue(channelValue);
@@ -55,7 +55,7 @@ export default class ChannelSlider extends React.Component {
   }
 
   render() {
-    const { sliderValue, colorValue, slider } = this.state;
+    const { sliderValue, slider } = this.state;
     const ColorSlider = slider;
     return (
       <ColorSlider

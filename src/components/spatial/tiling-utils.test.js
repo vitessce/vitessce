@@ -10,7 +10,7 @@ describe('./tiling-utils.js', () => {
         height: 8000,
         width: 8000,
       };
-      expect(getTileIndices(viewport, 0, -16, 1000, 100000, 100000)).toEqual([
+      expect(getTileIndices({viewport, minZoom: -16, tileSize: 1000, width: 100000, height: 100000})).toEqual([
         { x: 0, y: 0, z: -2 }, { x: 0, y: 1, z: -2 },
         { x: 1, y: 0, z: -2 }, { x: 1, y: 1, z: -2 },
       ]);
@@ -23,7 +23,7 @@ describe('./tiling-utils.js', () => {
         height: 8000,
         width: 8000,
       };
-      expect(getTileIndices(viewport, 0, -16, 1000, 100000, 100000)).toEqual([
+      expect(getTileIndices({viewport, minZoom: -16, tileSize: 1000, width: 100000, height: 100000})).toEqual([
         { x: 0, y: 0, z: -2 }, { x: 0, y: 1, z: -2 }, { x: 0, y: 2, z: -2 },
         { x: 0, y: 3, z: -2 },
         { x: 1, y: 0, z: -2 }, { x: 1, y: 1, z: -2 }, { x: 1, y: 2, z: -2 },
@@ -42,7 +42,7 @@ describe('./tiling-utils.js', () => {
         height: 12000,
         width: 8000,
       };
-      expect(getTileIndices(viewport, 0, -16, 1000, 100000, 100000)).toEqual([
+      expect(getTileIndices({viewport, minZoom: -16, tileSize: 1000, width: 100000, height: 100000})).toEqual([
         { x: 0, y: 0, z: -2 }, { x: 0, y: 1, z: -2 }, { x: 0, y: 2, z: -2 },
         { x: 1, y: 0, z: -2 }, { x: 1, y: 1, z: -2 }, { x: 1, y: 2, z: -2 },
       ]);
@@ -55,7 +55,7 @@ describe('./tiling-utils.js', () => {
         height: 8000,
         width: 8000,
       };
-      expect(getTileIndices(viewport, 0, -16, 1000, 100000, 100000))
+      expect(getTileIndices({viewport, minZoom: -16, tileSize: 1000, width: 100000, height: 100000}))
         .toEqual([{ x: 0, y: 0, z: -16 }]);
     });
 
@@ -66,7 +66,7 @@ describe('./tiling-utils.js', () => {
         height: 8000,
         width: 8000,
       };
-      expect(getTileIndices(viewport, 0, -16, 1000, 1000, 1000)).toEqual([{ x: 0, y: 0, z: 0 }]);
+      expect(getTileIndices({viewport, minZoom: 0, tileSize: 1000, width: 100000, height: 100000})).toEqual([{ x: 0, y: 0, z: 0 }]);
     });
   });
 });

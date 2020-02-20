@@ -3,12 +3,7 @@
   "$id": "https://github.com/hubmapconsortium/vitessce/#raster",
   "title": "Vitessce tiff data",
   "type": "object",
-  "definitions": {
-    "channels": {
-      "type": "object",
-      "patternProperties": {
-        ".*" : { "type": "string", "format": "uri" }
-      }
-    }
+  "patternProperties": {
+      ".*" : { "type": "string", "format": "uri" }
   }
 }

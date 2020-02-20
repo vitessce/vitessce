@@ -1,11 +1,11 @@
 [
   {
-    "dataPath": "",
-    "keyword": "type",
-    "message": "should be object",
+    "dataPath": "['channel']",
+    "keyword": "format",
+    "message": "should match format \"uri\"",
     "params": {
-      "type": "object"
+      "format": "uri"
     },
-    "schemaPath": "#/type"
+    "schemaPath": "#/patternProperties/.*/format"
   }
 ]

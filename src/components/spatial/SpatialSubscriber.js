@@ -123,6 +123,7 @@ export default class SpatialSubscriber extends React.Component {
   onChannelToggle(msg, channelOn) {
     this.setState(prevState => ({ channelsOn: { ...prevState.channelsOn, ...channelOn } }));
   }
+
   render() {
     const {
       cells, molecules, sliderValues, colorValues, channelsOn,

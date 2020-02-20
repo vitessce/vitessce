@@ -9,6 +9,9 @@ module.exports = {
       }
     }
   },
+  karma: {
+   browsers: ["ChromeHeadless"]
+  },
   webpack: {
     html: {
       template: 'demo/src/index.html',

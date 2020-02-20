@@ -57,7 +57,7 @@ export default class ChannelsSubscriber extends React.Component {
   }
 
   setColorValue({ channel, color }) {
-    const colorValue = {[channel]: color};
+    const colorValue = { [channel]: color };
     this.setState(prevState => ({ colorValues: { ...prevState.colorValues, ...colorValue } }));
     PubSub.publish(COLORS_CHANGE, colorValue);
   }
@@ -65,7 +65,7 @@ export default class ChannelsSubscriber extends React.Component {
   toggleChannel(channel) {
     this.setState((prevState) => {
       const channelToggle = !prevState.channelsOn[channel];
-      const channelOn = {[channel]: channelToggle};
+      const channelOn = { [channel]: channelToggle };
       PubSub.publish(CHANNEL_TOGGLE, channelOn);
       return { channelsOn: { ...prevState.channelsOn, ...channelOn } };
     });
