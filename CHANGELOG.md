@@ -4,8 +4,9 @@
 ### Added
 - Check that HTTP status is good before trying to parse response.
 - Please-wait only applies to component.
-- Make scatterplot dot size a constant 1px.
+- Make scatterplot dot size a constant 1px, and molecules 3px.
 - Friendlier error if mapping in config doesn't match data.
+- Test error handling in Cypress.
 - Log a data-URI for the viewconf on load.
 - Restore dark background to homepage.
 
