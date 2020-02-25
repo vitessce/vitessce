@@ -26,7 +26,7 @@ export default class SpatialSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      images: undefined,
+      raster: undefined,
       cells: {},
       selectedCellIds: new Set(),
       cellColors: null,
@@ -36,9 +36,6 @@ export default class SpatialSubscriber extends React.Component {
   }
 
   componentWillMount() {
-    this.imagesAddToken = PubSub.subscribe(
-      IMAGES_ADD, this.imagesAddSubscriber.bind(this),
-    );
     this.moleculesAddToken = PubSub.subscribe(
       MOLECULES_ADD, this.moleculesAddSubscriber.bind(this),
     );
@@ -71,7 +68,6 @@ export default class SpatialSubscriber extends React.Component {
   }
 
   componentWillUnmount() {
-    PubSub.unsubscribe(this.imagesAddToken);
     PubSub.unsubscribe(this.moleculesAddToken);
     PubSub.unsubscribe(this.neighborhoodsAddToken);
     PubSub.unsubscribe(this.cellsAddToken);
@@ -86,10 +82,6 @@ export default class SpatialSubscriber extends React.Component {
 
   cellsSelectionSubscriber(msg, cellIds) {
     this.setState({ selectedCellIds: cellIds });
-  }
-
-  imagesAddSubscriber(msg, images) {
-    this.setState({ images });
   }
 
   rasterAddSubscriber(msg, raster) {
@@ -126,7 +118,7 @@ export default class SpatialSubscriber extends React.Component {
 
   render() {
     const {
-      cells, molecules, sliderValues, colorValues, channelsOn,
+      cells, molecules, sliderValues, colorValues, channelsOn, raster
     } = this.state;
     const { uuid = null, children, removeGridComponent } = this.props;
     const cellsCount = cells ? Object.keys(cells).length : 0;

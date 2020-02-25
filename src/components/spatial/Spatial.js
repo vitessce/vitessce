@@ -41,27 +41,6 @@ export default class Spatial extends AbstractSelectableComponent {
     cellRadius: 10,
   };
 
-
-  componentDidUpdate() {
-    if (!this.props.images) {
-      return;
-    }
-    const imageNames = Object.keys(this.props.images);
-    // Add imagery to layerIsVisible UI toggle list, if not already present.
-    if (!(imageNames[0] in this.state.layerIsVisible)) {
-      // This is not ideal, but it should be OK as long as the `if` prevents an infinite loop.
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState((prevState) => {
-        imageNames.forEach((name) => {
-          // TODO: Do not mutate! https://github.com/hubmapconsortium/vitessce/issues/148
-          // eslint-disable-next-line no-param-reassign
-          prevState.layerIsVisible[name] = true;
-        });
-        return prevState;
-      });
-    }
-  }
-
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
@@ -177,11 +156,6 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  renderImageLayers() {
-    const layers = this.images.map(layer => this.createImageTileLayer(layer));
-    return layers;
-  }
-
   createRasterLayer() {
     const source = this.raster;
     const sourceChannels = {}
@@ -230,7 +204,6 @@ export default class Spatial extends AbstractSelectableComponent {
       molecules,
       cells,
       neighborhoods,
-      images,
       clearPleaseWait,
       raster,
     } = this.props;

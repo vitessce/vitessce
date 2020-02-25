@@ -10,7 +10,6 @@ describe('schemas', () => {
     'clusters',
     'factors',
     'genes',
-    'images',
     'molecules',
     'neighborhoods',
     'dataset',

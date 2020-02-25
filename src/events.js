@@ -25,9 +25,6 @@ export const FACTORS_ADD = FACTORS + ADD;
 export const GENES = 'genes';
 export const GENES_ADD = GENES + ADD;
 
-export const IMAGES = 'images';
-export const IMAGES_ADD = IMAGES + ADD;
-
 export const MOLECULES = 'molecules';
 export const MOLECULES_ADD = MOLECULES + ADD;
 
