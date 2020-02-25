@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.23/master_release';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -18,7 +18,7 @@ const linnarssonLayerNames = [
   'clusters',
   'factors',
   'genes',
-  'images',
+  'raster',
   'molecules',
   'neighborhoods',
 ];
@@ -143,18 +143,21 @@ const configs = {
         props: {
           description: `Linnarsson: ${linnarssonDescription}`,
         },
-        x: 0, y: 0, w: 2, h: 2 },
+        x: 0, y: 0, w: 2, h: 1 },
       { component: 'cellSets',
         props: {
           datasetId: 'linnarsson-2018',
         },
-        x: 0, y: 1, w: 2, h: 2 },
+        x: 0, y: 3, w: 2, h: 2 },
+      { component: 'channels',
+        x: 0, y: 1, w: 2, h: 2,
+      },
       { component: 'status',
-        x: 0, y: 4, w: 2, h: 2 },
+        x: 0, y: 5, w: 2, h: 1 },
       { component: 'spatial',
         props: {
           view: {
-            zoom: -6.5,
+            zoom: -5.5,
             target: [16000, 20000, 0],
           },
         },

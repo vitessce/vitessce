@@ -3,9 +3,7 @@ import {
   ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
 } from 'deck.gl';
 import { VivViewerLayer } from '@hubmap/vitessce-image-viewer';
-import { load } from '@loaders.gl/core';
 import { SelectablePolygonLayer } from '../../layers';
-import { tileToBoundingBox, getTileIndices } from './tiling-utils';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
@@ -24,7 +22,7 @@ export default class Spatial extends AbstractSelectableComponent {
       molecules: true,
       cells: true,
       neighborhoods: false,
-      raster: false,
+      raster: true,
     };
 
     // In Deck.gl, layers are considered light weight, and
@@ -33,10 +31,7 @@ export default class Spatial extends AbstractSelectableComponent {
     this.moleculesData = [];
     this.cellsData = [];
     this.neighborhoodsData = [];
-    this.images = [];
     this.raster = [];
-    this.maxHeight = 0;
-    this.maxWidth = 0;
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
     this.getInitialViewState = this.getInitialViewState.bind(this);
   }
@@ -187,72 +182,29 @@ export default class Spatial extends AbstractSelectableComponent {
     return layers;
   }
 
-  createImageTileLayer(layer) {
-    const [layerType, source] = layer;
-    const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)));
-    return new BaseTileLayer({
-      id: `${layerType}-${source.tileSource}-tile-layer`,
-      pickable: true,
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      getTileData: ({ x, y, z }) => load(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
-      // eslint-disable-next-line  arrow-body-style
-      getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
-        return getTileIndices({
-          viewport,
-          minZoom: minZoomLevel,
-          tileSize: source.tileSize,
-          width: source.width,
-          height: source.height,
-        });
-      },
-      // eslint-disable-next-line  arrow-body-style
-      tileToBoundingBox: (x, y, z) => {
-        return tileToBoundingBox({
-          x,
-          y,
-          z,
-          height: source.height,
-          width: source.width,
-          tileSize: source.tileSize,
-        });
-      },
-      minZoom,
-      maxZoom: 0,
-      visible: this.state.layerIsVisible[layerType],
-      renderSubLayers: (props) => {
-        const {
-          bbox: {
-            west, south, east, north,
-          },
-        } = props.tile;
-        const bml = new BitmapLayer(props, {
-          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-          data: null,
-          image: props.data,
-          bounds: [west, south, east, north],
-        });
-        return bml;
-      },
-    });
-  }
-
   createRasterLayer() {
     const source = this.raster;
+    const sourceChannels = {}
+    Object.keys(source).forEach((channel) => {
+      sourceChannels[channel] = source[channel].tileSource
+    })
     const { colorValues, sliderValues, channelsOn } = this.props;
-    if (colorValues && sliderValues && channelsOn && source.channels) {
-      const channelsLength = Object.keys(source.channels).length;
+    if (colorValues && sliderValues && channelsOn && sourceChannels) {
+      const channelsLength = Object.keys(sourceChannels).length;
       if (
         channelsLength === Object.keys(colorValues).length
         && channelsLength === Object.keys(sliderValues).length
         && channelsLength === Object.keys(channelsOn).length
       ) {
         const props = {
-          useTiff: true,
-          useZarr: false,
-          sourceChannels: source.channels,
+          useTiff: sourceChannels[Object.keys(sourceChannels)[0]].includes('tif'),
+          useZarr: sourceChannels[Object.keys(sourceChannels)[0]].includes('zarr'),
+          minZoom: source[Object.keys(sourceChannels)[0]].minZoom,
+          sourceChannels,
           colorValues,
           sliderValues,
           channelsOn,
+          visible: this.state.layerIsVisible.raster,
         };
         return new VivViewerLayer(props);
       }
@@ -301,17 +253,11 @@ export default class Spatial extends AbstractSelectableComponent {
     if (neighborhoods && this.neighborhoodsData.length === 0) {
       this.neighborhoodsData = Object.entries(neighborhoods);
     }
-    if (images && this.images.length === 0) {
-      this.images = Object.entries(images);
-    }
     if (raster && this.raster.length === 0) {
       this.raster = raster;
     }
     // Append each layer to the list.
     const layerList = [];
-
-    if (images && clearPleaseWait) clearPleaseWait('images');
-    layerList.push(...this.renderImageLayers());
 
     if (raster && clearPleaseWait) clearPleaseWait('raster');
     layerList.push(this.createRasterLayer());

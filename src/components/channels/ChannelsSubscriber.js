@@ -11,18 +11,20 @@ import {
 } from '../../events';
 
 const VIEWER_PALETTE = [
-  [255, 127, 0],
+  [77, 175, 74],
   [228, 26, 28],
   [55, 126, 184],
-  [77, 175, 74],
   [152, 78, 163],
   [255, 255, 51],
+  [255, 127, 0],
 ];
+
+const STANDARD_MAX = 65535
 
 export default class ChannelsSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { colorValues: {}, channelsOn: {} };
+    this.state = { colorValues: {}, channelsOn: {}, rangeValues: {} };
     this.setSliderValue = this.setSliderValue.bind(this);
     this.setColorValue = this.setColorValue.bind(this);
     this.toggleChannel = this.toggleChannel.bind(this);
@@ -42,10 +44,12 @@ export default class ChannelsSubscriber extends React.Component {
     PubSub.unsubscribe(this.rasterAddToken);
   }
 
-  rasterAddSubscriber(msg, sliderData) {
-    Object.keys(sliderData.channels)
+  rasterAddSubscriber(msg,rasterData) {
+    Object.keys(rasterData)
       .sort()
       .forEach((channel, i) => {
+        const rangeValue = {[channel]: rasterData[channel].range}
+        this.setState((prevState) => ({rangeValues: { ...prevState.rangeValues, ...rangeValue}}))
         this.setColorValue({ channel, color: VIEWER_PALETTE[i] });
         this.toggleChannel(channel);
       });
@@ -72,12 +76,12 @@ export default class ChannelsSubscriber extends React.Component {
   }
 
   render() {
-    const { colorValues, channelsOn } = this.state;
+    const { colorValues, channelsOn, rangeValues } = this.state;
     const hr = <hr style={{ border: '1px solid #000' }} />;
     const channelSliders = Object.keys(colorValues)
-      .sort()
       .map((channel, i) => {
         const channelColor = colorValues[channel] || VIEWER_PALETTE[i];
+        const rangeValue = rangeValues[channel] || [0, STANDARD_MAX]
         return (
           <div key={`container-${channel}`}>
             <p>{channel}</p>
@@ -96,7 +100,7 @@ export default class ChannelsSubscriber extends React.Component {
               <ChannelSlider
                 channel={channel}
                 setSliderValue={this.setSliderValue}
-                max={65535}
+                range={rangeValue}
                 color={channelColor}
               />
             </div>

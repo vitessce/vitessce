@@ -4,15 +4,15 @@ import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { COLORS_CHANGE } from '../../events';
 
-const INIT_RANGE = [0, 20000];
-
 export default class ChannelSlider extends React.Component {
   constructor(props) {
     super(props);
-    const { channel, color, setSliderValue } = props;
+    const { channel, color, setSliderValue, range } = props;
     this.channel = channel;
+    const initRange = [range[0], Math.ceil(range[1] / 5)]
     this.state = {
-      sliderValue: INIT_RANGE,
+      sliderValue: initRange,
+      range,
       slider: withStyles({
         root: {
           color: `rgb(${color})`,
@@ -20,7 +20,7 @@ export default class ChannelSlider extends React.Component {
       })(Slider),
       colorValue: color,
     };
-    setSliderValue({ [this.channel]: INIT_RANGE });
+    setSliderValue({ [this.channel]: initRange });
     this.handleSliderChange = this.handleSliderChange.bind(this);
   }
 
@@ -55,7 +55,7 @@ export default class ChannelSlider extends React.Component {
   }
 
   render() {
-    const { sliderValue, slider } = this.state;
+    const { sliderValue, slider, range } = this.state;
     const ColorSlider = slider;
     return (
       <ColorSlider
@@ -65,8 +65,8 @@ export default class ChannelSlider extends React.Component {
         valueLabelDisplay="auto"
         getAriaLabel={() => this.channel}
         channel={this.channel}
-        min={0}
-        max={65535}
+        min={range[0]}
+        max={range[1]}
         orientation="horizontal"
       />
     );
