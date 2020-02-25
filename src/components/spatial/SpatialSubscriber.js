@@ -4,7 +4,6 @@ import shortNumber from 'short-number';
 
 import TitleInfo from '../TitleInfo';
 import {
-  IMAGES_ADD,
   MOLECULES_ADD,
   NEIGHBORHOODS_ADD,
   CELLS_ADD,
@@ -26,7 +25,6 @@ export default class SpatialSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      raster: undefined,
       cells: {},
       selectedCellIds: new Set(),
       cellColors: null,
@@ -118,7 +116,7 @@ export default class SpatialSubscriber extends React.Component {
 
   render() {
     const {
-      cells, molecules, sliderValues, colorValues, channelsOn, raster
+      cells, molecules, sliderValues, colorValues, channelsOn,
     } = this.state;
     const { uuid = null, children, removeGridComponent } = this.props;
     const cellsCount = cells ? Object.keys(cells).length : 0;

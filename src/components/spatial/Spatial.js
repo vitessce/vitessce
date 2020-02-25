@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
-} from 'deck.gl';
+import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { VivViewerLayer } from '@hubmap/vitessce-image-viewer';
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
@@ -157,10 +155,10 @@ export default class Spatial extends AbstractSelectableComponent {
 
   createRasterLayer() {
     const source = this.raster;
-    const sourceChannels = {}
+    const sourceChannels = {};
     Object.keys(source).forEach((channel) => {
-      sourceChannels[channel] = source[channel].tileSource
-    })
+      sourceChannels[channel] = source[channel].tileSource;
+    });
     const { colorValues, sliderValues, channelsOn } = this.props;
     if (colorValues && sliderValues && channelsOn && sourceChannels) {
       const channelsLength = Object.keys(sourceChannels).length;

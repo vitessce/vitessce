@@ -7,9 +7,11 @@ import { COLORS_CHANGE } from '../../events';
 export default class ChannelSlider extends React.Component {
   constructor(props) {
     super(props);
-    const { channel, color, setSliderValue, range } = props;
+    const {
+      channel, color, setSliderValue, range,
+    } = props;
     this.channel = channel;
-    const initRange = [range[0], Math.ceil(range[1] / 5)]
+    const initRange = [range[0], Math.ceil(range[1] / 5)];
     this.state = {
       sliderValue: initRange,
       range,

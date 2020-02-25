@@ -7,12 +7,12 @@ import CellTooltip2D from './CellTooltip2D';
 export default class CellTooltip2DSubscriber extends React.Component {
   constructor(props) {
     super(props);
-    const { uuid } = props
+    const { uuid } = props;
     this.state = {
       hoveredCellInfo: null,
       viewInfo: null,
     };
-    this.uuid = uuid
+    this.uuid = uuid;
   }
 
   componentWillMount() {

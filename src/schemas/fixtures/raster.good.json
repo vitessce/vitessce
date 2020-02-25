@@ -1,4 +1,12 @@
 {
-  "channel1": "https://example.com/1",
-  "channel2": "https://example.com/2"
+  "polyT": {
+    "sample": 4,
+    "tileSource": "https://s3.amazonaws.com/vitessce-data/FAKE.json",
+    "minZoom": -5,
+  },
+  "nuclei": {
+    "sample": 4,
+    "tileSource": "https://s3.amazonaws.com/vitessce-data/NOT-FOR-REAL.json",
+    "minZoom": -5,
+  }
 }

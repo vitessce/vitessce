@@ -19,7 +19,7 @@ const VIEWER_PALETTE = [
   [255, 127, 0],
 ];
 
-const STANDARD_MAX = 65535
+const STANDARD_MAX = 65535;
 
 export default class ChannelsSubscriber extends React.Component {
   constructor(props) {
@@ -44,12 +44,12 @@ export default class ChannelsSubscriber extends React.Component {
     PubSub.unsubscribe(this.rasterAddToken);
   }
 
-  rasterAddSubscriber(msg,rasterData) {
+  rasterAddSubscriber(msg, rasterData) {
     Object.keys(rasterData)
       .sort()
       .forEach((channel, i) => {
-        const rangeValue = {[channel]: rasterData[channel].range}
-        this.setState((prevState) => ({rangeValues: { ...prevState.rangeValues, ...rangeValue}}))
+        const rangeValue = { [channel]: rasterData[channel].range };
+        this.setState(prevState => ({ rangeValues: { ...prevState.rangeValues, ...rangeValue } }));
         this.setColorValue({ channel, color: VIEWER_PALETTE[i] });
         this.toggleChannel(channel);
       });
@@ -81,7 +81,7 @@ export default class ChannelsSubscriber extends React.Component {
     const channelSliders = Object.keys(colorValues)
       .map((channel, i) => {
         const channelColor = colorValues[channel] || VIEWER_PALETTE[i];
-        const rangeValue = rangeValues[channel] || [0, STANDARD_MAX]
+        const rangeValue = rangeValues[channel] || [0, STANDARD_MAX];
         return (
           <div key={`container-${channel}`}>
             <p>{channel}</p>
