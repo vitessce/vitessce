@@ -2,11 +2,11 @@
   "polyT": {
     "sample": 4,
     "tileSource": "https://s3.amazonaws.com/vitessce-data/FAKE.json",
-    "minZoom": -5,
+    "minZoom": -5
   },
   "nuclei": {
     "sample": 4,
     "tileSource": "https://s3.amazonaws.com/vitessce-data/NOT-FOR-REAL.json",
-    "minZoom": -5,
+    "minZoom": -5
   }
 }

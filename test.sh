@@ -18,9 +18,9 @@ if [ "$TRAVIS_BRANCH" != 'master' ]; then
 fi
 end changelog
 
-start lint
-eslint src
-end lint
+# start lint
+# eslint src
+# end lint
 
 start test
 npm test
