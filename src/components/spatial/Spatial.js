@@ -22,7 +22,6 @@ export default class Spatial extends AbstractSelectableComponent {
       molecules: true,
       cells: true,
       neighborhoods: false,
-      raster: true,
     };
 
     // In Deck.gl, layers are considered light weight, and
@@ -178,7 +177,6 @@ export default class Spatial extends AbstractSelectableComponent {
           colorValues,
           sliderValues,
           channelsOn,
-          visible: this.state.layerIsVisible.raster,
         };
         return new VivViewerLayer(props);
       }
