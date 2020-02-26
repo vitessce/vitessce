@@ -37,7 +37,7 @@ start schema
 end schema
 
 start build
-/usr/bin/time -lp npm run build
+/usr/bin/time -v npm run build
 for F in vitessce.js vitessce.min.js main.css; do
   [ -e umd/$F ] || die "$F is missing from UMD build"
 done
