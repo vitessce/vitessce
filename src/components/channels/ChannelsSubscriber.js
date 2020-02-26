@@ -11,12 +11,14 @@ import {
 } from '../../events';
 
 const VIEWER_PALETTE = [
-  [77, 175, 74],
-  [228, 26, 28],
-  [55, 126, 184],
-  [152, 78, 163],
-  [255, 255, 51],
-  [255, 127, 0],
+  [0, 0, 255],
+  [0, 255, 0],
+  [255, 0, 0],
+  [255, 255, 0],
+  [0, 255, 255],
+  [255, 0, 255],
+  [255, 255, 255],
+  [255, 128, 0]
 ];
 
 const STANDARD_MAX = 65535;
@@ -46,7 +48,6 @@ export default class ChannelsSubscriber extends React.Component {
 
   rasterAddSubscriber(msg, rasterData) {
     Object.keys(rasterData)
-      .sort()
       .forEach((channel, i) => {
         const rangeValue = { [channel]: rasterData[channel].range };
         this.setState(prevState => ({ rangeValues: { ...prevState.rangeValues, ...rangeValue } }));
@@ -96,6 +97,7 @@ export default class ChannelsSubscriber extends React.Component {
                 color={channelColor}
                 setColor={color => this.setColorValue({ channel, color })}
                 placement="left"
+                palette={VIEWER_PALETTE}
               />
               <ChannelSlider
                 channel={channel}
