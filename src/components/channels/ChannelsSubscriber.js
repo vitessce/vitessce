@@ -110,8 +110,10 @@ export default class ChannelsSubscriber extends React.Component {
       });
     return (
       <TitleInfo title="Channel Levels" isScroll componentWillUnmount={this.componentWillUnmount}>
-        {hr}
-        {channelSliders}
+        <div className = "sliders">
+          {hr}
+          {channelSliders}
+        </div>
       </TitleInfo>
     );
   }
