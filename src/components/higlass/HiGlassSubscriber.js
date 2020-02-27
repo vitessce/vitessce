@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { HiGlassComponent } from "higlass";
 import hgViewConfig from "./viewconfig.json";
 
 import TitleInfo from '../TitleInfo';
 
-const hgOptions = {
+const hgOptionsBase = {
     bounded: true,
     pixelPreciseMarginPadding: true,
     containerPaddingX: 0,
@@ -14,9 +14,23 @@ const hgOptions = {
 };
 
 export default function HiGlassSubscriber(props) {
-    const { removeGridComponent } = props;
+    const { 
+        removeGridComponent,
+        onReady
+    } = props;
+
+    useEffect(() => {
+        onReady();
+    }, []);
 
     const hgComponent = useMemo(() => {
+        const hgOptions = {
+            ...hgOptionsBase,
+            onViewConfLoaded: () => {
+                onReady();
+            }
+        }
+
         console.log("HiGlassComponent.render");
         return (
             <HiGlassComponent 
@@ -25,7 +39,7 @@ export default function HiGlassSubscriber(props) {
                 zoomFixed={false}
             />
         );
-    })
+    });
 
     console.log("HiGlassSubscriber.render");
     return (
