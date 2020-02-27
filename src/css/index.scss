@@ -28,7 +28,6 @@ html {
 .v-higlass-title-wrapper {
   width: inherit;
   height: inherit;
-  overflow: hidden;
   .card-body {
     width: inherit;
     height: inherit;
@@ -62,6 +61,10 @@ html {
             display: flex;
           }
           input {
+            font-size: 12px;
+          }
+          .btn {
+            color: #999;
             font-size: 12px;
           }
         }

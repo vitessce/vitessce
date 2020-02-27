@@ -19,10 +19,6 @@ export default function HiGlassSubscriber(props) {
         onReady
     } = props;
 
-    useEffect(() => {
-        onReady();
-    }, []);
-
     const hgComponent = useMemo(() => {
         const hgOptions = {
             ...hgOptionsBase,
@@ -39,7 +35,7 @@ export default function HiGlassSubscriber(props) {
                 zoomFixed={false}
             />
         );
-    });
+    }, [onReady]);
 
     console.log("HiGlassSubscriber.render");
     return (
