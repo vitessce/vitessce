@@ -21,3 +21,47 @@
 .vitessce-popover {
   @include popover;
 }
+
+html {
+  font-size: 16px;
+}
+.v-higlass-title-wrapper {
+  width: inherit;
+  height: inherit;
+  overflow: hidden;
+  .card-body {
+    width: inherit;
+    height: inherit;
+    padding: 0;
+    .v-higlass-wrapper-parent {
+      width: inherit;
+      height: inherit;
+      display: block;
+      position: relative;
+      box-sizing: border-box;
+      text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      -moz-osx-font-smoothing: grayscale;
+      font-size: 14px;
+      line-height: 1.42857143;
+      color: #333;
+      overflow: hidden;
+      border: 1px solid red;
+      .v-higlass-wrapper {
+        width: inherit;
+        height: inherit;
+        position: relative;
+        display: block;
+        text-align: left;
+        box-sizing: border-box;
+        .higlass .react-grid-layout {
+          background-color: transparent !important;
+        }
+      }
+    }
+  }
+  .bg-black {
+    background-color: transparent;
+  }
+}
+

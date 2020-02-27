@@ -171,7 +171,7 @@ const configs = {
         x: 10, y: 0, w: 2, h: 2 },
       { component: 'genes',
         x: 10, y: 2, w: 2, h: 2 },
-      { component: 'heatmap',
+      { component: 'higlass',
         x: 2, y: 4, w: 10, h: 2 },
     ],
   },

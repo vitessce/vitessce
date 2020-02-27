@@ -8,6 +8,7 @@ import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscri
 import HoverableScatterplotSubscriber from '../components/scatterplot/HoverableScatterplotSubscriber';
 import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSubscriber';
 import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSubscriber';
+import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
 
 class Description extends React.Component {
   componentDidMount() {
@@ -34,6 +35,7 @@ const registry = {
   scatterplot: HoverableScatterplotSubscriber,
   spatial: HoverableSpatialSubscriber,
   heatmap: HoverableHeatmapSubscriber,
+  higlass: HiGlassSubscriber
 };
 
 export default function getComponent(name) {

@@ -5,7 +5,8 @@ module.exports = {
     umd: {
       global: 'vitessce',
       externals: {
-        react: 'React'
+        react: 'React',
+        higlass: 'hglib'
       }
     }
   },
