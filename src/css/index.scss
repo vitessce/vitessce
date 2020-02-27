@@ -25,9 +25,10 @@
 html {
   font-size: 16px;
 }
+
 .v-higlass-title-wrapper {
   width: inherit;
-  height: inherit;
+  height: calc(100% - 13px);
   .card-body {
     width: inherit;
     height: inherit;
@@ -44,7 +45,7 @@ html {
       line-height: 1.42857143;
       color: #333;
       overflow: hidden;
-      border: 1px solid red;
+      // border: 1px solid red;
       .v-higlass-wrapper {
         width: inherit;
         height: inherit;
