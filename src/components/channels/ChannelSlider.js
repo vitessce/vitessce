@@ -15,19 +15,19 @@ export default class ChannelSlider extends React.Component {
     this.state = {
       sliderValue: initRange,
       range,
-      slider: withStyles({
-        root: {
-          color: `rgb(${color})`,
-        },
-      })(Slider),
       colorValue: color,
     };
+    this.slider = withStyles({
+      root: {
+        color: `rgb(${color})`,
+      },
+    })(Slider)
     setSliderValue({ [this.channel]: initRange });
     this.handleSliderChange = this.handleSliderChange.bind(this);
   }
 
   handleSliderChange(value) {
-    const channelValue = { [this.channel]: value };
+    const channelValue = { channel: this.channel, sliderValue: value };
     this.setState({ sliderValue: value });
     const { setSliderValue } = this.props;
     setSliderValue(channelValue);
@@ -41,23 +41,18 @@ export default class ChannelSlider extends React.Component {
     PubSub.unsubscribe(this.colorsChangeToken);
   }
 
-  onColorsChange(msg, rgbData) {
-    if (Object.keys(rgbData)[0] === this.channel) {
-      const slider = withStyles({
-        root: {
-          color: `rgb(${rgbData[this.channel]})`,
-        },
-      })(Slider);
-      const colorValue = rgbData[this.channel];
+  onColorsChange(msg, channelRgb) {
+    const { channel, rgb } = channelRgb;
+    if (channel === this.channel) {
       this.setState({
-        slider,
-        colorValue,
+        colorValue: rgb,
       });
     }
   }
 
   render() {
-    const { sliderValue, slider, range } = this.state;
+    const { sliderValue, range, colorValue } = this.state;
+    const {slider} = this;
     const ColorSlider = slider;
     return (
       <ColorSlider
@@ -69,6 +64,11 @@ export default class ChannelSlider extends React.Component {
         channel={this.channel}
         min={range[0]}
         max={range[1]}
+        style={
+          {
+            color: `rgb(${colorValue})`,
+          }
+        }
         orientation="horizontal"
       />
     );

@@ -71,7 +71,7 @@ export default class ChannelsSubscriber extends React.Component {
     this.setState((prevState) => {
       const channelToggle = !prevState.channelsOn[channel];
       const channelOn = { [channel]: channelToggle };
-      PubSub.publish(CHANNEL_TOGGLE, channelOn);
+      PubSub.publish(CHANNEL_TOGGLE, {channel, channelToggle});
       return { channelsOn: { ...prevState.channelsOn, ...channelOn } };
     });
   }
@@ -85,7 +85,7 @@ export default class ChannelsSubscriber extends React.Component {
         const rangeValue = rangeValues[channel] || [0, STANDARD_MAX];
         return (
           <div key={`container-${channel}`}>
-            <p>{channel}</p>
+            <div>{channel}</div>
             <div className="channel-container">
               <Checkbox
                 className="channel-checked"
@@ -106,14 +106,12 @@ export default class ChannelsSubscriber extends React.Component {
                 color={channelColor}
               />
             </div>
-            {hr}
           </div>
         );
       });
     return (
       <TitleInfo title="Channel Levels" isScroll componentWillUnmount={this.componentWillUnmount}>
         <div className="sliders">
-          {hr}
           {channelSliders}
         </div>
       </TitleInfo>
