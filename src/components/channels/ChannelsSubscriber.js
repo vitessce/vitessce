@@ -51,7 +51,7 @@ export default class ChannelsSubscriber extends React.Component {
       .forEach((channel, i) => {
         const rangeValue = { [channel]: rasterData[channel].range };
         this.setState(prevState => ({ rangeValues: { ...prevState.rangeValues, ...rangeValue } }));
-        this.setColorValue({ channel, color: VIEWER_PALETTE[i] });
+        this.setColorValue({ channel, rgb: VIEWER_PALETTE[i] });
         this.toggleChannel(channel);
       });
   }
@@ -61,17 +61,17 @@ export default class ChannelsSubscriber extends React.Component {
     PubSub.publish(SLIDERS_CHANGE, sliderValue);
   }
 
-  setColorValue({ channel, color }) {
-    const colorValue = { [channel]: color };
+  setColorValue({ channel, rgb }) {
+    const colorValue = { [channel]: rgb };
     this.setState(prevState => ({ colorValues: { ...prevState.colorValues, ...colorValue } }));
-    PubSub.publish(COLORS_CHANGE, colorValue);
+    PubSub.publish(COLORS_CHANGE, { channel, rgb });
   }
 
   toggleChannel(channel) {
     this.setState((prevState) => {
       const channelToggle = !prevState.channelsOn[channel];
       const channelOn = { [channel]: channelToggle };
-      PubSub.publish(CHANNEL_TOGGLE, {channel, channelToggle});
+      PubSub.publish(CHANNEL_TOGGLE, { channel, channelToggle });
       return { channelsOn: { ...prevState.channelsOn, ...channelOn } };
     });
   }
@@ -95,7 +95,7 @@ export default class ChannelsSubscriber extends React.Component {
               <PopoverColor
                 prefixClass="channel"
                 color={channelColor}
-                setColor={color => this.setColorValue({ channel, color })}
+                setColor={rgb => this.setColorValue({ channel, rgb })}
                 placement="left"
                 palette={VIEWER_PALETTE}
               />

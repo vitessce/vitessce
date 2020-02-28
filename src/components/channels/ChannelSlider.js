@@ -12,6 +12,8 @@ export default class ChannelSlider extends React.Component {
     } = props;
     this.channel = channel;
     const initRange = [range[0], Math.ceil(range[1] / 5)];
+    // "5" is arbitrary, but the data tends to be left-skewed.
+    // Eventually we want this to be based on the data in the image.
     this.state = {
       sliderValue: initRange,
       range,
@@ -21,8 +23,8 @@ export default class ChannelSlider extends React.Component {
       root: {
         color: `rgb(${color})`,
       },
-    })(Slider)
-    setSliderValue({ [this.channel]: initRange });
+    })(Slider);
+    setSliderValue({ channel, sliderValue: initRange });
     this.handleSliderChange = this.handleSliderChange.bind(this);
   }
 
@@ -52,7 +54,7 @@ export default class ChannelSlider extends React.Component {
 
   render() {
     const { sliderValue, range, colorValue } = this.state;
-    const {slider} = this;
+    const { slider } = this;
     const ColorSlider = slider;
     return (
       <ColorSlider

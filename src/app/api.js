@@ -398,7 +398,7 @@ const configs = {
 
   vanderbilt: {
     ...vanderbiltBase,
-    name: 'Spraggins MxIF',
+    name: 'Spraggins',
     public: true,
     staticLayout: [
       { component: 'spatial',

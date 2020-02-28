@@ -103,17 +103,17 @@ export default class SpatialSubscriber extends React.Component {
   }
 
   onSlidersChange(msg, sliderData) {
-    const sliderValue = { [sliderData.channel]: sliderData.sliderValue }
-    this.setState(prevState => ({ sliderValues: { ...prevState.sliderValues, ...sliderData } }));
+    const sliderValue = { [sliderData.channel]: sliderData.sliderValue };
+    this.setState(prevState => ({ sliderValues: { ...prevState.sliderValues, ...sliderValue } }));
   }
 
   onColorsChange(msg, rgbData) {
-    const colorValue = { [rgbData.channel]: rgbData.rgb }
+    const colorValue = { [rgbData.channel]: rgbData.rgb };
     this.setState(prevState => ({ colorValues: { ...prevState.colorValues, ...colorValue } }));
   }
 
   onChannelToggle(msg, channelOn) {
-    const channelOnValue = { [channelOn.channel]: channelOn.channelOn }
+    const channelOnValue = { [channelOn.channel]: channelOn.channelToggle };
     this.setState(prevState => ({ channelsOn: { ...prevState.channelsOn, ...channelOnValue } }));
   }
 
