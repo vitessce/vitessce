@@ -24,7 +24,7 @@
   "dependencies": {
     "@deck.gl/core": "^8.1.0-alpha.1",
     "@deck.gl/layers": "^8.1.0-alpha.1",
-    "@hubmap/vitessce-image-viewer": "0.0.7",
+    "@hubmap/vitessce-image-viewer": "0.0.8",
     "@loaders.gl/core": "^2.0.2",
     "@loaders.gl/loader-utils": "^2.0.2",
     "@luma.gl/constants": "^8.0.3",
@@ -58,8 +58,7 @@
     "tinycolor2": "^1.4.1",
     "turf": "^3.0.14",
     "uuid": "^3.3.2",
-    "vitessce-grid": "0.0.6",
-    "zarr": "^0.1.4"
+    "vitessce-grid": "0.0.6"
   },
   "devDependencies": {
     "@svgr/webpack": "^4.3.0",
