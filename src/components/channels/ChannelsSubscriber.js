@@ -18,7 +18,7 @@ const VIEWER_PALETTE = [
   [0, 255, 255],
   [255, 0, 255],
   [255, 255, 255],
-  [255, 128, 0]
+  [255, 128, 0],
 ];
 
 const STANDARD_MAX = 65535;
@@ -112,7 +112,7 @@ export default class ChannelsSubscriber extends React.Component {
       });
     return (
       <TitleInfo title="Channel Levels" isScroll componentWillUnmount={this.componentWillUnmount}>
-        <div className = "sliders">
+        <div className="sliders">
           {hr}
           {channelSliders}
         </div>

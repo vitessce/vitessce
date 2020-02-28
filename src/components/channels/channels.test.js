@@ -25,7 +25,7 @@ describe('ChannelSlider.js', () => {
           channel={channel}
           color={color}
           setSliderValue={setSliderValue}
-          range={[0,60000]}
+          range={[0, 60000]}
         />,
       );
       expect(slider.state('sliderValue')).toEqual([0, 12000]);

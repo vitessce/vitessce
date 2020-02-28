@@ -11,7 +11,7 @@ function toHexString(rgbArray) {
 
 export default function PopoverColor(props) {
   const {
-    prefixClass, placement, color, setColor, palette
+    prefixClass, placement, color, setColor, palette,
   } = props;
 
   function handleChangeComplete({ rgb }) {
