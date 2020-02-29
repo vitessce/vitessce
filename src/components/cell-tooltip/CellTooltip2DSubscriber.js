@@ -7,10 +7,12 @@ import CellTooltip2D from './CellTooltip2D';
 export default class CellTooltip2DSubscriber extends React.Component {
   constructor(props) {
     super(props);
+    const { uuid } = props;
     this.state = {
       hoveredCellInfo: null,
       viewInfo: null,
     };
+    this.uuid = uuid;
   }
 
   componentWillMount() {
@@ -32,7 +34,7 @@ export default class CellTooltip2DSubscriber extends React.Component {
   }
 
   viewInfoSubscriber(msg, viewInfo) {
-    const { uuid } = this.props;
+    const { uuid } = this;
     // Only use the viewInfo if it corresponds to the view associated with the tooltip.
     if (viewInfo && viewInfo.uuid && uuid === viewInfo.uuid) {
       this.setState({ viewInfo });

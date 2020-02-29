@@ -1,25 +1,25 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/hubmapconsortium/vitessce/#images",
+  "$id": "https://github.com/hubmapconsortium/vitessce/#raster",
   "title": "Vitessce image data",
   "type": "object",
   "definitions": {
-    "image": {
+    "raster": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
       "required": ["sample", "tileSource"],
       "properties": {
         "sample": { "type": "number" },
         "tileSource": {
           "oneOf": [
             { "type": "object" },
-            { "type": "string", "format": "uri" }
+            { "type": "string" }
           ]
         }
       }
     }
   },
   "patternProperties": {
-    ".": { "$ref": "#/definitions/image" }
+    ".": { "$ref": "#/definitions/raster" }
   }
 }

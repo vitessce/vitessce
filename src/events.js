@@ -25,9 +25,6 @@ export const FACTORS_ADD = FACTORS + ADD;
 export const GENES = 'genes';
 export const GENES_ADD = GENES + ADD;
 
-export const IMAGES = 'images';
-export const IMAGES_ADD = IMAGES + ADD;
-
 export const MOLECULES = 'molecules';
 export const MOLECULES_ADD = MOLECULES + ADD;
 
@@ -37,3 +34,15 @@ export const NEIGHBORHOODS_ADD = NEIGHBORHOODS + ADD;
 export const STATUS = 'status';
 export const STATUS_WARN = `${STATUS}.warn`;
 export const STATUS_INFO = `${STATUS}.info`;
+
+export const RASTER = 'raster';
+export const RASTER_ADD = RASTER + ADD;
+
+export const SLIDERS = 'sliders';
+export const SLIDERS_CHANGE = `${SLIDERS}.change`;
+
+export const COLORS = 'colors';
+export const COLORS_CHANGE = `${COLORS}.change`;
+
+export const CHANNEL = 'channel';
+export const CHANNEL_TOGGLE = `${CHANNEL}.toggle`;

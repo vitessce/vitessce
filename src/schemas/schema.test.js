@@ -10,11 +10,11 @@ describe('schemas', () => {
     'clusters',
     'factors',
     'genes',
-    'images',
     'molecules',
     'neighborhoods',
     'dataset',
     'hierarchical-sets',
+    'raster',
   ].forEach((type) => {
     const schemaFile = `${type}.schema.json`;
     describe(schemaFile, () => {

@@ -1,11 +1,7 @@
 import React from 'react';
-
-import {
-  ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM, BitmapLayer, BaseTileLayer,
-} from 'deck.gl';
-import { load } from '@loaders.gl/core';
+import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { VivViewerLayer } from '@hubmap/vitessce-image-viewer';
 import { SelectablePolygonLayer } from '../../layers';
-import { tileToBoundingBox, getTileIndices } from './tiling-utils';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
 import LayersMenu from './LayersMenu';
@@ -32,9 +28,7 @@ export default class Spatial extends AbstractSelectableComponent {
     this.moleculesData = [];
     this.cellsData = [];
     this.neighborhoodsData = [];
-    this.images = [];
-    this.maxHeight = 0;
-    this.maxWidth = 0;
+    this.raster = [];
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
     this.getInitialViewState = this.getInitialViewState.bind(this);
   }
@@ -44,32 +38,12 @@ export default class Spatial extends AbstractSelectableComponent {
     cellRadius: 10,
   };
 
-
-  componentDidUpdate() {
-    if (!this.props.images) {
-      return;
-    }
-    const imageNames = Object.keys(this.props.images);
-    // Add imagery to layerIsVisible UI toggle list, if not already present.
-    if (!(imageNames[0] in this.state.layerIsVisible)) {
-      // This is not ideal, but it should be OK as long as the `if` prevents an infinite loop.
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState((prevState) => {
-        imageNames.forEach((name) => {
-          // TODO: Do not mutate! https://github.com/hubmapconsortium/vitessce/issues/148
-          // eslint-disable-next-line no-param-reassign
-          prevState.layerIsVisible[name] = true;
-        });
-        return prevState;
-      });
-    }
-  }
-
   // These are called from superclass, so they need to belong to instance, I think.
   // eslint-disable-next-line class-methods-use-this
   getInitialViewState() {
     return this.props.view;
   }
+
 
   // eslint-disable-next-line class-methods-use-this
   getCellCoords(cell) {
@@ -179,46 +153,33 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  renderImageLayers() {
-    const layers = this.images.map(layer => this.createTileLayer(layer));
-    return layers;
-  }
-
-  createTileLayer(layer) {
-    const [layerType, source] = layer;
-    const minZoom = Math.floor(-1 * Math.log2(Math.max(source.height, source.width)));
-    return new BaseTileLayer({
-      id: `${layerType}-${source.tileSource}-tile-layer`,
-      pickable: true,
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      getTileData: ({ x, y, z }) => load(`${source.tileSource}/${layerType}_files/${z - minZoom}/${x}_${y}.jpeg`),
-      // eslint-disable-next-line  arrow-body-style
-      getTileIndices: (viewport, maxZoomLevel, minZoomLevel) => {
-        return getTileIndices(viewport, maxZoomLevel, minZoomLevel,
-          source.tileSize, source.width, source.height);
-      },
-      // eslint-disable-next-line  arrow-body-style
-      tileToBoundingBox: (x, y, z) => {
-        return tileToBoundingBox(x, y, z, source.height, source.width, source.tileSize);
-      },
-      minZoom,
-      maxZoom: 0,
-      visible: this.state.layerIsVisible[layerType],
-      renderSubLayers: (props) => {
-        const {
-          bbox: {
-            west, south, east, north,
-          },
-        } = props.tile;
-        const bml = new BitmapLayer(props, {
-          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-          data: null,
-          image: props.data,
-          bounds: [west, south, east, north],
-        });
-        return bml;
-      },
+  createRasterLayer() {
+    const source = this.raster;
+    const sourceChannels = {};
+    Object.keys(source).forEach((channel) => {
+      sourceChannels[channel] = source[channel].tileSource;
     });
+    const { colorValues, sliderValues, channelsOn } = this.props;
+    if (colorValues && sliderValues && channelsOn && sourceChannels) {
+      const channelsLength = Object.keys(sourceChannels).length;
+      if (
+        channelsLength === Object.keys(colorValues).length
+        && channelsLength === Object.keys(sliderValues).length
+        && channelsLength === Object.keys(channelsOn).length
+      ) {
+        const props = {
+          useTiff: sourceChannels[Object.keys(sourceChannels)[0]].includes('tif'),
+          useZarr: sourceChannels[Object.keys(sourceChannels)[0]].includes('zarr'),
+          minZoom: source[Object.keys(sourceChannels)[0]].minZoom,
+          sourceChannels,
+          colorValues,
+          sliderValues,
+          channelsOn,
+        };
+        return new VivViewerLayer(props);
+      }
+    }
+    return null;
   }
 
   setLayerIsVisible(layers) {
@@ -239,8 +200,8 @@ export default class Spatial extends AbstractSelectableComponent {
       molecules,
       cells,
       neighborhoods,
-      images,
       clearPleaseWait,
+      raster,
     } = this.props;
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
@@ -261,15 +222,14 @@ export default class Spatial extends AbstractSelectableComponent {
     if (neighborhoods && this.neighborhoodsData.length === 0) {
       this.neighborhoodsData = Object.entries(neighborhoods);
     }
-    if (images && this.images.length === 0) {
-      this.images = Object.entries(images);
+    if (raster && this.raster.length === 0) {
+      this.raster = raster;
     }
-
     // Append each layer to the list.
     const layerList = [];
 
-    if (images && clearPleaseWait) clearPleaseWait('images');
-    layerList.push(...this.renderImageLayers());
+    if (raster && clearPleaseWait) clearPleaseWait('raster');
+    layerList.push(this.createRasterLayer());
 
     if (cells && clearPleaseWait) clearPleaseWait('cells');
     layerList.push(this.renderCellLayer());
