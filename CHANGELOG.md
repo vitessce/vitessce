@@ -1,6 +1,9 @@
 # Changelog
 
-## [0.0.24](https://www.npmjs.com/package/vitessce/v/0.0.23) -
+## 0.0.25 - In progress
+### Added
+
+## [0.0.24](https://www.npmjs.com/package/vitessce/v/0.0.23) - 2020-03-02
 ### Added
 - Check that HTTP status is good before trying to parse response.
 - Please-wait only applies to component.
