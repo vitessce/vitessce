@@ -5,7 +5,7 @@ import version from '../version.json';
 
 function DatasetList(props) {
   const { configs } = props;
-  const aClassName = 'list-group-item list-group-item-action flex-column align-items-start bg-black';
+  const aClassName = 'list-group-item list-group-item-action flex-column align-items-start bg-secondary';
   const links = configs.map(
     ({ id, name, description }) => (
       <div className={aClassName} key={id}>
@@ -93,7 +93,7 @@ function Info() {
 export default function Welcome(props) {
   const { configs } = props;
   return (
-    <div className="vitessce-container">
+    <div className="vitessce-container vitessce-theme-dark">
       <div className="react-grid-layout container-fluid" style={{ height: '100vh' }}>
         <div className="row">
           <div className="welcome-col-left">

@@ -75,6 +75,7 @@
         }
       }
     },
-    "staticLayout": { "$ref": "#/definitions/components" }
+    "staticLayout": { "$ref": "#/definitions/components" },
+    "theme": { "type": "string" }
   }
 }

@@ -1,7 +1,4 @@
 @mixin app {
-  .react-grid-layout {
-      background-color: $color-gray-dark;
-  }
 
   /* Flex grid items */
   .react-grid-item {
@@ -28,28 +25,12 @@
 
   /* Styling for closing button on the grid items */
   .close-pane-button {
-      background: none;
       border: none;
       font-family: Ampersand;
-      color: $color-black;
       margin-left: .5em;
   }
 
   /* Tool styles */
-  .bg-light {
-      background-color: #222!important;
-      color: lightgrey;
-      a {
-          color: #9bb7d6;
-      }
-  }
-  .bg-black {
-      background-color: black;
-      color: lightgrey;
-  }
-  .title {
-      color: lightgrey;
-  }
   .scroll {
       overflow-y: auto;
   }
@@ -101,9 +82,7 @@
 
 body {
     margin: 0;
-    color: #212529;
     text-align: left;
-    background-color: #fff;
 }
 
 .container-fluid {
