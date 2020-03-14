@@ -4,9 +4,20 @@ import shortNumber from 'short-number';
 
 import TitleInfo from '../TitleInfo';
 import {
-  IMAGES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD, CELLS_ADD, CELLS_COLOR,
-  STATUS_INFO, CELLS_SELECTION, CELLS_HOVER, CLEAR_PLEASE_WAIT, VIEW_INFO,
+  MOLECULES_ADD,
+  NEIGHBORHOODS_ADD,
+  CELLS_ADD,
+  CELLS_COLOR,
+  STATUS_INFO,
+  CELLS_SELECTION,
+  CELLS_HOVER,
+  CLEAR_PLEASE_WAIT,
+  VIEW_INFO,
   CELL_SETS_VIEW,
+  RASTER_ADD,
+  SLIDERS_CHANGE,
+  COLORS_CHANGE,
+  CHANNEL_TOGGLE,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -14,18 +25,15 @@ export default class SpatialSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      images: undefined,
       cells: {},
       selectedCellIds: new Set(),
       cellColors: null,
+      raster: null,
     };
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
   componentWillMount() {
-    this.imagesAddToken = PubSub.subscribe(
-      IMAGES_ADD, this.imagesAddSubscriber.bind(this),
-    );
     this.moleculesAddToken = PubSub.subscribe(
       MOLECULES_ADD, this.moleculesAddSubscriber.bind(this),
     );
@@ -44,6 +52,12 @@ export default class SpatialSubscriber extends React.Component {
     this.cellsColorToken = PubSub.subscribe(
       CELLS_COLOR, this.cellsColorSubscriber.bind(this),
     );
+    this.rasterAddToken = PubSub.subscribe(
+      RASTER_ADD, this.rasterAddSubscriber.bind(this),
+    );
+    this.slidersChangeToken = PubSub.subscribe(SLIDERS_CHANGE, this.onSlidersChange.bind(this));
+    this.colorsChangeToken = PubSub.subscribe(COLORS_CHANGE, this.onColorsChange.bind(this));
+    this.channelToggleToken = PubSub.subscribe(CHANNEL_TOGGLE, this.onChannelToggle.bind(this));
   }
 
   componentDidMount() {
@@ -52,21 +66,24 @@ export default class SpatialSubscriber extends React.Component {
   }
 
   componentWillUnmount() {
-    PubSub.unsubscribe(this.imagesAddToken);
     PubSub.unsubscribe(this.moleculesAddToken);
     PubSub.unsubscribe(this.neighborhoodsAddToken);
     PubSub.unsubscribe(this.cellsAddToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
     PubSub.unsubscribe(this.cellsColorToken);
     PubSub.unsubscribe(this.cellSetsViewToken);
+    PubSub.unsubscribe(this.rasterAddToken);
+    PubSub.unsubscribe(this.slidersChangeToken);
+    PubSub.unsubscribe(this.colorsChangeToken);
+    PubSub.unsubscribe(this.channelToggleToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
     this.setState({ selectedCellIds: cellIds });
   }
 
-  imagesAddSubscriber(msg, images) {
-    this.setState({ images });
+  rasterAddSubscriber(msg, raster) {
+    this.setState({ raster });
   }
 
   moleculesAddSubscriber(msg, molecules) {
@@ -85,8 +102,25 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ cellColors });
   }
 
+  onSlidersChange(msg, sliderData) {
+    const sliderValue = { [sliderData.channel]: sliderData.sliderValue };
+    this.setState(prevState => ({ sliderValues: { ...prevState.sliderValues, ...sliderValue } }));
+  }
+
+  onColorsChange(msg, rgbData) {
+    const colorValue = { [rgbData.channel]: rgbData.rgb };
+    this.setState(prevState => ({ colorValues: { ...prevState.colorValues, ...colorValue } }));
+  }
+
+  onChannelToggle(msg, channelOn) {
+    const channelOnValue = { [channelOn.channel]: channelOn.channelToggle };
+    this.setState(prevState => ({ channelsOn: { ...prevState.channelsOn, ...channelOnValue } }));
+  }
+
   render() {
-    const { cells, molecules } = this.state;
+    const {
+      cells, molecules, sliderValues, colorValues, channelsOn,
+    } = this.state;
     const { uuid = null, children, removeGridComponent } = this.props;
     const cellsCount = cells ? Object.keys(cells).length : 0;
     const moleculesCount = molecules ? Object.keys(molecules).length : 0;
@@ -122,6 +156,9 @@ export default class SpatialSubscriber extends React.Component {
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
+          sliderValues={sliderValues}
+          colorValues={colorValues}
+          channelsOn={channelsOn}
         />
       </TitleInfo>
       /* eslint-enable */

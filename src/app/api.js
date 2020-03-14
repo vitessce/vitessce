@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.20/master_release';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.24/master_release';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -17,7 +17,7 @@ const linnarssonLayerNames = [
   'cells',
   'factors',
   'genes',
-  'images',
+  'raster',
   'molecules',
   'neighborhoods',
 ];
@@ -50,6 +50,14 @@ const wangBase = {
     'molecules',
     'genes',
   ].map(makeLayerNameToConfig('wang')),
+};
+
+const vanderbiltDescription = 'High Bit Depth (uint16) Multiplex Immunofluorescence Imaging';
+const vanderbiltBase = {
+  description: vanderbiltDescription,
+  layers: [
+    'raster',
+  ].map(makeLayerNameToConfig('vanderbilt')),
 };
 
 /* eslint-disable object-property-newline */
@@ -134,18 +142,21 @@ const configs = {
         props: {
           description: `Linnarsson: ${linnarssonDescription}`,
         },
-        x: 0, y: 0, w: 2, h: 2 },
+        x: 0, y: 0, w: 2, h: 1 },
       { component: 'cellSets',
         props: {
           datasetId: 'linnarsson-2018',
         },
-        x: 0, y: 1, w: 2, h: 2 },
+        x: 0, y: 3, w: 2, h: 2 },
+      { component: 'channels',
+        x: 0, y: 1, w: 2, h: 2,
+      },
       { component: 'status',
-        x: 0, y: 4, w: 2, h: 2 },
+        x: 0, y: 5, w: 2, h: 1 },
       { component: 'spatial',
         props: {
           view: {
-            zoom: -6.5,
+            zoom: -5.5,
             target: [16000, 20000, 0],
           },
         },
@@ -381,6 +392,25 @@ const configs = {
         x: 0, y: 0, w: 10, h: 2 },
       { component: 'genes',
         x: 10, y: 0, w: 2, h: 2 },
+    ],
+  },
+
+  vanderbilt: {
+    ...vanderbiltBase,
+    name: 'Spraggins',
+    public: true,
+    staticLayout: [
+      { component: 'spatial',
+        props: {
+          view: {
+            zoom: -6.5,
+            target: [20000, 20000, 0],
+          },
+        },
+        x: 0, y: 0, w: 9, h: 2 },
+      { component: 'channels',
+        x: 9, y: 0, w: 3, h: 2,
+      },
     ],
   },
 };
