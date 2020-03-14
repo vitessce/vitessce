@@ -1,5 +1,5 @@
 /* In error message */
-@mixin error {
+@mixin error($theme) {
   pre {
       color: $color-gray-light;
   }

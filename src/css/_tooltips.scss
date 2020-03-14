@@ -1,5 +1,5 @@
 /* Cell Tooltips */
-@mixin tooltips {
+@mixin tooltips($theme) {
   .cell-emphasis-crosshair, .cell-emphasis-vertical {
       z-index: 5;
       position: absolute;
