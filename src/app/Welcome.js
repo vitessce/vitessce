@@ -2,7 +2,7 @@ import React from 'react';
 
 import { LIGHT_CARD } from '../components/classNames';
 import version from '../version.json';
-import { getPreferredTheme } from "../components/utils";
+import { getPreferredTheme } from '../components/utils';
 
 function DatasetList(props) {
   const { configs } = props;
