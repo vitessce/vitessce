@@ -77,7 +77,7 @@ export function fromEntries(iterable) {
  * @returns {string} The name of the preferred theme.
  */
 export function getPreferredTheme() {
-  const prefersDark = window.matchMedia 
+  const prefersDark = window.matchMedia
     && window.matchMedia('(prefers-color-scheme: dark)').matches;
   return (prefersDark ? 'dark' : 'light');
 }
