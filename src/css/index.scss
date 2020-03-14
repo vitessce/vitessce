@@ -9,24 +9,20 @@
 @import 'sets-manager';
 @import 'popover';
 
-@import 'themes/dark';
-@import 'themes/light';
-
 .vitessce-container {
   @include bootstrap-minimal;
-  @include app;
   @include controls;
   @include error;
   @include tooltips;
-  @include sets-manager;
   position: relative; // So please-wait can be positioned absolutely.
-
-  // Themes
+  
   &.vitessce-theme-dark {
-    @include theme-dark;
+    @include app("dark");
+    @include sets-manager("dark");
   }
   &.vitessce-theme-light {
-    @include theme-light;
+    @include app("light");
+    @include sets-manager("light");
   }
 }
 

@@ -76,6 +76,9 @@
       }
     },
     "staticLayout": { "$ref": "#/definitions/components" },
-    "theme": { "type": "string" }
+    "theme": {
+      "type": "string",
+      "enum": [ "dark", "light" ]
+    }
   }
 }

@@ -7,7 +7,7 @@
     border: 0;
 }
 
-@mixin sets-manager {
+@mixin sets-manager($theme) {
 
     /* The zoom mixin contains styles for the popover transition animations. */
     @include zoom;
@@ -57,6 +57,12 @@
                 .ant-tree-title {
                     border: 0;
                     cursor: pointer;
+
+                    @if $theme == light {
+                        color: #333333;
+                    } @else if $theme == dark {
+                        color: #FFFFFF;
+                    }
                 }
                 .ant-tree-title-input {
                     @include input-minimal-sm;
@@ -66,6 +72,12 @@
                     @include input-minimal-sm;
                     cursor: pointer;
                     margin-left: 4px;
+
+                    @if $theme == light {
+                        background-color: #FFFFFF;
+                    } @else if $theme == dark {
+                        background-color: transparent;
+                    }
                 }
                 .ant-tree-node-menu-trigger-container {
                     transition: opacity 0.25s;
@@ -89,6 +101,13 @@
                     does not take padding into account. */
                 width: calc(100% - 3.75rem);
                 position: fixed;
+                border-bottom: 1px solid #555555;
+                
+                @if $theme == light {
+                    background-color: #F1F1F1;
+                } @else if $theme == dark {
+                    background-color: #222222;
+                }
             }
             .ant-tabs-content {
                 margin-top: 40px;
@@ -104,10 +123,29 @@
                     height: 28px;
                     line-height: 26px;
                     padding: 0 6px;
+                    border: 1px solid #555555;
+
+                    @if $theme == light {
+                        background-color: #8A8A8A;
+                    } @else if $theme == dark {
+                        background-color: #555555;
+                    }
 
                     .ant-tabs-close-x {
                         margin-left: 5px;
                         margin-right: -2px;
+                        color: #FFFFFF;
+                    }
+
+                    &.ant-tabs-tab-active {
+                        border: 1px solid #555555;
+
+                        @if $theme == light {
+                            background-color: #8A8A8A;
+                            color: #000000;
+                        } @else if $theme == dark {
+                            background-color: #333333;
+                        }
                     }
 
                     &:first-child .ant-tabs-close-x {
@@ -137,6 +175,12 @@
                 margin-left: 10px;
                 &:hover {
                     transition: background-color 0.5s;
+
+                    @if $theme == light {
+                        background-color: #C0C0C0;
+                    } @else if $theme == dark {
+                        background-color: #444444;
+                    }
                 }
             }
         }

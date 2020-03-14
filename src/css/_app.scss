@@ -1,43 +1,99 @@
-@mixin app {
+@mixin app($theme) {
 
-  /* Flex grid items */
-  .react-grid-item {
-      /* emulate bootstrap .flex-column: */
-      -webkit-box-orient: vertical!important;
-      -webkit-box-direction: normal!important;
-      -ms-flex-direction: column!important;
-      flex-direction: column!important;
+    .react-grid-layout {
+        @if $theme == light {
+            background-color: #FFFFFF;
+        } @else if $theme == dark {
+            background-color: #333333;
+        }
+    }
 
-      /* emulate bootstrap .d-flex: */
-      display: -webkit-box!important;
-      display: -ms-flexbox!important;
-      display: flex!important;
+    /* Flex grid items */
+    .react-grid-item {
+        /* emulate bootstrap .flex-column: */
+        -webkit-box-orient: vertical!important;
+        -webkit-box-direction: normal!important;
+        -ms-flex-direction: column!important;
+        flex-direction: column!important;
 
-      /* So the resize handle position looks correct: */
-      padding-right: 10px;
-  }
+        /* emulate bootstrap .d-flex: */
+        display: -webkit-box!important;
+        display: -ms-flexbox!important;
+        display: flex!important;
 
-  /* Fix grid title rendering on Safari 12.0.
-     Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
-  .d-flex {
-      flex-shrink: 0;
-  }
+        /* So the resize handle position looks correct: */
+        padding-right: 10px;
+    }
 
-  /* Styling for closing button on the grid items */
-  .close-pane-button {
-      border: none;
-      font-family: Ampersand;
-      margin-left: .5em;
-  }
+    /* Fix grid title rendering on Safari 12.0.
+        Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
+    .d-flex {
+        flex-shrink: 0;
+    }
 
-  /* Tool styles */
-  .scroll {
-      overflow-y: auto;
-  }
-  .details {
-      font-size: 80%;
-      opacity: 0.8;
-  }
+    /* Styling for closing button on the grid items */
+    .close-pane-button {
+        border: none;
+        font-family: Ampersand;
+        margin-left: .5em;
+        background: none;
+        
+        @if $theme == light {
+            color: #333333;
+        } @else if $theme == dark {
+            color: #000000;
+        }
+    }
+
+    /* Tool styles */
+    .title {
+        @if $theme == light {
+            color: #333333;
+        } @else if $theme == dark {
+            color: #D3D3D3;
+        }
+    }
+
+    .card {
+        @if $theme == light {
+            border: 1px solid rgba(241, 241, 241, 0.125);
+        } @else if $theme == dark {
+            border: 1px solid rgba(0, 0, 0, 0.125);
+        }
+    }
+
+    .bg-primary {
+        @if $theme == light {
+            background-color: #F1F1F1;
+            color: #222222;
+        } @else if $theme == dark {
+            background-color: #222222;
+            color: #D3D3D3;
+        }
+
+        a {
+            color: #9bb7d6;
+        }
+    }
+
+    .bg-secondary {
+        @if $theme == light {
+            background-color: #F1F1F1;
+            color: #222222;
+        } @else if $theme == dark {
+            background-color: #000000;
+            color: #D3D3D3;
+        }
+    }
+
+    .scroll {
+        overflow-y: auto;
+    }
+
+    .details {
+        font-size: 80%;
+        opacity: 0.8;
+    }
 
     .coll-full, .welcome-col-left, .welcome-col-right {
         position: relative;
