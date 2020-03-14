@@ -71,3 +71,14 @@ export function fromEntries(iterable) {
   return [...iterable]
     .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {});
 }
+
+/**
+ * Based on the user's operating system preferences, which theme do they prefer?
+ * @returns {string} The name of the preferred theme.
+ */
+export function getPreferredTheme() {
+  const prefersDark =
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return (prefersDark ? "dark" : "light");
+}

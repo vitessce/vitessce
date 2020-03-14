@@ -37,7 +37,7 @@
         font-family: Ampersand;
         margin-left: .5em;
         background: none;
-        
+
         @if $theme == light {
             color: #333333;
         } @else if $theme == dark {
@@ -72,7 +72,11 @@
         }
 
         a {
-            color: #9bb7d6;
+            @if $theme == light {
+                color:#0074D9;
+            } @else if $theme == dark {
+                color: #9bb7d6;
+            }
         }
     }
 
@@ -112,6 +116,22 @@
         -ms-flex: 0 0 41.666667%;
         flex: 0 0 41.666667%;
         max-width: 41.666667%;
+
+        .list-group-item {
+            @if $theme == light {
+                background-color: #FFFFFF;
+            } @else if $theme == dark {
+                background-color: #000000;
+            }
+        }
+
+        .input-group input {
+            @if $theme == light {
+                background-color: #FFFFFF;
+            } @else if $theme == dark {
+                background-color: #D3D3D3;
+            }
+        }
     }
   
 
