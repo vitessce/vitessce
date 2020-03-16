@@ -138,7 +138,6 @@ const configs = {
     ...linnarssonBase,
     name: 'Linnarsson',
     public: true,
-    theme: 'light',
     staticLayout: [
       { component: 'description',
         props: {
