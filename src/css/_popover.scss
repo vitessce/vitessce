@@ -1,4 +1,3 @@
-@import 'colors';
 
 @mixin popover {
     margin: 0;
@@ -24,7 +23,7 @@
                     background-color: transparent;
                 }
                 &:not(:last-child) {
-                    border-bottom: 1px solid $color-gray;
+                    border-bottom: 1px solid #808080;
                 }
             }
         }

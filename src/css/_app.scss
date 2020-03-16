@@ -1,11 +1,8 @@
-@mixin app($theme) {
+
+@mixin app($theme-name, $theme-colors) {
 
     .react-grid-layout {
-        @if $theme == light {
-            background-color: #FFFFFF;
-        } @else if $theme == dark {
-            background-color: #333333;
-        }
+        background-color: map-get($theme-colors, "grid-layout-background");
     }
 
     /* Flex grid items */
@@ -37,57 +34,29 @@
         font-family: Ampersand;
         margin-left: .5em;
         background: none;
-
-        @if $theme == light {
-            color: #333333;
-        } @else if $theme == dark {
-            color: #000000;
-        }
+        color: map-get($theme-colors, "primary-foreground-dim");
     }
 
     /* Tool styles */
     .title {
-        @if $theme == light {
-            color: #333333;
-        } @else if $theme == dark {
-            color: #D3D3D3;
-        }
+        color: map-get($theme-colors, "primary-foreground");
     }
 
     .card {
-        @if $theme == light {
-            border: 1px solid rgba(241, 241, 241, 0.125);
-        } @else if $theme == dark {
-            border: 1px solid rgba(0, 0, 0, 0.125);
-        }
+        border: 1px solid map-get($theme-colors, "card-border");
     }
 
     .bg-primary {
-        @if $theme == light {
-            background-color: #F1F1F1;
-            color: #222222;
-        } @else if $theme == dark {
-            background-color: #222222;
-            color: #D3D3D3;
-        }
-
+        background-color: map-get($theme-colors, "primary-background");
+        color: map-get($theme-colors, "primary-foreground");
         a {
-            @if $theme == light {
-                color:#0074D9;
-            } @else if $theme == dark {
-                color: #9bb7d6;
-            }
+            color: map-get($theme-colors, "primary-foreground-active");
         }
     }
 
     .bg-secondary {
-        @if $theme == light {
-            background-color: #F1F1F1;
-            color: #222222;
-        } @else if $theme == dark {
-            background-color: #000000;
-            color: #D3D3D3;
-        }
+        background-color: map-get($theme-colors, "secondary-background");
+        color: map-get($theme-colors, "secondary-foreground");
     }
 
     .scroll {
@@ -118,19 +87,11 @@
         max-width: 41.666667%;
 
         .list-group-item {
-            @if $theme == light {
-                background-color: #FFFFFF;
-            } @else if $theme == dark {
-                background-color: #000000;
-            }
+            background-color: map-get($theme-colors, "primary-background-highlight");
         }
 
         .input-group input {
-            @if $theme == light {
-                background-color: #FFFFFF;
-            } @else if $theme == dark {
-                background-color: #D3D3D3;
-            }
+            background-color: map-get($theme-colors, "primary-background-input");
         }
     }
   

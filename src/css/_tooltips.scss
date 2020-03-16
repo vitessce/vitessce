@@ -1,10 +1,10 @@
 /* Cell Tooltips */
-@mixin tooltips($theme) {
+@mixin tooltips($theme-name, $theme-colors) {
   .cell-emphasis-crosshair, .cell-emphasis-vertical {
       z-index: 5;
       position: absolute;
       pointer-events: none;
-      background-color: white;
+      background-color: map-get($theme-colors, "secondary-foreground");
   }
 
   .cell-emphasis-vertical {
@@ -35,6 +35,12 @@
       table > tbody > tr > th, table > tbody > tr > td {
           font-size: 80%;
           opacity: 0.8;
+          outline: 0;
+          padding: 0 2px;
+      }
+
+      table {
+          border-collapse: collapse;
       }
   }
 
