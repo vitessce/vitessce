@@ -30,7 +30,7 @@ describe('utils.js', () => {
           cols: ['10', '20', '30'],
         },
         updateCellsHover(hoverInfo) {
-          expect(hoverInfo.cellId).toEqual(20);
+          expect(hoverInfo.cellId).toEqual('20');
           done();
         },
       };

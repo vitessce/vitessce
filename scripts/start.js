@@ -85,7 +85,8 @@ checkBrowsers(paths.appPath, isInteractive)
     const urls = prepareUrls(
       protocol,
       HOST,
-      port
+      port,
+      paths.publicUrlOrPath.slice(0, -1)
     );
     const devSocket = {
       warnings: warnings =>
