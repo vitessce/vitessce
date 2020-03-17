@@ -25,7 +25,7 @@ module.exports = config => {
     },
 
     // webpackConfig(env, argv)
-    webpack: webpackConfig({}),
+    webpack: webpackConfig(process.env.NODE_ENV, 'demo'),
 
     webpackServer: {
       noInfo: true // please don't spam the console when running in karma!
@@ -49,7 +49,7 @@ module.exports = config => {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome', 'HeadlessChrome'],
+    browsers: ['HeadlessChrome'],
     singleRun: false,
     customLaunchers: {
       Chrome_travis_ci: {

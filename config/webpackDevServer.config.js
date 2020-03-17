@@ -109,11 +109,6 @@ module.exports = function(proxy, allowedHost) {
       app.use(evalSourceMapMiddleware(server));
       // This lets us open files from the runtime error overlay.
       app.use(errorOverlayMiddleware());
-
-      if (fs.existsSync(paths.proxySetup)) {
-        // This registers user provided middleware for proxy reasons
-        require(paths.proxySetup)(app);
-      }
     },
     after(app) {
       // Redirect to `PUBLIC_URL` or `homepage` from `package.json` if url not match

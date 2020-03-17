@@ -50,9 +50,12 @@ const sassModuleRegex = /\.module\.(scss|sass)$/;
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
-module.exports = function(webpackEnv) {
+module.exports = function(webpackEnv, target) {
   const isEnvDevelopment = webpackEnv === 'development';
   const isEnvProduction = webpackEnv === 'production';
+
+  const isTargetDemo = target === 'demo';
+  const isTargetLib = target !== 'demo';
 
   // Variable used for enabling profiling in Production
   // passed into alias object. Uses a flag if passed into the build command
@@ -151,27 +154,26 @@ module.exports = function(webpackEnv) {
       isEnvDevelopment &&
         require.resolve('react-dev-utils/webpackHotDevClient'),
       // Finally, this is your app's code:
-      paths.appIndexJs,
+      (isTargetDemo ? paths.appIndexJs : paths.libIndexJs),
       // We include the app code last so that if there is a runtime error during
       // initialization, it doesn't blow up the WebpackDevServer client, and
       // changing JS code would still trigger a refresh.
     ].filter(Boolean),
     output: {
       // The build folder.
-      path: isEnvProduction ? paths.appBuild : undefined,
+      path: (isTargetDemo ? paths.appBuild : `${paths.libBuild}/${target}`),
       // Add /* filename */ comments to generated require()s in the output.
       pathinfo: isEnvDevelopment,
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
-      filename: isEnvProduction
-        ? 'static/js/[name].[contenthash:8].js'
-        : isEnvDevelopment && 'static/js/bundle.js',
+      filename: isTargetDemo ? (
+          isEnvProduction
+            ? 'static/js/[name].[contenthash:8].js'
+            : 'static/js/bundle.js'
+        ) : `index.${target}.js`,
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,
-      // There are also additional JS chunk files if you use code splitting.
-      chunkFilename: isEnvProduction
-        ? 'static/js/[name].[contenthash:8].chunk.js'
-        : isEnvDevelopment && 'static/js/[name].chunk.js',
+      
       // webpack uses `publicPath` to determine where the app is being served from.
       // It requires a trailing slash, or the file assets will get an incorrect path.
       // We inferred the "public path" (such as / or /my-project) from homepage.
@@ -189,6 +191,15 @@ module.exports = function(webpackEnv) {
       // this defaults to 'window', but by setting it to 'this' then
       // module chunks which are built will work in web workers as well.
       globalObject: 'this',
+      ...(isTargetLib ? { 
+        library: 'vitessce',
+        libraryTarget: (target === 'es' ? 'commonjs2' : target),
+      } : {
+        // There are also additional JS chunk files if you use code splitting.
+        chunkFilename: isEnvProduction
+          ? 'static/js/[name].[contenthash:8].chunk.js'
+          : 'static/js/[name].chunk.js',
+      }),
     },
     optimization: {
       minimize: isEnvProduction,
@@ -254,19 +265,21 @@ module.exports = function(webpackEnv) {
           },
         }),
       ],
-      // Automatically split vendor and commons
-      // https://twitter.com/wSokra/status/969633336732905474
-      // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
-      splitChunks: {
-        chunks: 'all',
-        name: false,
-      },
-      // Keep the runtime chunk separated to enable long term caching
-      // https://twitter.com/wSokra/status/969679223278505985
-      // https://github.com/facebook/create-react-app/issues/5358
-      runtimeChunk: {
-        name: entrypoint => `runtime-${entrypoint.name}`,
-      },
+      ...(isTargetDemo ? {
+        // Automatically split vendor and commons
+        // https://twitter.com/wSokra/status/969633336732905474
+        // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
+        splitChunks: {
+          chunks: 'all',
+          name: false,
+        },
+        // Keep the runtime chunk separated to enable long term caching
+        // https://twitter.com/wSokra/status/969679223278505985
+        // https://github.com/facebook/create-react-app/issues/5358
+        runtimeChunk: {
+          name: entrypoint => `runtime-${entrypoint.name}`,
+        },
+      } : null),
     },
     resolve: {
       // This allows you to set a fallback for where webpack should look for modules.
@@ -506,31 +519,37 @@ module.exports = function(webpackEnv) {
     },
     plugins: [
       // Generates an `index.html` file with the <script> injected.
-      new HtmlWebpackPlugin(
-        Object.assign(
-          {},
-          {
-            inject: true,
-            template: paths.appHtml,
-          },
-          isEnvProduction
-            ? {
-                minify: {
-                  removeComments: true,
-                  collapseWhitespace: true,
-                  removeRedundantAttributes: true,
-                  useShortDoctype: true,
-                  removeEmptyAttributes: true,
-                  removeStyleLinkTypeAttributes: true,
-                  keepClosingSlash: true,
-                  minifyJS: true,
-                  minifyCSS: true,
-                  minifyURLs: true,
-                },
-              }
-            : undefined
+      ...(isTargetDemo ? [
+        new HtmlWebpackPlugin(
+          Object.assign(
+            {},
+            {
+              inject: true,
+              template: paths.appHtml,
+            },
+            isEnvProduction
+              ? {
+                  minify: {
+                    removeComments: true,
+                    collapseWhitespace: true,
+                    removeRedundantAttributes: true,
+                    useShortDoctype: true,
+                    removeEmptyAttributes: true,
+                    removeStyleLinkTypeAttributes: true,
+                    keepClosingSlash: true,
+                    minifyJS: true,
+                    minifyCSS: true,
+                    minifyURLs: true,
+                  },
+                }
+              : undefined
+          )
         )
-      ),
+      ] : [
+        new webpack.ProvidePlugin({
+          React: "React", react: "React", "window.react": "React", "window.React": "React"
+        })
+      ]),
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       // https://github.com/facebook/create-react-app/issues/5358
@@ -568,7 +587,7 @@ module.exports = function(webpackEnv) {
         new MiniCssExtractPlugin({
           // Options similar to the same options in webpackOptions.output
           // both options are optional
-          filename: 'static/css/[name].[contenthash:8].css',
+          filename: (isTargetDemo ? 'static/css/[name].[contenthash:8].css' : 'static/css/[name].css'),
           chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
         }),
       // Generate an asset manifest file with the following content:

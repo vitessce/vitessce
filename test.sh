@@ -22,9 +22,9 @@ start lint
 eslint src
 end lint
 
-start test
-npm test
-end test
+#start test
+#npm test
+#end test
 
 start cypress
 npm start & wait-on http://localhost:3000/

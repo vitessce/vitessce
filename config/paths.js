@@ -22,16 +22,11 @@ const publicUrlOrPath = getPublicUrlOrPath(
 );
 
 const moduleFileExtensions = [
-  'web.mjs',
   'mjs',
-  'web.js',
   'js',
-  'web.ts',
   'ts',
-  'web.tsx',
   'tsx',
   'json',
-  'web.jsx',
   'jsx',
 ];
 
@@ -52,7 +47,7 @@ const resolveModule = (resolveFn, filePath) => {
 module.exports = {
   dotenv: resolveApp('.env'),
   appPath: resolveApp('.'),
-  appBuild: resolveApp('build'),
+  appBuild: resolveApp('build-demo'),
   appPublic: resolveApp('demo'),
   appHtml: resolveApp('demo/index.html'),
   appIndexJs: resolveModule(resolveApp, 'src/demo/index'),
@@ -61,10 +56,10 @@ module.exports = {
   appTsConfig: resolveApp('tsconfig.json'),
   appJsConfig: resolveApp('jsconfig.json'),
   yarnLockFile: resolveApp('yarn.lock'),
-  testsSetup: resolveModule(resolveApp, 'src/setupTests'),
-  proxySetup: resolveApp('src/setupProxy.js'),
   appNodeModules: resolveApp('node_modules'),
   publicUrlOrPath,
+  libBuild: resolveApp('build-lib'),
+  libIndexJs: resolveModule(resolveApp, 'src/index')
 };
 
 
