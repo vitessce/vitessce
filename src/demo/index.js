@@ -1,4 +1,4 @@
-import { renderApp } from '../../src/app/app';
+import { renderApp } from '../app/app';
 
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.has('small')) {
