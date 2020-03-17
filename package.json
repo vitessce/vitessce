@@ -10,13 +10,10 @@
     "react-component"
   ],
   "files": [
-    "css",
-    "es",
-    "lib",
-    "umd"
+    "build-lib"
   ],
-  "main": "lib/index.js",
-  "module": "lib/index.mjs",
+  "main": "build-lib/umd/index.umd.js",
+  "module": "build-lib/es/index.es.js",
   "dependencies": {
     "@deck.gl/core": "8.1.0-alpha.1",
     "@deck.gl/layers": "8.1.0-alpha.1",
