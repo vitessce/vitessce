@@ -15,7 +15,10 @@ $colors-dark: (
   "primary-foreground-active": #9bb7d6,
   "secondary-background": #000000,
   "secondary-background-dim": #444444,
-  "secondary-foreground": #D3D3D3
+  "secondary-foreground": #D3D3D3,
+
+  "gray-mid": #808080,
+  "gray-dark": #555555
 );
 
 $colors-light: (
@@ -30,5 +33,8 @@ $colors-light: (
   "primary-foreground-active": #0074D9,
   "secondary-background": #F1F1F1,
   "secondary-background-dim": #C0C0C0,
-  "secondary-foreground": #222222
+  "secondary-foreground": #222222,
+
+  "gray-mid": #808080,
+  "gray-dark": #555555
 );
