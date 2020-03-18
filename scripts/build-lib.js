@@ -1,3 +1,9 @@
+/*
+ * This file has been ejected from create-react-app v3.4.0.
+ * Note: the file has been renamed from `build.js` to `build-lib.js`.
+ * It has been modified, in order to produce builds for multiple targets.
+ */
+
 'use strict';
 
 // Do this as the first thing so that any code reading it knows the right env.

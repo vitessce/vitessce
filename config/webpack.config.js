@@ -1,3 +1,10 @@
+/*
+ * This file has been ejected from create-react-app v3.4.0.
+ * It has been modified to support library outputs,
+ * and in particular, all code that depends on the variables
+ * `isTargetDemo`, `isTargetLib`, and `target` is new.
+ */
+
 'use strict';
 
 const fs = require('fs');

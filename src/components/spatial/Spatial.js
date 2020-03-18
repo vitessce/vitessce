@@ -176,8 +176,7 @@ export default class Spatial extends AbstractSelectableComponent {
           sliderValues,
           channelsOn,
           onTileError: (err) => {
-            // eslint-disable-next-line no-console
-            console.log(err);
+            throw err;
           },
         };
         return new VivViewerLayer(props);

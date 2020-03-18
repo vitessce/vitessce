@@ -1,3 +1,8 @@
+/*
+ * This file has been ejected from create-react-app v3.4.0.
+ * It has been slightly modified to remove code related to the `jest` testing library.
+ */
+
 'use strict';
 
 const fs = require('fs');

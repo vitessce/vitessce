@@ -1,4 +1,8 @@
-// Do this as the first thing so that any code reading it knows the right env.
+/*
+ * This file has been adapted from the karma config used by HiGlass
+ * https://github.com/higlass/higlass/blob/2ced03740cdcaeb3a6e822c70a926cb1e4b42016/karma.conf.js
+ */
+
 process.env.BABEL_ENV = 'development';
 process.env.NODE_ENV = 'development';
 process.env.PUBLIC_URL = '';

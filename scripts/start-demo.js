@@ -1,3 +1,10 @@
+/*
+ * This file has been ejected from create-react-app v3.4.0.
+ * Note: the file has been renamed from `start.js` to `start-demo.js`.
+ * It has been modified slightly, in particular to pass the string 'demo'
+ * to the call to `configFactory()`.
+ */
+
 'use strict';
 
 // Do this as the first thing so that any code reading it knows the right env.

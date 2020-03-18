@@ -1,3 +1,8 @@
+/*
+ * This file has been ejected from create-react-app v3.4.0.
+ * The paths have been modified, and the `libBuild` and `libIndexJs` paths have been added.
+ */
+
 'use strict';
 
 const path = require('path');
