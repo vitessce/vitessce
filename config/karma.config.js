@@ -13,12 +13,10 @@ const webpackConfig = require('./webpack.config.js');
 
 module.exports = config => {
   config.set({
-    /** * maximum number of tries a browser will attempt in the case
-     * of a disconnection */
+    // The maximum number of tries a browser will attempt upon disconnection.
     browserDisconnectTolerance: 2,
-    /** * How long will Karma wait for a message from a browser before
-     * disconnecting from it (in ms). */
-    browserNoActivityTimeout: 50000,
+    // How long will Karma wait for a message from a browser before disconnecting?
+    browserNoActivityTimeout: 50000, // in ms
     basePath: '../src/',
     frameworks: ['mocha'],
 
@@ -30,13 +28,10 @@ module.exports = config => {
       '**/*.js': ['webpack', 'sourcemap']
     },
 
-    // webpackConfig(env, argv)
     webpack: webpackConfig(process.env.NODE_ENV, 'demo'),
-
     webpackServer: {
       noInfo: true // please don't spam the console when running in karma!
     },
-
     plugins: [
       'karma-webpack',
       'karma-mocha',
@@ -44,7 +39,6 @@ module.exports = config => {
       'karma-chrome-launcher',
       'karma-mocha-reporter'
     ],
-
     babelPreprocessor: {
       options: {
         presets: ['airbnb']
