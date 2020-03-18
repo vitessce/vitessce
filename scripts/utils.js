@@ -15,6 +15,15 @@ const { checkBrowsers } = require('react-dev-utils/browsersHelper');
 const WARN_AFTER_BUNDLE_GZIP_SIZE = 512 * 1024;
 const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024;
 
+const moduleFileExtensions = [
+  'mjs',
+  'js',
+  'ts',
+  'tsx',
+  'json',
+  'jsx',
+];
+
 
 function copyPublicFolder(paths) {
   fs.copySync(paths.appPublic, paths.appBuild, {
@@ -204,5 +213,6 @@ module.exports = {
     build,
     scriptInit,
     checkRequiredFilesForTarget,
-    checkHost
+    checkHost,
+    moduleFileExtensions
 };

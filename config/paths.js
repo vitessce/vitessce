@@ -8,6 +8,7 @@
 const path = require('path');
 const fs = require('fs');
 const getPublicUrlOrPath = require('react-dev-utils/getPublicUrlOrPath');
+const utils = require('../scripts/utils');
 
 // Make sure any symlinks in the project folder are resolved:
 // https://github.com/facebook/create-react-app/issues/637
@@ -26,18 +27,11 @@ const publicUrlOrPath = getPublicUrlOrPath(
   process.env.PUBLIC_URL
 );
 
-const moduleFileExtensions = [
-  'mjs',
-  'js',
-  'ts',
-  'tsx',
-  'json',
-  'jsx',
-];
+
 
 // Resolve file paths in the same order as webpack
 const resolveModule = (resolveFn, filePath) => {
-  const extension = moduleFileExtensions.find(extension =>
+  const extension = utils.moduleFileExtensions.find(extension =>
     fs.existsSync(resolveFn(`${filePath}.${extension}`))
   );
 
@@ -66,7 +60,3 @@ module.exports = {
   libBuild: resolveApp('build-lib'),
   libIndexJs: resolveModule(resolveApp, 'src/index')
 };
-
-
-
-module.exports.moduleFileExtensions = moduleFileExtensions;
