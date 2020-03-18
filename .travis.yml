@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 
 language: node_js
 node_js:
@@ -7,10 +7,10 @@ node_js:
 # Fix build failure.
 # https://github.com/cypress-io/cypress/issues/4069#issuecomment-488315675
 addons:
+  chrome: stable
   apt:
     packages:
       - libgconf-2-4
-      - xvfb
 
 cache:
   directories:
@@ -21,9 +21,5 @@ cache:
     # Cypress binary is here:
     - ~/.cache
 
-before_script:
-  - export CHROME_BIN=chromium-browser
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
 script:
   - ./test.sh

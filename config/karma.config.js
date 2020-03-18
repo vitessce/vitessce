@@ -52,9 +52,9 @@ module.exports = config => {
     browsers: ['HeadlessChrome'],
     singleRun: false,
     customLaunchers: {
-      Chrome_travis_ci: {
+      TravisChrome: {
         base: 'Chrome',
-        flags: ['--no-sandbox']
+        flags: ['--no-sandbox', '--headless']
       },
       HeadlessChrome: {
         base: 'ChromeHeadless',
@@ -68,6 +68,6 @@ module.exports = config => {
   });
 
   if (process.env.TRAVIS) {
-    config.browsers = ['Chrome_travis_ci'];
+    config.browsers = ['TravisChrome'];
   }
 };
