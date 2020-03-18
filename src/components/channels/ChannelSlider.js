@@ -35,7 +35,8 @@ export default class ChannelSlider extends React.Component {
     setSliderValue(channelValue);
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.colorsChangeToken = PubSub.subscribe(COLORS_CHANGE, this.onColorsChange.bind(this));
   }
 

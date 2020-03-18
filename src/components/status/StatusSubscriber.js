@@ -10,7 +10,8 @@ export default class StatusSubscriber extends React.Component {
     this.state = { warn: null, info: null };
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.warnToken = PubSub.subscribe(STATUS_WARN, this.warnSubscriber.bind(this));
     this.infoToken = PubSub.subscribe(STATUS_INFO, this.infoSubscriber.bind(this));
   }

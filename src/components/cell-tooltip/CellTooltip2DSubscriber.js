@@ -15,7 +15,8 @@ export default class CellTooltip2DSubscriber extends React.Component {
     this.uuid = uuid;
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.cellsHoverToken = PubSub.subscribe(
       CELLS_HOVER, this.cellsHoverSubscriber.bind(this),
     );
