@@ -53,25 +53,7 @@ module.exports = config => {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['HeadlessChrome'],
-    singleRun: false,
-    customLaunchers: {
-      TravisChrome: {
-        base: 'Chrome',
-        flags: ['--no-sandbox', '--headless']
-      },
-      HeadlessChrome: {
-        base: 'ChromeHeadless',
-        flags: [
-          '--disable-translate',
-          '--disable-extensions',
-          '--remote-debugging-port=9223'
-        ]
-      }
-    }
+    browsers: ['ChromeHeadless'],
+    singleRun: false
   });
-
-  if (process.env.TRAVIS) {
-    config.browsers = ['TravisChrome'];
-  }
 };
