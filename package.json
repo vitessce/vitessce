@@ -116,16 +116,18 @@
     "webpack": "4.41.5",
     "webpack-dev-server": "3.10.2",
     "webpack-manifest-plugin": "2.2.0",
-    "workbox-webpack-plugin": "4.3.1"
+    "workbox-webpack-plugin": "4.3.1",
+    "xvfb-maybe": "^0.2.1"
   },
   "scripts": {
     "build-demo": "node scripts/build-demo.js",
     "build-lib": "node scripts/build-lib.js",
     "build": "npm run build-demo && npm run build-lib",
+    "prepublishOnly": "npm run build",
     "clean": "rm -r build-demo build-lib",
     "start": "node scripts/start-demo.js",
-    "test": "karma start config/karma.config.js --single-run",
-    "test:watch": "karma start config/karma.config.js --auto-watch",
+    "test": "xvfb-maybe karma start config/karma.config.js --single-run",
+    "test:watch": "xvfb-maybe karma start config/karma.config.js --auto-watch",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
   },
