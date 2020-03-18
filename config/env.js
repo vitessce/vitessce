@@ -1,6 +1,6 @@
 /*
  * This file has been ejected from create-react-app v3.4.0.
- * It has not been touched since then (if you edit this file please remove this message).
+ * It has not been touched since then (if you edit this file please amend this message).
  */
 
 'use strict';
