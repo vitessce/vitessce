@@ -1,6 +1,8 @@
 /*
  * This file has been adapted from the karma config used by HiGlass
  * https://github.com/higlass/higlass/blob/2ced03740cdcaeb3a6e822c70a926cb1e4b42016/karma.conf.js
+ * and the nwb karma config generator function
+ * https://github.com/insin/nwb/blob/44530220491c4ba3483d0f2b4abca8db3e6286cd/src/createKarmaConfig.js
  */
 
 process.env.BABEL_ENV = 'development';
