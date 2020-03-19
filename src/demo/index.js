@@ -1,3 +1,4 @@
+import 'whatwg-fetch';
 import { renderApp } from '../app/app';
 
 const urlParams = new URLSearchParams(window.location.search);
