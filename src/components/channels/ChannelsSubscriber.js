@@ -35,22 +35,22 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
     function handleRasterAdd(event, data) {
       const { domains, id, channelNames: cNames } = data;
 
-      const colors = domains.map((_, i) => VIEWER_PALETTE[i]);
-      setColorValues(colors);
-      PubSub.publish(COLORS_CHANGE + id, colors);
+      const intialColorValues = domains.map((_, i) => VIEWER_PALETTE[i]);
+      setColorValues(intialColorValues);
+      PubSub.publish(COLORS_CHANGE + id, intialColorValues);
 
-      const sliders = domains.map((d) => {
+      const initialSliderValues = domains.map((d) => {
         const isArray = Array.isArray(d);
         return isArray ? [d[0], Math.ceil(d[1] / 5)] : [0, Math.ceil(STANDARD_MAX / 5)];
       });
       // "5" is arbitrary, but the data tends to be left-skewed.
       // Eventually we want this to be based on the data in the image.));
-      setSliderValues(sliders);
-      PubSub.publish(SLIDERS_CHANGE + id, sliders);
+      setSliderValues(initialSliderValues);
+      PubSub.publish(SLIDERS_CHANGE + id, initialSliderValues);
 
-      const channels = Array(domains.length).fill(true);
-      setChannelIsOn(channels);
-      PubSub.publish(CHANNEL_TOGGLE + id, channels);
+      const initialChannelIsOn = Array(domains.length).fill(true);
+      setChannelIsOn(initialChannelIsOn);
+      PubSub.publish(CHANNEL_TOGGLE + id, initialChannelIsOn);
 
 
       setChannelNames(cNames);
@@ -88,14 +88,6 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
       return nextChannelIsOn;
     });
   };
-
-  // function handleChannelSelectionsChange(i, selection) {
-  //   const nextChannelSelections = [...channelSelections];
-  //   nextChannelSelections[i] = selection;
-  //   setChannelSelections(nextChannelSelections);
-  //   PubSub.publish(CHANNEL_SELECTION_CHANGE, nextChannelSelections);
-  // }
-
 
   if (channelNames && colorValues && sliderValues && channelIsOn && sliderDomains) {
     const channelSliders = channelNames.map((name, i) => {
