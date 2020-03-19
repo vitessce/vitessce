@@ -1,7 +1,8 @@
 # Changelog
 
 ## 0.0.25 - In progress
-### Added
+### Changed
+- Upgrade vitessce-image-viewer to 0.1.0 & use data loaders
 
 ## [0.0.24](https://www.npmjs.com/package/vitessce/v/0.0.24) - 2020-03-02
 ### Added

@@ -32,8 +32,8 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   const [eventId, setEventId] = useState(null);
 
   useEffect(() => {
-    function handleRasterAdd(event, data) {
-      const { domains, id, channelNames: cNames } = data;
+    function handleRasterAdd(msg, raster) {
+      const { domains, id, channelNames: cNames } = raster;
 
       const intialColorValues = domains.map((_, i) => VIEWER_PALETTE[i]);
       setColorValues(intialColorValues);
