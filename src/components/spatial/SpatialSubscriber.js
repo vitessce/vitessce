@@ -85,9 +85,18 @@ export default class SpatialSubscriber extends React.Component {
   rasterAddSubscriber(msg, raster) {
     this.setState({ raster });
     const { id } = raster;
-    this.slidersChangeToken = PubSub.subscribe(SLIDERS_CHANGE + id, this.onSlidersChange.bind(this));
-    this.colorsChangeToken = PubSub.subscribe(COLORS_CHANGE + id, this.onColorsChange.bind(this));
-    this.channelToggleToken = PubSub.subscribe(CHANNEL_TOGGLE + id, this.onChannelToggle.bind(this));
+    this.slidersChangeToken = PubSub.subscribe(
+      SLIDERS_CHANGE + id,
+      this.onSlidersChange.bind(this),
+    );
+    this.colorsChangeToken = PubSub.subscribe(
+      COLORS_CHANGE + id,
+      this.onColorsChange.bind(this),
+    );
+    this.channelToggleToken = PubSub.subscribe(
+      CHANNEL_TOGGLE + id,
+      this.onChannelToggle.bind(this),
+    );
   }
 
   moleculesAddSubscriber(msg, molecules) {

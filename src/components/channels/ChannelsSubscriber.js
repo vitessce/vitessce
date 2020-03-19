@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PubSub from 'pubsub-js';
 
 import { Checkbox } from 'antd';
-import ChannelSlider from './ChannelSlider';
+import { Slider } from '@material-ui/core';
 import PopoverColor from '../sets/PopoverColor';
 
 import TitleInfo from '../TitleInfo';
@@ -33,24 +33,27 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
 
   useEffect(() => {
     function handleRasterAdd(event, data) {
-      const { domains, id } = data;
+      const { domains, id, channelNames: cNames } = data;
 
       const colors = domains.map((_, i) => VIEWER_PALETTE[i]);
       setColorValues(colors);
       PubSub.publish(COLORS_CHANGE + id, colors);
 
-      const sliders = domains.map(d => (Array.isArray(d) ? [d[0], Math.ceil(d[1] / 5)] : [0, Math.ceil(STANDARD_MAX / 5)]));
+      const sliders = domains.map((d) => {
+        const isArray = Array.isArray(d);
+        return isArray ? [d[0], Math.ceil(d[1] / 5)] : [0, Math.ceil(STANDARD_MAX / 5)];
+      });
       // "5" is arbitrary, but the data tends to be left-skewed.
       // Eventually we want this to be based on the data in the image.));
       setSliderValues(sliders);
       PubSub.publish(SLIDERS_CHANGE + id, sliders);
 
-      const channels = domains.map(_ => true);
+      const channels = Array(domains.length).fill(true);
       setChannelIsOn(channels);
       PubSub.publish(CHANNEL_TOGGLE + id, channels);
 
 
-      setChannelNames(data.dimensions[0].values);
+      setChannelNames(cNames);
       setSliderDomains(domains.map(d => (Array.isArray(d) ? d : [0, STANDARD_MAX])));
       setEventId(id);
     }
@@ -98,7 +101,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
     const channelSliders = channelNames.map((name, i) => {
       const colorValue = colorValues[i];
       const sliderValue = sliderValues[i];
-      const sliderDomain = sliderDomains[i];
+      const [min, max] = sliderDomains[i];
       return (
         <div key={`container-${name}`}>
           <div>{name}</div>
@@ -115,12 +118,15 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
               placement="left"
               palette={VIEWER_PALETTE}
             />
-            <ChannelSlider
-              name={name}
-              onChange={v => handleSliderChange(i, v)}
-              range={sliderDomain}
-              color={colorValue}
+            <Slider
               value={sliderValue}
+              onChange={(e, v) => handleSliderChange(i, v)}
+              valueLabelDisplay="auto"
+              getAriaLabel={() => name}
+              min={min}
+              max={max}
+              style={{ color: `rgb(${colorValue})` }}
+              orientation="horizontal"
             />
           </div>
         </div>
