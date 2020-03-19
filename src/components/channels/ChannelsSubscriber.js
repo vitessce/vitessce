@@ -35,9 +35,9 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
     function handleRasterAdd(msg, raster) {
       const { domains, id, channelNames: cNames } = raster;
 
-      const intialColorValues = domains.map((_, i) => VIEWER_PALETTE[i]);
-      setColorValues(intialColorValues);
-      PubSub.publish(COLORS_CHANGE + id, intialColorValues);
+      const initialColorValues = domains.map((_, i) => VIEWER_PALETTE[i]);
+      setColorValues(initialColorValues);
+      PubSub.publish(COLORS_CHANGE + id, initialColorValues);
 
       const initialSliderValues = domains.map((d) => {
         const isArray = Array.isArray(d);
