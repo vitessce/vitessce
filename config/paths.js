@@ -23,11 +23,9 @@ const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 // like /todos/42/static/js/bundle.7289d.js. We have to know the root.
 const publicUrlOrPath = getPublicUrlOrPath(
   process.env.NODE_ENV === 'development',
-  require(resolveApp('package.json')).homepage,
+  ".",
   process.env.PUBLIC_URL
 );
-
-
 
 // Resolve file paths in the same order as webpack
 const resolveModule = (resolveFn, filePath) => {
