@@ -19,7 +19,7 @@ echo '{
 }' > src/version.json
 npm run build
 
-DIST_DIR='demo/dist/'
+DIST_DIR='build-demo/'
 # and add an error page for vitessce.io...
 cp error.html $DIST_DIR
 # and push to S3.

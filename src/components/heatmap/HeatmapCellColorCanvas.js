@@ -20,7 +20,7 @@ function paintCanvas(canvasRef, props) {
   const imageData = ctx.createImageData(width, height);
   clusters.cols.forEach((cellId, x) => {
     const offset = x * 4;
-    const cellColor = cellColors[cellId];
+    const cellColor = cellColors[cellId] || [0, 0, 0];
     setImageDataRGBA(imageData, offset, ...cellColor, 255);
   });
   ctx.putImageData(imageData, 0, 0);
