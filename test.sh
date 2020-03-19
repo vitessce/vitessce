@@ -39,6 +39,6 @@ end schema
 start build
 npm run build
 for F in build-lib/es/index.es.js build-lib/umd/index.umd.js build-lib/es/static/css/main.css build-lib/umd/static/css/main.css; do
-  [ -e $F ] || die "$F is missing from UMD build"
+  [ -e $F ] || die "$F is missing from build"
 done
 end build
