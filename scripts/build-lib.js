@@ -21,22 +21,13 @@ utils.scriptInit();
 // Generate configuration
 const targets = [ 'umd', 'es' ];
 
-function buildForTarget(i) {
-    if(i < targets.length) {
-        const target = targets[i];
+async function buildForAllTargets(targets) {
+    for (let target of targets) {
         const config = configFactory(process.env.NODE_ENV, target);
-        utils.build(config, paths, target)
-            .then(() => {
-                // recursion
-                buildForTarget(i+1);
-            })
+        await utils.build(config, paths, target);
     }
 }
 
-function buildForAllTargets() {
-    buildForTarget(0);
-}
-
 // Build for all targets.
-buildForAllTargets();
+buildForAllTargets(targets);
 
