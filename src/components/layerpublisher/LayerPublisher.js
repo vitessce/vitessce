@@ -1,6 +1,9 @@
 import Ajv from 'ajv';
 import PubSub from 'pubsub-js';
 import React from 'react';
+import { createTiffPyramid } from '@hubmap/vitessce-image-viewer';
+import { openArray } from 'zarr';
+import { ZarrLoader } from 'vitessce-image-loader';
 
 import {
   STATUS_WARN, STATUS_INFO,
@@ -25,6 +28,7 @@ const typeToSchema = {
   NEIGHBORHOODS: neighborhoodsSchema,
   RASTER: rasterSchema,
 };
+
 const typeToEvent = {
   CELLS: CELLS_ADD,
   CLUSTERS: CLUSTERS_ADD,
@@ -43,6 +47,39 @@ function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
 }
 
+async function initRasterLayer(data) {
+  const channelNames = Object.keys(data);
+  const channelUrls = Object.values(data).map(d => d.tileSource);
+  const raster = {
+    dimensions: [
+      { name: 'channel', type: 'nominal', values: channelNames },
+      { name: 'y', type: 'quantitative' },
+      { name: 'x', type: 'quantitative' },
+    ],
+    domains: Object.values(data).map(d => d.range),
+    uniqueRasterId: String(Date.now()),
+  };
+  if (channelUrls[0].includes('tif')) {
+    const loader = await createTiffPyramid({ channelNames, channelUrls });
+    return { ...raster, loader };
+  } if (channelUrls[0].includes('zarr')) {
+    const rootZarrUrl = channelUrls[0];
+    const { minZoom } = Object.values(data)[0];
+    const requests = [];
+    for (let i = 0; i < -minZoom; i += 1) {
+      const config = {
+        store: `${rootZarrUrl}${String(i).padStart(2, '0')}`,
+        mode: 'r',
+      };
+      requests.push(openArray(config));
+    }
+    const pyramid = await Promise.all(requests);
+    const loader = new ZarrLoader(pyramid, false, 1, raster.dimensions);
+    return { ...raster, loader };
+  }
+  throw Error(`No raster loader defined for image with tile source ${channelUrls[0]}`);
+}
+
 function publishLayer(data, type, name, url) {
   const schema = typeToSchema[type];
   if (!schema) {
@@ -55,8 +92,16 @@ function publishLayer(data, type, name, url) {
     warn(`Error while validating ${name}. Details in console.`);
     console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
   }
-  PubSub.publish(typeToEvent[type], data);
-  info(name);
+
+  if (type === 'RASTER' || type === 'IMS') {
+    initRasterLayer(data).then((rasterData) => {
+      PubSub.publish(RASTER_ADD, rasterData);
+      info(name);
+    });
+  } else {
+    PubSub.publish(typeToEvent[type], data);
+    info(name);
+  }
 }
 
 function loadLayer(layer) {

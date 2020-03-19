@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PubSub from 'pubsub-js';
 
 import { Checkbox } from 'antd';
@@ -23,98 +23,97 @@ const VIEWER_PALETTE = [
 
 const STANDARD_MAX = 65535;
 
-export default class ChannelsSubscriber extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { colorValues: {}, channelsOn: {}, rangeValues: {} };
-    this.setSliderValue = this.setSliderValue.bind(this);
-    this.setColorValue = this.setColorValue.bind(this);
-    this.toggleChannel = this.toggleChannel.bind(this);
-    this.componentWillUnmount = this.componentWillUnmount.bind(this);
-  }
+export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
+  const [channelNames, setChannelNames] = useState(null);
+  const [colorValues, setColorValues] = useState(null);
+  const [sliderValues, setSliderValues] = useState(null);
+  const [channelIsOn, setChannelIsOn] = useState(null);
+  const [sliderDomains, setSliderDomains] = useState(null);
 
-  componentWillMount() {
-    this.rasterAddToken = PubSub.subscribe(RASTER_ADD, this.rasterAddSubscriber.bind(this));
-  }
-
-  componentDidMount() {
-    const { onReady } = this.props;
+  useEffect(() => {
+    function rasterAddSubscriber(event, data) {
+      const { domains } = data;
+      setSliderValues(domains.map(d => (Array.isArray(d) ? [d[0], Math.ceil(d[1] / 5)] : [0, Math.ceil(STANDARD_MAX / 5)])));
+      // "5" is arbitrary, but the data tends to be left-skewed.
+      // Eventually we want this to be based on the data in the image.));
+      setColorValues(domains.map((_, i) => VIEWER_PALETTE[i]));
+      setChannelIsOn(domains.map(_ => true));
+      setChannelNames(data.dimensions[0].values);
+      setSliderDomains(domains.map(d => (Array.isArray(d) ? d : [0, STANDARD_MAX])));
+    }
+    const token = PubSub.subscribe(RASTER_ADD, rasterAddSubscriber);
     onReady();
+    return () => PubSub.unsubscribe(token);
+  }, []);
+
+  function handleColorChange(i, rgb) {
+    const nextColorValues = [...colorValues];
+    nextColorValues[i] = rgb;
+    setColorValues(nextColorValues);
+    PubSub.publish(COLORS_CHANGE, nextColorValues);
   }
 
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.rasterAddToken);
+  function handleSliderChange(i, sliderValue) {
+    const nextSliderValues = [...sliderValues];
+    nextSliderValues[i] = sliderValue;
+    setSliderValues(nextSliderValues);
+    PubSub.publish(SLIDERS_CHANGE, nextSliderValues);
   }
 
-  rasterAddSubscriber(msg, rasterData) {
-    Object.keys(rasterData)
-      .forEach((channel, i) => {
-        const rangeValue = { [channel]: rasterData[channel].range };
-        this.setState(prevState => ({ rangeValues: { ...prevState.rangeValues, ...rangeValue } }));
-        this.setColorValue({ channel, rgb: VIEWER_PALETTE[i] });
-        this.toggleChannel(channel);
-      });
+  function handleChannelIsOnChange(i) {
+    const nextChannelIsOn = [...channelIsOn];
+    nextChannelIsOn[i] = !channelIsOn[i];
+    setChannelIsOn(nextChannelIsOn);
+    PubSub.publish(CHANNEL_TOGGLE, nextChannelIsOn);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  setSliderValue(sliderValue) {
-    PubSub.publish(SLIDERS_CHANGE, sliderValue);
-  }
+  // function handleChannelSelectionsChange(i, selection) {
+  //   const nextChannelSelections = [...channelSelections];
+  //   nextChannelSelections[i] = selection;
+  //   setChannelSelections(nextChannelSelections);
+  //   PubSub.publish(CHANNEL_SELECTION_CHANGE, nextChannelSelections);
+  // }
 
-  setColorValue({ channel, rgb }) {
-    const colorValue = { [channel]: rgb };
-    this.setState(prevState => ({ colorValues: { ...prevState.colorValues, ...colorValue } }));
-    PubSub.publish(COLORS_CHANGE, { channel, rgb });
-  }
 
-  toggleChannel(channel) {
-    this.setState((prevState) => {
-      const channelToggle = !prevState.channelsOn[channel];
-      const channelOn = { [channel]: channelToggle };
-      PubSub.publish(CHANNEL_TOGGLE, { channel, channelToggle });
-      return { channelsOn: { ...prevState.channelsOn, ...channelOn } };
-    });
-  }
-
-  render() {
-    const { colorValues, channelsOn, rangeValues } = this.state;
-    const hr = <hr style={{ border: '1px solid #000' }} />;
-    const channelSliders = Object.keys(colorValues)
-      .map((channel, i) => {
-        const channelColor = colorValues[channel] || VIEWER_PALETTE[i];
-        const rangeValue = rangeValues[channel] || [0, STANDARD_MAX];
-        return (
-          <div key={`container-${channel}`}>
-            <div>{channel}</div>
-            <div className="channel-container">
-              <Checkbox
-                className="channel-checked"
-                checked={channelsOn[channel]}
-                onChange={() => this.toggleChannel(channel)}
-              />
-              <PopoverColor
-                prefixClass="channel"
-                color={channelColor}
-                setColor={rgb => this.setColorValue({ channel, rgb })}
-                placement="left"
-                palette={VIEWER_PALETTE}
-              />
-              <ChannelSlider
-                channel={channel}
-                setSliderValue={this.setSliderValue}
-                range={rangeValue}
-                color={channelColor}
-              />
-            </div>
+  if (channelNames && colorValues && sliderValues && channelIsOn && sliderDomains) {
+    const channelSliders = channelNames.map((name, i) => {
+      const colorValue = colorValues[i];
+      const sliderValue = sliderValues[i];
+      const sliderDomain = sliderDomains[i];
+      return (
+        <div key={`container-${name}`}>
+          <div>{name}</div>
+          <div className="channel-container">
+            <Checkbox
+              className="channel-checked"
+              checked={channelIsOn[i]}
+              onChange={() => handleChannelIsOnChange(i)}
+            />
+            <PopoverColor
+              prefixClass="channel"
+              color={colorValue}
+              setColor={rgb => handleColorChange(i, rgb)}
+              placement="left"
+              palette={VIEWER_PALETTE}
+            />
+            <ChannelSlider
+              name={name}
+              onChange={v => handleSliderChange(i, v)}
+              range={sliderDomain}
+              color={colorValue}
+              value={sliderValue}
+            />
           </div>
-        );
-      });
+        </div>
+      );
+    });
     return (
-      <TitleInfo title="Channel Levels" isScroll componentWillUnmount={this.componentWillUnmount}>
+      <TitleInfo title="Channel Levels" isScroll removeGridComponent={removeGridComponent}>
         <div className="sliders">
           {channelSliders}
         </div>
       </TitleInfo>
     );
   }
+  return null;
 }
