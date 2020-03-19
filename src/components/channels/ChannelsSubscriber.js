@@ -29,43 +29,62 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   const [sliderValues, setSliderValues] = useState(null);
   const [channelIsOn, setChannelIsOn] = useState(null);
   const [sliderDomains, setSliderDomains] = useState(null);
+  const [eventId, setEventId] = useState(null);
 
   useEffect(() => {
-    function rasterAddSubscriber(event, data) {
-      const { domains } = data;
-      setSliderValues(domains.map(d => (Array.isArray(d) ? [d[0], Math.ceil(d[1] / 5)] : [0, Math.ceil(STANDARD_MAX / 5)])));
+    function handleRasterAdd(event, data) {
+      const { domains, id } = data;
+
+      const colors = domains.map((_, i) => VIEWER_PALETTE[i]);
+      setColorValues(colors);
+      PubSub.publish(COLORS_CHANGE + id, colors);
+
+      const sliders = domains.map(d => (Array.isArray(d) ? [d[0], Math.ceil(d[1] / 5)] : [0, Math.ceil(STANDARD_MAX / 5)]));
       // "5" is arbitrary, but the data tends to be left-skewed.
       // Eventually we want this to be based on the data in the image.));
-      setColorValues(domains.map((_, i) => VIEWER_PALETTE[i]));
-      setChannelIsOn(domains.map(_ => true));
+      setSliderValues(sliders);
+      PubSub.publish(SLIDERS_CHANGE + id, sliders);
+
+      const channels = domains.map(_ => true);
+      setChannelIsOn(channels);
+      PubSub.publish(CHANNEL_TOGGLE + id, channels);
+
+
       setChannelNames(data.dimensions[0].values);
       setSliderDomains(domains.map(d => (Array.isArray(d) ? d : [0, STANDARD_MAX])));
+      setEventId(id);
     }
-    const token = PubSub.subscribe(RASTER_ADD, rasterAddSubscriber);
     onReady();
+    const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
     return () => PubSub.unsubscribe(token);
   }, []);
 
-  function handleColorChange(i, rgb) {
-    const nextColorValues = [...colorValues];
-    nextColorValues[i] = rgb;
-    setColorValues(nextColorValues);
-    PubSub.publish(COLORS_CHANGE, nextColorValues);
-  }
+  const handleColorChange = (i, rgb) => {
+    setColorValues((prevColorValues) => {
+      const nextColorValues = [...prevColorValues];
+      nextColorValues[i] = rgb;
+      PubSub.publish(COLORS_CHANGE + eventId, nextColorValues);
+      return nextColorValues;
+    });
+  };
 
-  function handleSliderChange(i, sliderValue) {
-    const nextSliderValues = [...sliderValues];
-    nextSliderValues[i] = sliderValue;
-    setSliderValues(nextSliderValues);
-    PubSub.publish(SLIDERS_CHANGE, nextSliderValues);
-  }
+  const handleSliderChange = (i, sliderValue) => {
+    setSliderValues((prevSliderValues) => {
+      const nextSliderValues = [...prevSliderValues];
+      nextSliderValues[i] = sliderValue;
+      PubSub.publish(SLIDERS_CHANGE + eventId, nextSliderValues);
+      return nextSliderValues;
+    });
+  };
 
-  function handleChannelIsOnChange(i) {
-    const nextChannelIsOn = [...channelIsOn];
-    nextChannelIsOn[i] = !channelIsOn[i];
-    setChannelIsOn(nextChannelIsOn);
-    PubSub.publish(CHANNEL_TOGGLE, nextChannelIsOn);
-  }
+  const handleChannelIsOnChange = (i) => {
+    setChannelIsOn((prevChannelIsOn) => {
+      const nextChannelIsOn = [...prevChannelIsOn];
+      nextChannelIsOn[i] = !channelIsOn[i];
+      PubSub.publish(CHANNEL_TOGGLE + eventId, nextChannelIsOn);
+      return nextChannelIsOn;
+    });
+  };
 
   // function handleChannelSelectionsChange(i, selection) {
   //   const nextChannelSelections = [...channelSelections];
