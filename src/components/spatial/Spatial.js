@@ -154,30 +154,17 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   createRasterLayer() {
-    const source = this.raster;
-    const sourceChannels = {};
-    Object.keys(source).forEach((channel) => {
-      sourceChannels[channel] = source[channel].tileSource;
-    });
-    const { colorValues, sliderValues, channelsOn } = this.props;
-    if (colorValues && sliderValues && channelsOn && sourceChannels) {
-      const channelsLength = Object.keys(sourceChannels).length;
-      if (
-        channelsLength === Object.keys(colorValues).length
-        && channelsLength === Object.keys(sliderValues).length
-        && channelsLength === Object.keys(channelsOn).length
-      ) {
-        const props = {
-          useTiff: sourceChannels[Object.keys(sourceChannels)[0]].includes('tif'),
-          useZarr: sourceChannels[Object.keys(sourceChannels)[0]].includes('zarr'),
-          minZoom: source[Object.keys(sourceChannels)[0]].minZoom,
-          sourceChannels,
-          colorValues,
-          sliderValues,
-          channelsOn,
-        };
-        return new VivViewerLayer(props);
-      }
+    const {
+      colorValues, sliderValues, channelIsOn, raster,
+    } = this.props;
+    if (colorValues && sliderValues && channelIsOn && raster) {
+      const { loader } = raster;
+      return new VivViewerLayer({
+        loader,
+        colorValues,
+        sliderValues,
+        channelIsOn,
+      });
     }
     return null;
   }

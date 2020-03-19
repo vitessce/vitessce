@@ -57,7 +57,7 @@ async function initRasterLayer(data) {
       { name: 'x', type: 'quantitative' },
     ],
     domains: Object.values(data).map(d => d.range),
-    uniqueRasterId: String(Date.now()),
+    id: String(Date.now()),
   };
   if (channelUrls[0].includes('tif')) {
     const loader = await createTiffPyramid({ channelNames, channelUrls });

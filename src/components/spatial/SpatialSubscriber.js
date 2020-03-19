@@ -28,6 +28,9 @@ export default class SpatialSubscriber extends React.Component {
       cells: {},
       selectedCellIds: new Set(),
       cellColors: null,
+      colorValues: [],
+      sliderValues: [],
+      channelIsOn: [],
       raster: null,
     };
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
@@ -55,9 +58,6 @@ export default class SpatialSubscriber extends React.Component {
     this.rasterAddToken = PubSub.subscribe(
       RASTER_ADD, this.rasterAddSubscriber.bind(this),
     );
-    this.slidersChangeToken = PubSub.subscribe(SLIDERS_CHANGE, this.onSlidersChange.bind(this));
-    this.colorsChangeToken = PubSub.subscribe(COLORS_CHANGE, this.onColorsChange.bind(this));
-    this.channelToggleToken = PubSub.subscribe(CHANNEL_TOGGLE, this.onChannelToggle.bind(this));
   }
 
   componentDidMount() {
@@ -84,6 +84,10 @@ export default class SpatialSubscriber extends React.Component {
 
   rasterAddSubscriber(msg, raster) {
     this.setState({ raster });
+    const { id } = raster;
+    this.slidersChangeToken = PubSub.subscribe(SLIDERS_CHANGE + id, this.onSlidersChange.bind(this));
+    this.colorsChangeToken = PubSub.subscribe(COLORS_CHANGE + id, this.onColorsChange.bind(this));
+    this.channelToggleToken = PubSub.subscribe(CHANNEL_TOGGLE + id, this.onChannelToggle.bind(this));
   }
 
   moleculesAddSubscriber(msg, molecules) {
@@ -102,25 +106,20 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ cellColors });
   }
 
-  onSlidersChange(msg, sliderData) {
-    const sliderValue = { [sliderData.channel]: sliderData.sliderValue };
-    this.setState(prevState => ({ sliderValues: { ...prevState.sliderValues, ...sliderValue } }));
+  onSlidersChange(msg, sliderValues) {
+    this.setState({ sliderValues });
   }
 
-  onColorsChange(msg, rgbData) {
-    const colorValue = { [rgbData.channel]: rgbData.rgb };
-    this.setState(prevState => ({ colorValues: { ...prevState.colorValues, ...colorValue } }));
+  onColorsChange(msg, colorValues) {
+    this.setState({ colorValues });
   }
 
-  onChannelToggle(msg, channelOn) {
-    const channelOnValue = { [channelOn.channel]: channelOn.channelToggle };
-    this.setState(prevState => ({ channelsOn: { ...prevState.channelsOn, ...channelOnValue } }));
+  onChannelToggle(msg, channelIsOn) {
+    this.setState({ channelIsOn });
   }
 
   render() {
-    const {
-      cells, molecules, sliderValues, colorValues, channelsOn,
-    } = this.state;
+    const { cells, molecules } = this.state;
     const { uuid = null, children, removeGridComponent } = this.props;
     const cellsCount = cells ? Object.keys(cells).length : 0;
     const moleculesCount = molecules ? Object.keys(molecules).length : 0;
@@ -156,9 +155,6 @@ export default class SpatialSubscriber extends React.Component {
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
-          sliderValues={sliderValues}
-          colorValues={colorValues}
-          channelsOn={channelsOn}
         />
       </TitleInfo>
       /* eslint-enable */
