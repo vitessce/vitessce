@@ -15,6 +15,7 @@
   @include error($theme-name, $theme-colors);
   @include tooltips($theme-name, $theme-colors);
   @include sets-manager($theme-name, $theme-colors);
+  @include popover($theme-name, $theme-colors);
 }
 
 .vitessce-container {
@@ -27,8 +28,4 @@
   &.vitessce-theme-light {
     @include vitessce-themable("light", $colors-light);
   }
-}
-
-.vitessce-popover {
-  @include popover;
 }

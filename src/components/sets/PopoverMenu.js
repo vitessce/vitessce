@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Popover } from 'antd';
-import 'antd/es/popover/style/index.css';
-
+import { getVitessceContainer } from '../utils';
 import { callbackOnKeyPress } from './utils';
+import 'antd/es/popover/style/index.css';
 
 function PopoverMenuList(props) {
   const { menuConfig, onClick } = props;
@@ -46,6 +46,7 @@ export default function PopoverMenu(props) {
 
   return (
     <Popover
+      getPopupContainer={getVitessceContainer}
       overlayClassName="vitessce-popover"
       content={<PopoverMenuList menuConfig={menuConfig} onClick={closePopover} />}
       placement={placement}

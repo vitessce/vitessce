@@ -71,3 +71,15 @@ export function fromEntries(iterable) {
   return [...iterable]
     .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {});
 }
+
+/**
+ * Get the DOM node for the .vitessce-container element.
+ * @returns {Element} The vitessce-container DOM node or document.body.
+ */
+export function getVitessceContainer() {
+  const els = document.getElementsByClassName('vitessce-container');
+  if (els.length === 1) {
+    return els[0];
+  }
+  return document.body;
+}

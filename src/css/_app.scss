@@ -1,8 +1,15 @@
 
 @mixin app($theme-name, $theme-colors) {
 
-    .react-grid-layout {
+    .react-grid-layout, .warning-layout {
         background-color: map-get($theme-colors, "grid-layout-background");
+    }
+
+    .warning-layout {
+        height: 100vh;
+        .card {
+            margin-left: 0.5rem;
+        }
     }
 
     /* Flex grid items */

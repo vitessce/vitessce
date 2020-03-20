@@ -21,15 +21,22 @@ function renderComponent(react, id) {
 }
 
 function Warning(props) {
-  const { title, preformatted, unformatted } = props;
+  const {
+    title,
+    preformatted,
+    unformatted,
+    theme,
+  } = props;
   return (
-    <div className="container-fluid">
-      <div className="row">
-        <div className="col-12">
-          <div className={LIGHT_CARD}>
-            <h1>{title}</h1>
-            <pre>{preformatted}</pre>
-            <div>{unformatted}</div>
+    <div className={`vitessce-container vitessce-theme-${theme}`}>
+      <div className="warning-layout container-fluid">
+        <div className="row">
+          <div className="col-12">
+            <div className={LIGHT_CARD}>
+              <h1>{title}</h1>
+              <pre>{preformatted}</pre>
+              <div>{unformatted}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -54,6 +61,7 @@ export function validateAndRender(config, id, rowHeight, theme) {
       <Warning
         title="No such dataset"
         unformatted="The dataset configuration could not be found."
+        theme={theme}
       />, id,
     );
     return;
@@ -71,6 +79,7 @@ export function validateAndRender(config, id, rowHeight, theme) {
       <Warning
         title="Config validation failed"
         preformatted={failureReason}
+        theme={theme}
       />, id,
     );
     return;
@@ -91,6 +100,7 @@ function renderResponse(response, id, theme) {
       <Warning
         title="Fetch response not OK"
         preformatted={preformattedDetails(response)}
+        theme={theme}
       />, id,
     );
   } else {
@@ -104,6 +114,7 @@ function renderResponse(response, id, theme) {
             title="Error parsing JSON"
             preformatted={preformattedDetails(response)}
             unformatted={`${e.message}: ${text}`}
+            theme={theme}
           />, id,
         );
       }
@@ -137,6 +148,7 @@ export function renderApp(id, rowHeight = null) {
         <Warning
           title="Error fetching"
           unformatted={error.message}
+          theme={theme}
         />, id,
       ));
   } else {

@@ -4,20 +4,20 @@ import { LIGHT_CARD } from '../components/classNames';
 import version from '../version.json';
 
 function DatasetList(props) {
-  const { configs } = props;
+  const { configs, theme } = props;
   const aClassName = 'list-group-item list-group-item-action flex-column align-items-start bg-secondary';
   const links = configs.map(
     ({ id, name, description }) => (
       <div className={aClassName} key={id}>
         <a
-          href={`?dataset=${id}`}
+          href={`?dataset=${id}&theme=${theme}`}
           key={id}
         >
           <h5>{name}</h5>
           <p>{description}</p>
         </a>
         <a
-          href={`?dataset=${id}&small`}
+          href={`?dataset=${id}&theme=${theme}&small`}
           style={{ fontSize: '75%' }}
         >
           {name} as component
@@ -33,17 +33,18 @@ function DatasetList(props) {
 }
 
 function Form(props) {
-  const { configs } = props;
+  const { configs, theme } = props;
   return (
     <form method="GET">
       <h1><span role="img" aria-label="fast train!">🚄 </span> Vitessce</h1>
       <div>Select a dataset:</div>
-      <DatasetList configs={configs} />
+      <DatasetList configs={configs} theme={theme} />
 
       <br />
       <div>Or specify URL of configuration:</div>
       <div className="input-group mb-3">
         <input type="text" name="url" className="form-control" />
+        <input type="hidden" name="theme" value={theme} />
         <div className="input-group-append">
           <button className="btn btn-outline-secondary" type="submit">Load</button>
         </div>
@@ -98,7 +99,7 @@ export default function Welcome(props) {
         <div className="row">
           <div className="welcome-col-left">
             <div className={LIGHT_CARD}>
-              <Form configs={configs} />
+              <Form configs={configs} theme={theme} />
             </div>
           </div>
           <div className="welcome-col-right">
