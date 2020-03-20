@@ -164,6 +164,9 @@ export default class Spatial extends AbstractSelectableComponent {
         colorValues,
         sliderValues,
         channelIsOn,
+        onTileError: (err) => {
+          throw err;
+        },
       });
     }
     return null;

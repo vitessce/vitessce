@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PubSub from 'pubsub-js';
 
 import { Checkbox } from 'antd';
@@ -31,6 +31,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   const [sliderDomains, setSliderDomains] = useState(null);
   const [eventId, setEventId] = useState(null);
 
+  const memoizedOnReady = useCallback(onReady, []);
 
   useEffect(() => {
     function handleRasterAdd(msg, raster) {
@@ -58,11 +59,10 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
       setSliderDomains(domains.map(d => (Array.isArray(d) ? d : [0, STANDARD_MAX])));
       setEventId(id);
     }
-    onReady();
+    memoizedOnReady();
     const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
     return () => PubSub.unsubscribe(token);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [memoizedOnReady]);
 
   const handleColorChange = (i, rgb) => {
     setColorValues((prevColorValues) => {
@@ -85,7 +85,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   const handleChannelIsOnChange = (i) => {
     setChannelIsOn((prevChannelIsOn) => {
       const nextChannelIsOn = [...prevChannelIsOn];
-      nextChannelIsOn[i] = !channelIsOn[i];
+      nextChannelIsOn[i] = !prevChannelIsOn[i];
       PubSub.publish(CHANNEL_TOGGLE + eventId, nextChannelIsOn);
       return nextChannelIsOn;
     });
@@ -93,6 +93,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
 
   if (channelNames && colorValues && sliderValues && channelIsOn && sliderDomains) {
     const channelSliders = channelNames.map((name, i) => {
+      const checked = channelIsOn[i];
       const colorValue = colorValues[i];
       const sliderValue = sliderValues[i];
       const [min, max] = sliderDomains[i];
@@ -102,7 +103,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
           <div className="channel-container">
             <Checkbox
               className="channel-checked"
-              checked={channelIsOn[i]}
+              checked={checked}
               onChange={() => handleChannelIsOnChange(i)}
             />
             <PopoverColor

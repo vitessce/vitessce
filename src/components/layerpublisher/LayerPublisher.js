@@ -88,7 +88,7 @@ function publishLayer(data, type, name, url) {
     console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
   }
 
-  if (type === 'RASTER' || type === 'IMS') {
+  if (type === 'RASTER') {
     initRasterLayer(data).then((rasterData) => {
       PubSub.publish(RASTER_ADD, rasterData);
       info(name);
