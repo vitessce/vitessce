@@ -31,6 +31,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   const [sliderDomains, setSliderDomains] = useState(null);
   const [eventId, setEventId] = useState(null);
 
+
   useEffect(() => {
     function handleRasterAdd(msg, raster) {
       const { domains, id, channelNames: cNames } = raster;
@@ -60,6 +61,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
     onReady();
     const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
     return () => PubSub.unsubscribe(token);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleColorChange = (i, rgb) => {

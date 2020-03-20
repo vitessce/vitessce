@@ -1,6 +1,9 @@
 # Changelog
 
 ## 0.0.25 - In progress
+### Added
+- Removed nwb, added custom webpack configuration.
+
 ### Changed
 - Upgrade vitessce-image-viewer to 0.1.0 & use data loaders
 

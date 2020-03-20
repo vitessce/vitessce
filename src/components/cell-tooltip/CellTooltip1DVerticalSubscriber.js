@@ -14,7 +14,8 @@ export default class CellTooltip1DVerticalSubscriber extends React.Component {
     };
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.cellsHoverToken = PubSub.subscribe(
       CELLS_HOVER, this.cellsHoverSubscriber.bind(this),
     );

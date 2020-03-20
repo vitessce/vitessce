@@ -2,9 +2,9 @@ import React from 'react';
 import { Icon } from 'antd';
 import 'antd/es/icon/style/index.css';
 import PopoverMenu from './PopoverMenu';
-import SetUnionSVG from '../../assets/sets/union.svg';
-import SetIntersectionSVG from '../../assets/sets/intersection.svg';
-import SetComplementSVG from '../../assets/sets/complement.svg';
+import { ReactComponent as SetUnionSVG } from '../../assets/sets/union.svg';
+import { ReactComponent as SetIntersectionSVG } from '../../assets/sets/intersection.svg';
+import { ReactComponent as SetComplementSVG } from '../../assets/sets/complement.svg';
 
 import {
   tabularFileType, tabularFileExtension,

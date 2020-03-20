@@ -9,10 +9,7 @@ export default function CellTooltip1DVertical(props) {
     numCells,
     uuid,
   } = props;
-  // Check that all data necessary to show the tooltip has been passed.
-  if (!hoveredCellInfo || !uuid || !cellIndex || !numCells) {
-    return null;
-  }
+
   const ref = useRef();
   const [x, setX] = useState(0);
   const [parentHeight, setParentHeight] = useState(0);
@@ -23,6 +20,9 @@ export default function CellTooltip1DVertical(props) {
   // based on the width of the sibling heatmap canvas.
   useEffect(() => {
     const el = ref.current;
+    if (!el || !cellIndex || !numCells) {
+      return;
+    }
     // Obtain the width of the heatmap canvas.
     const { width } = el.parentNode.querySelector('canvas').getBoundingClientRect();
     // Obtain the height of the entire parent card element.
@@ -30,7 +30,12 @@ export default function CellTooltip1DVertical(props) {
     setX((cellIndex / numCells) * width);
     setParentWidth(width);
     setParentHeight(height);
-  });
+  }, [cellIndex, numCells]);
+
+  // Check that all data necessary to show the tooltip has been passed.
+  if (!hoveredCellInfo || !uuid || !cellIndex || !numCells) {
+    return null;
+  }
 
   // If we're in the component that triggered the event, do not show the vertical line.
   // Instead, show a tooltip with text.
