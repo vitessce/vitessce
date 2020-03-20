@@ -104,7 +104,8 @@ export default class LayerPublisher extends React.Component {
     });
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.clearPleaseWaitToken = PubSub.subscribe(
       CLEAR_PLEASE_WAIT, this.clearPleaseWait.bind(this),
     );

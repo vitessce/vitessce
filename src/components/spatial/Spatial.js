@@ -175,6 +175,9 @@ export default class Spatial extends AbstractSelectableComponent {
           colorValues,
           sliderValues,
           channelsOn,
+          onTileError: (err) => {
+            throw err;
+          },
         };
         return new VivViewerLayer(props);
       }

@@ -17,7 +17,8 @@ export default class HeatmapSubscriber extends React.Component {
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.clustersAddToken = PubSub.subscribe(
       CLUSTERS_ADD, this.clustersAddSubscriber.bind(this),
     );
