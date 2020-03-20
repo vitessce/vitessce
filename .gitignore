@@ -3,6 +3,7 @@
 /build-lib
 /node_modules
 /.docz
+/demo/dist
 npm-debug.log*
 
 # misc
