@@ -5,5 +5,5 @@ const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.has('small')) {
   renderApp('small-app', 100);
 } else {
-  renderApp('full-app', undefined);
+  renderApp('full-app');
 }
