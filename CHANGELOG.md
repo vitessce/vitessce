@@ -5,7 +5,7 @@
 - Removed nwb, added custom webpack configuration.
 
 ### Changed
-- Upgrade vitessce-image-viewer to 0.1.0 & use data loaders
+- Upgrade vitessce-image-viewer to 0.1.3 & use data loaders
 
 ## [0.0.24](https://www.npmjs.com/package/vitessce/v/0.0.24) - 2020-03-02
 ### Added
