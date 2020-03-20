@@ -2,7 +2,6 @@ import React from 'react';
 
 import { LIGHT_CARD } from '../components/classNames';
 import version from '../version.json';
-import { getPreferredTheme } from '../components/utils';
 
 function DatasetList(props) {
   const { configs } = props;
@@ -92,8 +91,7 @@ function Info() {
 }
 
 export default function Welcome(props) {
-  const { configs } = props;
-  const theme = getPreferredTheme();
+  const { configs, theme } = props;
   return (
     <div className={`vitessce-container vitessce-theme-${theme}`}>
       <div className="react-grid-layout container-fluid" style={{ height: '100vh' }}>

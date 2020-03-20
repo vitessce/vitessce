@@ -47,7 +47,7 @@ function preformattedDetails(response) {
     url: ${response.url}`; // TODO: headers
 }
 
-export function validateAndRender(config, id, rowHeight) {
+export function validateAndRender(config, id, rowHeight, theme) {
   if (!config) {
     // If the config value is undefined, show a warning message
     renderComponent(
@@ -80,11 +80,12 @@ export function validateAndRender(config, id, rowHeight) {
       config={config}
       getComponent={getComponent}
       rowHeight={rowHeight}
+      theme={theme}
     />, id,
   );
 }
 
-function renderResponse(response, id) {
+function renderResponse(response, id, theme) {
   if (!response.ok) {
     renderComponent(
       <Warning
@@ -96,7 +97,7 @@ function renderResponse(response, id) {
     response.text().then((text) => {
       try {
         const config = JSON.parse(text);
-        validateAndRender(config, id);
+        validateAndRender(config, id, undefined, theme);
       } catch (e) {
         renderComponent(
           <Warning
@@ -110,18 +111,28 @@ function renderResponse(response, id) {
   }
 }
 
+/**
+ * Use the theme provided if it is valid, otherwise fall back to the 'dark' theme.
+ * @param {string} theme A potentially invalid theme name.
+ * @returns {string} A valid theme name.
+ */
+function validateTheme(theme) {
+  return (['light', 'dark'].includes(theme) ? theme : 'dark');
+}
+
 export function renderApp(id, rowHeight = null) {
   const urlParams = new URLSearchParams(window.location.search);
   const datasetId = urlParams.get('dataset');
   const datasetUrl = urlParams.get('url');
   const showAll = urlParams.get('show') === 'all';
+  const theme = validateTheme(urlParams.get('theme'));
 
   if (datasetId) {
     const config = getConfig(datasetId);
-    validateAndRender(config, id, rowHeight);
+    validateAndRender(config, id, rowHeight, theme);
   } else if (datasetUrl) {
     fetch(datasetUrl)
-      .then(response => renderResponse(response, id))
+      .then(response => renderResponse(response, id, theme))
       .catch(error => renderComponent(
         <Warning
           title="Error fetching"
@@ -130,6 +141,6 @@ export function renderApp(id, rowHeight = null) {
       ));
   } else {
     const configs = listConfigs(showAll);
-    renderComponent(<Welcome configs={configs} />, id);
+    renderComponent(<Welcome configs={configs} theme={theme} />, id);
   }
 }
