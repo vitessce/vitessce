@@ -26,7 +26,7 @@ export default function CellTooltipText(props) {
   return (
     <div
       ref={ref}
-      className="cell-tooltip bg-light"
+      className="cell-tooltip bg-primary"
       style={{
         left: `${x}px`,
         top: `${y}px`,

@@ -11,10 +11,10 @@ export default class PubSubVitessceGrid extends React.Component {
   }
 
   render() {
-    const { config, getComponent } = this.props;
+    const { config, getComponent, theme } = this.props;
     const { allReady } = this.state;
     return (
-      <div className="vitessce-container">
+      <div className={`vitessce-container vitessce-theme-${theme}`}>
         { allReady && <LayerPublisher layers={config.layers} /> }
         <VitessceGrid
           layout={config.staticLayout}

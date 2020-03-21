@@ -3,7 +3,8 @@
 ## 0.0.25 - In progress
 ### Added
 - Removed nwb, added custom webpack configuration.
-- Glossary
+- Added glossary.
+- Added theme props, with support for "light" and "dark". Added a URL theme parameter for the demo.
 
 ## [0.0.24](https://www.npmjs.com/package/vitessce/v/0.0.24) - 2020-03-02
 ### Added
