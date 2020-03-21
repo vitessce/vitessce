@@ -15,7 +15,8 @@ export default class FactorsSubscriber extends React.Component {
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.factorsAddToken = PubSub.subscribe(
       FACTORS_ADD, this.factorsAddSubscriber.bind(this),
     );

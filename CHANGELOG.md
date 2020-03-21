@@ -2,6 +2,7 @@
 
 ## 0.0.25 - In progress
 ### Added
+- Removed nwb, added custom webpack configuration.
 - Glossary
 
 ## [0.0.24](https://www.npmjs.com/package/vitessce/v/0.0.24) - 2020-03-02

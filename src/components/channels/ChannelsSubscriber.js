@@ -33,7 +33,8 @@ export default class ChannelsSubscriber extends React.Component {
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.rasterAddToken = PubSub.subscribe(RASTER_ADD, this.rasterAddSubscriber.bind(this));
   }
 

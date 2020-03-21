@@ -33,7 +33,8 @@ export default class SpatialSubscriber extends React.Component {
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.moleculesAddToken = PubSub.subscribe(
       MOLECULES_ADD, this.moleculesAddSubscriber.bind(this),
     );

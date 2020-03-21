@@ -7,9 +7,9 @@ import PopoverMenu from './PopoverMenu';
 import PopoverColor from './PopoverColor';
 import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
 
-import EyeSVG from '../../assets/tools/eye.svg';
-import PenSVG from '../../assets/tools/pen.svg';
-import TrashSVG from '../../assets/tools/trash.svg';
+import { ReactComponent as EyeSVG } from '../../assets/tools/eye.svg';
+import { ReactComponent as PenSVG } from '../../assets/tools/pen.svg';
+import { ReactComponent as TrashSVG } from '../../assets/tools/trash.svg';
 
 function makeNodeViewMenuConfig(props) {
   const {
