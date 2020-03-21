@@ -1,62 +1,79 @@
-@mixin app {
-  .react-grid-layout {
-      background-color: $color-gray-dark;
-  }
 
-  /* Flex grid items */
-  .react-grid-item {
-      /* emulate bootstrap .flex-column: */
-      -webkit-box-orient: vertical!important;
-      -webkit-box-direction: normal!important;
-      -ms-flex-direction: column!important;
-      flex-direction: column!important;
+@mixin app($theme-name, $theme-colors) {
 
-      /* emulate bootstrap .d-flex: */
-      display: -webkit-box!important;
-      display: -ms-flexbox!important;
-      display: flex!important;
+    .react-grid-layout, .warning-layout {
+        background-color: map-get($theme-colors, "grid-layout-background");
+    }
 
-      /* So the resize handle position looks correct: */
-      padding-right: 10px;
-  }
+    .warning-layout {
+        height: 100vh;
+        .card {
+            margin-left: 0.5rem;
+        }
+    }
 
-  /* Fix grid title rendering on Safari 12.0.
-     Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
-  .d-flex {
-      flex-shrink: 0;
-  }
+    /* Flex grid items */
+    .react-grid-item {
+        /* emulate bootstrap .flex-column: */
+        -webkit-box-orient: vertical!important;
+        -webkit-box-direction: normal!important;
+        -ms-flex-direction: column!important;
+        flex-direction: column!important;
 
-  /* Styling for closing button on the grid items */
-  .close-pane-button {
-      background: none;
-      border: none;
-      font-family: Ampersand;
-      color: $color-black;
-      margin-left: .5em;
-  }
+        /* emulate bootstrap .d-flex: */
+        display: -webkit-box!important;
+        display: -ms-flexbox!important;
+        display: flex!important;
 
-  /* Tool styles */
-  .bg-light {
-      background-color: #222!important;
-      color: lightgrey;
-      a {
-          color: #9bb7d6;
-      }
-  }
-  .bg-black {
-      background-color: black;
-      color: lightgrey;
-  }
-  .title {
-      color: lightgrey;
-  }
-  .scroll {
-      overflow-y: auto;
-  }
-  .details {
-      font-size: 80%;
-      opacity: 0.8;
-  }
+        /* So the resize handle position looks correct: */
+        padding-right: 10px;
+    }
+
+    /* Fix grid title rendering on Safari 12.0.
+        Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
+    .d-flex {
+        flex-shrink: 0;
+    }
+
+    /* Styling for closing button on the grid items */
+    .close-pane-button {
+        border: none;
+        font-family: Ampersand;
+        margin-left: .5em;
+        background: none;
+        color: map-get($theme-colors, "primary-foreground-dim");
+    }
+
+    /* Tool styles */
+    .title {
+        color: map-get($theme-colors, "primary-foreground");
+    }
+
+    .card {
+        border: 1px solid map-get($theme-colors, "card-border");
+    }
+
+    .bg-primary {
+        background-color: map-get($theme-colors, "primary-background");
+        color: map-get($theme-colors, "primary-foreground");
+        a {
+            color: map-get($theme-colors, "primary-foreground-active");
+        }
+    }
+
+    .bg-secondary {
+        background-color: map-get($theme-colors, "secondary-background");
+        color: map-get($theme-colors, "secondary-foreground");
+    }
+
+    .scroll {
+        overflow-y: auto;
+    }
+
+    .details {
+        font-size: 80%;
+        opacity: 0.8;
+    }
 
     .coll-full, .welcome-col-left, .welcome-col-right {
         position: relative;
@@ -75,6 +92,14 @@
         -ms-flex: 0 0 41.666667%;
         flex: 0 0 41.666667%;
         max-width: 41.666667%;
+
+        .list-group-item {
+            background-color: map-get($theme-colors, "primary-background-highlight");
+        }
+
+        .input-group input {
+            background-color: map-get($theme-colors, "primary-background-input");
+        }
     }
   
 
@@ -101,9 +126,7 @@
 
 body {
     margin: 0;
-    color: #212529;
     text-align: left;
-    background-color: #fff;
 }
 
 .container-fluid {

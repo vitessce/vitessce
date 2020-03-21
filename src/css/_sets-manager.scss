@@ -7,7 +7,7 @@
     border: 0;
 }
 
-@mixin sets-manager {
+@mixin sets-manager($theme-name, $theme-colors) {
 
     /* The zoom mixin contains styles for the popover transition animations. */
     @include zoom;
@@ -56,9 +56,9 @@
                 }
                 .ant-tree-title {
                     border: 0;
-                    background: transparent;
-                    color: $color-white;
                     cursor: pointer;
+                    color: map-get($theme-colors, "primary-foreground");
+                    background-color: transparent;
                 }
                 .ant-tree-title-input {
                     @include input-minimal-sm;
@@ -68,6 +68,7 @@
                     @include input-minimal-sm;
                     cursor: pointer;
                     margin-left: 4px;
+                    background-color: #FFFFFF;
                 }
                 .ant-tree-node-menu-trigger-container {
                     transition: opacity 0.25s;
@@ -87,12 +88,13 @@
                 z-index: 1;
                 padding-top: 1.25rem;
                 margin-top: -1.25rem;
-                border-bottom: 1px solid $color-gray-mid;
-                background-color: #222;
                 /* Need calculation, since with fixed position,
                     does not take padding into account. */
                 width: calc(100% - 3.75rem);
                 position: fixed;
+                border-bottom: 1px solid map-get($theme-colors, "gray-dark");
+                
+                background-color: map-get($theme-colors, "primary-background");
             }
             .ant-tabs-content {
                 margin-top: 40px;
@@ -105,20 +107,25 @@
                     height: 28px;
                 }
                 .ant-tabs-tab {
-                    background-color: $color-gray-mid;
-                    border: 1px solid $color-gray-mid;
                     height: 28px;
                     line-height: 26px;
                     padding: 0 6px;
-                    &.ant-tabs-tab-active {
-                        background-color: $color-gray-dark;
-                        border: 1px solid $color-gray-mid;
-                    }
+                    border: 1px solid map-get($theme-colors, "gray-dark");
+
+                    background-color: map-get($theme-colors, "primary-background-dim");
+                    color: map-get($theme-colors, "primary-foreground");
+                    opacity: 0.9;
 
                     .ant-tabs-close-x {
-                        color: white;
                         margin-left: 5px;
                         margin-right: -2px;
+                        color: map-get($theme-colors, "primary-foreground");
+                    }
+
+                    &.ant-tabs-tab-active {
+                        border: 1px solid #555555;
+                        background-color: map-get($theme-colors, "primary-background");
+                        color: map-get($theme-colors, "primary-foreground");
                     }
 
                     &:first-child .ant-tabs-close-x {
@@ -147,8 +154,8 @@
                 padding: 3px 2px 0 2px;
                 margin-left: 10px;
                 &:hover {
-                    background-color: #444;
                     transition: background-color 0.5s;
+                    background-color: map-get($theme-colors, "secondary-background-dim");
                 }
             }
         }

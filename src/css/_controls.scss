@@ -1,5 +1,5 @@
 /* Spatial and t-SNE controls */
-@mixin controls {
+@mixin controls($theme-name, $theme-colors) {
   .btn.icon {
       padding: 0;
       height: 2em;
