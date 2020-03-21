@@ -18,7 +18,7 @@ A string given with the source which determines the load `event` to publish. The
 Examples: `CELLS`, `MOLECULES`, `RASTER`
 
 ## `layer`
-The rendering of one `source` within the spatial `component`, implemented by a Deck.gl composite layer.
+The rendering of one `source` within the spatial `component`, implemented by a Deck.gl composite layer. A `raster` source will cause (what we now call) `LayerPublisher` (but should rename!) to broadcast `raster.add` events which are subscribed to by `Spatial` components, and linked to particular `layers`.
 
 Examples: Cell outline or raster layers.
 
