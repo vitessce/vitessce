@@ -17,7 +17,7 @@ import {
   RASTER_ADD,
   SLIDERS_CHANGE,
   COLORS_CHANGE,
-  CHANNEL_TOGGLE,
+  CHANNEL_VISIBILITY_CHANGE,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -28,9 +28,9 @@ export default class SpatialSubscriber extends React.Component {
       cells: {},
       selectedCellIds: new Set(),
       cellColors: null,
-      colorValues: [],
-      sliderValues: [],
-      channelIsOn: [],
+      colorValues: null,
+      sliderValues: null,
+      channelVisibilities: null,
       raster: null,
     };
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
@@ -76,7 +76,7 @@ export default class SpatialSubscriber extends React.Component {
     PubSub.unsubscribe(this.rasterAddToken);
     PubSub.unsubscribe(this.slidersChangeToken);
     PubSub.unsubscribe(this.colorsChangeToken);
-    PubSub.unsubscribe(this.channelToggleToken);
+    PubSub.unsubscribe(this.channelVisibilityChangeToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
@@ -87,16 +87,16 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ raster });
     const { id } = raster;
     this.slidersChangeToken = PubSub.subscribe(
-      SLIDERS_CHANGE + id,
+      SLIDERS_CHANGE(id),
       this.onSlidersChange.bind(this),
     );
     this.colorsChangeToken = PubSub.subscribe(
-      COLORS_CHANGE + id,
+      COLORS_CHANGE(id),
       this.onColorsChange.bind(this),
     );
-    this.channelToggleToken = PubSub.subscribe(
-      CHANNEL_TOGGLE + id,
-      this.onChannelToggle.bind(this),
+    this.channelVisibilityChangeToken = PubSub.subscribe(
+      CHANNEL_VISIBILITY_CHANGE(id),
+      this.onChannelVisibilityChange.bind(this),
     );
   }
 
@@ -124,8 +124,8 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ colorValues });
   }
 
-  onChannelToggle(msg, channelIsOn) {
-    this.setState({ channelIsOn });
+  onChannelVisibilityChange(msg, channelVisibilities) {
+    this.setState({ channelVisibilities });
   }
 
   render() {

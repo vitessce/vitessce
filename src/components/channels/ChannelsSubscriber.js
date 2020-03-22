@@ -7,7 +7,7 @@ import PopoverColor from '../sets/PopoverColor';
 
 import TitleInfo from '../TitleInfo';
 import {
-  SLIDERS_CHANGE, RASTER_ADD, COLORS_CHANGE, CHANNEL_TOGGLE,
+  SLIDERS_CHANGE, RASTER_ADD, COLORS_CHANGE, CHANNEL_VISIBILITY_CHANGE,
 } from '../../events';
 
 const VIEWER_PALETTE = [
@@ -27,9 +27,9 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   const [channelNames, setChannelNames] = useState(null);
   const [colorValues, setColorValues] = useState(null);
   const [sliderValues, setSliderValues] = useState(null);
-  const [channelIsOn, setChannelIsOn] = useState(null);
+  const [channelVisibilities, setChannelVisibilities] = useState(null);
   const [sliderDomains, setSliderDomains] = useState(null);
-  const [eventId, setEventId] = useState(null);
+  const [sourceId, setSourceId] = useState(null);
 
   const memoizedOnReady = useCallback(onReady, []);
 
@@ -39,7 +39,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
 
       const initialColorValues = domains.map((_, i) => VIEWER_PALETTE[i]);
       setColorValues(initialColorValues);
-      PubSub.publish(COLORS_CHANGE + id, initialColorValues);
+      PubSub.publish(COLORS_CHANGE(id), initialColorValues);
 
       const initialSliderValues = domains.map((d) => {
         const isArray = Array.isArray(d);
@@ -48,16 +48,16 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
       // "5" is arbitrary, but the data tends to be left-skewed.
       // Eventually we want this to be based on the data in the image.));
       setSliderValues(initialSliderValues);
-      PubSub.publish(SLIDERS_CHANGE + id, initialSliderValues);
+      PubSub.publish(SLIDERS_CHANGE(id), initialSliderValues);
 
-      const initialChannelIsOn = Array(domains.length).fill(true);
-      setChannelIsOn(initialChannelIsOn);
-      PubSub.publish(CHANNEL_TOGGLE + id, initialChannelIsOn);
+      const initialChannelVisibilities = Array(domains.length).fill(true);
+      setChannelVisibilities(initialChannelVisibilities);
+      PubSub.publish(CHANNEL_VISIBILITY_CHANGE(id), initialChannelVisibilities);
 
 
       setChannelNames(cNames);
       setSliderDomains(domains.map(d => (Array.isArray(d) ? d : [0, STANDARD_MAX])));
-      setEventId(id);
+      setSourceId(id);
     }
     memoizedOnReady();
     const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
@@ -68,7 +68,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
     setColorValues((prevColorValues) => {
       const nextColorValues = [...prevColorValues];
       nextColorValues[i] = rgb;
-      PubSub.publish(COLORS_CHANGE + eventId, nextColorValues);
+      PubSub.publish(COLORS_CHANGE(sourceId), nextColorValues);
       return nextColorValues;
     });
   };
@@ -77,34 +77,34 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
     setSliderValues((prevSliderValues) => {
       const nextSliderValues = [...prevSliderValues];
       nextSliderValues[i] = sliderValue;
-      PubSub.publish(SLIDERS_CHANGE + eventId, nextSliderValues);
+      PubSub.publish(SLIDERS_CHANGE(sourceId), nextSliderValues);
       return nextSliderValues;
     });
   };
 
-  const handleChannelIsOnChange = (i) => {
-    setChannelIsOn((prevChannelIsOn) => {
-      const nextChannelIsOn = [...prevChannelIsOn];
-      nextChannelIsOn[i] = !prevChannelIsOn[i];
-      PubSub.publish(CHANNEL_TOGGLE + eventId, nextChannelIsOn);
-      return nextChannelIsOn;
+  const handleChannelVisibilitiesChange = (i) => {
+    setChannelVisibilities((prevChannelVisibilities) => {
+      const nextChannelVisibilities = [...prevChannelVisibilities];
+      nextChannelVisibilities[i] = !nextChannelVisibilities[i];
+      PubSub.publish(CHANNEL_VISIBILITY_CHANGE(sourceId), nextChannelVisibilities);
+      return nextChannelVisibilities;
     });
   };
 
-  if (channelNames && colorValues && sliderValues && channelIsOn && sliderDomains) {
+  if (channelNames && colorValues && sliderValues && channelVisibilities && sliderDomains) {
     const channelSliders = channelNames.map((name, i) => {
-      const checked = channelIsOn[i];
       const colorValue = colorValues[i];
       const sliderValue = sliderValues[i];
       const [min, max] = sliderDomains[i];
+      const channelIsVisible = channelVisibilities[i];
       return (
         <div key={`container-${name}`}>
           <div>{name}</div>
           <div className="channel-container">
             <Checkbox
               className="channel-checked"
-              checked={checked}
-              onChange={() => handleChannelIsOnChange(i)}
+              checked={channelIsVisible}
+              onChange={() => handleChannelVisibilitiesChange(i)}
             />
             <PopoverColor
               prefixClass="channel"

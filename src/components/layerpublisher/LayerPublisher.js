@@ -46,6 +46,17 @@ function info(fileName) {
 }
 
 async function initRasterLayer(data) {
+  /*
+  * TODO: Some of the hard-coded logic previously baked into vitessce-image-viewer
+  * is now handled in this function to intialize the `loaders`. The URL-specific logic
+  * (i.e. tiff vs zarr) and provided `isRgb`, `scale`, and `dimensions` should all be
+  * included in the raster source moving forward.
+  *
+  * Removing this logic includes designing a unified schema for raster sources,
+  * requiring an update to `vitessce-data` & `vitessce` which is in progress #486.
+  *
+  *          https://github.com/hubmapconsortium/vitessce/issues/486
+  */
   const channelNames = Object.keys(data);
   const channelUrls = Object.values(data).map(d => d.tileSource);
   const raster = {

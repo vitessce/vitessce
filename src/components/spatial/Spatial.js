@@ -155,15 +155,15 @@ export default class Spatial extends AbstractSelectableComponent {
 
   createRasterLayer() {
     const {
-      colorValues, sliderValues, channelIsOn, raster,
+      colorValues, sliderValues, channelVisibilities, raster,
     } = this.props;
-    if (colorValues && sliderValues && channelIsOn && raster) {
+    if (colorValues && sliderValues && channelVisibilities && raster) {
       const { loader } = raster;
       return new VivViewerLayer({
         loader,
         colorValues,
         sliderValues,
-        channelIsOn,
+        channelIsOn: channelVisibilities,
         onTileError: (err) => {
           throw err;
         },
