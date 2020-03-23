@@ -8,6 +8,7 @@
 
 ### Changed
 - Upgrade vitessce-image-viewer to 0.1.3 & use data loaders
+- Converted the polygon tool to a lasso tool.
 
 ## [0.0.24](https://www.npmjs.com/package/vitessce/v/0.0.24) - 2020-03-02
 ### Added
