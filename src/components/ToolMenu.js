@@ -2,7 +2,7 @@ import React from 'react';
 import { SELECTION_TYPE } from 'nebula.gl';
 import { ReactComponent as PointerIconSVG } from '../assets/tools/near_me.svg';
 import { ReactComponent as SelectRectangleIconSVG } from '../assets/tools/selection_rectangle.svg';
-import { ReactComponent as SelectPolygonIconSVG } from '../assets/tools/selection_polygon.svg';
+import { ReactComponent as SelectLassoIconSVG } from '../assets/tools/selection_lasso.svg';
 
 
 export function IconButton(props) {
@@ -40,10 +40,10 @@ export default function ToolMenu(props) {
       ><SelectRectangleIconSVG />
       </IconButton>
       <IconButton
-        alt="select polygon"
+        alt="select lasso"
         onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
         isActive={isActiveTool(SELECTION_TYPE.POLYGON)}
-      ><SelectPolygonIconSVG />
+      ><SelectLassoIconSVG />
       </IconButton>
     </div>
   );

@@ -6,32 +6,67 @@ import { CompositeLayer } from 'deck.gl';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { EditableGeoJsonLayer, SELECTION_TYPE } from 'nebula.gl';
-import { ViewHandler } from '@nebula.gl/layers/dist/mode-handlers/view-handler';
-import { ModifyHandler } from '@nebula.gl/layers/dist/mode-handlers/modify-handler';
-import { ElevationHandler } from '@nebula.gl/layers/dist/mode-handlers/elevation-handler';
-import { ExtrudeHandler } from '@nebula.gl/layers/dist/mode-handlers/extrude-handler';
-import { RotateHandler } from '@nebula.gl/layers/dist/mode-handlers/rotate-handler';
-import { SnappableHandler } from '@nebula.gl/layers/dist/mode-handlers/snappable-handler';
-import { TranslateHandler } from '@nebula.gl/layers/dist/mode-handlers/translate-handler';
-import { DuplicateHandler } from '@nebula.gl/layers/dist/mode-handlers/duplicate-handler';
-import { ScaleHandler } from '@nebula.gl/layers/dist/mode-handlers/scale-handler';
-import { DrawPointHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-point-handler';
-import { DrawLineStringHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-line-string-handler';
-import { DrawPolygonHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-polygon-handler';
-import { Draw90DegreePolygonHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-90degree-polygon-handler';
-import { SplitPolygonHandler } from '@nebula.gl/layers/dist/mode-handlers/split-polygon-handler';
-import { DrawRectangleHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-rectangle-handler';
-import { DrawRectangleUsingThreePointsHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-rectangle-using-three-points-handler';
-import { DrawCircleFromCenterHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-circle-from-center-handler';
-import { DrawCircleByBoundingBoxHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-circle-by-bounding-box-handler';
-import { DrawEllipseByBoundingBoxHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-ellipse-by-bounding-box-handler';
-import { DrawEllipseUsingThreePointsHandler } from '@nebula.gl/layers/dist/mode-handlers/draw-ellipse-using-three-points-handler';
 import { DrawRectangleMode, DrawPolygonMode, ViewMode } from '@nebula.gl/edit-modes';
 
+// From https://github.com/uber/nebula.gl/blob/7f426dbf795d7feee78ada99b8d5e8ad61ffbd65/modules/edit-modes/src/utils.js#L208
+function getPickedEditHandles(picks) {
+  const handles = (picks
+    && picks
+      .filter(pick => pick.isGuide && pick.object.properties.guideType === 'editHandle')
+      .map(pick => pick.object))
+    || [];
+
+  return handles;
+}
+
+// From https://github.com/uber/nebula.gl/blob/7f426dbf795d7feee78ada99b8d5e8ad61ffbd65/modules/edit-modes/src/utils.js#L180
+function getPickedEditHandle(picks) {
+  const handles = getPickedEditHandles(picks);
+  return handles.length ? handles[0] : null;
+}
+
+class DrawLassoMode extends DrawPolygonMode {
+  handleClick() { // eslint-disable-line class-methods-use-this
+    // No-op
+  }
+
+  handleStartDragging() { // eslint-disable-line class-methods-use-this
+    // No-op
+  }
+
+  handleStopDragging(event, props) {
+    this.addClickSequence(event);
+    const clickSequence = this.getClickSequence();
+
+    if (clickSequence.length > 2) {
+      // Complete the polygon.
+      const polygonToAdd = {
+        type: 'Polygon',
+        coordinates: [[...clickSequence, clickSequence[0]]],
+      };
+
+      this.resetClickSequence();
+
+      const editAction = this.getAddFeatureOrBooleanPolygonAction(polygonToAdd, props);
+      if (editAction) {
+        props.onEdit(editAction);
+      }
+    }
+  }
+
+  handleDragging(event) {
+    const { picks } = event;
+    const clickedEditHandle = getPickedEditHandle(picks);
+    if (!clickedEditHandle) {
+      // Don't add another point right next to an existing one.
+      this.addClickSequence(event);
+    }
+  }
+}
 
 const MODE_MAP = {
   [SELECTION_TYPE.RECTANGLE]: DrawRectangleMode,
-  [SELECTION_TYPE.POLYGON]: DrawPolygonMode,
+  [SELECTION_TYPE.POLYGON]: DrawLassoMode,
 };
 
 const defaultProps = {
@@ -121,33 +156,7 @@ export default class SelectionLayer extends CompositeLayer {
   renderLayers() {
     const mode = MODE_MAP[this.props.selectionType] || ViewMode;
 
-    const inheritedProps = {
-      // Need to instantiate our own mode handler objects each time, otherwise
-      // they will be singletons and shared across all EditableGeoJsonLayer instances.
-      // See the following line for more details:
-      // https://github.com/uber/nebula.gl/blob/7a88b5240e4bea4e7d4530c0885d595e730146a3/modules/layers/src/layers/editable-geojson-layer.js#L147
-      modeHandlers: {
-        view: new ViewHandler(),
-        modify: new ModifyHandler(),
-        elevation: new ElevationHandler(),
-        extrude: new ExtrudeHandler(),
-        rotate: new RotateHandler(),
-        translate: new SnappableHandler(new TranslateHandler()),
-        duplicate: new DuplicateHandler(),
-        scale: new ScaleHandler(),
-        drawPoint: new DrawPointHandler(),
-        drawLineString: new DrawLineStringHandler(),
-        drawPolygon: new DrawPolygonHandler(),
-        draw90DegreePolygon: new Draw90DegreePolygonHandler(),
-        split: new SplitPolygonHandler(),
-        drawRectangle: new DrawRectangleHandler(),
-        drawRectangleUsing3Points: new DrawRectangleUsingThreePointsHandler(),
-        drawCircleFromCenter: new DrawCircleFromCenterHandler(),
-        drawCircleByBoundingBox: new DrawCircleByBoundingBoxHandler(),
-        drawEllipseByBoundingBox: new DrawEllipseByBoundingBoxHandler(),
-        drawEllipseUsing3Points: new DrawEllipseUsingThreePointsHandler(),
-      },
-    };
+    const inheritedProps = {};
     PASS_THROUGH_PROPS.forEach((p) => {
       if (this.props[p] !== undefined) inheritedProps[p] = this.props[p];
     });
