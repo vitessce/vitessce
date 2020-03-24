@@ -6,67 +6,11 @@ import { CompositeLayer } from 'deck.gl';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { EditableGeoJsonLayer, SELECTION_TYPE } from 'nebula.gl';
-import { DrawRectangleMode, DrawPolygonMode, ViewMode } from '@nebula.gl/edit-modes';
-
-// From https://github.com/uber/nebula.gl/blob/7f426dbf795d7feee78ada99b8d5e8ad61ffbd65/modules/edit-modes/src/utils.js#L208
-function getPickedEditHandles(picks) {
-  const handles = (picks
-    && picks
-      .filter(pick => pick.isGuide && pick.object.properties.guideType === 'editHandle')
-      .map(pick => pick.object))
-    || [];
-
-  return handles;
-}
-
-// From https://github.com/uber/nebula.gl/blob/7f426dbf795d7feee78ada99b8d5e8ad61ffbd65/modules/edit-modes/src/utils.js#L180
-function getPickedEditHandle(picks) {
-  const handles = getPickedEditHandles(picks);
-  return handles.length ? handles[0] : null;
-}
-
-class DrawLassoMode extends DrawPolygonMode {
-  handleClick() { // eslint-disable-line class-methods-use-this
-    // No-op
-  }
-
-  handleStartDragging() { // eslint-disable-line class-methods-use-this
-    // No-op
-  }
-
-  handleStopDragging(event, props) {
-    this.addClickSequence(event);
-    const clickSequence = this.getClickSequence();
-
-    if (clickSequence.length > 2) {
-      // Complete the polygon.
-      const polygonToAdd = {
-        type: 'Polygon',
-        coordinates: [[...clickSequence, clickSequence[0]]],
-      };
-
-      this.resetClickSequence();
-
-      const editAction = this.getAddFeatureOrBooleanPolygonAction(polygonToAdd, props);
-      if (editAction) {
-        props.onEdit(editAction);
-      }
-    }
-  }
-
-  handleDragging(event) {
-    const { picks } = event;
-    const clickedEditHandle = getPickedEditHandle(picks);
-    if (!clickedEditHandle) {
-      // Don't add another point right next to an existing one.
-      this.addClickSequence(event);
-    }
-  }
-}
+import { DrawRectangleMode, DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
 
 const MODE_MAP = {
   [SELECTION_TYPE.RECTANGLE]: DrawRectangleMode,
-  [SELECTION_TYPE.POLYGON]: DrawLassoMode,
+  [SELECTION_TYPE.POLYGON]: DrawPolygonByDraggingMode,
 };
 
 const defaultProps = {
