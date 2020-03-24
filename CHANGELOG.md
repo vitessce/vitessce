@@ -7,7 +7,8 @@
 - Added theme props, with support for "light" and "dark". Added a URL theme parameter for the demo.
 
 ### Changed
-- Upgrade vitessce-image-viewer to 0.1.3 & use data loaders
+- Upgrade vitessce-image-viewer to 0.1.3 & use data loaders.
+- Rename "LayerPublisher" to "SourcePublisher".
 - Converted the polygon tool to a lasso tool.
 
 ## [0.0.24](https://www.npmjs.com/package/vitessce/v/0.0.24) - 2020-03-02
