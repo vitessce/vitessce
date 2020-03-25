@@ -47,7 +47,7 @@ export default class AbstractSelectableComponent extends React.Component {
     }
 
     const { zoom } = this.getInitialViewState();
-    const editHandlePointRadius = 60 / (zoom + 16);
+    const editHandlePointRadius = 5 / (zoom + 16);
 
     return [new SelectionLayer({
       id: 'selection',
