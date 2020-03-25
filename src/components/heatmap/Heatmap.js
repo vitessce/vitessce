@@ -22,7 +22,7 @@ export default function Heatmap(props) {
     clearPleaseWait('clusters');
   }
   return (
-    <React.Fragment>
+    <>
       <HeatmapCellColorCanvas
         uuid={uuid}
         cells={cells}
@@ -49,6 +49,6 @@ export default function Heatmap(props) {
         updateStatus={updateStatus}
         height="70%"
       />
-    </React.Fragment>
+    </>
   );
 }

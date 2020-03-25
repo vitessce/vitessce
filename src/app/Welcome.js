@@ -55,7 +55,7 @@ function Form(props) {
 
 function Info() {
   return (
-    <React.Fragment>
+    <>
       <p>
         This is a demo of key concepts for a
         {
@@ -87,7 +87,7 @@ function Info() {
       <p>
         This deployment: branch={version.branch} | hash={version.hash} | date={version.date}
       </p>
-    </React.Fragment>
+    </>
   );
 }
 

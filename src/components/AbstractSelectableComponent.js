@@ -145,7 +145,7 @@ export default class AbstractSelectableComponent extends React.Component {
       };
     }
     return (
-      <React.Fragment>
+      <>
         <div className="d-flex">
           <ToolMenu {...toolProps} />
           {this.renderLayersMenu()}
@@ -158,7 +158,7 @@ export default class AbstractSelectableComponent extends React.Component {
         >
           {this.initializeViewInfo}
         </DeckGL>
-      </React.Fragment>
+      </>
     );
   }
 }

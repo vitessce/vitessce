@@ -50,7 +50,7 @@ function NamedSetNodeStatic(props) {
   } = props;
   const [iconsVisible, setIconsVisible] = useState(false);
   return (
-    <React.Fragment>
+    <>
       <button
         type="button"
         onClick={() => { tree.viewSet(setKey); }}
@@ -90,7 +90,7 @@ function NamedSetNodeStatic(props) {
           <Icon component={TrashSVG} className={`${prefixClass}-node-menu-trigger`} title="Delete" />
         </PopoverMenu>
       </span>
-    </React.Fragment>
+    </>
   );
 }
 
@@ -103,7 +103,7 @@ function NamedSetNodeEditing(props) {
   } = props;
   const [currentTitle, setCurrentTitle] = useState(title);
   return (
-    <React.Fragment>
+    <>
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
@@ -121,7 +121,7 @@ function NamedSetNodeEditing(props) {
       >
         Save
       </button>
-    </React.Fragment>
+    </>
   );
 }
 
