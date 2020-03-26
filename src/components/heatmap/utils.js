@@ -37,12 +37,15 @@ export function onHeatmapMouseMove(event, props) {
   if (cellId) {
     // Use the cell ID to look up the cell information object.
     const cellInfo = cells[cellId];
-    updateCellsHover({
-      cellId,
-      mappings: { xy: cellInfo.xy, ...cellInfo.mappings },
-      uuid,
-      factors: cellInfo.factors,
-    });
-    updateStatus(makeCellStatusMessage(cellInfo.factors));
+    const { factors = {}, xy, mappings = {} } = cellInfo || {};
+    if (cellInfo) {
+      updateCellsHover({
+        cellId,
+        mappings: { xy, ...mappings },
+        uuid,
+        factors,
+      });
+      updateStatus(makeCellStatusMessage(factors));
+    }
   }
 }
