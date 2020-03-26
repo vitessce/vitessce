@@ -18,9 +18,9 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
     getElevation: 0,
     getLineWidth: 0,
     onHover: (info) => {
-      if (info.object && Array.isArray(info.object) && info.object.length === 2) {
+      if (info.object) {
         const [cellId, cellInfo] = info.object;
-        const { factors = {}, xy, mappings = {} } = cellInfo || {};
+        const { factors = {}, xy, mappings = {} } = cellInfo;
         updateStatus(makeCellStatusMessage(factors));
         updateCellsHover({
           cellId,
