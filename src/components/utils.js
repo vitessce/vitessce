@@ -19,12 +19,14 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
     getLineWidth: 0,
     onHover: (info) => {
       if (info.object) {
-        updateStatus(makeCellStatusMessage(info.object[1].factors));
+        const [cellId, cellInfo] = info.object;
+        const { factors = {}, xy, mappings = {} } = cellInfo;
+        updateStatus(makeCellStatusMessage(factors));
         updateCellsHover({
-          cellId: info.object[0],
-          mappings: { xy: info.object[1].xy, ...info.object[1].mappings },
+          cellId,
+          mappings: { xy, ...mappings },
           uuid,
-          factors: info.object[1].factors,
+          factors,
         });
       } else {
         // Clear the currently-hovered cell info by passing null.
