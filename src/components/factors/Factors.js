@@ -39,9 +39,9 @@ export default class Factors extends React.Component {
       ([factorId, value]) => this.Radio(factorId, value),
     );
     return (
-      <React.Fragment>
+      <>
         {radioButtons}
-      </React.Fragment>
+      </>
     );
   }
 }

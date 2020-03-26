@@ -23,7 +23,7 @@ export default function VitesscePopover(props) {
   }, [spanRef]);
 
   return (
-    <React.Fragment>
+    <>
       <span ref={spanRef} />
       {spanRef.current ? (
         <Popover
@@ -32,6 +32,6 @@ export default function VitesscePopover(props) {
           {...props}
         />
       ) : null}
-    </React.Fragment>
+    </>
   );
 }

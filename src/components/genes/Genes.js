@@ -41,9 +41,9 @@ export default class Genes extends React.Component {
       ([geneId, value]) => this.Radio(geneId, value),
     );
     return (
-      <React.Fragment>
+      <>
         {radioButtons}
-      </React.Fragment>
+      </>
     );
   }
 }

@@ -183,7 +183,7 @@ export default class SourcePublisher extends React.Component {
 
     if (unloadedLayers.length) {
       return (
-        <React.Fragment>
+        <>
           <div className="modal">
             <div className="modal-dialog">
               <div className="modal-content">
@@ -194,7 +194,7 @@ export default class SourcePublisher extends React.Component {
             </div>
           </div>
           <div className="modal-backdrop show" />
-        </React.Fragment>
+        </>
       );
     }
     return null;
