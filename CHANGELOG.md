@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.25 - In progress
+## 0.1.0 - In progress
+
+## [0.0.25](https://www.npmjs.com/package/vitessce/v/0.0.25) - 2020-03-26
 ### Added
 - Removed nwb, added custom webpack configuration.
 - Added glossary.
