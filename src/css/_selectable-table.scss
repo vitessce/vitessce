@@ -1,0 +1,59 @@
+@mixin selectable-table($theme-name, $theme-colors) {
+    .selectable-table {
+        table {
+            width: 100%;
+            box-sizing: border-box;
+
+            tr {
+                border-bottom: 1px solid map-get($theme-colors, "primary-background-dim");
+            }
+
+            tbody tr {
+                cursor: pointer;
+
+                &:hover, &.row-checked {
+                    background-color: map-get($theme-colors, "primary-background-dim");
+                }
+
+
+                td:nth-child(1) {
+                    width: 2em;
+                    label {
+                        display: block;
+                        margin: 0;
+                        cursor: pointer;
+                    }
+                    input {
+                        &.radio, &.checkbox {
+                            -webkit-appearance: none;
+                            -moz-appearance: none;
+                            appearance: none;
+                            /* create custom radiobutton appearance */
+                            display: inline-block;
+                            width: 1em;
+                            height: 1em;
+                            margin: 0.5em 1.5em 0 0.5em;
+                            padding: 6px !important; /* TODO: Only need "important" to override Bootstrap. */
+                            /* background-color only for content */
+                            background-clip: content-box;
+                            border: 2px solid lightgrey;
+                            background-color: lightgrey;
+                      
+                            &:checked {
+                                background-clip: unset;
+                            }
+                        }
+                        &.radio {
+                            border-radius: 50%;
+                        }
+                        &.checkbox {
+                            border-radius: 2px;
+                        }
+                    }
+                    
+                }
+            }
+        }
+    }
+}
+  

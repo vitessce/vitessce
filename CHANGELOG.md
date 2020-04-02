@@ -2,6 +2,9 @@
 
 ## 0.1.0 - In progress
 
+### Added
+- Added a selectable table component with radio- and checkbox-like functionality.
+
 ## [0.0.25](https://www.npmjs.com/package/vitessce/v/0.0.25) - 2020-03-26
 ### Added
 - Removed nwb, added custom webpack configuration.
