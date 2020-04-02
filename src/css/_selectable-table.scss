@@ -15,15 +15,15 @@
                     background-color: map-get($theme-colors, "primary-background-dim");
                 }
 
-
-                td:nth-child(1) {
-                    width: 2em;
+                .input-container {
+                    width: 1em;
                     label {
                         display: block;
                         margin: 0;
                         cursor: pointer;
                     }
                     input {
+                        cursor: pointer;
                         &.radio, &.checkbox {
                             -webkit-appearance: none;
                             -moz-appearance: none;
@@ -32,12 +32,12 @@
                             display: inline-block;
                             width: 1em;
                             height: 1em;
-                            margin: 0.5em 1.5em 0 0.5em;
+                            margin: 0.3em 0.5em 0.0em 0.5em;
                             padding: 6px !important; /* TODO: Only need "important" to override Bootstrap. */
                             /* background-color only for content */
                             background-clip: content-box;
-                            border: 2px solid lightgrey;
-                            background-color: lightgrey;
+                            border: 2px solid map-get($theme-colors, "gray-light");
+                            background-color: map-get($theme-colors, "gray-light");
                       
                             &:checked {
                                 background-clip: unset;
@@ -52,6 +52,23 @@
                     }
                     
                 }
+            }
+        }
+    }
+
+    .selectable-radio-table {
+        .selectable-table table {
+            tbody tr {
+                line-height: 1.2rem;
+                &:hover, &.row-checked {
+                    background-color: transparent;
+                }
+                .input-container input.radio {
+                    margin: 0.2em 0.5em 0 0;
+                }
+            }
+            tr {
+                border-bottom: 0px solid black;
             }
         }
     }

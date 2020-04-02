@@ -9,7 +9,6 @@ import HoverableScatterplotSubscriber from '../components/scatterplot/HoverableS
 import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSubscriber';
 import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSubscriber';
 import ChannelsSubscriber from '../components/channels/ChannelsSubscriber';
-import GroupSelectorSubscriber from '../components/group-selector/GroupSelectorSubscriber';
 
 class Description extends React.Component {
   componentDidMount() {
@@ -37,7 +36,6 @@ const registry = {
   spatial: HoverableSpatialSubscriber,
   heatmap: HoverableHeatmapSubscriber,
   channels: ChannelsSubscriber,
-  'group-selector': GroupSelectorSubscriber,
 };
 
 export default function getComponent(name) {

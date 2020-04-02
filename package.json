@@ -128,7 +128,8 @@
     "test": "karma start config/karma.config.js --single-run",
     "test:watch": "karma start config/karma.config.js --auto-watch",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "lint-fix": "eslint -c .eslintrc.yml --ext .js --fix src/"
   },
   "browserslist": {
     "production": [
