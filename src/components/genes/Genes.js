@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { RadioTable } from '../selectable-table';
+import { RadioList } from '../selectable-table/index';
 
 export default function Genes(props) {
   const {
@@ -15,25 +15,19 @@ export default function Genes(props) {
   }, [clearPleaseWait, genesSelected]);
 
   const onChange = useCallback((selection) => {
-    if (selection && selection.key) {
-      setSelectedGene(selection.key);
+    if (selection && selection.name) {
+      setSelectedGene(selection.name);
     }
   }, [setSelectedGene]);
 
-  const rowKey = 'Genes';
-  const columns = [
-    rowKey,
-  ];
   const data = Object.entries(genesSelected).sort(
     (a, b) => a[0].localeCompare(b[0]),
   ).map(
-    ([geneId, value]) => ({ [rowKey]: geneId, value }),
+    ([name, value]) => ({ name, value }),
   );
   return (
-    <RadioTable
-      columns={columns}
+    <RadioList
       data={data}
-      rowKey={rowKey}
       onChange={onChange}
     />
   );

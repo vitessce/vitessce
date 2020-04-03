@@ -1,22 +1,39 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useEffect, useCallback, useState } from 'react';
 import uuidv4 from 'uuid/v4';
 import union from 'lodash/union';
 import difference from 'lodash/difference';
+import isEqual from 'lodash/isEqual';
 
 export default function SelectableTable(props) {
   const {
     columns,
     data,
-    rowKey,
     onChange,
+    idKey = 'id',
+    valueKey = 'value',
     allowMultiple = false,
     allowUncheck = false,
     showTableHead = true,
   } = props;
 
   const [selectedRows, setSelectedRows] = useState([]);
+
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
+    const initialSelectedRows = data
+      .map((d) => {
+        if (d[valueKey] !== undefined && d[valueKey]) {
+          return d[idKey];
+        }
+        return null;
+      })
+      .filter(Boolean);
+    if (!isEqual(initialSelectedRows, selectedRows)) {
+      setSelectedRows(initialSelectedRows);
+    }
+  }, [data, idKey, valueKey]);
 
   const onSelectRow = useCallback((value, checked) => {
     if (!allowMultiple) {
@@ -39,17 +56,17 @@ export default function SelectableTable(props) {
     onSelectRow(value, checked);
   }, [onSelectRow]);
 
-  const getRowObjectsFromKeys = useCallback(keyValues => keyValues.map(keyValue => ({
-    key: keyValue,
-    data: data.find(item => item[rowKey] === keyValue),
-  })), [data, rowKey]);
+  const getRowObjectsFromIds = useCallback(ids => ids.map(id => ({
+    [idKey]: id,
+    data: data.find(item => item[idKey] === id),
+  })), [data, idKey]);
 
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (!onChange) {
       return;
     }
-    const selectedRowData = getRowObjectsFromKeys(selectedRows);
+    const selectedRowData = getRowObjectsFromIds(selectedRows);
     if (!allowMultiple && selectedRows.length === 1) {
       onChange(selectedRowData[0]);
     } else if (!allowMultiple && selectedRows.length === 0) {
@@ -77,26 +94,27 @@ export default function SelectableTable(props) {
           <tbody>
             {data.map(item => (
               <tr
-                key={item[rowKey]}
-                className={(selectedRows.includes(item[rowKey]) ? 'row-checked' : '')}
+                key={item[idKey]}
+                className={(selectedRows.includes(item[idKey]) ? 'row-checked' : '')}
               >
                 <td className="input-container">
-                  <label htmlFor={`${inputUuid}_${item[rowKey]}`}>
+                  <label htmlFor={`${inputUuid}_${item[idKey]}`}>
                     <input
-                      id={`${inputUuid}_${item[rowKey]}`}
+                      id={`${inputUuid}_${item[idKey]}`}
                       type="checkbox"
                       className={(allowMultiple ? 'checkbox' : 'radio')}
                       name="selectable-table"
-                      value={item[rowKey]}
+                      value={item[idKey]}
                       onChange={handleInputChange}
-                      checked={selectedRows.includes(item[rowKey])}
+                      checked={selectedRows.includes(item[idKey])}
                     />
                   </label>
                 </td>
                 {columns.map(column => (
                   <td
                     key={column}
-                    onClick={() => onSelectRow(item[rowKey], !selectedRows.includes(item[rowKey]))}
+                    role="button"
+                    onClick={() => onSelectRow(item[idKey], !selectedRows.includes(item[idKey]))}
                   >
                     {item[column]}
                   </td>

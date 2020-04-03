@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { RadioTable } from '../selectable-table';
+import { RadioList } from '../selectable-table';
 
 export default function Factors(props) {
   const {
@@ -15,23 +15,17 @@ export default function Factors(props) {
   }, [clearPleaseWait, factorsSelected]);
 
   const onChange = useCallback((selection) => {
-    if (selection && selection.key) {
-      setSelectedFactor(selection.key);
+    if (selection && selection.name) {
+      setSelectedFactor(selection.name);
     }
   }, [setSelectedFactor]);
 
-  const rowKey = 'Factor';
-  const columns = [
-    rowKey,
-  ];
   const data = Object.entries(factorsSelected).map(
-    ([factorId, value]) => ({ [rowKey]: factorId, value }),
+    ([name, value]) => ({ name, value }),
   );
   return (
-    <RadioTable
-      columns={columns}
+    <RadioList
       data={data}
-      rowKey={rowKey}
       onChange={onChange}
     />
   );

@@ -1,23 +1,25 @@
 import React from 'react';
 import SelectableTable from './SelectableTable';
 
-export default function RadioTable(props) {
+export default function RadioList(props) {
   const {
-    columns,
     data,
-    rowKey,
     onChange,
+    allowUncheck = false,
   } = props;
+
+  const columns = ['name'];
 
   return (
     <div className="selectable-radio-table">
       <SelectableTable
         columns={columns}
         data={data}
-        rowKey={rowKey}
+        idKey="name"
+        valueKey="value"
         onChange={onChange}
+        allowUncheck={allowUncheck}
         allowMultiple={false}
-        allowUncheck={false}
         showTableHead={false}
       />
     </div>
