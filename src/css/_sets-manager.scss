@@ -25,7 +25,7 @@
                     // Not .draggable when name is being editted.
                     // Hide controls that overlap.
                 }
-                &.draggable .ant-tree-title-right {
+                &.draggable .ant-tree-title-right, &.trusted .ant-tree-title-right {
                     display: inline-block;
                     position: absolute;
                     right: 10px;

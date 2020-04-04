@@ -2,7 +2,8 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import {
   CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION,
-  CELLS_ADD, STATUS_WARN, CELLS_COLOR,
+  CELLS_ADD, STATUS_WARN, CELLS_COLOR, CELL_SETS_ADD,
+  CLEAR_PLEASE_WAIT,
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
@@ -32,8 +33,11 @@ export default class CellSetsManagerSubscriber extends React.Component {
     this.cellsAddToken = PubSub.subscribe(
       CELLS_ADD, this.cellsAddSubscriber.bind(this),
     );
-    this.cellSetsToken = PubSub.subscribe(
-      CELL_SETS_MODIFY, this.cellSetsSubscriber.bind(this),
+    this.cellSetsAddToken = PubSub.subscribe(
+      CELL_SETS_ADD, this.cellSetsAddSubscriber.bind(this),
+    );
+    this.cellSetsModifyToken = PubSub.subscribe(
+      CELL_SETS_MODIFY, this.cellSetsModifySubscriber.bind(this),
     );
     this.cellsSelectionToken = PubSub.subscribe(
       CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
@@ -47,7 +51,8 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   componentWillUnmount() {
     PubSub.unsubscribe(this.cellsAddToken);
-    PubSub.unsubscribe(this.cellSetsToken);
+    PubSub.unsubscribe(this.cellSetsAddToken);
+    PubSub.unsubscribe(this.cellSetsModifyToken);
     PubSub.unsubscribe(this.cellsSelectionToken);
   }
 
@@ -56,7 +61,12 @@ export default class CellSetsManagerSubscriber extends React.Component {
     cellSets.setItems(Object.keys(cells));
   }
 
-  cellSetsSubscriber(msg, cellSets) {
+  cellSetsAddSubscriber(msg, cellSetsData) {
+    const { cellSets } = this.state;
+    cellSets.import(cellSetsData.setsTree, null, true);
+  }
+
+  cellSetsModifySubscriber(msg, cellSets) {
     this.setState({ cellSets });
   }
 
@@ -80,6 +90,9 @@ export default class CellSetsManagerSubscriber extends React.Component {
           setsType={setsType}
           onError={err => PubSub.publish(STATUS_WARN, err)}
           gridResizeEvent={gridResizeEvent}
+          clearPleaseWait={
+            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+          }
         />
       </TitleInfo>
     );

@@ -11,10 +11,12 @@ export const CELLS_SELECTION = `${CELLS}.selection`;
 export const CELLS_COLOR = `${CELLS}.color`;
 export const CELLS_HOVER = `${CELLS}.hover`;
 
+export const CELL_SETS = `${CELLS}.sets`;
+export const CELL_SETS_ADD = CELL_SETS + ADD;
 // Modifications to the cell set tree structure.
-export const CELL_SETS_MODIFY = `${CELLS}.sets.modify`;
+export const CELL_SETS_MODIFY = `${CELL_SETS}.modify`;
 // Viewing a previously-defined set or group of sets.
-export const CELL_SETS_VIEW = `${CELLS}.sets.view`;
+export const CELL_SETS_VIEW = `${CELL_SETS}.view`;
 
 export const CLUSTERS = 'clusters';
 export const CLUSTERS_ADD = CLUSTERS + ADD;

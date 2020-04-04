@@ -47,6 +47,7 @@ function NamedSetNodeStatic(props) {
     prefixClass,
     tree,
     setKey,
+    isTrusted,
   } = props;
   const [iconsVisible, setIconsVisible] = useState(false);
   return (
@@ -74,21 +75,25 @@ function NamedSetNodeStatic(props) {
         >
           <Icon component={EyeSVG} className={`${prefixClass}-node-menu-trigger`} title="View options" />
         </PopoverMenu>
-        <Icon component={PenSVG} className={`${prefixClass}-node-menu-trigger`} title="Rename" onClick={() => tree.startEditing(setKey)} />
-        <PopoverMenu
-          menuConfig={[{
-            name: 'Delete',
-            handler: () => tree.deleteNode(setKey),
-            handlerKey: 'd',
-          }, {
-            name: 'Cancel',
-            handler: () => {},
-            handlerKey: 'x',
-          }]}
-          onClose={() => setIconsVisible(false)}
-        >
-          <Icon component={TrashSVG} className={`${prefixClass}-node-menu-trigger`} title="Delete" />
-        </PopoverMenu>
+        {!isTrusted ? (
+          <>
+            <Icon component={PenSVG} className={`${prefixClass}-node-menu-trigger`} title="Rename" onClick={() => tree.startEditing(setKey)} />
+            <PopoverMenu
+              menuConfig={[{
+                name: 'Delete',
+                handler: () => tree.deleteNode(setKey),
+                handlerKey: 'd',
+              }, {
+                name: 'Cancel',
+                handler: () => {},
+                handlerKey: 'x',
+              }]}
+              onClose={() => setIconsVisible(false)}
+            >
+              <Icon component={TrashSVG} className={`${prefixClass}-node-menu-trigger`} title="Delete" />
+            </PopoverMenu>
+          </>
+        ) : null}
       </span>
     </>
   );
@@ -149,6 +154,7 @@ export default class TreeNode extends RcTreeNode {
       isCurrentSet,
       isSelected,
       isEditing,
+      isTrusted,
     } = this.props;
     const {
       rcTree: {
@@ -158,7 +164,7 @@ export default class TreeNode extends RcTreeNode {
     } = this.context;
 
     const wrapClass = `${prefixClass}-node-content-wrapper`;
-    const isDraggable = (!isCurrentSet && !isEditing && draggable);
+    const isDraggable = (!isTrusted && !isCurrentSet && !isEditing && draggable);
     return (
       <span
         ref={this.setSelectHandle}
@@ -168,6 +174,7 @@ export default class TreeNode extends RcTreeNode {
           `${wrapClass}-${this.getNodeState() || 'normal'}`,
           isSelected && `${prefixClass}-node-selected`,
           isDraggable && 'draggable',
+          isTrusted && 'trusted',
         )}
         draggable={isDraggable}
         aria-grabbed={isDraggable}

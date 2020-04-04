@@ -1,5 +1,5 @@
 import uuidv4 from 'uuid/v4';
-import { DEFAULT_COLOR, fromEntries } from '../utils';
+import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
 
 const CURRENT_SET_NAME = 'Current selection';
 const ALL_ROOT_KEY = 'all';
@@ -45,6 +45,7 @@ export class SetsTreeNode {
       isRoot = false,
       isEditing = false,
       isCurrentSet = false,
+      isTrusted = false,
       color = DEFAULT_COLOR,
       children,
       set,
@@ -57,6 +58,7 @@ export class SetsTreeNode {
     this.isRoot = isRoot;
     this.isEditing = isEditing;
     this.isCurrentSet = isCurrentSet;
+    this.isTrusted = isTrusted;
   }
 
   setIsEditing(v) {
@@ -141,6 +143,7 @@ export class SetsTreeNode {
       isRoot: this.isRoot,
       isEditing: this.isEditing,
       isCurrentSet: this.isCurrentSet,
+      isTrusted: this.isTrusted,
     };
   }
 
@@ -499,6 +502,17 @@ export default class SetsTree {
   }
 
   /**
+   * Set the array of children nodes for the root node.
+   * May update node keys to reflect the new hierarchy.
+   * @param {SetsTreeNode[]} children The array of child nodes to append.
+   */
+  setChildren(children) {
+    this.root.setChildren(children);
+    this.root.updateChildKeys();
+    this.emitTreeUpdate();
+  }
+
+  /**
    * Set a set node to visible based on its key.
    * Discards any previously-visible sets.
    * @param {string} setKey The key of the node of interest.
@@ -553,8 +567,11 @@ export default class SetsTree {
    * Will append the root of the import to the current root's children.
    * @param {Array} data A previously-exported array of set objects.
    * @param {string} name The name for the new dummy ancestor node.
+   * @param {boolean} isTrusted Whether these sets are trusted, which
+   * enables them to replace the root node children and prevents deletion.
+   * By default, false.
    */
-  import(data, name) {
+  import(data, name, isTrusted = false) {
     if (!data || data.length < 1) {
       return;
     }
@@ -570,6 +587,7 @@ export default class SetsTree {
         name: nodeObj.name,
         color: nodeObj.color,
         set: nodeObj.set,
+        isTrusted,
       });
       let parentNode;
       if (node.setKey.lastIndexOf(PATH_SEP) === -1) {
@@ -577,9 +595,17 @@ export default class SetsTree {
       } else {
         parentNode = importRoot.findNode(node.getKeyHead());
       }
-      parentNode.setChildren([...(parentNode.children || []), node]);
+      const nodeSiblings = (parentNode.children || []);
+      if (!nodeObj.color) {
+        node.setColor(PALETTE[nodeSiblings.length % PALETTE.length]);
+      }
+      parentNode.setChildren([...nodeSiblings, node]);
     });
-    this.appendChild(importRoot);
+    if (!isTrusted) {
+      this.appendChild(importRoot);
+    } else {
+      this.setChildren(importRoot.children);
+    }
   }
 
   /**

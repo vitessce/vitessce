@@ -16,7 +16,6 @@ function makeLayerNameToConfig(datasetPrefix) {
 const linnarssonLayerNames = [
   'cells',
   'clusters',
-  'factors',
   'genes',
   'raster',
   'molecules',
@@ -25,8 +24,15 @@ const linnarssonLayerNames = [
 const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
   description: linnarssonDescription,
-  layers: linnarssonLayerNames
-    .map(makeLayerNameToConfig('linnarsson')),
+  layers: [
+    ...linnarssonLayerNames
+      .map(makeLayerNameToConfig('linnarsson')),
+    {
+      name: 'cell_sets',
+      type: 'CELL_SETS',
+      url: 'https://keller-mark.github.io/temp-vitessce-cell-sets/linnarsson.cell_sets.json',
+    },
+  ],
 };
 const linnarssonBaseNoClusters = {
   description: linnarssonDescription,
@@ -38,9 +44,15 @@ const driesDescription = 'Giotto, a pipeline for integrative analysis and visual
 const driesBase = {
   description: driesDescription,
   layers: [
-    'cells',
-    'factors',
-  ].map(makeLayerNameToConfig('dries')),
+    ...[
+      'cells',
+    ].map(makeLayerNameToConfig('dries')),
+    {
+      name: 'cell_sets',
+      type: 'CELL_SETS',
+      url: 'https://keller-mark.github.io/temp-vitessce-cell-sets/dries.cell_sets.json',
+    },
+  ],
 };
 
 const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
@@ -178,10 +190,8 @@ const configs = {
           },
         },
         x: 6, y: 2, w: 4, h: 2 },
-      { component: 'factors',
-        x: 10, y: 0, w: 2, h: 2 },
       { component: 'genes',
-        x: 10, y: 2, w: 2, h: 2 },
+        x: 10, y: 0, w: 2, h: 4 },
       { component: 'heatmap',
         x: 2, y: 4, w: 10, h: 2 },
     ],
@@ -363,7 +373,7 @@ const configs = {
             target: [3800, -900, 0],
           },
         },
-        x: 5, y: 0, w: 5, h: 4 },
+        x: 5, y: 0, w: 4, h: 4 },
       { component: 'scatterplot',
         props: {
           mapping: 'UMAP',
@@ -372,9 +382,9 @@ const configs = {
             target: [0, 0, 0],
           },
         },
-        x: 5, y: 4, w: 5, h: 4 },
-      { component: 'factors',
-        x: 10, y: 0, w: 2, h: 8 },
+        x: 5, y: 4, w: 4, h: 4 },
+      { component: 'cellSets',
+        x: 9, y: 0, w: 3, h: 8 },
     ],
   },
   'wang-2019': {

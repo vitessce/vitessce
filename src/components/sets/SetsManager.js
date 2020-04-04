@@ -7,7 +7,11 @@ import 'antd/es/tabs/style/index.css';
 const { TabPane } = Tabs;
 
 export default function SetsManager(props) {
-  const { setsTree } = props;
+  const { setsTree, clearPleaseWait } = props;
+
+  if (clearPleaseWait && setsTree) {
+    clearPleaseWait('cell_sets');
+  }
 
   function onEdit(key, action) {
     if (action === 'remove') {
