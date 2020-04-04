@@ -65,10 +65,6 @@ describe('Vitessce', () => {
     cy.contains('3 cells × 3 genes');
     cy.contains('with 0 cells selected');
 
-    // Factors:
-    cy.contains('2 factors');
-    cy.contains('subcluster');
-
     // Expression Levels:
     cy.contains('2 genes');
     cy.contains('Slc32a1');
