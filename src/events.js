@@ -46,3 +46,6 @@ export const COLORS_CHANGE = id => `${COLORS}.change.${id}`;
 
 export const CHANNEL_VISIBILITY = 'channel_visibility';
 export const CHANNEL_VISIBILITY_CHANGE = id => `${CHANNEL_VISIBILITY}.change.${id}`;
+
+export const CHANNEL_SELECTION = 'channel_selection';
+export const CHANNEL_SELECTION_CHANGE = id => `${CHANNEL_SELECTION}.change.${id}`;
