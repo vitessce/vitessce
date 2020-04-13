@@ -3,23 +3,69 @@
   "$id": "https://github.com/hubmapconsortium/vitessce/#raster",
   "title": "Vitessce image data",
   "type": "object",
-  "definitions": {
-    "raster": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": ["sample", "tileSource"],
-      "properties": {
-        "sample": { "type": "number" },
-        "tileSource": {
-          "oneOf": [
-            { "type": "object" },
-            { "type": "string" }
-          ]
-        }
+  "required": ["schema_version", "images"],
+  "properties": {
+      "schema_version": { "type": "string" },
+      "images": {
+          "type": "array",
+          "items": {
+              "type": "object",
+              "required": ["name", "url", "type", "metadata"],
+              "properties": {
+                  "name": { "type": "string" },
+                  "url": { "type": "string" },
+                  "type": { "type": "string", "examples": ["zarr", "tiff"] },
+                  "metadata": {
+                      "type": "object",
+                      "required": [
+                        "dimensions",
+                        "is_pyramid",
+                        "transform"
+                      ],
+                      "properties": {
+                          "dimensions": {
+                              "type": "array",
+                              "items": {
+                                  "type": "object",
+                                  "required": ["field", "type", "values"],
+                                  "properties": {
+                                      "field": { "type": "string" },
+                                      "type": {
+                                        "type": "string",
+                                        "examples": [
+                                          "quantitative",
+                                          "nominal",
+                                          "ordinal",
+                                          "temporal"
+                                        ]
+                                    },
+                                      "values": {
+                                          "type": ["array", "null"],
+                                          "items": { "type": "string" }
+                                      }
+                                  }
+                              }
+                          },
+                          "is_pyramid": { "type": "boolean" },
+                          "transform": {
+                              "type": "object",
+                              "required": ["translate", "scale"],
+                              "properties": {
+                                  "translate": {
+                                      "type": "object",
+                                      "required": ["y","x"],
+                                      "properties": {
+                                          "y": { "type": "integer" },
+                                          "x": { "type": "integer" }
+                                      }
+                                  },
+                                  "scale": { "type": "integer" }
+                              }
+                          }
+                      }
+                  }
+              }
+          }
       }
-    }
-  },
-  "patternProperties": {
-    ".": { "$ref": "#/definitions/raster" }
   }
 }
