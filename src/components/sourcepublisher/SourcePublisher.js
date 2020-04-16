@@ -1,7 +1,6 @@
 import Ajv from 'ajv';
 import PubSub from 'pubsub-js';
 import React from 'react';
-import { createZarrLoader } from '@hubmap/vitessce-image-viewer';
 
 import {
   STATUS_WARN, STATUS_INFO,
@@ -45,35 +44,6 @@ function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
 }
 
-async function initRasterLayer(data) {
-  const { images } = data;
-  // TODO: support multiple images
-  const image = images[0];
-  const {
-    type, name, url, metadata,
-  } = image;
-  const { dimensions, is_pyramid: isPyramid, transform } = metadata;
-
-  const raster = {
-    id: String(Date.now()),
-    name,
-    dimensions,
-  };
-
-  switch (type) {
-    // TODO: Add tiff loader
-    case ('zarr'): {
-      const loader = await createZarrLoader({
-        url, dimensions, isPyramid, ...transform,
-      });
-      return { loader, ...raster };
-    }
-    default: {
-      throw Error(`Raster type (${type}) is not supported`);
-    }
-  }
-}
-
 function publishLayer(data, type, name, url) {
   const schema = typeToSchema[type];
   if (!schema) {
@@ -87,16 +57,8 @@ function publishLayer(data, type, name, url) {
     console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
   }
 
-  if (type === 'RASTER') {
-    initRasterLayer(data)
-      .then((rasterData) => {
-        PubSub.publish(RASTER_ADD, rasterData);
-        info(name);
-      });
-  } else {
-    PubSub.publish(typeToEvent[type], data);
-    info(name);
-  }
+  PubSub.publish(typeToEvent[type], data);
+  info(name);
 }
 
 function loadLayer(layer) {

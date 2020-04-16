@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { VivViewerLayer } from '@hubmap/vitessce-image-viewer';
+
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -152,24 +153,6 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  createRasterLayer() {
-    const {
-      colorValues, sliderValues, visibilities, selections, loader,
-    } = this.props;
-    // TODO: prevent race conditions here
-    // Error thrown in console when arrays are not same length (i.e. channel add)
-    if (colorValues && sliderValues && visibilities && selections && loader) {
-      return new VivViewerLayer({
-        loader,
-        colorValues,
-        sliderValues,
-        channelIsOn: visibilities,
-        loaderSelection: selections,
-      });
-    }
-    return null;
-  }
-
   setLayerIsVisible(layers) {
     this.setState({ layers });
   }
@@ -183,13 +166,26 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  renderImageLayer({
+    loader, colors, selections, visibilities, sliders,
+  }) {
+    return new VivViewerLayer({
+      loader,
+      colorValues: colors,
+      sliderValues: sliders,
+      loaderSelection: selections,
+      channelIsOn: visibilities,
+    });
+  }
+
   renderLayers() {
     const {
       molecules,
       cells,
       neighborhoods,
       clearPleaseWait,
-      loader,
+      imageLayers,
     } = this.props;
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
@@ -213,8 +209,10 @@ export default class Spatial extends AbstractSelectableComponent {
     // Append each layer to the list.
     const layerList = [];
 
-    if (loader && clearPleaseWait) clearPleaseWait('raster');
-    layerList.push(this.createRasterLayer());
+    if (imageLayers) clearPleaseWait('raster');
+    Object.values(imageLayers).forEach((layer) => {
+      layerList.push(this.renderImageLayer(layer));
+    });
 
     if (cells && clearPleaseWait) clearPleaseWait('cells');
     layerList.push(this.renderCellLayer());

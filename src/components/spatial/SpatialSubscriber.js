@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import PubSub from 'pubsub-js';
 import shortNumber from 'short-number';
+import { createZarrLoader } from '@hubmap/vitessce-image-viewer';
+
 
 import TitleInfo from '../TitleInfo';
 import {
@@ -14,193 +16,165 @@ import {
   CLEAR_PLEASE_WAIT,
   VIEW_INFO,
   CELL_SETS_VIEW,
-  RASTER_ADD,
-  CHANNEL_SLIDERS_CHANGE,
-  CHANNEL_COLORS_CHANGE,
+  LAYER_ADD,
   CHANNEL_VISIBILITIES_CHANGE,
+  CHANNEL_COLORS_CHANGE,
+  CHANNEL_SLIDERS_CHANGE,
   CHANNEL_SELECTIONS_CHANGE,
   CHANNEL_SET,
 } from '../../events';
 import Spatial from './Spatial';
 
-export default class SpatialSubscriber extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      cells: {},
-      selectedCellIds: new Set(),
-      cellColors: [],
-      colorValues: [],
-      sliderValues: [],
-      visibilities: [],
-      selections: undefined,
-      loader: null,
+async function initLoader(imageData) {
+  const { type, url, metadata } = imageData;
+  const { dimensions, is_pyramid: isPyramid, transform } = metadata;
+
+  switch (type) {
+    // TODO: Add tiff loader
+    case ('zarr'): {
+      const loader = await createZarrLoader({
+        url, dimensions, isPyramid, ...transform,
+      });
+      return loader;
+    }
+    default: {
+      throw Error(`Image type (${type}) is not supported`);
+    }
+  }
+}
+
+const defualtLayer = {
+  colormap: '',
+  opacity: 1,
+  sliders: [],
+  colors: [],
+  selections: [],
+  visibilities: [],
+};
+
+export default function SpatialSubscriber({
+  children,
+  onReady,
+  removeGridComponent,
+  moleculeRadius,
+  view,
+  cellRadius,
+  uuid = null,
+}) {
+  const [cells, setCells] = useState({});
+  const [molecules, setMolecules] = useState({});
+  const [selectedCellIds, setSelectedCellIds] = useState(new Set());
+  const [neighborhoods, setNeighborhoods] = useState([]);
+  const [cellColors, setCellColors] = useState([]);
+  const [imageLayers, setImageLayers] = useState({});
+
+  const memoizedOnReady = useCallback(onReady, []);
+
+  useEffect(() => {
+    function handleLayerAdd(msg, { sourceId, imageData }) {
+      initLoader(imageData)
+        .then(loader => setImageLayers(prevImageLayers => ({
+          ...prevImageLayers,
+          [sourceId]: {
+            loader,
+            ...defualtLayer,
+          },
+        })));
+    }
+    const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, setMolecules);
+    const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, setNeighborhoods);
+    const cellsAddToken = PubSub.subscribe(CELLS_ADD, setCells);
+    const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, setSelectedCellIds);
+    const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, setSelectedCellIds);
+    const cellsColorToken = PubSub.subscribe(CELLS_COLOR, setCellColors);
+    const layerAddToken = PubSub.subscribe(LAYER_ADD, handleLayerAdd);
+    memoizedOnReady();
+    return () => {
+      PubSub.unsubscribe(moleculesAddToken);
+      PubSub.unsubscribe(neighborhoodsAddToken);
+      PubSub.unsubscribe(cellsAddToken);
+      PubSub.unsubscribe(cellsSelectionToken);
+      PubSub.unsubscribe(cellSetsViewToken);
+      PubSub.unsubscribe(cellsColorToken);
+      PubSub.unsubscribe(layerAddToken);
     };
-    this.componentWillUnmount = this.componentWillUnmount.bind(this);
-  }
+  }, [memoizedOnReady]);
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillMount() {
-    this.moleculesAddToken = PubSub.subscribe(
-      MOLECULES_ADD, this.moleculesAddSubscriber.bind(this),
-    );
-    this.neighborhoodsAddToken = PubSub.subscribe(
-      NEIGHBORHOODS_ADD, this.neighborhoodsAddSubscriber.bind(this),
-    );
-    this.cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, this.cellsAddSubscriber.bind(this),
-    );
-    this.cellsSelectionToken = PubSub.subscribe(
-      CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
-    );
-    this.cellSetsViewToken = PubSub.subscribe(
-      CELL_SETS_VIEW, this.cellsSelectionSubscriber.bind(this),
-    );
-    this.cellsColorToken = PubSub.subscribe(
-      CELLS_COLOR, this.cellsColorSubscriber.bind(this),
-    );
-    this.rasterAddToken = PubSub.subscribe(
-      RASTER_ADD, this.rasterAddSubscriber.bind(this),
-    );
-  }
+  useEffect(() => {
+    const handleChange = (id, property, values) => {
+      const { loader } = imageLayers[id];
+      setImageLayers(prevImageLayers => ({
+        ...prevImageLayers,
+        [id]: {
+          ...prevImageLayers[id],
+          [property]: property === 'selections' ? loader.serializeSelection(values) : values,
+        },
+      }));
+    };
+    const handleChannelSet = (id, payload) => {
+      const { loader } = imageLayers[id];
+      const { selections, ...rest } = payload;
+      setImageLayers(prevImageLayers => ({
+        ...prevImageLayers,
+        [id]: {
+          ...rest,
+          loader,
+          selections: loader.serializeSelection(selections),
+        },
+      }));
+    };
+    const tokens = Object.keys(imageLayers).map(id => [
+      PubSub.subscribe(CHANNEL_VISIBILITIES_CHANGE(id), (msg, v) => handleChange(id, 'visibilities', v)),
+      PubSub.subscribe(CHANNEL_COLORS_CHANGE(id), (msg, c) => handleChange(id, 'colors', c)),
+      PubSub.subscribe(CHANNEL_SLIDERS_CHANGE(id), (msg, s) => handleChange(id, 'sliders', s)),
+      PubSub.subscribe(CHANNEL_SELECTIONS_CHANGE(id), (msg, s) => handleChange(id, 'selections', s)),
+      PubSub.subscribe(CHANNEL_SET(id), (msg, payload) => handleChannelSet(id, payload)),
+    ]);
+    return () => tokens.flat().forEach(token => PubSub.unsubscribe(token));
+  }, [imageLayers]);
 
-  componentDidMount() {
-    const { onReady } = this.props;
-    onReady();
-  }
+  const cellsCount = cells ? Object.keys(cells).length : 0;
+  const moleculesCount = molecules ? Object.keys(molecules).length : 0;
+  const locationsCount = molecules ? Object.values(molecules)
+    .map(l => l.length)
+    .reduce((a, b) => a + b, 0) : 0;
 
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.moleculesAddToken);
-    PubSub.unsubscribe(this.neighborhoodsAddToken);
-    PubSub.unsubscribe(this.cellsAddToken);
-    PubSub.unsubscribe(this.cellsSelectionToken);
-    PubSub.unsubscribe(this.cellsColorToken);
-    PubSub.unsubscribe(this.cellSetsViewToken);
-    PubSub.unsubscribe(this.rasterAddToken);
-    PubSub.unsubscribe(this.slidersChangeToken);
-    PubSub.unsubscribe(this.colorsChangeToken);
-    PubSub.unsubscribe(this.visibilitiesChangeToken);
-    PubSub.unsubscribe(this.selectionsChangeToken);
-    PubSub.unsubscribe(this.channelSetToken);
-  }
-
-  cellsSelectionSubscriber(msg, cellIds) {
-    this.setState({ selectedCellIds: cellIds });
-  }
-
-  rasterAddSubscriber(msg, raster) {
-    const { id: sourceId, loader } = raster;
-
-    this.setState({ loader });
-
-    this.slidersChangeToken = PubSub.subscribe(
-      CHANNEL_SLIDERS_CHANGE(sourceId),
-      this.onSlidersChange.bind(this),
-    );
-    this.colorsChangeToken = PubSub.subscribe(
-      CHANNEL_COLORS_CHANGE(sourceId),
-      this.onColorsChange.bind(this),
-    );
-    this.visibilitiesChangeToken = PubSub.subscribe(
-      CHANNEL_VISIBILITIES_CHANGE(sourceId),
-      this.onVisibiliestChange.bind(this),
-    );
-    this.selectionsChangeToken = PubSub.subscribe(
-      CHANNEL_SELECTIONS_CHANGE(sourceId),
-      this.onSelectionsChange.bind(this),
-    );
-    this.channelSetToken = PubSub.subscribe(
-      CHANNEL_SET(sourceId),
-      this.onChannelSet.bind(this),
-    );
-  }
-
-  moleculesAddSubscriber(msg, molecules) {
-    this.setState({ molecules });
-  }
-
-  neighborhoodsAddSubscriber(msg, neighborhoods) {
-    this.setState({ neighborhoods });
-  }
-
-  cellsAddSubscriber(msg, cells) {
-    this.setState({ cells });
-  }
-
-  cellsColorSubscriber(msg, cellColors) {
-    this.setState({ cellColors });
-  }
-
-  onSlidersChange(msg, sliderValues) {
-    this.setState({ sliderValues });
-  }
-
-  onColorsChange(msg, colorValues) {
-    this.setState({ colorValues });
-  }
-
-  onVisibiliestChange(msg, visibilities) {
-    this.setState({ visibilities });
-  }
-
-  onSelectionsChange(msg, selections) {
-    const { loader } = this.state;
-    const serialized = loader.serializeSelection(selections);
-    this.setState({ selections: serialized });
-  }
-
-  onChannelSet(msg, {
-    selections, visibilities, sliders: sliderValues, colors: colorValues,
-  }) {
-    const { loader } = this.state;
-    const serialized = loader.serializeSelection(selections);
-    this.setState({
-      selections: serialized, visibilities, sliderValues, colorValues,
-    });
-  }
-
-  render() {
-    const { cells, molecules } = this.state;
-    const { uuid = null, children, removeGridComponent } = this.props;
-    const cellsCount = cells ? Object.keys(cells).length : 0;
-    const moleculesCount = molecules ? Object.keys(molecules).length : 0;
-    const locationsCount = molecules
-      ? Object.values(molecules).map(l => l.length).reduce((a, b) => a + b, 0) : 0;
-    return (
-      /* eslint-disable react/destructuring-assignment */
-      <TitleInfo
-        title="Spatial"
-        info={`${cellsCount} cells, ${moleculesCount} molecules
+  return (
+    <TitleInfo
+      title="Spatial"
+      info={`${cellsCount} cells, ${moleculesCount} molecules
               at ${shortNumber(locationsCount)} locations`}
-        removeGridComponent={removeGridComponent}
-      >
-        {children}
-        <Spatial
-          {... this.state}
-          view={this.props.view}
-          moleculeRadius={this.props.moleculeRadius}
-          cellRadius={this.props.cellRadius}
-          uuid={uuid}
-          updateStatus={
+      removeGridComponent={removeGridComponent}
+    >
+      {children}
+      <Spatial
+        cells={cells}
+        selectedCellIds={selectedCellIds}
+        neighborhoods={neighborhoods}
+        cellColors={cellColors}
+        imageLayers={imageLayers}
+        view={view}
+        moleculeRadius={moleculeRadius}
+        cellRadius={cellRadius}
+        uuid={uuid}
+        updateStatus={
             message => PubSub.publish(STATUS_INFO, message)
           }
-          updateCellsSelection={
-            selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)
+        updateCellsSelection={
+            selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)
           }
-          updateCellsHover={
+        updateCellsHover={
             hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)
           }
-          updateViewInfo={
+        updateViewInfo={
             viewInfo => PubSub.publish(VIEW_INFO, viewInfo)
           }
-          clearPleaseWait={
+        clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
-        />
-      </TitleInfo>
-      /* eslint-enable */
-    );
-  }
+      />
+    </TitleInfo>
+  );
 }
 
 SpatialSubscriber.defaultProps = {

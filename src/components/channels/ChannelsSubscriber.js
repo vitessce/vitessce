@@ -14,7 +14,7 @@ import TitleInfo from '../TitleInfo';
 import ChannelController from './ChannelController';
 import ColormapSelect from './ColormapSelect';
 
-import { RASTER_ADD } from '../../events';
+import { RASTER_ADD, LAYER_ADD } from '../../events';
 import reducer from './reducer';
 
 const darkTheme = createMuiTheme({
@@ -40,8 +40,12 @@ const INITIAL_CHANNELS = {
   ids: [],
 };
 
+const testIds = ['0:1', '0:2'];
+const count = 0;
+
 export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
-  const [dimensions, setDimensions] = useState(null);
+  const [images, setImages] = useState(null);
+  const [dimensions, setDimensions] = useState([{ values: [], field: '' }]);
   const [sourceId, setSourceId] = useState(null);
   const [colormap, setColormap] = useState('');
   // TODO: Add control for opacity
@@ -54,16 +58,13 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
 
   useEffect(() => {
     function handleRasterAdd(msg, raster) {
-      setDimensions(raster.dimensions);
-      setSourceId(raster.id);
+      setImages(raster.images);
     }
     memoizedOnReady();
     const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
     return () => PubSub.unsubscribe(token);
   }, [memoizedOnReady]);
 
-
-  if (!dimensions || !sourceId) return null;
 
   /*
   * TODO: Add UI support for making multi-dimensional selections
@@ -124,6 +125,18 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
     });
   };
 
+  const handleAddImage = () => {
+    // eslint-disable-next-line no-console
+    const { metadata } = images[count];
+    setDimensions(metadata.dimensions);
+    setSourceId(testIds[count]);
+    PubSub.publish(LAYER_ADD, {
+      sourceId: testIds[count],
+      imageData: images[count],
+    });
+    // count += 1;
+  };
+
   const { ids } = channels;
   return (
     <TitleInfo title="Channel Controller" isScroll removeGridComponent={removeGridComponent}>
@@ -137,6 +150,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
           <Grid item style={{ width: '100%' }}>
             <ColormapSelect value={colormap} handleChange={setColormap} />
           </Grid>
+          <button type="button" onClick={handleAddImage}>Add image</button>
           {ids.map((id, i) => (
             <Grid key={`channel-controller-${id}`} item style={{ width: '100%' }}>
               <ChannelController
