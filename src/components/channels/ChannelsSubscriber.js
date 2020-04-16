@@ -14,7 +14,7 @@ import TitleInfo from '../TitleInfo';
 import ChannelController from './ChannelController';
 import ColormapSelect from './ColormapSelect';
 
-import { RASTER_ADD, LAYER_ADD } from '../../events';
+import { RASTER_ADD, LAYER_ADD, LAYER_COLORMAP_CHANGE } from '../../events';
 import reducer from './reducer';
 
 const darkTheme = createMuiTheme({
@@ -41,15 +41,14 @@ const INITIAL_CHANNELS = {
 };
 
 const testIds = ['0:1', '0:2'];
-const count = 0;
+let count = 0;
 
 export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   const [images, setImages] = useState(null);
   const [dimensions, setDimensions] = useState([{ values: [], field: '' }]);
   const [sourceId, setSourceId] = useState(null);
   const [colormap, setColormap] = useState('');
-  // TODO: Add control for opacity
-  // const [opactiy, setOpacity] = useState(1);
+  // const [opacity, setOpacity] = useState(1);
 
   const [channels, dispatch] = useReducer(reducer, INITIAL_CHANNELS);
 
@@ -125,6 +124,11 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
     });
   };
 
+  const handleColormapChange = (value) => {
+    setColormap(value);
+    PubSub.publish(LAYER_COLORMAP_CHANGE(sourceId), value);
+  };
+
   const handleAddImage = () => {
     // eslint-disable-next-line no-console
     const { metadata } = images[count];
@@ -134,7 +138,8 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
       sourceId: testIds[count],
       imageData: images[count],
     });
-    // count += 1;
+    dispatch({ type: 'RESET_CHANNELS' });
+    count += 1;
   };
 
   const { ids } = channels;
@@ -148,7 +153,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
           alignItems="center"
         >
           <Grid item style={{ width: '100%' }}>
-            <ColormapSelect value={colormap} handleChange={setColormap} />
+            <ColormapSelect value={colormap} handleChange={handleColormapChange} />
           </Grid>
           <button type="button" onClick={handleAddImage}>Add image</button>
           {ids.map((id, i) => (

@@ -45,6 +45,9 @@ export const LAYER_REMOVE = id => `${LAYER}.remove.${id}`;
 export const LAYER_COLORMAP = `${LAYER}.colormap`;
 export const LAYER_COLORMAP_CHANGE = id => `${LAYER_COLORMAP}.change.${id}`;
 
+export const LAYER_OPACITY = `${LAYER}.colormap`;
+export const LAYER_OPACITY_CHANGE = id => `${LAYER_OPACITY}.change.${id}`;
+
 // Set individual channel attributes
 export const CHANNEL = 'channel';
 export const CHANNEL_SET = id => `${CHANNEL}.set${id}`;

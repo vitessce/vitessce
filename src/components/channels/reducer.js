@@ -78,6 +78,16 @@ export default function reducer(state, {
         selections, colors, visibilities, sliders, ids,
       };
     }
+    case 'RESET_CHANNELS': {
+      return {
+        sliders: [],
+        colors: [],
+        selections: [],
+        visibilities: [],
+        names: [],
+        ids: [],
+      };
+    }
     default:
       throw new Error();
   }

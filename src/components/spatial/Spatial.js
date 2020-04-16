@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
-import { VivViewerLayer } from '@hubmap/vitessce-image-viewer';
+import { VivViewerLayer, StaticImageLayer } from '@hubmap/vitessce-image-viewer';
 
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
@@ -168,14 +168,26 @@ export default class Spatial extends AbstractSelectableComponent {
 
   // eslint-disable-next-line class-methods-use-this
   renderImageLayer({
-    loader, colors, selections, visibilities, sliders,
+    loader,
+    colormap,
+    opacity,
+    visibilities: channelIsOn,
+    colors: colorValues,
+    selections: loaderSelection,
+    sliders: sliderValues,
   }) {
-    return new VivViewerLayer({
+    const { scale, translate, isPyramid } = loader;
+    const Layer = isPyramid ? VivViewerLayer : StaticImageLayer;
+    return new Layer({
       loader,
-      colorValues: colors,
-      sliderValues: sliders,
-      loaderSelection: selections,
-      channelIsOn: visibilities,
+      colorValues,
+      sliderValues,
+      loaderSelection,
+      channelIsOn,
+      scale,
+      opacity,
+      colormap: colormap.length > 0 && colormap,
+      translate: [translate.x, translate.y],
     });
   }
 
@@ -209,7 +221,7 @@ export default class Spatial extends AbstractSelectableComponent {
     // Append each layer to the list.
     const layerList = [];
 
-    if (imageLayers) clearPleaseWait('raster');
+    if (imageLayers && clearPleaseWait) clearPleaseWait('raster');
     Object.values(imageLayers).forEach((layer) => {
       layerList.push(this.renderImageLayer(layer));
     });

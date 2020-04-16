@@ -22,6 +22,7 @@ import {
   CHANNEL_SLIDERS_CHANGE,
   CHANNEL_SELECTIONS_CHANGE,
   CHANNEL_SET,
+  LAYER_COLORMAP_CHANGE,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -113,12 +114,14 @@ export default function SpatialSubscriber({
     };
     const handleChannelSet = (id, payload) => {
       const { loader } = imageLayers[id];
-      const { selections, ...rest } = payload;
+      const { selections } = payload;
       setImageLayers(prevImageLayers => ({
         ...prevImageLayers,
         [id]: {
-          ...rest,
-          loader,
+          ...prevImageLayers[id],
+          colors: payload.colors,
+          sliders: payload.sliders,
+          visibilities: payload.visibilities,
           selections: loader.serializeSelection(selections),
         },
       }));
@@ -128,6 +131,7 @@ export default function SpatialSubscriber({
       PubSub.subscribe(CHANNEL_COLORS_CHANGE(id), (msg, c) => handleChange(id, 'colors', c)),
       PubSub.subscribe(CHANNEL_SLIDERS_CHANGE(id), (msg, s) => handleChange(id, 'sliders', s)),
       PubSub.subscribe(CHANNEL_SELECTIONS_CHANGE(id), (msg, s) => handleChange(id, 'selections', s)),
+      PubSub.subscribe(LAYER_COLORMAP_CHANGE(id), (msg, cmap) => handleChange(id, 'colormap', cmap)),
       PubSub.subscribe(CHANNEL_SET(id), (msg, payload) => handleChannelSet(id, payload)),
     ]);
     return () => tokens.flat().forEach(token => PubSub.unsubscribe(token));
