@@ -92,9 +92,6 @@ function publishLayer(data, type, name, url) {
       .then((rasterData) => {
         PubSub.publish(RASTER_ADD, rasterData);
         info(name);
-      })
-      .catch((err) => {
-        console.warn(err.message);
       });
   } else {
     PubSub.publish(typeToEvent[type], data);

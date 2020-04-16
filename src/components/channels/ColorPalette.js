@@ -3,6 +3,7 @@ import IconButton from '@material-ui/core/IconButton';
 import LensIcon from '@material-ui/icons/Lens';
 import { makeStyles } from '@material-ui/core/styles';
 
+
 import { VIEWER_PALETTE } from '../utils';
 
 const useStyles = makeStyles(() => ({

@@ -18,12 +18,8 @@ const toRgb = (on, arr) => {
   return `rgb(${color})`;
 };
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    paddingTop: theme.spacing(1),
-  },
-  icon: {
-    color: theme.palette.text.primary,
+const useStyles = makeStyles(() => ({
+  options: {
     marginTop: '4px',
   },
 }));
@@ -44,32 +40,31 @@ function ChannelController({
     <Grid
       container
       direction="column"
-      m={2}
+      m={1}
       justify="center"
-      className={classes.root}
     >
       <Grid container direction="row" justify="space-between">
-        <Grid item xs={11}>
+        <Grid item xs={10}>
           <Select
             native
             value={name}
-            onChange={e => handleChange('CHANGE_CHANNEL', e.target.value)}
+            onChange={e => handleChange('CHANGE_SELECTION', Number(e.target.value))}
           >
-            {channelOptions.map(opt => (
-              <option disabled={disableOptions} key={opt} value={opt}>
+            {channelOptions.map((opt, i) => (
+              <option disabled={disableOptions} key={opt} value={i}>
                 {opt}
               </option>
             ))}
           </Select>
         </Grid>
-        <Grid item>
+        <Grid item xs={1} className={classes.options}>
           <ChannelOptions handleChange={handleChange} />
         </Grid>
       </Grid>
       <Grid container direction="row" justify="flex-start">
         <Grid item xs={2}>
           <Checkbox
-            onChange={() => handleChange('TOGGLE_ON')}
+            onChange={() => handleChange('CHANGE_VISIBILITY')}
             checked={isOn}
             style={{
               color: rgbColor,

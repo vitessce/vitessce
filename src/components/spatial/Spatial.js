@@ -28,7 +28,6 @@ export default class Spatial extends AbstractSelectableComponent {
     this.moleculesData = [];
     this.cellsData = [];
     this.neighborhoodsData = [];
-    this.raster = [];
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
     this.getInitialViewState = this.getInitialViewState.bind(this);
   }
@@ -155,18 +154,17 @@ export default class Spatial extends AbstractSelectableComponent {
 
   createRasterLayer() {
     const {
-      colorValues, sliderValues, channelVisibilities, raster,
+      colorValues, sliderValues, visibilities, selections, loader,
     } = this.props;
-    if (colorValues && sliderValues && channelVisibilities && raster) {
-      const { loader } = raster;
+    // TODO: prevent race conditions here
+    // Error thrown in console when arrays are not same length (i.e. channel add)
+    if (colorValues && sliderValues && visibilities && selections && loader) {
       return new VivViewerLayer({
         loader,
         colorValues,
         sliderValues,
-        channelIsOn: channelVisibilities,
-        onTileError: (err) => {
-          throw err;
-        },
+        channelIsOn: visibilities,
+        loaderSelection: selections,
       });
     }
     return null;
@@ -191,7 +189,7 @@ export default class Spatial extends AbstractSelectableComponent {
       cells,
       neighborhoods,
       clearPleaseWait,
-      raster,
+      loader,
     } = this.props;
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
@@ -212,13 +210,10 @@ export default class Spatial extends AbstractSelectableComponent {
     if (neighborhoods && this.neighborhoodsData.length === 0) {
       this.neighborhoodsData = Object.entries(neighborhoods);
     }
-    if (raster && this.raster.length === 0) {
-      this.raster = raster;
-    }
     // Append each layer to the list.
     const layerList = [];
 
-    if (raster && clearPleaseWait) clearPleaseWait('raster');
+    if (loader && clearPleaseWait) clearPleaseWait('raster');
     layerList.push(this.createRasterLayer());
 
     if (cells && clearPleaseWait) clearPleaseWait('cells');

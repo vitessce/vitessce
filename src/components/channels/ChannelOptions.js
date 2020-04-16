@@ -9,7 +9,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import { makeStyles } from '@material-ui/core/styles';
 
-import ColorPalette from './ColorPallette';
+import ColorPalette from './ColorPalette';
 
 const useStyles = makeStyles(() => ({
   paper: {

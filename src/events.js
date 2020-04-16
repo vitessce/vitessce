@@ -38,14 +38,23 @@ export const STATUS_INFO = `${STATUS}.info`;
 export const RASTER = 'raster';
 export const RASTER_ADD = RASTER + ADD;
 
-export const SLIDERS = 'sliders';
-export const SLIDERS_CHANGE = id => `${SLIDERS}.change.${id}`;
+export const LAYER = 'layer';
+export const LAYER_ADD = LAYER + ADD;
+export const LAYER_REMOVE = id => `${LAYER}.remove.${id}`;
 
-export const COLORS = 'colors';
-export const COLORS_CHANGE = id => `${COLORS}.change.${id}`;
 
-export const CHANNEL_VISIBILITY = 'channel_visibility';
-export const CHANNEL_VISIBILITY_CHANGE = id => `${CHANNEL_VISIBILITY}.change.${id}`;
+// Set individual channel attributes
+export const CHANNEL = 'channel';
+export const CHANNEL_SET = id => `${CHANNEL}.set${id}`;
 
-export const CHANNEL_SELECTION = 'channel_selection';
-export const CHANNEL_SELECTION_CHANGE = id => `${CHANNEL_SELECTION}.change.${id}`;
+export const CHANNEL_SLIDERS = `${CHANNEL}.sliders`;
+export const CHANNEL_SLIDERS_CHANGE = id => `${CHANNEL_SLIDERS}.change.${id}`;
+
+export const CHANNEL_COLORS = `${CHANNEL}.colors`;
+export const CHANNEL_COLORS_CHANGE = id => `${CHANNEL_COLORS}.change.${id}`;
+
+export const CHANNEL_VISIBILITIES = `${CHANNEL}.visibility`;
+export const CHANNEL_VISIBILITIES_CHANGE = id => `${CHANNEL_VISIBILITIES}.change.${id}`;
+
+export const CHANNEL_SELECTIONS = `${CHANNEL}.selection`;
+export const CHANNEL_SELECTIONS_CHANGE = id => `${CHANNEL_SELECTIONS}.change.${id}`;

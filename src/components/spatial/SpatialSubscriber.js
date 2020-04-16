@@ -15,9 +15,11 @@ import {
   VIEW_INFO,
   CELL_SETS_VIEW,
   RASTER_ADD,
-  SLIDERS_CHANGE,
-  COLORS_CHANGE,
-  CHANNEL_VISIBILITY_CHANGE,
+  CHANNEL_SLIDERS_CHANGE,
+  CHANNEL_COLORS_CHANGE,
+  CHANNEL_VISIBILITIES_CHANGE,
+  CHANNEL_SELECTIONS_CHANGE,
+  CHANNEL_SET,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -27,11 +29,12 @@ export default class SpatialSubscriber extends React.Component {
     this.state = {
       cells: {},
       selectedCellIds: new Set(),
-      cellColors: null,
-      colorValues: null,
-      sliderValues: null,
-      channelVisibilities: null,
-      raster: null,
+      cellColors: [],
+      colorValues: [],
+      sliderValues: [],
+      visibilities: [],
+      selections: undefined,
+      loader: null,
     };
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
@@ -76,7 +79,9 @@ export default class SpatialSubscriber extends React.Component {
     PubSub.unsubscribe(this.rasterAddToken);
     PubSub.unsubscribe(this.slidersChangeToken);
     PubSub.unsubscribe(this.colorsChangeToken);
-    PubSub.unsubscribe(this.channelVisibilityChangeToken);
+    PubSub.unsubscribe(this.visibilitiesChangeToken);
+    PubSub.unsubscribe(this.selectionsChangeToken);
+    PubSub.unsubscribe(this.channelSetToken);
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
@@ -84,19 +89,29 @@ export default class SpatialSubscriber extends React.Component {
   }
 
   rasterAddSubscriber(msg, raster) {
-    this.setState({ raster });
-    const { id } = raster;
+    const { id: sourceId, loader } = raster;
+
+    this.setState({ loader });
+
     this.slidersChangeToken = PubSub.subscribe(
-      SLIDERS_CHANGE(id),
+      CHANNEL_SLIDERS_CHANGE(sourceId),
       this.onSlidersChange.bind(this),
     );
     this.colorsChangeToken = PubSub.subscribe(
-      COLORS_CHANGE(id),
+      CHANNEL_COLORS_CHANGE(sourceId),
       this.onColorsChange.bind(this),
     );
-    this.channelVisibilityChangeToken = PubSub.subscribe(
-      CHANNEL_VISIBILITY_CHANGE(id),
-      this.onChannelVisibilityChange.bind(this),
+    this.visibilitiesChangeToken = PubSub.subscribe(
+      CHANNEL_VISIBILITIES_CHANGE(sourceId),
+      this.onVisibiliestChange.bind(this),
+    );
+    this.selectionsChangeToken = PubSub.subscribe(
+      CHANNEL_SELECTIONS_CHANGE(sourceId),
+      this.onSelectionsChange.bind(this),
+    );
+    this.channelSetToken = PubSub.subscribe(
+      CHANNEL_SET(sourceId),
+      this.onChannelSet.bind(this),
     );
   }
 
@@ -124,8 +139,24 @@ export default class SpatialSubscriber extends React.Component {
     this.setState({ colorValues });
   }
 
-  onChannelVisibilityChange(msg, channelVisibilities) {
-    this.setState({ channelVisibilities });
+  onVisibiliestChange(msg, visibilities) {
+    this.setState({ visibilities });
+  }
+
+  onSelectionsChange(msg, selections) {
+    const { loader } = this.state;
+    const serialized = loader.serializeSelection(selections);
+    this.setState({ selections: serialized });
+  }
+
+  onChannelSet(msg, {
+    selections, visibilities, sliders: sliderValues, colors: colorValues,
+  }) {
+    const { loader } = this.state;
+    const serialized = loader.serializeSelection(selections);
+    this.setState({
+      selections: serialized, visibilities, sliderValues, colorValues,
+    });
   }
 
   render() {

@@ -1,7 +1,11 @@
 import PubSub from 'pubsub-js';
 
 import {
-  SLIDERS_CHANGE, COLORS_CHANGE, CHANNEL_VISIBILITY_CHANGE, CHANNEL_SELECTION_CHANGE,
+  CHANNEL_SLIDERS_CHANGE,
+  CHANNEL_COLORS_CHANGE,
+  CHANNEL_VISIBILITIES_CHANGE,
+  CHANNEL_SELECTIONS_CHANGE,
+  CHANNEL_SET,
 } from '../../events';
 
 export default function reducer(state, {
@@ -9,75 +13,69 @@ export default function reducer(state, {
 }) {
   switch (type) {
     case 'CHANGE_SELECTION': {
-      // Changes name and selection for channel by index
-      const { name, selection } = value;
-      const names = [...state.names];
+      const { selection } = value;
       const selections = [...state.selections];
-      names[index] = name;
       selections[index] = selection;
 
-      PubSub.publish(CHANNEL_SELECTION_CHANGE(sourceId), selections);
-      return { ...state, names, selections };
+      PubSub.publish(CHANNEL_SELECTIONS_CHANGE(sourceId), selections);
+      return { ...state, selections };
     }
     case 'CHANGE_COLOR': {
-      // Changes color for individual channel by index
       const colors = [...state.colors];
       colors[index] = value;
 
-      PubSub.publish(COLORS_CHANGE(sourceId), colors);
+      PubSub.publish(CHANNEL_COLORS_CHANGE(sourceId), colors);
       return { ...state, colors };
     }
     case 'CHANGE_SLIDER': {
-      // Changes slider for individual channel by index
       const sliders = [...state.sliders];
       sliders[index] = value;
 
-      PubSub.publish(SLIDERS_CHANGE(sourceId), sliders);
+      PubSub.publish(CHANNEL_SLIDERS_CHANGE(sourceId), sliders);
       return { ...state, sliders };
     }
     case 'CHANGE_VISIBILITY': {
-      // Toggles invidiual channel on and off by index
-      const isOn = [...state.isOn];
-      isOn[index] = !isOn[index];
+      const visibilities = [...state.visibilities];
+      visibilities[index] = !visibilities[index];
 
-      PubSub.publish(CHANNEL_VISIBILITY_CHANGE(sourceId), isOn);
-      return { ...state, isOn };
+      PubSub.publish(CHANNEL_VISIBILITIES_CHANGE(sourceId), visibilities);
+      return { ...state, visibilities };
     }
     case 'ADD_CHANNEL': {
-      // Adds an additional channel
-      const { name, selection } = value;
-      const names = [...state.names, name];
+      const { selection } = value;
       const ids = [...state.ids, String(Math.random())];
 
       const selections = [...state.selections, selection];
       const colors = [...state.colors, [255, 255, 255]];
-      const isOn = [...state.isOn, true];
+      const visibilities = [...state.visibilities, true];
       const sliders = [...state.sliders, [0, 20000]];
 
-      PubSub.publish(CHANNEL_SELECTION_CHANGE(sourceId), selections);
-      PubSub.publish(COLORS_CHANGE(sourceId), colors);
-      PubSub.publish(CHANNEL_VISIBILITY_CHANGE(sourceId), isOn);
-      PubSub.publish(SLIDERS_CHANGE(sourceId), sliders);
+      PubSub.publish(CHANNEL_SET(sourceId), {
+        selections,
+        colors,
+        visibilities,
+        sliders,
+      });
       return {
-        names, selections, colors, isOn, sliders, ids,
+        selections, colors, visibilities, sliders, ids,
       };
     }
     case 'REMOVE_CHANNEL': {
-      // Remove a single channel by index
-      const names = state.names.filter((_, i) => i !== index);
       const ids = state.ids.filter((_, i) => i !== index);
 
       const selections = state.selections.filter((_, i) => i !== index);
       const colors = state.colors.filter((_, i) => i !== index);
-      const isOn = state.isOn.filter((_, i) => i !== index);
+      const visibilities = state.visibilities.filter((_, i) => i !== index);
       const sliders = state.sliders.filter((_, i) => i !== index);
 
-      PubSub.publish(CHANNEL_SELECTION_CHANGE(sourceId), selections);
-      PubSub.publish(COLORS_CHANGE(sourceId), colors);
-      PubSub.publish(CHANNEL_VISIBILITY_CHANGE(sourceId), isOn);
-      PubSub.publish(SLIDERS_CHANGE(sourceId), sliders);
+      PubSub.publish(CHANNEL_SET(sourceId), {
+        selections,
+        colors,
+        visibilities,
+        sliders,
+      });
       return {
-        names, sliders, colors, isOn, ids, selections,
+        selections, colors, visibilities, sliders, ids,
       };
     }
     default:

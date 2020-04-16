@@ -1,27 +1,43 @@
 import React, {
   useState, useEffect, useCallback, useReducer,
 } from 'react';
+
 import PubSub from 'pubsub-js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
+import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { grey } from '@material-ui/core/colors';
+
 
 import TitleInfo from '../TitleInfo';
-import { RASTER_ADD } from '../../events';
-
 import ChannelController from './ChannelController';
 import ColormapSelect from './ColormapSelect';
 
+import { RASTER_ADD } from '../../events';
 import reducer from './reducer';
 
+const darkTheme = createMuiTheme({
+  palette: {
+    type: 'dark',
+    primary: grey,
+    secondary: grey,
+  },
+  props: {
+    MuiButtonBase: {
+      disableRipple: true,
+    },
+  },
+});
+
 const MAX_CHANNELS = 6;
-const initialChannels = {
+const INITIAL_CHANNELS = {
   sliders: [],
   colors: [],
   selections: [],
+  visibilities: [],
   names: [],
   ids: [],
-  isOn: [],
 };
 
 export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
@@ -31,7 +47,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   // TODO: Add control for opacity
   // const [opactiy, setOpacity] = useState(1);
 
-  const [channels, dispatch] = useReducer(reducer, initialChannels);
+  const [channels, dispatch] = useReducer(reducer, INITIAL_CHANNELS);
 
 
   const memoizedOnReady = useCallback(onReady, []);
@@ -47,7 +63,7 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   }, [memoizedOnReady]);
 
 
-  if (!dimensions && !sourceId) return null;
+  if (!dimensions || !sourceId) return null;
 
   /*
   * TODO: Add UI support for making multi-dimensional selections
@@ -79,22 +95,27 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   */
   const handleControllerChange = (index, type, value) => {
     if (type === 'CHANGE_SELECTION') {
-      dispatch(type, {
+      const payload = {
+        selection: { [dimName]: value },
+        name: channelOptions[value],
+      };
+      dispatch({
+        type,
         index,
-        value: {
-          selection: { [dimName]: value },
-          name: channelOptions[value],
-        },
+        value: payload,
         sourceId,
       });
     } else {
-      dispatch(type, { index, value, sourceId });
+      dispatch({
+        type, index, value, sourceId,
+      });
     }
   };
 
   const handleChannelAdd = () => {
     // By default choose first option when adding channel
-    dispatch('ADD_CHANNEL', {
+    dispatch({
+      type: 'ADD_CHANNEL',
       value: {
         selection: { [dimName]: 0 },
         name: channelOptions[0],
@@ -106,43 +127,44 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
   const { ids } = channels;
   return (
     <TitleInfo title="Channel Controller" isScroll removeGridComponent={removeGridComponent}>
-      <Grid
-        container
-        direction="column"
-        spacing={1}
-        justify="center"
-        alignItems="center"
-      >
-        <Grid item>
-          <ColormapSelect value={colormap} handleChange={setColormap} />
-        </Grid>
-        {ids.map((id, i) => (
-          <Grid key={`channel-controller-${channels.names[i]}-${id}`} item>
-            <ChannelController
-              name={channels.names[i]}
-              channelOptions={channelOptions}
-              isOn={channels.isOn[i]}
-              sliderValue={channels.sliders[i]}
-              colorValue={channels.colors[i]}
-              handleChange={(type, value) => handleControllerChange(i, type, value)}
-              colormapOn={colormap !== ''}
-            />
-          </Grid>
-        ))}
-      </Grid>
-      <Grid item>
-        <Button
-          disabled={ids.length === MAX_CHANNELS}
-          onClick={handleChannelAdd}
-          fullWidth
-          variant="outlined"
-          style={{ borderStyle: 'dashed' }}
-          startIcon={<AddIcon />}
-          size="small"
+      <ThemeProvider theme={darkTheme}>
+        <Grid
+          container
+          direction="column"
+          justify="center"
+          alignItems="center"
         >
+          <Grid item style={{ width: '100%' }}>
+            <ColormapSelect value={colormap} handleChange={setColormap} />
+          </Grid>
+          {ids.map((id, i) => (
+            <Grid key={`channel-controller-${id}`} item style={{ width: '100%' }}>
+              <ChannelController
+                name={channels.selections[i][dimName]}
+                channelOptions={channelOptions}
+                isOn={channels.visibilities[i]}
+                sliderValue={channels.sliders[i]}
+                colorValue={channels.colors[i]}
+                handleChange={(type, value) => handleControllerChange(i, type, value)}
+                colormapOn={colormap !== ''}
+              />
+            </Grid>
+          ))}
+        </Grid>
+        <Grid item>
+          <Button
+            disabled={ids.length === MAX_CHANNELS}
+            onClick={handleChannelAdd}
+            fullWidth
+            variant="outlined"
+            style={{ borderStyle: 'dashed' }}
+            startIcon={<AddIcon />}
+            size="small"
+          >
             Add Channel
-        </Button>
-      </Grid>
+          </Button>
+        </Grid>
+      </ThemeProvider>
     </TitleInfo>
   );
 }
