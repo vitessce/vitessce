@@ -155,7 +155,6 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
           <Grid item style={{ width: '100%' }}>
             <ColormapSelect value={colormap} handleChange={handleColormapChange} />
           </Grid>
-          <button type="button" onClick={handleAddImage}>Add image</button>
           {ids.map((id, i) => (
             <Grid key={`channel-controller-${id}`} item style={{ width: '100%' }}>
               <ChannelController
@@ -176,11 +175,23 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
             onClick={handleChannelAdd}
             fullWidth
             variant="outlined"
-            style={{ borderStyle: 'dashed' }}
+            style={{ borderStyle: 'dashed', marginTop: '10px' }}
             startIcon={<AddIcon />}
             size="small"
           >
             Add Channel
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            onClick={handleAddImage}
+            fullWidth
+            variant="outlined"
+            style={{ borderStyle: 'dashed', marginTop: '10px' }}
+            startIcon={<AddIcon />}
+            size="small"
+          >
+            Add Image Layer
           </Button>
         </Grid>
       </ThemeProvider>
