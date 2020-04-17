@@ -6,28 +6,25 @@
 
 'use strict';
 
-process.env.BABEL_ENV = 'production';
-process.env.NODE_ENV = 'production';
-
-// Ensure environment variables are read.
-require('../config/env');
-
-const configFactory = require('../config/webpack.config');
-const paths = require('../config/paths');
 const utils = require('./utils');
+const paths = require('./paths');
+const configFactory = require('./webpack.config-lib');
 
 utils.scriptInit();
 
 // Generate configuration
+const environments = [ 'production', 'development' ];
 const targets = [ 'umd', 'es' ];
 
-async function buildForAllTargets(targets) {
-    for (let target of targets) {
-        const config = configFactory(process.env.NODE_ENV, target);
-        await utils.build(config, paths, target);
+async function buildForAll(environments, targets) {
+    for(let environment of environments) {
+        for (let target of targets) {
+            const config = configFactory(paths, environment, target);
+            await utils.build(config, paths, environment, target);
+        }
     }
 }
 
 // Build for all targets.
-buildForAllTargets(targets);
+buildForAll(environments, targets);
 
