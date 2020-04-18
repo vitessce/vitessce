@@ -1,9 +1,8 @@
 import React from 'react';
 import tinycolor from 'tinycolor2';
-import { Popover } from 'antd';
 import { TwitterPicker } from 'react-color';
-import 'antd/es/popover/style/index.css';
 import { PALETTE } from '../utils';
+import Popover from './Popover';
 
 function toHexString(rgbArray) {
   return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
@@ -25,7 +24,6 @@ export default function PopoverColor(props) {
 
   return (
     <Popover
-      overlayClassName="vitessce-popover"
       content={(
         <TwitterPicker
           className="popover-color"

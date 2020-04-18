@@ -1,10 +1,9 @@
 /coverage
-/demo/dist
-/es
-/lib
+/build-demo
+/build-lib
 /node_modules
-/umd
 /.docz
+/demo/dist
 npm-debug.log*
 
 # misc

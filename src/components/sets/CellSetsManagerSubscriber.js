@@ -27,7 +27,8 @@ export default class CellSetsManagerSubscriber extends React.Component {
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.cellsAddToken = PubSub.subscribe(
       CELLS_ADD, this.cellsAddSubscriber.bind(this),
     );

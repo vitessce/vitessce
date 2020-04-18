@@ -1,6 +1,7 @@
+
 /* In error message */
-@mixin error {
+@mixin error($theme-name, $theme-colors) {
   pre {
-      color: $color-gray-light;
+      color: map-get($theme-colors, "primary-foreground");
   }
 }

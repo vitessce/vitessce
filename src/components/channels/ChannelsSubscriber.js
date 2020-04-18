@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PubSub from 'pubsub-js';
 
 import { Checkbox } from 'antd';
-import ChannelSlider from './ChannelSlider';
+import { Slider } from '@material-ui/core';
 import PopoverColor from '../sets/PopoverColor';
 
 import TitleInfo from '../TitleInfo';
 import {
-  SLIDERS_CHANGE, RASTER_ADD, COLORS_CHANGE, CHANNEL_TOGGLE,
+  SLIDERS_CHANGE, RASTER_ADD, COLORS_CHANGE, CHANNEL_VISIBILITY_CHANGE,
 } from '../../events';
 
 const VIEWER_PALETTE = [
@@ -23,98 +23,117 @@ const VIEWER_PALETTE = [
 
 const STANDARD_MAX = 65535;
 
-export default class ChannelsSubscriber extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { colorValues: {}, channelsOn: {}, rangeValues: {} };
-    this.setSliderValue = this.setSliderValue.bind(this);
-    this.setColorValue = this.setColorValue.bind(this);
-    this.toggleChannel = this.toggleChannel.bind(this);
-    this.componentWillUnmount = this.componentWillUnmount.bind(this);
-  }
+export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
+  const [channelNames, setChannelNames] = useState(null);
+  const [colorValues, setColorValues] = useState(null);
+  const [sliderValues, setSliderValues] = useState(null);
+  const [channelVisibilities, setChannelVisibilities] = useState(null);
+  const [sliderDomains, setSliderDomains] = useState(null);
+  const [sourceId, setSourceId] = useState(null);
 
-  componentWillMount() {
-    this.rasterAddToken = PubSub.subscribe(RASTER_ADD, this.rasterAddSubscriber.bind(this));
-  }
+  const memoizedOnReady = useCallback(onReady, []);
 
-  componentDidMount() {
-    const { onReady } = this.props;
-    onReady();
-  }
+  useEffect(() => {
+    function handleRasterAdd(msg, raster) {
+      const { domains, id, channelNames: cNames } = raster;
 
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.rasterAddToken);
-  }
+      const initialColorValues = domains.map((_, i) => VIEWER_PALETTE[i]);
+      setColorValues(initialColorValues);
+      PubSub.publish(COLORS_CHANGE(id), initialColorValues);
 
-  rasterAddSubscriber(msg, rasterData) {
-    Object.keys(rasterData)
-      .forEach((channel, i) => {
-        const rangeValue = { [channel]: rasterData[channel].range };
-        this.setState(prevState => ({ rangeValues: { ...prevState.rangeValues, ...rangeValue } }));
-        this.setColorValue({ channel, rgb: VIEWER_PALETTE[i] });
-        this.toggleChannel(channel);
+      const initialSliderValues = domains.map((d) => {
+        const isArray = Array.isArray(d);
+        return isArray ? [d[0], Math.ceil(d[1] / 5)] : [0, Math.ceil(STANDARD_MAX / 5)];
       });
-  }
+      // "5" is arbitrary, but the data tends to be left-skewed.
+      // Eventually we want this to be based on the data in the image.));
+      setSliderValues(initialSliderValues);
+      PubSub.publish(SLIDERS_CHANGE(id), initialSliderValues);
 
-  // eslint-disable-next-line class-methods-use-this
-  setSliderValue(sliderValue) {
-    PubSub.publish(SLIDERS_CHANGE, sliderValue);
-  }
+      const initialChannelVisibilities = Array(domains.length).fill(true);
+      setChannelVisibilities(initialChannelVisibilities);
+      PubSub.publish(CHANNEL_VISIBILITY_CHANGE(id), initialChannelVisibilities);
 
-  setColorValue({ channel, rgb }) {
-    const colorValue = { [channel]: rgb };
-    this.setState(prevState => ({ colorValues: { ...prevState.colorValues, ...colorValue } }));
-    PubSub.publish(COLORS_CHANGE, { channel, rgb });
-  }
 
-  toggleChannel(channel) {
-    this.setState((prevState) => {
-      const channelToggle = !prevState.channelsOn[channel];
-      const channelOn = { [channel]: channelToggle };
-      PubSub.publish(CHANNEL_TOGGLE, { channel, channelToggle });
-      return { channelsOn: { ...prevState.channelsOn, ...channelOn } };
+      setChannelNames(cNames);
+      setSliderDomains(domains.map(d => (Array.isArray(d) ? d : [0, STANDARD_MAX])));
+      setSourceId(id);
+    }
+    memoizedOnReady();
+    const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
+    return () => PubSub.unsubscribe(token);
+  }, [memoizedOnReady]);
+
+  const handleColorChange = (i, rgb) => {
+    setColorValues((prevColorValues) => {
+      const nextColorValues = [...prevColorValues];
+      nextColorValues[i] = rgb;
+      PubSub.publish(COLORS_CHANGE(sourceId), nextColorValues);
+      return nextColorValues;
     });
-  }
+  };
 
-  render() {
-    const { colorValues, channelsOn, rangeValues } = this.state;
-    const hr = <hr style={{ border: '1px solid #000' }} />;
-    const channelSliders = Object.keys(colorValues)
-      .map((channel, i) => {
-        const channelColor = colorValues[channel] || VIEWER_PALETTE[i];
-        const rangeValue = rangeValues[channel] || [0, STANDARD_MAX];
-        return (
-          <div key={`container-${channel}`}>
-            <div>{channel}</div>
-            <div className="channel-container">
-              <Checkbox
-                className="channel-checked"
-                checked={channelsOn[channel]}
-                onChange={() => this.toggleChannel(channel)}
-              />
-              <PopoverColor
-                prefixClass="channel"
-                color={channelColor}
-                setColor={rgb => this.setColorValue({ channel, rgb })}
-                placement="left"
-                palette={VIEWER_PALETTE}
-              />
-              <ChannelSlider
-                channel={channel}
-                setSliderValue={this.setSliderValue}
-                range={rangeValue}
-                color={channelColor}
-              />
-            </div>
+  const handleSliderChange = (i, sliderValue) => {
+    setSliderValues((prevSliderValues) => {
+      const nextSliderValues = [...prevSliderValues];
+      nextSliderValues[i] = sliderValue;
+      PubSub.publish(SLIDERS_CHANGE(sourceId), nextSliderValues);
+      return nextSliderValues;
+    });
+  };
+
+  const handleChannelVisibilitiesChange = (i) => {
+    setChannelVisibilities((prevChannelVisibilities) => {
+      const nextChannelVisibilities = [...prevChannelVisibilities];
+      nextChannelVisibilities[i] = !nextChannelVisibilities[i];
+      PubSub.publish(CHANNEL_VISIBILITY_CHANGE(sourceId), nextChannelVisibilities);
+      return nextChannelVisibilities;
+    });
+  };
+
+  if (channelNames && colorValues && sliderValues && channelVisibilities && sliderDomains) {
+    const channelSliders = channelNames.map((name, i) => {
+      const colorValue = colorValues[i];
+      const sliderValue = sliderValues[i];
+      const [min, max] = sliderDomains[i];
+      const channelIsVisible = channelVisibilities[i];
+      return (
+        <div key={`container-${name}`}>
+          <div>{name}</div>
+          <div className="channel-container">
+            <Checkbox
+              className="channel-checked"
+              checked={channelIsVisible}
+              onChange={() => handleChannelVisibilitiesChange(i)}
+            />
+            <PopoverColor
+              prefixClass="channel"
+              color={colorValue}
+              setColor={rgb => handleColorChange(i, rgb)}
+              placement="left"
+              palette={VIEWER_PALETTE}
+            />
+            <Slider
+              value={sliderValue}
+              onChange={(e, v) => handleSliderChange(i, v)}
+              valueLabelDisplay="auto"
+              getAriaLabel={() => name}
+              min={min}
+              max={max}
+              style={{ color: `rgb(${colorValue})` }}
+              orientation="horizontal"
+            />
           </div>
-        );
-      });
+        </div>
+      );
+    });
     return (
-      <TitleInfo title="Channel Levels" isScroll componentWillUnmount={this.componentWillUnmount}>
+      <TitleInfo title="Channel Levels" isScroll removeGridComponent={removeGridComponent}>
         <div className="sliders">
           {channelSliders}
         </div>
       </TitleInfo>
     );
   }
+  return null;
 }

@@ -38,7 +38,7 @@ end schema
 
 start build
 npm run build
-for F in vitessce.js vitessce.min.js main.css; do
-  [ -e umd/$F ] || die "$F is missing from UMD build"
+for F in es/index.es.js umd/index.umd.js es/static/css/main.css umd/static/css/main.css; do
+  [ -e build-lib/$F ] || die "$F is missing from build"
 done
 end build

@@ -28,14 +28,14 @@ function pretty(title, obj) {
   // It woks well for our schema, but no assertion that it should work for anyone else.
   if (!obj) return '';
   return (
-    <React.Fragment>
+    <>
       <h3>{title}</h3>
       <pre>
         {hasProperties(valuesAre(stripAddProps(
           abbreviateRef(abbreviateType(yaml.safeDump(obj))),
         )))}
       </pre>
-    </React.Fragment>
+    </>
   );
 }
 

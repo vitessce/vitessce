@@ -8,73 +8,30 @@
 @import 'tooltips';
 @import 'sets-manager';
 @import 'popover';
+@import 'higlass';
+
+@mixin vitessce-themable($theme-name, $theme-colors) {
+  @include app($theme-name, $theme-colors);
+  @include controls($theme-name, $theme-colors);
+  @include error($theme-name, $theme-colors);
+  @include tooltips($theme-name, $theme-colors);
+  @include sets-manager($theme-name, $theme-colors);
+  @include popover($theme-name, $theme-colors);
+  @include higlass($theme-name, $theme-colors);
+}
 
 .vitessce-container {
   @include bootstrap-minimal;
-  @include app;
-  @include controls;
-  @include error;
-  @include tooltips;
-  @include sets-manager;
   position: relative; // So please-wait can be positioned absolutely.
-}
-
-.vitessce-popover {
-  @include popover;
+  
+  &.vitessce-theme-dark {
+    @include vitessce-themable("dark", $colors-dark);
+  }
+  &.vitessce-theme-light {
+    @include vitessce-themable("light", $colors-light);
+  }
 }
 
 html {
-  font-size: 16px;
+  font-size: 16px !important;
 }
-
-.v-higlass-title-wrapper {
-  width: inherit;
-  height: calc(100% - 13px);
-  .card-body {
-    width: inherit;
-    height: inherit;
-    padding: 0;
-    .v-higlass-wrapper-parent {
-      width: inherit;
-      height: inherit;
-      display: block;
-      position: relative;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-      -moz-osx-font-smoothing: grayscale;
-      font-size: 12px;
-      line-height: 1.42857143;
-      color: #333;
-      overflow: hidden;
-      // border: 1px solid red;
-      .v-higlass-wrapper {
-        width: inherit;
-        height: inherit;
-        position: relative;
-        display: block;
-        text-align: left;
-        box-sizing: border-box;
-        
-        .higlass {
-          .react-grid-layout {
-            background-color: transparent !important;
-          }
-          nav {
-            display: flex;
-          }
-          input {
-            font-size: 12px;
-          }
-          .btn {
-            color: #999;
-            font-size: 12px;
-          }
-        }
-      }
-    }
-  }
-  .bg-black {
-    background-color: transparent;
-  }
-}
-

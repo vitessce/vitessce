@@ -1,7 +1,7 @@
 import React from 'react';
 import VitessceGrid from 'vitessce-grid';
 
-import { LayerPublisher } from '../components/layerpublisher';
+import { SourcePublisher } from '../components/sourcepublisher';
 
 export default class PubSubVitessceGrid extends React.Component {
   constructor(props) {
@@ -11,11 +11,11 @@ export default class PubSubVitessceGrid extends React.Component {
   }
 
   render() {
-    const { config, getComponent } = this.props;
+    const { config, getComponent, theme } = this.props;
     const { allReady } = this.state;
     return (
-      <div className="vitessce-container">
-        { allReady && <LayerPublisher layers={config.layers} /> }
+      <div className={`vitessce-container vitessce-theme-${theme}`}>
+        { allReady && <SourcePublisher layers={config.layers} /> }
         <VitessceGrid
           layout={config.staticLayout}
           rowHeight={this.rowHeight}
