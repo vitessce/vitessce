@@ -1,16 +1,20 @@
 import React, { useMemo, useEffect } from "react";
-import { HiGlassComponent } from "higlass";
+import loadable from '@loadable/component';
+import TitleInfo from '../TitleInfo';
+
 import hgViewConfig from "./viewconfig.json";
 
-import TitleInfo from '../TitleInfo';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'higlass/dist/hglib.css';
+
+const HiGlassComponent = loadable(() => import('higlass').then(d => new Promise((resolve) => resolve(d.HiGlassComponent))));
 
 const hgOptionsBase = {
     bounded: true,
     pixelPreciseMarginPadding: true,
     containerPaddingX: 0,
     containerPaddingY: 0,
-    sizeMode: 'default',
-    theme: 'dark'
+    sizeMode: 'default'
 };
 
 export default function HiGlassSubscriber(props) {
@@ -19,12 +23,14 @@ export default function HiGlassSubscriber(props) {
         onReady
     } = props;
 
+    useEffect(() => {
+        onReady();
+    }, []);
+
     const hgComponent = useMemo(() => {
         const hgOptions = {
             ...hgOptionsBase,
-            onViewConfLoaded: () => {
-                onReady();
-            }
+            theme: 'dark'
         }
 
         console.log("HiGlassComponent.render");
