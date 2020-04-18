@@ -2,6 +2,9 @@
 
 ## 0.1.0 - In progress
 
+### Changed
+- Changed the bundling process so that subsets of components are bundled into separate JS files by targeting the `src/components/{name}/index.js` files.
+
 ## [0.0.25](https://www.npmjs.com/package/vitessce/v/0.0.25) - 2020-03-26
 ### Added
 - Removed nwb, added custom webpack configuration.

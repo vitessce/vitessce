@@ -91,7 +91,7 @@ function compile(config, environment, target, previousFileSizes) {
 
 function build(config, paths, environment, target) {
     const isTargetDemo = (target === 'demo')
-    const buildDir = (isTargetDemo ? paths.appBuild : path.join(paths.libBuild, target));
+    const buildDir = (isTargetDemo ? paths.appBuild : path.join(paths.libBuild, target, environment));
 
     const isInteractive = process.stdout.isTTY;
 

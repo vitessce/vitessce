@@ -12,8 +12,8 @@
   "files": [
     "build-lib"
   ],
-  "main": "build-lib/umd/index.umd.js",
-  "module": "build-lib/es/index.es.js",
+  "main": "build-lib/umd/production/index.min.js",
+  "module": "build-lib/es/production/index.min.js",
   "dependencies": {
     "@deck.gl/core": "8.1.0",
     "@deck.gl/layers": "8.1.0",
@@ -43,7 +43,9 @@
     "prop-types": "^15.7.2",
     "pubsub-js": "^1.7.0",
     "rc-tree": "2.1.0",
+    "react": "^16.8.6",
     "react-color": "^2.18.0",
+    "react-dom": "^16.8.6",
     "short-number": "^1.0.6",
     "store": "^2.0.12",
     "tinycolor2": "^1.4.1",
@@ -51,10 +53,6 @@
     "uuid": "^3.3.2",
     "vitessce-grid": "0.0.6",
     "whatwg-fetch": "^3.0.0"
-  },
-  "peerDependencies": {
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6"
   },
   "devDependencies": {
     "@babel/core": "7.8.4",

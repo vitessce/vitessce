@@ -68,7 +68,7 @@ module.exports = function(paths, environment, target) {
         },
         output: {
             // The build folder.
-            path: path.join(paths.libBuild, target),
+            path: path.join(paths.libBuild, target, environment),
             // We want there to be separate files, one for each entry file.
             filename: (isEnvProduction ? "[name].min.js" : "[name].js"),
             library: [ appPackageJson.name, "[name]" ],
