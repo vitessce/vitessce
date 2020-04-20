@@ -37,16 +37,16 @@ export default function SelectableTable(props) {
 
   // Callback function to update the `selectedRows` state.
   const onSelectRow = useCallback((value, checked) => {
-    if (!allowMultiple) {
-      if (checked) {
-        setSelectedRows([value]);
-      } else if (!checked && allowUncheck) {
-        setSelectedRows([]);
+    if (checked || allowUncheck) {
+      if (!allowMultiple) {
+        setSelectedRows(checked ? [value] : []);
+      } else {
+        setSelectedRows(
+          checked
+            ? union(selectedRows || [], [value])
+            : difference(selectedRows || [], [value]),
+        );
       }
-    } else if (checked) {
-      setSelectedRows(union(selectedRows || [], [value]));
-    } else if (!checked && allowUncheck) {
-      setSelectedRows(difference(selectedRows || [], [value]));
     }
   }, [allowMultiple, allowUncheck, selectedRows]);
 
@@ -75,7 +75,7 @@ export default function SelectableTable(props) {
     // Check whether an initial set of rows should be selected.
     const initialSelectedRows = data
       .map((d) => {
-        if (d[valueKey] !== undefined && d[valueKey]) {
+        if (d[valueKey]) {
           return d[idKey];
         }
         return null;
@@ -93,12 +93,12 @@ export default function SelectableTable(props) {
       return;
     }
     const selectedRowData = getDataFromIds(selectedRows);
-    if (!allowMultiple && selectedRows.length === 1) {
-      onChange(selectedRowData[0]);
-    } else if (!allowMultiple && selectedRows.length === 0) {
-      onChange(null);
-    } else if (allowMultiple) {
+    if (allowMultiple) {
       onChange(selectedRowData);
+    } else if (selectedRows.length === 1) {
+      onChange(selectedRowData[0]);
+    } else if (selectedRows.length === 0) {
+      onChange(null);
     }
   }, [selectedRows]);
 
