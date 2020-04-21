@@ -29,7 +29,6 @@ module.exports = {
     appHtml: resolveApp('demo/index.html'),
     appIndexJs: resolveModule(resolveApp, 'src/demo/index'),
     appSrc: resolveApp('src'),
-    appJsConfig: resolveApp('jsconfig.json'),
     appNodeModules: resolveApp('node_modules'),
     libBuild: resolveApp('build-lib'),
     libIndexJs: resolveModule(resolveApp, 'src/index'),

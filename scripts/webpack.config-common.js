@@ -253,18 +253,10 @@ function getResolveLoaderInfo() {
 }
 
 function getModulesOptions(paths) {
-    const hasJsConfig = fs.existsSync(paths.appJsConfig);
-
-    let config;
-
-    if (hasJsConfig) {
-        config = require(paths.appJsConfig);
-    }
-
-    config = config || {};
-    const options = config.compilerOptions || {};
-
-    return options
+    // The body of this function has been removed
+    // since we do not need to support `paths.appJsConfig`
+    // since that is pretty specific to VSCode.
+    return {};
 }
 
 /**
