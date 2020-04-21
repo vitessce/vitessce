@@ -9,11 +9,12 @@
 const fs = require('fs');
 const utils = require('./utils');
 const paths = require('./paths');
+const constants = require('./constants');
 const configFactory = require('./webpack.config-demo');
 
 utils.scriptInit();
 
-const environments = [ 'production', 'development' ];
+const environments = constants.DEMO_ENVIRONMENTS;
 const target = 'demo';
 
 // Build demo output files.

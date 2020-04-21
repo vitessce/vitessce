@@ -36,20 +36,7 @@ start schema
 ./src/schemas/schema-schema.sh
 end schema
 
-BUILD_FILES=(
-  es/production/index.min.js
-  es/production/static/css/index.css
-  es/development/index.js
-  es/development/static/css/index.css
-  umd/production/index.min.js
-  umd/production/static/css/index.css
-  umd/development/index.js
-  umd/development/static/css/index.css
-)
-
 start build
 npm run build
-for F in ${BUILD_FILES[*]}; do
-  [ -e build-lib/$F ] || die "$F is missing from build"
-done
+node ./scripts/verify-build.js
 end build

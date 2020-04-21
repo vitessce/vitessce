@@ -9,12 +9,13 @@
 const fs = require('fs-extra');
 const utils = require('./utils');
 const paths = require('./paths');
+const constants = require('./constants');
 const configFactory = require('./webpack.config-lib');
 
 utils.scriptInit();
 
-const environments = [ 'production', 'development' ];
-const targets = [ 'umd', 'es' ];
+const environments = constants.LIB_ENVIRONMENTS;
+const targets = constants.LIB_TARGETS;
 
 // Build library output files.
 (async () => {
