@@ -13,16 +13,13 @@ const configFactory = require('./webpack.config-demo');
 
 utils.scriptInit();
 
-// Generate configuration
 const environments = [ 'production', 'development' ];
 const target = 'demo';
 
-async function buildForAll(environments) {
+// Build demo output files.
+(async () => {
     for(let environment of environments) {
         const config = configFactory(paths, environment);
         await utils.build(config, paths, environment, target);
     }
-}
-
-// Build for all targets.
-buildForAll(environments);
+})();
