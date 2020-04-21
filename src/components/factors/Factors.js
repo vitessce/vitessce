@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { RadioList } from '../selectable-table';
+import { SelectableTable } from '../selectable-table/index';
 
 export default function Factors(props) {
   const {
@@ -24,9 +24,14 @@ export default function Factors(props) {
     ([name, value]) => ({ name, value }),
   );
   return (
-    <RadioList
+    <SelectableTable
+      columns={['name']}
       data={data}
+      idKey="name"
+      valueKey="value"
       onChange={onChange}
+      allowUncheck={false}
+      showTableHead={false}
     />
   );
 }

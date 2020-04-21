@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { RadioList } from '../selectable-table/index';
+import { SelectableTable } from '../selectable-table/index';
 
 export default function Genes(props) {
   const {
@@ -26,9 +26,14 @@ export default function Genes(props) {
     ([name, value]) => ({ name, value }),
   );
   return (
-    <RadioList
+    <SelectableTable
+      columns={['name']}
       data={data}
+      idKey="name"
+      valueKey="value"
       onChange={onChange}
+      allowUncheck={false}
+      showTableHead={false}
     />
   );
 }

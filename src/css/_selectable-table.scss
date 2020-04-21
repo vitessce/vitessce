@@ -1,8 +1,11 @@
+@import 'colors';
+
 @mixin selectable-table($theme-name, $theme-colors) {
     .selectable-table {
         table {
             width: 100%;
             box-sizing: border-box;
+            margin-bottom: 15px;
 
             tr {
                 border-bottom: 1px solid map-get($theme-colors, "primary-background-dim");
@@ -36,8 +39,8 @@
                             padding: 6px !important; /* TODO: Only need "important" to override Bootstrap. */
                             /* background-color only for content */
                             background-clip: content-box;
-                            border: 2px solid map-get($theme-colors, "gray-light");
-                            background-color: map-get($theme-colors, "gray-light");
+                            border: 2px solid map-get($global-colors, "gray-light");
+                            background-color: map-get($global-colors, "gray-light");
                       
                             &:checked {
                                 background-clip: unset;
@@ -52,23 +55,6 @@
                     }
                     
                 }
-            }
-        }
-    }
-
-    .radio-list {
-        .selectable-table table {
-            tbody tr {
-                line-height: 1.2rem;
-                &:hover, &.row-checked {
-                    background-color: transparent;
-                }
-                .input-container input.radio {
-                    margin: 0.2em 0.5em 0 0;
-                }
-            }
-            tr {
-                border-bottom: 0px solid black;
             }
         }
     }
