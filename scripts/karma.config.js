@@ -9,7 +9,8 @@ process.env.BABEL_ENV = 'development';
 process.env.NODE_ENV = 'development';
 process.env.PUBLIC_URL = '';
 
-const webpackConfig = require('./webpack.config.js');
+const paths = require('./paths');
+const configFactory = require('./webpack.config-demo');
 
 module.exports = config => {
   config.set({
@@ -28,7 +29,7 @@ module.exports = config => {
       '**/*.js': ['webpack', 'sourcemap']
     },
 
-    webpack: webpackConfig(process.env.NODE_ENV, 'demo'),
+    webpack: configFactory(paths, process.env.NODE_ENV),
     webpackServer: {
       noInfo: true // please don't spam the console when running in karma!
     },
