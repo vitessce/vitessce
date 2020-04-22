@@ -21,13 +21,15 @@ with preprocessing done by [`vitessce-data`](https://github.com/hms-dbmi/vitessc
 
 ## Usage
 
-Vitessce components can be used in React projects.
+Vitessce components can be used in React projects by installing the package from NPM:
 
 ```sh
 npm install vitessce
 ```
 
-In the following code, note the `vitessce-container` and `vitessce-theme-light` classes added to the parent `div` element.
+The following code demonstrates the `<Status/>` and `<Scatterplot/>` components.
+
+Note the `vitessce-container` and `vitessce-theme-light` classes added to the parent `div` element.
 Vitessce component styles are scoped under these classes, which means that a parent element must apply the classes in order for child components to inherit the expected styles. 
 
 ```jsx
@@ -77,10 +79,10 @@ export default function App() {
 
 ## Development
 
-First check your NodeJS version: It should work with NodeJS 8 or 10; it will [fail with NodeJS 12](https://github.com/hubmapconsortium/vitessce/issues/379).
+First check your NodeJS version: It should work with NodeJS 8, 10, 12, or 13.
 ```
 $ node --version
-v10.17.0
+v13.13.0
 ```
 
 Checkout the project, `cd`, and then:
