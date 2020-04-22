@@ -19,6 +19,62 @@ For more information, see the [documentation](http://vitessce.io/prod-docs/index
 The demo features data from several collaborators,
 with preprocessing done by [`vitessce-data`](https://github.com/hms-dbmi/vitessce-data).
 
+## Usage
+
+Vitessce components can be used in React projects.
+
+```sh
+npm install vitessce
+```
+
+In the following code, note the `vitessce-container` and `vitessce-theme-light` classes added to the parent `div` element.
+Vitessce component styles are scoped under these classes, which means that a parent element must apply the classes in order for child components to inherit the expected styles. 
+
+```jsx
+import React from 'react';
+import { Scatterplot } from 'vitessce/es/production/scatterplot.min.js';
+import { Status } from 'vitessce/es/production/status.min.js';
+import 'vitessce/es/production/static/css/index.css';
+
+export default function App() {
+    const view = { target: [0, 0, 0], zoom: 0.75 };
+    const mapping = "PCA";
+    const cells = {
+        1: { mappings: { [mapping]: [0, 0] } },
+        2: { mappings: { [mapping]: [1, 1] } },
+        3: { mappings: { [mapping]: [1, 2] } }
+    };
+    const selectedCellIds = new Set();
+    const dimensions = { width: '400px', height: '400px', margin: '10px' };
+
+    return (
+        <div className="vitessce-container vitessce-theme-light">
+            <div className="card card-body bg-secondary" style={dimensions}>
+                <Status
+                    info="Hello world"
+                    removeGridComponent={() => {}}
+                />
+            </div>
+            <div className="card card-body bg-secondary" style={dimensions}>
+                <Scatterplot
+                    uuid="my-vitessce-scatterplot"
+                    view={view}
+                    mapping={mapping}
+                    cells={cells}
+                    selectedCellIds={selectedCellIds}
+                    cellColors={null}
+                    updateStatus={(message) => {}}
+                    updateCellsSelection={(selectedIds) => {}}
+                    updateCellsHover={(hoverInfo) => {}}
+                    updateViewInfo={(viewInfo) => {}}
+                    clearPleaseWait={(layerName) => {}}
+                />
+            </div>
+        </div>
+    );
+}
+```
+
 ## Development
 
 First check your NodeJS version: It should work with NodeJS 8 or 10; it will [fail with NodeJS 12](https://github.com/hubmapconsortium/vitessce/issues/379).
