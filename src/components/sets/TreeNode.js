@@ -14,28 +14,28 @@ import { ReactComponent as TrashSVG } from '../../assets/tools/trash.svg';
 function makeNodeViewMenuConfig(props) {
   const {
     tree,
-    setKey,
+    nodeKey,
     level,
   } = props;
 
   return [
     {
       name: 'View',
-      handler: () => tree.viewSet(setKey),
+      handler: () => tree.viewSet(nodeKey),
       handlerKey: 'v',
     },
     // Show view buttons for viewing descendants at each level.
     ...range(level).map(i => (
       {
         name: `View ${levelNameFromIndex(i)}`,
-        handler: () => tree.viewSetDescendants(setKey, i),
+        handler: () => tree.viewSetDescendants(nodeKey, i),
         handlerKey: `${i}`,
       }
     )),
     // Show new tab button if not a leaf node.
     ...(level > 0 ? [{
       name: 'Open in new tab',
-      handler: () => tree.newTab(setKey),
+      handler: () => tree.newTab(nodeKey),
       handlerKey: 't',
     }] : []),
   ];
@@ -46,7 +46,7 @@ function NamedSetNodeStatic(props) {
     title,
     prefixClass,
     tree,
-    setKey,
+    nodeKey,
     isTrusted,
   } = props;
   const [iconsVisible, setIconsVisible] = useState(false);
@@ -54,8 +54,8 @@ function NamedSetNodeStatic(props) {
     <>
       <button
         type="button"
-        onClick={() => { tree.viewSet(setKey); }}
-        onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(setKey))}
+        onClick={() => { tree.viewSet(nodeKey); }}
+        onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(nodeKey))}
         onMouseMove={() => setIconsVisible(true)}
         onMouseLeave={() => setIconsVisible(false)}
         className={`${prefixClass}-title`}
@@ -77,11 +77,11 @@ function NamedSetNodeStatic(props) {
         </PopoverMenu>
         {!isTrusted ? (
           <>
-            <Icon component={PenSVG} className={`${prefixClass}-node-menu-trigger`} title="Rename" onClick={() => tree.startEditing(setKey)} />
+            <Icon component={PenSVG} className={`${prefixClass}-node-menu-trigger`} title="Rename" onClick={() => tree.startEditing(nodeKey)} />
             <PopoverMenu
               menuConfig={[{
                 name: 'Delete',
-                handler: () => tree.deleteNode(setKey),
+                handler: () => tree.deleteNode(nodeKey),
                 handlerKey: 'd',
               }, {
                 name: 'Cancel',
@@ -104,7 +104,7 @@ function NamedSetNodeEditing(props) {
     title,
     prefixClass,
     tree,
-    setKey,
+    nodeKey,
   } = props;
   const [currentTitle, setCurrentTitle] = useState(title);
   return (
@@ -116,13 +116,13 @@ function NamedSetNodeEditing(props) {
         type="text"
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
-        onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => tree.changeNodeName(setKey, currentTitle, true))}
+        onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => tree.changeNodeName(nodeKey, currentTitle, true))}
         onFocus={e => e.target.select()}
       />
       <button
         type="button"
         className={`${prefixClass}-title-save-button`}
-        onClick={() => tree.changeNodeName(setKey, currentTitle, true)}
+        onClick={() => tree.changeNodeName(nodeKey, currentTitle, true)}
       >
         Save
       </button>
@@ -147,7 +147,7 @@ export default class TreeNode extends RcTreeNode {
   renderSelector = () => {
     const {
       tree,
-      setKey,
+      nodeKey,
       title,
       size,
       color,
@@ -186,7 +186,7 @@ export default class TreeNode extends RcTreeNode {
           <PopoverColor
             prefixClass={prefixClass}
             color={color}
-            setColor={c => tree.changeNodeColor(setKey, c)}
+            setColor={c => tree.changeNodeColor(nodeKey, c)}
           />
         </span>
       </span>

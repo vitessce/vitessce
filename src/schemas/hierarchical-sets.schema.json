@@ -1,40 +1,74 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://github.com/hubmapconsortium/vitessce/#hierarchical-sets",
-    "title": "Vitessce hierarchical sets data",
-    "type": "object",
-    "definitions": {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/hubmapconsortium/vitessce/#hierarchical-sets",
+  "title": "Vitessce hierarchical sets data",
+  "type": "object",
+  "definitions": {
       "stringArray": {
-        "type": "array",
-        "items": { "type": "string" }
+          "type": "array",
+          "items": { "type": "string" }
       },
       "colorArray": {
           "type": "array",
           "items": { "type": "integer", "minimum": 0, "maximum": 255 },
           "minItems": 3,
           "maxItems": 3
-      }
-    },
-    "additionalProperties": false,
-    "required": ["datasetId", "version", "setsType", "setsTree"],
-    "properties": {
-      "datasetId": { "type": "string" },
-      "version": { "type": "string" },
-      "setsType": { "type": "string" },
-      "setsTree": {
+      },
+      "treeLevelOnePlusNonLeaf": {
           "type": "array",
           "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["key", "name"],
-            "properties": {
-              "key": { "type": "string" },
-              "name": { "type": "string" },
-              "color": { "$ref": "#/definitions/colorArray" },
-              "set": { "$ref": "#/definitions/stringArray" }
-            }
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["key", "name"],
+              "properties": {
+                  "key": { "type": "string" },
+                  "name": { "type": "string" },
+                  "color": { "$ref": "#/definitions/colorArray" },
+                  "children": { "$ref": "#/definitions/treeLevelOnePlus" }
+              }
           }
-        }
-    }
+      },
+      "treeLevelOnePlusLeaf": {
+          "type": "array",
+          "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["key", "name"],
+              "properties": {
+                  "key": { "type": "string" },
+                  "name": { "type": "string" },
+                  "color": { "$ref": "#/definitions/colorArray" },
+                  "set": { "$ref": "#/definitions/stringArray" }
+              }
+          }
+      },
+      "treeLevelOnePlus": {
+          "oneOf": [
+              { "$ref": "#/definitions/treeLevelOnePlusNonLeaf" },
+              { "$ref": "#/definitions/treeLevelOnePlusLeaf" }
+          ]
+      },
+      "treeLevelZero": {
+          "type": "array",
+          "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["key", "name"],
+              "properties": {
+                  "key": { "type": "string" },
+                  "name": { "type": "string" },
+                  "children": { "$ref": "#/definitions/treeLevelOnePlus" }
+              }
+          }
+      }
+  },
+  "additionalProperties": false,
+  "required": ["version", "datatype", "tree"],
+  "properties": {
+      "dataset": { "type": "string" },
+      "version": { "type": "string" },
+      "datatype": { "type": "string" },
+      "tree": { "$ref": "#/definitions/treeLevelZero" }
   }
+}
   

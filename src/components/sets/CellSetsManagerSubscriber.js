@@ -63,7 +63,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   cellSetsAddSubscriber(msg, cellSetsData) {
     const { cellSets } = this.state;
-    cellSets.import(cellSetsData.setsTree, null, true);
+    cellSets.import(cellSetsData.tree, null, true);
   }
 
   cellSetsModifySubscriber(msg, cellSets) {
@@ -77,7 +77,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
 
   render() {
     const { cellSets, gridResizeEvent } = this.state;
-    const { datasetId, removeGridComponent } = this.props;
+    const { removeGridComponent } = this.props;
     return (
       <TitleInfo
         title="Cell Sets"
@@ -86,7 +86,6 @@ export default class CellSetsManagerSubscriber extends React.Component {
       >
         <SetsManager
           setsTree={cellSets}
-          datasetId={datasetId}
           setsType={setsType}
           onError={err => PubSub.publish(STATUS_WARN, err)}
           gridResizeEvent={gridResizeEvent}

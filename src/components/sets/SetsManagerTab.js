@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import { Tree } from 'antd';
 import TreeNode from './TreeNode';
@@ -54,7 +55,7 @@ export default class SetsManagerTab extends React.Component {
     }
     const { setsTree } = this.props;
     return nodes.map(item => (
-      <TreeNode key={item.setKey} tree={setsTree} {...item.getRenderProps()}>
+      <TreeNode key={item.key} tree={setsTree} {...item.getRenderProps()}>
         {this.renderTreeNodes(item.children)}
       </TreeNode>
     ));
@@ -63,7 +64,6 @@ export default class SetsManagerTab extends React.Component {
   render() {
     const {
       setsTree,
-      tabRoot,
     } = this.props;
 
     const {
@@ -84,7 +84,7 @@ export default class SetsManagerTab extends React.Component {
           checkedKeys={setsTree.checkedKeys}
           onDrop={this.onDrop}
         >
-          {this.renderTreeNodes(tabRoot.children)}
+          {this.renderTreeNodes(setsTree.children)}
         </Tree>
       </div>
     );

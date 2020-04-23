@@ -1,10 +1,6 @@
+/* eslint-disable */
 import uuidv4 from 'uuid/v4';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
-
-const CURRENT_SET_NAME = 'Current selection';
-const ALL_ROOT_KEY = 'all';
-const ALL_ROOT_NAME = 'All';
-export const PATH_SEP = '\t';
 
 /**
  * Like .find but can return the truthy value rather than returning the element.
@@ -40,25 +36,23 @@ function removeValue(array, shouldRemove) {
 export class SetsTreeNode {
   constructor(props) {
     const {
-      setKey,
+      key,
       name,
-      isRoot = false,
       isEditing = false,
       isCurrentSet = false,
-      isTrusted = false,
       color = DEFAULT_COLOR,
       children,
       set,
+      level,
     } = props;
-    this.setKey = setKey;
+    this.key = key;
     this.name = name;
     this.set = set;
     this.children = children;
     this.color = color;
-    this.isRoot = isRoot;
     this.isEditing = isEditing;
     this.isCurrentSet = isCurrentSet;
-    this.isTrusted = isTrusted;
+    this.level = level;
   }
 
   setIsEditing(v) {
@@ -69,9 +63,13 @@ export class SetsTreeNode {
     this.children = children;
   }
 
-  setSetKey(setKey) {
-    this.setKey = setKey;
+  setKey(key) {
+    this.key = key;
   }
+
+  /*setSetKey(setKey) {
+    this.setKey = setKey;
+  }*/
 
   setName(name) {
     this.name = name;
@@ -104,14 +102,14 @@ export class SetsTreeNode {
    * @param {string} setKey The key of the node of interest.
    * @returns {SetsTreeNode} The node of interest.
    */
-  findNode(setKey) {
-    if (this.setKey === setKey) {
+  findNode(targetKey) {
+    if (this.key === targetKey) {
       return this;
     }
     if (!this.children) {
       return null;
     }
-    return findValue(this.children, child => child.findNode(setKey));
+    return findValue(this.children, child => child.findNode(targetKey));
   }
 
   /**
@@ -119,14 +117,14 @@ export class SetsTreeNode {
    * @param {string} setKey The key of the node of interest.
    * @returns {SetsTreeNode} The parent of the node of interest.
    */
-  findParentNode(setKey) {
+  findParentNode(targetKey) {
     if (!this.children || this.children.length === 0) {
       return null;
     }
-    if (this.children.find(child => child.setKey === setKey)) {
+    if (this.children.find(child => child.key === targetKey)) {
       return this;
     }
-    return findValue(this.children, child => child.findParentNode(setKey));
+    return findValue(this.children, child => child.findParentNode(targetKey));
   }
 
   /**
@@ -136,46 +134,15 @@ export class SetsTreeNode {
   getRenderProps() {
     return {
       title: this.name,
-      setKey: this.setKey,
+      nodeKey: this.key,
       size: this.set ? this.set.length : 0,
       color: this.color,
-      level: this.getLevel(),
-      isRoot: this.isRoot,
+      level: this.level,
       isEditing: this.isEditing,
       isCurrentSet: this.isCurrentSet,
-      isTrusted: this.isTrusted,
     };
   }
 
-  /**
-   * Get the last part of the key, after the final period.
-   * If no period, return the whole key string.
-   * @returns {string} The tail of the key.
-   */
-  getKeyTail() {
-    return this.setKey.match(new RegExp(`^(.*${PATH_SEP})*([^${PATH_SEP}]*)$`))[2];
-  }
-
-  /**
-   * Get the first part of the key, before the final period.
-   * Assumes there will be at least one period.
-   * @returns {string} The head of the key.
-   */
-  getKeyHead() {
-    return this.setKey.match(new RegExp(`^(.*)${PATH_SEP}[^${PATH_SEP}]*$`))[1];
-  }
-
-  /**
-   * Return the level of the node relative to the "bottom" of the tree.
-   * @returns {integer} The level.
-   *                    0 means leaf, 1 has children, 2 grandchildren, etc.
-   */
-  getLevel() {
-    if (!this.children || this.children.length === 0) {
-      return 0;
-    }
-    return Math.max(...this.children.map(child => child.getLevel() + 1));
-  }
 
   /**
    * Return a flat array of descendants at a particular level from this node.
@@ -198,15 +165,7 @@ export class SetsTreeNode {
    * key head "paths" to match the current tree structure.
    */
   updateChildKeys() {
-    if (!this.children) {
-      return;
-    }
-    this.children.forEach((child) => {
-      const newChildKey = this.setKey + PATH_SEP + child.getKeyTail();
-      // TODO: check for existence of duplicate keys before setting the key.
-      child.setSetKey(newChildKey);
-      child.updateChildKeys();
-    });
+    
   }
 }
 
@@ -223,14 +182,8 @@ export default class SetsTree {
      *                                      sets array changes.
      */
   constructor(onTreeChange, onVisibilityChange) {
-    this.root = new SetsTreeNode({
-      setKey: ALL_ROOT_KEY,
-      name: ALL_ROOT_NAME,
-      children: [],
-      isRoot: true,
-    });
+    this.children = [];
     this.items = [];
-    this.tabRoots = [this.root];
     this.checkedKeys = [];
     this.visibleKeys = [];
     this.onTreeChange = onTreeChange;
@@ -309,7 +262,7 @@ export default class SetsTree {
    * @param {boolean} visible Whether to make the current set visible.
    * @param {string} name If provided, will use this name over the default CURRENT_SET_NAME.
    */
-  setCurrentSet(set, visible, name) {
+  /*setCurrentSet(set, visible, name) {
     let currentSetNode = this.findCurrentSetNode();
     if (!currentSetNode) {
       const uuid = uuidv4();
@@ -331,15 +284,15 @@ export default class SetsTree {
       this.visibleKeys = [currentSetNode.setKey];
     }
     this.emitTreeUpdate();
-  }
+  }*/
 
   /**
    * Find the node with .isCurrentSet equal to true.
    * @returns {SetsTreeNode} The current set node.
    */
-  findCurrentSetNode() {
+  /*findCurrentSetNode() {
     return this.root.findCurrentSetNode();
-  }
+  }*/
 
   /**
    * Find a node of interest.
@@ -347,7 +300,13 @@ export default class SetsTree {
    * @returns {SetsTreeNode} The node of interest.
    */
   findNode(setKey) {
-    return this.root.findNode(setKey);
+    for(let child of this.children) {
+      const foundNode = child.findNode(setKey);
+      if(foundNode) {
+        return foundNode;
+      }
+    }
+    return null;
   }
 
   /**
@@ -373,11 +332,11 @@ export default class SetsTree {
   dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap) {
     const dragNode = tabRoot.findNode(dragKey);
     const dragParentNode = tabRoot.findParentNode(dragKey);
-    let dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
+    let dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.key === dragKey);
 
     const dropNode = tabRoot.findNode(dropKey);
     const dropParentNode = tabRoot.findParentNode(dropKey);
-    let dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
+    let dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.key === dropKey);
 
     if (dragNode.isCurrentSet || dropNode.isCurrentSet) {
       return;
@@ -388,8 +347,8 @@ export default class SetsTree {
     dragParentNode.children.splice(dragNodeCurrIndex, 1);
 
     // Update index values after deleting the child node.
-    dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
-    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
+    dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.key === dragKey);
+    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.key === dropKey);
 
     if (!dropToGap) {
       // Set dragNode as last child of dropNode.
@@ -440,7 +399,7 @@ export default class SetsTree {
       return;
     }
     if (node.children) {
-      node.children.forEach(c => this.deleteNode(c.setKey, true));
+      node.children.forEach(c => this.deleteNode(c.key, true));
     }
     // Check whether the node is a tabRoot, remove the corresponding tab(s) if so.
     this.closeTab(setKey, true);
@@ -449,7 +408,7 @@ export default class SetsTree {
     // Check whether the node is in visibleKeys, remove the corresponding key if so.
     this.visibleKeys = removeValue(this.visibleKeys, h => (h === setKey));
 
-    const nodeIndex = parentNode.children.findIndex(c => c.setKey === setKey);
+    const nodeIndex = parentNode.children.findIndex(c => c.key === setKey);
     if (nodeIndex === -1) {
       return;
     }
@@ -485,9 +444,7 @@ export default class SetsTree {
    * @param {SetsTreeNode} node The child node to prepend.
    */
   prependChild(node) {
-    this.root.setChildren([node, ...this.root.children]);
-    this.root.updateChildKeys();
-    this.emitTreeUpdate();
+    this.setChildren([node, ...this.children]);
   }
 
   /**
@@ -496,9 +453,7 @@ export default class SetsTree {
    * @param {SetsTreeNode} node The child node to append.
    */
   appendChild(node) {
-    this.root.setChildren([...this.root.children, node]);
-    this.root.updateChildKeys();
-    this.emitTreeUpdate();
+    this.setChildren([...this.children, node]);
   }
 
   /**
@@ -507,8 +462,7 @@ export default class SetsTree {
    * @param {SetsTreeNode[]} children The array of child nodes to append.
    */
   setChildren(children) {
-    this.root.setChildren(children);
-    this.root.updateChildKeys();
+    this.children = children;
     this.emitTreeUpdate();
   }
 
@@ -532,35 +486,11 @@ export default class SetsTree {
   viewSetDescendants(setKey, level) {
     const node = this.findNode(setKey);
     const descendentsOfInterest = node.getDescendantsFlat(level);
-    this.visibleKeys = descendentsOfInterest.map(d => d.setKey);
+    this.visibleKeys = descendentsOfInterest.map(d => d.key);
     this.emitVisibilityUpdate();
   }
 
-  /**
-   * Add a new tab root.
-   * @param {string} setKey The key of the node to be used as the tab root.
-   */
-  newTab(setKey) {
-    const node = this.findNode(setKey);
-    // Only add a tab if it does not already exist.
-    if (!this.tabRoots.find(t => t.setKey === setKey)) {
-      this.tabRoots = [...this.tabRoots, node];
-      this.emitTreeUpdate();
-    }
-  }
-
-  /**
-   * Remove a tab root by its key.
-   * @param {string} setKey The key of the tab root node to be removed.
-   * @param {boolean} preventEmit Whether to prevent the emit event.
-   */
-  closeTab(setKey, preventEmit) {
-    this.tabRoots = removeValue(this.tabRoots, h => (h.setKey === setKey));
-    if (!preventEmit) {
-      this.emitTreeUpdate();
-    }
-  }
-
+ 
   /**
    * Import previously-exported sets.
    * Assumes a hierarchical ordering.
@@ -571,41 +501,45 @@ export default class SetsTree {
    * enables them to replace the root node children and prevents deletion.
    * By default, false.
    */
-  import(data, name, isTrusted = false) {
+  import(data) {
     if (!data || data.length < 1) {
       return;
     }
-    const uuid = uuidv4();
-    const importRoot = new SetsTreeNode({
-      setKey: uuid,
-      name,
-    });
 
-    data.forEach((nodeObj) => {
-      const node = new SetsTreeNode({
-        setKey: nodeObj.key,
-        name: nodeObj.name,
-        color: nodeObj.color,
-        set: nodeObj.set,
-        isTrusted,
-      });
-      let parentNode;
-      if (node.setKey.lastIndexOf(PATH_SEP) === -1) {
-        parentNode = importRoot;
+    function makeNode(nodeToImport, siblingIndex = 0, level = 0) {
+      let node;
+      let childrenNodes = [];
+      if(nodeToImport.children) {
+        // Recursively convert children nodes to SetsTreeNode objects.
+        childrenNodes = nodeToImport.children.map((c, i) => makeNode(c, i, level + 1));
+      }
+      if(nodeToImport.children) {
+        node = new SetsTreeNode({
+          key: nodeToImport.key,
+          name: nodeToImport.name,
+          color: (level > 0 ? nodeToImport.color : undefined),
+          children: childrenNodes,
+          level,
+        });
       } else {
-        parentNode = importRoot.findNode(node.getKeyHead());
+        node = new SetsTreeNode({
+          key: nodeToImport.key,
+          name: nodeToImport.name,
+          color: nodeToImport.color,
+          set: nodeToImport.set,
+          level,
+        });
       }
-      const nodeSiblings = (parentNode.children || []);
-      if (!nodeObj.color) {
-        node.setColor(PALETTE[nodeSiblings.length % PALETTE.length]);
+      if (level > 0 && !nodeToImport.color) {
+        node.setColor(PALETTE[siblingIndex % PALETTE.length]);
       }
-      parentNode.setChildren([...nodeSiblings, node]);
-    });
-    if (!isTrusted) {
-      this.appendChild(importRoot);
-    } else {
-      this.setChildren(importRoot.children);
+      return node;
     }
+
+    data.forEach((levelZeroNodeToImport) => {
+      const levelZeroNode = makeNode(levelZeroNodeToImport);
+      this.appendChild(levelZeroNode);
+    });
   }
 
   /**
@@ -618,7 +552,7 @@ export default class SetsTree {
     while (dfs.length > 0) {
       const currNode = dfs.pop();
       result.push({
-        key: currNode.setKey.substring(ALL_ROOT_KEY.length + PATH_SEP.length),
+        key: currNode.key.substring(ALL_ROOT_KEY.length + PATH_SEP.length),
         name: currNode.name,
         color: currNode.color,
         set: currNode.set,
