@@ -1,10 +1,9 @@
 /* eslint-disable */
 import React from 'react';
-import { Tree } from 'antd';
+import { Tree as AntTree } from 'antd';
 import TreeNode from './TreeNode';
-import 'antd/es/tree/style/index.css';
 
-export default class SetsManagerTab extends React.Component {
+export default class Tree extends React.Component {
   constructor(props) {
     super(props);
 
@@ -72,8 +71,7 @@ export default class SetsManagerTab extends React.Component {
     } = this.state;
 
     return (
-      <div className="sets-manager-tab">
-        <Tree
+        <AntTree
           draggable
           checkable
           blockNode
@@ -83,10 +81,10 @@ export default class SetsManagerTab extends React.Component {
           onCheck={this.onCheck}
           checkedKeys={setsTree.checkedKeys}
           onDrop={this.onDrop}
-        >
-          {this.renderTreeNodes(setsTree.children)}
-        </Tree>
-      </div>
+          prefixCls="rc-tree"
+      >
+        {this.renderTreeNodes(setsTree.children)}
+      </AntTree>
     );
   }
 }

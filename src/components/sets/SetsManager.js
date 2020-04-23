@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React from 'react';
-import SetsManagerTab from './SetsManagerTab';
+import Tree from './Tree';
 import SetsManagerActionBar from './SetsManagerActionBar';
 import 'antd/es/tabs/style/index.css';
 
@@ -14,7 +14,7 @@ export default function SetsManager(props) {
 
   return (
     <div className="sets-manager">
-      <SetsManagerTab setsTree={setsTree} />
+      <Tree setsTree={setsTree} />
     </div>
   );
 }

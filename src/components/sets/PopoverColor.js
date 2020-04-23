@@ -10,7 +10,7 @@ function toHexString(rgbArray) {
 
 export default function PopoverColor(props) {
   const {
-    prefixClass, placement, color, setColor, palette,
+    placement, color, setColor, palette,
   } = props;
 
   function handleChangeComplete({ rgb }) {
@@ -41,7 +41,7 @@ export default function PopoverColor(props) {
       mouseLeaveDelay={0}
     >
       <span
-        className={`${prefixClass}-set-color`}
+        className="set-color"
         style={{ backgroundColor: toHexString(color) }}
       />
     </Popover>

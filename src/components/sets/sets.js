@@ -140,6 +140,8 @@ export class SetsTreeNode {
       level: this.level,
       isEditing: this.isEditing,
       isCurrentSet: this.isCurrentSet,
+      isLeaf: !this.children,
+      height: this.getHeight(this.level),
     };
   }
 
@@ -160,12 +162,13 @@ export class SetsTreeNode {
     return this.children.flatMap(c => c.getDescendantsFlat(level - 1));
   }
 
-  /**
-   * Update child keys, keeping the same key tails but updating
-   * key head "paths" to match the current tree structure.
-   */
-  updateChildKeys() {
-    
+  getHeight(level = 0) {
+    if(!this.children) {
+      return level;
+    } else {
+      const childrenHeights = this.children.map(c => c.getHeight(level + 1));
+      return Math.max(...childrenHeights, 0);
+    }
   }
 }
 
@@ -361,7 +364,6 @@ export default class SetsTree {
         .splice(dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0), 0, dragNode);
     }
 
-    tabRoot.updateChildKeys();
     this.emitTreeUpdate();
   }
 

@@ -1,5 +1,5 @@
+/* eslint-disable */
 import React, { useState } from 'react';
-import { Icon } from 'antd';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
@@ -7,9 +7,7 @@ import PopoverMenu from './PopoverMenu';
 import PopoverColor from './PopoverColor';
 import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
 
-import { ReactComponent as EyeSVG } from '../../assets/tools/eye.svg';
-import { ReactComponent as PenSVG } from '../../assets/tools/pen.svg';
-import { ReactComponent as TrashSVG } from '../../assets/tools/trash.svg';
+import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
 
 function makeNodeViewMenuConfig(props) {
   const {
@@ -32,77 +30,39 @@ function makeNodeViewMenuConfig(props) {
         handlerKey: `${i}`,
       }
     )),
-    // Show new tab button if not a leaf node.
-    ...(level > 0 ? [{
-      name: 'Open in new tab',
-      handler: () => tree.newTab(nodeKey),
-      handlerKey: 't',
-    }] : []),
   ];
 }
 
 function NamedSetNodeStatic(props) {
   const {
     title,
-    prefixClass,
     tree,
     nodeKey,
-    isTrusted,
   } = props;
-  const [iconsVisible, setIconsVisible] = useState(false);
   return (
-    <>
+    <span>
       <button
         type="button"
         onClick={() => { tree.viewSet(nodeKey); }}
         onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(nodeKey))}
-        onMouseMove={() => setIconsVisible(true)}
-        onMouseLeave={() => setIconsVisible(false)}
-        className={`${prefixClass}-title`}
+        className="title-button"
         title={`View ${title}`}
       >
         {title}
       </button>
-      <span
-        className={`${prefixClass}-node-menu-trigger-container`}
-        style={{ opacity: (iconsVisible ? 1 : 0) }}
-        onMouseMove={() => setIconsVisible(true)}
-        onMouseLeave={() => setIconsVisible(false)}
+      <PopoverMenu
+        menuConfig={makeNodeViewMenuConfig(props)}
+        onClose={() => {}}
       >
-        <PopoverMenu
-          menuConfig={makeNodeViewMenuConfig(props)}
-          onClose={() => setIconsVisible(false)}
-        >
-          <Icon component={EyeSVG} className={`${prefixClass}-node-menu-trigger`} title="View options" />
-        </PopoverMenu>
-        {!isTrusted ? (
-          <>
-            <Icon component={PenSVG} className={`${prefixClass}-node-menu-trigger`} title="Rename" onClick={() => tree.startEditing(nodeKey)} />
-            <PopoverMenu
-              menuConfig={[{
-                name: 'Delete',
-                handler: () => tree.deleteNode(nodeKey),
-                handlerKey: 'd',
-              }, {
-                name: 'Cancel',
-                handler: () => {},
-                handlerKey: 'x',
-              }]}
-              onClose={() => setIconsVisible(false)}
-            >
-              <Icon component={TrashSVG} className={`${prefixClass}-node-menu-trigger`} title="Delete" />
-            </PopoverMenu>
-          </>
-        ) : null}
-      </span>
-    </>
+        <MenuSVG className="node-menu-icon" />
+      </PopoverMenu>
+    </span>
   );
 }
 
 function NamedSetNodeEditing(props) {
   const {
     title,
-    prefixClass,
     tree,
     nodeKey,
   } = props;
@@ -112,7 +72,7 @@ function NamedSetNodeEditing(props) {
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
-        className={`${prefixClass}-title-input`}
+        className="title-input"
         type="text"
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
@@ -121,7 +81,7 @@ function NamedSetNodeEditing(props) {
       />
       <button
         type="button"
-        className={`${prefixClass}-title-save-button`}
+        className="title-save-button"
         onClick={() => tree.changeNodeName(nodeKey, currentTitle, true)}
       >
         Save
@@ -143,6 +103,21 @@ function NamedSetNode(props) {
   );
 }
 
+function LevelsButtons(props) {
+  const { height } = props;
+  return (
+    <div className="level-buttons-container">
+      {range(height).map(i => (
+        <div className="level-buttons">
+          {i === 0 ? (<div className="level-line-zero"></div>) : null}
+          <div className="level-line"></div>
+          <input className="level-radio-button" type="checkbox"/>
+        </div>
+    ))}
+    </div>
+  );
+}
+
 export default class TreeNode extends RcTreeNode {
   renderSelector = () => {
     const {
@@ -154,7 +129,6 @@ export default class TreeNode extends RcTreeNode {
       isCurrentSet,
       isSelected,
       isEditing,
-      isTrusted,
     } = this.props;
     const {
       rcTree: {
@@ -164,7 +138,7 @@ export default class TreeNode extends RcTreeNode {
     } = this.context;
 
     const wrapClass = `${prefixClass}-node-content-wrapper`;
-    const isDraggable = (!isTrusted && !isCurrentSet && !isEditing && draggable);
+    const isDraggable = (!isCurrentSet && !isEditing && draggable);
     return (
       <span
         ref={this.setSelectHandle}
@@ -174,29 +148,31 @@ export default class TreeNode extends RcTreeNode {
           `${wrapClass}-${this.getNodeState() || 'normal'}`,
           isSelected && `${prefixClass}-node-selected`,
           isDraggable && 'draggable',
-          isTrusted && 'trusted',
         )}
         draggable={isDraggable}
         aria-grabbed={isDraggable}
         onDragStart={isDraggable ? this.onDragStart : undefined}
       >
         <NamedSetNode {...this.props} prefixClass={prefixClass} />
-        <span className={`${prefixClass}-title-right`}>
-          <span className={`${prefixClass}-set-size`}>{size || null}</span>
-          <PopoverColor
-            prefixClass={prefixClass}
-            color={color}
-            setColor={c => tree.changeNodeColor(nodeKey, c)}
-          />
-        </span>
       </span>
     );
   };
 
+  renderLevels = () => {
+    const { level, height, expanded } = this.props;
+    if(level !== 0 || expanded) {
+      return null;
+    }
+    return (
+      <LevelsButtons
+        height={height}
+      />
+    );
+  }
+
   render() {
-    const { loading } = this.props;
     const {
-      className, style,
+      style, loading, level,
       dragOver, dragOverGapTop, dragOverGapBottom,
       isLeaf,
       expanded, selected, checked, halfChecked,
@@ -213,7 +189,7 @@ export default class TreeNode extends RcTreeNode {
     const dataAndAriaAttributeProps = getDataAndAria(otherProps);
     return (
       <li
-        className={classNames(className, {
+        className={classNames("rc-tree-treenode", `level-${level}-treenode`, {
           [`${prefixClass}-treenode-disabled`]: disabled,
           [`${prefixClass}-treenode-switcher-${expanded ? 'open' : 'close'}`]: !isLeaf,
           [`${prefixClass}-treenode-checkbox-checked`]: checked,
@@ -236,9 +212,10 @@ export default class TreeNode extends RcTreeNode {
         {...dataAndAriaAttributeProps}
       >
         {this.renderSwitcher()}
-        {this.renderCheckbox()}
         {this.renderSelector()}
+        {this.renderCheckbox()}
         {this.renderChildren()}
+        {this.renderLevels()}
       </li>
     );
   }
