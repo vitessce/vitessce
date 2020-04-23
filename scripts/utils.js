@@ -1,14 +1,10 @@
-
-
+const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('react-dev-utils/chalk');
-const fs = require('fs-extra');
 const webpack = require('webpack');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
-const printHostingInstructions = require('react-dev-utils/printHostingInstructions');
 const FileSizeReporter = require('react-dev-utils/FileSizeReporter');
-const printBuildError = require('react-dev-utils/printBuildError');
 const { checkBrowsers } = require('react-dev-utils/browsersHelper');
 
 // These sizes are pretty large. We'll warn for bundles exceeding them.
@@ -24,7 +20,6 @@ const moduleFileExtensions = [
   'jsx',
 ];
 
-
 function copyPublicFolder(paths) {
   fs.copySync(paths.appPublic, paths.appBuild, {
     dereference: true,
@@ -32,8 +27,8 @@ function copyPublicFolder(paths) {
   });
 }
 
-function compile(config, target, previousFileSizes) {
-  console.log(`Creating an optimized production build for target ${target}...`);
+function compile(config, environment, target, previousFileSizes) {
+  console.log(`Creating an optimized ${environment} build for target ${target}...`);
 
   const compiler = webpack(config);
 
@@ -94,9 +89,9 @@ function compile(config, target, previousFileSizes) {
 }
 
 
-function build(config, paths, target) {
+function build(config, paths, environment, target) {
     const isTargetDemo = (target === 'demo')
-    const buildDir = (isTargetDemo ? paths.appBuild : path.join(paths.libBuild, target));
+    const buildDir = (isTargetDemo ? paths.appBuild : path.join(paths.libBuild, target, environment));
 
     const isInteractive = process.stdout.isTTY;
 
@@ -161,7 +156,7 @@ function build(config, paths, target) {
                 copyPublicFolder(paths);
             }
             // Start the webpack build
-            return compile(config, target, previousFileSizes);
+            return compile(config, environment, target, previousFileSizes);
         })
         .then(postCompile)
         .catch(err => {
@@ -173,6 +168,22 @@ function build(config, paths, target) {
 }
 
 function scriptInit() {
+    // We support resolving modules according to `NODE_PATH`.
+    // This lets you use absolute paths in imports inside large monorepos:
+    // https://github.com/facebook/create-react-app/issues/253.
+    // It works similar to `NODE_PATH` in Node itself:
+    // https://nodejs.org/api/modules.html#modules_loading_from_the_global_folders
+    // Note that unlike in Node, only *relative* paths from `NODE_PATH` are honored.
+    // Otherwise, we risk importing Node.js core modules into an app instead of webpack shims.
+    // https://github.com/facebook/create-react-app/issues/1023#issuecomment-265344421
+    // We also resolve them to make sure all tools using them work consistently.
+    const appDirectory = fs.realpathSync(process.cwd());
+    process.env.NODE_PATH = (process.env.NODE_PATH || '')
+        .split(path.delimiter)
+        .filter(folder => folder && !path.isAbsolute(folder))
+        .map(folder => path.resolve(appDirectory, folder))
+        .join(path.delimiter);
+    
     // Makes the script crash on unhandled rejections instead of silently
     // ignoring them. In the future, promise rejections that are not handled will
     // terminate the Node.js process with a non-zero exit code.
@@ -208,11 +219,36 @@ function checkHost() {
         console.log();
     }
 }
+
+
+// Make sure any symlinks in the project folder are resolved:
+// https://github.com/facebook/create-react-app/issues/637
+function resolveApp(relativePath) {
+  const appDirectory = fs.realpathSync(process.cwd());
+  return path.resolve(appDirectory, relativePath);
+}
+
+// Resolve file paths in the same order as webpack
+function resolveModule(resolveFn, filePath) {
+  const extension = moduleFileExtensions.find(extension =>
+    fs.existsSync(resolveFn(`${filePath}.${extension}`))
+  );
+
+  if (extension) {
+    return resolveFn(`${filePath}.${extension}`);
+  }
+
+  return resolveFn(`${filePath}.js`);
+}
+
+
  
 module.exports = {
     build,
     scriptInit,
     checkRequiredFilesForTarget,
     checkHost,
-    moduleFileExtensions
+    moduleFileExtensions,
+    resolveApp,
+    resolveModule
 };
