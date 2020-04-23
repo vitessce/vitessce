@@ -1,1 +1,1 @@
-export ChannelsSubscriber from './ChannelsSubscriber';
+export { default as ChannelsSubscriber } from './ChannelsSubscriber';

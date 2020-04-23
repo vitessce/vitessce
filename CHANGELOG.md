@@ -4,6 +4,9 @@
 ### Added
 - Added support for providing cell sets files in view configs.
 
+### Changed
+- Changed the bundling process so that subsets of components are bundled into separate JS files by targeting the `src/components/{name}/index.js` files.
+
 ## [0.0.25](https://www.npmjs.com/package/vitessce/v/0.0.25) - 2020-03-26
 ### Added
 - Removed nwb, added custom webpack configuration.
