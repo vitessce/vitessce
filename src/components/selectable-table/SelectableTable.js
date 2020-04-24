@@ -108,13 +108,16 @@ export default function SelectableTable(props) {
   // Generate a unique ID to use in (for, id) label-input pairs.
   const inputUuid = uuidv4();
 
+  // Class for first column of inputs, to hide them if desired.
+  const hiddenInputsClass = (showTableInputs ? '' : 'hidden-input-column');
+
   return (
     <div className="selectable-table">
       <table>
         {showTableHead ? (
           <thead>
             <tr>
-              <th />
+              <th className={hiddenInputsClass} />
               {columns.map(column => (
                 <th key={column}>{column}</th>
               ))}
@@ -127,7 +130,7 @@ export default function SelectableTable(props) {
               key={item[idKey]}
               className={(isSelected(item[idKey]) ? 'row-checked' : '')}
             >
-              <td className="input-container" style={(showTableInputs ? {} : { display: 'none' })}>
+              <td className={`input-container ${hiddenInputsClass}`}>
                 <label htmlFor={`${inputUuid}_${item[idKey]}`}>
                   <input
                     id={`${inputUuid}_${item[idKey]}`}

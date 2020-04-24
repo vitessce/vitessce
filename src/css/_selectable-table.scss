@@ -7,6 +7,10 @@
             box-sizing: border-box;
             margin-bottom: 15px;
 
+            .hidden-input-column {
+                display: none;
+            }
+
             tr {
                 border-bottom: 1px solid map-get($theme-colors, "secondary-background-dim");
             }
