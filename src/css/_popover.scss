@@ -1,3 +1,4 @@
+@import 'colors';
 
 @mixin popover($theme-name, $theme-colors) {
     .ant-popover {
@@ -16,7 +17,7 @@
                         background-color: transparent;
                     }
                     &:not(:last-child) {
-                        border-bottom: 1px solid map-get($theme-colors, "gray-mid");
+                        border-bottom: 1px solid map-get($global-colors, "gray-mid");
                     }
                 }
             }

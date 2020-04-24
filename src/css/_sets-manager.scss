@@ -1,5 +1,5 @@
-@import './colors';
-@import './zoom';
+@import 'colors';
+@import 'zoom';
 
 @mixin input-minimal-sm {
     border-radius: 3px;
@@ -92,7 +92,7 @@
                     does not take padding into account. */
                 width: calc(100% - 3.75rem);
                 position: fixed;
-                border-bottom: 1px solid map-get($theme-colors, "gray-dark");
+                border-bottom: 1px solid map-get($global-colors, "gray-dark");
                 
                 background-color: map-get($theme-colors, "primary-background");
             }
@@ -110,7 +110,7 @@
                     height: 28px;
                     line-height: 26px;
                     padding: 0 6px;
-                    border: 1px solid map-get($theme-colors, "gray-dark");
+                    border: 1px solid map-get($global-colors, "gray-dark");
 
                     background-color: map-get($theme-colors, "primary-background-dim");
                     color: map-get($theme-colors, "primary-foreground");
