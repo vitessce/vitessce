@@ -2,6 +2,9 @@
 
 ## 0.1.0 - In progress
 
+### Added
+- Added a selectable table component with radio- and checkbox-like functionality.
+
 ### Changed
 - Changed the bundling process so that subsets of components are bundled into separate JS files by targeting the `src/components/{name}/index.js` files.
 
