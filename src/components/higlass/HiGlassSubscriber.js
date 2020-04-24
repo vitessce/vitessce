@@ -25,7 +25,7 @@ export default function HiGlassSubscriber(props) {
 
   useEffect(() => {
     onReady();
-  }, [onReady]);
+  }, []);
 
   const hgComponent = useMemo(() => {
     const hgOptions = {
