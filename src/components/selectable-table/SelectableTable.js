@@ -20,6 +20,8 @@ import isEqual from 'lodash/isEqual';
  * @prop {boolean} allowMultiple Whether to allow multiple rows to be selected. By default, false.
  * @prop {boolean} allowUncheck Whether to allow selected rows to be un-checked. By default, false.
  * @prop {boolean} showTableHead Whether to show the table header element. By default, true.
+ * @prop {boolean} showTableInputs Whether to show the table input elements for each row.
+ * By default, false.
  */
 export default function SelectableTable(props) {
   const {
@@ -31,6 +33,7 @@ export default function SelectableTable(props) {
     allowMultiple = false,
     allowUncheck = false,
     showTableHead = true,
+    showTableInputs = false,
   } = props;
 
   const [selectedRows, setSelectedRows] = useState(null);
@@ -124,7 +127,7 @@ export default function SelectableTable(props) {
               key={item[idKey]}
               className={(isSelected(item[idKey]) ? 'row-checked' : '')}
             >
-              <td className="input-container">
+              <td className="input-container" style={(showTableInputs ? {} : { display: 'none' })}>
                 <label htmlFor={`${inputUuid}_${item[idKey]}`}>
                   <input
                     id={`${inputUuid}_${item[idKey]}`}
