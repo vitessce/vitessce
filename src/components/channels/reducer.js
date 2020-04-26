@@ -2,71 +2,73 @@ import PubSub from 'pubsub-js';
 
 import { LAYER_CHANGE } from '../../events';
 
-export default function reducer(state, action) {
+const layerProp = new Map()
+  .set('color', 'colors')
+  .set('selection', 'selections')
+  .set('slider', 'sliders')
+  .set('visibility', 'visibilities');
+
+function channelsToLayerProps(channels) {
+  const selections = [];
+  const sliders = [];
+  const colors = [];
+  const visibilities = [];
+  Object.values(channels).forEach((c) => {
+    selections.push(c.selection);
+    sliders.push(c.slider);
+    visibilities.push(c.visibility);
+    colors.push(c.color);
+  });
+  return {
+    selections, sliders, colors, visibilities,
+  };
+}
+
+export default function reducer(channels, action) {
   const { type, layerId, payload } = action;
   switch (type) {
-    case 'CHANGE_COLOR': {
-      const { index, value } = payload;
-      const colors = [...state.colors];
-      colors[index] = value;
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colors } });
-      return { ...state, colors };
-    }
-    case 'CHANGE_VISIBILITY': {
-      const { index } = payload;
-      const visibilities = [...state.visibilities];
-      visibilities[index] = !visibilities[index];
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { visibilities } });
-      return { ...state, visibilities };
-    }
-    case 'CHANGE_SLIDER': {
-      const { index, value } = payload;
-      const sliders = [...state.sliders];
-      sliders[index] = value;
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { sliders } });
-      return { ...state, sliders };
-    }
-    case 'CHANGE_SELECTION': {
-      const { index, value } = payload;
-      const selections = [...state.selections];
-      selections[index] = value;
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { selections } });
-      return { ...state, selections };
+    case 'CHANGE_PROPERTY': {
+      const { channelId, property, value } = payload;
+      const nextChannels = {
+        ...channels,
+        [channelId]: {
+          ...channels[channelId],
+          [property]: property === 'visibility' ? !channels[channelId].visibility : value,
+        },
+      };
+      const layerProps = {
+        [layerProp.get(property)]: Object.values(nextChannels).map(c => c[property]),
+      };
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      return nextChannels;
     }
     case 'ADD_CHANNEL': {
       const { selection } = payload;
-      const layerUpdate = {
-        selections: [...state.selections, selection],
-        colors: [...state.colors, [255, 255, 255]],
-        visibilities: [...state.visibilities, true],
-        sliders: [...state.sliders, [0, 20000]],
+      const channel = {
+        selection,
+        color: [255, 255, 255],
+        visibility: true,
+        slider: [0, 20000],
       };
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps: layerUpdate });
-      return { ...state, ...layerUpdate };
-    }
-    case 'ADD_LOADER': {
-      const { loader } = payload;
-      return { ...state, loader };
+      const nextChannels = {
+        ...channels,
+        [String(Math.random())]: channel,
+      };
+      const layerProps = channelsToLayerProps(nextChannels);
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      return nextChannels;
     }
     case 'REMOVE_CHANNEL': {
-      const { index } = action.payload;
-      const colors = state.colors.filter((_, i) => i !== index);
-      const selections = state.selections.filter((_, i) => i !== index);
-      const visibilities = state.visibilities.filter((_, i) => i !== index);
-      const sliders = state.sliders.filter((_, i) => i !== index);
-      PubSub.publish(LAYER_CHANGE, {
-        layerId,
-        layerProps: {
-          colors, selections, visibilities, sliders,
-        },
-      });
-      return {
-        ...state, colors, selections, visibilities, sliders,
-      };
+      const { channelId } = action.payload;
+      const { [channelId]: _, ...nextChannels } = channels;
+      const layerProps = channelsToLayerProps(nextChannels);
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      return nextChannels;
     }
     case 'RESET_CHANNELS': {
-      const channels = {};
-      return { ...state, channels };
+      const layerProps = channelsToLayerProps({});
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      return {};
     }
     default:
       throw new Error();

@@ -30,17 +30,17 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function ChannelOptions({ handleChange }) {
+function ChannelOptions({ handlePropertyChange, handleChannelRemove }) {
   const [open, toggle] = useReducer(v => !v, false);
   const anchorRef = useRef(null);
 
   const handleColorSelect = (color) => {
-    handleChange('CHANGE_COLOR', color);
+    handlePropertyChange('color', color);
   };
 
   const handleRemove = () => {
     toggle();
-    handleChange('REMOVE_CHANNEL');
+    handleChannelRemove();
   };
 
   const classes = useStyles();

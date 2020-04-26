@@ -17,6 +17,7 @@ import {
   VIEW_INFO,
   CELL_SETS_VIEW,
   LAYER_ADD,
+  LAYER_REMOVE,
   LAYER_CHANGE,
 } from '../../events';
 import Spatial from './Spatial';
@@ -41,20 +42,27 @@ export default function SpatialSubscriber({
   const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
-    function handleLayerAdd(msg, { layerId, loader, ...layerProps }) {
+    function handleLayerAdd(msg, { layerId, loader, layerProps }) {
       setImageLayerLoaders(prevLayerLoaders => ({ ...prevLayerLoaders, [layerId]: loader }));
-      setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: { ...layerProps } }));
+      setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: layerProps }));
     }
     function handleLayerChange(msg, { layerId, layerProps }) {
-      setImageLayerProps((prevLayerProps) => {
-        const updatedLayerProps = {
+      setImageLayerProps(prevLayerProps => ({
+        ...prevLayerProps,
+        [layerId]: {
           ...prevLayerProps[layerId],
           ...layerProps,
-        };
-        return {
-          ...prevLayerProps,
-          [layerId]: updatedLayerProps,
-        };
+        },
+      }));
+    }
+    function handleLayerRemove(msg, layerId) {
+      setImageLayerLoaders((prevLoaders) => {
+        const { [layerId]: _, ...nextLoaders } = prevLoaders;
+        return nextLoaders;
+      });
+      setImageLayerProps((prevLayerProps) => {
+        const { [layerId]: _, ...nextLayerProps } = prevLayerProps;
+        return nextLayerProps;
       });
     }
     const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, setMolecules);
@@ -64,6 +72,7 @@ export default function SpatialSubscriber({
     const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, setSelectedCellIds);
     const cellsColorToken = PubSub.subscribe(CELLS_COLOR, setCellColors);
     const layerAddToken = PubSub.subscribe(LAYER_ADD, handleLayerAdd);
+    const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, handleLayerRemove);
     const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, handleLayerChange);
     onReadyCallback();
     return () => {
@@ -75,6 +84,7 @@ export default function SpatialSubscriber({
       PubSub.unsubscribe(cellsColorToken);
       PubSub.unsubscribe(layerAddToken);
       PubSub.unsubscribe(layerChangeToken);
+      PubSub.unsubscribe(layerRemoveToken);
     };
   }, [onReadyCallback]);
 

@@ -40,5 +40,5 @@ export const RASTER_ADD = RASTER + ADD;
 
 export const LAYER = 'layer';
 export const LAYER_ADD = LAYER + ADD;
-export const LAYER_REMOVE = id => `${LAYER}.remove.${id}`;
+export const LAYER_REMOVE = `${LAYER}.remove`;
 export const LAYER_CHANGE = `${LAYER}.change`;

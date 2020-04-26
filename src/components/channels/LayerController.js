@@ -34,7 +34,7 @@ async function initLoader(imageData) {
 
 
 const MAX_CHANNELS = 6;
-const INITIAL_LAYER = {
+const DEFAULT_LAYER_PROPS = {
   colormap: '',
   opacity: 1,
   colors: [],
@@ -46,25 +46,21 @@ const INITIAL_LAYER = {
 export default function LayerController({ imageData, layerId }) {
   const [colormap, setColormap] = useState('');
   const [opacity, setOpacity] = useState(1);
-  const [layer, dispatch] = useReducer(reducer, INITIAL_LAYER);
+  const [channels, dispatch] = useReducer(reducer, {});
   const [loader, setLoader] = useState(null);
 
   useEffect(() => {
     initLoader(imageData).then((layerLoader) => {
-      PubSub.publish(LAYER_ADD, { layerId, loader: layerLoader, ...INITIAL_LAYER });
+      PubSub.publish(LAYER_ADD, {
+        layerId,
+        loader: layerLoader,
+        layerProps: DEFAULT_LAYER_PROPS,
+      });
       setLoader(layerLoader);
     });
   }, [layerId, imageData]);
   const { metadata: { dimensions } } = imageData;
   const { values: channelOptions, field: dimName } = dimensions[0];
-
-  const handleControllerChange = (index, actionType, value = null) => {
-    if (actionType === 'CHANGE_SELECTION') {
-      // eslint-disable-next-line no-param-reassign
-      [value] = loader.serializeSelection({ [dimName]: value });
-    }
-    dispatch({ type: actionType, layerId, payload: { index, value } });
-  };
 
   const handleChannelAdd = () => {
     // By default choose first option when adding channel
@@ -89,23 +85,45 @@ export default function LayerController({ imageData, layerId }) {
     PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colormap: colormapName } });
   };
 
-  const {
-    colors, sliders, selections, visibilities,
-  } = layer;
-  const channelControllers = colors.map((color, idx) => (
-    // eslint-disable-next-line react/no-array-index-key
-    <Grid key={`channel-controller-${idx}`} item style={{ width: '100%' }}>
-      <ChannelController
-        name={selections[idx][0]}
-        channelOptions={channelOptions}
-        isOn={visibilities[idx]}
-        sliderValue={sliders[idx]}
-        colorValue={color}
-        handleChange={(actionType, value) => handleControllerChange(idx, actionType, value)}
-        colormapOn={colormap !== ''}
-      />
-    </Grid>
-  ));
+  const channelControllers = Object
+    .entries(channels)
+    .map(([channelId, c]) => {
+      const handlePropertyChange = (channelProperty, value) => {
+        if (channelProperty === 'selection') {
+          // TODO: we should be able to remove this after next viv release
+          // https://github.com/hubmapconsortium/vitessce-image-viewer/pull/159
+
+          // eslint-disable-next-line no-param-reassign
+          [value] = loader.serializeSelection({ [dimName]: value });
+        }
+        dispatch({
+          type: 'CHANGE_PROPERTY',
+          layerId,
+          payload: {
+            channelId,
+            property: channelProperty,
+            value,
+          },
+        });
+      };
+      const handleChannelRemove = () => {
+        dispatch({ type: 'REMOVE_CHANNEL', channelId });
+      };
+      return (
+        <Grid key={`channel-controller-${channelId}`} item style={{ width: '100%' }}>
+          <ChannelController
+            name={c.selection[0]}
+            channelOptions={channelOptions}
+            isOn={c.visibility}
+            sliderValue={c.slider}
+            colorValue={c.color}
+            colormapOn={colormap !== ''}
+            handlePropertyChange={handlePropertyChange}
+            handleChannelRemove={handleChannelRemove}
+          />
+        </Grid>
+      );
+    });
 
   return (
     <>
@@ -134,7 +152,7 @@ export default function LayerController({ imageData, layerId }) {
       </Grid>
       <Grid item>
         <Button
-          disabled={!loader || colors.length === MAX_CHANNELS}
+          disabled={!loader || Object.values(channels).length === MAX_CHANNELS}
           onClick={handleChannelAdd}
           fullWidth
           variant="outlined"

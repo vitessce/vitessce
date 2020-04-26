@@ -170,8 +170,6 @@ export default class Spatial extends AbstractSelectableComponent {
   renderImageLayer(layerId, loader) {
     const { imageLayerProps } = this.props;
     const layerProps = imageLayerProps[layerId];
-    // eslint-disable-next-line no-console
-    console.log({ layerId, loader, imageLayerProps });
     if (!loader || !layerProps) return null;
     const { scale, translate, isPyramid } = loader;
     const Layer = isPyramid ? VivViewerLayer : StaticImageLayer;

@@ -31,7 +31,8 @@ function ChannelController({
   colorValue,
   colormapOn,
   channelOptions,
-  handleChange,
+  handlePropertyChange,
+  handleChannelRemove,
   disableOptions = false,
 }) {
   const rgbColor = toRgb(colormapOn, colorValue);
@@ -48,7 +49,7 @@ function ChannelController({
           <Select
             native
             value={name}
-            onChange={e => handleChange('CHANGE_SELECTION', Number(e.target.value))}
+            onChange={e => handlePropertyChange('selection', Number(e.target.value))}
           >
             {channelOptions.map((opt, i) => (
               <option disabled={disableOptions} key={opt} value={i}>
@@ -58,13 +59,16 @@ function ChannelController({
           </Select>
         </Grid>
         <Grid item xs={1} className={classes.options}>
-          <ChannelOptions handleChange={handleChange} />
+          <ChannelOptions
+            handlePropertyChange={handlePropertyChange}
+            handleChannelRemove={handleChannelRemove}
+          />
         </Grid>
       </Grid>
       <Grid container direction="row" justify="flex-start">
         <Grid item xs={2}>
           <Checkbox
-            onChange={() => handleChange('CHANGE_VISIBILITY')}
+            onChange={() => handlePropertyChange('visibility')}
             checked={isOn}
             style={{
               color: rgbColor,
@@ -77,7 +81,7 @@ function ChannelController({
         <Grid item xs={9}>
           <Slider
             value={sliderValue}
-            onChange={(e, v) => handleChange('CHANGE_SLIDER', v)}
+            onChange={(e, v) => handlePropertyChange('slider', v)}
             valueLabelDisplay="auto"
             getAriaLabel={() => `${name}-${colorValue}-${sliderValue}`}
             min={MIN_SLIDER_VALUE}
