@@ -10,7 +10,7 @@ import AddIcon from '@material-ui/icons/Add';
 import ChannelController from './ChannelController';
 import ColormapSelect from './ColormapSelect';
 
-import { LAYER_ADD, LAYER_OPACITY_CHANGE, LAYER_COLOMAP_CHANGE } from '../../events';
+import { LAYER_ADD, LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
 
 
@@ -81,12 +81,12 @@ export default function LayerController({ imageData, layerId }) {
 
   const handleOpacityChange = (sliderValue) => {
     setOpacity(sliderValue);
-    PubSub.publish(LAYER_OPACITY_CHANGE(layerId), sliderValue);
+    PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { opacity: sliderValue } });
   };
 
   const handleColormapChange = (colormapName) => {
     setColormap(colormapName);
-    PubSub.publish(LAYER_COLOMAP_CHANGE(layerId), colormapName);
+    PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colormap: colormapName } });
   };
 
   const {

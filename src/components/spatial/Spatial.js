@@ -167,10 +167,11 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  renderImageLayer(layerId) {
-    const { imageLayerProps, imageLayerLoaders } = this.props;
-    const loader = imageLayerLoaders[layerId];
+  renderImageLayer(layerId, loader) {
+    const { imageLayerProps } = this.props;
     const layerProps = imageLayerProps[layerId];
+    // eslint-disable-next-line no-console
+    console.log({ layerId, loader, imageLayerProps });
     if (!loader || !layerProps) return null;
     const { scale, translate, isPyramid } = loader;
     const Layer = isPyramid ? VivViewerLayer : StaticImageLayer;
@@ -196,7 +197,7 @@ export default class Spatial extends AbstractSelectableComponent {
       cells,
       neighborhoods,
       clearPleaseWait,
-      imageLayerIds,
+      imageLayerLoaders,
     } = this.props;
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
@@ -220,9 +221,9 @@ export default class Spatial extends AbstractSelectableComponent {
     // Append each layer to the list.
     const layerList = [];
 
-    if (imageLayerIds && clearPleaseWait) clearPleaseWait('raster');
-    imageLayerIds.forEach((layerId) => {
-      layerList.push(this.renderImageLayer(layerId));
+    if (imageLayerLoaders && clearPleaseWait) clearPleaseWait('raster');
+    Object.entries(imageLayerLoaders).forEach(([layerId, layerLoader]) => {
+      layerList.push(this.renderImageLayer(layerId, layerLoader));
     });
 
     if (cells && clearPleaseWait) clearPleaseWait('cells');

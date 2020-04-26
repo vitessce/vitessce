@@ -1,6 +1,6 @@
 import PubSub from 'pubsub-js';
 
-import { LAYER_CHANNELS_CHANGE } from '../../events';
+import { LAYER_CHANGE } from '../../events';
 
 export default function reducer(state, action) {
   const { type, layerId, payload } = action;
@@ -9,28 +9,28 @@ export default function reducer(state, action) {
       const { index, value } = payload;
       const colors = [...state.colors];
       colors[index] = value;
-      PubSub.publish(LAYER_CHANNELS_CHANGE(layerId), { colors });
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colors } });
       return { ...state, colors };
     }
     case 'CHANGE_VISIBILITY': {
       const { index } = payload;
       const visibilities = [...state.visibilities];
       visibilities[index] = !visibilities[index];
-      PubSub.publish(LAYER_CHANNELS_CHANGE(layerId), { visibilities });
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { visibilities } });
       return { ...state, visibilities };
     }
     case 'CHANGE_SLIDER': {
       const { index, value } = payload;
       const sliders = [...state.sliders];
       sliders[index] = value;
-      PubSub.publish(LAYER_CHANNELS_CHANGE(layerId), { sliders });
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { sliders } });
       return { ...state, sliders };
     }
     case 'CHANGE_SELECTION': {
       const { index, value } = payload;
       const selections = [...state.selections];
       selections[index] = value;
-      PubSub.publish(LAYER_CHANNELS_CHANGE(layerId), { selections });
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { selections } });
       return { ...state, selections };
     }
     case 'ADD_CHANNEL': {
@@ -41,7 +41,7 @@ export default function reducer(state, action) {
         visibilities: [...state.visibilities, true],
         sliders: [...state.sliders, [0, 20000]],
       };
-      PubSub.publish(LAYER_CHANNELS_CHANGE(layerId), layerUpdate);
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps: layerUpdate });
       return { ...state, ...layerUpdate };
     }
     case 'ADD_LOADER': {
@@ -54,8 +54,11 @@ export default function reducer(state, action) {
       const selections = state.selections.filter((_, i) => i !== index);
       const visibilities = state.visibilities.filter((_, i) => i !== index);
       const sliders = state.sliders.filter((_, i) => i !== index);
-      PubSub.publish(LAYER_CHANNELS_CHANGE(layerId), {
-        colors, selections, visibilities, sliders,
+      PubSub.publish(LAYER_CHANGE, {
+        layerId,
+        layerProps: {
+          colors, selections, visibilities, sliders,
+        },
       });
       return {
         ...state, colors, selections, visibilities, sliders,

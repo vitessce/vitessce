@@ -41,7 +41,4 @@ export const RASTER_ADD = RASTER + ADD;
 export const LAYER = 'layer';
 export const LAYER_ADD = LAYER + ADD;
 export const LAYER_REMOVE = id => `${LAYER}.remove.${id}`;
-export const LAYER_CHANGE = id => `${LAYER}.change.${id}`;
-export const LAYER_OPACITY_CHANGE = id => `${LAYER}.opacity.change.${id}`;
-export const LAYER_COLOMAP_CHANGE = id => `${LAYER}.colormap.change.${id}`;
-export const LAYER_CHANNELS_CHANGE = id => `${LAYER}.channels.change.${id}`;
+export const LAYER_CHANGE = `${LAYER}.change`;
