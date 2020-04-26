@@ -59,20 +59,18 @@ export default function LayerController({ imageData, layerId }) {
       setLoader(layerLoader);
     });
   }, [layerId, imageData]);
+
   const { metadata: { dimensions } } = imageData;
+  /*
+  * TODO: UI selectors for channels just assume the first dimension (so we only support 3D data)
+  * We will need to come up with more than just a single drop down for selecting image panes.
+  */
   const { values: channelOptions, field: dimName } = dimensions[0];
 
   const handleChannelAdd = () => {
     // By default choose first option when adding channel
     const [selection] = loader.serializeSelection({ [dimName]: 0 });
-    dispatch({
-      type: 'ADD_CHANNEL',
-      layerId,
-      payload: {
-        selection,
-        name: channelOptions[0],
-      },
-    });
+    dispatch({ type: 'ADD_CHANNEL', layerId, payload: { selection } });
   };
 
   const handleOpacityChange = (sliderValue) => {
@@ -88,23 +86,17 @@ export default function LayerController({ imageData, layerId }) {
   const channelControllers = Object
     .entries(channels)
     .map(([channelId, c]) => {
-      const handlePropertyChange = (channelProperty, value) => {
-        if (channelProperty === 'selection') {
-          // TODO: we should be able to remove this after next viv release
-          // https://github.com/hubmapconsortium/vitessce-image-viewer/pull/159
-
+      const handleChannelPropertyChange = (property, value) => {
+        if (property === 'selection') {
+          /* TODO: we should be able to remove this after next viv release
+          * Once this is done, we can just publish the loader on LAYER_ADD
+          * and remove it from state in this component.
+          * https://github.com/hubmapconsortium/vitessce-image-viewer/pull/159
+          */
           // eslint-disable-next-line no-param-reassign
           [value] = loader.serializeSelection({ [dimName]: value });
         }
-        dispatch({
-          type: 'CHANGE_PROPERTY',
-          layerId,
-          payload: {
-            channelId,
-            property: channelProperty,
-            value,
-          },
-        });
+        dispatch({ type: 'CHANGE_PROPERTY', layerId, payload: { channelId, property, value } });
       };
       const handleChannelRemove = () => {
         dispatch({ type: 'REMOVE_CHANNEL', layerId, payload: { channelId } });
@@ -118,7 +110,7 @@ export default function LayerController({ imageData, layerId }) {
             sliderValue={c.slider}
             colorValue={c.color}
             colormapOn={colormap !== ''}
-            handlePropertyChange={handlePropertyChange}
+            handlePropertyChange={handleChannelPropertyChange}
             handleChannelRemove={handleChannelRemove}
           />
         </Grid>
