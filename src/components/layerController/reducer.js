@@ -2,7 +2,7 @@ import PubSub from 'pubsub-js';
 
 import { LAYER_CHANGE } from '../../events';
 
-const layerProp = new Map()
+const layerProperty = new Map()
   .set('color', 'colors')
   .set('selection', 'selections')
   .set('slider', 'sliders')
@@ -37,7 +37,7 @@ export default function reducer(channels, action) {
         },
       };
       const layerProps = {
-        [layerProp.get(property)]: Object.values(nextChannels).map(c => c[property]),
+        [layerProperty.get(property)]: Object.values(nextChannels).map(c => c[property]),
       };
       PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       return nextChannels;

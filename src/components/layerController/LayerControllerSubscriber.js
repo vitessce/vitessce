@@ -51,7 +51,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   };
 
   return (
-    <TitleInfo title="Channel Controller" isScroll removeGridComponent={removeGridComponent}>
+    <TitleInfo title="Layer Controller" isScroll removeGridComponent={removeGridComponent}>
       <ThemeProvider theme={darkTheme}>
         {layers.map(({ id, imageData }) => (
           <Grid key={id} item>
