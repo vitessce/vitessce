@@ -41,25 +41,7 @@ export const RASTER_ADD = RASTER + ADD;
 export const LAYER = 'layer';
 export const LAYER_ADD = LAYER + ADD;
 export const LAYER_REMOVE = id => `${LAYER}.remove.${id}`;
-
-export const LAYER_COLORMAP = `${LAYER}.colormap`;
-export const LAYER_COLORMAP_CHANGE = id => `${LAYER_COLORMAP}.change.${id}`;
-
-export const LAYER_OPACITY = `${LAYER}.colormap`;
-export const LAYER_OPACITY_CHANGE = id => `${LAYER_OPACITY}.change.${id}`;
-
-// Set individual channel attributes
-export const CHANNEL = 'channel';
-export const CHANNEL_SET = id => `${CHANNEL}.set${id}`;
-
-export const CHANNEL_SLIDERS = `${CHANNEL}.sliders`;
-export const CHANNEL_SLIDERS_CHANGE = id => `${CHANNEL_SLIDERS}.change.${id}`;
-
-export const CHANNEL_COLORS = `${CHANNEL}.colors`;
-export const CHANNEL_COLORS_CHANGE = id => `${CHANNEL_COLORS}.change.${id}`;
-
-export const CHANNEL_VISIBILITIES = `${CHANNEL}.visibility`;
-export const CHANNEL_VISIBILITIES_CHANGE = id => `${CHANNEL_VISIBILITIES}.change.${id}`;
-
-export const CHANNEL_SELECTIONS = `${CHANNEL}.selection`;
-export const CHANNEL_SELECTIONS_CHANGE = id => `${CHANNEL_SELECTIONS}.change.${id}`;
+export const LAYER_CHANGE = id => `${LAYER}.change.${id}`;
+export const LAYER_OPACITY_CHANGE = id => `${LAYER}.opacity.change.${id}`;
+export const LAYER_COLOMAP_CHANGE = id => `${LAYER}.colormap.change.${id}`;
+export const LAYER_CHANNELS_CHANGE = id => `${LAYER}.channels.change.${id}`;

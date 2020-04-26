@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, {
+  useState, useCallback, useEffect,
+} from 'react';
 import PubSub from 'pubsub-js';
 import shortNumber from 'short-number';
-import { createZarrLoader } from '@hubmap/vitessce-image-viewer';
-
 
 import TitleInfo from '../TitleInfo';
 import {
@@ -17,41 +17,9 @@ import {
   VIEW_INFO,
   CELL_SETS_VIEW,
   LAYER_ADD,
-  CHANNEL_VISIBILITIES_CHANGE,
-  CHANNEL_COLORS_CHANGE,
-  CHANNEL_SLIDERS_CHANGE,
-  CHANNEL_SELECTIONS_CHANGE,
-  CHANNEL_SET,
-  LAYER_COLORMAP_CHANGE,
+  LAYER_CHANNELS_CHANGE,
 } from '../../events';
 import Spatial from './Spatial';
-
-async function initLoader(imageData) {
-  const { type, url, metadata } = imageData;
-  const { dimensions, is_pyramid: isPyramid, transform } = metadata;
-
-  switch (type) {
-    // TODO: Add tiff loader
-    case ('zarr'): {
-      const loader = await createZarrLoader({
-        url, dimensions, isPyramid, ...transform,
-      });
-      return loader;
-    }
-    default: {
-      throw Error(`Image type (${type}) is not supported`);
-    }
-  }
-}
-
-const defualtLayer = {
-  colormap: '',
-  opacity: 1,
-  sliders: [],
-  colors: [],
-  selections: [],
-  visibilities: [],
-};
 
 export default function SpatialSubscriber({
   children,
@@ -67,20 +35,17 @@ export default function SpatialSubscriber({
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [neighborhoods, setNeighborhoods] = useState([]);
   const [cellColors, setCellColors] = useState([]);
-  const [imageLayers, setImageLayers] = useState({});
+  const [imageLayerIds, setImageLayerIds] = useState([]);
+  const [imageLayerProps, setImageLayerProps] = useState({});
+  const [imageLayerLoaders, setImageLayerLoaders] = useState({});
 
-  const memoizedOnReady = useCallback(onReady, []);
+  const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
-    function handleLayerAdd(msg, { sourceId, imageData }) {
-      initLoader(imageData)
-        .then(loader => setImageLayers(prevImageLayers => ({
-          ...prevImageLayers,
-          [sourceId]: {
-            loader,
-            ...defualtLayer,
-          },
-        })));
+    function handleLayerAdd(msg, { layerId, loader, ...layerProps }) {
+      setImageLayerIds(prevLayerIds => [...prevLayerIds, layerId]);
+      setImageLayerLoaders(prevLayerLoaders => ({ ...prevLayerLoaders, [layerId]: loader }));
+      setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: { ...layerProps } }));
     }
     const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, setMolecules);
     const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, setNeighborhoods);
@@ -89,7 +54,7 @@ export default function SpatialSubscriber({
     const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, setSelectedCellIds);
     const cellsColorToken = PubSub.subscribe(CELLS_COLOR, setCellColors);
     const layerAddToken = PubSub.subscribe(LAYER_ADD, handleLayerAdd);
-    memoizedOnReady();
+    onReadyCallback();
     return () => {
       PubSub.unsubscribe(moleculesAddToken);
       PubSub.unsubscribe(neighborhoodsAddToken);
@@ -99,43 +64,23 @@ export default function SpatialSubscriber({
       PubSub.unsubscribe(cellsColorToken);
       PubSub.unsubscribe(layerAddToken);
     };
-  }, [memoizedOnReady]);
+  }, [onReadyCallback]);
 
   useEffect(() => {
-    const handleChange = (id, property, values) => {
-      const { loader } = imageLayers[id];
-      setImageLayers(prevImageLayers => ({
-        ...prevImageLayers,
-        [id]: {
-          ...prevImageLayers[id],
-          [property]: property === 'selections' ? loader.serializeSelection(values) : values,
+    function handleChange(layerId, layerObj) {
+      setImageLayerProps(prevLayerProps => ({
+        ...prevLayerProps,
+        [layerId]: {
+          ...prevLayerProps[layerId],
+          ...layerObj,
         },
       }));
-    };
-    const handleChannelSet = (id, payload) => {
-      const { loader } = imageLayers[id];
-      const { selections } = payload;
-      setImageLayers(prevImageLayers => ({
-        ...prevImageLayers,
-        [id]: {
-          ...prevImageLayers[id],
-          colors: payload.colors,
-          sliders: payload.sliders,
-          visibilities: payload.visibilities,
-          selections: loader.serializeSelection(selections),
-        },
-      }));
-    };
-    const tokens = Object.keys(imageLayers).map(id => [
-      PubSub.subscribe(CHANNEL_VISIBILITIES_CHANGE(id), (msg, v) => handleChange(id, 'visibilities', v)),
-      PubSub.subscribe(CHANNEL_COLORS_CHANGE(id), (msg, c) => handleChange(id, 'colors', c)),
-      PubSub.subscribe(CHANNEL_SLIDERS_CHANGE(id), (msg, s) => handleChange(id, 'sliders', s)),
-      PubSub.subscribe(CHANNEL_SELECTIONS_CHANGE(id), (msg, s) => handleChange(id, 'selections', s)),
-      PubSub.subscribe(LAYER_COLORMAP_CHANGE(id), (msg, cmap) => handleChange(id, 'colormap', cmap)),
-      PubSub.subscribe(CHANNEL_SET(id), (msg, payload) => handleChannelSet(id, payload)),
+    }
+    const tokens = imageLayerIds.map(id => [
+      PubSub.subscribe(LAYER_CHANNELS_CHANGE(id), (msg, l) => handleChange(id, l)),
     ]);
     return () => tokens.flat().forEach(token => PubSub.unsubscribe(token));
-  }, [imageLayers]);
+  }, [imageLayerIds]);
 
   const cellsCount = cells ? Object.keys(cells).length : 0;
   const moleculesCount = molecules ? Object.keys(molecules).length : 0;
@@ -156,7 +101,9 @@ export default function SpatialSubscriber({
         selectedCellIds={selectedCellIds}
         neighborhoods={neighborhoods}
         cellColors={cellColors}
-        imageLayers={imageLayers}
+        imageLayerIds={imageLayerIds}
+        imageLayerProps={imageLayerProps}
+        imageLayerLoaders={imageLayerLoaders}
         view={view}
         moleculeRadius={moleculeRadius}
         cellRadius={cellRadius}
