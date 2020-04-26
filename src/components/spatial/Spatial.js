@@ -157,7 +157,7 @@ export default class Spatial extends AbstractSelectableComponent {
     this.setState({ layers });
   }
 
-  renderLayersMenu() { // eslint-disable-line class-methods-use-this
+  renderLayersMenu() {
     return (
       <LayersMenu
         layerIsVisible={this.state.layerIsVisible}
@@ -166,25 +166,21 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
-  // eslint-disable-next-line class-methods-use-this
   renderImageLayer(layerId, loader) {
     const { imageLayerProps } = this.props;
     const layerProps = imageLayerProps[layerId];
     if (!loader || !layerProps) return null;
     const { scale, translate, isPyramid } = loader;
     const Layer = isPyramid ? VivViewerLayer : StaticImageLayer;
-    const {
-      colors, sliders, visibilities, opacity, colormap, selections,
-    } = layerProps;
     return new Layer({
       loader,
-      colorValues: colors,
-      sliderValues: sliders,
-      loaderSelection: selections,
-      channelIsOn: visibilities,
+      colorValues: layerProps.colors,
+      sliderValues: layerProps.sliders,
+      loaderSelection: layerProps.selections,
+      channelIsOn: layerProps.visibilities,
+      opacity: layerProps.opacity,
+      colormap: layerProps.colormap.length > 0 && layerProps.colormap,
       scale,
-      opacity,
-      colormap: colormap.length > 0 && colormap,
       translate: [translate.x, translate.y],
     });
   }

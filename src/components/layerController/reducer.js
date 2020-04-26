@@ -50,10 +50,8 @@ export default function reducer(channels, action) {
         visibility: true,
         slider: [0, 20000],
       };
-      const nextChannels = {
-        ...channels,
-        [String(Math.random())]: channel,
-      };
+      const channelId = String(Math.random());
+      const nextChannels = { ...channels, [channelId]: channel };
       const layerProps = channelsToLayerProps(nextChannels);
       PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       return nextChannels;
@@ -71,6 +69,6 @@ export default function reducer(channels, action) {
       return {};
     }
     default:
-      throw new Error();
+      throw new Error(`Channel update type '${type}' is not valid.`);
   }
 }

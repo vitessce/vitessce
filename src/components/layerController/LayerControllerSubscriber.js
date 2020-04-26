@@ -28,7 +28,7 @@ const darkTheme = createMuiTheme({
 const testIds = ['0:1', '0:2'];
 let count = 0;
 
-export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
+function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   const [imageOptions, setImageOptions] = useState(null);
   const [layers, setLayers] = useState([]);
   const memoizedOnReady = useCallback(onReady, []);
@@ -74,3 +74,5 @@ export default function ChannelsSubscriber({ onReady, removeGridComponent }) {
     </TitleInfo>
   );
 }
+
+export default LayerControllerSubscriber;

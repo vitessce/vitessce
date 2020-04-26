@@ -107,7 +107,7 @@ export default function LayerController({ imageData, layerId }) {
         });
       };
       const handleChannelRemove = () => {
-        dispatch({ type: 'REMOVE_CHANNEL', channelId });
+        dispatch({ type: 'REMOVE_CHANNEL', layerId, payload: { channelId } });
       };
       return (
         <Grid key={`channel-controller-${channelId}`} item style={{ width: '100%' }}>
