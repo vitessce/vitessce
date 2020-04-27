@@ -2,13 +2,24 @@ import PubSub from 'pubsub-js';
 
 import { LAYER_CHANGE } from '../../events';
 
-const layerProperty = new Map()
-  .set('color', 'colors')
-  .set('selection', 'selections')
-  .set('slider', 'sliders')
-  .set('visibility', 'visibilities');
+const layerProperty = {
+  color: 'colors',
+  selection: 'selections',
+  slider: 'sliders',
+  visibilitiy: 'visibilities',
+};
 
 function channelsToLayerProps(channels) {
+  /*
+  * Converts channels object to corresponding layerProps arrays
+  *
+  * const channels = {
+  *   'c1': {color: [55, 55, 0], selection: [0, 0, 0], visibility: true, slider: [0, 200]}
+  *   'c2': {color: [5, 20, 25], selection: [1, 0, 0], visibility: true, slider: [2, 300]}
+  * };
+  * const { selections, sliders, colors, visibilities } = channelsToLayerProps(channels);
+  *
+  */
   const selections = [];
   const sliders = [];
   const colors = [];
@@ -36,8 +47,24 @@ export default function reducer(channels, action) {
           [property]: property === 'visibility' ? !channels[channelId].visibility : value,
         },
       };
+      /*
+      * Sending the entire state on each property change was causing performance issues.
+      * Instead, LAYER_CHANGE events expect a `layerProps` object in the payload,
+      * which just includes key value pairs which need to be updated for
+      * the corresponding VivViewerLayer in Spatial.js.
+      *
+      * e.g. valid layerProps:
+      *
+      *  const changeOneLayerProp = { visibilities: [false, true] }
+      *  const changeTwoLayerProps = {
+      *    colors: [[255, 255, 255], [200, 0, 200]],
+      *    sliders: [[0, 2000], [20, 2000]]
+      *  }
+      */
+      const propertyToUpdate = layerProperty[property];
+      const updatedValues = Object.values(nextChannels).map(c => c[property]);
       const layerProps = {
-        [layerProperty.get(property)]: Object.values(nextChannels).map(c => c[property]),
+        [propertyToUpdate]: updatedValues,
       };
       PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       return nextChannels;

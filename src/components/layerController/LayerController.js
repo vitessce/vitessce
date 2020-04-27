@@ -5,6 +5,7 @@ import { createZarrLoader } from '@hubmap/vitessce-image-viewer';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Slider from '@material-ui/core/Slider';
+import Divider from '@material-ui/core/Divider';
 import AddIcon from '@material-ui/icons/Add';
 
 import ChannelController from './ChannelController';
@@ -17,12 +18,13 @@ import reducer from './reducer';
 async function initLoader(imageData) {
   const { type, url, metadata } = imageData;
   const { dimensions, is_pyramid: isPyramid, transform } = metadata;
+  const { scale = 0, translate = { x: 0, y: 0 } } = transform;
 
   switch (type) {
     // TODO: Add tiff loader
     case ('zarr'): {
       const loader = await createZarrLoader({
-        url, dimensions, isPyramid, ...transform,
+        url, dimensions, isPyramid, scale, translate,
       });
       return loader;
     }
@@ -127,7 +129,7 @@ export default function LayerController({ imageData, layerId }) {
         style={{ width: '100%' }}
       >
         <Grid item style={{ width: '100%' }}>
-          <Grid container direction="row" justify="space-between">
+          <Grid container direction="row" justify="space-between" alignItems="">
             <Grid item xs={6}>
               <ColormapSelect value={colormap} handleChange={handleColormapChange} />
             </Grid>
@@ -144,6 +146,7 @@ export default function LayerController({ imageData, layerId }) {
               />
             </Grid>
           </Grid>
+          <Divider />
         </Grid>
         {channelControllers}
       </Grid>
