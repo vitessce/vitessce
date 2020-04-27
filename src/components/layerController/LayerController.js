@@ -124,21 +124,26 @@ export default function LayerController({ imageData, layerId }) {
         direction="column"
         justify="center"
         alignItems="center"
+        style={{ width: '100%' }}
       >
         <Grid item style={{ width: '100%' }}>
-          <ColormapSelect value={colormap} handleChange={handleColormapChange} />
-        </Grid>
-        <Grid item style={{ width: '100%' }}>
-          <Slider
-            value={opacity}
-            onChange={(e, v) => handleOpacityChange(v)}
-            valueLabelDisplay="auto"
-            getAriaLabel={() => 'opacity slider'}
-            min={0}
-            max={1}
-            step={0.01}
-            orientation="horizontal"
-          />
+          <Grid container direction="row" justify="space-between">
+            <Grid item xs={6}>
+              <ColormapSelect value={colormap} handleChange={handleColormapChange} />
+            </Grid>
+            <Grid item xs={6}>
+              <Slider
+                value={opacity}
+                onChange={(e, v) => handleOpacityChange(v)}
+                valueLabelDisplay="auto"
+                getAriaLabel={() => 'opacity slider'}
+                min={0}
+                max={1}
+                step={0.01}
+                orientation="horizontal"
+              />
+            </Grid>
+          </Grid>
         </Grid>
         {channelControllers}
       </Grid>

@@ -3,7 +3,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PubSub from 'pubsub-js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import AddIcon from '@material-ui/icons/Add';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
 
@@ -50,14 +54,27 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
     count += 1;
   };
 
+  const layerControllers = layers.map(({ id, imageData }) => (
+    <Grid key={id} item style={{ marginTop: '10px' }}>
+      <ExpansionPanel style={{ width: '100%' }}>
+        <ExpansionPanelSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          {imageData.name}
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails style={{ flexDirection: 'column' }}>
+          <LayerController layerId={id} imageData={imageData} />
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+    </Grid>
+  ));
+
   return (
     <TitleInfo title="Layer Controller" isScroll removeGridComponent={removeGridComponent}>
       <ThemeProvider theme={darkTheme}>
-        {layers.map(({ id, imageData }) => (
-          <Grid key={id} item>
-            <LayerController layerId={id} imageData={imageData} />
-          </Grid>
-        ))}
+        {layerControllers}
         <Grid item>
           <Button
             onClick={handleAddImage}
