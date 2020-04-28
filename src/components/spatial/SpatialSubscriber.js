@@ -1,5 +1,5 @@
 import React, {
-  useState, useCallback, useEffect,
+  useState, useCallback, useEffect, useMemo,
 } from 'react';
 import PubSub from 'pubsub-js';
 import shortNumber from 'short-number';
@@ -31,11 +31,11 @@ export default function SpatialSubscriber({
   cellRadius,
   uuid = null,
 }) {
-  const [cells, setCells] = useState({});
+  const [cells, setCells] = useState(null);
   const [molecules, setMolecules] = useState(null);
+  const [cellColors, setCellColors] = useState(null);
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [neighborhoods, setNeighborhoods] = useState({});
-  const [cellColors, setCellColors] = useState(null);
   const [imageLayerProps, setImageLayerProps] = useState({});
   const [imageLayerLoaders, setImageLayerLoaders] = useState({});
 
@@ -48,7 +48,7 @@ export default function SpatialSubscriber({
     const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
     const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
     function layerAddSubscriber(msg, { layerId, loader, layerProps }) {
-      setImageLayerLoaders(prevLayerLoaders => ({ ...prevLayerLoaders, [layerId]: loader }));
+      setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
       setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: layerProps }));
     }
     function layerChangeSubscriber(msg, { layerId, layerProps }) {
@@ -92,10 +92,15 @@ export default function SpatialSubscriber({
   }, [onReadyCallback]);
 
   const cellsCount = cells ? Object.keys(cells).length : 0;
-  const moleculesCount = molecules ? Object.keys(molecules).length : 0;
-  const locationsCount = molecules ? Object.values(molecules)
-    .map(l => l.length)
-    .reduce((a, b) => a + b, 0) : 0;
+  const [moleculesCount, locationsCount] = useMemo(() => {
+    if (!molecules) return [0, 0];
+    return [
+      Object.keys(molecules).length,
+      Object.values(molecules)
+        .map(l => l.length)
+        .reduce((a, b) => a + b, 0),
+    ];
+  }, [molecules]);
 
   return (
     <TitleInfo
@@ -115,8 +120,8 @@ export default function SpatialSubscriber({
         imageLayerProps={imageLayerProps}
         imageLayerLoaders={imageLayerLoaders}
         view={view}
-        moleculeRadius={moleculeRadius}
         cellRadius={cellRadius}
+        moleculeRadius={moleculeRadius}
         uuid={uuid}
         updateStatus={
             message => PubSub.publish(STATUS_INFO, message)

@@ -153,8 +153,8 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  setLayerIsVisible(layers) {
-    this.setState({ layers });
+  setLayerIsVisible(layerIsVisible) {
+    this.setState({ layerIsVisible });
   }
 
   renderLayersMenu() {
@@ -196,6 +196,7 @@ export default class Spatial extends AbstractSelectableComponent {
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
       Object.entries(molecules).forEach(([molecule, coords], index) => {
+        console.warn('molecules add');
         this.moleculesData = this.moleculesData.concat(
           coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
           // Because we use the inner function immediately,

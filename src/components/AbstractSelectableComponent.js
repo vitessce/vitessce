@@ -8,7 +8,7 @@ import ToolMenu from './ToolMenu';
  Abstract React component: Provides drag-to-select functionality to subclasses.
  @param {Object} props React props
  */
-export default class AbstractSelectableComponent extends React.PureComponent {
+export default class AbstractSelectableComponent extends React.Component {
   constructor(props) {
     super(props);
     this.renderSelectionLayers = this.renderSelectionLayers.bind(this);
