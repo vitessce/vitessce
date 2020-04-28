@@ -34,8 +34,8 @@ export default function SpatialSubscriber({
   const [cells, setCells] = useState(null);
   const [molecules, setMolecules] = useState(null);
   const [cellColors, setCellColors] = useState(null);
+  const [neighborhoods, setNeighborhoods] = useState(null);
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
-  const [neighborhoods, setNeighborhoods] = useState({});
   const [imageLayerProps, setImageLayerProps] = useState({});
   const [imageLayerLoaders, setImageLayerLoaders] = useState({});
 
@@ -48,8 +48,8 @@ export default function SpatialSubscriber({
     const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
     const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
     function layerAddSubscriber(msg, { layerId, loader, layerProps }) {
-      setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
       setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: layerProps }));
+      setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
     }
     function layerChangeSubscriber(msg, { layerId, layerProps }) {
       setImageLayerProps(prevLayerProps => ({
@@ -91,7 +91,7 @@ export default function SpatialSubscriber({
     };
   }, [onReadyCallback]);
 
-  const cellsCount = cells ? Object.keys(cells).length : 0;
+  const cellsCount = useMemo(() => (cells ? Object.keys(cells).length : 0), [cells]);
   const [moleculesCount, locationsCount] = useMemo(() => {
     if (!molecules) return [0, 0];
     return [

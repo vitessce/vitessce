@@ -31,7 +31,7 @@ function ColormapSelect({ value, handleChange }) {
       inputProps={{ name: 'colormap', id: 'colormap-select' }}
       style={{ width: '100%' }}
     >
-      <option aria-label="None" value="None">None</option>
+      <option aria-label="None" value="">None</option>
       {COLORMAP_OPTIONS.map(name => (
         <option key={name} value={name}>
           {name}

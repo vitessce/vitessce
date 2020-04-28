@@ -158,6 +158,9 @@ export default class Spatial extends AbstractSelectableComponent {
   }
 
   renderLayersMenu() {
+    const { molecules, neighborhoods, cells } = this.props;
+    // Don't render if just image data
+    if (!molecules && !neighborhoods && !cells) return null;
     return (
       <LayersMenu
         layerIsVisible={this.state.layerIsVisible}
@@ -196,7 +199,6 @@ export default class Spatial extends AbstractSelectableComponent {
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
       Object.entries(molecules).forEach(([molecule, coords], index) => {
-        console.warn('molecules add');
         this.moleculesData = this.moleculesData.concat(
           coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
           // Because we use the inner function immediately,
@@ -204,32 +206,25 @@ export default class Spatial extends AbstractSelectableComponent {
           // The index and molecule values are correct.
         );
       });
+      if (clearPleaseWait) clearPleaseWait('molecules');
     }
     // Process cells data and cache into re-usable array.
     if (cells && this.cellsData.length === 0) {
       this.cellsData = Object.entries(cells);
+      if (clearPleaseWait) clearPleaseWait('cells');
     }
     // Process neighborhoods data and cache into re-usable array.
     if (neighborhoods && this.neighborhoodsData.length === 0) {
       this.neighborhoodsData = Object.entries(neighborhoods);
+      if (clearPleaseWait) clearPleaseWait('neighborhoods');
     }
     // Append each layer to the list.
     const layerList = [];
-
-    if (clearPleaseWait) clearPleaseWait('raster');
-    if (imageLayerLoaders) {
-      Object.entries(imageLayerLoaders).forEach(([layerId, layerLoader]) => {
-        layerList.push(this.renderImageLayer(layerId, layerLoader));
-      });
-    }
-
-    if (cells && clearPleaseWait) clearPleaseWait('cells');
+    Object.entries(imageLayerLoaders).forEach(([layerId, layerLoader]) => {
+      layerList.push(this.renderImageLayer(layerId, layerLoader));
+    });
     layerList.push(this.renderCellLayer());
-
-    if (neighborhoods && clearPleaseWait) clearPleaseWait('neighborhoods');
     layerList.push(this.renderNeighborhoodsLayer());
-
-    if (molecules && clearPleaseWait) clearPleaseWait('molecules');
     layerList.push(this.renderMoleculesLayer());
 
     return layerList;

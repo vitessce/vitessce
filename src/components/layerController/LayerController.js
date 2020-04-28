@@ -5,6 +5,7 @@ import { createZarrLoader } from '@hubmap/vitessce-image-viewer';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
+import { Slider } from 'antd';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -49,8 +50,8 @@ const DEFAULT_LAYER_PROPS = {
 };
 
 export default function LayerController({ imageData, layerId, handleLayerRemove }) {
-  const [colormap, setColormap] = useState('');
-  const [opacity, setOpacity] = useState(1);
+  const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);
+  const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
   const [channels, dispatch] = useReducer(reducer, {});
 
   useEffect(() => {
@@ -128,6 +129,9 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             handleOpacityChange={handleOpacityChange}
             handleColormapChange={handleColormapChange}
           />
+        </Grid>
+        <Grid item>
+          <Slider />
         </Grid>
         {channelControllers}
         <Grid item>

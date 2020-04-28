@@ -9,7 +9,7 @@ import { grey } from '@material-ui/core/colors';
 import TitleInfo from '../TitleInfo';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
-import { RASTER_ADD, LAYER_REMOVE } from '../../events';
+import { RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT } from '../../events';
 
 const darkTheme = createMuiTheme({
   palette: {
@@ -32,6 +32,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   useEffect(() => {
     function handleRasterAdd(msg, raster) {
       setImageOptions(raster.images);
+      PubSub.publish(CLEAR_PLEASE_WAIT, 'raster');
     }
     memoizedOnReady();
     const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
