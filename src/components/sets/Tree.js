@@ -72,7 +72,7 @@ export default class Tree extends React.Component {
 
     return (
         <AntTree
-          draggable
+          draggable={false}
           checkable
           blockNode
           onExpand={this.onExpand}

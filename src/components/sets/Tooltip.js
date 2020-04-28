@@ -1,18 +1,20 @@
+/* eslint-disable */
 import React, { useRef, useCallback } from 'react';
-import { Popover } from 'antd';
-import 'antd/es/popover/style/index.css';
+import { Tooltip } from 'antd';
+import 'antd/es/tooltip/style/index.css';
 
 /**
- * This is a small wrapper around the Popover component from the antd library,
- * which is required to be able to apply theme styles to the popover.
+ * This is a small wrapper around the Tooltip component from the antd library,
+ * which is required to be able to apply theme styles to the tooltip.
  * This is because the default `getPopupContainer` function used by antd
  * just returns `document.body` (see https://ant.design/components/tooltip/#API),
  * but theme styles are applied using a sibling class on `.vitessce-container`
  * (which is a child of `body`).
  * https://github.com/hubmapconsortium/vitessce/pull/494#discussion_r395957914
- * @param {*} props Props are passed through to the <Popover/> from the antd library.
+ * @param {*} props Props are passed through to the <Tooltip/> from the antd library.
  */
-export default function VitesscePopover(props) {
+export default function VitessceTooltip(props) {
+  const { title, children } = props;
   const spanRef = useRef();
 
   const getPopupContainer = useCallback(() => {
@@ -25,11 +27,13 @@ export default function VitesscePopover(props) {
   return (
     <>
       <span ref={spanRef} />
-      <Popover
-        getPopupContainer={getPopupContainer}
-        overlayClassName="vitessce-popover"
-        {...props}
-      />
+        <Tooltip
+          getPopupContainer={getPopupContainer}
+          overlayClassName="vitessce-tooltip"
+          title={title}
+        >
+          {children}
+        </Tooltip>
     </>
   );
 }

@@ -4,8 +4,8 @@ import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
 import PopoverMenu from './PopoverMenu';
+import Tooltip from './Tooltip';
 import tinycolor from 'tinycolor2';
-import PopoverColor from './PopoverColor';
 import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
 
 function toHexString(rgbArray) {
@@ -23,11 +23,6 @@ function makeNodeViewMenuConfig(props) {
   } = props;
 
   return [
-    {
-      name: 'View',
-      handler: () => tree.viewSet(nodeKey),
-      handlerKey: 'v',
-    },
     {
       name: 'Rename',
       handler: () => { /* TODO */ },
@@ -47,7 +42,7 @@ function makeNodeViewMenuConfig(props) {
     ] : [
       {
         name: 'Select',
-        handler: () => { /* TODO */ },
+        handler: () => { tree.setIsChecking(nodeKey); },
         handlerKey: 's',
       },
       {
@@ -55,15 +50,7 @@ function makeNodeViewMenuConfig(props) {
         handler: () => { /* TODO */ },
         handlerKey: 'e',
       }
-    ]),
-    // Show view buttons for viewing descendants at each level.
-    ...range(height - level).map(i => (
-      {
-        name: `View ${levelNameFromIndex(i+1)}`,
-        handler: () => tree.viewSetDescendants(nodeKey, i),
-        handlerKey: `${i}`,
-      }
-    )),
+    ])
   ];
 }
 
@@ -72,24 +59,35 @@ function NamedSetNodeStatic(props) {
     title,
     tree,
     nodeKey,
+    level,
+    size,
+    color,
+    checkbox,
+    isChecking
   } = props;
+  const tooltipTitle = (level === 0 ? `Color ${size} cells (gray)` : '')
   return (
     <span>
-      <button
-        type="button"
-        onClick={() => { tree.viewSet(nodeKey); }}
-        onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(nodeKey))}
-        className="title-button"
-        title={`View ${title}`}
-      >
-        {title}
-      </button>
+      <Tooltip title={tooltipTitle}>
+        <button
+          type="button"
+          onClick={() => { tree.viewSet(nodeKey); }}
+          onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(nodeKey))}
+          className="title-button"
+          title={`View ${title}`}
+        >
+          {title}
+        </button>
+      </Tooltip>
       <PopoverMenu
         menuConfig={makeNodeViewMenuConfig(props)}
         onClose={() => {}}
+        color={level > 0 ? color : null}
+        setColor={c => tree.changeNodeColor(nodeKey, c)}
       >
         <MenuSVG className="node-menu-icon" />
       </PopoverMenu>
+      {level > 0 && isChecking ? checkbox : null}
     </span>
   );
 }
@@ -102,7 +100,7 @@ function NamedSetNodeEditing(props) {
   } = props;
   const [currentTitle, setCurrentTitle] = useState(title);
   return (
-    <>
+    <span className="title-button">
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
@@ -120,7 +118,7 @@ function NamedSetNodeEditing(props) {
       >
         Save
       </button>
-    </>
+    </span>
   );
 }
 
@@ -139,6 +137,7 @@ function NamedSetNode(props) {
 
 function LevelsButtons(props) {
   const {
+    hierarchySize,
     tree,
     nodeKey,
     height,
@@ -148,22 +147,25 @@ function LevelsButtons(props) {
     if(event.target.checked) {
       const newLevel = parseInt(event.target.value);
       tree.setCheckedLevel(nodeKey, newLevel);
-      tree.viewSetDescendants(nodeKey, newLevel-1);
+      tree.viewSetDescendants(nodeKey, newLevel-1, false);
     }
   };
+  const subs = (i) => ('sub'.repeat(i));
   return (
     <div className="level-buttons-container">
       {range(height).map(i => (
         <div className="level-buttons" key={i+1}>
           {i === 0 ? (<div className="level-line-zero"></div>) : null}
           <div className="level-line"></div>
-          <input
-            className="level-radio-button"
-            type="checkbox"
-            value={i+1}
-            checked={nodeKey === checkedLevelKey && (i+1) === checkedLevelIndex}
-            onChange={onCheck}
-          />
+          <Tooltip title={`Color ${hierarchySize} cells (by ${subs(i)}cluster)`}>
+            <input
+              className="level-radio-button"
+              type="checkbox"
+              value={i+1}
+              checked={nodeKey === checkedLevelKey && (i+1) === checkedLevelIndex}
+              onChange={onCheck}
+            />
+          </Tooltip>
         </div>
     ))}
     </div>
@@ -175,16 +177,17 @@ function SwitcherIcon(props) {
   const hexColor = toHexString(color);
   if(isLeaf) {
     return (
-      <i aria-label="icon: circle" class="anticon anticon-circle rc-tree-switcher-icon">
-        <svg viewBox="0 0 1024 1024" focusable="false" class="" data-icon="caret-down" width="1em" height="1em" aria-hidden="true">
-          <circle fill={hexColor} cx="512" cy="512" r="312"/>
+      <i aria-label="icon: circle" className="anticon anticon-circle rc-tree-switcher-icon">
+        <svg viewBox="0 0 1024 1024" focusable="false" data-icon="caret-down" width="1em" height="1em" aria-hidden="true">
+          {/*<circle fill={hexColor} cx="512" cy="512" r="312"/>*/}
+          <rect fill={hexColor} x={600/2} y={600/2} width={1024-600} height={1024-600} />
         </svg>
       </i>
     );
   }
   return (
-    <i aria-label="icon: caret" class="anticon anticon-caret-down rc-tree-switcher-icon">
-      <svg viewBox="0 0 1024 1024" focusable="false" class="" data-icon="caret-down" width="1em" height="1em" aria-hidden="true">
+    <i aria-label="icon: caret" className="anticon anticon-caret-down rc-tree-switcher-icon">
+      <svg viewBox="0 0 1024 1024" focusable="false" data-icon="caret-down" width="1em" height="1em" aria-hidden="true">
         <path fill={(isOpen ? "#444" : hexColor)} d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"></path>
       </svg>
     </i>
@@ -227,7 +230,7 @@ export default class TreeNode extends RcTreeNode {
         aria-grabbed={isDraggable}
         onDragStart={isDraggable ? this.onDragStart : undefined}
       >
-        <NamedSetNode {...this.props} prefixClass={prefixClass} />
+        <NamedSetNode {...this.props} prefixClass={prefixClass} checkbox={this.renderCheckbox()} />
       </span>
     );
   };
@@ -237,11 +240,13 @@ export default class TreeNode extends RcTreeNode {
     if(level !== 0 || expanded) {
       return null;
     }
+    const hierarchySize = tree.getHierarchySize(nodeKey);
     return (
       <LevelsButtons
         nodeKey={nodeKey}
         height={height}
         tree={tree}
+        hierarchySize={hierarchySize}
       />
     );
   }
@@ -316,7 +321,6 @@ export default class TreeNode extends RcTreeNode {
       >
         {this.renderSwitcher()}
         {this.renderSelector()}
-        {this.renderCheckbox()}
         {this.renderChildren()}
         {this.renderLevels()}
       </li>

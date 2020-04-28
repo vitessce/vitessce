@@ -2,6 +2,8 @@
 import uuidv4 from 'uuid/v4';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
 
+const CURRENT_SET_NAME = "Current selection";
+
 /**
  * Like .find but can return the truthy value rather than returning the element.
  * @param {Array} array The array to iterate over.
@@ -43,6 +45,8 @@ export class SetsTreeNode {
       name,
       isEditing = false,
       isCurrentSet = false,
+      isForTools = false,
+      isChecking = false,
       color = DEFAULT_COLOR,
       children,
       set,
@@ -55,6 +59,8 @@ export class SetsTreeNode {
     this.color = color;
     this.isEditing = isEditing;
     this.isCurrentSet = isCurrentSet;
+    this.isForTools = isForTools;
+    this.isChecking = isChecking;
     this.level = level;
   }
 
@@ -70,16 +76,20 @@ export class SetsTreeNode {
     this.key = key;
   }
 
-  /*setSetKey(setKey) {
-    this.setKey = setKey;
-  }*/
-
   setName(name) {
     this.name = name;
   }
 
   setIsCurrentSet(v) {
     this.isCurrentSet = v;
+  }
+
+  setIsForTools(v) {
+    this.isForTools = v;
+  }
+
+  setIsChecking(v) {
+    this.isChecking = v;
   }
 
   setColor(v) {
@@ -138,11 +148,13 @@ export class SetsTreeNode {
     return {
       title: this.name,
       nodeKey: this.key,
-      size: this.set ? this.set.length : 0,
+      size: this.getSet().length,
       color: this.color,
       level: this.level,
       isEditing: this.isEditing,
       isCurrentSet: this.isCurrentSet,
+      isForTools: this.isForTools,
+      isChecking: this.isChecking,
       isLeaf: !this.children,
       height: this.getHeight(this.level),
     };
@@ -179,6 +191,16 @@ export class SetsTreeNode {
       return this.set || [];
     }
     return this.children.flatMap(c => c.getSet());
+  }
+
+  /**
+   * Return a flat array of descendants at a particular level from this node.
+   */
+  traverse(func) {
+    if (!this.children) {
+      return;
+    }
+    this.children.forEach(c => func(c));
   }
 }
 
@@ -265,10 +287,13 @@ export default class SetsTree {
    * Set the array of visible node setKey values.
    * @param {string[]} visibleKeys The array of setKey values to set as visible.
    */
-  setVisibleKeys(visibleKeys) {
+  setVisibleKeys(visibleKeys, shouldInvalidateCheckedLevel = true) {
     this.visibleKeys = visibleKeys;
-    this.checkedLevel = [null, null];
+    if(shouldInvalidateCheckedLevel) {
+      this.invalidateCheckedLevel()
+    }
     this.emitVisibilityUpdate();
+    this.emitTreeUpdate();
   }
 
   /**
@@ -281,23 +306,48 @@ export default class SetsTree {
     this.emitTreeUpdate();
   }
 
+  invalidateCheckedLevel() {
+    this.checkedLevel = [null, null];
+  }
+
+  /**
+   * Set a node .isChecking flag.
+   * @param {string} nodeKey The key of a node.
+   */
+  setIsChecking(nodeKey) {
+    const node = this.findLevelZeroNode(nodeKey);
+    node.traverse(c => c.setIsChecking(true));
+    this.emitTreeUpdate();
+  }
+
+  /**
+   * Get the size of a level zero node set.
+   * @param {string} levelZeroNodeKey The key of a level zero node.
+   * @returns {number} The size.
+   */
+  getHierarchySize(levelZeroNodeKey) {
+    const node = this.findNode(levelZeroNodeKey);
+    return node.getSet().length;
+  }
+
   /**
    * Set the current set's set array value.
    * @param {iterable} set The new set values.
    * @param {boolean} visible Whether to make the current set visible.
    * @param {string} name If provided, will use this name over the default CURRENT_SET_NAME.
    */
-  /*setCurrentSet(set, visible, name) {
-    let currentSetNode = this.findCurrentSetNode();
+  setCurrentSet(set, visible, name) {
+    const toolsNode = this.findToolsLevelZeroNode(true);
+    let currentSetNode = toolsNode.findCurrentSetNode();
     if (!currentSetNode) {
-      const uuid = uuidv4();
       currentSetNode = new SetsTreeNode({
-        setKey: ALL_ROOT_KEY + PATH_SEP + uuid,
+        key: generateKey(),
         set: [],
         isEditing: true,
         isCurrentSet: true,
+        level: 1
       });
-      this.prependChild(currentSetNode);
+      toolsNode.setChildren([ ...toolsNode.children, currentSetNode ]);
     }
     currentSetNode.set = Array.from(set);
     if (name) {
@@ -306,18 +356,73 @@ export default class SetsTree {
       currentSetNode.setName(CURRENT_SET_NAME);
     }
     if (visible) {
-      this.visibleKeys = [currentSetNode.setKey];
+      this.visibleKeys = [currentSetNode.key];
     }
     this.emitTreeUpdate();
-  }*/
+  }
 
   /**
    * Find the node with .isCurrentSet equal to true.
    * @returns {SetsTreeNode} The current set node.
    */
-  /*findCurrentSetNode() {
-    return this.root.findCurrentSetNode();
-  }*/
+  findCurrentSetNode() {
+    for(let child of this.children) {
+      const foundNode = child.findCurrentSetNode();
+      if(foundNode) {
+        return foundNode;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Find the level zero node with .isForTools equal to true.
+   * @returns {SetsTreeNode} The "for tools" level zero node.
+   */
+  findToolsLevelZeroNode(add = true) {
+    for(let child of this.children) {
+      const foundNode = (child.isForTools ? child : null);
+      if(foundNode) {
+        return foundNode;
+      }
+    }
+    if(add) {
+      return this.addToolsNode();
+    }
+    return null;
+  }
+
+  /**
+   * Find the level zero node for the node.
+   * @param {string} nodeKey The target node key.
+   * @returns {SetsTreeNode} The "for tools" level zero node.
+   */
+  findLevelZeroNode(nodeKey) {
+    for(let child of this.children) {
+      const foundNode = child.findNode(nodeKey);
+      if(foundNode) {
+        return child;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Find the level zero node with a child node with .isCurrentSet equal to true.
+   * @returns {SetsTreeNode} The level zero node.
+   */
+  addToolsNode() {
+    const node = new SetsTreeNode({
+      key: generateKey(),
+      name: "My Selections",
+      color: undefined,
+      children: [],
+      level: 0,
+      isForTools: true,
+    });
+    this.appendChild(node);
+    return node;
+  }
 
   /**
    * Find a node of interest.
@@ -495,9 +600,7 @@ export default class SetsTree {
    * @param {string} setKey The key of the node of interest.
    */
   viewSet(setKey) {
-    this.visibleKeys = [setKey];
-    this.checkedLevel = [null, null];
-    this.emitVisibilityUpdate();
+    this.setVisibleKeys([setKey]);
   }
 
   /**
@@ -507,10 +610,10 @@ export default class SetsTree {
    * @param {string} setKey The key of the node of interest.
    * @param {integer} level The level of interest. 0 means children, 1 grandchildren, etc.
    */
-  viewSetDescendants(setKey, level) {
+  viewSetDescendants(setKey, level, shouldInvalidateCheckedLevel = true) {
     const node = this.findNode(setKey);
     const descendentsOfInterest = node.getDescendantsFlat(level);
-    this.visibleKeys = descendentsOfInterest.map(d => d.key);
+    this.setVisibleKeys(descendentsOfInterest.map(d => d.key), shouldInvalidateCheckedLevel);
     this.emitVisibilityUpdate();
   }
 

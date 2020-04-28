@@ -23,10 +23,11 @@
             .node-menu-icon {
                 fill: #959595;
                 cursor: pointer;
-                height: 16px;
+                height: 14px;
                 position: relative;
-                vertical-align: middle;
+                vertical-align: top;
                 width: #{$node-height}px;
+                top: 5.5px;
 
                 &:hover {
                     fill: #e5e5e5;
@@ -95,9 +96,16 @@
             }
             
             .rc-tree-treenode {
-                .title-button {
-                    height: #{$node-height}px;
-                    line-height: #{$node-height}px;
+                margin: 0;
+                padding: 0;
+                line-height: #{$node-height - 8}px;
+                white-space: nowrap;
+                list-style: none;
+                outline: 0;
+
+                .title-button, .title-input {
+                    height: #{$node-height - 8}px;
+                    line-height: #{$node-height - 8}px;
                     padding: 0;
                     margin: 0;
                     border: 0;
@@ -105,16 +113,15 @@
                     background: transparent;
                     background-color: transparent;
                     vertical-align: top;
+                    font-size: 14px;
                 }
-                &.level-0-treenode {
 
+                .title-save-button {
+                  background-color: white;
+                  border: none;
                 }
-                margin: 0;
-                padding: 0;
-                line-height: #{$node-height}px;
-                white-space: nowrap;
-                list-style: none;
-                outline: 0;
+
+                
                 .draggable {
                   color: #333;
                   -moz-user-select: none;
@@ -151,6 +158,7 @@
                 }
                 ul {
                   margin: 0;
+                  padding-left: 35px;
                 }
                 .rc-tree-node-content-wrapper {
                   width: calc(100% - 100px);
@@ -168,7 +176,7 @@
 
                     .title-button {
                       position: relative;
-                      max-width: 80%;
+                      max-width: calc(100% + 60px);
                       overflow: hidden;
                       text-overflow: ellipsis;
                     }
@@ -219,11 +227,12 @@
                     width: 13px;
                     height: 13px;
                     margin: 0 3px;
-                    border: 0px solid gray;
+                    border: 2px solid gray;
+                    border-radius: 3px;
                     position: relative;
                     left: 0;
                     &-checked {
-                      background-position: -14px 0;
+                      background-color: gray;
                     }
                     &-indeterminate {
                       background-position: -14px -28px;
@@ -329,6 +338,13 @@
               }
         }
 
+    }
+
+    .vitessce-tooltip {
+      .ant-tooltip-content .ant-tooltip-inner {
+        font-size: 12px;
+        background-color: rgba(0, 0, 0, 0.95);
+      }
     }
 
 }
