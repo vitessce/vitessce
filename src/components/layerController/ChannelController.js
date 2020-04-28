@@ -24,39 +24,77 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+function ChannelSelectionDropdown({
+  selectionIndex,
+  handleChange,
+  disableOptions,
+  channelOptions,
+}) {
+  return (
+    <Select
+      native
+      value={selectionIndex}
+      onChange={e => handleChange(Number(e.target.value))}
+    >
+      {channelOptions.map((opt, i) => (
+        <option disabled={disableOptions} key={opt} value={i}>
+          {opt}
+        </option>
+      ))}
+    </Select>
+  );
+}
+
+function ChannelSlider({ color, slider, handleChange }) {
+  return (
+    <Slider
+      value={slider}
+      onChange={(e, v) => handleChange(v)}
+      valueLabelDisplay="auto"
+      getAriaLabel={() => `${color}-${slider}`}
+      min={MIN_SLIDER_VALUE}
+      max={MAX_SLIDER_VALUE}
+      orientation="horizontal"
+      style={{ color, marginTop: '7px' }}
+    />
+  );
+}
+
+function ChannelVisibilityCheckbox({ color, checked, toggle }) {
+  return (
+    <Checkbox
+      onChange={toggle}
+      checked={checked}
+      style={{ color, '&$checked': { color } }}
+    />
+  );
+}
+
 function ChannelController({
-  name,
-  isOn,
-  sliderValue,
-  colorValue,
+  visibility,
+  slider,
+  color,
+  dimName,
+  selectionIndex,
   colormapOn,
   channelOptions,
   handlePropertyChange,
   handleChannelRemove,
   disableOptions = false,
 }) {
-  const rgbColor = toRgb(colormapOn, colorValue);
+  const rgbColor = toRgb(colormapOn, color);
   const classes = useStyles();
+  const createSelection = index => ({ [dimName]: index });
   return (
-    <Grid
-      container
-      direction="column"
-      m={1}
-      justify="center"
-    >
+    <Grid container direction="column" m={1} justify="center">
       <Grid container direction="row" justify="space-between">
         <Grid item xs={10}>
-          <Select
-            native
-            value={name}
-            onChange={e => handlePropertyChange('selection', Number(e.target.value))}
-          >
-            {channelOptions.map((opt, i) => (
-              <option disabled={disableOptions} key={opt} value={i}>
-                {opt}
-              </option>
-            ))}
-          </Select>
+          <ChannelSelectionDropdown
+            selectionIndex={selectionIndex}
+            handleChange={v => handlePropertyChange('selection', createSelection(v))}
+            disableOptions={disableOptions}
+            channelOptions={channelOptions}
+          />
         </Grid>
         <Grid item xs={1} className={classes.options}>
           <ChannelOptions
@@ -67,30 +105,17 @@ function ChannelController({
       </Grid>
       <Grid container direction="row" justify="flex-start">
         <Grid item xs={2}>
-          <Checkbox
-            onChange={() => handlePropertyChange('visibility')}
-            checked={isOn}
-            style={{
-              color: rgbColor,
-              '&$checked': {
-                color: rgbColor,
-              },
-            }}
+          <ChannelVisibilityCheckbox
+            color={rgbColor}
+            checked={visibility}
+            toggle={() => handlePropertyChange('visibility')}
           />
         </Grid>
         <Grid item xs={9}>
-          <Slider
-            value={sliderValue}
-            onChange={(e, v) => handlePropertyChange('slider', v)}
-            valueLabelDisplay="auto"
-            getAriaLabel={() => `${name}-${colorValue}-${sliderValue}`}
-            min={MIN_SLIDER_VALUE}
-            max={MAX_SLIDER_VALUE}
-            orientation="horizontal"
-            style={{
-              color: rgbColor,
-              marginTop: '7px',
-            }}
+          <ChannelSlider
+            color={rgbColor}
+            slider={slider}
+            handleChange={v => handlePropertyChange('slider', v)}
           />
         </Grid>
       </Grid>

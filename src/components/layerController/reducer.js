@@ -6,7 +6,7 @@ const layerProperty = {
   color: 'colors',
   selection: 'selections',
   slider: 'sliders',
-  visibilitiy: 'visibilities',
+  visibility: 'visibilities',
 };
 
 function channelsToLayerProps(channels) {
@@ -14,8 +14,8 @@ function channelsToLayerProps(channels) {
   * Converts channels object to corresponding layerProps arrays
   *
   * const channels = {
-  *   'c1': {color: [55, 55, 0], selection: [0, 0, 0], visibility: true, slider: [0, 200]}
-  *   'c2': {color: [5, 20, 25], selection: [1, 0, 0], visibility: true, slider: [2, 300]}
+  *   'c1': { color: [55, 55, 0], selection: [0, 0, 0], visibility: true, slider: [0, 200] }
+  *   'c2': { color: [5, 20, 25], selection: [1, 0, 0], visibility: true, slider: [2, 300] }
   * };
   * const { selections, sliders, colors, visibilities } = channelsToLayerProps(channels);
   *

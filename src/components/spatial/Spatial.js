@@ -215,10 +215,12 @@ export default class Spatial extends AbstractSelectableComponent {
     // Append each layer to the list.
     const layerList = [];
 
-    if (imageLayerLoaders && clearPleaseWait) clearPleaseWait('raster');
-    Object.entries(imageLayerLoaders).forEach(([layerId, layerLoader]) => {
-      layerList.push(this.renderImageLayer(layerId, layerLoader));
-    });
+    if (clearPleaseWait) clearPleaseWait('raster');
+    if (imageLayerLoaders) {
+      Object.entries(imageLayerLoaders).forEach(([layerId, layerLoader]) => {
+        layerList.push(this.renderImageLayer(layerId, layerLoader));
+      });
+    }
 
     if (cells && clearPleaseWait) clearPleaseWait('cells');
     layerList.push(this.renderCellLayer());

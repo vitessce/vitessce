@@ -32,30 +32,32 @@ export default function SpatialSubscriber({
   uuid = null,
 }) {
   const [cells, setCells] = useState({});
-  const [molecules, setMolecules] = useState({});
+  const [molecules, setMolecules] = useState(null);
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
-  const [neighborhoods, setNeighborhoods] = useState([]);
-  const [cellColors, setCellColors] = useState([]);
+  const [neighborhoods, setNeighborhoods] = useState({});
+  const [cellColors, setCellColors] = useState(null);
   const [imageLayerProps, setImageLayerProps] = useState({});
   const [imageLayerLoaders, setImageLayerLoaders] = useState({});
 
   const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
-    function handleLayerAdd(msg, { layerId, loader, layerProps }) {
+    const moleculesAddSubscriber = (msg, newMolecules) => setMolecules(newMolecules);
+    const nbhdsAddSubscriber = (msg, newNeighborhoods) => setNeighborhoods(newNeighborhoods);
+    const cellsAddSubscriber = (msg, newCells) => setCells(newCells);
+    const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
+    const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
+    function layerAddSubscriber(msg, { layerId, loader, layerProps }) {
       setImageLayerLoaders(prevLayerLoaders => ({ ...prevLayerLoaders, [layerId]: loader }));
       setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: layerProps }));
     }
-    function handleLayerChange(msg, { layerId, layerProps }) {
+    function layerChangeSubscriber(msg, { layerId, layerProps }) {
       setImageLayerProps(prevLayerProps => ({
         ...prevLayerProps,
-        [layerId]: {
-          ...prevLayerProps[layerId],
-          ...layerProps,
-        },
+        [layerId]: { ...prevLayerProps[layerId], ...layerProps },
       }));
     }
-    function handleLayerRemove(msg, layerId) {
+    function layerRemoveSubscriber(msg, layerId) {
       setImageLayerLoaders((prevLoaders) => {
         const { [layerId]: _, ...nextLoaders } = prevLoaders;
         return nextLoaders;
@@ -65,19 +67,20 @@ export default function SpatialSubscriber({
         return nextLayerProps;
       });
     }
-    const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, setMolecules);
-    const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, setNeighborhoods);
-    const cellsAddToken = PubSub.subscribe(CELLS_ADD, setCells);
-    const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, setSelectedCellIds);
-    const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, setSelectedCellIds);
-    const cellsColorToken = PubSub.subscribe(CELLS_COLOR, setCellColors);
-    const layerAddToken = PubSub.subscribe(LAYER_ADD, handleLayerAdd);
-    const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, handleLayerRemove);
-    const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, handleLayerChange);
+
+    const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
+    const nbhdsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, nbhdsAddSubscriber);
+    const cellsAddToken = PubSub.subscribe(CELLS_ADD, cellsAddSubscriber);
+    const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, cellsSelectionSubscriber);
+    const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, cellsSelectionSubscriber);
+    const cellsColorToken = PubSub.subscribe(CELLS_COLOR, cellsColorSubscriber);
+    const layerAddToken = PubSub.subscribe(LAYER_ADD, layerAddSubscriber);
+    const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
+    const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(moleculesAddToken);
-      PubSub.unsubscribe(neighborhoodsAddToken);
+      PubSub.unsubscribe(nbhdsAddToken);
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(cellSetsViewToken);
@@ -97,8 +100,9 @@ export default function SpatialSubscriber({
   return (
     <TitleInfo
       title="Spatial"
-      info={`${cellsCount} cells, ${moleculesCount} molecules
-              at ${shortNumber(locationsCount)} locations`}
+      info={
+        `${cellsCount} cells, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
+      }
       removeGridComponent={removeGridComponent}
     >
       {children}
@@ -106,6 +110,7 @@ export default function SpatialSubscriber({
         cells={cells}
         selectedCellIds={selectedCellIds}
         neighborhoods={neighborhoods}
+        molecules={molecules}
         cellColors={cellColors}
         imageLayerProps={imageLayerProps}
         imageLayerLoaders={imageLayerLoaders}

@@ -4,12 +4,15 @@ import { createZarrLoader } from '@hubmap/vitessce-image-viewer';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Slider from '@material-ui/core/Slider';
-import Divider from '@material-ui/core/Divider';
 import AddIcon from '@material-ui/icons/Add';
 
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 import ChannelController from './ChannelController';
-import ColormapSelect from './ColormapSelect';
+import LayerOptions from './LayerOptions';
 
 import { LAYER_ADD, LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
@@ -45,20 +48,18 @@ const DEFAULT_LAYER_PROPS = {
   selections: [],
 };
 
-export default function LayerController({ imageData, layerId }) {
+export default function LayerController({ imageData, layerId, handleLayerRemove }) {
   const [colormap, setColormap] = useState('');
   const [opacity, setOpacity] = useState(1);
   const [channels, dispatch] = useReducer(reducer, {});
-  const [loader, setLoader] = useState(null);
 
   useEffect(() => {
-    initLoader(imageData).then((layerLoader) => {
+    initLoader(imageData).then((loader) => {
       PubSub.publish(LAYER_ADD, {
         layerId,
-        loader: layerLoader,
+        loader,
         layerProps: DEFAULT_LAYER_PROPS,
       });
-      setLoader(layerLoader);
     });
   }, [layerId, imageData]);
 
@@ -71,7 +72,7 @@ export default function LayerController({ imageData, layerId }) {
 
   const handleChannelAdd = () => {
     // By default choose first option when adding channel
-    const [selection] = loader.serializeSelection({ [dimName]: 0 });
+    const selection = { [dimName]: 0 };
     dispatch({ type: 'ADD_CHANNEL', layerId, payload: { selection } });
   };
 
@@ -89,15 +90,6 @@ export default function LayerController({ imageData, layerId }) {
     .entries(channels)
     .map(([channelId, c]) => {
       const handleChannelPropertyChange = (property, value) => {
-        if (property === 'selection') {
-          /* TODO: we should be able to remove this after next viv release
-          * Once this is done, we can just publish the loader on LAYER_ADD
-          * and remove it from state in this component.
-          * https://github.com/hubmapconsortium/vitessce-image-viewer/pull/159
-          */
-          // eslint-disable-next-line no-param-reassign
-          [value] = loader.serializeSelection({ [dimName]: value });
-        }
         dispatch({ type: 'CHANGE_PROPERTY', layerId, payload: { channelId, property, value } });
       };
       const handleChannelRemove = () => {
@@ -106,11 +98,12 @@ export default function LayerController({ imageData, layerId }) {
       return (
         <Grid key={`channel-controller-${channelId}`} item style={{ width: '100%' }}>
           <ChannelController
-            name={c.selection[0]}
+            dimName={dimName}
+            selectionIndex={c.selection[0]}
+            visibility={c.visibility}
+            slider={c.slider}
+            color={c.color}
             channelOptions={channelOptions}
-            isOn={c.visibility}
-            sliderValue={c.slider}
-            colorValue={c.color}
             colormapOn={colormap !== ''}
             handlePropertyChange={handleChannelPropertyChange}
             handleChannelRemove={handleChannelRemove}
@@ -120,49 +113,49 @@ export default function LayerController({ imageData, layerId }) {
     });
 
   return (
-    <>
-      <Grid
-        container
-        direction="column"
-        justify="center"
-        alignItems="center"
-        style={{ width: '100%' }}
+    <ExpansionPanel style={{ width: '100%' }}>
+      <ExpansionPanelSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls={`layer-${imageData.name}-controls`}
       >
-        <Grid item style={{ width: '100%' }}>
-          <Grid container direction="row" justify="space-between" alignItems="">
-            <Grid item xs={6}>
-              <ColormapSelect value={colormap} handleChange={handleColormapChange} />
-            </Grid>
-            <Grid item xs={6}>
-              <Slider
-                value={opacity}
-                onChange={(e, v) => handleOpacityChange(v)}
-                valueLabelDisplay="auto"
-                getAriaLabel={() => 'opacity slider'}
-                min={0}
-                max={1}
-                step={0.01}
-                orientation="horizontal"
-              />
-            </Grid>
-          </Grid>
-          <Divider />
+        {imageData.name}
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails style={{ flexDirection: 'column' }}>
+        <Grid item>
+          <LayerOptions
+            opacity={opacity}
+            colormap={colormap}
+            handleOpacityChange={handleOpacityChange}
+            handleColormapChange={handleColormapChange}
+          />
         </Grid>
         {channelControllers}
-      </Grid>
-      <Grid item>
-        <Button
-          disabled={!loader || Object.values(channels).length === MAX_CHANNELS}
-          onClick={handleChannelAdd}
-          fullWidth
-          variant="outlined"
-          style={{ borderStyle: 'dashed', marginTop: '10px' }}
-          startIcon={<AddIcon />}
-          size="small"
-        >
+        <Grid item>
+          <Button
+            disabled={Object.values(channels).length === MAX_CHANNELS}
+            onClick={handleChannelAdd}
+            fullWidth
+            variant="outlined"
+            style={{ borderStyle: 'dashed', marginTop: '10px' }}
+            startIcon={<AddIcon />}
+            size="small"
+          >
               Add Channel
-        </Button>
-      </Grid>
-    </>
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            onClick={handleLayerRemove}
+            fullWidth
+            variant="outlined"
+            style={{ borderStyle: 'dashed', marginTop: '10px' }}
+            size="small"
+          >
+              Remove Image Layer
+          </Button>
+        </Grid>
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
+
   );
 }

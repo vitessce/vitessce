@@ -102,6 +102,7 @@ export default class SourcePublisher extends React.Component {
         .filter(entry => entry[1])
         .map(entry => entry[0]);
       console.warn(`cleared "${layerName}"; waiting on ${waitingOn.length}:`, waitingOn);
+
       return prevState;
     });
   }

@@ -2,19 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import PubSub from 'pubsub-js';
 import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import AddIcon from '@material-ui/icons/Add';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
 
 
 import TitleInfo from '../TitleInfo';
 import LayerController from './LayerController';
-import { RASTER_ADD } from '../../events';
+import ImageAddButton from './ImageAddButton';
+import { RASTER_ADD, LAYER_REMOVE } from '../../events';
 
 const darkTheme = createMuiTheme({
   palette: {
@@ -28,9 +23,6 @@ const darkTheme = createMuiTheme({
     },
   },
 });
-
-const testIds = ['0:1', '0:2'];
-let count = 0;
 
 function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   const [imageOptions, setImageOptions] = useState(null);
@@ -46,28 +38,24 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
     return () => PubSub.unsubscribe(token);
   }, [memoizedOnReady]);
 
-  const handleAddImage = () => {
-    setLayers([
-      ...layers,
-      { id: testIds[count], imageData: imageOptions[count] },
-    ]);
-    count += 1;
+  const handleImageAdd = (imageData) => {
+    const layerId = String(Math.random());
+    setLayers([...layers, { layerId, imageData }]);
   };
 
-  const layerControllers = layers.map(({ id, imageData }) => (
-    <Grid key={id} item style={{ marginTop: '10px' }}>
-      <ExpansionPanel style={{ width: '100%' }}>
-        <ExpansionPanelSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-        >
-          {imageData.name}
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails style={{ flexDirection: 'column' }}>
-          <LayerController layerId={id} imageData={imageData} />
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+  const handleLayerRemove = (layerId) => {
+    const nextLayers = layers.filter(d => d.layerId !== layerId);
+    setLayers(nextLayers);
+    PubSub.publish(LAYER_REMOVE, layerId);
+  };
+
+  const layerControllers = layers.map(({ layerId, imageData }) => (
+    <Grid key={layerId} item style={{ marginTop: '10px' }}>
+      <LayerController
+        layerId={layerId}
+        imageData={imageData}
+        handleLayerRemove={() => handleLayerRemove(layerId)}
+      />
     </Grid>
   ));
 
@@ -76,16 +64,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
       <ThemeProvider theme={darkTheme}>
         {layerControllers}
         <Grid item>
-          <Button
-            onClick={handleAddImage}
-            fullWidth
-            variant="outlined"
-            style={{ borderStyle: 'dashed', marginTop: '10px' }}
-            startIcon={<AddIcon />}
-            size="small"
-          >
-            Add Image Layer
-          </Button>
+          <ImageAddButton imageOptions={imageOptions} handleImageAdd={handleImageAdd} />
         </Grid>
       </ThemeProvider>
     </TitleInfo>
