@@ -42,5 +42,5 @@ function ordinalSuffixOf(i) {
  * @returns {string} The name.
  */
 export function levelNameFromIndex(i) {
-  return `${ordinalSuffixOf(i + 1)} descendants`;
+  return `${ordinalSuffixOf(i)} descendants`;
 }

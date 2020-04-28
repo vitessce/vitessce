@@ -15,7 +15,7 @@ export default class CellSetsManagerSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cellSets: new SetsTree(
+      cellSetsTree: new SetsTree(
         (obj) => {
           PubSub.publish(CELL_SETS_MODIFY, obj);
         },
@@ -57,26 +57,26 @@ export default class CellSetsManagerSubscriber extends React.Component {
   }
 
   cellsAddSubscriber(msg, cells) {
-    const { cellSets } = this.state;
-    cellSets.setItems(Object.keys(cells));
+    const { cellSetsTree } = this.state;
+    cellSetsTree.setItems(Object.keys(cells));
   }
 
   cellSetsAddSubscriber(msg, cellSetsData) {
-    const { cellSets } = this.state;
-    cellSets.import(cellSetsData.tree, null, true);
+    const { cellSetsTree } = this.state;
+    cellSetsTree.import(cellSetsData.tree, null, true);
   }
 
-  cellSetsModifySubscriber(msg, cellSets) {
-    this.setState({ cellSets });
+  cellSetsModifySubscriber(msg, cellSetsTree) {
+    this.setState({ cellSetsTree });
   }
 
   cellsSelectionSubscriber(msg, cellIds) {
-    const { cellSets } = this.state;
-    cellSets.setCurrentSet(cellIds, true);
+    const { cellSetsTree } = this.state;
+    cellSetsTree.setCurrentSet(cellIds, true);
   }
 
   render() {
-    const { cellSets, gridResizeEvent } = this.state;
+    const { cellSetsTree } = this.state;
     const { removeGridComponent } = this.props;
     return (
       <TitleInfo
@@ -85,10 +85,9 @@ export default class CellSetsManagerSubscriber extends React.Component {
         removeGridComponent={removeGridComponent}
       >
         <SetsManager
-          setsTree={cellSets}
-          setsType={setsType}
+          tree={cellSetsTree}
+          datatype={setsType}
           onError={err => PubSub.publish(STATUS_WARN, err)}
-          gridResizeEvent={gridResizeEvent}
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }

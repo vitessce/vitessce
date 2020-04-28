@@ -12,7 +12,7 @@ export default class Tree extends React.Component {
       autoExpandParent: true,
     };
 
-    this.onCheck = this.onCheck.bind(this);
+    this.onCheckNode = this.onCheckNode.bind(this);
     this.onExpand = this.onExpand.bind(this);
     this.onDrop = this.onDrop.bind(this);
   }
@@ -29,14 +29,14 @@ export default class Tree extends React.Component {
     });
   }
 
-  onCheck(checkedKeys) {
-    const { setsTree } = this.props;
-    setsTree.setCheckedKeys(checkedKeys);
+  onCheckNode(checkedKeys) {
+    const { tree } = this.props;
+    tree.setCheckedKeys(checkedKeys);
   }
 
   onDrop(info) {
     const {
-      setsTree,
+      tree,
       tabRoot,
     } = this.props;
 
@@ -45,16 +45,16 @@ export default class Tree extends React.Component {
     const { dropToGap, dropPosition } = info;
 
     // Update the tree based on the drag event.
-    setsTree.dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap);
+    tree.dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap);
   }
 
   renderTreeNodes(nodes) {
     if (!nodes) {
       return null;
     }
-    const { setsTree } = this.props;
+    const { tree } = this.props;
     return nodes.map(item => (
-      <TreeNode key={item.key} tree={setsTree} {...item.getRenderProps()}>
+      <TreeNode key={item.key} tree={tree} {...item.getRenderProps()}>
         {this.renderTreeNodes(item.children)}
       </TreeNode>
     ));
@@ -62,7 +62,7 @@ export default class Tree extends React.Component {
 
   render() {
     const {
-      setsTree,
+      tree,
     } = this.props;
 
     const {
@@ -78,12 +78,12 @@ export default class Tree extends React.Component {
           onExpand={this.onExpand}
           expandedKeys={expandedKeys}
           autoExpandParent={autoExpandParent}
-          onCheck={this.onCheck}
-          checkedKeys={setsTree.checkedKeys}
+          onCheck={this.onCheckNode}
+          checkedKeys={tree.checkedKeys}
           onDrop={this.onDrop}
           prefixCls="rc-tree"
       >
-        {this.renderTreeNodes(setsTree.children)}
+        {this.renderTreeNodes(tree.children)}
       </AntTree>
     );
   }

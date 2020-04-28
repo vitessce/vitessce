@@ -30,13 +30,16 @@ function removeValue(array, shouldRemove) {
   return array.reduce((a, h) => (shouldRemove(h) ? a : [...a, h]), []);
 }
 
+function generateKey() {
+  return uuidv4();
+}
+
 /**
  * Node class for SetsTree.
  */
 export class SetsTreeNode {
   constructor(props) {
     const {
-      key,
       name,
       isEditing = false,
       isCurrentSet = false,
@@ -45,7 +48,7 @@ export class SetsTreeNode {
       set,
       level,
     } = props;
-    this.key = key;
+    this.key = generateKey();
     this.name = name;
     this.set = set;
     this.children = children;
@@ -170,6 +173,13 @@ export class SetsTreeNode {
       return Math.max(...childrenHeights, 0);
     }
   }
+
+  getSet() {
+    if(!this.children) {
+      return this.set || [];
+    }
+    return this.children.flatMap(c => c.getSet());
+  }
 }
 
 /**
@@ -189,6 +199,7 @@ export default class SetsTree {
     this.items = [];
     this.checkedKeys = [];
     this.visibleKeys = [];
+    this.checkedLevel = [null, null]; // tuple of [childKey, levelIndex]
     this.onTreeChange = onTreeChange;
     this.onVisibilityChange = onVisibilityChange;
   }
@@ -256,7 +267,18 @@ export default class SetsTree {
    */
   setVisibleKeys(visibleKeys) {
     this.visibleKeys = visibleKeys;
+    this.checkedLevel = [null, null];
     this.emitVisibilityUpdate();
+  }
+
+  /**
+   * Set the checked level.
+   * @param {string} levelZeroNodeKey The key of a level zero node.
+   * @param {number} levelIndex The tree level as an integer, 1+
+   */
+  setCheckedLevel(levelZeroNodeKey, levelIndex) {
+    this.checkedLevel = [levelZeroNodeKey, levelIndex];
+    this.emitTreeUpdate();
   }
 
   /**
@@ -322,17 +344,16 @@ export default class SetsTree {
   }
 
   /**
-   * Rearrange nodes after a drag interaction (within a particular tab's subtree).
+   * Rearrange nodes after a drag interaction.
    * Does nothing if the dragNode or dropNode are the current set node.
    * May update node keys to reflect the new hierarchy.
-   * @param {SetsTreeNode} tabRoot The root of the subtree in which the drag occurred.
    * @param {string} dropKey The key of the node on which the dragNode was dropped.
    * @param {string} dragKey The key of the node that was dragged.
    * @param {integer} dropPosition The index of the drop.
    * @param {boolean} dropToGap Whether the dragNode should move
    *                            between nodes or become a child.
    */
-  dragRearrange(tabRoot, dropKey, dragKey, dropPosition, dropToGap) {
+  dragRearrange(dropKey, dragKey, dropPosition, dropToGap) {
     const dragNode = tabRoot.findNode(dragKey);
     const dragParentNode = tabRoot.findParentNode(dragKey);
     let dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.key === dragKey);
@@ -475,6 +496,7 @@ export default class SetsTree {
    */
   viewSet(setKey) {
     this.visibleKeys = [setKey];
+    this.checkedLevel = [null, null];
     this.emitVisibilityUpdate();
   }
 
@@ -517,7 +539,6 @@ export default class SetsTree {
       }
       if(nodeToImport.children) {
         node = new SetsTreeNode({
-          key: nodeToImport.key,
           name: nodeToImport.name,
           color: (level > 0 ? nodeToImport.color : undefined),
           children: childrenNodes,
@@ -525,7 +546,6 @@ export default class SetsTree {
         });
       } else {
         node = new SetsTreeNode({
-          key: nodeToImport.key,
           name: nodeToImport.name,
           color: nodeToImport.color,
           set: nodeToImport.set,
@@ -554,7 +574,6 @@ export default class SetsTree {
     while (dfs.length > 0) {
       const currNode = dfs.pop();
       result.push({
-        key: currNode.key.substring(ALL_ROOT_KEY.length + PATH_SEP.length),
         name: currNode.name,
         color: currNode.color,
         set: currNode.set,
@@ -582,10 +601,11 @@ export default class SetsTree {
       let cellColorsArray = [];
       this.visibleKeys.forEach((setKey) => {
         const node = this.findNode(setKey);
-        if (node && node.set && node.set.length > 0) {
+        if (node) {
+          const nodeSet = node.getSet();
           cellColorsArray = [
             ...cellColorsArray,
-            ...node.set.map(cellId => [cellId, node.color]),
+            ...nodeSet.map(cellId => [cellId, node.color]),
           ];
         }
       });

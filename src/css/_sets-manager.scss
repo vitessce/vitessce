@@ -151,15 +151,33 @@
                 }
                 ul {
                   margin: 0;
-                  padding: 0 0 0 18px;
                 }
                 .rc-tree-node-content-wrapper {
+                  width: calc(100% - 100px);
                   display: inline-block;
                   margin: 0;
                   padding: 0;
                   text-decoration: none;
                   vertical-align: top;
                   cursor: pointer;
+                  position: relative;
+                  & > span {
+                    position: relative;
+                    width: 100%;
+                    display: inline-block;
+
+                    .title-button {
+                      position: relative;
+                      max-width: 80%;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                    }
+
+                    .node-menu-icon {
+                      position: relative;
+                      left: 0;
+                    }
+                  }
                 }
                 span {
                   &.rc-tree-switcher,
@@ -201,7 +219,9 @@
                     width: 13px;
                     height: 13px;
                     margin: 0 3px;
-                    background-position: 0 0;
+                    border: 0px solid gray;
+                    position: relative;
+                    left: 0;
                     &-checked {
                       background-position: -14px 0;
                     }
