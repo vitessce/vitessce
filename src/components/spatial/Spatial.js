@@ -177,6 +177,7 @@ export default class Spatial extends AbstractSelectableComponent {
     const Layer = isPyramid ? VivViewerLayer : StaticImageLayer;
     return new Layer({
       loader,
+      id: layerId,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
       loaderSelection: layerProps.selections,
