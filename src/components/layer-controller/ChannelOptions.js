@@ -7,28 +7,9 @@ import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
-import { makeStyles } from '@material-ui/core/styles';
+import { useOptionStyles } from './styles';
 
 import ColorPalette from './ColorPalette';
-
-const useStyles = makeStyles(() => ({
-  paper: {
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-  },
-  span: {
-    width: '70px',
-    textAlign: 'center',
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-  colors: {
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-}));
 
 function ChannelOptions({ handlePropertyChange, handleChannelRemove }) {
   const [open, toggle] = useReducer(v => !v, false);
@@ -43,7 +24,7 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove }) {
     handleChannelRemove();
   };
 
-  const classes = useStyles();
+  const classes = useOptionStyles();
   return (
     <>
       <IconButton

@@ -66,8 +66,10 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
 
   const { metadata: { dimensions } } = imageData;
   /*
-  * TODO: UI selectors for channels just assume the first dimension (so we only support 3D data)
-  * We will need to come up with more than just a single drop down for selecting image panes.
+  * TODO: UI selectors for channels just assume the first dimension (so we only support
+  * simple 2D images, with one additonal dimension (i.e. mz, time, channel, z).
+  * We will need to come up with more than just a single drop down for selecting image panes
+  * from multi-dimensional images.
   */
   const { values: channelOptions, field: dimName } = dimensions[0];
 
@@ -105,7 +107,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             slider={c.slider}
             color={c.color}
             channelOptions={channelOptions}
-            colormapOn={colormap !== ''}
+            colormapOn={Boolean(colormap)}
             handlePropertyChange={handleChannelPropertyChange}
             handleChannelRemove={handleChannelRemove}
           />

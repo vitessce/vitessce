@@ -5,8 +5,6 @@ import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 import Select from '@material-ui/core/Select';
 
-import { makeStyles } from '@material-ui/core/styles';
-
 import ChannelOptions from './ChannelOptions';
 
 const MIN_SLIDER_VALUE = 0;
@@ -17,12 +15,6 @@ const toRgb = (on, arr) => {
   const color = on ? COLORMAP_SLIDER_CHECKBOX_COLOR : arr;
   return `rgb(${color})`;
 };
-
-const useStyles = makeStyles(() => ({
-  options: {
-    marginTop: '4px',
-  },
-}));
 
 function ChannelSelectionDropdown({
   selectionIndex,
@@ -83,7 +75,16 @@ function ChannelController({
   disableOptions = false,
 }) {
   const rgbColor = toRgb(colormapOn, color);
-  const classes = useStyles();
+  /* A valid selection is defined by an object where the keys are
+  *  the name of a dimension of the data, and the values are the
+  *  index of the image along that particular dimension.
+  *
+  *  Since we currently only support making a selection along one
+  *  addtional dimension (i.e. the dropdown just has channels or mz)
+  *  we have a helper function to create the selection.
+  *
+  *  e.g { channel: 2 } // channel dimension, third channel
+  */
   const createSelection = index => ({ [dimName]: index });
   return (
     <Grid container direction="column" m={1} justify="center">
@@ -96,7 +97,7 @@ function ChannelController({
             channelOptions={channelOptions}
           />
         </Grid>
-        <Grid item xs={1} className={classes.options}>
+        <Grid item xs={1} style={{ marginTop: '4px' }}>
           <ChannelOptions
             handlePropertyChange={handlePropertyChange}
             handleChannelRemove={handleChannelRemove}

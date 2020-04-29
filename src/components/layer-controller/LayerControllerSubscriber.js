@@ -2,27 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import PubSub from 'pubsub-js';
 import Grid from '@material-ui/core/Grid';
-import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { grey } from '@material-ui/core/colors';
+import { ThemeProvider } from '@material-ui/core/styles';
 
 
 import TitleInfo from '../TitleInfo';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import { RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT } from '../../events';
-
-const darkTheme = createMuiTheme({
-  palette: {
-    type: 'dark',
-    primary: grey,
-    secondary: grey,
-  },
-  props: {
-    MuiButtonBase: {
-      disableRipple: true,
-    },
-  },
-});
+import { darkTheme } from './styles';
 
 function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   const [imageOptions, setImageOptions] = useState(null);

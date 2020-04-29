@@ -43,7 +43,7 @@ export default function SpatialSubscriber({
 
   useEffect(() => {
     const moleculesAddSubscriber = (msg, newMolecules) => setMolecules(newMolecules);
-    const nbhdsAddSubscriber = (msg, newNeighborhoods) => setNeighborhoods(newNeighborhoods);
+    const neighborhoodsAddSubscriber = (msg, newNeighborhoods) => setNeighborhoods(newNeighborhoods); // eslint-disable-line max-len
     const cellsAddSubscriber = (msg, newCells) => setCells(newCells);
     const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
     const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
@@ -69,7 +69,7 @@ export default function SpatialSubscriber({
     }
 
     const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
-    const nbhdsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, nbhdsAddSubscriber);
+    const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, neighborhoodsAddSubscriber);
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, cellsAddSubscriber);
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, cellsSelectionSubscriber);
     const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, cellsSelectionSubscriber);
@@ -80,7 +80,7 @@ export default function SpatialSubscriber({
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(moleculesAddToken);
-      PubSub.unsubscribe(nbhdsAddToken);
+      PubSub.unsubscribe(neighborhoodsAddToken);
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(cellSetsViewToken);

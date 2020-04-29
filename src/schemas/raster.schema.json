@@ -4,24 +4,24 @@
   "title": "Vitessce image data",
   "type": "object",
   "definitions": {
-    "imageTransform": {
+    "transform": {
       "type": "object",
       "additionalProperties": false,
       "required": ["scale", "translate"],
       "properties": {
-        "scale": { "type": "integer" },
+        "scale": { "type": "number" },
         "translate": {
           "type": "object",
           "additionalProperties": false,
           "required": ["y", "x"],
           "properties": {
-            "y": { "type": "integer" },
-            "x": { "type": "integer" }
+            "y": { "type": "number" },
+            "x": { "type": "number" }
           }
         }
       }
     },
-    "imageDimensions": {
+    "dimensions": {
       "type": "array",
       "items": {
         "type": "object",
@@ -31,7 +31,7 @@
           "field": { "type": "string" },
           "type": {
             "type": "string",
-            "examples": ["quantitative", "nominal", "ordinal", "temporal"]
+            "enum": ["quantitative", "nominal", "ordinal", "temporal"]
           },
           "values": {
             "type": ["array", "null"],
@@ -40,14 +40,14 @@
         }
       }
     },
-    "imageMetadata": {
+    "metadata": {
       "type": "object",
       "additionalProperties": false,
       "required": ["dimensions", "is_pyramid", "transform"],
       "properties": {
-        "dimensions": { "$ref": "#/definitions/imageDimensions" },
+        "dimensions": { "$ref": "#/definitions/dimensions" },
         "is_pyramid": { "type": "boolean" },
-        "transform": { "$ref": "#/definitions/imageTransform" }
+        "transform": { "$ref": "#/definitions/transform" }
       }
     },
     "image": {
@@ -56,9 +56,9 @@
       "required": ["name", "url", "type", "metadata"],
       "properties": {
         "name": { "type": "string" },
-        "url": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
         "type": { "type": "string" },
-        "metadata": { "$ref": "#/definitions/imageMetadata" }
+        "metadata": { "$ref": "#/definitions/metadata" }
       }
     }
   },

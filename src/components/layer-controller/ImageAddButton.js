@@ -7,34 +7,19 @@ import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { makeStyles } from '@material-ui/core/styles';
+import { useOptionStyles } from './styles';
 
-
-const useStyles = makeStyles(() => ({
-  paper: {
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-  },
-  span: {
-    width: '70px',
-    textAlign: 'center',
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-  colors: {
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-}));
-
+const buttonStyles = {
+  borderStyle: 'dashed',
+  marginTop: '10px',
+  fontWeight: 400,
+};
 
 function ImageAddButton({ imageOptions, handleImageAdd }) {
   const [open, toggle] = useReducer(v => !v, false);
   const anchorRef = useRef(null);
 
-  const classes = useStyles();
+  const classes = useOptionStyles();
 
   const handleAdd = (imgData) => {
     toggle();
@@ -48,7 +33,7 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
         onClick={toggle}
         fullWidth
         variant="outlined"
-        style={{ borderStyle: 'dashed', marginTop: '10px' }}
+        style={buttonStyles}
         startIcon={<AddIcon />}
         size="small"
         ref={anchorRef}
