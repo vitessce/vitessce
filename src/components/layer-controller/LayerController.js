@@ -1,4 +1,6 @@
-import React, { useState, useReducer, useEffect } from 'react';
+import React, {
+  useState, useReducer, useEffect, useMemo,
+} from 'react';
 import PubSub from 'pubsub-js';
 import { createZarrLoader } from '@hubmap/vitessce-image-viewer';
 
@@ -37,8 +39,7 @@ async function initLoader(imageData) {
     }
   }
 }
-
-
+const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400 };
 const MAX_CHANNELS = 6;
 const DEFAULT_LAYER_PROPS = {
   colormap: '',
@@ -54,6 +55,18 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
   const [channels, dispatch] = useReducer(reducer, {});
 
+  /*
+  * TODO: UI selectors for channels just assume the first dimension (so we only support
+  * simple 2D images, with one additonal dimension (i.e. mz, time, channel, z).
+  * We will need to come up with more than just a single drop down for selecting image panes
+  * from multi-dimensional images.
+  */
+  const [dimName, channelOptions, defaultSelection] = useMemo(() => {
+    const { metadata: { dimensions } } = imageData;
+    const { values, field } = dimensions[0];
+    return [field, values, { [field]: 0 }];
+  }, [imageData]);
+
   useEffect(() => {
     initLoader(imageData).then((loader) => {
       PubSub.publish(LAYER_ADD, {
@@ -61,23 +74,20 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
         loader,
         layerProps: DEFAULT_LAYER_PROPS,
       });
+      // Add channel on image add automatically
+      dispatch({
+        type: 'ADD_CHANNEL',
+        layerId,
+        payload: { selection: defaultSelection },
+      });
     });
-  }, [layerId, imageData]);
+  }, [layerId, imageData, defaultSelection]);
 
-  const { metadata: { dimensions } } = imageData;
-  /*
-  * TODO: UI selectors for channels just assume the first dimension (so we only support
-  * simple 2D images, with one additonal dimension (i.e. mz, time, channel, z).
-  * We will need to come up with more than just a single drop down for selecting image panes
-  * from multi-dimensional images.
-  */
-  const { values: channelOptions, field: dimName } = dimensions[0];
-
-  const handleChannelAdd = () => {
-    // By default choose first option when adding channel
-    const selection = { [dimName]: 0 };
-    dispatch({ type: 'ADD_CHANNEL', layerId, payload: { selection } });
-  };
+  const handleChannelAdd = () => dispatch({
+    type: 'ADD_CHANNEL',
+    layerId,
+    payload: { selection: defaultSelection },
+  });
 
   const handleOpacityChange = (sliderValue) => {
     setOpacity(sliderValue);
@@ -116,7 +126,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
     });
 
   return (
-    <ExpansionPanel style={{ width: '100%' }}>
+    <ExpansionPanel defaultExpanded style={{ width: '100%' }}>
       <ExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`layer-${imageData.name}-controls`}
@@ -142,7 +152,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             onClick={handleChannelAdd}
             fullWidth
             variant="outlined"
-            style={{ borderStyle: 'dashed', marginTop: '10px' }}
+            style={buttonStyles}
             startIcon={<AddIcon />}
             size="small"
           >
@@ -154,7 +164,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             onClick={handleLayerRemove}
             fullWidth
             variant="outlined"
-            style={{ borderStyle: 'dashed', marginTop: '10px' }}
+            style={buttonStyles}
             size="small"
           >
               Remove Image Layer
