@@ -1,0 +1,15 @@
+.github/
+build-demo/
+.DS_Store
+cypress/
+demo/
+node_modules/
+scripts/
+src/
+.eslintrc.yml
+.gitignore
+.travis.yml
+*.sh
+cypress.json
+demos.md
+error.html

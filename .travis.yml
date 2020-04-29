@@ -2,7 +2,7 @@ sudo: false
 
 language: node_js
 node_js:
-  - 13
+  - 12
 
 # Fix build failure.
 # https://github.com/cypress-io/cypress/issues/4069#issuecomment-488315675
@@ -23,3 +23,12 @@ cache:
 
 script:
   - ./test.sh
+
+deploy:
+  - provider: npm
+    skip_cleanup: true
+    email: $npm_email
+    api_key: $npm_token
+    on:
+      branch: master
+
