@@ -1,6 +1,5 @@
 @mixin higlass($theme-name, $theme-colors) {
     .v-higlass-title-wrapper {
-        width: calc(inherit - 10px);
         height: calc(100% - 20px);
         .card-body {
           width: inherit;
