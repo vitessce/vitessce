@@ -2,9 +2,6 @@ import React, { useMemo, useEffect, useCallback } from 'react';
 import loadable from '@loadable/component';
 import TitleInfo from '../TitleInfo';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'higlass/dist/hglib.css';
-
 const HiGlassComponent = loadable(() => import('higlass').then(d => new Promise(resolve => resolve(d.HiGlassComponent))));
 
 /**

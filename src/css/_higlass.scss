@@ -1,5 +1,9 @@
+@import "~higlass/dist/hglib.css";
+
 @mixin higlass($theme-name, $theme-colors) {
     .v-higlass-title-wrapper {
+  
+
         height: calc(100% - 20px);
         .card-body {
           width: inherit;
