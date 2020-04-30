@@ -1,11 +1,12 @@
 @mixin higlass($theme-name, $theme-colors) {
     .v-higlass-title-wrapper {
-        width: inherit;
-        height: calc(100% - 13px);
+        width: calc(inherit - 10px);
+        height: calc(100% - 20px);
         .card-body {
           width: inherit;
           height: inherit;
-          padding: 0;
+          padding: 5px;
+          background-color: map-get($theme-colors, "secondary-background");
           .v-higlass-wrapper-parent {
             width: inherit;
             height: inherit;
@@ -28,6 +29,7 @@
               box-sizing: border-box;
       
               .higlass {
+  
                 .react-grid-layout {
                   background-color: transparent !important;
                 }
@@ -44,9 +46,6 @@
               }
             }
           }
-        }
-        .card {
-          background-color: transparent;
         }
       }
           

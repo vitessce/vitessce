@@ -1,46 +1,37 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import loadable from '@loadable/component';
 import TitleInfo from '../TitleInfo';
-
-import hgViewConfig from './viewconfig.json';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'higlass/dist/hglib.css';
 
 const HiGlassComponent = loadable(() => import('higlass').then(d => new Promise(resolve => resolve(d.HiGlassComponent))));
 
-const hgOptionsBase = {
-  bounded: true,
-  pixelPreciseMarginPadding: true,
-  containerPaddingX: 0,
-  containerPaddingY: 0,
-  sizeMode: 'default',
-};
-
 export default function HiGlassSubscriber(props) {
   const {
+    hgViewConfig,
+    hgOptions = {
+      bounded: true,
+      pixelPreciseMarginPadding: true,
+      containerPaddingX: 0,
+      containerPaddingY: 0,
+      sizeMode: 'default',
+    },
     removeGridComponent,
     onReady,
   } = props;
 
-  useEffect(() => {
-    onReady();
-  }, []);
-
-  const hgComponent = useMemo(() => {
-    const hgOptions = {
-      ...hgOptionsBase,
-      theme: 'dark',
-    };
-
-    return (
-      <HiGlassComponent
-        viewConfig={hgViewConfig}
-        options={hgOptions}
-        zoomFixed={false}
-      />
-    );
-  }, []);
+  const hgComponent = useMemo(() => (
+    <HiGlassComponent
+      zoomFixed={false}
+      viewConfig={hgViewConfig}
+      options={{
+        ...hgOptions,
+        theme: 'dark',
+        onViewConfLoaded: onReady,
+      }}
+    />
+  ), [hgViewConfig, hgOptions, onReady]);
 
   return (
     <div className="v-higlass-title-wrapper">
