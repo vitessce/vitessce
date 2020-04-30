@@ -110,6 +110,9 @@ export default class SelectionLayer extends CompositeLayer {
           id: LAYER_ID_GEOJSON,
           pickable: true,
           mode,
+          modeConfig: {
+            dragToDraw: true,
+          },
           selectedFeatureIndexes: [],
           data: EMPTY_DATA,
           onEdit: ({ updatedData, editType }) => {

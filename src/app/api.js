@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.24/master_release';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.25/master_release';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -58,7 +58,7 @@ const vanderbiltBase = {
   description: vanderbiltDescription,
   layers: [
     'raster',
-  ].map(makeLayerNameToConfig('vanderbilt')),
+  ].map(makeLayerNameToConfig('spraggins')),
 };
 
 /* eslint-disable object-property-newline */
@@ -144,13 +144,8 @@ const configs = {
           description: `Linnarsson: ${linnarssonDescription}`,
         },
         x: 0, y: 0, w: 2, h: 1 },
-      { component: 'cellSets',
-        props: {
-          datasetId: 'linnarsson-2018',
-        },
-        x: 0, y: 3, w: 2, h: 2 },
-      { component: 'channels',
-        x: 0, y: 1, w: 2, h: 2,
+      { component: 'layerController',
+        x: 0, y: 1, w: 2, h: 4,
       },
       { component: 'status',
         x: 0, y: 5, w: 2, h: 1 },
@@ -168,7 +163,7 @@ const configs = {
           // This intentionally does not have a  "view" prop,
           // in order to have an example that uses the default.
         },
-        x: 6, y: 0, w: 4, h: 2 },
+        x: 6, y: 0, w: 3, h: 2 },
       { component: 'scatterplot',
         props: {
           mapping: 't-SNE',
@@ -177,11 +172,16 @@ const configs = {
             target: [0, 0, 0],
           },
         },
-        x: 6, y: 2, w: 4, h: 2 },
+        x: 6, y: 2, w: 3, h: 2 },
       { component: 'factors',
-        x: 10, y: 0, w: 2, h: 2 },
+        x: 9, y: 0, w: 2, h: 2 },
       { component: 'genes',
-        x: 10, y: 2, w: 2, h: 2 },
+        x: 11, y: 2, w: 1, h: 2 },
+      { component: 'cellSets',
+        props: {
+          datasetId: 'linnarsson-2018',
+        },
+        x: 9, y: 3, w: 3, h: 2 },
       { component: 'heatmap',
         x: 2, y: 4, w: 10, h: 2 },
     ],
@@ -409,7 +409,7 @@ const configs = {
           },
         },
         x: 0, y: 0, w: 9, h: 2 },
-      { component: 'channels',
+      { component: 'layerController',
         x: 9, y: 0, w: 3, h: 2,
       },
     ],

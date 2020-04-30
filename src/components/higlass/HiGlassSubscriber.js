@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useCallback } from 'react';
 import loadable from '@loadable/component';
 import TitleInfo from '../TitleInfo';
 
@@ -21,6 +21,12 @@ export default function HiGlassSubscriber(props) {
     onReady,
   } = props;
 
+  const onReadyCallback = useCallback(onReady, []);
+
+  useEffect(() => {
+    onReadyCallback();
+  }, [onReadyCallback]);
+
   const hgComponent = useMemo(() => (
     <HiGlassComponent
       zoomFixed={false}
@@ -28,10 +34,9 @@ export default function HiGlassSubscriber(props) {
       options={{
         ...hgOptions,
         theme: 'dark',
-        onViewConfLoaded: onReady,
       }}
     />
-  ), [hgViewConfig, hgOptions, onReady]);
+  ), [hgViewConfig, hgOptions]);
 
   return (
     <div className="v-higlass-title-wrapper">
