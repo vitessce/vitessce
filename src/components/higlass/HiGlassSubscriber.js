@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useCallback } from 'react';
 import loadable from '@loadable/component';
 import TitleInfo from '../TitleInfo';
 
- const HiGlassComponent = loadable(() => import('higlass').then(d => Promise.resolve(d.HiGlassComponent)));
+const HiGlassComponent = loadable(() => import('higlass').then(d => Promise.resolve(d.HiGlassComponent)));
 
 /**
  * A wrapper around HiGlass (http://higlass.io/).
