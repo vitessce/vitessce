@@ -104,7 +104,7 @@ function ChannelController({
           />
         </Grid>
       </Grid>
-      <Grid container direction="row" justify="flex-start">
+      <Grid container direction="row" justify="space-between">
         <Grid item xs={2}>
           <ChannelVisibilityCheckbox
             color={rgbColor}

@@ -32,3 +32,12 @@ export const useOptionStyles = makeStyles(() => ({
     paddingRight: '2px',
   },
 }));
+
+export const useExpansionPanelStyles = makeStyles(theme => ({
+  root: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    width: '100%',
+    flexDirection: 'column',
+  },
+}));

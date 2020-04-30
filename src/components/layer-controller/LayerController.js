@@ -19,6 +19,7 @@ import LayerOptions from './LayerOptions';
 
 import { LAYER_ADD, LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
+import { useExpansionPanelStyles } from './styles';
 
 
 async function initLoader(imageData) {
@@ -125,15 +126,17 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       );
     });
 
+  const classes = useExpansionPanelStyles();
   return (
-    <ExpansionPanel defaultExpanded style={{ width: '100%' }}>
+    <ExpansionPanel defaultExpanded className={classes.root}>
       <ExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`layer-${imageData.name}-controls`}
+        style={{ paddingLeft: '10px', paddingRight: '10px' }}
       >
         {imageData.name}
       </ExpansionPanelSummary>
-      <ExpansionPanelDetails style={{ flexDirection: 'column' }}>
+      <ExpansionPanelDetails className={classes.root}>
         <Grid item>
           <LayerOptions
             opacity={opacity}
