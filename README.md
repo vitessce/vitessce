@@ -123,8 +123,8 @@ If it looks good, copy it to vitessce.io:
 $ ./copy-prod.sh https://{url returned by push-demo.sh}
 ```
 
-We publish to the NPM registry by hand:
-Update the version number in `package.json` and run `npm publish`.
+The `vitessce` package is published to the NPM registry by Travis:
+Update the version number in `package.json` and merge `dev` into `master`.
 
 Finally, update the CHANGELOG.md to point to the new release on NPM.
 
