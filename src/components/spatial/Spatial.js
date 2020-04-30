@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
-import { VivViewerLayer } from '@hubmap/vitessce-image-viewer';
+import { VivViewerLayer, StaticImageLayer } from '@hubmap/vitessce-image-viewer';
+
 import { SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import AbstractSelectableComponent from '../AbstractSelectableComponent';
@@ -28,7 +29,6 @@ export default class Spatial extends AbstractSelectableComponent {
     this.moleculesData = [];
     this.cellsData = [];
     this.neighborhoodsData = [];
-    this.raster = [];
     this.setLayerIsVisible = this.setLayerIsVisible.bind(this);
     this.getInitialViewState = this.getInitialViewState.bind(this);
   }
@@ -153,30 +153,14 @@ export default class Spatial extends AbstractSelectableComponent {
     });
   }
 
-  createRasterLayer() {
-    const {
-      colorValues, sliderValues, channelVisibilities, raster,
-    } = this.props;
-    if (colorValues && sliderValues && channelVisibilities && raster) {
-      const { loader } = raster;
-      return new VivViewerLayer({
-        loader,
-        colorValues,
-        sliderValues,
-        channelIsOn: channelVisibilities,
-        onTileError: (err) => {
-          throw err;
-        },
-      });
-    }
-    return null;
+  setLayerIsVisible(layerIsVisible) {
+    this.setState({ layerIsVisible });
   }
 
-  setLayerIsVisible(layers) {
-    this.setState({ layers });
-  }
-
-  renderLayersMenu() { // eslint-disable-line class-methods-use-this
+  renderLayersMenu() {
+    const { molecules, neighborhoods, cells } = this.props;
+    // Don't render if just image data
+    if (!molecules && !neighborhoods && !cells) return null;
     return (
       <LayersMenu
         layerIsVisible={this.state.layerIsVisible}
@@ -185,13 +169,33 @@ export default class Spatial extends AbstractSelectableComponent {
     );
   }
 
+  renderImageLayer(layerId, loader) {
+    const { imageLayerProps } = this.props;
+    const layerProps = imageLayerProps[layerId];
+    if (!loader || !layerProps) return null;
+    const { scale, translate, isPyramid } = loader;
+    const Layer = isPyramid ? VivViewerLayer : StaticImageLayer;
+    return new Layer({
+      loader,
+      id: layerId,
+      colorValues: layerProps.colors,
+      sliderValues: layerProps.sliders,
+      loaderSelection: layerProps.selections,
+      channelIsOn: layerProps.visibilities,
+      opacity: layerProps.opacity,
+      colormap: layerProps.colormap.length > 0 && layerProps.colormap,
+      scale,
+      translate: [translate.x, translate.y],
+    });
+  }
+
   renderLayers() {
     const {
       molecules,
       cells,
       neighborhoods,
       clearPleaseWait,
-      raster,
+      imageLayerLoaders,
     } = this.props;
     // Process molecules data and cache into re-usable array.
     if (molecules && this.moleculesData.length === 0) {
@@ -203,31 +207,25 @@ export default class Spatial extends AbstractSelectableComponent {
           // The index and molecule values are correct.
         );
       });
+      if (clearPleaseWait) clearPleaseWait('molecules');
     }
     // Process cells data and cache into re-usable array.
     if (cells && this.cellsData.length === 0) {
       this.cellsData = Object.entries(cells);
+      if (clearPleaseWait) clearPleaseWait('cells');
     }
     // Process neighborhoods data and cache into re-usable array.
     if (neighborhoods && this.neighborhoodsData.length === 0) {
       this.neighborhoodsData = Object.entries(neighborhoods);
-    }
-    if (raster && this.raster.length === 0) {
-      this.raster = raster;
+      if (clearPleaseWait) clearPleaseWait('neighborhoods');
     }
     // Append each layer to the list.
     const layerList = [];
-
-    if (raster && clearPleaseWait) clearPleaseWait('raster');
-    layerList.push(this.createRasterLayer());
-
-    if (cells && clearPleaseWait) clearPleaseWait('cells');
+    Object.entries(imageLayerLoaders).forEach(([layerId, layerLoader]) => {
+      layerList.push(this.renderImageLayer(layerId, layerLoader));
+    });
     layerList.push(this.renderCellLayer());
-
-    if (neighborhoods && clearPleaseWait) clearPleaseWait('neighborhoods');
     layerList.push(this.renderNeighborhoodsLayer());
-
-    if (molecules && clearPleaseWait) clearPleaseWait('molecules');
     layerList.push(this.renderMoleculesLayer());
 
     return layerList;

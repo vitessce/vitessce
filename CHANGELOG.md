@@ -10,9 +10,12 @@
 
 ### Added
 - Added a selectable table component with radio- and checkbox-like functionality.
+- Added multi-modal Spraggins example.
 
 ### Changed
 - Changed the bundling process so that subsets of components are bundled into separate JS files by targeting the `src/components/{name}/index.js` files.
+- Changed `raster.json` schema.
+- Changed `Channels` component to more general `LayerController` component which publishes `LAYER_ADD`, `LAYER_REMOVE`, and `LAYER_CHANGE` events.
 
 ## [0.0.25](https://www.npmjs.com/package/vitessce/v/0.0.25) - 2020-03-26
 ### Added

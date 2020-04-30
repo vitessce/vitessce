@@ -1,4 +1,6 @@
-import React from 'react';
+import React, {
+  useState, useCallback, useEffect, useMemo,
+} from 'react';
 import PubSub from 'pubsub-js';
 import shortNumber from 'short-number';
 
@@ -14,162 +16,131 @@ import {
   CLEAR_PLEASE_WAIT,
   VIEW_INFO,
   CELL_SETS_VIEW,
-  RASTER_ADD,
-  SLIDERS_CHANGE,
-  COLORS_CHANGE,
-  CHANNEL_VISIBILITY_CHANGE,
+  LAYER_ADD,
+  LAYER_REMOVE,
+  LAYER_CHANGE,
 } from '../../events';
 import Spatial from './Spatial';
 
-export default class SpatialSubscriber extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      cells: {},
-      selectedCellIds: new Set(),
-      cellColors: null,
-      colorValues: null,
-      sliderValues: null,
-      channelVisibilities: null,
-      raster: null,
+export default function SpatialSubscriber({
+  children,
+  onReady,
+  removeGridComponent,
+  moleculeRadius,
+  view,
+  cellRadius,
+  uuid = null,
+}) {
+  const [cells, setCells] = useState(null);
+  const [molecules, setMolecules] = useState(null);
+  const [cellColors, setCellColors] = useState(null);
+  const [neighborhoods, setNeighborhoods] = useState(null);
+  const [selectedCellIds, setSelectedCellIds] = useState(new Set());
+  const [imageLayerProps, setImageLayerProps] = useState({});
+  const [imageLayerLoaders, setImageLayerLoaders] = useState({});
+
+  const onReadyCallback = useCallback(onReady, []);
+
+  useEffect(() => {
+    const moleculesAddSubscriber = (msg, newMolecules) => setMolecules(newMolecules);
+    const neighborhoodsAddSubscriber = (msg, newNeighborhoods) => setNeighborhoods(newNeighborhoods); // eslint-disable-line max-len
+    const cellsAddSubscriber = (msg, newCells) => setCells(newCells);
+    const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
+    const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
+    function layerAddSubscriber(msg, { layerId, loader, layerProps }) {
+      setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: layerProps }));
+      setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
+    }
+    function layerChangeSubscriber(msg, { layerId, layerProps }) {
+      setImageLayerProps(prevLayerProps => ({
+        ...prevLayerProps,
+        [layerId]: { ...prevLayerProps[layerId], ...layerProps },
+      }));
+    }
+    function layerRemoveSubscriber(msg, layerId) {
+      setImageLayerLoaders((prevLoaders) => {
+        const { [layerId]: _, ...nextLoaders } = prevLoaders;
+        return nextLoaders;
+      });
+      setImageLayerProps((prevLayerProps) => {
+        const { [layerId]: _, ...nextLayerProps } = prevLayerProps;
+        return nextLayerProps;
+      });
+    }
+
+    const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
+    const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, neighborhoodsAddSubscriber);
+    const cellsAddToken = PubSub.subscribe(CELLS_ADD, cellsAddSubscriber);
+    const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, cellsSelectionSubscriber);
+    const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, cellsSelectionSubscriber);
+    const cellsColorToken = PubSub.subscribe(CELLS_COLOR, cellsColorSubscriber);
+    const layerAddToken = PubSub.subscribe(LAYER_ADD, layerAddSubscriber);
+    const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
+    const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
+    onReadyCallback();
+    return () => {
+      PubSub.unsubscribe(moleculesAddToken);
+      PubSub.unsubscribe(neighborhoodsAddToken);
+      PubSub.unsubscribe(cellsAddToken);
+      PubSub.unsubscribe(cellsSelectionToken);
+      PubSub.unsubscribe(cellSetsViewToken);
+      PubSub.unsubscribe(cellsColorToken);
+      PubSub.unsubscribe(layerAddToken);
+      PubSub.unsubscribe(layerChangeToken);
+      PubSub.unsubscribe(layerRemoveToken);
     };
-    this.componentWillUnmount = this.componentWillUnmount.bind(this);
-  }
+  }, [onReadyCallback]);
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillMount() {
-    this.moleculesAddToken = PubSub.subscribe(
-      MOLECULES_ADD, this.moleculesAddSubscriber.bind(this),
-    );
-    this.neighborhoodsAddToken = PubSub.subscribe(
-      NEIGHBORHOODS_ADD, this.neighborhoodsAddSubscriber.bind(this),
-    );
-    this.cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, this.cellsAddSubscriber.bind(this),
-    );
-    this.cellsSelectionToken = PubSub.subscribe(
-      CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
-    );
-    this.cellSetsViewToken = PubSub.subscribe(
-      CELL_SETS_VIEW, this.cellsSelectionSubscriber.bind(this),
-    );
-    this.cellsColorToken = PubSub.subscribe(
-      CELLS_COLOR, this.cellsColorSubscriber.bind(this),
-    );
-    this.rasterAddToken = PubSub.subscribe(
-      RASTER_ADD, this.rasterAddSubscriber.bind(this),
-    );
-  }
+  const cellsCount = useMemo(() => (cells ? Object.keys(cells).length : 0), [cells]);
+  const [moleculesCount, locationsCount] = useMemo(() => {
+    if (!molecules) return [0, 0];
+    return [
+      Object.keys(molecules).length,
+      Object.values(molecules)
+        .map(l => l.length)
+        .reduce((a, b) => a + b, 0),
+    ];
+  }, [molecules]);
 
-  componentDidMount() {
-    const { onReady } = this.props;
-    onReady();
-  }
-
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.moleculesAddToken);
-    PubSub.unsubscribe(this.neighborhoodsAddToken);
-    PubSub.unsubscribe(this.cellsAddToken);
-    PubSub.unsubscribe(this.cellsSelectionToken);
-    PubSub.unsubscribe(this.cellsColorToken);
-    PubSub.unsubscribe(this.cellSetsViewToken);
-    PubSub.unsubscribe(this.rasterAddToken);
-    PubSub.unsubscribe(this.slidersChangeToken);
-    PubSub.unsubscribe(this.colorsChangeToken);
-    PubSub.unsubscribe(this.channelVisibilityChangeToken);
-  }
-
-  cellsSelectionSubscriber(msg, cellIds) {
-    this.setState({ selectedCellIds: cellIds });
-  }
-
-  rasterAddSubscriber(msg, raster) {
-    this.setState({ raster });
-    const { id } = raster;
-    this.slidersChangeToken = PubSub.subscribe(
-      SLIDERS_CHANGE(id),
-      this.onSlidersChange.bind(this),
-    );
-    this.colorsChangeToken = PubSub.subscribe(
-      COLORS_CHANGE(id),
-      this.onColorsChange.bind(this),
-    );
-    this.channelVisibilityChangeToken = PubSub.subscribe(
-      CHANNEL_VISIBILITY_CHANGE(id),
-      this.onChannelVisibilityChange.bind(this),
-    );
-  }
-
-  moleculesAddSubscriber(msg, molecules) {
-    this.setState({ molecules });
-  }
-
-  neighborhoodsAddSubscriber(msg, neighborhoods) {
-    this.setState({ neighborhoods });
-  }
-
-  cellsAddSubscriber(msg, cells) {
-    this.setState({ cells });
-  }
-
-  cellsColorSubscriber(msg, cellColors) {
-    this.setState({ cellColors });
-  }
-
-  onSlidersChange(msg, sliderValues) {
-    this.setState({ sliderValues });
-  }
-
-  onColorsChange(msg, colorValues) {
-    this.setState({ colorValues });
-  }
-
-  onChannelVisibilityChange(msg, channelVisibilities) {
-    this.setState({ channelVisibilities });
-  }
-
-  render() {
-    const { cells, molecules } = this.state;
-    const { uuid = null, children, removeGridComponent } = this.props;
-    const cellsCount = cells ? Object.keys(cells).length : 0;
-    const moleculesCount = molecules ? Object.keys(molecules).length : 0;
-    const locationsCount = molecules
-      ? Object.values(molecules).map(l => l.length).reduce((a, b) => a + b, 0) : 0;
-    return (
-      /* eslint-disable react/destructuring-assignment */
-      <TitleInfo
-        title="Spatial"
-        info={`${cellsCount} cells, ${moleculesCount} molecules
-              at ${shortNumber(locationsCount)} locations`}
-        removeGridComponent={removeGridComponent}
-      >
-        {children}
-        <Spatial
-          {... this.state}
-          view={this.props.view}
-          moleculeRadius={this.props.moleculeRadius}
-          cellRadius={this.props.cellRadius}
-          uuid={uuid}
-          updateStatus={
+  return (
+    <TitleInfo
+      title="Spatial"
+      info={
+        `${cellsCount} cells, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
+      }
+      removeGridComponent={removeGridComponent}
+    >
+      {children}
+      <Spatial
+        cells={cells}
+        selectedCellIds={selectedCellIds}
+        neighborhoods={neighborhoods}
+        molecules={molecules}
+        cellColors={cellColors}
+        imageLayerProps={imageLayerProps}
+        imageLayerLoaders={imageLayerLoaders}
+        view={view}
+        cellRadius={cellRadius}
+        moleculeRadius={moleculeRadius}
+        uuid={uuid}
+        updateStatus={
             message => PubSub.publish(STATUS_INFO, message)
           }
-          updateCellsSelection={
-            selectedCellIds => PubSub.publish(CELLS_SELECTION, selectedCellIds)
+        updateCellsSelection={
+            selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)
           }
-          updateCellsHover={
+        updateCellsHover={
             hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)
           }
-          updateViewInfo={
+        updateViewInfo={
             viewInfo => PubSub.publish(VIEW_INFO, viewInfo)
           }
-          clearPleaseWait={
+        clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
-        />
-      </TitleInfo>
-      /* eslint-enable */
-    );
-  }
+      />
+    </TitleInfo>
+  );
 }
 
 SpatialSubscriber.defaultProps = {

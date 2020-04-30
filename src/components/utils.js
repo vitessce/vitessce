@@ -54,6 +54,17 @@ export const PALETTE = [
   [177, 89, 40],
 ];
 
+export const VIEWER_PALETTE = [
+  [0, 0, 255],
+  [0, 255, 0],
+  [255, 0, 0],
+  [255, 255, 0],
+  [0, 255, 255],
+  [255, 0, 255],
+  [255, 255, 255],
+  [255, 128, 0],
+];
+
 
 export function rgb(hexString) {
   return [
@@ -73,3 +84,20 @@ export function fromEntries(iterable) {
   return [...iterable]
     .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {});
 }
+
+export function range(length) {
+  return [...Array(length).keys()];
+}
+
+export const COLORMAP_OPTIONS = [
+  'viridis',
+  'greys',
+  'magma',
+  'jet',
+  'hot',
+  'bone',
+  'copper',
+  'summer',
+  'density',
+  'inferno',
+];
