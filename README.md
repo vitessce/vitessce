@@ -123,10 +123,13 @@ If it looks good, copy it to vitessce.io:
 $ ./copy-prod.sh https://{url returned by push-demo.sh}
 ```
 
-The `vitessce` package is published to the NPM registry by Travis:
-Update the version number in `package.json` and merge `dev` into `master`.
-
-Finally, update the CHANGELOG.md to point to the new release on NPM.
+The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update:
+- On the `dev` branch,
+    - Update the version in `package.json`
+    - Update the CHANGELOG.md to point to the new release on NPM.
+- Merge `dev` into `master`
+- Tag the release commit (for example, `git tag v0.1.0 fe3e61c`)
+- Push the tag with `git push --tags`
 
 ## Related Subsidiary Projects
 
