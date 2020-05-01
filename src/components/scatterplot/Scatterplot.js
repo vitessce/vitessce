@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import DeckGL, { OrthographicView } from 'deck.gl';
 import { SelectableScatterplotLayer } from '../../layers';
 import ToolMenu from '../ToolMenu';
+import { getSelectionLayers } from '../selectable-component-utils';
 import {
   cellLayerDefaultProps, DEFAULT_COLOR,
   DEFAULT_GL_OPTIONS,
@@ -9,12 +10,9 @@ import {
   updateCellsHoverWarn,
   updateViewInfoWarn, clearPleaseWaitWarn,
 } from '../utils';
-import {
-  getSelectionLayers,
-} from '../selectable-component-utils';
 
 const COMPONENT_NAME = 'Scatterplot';
-const CELL_BASE_LAYER_ID = 'base-scatterplot';
+const CELLS_LAYER_ID = 'scatterplot';
 
 /**
  * React component which renders a scatterplot from cell data, typically tSNE or PCA.
@@ -118,7 +116,7 @@ export default function Scatterplot(props) {
 
   const layers = (cells ? [
     new SelectableScatterplotLayer({
-      id: 'scatterplot',
+      id: CELLS_LAYER_ID,
       isSelected: getCellIsSelected,
       // No radiusMin, so texture remains open even zooming out.
       radiusMaxPixels: 1,
@@ -139,7 +137,7 @@ export default function Scatterplot(props) {
   const selectionLayers = getSelectionLayers(
     tool,
     view.zoom,
-    CELL_BASE_LAYER_ID,
+    CELLS_LAYER_ID,
     getCellCoords,
     updateCellsSelection,
   );

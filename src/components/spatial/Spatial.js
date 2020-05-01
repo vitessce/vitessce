@@ -8,6 +8,7 @@ import { VivViewerLayer, StaticImageLayer } from '@hubmap/vitessce-image-viewer'
 import { SelectablePolygonLayer } from '../../layers';
 import LayersMenu from './LayersMenu';
 import ToolMenu from '../ToolMenu';
+import { getSelectionLayers } from '../selectable-component-utils';
 import {
   cellLayerDefaultProps, PALETTE, DEFAULT_COLOR,
   DEFAULT_GL_OPTIONS,
@@ -15,12 +16,9 @@ import {
   updateCellsHoverWarn,
   updateViewInfoWarn, clearPleaseWaitWarn,
 } from '../utils';
-import {
-  getSelectionLayers,
-} from '../selectable-component-utils';
 
 const COMPONENT_NAME = 'Spatial';
-const CELL_BASE_LAYER_ID = 'base-polygon-layer';
+const CELLS_LAYER_ID = 'cells-layer';
 
 
 export function square(x, y, r) {
@@ -190,7 +188,7 @@ export default function Spatial(props) {
   }, [neighborhoods, neighborhoodsDataRef, clearPleaseWait, layerIsVisible]);
 
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
-    id: 'polygon-layer',
+    id: CELLS_LAYER_ID,
     isSelected: getCellIsSelected,
     stroked: false,
     getPolygon: getCellPolygon,
@@ -275,7 +273,7 @@ export default function Spatial(props) {
   const selectionLayers = getSelectionLayers(
     tool,
     view.zoom,
-    CELL_BASE_LAYER_ID,
+    CELLS_LAYER_ID,
     getCellCoords,
     updateCellsSelection,
   );
