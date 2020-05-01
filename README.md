@@ -125,11 +125,9 @@ $ ./copy-prod.sh https://{url returned by push-demo.sh}
 
 The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update:
 - On the `dev` branch,
-    - Update the version in `package.json`
-    - Update the CHANGELOG.md to point to the new release on NPM.
-- Merge `dev` into `master`
-- Tag the release commit (for example, `git tag v0.1.0 fe3e61c`)
-- Push the tag with `git push --tags`
+    - Update the version by running `npm version patch`, `npm version minor`, or `npm version major`
+    - Update the CHANGELOG.md to remove the "in progress" text from the current version heading.
+- Merge `dev` into `master` by making a pull request.
 
 ## Related Subsidiary Projects
 
