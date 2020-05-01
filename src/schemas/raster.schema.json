@@ -53,7 +53,7 @@
     "image": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "url", "type", "metadata"],
+      "required": ["name", "url", "type"],
       "properties": {
         "name": { "type": "string" },
         "url": { "type": "string", "format": "uri" },

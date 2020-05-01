@@ -70,10 +70,12 @@ function ChannelController({
   selectionIndex,
   colormapOn,
   channelOptions,
+  dimValues,
   handlePropertyChange,
   handleChannelRemove,
   disableOptions = false,
 }) {
+  // eslint-disable-next-line
   const rgbColor = toRgb(colormapOn, color);
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
@@ -85,7 +87,7 @@ function ChannelController({
   *
   *  e.g { channel: 2 } // channel dimension, third channel
   */
-  const createSelection = index => ({ [dimName]: index });
+  const createSelection = index => ({ [dimName]: dimValues[index] });
   return (
     <Grid container direction="column" m={1} justify="center">
       <Grid container direction="row" justify="space-between">

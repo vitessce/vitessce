@@ -69,7 +69,6 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
   const [channels, dispatch] = useReducer(reducer, {});
   const [dimensions, setDimensions] = useState([]);
-
   useEffect(() => {
     initLoader(imageData).then((loader) => {
       // eslint-disable-next-line no-console
@@ -80,8 +79,14 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
         layerProps: DEFAULT_LAYER_PROPS,
       });
       // Add channel on image add automatically
-      const { field } = loader.dimensions[0];
-      const defaultSelection = { [field]: 0 };
+      const defaultSelection = Object.assign(
+        {},
+        ...loader.dimensions.map(
+          dimension => dimension.type !== 'quantitative' && {
+            [dimension.field]: dimension.values[0],
+          },
+        ),
+      );
       dispatch({
         type: 'ADD_CHANNEL',
         layerId,
@@ -93,7 +98,16 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   const handleChannelAdd = () => dispatch({
     type: 'ADD_CHANNEL',
     layerId,
-    payload: { selection: { [dimensions[0].field]: 0 } },
+    payload: {
+      selection: Object.assign(
+        {},
+        ...dimensions.map(
+          dimension => dimension.type !== 'quantitative' && {
+            [dimension.field]: dimension.values[0],
+          },
+        ),
+      ),
+    },
   });
 
   const handleOpacityChange = (sliderValue) => {
@@ -137,6 +151,10 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
               colormapOn={Boolean(colormap)}
               handlePropertyChange={handleChannelPropertyChange}
               handleChannelRemove={handleChannelRemove}
+              dimValues={
+                dimensions.filter(dimension => dimension.field === dimName)[0]
+                  .values
+              }
             />
           </Grid>
         );
