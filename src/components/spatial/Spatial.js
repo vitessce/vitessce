@@ -29,6 +29,30 @@ export function square(x, y, r) {
 
 /**
  * React component which expresses the spatial relationships between cells and molecules.
+ * @prop {string} uuid
+ * @prop {object} view
+ * @prop {object} molecules
+ * @prop {object} cells
+ * @prop {object} neighborhoods
+ * @prop {number} cellRadius
+ * @prop {number} moleculeRadius
+ * @prop {object} imageLayerProps
+ * @prop {object} imageLayerLoaders
+ * @prop {object} cellColors Object mapping cell IDs to colors.
+ * @prop {Set} selectedCellIds Set of selected cell IDs.
+ * @prop {function} getCellCoords Getter function for cell coordinates.
+ * @prop {function} getCellColor Getter function for cell color as [r, g, b] array.
+ * @prop {function} getCellPolygon
+ * @prop {function} getCellIsSelected Getter function for cell layer isSelected.
+ * @prop {function} getMoleculeColor
+ * @prop {function} getMoleculePosition
+ * @prop {function} getNeighborhoodPolygon
+ * @prop {function} updateStatus
+ * @prop {function} updateCellsSelection
+ * @prop {function} updateCellsHover
+ * @prop {function} updateViewInfo
+ * @prop {function} clearPleaseWait
+ * @prop {function} onCellClick Getter function for cell layer onClick.
  */
 export default function Spatial(props) {
   const {

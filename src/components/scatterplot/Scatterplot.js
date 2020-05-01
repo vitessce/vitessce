@@ -29,11 +29,13 @@ const CELL_BASE_LAYER_ID = 'base-scatterplot';
  * @prop {function} getCellCoords Getter function for cell coordinates.
  * @prop {function} getCellPosition Getter function for cell [x, y, z] position.
  * @prop {function} getCellColor Getter function for cell color as [r, g, b] array.
+ * @prop {function} getCellIsSelected Getter function for cell layer isSelected.
  * @prop {function} updateStatus
  * @prop {function} updateCellsSelection
  * @prop {function} updateCellsHover
  * @prop {function} updateViewInfo
  * @prop {function} clearPleaseWait
+ * @prop {function} onCellClick Getter function for cell layer onClick.
  */
 export default function Scatterplot(props) {
   const {
