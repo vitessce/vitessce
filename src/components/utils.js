@@ -101,3 +101,25 @@ export const COLORMAP_OPTIONS = [
   'density',
   'inferno',
 ];
+
+export const DEFAULT_GL_OPTIONS = { webgl2: true };
+
+export function updateStatusWarn(componentName) {
+  return message => console.warn(`${componentName} updateStatus: ${message}`);
+}
+
+export function updateCellsSelectionWarn(componentName) {
+  return cellsSelection => console.warn(`${componentName} updateCellsSelection: ${cellsSelection}`);
+}
+
+export function updateCellsHoverWarn(componentName) {
+  return hoverInfo => console.warn(`${componentName} updateCellsHover: ${hoverInfo.cellId}`);
+}
+
+export function updateViewInfoWarn(componentName) {
+  return viewInfo => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
+}
+
+export function clearPleaseWaitWarn(componentName) {
+  return layer => console.warn(`${componentName} "clearPleaseWait" not provided; layer: ${layer}`);
+}
