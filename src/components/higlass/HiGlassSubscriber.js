@@ -1,8 +1,9 @@
-import React, { useMemo, useEffect, useCallback } from 'react';
-import loadable from '@loadable/component';
+import React, {
+  useMemo, useEffect, useCallback, Suspense,
+} from 'react';
 import TitleInfo from '../TitleInfo';
 
-const HiGlassComponent = loadable(() => import('higlass').then(d => Promise.resolve(d.HiGlassComponent)));
+const HiGlassComponent = React.lazy(() => import('./HiGlass'));
 
 /**
  * A wrapper around HiGlass (http://higlass.io/).
@@ -54,7 +55,9 @@ export default function HiGlassSubscriber(props) {
       >
         <div className="v-higlass-wrapper-parent">
           <div className="v-higlass-wrapper">
-            {hgComponent}
+            <Suspense fallback={<div>Loading...</div>}>
+              {hgComponent}
+            </Suspense>
           </div>
         </div>
       </TitleInfo>
