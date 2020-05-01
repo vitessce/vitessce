@@ -1,5 +1,10 @@
+import React from 'react';
+import Adapter from 'enzyme-adapter-react-16';
+import { configure, mount } from 'enzyme';
 import expect from 'expect';
 import Spatial, { square } from './Spatial';
+
+configure({ adapter: new Adapter() });
 
 describe('Spatial.js', () => {
   describe('square()', () => {
@@ -9,13 +14,14 @@ describe('Spatial.js', () => {
   });
 
   describe('<Spatial>', () => {
-    it('handles moleculeRadius', () => {
-      const spatialComponent = new Spatial({
+    it('renders a DeckGL element', () => {
+      const spatialProps = {
         moleculeRadius: 42,
         molecules: { 'fake-molecule': [] },
-      });
-      const moleculesLayer = spatialComponent.renderMoleculesLayer();
-      expect(moleculesLayer.props.getRadius).toEqual(42);
+      };
+
+      const wrapper = mount(<Spatial {...spatialProps} />);
+      expect(wrapper.find('#deckgl-wrapper').length).toEqual(1);
     });
 
     // TODO: Doesn't work, but I want to unblock Tos on molecules, first

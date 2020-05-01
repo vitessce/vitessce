@@ -29,6 +29,8 @@ export function square(x, y, r) {
  * React component which expresses the spatial relationships between cells and molecules.
  * @prop {string} uuid
  * @prop {object} view
+ * @prop {number} view.zoom
+ * @prop {number[]} view.target See https://github.com/uber/deck.gl/issues/2580 for more information.
  * @prop {object} molecules
  * @prop {object} cells
  * @prop {object} neighborhoods
@@ -55,15 +57,18 @@ export function square(x, y, r) {
 export default function Spatial(props) {
   const {
     uuid = null,
-    view,
-    molecules,
-    cells,
-    neighborhoods,
-    cellRadius = 10,
-    moleculeRadius,
-    imageLayerProps,
-    imageLayerLoaders,
-    cellColors,
+    view = {
+      zoom: 2,
+      target: [0, 0, 0],
+    },
+    molecules = {},
+    cells = {},
+    neighborhoods = {},
+    cellRadius = 50,
+    moleculeRadius = 10,
+    imageLayerProps = {},
+    imageLayerLoaders = {},
+    cellColors = {},
     selectedCellIds = new Set(),
     getCellCoords = cell => cell.xy,
     getCellColor = cellEntry => (cellColors && cellColors[cellEntry[0]]) || DEFAULT_COLOR,
@@ -107,7 +112,11 @@ export default function Spatial(props) {
   const cellsDataRef = useRef(null);
   const neighborhoodsDataRef = useRef(null);
 
-  const [layerIsVisible, setLayerIsVisible] = useState({});
+  const [layerIsVisible, setLayerIsVisible] = useState({
+    molecules: false,
+    cells: false,
+    neighborhoods: false,
+  });
 
   const deckRef = useRef();
   const viewRef = useRef({
