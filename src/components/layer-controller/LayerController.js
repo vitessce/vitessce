@@ -1,8 +1,8 @@
 import React, {
-  useState, useReducer, useEffect, useMemo,
+  useState, useReducer, useEffect,
 } from 'react';
 import PubSub from 'pubsub-js';
-import { createZarrLoader } from '@hubmap/vitessce-image-viewer';
+import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -22,15 +22,29 @@ import { useExpansionPanelStyles } from './styles';
 
 
 async function initLoader(imageData) {
-  const { type, url, metadata } = imageData;
-  const { dimensions, is_pyramid: isPyramid, transform } = metadata;
-  const { scale = 0, translate = { x: 0, y: 0 } } = transform;
-
+  const {
+    type, url, metadata, requestInit,
+  } = imageData;
   switch (type) {
     // TODO: Add tiff loader
     case ('zarr'): {
+      const { dimensions, is_pyramid: isPyramid, transform } = metadata;
+      const { scale = 0, translate = { x: 0, y: 0 } } = transform;
       const loader = await createZarrLoader({
         url, dimensions, isPyramid, scale, translate,
+      });
+      return loader;
+    }
+    case ('ome-tiff'): {
+      const res = await fetch(
+        url.replace(/ome.tif(f?)/gi, 'offsets.json'),
+        requestInit,
+      );
+      const offsets = res.status !== 404 ? await res.json() : [];
+      const loader = await createOMETiffLoader({
+        url,
+        offsets,
+        headers: requestInit,
       });
       return loader;
     }
@@ -54,39 +68,32 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
   const [channels, dispatch] = useReducer(reducer, {});
-
-  /*
-  * TODO: UI selectors for channels just assume the first dimension (so we only support
-  * simple 2D images, with one additonal dimension (i.e. mz, time, channel, z).
-  * We will need to come up with more than just a single drop down for selecting image panes
-  * from multi-dimensional images.
-  */
-  const [dimName, channelOptions, defaultSelection] = useMemo(() => {
-    const { metadata: { dimensions } } = imageData;
-    const { values, field } = dimensions[0];
-    return [field, values, { [field]: 0 }];
-  }, [imageData]);
+  const [dimensions, setDimensions] = useState([]);
 
   useEffect(() => {
     initLoader(imageData).then((loader) => {
+      // eslint-disable-next-line no-console
+      setDimensions(loader.dimensions);
       PubSub.publish(LAYER_ADD, {
         layerId,
         loader,
         layerProps: DEFAULT_LAYER_PROPS,
       });
       // Add channel on image add automatically
+      const { field } = loader.dimensions[0];
+      const defaultSelection = { [field]: 0 };
       dispatch({
         type: 'ADD_CHANNEL',
         layerId,
         payload: { selection: defaultSelection },
       });
     });
-  }, [layerId, imageData, defaultSelection]);
+  }, [layerId, imageData]);
 
   const handleChannelAdd = () => dispatch({
     type: 'ADD_CHANNEL',
     layerId,
-    payload: { selection: defaultSelection },
+    payload: { selection: { [dimensions[0].field]: 0 } },
   });
 
   const handleOpacityChange = (sliderValue) => {
@@ -99,31 +106,43 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
     PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colormap: colormapName } });
   };
 
-  const channelControllers = Object
-    .entries(channels)
-    .map(([channelId, c]) => {
-      const handleChannelPropertyChange = (property, value) => {
-        dispatch({ type: 'CHANGE_PROPERTY', layerId, payload: { channelId, property, value } });
-      };
-      const handleChannelRemove = () => {
-        dispatch({ type: 'REMOVE_CHANNEL', layerId, payload: { channelId } });
-      };
-      return (
-        <Grid key={`channel-controller-${channelId}`} item style={{ width: '100%' }}>
-          <ChannelController
-            dimName={dimName}
-            selectionIndex={c.selection[0]}
-            visibility={c.visibility}
-            slider={c.slider}
-            color={c.color}
-            channelOptions={channelOptions}
-            colormapOn={Boolean(colormap)}
-            handlePropertyChange={handleChannelPropertyChange}
-            handleChannelRemove={handleChannelRemove}
-          />
-        </Grid>
-      );
-    });
+  let channelControllers;
+  if (dimensions.length > 0) {
+    const { values: channelOptions, field: dimName } = dimensions[0];
+    channelControllers = Object.entries(channels).map(
+      ([channelId, c]) => {
+        const handleChannelPropertyChange = (property, value) => {
+          dispatch({
+            type: 'CHANGE_PROPERTY',
+            layerId,
+            payload: { channelId, property, value },
+          });
+        };
+        const handleChannelRemove = () => {
+          dispatch({ type: 'REMOVE_CHANNEL', layerId, payload: { channelId } });
+        };
+        return (
+          <Grid
+            key={`channel-controller-${channelId}`}
+            item
+            style={{ width: '100%' }}
+          >
+            <ChannelController
+              dimName={dimName}
+              selectionIndex={c.selection[0]}
+              visibility={c.visibility}
+              slider={c.slider}
+              color={c.color}
+              channelOptions={channelOptions}
+              colormapOn={Boolean(colormap)}
+              handlePropertyChange={handleChannelPropertyChange}
+              handleChannelRemove={handleChannelRemove}
+            />
+          </Grid>
+        );
+      },
+    );
+  }
 
   const classes = useExpansionPanelStyles();
   return (
