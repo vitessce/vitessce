@@ -35,16 +35,30 @@ function channelsToLayerProps(channels) {
   };
 }
 
+function getNewChannelProperty(channel, property, value) {
+  if (property === 'visibility') {
+    return !channel.visibility;
+  }
+  if (property === 'selection') {
+    return { ...channel[property], ...value };
+  }
+  return value;
+}
+
 export default function reducer(channels, action) {
   const { type, layerId, payload } = action;
   switch (type) {
-    case 'CHANGE_PROPERTY': {
+    case 'CHANGE_SINGLE_CHANNEL_PROPERTY': {
       const { channelId, property, value } = payload;
       const nextChannels = {
         ...channels,
         [channelId]: {
           ...channels[channelId],
-          [property]: property === 'visibility' ? !channels[channelId].visibility : value,
+          [property]: getNewChannelProperty(
+            channels[channelId],
+            property,
+            value,
+          ),
         },
       };
       /*
@@ -63,6 +77,28 @@ export default function reducer(channels, action) {
       */
       const propertyToUpdate = layerProperty[property];
       const updatedValues = Object.values(nextChannels).map(c => c[property]);
+      const layerProps = {
+        [propertyToUpdate]: updatedValues,
+      };
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      return nextChannels;
+    }
+    case 'CHANGE_GLOBAL_CHANNELS_SELECTION': {
+      const { selection } = payload;
+      const nextChannels = Object.assign({},
+        ...Object.keys(channels).map(channelId => (
+          {
+            [channelId]: {
+              ...channels[channelId],
+              selection: {
+                ...channels[channelId].selection,
+                ...{ [selection.field]: selection.value },
+              },
+            },
+          }
+        )));
+      const propertyToUpdate = layerProperty.selection;
+      const updatedValues = Object.values(nextChannels).map(c => c.selection);
       const layerProps = {
         [propertyToUpdate]: updatedValues,
       };

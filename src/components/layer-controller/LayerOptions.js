@@ -42,6 +42,28 @@ function OpacitySlider({ value, handleChange }) {
   );
 }
 
+function GlobalSelectionSlider({
+  value,
+  handleChange,
+  selection,
+  possibleValues,
+}) {
+  return (
+    <Slider
+      value={value}
+      onChange={(e, v) => handleChange({ field: selection, value: v })}
+      valueLabelDisplay="auto"
+      getAriaLabel={() => `${selection} slider`}
+      marks={possibleValues.map(val => ({ value: val }))}
+      min={Number(possibleValues[0])}
+      max={Number(possibleValues.slice(-1))}
+      orientation="horizontal"
+      style={{ marginTop: '7px' }}
+      step={null}
+    />
+  );
+}
+
 function LayerOption({ name, inputId, children }) {
   return (
     <Grid container direction="row" alignItems="flex-end" justify="space-between">
@@ -58,13 +80,24 @@ function LayerOption({ name, inputId, children }) {
 }
 
 function LayerOptions({
-  colormap, opacity, handleColormapChange, handleOpacityChange,
+  colormap,
+  opacity,
+  handleColormapChange,
+  handleOpacityChange,
+  globalControlSelections,
+  handleGlobalChannelsSelectionChange,
+  channels,
+  dimensions,
 }) {
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       <Grid item>
         <LayerOption name="Colormap" inputId="colormap-select">
-          <ColormapSelect value={colormap} inputId="colormap-select" handleChange={handleColormapChange} />
+          <ColormapSelect
+            value={colormap}
+            inputId="colormap-select"
+            handleChange={handleColormapChange}
+          />
         </LayerOption>
       </Grid>
       <Grid item>
@@ -72,6 +105,28 @@ function LayerOptions({
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
         </LayerOption>
       </Grid>
+      {dimensions.length > 0
+        && Object.keys(channels).length > 0
+        && globalControlSelections.map(selection => (
+        // eslint-disable-next-line no-unused-expressions
+        // eslint-disable-next-line implicit-arrow-linebreak
+          <LayerOption
+            name={selection}
+            inputId={`${selection}-slider`}
+            key={selection}
+          >
+            <GlobalSelectionSlider
+              value={channels[Object.keys(channels)[0]].selection[selection]}
+              handleChange={handleGlobalChannelsSelectionChange}
+              selection={selection}
+              possibleValues={
+                dimensions.filter(
+                  dimension => dimension.field === selection,
+                )[0].values
+              }
+            />
+          </LayerOption>
+        ))}
     </Grid>
   );
 }

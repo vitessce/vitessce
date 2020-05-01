@@ -20,6 +20,7 @@ import { LAYER_ADD, LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
 import { useExpansionPanelStyles } from './styles';
 
+const GLOBAL_SLIDER_DIMENSION_FIELDS = ['z', 'time'];
 
 async function initLoader(imageData) {
   const {
@@ -69,10 +70,12 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
   const [channels, dispatch] = useReducer(reducer, {});
   const [dimensions, setDimensions] = useState([]);
+
   useEffect(() => {
     initLoader(imageData).then((loader) => {
       // eslint-disable-next-line no-console
-      setDimensions(loader.dimensions);
+      const loaderDimensions = loader.dimensions;
+      setDimensions(loaderDimensions);
       PubSub.publish(LAYER_ADD, {
         layerId,
         loader,
@@ -81,7 +84,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       // Add channel on image add automatically
       const defaultSelection = Object.assign(
         {},
-        ...loader.dimensions.map(
+        ...loaderDimensions.map(
           dimension => dimension.type !== 'quantitative' && {
             [dimension.field]: dimension.values[0],
           },
@@ -102,8 +105,11 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       selection: Object.assign(
         {},
         ...dimensions.map(
+          // eslint-disable-next-line
           dimension => dimension.type !== 'quantitative' && {
-            [dimension.field]: dimension.values[0],
+            [dimension.field]: GLOBAL_SLIDER_DIMENSION_FIELDS.indexOf(dimension.field) >= 0
+              ? channels[Object.keys(channels)[0]].selection[dimension.field]
+              : dimension.values[0],
           },
         ),
       ),
@@ -120,16 +126,20 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
     PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colormap: colormapName } });
   };
 
-  let channelControllers;
+  let channelControllers = [];
   if (dimensions.length > 0) {
     const { values: channelOptions, field: dimName } = dimensions[0];
     channelControllers = Object.entries(channels).map(
       ([channelId, c]) => {
         const handleChannelPropertyChange = (property, value) => {
           dispatch({
-            type: 'CHANGE_PROPERTY',
+            type: 'CHANGE_SINGLE_CHANNEL_PROPERTY',
             layerId,
-            payload: { channelId, property, value },
+            payload: {
+              channelId,
+              property,
+              value,
+            },
           });
         };
         const handleChannelRemove = () => {
@@ -163,6 +173,15 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   }
 
   const classes = useExpansionPanelStyles();
+  const handleGlobalChannelsSelectionChange = (selection) => {
+    dispatch({
+      type: 'CHANGE_GLOBAL_CHANNELS_SELECTION',
+      layerId,
+      payload: {
+        selection,
+      },
+    });
+  };
   return (
     <ExpansionPanel defaultExpanded className={classes.root}>
       <ExpansionPanelSummary
@@ -175,10 +194,16 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       <ExpansionPanelDetails className={classes.root}>
         <Grid item>
           <LayerOptions
+            channels={channels}
+            dimensions={dimensions}
             opacity={opacity}
             colormap={colormap}
+            globalControlSelections={GLOBAL_SLIDER_DIMENSION_FIELDS}
             handleOpacityChange={handleOpacityChange}
             handleColormapChange={handleColormapChange}
+            handleGlobalChannelsSelectionChange={
+              handleGlobalChannelsSelectionChange
+            }
           />
         </Grid>
         {channelControllers}
@@ -192,7 +217,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             startIcon={<AddIcon />}
             size="small"
           >
-              Add Channel
+            Add Channel
           </Button>
         </Grid>
         <Grid item>
@@ -203,11 +228,10 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             style={buttonStyles}
             size="small"
           >
-              Remove Image Layer
+            Remove Image Layer
           </Button>
         </Grid>
       </ExpansionPanelDetails>
     </ExpansionPanel>
-
   );
 }
