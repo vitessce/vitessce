@@ -3,10 +3,14 @@
 ## 0.1.1 - in progress
 
 ### Added
+- HiGlass integration
 - Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
+- Added multi-modal Spraggins example.
 
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).
+- Changed `raster.json` schema.
+- Changed `Channels` component to more general `LayerController` component which publishes `LAYER_ADD`, `LAYER_REMOVE`, and `LAYER_CHANGE` events.
 
 ## [0.1.0](https://www.npmjs.com/package/vitessce/v/0.1.0) - 2020-04-28
 

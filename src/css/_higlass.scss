@@ -1,0 +1,47 @@
+@import "~higlass/dist/hglib.css";
+
+@mixin higlass($theme-name, $theme-colors) {
+    .v-higlass-title-wrapper {
+        height: calc(100% - 20px);
+        .card-body {
+          width: inherit;
+          height: inherit;
+          padding: 5px;
+          background-color: map-get($theme-colors, "secondary-background");
+          .v-higlass-wrapper-parent {
+            width: inherit;
+            height: inherit;
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            font-size: 12px;
+            color: #333;
+            overflow: hidden;
+            .v-higlass-wrapper {
+              width: inherit;
+              height: inherit;
+              position: relative;
+              display: block;
+              text-align: left;
+              box-sizing: border-box;
+              .higlass {
+                .react-grid-layout {
+                  background-color: transparent !important;
+                }
+                nav {
+                  display: flex;
+                }
+                input {
+                  font-size: 12px;
+                }
+                .btn {
+                  color: #999;
+                  font-size: 12px;
+                }
+              }
+            }
+          }
+        }
+      }
+          
+}
