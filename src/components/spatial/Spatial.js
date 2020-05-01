@@ -131,7 +131,11 @@ export default function Spatial(props) {
       });
       moleculesDataRef.current = moleculesData;
       if (clearPleaseWait) clearPleaseWait('molecules');
-      setLayerIsVisible({ ...layerIsVisible, molecules: true });
+      setLayerIsVisible({
+        molecules: true,
+        cells: layerIsVisible.cells,
+        neighborhoods: layerIsVisible.neighborhoods,
+      });
     }
   }, [molecules, moleculesDataRef, clearPleaseWait, layerIsVisible]);
 
@@ -140,7 +144,11 @@ export default function Spatial(props) {
     if (cells && !cellsDataRef.current) {
       cellsDataRef.current = Object.entries(cells);
       if (clearPleaseWait) clearPleaseWait('cells');
-      setLayerIsVisible({ ...layerIsVisible, cells: true });
+      setLayerIsVisible({
+        molecules: layerIsVisible.molecules,
+        cells: true,
+        neighborhoods: layerIsVisible.neighborhoods,
+      });
     }
   }, [cells, cellsDataRef, clearPleaseWait, layerIsVisible]);
 
@@ -149,7 +157,11 @@ export default function Spatial(props) {
     if (neighborhoods && !neighborhoodsDataRef.current) {
       neighborhoodsDataRef.current = Object.entries(neighborhoods);
       if (clearPleaseWait) clearPleaseWait('neighborhoods');
-      setLayerIsVisible({ ...layerIsVisible, neighborhoods: false });
+      setLayerIsVisible({
+        molecules: layerIsVisible.molecules,
+        cells: layerIsVisible.cells,
+        neighborhoods: false,
+      });
     }
   }, [neighborhoods, neighborhoodsDataRef, clearPleaseWait, layerIsVisible]);
 

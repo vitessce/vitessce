@@ -4,6 +4,7 @@
 
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).
+- Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
 
 
 ## [0.1.0](https://www.npmjs.com/package/vitessce/v/0.1.0) - 2020-04-28
