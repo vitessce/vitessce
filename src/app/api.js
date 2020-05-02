@@ -30,7 +30,7 @@ const linnarssonBase = {
     {
       name: 'cell_sets',
       type: 'CELL_SETS',
-      url: 'https://keller-mark.github.io/temp-vitessce-cell-sets/linnarsson.cell_sets.v26.json',
+      url: 'https://keller-mark.github.io/temp-vitessce-cell-sets/linnarsson.cell_sets.v27.json',
     },
   ],
 };
@@ -50,7 +50,7 @@ const driesBase = {
     {
       name: 'cell_sets',
       type: 'CELL_SETS',
-      url: 'https://keller-mark.github.io/temp-vitessce-cell-sets/dries.cell_sets.v26.json',
+      url: 'https://keller-mark.github.io/temp-vitessce-cell-sets/dries.cell_sets.v27.json',
     },
   ],
 };

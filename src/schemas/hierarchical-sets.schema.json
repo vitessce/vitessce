@@ -19,9 +19,8 @@
           "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["key", "name"],
+              "required": ["name"],
               "properties": {
-                  "key": { "type": "string" },
                   "name": { "type": "string" },
                   "color": { "$ref": "#/definitions/colorArray" },
                   "children": { "$ref": "#/definitions/treeLevelOnePlus" }
@@ -33,9 +32,8 @@
           "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["key", "name"],
+              "required": ["name"],
               "properties": {
-                  "key": { "type": "string" },
                   "name": { "type": "string" },
                   "color": { "$ref": "#/definitions/colorArray" },
                   "set": { "$ref": "#/definitions/stringArray" }
@@ -53,9 +51,8 @@
           "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["key", "name"],
+              "required": ["name"],
               "properties": {
-                  "key": { "type": "string" },
                   "name": { "type": "string" },
                   "children": { "$ref": "#/definitions/treeLevelOnePlus" }
               }
