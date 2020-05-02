@@ -182,6 +182,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       },
     });
   };
+  const dimensionFields = dimensions.map(dimension => dimension.field);
   return (
     <ExpansionPanel defaultExpanded className={classes.root}>
       <ExpansionPanelSummary
@@ -198,7 +199,11 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             dimensions={dimensions}
             opacity={opacity}
             colormap={colormap}
-            globalControlSelections={GLOBAL_SLIDER_DIMENSION_FIELDS}
+            globalControlSelections={
+              GLOBAL_SLIDER_DIMENSION_FIELDS.filter(
+                dimension => dimensionFields.indexOf(dimension) >= 0,
+              )
+            }
             handleOpacityChange={handleOpacityChange}
             handleColormapChange={handleColormapChange}
             handleGlobalChannelsSelectionChange={
