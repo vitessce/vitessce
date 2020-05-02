@@ -1,12 +1,39 @@
 {
-  "polyT": {
-    "sample": 4,
-    "tileSource": "https://s3.amazonaws.com/vitessce-data/FAKE.json",
-    "minZoom": -5
-  },
-  "nuclei": {
-    "sample": 4,
-    "tileSource": "https://s3.amazonaws.com/vitessce-data/NOT-FOR-REAL.json",
-    "minZoom": -5
-  }
+  "schema_version": "0.0.1",
+  "images": [
+    {
+      "name": "Some Image",
+      "url": "https://vitessce-data.storage.googleapis.com/0.0.25/master_release/test.zarr",
+      "type": "zarr",
+      "metadata": {
+        "dimensions": [
+          {
+            "field": "channel",
+            "type": "nominal",
+            "values": [
+              "A", "B", "C"
+            ]
+          },
+          {
+            "field": "y",
+            "type": "quantitative",
+            "values": null
+          },
+          {
+            "field": "x",
+            "type": "quantitative",
+            "values": null
+          }
+        ],
+        "is_pyramid": false,
+        "transform": {
+          "scale": 20.0,
+          "translate": {
+            "y": 200,
+            "x": 200
+          }
+        }
+      }
+    }
+  ]
 }

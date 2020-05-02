@@ -19,7 +19,7 @@ fi
 end changelog
 
 start lint
-eslint src
+eslint src || die 'eslint failed; try: npm run lint-fix'
 end lint
 
 start test

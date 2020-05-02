@@ -1,0 +1,79 @@
+@import 'colors';
+
+@mixin selectable-table($theme-name, $theme-colors) {
+    .selectable-table {
+        table {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+
+            .hidden-input-column {
+                display: none;
+            }
+
+            tr {
+                border-bottom: 1px solid map-get($theme-colors, "secondary-background-dim");
+                td {
+                    outline: 0;
+                }
+            }
+
+            tbody tr {
+                cursor: pointer;
+
+                &:not(.row-checked):hover {
+                    @if $theme-name == dark {
+                        background-color: darken(map-get($theme-colors, "secondary-background-dim"), 10%);
+                    } @else {
+                        background-color: lighten(map-get($theme-colors, "secondary-background-dim"), 10%);
+                    }
+                }
+                &.row-checked {
+                    background-color: map-get($theme-colors, "secondary-background-dim");
+                }
+                td {
+                    padding: 0 4px;
+                }
+
+                .input-container {
+                    width: 1em;
+                    label {
+                        display: block;
+                        margin: 0;
+                        cursor: pointer;
+                    }
+                    input {
+                        cursor: pointer;
+                        &.radio, &.checkbox {
+                            -webkit-appearance: none;
+                            -moz-appearance: none;
+                            appearance: none;
+                            /* create custom radiobutton appearance */
+                            display: inline-block;
+                            width: 1em;
+                            height: 1em;
+                            margin: 0.3em 0.5em 0.0em 0.5em;
+                            padding: 6px !important; /* TODO: Only need "important" to override Bootstrap. */
+                            /* background-color only for content */
+                            background-clip: content-box;
+                            border: 2px solid map-get($global-colors, "gray-light");
+                            background-color: map-get($global-colors, "gray-light");
+                      
+                            &:checked {
+                                background-clip: unset;
+                            }
+                        }
+                        &.radio {
+                            border-radius: 50%;
+                        }
+                        &.checkbox {
+                            border-radius: 2px;
+                        }
+                    }
+                    
+                }
+            }
+        }
+    }
+}
+  

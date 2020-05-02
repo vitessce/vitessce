@@ -1,8 +1,21 @@
 # Changelog
 
-## 0.1.0 - In progress
+## 0.1.1 - in progress
+
 ### Added
 - Added support for providing cell sets files in view configs.
+- HiGlass integration
+- Added multi-modal Spraggins example.
+
+### Changed
+- Changed rectangle tool interaction to dragging (rather than clicking twice).
+- Changed `raster.json` schema.
+- Changed `Channels` component to more general `LayerController` component which publishes `LAYER_ADD`, `LAYER_REMOVE`, and `LAYER_CHANGE` events.
+
+## [0.1.0](https://www.npmjs.com/package/vitessce/v/0.1.0) - 2020-04-28
+
+### Added
+- Added a selectable table component with radio- and checkbox-like functionality.
 
 ### Changed
 - Changed the bundling process so that subsets of components are bundled into separate JS files by targeting the `src/components/{name}/index.js` files.

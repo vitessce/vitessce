@@ -4,22 +4,71 @@
   "title": "Vitessce image data",
   "type": "object",
   "definitions": {
-    "raster": {
+    "transform": {
       "type": "object",
-      "additionalProperties": true,
-      "required": ["sample", "tileSource"],
+      "additionalProperties": false,
+      "required": ["scale", "translate"],
       "properties": {
-        "sample": { "type": "number" },
-        "tileSource": {
-          "oneOf": [
-            { "type": "object" },
-            { "type": "string" }
-          ]
+        "scale": { "type": "number" },
+        "translate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["y", "x"],
+          "properties": {
+            "y": { "type": "number" },
+            "x": { "type": "number" }
+          }
         }
+      }
+    },
+    "dimensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field", "type", "values"],
+        "properties": {
+          "field": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["quantitative", "nominal", "ordinal", "temporal"]
+          },
+          "values": {
+            "type": ["array", "null"],
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dimensions", "is_pyramid", "transform"],
+      "properties": {
+        "dimensions": { "$ref": "#/definitions/dimensions" },
+        "is_pyramid": { "type": "boolean" },
+        "transform": { "$ref": "#/definitions/transform" }
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "url", "type", "metadata"],
+      "properties": {
+        "name": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "type": { "type": "string" },
+        "metadata": { "$ref": "#/definitions/metadata" }
       }
     }
   },
-  "patternProperties": {
-    ".": { "$ref": "#/definitions/raster" }
+  "additionalProperties": false,
+  "required": ["schema_version", "images"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "images": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/image" }
+    }
   }
 }
