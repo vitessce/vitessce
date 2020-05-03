@@ -1,11 +1,8 @@
 /* eslint-disable */
-import React, { useRef, useEffect, useState } from 'react';
-import classNames from 'classnames';
-import Tree from './Tree';
-import SetsManagerActionBar from './SetsManagerActionBar';
-import 'antd/es/tabs/style/index.css';
-
-const NARROW_THRESHOLD = 250;
+import React, { useCallback } from 'react';
+import { Tree as AntTree } from 'antd';
+import TreeNode from './TreeNode';
+import sets from './sets';
 
 /**
  * A generic hierarchical set manager component.
@@ -20,6 +17,7 @@ const NARROW_THRESHOLD = 250;
 export default function SetsManager(props) {
   const {
     tree,
+    onUpdateTree = (newTree) => console.log(newTree),
     datatype,
     clearPleaseWait,
     checkable = true,
@@ -34,30 +32,65 @@ export default function SetsManager(props) {
     clearPleaseWait('cell_sets');
   }
 
-  const divRef = useRef();
-  const [isNarrow, setIsNarrow] = useState(false);
+  const onCheck = useCallback((checkedKeys) => {
+    const newTree = sets.treeOnCheck(tree, checkedKeys);
+    onUpdateTree(newTree);
+  }, [tree, onUpdateTree]);
 
-  useEffect(() => {
-    if(divRef.current.offsetWidth < NARROW_THRESHOLD) {
-      setIsNarrow(true);
+  const onExpand = useCallback((expandedKeys) => {
+    const newTree = sets.treeOnExpand(tree, expandedKeys);
+    onUpdateTree(newTree);
+  }, [tree, onUpdateTree]);
+
+  const onDrop = useCallback((info) => {
+    const { eventKey: dropKey } = info.node.props;
+    const { eventKey: dragKey } = info.dragNode.props;
+    const { dropToGap, dropPosition } = info;
+
+    // Update the tree based on the drag event.
+    const newTree = sets.treeOnDrop(tree, dropKey, dragKey, dropPosition, dropToGap);
+    onUpdateTree(newTree);
+  }, [tree, onUpdateTree]);
+
+  const onCheckLevel = useCallback((levelZeroKey, levelIndex) => {
+    let newTree = sets.treeOnCheckLevel(nodeKey, newLevel);
+    newTree = sets.treeOnViewSetDescendants(nodeKey, newLevel-1, false);
+    onUpdateTree(newTree);
+  }, [tree, onUpdateTree]);
+
+
+  function renderTreeNodes(nodes) {
+    if (!nodes) {
+      return null;
     }
-  })
+    return nodes.map(node => (
+      <TreeNode
+        key={node._state.key}
+        tree={tree}
+        {...sets.nodeToRenderProps(node)}
+        onCheckLevel={onCheckLevel}
+      >
+        {renderTreeNodes(node.children)}
+      </TreeNode>
+    ));
+  };
 
   return (
-    <div
-      ref={divRef}
-      className={classNames(
-        "sets-manager",
-        { 'sets-manager-narrow': isNarrow }
-      )}
-    >
-      <Tree
-        tree={tree}
-        checkable={checkable}
-        editable={editable}
-        expandable={expandable}
-        operatable={operatable}
-      />
+    <div className="sets-manager">
+      <AntTree
+        draggable={false}
+        checkable
+        blockNode
+        onExpand={onExpand}
+        expandedKeys={tree._state.expandedKeys}
+        autoExpandParent={tree._state.autoExpandParent}
+        onCheck={onCheck}
+        checkedKeys={tree._state.checkedKeys}
+        onDrop={onDrop}
+        prefixCls="rc-tree"
+      >
+        {renderTreeNodes(tree.tree)}
+      </AntTree>
     </div>
   );
 }

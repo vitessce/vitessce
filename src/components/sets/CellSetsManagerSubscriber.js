@@ -10,7 +10,7 @@ import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import sets from './sets';
 
-const setsType = 'cell';
+const SETS_DATATYPE_CELL = 'cell';
 
 export default function CellSetsManagerSubscriber(props) {
   const {
@@ -19,7 +19,7 @@ export default function CellSetsManagerSubscriber(props) {
   } = props;
 
   const onReadyCallback = useCallback(onReady, []);
-  const [tree, setTree] = useState(sets.treeGetEmpty(setsType));
+  const [tree, setTree] = useState(sets.treeGetEmpty(SETS_DATATYPE_CELL));
 
   useEffect(() => {
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
@@ -34,13 +34,10 @@ export default function CellSetsManagerSubscriber(props) {
       // ?
     });
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, (msg, cellIds) => {
-      console.log(tree);
       const newTree = sets.treeSetCurrentSet(tree, cellIds);
       setTree(newTree);
-      console.log(newTree);
     });
     onReadyCallback();
-    PubSub.publish(CLEAR_PLEASE_WAIT, 'cell_sets'); // TODO: remove
     return () => {
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellSetsAddToken);
@@ -74,14 +71,15 @@ export default function CellSetsManagerSubscriber(props) {
       isScroll
       removeGridComponent={removeGridComponent}
     >
-      {/*<SetsManager
-        tree={cellSetsTree}
-        datatype={setsType}
+      <SetsManager
+        tree={tree}
+        onUpdateTree={setTree}
+        datatype={SETS_DATATYPE_CELL}
         onError={err => PubSub.publish(STATUS_WARN, err)}
         clearPleaseWait={
           layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
         }
-      />*/}
+      />
     </TitleInfo>
   );
 }

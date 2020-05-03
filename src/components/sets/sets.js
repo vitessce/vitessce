@@ -78,6 +78,13 @@ function nodeSetIsCurrent(currNode, v) {
   }
 }
 
+function nodeSetName(currNode, newName) {
+  return {
+    ...currNode,
+    name: newName
+  }
+}
+
 function nodeSetSet(currNode, newSet) {
   return {
     ...currNode,
@@ -199,6 +206,32 @@ function nodeReplace(node, predicate, newNode) {
   return node;
 }
 
+function nodeRemove(node, predicate) {
+  if(predicate(node)) {
+    return null;
+  }
+  if(node.children) {
+    return {
+      ...node,
+      children: node.children.map(child => nodeRemove(child, predicate, newNode)).filter(Boolean)
+    };
+  }
+  return node;
+}
+
+function treeRemoveNodeByKey(currTree, targetKey) {
+  return {
+    ...currTree,
+    tree: currTree.map(node => nodeRemove(node, n => n._state.key === targetKey)).filter(Boolean),
+    _state: {
+      ...currTree._state,
+      checkedKeys: currTree._state.checkedKeys.filter(k => k !== targetKey),
+      visibleKeys: currTree._State.visibleKeys.filter(k => k !== targetKey),
+      // TODO: figure out if the _state.checkedLevel is for this node or a descendant, and if so, reset
+    }
+  };
+}
+
 function nodeTransform(node, predicate, transform) {
   if(predicate(node)) {
     return transform(node);
@@ -257,12 +290,45 @@ function treeSetCurrentSet(currTree, cellIds) {
   return newTree;
 }
 
+function treeTransformNodeByKey(currTree, targetKey, transform) {
+  return {
+    ...currTree,
+    tree: currTree.map(node => nodeTransform(node, n => n._state.key === targetKey), transform)
+  };
+}
+
+function treeNodeSetColor(currTree, targetKey, color) {
+  return treeTransformNodeByKey(currTree, targetKey, node => nodeSetColor(node, color));
+}
+
+function treeNodeSetName(currTree, targetKey, name) {
+  return treeTransformNodeByKey(currTree, targetKey, node => nodeSetName(node, name));
+}
+
+
+
+
 function treeImport(currTree, treeToImport) {
   if (!treeToImport || treeToImport.length === 0) {
     return currTree;
   }
   const newChildren = treeToImport.map(child => nodeFillIn(child));
   return treeAppendChildren(currTree, newChildren);
+}
+
+function nodeClearState(currNode) {
+  return {
+    ...currNode,
+    _state: undefined
+  };
+}
+
+function treeExport(currTree) {
+  return {
+    ...currTree,
+    tree: currTree.map(node => nodeClearState(node)),
+    _state: undefined
+  };
 }
 
 function treeGetEmpty(datatype) {
@@ -275,14 +341,123 @@ function treeGetEmpty(datatype) {
       checkedKeys: [],
       visibleKeys: [],
       checkedLevel: { levelZeroKey: null, levelIndex: null },
+      expandedKeys: [], // used by ant-tree
+      autoExpandParent: true, // used by ant-tree
+    }
+  };
+}
+
+function treeOnCheckLevel(currTree, levelZeroKey, levelIndex) {
+  // Upon an expansion interaction, we always want autoExpandParent to be false
+  // to allow a parent with expanded children to collapse.
+  return {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      checkedLevel: { levelZeroKey, levelIndex }
+    }
+  };
+}
+
+function treeOnExpand(currTree, expandedKeys) {
+  // Upon an expansion interaction, we always want autoExpandParent to be false
+  // to allow a parent with expanded children to collapse.
+  return {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      expandedKeys,
+      autoExpandParent: false,
+    }
+  };
+}
+
+function treeOnCheck(currTree, checkedKeys) {
+  // Upon an expansion interaction, we always want autoExpandParent to be false
+  // to allow a parent with expanded children to collapse.
+  return {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      checkedKeys
     }
   };
 }
 
 
+function treeOnDrop(currTree) {
+  // TODO: port tree dragRearrange function
+  return currTree;
+}
+
+function treeSetVisibleKeys(currTree, visibleKeys, shouldInvalidateCheckedLevel = true) {
+  return {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      visibleKeys,
+      ...(shouldInvalidateCheckedLevel ? {
+        checkedLevel: { levelZeroKey: null, levelIndex: null }
+      } : {})
+    }
+  };
+}
+
+function treeOnViewSet(currTree, targetKey) {
+  return treeSetVisibleKeys(currTree, [targetKey]);
+}
+
+function treeOnViewSetDescendants(currTree, targetKey, level, shouldInvalidateCheckedLevel = true) {
+  // TODO
+  const node = this.findNode(setKey);
+  const descendentsOfInterest = node.getDescendantsFlat(level);
+  return treeSetVisibleKeys(currTree, descendentsOfInterest.map(d => d.key), shouldInvalidateCheckedLevel);
+}
+
+function nodeToSet(node) {
+  // TODO: recursively obtain the set if not a leaf node.
+  return node.set || [];
+}
+
+function nodeToHeight(node, level = 0) {
+  if(!node.children) {
+    return level;
+  } else {
+    const childrenHeights = node.children.map(c => nodeToHeight(c, level + 1));
+    return Math.max(...childrenHeights, 0);
+  }
+}
+
+function nodeToRenderProps(node) {
+  return {
+    title: node.name,
+    nodeKey: node._state.key,
+    size: nodeToSet(node).length,
+    color: node.color,
+    level: node._state.level,
+    isEditing: node._state.isEditing,
+    isCurrentSet: node._state.isCurrent,
+    isForTools: node._state.isForTools,
+    isChecking: node._state.isChecking,
+    isLeaf: !node.children,
+    height: nodeToHeight(node, node._state.level),
+  };
+}
+
+
 export default {
+  nodeToRenderProps,
   treeGetEmpty,
   treeImport,
   treeSetItems,
-  treeSetCurrentSet
+  treeSetCurrentSet,
+  treeExport,
+  treeOnExpand,
+  treeOnCheck,
+  treeOnCheckLevel,
+  treeOnDrop,
+  treeNodeSetColor,
+  treeNodeSetName,
+  treeOnViewSet,
+  treeOnViewSetDescendants,
 };

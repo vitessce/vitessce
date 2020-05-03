@@ -7,6 +7,7 @@ import PopoverMenu from './PopoverMenu';
 import Tooltip from './Tooltip';
 import tinycolor from 'tinycolor2';
 import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
+import sets from './sets';
 
 function toHexString(rgbArray) {
   return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
@@ -141,13 +142,13 @@ function LevelsButtons(props) {
     tree,
     nodeKey,
     height,
+    onCheckLevel,
   } = props;
-  const [checkedLevelKey, checkedLevelIndex] = tree.checkedLevel;
+  const { levelZeroKey: checkedLevelKey, levelIndex: checkedLevelIndex } = tree._state.checkedLevel;
   function onCheck(event) {
     if(event.target.checked) {
       const newLevel = parseInt(event.target.value);
-      tree.setCheckedLevel(nodeKey, newLevel);
-      tree.viewSetDescendants(nodeKey, newLevel-1, false);
+      onCheckLevel(nodeKey, newLevel);
     }
   };
   const subs = (i) => ('sub'.repeat(i));
@@ -236,17 +237,17 @@ export default class TreeNode extends RcTreeNode {
   };
 
   renderLevels = () => {
-    const { nodeKey, level, height, expanded, tree } = this.props;
+    const { nodeKey, level, height, expanded, tree, size, onCheckLevel } = this.props;
     if(level !== 0 || expanded) {
       return null;
     }
-    const hierarchySize = tree.getHierarchySize(nodeKey);
     return (
       <LevelsButtons
         nodeKey={nodeKey}
         height={height}
         tree={tree}
-        hierarchySize={hierarchySize}
+        hierarchySize={size}
+        onCheckLevel={onCheckLevel}
       />
     );
   }
