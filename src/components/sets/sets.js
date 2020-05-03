@@ -1,6 +1,8 @@
 /* eslint-disable */
 import uuidv4 from 'uuid/v4';
+import { version } from '../../../package.json';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
+import some from 'lodash/some';
 
 const CURRENT_SET_NAME = "Current selection";
 
@@ -36,685 +38,251 @@ function generateKey() {
   return uuidv4();
 }
 
-/**
- * Node class for SetsTree.
- */
-export class SetsTreeNode {
-  constructor(props) {
-    const {
-      name,
-      isEditing = false,
-      isCurrentSet = false,
-      isForTools = false,
-      isChecking = false,
-      color = DEFAULT_COLOR,
-      children,
-      set,
-      level,
-    } = props;
-    this.key = generateKey();
-    this.name = name;
-    this.set = set;
-    this.children = children;
-    this.color = color;
-    this.isEditing = isEditing;
-    this.isCurrentSet = isCurrentSet;
-    this.isForTools = isForTools;
-    this.isChecking = isChecking;
-    this.level = level;
-  }
-
-  setIsEditing(v) {
-    this.isEditing = v;
-  }
-
-  setChildren(children) {
-    this.children = children;
-  }
-
-  setKey(key) {
-    this.key = key;
-  }
-
-  setName(name) {
-    this.name = name;
-  }
-
-  setIsCurrentSet(v) {
-    this.isCurrentSet = v;
-  }
-
-  setIsForTools(v) {
-    this.isForTools = v;
-  }
-
-  setIsChecking(v) {
-    this.isChecking = v;
-  }
-
-  setColor(v) {
-    this.color = v;
-  }
-
-  /**
-   * Find the node with .isCurrentSet equal to true.
-   * @returns {SetsTreeNode} The current set node.
-   */
-  findCurrentSetNode() {
-    if (this.isCurrentSet) {
-      return this;
+function nodeSetIsForTools(currNode, v) {
+  return {
+    ...currNode,
+    _state: {
+      ...currNode._state,
+      isForTools: v
     }
-    if (!this.children) {
-      return null;
-    }
-    return findValue(this.children, child => child.findCurrentSetNode());
-  }
-
-  /**
-   * Find a node of interest.
-   * @param {string} setKey The key of the node of interest.
-   * @returns {SetsTreeNode} The node of interest.
-   */
-  findNode(targetKey) {
-    if (this.key === targetKey) {
-      return this;
-    }
-    if (!this.children) {
-      return null;
-    }
-    return findValue(this.children, child => child.findNode(targetKey));
-  }
-
-  /**
-   * Find parent of a node of interest.
-   * @param {string} setKey The key of the node of interest.
-   * @returns {SetsTreeNode} The parent of the node of interest.
-   */
-  findParentNode(targetKey) {
-    if (!this.children || this.children.length === 0) {
-      return null;
-    }
-    if (this.children.find(child => child.key === targetKey)) {
-      return this;
-    }
-    return findValue(this.children, child => child.findParentNode(targetKey));
-  }
-
-  /**
-   * Get an object that can be used to render this node.
-   * @returns {object} The node's attributes represented as a flat object.
-   */
-  getRenderProps() {
-    return {
-      title: this.name,
-      nodeKey: this.key,
-      size: this.getSet().length,
-      color: this.color,
-      level: this.level,
-      isEditing: this.isEditing,
-      isCurrentSet: this.isCurrentSet,
-      isForTools: this.isForTools,
-      isChecking: this.isChecking,
-      isLeaf: !this.children,
-      height: this.getHeight(this.level),
-    };
-  }
-
-
-  /**
-   * Return a flat array of descendants at a particular level from this node.
-   * @param {integer} level The level of interest.
-   *                        0 means children, 1 grandchildren, etc.
-   * @returns {SetsTreeNode[]} The array of nodes.
-   */
-  getDescendantsFlat(level) {
-    if (!this.children) {
-      return [];
-    }
-    if (level === 0) {
-      return this.children;
-    }
-    return this.children.flatMap(c => c.getDescendantsFlat(level - 1));
-  }
-
-  getHeight(level = 0) {
-    if(!this.children) {
-      return level;
-    } else {
-      const childrenHeights = this.children.map(c => c.getHeight(level + 1));
-      return Math.max(...childrenHeights, 0);
-    }
-  }
-
-  getSet() {
-    if(!this.children) {
-      return this.set || [];
-    }
-    return this.children.flatMap(c => c.getSet());
-  }
-
-  /**
-   * Return a flat array of descendants at a particular level from this node.
-   */
-  traverse(func) {
-    if (!this.children) {
-      return;
-    }
-    this.children.forEach(c => func(c));
   }
 }
 
-/**
- * Tree class for storage of hierarchical sets
- * of IDs (cell IDs, gene IDs, etc...).
- */
-export default class SetsTree {
-  /**
-   * Create a SetsTree object.
-     * @param {Function} onTreeChange Function called when the tree structure
-     *                                or values change.
-     * @param {Function} onVisibilityChange Function called when the currently-visible
-     *                                      sets array changes.
-     */
-  constructor(onTreeChange, onVisibilityChange) {
-    this.children = [];
-    this.items = [];
-    this.checkedKeys = [];
-    this.visibleKeys = [];
-    this.checkedLevel = [null, null]; // tuple of [childKey, levelIndex]
-    this.onTreeChange = onTreeChange;
-    this.onVisibilityChange = onVisibilityChange;
-  }
-
-  /**
-   * Set the array of all items to be able to do complement operations.
-   * @param {Array} items The array of items.
-   */
-  setItems(items) {
-    this.items = items;
-  }
-
-  /**
-   * Compute the intersection of specified sets.
-   * @param {Array} setKeys An array of the sets of interest.
-   * @returns {Array} The resulting set as an array.
-   */
-  getIntersection(setKeys) {
-    const nodes = setKeys.map(key => this.findNode(key));
-    if (!nodes || nodes.length === 0) {
-      return [];
+function nodeSetIsChecking(currNode, v) {
+  return {
+    ...currNode,
+    _state: {
+      ...currNode._state,
+      isChecking: v
     }
-    const nodeSets = nodes.map(node => node.set || []);
-    return nodeSets
-      .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0]);
   }
+}
 
-  /**
-   * Compute the union of specified sets.
-   * @param {Array} setKeys An array of the sets of interest.
-   * @returns {Array} The resulting set as an array.
-   */
-  getUnion(setKeys) {
-    const nodes = setKeys.map(key => this.findNode(key));
-    if (!nodes || nodes.length === 0) {
-      return [];
+function nodeSetIsEditing(currNode, v) {
+  return {
+    ...currNode,
+    _state: {
+      ...currNode._state,
+      isEditing: v
     }
-    const nodeSets = nodes.map(node => node.set || []);
-    return nodeSets
-      .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0]);
   }
+}
 
-  /**
-   * Compute the complement of specified sets.
-   * @param {Array} setKeys An array of the sets of interest.
-   * @returns {Array} The resulting set as an array.
-   */
-  getComplement(setKeys) {
-    const primaryUnion = this.getUnion(setKeys);
-    return this.items.filter(el => !primaryUnion.includes(el));
-  }
-
-  /**
-   * Set the array of checked node setKey values.
-   * @param {string[]} checkedKeys The array of setKey values to check.
-   */
-  setCheckedKeys(checkedKeys) {
-    this.checkedKeys = checkedKeys;
-    this.emitTreeUpdate();
-  }
-
-  /**
-   * Set the array of visible node setKey values.
-   * @param {string[]} visibleKeys The array of setKey values to set as visible.
-   */
-  setVisibleKeys(visibleKeys, shouldInvalidateCheckedLevel = true) {
-    this.visibleKeys = visibleKeys;
-    if(shouldInvalidateCheckedLevel) {
-      this.invalidateCheckedLevel()
+function nodeSetIsCurrent(currNode, v) {
+  return {
+    ...currNode,
+    _state: {
+      ...currNode._state,
+      isCurrent: v
     }
-    this.emitVisibilityUpdate();
-    this.emitTreeUpdate();
   }
+}
 
-  /**
-   * Set the checked level.
-   * @param {string} levelZeroNodeKey The key of a level zero node.
-   * @param {number} levelIndex The tree level as an integer, 1+
-   */
-  setCheckedLevel(levelZeroNodeKey, levelIndex) {
-    this.checkedLevel = [levelZeroNodeKey, levelIndex];
-    this.emitTreeUpdate();
+function nodeSetSet(currNode, newSet) {
+  return {
+    ...currNode,
+    set: newSet
   }
+}
 
-  invalidateCheckedLevel() {
-    this.checkedLevel = [null, null];
+function nodeAppendChild(currNode, newChild) {
+  return {
+    ...currNode,
+    children: [...currNode.children, newChild]
   }
+}
 
-  /**
-   * Set a node .isChecking flag.
-   * @param {string} nodeKey The key of a node.
-   */
-  setIsChecking(nodeKey) {
-    const node = this.findLevelZeroNode(nodeKey);
-    node.traverse(c => c.setIsChecking(true));
-    this.emitTreeUpdate();
+function nodeSetChildren(currNode, newChildren) {
+  return {
+    ...currNode,
+    children: newChildren
   }
+}
 
-  /**
-   * Get the size of a level zero node set.
-   * @param {string} levelZeroNodeKey The key of a level zero node.
-   * @returns {number} The size.
-   */
-  getHierarchySize(levelZeroNodeKey) {
-    const node = this.findNode(levelZeroNodeKey);
-    return node.getSet().length;
+function nodeSetColor(currNode, newColor) {
+  return {
+    ...currNode,
+    color: newColor
   }
+}
 
-  /**
-   * Set the current set's set array value.
-   * @param {iterable} set The new set values.
-   * @param {boolean} visible Whether to make the current set visible.
-   * @param {string} name If provided, will use this name over the default CURRENT_SET_NAME.
-   */
-  setCurrentSet(set, visible, name) {
-    const toolsNode = this.findToolsLevelZeroNode(true);
-    let currentSetNode = toolsNode.findCurrentSetNode();
-    if (!currentSetNode) {
-      currentSetNode = new SetsTreeNode({
-        key: generateKey(),
-        set: [],
-        isEditing: true,
-        isCurrentSet: true,
-        level: 1
-      });
-      toolsNode.setChildren([ ...toolsNode.children, currentSetNode ]);
-    }
-    currentSetNode.set = Array.from(set);
-    if (name) {
-      currentSetNode.setName(name);
-    } else {
-      currentSetNode.setName(CURRENT_SET_NAME);
-    }
-    if (visible) {
-      this.visibleKeys = [currentSetNode.key];
-    }
-    this.emitTreeUpdate();
-  }
-
-  /**
-   * Find the node with .isCurrentSet equal to true.
-   * @returns {SetsTreeNode} The current set node.
-   */
-  findCurrentSetNode() {
-    for(let child of this.children) {
-      const foundNode = child.findCurrentSetNode();
-      if(foundNode) {
-        return foundNode;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Find the level zero node with .isForTools equal to true.
-   * @returns {SetsTreeNode} The "for tools" level zero node.
-   */
-  findToolsLevelZeroNode(add = true) {
-    for(let child of this.children) {
-      const foundNode = (child.isForTools ? child : null);
-      if(foundNode) {
-        return foundNode;
-      }
-    }
-    if(add) {
-      return this.addToolsNode();
-    }
-    return null;
-  }
-
-  /**
-   * Find the level zero node for the node.
-   * @param {string} nodeKey The target node key.
-   * @returns {SetsTreeNode} The "for tools" level zero node.
-   */
-  findLevelZeroNode(nodeKey) {
-    for(let child of this.children) {
-      const foundNode = child.findNode(nodeKey);
-      if(foundNode) {
-        return child;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Find the level zero node with a child node with .isCurrentSet equal to true.
-   * @returns {SetsTreeNode} The level zero node.
-   */
-  addToolsNode() {
-    const node = new SetsTreeNode({
+function nodeFillIn(currNode, level = 0, stateOverrides = {}) {
+  return {
+    name: currNode.name,
+    color: currNode.color || DEFAULT_COLOR,
+    ...(currNode.children ? {
+      children: currNode.children.map(childNode => nodeFillIn(childNode, level+1, stateOverrides)),
+    } : {
+      set: currNode.set || [],
+    }),
+    _state: {
       key: generateKey(),
-      name: "My Selections",
-      color: undefined,
-      children: [],
-      level: 0,
-      isForTools: true,
-    });
-    this.appendChild(node);
+      level,
+      isEditing: false,
+      isCurrent: false,
+      isChecking: false,
+      isForTools: false,
+      ...stateOverrides
+    },
+  };
+}
+
+function treeAppendChild(currTree, node) {
+  return {
+    ...currTree,
+    tree: [...currTree.tree, node]
+  };
+}
+
+
+function treeAppendChildren(currTree, nodes) {
+  return {
+    ...currTree,
+    tree: [...currTree.tree, ...nodes]
+  };
+}
+
+function treeSetItems(currTree, cellIds) {
+  return {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      items: cellIds
+    }
+  };
+}
+
+function nodeFindNode(node, predicate) {
+  if(predicate(node)) {
     return node;
   }
-
-  /**
-   * Find a node of interest.
-   * @param {string} setKey The key of the node of interest.
-   * @returns {SetsTreeNode} The node of interest.
-   */
-  findNode(setKey) {
-    for(let child of this.children) {
-      const foundNode = child.findNode(setKey);
-      if(foundNode) {
-        return foundNode;
-      }
-    }
+  if(!node.children) {
     return null;
   }
-
-  /**
-   * Find parent of a node of interest.
-   * @param {string} setKey The key of the node of interest.
-   * @returns {SetsTreeNode} The parent of the node of interest.
-   */
-  findParentNode(setKey) {
-    return this.root.findParentNode(setKey);
-  }
-
-  /**
-   * Rearrange nodes after a drag interaction.
-   * Does nothing if the dragNode or dropNode are the current set node.
-   * May update node keys to reflect the new hierarchy.
-   * @param {string} dropKey The key of the node on which the dragNode was dropped.
-   * @param {string} dragKey The key of the node that was dragged.
-   * @param {integer} dropPosition The index of the drop.
-   * @param {boolean} dropToGap Whether the dragNode should move
-   *                            between nodes or become a child.
-   */
-  dragRearrange(dropKey, dragKey, dropPosition, dropToGap) {
-    const dragNode = tabRoot.findNode(dragKey);
-    const dragParentNode = tabRoot.findParentNode(dragKey);
-    let dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.key === dragKey);
-
-    const dropNode = tabRoot.findNode(dropKey);
-    const dropParentNode = tabRoot.findParentNode(dropKey);
-    let dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.key === dropKey);
-
-    if (dragNode.isCurrentSet || dropNode.isCurrentSet) {
-      return;
-    }
-
-    dropNode.setChildren(dropNode.children || []);
-    // Remove the dragged object from its current position.
-    dragParentNode.children.splice(dragNodeCurrIndex, 1);
-
-    // Update index values after deleting the child node.
-    dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.key === dragKey);
-    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.key === dropKey);
-
-    if (!dropToGap) {
-      // Set dragNode as last child of dropNode.
-      dropNode.setChildren([...dropNode.children, dragNode]);
-    } else if (dropPosition === -1) {
-      // Set dragNode as first child of dropParentNode.
-      dropParentNode.setChildren([dragNode, ...dropParentNode.children]);
-    } else {
-      dropParentNode.children
-        .splice(dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0), 0, dragNode);
-    }
-
-    this.emitTreeUpdate();
-  }
-
-  /**
-   * Set isEditing to true for a node of interest.
-   * @param {string} setKey The key of the node of interest.
-   */
-  startEditing(setKey) {
-    const node = this.findNode(setKey);
-    node.setIsEditing(true);
-    this.emitTreeUpdate();
-  }
-
-  /**
-   * Set the color for a node of interest.
-   * @param {string} setKey The key of the node of interest.
-   * @param {Array} color The color value as [r, g, b].
-   */
-  changeNodeColor(setKey, color) {
-    const node = this.findNode(setKey);
-    node.setColor(color);
-    this.emitTreeUpdate();
-    this.emitVisibilityUpdate();
-  }
-
-  /**
-   * Delete a node of interest, and all of its children.
-   * @param {string} setKey The key of the node of interest.
-   * @param {boolean} preventEmit Whether to prevent the emit event.
-   */
-  deleteNode(setKey, preventEmit) {
-    const node = this.findNode(setKey);
-    const parentNode = this.findParentNode(setKey);
-    if (!node || !parentNode) {
-      return;
-    }
-    if (node.children) {
-      node.children.forEach(c => this.deleteNode(c.key, true));
-    }
-    // Check whether the node is a tabRoot, remove the corresponding tab(s) if so.
-    this.closeTab(setKey, true);
-    // Check whether the node is in checkedKeys, remove the corresponding key if so.
-    this.checkedKeys = removeValue(this.checkedKeys, h => (h === setKey));
-    // Check whether the node is in visibleKeys, remove the corresponding key if so.
-    this.visibleKeys = removeValue(this.visibleKeys, h => (h === setKey));
-
-    const nodeIndex = parentNode.children.findIndex(c => c.key === setKey);
-    if (nodeIndex === -1) {
-      return;
-    }
-    parentNode.children.splice(nodeIndex, 1);
-    if (!preventEmit) {
-      this.emitTreeUpdate();
-      this.emitVisibilityUpdate();
+  for(let child of node.children) {
+    const foundNode = nodeFindNode(child, predicate);
+    if(foundNode) {
+      return foundNode;
     }
   }
-
-  /**
-   * Change a node's name.
-   * @param {string} setKey The key of the node of interest.
-   * @param {string} newName The new name value to assign.
-   * @param {boolean} stopEditing Whether to also set isEditing to false.
-   */
-  changeNodeName(setKey, newName, stopEditing) {
-    const node = this.findNode(setKey);
-    node.setName(newName);
-
-    if (stopEditing) {
-      node.setIsEditing(false);
-    }
-    if (node.isCurrentSet) {
-      node.setIsCurrentSet(false);
-    }
-    this.emitTreeUpdate();
-  }
-
-  /**
-   * Prepend a child to the root node's children array.
-   * May update node keys to reflect the new hierarchy.
-   * @param {SetsTreeNode} node The child node to prepend.
-   */
-  prependChild(node) {
-    this.setChildren([node, ...this.children]);
-  }
-
-  /**
-   * Append a child to the root node's children array.
-   * May update node keys to reflect the new hierarchy.
-   * @param {SetsTreeNode} node The child node to append.
-   */
-  appendChild(node) {
-    this.setChildren([...this.children, node]);
-  }
-
-  /**
-   * Set the array of children nodes for the root node.
-   * May update node keys to reflect the new hierarchy.
-   * @param {SetsTreeNode[]} children The array of child nodes to append.
-   */
-  setChildren(children) {
-    this.children = children;
-    this.emitTreeUpdate();
-  }
-
-  /**
-   * Set a set node to visible based on its key.
-   * Discards any previously-visible sets.
-   * @param {string} setKey The key of the node of interest.
-   */
-  viewSet(setKey) {
-    this.setVisibleKeys([setKey]);
-  }
-
-  /**
-   * Set all of a set node's descendents at a particular level
-   * to visible based on its key.
-   * Discards any previously-visible sets.
-   * @param {string} setKey The key of the node of interest.
-   * @param {integer} level The level of interest. 0 means children, 1 grandchildren, etc.
-   */
-  viewSetDescendants(setKey, level, shouldInvalidateCheckedLevel = true) {
-    const node = this.findNode(setKey);
-    const descendentsOfInterest = node.getDescendantsFlat(level);
-    this.setVisibleKeys(descendentsOfInterest.map(d => d.key), shouldInvalidateCheckedLevel);
-    this.emitVisibilityUpdate();
-  }
-
- 
-  /**
-   * Import previously-exported sets.
-   * Assumes a hierarchical ordering.
-   * Will append the root of the import to the current root's children.
-   * @param {Array} data A previously-exported array of set objects.
-   * @param {string} name The name for the new dummy ancestor node.
-   * @param {boolean} isTrusted Whether these sets are trusted, which
-   * enables them to replace the root node children and prevents deletion.
-   * By default, false.
-   */
-  import(data) {
-    if (!data || data.length < 1) {
-      return;
-    }
-
-    function makeNode(nodeToImport, siblingIndex = 0, level = 0) {
-      let node;
-      let childrenNodes = [];
-      if(nodeToImport.children) {
-        // Recursively convert children nodes to SetsTreeNode objects.
-        childrenNodes = nodeToImport.children.map((c, i) => makeNode(c, i, level + 1));
-      }
-      if(nodeToImport.children) {
-        node = new SetsTreeNode({
-          name: nodeToImport.name,
-          color: (level > 0 ? nodeToImport.color : undefined),
-          children: childrenNodes,
-          level,
-        });
-      } else {
-        node = new SetsTreeNode({
-          name: nodeToImport.name,
-          color: nodeToImport.color,
-          set: nodeToImport.set,
-          level,
-        });
-      }
-      if (level > 0 && !nodeToImport.color) {
-        node.setColor(PALETTE[siblingIndex % PALETTE.length]);
-      }
-      return node;
-    }
-
-    data.forEach((levelZeroNodeToImport) => {
-      const levelZeroNode = makeNode(levelZeroNodeToImport);
-      this.appendChild(levelZeroNode);
-    });
-  }
-
-  /**
-   * Create an array that can be imported.
-   * @returns {Array} An array of plain objects.
-   */
-  export() {
-    const result = [];
-    let dfs = [...this.root.children];
-    while (dfs.length > 0) {
-      const currNode = dfs.pop();
-      result.push({
-        name: currNode.name,
-        color: currNode.color,
-        set: currNode.set,
-      });
-      dfs = dfs.concat(currNode.children || []);
-    }
-    return result;
-  }
-
-  /**
-   * Call .onTreeChange with the current this value.
-   */
-  emitTreeUpdate() {
-    if (this.onTreeChange) {
-      this.onTreeChange(this);
-    }
-  }
-
-  /**
-   * Call .onVisibilityChange with the currently-visible set items
-   * in a single Set object.
-   */
-  emitVisibilityUpdate() {
-    if (this.onVisibilityChange) {
-      let cellColorsArray = [];
-      this.visibleKeys.forEach((setKey) => {
-        const node = this.findNode(setKey);
-        if (node) {
-          const nodeSet = node.getSet();
-          cellColorsArray = [
-            ...cellColorsArray,
-            ...nodeSet.map(cellId => [cellId, node.color]),
-          ];
-        }
-      });
-      const cellIds = cellColorsArray.map(c => c[0]);
-      const cellColors = fromEntries(cellColorsArray);
-      this.onVisibilityChange(new Set(cellIds), cellColors);
-    }
-  }
+  return null;
 }
+
+function nodeFindIsCurrentNode(node) {
+  return nodeFindNode(node, n => n._state.isCurrent);
+}
+
+function nodeFindIsForToolsNode(node) {
+  return nodeFindNode(node, n => (n._state.level === 0 && n._state.isForTools));
+}
+
+
+function treeAddForToolsNode(currTree) {
+  const newNode = nodeFillIn({
+    name: "My Selections",
+    children: [],
+  }, 0);
+  const newForToolsNode = nodeSetIsForTools(newNode, true);
+  return treeAppendChild(currTree, newForToolsNode);
+}
+
+function nodeReplace(node, predicate, newNode) {
+  if(predicate(node)) {
+    return newNode;
+  }
+  if(node.children) {
+    return {
+      ...node,
+      children: node.children.map(child => nodeReplace(child, predicate, newNode))
+    };
+  }
+  return node;
+}
+
+function nodeTransform(node, predicate, transform) {
+  if(predicate(node)) {
+    return transform(node);
+  }
+  if(node.children) {
+    return {
+      ...node,
+      children: node.children.map(child => nodeTransform(child, predicate, transform))
+    };
+  }
+  return node;
+}
+
+function nodeTransformChildOrAppendChild(node, ancestorPredicate, descendantPredicate, transform, descendant) {
+  if(node.children && ancestorPredicate(node)) {
+    if(some(node.children.map(descendantPredicate))) {
+      return {
+        ...node,
+        children: node.children.map(child => nodeTransform(child, descendantPredicate, transform))
+      };
+    } else {
+      return {
+        ...node,
+        children: [...node.children, descendant]
+      };
+    }
+  }
+  if(node.children) {
+    return {
+      ...node,
+      children: node.children.map(child => nodeTransformChildOrAppendChild(child, ancestorPredicate, descendantPredicate, transform, descendant))
+    };
+  }
+  return node;
+}
+
+function treeSetCurrentSet(currTree, cellIds) {
+  let newTree = currTree;
+  let toolsNode = newTree.tree.find(nodeFindIsForToolsNode);
+  if(!toolsNode) {
+    newTree = treeAddForToolsNode(currTree);
+  }
+
+  newTree = {
+    ...newTree,
+    tree: newTree.tree.map(levelZeroNode =>
+      nodeTransformChildOrAppendChild(
+        levelZeroNode,
+        node => (node._state.isForTools && node._state.level === 0),
+        node => (node._state.isCurrent && node._state.level === 1),
+        node => nodeSetSet(node, cellIds),
+        nodeFillIn({ name: CURRENT_SET_NAME, set: cellIds }, 1, { isCurrent: true })
+      )
+    )
+  };
+  return newTree;
+}
+
+function treeImport(currTree, treeToImport) {
+  if (!treeToImport || treeToImport.length === 0) {
+    return currTree;
+  }
+  const newChildren = treeToImport.map(child => nodeFillIn(child));
+  return treeAppendChildren(currTree, newChildren);
+}
+
+function treeGetEmpty(datatype) {
+  return {
+    version,
+    datatype,
+    tree: [],
+    _state: {
+      items: [], // for complement operations
+      checkedKeys: [],
+      visibleKeys: [],
+      checkedLevel: { levelZeroKey: null, levelIndex: null },
+    }
+  };
+}
+
+
+export default {
+  treeGetEmpty,
+  treeImport,
+  treeSetItems,
+  treeSetCurrentSet
+};
