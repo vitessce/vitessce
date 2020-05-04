@@ -7,6 +7,7 @@
 
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).
+- Update the layer controller to be general enough to handle multiple dimensions for CODEX.
 
 ## [0.1.0](https://www.npmjs.com/package/vitessce/v/0.1.0) - 2020-04-28
 
