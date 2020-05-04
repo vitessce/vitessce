@@ -2,9 +2,11 @@
 
 ## 0.1.1 - in progress
 
+## Added
+- HiGlass integration
+
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).
-
 
 ## [0.1.0](https://www.npmjs.com/package/vitessce/v/0.1.0) - 2020-04-28
 
