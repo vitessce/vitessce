@@ -76,6 +76,38 @@
         opacity: 0.8;
     }
 
+    .description {
+        p, details, table {
+            font-size: 80%;
+            opacity: 0.8;
+        }
+        details {
+            margin-bottom: 6px;
+        }
+        summary {
+            border-bottom: 1px solid lighten(map-get($theme-colors, "primary-background"), 10%);
+            cursor: pointer;
+        }
+        .metadata-container {
+            padding-left: 14px;
+            table {
+                width: 100%;
+                td, th {
+                    outline: none;
+                    padding: 2px 2px;
+                    max-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    width: 50%;
+                }
+                tr:nth-child(even) {
+                    background-color: lighten(map-get($theme-colors, "primary-background"), 5%);
+                }
+            }
+        }
+    }
+
     .coll-full, .welcome-col-left, .welcome-col-right {
         position: relative;
         width: 100%;

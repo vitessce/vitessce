@@ -4,6 +4,8 @@
 
 ## Added
 - HiGlass integration
+- Added a new event type `METADATA_ADD` for publishing layer metadata (image layer details, heatmap layer details, etc).
+- Added support for displaying tables of metadata in the `Description` component by wrapping in a `DescriptionSubscriber` component.
 
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).
