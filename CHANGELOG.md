@@ -7,6 +7,7 @@
 
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).
+- Clicking while using the rectangle or lasso tool now clears the current selection by emitting a new empty selection.
 
 ## [0.1.0](https://www.npmjs.com/package/vitessce/v/0.1.0) - 2020-04-28
 

@@ -8,9 +8,25 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { EditableGeoJsonLayer, SELECTION_TYPE } from 'nebula.gl';
 import { DrawRectangleMode, DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
 
+// Customize the click handlers for the rectangle and polygon tools,
+// so that clicking triggers the `onEdit` callback.
+class ClickableDrawRectangleMode extends DrawRectangleMode {
+  // eslint-disable-next-line class-methods-use-this
+  handleClick(event, props) {
+    props.onEdit(null);
+  }
+}
+
+class ClickableDrawPolygonByDraggingMode extends DrawPolygonByDraggingMode {
+  // eslint-disable-next-line class-methods-use-this
+  handleClick(event, props) {
+    props.onEdit(null);
+  }
+}
+
 const MODE_MAP = {
-  [SELECTION_TYPE.RECTANGLE]: DrawRectangleMode,
-  [SELECTION_TYPE.POLYGON]: DrawPolygonByDraggingMode,
+  [SELECTION_TYPE.RECTANGLE]: ClickableDrawRectangleMode,
+  [SELECTION_TYPE.POLYGON]: ClickableDrawPolygonByDraggingMode,
 };
 
 const defaultProps = {
@@ -98,6 +114,7 @@ export default class SelectionLayer extends CompositeLayer {
   }
 
   renderLayers() {
+    const { onSelect } = this.props;
     const mode = MODE_MAP[this.props.selectionType] || ViewMode;
 
     const inheritedProps = {};
@@ -115,7 +132,15 @@ export default class SelectionLayer extends CompositeLayer {
           },
           selectedFeatureIndexes: [],
           data: EMPTY_DATA,
-          onEdit: ({ updatedData, editType }) => {
+          onEdit: (event) => {
+            if (!event) {
+              // A null event was recieved,
+              // so we want to select an empty array to clear any previous selection.
+              onSelect({ pickingInfos: [] });
+              return;
+            }
+            // The event was not null, so handle it normally.
+            const { updatedData, editType } = event;
             if (editType === 'addFeature') {
               const { coordinates } = updatedData.features[0].geometry;
 
