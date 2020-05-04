@@ -3,36 +3,17 @@ import uuidv4 from 'uuid/v4';
 import { version } from '../../../package.json';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
 import some from 'lodash/some';
+import intersection from 'lodash/intersection';
 
 const CURRENT_SET_NAME = "Current selection";
 
-/**
- * Like .find but can return the truthy value rather than returning the element.
- * @param {Array} array The array to iterate over.
- * @param {Function} callback The callback function, should return truthy or null.
- * @returns {any} The first return value for which callback returns true.
- */
-function findValue(array, callback) {
-  // eslint-disable-next-line no-restricted-syntax
-  for (const el of array) {
-    const callbackResult = callback(el);
-    if (callbackResult) {
-      return callbackResult;
-    }
-  }
-  return null;
-}
+const ALLOW_SIDE_EFFECTS = true;
+const globalSets = {};
+const globalItems = {};
 
-/**
- * Remove all instances of a value from an array,
- * based on the result of a test function.
- * @param {Array} array The array to iterate over.
- * @param {Function} shouldRemove The test function. Returns boolean.
- * @returns {Array} The array after removing items.
- */
-function removeValue(array, shouldRemove) {
-  return array.reduce((a, h) => (shouldRemove(h) ? a : [...a, h]), []);
-}
+const UPDATE_VISIBLE_ON_EXPAND = false;
+
+
 
 function generateKey() {
   return uuidv4();
@@ -86,9 +67,12 @@ function nodeSetName(currNode, newName) {
 }
 
 function nodeSetSet(currNode, newSet) {
+  if(ALLOW_SIDE_EFFECTS) {
+    globalSets[currNode._state.key] = newSet;
+  }
   return {
     ...currNode,
-    set: newSet
+    set: (ALLOW_SIDE_EFFECTS ? true : newSet)
   }
 }
 
@@ -114,16 +98,20 @@ function nodeSetColor(currNode, newColor) {
 }
 
 function nodeFillIn(currNode, level = 0, stateOverrides = {}) {
+  const nodeKey = generateKey();
+  if(ALLOW_SIDE_EFFECTS && !currNode.children) {
+    globalSets[nodeKey] = currNode.set || [];
+  }
   return {
     name: currNode.name,
     color: currNode.color || DEFAULT_COLOR,
     ...(currNode.children ? {
       children: currNode.children.map(childNode => nodeFillIn(childNode, level+1, stateOverrides)),
     } : {
-      set: currNode.set || [],
+      set: (ALLOW_SIDE_EFFECTS ? true : (currNode.set || []))
     }),
     _state: {
-      key: generateKey(),
+      key: nodeKey,
       level,
       isEditing: false,
       isCurrent: false,
@@ -150,11 +138,14 @@ function treeAppendChildren(currTree, nodes) {
 }
 
 function treeSetItems(currTree, cellIds) {
+  if(ALLOW_SIDE_EFFECTS) {
+    globalItems[currTree._state.key] = cellIds;
+  }
   return {
     ...currTree,
     _state: {
       ...currTree._state,
-      items: cellIds
+      items: (ALLOW_SIDE_EFFECTS ? true : cellIds)
     }
   };
 }
@@ -181,6 +172,30 @@ function nodeFindIsCurrentNode(node) {
 
 function nodeFindIsForToolsNode(node) {
   return nodeFindNode(node, n => (n._state.level === 0 && n._state.isForTools));
+}
+
+function treeFindNode(currTree, predicate) {
+  for(let levelZeroNode of currTree.tree) {
+    const foundNode = nodeFindNode(levelZeroNode, predicate);
+    if(foundNode) {
+      return foundNode;
+    }
+  }
+  return null;
+}
+
+function treeFindNodeByKey(currTree, targetKey) {
+  return treeFindNode(currTree, n => (n._state.key === targetKey));
+}
+
+function treeFindLevelZeroNodeByDescendantKey(currTree, targetKey) {
+  for(let levelZeroNode of currTree.tree) {
+    const foundNode = nodeFindNode(levelZeroNode, n => (n._state.key === targetKey));
+    if(foundNode) {
+      return levelZeroNode;
+    }
+  }
+  return null;
 }
 
 
@@ -213,21 +228,28 @@ function nodeRemove(node, predicate) {
   if(node.children) {
     return {
       ...node,
-      children: node.children.map(child => nodeRemove(child, predicate, newNode)).filter(Boolean)
+      children: node.children.map(child => nodeRemove(child, predicate)).filter(Boolean)
     };
   }
   return node;
 }
 
-function treeRemoveNodeByKey(currTree, targetKey) {
+function treeNodeRemove(currTree, targetKey) {
+  const node = treeFindNodeByKey(currTree, targetKey);
+  const levelZeroNode = treeFindLevelZeroNodeByDescendantKey(currTree, targetKey);
+
+  const shouldClearCheckedLevel = (
+    (currTree._state.checkedLevel.levelZeroKey === node._state.key)
+    || (currTree._state.checkedLevel.levelZeroKey === levelZeroNode._state.key && currTree._state.checkedLevel.levelIndex === node._state.level));
+
   return {
     ...currTree,
-    tree: currTree.map(node => nodeRemove(node, n => n._state.key === targetKey)).filter(Boolean),
+    tree: currTree.tree.map(node => nodeRemove(node, n => n._state.key === targetKey)).filter(Boolean),
     _state: {
       ...currTree._state,
       checkedKeys: currTree._state.checkedKeys.filter(k => k !== targetKey),
-      visibleKeys: currTree._State.visibleKeys.filter(k => k !== targetKey),
-      // TODO: figure out if the _state.checkedLevel is for this node or a descendant, and if so, reset
+      visibleKeys: currTree._state.visibleKeys.filter(k => k !== targetKey),
+      checkedLevel: (shouldClearCheckedLevel ? { levelZeroKey: null, levelIndex: null } : currTree._state.checkedLevel),
     }
   };
 }
@@ -243,6 +265,17 @@ function nodeTransform(node, predicate, transform) {
     };
   }
   return node;
+}
+
+function nodeTransformDescendants(node, transform) {
+  if(!node.children) {
+    return transform(node);
+  }
+  const newNode = transform(node);
+  return {
+    ...newNode,
+    children: newNode.children.map(child => nodeTransformDescendants(child, transform))
+  };
 }
 
 function nodeTransformChildOrAppendChild(node, ancestorPredicate, descendantPredicate, transform, descendant) {
@@ -273,7 +306,11 @@ function treeSetCurrentSet(currTree, cellIds) {
   let toolsNode = newTree.tree.find(nodeFindIsForToolsNode);
   if(!toolsNode) {
     newTree = treeAddForToolsNode(currTree);
+    toolsNode = newTree.tree.find(nodeFindIsForToolsNode);
   }
+
+  const currExpandedKeys = newTree._state.expandedKeys;
+  const newExpandedKeys = (currExpandedKeys.includes(toolsNode._state.key) ? currExpandedKeys : [...currExpandedKeys, toolsNode._state.key]);
 
   newTree = {
     ...newTree,
@@ -287,13 +324,23 @@ function treeSetCurrentSet(currTree, cellIds) {
       )
     )
   };
+
+  const currentSetNode = treeFindNode(newTree, n => n._state.isCurrent);
+  newTree = {
+    ...newTree,
+    _state: {
+      ...newTree._state,
+      visibleKeys: [currentSetNode._state.key],
+      expandedKeys: newExpandedKeys,
+    }
+  };
   return newTree;
 }
 
 function treeTransformNodeByKey(currTree, targetKey, transform) {
   return {
     ...currTree,
-    tree: currTree.map(node => nodeTransform(node, n => n._state.key === targetKey), transform)
+    tree: currTree.tree.map(node => nodeTransform(node, n => (n._state.key === targetKey), transform))
   };
 }
 
@@ -301,19 +348,41 @@ function treeNodeSetColor(currTree, targetKey, color) {
   return treeTransformNodeByKey(currTree, targetKey, node => nodeSetColor(node, color));
 }
 
-function treeNodeSetName(currTree, targetKey, name) {
-  return treeTransformNodeByKey(currTree, targetKey, node => nodeSetName(node, name));
+function treeNodeSetName(currTree, targetKey, name, stopEditing) {
+  const transformName = (node) => {
+    let newNode = nodeSetName(node, name);
+    if (stopEditing) {
+      newNode = nodeSetIsEditing(newNode, false);
+    }
+    if (node._state.isCurrent) {
+      newNode = nodeSetIsCurrent(newNode, false);
+    }
+    return newNode;
+  }
+  return treeTransformNodeByKey(currTree, targetKey, transformName);
 }
-
-
-
 
 function treeImport(currTree, treeToImport) {
   if (!treeToImport || treeToImport.length === 0) {
     return currTree;
   }
-  const newChildren = treeToImport.map(child => nodeFillIn(child));
-  return treeAppendChildren(currTree, newChildren);
+  let newChildren = treeToImport.map(child => nodeFillIn(child));
+
+  // Set colors of new nodes.
+  newChildren = newChildren.map(child => {
+    const height = nodeToHeight(child);
+    let newChild = child;
+    for(let level = 0; level < height; level++) {
+      const descendentKeys = nodeToDescendantsFlat(child, level).map(d => d._state.key);
+      for(let i = 0; i < descendentKeys.length; i++) {
+        newChild = nodeTransform(newChild, n => n._state.key === descendentKeys[i], n => nodeSetColor(n, PALETTE[i % PALETTE.length]));
+      }
+    }
+    return newChild;
+  });
+
+  const newTree = treeAppendChildren(currTree, newChildren);
+  return newTree;
 }
 
 function nodeClearState(currNode) {
@@ -332,12 +401,14 @@ function treeExport(currTree) {
 }
 
 function treeGetEmpty(datatype) {
+  const treeKey = generateKey();
   return {
     version,
     datatype,
     tree: [],
     _state: {
-      items: [], // for complement operations
+      key: treeKey,
+      items: (ALLOW_SIDE_EFFECTS ? true : []), // for complement operations
       checkedKeys: [],
       visibleKeys: [],
       checkedLevel: { levelZeroKey: null, levelIndex: null },
@@ -348,8 +419,6 @@ function treeGetEmpty(datatype) {
 }
 
 function treeOnCheckLevel(currTree, levelZeroKey, levelIndex) {
-  // Upon an expansion interaction, we always want autoExpandParent to be false
-  // to allow a parent with expanded children to collapse.
   return {
     ...currTree,
     _state: {
@@ -359,10 +428,19 @@ function treeOnCheckLevel(currTree, levelZeroKey, levelIndex) {
   };
 }
 
-function treeOnExpand(currTree, expandedKeys) {
+function treeNodeGetClosedDescendants(currTree, targetKey) {
+  const node = treeFindNodeByKey(currTree, targetKey);
+  if(node._state.isLeaf || !currTree._state.expandedKeys.includes(targetKey)) {
+    return [targetKey];
+  }
+  return node.children.flatMap(c => treeNodeGetClosedDescendants(currTree, c._state.key));
+}
+
+function treeOnExpand(currTree, expandedKeys, targetKey, expanded) {
   // Upon an expansion interaction, we always want autoExpandParent to be false
   // to allow a parent with expanded children to collapse.
-  return {
+
+  let newTree = {
     ...currTree,
     _state: {
       ...currTree._state,
@@ -370,11 +448,33 @@ function treeOnExpand(currTree, expandedKeys) {
       autoExpandParent: false,
     }
   };
+
+  if(UPDATE_VISIBLE_ON_EXPAND) {
+    // When expanding a node, if it was previously visible, replace its key in .visibleKeys with the keys of its closed descendants.
+  // When collapsing a node, if all of its open or leaf descendants were previously visible, we want to replace those keys with itself.
+    const currClosedKeys = treeNodeGetClosedDescendants(currTree, targetKey);
+    const newClosedKeys = treeNodeGetClosedDescendants(newTree, targetKey);
+
+    let visibleKeys = currTree._state.visibleKeys;
+    if(expanded && visibleKeys.includes(targetKey)) {
+      visibleKeys = visibleKeys.filter(k => k !== targetKey);
+      visibleKeys = [...visibleKeys, ...newClosedKeys];
+    } else if(!expanded && intersection(visibleKeys, currClosedKeys).length === currClosedKeys.length) {
+      visibleKeys = visibleKeys.filter(k => !currClosedKeys.includes(k));
+      visibleKeys = [...visibleKeys, targetKey];
+    }
+    return {
+      ...newTree,
+      _state: {
+        ...newTree._state,
+        visibleKeys,
+      }
+    };
+  }
+  return newTree;
 }
 
 function treeOnCheck(currTree, checkedKeys) {
-  // Upon an expansion interaction, we always want autoExpandParent to be false
-  // to allow a parent with expanded children to collapse.
   return {
     ...currTree,
     _state: {
@@ -382,6 +482,32 @@ function treeOnCheck(currTree, checkedKeys) {
       checkedKeys
     }
   };
+}
+
+function treeOnCheckNode(currTree, nodeKey) {
+  const currCheckedKeys = currTree._state.checkedKeys;
+  let newCheckedKeys;
+  if(currCheckedKeys.includes(nodeKey)) {
+    newCheckedKeys = currCheckedKeys.filter(k => k !== nodeKey);
+  } else {
+    newCheckedKeys = [...currCheckedKeys, nodeKey];
+  }
+  const newTree = {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      checkedKeys: newCheckedKeys,
+    }
+  };
+
+  // Set .isChecking on all nodes within this level zero node.
+  const levelZeroNode = treeFindLevelZeroNodeByDescendantKey(newTree, nodeKey);
+  const newLevelZeroNode = nodeTransformDescendants(levelZeroNode, n => nodeSetIsChecking(n, true));
+
+  return {
+    ...newTree,
+    tree: newTree.tree.map(n => (n._state.key === levelZeroNode._state.key ? newLevelZeroNode : n))
+  }
 }
 
 
@@ -403,20 +529,34 @@ function treeSetVisibleKeys(currTree, visibleKeys, shouldInvalidateCheckedLevel 
   };
 }
 
-function treeOnViewSet(currTree, targetKey) {
-  return treeSetVisibleKeys(currTree, [targetKey]);
+function treeNodeView(currTree, targetKey) {
+  // If the targetKey is an open node, then use the colors of the closed and leaf descendants.
+  // If the targetKey is a closed node, then use the one color associated with that node.
+  const visibleKeys = treeNodeGetClosedDescendants(currTree, targetKey);
+  return treeSetVisibleKeys(currTree, visibleKeys);
 }
 
-function treeOnViewSetDescendants(currTree, targetKey, level, shouldInvalidateCheckedLevel = true) {
-  // TODO
-  const node = this.findNode(setKey);
-  const descendentsOfInterest = node.getDescendantsFlat(level);
-  return treeSetVisibleKeys(currTree, descendentsOfInterest.map(d => d.key), shouldInvalidateCheckedLevel);
+function nodeToDescendantsFlat(node, level) {
+  if (!node.children) {
+    return [];
+  }
+  if (level === 0) {
+    return node.children;
+  }
+  return node.children.flatMap(c => nodeToDescendantsFlat(c, level - 1));
+}
+
+function treeNodeViewDescendants(currTree, targetKey, level, shouldInvalidateCheckedLevel = true) {
+  const node = treeFindNodeByKey(currTree, targetKey);
+  const descendentKeys = nodeToDescendantsFlat(node, level).map(d => d._state.key);
+  return treeSetVisibleKeys(currTree, descendentKeys, shouldInvalidateCheckedLevel);
 }
 
 function nodeToSet(node) {
-  // TODO: recursively obtain the set if not a leaf node.
-  return node.set || [];
+  if(!node.children) {
+    return (ALLOW_SIDE_EFFECTS ? globalSets[node._state.key] : (node.set || []));
+  }
+  return node.children.flatMap(c => nodeToSet(c));
 }
 
 function nodeToHeight(node, level = 0) {
@@ -444,6 +584,23 @@ function nodeToRenderProps(node) {
   };
 }
 
+function treeToVisibleCells(currTree) {
+  let cellColorsArray = [];
+  currTree._state.visibleKeys.forEach((setKey) => {
+    const node = treeFindNodeByKey(currTree, setKey);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      cellColorsArray = [
+        ...cellColorsArray,
+        ...nodeSet.map(cellId => [cellId, node.color]),
+      ];
+    }
+  });
+  const cellIds = cellColorsArray.map(c => c[0]);
+  const cellColors = fromEntries(cellColorsArray);
+  return [cellIds, cellColors];
+}
+
 
 export default {
   nodeToRenderProps,
@@ -454,10 +611,13 @@ export default {
   treeExport,
   treeOnExpand,
   treeOnCheck,
+  treeOnCheckNode,
   treeOnCheckLevel,
   treeOnDrop,
   treeNodeSetColor,
   treeNodeSetName,
-  treeOnViewSet,
-  treeOnViewSetDescendants,
+  treeNodeRemove,
+  treeNodeView,
+  treeNodeViewDescendants,
+  treeToVisibleCells,
 };

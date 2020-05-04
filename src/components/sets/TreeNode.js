@@ -21,6 +21,8 @@ function makeNodeViewMenuConfig(props) {
     nodeKey,
     level,
     height,
+    onCheckNode,
+    onNodeRemove
   } = props;
 
   return [
@@ -31,7 +33,7 @@ function makeNodeViewMenuConfig(props) {
     },
     {
       name: 'Delete',
-      handler: () => { /* TODO */ },
+      handler: () => { onNodeRemove(nodeKey) },
       handlerKey: 'd',
     },
     ...(level === 0 ? [
@@ -43,7 +45,7 @@ function makeNodeViewMenuConfig(props) {
     ] : [
       {
         name: 'Select',
-        handler: () => { tree.setIsChecking(nodeKey); },
+        handler: () => { onCheckNode(nodeKey); },
         handlerKey: 's',
       },
       {
@@ -64,7 +66,9 @@ function NamedSetNodeStatic(props) {
     size,
     color,
     checkbox,
-    isChecking
+    isChecking,
+    onNodeSetColor,
+    onNodeView,
   } = props;
   const tooltipTitle = (level === 0 ? `Color ${size} cells (gray)` : '')
   return (
@@ -72,8 +76,8 @@ function NamedSetNodeStatic(props) {
       <Tooltip title={tooltipTitle}>
         <button
           type="button"
-          onClick={() => { tree.viewSet(nodeKey); }}
-          onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(nodeKey))}
+          onClick={() => { onNodeView(nodeKey); }}
+          onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(nodeKey))}
           className="title-button"
           title={`View ${title}`}
         >
@@ -84,7 +88,7 @@ function NamedSetNodeStatic(props) {
         menuConfig={makeNodeViewMenuConfig(props)}
         onClose={() => {}}
         color={level > 0 ? color : null}
-        setColor={c => tree.changeNodeColor(nodeKey, c)}
+        setColor={c => onNodeSetColor(nodeKey, c)}
       >
         <MenuSVG className="node-menu-icon" />
       </PopoverMenu>
@@ -96,8 +100,8 @@ function NamedSetNodeStatic(props) {
 function NamedSetNodeEditing(props) {
   const {
     title,
-    tree,
     nodeKey,
+    onNodeSetName,
   } = props;
   const [currentTitle, setCurrentTitle] = useState(title);
   return (
@@ -109,13 +113,13 @@ function NamedSetNodeEditing(props) {
         type="text"
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
-        onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => tree.changeNodeName(nodeKey, currentTitle, true))}
+        onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => onNodeSetName(nodeKey, currentTitle))}
         onFocus={e => e.target.select()}
       />
       <button
         type="button"
         className="title-save-button"
-        onClick={() => tree.changeNodeName(nodeKey, currentTitle, true)}
+        onClick={() => onNodeSetName(nodeKey, currentTitle)}
       >
         Save
       </button>

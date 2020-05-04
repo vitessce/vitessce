@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import PubSub from 'pubsub-js';
 import {
-  CELL_SETS_MODIFY, CELL_SETS_VIEW, CELLS_SELECTION,
+  CELL_SETS_VIEW, CELLS_SELECTION,
   CELLS_ADD, STATUS_WARN, CELLS_COLOR, CELL_SETS_ADD,
   CLEAR_PLEASE_WAIT,
 } from '../../events';
@@ -30,40 +30,17 @@ export default function CellSetsManagerSubscriber(props) {
       const newTree = sets.treeImport(tree, treeToImport.tree);
       setTree(newTree);
     });
-    const cellSetsModifyToken = PubSub.subscribe(CELL_SETS_MODIFY, (msg, treeToImport) => {
-      // ?
-    });
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, (msg, cellIds) => {
-      const newTree = sets.treeSetCurrentSet(tree, cellIds);
+      const newTree = sets.treeSetCurrentSet(tree, Array.from(cellIds));
       setTree(newTree);
     });
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellSetsAddToken);
-      PubSub.unsubscribe(cellSetsModifyToken);
       PubSub.unsubscribe(cellsSelectionToken);
     }
   }, [onReadyCallback, tree, setTree]);
-
-
-  /*
-  constructor(props) {
-    super(props);
-    this.state = {
-      cellSetsTree: new SetsTree(
-        (obj) => {
-          PubSub.publish(CELL_SETS_MODIFY, obj);
-        },
-        (cellIds, cellColors) => {
-          PubSub.publish(CELLS_COLOR, cellColors);
-          PubSub.publish(CELL_SETS_VIEW, cellIds);
-        },
-      ),
-    };
-    this.componentWillUnmount = this.componentWillUnmount.bind(this);
-  }
-  */
 
   return (
     <TitleInfo
@@ -76,6 +53,8 @@ export default function CellSetsManagerSubscriber(props) {
         onUpdateTree={setTree}
         datatype={SETS_DATATYPE_CELL}
         onError={err => PubSub.publish(STATUS_WARN, err)}
+        onCellsColor={cellColors => PubSub.publish(CELLS_COLOR, cellColors)}
+        onCellSetsView={cellIds => PubSub.publish(CELL_SETS_VIEW, new Set(cellIds))}
         clearPleaseWait={
           layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
         }
