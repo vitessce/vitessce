@@ -84,7 +84,7 @@ export default function reducer(channels, action) {
       return nextChannels;
     }
     case 'CHANGE_GLOBAL_CHANNELS_SELECTION': {
-      const { selection } = payload;
+      const { selection, publish } = payload;
       const nextChannels = Object.assign({},
         ...Object.keys(channels).map(channelId => (
           {
@@ -97,12 +97,15 @@ export default function reducer(channels, action) {
             },
           }
         )));
-      const propertyToUpdate = layerProperty.selection;
-      const updatedValues = Object.values(nextChannels).map(c => c.selection);
-      const layerProps = {
-        [propertyToUpdate]: updatedValues,
-      };
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176.
+      if (publish) {
+        const propertyToUpdate = layerProperty.selection;
+        const updatedValues = Object.values(nextChannels).map(c => c.selection);
+        const layerProps = {
+          [propertyToUpdate]: updatedValues,
+        };
+        PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      }
       return nextChannels;
     }
     case 'ADD_CHANNEL': {

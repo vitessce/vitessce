@@ -51,7 +51,9 @@ function GlobalSelectionSlider({
   return (
     <Slider
       value={value}
-      onChange={(e, v) => handleChange({ field: selection, value: v })}
+      // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176.
+      onChange={(e, v) => handleChange({ field: selection, value: v, event: e })}
+      onChangeCommitted={(e, v) => handleChange({ field: selection, value: v, event: e })}
       valueLabelDisplay="auto"
       getAriaLabel={() => `${selection} slider`}
       marks={possibleValues.map(val => ({ value: val }))}

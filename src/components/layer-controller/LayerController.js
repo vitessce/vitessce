@@ -173,12 +173,13 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   }
 
   const classes = useExpansionPanelStyles();
-  const handleGlobalChannelsSelectionChange = (selection) => {
+  const handleGlobalChannelsSelectionChange = ({ field, value, event }) => {
     dispatch({
       type: 'CHANGE_GLOBAL_CHANNELS_SELECTION',
       layerId,
       payload: {
-        selection,
+        // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176.
+        selection: { field, value }, publish: event.type === 'mouseup',
       },
     });
   };
