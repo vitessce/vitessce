@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 - in progress
+
+## Added
+
+### Changed
+- Moved `demos.md` to `DEMOS.md`.
+- Fixed the example JSON URL config in `TESTING.md`.
+
 ## 0.1.1
 
 ## Added
