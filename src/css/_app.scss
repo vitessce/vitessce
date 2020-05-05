@@ -47,6 +47,7 @@
     /* Tool styles */
     .title {
         color: map-get($theme-colors, "primary-foreground");
+        overflow-x: hidden;
     }
 
     .card {
