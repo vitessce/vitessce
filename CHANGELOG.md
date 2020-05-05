@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+### Added
+
+### Changed
+- Fixed a horizontal scroll bug caused by overflow of the `{num} genes` subtitle in the Linnarsson demo.
+
 ## 0.1.1
 
 ## Added
