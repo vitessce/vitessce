@@ -16,11 +16,10 @@
 ## [0.1.0](https://www.npmjs.com/package/vitessce/v/0.1.0) - 2020-04-28
 
 ### Added
-- Added a selectable table component with radio- and checkbox-like functionality.=
+- Added a selectable table component with radio- and checkbox-like functionality.
 
 ### Changed
 - Changed the bundling process so that subsets of components are bundled into separate JS files by targeting the `src/components/{name}/index.js` files.
-
 
 ## [0.0.25](https://www.npmjs.com/package/vitessce/v/0.0.25) - 2020-03-26
 ### Added
