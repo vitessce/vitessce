@@ -8,19 +8,22 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { EditableGeoJsonLayer, SELECTION_TYPE } from 'nebula.gl';
 import { DrawRectangleMode, DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
 
+const EDIT_TYPE_ADD = 'addFeature';
+const EDIT_TYPE_CLEAR = 'clearFeatures';
+
 // Customize the click handlers for the rectangle and polygon tools,
 // so that clicking triggers the `onEdit` callback.
 class ClickableDrawRectangleMode extends DrawRectangleMode {
   // eslint-disable-next-line class-methods-use-this
   handleClick(event, props) {
-    props.onEdit(null);
+    props.onEdit({ editType: EDIT_TYPE_CLEAR });
   }
 }
 
 class ClickableDrawPolygonByDraggingMode extends DrawPolygonByDraggingMode {
   // eslint-disable-next-line class-methods-use-this
   handleClick(event, props) {
-    props.onEdit(null);
+    props.onEdit({ editType: EDIT_TYPE_CLEAR });
   }
 }
 
@@ -132,23 +135,17 @@ export default class SelectionLayer extends CompositeLayer {
           },
           selectedFeatureIndexes: [],
           data: EMPTY_DATA,
-          onEdit: (event) => {
-            if (!event) {
-              // A null event was recieved,
-              // so we want to select an empty array to clear any previous selection.
-              onSelect({ pickingInfos: [] });
-              return;
-            }
-            // The event was not null, so handle it normally.
-            const { updatedData, editType } = event;
-            if (editType === 'addFeature') {
+          onEdit: ({ updatedData, editType }) => {
+            if (editType === EDIT_TYPE_ADD) {
               const { coordinates } = updatedData.features[0].geometry;
-
               if (this.props.selectionType === SELECTION_TYPE.RECTANGLE) {
                 this._selectRectangleObjects(coordinates);
               } else if (this.props.selectionType === SELECTION_TYPE.POLYGON) {
                 this._selectPolygonObjects(coordinates);
               }
+            } else if (editType === EDIT_TYPE_CLEAR) {
+              // We want to select an empty array to clear any previous selection.
+              onSelect({ pickingInfos: [] });
             }
           },
           ...inheritedProps,
