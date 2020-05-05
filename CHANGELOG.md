@@ -5,9 +5,11 @@
 ### Added
 
 ### Changed
+- Moved `demos.md` to `DEMOS.md`.
+- Fixed the example JSON URL config in `TESTING.md`.
 - Fixed a horizontal scroll bug caused by overflow of the `{num} genes` subtitle in the Linnarsson demo.
 
-## 0.1.1
+## [0.1.1](https://www.npmjs.com/package/vitessce/v/0.1.1) - 2020-05-05
 
 ## Added
 - HiGlass integration
