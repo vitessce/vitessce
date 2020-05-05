@@ -7,23 +7,25 @@ export default function Description(props) {
     <div className="description">
       <p>{description}</p>
 
-      {Object.entries(metadata).map(([layerName, layerMetadata]) => (
-        <details key={layerName}>
-          <summary>{layerName}</summary>
-          <div className="metadata-container">
-            <table>
-              <tbody>
-                {Object.entries(layerMetadata)
-                  .map(([key, value]) => (
-                    <tr key={key}>
-                      <th title={key}>{key}</th>
-                      <td title={value}>{value}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        </details>
+      {Object.entries(metadata).map(([metadataRecordName, metadataRecord]) => (
+        Object.entries(metadataRecord).length > 0 ? (
+          <details key={metadataRecordName}>
+            <summary>{metadataRecordName}</summary>
+            <div className="metadata-container">
+              <table>
+                <tbody>
+                  {Object.entries(metadataRecord)
+                    .map(([key, value]) => (
+                      <tr key={key}>
+                        <th title={key}>{key}</th>
+                        <td title={value}>{value}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        ) : null
       ))}
     </div>
   );

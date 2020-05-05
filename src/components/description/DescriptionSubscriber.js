@@ -10,18 +10,14 @@ export default function DescriptionSubscriber(props) {
   const onReadyCallback = useCallback(onReady, []);
   const [metadata, setMetadata] = useState({});
 
-  const handleMetadataAdd = useCallback((msg, { name: layerName, metadata: layerMetadata }) => {
-    setMetadata({
-      ...metadata,
-      [layerName]: layerMetadata,
-    });
-  }, [metadata, setMetadata]);
-
   useEffect(() => {
+    function handleMetadataAdd(msg, { name, metadata: metadataRecord }) {
+      setMetadata(prevMetadata => ({ ...prevMetadata, [name]: metadataRecord }));
+    }
     const metadataAddToken = PubSub.subscribe(METADATA_ADD, handleMetadataAdd);
     onReadyCallback();
     return () => PubSub.unsubscribe(metadataAddToken);
-  }, [onReadyCallback, handleMetadataAdd]);
+  }, [onReadyCallback]);
 
   return (
     <TitleInfo
