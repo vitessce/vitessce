@@ -38,11 +38,7 @@ export const STATUS_INFO = `${STATUS}.info`;
 export const RASTER = 'raster';
 export const RASTER_ADD = RASTER + ADD;
 
-export const SLIDERS = 'sliders';
-export const SLIDERS_CHANGE = id => `${SLIDERS}.change.${id}`;
-
-export const COLORS = 'colors';
-export const COLORS_CHANGE = id => `${COLORS}.change.${id}`;
-
-export const CHANNEL_VISIBILITY = 'channel_visibility';
-export const CHANNEL_VISIBILITY_CHANGE = id => `${CHANNEL_VISIBILITY}.change.${id}`;
+export const LAYER = 'layer';
+export const LAYER_ADD = LAYER + ADD;
+export const LAYER_REMOVE = `${LAYER}.remove`;
+export const LAYER_CHANGE = `${LAYER}.change`;

@@ -9,6 +9,7 @@
 @import 'sets-manager';
 @import 'popover';
 @import 'selectable-table';
+@import 'higlass';
 
 @mixin vitessce-themable($theme-name, $theme-colors) {
   @include app($theme-name, $theme-colors);
@@ -18,6 +19,7 @@
   @include sets-manager($theme-name, $theme-colors);
   @include popover($theme-name, $theme-colors);
   @include selectable-table($theme-name, $theme-colors);
+  @include higlass($theme-name, $theme-colors);
 }
 
 .vitessce-container {
