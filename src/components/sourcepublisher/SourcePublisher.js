@@ -44,11 +44,13 @@ function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
 }
 
-function publishLayer(data, type, name, url, requestInit) {
+function publishLayer(data, type, name, url) {
   const schema = typeToSchema[type];
   if (!schema) {
     throw Error(`No schema for ${type}`);
   }
+  // Should we just compile everything so we can cross reference?
+  // We need DATASET for requestInit in rasters.
   const validate = new Ajv().compile(schema);
   const valid = validate(data);
   if (!valid) {
@@ -56,7 +58,7 @@ function publishLayer(data, type, name, url, requestInit) {
     warn(`Error while validating ${name}. Details in console.`);
     console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
   }
-  PubSub.publish(typeToEvent[type], { ...data, requestInit });
+  PubSub.publish(typeToEvent[type], data);
   info(name);
 }
 
@@ -68,7 +70,7 @@ function loadLayer(layer) {
     .then((response) => {
       if (response.ok) {
         response.json().then((data) => {
-          publishLayer(data, type, name, url, requestInit);
+          publishLayer(data, type, name, url);
         }, (failureReason) => {
           warn(`Error while parsing ${name}. Details in console.`);
           console.warn(`"${name}" (${type}) from ${url}: parse failed`, failureReason);

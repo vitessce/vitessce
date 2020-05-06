@@ -43,11 +43,46 @@
     "metadata": {
       "type": "object",
       "additionalProperties": false,
+      "required": [],
       "properties": {
         "dimensions": { "$ref": "#/definitions/dimensions" },
         "is_pyramid": { "type": "boolean" },
         "transform": { "$ref": "#/definitions/transform" },
         "omeTiffOffsetsUrl": { "type": "string", "format": "uri" }
+      }
+    },
+    "requestInit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "body": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "string"
+        },
+        "cache": {
+          "type": "string"
+        },
+        "redirect": {
+          "type": "string"
+        },
+        "referrer": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string"
+        }
       }
     },
     "image": {
@@ -58,7 +93,8 @@
         "name": { "type": "string" },
         "url": { "type": "string", "format": "uri" },
         "type": { "type": "string" },
-        "metadata": { "$ref": "#/definitions/metadata" }
+        "metadata": { "$ref": "#/definitions/metadata" },
+        "requestInit": { "$ref": "#/definitions/requestInit" }
       }
     }
   },
