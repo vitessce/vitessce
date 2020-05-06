@@ -8,8 +8,8 @@
 - Moved `demos.md` to `DEMOS.md`.
 - Fixed the example JSON URL config in `TESTING.md`.
 - Fixed a horizontal scroll bug caused by overflow of the `{num} genes` subtitle in the Linnarsson demo.
-- Upgrade layercontroller to be more general.
-- Add OMETIFF loading
+- Upgrade LayerController to be more general.
+- Add OMETIFF loading.
 
 ## [0.1.1](https://www.npmjs.com/package/vitessce/v/0.1.1) - 2020-05-05
 

@@ -17,7 +17,6 @@ const toRgb = (on, arr) => {
 };
 
 function ChannelSelectionDropdown({
-  selectionIndex,
   handleChange,
   disableOptions,
   channelOptions,
@@ -25,7 +24,6 @@ function ChannelSelectionDropdown({
   return (
     <Select
       native
-      value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}
     >
       {channelOptions.map((opt, i) => (
@@ -67,7 +65,6 @@ function ChannelController({
   slider,
   color,
   dimName,
-  selectionIndex,
   colormapOn,
   channelOptions,
   dimValues,
@@ -75,7 +72,6 @@ function ChannelController({
   handleChannelRemove,
   disableOptions = false,
 }) {
-  // eslint-disable-next-line
   const rgbColor = toRgb(colormapOn, color);
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
@@ -93,7 +89,6 @@ function ChannelController({
       <Grid container direction="row" justify="space-between">
         <Grid item xs={10}>
           <ChannelSelectionDropdown
-            selectionIndex={selectionIndex}
             handleChange={v => handlePropertyChange('selection', createSelection(v))}
             disableOptions={disableOptions}
             channelOptions={channelOptions}

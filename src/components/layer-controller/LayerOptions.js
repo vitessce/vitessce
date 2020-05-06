@@ -43,19 +43,24 @@ function OpacitySlider({ value, handleChange }) {
 }
 
 function GlobalSelectionSlider({
+  field,
   value,
   handleChange,
-  selection,
   possibleValues,
 }) {
   return (
     <Slider
       value={value}
-      // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176.
-      onChange={(e, v) => handleChange({ field: selection, value: v, event: e })}
-      onChangeCommitted={(e, v) => handleChange({ field: selection, value: v, event: e })}
+      // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
+      // we have the two handlers.
+      onChange={
+        (event, newValue) => handleChange({ selection: { [field]: newValue }, event })
+      }
+      onChangeCommitted={
+        (event, newValue) => handleChange({ selection: { [field]: newValue }, event })
+      }
       valueLabelDisplay="auto"
-      getAriaLabel={() => `${selection} slider`}
+      getAriaLabel={() => `${field} slider`}
       marks={possibleValues.map(val => ({ value: val }))}
       min={Number(possibleValues[0])}
       max={Number(possibleValues.slice(-1))}
@@ -86,7 +91,7 @@ function LayerOptions({
   opacity,
   handleColormapChange,
   handleOpacityChange,
-  globalControlSelections,
+  globalControlFields,
   handleGlobalChannelsSelectionChange,
   channels,
   dimensions,
@@ -109,21 +114,19 @@ function LayerOptions({
       </Grid>
       {dimensions.length > 0
         && Object.keys(channels).length > 0
-        && globalControlSelections.map(selection => (
-        // eslint-disable-next-line no-unused-expressions
-        // eslint-disable-next-line implicit-arrow-linebreak
+        && globalControlFields.map(field => (
           <LayerOption
-            name={selection}
-            inputId={`${selection}-slider`}
-            key={selection}
+            name={field}
+            inputId={`${field}-slider`}
+            key={field}
           >
             <GlobalSelectionSlider
-              value={channels[Object.keys(channels)[0]].selection[selection]}
+              field={field}
+              value={channels[Object.keys(channels)[0]].selection[field]}
               handleChange={handleGlobalChannelsSelectionChange}
-              selection={selection}
               possibleValues={
                 dimensions.filter(
-                  dimension => dimension.field === selection,
+                  dimension => dimension.field === field,
                 )[0].values
               }
             />

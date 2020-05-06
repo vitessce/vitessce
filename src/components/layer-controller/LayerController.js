@@ -20,6 +20,8 @@ import { LAYER_ADD, LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
 import { useExpansionPanelStyles } from './styles';
 
+// For now these are the global channel selectors.
+// We can expand this part of the application as new needs arise.
 const GLOBAL_SLIDER_DIMENSION_FIELDS = ['z', 'time'];
 
 async function initLoader(imageData) {
@@ -27,7 +29,6 @@ async function initLoader(imageData) {
     type, url, metadata, requestInit,
   } = imageData;
   switch (type) {
-    // TODO: Add tiff loader
     case ('zarr'): {
       const { dimensions, is_pyramid: isPyramid, transform } = metadata;
       const { scale = 0, translate = { x: 0, y: 0 } } = transform;
@@ -38,6 +39,7 @@ async function initLoader(imageData) {
     }
     case ('ome-tiff'): {
       const { omeTiffOffsetsUrl } = metadata;
+      // Fetch offsets for ome-tiff if needed.
       const res = await fetch(omeTiffOffsetsUrl, requestInit);
       const offsets = res.status !== 404 ? await res.json() : [];
       const loader = await createOMETiffLoader({
@@ -71,7 +73,6 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
 
   useEffect(() => {
     initLoader(imageData).then((loader) => {
-      // eslint-disable-next-line no-console
       const loaderDimensions = loader.dimensions;
       setDimensions(loaderDimensions);
       PubSub.publish(LAYER_ADD, {
@@ -79,7 +80,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
         loader,
         layerProps: DEFAULT_LAYER_PROPS,
       });
-      // Add channel on image add automatically
+      // Add channel on image add automatically as the first avaialable value for each dimension.
       const defaultSelection = Object.assign(
         {},
         ...loaderDimensions.map(
@@ -103,7 +104,8 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       selection: Object.assign(
         {},
         ...dimensions.map(
-          // eslint-disable-next-line
+          // Set new image to default selection for non-global channels
+          // and use current global selection otherwise.
           dimension => dimension.type !== 'quantitative' && {
             [dimension.field]: GLOBAL_SLIDER_DIMENSION_FIELDS.indexOf(dimension.field) >= 0
               ? channels[Object.keys(channels)[0]].selection[dimension.field]
@@ -128,8 +130,13 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   if (dimensions.length > 0) {
     const { values: channelOptions, field: dimName } = dimensions[0];
     channelControllers = Object.entries(channels).map(
+      // c is an object like { color, selection, slider, visibility }.
       ([channelId, c]) => {
+        // Change one property of a channel (for now - soon
+        // nested structures allowing for multiple z/t selecitons at once, for example).
         const handleChannelPropertyChange = (property, value) => {
+          // property is something like "selection" or "slider."
+          // value is the actual change, like { channel: "DAPI" }.
           dispatch({
             type: 'CHANGE_SINGLE_CHANNEL_PROPERTY',
             layerId,
@@ -151,7 +158,6 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
           >
             <ChannelController
               dimName={dimName}
-              selectionIndex={c.selection[0]}
               visibility={c.visibility}
               slider={c.slider}
               color={c.color}
@@ -171,13 +177,15 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   }
 
   const classes = useExpansionPanelStyles();
-  const handleGlobalChannelsSelectionChange = ({ field, value, event }) => {
+  const handleGlobalChannelsSelectionChange = ({ selection, event }) => {
+    // This call updates all channel selections with new global selection.
     dispatch({
       type: 'CHANGE_GLOBAL_CHANNELS_SELECTION',
       layerId,
       payload: {
-        // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176.
-        selection: { field, value }, publish: event.type === 'mouseup',
+        // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
+        // we have to check mouseup.
+        selection, publish: event.type === 'mouseup',
       },
     });
   };
@@ -198,9 +206,11 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             dimensions={dimensions}
             opacity={opacity}
             colormap={colormap}
-            globalControlSelections={
+            // Only allow for global dimension controllers that
+            // exist in the `dimensions` part of the loader.
+            globalControlFields={
               GLOBAL_SLIDER_DIMENSION_FIELDS.filter(
-                dimension => dimensionFields.indexOf(dimension) >= 0,
+                field => dimensionFields.indexOf(field) >= 0,
               )
             }
             handleOpacityChange={handleOpacityChange}

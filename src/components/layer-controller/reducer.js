@@ -49,7 +49,10 @@ export default function reducer(channels, action) {
   const { type, layerId, payload } = action;
   switch (type) {
     case 'CHANGE_SINGLE_CHANNEL_PROPERTY': {
+      // property is something like "selection" or "slider."
+      // value is the actual change, like { channel: "DAPI" }.
       const { channelId, property, value } = payload;
+      // Update channel selection for new state.
       const nextChannels = {
         ...channels,
         [channelId]: {
@@ -80,11 +83,13 @@ export default function reducer(channels, action) {
       const layerProps = {
         [propertyToUpdate]: updatedValues,
       };
+      // Publish deck.gl layer props.
       PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       return nextChannels;
     }
     case 'CHANGE_GLOBAL_CHANNELS_SELECTION': {
       const { selection, publish } = payload;
+      // Update channel selection for new state.
       const nextChannels = Object.assign({},
         ...Object.keys(channels).map(channelId => (
           {
@@ -92,18 +97,20 @@ export default function reducer(channels, action) {
               ...channels[channelId],
               selection: {
                 ...channels[channelId].selection,
-                ...{ [selection.field]: selection.value },
+                ...selection,
               },
             },
           }
         )));
-      // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176.
+      // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
+      // we don't publish on all changes - only on mouseup (this flag is set in LayerConroller).
       if (publish) {
         const propertyToUpdate = layerProperty.selection;
         const updatedValues = Object.values(nextChannels).map(c => c.selection);
         const layerProps = {
           [propertyToUpdate]: updatedValues,
         };
+        // Publish deck.gl layer props.
         PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       }
       return nextChannels;
