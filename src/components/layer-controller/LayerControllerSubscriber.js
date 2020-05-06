@@ -13,12 +13,14 @@ import { darkTheme } from './styles';
 
 function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   const [imageOptions, setImageOptions] = useState(null);
+  const [requestInit, setRequestInit] = useState(null);
   const [layers, setLayers] = useState([]);
   const memoizedOnReady = useCallback(onReady, []);
 
   useEffect(() => {
     function handleRasterAdd(msg, raster) {
       setImageOptions(raster.images);
+      setRequestInit(raster.requestInit);
       PubSub.publish(CLEAR_PLEASE_WAIT, 'raster');
     }
     memoizedOnReady();
@@ -28,7 +30,10 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
 
   const handleImageAdd = (imageData) => {
     const layerId = String(Math.random());
-    setLayers([...layers, { layerId, imageData }]);
+    setLayers([
+      ...layers,
+      { layerId, imageData: { ...imageData, requestInit } },
+    ]);
   };
 
   const handleLayerRemove = (layerId) => {

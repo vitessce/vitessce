@@ -37,10 +37,8 @@ async function initLoader(imageData) {
       return loader;
     }
     case ('ome-tiff'): {
-      const res = await fetch(
-        url.replace(/ome.tif(f?)/gi, 'offsets.json'),
-        requestInit,
-      );
+      const { omeTiffOffsetsUrl } = metadata;
+      const res = await fetch(omeTiffOffsetsUrl, requestInit);
       const offsets = res.status !== 404 ? await res.json() : [];
       const loader = await createOMETiffLoader({
         url,

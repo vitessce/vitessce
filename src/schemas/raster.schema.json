@@ -43,11 +43,11 @@
     "metadata": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["dimensions", "is_pyramid", "transform"],
       "properties": {
         "dimensions": { "$ref": "#/definitions/dimensions" },
         "is_pyramid": { "type": "boolean" },
-        "transform": { "$ref": "#/definitions/transform" }
+        "transform": { "$ref": "#/definitions/transform" },
+        "omeTiffOffsetsUrl": { "type": "string", "format": "uri" }
       }
     },
     "image": {

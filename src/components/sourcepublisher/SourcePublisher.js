@@ -44,7 +44,7 @@ function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
 }
 
-function publishLayer(data, type, name, url) {
+function publishLayer(data, type, name, url, requestInit) {
   const schema = typeToSchema[type];
   if (!schema) {
     throw Error(`No schema for ${type}`);
@@ -56,8 +56,7 @@ function publishLayer(data, type, name, url) {
     warn(`Error while validating ${name}. Details in console.`);
     console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
   }
-
-  PubSub.publish(typeToEvent[type], data);
+  PubSub.publish(typeToEvent[type], { ...data, requestInit });
   info(name);
 }
 
@@ -69,7 +68,7 @@ function loadLayer(layer) {
     .then((response) => {
       if (response.ok) {
         response.json().then((data) => {
-          publishLayer(data, type, name, url);
+          publishLayer(data, type, name, url, requestInit);
         }, (failureReason) => {
           warn(`Error while parsing ${name}. Details in console.`);
           console.warn(`"${name}" (${type}) from ${url}: parse failed`, failureReason);
