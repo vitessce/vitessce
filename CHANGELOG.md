@@ -1,25 +1,36 @@
 # Changelog
 
-## 0.1.1 - in progress
+## 0.1.2 - in progress
 
-## Added
+### Added
+
+### Changed
+- Moved `demos.md` to `DEMOS.md`.
+- Fixed the example JSON URL config in `TESTING.md`.
+- Fixed a horizontal scroll bug caused by overflow of the `{num} genes` subtitle in the Linnarsson demo.
+
+## [0.1.1](https://www.npmjs.com/package/vitessce/v/0.1.1) - 2020-05-05
+
+### Added
 - HiGlass integration
+- Added multi-modal Spraggins example.
 - Added a new event type `METADATA_ADD` for publishing layer metadata (image layer details, heatmap layer details, etc).
 - Added support for displaying tables of metadata in the `Description` component by wrapping in a `DescriptionSubscriber` component.
 
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).
+- Clicking while using the rectangle or lasso tool now clears the current selection by emitting a new empty selection.
+- Upgrade vitessce-image-viewer to `0.2.2`
+- Changed `raster.json` schema.
+- Changed `Channels` component to more general `LayerController` component which publishes `LAYER_ADD`, `LAYER_REMOVE`, and `LAYER_CHANGE` events.
 
 ## [0.1.0](https://www.npmjs.com/package/vitessce/v/0.1.0) - 2020-04-28
 
 ### Added
 - Added a selectable table component with radio- and checkbox-like functionality.
-- Added multi-modal Spraggins example.
 
 ### Changed
 - Changed the bundling process so that subsets of components are bundled into separate JS files by targeting the `src/components/{name}/index.js` files.
-- Changed `raster.json` schema.
-- Changed `Channels` component to more general `LayerController` component which publishes `LAYER_ADD`, `LAYER_REMOVE`, and `LAYER_CHANGE` events.
 
 ## [0.0.25](https://www.npmjs.com/package/vitessce/v/0.0.25) - 2020-03-26
 ### Added

@@ -3,7 +3,7 @@
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
 - [Latest release demo](http://vitessce.io/)
-- [Previous demos](demos.md)
+- [Previous demos](DEMOS.md)
 - [Previous releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
 
 ![Vitessce screenshot](https://user-images.githubusercontent.com/730388/58634506-78472580-82b9-11e9-9df8-a1362de73818.png)
