@@ -129,6 +129,8 @@ The `vitessce` package is published to the NPM registry by Travis when the versi
     - Update the version by running `npm version [major | minor | patch]` (note: this will add a git commit and a git tag).
 - Merge `dev` into `master` by making a pull request.
 
+Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the [web interface](https://travis-ci.org/github/hubmapconsortium/vitessce/settings) (Settings -> Environment Variables).
+
 ## Related Subsidiary Projects
 
 - [vitessce-image-viewer](https://github.com/hubmapconsortium/vitessce-image-viewer): A Deck.gl layer for high bit depth, high resolution, multi-channel images.
