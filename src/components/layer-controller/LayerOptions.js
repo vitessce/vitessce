@@ -91,11 +91,12 @@ function LayerOptions({
   opacity,
   handleColormapChange,
   handleOpacityChange,
-  globalControlFields,
+  globalControlDimensions,
   handleGlobalChannelsSelectionChange,
   channels,
   dimensions,
 }) {
+  const hasDimensionsAndChannels = dimensions.length > 0 && Object.keys(channels).length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       <Grid item>
@@ -112,26 +113,21 @@ function LayerOptions({
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
         </LayerOption>
       </Grid>
-      {dimensions.length > 0
-        && Object.keys(channels).length > 0
-        && globalControlFields.map(field => (
-          <LayerOption
-            name={field}
-            inputId={`${field}-slider`}
-            key={field}
-          >
-            <GlobalSelectionSlider
-              field={field}
-              value={channels[Object.keys(channels)[0]].selection[field]}
-              handleChange={handleGlobalChannelsSelectionChange}
-              possibleValues={
-                dimensions.filter(
-                  dimension => dimension.field === field,
-                )[0].values
-              }
-            />
-          </LayerOption>
-        ))}
+      {hasDimensionsAndChannels
+        && globalControlDimensions.map((dimension) => {
+          const { field, values } = dimension;
+          return (
+            <LayerOption name={field} inputId={`${field}-slider`} key={field}>
+              <GlobalSelectionSlider
+                field={field}
+                value={channels[Object.keys(channels)[0]].selection[field]}
+                handleChange={handleGlobalChannelsSelectionChange}
+                possibleValues={values}
+              />
+            </LayerOption>
+          );
+        })
+      }
     </Grid>
   );
 }

@@ -20,10 +20,12 @@ function ChannelSelectionDropdown({
   handleChange,
   disableOptions,
   channelOptions,
+  selectionIndex,
 }) {
   return (
     <Select
       native
+      value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}
     >
       {channelOptions.map((opt, i) => (
@@ -67,9 +69,9 @@ function ChannelController({
   dimName,
   colormapOn,
   channelOptions,
-  dimValues,
   handlePropertyChange,
   handleChannelRemove,
+  selectionIndex,
   disableOptions = false,
 }) {
   const rgbColor = toRgb(colormapOn, color);
@@ -83,13 +85,14 @@ function ChannelController({
   *
   *  e.g { channel: 2 } // channel dimension, third channel
   */
-  const createSelection = index => ({ [dimName]: dimValues[index] });
+  const createSelection = index => ({ [dimName]: index });
   return (
     <Grid container direction="column" m={1} justify="center">
       <Grid container direction="row" justify="space-between">
         <Grid item xs={10}>
           <ChannelSelectionDropdown
             handleChange={v => handlePropertyChange('selection', createSelection(v))}
+            selectionIndex={selectionIndex}
             disableOptions={disableOptions}
             channelOptions={channelOptions}
           />

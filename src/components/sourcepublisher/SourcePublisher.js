@@ -49,8 +49,6 @@ function publishLayer(data, type, name, url) {
   if (!schema) {
     throw Error(`No schema for ${type}`);
   }
-  // Should we just compile everything so we can cross reference?
-  // We need DATASET for requestInit in rasters.
   const validate = new Ajv().compile(schema);
   const valid = validate(data);
   if (!valid) {

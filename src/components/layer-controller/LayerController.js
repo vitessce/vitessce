@@ -24,6 +24,14 @@ import { useExpansionPanelStyles } from './styles';
 // We can expand this part of the application as new needs arise.
 const GLOBAL_SLIDER_DIMENSION_FIELDS = ['z', 'time'];
 
+function buildDefaultSelection(imageDims, defaultIndex = 0) {
+  const selection = {};
+  imageDims.forEach((dim) => {
+    selection[dim.field] = defaultIndex;
+  });
+  return selection;
+}
+
 async function initLoader(imageData) {
   const {
     type, url, metadata, requestInit,
@@ -81,14 +89,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
         layerProps: DEFAULT_LAYER_PROPS,
       });
       // Add channel on image add automatically as the first avaialable value for each dimension.
-      const defaultSelection = Object.assign(
-        {},
-        ...loaderDimensions.map(
-          dimension => dimension.type !== 'quantitative' && {
-            [dimension.field]: dimension.values[0],
-          },
-        ),
-      );
+      const defaultSelection = buildDefaultSelection(loader.dimensions);
       dispatch({
         type: 'ADD_CHANNEL',
         layerId,
@@ -104,13 +105,13 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       selection: Object.assign(
         {},
         ...dimensions.map(
-          // Set new image to default selection for non-global channels
+          // Set new image to default selection for non-global selections (0)
           // and use current global selection otherwise.
-          dimension => dimension.type !== 'quantitative' && {
-            [dimension.field]: GLOBAL_SLIDER_DIMENSION_FIELDS.indexOf(dimension.field) >= 0
+          dimension => ({
+            [dimension.field]: GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
               ? channels[Object.keys(channels)[0]].selection[dimension.field]
-              : dimension.values[0],
-          },
+              : 0,
+          }),
         ),
       ),
     },
@@ -159,16 +160,13 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             <ChannelController
               dimName={dimName}
               visibility={c.visibility}
+              selectionIndex={c.selection[dimName]}
               slider={c.slider}
               color={c.color}
               channelOptions={channelOptions}
               colormapOn={Boolean(colormap)}
               handlePropertyChange={handleChannelPropertyChange}
               handleChannelRemove={handleChannelRemove}
-              dimValues={
-                dimensions.filter(dimension => dimension.field === dimName)[0]
-                  .values
-              }
             />
           </Grid>
         );
@@ -189,7 +187,6 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       },
     });
   };
-  const dimensionFields = dimensions.map(dimension => dimension.field);
   return (
     <ExpansionPanel defaultExpanded className={classes.root}>
       <ExpansionPanelSummary
@@ -208,9 +205,9 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             colormap={colormap}
             // Only allow for global dimension controllers that
             // exist in the `dimensions` part of the loader.
-            globalControlFields={
-              GLOBAL_SLIDER_DIMENSION_FIELDS.filter(
-                field => dimensionFields.indexOf(field) >= 0,
+            globalControlDimensions={
+              dimensions.filter(
+                dimension => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field),
               )
             }
             handleOpacityChange={handleOpacityChange}
