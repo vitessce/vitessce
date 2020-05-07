@@ -1,5 +1,4 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { useEffect, useRef, useState } from 'react';
 import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
@@ -15,10 +14,6 @@ import PubSubVitessceGrid from './PubSubVitessceGrid';
 
 import { getConfig, listConfigs } from './api';
 import getComponent from './componentRegistry';
-
-function renderComponent(react, id) {
-  ReactDOM.render(react, document.getElementById(id));
-}
 
 function Warning(props) {
   const {
@@ -44,6 +39,22 @@ function Warning(props) {
   );
 }
 
+function AwaitResponse(props) {
+  const {
+    response,
+    theme,
+  } = props;
+  const [isLoading, setIsLoading] = useState(true);
+  const responseRef = useRef();
+  useEffect(() => {
+    response.then((c) => {
+      responseRef.current = c;
+      setIsLoading(false);
+    });
+  }, [response]);
+  return (!isLoading ? React.createElement(responseRef.current) : <Warning title="Loading..." theme={theme} />);
+}
+
 function preformattedDetails(response) {
   return `
     ok: ${response.ok}
@@ -54,17 +65,17 @@ function preformattedDetails(response) {
     url: ${response.url}`; // TODO: headers
 }
 
-export function validateAndRender(config, id, rowHeight, theme) {
+
+export function validateAndReturn(config, rowHeight, theme) {
   if (!config) {
     // If the config value is undefined, show a warning message
-    renderComponent(
+    return (
       <Warning
         title="No such dataset"
         unformatted="The dataset configuration could not be found."
         theme={theme}
-      />, id,
+      />
     );
-    return;
   }
   // NOTE: Remove when this is available in UI.
   console.groupCollapsed('🚄 Vitessce view configuration');
@@ -75,51 +86,51 @@ export function validateAndRender(config, id, rowHeight, theme) {
   const valid = validate(config);
   if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
-    renderComponent(
+    return (
       <Warning
         title="Config validation failed"
         preformatted={failureReason}
         theme={theme}
-      />, id,
+      />
     );
-    return;
   }
-  renderComponent(
+  return (
     <PubSubVitessceGrid
       config={config}
       getComponent={getComponent}
       rowHeight={rowHeight}
       theme={theme}
-    />, id,
+    />
   );
 }
 
-function renderResponse(response, id, theme) {
+function checkResponse(response, theme) {
   if (!response.ok) {
-    renderComponent(
-      <Warning
-        title="Fetch response not OK"
-        preformatted={preformattedDetails(response)}
-        theme={theme}
-      />, id,
+    return Promise.resolve(
+      () => (
+        <Warning
+          title="Fetch response not OK"
+          preformatted={preformattedDetails(response)}
+          theme={theme}
+        />
+      ),
     );
-  } else {
-    response.text().then((text) => {
-      try {
-        const config = JSON.parse(text);
-        validateAndRender(config, id, undefined, theme);
-      } catch (e) {
-        renderComponent(
-          <Warning
-            title="Error parsing JSON"
-            preformatted={preformattedDetails(response)}
-            unformatted={`${e.message}: ${text}`}
-            theme={theme}
-          />, id,
-        );
-      }
-    });
   }
+  return response.text().then((text) => {
+    try {
+      const config = JSON.parse(text);
+      return Promise.resolve(() => validateAndReturn(config, undefined, theme));
+    } catch (e) {
+      return Promise.resolve(() => (
+        <Warning
+          title="Error parsing JSON"
+          preformatted={preformattedDetails(response)}
+          unformatted={`${e.message}: ${text}`}
+          theme={theme}
+        />
+      ));
+    }
+  });
 }
 
 /**
@@ -131,7 +142,7 @@ function validateTheme(theme) {
   return (['light', 'dark'].includes(theme) ? theme : 'dark');
 }
 
-export function renderApp(id, rowHeight = null) {
+export function createApp(rowHeight = null) {
   const urlParams = new URLSearchParams(window.location.search);
   const datasetId = urlParams.get('dataset');
   const datasetUrl = urlParams.get('url');
@@ -140,19 +151,22 @@ export function renderApp(id, rowHeight = null) {
 
   if (datasetId) {
     const config = getConfig(datasetId);
-    validateAndRender(config, id, rowHeight, theme);
-  } else if (datasetUrl) {
-    fetch(datasetUrl)
-      .then(response => renderResponse(response, id, theme))
-      .catch(error => renderComponent(
+    return validateAndReturn(config, rowHeight, theme);
+  }
+  if (datasetUrl) {
+    const responsePromise = fetch(datasetUrl)
+      .then(response => checkResponse(response, theme))
+      .catch(error => Promise.resolve(
         <Warning
           title="Error fetching"
           unformatted={error.message}
           theme={theme}
-        />, id,
+        />,
       ));
-  } else {
-    const configs = listConfigs(showAll);
-    renderComponent(<Welcome configs={configs} theme={theme} />, id);
+    return (
+      <AwaitResponse response={responsePromise} theme={theme} />
+    );
   }
+  const configs = listConfigs(showAll);
+  return (<Welcome configs={configs} theme={theme} />);
 }

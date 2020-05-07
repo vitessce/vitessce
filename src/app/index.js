@@ -1,6 +1,6 @@
-import { renderApp, validateAndRender } from './app';
+import { createApp, validateAndReturn } from './app';
 
 export {
-  renderApp,
-  validateAndRender,
+  createApp,
+  validateAndReturn,
 };
