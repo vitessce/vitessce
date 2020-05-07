@@ -7,6 +7,8 @@
 
 ### Changed
 - Fixed a horizontal scroll bug caused by overflow of the `{num} genes` subtitle in the Linnarsson demo.
+- Overhauled the cell set manager.
+- Updated the cell set hierarchy schema.
 
 ## 0.1.1
 

@@ -34,8 +34,6 @@ export default function SetsManager(props) {
     onNodeView,
   } = props;
 
-  console.log(tree);
-
   console.assert(!operatable || (operatable && checkable && expandable), "Must be checkable and expandable in order to be operatable.");
 
   if (clearPleaseWait && tree) {
