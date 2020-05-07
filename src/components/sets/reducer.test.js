@@ -1,8 +1,10 @@
 import expect from 'expect';
-import sets from './sets';
+import {
+  reducer, ACTION, treeInitialize, treeExport, treeToVisibleCells,
+} from './reducer';
 
 
-describe('sets.js', () => {
+describe('Hierarchical sets reducer', () => {
   describe('Node manipulation', () => {
     let node;
     let nodeWithState;

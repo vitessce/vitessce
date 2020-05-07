@@ -1,6 +1,5 @@
-/* eslint-disable */
-import React, { useCallback, useEffect } from 'react';
-import { Tree as AntTree } from 'antd';
+import React from 'react';
+import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { nodeToRenderProps } from './reducer';
 
@@ -34,7 +33,7 @@ export default function SetsManager(props) {
     onNodeView,
   } = props;
 
-  console.assert(!operatable || (operatable && checkable && expandable), "Must be checkable and expandable in order to be operatable.");
+  console.assert(!operatable || (operatable && checkable && expandable), 'Must be checkable and expandable in order to be operatable.');
 
   if (clearPleaseWait && tree) {
     clearPleaseWait('cell_sets');
@@ -63,14 +62,11 @@ export default function SetsManager(props) {
         {renderTreeNodes(node.children)}
       </TreeNode>
     ));
-  };
+  }
 
   return (
     <div className="sets-manager">
-      <AntTree
-        prefixCls="rc-tree"
-        blockNode
-
+      <Tree
         draggable={false}
         checkable
 
@@ -89,7 +85,7 @@ export default function SetsManager(props) {
         }}
       >
         {renderTreeNodes(tree.tree)}
-      </AntTree>
+      </Tree>
     </div>
   );
 }

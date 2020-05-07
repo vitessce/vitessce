@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useCallback, useEffect, useReducer } from 'react';
 import PubSub from 'pubsub-js';
 import {
@@ -8,7 +7,9 @@ import {
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
-import { reducer, treeInitialize, ACTION, treeToVisibleCells } from './reducer';
+import reducer, {
+  treeInitialize, ACTION, treeToVisibleCells,
+} from './reducer';
 
 const SETS_DATATYPE_CELL = 'cell';
 const initialTree = treeInitialize(SETS_DATATYPE_CELL);
@@ -16,7 +17,7 @@ const initialTree = treeInitialize(SETS_DATATYPE_CELL);
 export default function CellSetsManagerSubscriber(props) {
   const {
     removeGridComponent,
-    onReady
+    onReady,
   } = props;
 
   const onReadyCallback = useCallback(onReady, []);
@@ -39,7 +40,7 @@ export default function CellSetsManagerSubscriber(props) {
       PubSub.unsubscribe(cellSetsAddToken);
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsSelectionToken);
-    }
+    };
   }, [onReadyCallback]);
 
   // Publish cell visibility and color changes when the tree changes.
@@ -51,7 +52,7 @@ export default function CellSetsManagerSubscriber(props) {
 
   // Callback functions
   const onCheckNodes = useCallback((checkedKeys) => {
-    dispatch({ type: ACTION.CHECK_NODES, checkedKeys })
+    dispatch({ type: ACTION.CHECK_NODES, checkedKeys });
   }, []);
 
   const onCheckNode = useCallback((targetKey) => {
@@ -59,11 +60,15 @@ export default function CellSetsManagerSubscriber(props) {
   }, []);
 
   const onExpandNode = useCallback((expandedKeys, targetKey, expanded) => {
-    dispatch({ type: ACTION.EXPAND_NODE, expandedKeys, targetKey, expanded})
+    dispatch({
+      type: ACTION.EXPAND_NODE, expandedKeys, targetKey, expanded,
+    });
   }, []);
 
   const onDropNode = useCallback((dropKey, dragKey, dropPosition, dropToGap) => {
-    dispatch({ type: ACTION.DROP_NODE, dropKey, dragKey, dropPosition, dropToGap });
+    dispatch({
+      type: ACTION.DROP_NODE, dropKey, dragKey, dropPosition, dropToGap,
+    });
   }, []);
 
   const onCheckLevel = useCallback((levelZeroKey, levelIndex) => {
@@ -75,7 +80,9 @@ export default function CellSetsManagerSubscriber(props) {
   }, []);
 
   const onNodeSetName = useCallback((targetKey, name, stopEditing) => {
-    dispatch({ type: ACTION.SET_NODE_NAME, targetKey, name, stopEditing });
+    dispatch({
+      type: ACTION.SET_NODE_NAME, targetKey, name, stopEditing,
+    });
   }, []);
 
   const onNodeRemove = useCallback((targetKey) => {
