@@ -26,7 +26,7 @@ cp error.html $DIST_DIR
 aws s3 cp --recursive $DIST_DIR s3://$DEMO_URL_PATH
 TARGET_URL="https://s3.amazonaws.com/$DEMO_URL_PATH/index.html"
 
-echo "- $DATE: [$BRANCH]($TARGET_URL)" >> demos.md
+echo "- $DATE: [$BRANCH]($TARGET_URL)" >> DEMOS.md
 
 echo "Deployed to $TARGET_URL"
 # Open in browser and see if it works:
