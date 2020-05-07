@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React from 'react';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
@@ -10,15 +11,17 @@ import { nodeToRenderProps } from './reducer';
  * @prop {function} clearPleaseWait A callback to signal that loading is complete.
  * @prop {boolean} checkable Whether to show checkboxes for selecting multiple sets.
  * @prop {boolean} editable Whether to show rename, delete, color options.
- * @prop {boolean} expandable Whether to allow hierarchies to be expanded to show the list or tree of sets contained.
- * @prop {boolean} operatable Whether to enable union, intersection, and complement operations. If true, checkable also must be true.
+ * @prop {boolean} expandable Whether to allow hierarchies to be expanded
+ * to show the list or tree of sets contained.
+ * @prop {boolean} operatable Whether to enable union, intersection,
+ * and complement operations. If true, checkable also must be true.
  */
 export default function SetsManager(props) {
   const {
     tree,
-    datatype,
     clearPleaseWait,
-    checkable = true,
+    draggable = false,
+    checkable = false,
     editable = true,
     expandable = true,
     operatable = true,
@@ -33,7 +36,11 @@ export default function SetsManager(props) {
     onNodeView,
   } = props;
 
-  console.assert(!operatable || (operatable && checkable && expandable), 'Must be checkable and expandable in order to be operatable.');
+  // eslint-disable-next-line no-console
+  console.assert(
+    !operatable || (operatable && checkable && expandable),
+    'Must be checkable and expandable in order to be operatable.',
+  );
 
   if (clearPleaseWait && tree) {
     clearPleaseWait('cell_sets');
@@ -67,10 +74,14 @@ export default function SetsManager(props) {
   return (
     <div className="sets-manager">
       <Tree
-        draggable={false}
-        checkable
+        draggable={draggable}
+        checkable={checkable}
 
-        onExpand={(expandedKeys, info) => onExpandNode(expandedKeys, info.node.props.nodeKey, info.expanded)}
+        onExpand={(expandedKeys, info) => onExpandNode(
+          expandedKeys,
+          info.node.props.nodeKey,
+          info.expanded,
+        )}
         expandedKeys={tree._state.expandedKeys}
         autoExpandParent={tree._state.autoExpandParent}
 

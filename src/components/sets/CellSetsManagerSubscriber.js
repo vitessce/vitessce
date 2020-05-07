@@ -27,7 +27,7 @@ export default function CellSetsManagerSubscriber(props) {
   // Subscribe to cell import and selection events.
   useEffect(() => {
     const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD, (msg, treeToImport) => {
-      dispatch({ type: ACTION.IMPORT, treeToImport: treeToImport.tree });
+      dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
     });
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
       dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
@@ -101,7 +101,6 @@ export default function CellSetsManagerSubscriber(props) {
     >
       <SetsManager
         tree={tree}
-        datatype={SETS_DATATYPE_CELL}
         clearPleaseWait={
           layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
         }

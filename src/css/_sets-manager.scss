@@ -21,7 +21,7 @@
             border: 1px solid transparent;
 
             .node-menu-icon {
-                fill: #959595;
+                fill: map-get($global-colors, "gray-mid");
                 cursor: pointer;
                 height: 14px;
                 position: relative;
@@ -114,13 +114,34 @@
                     background-color: transparent;
                     vertical-align: top;
                     font-size: 14px;
-                    width: auto;
+                }
+
+                .title-input {
+                  width: calc(100% - 60px);
+                  margin-right: 10px;
+                  background-color: map-get($global-colors, "gray-mid");
+                  border-radius: 4px;
+                  outline: none;
+                  padding: 4px 0px 4px 4px;
+                  border: 1px solid map-get($global-colors, "gray-mid");
+
+                  &:focus {
+                    box-shadow: 0 0 5px map-get($theme-colors, "primary-foreground-active");
+                    border: 1px solid map-get($theme-colors, "primary-foreground-active");
+                  }
                 }
 
                 .title-save-button {
-                  background-color: white;
-                  border: none;
+                  background-color: map-get($global-colors, "gray-dark");
+                  border: 1px solid map-get($global-colors, "gray-dark");
+                  color: map-get($global-colors, "gray-light");
                   border-radius: 3px;
+                  width: 50px;
+                  height: 24px;
+                  line-height: 24px;
+                  vertical-align: top;
+                  margin: 0;
+                  padding: 0;
                 }
 
                 
@@ -163,7 +184,7 @@
                   padding-left: 35px;
                 }
                 .rc-tree-node-content-wrapper {
-                  width: calc(100% - 100px);
+                  width: calc(100% - 10px);
                   display: inline-block;
                   margin: 0;
                   padding: 0;
