@@ -1,21 +1,22 @@
 import expect from 'expect';
-import SetsTree, { SetsTreeNode } from './sets';
+import sets from './sets';
 
-const PATH_SEP = '\t';
 
 describe('sets.js', () => {
-  describe('SetsTreeNode', () => {
+  describe('Node manipulation', () => {
     let node;
+    let nodeWithState;
     let nodeWithChildren;
+    let nodeWithChildrenAndState;
     let nodeWithGrandchildren;
+    let nodeWithGrandchildrenAndState;
 
     beforeEach(() => {
-      node = new SetsTreeNode({
-        setKey: 'test',
+      node = {
         name: 'Test Set',
-        color: '#000',
-        set: [],
-      });
+        color: '#244',
+        set: [1, 2, 3],
+      };
       nodeWithChildren = new SetsTreeNode({
         setKey: 'test',
         name: 'Test Set',
@@ -115,7 +116,7 @@ describe('sets.js', () => {
     });
   });
 
-  describe('SetsTree', () => {
+  describe('Tree manipulation', () => {
     let factorsTree;
 
     beforeEach(() => {

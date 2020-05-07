@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useReducer } from 'react';
 import PubSub from 'pubsub-js';
 import {
   CELL_SETS_VIEW, CELLS_SELECTION,
@@ -8,9 +8,10 @@ import {
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
-import sets from './sets';
+import { reducer, treeInitialize, ACTION, treeToVisibleCells } from './reducer';
 
 const SETS_DATATYPE_CELL = 'cell';
+const initialTree = treeInitialize(SETS_DATATYPE_CELL);
 
 export default function CellSetsManagerSubscriber(props) {
   const {
@@ -19,28 +20,71 @@ export default function CellSetsManagerSubscriber(props) {
   } = props;
 
   const onReadyCallback = useCallback(onReady, []);
-  const [tree, setTree] = useState(sets.treeGetEmpty(SETS_DATATYPE_CELL));
+  const [tree, dispatch] = useReducer(reducer, initialTree);
 
+  // Subscribe to cell set import events.
+  // Subscribe to cell import and selection events.
   useEffect(() => {
-    const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
-      const newTree = sets.treeSetItems(tree, Object.keys(cells));
-      setTree(newTree);
-    });
     const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD, (msg, treeToImport) => {
-      const newTree = sets.treeImport(tree, treeToImport.tree);
-      setTree(newTree);
+      dispatch({ type: ACTION.IMPORT, treeToImport: treeToImport.tree });
+    });
+    const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
+      dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
     });
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, (msg, cellIds) => {
-      const newTree = sets.treeSetCurrentSet(tree, Array.from(cellIds));
-      setTree(newTree);
+      dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: Array.from(cellIds) });
     });
     onReadyCallback();
     return () => {
-      PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellSetsAddToken);
+      PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsSelectionToken);
     }
-  }, [onReadyCallback, tree, setTree]);
+  }, [onReadyCallback]);
+
+  // Publish cell visibility and color changes when the tree changes.
+  useEffect(() => {
+    const [cellIds, cellColors] = treeToVisibleCells(tree);
+    PubSub.publish(CELLS_COLOR, cellColors);
+    PubSub.publish(CELL_SETS_VIEW, new Set(cellIds));
+  }, [tree]);
+
+  // Callback functions
+  const onCheckNodes = useCallback((checkedKeys) => {
+    dispatch({ type: ACTION.CHECK_NODES, checkedKeys })
+  }, []);
+
+  const onCheckNode = useCallback((targetKey) => {
+    dispatch({ type: ACTION.CHECK_NODE, targetKey });
+  }, []);
+
+  const onExpandNode = useCallback((expandedKeys, targetKey, expanded) => {
+    dispatch({ type: ACTION.EXPAND_NODE, expandedKeys, targetKey, expanded})
+  }, []);
+
+  const onDropNode = useCallback((dropKey, dragKey, dropPosition, dropToGap) => {
+    dispatch({ type: ACTION.DROP_NODE, dropKey, dragKey, dropPosition, dropToGap });
+  }, []);
+
+  const onCheckLevel = useCallback((levelZeroKey, levelIndex) => {
+    dispatch({ type: ACTION.CHECK_LEVEL, levelZeroKey, levelIndex });
+  }, []);
+
+  const onNodeSetColor = useCallback((targetKey, color) => {
+    dispatch({ type: ACTION.SET_NODE_COLOR, targetKey, color });
+  }, []);
+
+  const onNodeSetName = useCallback((targetKey, name, stopEditing) => {
+    dispatch({ type: ACTION.SET_NODE_NAME, targetKey, name, stopEditing });
+  }, []);
+
+  const onNodeRemove = useCallback((targetKey) => {
+    dispatch({ type: ACTION.REMOVE_NODE, targetKey });
+  }, []);
+
+  const onNodeView = useCallback((targetKey) => {
+    dispatch({ type: ACTION.VIEW_NODE, targetKey });
+  }, []);
 
   return (
     <TitleInfo
@@ -50,14 +94,20 @@ export default function CellSetsManagerSubscriber(props) {
     >
       <SetsManager
         tree={tree}
-        onUpdateTree={setTree}
         datatype={SETS_DATATYPE_CELL}
-        onError={err => PubSub.publish(STATUS_WARN, err)}
-        onCellsColor={cellColors => PubSub.publish(CELLS_COLOR, cellColors)}
-        onCellSetsView={cellIds => PubSub.publish(CELL_SETS_VIEW, new Set(cellIds))}
         clearPleaseWait={
           layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
         }
+        onError={err => PubSub.publish(STATUS_WARN, err)}
+        onCheckNode={onCheckNode}
+        onCheckNodes={onCheckNodes}
+        onExpandNode={onExpandNode}
+        onDropNode={onDropNode}
+        onCheckLevel={onCheckLevel}
+        onNodeSetColor={onNodeSetColor}
+        onNodeSetName={onNodeSetName}
+        onNodeRemove={onNodeRemove}
+        onNodeView={onNodeView}
       />
     </TitleInfo>
   );

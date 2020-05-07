@@ -7,7 +7,6 @@ import PopoverMenu from './PopoverMenu';
 import Tooltip from './Tooltip';
 import tinycolor from 'tinycolor2';
 import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
-import sets from './sets';
 
 function toHexString(rgbArray) {
   return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
