@@ -186,7 +186,7 @@ const configs = {
         },
         x: 6, y: 2, w: 3, h: 2 },
       { component: 'genes',
-        x: 9, y: 2, w: 3, h: 2 },
+        x: 9, y: 0, w: 3, h: 2 },
       { component: 'cellSets',
         props: {
           datasetId: 'linnarsson-2018',

@@ -1,14 +1,23 @@
 # Changelog
 
-## 0.1.1 - in progress
+## 0.1.2 - in progress
 
 ### Added
 - Added support for providing cell sets files in view configs.
+
+### Changed
+- Fixed a horizontal scroll bug caused by overflow of the `{num} genes` subtitle in the Linnarsson demo.
+
+## 0.1.1
+
+### Added
 - HiGlass integration
 - Added multi-modal Spraggins example.
 
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).
+- Clicking while using the rectangle or lasso tool now clears the current selection by emitting a new empty selection.
+- Upgrade vitessce-image-viewer to `0.2.2`
 - Changed `raster.json` schema.
 - Changed `Channels` component to more general `LayerController` component which publishes `LAYER_ADD`, `LAYER_REMOVE`, and `LAYER_CHANGE` events.
 
