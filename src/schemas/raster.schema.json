@@ -43,20 +43,7 @@
     "metadata": {
       "type": "object",
       "additionalProperties": false,
-      "oneOf":[
-        {
-          "required": [
-            "dimensions",
-            "is_pyramid",
-            "transform"
-          ]
-        },
-        {
-          "required": [
-            "omeTiffOffsetsUrl"
-          ]
-        }
-      ],
+      "oneOf":[{"required": ["dimensions","is_pyramid","transform"]},{"required": ["omeTiffOffsetsUrl"]}],
       "properties": {
         "dimensions": { "$ref": "#/definitions/dimensions" },
         "is_pyramid": { "type": "boolean" },
