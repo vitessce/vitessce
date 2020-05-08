@@ -127,7 +127,7 @@ The `vitessce` package is published to the NPM registry by Travis when the versi
 - On the `dev` branch,
     - Update the CHANGELOG.md to remove the "in progress" text from the current version heading.
     - Update the version by running `npm version [major | minor | patch]` (note: this will add a git commit and a git tag).
-- Merge `dev` into `master` by making a pull request.
+- Merge `dev` into `master` by making a pull request (please do not squash from `dev` to `master`).
 
 Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the [web interface](https://travis-ci.org/github/hubmapconsortium/vitessce/settings) (Settings -> Environment Variables).
 
