@@ -12,7 +12,7 @@ FAILURES=$(
     export SCHEMA
     grep -B2 '"properties"' $SCHEMA \
       | perl -pne 's/\n//; s/\s+/ /g; s/--/\n/;' \
-      | perl -ne 'next unless /properties/; print "$ENV{SCHEMA}: $_" unless /"additionalProperties".*"required".*"properties"/;'
+      | perl -ne 'next unless /properties/; print "$ENV{SCHEMA}: $_" unless /"additionalProperties".*"(required|oneOf|allOf|anyOf)".*"properties"/;'
   done
 )
 

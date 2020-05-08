@@ -42,6 +42,35 @@ function OpacitySlider({ value, handleChange }) {
   );
 }
 
+function GlobalSelectionSlider({
+  field,
+  value,
+  handleChange,
+  possibleValues,
+}) {
+  return (
+    <Slider
+      value={value}
+      // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
+      // we have the two handlers.
+      onChange={
+        (event, newValue) => handleChange({ selection: { [field]: newValue }, event })
+      }
+      onChangeCommitted={
+        (event, newValue) => handleChange({ selection: { [field]: newValue }, event })
+      }
+      valueLabelDisplay="auto"
+      getAriaLabel={() => `${field} slider`}
+      marks={possibleValues.map(val => ({ value: val }))}
+      min={Number(possibleValues[0])}
+      max={Number(possibleValues.slice(-1))}
+      orientation="horizontal"
+      style={{ marginTop: '7px' }}
+      step={null}
+    />
+  );
+}
+
 function LayerOption({ name, inputId, children }) {
   return (
     <Grid container direction="row" alignItems="flex-end" justify="space-between">
@@ -58,13 +87,25 @@ function LayerOption({ name, inputId, children }) {
 }
 
 function LayerOptions({
-  colormap, opacity, handleColormapChange, handleOpacityChange,
+  colormap,
+  opacity,
+  handleColormapChange,
+  handleOpacityChange,
+  globalControlDimensions,
+  handleGlobalChannelsSelectionChange,
+  channels,
+  dimensions,
 }) {
+  const hasDimensionsAndChannels = dimensions.length > 0 && Object.keys(channels).length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       <Grid item>
         <LayerOption name="Colormap" inputId="colormap-select">
-          <ColormapSelect value={colormap} inputId="colormap-select" handleChange={handleColormapChange} />
+          <ColormapSelect
+            value={colormap}
+            inputId="colormap-select"
+            handleChange={handleColormapChange}
+          />
         </LayerOption>
       </Grid>
       <Grid item>
@@ -72,6 +113,21 @@ function LayerOptions({
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
         </LayerOption>
       </Grid>
+      {hasDimensionsAndChannels
+        && globalControlDimensions.map((dimension) => {
+          const { field, values } = dimension;
+          return (
+            <LayerOption name={field} inputId={`${field}-slider`} key={field}>
+              <GlobalSelectionSlider
+                field={field}
+                value={channels[Object.keys(channels)[0]].selection[field]}
+                handleChange={handleGlobalChannelsSelectionChange}
+                possibleValues={values}
+              />
+            </LayerOption>
+          );
+        })
+      }
     </Grid>
   );
 }
