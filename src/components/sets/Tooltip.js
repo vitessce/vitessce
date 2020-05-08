@@ -1,10 +1,9 @@
 /* eslint-disable */
 import React, { useRef, useCallback } from 'react';
-import { Tooltip } from 'antd';
-import 'antd/es/tooltip/style/index.css';
+import RcTooltip from 'rc-tooltip';
 
 /**
- * This is a small wrapper around the Tooltip component from the antd library,
+ * This is a small wrapper around the Tooltip component from the rc-tooltip library,
  * which is required to be able to apply theme styles to the tooltip.
  * This is because the default `getPopupContainer` function used by antd
  * just returns `document.body` (see https://ant.design/components/tooltip/#API),
@@ -13,11 +12,11 @@ import 'antd/es/tooltip/style/index.css';
  * https://github.com/hubmapconsortium/vitessce/pull/494#discussion_r395957914
  * @param {*} props Props are passed through to the <Tooltip/> from the antd library.
  */
-export default function VitessceTooltip(props) {
+export default function Tooltip(props) {
   const { title, children } = props;
   const spanRef = useRef();
 
-  const getPopupContainer = useCallback(() => {
+  const getTooltipContainer = useCallback(() => {
     if (spanRef.current) {
       return spanRef.current.closest('.vitessce-container');
     }
@@ -27,13 +26,13 @@ export default function VitessceTooltip(props) {
   return (
     <>
       <span ref={spanRef} />
-        <Tooltip
-          getPopupContainer={getPopupContainer}
+        <RcTooltip
+          getTooltipContainer={getTooltipContainer}
           overlayClassName="vitessce-tooltip"
           title={title}
         >
           {children}
-        </Tooltip>
+        </RcTooltip>
     </>
   );
 }

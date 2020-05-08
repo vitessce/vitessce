@@ -1,6 +1,7 @@
+/* eslint-disable */
 import React, { useRef, useCallback } from 'react';
-import { Popover } from 'antd';
-import 'antd/es/popover/style/index.css';
+/*import { Popover } from 'antd';
+import 'antd/es/popover/style/index.css';*/
 
 /**
  * This is a small wrapper around the Popover component from the antd library,
