@@ -3,6 +3,7 @@
 ## 0.1.2 - in progress
 
 ### Added
+- Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
 
 ### Changed
 - Moved `demos.md` to `DEMOS.md`.
@@ -14,7 +15,6 @@
 ### Added
 - HiGlass integration
 - Added multi-modal Spraggins example.
-- Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
 
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).
