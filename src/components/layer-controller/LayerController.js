@@ -48,11 +48,21 @@ async function initLoader(imageData) {
     case ('ome-tiff'): {
       const { omeTiffOffsetsUrl } = metadata;
       // Fetch offsets for ome-tiff if needed.
-      const res = await fetch(omeTiffOffsetsUrl, requestInit);
-      const offsets = res.status !== 404 ? await res.json() : [];
-      const loader = await createOMETiffLoader({
+      if (omeTiffOffsetsUrl) {
+        const res = await fetch(omeTiffOffsetsUrl, requestInit);
+        if (res.ok) {
+          const offsets = await res.json();
+          const loader = await createOMETiffLoader({
+            url,
+            offsets,
+            headers: requestInit,
+          });
+          return loader;
+        }
+        throw new Error('Offsets not found but provided.');
+      }
+      const loader = createOMETiffLoader({
         url,
-        offsets,
         headers: requestInit,
       });
       return loader;
@@ -109,7 +119,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
           // and use current global selection otherwise.
           dimension => ({
             [dimension.field]: GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
-              ? channels[Object.keys(channels)[0]].selection[dimension.field]
+              ? Object.values(channels)[0].selection[dimension.field]
               : 0,
           }),
         ),
