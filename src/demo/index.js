@@ -1,9 +1,14 @@
 import 'whatwg-fetch';
-import { renderApp } from '../app/app';
+import ReactDOM from 'react-dom';
+import { createApp } from '../app';
+
+function renderComponent(react, id) {
+  ReactDOM.render(react, document.getElementById(id));
+}
 
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.has('small')) {
-  renderApp('small-app', 100);
+  renderComponent(createApp(100), 'small-app');
 } else {
-  renderApp('full-app');
+  renderComponent(createApp(), 'full-app');
 }
