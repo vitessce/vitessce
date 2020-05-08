@@ -3,6 +3,7 @@
 ## 0.1.2 - in progress
 
 ### Added
+- Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
 
 - OMETIFF loading for raster imagery.
 
@@ -16,7 +17,7 @@
 
 ## [0.1.1](https://www.npmjs.com/package/vitessce/v/0.1.1) - 2020-05-05
 
-## Added
+### Added
 - HiGlass integration
 - Added multi-modal Spraggins example.
 
