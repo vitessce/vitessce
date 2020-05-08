@@ -65,8 +65,22 @@ function preformattedDetails(response) {
     url: ${response.url}`; // TODO: headers
 }
 
-
-export function validateAndReturn(config, rowHeight, theme) {
+/**
+ * The Vitessce component.
+ * @param {object} props
+ * @param {object} props.config A Vitessce view config.
+ * If the config is valid, the PubSubVitessceGrid will be rendered as a child.
+ * If the config is invalid, a Warning will be rendered instead.
+ * @param {number} props.rowHeight Row height for grid layout. Optional.
+ * @param {string} props.theme The theme, used for styling as
+ * light or dark. Optional. By default, "dark"
+ */
+export function Vitessce(props) {
+  const {
+    config,
+    rowHeight,
+    theme,
+  } = props;
   if (!config) {
     // If the config value is undefined, show a warning message
     return (
@@ -119,7 +133,7 @@ function checkResponse(response, theme) {
   return response.text().then((text) => {
     try {
       const config = JSON.parse(text);
-      return Promise.resolve(() => validateAndReturn(config, undefined, theme));
+      return Promise.resolve(() => (<Vitessce config={config} theme={theme} />));
     } catch (e) {
       return Promise.resolve(() => (
         <Warning
@@ -151,7 +165,7 @@ export function createApp(rowHeight = null) {
 
   if (datasetId) {
     const config = getConfig(datasetId);
-    return validateAndReturn(config, rowHeight, theme);
+    return (<Vitessce config={config} rowHeight={rowHeight} theme={theme} />);
   }
   if (datasetUrl) {
     const responsePromise = fetch(datasetUrl)
