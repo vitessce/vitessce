@@ -30,7 +30,7 @@
                 top: 5.5px;
 
                 &:hover {
-                    fill: #e5e5e5;
+                    fill: lighten(map-get($global-colors, "gray-mid"), 10%);
                 }
             }
 
@@ -76,8 +76,8 @@
                         padding: 7px !important; /* TODO: Only need "important" to override Bootstrap. */
                         /* background-color only for content */
                         background-clip: content-box;
-                        border: 2px solid #e5e5e5;
-                        background-color: #e5e5e5;
+                        border: 2px solid lighten(map-get($theme-colors, "primary-foreground"), 5%);
+                        background-color: lighten(map-get($theme-colors, "primary-foreground"), 5%);
                         border-radius: 50%;
                         position: relative;
                         top: 5px;
@@ -109,7 +109,7 @@
                     padding: 0;
                     margin: 0;
                     border: 0;
-                    color: #e5e5e5;
+                    color: lighten(map-get($theme-colors, "primary-foreground"), 5%);
                     background: transparent;
                     background-color: transparent;
                     vertical-align: top;
@@ -138,10 +138,16 @@
                   border-radius: 3px;
                   width: 50px;
                   height: 24px;
-                  line-height: 24px;
+                  line-height: 20px;
+                  font-size: 13px;
                   vertical-align: top;
                   margin: 0;
                   padding: 0;
+
+                  &:hover {
+                    background-color: lighten(map-get($global-colors, "gray-dark"), 5%);
+                    border: 1px solid lighten(map-get($global-colors, "gray-dark"), 5%);
+                  }
                 }
 
                 
@@ -212,9 +218,7 @@
                 }
                 span {
                   &.rc-tree-switcher,
-                  &.rc-tree-checkbox,
-                  &.rc-tree-iconEle {
-                      
+                  &.rc-tree-checkbox {
                     display: inline-block;
                     margin-right: 6px;
                     vertical-align: middle;
@@ -225,11 +229,9 @@
                     border: 0 none;
                     outline: none;
                     cursor: pointer;
-            
                   }
 
                   &.rc-tree-switcher {
-                   
                       svg {
                         width: 15px;
                         height: 15px;
@@ -237,9 +239,7 @@
                     &.rc-tree-switcher-noop {
                       cursor: auto;
                     }
-                    &.rc-tree-switcher_open {
-                        
-                    }
+
                     &.rc-tree-switcher_close {
                         -webkit-transform: rotate(-90deg);
                         -ms-transform: rotate(-90deg);

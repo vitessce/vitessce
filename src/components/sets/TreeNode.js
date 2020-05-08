@@ -4,7 +4,7 @@ import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
 import PopoverMenu from './PopoverMenu';
-import Tooltip from './Tooltip';
+import HelpTooltip from './HelpTooltip';
 import tinycolor from 'tinycolor2';
 import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
 
@@ -69,20 +69,19 @@ function NamedSetNodeStatic(props) {
     onNodeSetColor,
     onNodeView,
   } = props;
-  const tooltipTitle = (level === 0 ? `Color ${size} cells (gray)` : '')
+  const tooltipTitle = (level === 0 ? `Color ${size} cells` : `Color ${size} cells`)
   return (
     <span>
-      <Tooltip title={tooltipTitle}>
+      <HelpTooltip title={tooltipTitle}>
         <button
           type="button"
           onClick={() => { onNodeView(nodeKey); }}
           onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(nodeKey))}
           className="title-button"
-          title={`View ${title}`}
         >
           {title}
         </button>
-      </Tooltip>
+      </HelpTooltip>
       <PopoverMenu
         menuConfig={makeNodeViewMenuConfig(props)}
         onClose={() => {}}
@@ -161,7 +160,7 @@ function LevelsButtons(props) {
         <div className="level-buttons" key={i+1}>
           {i === 0 ? (<div className="level-line-zero"></div>) : null}
           <div className="level-line"></div>
-          <Tooltip title={`Color ${hierarchySize} cells (by ${subs(i)}cluster)`}>
+          <HelpTooltip title={`Color ${hierarchySize} cells (by ${subs(i)}cluster)`}>
             <input
               className="level-radio-button"
               type="checkbox"
@@ -169,7 +168,7 @@ function LevelsButtons(props) {
               checked={nodeKey === checkedLevelKey && (i+1) === checkedLevelIndex}
               onChange={onCheck}
             />
-          </Tooltip>
+          </HelpTooltip>
         </div>
     ))}
     </div>

@@ -85,11 +85,8 @@ export default function PopoverMenu(props) {
         palette={palette}
       />}
       placement={placement}
-      trigger="click"
-      mouseEnterDelay={0}
-      mouseLeaveDelay={0}
       visible={visible}
-      onVisibleChange={(v) => { setVisible(v); }}
+      onVisibleChange={(v) => { console.log(v); setVisible(v); }}
     >
       {children}
     </Popover>

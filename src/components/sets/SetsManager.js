@@ -21,7 +21,7 @@ export default function SetsManager(props) {
     tree,
     clearPleaseWait,
     draggable = false,
-    checkable = false,
+    checkable = true,
     editable = true,
     expandable = true,
     operatable = true,

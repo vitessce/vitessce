@@ -12,8 +12,8 @@ import RcTooltip from 'rc-tooltip';
  * https://github.com/hubmapconsortium/vitessce/pull/494#discussion_r395957914
  * @param {*} props Props are passed through to the <Tooltip/> from the antd library.
  */
-export default function Tooltip(props) {
-  const { title, children } = props;
+export default function HelpTooltip(props) {
+  const { title, content, overlayClassName } = props;
   const spanRef = useRef();
 
   const getTooltipContainer = useCallback(() => {
@@ -23,16 +23,25 @@ export default function Tooltip(props) {
     return null;
   }, [spanRef]);
 
+  const overlay = title || content;
+
   return (
     <>
       <span ref={spanRef} />
-        <RcTooltip
-          getTooltipContainer={getTooltipContainer}
-          overlayClassName="vitessce-tooltip"
-          title={title}
-        >
-          {children}
-        </RcTooltip>
+      <RcTooltip
+        getTooltipContainer={getTooltipContainer}
+        overlayClassName={overlayClassName}
+        overlay={overlay}
+        {...props}
+      />
     </>
   );
 }
+
+HelpTooltip.defaultProps = {
+  overlayClassName: "help-tooltip",
+  placement: "top",
+  trigger: "hover",
+  mouseEnterDelay: 0.2,
+  mouseLeaveDelay: 0
+};

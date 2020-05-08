@@ -1,7 +1,6 @@
 /* eslint-disable */
-import React, { useRef, useCallback } from 'react';
-/*import { Popover } from 'antd';
-import 'antd/es/popover/style/index.css';*/
+import React from 'react';
+import HelpTooltip from './HelpTooltip';
 
 /**
  * This is a small wrapper around the Popover component from the antd library,
@@ -13,24 +12,16 @@ import 'antd/es/popover/style/index.css';*/
  * https://github.com/hubmapconsortium/vitessce/pull/494#discussion_r395957914
  * @param {*} props Props are passed through to the <Popover/> from the antd library.
  */
-export default function VitesscePopover(props) {
-  const spanRef = useRef();
-
-  const getPopupContainer = useCallback(() => {
-    if (spanRef.current) {
-      return spanRef.current.closest('.vitessce-container');
-    }
-    return null;
-  }, [spanRef]);
-
+export default function Popover(props) {
   return (
-    <>
-      <span ref={spanRef} />
-      <Popover
-        getPopupContainer={getPopupContainer}
-        overlayClassName="vitessce-popover"
-        {...props}
-      />
-    </>
+    <HelpTooltip {...props} />
   );
 }
+
+Popover.defaultProps = {
+  overlayClassName: "popover",
+  placement: "top",
+  trigger: "click",
+  mouseEnterDelay: 0,
+  mouseLeaveDelay: 0
+};
