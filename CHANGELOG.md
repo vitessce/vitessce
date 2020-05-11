@@ -14,6 +14,7 @@
 - Upgrade LayerController to be more general.
 - In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation. 
 - Changed export method for components.
+- Switched to using [Rollup](https://rollupjs.org) for bundling, to obtain more control over externalization of React and ReactDOM.
 
 ## [0.1.1](https://www.npmjs.com/package/vitessce/v/0.1.1) - 2020-05-05
 

@@ -1,6 +1,6 @@
 import 'whatwg-fetch';
 import ReactDOM from 'react-dom';
-import { createApp } from '../app';
+import { createApp } from '../../src/app';
 
 function renderComponent(react, id) {
   ReactDOM.render(react, document.getElementById(id));

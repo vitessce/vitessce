@@ -38,5 +38,5 @@ end schema
 
 start build
 npm run build
-node ./scripts/verify-build.js
+#node ./verify-build.js
 end build
