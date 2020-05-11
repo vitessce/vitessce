@@ -4,7 +4,6 @@
 
 ### Added
 - Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
-
 - OMETIFF loading for raster imagery.
 
 ### Changed
@@ -14,6 +13,7 @@
 - Fixed a regression caused by the updated bundling scripts minifying HTML assets and removing intentional spaces.
 - Upgrade LayerController to be more general.
 - In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation. 
+- Changed export method for components.
 
 ## [0.1.1](https://www.npmjs.com/package/vitessce/v/0.1.1) - 2020-05-05
 

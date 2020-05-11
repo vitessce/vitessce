@@ -4,7 +4,7 @@ import { Scatterplot } from './components/scatterplot';
 import PubSubVitessceGrid from './app/PubSubVitessceGrid';
 import { createApp, Vitessce } from './app';
 
-export default {
+export {
   Heatmap,
   Spatial,
   Scatterplot,
