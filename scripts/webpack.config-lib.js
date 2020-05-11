@@ -72,7 +72,7 @@ module.exports = function(paths, environment, target) {
             // We want there to be separate files, one for each entry file.
             filename: (isEnvProduction ? "[name].min.js" : "[name].js"),
             library: [ appPackageJson.name, "[name]" ],
-            libraryTarget: (target === "es" ? "commonjs-module" : target),
+            libraryTarget: (target === "es" ? "commonjs2" : target),
             // Add /* filename */ comments to generated require()s in the output.
             pathinfo: isEnvDevelopment,
             // TODO: remove this when upgrading to webpack 5
@@ -138,8 +138,18 @@ module.exports = function(paths, environment, target) {
         ].filter(Boolean),
         externals: {
             // Only because this is the library target.
-            'react': 'React',
-            'react-dom': 'ReactDOM',
+            'react': {
+                commonjs: 'react',
+                commonjs2: 'react',
+                amd: 'react',
+                root: 'React'
+            },
+            'react-dom': {
+                commonjs: 'react-dom',
+                commonjs2: 'react-dom',
+                amd: 'react-dom',
+                root: 'ReactDOM'
+            },
         },
         // Some libraries import Node modules but don't use them in the browser.
         // Tell webpack to provide empty mocks for them so importing them works.
