@@ -138,8 +138,8 @@ module.exports = function(paths, environment, target) {
         ].filter(Boolean),
         externals: {
             // Only because this is the library target.
-            'React': 'react',
-            'ReactDOM': 'react-dom',
+            'react': 'React',
+            'react-dom': 'ReactDOM',
         },
         // Some libraries import Node modules but don't use them in the browser.
         // Tell webpack to provide empty mocks for them so importing them works.
