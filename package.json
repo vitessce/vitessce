@@ -14,10 +14,14 @@
   ],
   "main": "build-lib/umd/production/index.min.js",
   "module": "build-lib/es/production/index.min.js",
+  "peerDependencies": {
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  },
   "dependencies": {
     "@deck.gl/core": "8.1.0",
     "@deck.gl/layers": "8.1.0",
-    "@hubmap/vitessce-image-viewer": "^0.2.3",
+    "@hubmap/vitessce-image-viewer": "^0.2.4",
     "@loaders.gl/3d-tiles": "2.0.2",
     "@loaders.gl/core": "2.0.2",
     "@loaders.gl/loader-utils": "2.0.2",
@@ -47,15 +51,13 @@
     "pubsub-js": "^1.7.0",
     "rc-tooltip": "^4.0.3",
     "rc-tree": "2.1.0",
-    "react": "^16.8.6",
     "react-color": "^2.18.0",
-    "react-dom": "^16.8.6",
     "short-number": "^1.0.6",
     "store": "^2.0.12",
     "tinycolor2": "^1.4.1",
     "turf": "^3.0.14",
     "uuid": "^3.3.2",
-    "vitessce-grid": "0.0.6",
+    "vitessce-grid": "0.0.7",
     "whatwg-fetch": "^3.0.0"
   },
   "devDependencies": {
@@ -107,6 +109,8 @@
     "postcss-normalize": "8.0.1",
     "postcss-preset-env": "6.7.0",
     "postcss-safe-parser": "4.0.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "react-app-polyfill": "^1.0.6",
     "react-dev-utils": "^10.2.0",
     "resolve": "1.15.0",

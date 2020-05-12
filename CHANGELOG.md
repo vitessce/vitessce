@@ -16,6 +16,7 @@
 - In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation. 
 - Changed export method for components.
 - Fixed backwards webpack `externals` object (`react` and `react-dom` were not properly externalized previously).
+- Upgrade `viv` and `vitessce-grid` to 0.2.4 and 0.0.7 respectively.
 - Updated the cell set hierarchy schema.
 - Updated the cell set manager, to try to improve usability.
 
