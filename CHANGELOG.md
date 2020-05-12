@@ -14,6 +14,7 @@
 - Upgrade LayerController to be more general.
 - In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation. 
 - Changed export method for components.
+- Fixed backwards webpack `externals` object (`react` and `react-dom` were not properly externalized previously).
 
 ## [0.1.1](https://www.npmjs.com/package/vitessce/v/0.1.1) - 2020-05-05
 
