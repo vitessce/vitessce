@@ -262,8 +262,8 @@ export default function Spatial(props) {
       channelIsOn: layerProps.visibilities,
       opacity: layerProps.opacity,
       colormap: layerProps.colormap.length > 0 && layerProps.colormap,
-      scale,
-      translate: [translate.x, translate.y],
+      scale: scale || 1,
+      translate: translate ? [translate.x, translate.y] : [0, 0],
     });
   }, [imageLayerProps]);
 
