@@ -3,7 +3,7 @@
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
 - [Latest release demo](http://vitessce.io/)
-- [Previous demos](demos.md)
+- [Previous demos](DEMOS.md)
 - [Previous releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
 
 ![Vitessce screenshot](https://user-images.githubusercontent.com/730388/58634506-78472580-82b9-11e9-9df8-a1362de73818.png)
@@ -123,10 +123,13 @@ If it looks good, copy it to vitessce.io:
 $ ./copy-prod.sh https://{url returned by push-demo.sh}
 ```
 
-We publish to the NPM registry by hand:
-Update the version number in `package.json` and run `npm publish`.
+The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update:
+- On the `dev` branch,
+    - Update the CHANGELOG.md to remove the "in progress" text from the current version heading.
+    - Update the version by running `npm version [major | minor | patch]` (note: this will add a git commit and a git tag).
+- Merge `dev` into `master` by making a pull request (please do not squash from `dev` to `master`).
 
-Finally, update the CHANGELOG.md to point to the new release on NPM.
+Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the [web interface](https://travis-ci.org/github/hubmapconsortium/vitessce/settings) (Settings -> Environment Variables).
 
 ## Related Subsidiary Projects
 
