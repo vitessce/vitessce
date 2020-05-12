@@ -1,6 +1,13 @@
 # Changelog
 
-## 0.1.2 - in progress
+## 0.1.3 - in progress
+
+### Added
+
+### Changed
+- Updated README to note a change to the development process: back to merging feature branches into `master` (rather than a `dev` branch).
+
+## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
 ### Added
 - Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
