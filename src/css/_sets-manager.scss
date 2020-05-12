@@ -126,14 +126,14 @@
                 .title-input {
                   width: calc(100% - 60px);
                   margin-right: 10px;
-                  background-color: map-get($global-colors, "gray-mid");
+                  background-color: map-get($global-colors, "gray-light");
+                  color: map-get($global-colors, "black");
                   border-radius: 4px;
                   outline: none;
                   padding: 4px 0px 4px 4px;
-                  border: 1px solid map-get($global-colors, "gray-mid");
+                  border: 1px solid map-get($global-colors, "gray-light");
 
                   &:focus {
-                    box-shadow: 0 0 5px map-get($theme-colors, "primary-foreground-active");
                     border: 1px solid map-get($theme-colors, "primary-foreground-active");
                   }
                 }

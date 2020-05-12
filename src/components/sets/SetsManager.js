@@ -24,7 +24,7 @@ export default function SetsManager(props) {
     tree,
     datatype,
     clearPleaseWait,
-    draggable = false,
+    draggable = true,
     checkable = true,
     editable = true,
     expandable = true,
@@ -37,6 +37,7 @@ export default function SetsManager(props) {
     onCheckLevel,
     onNodeSetColor,
     onNodeSetName,
+    onNodeSetIsEditing,
     onNodeRemove,
     onNodeView,
     onImportTree,
@@ -61,8 +62,9 @@ export default function SetsManager(props) {
       <TreeNode
         key={node._state.key}
         {...nodeToRenderProps(node)}
-        editable={editable}
+        draggable={draggable}
         checkable={checkable}
+        editable={editable}
         expandable={expandable}
 
         checkedLevelKey={tree._state.checkedLevel.levelZeroKey}
@@ -73,6 +75,7 @@ export default function SetsManager(props) {
         onNodeView={onNodeView}
         onNodeSetColor={onNodeSetColor}
         onNodeSetName={onNodeSetName}
+        onNodeSetIsEditing={onNodeSetIsEditing}
         onNodeRemove={onNodeRemove}
       >
         {renderTreeNodes(node.children)}

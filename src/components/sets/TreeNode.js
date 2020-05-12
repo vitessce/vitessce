@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
@@ -33,20 +33,25 @@ function makeNodeViewMenuConfig(props) {
     level,
     height,
     onCheckNode,
-    onNodeRemove
+    onNodeRemove,
+    onNodeSetIsEditing,
+    checkable,
+    editable,
   } = props;
 
   return [
-    {
-      name: 'Rename',
-      handler: () => { /* TODO */ },
-      handlerKey: 'r',
-    },
-    {
-      name: 'Delete',
-      handler: () => { onNodeRemove(nodeKey) },
-      handlerKey: 'd',
-    },
+    ...(editable ? [
+      {
+        name: 'Rename',
+        handler: () => { onNodeSetIsEditing(nodeKey, true); },
+        handlerKey: 'r',
+      },
+      {
+        name: 'Delete',
+        handler: () => { onNodeRemove(nodeKey) },
+        handlerKey: 'd',
+      },
+    ] : []),
     ...(level === 0 ? [
       {
         name: 'Export hierarchy',
@@ -54,11 +59,13 @@ function makeNodeViewMenuConfig(props) {
         handlerKey: 'e',
       }
     ] : [
-      {
-        name: 'Select',
-        handler: () => { onCheckNode(nodeKey); },
-        handlerKey: 's',
-      },
+      ...(checkable ? [
+        {
+          name: 'Select',
+          handler: () => { onCheckNode(nodeKey); },
+          handlerKey: 's',
+        }
+      ] : []),
       {
         name: 'Export set',
         handler: () => { /* TODO */ },

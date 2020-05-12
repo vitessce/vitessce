@@ -89,6 +89,12 @@ export default function CellSetsManagerSubscriber(props) {
     });
   }, []);
 
+  const onNodeSetIsEditing = useCallback((targetKey, value) => {
+    dispatch({
+      type: ACTION.SET_NODE_IS_EDITING, targetKey, value,
+    });
+  }, []);
+
   const onNodeRemove = useCallback((targetKey) => {
     dispatch({ type: ACTION.REMOVE_NODE, targetKey });
   }, []);
@@ -121,6 +127,7 @@ export default function CellSetsManagerSubscriber(props) {
         onCheckLevel={onCheckLevel}
         onNodeSetColor={onNodeSetColor}
         onNodeSetName={onNodeSetName}
+        onNodeSetIsEditing={onNodeSetIsEditing}
         onNodeRemove={onNodeRemove}
         onNodeView={onNodeView}
         onImportTree={onImportTree}

@@ -399,6 +399,14 @@ function treeNodeSetName(currTree, targetKey, name, stopEditing) {
   return treeTransformNodeByKey(currTree, targetKey, transformName);
 }
 
+function treeNodeSetIsEditing(currTree, targetKey, value) {
+  return treeTransformNodeByKey(
+    currTree,
+    targetKey,
+    node => nodeSetIsEditing(node, value),
+  );
+}
+
 
 /**
  * Clear node state.
@@ -694,6 +702,7 @@ export const ACTION = Object.freeze({
   DROP_NODE: 'dropNode',
   SET_NODE_COLOR: 'setNodeColor',
   SET_NODE_NAME: 'setNodeName',
+  SET_NODE_IS_EDITING: 'setNodeIsEditing',
   REMOVE_NODE: 'removeNode',
   VIEW_NODE: 'viewNode',
   VIEW_NODE_DESCENDANTS: 'viewNodeDescendants',
@@ -748,6 +757,11 @@ const reducer = createReducer({
     action.targetKey,
     action.name,
     action.stopEditing,
+  ),
+  [ACTION.SET_NODE_IS_EDITING]: (state, action) => treeNodeSetIsEditing(
+    state,
+    action.targetKey,
+    action.value,
   ),
   [ACTION.REMOVE_NODE]: (state, action) => treeNodeRemove(
     state,
