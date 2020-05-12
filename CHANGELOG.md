@@ -3,6 +3,7 @@
 ## 0.1.2 - in progress
 
 ### Added
+- Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
 - OMETIFF loading for raster imagery.
 - Added support for providing cell sets files in view configs.
 
@@ -10,9 +11,12 @@
 - Moved `demos.md` to `DEMOS.md`.
 - Fixed the example JSON URL config in `TESTING.md`.
 - Fixed a horizontal scroll bug caused by overflow of the `{num} genes` subtitle in the Linnarsson demo.
-- Updated the cell set hierarchy schema.
-- Upgrade LayerController to be more general.
 - Fixed a regression caused by the updated bundling scripts minifying HTML assets and removing intentional spaces.
+- Upgrade LayerController to be more general.
+- In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation. 
+- Changed export method for components.
+- Fixed backwards webpack `externals` object (`react` and `react-dom` were not properly externalized previously).
+- Updated the cell set hierarchy schema.
 - Updated the cell set manager, to try to improve usability.
 
 ## [0.1.1](https://www.npmjs.com/package/vitessce/v/0.1.1) - 2020-05-05

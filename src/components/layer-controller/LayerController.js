@@ -46,9 +46,9 @@ async function initLoader(imageData) {
       return loader;
     }
     case ('ome-tiff'): {
-      const { omeTiffOffsetsUrl } = metadata;
       // Fetch offsets for ome-tiff if needed.
-      if (omeTiffOffsetsUrl) {
+      if ('omeTiffOffsetsUrl' in metadata) {
+        const { omeTiffOffsetsUrl } = metadata;
         const res = await fetch(omeTiffOffsetsUrl, requestInit);
         if (res.ok) {
           const offsets = await res.json();
