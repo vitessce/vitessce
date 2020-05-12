@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useCallback, useEffect, useReducer } from 'react';
 import PubSub from 'pubsub-js';
 import {
@@ -9,6 +10,7 @@ import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import reducer, {
   treeInitialize, ACTION, treeToVisibleCells,
+  treeExportLevelZeroNode, treeExportSet,
 } from './reducer';
 
 const SETS_DATATYPE_CELL = 'cell';
@@ -23,9 +25,19 @@ export default function CellSetsManagerSubscriber(props) {
   const onReadyCallback = useCallback(onReady, []);
   const [tree, dispatch] = useReducer(reducer, initialTree);
 
-  const onImportTree = (treeToImport) => {
+  function onImportTree(treeToImport) {
     dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
-  };
+  }
+
+  function onExportLevelZeroNode(nodeKey) {
+    const treeToExport = treeExportLevelZeroNode(tree, nodeKey);
+    console.log(treeToExport);
+  }
+
+  function onExportSet(nodeKey) {
+    const setToExport = treeExportSet(tree, nodeKey);
+    console.log(setToExport);
+  }
 
   // Subscribe to cell set import events.
   // Subscribe to cell import and selection events.
@@ -132,6 +144,8 @@ export default function CellSetsManagerSubscriber(props) {
         onNodeView={onNodeView}
         onImportTree={onImportTree}
         onCreateLevelZeroNode={onCreateLevelZeroNode}
+        onExportLevelZeroNode={onExportLevelZeroNode}
+        onExportSet={onExportSet}
       />
     </TitleInfo>
   );

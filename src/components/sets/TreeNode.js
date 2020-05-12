@@ -8,13 +8,14 @@ import HelpTooltip from './HelpTooltip';
 import tinycolor from 'tinycolor2';
 import range from 'lodash/range';
 import { callbackOnKeyPress } from './utils';
+import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
 
 function toHexString(rgbArray) {
   return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
 }
 
 /**
- * 
+ * Get a string of help text for coloring a particular hierarchy level.
  * @param {integer} i The level. 1 for cluster, 2 for subcluster, etc.
  * @returns {string} The tooltip text for coloring the level.
  */
@@ -24,17 +25,19 @@ function getLevelTooltipText(i) {
   return `Color by ${subs(i-1)}cluster`;
 }
 
-
-import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
-
+/**
+ * Construct a `menuConfig` array for the PopoverMenu component.
+ * @param {object} props The props for the TreeNode component.
+ */
 function makeNodeViewMenuConfig(props) {
   const {
     nodeKey,
     level,
-    height,
     onCheckNode,
     onNodeRemove,
     onNodeSetIsEditing,
+    onExportLevelZeroNode,
+    onExportSet,
     checkable,
     editable,
   } = props;
@@ -54,8 +57,8 @@ function makeNodeViewMenuConfig(props) {
     ] : []),
     ...(level === 0 ? [
       {
-        name: 'Export hierarchy',
-        handler: () => { /* TODO */ },
+        name: 'Export hierarchy (to JSON file)',
+        handler: () => { onExportLevelZeroNode(nodeKey) },
         handlerKey: 'e',
       }
     ] : [
@@ -67,8 +70,8 @@ function makeNodeViewMenuConfig(props) {
         }
       ] : []),
       {
-        name: 'Export set',
-        handler: () => { /* TODO */ },
+        name: 'Export set (to JSON file)',
+        handler: () => { onExportSet(nodeKey) },
         handlerKey: 'e',
       }
     ])
@@ -165,7 +168,6 @@ function NamedSetNodeEditing(props) {
   );
 }
 
-
 function NamedSetNode(props) {
   const {
     isEditing,
@@ -192,7 +194,6 @@ function LevelsButtons(props) {
       onCheckLevel(nodeKey, newLevel);
     }
   };
-  const subs = (i) => ('sub'.repeat(i));
   return (
     <div className="level-buttons-container">
       {range(1, height+1).map(i => (

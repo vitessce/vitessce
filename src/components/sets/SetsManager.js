@@ -42,6 +42,8 @@ export default function SetsManager(props) {
     onNodeView,
     onImportTree,
     onCreateLevelZeroNode,
+    onExportLevelZeroNode,
+    onExportSet,
   } = props;
 
   // eslint-disable-next-line no-console
@@ -77,6 +79,9 @@ export default function SetsManager(props) {
         onNodeSetName={onNodeSetName}
         onNodeSetIsEditing={onNodeSetIsEditing}
         onNodeRemove={onNodeRemove}
+
+        onExportLevelZeroNode={onExportLevelZeroNode}
+        onExportSet={onExportSet}
       >
         {renderTreeNodes(node.children)}
       </TreeNode>
