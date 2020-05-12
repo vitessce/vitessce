@@ -86,7 +86,7 @@ export default function PopoverMenu(props) {
       />}
       placement={placement}
       visible={visible}
-      onVisibleChange={(v) => { console.log(v); setVisible(v); }}
+      onVisibleChange={setVisible}
     >
       {children}
     </Popover>

@@ -63,8 +63,8 @@
   "required": ["version", "datatype", "tree"],
   "properties": {
       "dataset": { "type": "string" },
-      "version": { "type": "string" },
-      "datatype": { "type": "string" },
+      "version": { "type": "string", "enum": ["0.1.2"] },
+      "datatype": { "type": "string", "enum": ["cell"] },
       "tree": { "$ref": "#/definitions/treeLevelZero" }
   }
 }

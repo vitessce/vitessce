@@ -144,13 +144,13 @@ function NamedSetNodeEditing(props) {
         type="text"
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
-        onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => onNodeSetName(nodeKey, currentTitle))}
+        onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => onNodeSetName(nodeKey, currentTitle, true))}
         onFocus={e => e.target.select()}
       />
       <button
         type="button"
         className="title-save-button"
-        onClick={() => onNodeSetName(nodeKey, currentTitle)}
+        onClick={() => onNodeSetName(nodeKey, currentTitle, true)}
       >
         Save
       </button>

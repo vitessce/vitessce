@@ -47,7 +47,7 @@ export function handleImportTabular(props, result) {
  * @param {string} datatype The data type to validate against.
  * @param {function} onError A function to call with errors.
  */
-export function handleImportJSON(result, datatype, onError) {
+export function handleImportJSON(result, datatype) {
   const importData = JSON.parse(result);
   // Validate the imported file.
   const validate = new Ajv().compile(hierarchicalSetsSchema);
@@ -55,8 +55,6 @@ export function handleImportJSON(result, datatype, onError) {
   if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
     throw new Error(`Import validation failed: ${failureReason}`);
-  } else if (importData.version !== version) {
-    throw new Error('The imported schema version is not compatible with the current schema version.');
   } else if (importData.datatype !== datatype) {
     throw new Error(`The imported data type does not match the expected data type of '${datatype}'.`);
   } else {
