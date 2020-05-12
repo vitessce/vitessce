@@ -17,10 +17,10 @@ const toRgb = (on, arr) => {
 };
 
 function ChannelSelectionDropdown({
-  selectionIndex,
   handleChange,
   disableOptions,
   channelOptions,
+  selectionIndex,
 }) {
   return (
     <Select
@@ -67,11 +67,11 @@ function ChannelController({
   slider,
   color,
   dimName,
-  selectionIndex,
   colormapOn,
   channelOptions,
   handlePropertyChange,
   handleChannelRemove,
+  selectionIndex,
   disableOptions = false,
 }) {
   const rgbColor = toRgb(colormapOn, color);
@@ -91,8 +91,8 @@ function ChannelController({
       <Grid container direction="row" justify="space-between">
         <Grid item xs={10}>
           <ChannelSelectionDropdown
-            selectionIndex={selectionIndex}
             handleChange={v => handlePropertyChange('selection', createSelection(v))}
+            selectionIndex={selectionIndex}
             disableOptions={disableOptions}
             channelOptions={channelOptions}
           />
