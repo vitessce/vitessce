@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
 import Tree from './Tree';
@@ -53,18 +54,20 @@ export default function SetsManager(props) {
     return nodes.map(node => (
       <TreeNode
         key={node._state.key}
-        tree={tree}
         {...nodeToRenderProps(node)}
+        editable={editable}
+        checkable={checkable}
+        expandable={expandable}
+
+        checkedLevelKey={tree._state.checkedLevel.levelZeroKey}
+        checkedLevelIndex={tree._state.checkedLevel.levelIndex}
+
         onCheckNode={onCheckNode}
         onCheckLevel={onCheckLevel}
         onNodeView={onNodeView}
         onNodeSetColor={onNodeSetColor}
         onNodeSetName={onNodeSetName}
         onNodeRemove={onNodeRemove}
-
-        editable={editable}
-        checkable={checkable}
-        expandable={expandable}
       >
         {renderTreeNodes(node.children)}
       </TreeNode>
@@ -77,17 +80,16 @@ export default function SetsManager(props) {
         draggable={draggable}
         checkable={checkable}
 
+        checkedKeys={tree._state.checkedKeys}
+        expandedKeys={tree._state.expandedKeys}
+        autoExpandParent={tree._state.autoExpandParent}
+
+        onCheck={onCheckNodes}
         onExpand={(expandedKeys, info) => onExpandNode(
           expandedKeys,
           info.node.props.nodeKey,
           info.expanded,
         )}
-        expandedKeys={tree._state.expandedKeys}
-        autoExpandParent={tree._state.autoExpandParent}
-
-        onCheck={onCheckNodes}
-        checkedKeys={tree._state.checkedKeys}
-
         onDrop={(info) => {
           const { eventKey: dropKey } = info.node.props;
           const { eventKey: dragKey } = info.dragNode.props;

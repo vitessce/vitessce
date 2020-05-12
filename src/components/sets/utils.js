@@ -10,15 +10,6 @@ export function callbackOnKeyPress(event, key, callback) {
   }
 }
 
-/**
- * Return an array from 0..stop.
- * @param {integer} stop The end of the array, exclusive.
- * @returns {Array} The resulting array of integers.
- */
-export function range(stop) {
-  return Array.from(Array(stop), (x, i) => i);
-}
-
 // From https://stackoverflow.com/a/13627586
 function ordinalSuffixOf(i) {
   const j = i % 10;

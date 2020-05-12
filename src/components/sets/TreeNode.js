@@ -6,17 +6,29 @@ import classNames from 'classnames';
 import PopoverMenu from './PopoverMenu';
 import HelpTooltip from './HelpTooltip';
 import tinycolor from 'tinycolor2';
-import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
+import range from 'lodash/range';
+import { callbackOnKeyPress } from './utils';
 
 function toHexString(rgbArray) {
   return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
 }
 
+/**
+ * 
+ * @param {integer} i The level. 1 for cluster, 2 for subcluster, etc.
+ * @returns {string} The tooltip text for coloring the level.
+ */
+function getLevelTooltipText(i) {
+  if (i === 0) return `Color by hierarchy`;
+  const subs = (i) => ('sub'.repeat(i));
+  return `Color by ${subs(i-1)}cluster`;
+}
+
+
 import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
 
 function makeNodeViewMenuConfig(props) {
   const {
-    tree,
     nodeKey,
     level,
     height,
@@ -59,23 +71,44 @@ function makeNodeViewMenuConfig(props) {
 function NamedSetNodeStatic(props) {
   const {
     title,
-    tree,
     nodeKey,
     level,
-    size,
+    height,
     color,
     checkbox,
     isChecking,
+    isLeaf,
     onNodeSetColor,
     onNodeView,
+    expanded,
+    onCheckLevel,
+    checkedLevelKey,
+    checkedLevelIndex,
   } = props;
-  const tooltipTitle = (level === 0 ? `Color ${size} cells` : `Color ${size} cells`)
+  const shouldCheckNextLevel = (level === 0 && !expanded);
+  const nextLevelToCheck = (
+    (checkedLevelIndex && nodeKey === checkedLevelKey && checkedLevelIndex < height)
+    ? checkedLevelIndex+1
+    : 1
+  );
+  const tooltipText = (shouldCheckNextLevel
+    ? getLevelTooltipText(nextLevelToCheck)
+    : (isLeaf || !expanded ? `Color individual set` : `Color by expanded descendants`)
+  );
+  // If this is a level zero node and is _not_ expanded, then upon click,
+  // the behavior should be to color by the first or next cluster level.
+  // If this is a level zero node and _is_ expanded, or if any other node,
+  // click should trigger onNodeView.
+  const onClick = (level === 0 && !expanded
+    ? () => onCheckLevel(nodeKey, nextLevelToCheck)
+    : () => onNodeView(nodeKey)
+  );
   return (
     <span>
-      <HelpTooltip title={tooltipTitle}>
+      <HelpTooltip title={tooltipText}>
         <button
           type="button"
-          onClick={() => { onNodeView(nodeKey); }}
+          onClick={onClick}
           onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(nodeKey))}
           className="title-button"
         >
@@ -140,13 +173,12 @@ function NamedSetNode(props) {
 
 function LevelsButtons(props) {
   const {
-    hierarchySize,
-    tree,
     nodeKey,
     height,
     onCheckLevel,
+    checkedLevelKey,
+    checkedLevelIndex,
   } = props;
-  const { levelZeroKey: checkedLevelKey, levelIndex: checkedLevelIndex } = tree._state.checkedLevel;
   function onCheck(event) {
     if(event.target.checked) {
       const newLevel = parseInt(event.target.value);
@@ -156,16 +188,16 @@ function LevelsButtons(props) {
   const subs = (i) => ('sub'.repeat(i));
   return (
     <div className="level-buttons-container">
-      {range(height).map(i => (
-        <div className="level-buttons" key={i+1}>
-          {i === 0 ? (<div className="level-line-zero"></div>) : null}
+      {range(1, height+1).map(i => (
+        <div className="level-buttons" key={i}>
+          {i === 1 ? (<div className="level-line-zero"></div>) : null}
           <div className="level-line"></div>
-          <HelpTooltip title={`Color ${hierarchySize} cells (by ${subs(i)}cluster)`}>
+          <HelpTooltip title={getLevelTooltipText(i)}>
             <input
               className="level-radio-button"
               type="checkbox"
-              value={i+1}
-              checked={nodeKey === checkedLevelKey && (i+1) === checkedLevelIndex}
+              value={i}
+              checked={nodeKey === checkedLevelKey && i === checkedLevelIndex}
               onChange={onCheck}
             />
           </HelpTooltip>
@@ -200,7 +232,6 @@ function SwitcherIcon(props) {
 export default class TreeNode extends RcTreeNode {
   renderSelector = () => {
     const {
-      tree,
       nodeKey,
       title,
       size,
@@ -239,17 +270,13 @@ export default class TreeNode extends RcTreeNode {
   };
 
   renderLevels = () => {
-    const { nodeKey, level, height, expanded, tree, size, onCheckLevel } = this.props;
+    const { level, expanded } = this.props;
     if(level !== 0 || expanded) {
       return null;
     }
     return (
       <LevelsButtons
-        nodeKey={nodeKey}
-        height={height}
-        tree={tree}
-        hierarchySize={size}
-        onCheckLevel={onCheckLevel}
+        {...this.props}
       />
     );
   }
