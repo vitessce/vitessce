@@ -43,32 +43,24 @@ export function handleImportTabular(props, result) {
 
 /**
  * Handler for JSON imports.
- * @param {object} props The component props.
- * @param {string} result The data passed from the onImport function as a string.
+ * @param {string} result The data passed from the FileReader as a string.
+ * @param {string} datatype The data type to validate against.
+ * @param {function} onError A function to call with errors.
  */
-export function handleImportJSON(props, result) {
-  const {
-    datasetId,
-    setsType,
-    setsTree,
-    onError,
-  } = props;
+export function handleImportJSON(result, datatype, onError) {
   const importData = JSON.parse(result);
   // Validate the imported file.
   const validate = new Ajv().compile(hierarchicalSetsSchema);
   const valid = validate(importData);
   if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
-    onError(`Import validation failed: ${failureReason}`);
-  } else if (importData.datasetId !== datasetId) {
-    onError('The imported datasetId does not match the current datasetId.');
+    throw new Error(`Import validation failed: ${failureReason}`);
   } else if (importData.version !== version) {
-    onError('The imported schema version is not compatible with the current schema version.');
-  } else if (importData.setsType !== setsType) {
-    onError('The imported setsType does not match the current setsType.');
+    throw new Error('The imported schema version is not compatible with the current schema version.');
+  } else if (importData.datatype !== datatype) {
+    throw new Error(`The imported data type does not match the expected data type of '${datatype}'.`);
   } else {
-    onError(false); // Clear any previous import error.
-    setsTree.import(importData.tree, makeImportName());
+    return importData;
   }
 }
 

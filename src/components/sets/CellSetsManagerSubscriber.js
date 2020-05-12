@@ -23,11 +23,15 @@ export default function CellSetsManagerSubscriber(props) {
   const onReadyCallback = useCallback(onReady, []);
   const [tree, dispatch] = useReducer(reducer, initialTree);
 
+  const onImportTree = (treeToImport) => {
+    dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
+  };
+
   // Subscribe to cell set import events.
   // Subscribe to cell import and selection events.
   useEffect(() => {
     const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD, (msg, treeToImport) => {
-      dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
+      onImportTree(treeToImport);
     });
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
       dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
@@ -93,6 +97,10 @@ export default function CellSetsManagerSubscriber(props) {
     dispatch({ type: ACTION.VIEW_NODE, targetKey });
   }, []);
 
+  const onCreateLevelZeroNode = useCallback(() => {
+    dispatch({ type: ACTION.CREATE_LEVEL_ZERO_NODE });
+  }, []);
+
   return (
     <TitleInfo
       title="Cell Sets"
@@ -101,6 +109,7 @@ export default function CellSetsManagerSubscriber(props) {
     >
       <SetsManager
         tree={tree}
+        datatype={SETS_DATATYPE_CELL}
         clearPleaseWait={
           layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
         }
@@ -114,6 +123,8 @@ export default function CellSetsManagerSubscriber(props) {
         onNodeSetName={onNodeSetName}
         onNodeRemove={onNodeRemove}
         onNodeView={onNodeView}
+        onImportTree={onImportTree}
+        onCreateLevelZeroNode={onCreateLevelZeroNode}
       />
     </TitleInfo>
   );

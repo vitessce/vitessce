@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
 import some from 'lodash/some';
@@ -556,6 +557,14 @@ function treeNodeViewDescendants(currTree, targetKey, level, shouldInvalidateChe
   return treeSetVisibleKeys(currTree, descendantKeys, shouldInvalidateCheckedLevel);
 }
 
+function treeCreateLevelZeroNode(currTree) {
+  const newLevelZeroNode = nodeWithState({
+    name: 'New hierarchy',
+    children: [],
+  }, 0, { isEditing: true });
+  return treeAppendChild(currTree, newLevelZeroNode);
+}
+
 /**
  * Import an array of level zero nodes by filling in
  * with state and appending to the current tree.
@@ -688,6 +697,7 @@ export const ACTION = Object.freeze({
   REMOVE_NODE: 'removeNode',
   VIEW_NODE: 'viewNode',
   VIEW_NODE_DESCENDANTS: 'viewNodeDescendants',
+  CREATE_LEVEL_ZERO_NODE: 'createLevelZeroNode',
 });
 
 const reducer = createReducer({
@@ -752,6 +762,9 @@ const reducer = createReducer({
     action.targetKey,
     action.level,
     action.shouldInvalidateCheckedLevel,
+  ),
+  [ACTION.CREATE_LEVEL_ZERO_NODE]: (state) => treeCreateLevelZeroNode(
+    state
   ),
 });
 

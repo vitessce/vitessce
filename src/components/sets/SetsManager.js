@@ -3,7 +3,9 @@
 import React from 'react';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
+import { NewNodeButton, ActionButtons } from './SetsManagerButtons';
 import { nodeToRenderProps } from './reducer';
+
 
 /**
  * A generic hierarchical set manager component.
@@ -20,12 +22,14 @@ import { nodeToRenderProps } from './reducer';
 export default function SetsManager(props) {
   const {
     tree,
+    datatype,
     clearPleaseWait,
     draggable = false,
     checkable = true,
     editable = true,
     expandable = true,
     operatable = true,
+    onError,
     onCheckNode,
     onCheckNodes,
     onExpandNode,
@@ -35,6 +39,8 @@ export default function SetsManager(props) {
     onNodeSetName,
     onNodeRemove,
     onNodeView,
+    onImportTree,
+    onCreateLevelZeroNode,
   } = props;
 
   // eslint-disable-next-line no-console
@@ -99,6 +105,12 @@ export default function SetsManager(props) {
       >
         {renderTreeNodes(tree.tree)}
       </Tree>
+      <NewNodeButton
+        datatype={datatype}
+        onError={onError}
+        onImportTree={onImportTree}
+        onCreateLevelZeroNode={onCreateLevelZeroNode}
+      />
     </div>
   );
 }
