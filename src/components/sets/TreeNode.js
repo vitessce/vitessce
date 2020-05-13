@@ -94,6 +94,7 @@ function NamedSetNodeStatic(props) {
     onCheckLevel,
     checkedLevelKey,
     checkedLevelIndex,
+    disableTooltip,
   } = props;
   const shouldCheckNextLevel = (level === 0 && !expanded);
   const nextLevelToCheck = (
@@ -113,9 +114,10 @@ function NamedSetNodeStatic(props) {
     ? () => onCheckLevel(nodeKey, nextLevelToCheck)
     : () => onNodeView(nodeKey)
   );
+  const tooltipProps = (disableTooltip ? { visible: false } : {});
   return (
     <span>
-      <HelpTooltip title={tooltipText}>
+      <HelpTooltip title={tooltipText} {...tooltipProps}>
         <button
           type="button"
           onClick={onClick}
@@ -248,6 +250,7 @@ export default class TreeNode extends RcTreeNode {
       isCurrentSet,
       isSelected,
       isEditing,
+      onDragStart: onDragStartProp,
     } = this.props;
     const {
       rcTree: {
@@ -255,6 +258,11 @@ export default class TreeNode extends RcTreeNode {
         draggable,
       },
     } = this.context;
+    
+    const onDragStart = (e) => {
+      onDragStartProp();
+      this.onDragStart(e);
+    };
 
     const wrapClass = `${prefixClass}-node-content-wrapper`;
     const isDraggable = (!isCurrentSet && !isEditing && draggable);
@@ -270,7 +278,7 @@ export default class TreeNode extends RcTreeNode {
         )}
         draggable={isDraggable}
         aria-grabbed={isDraggable}
-        onDragStart={isDraggable ? this.onDragStart : undefined}
+        onDragStart={isDraggable ? onDragStart : undefined}
       >
         <NamedSetNode {...this.props} prefixClass={prefixClass} checkbox={this.renderCheckbox()} />
         {this.renderLevels()}
@@ -323,6 +331,7 @@ export default class TreeNode extends RcTreeNode {
       dragOver, dragOverGapTop, dragOverGapBottom,
       isLeaf,
       expanded, selected, checked, halfChecked,
+      onDragEnd: onDragEndProp,
       ...otherProps
     } = this.props;
     const {
@@ -334,6 +343,12 @@ export default class TreeNode extends RcTreeNode {
     } = this.context;
     const disabled = this.isDisabled();
     const dataAndAriaAttributeProps = getDataAndAria(otherProps);
+
+    const onDragEnd = (e) => {
+      onDragEndProp();
+      this.onDragEnd(e);
+    };
+
     return (
       <li
         className={classNames("rc-tree-treenode", `level-${level}-treenode`, {
@@ -355,7 +370,7 @@ export default class TreeNode extends RcTreeNode {
         onDragOver={draggable ? this.onDragOver : undefined}
         onDragLeave={draggable ? this.onDragLeave : undefined}
         onDrop={draggable ? this.onDrop.bind(this) : undefined}
-        onDragEnd={draggable ? this.onDragEnd : undefined}
+        onDragEnd={draggable ? onDragEnd : undefined}
         {...dataAndAriaAttributeProps}
       >
         {this.renderSwitcher()}

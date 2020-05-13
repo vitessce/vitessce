@@ -1,6 +1,6 @@
 /* eslint-disable */
 /* eslint-disable no-underscore-dangle */
-import React from 'react';
+import React, { useState } from 'react';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { NewNodeButton, ActionButtons } from './SetsManagerButtons';
@@ -56,6 +56,8 @@ export default function SetsManager(props) {
     clearPleaseWait('cell_sets');
   }
 
+  const [isDragging, setIsDragging] = useState(false);
+
   function renderTreeNodes(nodes) {
     if (!nodes) {
       return null;
@@ -69,6 +71,7 @@ export default function SetsManager(props) {
         editable={editable}
         expandable={expandable}
 
+        isChecking={tree._state.isChecking}
         checkedLevelKey={tree._state.checkedLevel.levelZeroKey}
         checkedLevelIndex={tree._state.checkedLevel.levelIndex}
 
@@ -79,14 +82,18 @@ export default function SetsManager(props) {
         onNodeSetName={onNodeSetName}
         onNodeSetIsEditing={onNodeSetIsEditing}
         onNodeRemove={onNodeRemove}
-
         onExportLevelZeroNode={onExportLevelZeroNode}
         onExportSet={onExportSet}
+
+        disableTooltip={isDragging}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={() => setIsDragging(false)}
       >
         {renderTreeNodes(node.children)}
       </TreeNode>
     ));
   }
+
 
   return (
     <div className="sets-manager">

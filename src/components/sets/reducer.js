@@ -65,16 +65,6 @@ function nodeSetIsForTools(currNode, v) {
   };
 }
 
-function nodeSetIsChecking(currNode, v) {
-  return {
-    ...currNode,
-    _state: {
-      ...currNode._state,
-      isChecking: v,
-    },
-  };
-}
-
 function nodeSetIsEditing(currNode, v) {
   return {
     ...currNode,
@@ -177,7 +167,6 @@ function nodeWithState(currNode, level = 0, stateOverrides = {}) {
       level,
       isEditing: false,
       isCurrent: false,
-      isChecking: false,
       isForTools: false,
       ...stateOverrides,
     },
@@ -284,11 +273,11 @@ function nodeRemove(node, predicate) {
   return node;
 }
 
-function treeNodeRemove(currTree, targetKey) {
+function treeNodeRemove(currTree, targetKey, temporary = false) {
   const nodeToRemove = treeFindNodeByKey(currTree, targetKey);
   const levelZeroNode = treeFindLevelZeroNodeByDescendantKey(currTree, targetKey);
 
-  const shouldClearCheckedLevel = (
+  const shouldClearCheckedLevel = ( 
     (currTree._state.checkedLevel.levelZeroKey === nodeToRemove._state.key)
     || (currTree._state.checkedLevel.levelZeroKey === levelZeroNode._state.key
       && currTree._state.checkedLevel.levelIndex === nodeToRemove._state.level));
@@ -300,10 +289,10 @@ function treeNodeRemove(currTree, targetKey) {
       .filter(Boolean),
     _state: {
       ...currTree._state,
-      checkedKeys: currTree._state.checkedKeys.filter(k => k !== targetKey),
-      visibleKeys: currTree._state.visibleKeys.filter(k => k !== targetKey),
+      checkedKeys: (temporary ? currTree._state.checkedKeys : currTree._state.checkedKeys.filter(k => k !== targetKey)),
+      visibleKeys: (temporary ? currTree._state.checkedKeys : currTree._state.visibleKeys.filter(k => k !== targetKey)),
       checkedLevel: (
-        shouldClearCheckedLevel
+        !temporary && shouldClearCheckedLevel
           ? { levelZeroKey: null, levelIndex: null }
           : currTree._state.checkedLevel
       ),
@@ -525,33 +514,21 @@ function treeOnCheckNodes(currTree, checkedKeys) {
     _state: {
       ...currTree._state,
       checkedKeys,
+      isChecking: true,
     },
   };
 }
 
 function treeOnCheckNode(currTree, targetKey) {
   const currCheckedKeys = currTree._state.checkedKeys;
+  // Add or remove the target node's key from the tree's list of checked keys.
   let newCheckedKeys;
   if (currCheckedKeys.includes(targetKey)) {
     newCheckedKeys = currCheckedKeys.filter(k => k !== targetKey);
   } else {
     newCheckedKeys = [...currCheckedKeys, targetKey];
   }
-  const newTree = treeOnCheckNodes(currTree, newCheckedKeys);
-
-  // Set .isChecking on all nodes within this level zero node.
-  const levelZeroNode = treeFindLevelZeroNodeByDescendantKey(newTree, targetKey);
-  const newLevelZeroNode = nodeTransformDescendants(
-    levelZeroNode,
-    n => nodeSetIsChecking(n, true),
-  );
-
-  return {
-    ...newTree,
-    tree: newTree.tree.map(n => (
-      n._state.key === levelZeroNode._state.key ? newLevelZeroNode : n
-    )),
-  };
+  return treeOnCheckNodes(currTree, newCheckedKeys);
 }
 
 function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
@@ -596,7 +573,7 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   }
 
   // Remove the dragged object from its current position.
-  let newTree = treeNodeRemove(currTree, dragKey);
+  let newTree = treeNodeRemove(currTree, dragKey, true);
 
   // Update index values after deleting the child node.
   if(!dragNodeIsLevelZero) {
@@ -797,8 +774,10 @@ export function treeInitialize(datatype) {
       checkedKeys: [],
       visibleKeys: [],
       checkedLevel: { levelZeroKey: null, levelIndex: null },
-      expandedKeys: [], // used by ant-tree
-      autoExpandParent: true, // used by ant-tree
+      expandedKeys: [],
+      autoExpandParent: true,
+      // Hide checkboxes until the user has clicked "Select" in a node dropdown.
+      isChecking: false,
     },
   };
 }
@@ -819,7 +798,6 @@ export function nodeToRenderProps(node) {
     isEditing: node._state.isEditing,
     isCurrentSet: node._state.isCurrent,
     isForTools: node._state.isForTools,
-    isChecking: node._state.isChecking,
     isLeaf: !node.children,
     height: nodeToHeight(node, node._state.level),
   };
