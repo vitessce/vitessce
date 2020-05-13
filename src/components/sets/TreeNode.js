@@ -273,6 +273,7 @@ export default class TreeNode extends RcTreeNode {
         onDragStart={isDraggable ? this.onDragStart : undefined}
       >
         <NamedSetNode {...this.props} prefixClass={prefixClass} checkbox={this.renderCheckbox()} />
+        {this.renderLevels()}
       </span>
     );
   };
@@ -360,7 +361,6 @@ export default class TreeNode extends RcTreeNode {
         {this.renderSwitcher()}
         {this.renderSelector()}
         {this.renderChildren()}
-        {this.renderLevels()}
       </li>
     );
   }

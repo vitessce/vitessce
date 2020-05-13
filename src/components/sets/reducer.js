@@ -217,6 +217,10 @@ function treeFindNodeByKey(currTree, targetKey) {
   return treeFindNode(currTree, n => (n._state.key === targetKey));
 }
 
+function treeFindNodeParentByKey(currTree, targetKey) {
+  return treeFindNode(currTree, n => n.children && n.children.map(c => c._state.key).includes(targetKey));
+}
+
 function treeFindLevelZeroNodeByDescendantKey(currTree, targetKey) {
   const predicate = n => (n._state.key === targetKey);
   const foundNodes = currTree.tree
@@ -521,9 +525,67 @@ function treeOnCheckNode(currTree, targetKey) {
   };
 }
 
-// eslint-disable-next-line no-unused-vars
 function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
-  // TODO: re-implement dragRearrange function
+  // Get drop node.
+  const dropNode = treeFindNodeByKey(currTree, dropKey);
+  const dropNodeLevel = dropNode._state.level;
+  const dropNodeIsLevelZero = dropNodeLevel === 0;
+  const dropNodeHeight = nodeToHeight(dropNode, 0);
+   // Get drag node.
+   const dragNode = treeFindNodeByKey(currTree, dragKey);
+   const dragNodeLevel = dragNode._state.level;
+   const dragNodeIsLevelZero = dragNodeLevel === 0;
+   const dragNodeHeight = nodeToHeight(dragNode, 0);
+
+  // Only allow dragging if:
+  // - dropping between nodes, and both drag and drop node have same height, OR
+  // - dropping the dragNode into the dropNode, where the dragNode has one less level than the dropNode.
+  const isAllowed = (dropToGap && dropNodeHeight === dragNodeHeight) || (!dropToGap && dropNodeHeight - 1 === dragNodeHeight);
+
+  console.log(isAllowed);
+  if(!isAllowed) {
+    return currTree;
+  }
+
+  let dragParentNode, dragParentKey, dragNodeCurrIndex;
+  let dropParentNode, dropParentKey, dropNodeCurrIndex;
+
+  if(!dragNodeIsLevelZero) {
+    dragParentNode = treeFindNodeParentByKey(currTree, dragKey);
+    dragParentKey = dragParentNode._state.key;
+    dragNodeCurrIndex = dragParentNode.children.findIndex(c => c._state.key === dragKey);
+  } else {
+    dragNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dragKey);
+  }
+  if(!dropNodeIsLevelZero) {
+    dropParentNode = treeFindNodeParentByKey(currTree, dropKey);
+    dropParentKey = dropParentNode._state.key;
+    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.key === dropKey);
+  } else {
+    dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dropKey);
+  }
+
+  console.log(dropParentKey, dropNodeCurrIndex, dragParentKey, dragNodeCurrIndex);
+
+  return currTree;
+
+  // Remove the dragged object from its current position.
+  dragParentNode.children.splice(dragNodeCurrIndex, 1);
+
+  // Update index values after deleting the child node.
+  dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
+  dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
+
+  if (!dropToGap) {
+    // Set dragNode as last child of dropNode.
+    dropNode.setChildren([...dropNode.children, dragNode]);
+  } else if (dropPosition === -1) {
+    // Set dragNode as first child of dropParentNode.
+    dropParentNode.setChildren([dragNode, ...dropParentNode.children]);
+  } else {
+    dropParentNode.children
+      .splice(dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0), 0, dragNode);
+  }
   return currTree;
 }
 

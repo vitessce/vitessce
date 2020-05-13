@@ -45,7 +45,7 @@
                 height: #{$node-height}px;
                 width: 100%;
                 position: relative;
-                padding-left: 24px;
+                padding-left: 4px;
 
                 .level-buttons {
                     position: relative;
@@ -167,12 +167,13 @@
                   /* Required to make elements draggable in old WebKit */
                   -khtml-user-drag: element;
                   -webkit-user-drag: element;
+                  border: 2px transparent solid;
                 }
                 &.drag-over {
                   > .draggable {
                     color: white;
                     background-color: #316ac5;
-                    border: 1px #316ac5 solid;
+                    border: 2px #316ac5 solid;
                     opacity: 0.8;
                   }
                 }
@@ -227,6 +228,7 @@
                   &.rc-tree-switcher,
                   &.rc-tree-checkbox {
                     display: inline-block;
+                    margin-top: 4px;
                     margin-right: 6px;
                     vertical-align: middle;
                     background-color: transparent;
@@ -236,6 +238,7 @@
                     border: 0 none;
                     outline: none;
                     cursor: pointer;
+                    
                   }
 
                   &.rc-tree-switcher {
