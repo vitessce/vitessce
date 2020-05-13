@@ -95,6 +95,16 @@ function nodeSetIsCurrent(currNode, v) {
   };
 }
 
+function nodeSetLevel(currNode, newLevel) {
+  return {
+    ...currNode,
+    _state: {
+      ...currNode._state,
+      level: newLevel,
+    },
+  };
+}
+
 function nodeSetName(currNode, newName) {
   return {
     ...currNode,
@@ -113,9 +123,28 @@ function nodeSetSet(currNode, newSet) {
 }
 
 function nodeAppendChild(currNode, newChild) {
+  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level+1);
   return {
     ...currNode,
-    children: [...currNode.children, newChild],
+    children: [...currNode.children, newChildWithLevel],
+  };
+}
+
+function nodePrependChild(currNode, newChild) {
+  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level+1);
+  return {
+    ...currNode,
+    children: [newChildWithLevel, ...currNode.children],
+  };
+}
+
+function nodeInsertChild(currNode, newChild, insertIndex) {
+  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level+1);
+  const newChildren = Array.from(currNode.children);
+  newChildren.splice(insertIndex, 0, newChildWithLevel);
+  return {
+    ...currNode,
+    children: newChildren,
   };
 }
 
@@ -539,10 +568,11 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
 
   // Only allow dragging if:
   // - dropping between nodes, and both drag and drop node have same height, OR
-  // - dropping the dragNode into the dropNode, where the dragNode has one less level than the dropNode.
-  const isAllowed = (dropToGap && dropNodeHeight === dragNodeHeight) || (!dropToGap && dropNodeHeight - 1 === dragNodeHeight);
+  // - dropping the dragNode into the dropNode, 
+  //   where the dragNode has one less level than the dropNode.
+  const isAllowed = (dropToGap && dropNodeHeight === dragNodeHeight)
+   || (!dropToGap && dropNodeHeight - 1 === dragNodeHeight);
 
-  console.log(isAllowed);
   if(!isAllowed) {
     return currTree;
   }
@@ -565,28 +595,68 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
     dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dropKey);
   }
 
-  console.log(dropParentKey, dropNodeCurrIndex, dragParentKey, dragNodeCurrIndex);
-
-  return currTree;
-
   // Remove the dragged object from its current position.
-  dragParentNode.children.splice(dragNodeCurrIndex, 1);
+  let newTree = treeNodeRemove(currTree, dragKey);
 
   // Update index values after deleting the child node.
-  dragNodeCurrIndex = dragParentNode.children.findIndex(c => c.setKey === dragKey);
-  dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.setKey === dropKey);
-
-  if (!dropToGap) {
-    // Set dragNode as last child of dropNode.
-    dropNode.setChildren([...dropNode.children, dragNode]);
-  } else if (dropPosition === -1) {
-    // Set dragNode as first child of dropParentNode.
-    dropParentNode.setChildren([dragNode, ...dropParentNode.children]);
+  if(!dragNodeIsLevelZero) {
+    dragNodeCurrIndex = dragParentNode.children.findIndex(c => c._state.key === dragKey);
   } else {
-    dropParentNode.children
-      .splice(dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0), 0, dragNode);
+    dragNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dragKey);
   }
-  return currTree;
+  if(!dropNodeIsLevelZero) {
+    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.key === dropKey);
+  } else {
+    dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dropKey);
+  }
+
+  // Append the dragNode to dropNode's children if dropping _onto_ the dropNode.
+  if(!dropToGap) {
+    // Set dragNode as the last child of dropNode.
+    return treeTransformNodeByKey(newTree, dropKey, n => nodeAppendChild(n, dragNode));
+  }
+
+  // Prepend or insert the dragNode if dropping _between_ (above or below dropNode).
+  if(!dropNodeIsLevelZero) {
+    // The dropNode is at a level greater than zero,
+    // so it has a parent.
+    if (dropPosition === -1) {
+      // Set dragNode as first child of dropParentNode.
+      return treeTransformNodeByKey(
+        newTree, 
+        dropParentKey, 
+        n => nodePrependChild(n, dragNode)
+      );
+    } else {
+      // Set dragNode before or after dropNode.
+      const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
+      return treeTransformNodeByKey(
+        newTree, 
+        dropParentKey, 
+        n => nodeInsertChild(n, dragNode, insertIndex)
+      );
+    }
+  } else {
+    // We need to drop the dragNode to level zero,
+    // and level zero nodes do not have parents.
+    const newDragNode = nodeSetLevel(dragNode, 0);
+    if (dropPosition === -1) {
+      // Set dragNode as first level zero node of the tree.
+      return {
+        ...newTree,
+        tree: [newDragNode, ...newTree.tree]
+      };
+    } else {
+      // Set dragNode before or after dropNode in level zero.
+      const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
+      const newLevelZero = Array.from(newTree.tree);
+      newLevelZero.splice(insertIndex, 0, newDragNode);
+      return {
+        ...newTree,
+        tree: newLevelZero
+      };
+    }
+  }
 }
 
 function treeSetVisibleKeys(currTree, visibleKeys, shouldInvalidateCheckedLevel = true) {
