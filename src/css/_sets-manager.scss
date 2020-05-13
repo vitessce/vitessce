@@ -15,6 +15,8 @@
     $node-height: 32 !default;
 
     .sets-manager {
+      position: relative;
+      height: 100%;
       .new-node-button {
         border: 0;
         background-color: transparent;
@@ -22,7 +24,30 @@
         padding: 0;
         font-size: 18px;
       }
-        .rc-tree {
+      .set-operation-buttons {
+        background-color: map-get($global-colors, "gray-light");
+        border-radius: 4px;
+        padding: 2px;
+        display: inline-block;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        button {
+          border: 0;
+          background-color: transparent;
+          color: lighten(map-get($global-colors, "gray-dark"), 5%);
+
+          svg {
+            fill: lighten(map-get($global-colors, "gray-dark"), 5%);
+          }
+
+          &:hover {
+            color: lighten(map-get($global-colors, "gray-dark"), 25%);
+          }
+        }
+      }
+      
+      .rc-tree {
             padding-left: 0;
             margin: 0;
             border: 1px solid transparent;
@@ -46,6 +71,7 @@
                 width: 100%;
                 position: relative;
                 padding-left: 4px;
+                left: 0;
 
                 .level-buttons {
                     position: relative;
@@ -110,54 +136,63 @@
                 list-style: none;
                 outline: 0;
 
-                .title-button, .title-input {
+                .title-button, .title-button-with-input {
+                  padding: 0;
+                  margin: 0;
+                }
+
+                .title-button {
+                  height: #{$node-height - 8}px;
+                  line-height: #{$node-height - 8}px;
+                  border: 1px solid transparent;
+                  color: lighten(map-get($theme-colors, "primary-foreground"), 5%);
+                  background: transparent;
+                  background-color: transparent;
+                  vertical-align: top;
+                  font-size: 14px;
+                }
+
+                .title-button-with-input {
+                  display: block;
+                  height: #{$node-height - 6}px;
+                  box-sizing: border-box;
+                  .title-input {
+                    font-size: 14px;
                     height: #{$node-height - 8}px;
                     line-height: #{$node-height - 8}px;
-                    padding: 0;
-                    margin: 0;
-                    border: 0;
-                    color: lighten(map-get($theme-colors, "primary-foreground"), 5%);
-                    background: transparent;
-                    background-color: transparent;
+                    width: calc(100% - 60px);
+                    margin-right: 10px;
+                    background-color: map-get($global-colors, "gray-light");
+                    color: map-get($global-colors, "black");
+                    border-radius: 4px;
+                    outline: none;
+                    padding: 4px 0px 4px 4px;
+                    border: 1px solid map-get($global-colors, "gray-light");
+                    &:focus {
+                      border: 1px solid map-get($theme-colors, "primary-foreground-active");
+                    }
+                  }
+  
+                  .title-save-button {
+                    background-color: map-get($global-colors, "gray-dark");
+                    border: 1px solid map-get($global-colors, "gray-dark");
+                    color: map-get($global-colors, "gray-light");
+                    border-radius: 3px;
+                    width: 50px;
+                    height: #{$node-height - 8}px;
+                    line-height: 20px;
+                    font-size: 13px;
                     vertical-align: top;
-                    font-size: 14px;
-                }
-
-                .title-input {
-                  width: calc(100% - 60px);
-                  margin-right: 10px;
-                  background-color: map-get($global-colors, "gray-light");
-                  color: map-get($global-colors, "black");
-                  border-radius: 4px;
-                  outline: none;
-                  padding: 4px 0px 4px 4px;
-                  border: 1px solid map-get($global-colors, "gray-light");
-
-                  &:focus {
-                    border: 1px solid map-get($theme-colors, "primary-foreground-active");
+                    margin: 0;
+                    padding: 0;
+  
+                    &:hover {
+                      background-color: lighten(map-get($global-colors, "gray-dark"), 5%);
+                      border: 1px solid lighten(map-get($global-colors, "gray-dark"), 5%);
+                    }
                   }
                 }
 
-                .title-save-button {
-                  background-color: map-get($global-colors, "gray-dark");
-                  border: 1px solid map-get($global-colors, "gray-dark");
-                  color: map-get($global-colors, "gray-light");
-                  border-radius: 3px;
-                  width: 50px;
-                  height: 24px;
-                  line-height: 20px;
-                  font-size: 13px;
-                  vertical-align: top;
-                  margin: 0;
-                  padding: 0;
-
-                  &:hover {
-                    background-color: lighten(map-get($global-colors, "gray-dark"), 5%);
-                    border: 1px solid lighten(map-get($global-colors, "gray-dark"), 5%);
-                  }
-                }
-
-                
                 .draggable {
                   color: #333;
                   -moz-user-select: none;
@@ -260,12 +295,12 @@
                     width: 13px;
                     height: 13px;
                     margin: 0 3px;
-                    border: 2px solid gray;
+                    border: 2px solid map-get($global-colors, "gray-mid");
                     border-radius: 3px;
                     position: relative;
                     left: 0;
                     &-checked {
-                      background-color: gray;
+                      background-color: map-get($global-colors, "gray-mid");
                     }
                     &-indeterminate {
                       background-position: -14px -28px;

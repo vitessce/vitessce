@@ -8,7 +8,7 @@ import { ReactComponent as SetIntersectionSVG } from '../../assets/sets/intersec
 import { ReactComponent as SetComplementSVG } from '../../assets/sets/complement.svg';
 
 
-export function NewNodeButton(props) {
+export function PlusButton(props) {
   const { datatype, onError, onImportTree, onCreateLevelZeroNode } = props;
 
    /**
@@ -74,135 +74,28 @@ export function NewNodeButton(props) {
   );
 }
 
-export function ActionButtons(props) {
+export function SetOperationButtons(props) {
   const {
-    setsTree, datasetId, setsType,
-    onError = (err) => {
-      console.warn(`SetsManagerActionBar onError: ${err}`);
-      // NOTE: Because this is used in the non-pubsub SetsManager,
-      // it would be inappropriate to use our STATUS_WARN event as the default here.
-      // If we were to need that integration, a callback needs to be passed in as a prop.
-    },
+    onUnion,
+    onIntersection,
+    onComplement,
+    onView,
   } = props;
 
-  /**
-   * Perform the union set operation, updating the current set.
-   */
-  function onUnion() {
-    const checkedUnion = setsTree.getUnion(setsTree.checkedKeys);
-    setsTree.setCurrentSet(checkedUnion, true, 'Current union');
-    setsTree.emitVisibilityUpdate();
-  }
-
-  /**
-   * Perform the intersection set operation, updating the current set.
-   */
-  function onIntersection() {
-    const checkedIntersection = setsTree.getIntersection(setsTree.checkedKeys);
-    setsTree.setCurrentSet(checkedIntersection, true, 'Current intersection');
-    setsTree.emitVisibilityUpdate();
-  }
-
-  /**
-   * Perform the complement set operation, updating the current set.
-   */
-  function onComplement() {
-    const checkedComplement = setsTree.getComplement(setsTree.checkedKeys);
-    setsTree.setCurrentSet(checkedComplement, true, 'Current complement');
-    setsTree.emitVisibilityUpdate();
-  }
-
-  /**
-   * Import a file, then process the imported data via the supplied handler function.
-   * @param {Function} importHandler The function to process the imported data.
-   * @param {string} mimeType The accepted mime type for the file upload input.
-   * @returns {Function} An onImport function corresponding to the supplied parameters.
-   */
-  function onImport(importHandler, mimeType) {
-    return () => {
-      const uploadInputNode = document.createElement('input');
-      uploadInputNode.setAttribute('type', 'file');
-      uploadInputNode.setAttribute('accept', mimeType);
-      document.body.appendChild(uploadInputNode); // required for firefox
-      uploadInputNode.click();
-      uploadInputNode.addEventListener('change', (event) => {
-        if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
-          onError('Local file reading APIs are not fully supported in this browser.');
-          return;
-        }
-        const { files } = event.target;
-        if (!files || files.length !== 1) {
-          onError('Incorrect number of files selected.');
-          return;
-        }
-        const reader = new FileReader();
-        reader.addEventListener('load', () => {
-          const { result } = reader;
-          try {
-            importHandler(props, result);
-          } catch (e) {
-            onError(e.message);
-          }
-        }, false);
-        reader.readAsText(files[0]);
-      });
-      uploadInputNode.remove();
-    };
-  }
-
-  /**
-   * Downloads a file from the browser.
-   * @param {string} exportHandler The function that converts the data to a string.
-   * @param {string} fileExtension The extension of the file to be downloaded.
-   */
-  function onExport(exportHandler, fileExtension) {
-    return () => {
-      const dataString = exportHandler(props);
-      const fileName = `${datasetId}-${setsType}-sets.${fileExtension}`;
-      const downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute('href', dataString);
-      downloadAnchorNode.setAttribute('download', fileName);
-      document.body.appendChild(downloadAnchorNode); // required for firefox
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
-    };
-  }
-
   return (
-    <div className="sets-manager-icon-bar">
-      {/*<Icon
-        component={SetUnionSVG}
-        title="New set from union of checked sets"
-        onClick={onUnion}
-      />
-      <Icon
-        component={SetIntersectionSVG}
-        title="New set from intersection of checked sets"
-        onClick={onIntersection}
-      />
-      <Icon
-        component={SetComplementSVG}
-        title="New set from complement of checked sets"
-        onClick={onComplement}
-      />
-      <PopoverMenu
-        placement="bottom"
-        menuConfig={[{
-          name: `Import ${tabularFileType}`,
-          handler: onImport(handleImportTabular, `text/${tabularFileExtension}`),
-        }, {
-          name: 'Import JSON',
-          handler: onImport(handleImportJSON, 'application/json'),
-        }, {
-          name: `Export ${tabularFileType}`,
-          handler: onExport(handleExportTabular, tabularFileExtension),
-        }, {
-          name: 'Export JSON',
-          handler: onExport(handleExportJSON, 'json'),
-        }]}
-      >
-        <Icon type="more" />
-      </PopoverMenu>*/}
+    <div className="set-operation-buttons">
+      <button onClick={onView} >
+        View
+      </button>
+      <button onClick={onUnion} title="New set from union of checked sets">
+        <SetUnionSVG />
+      </button>
+      <button onClick={onIntersection} title="New set from intersection of checked sets">
+        <SetIntersectionSVG />
+      </button>
+      <button onClick={onComplement} title="New set from complement of checked sets">
+        <SetComplementSVG />
+      </button>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
@@ -95,6 +95,8 @@ function NamedSetNodeStatic(props) {
     checkedLevelKey,
     checkedLevelIndex,
     disableTooltip,
+    size,
+    datatype,
   } = props;
   const shouldCheckNextLevel = (level === 0 && !expanded);
   const nextLevelToCheck = (
@@ -104,7 +106,9 @@ function NamedSetNodeStatic(props) {
   );
   const tooltipText = (shouldCheckNextLevel
     ? getLevelTooltipText(nextLevelToCheck)
-    : (isLeaf || !expanded ? `Color individual set` : `Color by expanded descendants`)
+    : (isLeaf || !expanded
+      ? `Color individual set (${size} ${datatype}${(size === 1 ? '' : 's')})`
+      : `Color by expanded descendants`)
   );
   // If this is a level zero node and is _not_ expanded, then upon click,
   // the behavior should be to color by the first or next cluster level.
@@ -147,8 +151,11 @@ function NamedSetNodeEditing(props) {
     onNodeSetName,
   } = props;
   const [currentTitle, setCurrentTitle] = useState(title);
+  useEffect(() => {
+    setCurrentTitle(title);
+  }, [title]);
   return (
-    <span className="title-button">
+    <span className="title-button-with-input">
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
-import { NewNodeButton, ActionButtons } from './SetsManagerButtons';
+import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
 import { nodeToRenderProps } from './reducer';
 
 
@@ -44,6 +44,10 @@ export default function SetsManager(props) {
     onCreateLevelZeroNode,
     onExportLevelZeroNode,
     onExportSet,
+    onUnion,
+    onIntersection,
+    onComplement,
+    onView,
   } = props;
 
   // eslint-disable-next-line no-console
@@ -66,6 +70,7 @@ export default function SetsManager(props) {
       <TreeNode
         key={node._state.key}
         {...nodeToRenderProps(node)}
+        datatype={datatype}
         draggable={draggable}
         checkable={checkable}
         editable={editable}
@@ -120,12 +125,20 @@ export default function SetsManager(props) {
       >
         {renderTreeNodes(tree.tree)}
       </Tree>
-      <NewNodeButton
+      <PlusButton
         datatype={datatype}
         onError={onError}
         onImportTree={onImportTree}
         onCreateLevelZeroNode={onCreateLevelZeroNode}
       />
+      {tree._state.isChecking ? (
+        <SetOperationButtons
+          onUnion={onUnion}
+          onIntersection={onIntersection}
+          onComplement={onComplement}
+          onView={onView}
+        />
+      ) : null}
     </div>
   );
 }

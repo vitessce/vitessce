@@ -52,7 +52,7 @@ function nodeToHeight(node, level = 0) {
     return level;
   }
   const childrenHeights = node.children.map(c => nodeToHeight(c, level + 1));
-  return Math.max(...childrenHeights, 0);
+  return Math.max(...childrenHeights, 1);
 }
 
 function nodeSetIsForTools(currNode, v) {
@@ -350,7 +350,7 @@ function nodeTransformChildOrAppendChild(node,
   return node;
 }
 
-function treeSetCurrentSet(currTree, cellIds) {
+function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SET_NAME) {
   let newTree = currTree;
   let toolsNode = newTree.tree.find(nodeFindIsForToolsNode);
   if (!toolsNode) {
@@ -370,8 +370,8 @@ function treeSetCurrentSet(currTree, cellIds) {
       levelZeroNode,
       node => (node._state.isForTools && node._state.level === 0),
       node => (node._state.isCurrent && node._state.level === 1),
-      node => nodeSetSet(node, cellIds),
-      nodeWithState({ name: CURRENT_SET_NAME, set: cellIds }, 1, { isCurrent: true }),
+      node => nodeSetName(nodeSetSet(node, cellIds), name),
+      nodeWithState({ name, set: cellIds }, 1, { isCurrent: true }),
     )),
   };
 
@@ -456,6 +456,57 @@ function treeOnCheckLevel(currTree, levelZeroKey, levelIndex) {
     },
   };
 }
+
+function treeToUnion(currTree) {
+  const checkedKeys = currTree._state.checkedKeys;
+  const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
+  const nodeSets = nodes.map(node => nodeToSet(node));
+  return nodeSets
+    .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0]);
+}
+
+function treeToIntersection(currTree) {
+  const checkedKeys = currTree._state.checkedKeys;
+  const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
+  const nodeSets = nodes.map(node => nodeToSet(node));
+  return nodeSets
+    .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0]);
+}
+
+function treeToItems(currTree) {
+  return (ALLOW_SIDE_EFFECTS ? globalItems[currTree._state.key] : currTree._state.items) || [];
+}
+
+function treeToComplement(currTree) {
+  const primaryUnion = treeToUnion(currTree);
+  const items = treeToItems(currTree);
+  return items.filter(el => !primaryUnion.includes(el));
+}
+
+/**
+ * Perform the union set operation, updating the current set.
+ */
+function treeOnUnion(currTree) {
+  const checkedUnion = treeToUnion(currTree);
+  return treeSetCurrentSet(currTree, checkedUnion, 'Current union');
+}
+
+/**
+ * Perform the intersection set operation, updating the current set.
+ */
+function treeOnIntersection(currTree) {
+  const checkedIntersection = treeToIntersection(currTree);
+  return treeSetCurrentSet(currTree, checkedIntersection, 'Current intersection');
+}
+
+/**
+ * Perform the complement set operation, updating the current set.
+ */
+function treeOnComplement(currTree) {
+  const checkedComplement = treeToComplement(currTree);
+  return treeSetCurrentSet(currTree, checkedComplement, 'Current complement');
+}
+
 
 function treeNodeGetClosedDescendants(currTree, targetKey) {
   const node = treeFindNodeByKey(currTree, targetKey);
@@ -647,6 +698,12 @@ function treeSetVisibleKeys(currTree, visibleKeys, shouldInvalidateCheckedLevel 
       } : {}),
     },
   };
+}
+
+function treeSetVisibleKeysToCheckedKeys(currTree) {
+  // TODO: figure out how to alert the user if their checked sets intersect
+  // or span across multiple level zero nodes.
+  return treeSetVisibleKeys(currTree, currTree._state.checkedKeys);
 }
 
 function treeNodeView(currTree, targetKey) {
@@ -844,6 +901,10 @@ export const ACTION = Object.freeze({
   VIEW_NODE: 'viewNode',
   VIEW_NODE_DESCENDANTS: 'viewNodeDescendants',
   CREATE_LEVEL_ZERO_NODE: 'createLevelZeroNode',
+  UNION_CHECKED: 'unionChecked',
+  INTERSECTION_CHECKED: 'intersectionChecked',
+  COMPLEMENT_CHECKED: 'complementChecked',
+  VIEW_CHECKED: 'viewChecked',
 });
 
 const reducer = createReducer({
@@ -917,6 +978,10 @@ const reducer = createReducer({
   [ACTION.CREATE_LEVEL_ZERO_NODE]: (state) => treeCreateLevelZeroNode(
     state
   ),
+  [ACTION.UNION_CHECKED]: (state) => treeOnUnion(state),
+  [ACTION.INTERSECTION_CHECKED]: (state) => treeOnIntersection(state),
+  [ACTION.COMPLEMENT_CHECKED]: (state) => treeOnComplement(state),
+  [ACTION.VIEW_CHECKED]: (state) => treeSetVisibleKeysToCheckedKeys(state),
 });
 
 export default reducer;

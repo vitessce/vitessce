@@ -122,6 +122,19 @@ export default function CellSetsManagerSubscriber(props) {
     dispatch({ type: ACTION.CREATE_LEVEL_ZERO_NODE });
   }, []);
 
+  const onUnion = useCallback(() => {
+    dispatch({ type: ACTION.UNION_CHECKED });
+  }, []);
+  const onIntersection = useCallback(() => {
+    dispatch({ type: ACTION.INTERSECTION_CHECKED });
+  }, []);
+  const onComplement = useCallback(() => {
+    dispatch({ type: ACTION.COMPLEMENT_CHECKED });
+  }, []);
+  const onView = useCallback(() => {
+    dispatch({ type: ACTION.VIEW_CHECKED });
+  }, []);
+
   return (
     <TitleInfo
       title="Cell Sets"
@@ -149,6 +162,10 @@ export default function CellSetsManagerSubscriber(props) {
         onCreateLevelZeroNode={onCreateLevelZeroNode}
         onExportLevelZeroNode={onExportLevelZeroNode}
         onExportSet={onExportSet}
+        onUnion={onUnion}
+        onIntersection={onIntersection}
+        onComplement={onComplement}
+        onView={onView}
       />
     </TitleInfo>
   );
