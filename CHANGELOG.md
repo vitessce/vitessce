@@ -1,6 +1,15 @@
 # Changelog
 
-## 0.1.2 - in progress
+## 0.1.3 - in progress
+
+### Added
+
+### Changed
+- Updated README to note a change to the development process: back to merging feature branches into `master` (rather than a `dev` branch).
+- Updated the cell set hierarchy schema.
+- Updated the cell set manager, to try to improve usability.
+
+## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
 ### Added
 - Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
@@ -16,9 +25,7 @@
 - In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation. 
 - Changed export method for components.
 - Fixed backwards webpack `externals` object (`react` and `react-dom` were not properly externalized previously).
-- Upgrade `viv` and `vitessce-grid` to 0.2.4 and 0.0.7 respectively.
-- Updated the cell set hierarchy schema.
-- Updated the cell set manager, to try to improve usability.
+- Upgrade `viv` and `vitessce-grid` to 0.2.4 and 0.0.7, respectively.
 
 ## [0.1.1](https://www.npmjs.com/package/vitessce/v/0.1.1) - 2020-05-05
 
