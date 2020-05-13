@@ -57,7 +57,7 @@ function makeNodeViewMenuConfig(props) {
     ] : []),
     ...(level === 0 ? [
       {
-        name: 'Export hierarchy (to JSON file)',
+        name: 'Export hierarchy (to JSON)',
         handler: () => { onExportLevelZeroNode(nodeKey) },
         handlerKey: 'e',
       }
@@ -70,7 +70,7 @@ function makeNodeViewMenuConfig(props) {
         }
       ] : []),
       {
-        name: 'Export set (to JSON file)',
+        name: 'Export set (to JSON)',
         handler: () => { onExportSet(nodeKey) },
         handlerKey: 'e',
       }

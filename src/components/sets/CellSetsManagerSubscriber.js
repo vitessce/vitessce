@@ -1,6 +1,7 @@
 /* eslint-disable */
 import React, { useCallback, useEffect, useReducer } from 'react';
 import PubSub from 'pubsub-js';
+import pkg from '../../../package.json';
 import {
   CELL_SETS_VIEW, CELLS_SELECTION,
   CELLS_ADD, STATUS_WARN, CELLS_COLOR, CELL_SETS_ADD,
@@ -12,6 +13,7 @@ import reducer, {
   treeInitialize, ACTION, treeToVisibleCells,
   treeExportLevelZeroNode, treeExportSet,
 } from './reducer';
+import { handleExportJSON, downloadJSON, FILE_EXTENSION_JSON } from './io';
 
 const SETS_DATATYPE_CELL = 'cell';
 const initialTree = treeInitialize(SETS_DATATYPE_CELL);
@@ -20,6 +22,7 @@ export default function CellSetsManagerSubscriber(props) {
   const {
     removeGridComponent,
     onReady,
+    datasetId,
   } = props;
 
   const onReadyCallback = useCallback(onReady, []);
@@ -30,13 +33,13 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onExportLevelZeroNode(nodeKey) {
-    const treeToExport = treeExportLevelZeroNode(tree, nodeKey);
-    console.log(treeToExport);
+    const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
+    downloadJSON(handleExportJSON(treeToExport), `${nodeName}_${pkg.name}-${SETS_DATATYPE_CELL}-hierarchy`, FILE_EXTENSION_JSON);
   }
 
   function onExportSet(nodeKey) {
-    const setToExport = treeExportSet(tree, nodeKey);
-    console.log(setToExport);
+    const { setToExport, nodeName } = treeExportSet(tree, nodeKey);
+    downloadJSON(handleExportJSON(setToExport), `${nodeName}_${pkg.name}-${SETS_DATATYPE_CELL}-set`, FILE_EXTENSION_JSON);
   }
 
   // Subscribe to cell set import events.

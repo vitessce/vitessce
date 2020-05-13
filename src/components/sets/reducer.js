@@ -5,9 +5,9 @@ import some from 'lodash/some';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
+import { HIERARCHICAL_SETS_SCHEMA_VERSION } from './io';
 
 // Constants
-const HIERARCHICAL_SETS_SCHEMA_VERSION = "0.1.2";
 const CURRENT_SET_NAME = 'Current selection';
 const UPDATE_VISIBLE_ON_EXPAND = false;
 const ALLOW_SIDE_EFFECTS = true;
@@ -626,25 +626,26 @@ export function treeExport(currTree) {
  * and filter so that only the level zero node of interest is included.
  * @param {object} currTree
  * @param {string} nodeKey The key of the node of interest.
- * @returns {object} Tree with one level zero node, and with state removed.
+ * @returns {object} { treeToExport, nodeName } Tree with one level zero node, and with state removed.
  */
 export function treeExportLevelZeroNode(currTree, nodeKey) {
+  const node = treeFindNodeByKey(currTree, nodeKey);
   const treeWithOneLevelZeroNode = {
     ...currTree,
     tree: currTree.tree.filter(node => node._state.key === nodeKey)
   };
-  return treeExport(treeWithOneLevelZeroNode);
+  return { treeToExport: treeExport(treeWithOneLevelZeroNode), nodeName: node.name };
 }
 
 /**
  * Prepare the set of a node of interest for export.
  * @param {object} currTree
  * @param {string} nodeKey The key of the node of interest.
- * @returns {array} The set corresponding to the node of interest, as an array.
+ * @returns {object} { setToExport, nodeName } The set as an array.
  */
 export function treeExportSet(currTree, nodeKey) {
   const node = treeFindNodeByKey(currTree, nodeKey);
-  return nodeToSet(node);
+  return { setToExport: nodeToSet(node), nodeName: node.name };
 }
 
 /**

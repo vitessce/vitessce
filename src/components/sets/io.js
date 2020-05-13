@@ -1,51 +1,16 @@
 /* eslint-disable */
-import { dsvFormat } from 'd3-dsv';
 import Ajv from 'ajv';
-import tinycolor from 'tinycolor2';
-import { parse as json2csv } from 'json2csv';
-import { version } from '../../../package.json';
-
 import hierarchicalSetsSchema from '../../schemas/hierarchical-sets.schema.json';
 
-export const tabularFileType = 'TSV';
-export const tabularFileExtension = 'tsv';
-const tabularColumnSeparator = '\t';
-const tabularHierarchySeparator = ';';
-const tabularNA = 'NA';
+export const HIERARCHICAL_SETS_SCHEMA_VERSION = "0.1.2";
+export const FILE_EXTENSION_JSON = "json";
 
 /**
- * Check whether the elements of two arrays are equal.
- * @param {Array} a One of the two arrays.
- * @param {Array} b The other of the two arrays.
- * @returns {boolean} Whether the two arrays contain the same elements.
- */
-function arraysEqual(a, b) {
-  return a.length === b.length && a.every((v, i) => v === b[i]);
-}
-
-/**
- * Make a timestamped name for an import root node.
- * @returns {string} A new name for an import node.
- */
-function makeImportName() {
-  const timestamp = (new Date()).toLocaleString();
-  return `Import ${timestamp}`;
-}
-
-/**
- * Handler for tabular (TSV) imports.
- * @param {object} props The component props.
- * @param {string} result The data passed from the onImport function as a string.
- */
-export function handleImportTabular(props, result) {
-  // TODO
-}
-
-/**
- * Handler for JSON imports.
+ * Handler for JSON imports. Validates against the hierarchical sets schema.
  * @param {string} result The data passed from the FileReader as a string.
  * @param {string} datatype The data type to validate against.
- * @param {function} onError A function to call with errors.
+ * @returns {object} The imported tree object.
+ * @throws {Error} Throws error if validation fails or if the datatype does not match.
  */
 export function handleImportJSON(result, datatype) {
   const importData = JSON.parse(result);
@@ -63,33 +28,28 @@ export function handleImportJSON(result, datatype) {
 }
 
 /**
- * Convert the tree to a tabular representation and then a string.
- * Uses set keys as unique set identifiers to allow repeated set names.
- * @param {object} props The component props.
+ * Convert a tree object to a JSON representation.
+ * @param {object} result The object to export.
  * @returns {string} The data in a string representation.
  */
-export function handleExportTabular(props) {
-  // TODO
+export function handleExportJSON(result) {
+  // eslint-disable-next-line prefer-template
+  const dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(result));
+  return dataString;
 }
 
 /**
- * Download the sets tree in a JSON representation.
- * @param {object} props The component props.
- * @returns {string} The data in a string representation.
+ * Download a file. Appends and removes an anchor node in the DOM.
+ * @param {string} dataString The function that converts the data to a string.
+ * @param {string} fileName The extension of the file to be downloaded.
+ * @param {string} fileExtension The extension of the file to be downloaded.
  */
-export function handleExportJSON(props) {
-  const {
-    datasetId,
-    setsType,
-    setsTree,
-  } = props;
-  const exportData = {
-    datasetId,
-    setsType,
-    version,
-    setsTree: setsTree.export(),
-  };
-  // eslint-disable-next-line prefer-template
-  const dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportData));
-  return dataString;
+export function downloadJSON(dataString, fileName, fileExtension) {
+  const fileNameAndExtension = `${fileName}.${fileExtension}`;
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute('href', dataString);
+  downloadAnchorNode.setAttribute('download', fileNameAndExtension);
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
 }

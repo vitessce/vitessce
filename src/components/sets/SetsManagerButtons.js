@@ -58,7 +58,7 @@ export function NewNodeButton(props) {
       handlerKey: 'c',
     },
     {
-      name: 'Import hierarchy (from JSON file)',
+      name: 'Import hierarchy (from JSON)',
       handler: onImport(handleImportJSON, 'application/json'),
       handlerKey: 'i',
     }
