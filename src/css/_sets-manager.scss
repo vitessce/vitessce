@@ -36,9 +36,11 @@
           border: 0;
           background-color: transparent;
           color: lighten(map-get($global-colors, "gray-dark"), 5%);
-
+          
           svg {
             fill: lighten(map-get($global-colors, "gray-dark"), 5%);
+            vertical-align: top;
+            height: 20px;
           }
 
           &:hover {

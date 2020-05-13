@@ -1,9 +1,8 @@
-/* eslint-disable */
 import Ajv from 'ajv';
 import hierarchicalSetsSchema from '../../schemas/hierarchical-sets.schema.json';
 
-export const HIERARCHICAL_SETS_SCHEMA_VERSION = "0.1.2";
-export const FILE_EXTENSION_JSON = "json";
+export const HIERARCHICAL_SETS_SCHEMA_VERSION = '0.1.2';
+export const FILE_EXTENSION_JSON = 'json';
 
 /**
  * Handler for JSON imports. Validates against the hierarchical sets schema.
@@ -21,7 +20,9 @@ export function handleImportJSON(result, datatype) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
     throw new Error(`Import validation failed: ${failureReason}`);
   } else if (importData.datatype !== datatype) {
-    throw new Error(`The imported data type does not match the expected data type of '${datatype}'.`);
+    throw new Error(
+      `The imported data type does not match the expected data type of '${datatype}'.`,
+    );
   } else {
     return importData;
   }

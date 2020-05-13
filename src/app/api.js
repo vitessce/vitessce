@@ -188,9 +188,6 @@ const configs = {
       { component: 'genes',
         x: 9, y: 0, w: 3, h: 2 },
       { component: 'cellSets',
-        props: {
-          datasetId: 'linnarsson-2018',
-        },
         x: 9, y: 3, w: 3, h: 2 },
       { component: 'heatmap',
         x: 2, y: 4, w: 10, h: 2 },

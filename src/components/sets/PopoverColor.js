@@ -1,12 +1,8 @@
 import React from 'react';
-import tinycolor from 'tinycolor2';
 import { TwitterPicker } from 'react-color';
 import { PALETTE } from '../utils';
+import { toHexString } from './utils';
 import Popover from './Popover';
-
-function toHexString(rgbArray) {
-  return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
-}
 
 export default function PopoverColor(props) {
   const {

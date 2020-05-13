@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useCallback, useEffect, useReducer } from 'react';
 import PubSub from 'pubsub-js';
 import pkg from '../../../package.json';
@@ -22,7 +21,6 @@ export default function CellSetsManagerSubscriber(props) {
   const {
     removeGridComponent,
     onReady,
-    datasetId,
   } = props;
 
   const onReadyCallback = useCallback(onReady, []);
@@ -34,20 +32,29 @@ export default function CellSetsManagerSubscriber(props) {
 
   function onExportLevelZeroNode(nodeKey) {
     const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
-    downloadJSON(handleExportJSON(treeToExport), `${nodeName}_${pkg.name}-${SETS_DATATYPE_CELL}-hierarchy`, FILE_EXTENSION_JSON);
+    downloadJSON(
+      handleExportJSON(treeToExport),
+      `${nodeName}_${pkg.name}-${SETS_DATATYPE_CELL}-hierarchy`,
+      FILE_EXTENSION_JSON,
+    );
   }
 
   function onExportSet(nodeKey) {
     const { setToExport, nodeName } = treeExportSet(tree, nodeKey);
-    downloadJSON(handleExportJSON(setToExport), `${nodeName}_${pkg.name}-${SETS_DATATYPE_CELL}-set`, FILE_EXTENSION_JSON);
+    downloadJSON(
+      handleExportJSON(setToExport),
+      `${nodeName}_${pkg.name}-${SETS_DATATYPE_CELL}-set`,
+      FILE_EXTENSION_JSON,
+    );
   }
 
   // Subscribe to cell set import events.
   // Subscribe to cell import and selection events.
   useEffect(() => {
-    const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD, (msg, treeToImport) => {
-      onImportTree(treeToImport);
-    });
+    const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD,
+      (msg, treeToImport) => {
+        onImportTree(treeToImport);
+      });
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
       dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
     });

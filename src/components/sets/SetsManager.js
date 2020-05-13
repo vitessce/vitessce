@@ -1,4 +1,3 @@
-/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import React, { useState } from 'react';
 import Tree from './Tree';

@@ -1,4 +1,3 @@
-/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
 import some from 'lodash/some';
@@ -113,7 +112,7 @@ function nodeSetSet(currNode, newSet) {
 }
 
 function nodeAppendChild(currNode, newChild) {
-  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level+1);
+  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
   return {
     ...currNode,
     children: [...currNode.children, newChildWithLevel],
@@ -121,7 +120,7 @@ function nodeAppendChild(currNode, newChild) {
 }
 
 function nodePrependChild(currNode, newChild) {
-  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level+1);
+  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
   return {
     ...currNode,
     children: [newChildWithLevel, ...currNode.children],
@@ -129,7 +128,7 @@ function nodePrependChild(currNode, newChild) {
 }
 
 function nodeInsertChild(currNode, newChild, insertIndex) {
-  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level+1);
+  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
   const newChildren = Array.from(currNode.children);
   newChildren.splice(insertIndex, 0, newChildWithLevel);
   return {
@@ -218,7 +217,10 @@ function nodeFindNode(node, predicate) {
 }
 
 function nodeFindIsForToolsNode(node) {
-  return nodeFindNode(node, n => (n._state.level === 0 && n._state.isForTools));
+  return nodeFindNode(
+    node,
+    n => (n._state.level === 0 && n._state.isForTools),
+  );
 }
 
 function treeFindNode(currTree, predicate) {
@@ -236,13 +238,18 @@ function treeFindNodeByKey(currTree, targetKey) {
 }
 
 function treeFindNodeParentByKey(currTree, targetKey) {
-  return treeFindNode(currTree, n => n.children && n.children.map(c => c._state.key).includes(targetKey));
+  return treeFindNode(
+    currTree,
+    n => n.children && n.children.map(c => c._state.key).includes(targetKey),
+  );
 }
 
 function treeFindLevelZeroNodeByDescendantKey(currTree, targetKey) {
   const predicate = n => (n._state.key === targetKey);
   const foundNodes = currTree.tree
-    .map(levelZeroNode => (nodeFindNode(levelZeroNode, predicate) ? levelZeroNode : null))
+    .map(levelZeroNode => (nodeFindNode(levelZeroNode, predicate)
+      ? levelZeroNode
+      : null))
     .filter(Boolean);
   if (foundNodes.length === 1) {
     return foundNodes[0];
@@ -267,7 +274,9 @@ function nodeRemove(node, predicate) {
   if (node.children) {
     return {
       ...node,
-      children: node.children.map(child => nodeRemove(child, predicate)).filter(Boolean),
+      children: node.children
+        .map(child => nodeRemove(child, predicate))
+        .filter(Boolean),
     };
   }
   return node;
@@ -277,7 +286,7 @@ function treeNodeRemove(currTree, targetKey, temporary = false) {
   const nodeToRemove = treeFindNodeByKey(currTree, targetKey);
   const levelZeroNode = treeFindLevelZeroNodeByDescendantKey(currTree, targetKey);
 
-  const shouldClearCheckedLevel = ( 
+  const shouldClearCheckedLevel = (
     (currTree._state.checkedLevel.levelZeroKey === nodeToRemove._state.key)
     || (currTree._state.checkedLevel.levelZeroKey === levelZeroNode._state.key
       && currTree._state.checkedLevel.levelIndex === nodeToRemove._state.level));
@@ -289,8 +298,12 @@ function treeNodeRemove(currTree, targetKey, temporary = false) {
       .filter(Boolean),
     _state: {
       ...currTree._state,
-      checkedKeys: (temporary ? currTree._state.checkedKeys : currTree._state.checkedKeys.filter(k => k !== targetKey)),
-      visibleKeys: (temporary ? currTree._state.checkedKeys : currTree._state.visibleKeys.filter(k => k !== targetKey)),
+      checkedKeys: (temporary
+        ? currTree._state.checkedKeys
+        : currTree._state.checkedKeys.filter(k => k !== targetKey)),
+      visibleKeys: (temporary
+        ? currTree._state.checkedKeys
+        : currTree._state.visibleKeys.filter(k => k !== targetKey)),
       checkedLevel: (
         !temporary && shouldClearCheckedLevel
           ? { levelZeroKey: null, levelIndex: null }
@@ -313,24 +326,14 @@ function nodeTransform(node, predicate, transform) {
   return node;
 }
 
-function nodeTransformDescendants(node, transform) {
-  if (!node.children) {
-    return transform(node);
-  }
-  const newNode = transform(node);
-  return {
-    ...newNode,
-    children: newNode.children.map(child => nodeTransformDescendants(child, transform)),
-  };
-}
-
 function nodeTransformChildOrAppendChild(node,
   ancestorPredicate, descendantPredicate, transform, descendant) {
   if (node.children && ancestorPredicate(node)) {
     if (some(node.children.map(descendantPredicate))) {
       return {
         ...node,
-        children: node.children.map(child => nodeTransform(child, descendantPredicate, transform)),
+        children: node.children
+          .map(child => nodeTransform(child, descendantPredicate, transform)),
       };
     }
     return nodeAppendChild(node, descendant);
@@ -338,13 +341,14 @@ function nodeTransformChildOrAppendChild(node,
   if (node.children) {
     return {
       ...node,
-      children: node.children.map(child => nodeTransformChildOrAppendChild(
-        child,
-        ancestorPredicate,
-        descendantPredicate,
-        transform,
-        descendant,
-      )),
+      children:
+        node.children.map(child => nodeTransformChildOrAppendChild(
+          child,
+          ancestorPredicate,
+          descendantPredicate,
+          transform,
+          descendant,
+        )),
     };
   }
   return node;
@@ -458,7 +462,7 @@ function treeOnCheckLevel(currTree, levelZeroKey, levelIndex) {
 }
 
 function treeToUnion(currTree) {
-  const checkedKeys = currTree._state.checkedKeys;
+  const { checkedKeys } = currTree._state;
   const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
   const nodeSets = nodes.map(node => nodeToSet(node));
   return nodeSets
@@ -466,7 +470,7 @@ function treeToUnion(currTree) {
 }
 
 function treeToIntersection(currTree) {
-  const checkedKeys = currTree._state.checkedKeys;
+  const { checkedKeys } = currTree._state;
   const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
   const nodeSets = nodes.map(node => nodeToSet(node));
   return nodeSets
@@ -474,7 +478,9 @@ function treeToIntersection(currTree) {
 }
 
 function treeToItems(currTree) {
-  return (ALLOW_SIDE_EFFECTS ? globalItems[currTree._state.key] : currTree._state.items) || [];
+  return (ALLOW_SIDE_EFFECTS
+    ? globalItems[currTree._state.key]
+    : currTree._state.items) || [];
 }
 
 function treeToComplement(currTree) {
@@ -513,7 +519,8 @@ function treeNodeGetClosedDescendants(currTree, targetKey) {
   if (node._state.isLeaf || !currTree._state.expandedKeys.includes(targetKey)) {
     return [targetKey];
   }
-  return node.children.flatMap(c => treeNodeGetClosedDescendants(currTree, c._state.key));
+  return node.children
+    .flatMap(c => treeNodeGetClosedDescendants(currTree, c._state.key));
 }
 
 function treeOnExpand(currTree, expandedKeys, targetKey, expanded) {
@@ -588,34 +595,26 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   const dropNodeLevel = dropNode._state.level;
   const dropNodeIsLevelZero = dropNodeLevel === 0;
   const dropNodeHeight = nodeToHeight(dropNode, 0);
-   // Get drag node.
-   const dragNode = treeFindNodeByKey(currTree, dragKey);
-   const dragNodeLevel = dragNode._state.level;
-   const dragNodeIsLevelZero = dragNodeLevel === 0;
-   const dragNodeHeight = nodeToHeight(dragNode, 0);
+  // Get drag node.
+  const dragNode = treeFindNodeByKey(currTree, dragKey);
+  const dragNodeHeight = nodeToHeight(dragNode, 0);
 
   // Only allow dragging if:
   // - dropping between nodes, and both drag and drop node have same height, OR
-  // - dropping the dragNode into the dropNode, 
+  // - dropping the dragNode into the dropNode,
   //   where the dragNode has one less level than the dropNode.
   const isAllowed = (dropToGap && dropNodeHeight === dragNodeHeight)
    || (!dropToGap && dropNodeHeight - 1 === dragNodeHeight);
 
-  if(!isAllowed) {
+  if (!isAllowed) {
     return currTree;
   }
 
-  let dragParentNode, dragParentKey, dragNodeCurrIndex;
-  let dropParentNode, dropParentKey, dropNodeCurrIndex;
+  let dropParentNode;
+  let dropParentKey;
+  let dropNodeCurrIndex;
 
-  if(!dragNodeIsLevelZero) {
-    dragParentNode = treeFindNodeParentByKey(currTree, dragKey);
-    dragParentKey = dragParentNode._state.key;
-    dragNodeCurrIndex = dragParentNode.children.findIndex(c => c._state.key === dragKey);
-  } else {
-    dragNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dragKey);
-  }
-  if(!dropNodeIsLevelZero) {
+  if (!dropNodeIsLevelZero) {
     dropParentNode = treeFindNodeParentByKey(currTree, dropKey);
     dropParentKey = dropParentNode._state.key;
     dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.key === dropKey);
@@ -624,67 +623,60 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   }
 
   // Remove the dragged object from its current position.
-  let newTree = treeNodeRemove(currTree, dragKey, true);
+  const newTree = treeNodeRemove(currTree, dragKey, true);
 
   // Update index values after deleting the child node.
-  if(!dragNodeIsLevelZero) {
-    dragNodeCurrIndex = dragParentNode.children.findIndex(c => c._state.key === dragKey);
-  } else {
-    dragNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dragKey);
-  }
-  if(!dropNodeIsLevelZero) {
+
+  if (!dropNodeIsLevelZero) {
     dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.key === dropKey);
   } else {
     dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dropKey);
   }
 
   // Append the dragNode to dropNode's children if dropping _onto_ the dropNode.
-  if(!dropToGap) {
+  if (!dropToGap) {
     // Set dragNode as the last child of dropNode.
     return treeTransformNodeByKey(newTree, dropKey, n => nodeAppendChild(n, dragNode));
   }
 
   // Prepend or insert the dragNode if dropping _between_ (above or below dropNode).
-  if(!dropNodeIsLevelZero) {
+  if (!dropNodeIsLevelZero) {
     // The dropNode is at a level greater than zero,
     // so it has a parent.
     if (dropPosition === -1) {
       // Set dragNode as first child of dropParentNode.
       return treeTransformNodeByKey(
-        newTree, 
-        dropParentKey, 
-        n => nodePrependChild(n, dragNode)
-      );
-    } else {
-      // Set dragNode before or after dropNode.
-      const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
-      return treeTransformNodeByKey(
-        newTree, 
-        dropParentKey, 
-        n => nodeInsertChild(n, dragNode, insertIndex)
+        newTree,
+        dropParentKey,
+        n => nodePrependChild(n, dragNode),
       );
     }
-  } else {
-    // We need to drop the dragNode to level zero,
-    // and level zero nodes do not have parents.
-    const newDragNode = nodeSetLevel(dragNode, 0);
-    if (dropPosition === -1) {
-      // Set dragNode as first level zero node of the tree.
-      return {
-        ...newTree,
-        tree: [newDragNode, ...newTree.tree]
-      };
-    } else {
-      // Set dragNode before or after dropNode in level zero.
-      const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
-      const newLevelZero = Array.from(newTree.tree);
-      newLevelZero.splice(insertIndex, 0, newDragNode);
-      return {
-        ...newTree,
-        tree: newLevelZero
-      };
-    }
+    // Set dragNode before or after dropNode.
+    const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
+    return treeTransformNodeByKey(
+      newTree,
+      dropParentKey,
+      n => nodeInsertChild(n, dragNode, insertIndex),
+    );
   }
+  // We need to drop the dragNode to level zero,
+  // and level zero nodes do not have parents.
+  const newDragNode = nodeSetLevel(dragNode, 0);
+  if (dropPosition === -1) {
+    // Set dragNode as first level zero node of the tree.
+    return {
+      ...newTree,
+      tree: [newDragNode, ...newTree.tree],
+    };
+  }
+  // Set dragNode before or after dropNode in level zero.
+  const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
+  const newLevelZero = Array.from(newTree.tree);
+  newLevelZero.splice(insertIndex, 0, newDragNode);
+  return {
+    ...newTree,
+    tree: newLevelZero,
+  };
 }
 
 function treeSetVisibleKeys(currTree, visibleKeys, shouldInvalidateCheckedLevel = true) {
@@ -725,7 +717,9 @@ function nodeToDescendantsFlat(node, level) {
   return node.children.flatMap(c => nodeToDescendantsFlat(c, level - 1));
 }
 
-function treeNodeViewDescendants(currTree, targetKey, level, shouldInvalidateCheckedLevel = true) {
+function treeNodeViewDescendants(
+  currTree, targetKey, level, shouldInvalidateCheckedLevel = true,
+) {
   const node = treeFindNodeByKey(currTree, targetKey);
   const descendantKeys = nodeToDescendantsFlat(node, level).map(d => d._state.key);
   return treeSetVisibleKeys(currTree, descendantKeys, shouldInvalidateCheckedLevel);
@@ -792,15 +786,19 @@ export function treeExport(currTree) {
  * and filter so that only the level zero node of interest is included.
  * @param {object} currTree
  * @param {string} nodeKey The key of the node of interest.
- * @returns {object} { treeToExport, nodeName } Tree with one level zero node, and with state removed.
+ * @returns {object} { treeToExport, nodeName }
+ * Tree with one level zero node, and with state removed.
  */
 export function treeExportLevelZeroNode(currTree, nodeKey) {
   const node = treeFindNodeByKey(currTree, nodeKey);
   const treeWithOneLevelZeroNode = {
     ...currTree,
-    tree: currTree.tree.filter(node => node._state.key === nodeKey)
+    tree: currTree.tree.filter(n => n._state.key === nodeKey),
   };
-  return { treeToExport: treeExport(treeWithOneLevelZeroNode), nodeName: node.name };
+  return {
+    treeToExport: treeExport(treeWithOneLevelZeroNode),
+    nodeName: node.name,
+  };
 }
 
 /**
@@ -833,7 +831,8 @@ export function treeInitialize(datatype) {
       checkedLevel: { levelZeroKey: null, levelIndex: null },
       expandedKeys: [],
       autoExpandParent: true,
-      // Hide checkboxes until the user has clicked "Select" in a node dropdown.
+      // Hide checkboxes until the user has
+      // clicked "Select" in a node dropdown.
       isChecking: false,
     },
   };
@@ -936,7 +935,12 @@ const reducer = createReducer({
   ),
   [ACTION.CHECK_LEVEL]: (state, action) => {
     const newTree = treeOnCheckLevel(state, action.levelZeroKey, action.levelIndex);
-    return treeNodeViewDescendants(newTree, action.levelZeroKey, action.levelIndex - 1, false);
+    return treeNodeViewDescendants(
+      newTree,
+      action.levelZeroKey,
+      action.levelIndex - 1,
+      false,
+    );
   },
   [ACTION.DROP_NODE]: (state, action) => treeOnDropNode(
     state,
@@ -975,13 +979,13 @@ const reducer = createReducer({
     action.level,
     action.shouldInvalidateCheckedLevel,
   ),
-  [ACTION.CREATE_LEVEL_ZERO_NODE]: (state) => treeCreateLevelZeroNode(
-    state
+  [ACTION.CREATE_LEVEL_ZERO_NODE]: state => treeCreateLevelZeroNode(
+    state,
   ),
-  [ACTION.UNION_CHECKED]: (state) => treeOnUnion(state),
-  [ACTION.INTERSECTION_CHECKED]: (state) => treeOnIntersection(state),
-  [ACTION.COMPLEMENT_CHECKED]: (state) => treeOnComplement(state),
-  [ACTION.VIEW_CHECKED]: (state) => treeSetVisibleKeysToCheckedKeys(state),
+  [ACTION.UNION_CHECKED]: state => treeOnUnion(state),
+  [ACTION.INTERSECTION_CHECKED]: state => treeOnIntersection(state),
+  [ACTION.COMPLEMENT_CHECKED]: state => treeOnComplement(state),
+  [ACTION.VIEW_CHECKED]: state => treeSetVisibleKeysToCheckedKeys(state),
 });
 
 export default reducer;

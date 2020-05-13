@@ -1,17 +1,16 @@
 /* eslint-disable */
 import React, { useState } from 'react';
-import { callbackOnKeyPress } from './utils';
-import tinycolor from 'tinycolor2';
+import { callbackOnKeyPress, toHexString } from './utils';
 import { TwitterPicker } from 'react-color';
 import { PALETTE } from '../utils';
 import Popover from './Popover';
 
-function toHexString(rgbArray) {
-  return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
-}
-
 function PopoverMenuList(props) {
-  const { menuConfig, onClick, color = null, palette = null, setColor = null } = props;
+  const { menuConfig, 
+    onClick, 
+    color = null, 
+    palette = null, 
+    setColor = null } = props;
 
   function handleColorChange({ rgb }) {
     if (!rgb) {

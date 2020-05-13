@@ -1,11 +1,10 @@
-/* eslint-disable */
 import React, { useRef, useCallback } from 'react';
 import RcTooltip from 'rc-tooltip';
 
 /**
  * This is a small wrapper around the Tooltip component from the rc-tooltip library,
  * which is required to be able to apply theme styles to the tooltip.
- * This is because the default `getPopupContainer` function used by antd
+ * This is because the default `getTooltipContainer` function used by antd
  * just returns `document.body` (see https://ant.design/components/tooltip/#API),
  * but theme styles are applied using a sibling class on `.vitessce-container`
  * (which is a child of `body`).
@@ -39,9 +38,9 @@ export default function HelpTooltip(props) {
 }
 
 HelpTooltip.defaultProps = {
-  overlayClassName: "help-tooltip",
-  placement: "top",
-  trigger: "hover",
+  overlayClassName: 'help-tooltip',
+  placement: 'top',
+  trigger: 'hover',
   mouseEnterDelay: 0.2,
-  mouseLeaveDelay: 0
+  mouseLeaveDelay: 0,
 };

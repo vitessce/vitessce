@@ -1,18 +1,13 @@
-/* eslint-disable */
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
+import range from 'lodash/range';
 import PopoverMenu from './PopoverMenu';
 import HelpTooltip from './HelpTooltip';
-import tinycolor from 'tinycolor2';
-import range from 'lodash/range';
-import { callbackOnKeyPress } from './utils';
+import { callbackOnKeyPress, toHexString } from './utils';
 import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
 
-function toHexString(rgbArray) {
-  return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
-}
 
 /**
  * Get a string of help text for coloring a particular hierarchy level.
@@ -20,9 +15,9 @@ function toHexString(rgbArray) {
  * @returns {string} The tooltip text for coloring the level.
  */
 function getLevelTooltipText(i) {
-  if (i === 0) return `Color by hierarchy`;
-  const subs = (i) => ('sub'.repeat(i));
-  return `Color by ${subs(i-1)}cluster`;
+  if (i === 0) return 'Color by hierarchy';
+  const subs = j => ('sub'.repeat(j));
+  return `Color by ${subs(i - 1)}cluster`;
 }
 
 /**
@@ -51,30 +46,30 @@ function makeNodeViewMenuConfig(props) {
       },
       {
         name: 'Delete',
-        handler: () => { onNodeRemove(nodeKey) },
+        handler: () => { onNodeRemove(nodeKey); },
         handlerKey: 'd',
       },
     ] : []),
     ...(level === 0 ? [
       {
         name: 'Export hierarchy (to JSON)',
-        handler: () => { onExportLevelZeroNode(nodeKey) },
+        handler: () => { onExportLevelZeroNode(nodeKey); },
         handlerKey: 'e',
-      }
+      },
     ] : [
       ...(checkable ? [
         {
           name: 'Select',
           handler: () => { onCheckNode(nodeKey); },
           handlerKey: 's',
-        }
+        },
       ] : []),
       {
         name: 'Export set (to JSON)',
-        handler: () => { onExportSet(nodeKey) },
+        handler: () => { onExportSet(nodeKey); },
         handlerKey: 'e',
-      }
-    ])
+      },
+    ]),
   ];
 }
 
@@ -101,15 +96,17 @@ function NamedSetNodeStatic(props) {
   const shouldCheckNextLevel = (level === 0 && !expanded);
   const nextLevelToCheck = (
     (checkedLevelIndex && nodeKey === checkedLevelKey && checkedLevelIndex < height)
-    ? checkedLevelIndex+1
-    : 1
+      ? checkedLevelIndex + 1
+      : 1
   );
-  const tooltipText = (shouldCheckNextLevel
-    ? getLevelTooltipText(nextLevelToCheck)
-    : (isLeaf || !expanded
-      ? `Color individual set (${size} ${datatype}${(size === 1 ? '' : 's')})`
-      : `Color by expanded descendants`)
-  );
+  let tooltipText;
+  if (shouldCheckNextLevel) {
+    tooltipText = getLevelTooltipText(nextLevelToCheck);
+  } else if (isLeaf || !expanded) {
+    tooltipText = `Color individual set (${size} ${datatype}${(size === 1 ? '' : 's')})`;
+  } else {
+    tooltipText = 'Color by expanded descendants';
+  }
   // If this is a level zero node and is _not_ expanded, then upon click,
   // the behavior should be to color by the first or next cluster level.
   // If this is a level zero node and _is_ expanded, or if any other node,
@@ -163,7 +160,11 @@ function NamedSetNodeEditing(props) {
         type="text"
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
-        onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => onNodeSetName(nodeKey, currentTitle, true))}
+        onKeyPress={e => callbackOnKeyPress(
+          e,
+          'Enter',
+          () => onNodeSetName(nodeKey, currentTitle, true),
+        )}
         onFocus={e => e.target.select()}
       />
       <button
@@ -198,17 +199,17 @@ function LevelsButtons(props) {
     checkedLevelIndex,
   } = props;
   function onCheck(event) {
-    if(event.target.checked) {
-      const newLevel = parseInt(event.target.value);
+    if (event.target.checked) {
+      const newLevel = parseInt(event.target.value, 10);
       onCheckLevel(nodeKey, newLevel);
     }
-  };
+  }
   return (
     <div className="level-buttons-container">
-      {range(1, height+1).map(i => (
+      {range(1, height + 1).map(i => (
         <div className="level-buttons" key={i}>
-          {i === 1 ? (<div className="level-line-zero"></div>) : null}
-          <div className="level-line"></div>
+          {i === 1 ? (<div className="level-line-zero" />) : null}
+          <div className="level-line" />
           <HelpTooltip title={getLevelTooltipText(i)}>
             <input
               className="level-radio-button"
@@ -219,28 +220,50 @@ function LevelsButtons(props) {
             />
           </HelpTooltip>
         </div>
-    ))}
+      ))}
     </div>
   );
 }
 
 function SwitcherIcon(props) {
-  const { level, isLeaf, isOpen, color } = props;
+  const {
+    isLeaf, isOpen, color,
+  } = props;
   const hexColor = toHexString(color);
-  if(isLeaf) {
+  if (isLeaf) {
     return (
-      <i aria-label="icon: circle" className="anticon anticon-circle rc-tree-switcher-icon">
-        <svg viewBox="0 0 1024 1024" focusable="false" data-icon="caret-down" width="1em" height="1em" aria-hidden="true">
-          {/*<circle fill={hexColor} cx="512" cy="512" r="312"/>*/}
-          <rect fill={hexColor} x={600/2} y={600/2} width={1024-600} height={1024-600} />
+      <i
+        className="anticon anticon-circle rc-tree-switcher-icon"
+      >
+        <svg
+          viewBox="0 0 1024 1024"
+          focusable="false"
+          data-icon="caret-down"
+          width="1em"
+          height="1em"
+          aria-hidden="true"
+        >
+          <rect fill={hexColor} x={600 / 2} y={600 / 2} width={1024 - 600} height={1024 - 600} />
         </svg>
       </i>
     );
   }
   return (
-    <i aria-label="icon: caret" className="anticon anticon-caret-down rc-tree-switcher-icon">
-      <svg viewBox="0 0 1024 1024" focusable="false" data-icon="caret-down" width="1em" height="1em" aria-hidden="true">
-        <path fill={(isOpen ? "#444" : hexColor)} d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"></path>
+    <i
+      className="anticon anticon-caret-down rc-tree-switcher-icon"
+    >
+      <svg
+        viewBox="0 0 1024 1024"
+        focusable="false"
+        data-icon="caret-down"
+        width="1em"
+        height="1em"
+        aria-hidden="true"
+      >
+        <path
+          fill={(isOpen ? '#444' : hexColor)}
+          d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"
+        />
       </svg>
     </i>
   );
@@ -249,11 +272,7 @@ function SwitcherIcon(props) {
 export default class TreeNode extends RcTreeNode {
   renderSelector = () => {
     const {
-      nodeKey,
       title,
-      size,
-      color,
-      height,
       isCurrentSet,
       isSelected,
       isEditing,
@@ -265,7 +284,7 @@ export default class TreeNode extends RcTreeNode {
         draggable,
       },
     } = this.context;
-    
+
     const onDragStart = (e) => {
       onDragStartProp();
       this.onDragStart(e);
@@ -287,7 +306,11 @@ export default class TreeNode extends RcTreeNode {
         aria-grabbed={isDraggable}
         onDragStart={isDraggable ? onDragStart : undefined}
       >
-        <NamedSetNode {...this.props} prefixClass={prefixClass} checkbox={this.renderCheckbox()} />
+        <NamedSetNode
+          {...this.props}
+          prefixClass={prefixClass}
+          checkbox={this.renderCheckbox()}
+        />
         {this.renderLevels()}
       </span>
     );
@@ -295,7 +318,7 @@ export default class TreeNode extends RcTreeNode {
 
   renderLevels = () => {
     const { level, expanded } = this.props;
-    if(level !== 0 || expanded) {
+    if (level !== 0 || expanded) {
       return null;
     }
     return (
@@ -316,12 +339,17 @@ export default class TreeNode extends RcTreeNode {
 
     const switcherClass = classNames(
       `${prefixClass}-switcher`,
-      { [`${prefixClass}-switcher_${(expanded ? 'open' : 'close')}`]: !isLeaf }
+      { [`${prefixClass}-switcher_${(expanded ? 'open' : 'close')}`]: !isLeaf },
     );
     return (
       <span
         className={switcherClass}
         onClick={e => onNodeExpand(e, this)}
+        onKeyPress={e => callbackOnKeyPress(e, 'd', () => {
+          onNodeExpand(e, this);
+        })}
+        role="button"
+        tabIndex="0"
       >
         <SwitcherIcon
           isLeaf={isLeaf}
@@ -358,7 +386,7 @@ export default class TreeNode extends RcTreeNode {
 
     return (
       <li
-        className={classNames("rc-tree-treenode", `level-${level}-treenode`, {
+        className={classNames('rc-tree-treenode', `level-${level}-treenode`, {
           [`${prefixClass}-treenode-disabled`]: disabled,
           [`${prefixClass}-treenode-switcher-${expanded ? 'open' : 'close'}`]: !isLeaf,
           [`${prefixClass}-treenode-checkbox-checked`]: checked,
