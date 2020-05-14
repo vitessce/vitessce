@@ -17,6 +17,15 @@ import { handleExportJSON, downloadJSON, FILE_EXTENSION_JSON } from './io';
 const SETS_DATATYPE_CELL = 'cell';
 const initialTree = treeInitialize(SETS_DATATYPE_CELL);
 
+/**
+ * A subscriber wrapper around the SetsManager component
+ * for the 'cell' datatype.
+ * @param {object} props
+ * @param {function} removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {function} onReady The function to call when the component has finished
+ * initializing (subscribing to relevant events, etc).
+ */
 export default function CellSetsManagerSubscriber(props) {
   const {
     removeGridComponent,
@@ -70,6 +79,7 @@ export default function CellSetsManagerSubscriber(props) {
   }, [onReadyCallback]);
 
   // Publish cell visibility and color changes when the tree changes.
+  // Publish the updated tree when the tree changes.
   useEffect(() => {
     const [cellIds, cellColors] = treeToVisibleCells(tree);
     PubSub.publish(CELLS_COLOR, cellColors);
@@ -133,12 +143,15 @@ export default function CellSetsManagerSubscriber(props) {
   const onUnion = useCallback(() => {
     dispatch({ type: ACTION.UNION_CHECKED });
   }, []);
+
   const onIntersection = useCallback(() => {
     dispatch({ type: ACTION.INTERSECTION_CHECKED });
   }, []);
+
   const onComplement = useCallback(() => {
     dispatch({ type: ACTION.COMPLEMENT_CHECKED });
   }, []);
+
   const onView = useCallback(() => {
     dispatch({ type: ACTION.VIEW_CHECKED });
   }, []);
