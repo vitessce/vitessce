@@ -5,20 +5,9 @@ import classNames from 'classnames';
 import range from 'lodash/range';
 import PopoverMenu from './PopoverMenu';
 import HelpTooltip from './HelpTooltip';
-import { callbackOnKeyPress, toHexString } from './utils';
+import { callbackOnKeyPress, colorToHexString, getLevelTooltipText } from './utils';
 import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
 
-
-/**
- * Get a string of help text for coloring a particular hierarchy level.
- * @param {integer} i The level. 1 for cluster, 2 for subcluster, etc.
- * @returns {string} The tooltip text for coloring the level.
- */
-function getLevelTooltipText(i) {
-  if (i === 0) return 'Color by hierarchy';
-  const subs = j => ('sub'.repeat(j));
-  return `Color by ${subs(i - 1)}cluster`;
-}
 
 /**
  * Construct a `menuConfig` array for the PopoverMenu component.
@@ -82,6 +71,10 @@ function makeNodeViewMenuConfig(props) {
   ];
 }
 
+/**
+ * The "static" node component to render when the user is not renaming.
+ * @param {object} props The props for the TreeNode component.
+ */
 function NamedSetNodeStatic(props) {
   const {
     title,
@@ -101,6 +94,7 @@ function NamedSetNodeStatic(props) {
     disableTooltip,
     size,
     datatype,
+    editable,
   } = props;
   const shouldCheckNextLevel = (level === 0 && !expanded);
   const nextLevelToCheck = (
@@ -141,8 +135,7 @@ function NamedSetNodeStatic(props) {
       {popoverMenuConfig.length > 0 ? (
         <PopoverMenu
           menuConfig={makeNodeViewMenuConfig(props)}
-          onClose={() => {}}
-          color={level > 0 ? color : null}
+          color={level > 0 && editable ? color : null}
           setColor={c => onNodeSetColor(nodeKey, c)}
         >
           <MenuSVG className="node-menu-icon" />
@@ -153,6 +146,11 @@ function NamedSetNodeStatic(props) {
   );
 }
 
+/**
+ * The "editing" node component to render when the user is renaming,
+ * containing a text input field and a save button.
+ * @param {object} props The props for the TreeNode component.
+ */
 function NamedSetNodeEditing(props) {
   const {
     title,
@@ -190,6 +188,11 @@ function NamedSetNodeEditing(props) {
   );
 }
 
+/**
+ * A "delegation" component, to decide whether to render
+ * an "editing" vs. "static" node component.
+ * @param {object} props The props for the TreeNode component.
+ */
 function NamedSetNode(props) {
   const {
     isEditing,
@@ -202,6 +205,11 @@ function NamedSetNode(props) {
   );
 }
 
+/**
+ * Buttons for viewing each hierarchy level,
+ * rendered below collapsed level zero nodes.
+ * @param {object} props The props for the (level zero) TreeNode component.
+ */
 function LevelsButtons(props) {
   const {
     nodeKey,
@@ -237,11 +245,17 @@ function LevelsButtons(props) {
   );
 }
 
+/**
+ * Render the "switcher" icon.
+ * Arrow for collapsed/expanded non-leaf nodes,
+ * or square for leaf nodes.
+ * @param {object} props The props for the TreeNode component.
+ */
 function SwitcherIcon(props) {
   const {
     isLeaf, isOpen, color,
   } = props;
-  const hexColor = (color ? toHexString(color) : undefined);
+  const hexColor = (color ? colorToHexString(color) : undefined);
   if (isLeaf) {
     return (
       <i
@@ -281,7 +295,14 @@ function SwitcherIcon(props) {
   );
 }
 
+/**
+ * A custom TreeNode component.
+ * @extends {RcTreeNode} TreeNode from the rc-tree library.
+ */
 export default class TreeNode extends RcTreeNode {
+  /**
+   * Override the main node text elements.
+   */
   renderSelector = () => {
     const {
       title,
@@ -328,6 +349,10 @@ export default class TreeNode extends RcTreeNode {
     );
   };
 
+  /**
+   * Render the LevelsButtons component if this node
+   * is a collapsed level zero node.
+   */
   renderLevels = () => {
     const { level, expanded } = this.props;
     if (level !== 0 || expanded) {
@@ -340,6 +365,9 @@ export default class TreeNode extends RcTreeNode {
     );
   }
 
+  /**
+   * Override the switcher element.
+   */
   renderSwitcher = () => {
     const { expanded, isLeaf, color } = this.props;
     const {
@@ -372,6 +400,11 @@ export default class TreeNode extends RcTreeNode {
     );
   };
 
+  /**
+   * Override main render function,
+   * to enable overriding the sub-render functions
+   * for switcher, selector, etc.
+   */
   render() {
     const {
       style, loading, level,

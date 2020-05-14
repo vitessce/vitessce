@@ -2,6 +2,11 @@ import React from 'react';
 import RcTree from 'rc-tree';
 import classNames from 'classnames';
 
+/**
+ * A helper component around the rc-tree
+ * library's tree component, to set
+ * default props.
+ */
 const Tree = React.forwardRef((props, ref) => {
   const {
     prefixCls,

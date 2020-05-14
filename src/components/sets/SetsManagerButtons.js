@@ -7,7 +7,19 @@ import { ReactComponent as SetUnionSVG } from '../../assets/sets/union.svg';
 import { ReactComponent as SetIntersectionSVG } from '../../assets/sets/intersection.svg';
 import { ReactComponent as SetComplementSVG } from '../../assets/sets/complement.svg';
 
-
+/**
+ * A plus button for creating or importing set hierarchies.
+ * @param {object} props
+ * @param {string} props.datatype The data type to validate imported hierarchies against.
+ * @param {function} props.onError A callback to pass error message strings.
+ * @param {function} props.onImportTree A callback to pass successfully-validated tree objects.
+ * @param {function} props.onCreateLevelZeroNode A callback to create a new empty
+ * level zero node.
+ * @param {boolean} props.importable Is importing allowed?
+ * If not, the import button will not be rendered.
+ * @param {boolean} props.editable Is editing allowed?
+ * If not, the create button will not be rendered.
+ */
 export function PlusButton(props) {
   const {
     datatype, onError, onImportTree, onCreateLevelZeroNode,
@@ -18,7 +30,7 @@ export function PlusButton(props) {
    * Import a file, then process the imported data via the supplied handler function.
    * @param {Function} importHandler The function to process the imported data.
    * @param {string} mimeType The accepted mime type for the file upload input.
-   * @returns {Function} An onImport function corresponding to the supplied parameters.
+   * @returns {Function} An import function corresponding to the supplied parameters.
    */
   const onImport = useCallback((importHandler, mimeType) => () => {
     const uploadInputNode = document.createElement('input');
@@ -73,19 +85,30 @@ export function PlusButton(props) {
   return (menuConfig.length > 0 ? (
     <PopoverMenu
       menuConfig={menuConfig}
-      onClose={() => {}}
     >
       <button className="plus-button" type="submit">+</button>
     </PopoverMenu>
   ) : null);
 }
 
+/**
+ * Set operations buttons (union, intersection, complement)
+ * and a view checked sets button.
+ * @param {object} props
+ * @param {function} props.onUnion A callback for the union button.
+ * @param {function} props.onIntersection A callback for the intersection button.
+ * @param {function} props.onComplement A callback for the complement button.
+ * @param {function} props.onView A callback for the view button.
+ * @param {boolean} props.operatable Are set operations allowed?
+ * If not, the union, intersection, and complement buttons will not be rendered.
+ */
 export function SetOperationButtons(props) {
   const {
     onUnion,
     onIntersection,
     onComplement,
     onView,
+    operatable,
   } = props;
 
   return (
@@ -97,27 +120,31 @@ export function SetOperationButtons(props) {
       >
         <SetViewSVG />
       </button>
-      <button
-        onClick={onUnion}
-        title="New set from union of checked sets"
-        type="submit"
-      >
-        <SetUnionSVG />
-      </button>
-      <button
-        onClick={onIntersection}
-        title="New set from intersection of checked sets"
-        type="submit"
-      >
-        <SetIntersectionSVG />
-      </button>
-      <button
-        onClick={onComplement}
-        title="New set from complement of checked sets"
-        type="submit"
-      >
-        <SetComplementSVG />
-      </button>
+      {operatable ? (
+        <>
+          <button
+            onClick={onUnion}
+            title="New set from union of checked sets"
+            type="submit"
+          >
+            <SetUnionSVG />
+          </button>
+          <button
+            onClick={onIntersection}
+            title="New set from intersection of checked sets"
+            type="submit"
+          >
+            <SetIntersectionSVG />
+          </button>
+          <button
+            onClick={onComplement}
+            title="New set from complement of checked sets"
+            type="submit"
+          >
+            <SetComplementSVG />
+          </button>
+        </>
+      ) : null}
     </>
   );
 }

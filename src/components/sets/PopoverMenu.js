@@ -1,15 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TwitterPicker } from 'react-color';
-import { callbackOnKeyPress, toHexString } from './utils';
+import { colorToHexString, callbackOnKeyPress } from './utils';
 import { PALETTE } from '../utils';
 import Popover from './Popover';
 
+/**
+ * Wrapper around a button element that supports asking for confirmation.
+ * @param {object} props
+ * @param {string} props.title The main button text.
+ * @param {string} props.subtitle Smaller text on a line beneath the main text. Optional.
+ * @param {function} props.onClick A "clean up" handler passed from the parent,
+ * to alert the parent Popover component that it should close the popover after the button has
+ * fired its handler.
+ * @param {function} props.handler A function to call on button click (or after confirmation).
+ * @param {string} props.handlerKey A key associated with the button, to support accessibility.
+ * @param {boolean} props.confirm Does the user need to press the button again to confirm?
+ * By default, false.
+ * @param {boolean} props.visible The visibility state from the parent popover,
+ * so that on visibility change, the button can clear its confirmation state.
+ */
 function PopoverMenuListButton(props) {
   const {
     title, subtitle, onClick, handler, handlerKey, confirm,
+    visible,
   } = props;
 
   const [isConfirming, setIsConfirming] = useState(false);
+
+  useEffect(() => {
+    // Want to clear the "confirming",
+    // state if the user hides the popover.
+    setIsConfirming(false);
+  }, [visible]);
 
   function handleOrRequireConfirm() {
     if (!confirm || isConfirming) {
@@ -34,6 +56,22 @@ function PopoverMenuListButton(props) {
   );
 }
 
+/**
+ * Helper component to create a list of buttons for the body of a popover.
+ * If the color, setColor, and palette props are provided then a color picker
+ * will be rendered at the top of the button list.
+ * @param {object} props
+ * @param {object[]} props.menuConfig The list of button definition objects.
+ * `{ title, subtitle, confirm, handler, handlerKey }`
+ * @param {function} props.onClick A "clean up" handler passed from the parent,
+ * to alert the parent Popover component that it should close the popover after the button has
+ * fired its handler.
+ * @param {number[]} props.color The current color. Optional.
+ * @param {string} props.palette The color palette for the color picker. Optional.
+ * @param {boolean} props.setColor The handler to call when a color has been selected. Optional.
+ * @param {boolean} props.visible The visibility state from the parent popover,
+ * so that on visibility change, buttons can clear confirmation states.
+ */
 function PopoverMenuList(props) {
   const {
     menuConfig,
@@ -41,6 +79,7 @@ function PopoverMenuList(props) {
     color = null,
     palette = null,
     setColor = null,
+    visible,
   } = props;
 
   function handleColorChange({ rgb }) {
@@ -52,7 +91,7 @@ function PopoverMenuList(props) {
     }
   }
 
-  const presetColors = (palette && palette.map(toHexString)) || PALETTE.map(toHexString);
+  const presetColors = (palette && palette.map(colorToHexString)) || PALETTE.map(colorToHexString);
 
   return (
     <div>
@@ -63,7 +102,7 @@ function PopoverMenuList(props) {
           width={108}
           triangle="hide"
           colors={presetColors}
-          color={toHexString(color)}
+          color={colorToHexString(color)}
           onChangeComplete={handleColorChange}
         />
       ) : null}
@@ -73,6 +112,7 @@ function PopoverMenuList(props) {
             <PopoverMenuListButton
               {...item}
               onClick={onClick}
+              visible={visible}
             />
           </li>
         ))}
@@ -81,30 +121,38 @@ function PopoverMenuList(props) {
   );
 }
 
+/**
+ * Helper component to create a popover component with a list of buttons.
+ * If the color, setColor, and palette props are provided then a color picker
+ * will be rendered at the top of the button list.
+ * @param {object} props
+ * @param {object[]} props.menuConfig The list of button definition objects.
+ * `{ title, subtitle, confirm, handler, handlerKey }`
+ * @param {string} placement Where to place the popover (top, bottom, left, right).
+ * @param {number[]} props.color The current color. Optional.
+ * @param {string} props.palette The color palette for the color picker. Optional.
+ * @param {boolean} props.setColor The handler to call when a color has been selected. Optional.
+ * @param {Element|React.Component} props.children Children to render,
+ * which will trigger the popover on click.
+ */
 export default function PopoverMenu(props) {
   const {
-    menuConfig, placement, children, onClose,
+    menuConfig, placement, children,
     color = null, setColor = null, palette = null,
   } = props;
 
   const [visible, setVisible] = useState(false);
-
-  function closePopover() {
-    setVisible(false);
-    if (onClose) {
-      onClose();
-    }
-  }
 
   return (
     <Popover
       content={(
         <PopoverMenuList
           menuConfig={menuConfig}
-          onClick={closePopover}
+          onClick={() => setVisible(false)}
           color={color}
           setColor={setColor}
           palette={palette}
+          visible={visible}
         />
 )}
       placement={placement}

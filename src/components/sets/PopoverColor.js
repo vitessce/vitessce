@@ -1,7 +1,7 @@
 import React from 'react';
 import { TwitterPicker } from 'react-color';
 import { PALETTE } from '../utils';
-import { toHexString } from './utils';
+import { colorToHexString } from './utils';
 import Popover from './Popover';
 
 export default function PopoverColor(props) {
@@ -16,7 +16,7 @@ export default function PopoverColor(props) {
     setColor([rgb.r, rgb.g, rgb.b]);
   }
 
-  const presetColors = (palette && palette.map(toHexString)) || PALETTE.map(toHexString);
+  const presetColors = (palette && palette.map(colorToHexString)) || PALETTE.map(colorToHexString);
 
   return (
     <Popover
@@ -27,7 +27,7 @@ export default function PopoverColor(props) {
           width={130}
           triangle="hide"
           colors={presetColors}
-          color={toHexString(color)}
+          color={colorToHexString(color)}
           onChangeComplete={handleChangeComplete}
         />
       )}
@@ -38,7 +38,7 @@ export default function PopoverColor(props) {
     >
       <span
         className="set-color"
-        style={{ backgroundColor: toHexString(color) }}
+        style={{ backgroundColor: colorToHexString(color) }}
       />
     </Popover>
   );

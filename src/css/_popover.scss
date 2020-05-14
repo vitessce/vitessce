@@ -106,6 +106,10 @@
                         border-radius: 0;
                     }
                 }
+
+                .popover-menu-color + .popover-menu-list {
+                    border-top: 1px solid map-get($global-colors, "gray-mid");
+                }
             }
 
             .rc-tooltip-inner-content {
@@ -198,10 +202,6 @@
             .popover-menu-color.twitter-picker {
                 box-shadow: none !important;
                 margin: 0 auto;
-                /* Need to override the inline styles added by the TwitterPicker component */
-                border-bottom: 1px solid map-get($global-colors, "gray-mid") !important;
-                border-bottom-left-radius: 0 !important;
-                border-bottom-right-radius: 0 !important;
                 /* Sets margins around color picker and centers */
                 > div:nth-child(3) {
                     padding: 6px !important;
