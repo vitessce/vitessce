@@ -9,7 +9,7 @@ import RcTooltip from 'rc-tooltip';
  * but theme styles are applied using a sibling class on `.vitessce-container`
  * (which is a child of `body`).
  * https://github.com/hubmapconsortium/vitessce/pull/494#discussion_r395957914
- * @param {*} props Props are passed through to the <Tooltip/> from the antd library.
+ * @param {*} props Props are passed through to the <RcTooltip/> from the library.
  */
 export default function HelpTooltip(props) {
   const { title, content, overlayClassName } = props;

@@ -929,14 +929,20 @@ const reducer = createReducer({
     action.targetKey,
     action.expanded,
   ),
-  [ACTION.CHECK_NODE]: (state, action) => treeOnCheckNode(
-    state,
-    action.targetKey,
-  ),
-  [ACTION.CHECK_NODES]: (state, action) => treeOnCheckNodes(
-    state,
-    action.checkedKeys,
-  ),
+  [ACTION.CHECK_NODE]: (state, action) => {
+    const newTree = treeOnCheckNode(
+      state,
+      action.targetKey,
+    );
+    return treeSetVisibleKeysToCheckedKeys(newTree);
+  },
+  [ACTION.CHECK_NODES]: (state, action) => {
+    const newTree = treeOnCheckNodes(
+      state,
+      action.checkedKeys,
+    );
+    return treeSetVisibleKeysToCheckedKeys(newTree);
+  },
   [ACTION.CHECK_LEVEL]: (state, action) => {
     const newTree = treeOnCheckLevel(state, action.levelZeroKey, action.levelIndex);
     return treeNodeViewDescendants(

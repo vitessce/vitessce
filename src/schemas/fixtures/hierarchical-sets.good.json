@@ -1,11 +1,16 @@
 {
-    "datasetId":"linnarsson-2018",
-    "version":"0.0.20",
-	"setsType":"cell",
-	"setsTree":[
-		{"key":"factors","name":"Factors"},
-		{"key":"factors\tvasculature","name":"Vasculature"},
-		{"key":"factors\tvasculature\tvascular-smooth-muscle","name":"Vascular Smooth Muscle","set":["85","260"]},
-		{"key":"factors\tvasculature\tendothelial","name":"Endothelial","color":[128,128,255],"set":["15","19","21","25"]}
-	]
+    "version": "0.1.2",
+    "datatype": "cell",
+    "tree": [
+        {
+            "name": "My Imported Hierarchy",
+            "children": [
+                {
+                    "name": "Cluster A",
+                    "color": [255, 0, 0],
+                    "set": ["cell_243", "cell_271", "cell_247", "cell_248"]
+                }
+            ]
+        }
+    ]
 }

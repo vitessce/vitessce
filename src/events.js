@@ -1,4 +1,5 @@
 const ADD = '.add';
+const CHANGE = '.change';
 
 export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
 
@@ -13,6 +14,7 @@ export const CELLS_HOVER = `${CELLS}.hover`;
 
 export const CELL_SETS = `${CELLS}.sets`;
 export const CELL_SETS_ADD = CELL_SETS + ADD;
+export const CELL_SETS_CHANGE = CELL_SETS + CHANGE;
 // Viewing a previously-defined set or group of sets.
 export const CELL_SETS_VIEW = `${CELL_SETS}.view`;
 
@@ -41,4 +43,4 @@ export const RASTER_ADD = RASTER + ADD;
 export const LAYER = 'layer';
 export const LAYER_ADD = LAYER + ADD;
 export const LAYER_REMOVE = `${LAYER}.remove`;
-export const LAYER_CHANGE = `${LAYER}.change`;
+export const LAYER_CHANGE = LAYER + CHANGE;

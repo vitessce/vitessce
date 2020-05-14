@@ -4,7 +4,7 @@ import pkg from '../../../package.json';
 import {
   CELL_SETS_VIEW, CELLS_SELECTION,
   CELLS_ADD, STATUS_WARN, CELLS_COLOR, CELL_SETS_ADD,
-  CLEAR_PLEASE_WAIT,
+  CELL_SETS_CHANGE, CLEAR_PLEASE_WAIT,
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
@@ -74,6 +74,7 @@ export default function CellSetsManagerSubscriber(props) {
     const [cellIds, cellColors] = treeToVisibleCells(tree);
     PubSub.publish(CELLS_COLOR, cellColors);
     PubSub.publish(CELL_SETS_VIEW, new Set(cellIds));
+    PubSub.publish(CELL_SETS_CHANGE, tree);
   }, [tree]);
 
   // Callback functions

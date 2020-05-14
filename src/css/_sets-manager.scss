@@ -37,10 +37,12 @@
             fill: lighten(map-get($global-colors, "gray-dark"), 5%);
             vertical-align: top;
             height: 20px;
+            margin-top: 1px;
           }
 
-          &:hover {
+          &:hover, &:hover path {
             color: lighten(map-get($global-colors, "gray-dark"), 25%);
+            fill: lighten(map-get($global-colors, "gray-dark"), 25%);
           }
         }
       }

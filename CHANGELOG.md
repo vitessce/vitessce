@@ -3,6 +3,7 @@
 ## 0.1.3 - in progress
 
 ### Added
+- Added support for providing cell sets files in view configs.
 
 ### Changed
 - Updated README to note a change to the development process: back to merging feature branches into `master` (rather than a `dev` branch).
@@ -14,7 +15,6 @@
 ### Added
 - Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
 - OMETIFF loading for raster imagery.
-- Added support for providing cell sets files in view configs.
 
 ### Changed
 - Moved `demos.md` to `DEMOS.md`.
