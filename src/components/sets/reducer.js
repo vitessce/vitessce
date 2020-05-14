@@ -594,6 +594,8 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   const dropNode = treeFindNodeByKey(currTree, dropKey);
   const dropNodeLevel = dropNode._state.level;
   const dropNodeIsLevelZero = dropNodeLevel === 0;
+  const dropNodeIsLevelZeroEmpty = (dropNodeIsLevelZero && (
+    !dropNode.children || dropNode.children.length === 0));
   const dropNodeHeight = nodeToHeight(dropNode, 0);
   // Get drag node.
   const dragNode = treeFindNodeByKey(currTree, dragKey);
@@ -603,8 +605,10 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   // - dropping between nodes, and both drag and drop node have same height, OR
   // - dropping the dragNode into the dropNode,
   //   where the dragNode has one less level than the dropNode.
+  // - dropping the dragNode into the dropNode,
+  //   where the dropNode is an _empty_ level zero node.
   const isAllowed = (dropToGap && dropNodeHeight === dragNodeHeight)
-   || (!dropToGap && dropNodeHeight - 1 === dragNodeHeight);
+   || (!dropToGap && dropNodeHeight - 1 === dragNodeHeight) || dropNodeIsLevelZeroEmpty;
 
   if (!isAllowed) {
     return currTree;

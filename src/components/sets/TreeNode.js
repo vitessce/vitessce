@@ -37,6 +37,7 @@ function makeNodeViewMenuConfig(props) {
     checkable,
     editable,
     exportable,
+    checked,
   } = props;
 
   return [
@@ -64,7 +65,7 @@ function makeNodeViewMenuConfig(props) {
     ...(level > 0 ? [
       ...(checkable ? [
         {
-          title: 'Select',
+          title: (checked ? 'Uncheck' : 'Check'),
           handler: () => { onCheckNode(nodeKey); },
           handlerKey: 's',
         },

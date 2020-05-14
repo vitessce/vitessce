@@ -140,7 +140,7 @@
                   }
               }
 
-              .level-0-treenode .rc-tree-switcher i svg {
+              .level-0-treenode > .rc-tree-switcher i svg {
                 path {
                   fill: lighten(map-get($theme-colors, "primary-foreground"), 5%);
                 }

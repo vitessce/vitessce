@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useState } from 'react';
 import { TwitterPicker } from 'react-color';
 import { callbackOnKeyPress, toHexString } from './utils';
@@ -30,7 +29,7 @@ function PopoverMenuListButton(props) {
       onClick={handleOrRequireConfirm}
       onKeyPress={e => callbackOnKeyPress(e, handlerKey, handleOrRequireConfirm)}
     >{titleWithConfirm}
-    {subtitle ? (<><br /><span className="small">{subtitle}</span></>) : null}
+      {subtitle ? (<><br /><span className="small">{subtitle}</span></>) : null}
     </button>
   );
 }
