@@ -5,7 +5,6 @@ import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
 import { nodeToRenderProps } from './reducer';
 
-
 /**
  * A generic hierarchical set manager component.
  * @prop {SetsTree} tree An object representing set hierarchies
@@ -28,6 +27,8 @@ export default function SetsManager(props) {
     editable = true,
     expandable = true,
     operatable = true,
+    exportable = true,
+    importable = true,
     onError,
     onCheckNode,
     onCheckNodes,
@@ -74,6 +75,7 @@ export default function SetsManager(props) {
         checkable={checkable}
         editable={editable}
         expandable={expandable}
+        exportable={exportable}
 
         isChecking={tree._state.isChecking}
         checkedLevelKey={tree._state.checkedLevel.levelZeroKey}
@@ -101,42 +103,48 @@ export default function SetsManager(props) {
 
   return (
     <div className="sets-manager">
-      <Tree
-        draggable={draggable}
-        checkable={checkable}
+      <div className="sets-manager-tree">
+        <Tree
+          draggable={draggable}
+          checkable={checkable}
 
-        checkedKeys={tree._state.checkedKeys}
-        expandedKeys={tree._state.expandedKeys}
-        autoExpandParent={tree._state.autoExpandParent}
+          checkedKeys={tree._state.checkedKeys}
+          expandedKeys={tree._state.expandedKeys}
+          autoExpandParent={tree._state.autoExpandParent}
 
-        onCheck={onCheckNodes}
-        onExpand={(expandedKeys, info) => onExpandNode(
-          expandedKeys,
-          info.node.props.nodeKey,
-          info.expanded,
-        )}
-        onDrop={(info) => {
-          const { eventKey: dropKey } = info.node.props;
-          const { eventKey: dragKey } = info.dragNode.props;
-          const { dropToGap, dropPosition } = info;
-          onDropNode(dropKey, dragKey, dropPosition, dropToGap);
-        }}
-      >
-        {renderTreeNodes(tree.tree)}
-      </Tree>
-      <PlusButton
-        datatype={datatype}
-        onError={onError}
-        onImportTree={onImportTree}
-        onCreateLevelZeroNode={onCreateLevelZeroNode}
-      />
-      {tree._state.isChecking ? (
-        <SetOperationButtons
-          onUnion={onUnion}
-          onIntersection={onIntersection}
-          onComplement={onComplement}
-          onView={onView}
+          onCheck={onCheckNodes}
+          onExpand={(expandedKeys, info) => onExpandNode(
+            expandedKeys,
+            info.node.props.nodeKey,
+            info.expanded,
+          )}
+          onDrop={(info) => {
+            const { eventKey: dropKey } = info.node.props;
+            const { eventKey: dragKey } = info.dragNode.props;
+            const { dropToGap, dropPosition } = info;
+            onDropNode(dropKey, dragKey, dropPosition, dropToGap);
+          }}
+        >
+          {renderTreeNodes(tree.tree)}
+        </Tree>
+        <PlusButton
+          datatype={datatype}
+          onError={onError}
+          onImportTree={onImportTree}
+          onCreateLevelZeroNode={onCreateLevelZeroNode}
+          importable={importable}
+          editable={editable}
         />
+      </div>
+      {tree._state.isChecking ? (
+        <div className="set-operation-buttons">
+          <SetOperationButtons
+            onUnion={onUnion}
+            onIntersection={onIntersection}
+            onComplement={onComplement}
+            onView={onView}
+          />
+        </div>
       ) : null}
     </div>
   );

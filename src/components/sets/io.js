@@ -3,6 +3,7 @@ import hierarchicalSetsSchema from '../../schemas/hierarchical-sets.schema.json'
 
 export const HIERARCHICAL_SETS_SCHEMA_VERSION = '0.1.2';
 export const FILE_EXTENSION_JSON = 'json';
+export const MIME_TYPE_JSON = 'application/json';
 
 /**
  * Handler for JSON imports. Validates against the hierarchical sets schema.

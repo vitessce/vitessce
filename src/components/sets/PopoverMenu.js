@@ -1,22 +1,54 @@
 /* eslint-disable */
 import React, { useState } from 'react';
-import { callbackOnKeyPress, toHexString } from './utils';
 import { TwitterPicker } from 'react-color';
+import { callbackOnKeyPress, toHexString } from './utils';
 import { PALETTE } from '../utils';
 import Popover from './Popover';
 
+function PopoverMenuListButton(props) {
+  const {
+    title, subtitle, onClick, handler, handlerKey, confirm,
+  } = props;
+
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  function handleOrRequireConfirm() {
+    if (!confirm || isConfirming) {
+      onClick();
+      handler();
+    } else {
+      setIsConfirming(true);
+    }
+  }
+
+  const titleWithConfirm = `${isConfirming ? 'Confirm ' : ''}${title}`;
+
+  return (
+    <button
+      title={titleWithConfirm}
+      type="button"
+      onClick={handleOrRequireConfirm}
+      onKeyPress={e => callbackOnKeyPress(e, handlerKey, handleOrRequireConfirm)}
+    >{titleWithConfirm}
+    {subtitle ? (<><br /><span className="small">{subtitle}</span></>) : null}
+    </button>
+  );
+}
+
 function PopoverMenuList(props) {
-  const { menuConfig, 
-    onClick, 
-    color = null, 
-    palette = null, 
-    setColor = null } = props;
+  const {
+    menuConfig,
+    onClick,
+    color = null,
+    palette = null,
+    setColor = null,
+  } = props;
 
   function handleColorChange({ rgb }) {
     if (!rgb) {
       return;
     }
-    if(setColor) {
+    if (setColor) {
       setColor([rgb.r, rgb.g, rgb.b]);
     }
   }
@@ -38,20 +70,11 @@ function PopoverMenuList(props) {
       ) : null}
       <ul className="popover-menu-list">
         {menuConfig.map(item => (
-          <li key={item.name}>
-            <button
-              title={item.name}
-              type="button"
-              onClick={() => {
-                onClick();
-                item.handler();
-              }}
-              onKeyPress={e => callbackOnKeyPress(e, item.handlerKey, () => {
-                onClick();
-                item.handler();
-              })}
-            >{item.name}
-            </button>
+          <li key={item.title}>
+            <PopoverMenuListButton
+              {...item}
+              onClick={onClick}
+            />
           </li>
         ))}
       </ul>
@@ -76,13 +99,15 @@ export default function PopoverMenu(props) {
 
   return (
     <Popover
-      content={<PopoverMenuList
-        menuConfig={menuConfig}
-        onClick={closePopover}
-        color={color}
-        setColor={setColor}
-        palette={palette}
-      />}
+      content={(
+        <PopoverMenuList
+          menuConfig={menuConfig}
+          onClick={closePopover}
+          color={color}
+          setColor={setColor}
+          palette={palette}
+        />
+)}
       placement={placement}
       visible={visible}
       onVisibleChange={setVisible}

@@ -9,7 +9,7 @@ import { HIERARCHICAL_SETS_SCHEMA_VERSION } from './io';
 // Constants
 const CURRENT_SET_NAME = 'Current selection';
 const UPDATE_VISIBLE_ON_EXPAND = false;
-const ALLOW_SIDE_EFFECTS = true;
+const ALLOW_SIDE_EFFECTS = false;
 
 // Global state variables, only used when ALLOW_SIDE_EFFECTS is true.
 const globalSets = {};
@@ -151,7 +151,7 @@ function nodeWithState(currNode, level = 0, stateOverrides = {}) {
   }
   return {
     name: currNode.name,
-    color: currNode.color || DEFAULT_COLOR,
+    color: (level > 0 ? currNode.color || DEFAULT_COLOR : undefined),
     ...(currNode.children ? {
       children: currNode.children.map(childNode => nodeWithState(
         childNode,
@@ -466,7 +466,7 @@ function treeToUnion(currTree) {
   const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
   const nodeSets = nodes.map(node => nodeToSet(node));
   return nodeSets
-    .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0]);
+    .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0] || []);
 }
 
 function treeToIntersection(currTree) {
@@ -474,7 +474,7 @@ function treeToIntersection(currTree) {
   const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
   const nodeSets = nodes.map(node => nodeToSet(node));
   return nodeSets
-    .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0]);
+    .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0] || []);
 }
 
 function treeToItems(currTree) {

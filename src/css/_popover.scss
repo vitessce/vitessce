@@ -56,7 +56,7 @@
 
             .rc-tooltip-inner {
                 box-sizing: border-box;
-                background-color: #fff;
+                background-color: map-get($global-colors, "white");
                 background-clip: padding-box;
                 border-radius: 2px;
                 -webkit-box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
@@ -80,6 +80,15 @@
                             cursor: pointer;
                             width: 100%;
                             background-color: transparent;
+                            border-radius: 2px;
+
+                            span.small {
+                                font-size: 11px;
+                            }
+
+                            &:hover {
+                                background-color: lighten(map-get($global-colors, "gray-light"), 10%);
+                            }
                         }
                         &:not(:last-child) {
                             border-bottom: 1px solid map-get($global-colors, "gray-mid");
@@ -189,6 +198,10 @@
             .popover-menu-color.twitter-picker {
                 box-shadow: none !important;
                 margin: 0 auto;
+                /* Need to override the inline styles added by the TwitterPicker component */
+                border-bottom: 1px solid map-get($global-colors, "gray-mid") !important;
+                border-bottom-left-radius: 0 !important;
+                border-bottom-right-radius: 0 !important;
                 /* Sets margins around color picker and centers */
                 > div:nth-child(3) {
                     padding: 6px !important;

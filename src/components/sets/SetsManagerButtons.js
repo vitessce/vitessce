@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import PopoverMenu from './PopoverMenu';
-import { handleImportJSON } from './io';
+import { handleImportJSON, MIME_TYPE_JSON } from './io';
 
 import { ReactComponent as SetViewSVG } from '../../assets/sets/eye.svg';
 import { ReactComponent as SetUnionSVG } from '../../assets/sets/union.svg';
@@ -11,6 +11,7 @@ import { ReactComponent as SetComplementSVG } from '../../assets/sets/complement
 export function PlusButton(props) {
   const {
     datatype, onError, onImportTree, onCreateLevelZeroNode,
+    importable, editable,
   } = props;
 
   /**
@@ -52,26 +53,31 @@ export function PlusButton(props) {
   }, [datatype, onError, onImportTree]);
 
   const menuConfig = [
-    {
-      name: 'Create hierarchy',
-      handler: onCreateLevelZeroNode,
-      handlerKey: 'c',
-    },
-    {
-      name: 'Import hierarchy (from JSON)',
-      handler: onImport(handleImportJSON, 'application/json'),
-      handlerKey: 'i',
-    },
+    ...(editable ? [
+      {
+        title: 'Create hierarchy',
+        handler: onCreateLevelZeroNode,
+        handlerKey: 'c',
+      },
+    ] : []),
+    ...(importable ? [
+      {
+        title: 'Import hierarchy',
+        subtitle: '(from JSON file)',
+        handler: onImport(handleImportJSON, MIME_TYPE_JSON),
+        handlerKey: 'i',
+      },
+    ] : []),
   ];
 
-  return (
+  return (menuConfig.length > 0 ? (
     <PopoverMenu
       menuConfig={menuConfig}
       onClose={() => {}}
     >
-      <button className="new-node-button" type="submit">+</button>
+      <button className="plus-button" type="submit">+</button>
     </PopoverMenu>
-  );
+  ) : null);
 }
 
 export function SetOperationButtons(props) {
@@ -83,7 +89,7 @@ export function SetOperationButtons(props) {
   } = props;
 
   return (
-    <div className="set-operation-buttons">
+    <>
       <button
         onClick={onView}
         type="submit"
@@ -112,6 +118,6 @@ export function SetOperationButtons(props) {
       >
         <SetComplementSVG />
       </button>
-    </div>
+    </>
   );
 }

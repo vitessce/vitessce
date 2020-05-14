@@ -23,6 +23,7 @@ function getLevelTooltipText(i) {
 /**
  * Construct a `menuConfig` array for the PopoverMenu component.
  * @param {object} props The props for the TreeNode component.
+ * @returns {object[]} An array of menu items to pass to PopoverMenu.
  */
 function makeNodeViewMenuConfig(props) {
   const {
@@ -35,41 +36,48 @@ function makeNodeViewMenuConfig(props) {
     onExportSet,
     checkable,
     editable,
+    exportable,
   } = props;
 
   return [
     ...(editable ? [
       {
-        name: 'Rename',
+        title: 'Rename',
         handler: () => { onNodeSetIsEditing(nodeKey, true); },
         handlerKey: 'r',
       },
       {
-        name: 'Delete',
+        title: 'Delete',
+        confirm: true,
         handler: () => { onNodeRemove(nodeKey); },
         handlerKey: 'd',
       },
     ] : []),
-    ...(level === 0 ? [
+    ...(level === 0 && exportable ? [
       {
-        name: 'Export hierarchy (to JSON)',
+        title: 'Export hierarchy',
+        subtitle: '(to JSON file)',
         handler: () => { onExportLevelZeroNode(nodeKey); },
         handlerKey: 'e',
       },
-    ] : [
+    ] : []),
+    ...(level > 0 ? [
       ...(checkable ? [
         {
-          name: 'Select',
+          title: 'Select',
           handler: () => { onCheckNode(nodeKey); },
           handlerKey: 's',
         },
       ] : []),
-      {
-        name: 'Export set (to JSON)',
-        handler: () => { onExportSet(nodeKey); },
-        handlerKey: 'e',
-      },
-    ]),
+      ...(exportable ? [
+        {
+          title: 'Export set',
+          subtitle: '(to JSON file)',
+          handler: () => { onExportSet(nodeKey); },
+          handlerKey: 'e',
+        },
+      ] : []),
+    ] : []),
   ];
 }
 
@@ -116,6 +124,7 @@ function NamedSetNodeStatic(props) {
     : () => onNodeView(nodeKey)
   );
   const tooltipProps = (disableTooltip ? { visible: false } : {});
+  const popoverMenuConfig = makeNodeViewMenuConfig(props);
   return (
     <span>
       <HelpTooltip title={tooltipText} {...tooltipProps}>
@@ -128,14 +137,16 @@ function NamedSetNodeStatic(props) {
           {title}
         </button>
       </HelpTooltip>
-      <PopoverMenu
-        menuConfig={makeNodeViewMenuConfig(props)}
-        onClose={() => {}}
-        color={level > 0 ? color : null}
-        setColor={c => onNodeSetColor(nodeKey, c)}
-      >
-        <MenuSVG className="node-menu-icon" />
-      </PopoverMenu>
+      {popoverMenuConfig.length > 0 ? (
+        <PopoverMenu
+          menuConfig={makeNodeViewMenuConfig(props)}
+          onClose={() => {}}
+          color={level > 0 ? color : null}
+          setColor={c => onNodeSetColor(nodeKey, c)}
+        >
+          <MenuSVG className="node-menu-icon" />
+        </PopoverMenu>
+      ) : null}
       {level > 0 && isChecking ? checkbox : null}
     </span>
   );
@@ -229,7 +240,7 @@ function SwitcherIcon(props) {
   const {
     isLeaf, isOpen, color,
   } = props;
-  const hexColor = toHexString(color);
+  const hexColor = (color ? toHexString(color) : undefined);
   if (isLeaf) {
     return (
       <i
@@ -367,6 +378,7 @@ export default class TreeNode extends RcTreeNode {
       isLeaf,
       expanded, selected, checked, halfChecked,
       onDragEnd: onDragEndProp,
+      expandable,
       ...otherProps
     } = this.props;
     const {
@@ -408,7 +420,7 @@ export default class TreeNode extends RcTreeNode {
         onDragEnd={draggable ? onDragEnd : undefined}
         {...dataAndAriaAttributeProps}
       >
-        {this.renderSwitcher()}
+        {expandable ? this.renderSwitcher() : null}
         {this.renderSelector()}
         {this.renderChildren()}
       </li>
