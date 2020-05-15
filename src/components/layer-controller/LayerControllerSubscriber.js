@@ -2,14 +2,21 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import PubSub from 'pubsub-js';
 import Grid from '@material-ui/core/Grid';
-import { ThemeProvider } from '@material-ui/core/styles';
-
+import {
+  ThemeProvider, StylesProvider,
+  createGenerateClassName,
+} from '@material-ui/core/styles';
 
 import TitleInfo from '../TitleInfo';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import { RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT } from '../../events';
 import { darkTheme } from './styles';
+
+
+const generateClassName = createGenerateClassName({
+  disableGlobal: true,
+});
 
 function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   const [imageOptions, setImageOptions] = useState(null);
@@ -49,12 +56,14 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
 
   return (
     <TitleInfo title="Layer Controller" isScroll removeGridComponent={removeGridComponent}>
-      <ThemeProvider theme={darkTheme}>
-        {layerControllers}
-        <Grid item>
-          <ImageAddButton imageOptions={imageOptions} handleImageAdd={handleImageAdd} />
-        </Grid>
-      </ThemeProvider>
+      <StylesProvider generateClassName={generateClassName}>
+        <ThemeProvider theme={darkTheme}>
+          {layerControllers}
+          <Grid item>
+            <ImageAddButton imageOptions={imageOptions} handleImageAdd={handleImageAdd} />
+          </Grid>
+        </ThemeProvider>
+      </StylesProvider>
     </TitleInfo>
   );
 }

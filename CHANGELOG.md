@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.1.2 - in progress
+## 0.1.3 - in progress
+
+### Added
+- Trevor's lab presentation on multimodal imaging (2020-05-14).
+
+### Changed
+- Updated README to note a change to the development process: back to merging feature branches into `master` (rather than a `dev` branch).
+- Reduced global style creep by adding a `StylesProvider` with custom `generateClassName` function from [mui](https://material-ui.com/styles/api/#creategenerateclassname-options-class-name-generator). Temporarily commented out HiGlass styles.
+- Scrollable image layer popout.
+
+## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
 ### Added
 - Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
@@ -12,7 +22,7 @@
 - Fixed a horizontal scroll bug caused by overflow of the `{num} genes` subtitle in the Linnarsson demo.
 - Fixed a regression caused by the updated bundling scripts minifying HTML assets and removing intentional spaces.
 - Upgrade LayerController to be more general.
-- In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation. 
+- In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation.
 - Changed export method for components.
 - Fixed backwards webpack `externals` object (`react` and `react-dom` were not properly externalized previously).
 - Upgrade `viv` and `vitessce-grid` to 0.2.5 and 0.0.7, respectively.
