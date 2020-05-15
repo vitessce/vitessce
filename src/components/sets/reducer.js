@@ -6,12 +6,32 @@ import range from 'lodash/range';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
 import { HIERARCHICAL_SETS_SCHEMA_VERSION } from './io';
 
-// Constants
-const CURRENT_SET_NAME = 'Current selection';
+// Constants.
+const CURRENT_SELECTION_NAME = 'Current selection';
+const CURRENT_UNION_NAME = 'Current union';
+const CURRENT_INTERSECTION_NAME = 'Current intersection';
+const CURRENT_COMPLEMENT_NAME = 'Current complement';
+const NEW_HIERARCHY_NAME = 'New hierarchy';
+/**
+ * If the following variable is true, the expand node interaction
+ * will also update the array of visible nodes
+ * (see the `treeOnExpand` function).
+ */
 const UPDATE_VISIBLE_ON_EXPAND = false;
-const ALLOW_SIDE_EFFECTS = false;
 
-// Global state variables, only used when ALLOW_SIDE_EFFECTS is true.
+/**
+ * If this ALLOW_SIDE_EFFECTS flag is set to true, then tree nodes will store
+ * _references_ to their associated sets, rather than storing the set in the .set property
+ * of the node object. When the node needs to access its set, it can look it up in
+ * the globalSets object (below). And the same idea for a tree's .items property:
+ * the tree can look up the value in the globalItems object (below).
+ *
+ * TODO: Figure out whether this actually has a performance benefit.
+ * I hypothesized that with all of the spread operators
+ * a lot of copying is required for to account for the .set and .items arrays (which can
+ * be thousands of elements long). But maybe modern JS engines are smarter than I think?
+ */
+const ALLOW_SIDE_EFFECTS = false;
 const globalSets = {};
 const globalItems = {};
 
@@ -24,12 +44,13 @@ function generateKey() {
 }
 
 /**
-* Helper function for constructing a reducer
-* from an object mapping action types to handler functions.
-* See https://redux.js.org/recipes/reducing-boilerplate#reducers
-* @param {object} handlers Keys are action type strings, values are handler functions.
-* @returns {function} The reducer function.
-*/
+ * Helper function for constructing a reducer
+ * from an object mapping action types to handler functions.
+ * Avoids switch statements.
+ * See https://redux.js.org/recipes/reducing-boilerplate#reducers
+ * @param {object} handlers Keys are action type strings, values are handler functions.
+ * @returns {function} The reducer function.
+ */
 function createReducer(handlers) {
   return function reducer(state, action) {
     if (handlers[action.type]) {
@@ -39,21 +60,40 @@ function createReducer(handlers) {
   };
 }
 
-function nodeToSet(node) {
-  if (!node.children) {
-    return (ALLOW_SIDE_EFFECTS ? globalSets[node._state.key] : (node.set || []));
+/**
+ * Get the set associated with a particular node.
+ * Recursive.
+ * @param {object} currNode A node object.
+ * @returns {array} The array representing the set associated with the node.
+ */
+function nodeToSet(currNode) {
+  if (!currNode.children) {
+    return (ALLOW_SIDE_EFFECTS ? globalSets[currNode._state.key] : (currNode.set || []));
   }
-  return node.children.flatMap(c => nodeToSet(c));
+  return currNode.children.flatMap(c => nodeToSet(c));
 }
 
-function nodeToHeight(node, level = 0) {
-  if (!node.children) {
+/**
+ * Get the height of a node (the number of levels to reach a leaf).
+ * @param {object} currNode A node object.
+ * @param {number} level The level that the height will be computed relative to. By default, 0.
+ * @returns {number} The height. If the node has a .children property,
+ * then the minimum value returned is 1.
+ */
+function nodeToHeight(currNode, level = 0) {
+  if (!currNode.children) {
     return level;
   }
-  const childrenHeights = node.children.map(c => nodeToHeight(c, level + 1));
+  const childrenHeights = currNode.children.map(c => nodeToHeight(c, level + 1));
   return Math.max(...childrenHeights, 1);
 }
 
+/**
+ * Set the ._state.isForTools value for a node.
+ * @param {object} currNode A node object.
+ * @param {boolean} v The value.
+ * @returns {object} The updated node.
+ */
 function nodeSetIsForTools(currNode, v) {
   return {
     ...currNode,
@@ -64,6 +104,12 @@ function nodeSetIsForTools(currNode, v) {
   };
 }
 
+/**
+ * Set the ._state.isEditing value for a node.
+ * @param {object} currNode A node object.
+ * @param {boolean} v The value.
+ * @returns {object} The updated node.
+ */
 function nodeSetIsEditing(currNode, v) {
   return {
     ...currNode,
@@ -74,6 +120,12 @@ function nodeSetIsEditing(currNode, v) {
   };
 }
 
+/**
+ * Set the ._state.isCurrent value for a node.
+ * @param {object} currNode A node object.
+ * @param {boolean} v The value.
+ * @returns {object} The updated node.
+ */
 function nodeSetIsCurrent(currNode, v) {
   return {
     ...currNode,
@@ -84,6 +136,12 @@ function nodeSetIsCurrent(currNode, v) {
   };
 }
 
+/**
+ * Set the ._state.level value for a node.
+ * @param {object} currNode A node object.
+ * @param {number} newLevel The level value.
+ * @returns {object} The updated node.
+ */
 function nodeSetLevel(currNode, newLevel) {
   return {
     ...currNode,
@@ -94,6 +152,12 @@ function nodeSetLevel(currNode, newLevel) {
   };
 }
 
+/**
+ * Set the name for a node.
+ * @param {object} currNode A node object.
+ * @param {string} newName The name value.
+ * @returns {object} The updated node.
+ */
 function nodeSetName(currNode, newName) {
   return {
     ...currNode,
@@ -101,6 +165,12 @@ function nodeSetName(currNode, newName) {
   };
 }
 
+/**
+ * Set the set associated with a node.
+ * @param {object} currNode A node object.
+ * @param {array} newSet The set value, as an array.
+ * @returns {object} The updated node.
+ */
 function nodeSetSet(currNode, newSet) {
   if (ALLOW_SIDE_EFFECTS) {
     globalSets[currNode._state.key] = newSet;
@@ -111,6 +181,12 @@ function nodeSetSet(currNode, newSet) {
   };
 }
 
+/**
+ * Append a child to a parent node.
+ * @param {object} currNode A node object.
+ * @param {object} newChild The child node object.
+ * @returns {object} The updated node.
+ */
 function nodeAppendChild(currNode, newChild) {
   const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
   return {
@@ -119,6 +195,12 @@ function nodeAppendChild(currNode, newChild) {
   };
 }
 
+/**
+ * Prepend a child to a parent node.
+ * @param {object} currNode A node object.
+ * @param {object} newChild The child node object.
+ * @returns {object} The updated node.
+ */
 function nodePrependChild(currNode, newChild) {
   const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
   return {
@@ -127,6 +209,13 @@ function nodePrependChild(currNode, newChild) {
   };
 }
 
+/**
+ * Insert a child to a parent node.
+ * @param {object} currNode A node object.
+ * @param {*} newChild The child node object.
+ * @param {*} insertIndex The index at which to insert the child.
+ * @returns {object} The updated node.
+ */
 function nodeInsertChild(currNode, newChild, insertIndex) {
   const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
   const newChildren = Array.from(currNode.children);
@@ -137,6 +226,12 @@ function nodeInsertChild(currNode, newChild, insertIndex) {
   };
 }
 
+/**
+ * Set the color for a node.
+ * @param {object} currNode A node object.
+ * @param {number[]} newColor The color as an [r, g, b] array.
+ * @returns {object} The updated node.
+ */
 function nodeSetColor(currNode, newColor) {
   return {
     ...currNode,
@@ -144,6 +239,14 @@ function nodeSetColor(currNode, newColor) {
   };
 }
 
+/**
+ * Initialize the ._state property for a node object.
+ * @param {object} currNode A node object,
+ * potentially with an undefined ._state property.
+ * @param {number} level The level for the node. By default, 0.
+ * @param {object} stateOverrides Pre-defined state values to use. Optional.
+ * @returns {object} The node object, with a filled-in ._state property.
+ */
 function nodeWithState(currNode, level = 0, stateOverrides = {}) {
   const nodeKey = generateKey();
   if (ALLOW_SIDE_EFFECTS && !currNode.children) {
@@ -172,6 +275,12 @@ function nodeWithState(currNode, level = 0, stateOverrides = {}) {
   };
 }
 
+/**
+ * Append a level zero node child.
+ * @param {object} currTree A tree object.
+ * @param {object} node A node object.
+ * @returns {object} The updated tree.
+ */
 function treeAppendChild(currTree, node) {
   return {
     ...currTree,
@@ -179,7 +288,12 @@ function treeAppendChild(currTree, node) {
   };
 }
 
-
+/**
+ * Append multiple level zero node children.
+ * @param {object} currTree A tree object.
+ * @param {object} node A node object.
+ * @returns {object} The updated tree.
+ */
 function treeAppendChildren(currTree, nodes) {
   return {
     ...currTree,
@@ -187,6 +301,14 @@ function treeAppendChildren(currTree, nodes) {
   };
 }
 
+/**
+ * Set the .items array associated with a tree,
+ * used when computing the complement operation.
+ * @param {object} currTree A tree object.
+ * @param {array} cellIds The set of all cell IDs that the tree
+ * should know about.
+ * @returns {object} The updated tree.
+ */
 function treeSetItems(currTree, cellIds) {
   if (ALLOW_SIDE_EFFECTS) {
     globalItems[currTree._state.key] = cellIds;
@@ -200,6 +322,12 @@ function treeSetItems(currTree, cellIds) {
   };
 }
 
+/**
+ * Find a node object that matches a predicate function.
+ * @param {object} node A node object.
+ * @param {function} predicate Returns true if a node matches a condition of interest.
+ * @returns {object|null} A node object matching the predicate, or null if none is found.
+ */
 function nodeFindNode(node, predicate) {
   if (predicate(node)) {
     return node;
@@ -216,6 +344,13 @@ function nodeFindNode(node, predicate) {
   return null;
 }
 
+/**
+ * Find the level zero node flagged as .isForTools,
+ * i.e. new sets created by the lasso/rectangle selection tools
+ * should be placed as children of this node.
+ * @param {object} node A node object.
+ * @returns {object|null} A matching level zero node object, or null if none is found.
+ */
 function nodeFindIsForToolsNode(node) {
   return nodeFindNode(
     node,
@@ -223,6 +358,12 @@ function nodeFindIsForToolsNode(node) {
   );
 }
 
+/**
+ * Find a node matching a predicate function, relative to the whole tree.
+ * @param {object} currTree A tree object.
+ * @param {function} predicate Returns true if a node matches a condition of interest.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
 function treeFindNode(currTree, predicate) {
   const foundNodes = currTree.tree
     .map(levelZeroNode => nodeFindNode(levelZeroNode, predicate))
@@ -233,10 +374,22 @@ function treeFindNode(currTree, predicate) {
   return null;
 }
 
+/**
+ * Find a node with a matching key, relative to the whole tree.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key for the node of interest.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
 function treeFindNodeByKey(currTree, targetKey) {
   return treeFindNode(currTree, n => (n._state.key === targetKey));
 }
 
+/**
+ * Find the parent of a child node, using the child node's key.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key of the child node.
+ * @returns {object|null} A matching parent node object, or null if none is found.
+ */
 function treeFindNodeParentByKey(currTree, targetKey) {
   return treeFindNode(
     currTree,
@@ -244,6 +397,12 @@ function treeFindNodeParentByKey(currTree, targetKey) {
   );
 }
 
+/**
+ * Find the level zero node of a descendant node, using the descendant node's key.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key of the descendant node.
+ * @returns {object|null} A matching level zero node object, or null if none is found.
+ */
 function treeFindLevelZeroNodeByDescendantKey(currTree, targetKey) {
   const predicate = n => (n._state.key === targetKey);
   const foundNodes = currTree.tree
@@ -257,7 +416,12 @@ function treeFindLevelZeroNodeByDescendantKey(currTree, targetKey) {
   return null;
 }
 
-
+/**
+ * Add a new level zero node, with the ._state.isForTools flag
+ * set to true.
+ * @param {object} currTree A tree object.
+ * @returns {object} The updated tree.
+ */
 function treeAddForToolsNode(currTree) {
   const newNode = nodeWithState({
     name: 'My Selections',
@@ -267,6 +431,13 @@ function treeAddForToolsNode(currTree) {
   return treeAppendChild(currTree, newForToolsNode);
 }
 
+/**
+ * Remove a node or any node descendants that match a predicate.
+ * Recursive.
+ * @param {object} node A node object.
+ * @param {function} predicate Predicate function, returns true if the node should be removed.
+ * @returns {object|null} The updated node, or null if the node matches the predicate.
+ */
 function nodeRemove(node, predicate) {
   if (predicate(node)) {
     return null;
@@ -282,6 +453,16 @@ function nodeRemove(node, predicate) {
   return node;
 }
 
+/**
+ * Remove any node matching a predicate, relative to the tree.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key of the node to remove.
+ * @param {boolean} temporary Is this a temporary removal,
+ * i.e. will the calling function ensure that the node will be added
+ * back into the tree afterwards (for example, when dragging and dropping)?
+ * By default, false.
+ * @returns {object} The updated tree.
+ */
 function treeNodeRemove(currTree, targetKey, temporary = false) {
   const nodeToRemove = treeFindNodeByKey(currTree, targetKey);
   const levelZeroNode = treeFindLevelZeroNodeByDescendantKey(currTree, targetKey);
@@ -313,6 +494,14 @@ function treeNodeRemove(currTree, targetKey, temporary = false) {
   };
 }
 
+/**
+ * Transform a node object using a transform function.
+ * @param {object} node A node object.
+ * @param {function} predicate Returns true if a node matches a condition of interest.
+ * @param {function} transform Takes the node matching the predicate as input, returns
+ * a transformed version of the node.
+ * @returns {object} The updated node.
+ */
 function nodeTransform(node, predicate, transform) {
   if (predicate(node)) {
     return transform(node);
@@ -326,6 +515,20 @@ function nodeTransform(node, predicate, transform) {
   return node;
 }
 
+/**
+ * Find a parent node of interest that matches an ancestorPredicate function.
+ * If that parent node contains a descendant that matches the descendantPredicate function,
+ * then use the transform function to transform the child node.
+ * If that parent node does _not_ contain any descendant that matches the descendantPredicate
+ * function, then append the provided descendant node as a new child of the parent node of interest.
+ * @param {object} node A node object.
+ * @param {function} ancestorPredicate Returns true for the ancestor node of interest.
+ * @param {function} descendantPredicate Returns true for the descendant node of interest.
+ * @param {function} transform The function used to transform the descendant node, if it is found.
+ * @param {object} descendant The child node to append, if no node matching the descendantPredicate
+ * function is found.
+ * @returns {object} The updated node.
+ */
 function nodeTransformChildOrAppendChild(node,
   ancestorPredicate, descendantPredicate, transform, descendant) {
   if (node.children && ancestorPredicate(node)) {
@@ -354,7 +557,19 @@ function nodeTransformChildOrAppendChild(node,
   return node;
 }
 
-function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SET_NAME) {
+/**
+ * Set the set associated with the node flagged as ._state.isCurrent,
+ * under the level zero node flagged as ._state.isForTools.
+ * If no .isForTools level zero node exists, then this function will add one.
+ * If no .isCurrent node exists under the .isForTools node,
+ * then this function will add one.
+ * @param {object} currTree A tree object.
+ * @param {array} cellIds The new set value.
+ * @param {string} name The name for the .isCurrent node. Optional.
+ * By default, 'Current selection'.
+ * @returns {object} The updated tree.
+ */
+function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME) {
   let newTree = currTree;
   let toolsNode = newTree.tree.find(nodeFindIsForToolsNode);
   if (!toolsNode) {
@@ -391,6 +606,14 @@ function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SET_NAME) {
   return newTree;
 }
 
+/**
+ * Transform a node of interest, relative to the tree.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key for the node of interest.
+ * @param {function} transform Takes the node of interest as input,
+ * returns a transformed version of the node.
+ * @returns {object} The updated tree.
+ */
 function treeTransformNodeByKey(currTree, targetKey, transform) {
   return {
     ...currTree,
@@ -403,6 +626,13 @@ function treeTransformNodeByKey(currTree, targetKey, transform) {
   };
 }
 
+/**
+ * Set a node's color, relative to the tree.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key of the node of interest.
+ * @param {number[]} color The color as an [r, g, b] array.
+ * @returns {object} The updated tree.
+ */
 function treeNodeSetColor(currTree, targetKey, color) {
   return treeTransformNodeByKey(
     currTree,
@@ -411,6 +641,15 @@ function treeNodeSetColor(currTree, targetKey, color) {
   );
 }
 
+/**
+ * Set a node's name, relative to the tree.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key of the node of interest.
+ * @param {string} name The new name to set for the node.
+ * @param {boolean} stopEditing Should the ._state.isEditing flag
+ * also be set to false?
+ * @returns {object} The updated tree.
+ */
 function treeNodeSetName(currTree, targetKey, name, stopEditing) {
   const transformName = (node) => {
     let newNode = nodeSetName(node, name);
@@ -425,6 +664,13 @@ function treeNodeSetName(currTree, targetKey, name, stopEditing) {
   return treeTransformNodeByKey(currTree, targetKey, transformName);
 }
 
+/**
+ * Set a node's ._state.isEditing flag, relative to the tree.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key of the node of interest.
+ * @param {boolean} value The value.
+ * @returns {object} The updated tree.
+ */
 function treeNodeSetIsEditing(currTree, targetKey, value) {
   return treeTransformNodeByKey(
     currTree,
@@ -437,8 +683,8 @@ function treeNodeSetIsEditing(currTree, targetKey, value) {
 /**
  * Clear node state.
  * Recursive.
- * @param {object} currNode
- * @returns {object} Node with state removed.
+ * @param {object} currNode A node object.
+ * @returns {object} Node with state removed (for itself and all descendants).
  */
 function nodeClearState(currNode) {
   return {
@@ -451,6 +697,13 @@ function nodeClearState(currNode) {
   };
 }
 
+/**
+ * Set a particular level of the tree as "checked".
+ * @param {object} currTree A tree object.
+ * @param {string} levelZeroKey The key of the level zero node of interest.
+ * @param {number} levelIndex The index of the level of interest.
+ * @returns {object} The updated tree.
+ */
 function treeOnCheckLevel(currTree, levelZeroKey, levelIndex) {
   return {
     ...currTree,
@@ -461,6 +714,11 @@ function treeOnCheckLevel(currTree, levelZeroKey, levelIndex) {
   };
 }
 
+/**
+ * Get an array representing the union of the sets of checked nodes.
+ * @param {object} currTree A tree object.
+ * @returns {array} An array representing the union of the sets of checked nodes.
+ */
 function treeToUnion(currTree) {
   const { checkedKeys } = currTree._state;
   const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
@@ -469,6 +727,11 @@ function treeToUnion(currTree) {
     .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0] || []);
 }
 
+/**
+ * Get an array representing the intersection of the sets of checked nodes.
+ * @param {object} currTree A tree object.
+ * @returns {array} An array representing the intersection of the sets of checked nodes.
+ */
 function treeToIntersection(currTree) {
   const { checkedKeys } = currTree._state;
   const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
@@ -477,12 +740,24 @@ function treeToIntersection(currTree) {
     .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0] || []);
 }
 
+/**
+ * Get an array of all possible set values.
+ * Necessary to be able to perform complement operations.
+ * @param {object} currTree A tree object.
+ * @returns {array} An array representing all possible set values.
+ */
 function treeToItems(currTree) {
   return (ALLOW_SIDE_EFFECTS
     ? globalItems[currTree._state.key]
     : currTree._state.items) || [];
 }
 
+/**
+ * Get an array representing the complement of the union of the sets of checked nodes.
+ * @param {object} currTree
+ * @returns {array} An array representing the complement of the
+ * union of the sets of checked nodes.
+ */
 function treeToComplement(currTree) {
   const primaryUnion = treeToUnion(currTree);
   const items = treeToItems(currTree);
@@ -491,29 +766,48 @@ function treeToComplement(currTree) {
 
 /**
  * Perform the union set operation, updating the current set.
+ * TODO: Decide whether this function should also clear the array of "checked" nodes,
+ * from a usability perspective.
+ * @param {object} currTree
+ * @returns {object} The updated tree.
  */
 function treeOnUnion(currTree) {
   const checkedUnion = treeToUnion(currTree);
-  return treeSetCurrentSet(currTree, checkedUnion, 'Current union');
+  return treeSetCurrentSet(currTree, checkedUnion, CURRENT_UNION_NAME);
 }
 
 /**
  * Perform the intersection set operation, updating the current set.
+ * TODO: Decide whether this function should also clear the array of "checked" nodes,
+ * from a usability perspective.
+ * @param {object} currTree
+ * @returns {object} The updated tree.
  */
 function treeOnIntersection(currTree) {
   const checkedIntersection = treeToIntersection(currTree);
-  return treeSetCurrentSet(currTree, checkedIntersection, 'Current intersection');
+  return treeSetCurrentSet(currTree, checkedIntersection, CURRENT_INTERSECTION_NAME);
 }
 
 /**
  * Perform the complement set operation, updating the current set.
+ * TODO: Decide whether this function should also clear the array of "checked" nodes,
+ * from a usability perspective.
+ * @param {object} currTree
+ * @returns {object} The updated tree.
  */
 function treeOnComplement(currTree) {
   const checkedComplement = treeToComplement(currTree);
-  return treeSetCurrentSet(currTree, checkedComplement, 'Current complement');
+  return treeSetCurrentSet(currTree, checkedComplement, CURRENT_COMPLEMENT_NAME);
 }
 
-
+/**
+ * Get a list of keys corresponding to all descendant nodes
+ * of the tree that are collapsed _or_ are leaf nodes.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key of the node of interest.
+ * @returns {string[]} The keys of all descendant nodes that are not
+ * currently expanded or are leaf nodes.
+ */
 function treeNodeGetClosedDescendants(currTree, targetKey) {
   const node = treeFindNodeByKey(currTree, targetKey);
   if (node._state.isLeaf || !currTree._state.expandedKeys.includes(targetKey)) {
@@ -523,10 +817,18 @@ function treeNodeGetClosedDescendants(currTree, targetKey) {
     .flatMap(c => treeNodeGetClosedDescendants(currTree, c._state.key));
 }
 
+/**
+ * Respond to a node expand or collapse interaction.
+ * @param {object} currTree A tree object.
+ * @param {string[]} expandedKeys The keys of all nodes that should be expanded
+ * after the interaction.
+ * @param {string} targetKey The key of the node targeted by the expand interaction.
+ * @param {boolean} expanded Was it expanded (true) or collapsed (false)?
+ * @returns {object} The updated tree.
+ */
 function treeOnExpand(currTree, expandedKeys, targetKey, expanded) {
   // Upon an expansion interaction, we always want autoExpandParent to be false
   // to allow a parent with expanded children to collapse.
-
   const newTree = {
     ...currTree,
     _state: {
@@ -536,6 +838,7 @@ function treeOnExpand(currTree, expandedKeys, targetKey, expanded) {
     },
   };
 
+  // See description of the UPDATE_VISIBLE_ON_EXPAND constant at the top of this file.
   if (UPDATE_VISIBLE_ON_EXPAND) {
     // When expanding a node, if it was previously visible,
     // replace its key in .visibleKeys with the keys of its closed descendants.
@@ -566,6 +869,13 @@ function treeOnExpand(currTree, expandedKeys, targetKey, expanded) {
   return newTree;
 }
 
+/**
+ * Respond to a node checkbox interaction (check or un-check).
+ * @param {object} currTree A tree object.
+ * @param {string[]} checkedKeys The keys that should be checked after
+ * the interaction.
+ * @returns {object} The updated tree.
+ */
 function treeOnCheckNodes(currTree, checkedKeys) {
   return {
     ...currTree,
@@ -577,6 +887,13 @@ function treeOnCheckNodes(currTree, checkedKeys) {
   };
 }
 
+/**
+ * Respond to a node checkbox interaction (check or un-check),
+ * but only for one node, toggling its presence in the set of checked nodes.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The target of the check or un-check interaction.
+ * @returns {object} The updated tree.
+ */
 function treeOnCheckNode(currTree, targetKey) {
   const currCheckedKeys = currTree._state.checkedKeys;
   // Add or remove the target node's key from the tree's list of checked keys.
@@ -589,6 +906,17 @@ function treeOnCheckNode(currTree, targetKey) {
   return treeOnCheckNodes(currTree, newCheckedKeys);
 }
 
+/**
+ * Respond to a node drag-and-drop interaction.
+ * @param {object} currTree A tree object.
+ * @param {string} dropKey The key of the node that the dragged node was dropped
+ * onto or beside.
+ * @param {string} dragKey The key of the node that was dragged.
+ * @param {number} dropPosition The index at which to insert the dragged node,
+ * if it was dropped beside the drop node.
+ * @param {boolean} dropToGap Was the dragged node dropped onto the drop node?
+ * @returns {object} The updated tree.
+ */
 function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   // Get drop node.
   const dropNode = treeFindNodeByKey(currTree, dropKey);
@@ -629,8 +957,7 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   // Remove the dragged object from its current position.
   const newTree = treeNodeRemove(currTree, dragKey, true);
 
-  // Update index values after deleting the child node.
-
+  // Update index values after temporarily removing the dragged node.
   if (!dropNodeIsLevelZero) {
     dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.key === dropKey);
   } else {
@@ -683,6 +1010,14 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   };
 }
 
+/**
+ * Set the array of nodes whose sets should currently be visible.
+ * @param {object} currTree A tree object.
+ * @param {string[]} visibleKeys The keys of nodes to set as visible.
+ * @param {boolean} shouldInvalidateCheckedLevel Should the checkedLevel state be
+ * reset? By default, true.
+ * @returns {object} The updated tree.
+ */
 function treeSetVisibleKeys(currTree, visibleKeys, shouldInvalidateCheckedLevel = true) {
   return {
     ...currTree,
@@ -696,12 +1031,23 @@ function treeSetVisibleKeys(currTree, visibleKeys, shouldInvalidateCheckedLevel 
   };
 }
 
+/**
+ * Copy the currently-checked keys to the currently-visible keys.
+ * @param {object} currTree A tree object.
+ * @returns {object} The updated tree.
+ */
 function treeSetVisibleKeysToCheckedKeys(currTree) {
   // TODO: figure out how to alert the user if their checked sets intersect
   // or span across multiple level zero nodes.
   return treeSetVisibleKeys(currTree, currTree._state.checkedKeys);
 }
 
+/**
+ * View a closed/leaf node, or view an open node's closed/leaf descendants.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key of the node targeted by the interaction.
+ * @returns {object} The updated tree.
+ */
 function treeNodeView(currTree, targetKey) {
   // If the targetKey is an open node, then use the colors
   // of the closed and leaf descendants.
@@ -711,6 +1057,15 @@ function treeNodeView(currTree, targetKey) {
   return treeSetVisibleKeys(currTree, visibleKeys);
 }
 
+/**
+ * Get an flattened array of descendants at a particular relative
+ * level of interest.
+ * @param {object} node A node object.
+ * @param {number} level The relative level of interest.
+ * 0 for this node's children, 1 for grandchildren, etc.
+ * @returns {object[]} An array of descendants at the specified level,
+ * where the level is relative to the node.
+ */
 function nodeToDescendantsFlat(node, level) {
   if (!node.children) {
     return [];
@@ -721,6 +1076,15 @@ function nodeToDescendantsFlat(node, level) {
   return node.children.flatMap(c => nodeToDescendantsFlat(c, level - 1));
 }
 
+/**
+ * View a node's descendants at a particular level relative to the target node's level.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key of the node targeted by the interaction.
+ * @param {number} level The level of interest, relative to the target node.
+ * @param {boolean} shouldInvalidateCheckedLevel Should the checkedLevel state be
+ * reset? By default, true.
+ * @returns {object} The updated tree.
+ */
 function treeNodeViewDescendants(
   currTree, targetKey, level, shouldInvalidateCheckedLevel = true,
 ) {
@@ -729,9 +1093,14 @@ function treeNodeViewDescendants(
   return treeSetVisibleKeys(currTree, descendantKeys, shouldInvalidateCheckedLevel);
 }
 
+/**
+ * Create and append a new level zero node to the tree.
+ * @param {object} currTree A tree object.
+ * @returns {object} The updated tree.
+ */
 function treeCreateLevelZeroNode(currTree) {
   const newLevelZeroNode = nodeWithState({
-    name: 'New hierarchy',
+    name: NEW_HIERARCHY_NAME,
     children: [],
   }, 0, { isEditing: true });
   return treeAppendChild(currTree, newLevelZeroNode);
@@ -740,7 +1109,7 @@ function treeCreateLevelZeroNode(currTree) {
 /**
  * Import an array of level zero nodes by filling in
  * with state and appending to the current tree.
- * @param {object} currTree
+ * @param {object} currTree A tree object.
  * @param {object[]} levelZeroNodes Array of level zero nodes to append.
  * @returns {object} The tree with the new level nodes appended.
  */
@@ -774,8 +1143,8 @@ export function treeImport(currTree, levelZeroNodes) {
 
 /**
  * Export the tree by clearing tree state and all node states.
- * @param {object} currTree
- * @returns {object} Tree with state removed.
+ * @param {object} currTree A tree object.
+ * @returns {object} Tree object with tree and node state removed.
  */
 export function treeExport(currTree) {
   return {
@@ -788,7 +1157,7 @@ export function treeExport(currTree) {
 /**
  * Export the tree by clearing tree state and all node states,
  * and filter so that only the level zero node of interest is included.
- * @param {object} currTree
+ * @param {object} currTree A tree object.
  * @param {string} nodeKey The key of the node of interest.
  * @returns {object} { treeToExport, nodeName }
  * Tree with one level zero node, and with state removed.
@@ -807,7 +1176,7 @@ export function treeExportLevelZeroNode(currTree, nodeKey) {
 
 /**
  * Prepare the set of a node of interest for export.
- * @param {object} currTree
+ * @param {object} currTree A tree object.
  * @param {string} nodeKey The key of the node of interest.
  * @returns {object} { setToExport, nodeName } The set as an array.
  */
@@ -818,7 +1187,7 @@ export function treeExportSet(currTree, nodeKey) {
 
 /**
  * Get an empty tree, with a default tree state.
- * @param {string} datatype
+ * @param {string} datatype The type of sets that this tree contains.
  * @returns {object} Empty tree.
  */
 export function treeInitialize(datatype) {
@@ -845,8 +1214,9 @@ export function treeInitialize(datatype) {
 /**
  * For convenience, get an object with information required
  * to render a node as a component.
- * @param {object} node
- * @returns {object}
+ * @param {object} node A node to be rendered.
+ * @returns {object} An object containing properties required
+ * by the TreeNode render functions.
  */
 export function nodeToRenderProps(node) {
   return {
@@ -866,7 +1236,7 @@ export function nodeToRenderProps(node) {
 /**
  * Given a tree with state, get the cellIds and cellColors,
  * based on the nodes currently marked as "visible".
- * @param {*} currTree
+ * @param {object} currTree A tree object.
  * @returns {array} Tuple of [cellIds, cellColors]
  * where cellIds is an array of strings,
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
@@ -888,6 +1258,9 @@ export function treeToVisibleCells(currTree) {
   return [cellIds, cellColors];
 }
 
+/**
+ * Constants for reducer action type strings.
+ */
 export const ACTION = Object.freeze({
   IMPORT: 'import',
   SET_TREE_ITEMS: 'setTreeItems',
