@@ -188,17 +188,17 @@
             .rc-tooltip-arrow {
                 position: absolute;
                 display: block;
-                width: 8.48528137px;
-                height: 8.48528137px;
+                width: 8px;
+                height: 8px;
                 background: transparent;
                 border-style: solid;
-                border-width: 4.24264069px;
+                border-width: 4px;
                 -webkit-transform: rotate(45deg);
                         transform: rotate(45deg);
             }
 
             &.rc-tooltip-placement-top > .rc-tooltip-content > .rc-tooltip-arrow {
-                bottom: 6.2px;
+                bottom: 6px;
                 border-top-color: transparent;
                 border-right-color: #fff;
                 border-bottom-color: #fff;
