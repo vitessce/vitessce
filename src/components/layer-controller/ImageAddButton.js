@@ -37,6 +37,7 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
         startIcon={<AddIcon />}
         size="small"
         ref={anchorRef}
+        className="add-image-layer"
       >
             Add Image Layer
       </Button>
