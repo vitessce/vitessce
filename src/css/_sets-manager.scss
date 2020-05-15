@@ -1,11 +1,9 @@
 @import 'colors';
 
-@mixin input-minimal-sm {
-    border-radius: 3px;
-    padding: 1px 4px;
-    border: 0;
-}
-
+/*
+  Some styles here (for .rc-tree and descendants) have been adapted from the ant-design tree styles:
+  https://github.com/ant-design/ant-design/blob/34c2fad6368cce0d3e1959613d092274f567582a/components/tree/style/index.less
+ */
 @mixin sets-manager($theme-name, $theme-colors) {
 
     $node-height: 32 !default;

@@ -1,5 +1,10 @@
-/* Tooltips and popovers for showing help info to the user. */
 
+/*
+  Tooltips and popovers for showing help info to the user.
+  Some styles here (for .rc-tooltip and descendants) have been adapted from the ant-design tooltip and popover styles:
+  https://github.com/ant-design/ant-design/blob/34c2fad6368cce0d3e1959613d092274f567582a/components/tooltip/style/index.less
+  https://github.com/ant-design/ant-design/blob/34c2fad6368cce0d3e1959613d092274f567582a/components/popover/style/index.less
+ */
 @mixin help-tooltip-popover-common($theme-name, $theme-colors) {
 
     -webkit-box-sizing: border-box;
