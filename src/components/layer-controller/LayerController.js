@@ -16,7 +16,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
-import { LAYER_ADD, LAYER_CHANGE } from '../../events';
+import { LAYER_ADD, LAYER_CHANGE, METADATA_ADD } from '../../events';
 import reducer from './reducer';
 import { useExpansionPanelStyles } from './styles';
 
@@ -98,6 +98,12 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
         loader,
         layerProps: DEFAULT_LAYER_PROPS,
       });
+      if (loader.getMetadata) {
+        PubSub.publish(METADATA_ADD, {
+          name: imageData.name,
+          metadata: loader.getMetadata(),
+        });
+      }
       // Add channel on image add automatically as the first avaialable value for each dimension.
       const defaultSelection = buildDefaultSelection(loader.dimensions);
       dispatch({

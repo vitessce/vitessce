@@ -4,11 +4,13 @@
 
 ### Added
 - Trevor's lab presentation on multimodal imaging (2020-05-14).
+- Added support for displaying tables of metadata in the `Description` component by wrapping in a `DescriptionSubscriber` component.
 
 ### Changed
 - Updated README to note a change to the development process: back to merging feature branches into `master` (rather than a `dev` branch).
 - Reduced global style creep by adding a `StylesProvider` with custom `generateClassName` function from [mui](https://material-ui.com/styles/api/#creategenerateclassname-options-class-name-generator). Temporarily commented out HiGlass styles.
 - Scrollable image layer popout.
+- Upgrade `viv` to 0.2.5.
 
 ## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
@@ -32,6 +34,7 @@
 ### Added
 - HiGlass integration
 - Added multi-modal Spraggins example.
+- Added a new event type `METADATA_ADD` for publishing layer metadata (image layer details, heatmap layer details, etc).
 
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).
