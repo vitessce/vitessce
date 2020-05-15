@@ -11,6 +11,7 @@
 - Reduced global style creep by adding a `StylesProvider` with custom `generateClassName` function from [mui](https://material-ui.com/styles/api/#creategenerateclassname-options-class-name-generator). Temporarily commented out HiGlass styles.
 - Scrollable image layer popout.
 - Upgrade `viv` to 0.2.5.
+- Theme for image layer button.
 
 ## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
