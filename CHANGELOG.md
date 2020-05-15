@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.3 - in progress
+## 0.1.3
 
 ### Added
 - Trevor's lab presentation on multimodal imaging (2020-05-14).
