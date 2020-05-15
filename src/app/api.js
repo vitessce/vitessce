@@ -25,15 +25,7 @@ const linnarssonLayerNames = [
 const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
   description: linnarssonDescription,
-  layers: [
-    ...linnarssonLayerNames
-      .map(makeLayerNameToConfig('linnarsson')),
-    {
-      name: 'cell_sets',
-      type: 'CELL_SETS',
-      url: 'https://keller-mark.github.io/temp-vitessce-cell-sets/linnarsson.cell_sets.v28.json',
-    },
-  ],
+  layers: linnarssonLayerNames.map(makeLayerNameToConfig('linnarsson')),
 };
 const linnarssonBaseNoClusters = {
   description: linnarssonDescription,
@@ -45,15 +37,8 @@ const driesDescription = 'Giotto, a pipeline for integrative analysis and visual
 const driesBase = {
   description: driesDescription,
   layers: [
-    ...[
-      'cells',
-    ].map(makeLayerNameToConfig('dries')),
-    {
-      name: 'cell_sets',
-      type: 'CELL_SETS',
-      url: 'https://keller-mark.github.io/temp-vitessce-cell-sets/dries.cell_sets.v28.json',
-    },
-  ],
+    'cells',
+  ].map(makeLayerNameToConfig('dries')),
 };
 
 const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy';
