@@ -1,5 +1,4 @@
 @import 'colors';
-@import 'zoom';
 
 @mixin input-minimal-sm {
     border-radius: 3px;
@@ -8,9 +7,6 @@
 }
 
 @mixin sets-manager($theme-name, $theme-colors) {
-
-    /* The zoom mixin contains styles for the popover transition animations. */
-    @include zoom;
 
     $node-height: 32 !default;
     .sets-manager {
