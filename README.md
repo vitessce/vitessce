@@ -124,10 +124,10 @@ $ ./copy-prod.sh https://{url returned by push-demo.sh}
 ```
 
 The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update:
-- On the `dev` branch,
+- Check out a new branch for the release,
     - Update the CHANGELOG.md to remove the "in progress" text from the current version heading.
     - Update the version by running `npm version [major | minor | patch]` (note: this will add a git commit and a git tag).
-- Merge `dev` into `master` by making a pull request (please do not squash from `dev` to `master`).
+- Make a pull request to merge from the release branch into `master`.
 
 Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the [web interface](https://travis-ci.org/github/hubmapconsortium/vitessce/settings) (Settings -> Environment Variables).
 
@@ -140,6 +140,7 @@ Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the 
 
 ## Old Presentations
 
+- [Trevor Manz's overview of multimodal imaging in Vitessce](https://docs.google.com/presentation/d/1NPYZPduymN7wzgN-NYRQwd15D-nUZYILJTgBR2oNb04/edit?usp=sharing)
 - [Ilan Gold's overview of IF Imagery](https://docs.google.com/presentation/d/1BSz2JefN2WSF_RwVpOrIhYD2V8D7ZLc5b21VTy2Xmlo/edit#slide=id.p)
 - [Trevor Manz's wrap-up on Arrow, Zarr, and IMS](https://docs.google.com/presentation/d/1H2hff-bW4SZ3KFD5_q0iN-Dv1yew7pVe0MbdMsA2gko/edit)
 - [September 2019 HuBMAP Poster](https://drive.google.com/open?id=1pRiTN99-wZ6QuEMWzorcD4fA2Fi-7eW4)
