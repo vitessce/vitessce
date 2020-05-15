@@ -44,3 +44,6 @@ export const LAYER = 'layer';
 export const LAYER_ADD = LAYER + ADD;
 export const LAYER_REMOVE = `${LAYER}.remove`;
 export const LAYER_CHANGE = LAYER + CHANGE;
+
+export const METADATA = 'metadata';
+export const METADATA_ADD = METADATA + ADD;

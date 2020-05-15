@@ -1,6 +1,4 @@
-import React from 'react';
-
-import TitleInfo from '../components/TitleInfo';
+import DescriptionSubscriber from '../components/description/DescriptionSubscriber';
 import StatusSubscriber from '../components/status/StatusSubscriber';
 import FactorsSubscriber from '../components/factors/FactorsSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
@@ -11,24 +9,8 @@ import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSu
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
 
-class Description extends React.Component {
-  componentDidMount() {
-    const { onReady } = this.props;
-    onReady();
-  }
-
-  render() {
-    const { description, removeGridComponent } = this.props;
-    return (
-      <TitleInfo title="Data Set" removeGridComponent={removeGridComponent} isScroll>
-        <p className="details">{description}</p>
-      </TitleInfo>
-    );
-  }
-}
-
 const registry = {
-  description: Description,
+  description: DescriptionSubscriber,
   status: StatusSubscriber,
   factors: FactorsSubscriber,
   genes: GenesSubscriber,
