@@ -7,6 +7,7 @@
 
 ### Changed
 - Updated README to note a change to the development process: back to merging feature branches into `master` (rather than a `dev` branch).
+- Reduced global style creep by adding a `StylesProvider` with custom `generateClassName` function from [mui](https://material-ui.com/styles/api/#creategenerateclassname-options-class-name-generator). Temporarily commented out HiGlass styles.
 
 ## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
