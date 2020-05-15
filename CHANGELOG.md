@@ -15,7 +15,7 @@
 - In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation. 
 - Changed export method for components.
 - Fixed backwards webpack `externals` object (`react` and `react-dom` were not properly externalized previously).
-- Upgrade `viv` and `vitessce-grid` to 0.2.4 and 0.0.7, respectively.
+- Upgrade `viv` and `vitessce-grid` to 0.2.5 and 0.0.7, respectively.
 
 ## [0.1.1](https://www.npmjs.com/package/vitessce/v/0.1.1) - 2020-05-05
 
