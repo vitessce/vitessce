@@ -4,7 +4,7 @@ import some from 'lodash/some';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
-import { HIERARCHICAL_SETS_SCHEMA_VERSION } from './io';
+import { HIERARCHICAL_SCHEMAS } from './io';
 
 // Constants.
 const CURRENT_SELECTION_NAME = 'Current selection';
@@ -1193,7 +1193,7 @@ export function treeExportSet(currTree, nodeKey) {
 export function treeInitialize(datatype) {
   const treeKey = generateKey();
   return {
-    version: HIERARCHICAL_SETS_SCHEMA_VERSION,
+    version: HIERARCHICAL_SCHEMAS[datatype].version,
     datatype,
     tree: [],
     _state: {

@@ -1,9 +1,15 @@
 import Ajv from 'ajv';
-import hierarchicalSetsSchema from '../../schemas/hierarchical-sets.schema.json';
+import cellSetsSchema from '../../schemas/cell_sets.schema.json';
 
-export const HIERARCHICAL_SETS_SCHEMA_VERSION = '0.1.2';
 export const FILE_EXTENSION_JSON = 'json';
 export const MIME_TYPE_JSON = 'application/json';
+
+export const HIERARCHICAL_SCHEMAS = {
+  cell: {
+    version: '0.1.2',
+    schema: cellSetsSchema,
+  },
+};
 
 /**
  * Handler for JSON imports. Validates against the hierarchical sets schema.
@@ -15,7 +21,7 @@ export const MIME_TYPE_JSON = 'application/json';
 export function handleImportJSON(result, datatype) {
   const importData = JSON.parse(result);
   // Validate the imported file.
-  const validate = new Ajv().compile(hierarchicalSetsSchema);
+  const validate = new Ajv().compile(HIERARCHICAL_SCHEMAS[datatype].schema);
   const valid = validate(importData);
   if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);

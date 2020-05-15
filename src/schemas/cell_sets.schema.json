@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/hubmapconsortium/vitessce/#hierarchical-sets",
-  "title": "Vitessce hierarchical sets data",
+  "$id": "https://github.com/hubmapconsortium/vitessce/#cell_sets",
+  "title": "Vitessce cell sets data",
   "type": "object",
   "definitions": {
       "stringArray": {

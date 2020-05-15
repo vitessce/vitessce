@@ -15,7 +15,7 @@ import genesSchema from '../../schemas/genes.schema.json';
 import moleculesSchema from '../../schemas/molecules.schema.json';
 import neighborhoodsSchema from '../../schemas/neighborhoods.schema.json';
 import rasterSchema from '../../schemas/raster.schema.json';
-import cellSetsSchema from '../../schemas/hierarchical-sets.schema.json';
+import cellSetsSchema from '../../schemas/cell_sets.schema.json';
 
 const typeToSchema = {
   CELLS: cellsSchema,

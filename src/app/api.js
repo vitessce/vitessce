@@ -15,6 +15,7 @@ function makeLayerNameToConfig(datasetPrefix) {
 
 const linnarssonLayerNames = [
   'cells',
+  'cell_sets',
   'clusters',
   'genes',
   'raster',

@@ -93,7 +93,7 @@ export default function SetsManager(props) {
     onView,
   } = props;
 
-  if (clearPleaseWait && tree) {
+  if (clearPleaseWait && tree && tree.tree.length > 0) {
     clearPleaseWait('cell_sets');
   }
 
