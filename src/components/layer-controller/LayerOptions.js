@@ -1,15 +1,15 @@
+/* eslint-disable */
+// done
 import React from 'react';
 
-import Grid from '@material-ui/core/Grid';
-import Slider from '@material-ui/core/Slider';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
+import { StyledGrid, StyledSlider,
+  StyledInputLabel, StyledSelect } from './styles';
 
 import { COLORMAP_OPTIONS } from '../utils';
 
 function ColormapSelect({ value, inputId, handleChange }) {
   return (
-    <Select
+    <StyledSelect
       native
       onChange={e => handleChange(e.target.value)}
       value={value}
@@ -22,13 +22,13 @@ function ColormapSelect({ value, inputId, handleChange }) {
           {name}
         </option>
       ))}
-    </Select>
+    </StyledSelect>
   );
 }
 
 function OpacitySlider({ value, handleChange }) {
   return (
-    <Slider
+    <StyledSlider
       value={value}
       onChange={(e, v) => handleChange(v)}
       valueLabelDisplay="auto"
@@ -49,7 +49,7 @@ function GlobalSelectionSlider({
   possibleValues,
 }) {
   return (
-    <Slider
+    <StyledSlider
       value={value}
       // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
       // we have the two handlers.
@@ -73,16 +73,16 @@ function GlobalSelectionSlider({
 
 function LayerOption({ name, inputId, children }) {
   return (
-    <Grid container direction="row" alignItems="flex-end" justify="space-between">
-      <Grid item xs={6}>
-        <InputLabel htmlFor={inputId}>
+    <StyledGrid container direction="row" alignItems="flex-end" justify="space-between">
+      <StyledGrid item xs={6}>
+        <StyledInputLabel htmlFor={inputId}>
           {name}:
-        </InputLabel>
-      </Grid>
-      <Grid item xs={6}>
+        </StyledInputLabel>
+      </StyledGrid>
+      <StyledGrid item xs={6}>
         {children}
-      </Grid>
-    </Grid>
+      </StyledGrid>
+    </StyledGrid>
   );
 }
 
@@ -98,8 +98,8 @@ function LayerOptions({
 }) {
   const hasDimensionsAndChannels = dimensions.length > 0 && Object.keys(channels).length > 0;
   return (
-    <Grid container direction="column" style={{ width: '100%' }}>
-      <Grid item>
+    <StyledGrid container direction="column" style={{ width: '100%' }}>
+      <StyledGrid item>
         <LayerOption name="Colormap" inputId="colormap-select">
           <ColormapSelect
             value={colormap}
@@ -107,12 +107,12 @@ function LayerOptions({
             handleChange={handleColormapChange}
           />
         </LayerOption>
-      </Grid>
-      <Grid item>
+      </StyledGrid>
+      <StyledGrid item>
         <LayerOption name="Opacity" inputId="opacity-slider">
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
         </LayerOption>
-      </Grid>
+      </StyledGrid>
       {hasDimensionsAndChannels
         && globalControlDimensions.map((dimension) => {
           const { field, values } = dimension;
@@ -128,7 +128,7 @@ function LayerOptions({
           );
         })
       }
-    </Grid>
+    </StyledGrid>
   );
 }
 

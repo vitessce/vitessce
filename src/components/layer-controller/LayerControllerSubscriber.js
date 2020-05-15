@@ -1,15 +1,16 @@
+/* eslint-disable */
 import React, { useState, useEffect, useCallback } from 'react';
 
 import PubSub from 'pubsub-js';
-import Grid from '@material-ui/core/Grid';
-import { ThemeProvider } from '@material-ui/core/styles';
+import { StyledGrid } from './styles';
+/* import { ThemeProvider } from '@material-ui/core/styles'; */
 
 
 import TitleInfo from '../TitleInfo';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import { RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT } from '../../events';
-import { darkTheme } from './styles';
+/* import { darkTheme } from './styles'; */
 
 function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   const [imageOptions, setImageOptions] = useState(null);
@@ -38,23 +39,21 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   };
 
   const layerControllers = layers.map(({ layerId, imageData }) => (
-    <Grid key={layerId} item style={{ marginTop: '10px' }}>
+    <StyledGrid key={layerId} item style={{ marginTop: '10px' }}>
       <LayerController
         layerId={layerId}
         imageData={imageData}
         handleLayerRemove={() => handleLayerRemove(layerId)}
       />
-    </Grid>
+    </StyledGrid>
   ));
 
   return (
     <TitleInfo title="Layer Controller" isScroll removeGridComponent={removeGridComponent}>
-      <ThemeProvider theme={darkTheme}>
-        {layerControllers}
-        <Grid item>
-          <ImageAddButton imageOptions={imageOptions} handleImageAdd={handleImageAdd} />
-        </Grid>
-      </ThemeProvider>
+      {layerControllers}
+      <StyledGrid item>
+        <ImageAddButton imageOptions={imageOptions} handleImageAdd={handleImageAdd} />
+      </StyledGrid>
     </TitleInfo>
   );
 }

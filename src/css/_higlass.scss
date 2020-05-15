@@ -1,4 +1,5 @@
-@import "~higlass/dist/hglib.css";
+/* Note: Disabling the higlass external styles temporarily because they bleed into the outer scope. */
+/* @import "~higlass/dist/hglib.css"; */
 
 @mixin higlass($theme-name, $theme-colors) {
     .v-higlass-title-wrapper {

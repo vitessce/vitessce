@@ -1,9 +1,9 @@
+/* eslint-disable */
+// done
 import React from 'react';
 
-import Checkbox from '@material-ui/core/Checkbox';
-import Grid from '@material-ui/core/Grid';
-import Slider from '@material-ui/core/Slider';
-import Select from '@material-ui/core/Select';
+import { StyledCheckbox, StyledGrid, 
+  StyledSlider, StyledSelect } from './styles';
 
 import ChannelOptions from './ChannelOptions';
 
@@ -23,7 +23,7 @@ function ChannelSelectionDropdown({
   selectionIndex,
 }) {
   return (
-    <Select
+    <StyledSelect
       native
       value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}
@@ -33,13 +33,13 @@ function ChannelSelectionDropdown({
           {opt}
         </option>
       ))}
-    </Select>
+    </StyledSelect>
   );
 }
 
 function ChannelSlider({ color, slider, handleChange }) {
   return (
-    <Slider
+    <StyledSlider
       value={slider}
       onChange={(e, v) => handleChange(v)}
       valueLabelDisplay="auto"
@@ -54,7 +54,7 @@ function ChannelSlider({ color, slider, handleChange }) {
 
 function ChannelVisibilityCheckbox({ color, checked, toggle }) {
   return (
-    <Checkbox
+    <StyledCheckbox
       onChange={toggle}
       checked={checked}
       style={{ color, '&$checked': { color } }}
@@ -87,40 +87,40 @@ function ChannelController({
   */
   const createSelection = index => ({ [dimName]: index });
   return (
-    <Grid container direction="column" m={1} justify="center">
-      <Grid container direction="row" justify="space-between">
-        <Grid item xs={10}>
+    <StyledGrid container direction="column" m={1} justify="center">
+      <StyledGrid container direction="row" justify="space-between">
+        <StyledGrid item xs={10}>
           <ChannelSelectionDropdown
             handleChange={v => handlePropertyChange('selection', createSelection(v))}
             selectionIndex={selectionIndex}
             disableOptions={disableOptions}
             channelOptions={channelOptions}
           />
-        </Grid>
-        <Grid item xs={1} style={{ marginTop: '4px' }}>
+        </StyledGrid>
+        <StyledGrid item xs={1} style={{ marginTop: '4px' }}>
           <ChannelOptions
             handlePropertyChange={handlePropertyChange}
             handleChannelRemove={handleChannelRemove}
           />
-        </Grid>
-      </Grid>
-      <Grid container direction="row" justify="space-between">
-        <Grid item xs={2}>
+        </StyledGrid>
+      </StyledGrid>
+      <StyledGrid container direction="row" justify="space-between">
+        <StyledGrid item xs={2}>
           <ChannelVisibilityCheckbox
             color={rgbColor}
             checked={visibility}
             toggle={() => handlePropertyChange('visibility')}
           />
-        </Grid>
-        <Grid item xs={9}>
+        </StyledGrid>
+        <StyledGrid item xs={9}>
           <ChannelSlider
             color={rgbColor}
             slider={slider}
             handleChange={v => handlePropertyChange('slider', v)}
           />
-        </Grid>
-      </Grid>
-    </Grid>
+        </StyledGrid>
+      </StyledGrid>
+    </StyledGrid>
   );
 }
 

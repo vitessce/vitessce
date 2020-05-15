@@ -1,28 +1,26 @@
+/* eslint-disable */
+// done
 import React, {
   useState, useReducer, useEffect,
 } from 'react';
 import PubSub from 'pubsub-js';
 import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer';
 
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import AddIcon from '@material-ui/icons/Add';
-
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { StyledGrid, StyledAddIcon, 
+  StyledExpansionPanel, StyledExpansionPanelSummary, 
+  StyledExpansionPanelDetails, StyledExpandMoreIcon, StyledDashedButton
+ } from './styles';
 
 import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
 import { LAYER_ADD, LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
-import { useExpansionPanelStyles } from './styles';
 
 // For now these are the global channel selectors.
 // We can expand this part of the application as new needs arise.
 const GLOBAL_SLIDER_DIMENSION_FIELDS = ['z', 'time'];
+
 
 function buildDefaultSelection(imageDims, defaultIndex = 0) {
   const selection = {};
@@ -72,7 +70,6 @@ async function initLoader(imageData) {
     }
   }
 }
-const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400 };
 const MAX_CHANNELS = 6;
 const DEFAULT_LAYER_PROPS = {
   colormap: '',
@@ -162,7 +159,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
           dispatch({ type: 'REMOVE_CHANNEL', layerId, payload: { channelId } });
         };
         return (
-          <Grid
+          <StyledGrid
             key={`channel-controller-${channelId}`}
             item
             style={{ width: '100%' }}
@@ -178,13 +175,12 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
               handlePropertyChange={handleChannelPropertyChange}
               handleChannelRemove={handleChannelRemove}
             />
-          </Grid>
+          </StyledGrid>
         );
       },
     );
   }
 
-  const classes = useExpansionPanelStyles();
   const handleGlobalChannelsSelectionChange = ({ selection, event }) => {
     // This call updates all channel selections with new global selection.
     dispatch({
@@ -198,16 +194,15 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
     });
   };
   return (
-    <ExpansionPanel defaultExpanded className={classes.root}>
-      <ExpansionPanelSummary
-        expandIcon={<ExpandMoreIcon />}
+    <StyledExpansionPanel defaultExpanded>
+      <StyledExpansionPanelSummary
+        expandIcon={<StyledExpandMoreIcon />}
         aria-controls={`layer-${imageData.name}-controls`}
-        style={{ paddingLeft: '10px', paddingRight: '10px' }}
       >
         {imageData.name}
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails className={classes.root}>
-        <Grid item>
+      </StyledExpansionPanelSummary>
+      <StyledExpansionPanelDetails>
+        <StyledGrid item>
           <LayerOptions
             channels={channels}
             dimensions={dimensions}
@@ -226,33 +221,31 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
               handleGlobalChannelsSelectionChange
             }
           />
-        </Grid>
+        </StyledGrid>
         {channelControllers}
-        <Grid item>
-          <Button
+        <StyledGrid item>
+          <StyledDashedButton
             disabled={Object.values(channels).length === MAX_CHANNELS}
             onClick={handleChannelAdd}
             fullWidth
             variant="outlined"
-            style={buttonStyles}
-            startIcon={<AddIcon />}
+            startIcon={<StyledAddIcon />}
             size="small"
           >
             Add Channel
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button
+          </StyledDashedButton>
+        </StyledGrid>
+        <StyledGrid item>
+          <StyledDashedButton
             onClick={handleLayerRemove}
             fullWidth
             variant="outlined"
-            style={buttonStyles}
             size="small"
           >
             Remove Image Layer
-          </Button>
-        </Grid>
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
+          </StyledDashedButton>
+        </StyledGrid>
+      </StyledExpansionPanelDetails>
+    </StyledExpansionPanel>
   );
 }

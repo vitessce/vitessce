@@ -1,49 +1,39 @@
+/* eslint-disable */
+// done
 import React from 'react';
-import IconButton from '@material-ui/core/IconButton';
-import LensIcon from '@material-ui/icons/Lens';
-import { makeStyles } from '@material-ui/core/styles';
+import styled from 'styled-components';
 
+import {
+  StyledLensIcon,
+  StyledPaddedIconButton
+} from './styles';
 
 import { VIEWER_PALETTE } from '../utils';
 
-const useStyles = makeStyles(() => ({
-  container: {
-    width: '70px',
-    height: '40px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  button: {
-    padding: '3px',
-    width: '16px',
-    height: '16px',
-  },
-  icon: {
-    width: '17px',
-    height: '17px',
-  },
-}));
+const StyledContainer = styled("div")`
+  width: 70px;
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+`;
 
 const ColorPalette = ({ handleChange }) => {
-  const classes = useStyles();
   return (
-    <div className={classes.container} aria-label="color-swatch">
+    <StyledContainer aria-label="color-swatch">
       {VIEWER_PALETTE.map(color => (
-        <IconButton
-          className={classes.button}
+        <StyledPaddedIconButton
           key={color}
           onClick={() => handleChange(color)}
         >
-          <LensIcon
+          <StyledLensIcon
             fontSize="small"
             style={{ color: `rgb(${color})` }}
-            className={classes.icon}
           />
-        </IconButton>
+        </StyledPaddedIconButton>
       ))}
-    </div>
+    </StyledContainer>
   );
 };
 
