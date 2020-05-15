@@ -99,6 +99,11 @@ export default function SetsManager(props) {
 
   const [isDragging, setIsDragging] = useState(false);
 
+  /**
+   * Recursively render TreeNode components.
+   * @param {object[]} nodes An array of node objects.
+   * @returns {TreeNode[]|null} Array of TreeNode components or null.
+   */
   function renderTreeNodes(nodes) {
     if (!nodes) {
       return null;

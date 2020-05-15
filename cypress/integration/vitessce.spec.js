@@ -65,6 +65,9 @@ describe('Vitessce', () => {
     cy.contains('3 cells × 3 genes');
     cy.contains('with 0 cells selected');
 
+    // Cell sets:
+    cy.contains('Cell Type Annotations');
+
     // Expression Levels:
     cy.contains('2 genes');
     cy.contains('Slc32a1');

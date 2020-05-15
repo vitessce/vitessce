@@ -4,10 +4,10 @@ import RcTooltip from 'rc-tooltip';
 /**
  * This is a small wrapper around the Tooltip component from the rc-tooltip library,
  * which is required to be able to apply theme styles to the tooltip.
- * This is because the default `getTooltipContainer` function used by rc-tooltip
+ * The default `getTooltipContainer` function used by rc-tooltip
  * just returns `document.body` (see https://github.com/react-component/tooltip#props),
- * but theme styles need to be applied using a sibling class on `.vitessce-container`
- * (which is a child of `body`).
+ * We want theme styles to be applied relative to the closest `.vitessce-container`
+ * ancestor element.
  * https://github.com/hubmapconsortium/vitessce/pull/494#discussion_r395957914
  * @param {object} props Props are passed through to the <RcTooltip/> from the library.
  */

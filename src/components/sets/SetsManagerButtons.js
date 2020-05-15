@@ -120,7 +120,7 @@ export function SetOperationButtons(props) {
       >
         <SetViewSVG />
       </button>
-      {operatable ? (
+      {operatable && (
         <>
           <button
             onClick={onUnion}
@@ -144,7 +144,7 @@ export function SetOperationButtons(props) {
             <SetComplementSVG />
           </button>
         </>
-      ) : null}
+      )}
     </>
   );
 }

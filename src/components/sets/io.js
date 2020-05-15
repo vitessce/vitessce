@@ -43,14 +43,12 @@ export function handleExportJSON(result) {
 /**
  * Download a file. Appends and removes an anchor node in the DOM.
  * @param {string} dataString The function that converts the data to a string.
- * @param {string} fileName The extension of the file to be downloaded.
- * @param {string} fileExtension The extension of the file to be downloaded.
+ * @param {string} fileName The name of the file to be downloaded.
  */
-export function downloadJSON(dataString, fileName, fileExtension) {
-  const fileNameAndExtension = `${fileName}.${fileExtension}`;
+export function downloadForUser(dataString, fileName) {
   const downloadAnchorNode = document.createElement('a');
   downloadAnchorNode.setAttribute('href', dataString);
-  downloadAnchorNode.setAttribute('download', fileNameAndExtension);
+  downloadAnchorNode.setAttribute('download', fileName);
   document.body.appendChild(downloadAnchorNode); // required for firefox
   downloadAnchorNode.click();
   downloadAnchorNode.remove();

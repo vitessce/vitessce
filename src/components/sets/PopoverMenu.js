@@ -51,7 +51,7 @@ function PopoverMenuListButton(props) {
       onClick={handleOrRequireConfirm}
       onKeyPress={e => callbackOnKeyPress(e, handlerKey, handleOrRequireConfirm)}
     >{titleWithConfirm}
-      {subtitle ? (<><br /><span className="small">{subtitle}</span></>) : null}
+      {subtitle && (<><br /><span className="small">{subtitle}</span></>)}
     </button>
   );
 }
@@ -83,29 +83,26 @@ function PopoverMenuList(props) {
   } = props;
 
   function handleColorChange({ rgb }) {
-    if (!rgb) {
-      return;
-    }
-    if (setColor) {
+    if (rgb && setColor) {
       setColor([rgb.r, rgb.g, rgb.b]);
     }
   }
 
-  const presetColors = (palette && palette.map(colorToHexString)) || PALETTE.map(colorToHexString);
+  const defaultPalette = palette ? palette.map(colorToHexString) : PALETTE.map(colorToHexString);
 
   return (
     <div>
-      {color && setColor && presetColors ? (
+      {color && setColor && defaultPalette && (
         <TwitterPicker
           className="popover-menu-color"
           disableAlpha
           width={108}
           triangle="hide"
-          colors={presetColors}
+          colors={defaultPalette}
           color={colorToHexString(color)}
           onChangeComplete={handleColorChange}
         />
-      ) : null}
+      )}
       <ul className="popover-menu-list">
         {menuConfig.map(item => (
           <li key={item.title}>

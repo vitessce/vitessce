@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
 import PubSub from 'pubsub-js';
-import pkg from '../../../package.json';
+import packageJson from '../../../package.json';
 import {
   CELL_SETS_VIEW, CELLS_SELECTION,
   CELLS_ADD, STATUS_WARN, CELLS_COLOR, CELL_SETS_ADD,
@@ -12,7 +12,7 @@ import reducer, {
   treeInitialize, ACTION, treeToVisibleCells,
   treeExportLevelZeroNode, treeExportSet,
 } from './reducer';
-import { handleExportJSON, downloadJSON, FILE_EXTENSION_JSON } from './io';
+import { handleExportJSON, downloadForUser, FILE_EXTENSION_JSON } from './io';
 
 const SETS_DATATYPE_CELL = 'cell';
 const initialTree = treeInitialize(SETS_DATATYPE_CELL);
@@ -41,18 +41,17 @@ export default function CellSetsManagerSubscriber(props) {
 
   function onExportLevelZeroNode(nodeKey) {
     const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
-    downloadJSON(
+    downloadForUser(
       handleExportJSON(treeToExport),
-      `${nodeName}_${pkg.name}-${SETS_DATATYPE_CELL}-hierarchy`,
-      FILE_EXTENSION_JSON,
+      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_JSON}`,
     );
   }
 
   function onExportSet(nodeKey) {
     const { setToExport, nodeName } = treeExportSet(tree, nodeKey);
-    downloadJSON(
+    downloadForUser(
       handleExportJSON(setToExport),
-      `${nodeName}_${pkg.name}-${SETS_DATATYPE_CELL}-set`,
+      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-set.${FILE_EXTENSION_JSON}`,
       FILE_EXTENSION_JSON,
     );
   }
