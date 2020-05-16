@@ -245,21 +245,25 @@ function nodeSetColor(currNode, newColor) {
  * potentially with an undefined ._state property.
  * @param {number} level The level for the node. By default, 0.
  * @param {object} stateOverrides Pre-defined state values to use. Optional.
+ * @param {boolean} useDefaultColor Should a default color be used if none is provided?
  * @returns {object} The node object, with a filled-in ._state property.
  */
-function nodeWithState(currNode, level = 0, stateOverrides = {}) {
+function nodeWithState(currNode, level = 0, stateOverrides = {}, useDefaultColor = true) {
   const nodeKey = generateKey();
   if (ALLOW_SIDE_EFFECTS && !currNode.children) {
     globalSets[nodeKey] = currNode.set || [];
   }
   return {
     name: currNode.name,
-    color: (level > 0 ? currNode.color || DEFAULT_COLOR : undefined),
+    color: (level > 0
+      ? currNode.color || (useDefaultColor ? DEFAULT_COLOR : undefined)
+      : undefined),
     ...(currNode.children ? {
       children: currNode.children.map(childNode => nodeWithState(
         childNode,
         level + 1,
         stateOverrides,
+        useDefaultColor,
       )),
     } : {
       set: (ALLOW_SIDE_EFFECTS ? true : (currNode.set || [])),
@@ -924,10 +928,10 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   const dropNodeIsLevelZero = dropNodeLevel === 0;
   const dropNodeIsLevelZeroEmpty = (dropNodeIsLevelZero && (
     !dropNode.children || dropNode.children.length === 0));
-  const dropNodeHeight = nodeToHeight(dropNode, 0);
+  const dropNodeHeight = nodeToHeight(dropNode);
   // Get drag node.
   const dragNode = treeFindNodeByKey(currTree, dragKey);
-  const dragNodeHeight = nodeToHeight(dragNode, 0);
+  const dragNodeHeight = nodeToHeight(dragNode);
 
   // Only allow dragging if:
   // - dropping between nodes, and both drag and drop node have same height, OR
@@ -1117,7 +1121,7 @@ export function treeImport(currTree, levelZeroNodes) {
   if (!levelZeroNodes || levelZeroNodes.length === 0) {
     return currTree;
   }
-  let newChildren = levelZeroNodes.map(child => nodeWithState(child));
+  let newChildren = levelZeroNodes.map(child => nodeWithState(child, 0, {}, false));
 
   // Set colors of new nodes.
   newChildren = newChildren.map((child) => {
@@ -1130,7 +1134,7 @@ export function treeImport(currTree, levelZeroNodes) {
         newChild = nodeTransform(
           newChild,
           n => n._state.key === descendantKey,
-          n => nodeSetColor(n, PALETTE[i % PALETTE.length]),
+          n => nodeSetColor(n, n.color || PALETTE[i % PALETTE.length]),
         );
       });
     });
@@ -1229,7 +1233,7 @@ export function nodeToRenderProps(node) {
     isCurrentSet: node._state.isCurrent,
     isForTools: node._state.isForTools,
     isLeaf: !node.children,
-    height: nodeToHeight(node, node._state.level),
+    height: nodeToHeight(node),
   };
 }
 
