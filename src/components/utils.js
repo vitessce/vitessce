@@ -104,22 +104,22 @@ export const COLORMAP_OPTIONS = [
 
 export const DEFAULT_GL_OPTIONS = { webgl2: true };
 
-export function updateStatusWarn(componentName) {
+export function createDefaultUpdateStatus(componentName) {
   return message => console.warn(`${componentName} updateStatus: ${message}`);
 }
 
-export function updateCellsSelectionWarn(componentName) {
+export function createDefaultUpdateCellsSelection(componentName) {
   return cellsSelection => console.warn(`${componentName} updateCellsSelection: ${cellsSelection}`);
 }
 
-export function updateCellsHoverWarn(componentName) {
+export function createDefaultUpdateCellsHover(componentName) {
   return hoverInfo => console.warn(`${componentName} updateCellsHover: ${hoverInfo.cellId}`);
 }
 
-export function updateViewInfoWarn(componentName) {
+export function createDefaultUpdateViewInfo(componentName) {
   return viewInfo => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
 }
 
-export function clearPleaseWaitWarn(componentName) {
+export function createDefaultClearPleaseWait(componentName) {
   return layer => console.warn(`${componentName} "clearPleaseWait" not provided; layer: ${layer}`);
 }

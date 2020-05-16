@@ -6,9 +6,9 @@ import { getSelectionLayers } from '../selectable-component-utils';
 import {
   cellLayerDefaultProps, DEFAULT_COLOR,
   DEFAULT_GL_OPTIONS,
-  updateStatusWarn, updateCellsSelectionWarn,
-  updateCellsHoverWarn,
-  updateViewInfoWarn, clearPleaseWaitWarn,
+  createDefaultUpdateStatus, createDefaultUpdateCellsSelection,
+  createDefaultUpdateCellsHover,
+  createDefaultUpdateViewInfo, createDefaultClearPleaseWait,
 } from '../utils';
 
 const COMPONENT_NAME = 'Scatterplot';
@@ -24,7 +24,8 @@ const CELLS_LAYER_ID = 'scatterplot';
  * @prop {string} mapping
  * @prop {object} cellColors Object mapping cell IDs to colors.
  * @prop {Set} selectedCellIds Set of selected cell IDs.
- * @prop {function} getCellCoords Getter function for cell coordinates.
+ * @prop {function} getCellCoords Getter function for cell coordinates
+ * (used by the selection layer).
  * @prop {function} getCellPosition Getter function for cell [x, y, z] position.
  * @prop {function} getCellColor Getter function for cell color as [r, g, b] array.
  * @prop {function} getCellIsSelected Getter function for cell layer isSelected.
@@ -62,11 +63,11 @@ export default function Scatterplot(props) {
         ? selectedCellIds.has(cellEntry[0])
         : true // If nothing is selected, everything is selected.
     ),
-    updateStatus = updateStatusWarn(COMPONENT_NAME),
-    updateCellsSelection = updateCellsSelectionWarn(COMPONENT_NAME),
-    updateCellsHover = updateCellsHoverWarn(COMPONENT_NAME),
-    updateViewInfo = updateViewInfoWarn(COMPONENT_NAME),
-    clearPleaseWait = clearPleaseWaitWarn(COMPONENT_NAME),
+    updateStatus = createDefaultUpdateStatus(COMPONENT_NAME),
+    updateCellsSelection = createDefaultUpdateCellsSelection(COMPONENT_NAME),
+    updateCellsHover = createDefaultUpdateCellsHover(COMPONENT_NAME),
+    updateViewInfo = createDefaultUpdateViewInfo(COMPONENT_NAME),
+    clearPleaseWait = createDefaultClearPleaseWait(COMPONENT_NAME),
     onCellClick = (info) => {
       const cellId = info.object[0];
       const newSelectedCellIds = new Set(selectedCellIds);

@@ -12,9 +12,9 @@ import { getSelectionLayers } from '../selectable-component-utils';
 import {
   cellLayerDefaultProps, PALETTE, DEFAULT_COLOR,
   DEFAULT_GL_OPTIONS,
-  updateStatusWarn, updateCellsSelectionWarn,
-  updateCellsHoverWarn,
-  updateViewInfoWarn, clearPleaseWaitWarn,
+  createDefaultUpdateStatus, createDefaultUpdateCellsSelection,
+  createDefaultUpdateCellsHover,
+  createDefaultUpdateViewInfo, createDefaultClearPleaseWait,
 } from '../utils';
 
 const COMPONENT_NAME = 'Spatial';
@@ -40,7 +40,8 @@ export function square(x, y, r) {
  * @prop {object} imageLayerLoaders
  * @prop {object} cellColors Object mapping cell IDs to colors.
  * @prop {Set} selectedCellIds Set of selected cell IDs.
- * @prop {function} getCellCoords Getter function for cell coordinates.
+ * @prop {function} getCellCoords Getter function for cell coordinates
+ * (used by the selection layer).
  * @prop {function} getCellColor Getter function for cell color as [r, g, b] array.
  * @prop {function} getCellPolygon
  * @prop {function} getCellIsSelected Getter function for cell layer isSelected.
@@ -87,11 +88,11 @@ export default function Spatial(props) {
       const neighborhood = neighborhoodsEntry[1];
       return neighborhood.poly;
     },
-    updateStatus = updateStatusWarn(COMPONENT_NAME),
-    updateCellsSelection = updateCellsSelectionWarn(COMPONENT_NAME),
-    updateCellsHover = updateCellsHoverWarn(COMPONENT_NAME),
-    updateViewInfo = updateViewInfoWarn(COMPONENT_NAME),
-    clearPleaseWait = clearPleaseWaitWarn(COMPONENT_NAME),
+    updateStatus = createDefaultUpdateStatus(COMPONENT_NAME),
+    updateCellsSelection = createDefaultUpdateCellsSelection(COMPONENT_NAME),
+    updateCellsHover = createDefaultUpdateCellsHover(COMPONENT_NAME),
+    updateViewInfo = createDefaultUpdateViewInfo(COMPONENT_NAME),
+    clearPleaseWait = createDefaultClearPleaseWait(COMPONENT_NAME),
     onCellClick = (info) => {
       const cellId = info.object[0];
       const newSelectedCellIds = new Set(selectedCellIds);
