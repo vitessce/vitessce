@@ -39,23 +39,6 @@ export default function CellSetsManagerSubscriber(props) {
     dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
   }
 
-  function onExportLevelZeroNode(nodeKey) {
-    const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
-    downloadForUser(
-      handleExportJSON(treeToExport),
-      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_JSON}`,
-    );
-  }
-
-  function onExportSet(nodeKey) {
-    const { setToExport, nodeName } = treeExportSet(tree, nodeKey);
-    downloadForUser(
-      handleExportJSON(setToExport),
-      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-set.${FILE_EXTENSION_JSON}`,
-      FILE_EXTENSION_JSON,
-    );
-  }
-
   // Subscribe to cell set import events.
   // Subscribe to cell import and selection events.
   useEffect(() => {
@@ -87,73 +70,90 @@ export default function CellSetsManagerSubscriber(props) {
   }, [tree]);
 
   // Callback functions
-  const onCheckNodes = useCallback((checkedKeys) => {
+  function onCheckNodes(checkedKeys) {
     dispatch({ type: ACTION.CHECK_NODES, checkedKeys });
-  }, []);
+  }
 
-  const onCheckNode = useCallback((targetKey) => {
+  function onCheckNode(targetKey) {
     dispatch({ type: ACTION.CHECK_NODE, targetKey });
-  }, []);
+  }
 
-  const onExpandNode = useCallback((expandedKeys, targetKey, expanded) => {
+  function onExpandNode(expandedKeys, targetKey, expanded) {
     dispatch({
       type: ACTION.EXPAND_NODE, expandedKeys, targetKey, expanded,
     });
-  }, []);
+  }
 
-  const onDropNode = useCallback((dropKey, dragKey, dropPosition, dropToGap) => {
+  function onDropNode(dropKey, dragKey, dropPosition, dropToGap) {
     dispatch({
       type: ACTION.DROP_NODE, dropKey, dragKey, dropPosition, dropToGap,
     });
-  }, []);
+  }
 
-  const onCheckLevel = useCallback((levelZeroKey, levelIndex) => {
+  function onCheckLevel(levelZeroKey, levelIndex) {
     dispatch({ type: ACTION.CHECK_LEVEL, levelZeroKey, levelIndex });
-  }, []);
+  }
 
-  const onNodeSetColor = useCallback((targetKey, color) => {
+  function onNodeSetColor(targetKey, color) {
     dispatch({ type: ACTION.SET_NODE_COLOR, targetKey, color });
-  }, []);
+  }
 
-  const onNodeSetName = useCallback((targetKey, name, stopEditing) => {
+  function onNodeSetName(targetKey, name, stopEditing) {
     dispatch({
       type: ACTION.SET_NODE_NAME, targetKey, name, stopEditing,
     });
-  }, []);
+  }
 
-  const onNodeSetIsEditing = useCallback((targetKey, value) => {
+  function onNodeSetIsEditing(targetKey, value) {
     dispatch({
       type: ACTION.SET_NODE_IS_EDITING, targetKey, value,
     });
-  }, []);
+  }
 
-  const onNodeRemove = useCallback((targetKey) => {
+  function onNodeRemove(targetKey) {
     dispatch({ type: ACTION.REMOVE_NODE, targetKey });
-  }, []);
+  }
 
-  const onNodeView = useCallback((targetKey) => {
+  function onNodeView(targetKey) {
     dispatch({ type: ACTION.VIEW_NODE, targetKey });
-  }, []);
+  }
 
-  const onCreateLevelZeroNode = useCallback(() => {
+  function onCreateLevelZeroNode() {
     dispatch({ type: ACTION.CREATE_LEVEL_ZERO_NODE });
-  }, []);
+  }
 
-  const onUnion = useCallback(() => {
+  function onUnion() {
     dispatch({ type: ACTION.UNION_CHECKED });
-  }, []);
+  }
 
-  const onIntersection = useCallback(() => {
+  function onIntersection() {
     dispatch({ type: ACTION.INTERSECTION_CHECKED });
-  }, []);
+  }
 
-  const onComplement = useCallback(() => {
+  function onComplement() {
     dispatch({ type: ACTION.COMPLEMENT_CHECKED });
-  }, []);
+  }
 
-  const onView = useCallback(() => {
+  function onView() {
     dispatch({ type: ACTION.VIEW_CHECKED });
-  }, []);
+  }
+
+  function onExportLevelZeroNode(nodeKey) {
+    const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
+    downloadForUser(
+      handleExportJSON(treeToExport),
+      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_JSON}`,
+    );
+  }
+
+  function onExportSet(nodeKey) {
+    const { setToExport, nodeName } = treeExportSet(tree, nodeKey);
+    downloadForUser(
+      handleExportJSON(setToExport),
+      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-set.${FILE_EXTENSION_JSON}`,
+      FILE_EXTENSION_JSON,
+    );
+  }
 
   return (
     <TitleInfo
