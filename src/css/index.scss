@@ -14,6 +14,7 @@
 @mixin vitessce-themable($theme-name, $theme-colors) {
   @include app($theme-name, $theme-colors);
   @include controls($theme-name, $theme-colors);
+  @include channels($theme-name, $theme-colors);
   @include error($theme-name, $theme-colors);
   @include tooltips($theme-name, $theme-colors);
   @include sets-manager($theme-name, $theme-colors);

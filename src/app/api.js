@@ -143,9 +143,9 @@ const configs = {
         props: {
           description: `Linnarsson: ${linnarssonDescription}`,
         },
-        x: 0, y: 0, w: 2, h: 1 },
+        x: 0, y: 0, w: 2, h: 2 },
       { component: 'layerController',
-        x: 0, y: 1, w: 2, h: 4,
+        x: 0, y: 2, w: 2, h: 3,
       },
       { component: 'status',
         x: 0, y: 5, w: 2, h: 1 },

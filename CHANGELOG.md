@@ -1,11 +1,20 @@
 # Changelog
 
-## 0.1.3 - in progress
+## 0.1.3
+
+### Added
+- Trevor's lab presentation on multimodal imaging (2020-05-14).
+- Added support for displaying tables of metadata in the `Description` component by wrapping in a `DescriptionSubscriber` component.
 
 ### Changed
+- Updated README to note a change to the development process: back to merging feature branches into `master` (rather than a `dev` branch).
+- Reduced global style creep by adding a `StylesProvider` with custom `generateClassName` function from [mui](https://material-ui.com/styles/api/#creategenerateclassname-options-class-name-generator). Temporarily commented out HiGlass styles.
+- Scrollable image layer popout.
+- Upgrade `viv` to 0.2.5.
+- Theme for image layer button.
 - Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
 
-## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-12
+## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
 ### Added
 - Added a Travis CI `deploy` step for publishing to NPM when on the master branch.
@@ -17,7 +26,7 @@
 - Fixed a horizontal scroll bug caused by overflow of the `{num} genes` subtitle in the Linnarsson demo.
 - Fixed a regression caused by the updated bundling scripts minifying HTML assets and removing intentional spaces.
 - Upgrade LayerController to be more general.
-- In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation. 
+- In `src/app/app.js` and `src/demo/index.js`, separated rendering from validation.
 - Changed export method for components.
 - Fixed backwards webpack `externals` object (`react` and `react-dom` were not properly externalized previously).
 - Upgrade `viv` and `vitessce-grid` to 0.2.4 and 0.0.7, respectively.
@@ -27,6 +36,7 @@
 ### Added
 - HiGlass integration
 - Added multi-modal Spraggins example.
+- Added a new event type `METADATA_ADD` for publishing layer metadata (image layer details, heatmap layer details, etc).
 
 ### Changed
 - Changed rectangle tool interaction to dragging (rather than clicking twice).

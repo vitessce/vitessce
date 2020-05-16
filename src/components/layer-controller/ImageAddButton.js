@@ -37,11 +37,12 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
         startIcon={<AddIcon />}
         size="small"
         ref={anchorRef}
+        className="add-image-layer"
       >
             Add Image Layer
       </Button>
       <Popper open={open} anchorEl={anchorRef.current} placement="bottom-end">
-        <Paper className={classes.paper}>
+        <Paper className={classes.paper} style={{ maxHeight: 200, overflow: 'auto' }}>
           <ClickAwayListener onClickAway={toggle}>
             <MenuList id="image-layer-options">
               {imageOptions.map(imgData => (
