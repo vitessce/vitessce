@@ -6,7 +6,6 @@
 - Added support for providing cell sets files in view configs.
 
 ### Changed
-- Updated README to note a change to the development process: back to merging feature branches into `master` (rather than a `dev` branch).
 - Updated the cell set hierarchy schema.
 - Updated the cell set manager, to try to improve usability.
 

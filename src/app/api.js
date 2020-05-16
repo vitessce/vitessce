@@ -25,7 +25,8 @@ const linnarssonLayerNames = [
 const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
   description: linnarssonDescription,
-  layers: linnarssonLayerNames.map(makeLayerNameToConfig('linnarsson')),
+  layers: linnarssonLayerNames
+    .map(makeLayerNameToConfig('linnarsson')),
 };
 const linnarssonBaseNoClusters = {
   description: linnarssonDescription,
@@ -38,6 +39,7 @@ const driesBase = {
   description: driesDescription,
   layers: [
     'cells',
+    'cell_sets',
   ].map(makeLayerNameToConfig('dries')),
 };
 
