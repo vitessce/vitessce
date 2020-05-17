@@ -874,40 +874,69 @@ function treeOnExpand(currTree, expandedKeys, targetKey, expanded) {
 }
 
 /**
+ * Get an flattened array of descendants.
+ * @param {object} node A node object.
+ * @returns {object[]} An array of descendants.
+ */
+function nodeToDescendantsFlat(node) {
+  if (!node.children) {
+    return [];
+  }
+  return [
+    ...node.children,
+    ...node.children.flatMap(c => nodeToDescendantsFlat(c)),
+  ];
+}
+
+/**
+ * Get all ancestors of a node.
+ * @param {object} currTree A tree object.
+ * @param {string} targetKey The key of the node of interestt.
+ * @returns {object[]} The ancestor nodes.
+ */
+function treeFindNodeAncestorsByKey(currTree, targetKey) {
+  const ancestors = [];
+  let curr = treeFindNodeParentByKey(currTree, targetKey);
+  do {
+    ancestors.push(curr);
+    curr = treeFindNodeParentByKey(currTree, curr._state.key);
+  } while (curr);
+  return ancestors.filter(Boolean);
+}
+
+/**
  * Respond to a node checkbox interaction (check or un-check).
  * @param {object} currTree A tree object.
- * @param {string[]} checkedKeys The keys that should be checked after
- * the interaction.
+ * @param {string} targetKey The target of the check or un-check interaction.
+ * @param {boolean} checked Is this a check (true) or uncheck (false) interaction?
  * @returns {object} The updated tree.
  */
-function treeOnCheckNodes(currTree, checkedKeys) {
+function treeOnCheckNode(currTree, targetKey, checked) {
+  const currCheckedKeys = currTree._state.checkedKeys;
+  // Add or remove the target node's key from the tree's list of checked keys.
+  const node = treeFindNodeByKey(currTree, targetKey);
+  const nodeAndDescendantsFlat = [node, ...nodeToDescendantsFlat(node)];
+  const targetKeys = nodeAndDescendantsFlat.map(n => n._state.key);
+  let newCheckedKeys;
+  if (checked) {
+    // The target node was checked.
+    newCheckedKeys = Array.from(new Set([...currCheckedKeys, ...targetKeys]));
+  } else {
+    // The target node was un-checked.
+    newCheckedKeys = currCheckedKeys.filter(k => !targetKeys.includes(k));
+    // Filter out all ancestor keys if un-checking.
+    const ancestorKeys = treeFindNodeAncestorsByKey(currTree, targetKey)
+      .map(n => n._state.key);
+    newCheckedKeys = newCheckedKeys.filter(k => !ancestorKeys.includes(k));
+  }
   return {
     ...currTree,
     _state: {
       ...currTree._state,
-      checkedKeys,
+      checkedKeys: newCheckedKeys,
       isChecking: true,
     },
   };
-}
-
-/**
- * Respond to a node checkbox interaction (check or un-check),
- * but only for one node, toggling its presence in the set of checked nodes.
- * @param {object} currTree A tree object.
- * @param {string} targetKey The target of the check or un-check interaction.
- * @returns {object} The updated tree.
- */
-function treeOnCheckNode(currTree, targetKey) {
-  const currCheckedKeys = currTree._state.checkedKeys;
-  // Add or remove the target node's key from the tree's list of checked keys.
-  let newCheckedKeys;
-  if (currCheckedKeys.includes(targetKey)) {
-    newCheckedKeys = currCheckedKeys.filter(k => k !== targetKey);
-  } else {
-    newCheckedKeys = [...currCheckedKeys, targetKey];
-  }
-  return treeOnCheckNodes(currTree, newCheckedKeys);
 }
 
 /**
@@ -1036,6 +1065,18 @@ function treeSetVisibleKeys(currTree, visibleKeys, shouldInvalidateCheckedLevel 
 }
 
 /**
+ * Get an flattened array of leaf nodes.
+ * @param {object} node A node object.
+ * @returns {object[]} An array of leaf nodes.
+ */
+function nodeToLeavesFlat(node) {
+  if (!node.children) {
+    return [node];
+  }
+  return node.children.flatMap(c => nodeToLeavesFlat(c));
+}
+
+/**
  * Copy the currently-checked keys to the currently-visible keys.
  * @param {object} currTree A tree object.
  * @returns {object} The updated tree.
@@ -1043,7 +1084,22 @@ function treeSetVisibleKeys(currTree, visibleKeys, shouldInvalidateCheckedLevel 
 function treeSetVisibleKeysToCheckedKeys(currTree) {
   // TODO: figure out how to alert the user if their checked sets intersect
   // or span across multiple level zero nodes.
-  return treeSetVisibleKeys(currTree, currTree._state.checkedKeys);
+
+  // If any checkedKeys correspond to levelZero nodes,
+  // replace with the keys of all descendants
+  // (this is beacuse we do not want level zero nodes to be check-able,
+  // but rc-tree will roll all descendants up and replace with the ancestor
+  // if all of the ancestor's descendants are checked).
+  let newVisibleKeys = currTree._state.checkedKeys;
+  newVisibleKeys = newVisibleKeys.flatMap((k) => {
+    const node = treeFindNodeByKey(currTree, k);
+    if (node._state.level === 0) {
+      return nodeToLeavesFlat(node).map(n => n._state.key);
+    }
+    return [k];
+  });
+
+  return treeSetVisibleKeys(currTree, newVisibleKeys);
 }
 
 /**
@@ -1070,14 +1126,14 @@ function treeNodeView(currTree, targetKey) {
  * @returns {object[]} An array of descendants at the specified level,
  * where the level is relative to the node.
  */
-function nodeToDescendantsFlat(node, level) {
+function nodeToLevelDescendantsFlat(node, level) {
   if (!node.children) {
     return [];
   }
   if (level === 0) {
     return node.children;
   }
-  return node.children.flatMap(c => nodeToDescendantsFlat(c, level - 1));
+  return node.children.flatMap(c => nodeToLevelDescendantsFlat(c, level - 1));
 }
 
 /**
@@ -1093,7 +1149,8 @@ function treeNodeViewDescendants(
   currTree, targetKey, level, shouldInvalidateCheckedLevel = true,
 ) {
   const node = treeFindNodeByKey(currTree, targetKey);
-  const descendantKeys = nodeToDescendantsFlat(node, level).map(d => d._state.key);
+  const descendantKeys = nodeToLevelDescendantsFlat(node, level)
+    .map(d => d._state.key);
   return treeSetVisibleKeys(currTree, descendantKeys, shouldInvalidateCheckedLevel);
 }
 
@@ -1128,7 +1185,7 @@ export function treeImport(currTree, levelZeroNodes) {
     const height = nodeToHeight(child);
     let newChild = child;
     range(height).forEach((level) => {
-      const descendantKeys = nodeToDescendantsFlat(child, level)
+      const descendantKeys = nodeToLevelDescendantsFlat(child, level)
         .map(d => d._state.key);
       descendantKeys.forEach((descendantKey, i) => {
         newChild = nodeTransform(
@@ -1271,7 +1328,6 @@ export const ACTION = Object.freeze({
   SET_CURRENT_SET: 'setCurrentSet',
   EXPAND_NODE: 'expandNode',
   CHECK_NODE: 'checkNode',
-  CHECK_NODES: 'checkNodes',
   CHECK_LEVEL: 'checkLevel',
   DROP_NODE: 'dropNode',
   SET_NODE_COLOR: 'setNodeColor',
@@ -1310,16 +1366,11 @@ const reducer = createReducer({
     const newTree = treeOnCheckNode(
       state,
       action.targetKey,
+      action.checked,
     );
     return treeSetVisibleKeysToCheckedKeys(newTree);
   },
-  [ACTION.CHECK_NODES]: (state, action) => {
-    const newTree = treeOnCheckNodes(
-      state,
-      action.checkedKeys,
-    );
-    return treeSetVisibleKeysToCheckedKeys(newTree);
-  },
+
   [ACTION.CHECK_LEVEL]: (state, action) => {
     const newTree = treeOnCheckLevel(state, action.levelZeroKey, action.levelIndex);
     return treeNodeViewDescendants(

@@ -115,8 +115,90 @@ describe('Hierarchical sets reducer', () => {
       expect(keySet.size).toEqual(5);
     });
 
-    it('can set checked keys', () => {
-      
+    it('can check leaf nodes', () => {
+      const initialTree = tree;
+      expect(initialTree._state.checkedKeys).toEqual([]);
+
+      const postCheckTree = reducer(initialTree, {
+        type: ACTION.CHECK_NODE,
+        targetKey: 'vasculature-endothelial',
+        checked: true,
+      });
+      expect(postCheckTree._state.checkedKeys).toEqual(['vasculature-endothelial']);
+
+      const postSecondCheckTree = reducer(postCheckTree, {
+        type: ACTION.CHECK_NODE,
+        targetKey: 'vasculature-pericytes',
+        checked: true,
+      });
+      expect(postSecondCheckTree._state.checkedKeys).toEqual([
+        'vasculature-endothelial',
+        'vasculature-pericytes'
+      ]);
+    });
+
+    it('can check non-leaf nodes', () => {
+      const initialTree = tree;
+      expect(initialTree._state.checkedKeys).toEqual([]);
+
+      const postCheckTree = reducer(initialTree, {
+        type: ACTION.CHECK_NODE,
+        targetKey: 'vasculature',
+        checked: true,
+      });
+      expect(postCheckTree._state.checkedKeys).toEqual([
+        'vasculature',
+        'vasculature-pericytes',
+        'vasculature-endothelial',
+      ]);
+    });
+
+    it('can un-check leaf nodes', () => {
+      const initialTree = tree;
+      expect(initialTree._state.checkedKeys).toEqual([]);
+
+      const postCheckTree = reducer(initialTree, {
+        type: ACTION.CHECK_NODE,
+        targetKey: 'vasculature',
+        checked: true,
+      });
+      expect(postCheckTree._state.checkedKeys).toEqual([
+        'vasculature',
+        'vasculature-pericytes',
+        'vasculature-endothelial',
+      ]);
+
+      const postUncheckTree = reducer(postCheckTree, {
+        type: ACTION.CHECK_NODE,
+        targetKey: 'vasculature-pericytes',
+        checked: false,
+      });
+      expect(postUncheckTree._state.checkedKeys).toEqual([
+        'vasculature-endothelial',
+      ]);
+    });
+
+    it('can un-check non-leaf nodes', () => {
+      const initialTree = tree;
+      expect(initialTree._state.checkedKeys).toEqual([]);
+
+      const postCheckTree = reducer(initialTree, {
+        type: ACTION.CHECK_NODE,
+        targetKey: 'vasculature',
+        checked: true,
+      });
+      expect(postCheckTree._state.checkedKeys).toEqual([
+        'vasculature',
+        'vasculature-pericytes',
+        'vasculature-endothelial',
+      ]);
+
+      const postUncheckTree = reducer(postCheckTree, {
+        type: ACTION.CHECK_NODE,
+        targetKey: 'vasculature',
+        checked: false,
+      });
+      expect(postUncheckTree._state.checkedKeys).toEqual([]);
     });
 
     it('can set the current set', () => {
@@ -127,26 +209,61 @@ describe('Hierarchical sets reducer', () => {
      
     });
 
-    it('can delete a node', () => {
-      
+    it('can delete a leaf node', () => {
+      const initialTree = tree;
+      expect(initialTree.tree[0].children[0].children.length).toEqual(2);
+      const postDeleteTree = reducer(initialTree, {
+        type: ACTION.REMOVE_NODE,
+        targetKey: 'vasculature-pericytes',
+      });
+      expect(postDeleteTree.tree[0].children[0].children.length).toEqual(1);
+    });
+
+    it('can delete a non-leaf node', () => {
+      const initialTree = tree;
+      expect(initialTree.tree.length).toEqual(1);
+      const postDeleteTree = reducer(initialTree, {
+        type: ACTION.REMOVE_NODE,
+        targetKey: 'cell-type-annotations',
+      });
+      expect(postDeleteTree.tree.length).toEqual(0);
     });
 
     it('can change a node name', () => {
-      
+      const initialTree = tree;
+      expect(initialTree.tree[0].children[0].name).toEqual("Vasculature");
+      const postRenameTree = reducer(initialTree, {
+        type: ACTION.SET_NODE_NAME,
+        targetKey: 'vasculature',
+        name: 'New Name',
+        stopEditing: true,
+      });
+      expect(postRenameTree.tree[0].children[0].name).toEqual('New Name');
     });
 
     it('can create a level zero node', () => {
-      
+      const initialTree = tree;
+      expect(initialTree.tree.length).toEqual(1);
+      const postCreateTree = reducer(initialTree, {
+        type: ACTION.CREATE_LEVEL_ZERO_NODE,
+      });
+      expect(postCreateTree.tree.length).toEqual(2);
     });
 
-    it('can view a leaf node set', () => {
-      
+    it('can change node color', () => {
+      const initialTree = tree;
+      expect(initialTree.tree[0].children[0].color).toEqual([0, 255, 0]);
+      const postRecolorTree = reducer(initialTree, {
+        type: ACTION.SET_NODE_COLOR,
+        targetKey: 'vasculature',
+        color: [1, 2, 3]
+      });
+      expect(postRecolorTree.tree[0].children[0].color).toEqual([1, 2, 3]);
     });
 
     it('can view expanded descendant sets of a non-leaf node', () => {
       
     });
-
 
     it('can do a union operation', () => {
       
@@ -157,10 +274,6 @@ describe('Hierarchical sets reducer', () => {
     });
 
     it('can do a complement operation', () => {
-      
-    });
-
-    it('can change node color', () => {
       
     });
 
@@ -197,6 +310,10 @@ describe('Hierarchical sets reducer', () => {
     });
 
     it('can move a drag node up a level, above its parent node', () => {
+      
+    });
+
+    it('can view a leaf node set', () => {
       
     });
 

@@ -55,7 +55,7 @@ function makeNodeViewMenuConfig(props) {
       ...(checkable ? [
         {
           title: (checked ? 'Uncheck' : 'Check'),
-          handler: () => { onCheckNode(nodeKey); },
+          handler: () => { onCheckNode(nodeKey, !checked); },
           handlerKey: 's',
         },
       ] : []),

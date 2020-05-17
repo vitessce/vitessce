@@ -26,10 +26,6 @@ import { nodeToRenderProps } from './reducer';
  * By default, true.
  * @prop {function} onError Function to call with error messages (failed import validation, etc).
  * @prop {function} onCheckNode Function to call when a single node has been checked or un-checked.
- * Called on click of the "Check" and "Uncheck" buttons in the node menu popover.
- * @prop {function} onCheckNodes Function to call when an array of nodes has been checked.
- * Called on click of the checkboxes that appear next to each node after the "Check"
- * button has been clicked in any node popover menu.
  * @prop {function} onExpandNode Function to call when a node has been expanded.
  * @prop {function} onDropNode Function to call when a node has been dragged-and-dropped.
  * @prop {function} onCheckLevel Function to call when an entire hierarchy level has been selected,
@@ -74,7 +70,6 @@ export default function SetsManager(props) {
     importable = true,
     onError,
     onCheckNode,
-    onCheckNodes,
     onExpandNode,
     onDropNode,
     onCheckLevel,
@@ -153,7 +148,10 @@ export default function SetsManager(props) {
           expandedKeys={tree._state.expandedKeys}
           autoExpandParent={tree._state.autoExpandParent}
 
-          onCheck={onCheckNodes}
+          onCheck={(checkedKeys, info) => onCheckNode(
+            info.node.props.nodeKey,
+            info.checked,
+          )}
           onExpand={(expandedKeys, info) => onExpandNode(
             expandedKeys,
             info.node.props.nodeKey,

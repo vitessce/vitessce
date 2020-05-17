@@ -70,12 +70,9 @@ export default function CellSetsManagerSubscriber(props) {
   }, [tree]);
 
   // Callback functions
-  function onCheckNodes(checkedKeys) {
-    dispatch({ type: ACTION.CHECK_NODES, checkedKeys });
-  }
 
-  function onCheckNode(targetKey) {
-    dispatch({ type: ACTION.CHECK_NODE, targetKey });
+  function onCheckNode(targetKey, checked) {
+    dispatch({ type: ACTION.CHECK_NODE, targetKey, checked });
   }
 
   function onExpandNode(expandedKeys, targetKey, expanded) {
@@ -169,7 +166,6 @@ export default function CellSetsManagerSubscriber(props) {
         }
         onError={err => PubSub.publish(STATUS_WARN, err)}
         onCheckNode={onCheckNode}
-        onCheckNodes={onCheckNodes}
         onExpandNode={onExpandNode}
         onDropNode={onDropNode}
         onCheckLevel={onCheckLevel}
