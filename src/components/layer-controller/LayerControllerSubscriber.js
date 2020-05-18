@@ -42,6 +42,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
     const nextLayers = layers.filter(d => d.layerId !== layerId);
     setLayers(nextLayers);
     PubSub.publish(LAYER_REMOVE, layerId);
+    PubSub.publish(METADATA_REMOVE, layerId);
   };
 
   const layerControllers = layers.map(({ layerId, imageData }) => (

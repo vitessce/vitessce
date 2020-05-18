@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import PubSub from 'pubsub-js';
-import { METADATA_ADD } from '../../events';
+import { METADATA_ADD, METADATA_REMOVE } from '../../events';
 import TitleInfo from '../TitleInfo';
 import Description from './Description';
 
@@ -11,12 +11,19 @@ export default function DescriptionSubscriber(props) {
   const [metadata, setMetadata] = useState({});
 
   useEffect(() => {
-    function handleMetadataAdd(msg, { name, metadata: metadataRecord }) {
-      setMetadata(prevMetadata => ({ ...prevMetadata, [name]: metadataRecord }));
+    function handleMetadataAdd(msg, { layerId, layerName, layerMetadata }) {
+      setMetadata(prevMetadata => ({ ...prevMetadata, [layerId]: { layerName, layerMetadata, } }));
+    }
+    function handleMetadataRemove(msg, { layerId }) {
+      setMetadata(prevMetadata => ({ ...prevMetadata, [layerId]: undefined }));
     }
     const metadataAddToken = PubSub.subscribe(METADATA_ADD, handleMetadataAdd);
+    const metadataRemoveToken = PubSub.subscribe(METADATA_REMOVE, handleMetadataRemove);
     onReadyCallback();
-    return () => PubSub.unsubscribe(metadataAddToken);
+    return () => {
+      PubSub.unsubscribe(metadataAddToken);
+      PubSub.unsubscribe(metadataRemoveToken);
+    };
   }, [onReadyCallback]);
 
   return (

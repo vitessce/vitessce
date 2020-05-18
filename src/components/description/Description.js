@@ -7,14 +7,14 @@ export default function Description(props) {
     <div className="description">
       <p>{description}</p>
 
-      {Object.entries(metadata).map(([metadataRecordName, metadataRecord]) => (
-        Object.entries(metadataRecord).length > 0 ? (
-          <details key={metadataRecordName}>
-            <summary>{metadataRecordName}</summary>
+      {Object.entries(metadata).map(([layerId, metadataRecord]) => (
+        metadataRecord && Object.entries(metadataRecord.layerMetadata).length > 0 ? (
+          <details key={layerId}>
+            <summary>{metadataRecord.layerName}</summary>
             <div className="metadata-container">
               <table>
                 <tbody>
-                  {Object.entries(metadataRecord)
+                  {Object.entries(metadataRecord.layerMetadata)
                     .map(([key, value]) => (
                       <tr key={key}>
                         <th title={key}>{key}</th>
