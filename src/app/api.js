@@ -57,8 +57,12 @@ const vanderbiltDescription = 'High Bit Depth (uint16) Multiplex Immunofluoresce
 const vanderbiltBase = {
   description: vanderbiltDescription,
   layers: [
-    'raster',
-  ].map(makeLayerNameToConfig('spraggins')),
+    {
+      name: 'raster',
+      type: 'RASTER',
+      url: 'https://keller-mark.github.io/temp-vitessce-cell-sets/test_tiff.raster.json',
+    },
+  ],
 };
 
 /* eslint-disable object-property-newline */
@@ -410,8 +414,9 @@ const configs = {
         },
         x: 0, y: 0, w: 9, h: 2 },
       { component: 'layerController',
-        x: 9, y: 0, w: 3, h: 2,
-      },
+        x: 9, y: 0, w: 3, h: 1 },
+      { component: 'description',
+        x: 9, y: 1, w: 3, h: 1 },
     ],
   },
   'just-higlass': {

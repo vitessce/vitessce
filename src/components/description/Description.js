@@ -7,7 +7,7 @@ export default function Description(props) {
     <div className="description">
       <p>{description}</p>
 
-      {Object.entries(metadata).map(([layerId, metadataRecord]) => (
+      {metadata && Object.entries(metadata).map(([layerId, metadataRecord]) => (
         metadataRecord && Object.entries(metadataRecord.layerMetadata).length > 0 ? (
           <details key={layerId}>
             <summary>{metadataRecord.layerName}</summary>

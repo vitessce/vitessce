@@ -12,9 +12,9 @@ export default function DescriptionSubscriber(props) {
 
   useEffect(() => {
     function handleMetadataAdd(msg, { layerId, layerName, layerMetadata }) {
-      setMetadata(prevMetadata => ({ ...prevMetadata, [layerId]: { layerName, layerMetadata, } }));
+      setMetadata(prevMetadata => ({ ...prevMetadata, [layerId]: { layerName, layerMetadata } }));
     }
-    function handleMetadataRemove(msg, { layerId }) {
+    function handleMetadataRemove(msg, layerId) {
       setMetadata(prevMetadata => ({ ...prevMetadata, [layerId]: undefined }));
     }
     const metadataAddToken = PubSub.subscribe(METADATA_ADD, handleMetadataAdd);
