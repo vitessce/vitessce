@@ -19,7 +19,7 @@ describe('Description.js', () => {
     });
 
     it('shows metadata', () => {
-      const layerId = 0.1234;
+      const layerId = String(0.1234);
       const metadata = {
         [layerId]: {
           layerName: 'Spraggins',
