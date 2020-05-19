@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
@@ -60,6 +61,46 @@ const vanderbiltBase = {
     'raster',
   ].map(makeLayerNameToConfig('spraggins')),
 };
+
+const createHuBMAPCellAnnotationsConfig = (globusId) => ({
+  [globusId]: {
+    name: 'HuBMAP Spleen 0510',
+    description: 'Cell type annotations and Leiden clustering results.',
+    layers: [
+      {
+        name: 'cells',
+        type: 'CELLS',
+        url: `http://localhost:9090/data/processed/${globusId}.cells.json`,
+      },
+      {
+        name: 'factors',
+        type: 'FACTORS',
+        url: `http://localhost:9090/data/processed/${globusId}.factors.json`,
+      },
+      {
+        name: 'cell_sets',
+        type: 'CELL_SETS',
+        url: `http://localhost:9090/data/processed/${globusId}.cell_sets.json`,
+      },
+    ],
+    public: true,
+    staticLayout: [
+      { component: 'scatterplot',
+        props: {
+          mapping: 'UMAP',
+          view: {
+            zoom: 5,
+            target: [0, 0, 0],
+          },
+        },
+        x: 0, y: 0, w: 9, h: 8 },
+      { component: 'factors',
+        x: 9, y: 0, w: 3, h: 1 },
+      { component: 'cellSets',
+        x: 9, y: 1, w: 3, h: 7 },
+    ],
+  }
+});
 
 /* eslint-disable object-property-newline */
 /* eslint-disable object-curly-newline */
@@ -631,6 +672,11 @@ const configs = {
         x: 8, y: 0, w: 4, h: 2 },
     ],
   },
+  ...createHuBMAPCellAnnotationsConfig('2dca1bf5832a4102ba780e9e54f6c350'),
+  ...createHuBMAPCellAnnotationsConfig('7fd04d1aba61c35843dd2eb6a19d2545'),
+  ...createHuBMAPCellAnnotationsConfig('8a238da50c0c0436510b857c21e4e792'),
+  ...createHuBMAPCellAnnotationsConfig('3683b49e27133c064ccbd59ff9723e7c'),
+  ...createHuBMAPCellAnnotationsConfig('ed8a4dbbb1554a5e3227d6dfb2368828'),
 };
 /* eslint-enable */
 
