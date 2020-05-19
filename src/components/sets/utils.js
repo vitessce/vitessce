@@ -28,6 +28,9 @@ export function colorToHexString(rgbArray) {
  */
 export function getLevelTooltipText(i) {
   if (i === 0) return 'Color by hierarchy';
-  const subs = j => ('sub'.repeat(j));
-  return `Color by ${subs(i - 1)}cluster`;
+  if (i <= 2) {
+    const subs = j => ('sub'.repeat(j));
+    return `Color by ${subs(i - 1)}cluster`;
+  }
+  return `Color by cluster level ${i}`;
 }

@@ -18,6 +18,13 @@ const NEW_HIERARCHY_NAME = 'New hierarchy';
  * (see the `treeOnExpand` function).
  */
 const UPDATE_VISIBLE_ON_EXPAND = false;
+/**
+ * If the following variable is true, and a "checked level" has been selected,
+ * then when the associated level zero node is expanded,
+ * the tree will automatically be expanded to that checked level
+ * (or the furthest it can go before hitting a leaf node).
+ */
+// const LEVEL_ZERO_EXPAND_TO_CHECKED_LEVEL = true;
 
 /**
  * If this ALLOW_SIDE_EFFECTS flag is set to true, then tree nodes will store
@@ -1123,17 +1130,21 @@ function treeNodeView(currTree, targetKey) {
  * @param {object} node A node object.
  * @param {number} level The relative level of interest.
  * 0 for this node's children, 1 for grandchildren, etc.
+ * @param {boolean} stopEarly Should a node be returned early if no children exist?
  * @returns {object[]} An array of descendants at the specified level,
  * where the level is relative to the node.
  */
-function nodeToLevelDescendantsFlat(node, level) {
+function nodeToLevelDescendantsFlat(node, level, stopEarly = false) {
   if (!node.children) {
-    return [];
+    if (!stopEarly) {
+      return [];
+    }
+    return [node];
   }
   if (level === 0) {
     return node.children;
   }
-  return node.children.flatMap(c => nodeToLevelDescendantsFlat(c, level - 1));
+  return node.children.flatMap(c => nodeToLevelDescendantsFlat(c, level - 1, stopEarly));
 }
 
 /**
@@ -1149,7 +1160,7 @@ function treeNodeViewDescendants(
   currTree, targetKey, level, shouldInvalidateCheckedLevel = true,
 ) {
   const node = treeFindNodeByKey(currTree, targetKey);
-  const descendantKeys = nodeToLevelDescendantsFlat(node, level)
+  const descendantKeys = nodeToLevelDescendantsFlat(node, level, true)
     .map(d => d._state.key);
   return treeSetVisibleKeys(currTree, descendantKeys, shouldInvalidateCheckedLevel);
 }
