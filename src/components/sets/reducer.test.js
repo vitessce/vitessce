@@ -1,22 +1,16 @@
-/* eslint-disable */
+/* eslint-disable no-underscore-dangle */
 import expect from 'expect';
 import reducer, {
-  treeInitialize, treeExport, treeToVisibleCells, nodeToRenderProps, ACTION,
+  treeInitialize, nodeToRenderProps, ACTION,
 } from './reducer';
 
 import {
-  levelTwoNodeLeafWithoutState,
   levelTwoNodeLeaf,
-  levelOneNodeWithoutState,
-  levelOneNode,
-  levelZeroNodeWithoutState,
   levelZeroNode,
   treeWithoutState,
   treeWithoutStateOrColors,
   treeIgnoreKeys,
   tree,
-  emptyTreeWithoutState,
-  emptyTreeIgnoreKeys,
   emptyTree,
 } from './reducer.test.fixtures';
 
@@ -50,10 +44,9 @@ describe('Hierarchical sets reducer', () => {
       expect(levelZeroRenderProps.isLeaf).toEqual(false);
       expect(levelZeroRenderProps.height).toEqual(2);
     });
-  })
+  });
 
   describe('Tree manipulation', () => {
-
     it('can be initialized', () => {
       const initialTree = treeInitialize('cell');
 
@@ -80,7 +73,7 @@ describe('Hierarchical sets reducer', () => {
 
       expect(reducer(initialTree, {
         type: ACTION.IMPORT,
-        levelZeroNodes: treeWithoutState.tree
+        levelZeroNodes: treeWithoutState.tree,
       })).toMatchObject(treeIgnoreKeys);
     });
 
@@ -89,7 +82,7 @@ describe('Hierarchical sets reducer', () => {
 
       const postImportTree = reducer(initialTree, {
         type: ACTION.IMPORT,
-        levelZeroNodes: treeWithoutStateOrColors.tree
+        levelZeroNodes: treeWithoutStateOrColors.tree,
       });
 
       expect(postImportTree.tree[0].color).toEqual(undefined);
@@ -101,7 +94,7 @@ describe('Hierarchical sets reducer', () => {
 
       const postImportTree = reducer(initialTree, {
         type: ACTION.IMPORT,
-        levelZeroNodes: treeWithoutState.tree
+        levelZeroNodes: treeWithoutState.tree,
       });
 
       const keySet = new Set();
@@ -137,7 +130,7 @@ describe('Hierarchical sets reducer', () => {
       });
       expect(postSecondCheckTree._state.checkedKeys).toEqual([
         'vasculature-endothelial',
-        'vasculature-pericytes'
+        'vasculature-pericytes',
       ]);
     });
 
@@ -210,7 +203,7 @@ describe('Hierarchical sets reducer', () => {
       expect(initialTree.tree.length).toEqual(1);
       const postSelectionTree = reducer(initialTree, {
         type: ACTION.SET_CURRENT_SET,
-        cellIds: ["cell_x", "cell_y", "cell_z"],
+        cellIds: ['cell_x', 'cell_y', 'cell_z'],
       });
       // Expect the current selection set to the the only one visible.
       expect(postSelectionTree._state.visibleKeys.length).toEqual(1);
@@ -228,7 +221,7 @@ describe('Hierarchical sets reducer', () => {
       expect(postSelectionTree.tree[1].children[0].name).toEqual('Current selection');
       expect(postSelectionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postSelectionTree.tree[1].children[0]._state.level).toEqual(1);
-      expect(postSelectionTree.tree[1].children[0].set).toEqual(["cell_x", "cell_y", "cell_z"]);
+      expect(postSelectionTree.tree[1].children[0].set).toEqual(['cell_x', 'cell_y', 'cell_z']);
     });
 
     it('can start editing a node', () => {
@@ -264,7 +257,7 @@ describe('Hierarchical sets reducer', () => {
 
     it('can change a node name', () => {
       const initialTree = tree;
-      expect(initialTree.tree[0].children[0].name).toEqual("Vasculature");
+      expect(initialTree.tree[0].children[0].name).toEqual('Vasculature');
       const postRenameTree = reducer(initialTree, {
         type: ACTION.SET_NODE_NAME,
         targetKey: 'vasculature',
@@ -289,7 +282,7 @@ describe('Hierarchical sets reducer', () => {
       const postRecolorTree = reducer(initialTree, {
         type: ACTION.SET_NODE_COLOR,
         targetKey: 'vasculature',
-        color: [1, 2, 3]
+        color: [1, 2, 3],
       });
       expect(postRecolorTree.tree[0].children[0].color).toEqual([1, 2, 3]);
     });
@@ -301,7 +294,7 @@ describe('Hierarchical sets reducer', () => {
         type: ACTION.EXPAND_NODE,
         expandedKeys: ['cell-type-annotations'],
         targetKey: 'cell-type-annotations',
-        expanded: true
+        expanded: true,
       });
       expect(postExpandTree._state.expandedKeys).toEqual(['cell-type-annotations']);
     });
@@ -339,7 +332,7 @@ describe('Hierarchical sets reducer', () => {
       expect(postUnionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postUnionTree.tree[1].children[0]._state.level).toEqual(1);
       expect(postUnionTree.tree[1].children[0].set).toEqual([
-        "cell_3", "cell_4", "cell_5", "cell_1", "cell_2"
+        'cell_3', 'cell_4', 'cell_5', 'cell_1', 'cell_2',
       ]);
       expect(postUnionTree._state.visibleKeys.length).toEqual(1);
     });
@@ -367,7 +360,7 @@ describe('Hierarchical sets reducer', () => {
       expect(postIntersectionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postIntersectionTree.tree[1].children[0]._state.level).toEqual(1);
       expect(postIntersectionTree.tree[1].children[0].set).toEqual([
-        "cell_3"
+        'cell_3',
       ]);
       expect(postIntersectionTree._state.visibleKeys.length).toEqual(1);
     });
@@ -395,7 +388,7 @@ describe('Hierarchical sets reducer', () => {
       expect(postIntersectionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postIntersectionTree.tree[1].children[0]._state.level).toEqual(1);
       expect(postIntersectionTree.tree[1].children[0].set).toEqual([
-        "cell_6"
+        'cell_6',
       ]);
       expect(postIntersectionTree._state.visibleKeys.length).toEqual(1);
     });
@@ -431,4 +424,3 @@ describe('Hierarchical sets reducer', () => {
     });
   });
 });
-
