@@ -333,7 +333,7 @@ export const tree = {
                         {
                             name: 'Endothelial',
                             color: [100, 0, 0],
-                            set: ["cell_4", "cell_5", "cell_6"],
+                            set: ["cell_3", "cell_4", "cell_5"],
                             _state: {
                                 key: 'vasculature-endothelial',
                                 level: 2,
@@ -363,7 +363,7 @@ export const tree = {
     ],
     _state: {
         key: 'my-tree',
-        items: [],
+        items: ["cell_1", "cell_2", "cell_3", "cell_4", "cell_5", "cell_6"],
         checkedKeys: [],
         visibleKeys: [],
         checkedLevel: { levelZeroKey: null, levelIndex: null },

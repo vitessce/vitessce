@@ -70,7 +70,6 @@ export default function CellSetsManagerSubscriber(props) {
   }, [tree]);
 
   // Callback functions
-
   function onCheckNode(targetKey, checked) {
     dispatch({ type: ACTION.CHECK_NODE, targetKey, checked });
   }

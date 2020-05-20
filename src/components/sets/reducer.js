@@ -18,13 +18,6 @@ const NEW_HIERARCHY_NAME = 'New hierarchy';
  * (see the `treeOnExpand` function).
  */
 const UPDATE_VISIBLE_ON_EXPAND = false;
-/**
- * If the following variable is true, and a "checked level" has been selected,
- * then when the associated level zero node is expanded,
- * the tree will automatically be expanded to that checked level
- * (or the furthest it can go before hitting a leaf node).
- */
-// const LEVEL_ZERO_EXPAND_TO_CHECKED_LEVEL = true;
 
 /**
  * If this ALLOW_SIDE_EFFECTS flag is set to true, then tree nodes will store
