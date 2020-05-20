@@ -15,7 +15,7 @@ export default class LayersMenu extends React.Component {
 
     const { layerIsVisible, setLayerIsVisible } = this.props;
     layerIsVisible[name] = checked;
-    setLayerIsVisible(layerIsVisible);
+    setLayerIsVisible({ ...layerIsVisible });
   }
 
   checkbox(name, value) {

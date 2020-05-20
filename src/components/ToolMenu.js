@@ -4,7 +4,6 @@ import { ReactComponent as PointerIconSVG } from '../assets/tools/near_me.svg';
 import { ReactComponent as SelectRectangleIconSVG } from '../assets/tools/selection_rectangle.svg';
 import { ReactComponent as SelectLassoIconSVG } from '../assets/tools/selection_lasso.svg';
 
-
 export function IconButton(props) {
   const {
     alt, onClick, isActive, children,
@@ -24,25 +23,25 @@ export function IconButton(props) {
 }
 
 export default function ToolMenu(props) {
-  const { setActiveTool, isActiveTool } = props;
+  const { setActiveTool, activeTool } = props;
   return (
     <div className="tool">
       <IconButton
         alt="pointer tool"
         onClick={() => setActiveTool(null)}
-        isActive={isActiveTool(null)}
+        isActive={activeTool === null}
       ><PointerIconSVG />
       </IconButton>
       <IconButton
         alt="select rectangle"
         onClick={() => setActiveTool(SELECTION_TYPE.RECTANGLE)}
-        isActive={isActiveTool(SELECTION_TYPE.RECTANGLE)}
+        isActive={activeTool === SELECTION_TYPE.RECTANGLE}
       ><SelectRectangleIconSVG />
       </IconButton>
       <IconButton
         alt="select lasso"
         onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
-        isActive={isActiveTool(SELECTION_TYPE.POLYGON)}
+        isActive={activeTool === SELECTION_TYPE.POLYGON}
       ><SelectLassoIconSVG />
       </IconButton>
     </div>

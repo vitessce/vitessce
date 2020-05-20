@@ -12,6 +12,7 @@
 - Scrollable image layer popout.
 - Upgrade `viv` to 0.2.5.
 - Theme for image layer button.
+- Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
 
 ## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
