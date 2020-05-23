@@ -90,7 +90,12 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
         },
         x: 0, y: 0, w: 7, h: 8 },
       { component: 'cellSets',
-        x: 7, y: 0, w: 5, h: 8 },
+        x: 7, y: 0, w: 5, h: 6 },
+      { component: 'description',
+        props: {
+          description: 'Note: This is for demonstration purposes only. The data shown here has not been processed by the official HuBMAP pipelines.'
+        },
+        x: 7, y: 6, w: 5, h: 2 },
     ],
   }
 });
