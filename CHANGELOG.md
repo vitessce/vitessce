@@ -6,6 +6,7 @@
 - Added support for providing cell sets files in view configs.
 
 ### Changed
+- Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
 - Updated the cell set hierarchy schema.
 - Updated the cell set manager, to try to improve usability.
 
@@ -21,7 +22,6 @@
 - Scrollable image layer popout.
 - Upgrade `viv` to 0.2.5.
 - Theme for image layer button.
-- Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
 
 ## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
