@@ -6,6 +6,7 @@
 - Added support for providing cell sets files in view configs.
 
 ### Changed
+- Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
 - Updated the cell set hierarchy schema.
 - Updated the cell set manager, to try to improve usability.
 

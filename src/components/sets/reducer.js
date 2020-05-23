@@ -18,13 +18,6 @@ const NEW_HIERARCHY_NAME = 'New hierarchy';
  * (see the `treeOnExpand` function).
  */
 const UPDATE_VISIBLE_ON_EXPAND = false;
-/**
- * If the following variable is true, and a "checked level" has been selected,
- * then when the associated level zero node is expanded,
- * the tree will automatically be expanded to that checked level
- * (or the furthest it can go before hitting a leaf node).
- */
-// const LEVEL_ZERO_EXPAND_TO_CHECKED_LEVEL = true;
 
 /**
  * If this ALLOW_SIDE_EFFECTS flag is set to true, then tree nodes will store
@@ -1335,6 +1328,7 @@ export function treeToVisibleCells(currTree) {
  */
 export const ACTION = Object.freeze({
   IMPORT: 'import',
+  IMPORT_AND_VIEW: 'importAndView',
   SET_TREE_ITEMS: 'setTreeItems',
   SET_CURRENT_SET: 'setCurrentSet',
   EXPAND_NODE: 'expandNode',
@@ -1359,6 +1353,24 @@ const reducer = createReducer({
     state,
     action.levelZeroNodes,
   ),
+  [ACTION.IMPORT_AND_VIEW]: (state, action) => {
+    const postImportTree = treeImport(
+      state,
+      action.levelZeroNodes,
+    );
+    if (postImportTree.tree.length >= 1) {
+      const levelZeroKey = postImportTree.tree[0]._state.key;
+      const levelIndex = 1;
+      const postCheckLevelTree = treeOnCheckLevel(postImportTree, levelZeroKey, levelIndex);
+      return treeNodeViewDescendants(
+        postCheckLevelTree,
+        levelZeroKey,
+        levelIndex - 1,
+        false,
+      );
+    }
+    return postImportTree;
+  },
   [ACTION.SET_TREE_ITEMS]: (state, action) => treeSetItems(
     state,
     action.cellIds,
