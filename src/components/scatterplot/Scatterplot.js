@@ -120,7 +120,7 @@ export default function Scatterplot(props) {
       id: CELLS_LAYER_ID,
       isSelected: getCellIsSelected,
       // No radiusMin, so texture remains open even zooming out.
-      radiusMaxPixels: 1,
+      radiusMaxPixels: 2,
       getPosition: getCellPosition,
       getColor: getCellColor,
       onClick: (info) => {

@@ -70,34 +70,27 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
       {
         name: 'cells',
         type: 'CELLS',
-        url: `http://localhost:9090/data/processed/${globusId}.cells.json`,
-      },
-      {
-        name: 'factors',
-        type: 'FACTORS',
-        url: `http://localhost:9090/data/processed/${globusId}.factors.json`,
+        url: `https://keller-mark.github.io/vitessce-demo-hosting-temporary/cell-type-annotations/${globusId}.cells.json`,
       },
       {
         name: 'cell_sets',
         type: 'CELL_SETS',
-        url: `http://localhost:9090/data/processed/${globusId}.cell_sets.json`,
+        url: `https://keller-mark.github.io/vitessce-demo-hosting-temporary/cell-type-annotations/${globusId}.cell_sets.json`,
       },
     ],
-    public: true,
+    public: false,
     staticLayout: [
       { component: 'scatterplot',
         props: {
           mapping: 'UMAP',
           view: {
-            zoom: 5,
+            zoom: 4,
             target: [0, 0, 0],
           },
         },
-        x: 0, y: 0, w: 9, h: 8 },
-      { component: 'factors',
-        x: 9, y: 0, w: 3, h: 1 },
+        x: 0, y: 0, w: 7, h: 8 },
       { component: 'cellSets',
-        x: 9, y: 1, w: 3, h: 7 },
+        x: 7, y: 0, w: 5, h: 8 },
     ],
   }
 });
