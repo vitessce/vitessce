@@ -25,51 +25,24 @@ const initialTree = treeInitialize(SETS_DATATYPE_CELL);
  * to call when the component has been removed from the grid.
  * @param {function} onReady The function to call when the component has finished
  * initializing (subscribing to relevant events, etc).
+ * @param {boolean} initEmit Should an event be emitted upon initialization,
+ * so that cells are colored by some heuristic (e.g. the first clustering in the cell_sets tree)?
  */
 export default function CellSetsManagerSubscriber(props) {
   const {
     removeGridComponent,
     onReady,
+    initEmit = true,
   } = props;
 
   const onReadyCallback = useCallback(onReady, []);
   const [tree, dispatch] = useReducer(reducer, initialTree);
 
-  function onImportTree(treeToImport) {
-    dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
+  // Callback functions
+  function onCheckLevel(levelZeroKey, levelIndex) {
+    dispatch({ type: ACTION.CHECK_LEVEL, levelZeroKey, levelIndex });
   }
 
-  // Subscribe to cell set import events.
-  // Subscribe to cell import and selection events.
-  useEffect(() => {
-    const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD,
-      (msg, treeToImport) => {
-        onImportTree(treeToImport);
-      });
-    const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
-      dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
-    });
-    const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, (msg, cellIds) => {
-      dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: Array.from(cellIds) });
-    });
-    onReadyCallback();
-    return () => {
-      PubSub.unsubscribe(cellSetsAddToken);
-      PubSub.unsubscribe(cellsAddToken);
-      PubSub.unsubscribe(cellsSelectionToken);
-    };
-  }, [onReadyCallback]);
-
-  // Publish cell visibility and color changes when the tree changes.
-  // Publish the updated tree when the tree changes.
-  useEffect(() => {
-    const [cellIds, cellColors] = treeToVisibleCells(tree);
-    PubSub.publish(CELLS_COLOR, cellColors);
-    PubSub.publish(CELL_SETS_VIEW, new Set(cellIds));
-    PubSub.publish(CELL_SETS_CHANGE, tree);
-  }, [tree]);
-
-  // Callback functions
   function onCheckNode(targetKey, checked) {
     dispatch({ type: ACTION.CHECK_NODE, targetKey, checked });
   }
@@ -84,10 +57,6 @@ export default function CellSetsManagerSubscriber(props) {
     dispatch({
       type: ACTION.DROP_NODE, dropKey, dragKey, dropPosition, dropToGap,
     });
-  }
-
-  function onCheckLevel(levelZeroKey, levelIndex) {
-    dispatch({ type: ACTION.CHECK_LEVEL, levelZeroKey, levelIndex });
   }
 
   function onNodeSetColor(targetKey, color) {
@@ -134,6 +103,10 @@ export default function CellSetsManagerSubscriber(props) {
     dispatch({ type: ACTION.VIEW_CHECKED });
   }
 
+  function onImportTree(treeToImport) {
+    dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
+  }
+
   function onExportLevelZeroNode(nodeKey) {
     const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
     downloadForUser(
@@ -150,6 +123,37 @@ export default function CellSetsManagerSubscriber(props) {
       FILE_EXTENSION_JSON,
     );
   }
+
+  // Subscribe to cell set import events.
+  // Subscribe to cell import and selection events.
+  useEffect(() => {
+    const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD,
+      (msg, treeToImport) => {
+        const actionType = (initEmit ? ACTION.IMPORT_AND_VIEW : ACTION.IMPORT);
+        dispatch({ type: actionType, levelZeroNodes: treeToImport.tree });
+      });
+    const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
+      dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
+    });
+    const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, (msg, cellIds) => {
+      dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: Array.from(cellIds) });
+    });
+    onReadyCallback();
+    return () => {
+      PubSub.unsubscribe(cellSetsAddToken);
+      PubSub.unsubscribe(cellsAddToken);
+      PubSub.unsubscribe(cellsSelectionToken);
+    };
+  }, [onReadyCallback, initEmit]);
+
+  // Publish cell visibility and color changes when the tree changes.
+  // Publish the updated tree when the tree changes.
+  useEffect(() => {
+    const [cellIds, cellColors] = treeToVisibleCells(tree);
+    PubSub.publish(CELLS_COLOR, cellColors);
+    PubSub.publish(CELL_SETS_VIEW, new Set(cellIds));
+    PubSub.publish(CELL_SETS_CHANGE, tree);
+  }, [tree]);
 
   return (
     <TitleInfo
