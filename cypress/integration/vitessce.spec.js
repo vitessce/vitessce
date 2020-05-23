@@ -63,7 +63,7 @@ describe('Vitessce', () => {
 
     // Heatmap:
     cy.contains('3 cells × 3 genes');
-    cy.contains('with 0 cells selected');
+    cy.contains('with 4 cells selected');
 
     // Cell sets:
     cy.contains('Cell Sets');
