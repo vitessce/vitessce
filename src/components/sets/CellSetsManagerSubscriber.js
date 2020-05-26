@@ -11,6 +11,10 @@ import TitleInfo from '../TitleInfo';
 import reducer, {
   treeInitialize, ACTION, treeToVisibleCells,
   treeExportLevelZeroNode, treeExportSet,
+  treeHasCheckedSetsToView,
+  treeHasCheckedSetsToUnion,
+  treeHasCheckedSetsToIntersect,
+  treeHasCheckedSetsToComplement,
 } from './reducer';
 import { handleExportJSON, downloadForUser, FILE_EXTENSION_JSON } from './io';
 
@@ -185,6 +189,10 @@ export default function CellSetsManagerSubscriber(props) {
         onIntersection={onIntersection}
         onComplement={onComplement}
         onView={onView}
+        hasCheckedSetsToView={treeHasCheckedSetsToView(tree)}
+        hasCheckedSetsToUnion={treeHasCheckedSetsToUnion(tree)}
+        hasCheckedSetsToIntersect={treeHasCheckedSetsToIntersect(tree)}
+        hasCheckedSetsToComplement={treeHasCheckedSetsToComplement(tree)}
       />
     </TitleInfo>
   );

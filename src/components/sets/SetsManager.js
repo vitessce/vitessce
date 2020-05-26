@@ -86,6 +86,10 @@ export default function SetsManager(props) {
     onIntersection,
     onComplement,
     onView,
+    hasCheckedSetsToView,
+    hasCheckedSetsToUnion,
+    hasCheckedSetsToIntersect,
+    hasCheckedSetsToComplement,
   } = props;
 
   if (clearPleaseWait && tree) {
@@ -183,6 +187,11 @@ export default function SetsManager(props) {
             onComplement={onComplement}
             onView={onView}
             operatable={operatable}
+
+            hasCheckedSetsToView={hasCheckedSetsToView}
+            hasCheckedSetsToUnion={hasCheckedSetsToUnion}
+            hasCheckedSetsToIntersect={hasCheckedSetsToIntersect}
+            hasCheckedSetsToComplement={hasCheckedSetsToComplement}
           />
         </div>
       ) : null}

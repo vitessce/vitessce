@@ -109,6 +109,10 @@ export function SetOperationButtons(props) {
     onComplement,
     onView,
     operatable,
+    hasCheckedSetsToView,
+    hasCheckedSetsToUnion,
+    hasCheckedSetsToIntersect,
+    hasCheckedSetsToComplement,
   } = props;
 
   return (
@@ -117,6 +121,7 @@ export function SetOperationButtons(props) {
         onClick={onView}
         type="submit"
         title="View checked sets"
+        disabled={!hasCheckedSetsToView}
       >
         <SetViewSVG />
       </button>
@@ -126,6 +131,7 @@ export function SetOperationButtons(props) {
             onClick={onUnion}
             title="New set from union of checked sets"
             type="submit"
+            disabled={!hasCheckedSetsToUnion}
           >
             <SetUnionSVG />
           </button>
@@ -133,6 +139,7 @@ export function SetOperationButtons(props) {
             onClick={onIntersection}
             title="New set from intersection of checked sets"
             type="submit"
+            disabled={!hasCheckedSetsToIntersect}
           >
             <SetIntersectionSVG />
           </button>
@@ -140,6 +147,7 @@ export function SetOperationButtons(props) {
             onClick={onComplement}
             title="New set from complement of checked sets"
             type="submit"
+            disabled={!hasCheckedSetsToComplement}
           >
             <SetComplementSVG />
           </button>

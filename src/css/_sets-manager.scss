@@ -26,17 +26,24 @@
           border: 0;
           background-color: transparent;
           color: lighten(map-get($global-colors, "gray-dark"), 5%);
+
+          &[disabled] {
+            pointer-events: none;
+            svg {
+              fill: silver;
+            }
+          }
           
           svg {
-            fill: lighten(map-get($global-colors, "gray-dark"), 5%);
+            fill: map-get($global-colors, "gray-dark");
             vertical-align: top;
             height: 20px;
             margin-top: 1px;
           }
 
           &:hover, &:hover path {
-            color: lighten(map-get($global-colors, "gray-dark"), 25%);
-            fill: lighten(map-get($global-colors, "gray-dark"), 25%);
+            color: darken(map-get($global-colors, "gray-dark"), 15%);
+            fill: darken(map-get($global-colors, "gray-dark"), 15%);
           }
         }
       }

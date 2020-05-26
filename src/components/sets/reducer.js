@@ -587,6 +587,9 @@ function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME) {
     : [...currExpandedKeys, toolsNode._state.key]
   );
 
+  const numToolsNodeChildren = toolsNode.children.length;
+  const nextCurrentSetColor = PALETTE[numToolsNodeChildren % PALETTE.length];
+
   newTree = {
     ...newTree,
     tree: newTree.tree.map(levelZeroNode => nodeTransformChildOrAppendChild(
@@ -594,7 +597,7 @@ function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME) {
       node => (node._state.isForTools && node._state.level === 0),
       node => (node._state.isCurrent && node._state.level === 1),
       node => nodeSetName(nodeSetSet(node, cellIds), name),
-      nodeWithState({ name, set: cellIds }, 1, { isCurrent: true }),
+      nodeWithState({ name, set: cellIds, color: nextCurrentSetColor }, 1, { isCurrent: true }),
     )),
   };
 
@@ -768,6 +771,16 @@ function treeToComplement(currTree) {
   return items.filter(el => !primaryUnion.includes(el));
 }
 
+function treeClearCheckedKeys(currTree) {
+  return {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      checkedKeys: [],
+    },
+  };
+}
+
 /**
  * Perform the union set operation, updating the current set.
  * TODO: Decide whether this function should also clear the array of "checked" nodes,
@@ -777,7 +790,8 @@ function treeToComplement(currTree) {
  */
 function treeOnUnion(currTree) {
   const checkedUnion = treeToUnion(currTree);
-  return treeSetCurrentSet(currTree, checkedUnion, CURRENT_UNION_NAME);
+  const newTree = treeSetCurrentSet(currTree, checkedUnion, CURRENT_UNION_NAME);
+  return treeClearCheckedKeys(newTree);
 }
 
 /**
@@ -789,7 +803,8 @@ function treeOnUnion(currTree) {
  */
 function treeOnIntersection(currTree) {
   const checkedIntersection = treeToIntersection(currTree);
-  return treeSetCurrentSet(currTree, checkedIntersection, CURRENT_INTERSECTION_NAME);
+  const newTree = treeSetCurrentSet(currTree, checkedIntersection, CURRENT_INTERSECTION_NAME);
+  return treeClearCheckedKeys(newTree);
 }
 
 /**
@@ -801,7 +816,8 @@ function treeOnIntersection(currTree) {
  */
 function treeOnComplement(currTree) {
   const checkedComplement = treeToComplement(currTree);
-  return treeSetCurrentSet(currTree, checkedComplement, CURRENT_COMPLEMENT_NAME);
+  const newTree = treeSetCurrentSet(currTree, checkedComplement, CURRENT_COMPLEMENT_NAME);
+  return treeClearCheckedKeys(newTree);
 }
 
 /**
@@ -1169,6 +1185,46 @@ function treeCreateLevelZeroNode(currTree) {
     children: [],
   }, 0, { isEditing: true });
   return treeAppendChild(currTree, newLevelZeroNode);
+}
+
+/**
+ * Return whether it makes sense to show a "view checked sets"
+ * button.
+ * @param {object} currTree A tree object.
+ * @returns {boolean} Does it make sense?
+ */
+export function treeHasCheckedSetsToView(currTree) {
+  return currTree._state.checkedKeys.length > 0;
+}
+
+/**
+ * Return whether it makes sense to show a "complement checked sets"
+ * button.
+ * @param {object} currTree A tree object.
+ * @returns {boolean} Does it make sense?
+ */
+export function treeHasCheckedSetsToComplement(currTree) {
+  return currTree._state.checkedKeys.length > 0 && treeToComplement(currTree).length > 0;
+}
+
+/**
+ * Return whether it makes sense to show a "intersect checked sets"
+ * button.
+ * @param {object} currTree A tree object.
+ * @returns {boolean} Does it make sense?
+ */
+export function treeHasCheckedSetsToIntersect(currTree) {
+  return currTree._state.checkedKeys.length > 1 && treeToIntersection(currTree).length > 0;
+}
+
+/**
+ * Return whether it makes sense to show a "union checked sets"
+ * button.
+ * @param {object} currTree A tree object.
+ * @returns {boolean} Does it make sense?
+ */
+export function treeHasCheckedSetsToUnion(currTree) {
+  return currTree._state.checkedKeys.length > 1 && treeToUnion(currTree).length > 0;
 }
 
 /**
