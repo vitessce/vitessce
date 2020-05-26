@@ -10,7 +10,8 @@
     "react-component"
   ],
   "files": [
-    "build-lib"
+    "build-lib",
+    "src"
   ],
   "main": "build-lib/umd/production/index.min.js",
   "module": "build-lib/es/production/index.min.js",
