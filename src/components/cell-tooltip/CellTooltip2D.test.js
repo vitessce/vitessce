@@ -3,6 +3,7 @@ import Adapter from 'enzyme-adapter-react-16';
 import { shallow, configure } from 'enzyme';
 import expect from 'expect';
 import CellTooltip2D from './CellTooltip2D';
+import CellTooltipContent from './CellTooltipContent';
 
 configure({ adapter: new Adapter() });
 
@@ -26,62 +27,116 @@ const makeFakeViewInfo = (x, y) => ({
 describe('CellTooltip2D.js', () => {
   describe('<CellTooltip2D />', () => {
     it('crosshair appears if projected coordinates are within boundaries and uuid does not match', () => {
-      const wrapper = shallow(<CellTooltip2D
-        hoveredCellInfo={fakeHoveredCellInfo}
-        mapping="xy"
-        viewInfo={makeFakeViewInfo(5, 5)}
-        uuid={2}
-      />);
+      const wrapper = shallow(
+        <CellTooltip2D
+          hoveredCellInfo={fakeHoveredCellInfo}
+          mapping="xy"
+          viewInfo={makeFakeViewInfo(5, 5)}
+          uuid={2}
+        >
+          {fakeHoveredCellInfo && (
+            <CellTooltipContent
+              cellId={fakeHoveredCellInfo.cellId}
+              factors={fakeHoveredCellInfo.factors}
+            />
+          )}
+        </CellTooltip2D>
+      );
       expect(wrapper.find('.cell-emphasis-crosshair').length).toEqual(2);
     });
 
     it('does not appear if projected coordinates are within boundaries and uuid does match', () => {
-      const wrapper = shallow(<CellTooltip2D
-        hoveredCellInfo={fakeHoveredCellInfo}
-        mapping="xy"
-        viewInfo={makeFakeViewInfo(5, 5)}
-        uuid={1}
-      />);
+      const wrapper = shallow(
+        <CellTooltip2D
+          hoveredCellInfo={fakeHoveredCellInfo}
+          mapping="xy"
+          viewInfo={makeFakeViewInfo(5, 5)}
+          uuid={1}
+        >
+          {fakeHoveredCellInfo && (
+            <CellTooltipContent
+              cellId={fakeHoveredCellInfo.cellId}
+              factors={fakeHoveredCellInfo.factors}
+            />
+          )}
+        </CellTooltip2D>
+      );
       expect(wrapper.find('div').length).toEqual(0);
     });
 
     it('does not appear if projected coordinates are outside boundaries, below', () => {
-      const wrapper = shallow(<CellTooltip2D
-        hoveredCellInfo={fakeHoveredCellInfo}
-        mapping="xy"
-        viewInfo={makeFakeViewInfo(0, 11)}
-        uuid={2}
-      />);
+      const wrapper = shallow(
+        <CellTooltip2D
+          hoveredCellInfo={fakeHoveredCellInfo}
+          mapping="xy"
+          viewInfo={makeFakeViewInfo(0, 11)}
+          uuid={2}
+        >
+          {fakeHoveredCellInfo && (
+            <CellTooltipContent
+              cellId={fakeHoveredCellInfo.cellId}
+              factors={fakeHoveredCellInfo.factors}
+            />
+          )}
+        </CellTooltip2D>
+      );
       expect(wrapper.find('div').length).toEqual(0);
     });
 
     it('does not appear if projected coordinates are outside boundaries, above', () => {
-      const wrapper = shallow(<CellTooltip2D
-        hoveredCellInfo={fakeHoveredCellInfo}
-        mapping="xy"
-        viewInfo={makeFakeViewInfo(0, -1)}
-        uuid={2}
-      />);
+      const wrapper = shallow(
+        <CellTooltip2D
+          hoveredCellInfo={fakeHoveredCellInfo}
+          mapping="xy"
+          viewInfo={makeFakeViewInfo(0, -1)}
+          uuid={2}
+        >
+          {fakeHoveredCellInfo && (
+            <CellTooltipContent
+              cellId={fakeHoveredCellInfo.cellId}
+              factors={fakeHoveredCellInfo.factors}
+            />
+          )}
+        </CellTooltip2D>
+      );
       expect(wrapper.find('div').length).toEqual(0);
     });
 
     it('does not appear if projected coordinates are outside boundaries, left', () => {
-      const wrapper = shallow(<CellTooltip2D
-        hoveredCellInfo={fakeHoveredCellInfo}
-        mapping="xy"
-        viewInfo={makeFakeViewInfo(-1, 0)}
-        uuid={2}
-      />);
+      const wrapper = shallow(
+        <CellTooltip2D
+          hoveredCellInfo={fakeHoveredCellInfo}
+          mapping="xy"
+          viewInfo={makeFakeViewInfo(-1, 0)}
+          uuid={2}
+        >
+          {fakeHoveredCellInfo && (
+            <CellTooltipContent
+              cellId={fakeHoveredCellInfo.cellId}
+              factors={fakeHoveredCellInfo.factors}
+            />
+          )}
+        </CellTooltip2D>
+      );
       expect(wrapper.find('div').length).toEqual(0);
     });
 
     it('does not appear if projected coordinates are outside boundaries, right', () => {
-      const wrapper = shallow(<CellTooltip2D
-        hoveredCellInfo={fakeHoveredCellInfo}
-        mapping="xy"
-        viewInfo={makeFakeViewInfo(11, 0)}
-        uuid={2}
-      />);
+      const wrapper = shallow(
+        <CellTooltip2D
+          hoveredCellInfo={fakeHoveredCellInfo}
+          mapping="xy"
+          viewInfo={makeFakeViewInfo(11, 0)}
+          uuid={2}
+        >
+          {fakeHoveredCellInfo && (
+            <CellTooltipContent
+              cellId={fakeHoveredCellInfo.cellId}
+              factors={fakeHoveredCellInfo.factors}
+            />
+          )}
+        </CellTooltip2D>
+      );
       expect(wrapper.find('div').length).toEqual(0);
     });
   });
