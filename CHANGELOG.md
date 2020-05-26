@@ -8,7 +8,7 @@
 - Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
 - Added `src/` to the list of directories to publish to NPM.
 
-## [0.1.3](https://www.npmjs.com/package/vitessce/v/0.1.3) - 2020-05-26
+## [0.1.3](https://www.npmjs.com/package/vitessce/v/0.1.3) - 2020-05-15
 
 ### Added
 - Trevor's lab presentation on multimodal imaging (2020-05-14).
