@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.1.3
+## 0.1.4 - in progress
+
+### Added
+
+### Changed
+- Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
+- Added `src/` to the list of directories to publish to NPM, and renamed build directories (`build-lib/` to `dist/` and `build-demo/` to `dist-demo/`).
+
+## [0.1.3](https://www.npmjs.com/package/vitessce/v/0.1.3) - 2020-05-15
 
 ### Added
 - Trevor's lab presentation on multimodal imaging (2020-05-14).
@@ -12,7 +20,6 @@
 - Scrollable image layer popout.
 - Upgrade `viv` to 0.2.5.
 - Theme for image layer button.
-- Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
 
 ## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
