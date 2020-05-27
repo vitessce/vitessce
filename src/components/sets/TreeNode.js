@@ -112,11 +112,13 @@ function NamedSetNodeStatic(props) {
       ? checkedLevelIndex + 1
       : 1
   );
+  const numberFormatter = new Intl.NumberFormat('en-US');
+  const niceSize = numberFormatter.format(size);
   let tooltipText;
   if (shouldCheckNextLevel) {
     tooltipText = getLevelTooltipText(nextLevelToCheck);
   } else if (isLeaf || !expanded) {
-    tooltipText = `Color individual set (${size} ${datatype}${(size === 1 ? '' : 's')})`;
+    tooltipText = `Color individual set (${niceSize} ${datatype}${(size === 1 ? '' : 's')})`;
   } else {
     tooltipText = 'Color by expanded descendants';
   }
@@ -152,6 +154,7 @@ function NamedSetNodeStatic(props) {
         </PopoverMenu>
       ) : null}
       {level > 0 && isChecking ? checkbox : null}
+      {level > 0 && (<span className="node-size-label">{niceSize}</span>)}
     </span>
   );
 }
