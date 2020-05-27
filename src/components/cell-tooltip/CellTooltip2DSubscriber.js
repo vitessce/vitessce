@@ -3,6 +3,7 @@ import PubSub from 'pubsub-js';
 
 import { CELLS_HOVER, VIEW_INFO } from '../../events';
 import CellTooltip2D from './CellTooltip2D';
+import CellTooltipContent from './CellTooltipContent';
 
 export default class CellTooltip2DSubscriber extends React.Component {
   constructor(props) {
@@ -51,7 +52,14 @@ export default class CellTooltip2DSubscriber extends React.Component {
         mapping={mapping}
         viewInfo={viewInfo}
         uuid={uuid}
-      />
+      >
+        {hoveredCellInfo && (
+          <CellTooltipContent
+            cellId={hoveredCellInfo.cellId}
+            factors={hoveredCellInfo.factors}
+          />
+        )}
+      </CellTooltip2D>
     );
   }
 }
