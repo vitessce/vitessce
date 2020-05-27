@@ -1,6 +1,6 @@
 /coverage
-/build-demo
-/build-lib
+/dist
+/dist-demo
 /node_modules
 /.docz
 /demo/dist

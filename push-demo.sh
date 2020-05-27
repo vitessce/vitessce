@@ -17,9 +17,9 @@ echo '{
   "date": "'$DATE'",
   "hash": "'$HASH'"
 }' > src/version.json
-npm run build
+npm run build-demo
 
-DIST_DIR='build-demo/'
+DIST_DIR='dist-demo/'
 # and add an error page for vitessce.io...
 cp error.html $DIST_DIR
 # and push to S3.
