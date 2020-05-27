@@ -24,13 +24,13 @@ const componentsToExport = [
 module.exports = {
     appPackageJson: resolveApp('package.json'),
     appPath: resolveApp('.'),
-    appBuild: resolveApp('build-demo'),
+    appBuild: resolveApp('dist-demo'),
     appPublic: resolveApp('demo'),
     appHtml: resolveApp('demo/index.html'),
     appIndexJs: resolveModule(resolveApp, 'src/demo/index'),
     appSrc: resolveApp('src'),
     appNodeModules: resolveApp('node_modules'),
-    libBuild: resolveApp('build-lib'),
+    libBuild: resolveApp('dist'),
     libIndexJs: resolveModule(resolveApp, 'src/index'),
     libOtherJs: fromEntries(componentsToExport.map(name => [
         name,
