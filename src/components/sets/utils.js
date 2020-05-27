@@ -17,8 +17,18 @@ export function callbackOnKeyPress(event, key, callback) {
  * @param {number[]} rgbArray The color [r, g, b] array.
  * @returns {string} The hex color as a string.
  */
-export function colorToHexString(rgbArray) {
+export function colorArrayToString(rgbArray) {
   return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
+}
+
+/**
+ * Convert a string color representation to an array of [r,g,b].
+ * @param {string} colorString The color as a string.
+ * @returns {number[]} The color as an array.
+ */
+export function colorStringToArray(colorString) {
+  const colorObj = tinycolor(colorString).toRgb();
+  return [colorObj.r, colorObj.g, colorObj.b];
 }
 
 /**

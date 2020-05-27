@@ -1,6 +1,9 @@
 import React, { useCallback } from 'react';
 import PopoverMenu from './PopoverMenu';
-import { handleImportJSON, MIME_TYPE_JSON } from './io';
+import {
+  handleImportJSON, MIME_TYPE_JSON,
+  handleImportTabular, MIME_TYPE_TABULAR,
+} from './io';
 
 import { ReactComponent as SetViewSVG } from '../../assets/sets/eye.svg';
 import { ReactComponent as SetUnionSVG } from '../../assets/sets/union.svg';
@@ -69,15 +72,21 @@ export function PlusButton(props) {
       {
         title: 'Create hierarchy',
         handler: onCreateLevelZeroNode,
-        handlerKey: 'c',
+        handlerKey: 'n',
       },
     ] : []),
     ...(importable ? [
       {
         title: 'Import hierarchy',
+        subtitle: '(from CSV file)',
+        handler: onImport(handleImportTabular, MIME_TYPE_TABULAR),
+        handlerKey: 'c',
+      },
+      {
+        title: 'Import hierarchy',
         subtitle: '(from JSON file)',
         handler: onImport(handleImportJSON, MIME_TYPE_JSON),
-        handlerKey: 'i',
+        handlerKey: 'j',
       },
     ] : []),
   ];

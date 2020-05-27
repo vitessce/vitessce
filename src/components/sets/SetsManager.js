@@ -80,8 +80,9 @@ export default function SetsManager(props) {
     onNodeView,
     onImportTree,
     onCreateLevelZeroNode,
-    onExportLevelZeroNode,
-    onExportSet,
+    onExportLevelZeroNodeJSON,
+    onExportLevelZeroNodeTabular,
+    onExportSetJSON,
     onUnion,
     onIntersection,
     onComplement,
@@ -129,8 +130,9 @@ export default function SetsManager(props) {
         onNodeSetName={onNodeSetName}
         onNodeSetIsEditing={onNodeSetIsEditing}
         onNodeRemove={onNodeRemove}
-        onExportLevelZeroNode={onExportLevelZeroNode}
-        onExportSet={onExportSet}
+        onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
+        onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
+        onExportSetJSON={onExportSetJSON}
 
         disableTooltip={isDragging}
         onDragStart={() => setIsDragging(true)}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TwitterPicker } from 'react-color';
-import { colorToHexString, callbackOnKeyPress } from './utils';
+import { colorArrayToString, callbackOnKeyPress } from './utils';
 import { PALETTE } from '../utils';
 import Popover from './Popover';
 
@@ -88,7 +88,9 @@ function PopoverMenuList(props) {
     }
   }
 
-  const defaultPalette = palette ? palette.map(colorToHexString) : PALETTE.map(colorToHexString);
+  const defaultPalette = palette
+    ? palette.map(colorArrayToString)
+    : PALETTE.map(colorArrayToString);
 
   return (
     <div>
@@ -99,13 +101,13 @@ function PopoverMenuList(props) {
           width={108}
           triangle="hide"
           colors={defaultPalette}
-          color={colorToHexString(color)}
+          color={colorArrayToString(color)}
           onChangeComplete={handleColorChange}
         />
       )}
       <ul className="popover-menu-list">
         {menuConfig.map(item => (
-          <li key={item.title}>
+          <li key={item.title + item.subtitle}>
             <PopoverMenuListButton
               {...item}
               onClick={onClick}

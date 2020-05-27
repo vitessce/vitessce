@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import range from 'lodash/range';
 import PopoverMenu from './PopoverMenu';
 import HelpTooltip from './HelpTooltip';
-import { callbackOnKeyPress, colorToHexString, getLevelTooltipText } from './utils';
+import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from './utils';
 import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
 
 
@@ -18,11 +18,13 @@ function makeNodeViewMenuConfig(props) {
   const {
     nodeKey,
     level,
+    height,
     onCheckNode,
     onNodeRemove,
     onNodeSetIsEditing,
-    onExportLevelZeroNode,
-    onExportSet,
+    onExportLevelZeroNodeJSON,
+    onExportLevelZeroNodeTabular,
+    onExportSetJSON,
     checkable,
     editable,
     exportable,
@@ -47,9 +49,17 @@ function makeNodeViewMenuConfig(props) {
       {
         title: 'Export hierarchy',
         subtitle: '(to JSON file)',
-        handler: () => { onExportLevelZeroNode(nodeKey); },
-        handlerKey: 'e',
+        handler: () => { onExportLevelZeroNodeJSON(nodeKey); },
+        handlerKey: 'j',
       },
+      ...(height <= 1 ? [
+        {
+          title: 'Export hierarchy',
+          subtitle: '(to CSV file)',
+          handler: () => { onExportLevelZeroNodeTabular(nodeKey); },
+          handlerKey: 't',
+        },
+      ] : []),
     ] : []),
     ...(level > 0 ? [
       ...(checkable ? [
@@ -63,7 +73,7 @@ function makeNodeViewMenuConfig(props) {
         {
           title: 'Export set',
           subtitle: '(to JSON file)',
-          handler: () => { onExportSet(nodeKey); },
+          handler: () => { onExportSetJSON(nodeKey); },
           handlerKey: 'e',
         },
       ] : []),
@@ -255,7 +265,7 @@ function SwitcherIcon(props) {
   const {
     isLeaf, isOpen, color,
   } = props;
-  const hexColor = (color ? colorToHexString(color) : undefined);
+  const hexColor = (color ? colorArrayToString(color) : undefined);
   if (isLeaf) {
     return (
       <i
