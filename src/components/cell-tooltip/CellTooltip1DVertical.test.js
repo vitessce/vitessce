@@ -30,7 +30,7 @@ describe('CellTooltip1DVertical.js', () => {
               factors={fakeHoveredCellInfo.factors}
             />
           )}
-        </CellTooltip1DVertical>
+        </CellTooltip1DVertical>,
       );
       expect(wrapper.find('.cell-emphasis-vertical').length).toEqual(1);
     });
@@ -48,7 +48,7 @@ describe('CellTooltip1DVertical.js', () => {
               factors={fakeHoveredCellInfo.factors}
             />
           )}
-        </CellTooltip1DVertical>
+        </CellTooltip1DVertical>,
       );
       expect(wrapper.find('div').length).toEqual(0);
     });
@@ -65,7 +65,7 @@ describe('CellTooltip1DVertical.js', () => {
               factors={fakeHoveredCellInfo.factors}
             />
           )}
-        </CellTooltip1DVertical>
+        </CellTooltip1DVertical>,
       );
       expect(wrapper.find('div').length).toEqual(0);
     });

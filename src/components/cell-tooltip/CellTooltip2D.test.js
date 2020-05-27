@@ -40,7 +40,7 @@ describe('CellTooltip2D.js', () => {
               factors={fakeHoveredCellInfo.factors}
             />
           )}
-        </CellTooltip2D>
+        </CellTooltip2D>,
       );
       expect(wrapper.find('.cell-emphasis-crosshair').length).toEqual(2);
     });
@@ -59,7 +59,7 @@ describe('CellTooltip2D.js', () => {
               factors={fakeHoveredCellInfo.factors}
             />
           )}
-        </CellTooltip2D>
+        </CellTooltip2D>,
       );
       expect(wrapper.find('div').length).toEqual(0);
     });
@@ -78,7 +78,7 @@ describe('CellTooltip2D.js', () => {
               factors={fakeHoveredCellInfo.factors}
             />
           )}
-        </CellTooltip2D>
+        </CellTooltip2D>,
       );
       expect(wrapper.find('div').length).toEqual(0);
     });
@@ -97,7 +97,7 @@ describe('CellTooltip2D.js', () => {
               factors={fakeHoveredCellInfo.factors}
             />
           )}
-        </CellTooltip2D>
+        </CellTooltip2D>,
       );
       expect(wrapper.find('div').length).toEqual(0);
     });
@@ -116,7 +116,7 @@ describe('CellTooltip2D.js', () => {
               factors={fakeHoveredCellInfo.factors}
             />
           )}
-        </CellTooltip2D>
+        </CellTooltip2D>,
       );
       expect(wrapper.find('div').length).toEqual(0);
     });
@@ -135,7 +135,7 @@ describe('CellTooltip2D.js', () => {
               factors={fakeHoveredCellInfo.factors}
             />
           )}
-        </CellTooltip2D>
+        </CellTooltip2D>,
       );
       expect(wrapper.find('div').length).toEqual(0);
     });
