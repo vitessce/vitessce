@@ -10,11 +10,11 @@
     "react-component"
   ],
   "files": [
-    "build-lib",
+    "dist",
     "src"
   ],
-  "main": "build-lib/umd/production/index.min.js",
-  "module": "build-lib/es/production/index.min.js",
+  "main": "dist/umd/production/index.min.js",
+  "module": "dist/es/production/index.min.js",
   "peerDependencies": {
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
@@ -131,7 +131,7 @@
     "build-lib": "node scripts/build-lib.js",
     "build": "npm run build-demo && npm run build-lib",
     "prepublishOnly": "npm run build-lib",
-    "clean": "rm -r build-demo build-lib",
+    "clean": "rm -r dist-demo dist",
     "start": "node scripts/start-demo.js",
     "test": "karma start scripts/karma.config.js --single-run",
     "test:watch": "karma start scripts/karma.config.js --auto-watch",
