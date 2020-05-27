@@ -102,7 +102,7 @@ export const COLORMAP_OPTIONS = [
   'inferno',
 ];
 
-export const DEFAULT_GL_OPTIONS = { webgl2: false };
+export const DEFAULT_GL_OPTIONS = { webgl2: true };
 
 export function createDefaultUpdateStatus(componentName) {
   return message => console.warn(`${componentName} updateStatus: ${message}`);
