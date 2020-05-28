@@ -1,8 +1,18 @@
 
 @mixin app($theme-name, $theme-colors) {
 
+    &.welcome-container {
+        overflow: visible;
+        .react-grid-layout, .warning-layout {
+            position: relative;
+        }
+    }
+
     .react-grid-layout, .warning-layout {
         background-color: map-get($theme-colors, "grid-layout-background");
+        height: auto;
+        position: absolute;
+        width: 100%;
     }
 
     .warning-layout {

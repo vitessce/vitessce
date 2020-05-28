@@ -36,7 +36,6 @@ export default function CellTooltip2D(props) {
     viewInfo,
     children,
   } = props;
-  console.log(viewInfo); // eslint-disable-line
   // Check that all data necessary to show the tooltip has been passed.
   if (!uuid || !viewInfo || !viewInfo.viewport) {
     return null;

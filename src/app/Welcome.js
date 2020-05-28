@@ -94,8 +94,8 @@ function Info() {
 export default function Welcome(props) {
   const { configs, theme } = props;
   return (
-    <div className={`vitessce-container vitessce-theme-${theme}`}>
-      <div className="react-grid-layout container-fluid" style={{ height: '100vh' }}>
+    <div className={`vitessce-container vitessce-theme-${theme} welcome-container`}>
+      <div className="react-grid-layout container-fluid" style={{ height: 'max(100vh, 100%)' }}>
         <div className="row">
           <div className="welcome-col-left">
             <div className={LIGHT_CARD}>
