@@ -19,18 +19,19 @@ describe('Description.js', () => {
     });
 
     it('shows metadata', () => {
-      const layerId = 0.1234;
+      const layerId = String(0.1234);
+      const layerName = 'My layer';
       const metadata = {
-        [layerId]: {
-          layerName: 'Spraggins',
-          layerMetadata: {
+        [layerName]: {
+          ids: new Set([layerId]),
+          metadata: {
             Channels: 4,
             'Pixels Type': 'uint16',
           },
         },
       };
       const wrapper = shallow(<Description metadata={metadata} />);
-      assertElementHasText(wrapper, '[className="description"]', 'SpragginsChannels4Pixels Typeuint16');
+      assertElementHasText(wrapper, '[className="description"]', 'My layerChannels4Pixels Typeuint16');
     });
   });
 });
