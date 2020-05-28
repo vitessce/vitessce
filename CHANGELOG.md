@@ -3,6 +3,7 @@
 ## 0.1.4 - in progress
 
 ### Added
+- Added `METADATA_REMOVE` event to facilitate removal of image layer metadata from the `DescriptionSubscriber` upon layer removal.
 
 ### Changed
 - Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
@@ -21,7 +22,6 @@
 - Scrollable image layer popout.
 - Upgrade `viv` to 0.2.5.
 - Theme for image layer button.
-- Added `METADATA_REMOVE` event to facilitate removal of image layer metadata from the `DescriptionSubscriber` upon layer removal.
 
 ## [0.1.2](https://www.npmjs.com/package/vitessce/v/0.1.2) - 2020-05-12
 
