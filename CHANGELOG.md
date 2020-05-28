@@ -3,6 +3,7 @@
 ## 0.1.4 - in progress
 
 ### Added
+- Added support for responsive height in the `Welcome` and `PubSubVitessceGrid` components.
 
 ### Changed
 - Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
