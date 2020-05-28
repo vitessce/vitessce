@@ -12,10 +12,32 @@ export default function DescriptionSubscriber(props) {
 
   useEffect(() => {
     function handleMetadataAdd(msg, { layerId, layerName, layerMetadata }) {
-      setMetadata(prevMetadata => ({ ...prevMetadata, [layerId]: { layerName, layerMetadata } }));
+      setMetadata((prevMetadata) => {
+        if (prevMetadata[layerName]) {
+          // Metadata for this layer has already been added. Just append the layer ID.
+          prevMetadata[layerName].ids.add(layerId);
+          return prevMetadata;
+        }
+        return {
+          ...prevMetadata,
+          [layerName]: {
+            ids: new Set([layerId]),
+            metadata: layerMetadata,
+          },
+        };
+      });
     }
-    function handleMetadataRemove(msg, layerId) {
-      setMetadata(prevMetadata => ({ ...prevMetadata, [layerId]: undefined }));
+    function handleMetadataRemove(msg, { layerId, layerName }) {
+      setMetadata((prevMetadata) => {
+        prevMetadata[layerName].ids.delete(layerId);
+        if (prevMetadata[layerName].ids.size < 1) {
+          return {
+            ...prevMetadata,
+            [layerName]: undefined,
+          };
+        }
+        return prevMetadata;
+      });
     }
     const metadataAddToken = PubSub.subscribe(METADATA_ADD, handleMetadataAdd);
     const metadataRemoveToken = PubSub.subscribe(METADATA_REMOVE, handleMetadataRemove);
