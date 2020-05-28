@@ -1,6 +1,15 @@
 # Changelog
 
-## 0.1.3
+## 0.1.4 - in progress
+
+### Added
+
+### Changed
+- Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
+- Abstracted the CellTooltip components to allow any child element to be passed as the tooltip content.
+- Added `src/` to the list of directories to publish to NPM, and renamed build directories (`build-lib/` to `dist/` and `build-demo/` to `dist-demo/`).
+
+## [0.1.3](https://www.npmjs.com/package/vitessce/v/0.1.3) - 2020-05-15
 
 ### Added
 - Trevor's lab presentation on multimodal imaging (2020-05-14).
