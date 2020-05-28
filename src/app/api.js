@@ -60,7 +60,7 @@ const vanderbiltBase = {
     {
       name: 'raster',
       type: 'RASTER',
-      url: 'https://keller-mark.github.io/temp-vitessce-cell-sets/test_tiff.raster.json',
+      url: 'https://keller-mark.github.io/vitessce-demo-hosting-temporary/ome-tiff-with-metadata/test_tiff.raster.json',
     },
   ],
 };
