@@ -100,8 +100,9 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       });
       if (loader.getMetadata) {
         PubSub.publish(METADATA_ADD, {
-          name: imageData.name,
-          metadata: loader.getMetadata(),
+          layerId,
+          layerName: imageData.name,
+          layerMetadata: loader.getMetadata(),
         });
       }
       // Add channel on image add automatically as the first avaialable value for each dimension.
