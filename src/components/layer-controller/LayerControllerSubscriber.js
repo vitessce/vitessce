@@ -10,7 +10,9 @@ import {
 import TitleInfo from '../TitleInfo';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
-import { RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT } from '../../events';
+import {
+  RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT, METADATA_REMOVE,
+} from '../../events';
 import { darkTheme } from './styles';
 
 
@@ -38,10 +40,11 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
     setLayers([...layers, { layerId, imageData }]);
   };
 
-  const handleLayerRemove = (layerId) => {
+  const handleLayerRemove = (layerId, layerName) => {
     const nextLayers = layers.filter(d => d.layerId !== layerId);
     setLayers(nextLayers);
     PubSub.publish(LAYER_REMOVE, layerId);
+    PubSub.publish(METADATA_REMOVE, { layerId, layerName });
   };
 
   const layerControllers = layers.map(({ layerId, imageData }) => (
@@ -49,7 +52,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
       <LayerController
         layerId={layerId}
         imageData={imageData}
-        handleLayerRemove={() => handleLayerRemove(layerId)}
+        handleLayerRemove={() => handleLayerRemove(layerId, imageData.name)}
       />
     </Grid>
   ));

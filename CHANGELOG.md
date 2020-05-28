@@ -3,6 +3,7 @@
 ## 0.1.4 - in progress
 
 ### Added
+- Added `METADATA_REMOVE` event to facilitate removal of image layer metadata from the `DescriptionSubscriber` upon layer removal.
 
 ### Changed
 - Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
