@@ -79,6 +79,7 @@ export function Vitessce(props) {
   const {
     config,
     rowHeight,
+    height,
     theme,
   } = props;
   if (!config) {
@@ -113,6 +114,7 @@ export function Vitessce(props) {
       config={config}
       getComponent={getComponent}
       rowHeight={rowHeight}
+      height={height}
       theme={theme}
     />
   );
