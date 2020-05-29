@@ -1,0 +1,260 @@
+
+/*
+  Tooltips and popovers for showing help info to the user.
+  Some styles here (for .rc-tooltip and descendants) have been adapted from the ant-design tooltip and popover styles:
+  https://github.com/ant-design/ant-design/blob/34c2fad6368cce0d3e1959613d092274f567582a/components/tooltip/style/index.less
+  https://github.com/ant-design/ant-design/blob/34c2fad6368cce0d3e1959613d092274f567582a/components/popover/style/index.less
+ */
+@mixin help-tooltip-popover-common($theme-name, $theme-colors) {
+
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 14px;
+    list-style: none;
+    position: absolute;
+
+    &-hidden {
+        display: none;
+    }
+
+    .rc-tooltip-inner {
+        border-radius: 2px;
+        -webkit-box-shadow: 0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05);
+                box-shadow: 0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05);
+    }
+    
+}
+
+@mixin help-tooltips($theme-name, $theme-colors) {
+    .help-tooltip {
+        &.rc-tooltip {
+            z-index: 1060;
+            display: block;
+            max-width: 250px;
+            visibility: visible;
+
+            @include help-tooltip-popover-common($theme-name, $theme-colors);
+
+            &-placement-top {
+                padding-top: 8px;
+            }
+            &-placement-right {
+                padding-left: 8px;
+            }
+            &-placement-bottom {
+                padding-top: 8px;
+            }
+            &-placement-left {
+                padding-right: 8px;
+            }
+            .rc-tooltip-inner {
+                font-size: 10px;
+                min-width: 30px;
+                padding: 6px 8px;
+                color: #fff;
+                text-align: left;
+                text-decoration: none;
+                word-wrap: break-word;
+                background-color: rgba(0, 0, 0, 0.9);
+              
+            }
+            .rc-tooltip-arrow {
+                display: none;
+            }
+        }
+    }
+}
+
+@mixin popover($theme-name, $theme-colors) {
+
+    .popover {
+        &.rc-tooltip {
+            top: 0;
+            left: 0;
+            z-index: 1030;
+            font-weight: normal;
+            white-space: normal;
+            text-align: left;
+            cursor: auto;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+                -ms-user-select: text;
+                    user-select: text;
+
+            &::after {
+                position: absolute;
+                background: rgba(255, 255, 255, 0.01);
+                content: '';
+            }
+
+            @include help-tooltip-popover-common($theme-name, $theme-colors);
+
+            &-placement-top {
+                padding-bottom: 10px;
+            }
+            &-placement-right {
+                padding-left: 10px;
+            }
+            &-placement-bottom {
+                padding-top: 10px;
+            }
+            &-placement-left {
+                padding-right: 10px;
+            }
+
+            .rc-tooltip-content {
+                padding: 0;
+            }
+
+            .rc-tooltip-inner {
+                box-sizing: border-box;
+                background-color: map-get($global-colors, "white");
+                background-clip: padding-box;
+
+                .popover-menu-list {
+                    list-style-type: none;
+                    padding: 0;
+                    margin-bottom: 0;
+                    dl, ol, ul {
+                        margin-top: 0;
+                        margin-bottom: 1rem;
+                    }
+
+                    li {
+                        button {
+                            border: 0;
+                            padding: 4px 16px;
+                            cursor: pointer;
+                            width: 100%;
+                            background-color: transparent;
+                            border-radius: 2px;
+
+                            span.small {
+                                font-size: 11px;
+                            }
+
+                            &:hover {
+                                background-color: lighten(map-get($global-colors, "gray-light"), 10%);
+                            }
+                        }
+                        &:not(:last-child) {
+                            border-bottom: 1px solid map-get($global-colors, "gray-mid");
+                        }
+                    }
+
+                    button {
+                        -webkit-appearance: button;
+                        text-transform: none;
+                        overflow: visible;
+                        margin: 0;
+                        font-family: inherit;
+                        font-size: 14px;
+                        line-height: inherit;
+                        border-radius: 0;
+                    }
+                }
+
+                .popover-menu-color + .popover-menu-list {
+                    border-top: 1px solid map-get($global-colors, "gray-mid");
+                }
+            }
+
+            .popover-menu-color.twitter-picker {
+                box-shadow: none !important;
+                margin: 0 auto;
+                /* Sets margins around color picker and centers */
+                > div:nth-child(3) {
+                    padding: 6px !important;
+                    transform: translate(2px, 0);
+                }
+                > div > div:nth-of-type(1) {
+                    font-size: 12px;
+                    width: 20px !important;
+                }
+                input {
+                    width: 60px !important;
+                    font-size: 12px;
+                }
+                /* Sets smaller color squares */
+                > div > span > div {
+                    width: 18px !important;
+                    height: 18px !important;
+                }
+            }
+
+            .rc-tooltip-inner-content {
+                padding: 12px 16px;
+                color: rgba(0, 0, 0, 0.65);
+            }
+
+            .rc-tooltip-arrow {
+                position: absolute;
+                display: block;
+                width: 8px;
+                height: 8px;
+                background: transparent;
+                border-style: solid;
+                border-width: 4px;
+                -webkit-transform: rotate(45deg);
+                        transform: rotate(45deg);
+            }
+
+            &.rc-tooltip-placement-top > .rc-tooltip-content > .rc-tooltip-arrow {
+                bottom: 6px;
+                border-top-color: transparent;
+                border-right-color: #fff;
+                border-bottom-color: #fff;
+                border-left-color: transparent;
+                -webkit-box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.07);
+                        box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.07);
+                left: 50%;
+                -webkit-transform: translateX(-50%) rotate(45deg);
+                        transform: translateX(-50%) rotate(45deg);
+            }
+
+
+            &.rc-tooltip-placement-right > .rc-tooltip-content > .rc-tooltip-arrow {
+                left: 6px;
+                border-top-color: transparent;
+                border-right-color: transparent;
+                border-bottom-color: #fff;
+                border-left-color: #fff;
+                -webkit-box-shadow: -3px 3px 7px rgba(0, 0, 0, 0.07);
+                        box-shadow: -3px 3px 7px rgba(0, 0, 0, 0.07);
+                top: 50%;
+                -webkit-transform: translateY(-50%) rotate(45deg);
+                        transform: translateY(-50%) rotate(45deg);
+            }
+
+
+            &.rc-tooltip-placement-bottom > .rc-tooltip-content > .rc-tooltip-arrow {
+                top: 6px;
+                border-top-color: #fff;
+                border-right-color: transparent;
+                border-bottom-color: transparent;
+                border-left-color: #fff;
+                -webkit-box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.06);
+                        box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.06);
+                left: 50%;
+                -webkit-transform: translateX(-50%) rotate(45deg);
+                        transform: translateX(-50%) rotate(45deg);
+            }
+        
+            &.rc-tooltip-placement-left > .rc-tooltip-content > .rc-tooltip-arrow {
+                right: 6px;
+                border-top-color: #fff;
+                border-right-color: #fff;
+                border-bottom-color: transparent;
+                border-left-color: transparent;
+                -webkit-box-shadow: 3px -3px 7px rgba(0, 0, 0, 0.07);
+                        box-shadow: 3px -3px 7px rgba(0, 0, 0, 0.07);
+                top: 50%;
+                -webkit-transform: translateY(-50%) rotate(45deg);
+                        transform: translateY(-50%) rotate(45deg);
+            }
+        }
+    }
+}

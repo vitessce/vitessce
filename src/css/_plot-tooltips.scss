@@ -1,5 +1,5 @@
-/* Cell Tooltips */
-@mixin tooltips($theme-name, $theme-colors) {
+/* Tooltips for plot hover events. */
+@mixin plot-tooltips($theme-name, $theme-colors) {
   .cell-emphasis-crosshair, .cell-emphasis-vertical {
       z-index: 5;
       position: absolute;
