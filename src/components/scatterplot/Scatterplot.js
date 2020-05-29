@@ -29,6 +29,8 @@ const CELLS_LAYER_ID = 'scatterplot';
  * @prop {function} getCellPosition Getter function for cell [x, y, z] position.
  * @prop {function} getCellColor Getter function for cell color as [r, g, b] array.
  * @prop {function} getCellIsSelected Getter function for cell layer isSelected.
+ * @prop {object} additionalCellScatterplotLayerProps Extra props to pass to the
+ * deck.gl ScatterplotLayer.
  * @prop {function} updateStatus
  * @prop {function} updateCellsSelection
  * @prop {function} updateCellsHover
@@ -63,6 +65,7 @@ export default function Scatterplot(props) {
         ? selectedCellIds.has(cellEntry[0])
         : true // If nothing is selected, everything is selected.
     ),
+    additionalCellScatterplotLayerProps = {},
     updateStatus = createDefaultUpdateStatus(COMPONENT_NAME),
     updateCellsSelection = createDefaultUpdateCellsSelection(COMPONENT_NAME),
     updateCellsHover = createDefaultUpdateCellsHover(COMPONENT_NAME),
@@ -123,6 +126,7 @@ export default function Scatterplot(props) {
       radiusMaxPixels: 1,
       getPosition: getCellPosition,
       getColor: getCellColor,
+      getRadius: getCellRadius,
       onClick: (info) => {
         if (tool) {
           // If using a tool, prevent individual cell selection.
@@ -132,6 +136,7 @@ export default function Scatterplot(props) {
         onCellClick(info);
       },
       ...cellLayerDefaultProps(Object.entries(cells), updateStatus, updateCellsHover, uuid),
+      ...additionalCellScatterplotLayerProps,
     }),
   ] : []);
 
