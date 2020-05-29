@@ -50,15 +50,30 @@ export default function PubSubVitessceGrid(props) {
   const margin = 10;
   const padding = 10;
 
+  // Detect when the `config` or `containerHeight` variables
+  // have changed, and update `rowHeight` in response.
   useEffect(() => {
     const numRows = getNumRows(config.staticLayout);
     const newRowHeight = getRowHeight(containerHeight, numRows, margin, padding);
     setRowHeight(newRowHeight);
   }, [containerHeight, config]);
 
+  // Update the `containerHeight` state when the `height` prop has changed.
   useEffect(() => {
-    if (height) {
+    if (height !== null && height !== undefined) {
       setContainerHeight(height);
+    }
+  }, [height]);
+
+  // If no height prop has been provided, set the `containerHeight`
+  // using height of the `.vitessce-container` element.
+  // Check the container element height whenever the window has been
+  // resized, as it may change if `.vitessce-container` should be
+  // sized relative to its parent (and by extension, potentially the window).
+  useEffect(() => {
+    if (height !== null && height !== undefined) {
+      // eslint will complain if the return value is inconsistent,
+      // so return a no-op function.
       return () => {};
     }
     function onWindowResize() {
