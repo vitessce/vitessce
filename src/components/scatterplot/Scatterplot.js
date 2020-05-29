@@ -126,7 +126,6 @@ export default function Scatterplot(props) {
       radiusMaxPixels: 1,
       getPosition: getCellPosition,
       getColor: getCellColor,
-      getRadius: getCellRadius,
       onClick: (info) => {
         if (tool) {
           // If using a tool, prevent individual cell selection.
