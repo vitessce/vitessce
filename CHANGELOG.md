@@ -5,6 +5,8 @@
 ### Added
 - Added `METADATA_REMOVE` event to facilitate removal of image layer metadata from the `DescriptionSubscriber` upon layer removal.
 - Added support for providing cell sets files in view configs.
+- Added support for responsive height in the `Welcome` and `PubSubVitessceGrid` components.
+
 
 ### Changed
 - Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.

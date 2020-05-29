@@ -47,7 +47,9 @@ describe('Vitessce', () => {
   it('loads details (responsive)', () => {
     cy.visit('/?dataset=linnarsson-2018');
     cy.contains('Please wait');
-    cy.get('.modal-body').should('be.visible');
+    // https://github.com/cypress-io/cypress/issues/4395
+    // cy.get('.modal-body').should('be.visible');
+    cy.get('.modal-body').should('exist');
 
     // Data Set:
     cy.contains('Linnarsson: Spatial organization');
