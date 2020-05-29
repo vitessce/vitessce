@@ -4,11 +4,14 @@
 
 ### Added
 - Added `METADATA_REMOVE` event to facilitate removal of image layer metadata from the `DescriptionSubscriber` upon layer removal.
+- Added support for providing cell sets files in view configs.
 
 ### Changed
 - Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
-- Abstracted the CellTooltip components to allow any child element to be passed as the tooltip content.
 - Added `src/` to the list of directories to publish to NPM, and renamed build directories (`build-lib/` to `dist/` and `build-demo/` to `dist-demo/`).
+- Abstracted the CellTooltip components to allow any child element to be passed as the tooltip content.
+- Updated the cell set hierarchy schema.
+- Updated the cell set manager, to try to improve usability.
 
 ## [0.1.3](https://www.npmjs.com/package/vitessce/v/0.1.3) - 2020-05-15
 

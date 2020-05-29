@@ -1,3 +1,5 @@
+import tinycolor from 'tinycolor2';
+
 /**
  * Execute a callback function based on a keypress event.
  * @param {object} event The event from onKeyPress
@@ -11,36 +13,34 @@ export function callbackOnKeyPress(event, key, callback) {
 }
 
 /**
- * Return an array from 0..stop.
- * @param {integer} stop The end of the array, exclusive.
- * @returns {Array} The resulting array of integers.
+ * Convert an array of [r, g, b] numbers to a hex color.
+ * @param {number[]} rgbArray The color [r, g, b] array.
+ * @returns {string} The hex color as a string.
  */
-export function range(stop) {
-  return Array.from(Array(stop), (x, i) => i);
-}
-
-// From https://stackoverflow.com/a/13627586
-function ordinalSuffixOf(i) {
-  const j = i % 10;
-  const k = i % 100;
-  if (j === 1 && k !== 11) {
-    return `${i}st`;
-  }
-  if (j === 2 && k !== 12) {
-    return `${i}nd`;
-  }
-  if (j === 3 && k !== 13) {
-    return `${i}rd`;
-  }
-  return `${i}th`;
+export function colorArrayToString(rgbArray) {
+  return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
 }
 
 /**
- * Convert an integer to the name of the corresponding tree level.
- * Relative to the current node.
- * @param {integer} i The index of the level. 0 means children, 1 grandchildren, etc.
- * @returns {string} The name.
+ * Convert a string color representation to an array of [r,g,b].
+ * @param {string} colorString The color as a string.
+ * @returns {number[]} The color as an array.
  */
-export function levelNameFromIndex(i) {
-  return `${ordinalSuffixOf(i + 1)} descendants`;
+export function colorStringToArray(colorString) {
+  const colorObj = tinycolor(colorString).toRgb();
+  return [colorObj.r, colorObj.g, colorObj.b];
+}
+
+/**
+ * Get a string of help text for coloring a particular hierarchy level.
+ * @param {integer} i The level. 1 for cluster, 2 for subcluster, etc.
+ * @returns {string} The tooltip text for coloring the level.
+ */
+export function getLevelTooltipText(i) {
+  if (i === 0) return 'Color by hierarchy';
+  if (i <= 2) {
+    const subs = j => ('sub'.repeat(j));
+    return `Color by ${subs(i - 1)}cluster`;
+  }
+  return `Color by cluster level ${i}`;
 }

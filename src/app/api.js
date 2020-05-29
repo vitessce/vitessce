@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.25/master_release';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.26/master_release';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -15,8 +15,8 @@ function makeLayerNameToConfig(datasetPrefix) {
 
 const linnarssonLayerNames = [
   'cells',
+  'cell_sets',
   'clusters',
-  'factors',
   'genes',
   'raster',
   'molecules',
@@ -39,7 +39,7 @@ const driesBase = {
   description: driesDescription,
   layers: [
     'cells',
-    'factors',
+    'cell_sets',
   ].map(makeLayerNameToConfig('dries')),
 };
 
@@ -173,14 +173,9 @@ const configs = {
           },
         },
         x: 6, y: 2, w: 3, h: 2 },
-      { component: 'factors',
-        x: 9, y: 0, w: 2, h: 2 },
       { component: 'genes',
-        x: 11, y: 2, w: 1, h: 2 },
+        x: 9, y: 0, w: 3, h: 2 },
       { component: 'cellSets',
-        props: {
-          datasetId: 'linnarsson-2018',
-        },
         x: 9, y: 3, w: 3, h: 2 },
       { component: 'heatmap',
         x: 2, y: 4, w: 10, h: 2 },
@@ -363,7 +358,7 @@ const configs = {
             target: [3800, -900, 0],
           },
         },
-        x: 5, y: 0, w: 5, h: 4 },
+        x: 5, y: 0, w: 4, h: 4 },
       { component: 'scatterplot',
         props: {
           mapping: 'UMAP',
@@ -372,9 +367,9 @@ const configs = {
             target: [0, 0, 0],
           },
         },
-        x: 5, y: 4, w: 5, h: 4 },
-      { component: 'factors',
-        x: 10, y: 0, w: 2, h: 8 },
+        x: 5, y: 4, w: 4, h: 4 },
+      { component: 'cellSets',
+        x: 9, y: 0, w: 3, h: 8 },
     ],
   },
   'wang-2019': {
