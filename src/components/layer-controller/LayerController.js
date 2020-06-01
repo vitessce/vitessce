@@ -84,29 +84,32 @@ const DEFAULT_LAYER_PROPS = {
 };
 
 export default function LayerController({ imageData, layerId, handleLayerRemove }) {
+  // eslint-disable-next-line
+  const [loader, setLoader] = useState(null);
   const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
   const [channels, dispatch] = useReducer(reducer, {});
   const [dimensions, setDimensions] = useState([]);
 
   useEffect(() => {
-    initLoader(imageData).then((loader) => {
-      const loaderDimensions = loader.dimensions;
+    initLoader(imageData).then((newLoader) => {
+      setLoader(newLoader);
+      const loaderDimensions = newLoader.dimensions;
       setDimensions(loaderDimensions);
       PubSub.publish(LAYER_ADD, {
         layerId,
-        loader,
+        loader: newLoader,
         layerProps: DEFAULT_LAYER_PROPS,
       });
-      if (loader.getMetadata) {
+      if (newLoader.getMetadata) {
         PubSub.publish(METADATA_ADD, {
           layerId,
           layerName: imageData.name,
-          layerMetadata: loader.getMetadata(),
+          layerMetadata: newLoader.getMetadata(),
         });
       }
       // Add channel on image add automatically as the first avaialable value for each dimension.
-      const defaultSelection = buildDefaultSelection(loader.dimensions);
+      const defaultSelection = buildDefaultSelection(newLoader.dimensions);
       dispatch({
         type: 'ADD_CHANNEL',
         layerId,
@@ -143,6 +146,8 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
     setColormap(colormapName);
     PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colormap: colormapName } });
   };
+
+  const handleDomainChange = () => {};
 
   let channelControllers = [];
   if (dimensions.length > 0) {
@@ -232,6 +237,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             handleGlobalChannelsSelectionChange={
               handleGlobalChannelsSelectionChange
             }
+            handleDomainChange={handleDomainChange}
           />
         </Grid>
         {channelControllers}
