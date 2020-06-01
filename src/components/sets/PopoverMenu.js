@@ -90,7 +90,7 @@ function PopoverMenuList(props) {
 
   const defaultPalette = palette
     ? palette.map(colorArrayToString)
-    : PALETTE.map(colorArrayToString);
+    : PALETTE.concat([[255, 255, 255], [128, 128, 128], [0, 0, 0]]).map(colorArrayToString);
 
   return (
     <div>

@@ -7,13 +7,14 @@
 - Added support for providing cell sets files in view configs.
 - Added support for responsive height in the `Welcome` and `PubSubVitessceGrid` components.
 
-
 ### Changed
 - Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
 - Added `src/` to the list of directories to publish to NPM, and renamed build directories (`build-lib/` to `dist/` and `build-demo/` to `dist-demo/`).
 - Abstracted the CellTooltip components to allow any child element to be passed as the tooltip content.
 - Updated the cell set hierarchy schema.
 - Updated the cell set manager, to try to improve usability.
+- Updated the default color palette to improve visibility when using the light theme.
+- Increased the minimum & maximum scatterplot radius and added the `cellRadiusScale` prop.
 
 ## [0.1.3](https://www.npmjs.com/package/vitessce/v/0.1.3) - 2020-05-15
 

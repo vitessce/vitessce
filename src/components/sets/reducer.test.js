@@ -86,7 +86,7 @@ describe('Hierarchical sets reducer', () => {
       });
 
       expect(postImportTree.tree[0].color).toEqual(undefined);
-      expect(postImportTree.tree[0].children[0].color).toEqual([166, 206, 227]);
+      expect(postImportTree.tree[0].children[0].color).toEqual([68, 119, 170]);
     });
 
     it('can import a tree and generate unique keys', () => {
