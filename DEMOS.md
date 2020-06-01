@@ -21,3 +21,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2020-05-05: [master](https://s3.amazonaws.com/vitessce-data/demos/2020-05-05/645ced4/index.html)
 - 2020-05-14: [keller-mark/cell-set-manager-april-2020](https://s3.amazonaws.com/vitessce-data/demos/2020-05-14/097b04d/index.html)
 - 2020-05-15: [master](https://s3.amazonaws.com/vitessce-data/demos/2020-05-15/bfc97f7/index.html)
+- 2020-06-01: [keller-mark/v0.1.4](https://s3.amazonaws.com/vitessce-data/demos/2020-06-01/85df787/index.html)
