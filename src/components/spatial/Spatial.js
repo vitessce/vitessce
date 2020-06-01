@@ -5,10 +5,9 @@ import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
 } from 'deck.gl';
 import { VivViewerLayer, StaticImageLayer } from '@hubmap/vitessce-image-viewer';
-import { SelectablePolygonLayer } from '../../layers';
+import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import LayersMenu from './LayersMenu';
 import ToolMenu from '../ToolMenu';
-import { getSelectionLayers } from '../selectable-component-utils';
 import {
   cellLayerDefaultProps, PALETTE, DEFAULT_COLOR,
   DEFAULT_GL_OPTIONS,

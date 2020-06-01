@@ -38,20 +38,17 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
 
 export const DEFAULT_COLOR = [128, 128, 128];
 
-// From http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12#type=qualitative&scheme=Paired&n=12
+// From https://personal.sron.nl/~pault/#sec:qualitative
 export const PALETTE = [
-  [166, 206, 227],
-  [31, 120, 180],
-  [178, 223, 138],
-  [51, 160, 44],
-  [251, 154, 153],
-  [227, 26, 28],
-  [253, 191, 111],
-  [255, 127, 0],
-  [202, 178, 214],
-  [106, 61, 154],
-  [255, 255, 153],
-  [177, 89, 40],
+  [68, 119, 170],
+  [136, 204, 238],
+  [68, 170, 153],
+  [17, 119, 51],
+  [153, 153, 51],
+  [221, 204, 119],
+  [204, 102, 119],
+  [136, 34, 85],
+  [170, 68, 153],
 ];
 
 export const VIEWER_PALETTE = [

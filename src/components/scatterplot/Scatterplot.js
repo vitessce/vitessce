@@ -1,8 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import DeckGL, { OrthographicView } from 'deck.gl';
-import { SelectableScatterplotLayer } from '../../layers';
+import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
 import ToolMenu from '../ToolMenu';
-import { getSelectionLayers } from '../selectable-component-utils';
 import {
   cellLayerDefaultProps, DEFAULT_COLOR,
   DEFAULT_GL_OPTIONS,
@@ -24,6 +23,8 @@ const CELLS_LAYER_ID = 'scatterplot';
  * @prop {string} mapping
  * @prop {object} cellColors Object mapping cell IDs to colors.
  * @prop {Set} selectedCellIds Set of selected cell IDs.
+ * @prop {number} cellRadiusScale The value for `radiusScale` to pass
+ * to the deck.gl ScatterplotLayer.
  * @prop {function} getCellCoords Getter function for cell coordinates
  * (used by the selection layer).
  * @prop {function} getCellPosition Getter function for cell [x, y, z] position.
@@ -47,6 +48,7 @@ export default function Scatterplot(props) {
     mapping,
     cellColors,
     selectedCellIds = new Set(),
+    cellRadiusScale = 0.2,
     getCellCoords = cell => cell.mappings[mapping],
     getCellPosition = (cellEntry) => {
       const { mappings } = cellEntry[1];
@@ -120,7 +122,9 @@ export default function Scatterplot(props) {
       id: CELLS_LAYER_ID,
       isSelected: getCellIsSelected,
       // No radiusMin, so texture remains open even zooming out.
-      radiusMaxPixels: 1,
+      radiusScale: cellRadiusScale,
+      radiusMinPixels: 1.5,
+      radiusMaxPixels: 10,
       getPosition: getCellPosition,
       getColor: getCellColor,
       onClick: (info) => {
