@@ -14,6 +14,7 @@
 - Updated the cell set hierarchy schema.
 - Updated the cell set manager, to try to improve usability.
 - Updated the default color palette to improve visibility when using the light theme.
+- Increased the minimum & maximum scatterplot radius and added the `cellRadiusScale` prop.
 
 ## [0.1.3](https://www.npmjs.com/package/vitessce/v/0.1.3) - 2020-05-15
 
