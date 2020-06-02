@@ -11,16 +11,12 @@ import { useOptionStyles } from './styles';
 
 import ColorPalette from './ColorPalette';
 
-function ChannelOptions({ handlePropertyChange, handleChannelRemove }) {
+function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUpdate }) {
   const [open, toggle] = useReducer(v => !v, false);
   const anchorRef = useRef(null);
 
   const handleColorSelect = (color) => {
     handlePropertyChange('color', color);
-  };
-
-  const handleIQRUpdate = () => {
-    handlePropertyChange('slider', 'IQR');
   };
 
   const handleRemove = () => {

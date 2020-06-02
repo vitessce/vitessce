@@ -197,6 +197,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
     setColormap(colormapName);
     PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colormap: colormapName } });
   };
+
   const handleDomainChange = async (value) => {
     setDomainType(value);
     if (value === 'Min/Max') {
@@ -270,6 +271,21 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
         const handleChannelRemove = () => {
           dispatch({ type: 'REMOVE_CHANNEL', layerId, payload: { channelId } });
         };
+        const handleIQRUpdate = async () => {
+          const stats = await getChannelStats(
+            { loader, loaderSelection: [channels[channelId].selection] },
+          );
+          const { q1, q3 } = stats[0];
+          dispatch({
+            type: 'CHANGE_SINGLE_CHANNEL_PROPERTY',
+            layerId,
+            payload: {
+              channelId,
+              property: 'slider',
+              value: [q1, q3],
+            },
+          });
+        };
         return (
           <Grid
             key={`channel-controller-${channelId}`}
@@ -287,6 +303,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
               colormapOn={Boolean(colormap)}
               handlePropertyChange={handleChannelPropertyChange}
               handleChannelRemove={handleChannelRemove}
+              handleIQRUpdate={handleIQRUpdate}
             />
           </Grid>
         );

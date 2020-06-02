@@ -72,6 +72,7 @@ function ChannelController({
   channelOptions,
   handlePropertyChange,
   handleChannelRemove,
+  handleIQRUpdate,
   selectionIndex,
   disableOptions = false,
 }) {
@@ -102,6 +103,7 @@ function ChannelController({
           <ChannelOptions
             handlePropertyChange={handlePropertyChange}
             handleChannelRemove={handleChannelRemove}
+            handleIQRUpdate={handleIQRUpdate}
           />
         </Grid>
       </Grid>
