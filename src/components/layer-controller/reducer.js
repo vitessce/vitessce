@@ -10,9 +10,6 @@ const layerProperty = {
   domain: 'domains',
 };
 
-const MIN_SLIDER_VALUE = 0;
-const MAX_SLIDER_VALUE = 65535;
-
 function channelsToLayerProps(channels) {
   /*
   * Converts channels object to corresponding layerProps arrays
@@ -120,13 +117,13 @@ export default function reducer(channels, action) {
       return nextChannels;
     }
     case 'ADD_CHANNEL': {
-      const { selection } = payload;
+      const { selection, domain } = payload;
       const channel = {
         selection,
+        domain,
         color: [255, 255, 255],
         visibility: true,
-        slider: [0, 20000],
-        domain: [MIN_SLIDER_VALUE, MAX_SLIDER_VALUE],
+        slider: domain,
       };
       const channelId = String(Math.random());
       const nextChannels = { ...channels, [channelId]: channel };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
@@ -115,8 +115,8 @@ function LayerOptions({
   handleDomainChange,
   channels,
   dimensions,
+  domainType,
 }) {
-  const [domainType, setDomainType] = useState('Full');
   const hasDimensionsAndChannels = dimensions.length > 0 && Object.keys(channels).length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
@@ -135,7 +135,6 @@ function LayerOptions({
             value={domainType}
             handleChange={(value) => {
               handleDomainChange(value);
-              setDomainType(value);
             }}
           />
         </LayerOption>

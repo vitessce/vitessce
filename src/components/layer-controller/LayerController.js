@@ -105,6 +105,8 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
   const [channels, dispatch] = useReducer(reducer, {});
   const [dimensions, setDimensions] = useState([]);
+  const [domainType, setDomainType] = useState('Min/Max');
+
 
   useEffect(() => {
     initLoader(imageData).then((newLoader) => {
@@ -125,32 +127,66 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       }
       // Add channel on image add automatically as the first avaialable value for each dimension.
       const defaultSelection = buildDefaultSelection(newLoader.dimensions);
-      dispatch({
-        type: 'ADD_CHANNEL',
-        layerId,
-        payload: { selection: defaultSelection },
+      getChannelStats({ loader: newLoader, loaderSelection: [defaultSelection] }).then((stats) => {
+        const { domain } = stats[0];
+        dispatch({
+          type: 'ADD_CHANNEL',
+          layerId,
+          payload: { selection: defaultSelection, domain },
+        });
       });
     });
   }, [layerId, imageData]);
 
-  const handleChannelAdd = () => dispatch({
-    type: 'ADD_CHANNEL',
-    layerId,
-    payload: {
-      selection: Object.assign(
-        {},
-        ...dimensions.map(
-          // Set new image to default selection for non-global selections (0)
-          // and use current global selection otherwise.
-          dimension => ({
-            [dimension.field]: GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
-              ? Object.values(channels)[0].selection[dimension.field]
-              : 0,
-          }),
-        ),
+  const dispatchDomain = ({ domain, type, channelId }) => {
+    // Update the slider bounds.
+    dispatch({
+      type,
+      layerId,
+      payload: {
+        property: 'domain',
+        channelId,
+        value: domain,
+        publish: false,
+      },
+    });
+    // Update the slider values.
+    dispatch({
+      type,
+      layerId,
+      payload: {
+        property: 'slider',
+        channelId,
+        value: domain,
+        publish: true,
+      },
+    });
+  };
+
+  const handleChannelAdd = async () => {
+    const selection = Object.assign(
+      {},
+      ...dimensions.map(
+        // Set new image to default selection for non-global selections (0)
+        // and use current global selection otherwise.
+        dimension => ({
+          [dimension.field]: GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
+            ? Object.values(channels)[0].selection[dimension.field]
+            : 0,
+        }),
       ),
-    },
-  });
+    );
+    const stats = await getChannelStats({ loader, loaderSelection: [selection] });
+    const { domain } = stats[0];
+    dispatch({
+      type: 'ADD_CHANNEL',
+      layerId,
+      payload: {
+        selection,
+        domain,
+      },
+    });
+  };
 
   const handleOpacityChange = (sliderValue) => {
     setOpacity(sliderValue);
@@ -161,58 +197,21 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
     setColormap(colormapName);
     PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colormap: colormapName } });
   };
-  const handleDomainChange = (value) => {
+  const handleDomainChange = async (value) => {
+    setDomainType(value);
     if (value === 'Min/Max') {
       const loaderSelection = Object.values(channels).map(
         channel => channel.selection,
       );
-      getChannelStats({ loader, loaderSelection }).then((stats) => {
-        const domain = stats.map(stat => stat.domain);
-        // Update the slider bounds.
-        dispatch({
-          type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
-          layerId,
-          payload: {
-            property: 'domain',
-            value: domain,
-            publish: false,
-          },
-        });
-        // Update the slider values.
-        dispatch({
-          type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
-          layerId,
-          payload: {
-            property: 'slider',
-            value: domain,
-            publish: true,
-          },
-        });
-      });
+      const stats = await getChannelStats({ loader, loaderSelection });
+      const domain = stats.map(stat => stat.domain);
+      dispatchDomain({ domain, type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY' });
     } if (value === 'Full') {
       const domain = Object.values(channels).map(() => [0, DTYPE_VALUES[loader.dtype].max]);
-      dispatch({
-        type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
-        layerId,
-        payload: {
-          property: 'domain',
-          value: domain,
-          publish: false,
-        },
-      });
-      // Update the slider values.
-      dispatch({
-        type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
-        layerId,
-        payload: {
-          property: 'slider',
-          value: domain,
-          publish: true,
-        },
-      });
+      dispatchDomain({ domain, type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY' });
     }
   };
-  const handleGlobalChannelsSelectionChange = ({ selection, event }) => {
+  const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
     // This call updates all channel selections with new global selection.
     dispatch({
       type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
@@ -225,6 +224,19 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
         publish: event.type === 'mouseup',
       },
     });
+    if (domainType === 'Min/Max') {
+      const stats = await getChannelStats({
+        loader,
+        loaderSelection: Object.values(channels).map(
+          channel => ({ ...channel.selection, selection }),
+        ),
+      });
+      const domain = stats.map(stat => stat.domain);
+      dispatchDomain({ domain, type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY' });
+    } if (domainType === 'Full') {
+      const domain = Object.values(channels).map(() => [0, DTYPE_VALUES[loader.dtype].max]);
+      dispatchDomain({ domain, type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY' });
+    }
   };
   let channelControllers = [];
   if (dimensions.length > 0) {
@@ -234,7 +246,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
       ([channelId, c]) => {
         // Change one property of a channel (for now - soon
         // nested structures allowing for multiple z/t selecitons at once, for example).
-        const handleChannelPropertyChange = (property, value) => {
+        const handleChannelPropertyChange = async (property, value) => {
           // property is something like "selection" or "slider."
           // value is the actual change, like { channel: "DAPI" }.
           dispatch({
@@ -246,6 +258,14 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
               value,
             },
           });
+          if (property === 'selection') {
+            const stats = await getChannelStats({
+              loader,
+              loaderSelection: [{ ...channels[channelId][property], ...value }],
+            });
+            const { domain } = stats[0];
+            dispatchDomain({ domain, type: 'CHANGE_SINGLE_CHANNEL_PROPERTY', channelId });
+          }
         };
         const handleChannelRemove = () => {
           dispatch({ type: 'REMOVE_CHANNEL', layerId, payload: { channelId } });
@@ -291,6 +311,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             dimensions={dimensions}
             opacity={opacity}
             colormap={colormap}
+            domainType={domainType}
             // Only allow for global dimension controllers that
             // exist in the `dimensions` part of the loader.
             globalControlDimensions={
