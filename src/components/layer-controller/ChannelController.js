@@ -7,8 +7,6 @@ import Select from '@material-ui/core/Select';
 
 import ChannelOptions from './ChannelOptions';
 
-const MIN_SLIDER_VALUE = 0;
-const MAX_SLIDER_VALUE = 65535;
 const COLORMAP_SLIDER_CHECKBOX_COLOR = [220, 220, 220];
 
 const toRgb = (on, arr) => {
@@ -37,15 +35,17 @@ function ChannelSelectionDropdown({
   );
 }
 
-function ChannelSlider({ color, slider, handleChange }) {
+function ChannelSlider({
+  color, slider, handleChange, domain,
+}) {
   return (
     <Slider
       value={slider}
       onChange={(e, v) => handleChange(v)}
       valueLabelDisplay="auto"
       getAriaLabel={() => `${color}-${slider}`}
-      min={MIN_SLIDER_VALUE}
-      max={MAX_SLIDER_VALUE}
+      min={domain[0]}
+      max={domain[1]}
       orientation="horizontal"
       style={{ color, marginTop: '7px' }}
     />
@@ -66,6 +66,7 @@ function ChannelController({
   visibility,
   slider,
   color,
+  domain,
   dimName,
   colormapOn,
   channelOptions,
@@ -116,6 +117,7 @@ function ChannelController({
           <ChannelSlider
             color={rgbColor}
             slider={slider}
+            domain={domain}
             handleChange={v => handlePropertyChange('slider', v)}
           />
         </Grid>

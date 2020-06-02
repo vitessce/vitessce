@@ -2,7 +2,7 @@ import React, {
   useState, useReducer, useEffect,
 } from 'react';
 import PubSub from 'pubsub-js';
-import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer';
+import { createZarrLoader, createOMETiffLoader, getChannelStats } from '@hubmap/vitessce-image-viewer';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -23,6 +23,21 @@ import { useExpansionPanelStyles } from './styles';
 // For now these are the global channel selectors.
 // We can expand this part of the application as new needs arise.
 const GLOBAL_SLIDER_DIMENSION_FIELDS = ['z', 'time'];
+
+const DTYPE_VALUES = {
+  '<u1': {
+    max: (2 ** 8) - 1,
+  },
+  '<u2': {
+    max: (2 ** 16) - 1,
+  },
+  '<u4': {
+    max: (2 ** 32) - 1,
+  },
+  '<f4': {
+    max: (2 ** 31) - 1,
+  },
+};
 
 function buildDefaultSelection(imageDims, defaultIndex = 0) {
   const selection = {};
@@ -146,9 +161,71 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
     setColormap(colormapName);
     PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colormap: colormapName } });
   };
-
-  const handleDomainChange = () => {};
-
+  const handleDomainChange = (value) => {
+    if (value === 'Min/Max') {
+      const loaderSelection = Object.values(channels).map(
+        channel => channel.selection,
+      );
+      getChannelStats({ loader, loaderSelection }).then((stats) => {
+        const domain = stats.map(stat => stat.domain);
+        // Update the slider bounds.
+        dispatch({
+          type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
+          layerId,
+          payload: {
+            property: 'domain',
+            value: domain,
+            publish: false,
+          },
+        });
+        // Update the slider values.
+        dispatch({
+          type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
+          layerId,
+          payload: {
+            property: 'slider',
+            value: domain,
+            publish: true,
+          },
+        });
+      });
+    } if (value === 'Full') {
+      const domain = Object.values(channels).map(() => [0, DTYPE_VALUES[loader.dtype].max]);
+      dispatch({
+        type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
+        layerId,
+        payload: {
+          property: 'domain',
+          value: domain,
+          publish: false,
+        },
+      });
+      // Update the slider values.
+      dispatch({
+        type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
+        layerId,
+        payload: {
+          property: 'slider',
+          value: domain,
+          publish: true,
+        },
+      });
+    }
+  };
+  const handleGlobalChannelsSelectionChange = ({ selection, event }) => {
+    // This call updates all channel selections with new global selection.
+    dispatch({
+      type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
+      layerId,
+      payload: {
+        // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
+        // we have to check mouseup.
+        property: 'selection',
+        value: selection,
+        publish: event.type === 'mouseup',
+      },
+    });
+  };
   let channelControllers = [];
   if (dimensions.length > 0) {
     const { values: channelOptions, field: dimName } = dimensions[0];
@@ -185,6 +262,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
               selectionIndex={c.selection[dimName]}
               slider={c.slider}
               color={c.color}
+              domain={c.domain}
               channelOptions={channelOptions}
               colormapOn={Boolean(colormap)}
               handlePropertyChange={handleChannelPropertyChange}
@@ -197,18 +275,6 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   }
 
   const classes = useExpansionPanelStyles();
-  const handleGlobalChannelsSelectionChange = ({ selection, event }) => {
-    // This call updates all channel selections with new global selection.
-    dispatch({
-      type: 'CHANGE_GLOBAL_CHANNELS_SELECTION',
-      layerId,
-      payload: {
-        // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
-        // we have to check mouseup.
-        selection, publish: event.type === 'mouseup',
-      },
-    });
-  };
   return (
     <ExpansionPanel defaultExpanded className={classes.root}>
       <ExpansionPanelSummary

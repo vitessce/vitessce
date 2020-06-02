@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
@@ -43,17 +43,16 @@ function OpacitySlider({ value, handleChange }) {
     />
   );
 }
-/* eslint-disable */
 function SliderDomainSelector({ value, inputId, handleChange }) {
   return (
     <Select
       native
-      onChange={(e) => handleChange(e.target.value)}
+      onChange={e => handleChange(e.target.value)}
       value={value}
-      inputProps={{ name: "domain-selector", id: inputId }}
-      style={{ width: "100%" }}
+      inputProps={{ name: 'domain-selector', id: inputId }}
+      style={{ width: '100%' }}
     >
-      {DOMAIN_OPTIONS.map((name) => (
+      {DOMAIN_OPTIONS.map(name => (
         <option key={name} value={name}>
           {name}
         </option>
@@ -117,9 +116,10 @@ function LayerOptions({
   channels,
   dimensions,
 }) {
+  const [domainType, setDomainType] = useState('Full');
   const hasDimensionsAndChannels = dimensions.length > 0 && Object.keys(channels).length > 0;
   return (
-    <Grid container direction="column" style={{ width: "100%" }}>
+    <Grid container direction="column" style={{ width: '100%' }}>
       <Grid item>
         <LayerOption name="Colormap" inputId="colormap-select">
           <ColormapSelect
@@ -131,7 +131,13 @@ function LayerOptions({
       </Grid>
       <Grid item>
         <LayerOption name="Domain" inputId="domain-selector">
-          <SliderDomainSelector value={"Full"} handleChange={handleDomainChange} />
+          <SliderDomainSelector
+            value={domainType}
+            handleChange={(value) => {
+              handleDomainChange(value);
+              setDomainType(value);
+            }}
+          />
         </LayerOption>
       </Grid>
       <Grid item>
@@ -139,8 +145,8 @@ function LayerOptions({
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
         </LayerOption>
       </Grid>
-      {hasDimensionsAndChannels &&
-        globalControlDimensions.map((dimension) => {
+      {hasDimensionsAndChannels
+        && globalControlDimensions.map((dimension) => {
           const { field, values } = dimension;
           return (
             <LayerOption name={field} inputId={`${field}-slider`} key={field}>

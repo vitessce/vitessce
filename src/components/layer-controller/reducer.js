@@ -7,7 +7,11 @@ const layerProperty = {
   selection: 'selections',
   slider: 'sliders',
   visibility: 'visibilities',
+  domain: 'domains',
 };
+
+const MIN_SLIDER_VALUE = 0;
+const MAX_SLIDER_VALUE = 65535;
 
 function channelsToLayerProps(channels) {
   /*
@@ -24,11 +28,13 @@ function channelsToLayerProps(channels) {
   const sliders = [];
   const colors = [];
   const visibilities = [];
+  const domains = [];
   Object.values(channels).forEach((c) => {
     selections.push(c.selection);
     sliders.push(c.slider);
     visibilities.push(c.visibility);
     colors.push(c.color);
+    domains.push(c.domain);
   });
   return {
     selections, sliders, colors, visibilities,
@@ -87,25 +93,27 @@ export default function reducer(channels, action) {
       PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       return nextChannels;
     }
-    case 'CHANGE_GLOBAL_CHANNELS_SELECTION': {
-      const { selection, publish } = payload;
+    case 'CHANGE_GLOBAL_CHANNELS_PROPERTY': {
+      const { property, value, publish } = payload;
       // Update channel selection for new state.
       const nextChannels = {};
       // eslint-disable-next-line no-return-assign
-      Object.keys(channels).forEach(channelId => (
+      Object.keys(channels).forEach((channelId, i) => {
+        const newValue = Array.isArray(value) ? value[i] : value;
         nextChannels[channelId] = {
           ...channels[channelId],
-          selection: {
-            ...channels[channelId].selection,
-            ...selection,
-          },
-        }
-      ));
+          [property]: getNewChannelProperty(
+            channels[channelId],
+            property,
+            newValue,
+          ),
+        };
+      });
       // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
       // we don't publish on all changes - only on mouseup (this flag is set in LayerConroller).
       if (publish) {
-        const updatedValues = Object.values(nextChannels).map(c => c.selection);
-        const layerProps = { selections: updatedValues };
+        const updatedValues = Object.values(nextChannels).map(c => c[property]);
+        const layerProps = { [layerProperty[property]]: updatedValues };
         // Publish deck.gl layer props.
         PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       }
@@ -118,6 +126,7 @@ export default function reducer(channels, action) {
         color: [255, 255, 255],
         visibility: true,
         slider: [0, 20000],
+        domain: [MIN_SLIDER_VALUE, MAX_SLIDER_VALUE],
       };
       const channelId = String(Math.random());
       const nextChannels = { ...channels, [channelId]: channel };
