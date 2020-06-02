@@ -176,16 +176,28 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
         }),
       ),
     );
-    const stats = await getChannelStats({ loader, loaderSelection: [selection] });
-    const { domain } = stats[0];
-    dispatch({
-      type: 'ADD_CHANNEL',
-      layerId,
-      payload: {
-        selection,
-        domain,
-      },
-    });
+    if (domainType === 'Min/Max') {
+      const stats = await getChannelStats({ loader, loaderSelection: [selection] });
+      const { domain } = stats[0];
+      dispatch({
+        type: 'ADD_CHANNEL',
+        layerId,
+        payload: {
+          selection,
+          domain,
+        },
+      });
+    } else {
+      const domain = [0, DTYPE_VALUES[loader.dtype].max];
+      dispatch({
+        type: 'ADD_CHANNEL',
+        layerId,
+        payload: {
+          selection,
+          domain,
+        },
+      });
+    }
   };
 
   const handleOpacityChange = (sliderValue) => {
@@ -260,12 +272,17 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             },
           });
           if (property === 'selection') {
-            const stats = await getChannelStats({
-              loader,
-              loaderSelection: [{ ...channels[channelId][property], ...value }],
-            });
-            const { domain } = stats[0];
-            dispatchDomain({ domain, type: 'CHANGE_SINGLE_CHANNEL_PROPERTY', channelId });
+            if (value === 'Min/Max') {
+              const stats = await getChannelStats({
+                loader,
+                loaderSelection: [{ ...channels[channelId][property], ...value }],
+              });
+              const { domain } = stats[0];
+              dispatchDomain({ domain, type: 'CHANGE_SINGLE_CHANNEL_PROPERTY', channelId });
+            } if (value === 'Full') {
+              const domain = [0, DTYPE_VALUES[loader.dtype].max];
+              dispatchDomain({ domain, type: 'CHANGE_SINGLE_CHANNEL_PROPERTY', channelId });
+            }
           }
         };
         const handleChannelRemove = () => {
