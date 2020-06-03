@@ -27,7 +27,20 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
 
   useEffect(() => {
     function handleRasterAdd(msg, raster) {
-      setImageOptions(raster.images);
+      const { images } = raster;
+      setImageOptions(images);
+      // 4 seems reasonable for overlays?
+      if (images.length > 4) {
+        const layerId = String(Math.random());
+        setLayers([...layers, { layerId, imageData: images[Math.floor(images.length / 2)] }]);
+      } else {
+        const initalLayers = [];
+        images.forEach((imageData) => {
+          const layerId = String(Math.random());
+          initalLayers.push({ layerId, imageData });
+        });
+        setLayers([...layers, ...initalLayers]);
+      }
       PubSub.publish(CLEAR_PLEASE_WAIT, 'raster');
     }
     memoizedOnReady();

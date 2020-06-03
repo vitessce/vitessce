@@ -39,11 +39,31 @@ const DTYPE_VALUES = {
   },
 };
 
-function buildDefaultSelection(imageDims, defaultIndex = 0) {
+// Return the midpoint of the global dimensions.
+function getDefaultGlobalSelection(imageDims) {
+  const globalIndices = imageDims.filter(dim => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim.field));
   const selection = {};
-  imageDims.forEach((dim) => {
-    selection[dim.field] = defaultIndex;
+  globalIndices.forEach((dim) => {
+    selection[dim.field] = Math.floor((dim.values.length || 0) / 2);
   });
+  return selection;
+}
+
+function buildDefaultSelection(imageDims) {
+  const selection = [];
+  const globalSelection = getDefaultGlobalSelection(imageDims);
+  // First non-global dimension with some sort of selectable values
+  const firstNonGlobalDimension = imageDims.filter(
+    dim => !GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim.field) && dim.values,
+  )[0];
+  for (let i = 0; i < Math.min(4, firstNonGlobalDimension.values.length); i += 1) {
+    selection.push(
+      {
+        [firstNonGlobalDimension.field]: i,
+        ...globalSelection,
+      },
+    );
+  }
   return selection;
 }
 
@@ -126,18 +146,21 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
         });
       }
       // Add channel on image add automatically as the first avaialable value for each dimension.
-      const defaultSelection = buildDefaultSelection(newLoader.dimensions);
-      getChannelStats({ loader: newLoader, loaderSelection: [defaultSelection] }).then((stats) => {
-        const { domain } = stats[0];
+      const defaultSelection = buildDefaultSelection(loaderDimensions);
+      // Get stats because initial value is Min/Max for domainType.
+      getChannelStats({ loader: newLoader, loaderSelection: defaultSelection }).then((stats) => {
+        const domains = stats.map(stat => stat.domain);
         dispatch({
-          type: 'ADD_CHANNEL',
+          type: 'ADD_CHANNELS',
           layerId,
-          payload: { selection: defaultSelection, domain },
+          payload: {
+            selections: defaultSelection,
+            domains,
+          },
         });
       });
     });
   }, [layerId, imageData]);
-
   const handleChannelAdd = async () => {
     const selection = Object.assign(
       {},

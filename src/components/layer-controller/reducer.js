@@ -1,6 +1,7 @@
 import PubSub from 'pubsub-js';
 
 import { LAYER_CHANGE } from '../../events';
+import { VIEWER_PALETTE } from '../utils';
 
 const layerProperty = {
   color: 'colors',
@@ -136,6 +137,27 @@ export default function reducer(channels, action) {
       };
       const channelId = String(Math.random());
       const nextChannels = { ...channels, [channelId]: channel };
+      const layerProps = channelsToLayerProps(nextChannels);
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      return nextChannels;
+    }
+    // Because the image layers are asynchronous, hurling a bunch of 'ADD_CHANNEL'
+    // events can lead to unexpected behavior.
+    case 'ADD_CHANNELS': {
+      const { selections, domains } = payload;
+      let nextChannels = { ...channels };
+      selections.forEach((selection, i) => {
+        const domain = domains[i];
+        const channel = {
+          selection,
+          domain,
+          color: VIEWER_PALETTE[i],
+          visibility: true,
+          slider: domain,
+        };
+        const channelId = String(Math.random());
+        nextChannels = { ...nextChannels, [channelId]: channel };
+      });
       const layerProps = channelsToLayerProps(nextChannels);
       PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       return nextChannels;
