@@ -138,31 +138,6 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
     });
   }, [layerId, imageData]);
 
-  const dispatchDomain = ({ domain, type, channelId }) => {
-    // Update the slider bounds.
-    dispatch({
-      type,
-      layerId,
-      payload: {
-        property: 'domain',
-        channelId,
-        value: domain,
-        publish: false,
-      },
-    });
-    // Update the slider values.
-    dispatch({
-      type,
-      layerId,
-      payload: {
-        property: 'slider',
-        channelId,
-        value: domain,
-        publish: true,
-      },
-    });
-  };
-
   const handleChannelAdd = async () => {
     const selection = Object.assign(
       {},
@@ -212,43 +187,70 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
 
   const handleDomainChange = async (value) => {
     setDomainType(value);
+    const update = {};
     if (value === 'Min/Max') {
       const loaderSelection = Object.values(channels).map(
         channel => channel.selection,
       );
       const stats = await getChannelStats({ loader, loaderSelection });
       const domain = stats.map(stat => stat.domain);
-      dispatchDomain({ domain, type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY' });
+      update.domain = domain;
+      update.slider = domain;
     } if (value === 'Full') {
       const domain = Object.values(channels).map(() => [0, DTYPE_VALUES[loader.dtype].max]);
-      dispatchDomain({ domain, type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY' });
+      update.domain = domain;
+      update.slider = domain;
     }
+    dispatch({
+      type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
+      layerId,
+      payload: {
+        update,
+        publish: true,
+      },
+    });
   };
   const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
     // This call updates all channel selections with new global selection.
-    dispatch({
-      type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY',
-      layerId,
-      payload: {
-        // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
-        // we have to check mouseup.
-        property: 'selection',
-        value: selection,
-        publish: event.type === 'mouseup',
-      },
-    });
-    if (domainType === 'Min/Max') {
-      const stats = await getChannelStats({
-        loader,
-        loaderSelection: Object.values(channels).map(
-          channel => ({ ...channel.selection, selection }),
-        ),
+    const eventType = event.type;
+    const update = { selection };
+    if (eventType !== 'mouseup') {
+      dispatch({
+        type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
+        layerId,
+        payload: {
+          // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
+          // we have to check mouseup.
+          update,
+          publish: false,
+        },
       });
-      const domain = stats.map(stat => stat.domain);
-      dispatchDomain({ domain, type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY' });
-    } if (domainType === 'Full') {
-      const domain = Object.values(channels).map(() => [0, DTYPE_VALUES[loader.dtype].max]);
-      dispatchDomain({ domain, type: 'CHANGE_GLOBAL_CHANNELS_PROPERTY' });
+    } else {
+      if (domainType === 'Min/Max') {
+        const stats = await getChannelStats({
+          loader,
+          loaderSelection: Object.values(channels).map(
+            channel => ({ ...channel.selection, selection }),
+          ),
+        });
+        const domain = stats.map(stat => stat.domain);
+        update.domain = domain;
+        update.slider = domain;
+      } if (domainType === 'Full') {
+        const domain = Object.values(channels).map(() => [0, DTYPE_VALUES[loader.dtype].max]);
+        update.domain = domain;
+        update.slider = domain;
+      }
+      dispatch({
+        type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
+        layerId,
+        payload: {
+          // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
+          // we have to check mouseup.
+          update,
+          publish: true,
+        },
+      });
     }
   };
   let channelControllers = [];
@@ -262,28 +264,30 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
         const handleChannelPropertyChange = async (property, value) => {
           // property is something like "selection" or "slider."
           // value is the actual change, like { channel: "DAPI" }.
-          dispatch({
-            type: 'CHANGE_SINGLE_CHANNEL_PROPERTY',
-            layerId,
-            payload: {
-              channelId,
-              property,
-              value,
-            },
-          });
+          const update = { [property]: value };
           if (property === 'selection') {
-            if (value === 'Min/Max') {
+            if (domainType === 'Min/Max') {
               const stats = await getChannelStats({
                 loader,
                 loaderSelection: [{ ...channels[channelId][property], ...value }],
               });
               const { domain } = stats[0];
-              dispatchDomain({ domain, type: 'CHANGE_SINGLE_CHANNEL_PROPERTY', channelId });
-            } if (value === 'Full') {
+              update.domain = domain;
+              update.slider = domain;
+            } if (domainType === 'Full') {
               const domain = [0, DTYPE_VALUES[loader.dtype].max];
-              dispatchDomain({ domain, type: 'CHANGE_SINGLE_CHANNEL_PROPERTY', channelId });
+              update.domain = domain;
+              update.slider = domain;
             }
           }
+          dispatch({
+            type: 'CHANGE_SINGLE_CHANNEL_PROPERTIES',
+            layerId,
+            payload: {
+              channelId,
+              update,
+            },
+          });
         };
         const handleChannelRemove = () => {
           dispatch({ type: 'REMOVE_CHANNEL', layerId, payload: { channelId } });
@@ -294,12 +298,11 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
           );
           const { q1, q3 } = stats[0];
           dispatch({
-            type: 'CHANGE_SINGLE_CHANNEL_PROPERTY',
+            type: 'CHANGE_SINGLE_CHANNEL_PROPERTIES',
             layerId,
             payload: {
               channelId,
-              property: 'slider',
-              value: [q1, q3],
+              update: { slider: [q1, q3] },
             },
           });
         };
