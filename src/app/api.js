@@ -338,9 +338,9 @@ const configs = {
         props: {
           description: driesDescription,
         },
-        x: 0, y: 0, w: 5, h: 2 },
+        x: 9, y: 4, w: 3, h: 2 },
       { component: 'status',
-        x: 0, y: 1, w: 5, h: 2 },
+        x: 9, y: 6, w: 3, h: 2 },
       { component: 'scatterplot',
         props: {
           mapping: 't-SNE',
@@ -369,7 +369,9 @@ const configs = {
         },
         x: 5, y: 4, w: 4, h: 4 },
       { component: 'cellSets',
-        x: 9, y: 0, w: 3, h: 8 },
+        x: 9, y: 0, w: 3, h: 4 },
+      { component: 'vega',
+        x: 0, y: 0, w: 5, h: 4 },
     ],
   },
   'wang-2019': {
