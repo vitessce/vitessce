@@ -5,6 +5,7 @@ const REMOVE = '.remove';
 export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
 
 export const VIEW_INFO = 'view.info';
+export const GRID_RESIZE = 'grid.resize';
 
 export const CELLS = 'cells';
 export const CELLS_ADD = CELLS + ADD;

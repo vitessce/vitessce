@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PubSub from 'pubsub-js';
 import VitessceGrid from 'vitessce-grid';
 
 import { SourcePublisher } from '../components/sourcepublisher';
+import { GRID_RESIZE } from '../events';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -102,6 +104,9 @@ export default function PubSubVitessceGrid(props) {
         draggableHandle=".title"
         margin={margin}
         padding={padding}
+        reactGridLayoutProps={{
+          onResize: () => PubSub.publish(GRID_RESIZE),
+        }}
       />
     </div>
   );
