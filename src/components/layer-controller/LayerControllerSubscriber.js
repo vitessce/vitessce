@@ -6,66 +6,140 @@ import {
   ThemeProvider, StylesProvider,
   createGenerateClassName,
 } from '@material-ui/core/styles';
+import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer';
 
 import TitleInfo from '../TitleInfo';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import {
-  RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT, METADATA_REMOVE,
+  RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT, METADATA_REMOVE, LAYER_ADD, METADATA_ADD,
 } from '../../events';
 import { darkTheme } from './styles';
-
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
 });
 
+async function initLoader(imageData) {
+  const {
+    type, url, metadata, requestInit,
+  } = imageData;
+  switch (type) {
+    case ('zarr'): {
+      const { dimensions, is_pyramid: isPyramid, transform } = metadata;
+      const { scale = 0, translate = { x: 0, y: 0 } } = transform;
+      const loader = await createZarrLoader({
+        url, dimensions, isPyramid, scale, translate,
+      });
+      return loader;
+    }
+    case ('ome-tiff'): {
+      // Fetch offsets for ome-tiff if needed.
+      if ('omeTiffOffsetsUrl' in metadata) {
+        const { omeTiffOffsetsUrl } = metadata;
+        const res = await fetch(omeTiffOffsetsUrl, requestInit);
+        if (res.ok) {
+          const offsets = await res.json();
+          const loader = await createOMETiffLoader({
+            url,
+            offsets,
+            headers: requestInit,
+          });
+          return loader;
+        }
+        throw new Error('Offsets not found but provided.');
+      }
+      const loader = createOMETiffLoader({
+        url,
+        headers: requestInit,
+      });
+      return loader;
+    }
+    default: {
+      throw Error(`Image type (${type}) is not supported`);
+    }
+  }
+}
+const DEFAULT_LAYER_PROPS = {
+  colormap: '',
+  opacity: 1,
+  colors: [],
+  sliders: [],
+  visibilities: [],
+  selections: [],
+};
+
+function publishLayer({ loader, imageData, layerId }) {
+  PubSub.publish(LAYER_ADD, {
+    layerId,
+    loader,
+    layerProps: DEFAULT_LAYER_PROPS,
+  });
+  if (loader.getMetadata) {
+    PubSub.publish(METADATA_ADD, {
+      layerId,
+      layerName: imageData.name,
+      layerMetadata: loader.getMetadata(),
+    });
+  }
+}
+
 function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   const [imageOptions, setImageOptions] = useState(null);
-  const [layers, setLayers] = useState([]);
+  const [layersAndLoaders, setLayersAndLoaders] = useState([]);
   const memoizedOnReady = useCallback(onReady, []);
 
   useEffect(() => {
-    function handleRasterAdd(msg, raster) {
-      const { images } = raster;
+    async function handleRasterAdd(msg, raster) {
+      // render_layers provides the order for rendering initially.
+      const { images, render_layers: renderLayers } = raster;
       setImageOptions(images);
-      // 4 seems reasonable for overlays?
-      if (images.length > 4) {
+      if (!renderLayers) {
         const layerId = String(Math.random());
-        setLayers([...layers, { layerId, imageData: images[Math.floor(images.length / 2)] }]);
+        // Midpoint of images list as default image to show.
+        const imageData = images[Math.floor(images.length / 2)];
+        const loader = await initLoader(imageData);
+        publishLayer({ loader, imageData, layerId });
+        setLayersAndLoaders([...layersAndLoaders, { layerId, imageData, loader }]);
       } else {
-        const initalLayers = [];
-        images.forEach((imageData) => {
+        const newLayersAndLoaders = await Promise.all(renderLayers.map(async (imageName) => {
+          const imageData = images.filter(image => image.name === imageName)[0];
           const layerId = String(Math.random());
-          initalLayers.push({ layerId, imageData });
+          const loader = await initLoader(imageData);
+          return { layerId, imageData, loader };
+        }));
+        newLayersAndLoaders.forEach(({ imageData, loader, layerId }) => {
+          publishLayer({ loader, imageData, layerId });
         });
-        setLayers([...layers, ...initalLayers]);
+        setLayersAndLoaders([...layersAndLoaders, ...newLayersAndLoaders]);
       }
       PubSub.publish(CLEAR_PLEASE_WAIT, 'raster');
     }
     memoizedOnReady();
     const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
     return () => PubSub.unsubscribe(token);
-  }, [memoizedOnReady]);
+  }, [memoizedOnReady, layersAndLoaders]);
 
-  const handleImageAdd = (imageData) => {
+  const handleImageAdd = async (imageData) => {
     const layerId = String(Math.random());
-    setLayers([...layers, { layerId, imageData }]);
+    const loader = await initLoader(imageData);
+    publishLayer({ loader, imageData, layerId });
+    setLayersAndLoaders([...layersAndLoaders, { layerId, imageData, loader }]);
   };
 
   const handleLayerRemove = (layerId, layerName) => {
-    const nextLayers = layers.filter(d => d.layerId !== layerId);
-    setLayers(nextLayers);
+    const nextLayersAndLoaders = layersAndLoaders.filter(d => d.layerId !== layerId);
+    setLayersAndLoaders(nextLayersAndLoaders);
     PubSub.publish(LAYER_REMOVE, layerId);
     PubSub.publish(METADATA_REMOVE, { layerId, layerName });
   };
-
-  const layerControllers = layers.map(({ layerId, imageData }) => (
+  const layerControllers = layersAndLoaders.map(({ layerId, imageData, loader }) => (
     <Grid key={layerId} item style={{ marginTop: '10px' }}>
       <LayerController
         layerId={layerId}
         imageData={imageData}
         handleLayerRemove={() => handleLayerRemove(layerId, imageData.name)}
+        loader={loader}
       />
     </Grid>
   ));

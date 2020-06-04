@@ -102,6 +102,7 @@
   "required": ["schema_version", "images"],
   "properties": {
     "schema_version": { "type": "string" },
+    "render_layers": { "type": "array", "items": { "type": "string" } },
     "images": {
       "type": "array",
       "items": { "$ref": "#/definitions/image" }

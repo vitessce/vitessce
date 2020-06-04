@@ -2,7 +2,7 @@ import React, {
   useState, useReducer, useEffect,
 } from 'react';
 import PubSub from 'pubsub-js';
-import { createZarrLoader, createOMETiffLoader, getChannelStats } from '@hubmap/vitessce-image-viewer';
+import { getChannelStats } from '@hubmap/vitessce-image-viewer';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -16,7 +16,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
-import { LAYER_ADD, LAYER_CHANGE, METADATA_ADD } from '../../events';
+import { LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
 import { useExpansionPanelStyles } from './styles';
 
@@ -67,46 +67,6 @@ function buildDefaultSelection(imageDims) {
   return selection;
 }
 
-async function initLoader(imageData) {
-  const {
-    type, url, metadata, requestInit,
-  } = imageData;
-  switch (type) {
-    case ('zarr'): {
-      const { dimensions, is_pyramid: isPyramid, transform } = metadata;
-      const { scale = 0, translate = { x: 0, y: 0 } } = transform;
-      const loader = await createZarrLoader({
-        url, dimensions, isPyramid, scale, translate,
-      });
-      return loader;
-    }
-    case ('ome-tiff'): {
-      // Fetch offsets for ome-tiff if needed.
-      if ('omeTiffOffsetsUrl' in metadata) {
-        const { omeTiffOffsetsUrl } = metadata;
-        const res = await fetch(omeTiffOffsetsUrl, requestInit);
-        if (res.ok) {
-          const offsets = await res.json();
-          const loader = await createOMETiffLoader({
-            url,
-            offsets,
-            headers: requestInit,
-          });
-          return loader;
-        }
-        throw new Error('Offsets not found but provided.');
-      }
-      const loader = createOMETiffLoader({
-        url,
-        headers: requestInit,
-      });
-      return loader;
-    }
-    default: {
-      throw Error(`Image type (${type}) is not supported`);
-    }
-  }
-}
 const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400 };
 const MAX_CHANNELS = 6;
 const DEFAULT_LAYER_PROPS = {
@@ -118,9 +78,10 @@ const DEFAULT_LAYER_PROPS = {
   selections: [],
 };
 
-export default function LayerController({ imageData, layerId, handleLayerRemove }) {
+export default function LayerController({
+  imageData, layerId, handleLayerRemove, loader,
+}) {
   // eslint-disable-next-line
-  const [loader, setLoader] = useState(null);
   const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
   const [channels, dispatch] = useReducer(reducer, {});
@@ -129,38 +90,24 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
 
 
   useEffect(() => {
-    initLoader(imageData).then((newLoader) => {
-      setLoader(newLoader);
-      const loaderDimensions = newLoader.dimensions;
-      setDimensions(loaderDimensions);
-      PubSub.publish(LAYER_ADD, {
+    const loaderDimensions = loader.dimensions;
+    setDimensions(loaderDimensions);
+    // Add channel on image add automatically as the first avaialable value for each dimension.
+    const defaultSelection = buildDefaultSelection(loaderDimensions);
+    // Get stats because initial value is Min/Max for domainType.
+    getChannelStats({ loader, loaderSelection: defaultSelection }).then((stats) => {
+      const domains = stats.map(stat => stat.domain);
+      dispatch({
+        type: 'ADD_CHANNELS',
         layerId,
-        loader: newLoader,
-        layerProps: DEFAULT_LAYER_PROPS,
-      });
-      if (newLoader.getMetadata) {
-        PubSub.publish(METADATA_ADD, {
-          layerId,
-          layerName: imageData.name,
-          layerMetadata: newLoader.getMetadata(),
-        });
-      }
-      // Add channel on image add automatically as the first avaialable value for each dimension.
-      const defaultSelection = buildDefaultSelection(loaderDimensions);
-      // Get stats because initial value is Min/Max for domainType.
-      getChannelStats({ loader: newLoader, loaderSelection: defaultSelection }).then((stats) => {
-        const domains = stats.map(stat => stat.domain);
-        dispatch({
-          type: 'ADD_CHANNELS',
-          layerId,
-          payload: {
-            selections: defaultSelection,
-            domains,
-          },
-        });
+        payload: {
+          selections: defaultSelection,
+          domains,
+        },
       });
     });
-  }, [layerId, imageData]);
+  }, [layerId, imageData, loader]);
+
   const handleChannelAdd = async () => {
     const selection = Object.assign(
       {},
