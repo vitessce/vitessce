@@ -26,7 +26,7 @@ async function initLoader(imageData) {
   } = imageData;
   switch (type) {
     case ('zarr'): {
-      const { dimensions, is_pyramid: isPyramid, transform } = metadata;
+      const { dimensions, isPyramid, transform } = metadata;
       const { scale = 0, translate = { x: 0, y: 0 } } = transform;
       const loader = await createZarrLoader({
         url, dimensions, isPyramid, scale, translate,
@@ -92,7 +92,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
   useEffect(() => {
     async function handleRasterAdd(msg, raster) {
       // render_layers provides the order for rendering initially.
-      const { images, render_layers: renderLayers } = raster;
+      const { images, renderLayers } = raster;
       setImageOptions(images);
       if (!renderLayers) {
         const layerId = String(Math.random());

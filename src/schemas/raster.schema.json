@@ -43,10 +43,10 @@
     "metadata": {
       "type": "object",
       "additionalProperties": false,
-      "oneOf":[{"required": ["dimensions","is_pyramid","transform"]},{"required": ["omeTiffOffsetsUrl"]}],
+      "oneOf":[{"required": ["dimensions","isPyramid","transform"]},{"required": ["omeTiffOffsetsUrl"]}],
       "properties": {
         "dimensions": { "$ref": "#/definitions/dimensions" },
-        "is_pyramid": { "type": "boolean" },
+        "isPyramid": { "type": "boolean" },
         "transform": { "$ref": "#/definitions/transform" },
         "omeTiffOffsetsUrl": { "type": "string", "format": "uri" }
       }
@@ -99,10 +99,10 @@
     }
   },
   "additionalProperties": false,
-  "required": ["schema_version", "images"],
+  "required": ["schemaVersion", "images"],
   "properties": {
-    "schema_version": { "type": "string" },
-    "render_layers": { "type": "array", "items": { "type": "string" } },
+    "schemaVersion": { "type": "string" },
+    "renderLayers": { "type": "array", "items": { "type": "string" } },
     "images": {
       "type": "array",
       "items": { "$ref": "#/definitions/image" }
