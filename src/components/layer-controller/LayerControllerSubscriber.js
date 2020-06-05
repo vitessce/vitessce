@@ -15,6 +15,7 @@ import {
   RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT, METADATA_REMOVE, LAYER_ADD, METADATA_ADD,
 } from '../../events';
 import { darkTheme } from './styles';
+import { DEFAULT_LAYER_PROPS } from './constants';
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
@@ -60,14 +61,6 @@ async function initLoader(imageData) {
     }
   }
 }
-const DEFAULT_LAYER_PROPS = {
-  colormap: '',
-  opacity: 1,
-  colors: [],
-  sliders: [],
-  visibilities: [],
-  selections: [],
-};
 
 function publishLayer({ loader, imageData, layerId }) {
   PubSub.publish(LAYER_ADD, {

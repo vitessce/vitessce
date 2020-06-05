@@ -19,25 +19,9 @@ import LayerOptions from './LayerOptions';
 import { LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
 import { useExpansionPanelStyles } from './styles';
-
-// For now these are the global channel selectors.
-// We can expand this part of the application as new needs arise.
-const GLOBAL_SLIDER_DIMENSION_FIELDS = ['z', 'time'];
-
-const DTYPE_VALUES = {
-  '<u1': {
-    max: (2 ** 8) - 1,
-  },
-  '<u2': {
-    max: (2 ** 16) - 1,
-  },
-  '<u4': {
-    max: (2 ** 32) - 1,
-  },
-  '<f4': {
-    max: (2 ** 31) - 1,
-  },
-};
+import {
+  GLOBAL_SLIDER_DIMENSION_FIELDS, DTYPE_VALUES, MAX_CHANNELS, DEFAULT_LAYER_PROPS,
+} from './constants';
 
 // Return the midpoint of the global dimensions.
 function getDefaultGlobalSelection(imageDims) {
@@ -67,21 +51,22 @@ function buildDefaultSelection(imageDims) {
   return selection;
 }
 
+async function getDomain(loader, loaderSelection, domainType) {
+  let domain;
+  if (domainType === 'Min/Max') {
+    const stats = await getChannelStats({ loader, loaderSelection });
+    domain = stats.map(stat => stat.domain);
+  } if (domainType === 'Full') {
+    domain = loaderSelection.map(() => [0, DTYPE_VALUES[loader.dtype].max]);
+  }
+  return domain;
+}
+
 const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400 };
-const MAX_CHANNELS = 6;
-const DEFAULT_LAYER_PROPS = {
-  colormap: '',
-  opacity: 1,
-  colors: [],
-  sliders: [],
-  visibilities: [],
-  selections: [],
-};
 
 export default function LayerController({
   imageData, layerId, handleLayerRemove, loader,
 }) {
-  // eslint-disable-next-line
   const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
   const [channels, dispatch] = useReducer(reducer, {});
@@ -121,28 +106,15 @@ export default function LayerController({
         }),
       ),
     );
-    if (domainType === 'Min/Max') {
-      const stats = await getChannelStats({ loader, loaderSelection: [selection] });
-      const { domain } = stats[0];
-      dispatch({
-        type: 'ADD_CHANNEL',
-        layerId,
-        payload: {
-          selection,
-          domain,
-        },
-      });
-    } else {
-      const domain = [0, DTYPE_VALUES[loader.dtype].max];
-      dispatch({
-        type: 'ADD_CHANNEL',
-        layerId,
-        payload: {
-          selection,
-          domain,
-        },
-      });
-    }
+    const [domain] = await getDomain(loader, [selection], domainType);
+    dispatch({
+      type: 'ADD_CHANNEL',
+      layerId,
+      payload: {
+        selection,
+        domain,
+      },
+    });
   };
 
   const handleOpacityChange = (sliderValue) => {
@@ -157,20 +129,15 @@ export default function LayerController({
 
   const handleDomainChange = async (value) => {
     setDomainType(value);
-    const update = {};
-    if (value === 'Min/Max') {
-      const loaderSelection = Object.values(channels).map(
-        channel => channel.selection,
-      );
-      const stats = await getChannelStats({ loader, loaderSelection });
-      const domain = stats.map(stat => stat.domain);
-      update.domain = domain;
-      update.slider = domain;
-    } if (value === 'Full') {
-      const domain = Object.values(channels).map(() => [0, DTYPE_VALUES[loader.dtype].max]);
-      update.domain = domain;
-      update.slider = domain;
-    }
+    const loaderSelection = Object.values(channels).map(
+      channel => channel.selection,
+    );
+    const domain = await getDomain(
+      loader,
+      loaderSelection,
+      value,
+    );
+    const update = { domain, slider: domain };
     dispatch({
       type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
       layerId,
@@ -180,49 +147,34 @@ export default function LayerController({
       },
     });
   };
+
+  // This call updates all channel selections with new global selection.
   const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
-    // This call updates all channel selections with new global selection.
-    const eventType = event.type;
+    const loaderSelection = Object.values(channels).map(channel => ({
+      ...channel.selection,
+      selection,
+    }));
+    // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
+    // we have to check mouseup.
+    const mouseUp = event.type === 'mouseup';
     const update = { selection };
-    if (eventType !== 'mouseup') {
-      dispatch({
-        type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
-        layerId,
-        payload: {
-          // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
-          // we have to check mouseup.
-          update,
-          publish: false,
-        },
-      });
-    } else {
-      if (domainType === 'Min/Max') {
-        const stats = await getChannelStats({
-          loader,
-          loaderSelection: Object.values(channels).map(
-            channel => ({ ...channel.selection, selection }),
-          ),
-        });
-        const domain = stats.map(stat => stat.domain);
-        update.domain = domain;
-        update.slider = domain;
-      } if (domainType === 'Full') {
-        const domain = Object.values(channels).map(() => [0, DTYPE_VALUES[loader.dtype].max]);
-        update.domain = domain;
-        update.slider = domain;
-      }
-      dispatch({
-        type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
-        layerId,
-        payload: {
-          // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
-          // we have to check mouseup.
-          update,
-          publish: true,
-        },
-      });
+    const domain = mouseUp
+      ? await getDomain(loader, loaderSelection, domainType)
+      : null;
+    if (domain) {
+      update.domain = domain;
+      update.slider = domain;
     }
+    dispatch({
+      type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
+      layerId,
+      payload: {
+        update,
+        publish: mouseUp,
+      },
+    });
   };
+
   let channelControllers = [];
   if (dimensions.length > 0) {
     const { values: channelOptions, field: dimName } = dimensions[0];
@@ -236,19 +188,10 @@ export default function LayerController({
           // value is the actual change, like { channel: "DAPI" }.
           const update = { [property]: value };
           if (property === 'selection') {
-            if (domainType === 'Min/Max') {
-              const stats = await getChannelStats({
-                loader,
-                loaderSelection: [{ ...channels[channelId][property], ...value }],
-              });
-              const { domain } = stats[0];
-              update.domain = domain;
-              update.slider = domain;
-            } if (domainType === 'Full') {
-              const domain = [0, DTYPE_VALUES[loader.dtype].max];
-              update.domain = domain;
-              update.slider = domain;
-            }
+            const loaderSelection = [{ ...channels[channelId][property], ...value }];
+            const domain = await getDomain(loader, loaderSelection, domainType);
+            [update.domain] = domain;
+            [update.slider] = domain;
           }
           dispatch({
             type: 'CHANGE_SINGLE_CHANNEL_PROPERTIES',
