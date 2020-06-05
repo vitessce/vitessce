@@ -106,18 +106,14 @@ export default function LayerController({
   // Handles adding a channel, creating a default selection
   // for the current global settings and domain type.
   const handleChannelAdd = async () => {
-    const selection = Object.assign(
-      {},
-      ...dimensions.map(
-        // Set new image to default selection for non-global selections (0)
-        // and use current global selection otherwise.
-        dimension => ({
-          [dimension.field]: GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
-            ? Object.values(channels)[0].selection[dimension.field]
-            : 0,
-        }),
-      ),
-    );
+    const selection = {};
+    dimensions.forEach((dimension) => {
+      // Set new image to default selection for non-global selections (0)
+      // and use current global selection otherwise.
+      selection[dimension.field] = GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
+        ? Object.values(channels)[0].selection[dimension.field]
+        : 0;
+    });
     const [domain] = await getDomain(loader, [selection], domainType);
     dispatch({
       type: 'ADD_CHANNEL',
