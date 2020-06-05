@@ -33,6 +33,8 @@ function getDefaultGlobalSelection(imageDims) {
   return selection;
 }
 
+// Create a default selection using the midpoint of the available global dimensions,
+// and then the first four available selections from the first selectable channel.
 function buildDefaultSelection(imageDims) {
   const selection = [];
   const globalSelection = getDefaultGlobalSelection(imageDims);
@@ -51,6 +53,7 @@ function buildDefaultSelection(imageDims) {
   return selection;
 }
 
+// Set the domain of the sliders based on either a full range or min/max.
 async function getDomain(loader, loaderSelection, domainType) {
   let domain;
   if (domainType === 'Min/Max') {
@@ -64,6 +67,13 @@ async function getDomain(loader, loaderSelection, domainType) {
 
 const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400 };
 
+/**
+ * Controller for the various imaging options (color, opactiy, sliders etc.)
+ * @prop {object} imageData Image config object, one of the `images` in the raster schema.
+ * @prop {object} layerId Randomly generated id for the image layer that this controller handles.
+ * @prop {function} handleLayerRemove Callback for handling the removal of a layer.
+ * @prop {object} loader Loader object for the current imaging layer.
+ */
 export default function LayerController({
   imageData, layerId, handleLayerRemove, loader,
 }) {
@@ -93,6 +103,8 @@ export default function LayerController({
     });
   }, [layerId, imageData, loader]);
 
+  // Handles adding a channel, creating a default selection
+  // for the current global settings and domain type.
   const handleChannelAdd = async () => {
     const selection = Object.assign(
       {},
@@ -148,7 +160,7 @@ export default function LayerController({
     });
   };
 
-  // This call updates all channel selections with new global selection.
+  // This call updates all channel selections with new global selection from the UI.
   const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
     const loaderSelection = Object.values(channels).map(channel => ({
       ...channel.selection,
@@ -158,6 +170,7 @@ export default function LayerController({
     // we have to check mouseup.
     const mouseUp = event.type === 'mouseup';
     const update = { selection };
+    // Only update domains on a mouseup event for the same reason as above.
     const domain = mouseUp
       ? await getDomain(loader, loaderSelection, domainType)
       : null;
@@ -178,6 +191,7 @@ export default function LayerController({
   let channelControllers = [];
   if (dimensions.length > 0) {
     const { values: channelOptions, field: dimName } = dimensions[0];
+    // Create the channel controllers for each channel.
     channelControllers = Object.entries(channels).map(
       // c is an object like { color, selection, slider, visibility }.
       ([channelId, c]) => {

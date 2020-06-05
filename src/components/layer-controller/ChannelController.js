@@ -14,6 +14,13 @@ const toRgb = (on, arr) => {
   return `rgb(${color})`;
 };
 
+/**
+ * Dropdown for selecting a channel.
+ * @prop {function} handleChange Callback for each new selection.
+ * @prop {boolean} disableOptions Whether or not to allow options.
+ * @prop {array} channelOptions List of available selections, like ['DAPI', 'FITC', ...].
+ * @prop {number} selectionIndex Current numeric index of a selection.
+ */
 function ChannelSelectionDropdown({
   handleChange,
   disableOptions,
@@ -35,6 +42,13 @@ function ChannelSelectionDropdown({
   );
 }
 
+/**
+ * Slider for controlling current colormap.
+ * @prop {string} color Current color for this channel.
+ * @prop {arry} slider Current value of the slider.
+ * @prop {function} handleChange Callback for each slider change.
+ * @prop {array} domain Current max/min allowable slider values.
+ */
 function ChannelSlider({
   color, slider, handleChange, domain,
 }) {
@@ -52,6 +66,12 @@ function ChannelSlider({
   );
 }
 
+/**
+ * Checkbox for toggling on/off of a channel.
+ * @prop {string} color Current color for this channel.
+ * @prop {boolean} checked Whether or not this channel is "on".
+ * @prop {function} toggle Callback for toggling on/off.
+ */
 function ChannelVisibilityCheckbox({ color, checked, toggle }) {
   return (
     <Checkbox
@@ -62,6 +82,21 @@ function ChannelVisibilityCheckbox({ color, checked, toggle }) {
   );
 }
 
+/**
+ * Controller for the handling the colormapping sliders.
+ * @prop {boolean} visibility Whether or not this channel is "on"
+ * @prop {array} slider Current slider range.
+ * @prop {array} color Current color for this channel.
+ * @prop {array} domain Current max/min for this channel.
+ * @prop {string} dimName Name of the dimensions this slider controls (usually "channel").
+ * @prop {boolean} colormapOn Whether or not the colormap (viridis, magma etc.) is on.
+ * @prop {object} channelOptions All available options for this dimension (i.e channel names).
+ * @prop {function} handlePropertyChange Callback for when a property (color, slider etc.) changes.
+ * @prop {function} handleChannelRemove When a channel is removed, this is called.
+ * @prop {function} handleIQRUpdate When the IQR button is clicked, this is called.
+ * @prop {number} selectionIndex The current numeric index of the selection.
+ * @prop {boolean} disableOptions Whether or not channel options are be disabled (default: false).
+ */
 function ChannelController({
   visibility,
   slider,
