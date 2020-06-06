@@ -45,7 +45,7 @@ export default function SetSizePlotSubscriber(props) {
     range: data.map(d => d.color),
   };
 
-  // Get an array of keys for sorting purposes
+  // Get an array of keys for sorting purposes.
   const keys = data.map(d => d.keyName);
 
   const spec = vl
