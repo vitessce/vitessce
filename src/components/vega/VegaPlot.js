@@ -1,114 +1,33 @@
-/* eslint-disable */
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
 import { Vega as VegaComponent } from 'react-vega';
-import * as vl from 'vega-lite-api';
-import * as Vega from 'vega';
-import * as VegaLite from 'vega-lite';
 import { Handler } from 'vega-tooltip';
 
-vl.register(Vega, VegaLite);
-
-const lightColor = '#fff';
-const medColor = '#888';
-
-const darkThemeConfig = {
-    background: null,
-  
-    title: { color: lightColor },
-  
-    style: {
-      'guide-label': {
-        fill: lightColor,
-      },
-      'guide-title': {
-        fill: lightColor,
-      },
-    },
-  
-    axis: {
-      domainColor: lightColor,
-      gridColor: medColor,
-      tickColor: lightColor,
-    },
-};
+const DATASET_NAME = 'table';
 
 export default function VegaPlot(props) {
-    const {
-        width = 200,
-        height = 200
-    } = props;
+  const {
+    spec: partialSpec,
+    data,
+    signalListeners,
+  } = props;
 
-    const specRef = useRef();
+  const spec = {
+    ...partialSpec,
+    data: { name: DATASET_NAME },
+  };
 
-    function handleHover(...args) {
-        console.log(args);
-    }
-      
-    const signalListeners = { sel1_tuple: handleHover };
-
-    useEffect(() => {
-        
-        const highlight = vl.selectSingle().resolve('highlight')
-            .on('mouseover');
-        
-        const vlspec = {
-            ...vl
-                .markBar()
-                .encode(
-                    vl.x().fieldN('a'),
-                    vl.y().fieldQ('b'),
-                    vl.color().if(highlight, vl.value("red")).value("pink"),
-                    vl.tooltip().fieldQ('b')
-                )
-                .select(
-                    highlight
-                )
-                .width(width - 90)
-                .height(height - 50)
-                .config(darkThemeConfig)
-                .toJSON(),
-            data: { name: 'table' },
-        };
-        
-        const vspec = vl.vegalite.compile(vlspec).spec;
-        specRef.current = vspec;
-
-    }, [width, height]);
-
-
-    const barData = {
-        table: [
-          { a: 'A', b: 28 },
-          { a: 'B', b: 55 },
-          { a: 'C', b: 43 },
-          { a: 'D', b: 91 },
-          { a: 'E', b: 81 },
-          { a: 'F', b: 53 },
-          { a: 'G', b: 19 },
-          { a: 'H', b: 87 },
-          { a: 'I', b: 52 },
-        ],
-    };
-
-    return (
-        specRef && specRef.current ? (
-            <VegaComponent
-                spec={specRef.current}
-                data={barData}
-                signalListeners={signalListeners}
-                tooltip={new Handler().call}
-                onNewView={(view) => {
-                    console.log(view.getState().signals);
-                    view
-                        .signal(
-                            "sel1_tuple", 
-                            {"unit":"","fields":[{"type":"E","field":"_vgsid_"}],"values":[3]}
-                        )
-                        .runAsync();
-                }}
-                renderer="canvas"
-                scaleFactor={3}
-            />
-        ) : null
-    );
+  return (
+    spec && data && data.length > 0 ? (
+      <VegaComponent
+        spec={spec}
+        data={{
+          [DATASET_NAME]: data,
+        }}
+        signalListeners={signalListeners}
+        tooltip={new Handler().call}
+        renderer="canvas"
+        scaleFactor={3}
+      />
+    ) : null
+  );
 }

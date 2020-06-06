@@ -1,2 +1,2 @@
 export { default as VegaPlot } from './VegaPlot';
-export { default as VegaPlotSubscriber } from './VegaPlotSubscriber';
+export { default as SetSizePlotSubscriber } from './SetSizePlotSubscriber';

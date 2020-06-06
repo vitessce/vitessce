@@ -4,6 +4,7 @@ import some from 'lodash/some';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
+import { colorArrayToString } from './utils';
 import { HIERARCHICAL_SCHEMAS } from './io';
 
 // Constants.
@@ -1378,6 +1379,31 @@ export function treeToVisibleCells(currTree) {
   const cellColors = fromEntries(cellColorsArray);
   return [cellIds, cellColors];
 }
+
+/**
+ * Given a tree with state, get the sizes of the
+ * sets currently marked as "visible".
+ * @param {object} currTree A tree object.
+ * @returns {object[]} Array of objects
+ * with the properties `name` and `size`.
+ */
+export function treeToVisibleSetSizes(currTree) {
+  const sizes = [];
+  currTree._state.visibleKeys.forEach((setKey) => {
+    const node = treeFindNodeByKey(currTree, setKey);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      sizes.push({
+        key: node._state.key,
+        name: node.name,
+        size: nodeSet.length,
+        color: colorArrayToString(node.color),
+      });
+    }
+  });
+  return sizes;
+}
+
 
 /**
  * Constants for reducer action type strings.
