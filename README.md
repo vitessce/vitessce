@@ -134,7 +134,6 @@ Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the 
 ## Related Subsidiary Projects
 
 - [vitessce-image-viewer](https://github.com/hubmapconsortium/vitessce-image-viewer): A Deck.gl layer for high bit depth, high resolution, multi-channel images.
-- [vitessce-grid](https://github.com/hms-dbmi/vitessce-grid): Wrapper for [`react-grid-layout`](https://github.com/STRML/react-grid-layout#readme)
 - [vitessce-data](https://github.com/hms-dbmi/vitessce-data): Scripts to generate sample data
 - [ome-tiff-tiler](https://github.com/hms-dbmi/ome-tiff-tiler): Docker container to generate tiles from OME-TIFF
 
