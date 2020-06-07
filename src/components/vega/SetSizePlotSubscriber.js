@@ -16,6 +16,7 @@ export default function SetSizePlotSubscriber(props) {
   const {
     removeGridComponent,
     onReady,
+    theme,
   } = props;
 
   const onReadyCallback = useCallback(onReady, []);
@@ -64,7 +65,7 @@ export default function SetSizePlotSubscriber(props) {
     )
     .width(width - marginRight)
     .height(height - marginBottom)
-    .config(VEGA_THEMES.dark)
+    .config(VEGA_THEMES[theme])
     .toJSON();
 
   return (

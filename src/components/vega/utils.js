@@ -32,6 +32,7 @@ export function useGridItemSize() {
 
 export const VEGA_THEMES = {
   dark: {
+    // The vega-themes dark theme.
     // Reference: https://github.com/vega/vega-themes/blob/master/src/theme-dark.ts
     background: null,
 
@@ -53,7 +54,8 @@ export const VEGA_THEMES = {
     },
   },
   light: {
-    // The default.
+    // The default vega theme.
+    background: null,
   },
 };
 

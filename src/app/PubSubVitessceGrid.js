@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PubSub from 'pubsub-js';
-import VitessceGrid from 'vitessce-grid';
+import VitessceGrid from './VitessceGrid';
 
 import { SourcePublisher } from '../components/sourcepublisher';
 import { GRID_RESIZE } from '../events';
@@ -107,6 +107,7 @@ export default function PubSubVitessceGrid(props) {
         reactGridLayoutProps={{
           onResize: () => PubSub.publish(GRID_RESIZE),
         }}
+        theme={theme}
       />
     </div>
   );

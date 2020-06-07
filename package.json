@@ -53,6 +53,7 @@
     "rc-tooltip": "^4.0.3",
     "rc-tree": "2.1.0",
     "react-color": "^2.18.0",
+    "react-grid-layout": "^0.16.6",
     "react-vega": "^7.3.0",
     "short-number": "^1.0.6",
     "store": "^2.0.12",
@@ -63,7 +64,6 @@
     "vega-lite": "^4.13.0",
     "vega-lite-api": "^0.11.0",
     "vega-tooltip": "^0.23.0",
-    "vitessce-grid": "0.0.7",
     "whatwg-fetch": "^3.0.0"
   },
   "devDependencies": {
