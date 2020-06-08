@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.1.4 - in progress
+## 0.1.5 - in progress
+
+## [0.1.4](https://www.npmjs.com/package/vitessce/v/0.1.4) - 2020-06-01
 
 ### Added
 - Added `METADATA_REMOVE` event to facilitate removal of image layer metadata from the `DescriptionSubscriber` upon layer removal.
