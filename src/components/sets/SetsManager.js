@@ -94,7 +94,7 @@ export default function SetsManager(props) {
   } = props;
 
   if (clearPleaseWait && tree) {
-    clearPleaseWait('cell_sets');
+    clearPleaseWait('cellSets');
   }
 
   const [isDragging, setIsDragging] = useState(false);

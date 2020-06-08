@@ -3,8 +3,8 @@ import { dsvFormat } from 'd3-dsv';
 import { parse as json2csv } from 'json2csv';
 import { colorArrayToString, colorStringToArray } from './utils';
 import { DEFAULT_COLOR } from '../utils';
-import cellSetsSchema from '../../schemas/cell_sets.schema.json';
-import cellSetsTabularSchema from '../../schemas/cell_sets_tabular.schema.json';
+import cellSetsSchema from '../../schemas/cellSets.schema.json';
+import cellSetsTabularSchema from '../../schemas/cellSetsTabular.schema.json';
 
 export const FILE_EXTENSION_JSON = 'json';
 export const MIME_TYPE_JSON = 'application/json';

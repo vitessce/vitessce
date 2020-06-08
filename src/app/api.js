@@ -15,7 +15,7 @@ function makeLayerNameToConfig(datasetPrefix) {
 
 const linnarssonLayerNames = [
   'cells',
-  'cell_sets',
+  'cellSets',
   'clusters',
   'genes',
   'raster',
@@ -39,7 +39,7 @@ const driesBase = {
   description: driesDescription,
   layers: [
     'cells',
-    'cell_sets',
+    'cellSets',
   ].map(makeLayerNameToConfig('dries')),
 };
 
