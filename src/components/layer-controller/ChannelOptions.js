@@ -11,7 +11,13 @@ import { useOptionStyles } from './styles';
 
 import ColorPalette from './ColorPalette';
 
-function ChannelOptions({ handlePropertyChange, handleChannelRemove }) {
+/**
+ * Dropdown for options for a channel on the three dots button.
+ * @prop {function} handlePropertyChange Callback for changing property (color, IQR of sliders).
+ * @prop {function} handleChannelRemove Callback for channel removal.
+ * @prop {function} handleIQRUpdate Callback for IQR slider update.
+ */
+function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUpdate }) {
   const [open, toggle] = useReducer(v => !v, false);
   const anchorRef = useRef(null);
 
@@ -41,6 +47,9 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove }) {
             <MenuList id="channel-options">
               <MenuItem dense disableGutters onClick={handleRemove}>
                 <span className={classes.span}>Remove</span>
+              </MenuItem>
+              <MenuItem dense disableGutters onClick={handleIQRUpdate}>
+                <span className={classes.span}>Use IQR</span>
               </MenuItem>
               <MenuItem dense disableGutters className={classes.colors}>
                 <ColorPalette handleChange={handleColorSelect} />

@@ -2,7 +2,7 @@ import React, {
   useState, useReducer, useEffect,
 } from 'react';
 import PubSub from 'pubsub-js';
-import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer';
+import { getChannelStats, DTYPE_VALUES, MAX_SLIDERS_AND_CHANNELS } from '@hubmap/vitessce-image-viewer';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -16,123 +16,114 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
-import { LAYER_ADD, LAYER_CHANGE, METADATA_ADD } from '../../events';
+import { LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
 import { useExpansionPanelStyles } from './styles';
+import {
+  GLOBAL_SLIDER_DIMENSION_FIELDS, DEFAULT_LAYER_PROPS,
+} from './constants';
 
-// For now these are the global channel selectors.
-// We can expand this part of the application as new needs arise.
-const GLOBAL_SLIDER_DIMENSION_FIELDS = ['z', 'time'];
-
-function buildDefaultSelection(imageDims, defaultIndex = 0) {
+// Return the midpoint of the global dimensions.
+function getDefaultGlobalSelection(imageDims) {
+  const globalIndices = imageDims.filter(dim => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim.field));
   const selection = {};
-  imageDims.forEach((dim) => {
-    selection[dim.field] = defaultIndex;
+  globalIndices.forEach((dim) => {
+    selection[dim.field] = Math.floor((dim.values.length || 0) / 2);
   });
   return selection;
 }
 
-async function initLoader(imageData) {
-  const {
-    type, url, metadata, requestInit,
-  } = imageData;
-  switch (type) {
-    case ('zarr'): {
-      const { dimensions, is_pyramid: isPyramid, transform } = metadata;
-      const { scale = 0, translate = { x: 0, y: 0 } } = transform;
-      const loader = await createZarrLoader({
-        url, dimensions, isPyramid, scale, translate,
-      });
-      return loader;
-    }
-    case ('ome-tiff'): {
-      // Fetch offsets for ome-tiff if needed.
-      if ('omeTiffOffsetsUrl' in metadata) {
-        const { omeTiffOffsetsUrl } = metadata;
-        const res = await fetch(omeTiffOffsetsUrl, requestInit);
-        if (res.ok) {
-          const offsets = await res.json();
-          const loader = await createOMETiffLoader({
-            url,
-            offsets,
-            headers: requestInit,
-          });
-          return loader;
-        }
-        throw new Error('Offsets not found but provided.');
-      }
-      const loader = createOMETiffLoader({
-        url,
-        headers: requestInit,
-      });
-      return loader;
-    }
-    default: {
-      throw Error(`Image type (${type}) is not supported`);
-    }
+// Create a default selection using the midpoint of the available global dimensions,
+// and then the first four available selections from the first selectable channel.
+function buildDefaultSelection(imageDims) {
+  const selection = [];
+  const globalSelection = getDefaultGlobalSelection(imageDims);
+  // First non-global dimension with some sort of selectable values
+  const firstNonGlobalDimension = imageDims.filter(
+    dim => !GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim.field) && dim.values,
+  )[0];
+  for (let i = 0; i < Math.min(4, firstNonGlobalDimension.values.length); i += 1) {
+    selection.push(
+      {
+        [firstNonGlobalDimension.field]: i,
+        ...globalSelection,
+      },
+    );
   }
+  return selection;
 }
-const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400 };
-const MAX_CHANNELS = 6;
-const DEFAULT_LAYER_PROPS = {
-  colormap: '',
-  opacity: 1,
-  colors: [],
-  sliders: [],
-  visibilities: [],
-  selections: [],
-};
 
-export default function LayerController({ imageData, layerId, handleLayerRemove }) {
+// Set the domain of the sliders based on either a full range or min/max.
+async function getDomain(loader, loaderSelection, domainType) {
+  let domain;
+  if (domainType === 'Min/Max') {
+    const stats = await getChannelStats({ loader, loaderSelection });
+    domain = stats.map(stat => stat.domain);
+  } if (domainType === 'Full') {
+    domain = loaderSelection.map(() => [0, DTYPE_VALUES[loader.dtype].max]);
+  }
+  return domain;
+}
+
+const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400 };
+
+/**
+ * Controller for the various imaging options (color, opactiy, sliders etc.)
+ * @prop {object} imageData Image config object, one of the `images` in the raster schema.
+ * @prop {object} layerId Randomly generated id for the image layer that this controller handles.
+ * @prop {function} handleLayerRemove Callback for handling the removal of a layer.
+ * @prop {object} loader Loader object for the current imaging layer.
+ */
+export default function LayerController({
+  imageData, layerId, handleLayerRemove, loader,
+}) {
   const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
   const [channels, dispatch] = useReducer(reducer, {});
   const [dimensions, setDimensions] = useState([]);
+  const [domainType, setDomainType] = useState('Min/Max');
+
 
   useEffect(() => {
-    initLoader(imageData).then((loader) => {
-      const loaderDimensions = loader.dimensions;
-      setDimensions(loaderDimensions);
-      PubSub.publish(LAYER_ADD, {
-        layerId,
-        loader,
-        layerProps: DEFAULT_LAYER_PROPS,
-      });
-      if (loader.getMetadata) {
-        PubSub.publish(METADATA_ADD, {
-          layerId,
-          layerName: imageData.name,
-          layerMetadata: loader.getMetadata(),
-        });
-      }
-      // Add channel on image add automatically as the first avaialable value for each dimension.
-      const defaultSelection = buildDefaultSelection(loader.dimensions);
+    const loaderDimensions = loader.dimensions;
+    setDimensions(loaderDimensions);
+    // Add channel on image add automatically as the first avaialable value for each dimension.
+    const defaultSelection = buildDefaultSelection(loaderDimensions);
+    // Get stats because initial value is Min/Max for domainType.
+    getChannelStats({ loader, loaderSelection: defaultSelection }).then((stats) => {
+      const domains = stats.map(stat => stat.domain);
       dispatch({
-        type: 'ADD_CHANNEL',
+        type: 'ADD_CHANNELS',
         layerId,
-        payload: { selection: defaultSelection },
+        payload: {
+          selections: defaultSelection,
+          domains,
+        },
       });
     });
-  }, [layerId, imageData]);
+  }, [layerId, imageData, loader]);
 
-  const handleChannelAdd = () => dispatch({
-    type: 'ADD_CHANNEL',
-    layerId,
-    payload: {
-      selection: Object.assign(
-        {},
-        ...dimensions.map(
-          // Set new image to default selection for non-global selections (0)
-          // and use current global selection otherwise.
-          dimension => ({
-            [dimension.field]: GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
-              ? Object.values(channels)[0].selection[dimension.field]
-              : 0,
-          }),
-        ),
-      ),
-    },
-  });
+  // Handles adding a channel, creating a default selection
+  // for the current global settings and domain type.
+  const handleChannelAdd = async () => {
+    const selection = {};
+    dimensions.forEach((dimension) => {
+      // Set new image to default selection for non-global selections (0)
+      // and use current global selection otherwise.
+      selection[dimension.field] = GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
+        ? Object.values(channels)[0].selection[dimension.field]
+        : 0;
+    });
+    const [domain] = await getDomain(loader, [selection], domainType);
+    dispatch({
+      type: 'ADD_CHANNEL',
+      layerId,
+      payload: {
+        selection,
+        domain,
+      },
+    });
+  };
 
   const handleOpacityChange = (sliderValue) => {
     setOpacity(sliderValue);
@@ -144,29 +135,99 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
     PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colormap: colormapName } });
   };
 
+  const handleDomainChange = async (value) => {
+    setDomainType(value);
+    const loaderSelection = Object.values(channels).map(
+      channel => channel.selection,
+    );
+    const domain = await getDomain(
+      loader,
+      loaderSelection,
+      value,
+    );
+    const update = { domain, slider: domain };
+    dispatch({
+      type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
+      layerId,
+      payload: {
+        update,
+        publish: true,
+      },
+    });
+  };
+
+  // This call updates all channel selections with new global selection from the UI.
+  const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
+    const loaderSelection = Object.values(channels).map(channel => ({
+      ...channel.selection,
+      selection,
+    }));
+    // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
+    // we have to check mouseup.
+    const mouseUp = event.type === 'mouseup';
+    const update = { selection };
+    // Only update domains on a mouseup event for the same reason as above.
+    const domain = mouseUp
+      ? await getDomain(loader, loaderSelection, domainType)
+      : null;
+    if (domain) {
+      update.domain = domain;
+      update.slider = domain;
+    }
+    dispatch({
+      type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
+      layerId,
+      payload: {
+        update,
+        publish: mouseUp,
+      },
+    });
+  };
+
   let channelControllers = [];
   if (dimensions.length > 0) {
     const { values: channelOptions, field: dimName } = dimensions[0];
+    // Create the channel controllers for each channel.
     channelControllers = Object.entries(channels).map(
       // c is an object like { color, selection, slider, visibility }.
       ([channelId, c]) => {
         // Change one property of a channel (for now - soon
         // nested structures allowing for multiple z/t selecitons at once, for example).
-        const handleChannelPropertyChange = (property, value) => {
+        const handleChannelPropertyChange = async (property, value) => {
           // property is something like "selection" or "slider."
           // value is the actual change, like { channel: "DAPI" }.
+          const update = { [property]: value };
+          if (property === 'selection') {
+            const loaderSelection = [{ ...channels[channelId][property], ...value }];
+            const domain = await getDomain(loader, loaderSelection, domainType);
+            [update.domain] = domain;
+            [update.slider] = domain;
+          }
           dispatch({
-            type: 'CHANGE_SINGLE_CHANNEL_PROPERTY',
+            type: 'CHANGE_SINGLE_CHANNEL_PROPERTIES',
             layerId,
             payload: {
               channelId,
-              property,
-              value,
+              update,
             },
           });
         };
         const handleChannelRemove = () => {
           dispatch({ type: 'REMOVE_CHANNEL', layerId, payload: { channelId } });
+        };
+        const handleIQRUpdate = async () => {
+          const stats = await getChannelStats(
+            { loader, loaderSelection: [channels[channelId].selection] },
+          );
+          const { q1, q3 } = stats[0];
+          dispatch({
+            type: 'CHANGE_SINGLE_CHANNEL_PROPERTIES',
+            layerId,
+            payload: {
+              channelId,
+              update: { slider: [q1, q3] },
+            },
+          });
         };
         return (
           <Grid
@@ -180,10 +241,12 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
               selectionIndex={c.selection[dimName]}
               slider={c.slider}
               color={c.color}
+              domain={c.domain}
               channelOptions={channelOptions}
               colormapOn={Boolean(colormap)}
               handlePropertyChange={handleChannelPropertyChange}
               handleChannelRemove={handleChannelRemove}
+              handleIQRUpdate={handleIQRUpdate}
             />
           </Grid>
         );
@@ -192,18 +255,6 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
   }
 
   const classes = useExpansionPanelStyles();
-  const handleGlobalChannelsSelectionChange = ({ selection, event }) => {
-    // This call updates all channel selections with new global selection.
-    dispatch({
-      type: 'CHANGE_GLOBAL_CHANNELS_SELECTION',
-      layerId,
-      payload: {
-        // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
-        // we have to check mouseup.
-        selection, publish: event.type === 'mouseup',
-      },
-    });
-  };
   return (
     <ExpansionPanel defaultExpanded className={classes.root}>
       <ExpansionPanelSummary
@@ -220,6 +271,7 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             dimensions={dimensions}
             opacity={opacity}
             colormap={colormap}
+            domainType={domainType}
             // Only allow for global dimension controllers that
             // exist in the `dimensions` part of the loader.
             globalControlDimensions={
@@ -232,12 +284,13 @@ export default function LayerController({ imageData, layerId, handleLayerRemove 
             handleGlobalChannelsSelectionChange={
               handleGlobalChannelsSelectionChange
             }
+            handleDomainChange={handleDomainChange}
           />
         </Grid>
         {channelControllers}
         <Grid item>
           <Button
-            disabled={Object.values(channels).length === MAX_CHANNELS}
+            disabled={Object.values(channels).length === MAX_SLIDERS_AND_CHANNELS}
             onClick={handleChannelAdd}
             fullWidth
             variant="outlined"

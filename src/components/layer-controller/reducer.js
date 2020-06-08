@@ -1,12 +1,14 @@
 import PubSub from 'pubsub-js';
 
 import { LAYER_CHANGE } from '../../events';
+import { VIEWER_PALETTE } from '../utils';
 
 const layerProperty = {
   color: 'colors',
   selection: 'selections',
   slider: 'sliders',
   visibility: 'visibilities',
+  domain: 'domains',
 };
 
 function channelsToLayerProps(channels) {
@@ -24,11 +26,13 @@ function channelsToLayerProps(channels) {
   const sliders = [];
   const colors = [];
   const visibilities = [];
+  const domains = [];
   Object.values(channels).forEach((c) => {
     selections.push(c.selection);
     sliders.push(c.slider);
     visibilities.push(c.visibility);
     colors.push(c.color);
+    domains.push(c.domain);
   });
   return {
     selections, sliders, colors, visibilities,
@@ -48,22 +52,25 @@ function getNewChannelProperty(channel, property, value) {
 export default function reducer(channels, action) {
   const { type, layerId, payload } = action;
   switch (type) {
-    case 'CHANGE_SINGLE_CHANNEL_PROPERTY': {
+    case 'CHANGE_SINGLE_CHANNEL_PROPERTIES': {
       // property is something like "selection" or "slider."
       // value is the actual change, like { channel: 0 }.
-      const { channelId, property, value } = payload;
+      const { channelId, update } = payload;
+      let nextChannels = { ...channels };
+      Object.entries(update).forEach(([property, value]) => {
+        nextChannels = {
+          ...nextChannels,
+          [channelId]: {
+            ...nextChannels[channelId],
+            [property]: getNewChannelProperty(
+              nextChannels[channelId],
+              property,
+              value,
+            ),
+          },
+        };
+      });
       // Update channel selection for new state.
-      const nextChannels = {
-        ...channels,
-        [channelId]: {
-          ...channels[channelId],
-          [property]: getNewChannelProperty(
-            channels[channelId],
-            property,
-            value,
-          ),
-        },
-      };
       /*
       * Sending the entire state on each property change was causing performance issues.
       * Instead, LAYER_CHANGE events expect a `layerProps` object in the payload,
@@ -78,49 +85,79 @@ export default function reducer(channels, action) {
       *    sliders: [[0, 2000], [20, 2000]]
       *  }
       */
-      const propertyToUpdate = layerProperty[property];
-      const updatedValues = Object.values(nextChannels).map(c => c[property]);
-      const layerProps = {
-        [propertyToUpdate]: updatedValues,
-      };
+      const layerProps = {};
+      Object.keys(update).forEach((property) => {
+        const propertyToUpdate = layerProperty[property];
+        const updatedValues = Object.values(nextChannels).map(c => c[property]);
+        layerProps[propertyToUpdate] = updatedValues;
+      });
       // Publish deck.gl layer props.
       PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       return nextChannels;
     }
-    case 'CHANGE_GLOBAL_CHANNELS_SELECTION': {
-      const { selection, publish } = payload;
+    case 'CHANGE_GLOBAL_CHANNELS_PROPERTIES': {
+      const { update, publish } = payload;
       // Update channel selection for new state.
-      const nextChannels = {};
+      const nextChannels = { ...channels };
       // eslint-disable-next-line no-return-assign
-      Object.keys(channels).forEach(channelId => (
-        nextChannels[channelId] = {
-          ...channels[channelId],
-          selection: {
-            ...channels[channelId].selection,
-            ...selection,
-          },
-        }
-      ));
+      Object.keys(channels).forEach((channelId, i) => {
+        Object.entries(update).forEach(([property, value]) => {
+          const newValue = Array.isArray(value) ? value[i] : value;
+          nextChannels[channelId] = {
+            ...nextChannels[channelId],
+            [property]: getNewChannelProperty(
+              nextChannels[channelId],
+              property,
+              newValue,
+            ),
+          };
+        });
+      });
       // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
       // we don't publish on all changes - only on mouseup (this flag is set in LayerConroller).
+      const layerProps = {};
       if (publish) {
-        const updatedValues = Object.values(nextChannels).map(c => c.selection);
-        const layerProps = { selections: updatedValues };
+        Object.keys(update).forEach((property) => {
+          const updatedValues = Object.values(nextChannels).map(c => c[property]);
+          layerProps[layerProperty[property]] = updatedValues;
+        });
         // Publish deck.gl layer props.
         PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       }
       return nextChannels;
     }
     case 'ADD_CHANNEL': {
-      const { selection } = payload;
+      const { selection, domain } = payload;
       const channel = {
         selection,
+        domain,
         color: [255, 255, 255],
         visibility: true,
-        slider: [0, 20000],
+        slider: domain,
       };
       const channelId = String(Math.random());
       const nextChannels = { ...channels, [channelId]: channel };
+      const layerProps = channelsToLayerProps(nextChannels);
+      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      return nextChannels;
+    }
+    // Because the image layers are asynchronous, hurling a bunch of 'ADD_CHANNEL'
+    // events can lead to unexpected behavior: https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176.
+    case 'ADD_CHANNELS': {
+      const { selections, domains } = payload;
+      let nextChannels = { ...channels };
+      selections.forEach((selection, i) => {
+        const domain = domains[i];
+        const channel = {
+          selection,
+          domain,
+          color: VIEWER_PALETTE[i],
+          visibility: true,
+          slider: domain,
+        };
+        const channelId = String(Math.random());
+        nextChannels = { ...nextChannels, [channelId]: channel };
+      });
       const layerProps = channelsToLayerProps(nextChannels);
       PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
       return nextChannels;
