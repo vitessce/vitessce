@@ -106,6 +106,7 @@ export default function PubSubVitessceGrid(props) {
         padding={padding}
         reactGridLayoutProps={{
           onResize: () => PubSub.publish(GRID_RESIZE),
+          onResizeStop: () => PubSub.publish(GRID_RESIZE),
         }}
         theme={theme}
       />

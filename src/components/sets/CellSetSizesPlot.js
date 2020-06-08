@@ -60,10 +60,10 @@ export default function CellSetSizesPlot(props) {
     .encode(
       vl.x().fieldN('keyName')
         .axis({ labelExpr: `substring(datum.label, ${keyLength})` })
-        .title('Name')
+        .title('Cell Set Name')
         .sort(keys),
       vl.y().fieldQ('size')
-        .title('Size'),
+        .title('Cell Set Size'),
       vl.color().fieldN('key')
         .scale(colors)
         .legend(null),
