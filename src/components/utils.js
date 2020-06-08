@@ -143,13 +143,13 @@ export function useGridItemSize() {
       setHeight(containerRect.height);
       setWidth(containerRect.width);
     }
-    const onResizeThrottled = debounce(onResize, 100, { trailing: true });
+    const onResizeDebounced = debounce(onResize, 100, { trailing: true });
     const gridResizeToken = PubSub.subscribe(GRID_RESIZE, onResize);
-    window.addEventListener('resize', onResizeThrottled);
+    window.addEventListener('resize', onResizeDebounced);
     onResize();
     return () => {
       PubSub.unsubscribe(gridResizeToken);
-      window.removeEventListener('resize', onResizeThrottled);
+      window.removeEventListener('resize', onResizeDebounced);
     };
   }, []);
 
