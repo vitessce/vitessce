@@ -1,6 +1,6 @@
 import React from 'react';
-import VegaPlot from './VegaPlot';
-import { createVegaLiteApi, VEGA_THEMES } from './utils';
+import { VegaPlot, createVegaLiteApi, VEGA_THEMES } from '../vega';
+import { colorArrayToString } from './utils';
 
 const vl = createVegaLiteApi();
 
@@ -20,7 +20,8 @@ const vl = createVegaLiteApi();
  * on the bottom of the plot, to account for long x-axis labels.
  * By default, 120.
  * @param {number} props.keyLength The length of the `key` property of
- * each data point. By default, 36.
+ * each data point. Assumes all key strings have the same length.
+ * By default, 36.
  */
 export default function CellSetSizePlot(props) {
   const {
@@ -34,15 +35,21 @@ export default function CellSetSizePlot(props) {
   } = props;
 
   // Add a property `keyName` which concatenates the key and the name,
-  // which is both unique (for Vega-Lite) and can easily be converted
+  // which is both unique and can easily be converted
   // back to the name by taking a substring.
-  const data = rawData.map(d => ({ ...d, keyName: d.key + d.name }));
+  // Add a property `colorString` which contains the `[r, g, b]` color
+  // after converting to a color hex string.
+  const data = rawData.map(d => ({
+    ...d,
+    keyName: d.key + d.name,
+    colorString: colorArrayToString(d.color),
+  }));
 
   // Manually set the color scale so that Vega-Lite does
   // not choose the colors automatically.
   const colors = {
     domain: data.map(d => d.key),
-    range: data.map(d => d.color),
+    range: data.map(d => d.colorString),
   };
 
   // Get an array of keys for sorting purposes.

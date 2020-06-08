@@ -4,7 +4,6 @@ import some from 'lodash/some';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
-import { colorArrayToString } from './utils';
 import { HIERARCHICAL_SCHEMAS } from './io';
 
 // Constants.
@@ -1397,7 +1396,7 @@ export function treeToVisibleSetSizes(currTree) {
         key: node._state.key,
         name: node.name,
         size: nodeSet.length,
-        color: colorArrayToString(node.color),
+        color: node.color,
       });
     }
   });

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PubSub from 'pubsub-js';
 import TitleInfo from '../TitleInfo';
 import { CELL_SETS_CHANGE } from '../../events';
-import { treeToVisibleSetSizes } from '../sets/reducer';
-import { useGridItemSize } from './utils';
+import { treeToVisibleSetSizes } from './reducer';
+import { useGridItemSize } from '../utils';
 
 import CellSetSizePlot from './CellSetSizePlot';
 

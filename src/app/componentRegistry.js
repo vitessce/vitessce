@@ -8,7 +8,7 @@ import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSu
 import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSubscriber';
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
-import CellSetSizePlotSubscriber from '../components/vega/CellSetSizePlotSubscriber';
+import CellSetSizePlotSubscriber from '../components/sets/CellSetSizePlotSubscriber';
 
 const registry = {
   description: DescriptionSubscriber,

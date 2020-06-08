@@ -1,5 +1,8 @@
+import { useRef, useState, useEffect } from 'react';
+import PubSub from 'pubsub-js';
 import { COORDINATE_SYSTEM } from 'deck.gl';
 import { interpolatePlasma } from 'd3-scale-chromatic';
+import { GRID_RESIZE } from '../events';
 
 export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
@@ -119,4 +122,34 @@ export function createDefaultUpdateViewInfo(componentName) {
 
 export function createDefaultClearPleaseWait(componentName) {
   return layer => console.warn(`${componentName} "clearPleaseWait" not provided; layer: ${layer}`);
+}
+
+/**
+ * Custom hook, subscribes to GRID_RESIZE and window resize events.
+ * @returns {array} `[width, height, containerRef]` where width and height
+ * are numbers and containerRef is a React ref.
+ */
+export function useGridItemSize() {
+  const containerRef = useRef();
+
+  const [height, setHeight] = useState();
+  const [width, setWidth] = useState();
+
+  useEffect(() => {
+    function onResize() {
+      if (!containerRef.current) return;
+      const containerRect = containerRef.current.getBoundingClientRect();
+      setHeight(containerRect.height);
+      setWidth(containerRect.width);
+    }
+    const gridResizeToken = PubSub.subscribe(GRID_RESIZE, onResize);
+    window.addEventListener('resize', onResize);
+    onResize();
+    return () => {
+      PubSub.unsubscribe(gridResizeToken);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
+  return [width, height, containerRef];
 }
