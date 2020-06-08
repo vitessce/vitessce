@@ -109,7 +109,6 @@ export default function PubSubVitessceGrid(props) {
           onResize: () => PubSub.publish(GRID_RESIZE),
           onResizeStop: () => PubSub.publish(GRID_RESIZE),
         }}
-        theme={theme}
       />
     </div>
   );
