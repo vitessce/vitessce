@@ -1,4 +1,5 @@
 import React from 'react';
+import clamp from 'lodash/clamp';
 import { VegaPlot, createVegaLiteApi, VEGA_THEMES } from '../vega';
 import { colorArrayToString } from './utils';
 
@@ -69,8 +70,8 @@ export default function CellSetSizesPlot(props) {
         .legend(null),
       vl.tooltip().fieldQ('size'),
     )
-    .width(width - marginRight)
-    .height(height - marginBottom)
+    .width(clamp(width - marginRight, 10, Infinity))
+    .height(clamp(height - marginBottom, 10, Infinity))
     .config(VEGA_THEMES[theme])
     .toJSON();
 

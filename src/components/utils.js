@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import PubSub from 'pubsub-js';
+import debounce from 'lodash/debounce';
 import { COORDINATE_SYSTEM } from 'deck.gl';
 import { interpolatePlasma } from 'd3-scale-chromatic';
 import { GRID_RESIZE } from '../events';
@@ -142,12 +143,13 @@ export function useGridItemSize() {
       setHeight(containerRect.height);
       setWidth(containerRect.width);
     }
+    const onResizeThrottled = debounce(onResize, 100, { trailing: true });
     const gridResizeToken = PubSub.subscribe(GRID_RESIZE, onResize);
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', onResizeThrottled);
     onResize();
     return () => {
       PubSub.unsubscribe(gridResizeToken);
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('resize', onResizeThrottled);
     };
   }, []);
 
