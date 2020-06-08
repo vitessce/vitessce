@@ -97,6 +97,7 @@ export default function PubSubVitessceGrid(props) {
       <VitessceGrid
         layout={config.staticLayout}
         rowHeight={rowHeight}
+        theme={theme}
         getComponent={getComponent}
         onAllReady={() => setAllReady(true)}
         draggableHandle=".title"
