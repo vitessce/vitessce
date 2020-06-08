@@ -6,7 +6,7 @@ import * as VegaLite from 'vega-lite';
 import { GRID_RESIZE } from '../../events';
 
 /**
- * Custom hook
+ * Custom hook, subscribes to GRID_RESIZE and window resize events.
  * @returns {array} `[width, height, containerRef]` where width and height
  * are numbers and containerRef is a React ref.
  */
