@@ -14,7 +14,7 @@ import ImageAddButton from './ImageAddButton';
 import {
   RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT, METADATA_REMOVE, LAYER_ADD, METADATA_ADD,
 } from '../../events';
-import { darkTheme } from './styles';
+import { controllerTheme } from './styles';
 import { DEFAULT_LAYER_PROPS } from './constants';
 
 const generateClassName = createGenerateClassName({
@@ -81,7 +81,7 @@ function publishLayer({ loader, imageData, layerId }) {
   }
 }
 
-function LayerControllerSubscriber({ onReady, removeGridComponent }) {
+function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
   const [imageOptions, setImageOptions] = useState(null);
   const [layersAndLoaders, setLayersAndLoaders] = useState([]);
   const memoizedOnReady = useCallback(onReady, []);
@@ -140,14 +140,20 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
       />
     </Grid>
   ));
-
   return (
-    <TitleInfo title="Layer Controller" isScroll removeGridComponent={removeGridComponent}>
+    <TitleInfo
+      title="Layer Controller"
+      isScroll
+      removeGridComponent={removeGridComponent}
+    >
       <StylesProvider generateClassName={generateClassName}>
-        <ThemeProvider theme={darkTheme}>
+        <ThemeProvider theme={controllerTheme[theme]}>
           {layerControllers}
           <Grid item>
-            <ImageAddButton imageOptions={imageOptions} handleImageAdd={handleImageAdd} />
+            <ImageAddButton
+              imageOptions={imageOptions}
+              handleImageAdd={handleImageAdd}
+            />
           </Grid>
         </ThemeProvider>
       </StylesProvider>
