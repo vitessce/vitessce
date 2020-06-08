@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PubSub from 'pubsub-js';
+import throttle from 'lodash/throttle';
 import VitessceGrid from 'vitessce-grid';
 
 import { SourcePublisher } from '../components/sourcepublisher';
@@ -37,6 +38,9 @@ function getRowHeight(containerHeight, numRows, margin, padding) {
   const effectiveContainerHeight = containerHeight - 2 * padding - (numRows - 1) * margin;
   return effectiveContainerHeight / numRows;
 }
+
+const onResize = () => PubSub.publish(GRID_RESIZE);
+const onResizeThrottled = throttle(onResize, 100, { trailing: true });
 
 
 export default function PubSubVitessceGrid(props) {
@@ -106,8 +110,8 @@ export default function PubSubVitessceGrid(props) {
         margin={margin}
         padding={padding}
         reactGridLayoutProps={{
-          onResize: () => PubSub.publish(GRID_RESIZE),
-          onResizeStop: () => PubSub.publish(GRID_RESIZE),
+          onResize: onResizeThrottled,
+          onResizeStop: onResize,
         }}
       />
     </div>
