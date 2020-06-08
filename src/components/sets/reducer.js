@@ -1380,6 +1380,31 @@ export function treeToVisibleCells(currTree) {
 }
 
 /**
+ * Given a tree with state, get the sizes of the
+ * sets currently marked as "visible".
+ * @param {object} currTree A tree object.
+ * @returns {object[]} Array of objects
+ * with the properties `name` and `size`.
+ */
+export function treeToVisibleSetSizes(currTree) {
+  const sizes = [];
+  currTree._state.visibleKeys.forEach((setKey) => {
+    const node = treeFindNodeByKey(currTree, setKey);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      sizes.push({
+        key: node._state.key,
+        name: node.name,
+        size: nodeSet.length,
+        color: node.color,
+      });
+    }
+  });
+  return sizes;
+}
+
+
+/**
  * Constants for reducer action type strings.
  */
 export const ACTION = Object.freeze({
