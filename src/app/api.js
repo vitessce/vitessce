@@ -407,9 +407,7 @@ const configs = {
         },
         x: 0, y: 0, w: 8, h: 2 },
       { component: 'layerController',
-        x: 8, y: 0, w: 4, h: 1 },
-      { component: 'layerHistogram',
-        x: 8, y: 1, w: 4, h: 1 },
+        x: 8, y: 0, w: 4, h: 2 },
     ],
   },
   'just-higlass': {

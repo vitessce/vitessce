@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PubSub from 'pubsub-js';
-import VitessceGrid from './VitessceGrid';
+import VitessceGrid from 'vitessce-grid';
 
 import { SourcePublisher } from '../components/sourcepublisher';
 import { GRID_RESIZE } from '../events';

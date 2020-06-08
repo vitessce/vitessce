@@ -8,8 +8,7 @@ import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSu
 import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSubscriber';
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
-import SetSizePlotSubscriber from '../components/vega/SetSizePlotSubscriber';
-import LayerHistogramSubscriber from '../components/vega/LayerHistogramSubscriber';
+import CellSetSizePlotSubscriber from '../components/vega/CellSetSizePlotSubscriber';
 
 const registry = {
   description: DescriptionSubscriber,
@@ -22,8 +21,7 @@ const registry = {
   heatmap: HoverableHeatmapSubscriber,
   layerController: LayerControllerSubscriber,
   higlass: HiGlassSubscriber,
-  cellSetSize: SetSizePlotSubscriber,
-  layerHistogram: LayerHistogramSubscriber,
+  cellSetSize: CellSetSizePlotSubscriber,
 };
 
 export default function getComponent(name) {
