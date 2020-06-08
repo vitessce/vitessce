@@ -1,18 +1,32 @@
 import { makeStyles, createMuiTheme } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
 
-export const darkTheme = createMuiTheme({
-  palette: {
-    type: 'dark',
-    primary: grey,
-    secondary: grey,
-  },
-  props: {
-    MuiButtonBase: {
-      disableRipple: true,
+export const controllerTheme = {
+  dark: createMuiTheme({
+    palette: {
+      type: 'dark',
+      primary: grey,
+      secondary: grey,
     },
-  },
-});
+    props: {
+      MuiButtonBase: {
+        disableRipple: true,
+      },
+    },
+  }),
+  light: createMuiTheme({
+    palette: {
+      type: 'light',
+      primary: grey,
+      secondary: grey,
+    },
+    props: {
+      MuiButtonBase: {
+        disableRipple: true,
+      },
+    },
+  }),
+};
 
 export const useOptionStyles = makeStyles(() => ({
   paper: {
