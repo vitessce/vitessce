@@ -5,7 +5,7 @@ import { CELL_SETS_CHANGE } from '../../events';
 import { treeToVisibleSetSizes } from './reducer';
 import { useGridItemSize } from '../utils';
 
-import CellSetSizePlot from './CellSetSizePlot';
+import CellSetSizesPlot from './CellSetSizesPlot';
 
 /**
  * A subscriber component for `CellSetSizePlot`,
@@ -17,7 +17,7 @@ import CellSetSizePlot from './CellSetSizePlot';
  * have been made.
  * @param {string} props.theme The name of the current Vitessce theme.
  */
-export default function CellSetSizePlotSubscriber(props) {
+export default function CellSetSizesPlotSubscriber(props) {
   const {
     removeGridComponent,
     onReady,
@@ -42,11 +42,11 @@ export default function CellSetSizePlotSubscriber(props) {
 
   return (
     <TitleInfo
-      title="Cell Set Size"
+      title="Cell Set Sizes"
       removeGridComponent={removeGridComponent}
     >
       <div ref={containerRef} className="vega-container">
-        <CellSetSizePlot
+        <CellSetSizesPlot
           data={data}
           theme={theme}
           width={width}

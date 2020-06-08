@@ -1,4 +1,4 @@
 export { default as CellSetsManagerSubscriber } from './CellSetsManagerSubscriber';
 export { default as SetsManager } from './SetsManager';
-export { default as CellSetSizePlot } from './CellSetSizePlot';
-export { default as CellSetSizePlotSubscriber } from './CellSetSizePlotSubscriber';
+export { default as CellSetSizesPlot } from './CellSetSizesPlot';
+export { default as CellSetSizesPlotSubscriber } from './CellSetSizesPlotSubscriber';

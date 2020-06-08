@@ -370,7 +370,7 @@ const configs = {
         x: 0, y: 0, w: 5, h: 4 },
       { component: 'cellSets',
         x: 9, y: 4, w: 3, h: 4 },
-      { component: 'cellSetSize',
+      { component: 'cellSetSizes',
         x: 5, y: 4, w: 4, h: 4 },
     ],
   },

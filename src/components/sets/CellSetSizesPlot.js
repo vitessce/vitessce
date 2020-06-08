@@ -23,7 +23,7 @@ const vl = createVegaLiteApi();
  * each data point. Assumes all key strings have the same length.
  * By default, 36.
  */
-export default function CellSetSizePlot(props) {
+export default function CellSetSizesPlot(props) {
   const {
     data: rawData,
     theme,
