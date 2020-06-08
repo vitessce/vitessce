@@ -1,6 +1,7 @@
-import React from 'react';
-import { Vega as ReactVega } from 'react-vega';
+import React, { Suspense, useMemo } from 'react';
 import { Handler } from 'vega-tooltip';
+
+const ReactVega = React.lazy(() => import('./ReactVega'));
 
 const DATASET_NAME = 'table';
 
@@ -23,18 +24,24 @@ export default function VegaPlot(props) {
     data: { name: DATASET_NAME },
   };
 
+  const vegaComponent = useMemo(() => (
+    <ReactVega
+      spec={spec}
+      data={{
+        [DATASET_NAME]: data,
+      }}
+      signalListeners={signalListeners}
+      tooltip={new Handler().call}
+      renderer="canvas"
+      scaleFactor={3}
+    />
+  ), [spec, data, signalListeners]);
+
   return (
     spec && data && data.length > 0 ? (
-      <ReactVega
-        spec={spec}
-        data={{
-          [DATASET_NAME]: data,
-        }}
-        signalListeners={signalListeners}
-        tooltip={new Handler().call}
-        renderer="canvas"
-        scaleFactor={3}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        {vegaComponent}
+      </Suspense>
     ) : null
   );
 }
