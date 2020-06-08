@@ -2,7 +2,7 @@ import React, {
   useState, useReducer, useEffect,
 } from 'react';
 import PubSub from 'pubsub-js';
-import { getChannelStats } from '@hubmap/vitessce-image-viewer';
+import { getChannelStats, DTYPE_VALUES, MAX_SLIDERS_AND_CHANNELS } from '@hubmap/vitessce-image-viewer';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -20,7 +20,7 @@ import { LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
 import { useExpansionPanelStyles } from './styles';
 import {
-  GLOBAL_SLIDER_DIMENSION_FIELDS, DTYPE_VALUES, MAX_CHANNELS, DEFAULT_LAYER_PROPS,
+  GLOBAL_SLIDER_DIMENSION_FIELDS, DEFAULT_LAYER_PROPS,
 } from './constants';
 
 // Return the midpoint of the global dimensions.
@@ -290,7 +290,7 @@ export default function LayerController({
         {channelControllers}
         <Grid item>
           <Button
-            disabled={Object.values(channels).length === MAX_CHANNELS}
+            disabled={Object.values(channels).length === MAX_SLIDERS_AND_CHANNELS}
             onClick={handleChannelAdd}
             fullWidth
             variant="outlined"

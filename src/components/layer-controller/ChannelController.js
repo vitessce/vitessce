@@ -50,7 +50,7 @@ function ChannelSelectionDropdown({
  * @prop {array} domain Current max/min allowable slider values.
  */
 function ChannelSlider({
-  color, slider, handleChange, domain,
+  color, slider, handleChange, domain: [min, max],
 }) {
   return (
     <Slider
@@ -58,8 +58,8 @@ function ChannelSlider({
       onChange={(e, v) => handleChange(v)}
       valueLabelDisplay="auto"
       getAriaLabel={() => `${color}-${slider}`}
-      min={domain[0]}
-      max={domain[1]}
+      min={min}
+      max={max}
       orientation="horizontal"
       style={{ color, marginTop: '7px' }}
     />

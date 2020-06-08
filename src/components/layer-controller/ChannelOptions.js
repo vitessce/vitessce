@@ -49,7 +49,7 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
                 <span className={classes.span}>Remove</span>
               </MenuItem>
               <MenuItem dense disableGutters onClick={handleIQRUpdate}>
-                <span className={classes.span}>Slider IQR</span>
+                <span className={classes.span}>Use IQR</span>
               </MenuItem>
               <MenuItem dense disableGutters className={classes.colors}>
                 <ColorPalette handleChange={handleColorSelect} />

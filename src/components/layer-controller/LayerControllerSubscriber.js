@@ -21,6 +21,10 @@ const generateClassName = createGenerateClassName({
   disableGlobal: true,
 });
 
+function genId() {
+  return String(Math.random());
+}
+
 async function initLoader(imageData) {
   const {
     type, url, metadata, requestInit,
@@ -88,36 +92,36 @@ function LayerControllerSubscriber({ onReady, removeGridComponent }) {
       const { images, renderLayers } = raster;
       setImageOptions(images);
       if (!renderLayers) {
-        const layerId = String(Math.random());
+        const layerId = genId();
         // Midpoint of images list as default image to show.
         const imageData = images[Math.floor(images.length / 2)];
         const loader = await initLoader(imageData);
         publishLayer({ loader, imageData, layerId });
-        setLayersAndLoaders([...layersAndLoaders, { layerId, imageData, loader }]);
+        setLayersAndLoaders(prevState => [...prevState, { layerId, imageData, loader }]);
       } else {
         const newLayersAndLoaders = await Promise.all(renderLayers.map(async (imageName) => {
-          const imageData = images.filter(image => image.name === imageName)[0];
-          const layerId = String(Math.random());
+          const layerId = genId();
+          const [imageData] = images.filter(image => image.name === imageName);
           const loader = await initLoader(imageData);
           return { layerId, imageData, loader };
         }));
-        newLayersAndLoaders.forEach(({ imageData, loader, layerId }) => {
-          publishLayer({ loader, imageData, layerId });
+        newLayersAndLoaders.forEach(({ imageData, loader, layerId: id }) => {
+          publishLayer({ loader, imageData, layerId: id });
         });
-        setLayersAndLoaders([...layersAndLoaders, ...newLayersAndLoaders]);
+        setLayersAndLoaders(prevState => [...prevState, ...newLayersAndLoaders]);
       }
       PubSub.publish(CLEAR_PLEASE_WAIT, 'raster');
     }
     memoizedOnReady();
     const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
     return () => PubSub.unsubscribe(token);
-  }, [memoizedOnReady, layersAndLoaders]);
+  }, [memoizedOnReady]);
 
   const handleImageAdd = async (imageData) => {
-    const layerId = String(Math.random());
+    const layerId = genId();
     const loader = await initLoader(imageData);
     publishLayer({ loader, imageData, layerId });
-    setLayersAndLoaders([...layersAndLoaders, { layerId, imageData, loader }]);
+    setLayersAndLoaders(prevState => [...prevState, { layerId, imageData, loader }]);
   };
 
   const handleLayerRemove = (layerId, layerName) => {
