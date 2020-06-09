@@ -28,9 +28,9 @@ export const controllerTheme = {
   }),
 };
 
-export const useOptionStyles = makeStyles(() => ({
+export const useOptionStyles = makeStyles(theme => ({
   paper: {
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    backgroundColor: theme.palette.background.default,
   },
   span: {
     width: '70px',
