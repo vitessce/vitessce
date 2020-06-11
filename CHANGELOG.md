@@ -6,6 +6,9 @@
 - Initial slider/selection values and light theme for channel controller.
 - Added a `VegaPlot` component, a Vega-Lite implementation of a cell set size bar plot, and a `useGridItemSize` hook to enable responsive charts.
 
+### Changed
+- Manage `viewState` and add PubSub events for publishing `viewState` changes. 
+
 ## [0.1.4](https://www.npmjs.com/package/vitessce/v/0.1.4) - 2020-06-01
 
 ### Added
