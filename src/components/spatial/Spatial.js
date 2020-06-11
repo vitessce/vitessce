@@ -111,7 +111,7 @@ export default function Spatial(props) {
   const moleculesDataRef = useRef(null);
   const cellsDataRef = useRef(null);
   const neighborhoodsDataRef = useRef(null);
-
+  const [viewState, setViewState] = useState(view);
   const [layerIsVisible, setLayerIsVisible] = useState({
     molecules: false,
     cells: false,
@@ -128,12 +128,12 @@ export default function Spatial(props) {
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
 
-  const onViewStateChange = useCallback(({ viewState }) => {
+  const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
     // Update the viewport field of the `viewRef` object
     // to satisfy components (e.g. CellTooltip2D) that depend on an
     // up-to-date viewport instance (to perform projections).
     const viewport = (new OrthographicView()).makeViewport({
-      viewState,
+      nextViewState,
       width: viewRef.current.width,
       height: viewRef.current.height,
     });
@@ -147,6 +147,10 @@ export default function Spatial(props) {
     viewRef.current.height = height;
     updateViewInfo(viewRef.current);
   }, [viewRef, updateViewInfo]);
+
+  const onDeckViewStateChange = ({ viewState: nextViewState }) => {
+    setViewState(nextViewState);
+  };
 
   useEffect(() => {
     // Process molecules data and cache into re-usable array.
@@ -302,7 +306,8 @@ export default function Spatial(props) {
     views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
     // gl needs to be initialized for us to use it in Texture creation
     layers: gl ? layers.concat(selectionLayers) : [],
-    initialViewState: view,
+    viewState,
+    onViewStateChange: onDeckViewStateChange,
     ...(tool ? {
       controller: { dragPan: false },
       getCursor: () => 'crosshair',
