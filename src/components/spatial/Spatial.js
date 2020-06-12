@@ -128,19 +128,6 @@ export default function Spatial(props) {
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
 
-  const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
-    // Update the viewport field of the `viewRef` object
-    // to satisfy components (e.g. CellTooltip2D) that depend on an
-    // up-to-date viewport instance (to perform projections).
-    const viewport = (new OrthographicView()).makeViewport({
-      nextViewState,
-      width: viewRef.current.width,
-      height: viewRef.current.height,
-    });
-    viewRef.current.viewport = viewport;
-    updateViewInfo(viewRef.current);
-  }, [viewRef, updateViewInfo]);
-
   const onInitializeViewInfo = useCallback(({ width, height, viewport }) => {
     viewRef.current.viewport = viewport;
     viewRef.current.width = width;
@@ -323,7 +310,6 @@ export default function Spatial(props) {
         <ToolMenu
           activeTool={tool}
           setActiveTool={setTool}
-          onViewStateChange={onViewStateChange}
         />
         {layersMenu}
       </div>
