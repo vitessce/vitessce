@@ -30,7 +30,7 @@ export const controllerTheme = {
 
 export const useOptionStyles = makeStyles(theme => ({
   paper: {
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: theme.palette.background.paper,
   },
   span: {
     width: '70px',

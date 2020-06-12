@@ -9,8 +9,8 @@ import ChannelOptions from './ChannelOptions';
 
 const COLORMAP_SLIDER_CHECKBOX_COLOR = [220, 220, 220];
 
-const toRgb = (on, arr) => {
-  const color = on ? COLORMAP_SLIDER_CHECKBOX_COLOR : arr;
+const toRgb = (on, theme, arr) => {
+  const color = (on || (theme === 'light' && arr.every(i => i === 255))) ? COLORMAP_SLIDER_CHECKBOX_COLOR : arr;
   return `rgb(${color})`;
 };
 
@@ -103,6 +103,7 @@ function ChannelController({
   color,
   domain,
   dimName,
+  theme,
   colormapOn,
   channelOptions,
   handlePropertyChange,
@@ -111,7 +112,7 @@ function ChannelController({
   selectionIndex,
   disableOptions = false,
 }) {
-  const rgbColor = toRgb(colormapOn, color);
+  const rgbColor = toRgb(colormapOn, theme, color);
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
   *  index of the image along that particular dimension.
