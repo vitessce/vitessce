@@ -148,6 +148,8 @@ export default function Scatterplot(props) {
     }),
   };
 
+  console.log("scatterplot render"); // eslint-disable-line
+
   return (
     <>
       <div className="d-flex">

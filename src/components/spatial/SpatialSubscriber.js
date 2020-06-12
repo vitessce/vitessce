@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useState, useCallback, useEffect, useMemo,
 } from 'react';
@@ -27,7 +28,7 @@ export default function SpatialSubscriber({
   onReady,
   removeGridComponent,
   moleculeRadius,
-  view,
+  view: rawView,
   cellRadius,
   uuid = null,
 }) {
@@ -38,6 +39,8 @@ export default function SpatialSubscriber({
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [imageLayerProps, setImageLayerProps] = useState({});
   const [imageLayerLoaders, setImageLayerLoaders] = useState({});
+
+  const [view, setView] = useState(rawView);
 
   const onReadyCallback = useCallback(onReady, []);
 
@@ -102,6 +105,15 @@ export default function SpatialSubscriber({
     ];
   }, [molecules]);
 
+  function onUpdateView() {
+    setView({
+      target: [16000 - 5000 + Math.random() * 10000, 20000 - 5000 + Math.random() * 10000, 0],
+      zoom: -1 * (Math.random()*8 + 2)
+    });
+  }
+
+  console.log(view);
+
   return (
     <TitleInfo
       title="Spatial"
@@ -110,6 +122,7 @@ export default function SpatialSubscriber({
       }
       removeGridComponent={removeGridComponent}
     >
+      <button onClick={onUpdateView} style={{ zIndex: 10 }}>Update view</button>
       {children}
       <Spatial
         cells={cells}

@@ -111,7 +111,6 @@ export default function Spatial(props) {
   const moleculesDataRef = useRef(null);
   const cellsDataRef = useRef(null);
   const neighborhoodsDataRef = useRef(null);
-  const [viewState, setViewState] = useState(view);
   const [layerIsVisible, setLayerIsVisible] = useState({
     molecules: false,
     cells: false,
@@ -134,10 +133,6 @@ export default function Spatial(props) {
     viewRef.current.height = height;
     updateViewInfo(viewRef.current);
   }, [viewRef, updateViewInfo]);
-
-  const onDeckViewStateChange = ({ viewState: nextViewState }) => {
-    setViewState(nextViewState);
-  };
 
   useEffect(() => {
     // Process molecules data and cache into re-usable array.
@@ -293,8 +288,7 @@ export default function Spatial(props) {
     views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
     // gl needs to be initialized for us to use it in Texture creation
     layers: gl ? layers.concat(selectionLayers) : [],
-    viewState,
-    onViewStateChange: onDeckViewStateChange,
+    initialViewState: view,
     ...(tool ? {
       controller: { dragPan: false },
       getCursor: () => 'crosshair',
@@ -303,7 +297,7 @@ export default function Spatial(props) {
       getCursor: interactionState => (interactionState.isDragging ? 'grabbing' : 'default'),
     }),
   };
-
+  console.log("spatial render"); // eslint-disable-line
   return (
     <>
       <div className="d-flex">
