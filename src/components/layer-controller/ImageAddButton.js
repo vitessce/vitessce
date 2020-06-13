@@ -41,7 +41,7 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
       >
             Add Image Layer
       </Button>
-      <Popper open={open} anchorEl={anchorRef.current} placement="bottom-end">
+      <Popper className={classes.popper} open={open} anchorEl={anchorRef.current} placement="bottom-end" disablePortal>
         <Paper className={classes.paper} style={{ maxHeight: 200, overflow: 'auto' }}>
           <ClickAwayListener onClickAway={toggle}>
             <MenuList id="image-layer-options">

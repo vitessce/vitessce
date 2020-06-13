@@ -45,6 +45,9 @@ export const useOptionStyles = makeStyles(() => ({
     paddingLeft: '2px',
     paddingRight: '2px',
   },
+  popper: {
+    zIndex: 4,
+  },
 }));
 
 export const useExpansionPanelStyles = makeStyles(theme => ({
