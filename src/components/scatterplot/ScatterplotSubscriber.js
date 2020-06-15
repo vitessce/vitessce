@@ -71,8 +71,8 @@ export default function ScatterplotSubscriber(props) {
       const xRange = xExtent[1] - xExtent[0];
       const yRange = yExtent[1] - yExtent[0];
       const diagonalLength = Math.sqrt((xRange ** 2) + (yRange ** 2));
-      // The 255 value here is a heuristic.
-      const newScale = clamp(diagonalLength / 255, 0, 0.2);
+      // The 300 value here is a heuristic.
+      const newScale = clamp(diagonalLength / 300, 0, 0.2);
       if (newScale) {
         setCellRadiusScale(newScale);
       }
