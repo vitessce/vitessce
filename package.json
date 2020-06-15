@@ -64,7 +64,7 @@
     "vega-lite": "^4.13.0",
     "vega-lite-api": "^0.11.0",
     "vega-tooltip": "^0.23.0",
-    "vitessce-grid": "0.0.8",
+    "vitessce-grid": "0.0.9",
     "whatwg-fetch": "^3.0.0"
   },
   "devDependencies": {
