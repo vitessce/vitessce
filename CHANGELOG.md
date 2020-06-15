@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.5 - in progress
+## 0.1.5
 
 ### Added
 - Initial slider/selection values and light theme for channel controller.
