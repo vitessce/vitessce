@@ -68,12 +68,12 @@ export default function ScatterplotSubscriber(props) {
         .map(c => c.mappings[mapping]);
       const xExtent = extent(cellCoordinates, c => c[0]);
       const yExtent = extent(cellCoordinates, c => c[1]);
-      const xDifference = xExtent[1] - xExtent[0];
-      const yDifference = yExtent[1] - yExtent[0];
-      const area = xDifference * yDifference;
-
-      const newScale = clamp(area / 7000, 0, 0.2);
-      if (newScale && !Number.isNaN(newScale)) {
+      const xRange = xExtent[1] - xExtent[0];
+      const yRange = yExtent[1] - yExtent[0];
+      const diagonalLength = Math.sqrt((xRange ** 2) + (yRange ** 2));
+      // The 255 value here is a heuristic.
+      const newScale = clamp(diagonalLength / 255, 0, 0.2);
+      if (newScale) {
         setCellRadiusScale(newScale);
       }
     }
