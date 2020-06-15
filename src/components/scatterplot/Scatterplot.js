@@ -16,6 +16,7 @@ const CELLS_LAYER_ID = 'scatterplot';
 /**
  * React component which renders a scatterplot from cell data, typically tSNE or PCA.
  * @prop {string} uuid
+ * @prop {string} theme The current vitessce theme.
  * @prop {object} view
  * @prop {number} view.zoom
  * @prop {number[]} view.target See https://github.com/uber/deck.gl/issues/2580 for more information.
@@ -40,6 +41,7 @@ const CELLS_LAYER_ID = 'scatterplot';
 export default function Scatterplot(props) {
   const {
     uuid = null,
+    theme,
     view = {
       zoom: 2,
       target: [0, 0, 0],
@@ -120,6 +122,7 @@ export default function Scatterplot(props) {
   const layers = (cells ? [
     new SelectableScatterplotLayer({
       id: CELLS_LAYER_ID,
+      backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
       isSelected: getCellIsSelected,
       // No radiusMin, so texture remains open even zooming out.
       radiusScale: cellRadiusScale,
