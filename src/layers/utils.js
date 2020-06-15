@@ -66,6 +66,26 @@ export function getSelectionLayers(
 }
 
 /**
+ * Using a color function and a theme name, return a function
+ * that mixes a cell color with a theme background color.
+ * Reference: https://github.com/bgrins/TinyColor/blob/80f7225029c428c0de0757f7d98ac15f497bee57/tinycolor.js#L701
+ * @param {function} colorFunction Returns a color given a cell.
+ * @param {number[]} backgroundColor The scatterplot or spatial background color.
+ * @returns {function} Returns a color given a cell.
+ */
+function mixFunction(colorFunction, backgroundColor) {
+  const p = 0.5;
+  return (cell) => {
+    const rgb = colorFunction(cell);
+    return [
+      ((backgroundColor[0] - rgb[0]) * p) + rgb[0],
+      ((backgroundColor[1] - rgb[1]) * p) + rgb[1],
+      ((backgroundColor[2] - rgb[2]) * p) + rgb[2],
+    ];
+  };
+}
+
+/**
  * Get deck.gl layer props for selection overlays.
  * @param {object} props
  * @returns {object} Object with two properties,
@@ -74,7 +94,7 @@ export function getSelectionLayers(
  */
 export function overlayBaseProps(props) {
   const {
-    id, getColor, data, isSelected, ...rest
+    id, backgroundColor, getColor, data, isSelected, ...rest
   } = props;
   return {
     overlay: {
@@ -86,9 +106,8 @@ export function overlayBaseProps(props) {
     },
     base: {
       id: getBaseLayerId(id),
-      getLineColor: getColor,
-      getFillColor: getColor,
-      opacity: 0.4,
+      getLineColor: mixFunction(getColor, backgroundColor),
+      getFillColor: mixFunction(getColor, backgroundColor),
       // Alternatively: contrast outlines with solids:
       // getLineColor: getColor,
       // getFillColor: [255,255,255],

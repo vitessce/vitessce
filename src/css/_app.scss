@@ -1,3 +1,4 @@
+@import 'colors';
 
 @mixin app($theme-name, $theme-colors) {
 
@@ -62,6 +63,14 @@
 
     .card {
         border: 1px solid map-get($theme-colors, "card-border");
+    }
+
+    .bg-black {
+        background-color: map-get($global-colors, "black");
+        color: map-get($global-colors, "white");
+        a {
+            color: map-get($global-colors, "white");
+        }
     }
 
     .bg-primary {

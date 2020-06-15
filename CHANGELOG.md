@@ -5,6 +5,11 @@
 ### Added
 - Initial slider/selection values and light theme for channel controller.
 - Added a `VegaPlot` component, a Vega-Lite implementation of a cell set size bar plot, and a `useGridItemSize` hook to enable responsive charts.
+- Compute the `cellRadiusScale` prop of `Scatterplot` relative to the extent of the `cells` mapping coordinates.
+
+### Changed
+- Updated the selection coloring for the `Scatterplot` and `Spatial` layers to take the theme background color into account.
+- Switched to a black background color for `Spatial` regardless of theme.
 
 ## [0.1.4](https://www.npmjs.com/package/vitessce/v/0.1.4) - 2020-06-01
 
