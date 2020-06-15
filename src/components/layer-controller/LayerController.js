@@ -75,7 +75,7 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  * @prop {object} loader Loader object for the current imaging layer.
  */
 export default function LayerController({
-  imageData, layerId, handleLayerRemove, loader,
+  imageData, layerId, handleLayerRemove, loader, theme,
 }) {
   const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
@@ -242,6 +242,7 @@ export default function LayerController({
               slider={c.slider}
               color={c.color}
               domain={c.domain}
+              theme={theme}
               channelOptions={channelOptions}
               colormapOn={Boolean(colormap)}
               handlePropertyChange={handleChannelPropertyChange}

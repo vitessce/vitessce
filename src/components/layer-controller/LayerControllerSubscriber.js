@@ -137,6 +137,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
         imageData={imageData}
         handleLayerRemove={() => handleLayerRemove(layerId, imageData.name)}
         loader={loader}
+        theme={theme}
       />
     </Grid>
   ));

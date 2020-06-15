@@ -6,7 +6,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { VIEWER_PALETTE } from '../utils';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   container: {
     width: '70px',
     height: '40px',
@@ -23,6 +23,8 @@ const useStyles = makeStyles(() => ({
   icon: {
     width: '17px',
     height: '17px',
+    stroke: theme.palette.action.selected,
+    'stroke-width': '1px',
   },
 }));
 
