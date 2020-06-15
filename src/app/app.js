@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
 
-import { LIGHT_CARD } from '../components/classNames';
+import { PRIMARY_CARD } from '../components/classNames';
 
 import '../css/index.scss';
 import '../../node_modules/react-grid-layout/css/styles.css';
@@ -27,7 +27,7 @@ function Warning(props) {
       <div className="warning-layout container-fluid">
         <div className="row">
           <div className="col-12">
-            <div className={LIGHT_CARD}>
+            <div className={PRIMARY_CARD}>
               <h1>{title}</h1>
               <pre>{preformatted}</pre>
               <div>{unformatted}</div>
