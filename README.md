@@ -79,10 +79,15 @@ export default function App() {
 
 ## Development
 
-First check your NodeJS version: It should work with NodeJS 8, 10, 12, or 13.
+First check your NodeJS version: It should work with NodeJS 8, 10, 12, 13, or 14.
 ```
 $ node --version
-v13.13.0
+v14.0.0
+```
+
+Note: NodeJS 14 may require the `max_old_space_size` option to be increased ([apparently due to a different heap management strategy](https://stackoverflow.com/a/59572966)):
+```sh
+export NODE_OPTIONS=--max_old_space_size=4096
 ```
 
 Checkout the project, `cd`, and then:
