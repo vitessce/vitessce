@@ -7,10 +7,10 @@ import Select from '@material-ui/core/Select';
 
 import ChannelOptions from './ChannelOptions';
 
-const COLORMAP_SLIDER_CHECKBOX_COLOR = [220, 220, 220];
-
-const toRgb = (on, theme, arr) => {
-  const color = (on || (theme === 'light' && arr.every(i => i === 255))) ? COLORMAP_SLIDER_CHECKBOX_COLOR : arr;
+// Returns an rgb string for display, and changes the color (arr)
+// to use a grey for light theme + white color or if the colormap is on.
+export const toRgbUIString = (on, arr, theme) => {
+  const color = (on || (theme === 'light' && arr.every(i => i === 255))) ? [220, 220, 220] : arr;
   return `rgb(${color})`;
 };
 
@@ -112,7 +112,7 @@ function ChannelController({
   selectionIndex,
   disableOptions = false,
 }) {
-  const rgbColor = toRgb(colormapOn, theme, color);
+  const rgbColor = toRgbUIString(colormapOn, color, theme);
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
   *  index of the image along that particular dimension.
