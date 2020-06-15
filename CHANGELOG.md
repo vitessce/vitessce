@@ -10,11 +10,7 @@
 ### Changed
 - Updated the selection coloring for the `Scatterplot` and `Spatial` layers to take the theme background color into account.
 - Switched to a black background color for `Spatial` regardless of theme.
-
-### Changed
 - Pass the `height` prop to `VitessceGrid` so that the `WidthProvider` component can detect `height` changes.
-
-## Changed
 - Updated slider color for white slider with white theme.
 
 ## [0.1.4](https://www.npmjs.com/package/vitessce/v/0.1.4) - 2020-06-01
