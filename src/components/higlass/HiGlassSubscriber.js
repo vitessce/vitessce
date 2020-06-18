@@ -1,7 +1,9 @@
+/* eslint-disable */
 import React, {
   useMemo, useEffect, useCallback, Suspense,
 } from 'react';
 import TitleInfo from '../TitleInfo';
+import { useGridItemSize } from '../utils';
 
 const HiGlassComponent = React.lazy(() => import('./HiGlass'));
 
@@ -28,6 +30,7 @@ export default function HiGlassSubscriber(props) {
     },
     removeGridComponent,
     onReady,
+    theme,
   } = props;
 
   const onReadyCallback = useCallback(onReady, []);
@@ -42,19 +45,19 @@ export default function HiGlassSubscriber(props) {
       viewConfig={hgViewConfig}
       options={{
         ...hgOptions,
-        theme: 'dark',
+        theme,
       }}
     />
-  ), [hgViewConfig, hgOptions]);
+  ), [hgViewConfig, hgOptions, theme]);
 
   return (
-    <div className="v-higlass-title-wrapper">
+    <div className="higlass-title-wrapper">
       <TitleInfo
         title="HiGlass"
         removeGridComponent={removeGridComponent}
       >
-        <div className="v-higlass-wrapper-parent">
-          <div className="v-higlass-wrapper">
+        <div className="higlass-wrapper-parent">
+          <div className="higlass-wrapper">
             <Suspense fallback={<div>Loading...</div>}>
               {hgComponent}
             </Suspense>
