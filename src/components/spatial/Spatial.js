@@ -198,6 +198,7 @@ export default function Spatial(props) {
 
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
     id: CELLS_LAYER_ID,
+    backgroundColor: [0, 0, 0],
     isSelected: getCellIsSelected,
     stroked: false,
     getPolygon: getCellPolygon,

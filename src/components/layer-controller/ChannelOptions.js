@@ -41,7 +41,7 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
       >
         <MoreVertIcon fontSize="small" />
       </IconButton>
-      <Popper open={open} anchorEl={anchorRef.current} placement="bottom-end">
+      <Popper className={classes.popper} open={open} anchorEl={anchorRef.current} placement="bottom-end" disablePortal>
         <Paper className={classes.paper}>
           <ClickAwayListener onClickAway={toggle}>
             <MenuList id="channel-options">

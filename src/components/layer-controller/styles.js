@@ -28,9 +28,9 @@ export const controllerTheme = {
   }),
 };
 
-export const useOptionStyles = makeStyles(() => ({
+export const useOptionStyles = makeStyles(theme => ({
   paper: {
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    backgroundColor: theme.palette.background.paper,
   },
   span: {
     width: '70px',
@@ -44,6 +44,9 @@ export const useOptionStyles = makeStyles(() => ({
     },
     paddingLeft: '2px',
     paddingRight: '2px',
+  },
+  popper: {
+    zIndex: 4,
   },
 }));
 

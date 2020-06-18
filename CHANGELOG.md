@@ -1,10 +1,17 @@
 # Changelog
 
-## 0.1.5 - in progress
+## 0.1.5
 
 ### Added
 - Initial slider/selection values and light theme for channel controller.
 - Added a `VegaPlot` component, a Vega-Lite implementation of a cell set size bar plot, and a `useGridItemSize` hook to enable responsive charts.
+- Compute the `cellRadiusScale` prop of `Scatterplot` relative to the extent of the `cells` mapping coordinates.
+
+### Changed
+- Updated the selection coloring for the `Scatterplot` and `Spatial` layers to take the theme background color into account.
+- Switched to a black background color for `Spatial` regardless of theme.
+- Pass the `height` prop to `VitessceGrid` so that the `WidthProvider` component can detect `height` changes.
+- Updated slider color for white slider with white theme.
 
 ### Changed
 - Use camelCase for cell sets files/variables (`cell_sets` becomes `cellSets`).

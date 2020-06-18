@@ -1,12 +1,13 @@
 import React from 'react';
-import { SCROLL_CARD, BLACK_CARD } from './classNames';
+import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
 import ClosePaneButton from './ClosePaneButton';
 
 export default function TitleInfo(props) {
   const {
-    title, info, children, isScroll, removeGridComponent,
+    title, info, children, isScroll, isSpatial, removeGridComponent,
   } = props;
-  const childClassName = isScroll ? SCROLL_CARD : BLACK_CARD;
+  // eslint-disable-next-line no-nested-ternary
+  const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>

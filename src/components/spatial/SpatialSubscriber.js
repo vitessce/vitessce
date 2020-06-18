@@ -108,6 +108,7 @@ export default function SpatialSubscriber({
       info={
         `${cellsCount} cells, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
       }
+      isSpatial
       removeGridComponent={removeGridComponent}
     >
       {children}

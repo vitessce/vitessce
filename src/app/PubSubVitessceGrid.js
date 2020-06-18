@@ -99,6 +99,7 @@ export default function PubSubVitessceGrid(props) {
       { allReady && <SourcePublisher layers={config.layers} /> }
       <VitessceGrid
         layout={config.staticLayout}
+        height={height}
         rowHeight={rowHeight}
         theme={theme}
         getComponent={getComponent}
