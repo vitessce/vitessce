@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.1.5
+## 0.1.6
+
+### Changed
+- Use kebab-case for cell sets files (`cell_sets` becomes `cell-sets`).
+
+## [0.1.5](https://www.npmjs.com/package/vitessce/v/0.1.5) - 2020-06-15
 
 ### Added
 - Initial slider/selection values and light theme for channel controller.

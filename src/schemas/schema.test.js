@@ -13,7 +13,7 @@ describe('schemas', () => {
     'molecules',
     'neighborhoods',
     'dataset',
-    'cell_sets',
+    'cell-sets',
     'raster',
   ].forEach((type) => {
     const schemaFile = `${type}.schema.json`;
