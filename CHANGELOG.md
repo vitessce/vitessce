@@ -2,8 +2,12 @@
 
 ## 0.1.6
 
+### Added
+- Added a demo for the 10x Genomics `sc-atac-10x-pbmc` dataset, with a HiGlass component linked to the cell sets component.
+
 ### Changed
-- Change one of the initial colors from red to magenta. 
+- Change one of the initial colors from red to magenta.
+- Use kebab-case for cell sets files (`cell_sets` becomes `cell-sets`).
 - Upgraded HiGlass to v1.9.5 and scoped the HiGlass external CSS under the `vitessce-container` class using SCSS nesting.
 
 ## [0.1.5](https://www.npmjs.com/package/vitessce/v/0.1.5) - 2020-06-15
