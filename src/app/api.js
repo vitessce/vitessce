@@ -8,14 +8,14 @@ export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.27/master_r
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
     name,
-    type: name.toUpperCase(),
+    type: name,
     url: `${urlPrefix}/${datasetPrefix}/${datasetPrefix}.${name}.json`,
   });
 }
 
 const linnarssonLayerNames = [
   'cells',
-  'cellSets',
+  'cell-sets',
   'clusters',
   'genes',
   'raster',
@@ -39,7 +39,7 @@ const driesBase = {
   description: driesDescription,
   layers: [
     'cells',
-    'cellSets',
+    'cell-sets',
   ].map(makeLayerNameToConfig('dries')),
 };
 
