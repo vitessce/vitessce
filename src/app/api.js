@@ -8,7 +8,7 @@ export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.27/master_r
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
     name,
-    type: name,
+    type: name.toUpperCase(),
     url: `${urlPrefix}/${datasetPrefix}/${datasetPrefix}.${name}.json`,
   });
 }

@@ -4,7 +4,6 @@
 
 ### Changed
 - Use kebab-case for cell sets files (`cell_sets` becomes `cell-sets`).
-- In view configs do not capitalize the `.layers[].type` value.
 
 ## [0.1.5](https://www.npmjs.com/package/vitessce/v/0.1.5) - 2020-06-15
 
