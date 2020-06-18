@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.1.5
+## 0.1.6
+
+### Changed
+- Use kebab-case for cell sets files (`cell_sets` becomes `cell-sets`).
+- In view configs do not capitalize the `.layers[].type` value.
+
+## [0.1.5](https://www.npmjs.com/package/vitessce/v/0.1.5) - 2020-06-15
 
 ### Added
 - Initial slider/selection values and light theme for channel controller.
@@ -12,9 +18,6 @@
 - Switched to a black background color for `Spatial` regardless of theme.
 - Pass the `height` prop to `VitessceGrid` so that the `WidthProvider` component can detect `height` changes.
 - Updated slider color for white slider with white theme.
-
-### Changed
-- Use camelCase for cell sets files/variables (`cell_sets` becomes `cellSets`).
 
 ## [0.1.4](https://www.npmjs.com/package/vitessce/v/0.1.4) - 2020-06-01
 
