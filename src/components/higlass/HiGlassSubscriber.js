@@ -1,9 +1,7 @@
-/* eslint-disable */
 import React, {
   useMemo, useEffect, useCallback, Suspense,
 } from 'react';
 import TitleInfo from '../TitleInfo';
-import { useGridItemSize } from '../utils';
 
 const HiGlassComponent = React.lazy(() => import('./HiGlass'));
 
