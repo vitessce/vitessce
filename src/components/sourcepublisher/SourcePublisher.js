@@ -15,7 +15,7 @@ import genesSchema from '../../schemas/genes.schema.json';
 import moleculesSchema from '../../schemas/molecules.schema.json';
 import neighborhoodsSchema from '../../schemas/neighborhoods.schema.json';
 import rasterSchema from '../../schemas/raster.schema.json';
-import cellSetsSchema from '../../schemas/cell_sets.schema.json';
+import cellSetsSchema from '../../schemas/cell-sets.schema.json';
 
 const typeToSchema = {
   CELLS: cellsSchema,
@@ -25,7 +25,7 @@ const typeToSchema = {
   MOLECULES: moleculesSchema,
   NEIGHBORHOODS: neighborhoodsSchema,
   RASTER: rasterSchema,
-  CELL_SETS: cellSetsSchema,
+  'CELL-SETS': cellSetsSchema,
 };
 
 const typeToEvent = {
@@ -36,7 +36,7 @@ const typeToEvent = {
   MOLECULES: MOLECULES_ADD,
   NEIGHBORHOODS: NEIGHBORHOODS_ADD,
   RASTER: RASTER_ADD,
-  CELL_SETS: CELL_SETS_ADD,
+  'CELL-SETS': CELL_SETS_ADD,
 };
 
 function warn(message) {
