@@ -18,15 +18,13 @@
                     "server": "//higlass.io/api/v1",
                     "uid": "horizontal-gene-annotations-track",
                     "options": {
-                        "labelBackgroundColor": "#eeeeee",
                         "labelTextOpacity": 0,
                         "showMousePosition": true,
-                        "mousePositionColor": "#000000",
-                        "plusStrandColor": "black",
-                        "minusStrandColor": "black",
+                        "mousePositionColor": "gray",
+                        "plusStrandColor": "gray",
+                        "minusStrandColor": "gray",
                         "labelPosition": "hidden",
-                        "trackBorderWidth": 0,
-                        "trackBorderColor": "black"
+                        "trackBorderWidth": 0
                     }
                 },
                 {
@@ -351,11 +349,8 @@
                 }
             ],
             "left": [],
-            "center": [{
-                "uid": "c1",
-                "type": "combined",
-                "height": 700,
-                "contents": [{
+            "center": [
+                {
                     "server": "//higlass.io/api/v1",
                     "tilesetUid": "CQMd6V_cRw6iCI_-Unl3PQ",
                     "type": "heatmap",
@@ -364,7 +359,7 @@
                         "maxZoom": null,
                         "labelPosition": "bottomRight",
                         "name": "Rao et al. (2014) GM12878 MboI (allreps) 1kb",
-                        "backgroundColor": "#eeeeee",
+                        "backgroundColor": "transparent",
                         "labelLeftMargin": 0,
                         "labelRightMargin": 0,
                         "labelTopMargin": 0,
@@ -389,14 +384,9 @@
                         "scaleStartPercent": "0.00000",
                         "scaleEndPercent": "1.00000"
                     },
-                    "uid": "GjuZed1ySGW1IzZZqFB9BA",
-                    "transforms": [{
-                        "name": "ICE",
-                        "value": "weight"
-                    }]
-                }],
-                "options": {}
-            }],
+                    "uid": "GjuZed1ySGW1IzZZqFB9BA"
+                }
+            ],
             "bottom": [],
             "right": [],
             "whole": [],

@@ -2,6 +2,9 @@ import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
 
+import justHiglassHgViewConfig from './demo-view-configs-external/higlass/just-higlass.json';
+import scAtac10xPbmcHgViewConfig from './demo-view-configs-external/higlass/sc-atac-10x-pbmc.json';
+
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.28/master_release';
 
@@ -418,210 +421,7 @@ const configs = {
       {
         component: 'higlass',
         props: {
-          hgViewConfig: {
-            editable: false,
-            zoomFixed: false,
-            trackSourceServers: [
-              '//higlass.io/api/v1',
-              'https://resgen.io/api/v1/gt/paper-data',
-            ],
-            exportViewUrl: '/api/v1/viewconfs',
-            views: [
-              {
-                uid: 'aa',
-                initialXDomain: [
-                  0,
-                  3100000000,
-                ],
-                autocompleteSource: '/api/v1/suggest/?d=OHJakQICQD6gTD7skx4EWA&',
-                genomePositionSearchBox: {
-                  autocompleteServer: '//higlass.io/api/v1',
-                  autocompleteId: 'OHJakQICQD6gTD7skx4EWA',
-                  chromInfoServer: '//higlass.io/api/v1',
-                  chromInfoId: 'hg19',
-                  visible: true,
-                },
-                chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
-                tracks: {
-                  top: [
-                    {
-                      type: 'horizontal-gene-annotations',
-                      height: 60,
-                      tilesetUid: 'OHJakQICQD6gTD7skx4EWA',
-                      server: '//higlass.io/api/v1',
-                      uid: 'OHJakQICQD6gTD7skx4EWA',
-                      options: {
-                        name: 'Gene Annotations (hg19)',
-                        fontSize: 10,
-                        labelPosition: 'hidden',
-                        labelLeftMargin: 0,
-                        labelRightMargin: 0,
-                        labelTopMargin: 0,
-                        labelBottomMargin: 0,
-                        minHeight: 24,
-                        geneAnnotationHeight: 16,
-                        geneLabelPosition: 'outside',
-                        geneStrandSpacing: 4,
-                        showMousePosition: true,
-                        mousePositionColor: '#ff00ff',
-                        plusStrandColor: '#fdff54',
-                        minusStrandColor: '#68bf30',
-                        labelColor: 'black',
-                        trackBorderWidth: 0,
-                        trackBorderColor: 'black',
-                      },
-                    },
-                    {
-                      chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
-                      type: 'horizontal-chromosome-labels',
-                      height: 30,
-                      uid: 'X4e_1DKiQHmyghDa6lLMVA',
-                      options: {
-                        color: '#808080',
-                        stroke: 'black',
-                        fontSize: 12,
-                        fontIsLeftAligned: false,
-                        showMousePosition: true,
-                        mousePositionColor: '#ff00ff',
-                      },
-                    },
-                  ],
-                  left: [
-                    {
-                      type: 'vertical-gene-annotations',
-                      width: 60,
-                      tilesetUid: 'OHJakQICQD6gTD7skx4EWA',
-                      server: '//higlass.io/api/v1',
-                      options: {
-                        labelPosition: 'bottomRight',
-                        name: 'Gene Annotations (hg19)',
-                        fontSize: 10,
-                        labelLeftMargin: 0,
-                        labelRightMargin: 0,
-                        labelTopMargin: 0,
-                        labelBottomMargin: 0,
-                        minWidth: 24,
-                        geneAnnotationHeight: 16,
-                        geneLabelPosition: 'outside',
-                        geneStrandSpacing: 4,
-                        showMousePosition: true,
-                        mousePositionColor: '#ff00ff',
-                        plusStrandColor: '#fdff54',
-                        minusStrandColor: '#68bf30',
-                        labelColor: 'black',
-                        trackBorderWidth: 0,
-                        trackBorderColor: 'black',
-                      },
-                      uid: 'dqBTMH78Rn6DeSyDBoAEXw',
-                    },
-                    {
-                      chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
-                      type: 'vertical-chromosome-labels',
-                      width: 30,
-                      uid: 'RHdQK4IRQ7yJeDmKWb7Pcg',
-                      options: {
-                        color: '#777777',
-                        stroke: 'black',
-                        fontSize: 12,
-                        fontIsLeftAligned: false,
-                        minWidth: 35,
-                        showMousePosition: true,
-                        mousePositionColor: '#ff00ff',
-                      },
-                    },
-                  ],
-                  center: [
-                    {
-                      uid: 'c1',
-                      type: 'combined',
-                      height: 600,
-                      contents: [
-                        {
-                          server: '//higlass.io/api/v1',
-                          tilesetUid: 'CQMd6V_cRw6iCI_-Unl3PQ',
-                          type: 'heatmap',
-                          options: {
-                            maxZoom: null,
-                            labelPosition: 'bottomRight',
-                            name: 'Rao et al. (2014) GM12878 MboI (allreps) 1kb',
-                            backgroundColor: 'black',
-                            labelLeftMargin: 0,
-                            labelRightMargin: 0,
-                            labelTopMargin: 0,
-                            labelBottomMargin: 0,
-                            labelShowResolution: true,
-                            labelShowAssembly: true,
-                            labelColor: '#ffffff',
-                            labelTextOpacity: 0.5,
-                            labelBackgroundColor: 'black',
-                            labelBackgroundOpacity: 0.01,
-                            colorRange: [
-                              '#000000',
-                              '#222e54',
-                              '#448db2',
-                              '#68bf30',
-                              '#fdff54',
-                              '#FFFFFF',
-                            ],
-                            colorbarBackgroundColor: 'black',
-                            colorbarBackgroundOpacity: 0.01,
-                            colorbarPosition: 'topRight',
-                            trackBorderWidth: 0,
-                            trackBorderColor: 'black',
-                            heatmapValueScaling: 'log',
-                            showMousePosition: true,
-                            mousePositionColor: '#ff00ff',
-                            showTooltip: false,
-                            extent: 'full',
-                            zeroValueColor: null,
-                            scaleStartPercent: '0.00000',
-                            scaleEndPercent: '1.00000',
-                          },
-                          height: 500,
-                          uid: 'GjuZed1ySGW1IzZZqFB9BA',
-                          transforms: [
-                            {
-                              name: 'ICE',
-                              value: 'weight',
-                            },
-                          ],
-                        },
-                      ],
-                      options: {},
-                    },
-                  ],
-                  right: [],
-                  bottom: [],
-                  whole: [],
-                  gallery: [],
-                },
-                layout: {
-                  w: 12,
-                  h: 12,
-                  x: 0,
-                  y: 0,
-                  moved: false,
-                  static: false,
-                },
-                initialYDomain: [
-                  496325459.31758535,
-                  2603674540.682415,
-                ],
-              },
-            ],
-            zoomLocks: {
-              locksByViewUid: {},
-              locksDict: {},
-            },
-            locationLocks: {
-              locksByViewUid: {},
-              locksDict: {},
-            },
-            valueScaleLocks: {
-              locksByViewUid: {},
-              locksDict: {},
-            },
-          },
+          hgViewConfig: justHiglassHgViewConfig,
         },
         x: 0, y: 0, w: 8, h: 2,
       },
@@ -630,6 +430,56 @@ const configs = {
           description: 'IMR90 cells profiled using dilution HiC as described in Rao et al (2014).',
         },
         x: 8, y: 0, w: 4, h: 2 },
+    ],
+  },
+  'sc-atac-10x-pbmc': {
+    public: false,
+    layers: [
+      {
+        name: 'cells',
+        type: 'CELLS',
+        url: 'https://keller-mark.github.io/vitessce-demo-hosting-temporary/sc-atac-seq-10x-genomics/sc-atac-seq-10x-genomics.cells.json',
+      },
+      {
+        name: 'cell-sets',
+        type: 'CELL-SETS',
+        url: 'https://keller-mark.github.io/vitessce-demo-hosting-temporary/sc-atac-seq-10x-genomics/sc-atac-seq-10x-genomics.cell-sets.json',
+      },
+    ],
+    name: '10x Genomics scATAC-seq of 5k PBMCs',
+    staticLayout: [
+      { component: 'scatterplot',
+        props: {
+          mapping: 't-SNE',
+          view: {
+            zoom: 2.5,
+            target: [0, 0, 0],
+          },
+        },
+        x: 2, y: 0, w: 4, h: 4 },
+      { component: 'scatterplot',
+        props: {
+          mapping: 't-SNE from LSA',
+          view: {
+            zoom: 1.8,
+            target: [0, 0, 0],
+          },
+        },
+        x: 2, y: 4, w: 4, h: 4 },
+      { component: 'description',
+        props: {
+          description: '10x Genomics scATAC-seq of 5k PBMCs. Note: This is for demonstration purposes only. The data shown here has not yet been processed by the vitessce-data pipeline and this URL may be unstable.',
+        },
+        x: 0, y: 0, w: 2, h: 2 },
+      { component: 'cellSets',
+        x: 0, y: 2, w: 2, h: 4 },
+      { component: 'status',
+        x: 0, y: 6, w: 2, h: 2 },
+      { component: 'higlass',
+        props: {
+          hgViewConfig: scAtac10xPbmcHgViewConfig,
+        },
+        x: 6, y: 0, w: 4, h: 8 },
     ],
   },
 };
