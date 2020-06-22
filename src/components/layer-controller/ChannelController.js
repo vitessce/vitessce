@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
@@ -53,7 +53,9 @@ function ChannelSelectionDropdown({
 function ChannelSlider({
   color, slider, handleChange, domain: [min, max],
 }) {
-  const handleChangeDebounced = debounce(handleChange, 3, { trailing: true });
+  const handleChangeDebounced = useCallback(
+    debounce(handleChange, 3, { trailing: true }), [handleChange],
+  );
   return (
     <Slider
       value={slider}
