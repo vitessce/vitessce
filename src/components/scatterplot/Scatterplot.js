@@ -26,6 +26,8 @@ const CELLS_LAYER_ID = 'scatterplot';
  * @prop {Set} selectedCellIds Set of selected cell IDs.
  * @prop {number} cellRadiusScale The value for `radiusScale` to pass
  * to the deck.gl ScatterplotLayer.
+ * @prop {number} cellOpacity The value for `opacity` to pass
+ * to the deck.gl ScatterplotLayer.
  * @prop {function} getCellCoords Getter function for cell coordinates
  * (used by the selection layer).
  * @prop {function} getCellPosition Getter function for cell [x, y, z] position.
@@ -51,6 +53,7 @@ export default function Scatterplot(props) {
     cellColors,
     selectedCellIds = new Set(),
     cellRadiusScale = 0.2,
+    cellOpacity = 1.0,
     getCellCoords = cell => cell.mappings[mapping],
     getCellPosition = (cellEntry) => {
       const { mappings } = cellEntry[1];
@@ -124,7 +127,7 @@ export default function Scatterplot(props) {
       id: CELLS_LAYER_ID,
       backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
       isSelected: getCellIsSelected,
-      // No radiusMin, so texture remains open even zooming out.
+      opacity: cellOpacity,
       radiusScale: cellRadiusScale,
       radiusMinPixels: 1.5,
       radiusMaxPixels: 10,

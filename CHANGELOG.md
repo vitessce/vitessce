@@ -2,6 +2,9 @@
 
 ## 0.1.6
 
+### Added
+- Added the `cellOpacity` prop for the `Scatterplot` and `Spatial` components, to pass a value to the `opacity` deck.gl `ScatterplotLayer` and `PolygonLayer` prop.
+
 ### Changed
 - Change one of the initial colors from red to magenta.
 - Use kebab-case for cell sets files (`cell_sets` becomes `cell-sets`).

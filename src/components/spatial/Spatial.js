@@ -35,6 +35,7 @@ export function square(x, y, r) {
  * @prop {object} neighborhoods
  * @prop {number} cellRadius
  * @prop {number} moleculeRadius
+ * @prop {number} cellOpacity
  * @prop {object} imageLayerProps
  * @prop {object} imageLayerLoaders
  * @prop {object} cellColors Object mapping cell IDs to colors.
@@ -66,6 +67,7 @@ export default function Spatial(props) {
     neighborhoods = {},
     cellRadius = 50,
     moleculeRadius = 10,
+    cellOpacity = 1.0,
     imageLayerProps = {},
     imageLayerLoaders = {},
     cellColors = {},
@@ -199,6 +201,7 @@ export default function Spatial(props) {
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
     id: CELLS_LAYER_ID,
     backgroundColor: [0, 0, 0],
+    opacity: cellOpacity,
     isSelected: getCellIsSelected,
     stroked: false,
     getPolygon: getCellPolygon,
@@ -214,7 +217,7 @@ export default function Spatial(props) {
     visible: layerIsVisible.cells,
     ...cellLayerDefaultProps(cellsDataRef.current, updateStatus, updateCellsHover, uuid),
   }), [layerIsVisible, updateStatus, updateCellsHover, uuid, onCellClick,
-    tool, getCellColor, getCellPolygon,
+    tool, getCellColor, getCellPolygon, cellOpacity,
     getCellIsSelected]);
 
   const moleculesLayer = useMemo(() => new ScatterplotLayer({
