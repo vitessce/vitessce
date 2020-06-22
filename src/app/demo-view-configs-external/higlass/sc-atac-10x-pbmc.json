@@ -2,7 +2,7 @@
     "editable": false,
     "zoomFixed": false,
     "trackSourceServers": [
-        "http://localhost:9000/api/v1"
+        "http://higlass.gehlenborglab.org/api/v1"
     ],
     "exportViewUrl": "/api/v1/viewconfs",
     "views": [{
@@ -38,7 +38,7 @@
                     }
                 },
                 {
-                    "server": "http://localhost:9000/api/v1",
+                    "server": "http://higlass.gehlenborglab.org/api/v1",
                     "tilesetUid": "pbmc_10x_peaks_1",
                     "uid": "pbmc_10x_peaks_1_track",
                     "type": "horizontal-bar",
@@ -69,7 +69,7 @@
                     "height": 45
                 },
                 {
-                    "server": "http://localhost:9000/api/v1",
+                    "server": "http://higlass.gehlenborglab.org/api/v1",
                     "tilesetUid": "pbmc_10x_peaks_2",
                     "uid": "pbmc_10x_peaks_2_track",
                     "type": "horizontal-bar",
@@ -100,7 +100,7 @@
                     "height": 45
                 },
                 {
-                    "server": "http://localhost:9000/api/v1",
+                    "server": "http://higlass.gehlenborglab.org/api/v1",
                     "tilesetUid": "pbmc_10x_peaks_3",
                     "uid": "pbmc_10x_peaks_3_track",
                     "type": "horizontal-bar",
@@ -131,7 +131,7 @@
                     "height": 45
                 },
                 {
-                    "server": "http://localhost:9000/api/v1",
+                    "server": "http://higlass.gehlenborglab.org/api/v1",
                     "tilesetUid": "pbmc_10x_peaks_4",
                     "uid": "pbmc_10x_peaks_4_track",
                     "type": "horizontal-bar",
@@ -162,7 +162,7 @@
                     "height": 45
                 },
                 {
-                    "server": "http://localhost:9000/api/v1",
+                    "server": "http://higlass.gehlenborglab.org/api/v1",
                     "tilesetUid": "pbmc_10x_peaks_5",
                     "uid": "pbmc_10x_peaks_5_track",
                     "type": "horizontal-bar",
@@ -193,7 +193,7 @@
                     "height": 45
                 },
                 {
-                    "server": "http://localhost:9000/api/v1",
+                    "server": "http://higlass.gehlenborglab.org/api/v1",
                     "tilesetUid": "pbmc_10x_peaks_6",
                     "uid": "pbmc_10x_peaks_6_track",
                     "type": "horizontal-bar",
@@ -224,7 +224,7 @@
                     "height": 45
                 },
                 {
-                    "server": "http://localhost:9000/api/v1",
+                    "server": "http://higlass.gehlenborglab.org/api/v1",
                     "tilesetUid": "pbmc_10x_peaks_7",
                     "uid": "pbmc_10x_peaks_7_track",
                     "type": "horizontal-bar",
@@ -255,7 +255,7 @@
                     "height": 45
                 },
                 {
-                    "server": "http://localhost:9000/api/v1",
+                    "server": "http://higlass.gehlenborglab.org/api/v1",
                     "tilesetUid": "pbmc_10x_peaks_8",
                     "uid": "pbmc_10x_peaks_8_track",
                     "type": "horizontal-bar",
@@ -286,7 +286,7 @@
                     "height": 45
                 },
                 {
-                    "server": "http://localhost:9000/api/v1",
+                    "server": "http://higlass.gehlenborglab.org/api/v1",
                     "tilesetUid": "pbmc_10x_peaks_9",
                     "uid": "pbmc_10x_peaks_9_track",
                     "type": "horizontal-bar",
@@ -317,7 +317,7 @@
                     "height": 45
                 },
                 {
-                    "server": "http://localhost:9000/api/v1",
+                    "server": "http://higlass.gehlenborglab.org/api/v1",
                     "tilesetUid": "pbmc_10x_peaks_10",
                     "uid": "pbmc_10x_peaks_10_track",
                     "type": "horizontal-bar",
