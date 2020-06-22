@@ -25,9 +25,9 @@ const CELLS_LAYER_ID = 'scatterplot';
  * @prop {object} cellColors Object mapping cell IDs to colors.
  * @prop {Set} selectedCellIds Set of selected cell IDs.
  * @prop {number} cellRadiusScale The value for `radiusScale` to pass
- * to the deck.gl ScatterplotLayer.
+ * to the deck.gl cells ScatterplotLayer.
  * @prop {number} cellOpacity The value for `opacity` to pass
- * to the deck.gl ScatterplotLayer.
+ * to the deck.gl cells ScatterplotLayer.
  * @prop {function} getCellCoords Getter function for cell coordinates
  * (used by the selection layer).
  * @prop {function} getCellPosition Getter function for cell [x, y, z] position.

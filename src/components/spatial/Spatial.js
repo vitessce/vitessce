@@ -35,7 +35,8 @@ export function square(x, y, r) {
  * @prop {object} neighborhoods
  * @prop {number} cellRadius
  * @prop {number} moleculeRadius
- * @prop {number} cellOpacity
+ * @prop {number} cellOpacity The value for `opacity` to pass
+ * to the deck.gl cells PolygonLayer.
  * @prop {object} imageLayerProps
  * @prop {object} imageLayerLoaders
  * @prop {object} cellColors Object mapping cell IDs to colors.
