@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.6
+## [0.1.6](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 
 ### Added
 - Added the `cellOpacity` prop for the `Scatterplot` and `Spatial` components, to pass a value to the `opacity` deck.gl `ScatterplotLayer` and `PolygonLayer` prop.
