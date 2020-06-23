@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 import Select from '@material-ui/core/Select';
+import debounce from 'lodash/debounce';
 
 import ChannelOptions from './ChannelOptions';
 
@@ -52,10 +53,13 @@ function ChannelSelectionDropdown({
 function ChannelSlider({
   color, slider, handleChange, domain: [min, max],
 }) {
+  const handleChangeDebounced = useCallback(
+    debounce(handleChange, 3, { trailing: true }), [handleChange],
+  );
   return (
     <Slider
       value={slider}
-      onChange={(e, v) => handleChange(v)}
+      onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
       getAriaLabel={() => `${color}-${slider}`}
       min={min}
