@@ -1,6 +1,17 @@
 # Changelog
 
-## 0.1.5
+## 0.1.6
+
+### Added
+- Added the `cellOpacity` prop for the `Scatterplot` and `Spatial` components, to pass a value to the `opacity` deck.gl `ScatterplotLayer` and `PolygonLayer` prop.
+
+### Changed
+- Change one of the initial colors from red to magenta.
+- Use kebab-case for cell sets files (`cell_sets` becomes `cell-sets`).
+- Upgraded HiGlass to v1.9.5 and scoped the HiGlass external CSS under the `vitessce-container` class using SCSS nesting.
+- Remove height css from color palette.
+
+## [0.1.5](https://www.npmjs.com/package/vitessce/v/0.1.5) - 2020-06-15
 
 ### Added
 - Initial slider/selection values and light theme for channel controller.
@@ -12,7 +23,6 @@
 - Switched to a black background color for `Spatial` regardless of theme.
 - Pass the `height` prop to `VitessceGrid` so that the `WidthProvider` component can detect `height` changes.
 - Updated slider color for white slider with white theme.
-- Change one of the initial colors from red to magenta. 
 
 ## [0.1.4](https://www.npmjs.com/package/vitessce/v/0.1.4) - 2020-06-01
 
