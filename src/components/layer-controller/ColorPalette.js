@@ -18,7 +18,6 @@ const useStyles = makeStyles(theme => ({
   button: {
     padding: '3px',
     width: '16px',
-    height: '16px',
   },
   icon: {
     width: '17px',
