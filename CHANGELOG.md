@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.7 - in progress
+
+## Added
+- Testing protocol calls for all three browsers now.
+
+## Changed
+
 ## [0.1.6](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 
 ### Added
