@@ -35,8 +35,11 @@ export default function HeatmapCellColorCanvas(props) {
   const imageRendering = getImageRendering();
   return (
     <canvas
-      className="pixelated"
-      style={{ height, imageRendering }}
+      className="pixelated heatmap"
+      style={{
+        height,
+        imageRendering,
+      }}
       ref={c => paintCanvas(c, props)}
       width={clusters.cols.length}
       height={1}

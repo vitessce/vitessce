@@ -1,0 +1,10 @@
+@mixin heatmap($theme-name, $theme-colors) {
+    .heatmap {
+      width: 100%;
+      left: 0;
+      right: 0;
+      position: absolute;
+      padding-right: inherit;
+      padding-left: inherit;
+    }
+}
