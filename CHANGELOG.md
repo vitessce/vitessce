@@ -5,7 +5,8 @@
 ## Added
 - Testing protocol calls for all three browsers now.
 
-## Changed
+### Changed
+- Fix Safari channel controller bug.
 
 ## [0.1.6](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 
