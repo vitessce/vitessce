@@ -56,18 +56,15 @@ export default function reducer(channels, action) {
       // property is something like "selection" or "slider."
       // value is the actual change, like { channel: 0 }.
       const { channelId, update } = payload;
-      let nextChannels = { ...channels };
+      const nextChannels = { ...channels };
       Object.entries(update).forEach(([property, value]) => {
-        nextChannels = {
-          ...nextChannels,
-          [channelId]: {
-            ...nextChannels[channelId],
-            [property]: getNewChannelProperty(
-              nextChannels[channelId],
-              property,
-              value,
-            ),
-          },
+        nextChannels[channelId] = {
+          ...nextChannels[channelId],
+          [property]: getNewChannelProperty(
+            nextChannels[channelId],
+            property,
+            value,
+          ),
         };
       });
       // Update channel selection for new state.
