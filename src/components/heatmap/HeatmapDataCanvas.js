@@ -40,7 +40,6 @@ export default function HeatmapDataCanvas(props) {
       className="heatmap"
       style={{
         top: '30%',
-        'padding-bottom': 'inherit',
         height,
         imageRendering,
       }}

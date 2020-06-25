@@ -10,4 +10,12 @@ The absolute positioning gives us the control we need to force the canvas elemen
       padding-right: inherit;
       padding-left: inherit;
     }
+
+    .heatmap-container {
+        position: absolute;
+        top: 1.25rem; // Corresponds to the padding on .vitessce-container .card-body
+        left: 1.25rem; // Corresponds to the padding on .vitessce-container .card-body
+        width: calc(100% - 2.5rem);
+        height: calc(100% - 2.5rem);
+    }
 }
