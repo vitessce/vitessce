@@ -37,7 +37,13 @@ export default function HeatmapDataCanvas(props) {
   const imageRendering = getImageRendering();
   return (
     <canvas
-      style={{ height, imageRendering }}
+      className="heatmap"
+      style={{
+        top: '30%',
+        'padding-bottom': 'inherit',
+        height,
+        imageRendering,
+      }}
       ref={c => paintCanvas(c, props)}
       width={clusters.cols.length}
       height={clusters.rows.length}
