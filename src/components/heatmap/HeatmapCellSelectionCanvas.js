@@ -37,6 +37,7 @@ export default function HeatmapCellSelectionCanvas(props) {
       className="heatmap"
       style={{
         top: '15%',
+        'padding-top': 'inherit',
         height,
         imageRendering,
       }}
