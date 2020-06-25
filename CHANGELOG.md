@@ -8,6 +8,7 @@
 ### Changed
 - Fix Safari channel controller bug.
 - Fix Safari heatmap display bug.
+- Heatmap color canvas has precedence over selection canvas when resizing.
 
 ## [0.1.6](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 
