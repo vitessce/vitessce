@@ -2,7 +2,8 @@
 
 ## 0.1.7 - in progress
 
-### Added
+## Added
+- Testing protocol calls for all three browsers now.
 
 ### Changed
 - Fix Safari channel controller bug.
