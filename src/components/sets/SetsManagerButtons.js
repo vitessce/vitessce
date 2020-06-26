@@ -1,9 +1,13 @@
 import React, { useCallback } from 'react';
 import PopoverMenu from './PopoverMenu';
 import {
-  handleImportJSON, MIME_TYPE_JSON,
-  handleImportTabular, MIME_TYPE_TABULAR,
+  handleImportJSON,
+  handleImportTabular,
 } from './io';
+import {
+  MIME_TYPE_JSON,
+  MIME_TYPE_TABULAR,
+} from './constants';
 
 import { ReactComponent as SetViewSVG } from '../../assets/sets/eye.svg';
 import { ReactComponent as SetUnionSVG } from '../../assets/sets/union.svg';

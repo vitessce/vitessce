@@ -14,13 +14,21 @@
             "items": {
                 "type": "array",
                 "additionalItems": false,
-                "items": [{
+                "items": [
+                    {
                         "type": "string"
                     },
                     {
-                        "type": "number",
-                        "minimum": 0.0,
-                        "maximum": 1.0
+                        "oneOf": [
+                            {
+                                "type": "number",
+                                "minimum": 0.0,
+                                "maximum": 1.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 ]
             }
@@ -35,26 +43,7 @@
             "minItems": 3,
             "maxItems": 3
         },
-        "treeStaticLevelOnePlusNonLeaf": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "color": {
-                        "$ref": "#/definitions/colorArray"
-                    },
-                    "children": {
-                        "$ref": "#/definitions/treeStaticLevelOnePlus"
-                    }
-                }
-            }
-        },
-        "treeStaticLevelOnePlusLeaf": {
+        "treeLevelOnePlusLeaf": {
             "type": "array",
             "items": {
                 "type": "object",
@@ -73,32 +62,7 @@
                 }
             }
         },
-        "treeStaticLevelOnePlus": {
-            "oneOf": [{
-                    "$ref": "#/definitions/treeStaticLevelOnePlusNonLeaf"
-                },
-                {
-                    "$ref": "#/definitions/treeStaticLevelOnePlusLeaf"
-                }
-            ]
-        },
-        "treeStaticLevelZero": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "children": {
-                        "$ref": "#/definitions/treeStaticLevelOnePlus"
-                    }
-                }
-            }
-        },
-        "treeProbabilisticLevelOnePlusNonLeaf": {
+        "treeLevelOnePlusNonLeaf": {
             "type": "array",
             "items": {
                 "type": "object",
@@ -112,40 +76,21 @@
                         "$ref": "#/definitions/colorArray"
                     },
                     "children": {
-                        "$ref": "#/definitions/treeProbabilisticLevelOnePlus"
+                        "$ref": "#/definitions/treeLevelOnePlus"
                     }
                 }
             }
         },
-        "treeProbabilisticLevelOnePlusLeaf": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "color": {
-                        "$ref": "#/definitions/colorArray"
-                    },
-                    "set": {
-                        "$ref": "#/definitions/stringProbabilityTupleArray"
-                    }
-                }
-            }
-        },
-        "treeProbabilisticLevelOnePlus": {
+        "treeLevelOnePlus": {
             "oneOf": [{
-                    "$ref": "#/definitions/treeProbabilisticLevelOnePlusNonLeaf"
+                    "$ref": "#/definitions/treeLevelOnePlusNonLeaf"
                 },
                 {
-                    "$ref": "#/definitions/treeProbabilisticLevelOnePlusLeaf"
+                    "$ref": "#/definitions/treeLevelOnePlusLeaf"
                 }
             ]
         },
-        "treeProbabilisticLevelZero": {
+        "treeLevelZero": {
             "type": "array",
             "items": {
                 "type": "object",
@@ -156,7 +101,7 @@
                         "type": "string"
                     },
                     "children": {
-                        "$ref": "#/definitions/treeProbabilisticLevelOnePlus"
+                        "$ref": "#/definitions/treeLevelOnePlus"
                     }
                 }
             }
@@ -178,62 +123,93 @@
                     "enum": ["cell"]
                 },
                 "tree": {
-                    "$ref": "#/definitions/treeStaticLevelZero"
+                    "$ref": "#/definitions/treeLevelZero"
+                }
+            }
+        },
+        "treeLevelOnePlusLeafProbabilistic": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "$ref": "#/definitions/colorArray"
+                    },
+                    "set": {
+                        "$ref": "#/definitions/stringProbabilityTupleArray"
+                    }
+                }
+            }
+        },
+        "treeLevelOnePlusNonLeafProbabilistic": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "$ref": "#/definitions/colorArray"
+                    },
+                    "children": {
+                        "$ref": "#/definitions/treeLevelOnePlusProbabilistic"
+                    }
+                }
+            }
+        },
+        "treeLevelOnePlusProbabilistic": {
+            "oneOf": [{
+                    "$ref": "#/definitions/treeLevelOnePlusNonLeafProbabilistic"
+                },
+                {
+                    "$ref": "#/definitions/treeLevelOnePlusLeafProbabilistic"
+                }
+            ]
+        },
+        "treeLevelZeroProbabilistic": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "children": {
+                        "$ref": "#/definitions/treeLevelOnePlusProbabilistic"
+                    }
                 }
             }
         },
         "version0.1.3": {
-            "oneOf": [{
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": ["version", "datatype", "itemtype", "tree"],
-                    "properties": {
-                        "dataset": {
-                            "type": "string"
-                        },
-                        "version": {
-                            "type": "string",
-                            "enum": ["0.1.3"]
-                        },
-                        "datatype": {
-                            "type": "string",
-                            "enum": ["cell"]
-                        },
-                        "itemtype": {
-                            "type": "string",
-                            "enum": ["static"]
-                        },
-                        "tree": {
-                            "$ref": "#/definitions/treeStaticLevelZero"
-                        }
-                    }
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["version", "datatype", "tree"],
+            "properties": {
+                "dataset": {
+                    "type": "string"
                 },
-                {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": ["version", "datatype", "itemtype", "tree"],
-                    "properties": {
-                        "dataset": {
-                            "type": "string"
-                        },
-                        "version": {
-                            "type": "string",
-                            "enum": ["0.1.3"]
-                        },
-                        "datatype": {
-                            "type": "string",
-                            "enum": ["cell"]
-                        },
-                        "itemtype": {
-                            "type": "string",
-                            "enum": ["probabilistic"]
-                        },
-                        "tree": {
-                            "$ref": "#/definitions/treeProbabilisticLevelZero"
-                        }
-                    }
+                "version": {
+                    "type": "string",
+                    "enum": ["0.1.3"]
+                },
+                "datatype": {
+                    "type": "string",
+                    "enum": ["cell"]
+                },
+                "tree": {
+                    "$ref": "#/definitions/treeLevelZeroProbabilistic"
                 }
-            ]
+            }
         }
     },
     "oneOf": [

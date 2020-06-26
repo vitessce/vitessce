@@ -20,7 +20,18 @@
             "set_name": { "type": "string" },
             "set_color": { "$ref": "#/definitions/colorArray" },
             "cell_id": { "type": "string" },
-            "prediction_score": { "type": "number" }
+            "prediction_score": {
+                "oneOf": [
+                    {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
         }
     }
 }

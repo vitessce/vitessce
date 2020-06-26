@@ -4,7 +4,9 @@ import some from 'lodash/some';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
-import { HIERARCHICAL_SCHEMAS } from './io';
+import {
+  HIERARCHICAL_SCHEMAS,
+} from './constants';
 
 // Constants.
 const CURRENT_SELECTION_NAME = 'Current selection';
@@ -506,7 +508,7 @@ function treeNodeRemove(currTree, targetKey, temporary = false) {
  * a transformed version of the node.
  * @returns {object} The updated node.
  */
-function nodeTransform(node, predicate, transform) {
+export function nodeTransform(node, predicate, transform) {
   if (predicate(node)) {
     return transform(node);
   }
@@ -571,9 +573,11 @@ function nodeTransformChildOrAppendChild(node,
  * @param {array} cellIds The new set value.
  * @param {string} name The name for the .isCurrent node. Optional.
  * By default, 'Current selection'.
+ * @param {boolean} hasProb Are the `cellIds` a list of string,
+ * or a list of [cellId, probability] tuples?
  * @returns {object} The updated tree.
  */
-function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME) {
+function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME, hasProb = false) {
   let newTree = currTree;
   let toolsNode = newTree.tree.find(nodeFindIsForToolsNode);
   if (!toolsNode) {
@@ -590,14 +594,19 @@ function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME) {
   const numToolsNodeChildren = toolsNode.children.length;
   const nextCurrentSetColor = PALETTE[numToolsNodeChildren % PALETTE.length];
 
+  const cellIdsWithProb = (hasProb ? cellIds : cellIds.map(cellId => ([cellId, null])));
+
   newTree = {
     ...newTree,
     tree: newTree.tree.map(levelZeroNode => nodeTransformChildOrAppendChild(
       levelZeroNode,
       node => (node._state.isForTools && node._state.level === 0),
       node => (node._state.isCurrent && node._state.level === 1),
-      node => nodeSetName(nodeSetSet(node, cellIds), name),
-      nodeWithState({ name, set: cellIds, color: nextCurrentSetColor }, 1, { isCurrent: true }),
+      node => nodeSetName(nodeSetSet(node, cellIdsWithProb), name),
+      nodeWithState(
+        { name, set: cellIdsWithProb, color: nextCurrentSetColor },
+        1, { isCurrent: true },
+      ),
     )),
   };
 
@@ -729,7 +738,7 @@ function treeOnCheckLevel(currTree, levelZeroKey, levelIndex) {
 function treeToUnion(currTree) {
   const { checkedKeys } = currTree._state;
   const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
-  const nodeSets = nodes.map(node => nodeToSet(node));
+  const nodeSets = nodes.map(node => nodeToSet(node).map(([cellId]) => cellId));
   return nodeSets
     .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0] || []);
 }
@@ -742,7 +751,7 @@ function treeToUnion(currTree) {
 function treeToIntersection(currTree) {
   const { checkedKeys } = currTree._state;
   const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
-  const nodeSets = nodes.map(node => nodeToSet(node));
+  const nodeSets = nodes.map(node => nodeToSet(node).map(([cellId]) => cellId));
   return nodeSets
     .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0] || []);
 }
@@ -1314,7 +1323,7 @@ export function treeExportSet(currTree, nodeKey) {
 export function treeInitialize(datatype) {
   const treeKey = generateKey();
   return {
-    version: HIERARCHICAL_SCHEMAS[datatype].version,
+    version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
     datatype,
     tree: [],
     _state: {
@@ -1370,7 +1379,7 @@ export function treeToVisibleCells(currTree) {
       const nodeSet = nodeToSet(node);
       cellColorsArray = [
         ...cellColorsArray,
-        ...nodeSet.map(cellId => [cellId, node.color]),
+        ...nodeSet.map(cellId => [cellId[0], node.color]),
       ];
     }
   });
