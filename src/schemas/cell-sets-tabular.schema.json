@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/hubmapconsortium/vitessce/#cell-sets-tabular",
+    "title": "Vitessce cell sets data, tabular format",
+    "definitions": {
+        "colorArray": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 0, "maximum": 255 },
+            "minItems": 3,
+            "maxItems": 3
+        }
+    },
+    "type": "array",
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["group_name", "set_name", "cell_id"],
+        "properties": {
+            "group_name": { "type": "string" },
+            "set_name": { "type": "string" },
+            "set_color": { "$ref": "#/definitions/colorArray" },
+            "cell_id": { "type": "string" }
+        }
+    }
+}
+    
+  

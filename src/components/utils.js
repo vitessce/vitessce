@@ -1,5 +1,9 @@
+import { useRef, useState, useEffect } from 'react';
+import PubSub from 'pubsub-js';
+import debounce from 'lodash/debounce';
 import { COORDINATE_SYSTEM } from 'deck.gl';
 import { interpolatePlasma } from 'd3-scale-chromatic';
+import { GRID_RESIZE } from '../events';
 
 export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
@@ -38,31 +42,28 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
 
 export const DEFAULT_COLOR = [128, 128, 128];
 
-// From http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12#type=qualitative&scheme=Paired&n=12
+// From https://personal.sron.nl/~pault/#sec:qualitative
 export const PALETTE = [
-  [166, 206, 227],
-  [31, 120, 180],
-  [178, 223, 138],
-  [51, 160, 44],
-  [251, 154, 153],
-  [227, 26, 28],
-  [253, 191, 111],
-  [255, 127, 0],
-  [202, 178, 214],
-  [106, 61, 154],
-  [255, 255, 153],
-  [177, 89, 40],
+  [68, 119, 170],
+  [136, 204, 238],
+  [68, 170, 153],
+  [17, 119, 51],
+  [153, 153, 51],
+  [221, 204, 119],
+  [204, 102, 119],
+  [136, 34, 85],
+  [170, 68, 153],
 ];
 
 export const VIEWER_PALETTE = [
   [0, 0, 255],
   [0, 255, 0],
-  [255, 0, 0],
+  [255, 0, 255],
   [255, 255, 0],
   [0, 255, 255],
-  [255, 0, 255],
   [255, 255, 255],
   [255, 128, 0],
+  [255, 0, 0],
 ];
 
 
@@ -122,4 +123,35 @@ export function createDefaultUpdateViewInfo(componentName) {
 
 export function createDefaultClearPleaseWait(componentName) {
   return layer => console.warn(`${componentName} "clearPleaseWait" not provided; layer: ${layer}`);
+}
+
+/**
+ * Custom hook, subscribes to GRID_RESIZE and window resize events.
+ * @returns {array} `[width, height, containerRef]` where width and height
+ * are numbers and containerRef is a React ref.
+ */
+export function useGridItemSize() {
+  const containerRef = useRef();
+
+  const [height, setHeight] = useState();
+  const [width, setWidth] = useState();
+
+  useEffect(() => {
+    function onResize() {
+      if (!containerRef.current) return;
+      const containerRect = containerRef.current.getBoundingClientRect();
+      setHeight(containerRect.height);
+      setWidth(containerRect.width);
+    }
+    const onResizeDebounced = debounce(onResize, 100, { trailing: true });
+    const gridResizeToken = PubSub.subscribe(GRID_RESIZE, onResize);
+    window.addEventListener('resize', onResizeDebounced);
+    onResize();
+    return () => {
+      PubSub.unsubscribe(gridResizeToken);
+      window.removeEventListener('resize', onResizeDebounced);
+    };
+  }, []);
+
+  return [width, height, containerRef];
 }

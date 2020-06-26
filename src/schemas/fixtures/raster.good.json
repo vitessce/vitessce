@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.0.1",
+  "schemaVersion": "0.0.2",
   "images": [
     {
       "name": "Some Image",
@@ -25,7 +25,7 @@
             "values": null
           }
         ],
-        "is_pyramid": false,
+        "isPyramid": false,
         "transform": {
           "scale": 20.0,
           "translate": {

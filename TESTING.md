@@ -1,7 +1,8 @@
 # Test protocol
 
 This doesn't replace automated tests, but we do want a detailed explanation of the functionality.
-The description below should work for any deployment.
+The description below should work for any deployment.  All three major browsers (Safari, Chrome, Firefox) should be tested - if it's too much for just one person,
+you can enlist the reviewer of the version bump PR, for example.
 
 ## Welcome Page
 

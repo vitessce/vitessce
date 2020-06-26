@@ -1,6 +1,9 @@
 import React, { useCallback } from 'react';
 import PopoverMenu from './PopoverMenu';
-import { handleImportJSON, MIME_TYPE_JSON } from './io';
+import {
+  handleImportJSON, MIME_TYPE_JSON,
+  handleImportTabular, MIME_TYPE_TABULAR,
+} from './io';
 
 import { ReactComponent as SetViewSVG } from '../../assets/sets/eye.svg';
 import { ReactComponent as SetUnionSVG } from '../../assets/sets/union.svg';
@@ -69,15 +72,21 @@ export function PlusButton(props) {
       {
         title: 'Create hierarchy',
         handler: onCreateLevelZeroNode,
-        handlerKey: 'c',
+        handlerKey: 'n',
       },
     ] : []),
     ...(importable ? [
       {
         title: 'Import hierarchy',
+        subtitle: '(from CSV file)',
+        handler: onImport(handleImportTabular, MIME_TYPE_TABULAR),
+        handlerKey: 'c',
+      },
+      {
+        title: 'Import hierarchy',
         subtitle: '(from JSON file)',
         handler: onImport(handleImportJSON, MIME_TYPE_JSON),
-        handlerKey: 'i',
+        handlerKey: 'j',
       },
     ] : []),
   ];
@@ -109,6 +118,10 @@ export function SetOperationButtons(props) {
     onComplement,
     onView,
     operatable,
+    hasCheckedSetsToView,
+    hasCheckedSetsToUnion,
+    hasCheckedSetsToIntersect,
+    hasCheckedSetsToComplement,
   } = props;
 
   return (
@@ -117,6 +130,7 @@ export function SetOperationButtons(props) {
         onClick={onView}
         type="submit"
         title="View checked sets"
+        disabled={!hasCheckedSetsToView}
       >
         <SetViewSVG />
       </button>
@@ -126,6 +140,7 @@ export function SetOperationButtons(props) {
             onClick={onUnion}
             title="New set from union of checked sets"
             type="submit"
+            disabled={!hasCheckedSetsToUnion}
           >
             <SetUnionSVG />
           </button>
@@ -133,6 +148,7 @@ export function SetOperationButtons(props) {
             onClick={onIntersection}
             title="New set from intersection of checked sets"
             type="submit"
+            disabled={!hasCheckedSetsToIntersect}
           >
             <SetIntersectionSVG />
           </button>
@@ -140,6 +156,7 @@ export function SetOperationButtons(props) {
             onClick={onComplement}
             title="New set from complement of checked sets"
             type="submit"
+            disabled={!hasCheckedSetsToComplement}
           >
             <SetComplementSVG />
           </button>

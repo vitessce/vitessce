@@ -11,8 +11,15 @@ import TitleInfo from '../TitleInfo';
 import reducer, {
   treeInitialize, ACTION, treeToVisibleCells,
   treeExportLevelZeroNode, treeExportSet,
+  treeHasCheckedSetsToView,
+  treeHasCheckedSetsToUnion,
+  treeHasCheckedSetsToIntersect,
+  treeHasCheckedSetsToComplement,
 } from './reducer';
-import { handleExportJSON, downloadForUser, FILE_EXTENSION_JSON } from './io';
+import {
+  handleExportJSON, downloadForUser, FILE_EXTENSION_JSON,
+  handleExportTabular, FILE_EXTENSION_TABULAR,
+} from './io';
 
 const SETS_DATATYPE_CELL = 'cell';
 const initialTree = treeInitialize(SETS_DATATYPE_CELL);
@@ -107,7 +114,7 @@ export default function CellSetsManagerSubscriber(props) {
     dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
   }
 
-  function onExportLevelZeroNode(nodeKey) {
+  function onExportLevelZeroNodeJSON(nodeKey) {
     const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
     downloadForUser(
       handleExportJSON(treeToExport),
@@ -115,7 +122,15 @@ export default function CellSetsManagerSubscriber(props) {
     );
   }
 
-  function onExportSet(nodeKey) {
+  function onExportLevelZeroNodeTabular(nodeKey) {
+    const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
+    downloadForUser(
+      handleExportTabular(treeToExport),
+      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_TABULAR}`,
+    );
+  }
+
+  function onExportSetJSON(nodeKey) {
     const { setToExport, nodeName } = treeExportSet(tree, nodeKey);
     downloadForUser(
       handleExportJSON(setToExport),
@@ -179,12 +194,17 @@ export default function CellSetsManagerSubscriber(props) {
         onNodeView={onNodeView}
         onImportTree={onImportTree}
         onCreateLevelZeroNode={onCreateLevelZeroNode}
-        onExportLevelZeroNode={onExportLevelZeroNode}
-        onExportSet={onExportSet}
+        onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
+        onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
+        onExportSetJSON={onExportSetJSON}
         onUnion={onUnion}
         onIntersection={onIntersection}
         onComplement={onComplement}
         onView={onView}
+        hasCheckedSetsToView={treeHasCheckedSetsToView(tree)}
+        hasCheckedSetsToUnion={treeHasCheckedSetsToUnion(tree)}
+        hasCheckedSetsToIntersect={treeHasCheckedSetsToIntersect(tree)}
+        hasCheckedSetsToComplement={treeHasCheckedSetsToComplement(tree)}
       />
     </TitleInfo>
   );

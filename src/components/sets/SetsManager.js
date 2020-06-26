@@ -80,16 +80,21 @@ export default function SetsManager(props) {
     onNodeView,
     onImportTree,
     onCreateLevelZeroNode,
-    onExportLevelZeroNode,
-    onExportSet,
+    onExportLevelZeroNodeJSON,
+    onExportLevelZeroNodeTabular,
+    onExportSetJSON,
     onUnion,
     onIntersection,
     onComplement,
     onView,
+    hasCheckedSetsToView,
+    hasCheckedSetsToUnion,
+    hasCheckedSetsToIntersect,
+    hasCheckedSetsToComplement,
   } = props;
 
   if (clearPleaseWait && tree) {
-    clearPleaseWait('cell_sets');
+    clearPleaseWait('cell-sets');
   }
 
   const [isDragging, setIsDragging] = useState(false);
@@ -125,8 +130,9 @@ export default function SetsManager(props) {
         onNodeSetName={onNodeSetName}
         onNodeSetIsEditing={onNodeSetIsEditing}
         onNodeRemove={onNodeRemove}
-        onExportLevelZeroNode={onExportLevelZeroNode}
-        onExportSet={onExportSet}
+        onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
+        onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
+        onExportSetJSON={onExportSetJSON}
 
         disableTooltip={isDragging}
         onDragStart={() => setIsDragging(true)}
@@ -183,6 +189,11 @@ export default function SetsManager(props) {
             onComplement={onComplement}
             onView={onView}
             operatable={operatable}
+
+            hasCheckedSetsToView={hasCheckedSetsToView}
+            hasCheckedSetsToUnion={hasCheckedSetsToUnion}
+            hasCheckedSetsToIntersect={hasCheckedSetsToIntersect}
+            hasCheckedSetsToComplement={hasCheckedSetsToComplement}
           />
         </div>
       ) : null}

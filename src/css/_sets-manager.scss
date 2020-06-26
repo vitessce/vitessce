@@ -10,15 +10,15 @@
     .sets-manager {
       position: relative;
       width: 100%;
-      height: 100%;
-      overflow: hidden;
+      display: block;
+      height: auto;
       .set-operation-buttons {
         background-color: map-get($global-colors, "gray-light");
         border-radius: 4px;
         padding: 2px;
         display: inline-block;
         position: absolute;
-        bottom: 0.25rem;
+        bottom: 1.75rem;
         right: 0.25rem;
         -webkit-box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.06);
                 box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.06);
@@ -26,28 +26,35 @@
           border: 0;
           background-color: transparent;
           color: lighten(map-get($global-colors, "gray-dark"), 5%);
+
+          &[disabled] {
+            pointer-events: none;
+            svg {
+              fill: silver;
+            }
+          }
           
           svg {
-            fill: lighten(map-get($global-colors, "gray-dark"), 5%);
+            fill: map-get($global-colors, "gray-dark");
             vertical-align: top;
             height: 20px;
             margin-top: 1px;
           }
 
           &:hover, &:hover path {
-            color: lighten(map-get($global-colors, "gray-dark"), 25%);
-            fill: lighten(map-get($global-colors, "gray-dark"), 25%);
+            color: darken(map-get($global-colors, "gray-dark"), 15%);
+            fill: darken(map-get($global-colors, "gray-dark"), 15%);
           }
         }
       }
       
       .sets-manager-tree {
-        position: absolute;
+        position: relative;
         top: 0;
         left: 0;
         width: 100%;
-        height: 100%;
-        overflow-y: scroll;
+        height: auto;
+        display: block;
         padding-right: 17px; /* Increase/decrease this value for cross-browser compatibility */
         box-sizing: content-box; /* So the width will be 100% + 17px */
     
@@ -77,6 +84,10 @@
                   &:hover {
                       fill: lighten(map-get($global-colors, "gray-mid"), 10%);
                   }
+              }
+              .node-size-label {
+                font-size: 12px;
+                color: darken(map-get($theme-colors, "primary-foreground"), 15%);
               }
 
               .level-buttons-container {
@@ -318,6 +329,7 @@
                       border-radius: 3px;
                       position: relative;
                       left: 0;
+                      margin-right: 10px;
                       &-checked {
                         background-color: map-get($global-colors, "gray-mid");
                       }

@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import range from 'lodash/range';
 import PopoverMenu from './PopoverMenu';
 import HelpTooltip from './HelpTooltip';
-import { callbackOnKeyPress, colorToHexString, getLevelTooltipText } from './utils';
+import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from './utils';
 import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
 
 
@@ -18,11 +18,13 @@ function makeNodeViewMenuConfig(props) {
   const {
     nodeKey,
     level,
+    height,
     onCheckNode,
     onNodeRemove,
     onNodeSetIsEditing,
-    onExportLevelZeroNode,
-    onExportSet,
+    onExportLevelZeroNodeJSON,
+    onExportLevelZeroNodeTabular,
+    onExportSetJSON,
     checkable,
     editable,
     exportable,
@@ -47,9 +49,17 @@ function makeNodeViewMenuConfig(props) {
       {
         title: 'Export hierarchy',
         subtitle: '(to JSON file)',
-        handler: () => { onExportLevelZeroNode(nodeKey); },
-        handlerKey: 'e',
+        handler: () => { onExportLevelZeroNodeJSON(nodeKey); },
+        handlerKey: 'j',
       },
+      ...(height <= 1 ? [
+        {
+          title: 'Export hierarchy',
+          subtitle: '(to CSV file)',
+          handler: () => { onExportLevelZeroNodeTabular(nodeKey); },
+          handlerKey: 't',
+        },
+      ] : []),
     ] : []),
     ...(level > 0 ? [
       ...(checkable ? [
@@ -63,7 +73,7 @@ function makeNodeViewMenuConfig(props) {
         {
           title: 'Export set',
           subtitle: '(to JSON file)',
-          handler: () => { onExportSet(nodeKey); },
+          handler: () => { onExportSetJSON(nodeKey); },
           handlerKey: 'e',
         },
       ] : []),
@@ -102,11 +112,13 @@ function NamedSetNodeStatic(props) {
       ? checkedLevelIndex + 1
       : 1
   );
+  const numberFormatter = new Intl.NumberFormat('en-US');
+  const niceSize = numberFormatter.format(size);
   let tooltipText;
   if (shouldCheckNextLevel) {
     tooltipText = getLevelTooltipText(nextLevelToCheck);
   } else if (isLeaf || !expanded) {
-    tooltipText = `Color individual set (${size} ${datatype}${(size === 1 ? '' : 's')})`;
+    tooltipText = `Color individual set (${niceSize} ${datatype}${(size === 1 ? '' : 's')})`;
   } else {
     tooltipText = 'Color by expanded descendants';
   }
@@ -142,6 +154,7 @@ function NamedSetNodeStatic(props) {
         </PopoverMenu>
       ) : null}
       {level > 0 && isChecking ? checkbox : null}
+      {level > 0 && (<span className="node-size-label">{niceSize}</span>)}
     </span>
   );
 }
@@ -255,7 +268,7 @@ function SwitcherIcon(props) {
   const {
     isLeaf, isOpen, color,
   } = props;
-  const hexColor = (color ? colorToHexString(color) : undefined);
+  const hexColor = (color ? colorArrayToString(color) : undefined);
   if (isLeaf) {
     return (
       <i

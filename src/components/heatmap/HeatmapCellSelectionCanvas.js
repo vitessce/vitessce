@@ -34,7 +34,12 @@ export default function HeatmapCellSelectionCanvas(props) {
   const imageRendering = getImageRendering();
   return (
     <canvas
-      style={{ height, imageRendering }}
+      className="heatmap"
+      style={{
+        top: '15%',
+        height,
+        imageRendering,
+      }}
       ref={c => paintCanvas(c, props)}
       width={clusters.cols.length}
       height={1}

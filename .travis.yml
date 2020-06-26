@@ -2,7 +2,7 @@ sudo: false
 
 language: node_js
 node_js:
-  - 13
+  - 14
 
 # Fix build failure.
 # https://github.com/cypress-io/cypress/issues/4069#issuecomment-488315675
@@ -21,6 +21,9 @@ cache:
     # Cypress binary is here:
     - ~/.cache
 
+before_script:
+  # https://stackoverflow.com/a/59572966
+  - export NODE_OPTIONS=--max_old_space_size=4096
 script:
   - ./test.sh
 
@@ -31,4 +34,3 @@ deploy:
     api_key: $NPM_TOKEN
     on:
       branch: master
-

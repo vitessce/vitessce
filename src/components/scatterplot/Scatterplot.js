@@ -1,8 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import DeckGL, { OrthographicView } from 'deck.gl';
-import { SelectableScatterplotLayer } from '../../layers';
+import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
 import ToolMenu from '../ToolMenu';
-import { getSelectionLayers } from '../selectable-component-utils';
 import {
   cellLayerDefaultProps, DEFAULT_COLOR,
   DEFAULT_GL_OPTIONS,
@@ -17,6 +16,7 @@ const CELLS_LAYER_ID = 'scatterplot';
 /**
  * React component which renders a scatterplot from cell data, typically tSNE or PCA.
  * @prop {string} uuid
+ * @prop {string} theme The current vitessce theme.
  * @prop {object} view
  * @prop {number} view.zoom
  * @prop {number[]} view.target See https://github.com/uber/deck.gl/issues/2580 for more information.
@@ -24,6 +24,10 @@ const CELLS_LAYER_ID = 'scatterplot';
  * @prop {string} mapping
  * @prop {object} cellColors Object mapping cell IDs to colors.
  * @prop {Set} selectedCellIds Set of selected cell IDs.
+ * @prop {number} cellRadiusScale The value for `radiusScale` to pass
+ * to the deck.gl cells ScatterplotLayer.
+ * @prop {number} cellOpacity The value for `opacity` to pass
+ * to the deck.gl cells ScatterplotLayer.
  * @prop {function} getCellCoords Getter function for cell coordinates
  * (used by the selection layer).
  * @prop {function} getCellPosition Getter function for cell [x, y, z] position.
@@ -39,6 +43,7 @@ const CELLS_LAYER_ID = 'scatterplot';
 export default function Scatterplot(props) {
   const {
     uuid = null,
+    theme,
     view = {
       zoom: 2,
       target: [0, 0, 0],
@@ -47,6 +52,8 @@ export default function Scatterplot(props) {
     mapping,
     cellColors,
     selectedCellIds = new Set(),
+    cellRadiusScale = 0.2,
+    cellOpacity = 1.0,
     getCellCoords = cell => cell.mappings[mapping],
     getCellPosition = (cellEntry) => {
       const { mappings } = cellEntry[1];
@@ -118,9 +125,12 @@ export default function Scatterplot(props) {
   const layers = (cells ? [
     new SelectableScatterplotLayer({
       id: CELLS_LAYER_ID,
+      backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
       isSelected: getCellIsSelected,
-      // No radiusMin, so texture remains open even zooming out.
-      radiusMaxPixels: 2,
+      opacity: cellOpacity,
+      radiusScale: cellRadiusScale,
+      radiusMinPixels: 1.5,
+      radiusMaxPixels: 10,
       getPosition: getCellPosition,
       getColor: getCellColor,
       onClick: (info) => {

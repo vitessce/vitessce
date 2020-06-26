@@ -4,6 +4,7 @@ import { fromEntries } from '../utils';
 
 import { CELLS_HOVER, CLUSTERS_ADD } from '../../events';
 import CellTooltip1DVertical from './CellTooltip1DVertical';
+import CellTooltipContent from './CellTooltipContent';
 
 export default class CellTooltip1DVerticalSubscriber extends React.Component {
   constructor(props) {
@@ -56,7 +57,14 @@ export default class CellTooltip1DVerticalSubscriber extends React.Component {
         cellIndex={cellIndex}
         numCells={numCells}
         uuid={uuid}
-      />
+      >
+        {hoveredCellInfo && (
+          <CellTooltipContent
+            cellId={hoveredCellInfo.cellId}
+            factors={hoveredCellInfo.factors}
+          />
+        )}
+      </CellTooltip1DVertical>
     );
   }
 }

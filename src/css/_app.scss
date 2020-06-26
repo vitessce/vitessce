@@ -1,8 +1,19 @@
+@import 'colors';
 
 @mixin app($theme-name, $theme-colors) {
 
+    &.welcome-container {
+        overflow: visible;
+        .react-grid-layout, .warning-layout {
+            position: relative;
+        }
+    }
+
     .react-grid-layout, .warning-layout {
         background-color: map-get($theme-colors, "grid-layout-background");
+        height: auto;
+        position: absolute;
+        width: 100%;
     }
 
     .warning-layout {
@@ -52,6 +63,14 @@
 
     .card {
         border: 1px solid map-get($theme-colors, "card-border");
+    }
+
+    .bg-black {
+        background-color: map-get($global-colors, "black");
+        color: map-get($global-colors, "white");
+        a {
+            color: map-get($global-colors, "white");
+        }
     }
 
     .bg-primary {

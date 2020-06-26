@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { LIGHT_CARD } from '../components/classNames';
+import { PRIMARY_CARD } from '../components/classNames';
 import version from '../version.json';
 
 function DatasetList(props) {
@@ -94,16 +94,16 @@ function Info() {
 export default function Welcome(props) {
   const { configs, theme } = props;
   return (
-    <div className={`vitessce-container vitessce-theme-${theme}`}>
-      <div className="react-grid-layout container-fluid" style={{ height: '100vh' }}>
+    <div className={`vitessce-container vitessce-theme-${theme} welcome-container`}>
+      <div className="react-grid-layout container-fluid" style={{ height: 'max(100vh, 100%)' }}>
         <div className="row">
           <div className="welcome-col-left">
-            <div className={LIGHT_CARD}>
+            <div className={PRIMARY_CARD}>
               <Form configs={configs} theme={theme} />
             </div>
           </div>
           <div className="welcome-col-right">
-            <div className={LIGHT_CARD}>
+            <div className={PRIMARY_CARD}>
               <Info />
             </div>
           </div>

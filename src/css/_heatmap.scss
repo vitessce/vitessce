@@ -1,0 +1,21 @@
+/*
+See https://github.com/hubmapconsortium/vitessce/issues/368 for why this css needs to exist and https://github.com/hubmapconsortium/vitessce/pull/607 for a longer explanation.
+The absolute positioning gives us the control we need to force the canvas elements to "fill" the container - this was not happening in Safari with the bootstrap css.
+*/
+@mixin heatmap($theme-name, $theme-colors) {
+    .heatmap {
+      width: 100%;
+      left: 0;
+      position: absolute;
+      padding-right: inherit;
+      padding-left: inherit;
+    }
+
+    .heatmap-container {
+        position: absolute;
+        top: 1.25rem; // Corresponds to the padding on .vitessce-container .card-body
+        left: 1.25rem; // Corresponds to the padding on .vitessce-container .card-body
+        width: calc(100% - 2.5rem);
+        height: calc(100% - 2.5rem);
+    }
+}

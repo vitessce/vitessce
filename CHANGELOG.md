@@ -1,14 +1,55 @@
 # Changelog
 
-## 0.1.4 - in progress
+## 0.1.7 - in progress
+
+## Added
+- Testing protocol calls for all three browsers now.
+
+### Changed
+- Fix Safari channel controller bug.
+- Fix Safari heatmap display bug.
+- Heatmap color canvas has precedence over selection canvas when resizing.
+
+## [0.1.6](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 
 ### Added
+- Added the `cellOpacity` prop for the `Scatterplot` and `Spatial` components, to pass a value to the `opacity` deck.gl `ScatterplotLayer` and `PolygonLayer` prop.
+- Imaging support for Safari via a new Viv version.
+
+### Changed
+- Change one of the initial colors from red to magenta.
+- Use kebab-case for cell sets files (`cell_sets` becomes `cell-sets`).
+- Upgraded HiGlass to v1.9.5 and scoped the HiGlass external CSS under the `vitessce-container` class using SCSS nesting.
+- Remove height css from color palette.
+
+## [0.1.5](https://www.npmjs.com/package/vitessce/v/0.1.5) - 2020-06-15
+
+### Added
+- Initial slider/selection values and light theme for channel controller.
+- Added a `VegaPlot` component, a Vega-Lite implementation of a cell set size bar plot, and a `useGridItemSize` hook to enable responsive charts.
+- Compute the `cellRadiusScale` prop of `Scatterplot` relative to the extent of the `cells` mapping coordinates.
+
+### Changed
+- Updated the selection coloring for the `Scatterplot` and `Spatial` layers to take the theme background color into account.
+- Switched to a black background color for `Spatial` regardless of theme.
+- Pass the `height` prop to `VitessceGrid` so that the `WidthProvider` component can detect `height` changes.
+- Updated slider color for white slider with white theme.
+
+## [0.1.4](https://www.npmjs.com/package/vitessce/v/0.1.4) - 2020-06-01
+
+### Added
+- Added `METADATA_REMOVE` event to facilitate removal of image layer metadata from the `DescriptionSubscriber` upon layer removal.
 - Added support for providing cell sets files in view configs.
+- Added support for responsive height in the `Welcome` and `PubSubVitessceGrid` components.
 
 ### Changed
 - Refactored the Scatterplot and Spatial components. Removed the AbstractSelectableComponent class. Moved getter functions to props.
+- Added `src/` to the list of directories to publish to NPM, and renamed build directories (`build-lib/` to `dist/` and `build-demo/` to `dist-demo/`).
+- Abstracted the CellTooltip components to allow any child element to be passed as the tooltip content.
 - Updated the cell set hierarchy schema.
 - Updated the cell set manager, to try to improve usability.
+- Updated the default color palette to improve visibility when using the light theme.
+- Increased the minimum & maximum scatterplot radius and added the `cellRadiusScale` prop.
 
 ## [0.1.3](https://www.npmjs.com/package/vitessce/v/0.1.3) - 2020-05-15
 

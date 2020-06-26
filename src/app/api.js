@@ -4,7 +4,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.26/master_release';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.28/master_release';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -16,7 +16,7 @@ function makeLayerNameToConfig(datasetPrefix) {
 
 const linnarssonLayerNames = [
   'cells',
-  'cell_sets',
+  'cell-sets',
   'clusters',
   'genes',
   'raster',
@@ -40,7 +40,7 @@ const driesBase = {
   description: driesDescription,
   layers: [
     'cells',
-    'cell_sets',
+    'cell-sets',
   ].map(makeLayerNameToConfig('dries')),
 };
 
@@ -73,9 +73,9 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
         url: `https://keller-mark.github.io/vitessce-demo-hosting-temporary/cell-type-annotations/${globusId}.cells.json`,
       },
       {
-        name: 'cell_sets',
-        type: 'CELL_SETS',
-        url: `https://keller-mark.github.io/vitessce-demo-hosting-temporary/cell-type-annotations/${globusId}.cell_sets.json`,
+        name: 'cell-sets',
+        type: 'CELL-SETS',
+        url: `https://keller-mark.github.io/vitessce-demo-hosting-temporary/cell-type-annotations/${globusId}.cell-sets.json`,
       },
     ],
     public: false,
@@ -377,9 +377,9 @@ const configs = {
         props: {
           description: driesDescription,
         },
-        x: 0, y: 0, w: 5, h: 2 },
+        x: 9, y: 0, w: 3, h: 2 },
       { component: 'status',
-        x: 0, y: 1, w: 5, h: 2 },
+        x: 9, y: 2, w: 3, h: 2 },
       { component: 'scatterplot',
         props: {
           mapping: 't-SNE',
@@ -406,9 +406,11 @@ const configs = {
             target: [0, 0, 0],
           },
         },
-        x: 5, y: 4, w: 4, h: 4 },
+        x: 0, y: 0, w: 5, h: 4 },
       { component: 'cellSets',
-        x: 9, y: 0, w: 3, h: 8 },
+        x: 9, y: 4, w: 3, h: 4 },
+      { component: 'cellSetSizes',
+        x: 5, y: 4, w: 4, h: 4 },
     ],
   },
   'wang-2019': {
@@ -444,8 +446,7 @@ const configs = {
         },
         x: 0, y: 0, w: 9, h: 2 },
       { component: 'layerController',
-        x: 9, y: 0, w: 3, h: 2,
-      },
+        x: 9, y: 0, w: 3, h: 2 },
     ],
   },
   'just-higlass': {

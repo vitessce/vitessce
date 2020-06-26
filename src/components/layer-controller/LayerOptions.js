@@ -7,6 +7,14 @@ import Select from '@material-ui/core/Select';
 
 import { COLORMAP_OPTIONS } from '../utils';
 
+const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
+
+/**
+ * Wrapper for the dropdown that selects a colormap (None, viridis, magma, etc.).
+ * @prop {string} value Currently selected value for the colormap.
+ * @prop {string} inputId Css id.
+ * @prop {function} handleChange Callback for every change in colormap.
+ */
 function ColormapSelect({ value, inputId, handleChange }) {
   return (
     <Select
@@ -26,6 +34,11 @@ function ColormapSelect({ value, inputId, handleChange }) {
   );
 }
 
+/**
+ * Wrapper for the slider that updates opacity.
+ * @prop {string} value Currently selected value between 0 and 1.
+ * @prop {function} handleChange Callback for every change in opacity.
+ */
 function OpacitySlider({ value, handleChange }) {
   return (
     <Slider
@@ -42,6 +55,37 @@ function OpacitySlider({ value, handleChange }) {
   );
 }
 
+/**
+ * Wrapper for the dropdown that chooses the domain type.
+ * @prop {string} value Currently selected value (i.e 'Max/Min').
+ * @prop {string} inputId Css id.
+ * @prop {function} handleChange Callback for every change in domain.
+ */
+function SliderDomainSelector({ value, inputId, handleChange }) {
+  return (
+    <Select
+      native
+      onChange={e => handleChange(e.target.value)}
+      value={value}
+      inputProps={{ name: 'domain-selector', id: inputId }}
+      style={{ width: '100%' }}
+    >
+      {DOMAIN_OPTIONS.map(name => (
+        <option key={name} value={name}>
+          {name}
+        </option>
+      ))}
+    </Select>
+  );
+}
+
+/**
+ * Wrapper for the slider that chooses global selections (z, t etc.).
+ * @prop {string} field The dimension this selects for (z, t etc.).
+ * @prop {number} value Currently selected index (1, 4, etc.).
+ * @prop {function} handleChange Callback for every change in selection.
+ * @prop {function} possibleValues All available values for the field.
+ */
 function GlobalSelectionSlider({
   field,
   value,
@@ -71,9 +115,16 @@ function GlobalSelectionSlider({
   );
 }
 
+/**
+ * Wrapper for each of the options to show its name and then its UI component.
+ * @prop {string} name Display name for option.
+ * @prop {number} opacity Current opacity value.
+ * @prop {string} inputId An id for css.
+ * @prop {object} children Components to be rendered next to the name (slider, dropdown etc.).
+ */
 function LayerOption({ name, inputId, children }) {
   return (
-    <Grid container direction="row" alignItems="flex-end" justify="space-between">
+    <Grid container direction="row" alignItems="flex-start" justify="space-between">
       <Grid item xs={6}>
         <InputLabel htmlFor={inputId}>
           {name}:
@@ -86,6 +137,19 @@ function LayerOption({ name, inputId, children }) {
   );
 }
 
+/**
+ * Gloabl options for all channels (opacity, colormap, etc.).
+ * @prop {string} colormap What colormap is currently selected (None, viridis etc.).
+ * @prop {number} opacity Current opacity value.
+ * @prop {function} handleColormapChange Callback for when colormap changes.
+ * @prop {function} handleOpacityChange Callback for when opacity changes.
+ * @prop {object} globalControlDimensions All available options for global control (z and t).
+ * @prop {function} handleGlobalChannelsSelectionChange Callback for global selection changes.
+ * @prop {function} handleDomainChange Callback for domain type changes (full or min/max).
+ * @prop {array} channels Current channel object for inferring the current global selection.
+ * @prop {array} dimensions Currently available dimensions (channel, z, t etc.).
+ * @prop {string} domainType One of Max/Min or Full (soon presets as well).
+ */
 function LayerOptions({
   colormap,
   opacity,
@@ -93,8 +157,10 @@ function LayerOptions({
   handleOpacityChange,
   globalControlDimensions,
   handleGlobalChannelsSelectionChange,
+  handleDomainChange,
   channels,
   dimensions,
+  domainType,
 }) {
   const hasDimensionsAndChannels = dimensions.length > 0 && Object.keys(channels).length > 0;
   return (
@@ -105,6 +171,16 @@ function LayerOptions({
             value={colormap}
             inputId="colormap-select"
             handleChange={handleColormapChange}
+          />
+        </LayerOption>
+      </Grid>
+      <Grid item>
+        <LayerOption name="Domain" inputId="domain-selector">
+          <SliderDomainSelector
+            value={domainType}
+            handleChange={(value) => {
+              handleDomainChange(value);
+            }}
           />
         </LayerOption>
       </Grid>
@@ -126,8 +202,7 @@ function LayerOptions({
               />
             </LayerOption>
           );
-        })
-      }
+        })}
     </Grid>
   );
 }
