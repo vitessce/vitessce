@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TwitterPicker } from 'react-color';
-<<<<<<< HEAD
-import { colorToHexString, callbackOnKeyPress } from './utils';
-=======
 import { colorArrayToString, callbackOnKeyPress } from './utils';
->>>>>>> e8aaf9cc49589924d5ab81c2376445cc3345c1a4
 import { PALETTE } from '../utils';
 import Popover from './Popover';
 

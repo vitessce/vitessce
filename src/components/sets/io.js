@@ -1,27 +1,14 @@
 import Ajv from 'ajv';
-<<<<<<< HEAD
-import cellSetsSchema from '../../schemas/cell_sets.schema.json';
-=======
 import { dsvFormat } from 'd3-dsv';
 import { parse as json2csv } from 'json2csv';
 import { colorArrayToString, colorStringToArray } from './utils';
 import { DEFAULT_COLOR } from '../utils';
 import cellSetsSchema from '../../schemas/cell-sets.schema.json';
 import cellSetsTabularSchema from '../../schemas/cell-sets-tabular.schema.json';
->>>>>>> e8aaf9cc49589924d5ab81c2376445cc3345c1a4
 
 export const FILE_EXTENSION_JSON = 'json';
 export const MIME_TYPE_JSON = 'application/json';
 
-<<<<<<< HEAD
-export const HIERARCHICAL_SCHEMAS = {
-  cell: {
-    version: '0.1.2',
-    schema: cellSetsSchema,
-  },
-};
-
-=======
 export const FILE_EXTENSION_TABULAR = 'csv';
 export const MIME_TYPE_TABULAR = 'text/csv';
 export const SEPARATOR_TABULAR = ',';
@@ -39,7 +26,6 @@ export const TABULAR_SCHEMAS = {
   },
 };
 
->>>>>>> e8aaf9cc49589924d5ab81c2376445cc3345c1a4
 /**
  * Handler for JSON imports. Validates against the hierarchical sets schema.
  * @param {string} result The data passed from the FileReader as a string.
@@ -49,10 +35,6 @@ export const TABULAR_SCHEMAS = {
  */
 export function handleImportJSON(result, datatype) {
   const importData = JSON.parse(result);
-<<<<<<< HEAD
-  // Validate the imported file.
-  const validate = new Ajv().compile(HIERARCHICAL_SCHEMAS[datatype].schema);
-=======
   // Validate the imported file.
   const validate = new Ajv().compile(HIERARCHICAL_SCHEMAS[datatype].schema);
   const valid = validate(importData);
@@ -85,19 +67,10 @@ export function handleImportTabular(result, datatype) {
   }));
   // Validate the imported file.
   const validate = new Ajv().compile(TABULAR_SCHEMAS[datatype].schema);
->>>>>>> e8aaf9cc49589924d5ab81c2376445cc3345c1a4
   const valid = validate(importData);
   if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
     throw new Error(`Import validation failed: ${failureReason}`);
-<<<<<<< HEAD
-  } else if (importData.datatype !== datatype) {
-    throw new Error(
-      `The imported data type does not match the expected data type of '${datatype}'.`,
-    );
-  } else {
-    return importData;
-=======
   } else {
     // Convert the validated array to a tree representation.
     const treeToImport = {
@@ -126,7 +99,6 @@ export function handleImportTabular(result, datatype) {
       treeToImport.tree.push(levelZeroNode);
     });
     return treeToImport;
->>>>>>> e8aaf9cc49589924d5ab81c2376445cc3345c1a4
   }
 }
 
@@ -136,10 +108,6 @@ export function handleImportTabular(result, datatype) {
  * @returns {string} The data in a string representation.
  */
 export function handleExportJSON(result) {
-<<<<<<< HEAD
-  // eslint-disable-next-line prefer-template
-  const dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(result));
-=======
   const jsonString = JSON.stringify(result);
   const dataString = `data:${MIME_TYPE_JSON};charset=utf-8,${encodeURIComponent(jsonString)}`;
   return dataString;
@@ -172,7 +140,6 @@ export function handleExportTabular(result) {
     delimiter: SEPARATOR_TABULAR,
   });
   const dataString = `data:${MIME_TYPE_TABULAR};charset=utf-8,${encodeURIComponent(csvString)}`;
->>>>>>> e8aaf9cc49589924d5ab81c2376445cc3345c1a4
   return dataString;
 }
 
