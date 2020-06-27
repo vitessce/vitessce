@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
 import some from 'lodash/some';
@@ -594,7 +595,7 @@ function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME, has
   const numToolsNodeChildren = toolsNode.children.length;
   const nextCurrentSetColor = PALETTE[numToolsNodeChildren % PALETTE.length];
 
-  const cellIdsWithProb = (hasProb ? cellIds : cellIds.map(cellId => ([cellId, null])));
+  const cellIdsWithProb = (hasProb ? cellIds : cellIds.map(cellId => ([cellId, 1])));
 
   newTree = {
     ...newTree,
@@ -1364,6 +1365,24 @@ export function nodeToRenderProps(node) {
 }
 
 /**
+ * Using a color and a probability, mix the color with an "uncertainty" color,
+ * for example, gray.
+ * Reference: https://github.com/bgrins/TinyColor/blob/80f7225029c428c0de0757f7d98ac15f497bee57/tinycolor.js#L701
+ * @param {number[]} originalColor The color assignment for the class.
+ * @param {number} p The mixing amount, or level certainty in the originalColor classification,
+ * between 0 and 1.
+ * @param {number[]} mixingColor The color with which to mix. By default, [128, 128, 128] gray.
+ * @returns {number[]} Returns the color after mixing.
+ */
+function colorMixWithUncertainty(originalColor, p, mixingColor = [128, 128, 128]) {
+  return [
+    ((originalColor[0] - mixingColor[0]) * p) + mixingColor[0],
+    ((originalColor[1] - mixingColor[1]) * p) + mixingColor[1],
+    ((originalColor[2] - mixingColor[2]) * p) + mixingColor[2],
+  ];
+}
+
+/**
  * Given a tree with state, get the cellIds and cellColors,
  * based on the nodes currently marked as "visible".
  * @param {object} currTree A tree object.
@@ -1379,7 +1398,7 @@ export function treeToVisibleCells(currTree) {
       const nodeSet = nodeToSet(node);
       cellColorsArray = [
         ...cellColorsArray,
-        ...nodeSet.map(cellId => [cellId[0], node.color]),
+        ...nodeSet.map(([cellId, prob]) => [cellId, (prob ? colorMixWithUncertainty(node.color, prob) : node.color)]),
       ];
     }
   });

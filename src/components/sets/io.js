@@ -20,14 +20,14 @@ import {
 export function tryUpgradeToLatestSchema(currTree, datatype) {
   if (currTree.version === '0.1.2') {
     // To upgrade from cell-sets schema 0.1.2 to 0.1.3,
-    // add a confidence value of null for each cell ID.
+    // add a confidence value of 1 for each cell ID.
     return {
       ...currTree,
       version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
       tree: currTree.tree.map(levelZeroNode => nodeTransform(
         levelZeroNode,
         n => !n.children && Array.isArray(n.set),
-        n => ({ ...n, set: n.set.map(itemId => ([itemId, null])) }),
+        n => ({ ...n, set: n.set.map(itemId => ([itemId, 1])) }),
       )),
     };
   }
@@ -74,7 +74,7 @@ export function handleImportTabular(result, datatype) {
     set_color: (row.set_color ? colorStringToArray(row.set_color) : DEFAULT_COLOR),
     cell_id: row.cell_id,
     prediction_score: ((!row.prediction_score || row.prediction_score === NA_VALUE_TABULAR)
-      ? null
+      ? 1.0
       : +row.prediction_score
     ),
   }));
