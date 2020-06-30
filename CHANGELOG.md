@@ -4,6 +4,7 @@
 
 ## Added
 - Testing protocol calls for all three browsers now.
+- Added a `cell-sets.json` schema version `0.1.3` to support probabilistic cell set assignments, with backwards compatibility with schema version `0.1.2`.
 
 ### Changed
 - Fix Safari channel controller bug.

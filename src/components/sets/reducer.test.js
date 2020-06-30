@@ -52,7 +52,7 @@ describe('Hierarchical sets reducer', () => {
       const initialTree = treeInitialize('cell');
 
       expect(initialTree.datatype).toEqual('cell');
-      expect(initialTree.version).toEqual('0.1.2');
+      expect(initialTree.version).toEqual('0.1.3');
       expect(initialTree.tree.length).toEqual(0);
       expect(initialTree._state.items.length).toEqual(0);
       expect(initialTree._state.checkedKeys.length).toEqual(0);
@@ -222,7 +222,11 @@ describe('Hierarchical sets reducer', () => {
       expect(postSelectionTree.tree[1].children[0].name).toEqual('Current selection');
       expect(postSelectionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postSelectionTree.tree[1].children[0]._state.level).toEqual(1);
-      expect(postSelectionTree.tree[1].children[0].set).toEqual(['cell_x', 'cell_y', 'cell_z']);
+      expect(postSelectionTree.tree[1].children[0].set).toEqual([
+        ['cell_x', null],
+        ['cell_y', null],
+        ['cell_z', null],
+      ]);
     });
 
     it('can start editing a node', () => {
@@ -333,7 +337,11 @@ describe('Hierarchical sets reducer', () => {
       expect(postUnionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postUnionTree.tree[1].children[0]._state.level).toEqual(1);
       expect(postUnionTree.tree[1].children[0].set).toEqual([
-        'cell_3', 'cell_4', 'cell_5', 'cell_1', 'cell_2',
+        ['cell_3', null],
+        ['cell_4', null],
+        ['cell_5', null],
+        ['cell_1', null],
+        ['cell_2', null],
       ]);
       expect(postUnionTree._state.visibleKeys.length).toEqual(1);
     });
@@ -361,7 +369,7 @@ describe('Hierarchical sets reducer', () => {
       expect(postIntersectionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postIntersectionTree.tree[1].children[0]._state.level).toEqual(1);
       expect(postIntersectionTree.tree[1].children[0].set).toEqual([
-        'cell_3',
+        ['cell_3', null],
       ]);
       expect(postIntersectionTree._state.visibleKeys.length).toEqual(1);
     });
@@ -389,7 +397,7 @@ describe('Hierarchical sets reducer', () => {
       expect(postIntersectionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postIntersectionTree.tree[1].children[0]._state.level).toEqual(1);
       expect(postIntersectionTree.tree[1].children[0].set).toEqual([
-        'cell_6',
+        ['cell_6', null],
       ]);
       expect(postIntersectionTree._state.visibleKeys.length).toEqual(1);
     });

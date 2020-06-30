@@ -1,71 +1,224 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/hubmapconsortium/vitessce/#cell-sets",
-  "title": "Vitessce cell sets data",
-  "type": "object",
-  "definitions": {
-      "stringArray": {
-          "type": "array",
-          "items": { "type": "string" }
-      },
-      "colorArray": {
-          "type": "array",
-          "items": { "type": "integer", "minimum": 0, "maximum": 255 },
-          "minItems": 3,
-          "maxItems": 3
-      },
-      "treeLevelOnePlusNonLeaf": {
-          "type": "array",
-          "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["name"],
-              "properties": {
-                  "name": { "type": "string" },
-                  "color": { "$ref": "#/definitions/colorArray" },
-                  "children": { "$ref": "#/definitions/treeLevelOnePlus" }
-              }
-          }
-      },
-      "treeLevelOnePlusLeaf": {
-          "type": "array",
-          "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["name"],
-              "properties": {
-                  "name": { "type": "string" },
-                  "color": { "$ref": "#/definitions/colorArray" },
-                  "set": { "$ref": "#/definitions/stringArray" }
-              }
-          }
-      },
-      "treeLevelOnePlus": {
-          "oneOf": [
-              { "$ref": "#/definitions/treeLevelOnePlusNonLeaf" },
-              { "$ref": "#/definitions/treeLevelOnePlusLeaf" }
-          ]
-      },
-      "treeLevelZero": {
-          "type": "array",
-          "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["name"],
-              "properties": {
-                  "name": { "type": "string" },
-                  "children": { "$ref": "#/definitions/treeLevelOnePlus" }
-              }
-          }
-      }
-  },
-  "additionalProperties": false,
-  "required": ["version", "datatype", "tree"],
-  "properties": {
-      "dataset": { "type": "string" },
-      "version": { "type": "string", "enum": ["0.1.2"] },
-      "datatype": { "type": "string", "enum": ["cell"] },
-      "tree": { "$ref": "#/definitions/treeLevelZero" }
-  }
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/hubmapconsortium/vitessce/#cell-sets",
+    "title": "Vitessce cell sets data",
+    "type": "object",
+    "definitions": {
+        "stringArray": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "stringProbabilityTupleArray": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "additionalItems": false,
+                "items": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "oneOf": [
+                            {
+                                "type": "number",
+                                "minimum": 0.0,
+                                "maximum": 1.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "colorArray": {
+            "type": "array",
+            "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+            },
+            "minItems": 3,
+            "maxItems": 3
+        },
+        "treeLevelOnePlusLeaf": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "$ref": "#/definitions/colorArray"
+                    },
+                    "set": {
+                        "$ref": "#/definitions/stringArray"
+                    }
+                }
+            }
+        },
+        "treeLevelOnePlusNonLeaf": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "$ref": "#/definitions/colorArray"
+                    },
+                    "children": {
+                        "$ref": "#/definitions/treeLevelOnePlus"
+                    }
+                }
+            }
+        },
+        "treeLevelOnePlus": {
+            "oneOf": [{
+                    "$ref": "#/definitions/treeLevelOnePlusNonLeaf"
+                },
+                {
+                    "$ref": "#/definitions/treeLevelOnePlusLeaf"
+                }
+            ]
+        },
+        "treeLevelZero": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "children": {
+                        "$ref": "#/definitions/treeLevelOnePlus"
+                    }
+                }
+            }
+        },
+        "version0.1.2": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["version", "datatype", "tree"],
+            "properties": {
+                "dataset": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string",
+                    "enum": ["0.1.2"]
+                },
+                "datatype": {
+                    "type": "string",
+                    "enum": ["cell"]
+                },
+                "tree": {
+                    "$ref": "#/definitions/treeLevelZero"
+                }
+            }
+        },
+        "treeLevelOnePlusLeafProbabilistic": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "$ref": "#/definitions/colorArray"
+                    },
+                    "set": {
+                        "$ref": "#/definitions/stringProbabilityTupleArray"
+                    }
+                }
+            }
+        },
+        "treeLevelOnePlusNonLeafProbabilistic": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "$ref": "#/definitions/colorArray"
+                    },
+                    "children": {
+                        "$ref": "#/definitions/treeLevelOnePlusProbabilistic"
+                    }
+                }
+            }
+        },
+        "treeLevelOnePlusProbabilistic": {
+            "oneOf": [{
+                    "$ref": "#/definitions/treeLevelOnePlusNonLeafProbabilistic"
+                },
+                {
+                    "$ref": "#/definitions/treeLevelOnePlusLeafProbabilistic"
+                }
+            ]
+        },
+        "treeLevelZeroProbabilistic": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "children": {
+                        "$ref": "#/definitions/treeLevelOnePlusProbabilistic"
+                    }
+                }
+            }
+        },
+        "version0.1.3": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["version", "datatype", "tree"],
+            "properties": {
+                "dataset": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string",
+                    "enum": ["0.1.3"]
+                },
+                "datatype": {
+                    "type": "string",
+                    "enum": ["cell"]
+                },
+                "tree": {
+                    "$ref": "#/definitions/treeLevelZeroProbabilistic"
+                }
+            }
+        }
+    },
+    "oneOf": [
+        {
+            "$ref": "#/definitions/version0.1.2"
+        },
+        {
+            "$ref": "#/definitions/version0.1.3"
+        }
+    ]
 }
-  
