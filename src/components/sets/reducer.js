@@ -1,6 +1,6 @@
-/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
+import isNil from 'lodash/isNil';
 import some from 'lodash/some';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
@@ -595,7 +595,7 @@ function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME, has
   const numToolsNodeChildren = toolsNode.children.length;
   const nextCurrentSetColor = PALETTE[numToolsNodeChildren % PALETTE.length];
 
-  const cellIdsWithProb = (hasProb ? cellIds : cellIds.map(cellId => ([cellId, 1])));
+  const cellIdsWithProb = (hasProb ? cellIds : cellIds.map(cellId => ([cellId, null])));
 
   newTree = {
     ...newTree,
@@ -1398,7 +1398,10 @@ export function treeToVisibleCells(currTree) {
       const nodeSet = nodeToSet(node);
       cellColorsArray = [
         ...cellColorsArray,
-        ...nodeSet.map(([cellId, prob]) => [cellId, (prob ? colorMixWithUncertainty(node.color, prob) : node.color)]),
+        ...nodeSet.map(([cellId, prob]) => [
+          cellId,
+          (isNil(prob) ? node.color : colorMixWithUncertainty(node.color, prob)),
+        ]),
       ];
     }
   });

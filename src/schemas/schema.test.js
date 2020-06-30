@@ -14,6 +14,7 @@ describe('schemas', () => {
     'neighborhoods',
     'dataset',
     'cell-sets',
+    'cell-sets-tabular',
     'raster',
   ].forEach((type) => {
     const schemaFile = `${type}.schema.json`;

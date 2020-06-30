@@ -1,4 +1,5 @@
 import Ajv from 'ajv';
+import isNil from 'lodash/isNil';
 import { dsvFormat } from 'd3-dsv';
 import { parse as json2csv } from 'json2csv';
 import { colorArrayToString, colorStringToArray } from './utils';
@@ -20,14 +21,14 @@ import {
 export function tryUpgradeToLatestSchema(currTree, datatype) {
   if (currTree.version === '0.1.2') {
     // To upgrade from cell-sets schema 0.1.2 to 0.1.3,
-    // add a confidence value of 1 for each cell ID.
+    // add a confidence value of null for each cell ID.
     return {
       ...currTree,
       version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
       tree: currTree.tree.map(levelZeroNode => nodeTransform(
         levelZeroNode,
         n => !n.children && Array.isArray(n.set),
-        n => ({ ...n, set: n.set.map(itemId => ([itemId, 1])) }),
+        n => ({ ...n, set: n.set.map(itemId => ([itemId, null])) }),
       )),
     };
   }
@@ -73,9 +74,13 @@ export function handleImportTabular(result, datatype) {
     set_name: row.set_name,
     set_color: (row.set_color ? colorStringToArray(row.set_color) : DEFAULT_COLOR),
     cell_id: row.cell_id,
-    prediction_score: ((!row.prediction_score || row.prediction_score === NA_VALUE_TABULAR)
-      ? 1.0
-      : +row.prediction_score
+    prediction_score: (
+      (
+        isNil(row.prediction_score)
+        || row.prediction_score === NA_VALUE_TABULAR
+      )
+        ? null
+        : +row.prediction_score
     ),
   }));
   // Validate the imported file.
@@ -137,13 +142,13 @@ export function handleExportTabular(result) {
   result.tree.forEach((levelZeroNode) => {
     levelZeroNode.children.forEach((levelOneNode) => {
       if (levelOneNode.set) {
-        levelOneNode.set.forEach((cellId) => {
+        levelOneNode.set.forEach(([cellId, prob]) => {
           exportData.push({
             group_name: levelZeroNode.name,
             set_name: levelOneNode.name,
             set_color: colorArrayToString(levelOneNode.color),
-            cell_id: cellId[0],
-            prediction_score: cellId[1] || NA_VALUE_TABULAR,
+            cell_id: cellId,
+            prediction_score: isNil(prob) ? NA_VALUE_TABULAR : prob,
           });
         });
       }
