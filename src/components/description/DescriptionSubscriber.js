@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import PubSub from 'pubsub-js';
-import { METADATA_ADD, METADATA_REMOVE, METADATA_CLEAR } from '../../events';
+import { METADATA_ADD, METADATA_REMOVE, RESET } from '../../events';
 import TitleInfo from '../TitleInfo';
 import Description from './Description';
 
@@ -41,12 +41,12 @@ export default function DescriptionSubscriber(props) {
     }
     const metadataAddToken = PubSub.subscribe(METADATA_ADD, handleMetadataAdd);
     const metadataRemoveToken = PubSub.subscribe(METADATA_REMOVE, handleMetadataRemove);
-    const metadataClearToken = PubSub.subscribe(METADATA_CLEAR, () => setMetadata({}));
+    const resetToken = PubSub.subscribe(RESET, () => setMetadata({}));
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(metadataAddToken);
       PubSub.unsubscribe(metadataRemoveToken);
-      PubSub.unsubscribe(metadataClearToken);
+      PubSub.unsubscribe(resetToken);
     };
   }, [onReadyCallback]);
 

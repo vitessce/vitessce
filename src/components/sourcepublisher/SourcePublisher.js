@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import {
   STATUS_WARN, STATUS_INFO,
   CELLS_ADD, CLUSTERS_ADD, FACTORS_ADD, GENES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD,
-  CLEAR_PLEASE_WAIT, RASTER_ADD, CELL_SETS_ADD,
+  CLEAR_PLEASE_WAIT, RASTER_ADD, CELL_SETS_ADD, RESET,
 } from '../../events';
 
 import cellsSchema from '../../schemas/cells.schema.json';
@@ -45,6 +45,10 @@ function warn(message) {
 
 function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
+}
+
+function reset() {
+  PubSub.publish(RESET, {});
 }
 
 function publishLayer(data, type, name, url) {
@@ -106,6 +110,7 @@ export default function SourcePublisher({ layers }) {
         return newPleaseWaits;
       });
     }
+    reset();
     const newPleaseWaits = {};
     layers.map(layer => layer.name).forEach((name) => { newPleaseWaits[name] = true; });
     layers.forEach((layer) => {

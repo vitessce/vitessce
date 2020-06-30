@@ -1,8 +1,8 @@
 const ADD = '.add';
 const CHANGE = '.change';
 const REMOVE = '.remove';
-const CLEAR = '.clear';
 
+export const RESET = 'reset';
 export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
 
 export const VIEW_INFO = 'view.info';
@@ -42,7 +42,6 @@ export const STATUS_INFO = `${STATUS}.info`;
 
 export const RASTER = 'raster';
 export const RASTER_ADD = RASTER + ADD;
-export const RASTER_CLEAR = RASTER + CLEAR;
 
 export const LAYER = 'layer';
 export const LAYER_ADD = LAYER + ADD;
@@ -52,4 +51,3 @@ export const LAYER_CHANGE = LAYER + CHANGE;
 export const METADATA = 'metadata';
 export const METADATA_ADD = METADATA + ADD;
 export const METADATA_REMOVE = METADATA + REMOVE;
-export const METADATA_CLEAR = METADATA + CLEAR;
