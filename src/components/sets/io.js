@@ -18,7 +18,7 @@ import {
  * which has already passed schema validation, but may not have the latest schema version.
  * @param {string} datatype The data type of the items in the schema.
  */
-export function tryUpgradeToLatestSchema(currTree, datatype) {
+export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
   if (currTree.version === '0.1.2') {
     // To upgrade from cell-sets schema 0.1.2 to 0.1.3,
     // add a confidence value of null for each cell ID.
@@ -55,7 +55,7 @@ export function handleImportJSON(result, datatype) {
       `The imported data type does not match the expected data type of '${datatype}'.`,
     );
   } else {
-    importData = tryUpgradeToLatestSchema(importData, datatype);
+    importData = tryUpgradeTreeToLatestSchema(importData, datatype);
     return importData;
   }
 }

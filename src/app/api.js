@@ -85,17 +85,17 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
           mapping: 'UMAP',
           view: {
             zoom: 4,
-            target: [0, 0, 0],
+            target: [8, 8, 0],
           },
         },
         x: 0, y: 0, w: 7, h: 8 },
       { component: 'cellSets',
-        x: 7, y: 0, w: 5, h: 6 },
-      { component: 'description',
+        x: 7, y: 0, w: 5, h: 4 },
+      { component: 'cellSetSizes',
         props: {
           description: 'Note: This is for demonstration purposes only. The data shown here has not been processed by the official HuBMAP pipelines.'
         },
-        x: 7, y: 6, w: 5, h: 2 },
+        x: 7, y: 4, w: 5, h: 4 },
     ],
   }
 });
@@ -678,6 +678,8 @@ const configs = {
   ...createHuBMAPCellAnnotationsConfig('ed8a4dbbb1554a5e3227d6dfb2368828'),
 };
 /* eslint-enable */
+
+console.log(JSON.stringify(createHuBMAPCellAnnotationsConfig('7fd04d1aba61c35843dd2eb6a19d2545'))); // eslint-disable-line
 
 export function listConfigs(showAll) {
   return Object.entries(configs).filter(
