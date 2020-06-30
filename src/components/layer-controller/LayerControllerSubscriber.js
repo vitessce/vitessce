@@ -12,7 +12,13 @@ import TitleInfo from '../TitleInfo';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import {
-  RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT, METADATA_REMOVE, LAYER_ADD, METADATA_ADD,
+  RASTER_ADD,
+  LAYER_REMOVE,
+  CLEAR_PLEASE_WAIT,
+  METADATA_REMOVE,
+  METADATA_CLEAR,
+  LAYER_ADD,
+  METADATA_ADD,
 } from '../../events';
 import { controllerTheme } from './styles';
 import { DEFAULT_LAYER_PROPS } from './constants';
@@ -91,6 +97,8 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
       // render_layers provides the order for rendering initially.
       const { images, renderLayers } = raster;
       setImageOptions(images);
+      // Clear the metadata out when a new `RASTER_ADD` event is detected
+      PubSub.publish(METADATA_CLEAR);
       if (!renderLayers) {
         const layerId = genId();
         // Midpoint of images list as default image to show.

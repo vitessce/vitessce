@@ -1,6 +1,7 @@
 const ADD = '.add';
 const CHANGE = '.change';
 const REMOVE = '.remove';
+const CLEAR = '.clear';
 
 export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
 
@@ -50,3 +51,4 @@ export const LAYER_CHANGE = LAYER + CHANGE;
 export const METADATA = 'metadata';
 export const METADATA_ADD = METADATA + ADD;
 export const METADATA_REMOVE = METADATA + REMOVE;
+export const METADATA_CLEAR = METADATA + CLEAR;
