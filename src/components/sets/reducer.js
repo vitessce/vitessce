@@ -574,11 +574,9 @@ function nodeTransformChildOrAppendChild(node,
  * @param {array} cellIds The new set value.
  * @param {string} name The name for the .isCurrent node. Optional.
  * By default, 'Current selection'.
- * @param {boolean} hasProb Are the `cellIds` a list of string,
- * or a list of [cellId, probability] tuples?
  * @returns {object} The updated tree.
  */
-function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME, hasProb = false) {
+function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME) {
   let newTree = currTree;
   let toolsNode = newTree.tree.find(nodeFindIsForToolsNode);
   if (!toolsNode) {
@@ -595,7 +593,7 @@ function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME, has
   const numToolsNodeChildren = toolsNode.children.length;
   const nextCurrentSetColor = PALETTE[numToolsNodeChildren % PALETTE.length];
 
-  const cellIdsWithProb = (hasProb ? cellIds : cellIds.map(cellId => ([cellId, null])));
+  const cellIdsWithProb = cellIds.map(cellId => ([cellId, null]));
 
   newTree = {
     ...newTree,

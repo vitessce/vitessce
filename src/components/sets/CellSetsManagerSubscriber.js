@@ -17,7 +17,7 @@ import reducer, {
   treeHasCheckedSetsToComplement,
 } from './reducer';
 import {
-  tryUpgradeToLatestSchema,
+  tryUpgradeTreeToLatestSchema,
   handleExportJSON, downloadForUser,
   handleExportTabular,
 } from './io';
@@ -150,7 +150,7 @@ export default function CellSetsManagerSubscriber(props) {
     const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD,
       (msg, treeToImport) => {
         const actionType = (initEmit ? ACTION.IMPORT_AND_VIEW : ACTION.IMPORT);
-        const newTreeToImport = tryUpgradeToLatestSchema(treeToImport, SETS_DATATYPE_CELL);
+        const newTreeToImport = tryUpgradeTreeToLatestSchema(treeToImport, SETS_DATATYPE_CELL);
         dispatch({ type: actionType, levelZeroNodes: newTreeToImport.tree });
       });
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
