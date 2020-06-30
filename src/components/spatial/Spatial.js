@@ -165,39 +165,39 @@ export default function Spatial(props) {
       });
       moleculesDataRef.current = moleculesData;
       if (clearPleaseWait) clearPleaseWait('molecules');
-      setLayerIsVisible({
+      setLayerIsVisible(prevLayerIsVisible => ({
         molecules: true,
-        cells: layerIsVisible.cells,
-        neighborhoods: layerIsVisible.neighborhoods,
-      });
+        cells: prevLayerIsVisible.cells,
+        neighborhoods: prevLayerIsVisible.neighborhoods,
+      }));
     }
-  }, [molecules, moleculesDataRef, clearPleaseWait, layerIsVisible]);
+  }, [molecules, moleculesDataRef, clearPleaseWait]);
 
   useEffect(() => {
     // Process cells data and cache into re-usable array.
-    if (cells && !cellsDataRef.current) {
+    if (cells) {
       cellsDataRef.current = Object.entries(cells);
       if (clearPleaseWait) clearPleaseWait('cells');
-      setLayerIsVisible({
-        molecules: layerIsVisible.molecules,
+      setLayerIsVisible(prevLayerIsVisible => ({
+        molecules: prevLayerIsVisible.molecules,
         cells: true,
-        neighborhoods: layerIsVisible.neighborhoods,
-      });
+        neighborhoods: prevLayerIsVisible.neighborhoods,
+      }));
     }
-  }, [cells, cellsDataRef, clearPleaseWait, layerIsVisible]);
+  }, [cells, cellsDataRef, clearPleaseWait]);
 
   useEffect(() => {
     // Process neighborhoods data and cache into re-usable array.
     if (neighborhoods && !neighborhoodsDataRef.current) {
       neighborhoodsDataRef.current = Object.entries(neighborhoods);
       if (clearPleaseWait) clearPleaseWait('neighborhoods');
-      setLayerIsVisible({
-        molecules: layerIsVisible.molecules,
-        cells: layerIsVisible.cells,
+      setLayerIsVisible(prevLayerIsVisible => ({
+        molecules: prevLayerIsVisible.molecules,
+        cells: prevLayerIsVisible.cells,
         neighborhoods: false,
-      });
+      }));
     }
-  }, [neighborhoods, neighborhoodsDataRef, clearPleaseWait, layerIsVisible]);
+  }, [neighborhoods, neighborhoodsDataRef, clearPleaseWait]);
 
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
     id: CELLS_LAYER_ID,
