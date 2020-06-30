@@ -19,6 +19,8 @@ import {
   METADATA_CLEAR,
   LAYER_ADD,
   METADATA_ADD,
+  // eslint-disable-next-line
+  RASTER_CLEAR,
 } from '../../events';
 import { controllerTheme } from './styles';
 import { DEFAULT_LAYER_PROPS } from './constants';
@@ -97,8 +99,9 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
       // render_layers provides the order for rendering initially.
       const { images, renderLayers } = raster;
       setImageOptions(images);
-      // Clear the metadata out when a new `RASTER_ADD` event is detected
+      // Clear the metadata and spatial imagery out when a new `RASTER_ADD` event is detected
       PubSub.publish(METADATA_CLEAR);
+      PubSub.publish(RASTER_CLEAR);
       if (!renderLayers) {
         const layerId = genId();
         // Midpoint of images list as default image to show.

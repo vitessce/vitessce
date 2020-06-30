@@ -19,6 +19,7 @@ import {
   LAYER_ADD,
   LAYER_REMOVE,
   LAYER_CHANGE,
+  RASTER_CLEAR,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -67,6 +68,10 @@ export default function SpatialSubscriber({
         return nextLayerProps;
       });
     }
+    function rasterClearSubscriber() {
+      setImageLayerProps({});
+      setImageLayerLoaders({});
+    }
 
     const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
     const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, neighborhoodsAddSubscriber);
@@ -77,6 +82,7 @@ export default function SpatialSubscriber({
     const layerAddToken = PubSub.subscribe(LAYER_ADD, layerAddSubscriber);
     const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
     const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
+    const rasterClearToken = PubSub.subscribe(RASTER_CLEAR, rasterClearSubscriber);
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(moleculesAddToken);
@@ -88,6 +94,7 @@ export default function SpatialSubscriber({
       PubSub.unsubscribe(layerAddToken);
       PubSub.unsubscribe(layerChangeToken);
       PubSub.unsubscribe(layerRemoveToken);
+      PubSub.unsubscribe(rasterClearToken);
     };
   }, [onReadyCallback]);
 

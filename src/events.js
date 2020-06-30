@@ -42,6 +42,7 @@ export const STATUS_INFO = `${STATUS}.info`;
 
 export const RASTER = 'raster';
 export const RASTER_ADD = RASTER + ADD;
+export const RASTER_CLEAR = RASTER + CLEAR;
 
 export const LAYER = 'layer';
 export const LAYER_ADD = LAYER + ADD;
