@@ -101,7 +101,26 @@ export default function SpatialSubscriber({
         .reduce((a, b) => a + b, 0),
     ];
   }, [molecules]);
-
+  const updateStatus = useCallback(
+    message => PubSub.publish(STATUS_INFO, message),
+    [],
+  );
+  const updateCellsSelection = useCallback(
+    selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds),
+    [],
+  );
+  const updateCellsHover = useCallback(
+    hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo),
+    [],
+  );
+  const updateViewInfo = useCallback(
+    viewInfo => PubSub.publish(VIEW_INFO, viewInfo),
+    [],
+  );
+  const clearPleaseWait = useCallback(
+    layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName),
+    [],
+  );
   return (
     <TitleInfo
       title="Spatial"
@@ -124,21 +143,11 @@ export default function SpatialSubscriber({
         cellRadius={cellRadius}
         moleculeRadius={moleculeRadius}
         uuid={uuid}
-        updateStatus={
-            message => PubSub.publish(STATUS_INFO, message)
-          }
-        updateCellsSelection={
-            selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)
-          }
-        updateCellsHover={
-            hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)
-          }
-        updateViewInfo={
-            viewInfo => PubSub.publish(VIEW_INFO, viewInfo)
-          }
-        clearPleaseWait={
-            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-          }
+        updateStatus={updateStatus}
+        updateCellsSelection={updateCellsSelection}
+        updateCellsHover={updateCellsHover}
+        updateViewInfo={updateViewInfo}
+        clearPleaseWait={clearPleaseWait}
       />
     </TitleInfo>
   );

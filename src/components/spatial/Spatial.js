@@ -153,7 +153,7 @@ export default function Spatial(props) {
 
   useEffect(() => {
     // Process molecules data and cache into re-usable array.
-    if (molecules && !moleculesDataRef.current) {
+    if (molecules) {
       let moleculesData = [];
       Object.entries(molecules).forEach(([molecule, coords], index) => {
         moleculesData = moleculesData.concat(
@@ -171,7 +171,7 @@ export default function Spatial(props) {
         neighborhoods: prevLayerIsVisible.neighborhoods,
       }));
     }
-  }, [molecules, moleculesDataRef, clearPleaseWait]);
+  }, [molecules, clearPleaseWait]);
 
   useEffect(() => {
     // Process cells data and cache into re-usable array.
@@ -184,11 +184,11 @@ export default function Spatial(props) {
         neighborhoods: prevLayerIsVisible.neighborhoods,
       }));
     }
-  }, [cells, cellsDataRef, clearPleaseWait]);
+  }, [cells, clearPleaseWait]);
 
   useEffect(() => {
     // Process neighborhoods data and cache into re-usable array.
-    if (neighborhoods && !neighborhoodsDataRef.current) {
+    if (neighborhoods) {
       neighborhoodsDataRef.current = Object.entries(neighborhoods);
       if (clearPleaseWait) clearPleaseWait('neighborhoods');
       setLayerIsVisible(prevLayerIsVisible => ({
@@ -197,7 +197,7 @@ export default function Spatial(props) {
         neighborhoods: false,
       }));
     }
-  }, [neighborhoods, neighborhoodsDataRef, clearPleaseWait]);
+  }, [neighborhoods, clearPleaseWait]);
 
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
     id: CELLS_LAYER_ID,
