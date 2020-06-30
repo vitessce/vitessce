@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
@@ -60,6 +61,44 @@ const vanderbiltBase = {
     'raster',
   ].map(makeLayerNameToConfig('spraggins')),
 };
+
+const createHuBMAPCellAnnotationsConfig = (globusId) => ({
+  [globusId]: {
+    name: 'HuBMAP Spleen 0510',
+    description: 'Cell type annotations and Leiden clustering results.',
+    layers: [
+      {
+        name: 'cells',
+        type: 'CELLS',
+        url: `https://keller-mark.github.io/vitessce-demo-hosting-temporary/cell-type-annotations/${globusId}.cells.json`,
+      },
+      {
+        name: 'cell-sets',
+        type: 'CELL-SETS',
+        url: `https://keller-mark.github.io/vitessce-demo-hosting-temporary/cell-type-annotations/${globusId}.cell-sets.json`,
+      },
+    ],
+    public: true,
+    staticLayout: [
+      { component: 'scatterplot',
+        props: {
+          mapping: 'UMAP',
+          view: {
+            zoom: 4,
+            target: [0, 0, 0],
+          },
+        },
+        x: 0, y: 0, w: 7, h: 8 },
+      { component: 'cellSets',
+        x: 7, y: 0, w: 5, h: 6 },
+      { component: 'description',
+        props: {
+          description: 'Note: This is for demonstration purposes only. The data shown here has not been processed by the official HuBMAP pipelines.'
+        },
+        x: 7, y: 6, w: 5, h: 2 },
+    ],
+  }
+});
 
 /* eslint-disable object-property-newline */
 /* eslint-disable object-curly-newline */
@@ -632,6 +671,11 @@ const configs = {
         x: 8, y: 0, w: 4, h: 2 },
     ],
   },
+  ...createHuBMAPCellAnnotationsConfig('2dca1bf5832a4102ba780e9e54f6c350'),
+  ...createHuBMAPCellAnnotationsConfig('7fd04d1aba61c35843dd2eb6a19d2545'),
+  ...createHuBMAPCellAnnotationsConfig('8a238da50c0c0436510b857c21e4e792'),
+  ...createHuBMAPCellAnnotationsConfig('3683b49e27133c064ccbd59ff9723e7c'),
+  ...createHuBMAPCellAnnotationsConfig('ed8a4dbbb1554a5e3227d6dfb2368828'),
 };
 /* eslint-enable */
 
