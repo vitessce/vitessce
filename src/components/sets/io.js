@@ -1,30 +1,39 @@
 import Ajv from 'ajv';
+import isNil from 'lodash/isNil';
 import { dsvFormat } from 'd3-dsv';
 import { parse as json2csv } from 'json2csv';
 import { colorArrayToString, colorStringToArray } from './utils';
+import { nodeTransform } from './reducer';
 import { DEFAULT_COLOR } from '../utils';
-import cellSetsSchema from '../../schemas/cell-sets.schema.json';
-import cellSetsTabularSchema from '../../schemas/cell-sets-tabular.schema.json';
+import {
+  HIERARCHICAL_SCHEMAS, TABULAR_SCHEMAS,
+  MIME_TYPE_JSON, MIME_TYPE_TABULAR,
+  SEPARATOR_TABULAR, NA_VALUE_TABULAR,
+} from './constants';
 
-export const FILE_EXTENSION_JSON = 'json';
-export const MIME_TYPE_JSON = 'application/json';
-
-export const FILE_EXTENSION_TABULAR = 'csv';
-export const MIME_TYPE_TABULAR = 'text/csv';
-export const SEPARATOR_TABULAR = ',';
-
-export const HIERARCHICAL_SCHEMAS = {
-  cell: {
-    version: '0.1.2',
-    schema: cellSetsSchema,
-  },
-};
-
-export const TABULAR_SCHEMAS = {
-  cell: {
-    schema: cellSetsTabularSchema,
-  },
-};
+/**
+ * Check if an imported tree has an old schema version that we know how to
+ * "upgrade" to the latest schema version.
+ * @param {object} currTree A hierarchical tree object with a .version property,
+ * which has already passed schema validation, but may not have the latest schema version.
+ * @param {string} datatype The data type of the items in the schema.
+ */
+export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
+  if (currTree.version === '0.1.2') {
+    // To upgrade from cell-sets schema 0.1.2 to 0.1.3,
+    // add a confidence value of null for each cell ID.
+    return {
+      ...currTree,
+      version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
+      tree: currTree.tree.map(levelZeroNode => nodeTransform(
+        levelZeroNode,
+        n => !n.children && Array.isArray(n.set),
+        n => ({ ...n, set: n.set.map(itemId => ([itemId, null])) }),
+      )),
+    };
+  }
+  return currTree;
+}
 
 /**
  * Handler for JSON imports. Validates against the hierarchical sets schema.
@@ -34,7 +43,7 @@ export const TABULAR_SCHEMAS = {
  * @throws {Error} Throws error if validation fails or if the datatype does not match.
  */
 export function handleImportJSON(result, datatype) {
-  const importData = JSON.parse(result);
+  let importData = JSON.parse(result);
   // Validate the imported file.
   const validate = new Ajv().compile(HIERARCHICAL_SCHEMAS[datatype].schema);
   const valid = validate(importData);
@@ -46,6 +55,7 @@ export function handleImportJSON(result, datatype) {
       `The imported data type does not match the expected data type of '${datatype}'.`,
     );
   } else {
+    importData = tryUpgradeTreeToLatestSchema(importData, datatype);
     return importData;
   }
 }
@@ -64,6 +74,14 @@ export function handleImportTabular(result, datatype) {
     set_name: row.set_name,
     set_color: (row.set_color ? colorStringToArray(row.set_color) : DEFAULT_COLOR),
     cell_id: row.cell_id,
+    prediction_score: (
+      (
+        isNil(row.prediction_score)
+        || row.prediction_score === NA_VALUE_TABULAR
+      )
+        ? null
+        : +row.prediction_score
+    ),
   }));
   // Validate the imported file.
   const validate = new Ajv().compile(TABULAR_SCHEMAS[datatype].schema);
@@ -74,7 +92,7 @@ export function handleImportTabular(result, datatype) {
   } else {
     // Convert the validated array to a tree representation.
     const treeToImport = {
-      version: HIERARCHICAL_SCHEMAS[datatype].version,
+      version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
       datatype,
       tree: [],
     };
@@ -92,7 +110,7 @@ export function handleImportTabular(result, datatype) {
         const levelOneNode = {
           name: setName,
           color: setColor,
-          set: setRows.map(d => d.cell_id),
+          set: setRows.map(d => ([d.cell_id, d.prediction_score])),
         };
         levelZeroNode.children.push(levelOneNode);
       });
@@ -124,19 +142,20 @@ export function handleExportTabular(result) {
   result.tree.forEach((levelZeroNode) => {
     levelZeroNode.children.forEach((levelOneNode) => {
       if (levelOneNode.set) {
-        levelOneNode.set.forEach((cellId) => {
+        levelOneNode.set.forEach(([cellId, prob]) => {
           exportData.push({
             group_name: levelZeroNode.name,
             set_name: levelOneNode.name,
             set_color: colorArrayToString(levelOneNode.color),
             cell_id: cellId,
+            prediction_score: isNil(prob) ? NA_VALUE_TABULAR : prob,
           });
         });
       }
     });
   });
   const csvString = json2csv(exportData, {
-    fields: ['group_name', 'set_name', 'set_color', 'cell_id'],
+    fields: ['group_name', 'set_name', 'set_color', 'cell_id', 'prediction_score'],
     delimiter: SEPARATOR_TABULAR,
   });
   const dataString = `data:${MIME_TYPE_TABULAR};charset=utf-8,${encodeURIComponent(csvString)}`;

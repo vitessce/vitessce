@@ -10,13 +10,13 @@ import expect from 'expect';
 export const levelTwoNodeLeafWithoutState = {
   name: 'Pericytes',
   color: [255, 0, 0],
-  set: ['cell_1', 'cell_2', 'cell_3'],
+  set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
 };
 
 export const levelTwoNodeLeaf = {
   name: 'Pericytes',
   color: [255, 0, 0],
-  set: ['cell_1', 'cell_2', 'cell_3'],
+  set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
   _state: {
     key: 'pericytes',
     level: 2,
@@ -29,7 +29,7 @@ export const levelTwoNodeLeaf = {
 export const levelTwoNodeLeafIgnoreKeys = {
   name: 'Pericytes',
   color: [255, 0, 0],
-  set: ['cell_1', 'cell_2', 'cell_3'],
+  set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
   _state: {
     key: expect.anything(),
     level: 2,
@@ -46,12 +46,12 @@ export const levelOneNodeWithoutState = {
     {
       name: 'Pericytes',
       color: [255, 0, 0],
-      set: ['cell_1', 'cell_2', 'cell_3'],
+      set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
     },
     {
       name: 'Endothelial',
       color: [100, 0, 0],
-      set: ['cell_4', 'cell_5', 'cell_6'],
+      set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
     },
   ],
 };
@@ -63,7 +63,7 @@ export const levelOneNode = {
     {
       name: 'Pericytes',
       color: [255, 0, 0],
-      set: ['cell_1', 'cell_2', 'cell_3'],
+      set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
       _state: {
         key: 'vasculature-pericytes',
         level: 2,
@@ -75,7 +75,7 @@ export const levelOneNode = {
     {
       name: 'Endothelial',
       color: [100, 0, 0],
-      set: ['cell_4', 'cell_5', 'cell_6'],
+      set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
       _state: {
         key: 'vasculature-endothelial',
         level: 2,
@@ -101,7 +101,7 @@ export const levelOneNodeIgnoreKeys = {
     {
       name: 'Pericytes',
       color: [255, 0, 0],
-      set: ['cell_1', 'cell_2', 'cell_3'],
+      set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
       _state: {
         key: expect.anything(),
         level: 2,
@@ -113,7 +113,7 @@ export const levelOneNodeIgnoreKeys = {
     {
       name: 'Endothelial',
       color: [100, 0, 0],
-      set: ['cell_4', 'cell_5', 'cell_6'],
+      set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
       _state: {
         key: expect.anything(),
         level: 2,
@@ -142,12 +142,12 @@ export const levelZeroNodeWithoutState = {
         {
           name: 'Pericytes',
           color: [255, 0, 0],
-          set: ['cell_1', 'cell_2', 'cell_3'],
+          set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
         },
         {
           name: 'Endothelial',
           color: [100, 0, 0],
-          set: ['cell_4', 'cell_5', 'cell_6'],
+          set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
         },
       ],
     },
@@ -164,7 +164,7 @@ export const levelZeroNode = {
         {
           name: 'Pericytes',
           color: [255, 0, 0],
-          set: ['cell_1', 'cell_2', 'cell_3'],
+          set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
           _state: {
             key: 'vasculature-pericytes',
             level: 2,
@@ -176,7 +176,7 @@ export const levelZeroNode = {
         {
           name: 'Endothelial',
           color: [100, 0, 0],
-          set: ['cell_4', 'cell_5', 'cell_6'],
+          set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
           _state: {
             key: 'vasculature-endothelial',
             level: 2,
@@ -214,7 +214,7 @@ export const levelZeroNodeIgnoreKeys = {
         {
           name: 'Pericytes',
           color: [255, 0, 0],
-          set: ['cell_1', 'cell_2', 'cell_3'],
+          set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
           _state: {
             key: expect.anything(),
             level: 2,
@@ -226,7 +226,7 @@ export const levelZeroNodeIgnoreKeys = {
         {
           name: 'Endothelial',
           color: [100, 0, 0],
-          set: ['cell_4', 'cell_5', 'cell_6'],
+          set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
           _state: {
             key: expect.anything(),
             level: 2,
@@ -255,7 +255,7 @@ export const levelZeroNodeIgnoreKeys = {
 };
 
 export const treeWithoutState = {
-  version: '0.1.2',
+  version: '0.1.3',
   datatype: 'cell',
   tree: [
     {
@@ -268,12 +268,12 @@ export const treeWithoutState = {
             {
               name: 'Pericytes',
               color: [255, 0, 0],
-              set: ['cell_1', 'cell_2', 'cell_3'],
+              set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
             },
             {
               name: 'Endothelial',
               color: [100, 0, 0],
-              set: ['cell_4', 'cell_5', 'cell_6'],
+              set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
             },
           ],
         },
@@ -283,7 +283,7 @@ export const treeWithoutState = {
 };
 
 export const treeWithoutStateOrColors = {
-  version: '0.1.2',
+  version: '0.1.3',
   datatype: 'cell',
   tree: [
     {
@@ -294,11 +294,11 @@ export const treeWithoutStateOrColors = {
           children: [
             {
               name: 'Pericytes',
-              set: ['cell_1', 'cell_2', 'cell_3'],
+              set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
             },
             {
               name: 'Endothelial',
-              set: ['cell_4', 'cell_5', 'cell_6'],
+              set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
             },
           ],
         },
@@ -308,7 +308,7 @@ export const treeWithoutStateOrColors = {
 };
 
 export const tree = {
-  version: '0.1.2',
+  version: '0.1.3',
   datatype: 'cell',
   tree: [
     {
@@ -321,7 +321,7 @@ export const tree = {
             {
               name: 'Pericytes',
               color: [255, 0, 0],
-              set: ['cell_1', 'cell_2', 'cell_3'],
+              set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
               _state: {
                 key: 'vasculature-pericytes',
                 level: 2,
@@ -333,7 +333,7 @@ export const tree = {
             {
               name: 'Endothelial',
               color: [100, 0, 0],
-              set: ['cell_3', 'cell_4', 'cell_5'],
+              set: [['cell_3', null], ['cell_4', null], ['cell_5', null]],
               _state: {
                 key: 'vasculature-endothelial',
                 level: 2,
@@ -374,7 +374,7 @@ export const tree = {
 };
 
 export const treeIgnoreKeys = {
-  version: '0.1.2',
+  version: '0.1.3',
   datatype: 'cell',
   tree: [
     {
@@ -387,7 +387,7 @@ export const treeIgnoreKeys = {
             {
               name: 'Pericytes',
               color: [255, 0, 0],
-              set: ['cell_1', 'cell_2', 'cell_3'],
+              set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
               _state: {
                 key: expect.anything(),
                 level: 2,
@@ -399,7 +399,7 @@ export const treeIgnoreKeys = {
             {
               name: 'Endothelial',
               color: [100, 0, 0],
-              set: ['cell_4', 'cell_5', 'cell_6'],
+              set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
               _state: {
                 key: expect.anything(),
                 level: 2,
@@ -440,13 +440,13 @@ export const treeIgnoreKeys = {
 };
 
 export const emptyTreeWithoutState = {
-  version: '0.1.2',
+  version: '0.1.3',
   datatype: 'cell',
   tree: [],
 };
 
 export const emptyTree = {
-  version: '0.1.2',
+  version: '0.1.3',
   datatype: 'cell',
   tree: [],
   _state: {
@@ -461,7 +461,7 @@ export const emptyTree = {
   },
 };
 export const emptyTreeIgnoreKeys = {
-  version: '0.1.2',
+  version: '0.1.3',
   datatype: 'cell',
   tree: [],
   _state: {
