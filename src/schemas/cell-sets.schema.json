@@ -108,7 +108,7 @@
                 "tree": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/treeNode"
+                        "$ref": "#/definitions/treeNodeNonLeaf"
                     }
                 }
             }
@@ -177,7 +177,7 @@
                 "tree": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/treeNodeProbabilistic"
+                        "$ref": "#/definitions/treeNodeNonLeafProbabilistic"
                     }
                 }
             }
