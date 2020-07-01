@@ -27,3 +27,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2020-06-25: [ilan-gold/v0.1.7](https://s3.amazonaws.com/vitessce-data/demos/2020-06-25/0b8c167/index.html)
 - 2020-06-25: [ilan-gold/v0.1.7](https://s3.amazonaws.com/vitessce-data/demos/2020-06-25/b8763e1/index.html)
 - 2020-06-30: [keller-mark/probabilistic-cell-sets-demo](https://s3.amazonaws.com/vitessce-data/demos/2020-06-30/c6ca68b/index.html)
+- 2020-07-01: [keller-mark/probabilistic-cell-sets-demo](https://s3.amazonaws.com/vitessce-data/demos/2020-07-01/e59a786/index.html)
