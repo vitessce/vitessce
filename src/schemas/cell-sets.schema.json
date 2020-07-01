@@ -44,68 +44,50 @@
             "minItems": 3,
             "maxItems": 3
         },
-        "treeLevelOnePlusLeaf": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "color": {
-                        "$ref": "#/definitions/colorArray"
-                    },
-                    "set": {
-                        "$ref": "#/definitions/stringArray"
+        "treeNodeLeaf": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/colorArray"
+                },
+                "set": {
+                    "$ref": "#/definitions/stringArray"
+                }
+            }
+        },
+        "treeNodeNonLeaf": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/colorArray"
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/treeNode"
                     }
                 }
             }
         },
-        "treeLevelOnePlusNonLeaf": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "color": {
-                        "$ref": "#/definitions/colorArray"
-                    },
-                    "children": {
-                        "$ref": "#/definitions/treeLevelOnePlus"
-                    }
-                }
-            }
-        },
-        "treeLevelOnePlus": {
-            "oneOf": [{
-                    "$ref": "#/definitions/treeLevelOnePlusNonLeaf"
+        "treeNode": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/treeNodeNonLeaf"
                 },
                 {
-                    "$ref": "#/definitions/treeLevelOnePlusLeaf"
+                    "$ref": "#/definitions/treeNodeLeaf"
                 }
             ]
-        },
-        "treeLevelZero": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "children": {
-                        "$ref": "#/definitions/treeLevelOnePlus"
-                    }
-                }
-            }
         },
         "version0.1.2": {
             "type": "object",
@@ -124,72 +106,57 @@
                     "enum": ["cell"]
                 },
                 "tree": {
-                    "$ref": "#/definitions/treeLevelZero"
-                }
-            }
-        },
-        "treeLevelOnePlusLeafProbabilistic": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "color": {
-                        "$ref": "#/definitions/colorArray"
-                    },
-                    "set": {
-                        "$ref": "#/definitions/stringProbabilityTupleArray"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/treeNodeNonLeaf"
                     }
                 }
             }
         },
-        "treeLevelOnePlusNonLeafProbabilistic": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "color": {
-                        "$ref": "#/definitions/colorArray"
-                    },
-                    "children": {
-                        "$ref": "#/definitions/treeLevelOnePlusProbabilistic"
+        "treeNodeLeafProbabilistic": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/colorArray"
+                },
+                "set": {
+                    "$ref": "#/definitions/stringProbabilityTupleArray"
+                }
+            }
+        },
+        "treeNodeNonLeafProbabilistic": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/colorArray"
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/treeNodeProbabilistic"
                     }
                 }
             }
         },
-        "treeLevelOnePlusProbabilistic": {
-            "oneOf": [{
-                    "$ref": "#/definitions/treeLevelOnePlusNonLeafProbabilistic"
+        "treeNodeProbabilistic": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/treeNodeNonLeafProbabilistic"
                 },
                 {
-                    "$ref": "#/definitions/treeLevelOnePlusLeafProbabilistic"
+                    "$ref": "#/definitions/treeNodeLeafProbabilistic"
                 }
             ]
-        },
-        "treeLevelZeroProbabilistic": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "children": {
-                        "$ref": "#/definitions/treeLevelOnePlusProbabilistic"
-                    }
-                }
-            }
         },
         "version0.1.3": {
             "type": "object",
@@ -208,7 +175,10 @@
                     "enum": ["cell"]
                 },
                 "tree": {
-                    "$ref": "#/definitions/treeLevelZeroProbabilistic"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/treeNodeNonLeafProbabilistic"
+                    }
                 }
             }
         }
