@@ -4,6 +4,7 @@
 
 ## Added
 - Testing protocol calls for all three browsers now.
+- Added a callback for the `RESET` event in the `CellSetsManagerSubscriber` component.
 
 ### Changed
 - Fix Safari channel controller bug.

@@ -4,7 +4,7 @@ import packageJson from '../../../package.json';
 import {
   CELL_SETS_VIEW, CELLS_SELECTION,
   CELLS_ADD, STATUS_WARN, CELLS_COLOR, CELL_SETS_ADD,
-  CELL_SETS_CHANGE, CLEAR_PLEASE_WAIT,
+  CELL_SETS_CHANGE, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
@@ -153,11 +153,15 @@ export default function CellSetsManagerSubscriber(props) {
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, (msg, cellIds) => {
       dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: Array.from(cellIds) });
     });
+    const resetToken = PubSub.subscribe(RESET, () => {
+      dispatch({ type: ACTION.RESET });
+    });
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(cellSetsAddToken);
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsSelectionToken);
+      PubSub.unsubscribe(resetToken);
     };
   }, [onReadyCallback, initEmit]);
 
