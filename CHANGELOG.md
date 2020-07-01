@@ -4,6 +4,7 @@
 
 ## Added
 - Testing protocol calls for all three browsers now.
+- Trevor's slides from from NLM conference to README.md
 
 ### Changed
 - Fix Safari channel controller bug.
