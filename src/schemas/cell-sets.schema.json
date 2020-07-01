@@ -45,42 +45,36 @@
             "maxItems": 3
         },
         "treeNodeLeaf": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "color": {
-                        "$ref": "#/definitions/colorArray"
-                    },
-                    "set": {
-                        "$ref": "#/definitions/stringArray"
-                    }
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/colorArray"
+                },
+                "set": {
+                    "$ref": "#/definitions/stringArray"
                 }
             }
         },
         "treeNodeNonLeaf": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name"],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "color": {
-                        "$ref": "#/definitions/colorArray"
-                    },
-                    "children": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/definitions/treeNode"
-                        }
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/colorArray"
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/treeNode"
                     }
                 }
             }
