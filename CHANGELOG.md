@@ -3,17 +3,18 @@
 ## 0.1.8 - in progress
 
 ### Added
+- Trevor's slides from NLM conference to README.md.
 
 ### Changed
 - Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
 - Update layer controller overflow.
+- Temporarily removed the `React.lazy` wrapper for the `Vega` component from `react-vega`, as a workaround for https://github.com/hubmapconsortium/portal-ui/issues/571 (using Vitessce viewconfigs with React.lazy components is causing the HuBMAP portal interface to crash).
 
 ## [0.1.7](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 
 ## Added
 - Testing protocol calls for all three browsers now.
 - Added a `cell-sets.json` schema version `0.1.3` to support probabilistic cell set assignments, with backwards compatibility with schema version `0.1.2`.
-- Trevor's slides from NLM conference to README.md.
 
 ### Changed
 - Fix Safari channel controller bug.
