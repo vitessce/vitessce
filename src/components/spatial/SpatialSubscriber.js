@@ -68,7 +68,10 @@ export default function SpatialSubscriber({
         return nextLayerProps;
       });
     }
-    function rasterClearSubscriber() {
+    function clearSubscriber() {
+      setCells(null);
+      setMolecules(null);
+      setNeighborhoods(null);
       setImageLayerProps({});
       setImageLayerLoaders({});
     }
@@ -82,7 +85,7 @@ export default function SpatialSubscriber({
     const layerAddToken = PubSub.subscribe(LAYER_ADD, layerAddSubscriber);
     const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
     const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
-    const resetToken = PubSub.subscribe(RESET, rasterClearSubscriber);
+    const resetToken = PubSub.subscribe(RESET, clearSubscriber);
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(moleculesAddToken);
