@@ -1,5 +1,5 @@
 import React, {
-  useRef, useState, useCallback, useEffect, useMemo,
+  useRef, useState, useCallback, useMemo,
 } from 'react';
 import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
@@ -111,9 +111,6 @@ export default function Spatial(props) {
   // In Deck.gl, layers are considered light weight, and
   // can be created and destroyed quickly, if the data they wrap is stable.
   // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
-  const moleculesDataRef = useRef(null);
-  const cellsDataRef = useRef(null);
-  const neighborhoodsDataRef = useRef(null);
 
   const [layerIsVisible, setLayerIsVisible] = useState({
     molecules: false,
@@ -151,53 +148,53 @@ export default function Spatial(props) {
     updateViewInfo(viewRef.current);
   }, [viewRef, updateViewInfo]);
 
-  useEffect(() => {
-    // Process molecules data and cache into re-usable array.
-    if (molecules && !moleculesDataRef.current) {
-      let moleculesData = [];
-      Object.entries(molecules).forEach(([molecule, coords], index) => {
-        moleculesData = moleculesData.concat(
-          coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
-          // Because we use the inner function immediately,
-          // the eslint warning about closures is a red herring:
-          // The index and molecule values are correct.
-        );
-      });
-      moleculesDataRef.current = moleculesData;
+  const moleculesData = useMemo(() => {
+    let result = null;
+    if (molecules) {
+      // Process molecules data and cache into re-usable array.
+      result = [];
+      result = Object
+        .entries(molecules)
+        .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]));
       if (clearPleaseWait) clearPleaseWait('molecules');
-      setLayerIsVisible({
+      setLayerIsVisible(prevLayerIsVisible => ({
         molecules: true,
-        cells: layerIsVisible.cells,
-        neighborhoods: layerIsVisible.neighborhoods,
-      });
+        cells: prevLayerIsVisible.cells,
+        neighborhoods: prevLayerIsVisible.neighborhoods,
+      }));
     }
-  }, [molecules, moleculesDataRef, clearPleaseWait, layerIsVisible]);
+    return result;
+  }, [molecules, clearPleaseWait]);
 
-  useEffect(() => {
-    // Process cells data and cache into re-usable array.
-    if (cells && !cellsDataRef.current) {
-      cellsDataRef.current = Object.entries(cells);
+  const cellsData = useMemo(() => {
+    let result = null;
+    if (cells) {
+      // Process cells data and cache into re-usable array.
+      result = Object.entries(cells);
       if (clearPleaseWait) clearPleaseWait('cells');
-      setLayerIsVisible({
-        molecules: layerIsVisible.molecules,
+      setLayerIsVisible(prevLayerIsVisible => ({
+        molecules: prevLayerIsVisible.molecules,
         cells: true,
-        neighborhoods: layerIsVisible.neighborhoods,
-      });
+        neighborhoods: prevLayerIsVisible.neighborhoods,
+      }));
     }
-  }, [cells, cellsDataRef, clearPleaseWait, layerIsVisible]);
+    return result;
+  }, [cells, clearPleaseWait]);
 
-  useEffect(() => {
-    // Process neighborhoods data and cache into re-usable array.
-    if (neighborhoods && !neighborhoodsDataRef.current) {
-      neighborhoodsDataRef.current = Object.entries(neighborhoods);
+  const neighborhoodsData = useMemo(() => {
+    let result = null;
+    if (neighborhoods) {
+      // Process neighborhoods data and cache into re-usable array.
+      result = Object.entries(neighborhoods);
       if (clearPleaseWait) clearPleaseWait('neighborhoods');
-      setLayerIsVisible({
-        molecules: layerIsVisible.molecules,
-        cells: layerIsVisible.cells,
+      setLayerIsVisible(prevLayerIsVisible => ({
+        molecules: prevLayerIsVisible.molecules,
+        cells: prevLayerIsVisible.cells,
         neighborhoods: false,
-      });
+      }));
     }
-  }, [neighborhoods, neighborhoodsDataRef, clearPleaseWait, layerIsVisible]);
+    return result;
+  }, [neighborhoods, clearPleaseWait]);
 
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
     id: CELLS_LAYER_ID,
@@ -216,15 +213,15 @@ export default function Spatial(props) {
       onCellClick(info);
     },
     visible: layerIsVisible.cells,
-    ...cellLayerDefaultProps(cellsDataRef.current, updateStatus, updateCellsHover, uuid),
-  }), [layerIsVisible, updateStatus, updateCellsHover, uuid, onCellClick,
-    tool, getCellColor, getCellPolygon, cellOpacity,
+    ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
+  }), [cellsData, layerIsVisible, updateStatus, updateCellsHover,
+    uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
     getCellIsSelected]);
 
   const moleculesLayer = useMemo(() => new ScatterplotLayer({
     id: 'molecules-layer',
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: moleculesDataRef.current,
+    data: moleculesData,
     pickable: true,
     autoHighlight: true,
     getRadius: moleculeRadius,
@@ -236,14 +233,14 @@ export default function Spatial(props) {
       if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
     },
     visible: layerIsVisible.molecules,
-  }), [moleculeRadius, getMoleculePosition, getMoleculeColor,
-    layerIsVisible.molecules, updateStatus]);
+  }), [moleculesData, moleculeRadius, getMoleculePosition, getMoleculeColor,
+    layerIsVisible, updateStatus]);
 
   const neighborhoodsLayer = useMemo(() => new PolygonLayer({
     id: 'neighborhoods-layer',
     getPolygon: getNeighborhoodPolygon,
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: neighborhoodsDataRef.current,
+    data: neighborhoodsData,
     pickable: true,
     autoHighlight: true,
     stroked: true,
@@ -251,7 +248,7 @@ export default function Spatial(props) {
     getElevation: 0,
     getLineWidth: 10,
     visible: layerIsVisible.neighborhoods,
-  }), [neighborhoodsDataRef, layerIsVisible, getNeighborhoodPolygon]);
+  }), [neighborhoodsData, layerIsVisible, getNeighborhoodPolygon]);
 
   const renderImageLayer = useCallback((layerId, loader) => {
     const layerProps = imageLayerProps[layerId];
