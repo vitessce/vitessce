@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useRef, useState, useCallback, useEffect, useMemo,
 } from 'react';
@@ -15,6 +16,7 @@ import {
   createDefaultUpdateCellsHover,
   createDefaultUpdateViewInfo, createDefaultClearPleaseWait,
 } from '../utils';
+import { result } from 'lodash';
 
 const COMPONENT_NAME = 'Spatial';
 const CELLS_LAYER_ID = 'cells-layer';
@@ -151,89 +153,88 @@ export default function Spatial(props) {
     updateViewInfo(viewRef.current);
   }, [viewRef, updateViewInfo]);
 
-  useEffect(() => {
-    if (!molecules && moleculesDataRef.current) {
-      // Clear data on reset.
-      moleculesDataRef.current = null;
-    } else if (molecules && !moleculesDataRef.current) {
+  const moleculesData = useMemo(() => {
+    let result = null;
+    if (molecules) {
       // Process molecules data and cache into re-usable array.
-      let moleculesData = [];
-      Object.entries(molecules).forEach(([molecule, coords], index) => {
-        moleculesData = moleculesData.concat(
-          coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
+      result = [];
+      result = Object.entries(molecules).flatMap(([molecule, coords], index) => {
+          return coords.map(([x, y]) => [x, y, index, molecule]);
           // Because we use the inner function immediately,
           // the eslint warning about closures is a red herring:
           // The index and molecule values are correct.
-        );
       });
-      moleculesDataRef.current = moleculesData;
       if (clearPleaseWait) clearPleaseWait('molecules');
-      setLayerIsVisible({
+      setLayerIsVisible(prevLayerIsVisible => ({
         molecules: true,
-        cells: layerIsVisible.cells,
-        neighborhoods: layerIsVisible.neighborhoods,
-      });
+        cells: prevLayerIsVisible.cells,
+        neighborhoods: prevLayerIsVisible.neighborhoods,
+      }));
     }
-  }, [molecules, moleculesDataRef, clearPleaseWait, layerIsVisible]);
+    console.log("running effect for molecules");
+    return result;
+  }, [molecules, clearPleaseWait]);
 
-  useEffect(() => {
-    if (!cells && cellsDataRef.current) {
-      // Clear data on reset.
-      cellsDataRef.current = null;
-    } else if (cells && !cellsDataRef.current) {
+  const cellsData = useMemo(() => {
+    let result = null
+    if (cells) {
       // Process cells data and cache into re-usable array.
-      cellsDataRef.current = Object.entries(cells);
+      result = Object.entries(cells);
       if (clearPleaseWait) clearPleaseWait('cells');
-      setLayerIsVisible({
-        molecules: layerIsVisible.molecules,
+      setLayerIsVisible(prevLayerIsVisible => ({
+        molecules: prevLayerIsVisible.molecules,
         cells: true,
-        neighborhoods: layerIsVisible.neighborhoods,
-      });
+        neighborhoods: prevLayerIsVisible.neighborhoods,
+      }));
     }
-  }, [cells, cellsDataRef, clearPleaseWait, layerIsVisible]);
+    console.log("running effect for cells");
+    return result;
+  }, [cells, clearPleaseWait]);
 
-  useEffect(() => {
-    if (!neighborhoods && neighborhoodsDataRef.current) {
-      // Clear data on reset.
-      neighborhoodsDataRef.current = null;
-    } else if (neighborhoods && !neighborhoodsDataRef.current) {
+  const neighborhoodsData = useMemo(() => {
+    let result = null;
+    if (neighborhoods) {
       // Process neighborhoods data and cache into re-usable array.
-      neighborhoodsDataRef.current = Object.entries(neighborhoods);
+      result = Object.entries(neighborhoods);
       if (clearPleaseWait) clearPleaseWait('neighborhoods');
-      setLayerIsVisible({
-        molecules: layerIsVisible.molecules,
-        cells: layerIsVisible.cells,
+      setLayerIsVisible(prevLayerIsVisible => ({
+        molecules: prevLayerIsVisible.molecules,
+        cells: prevLayerIsVisible.cells,
         neighborhoods: false,
-      });
+      }));
     }
-  }, [neighborhoods, neighborhoodsDataRef, clearPleaseWait, layerIsVisible]);
+    console.log("running effect for neighborhoods");
+    return result;
+  }, [neighborhoods, clearPleaseWait]);
 
-  const cellsLayer = useMemo(() => new SelectablePolygonLayer({
-    id: CELLS_LAYER_ID,
-    backgroundColor: [0, 0, 0],
-    opacity: cellOpacity,
-    isSelected: getCellIsSelected,
-    stroked: false,
-    getPolygon: getCellPolygon,
-    getColor: getCellColor,
-    onClick: (info) => {
-      if (tool) {
-        // If using a tool, prevent individual cell selection.
-        // Let SelectionLayer handle the clicks instead.
-        return;
-      }
-      onCellClick(info);
-    },
-    visible: layerIsVisible.cells,
-    ...cellLayerDefaultProps(cellsDataRef.current, updateStatus, updateCellsHover, uuid),
-  }), [layerIsVisible, updateStatus, updateCellsHover, uuid, onCellClick,
-    tool, getCellColor, getCellPolygon, cellOpacity,
+  const cellsLayer = useMemo(() => {
+    return new SelectablePolygonLayer({
+      id: CELLS_LAYER_ID,
+      backgroundColor: [0, 0, 0],
+      opacity: cellOpacity,
+      isSelected: getCellIsSelected,
+      stroked: false,
+      getPolygon: getCellPolygon,
+      getColor: getCellColor,
+      onClick: (info) => {
+        if (tool) {
+          // If using a tool, prevent individual cell selection.
+          // Let SelectionLayer handle the clicks instead.
+          return;
+        }
+        onCellClick(info);
+      },
+      visible: layerIsVisible.cells,
+      ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
+    });
+  }, [cellsData, layerIsVisible, updateStatus, updateCellsHover,
+    uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
     getCellIsSelected]);
 
   const moleculesLayer = useMemo(() => new ScatterplotLayer({
     id: 'molecules-layer',
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: moleculesDataRef.current,
+    data: moleculesData,
     pickable: true,
     autoHighlight: true,
     getRadius: moleculeRadius,
@@ -245,14 +246,14 @@ export default function Spatial(props) {
       if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
     },
     visible: layerIsVisible.molecules,
-  }), [moleculeRadius, getMoleculePosition, getMoleculeColor,
-    layerIsVisible.molecules, updateStatus]);
+  }), [moleculesData, moleculeRadius, getMoleculePosition, getMoleculeColor,
+    layerIsVisible, updateStatus]);
 
   const neighborhoodsLayer = useMemo(() => new PolygonLayer({
     id: 'neighborhoods-layer',
     getPolygon: getNeighborhoodPolygon,
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: neighborhoodsDataRef.current,
+    data: neighborhoodsData,
     pickable: true,
     autoHighlight: true,
     stroked: true,
@@ -260,7 +261,7 @@ export default function Spatial(props) {
     getElevation: 0,
     getLineWidth: 10,
     visible: layerIsVisible.neighborhoods,
-  }), [neighborhoodsDataRef, layerIsVisible, getNeighborhoodPolygon]);
+  }), [neighborhoodsData, layerIsVisible, getNeighborhoodPolygon]);
 
   const renderImageLayer = useCallback((layerId, loader) => {
     const layerProps = imageLayerProps[layerId];
