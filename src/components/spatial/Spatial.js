@@ -16,7 +16,6 @@ import {
   createDefaultUpdateCellsHover,
   createDefaultUpdateViewInfo, createDefaultClearPleaseWait,
 } from '../utils';
-import { result } from 'lodash';
 
 const COMPONENT_NAME = 'Spatial';
 const CELLS_LAYER_ID = 'cells-layer';
@@ -113,9 +112,6 @@ export default function Spatial(props) {
   // In Deck.gl, layers are considered light weight, and
   // can be created and destroyed quickly, if the data they wrap is stable.
   // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
-  const moleculesDataRef = useRef(null);
-  const cellsDataRef = useRef(null);
-  const neighborhoodsDataRef = useRef(null);
 
   const [layerIsVisible, setLayerIsVisible] = useState({
     molecules: false,
