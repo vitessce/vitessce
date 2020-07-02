@@ -9,6 +9,7 @@
 - Added a callback for the `RESET` event in the `SpatialSubscriber` component to clear previous cells, molecules, neighborhoods, and imaging data.
 - Added a callback for the `RESET` event in the `DescriptionSubscriber` component to clear previous imaging metadata tables.
 - Added a callback for the `RESET` event in the `CellSetsManagerSubscriber` component to clear previous cell sets.
+- Added a publisher for `GRID_RESIZE` when `rowHeight` changes in `PubSubVitessceGrid` to allow the `useGridItemSize` hook to update in this additional case. 
 
 ### Changed
 - Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
