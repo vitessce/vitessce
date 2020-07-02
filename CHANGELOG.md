@@ -6,7 +6,8 @@
 - Testing protocol calls for all three browsers now.
 - Added a `cell-sets.json` schema version `0.1.3` to support probabilistic cell set assignments, with backwards compatibility with schema version `0.1.2`.
 - Trevor's slides from NLM conference to README.md.
-- Added a `RESET` event to notify other components that a new viewconfig and dataset has been loaded.
+- Added a `RESET` event so that the `SourcePublisher` can notify other components that a new viewconfig and dataset has been loaded.
+- Added a callback for the `RESET` event in the `SpatialSubscriber` component to clear previous cells, molecules, neighborhoods, and imaging data.
 - Added a callback for the `RESET` event in the `DescriptionSubscriber` component to clear previous imaging metadata tables.
 - Added a callback for the `RESET` event in the `CellSetsManagerSubscriber` component to clear previous cell sets.
 
