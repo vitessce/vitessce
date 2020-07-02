@@ -10,7 +10,7 @@ export default function CellTooltip(props) {
   } = props;
 
   const ref = useRef(null);
-  const isNarrow = (parentWidth < 300);
+  const isNarrow = (parentWidth < 500);
   // Do collision detection based on the bounds of the tooltip ancestor element.
   useEffect(() => {
     const el = ref.current;
