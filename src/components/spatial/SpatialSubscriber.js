@@ -23,12 +23,6 @@ import {
 } from '../../events';
 import Spatial from './Spatial';
 
-const updateStatus = message => PubSub.publish(STATUS_INFO, message);
-const updateCellsSelection = selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds);
-const updateCellsHover = hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo);
-const updateViewInfo = viewInfo => PubSub.publish(VIEW_INFO, viewInfo);
-const clearPleaseWait = layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName);
-
 export default function SpatialSubscriber({
   children,
   onReady,
@@ -74,12 +68,7 @@ export default function SpatialSubscriber({
         return nextLayerProps;
       });
     }
-    function resetSubscriber() {
-      setCells(null);
-      setMolecules(null);
-      setCellColors(null);
-      setNeighborhoods(null);
-      setSelectedCellIds(new Set());
+    function rasterClearSubscriber() {
       setImageLayerProps({});
       setImageLayerLoaders({});
     }
@@ -93,7 +82,7 @@ export default function SpatialSubscriber({
     const layerAddToken = PubSub.subscribe(LAYER_ADD, layerAddSubscriber);
     const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
     const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
-    const resetToken = PubSub.subscribe(RESET, resetSubscriber);
+    const resetToken = PubSub.subscribe(RESET, rasterClearSubscriber);
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(moleculesAddToken);
@@ -119,7 +108,26 @@ export default function SpatialSubscriber({
         .reduce((a, b) => a + b, 0),
     ];
   }, [molecules]);
-
+  const updateStatus = useCallback(
+    message => PubSub.publish(STATUS_INFO, message),
+    [],
+  );
+  const updateCellsSelection = useCallback(
+    selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds),
+    [],
+  );
+  const updateCellsHover = useCallback(
+    hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo),
+    [],
+  );
+  const updateViewInfo = useCallback(
+    viewInfo => PubSub.publish(VIEW_INFO, viewInfo),
+    [],
+  );
+  const clearPleaseWait = useCallback(
+    layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName),
+    [],
+  );
   return (
     <TitleInfo
       title="Spatial"
