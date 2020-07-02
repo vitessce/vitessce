@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.8 - in progress
+## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
 
 ### Added
 - Trevor's slides from NLM conference to README.md.
@@ -20,7 +20,7 @@
 - Increased the `isNarrow` threshold from `300` to `500` for the `CellTooltip` component, to use a smaller font size at a wider plot width.
 
 
-## [0.1.7](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
+## [0.1.7](https://www.npmjs.com/package/vitessce/v/0.1.7) - 2020-06-25
 
 ## Added
 - Testing protocol calls for all three browsers now.
