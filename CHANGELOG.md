@@ -3,15 +3,6 @@
 ## 0.1.8 - in progress
 
 ### Added
-
-### Changed
-- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
-- Update layer controller overflow.
-
-## [0.1.7](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
-
-## Added
-- Testing protocol calls for all three browsers now.
 - Added a `cell-sets.json` schema version `0.1.3` to support probabilistic cell set assignments, with backwards compatibility with schema version `0.1.2`.
 - Trevor's slides from NLM conference to README.md.
 - Added a `RESET` event so that the `SourcePublisher` can notify other components that a new viewconfig and dataset has been loaded.
@@ -20,11 +11,20 @@
 - Added a callback for the `RESET` event in the `CellSetsManagerSubscriber` component to clear previous cell sets.
 
 ### Changed
+- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
+- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
+- Update layer controller overflow.
+- Updated the `Spatial` component data processing of `cells`, `molecules`, and `neighborhoods` with `useMemo` (rather than `useRef` + `useEffect`).
+
+## [0.1.7](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
+
+## Added
+- Testing protocol calls for all three browsers now.
+
+### Changed
 - Fix Safari channel controller bug.
 - Fix Safari heatmap display bug.
 - Heatmap color canvas has precedence over selection canvas when resizing.
-- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
-- Updated the `Spatial` component data processing of `cells`, `molecules`, and `neighborhoods` with `useMemo` (rather than `useRef` + `useEffect`).
 
 ## [0.1.6](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 
