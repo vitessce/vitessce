@@ -6,6 +6,7 @@
 - Testing protocol calls for all three browsers now.
 - Added a `cell-sets.json` schema version `0.1.3` to support probabilistic cell set assignments, with backwards compatibility with schema version `0.1.2`.
 - Trevor's slides from NLM conference to README.md.
+- Added a callback for the `RESET` event in the `CellSetsManagerSubscriber` component.
 
 ### Changed
 - Fix Safari channel controller bug.
