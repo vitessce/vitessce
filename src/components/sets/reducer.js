@@ -1341,6 +1341,28 @@ export function treeInitialize(datatype) {
 }
 
 /**
+ * Reset the tree state.
+ * @param {object} currTree A tree object.
+ * @returns {object} The tree after reset.
+ */
+export function treeReset(currTree) {
+  return {
+    ...currTree,
+    tree: [],
+    _state: {
+      ...currTree._state,
+      items: (ALLOW_SIDE_EFFECTS ? true : []),
+      checkedKeys: [],
+      visibleKeys: [],
+      checkedLevel: { levelZeroKey: null, levelIndex: null },
+      expandedKeys: [],
+      autoExpandParent: true,
+      isChecking: false,
+    },
+  };
+}
+
+/**
  * For convenience, get an object with information required
  * to render a node as a component.
  * @param {object} node A node to be rendered.
@@ -1437,6 +1459,7 @@ export function treeToVisibleSetSizes(currTree) {
  * Constants for reducer action type strings.
  */
 export const ACTION = Object.freeze({
+  RESET: 'reset',
   IMPORT: 'import',
   IMPORT_AND_VIEW: 'importAndView',
   SET_TREE_ITEMS: 'setTreeItems',
@@ -1459,6 +1482,9 @@ export const ACTION = Object.freeze({
 });
 
 const reducer = createReducer({
+  [ACTION.RESET]: state => treeReset(
+    state,
+  ),
   [ACTION.IMPORT]: (state, action) => treeImport(
     state,
     action.levelZeroNodes,
