@@ -97,7 +97,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
         const imageData = images[Math.floor(images.length / 2)];
         const loader = await initLoader(imageData);
         publishLayer({ loader, imageData, layerId });
-        setLayersAndLoaders(prevState => [...prevState, { layerId, imageData, loader }]);
+        setLayersAndLoaders([{ layerId, imageData, loader }]);
       } else {
         const newLayersAndLoaders = await Promise.all(renderLayers.map(async (imageName) => {
           const layerId = genId();
@@ -108,7 +108,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
         newLayersAndLoaders.forEach(({ imageData, loader, layerId: id }) => {
           publishLayer({ loader, imageData, layerId: id });
         });
-        setLayersAndLoaders(prevState => [...prevState, ...newLayersAndLoaders]);
+        setLayersAndLoaders(newLayersAndLoaders);
       }
       PubSub.publish(CLEAR_PLEASE_WAIT, 'raster');
     }

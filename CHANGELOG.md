@@ -3,18 +3,24 @@
 ## 0.1.8 - in progress
 
 ### Added
+- Added a `cell-sets.json` schema version `0.1.3` to support probabilistic cell set assignments, with backwards compatibility with schema version `0.1.2`.
+- Trevor's slides from NLM conference to README.md.
+- Added a `RESET` event so that the `SourcePublisher` can notify other components that a new viewconfig and dataset has been loaded.
+- Added a callback for the `RESET` event in the `SpatialSubscriber` component to clear previous cells, molecules, neighborhoods, and imaging data.
+- Added a callback for the `RESET` event in the `DescriptionSubscriber` component to clear previous imaging metadata tables.
+- Added a callback for the `RESET` event in the `CellSetsManagerSubscriber` component to clear previous cell sets.
 - Added a publisher for `GRID_RESIZE` when `rowHeight` changes in `PubSubVitessceGrid` to allow the `useGridItemSize` hook to update in this additional case. 
 
 ### Changed
 - Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
+- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
 - Update layer controller overflow.
+- Updated the `Spatial` component data processing of `cells`, `molecules`, and `neighborhoods` with `useMemo` (rather than `useRef` + `useEffect`).
 
 ## [0.1.7](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 
 ## Added
 - Testing protocol calls for all three browsers now.
-- Added a `cell-sets.json` schema version `0.1.3` to support probabilistic cell set assignments, with backwards compatibility with schema version `0.1.2`.
-- Trevor's slides from NLM conference to README.md.
 
 ### Changed
 - Fix Safari channel controller bug.

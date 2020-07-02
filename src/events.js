@@ -2,6 +2,7 @@ const ADD = '.add';
 const CHANGE = '.change';
 const REMOVE = '.remove';
 
+export const RESET = 'reset';
 export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
 
 export const VIEW_INFO = 'view.info';
