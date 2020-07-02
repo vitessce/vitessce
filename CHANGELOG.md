@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.1.7 - in progress
+## 0.1.8 - in progress
+
+### Added
+
+### Changed
+- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
+- Update layer controller overflow.
+
+## [0.1.7](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 
 ## Added
 - Testing protocol calls for all three browsers now.
@@ -11,7 +19,6 @@
 - Fix Safari channel controller bug.
 - Fix Safari heatmap display bug.
 - Heatmap color canvas has precedence over selection canvas when resizing.
-- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
 
 ## [0.1.6](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 

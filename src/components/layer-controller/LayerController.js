@@ -261,7 +261,9 @@ export default function LayerController({
       <ExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`layer-${imageData.name}-controls`}
-        style={{ paddingLeft: '10px', paddingRight: '10px' }}
+        style={{
+          paddingLeft: '10px', paddingRight: '10px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap',
+        }}
       >
         {imageData.name}
       </ExpansionPanelSummary>
