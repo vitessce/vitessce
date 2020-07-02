@@ -68,6 +68,11 @@ export default function PubSubVitessceGrid(props) {
     }
   }, [height]);
 
+  useEffect(() => {
+    // The row height has changed, so emit a GRID_RESIZE event.
+    onResize();
+  }, [rowHeight]);
+
   // If no height prop has been provided, set the `containerHeight`
   // using height of the `.vitessce-container` element.
   // Check the container element height whenever the window has been

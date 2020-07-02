@@ -3,6 +3,7 @@
 ## 0.1.8 - in progress
 
 ### Added
+- Added a publisher for `GRID_RESIZE` when `rowHeight` changes in `PubSubVitessceGrid` to allow the `useGridItemSize` hook to update in this additional case. 
 
 ### Changed
 - Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
