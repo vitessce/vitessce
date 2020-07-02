@@ -1,6 +1,5 @@
-/* eslint-disable */
 import React, {
-  useRef, useState, useCallback, useEffect, useMemo,
+  useRef, useState, useCallback, useMemo,
 } from 'react';
 import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
@@ -154,12 +153,9 @@ export default function Spatial(props) {
     if (molecules) {
       // Process molecules data and cache into re-usable array.
       result = [];
-      result = Object.entries(molecules).flatMap(([molecule, coords], index) => {
-          return coords.map(([x, y]) => [x, y, index, molecule]);
-          // Because we use the inner function immediately,
-          // the eslint warning about closures is a red herring:
-          // The index and molecule values are correct.
-      });
+      result = Object
+        .entries(molecules)
+        .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]));
       if (clearPleaseWait) clearPleaseWait('molecules');
       setLayerIsVisible(prevLayerIsVisible => ({
         molecules: true,
@@ -167,12 +163,11 @@ export default function Spatial(props) {
         neighborhoods: prevLayerIsVisible.neighborhoods,
       }));
     }
-    console.log("running effect for molecules");
     return result;
   }, [molecules, clearPleaseWait]);
 
   const cellsData = useMemo(() => {
-    let result = null
+    let result = null;
     if (cells) {
       // Process cells data and cache into re-usable array.
       result = Object.entries(cells);
@@ -183,7 +178,6 @@ export default function Spatial(props) {
         neighborhoods: prevLayerIsVisible.neighborhoods,
       }));
     }
-    console.log("running effect for cells");
     return result;
   }, [cells, clearPleaseWait]);
 
@@ -199,31 +193,28 @@ export default function Spatial(props) {
         neighborhoods: false,
       }));
     }
-    console.log("running effect for neighborhoods");
     return result;
   }, [neighborhoods, clearPleaseWait]);
 
-  const cellsLayer = useMemo(() => {
-    return new SelectablePolygonLayer({
-      id: CELLS_LAYER_ID,
-      backgroundColor: [0, 0, 0],
-      opacity: cellOpacity,
-      isSelected: getCellIsSelected,
-      stroked: false,
-      getPolygon: getCellPolygon,
-      getColor: getCellColor,
-      onClick: (info) => {
-        if (tool) {
-          // If using a tool, prevent individual cell selection.
-          // Let SelectionLayer handle the clicks instead.
-          return;
-        }
-        onCellClick(info);
-      },
-      visible: layerIsVisible.cells,
-      ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
-    });
-  }, [cellsData, layerIsVisible, updateStatus, updateCellsHover,
+  const cellsLayer = useMemo(() => new SelectablePolygonLayer({
+    id: CELLS_LAYER_ID,
+    backgroundColor: [0, 0, 0],
+    opacity: cellOpacity,
+    isSelected: getCellIsSelected,
+    stroked: false,
+    getPolygon: getCellPolygon,
+    getColor: getCellColor,
+    onClick: (info) => {
+      if (tool) {
+        // If using a tool, prevent individual cell selection.
+        // Let SelectionLayer handle the clicks instead.
+        return;
+      }
+      onCellClick(info);
+    },
+    visible: layerIsVisible.cells,
+    ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
+  }), [cellsData, layerIsVisible, updateStatus, updateCellsHover,
     uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
     getCellIsSelected]);
 
