@@ -152,8 +152,11 @@ export default function Spatial(props) {
   }, [viewRef, updateViewInfo]);
 
   useEffect(() => {
-    // Process molecules data and cache into re-usable array.
-    if (molecules && !moleculesDataRef.current) {
+    if (!molecules && moleculesDataRef.current) {
+      // Clear data on reset.
+      moleculesDataRef.current = null;
+    } else if (molecules && !moleculesDataRef.current) {
+      // Process molecules data and cache into re-usable array.
       let moleculesData = [];
       Object.entries(molecules).forEach(([molecule, coords], index) => {
         moleculesData = moleculesData.concat(
@@ -174,8 +177,11 @@ export default function Spatial(props) {
   }, [molecules, moleculesDataRef, clearPleaseWait, layerIsVisible]);
 
   useEffect(() => {
-    // Process cells data and cache into re-usable array.
-    if (cells && !cellsDataRef.current) {
+    if (!cells && cellsDataRef.current) {
+      // Clear data on reset.
+      cellsDataRef.current = null;
+    } else if (cells && !cellsDataRef.current) {
+      // Process cells data and cache into re-usable array.
       cellsDataRef.current = Object.entries(cells);
       if (clearPleaseWait) clearPleaseWait('cells');
       setLayerIsVisible({
@@ -187,8 +193,11 @@ export default function Spatial(props) {
   }, [cells, cellsDataRef, clearPleaseWait, layerIsVisible]);
 
   useEffect(() => {
-    // Process neighborhoods data and cache into re-usable array.
-    if (neighborhoods && !neighborhoodsDataRef.current) {
+    if (!neighborhoods && neighborhoodsDataRef.current) {
+      // Clear data on reset.
+      neighborhoodsDataRef.current = null;
+    } else if (neighborhoods && !neighborhoodsDataRef.current) {
+      // Process neighborhoods data and cache into re-usable array.
       neighborhoodsDataRef.current = Object.entries(neighborhoods);
       if (clearPleaseWait) clearPleaseWait('neighborhoods');
       setLayerIsVisible({

@@ -23,6 +23,12 @@ import {
 } from '../../events';
 import Spatial from './Spatial';
 
+const updateStatus = message => PubSub.publish(STATUS_INFO, message);
+const updateCellsSelection = selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds);
+const updateCellsHover = hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo);
+const updateViewInfo = viewInfo => PubSub.publish(VIEW_INFO, viewInfo);
+const clearPleaseWait = layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName);
+
 export default function SpatialSubscriber({
   children,
   onReady,
@@ -68,7 +74,12 @@ export default function SpatialSubscriber({
         return nextLayerProps;
       });
     }
-    function rasterClearSubscriber() {
+    function resetSubscriber() {
+      setCells(null);
+      setMolecules(null);
+      setCellColors(null);
+      setNeighborhoods(null);
+      setSelectedCellIds(new Set());
       setImageLayerProps({});
       setImageLayerLoaders({});
     }
@@ -82,7 +93,7 @@ export default function SpatialSubscriber({
     const layerAddToken = PubSub.subscribe(LAYER_ADD, layerAddSubscriber);
     const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
     const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
-    const resetToken = PubSub.subscribe(RESET, rasterClearSubscriber);
+    const resetToken = PubSub.subscribe(RESET, resetSubscriber);
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(moleculesAddToken);
@@ -131,21 +142,11 @@ export default function SpatialSubscriber({
         cellRadius={cellRadius}
         moleculeRadius={moleculeRadius}
         uuid={uuid}
-        updateStatus={
-            message => PubSub.publish(STATUS_INFO, message)
-          }
-        updateCellsSelection={
-            selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)
-          }
-        updateCellsHover={
-            hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)
-          }
-        updateViewInfo={
-            viewInfo => PubSub.publish(VIEW_INFO, viewInfo)
-          }
-        clearPleaseWait={
-            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-          }
+        updateStatus={updateStatus}
+        updateCellsSelection={updateCellsSelection}
+        updateCellsHover={updateCellsHover}
+        updateViewInfo={updateViewInfo}
+        clearPleaseWait={clearPleaseWait}
       />
     </TitleInfo>
   );
