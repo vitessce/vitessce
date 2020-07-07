@@ -125,8 +125,12 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
     }
     memoizedOnReady();
     const rasterAddtoken = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
-    const cellsAddToken = PubSub.subscribe(CELLS_ADD, setCellsEvent(CELLS_OPACITY));
-    const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, setMoleculesEvent(MOLECULES_OPACITY));
+    const cellsAddToken = PubSub.subscribe(
+      CELLS_ADD, () => setCellsEvent(CELLS_OPACITY),
+    );
+    const moleculesAddToken = PubSub.subscribe(
+      MOLECULES_ADD, () => setMoleculesEvent(MOLECULES_OPACITY),
+    );
     return () => {
       PubSub.unsubscribe(rasterAddtoken);
       PubSub.unsubscribe(cellsAddToken);
