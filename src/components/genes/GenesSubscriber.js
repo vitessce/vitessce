@@ -49,7 +49,7 @@ export default class GenesSubscriber extends React.Component {
 
   render() {
     const { genes, selectedId } = this.state;
-    const { removeGridComponent } = this.props;
+    const { removeGridComponent, labelOverride } = this.props;
     const genesSelected = {};
     const genesKeys = Object.keys(genes);
     genesKeys.forEach((geneId) => {
@@ -58,7 +58,7 @@ export default class GenesSubscriber extends React.Component {
     return (
       <TitleInfo
         title="Expression Levels"
-        info={`${genesKeys.length} genes`}
+        info={`${genesKeys.length} ${labelOverride || 'genes'}`}
         isScroll
         removeGridComponent={removeGridComponent}
       >
