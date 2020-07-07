@@ -12,7 +12,16 @@ import RasterLayerController from './RasterLayerController';
 import NonRasterLayerController from './NonRasterLayerController';
 import ImageAddButton from './ImageAddButton';
 import {
-  RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT, METADATA_REMOVE, LAYER_ADD, METADATA_ADD,
+  RASTER_ADD,
+  LAYER_REMOVE,
+  CLEAR_PLEASE_WAIT,
+  METADATA_REMOVE,
+  LAYER_ADD,
+  METADATA_ADD,
+  CELLS_OPACITY,
+  CELLS_ADD,
+  MOLECULES_ADD,
+  MOLECULES_OPACITY,
 } from '../../events';
 import { controllerTheme } from './styles';
 import { DEFAULT_LAYER_PROPS } from './constants';
@@ -83,6 +92,8 @@ function publishLayer({ loader, imageData, layerId }) {
 
 function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
   const [imageOptions, setImageOptions] = useState(null);
+  const [cellsEvent, setCellsEvent] = useState(null);
+  const [moleculesEvent, setMoleculesEvent] = useState(null);
   const [layersAndLoaders, setLayersAndLoaders] = useState([]);
   const memoizedOnReady = useCallback(onReady, []);
 
@@ -113,8 +124,14 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
       PubSub.publish(CLEAR_PLEASE_WAIT, 'raster');
     }
     memoizedOnReady();
-    const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
-    return () => PubSub.unsubscribe(token);
+    const rasterAddtoken = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
+    const cellsAddToken = PubSub.subscribe(CELLS_ADD, setCellsEvent(CELLS_OPACITY));
+    const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, setMoleculesEvent(MOLECULES_OPACITY));
+    return () => {
+      PubSub.unsubscribe(rasterAddtoken);
+      PubSub.unsubscribe(cellsAddToken);
+      PubSub.unsubscribe(moleculesAddToken);
+    };
   }, [memoizedOnReady]);
 
   const handleImageAdd = async (imageData) => {
@@ -150,9 +167,22 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
     >
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider theme={controllerTheme[theme]}>
+          <Grid item>
+            {cellsEvent ? (
+              <NonRasterLayerController
+                type={CELLS_OPACITY}
+                label="Cell Segmentations"
+              />
+            ) : null}
+            {moleculesEvent ? (
+              <NonRasterLayerController
+                type={MOLECULES_OPACITY}
+                label="Molecules"
+              />
+            ) : null}
+          </Grid>
           {layerControllers}
           <Grid item>
-            <NonRasterLayerController />
             <ImageAddButton
               imageOptions={imageOptions}
               handleImageAdd={handleImageAdd}

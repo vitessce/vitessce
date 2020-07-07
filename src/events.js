@@ -1,6 +1,7 @@
 const ADD = '.add';
 const CHANGE = '.change';
 const REMOVE = '.remove';
+const OPACITY = '.opacity';
 
 export const RESET = 'reset';
 export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
@@ -14,7 +15,7 @@ export const CELLS_ADD = CELLS + ADD;
 export const CELLS_SELECTION = `${CELLS}.selection`;
 export const CELLS_COLOR = `${CELLS}.color`;
 export const CELLS_HOVER = `${CELLS}.hover`;
-export const CELLS_OPACITY = `${CELLS}.opacity`;
+export const CELLS_OPACITY = CELLS + OPACITY;
 
 export const CELL_SETS = `${CELLS}.sets`;
 export const CELL_SETS_ADD = CELL_SETS + ADD;
@@ -33,6 +34,7 @@ export const GENES_ADD = GENES + ADD;
 
 export const MOLECULES = 'molecules';
 export const MOLECULES_ADD = MOLECULES + ADD;
+export const MOLECULES_OPACITY = MOLECULES + OPACITY;
 
 export const NEIGHBORHOODS = 'neighborhoods';
 export const NEIGHBORHOODS_ADD = NEIGHBORHOODS + ADD;

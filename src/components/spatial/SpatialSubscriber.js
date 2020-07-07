@@ -7,6 +7,7 @@ import shortNumber from 'short-number';
 import TitleInfo from '../TitleInfo';
 import {
   MOLECULES_ADD,
+  MOLECULES_OPACITY,
   NEIGHBORHOODS_ADD,
   CELLS_ADD,
   CELLS_COLOR,
@@ -41,6 +42,7 @@ export default function SpatialSubscriber({
   const [imageLayerProps, setImageLayerProps] = useState({});
   const [imageLayerLoaders, setImageLayerLoaders] = useState({});
   const [cellOpacity, setCellOpacity] = useState(1);
+  const [moleculesOpacity, setMoleculesOpacity] = useState(1);
 
   const onReadyCallback = useCallback(onReady, []);
 
@@ -51,6 +53,9 @@ export default function SpatialSubscriber({
     const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
     const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
     const cellsOpacitySubscriber = (msg, newCellOpacity) => setCellOpacity(newCellOpacity);
+    const moleculesOpacitySubscriber = (msg, newMoleculesOpacity) => setMoleculesOpacity(
+      newMoleculesOpacity,
+    );
     function layerAddSubscriber(msg, { layerId, loader, layerProps }) {
       setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: layerProps }));
       setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
@@ -80,6 +85,7 @@ export default function SpatialSubscriber({
     }
 
     const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
+    const moleculesOpacityToken = PubSub.subscribe(MOLECULES_OPACITY, moleculesOpacitySubscriber);
     const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, neighborhoodsAddSubscriber);
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, cellsAddSubscriber);
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, cellsSelectionSubscriber);
@@ -93,6 +99,7 @@ export default function SpatialSubscriber({
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(moleculesAddToken);
+      PubSub.unsubscribe(moleculesOpacityToken);
       PubSub.unsubscribe(neighborhoodsAddToken);
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsSelectionToken);
@@ -151,6 +158,7 @@ export default function SpatialSubscriber({
         selectedCellIds={selectedCellIds}
         neighborhoods={neighborhoods}
         molecules={molecules}
+        moleculesOpacity={moleculesOpacity}
         cellOpacity={cellOpacity}
         cellColors={cellColors}
         imageLayerProps={imageLayerProps}

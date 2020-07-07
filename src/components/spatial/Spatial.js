@@ -6,7 +6,6 @@ import DeckGL, {
 } from 'deck.gl';
 import { VivViewerLayer, StaticImageLayer } from '@hubmap/vitessce-image-viewer';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
-import LayersMenu from './LayersMenu';
 import ToolMenu from '../ToolMenu';
 import {
   cellLayerDefaultProps, PALETTE, DEFAULT_COLOR,
@@ -69,6 +68,7 @@ export default function Spatial(props) {
     cellRadius = 50,
     moleculeRadius = 10,
     cellOpacity = 1.0,
+    moleculesOpacity = 1.0,
     imageLayerProps = {},
     imageLayerLoaders = {},
     cellColors = {},
@@ -223,6 +223,7 @@ export default function Spatial(props) {
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     data: moleculesData,
     pickable: true,
+    opacity: moleculesOpacity,
     autoHighlight: true,
     getRadius: moleculeRadius,
     radiusMaxPixels: 3,
@@ -234,7 +235,7 @@ export default function Spatial(props) {
     },
     visible: layerIsVisible.molecules,
   }), [moleculesData, moleculeRadius, getMoleculePosition, getMoleculeColor,
-    layerIsVisible, updateStatus]);
+    layerIsVisible, updateStatus, moleculesOpacity]);
 
   const neighborhoodsLayer = useMemo(() => new PolygonLayer({
     id: 'neighborhoods-layer',
@@ -289,17 +290,6 @@ export default function Spatial(props) {
     updateCellsSelection,
   );
 
-  const layersMenu = useMemo(() => {
-    // Don't render if just image data
-    if (!molecules && !neighborhoods && !cells) return null;
-    return (
-      <LayersMenu
-        layerIsVisible={layerIsVisible}
-        setLayerIsVisible={setLayerIsVisible}
-      />
-    );
-  }, [setLayerIsVisible, layerIsVisible, molecules, neighborhoods, cells]);
-
   const deckProps = {
     views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
     // gl needs to be initialized for us to use it in Texture creation
@@ -316,14 +306,11 @@ export default function Spatial(props) {
 
   return (
     <>
-      <div className="d-flex">
-        <ToolMenu
-          activeTool={tool}
-          setActiveTool={setTool}
-          onViewStateChange={onViewStateChange}
-        />
-        {layersMenu}
-      </div>
+      <ToolMenu
+        activeTool={tool}
+        setActiveTool={setTool}
+        onViewStateChange={onViewStateChange}
+      />
       <DeckGL
         glOptions={DEFAULT_GL_OPTIONS}
         ref={deckRef}

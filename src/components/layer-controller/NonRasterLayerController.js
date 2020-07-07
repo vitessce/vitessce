@@ -11,13 +11,12 @@ import debounce from 'lodash/debounce';
 import PubSub from 'pubsub-js';
 
 import { useExpansionPanelStyles } from './styles';
-import { CELLS_OPACITY } from '../../events';
 
 export default function NonRasterLayerController(props) {
   const [slider, setSliderValue] = useState(1);
   const [isOn, toggle] = useReducer(v => !v, true);
 
-  const { type = CELLS_OPACITY, label = 'Cell Segmenations' } = props;
+  const { type, label } = props;
 
   const handleSliderChange = v => PubSub.publish(type, isOn * v) && setSliderValue(v);
   const handleCheckBoxChange = v => PubSub.publish(type, v * slider) && toggle();
@@ -28,7 +27,9 @@ export default function NonRasterLayerController(props) {
 
   const classes = useExpansionPanelStyles();
   const sliderStyle = makeStyles(theme => ({
-    paddingRight: theme.spacing(1),
+    root: {
+      paddingRight: theme.spacing(1),
+    },
   }));
   return (
     <Grid item style={{ marginTop: '10px' }}>
@@ -38,7 +39,7 @@ export default function NonRasterLayerController(props) {
         </Typography>
         <Grid container direction="row" justify="space-between">
           <Grid item xs={2}>
-            <Checkbox color="info" checked={isOn} onChange={(e, v) => handleCheckBoxChange(v)} />
+            <Checkbox color="primary" checked={isOn} onChange={(e, v) => handleCheckBoxChange(v)} />
           </Grid>
           <Grid item xs={9} style={{ paddingRight: '5px' }}>
             <Slider
@@ -47,7 +48,7 @@ export default function NonRasterLayerController(props) {
               max={1}
               step={0.001}
               onChange={(e, v) => handleSliderChangeDebounced(v)}
-              className={sliderStyle}
+              className={sliderStyle.root}
               style={{ marginTop: '7px' }}
               orientation="horizontal"
             />
