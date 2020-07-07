@@ -14,6 +14,7 @@ export const CELLS_ADD = CELLS + ADD;
 export const CELLS_SELECTION = `${CELLS}.selection`;
 export const CELLS_COLOR = `${CELLS}.color`;
 export const CELLS_HOVER = `${CELLS}.hover`;
+export const CELLS_OPACITY = `${CELLS}.opacity`;
 
 export const CELL_SETS = `${CELLS}.sets`;
 export const CELL_SETS_ADD = CELL_SETS + ADD;
