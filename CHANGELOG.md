@@ -3,6 +3,7 @@
 ## 0.1.9
 
 ### Added
+- Add `labelOverride` prop for genes component.
 
 ### Changed
 - Update genes schema to take non-integer values.
