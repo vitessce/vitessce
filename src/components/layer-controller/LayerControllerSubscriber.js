@@ -20,8 +20,10 @@ import {
   METADATA_ADD,
   CELLS_OPACITY,
   CELLS_ADD,
+  CELLS_ON,
   MOLECULES_ADD,
   MOLECULES_OPACITY,
+  MOLECULES_ON,
 } from '../../events';
 import { controllerTheme } from './styles';
 import { DEFAULT_LAYER_PROPS } from './constants';
@@ -174,13 +176,13 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
           <Grid item>
             {cellsEvent ? (
               <NonRasterLayerController
-                type={CELLS_OPACITY}
+                events={{ opacity: CELLS_OPACITY, on: CELLS_ON }}
                 label="Cell Segmentations"
               />
             ) : null}
             {moleculesEvent ? (
               <NonRasterLayerController
-                type={MOLECULES_OPACITY}
+                events={{ opacity: MOLECULES_OPACITY, on: MOLECULES_ON }}
                 label="Molecules"
               />
             ) : null}

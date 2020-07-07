@@ -16,10 +16,10 @@ export default function NonRasterLayerController(props) {
   const [slider, setSliderValue] = useState(1);
   const [isOn, toggle] = useReducer(v => !v, true);
 
-  const { type, label } = props;
+  const { events, label } = props;
 
-  const handleSliderChange = v => PubSub.publish(type, isOn * v) && setSliderValue(v);
-  const handleCheckBoxChange = v => PubSub.publish(type, v * slider) && toggle();
+  const handleSliderChange = v => PubSub.publish(events.opacity, isOn * v) && setSliderValue(v);
+  const handleCheckBoxChange = v => PubSub.publish(events.on, v) && toggle();
   const handleSliderChangeDebounced = useCallback(
     debounce(handleSliderChange, 3, { trailing: true }),
     [isOn],

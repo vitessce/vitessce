@@ -8,10 +8,12 @@ import TitleInfo from '../TitleInfo';
 import {
   MOLECULES_ADD,
   MOLECULES_OPACITY,
+  MOLECULES_ON,
   NEIGHBORHOODS_ADD,
   CELLS_ADD,
   CELLS_COLOR,
   CELLS_OPACITY,
+  CELLS_ON,
   STATUS_INFO,
   CELLS_SELECTION,
   CELLS_HOVER,
@@ -42,7 +44,9 @@ export default function SpatialSubscriber({
   const [imageLayerProps, setImageLayerProps] = useState({});
   const [imageLayerLoaders, setImageLayerLoaders] = useState({});
   const [cellOpacity, setCellOpacity] = useState(1);
+  const [cellsOn, setCellsOn] = useState(true);
   const [moleculesOpacity, setMoleculesOpacity] = useState(1);
+  const [moleculesOn, setMoleculesOn] = useState(true);
 
   const onReadyCallback = useCallback(onReady, []);
 
@@ -56,6 +60,8 @@ export default function SpatialSubscriber({
     const moleculesOpacitySubscriber = (msg, newMoleculesOpacity) => setMoleculesOpacity(
       newMoleculesOpacity,
     );
+    const cellsOnSubscriber = (msg, newCellsOn) => setCellsOn(newCellsOn);
+    const moleculesOnSubscriber = (msg, newMoleculesOn) => setMoleculesOn(newMoleculesOn);
     function layerAddSubscriber(msg, { layerId, loader, layerProps }) {
       setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: layerProps }));
       setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
@@ -95,6 +101,8 @@ export default function SpatialSubscriber({
     const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
     const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
     const cellsOpacityToken = PubSub.subscribe(CELLS_OPACITY, cellsOpacitySubscriber);
+    const cellsOnToken = PubSub.subscribe(CELLS_ON, cellsOnSubscriber);
+    const moleculesOnToken = PubSub.subscribe(MOLECULES_ON, moleculesOnSubscriber);
     const resetToken = PubSub.subscribe(RESET, clearSubscriber);
     onReadyCallback();
     return () => {
@@ -109,6 +117,8 @@ export default function SpatialSubscriber({
       PubSub.unsubscribe(layerAddToken);
       PubSub.unsubscribe(layerChangeToken);
       PubSub.unsubscribe(layerRemoveToken);
+      PubSub.unsubscribe(cellsOnToken);
+      PubSub.unsubscribe(moleculesOnToken);
       PubSub.unsubscribe(resetToken);
     };
   }, [onReadyCallback]);
@@ -159,8 +169,10 @@ export default function SpatialSubscriber({
         neighborhoods={neighborhoods}
         molecules={molecules}
         moleculesOpacity={moleculesOpacity}
+        cellsOn={cellsOn}
         cellOpacity={cellOpacity}
         cellColors={cellColors}
+        moleculesOn={moleculesOn}
         imageLayerProps={imageLayerProps}
         imageLayerLoaders={imageLayerLoaders}
         view={view}
