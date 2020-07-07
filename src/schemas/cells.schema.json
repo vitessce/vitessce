@@ -10,11 +10,11 @@
       "maxItems": 2,
       "items": { "type": "number" }
     },
-    "positiveIntegerValues": {
+    "positiveFloatValues": {
       "type": "object",
       "patternProperties": {
         ".": {
-          "type": "integer",
+          "type": "number",
           "minimum": 0
         }
       }
@@ -40,7 +40,7 @@
           }
         },
         "xy": { "$ref": "#/definitions/coord" },
-        "genes": { "$ref": "#/definitions/positiveIntegerValues" },
+        "genes": { "$ref": "#/definitions/positiveFloatValues" },
         "factors": { "$ref": "#/definitions/stringValues" },
         "poly": {
           "type": "array",
