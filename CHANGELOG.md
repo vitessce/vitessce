@@ -6,6 +6,7 @@
 - Add `labelOverride` prop for genes component.
 
 ### Changed
+- Remove layers menu and add functionality to layer controller + opacity control.
 
 ## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
 
