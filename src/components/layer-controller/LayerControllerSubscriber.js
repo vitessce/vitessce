@@ -7,9 +7,9 @@ import {
   createGenerateClassName,
 } from '@material-ui/core/styles';
 import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer';
-
 import TitleInfo from '../TitleInfo';
-import LayerController from './LayerController';
+import RasterLayerController from './RasterLayerController';
+import NonRasterLayerController from './NonRasterLayerController';
 import ImageAddButton from './ImageAddButton';
 import {
   RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT, METADATA_REMOVE, LAYER_ADD, METADATA_ADD,
@@ -132,7 +132,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
   };
   const layerControllers = layersAndLoaders.map(({ layerId, imageData, loader }) => (
     <Grid key={layerId} item style={{ marginTop: '10px' }}>
-      <LayerController
+      <RasterLayerController
         layerId={layerId}
         imageData={imageData}
         handleLayerRemove={() => handleLayerRemove(layerId, imageData.name)}
@@ -141,6 +141,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
       />
     </Grid>
   ));
+
   return (
     <TitleInfo
       title="Layer Controller"
@@ -151,6 +152,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
         <ThemeProvider theme={controllerTheme[theme]}>
           {layerControllers}
           <Grid item>
+            <NonRasterLayerController />
             <ImageAddButton
               imageOptions={imageOptions}
               handleImageAdd={handleImageAdd}
