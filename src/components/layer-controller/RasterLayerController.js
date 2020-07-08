@@ -73,7 +73,7 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  * @prop {object} loader Loader object for the current imaging layer.
  * @prop {function} handleLayerChange Callback for handling the changing of layer properties.
  */
-export default function LayerController({
+export default function RasterLayerController({
   imageData, layerId, handleLayerRemove, loader, theme, handleLayerChange,
 }) {
   const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);

@@ -7,9 +7,13 @@ import shortNumber from 'short-number';
 import TitleInfo from '../TitleInfo';
 import {
   MOLECULES_ADD,
+  MOLECULES_SET_OPACITY,
+  MOLECULES_TURN_ON,
   NEIGHBORHOODS_ADD,
   CELLS_ADD,
   CELLS_COLOR,
+  CELLS_SET_OPACITY,
+  CELLS_TURN_ON,
   STATUS_INFO,
   CELLS_SELECTION,
   CELLS_HOVER,
@@ -39,6 +43,10 @@ export default function SpatialSubscriber({
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [imageLayerProps, setImageLayerProps] = useState({});
   const [imageLayerLoaders, setImageLayerLoaders] = useState({});
+  const [cellOpacity, setCellOpacity] = useState(1);
+  const [areCellsOn, setCellsOn] = useState(true);
+  const [moleculesOpacity, setMoleculesOpacity] = useState(1);
+  const [areMoleculesOn, setMoleculesOn] = useState(true);
 
   const onReadyCallback = useCallback(onReady, []);
 
@@ -48,6 +56,12 @@ export default function SpatialSubscriber({
     const cellsAddSubscriber = (msg, newCells) => setCells(newCells);
     const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
     const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
+    const cellsOpacitySubscriber = (msg, newCellOpacity) => setCellOpacity(newCellOpacity);
+    const moleculesOpacitySubscriber = (msg, newMoleculesOpacity) => setMoleculesOpacity(
+      newMoleculesOpacity,
+    );
+    const cellsOnSubscriber = (msg, newCellsOn) => setCellsOn(newCellsOn);
+    const moleculesOnSubscriber = (msg, newMoleculesOn) => setMoleculesOn(newMoleculesOn);
     function layerAddSubscriber(msg, { layerId, loader, layerProps }) {
       setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: layerProps }));
       setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
@@ -77,6 +91,9 @@ export default function SpatialSubscriber({
     }
 
     const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
+    const moleculesOpacityToken = PubSub.subscribe(
+      MOLECULES_SET_OPACITY, moleculesOpacitySubscriber,
+    );
     const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, neighborhoodsAddSubscriber);
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, cellsAddSubscriber);
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, cellsSelectionSubscriber);
@@ -85,18 +102,25 @@ export default function SpatialSubscriber({
     const layerAddToken = PubSub.subscribe(LAYER_ADD, layerAddSubscriber);
     const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
     const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
+    const cellsOpacityToken = PubSub.subscribe(CELLS_SET_OPACITY, cellsOpacitySubscriber);
+    const cellsOnToken = PubSub.subscribe(CELLS_TURN_ON, cellsOnSubscriber);
+    const moleculesOnToken = PubSub.subscribe(MOLECULES_TURN_ON, moleculesOnSubscriber);
     const resetToken = PubSub.subscribe(RESET, clearSubscriber);
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(moleculesAddToken);
+      PubSub.unsubscribe(moleculesOpacityToken);
       PubSub.unsubscribe(neighborhoodsAddToken);
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(cellSetsViewToken);
       PubSub.unsubscribe(cellsColorToken);
+      PubSub.unsubscribe(cellsOpacityToken);
       PubSub.unsubscribe(layerAddToken);
       PubSub.unsubscribe(layerChangeToken);
       PubSub.unsubscribe(layerRemoveToken);
+      PubSub.unsubscribe(cellsOnToken);
+      PubSub.unsubscribe(moleculesOnToken);
       PubSub.unsubscribe(resetToken);
     };
   }, [onReadyCallback]);
@@ -146,7 +170,11 @@ export default function SpatialSubscriber({
         selectedCellIds={selectedCellIds}
         neighborhoods={neighborhoods}
         molecules={molecules}
+        moleculesOpacity={moleculesOpacity}
+        areCellsOn={areCellsOn}
+        cellOpacity={cellOpacity}
         cellColors={cellColors}
+        areMoleculesOn={areMoleculesOn}
         imageLayerProps={imageLayerProps}
         imageLayerLoaders={imageLayerLoaders}
         view={view}
