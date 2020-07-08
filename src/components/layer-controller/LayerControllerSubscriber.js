@@ -9,7 +9,7 @@ import {
 import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer';
 import TitleInfo from '../TitleInfo';
 import RasterLayerController from './RasterLayerController';
-import NonRasterLayerController from './NonRasterLayerController';
+import VectorLayerController from './VectorLayerController';
 import ImageAddButton from './ImageAddButton';
 import {
   RASTER_ADD,
@@ -94,8 +94,8 @@ function publishLayer({ loader, imageData, layerId }) {
 
 function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
   const [imageOptions, setImageOptions] = useState(null);
-  const [cellsEvent, setCellsEvent] = useState(null);
-  const [moleculesEvent, setMoleculesEvent] = useState(null);
+  const [cells, setCellsEvent] = useState(null);
+  const [molecules, setMoleculesEvent] = useState(null);
   const [layersAndLoaders, setLayersAndLoaders] = useState([]);
   const memoizedOnReady = useCallback(onReady, []);
 
@@ -174,14 +174,14 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider theme={controllerTheme[theme]}>
           <Grid item>
-            {cellsEvent ? (
-              <NonRasterLayerController
+            {cells ? (
+              <VectorLayerController
                 events={{ opacity: CELLS_SET_OPACITY, on: CELLS_TURN_ON }}
                 label="Cell Segmentations"
               />
             ) : null}
-            {moleculesEvent ? (
-              <NonRasterLayerController
+            {molecules ? (
+              <VectorLayerController
                 events={{ opacity: MOLECULES_SET_OPACITY, on: MOLECULES_TURN_ON }}
                 label="Molecules"
               />

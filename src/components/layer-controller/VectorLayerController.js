@@ -12,7 +12,7 @@ import PubSub from 'pubsub-js';
 
 import { useExpansionPanelStyles } from './styles';
 
-export default function NonRasterLayerController(props) {
+export default function VectorLayerController(props) {
   const [slider, setSliderValue] = useState(1);
   const [isOn, toggle] = useReducer(v => !v, true);
 
