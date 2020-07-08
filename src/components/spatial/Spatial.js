@@ -5,6 +5,7 @@ import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
 } from 'deck.gl';
 import { VivViewerLayer, StaticImageLayer } from '@hubmap/vitessce-image-viewer';
+import { quadtree } from 'd3-quadtree';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import LayersMenu from './LayersMenu';
 import ToolMenu from '../ToolMenu';
@@ -196,6 +197,20 @@ export default function Spatial(props) {
     return result;
   }, [neighborhoods, clearPleaseWait]);
 
+  const cellsQuadTree = useMemo(() => {
+    // Use the cellsData variable since it is already
+    // an array, converted by Object.entries().
+    if (!cellsData) {
+      // Abort if the cells data is not yet available.
+      return null;
+    }
+    const tree = quadtree()
+      .x(d => getCellCoords(d[1])[0])
+      .y(d => getCellCoords(d[1])[1])
+      .addAll(cellsData);
+    return tree;
+  }, [getCellCoords, cellsData]);
+
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
     id: CELLS_LAYER_ID,
     backgroundColor: [0, 0, 0],
@@ -287,6 +302,7 @@ export default function Spatial(props) {
     CELLS_LAYER_ID,
     getCellCoords,
     updateCellsSelection,
+    cellsQuadTree,
   );
 
   const layersMenu = useMemo(() => {

@@ -4,6 +4,9 @@
 // https://github.com/uber/nebula.gl/blob/8e9c2ec8d7cf4ca7050909ed826eb847d5e2cd9c/modules/layers/src/layers/selection-layer.js
 import { CompositeLayer } from 'deck.gl';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
+import booleanWithin from '@turf/boolean-within';
+import booleanContains from '@turf/boolean-contains';
+import booleanOverlap from '@turf/boolean-overlap';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { EditableGeoJsonLayer, SELECTION_TYPE } from 'nebula.gl';
 import { DrawRectangleMode, DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
@@ -74,44 +77,59 @@ const PASS_THROUGH_PROPS = [
 ];
 
 export default class SelectionLayer extends CompositeLayer {
-  _selectRectangleObjects(coordinates) {
-    const { layerIds, onSelect } = this.props;
-
-    const [x1, y1] = this.context.viewport.project(coordinates[0][0]);
-    const [x2, y2] = this.context.viewport.project(coordinates[0][2]);
-
-    const pickingInfos = this.context.deck.pickObjects({
-      x: Math.min(x1, x2),
-      y: Math.min(y1, y2),
-      width: Math.abs(x2 - x1),
-      height: Math.abs(y2 - y1),
-      layerIds,
-    });
-
-    onSelect({ pickingInfos });
-  }
-
   _selectPolygonObjects(coordinates) {
-    const { layerIds, onSelect, getCellCoords } = this.props;
-    const mousePoints = coordinates[0].map(c => this.context.viewport.project(c));
+    const {
+      onSelect,
+      getCellCoords,
+      cellsQuadTree,
+      flipY,
+    } = this.props;
 
-    const allX = mousePoints.map(mousePoint => mousePoint[0]);
-    const allY = mousePoints.map(mousePoint => mousePoint[1]);
-    const x = Math.min(...allX);
-    const y = Math.min(...allY);
-    const maxX = Math.max(...allX);
-    const maxY = Math.max(...allY);
-    const rect = {
-      x,
-      y,
-      width: maxX - x,
-      height: maxY - y,
-    };
-    const polygon = turfPolygon(coordinates);
-    const pickingInfos = this.context.deck.pickObjects({
-      ...rect,
-      layerIds,
-    }).filter(info => booleanPointInPolygon(turfPoint(getCellCoords(info.object[1])), polygon));
+    const flippedCoordinates = (flipY
+      ? coordinates.map(poly => poly.map(p => ([p[0], -p[1]])))
+      : coordinates);
+
+    // Convert the selection to a turf polygon object.
+    const selectedPolygon = turfPolygon(flippedCoordinates);
+
+    // Create an array to store the results.
+    const pickingInfos = [];
+
+    // quadtree.visit() takes a callback that returns a boolean:
+    // If true returned, then the children of the node are _not_ visited.
+    // If false returned, then the children of the node are visited.
+    // Reference: https://github.com/d3/d3-quadtree#quadtree_visit
+    cellsQuadTree.visit((node, x0, y0, x1, y1) => {
+      const nodePoints = [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]];
+      const nodePolygon = turfPolygon(nodePoints);
+
+      const nodePolygonContainsSelectedPolygon = booleanContains(nodePolygon, selectedPolygon);
+      const nodePolygonWithinSelectedPolygon = booleanWithin(nodePolygon, selectedPolygon);
+      const nodePolygonOverlapsSelectedPolgyon = booleanOverlap(nodePolygon, selectedPolygon);
+
+      if (!nodePolygonContainsSelectedPolygon
+        && !nodePolygonWithinSelectedPolygon
+        && !nodePolygonOverlapsSelectedPolgyon) {
+        // We are not interested in anything below this node,
+        // so return true because we are done with this node.
+        return true;
+      }
+
+      // This node made it past the above return statement, so it must either
+      // contain, be within, or overlap with the selected polygon.
+
+      // Check if this is a leaf node.
+      if (node.data
+        && booleanPointInPolygon(turfPoint(getCellCoords(node.data[1])), selectedPolygon)) {
+        // This node has data, so it is a leaf node representing one data point,
+        // and we have verified that the point is in the selected polygon.
+        pickingInfos.push(node.data);
+      }
+
+      // Return false because we are not done.
+      // We want to visit the children of this node.
+      return false;
+    });
 
     onSelect({ pickingInfos });
   }
@@ -138,11 +156,7 @@ export default class SelectionLayer extends CompositeLayer {
           onEdit: ({ updatedData, editType }) => {
             if (editType === EDIT_TYPE_ADD) {
               const { coordinates } = updatedData.features[0].geometry;
-              if (this.props.selectionType === SELECTION_TYPE.RECTANGLE) {
-                this._selectRectangleObjects(coordinates);
-              } else if (this.props.selectionType === SELECTION_TYPE.POLYGON) {
-                this._selectPolygonObjects(coordinates);
-              }
+              this._selectPolygonObjects(coordinates);
             } else if (editType === EDIT_TYPE_CLEAR) {
               // We want to select an empty array to clear any previous selection.
               onSelect({ pickingInfos: [] });
