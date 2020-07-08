@@ -1,5 +1,8 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, {
+  useState, useRef, useCallback, useMemo,
+} from 'react';
 import DeckGL, { OrthographicView } from 'deck.gl';
+import { quadtree } from 'd3-quadtree';
 import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
 import ToolMenu from '../ToolMenu';
 import {
@@ -118,32 +121,59 @@ export default function Scatterplot(props) {
     updateViewInfo(viewRef.current);
   }, [viewRef, updateViewInfo]);
 
-  if (cells) {
-    clearPleaseWait('cells');
-  }
+  const cellsData = useMemo(() => {
+    let result = null;
+    if (cells) {
+      // Process cells data and cache into re-usable array.
+      result = Object.entries(cells);
+      if (clearPleaseWait) clearPleaseWait('cells');
+    }
+    return result;
+  }, [cells, clearPleaseWait]);
 
-  const layers = (cells ? [
-    new SelectableScatterplotLayer({
-      id: CELLS_LAYER_ID,
-      backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
-      isSelected: getCellIsSelected,
-      opacity: cellOpacity,
-      radiusScale: cellRadiusScale,
-      radiusMinPixels: 1.5,
-      radiusMaxPixels: 10,
-      getPosition: getCellPosition,
-      getColor: getCellColor,
-      onClick: (info) => {
-        if (tool) {
-          // If using a tool, prevent individual cell selection.
-          // Let SelectionLayer handle the clicks instead.
-          return;
-        }
-        onCellClick(info);
-      },
-      ...cellLayerDefaultProps(Object.entries(cells), updateStatus, updateCellsHover, uuid),
-    }),
-  ] : []);
+  const layers = useMemo(() => {
+    if (!cellsData) {
+      return [];
+    }
+    return [
+      new SelectableScatterplotLayer({
+        id: CELLS_LAYER_ID,
+        backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
+        isSelected: getCellIsSelected,
+        opacity: cellOpacity,
+        radiusScale: cellRadiusScale,
+        radiusMinPixels: 1.5,
+        radiusMaxPixels: 10,
+        getPosition: getCellPosition,
+        getColor: getCellColor,
+        onClick: (info) => {
+          if (tool) {
+            // If using a tool, prevent individual cell selection.
+            // Let SelectionLayer handle the clicks instead.
+            return;
+          }
+          onCellClick(info);
+        },
+        ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
+      }),
+    ];
+  }, [cellsData, theme, getCellIsSelected, cellOpacity, cellRadiusScale,
+    getCellPosition, getCellColor, updateStatus, updateCellsHover, uuid,
+    tool, onCellClick]);
+
+  const cellsQuadTree = useMemo(() => {
+    // Use the cellsData variable since it is already
+    // an array, converted by Object.entries().
+    if (!cellsData) {
+      // Abort if the cells data is not yet available.
+      return null;
+    }
+    const tree = quadtree()
+      .x(d => getCellCoords(d[1])[0])
+      .y(d => getCellCoords(d[1])[1])
+      .addAll(cellsData);
+    return tree;
+  }, [getCellCoords, cellsData]);
 
   const selectionLayers = getSelectionLayers(
     tool,
@@ -151,6 +181,7 @@ export default function Scatterplot(props) {
     CELLS_LAYER_ID,
     getCellCoords,
     updateCellsSelection,
+    cellsQuadTree,
   );
 
   const deckProps = {
