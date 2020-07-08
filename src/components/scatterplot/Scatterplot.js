@@ -123,7 +123,9 @@ export default function Scatterplot(props) {
   if (cells) {
     clearPleaseWait('cells');
   }
-
+  // Graphics rendering has the y-axis positive going south,
+  // so we need to flip it for rendering tooltips.
+  const flipYTooltip = true;
   const layers = (cells ? [
     new SelectableScatterplotLayer({
       id: CELLS_LAYER_ID,
@@ -143,7 +145,9 @@ export default function Scatterplot(props) {
         }
         onCellClick(info);
       },
-      ...cellLayerDefaultProps(Object.entries(cells), updateStatus, updateCellsHover, uuid),
+      ...cellLayerDefaultProps(
+        Object.entries(cells), updateStatus, updateCellsHover, uuid, flipYTooltip,
+      ),
     }),
   ] : []);
 
