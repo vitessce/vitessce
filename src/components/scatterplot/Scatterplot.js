@@ -62,7 +62,9 @@ export default function Scatterplot(props) {
         throw new Error(`Expected to find "${mapping}", but available mappings are: ${available}`);
       }
       const mappedCell = mappings[mapping];
-      return [mappedCell[0], mappedCell[1], 0];
+      // The negative applied to the y-axis is because
+      // graphics rendering has the y-axis positive going south.
+      return [mappedCell[0], -mappedCell[1], 0];
     },
     getCellColor = cellEntry => (cellColors && cellColors[cellEntry[0]]) || DEFAULT_COLOR,
     getCellIsSelected = cellEntry => (

@@ -7,6 +7,7 @@
 
 ### Changed
 - Update genes schema to take non-integer values.
+- Flip y-axis for our graphics use-case.
 
 ## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
 
