@@ -74,7 +74,7 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  * @prop {function} handleLayerRemove Callback for handling the removal of a layer.
  * @prop {object} loader Loader object for the current imaging layer.
  */
-export default function LayerController({
+export default function RasterLayerController({
   imageData, layerId, handleLayerRemove, loader, theme,
 }) {
   const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);
