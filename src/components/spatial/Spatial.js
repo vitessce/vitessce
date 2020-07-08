@@ -7,7 +7,6 @@ import DeckGL, {
 import { VivViewerLayer, StaticImageLayer } from '@hubmap/vitessce-image-viewer';
 import { quadtree } from 'd3-quadtree';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
-import LayersMenu from './LayersMenu';
 import ToolMenu from '../ToolMenu';
 import {
   cellLayerDefaultProps, PALETTE, DEFAULT_COLOR,
@@ -67,9 +66,13 @@ export default function Spatial(props) {
     molecules = {},
     cells = {},
     neighborhoods = {},
+    areNeighborhoodsOn = false,
     cellRadius = 50,
+    areCellsOn = true,
     moleculeRadius = 10,
     cellOpacity = 1.0,
+    moleculesOpacity = 1.0,
+    areMoleculesOn = true,
     imageLayerProps = {},
     imageLayerLoaders = {},
     cellColors = {},
@@ -113,12 +116,6 @@ export default function Spatial(props) {
   // can be created and destroyed quickly, if the data they wrap is stable.
   // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
 
-  const [layerIsVisible, setLayerIsVisible] = useState({
-    molecules: false,
-    cells: false,
-    neighborhoods: false,
-  });
-
   const deckRef = useRef();
   const viewRef = useRef({
     viewport: null,
@@ -158,11 +155,6 @@ export default function Spatial(props) {
         .entries(molecules)
         .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]));
       if (clearPleaseWait) clearPleaseWait('molecules');
-      setLayerIsVisible(prevLayerIsVisible => ({
-        molecules: true,
-        cells: prevLayerIsVisible.cells,
-        neighborhoods: prevLayerIsVisible.neighborhoods,
-      }));
     }
     return result;
   }, [molecules, clearPleaseWait]);
@@ -173,11 +165,6 @@ export default function Spatial(props) {
       // Process cells data and cache into re-usable array.
       result = Object.entries(cells);
       if (clearPleaseWait) clearPleaseWait('cells');
-      setLayerIsVisible(prevLayerIsVisible => ({
-        molecules: prevLayerIsVisible.molecules,
-        cells: true,
-        neighborhoods: prevLayerIsVisible.neighborhoods,
-      }));
     }
     return result;
   }, [cells, clearPleaseWait]);
@@ -188,11 +175,6 @@ export default function Spatial(props) {
       // Process neighborhoods data and cache into re-usable array.
       result = Object.entries(neighborhoods);
       if (clearPleaseWait) clearPleaseWait('neighborhoods');
-      setLayerIsVisible(prevLayerIsVisible => ({
-        molecules: prevLayerIsVisible.molecules,
-        cells: prevLayerIsVisible.cells,
-        neighborhoods: false,
-      }));
     }
     return result;
   }, [neighborhoods, clearPleaseWait]);
@@ -227,17 +209,18 @@ export default function Spatial(props) {
       }
       onCellClick(info);
     },
-    visible: layerIsVisible.cells,
+    visible: areCellsOn,
     ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
-  }), [cellsData, layerIsVisible, updateStatus, updateCellsHover,
+  }), [cellsData, updateStatus, updateCellsHover,
     uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
-    getCellIsSelected]);
+    getCellIsSelected, areCellsOn]);
 
   const moleculesLayer = useMemo(() => new ScatterplotLayer({
     id: 'molecules-layer',
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     data: moleculesData,
     pickable: true,
+    opacity: moleculesOpacity,
     autoHighlight: true,
     getRadius: moleculeRadius,
     radiusMaxPixels: 3,
@@ -247,9 +230,9 @@ export default function Spatial(props) {
     onHover: (info) => {
       if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
     },
-    visible: layerIsVisible.molecules,
+    visible: areMoleculesOn,
   }), [moleculesData, moleculeRadius, getMoleculePosition, getMoleculeColor,
-    layerIsVisible, updateStatus]);
+    updateStatus, moleculesOpacity, areMoleculesOn]);
 
   const neighborhoodsLayer = useMemo(() => new PolygonLayer({
     id: 'neighborhoods-layer',
@@ -262,8 +245,8 @@ export default function Spatial(props) {
     filled: false,
     getElevation: 0,
     getLineWidth: 10,
-    visible: layerIsVisible.neighborhoods,
-  }), [neighborhoodsData, layerIsVisible, getNeighborhoodPolygon]);
+    visible: areNeighborhoodsOn,
+  }), [neighborhoodsData, getNeighborhoodPolygon, areNeighborhoodsOn]);
 
   const renderImageLayer = useCallback((layerId, loader) => {
     const layerProps = imageLayerProps[layerId];
@@ -305,17 +288,6 @@ export default function Spatial(props) {
     cellsQuadTree,
   );
 
-  const layersMenu = useMemo(() => {
-    // Don't render if just image data
-    if (!molecules && !neighborhoods && !cells) return null;
-    return (
-      <LayersMenu
-        layerIsVisible={layerIsVisible}
-        setLayerIsVisible={setLayerIsVisible}
-      />
-    );
-  }, [setLayerIsVisible, layerIsVisible, molecules, neighborhoods, cells]);
-
   const deckProps = {
     views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
     // gl needs to be initialized for us to use it in Texture creation
@@ -332,14 +304,11 @@ export default function Spatial(props) {
 
   return (
     <>
-      <div className="d-flex">
-        <ToolMenu
-          activeTool={tool}
-          setActiveTool={setTool}
-          onViewStateChange={onViewStateChange}
-        />
-        {layersMenu}
-      </div>
+      <ToolMenu
+        activeTool={tool}
+        setActiveTool={setTool}
+        onViewStateChange={onViewStateChange}
+      />
       <DeckGL
         glOptions={DEFAULT_GL_OPTIONS}
         ref={deckRef}

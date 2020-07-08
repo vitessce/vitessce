@@ -6,6 +6,7 @@
 - Add `labelOverride` prop for genes component.
 
 ### Changed
+- Remove layers menu and add functionality to layer controller + opacity control.
 - Update genes schema to take non-integer values.
 - Changed the `SelectionLayer` picking approach to use a quadtree rather than the built-in deck.gl pixel-based method.
 - Flip y-axis for our graphics use-case.
