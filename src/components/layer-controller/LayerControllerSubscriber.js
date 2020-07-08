@@ -176,14 +176,16 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
           <Grid item>
             {cells ? (
               <VectorLayerController
-                events={{ opacity: CELLS_SET_OPACITY, on: CELLS_TURN_ON }}
                 label="Cell Segmentations"
+                handleOpacityChange={v => PubSub.publish(CELLS_SET_OPACITY, v)}
+                handleToggleChange={v => PubSub.publish(CELLS_TURN_ON, v)}
               />
             ) : null}
             {molecules ? (
               <VectorLayerController
-                events={{ opacity: MOLECULES_SET_OPACITY, on: MOLECULES_TURN_ON }}
                 label="Molecules"
+                handleOpacityChange={v => PubSub.publish(MOLECULES_SET_OPACITY, v)}
+                handleToggleChange={v => PubSub.publish(MOLECULES_TURN_ON, v)}
               />
             ) : null}
           </Grid>
