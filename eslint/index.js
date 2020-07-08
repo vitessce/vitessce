@@ -1,3 +1,5 @@
+// Thanks to https://medium.com/neighborhoods-com-engineering-blog/custom-eslint-rules-for-faster-refactoring-2095e69bde08
+// for the tutorial.
 module.exports.rules = {
   'prevent-pubsub-import': function (context) {
     return {
