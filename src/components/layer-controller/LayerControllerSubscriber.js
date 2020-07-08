@@ -12,7 +12,13 @@ import TitleInfo from '../TitleInfo';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import {
-  RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT, METADATA_REMOVE, LAYER_ADD, METADATA_ADD,
+  RASTER_ADD,
+  LAYER_REMOVE,
+  LAYER_CHANGE,
+  CLEAR_PLEASE_WAIT,
+  METADATA_REMOVE,
+  LAYER_ADD,
+  METADATA_ADD,
 } from '../../events';
 import { controllerTheme } from './styles';
 import { DEFAULT_LAYER_PROPS } from './constants';
@@ -138,6 +144,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
         handleLayerRemove={() => handleLayerRemove(layerId, imageData.name)}
         loader={loader}
         theme={theme}
+        handleLayerChange={v => PubSub.publish(LAYER_CHANGE, v)}
       />
     </Grid>
   ));

@@ -9,6 +9,7 @@
 - Update genes schema to take non-integer values.
 - Changed the `SelectionLayer` picking approach to use a quadtree rather than the built-in deck.gl pixel-based method.
 - Flip y-axis for our graphics use-case.
+- Clean up pubsub events in layer controller.
 
 ## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
 
