@@ -65,7 +65,7 @@ export default function Spatial(props) {
     molecules = {},
     cells = {},
     neighborhoods = {},
-    neighborhoodsOn = false,
+    areNeighborhoodsOn = false,
     cellRadius = 50,
     areCellsOn = true,
     moleculeRadius = 10,
@@ -230,8 +230,8 @@ export default function Spatial(props) {
     filled: false,
     getElevation: 0,
     getLineWidth: 10,
-    visible: neighborhoodsOn,
-  }), [neighborhoodsData, getNeighborhoodPolygon, neighborhoodsOn]);
+    visible: areNeighborhoodsOn,
+  }), [neighborhoodsData, getNeighborhoodPolygon, areNeighborhoodsOn]);
 
   const renderImageLayer = useCallback((layerId, loader) => {
     const layerProps = imageLayerProps[layerId];
