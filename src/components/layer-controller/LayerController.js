@@ -140,12 +140,20 @@ export default function LayerController({
     const loaderSelection = Object.values(channels).map(
       channel => channel.selection,
     );
+    const sliders = Object.values(channels).map(
+      channel => channel.slider,
+    );
     const domain = await getDomain(
       loader,
       loaderSelection,
       value,
     );
-    const update = { domain, slider: domain };
+    const update = {
+      domain,
+      slider: sliders.map(
+        (slider, i) => slider.map((val, j) => Math.min(val, domain[i][j])),
+      ),
+    };
     dispatch({
       type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
       layerId,
