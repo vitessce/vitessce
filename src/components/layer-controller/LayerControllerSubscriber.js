@@ -95,8 +95,8 @@ function publishLayer({ loader, imageData, layerId }) {
 
 function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
   const [imageOptions, setImageOptions] = useState(null);
-  const [cells, setCellsEvent] = useState(null);
-  const [molecules, setMoleculesEvent] = useState(null);
+  const [areCellsPlotted, setCellsEvent] = useState(null);
+  const [areMoleculesPlotted, setMoleculesEvent] = useState(null);
   const [layersAndLoaders, setLayersAndLoaders] = useState([]);
   const memoizedOnReady = useCallback(onReady, []);
 
@@ -176,14 +176,14 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider theme={controllerTheme[theme]}>
           <Grid item>
-            {cells ? (
+            {areCellsPlotted ? (
               <VectorLayerController
                 label="Cell Segmentations"
                 handleOpacityChange={v => PubSub.publish(CELLS_SET_OPACITY, v)}
                 handleToggleChange={v => PubSub.publish(CELLS_TURN_ON, v)}
               />
             ) : null}
-            {molecules ? (
+            {areMoleculesPlotted ? (
               <VectorLayerController
                 label="Molecules"
                 handleOpacityChange={v => PubSub.publish(MOLECULES_SET_OPACITY, v)}
