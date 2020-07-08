@@ -7,13 +7,13 @@ import shortNumber from 'short-number';
 import TitleInfo from '../TitleInfo';
 import {
   MOLECULES_ADD,
-  MOLECULES_OPACITY,
-  MOLECULES_ON,
+  MOLECULES_SET_OPACITY,
+  MOLECULES_TURN_ON,
   NEIGHBORHOODS_ADD,
   CELLS_ADD,
   CELLS_COLOR,
-  CELLS_OPACITY,
-  CELLS_ON,
+  CELLS_SET_OPACITY,
+  CELLS_TURN_ON,
   STATUS_INFO,
   CELLS_SELECTION,
   CELLS_HOVER,
@@ -91,7 +91,9 @@ export default function SpatialSubscriber({
     }
 
     const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
-    const moleculesOpacityToken = PubSub.subscribe(MOLECULES_OPACITY, moleculesOpacitySubscriber);
+    const moleculesOpacityToken = PubSub.subscribe(
+      MOLECULES_SET_OPACITY, moleculesOpacitySubscriber,
+    );
     const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, neighborhoodsAddSubscriber);
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, cellsAddSubscriber);
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, cellsSelectionSubscriber);
@@ -100,9 +102,9 @@ export default function SpatialSubscriber({
     const layerAddToken = PubSub.subscribe(LAYER_ADD, layerAddSubscriber);
     const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
     const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
-    const cellsOpacityToken = PubSub.subscribe(CELLS_OPACITY, cellsOpacitySubscriber);
-    const cellsOnToken = PubSub.subscribe(CELLS_ON, cellsOnSubscriber);
-    const moleculesOnToken = PubSub.subscribe(MOLECULES_ON, moleculesOnSubscriber);
+    const cellsOpacityToken = PubSub.subscribe(CELLS_SET_OPACITY, cellsOpacitySubscriber);
+    const cellsOnToken = PubSub.subscribe(CELLS_TURN_ON, cellsOnSubscriber);
+    const moleculesOnToken = PubSub.subscribe(MOLECULES_TURN_ON, moleculesOnSubscriber);
     const resetToken = PubSub.subscribe(RESET, clearSubscriber);
     onReadyCallback();
     return () => {

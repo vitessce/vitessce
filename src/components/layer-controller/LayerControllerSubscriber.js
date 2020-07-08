@@ -18,12 +18,12 @@ import {
   METADATA_REMOVE,
   LAYER_ADD,
   METADATA_ADD,
-  CELLS_OPACITY,
+  CELLS_SET_OPACITY,
   CELLS_ADD,
-  CELLS_ON,
+  CELLS_TURN_ON,
   MOLECULES_ADD,
-  MOLECULES_OPACITY,
-  MOLECULES_ON,
+  MOLECULES_SET_OPACITY,
+  MOLECULES_TURN_ON,
 } from '../../events';
 import { controllerTheme } from './styles';
 import { DEFAULT_LAYER_PROPS } from './constants';
@@ -128,10 +128,10 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
     memoizedOnReady();
     const rasterAddtoken = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
     const cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, () => setCellsEvent(CELLS_OPACITY),
+      CELLS_ADD, () => setCellsEvent(CELLS_SET_OPACITY),
     );
     const moleculesAddToken = PubSub.subscribe(
-      MOLECULES_ADD, () => setMoleculesEvent(MOLECULES_OPACITY),
+      MOLECULES_ADD, () => setMoleculesEvent(MOLECULES_SET_OPACITY),
     );
     return () => {
       PubSub.unsubscribe(rasterAddtoken);
@@ -176,13 +176,13 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
           <Grid item>
             {cellsEvent ? (
               <NonRasterLayerController
-                events={{ opacity: CELLS_OPACITY, on: CELLS_ON }}
+                events={{ opacity: CELLS_SET_OPACITY, on: CELLS_TURN_ON }}
                 label="Cell Segmentations"
               />
             ) : null}
             {moleculesEvent ? (
               <NonRasterLayerController
-                events={{ opacity: MOLECULES_OPACITY, on: MOLECULES_ON }}
+                events={{ opacity: MOLECULES_SET_OPACITY, on: MOLECULES_TURN_ON }}
                 label="Molecules"
               />
             ) : null}
