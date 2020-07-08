@@ -44,9 +44,9 @@ export default function SpatialSubscriber({
   const [imageLayerProps, setImageLayerProps] = useState({});
   const [imageLayerLoaders, setImageLayerLoaders] = useState({});
   const [cellOpacity, setCellOpacity] = useState(1);
-  const [cellsOn, setCellsOn] = useState(true);
+  const [areCellsOn, setCellsOn] = useState(true);
   const [moleculesOpacity, setMoleculesOpacity] = useState(1);
-  const [moleculesOn, setMoleculesOn] = useState(true);
+  const [areMoleculesOn, setMoleculesOn] = useState(true);
 
   const onReadyCallback = useCallback(onReady, []);
 
@@ -171,10 +171,10 @@ export default function SpatialSubscriber({
         neighborhoods={neighborhoods}
         molecules={molecules}
         moleculesOpacity={moleculesOpacity}
-        cellsOn={cellsOn}
+        areCellsOn={areCellsOn}
         cellOpacity={cellOpacity}
         cellColors={cellColors}
-        moleculesOn={moleculesOn}
+        areMoleculesOn={areMoleculesOn}
         imageLayerProps={imageLayerProps}
         imageLayerLoaders={imageLayerLoaders}
         view={view}

@@ -67,11 +67,11 @@ export default function Spatial(props) {
     neighborhoods = {},
     neighborhoodsOn = false,
     cellRadius = 50,
-    cellsOn = true,
+    areCellsOn = true,
     moleculeRadius = 10,
     cellOpacity = 1.0,
     moleculesOpacity = 1.0,
-    moleculesOn = true,
+    areMoleculesOn = true,
     imageLayerProps = {},
     imageLayerLoaders = {},
     cellColors = {},
@@ -194,11 +194,11 @@ export default function Spatial(props) {
       }
       onCellClick(info);
     },
-    visible: cellsOn,
+    visible: areCellsOn,
     ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
   }), [cellsData, updateStatus, updateCellsHover,
     uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
-    getCellIsSelected, cellsOn]);
+    getCellIsSelected, areCellsOn]);
 
   const moleculesLayer = useMemo(() => new ScatterplotLayer({
     id: 'molecules-layer',
@@ -215,9 +215,9 @@ export default function Spatial(props) {
     onHover: (info) => {
       if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
     },
-    visible: moleculesOn,
+    visible: areMoleculesOn,
   }), [moleculesData, moleculeRadius, getMoleculePosition, getMoleculeColor,
-    updateStatus, moleculesOpacity, moleculesOn]);
+    updateStatus, moleculesOpacity, areMoleculesOn]);
 
   const neighborhoodsLayer = useMemo(() => new PolygonLayer({
     id: 'neighborhoods-layer',
