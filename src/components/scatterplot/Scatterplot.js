@@ -65,7 +65,9 @@ export default function Scatterplot(props) {
         throw new Error(`Expected to find "${mapping}", but available mappings are: ${available}`);
       }
       const mappedCell = mappings[mapping];
-      return [mappedCell[0], mappedCell[1], 0];
+      // The negative applied to the y-axis is because
+      // graphics rendering has the y-axis positive going south.
+      return [mappedCell[0], -mappedCell[1], 0];
     },
     getCellColor = cellEntry => (cellColors && cellColors[cellEntry[0]]) || DEFAULT_COLOR,
     getCellIsSelected = cellEntry => (
@@ -131,6 +133,10 @@ export default function Scatterplot(props) {
     return result;
   }, [cells, clearPleaseWait]);
 
+  // Graphics rendering has the y-axis positive going south,
+  // so we need to flip it for rendering tooltips.
+  const flipYTooltip = true;
+
   const layers = useMemo(() => {
     if (!cellsData) {
       return [];
@@ -154,12 +160,14 @@ export default function Scatterplot(props) {
           }
           onCellClick(info);
         },
-        ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
+        ...cellLayerDefaultProps(
+          cellsData, updateStatus, updateCellsHover, uuid, flipYTooltip,
+        ),
       }),
     ];
   }, [cellsData, theme, getCellIsSelected, cellOpacity, cellRadiusScale,
     getCellPosition, getCellColor, updateStatus, updateCellsHover, uuid,
-    tool, onCellClick]);
+    tool, onCellClick, flipYTooltip]);
 
   const cellsQuadTree = useMemo(() => {
     // Use the cellsData variable since it is already
@@ -182,6 +190,7 @@ export default function Scatterplot(props) {
     getCellCoords,
     updateCellsSelection,
     cellsQuadTree,
+    flipYTooltip,
   );
 
   const deckProps = {

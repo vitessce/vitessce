@@ -78,10 +78,19 @@ const PASS_THROUGH_PROPS = [
 
 export default class SelectionLayer extends CompositeLayer {
   _selectPolygonObjects(coordinates) {
-    const { onSelect, getCellCoords, cellsQuadTree } = this.props;
+    const {
+      onSelect,
+      getCellCoords,
+      cellsQuadTree,
+      flipY,
+    } = this.props;
+
+    const flippedCoordinates = (flipY
+      ? coordinates.map(poly => poly.map(p => ([p[0], -p[1]])))
+      : coordinates);
 
     // Convert the selection to a turf polygon object.
-    const selectedPolygon = turfPolygon(coordinates);
+    const selectedPolygon = turfPolygon(flippedCoordinates);
 
     // Create an array to store the results.
     const pickingInfos = [];

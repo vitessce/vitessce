@@ -35,6 +35,7 @@ export function getSelectionLayers(
   getCellCoords,
   updateCellsSelection,
   cellsQuadTree,
+  flipY = false,
 ) {
   if (!tool) {
     return [];
@@ -45,6 +46,7 @@ export function getSelectionLayers(
 
   return [new SelectionLayer({
     id: 'selection',
+    flipY,
     cellsQuadTree,
     getCellCoords,
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,

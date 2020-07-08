@@ -11,7 +11,7 @@ export function makeCellStatusMessage(cellInfoFactors) {
   ).join('; ');
 }
 
-export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid) {
+export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid, flipY = false) {
   return {
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     data: cells,
@@ -25,10 +25,17 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
       if (info.object) {
         const [cellId, cellInfo] = info.object;
         const { factors = {}, xy, mappings = {} } = cellInfo;
+        const scatterplotMappings = { ...mappings };
+        if (flipY) {
+          Object.keys(scatterplotMappings).forEach((mapping) => {
+            const arr = [scatterplotMappings[mapping][0], -scatterplotMappings[mapping][1]];
+            scatterplotMappings[mapping] = arr;
+          });
+        }
         updateStatus(makeCellStatusMessage(factors));
         updateCellsHover({
           cellId,
-          mappings: { xy, ...mappings },
+          mappings: { xy, ...scatterplotMappings },
           uuid,
           factors,
         });
