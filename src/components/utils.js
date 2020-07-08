@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+// eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
 import debounce from 'lodash/debounce';
 import { COORDINATE_SYSTEM } from 'deck.gl';

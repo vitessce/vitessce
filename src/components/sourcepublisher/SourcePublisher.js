@@ -1,4 +1,5 @@
 import Ajv from 'ajv';
+// eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
 import React, { useEffect, useState } from 'react';
 
