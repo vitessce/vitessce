@@ -35,7 +35,7 @@ export default function VectorLayerController(props) {
       <Paper className={classes.root}>
         <Typography
           style={{
-            paddingTop: '20px',
+            paddingTop: '15px',
             paddingLeft: '10px',
             marginBottom: '-5px',
           }}
