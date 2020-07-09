@@ -1,6 +1,3 @@
-import PubSub from 'pubsub-js';
-
-import { LAYER_CHANGE } from '../../events';
 import { VIEWER_PALETTE } from '../utils';
 
 const layerProperty = {
@@ -50,7 +47,12 @@ function getNewChannelProperty(channel, property, value) {
 }
 
 export default function reducer(channels, action) {
-  const { type, layerId, payload } = action;
+  const {
+    type,
+    layerId,
+    payload,
+    handleLayerChange,
+  } = action;
   switch (type) {
     case 'CHANGE_SINGLE_CHANNEL_PROPERTIES': {
       // property is something like "selection" or "slider."
@@ -89,7 +91,7 @@ export default function reducer(channels, action) {
         layerProps[propertyToUpdate] = updatedValues;
       });
       // Publish deck.gl layer props.
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      handleLayerChange({ layerId, layerProps });
       return nextChannels;
     }
     case 'CHANGE_GLOBAL_CHANNELS_PROPERTIES': {
@@ -119,7 +121,7 @@ export default function reducer(channels, action) {
           layerProps[layerProperty[property]] = updatedValues;
         });
         // Publish deck.gl layer props.
-        PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+        handleLayerChange({ layerId, layerProps });
       }
       return nextChannels;
     }
@@ -135,7 +137,7 @@ export default function reducer(channels, action) {
       const channelId = String(Math.random());
       const nextChannels = { ...channels, [channelId]: channel };
       const layerProps = channelsToLayerProps(nextChannels);
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      handleLayerChange({ layerId, layerProps });
       return nextChannels;
     }
     // Because the image layers are asynchronous, hurling a bunch of 'ADD_CHANNEL'
@@ -156,19 +158,19 @@ export default function reducer(channels, action) {
         nextChannels = { ...nextChannels, [channelId]: channel };
       });
       const layerProps = channelsToLayerProps(nextChannels);
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      handleLayerChange({ layerId, layerProps });
       return nextChannels;
     }
     case 'REMOVE_CHANNEL': {
       const { channelId } = action.payload;
       const { [channelId]: _, ...nextChannels } = channels;
       const layerProps = channelsToLayerProps(nextChannels);
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      handleLayerChange({ layerId, layerProps });
       return nextChannels;
     }
     case 'RESET_CHANNELS': {
       const layerProps = channelsToLayerProps({});
-      PubSub.publish(LAYER_CHANGE, { layerId, layerProps });
+      handleLayerChange({ layerId, layerProps });
       return {};
     }
     default:
