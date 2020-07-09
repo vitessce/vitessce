@@ -279,7 +279,13 @@ export default function RasterLayerController({
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`layer-${imageData.name}-controls`}
         style={{
-          paddingLeft: '10px', paddingRight: '10px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap',
+          marginBottom: '-10px',
+          top: '-5px',
+          paddingLeft: '10px',
+          paddingRight: '10px',
+          textOverflow: 'ellipsis',
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
         }}
       >
         {imageData.name}

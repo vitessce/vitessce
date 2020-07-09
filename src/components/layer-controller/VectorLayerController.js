@@ -33,7 +33,13 @@ export default function VectorLayerController(props) {
   return (
     <Grid item style={{ marginTop: '10px' }}>
       <Paper className={classes.root}>
-        <Typography style={{ paddingTop: '20px', paddingLeft: '10px' }}>
+        <Typography
+          style={{
+            paddingTop: '20px',
+            paddingLeft: '10px',
+            marginBottom: '-5px',
+          }}
+        >
           {label}
         </Typography>
         <Grid container direction="row" justify="space-between">
