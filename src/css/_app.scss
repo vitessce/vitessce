@@ -63,6 +63,9 @@
 
     .card {
         border: 1px solid map-get($theme-colors, "card-border");
+        & > div:first-child {
+            margin-top: 0 !important;
+        }
     }
 
     .bg-black {

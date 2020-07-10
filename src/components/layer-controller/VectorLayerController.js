@@ -5,7 +5,6 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
-import { makeStyles } from '@material-ui/core/styles';
 
 import debounce from 'lodash/debounce';
 
@@ -25,11 +24,6 @@ export default function VectorLayerController(props) {
   );
 
   const classes = useExpansionPanelStyles();
-  const sliderStyle = makeStyles(theme => ({
-    root: {
-      paddingRight: theme.spacing(1),
-    },
-  }));
   return (
     <Grid item style={{ marginTop: '10px' }}>
       <Paper className={classes.root}>
@@ -46,14 +40,13 @@ export default function VectorLayerController(props) {
           <Grid item xs={2}>
             <Checkbox color="primary" checked={isOn} onChange={(e, v) => handleCheckBoxChange(v)} />
           </Grid>
-          <Grid item xs={9} style={{ paddingRight: '5px' }}>
+          <Grid item xs={9} style={{ paddingRight: '8px' }}>
             <Slider
               value={slider}
               min={0}
               max={1}
               step={0.001}
               onChange={(e, v) => handleSliderChangeDebounced(v)}
-              className={sliderStyle.root}
               style={{ marginTop: '7px' }}
               orientation="horizontal"
             />
