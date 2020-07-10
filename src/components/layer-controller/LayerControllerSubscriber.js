@@ -175,27 +175,29 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
     >
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider theme={controllerTheme[theme]}>
-          {areCellsPlotted ? (
-            <VectorLayerController
-              label="Cell Segmentations"
-              handleOpacityChange={v => PubSub.publish(CELLS_SET_OPACITY, v)}
-              handleToggleChange={v => PubSub.publish(CELLS_TURN_ON, v)}
-            />
-          ) : null}
-          {areMoleculesPlotted ? (
-            <VectorLayerController
-              label="Molecules"
-              handleOpacityChange={v => PubSub.publish(MOLECULES_SET_OPACITY, v)}
-              handleToggleChange={v => PubSub.publish(MOLECULES_TURN_ON, v)}
-            />
-          ) : null}
-          {layerControllers}
-          <Grid item>
-            <ImageAddButton
-              imageOptions={imageOptions}
-              handleImageAdd={handleImageAdd}
-            />
-          </Grid>
+          <div className="layer-controller-container">
+            {areCellsPlotted ? (
+              <VectorLayerController
+                label="Cell Segmentations"
+                handleOpacityChange={v => PubSub.publish(CELLS_SET_OPACITY, v)}
+                handleToggleChange={v => PubSub.publish(CELLS_TURN_ON, v)}
+              />
+            ) : null}
+            {areMoleculesPlotted ? (
+              <VectorLayerController
+                label="Molecules"
+                handleOpacityChange={v => PubSub.publish(MOLECULES_SET_OPACITY, v)}
+                handleToggleChange={v => PubSub.publish(MOLECULES_TURN_ON, v)}
+              />
+            ) : null}
+            {layerControllers}
+            <Grid item>
+              <ImageAddButton
+                imageOptions={imageOptions}
+                handleImageAdd={handleImageAdd}
+              />
+            </Grid>
+          </div>
         </ThemeProvider>
       </StylesProvider>
     </TitleInfo>
