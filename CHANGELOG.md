@@ -13,6 +13,7 @@
 - Clean up pubsub events in layer controller.
 - Slider range remains as unchanged as possible under domain changes.
 - Take away some spacing from `LayerController`.
+- Make `LayerControllerSubscriber` names booleans-questions.
 
 ## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
 
