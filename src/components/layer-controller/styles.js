@@ -58,3 +58,27 @@ export const useExpansionPanelStyles = makeStyles(theme => ({
     flexDirection: 'column',
   },
 }));
+
+export const useExpansionPanelSummaryStyles = makeStyles(theme => ({
+  root: {
+    marginBottom: theme.spacing(-2),
+    top: theme.spacing(-1),
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+  },
+  expanded: {
+    marginBottom: theme.spacing(-3),
+    top: theme.spacing(-1),
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+  },
+  expandIcon: {
+    '&$expanded': {
+      top: theme.spacing(-1.3),
+    },
+  },
+}));
