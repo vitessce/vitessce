@@ -179,7 +179,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
     >
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider theme={controllerTheme[theme]}>
-          <Grid item>
+          <div className="layer-controller-container">
             {areCellsPlotted ? (
               <VectorLayerController
                 label="Cell Segmentations"
@@ -194,14 +194,14 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
                 handleToggleChange={v => PubSub.publish(MOLECULES_TURN_ON, v)}
               />
             ) : null}
-          </Grid>
-          {layerControllers}
-          <Grid item>
-            <ImageAddButton
-              imageOptions={imageOptions}
-              handleImageAdd={handleImageAdd}
-            />
-          </Grid>
+            {layerControllers}
+            <Grid item>
+              <ImageAddButton
+                imageOptions={imageOptions}
+                handleImageAdd={handleImageAdd}
+              />
+            </Grid>
+          </div>
         </ThemeProvider>
       </StylesProvider>
     </TitleInfo>

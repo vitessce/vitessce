@@ -12,6 +12,7 @@
 - Flip y-axis for our graphics use-case.
 - Clean up pubsub events in layer controller.
 - Slider range remains as unchanged as possible under domain changes.
+- Take away some spacing from `LayerController`.
 - Make `LayerControllerSubscriber` names booleans-questions.
 - Fix reisizing bug.
 - Bump `vitessce-data` to 0.0.30.

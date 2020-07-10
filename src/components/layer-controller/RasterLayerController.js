@@ -16,7 +16,7 @@ import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
 import reducer from './reducer';
-import { useExpansionPanelStyles } from './styles';
+import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
 import {
   GLOBAL_SLIDER_DIMENSION_FIELDS, DEFAULT_LAYER_PROPS,
 } from './constants';
@@ -273,14 +273,13 @@ export default function RasterLayerController({
   }
 
   const classes = useExpansionPanelStyles();
+  const summaryClasses = useExpansionPanelSummaryStyles();
   return (
     <ExpansionPanel defaultExpanded className={classes.root}>
       <ExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`layer-${imageData.name}-controls`}
-        style={{
-          paddingLeft: '10px', paddingRight: '10px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap',
-        }}
+        classes={{ ...summaryClasses }}
       >
         {imageData.name}
       </ExpansionPanelSummary>
