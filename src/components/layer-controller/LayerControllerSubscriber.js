@@ -95,8 +95,8 @@ function publishLayer({ loader, imageData, layerId }) {
 
 function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
   const [imageOptions, setImageOptions] = useState(null);
-  const [areCellsPlotted, setCellsEvent] = useState(null);
-  const [areMoleculesPlotted, setMoleculesEvent] = useState(null);
+  const [areCellsPlotted, setAreCellsPlotted] = useState(false);
+  const [areMoleculesPlotted, setAreMoleculesPlotted] = useState(false);
   const [layersAndLoaders, setLayersAndLoaders] = useState([]);
   const memoizedOnReady = useCallback(onReady, []);
 
@@ -129,10 +129,10 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
     memoizedOnReady();
     const rasterAddtoken = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
     const cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, () => setCellsEvent(CELLS_SET_OPACITY),
+      CELLS_ADD, () => setAreCellsPlotted(true),
     );
     const moleculesAddToken = PubSub.subscribe(
-      MOLECULES_ADD, () => setMoleculesEvent(MOLECULES_SET_OPACITY),
+      MOLECULES_ADD, () => setAreMoleculesPlotted(true),
     );
     return () => {
       PubSub.unsubscribe(rasterAddtoken);
