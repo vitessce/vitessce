@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.28/master_release';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.30/master_release';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({

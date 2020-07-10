@@ -154,6 +154,10 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
     PubSub.publish(LAYER_REMOVE, layerId);
     PubSub.publish(METADATA_REMOVE, { layerId, layerName });
   };
+  const handleLayerChange = useCallback(
+    message => PubSub.publish(LAYER_CHANGE, message),
+    [],
+  );
   const layerControllers = layersAndLoaders.map(({ layerId, imageData, loader }) => (
     <Grid key={layerId} item style={{ marginTop: '10px' }}>
       <RasterLayerController
@@ -162,7 +166,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
         handleLayerRemove={() => handleLayerRemove(layerId, imageData.name)}
         loader={loader}
         theme={theme}
-        handleLayerChange={v => PubSub.publish(LAYER_CHANGE, v)}
+        handleLayerChange={handleLayerChange}
       />
     </Grid>
   ));
