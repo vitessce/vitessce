@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import PubSub from 'pubsub-js';
 
@@ -12,7 +13,10 @@ export default class HeatmapSubscriber extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cells: {}, clusters: null, selectedCellIds: new Set(), cellColors: null,
+      cells: {},
+      clusters: null,
+      selectedCellIds: new Set(),
+      cellColors: null,
     };
     this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
@@ -50,7 +54,15 @@ export default class HeatmapSubscriber extends React.Component {
   }
 
   clustersAddSubscriber(msg, clusters) {
-    this.setState({ clusters });
+    const [attrs, arr] = clusters;
+
+    arr.get([null, null]).then(X => {
+      this.setState({ clusters: {
+        cols: attrs.var,
+        rows: attrs.obs,
+        matrix: X
+      }});
+    });
   }
 
   cellsAddSubscriber(msg, cells) {
@@ -69,8 +81,11 @@ export default class HeatmapSubscriber extends React.Component {
     const {
       cells, clusters, selectedCellIds, cellColors,
     } = this.state;
-    const cellsCount = clusters ? clusters.cols.length : 0;
-    const genesCount = clusters ? clusters.rows.length : 0;
+
+    console.log(clusters);
+
+    const cellsCount = clusters && clusters.rows ? clusters.rows.length : 0;
+    const genesCount = clusters && clusters.cols ? clusters.cols.length : 0;
     const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
     const { children, uuid, removeGridComponent } = this.props;
     return (

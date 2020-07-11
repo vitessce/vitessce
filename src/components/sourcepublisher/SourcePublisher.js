@@ -1,44 +1,15 @@
-import Ajv from 'ajv';
+/* eslint-disable */
 // eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
 import React, { useEffect, useState } from 'react';
 
 import {
   STATUS_WARN, STATUS_INFO,
-  CELLS_ADD, CLUSTERS_ADD, FACTORS_ADD, GENES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD,
-  CLEAR_PLEASE_WAIT, RASTER_ADD, CELL_SETS_ADD, RESET,
+  CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 
-import cellsSchema from '../../schemas/cells.schema.json';
-import clustersSchema from '../../schemas/clusters.schema.json';
-import factorsSchema from '../../schemas/factors.schema.json';
-import genesSchema from '../../schemas/genes.schema.json';
-import moleculesSchema from '../../schemas/molecules.schema.json';
-import neighborhoodsSchema from '../../schemas/neighborhoods.schema.json';
-import rasterSchema from '../../schemas/raster.schema.json';
-import cellSetsSchema from '../../schemas/cell-sets.schema.json';
-
-const typeToSchema = {
-  CELLS: cellsSchema,
-  CLUSTERS: clustersSchema,
-  FACTORS: factorsSchema,
-  GENES: genesSchema,
-  MOLECULES: moleculesSchema,
-  NEIGHBORHOODS: neighborhoodsSchema,
-  RASTER: rasterSchema,
-  'CELL-SETS': cellSetsSchema,
-};
-
-const typeToEvent = {
-  CELLS: CELLS_ADD,
-  CLUSTERS: CLUSTERS_ADD,
-  FACTORS: FACTORS_ADD,
-  GENES: GENES_ADD,
-  MOLECULES: MOLECULES_ADD,
-  NEIGHBORHOODS: NEIGHBORHOODS_ADD,
-  RASTER: RASTER_ADD,
-  'CELL-SETS': CELL_SETS_ADD,
-};
+import { typeToEvent, extensionToLoader } from './types';
+import { JsonLoader } from './loaders';
 
 function warn(message) {
   PubSub.publish(STATUS_WARN, message);
@@ -52,42 +23,26 @@ function reset() {
   PubSub.publish(RESET, {});
 }
 
-function publishLayer(data, type, name, url) {
-  const schema = typeToSchema[type];
-  if (!schema) {
-    throw Error(`No schema for ${type}`);
-  }
-  const validate = new Ajv().compile(schema);
-  const valid = validate(data);
-  if (!valid) {
-    const failureReason = JSON.stringify(validate.errors, null, 2);
-    warn(`Error while validating ${name}. Details in console.`);
-    console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
-  }
-  PubSub.publish(typeToEvent[type], data);
-  info(name);
-}
-
 function loadLayer(layer) {
   const {
-    name, type, url, requestInit = {},
+    name, type, url,
   } = layer;
-  fetch(url, requestInit)
-    .then((response) => {
-      if (response.ok) {
-        response.json().then((data) => {
-          publishLayer(data, type, name, url);
-        }, (failureReason) => {
-          warn(`Error while parsing ${name}. Details in console.`);
-          console.warn(`"${name}" (${type}) from ${url}: parse failed`, failureReason);
-        });
-      } else {
-        warn(`Error HTTP status from ${name}. Details in console.`);
-        console.warn(`"${name}" (${type}) from ${url}: HTTP failed`, response.headers);
-      }
-    }, (failureReason) => {
-      warn(`Error while fetching ${name}. Details in console.`);
-      console.warn(`"${name}" (${type}) from ${url}: fetch failed`, failureReason);
+
+  let loaderClass = JsonLoader;
+  Object.entries(extensionToLoader).forEach(([ext, extLoader]) => {
+    if(url.endsWith(ext)) {
+      loaderClass = extLoader;
+    }
+  });
+
+  const loader = new loaderClass(layer);
+  loader.load()
+    .then((data) => {
+      PubSub.publish(typeToEvent[type], data);
+      info(name);
+    })
+    .catch((reason) => {
+      warn(reason);
     });
 }
 

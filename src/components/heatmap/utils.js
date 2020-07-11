@@ -32,13 +32,13 @@ export function onHeatmapMouseMove(event, props) {
   if (clusters) {
     // Cell columns are not exactly equal to individual pixels,
     // so need to scale by number of cells.
-    const colX = Math.floor((pixelX / width) * clusters.cols.length);
+    const colX = Math.floor((pixelX / width) * clusters.rows.length);
     // Use the column x-coordinate to look up the cell ID.
-    const cellId = clusters.cols[colX];
-    if (cellId) {
+    const cellId = clusters.rows[colX];
+    if (cells && cellId) {
       // Use the cell ID to look up the cell information object.
       const cellInfo = cells[cellId];
-      const { factors = {}, xy, mappings = {} } = cellInfo;
+      const { factors = {}, xy, mappings = {} } = cellInfo || {};
       updateCellsHover({
         cellId,
         mappings: { xy, ...mappings },

@@ -14,12 +14,12 @@ function paintCanvas(canvasRef, props) {
   const ctx = canvasRef.getContext('2d');
 
   const { clusters, cellColors } = props;
-  const width = clusters.cols.length;
-  const height = 1;
+  const width = 1;
+  const height = clusters.rows.length;
 
   const imageData = ctx.createImageData(width, height);
-  clusters.cols.forEach((cellId, x) => {
-    const offset = x * 4;
+  clusters.rows.forEach((cellId, y) => {
+    const offset = y * 4;
     const cellColor = cellColors[cellId] || [0, 0, 0];
     setImageDataRGBA(imageData, offset, ...cellColor, 255);
   });

@@ -70,15 +70,20 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
       {
         name: 'cells',
         type: 'CELLS',
-        url: `https://keller-mark.github.io/vitessce-demo-hosting-temporary/cell-type-annotations/${globusId}.cells.json`,
+        url: `https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/${globusId}.cells.json`,
       },
       {
         name: 'cell-sets',
         type: 'CELL-SETS',
-        url: `https://keller-mark.github.io/vitessce-demo-hosting-temporary/cell-type-annotations/${globusId}.cell-sets.json`,
+        url: `https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/${globusId}.cell-sets.json`,
+      },
+      {
+        name: 'clusters',
+        type: 'CLUSTERS',
+        url: `https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/${globusId}.clusters.zarr`,
       },
     ],
-    public: false,
+    public: true,
     staticLayout: [
       { component: 'scatterplot',
         props: {
@@ -88,14 +93,13 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
             target: [0, 0, 0],
           },
         },
-        x: 0, y: 0, w: 7, h: 8 },
+        x: 0, y: 0, w: 7, h: 4 },
       { component: 'cellSets',
-        x: 7, y: 0, w: 5, h: 6 },
-      { component: 'description',
-        props: {
-          description: 'Note: This is for demonstration purposes only. The data shown here has not been processed by the official HuBMAP pipelines.'
-        },
-        x: 7, y: 6, w: 5, h: 2 },
+        x: 7, y: 0, w: 5, h: 2 },
+      { component: 'status',
+        x: 7, y: 2, w: 5, h: 2 },
+      { component: 'heatmap',
+        x: 0, y: 4, w: 12, h: 4 },
     ],
   }
 });
