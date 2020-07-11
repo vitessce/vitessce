@@ -1,11 +1,12 @@
 import Ajv from 'ajv';
+// eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   STATUS_WARN, STATUS_INFO,
   CELLS_ADD, CLUSTERS_ADD, FACTORS_ADD, GENES_ADD, MOLECULES_ADD, NEIGHBORHOODS_ADD,
-  CLEAR_PLEASE_WAIT, RASTER_ADD, CELL_SETS_ADD,
+  CLEAR_PLEASE_WAIT, RASTER_ADD, CELL_SETS_ADD, RESET,
 } from '../../events';
 
 import cellsSchema from '../../schemas/cells.schema.json';
@@ -47,6 +48,10 @@ function info(fileName) {
   PubSub.publish(STATUS_INFO, `Loaded ${fileName}.`);
 }
 
+function reset() {
+  PubSub.publish(RESET, {});
+}
+
 function publishLayer(data, type, name, url) {
   const schema = typeToSchema[type];
   if (!schema) {
@@ -86,70 +91,60 @@ function loadLayer(layer) {
     });
 }
 
-export default class SourcePublisher extends React.Component {
-  constructor(props) {
-    super(props);
-    const { layers } = this.props;
-    const pleaseWaits = {};
-    layers.map(layer => layer.name).forEach((name) => { pleaseWaits[name] = true; });
-    this.state = { pleaseWaits };
-  }
+export default function SourcePublisher({ layers }) {
+  const [pleaseWaits, setPleaseWaits] = useState({});
 
-  clearPleaseWait(event, layerName) {
-    this.setState((prevState) => {
-      // TODO: Do not mutate! https://github.com/hubmapconsortium/vitessce/issues/148
-      // eslint-disable-next-line no-param-reassign
-      prevState.pleaseWaits[layerName] = false;
-      const waitingOn = Object.entries(prevState.pleaseWaits)
-        .filter(entry => entry[1])
-        .map(entry => entry[0]);
-      console.warn(`cleared "${layerName}"; waiting on ${waitingOn.length}:`, waitingOn);
-      return prevState;
-    });
-  }
-
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillMount() {
-    this.clearPleaseWaitToken = PubSub.subscribe(
-      CLEAR_PLEASE_WAIT, this.clearPleaseWait.bind(this),
-    );
-  }
-
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.clearPleaseWaitToken);
-  }
-
-  componentDidMount() {
-    const { layers } = this.props;
+  useEffect(() => {
+    function clearPleaseWait(event, layerName) {
+      setPleaseWaits((prevPleaseWaits) => {
+        const newPleaseWaits = { ...prevPleaseWaits };
+        // TODO: Do not mutate! https://github.com/hubmapconsortium/vitessce/issues/148
+        // eslint-disable-next-line no-param-reassign
+        newPleaseWaits[layerName] = false;
+        const waitingOn = Object.entries(newPleaseWaits)
+          .filter(entry => entry[1])
+          .map(entry => entry[0]);
+        console.warn(
+          `cleared "${layerName}"; waiting on ${waitingOn.length}:`,
+          waitingOn,
+        );
+        return newPleaseWaits;
+      });
+    }
+    reset();
+    const newPleaseWaits = {};
+    layers.map(layer => layer.name).forEach((name) => { newPleaseWaits[name] = true; });
     layers.forEach((layer) => {
       loadLayer(layer);
     });
-  }
-
-  render() {
-    const { pleaseWaits } = this.state;
-    const unloadedLayers = Object.entries(pleaseWaits).filter(
-      ([name, stillWaiting]) => stillWaiting, // eslint-disable-line no-unused-vars
-    ).map(
-      ([name, stillWaiting]) => name, // eslint-disable-line no-unused-vars
+    setPleaseWaits(newPleaseWaits);
+    const token = PubSub.subscribe(
+      CLEAR_PLEASE_WAIT, clearPleaseWait,
     );
+    return () => PubSub.unsubscribe(token);
+  }, [layers]);
 
-    if (unloadedLayers.length) {
-      return (
-        <>
-          <div className="modal">
-            <div className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-body">
-                  <p>Please wait...</p>
-                </div>
+  const unloadedLayers = Object.entries(pleaseWaits).filter(
+    ([name, stillWaiting]) => stillWaiting, // eslint-disable-line no-unused-vars
+  ).map(
+    ([name, stillWaiting]) => name, // eslint-disable-line no-unused-vars
+  );
+
+  if (unloadedLayers.length) {
+    return (
+      <>
+        <div className="modal">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-body">
+                <p>Please wait...</p>
               </div>
             </div>
           </div>
-          <div className="modal-backdrop show" />
-        </>
-      );
-    }
-    return null;
+        </div>
+        <div className="modal-backdrop show" />
+      </>
+    );
   }
+  return null;
 }

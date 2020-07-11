@@ -1,10 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
+import isNil from 'lodash/isNil';
 import some from 'lodash/some';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
 import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
-import { HIERARCHICAL_SCHEMAS } from './io';
+import {
+  HIERARCHICAL_SCHEMAS,
+} from './constants';
 
 // Constants.
 const CURRENT_SELECTION_NAME = 'Current selection';
@@ -506,7 +509,7 @@ function treeNodeRemove(currTree, targetKey, temporary = false) {
  * a transformed version of the node.
  * @returns {object} The updated node.
  */
-function nodeTransform(node, predicate, transform) {
+export function nodeTransform(node, predicate, transform) {
   if (predicate(node)) {
     return transform(node);
   }
@@ -590,14 +593,19 @@ function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME) {
   const numToolsNodeChildren = toolsNode.children.length;
   const nextCurrentSetColor = PALETTE[numToolsNodeChildren % PALETTE.length];
 
+  const cellIdsWithProb = cellIds.map(cellId => ([cellId, null]));
+
   newTree = {
     ...newTree,
     tree: newTree.tree.map(levelZeroNode => nodeTransformChildOrAppendChild(
       levelZeroNode,
       node => (node._state.isForTools && node._state.level === 0),
       node => (node._state.isCurrent && node._state.level === 1),
-      node => nodeSetName(nodeSetSet(node, cellIds), name),
-      nodeWithState({ name, set: cellIds, color: nextCurrentSetColor }, 1, { isCurrent: true }),
+      node => nodeSetName(nodeSetSet(node, cellIdsWithProb), name),
+      nodeWithState(
+        { name, set: cellIdsWithProb, color: nextCurrentSetColor },
+        1, { isCurrent: true },
+      ),
     )),
   };
 
@@ -729,7 +737,7 @@ function treeOnCheckLevel(currTree, levelZeroKey, levelIndex) {
 function treeToUnion(currTree) {
   const { checkedKeys } = currTree._state;
   const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
-  const nodeSets = nodes.map(node => nodeToSet(node));
+  const nodeSets = nodes.map(node => nodeToSet(node).map(([cellId]) => cellId));
   return nodeSets
     .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0] || []);
 }
@@ -742,7 +750,7 @@ function treeToUnion(currTree) {
 function treeToIntersection(currTree) {
   const { checkedKeys } = currTree._state;
   const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
-  const nodeSets = nodes.map(node => nodeToSet(node));
+  const nodeSets = nodes.map(node => nodeToSet(node).map(([cellId]) => cellId));
   return nodeSets
     .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0] || []);
 }
@@ -1314,7 +1322,7 @@ export function treeExportSet(currTree, nodeKey) {
 export function treeInitialize(datatype) {
   const treeKey = generateKey();
   return {
-    version: HIERARCHICAL_SCHEMAS[datatype].version,
+    version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
     datatype,
     tree: [],
     _state: {
@@ -1327,6 +1335,28 @@ export function treeInitialize(datatype) {
       autoExpandParent: true,
       // Hide checkboxes until the user has
       // clicked "Select" in a node dropdown.
+      isChecking: false,
+    },
+  };
+}
+
+/**
+ * Reset the tree state.
+ * @param {object} currTree A tree object.
+ * @returns {object} The tree after reset.
+ */
+export function treeReset(currTree) {
+  return {
+    ...currTree,
+    tree: [],
+    _state: {
+      ...currTree._state,
+      items: (ALLOW_SIDE_EFFECTS ? true : []),
+      checkedKeys: [],
+      visibleKeys: [],
+      checkedLevel: { levelZeroKey: null, levelIndex: null },
+      expandedKeys: [],
+      autoExpandParent: true,
       isChecking: false,
     },
   };
@@ -1355,6 +1385,24 @@ export function nodeToRenderProps(node) {
 }
 
 /**
+ * Using a color and a probability, mix the color with an "uncertainty" color,
+ * for example, gray.
+ * Reference: https://github.com/bgrins/TinyColor/blob/80f7225029c428c0de0757f7d98ac15f497bee57/tinycolor.js#L701
+ * @param {number[]} originalColor The color assignment for the class.
+ * @param {number} p The mixing amount, or level certainty in the originalColor classification,
+ * between 0 and 1.
+ * @param {number[]} mixingColor The color with which to mix. By default, [128, 128, 128] gray.
+ * @returns {number[]} Returns the color after mixing.
+ */
+function colorMixWithUncertainty(originalColor, p, mixingColor = [128, 128, 128]) {
+  return [
+    ((originalColor[0] - mixingColor[0]) * p) + mixingColor[0],
+    ((originalColor[1] - mixingColor[1]) * p) + mixingColor[1],
+    ((originalColor[2] - mixingColor[2]) * p) + mixingColor[2],
+  ];
+}
+
+/**
  * Given a tree with state, get the cellIds and cellColors,
  * based on the nodes currently marked as "visible".
  * @param {object} currTree A tree object.
@@ -1370,7 +1418,10 @@ export function treeToVisibleCells(currTree) {
       const nodeSet = nodeToSet(node);
       cellColorsArray = [
         ...cellColorsArray,
-        ...nodeSet.map(cellId => [cellId, node.color]),
+        ...nodeSet.map(([cellId, prob]) => [
+          cellId,
+          (isNil(prob) ? node.color : colorMixWithUncertainty(node.color, prob)),
+        ]),
       ];
     }
   });
@@ -1408,6 +1459,7 @@ export function treeToVisibleSetSizes(currTree) {
  * Constants for reducer action type strings.
  */
 export const ACTION = Object.freeze({
+  RESET: 'reset',
   IMPORT: 'import',
   IMPORT_AND_VIEW: 'importAndView',
   SET_TREE_ITEMS: 'setTreeItems',
@@ -1430,6 +1482,9 @@ export const ACTION = Object.freeze({
 });
 
 const reducer = createReducer({
+  [ACTION.RESET]: state => treeReset(
+    state,
+  ),
   [ACTION.IMPORT]: (state, action) => treeImport(
     state,
     action.levelZeroNodes,

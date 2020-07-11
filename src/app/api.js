@@ -4,7 +4,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.28/master_release';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.30/master_release';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -102,6 +102,9 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
 
 /* eslint-disable object-property-newline */
 /* eslint-disable object-curly-newline */
+// Note that the ordering of the components in the staticLayout
+// can affect the z-index of plot tooltips due to the
+// resulting ordering of elements in the DOM.
 const configs = {
   'just-scatter': {
     public: false,
@@ -182,9 +185,9 @@ const configs = {
         props: {
           description: `Linnarsson: ${linnarssonDescription}`,
         },
-        x: 0, y: 0, w: 2, h: 2 },
+        x: 0, y: 0, w: 2, h: 1 },
       { component: 'layerController',
-        x: 0, y: 2, w: 2, h: 3,
+        x: 0, y: 1, w: 2, h: 4,
       },
       { component: 'status',
         x: 0, y: 5, w: 2, h: 1 },
@@ -196,6 +199,12 @@ const configs = {
           },
         },
         x: 2, y: 0, w: 4, h: 4 },
+      { component: 'genes',
+        x: 9, y: 0, w: 3, h: 2 },
+      { component: 'cellSets',
+        x: 9, y: 3, w: 3, h: 2 },
+      { component: 'heatmap',
+        x: 2, y: 4, w: 10, h: 2 },
       { component: 'scatterplot',
         props: {
           mapping: 'PCA',
@@ -212,12 +221,6 @@ const configs = {
           },
         },
         x: 6, y: 2, w: 3, h: 2 },
-      { component: 'genes',
-        x: 9, y: 0, w: 3, h: 2 },
-      { component: 'cellSets',
-        x: 9, y: 3, w: 3, h: 2 },
-      { component: 'heatmap',
-        x: 2, y: 4, w: 10, h: 2 },
     ],
   },
   'linnarsson-2018-two-spatial': {
@@ -380,6 +383,10 @@ const configs = {
         x: 9, y: 0, w: 3, h: 2 },
       { component: 'status',
         x: 9, y: 2, w: 3, h: 2 },
+      { component: 'cellSets',
+        x: 9, y: 4, w: 3, h: 4 },
+      { component: 'cellSetSizes',
+        x: 5, y: 4, w: 4, h: 4 },
       { component: 'scatterplot',
         props: {
           mapping: 't-SNE',
@@ -407,10 +414,6 @@ const configs = {
           },
         },
         x: 0, y: 0, w: 5, h: 4 },
-      { component: 'cellSets',
-        x: 9, y: 4, w: 3, h: 4 },
-      { component: 'cellSetSizes',
-        x: 5, y: 4, w: 4, h: 4 },
     ],
   },
   'wang-2019': {

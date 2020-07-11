@@ -8,6 +8,6 @@
       "exclusive": false,
       "limit": 0
     },
-    "schemaPath": "#/definitions/positiveIntegerValues/patternProperties/./minimum"
+    "schemaPath": "#/definitions/positiveFloatValues/patternProperties/./minimum"
   }
 ]

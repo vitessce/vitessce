@@ -1,12 +1,12 @@
 import React, {
-  useRef, useState, useCallback, useEffect, useMemo,
+  useRef, useState, useCallback, useMemo,
 } from 'react';
 import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
 } from 'deck.gl';
 import { VivViewerLayer, StaticImageLayer } from '@hubmap/vitessce-image-viewer';
+import { quadtree } from 'd3-quadtree';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
-import LayersMenu from './LayersMenu';
 import ToolMenu from '../ToolMenu';
 import {
   cellLayerDefaultProps, PALETTE, DEFAULT_COLOR,
@@ -66,9 +66,13 @@ export default function Spatial(props) {
     molecules = {},
     cells = {},
     neighborhoods = {},
+    areNeighborhoodsOn = false,
     cellRadius = 50,
+    areCellsOn = true,
     moleculeRadius = 10,
     cellOpacity = 1.0,
+    moleculesOpacity = 1.0,
+    areMoleculesOn = true,
     imageLayerProps = {},
     imageLayerLoaders = {},
     cellColors = {},
@@ -111,15 +115,6 @@ export default function Spatial(props) {
   // In Deck.gl, layers are considered light weight, and
   // can be created and destroyed quickly, if the data they wrap is stable.
   // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
-  const moleculesDataRef = useRef(null);
-  const cellsDataRef = useRef(null);
-  const neighborhoodsDataRef = useRef(null);
-
-  const [layerIsVisible, setLayerIsVisible] = useState({
-    molecules: false,
-    cells: false,
-    neighborhoods: false,
-  });
 
   const deckRef = useRef();
   const viewRef = useRef({
@@ -151,53 +146,52 @@ export default function Spatial(props) {
     updateViewInfo(viewRef.current);
   }, [viewRef, updateViewInfo]);
 
-  useEffect(() => {
-    // Process molecules data and cache into re-usable array.
-    if (molecules && !moleculesDataRef.current) {
-      let moleculesData = [];
-      Object.entries(molecules).forEach(([molecule, coords], index) => {
-        moleculesData = moleculesData.concat(
-          coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
-          // Because we use the inner function immediately,
-          // the eslint warning about closures is a red herring:
-          // The index and molecule values are correct.
-        );
-      });
-      moleculesDataRef.current = moleculesData;
+  const moleculesData = useMemo(() => {
+    let result = null;
+    if (molecules) {
+      // Process molecules data and cache into re-usable array.
+      result = [];
+      result = Object
+        .entries(molecules)
+        .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]));
       if (clearPleaseWait) clearPleaseWait('molecules');
-      setLayerIsVisible({
-        molecules: true,
-        cells: layerIsVisible.cells,
-        neighborhoods: layerIsVisible.neighborhoods,
-      });
     }
-  }, [molecules, moleculesDataRef, clearPleaseWait, layerIsVisible]);
+    return result;
+  }, [molecules, clearPleaseWait]);
 
-  useEffect(() => {
-    // Process cells data and cache into re-usable array.
-    if (cells && !cellsDataRef.current) {
-      cellsDataRef.current = Object.entries(cells);
+  const cellsData = useMemo(() => {
+    let result = null;
+    if (cells) {
+      // Process cells data and cache into re-usable array.
+      result = Object.entries(cells);
       if (clearPleaseWait) clearPleaseWait('cells');
-      setLayerIsVisible({
-        molecules: layerIsVisible.molecules,
-        cells: true,
-        neighborhoods: layerIsVisible.neighborhoods,
-      });
     }
-  }, [cells, cellsDataRef, clearPleaseWait, layerIsVisible]);
+    return result;
+  }, [cells, clearPleaseWait]);
 
-  useEffect(() => {
-    // Process neighborhoods data and cache into re-usable array.
-    if (neighborhoods && !neighborhoodsDataRef.current) {
-      neighborhoodsDataRef.current = Object.entries(neighborhoods);
+  const neighborhoodsData = useMemo(() => {
+    let result = null;
+    if (neighborhoods) {
+      // Process neighborhoods data and cache into re-usable array.
+      result = Object.entries(neighborhoods);
       if (clearPleaseWait) clearPleaseWait('neighborhoods');
-      setLayerIsVisible({
-        molecules: layerIsVisible.molecules,
-        cells: layerIsVisible.cells,
-        neighborhoods: false,
-      });
     }
-  }, [neighborhoods, neighborhoodsDataRef, clearPleaseWait, layerIsVisible]);
+    return result;
+  }, [neighborhoods, clearPleaseWait]);
+
+  const cellsQuadTree = useMemo(() => {
+    // Use the cellsData variable since it is already
+    // an array, converted by Object.entries().
+    if (!cellsData) {
+      // Abort if the cells data is not yet available.
+      return null;
+    }
+    const tree = quadtree()
+      .x(d => getCellCoords(d[1])[0])
+      .y(d => getCellCoords(d[1])[1])
+      .addAll(cellsData);
+    return tree;
+  }, [getCellCoords, cellsData]);
 
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
     id: CELLS_LAYER_ID,
@@ -215,17 +209,18 @@ export default function Spatial(props) {
       }
       onCellClick(info);
     },
-    visible: layerIsVisible.cells,
-    ...cellLayerDefaultProps(cellsDataRef.current, updateStatus, updateCellsHover, uuid),
-  }), [layerIsVisible, updateStatus, updateCellsHover, uuid, onCellClick,
-    tool, getCellColor, getCellPolygon, cellOpacity,
-    getCellIsSelected]);
+    visible: areCellsOn,
+    ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
+  }), [cellsData, updateStatus, updateCellsHover,
+    uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
+    getCellIsSelected, areCellsOn]);
 
   const moleculesLayer = useMemo(() => new ScatterplotLayer({
     id: 'molecules-layer',
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: moleculesDataRef.current,
+    data: moleculesData,
     pickable: true,
+    opacity: moleculesOpacity,
     autoHighlight: true,
     getRadius: moleculeRadius,
     radiusMaxPixels: 3,
@@ -235,23 +230,23 @@ export default function Spatial(props) {
     onHover: (info) => {
       if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
     },
-    visible: layerIsVisible.molecules,
-  }), [moleculeRadius, getMoleculePosition, getMoleculeColor,
-    layerIsVisible.molecules, updateStatus]);
+    visible: areMoleculesOn,
+  }), [moleculesData, moleculeRadius, getMoleculePosition, getMoleculeColor,
+    updateStatus, moleculesOpacity, areMoleculesOn]);
 
   const neighborhoodsLayer = useMemo(() => new PolygonLayer({
     id: 'neighborhoods-layer',
     getPolygon: getNeighborhoodPolygon,
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: neighborhoodsDataRef.current,
+    data: neighborhoodsData,
     pickable: true,
     autoHighlight: true,
     stroked: true,
     filled: false,
     getElevation: 0,
     getLineWidth: 10,
-    visible: layerIsVisible.neighborhoods,
-  }), [neighborhoodsDataRef, layerIsVisible, getNeighborhoodPolygon]);
+    visible: areNeighborhoodsOn,
+  }), [neighborhoodsData, getNeighborhoodPolygon, areNeighborhoodsOn]);
 
   const renderImageLayer = useCallback((layerId, loader) => {
     const layerProps = imageLayerProps[layerId];
@@ -290,18 +285,8 @@ export default function Spatial(props) {
     CELLS_LAYER_ID,
     getCellCoords,
     updateCellsSelection,
+    cellsQuadTree,
   );
-
-  const layersMenu = useMemo(() => {
-    // Don't render if just image data
-    if (!molecules && !neighborhoods && !cells) return null;
-    return (
-      <LayersMenu
-        layerIsVisible={layerIsVisible}
-        setLayerIsVisible={setLayerIsVisible}
-      />
-    );
-  }, [setLayerIsVisible, layerIsVisible, molecules, neighborhoods, cells]);
 
   const deckProps = {
     views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
@@ -319,14 +304,11 @@ export default function Spatial(props) {
 
   return (
     <>
-      <div className="d-flex">
-        <ToolMenu
-          activeTool={tool}
-          setActiveTool={setTool}
-          onViewStateChange={onViewStateChange}
-        />
-        {layersMenu}
-      </div>
+      <ToolMenu
+        activeTool={tool}
+        setActiveTool={setTool}
+        onViewStateChange={onViewStateChange}
+      />
       <DeckGL
         glOptions={DEFAULT_GL_OPTIONS}
         ref={deckRef}

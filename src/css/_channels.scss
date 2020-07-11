@@ -2,6 +2,12 @@
 @mixin channels($theme-name, $theme-colors) {
   $box-size: 16px;
 
+  .layer-controller-container {
+    & > div:first-child {
+      margin-top: 0 !important;
+    }
+  }
+
   .channel-container {
     width: 100%;
     display: flex;

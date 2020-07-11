@@ -1,6 +1,43 @@
 # Changelog
 
-## 0.1.7 - in progress
+## 0.1.9
+
+### Added
+- Add `labelOverride` prop for genes component.
+
+### Changed
+- Remove layers menu and add functionality to layer controller + opacity control.
+- Update genes schema to take non-integer values.
+- Changed the `SelectionLayer` picking approach to use a quadtree rather than the built-in deck.gl pixel-based method.
+- Flip y-axis for our graphics use-case.
+- Clean up pubsub events in layer controller.
+- Slider range remains as unchanged as possible under domain changes.
+- Take away some spacing from `LayerController`.
+- Make `LayerControllerSubscriber` names booleans-questions.
+- Fix reisizing bug.
+- Bump `vitessce-data` to 0.0.30.
+
+## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
+
+### Added
+- Trevor's slides from NLM conference to README.md.
+- Added a `cell-sets.json` schema version `0.1.3` to support probabilistic cell set assignments, with backwards compatibility with schema version `0.1.2`.
+- Added a `RESET` event so that the `SourcePublisher` can notify other components that a new viewconfig and dataset has been loaded.
+- Added a callback for the `RESET` event in the `SpatialSubscriber` component to clear previous cells, molecules, neighborhoods, and imaging data.
+- Added a callback for the `RESET` event in the `DescriptionSubscriber` component to clear previous imaging metadata tables.
+- Added a callback for the `RESET` event in the `CellSetsManagerSubscriber` component to clear previous cell sets.
+- Added a publisher for `GRID_RESIZE` when `rowHeight` changes in `PubSubVitessceGrid` to allow the `useGridItemSize` hook to update in this additional case. 
+
+### Changed
+- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
+- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
+- Update layer controller overflow.
+- Updated the `Spatial` component data processing of `cells`, `molecules`, and `neighborhoods` with `useMemo` (rather than `useRef` + `useEffect`).
+- Temporarily removed the `React.lazy` wrapper for the `Vega` component from `react-vega`, as a workaround for https://github.com/hubmapconsortium/portal-ui/issues/571 (using Vitessce viewconfigs with React.lazy components is causing the HuBMAP portal interface to crash).
+- Increased the `isNarrow` threshold from `300` to `500` for the `CellTooltip` component, to use a smaller font size at a wider plot width.
+
+
+## [0.1.7](https://www.npmjs.com/package/vitessce/v/0.1.7) - 2020-06-25
 
 ## Added
 - Testing protocol calls for all three browsers now.

@@ -1,7 +1,6 @@
 import React, {
   useState, useReducer, useEffect,
 } from 'react';
-import PubSub from 'pubsub-js';
 import { getChannelStats, DTYPE_VALUES, MAX_SLIDERS_AND_CHANNELS } from '@hubmap/vitessce-image-viewer';
 
 import Grid from '@material-ui/core/Grid';
@@ -16,9 +15,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
-import { LAYER_CHANGE } from '../../events';
 import reducer from './reducer';
-import { useExpansionPanelStyles } from './styles';
+import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
 import {
   GLOBAL_SLIDER_DIMENSION_FIELDS, DEFAULT_LAYER_PROPS,
 } from './constants';
@@ -73,9 +71,10 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  * @prop {object} layerId Randomly generated id for the image layer that this controller handles.
  * @prop {function} handleLayerRemove Callback for handling the removal of a layer.
  * @prop {object} loader Loader object for the current imaging layer.
+ * @prop {function} handleLayerChange Callback for handling the changing of layer properties.
  */
-export default function LayerController({
-  imageData, layerId, handleLayerRemove, loader, theme,
+export default function RasterLayerController({
+  imageData, layerId, handleLayerRemove, loader, theme, handleLayerChange,
 }) {
   const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);
   const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
@@ -95,13 +94,14 @@ export default function LayerController({
       dispatch({
         type: 'ADD_CHANNELS',
         layerId,
+        handleLayerChange,
         payload: {
           selections: defaultSelection,
           domains,
         },
       });
     });
-  }, [layerId, imageData, loader]);
+  }, [layerId, imageData, loader, handleLayerChange]);
 
   // Handles adding a channel, creating a default selection
   // for the current global settings and domain type.
@@ -118,6 +118,7 @@ export default function LayerController({
     dispatch({
       type: 'ADD_CHANNEL',
       layerId,
+      handleLayerChange,
       payload: {
         selection,
         domain,
@@ -127,12 +128,12 @@ export default function LayerController({
 
   const handleOpacityChange = (sliderValue) => {
     setOpacity(sliderValue);
-    PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { opacity: sliderValue } });
+    handleLayerChange({ layerId, layerProps: { opacity: sliderValue } });
   };
 
   const handleColormapChange = (colormapName) => {
     setColormap(colormapName);
-    PubSub.publish(LAYER_CHANGE, { layerId, layerProps: { colormap: colormapName } });
+    handleLayerChange({ layerId, layerProps: { colormap: colormapName } });
   };
 
   const handleDomainChange = async (value) => {
@@ -140,15 +141,24 @@ export default function LayerController({
     const loaderSelection = Object.values(channels).map(
       channel => channel.selection,
     );
+    const sliders = Object.values(channels).map(
+      channel => channel.slider,
+    );
     const domain = await getDomain(
       loader,
       loaderSelection,
       value,
     );
-    const update = { domain, slider: domain };
+    const update = {
+      domain,
+      slider: sliders.map(
+        (slider, i) => slider.map((val, j) => Math.min(val, domain[i][j])),
+      ),
+    };
     dispatch({
       type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
       layerId,
+      handleLayerChange,
       payload: {
         update,
         publish: true,
@@ -206,6 +216,7 @@ export default function LayerController({
           dispatch({
             type: 'CHANGE_SINGLE_CHANNEL_PROPERTIES',
             layerId,
+            handleLayerChange,
             payload: {
               channelId,
               update,
@@ -213,7 +224,12 @@ export default function LayerController({
           });
         };
         const handleChannelRemove = () => {
-          dispatch({ type: 'REMOVE_CHANNEL', layerId, payload: { channelId } });
+          dispatch({
+            type: 'REMOVE_CHANNEL',
+            layerId,
+            handleLayerChange,
+            payload: { channelId },
+          });
         };
         const handleIQRUpdate = async () => {
           const stats = await getChannelStats(
@@ -223,6 +239,7 @@ export default function LayerController({
           dispatch({
             type: 'CHANGE_SINGLE_CHANNEL_PROPERTIES',
             layerId,
+            handleLayerChange,
             payload: {
               channelId,
               update: { slider: [q1, q3] },
@@ -256,12 +273,13 @@ export default function LayerController({
   }
 
   const classes = useExpansionPanelStyles();
+  const summaryClasses = useExpansionPanelSummaryStyles();
   return (
     <ExpansionPanel defaultExpanded className={classes.root}>
       <ExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`layer-${imageData.name}-controls`}
-        style={{ paddingLeft: '10px', paddingRight: '10px' }}
+        classes={{ ...summaryClasses }}
       >
         {imageData.name}
       </ExpansionPanelSummary>

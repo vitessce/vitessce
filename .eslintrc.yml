@@ -7,6 +7,7 @@ extends:
 plugins:
   - react
   - cypress
+  - vitessce-rules
 settings:
   react:
     version: detect
@@ -21,3 +22,8 @@ rules:
   react/jsx-one-expression-per-line: [0]  # Makes punctuation after tab awkward.
   react/prop-types: [0] # Re-enable: https://github.com/hubmapconsortium/vitessce/issues/144
   import/prefer-default-export: [0]  # Hit eslint error: SyntaxError: Unexpected token, expected {
+  vitessce-rules/prevent-pubsub-import: [2]
+overrides:
+  - files: '*Subscriber.js'
+    rules:
+      vitessce-rules/prevent-pubsub-import: 0

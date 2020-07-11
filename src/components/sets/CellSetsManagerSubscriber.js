@@ -4,7 +4,7 @@ import packageJson from '../../../package.json';
 import {
   CELL_SETS_VIEW, CELLS_SELECTION,
   CELLS_ADD, STATUS_WARN, CELLS_COLOR, CELL_SETS_ADD,
-  CELL_SETS_CHANGE, CLEAR_PLEASE_WAIT,
+  CELL_SETS_CHANGE, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
@@ -17,9 +17,14 @@ import reducer, {
   treeHasCheckedSetsToComplement,
 } from './reducer';
 import {
-  handleExportJSON, downloadForUser, FILE_EXTENSION_JSON,
-  handleExportTabular, FILE_EXTENSION_TABULAR,
+  tryUpgradeTreeToLatestSchema,
+  handleExportJSON, downloadForUser,
+  handleExportTabular,
 } from './io';
+import {
+  FILE_EXTENSION_JSON,
+  FILE_EXTENSION_TABULAR,
+} from './constants';
 
 const SETS_DATATYPE_CELL = 'cell';
 const initialTree = treeInitialize(SETS_DATATYPE_CELL);
@@ -145,7 +150,8 @@ export default function CellSetsManagerSubscriber(props) {
     const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD,
       (msg, treeToImport) => {
         const actionType = (initEmit ? ACTION.IMPORT_AND_VIEW : ACTION.IMPORT);
-        dispatch({ type: actionType, levelZeroNodes: treeToImport.tree });
+        const newTreeToImport = tryUpgradeTreeToLatestSchema(treeToImport, SETS_DATATYPE_CELL);
+        dispatch({ type: actionType, levelZeroNodes: newTreeToImport.tree });
       });
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
       dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
@@ -153,11 +159,15 @@ export default function CellSetsManagerSubscriber(props) {
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, (msg, cellIds) => {
       dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: Array.from(cellIds) });
     });
+    const resetToken = PubSub.subscribe(RESET, () => {
+      dispatch({ type: ACTION.RESET });
+    });
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(cellSetsAddToken);
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsSelectionToken);
+      PubSub.unsubscribe(resetToken);
     };
   }, [onReadyCallback, initEmit]);
 

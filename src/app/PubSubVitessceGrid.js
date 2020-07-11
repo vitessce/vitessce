@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+// eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
 import VitessceGrid from 'vitessce-grid';
 
@@ -51,7 +52,7 @@ export default function PubSubVitessceGrid(props) {
   const containerRef = useRef();
 
   const margin = 10;
-  const padding = 10;
+  const padding = 5;
 
   // Detect when the `config` or `containerHeight` variables
   // have changed, and update `rowHeight` in response.
@@ -67,6 +68,11 @@ export default function PubSubVitessceGrid(props) {
       setContainerHeight(height);
     }
   }, [height]);
+
+  useEffect(() => {
+    // The row height has changed, so emit a GRID_RESIZE event.
+    onResize();
+  }, [rowHeight]);
 
   // If no height prop has been provided, set the `containerHeight`
   // using height of the `.vitessce-container` element.

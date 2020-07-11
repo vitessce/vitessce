@@ -7,12 +7,24 @@ import {
   createGenerateClassName,
 } from '@material-ui/core/styles';
 import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer';
-
 import TitleInfo from '../TitleInfo';
-import LayerController from './LayerController';
+import RasterLayerController from './RasterLayerController';
+import VectorLayerController from './VectorLayerController';
 import ImageAddButton from './ImageAddButton';
 import {
-  RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT, METADATA_REMOVE, LAYER_ADD, METADATA_ADD,
+  RASTER_ADD,
+  LAYER_REMOVE,
+  CLEAR_PLEASE_WAIT,
+  METADATA_REMOVE,
+  LAYER_ADD,
+  METADATA_ADD,
+  CELLS_SET_OPACITY,
+  CELLS_ADD,
+  CELLS_TURN_ON,
+  LAYER_CHANGE,
+  MOLECULES_ADD,
+  MOLECULES_SET_OPACITY,
+  MOLECULES_TURN_ON,
 } from '../../events';
 import { controllerTheme } from './styles';
 import { DEFAULT_LAYER_PROPS } from './constants';
@@ -83,6 +95,8 @@ function publishLayer({ loader, imageData, layerId }) {
 
 function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
   const [imageOptions, setImageOptions] = useState(null);
+  const [areCellsPlotted, setAreCellsPlotted] = useState(false);
+  const [areMoleculesPlotted, setAreMoleculesPlotted] = useState(false);
   const [layersAndLoaders, setLayersAndLoaders] = useState([]);
   const memoizedOnReady = useCallback(onReady, []);
 
@@ -97,7 +111,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
         const imageData = images[Math.floor(images.length / 2)];
         const loader = await initLoader(imageData);
         publishLayer({ loader, imageData, layerId });
-        setLayersAndLoaders(prevState => [...prevState, { layerId, imageData, loader }]);
+        setLayersAndLoaders([{ layerId, imageData, loader }]);
       } else {
         const newLayersAndLoaders = await Promise.all(renderLayers.map(async (imageName) => {
           const layerId = genId();
@@ -108,13 +122,23 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
         newLayersAndLoaders.forEach(({ imageData, loader, layerId: id }) => {
           publishLayer({ loader, imageData, layerId: id });
         });
-        setLayersAndLoaders(prevState => [...prevState, ...newLayersAndLoaders]);
+        setLayersAndLoaders(newLayersAndLoaders);
       }
       PubSub.publish(CLEAR_PLEASE_WAIT, 'raster');
     }
     memoizedOnReady();
-    const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
-    return () => PubSub.unsubscribe(token);
+    const rasterAddtoken = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
+    const cellsAddToken = PubSub.subscribe(
+      CELLS_ADD, () => setAreCellsPlotted(true),
+    );
+    const moleculesAddToken = PubSub.subscribe(
+      MOLECULES_ADD, () => setAreMoleculesPlotted(true),
+    );
+    return () => {
+      PubSub.unsubscribe(rasterAddtoken);
+      PubSub.unsubscribe(cellsAddToken);
+      PubSub.unsubscribe(moleculesAddToken);
+    };
   }, [memoizedOnReady]);
 
   const handleImageAdd = async (imageData) => {
@@ -130,17 +154,23 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
     PubSub.publish(LAYER_REMOVE, layerId);
     PubSub.publish(METADATA_REMOVE, { layerId, layerName });
   };
+  const handleLayerChange = useCallback(
+    message => PubSub.publish(LAYER_CHANGE, message),
+    [],
+  );
   const layerControllers = layersAndLoaders.map(({ layerId, imageData, loader }) => (
     <Grid key={layerId} item style={{ marginTop: '10px' }}>
-      <LayerController
+      <RasterLayerController
         layerId={layerId}
         imageData={imageData}
         handleLayerRemove={() => handleLayerRemove(layerId, imageData.name)}
         loader={loader}
         theme={theme}
+        handleLayerChange={handleLayerChange}
       />
     </Grid>
   ));
+
   return (
     <TitleInfo
       title="Layer Controller"
@@ -149,13 +179,29 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
     >
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider theme={controllerTheme[theme]}>
-          {layerControllers}
-          <Grid item>
-            <ImageAddButton
-              imageOptions={imageOptions}
-              handleImageAdd={handleImageAdd}
-            />
-          </Grid>
+          <div className="layer-controller-container">
+            {areCellsPlotted ? (
+              <VectorLayerController
+                label="Cell Segmentations"
+                handleOpacityChange={v => PubSub.publish(CELLS_SET_OPACITY, v)}
+                handleToggleChange={v => PubSub.publish(CELLS_TURN_ON, v)}
+              />
+            ) : null}
+            {areMoleculesPlotted ? (
+              <VectorLayerController
+                label="Molecules"
+                handleOpacityChange={v => PubSub.publish(MOLECULES_SET_OPACITY, v)}
+                handleToggleChange={v => PubSub.publish(MOLECULES_TURN_ON, v)}
+              />
+            ) : null}
+            {layerControllers}
+            <Grid item>
+              <ImageAddButton
+                imageOptions={imageOptions}
+                handleImageAdd={handleImageAdd}
+              />
+            </Grid>
+          </div>
         </ThemeProvider>
       </StylesProvider>
     </TitleInfo>
