@@ -138,7 +138,7 @@ export function createDefaultClearPleaseWait(componentName) {
  * @returns {array} `[width, height, containerRef]` where width and height
  * are numbers and containerRef is a React ref.
  */
-export function useGridItemSize() {
+export function useGridItemSize(selector = null) {
   const containerRef = useRef();
 
   const [height, setHeight] = useState();
@@ -147,7 +147,11 @@ export function useGridItemSize() {
   useEffect(() => {
     function onResize() {
       if (!containerRef.current) return;
-      const containerRect = containerRef.current.getBoundingClientRect();
+      const container = (selector
+        ? containerRef.current.querySelector(selector)
+        : containerRef.current
+      );
+      const containerRect = container.getBoundingClientRect();
       setHeight(containerRect.height);
       setWidth(containerRect.width);
     }
@@ -159,7 +163,7 @@ export function useGridItemSize() {
       PubSub.unsubscribe(gridResizeToken);
       window.removeEventListener('resize', onResizeDebounced);
     };
-  }, []);
+  }, [selector]);
 
   return [width, height, containerRef];
 }

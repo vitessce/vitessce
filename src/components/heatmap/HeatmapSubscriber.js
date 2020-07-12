@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
@@ -7,96 +7,83 @@ import {
   CELLS_COLOR, CLUSTERS_ADD, CELLS_ADD, CELLS_SELECTION,
   CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
 } from '../../events';
+import { useGridItemSize } from '../utils';
 import Heatmap from './Heatmap';
 
-export default class HeatmapSubscriber extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      cells: {},
-      clusters: null,
-      selectedCellIds: new Set(),
-      cellColors: null,
-    };
-    this.componentWillUnmount = this.componentWillUnmount.bind(this);
-  }
+export default function HeatmapSubscriber(props) {
+  const { children, uuid, removeGridComponent, onReady } = props;
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillMount() {
-    this.clustersAddToken = PubSub.subscribe(
-      CLUSTERS_ADD, this.clustersAddSubscriber.bind(this),
+  const [cells, setCells] = useState({});
+  const [clusters, setClusters] = useState(null);
+  const [selectedCellIds, setSelectedCellIds] = useState(new Set());
+  const [cellColors, setCellColors] = useState(null);
+
+  const onReadyCallback = useCallback(onReady, []);
+  
+  const [width, height, containerRef] = useGridItemSize("#deckgl-wrapper");
+
+  useEffect(() => {
+
+    const clustersAddToken = PubSub.subscribe(
+      CLUSTERS_ADD, (msg, clusters) => {
+        const [attrs, arr] = clusters;
+    
+        arr.get([null, null]).then(X => {
+          setClusters({
+            cols: attrs.var,
+            rows: attrs.obs,
+            matrix: X
+          });
+        });
+      },
     );
-    this.cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, this.cellsAddSubscriber.bind(this),
+    const cellsAddToken = PubSub.subscribe(
+      CELLS_ADD, (msg, cells) => {
+        setCells(cells);
+      },
     );
-    this.cellsColorToken = PubSub.subscribe(
-      CELLS_COLOR, this.cellsColorSubscriber.bind(this),
+    const cellsColorToken = PubSub.subscribe(
+      CELLS_COLOR, (msg, cellColors) => {
+        setCellColors(cellColors);
+      },
     );
-    this.cellsSelectionToken = PubSub.subscribe(
-      CELLS_SELECTION, this.cellsSelectionSubscriber.bind(this),
+    const cellsSelectionToken = PubSub.subscribe(
+      CELLS_SELECTION, (msg, cellIds) => {
+        setSelectedCellIds(cellIds);
+      },
     );
-    this.cellSetsViewToken = PubSub.subscribe(
-      CELL_SETS_VIEW, this.cellsSelectionSubscriber.bind(this),
+    const cellSetsViewToken = PubSub.subscribe(
+      CELL_SETS_VIEW, (msg, cellIds) => {
+        setSelectedCellIds(cellIds);
+      },
     );
-  }
+    onReadyCallback();
+    return () => {
+      PubSub.unsubscribe(clustersAddToken);
+      PubSub.unsubscribe(cellsAddToken);
+      PubSub.unsubscribe(cellsColorToken);
+      PubSub.unsubscribe(cellsSelectionToken);
+      PubSub.unsubscribe(cellSetsViewToken);
+    }
+  }, [onReadyCallback]);
 
-  componentDidMount() {
-    const { onReady } = this.props;
-    onReady();
-  }
+  console.log(clusters);
 
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.clustersAddToken);
-    PubSub.unsubscribe(this.cellsAddToken);
-    PubSub.unsubscribe(this.cellsColorToken);
-    PubSub.unsubscribe(this.cellsSelectionToken);
-    PubSub.unsubscribe(this.cellSetsViewToken);
-  }
-
-  clustersAddSubscriber(msg, clusters) {
-    const [attrs, arr] = clusters;
-
-    arr.get([null, null]).then(X => {
-      this.setState({ clusters: {
-        cols: attrs.var,
-        rows: attrs.obs,
-        matrix: X
-      }});
-    });
-  }
-
-  cellsAddSubscriber(msg, cells) {
-    this.setState({ cells });
-  }
-
-  cellsSelectionSubscriber(msg, cellIds) {
-    this.setState({ selectedCellIds: cellIds });
-  }
-
-  cellsColorSubscriber(msg, cellColors) {
-    this.setState({ cellColors });
-  }
-
-  render() {
-    const {
-      cells, clusters, selectedCellIds, cellColors,
-    } = this.state;
-
-    console.log(clusters);
-
-    const cellsCount = clusters && clusters.rows ? clusters.rows.length : 0;
-    const genesCount = clusters && clusters.cols ? clusters.cols.length : 0;
-    const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
-    const { children, uuid, removeGridComponent } = this.props;
-    return (
-      <TitleInfo
-        title="Heatmap"
-        info={`${cellsCount} cells × ${genesCount} genes,
-               with ${selectedCount} cells selected`}
-        removeGridComponent={removeGridComponent}
-      >
-        {children}
+  const cellsCount = clusters && clusters.rows ? clusters.rows.length : 0;
+  const genesCount = clusters && clusters.cols ? clusters.cols.length : 0;
+  const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
+  return (
+    <TitleInfo
+      title="Heatmap"
+      info={`${cellsCount} cells × ${genesCount} genes,
+              with ${selectedCount} cells selected`}
+      removeGridComponent={removeGridComponent}
+    >
+      {children}
+      <div ref={containerRef}>
         <Heatmap
+          height={height}
+          width={width}
           uuid={uuid}
           cells={cells}
           clusters={clusters}
@@ -108,7 +95,7 @@ export default class HeatmapSubscriber extends React.Component {
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
         />
-      </TitleInfo>
-    );
-  }
+      </div>
+    </TitleInfo>
+  );
 }

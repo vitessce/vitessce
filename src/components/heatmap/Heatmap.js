@@ -1,19 +1,23 @@
 /* eslint-disable */
 import React, { useRef, useState, useCallback, useMemo } from 'react';
-import DeckGL, { OrthographicView, TileLayer } from 'deck.gl';
+import DeckGL, { OrthographicView } from 'deck.gl';
 import BitmapHeatmapLayer from './BitmapHeatmapLayer';
 import range from 'lodash/range';
 import {
   DEFAULT_GL_OPTIONS,
 } from '../utils';
 
+const tileSize = 4096;
+
 export default function Heatmap(props) {
   const {
     uuid,
     view = {
       zoom: 0,
-      target: [128, 128, 0]
+      target: [0, 0, 0]
     },
+    width: viewWidth,
+    height: viewHeight,
     cells,
     clusters,
     selectedCellIds,
@@ -33,40 +37,56 @@ export default function Heatmap(props) {
     clearPleaseWait('clusters');
   }
 
-  const deckRef = useRef();
   const viewRef = useRef({
     viewport: null,
     width: null,
     height: null,
     uuid,
   });
-  const [gl, setGl] = useState(null);
 
   const onInitializeViewInfo = useCallback(({ width, height, viewport }) => {
     viewRef.current.viewport = viewport;
     viewRef.current.width = width;
     viewRef.current.height = height;
-    updateViewInfo(viewRef.current);
 
+    updateViewInfo(viewRef.current);
+    
   }, [viewRef, updateViewInfo]);
 
-  const layers = useMemo(() => {
+  const width = clusters && clusters.cols ? clusters.cols.length : 0;
+  const height = clusters && clusters.rows ? clusters.rows.length : 0;
+
+  const offsetTop = 60;
+  const offsetLeft = 60;
+
+
+  const matrixLeft = -viewWidth/2 + offsetLeft;
+  const matrixRight = viewWidth/2;
+  const matrixTop = -viewHeight/2 + offsetTop;
+  const matrixBottom = viewHeight/2;
+
+  const matrixWidth = matrixRight - matrixLeft;
+  const matrixHeight = matrixBottom - matrixTop;
+
+  const xTiles = Math.ceil(width / tileSize);
+  const yTiles = Math.ceil(height / tileSize);
+
+  const widthRatio = (xTiles*tileSize - (tileSize - (width % tileSize))) / (xTiles*tileSize);
+  const heightRatio = (yTiles*tileSize - (tileSize - (height % tileSize))) / (yTiles*tileSize);
+
+  const tileWidth = (matrixWidth / widthRatio) / (xTiles);
+  const tileHeight = (matrixHeight / heightRatio) / (yTiles);
+
+  const tiles = useMemo(() => {
     if(!clusters) {
-      return [];
+      return null;
     }
 
-    const width = clusters.cols.length;
-    const height = clusters.rows.length;
-
-    const tileSize = 4096;
-
-    const xTiles = Math.ceil(width / tileSize);
-    const yTiles = Math.ceil(height / tileSize);
-
     let value;
+    let alpha;
     let offset;
 
-    const tiles = range(yTiles).map(i => {
+    const result = range(yTiles).map(i => {
       return range(xTiles).map(j => {
         const tileData = new Uint8ClampedArray(tileSize * tileSize * 4);
 
@@ -78,21 +98,24 @@ export default function Heatmap(props) {
 
             if(rowI < height && colI < width) {
               value = clusters.matrix.data[rowI][colI];
+              alpha = 255;
             } else {
               value = 0;
+              alpha = 0;
             }
             offset = ((tileSize - tileY - 1) * tileSize + tileX) * 4;
 
-            tileData[offset + 0] = value;
+            tileData[offset + 0] = 0;
             tileData[offset + 1] = 0;
             tileData[offset + 2] = 0;
-            tileData[offset + 3] = 255;
+            tileData[offset + 3] = value;
 
-            // Draw a white left and top edge.
+            // Draw a blue left and top edge.
             if(tileX === 0 || tileY === 0) {
-              tileData[offset + 0] = 255;
-              tileData[offset + 1] = 255;
+              tileData[offset + 0] = 0;
+              tileData[offset + 1] = 0;
               tileData[offset + 2] = 255;
+              tileData[offset + 3] = 255;
             }
           });
         });
@@ -100,45 +123,31 @@ export default function Heatmap(props) {
         return new ImageData(tileData, tileSize, tileSize);
       });
     });
-    
-    console.log(tiles);
 
-    //const image = new ImageData(imageData, width, height);
+    return result;
+  }, [clusters]);
+
+  const layers = useMemo(() => {
+    if(!tiles) {
+      return [];
+    }
+    
+    function getLayer(i, j) {
+      return new BitmapHeatmapLayer({
+        image: tiles[i][j],
+        bounds: [matrixLeft + j*tileWidth, matrixTop + i*tileHeight, matrixLeft + (j+1)*tileWidth, matrixTop + (i+1)*tileHeight],
+      });
+    }
 
     return [
-      new TileLayer({
-
-        maxZoom: 2,
-        tileSize: tileSize,
-        extent: [0, 0, xTiles, yTiles],
-
-        getTileData: ({ x, y, z, bbox }) => {
-          const {left, top, right, bottom} = bbox;
-
-          console.log(x, y, z, bbox);
-
-          if(x >= 0 && x < xTiles && y >= 0 && y < yTiles) {
-            return tiles[y][x];
-          }
-          
-          return new ImageData(tileSize, tileSize);
-        },
-
-        renderSubLayers: props => {
-          const { tile, data } = props;
-          const { left, top, right, bottom } = tile.bbox;
-
-    
-          return new BitmapHeatmapLayer(props, {
-            image: data,
-            bounds: [left, top, right, bottom],
-          });
-        }
-
-
-      }),
+      getLayer(0, 0),
+      getLayer(0, 1),
+      getLayer(0, 2),
+      getLayer(1, 0),
+      getLayer(1, 1),
+      getLayer(1, 2),
     ];
-  }, [clusters]);
+  }, [tiles, viewHeight, viewWidth]);
 
 
   const deckProps = {
@@ -153,8 +162,6 @@ export default function Heatmap(props) {
   return (
     <>
       <DeckGL
-        ref={deckRef}
-        onWebGLInitialized={setGl}
         glOptions={DEFAULT_GL_OPTIONS}
         {...deckProps}
       >
