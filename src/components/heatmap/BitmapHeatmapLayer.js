@@ -2,8 +2,8 @@
 // BitmapLayer with different DEFAULT_TEXTURE_PARAMETERS
 
 import GL from '@luma.gl/constants';
-import {BitmapLayer} from '@deck.gl/layers';
-import {Texture2D} from '@luma.gl/core';
+import { BitmapLayer } from '@deck.gl/layers';
+import { Texture2D } from '@luma.gl/core';
 
 
 const DEFAULT_TEXTURE_PARAMETERS = {

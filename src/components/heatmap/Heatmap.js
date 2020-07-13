@@ -1,8 +1,10 @@
 /* eslint-disable */
-import React, { useRef, useState, useCallback, useMemo } from 'react';
+import React, { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 import DeckGL, { OrthographicView } from 'deck.gl';
 import BitmapHeatmapLayer from './BitmapHeatmapLayer';
+import HeatmapVerticalAxisLayer from './HeatmapVerticalAxisLayer';
 import range from 'lodash/range';
+import clamp from 'lodash/clamp';
 import {
   DEFAULT_GL_OPTIONS,
 } from '../utils';
@@ -12,7 +14,7 @@ const tileSize = 4096;
 export default function Heatmap(props) {
   const {
     uuid,
-    view = {
+    initialViewState = {
       minZoom: 0,
       zoom: 0,
       target: [0, 0, 0]
@@ -38,21 +40,18 @@ export default function Heatmap(props) {
     clearPleaseWait('clusters');
   }
 
-  const viewRef = useRef({
-    viewport: null,
-    width: null,
-    height: null,
-    uuid,
-  });
+  const [viewState, setViewState] = useState(initialViewState);
 
-  const onInitializeViewInfo = useCallback(({ width, height, viewport }) => {
-    viewRef.current.viewport = viewport;
-    viewRef.current.width = width;
-    viewRef.current.height = height;
+  useEffect(() => {
 
-    updateViewInfo(viewRef.current);
+    updateViewInfo({
+      uuid,
+      width: viewState.width,
+      height: viewState.height,
+      viewport: viewState.viewport,
+    });
     
-  }, [viewRef, updateViewInfo]);
+  }, [uuid, viewState, updateViewInfo]);
 
   const width = clusters && clusters.cols ? clusters.cols.length : 0;
   const height = clusters && clusters.rows ? clusters.rows.length : 0;
@@ -77,6 +76,25 @@ export default function Heatmap(props) {
 
   const tileWidth = (matrixWidth / widthRatio) / (xTiles);
   const tileHeight = (matrixHeight / heightRatio) / (yTiles);
+
+  const onViewStateChange = useCallback(({viewState}) => {
+    const { target, zoom } = viewState;
+    const scaleFactor = Math.pow(2, zoom);
+
+    const minTargetX = zoom === 0 ? 0 : -(matrixRight - (matrixRight / scaleFactor));
+    const maxTargetX = -1 * minTargetX;
+
+    const minTargetY = zoom === 0 ? 0 : -(matrixBottom - (matrixBottom / scaleFactor));
+    const maxTargetY = -1 * minTargetY;
+    //console.log(viewState);
+
+    // Manipulate view state
+    viewState.target[0] = clamp(viewState.target[0], minTargetX, maxTargetX);
+    viewState.target[1] = clamp(viewState.target[1], minTargetY, maxTargetY);
+
+    // Save the view state and trigger rerender
+    setViewState(viewState);
+  }, [matrixRight, matrixBottom]);
 
   const tiles = useMemo(() => {
     if(!clusters) {
@@ -147,27 +165,31 @@ export default function Heatmap(props) {
       getLayer(1, 0),
       getLayer(1, 1),
       getLayer(1, 2),
+      /*
+      new HeatmapVerticalAxisLayer({
+        id: "heatmap-vertical-axis",
+        unit: "cm",
+        size: 1,
+        boundingBox: [
+          [0, 0],
+          [100, 100]
+        ]
+      }),
+      */
     ];
   }, [tiles, viewHeight, viewWidth]);
-
-
-  const deckProps = {
-    views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
-    // gl needs to be initialized for us to use it in Texture creation
-    layers: layers,
-    initialViewState: view,
-    controller: true,
-    getCursor: interactionState => (interactionState.isDragging ? 'grabbing' : 'default'),
-  };
 
   return (
     <>
       <DeckGL
+        views={[new OrthographicView({ id: 'ortho' })]}
+        layers={layers}
+        controller={true}
+        getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
         glOptions={DEFAULT_GL_OPTIONS}
-        {...deckProps}
-      >
-        {onInitializeViewInfo}
-      </DeckGL>
+        onViewStateChange={onViewStateChange}
+        viewState={viewState}
+      />
     </>
   );
 }
