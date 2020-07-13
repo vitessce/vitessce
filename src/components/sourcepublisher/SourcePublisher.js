@@ -137,6 +137,7 @@ export default function SourcePublisher({ layers, height }) {
           <div className="modal-dialog">
             <div
               className="please-wait-spinner"
+              title="Please wait..."
               style={{ marginTop: `${(height - 100) / 2}px` }}
             />
           </div>
