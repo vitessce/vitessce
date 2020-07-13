@@ -13,6 +13,7 @@ export default function Heatmap(props) {
   const {
     uuid,
     view = {
+      minZoom: 0,
       zoom: 0,
       target: [0, 0, 0]
     },
@@ -105,7 +106,7 @@ export default function Heatmap(props) {
             }
             offset = ((tileSize - tileY - 1) * tileSize + tileX) * 4;
 
-            tileData[offset + 0] = 0;
+            tileData[offset + 0] = value;
             tileData[offset + 1] = 0;
             tileData[offset + 2] = 0;
             tileData[offset + 3] = value;
