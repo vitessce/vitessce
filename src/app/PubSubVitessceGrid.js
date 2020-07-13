@@ -102,7 +102,7 @@ export default function PubSubVitessceGrid(props) {
       ref={containerRef}
       className={`vitessce-container vitessce-theme-${theme}`}
     >
-      { allReady && <SourcePublisher layers={config.layers} /> }
+      { allReady && <SourcePublisher height={containerHeight} layers={config.layers} /> }
       <VitessceGrid
         layout={config.staticLayout}
         height={height}

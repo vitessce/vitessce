@@ -91,7 +91,7 @@ function loadLayer(layer) {
     });
 }
 
-export default function SourcePublisher({ layers }) {
+export default function SourcePublisher({ layers, height }) {
   const [pleaseWaits, setPleaseWaits] = useState({});
 
   useEffect(() => {
@@ -135,11 +135,11 @@ export default function SourcePublisher({ layers }) {
       <>
         <div className="modal">
           <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-body">
-                <p>Please wait...</p>
-              </div>
-            </div>
+            <div
+              className="please-wait-spinner"
+              title="Please wait..."
+              style={{ marginTop: `${(height - 100) / 2}px` }}
+            />
           </div>
         </div>
         <div className="modal-backdrop show" />
