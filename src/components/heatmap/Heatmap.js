@@ -1,8 +1,9 @@
 /* eslint-disable */
 import React, { useRef, useState, useCallback, useMemo, useEffect } from 'react';
-import DeckGL, { OrthographicView } from 'deck.gl';
+import DeckGL from 'deck.gl';
+import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
 import BitmapHeatmapLayer from './BitmapHeatmapLayer';
-import HeatmapVerticalAxisLayer from './HeatmapVerticalAxisLayer';
+import { LineLayer, TextLayer } from '@deck.gl/layers';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import {
@@ -10,6 +11,17 @@ import {
 } from '../utils';
 
 const tileSize = 4096;
+
+function layerFilter({ layer, viewport }) {
+  if(viewport.id === 'axisLeft') {
+    return layer.id.startsWith('axisLeft');
+  } else if(viewport.id === 'axisTop') {
+    return layer.id.startsWith('axisTop');
+  } else if(viewport.id === 'heatmap') {
+    return layer.id.startsWith('heatmapLayer');
+  }
+  return false;
+}
 
 export default function Heatmap(props) {
   const {
@@ -33,7 +45,7 @@ export default function Heatmap(props) {
       console.warn(`Heatmap updateStatus: ${message}`);
     },
     updateViewInfo = (message) => {
-      console.warn(`Heatmap updateViewInfo: ${message}`);
+      //console.warn(`Heatmap updateViewInfo: ${message}`);
     },
   } = props;
   if (clearPleaseWait && clusters) {
@@ -43,13 +55,14 @@ export default function Heatmap(props) {
   const [viewState, setViewState] = useState(initialViewState);
 
   useEffect(() => {
-
-    updateViewInfo({
-      uuid,
-      width: viewState.width,
-      height: viewState.height,
-      viewport: viewState.viewport,
-    });
+    if(viewState) {
+      updateViewInfo({
+        uuid,
+        width: viewState.width,
+        height: viewState.height,
+        viewport: viewState.viewport,
+      });
+    }
     
   }, [uuid, viewState, updateViewInfo]);
 
@@ -77,8 +90,12 @@ export default function Heatmap(props) {
   const tileWidth = (matrixWidth / widthRatio) / (xTiles);
   const tileHeight = (matrixHeight / heightRatio) / (yTiles);
 
-  const onViewStateChange = useCallback(({viewState}) => {
+  const onViewStateChange = useCallback(({ viewState }) => {
+    // Always called for "axisLeft", since that layer is on top.
+
     const { target, zoom } = viewState;
+
+
     const scaleFactor = Math.pow(2, zoom);
 
     const minTargetX = zoom === 0 ? 0 : -(matrixRight - (matrixRight / scaleFactor));
@@ -86,14 +103,17 @@ export default function Heatmap(props) {
 
     const minTargetY = zoom === 0 ? 0 : -(matrixBottom - (matrixBottom / scaleFactor));
     const maxTargetY = -1 * minTargetY;
+
+    const minAxisTargetX = zoom === 0 ? 0 : - (matrixRight / scaleFactor);
+    const minAxisTargetY = zoom === 0 ? 0 : - (matrixBottom / scaleFactor);
     //console.log(viewState);
 
     // Manipulate view state
     viewState.target[0] = clamp(viewState.target[0], minTargetX, maxTargetX);
     viewState.target[1] = clamp(viewState.target[1], minTargetY, maxTargetY);
 
-    // Save the view state and trigger rerender
     setViewState(viewState);
+    
   }, [matrixRight, matrixBottom]);
 
   const tiles = useMemo(() => {
@@ -130,12 +150,12 @@ export default function Heatmap(props) {
             tileData[offset + 3] = value;
 
             // Draw a blue left and top edge.
-            if(tileX === 0 || tileY === 0) {
+            /*if(tileX === 0 || tileY === 0) {
               tileData[offset + 0] = 0;
               tileData[offset + 1] = 0;
               tileData[offset + 2] = 255;
               tileData[offset + 3] = 255;
-            }
+            }*/
           });
         });
 
@@ -146,13 +166,14 @@ export default function Heatmap(props) {
     return result;
   }, [clusters]);
 
-  const layers = useMemo(() => {
+  const heatmapLayers = useMemo(() => {
     if(!tiles) {
       return [];
     }
     
     function getLayer(i, j) {
       return new BitmapHeatmapLayer({
+        id: `heatmapLayer-${i}-${j}`,
         image: tiles[i][j],
         bounds: [matrixLeft + j*tileWidth, matrixTop + i*tileHeight, matrixLeft + (j+1)*tileWidth, matrixTop + (i+1)*tileHeight],
       });
@@ -165,31 +186,99 @@ export default function Heatmap(props) {
       getLayer(1, 0),
       getLayer(1, 1),
       getLayer(1, 2),
-      /*
-      new HeatmapVerticalAxisLayer({
-        id: "heatmap-vertical-axis",
-        unit: "cm",
-        size: 1,
-        boundingBox: [
-          [0, 0],
-          [100, 100]
-        ]
-      }),
-      */
     ];
   }, [tiles, viewHeight, viewWidth]);
 
+  const colsData = useMemo(() => {
+    if(!clusters) {
+      return [];
+    }
+    return clusters.cols.map((d, i) => [i, d]);
+  }, [clusters]);
+
+  const rowsData = useMemo(() => {
+    if(!clusters) {
+      return [];
+    }
+    return clusters.rows.map((d, i) => [i, d]);
+  }, [clusters]);
+
+  
+  if(viewState.width) {
+    const viewport = new OrthographicView().makeViewport({
+      // From the current `detail` viewState, we need its projection matrix (actually the inverse).
+      viewState,
+      height: viewState.height,
+      width: viewState.width
+    });
+    // Use the inverse of the projection matrix to map screen to the view space.
+    const unprojectedCoords = [
+      viewport.unproject([offsetLeft, offsetTop]),
+      viewport.unproject([viewport.width, viewport.height]),
+    ];
+    const unprojectedBbox = {
+      x: unprojectedCoords[0][0],
+      y: unprojectedCoords[0][1],
+      width: unprojectedCoords[1][0] - unprojectedCoords[0][0],
+      height: unprojectedCoords[1][1] - unprojectedCoords[0][1]
+    };
+    
+    
+    
+
+    
+    //console.log(textHeight, viewport.height);
+  }
+
+  const cellHeight = (matrixHeight * Math.pow(2, viewState.zoom)) / height;
+  const cellWidth = (matrixWidth * Math.pow(2, viewState.zoom)) / width;
+
+  const axisLayers = (clusters && clusters.rows && clusters.cols ? 
+    [
+      new TextLayer({
+        id: 'axisLeftText',
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: rowsData,
+        getText: d => d[1],
+        getPosition: d => [matrixLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
+        getTextAnchor: 'end',
+        getColor: [128, 128, 128, 255],
+        getSize: 9, //(cellHeight > 12 ? cellHeight : 0),
+        getAngle: 0,
+      }),
+      new TextLayer({
+        id: 'axisTopText',
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: colsData,
+        getText: d => d[1],
+        getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, matrixTop],
+        getTextAnchor: 'start',
+        getColor: [128, 128, 128, 255],
+        getSize: 9, //(cellWidth > 12 ? cellWidth : 0),
+        getAngle: 75,
+      }),
+    ]
+  : []);
+
+  const layers = heatmapLayers.concat(axisLayers);
+
+
   return (
-    <>
-      <DeckGL
-        views={[new OrthographicView({ id: 'ortho' })]}
-        layers={layers}
-        controller={true}
-        getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
-        glOptions={DEFAULT_GL_OPTIONS}
-        onViewStateChange={onViewStateChange}
-        viewState={viewState}
-      />
-    </>
+    <DeckGL
+      views={[
+        // top z-index
+        new OrthographicView({ id: 'axisLeft' }),
+        new OrthographicView({ id: 'axisTop' }),
+        new OrthographicView({ id: 'heatmap' }),
+        // bottom z-index
+      ]}
+      layers={layers}
+      layerFilter={layerFilter}
+      controller={true}
+      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
+      glOptions={DEFAULT_GL_OPTIONS}
+      onViewStateChange={onViewStateChange}
+      viewState={viewState}
+    />
   );
 }
