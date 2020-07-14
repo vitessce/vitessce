@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PubSub from 'pubsub-js';
 
 import Genes from './Genes';
@@ -7,38 +7,40 @@ import TitleInfo from '../TitleInfo';
 import { GENES_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT } from '../../events';
 import { interpolateColors } from '../utils';
 
-export default class GenesSubscriber extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { genes: {}, selectedId: null };
-    this.setSelectedGene = this.setSelectedGene.bind(this);
-    this.componentWillUnmount = this.componentWillUnmount.bind(this);
-  }
+export default function GenesSubscriber(props) {
+  const {
+    onReady,
+    mapping,
+    removeGridComponent,
+    labelOverride,
+  } = props;
+  const [genes, setGenes] = useState({});
+  const [selectedId, setSelectedId] = useState(null);
+  const [urls, setUrls] = useState([]);
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillMount() {
-    this.genesAddToken = PubSub.subscribe(GENES_ADD, this.genesAddSubscriber.bind(this));
-  }
+  const onReadyCallback = useCallback(onReady, []);
 
-  componentDidMount() {
-    const { onReady } = this.props;
-    onReady();
-  }
+  useEffect(() => {
+    const genesAddToken = PubSub.subscribe(
+      GENES_ADD, (msg, { data, url }) => {
+        setGenes(data);
+        setUrls((prevUrls) => {
+          const newUrls = [...prevUrls].concat({ url, name: 'Genes' });
+          return newUrls;
+        });
+      },
+    );
+    onReadyCallback();
+    return () => {
+      PubSub.unsubscribe(genesAddToken);
+    };
+  }, [onReadyCallback, mapping]);
 
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.genesAddToken);
-  }
-
-  genesAddSubscriber(msg, { data: genes }) {
-    this.setState({ genes });
-  }
-
-  setSelectedGene(selectedId) {
-    this.setState({ selectedId });
-    const { genes } = this.state;
+  function setSelectedGene(id) {
+    setSelectedId(id);
     const cellColors = {};
 
-    const { cells, max } = genes[selectedId];
+    const { cells, max } = genes[id];
     Object.entries(cells).forEach(
       ([cellId, value]) => {
         cellColors[cellId] = interpolateColors(value / max);
@@ -47,29 +49,24 @@ export default class GenesSubscriber extends React.Component {
     PubSub.publish(CELLS_COLOR, cellColors);
   }
 
-  render() {
-    const { genes, selectedId } = this.state;
-    const { removeGridComponent, labelOverride } = this.props;
-    const genesSelected = {};
-    const genesKeys = Object.keys(genes);
-    genesKeys.forEach((geneId) => {
-      genesSelected[geneId] = geneId === selectedId;
-    });
-    return (
-      <TitleInfo
-        title="Expression Levels"
-        info={`${genesKeys.length} ${labelOverride || 'genes'}`}
-        isScroll
-        removeGridComponent={removeGridComponent}
-      >
-        <Genes
-          genesSelected={genesSelected}
-          setSelectedGene={this.setSelectedGene}
-          clearPleaseWait={
-            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-          }
-        />
-      </TitleInfo>
-    );
-  }
+  const genesSelected = {};
+  const genesKeys = Object.keys(genes);
+  genesKeys.forEach((geneId) => {
+    genesSelected[geneId] = geneId === selectedId;
+  });
+  return (
+    <TitleInfo
+      title="Expression Levels"
+      info={`${genesKeys.length} ${labelOverride || 'genes'}`}
+      isScroll
+      urls={urls}
+      removeGridComponent={removeGridComponent}
+    >
+      <Genes
+        genesSelected={genesSelected}
+        setSelectedGene={setSelectedGene}
+        clearPleaseWait={layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)}
+      />
+    </TitleInfo>
+  );
 }
