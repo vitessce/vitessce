@@ -49,11 +49,11 @@ export default class HeatmapSubscriber extends React.Component {
     PubSub.unsubscribe(this.cellSetsViewToken);
   }
 
-  clustersAddSubscriber(msg, clusters) {
+  clustersAddSubscriber(msg, { data: clusters }) {
     this.setState({ clusters });
   }
 
-  cellsAddSubscriber(msg, cells) {
+  cellsAddSubscriber(msg, { data: cells }) {
     this.setState({ cells });
   }
 

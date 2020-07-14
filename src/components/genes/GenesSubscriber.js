@@ -29,7 +29,7 @@ export default class GenesSubscriber extends React.Component {
     PubSub.unsubscribe(this.genesAddToken);
   }
 
-  genesAddSubscriber(msg, genes) {
+  genesAddSubscriber(msg, { data: genes }) {
     this.setState({ genes });
   }
 

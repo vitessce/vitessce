@@ -148,12 +148,12 @@ export default function CellSetsManagerSubscriber(props) {
   // Subscribe to cell import and selection events.
   useEffect(() => {
     const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD,
-      (msg, treeToImport) => {
+      (msg, { data: treeToImport }) => {
         const actionType = (initEmit ? ACTION.IMPORT_AND_VIEW : ACTION.IMPORT);
         const newTreeToImport = tryUpgradeTreeToLatestSchema(treeToImport, SETS_DATATYPE_CELL);
         dispatch({ type: actionType, levelZeroNodes: newTreeToImport.tree });
       });
-    const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
+    const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, { data: cells }) => {
       dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
     });
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, (msg, cellIds) => {

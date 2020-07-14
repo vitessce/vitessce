@@ -101,7 +101,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
   const memoizedOnReady = useCallback(onReady, []);
 
   useEffect(() => {
-    async function handleRasterAdd(msg, raster) {
+    async function handleRasterAdd(msg, { data: raster }) {
       // render_layers provides the order for rendering initially.
       const { images, renderLayers } = raster;
       setImageOptions(images);

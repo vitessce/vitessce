@@ -47,13 +47,35 @@ export default function SpatialSubscriber({
   const [areCellsOn, setCellsOn] = useState(true);
   const [moleculesOpacity, setMoleculesOpacity] = useState(1);
   const [areMoleculesOn, setMoleculesOn] = useState(true);
+  const [urls, setUrls] = useState([]);
 
   const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
-    const moleculesAddSubscriber = (msg, newMolecules) => setMolecules(newMolecules);
-    const neighborhoodsAddSubscriber = (msg, newNeighborhoods) => setNeighborhoods(newNeighborhoods); // eslint-disable-line max-len
-    const cellsAddSubscriber = (msg, newCells) => setCells(newCells);
+    const moleculesAddSubscriber = (msg, { data: newMolecules, url }) => {
+      // eslint-disable-next-line no-unused-expressions
+      setMolecules(newMolecules);
+      setUrls((prevUrls) => {
+        const newUrls = [...prevUrls].concat({ url, name: 'Molecules' });
+        return newUrls;
+      });
+    };
+    const neighborhoodsAddSubscriber = (msg, { data: newNeighborhoods, url }) => {
+      // eslint-disable-next-line no-unused-expressions
+      setNeighborhoods(newNeighborhoods);
+      setUrls((prevUrls) => {
+        const newUrls = [...prevUrls].concat({ url, name: 'Neighborhoods' });
+        return newUrls;
+      });
+    };
+    const cellsAddSubscriber = (msg, { data: newCells, url }) => {
+      // eslint-disable-next-line no-unused-expressions
+      setCells(newCells);
+      setUrls((prevUrls) => {
+        const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
+        return newUrls;
+      });
+    };
     const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
     const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
     const cellsOpacitySubscriber = (msg, newCellOpacity) => setCellOpacity(newCellOpacity);
@@ -89,7 +111,6 @@ export default function SpatialSubscriber({
       setImageLayerProps({});
       setImageLayerLoaders({});
     }
-
     const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
     const moleculesOpacityToken = PubSub.subscribe(
       MOLECULES_SET_OPACITY, moleculesOpacitySubscriber,
@@ -123,8 +144,7 @@ export default function SpatialSubscriber({
       PubSub.unsubscribe(moleculesOnToken);
       PubSub.unsubscribe(resetToken);
     };
-  }, [onReadyCallback]);
-
+  }, [onReadyCallback, urls]);
   const cellsCount = useMemo(() => (cells ? Object.keys(cells).length : 0), [cells]);
   const [moleculesCount, locationsCount] = useMemo(() => {
     if (!molecules) return [0, 0];
@@ -162,6 +182,7 @@ export default function SpatialSubscriber({
         `${cellsCount} cells, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
       }
       isSpatial
+      urls={urls}
       removeGridComponent={removeGridComponent}
     >
       {children}

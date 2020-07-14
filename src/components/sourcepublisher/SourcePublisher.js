@@ -64,7 +64,7 @@ function publishLayer(data, type, name, url) {
     warn(`Error while validating ${name}. Details in console.`);
     console.warn(`"${name}" (${type}) from ${url}: validation failed`, failureReason);
   }
-  PubSub.publish(typeToEvent[type], data);
+  PubSub.publish(typeToEvent[type], { data, url });
   info(name);
 }
 

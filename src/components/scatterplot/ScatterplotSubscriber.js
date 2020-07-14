@@ -26,13 +26,19 @@ export default function ScatterplotSubscriber(props) {
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
+  const [urls, setUrls] = useState([]);
+
 
   const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
     const cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, (msg, data) => {
+      CELLS_ADD, (msg, { data, url }) => {
         setCells(data);
+        setUrls((prevUrls) => {
+          const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
+          return newUrls;
+        });
       },
     );
     const cellsColorToken = PubSub.subscribe(
@@ -85,6 +91,7 @@ export default function ScatterplotSubscriber(props) {
       title={`Scatterplot (${mapping})`}
       info={`${cellsCount} cells`}
       removeGridComponent={removeGridComponent}
+      urls={urls}
     >
       {children}
       <Scatterplot
