@@ -9,6 +9,7 @@ import clamp from 'lodash/clamp';
 import {
   DEFAULT_GL_OPTIONS,
 } from '../utils';
+import { interpolatePlasma } from '../interpolate-colors';
 
 const tileSize = 4096;
 
@@ -114,6 +115,7 @@ export default function Heatmap(props) {
     let value;
     let alpha;
     let offset;
+    let color;
 
     const result = range(yTiles).map(i => {
       return range(xTiles).map(j => {
@@ -134,9 +136,11 @@ export default function Heatmap(props) {
             }
             offset = ((tileSize - tileY - 1) * tileSize + tileX) * 4;
 
-            tileData[offset + 0] = value;
-            tileData[offset + 1] = 0;
-            tileData[offset + 2] = 0;
+            color = interpolatePlasma(value / 255);
+
+            tileData[offset + 0] = color[0];
+            tileData[offset + 1] = color[1];
+            tileData[offset + 2] = color[2];
             tileData[offset + 3] = 255;
 
             // Draw a blue left and top edge.
