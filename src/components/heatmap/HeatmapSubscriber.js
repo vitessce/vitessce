@@ -11,7 +11,7 @@ import { useGridItemSize } from '../utils';
 import Heatmap from './Heatmap';
 
 export default function HeatmapSubscriber(props) {
-  const { children, uuid, removeGridComponent, onReady } = props;
+  const { children, uuid, removeGridComponent, onReady, theme } = props;
 
   const [cells, setCells] = useState({});
   const [clusters, setClusters] = useState(null);
@@ -84,6 +84,7 @@ export default function HeatmapSubscriber(props) {
         <Heatmap
           height={height}
           width={width}
+          theme={theme}
           uuid={uuid}
           cells={cells}
           clusters={clusters}

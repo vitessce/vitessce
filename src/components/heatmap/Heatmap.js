@@ -27,6 +27,7 @@ function layerFilter({ layer, viewport }) {
 export default function Heatmap(props) {
   const {
     uuid,
+    theme,
     initialViewState = {
       minZoom: 0,
       zoom: 0,
@@ -67,8 +68,21 @@ export default function Heatmap(props) {
     
   }, [uuid, viewState, updateViewInfo]);
 
+  const cellOrdering = useMemo(() => {
+    if(!clusters) {
+      return null;
+    }
+    console.log("cell ordering changed");
+    if(!cellColors) {
+      return clusters.rows;
+    }
+
+    return Object.keys(cellColors);
+
+  }, [clusters, cellColors]);
+
   const width = clusters && clusters.cols ? clusters.cols.length : 0;
-  const height = clusters && clusters.rows ? clusters.rows.length : 0;
+  const height = cellOrdering ? cellOrdering.length : 0;
 
   const offsetTop = 80;
   const offsetLeft = 80;
@@ -108,49 +122,48 @@ export default function Heatmap(props) {
   }, [matrixRight, matrixBottom]);
 
   const tiles = useMemo(() => {
-    if(!clusters) {
+    if(!clusters || !cellOrdering) {
       return null;
     }
+    console.log("making tiles")
 
     let value;
     let alpha;
     let offset;
     let color;
+    let rowI, sortedRowI;
+    let colI;
 
     const result = range(yTiles).map(i => {
       return range(xTiles).map(j => {
         const tileData = new Uint8ClampedArray(tileSize * tileSize * 4);
 
         range(tileSize).forEach(tileY => {
-          const rowI = (i * tileSize) + tileY;
+          rowI = (i * tileSize) + tileY; // the row / cell index
+          if(rowI < height) {
+            sortedRowI = clusters.rows.indexOf(cellOrdering[rowI]);
+            if(sortedRowI >= -1) {
+              range(tileSize).forEach(tileX => {
+                colI = (j * tileSize) + tileX; // the col / gene index
 
-          range(tileSize).forEach(tileX => {
-            const colI = (j * tileSize) + tileX;
+                if(colI < width) {
+                  value = clusters.matrix.data[sortedRowI][colI];
+                  alpha = 255;
+                } else {
+                  value = 0;
+                  alpha = 0;
+                }
+                offset = ((tileSize - tileY - 1) * tileSize + tileX) * 4;
 
-            if(rowI < height && colI < width) {
-              value = clusters.matrix.data[rowI][colI];
-              alpha = 255;
-            } else {
-              value = 0;
-              alpha = 0;
+                color = interpolatePlasma(value / 255);
+
+                tileData[offset + 0] = color[0];
+                tileData[offset + 1] = color[1];
+                tileData[offset + 2] = color[2];
+                tileData[offset + 3] = 255;
+              });
             }
-            offset = ((tileSize - tileY - 1) * tileSize + tileX) * 4;
-
-            color = interpolatePlasma(value / 255);
-
-            tileData[offset + 0] = color[0];
-            tileData[offset + 1] = color[1];
-            tileData[offset + 2] = color[2];
-            tileData[offset + 3] = 255;
-
-            // Draw a blue left and top edge.
-            /*if(tileX === 0 || tileY === 0) {
-              tileData[offset + 0] = 0;
-              tileData[offset + 1] = 0;
-              tileData[offset + 2] = 255;
-              tileData[offset + 3] = 255;
-            }*/
-          });
+          }
         });
 
         return new ImageData(tileData, tileSize, tileSize);
@@ -158,7 +171,7 @@ export default function Heatmap(props) {
     });
 
     return result;
-  }, [clusters]);
+  }, [clusters, cellOrdering]);
 
   const heatmapLayers = useMemo(() => {
     if(!tiles) {
@@ -170,18 +183,15 @@ export default function Heatmap(props) {
         id: `heatmapLayer-${i}-${j}`,
         image: tiles[i][j],
         bounds: [matrixLeft + j*tileWidth, matrixTop + i*tileHeight, matrixLeft + (j+1)*tileWidth, matrixTop + (i+1)*tileHeight],
+        updateTriggers: {
+          image: [cellOrdering],
+          bounds: [tileHeight],
+        }
       });
     }
 
-    return [
-      getLayer(0, 0),
-      getLayer(0, 1),
-      getLayer(0, 2),
-      getLayer(1, 0),
-      getLayer(1, 1),
-      getLayer(1, 2),
-    ];
-  }, [tiles, viewHeight, viewWidth]);
+    return range(yTiles).flatMap(i => range(xTiles).map(j => getLayer(i, j)));
+  }, [tiles, viewHeight, viewWidth, cellOrdering, tileHeight]);
 
   const colsData = useMemo(() => {
     if(!clusters) {
@@ -191,11 +201,11 @@ export default function Heatmap(props) {
   }, [clusters]);
 
   const rowsData = useMemo(() => {
-    if(!clusters) {
+    if(!cellOrdering) {
       return [];
     }
-    return clusters.rows.map((d, i) => [i, d]);
-  }, [clusters]);
+    return cellOrdering.map((d, i) => [i, d]);
+  }, [cellOrdering]);
 
   const scaleFactor = Math.pow(2, viewState.zoom);
   const cellHeight = (matrixHeight * scaleFactor) / height;
