@@ -2,7 +2,7 @@
 import React, { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 import DeckGL from 'deck.gl';
 import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
-import BitmapHeatmapLayer from './BitmapHeatmapLayer';
+import HeatmapBitmapLayer from './HeatmapBitmapLayer';
 import { LineLayer, TextLayer } from '@deck.gl/layers';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
@@ -69,8 +69,8 @@ export default function Heatmap(props) {
   const width = clusters && clusters.cols ? clusters.cols.length : 0;
   const height = clusters && clusters.rows ? clusters.rows.length : 0;
 
-  const offsetTop = 60;
-  const offsetLeft = 60;
+  const offsetTop = 80;
+  const offsetLeft = 80;
 
 
   const matrixLeft = -viewWidth/2 + offsetLeft;
@@ -147,7 +147,7 @@ export default function Heatmap(props) {
             tileData[offset + 0] = value;
             tileData[offset + 1] = 0;
             tileData[offset + 2] = 0;
-            tileData[offset + 3] = value;
+            tileData[offset + 3] = 255;
 
             // Draw a blue left and top edge.
             /*if(tileX === 0 || tileY === 0) {
@@ -172,7 +172,7 @@ export default function Heatmap(props) {
     }
     
     function getLayer(i, j) {
-      return new BitmapHeatmapLayer({
+      return new HeatmapBitmapLayer({
         id: `heatmapLayer-${i}-${j}`,
         image: tiles[i][j],
         bounds: [matrixLeft + j*tileWidth, matrixTop + i*tileHeight, matrixLeft + (j+1)*tileWidth, matrixTop + (i+1)*tileHeight],
@@ -204,7 +204,8 @@ export default function Heatmap(props) {
   }, [clusters]);
 
   
-  if(viewState.width) {
+  const axisLayers = [];
+  if(clusters && clusters.rows && clusters.cols && viewState.width) {
     const viewport = new OrthographicView().makeViewport({
       // From the current `detail` viewState, we need its projection matrix (actually the inverse).
       viewState,
@@ -222,43 +223,54 @@ export default function Heatmap(props) {
       width: unprojectedCoords[1][0] - unprojectedCoords[0][0],
       height: unprojectedCoords[1][1] - unprojectedCoords[0][1]
     };
-    
-    
-    
 
+    const scaleFactor = Math.pow(2, viewState.zoom);
+    const cellHeight = (matrixHeight * scaleFactor) / height;
+    const cellWidth = (matrixWidth * scaleFactor) / width;
+    const textSize = 9;
+    const showText = Math.min(cellWidth, cellHeight) >= textSize;
+
+
+    const axisLeft = viewState.target[0] - (viewport.width/2 - offsetLeft) / scaleFactor;
+    const axisTop = viewState.target[1] - (viewport.height/2 - offsetTop) / scaleFactor;
     
-    //console.log(textHeight, viewport.height);
-  }
-
-  const cellHeight = (matrixHeight * Math.pow(2, viewState.zoom)) / height;
-  const cellWidth = (matrixWidth * Math.pow(2, viewState.zoom)) / width;
-
-  const axisLayers = (clusters && clusters.rows && clusters.cols ? 
-    [
+    console.log("viewport.width", viewport.width);
+    
+    console.log(unprojectedBbox.width);
+    
+    axisLayers.push(
       new TextLayer({
         id: 'axisLeftText',
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
         data: rowsData,
         getText: d => d[1],
-        getPosition: d => [matrixLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
+        getPosition: d => [axisLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
         getTextAnchor: 'end',
         getColor: [128, 128, 128, 255],
-        getSize: 9, //(cellHeight > 12 ? cellHeight : 0),
+        getSize: 9,
         getAngle: 0,
-      }),
+        updateTriggers: {
+          getPosition: [axisLeft, matrixTop, matrixHeight]
+        }
+      })
+    );
+    axisLayers.push(
       new TextLayer({
         id: 'axisTopText',
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
         data: colsData,
         getText: d => d[1],
-        getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, matrixTop],
+        getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, axisTop],
         getTextAnchor: 'start',
         getColor: [128, 128, 128, 255],
-        getSize: 9, //(cellWidth > 12 ? cellWidth : 0),
+        getSize: 9,
         getAngle: 75,
-      }),
-    ]
-  : []);
+        updateTriggers: {
+          getPosition: [axisTop, matrixLeft, matrixWidth]
+        }
+      })
+    );
+  }
 
   const layers = heatmapLayers.concat(axisLayers);
 
@@ -267,14 +279,14 @@ export default function Heatmap(props) {
     <DeckGL
       views={[
         // top z-index
-        new OrthographicView({ id: 'axisLeft' }),
-        new OrthographicView({ id: 'axisTop' }),
-        new OrthographicView({ id: 'heatmap' }),
+        new OrthographicView({ id: 'heatmap', controller: true }),
+        new OrthographicView({ id: 'axisLeft', controller: true }),
+        new OrthographicView({ id: 'axisTop', controller: true }),
+        
         // bottom z-index
       ]}
       layers={layers}
       layerFilter={layerFilter}
-      controller={true}
       getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
       glOptions={DEFAULT_GL_OPTIONS}
       onViewStateChange={onViewStateChange}

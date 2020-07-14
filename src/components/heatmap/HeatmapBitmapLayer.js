@@ -33,7 +33,7 @@ const defaultProps = {
  * @param {number} props.transparentColor - color to interpret transparency to
  * @param {number} props.tintColor - color bias
  */
-export default class BitmapHeatmapLayer extends BitmapLayer {
+export default class HeatmapBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {uniforms} = opts;
@@ -111,5 +111,5 @@ export default class BitmapHeatmapLayer extends BitmapLayer {
   }
 }
 
-BitmapHeatmapLayer.layerName = 'BitmapHeatmapLayer';
-BitmapHeatmapLayer.defaultProps = defaultProps;
+HeatmapBitmapLayer.layerName = 'HeatmapBitmapLayer';
+HeatmapBitmapLayer.defaultProps = defaultProps;
