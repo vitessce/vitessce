@@ -18,7 +18,7 @@ function layerFilter({ layer, viewport }) {
   } else if(viewport.id === 'axisTop') {
     return layer.id.startsWith('axisTop');
   } else if(viewport.id === 'heatmap') {
-    return layer.id.startsWith('heatmapLayer');
+    return layer.id.startsWith('heatmap');
   }
   return false;
 }
@@ -75,13 +75,10 @@ export default function Heatmap(props) {
   const matrixWidth = viewWidth - offsetLeft;
   const matrixHeight = viewHeight - offsetTop;
 
-
   const matrixLeft = -matrixWidth/2;
   const matrixRight = matrixWidth/2;
   const matrixTop = -matrixHeight/2;
   const matrixBottom = matrixHeight/2;
-
-  
 
   const xTiles = Math.ceil(width / tileSize);
   const yTiles = Math.ceil(height / tileSize);
@@ -93,11 +90,7 @@ export default function Heatmap(props) {
   const tileHeight = (matrixHeight / heightRatio) / (yTiles);
 
   const onViewStateChange = useCallback(({ viewState }) => {
-    // Always called for "axisLeft", since that layer is on top.
-
     const { target, zoom } = viewState;
-
-
     const scaleFactor = Math.pow(2, zoom);
 
     const minTargetX = zoom === 0 ? 0 : -(matrixRight - (matrixRight / scaleFactor));
@@ -106,16 +99,11 @@ export default function Heatmap(props) {
     const minTargetY = zoom === 0 ? 0 : -(matrixBottom - (matrixBottom / scaleFactor));
     const maxTargetY = -1 * minTargetY;
 
-    const minAxisTargetX = zoom === 0 ? 0 : - (matrixRight / scaleFactor);
-    const minAxisTargetY = zoom === 0 ? 0 : - (matrixBottom / scaleFactor);
-    //console.log(viewState);
-
     // Manipulate view state
     viewState.target[0] = clamp(viewState.target[0], minTargetX, maxTargetX);
     viewState.target[1] = clamp(viewState.target[1], minTargetY, maxTargetY);
 
     setViewState(viewState);
-    
   }, [matrixRight, matrixBottom]);
 
   const tiles = useMemo(() => {
@@ -205,75 +193,87 @@ export default function Heatmap(props) {
     return clusters.rows.map((d, i) => [i, d]);
   }, [clusters]);
 
+  const scaleFactor = Math.pow(2, viewState.zoom);
+  const cellHeight = (matrixHeight * scaleFactor) / height;
+  const cellWidth = (matrixWidth * scaleFactor) / width;
+  const labelSize = 8;
+  const titleSize = 14;
+
+  const showAxisLeftLabels = cellHeight >= labelSize;
+  const showAxisTopLabels = cellWidth >= labelSize;
+
+  const axisMargin = 3;
+  const axisLabelLeft = viewState.target[0] + (offsetLeft - axisMargin)/2/scaleFactor;
+  const axisLabelTop = viewState.target[1] + (offsetTop - axisMargin)/2/scaleFactor;
+
+  const axisTitleLeft = viewState.target[0];
+  const axisTitleTop = viewState.target[1];
   
-  const axisLayers = [];
-  if(clusters && clusters.rows && clusters.cols && viewState.width) {
-    const viewport = new OrthographicView().makeViewport({
-      // From the current `detail` viewState, we need its projection matrix (actually the inverse).
-      viewState,
-      height: viewState.height,
-      width: viewState.width
-    });
-    // Use the inverse of the projection matrix to map screen to the view space.
-    const unprojectedCoords = [
-      viewport.unproject([offsetLeft, offsetTop]),
-      viewport.unproject([viewport.width, viewport.height]),
-    ];
-    const unprojectedBbox = {
-      x: unprojectedCoords[0][0],
-      y: unprojectedCoords[0][1],
-      width: unprojectedCoords[1][0] - unprojectedCoords[0][0],
-      height: unprojectedCoords[1][1] - unprojectedCoords[0][1]
-    };
-
-    const scaleFactor = Math.pow(2, viewState.zoom);
-    const cellHeight = (matrixHeight * scaleFactor) / height;
-    const cellWidth = (matrixWidth * scaleFactor) / width;
-    const textSize = 8;
-
-    const axisMargin = 2;
-
-    const axisLeft = viewState.target[0] + (offsetLeft - axisMargin)/2/scaleFactor;
-    const axisTop = viewState.target[1] + (offsetTop - axisMargin)/2/scaleFactor;
-    
-
-    
-    axisLayers.push(
-      new TextLayer({
-        id: 'axisLeftText',
-        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        data: rowsData,
-        getText: d => d[1],
-        getPosition: d => [axisLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
-        getTextAnchor: 'end',
-        getColor: [128, 128, 128, 255],
-        getSize: (cellHeight >= textSize ? textSize : 0),
-        getAngle: 0,
-        updateTriggers: {
-          getPosition: [axisLeft, matrixTop, matrixHeight]
-        }
-      })
-    );
-    axisLayers.push(
-      new TextLayer({
-        id: 'axisTopText',
-        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        data: colsData,
-        getText: d => d[1],
-        getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, axisTop],
-        getTextAnchor: 'start',
-        getColor: [128, 128, 128, 255],
-        getSize: (cellWidth >= textSize ? textSize : 0),
-        getAngle: 75,
-        updateTriggers: {
-          getPosition: [axisTop, matrixLeft, matrixWidth]
-        }
-      })
-    );
-  }
+  
+  const axisLayers = (clusters && clusters.rows && clusters.cols ? [
+    new TextLayer({
+      id: 'axisLeftLabels',
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: rowsData,
+      getText: d => d[1],
+      getPosition: d => [axisLabelLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
+      getTextAnchor: 'end',
+      getColor: [128, 128, 128, 255],
+      getSize: (showAxisLeftLabels ? labelSize : 0),
+      getAngle: 0,
+      updateTriggers: {
+        getPosition: [axisLabelLeft, matrixTop, matrixHeight]
+      }
+    }),
+    new TextLayer({
+      id: 'axisTopLabels',
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: colsData,
+      getText: d => d[1],
+      getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, axisLabelTop],
+      getTextAnchor: 'start',
+      getColor: [128, 128, 128, 255],
+      getSize: (showAxisTopLabels ? labelSize : 0),
+      getAngle: 75,
+      updateTriggers: {
+        getPosition: [axisLabelTop, matrixLeft, matrixWidth]
+      }
+    }),
+    new TextLayer({
+      id: 'axisLeftTitle',
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: [{
+        title: "Cells"
+      }],
+      getText: d => d.title,
+      getPosition: d => [axisTitleLeft, axisTitleTop],
+      getTextAnchor: 'middle',
+      getColor: [128, 128, 128, 255],
+      getSize: (!showAxisLeftLabels ? titleSize : 0),
+      getAngle: 90,
+      updateTriggers: {
+        getPosition: [axisTitleLeft, axisTitleTop]
+      }
+    }),
+    new TextLayer({
+      id: 'axisTopTitle',
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: [{
+        title: "Genes"
+      }],
+      getText: d => d.title,
+      getPosition: d => [axisTitleLeft, axisTitleTop],
+      getTextAnchor: 'middle',
+      getColor: [128, 128, 128, 255],
+      getSize: (!showAxisTopLabels ? titleSize : 0),
+      getAngle: 0,
+      updateTriggers: {
+        getPosition: [axisTitleLeft, axisTitleTop]
+      }
+    }),
+  ] : []);
 
   const layers = heatmapLayers.concat(axisLayers);
-
 
   return (
     <DeckGL
