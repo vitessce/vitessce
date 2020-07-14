@@ -72,14 +72,16 @@ export default function Heatmap(props) {
   const offsetTop = 80;
   const offsetLeft = 80;
 
+  const matrixWidth = viewWidth - offsetLeft;
+  const matrixHeight = viewHeight - offsetTop;
 
-  const matrixLeft = -viewWidth/2 + offsetLeft;
-  const matrixRight = viewWidth/2;
-  const matrixTop = -viewHeight/2 + offsetTop;
-  const matrixBottom = viewHeight/2;
 
-  const matrixWidth = matrixRight - matrixLeft;
-  const matrixHeight = matrixBottom - matrixTop;
+  const matrixLeft = -matrixWidth/2;
+  const matrixRight = matrixWidth/2;
+  const matrixTop = -matrixHeight/2;
+  const matrixBottom = matrixHeight/2;
+
+  
 
   const xTiles = Math.ceil(width / tileSize);
   const yTiles = Math.ceil(height / tileSize);
@@ -227,16 +229,14 @@ export default function Heatmap(props) {
     const scaleFactor = Math.pow(2, viewState.zoom);
     const cellHeight = (matrixHeight * scaleFactor) / height;
     const cellWidth = (matrixWidth * scaleFactor) / width;
-    const textSize = 9;
-    const showText = Math.min(cellWidth, cellHeight) >= textSize;
+    const textSize = 8;
 
+    const axisMargin = 2;
 
-    const axisLeft = viewState.target[0] - (viewport.width/2 - offsetLeft) / scaleFactor;
-    const axisTop = viewState.target[1] - (viewport.height/2 - offsetTop) / scaleFactor;
+    const axisLeft = viewState.target[0] + (offsetLeft - axisMargin)/2/scaleFactor;
+    const axisTop = viewState.target[1] + (offsetTop - axisMargin)/2/scaleFactor;
     
-    console.log("viewport.width", viewport.width);
-    
-    console.log(unprojectedBbox.width);
+
     
     axisLayers.push(
       new TextLayer({
@@ -247,7 +247,7 @@ export default function Heatmap(props) {
         getPosition: d => [axisLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
         getTextAnchor: 'end',
         getColor: [128, 128, 128, 255],
-        getSize: 9,
+        getSize: (cellHeight >= textSize ? textSize : 0),
         getAngle: 0,
         updateTriggers: {
           getPosition: [axisLeft, matrixTop, matrixHeight]
@@ -263,7 +263,7 @@ export default function Heatmap(props) {
         getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, axisTop],
         getTextAnchor: 'start',
         getColor: [128, 128, 128, 255],
-        getSize: 9,
+        getSize: (cellWidth >= textSize ? textSize : 0),
         getAngle: 75,
         updateTriggers: {
           getPosition: [axisTop, matrixLeft, matrixWidth]
@@ -278,12 +278,9 @@ export default function Heatmap(props) {
   return (
     <DeckGL
       views={[
-        // top z-index
-        new OrthographicView({ id: 'heatmap', controller: true }),
-        new OrthographicView({ id: 'axisLeft', controller: true }),
-        new OrthographicView({ id: 'axisTop', controller: true }),
-        
-        // bottom z-index
+        new OrthographicView({ id: 'heatmap', controller: true, x: offsetLeft, y: offsetTop, width: matrixWidth, height: matrixHeight }),
+        new OrthographicView({ id: 'axisLeft', controller: false, x: 0, y: offsetTop, width: offsetLeft, height: matrixHeight }),
+        new OrthographicView({ id: 'axisTop', controller: false, x: offsetLeft, y: 0, width: matrixWidth, height: offsetTop }),
       ]}
       layers={layers}
       layerFilter={layerFilter}
