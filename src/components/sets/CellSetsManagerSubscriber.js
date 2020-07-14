@@ -158,7 +158,7 @@ export default function CellSetsManagerSubscriber(props) {
         const actionType = (initEmit ? ACTION.IMPORT_AND_VIEW : ACTION.IMPORT);
         const newTreeToImport = tryUpgradeTreeToLatestSchema(treeToImport, SETS_DATATYPE_CELL);
         setUrls((prevUrls) => {
-          const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
+          const newUrls = [...prevUrls].concat({ url, name: 'Cells Sets' });
           return newUrls;
         });
         dispatch({ type: actionType, levelZeroNodes: newTreeToImport.tree });

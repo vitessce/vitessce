@@ -27,7 +27,7 @@ export default function HeatmapSubscriber(props) {
     function clustersAddSubscriber(msg, { data, url }) {
       setClusters(data);
       setUrls((prevUrls) => {
-        const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
+        const newUrls = [...prevUrls].concat({ url, name: 'Clusters' });
         return newUrls;
       });
     }
