@@ -28,31 +28,27 @@ export const controllerTheme = {
   }),
 };
 
-export const useOptionStyles = makeStyles((theme) => {
-  // eslint-disable-next-line
-  console.log(theme);
-  return ({
-    paper: {
-      backgroundColor: theme.palette.background.paper,
+export const useOptionStyles = makeStyles(theme => ({
+  paper: {
+    backgroundColor: theme.palette.background.paper,
+  },
+  span: {
+    width: '70px',
+    textAlign: 'center',
+    paddingLeft: '2px',
+    paddingRight: '2px',
+  },
+  colors: {
+    '&:hover': {
+      backgroundColor: 'transparent',
     },
-    span: {
-      width: '70px',
-      textAlign: 'center',
-      paddingLeft: '2px',
-      paddingRight: '2px',
-    },
-    colors: {
-      '&:hover': {
-        backgroundColor: 'transparent',
-      },
-      paddingLeft: '2px',
-      paddingRight: '2px',
-    },
-    popper: {
-      zIndex: 4,
-    },
-  });
-});
+    paddingLeft: '2px',
+    paddingRight: '2px',
+  },
+  popper: {
+    zIndex: 4,
+  },
+}));
 
 export const useExpansionPanelStyles = makeStyles(theme => ({
   root: {

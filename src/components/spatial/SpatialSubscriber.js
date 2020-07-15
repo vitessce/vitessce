@@ -55,7 +55,6 @@ export default function SpatialSubscriber({
 
   useEffect(() => {
     const moleculesAddSubscriber = (msg, { data: newMolecules, url }) => {
-      // eslint-disable-next-line no-unused-expressions
       setMolecules(newMolecules);
       setUrls((prevUrls) => {
         const newUrls = [...prevUrls].concat({ url, name: 'Molecules' });
@@ -63,7 +62,6 @@ export default function SpatialSubscriber({
       });
     };
     const neighborhoodsAddSubscriber = (msg, { data: newNeighborhoods, url }) => {
-      // eslint-disable-next-line no-unused-expressions
       setNeighborhoods(newNeighborhoods);
       setUrls((prevUrls) => {
         const newUrls = [...prevUrls].concat({ url, name: 'Neighborhoods' });
@@ -71,7 +69,6 @@ export default function SpatialSubscriber({
       });
     };
     const cellsAddSubscriber = (msg, { data: newCells, url }) => {
-      // eslint-disable-next-line no-unused-expressions
       setCells(newCells);
       setUrls((prevUrls) => {
         const newUrls = [...prevUrls].concat({ url, name: 'Cells' });

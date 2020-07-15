@@ -78,7 +78,6 @@ export default function HeatmapSubscriber(props) {
       PubSub.unsubscribe(resetToken);
     };
   }, [onReadyCallback]);
-  // eslint-disable-next-line
   const cellsCount = clusters.cols ? clusters.cols.length : 0;
   const genesCount = clusters.rows ? clusters.rows.length : 0;
   const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
