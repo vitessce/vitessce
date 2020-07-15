@@ -73,7 +73,12 @@ if (typeof self !== 'undefined') {
     };
 
     self.addEventListener('message', event => {
-      const [name, args] = event.data;
-      nameToFunction[name](self, args);
+        console.log(event);
+      try {
+        const [name, args] = event.data;
+        nameToFunction[name](self, args);
+      } catch(e) {
+        console.warn(e);
+      }
     });
 }

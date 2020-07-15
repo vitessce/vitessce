@@ -4,15 +4,13 @@ import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
 import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
 import HeatmapBitmapLayer from './HeatmapBitmapLayer';
-import { LineLayer, TextLayer } from '@deck.gl/layers';
+import { TextLayer } from '@deck.gl/layers';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
-import {
-  DEFAULT_GL_OPTIONS,
-} from '../utils';
+import { DEFAULT_GL_OPTIONS } from '../utils';
 
-import HeatmapWorker from 'worker-loader!./vitessce.worker';
+import HeatmapWorker from './heatmap.worker.js';
 
 const tileSize = 4096;
 const themeToTextColor = {

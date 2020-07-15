@@ -433,15 +433,6 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
                 inputSourceMap: shouldUseSourceMap,
               },
             },
-            // Process workers
-            {
-              test: /vitessce\.worker\.js$/,
-              loader: require.resolve('worker-loader'),
-              options: {
-                inline: true,
-                fallback: false,
-              }
-            },
             // "postcss" loader applies autoprefixer to our CSS.
             // "css" loader resolves paths in CSS and adds assets as dependencies.
             // "style" loader turns CSS into JS modules that inject <style> tags.
@@ -527,6 +518,17 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
             // ** STOP ** Are you adding a new loader?
             // Make sure to add the new loader(s) before the "file" loader.
           ],
+        },
+        // Process workers
+        {
+          test: /\.worker\.js$/,
+          use: {
+            loader: 'worker-loader',
+            options: {
+              inline: true,
+              fallback: false,
+            }
+          }
         },
     ]
   };
