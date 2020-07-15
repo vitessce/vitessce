@@ -92,6 +92,7 @@ export default function ScatterplotSubscriber(props) {
       info={`${cellsCount} cells`}
       removeGridComponent={removeGridComponent}
       urls={urls}
+      theme={theme}
     >
       {children}
       <Scatterplot

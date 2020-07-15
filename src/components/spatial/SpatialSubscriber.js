@@ -34,6 +34,7 @@ export default function SpatialSubscriber({
   moleculeRadius,
   view,
   cellRadius,
+  theme,
   uuid = null,
 }) {
   const [cells, setCells] = useState(null);
@@ -183,6 +184,7 @@ export default function SpatialSubscriber({
       }
       isSpatial
       urls={urls}
+      theme={theme}
       removeGridComponent={removeGridComponent}
     >
       {children}

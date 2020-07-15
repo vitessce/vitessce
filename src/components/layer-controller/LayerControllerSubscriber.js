@@ -176,6 +176,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
       title="Layer Controller"
       isScroll
       removeGridComponent={removeGridComponent}
+      theme={theme}
     >
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider theme={controllerTheme[theme]}>

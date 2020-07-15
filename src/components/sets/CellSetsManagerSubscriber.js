@@ -50,6 +50,7 @@ export default function CellSetsManagerSubscriber(props) {
     removeGridComponent,
     onReady,
     initEmit = true,
+    theme,
   } = props;
 
   const onReadyCallback = useCallback(onReady, []);
@@ -200,6 +201,7 @@ export default function CellSetsManagerSubscriber(props) {
       isScroll
       removeGridComponent={removeGridComponent}
       urls={urls}
+      theme={theme}
     >
       <SetsManager
         tree={tree}

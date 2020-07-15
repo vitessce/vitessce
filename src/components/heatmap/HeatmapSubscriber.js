@@ -14,6 +14,7 @@ export default function HeatmapSubscriber(props) {
     uuid,
     removeGridComponent,
     onReady,
+    theme,
   } = props;
   const [cells, setCells] = useState({});
   const [clusters, setClusters] = useState({});
@@ -80,6 +81,7 @@ export default function HeatmapSubscriber(props) {
               with ${selectedCount} cells selected`}
       removeGridComponent={removeGridComponent}
       urls={urls}
+      theme={theme}
     >
       {children}
       {

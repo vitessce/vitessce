@@ -13,6 +13,7 @@ export default function GenesSubscriber(props) {
     mapping,
     removeGridComponent,
     labelOverride,
+    theme,
   } = props;
   const [genes, setGenes] = useState({});
   const [selectedId, setSelectedId] = useState(null);
@@ -60,6 +61,7 @@ export default function GenesSubscriber(props) {
       info={`${genesKeys.length} ${labelOverride || 'genes'}`}
       isScroll
       urls={urls}
+      theme={theme}
       removeGridComponent={removeGridComponent}
     >
       <Genes
