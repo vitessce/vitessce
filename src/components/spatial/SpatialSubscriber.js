@@ -24,6 +24,7 @@ import {
   LAYER_REMOVE,
   LAYER_CHANGE,
   RESET,
+  RASTER_ADD,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -77,6 +78,15 @@ export default function SpatialSubscriber({
         return newUrls;
       });
     };
+    const rasterAddSubscriber = (msg, { data: rasterSchema }) => {
+      setUrls((prevUrls) => {
+        const rasterUrlsAndNames = rasterSchema.images.map(
+          image => ({ name: image.name, url: image.url }),
+        );
+        const newUrls = [...prevUrls].concat(rasterUrlsAndNames);
+        return newUrls;
+      });
+    };
     const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
     const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
     const cellsOpacitySubscriber = (msg, newCellOpacity) => setCellOpacity(newCellOpacity);
@@ -118,6 +128,7 @@ export default function SpatialSubscriber({
     );
     const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, neighborhoodsAddSubscriber);
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, cellsAddSubscriber);
+    const rasterAddToken = PubSub.subscribe(RASTER_ADD, rasterAddSubscriber);
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, cellsSelectionSubscriber);
     const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, cellsSelectionSubscriber);
     const cellsColorToken = PubSub.subscribe(CELLS_COLOR, cellsColorSubscriber);
@@ -144,6 +155,7 @@ export default function SpatialSubscriber({
       PubSub.unsubscribe(cellsOnToken);
       PubSub.unsubscribe(moleculesOnToken);
       PubSub.unsubscribe(resetToken);
+      PubSub.unsubscribe(rasterAddToken);
     };
   }, [onReadyCallback, urls]);
   const cellsCount = useMemo(() => (cells ? Object.keys(cells).length : 0), [cells]);
