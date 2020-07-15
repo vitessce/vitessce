@@ -38,6 +38,6 @@ export const typeToEvent = {
 };
 
 export const extensionToLoader = {
-    '.clusters.zarr': ZarrLoader,
+    '.clusters.zarr': ZarrLoader, // TODO: change to .genes.zarr
     '.json': JsonLoader,
 };

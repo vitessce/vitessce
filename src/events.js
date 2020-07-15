@@ -3,6 +3,7 @@ const CHANGE = '.change';
 const REMOVE = '.remove';
 const OPACITY = '.opacity';
 const ON = '.on';
+const HOVER = '.hover';
 
 export const RESET = 'reset';
 export const CLEAR_PLEASE_WAIT = 'clear_please_wait';
@@ -15,7 +16,7 @@ export const CELLS_ADD = CELLS + ADD;
 // Selection by the user via rectangle or polygon tool.
 export const CELLS_SELECTION = `${CELLS}.selection`;
 export const CELLS_COLOR = `${CELLS}.color`;
-export const CELLS_HOVER = `${CELLS}.hover`;
+export const CELLS_HOVER = CELLS + HOVER;
 export const CELLS_SET_OPACITY = CELLS + OPACITY;
 export const CELLS_TURN_ON = CELLS + ON;
 
@@ -33,6 +34,7 @@ export const FACTORS_ADD = FACTORS + ADD;
 
 export const GENES = 'genes';
 export const GENES_ADD = GENES + ADD;
+export const GENES_HOVER = GENES + HOVER;
 
 export const MOLECULES = 'molecules';
 export const MOLECULES_ADD = MOLECULES + ADD;

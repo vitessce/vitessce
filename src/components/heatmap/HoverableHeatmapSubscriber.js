@@ -3,7 +3,7 @@ import React from 'react';
 import uuidv4 from 'uuid/v4';
 
 import HeatmapSubscriber from './HeatmapSubscriber';
-import CellTooltip1DVerticalSubscriber from '../cell-tooltip/CellTooltip1DVerticalSubscriber';
+import HeatmapTooltipSubscriber from '../cell-tooltip/HeatmapTooltipSubscriber';
 
 export default function HoverableHeatmapSubscriber(props) {
   // Create a UUID so that hover events
@@ -11,7 +11,7 @@ export default function HoverableHeatmapSubscriber(props) {
   const uuid = uuidv4();
   return (
     <HeatmapSubscriber {...props} uuid={uuid}>
-      {/*<CellTooltip1DVerticalSubscriber {...props} uuid={uuid} />*/}
+      <HeatmapTooltipSubscriber {...props} uuid={uuid} />
     </HeatmapSubscriber>
   );
 }

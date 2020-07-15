@@ -4,7 +4,7 @@ import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_COLOR, CLUSTERS_ADD, CELLS_ADD, CELLS_SELECTION,
+  CELLS_COLOR, GENES_ADD, CELLS_ADD, CELLS_SELECTION,
   CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
 } from '../../events';
 import { useGridItemSize } from '../utils';
@@ -25,7 +25,7 @@ export default function HeatmapSubscriber(props) {
   useEffect(() => {
 
     const clustersAddToken = PubSub.subscribe(
-      CLUSTERS_ADD, (msg, clusters) => {
+      GENES_ADD, (msg, clusters) => {
         const [attrs, arr] = clusters;
     
         arr.getRaw([null, null]).then(X => {

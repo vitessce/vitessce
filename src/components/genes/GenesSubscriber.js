@@ -1,75 +1,89 @@
-import React from 'react';
+/* eslint-disable */
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PubSub from 'pubsub-js';
 
 import Genes from './Genes';
 
 import TitleInfo from '../TitleInfo';
 import { GENES_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT } from '../../events';
-import { interpolateColors } from '../utils';
+import { interpolatePlasma } from '../interpolate-colors';
+import { fromEntries } from '../utils';
 
-export default class GenesSubscriber extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { genes: {}, selectedId: null };
-    this.setSelectedGene = this.setSelectedGene.bind(this);
-    this.componentWillUnmount = this.componentWillUnmount.bind(this);
-  }
+export default function GenesSubscriber(props) {
+  const {
+    onReady,
+    removeGridComponent,
+    labelOverride,
+  } = props;
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillMount() {
-    this.genesAddToken = PubSub.subscribe(GENES_ADD, this.genesAddSubscriber.bind(this));
-  }
+  const [clusters, setClusters] = useState();
+  const [selectedId, setSelectedId] = useState(null);
 
-  componentDidMount() {
-    const { onReady } = this.props;
-    onReady();
-  }
+  const onReadyCallback = useCallback(onReady, []);
 
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.genesAddToken);
-  }
-
-  genesAddSubscriber(msg, genes) {
-    this.setState({ genes });
-  }
-
-  setSelectedGene(selectedId) {
-    this.setState({ selectedId });
-    const { genes } = this.state;
-    const cellColors = {};
-
-    const { cells, max } = genes[selectedId];
-    Object.entries(cells).forEach(
-      ([cellId, value]) => {
-        cellColors[cellId] = interpolateColors(value / max);
+  useEffect(() => {
+    const clustersAddToken = PubSub.subscribe(
+      GENES_ADD, (msg, clusters) => {
+        const [attrs, arr] = clusters;
+    
+        arr.get([null, null]).then(X => {
+          setClusters({
+            cols: attrs.var,
+            rows: attrs.obs,
+            matrix: X
+          });
+        });
       },
     );
-    PubSub.publish(CELLS_COLOR, cellColors);
-  }
+    onReadyCallback();
+    return () => {
+      PubSub.unsubscribe(clustersAddToken);
+    };
+  }, []);
 
-  render() {
-    const { genes, selectedId } = this.state;
-    const { removeGridComponent, labelOverride } = this.props;
-    const genesSelected = {};
-    const genesKeys = Object.keys(genes);
-    genesKeys.forEach((geneId) => {
-      genesSelected[geneId] = geneId === selectedId;
-    });
-    return (
-      <TitleInfo
-        title="Expression Levels"
-        info={`${genesKeys.length} ${labelOverride || 'genes'}`}
-        isScroll
-        removeGridComponent={removeGridComponent}
-      >
-        <Genes
-          genesSelected={genesSelected}
-          setSelectedGene={this.setSelectedGene}
-          clearPleaseWait={
-            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-          }
-        />
-      </TitleInfo>
-    );
-  }
+  const setSelectedGene = useCallback((selectedId) => {
+    setSelectedId(selectedId);
+
+    if(clusters) {
+      const colI = clusters.cols.indexOf(selectedId);
+      if(colI !== -1) {
+        const cellColors = fromEntries(clusters.rows.map((cellId, rowI) => {
+          const value = clusters.matrix.data[rowI][colI];
+          const cellColor = interpolatePlasma(value / 255);
+          return [cellId, cellColor];
+        }));
+        PubSub.publish(CELLS_COLOR, cellColors);
+      }
+    }
+  }, [clusters]);
+
+  const genesSelected = useMemo(() => {
+    if(!clusters) {
+      return null;
+    }
+    return fromEntries(clusters.cols.map((geneId) => {
+      return [geneId, geneId === selectedId];
+    }));
+  }, [clusters, selectedId]);
+
+  const numGenes = clusters ? clusters.cols.length : '?';
+  
+
+  return (
+    <TitleInfo
+      title="Expression Levels"
+      info={`${numGenes} ${labelOverride || 'genes'}`}
+      isScroll
+      removeGridComponent={removeGridComponent}
+    >
+      <Genes
+        genesSelected={genesSelected}
+        setSelectedGene={setSelectedGene}
+        clearPleaseWait={
+          layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+        }
+      />
+    </TitleInfo>
+  );
+  
 }

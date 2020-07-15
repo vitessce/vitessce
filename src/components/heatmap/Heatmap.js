@@ -60,7 +60,7 @@ export default function Heatmap(props) {
     },
   } = props;
   if (clearPleaseWait && clusters) {
-    clearPleaseWait('clusters');
+    clearPleaseWait('genes');
   }
 
   const [viewState, setViewState] = useState(initialViewState);
@@ -377,8 +377,27 @@ export default function Heatmap(props) {
     }) : [];
   }, [cellColorsTiles, matrixTop, tileHeight]);
 
-
   const layers = heatmapLayers.concat(axisLayers).concat(loadingLayers).concat(cellColorsLayers);
+
+  function onHover(info, event) {
+    if(!clusters || !cellOrdering) {
+      return;
+    }
+    const mouseX = event.offsetCenter.x - offsetLeft;
+    const mouseY = event.offsetCenter.y - offsetTop;
+
+    if(mouseX >= 0 && mouseY >= 0) {
+      // TODO: determine the rowI and colI values based on the current viewState.target and viewState.zoom levels.
+      /*
+      const sortedRowI = Math.floor(mouseY / matrixHeight * height);
+      const rowI = clusters.rows.indexOf(cellOrdering[sortedRowI]);
+      const colI = Math.floor(mouseX / matrixWidth * width);
+      const rowId = clusters.rows[rowI];
+      const colId = clusters.cols[colI];
+      console.log(rowId, colId);
+      */
+    }
+  }
 
   return (
     <DeckGL
@@ -394,6 +413,7 @@ export default function Heatmap(props) {
       glOptions={DEFAULT_GL_OPTIONS}
       onViewStateChange={onViewStateChange}
       viewState={viewState}
+      onHover={onHover}
     />
   );
 }
