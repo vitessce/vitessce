@@ -175,6 +175,7 @@ export default function CellSetsManagerSubscriber(props) {
       dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: Array.from(cellIds) });
     });
     const resetToken = PubSub.subscribe(RESET, () => {
+      setUrls([]);
       dispatch({ type: ACTION.RESET });
     });
     onReadyCallback();

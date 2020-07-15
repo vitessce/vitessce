@@ -6,7 +6,7 @@ import clamp from 'lodash/clamp';
 import TitleInfo from '../TitleInfo';
 import {
   CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
-  CELL_SETS_VIEW, CLEAR_PLEASE_WAIT,
+  CELL_SETS_VIEW, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 import Scatterplot from './Scatterplot';
 
@@ -56,12 +56,14 @@ export default function ScatterplotSubscriber(props) {
         setSelectedCellIds(data);
       },
     );
+    const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsColorToken);
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(cellSetsViewToken);
+      PubSub.unsubscribe(resetToken);
     };
   }, [onReadyCallback, mapping]);
 

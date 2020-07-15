@@ -3,8 +3,15 @@ import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_COLOR, CLUSTERS_ADD, CELLS_ADD, CELLS_SELECTION,
-  CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
+  CELLS_COLOR,
+  CLUSTERS_ADD,
+  CELLS_ADD,
+  CELLS_SELECTION,
+  CLEAR_PLEASE_WAIT,
+  CELLS_HOVER,
+  STATUS_INFO,
+  CELL_SETS_VIEW,
+  RESET,
 } from '../../events';
 import Heatmap from './Heatmap';
 
@@ -60,6 +67,7 @@ export default function HeatmapSubscriber(props) {
     const cellSetsViewToken = PubSub.subscribe(
       CELL_SETS_VIEW, cellsSelectionSubscriber,
     );
+    const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(clustersAddToken);
@@ -67,6 +75,7 @@ export default function HeatmapSubscriber(props) {
       PubSub.unsubscribe(cellsColorToken);
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(cellSetsViewToken);
+      PubSub.unsubscribe(resetToken);
     };
   }, [onReadyCallback]);
   // eslint-disable-next-line

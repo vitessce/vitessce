@@ -121,6 +121,7 @@ export default function SpatialSubscriber({
       setNeighborhoods(null);
       setImageLayerProps({});
       setImageLayerLoaders({});
+      setUrls([]);
     }
     const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
     const moleculesOpacityToken = PubSub.subscribe(

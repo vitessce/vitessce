@@ -4,7 +4,12 @@ import PubSub from 'pubsub-js';
 import Genes from './Genes';
 
 import TitleInfo from '../TitleInfo';
-import { GENES_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT } from '../../events';
+import {
+  GENES_ADD,
+  CELLS_COLOR,
+  CLEAR_PLEASE_WAIT,
+  RESET,
+} from '../../events';
 import { interpolateColors } from '../utils';
 
 export default function GenesSubscriber(props) {
@@ -31,9 +36,11 @@ export default function GenesSubscriber(props) {
         });
       },
     );
+    const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(genesAddToken);
+      PubSub.unsubscribe(resetToken);
     };
   }, [onReadyCallback, mapping]);
 
