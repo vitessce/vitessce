@@ -67,8 +67,6 @@ export default function HeatmapSubscriber(props) {
     }
   }, [onReadyCallback]);
 
-  console.log(clusters);
-
   const cellsCount = clusters && clusters.rows ? clusters.rows.length : 0;
   const genesCount = clusters && clusters.cols ? clusters.cols.length : 0;
   const selectedCount = selectedCellIds ? selectedCellIds.size : 0;

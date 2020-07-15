@@ -5,15 +5,15 @@ import range from 'lodash/range';
 function getTiles(self, args) {
     console.log("I am in a worker");
     const {
-        xTiles,
-        yTiles,
-        tileSize,
-        cellOrdering,
-        rows,
-        cols,
-        data,
+      curr,
+      xTiles,
+      yTiles,
+      tileSize,
+      cellOrdering,
+      rows,
+      cols,
+      data,
     } = args;
-    console.info('from worker, PRE send back data.byteLength:', data.byteLength);
 
     let value;
     let alpha;
@@ -63,8 +63,7 @@ function getTiles(self, args) {
         return new ImageData(tileData, tileSize, tileSize);
       });
     });
-    self.postMessage({ tiles: result, buffer: data }, [data]);
-    console.info('from worker, POST send back data.byteLength:', data.byteLength);
+    self.postMessage({ tiles: result, buffer: data, curr: curr }, [data]);
 }
 
 if (typeof self !== 'undefined') {

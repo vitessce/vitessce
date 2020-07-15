@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import uuidv4 from 'uuid/v4';
 
@@ -10,7 +11,7 @@ export default function HoverableHeatmapSubscriber(props) {
   const uuid = uuidv4();
   return (
     <HeatmapSubscriber {...props} uuid={uuid}>
-      <CellTooltip1DVerticalSubscriber {...props} uuid={uuid} />
+      {/*<CellTooltip1DVerticalSubscriber {...props} uuid={uuid} />*/}
     </HeatmapSubscriber>
   );
 }

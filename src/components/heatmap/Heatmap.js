@@ -1,11 +1,13 @@
 /* eslint-disable */
 import React, { useRef, useState, useCallback, useMemo, useEffect, useReducer } from 'react';
+import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
 import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
 import HeatmapBitmapLayer from './HeatmapBitmapLayer';
 import { LineLayer, TextLayer } from '@deck.gl/layers';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
+import isEqual from 'lodash/isEqual';
 import {
   DEFAULT_GL_OPTIONS,
 } from '../utils';
@@ -13,6 +15,10 @@ import {
 import HeatmapWorker from 'worker-loader!./vitessce.worker';
 
 const tileSize = 4096;
+const themeToTextColor = {
+  "dark": [224, 224, 224],
+  "light": [64, 64, 64],
+};
 
 function layerFilter({ layer, viewport }) {
   if(viewport.id === 'axisLeft') {
@@ -21,6 +27,10 @@ function layerFilter({ layer, viewport }) {
     return layer.id.startsWith('axisTop');
   } else if(viewport.id === 'heatmap') {
     return layer.id.startsWith('heatmap');
+  } else if(viewport.id === 'colorsLeft') {
+    return layer.id.startsWith('colorsLeft');
+  } else if(viewport.id === 'colorsTop') {
+    return layer.id.startsWith('colorsTop');
   }
   return false;
 }
@@ -60,8 +70,11 @@ export default function Heatmap(props) {
   const workerRef = useRef(new HeatmapWorker());
   const tilesRef = useRef();
   const dataRef = useRef();
+  const [cellOrdering, setCellOrdering] = useState();
 
   const [tileIteration, incTileIteration] = useReducer(i => i+1, 0);
+  const [backlog, setBacklog] = useState([]);
+
   useEffect(() => {
     workerRef.current.addEventListener('message', (event) => {
       // The tiles have been generated.
@@ -69,6 +82,12 @@ export default function Heatmap(props) {
       // The buffer has been transferred back to the main thread.
       dataRef.current = new Uint8Array(event.data.buffer);
       incTileIteration();
+
+      const curr = event.data.curr;
+      setBacklog(prev => {
+        const currIndex = prev.indexOf(curr);
+        return prev.slice(currIndex+1, prev.length);
+      })
     });
   }, [workerRef, tilesRef]);
 
@@ -91,24 +110,28 @@ export default function Heatmap(props) {
     
   }, [uuid, viewState, updateViewInfo]);
 
-  const cellOrdering = useMemo(() => {
+  useEffect(() => {
     if(!clusters) {
-      return null;
+      return;
     }
-    console.log("cell ordering changed");
-    if(!cellColors) {
-      return clusters.rows;
+    // TODO: need to use Map rather than Object.keys since ordering may not be stable/correct when IDs are numbers.
+    const newCellOrdering = (!cellColors ? clusters.rows : Object.keys(cellColors));
+    if(!isEqual(cellOrdering, newCellOrdering)) {
+      console.log("cell ordering changed");
+      setCellOrdering(newCellOrdering);
     }
-
-    return Object.keys(cellColors);
-
-  }, [clusters, cellColors]);
+  }, [clusters, cellColors, cellOrdering]);
 
   const width = clusters && clusters.cols ? clusters.cols.length : 0;
   const height = cellOrdering ? cellOrdering.length : 0;
 
-  const offsetTop = 80;
-  const offsetLeft = 80;
+  const axisOffsetLeft = 80;
+  const axisOffsetTop = 80;
+
+  const colorOffsetLeft = 20;
+
+  const offsetTop = axisOffsetTop;
+  const offsetLeft = axisOffsetLeft + colorOffsetLeft;
 
   const matrixWidth = viewWidth - offsetLeft;
   const matrixHeight = viewHeight - offsetTop;
@@ -148,9 +171,18 @@ export default function Heatmap(props) {
     if(!clusters || !cellOrdering) {
       return;
     }
-    console.log("making tiles");
+    setBacklog(prev => ([...prev, uuidv4()]));
+  }, [dataRef, clusters, cellOrdering]);
+
+  useEffect(() => {
+    console.log("backlog", backlog);
+    if(backlog.length < 1) {
+      return;
+    }
+    const curr = backlog[backlog.length - 1];
     if(dataRef.current && dataRef.current.buffer.byteLength) {
       workerRef.current.postMessage(['getTiles', {
+        curr,
         xTiles,
         yTiles,
         tileSize,
@@ -160,11 +192,10 @@ export default function Heatmap(props) {
         data: dataRef.current.buffer,
       }], [dataRef.current.buffer]);
     }
-
-  }, [dataRef, clusters, cellOrdering]);
+  }, [backlog]);
 
   const heatmapLayers = useMemo(() => {
-    if(!tilesRef.current) {
+    if(!tilesRef.current || backlog.length) {
       return [];
     }
     
@@ -179,9 +210,8 @@ export default function Heatmap(props) {
         }
       });
     }
-
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
-  }, [tilesRef, tileIteration, tileWidth, tileHeight, cellOrdering, xTiles, yTiles]);
+  }, [tilesRef, tileIteration, tileWidth, tileHeight, cellOrdering, xTiles, yTiles, backlog]);
 
   const colsData = useMemo(() => {
     if(!clusters) {
@@ -207,8 +237,8 @@ export default function Heatmap(props) {
   const showAxisTopLabels = cellWidth >= labelSize;
 
   const axisMargin = 3;
-  const axisLabelLeft = viewState.target[0] + (offsetLeft - axisMargin)/2/scaleFactor;
-  const axisLabelTop = viewState.target[1] + (offsetTop - axisMargin)/2/scaleFactor;
+  const axisLabelLeft = viewState.target[0] + (axisOffsetLeft - axisMargin)/2/scaleFactor;
+  const axisLabelTop = viewState.target[1] + (axisOffsetTop - axisMargin)/2/scaleFactor;
 
   const axisTitleLeft = viewState.target[0];
   const axisTitleTop = viewState.target[1];
@@ -221,12 +251,13 @@ export default function Heatmap(props) {
       getText: d => d[1],
       getPosition: d => [axisLabelLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
       getTextAnchor: 'end',
-      getColor: [128, 128, 128, 255],
+      getColor: themeToTextColor[theme],
       getSize: (showAxisLeftLabels ? labelSize : 0),
       getAngle: 0,
       updateTriggers: {
         getPosition: [axisLabelLeft, matrixTop, matrixHeight, viewHeight],
-        getSize: [showAxisLeftLabels]
+        getSize: [showAxisLeftLabels],
+        getColor: [theme],
       }
     }),
     new TextLayer({
@@ -236,12 +267,13 @@ export default function Heatmap(props) {
       getText: d => d[1],
       getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, axisLabelTop],
       getTextAnchor: 'start',
-      getColor: [128, 128, 128, 255],
+      getColor: themeToTextColor[theme],
       getSize: (showAxisTopLabels ? labelSize : 0),
       getAngle: 75,
       updateTriggers: {
         getPosition: [axisLabelTop, matrixLeft, matrixWidth, viewWidth],
-        getSize: [showAxisTopLabels]
+        getSize: [showAxisTopLabels],
+        getColor: [theme],
       }
     }),
     new TextLayer({
@@ -253,12 +285,13 @@ export default function Heatmap(props) {
       getText: d => d.title,
       getPosition: d => [axisTitleLeft, axisTitleTop],
       getTextAnchor: 'middle',
-      getColor: [128, 128, 128, 255],
+      getColor: themeToTextColor[theme],
       getSize: (!showAxisLeftLabels ? titleSize : 0),
       getAngle: 90,
       updateTriggers: {
         getPosition: [axisTitleLeft, axisTitleTop],
-        getSize: [showAxisLeftLabels]
+        getSize: [showAxisLeftLabels],
+        getColor: [theme],
       }
     }),
     new TextLayer({
@@ -270,24 +303,92 @@ export default function Heatmap(props) {
       getText: d => d.title,
       getPosition: d => [axisTitleLeft, axisTitleTop],
       getTextAnchor: 'middle',
-      getColor: [128, 128, 128, 255],
+      getColor: themeToTextColor[theme],
       getSize: (!showAxisTopLabels ? titleSize : 0),
       getAngle: 0,
       updateTriggers: {
         getPosition: [axisTitleLeft, axisTitleTop],
-        getSize: [showAxisTopLabels]
+        getSize: [showAxisTopLabels],
+        getColor: [theme],
       }
     }),
   ] : []);
 
-  const layers = heatmapLayers.concat(axisLayers);
+  const loadingLayers = (backlog.length ? [
+    new TextLayer({
+      id: 'heatmapLoading',
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: [{
+        title: "Loading..."
+      }],
+      getText: d => d.title,
+      getPosition: d => [viewState.target[0], viewState.target[1]],
+      getTextAnchor: 'middle',
+      getColor: themeToTextColor[theme],
+      getSize: 13,
+      getAngle: 0,
+      updateTriggers: {
+        getColor: [theme],
+      }
+    }),
+  ] : []);
+
+  // Cell color bar
+  const cellColorsTiles = useMemo(() => {
+    if(!cellOrdering || !cellColors) {
+      return null;
+    }
+
+    let cellId;
+    let offset;
+    let color;
+    let rowI;
+
+    const result = range(yTiles).map(i => {
+      const tileData = new Uint8ClampedArray(tileSize * 1 * 4);
+
+      range(tileSize).forEach(tileY => {
+        rowI = (i * tileSize) + tileY; // the row / cell index
+        if(rowI < height) {
+          cellId = cellOrdering[rowI];
+          color = cellColors[cellId];
+          offset = (tileSize - tileY - 1) * 4;
+          if(color) {
+            tileData[offset + 0] = color[0];
+            tileData[offset + 1] = color[1];
+            tileData[offset + 2] = color[2];
+            tileData[offset + 3] = 255;
+          }
+        }
+      });
+
+      // TODO: flip the width/height if on top rather than on left
+      return new ImageData(tileData, 1, tileSize);
+    });
+
+    return result;
+  }, [cellColors, cellOrdering]);
+
+  const cellColorsLayers = useMemo(() => {
+    return cellColorsTiles ? cellColorsTiles.map((tile, i) => {
+      return new HeatmapBitmapLayer({
+        id: `colorsLeftLayer-${i}-${uuidv4()}`,
+        image: tile,
+        bounds: [-matrixWidth/2, matrixTop + i*tileHeight, matrixWidth/2, matrixTop + (i+1)*tileHeight],
+      });
+    }) : [];
+  }, [cellColorsTiles, matrixTop, tileHeight]);
+
+
+  const layers = heatmapLayers.concat(axisLayers).concat(loadingLayers).concat(cellColorsLayers);
 
   return (
     <DeckGL
       views={[
         new OrthographicView({ id: 'heatmap', controller: true, x: offsetLeft, y: offsetTop, width: matrixWidth, height: matrixHeight }),
-        new OrthographicView({ id: 'axisLeft', controller: false, x: 0, y: offsetTop, width: offsetLeft, height: matrixHeight }),
+        new OrthographicView({ id: 'axisLeft', controller: false, x: 0, y: offsetTop, width: axisOffsetLeft, height: matrixHeight }),
         new OrthographicView({ id: 'axisTop', controller: false, x: offsetLeft, y: 0, width: matrixWidth, height: offsetTop }),
+        new OrthographicView({ id: 'colorsLeft', controller: false, x: axisOffsetLeft, y: offsetTop, width: colorOffsetLeft - 3, height: matrixHeight }),
       ]}
       layers={layers}
       layerFilter={layerFilter}
