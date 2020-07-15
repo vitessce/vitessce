@@ -4,6 +4,7 @@
 
 ### Added
 - Add `labelOverride` prop for genes component.
+- Add download lists for files to components that display data.
 
 ### Changed
 - Remove layers menu and add functionality to layer controller + opacity control.
