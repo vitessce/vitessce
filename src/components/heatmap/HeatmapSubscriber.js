@@ -28,7 +28,7 @@ export default function HeatmapSubscriber(props) {
       CLUSTERS_ADD, (msg, clusters) => {
         const [attrs, arr] = clusters;
     
-        arr.get([null, null]).then(X => {
+        arr.getRaw([null, null]).then(X => {
           setClusters({
             cols: attrs.var,
             rows: attrs.obs,

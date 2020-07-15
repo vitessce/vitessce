@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useRef, useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useRef, useState, useCallback, useMemo, useEffect, useReducer } from 'react';
 import DeckGL from 'deck.gl';
 import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
 import HeatmapBitmapLayer from './HeatmapBitmapLayer';
@@ -9,7 +9,8 @@ import clamp from 'lodash/clamp';
 import {
   DEFAULT_GL_OPTIONS,
 } from '../utils';
-import { interpolatePlasma } from '../interpolate-colors';
+
+import HeatmapWorker from 'worker-loader!./vitessce.worker';
 
 const tileSize = 4096;
 
@@ -55,6 +56,28 @@ export default function Heatmap(props) {
   }
 
   const [viewState, setViewState] = useState(initialViewState);
+
+  const workerRef = useRef(new HeatmapWorker());
+  const tilesRef = useRef();
+  const dataRef = useRef();
+
+  const [tileIteration, incTileIteration] = useReducer(i => i+1, 0);
+  useEffect(() => {
+    workerRef.current.addEventListener('message', (event) => {
+      // The tiles have been generated.
+      tilesRef.current = event.data.tiles;
+      // The buffer has been transferred back to the main thread.
+      dataRef.current = new Uint8Array(event.data.buffer);
+      incTileIteration();
+    });
+  }, [workerRef, tilesRef]);
+
+  useEffect(() => {
+    // Store the clusters Uint8Array in the dataRef.
+    if(clusters && clusters.matrix) {
+      dataRef.current = clusters.matrix.data;
+    } 
+  }, [dataRef, clusters]);
 
   useEffect(() => {
     if(viewState) {
@@ -121,77 +144,44 @@ export default function Heatmap(props) {
     setViewState(viewState);
   }, [matrixRight, matrixBottom]);
 
-  const tiles = useMemo(() => {
+  useEffect(() => {
     if(!clusters || !cellOrdering) {
-      return null;
+      return;
     }
-    console.log("making tiles")
+    console.log("making tiles");
+    if(dataRef.current && dataRef.current.buffer.byteLength) {
+      workerRef.current.postMessage(['getTiles', {
+        xTiles,
+        yTiles,
+        tileSize,
+        cellOrdering,
+        rows: clusters.rows,
+        cols: clusters.cols,
+        data: dataRef.current.buffer,
+      }], [dataRef.current.buffer]);
+    }
 
-    let value;
-    let alpha;
-    let offset;
-    let color;
-    let rowI, sortedRowI;
-    let colI;
-
-    const result = range(yTiles).map(i => {
-      return range(xTiles).map(j => {
-        const tileData = new Uint8ClampedArray(tileSize * tileSize * 4);
-
-        range(tileSize).forEach(tileY => {
-          rowI = (i * tileSize) + tileY; // the row / cell index
-          if(rowI < height) {
-            sortedRowI = clusters.rows.indexOf(cellOrdering[rowI]);
-            if(sortedRowI >= -1) {
-              range(tileSize).forEach(tileX => {
-                colI = (j * tileSize) + tileX; // the col / gene index
-
-                if(colI < width) {
-                  value = clusters.matrix.data[sortedRowI][colI];
-                  alpha = 255;
-                } else {
-                  value = 0;
-                  alpha = 0;
-                }
-                offset = ((tileSize - tileY - 1) * tileSize + tileX) * 4;
-
-                color = interpolatePlasma(value / 255);
-
-                tileData[offset + 0] = color[0];
-                tileData[offset + 1] = color[1];
-                tileData[offset + 2] = color[2];
-                tileData[offset + 3] = 255;
-              });
-            }
-          }
-        });
-
-        return new ImageData(tileData, tileSize, tileSize);
-      });
-    });
-
-    return result;
-  }, [clusters, cellOrdering]);
+  }, [dataRef, clusters, cellOrdering]);
 
   const heatmapLayers = useMemo(() => {
-    if(!tiles) {
+    if(!tilesRef.current) {
       return [];
     }
     
-    function getLayer(i, j) {
+    function getLayer(i, j, tile) {
       return new HeatmapBitmapLayer({
-        id: `heatmapLayer-${i}-${j}`,
-        image: tiles[i][j],
+        id: `heatmapLayer-${tileIteration}-${i}-${j}`,
+        image: tile,
         bounds: [matrixLeft + j*tileWidth, matrixTop + i*tileHeight, matrixLeft + (j+1)*tileWidth, matrixTop + (i+1)*tileHeight],
         updateTriggers: {
           image: [cellOrdering],
-          bounds: [tileHeight],
+          bounds: [tileHeight, tileWidth],
         }
       });
     }
 
-    return range(yTiles).flatMap(i => range(xTiles).map(j => getLayer(i, j)));
-  }, [tiles, viewHeight, viewWidth, cellOrdering, tileHeight]);
+    return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
+  }, [tilesRef, tileIteration, tileWidth, tileHeight, cellOrdering, xTiles, yTiles]);
 
   const colsData = useMemo(() => {
     if(!clusters) {
@@ -223,7 +213,6 @@ export default function Heatmap(props) {
   const axisTitleLeft = viewState.target[0];
   const axisTitleTop = viewState.target[1];
   
-  
   const axisLayers = (clusters && clusters.rows && clusters.cols ? [
     new TextLayer({
       id: 'axisLeftLabels',
@@ -236,7 +225,8 @@ export default function Heatmap(props) {
       getSize: (showAxisLeftLabels ? labelSize : 0),
       getAngle: 0,
       updateTriggers: {
-        getPosition: [axisLabelLeft, matrixTop, matrixHeight]
+        getPosition: [axisLabelLeft, matrixTop, matrixHeight, viewHeight],
+        getSize: [showAxisLeftLabels]
       }
     }),
     new TextLayer({
@@ -250,7 +240,8 @@ export default function Heatmap(props) {
       getSize: (showAxisTopLabels ? labelSize : 0),
       getAngle: 75,
       updateTriggers: {
-        getPosition: [axisLabelTop, matrixLeft, matrixWidth]
+        getPosition: [axisLabelTop, matrixLeft, matrixWidth, viewWidth],
+        getSize: [showAxisTopLabels]
       }
     }),
     new TextLayer({
@@ -266,7 +257,8 @@ export default function Heatmap(props) {
       getSize: (!showAxisLeftLabels ? titleSize : 0),
       getAngle: 90,
       updateTriggers: {
-        getPosition: [axisTitleLeft, axisTitleTop]
+        getPosition: [axisTitleLeft, axisTitleTop],
+        getSize: [showAxisLeftLabels]
       }
     }),
     new TextLayer({
@@ -282,7 +274,8 @@ export default function Heatmap(props) {
       getSize: (!showAxisTopLabels ? titleSize : 0),
       getAngle: 0,
       updateTriggers: {
-        getPosition: [axisTitleLeft, axisTitleTop]
+        getPosition: [axisTitleLeft, axisTitleTop],
+        getSize: [showAxisTopLabels]
       }
     }),
   ] : []);

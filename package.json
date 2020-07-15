@@ -133,7 +133,8 @@
     "wait-on": "^3.2.0",
     "webpack": "4.41.5",
     "webpack-dev-server": "3.10.2",
-    "workbox-webpack-plugin": "4.3.1"
+    "workbox-webpack-plugin": "4.3.1",
+    "worker-loader": "^2.0.0"
   },
   "scripts": {
     "build-demo": "node scripts/build-demo.js",
