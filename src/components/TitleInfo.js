@@ -9,23 +9,24 @@ import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
 import ClosePaneButton from './ClosePaneButton';
 import { PopperMenu } from './shared-mui/components';
 
-function DownloadIcon({ open }) {
+function DownloadIcon({ open, theme }) {
+  const color = theme === 'dark' ? '#D3D3D3' : '#333333';
   return (
     <>
-      <CloudDownloadIcon />
-      {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+      <CloudDownloadIcon style={{ color }} />
+      {open ? <ArrowDropUpIcon style={{ color }} /> : <ArrowDropDownIcon style={{ color }} />}
     </>
   );
 }
 
 function DownloadOptions(props) {
   const [open, toggle] = useReducer(v => !v, false);
-  const { urls } = props;
+  const { urls, theme } = props;
   return (
     <PopperMenu
       open={open}
       toggle={toggle}
-      buttonIcon={<DownloadIcon open={open} />}
+      buttonIcon={<DownloadIcon open={open} theme={theme} />}
       buttonStyles={{
         paddingBottom: 0,
         paddingTop: 0,
@@ -46,7 +47,7 @@ function DownloadOptions(props) {
 
 export default function TitleInfo(props) {
   const {
-    title, info, children, isScroll, isSpatial, removeGridComponent, urls,
+    title, info, children, isScroll, isSpatial, removeGridComponent, urls, theme,
   } = props;
   // eslint-disable-next-line no-nested-ternary
   const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
@@ -57,7 +58,7 @@ export default function TitleInfo(props) {
         <div className="justify-content-between d-flex align-items-end">
           <span>{title}</span>
           {urls ? (
-            <DownloadOptions urls={urls} />
+            <DownloadOptions urls={urls} theme={theme} />
           ) : null}
         </div>
         <span className="details pl-2 align-items-end">
