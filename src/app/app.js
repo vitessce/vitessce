@@ -1,5 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Ajv from 'ajv';
+import {
+  ThemeProvider, StylesProvider,
+  createGenerateClassName,
+} from '@material-ui/core/styles';
 
 import datasetSchema from '../schemas/dataset.schema.json';
 
@@ -14,6 +18,11 @@ import PubSubVitessceGrid from './PubSubVitessceGrid';
 
 import { getConfig, listConfigs } from './api';
 import getComponent from './componentRegistry';
+import { muiTheme } from './styles';
+
+const generateClassName = createGenerateClassName({
+  disableGlobal: true,
+});
 
 function Warning(props) {
   const {
@@ -110,13 +119,17 @@ export function Vitessce(props) {
     );
   }
   return (
-    <PubSubVitessceGrid
-      config={config}
-      getComponent={getComponent}
-      rowHeight={rowHeight}
-      height={height}
-      theme={theme}
-    />
+    <StylesProvider generateClassName={generateClassName}>
+      <ThemeProvider theme={muiTheme[theme]}>
+        <PubSubVitessceGrid
+          config={config}
+          getComponent={getComponent}
+          rowHeight={rowHeight}
+          height={height}
+          theme={theme}
+        />
+      </ThemeProvider>
+    </StylesProvider>
   );
 }
 

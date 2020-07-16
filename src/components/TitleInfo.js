@@ -7,21 +7,12 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Link from '@material-ui/core/Link';
-import {
-  ThemeProvider,
-  StylesProvider,
-  createGenerateClassName,
-} from '@material-ui/core/styles';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 
 import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
 import ClosePaneButton from './ClosePaneButton';
-import { useOptionStyles, controllerTheme } from './layer-controller/styles';
-
-const generateClassName = createGenerateClassName({
-  disableGlobal: true,
-});
+import { useOptionStyles } from './layer-controller/styles';
 
 function DownloadOptions(props) {
   const [open, toggle] = useReducer(v => !v, false);
@@ -69,7 +60,7 @@ function DownloadOptions(props) {
 
 export default function TitleInfo(props) {
   const {
-    title, info, children, isScroll, isSpatial, removeGridComponent, urls, theme,
+    title, info, children, isScroll, isSpatial, removeGridComponent, urls,
   } = props;
   // eslint-disable-next-line no-nested-ternary
   const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
@@ -80,11 +71,7 @@ export default function TitleInfo(props) {
         <div className="justify-content-between d-flex align-items-end">
           <span>{title}</span>
           {urls ? (
-            <StylesProvider generateClassName={generateClassName}>
-              <ThemeProvider theme={controllerTheme[theme]}>
-                <DownloadOptions urls={urls} />
-              </ThemeProvider>
-            </StylesProvider>
+            <DownloadOptions urls={urls} />
           ) : null}
         </div>
         <span className="details pl-2 align-items-end">
