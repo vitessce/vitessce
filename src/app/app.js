@@ -18,7 +18,7 @@ import PubSubVitessceGrid from './PubSubVitessceGrid';
 
 import { getConfig, listConfigs } from './api';
 import getComponent from './componentRegistry';
-import { muiTheme } from './styles';
+import { muiTheme } from '../components/shared-mui/styles';
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
