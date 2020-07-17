@@ -196,11 +196,22 @@ export default function Spatial(props) {
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
     id: CELLS_LAYER_ID,
     backgroundColor: [0, 0, 0],
-    opacity: cellOpacity,
     isSelected: getCellIsSelected,
-    stroked: false,
+    stroked: true,
     getPolygon: getCellPolygon,
-    getColor: getCellColor,
+    updateTriggers: {
+      getFillColor: [cellOpacity],
+    },
+    getFillColor: (cellEntry) => {
+      const color = getCellColor(cellEntry);
+      color[3] = cellOpacity * 255;
+      return color;
+    },
+    getLineColor: (cellEntry) => {
+      const color = getCellColor(cellEntry);
+      color[3] = 255;
+      return color;
+    },
     onClick: (info) => {
       if (tool) {
         // If using a tool, prevent individual cell selection.
@@ -211,6 +222,8 @@ export default function Spatial(props) {
     },
     visible: areCellsOn,
     ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
+    getLineWidth: cellOpacity < 0.7 ? 10 : 0,
+
   }), [cellsData, updateStatus, updateCellsHover,
     uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
     getCellIsSelected, areCellsOn]);
@@ -231,6 +244,7 @@ export default function Spatial(props) {
       if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
     },
     visible: areMoleculesOn,
+    filled: false,
   }), [moleculesData, moleculeRadius, getMoleculePosition, getMoleculeColor,
     updateStatus, moleculesOpacity, areMoleculesOn]);
 

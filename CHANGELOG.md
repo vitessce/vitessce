@@ -4,6 +4,7 @@
 
 ### Added
 - Add `labelOverride` prop for genes component.
+- Cell boundaries are visible when opacity drops below a cutoff.
 
 ### Changed
 - Remove layers menu and add functionality to layer controller + opacity control.
