@@ -79,8 +79,8 @@ export default function SpatialSubscriber({
       setUrls((prevUrls) => {
         // Filter out non-downloadable zarr
         const rasterUrlsAndNames = rasterSchema.images.map(
-          image => !image.url.includes('zarr') && ({ name: image.name, url: image.url }),
-        ).filter(urlAndName => urlAndName);
+          image => ({ name: image.name, url: image.url }),
+        ).filter(urlAndName => urlAndName.url.includes('zarr'));
         const newUrls = [...prevUrls].concat(rasterUrlsAndNames);
         return newUrls;
       });
@@ -194,7 +194,7 @@ export default function SpatialSubscriber({
         `${cellsCount} cells, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
       }
       isSpatial
-      urls={urls.length === 0 ? null : urls}
+      urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}
     >

@@ -57,7 +57,7 @@ export default function TitleInfo(props) {
       <div className="title d-flex justify-content-between align-items-baseline">
         <div className="justify-content-between d-flex align-items-end">
           <span>{title}</span>
-          {urls ? (
+          {urls && urls.length > 0 ? (
             <DownloadOptions urls={urls} theme={theme} />
           ) : null}
         </div>
