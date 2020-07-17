@@ -244,7 +244,6 @@ export default function Spatial(props) {
       if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
     },
     visible: areMoleculesOn,
-    filled: false,
   }), [moleculesData, moleculeRadius, getMoleculePosition, getMoleculeColor,
     updateStatus, moleculesOpacity, areMoleculesOn]);
 
