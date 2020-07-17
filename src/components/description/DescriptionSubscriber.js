@@ -5,7 +5,12 @@ import TitleInfo from '../TitleInfo';
 import Description from './Description';
 
 export default function DescriptionSubscriber(props) {
-  const { description, onReady, removeGridComponent } = props;
+  const {
+    description,
+    onReady,
+    removeGridComponent,
+    theme,
+  } = props;
 
   const onReadyCallback = useCallback(onReady, []);
   const [metadata, setMetadata] = useState({});
@@ -55,6 +60,7 @@ export default function DescriptionSubscriber(props) {
       title="Data Set"
       removeGridComponent={removeGridComponent}
       isScroll
+      theme={theme}
     >
       <Description
         description={description}

@@ -2,10 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import PubSub from 'pubsub-js';
 import Grid from '@material-ui/core/Grid';
-import {
-  ThemeProvider, StylesProvider,
-  createGenerateClassName,
-} from '@material-ui/core/styles';
 import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer';
 import TitleInfo from '../TitleInfo';
 import RasterLayerController from './RasterLayerController';
@@ -26,12 +22,7 @@ import {
   MOLECULES_SET_OPACITY,
   MOLECULES_TURN_ON,
 } from '../../events';
-import { controllerTheme } from './styles';
 import { DEFAULT_LAYER_PROPS } from './constants';
-
-const generateClassName = createGenerateClassName({
-  disableGlobal: true,
-});
 
 function genId() {
   return String(Math.random());
@@ -101,7 +92,7 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
   const memoizedOnReady = useCallback(onReady, []);
 
   useEffect(() => {
-    async function handleRasterAdd(msg, raster) {
+    async function handleRasterAdd(msg, { data: raster }) {
       // render_layers provides the order for rendering initially.
       const { images, renderLayers } = raster;
       setImageOptions(images);
@@ -176,34 +167,31 @@ function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
       title="Layer Controller"
       isScroll
       removeGridComponent={removeGridComponent}
+      theme={theme}
     >
-      <StylesProvider generateClassName={generateClassName}>
-        <ThemeProvider theme={controllerTheme[theme]}>
-          <div className="layer-controller-container">
-            {areCellsPlotted ? (
-              <VectorLayerController
-                label="Cell Segmentations"
-                handleOpacityChange={v => PubSub.publish(CELLS_SET_OPACITY, v)}
-                handleToggleChange={v => PubSub.publish(CELLS_TURN_ON, v)}
-              />
-            ) : null}
-            {areMoleculesPlotted ? (
-              <VectorLayerController
-                label="Molecules"
-                handleOpacityChange={v => PubSub.publish(MOLECULES_SET_OPACITY, v)}
-                handleToggleChange={v => PubSub.publish(MOLECULES_TURN_ON, v)}
-              />
-            ) : null}
-            {layerControllers}
-            <Grid item>
-              <ImageAddButton
-                imageOptions={imageOptions}
-                handleImageAdd={handleImageAdd}
-              />
-            </Grid>
-          </div>
-        </ThemeProvider>
-      </StylesProvider>
+      <div className="layer-controller-container">
+        {areCellsPlotted ? (
+          <VectorLayerController
+            label="Cell Segmentations"
+            handleOpacityChange={v => PubSub.publish(CELLS_SET_OPACITY, v)}
+            handleToggleChange={v => PubSub.publish(CELLS_TURN_ON, v)}
+          />
+        ) : null}
+        {areMoleculesPlotted ? (
+          <VectorLayerController
+            label="Molecules"
+            handleOpacityChange={v => PubSub.publish(MOLECULES_SET_OPACITY, v)}
+            handleToggleChange={v => PubSub.publish(MOLECULES_TURN_ON, v)}
+          />
+        ) : null}
+        {layerControllers}
+        <Grid item>
+          <ImageAddButton
+            imageOptions={imageOptions}
+            handleImageAdd={handleImageAdd}
+          />
+        </Grid>
+      </div>
     </TitleInfo>
   );
 }

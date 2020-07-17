@@ -38,7 +38,7 @@ export default class CellTooltip1DVerticalSubscriber extends React.Component {
     }
   }
 
-  clustersAddSubscriber(msg, clusters) {
+  clustersAddSubscriber(msg, { data: clusters }) {
     this.clusterColMap = fromEntries(clusters.cols.map((cellId, i) => [cellId, i]));
   }
 
