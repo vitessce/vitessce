@@ -5,6 +5,7 @@
 ### Added
 - Add `labelOverride` prop for genes component.
 - Add download lists for files to components that display data.
+- Added `onWarn` callback to the `<Vitessce/>` component to allow a consumer app to manage display of warning messages.
 
 ### Changed
 - Remove layers menu and add functionality to layer controller + opacity control.

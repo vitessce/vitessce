@@ -81,8 +81,10 @@ function preformattedDetails(response) {
  * If the config is valid, the PubSubVitessceGrid will be rendered as a child.
  * If the config is invalid, a Warning will be rendered instead.
  * @param {number} props.rowHeight Row height for grid layout. Optional.
+ * @param {number} props.height Total height for grid layout. Optional.
  * @param {string} props.theme The theme, used for styling as
  * light or dark. Optional. By default, "dark"
+ * @param {function} props.onWarn A callback for warning messages. Optional.
  */
 export function Vitessce(props) {
   const {
@@ -90,6 +92,7 @@ export function Vitessce(props) {
     rowHeight,
     height,
     theme,
+    onWarn,
   } = props;
   if (!config) {
     // If the config value is undefined, show a warning message
@@ -127,6 +130,7 @@ export function Vitessce(props) {
           rowHeight={rowHeight}
           height={height}
           theme={theme}
+          onWarn={onWarn}
         />
       </ThemeProvider>
     </StylesProvider>
