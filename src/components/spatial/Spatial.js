@@ -37,6 +37,7 @@ export function square(x, y, r) {
  * @prop {number} moleculeRadius
  * @prop {number} cellOpacity The value for `opacity` to pass
  * to the deck.gl cells PolygonLayer.
+ * @prop {number} lineWidthScale Width of the border shown when the opacity of cells are lowered.
  * @prop {object} imageLayerProps
  * @prop {object} imageLayerLoaders
  * @prop {object} cellColors Object mapping cell IDs to colors.
@@ -72,6 +73,7 @@ export default function Spatial(props) {
     moleculeRadius = 10,
     cellOpacity = 1.0,
     moleculesOpacity = 1.0,
+    lineWidthScale = 10,
     areMoleculesOn = true,
     imageLayerProps = {},
     imageLayerLoaders = {},
@@ -222,11 +224,11 @@ export default function Spatial(props) {
     },
     visible: areCellsOn,
     ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
-    getLineWidth: cellOpacity < 0.7 ? 10 : 0,
+    getLineWidth: cellOpacity < 0.7 ? lineWidthScale : 0,
 
   }), [cellsData, updateStatus, updateCellsHover,
     uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
-    getCellIsSelected, areCellsOn]);
+    getCellIsSelected, areCellsOn, lineWidthScale]);
 
   const moleculesLayer = useMemo(() => new ScatterplotLayer({
     id: 'molecules-layer',
