@@ -97,7 +97,10 @@ export default function RasterLayerController({
         handleLayerChange,
         payload: {
           selections: defaultSelection,
-          domains,
+          // RGB needs to be set initially - if this is not-interleaved, this works.
+          // Otherwise, when we eventually handled interleaved data, this won't even matter.
+          domains: loader.isRgb ? [[0, 255], [0, 255], [0, 255]] : domains,
+          colors: loader.isRgb ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]] : null,
         },
       });
     });
@@ -306,7 +309,7 @@ export default function RasterLayerController({
             handleDomainChange={handleDomainChange}
           />
         </Grid>
-        {channelControllers}
+        {!loader.isRgb ? channelControllers : null}
         <Grid item>
           <Button
             disabled={Object.values(channels).length === MAX_SLIDERS_AND_CHANNELS}

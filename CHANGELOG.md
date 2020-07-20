@@ -7,6 +7,7 @@
 - Cell boundaries are visible when opacity drops below a cutoff.
 - Add download lists for files to components that display data.
 - Added `onWarn` callback to the `<Vitessce/>` component to allow a consumer app to manage display of warning messages.
+- Set RGB defaults for Viv.
 
 ### Changed
 - Remove layers menu and add functionality to layer controller + opacity control.
