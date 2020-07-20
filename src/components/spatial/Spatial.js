@@ -224,7 +224,8 @@ export default function Spatial(props) {
     },
     visible: areCellsOn,
     ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
-    getLineWidth: cellOpacity < 0.7 ? lineWidthScale : 0,
+    getLineWidth: cellOpacity < 0.7 ? 1 : 0,
+    lineWidthScale,
 
   }), [cellsData, updateStatus, updateCellsHover,
     uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
