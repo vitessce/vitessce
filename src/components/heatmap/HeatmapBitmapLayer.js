@@ -17,8 +17,11 @@ const DEFAULT_TEXTURE_PARAMETERS = {
 };
 
 const defaultProps = {
-  image: {type: 'object', value: null, async: true},
-  bounds: {type: 'array', value: [1, 0, 0, 1], compare: true},
+  image: { type: 'object', value: null, async: true },
+  colormap: { type: 'string', value: 'plasma', compare: true },
+  bounds: { type: 'array', value: [1, 0, 0, 1], compare: true },
+  aggSizeX: { type: 'number', value: 8.0, compare: true },
+  aggSizeY: { type: 'number', value: 8.0, compare: true },
 };
 
 export default class HeatmapBitmapLayer extends BitmapLayer {
@@ -40,7 +43,12 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * Need to override to provide custom shaders.
    */
   getShaders() {
-    return this._getShaders({ vs, fs, modules: [ project32, picking ] });
+    const { colormap } = this.props;
+    return this._getShaders({
+      vs,
+      fs: fs.replace('__colormap', colormap),
+      modules: [ project32, picking ]
+    });
   }
   
   /*initializeState() {
@@ -165,8 +173,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
   draw(opts) {
     const { uniforms } = opts;
     const { bitmapTexture, model } = this.state;
-    const { bounds } = this.props;
-    console.log(bounds);
+    const { aggSizeX, aggSizeY } = this.props;
+    console.log(aggSizeX, aggSizeY);
 
     // // TODO fix zFighting
     // Render the image
@@ -175,7 +183,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
         .setUniforms(
           Object.assign({}, uniforms, {
             uBitmapTexture: bitmapTexture,
-            uTextureSize: [0.0 + bounds[2] - bounds[0], 0.0 + bounds[3] - bounds[1]],
+            uTextureSize: [TILE_SIZE, TILE_SIZE],
+            uAggSize: [aggSizeX, aggSizeY],
           })
         )
         .draw();
@@ -198,7 +207,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
     
     if(image instanceof Texture2D) {
       this.setState({
-        bitmapTexture: image
+        bitmapTexture: image,
       });
     } else if(image) {
       this.setState({
@@ -209,6 +218,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
           // When sampled, rgb are all set to this luminance, alpha is 1.0.
           // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
           format: GL.LUMINANCE,
+          dataFormat: GL.LUMINANCE,
           width: TILE_SIZE,
           height: TILE_SIZE,
         }),

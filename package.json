@@ -78,6 +78,7 @@
     "@typescript-eslint/parser": "^2.10.0",
     "babel-eslint": "10.0.3",
     "babel-loader": "8.1.0",
+    "babel-plugin-glsl": "^1.0.0",
     "babel-plugin-named-asset-import": "^0.3.6",
     "babel-preset-react-app": "^9.1.2",
     "camelcase": "^5.3.1",
@@ -166,6 +167,9 @@
   "babel": {
     "presets": [
       "react-app"
+    ],
+    "plugins": [
+      "glsl"
     ]
   }
 }

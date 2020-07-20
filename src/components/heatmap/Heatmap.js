@@ -4,6 +4,7 @@ import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
 import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
 import HeatmapBitmapLayer from './HeatmapBitmapLayer';
+import PixelatedBitmapLayer from './PixelatedBitmapLayer';
 import { TextLayer } from '@deck.gl/layers';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
@@ -369,7 +370,7 @@ export default function Heatmap(props) {
 
   const cellColorsLayers = useMemo(() => {
     return cellColorsTiles ? cellColorsTiles.map((tile, i) => {
-      return new HeatmapBitmapLayer({
+      return new PixelatedBitmapLayer({
         id: `colorsLeftLayer-${i}-${uuidv4()}`,
         image: tile,
         bounds: [-matrixWidth/2, matrixTop + i*tileHeight, matrixWidth/2, matrixTop + (i+1)*tileHeight],
