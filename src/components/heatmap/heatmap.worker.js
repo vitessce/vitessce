@@ -18,7 +18,6 @@ function getTiles(self, args) {
     let value;
     let alpha;
     let offset;
-    let color;
     let rowI;
     let sortedRowI;
     let colI;
@@ -30,7 +29,7 @@ function getTiles(self, args) {
 
     const result = range(yTiles).map(i => {
       return range(xTiles).map(j => {
-        const tileData = new Uint8ClampedArray(tileSize * tileSize * 4);
+        const tileData = new Uint8ClampedArray(tileSize * tileSize);
 
         range(tileSize).forEach(tileY => {
           rowI = (i * tileSize) + tileY; // the row / cell index
@@ -42,25 +41,18 @@ function getTiles(self, args) {
 
                 if(colI < width) {
                   value = view[sortedRowI * width + colI];
-                  alpha = 255;
                 } else {
                   value = 0;
-                  alpha = 0;
                 }
-                offset = ((tileSize - tileY - 1) * tileSize + tileX) * 4;
+                offset = ((tileSize - tileY - 1) * tileSize + tileX);
 
-                color = interpolatePlasma(value / 255);
-
-                tileData[offset + 0] = color[0];
-                tileData[offset + 1] = color[1];
-                tileData[offset + 2] = color[2];
-                tileData[offset + 3] = 255;
+                tileData[offset] = value;
               });
             }
           }
         });
 
-        return new ImageData(tileData, tileSize, tileSize);
+        return tileData;
       });
     });
     self.postMessage({ tiles: result, buffer: data, curr: curr }, [data]);

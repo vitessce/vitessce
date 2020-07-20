@@ -12,7 +12,7 @@ import { DEFAULT_GL_OPTIONS } from '../utils';
 
 import HeatmapWorker from './heatmap.worker.js';
 
-const tileSize = 4096;
+const tileSize = 2048;
 const themeToTextColor = {
   "dark": [224, 224, 224],
   "light": [64, 64, 64],
