@@ -190,6 +190,7 @@ export default function RasterLayerController({
     dispatch({
       type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
       layerId,
+      handleLayerChange,
       payload: {
         update,
         publish: mouseUp,
