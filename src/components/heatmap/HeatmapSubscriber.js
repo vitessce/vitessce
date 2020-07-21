@@ -26,7 +26,7 @@ export default function HeatmapSubscriber(props) {
   const [cells, setCells] = useState({});
   const [clusters, setClusters] = useState({});
   const [cellColors, setCellColors] = useState({});
-  const [selectedCellIds, setSelectedCellIds] = useState({});
+  const [selectedCellIds, setSelectedCellIds] = useState(new Set([]));
   const [urls, setUrls] = useState([]);
 
   const onReadyCallback = useCallback(onReady, []);
