@@ -38,7 +38,7 @@ function loadLayer(layer) {
   const loader = new loaderClass(layer);
   loader.load()
     .then((data) => {
-      PubSub.publish(typeToEvent[type], data);
+      PubSub.publish(typeToEvent[type], { data, url });
       info(name);
     })
     .catch((reason) => {

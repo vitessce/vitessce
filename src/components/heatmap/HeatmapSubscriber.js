@@ -88,6 +88,8 @@ export default function HeatmapSubscriber(props) {
       title="Heatmap"
       info={`${cellsCount} cells × ${genesCount} genes,
               with ${selectedCount} cells selected`}
+        urls={urls}
+        theme={theme}
       removeGridComponent={removeGridComponent}
     >
       {children}

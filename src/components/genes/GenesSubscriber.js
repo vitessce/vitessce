@@ -14,6 +14,7 @@ export default function GenesSubscriber(props) {
     onReady,
     removeGridComponent,
     labelOverride,
+    theme,
   } = props;
 
   const [clusters, setClusters] = useState();
@@ -81,6 +82,8 @@ export default function GenesSubscriber(props) {
       title="Expression Levels"
       info={`${numGenes} ${labelOverride || 'genes'}`}
       isScroll
+      urls={urls}
+      theme={theme}
       removeGridComponent={removeGridComponent}
     >
       <Genes
