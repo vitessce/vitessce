@@ -3,20 +3,12 @@ import GL from '@luma.gl/constants';
 import { _mergeShaders, project32, picking } from '@deck.gl/core';
 import { BitmapLayer} from '@deck.gl/layers';
 import { Texture2D } from '@luma.gl/core';
+import { PIXELATED_TEXTURE_PARAMETERS } from './utils';
 import { vs, fs } from './shaders';
 
 export const TILE_SIZE = 2048;
 export const MIN_ROW_AGG = 1;
 export const MAX_ROW_AGG = 16;
-
-const DEFAULT_TEXTURE_PARAMETERS = {
-  // NEAREST for integer data to prevent interpolation.
-  [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-  [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-  // CLAMP_TO_EDGE to remove tile artifacts.
-  [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-  [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE
-};
 
 const defaultProps = {
   image: { type: 'object', value: null, async: true },
@@ -26,6 +18,10 @@ const defaultProps = {
   aggSizeY: { type: 'number', value: 8.0, compare: true },
 };
 
+/**
+ * A BitmapLayer that performs aggregation in the fragment shader,
+ * and renders its texture from a Uint8Array rather than an ImageData.
+ */
 export default class HeatmapBitmapLayer extends BitmapLayer {
   
   /**
@@ -102,7 +98,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
         bitmapTexture: new Texture2D(gl, {
           data: image,
           mipmaps: false,
-          parameters: DEFAULT_TEXTURE_PARAMETERS,
+          parameters: PIXELATED_TEXTURE_PARAMETERS,
           // Each color contains a single luminance value.
           // When sampled, rgb are all set to this luminance, alpha is 1.0.
           // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats

@@ -1,33 +1,19 @@
 /* eslint-disable */
-
-
-import GL from '@luma.gl/constants';
 import { BitmapLayer } from '@deck.gl/layers';
 import { Texture2D } from '@luma.gl/core';
+import { PIXELATED_TEXTURE_PARAMETERS } from './utils';
 
 
-const DEFAULT_TEXTURE_PARAMETERS = {
-  // NEAREST for integer data
-  [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-  [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-  // CLAMP_TO_EDGE to remove tile artifacts
-  [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-  [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE
-};
-
+// These are the same defaultProps as for BitmapLayer.
 const defaultProps = {
   image: {type: 'object', value: null, async: true},
   bounds: {type: 'array', value: [1, 0, 0, 1], compare: true},
-
   desaturate: {type: 'number', min: 0, max: 1, value: 0},
-  // More context: because of the blending mode we're using for ground imagery,
-  // alpha is not effective when blending the bitmap layers with the base map.
-  // Instead we need to manually dim/blend rgb values with a background color.
   transparentColor: {type: 'color', value: [0, 0, 0, 0]},
   tintColor: {type: 'color', value: [255, 255, 255]}
 };
 
-/*
+/**
  * The BitmapLayer with overridden DEFAULT_TEXTURE_PARAMETERS
  */
 export default class PixelatedBitmapLayer extends BitmapLayer {
@@ -53,7 +39,7 @@ export default class PixelatedBitmapLayer extends BitmapLayer {
       this.setState({
         bitmapTexture: new Texture2D(gl, {
           data: image,
-          parameters: DEFAULT_TEXTURE_PARAMETERS
+          parameters: PIXELATED_TEXTURE_PARAMETERS
         })
       });
     }

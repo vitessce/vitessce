@@ -52,13 +52,13 @@ precision mediump float;
 #pragma glslify: magma = require("glsl-colormap/magma")
 #pragma glslify: plasma = require("glsl-colormap/plasma")
 
-// The texture (GL.LUMINANCE data type / Uint8Array).
+// The texture (GL.LUMINANCE & Uint8Array).
 uniform sampler2D uBitmapTexture;
 
 // What are the dimensions of the texture (width, height)?
 uniform vec2 uTextureSize;
 
-// How many consecutive pixels should be aggregated together, along each axis?
+// How many consecutive pixels should be aggregated together along each axis?
 uniform vec2 uAggSize;
 
 // The texture coordinate, varying (interpolated between values set by the vertex shader).

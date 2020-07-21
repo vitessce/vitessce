@@ -23,11 +23,11 @@ export default function HeatmapSubscriber(props) {
   const [width, height, containerRef] = useGridItemSize("#deckgl-wrapper");
 
   useEffect(() => {
-
     const clustersAddToken = PubSub.subscribe(
       GENES_ADD, (msg, clusters) => {
         const [attrs, arr] = clusters;
-    
+        
+        // Get the full zarr array (all chunks & flat).
         arr.getRaw([null, null]).then(X => {
           setClusters({
             cols: attrs.var,
