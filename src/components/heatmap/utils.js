@@ -1,3 +1,4 @@
+/* eslint-disable */
 import GL from '@luma.gl/constants';
 
 export const PIXELATED_TEXTURE_PARAMETERS = {

@@ -3,14 +3,14 @@ import React, { useRef, useState, useCallback, useMemo, useEffect, useReducer } 
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
 import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
+import { TextLayer } from '@deck.gl/layers';
 import HeatmapBitmapLayer, { TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG } from './HeatmapBitmapLayer';
 import PixelatedBitmapLayer from './PixelatedBitmapLayer';
-import { TextLayer } from '@deck.gl/layers';
+import HeatmapControls from './HeatmapControls';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { DEFAULT_GL_OPTIONS } from '../utils';
-
 import HeatmapWorker from './heatmap.worker.js';
 
 const themeToTextColor = {
@@ -72,6 +72,13 @@ export default function Heatmap(props) {
   }, [clearPleaseWait, clusters]);
 
   const [viewState, setViewState] = useState(initialViewState);
+  const [colorScaleLo, setColorScaleLo] = useState(0.0);
+  const [colorScaleHi, setColorScaleHi] = useState(1.0);
+
+  const onColorScaleChange = useCallback((event, newValue) => {
+    setColorScaleLo(newValue[0]);
+    setColorScaleHi(newValue[1]);
+  }, []);
 
   const workerRef = useRef(new HeatmapWorker());
   const tilesRef = useRef();
@@ -224,18 +231,20 @@ export default function Heatmap(props) {
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
         image: tile,
         bounds: [matrixLeft + j*tileWidth, matrixTop + i*tileHeight, matrixLeft + (j+1)*tileWidth, matrixTop + (i+1)*tileHeight],
-        aggSizeX: aggSizeX,
-        aggSizeY: aggSizeY,
+        aggSizeX,
+        aggSizeY,
+        colorScaleLo,
+        colorScaleHi,
         updateTriggers: {
           image: [cellOrdering],
           bounds: [tileHeight, tileWidth],
-          aggSizeX: aggSizeX,
-          aggSizeY: aggSizeY,
         }
       });
     }
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
-  }, [tilesRef, tileIteration, tileWidth, tileHeight, aggSizeX, aggSizeY, cellOrdering, xTiles, yTiles, backlog]);
+  }, [tilesRef, tileIteration, tileWidth, tileHeight,
+    aggSizeX, aggSizeY, cellOrdering, xTiles, yTiles, colorScaleLo, colorScaleHi,
+    backlog]);
 
 
   // Map cell and gene names to arrays with indices,
@@ -429,20 +438,27 @@ export default function Heatmap(props) {
   }
 
   return (
-    <DeckGL
-      views={[
-        new OrthographicView({ id: 'heatmap', controller: true, x: offsetLeft, y: offsetTop, width: matrixWidth, height: matrixHeight }),
-        new OrthographicView({ id: 'axisLeft', controller: false, x: 0, y: offsetTop, width: axisOffsetLeft, height: matrixHeight }),
-        new OrthographicView({ id: 'axisTop', controller: false, x: offsetLeft, y: 0, width: matrixWidth, height: offsetTop }),
-        new OrthographicView({ id: 'colorsLeft', controller: false, x: axisOffsetLeft, y: offsetTop, width: colorOffsetLeft - 3, height: matrixHeight }),
-      ]}
-      layers={layers}
-      layerFilter={layerFilter}
-      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
-      glOptions={DEFAULT_GL_OPTIONS}
-      onViewStateChange={onViewStateChange}
-      viewState={viewState}
-      onHover={onHover}
-    />
+    <>
+      <DeckGL
+        views={[
+          new OrthographicView({ id: 'heatmap', controller: true, x: offsetLeft, y: offsetTop, width: matrixWidth, height: matrixHeight }),
+          new OrthographicView({ id: 'axisLeft', controller: false, x: 0, y: offsetTop, width: axisOffsetLeft, height: matrixHeight }),
+          new OrthographicView({ id: 'axisTop', controller: false, x: offsetLeft, y: 0, width: matrixWidth, height: offsetTop }),
+          new OrthographicView({ id: 'colorsLeft', controller: false, x: axisOffsetLeft, y: offsetTop, width: colorOffsetLeft - 3, height: matrixHeight }),
+        ]}
+        layers={layers}
+        layerFilter={layerFilter}
+        getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
+        glOptions={DEFAULT_GL_OPTIONS}
+        onViewStateChange={onViewStateChange}
+        viewState={viewState}
+        onHover={onHover}
+      />
+      <HeatmapControls
+        colorScaleLo={colorScaleLo}
+        colorScaleHi={colorScaleHi}
+        onColorScaleChange={onColorScaleChange}
+      />
+    </>
   );
 }

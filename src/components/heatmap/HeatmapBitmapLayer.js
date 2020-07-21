@@ -16,6 +16,8 @@ const defaultProps = {
   bounds: { type: 'array', value: [1, 0, 0, 1], compare: true },
   aggSizeX: { type: 'number', value: 8.0, compare: true },
   aggSizeY: { type: 'number', value: 8.0, compare: true },
+  colorScaleLo: { type: 'number', value: 0.0, compare: true },
+  colorScaleHi: { type: 'number', value: 1.0, compare: true },
 };
 
 /**
@@ -58,9 +60,13 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
   draw(opts) {
     const { uniforms } = opts;
     const { bitmapTexture, model } = this.state;
-    const { aggSizeX, aggSizeY } = this.props;
+    const {
+      aggSizeX,
+      aggSizeY,
+      colorScaleLo,
+      colorScaleHi,
+    } = this.props;
 
-    // // TODO fix zFighting
     // Render the image
     if (bitmapTexture && model) {
       model
@@ -69,6 +75,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
             uBitmapTexture: bitmapTexture,
             uTextureSize: [TILE_SIZE, TILE_SIZE],
             uAggSize: [aggSizeX, aggSizeY],
+            uColorScaleRange: [colorScaleLo, colorScaleHi],
           })
         )
         .draw();

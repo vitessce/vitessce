@@ -61,6 +61,9 @@ uniform vec2 uTextureSize;
 // How many consecutive pixels should be aggregated together along each axis?
 uniform vec2 uAggSize;
 
+// What are the values of the color scale sliders?
+uniform vec2 uColorScaleRange;
+
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
 varying vec2 vTexCoord;
 
@@ -104,8 +107,11 @@ void main(void) {
   
   // Compute the mean value.
   float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
+  
+  // Re-scale using the color scale slider values.
+  float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
 
-  gl_FragColor = __colormap(intensityMean);
+  gl_FragColor = __colormap(scaledIntensityMean);
 
   geometry.uv = vTexCoord;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);
