@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { interpolatePlasma } from '../interpolate-colors';
 import range from 'lodash/range';
 
 function getTiles(self, args) {
@@ -29,7 +28,7 @@ function getTiles(self, args) {
 
     const result = range(yTiles).map(i => {
       return range(xTiles).map(j => {
-        const tileData = new Uint8ClampedArray(tileSize * tileSize);
+        const tileData = new Uint8Array(tileSize * tileSize);
 
         range(tileSize).forEach(tileY => {
           rowI = (i * tileSize) + tileY; // the row / cell index

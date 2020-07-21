@@ -1,5 +1,5 @@
 /* eslint-disable */
-// BitmapLayer with different DEFAULT_TEXTURE_PARAMETERS
+
 
 import GL from '@luma.gl/constants';
 import { BitmapLayer } from '@deck.gl/layers';
@@ -28,58 +28,17 @@ const defaultProps = {
 };
 
 /*
- * @class
- * @param {object} props
- * @param {number} props.transparentColor - color to interpret transparency to
- * @param {number} props.tintColor - color bias
+ * The BitmapLayer with overridden DEFAULT_TEXTURE_PARAMETERS
  */
 export default class PixelatedBitmapLayer extends BitmapLayer {
 
-  draw(opts) {
-    const {uniforms} = opts;
-    const {bitmapTexture, model} = this.state;
-    const {image, desaturate, transparentColor, tintColor} = this.props;
-
-    // Update video frame
-    if (
-      bitmapTexture &&
-      image instanceof HTMLVideoElement &&
-      image.readyState > HTMLVideoElement.HAVE_METADATA
-    ) {
-      const sizeChanged =
-        bitmapTexture.width !== image.videoWidth || bitmapTexture.height !== image.videoHeight;
-      if (sizeChanged) {
-        // note clears image and mipmaps when resizing
-        bitmapTexture.resize({width: image.videoWidth, height: image.videoHeight, mipmaps: true});
-        bitmapTexture.setSubImageData({
-          data: image,
-          paramters: DEFAULT_TEXTURE_PARAMETERS
-        });
-      } else {
-        bitmapTexture.setSubImageData({
-          data: image
-        });
-      }
-
-      bitmapTexture.generateMipmap();
-    }
-
-    // // TODO fix zFighting
-    // Render the image
-    if (bitmapTexture && model) {
-      model
-        .setUniforms(
-          Object.assign({}, uniforms, {
-            bitmapTexture,
-            desaturate,
-            transparentColor: transparentColor.map(x => x / 255),
-            tintColor: tintColor.slice(0, 3).map(x => x / 255)
-          })
-        )
-        .draw();
-    }
-  }
-
+  /**
+   * Need to override to provide the custom DEFAULT_TEXTURE_PARAMETERS
+   * object.
+   * Simplified by removing video-related code.
+   * Reference: https://github.com/visgl/deck.gl/blob/0afd4e99a6199aeec979989e0c361c97e6c17a16/modules/layers/src/bitmap-layer/bitmap-layer.js#L218
+   * @param {Uint8Array} image
+   */
   loadTexture(image) {
     const {gl} = this.context;
 
@@ -89,16 +48,6 @@ export default class PixelatedBitmapLayer extends BitmapLayer {
 
     if (image instanceof Texture2D) {
       this.setState({bitmapTexture: image});
-    } else if (image instanceof HTMLVideoElement) {
-      // Initialize an empty texture while we wait for the video to load
-      this.setState({
-        bitmapTexture: new Texture2D(gl, {
-          width: 1,
-          height: 1,
-          parameters: DEFAULT_TEXTURE_PARAMETERS,
-          mipmaps: false
-        })
-      });
     } else if (image) {
       // Browser object: Image, ImageData, HTMLCanvasElement, ImageBitmap
       this.setState({

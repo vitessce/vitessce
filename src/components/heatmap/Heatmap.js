@@ -3,7 +3,7 @@ import React, { useRef, useState, useCallback, useMemo, useEffect, useReducer } 
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
 import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
-import HeatmapBitmapLayer from './HeatmapBitmapLayer';
+import HeatmapBitmapLayer, { TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG } from './HeatmapBitmapLayer';
 import PixelatedBitmapLayer from './PixelatedBitmapLayer';
 import { TextLayer } from '@deck.gl/layers';
 import range from 'lodash/range';
@@ -13,7 +13,6 @@ import { DEFAULT_GL_OPTIONS } from '../utils';
 
 import HeatmapWorker from './heatmap.worker.js';
 
-const tileSize = 2048;
 const themeToTextColor = {
   "dark": [224, 224, 224],
   "light": [64, 64, 64],
@@ -34,6 +33,10 @@ function layerFilter({ layer, viewport }) {
   return false;
 }
 
+/**
+ * A heatmap component for cell x gene matrices.
+ * @param {*} props 
+ */
 export default function Heatmap(props) {
   const {
     uuid,
@@ -59,10 +62,14 @@ export default function Heatmap(props) {
     updateViewInfo = (message) => {
       //console.warn(`Heatmap updateViewInfo: ${message}`);
     },
+    transpose = false,
   } = props;
-  if (clearPleaseWait && clusters) {
-    clearPleaseWait('genes');
-  }
+
+  useEffect(() => {
+    if (clearPleaseWait && clusters) {
+      clearPleaseWait('genes');
+    }
+  }, [clearPleaseWait, clusters]);
 
   const [viewState, setViewState] = useState(initialViewState);
 
@@ -116,7 +123,6 @@ export default function Heatmap(props) {
     // TODO: need to use Map rather than Object.keys since ordering may not be stable/correct when IDs are numbers.
     const newCellOrdering = (!cellColors ? clusters.rows : Object.keys(cellColors));
     if(!isEqual(cellOrdering, newCellOrdering)) {
-      console.log("cell ordering changed");
       setCellOrdering(newCellOrdering);
     }
   }, [clusters, cellColors, cellOrdering]);
@@ -140,14 +146,22 @@ export default function Heatmap(props) {
   const matrixTop = -matrixHeight/2;
   const matrixBottom = matrixHeight/2;
 
-  const xTiles = Math.ceil(width / tileSize);
-  const yTiles = Math.ceil(height / tileSize);
+  const xTiles = Math.ceil(width / TILE_SIZE);
+  const yTiles = Math.ceil(height / TILE_SIZE);
 
-  const widthRatio = (xTiles*tileSize - (tileSize - (width % tileSize))) / (xTiles*tileSize);
-  const heightRatio = (yTiles*tileSize - (tileSize - (height % tileSize))) / (yTiles*tileSize);
+  const widthRatio = (xTiles*TILE_SIZE - (TILE_SIZE - (width % TILE_SIZE))) / (xTiles*TILE_SIZE);
+  const heightRatio = (yTiles*TILE_SIZE - (TILE_SIZE - (height % TILE_SIZE))) / (yTiles*TILE_SIZE);
 
   const tileWidth = (matrixWidth / widthRatio) / (xTiles);
   const tileHeight = (matrixHeight / heightRatio) / (yTiles);
+
+  const scaleFactor = Math.pow(2, viewState.zoom);
+  const cellHeight = (matrixHeight * scaleFactor) / height;
+  const cellWidth = (matrixWidth * scaleFactor) / width;
+
+  // Get power of 2 between 1 and 16, for number of cells to aggregate together in each direction.
+  const aggSizeX = clamp(Math.pow(2, Math.ceil(Math.log2(1/cellWidth))), MIN_ROW_AGG, MAX_ROW_AGG);
+  const aggSizeY = clamp(Math.pow(2, Math.ceil(Math.log2(1/cellHeight))), MIN_ROW_AGG, MAX_ROW_AGG);
 
   const onViewStateChange = useCallback(({ viewState }) => {
     const { target, zoom } = viewState;
@@ -173,8 +187,10 @@ export default function Heatmap(props) {
     setBacklog(prev => ([...prev, uuidv4()]));
   }, [dataRef, clusters, cellOrdering]);
 
+  // When the backlog has updated, a new worker job can be submitted if:
+  // - the backlog has length >= 1 (at least one job is waiting), and
+  // - buffer.byteLength is not zero, so the worker does not currently "own" the buffer.
   useEffect(() => {
-    console.log("backlog", backlog);
     if(backlog.length < 1) {
       return;
     }
@@ -184,7 +200,7 @@ export default function Heatmap(props) {
         curr,
         xTiles,
         yTiles,
-        tileSize,
+        tileSize: TILE_SIZE,
         cellOrdering,
         rows: clusters.rows,
         cols: clusters.cols,
@@ -193,6 +209,11 @@ export default function Heatmap(props) {
     }
   }, [backlog]);
 
+  // Update the heatmap tiles if:
+  // - new tiles are available (`tileIteration` has changed), or
+  // - the matrix bounds have changed, or
+  // - the `aggSizeX` or `aggSizeY` have changed, or
+  // - the cell ordering has changed.
   const heatmapLayers = useMemo(() => {
     if(!tilesRef.current || backlog.length) {
       return [];
@@ -203,15 +224,22 @@ export default function Heatmap(props) {
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
         image: tile,
         bounds: [matrixLeft + j*tileWidth, matrixTop + i*tileHeight, matrixLeft + (j+1)*tileWidth, matrixTop + (i+1)*tileHeight],
+        aggSizeX: aggSizeX,
+        aggSizeY: aggSizeY,
         updateTriggers: {
           image: [cellOrdering],
           bounds: [tileHeight, tileWidth],
+          aggSizeX: aggSizeX,
+          aggSizeY: aggSizeY,
         }
       });
     }
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
-  }, [tilesRef, tileIteration, tileWidth, tileHeight, cellOrdering, xTiles, yTiles, backlog]);
+  }, [tilesRef, tileIteration, tileWidth, tileHeight, aggSizeX, aggSizeY, cellOrdering, xTiles, yTiles, backlog]);
 
+
+  // Map cell and gene names to arrays with indices,
+  // to prepare to render the names in TextLayers.
   const colsData = useMemo(() => {
     if(!clusters) {
       return [];
@@ -226,9 +254,7 @@ export default function Heatmap(props) {
     return cellOrdering.map((d, i) => [i, d]);
   }, [cellOrdering]);
 
-  const scaleFactor = Math.pow(2, viewState.zoom);
-  const cellHeight = (matrixHeight * scaleFactor) / height;
-  const cellWidth = (matrixWidth * scaleFactor) / width;
+  // Set up the constants for the axis layers.
   const labelSize = 8;
   const titleSize = 14;
 
@@ -313,6 +339,7 @@ export default function Heatmap(props) {
     }),
   ] : []);
 
+  // Create a TextLayer for the "Loading..." indicator.
   const loadingLayers = (backlog.length ? [
     new TextLayer({
       id: 'heatmapLoading',
@@ -332,7 +359,7 @@ export default function Heatmap(props) {
     }),
   ] : []);
 
-  // Cell color bar
+  // Create the cell color bar.
   const cellColorsTiles = useMemo(() => {
     if(!cellOrdering || !cellColors) {
       return null;
@@ -344,14 +371,14 @@ export default function Heatmap(props) {
     let rowI;
 
     const result = range(yTiles).map(i => {
-      const tileData = new Uint8ClampedArray(tileSize * 1 * 4);
+      const tileData = new Uint8ClampedArray(TILE_SIZE * 1 * 4);
 
-      range(tileSize).forEach(tileY => {
-        rowI = (i * tileSize) + tileY; // the row / cell index
+      range(TILE_SIZE).forEach(tileY => {
+        rowI = (i * TILE_SIZE) + tileY; // the row / cell index
         if(rowI < height) {
           cellId = cellOrdering[rowI];
           color = cellColors[cellId];
-          offset = (tileSize - tileY - 1) * 4;
+          offset = (TILE_SIZE - tileY - 1) * 4;
           if(color) {
             tileData[offset + 0] = color[0];
             tileData[offset + 1] = color[1];
@@ -362,7 +389,7 @@ export default function Heatmap(props) {
       });
 
       // TODO: flip the width/height if on top rather than on left
-      return new ImageData(tileData, 1, tileSize);
+      return new ImageData(tileData, 1, TILE_SIZE);
     });
 
     return result;
@@ -380,6 +407,7 @@ export default function Heatmap(props) {
 
   const layers = heatmapLayers.concat(axisLayers).concat(loadingLayers).concat(cellColorsLayers);
 
+  // Set up the onHover function.
   function onHover(info, event) {
     if(!clusters || !cellOrdering) {
       return;

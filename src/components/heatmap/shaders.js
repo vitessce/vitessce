@@ -1,7 +1,7 @@
 /* eslint-disable */
 import glsl from 'glslify';
 
-
+// Shaders for HeatmapBitmapLayer.
 
 /**
  * No change to the vertex shader.
@@ -45,10 +45,14 @@ export const fs = glsl`
 precision mediump float;
 #endif
 
+#pragma glslify: rdbu = require("glsl-colormap/rdbu")
 #pragma glslify: jet = require("glsl-colormap/jet")
+#pragma glslify: viridis = require("glsl-colormap/viridis")
+#pragma glslify: inferno = require("glsl-colormap/inferno")
+#pragma glslify: magma = require("glsl-colormap/magma")
 #pragma glslify: plasma = require("glsl-colormap/plasma")
 
-// The texture.
+// The texture (GL.LUMINANCE data type / Uint8Array).
 uniform sampler2D uBitmapTexture;
 
 // What are the dimensions of the texture (width, height)?
@@ -57,31 +61,51 @@ uniform vec2 uTextureSize;
 // How many consecutive pixels should be aggregated together, along each axis?
 uniform vec2 uAggSize;
 
+// The texture coordinate, varying (interpolated between values set by the vertex shader).
 varying vec2 vTexCoord;
 
 void main(void) {
-  // compute 1 pixel in texture coordinates
-  // 1 / size of texture
+  // Compute 1 pixel in texture coordinates
   vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
   
   vec2 viewCoord = vec2(floor(vTexCoord.x * uTextureSize.x), floor(vTexCoord.y * uTextureSize.y));
 
-  vec2 modAggSize = vec2(mod(viewCoord.x, uAggSize.x), mod(viewCoord.y, uAggSize.y));
+  // Compute (x % aggSizeX, y % aggSizeY).
+  // These values will be the number of values to the left / above the current position to consider.
+  vec2 modAggSize = vec2(-1.0 * mod(viewCoord.x, uAggSize.x), -1.0 * mod(viewCoord.y, uAggSize.y));
+
+
+  // Take the sum of values along each axis.
+  float intensitySum = 0.0;
+  vec2 offsetPixels = vec2(0.0, 0.0);
+
+  for(int i = 0; i < 16; i++) {
+    // Check to break outer loop early.
+    // Uniforms cannot be used as conditions in GLSL for loops.
+    if(float(i) >= uAggSize.y) {
+      // Done in the y direction.
+      break;
+    }
+
+    offsetPixels = vec2(offsetPixels.x, (modAggSize.y + float(i)) * onePixel.y);
+
+    for(int j = 0; j < 16; j++) {
+      // Check to break inner loop early.
+      // Uniforms cannot be used as conditions in GLSL for loops.
+      if(float(j) >= uAggSize.x) {
+        // Done in the x direction.
+        break;
+      }
+
+      offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
+      intensitySum += texture2D(uBitmapTexture, vTexCoord + offsetPixels).r;
+    }
+  }
   
-//   if(modAggSize.x == 1.0) {
-//     vec4 bitmapColor = texture2D(uBitmapTexture, vTexCoord);
-//     float intensity = bitmapColor.r / 255.0;
+  // Compute the mean value.
+  float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
 
-//     gl_FragColor = plasma(clamp(intensity, 0.0, 1.0));
-//   } else {
-//     gl_FragColor = vec4(255.0, 255.0, 255.0, 255.0);
-//   }
-
-    vec4 bitmapColor = texture2D(uBitmapTexture, vTexCoord);
-    float intensityVal = float(bitmapColor.r) / 255.0;
-
-    gl_FragColor = __colormap(bitmapColor.r);
-    //gl_FragColor = vec4(bitmapColor.r, 0.0, 0.0, 255.0);
+  gl_FragColor = __colormap(intensityMean);
 
   geometry.uv = vTexCoord;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);

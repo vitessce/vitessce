@@ -2,10 +2,12 @@
 import GL from '@luma.gl/constants';
 import { _mergeShaders, project32, picking } from '@deck.gl/core';
 import { BitmapLayer} from '@deck.gl/layers';
-import { Model, Geometry, Texture2D } from '@luma.gl/core';
+import { Texture2D } from '@luma.gl/core';
 import { vs, fs } from './shaders';
 
 export const TILE_SIZE = 2048;
+export const MIN_ROW_AGG = 1;
+export const MAX_ROW_AGG = 16;
 
 const DEFAULT_TEXTURE_PARAMETERS = {
   // NEAREST for integer data to prevent interpolation.
@@ -50,119 +52,6 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       modules: [ project32, picking ]
     });
   }
-  
-  /*initializeState() {
-    const attributeManager = this.getAttributeManager();
-
-    attributeManager.remove(['instancePickingColors']);
-    const noAlloc = true;
-
-    attributeManager.add({
-      indices: {
-        size: 1,
-        isIndexed: true,
-        update: attribute => (attribute.value = this.state.mesh.indices),
-        noAlloc
-      },
-      positions: {
-        size: 3,
-        type: GL.DOUBLE,
-        fp64: this.use64bitPositions(),
-        update: attribute => (attribute.value = this.state.mesh.positions),
-        noAlloc
-      },
-      texCoords: {
-        size: 2,
-        update: attribute => (attribute.value = this.state.mesh.texCoords),
-        noAlloc
-      }
-    });
-  }*/
-
-  /*updateState({ props, oldProps, changeFlags }) {
-    // setup model first
-    if (changeFlags.extensionsChanged) {
-      const { gl } = this.context;
-      if (this.state.model) {
-        this.state.model.delete();
-      }
-      this.setState({model: this._getModel(gl)});
-      this.getAttributeManager().invalidateAll();
-    }
-
-    if (props.image !== oldProps.image) {
-      this.loadTexture(props.image);
-    }
-
-    const attributeManager = this.getAttributeManager();
-
-    if (props.bounds !== oldProps.bounds) {
-      const oldMesh = this.state.mesh;
-      const mesh = this._createMesh();
-      this.state.model.setVertexCount(mesh.vertexCount);
-      for (const key in mesh) {
-        if (oldMesh && oldMesh[key] !== mesh[key]) {
-          attributeManager.invalidate(key);
-        }
-      }
-      this.setState({mesh});
-    }
-  }*/
-
-  /*finalizeState() {
-    super.finalizeState();
-
-    if (this.state.bitmapTexture) {
-      this.state.bitmapTexture.delete();
-    }
-  }*/
-
-  /*_createMesh() {
-    const { bounds } = this.props;
-
-    let normalizedBounds = bounds;
-    // bounds as [minX, minY, maxX, maxY]
-    if (Number.isFinite(bounds[0])) {
-      //
-        (minX0, maxY3) ---- (maxX2, maxY3)
-              |                  |
-              |                  |
-              |                  |
-        (minX0, minY1) ---- (maxX2, minY1)
-      //
-      normalizedBounds = [
-        [bounds[0], bounds[1]],
-        [bounds[0], bounds[3]],
-        [bounds[2], bounds[3]],
-        [bounds[2], bounds[1]]
-      ];
-    }
-
-    return createMesh(normalizedBounds, this.context.viewport.resolution);
-  }*/
-
-  /*_getModel(gl) {
-    if (!gl) {
-      return null;
-    }
-
-    //
-      0,0 --- 1,0
-      |       |
-      0,1 --- 1,1
-    //
-    return new Model(
-      gl,
-      Object.assign({}, this.getShaders(), {
-        id: this.props.id,
-        geometry: new Geometry({
-          drawMode: GL.TRIANGLES,
-          vertexCount: 6
-        }),
-        isInstanced: false
-      })
-    );
-  }*/
 
   /**
    * Need to override to provide additional uniform values.
@@ -174,7 +63,6 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
     const { uniforms } = opts;
     const { bitmapTexture, model } = this.state;
     const { aggSizeX, aggSizeY } = this.props;
-    console.log(aggSizeX, aggSizeY);
 
     // // TODO fix zFighting
     // Render the image
@@ -213,12 +101,14 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       this.setState({
         bitmapTexture: new Texture2D(gl, {
           data: image,
+          mipmaps: false,
           parameters: DEFAULT_TEXTURE_PARAMETERS,
           // Each color contains a single luminance value.
           // When sampled, rgb are all set to this luminance, alpha is 1.0.
           // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
           format: GL.LUMINANCE,
           dataFormat: GL.LUMINANCE,
+          type: GL.UNSIGNED_BYTE,
           width: TILE_SIZE,
           height: TILE_SIZE,
         }),
