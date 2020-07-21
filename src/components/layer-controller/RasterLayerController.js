@@ -307,6 +307,7 @@ export default function RasterLayerController({
             handleGlobalChannelsSelectionChange={
               handleGlobalChannelsSelectionChange
             }
+            isRgb={loader.isRgb}
             handleDomainChange={handleDomainChange}
           />
         </Grid>
