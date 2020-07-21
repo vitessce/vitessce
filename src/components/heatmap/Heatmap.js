@@ -11,7 +11,6 @@ import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { DEFAULT_GL_OPTIONS } from '../utils';
-import { getTransformMatrix } from './utils';
 import HeatmapWorker from './heatmap.worker.js';
 
 const themeToTextColor = {
@@ -68,7 +67,7 @@ export default function Heatmap(props) {
 
   useEffect(() => {
     if (clearPleaseWait && clusters) {
-      clearPleaseWait('genes');
+      clearPleaseWait('expression-matrix');
     }
   }, [clearPleaseWait, clusters]);
 

@@ -111,7 +111,7 @@ void main(void) {
   // Re-scale using the color scale slider values.
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
 
-  gl_FragColor = __colormap(scaledIntensityMean);
+  gl_FragColor = __colormap(clamp(scaledIntensityMean, 0.0, 1.0));
 
   geometry.uv = vTexCoord;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);

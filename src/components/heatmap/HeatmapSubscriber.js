@@ -4,9 +4,9 @@ import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_COLOR, GENES_ADD, CELLS_ADD, CELLS_SELECTION,
+  CELLS_COLOR, CELLS_ADD, CELLS_SELECTION,
   CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
-  RESET,
+  RESET, EXPRESSION_MATRIX_ADD,
 } from '../../events';
 import { useGridItemSize } from '../utils';
 import Heatmap from './Heatmap';
@@ -25,15 +25,15 @@ export default function HeatmapSubscriber(props) {
   const [width, height, containerRef] = useGridItemSize("#deckgl-wrapper");
 
   useEffect(() => {
-    const clustersAddToken = PubSub.subscribe(
-      GENES_ADD, (msg, { data, url }) => {
+    const expressionMatrixAddToken = PubSub.subscribe(
+      EXPRESSION_MATRIX_ADD, (msg, { data, url }) => {
         const [attrs, arr] = data;
         
         // Get the full zarr array (all chunks & flat).
         arr.getRaw([null, null]).then(X => {
           setClusters({
-            cols: attrs.var,
-            rows: attrs.obs,
+            cols: attrs.cols,
+            rows: attrs.rows,
             matrix: X
           });
         });
@@ -71,7 +71,7 @@ export default function HeatmapSubscriber(props) {
     const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
     onReadyCallback();
     return () => {
-      PubSub.unsubscribe(clustersAddToken);
+      PubSub.unsubscribe(expressionMatrixAddToken);
       PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsColorToken);
       PubSub.unsubscribe(cellsSelectionToken);

@@ -2,9 +2,15 @@
 import { openArray } from 'zarr';
 import AbstractLoader from './AbstractLoader';
 
+function basename(path) {
+    return path.split('/').pop();
+}
 
+function dirname(path) {
+    return path.substr(0, path.lastIndexOf("/") + 1)
+}
 
-export default class ZarrLoader extends AbstractLoader {
+export default class MatrixZarrLoader extends AbstractLoader {
 
     constructor(params) {
         super(params);
@@ -13,8 +19,8 @@ export default class ZarrLoader extends AbstractLoader {
         this.zUrl = url.endsWith('/') ? url : `${url}/`;
         this.zAttrsUrl = this.zUrl + '.zattrs';
 
-        this.zStore = "https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/";
-        this.zPath = "2dca1bf5832a4102ba780e9e54f6c350.clusters.zarr";
+        this.zStore = dirname(url);
+        this.zPath = basename(url);
     }
 
     loadAttrs() {
@@ -49,6 +55,4 @@ export default class ZarrLoader extends AbstractLoader {
     load() {
         return Promise.all([this.loadAttrs(), this.loadArr()]);
     }
-
-
 }

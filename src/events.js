@@ -26,14 +26,13 @@ export const CELL_SETS_CHANGE = CELL_SETS + CHANGE;
 // Viewing a previously-defined set or group of sets.
 export const CELL_SETS_VIEW = `${CELL_SETS}.view`;
 
-export const CLUSTERS = 'clusters';
-export const CLUSTERS_ADD = CLUSTERS + ADD;
+export const EXPRESSION_MATRIX = 'expression-matrix';
+export const EXPRESSION_MATRIX_ADD = EXPRESSION_MATRIX + ADD;
 
 export const FACTORS = 'factors';
 export const FACTORS_ADD = FACTORS + ADD;
 
 export const GENES = 'genes';
-export const GENES_ADD = GENES + ADD;
 export const GENES_HOVER = GENES + HOVER;
 
 export const MOLECULES = 'molecules';

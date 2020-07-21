@@ -8,8 +8,9 @@ import {
   CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 
-import { typeToEvent, extensionToLoader } from './types';
-import { JsonLoader } from './loaders';
+import { typeToEvent } from './types';
+import JsonLoader from './loaders/JsonLoader';
+import { extensionToLoader } from './loaders/utils';
 
 function warn(message) {
   PubSub.publish(STATUS_WARN, message);

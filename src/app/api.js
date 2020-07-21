@@ -17,8 +17,6 @@ function makeLayerNameToConfig(datasetPrefix) {
 const linnarssonLayerNames = [
   'cells',
   'cell-sets',
-  'clusters',
-  'genes',
   'raster',
   'molecules',
   'neighborhoods',
@@ -26,8 +24,14 @@ const linnarssonLayerNames = [
 const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
   description: linnarssonDescription,
-  layers: linnarssonLayerNames
-    .map(makeLayerNameToConfig('linnarsson')),
+  layers: [
+    ...linnarssonLayerNames.map(makeLayerNameToConfig('linnarsson')),
+    {
+      ...makeLayerNameToConfig('linnarsson')('clusters'),
+      name: 'expression-matrix',
+      type: 'EXPRESSION-MATRIX',
+    },
+  ],
 };
 const linnarssonBaseNoClusters = {
   description: linnarssonDescription,
@@ -80,7 +84,7 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
       {
         name: 'genes',
         type: 'GENES',
-        url: `https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/${globusId}.clusters.zarr`,
+        url: `https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/${globusId}.expression-matrix.zarr`,
       },
     ],
     public: true,

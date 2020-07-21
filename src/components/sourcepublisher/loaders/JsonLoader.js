@@ -1,12 +1,30 @@
 /* eslint-disable */
 import Ajv from 'ajv';
-import { typeToSchema } from '../types';
 import AbstractLoader from "./AbstractLoader";
+
+import cellsSchema from '../../../schemas/cells.schema.json';
+import factorsSchema from '../../../schemas/factors.schema.json';
+import moleculesSchema from '../../../schemas/molecules.schema.json';
+import neighborhoodsSchema from '../../../schemas/neighborhoods.schema.json';
+import rasterSchema from '../../../schemas/raster.schema.json';
+import cellSetsSchema from '../../../schemas/cell-sets.schema.json';
+
+const typeToSchema = {
+  CELLS: cellsSchema,
+  FACTORS: factorsSchema,
+  MOLECULES: moleculesSchema,
+  NEIGHBORHOODS: neighborhoodsSchema,
+  RASTER: rasterSchema,
+  'CELL-SETS': cellSetsSchema,
+};
 
 export default class JsonLoader extends AbstractLoader {
 
     constructor(params) {
         super(params);
+        
+        const { type } = params;
+        this.schema = typeToSchema[type];
     }
     
     load() {
@@ -42,8 +60,7 @@ export default class JsonLoader extends AbstractLoader {
     }
 
     validate(data) {
-        const { type } = this;
-        const schema = typeToSchema[type];
+        const { schema, type } = this;
         if (!schema) {
             throw Error(`No schema for ${type}`);
         }
