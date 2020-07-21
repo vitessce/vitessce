@@ -11,6 +11,7 @@ import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { DEFAULT_GL_OPTIONS } from '../utils';
+import { getTransformMatrix } from './utils';
 import HeatmapWorker from './heatmap.worker.js';
 
 const themeToTextColor = {
@@ -421,20 +422,38 @@ export default function Heatmap(props) {
     if(!clusters || !cellOrdering) {
       return;
     }
-    const mouseX = event.offsetCenter.x - offsetLeft;
-    const mouseY = event.offsetCenter.y - offsetTop;
+    const viewMouseX = event.offsetCenter.x - offsetLeft;
+    const viewMouseY = event.offsetCenter.y - offsetTop;
 
-    if(mouseX >= 0 && mouseY >= 0) {
-      // TODO: determine the rowI and colI values based on the current viewState.target and viewState.zoom levels.
-      /*
-      const sortedRowI = Math.floor(mouseY / matrixHeight * height);
-      const rowI = clusters.rows.indexOf(cellOrdering[sortedRowI]);
-      const colI = Math.floor(mouseX / matrixWidth * width);
-      const rowId = clusters.rows[rowI];
-      const colId = clusters.cols[colI];
-      console.log(rowId, colId);
-      */
+    if(viewMouseX < 0 || viewMouseY < 0) {
+      // The mouse is outside the heatmap.
+      return;
     }
+
+    // Determine the rowI and colI values based on the current viewState.
+    const bboxTargetX = viewState.target[0]*scaleFactor + matrixWidth*scaleFactor/2;
+    const bboxTargetY = viewState.target[1]*scaleFactor + matrixHeight*scaleFactor/2;
+    
+    const bboxLeft = bboxTargetX - matrixWidth/2;
+    const bboxTop = bboxTargetY - matrixHeight/2;
+    
+    const zoomedOffsetLeft = bboxLeft / (matrixWidth*scaleFactor);
+    const zoomedOffsetTop = bboxTop / (matrixHeight*scaleFactor);
+
+    const zoomedViewMouseX = viewMouseX / (matrixWidth*scaleFactor);
+    const zoomedViewMouseY = viewMouseY / (matrixHeight*scaleFactor);
+
+    const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
+    const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
+
+    
+    const sortedRowI = Math.floor(zoomedMouseY * cellOrdering.length);
+    const rowI = clusters.rows.indexOf(cellOrdering[sortedRowI]);
+    const colI = Math.floor(zoomedMouseX * width);
+    
+    const rowId = clusters.rows[rowI];
+    const colId = clusters.cols[colI];
+    console.log(rowId, colId);
   }
 
   return (
