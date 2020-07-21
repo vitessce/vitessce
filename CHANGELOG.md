@@ -4,6 +4,9 @@
 
 ### Added
 - Add `labelOverride` prop for genes component.
+- Cell boundaries are visible when opacity drops below a cutoff.
+- Add download lists for files to components that display data.
+- Added `onWarn` callback to the `<Vitessce/>` component to allow a consumer app to manage display of warning messages.
 
 ### Changed
 - Remove layers menu and add functionality to layer controller + opacity control.
@@ -16,6 +19,7 @@
 - Make `LayerControllerSubscriber` names booleans-questions.
 - Fix reisizing bug.
 - Bump `vitessce-data` to 0.0.30.
+- Changed the "Please wait" modal to a spinner.
 
 ## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
 

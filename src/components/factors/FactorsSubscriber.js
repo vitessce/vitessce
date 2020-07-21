@@ -31,7 +31,7 @@ export default class FactorsSubscriber extends React.Component {
     PubSub.unsubscribe(this.factorsAddToken);
   }
 
-  factorsAddSubscriber(msg, factors) {
+  factorsAddSubscriber(msg, { data: factors }) {
     this.setState({ factors });
   }
 

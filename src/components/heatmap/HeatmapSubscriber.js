@@ -6,6 +6,7 @@ import TitleInfo from '../TitleInfo';
 import {
   CELLS_COLOR, GENES_ADD, CELLS_ADD, CELLS_SELECTION,
   CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
+  RESET,
 } from '../../events';
 import { useGridItemSize } from '../utils';
 import Heatmap from './Heatmap';
@@ -17,6 +18,7 @@ export default function HeatmapSubscriber(props) {
   const [clusters, setClusters] = useState(null);
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
+  const [urls, setUrls] = useState([]);
 
   const onReadyCallback = useCallback(onReady, []);
   
@@ -24,8 +26,8 @@ export default function HeatmapSubscriber(props) {
 
   useEffect(() => {
     const clustersAddToken = PubSub.subscribe(
-      GENES_ADD, (msg, clusters) => {
-        const [attrs, arr] = clusters;
+      GENES_ADD, (msg, { data, url }) => {
+        const [attrs, arr] = data;
         
         // Get the full zarr array (all chunks & flat).
         arr.getRaw([null, null]).then(X => {
@@ -35,11 +37,20 @@ export default function HeatmapSubscriber(props) {
             matrix: X
           });
         });
+
+        setUrls((prevUrls) => {
+          const newUrls = [...prevUrls].concat({ url, name: 'Genes' });
+          return newUrls;
+        });
       },
     );
     const cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, (msg, cells) => {
-        setCells(cells);
+      CELLS_ADD, (msg, { data, url }) => {
+        setCells(data);
+        setUrls((prevUrls) => {
+          const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
+          return newUrls;
+        });
       },
     );
     const cellsColorToken = PubSub.subscribe(
@@ -57,6 +68,7 @@ export default function HeatmapSubscriber(props) {
         setSelectedCellIds(cellIds);
       },
     );
+    const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(clustersAddToken);
@@ -64,6 +76,7 @@ export default function HeatmapSubscriber(props) {
       PubSub.unsubscribe(cellsColorToken);
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(cellSetsViewToken);
+      PubSub.unsubscribe(resetToken);
     }
   }, [onReadyCallback]);
 

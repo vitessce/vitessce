@@ -4,7 +4,7 @@ import PubSub from 'pubsub-js';
 import VitessceGrid from 'vitessce-grid';
 
 import { SourcePublisher } from '../components/sourcepublisher';
-import { GRID_RESIZE } from '../events';
+import { GRID_RESIZE, STATUS_WARN } from '../events';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -41,9 +41,25 @@ function getRowHeight(containerHeight, numRows, margin, padding) {
 
 const onResize = () => PubSub.publish(GRID_RESIZE);
 
+/**
+ * The wrapper for the VitessceGrid and SourcePublisher components.
+ * @param {object} props
+ * @param {number} props.rowHeight The height of each grid row. Optional.
+ * @param {object} props.config The view config.
+ * @param {function} props.getComponent A function that maps component names to their
+ * React counterparts.
+ * @param {string} props.theme The theme name.
+ * @param {number} props.height Total height for grid. Optional.
+ * @param {function} props.onWarn A callback for warning messages. Optional.
+ */
 export default function PubSubVitessceGrid(props) {
   const {
-    rowHeight: initialRowHeight, config, getComponent, theme, height,
+    rowHeight: initialRowHeight,
+    config,
+    getComponent,
+    theme,
+    height,
+    onWarn,
   } = props;
 
   const [allReady, setAllReady] = useState(false);
@@ -97,12 +113,22 @@ export default function PubSubVitessceGrid(props) {
     };
   }, [containerRef, height]);
 
+  // Subscribe to warning messages, and re-publish them via the onWarn callback.
+  useEffect(() => {
+    const warnToken = PubSub.subscribe(STATUS_WARN, (msg, data) => {
+      if (onWarn) {
+        onWarn(data);
+      }
+    });
+    return () => PubSub.unsubscribe(warnToken);
+  }, [onWarn]);
+
   return (
     <div
       ref={containerRef}
       className={`vitessce-container vitessce-theme-${theme}`}
     >
-      { allReady && <SourcePublisher layers={config.layers} /> }
+      { allReady && <SourcePublisher height={containerHeight} layers={config.layers} /> }
       <VitessceGrid
         layout={config.staticLayout}
         height={height}

@@ -1,5 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Ajv from 'ajv';
+import {
+  ThemeProvider, StylesProvider,
+  createGenerateClassName,
+} from '@material-ui/core/styles';
 
 import datasetSchema from '../schemas/dataset.schema.json';
 
@@ -14,6 +18,11 @@ import PubSubVitessceGrid from './PubSubVitessceGrid';
 
 import { getConfig, listConfigs } from './api';
 import getComponent from './componentRegistry';
+import { muiTheme } from '../components/shared-mui/styles';
+
+const generateClassName = createGenerateClassName({
+  disableGlobal: true,
+});
 
 function Warning(props) {
   const {
@@ -72,8 +81,10 @@ function preformattedDetails(response) {
  * If the config is valid, the PubSubVitessceGrid will be rendered as a child.
  * If the config is invalid, a Warning will be rendered instead.
  * @param {number} props.rowHeight Row height for grid layout. Optional.
+ * @param {number} props.height Total height for grid layout. Optional.
  * @param {string} props.theme The theme, used for styling as
  * light or dark. Optional. By default, "dark"
+ * @param {function} props.onWarn A callback for warning messages. Optional.
  */
 export function Vitessce(props) {
   const {
@@ -81,6 +92,7 @@ export function Vitessce(props) {
     rowHeight,
     height,
     theme,
+    onWarn,
   } = props;
   if (!config) {
     // If the config value is undefined, show a warning message
@@ -110,13 +122,18 @@ export function Vitessce(props) {
     );
   }
   return (
-    <PubSubVitessceGrid
-      config={config}
-      getComponent={getComponent}
-      rowHeight={rowHeight}
-      height={height}
-      theme={theme}
-    />
+    <StylesProvider generateClassName={generateClassName}>
+      <ThemeProvider theme={muiTheme[theme]}>
+        <PubSubVitessceGrid
+          config={config}
+          getComponent={getComponent}
+          rowHeight={rowHeight}
+          height={height}
+          theme={theme}
+          onWarn={onWarn}
+        />
+      </ThemeProvider>
+    </StylesProvider>
   );
 }
 

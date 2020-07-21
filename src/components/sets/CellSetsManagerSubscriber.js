@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useReducer } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 import PubSub from 'pubsub-js';
 import packageJson from '../../../package.json';
 import {
@@ -45,10 +50,12 @@ export default function CellSetsManagerSubscriber(props) {
     removeGridComponent,
     onReady,
     initEmit = true,
+    theme,
   } = props;
 
   const onReadyCallback = useCallback(onReady, []);
   const [tree, dispatch] = useReducer(reducer, initialTree);
+  const [urls, setUrls] = useState([]);
 
   // Callback functions
   function onCheckLevel(levelZeroKey, levelIndex) {
@@ -148,18 +155,27 @@ export default function CellSetsManagerSubscriber(props) {
   // Subscribe to cell import and selection events.
   useEffect(() => {
     const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD,
-      (msg, treeToImport) => {
+      (msg, { data: treeToImport, url }) => {
         const actionType = (initEmit ? ACTION.IMPORT_AND_VIEW : ACTION.IMPORT);
         const newTreeToImport = tryUpgradeTreeToLatestSchema(treeToImport, SETS_DATATYPE_CELL);
+        setUrls((prevUrls) => {
+          const newUrls = [...prevUrls].concat({ url, name: 'Cells Sets' });
+          return newUrls;
+        });
         dispatch({ type: actionType, levelZeroNodes: newTreeToImport.tree });
       });
-    const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, cells) => {
+    const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, { data: cells, url }) => {
+      setUrls((prevUrls) => {
+        const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
+        return newUrls;
+      });
       dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
     });
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, (msg, cellIds) => {
       dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: Array.from(cellIds) });
     });
     const resetToken = PubSub.subscribe(RESET, () => {
+      setUrls([]);
       dispatch({ type: ACTION.RESET });
     });
     onReadyCallback();
@@ -185,6 +201,8 @@ export default function CellSetsManagerSubscriber(props) {
       title="Cell Sets"
       isScroll
       removeGridComponent={removeGridComponent}
+      urls={urls}
+      theme={theme}
     >
       <SetsManager
         tree={tree}

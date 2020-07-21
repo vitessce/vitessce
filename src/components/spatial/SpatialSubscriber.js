@@ -24,6 +24,7 @@ import {
   LAYER_REMOVE,
   LAYER_CHANGE,
   RESET,
+  RASTER_ADD,
 } from '../../events';
 import Spatial from './Spatial';
 
@@ -34,6 +35,7 @@ export default function SpatialSubscriber({
   moleculeRadius,
   view,
   cellRadius,
+  theme,
   uuid = null,
 }) {
   const [cells, setCells] = useState(null);
@@ -47,13 +49,42 @@ export default function SpatialSubscriber({
   const [areCellsOn, setCellsOn] = useState(true);
   const [moleculesOpacity, setMoleculesOpacity] = useState(1);
   const [areMoleculesOn, setMoleculesOn] = useState(true);
+  const [urls, setUrls] = useState([]);
 
   const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
-    const moleculesAddSubscriber = (msg, newMolecules) => setMolecules(newMolecules);
-    const neighborhoodsAddSubscriber = (msg, newNeighborhoods) => setNeighborhoods(newNeighborhoods); // eslint-disable-line max-len
-    const cellsAddSubscriber = (msg, newCells) => setCells(newCells);
+    const moleculesAddSubscriber = (msg, { data: newMolecules, url }) => {
+      setMolecules(newMolecules);
+      setUrls((prevUrls) => {
+        const newUrls = [...prevUrls].concat({ url, name: 'Molecules' });
+        return newUrls;
+      });
+    };
+    const neighborhoodsAddSubscriber = (msg, { data: newNeighborhoods, url }) => {
+      setNeighborhoods(newNeighborhoods);
+      setUrls((prevUrls) => {
+        const newUrls = [...prevUrls].concat({ url, name: 'Neighborhoods' });
+        return newUrls;
+      });
+    };
+    const cellsAddSubscriber = (msg, { data: newCells, url }) => {
+      setCells(newCells);
+      setUrls((prevUrls) => {
+        const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
+        return newUrls;
+      });
+    };
+    const rasterAddSubscriber = (msg, { data: rasterSchema }) => {
+      setUrls((prevUrls) => {
+        // Filter out non-downloadable zarr
+        const rasterUrlsAndNames = rasterSchema.images.map(
+          image => ({ name: image.name, url: image.url }),
+        ).filter(urlAndName => urlAndName.url.includes('zarr'));
+        const newUrls = [...prevUrls].concat(rasterUrlsAndNames);
+        return newUrls;
+      });
+    };
     const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
     const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
     const cellsOpacitySubscriber = (msg, newCellOpacity) => setCellOpacity(newCellOpacity);
@@ -88,14 +119,15 @@ export default function SpatialSubscriber({
       setNeighborhoods(null);
       setImageLayerProps({});
       setImageLayerLoaders({});
+      setUrls([]);
     }
-
     const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
     const moleculesOpacityToken = PubSub.subscribe(
       MOLECULES_SET_OPACITY, moleculesOpacitySubscriber,
     );
     const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, neighborhoodsAddSubscriber);
     const cellsAddToken = PubSub.subscribe(CELLS_ADD, cellsAddSubscriber);
+    const rasterAddToken = PubSub.subscribe(RASTER_ADD, rasterAddSubscriber);
     const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, cellsSelectionSubscriber);
     const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, cellsSelectionSubscriber);
     const cellsColorToken = PubSub.subscribe(CELLS_COLOR, cellsColorSubscriber);
@@ -122,9 +154,9 @@ export default function SpatialSubscriber({
       PubSub.unsubscribe(cellsOnToken);
       PubSub.unsubscribe(moleculesOnToken);
       PubSub.unsubscribe(resetToken);
+      PubSub.unsubscribe(rasterAddToken);
     };
-  }, [onReadyCallback]);
-
+  }, [onReadyCallback, urls]);
   const cellsCount = useMemo(() => (cells ? Object.keys(cells).length : 0), [cells]);
   const [moleculesCount, locationsCount] = useMemo(() => {
     if (!molecules) return [0, 0];
@@ -162,6 +194,8 @@ export default function SpatialSubscriber({
         `${cellsCount} cells, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
       }
       isSpatial
+      urls={urls}
+      theme={theme}
       removeGridComponent={removeGridComponent}
     >
       {children}

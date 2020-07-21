@@ -5,7 +5,7 @@ import PubSub from 'pubsub-js';
 import Genes from './Genes';
 
 import TitleInfo from '../TitleInfo';
-import { GENES_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT } from '../../events';
+import { GENES_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT, RESET } from '../../events';
 import { interpolatePlasma } from '../interpolate-colors';
 import { fromEntries } from '../utils';
 
@@ -18,13 +18,14 @@ export default function GenesSubscriber(props) {
 
   const [clusters, setClusters] = useState();
   const [selectedId, setSelectedId] = useState(null);
+  const [urls, setUrls] = useState([]);
 
   const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
     const clustersAddToken = PubSub.subscribe(
-      GENES_ADD, (msg, clusters) => {
-        const [attrs, arr] = clusters;
+      GENES_ADD, (msg, { data, url }) => {
+        const [attrs, arr] = data;
     
         arr.get([null, null]).then(X => {
           setClusters({
@@ -33,11 +34,17 @@ export default function GenesSubscriber(props) {
             matrix: X
           });
         });
+        setUrls((prevUrls) => {
+          const newUrls = [...prevUrls].concat({ url, name: 'Genes' });
+          return newUrls;
+        });
       },
     );
+    const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(clustersAddToken);
+      PubSub.unsubscribe(resetToken);
     };
   }, []);
 

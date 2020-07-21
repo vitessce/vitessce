@@ -23,6 +23,35 @@
         }
     }
 
+    /* Reference: https://projects.lukehaas.me/css-loaders/ */
+    .please-wait-spinner,
+    .please-wait-spinner:after {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+    }
+    .please-wait-spinner {
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 10px;
+        position: relative;
+        border-top: 1.1em solid rgba(255, 255, 255, 0.2);
+        border-right: 1.1em solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
+        border-left: 1.1em solid #ffffff;
+        transform: translateZ(0);
+        animation: load8 1.1s infinite linear;
+    }
+    @keyframes load8 {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+
     /* Flex grid items */
     .react-grid-item {
         /* emulate bootstrap .flex-column: */
