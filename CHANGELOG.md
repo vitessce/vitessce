@@ -21,6 +21,7 @@
 - Fix reisizing bug.
 - Bump `vitessce-data` to 0.0.30.
 - Changed the "Please wait" modal to a spinner.
+- Bump `viv` to 0.3.1.
 - Fix Heatmap regression/bug.
 - Fix Cypress tests.
 
