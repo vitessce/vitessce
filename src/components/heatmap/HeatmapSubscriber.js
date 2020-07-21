@@ -81,7 +81,7 @@ export default function HeatmapSubscriber(props) {
   const cellsCount = clusters.cols ? clusters.cols.length : 0;
   const genesCount = clusters.rows ? clusters.rows.length : 0;
   const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
-  const allReady = cellsCount && genesCount && selectedCount;
+  const allReady = cellsCount && genesCount;
   return (
     <TitleInfo
       title="Heatmap"
