@@ -38,7 +38,7 @@ export function square(x, y, r) {
  * @prop {number} cellOpacity The value for `opacity` to pass
  * to the deck.gl cells PolygonLayer.
  * @prop {number} lineWidthScale Width of cell border in view space (deck.gl).
- * @prop {number} lineWidthMaxPixels Max width of the cell border in pixels(deck.gl).
+ * @prop {number} lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
  * @prop {object} imageLayerProps
  * @prop {object} imageLayerLoaders
  * @prop {object} cellColors Object mapping cell IDs to colors.
