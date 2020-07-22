@@ -161,9 +161,9 @@ export default function RasterLayerController({
           const [left, right] = slider;
           return [
             Math.max(left, domain[i][0]),
-            Math.min(right, domain[i][1])
+            Math.min(right, domain[i][1]),
           ];
-        }
+        },
       ),
     };
     dispatch({
