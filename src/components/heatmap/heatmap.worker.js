@@ -12,48 +12,90 @@ function getTiles(self, args) {
       rows,
       cols,
       data,
+      transpose,
     } = args;
 
     let value;
-    let alpha;
     let offset;
     let rowI;
     let sortedRowI;
     let colI;
-
-    const height = cellOrdering.length;
-    const width = cols.length;
+    let sortedColI;
 
     const view = new Uint8Array(data);
 
-    const result = range(yTiles).map(i => {
-      return range(xTiles).map(j => {
-        const tileData = new Uint8Array(tileSize * tileSize);
+    let result;
 
-        range(tileSize).forEach(tileY => {
-          rowI = (i * tileSize) + tileY; // the row / cell index
-          if(rowI < height) {
-            sortedRowI = rows.indexOf(cellOrdering[rowI]);
-            if(sortedRowI >= -1) {
-              range(tileSize).forEach(tileX => {
-                colI = (j * tileSize) + tileX; // the col / gene index
+    // TODO: clean up / remove if statement.
+    if(transpose) {
 
-                if(colI < width) {
-                  value = view[sortedRowI * width + colI];
-                } else {
-                  value = 0;
-                }
-                offset = ((tileSize - tileY - 1) * tileSize + tileX);
+      const numRows = cols.length;
+      const numCols = cellOrdering.length;
 
-                tileData[offset] = value;
-              });
+      result = range(yTiles).map(i => {
+        return range(xTiles).map(j => {
+          const tileData = new Uint8Array(tileSize * tileSize);
+
+          range(tileSize).forEach(tileX => {
+            // Need to iterate over cells in the outer loop.
+            colI = (j * tileSize) + tileX; // the row / cell index
+            if(colI < numCols) {
+              sortedColI = rows.indexOf(cellOrdering[colI]);
+              if(sortedColI >= -1) {
+                range(tileSize).forEach(tileY => {
+                  rowI = (i * tileSize) + tileY; // the col / gene index
+
+                  value = view[sortedColI * numRows + rowI];
+
+                  //value = tileX / tileSize * 255;
+                  offset = ((tileSize - tileY - 1) * tileSize + tileX);
+
+                  tileData[offset] = value;
+                });
+              }
             }
-          }
-        });
+            
+          });
 
-        return tileData;
+          return tileData;
+        });
       });
-    });
+    } else {
+
+      const numRows = cellOrdering.length;
+      const numCols = cols.length;
+
+      result = range(yTiles).map(i => {
+        return range(xTiles).map(j => {
+          const tileData = new Uint8Array(tileSize * tileSize);
+
+          range(tileSize).forEach(tileY => {
+            // Need to iterate over cells in the outer loop.
+            rowI = (i * tileSize) + tileY; // the row / cell index
+            if(rowI < numRows) {
+              sortedRowI = rows.indexOf(cellOrdering[rowI]);
+              if(sortedRowI >= -1) {
+                range(tileSize).forEach(tileX => {
+                  colI = (j * tileSize) + tileX; // the col / gene index
+
+                  if(colI < numCols) {
+                    value = view[sortedRowI * numCols + colI];
+                  } else {
+                    value = 0;
+                  }
+                  offset = ((tileSize - tileY - 1) * tileSize + tileX);
+
+                  tileData[offset] = value;
+                });
+              }
+            }
+          });
+
+          return tileData;
+        });
+      });
+    }
+
     self.postMessage({ tiles: result, buffer: data, curr: curr }, [data]);
 }
 

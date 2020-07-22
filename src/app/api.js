@@ -212,6 +212,9 @@ const configs = {
       { component: 'cellSets',
         x: 9, y: 3, w: 3, h: 2 },
       { component: 'heatmap',
+        props: {
+          transpose: false,
+        },
         x: 2, y: 4, w: 10, h: 2 },
       { component: 'scatterplot',
         props: {

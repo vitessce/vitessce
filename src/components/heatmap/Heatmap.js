@@ -34,7 +34,7 @@ function layerFilter({ layer, viewport }) {
 }
 
 /**
- * A heatmap component for cell x gene matrices.
+ * A heatmap component for cell x gene (and gene x cell) matrices.
  * @param {*} props 
  */
 export default function Heatmap(props) {
@@ -63,6 +63,8 @@ export default function Heatmap(props) {
       //console.warn(`Heatmap updateViewInfo: ${message}`);
     },
     transpose = false,
+    axisLeftTitle = (transpose ? "Genes" : "Cells"),
+    axisTopTitle = (transpose ? "Cells" : "Genes"),
   } = props;
 
   useEffect(() => {
@@ -71,31 +73,40 @@ export default function Heatmap(props) {
     }
   }, [clearPleaseWait, clusters]);
 
+  const workerRef = useRef(new HeatmapWorker());
+  const tilesRef = useRef();
+  const dataRef = useRef();
   const [viewState, setViewState] = useState(initialViewState);
+  const [axisLeftLabels, setAxisLeftLabels] = useState([]);
+  const [axisTopLabels, setAxisTopLabels] = useState([]);
   const [colorScaleLo, setColorScaleLo] = useState(0.0);
   const [colorScaleHi, setColorScaleHi] = useState(1.0);
 
+  // Callback function for the color scale slider change event.
   const onColorScaleChange = useCallback((event, newValue) => {
     setColorScaleLo(newValue[0]);
     setColorScaleHi(newValue[1]);
   }, []);
 
-  const workerRef = useRef(new HeatmapWorker());
-  const tilesRef = useRef();
-  const dataRef = useRef();
-  const [cellOrdering, setCellOrdering] = useState();
-
+  // Since we are storing the tile data in a ref,
+  // and updating it asynchronously when the worker finishes,
+  // we need to tie it to a piece of state through this iteration value.
   const [tileIteration, incTileIteration] = useReducer(i => i+1, 0);
+
+  // We need to keep a backlog of the tasks for the worker thread,
+  // since the array buffer can only be held by one thread at a time.
   const [backlog, setBacklog] = useState([]);
 
+  // Use an effect to listen for the worker to send the array of tiles.
   useEffect(() => {
     workerRef.current.addEventListener('message', (event) => {
       // The tiles have been generated.
       tilesRef.current = event.data.tiles;
       // The buffer has been transferred back to the main thread.
       dataRef.current = new Uint8Array(event.data.buffer);
+      // Increment the counter to notify the downstream useEffects and useMemos.
       incTileIteration();
-
+      // Remove this task and everything prior from the backlog.
       const curr = event.data.curr;
       setBacklog(prev => {
         const currIndex = prev.indexOf(curr);
@@ -104,6 +115,9 @@ export default function Heatmap(props) {
     });
   }, [workerRef, tilesRef]);
 
+  // Store a reference to the matrix Uint8Array in the dataRef,
+  // since we need to access its array buffer to transfer
+  // it back and forth from the worker thread.
   useEffect(() => {
     // Store the clusters Uint8Array in the dataRef.
     if(clusters && clusters.matrix) {
@@ -111,6 +125,8 @@ export default function Heatmap(props) {
     } 
   }, [dataRef, clusters]);
 
+  // Emit the viewInfo event on viewState updates
+  // (used by external tooltips / crosshair elements).
   useEffect(() => {
     if(viewState) {
       updateViewInfo({
@@ -120,29 +136,50 @@ export default function Heatmap(props) {
         viewport: viewState.viewport,
       });
     }
-    
   }, [uuid, viewState, updateViewInfo]);
 
+  // Check if the ordering of axis labels needs to be changed,
+  // for example if the cells "selected" (technically just colored)
+  // have changed.
   useEffect(() => {
     if(!clusters) {
       return;
     }
     // TODO: need to use Map rather than Object.keys since ordering may not be stable/correct when IDs are numbers.
     const newCellOrdering = (!cellColors ? clusters.rows : Object.keys(cellColors));
-    if(!isEqual(cellOrdering, newCellOrdering)) {
-      setCellOrdering(newCellOrdering);
-    }
-  }, [clusters, cellColors, cellOrdering]);
+    const oldCellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
 
-  const width = clusters && clusters.cols ? clusters.cols.length : 0;
-  const height = cellOrdering ? cellOrdering.length : 0;
+    if(!isEqual(oldCellOrdering, newCellOrdering)) {
+      if(transpose) {
+        setAxisTopLabels(newCellOrdering);
+      } else {
+        setAxisLeftLabels(newCellOrdering);
+      }
+    }
+  }, [clusters, cellColors, axisTopLabels, axisLeftLabels]);
+
+  // Set the genes ordering.
+  useEffect(() => {
+    if(!clusters) {
+      return;
+    }
+    if(transpose) {
+      setAxisLeftLabels(clusters.cols);
+    } else {
+      setAxisTopLabels(clusters.cols);
+    }
+  }, [clusters]);
+
+  const width = axisTopLabels.length;
+  const height = axisLeftLabels.length;
 
   const axisOffsetLeft = 80;
   const axisOffsetTop = 80;
 
   const colorOffsetLeft = 20;
+  const colorOffsetTop = 20;
 
-  const offsetTop = axisOffsetTop;
+  const offsetTop = axisOffsetTop + colorOffsetTop;
   const offsetLeft = axisOffsetLeft + colorOffsetLeft;
 
   const matrixWidth = viewWidth - offsetLeft;
@@ -170,8 +207,10 @@ export default function Heatmap(props) {
   const aggSizeX = clamp(Math.pow(2, Math.ceil(Math.log2(1/cellWidth))), MIN_ROW_AGG, MAX_ROW_AGG);
   const aggSizeY = clamp(Math.pow(2, Math.ceil(Math.log2(1/cellHeight))), MIN_ROW_AGG, MAX_ROW_AGG);
 
+  // Listen for viewState changes.
+  // Do not allow the user to zoom and pan outside of the initial window.
   const onViewStateChange = useCallback(({ viewState }) => {
-    const { target, zoom } = viewState;
+    const { zoom } = viewState;
     const scaleFactor = Math.pow(2, zoom);
 
     const minTargetX = zoom === 0 ? 0 : -(matrixRight - (matrixRight / scaleFactor));
@@ -180,19 +219,26 @@ export default function Heatmap(props) {
     const minTargetY = zoom === 0 ? 0 : -(matrixBottom - (matrixBottom / scaleFactor));
     const maxTargetY = -1 * minTargetY;
 
-    // Manipulate view state
+    // Manipulate view state if necessary to keep the user in the window.
     viewState.target[0] = clamp(viewState.target[0], minTargetX, maxTargetX);
     viewState.target[1] = clamp(viewState.target[1], minTargetY, maxTargetY);
 
     setViewState(viewState);
   }, [matrixRight, matrixBottom]);
 
+  // If `clusters` or `cellOrdering` have changed,
+  // then new tiles need to be generated,
+  // so add a new task to the backlog.
   useEffect(() => {
-    if(!clusters || !cellOrdering) {
+    if(!clusters) {
       return;
     }
+    // Use a uuid to give the task a unique ID,
+    // to help identify where in the list it is located
+    // after the worker thread asynchronously sends the data back
+    // to this thread.
     setBacklog(prev => ([...prev, uuidv4()]));
-  }, [dataRef, clusters, cellOrdering]);
+  }, [dataRef, clusters, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
 
   // When the backlog has updated, a new worker job can be submitted if:
   // - the backlog has length >= 1 (at least one job is waiting), and
@@ -208,9 +254,10 @@ export default function Heatmap(props) {
         xTiles,
         yTiles,
         tileSize: TILE_SIZE,
-        cellOrdering,
+        cellOrdering: (transpose ? axisTopLabels : axisLeftLabels),
         rows: clusters.rows,
         cols: clusters.cols,
+        transpose,
         data: dataRef.current.buffer,
       }], [dataRef.current.buffer]);
     }
@@ -236,32 +283,26 @@ export default function Heatmap(props) {
         colorScaleLo,
         colorScaleHi,
         updateTriggers: {
-          image: [cellOrdering],
+          image: [axisLeftLabels, axisTopLabels],
           bounds: [tileHeight, tileWidth],
         }
       });
     }
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
   }, [tilesRef, tileIteration, tileWidth, tileHeight,
-    aggSizeX, aggSizeY, cellOrdering, xTiles, yTiles, colorScaleLo, colorScaleHi,
+    aggSizeX, aggSizeY, axisLeftLabels, axisTopLabels, xTiles, yTiles, colorScaleLo, colorScaleHi,
     backlog]);
 
 
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
-  const colsData = useMemo(() => {
-    if(!clusters) {
-      return [];
-    }
-    return clusters.cols.map((d, i) => [i, d]);
-  }, [clusters]);
+  const axisTopLabelData = useMemo(() => {
+    return axisTopLabels.map((d, i) => [i, d]);
+  }, [axisTopLabels]);
 
-  const rowsData = useMemo(() => {
-    if(!cellOrdering) {
-      return [];
-    }
-    return cellOrdering.map((d, i) => [i, d]);
-  }, [cellOrdering]);
+  const axisLeftLabelData = useMemo(() => {
+    return axisLeftLabels.map((d, i) => [i, d]);
+  }, [axisLeftLabels]);
 
   // Set up the constants for the axis layers.
   const labelSize = 8;
@@ -277,11 +318,12 @@ export default function Heatmap(props) {
   const axisTitleLeft = viewState.target[0];
   const axisTitleTop = viewState.target[1];
   
+  // Generate the axis label and title TextLayer objects.
   const axisLayers = (clusters && clusters.rows && clusters.cols ? [
     new TextLayer({
       id: 'axisLeftLabels',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: rowsData,
+      data: axisLeftLabelData,
       getText: d => d[1],
       getPosition: d => [axisLabelLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
       getTextAnchor: 'end',
@@ -297,7 +339,7 @@ export default function Heatmap(props) {
     new TextLayer({
       id: 'axisTopLabels',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: colsData,
+      data: axisTopLabelData,
       getText: d => d[1],
       getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, axisLabelTop],
       getTextAnchor: 'start',
@@ -314,7 +356,7 @@ export default function Heatmap(props) {
       id: 'axisLeftTitle',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: [{
-        title: "Cells"
+        title: axisLeftTitle
       }],
       getText: d => d.title,
       getPosition: d => [axisTitleLeft, axisTitleTop],
@@ -332,7 +374,7 @@ export default function Heatmap(props) {
       id: 'axisTopTitle',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: [{
-        title: "Genes"
+        title: axisTopTitle
       }],
       getText: d => d.title,
       getPosition: d => [axisTitleLeft, axisTitleTop],
@@ -368,9 +410,10 @@ export default function Heatmap(props) {
     }),
   ] : []);
 
-  // Create the cell color bar.
+  // Create the left color bar with a BitmapLayer.
+  // TODO: identify left and top color bars with colorsLeft and colorsTop, rather than "cellColors".
   const cellColorsTiles = useMemo(() => {
-    if(!cellOrdering || !cellColors) {
+    if(!cellColors) {
       return null;
     }
 
@@ -378,6 +421,10 @@ export default function Heatmap(props) {
     let offset;
     let color;
     let rowI;
+
+    const cellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
+    const colorBarTileWidthPx = (transpose ? TILE_SIZE : 1);
+    const colorBarTileHeightPx = (transpose ? 1 : TILE_SIZE);
 
     const result = range(yTiles).map(i => {
       const tileData = new Uint8ClampedArray(TILE_SIZE * 1 * 4);
@@ -397,12 +444,11 @@ export default function Heatmap(props) {
         }
       });
 
-      // TODO: flip the width/height if on top rather than on left
-      return new ImageData(tileData, 1, TILE_SIZE);
+      return new ImageData(tileData, colorBarTileWidthPx, colorBarTileHeightPx);
     });
 
     return result;
-  }, [cellColors, cellOrdering]);
+  }, [cellColors, axisTopLabels, axisLeftLabels, transpose]);
 
   const cellColorsLayers = useMemo(() => {
     return cellColorsTiles ? cellColorsTiles.map((tile, i) => {
@@ -418,7 +464,7 @@ export default function Heatmap(props) {
 
   // Set up the onHover function.
   function onHover(info, event) {
-    if(!clusters || !cellOrdering) {
+    if(!clusters) {
       return;
     }
     const viewMouseX = event.offsetCenter.x - offsetLeft;
@@ -445,14 +491,15 @@ export default function Heatmap(props) {
     const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
     const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
 
-    
-    const sortedRowI = Math.floor(zoomedMouseY * cellOrdering.length);
-    const rowI = clusters.rows.indexOf(cellOrdering[sortedRowI]);
+    const rowI = Math.floor(zoomedMouseY * height);
     const colI = Math.floor(zoomedMouseX * width);
+
+    const obsI = clusters.rows.indexOf(transpose ? axisTopLabels[colI] : axisLeftLabels[rowI]);
+    const varI = clusters.cols.indexOf(transpose ? axisLeftLabels[rowI] : axisTopLabels[colI]);
     
-    const rowId = clusters.rows[rowI];
-    const colId = clusters.cols[colI];
-    console.log(rowId, colId);
+    const obsId = clusters.rows[obsI];
+    const varId = clusters.cols[varI];
+    console.log(obsId, varId);
   }
 
   return (
@@ -463,6 +510,7 @@ export default function Heatmap(props) {
           new OrthographicView({ id: 'axisLeft', controller: false, x: 0, y: offsetTop, width: axisOffsetLeft, height: matrixHeight }),
           new OrthographicView({ id: 'axisTop', controller: false, x: offsetLeft, y: 0, width: matrixWidth, height: offsetTop }),
           new OrthographicView({ id: 'colorsLeft', controller: false, x: axisOffsetLeft, y: offsetTop, width: colorOffsetLeft - 3, height: matrixHeight }),
+          new OrthographicView({ id: 'colorsTop', controller: false, x: offsetLeft, y: axisOffsetTop, width: matrixWidth, height: colorOffsetTop - 3 }),
         ]}
         layers={layers}
         layerFilter={layerFilter}

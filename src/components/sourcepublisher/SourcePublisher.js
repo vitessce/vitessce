@@ -9,8 +9,9 @@ import {
 } from '../../events';
 
 import { typeToEvent } from './types';
+import { extensionToLoader } from './extensions';
 import JsonLoader from './loaders/JsonLoader';
-import { extensionToLoader } from './loaders/utils';
+
 
 function warn(message) {
   PubSub.publish(STATUS_WARN, message);
@@ -30,12 +31,12 @@ function loadLayer(layer) {
   } = layer;
 
   let loaderClass = JsonLoader;
-  Object.entries(extensionToLoader).forEach(([ext, extLoader]) => {
+  extensionToLoader.forEach((extLoader, ext) => {
     if(url.endsWith(ext)) {
       loaderClass = extLoader;
     }
   });
-
+  
   const loader = new loaderClass(layer);
   loader.load()
     .then((data) => {
