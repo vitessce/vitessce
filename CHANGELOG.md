@@ -24,6 +24,7 @@
 - Bump `viv` to 0.3.1.
 - Fix Heatmap regression/bug.
 - Fix Cypress tests.
+- Make cell boundaries depend on a pixel size setting.
 
 ## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
 
