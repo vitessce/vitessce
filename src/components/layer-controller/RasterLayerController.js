@@ -157,9 +157,13 @@ export default function RasterLayerController({
       // If it's the right-most slider, we take the minimum of that and the new value.
       // Otherwise, we use the maximum of the left-hand side and the new value.
       slider: sliders.map(
-        (slider, i) => slider.map(
-          (val, j) => (j === 1 ? Math.min(val, domain[i][j]) : Math.max(val, domain[i][j])),
-        ),
+        (slider, i) => {
+          const [left, right] = slider;
+          return [
+            Math.max(left, domain[i][0]),
+            Math.min(right, domain[i][1])
+          ];
+        }
       ),
     };
     dispatch({
