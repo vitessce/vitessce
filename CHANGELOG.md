@@ -26,6 +26,7 @@
 - Fix Cypress tests.
 - Make cell boundaries depend on a pixel size setting.
 - Fix small slider bug so the range stays the same.
+- Filter our zarr from file list.
 
 ## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
 
