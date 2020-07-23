@@ -5,13 +5,13 @@ export const clusters = {
     // "An image with an 'F' on it has a clear direction so it's easy to tell
     // if it's turned or flipped etc when we use it as a texture."
     // - https://webglfundamentals.org/webgl/lessons/webgl-3d-textures.html
-    data: [
-      [0, 255, 255, 0],
-      [0, 255, 0, 0],
-      [0, 255, 255, 0],
-      [0, 255, 0, 0],
-      [0, 255, 0, 0],
-    ],
+    data: Uint8Array.from([
+      0, 255, 255, 0,
+      0, 255, 0, 0,
+      0, 255, 255, 0,
+      0, 255, 0, 0,
+      0, 255, 0, 0,
+    ]),
   },
 };
 
