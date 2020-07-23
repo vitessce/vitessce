@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.1.9
+## 0.1.10
+
+### Added
+
+### Changed
+
+## [0.1.9](https://www.npmjs.com/package/vitessce/v/0.1.9) - 2020-07-23
 
 ### Added
 - Add `labelOverride` prop for genes component.
