@@ -1,4 +1,3 @@
-/* eslint-disable */
 import glsl from 'glslify';
 
 /**
@@ -32,7 +31,8 @@ void main(void) {
 `;
 
 /**
- * Fragment shader adapted to perform aggregation and take color scale functions + sliders into account.
+ * Fragment shader adapted to perform aggregation and
+ * take color scale functions + sliders into account.
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-fragment.js
  * Reference: https://github.com/hubmapconsortium/vitessce-image-viewer/blob/06231ae02cac1ff57ba458c71e9bc59ed2fc4f8b/src/layers/XRLayer/xr-layer-fragment-colormap.webgl1.glsl
  */

@@ -1,4 +1,3 @@
-/* eslint-disable */
 // eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
 import React, { useEffect, useState } from 'react';
@@ -10,7 +9,7 @@ import {
 
 import { typeToEvent } from './types';
 import { extensionToLoader } from './extensions';
-import { JsonLoader } from '../../loaders/index';
+import { JsonLoader as DefaultLoader } from '../../loaders/index';
 
 
 function warn(message) {
@@ -30,13 +29,16 @@ function loadLayer(layer) {
     name, type, url,
   } = layer;
 
-  let loaderClass = JsonLoader;
+  // Iterate over loaders in reverse priority order,
+  // and choose the best match based on the URL file extension.
+  let loaderClass = DefaultLoader;
   extensionToLoader.forEach((extLoader, ext) => {
-    if(url.endsWith(ext)) {
+    if (url.endsWith(ext)) {
       loaderClass = extLoader;
     }
   });
-  
+
+  // eslint-disable-next-line new-cap
   const loader = new loaderClass(layer);
   loader.load()
     .then((data) => {
