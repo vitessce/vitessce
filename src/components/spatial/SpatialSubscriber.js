@@ -80,7 +80,7 @@ export default function SpatialSubscriber({
         // Filter out non-downloadable zarr
         const rasterUrlsAndNames = rasterSchema.images.map(
           image => ({ name: image.name, url: image.url }),
-        ).filter(urlAndName => urlAndName.url.includes('zarr'));
+        ).filter(urlAndName => !urlAndName.url.includes('zarr'));
         const newUrls = [...prevUrls].concat(rasterUrlsAndNames);
         return newUrls;
       });

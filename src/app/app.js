@@ -22,6 +22,7 @@ import { muiTheme } from '../components/shared-mui/styles';
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
+  seed: 'vitessce',
 });
 
 function Warning(props) {
