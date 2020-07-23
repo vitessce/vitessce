@@ -14,6 +14,13 @@ import { max } from 'd3-array';
 import { DEFAULT_GL_OPTIONS } from '../utils';
 import HeatmapWorker from './heatmap.worker.js';
 
+const COLOR_BAR_SIZE = 20;
+const LOADING_TEXT_SIZE = 13;
+const AXIS_LABEL_TEXT_SIZE = 8;
+const AXIS_TITLE_TEXT_SIZE = 14;
+const AXIS_MIN_SIZE = 10;
+const AXIS_MAX_SIZE = 80;
+
 const themeToTextColor = {
   "dark": [224, 224, 224],
   "light": [64, 64, 64],
@@ -185,11 +192,11 @@ export default function Heatmap(props) {
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
 
-  const axisOffsetLeft = clamp((transpose ? geneLabelMaxLength : cellLabelMaxLength) * 7, 10, 80);
-  const axisOffsetTop = clamp((transpose ? cellLabelMaxLength : geneLabelMaxLength) * 7, 10, 80);
+  const axisOffsetLeft = clamp((transpose ? geneLabelMaxLength : cellLabelMaxLength) * AXIS_LABEL_TEXT_SIZE, AXIS_MIN_SIZE, AXIS_MAX_SIZE);
+  const axisOffsetTop = clamp((transpose ? cellLabelMaxLength : geneLabelMaxLength) * AXIS_LABEL_TEXT_SIZE, AXIS_MIN_SIZE, AXIS_MAX_SIZE);
 
-  const colorOffsetLeft = 20;
-  const colorOffsetTop = 20;
+  const colorOffsetLeft = COLOR_BAR_SIZE;
+  const colorOffsetTop = COLOR_BAR_SIZE;
 
   const offsetTop = axisOffsetTop + colorOffsetTop;
   const offsetLeft = axisOffsetLeft + colorOffsetLeft;
@@ -317,11 +324,8 @@ export default function Heatmap(props) {
   }, [axisLeftLabels]);
 
   // Set up the constants for the axis layers.
-  const labelSize = 8;
-  const titleSize = 14;
-
-  const showAxisLeftLabels = cellHeight >= labelSize;
-  const showAxisTopLabels = cellWidth >= labelSize;
+  const showAxisLeftLabels = cellHeight >= AXIS_LABEL_TEXT_SIZE;
+  const showAxisTopLabels = cellWidth >= AXIS_LABEL_TEXT_SIZE;
 
   const axisMargin = 3;
   const axisLabelLeft = viewState.target[0] + (axisOffsetLeft - axisMargin)/2/scaleFactor;
@@ -340,7 +344,7 @@ export default function Heatmap(props) {
       getPosition: d => [axisLabelLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
       getTextAnchor: 'end',
       getColor: themeToTextColor[theme],
-      getSize: (showAxisLeftLabels ? labelSize : 0),
+      getSize: (showAxisLeftLabels ? AXIS_LABEL_TEXT_SIZE : 0),
       getAngle: 0,
       updateTriggers: {
         getPosition: [axisLabelLeft, matrixTop, matrixHeight, viewHeight],
@@ -356,7 +360,7 @@ export default function Heatmap(props) {
       getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, axisLabelTop],
       getTextAnchor: 'start',
       getColor: themeToTextColor[theme],
-      getSize: (showAxisTopLabels ? labelSize : 0),
+      getSize: (showAxisTopLabels ? AXIS_LABEL_TEXT_SIZE : 0),
       getAngle: 75,
       updateTriggers: {
         getPosition: [axisLabelTop, matrixLeft, matrixWidth, viewWidth],
@@ -374,7 +378,7 @@ export default function Heatmap(props) {
       getPosition: d => [axisTitleLeft, axisTitleTop],
       getTextAnchor: 'middle',
       getColor: themeToTextColor[theme],
-      getSize: (!showAxisLeftLabels ? titleSize : 0),
+      getSize: (!showAxisLeftLabels ? AXIS_TITLE_TEXT_SIZE : 0),
       getAngle: 90,
       updateTriggers: {
         getPosition: [axisTitleLeft, axisTitleTop],
@@ -392,7 +396,7 @@ export default function Heatmap(props) {
       getPosition: d => [axisTitleLeft, axisTitleTop],
       getTextAnchor: 'middle',
       getColor: themeToTextColor[theme],
-      getSize: (!showAxisTopLabels ? titleSize : 0),
+      getSize: (!showAxisTopLabels ? AXIS_TITLE_TEXT_SIZE : 0),
       getAngle: 0,
       updateTriggers: {
         getPosition: [axisTitleLeft, axisTitleTop],
@@ -414,7 +418,7 @@ export default function Heatmap(props) {
       getPosition: d => [viewState.target[0], viewState.target[1]],
       getTextAnchor: 'middle',
       getColor: themeToTextColor[theme],
-      getSize: 13,
+      getSize: LOADING_TEXT_SIZE,
       getAngle: 0,
       updateTriggers: {
         getColor: [theme],
