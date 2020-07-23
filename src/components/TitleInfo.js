@@ -5,7 +5,7 @@ import Link from '@material-ui/core/Link';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 
-import { SCROLL_CARD, BLACK_CARD, PRIMARY_CARD } from './classNames';
+import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
 import ClosePaneButton from './ClosePaneButton';
 import { PopperMenu } from './shared-mui/components';
 
@@ -50,7 +50,7 @@ export default function TitleInfo(props) {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls, theme,
   } = props;
   // eslint-disable-next-line no-nested-ternary
-  const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : PRIMARY_CARD);
+  const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>

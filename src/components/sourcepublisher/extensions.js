@@ -2,6 +2,7 @@ import {
   JsonLoader,
   MatrixZarrLoader,
   ClustersJsonAsMatrixZarrLoader,
+  GenesJsonAsMatrixZarrLoader,
 } from '../../loaders/index';
 
 // Map here is important,
@@ -10,6 +11,7 @@ export const extensionToLoader = new Map([
   // Least specific
   ['.json', JsonLoader],
   ['.expression-matrix.zarr', MatrixZarrLoader],
+  ['.genes.json', GenesJsonAsMatrixZarrLoader],
   ['.clusters.json', ClustersJsonAsMatrixZarrLoader],
   // Most specific
 ]);

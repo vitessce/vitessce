@@ -4,7 +4,7 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.30/master_release';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
@@ -52,10 +52,13 @@ const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs w
 const wangBase = {
   description: wangDescription,
   layers: [
-    'cells',
-    'molecules',
-    'genes',
-  ].map(makeLayerNameToConfig('wang')),
+    ...['cells', 'molecules'].map(makeLayerNameToConfig('wang')),
+    {
+      ...makeLayerNameToConfig('wang')('genes'),
+      name: 'expression-matrix',
+      type: 'EXPRESSION-MATRIX',
+    },
+  ],
 };
 
 const vanderbiltDescription = 'High Bit Depth (uint16) Multiplex Immunofluorescence Imaging';
@@ -74,17 +77,17 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
       {
         name: 'cells',
         type: 'CELLS',
-        url: `https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/${globusId}.cells.json`,
+        url: `https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/satija/${globusId}.cells.json`,
       },
       {
         name: 'cell-sets',
         type: 'CELL-SETS',
-        url: `https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/${globusId}.cell-sets.json`,
+        url: `https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/satija/${globusId}.cell-sets.json`,
       },
       {
         name: 'expression-matrix',
         type: 'EXPRESSION-MATRIX',
-        url: `https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/${globusId}.expression-matrix.zarr`,
+        url: `https://vitessce-data.storage.googleapis.com/0.0.31/master_release/satija/${globusId}.expression-matrix.zarr`,
       },
     ],
     public: true,

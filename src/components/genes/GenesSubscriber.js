@@ -1,11 +1,14 @@
-/* eslint-disable */
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  useState, useEffect, useCallback, useMemo,
+} from 'react';
 import PubSub from 'pubsub-js';
 
 import Genes from './Genes';
 
 import TitleInfo from '../TitleInfo';
-import { EXPRESSION_MATRIX_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT, RESET } from '../../events';
+import {
+  EXPRESSION_MATRIX_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT, RESET,
+} from '../../events';
 import { interpolatePlasma } from '../interpolate-colors';
 import { fromEntries } from '../utils';
 
@@ -27,12 +30,12 @@ export default function GenesSubscriber(props) {
     const expressionMatrixAddToken = PubSub.subscribe(
       EXPRESSION_MATRIX_ADD, (msg, { data, url }) => {
         const [attrs, arr] = data;
-    
-        arr.get([null, null]).then(X => {
+
+        arr.get([null, null]).then((X) => {
           setClusters({
             cols: attrs.cols,
             rows: attrs.rows,
-            matrix: X
+            matrix: X,
           });
         });
         setUrls((prevUrls) => {
@@ -47,16 +50,17 @@ export default function GenesSubscriber(props) {
       PubSub.unsubscribe(expressionMatrixAddToken);
       PubSub.unsubscribe(resetToken);
     };
-  }, []);
+  }, [onReadyCallback]);
 
-  const setSelectedGene = useCallback((selectedId) => {
-    setSelectedId(selectedId);
+  const setSelectedGene = useCallback((newSelectedId) => {
+    setSelectedId(newSelectedId);
 
-    if(clusters) {
-      const colI = clusters.cols.indexOf(selectedId);
-      if(colI !== -1) {
+    if (clusters) {
+      const colI = clusters.cols.indexOf(newSelectedId);
+      if (colI !== -1) {
         const cellColors = fromEntries(clusters.rows.map((cellId, rowI) => {
           const value = clusters.matrix.data[rowI][colI];
+          // The lowest 25% does not have good contrast.
           const cellColor = interpolatePlasma(value / 255);
           return [cellId, cellColor];
         }));
@@ -66,16 +70,14 @@ export default function GenesSubscriber(props) {
   }, [clusters]);
 
   const genesSelected = useMemo(() => {
-    if(!clusters) {
+    if (!clusters) {
       return null;
     }
-    return fromEntries(clusters.cols.map((geneId) => {
-      return [geneId, geneId === selectedId];
-    }));
+    return fromEntries(clusters.cols.map(geneId => [geneId, geneId === selectedId]));
   }, [clusters, selectedId]);
 
   const numGenes = clusters ? clusters.cols.length : '?';
-  
+
 
   return (
     <TitleInfo
@@ -95,5 +97,4 @@ export default function GenesSubscriber(props) {
       />
     </TitleInfo>
   );
-  
 }

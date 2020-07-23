@@ -10,6 +10,7 @@ import HeatmapControls from './HeatmapControls';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
+import { max } from 'd3-array';
 import { DEFAULT_GL_OPTIONS } from '../utils';
 import HeatmapWorker from './heatmap.worker.js';
 
@@ -171,11 +172,21 @@ export default function Heatmap(props) {
     }
   }, [clusters]);
 
+  const [cellLabelMaxLength, geneLabelMaxLength] = useMemo(() => {
+    if(!clusters) {
+      return [0, 0];
+    }
+    return [
+      max(clusters.rows.map(cellId => cellId.length)),
+      max(clusters.cols.map(geneId => geneId.length))
+    ];
+  }, [clusters]);
+
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
 
-  const axisOffsetLeft = 80;
-  const axisOffsetTop = 80;
+  const axisOffsetLeft = clamp((transpose ? geneLabelMaxLength : cellLabelMaxLength) * 7, 10, 80);
+  const axisOffsetTop = clamp((transpose ? cellLabelMaxLength : geneLabelMaxLength) * 7, 10, 80);
 
   const colorOffsetLeft = 20;
   const colorOffsetTop = 20;
