@@ -82,8 +82,8 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
         url: `https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/${globusId}.cell-sets.json`,
       },
       {
-        name: 'genes',
-        type: 'GENES',
+        name: 'expression-matrix',
+        type: 'EXPRESSION-MATRIX',
         url: `https://s3.amazonaws.com/vitessce-data/0.0.30/master_release/satija/${globusId}.expression-matrix.zarr`,
       },
     ],

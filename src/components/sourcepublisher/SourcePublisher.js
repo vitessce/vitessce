@@ -10,7 +10,7 @@ import {
 
 import { typeToEvent } from './types';
 import { extensionToLoader } from './extensions';
-import JsonLoader from './loaders/JsonLoader';
+import { JsonLoader } from '../../loaders/index';
 
 
 function warn(message) {

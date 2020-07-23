@@ -4,8 +4,8 @@ import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
 import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
 import { TextLayer } from '@deck.gl/layers';
-import HeatmapBitmapLayer, { TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG } from './HeatmapBitmapLayer';
-import PixelatedBitmapLayer from './PixelatedBitmapLayer';
+import HeatmapBitmapLayer, { TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG } from '../../layers/HeatmapBitmapLayer';
+import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
 import HeatmapControls from './HeatmapControls';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
@@ -146,7 +146,7 @@ export default function Heatmap(props) {
       return;
     }
     // TODO: need to use Map rather than Object.keys since ordering may not be stable/correct when IDs are numbers.
-    const newCellOrdering = (!cellColors ? clusters.rows : Object.keys(cellColors));
+    const newCellOrdering = (!cellColors || Object.keys(cellColors).length === 0 ? clusters.rows : Object.keys(cellColors));
     const oldCellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
 
     if(!isEqual(oldCellOrdering, newCellOrdering)) {

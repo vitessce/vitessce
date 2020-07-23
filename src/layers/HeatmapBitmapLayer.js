@@ -1,10 +1,10 @@
 /* eslint-disable */
 import GL from '@luma.gl/constants';
 import { _mergeShaders, project32, picking } from '@deck.gl/core';
-import { BitmapLayer} from '@deck.gl/layers';
+import { BitmapLayer } from '@deck.gl/layers';
 import { Texture2D } from '@luma.gl/core';
-import { PIXELATED_TEXTURE_PARAMETERS } from './utils';
-import { vs, fs } from './shaders';
+import { PIXELATED_TEXTURE_PARAMETERS } from './bitmap-utils';
+import { vertexShader, fragmentShader } from './heatmap-bitmap-layer-shaders';
 
 export const TILE_SIZE = 2048;
 export const MIN_ROW_AGG = 1;
@@ -45,8 +45,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
   getShaders() {
     const { colormap } = this.props;
     return this._getShaders({
-      vs,
-      fs: fs.replace('__colormap', colormap),
+      vs: vertexShader,
+      fs: fragmentShader.replace('__colormap', colormap),
       modules: [ project32, picking ]
     });
   }

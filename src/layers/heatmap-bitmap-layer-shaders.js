@@ -1,13 +1,11 @@
 /* eslint-disable */
 import glsl from 'glslify';
 
-// Shaders for HeatmapBitmapLayer.
-
 /**
- * No change to the vertex shader.
+ * No change to the vertex shader from the base BitmapLayer.
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-vertex.js
  */
-export const vs = glsl`
+export const vertexShader = glsl`
 #define SHADER_NAME heatmap-bitmap-layer-vertex-shader
 
 attribute vec2 texCoords;
@@ -38,7 +36,7 @@ void main(void) {
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-fragment.js
  * Reference: https://github.com/hubmapconsortium/vitessce-image-viewer/blob/06231ae02cac1ff57ba458c71e9bc59ed2fc4f8b/src/layers/XRLayer/xr-layer-fragment-colormap.webgl1.glsl
  */
-export const fs = glsl`
+export const fragmentShader = glsl`
 #define SHADER_NAME heatmap-bitmap-layer-fragment-shader
 
 #ifdef GL_ES
