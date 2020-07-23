@@ -51,7 +51,7 @@ export default class JsonLoader extends AbstractLoader {
         return Promise.reject(reason);
       })
       .catch((reason) => {
-        console.warn(`"${name}" (${type}) from ${url}: validation failed`, reason);
+        console.warn(`"${name}" (${type}) from ${url}: validation failed`, JSON.stringify(reason, null, 2));
         return Promise.reject(new Error(`Error while validating ${name}.`));
       });
     return this.data;
@@ -66,7 +66,7 @@ export default class JsonLoader extends AbstractLoader {
     const valid = validate(data);
     let failureReason;
     if (!valid) {
-      failureReason = JSON.stringify(validate.errors, null, 2);
+      failureReason = validate.errors;
     }
     return [valid, failureReason];
   }
