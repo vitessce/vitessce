@@ -10,10 +10,15 @@ import {
 import { typeToEvent } from './types';
 import { extensionToLoader } from './extensions';
 import { JsonLoader as DefaultLoader } from '../../loaders/index';
+import { AbstractLoaderError } from '../../loaders/errors/index';
 
 
-function warn(message) {
-  PubSub.publish(STATUS_WARN, message);
+function warn(error) {
+  PubSub.publish(STATUS_WARN, error.message);
+  console.warn(error.message);
+  if (error instanceof AbstractLoaderError) {
+    error.warnInConsole();
+  }
 }
 
 function info(fileName) {
@@ -45,9 +50,7 @@ function loadLayer(layer) {
       PubSub.publish(typeToEvent[type], { data, url });
       info(name);
     })
-    .catch((reason) => {
-      warn(reason);
-    });
+    .catch(warn);
 }
 
 export default function SourcePublisher({ layers, height }) {

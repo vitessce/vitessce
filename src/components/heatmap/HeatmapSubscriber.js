@@ -14,7 +14,6 @@ import Heatmap from './Heatmap';
 export default function HeatmapSubscriber(props) {
   const { children, uuid, removeGridComponent, onReady, theme, transpose } = props;
 
-  const [cells, setCells] = useState({});
   const [clusters, setClusters] = useState(null);
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
@@ -26,7 +25,7 @@ export default function HeatmapSubscriber(props) {
 
   useEffect(() => {
     const expressionMatrixAddToken = PubSub.subscribe(
-      EXPRESSION_MATRIX_ADD, (msg, { data, url }) => {
+      EXPRESSION_MATRIX_ADD, (msg, { data }) => {
         const [attrs, arr] = data;
         
         // Get the full zarr array (all chunks & flat).
@@ -36,20 +35,6 @@ export default function HeatmapSubscriber(props) {
             rows: attrs.rows,
             matrix: X
           });
-        });
-
-        setUrls((prevUrls) => {
-          const newUrls = [...prevUrls].concat({ url, name: 'Genes' });
-          return newUrls;
-        });
-      },
-    );
-    const cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, (msg, { data, url }) => {
-        setCells(data);
-        setUrls((prevUrls) => {
-          const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
-          return newUrls;
         });
       },
     );
@@ -72,7 +57,6 @@ export default function HeatmapSubscriber(props) {
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(expressionMatrixAddToken);
-      PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsColorToken);
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(cellSetsViewToken);
@@ -100,9 +84,7 @@ export default function HeatmapSubscriber(props) {
           width={width}
           theme={theme}
           uuid={uuid}
-          cells={cells}
           clusters={clusters}
-          selectedCellIds={selectedCellIds}
           cellColors={cellColors}
           updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
           updateStatus={message => PubSub.publish(STATUS_INFO, message)}

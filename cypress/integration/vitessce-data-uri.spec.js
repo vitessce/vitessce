@@ -74,7 +74,7 @@ describe('Vitessce Data URIs', () => {
       ]
     };
     loadConfig(config);
-    cy.contains('Error HTTP status from cells.');
+    cy.contains('Error HTTP status fetching cells.');
   });
 
   it('handles errors from bad view config', () => {

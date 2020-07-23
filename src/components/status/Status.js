@@ -9,7 +9,6 @@ export default function Status(props) {
     messages.push(<p className="details" key="info">{info}</p>);
   }
   if (warn) {
-    console.warn(warn);
     messages.push(<p className={warnClass} key="warn">{warn}</p>);
   }
   return (

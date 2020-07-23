@@ -1,5 +1,6 @@
 import Ajv from 'ajv';
 import AbstractLoader from './AbstractLoader';
+import { LoaderFetchError, LoaderValidationError } from './errors/index';
 
 import cellsSchema from '../schemas/cells.schema.json';
 import factorsSchema from '../schemas/factors.schema.json';
@@ -37,22 +38,14 @@ export default class JsonLoader extends AbstractLoader {
         if (response.ok) {
           return response.json();
         }
-        return Promise.reject(response.headers);
-      })
-      .catch((reason) => {
-        console.warn(`"${name}" (${type}) from ${url}: fetch failed`, reason);
-        return Promise.reject(new Error(`Error while fetching ${name}.`));
+        return Promise.reject(new LoaderFetchError(name, type, url, response.headers));
       })
       .then((data) => {
         const [valid, reason] = this.validate(data);
         if (valid) {
           return Promise.resolve(data);
         }
-        return Promise.reject(reason);
-      })
-      .catch((reason) => {
-        console.warn(`"${name}" (${type}) from ${url}: validation failed`, JSON.stringify(reason, null, 2));
-        return Promise.reject(new Error(`Error while validating ${name}.`));
+        return Promise.reject(new LoaderValidationError(name, type, url, reason));
       });
     return this.data;
   }

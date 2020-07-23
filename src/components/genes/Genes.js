@@ -10,7 +10,7 @@ export default function Genes(props) {
 
   useEffect(() => {
     if (clearPleaseWait && genesSelected) {
-      clearPleaseWait('genes');
+      clearPleaseWait('expression-matrix');
     }
   }, [clearPleaseWait, genesSelected]);
 

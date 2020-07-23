@@ -48,13 +48,14 @@ export default function Heatmap(props) {
     },
     width: viewWidth,
     height: viewHeight,
-    cells,
     clusters,
-    selectedCellIds,
     cellColors,
     clearPleaseWait,
     updateCellsHover = (hoverInfo) => {
       console.warn(`Heatmap updateCellsHover: ${hoverInfo.cellId}`);
+    },
+    updateGenesHover = (hoverInfo) => {
+      console.warn(`Heatmap updateGenesHover: ${hoverInfo.geneId}`);
     },
     updateStatus = (message) => {
       console.warn(`Heatmap updateStatus: ${message}`);
