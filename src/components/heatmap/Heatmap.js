@@ -58,9 +58,12 @@ export default function Heatmap(props) {
     updateStatus = createDefaultUpdateStatus('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
     transpose = false,
-    axisLeftTitle = (transpose ? "Genes" : "Cells"),
-    axisTopTitle = (transpose ? "Cells" : "Genes"),
+    variableTitle = "Genes",
+    observationTitle = "Cells",
   } = props;
+
+  const axisLeftTitle = (transpose ? variableTitle : observationTitle);
+  const axisTopTitle = (transpose ? observationTitle : variableTitle);
 
   useEffect(() => {
     if (clearPleaseWait && clusters) {
@@ -439,15 +442,15 @@ export default function Heatmap(props) {
     const colorBarTileWidthPx = (transpose ? TILE_SIZE : 1);
     const colorBarTileHeightPx = (transpose ? 1 : TILE_SIZE);
 
-    const result = range(yTiles).map(i => {
+    const result = range((transpose ? xTiles : yTiles)).map(i => {
       const tileData = new Uint8ClampedArray(TILE_SIZE * 1 * 4);
 
       range(TILE_SIZE).forEach(tileY => {
         rowI = (i * TILE_SIZE) + tileY; // the row / cell index
-        if(rowI < height) {
+        if(rowI < cellOrdering.length) {
           cellId = cellOrdering[rowI];
           color = cellColors[cellId];
-          offset = (TILE_SIZE - tileY - 1) * 4;
+          offset = (transpose ? tileY : (TILE_SIZE - tileY - 1)) * 4;
           if(color) {
             tileData[offset + 0] = color[0];
             tileData[offset + 1] = color[1];
@@ -466,14 +469,27 @@ export default function Heatmap(props) {
   const cellColorsLayers = useMemo(() => {
     return cellColorsTiles ? cellColorsTiles.map((tile, i) => {
       return new PixelatedBitmapLayer({
-        id: `colorsLeftLayer-${i}-${uuidv4()}`,
+        id: `${(transpose ? 'colorsTopLayer' : 'colorsLeftLayer')}-${i}-${uuidv4()}`,
         image: tile,
-        bounds: [-matrixWidth/2, matrixTop + i*tileHeight, matrixWidth/2, matrixTop + (i+1)*tileHeight],
+        bounds: (transpose ? [
+          matrixLeft + i*tileWidth,
+          -matrixHeight/2,
+          matrixLeft + (i+1)*tileWidth,
+          matrixHeight/2,
+        ] : [
+          -matrixWidth/2,
+          matrixTop + i*tileHeight,
+          matrixWidth/2,
+          matrixTop + (i+1)*tileHeight
+        ]),
       });
     }) : [];
-  }, [cellColorsTiles, matrixTop, tileHeight]);
+  }, [cellColorsTiles, matrixTop,matrixLeft, matrixHeight, matrixWidth, tileWidth, tileHeight, transpose]);
 
-  const layers = heatmapLayers.concat(axisLayers).concat(loadingLayers).concat(cellColorsLayers);
+  const layers = heatmapLayers
+    .concat(axisLayers)
+    .concat(loadingLayers)
+    .concat(cellColorsLayers);
 
   // Set up the onHover function.
   function onHover(info, event) {
@@ -511,8 +527,13 @@ export default function Heatmap(props) {
       }
     }
 
-    const obsI = clusters.rows.indexOf(transpose ? axisTopLabels[colI] : axisLeftLabels[rowI]);
-    const varI = clusters.cols.indexOf(transpose ? axisLeftLabels[rowI] : axisTopLabels[colI]);
+    const obsI = clusters.rows.indexOf(transpose
+      ? axisTopLabels[colI]
+      : axisLeftLabels[rowI]
+    );
+    const varI = clusters.cols.indexOf(transpose
+      ? axisLeftLabels[rowI]
+      : axisTopLabels[colI]);
     
     const obsId = clusters.rows[obsI];
     const varId = clusters.cols[varI];
@@ -535,8 +556,8 @@ export default function Heatmap(props) {
       <DeckGL
         views={[
           new OrthographicView({ id: 'heatmap', controller: true, x: offsetLeft, y: offsetTop, width: matrixWidth, height: matrixHeight }),
-          new OrthographicView({ id: 'axisLeft', controller: false, x: 0, y: offsetTop, width: axisOffsetLeft, height: matrixHeight }),
-          new OrthographicView({ id: 'axisTop', controller: false, x: offsetLeft, y: 0, width: matrixWidth, height: offsetTop }),
+          new OrthographicView({ id: 'axisLeft', controller: false, x: (transpose ? COLOR_BAR_SIZE : 0), y: offsetTop, width: axisOffsetLeft, height: matrixHeight }),
+          new OrthographicView({ id: 'axisTop', controller: false, x: offsetLeft, y: (transpose ? 0 : COLOR_BAR_SIZE), width: matrixWidth, height: axisOffsetTop }),
           new OrthographicView({ id: 'colorsLeft', controller: false, x: axisOffsetLeft, y: offsetTop, width: COLOR_BAR_SIZE - 3, height: matrixHeight }),
           new OrthographicView({ id: 'colorsTop', controller: false, x: offsetLeft, y: axisOffsetTop, width: matrixWidth, height: COLOR_BAR_SIZE - 3 }),
         ]}

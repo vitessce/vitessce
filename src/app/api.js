@@ -92,6 +92,12 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
     ],
     public: true,
     staticLayout: [
+      { component: 'cellSets',
+        x: 7, y: 0, w: 5, h: 2 },
+      { component: 'genes',
+        x: 7, y: 2, w: 5, h: 2 },
+      { component: 'heatmap',
+        x: 0, y: 4, w: 12, h: 4 },
       { component: 'scatterplot',
         props: {
           mapping: 'UMAP',
@@ -101,12 +107,6 @@ const createHuBMAPCellAnnotationsConfig = (globusId) => ({
           },
         },
         x: 0, y: 0, w: 7, h: 4 },
-      { component: 'cellSets',
-        x: 7, y: 0, w: 5, h: 2 },
-      { component: 'genes',
-        x: 7, y: 2, w: 5, h: 2 },
-      { component: 'heatmap',
-        x: 0, y: 4, w: 12, h: 4 },
     ],
   }
 });

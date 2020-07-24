@@ -2,8 +2,8 @@ import React, {
   useState, useCallback, useEffect, useMemo,
 } from 'react';
 import PubSub from 'pubsub-js';
+import uuidv4 from 'uuid/v4';
 import shortNumber from 'short-number';
-
 import TitleInfo from '../TitleInfo';
 import {
   MOLECULES_ADD,
@@ -26,18 +26,22 @@ import {
   RESET,
   RASTER_ADD,
 } from '../../events';
+import { useGridItemSize } from '../utils';
 import Spatial from './Spatial';
+import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 
 export default function SpatialSubscriber({
-  children,
   onReady,
   removeGridComponent,
   moleculeRadius,
   view,
   cellRadius,
   theme,
-  uuid = null,
 }) {
+  // Create a UUID so that hover events
+  // know from which DeckGL element they were generated.
+  const uuid = uuidv4();
+
   const [cells, setCells] = useState(null);
   const [molecules, setMolecules] = useState(null);
   const [cellColors, setCellColors] = useState(null);
@@ -50,6 +54,8 @@ export default function SpatialSubscriber({
   const [moleculesOpacity, setMoleculesOpacity] = useState(1);
   const [areMoleculesOn, setMoleculesOn] = useState(true);
   const [urls, setUrls] = useState([]);
+
+  const [width, height, containerRef] = useGridItemSize('#deckgl-wrapper');
 
   const onReadyCallback = useCallback(onReady, []);
 
@@ -187,6 +193,15 @@ export default function SpatialSubscriber({
     layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName),
     [],
   );
+
+  const getCellInfo = useCallback((cellId) => {
+    const cellInfo = cells[cellId];
+    return {
+      'Cell ID': cellId,
+      ...(cellInfo ? cellInfo.factors : {}),
+    };
+  }, [cells]);
+
   return (
     <TitleInfo
       title="Spatial"
@@ -198,29 +213,36 @@ export default function SpatialSubscriber({
       theme={theme}
       removeGridComponent={removeGridComponent}
     >
-      {children}
-      <Spatial
-        cells={cells}
-        selectedCellIds={selectedCellIds}
-        neighborhoods={neighborhoods}
-        molecules={molecules}
-        moleculesOpacity={moleculesOpacity}
-        areCellsOn={areCellsOn}
-        cellOpacity={cellOpacity}
-        cellColors={cellColors}
-        areMoleculesOn={areMoleculesOn}
-        imageLayerProps={imageLayerProps}
-        imageLayerLoaders={imageLayerLoaders}
-        view={view}
-        cellRadius={cellRadius}
-        moleculeRadius={moleculeRadius}
-        uuid={uuid}
-        updateStatus={updateStatus}
-        updateCellsSelection={updateCellsSelection}
-        updateCellsHover={updateCellsHover}
-        updateViewInfo={updateViewInfo}
-        clearPleaseWait={clearPleaseWait}
-      />
+      <div ref={containerRef}>
+        <Spatial
+          cells={cells}
+          selectedCellIds={selectedCellIds}
+          neighborhoods={neighborhoods}
+          molecules={molecules}
+          moleculesOpacity={moleculesOpacity}
+          areCellsOn={areCellsOn}
+          cellOpacity={cellOpacity}
+          cellColors={cellColors}
+          areMoleculesOn={areMoleculesOn}
+          imageLayerProps={imageLayerProps}
+          imageLayerLoaders={imageLayerLoaders}
+          view={view}
+          cellRadius={cellRadius}
+          moleculeRadius={moleculeRadius}
+          uuid={uuid}
+          updateStatus={updateStatus}
+          updateCellsSelection={updateCellsSelection}
+          updateCellsHover={updateCellsHover}
+          updateViewInfo={updateViewInfo}
+          clearPleaseWait={clearPleaseWait}
+        />
+        <SpatialTooltipSubscriber
+          uuid={uuid}
+          width={width}
+          height={height}
+          getCellInfo={getCellInfo}
+        />
+      </div>
     </TitleInfo>
   );
 }

@@ -1,6 +1,7 @@
 /* eslint-disable */
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import PubSub from 'pubsub-js';
+import uuidv4 from 'uuid/v4';
 
 import TitleInfo from '../TitleInfo';
 import {
@@ -8,12 +9,24 @@ import {
   CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
   RESET, EXPRESSION_MATRIX_ADD, VIEW_INFO, GENES_HOVER,
 } from '../../events';
-import { useGridItemSize } from '../utils';
+import { useGridItemSize, pluralize, capitalize } from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
 export default function HeatmapSubscriber(props) {
-  const { children, uuid, removeGridComponent, onReady, theme, transpose } = props;
+  const {
+    removeGridComponent, onReady, theme, transpose,
+    observationLabel = "cell",
+    variableLabel = "gene",
+  } = props;
+
+  const observationTitle = capitalize(pluralize(observationLabel));
+  const variableTitle = capitalize(pluralize(variableLabel));
+
+
+  // Create a UUID so that hover events
+  // know from which element they were generated.
+  const uuid = uuidv4();
 
   const [cells, setCells] = useState({});
   const [clusters, setClusters] = useState(null);
@@ -22,20 +35,20 @@ export default function HeatmapSubscriber(props) {
   const [urls, setUrls] = useState([]);
 
   const onReadyCallback = useCallback(onReady, []);
-  
-  const [width, height, containerRef] = useGridItemSize("#deckgl-wrapper");
+
+  const [width, height, containerRef] = useGridItemSize('#deckgl-wrapper');
 
   useEffect(() => {
     const expressionMatrixAddToken = PubSub.subscribe(
       EXPRESSION_MATRIX_ADD, (msg, { data }) => {
         const [attrs, arr] = data;
-        
+
         // Get the full zarr array (all chunks & flat).
-        arr.getRaw([null, null]).then(X => {
+        arr.getRaw([null, null]).then((X) => {
           setClusters({
             cols: attrs.cols,
             rows: attrs.rows,
-            matrix: X
+            matrix: X,
           });
         });
       },
@@ -46,8 +59,8 @@ export default function HeatmapSubscriber(props) {
       },
     );
     const cellsColorToken = PubSub.subscribe(
-      CELLS_COLOR, (msg, cellColors) => {
-        setCellColors(cellColors);
+      CELLS_COLOR, (msg, newCellColors) => {
+        setCellColors(newCellColors);
       },
     );
     const cellsSelectionToken = PubSub.subscribe(
@@ -69,20 +82,24 @@ export default function HeatmapSubscriber(props) {
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(cellSetsViewToken);
       PubSub.unsubscribe(resetToken);
-    }
+    };
   }, [onReadyCallback]);
 
   const getCellInfo = useCallback((cellId) => {
-    const cellInfo = cells[cellId];
-    return {
-      'Cell ID': cellId,
-      ...(cellInfo ? cellInfo.factors : {}),
-    };
+    if(cellId) {
+      const cellInfo = cells[cellId];
+      return {
+        [`${capitalize(observationLabel)} ID`]: cellId,
+        ...(cellInfo ? cellInfo.factors : {}),
+      };
+    }
+    return null;
   }, [cells]);
-  const getGeneInfo = useCallback((geneId) => {
-    return {
-      'Gene ID': geneId,
-    };
+  const getGeneInfo = useCallback(geneId => {
+    if(geneId) {
+      return { [`${capitalize(variableLabel)} ID`]: geneId, };
+    }
+    return null;
   }, []);
 
   const cellsCount = clusters && clusters.rows ? clusters.rows.length : 0;
@@ -91,13 +108,12 @@ export default function HeatmapSubscriber(props) {
   return (
     <TitleInfo
       title="Heatmap"
-      info={`${cellsCount} cells × ${genesCount} genes,
-              with ${selectedCount} cells selected`}
+      info={`${cellsCount} ${pluralize(observationLabel, cellsCount)} × ${genesCount} ${pluralize(variableLabel, genesCount)},
+              with ${selectedCount} ${pluralize(observationLabel, selectedCount)} selected`}
       urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}
     >
-      {children}
       <div ref={containerRef}>
         <Heatmap
           transpose={transpose}
@@ -114,6 +130,8 @@ export default function HeatmapSubscriber(props) {
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
+          observationTitle={observationTitle}
+          variableTitle={variableTitle}
         />
         <HeatmapTooltipSubscriber
           uuid={uuid}

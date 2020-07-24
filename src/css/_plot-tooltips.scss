@@ -1,28 +1,19 @@
 /* Tooltips for plot hover events. */
 @mixin plot-tooltips($theme-name, $theme-colors) {
-  .cell-emphasis-crosshair, .cell-emphasis-vertical {
-      z-index: 5;
-      position: absolute;
-      pointer-events: none;
+  .cell-tooltip, .cell-emphasis-crosshair {
+    z-index: 50;
+    position: absolute;
+    pointer-events: none;
+    box-sizing: border-box;
+  }
+
+  .cell-emphasis-crosshair {
       background-color: map-get($theme-colors, "secondary-foreground");
   }
 
-  .cell-emphasis-vertical {
-      /* offset by the same amount as the container (.card-body) padding */
-      transform: translateX(1.25rem);
-  }
-
-  .cell-tooltip-wrapper {
-      position: relative;
-  }
-
   .cell-tooltip {
-      z-index: 1001;
-      position: absolute;
-      pointer-events: none;
       height: auto;
       width: auto;
-      box-sizing: border-box;
       opacity: 0;
       padding: 0.5rem;
       border-radius: 0.25rem;

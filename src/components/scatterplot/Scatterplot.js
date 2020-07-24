@@ -16,6 +16,8 @@ import {
 const COMPONENT_NAME = 'Scatterplot';
 const CELLS_LAYER_ID = 'scatterplot';
 
+const FLIP_Y = true;
+
 /**
  * React component which renders a scatterplot from cell data, typically tSNE or PCA.
  * @prop {string} uuid
@@ -67,7 +69,7 @@ export default function Scatterplot(props) {
       const mappedCell = mappings[mapping];
       // The negative applied to the y-axis is because
       // graphics rendering has the y-axis positive going south.
-      return [mappedCell[0], -mappedCell[1], 0];
+      return [mappedCell[0], (FLIP_Y ? -1 : 1) * mappedCell[1], 0];
     },
     getCellColor = cellEntry => (cellColors && cellColors[cellEntry[0]]) || DEFAULT_COLOR,
     getCellIsSelected = cellEntry => (
@@ -94,34 +96,23 @@ export default function Scatterplot(props) {
   } = props;
 
   const deckRef = useRef();
-  const viewRef = useRef({
-    viewport: null,
-    width: null,
-    height: null,
-    uuid,
-  });
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
 
-  const onViewStateChange = useCallback(({ viewState }) => {
-    // Update the viewport field of the `viewRef` object
-    // to satisfy components (e.g. CellTooltip2D) that depend on an
-    // up-to-date viewport instance (to perform projections).
-    const viewport = (new OrthographicView()).makeViewport({
-      viewState,
-      width: viewRef.current.width,
-      height: viewRef.current.height,
+  const onInitializeViewInfo = useCallback(({ viewport }) => {
+    updateViewInfo({
+      uuid,
+      project: (cellId) => {
+        const cellInfo = cells[cellId];
+        try {
+          const [positionX, positionY] = getCellPosition([cellId, cellInfo]);
+          return viewport.project([positionX, positionY]);
+        } catch (e) {
+          return [null, null];
+        }
+      },
     });
-    viewRef.current.viewport = viewport;
-    updateViewInfo(viewRef.current);
-  }, [viewRef, updateViewInfo]);
-
-  const onInitializeViewInfo = useCallback(({ width, height, viewport }) => {
-    viewRef.current.viewport = viewport;
-    viewRef.current.width = width;
-    viewRef.current.height = height;
-    updateViewInfo(viewRef.current);
-  }, [viewRef, updateViewInfo]);
+  }, [updateViewInfo, uuid, cells, getCellPosition]);
 
   const cellsData = useMemo(() => {
     let result = null;
@@ -161,13 +152,13 @@ export default function Scatterplot(props) {
           onCellClick(info);
         },
         ...cellLayerDefaultProps(
-          cellsData, updateStatus, updateCellsHover, uuid, flipYTooltip,
+          cellsData, updateStatus, updateCellsHover, uuid,
         ),
       }),
     ];
   }, [cellsData, theme, getCellIsSelected, cellOpacity, cellRadiusScale,
     getCellPosition, getCellColor, updateStatus, updateCellsHover, uuid,
-    tool, onCellClick, flipYTooltip]);
+    tool, onCellClick]);
 
   const cellsQuadTree = useMemo(() => {
     // Use the cellsData variable since it is already
@@ -213,7 +204,6 @@ export default function Scatterplot(props) {
         <ToolMenu
           activeTool={tool}
           setActiveTool={setTool}
-          onViewStateChange={onViewStateChange}
         />
       </div>
       <DeckGL

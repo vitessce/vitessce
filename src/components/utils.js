@@ -12,7 +12,7 @@ export function makeCellStatusMessage(cellInfoFactors) {
   ).join('; ');
 }
 
-export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid, flipY = false) {
+export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid) {
   return {
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     data: cells,
@@ -25,20 +25,11 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
     onHover: (info) => {
       if (info.object) {
         const [cellId, cellInfo] = info.object;
-        const { factors = {}, xy, mappings = {} } = cellInfo;
-        const scatterplotMappings = { ...mappings };
-        if (flipY) {
-          Object.keys(scatterplotMappings).forEach((mapping) => {
-            const arr = [scatterplotMappings[mapping][0], -scatterplotMappings[mapping][1]];
-            scatterplotMappings[mapping] = arr;
-          });
-        }
+        const { factors = {} } = cellInfo;
         updateStatus(makeCellStatusMessage(factors));
         updateCellsHover({
           cellId,
-          mappings: { xy, ...scatterplotMappings },
           uuid,
-          factors,
         });
       } else {
         // Clear the currently-hovered cell info by passing null.
@@ -170,4 +161,12 @@ export function useGridItemSize(selector = null) {
   }, [selector]);
 
   return [width, height, containerRef];
+}
+
+export function pluralize(word, count = null) {
+  return `${word}${(count === 1 ? '' : 's')}`;
+}
+
+export function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
 }

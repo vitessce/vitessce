@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import PubSub from 'pubsub-js';
 import {
-  GENES_HOVER, CELLS_HOVER, VIEW_INFO,
+  CELLS_HOVER, VIEW_INFO,
 } from '../../events';
 import Tooltip2D from '../tooltip/Tooltip2D';
 import TooltipContent from '../tooltip/TooltipContent';
 
-export default function HeatmapTooltipSubscriber(props) {
+export default function ScatterplotTooltipSubscriber(props) {
   const {
-    uuid, width, height, transpose, getCellInfo, getGeneInfo,
+    uuid, width, height, getCellInfo,
   } = props;
 
   const [cellInfo, setCellInfo] = useState();
-  const [geneInfo, setGeneInfo] = useState();
 
   const [sourceUuid, setSourceUuid] = useState();
   const [viewInfo, setViewInfo] = useState();
@@ -30,32 +29,9 @@ export default function HeatmapTooltipSubscriber(props) {
           setCellInfo(newCellInfo);
           setSourceUuid(hoverInfo.uuid);
           if (viewInfo && viewInfo.project) {
-            const [newX, newY] = viewInfo.project(hoverInfo.cellId, null);
-            if (transpose) {
-              setX(newX);
-            } else {
-              setY(newY);
-            }
-          }
-        }
-      },
-    );
-    const genesHoverToken = PubSub.subscribe(
-      GENES_HOVER, (msg, hoverInfo) => {
-        if (!hoverInfo) {
-          setGeneInfo(null);
-          setSourceUuid(null);
-        } else {
-          const newGeneInfo = getGeneInfo(hoverInfo.geneId);
-          setGeneInfo(newGeneInfo);
-          setSourceUuid(hoverInfo.uuid);
-          if (viewInfo && viewInfo.project) {
-            const [newX, newY] = viewInfo.project(null, hoverInfo.geneId);
-            if (transpose) {
-              setY(newY);
-            } else {
-              setX(newX);
-            }
+            const [newX, newY] = viewInfo.project(hoverInfo.cellId);
+            setX(newX);
+            setY(newY);
           }
         }
       },
@@ -69,13 +45,12 @@ export default function HeatmapTooltipSubscriber(props) {
     );
     return () => {
       PubSub.unsubscribe(cellsHoverToken);
-      PubSub.unsubscribe(genesHoverToken);
       PubSub.unsubscribe(viewInfoToken);
     };
-  }, [getCellInfo, getGeneInfo, transpose, uuid, viewInfo]);
+  }, [getCellInfo, uuid, viewInfo]);
 
   return (
-    (cellInfo || geneInfo ? (
+    (cellInfo ? (
       <Tooltip2D
         x={x}
         y={y}
@@ -84,7 +59,7 @@ export default function HeatmapTooltipSubscriber(props) {
         parentHeight={height}
         sourceUuid={sourceUuid}
       >
-        <TooltipContent info={{ ...geneInfo, ...cellInfo }} />
+        <TooltipContent info={cellInfo} />
       </Tooltip2D>
     ) : null)
   );

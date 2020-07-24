@@ -2,6 +2,23 @@
 import React from 'react';
 import Box from '@material-ui/core/Box';
 import Slider from '@material-ui/core/Slider';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles(theme => ({
+    box: {
+      opacity: 0.4,
+      height: '80px',
+      bottom: 0,
+      right: 0,
+      backgroundColor: 'transparent',
+      position: 'absolute',
+      padding: '10px 0',
+      transition: 'opacity 0.1s',
+      '&:hover': {
+          opacity: 1.0,
+      }
+    },
+  }));
 
 export default function HeatmapControls(props) {
     const {
@@ -9,9 +26,10 @@ export default function HeatmapControls(props) {
         colorScaleHi,
         onColorScaleChange,
     } = props;
+    const classes = useStyles();
 
     return (
-        <Box component="div" m={1} height="50px">
+        <Box component="div" m={1} className={classes.box}>
             <Slider
                 orientation="vertical"
                 value={[colorScaleLo, colorScaleHi]}

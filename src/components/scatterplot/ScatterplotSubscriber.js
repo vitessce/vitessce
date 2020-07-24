@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PubSub from 'pubsub-js';
+import uuidv4 from 'uuid/v4';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
 
@@ -8,19 +9,23 @@ import {
   CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
   CELL_SETS_VIEW, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
+import { useGridItemSize } from '../utils';
 import Scatterplot from './Scatterplot';
+import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 
 
 export default function ScatterplotSubscriber(props) {
   const {
     onReady,
     mapping,
-    uuid = null,
-    children,
     view,
     removeGridComponent,
     theme,
   } = props;
+
+  // Create a UUID so that hover events
+  // know from which DeckGL element they were generated.
+  const uuid = uuidv4();
 
   const [cells, setCells] = useState({});
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
@@ -28,6 +33,7 @@ export default function ScatterplotSubscriber(props) {
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
   const [urls, setUrls] = useState([]);
 
+  const [width, height, containerRef] = useGridItemSize('#deckgl-wrapper');
 
   const onReadyCallback = useCallback(onReady, []);
 
@@ -87,6 +93,14 @@ export default function ScatterplotSubscriber(props) {
     }
   }, [cells, mapping]);
 
+  const getCellInfo = useCallback((cellId) => {
+    const cellInfo = cells[cellId];
+    return {
+      'Cell ID': cellId,
+      ...(cellInfo ? cellInfo.factors : {}),
+    };
+  }, [cells]);
+
   const cellsCount = Object.keys(cells).length;
   return (
     <TitleInfo
@@ -96,24 +110,31 @@ export default function ScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
     >
-      {children}
-      <Scatterplot
-        uuid={uuid}
-        theme={theme}
-        view={view}
-        cells={cells}
-        mapping={mapping}
-        selectedCellIds={selectedCellIds}
-        cellColors={cellColors}
-        cellRadiusScale={cellRadiusScale}
-        updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-        updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
-        updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
-        updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
-        clearPleaseWait={
-          layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-        }
-      />
+      <div ref={containerRef}>
+        <Scatterplot
+          uuid={uuid}
+          theme={theme}
+          view={view}
+          cells={cells}
+          mapping={mapping}
+          selectedCellIds={selectedCellIds}
+          cellColors={cellColors}
+          cellRadiusScale={cellRadiusScale}
+          updateStatus={message => PubSub.publish(STATUS_INFO, message)}
+          updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
+          updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
+          updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
+          clearPleaseWait={
+            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+          }
+        />
+        <ScatterplotTooltipSubscriber
+          uuid={uuid}
+          width={width}
+          height={height}
+          getCellInfo={getCellInfo}
+        />
+      </div>
     </TitleInfo>
   );
 }

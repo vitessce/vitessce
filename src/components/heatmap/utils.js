@@ -6,7 +6,7 @@ export const LOADING_TEXT_SIZE = 13;
 export const AXIS_LABEL_TEXT_SIZE = 8;
 export const AXIS_TITLE_TEXT_SIZE = 14;
 export const AXIS_MIN_SIZE = 10;
-export const AXIS_MAX_SIZE = 80;
+export const AXIS_MAX_SIZE = 85;
 
 export function layerFilter({ layer, viewport }) {
   if (viewport.id === 'axisLeft') {
