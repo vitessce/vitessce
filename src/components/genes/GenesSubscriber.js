@@ -17,7 +17,7 @@ export default function GenesSubscriber(props) {
     onReady,
     mapping,
     removeGridComponent,
-    labelOverride,
+    variablesLabelOverride,
     theme,
   } = props;
   const [genes, setGenes] = useState({});
@@ -69,7 +69,7 @@ export default function GenesSubscriber(props) {
   return (
     <TitleInfo
       title="Expression Levels"
-      info={`${genesKeys.length} ${labelOverride || 'genes'}`}
+      info={`${genesKeys.length} ${variablesLabelOverride || 'genes'}`}
       isScroll
       urls={urls}
       theme={theme}

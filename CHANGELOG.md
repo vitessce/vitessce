@@ -7,6 +7,7 @@
 ### Changed
 - Fix #674 bug around flipped scatterplots.
 - Fix #645 bug around clearing genes and heatmap.
+- Add heatmap label override.
 - Fix #682 `TitleInfo` spacing bug.
 - Remove Global dimensions when there is only one value (for OME-TIFF, mostly).
 
