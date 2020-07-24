@@ -5,6 +5,7 @@
 ### Added
 
 ### Changed
+- Fix #674 bug around flipped scatterplots.
 
 ## [0.1.9](https://www.npmjs.com/package/vitessce/v/0.1.9) - 2020-07-23
 

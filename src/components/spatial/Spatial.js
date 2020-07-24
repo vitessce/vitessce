@@ -197,6 +197,10 @@ export default function Spatial(props) {
     return tree;
   }, [getCellCoords, cellsData]);
 
+  // Graphics rendering has the y-axis positive going south,
+  // so we need to flip it for rendering tooltips.
+  const flipYTooltip = true;
+
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
     id: CELLS_LAYER_ID,
     backgroundColor: [0, 0, 0],
@@ -225,14 +229,14 @@ export default function Spatial(props) {
       onCellClick(info);
     },
     visible: areCellsOn,
-    ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
+    ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid, flipYTooltip),
     getLineWidth: cellOpacity < 0.7 ? 1 : 0,
     lineWidthScale,
     lineWidthMaxPixels,
 
   }), [cellsData, updateStatus, updateCellsHover,
     uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
-    getCellIsSelected, areCellsOn, lineWidthScale, lineWidthMaxPixels]);
+    getCellIsSelected, areCellsOn, lineWidthScale, lineWidthMaxPixels, flipYTooltip]);
 
   const moleculesLayer = useMemo(() => new ScatterplotLayer({
     id: 'molecules-layer',
