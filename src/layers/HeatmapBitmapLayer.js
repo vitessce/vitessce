@@ -1,4 +1,3 @@
-/* eslint-disable */
 import GL from '@luma.gl/constants';
 import { _mergeShaders, project32, picking } from '@deck.gl/core';
 import { BitmapLayer } from '@deck.gl/layers';

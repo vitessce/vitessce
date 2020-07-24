@@ -1,4 +1,3 @@
-/* eslint-disable */
 import range from 'lodash/range';
 
 function getTiles(self, args) {

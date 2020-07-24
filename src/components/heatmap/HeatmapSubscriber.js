@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useEffect, useState, useCallback } from 'react';
 import PubSub from 'pubsub-js';
 import uuidv4 from 'uuid/v4';

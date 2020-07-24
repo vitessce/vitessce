@@ -58,7 +58,7 @@ export default function GenesSubscriber(props) {
     if (clusters) {
       const colI = clusters.cols.indexOf(newSelectedId);
       if (colI !== -1) {
-        const cellColors = fromEntries(clusters.rows.map((cellId, rowI) => {
+        const cellColors = new Map(clusters.rows.map((cellId, rowI) => {
           const value = clusters.matrix.data[rowI][colI];
           // The lowest 25% does not have good contrast.
           const cellColor = interpolatePlasma(value / 255);

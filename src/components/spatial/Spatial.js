@@ -80,7 +80,7 @@ export default function Spatial(props) {
     cellColors = {},
     selectedCellIds = new Set(),
     getCellCoords = cell => cell.xy,
-    getCellColor = cellEntry => (cellColors && cellColors[cellEntry[0]]) || DEFAULT_COLOR,
+    getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
     getCellPolygon = (cellEntry) => {
       const cell = cellEntry[1];
       return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], cellRadius);

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useRef, useState, useCallback, useMemo, useEffect, useReducer } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
@@ -130,8 +129,7 @@ export default function Heatmap(props) {
     if(!clusters) {
       return;
     }
-    // TODO: need to use Map rather than Object.keys since ordering may not be stable/correct when IDs are numbers.
-    const newCellOrdering = (!cellColors || Object.keys(cellColors).length === 0 ? clusters.rows : Object.keys(cellColors));
+    const newCellOrdering = (!cellColors || cellColors.size === 0 ? clusters.rows : Array.from(cellColors.keys()));
     const oldCellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
 
     if(!isEqual(oldCellOrdering, newCellOrdering)) {
@@ -427,7 +425,7 @@ export default function Heatmap(props) {
   ] : []);
 
   // Create the left color bar with a BitmapLayer.
-  // TODO: identify left and top color bars with colorsLeft and colorsTop, rather than "cellColors".
+  // TODO: find a way to do aggregation for this as well.
   const cellColorsTiles = useMemo(() => {
     if(!cellColors) {
       return null;
@@ -449,7 +447,7 @@ export default function Heatmap(props) {
         rowI = (i * TILE_SIZE) + tileY; // the row / cell index
         if(rowI < cellOrdering.length) {
           cellId = cellOrdering[rowI];
-          color = cellColors[cellId];
+          color = cellColors.get(cellId);
           offset = (transpose ? tileY : (TILE_SIZE - tileY - 1)) * 4;
           if(color) {
             tileData[offset + 0] = color[0];
@@ -484,7 +482,8 @@ export default function Heatmap(props) {
         ]),
       });
     }) : [];
-  }, [cellColorsTiles, matrixTop,matrixLeft, matrixHeight, matrixWidth, tileWidth, tileHeight, transpose]);
+  }, [cellColorsTiles, matrixTop, matrixLeft, matrixHeight,
+    matrixWidth, tileWidth, tileHeight, transpose]);
 
   const layers = heatmapLayers
     .concat(axisLayers)

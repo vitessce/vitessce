@@ -1,4 +1,3 @@
-/* eslint-disable */
 import clamp from 'lodash/clamp';
 
 export const COLOR_BAR_SIZE = 20;

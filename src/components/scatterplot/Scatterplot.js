@@ -71,7 +71,7 @@ export default function Scatterplot(props) {
       // graphics rendering has the y-axis positive going south.
       return [mappedCell[0], (FLIP_Y ? -1 : 1) * mappedCell[1], 0];
     },
-    getCellColor = cellEntry => (cellColors && cellColors[cellEntry[0]]) || DEFAULT_COLOR,
+    getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
     getCellIsSelected = cellEntry => (
       selectedCellIds.size
         ? selectedCellIds.has(cellEntry[0])

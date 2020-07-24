@@ -4,7 +4,7 @@ import isNil from 'lodash/isNil';
 import some from 'lodash/some';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
-import { DEFAULT_COLOR, PALETTE, fromEntries } from '../utils';
+import { DEFAULT_COLOR, PALETTE } from '../utils';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
@@ -1426,7 +1426,7 @@ export function treeToVisibleCells(currTree) {
     }
   });
   const cellIds = cellColorsArray.map(c => c[0]);
-  const cellColors = fromEntries(cellColorsArray);
+  const cellColors = new Map(cellColorsArray);
   return [cellIds, cellColors];
 }
 

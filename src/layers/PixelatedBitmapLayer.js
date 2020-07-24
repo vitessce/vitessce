@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { BitmapLayer } from '@deck.gl/layers';
 import { Texture2D } from '@luma.gl/core';
 import { PIXELATED_TEXTURE_PARAMETERS } from './bitmap-utils';
