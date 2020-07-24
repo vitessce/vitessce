@@ -15,10 +15,10 @@ export const clusters = {
   },
 };
 
-export const cellColors = {
-  'cell-0': [0, 0, 255],
-  'cell-1': [0, 0, 255],
-  'cell-2': [255, 0, 0],
-  'cell-3': [255, 0, 0],
-  'cell-4': [0, 255, 0],
-};
+export const cellColors = new Map([
+  ['cell-0', [0, 0, 255]],
+  ['cell-1', [0, 0, 255]],
+  ['cell-2', [255, 0, 0]],
+  ['cell-3', [255, 0, 0]],
+  ['cell-4', [0, 255, 0]],
+]);

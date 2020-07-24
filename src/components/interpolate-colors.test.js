@@ -1,20 +1,30 @@
 import expect from 'expect';
-import { rgb, interpolateColors } from './utils';
+import { interpolateRdBu, interpolatePlasma } from './interpolate-colors';
 
-describe('components/utils.js', () => {
-  describe('rgb()', () => {
-    it('maps hex values to arrays', () => {
-      expect(rgb('#FF0000')).toEqual([255, 0, 0]);
+const expectRgb = ([testR, testG, testB], [r, g, b]) => ([
+  expect(testR).toBeCloseTo(r),
+  expect(testG).toBeCloseTo(g),
+  expect(testB).toBeCloseTo(b),
+]);
+
+describe('components/interpolate-colors', () => {
+  describe('interpolateRdBu()', () => {
+    it('maps 0 to a red color', () => {
+      expectRgb(interpolateRdBu(0), [103, 0, 31]);
+    });
+
+    it('maps 1 to a blue color', () => {
+      expectRgb(interpolateRdBu(1), [5, 48, 97]);
     });
   });
 
-  describe('interpolateColors()', () => {
+  describe('interpolatePlasma()', () => {
     it('maps 0 to dark cool color', () => {
-      expect(interpolateColors(0)).toEqual([126, 3, 168]);
+      expectRgb(interpolatePlasma(0), [13, 8, 135]);
     });
 
     it('maps 1 to bright warm color', () => {
-      expect(interpolateColors(1)).toEqual([240, 249, 33]);
+      expectRgb(interpolatePlasma(1), [240, 249, 33]);
     });
   });
 });
