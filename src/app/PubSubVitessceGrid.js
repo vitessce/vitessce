@@ -67,8 +67,8 @@ export default function PubSubVitessceGrid(props) {
   const [rowHeight, setRowHeight] = useState(initialRowHeight);
   const containerRef = useRef();
 
-  const margin = 10;
-  const padding = 5;
+  const padding = 10;
+  const margin = 5;
 
   // Detect when the `config` or `containerHeight` variables
   // have changed, and update `rowHeight` in response.
