@@ -35,6 +35,7 @@ export default function SpatialSubscriber({
   moleculeRadius,
   view,
   cellRadius,
+  observationsLabelOverride,
   theme,
   uuid = null,
 }) {
@@ -191,7 +192,7 @@ export default function SpatialSubscriber({
     <TitleInfo
       title="Spatial"
       info={
-        `${cellsCount} cells, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
+        `${cellsCount} ${observationsLabelOverride || 'cells'}, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
       }
       isSpatial
       urls={urls}
