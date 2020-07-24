@@ -1,6 +1,7 @@
+/* eslint-disable */
 import React from 'react';
 
-export default function CellTooltipContent(props) {
+export default function TooltipContent(props) {
   const {
     cellId,
     factors,

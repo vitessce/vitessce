@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React from 'react';
-import CellTooltip from './CellTooltip';
+import Tooltip from './Tooltip';
 
 /**
  * A tooltip component that also incorporates a crosshair element.
@@ -26,67 +26,54 @@ import CellTooltip from './CellTooltip';
  * with a `.viewport` function that can transform coordinates between DeckGL and browser.
  * @param {React.Component} props.children The tooltip contents as a react component.
  */
-export default function HeatmapTooltip(props) {
+export default function Tooltip2D(props) {
   const {
-    uuid,
-    hoveredCellInfo,
-    hoveredGeneInfo,
-    mapping,
-    getCoordinates = () => hoveredCellInfo && mapping && hoveredCellInfo.mappings[mapping],
-    getIsCrosshairVisible = () => (hoveredCellInfo && hoveredCellInfo.uuid !== uuid),
-    getIsTooltipVisible = () => (hoveredCellInfo && hoveredCellInfo.uuid === uuid),
-    viewInfo,
+    parentUuid,
+    sourceUuid,
+    x,
+    y,
+    parentWidth,
+    parentHeight,
     children,
   } = props;
-  // Check that all data necessary to show the tooltip has been passed.
-  if (!uuid || !viewInfo || !viewInfo.viewport) {
-    return null;
-  }
-  const coordinates = getCoordinates();
-  if (!coordinates) {
-    return null;
-  }
-  // Convert the DeckGL coordinates to pixel coordinates.
-  const [x, y] = viewInfo.viewport.project(coordinates);
   // Check if out of bounds.
-  if (x < 0 || x > viewInfo.width || y < 0 || y > viewInfo.height) {
+  if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {
     return null;
   }
-  const isCrosshairVisible = getIsCrosshairVisible();
-  const isTooltipVisible = getIsTooltipVisible();
+  // Show tooltip or crosshair?
+  const isTooltipVisible = (parentUuid === sourceUuid);
   const crosshairWidth = 1;
   return (
     <>
-      {isTooltipVisible && (
-        <CellTooltip
+      {isTooltipVisible && (x !== null && y !== null)? (
+        <Tooltip
           x={x}
           y={y}
-          parentWidth={viewInfo.width}
-          parentHeight={viewInfo.height}
+          parentWidth={parentWidth}
+          parentHeight={parentHeight}
         >
           {children}
-        </CellTooltip>
-      )}
-      {isCrosshairVisible && (
+        </Tooltip>
+      ) : (
         <>
-          <div
+          {x !== null ? (<div
             className="cell-emphasis-crosshair"
             style={{
               left: `${x - crosshairWidth / 2}px`,
               top: 0,
               width: `${crosshairWidth}px`,
-              height: `${viewInfo.height}px`,
+              height: `${parentHeight}px`,
             }}
-          />
-          <div
+          />) : null}
+          {y !== null ? <div
             className="cell-emphasis-crosshair"
             style={{
               left: 0,
               top: `${y - crosshairWidth / 2}px`,
-              width: `${viewInfo.width}px`,
+              width: `${parentWidth}px`,
               height: `${crosshairWidth}px`,
             }}
-          />
+          /> : null}
         </>
       )}
     </>

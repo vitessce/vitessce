@@ -1,6 +1,7 @@
+/* eslint-disable */
 import React, { useEffect, useRef } from 'react';
 
-export default function CellTooltip(props) {
+export default function Tooltip(props) {
   const {
     x,
     y,

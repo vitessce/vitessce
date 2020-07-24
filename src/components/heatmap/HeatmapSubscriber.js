@@ -6,10 +6,11 @@ import TitleInfo from '../TitleInfo';
 import {
   CELLS_COLOR, CELLS_ADD, CELLS_SELECTION,
   CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
-  RESET, EXPRESSION_MATRIX_ADD,
+  RESET, EXPRESSION_MATRIX_ADD, VIEW_INFO, GENES_HOVER,
 } from '../../events';
 import { useGridItemSize } from '../utils';
 import Heatmap from './Heatmap';
+import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
 export default function HeatmapSubscriber(props) {
   const { children, uuid, removeGridComponent, onReady, theme, transpose } = props;
@@ -87,10 +88,18 @@ export default function HeatmapSubscriber(props) {
           clusters={clusters}
           cellColors={cellColors}
           updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
+          updateGenesHover={hoverInfo => PubSub.publish(GENES_HOVER, hoverInfo)}
           updateStatus={message => PubSub.publish(STATUS_INFO, message)}
+          updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
+        />
+        <HeatmapTooltipSubscriber
+          uuid={uuid}
+          width={width}
+          height={height}
+          transpose={transpose}
         />
       </div>
     </TitleInfo>

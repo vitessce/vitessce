@@ -13,33 +13,24 @@ import isEqual from 'lodash/isEqual';
 import { max } from 'd3-array';
 import { DEFAULT_GL_OPTIONS } from '../utils';
 import HeatmapWorker from './heatmap.worker.js';
+import {
+  COLOR_BAR_SIZE,
+  LOADING_TEXT_SIZE,
+  AXIS_LABEL_TEXT_SIZE,
+  AXIS_TITLE_TEXT_SIZE,
+  layerFilter,
+  getAxisSizes,
+  mouseToHeatmapPosition,
+  heatmapToMousePosition,
+} from './utils';
 
-const COLOR_BAR_SIZE = 20;
-const LOADING_TEXT_SIZE = 13;
-const AXIS_LABEL_TEXT_SIZE = 8;
-const AXIS_TITLE_TEXT_SIZE = 14;
-const AXIS_MIN_SIZE = 10;
-const AXIS_MAX_SIZE = 80;
 
 const themeToTextColor = {
   "dark": [224, 224, 224],
   "light": [64, 64, 64],
 };
 
-function layerFilter({ layer, viewport }) {
-  if(viewport.id === 'axisLeft') {
-    return layer.id.startsWith('axisLeft');
-  } else if(viewport.id === 'axisTop') {
-    return layer.id.startsWith('axisTop');
-  } else if(viewport.id === 'heatmap') {
-    return layer.id.startsWith('heatmap');
-  } else if(viewport.id === 'colorsLeft') {
-    return layer.id.startsWith('colorsLeft');
-  } else if(viewport.id === 'colorsTop') {
-    return layer.id.startsWith('colorsTop');
-  }
-  return false;
-}
+
 
 /**
  * A heatmap component for cell x gene (and gene x cell) matrices.
@@ -59,18 +50,12 @@ export default function Heatmap(props) {
     clusters,
     cellColors,
     clearPleaseWait,
-    updateCellsHover = (hoverInfo) => {
-      console.warn(`Heatmap updateCellsHover: ${hoverInfo.cellId}`);
-    },
-    updateGenesHover = (hoverInfo) => {
-      console.warn(`Heatmap updateGenesHover: ${hoverInfo.geneId}`);
-    },
+    updateCellsHover = () => {},
+    updateGenesHover = () => {},
     updateStatus = (message) => {
       console.warn(`Heatmap updateStatus: ${message}`);
     },
-    updateViewInfo = (message) => {
-      //console.warn(`Heatmap updateViewInfo: ${message}`);
-    },
+    updateViewInfo,
     transpose = false,
     axisLeftTitle = (transpose ? "Genes" : "Cells"),
     axisTopTitle = (transpose ? "Cells" : "Genes"),
@@ -134,19 +119,6 @@ export default function Heatmap(props) {
     } 
   }, [dataRef, clusters]);
 
-  // Emit the viewInfo event on viewState updates
-  // (used by external tooltips / crosshair elements).
-  useEffect(() => {
-    if(viewState) {
-      updateViewInfo({
-        uuid,
-        width: viewState.width,
-        height: viewState.height,
-        viewport: viewState.viewport,
-      });
-    }
-  }, [uuid, viewState, updateViewInfo]);
-
   // Check if the ordering of axis labels needs to be changed,
   // for example if the cells "selected" (technically just colored)
   // have changed.
@@ -192,14 +164,10 @@ export default function Heatmap(props) {
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
 
-  const axisOffsetLeft = clamp((transpose ? geneLabelMaxLength : cellLabelMaxLength) * AXIS_LABEL_TEXT_SIZE, AXIS_MIN_SIZE, AXIS_MAX_SIZE);
-  const axisOffsetTop = clamp((transpose ? cellLabelMaxLength : geneLabelMaxLength) * AXIS_LABEL_TEXT_SIZE, AXIS_MIN_SIZE, AXIS_MAX_SIZE);
+  const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(transpose, geneLabelMaxLength, cellLabelMaxLength);
 
-  const colorOffsetLeft = COLOR_BAR_SIZE;
-  const colorOffsetTop = COLOR_BAR_SIZE;
-
-  const offsetTop = axisOffsetTop + colorOffsetTop;
-  const offsetLeft = axisOffsetLeft + colorOffsetLeft;
+  const offsetTop = axisOffsetTop + COLOR_BAR_SIZE;
+  const offsetLeft = axisOffsetLeft + COLOR_BAR_SIZE;
 
   const matrixWidth = viewWidth - offsetLeft;
   const matrixHeight = viewHeight - offsetTop;
@@ -225,6 +193,34 @@ export default function Heatmap(props) {
   // Get power of 2 between 1 and 16, for number of cells to aggregate together in each direction.
   const aggSizeX = clamp(Math.pow(2, Math.ceil(Math.log2(1/cellWidth))), MIN_ROW_AGG, MAX_ROW_AGG);
   const aggSizeY = clamp(Math.pow(2, Math.ceil(Math.log2(1/cellHeight))), MIN_ROW_AGG, MAX_ROW_AGG);
+
+  function project(cellId, geneId) {
+    const colI = transpose ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
+    const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
+    return heatmapToMousePosition(
+      colI, rowI, {
+        offsetLeft,
+        offsetTop,
+        targetX: viewState.target[0],
+        targetY: viewState.target[1],
+        scaleFactor,
+        matrixWidth,
+        matrixHeight,
+        numRows: height,
+        numCols: width,
+      }
+    );
+  }
+
+  // Emit the viewInfo event on viewState updates
+  // (used by external tooltips / crosshair elements).
+  useEffect(() => {
+    updateViewInfo({
+      uuid,
+      project: project
+    });
+  }, [uuid, updateViewInfo, transpose, axisTopLabels, axisLeftLabels, offsetLeft, offsetTop, viewState, scaleFactor, matrixWidth, matrixHeight, height, width]);
+
 
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
@@ -291,7 +287,6 @@ export default function Heatmap(props) {
     if(!tilesRef.current || backlog.length) {
       return [];
     }
-    
     function getLayer(i, j, tile) {
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
@@ -308,6 +303,7 @@ export default function Heatmap(props) {
       });
     }
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
+  
   }, [tilesRef, tileIteration, tileWidth, tileHeight,
     aggSizeX, aggSizeY, axisLeftLabels, axisTopLabels, xTiles, yTiles, colorScaleLo, colorScaleHi,
     backlog]);
@@ -483,39 +479,54 @@ export default function Heatmap(props) {
     if(!clusters) {
       return;
     }
-    const viewMouseX = event.offsetCenter.x - offsetLeft;
-    const viewMouseY = event.offsetCenter.y - offsetTop;
 
-    if(viewMouseX < 0 || viewMouseY < 0) {
-      // The mouse is outside the heatmap.
-      return;
+    const { x: mouseX, y: mouseY } = event.offsetCenter; 
+
+    const [colI, rowI] = mouseToHeatmapPosition(mouseX, mouseY, {
+      offsetLeft,
+      offsetTop,
+      targetX: viewState.target[0],
+      targetY: viewState.target[1],
+      scaleFactor,
+      matrixWidth,
+      matrixHeight,
+      numRows: height,
+      numCols: width,
+    });
+
+    if(colI === null) {
+      if(transpose) {
+        updateCellsHover(null);
+      } else {
+        updateGenesHover(null);
+      }
     }
-
-    // Determine the rowI and colI values based on the current viewState.
-    const bboxTargetX = viewState.target[0]*scaleFactor + matrixWidth*scaleFactor/2;
-    const bboxTargetY = viewState.target[1]*scaleFactor + matrixHeight*scaleFactor/2;
     
-    const bboxLeft = bboxTargetX - matrixWidth/2;
-    const bboxTop = bboxTargetY - matrixHeight/2;
-    
-    const zoomedOffsetLeft = bboxLeft / (matrixWidth*scaleFactor);
-    const zoomedOffsetTop = bboxTop / (matrixHeight*scaleFactor);
-
-    const zoomedViewMouseX = viewMouseX / (matrixWidth*scaleFactor);
-    const zoomedViewMouseY = viewMouseY / (matrixHeight*scaleFactor);
-
-    const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
-    const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
-
-    const rowI = Math.floor(zoomedMouseY * height);
-    const colI = Math.floor(zoomedMouseX * width);
+    if(rowI === null) {
+      if(transpose) {
+        updateGenesHover(null);
+      } else {
+        updateCellsHover(null);
+      }
+    }
 
     const obsI = clusters.rows.indexOf(transpose ? axisTopLabels[colI] : axisLeftLabels[rowI]);
     const varI = clusters.cols.indexOf(transpose ? axisLeftLabels[rowI] : axisTopLabels[colI]);
     
     const obsId = clusters.rows[obsI];
     const varId = clusters.cols[varI];
-    console.log(obsId, varId);
+
+    updateCellsHover({
+      cellId: obsId,
+      uuid,
+    });
+
+    updateGenesHover({
+      geneId: varId,
+      uuid,
+    });
+
+    updateStatus(`Hovered ${obsId} and ${varId}`);
   }
 
   return (
@@ -525,8 +536,8 @@ export default function Heatmap(props) {
           new OrthographicView({ id: 'heatmap', controller: true, x: offsetLeft, y: offsetTop, width: matrixWidth, height: matrixHeight }),
           new OrthographicView({ id: 'axisLeft', controller: false, x: 0, y: offsetTop, width: axisOffsetLeft, height: matrixHeight }),
           new OrthographicView({ id: 'axisTop', controller: false, x: offsetLeft, y: 0, width: matrixWidth, height: offsetTop }),
-          new OrthographicView({ id: 'colorsLeft', controller: false, x: axisOffsetLeft, y: offsetTop, width: colorOffsetLeft - 3, height: matrixHeight }),
-          new OrthographicView({ id: 'colorsTop', controller: false, x: offsetLeft, y: axisOffsetTop, width: matrixWidth, height: colorOffsetTop - 3 }),
+          new OrthographicView({ id: 'colorsLeft', controller: false, x: axisOffsetLeft, y: offsetTop, width: COLOR_BAR_SIZE - 3, height: matrixHeight }),
+          new OrthographicView({ id: 'colorsTop', controller: false, x: offsetLeft, y: axisOffsetTop, width: matrixWidth, height: COLOR_BAR_SIZE - 3 }),
         ]}
         layers={layers}
         layerFilter={layerFilter}
