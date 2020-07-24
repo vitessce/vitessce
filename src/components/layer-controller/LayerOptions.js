@@ -198,15 +198,18 @@ function LayerOptions({
       {hasDimensionsAndChannels
         && globalControlDimensions.map((dimension) => {
           const { field, values } = dimension;
+          // If there is only one value in the dimension, do not return a slider.
           return (
-            <LayerOption name={field} inputId={`${field}-slider`} key={field}>
-              <GlobalSelectionSlider
-                field={field}
-                value={channels[Object.keys(channels)[0]].selection[field]}
-                handleChange={handleGlobalChannelsSelectionChange}
-                possibleValues={values}
-              />
-            </LayerOption>
+            values.length > 1 && (
+              <LayerOption name={field} inputId={`${field}-slider`} key={field}>
+                <GlobalSelectionSlider
+                  field={field}
+                  value={channels[Object.keys(channels)[0]].selection[field]}
+                  handleChange={handleGlobalChannelsSelectionChange}
+                  possibleValues={values}
+                />
+              </LayerOption>
+            )
           );
         })}
     </Grid>
