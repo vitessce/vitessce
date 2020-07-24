@@ -188,11 +188,12 @@ export default function SpatialSubscriber({
     layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName),
     [],
   );
+  const observationsLabel = observationsLabelOverride || 'cells';
   return (
     <TitleInfo
       title="Spatial"
       info={
-        `${cellsCount} ${observationsLabelOverride || 'cells'}, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
+        `${cellsCount} ${observationsLabel}, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
       }
       isSpatial
       urls={urls}

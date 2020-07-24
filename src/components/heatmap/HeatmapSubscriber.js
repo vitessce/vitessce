@@ -90,11 +90,13 @@ export default function HeatmapSubscriber(props) {
   const genesCount = clusters.rows ? clusters.rows.length : 0;
   const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
   const allReady = cellsCount && genesCount;
+  const observationsLabel = observationsLabelOverride || 'cells';
+  const variablesLabel = variablesLabelOverride || 'genes';
   return (
     <TitleInfo
       title="Heatmap"
-      info={`${cellsCount} ${observationsLabelOverride || 'cells'} × ${genesCount} ${variablesLabelOverride || 'genes'},
-              with ${selectedCount} ${observationsLabelOverride || 'cells'} selected`}
+      info={`${cellsCount} ${observationsLabel} × ${genesCount} ${variablesLabel},
+              with ${selectedCount} ${observationsLabel} selected`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
