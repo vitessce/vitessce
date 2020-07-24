@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.10
+## [0.1.10](https://www.npmjs.com/package/vitessce/v/0.1.10) - 2020-07-24
 
 ### Added
 
