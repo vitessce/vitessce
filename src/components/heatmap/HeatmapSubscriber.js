@@ -67,7 +67,13 @@ export default function HeatmapSubscriber(props) {
     const cellSetsViewToken = PubSub.subscribe(
       CELL_SETS_VIEW, cellsSelectionSubscriber,
     );
-    const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
+    const resetToken = PubSub.subscribe(RESET, () => {
+      setUrls([]);
+      setCells({});
+      setClusters({});
+      setCellColors({});
+      setSelectedCellIds(new Set([]));
+    });
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(clustersAddToken);
