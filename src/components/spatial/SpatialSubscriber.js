@@ -26,7 +26,7 @@ import {
   RESET,
   RASTER_ADD,
 } from '../../events';
-import { useGridItemSize } from '../utils';
+import { useGridItemSize, pluralize } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 
@@ -36,7 +36,8 @@ export default function SpatialSubscriber({
   moleculeRadius,
   view,
   cellRadius,
-  observationsLabelOverride,
+  observationsLabelOverride: observationsLabel = 'cell',
+  subObservationsLabelOverride: subObservationsLabel = 'molecule',
   theme,
   disableTooltip = false,
 }) {
@@ -204,12 +205,11 @@ export default function SpatialSubscriber({
     };
   }, [cells]);
 
-  const observationsLabel = observationsLabelOverride || 'cells';
   return (
     <TitleInfo
       title="Spatial"
       info={
-        `${cellsCount} ${observationsLabel}, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
+        `${cellsCount} ${pluralize(observationsLabel, cellsCount)}, ${moleculesCount} ${pluralize(subObservationsLabel, moleculesCount)} at ${shortNumber(locationsCount)} locations`
       }
       isSpatial
       urls={urls}

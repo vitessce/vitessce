@@ -9,7 +9,7 @@ import {
   CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
   CELL_SETS_VIEW, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
-import { useGridItemSize } from '../utils';
+import { useGridItemSize, pluralize } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 
@@ -22,6 +22,7 @@ export default function ScatterplotSubscriber(props) {
     removeGridComponent,
     theme,
     disableTooltip = false,
+    observationsLabelOverride: observationsLabel = 'cell',
   } = props;
 
   // Create a UUID so that hover events
@@ -106,7 +107,7 @@ export default function ScatterplotSubscriber(props) {
   return (
     <TitleInfo
       title={`Scatterplot (${mapping})`}
-      info={`${cellsCount} cells`}
+      info={`${cellsCount} ${pluralize(observationsLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
