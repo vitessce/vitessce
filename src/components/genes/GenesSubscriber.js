@@ -10,13 +10,13 @@ import {
   EXPRESSION_MATRIX_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 import { interpolatePlasma } from '../interpolate-colors';
-import { fromEntries } from '../utils';
+import { fromEntries, pluralize } from '../utils';
 
 export default function GenesSubscriber(props) {
   const {
     onReady,
     removeGridComponent,
-    labelOverride,
+    variablesLabelOverride: variablesLabel = 'gene',
     theme,
   } = props;
 
@@ -44,7 +44,11 @@ export default function GenesSubscriber(props) {
         });
       },
     );
-    const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
+    const resetToken = PubSub.subscribe(RESET, () => {
+      setUrls([]);
+      setClusters(null);
+      setSelectedId({});
+    });
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(expressionMatrixAddToken);
@@ -78,11 +82,10 @@ export default function GenesSubscriber(props) {
 
   const numGenes = clusters ? clusters.cols.length : '?';
 
-
   return (
     <TitleInfo
       title="Expression Levels"
-      info={`${numGenes} ${labelOverride || 'genes'}`}
+      info={`${numGenes} ${pluralize(variablesLabel, numGenes)}`}
       isScroll
       urls={urls}
       theme={theme}

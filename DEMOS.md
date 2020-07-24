@@ -28,3 +28,5 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2020-06-25: [ilan-gold/v0.1.7](https://s3.amazonaws.com/vitessce-data/demos/2020-06-25/b8763e1/index.html)
 - 2020-07-02: [keller-mark/v0.1.8](https://s3.amazonaws.com/vitessce-data/demos/2020-07-02/61180c9/index.html)
 - 2020-07-07: [ilan-gold/layer_controller](https://s3.amazonaws.com/vitessce-data/demos/2020-07-07/5fcc86c/index.html)
+- 2020-07-23: [master](https://s3.amazonaws.com/vitessce-data/demos/2020-07-23/5c916cb/index.html)
+- 2020-07-24: [ilan-gold/v0.1.10](https://s3.amazonaws.com/vitessce-data/demos/2020-07-24/732a3e9/index.html)

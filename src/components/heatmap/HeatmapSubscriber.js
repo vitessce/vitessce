@@ -15,21 +15,21 @@ import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 export default function HeatmapSubscriber(props) {
   const {
     removeGridComponent, onReady, theme, transpose,
-    observationLabel = 'cell',
-    variableLabel = 'gene',
+    observationsLabelOverride: observationsLabel = 'cell',
+    variablesLabelOverride: variablesLabel = 'gene',
     disableTooltip = false,
   } = props;
 
-  const observationTitle = capitalize(pluralize(observationLabel));
-  const variableTitle = capitalize(pluralize(variableLabel));
+  const observationsTitle = capitalize(pluralize(observationsLabel));
+  const variablesTitle = capitalize(pluralize(variablesLabel));
 
 
   // Create a UUID so that hover events
   // know from which element they were generated.
   const uuid = uuidv4();
 
-  const [cells, setCells] = useState({});
-  const [clusters, setClusters] = useState(null);
+  const [cells, setCells] = useState();
+  const [clusters, setClusters] = useState();
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
   const [urls, setUrls] = useState([]);
@@ -73,7 +73,13 @@ export default function HeatmapSubscriber(props) {
         setSelectedCellIds(cellIds);
       },
     );
-    const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
+    const resetToken = PubSub.subscribe(RESET, () => {
+      setUrls([]);
+      setCells(null);
+      setClusters(null);
+      setCellColors(null);
+      setSelectedCellIds(new Set());
+    });
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(expressionMatrixAddToken);
@@ -89,18 +95,18 @@ export default function HeatmapSubscriber(props) {
     if (cellId) {
       const cellInfo = cells[cellId];
       return {
-        [`${capitalize(observationLabel)} ID`]: cellId,
+        [`${capitalize(observationsLabel)} ID`]: cellId,
         ...(cellInfo ? cellInfo.factors : {}),
       };
     }
     return null;
-  }, [cells, observationLabel]);
+  }, [cells, observationsLabel]);
   const getGeneInfo = useCallback((geneId) => {
     if (geneId) {
-      return { [`${capitalize(variableLabel)} ID`]: geneId };
+      return { [`${capitalize(variablesLabel)} ID`]: geneId };
     }
     return null;
-  }, [variableLabel]);
+  }, [variablesLabel]);
 
   const cellsCount = clusters && clusters.rows ? clusters.rows.length : 0;
   const genesCount = clusters && clusters.cols ? clusters.cols.length : 0;
@@ -108,8 +114,8 @@ export default function HeatmapSubscriber(props) {
   return (
     <TitleInfo
       title="Heatmap"
-      info={`${cellsCount} ${pluralize(observationLabel, cellsCount)} × ${genesCount} ${pluralize(variableLabel, genesCount)},
-              with ${selectedCount} ${pluralize(observationLabel, selectedCount)} selected`}
+      info={`${cellsCount} ${pluralize(observationsLabel, cellsCount)} × ${genesCount} ${pluralize(variablesLabel, genesCount)},
+              with ${selectedCount} ${pluralize(observationsLabel, selectedCount)} selected`}
       urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}
@@ -130,8 +136,8 @@ export default function HeatmapSubscriber(props) {
           clearPleaseWait={
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
-          observationTitle={observationTitle}
-          variableTitle={variableTitle}
+          observationsTitle={observationsTitle}
+          variablesTitle={variablesTitle}
         />
         {!disableTooltip && (
         <HeatmapTooltipSubscriber

@@ -1,6 +1,24 @@
 # Changelog
 
-## 0.1.9
+## 0.1.11
+
+### Added
+
+### Changed
+- Improved the heatmap by re-implementing using DeckGL layers.
+
+## [0.1.10](https://www.npmjs.com/package/vitessce/v/0.1.10) - 2020-07-24
+
+### Added
+
+### Changed
+- Fix #674 bug around flipped scatterplots.
+- Fix #645 bug around clearing genes and heatmap.
+- Add heatmap label override.
+- Fix #682 `TitleInfo` spacing bug.
+- Remove Global dimensions when there is only one value (for OME-TIFF, mostly).
+
+## [0.1.9](https://www.npmjs.com/package/vitessce/v/0.1.9) - 2020-07-23
 
 ### Added
 - Add `labelOverride` prop for genes component.
@@ -24,7 +42,9 @@
 - Bump `viv` to 0.3.1.
 - Fix Heatmap regression/bug.
 - Fix Cypress tests.
-- Improved the heatmap by re-implementing using DeckGL layers.
+- Make cell boundaries depend on a pixel size setting.
+- Fix small slider bug so the range stays the same.
+- Filter our zarr from file list.
 
 ## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
 

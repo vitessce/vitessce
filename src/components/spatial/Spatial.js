@@ -37,7 +37,8 @@ export function square(x, y, r) {
  * @prop {number} moleculeRadius
  * @prop {number} cellOpacity The value for `opacity` to pass
  * to the deck.gl cells PolygonLayer.
- * @prop {number} lineWidthScale Width of the border shown when the opacity of cells are lowered.
+ * @prop {number} lineWidthScale Width of cell border in view space (deck.gl).
+ * @prop {number} lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
  * @prop {object} imageLayerProps
  * @prop {object} imageLayerLoaders
  * @prop {object} cellColors Object mapping cell IDs to colors.
@@ -74,6 +75,7 @@ export default function Spatial(props) {
     cellOpacity = 1.0,
     moleculesOpacity = 1.0,
     lineWidthScale = 10,
+    lineWidthMaxPixels = 2,
     areMoleculesOn = true,
     imageLayerProps = {},
     imageLayerLoaders = {},
@@ -184,6 +186,10 @@ export default function Spatial(props) {
     return tree;
   }, [getCellCoords, cellsData]);
 
+  // Graphics rendering has the y-axis positive going south,
+  // so we need to flip it for rendering tooltips.
+  const flipYTooltip = true;
+
   const cellsLayer = useMemo(() => new SelectablePolygonLayer({
     id: CELLS_LAYER_ID,
     backgroundColor: [0, 0, 0],
@@ -212,13 +218,14 @@ export default function Spatial(props) {
       onCellClick(info);
     },
     visible: areCellsOn,
-    ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid),
+    ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid, flipYTooltip),
     getLineWidth: cellOpacity < 0.7 ? 1 : 0,
     lineWidthScale,
+    lineWidthMaxPixels,
 
   }), [cellsData, updateStatus, updateCellsHover,
     uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
-    getCellIsSelected, areCellsOn, lineWidthScale]);
+    getCellIsSelected, areCellsOn, lineWidthScale, lineWidthMaxPixels, flipYTooltip]);
 
   const moleculesLayer = useMemo(() => new ScatterplotLayer({
     id: 'molecules-layer',

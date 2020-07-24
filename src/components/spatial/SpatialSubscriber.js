@@ -36,6 +36,7 @@ export default function SpatialSubscriber({
   moleculeRadius,
   view,
   cellRadius,
+  observationsLabelOverride,
   theme,
   disableTooltip = false,
 }) {
@@ -87,7 +88,7 @@ export default function SpatialSubscriber({
         // Filter out non-downloadable zarr
         const rasterUrlsAndNames = rasterSchema.images.map(
           image => ({ name: image.name, url: image.url }),
-        ).filter(urlAndName => urlAndName.url.includes('zarr'));
+        ).filter(urlAndName => !urlAndName.url.includes('zarr'));
         const newUrls = [...prevUrls].concat(rasterUrlsAndNames);
         return newUrls;
       });
@@ -203,11 +204,12 @@ export default function SpatialSubscriber({
     };
   }, [cells]);
 
+  const observationsLabel = observationsLabelOverride || 'cells';
   return (
     <TitleInfo
       title="Spatial"
       info={
-        `${cellsCount} cells, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
+        `${cellsCount} ${observationsLabel}, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
       }
       isSpatial
       urls={urls}
