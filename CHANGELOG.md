@@ -7,6 +7,7 @@
 ### Changed
 - Fix #674 bug around flipped scatterplots.
 - Fix #645 bug around clearing genes and heatmap.
+- Add heatmap label override.
 
 ## [0.1.9](https://www.npmjs.com/package/vitessce/v/0.1.9) - 2020-07-23
 

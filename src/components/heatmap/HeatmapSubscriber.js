@@ -21,6 +21,7 @@ export default function HeatmapSubscriber(props) {
     uuid,
     removeGridComponent,
     onReady,
+    labelOverride,
     theme,
   } = props;
   const [cells, setCells] = useState({});
@@ -91,7 +92,7 @@ export default function HeatmapSubscriber(props) {
   return (
     <TitleInfo
       title="Heatmap"
-      info={`${cellsCount} cells × ${genesCount} genes,
+      info={`${cellsCount} cells × ${genesCount} ${labelOverride || 'genes'},
               with ${selectedCount} cells selected`}
       removeGridComponent={removeGridComponent}
       urls={urls}
