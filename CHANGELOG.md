@@ -5,6 +5,7 @@
 ### Added
 
 ### Changed
+- Fix #645 bug around clearing genes and heatmap.
 
 ## [0.1.9](https://www.npmjs.com/package/vitessce/v/0.1.9) - 2020-07-23
 

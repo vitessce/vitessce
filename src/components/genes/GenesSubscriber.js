@@ -36,7 +36,11 @@ export default function GenesSubscriber(props) {
         });
       },
     );
-    const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
+    const resetToken = PubSub.subscribe(RESET, () => {
+      setUrls([]);
+      setGenes({});
+      setSelectedId({});
+    });
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(genesAddToken);
