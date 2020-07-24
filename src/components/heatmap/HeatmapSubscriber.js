@@ -15,6 +15,7 @@ import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 export default function HeatmapSubscriber(props) {
   const { children, uuid, removeGridComponent, onReady, theme, transpose } = props;
 
+  const [cells, setCells] = useState({});
   const [clusters, setClusters] = useState(null);
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
@@ -39,6 +40,11 @@ export default function HeatmapSubscriber(props) {
         });
       },
     );
+    const cellsAddToken = PubSub.subscribe(
+      CELLS_ADD, (msg, { data }) => {
+        setCells(data);
+      },
+    );
     const cellsColorToken = PubSub.subscribe(
       CELLS_COLOR, (msg, cellColors) => {
         setCellColors(cellColors);
@@ -58,12 +64,26 @@ export default function HeatmapSubscriber(props) {
     onReadyCallback();
     return () => {
       PubSub.unsubscribe(expressionMatrixAddToken);
+      PubSub.unsubscribe(cellsAddToken);
       PubSub.unsubscribe(cellsColorToken);
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(cellSetsViewToken);
       PubSub.unsubscribe(resetToken);
     }
   }, [onReadyCallback]);
+
+  const getCellInfo = useCallback((cellId) => {
+    const cellInfo = cells[cellId];
+    return {
+      'Cell ID': cellId,
+      ...(cellInfo ? cellInfo.factors : {}),
+    };
+  }, [cells]);
+  const getGeneInfo = useCallback((geneId) => {
+    return {
+      'Gene ID': geneId,
+    };
+  }, []);
 
   const cellsCount = clusters && clusters.rows ? clusters.rows.length : 0;
   const genesCount = clusters && clusters.cols ? clusters.cols.length : 0;
@@ -73,8 +93,8 @@ export default function HeatmapSubscriber(props) {
       title="Heatmap"
       info={`${cellsCount} cells × ${genesCount} genes,
               with ${selectedCount} cells selected`}
-        urls={urls}
-        theme={theme}
+      urls={urls}
+      theme={theme}
       removeGridComponent={removeGridComponent}
     >
       {children}
@@ -100,6 +120,8 @@ export default function HeatmapSubscriber(props) {
           width={width}
           height={height}
           transpose={transpose}
+          getCellInfo={getCellInfo}
+          getGeneInfo={getGeneInfo}
         />
       </div>
     </TitleInfo>

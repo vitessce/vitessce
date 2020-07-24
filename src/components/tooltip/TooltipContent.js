@@ -3,21 +3,16 @@ import React from 'react';
 
 export default function TooltipContent(props) {
   const {
-    cellId,
-    factors,
+    info,
   } = props;
 
   return (
     <table>
       <tbody>
-        <tr>
-          <th>Cell ID</th>
-          <td>{cellId}</td>
-        </tr>
-        {Object.keys(factors).map(key => (
+        {Object.entries(info).map(([key, value]) => (
           <tr key={key}>
             <th>{key}</th>
-            <td>{factors[key]}</td>
+            <td>{value}</td>
           </tr>
         ))}
       </tbody>

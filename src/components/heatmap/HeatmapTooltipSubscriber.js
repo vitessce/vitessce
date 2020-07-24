@@ -5,12 +5,14 @@ import {
     GENES_HOVER, CELLS_HOVER, VIEW_INFO,
   } from '../../events';
 import Tooltip2D from '../tooltip/Tooltip2D';
+import TooltipContent from '../tooltip/TooltipContent';
 
 export default function HeatmapTooltipSubscriber(props) {
-    const { uuid, width, height, transpose } = props;
+    const { uuid, width, height, transpose, getCellInfo, getGeneInfo } = props;
 
-    const [cellId, setCellId] = useState();
-    const [geneId, setGeneId] = useState();
+    const [cellInfo, setCellInfo] = useState();
+    const [geneInfo, setGeneInfo] = useState();
+
     const [sourceUuid, setSourceUuid] = useState();
     const [viewInfo, setViewInfo] = useState();
     const [x, setX] = useState(null);
@@ -20,10 +22,11 @@ export default function HeatmapTooltipSubscriber(props) {
         const cellsHoverToken = PubSub.subscribe(
             CELLS_HOVER, (msg, hoverInfo) => {
                 if(!hoverInfo) {
-                    setCellId(null);
+                    setCellInfo(null);
                     setSourceUuid(null);
                 } else {
-                    setCellId(hoverInfo.cellId);
+                    const newCellInfo = getCellInfo(hoverInfo.cellId);
+                    setCellInfo(newCellInfo);
                     setSourceUuid(hoverInfo.uuid);
                     if(viewInfo && viewInfo.project) {
                         const [x, y] = viewInfo.project(hoverInfo.cellId, null);
@@ -39,10 +42,11 @@ export default function HeatmapTooltipSubscriber(props) {
         const genesHoverToken = PubSub.subscribe(
             GENES_HOVER, (msg, hoverInfo) => {
                 if(!hoverInfo) {
-                    setGeneId(null);
+                    setGeneInfo(null);
                     setSourceUuid(null);
                 } else {
-                    setGeneId(hoverInfo.geneId);
+                    const newGeneInfo = getGeneInfo(hoverInfo.geneId);
+                    setGeneInfo(newGeneInfo);
                     setSourceUuid(hoverInfo.uuid);
                     if(viewInfo && viewInfo.project) {
                         const [x, y] = viewInfo.project(null, hoverInfo.geneId);
@@ -70,7 +74,7 @@ export default function HeatmapTooltipSubscriber(props) {
     }, [uuid, viewInfo]);
 
     return (
-        <Tooltip2D
+        (cellInfo || geneInfo ? <Tooltip2D
             x={x}
             y={y}
             parentUuid={uuid}
@@ -78,8 +82,7 @@ export default function HeatmapTooltipSubscriber(props) {
             parentHeight={height}
             sourceUuid={sourceUuid}
         >
-            <div>{cellId}</div>
-            <div>{geneId}</div>
-        </Tooltip2D>
+            <TooltipContent info={{ ...geneInfo, ...cellInfo }} />
+        </Tooltip2D> : null)
     )
 }

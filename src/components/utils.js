@@ -125,6 +125,10 @@ export function createDefaultUpdateCellsHover(componentName) {
   return hoverInfo => console.warn(`${componentName} updateCellsHover: ${hoverInfo.cellId}`);
 }
 
+export function createDefaultUpdateGenesHover(componentName) {
+  return hoverInfo => console.warn(`${componentName} updateGenesHover: ${hoverInfo.geneId}`);
+}
+
 export function createDefaultUpdateViewInfo(componentName) {
   return viewInfo => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
 }

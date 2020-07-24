@@ -4,6 +4,7 @@ import {
   ThemeProvider, StylesProvider,
   createGenerateClassName,
 } from '@material-ui/core/styles';
+import packageJson from '../../package.json';
 
 import datasetSchema from '../schemas/dataset.schema.json';
 
@@ -105,7 +106,7 @@ export function Vitessce(props) {
     );
   }
   // NOTE: Remove when this is available in UI.
-  console.groupCollapsed('🚄 Vitessce view configuration');
+  console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) view configuration`);
   console.info(`data:,${JSON.stringify(config)}`);
   console.info(JSON.stringify(config, null, 2));
   console.groupEnd();

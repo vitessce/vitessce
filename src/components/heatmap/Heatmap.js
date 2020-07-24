@@ -11,7 +11,12 @@ import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { max } from 'd3-array';
-import { DEFAULT_GL_OPTIONS } from '../utils';
+import { DEFAULT_GL_OPTIONS, 
+  createDefaultUpdateCellsHover,
+  createDefaultUpdateGenesHover, 
+  createDefaultUpdateStatus, 
+  createDefaultUpdateViewInfo,
+} from '../utils';
 import HeatmapWorker from './heatmap.worker.js';
 import {
   COLOR_BAR_SIZE,
@@ -29,8 +34,6 @@ const themeToTextColor = {
   "dark": [224, 224, 224],
   "light": [64, 64, 64],
 };
-
-
 
 /**
  * A heatmap component for cell x gene (and gene x cell) matrices.
@@ -50,12 +53,10 @@ export default function Heatmap(props) {
     clusters,
     cellColors,
     clearPleaseWait,
-    updateCellsHover = () => {},
-    updateGenesHover = () => {},
-    updateStatus = (message) => {
-      console.warn(`Heatmap updateStatus: ${message}`);
-    },
-    updateViewInfo,
+    updateCellsHover = createDefaultUpdateCellsHover('Heatmap'),
+    updateGenesHover = createDefaultUpdateGenesHover('Heatmap'),
+    updateStatus = createDefaultUpdateStatus('Heatmap'),
+    updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
     transpose = false,
     axisLeftTitle = (transpose ? "Genes" : "Cells"),
     axisTopTitle = (transpose ? "Cells" : "Genes"),
