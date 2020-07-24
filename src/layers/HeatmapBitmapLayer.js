@@ -24,17 +24,18 @@ const defaultProps = {
  * and renders its texture from a Uint8Array rather than an ImageData.
  */
 export default class HeatmapBitmapLayer extends BitmapLayer {
-  
   /**
    * Copy of getShaders from Layer (grandparent, parent of BitmapLayer).
    * Reference: https://github.com/visgl/deck.gl/blob/0afd4e99a6199aeec979989e0c361c97e6c17a16/modules/core/src/lib/layer.js#L302
    * @param {object} shaders
    * @returns {object} Merged shaders.
    */
+  // eslint-disable-next-line no-underscore-dangle
   _getShaders(shaders) {
-    for (const extension of this.props.extensions) {
+    this.props.extensions.forEach((extension) => {
+      // eslint-disable-next-line no-param-reassign
       shaders = _mergeShaders(shaders, extension.getShaders.call(this, extension));
-    }
+    });
     return shaders;
   }
 
@@ -43,10 +44,11 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    */
   getShaders() {
     const { colormap } = this.props;
+    // eslint-disable-next-line no-underscore-dangle
     return this._getShaders({
       vs: vertexShader,
       fs: fragmentShader.replace('__colormap', colormap),
-      modules: [ project32, picking ]
+      modules: [project32, picking],
     });
   }
 
@@ -54,7 +56,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * Need to override to provide additional uniform values.
    * Simplified by removing video-related code.
    * Reference: https://github.com/visgl/deck.gl/blob/0afd4e99a6199aeec979989e0c361c97e6c17a16/modules/layers/src/bitmap-layer/bitmap-layer.js#L173
-   * @param {*} opts 
+   * @param {*} opts
    */
   draw(opts) {
     const { uniforms } = opts;
@@ -75,12 +77,12 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
             uTextureSize: [TILE_SIZE, TILE_SIZE],
             uAggSize: [aggSizeX, aggSizeY],
             uColorScaleRange: [colorScaleLo, colorScaleHi],
-          })
+          }),
         )
         .draw();
     }
   }
-  
+
   /**
    * Need to override to provide the custom DEFAULT_TEXTURE_PARAMETERS
    * object.
@@ -90,16 +92,16 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    */
   loadTexture(image) {
     const { gl } = this.context;
-    
-    if(this.state.bitmapTexture) {
+
+    if (this.state.bitmapTexture) {
       this.state.bitmapTexture.delete();
     }
-    
-    if(image instanceof Texture2D) {
+
+    if (image instanceof Texture2D) {
       this.setState({
         bitmapTexture: image,
       });
-    } else if(image) {
+    } else if (image) {
       this.setState({
         bitmapTexture: new Texture2D(gl, {
           data: image,

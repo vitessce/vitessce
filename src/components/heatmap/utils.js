@@ -6,6 +6,7 @@ export const AXIS_LABEL_TEXT_SIZE = 8;
 export const AXIS_TITLE_TEXT_SIZE = 14;
 export const AXIS_MIN_SIZE = 10;
 export const AXIS_MAX_SIZE = 85;
+export const AXIS_MARGIN = 3;
 
 export function layerFilter({ layer, viewport }) {
   if (viewport.id === 'axisLeft') {
@@ -74,19 +75,21 @@ export function mouseToHeatmapPosition(mouseX, mouseY, {
 /**
  * Convert a heatmap coordinate (col index, row index) to a mouse coordinate (x, y).
  */
-export function heatmapToMousePosition(colI, rowI, { offsetLeft, offsetTop, targetX, targetY, scaleFactor, matrixWidth, matrixHeight, numRows, numCols, }) {
-  let zoomedMouseY = null
+export function heatmapToMousePosition(colI, rowI, {
+  offsetLeft, offsetTop, targetX, targetY, scaleFactor, matrixWidth, matrixHeight, numRows, numCols,
+}) {
+  let zoomedMouseY = null;
   let zoomedMouseX = null;
 
-  if(rowI !== null) {
-    const minY = - matrixHeight * scaleFactor / 2;
+  if (rowI !== null) {
+    const minY = -matrixHeight * scaleFactor / 2;
     const maxY = matrixHeight * scaleFactor / 2;
     const totalHeight = maxY - minY;
 
     const minInViewY = (targetY * scaleFactor) - (matrixHeight / 2);
     const maxInViewY = (targetY * scaleFactor) + (matrixHeight / 2);
     const inViewHeight = maxInViewY - minInViewY;
-    
+
     const normalizedRowY = (rowI + 0.5) / numRows;
     const globalRowY = minY + (normalizedRowY * totalHeight);
 
@@ -94,15 +97,15 @@ export function heatmapToMousePosition(colI, rowI, { offsetLeft, offsetTop, targ
       zoomedMouseY = offsetTop + ((globalRowY - minInViewY) / inViewHeight) * matrixHeight;
     }
   }
-  if(colI !== null) {
-    const minX = - matrixWidth * scaleFactor / 2;
+  if (colI !== null) {
+    const minX = -matrixWidth * scaleFactor / 2;
     const maxX = matrixWidth * scaleFactor / 2;
     const totalWidth = maxX - minX;
 
     const minInViewX = (targetX * scaleFactor) - (matrixWidth / 2);
     const maxInViewX = (targetX * scaleFactor) + (matrixWidth / 2);
     const inViewWidth = maxInViewX - minInViewX;
-    
+
     const normalizedRowX = (colI + 0.5) / numCols;
     const globalRowX = minX + (normalizedRowX * totalWidth);
 

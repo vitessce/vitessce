@@ -1,27 +1,31 @@
-import React, { useRef, useState, useCallback, useMemo, useEffect, useReducer } from 'react';
+import React, {
+  useRef, useState, useCallback, useMemo, useEffect, useReducer,
+} from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
 import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
 import { TextLayer } from '@deck.gl/layers';
-import HeatmapBitmapLayer, { TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG } from '../../layers/HeatmapBitmapLayer';
-import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
-import HeatmapControls from './HeatmapControls';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { max } from 'd3-array';
-import { DEFAULT_GL_OPTIONS, 
+import HeatmapControls from './HeatmapControls';
+import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
+import HeatmapBitmapLayer, { TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG } from '../../layers/HeatmapBitmapLayer';
+import {
+  DEFAULT_GL_OPTIONS,
   createDefaultUpdateCellsHover,
-  createDefaultUpdateGenesHover, 
-  createDefaultUpdateStatus, 
+  createDefaultUpdateGenesHover,
+  createDefaultUpdateStatus,
   createDefaultUpdateViewInfo,
 } from '../utils';
-import HeatmapWorker from './heatmap.worker.js';
+import HeatmapWorker from './heatmap.worker';
 import {
   COLOR_BAR_SIZE,
   LOADING_TEXT_SIZE,
   AXIS_LABEL_TEXT_SIZE,
   AXIS_TITLE_TEXT_SIZE,
+  AXIS_MARGIN,
   layerFilter,
   getAxisSizes,
   mouseToHeatmapPosition,
@@ -30,13 +34,13 @@ import {
 
 
 const themeToTextColor = {
-  "dark": [224, 224, 224],
-  "light": [64, 64, 64],
+  dark: [224, 224, 224],
+  light: [64, 64, 64],
 };
 
 /**
  * A heatmap component for cell x gene (and gene x cell) matrices.
- * @param {*} props 
+ * @param {*} props
  */
 export default function Heatmap(props) {
   const {
@@ -45,7 +49,7 @@ export default function Heatmap(props) {
     initialViewState = {
       minZoom: 0,
       zoom: 0,
-      target: [0, 0, 0]
+      target: [0, 0, 0],
     },
     width: viewWidth,
     height: viewHeight,
@@ -57,8 +61,8 @@ export default function Heatmap(props) {
     updateStatus = createDefaultUpdateStatus('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
     transpose = false,
-    variableTitle = "Genes",
-    observationTitle = "Cells",
+    variableTitle = 'Genes',
+    observationTitle = 'Cells',
   } = props;
 
   const axisLeftTitle = (transpose ? variableTitle : observationTitle);
@@ -88,7 +92,7 @@ export default function Heatmap(props) {
   // Since we are storing the tile data in a ref,
   // and updating it asynchronously when the worker finishes,
   // we need to tie it to a piece of state through this iteration value.
-  const [tileIteration, incTileIteration] = useReducer(i => i+1, 0);
+  const [tileIteration, incTileIteration] = useReducer(i => i + 1, 0);
 
   // We need to keep a backlog of the tasks for the worker thread,
   // since the array buffer can only be held by one thread at a time.
@@ -104,11 +108,11 @@ export default function Heatmap(props) {
       // Increment the counter to notify the downstream useEffects and useMemos.
       incTileIteration();
       // Remove this task and everything prior from the backlog.
-      const curr = event.data.curr;
-      setBacklog(prev => {
+      const { curr } = event.data;
+      setBacklog((prev) => {
         const currIndex = prev.indexOf(curr);
-        return prev.slice(currIndex+1, prev.length);
-      })
+        return prev.slice(currIndex + 1, prev.length);
+      });
     });
   }, [workerRef, tilesRef]);
 
@@ -117,56 +121,61 @@ export default function Heatmap(props) {
   // it back and forth from the worker thread.
   useEffect(() => {
     // Store the clusters Uint8Array in the dataRef.
-    if(clusters && clusters.matrix) {
+    if (clusters && clusters.matrix) {
       dataRef.current = clusters.matrix.data;
-    } 
+    }
   }, [dataRef, clusters]);
 
   // Check if the ordering of axis labels needs to be changed,
   // for example if the cells "selected" (technically just colored)
   // have changed.
   useEffect(() => {
-    if(!clusters) {
+    if (!clusters) {
       return;
     }
-    const newCellOrdering = (!cellColors || cellColors.size === 0 ? clusters.rows : Array.from(cellColors.keys()));
+    const newCellOrdering = (!cellColors || cellColors.size === 0
+      ? clusters.rows
+      : Array.from(cellColors.keys())
+    );
     const oldCellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
 
-    if(!isEqual(oldCellOrdering, newCellOrdering)) {
-      if(transpose) {
+    if (!isEqual(oldCellOrdering, newCellOrdering)) {
+      if (transpose) {
         setAxisTopLabels(newCellOrdering);
       } else {
         setAxisLeftLabels(newCellOrdering);
       }
     }
-  }, [clusters, cellColors, axisTopLabels, axisLeftLabels]);
+  }, [clusters, cellColors, axisTopLabels, axisLeftLabels, transpose]);
 
   // Set the genes ordering.
   useEffect(() => {
-    if(!clusters) {
+    if (!clusters) {
       return;
     }
-    if(transpose) {
+    if (transpose) {
       setAxisLeftLabels(clusters.cols);
     } else {
       setAxisTopLabels(clusters.cols);
     }
-  }, [clusters]);
+  }, [clusters, transpose]);
 
   const [cellLabelMaxLength, geneLabelMaxLength] = useMemo(() => {
-    if(!clusters) {
+    if (!clusters) {
       return [0, 0];
     }
     return [
       max(clusters.rows.map(cellId => cellId.length)),
-      max(clusters.cols.map(geneId => geneId.length))
+      max(clusters.cols.map(geneId => geneId.length)),
     ];
   }, [clusters]);
 
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
 
-  const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(transpose, geneLabelMaxLength, cellLabelMaxLength);
+  const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(
+    transpose, geneLabelMaxLength, cellLabelMaxLength,
+  );
 
   const offsetTop = axisOffsetTop + COLOR_BAR_SIZE;
   const offsetLeft = axisOffsetLeft + COLOR_BAR_SIZE;
@@ -174,80 +183,82 @@ export default function Heatmap(props) {
   const matrixWidth = viewWidth - offsetLeft;
   const matrixHeight = viewHeight - offsetTop;
 
-  const matrixLeft = -matrixWidth/2;
-  const matrixRight = matrixWidth/2;
-  const matrixTop = -matrixHeight/2;
-  const matrixBottom = matrixHeight/2;
+  const matrixLeft = -matrixWidth / 2;
+  const matrixRight = matrixWidth / 2;
+  const matrixTop = -matrixHeight / 2;
+  const matrixBottom = matrixHeight / 2;
 
   const xTiles = Math.ceil(width / TILE_SIZE);
   const yTiles = Math.ceil(height / TILE_SIZE);
 
-  const widthRatio = (xTiles*TILE_SIZE - (TILE_SIZE - (width % TILE_SIZE))) / (xTiles*TILE_SIZE);
-  const heightRatio = (yTiles*TILE_SIZE - (TILE_SIZE - (height % TILE_SIZE))) / (yTiles*TILE_SIZE);
+  const widthRatio = 1 - (TILE_SIZE - (width % TILE_SIZE)) / (xTiles * TILE_SIZE);
+  const heightRatio = 1 - (TILE_SIZE - (height % TILE_SIZE)) / (yTiles * TILE_SIZE);
 
   const tileWidth = (matrixWidth / widthRatio) / (xTiles);
   const tileHeight = (matrixHeight / heightRatio) / (yTiles);
 
-  const scaleFactor = Math.pow(2, viewState.zoom);
+  const scaleFactor = 2 ** viewState.zoom;
   const cellHeight = (matrixHeight * scaleFactor) / height;
   const cellWidth = (matrixWidth * scaleFactor) / width;
 
-  // Get power of 2 between 1 and 16, for number of cells to aggregate together in each direction.
-  const aggSizeX = clamp(Math.pow(2, Math.ceil(Math.log2(1/cellWidth))), MIN_ROW_AGG, MAX_ROW_AGG);
-  const aggSizeY = clamp(Math.pow(2, Math.ceil(Math.log2(1/cellHeight))), MIN_ROW_AGG, MAX_ROW_AGG);
-
-  function project(cellId, geneId) {
-    const colI = transpose ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
-    const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
-    return heatmapToMousePosition(
-      colI, rowI, {
-        offsetLeft,
-        offsetTop,
-        targetX: viewState.target[0],
-        targetY: viewState.target[1],
-        scaleFactor,
-        matrixWidth,
-        matrixHeight,
-        numRows: height,
-        numCols: width,
-      }
-    );
-  }
+  // Get power of 2 between 1 and 16,
+  // for number of cells to aggregate together in each direction.
+  const aggSizeX = clamp(2 ** Math.ceil(Math.log2(1 / cellWidth)), MIN_ROW_AGG, MAX_ROW_AGG);
+  const aggSizeY = clamp(2 ** Math.ceil(Math.log2(1 / cellHeight)), MIN_ROW_AGG, MAX_ROW_AGG);
 
   // Emit the viewInfo event on viewState updates
   // (used by external tooltips / crosshair elements).
   useEffect(() => {
     updateViewInfo({
       uuid,
-      project: project
+      project: (cellId, geneId) => {
+        const colI = transpose ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
+        const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
+        return heatmapToMousePosition(
+          colI, rowI, {
+            offsetLeft,
+            offsetTop,
+            targetX: viewState.target[0],
+            targetY: viewState.target[1],
+            scaleFactor,
+            matrixWidth,
+            matrixHeight,
+            numRows: height,
+            numCols: width,
+          },
+        );
+      },
     });
-  }, [uuid, updateViewInfo, transpose, axisTopLabels, axisLeftLabels, offsetLeft, offsetTop, viewState, scaleFactor, matrixWidth, matrixHeight, height, width]);
+  }, [uuid, updateViewInfo, transpose, axisTopLabels, axisLeftLabels, offsetLeft,
+    offsetTop, viewState, scaleFactor, matrixWidth, matrixHeight, height, width]);
 
 
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
-  const onViewStateChange = useCallback(({ viewState }) => {
-    const { zoom } = viewState;
-    const scaleFactor = Math.pow(2, zoom);
+  const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
+    const { zoom } = nextViewState;
+    const nextScaleFactor = 2 ** zoom;
 
-    const minTargetX = zoom === 0 ? 0 : -(matrixRight - (matrixRight / scaleFactor));
+    const minTargetX = zoom === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactor));
     const maxTargetX = -1 * minTargetX;
 
-    const minTargetY = zoom === 0 ? 0 : -(matrixBottom - (matrixBottom / scaleFactor));
+    const minTargetY = zoom === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactor));
     const maxTargetY = -1 * minTargetY;
 
     // Manipulate view state if necessary to keep the user in the window.
-    viewState.target[0] = clamp(viewState.target[0], minTargetX, maxTargetX);
-    viewState.target[1] = clamp(viewState.target[1], minTargetY, maxTargetY);
+    // eslint-disable-next-line no-param-reassign
+    nextViewState.target[0] = clamp(nextViewState.target[0], minTargetX, maxTargetX);
+    // eslint-disable-next-line no-param-reassign
+    nextViewState.target[1] = clamp(nextViewState.target[1], minTargetY, maxTargetY);
 
-    setViewState(viewState);
+    setViewState(nextViewState);
   }, [matrixRight, matrixBottom]);
 
   // If `clusters` or `cellOrdering` have changed,
   // then new tiles need to be generated,
   // so add a new task to the backlog.
   useEffect(() => {
-    if(!clusters) {
+    if (!clusters) {
       return;
     }
     // Use a uuid to give the task a unique ID,
@@ -261,24 +272,25 @@ export default function Heatmap(props) {
   // - the backlog has length >= 1 (at least one job is waiting), and
   // - buffer.byteLength is not zero, so the worker does not currently "own" the buffer.
   useEffect(() => {
-    if(backlog.length < 1) {
+    if (backlog.length < 1) {
       return;
     }
     const curr = backlog[backlog.length - 1];
-    if(dataRef.current && dataRef.current.buffer.byteLength) {
+    if (dataRef.current && dataRef.current.buffer.byteLength) {
+      const { rows, cols } = clusters;
       workerRef.current.postMessage(['getTiles', {
         curr,
         xTiles,
         yTiles,
         tileSize: TILE_SIZE,
         cellOrdering: (transpose ? axisTopLabels : axisLeftLabels),
-        rows: clusters.rows,
-        cols: clusters.cols,
+        rows,
+        cols,
         transpose,
         data: dataRef.current.buffer,
       }], [dataRef.current.buffer]);
     }
-  }, [backlog]);
+  }, [axisLeftLabels, axisTopLabels, backlog, clusters, transpose, xTiles, yTiles]);
 
   // Update the heatmap tiles if:
   // - new tiles are available (`tileIteration` has changed), or
@@ -286,14 +298,19 @@ export default function Heatmap(props) {
   // - the `aggSizeX` or `aggSizeY` have changed, or
   // - the cell ordering has changed.
   const heatmapLayers = useMemo(() => {
-    if(!tilesRef.current || backlog.length) {
+    if (!tilesRef.current || backlog.length) {
       return [];
     }
     function getLayer(i, j, tile) {
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
         image: tile,
-        bounds: [matrixLeft + j*tileWidth, matrixTop + i*tileHeight, matrixLeft + (j+1)*tileWidth, matrixTop + (i+1)*tileHeight],
+        bounds: [
+          matrixLeft + j * tileWidth,
+          matrixTop + i * tileHeight,
+          matrixLeft + (j + 1) * tileWidth,
+          matrixTop + (i + 1) * tileHeight,
+        ],
         aggSizeX,
         aggSizeY,
         colorScaleLo,
@@ -301,37 +318,30 @@ export default function Heatmap(props) {
         updateTriggers: {
           image: [axisLeftLabels, axisTopLabels],
           bounds: [tileHeight, tileWidth],
-        }
+        },
       });
     }
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
-  
-  }, [tilesRef, tileIteration, tileWidth, tileHeight,
-    aggSizeX, aggSizeY, axisLeftLabels, axisTopLabels, xTiles, yTiles, colorScaleLo, colorScaleHi,
-    backlog]);
+  }, [backlog.length, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
+    aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels]);
 
 
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
-  const axisTopLabelData = useMemo(() => {
-    return axisTopLabels.map((d, i) => [i, d]);
-  }, [axisTopLabels]);
+  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, d]), [axisTopLabels]);
 
-  const axisLeftLabelData = useMemo(() => {
-    return axisLeftLabels.map((d, i) => [i, d]);
-  }, [axisLeftLabels]);
+  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d]), [axisLeftLabels]);
 
   // Set up the constants for the axis layers.
   const showAxisLeftLabels = cellHeight >= AXIS_LABEL_TEXT_SIZE;
   const showAxisTopLabels = cellWidth >= AXIS_LABEL_TEXT_SIZE;
 
-  const axisMargin = 3;
-  const axisLabelLeft = viewState.target[0] + (axisOffsetLeft - axisMargin)/2/scaleFactor;
-  const axisLabelTop = viewState.target[1] + (axisOffsetTop - axisMargin)/2/scaleFactor;
+  const axisLabelLeft = viewState.target[0] + (axisOffsetLeft - AXIS_MARGIN) / 2 / scaleFactor;
+  const axisLabelTop = viewState.target[1] + (axisOffsetTop - AXIS_MARGIN) / 2 / scaleFactor;
 
   const axisTitleLeft = viewState.target[0];
   const axisTitleTop = viewState.target[1];
-  
+
   // Generate the axis label and title TextLayer objects.
   const axisLayers = (clusters && clusters.rows && clusters.cols ? [
     new TextLayer({
@@ -348,7 +358,7 @@ export default function Heatmap(props) {
         getPosition: [axisLabelLeft, matrixTop, matrixHeight, viewHeight],
         getSize: [showAxisLeftLabels],
         getColor: [theme],
-      }
+      },
     }),
     new TextLayer({
       id: 'axisTopLabels',
@@ -364,43 +374,41 @@ export default function Heatmap(props) {
         getPosition: [axisLabelTop, matrixLeft, matrixWidth, viewWidth],
         getSize: [showAxisTopLabels],
         getColor: [theme],
-      }
+      },
     }),
     new TextLayer({
       id: 'axisLeftTitle',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: [{
-        title: axisLeftTitle
+        title: axisLeftTitle,
       }],
       getText: d => d.title,
-      getPosition: d => [axisTitleLeft, axisTitleTop],
+      getPosition: [axisTitleLeft, axisTitleTop],
       getTextAnchor: 'middle',
       getColor: themeToTextColor[theme],
       getSize: (!showAxisLeftLabels ? AXIS_TITLE_TEXT_SIZE : 0),
       getAngle: 90,
       updateTriggers: {
-        getPosition: [axisTitleLeft, axisTitleTop],
         getSize: [showAxisLeftLabels],
         getColor: [theme],
-      }
+      },
     }),
     new TextLayer({
       id: 'axisTopTitle',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: [{
-        title: axisTopTitle
+        title: axisTopTitle,
       }],
       getText: d => d.title,
-      getPosition: d => [axisTitleLeft, axisTitleTop],
+      getPosition: [axisTitleLeft, axisTitleTop],
       getTextAnchor: 'middle',
       getColor: themeToTextColor[theme],
       getSize: (!showAxisTopLabels ? AXIS_TITLE_TEXT_SIZE : 0),
       getAngle: 0,
       updateTriggers: {
-        getPosition: [axisTitleLeft, axisTitleTop],
         getSize: [showAxisTopLabels],
         getColor: [theme],
-      }
+      },
     }),
   ] : []);
 
@@ -410,24 +418,24 @@ export default function Heatmap(props) {
       id: 'heatmapLoading',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: [{
-        title: "Loading..."
+        title: 'Loading...',
       }],
       getText: d => d.title,
-      getPosition: d => [viewState.target[0], viewState.target[1]],
+      getPosition: [viewState.target[0], viewState.target[1]],
       getTextAnchor: 'middle',
       getColor: themeToTextColor[theme],
       getSize: LOADING_TEXT_SIZE,
       getAngle: 0,
       updateTriggers: {
         getColor: [theme],
-      }
+      },
     }),
   ] : []);
 
   // Create the left color bar with a BitmapLayer.
   // TODO: find a way to do aggregation for this as well.
   const cellColorsTiles = useMemo(() => {
-    if(!cellColors) {
+    if (!cellColors) {
       return null;
     }
 
@@ -440,19 +448,20 @@ export default function Heatmap(props) {
     const colorBarTileWidthPx = (transpose ? TILE_SIZE : 1);
     const colorBarTileHeightPx = (transpose ? 1 : TILE_SIZE);
 
-    const result = range((transpose ? xTiles : yTiles)).map(i => {
+    const result = range((transpose ? xTiles : yTiles)).map((i) => {
       const tileData = new Uint8ClampedArray(TILE_SIZE * 1 * 4);
 
-      range(TILE_SIZE).forEach(tileY => {
+      range(TILE_SIZE).forEach((tileY) => {
         rowI = (i * TILE_SIZE) + tileY; // the row / cell index
-        if(rowI < cellOrdering.length) {
+        if (rowI < cellOrdering.length) {
           cellId = cellOrdering[rowI];
           color = cellColors.get(cellId);
           offset = (transpose ? tileY : (TILE_SIZE - tileY - 1)) * 4;
-          if(color) {
-            tileData[offset + 0] = color[0];
-            tileData[offset + 1] = color[1];
-            tileData[offset + 2] = color[2];
+          if (color) {
+            const [rValue, gValue, bValue] = color;
+            tileData[offset + 0] = rValue;
+            tileData[offset + 1] = gValue;
+            tileData[offset + 2] = bValue;
             tileData[offset + 3] = 255;
           }
         }
@@ -462,27 +471,26 @@ export default function Heatmap(props) {
     });
 
     return result;
-  }, [cellColors, axisTopLabels, axisLeftLabels, transpose]);
+  }, [cellColors, transpose, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
 
-  const cellColorsLayers = useMemo(() => {
-    return cellColorsTiles ? cellColorsTiles.map((tile, i) => {
-      return new PixelatedBitmapLayer({
+  const cellColorsLayers = useMemo(() => (cellColorsTiles
+    ? cellColorsTiles
+      .map((tile, i) => new PixelatedBitmapLayer({
         id: `${(transpose ? 'colorsTopLayer' : 'colorsLeftLayer')}-${i}-${uuidv4()}`,
         image: tile,
         bounds: (transpose ? [
-          matrixLeft + i*tileWidth,
-          -matrixHeight/2,
-          matrixLeft + (i+1)*tileWidth,
-          matrixHeight/2,
+          matrixLeft + i * tileWidth,
+          -matrixHeight / 2,
+          matrixLeft + (i + 1) * tileWidth,
+          matrixHeight / 2,
         ] : [
-          -matrixWidth/2,
-          matrixTop + i*tileHeight,
-          matrixWidth/2,
-          matrixTop + (i+1)*tileHeight
+          -matrixWidth / 2,
+          matrixTop + i * tileHeight,
+          matrixWidth / 2,
+          matrixTop + (i + 1) * tileHeight,
         ]),
-      });
-    }) : [];
-  }, [cellColorsTiles, matrixTop, matrixLeft, matrixHeight,
+      }))
+    : []), [cellColorsTiles, matrixTop, matrixLeft, matrixHeight,
     matrixWidth, tileWidth, tileHeight, transpose]);
 
   const layers = heatmapLayers
@@ -492,17 +500,16 @@ export default function Heatmap(props) {
 
   // Set up the onHover function.
   function onHover(info, event) {
-    if(!clusters) {
+    if (!clusters) {
       return;
     }
-
-    const { x: mouseX, y: mouseY } = event.offsetCenter; 
-
+    const { x: mouseX, y: mouseY } = event.offsetCenter;
+    const [targetX, targetY] = viewState.target;
     const [colI, rowI] = mouseToHeatmapPosition(mouseX, mouseY, {
       offsetLeft,
       offsetTop,
-      targetX: viewState.target[0],
-      targetY: viewState.target[1],
+      targetX,
+      targetY,
       scaleFactor,
       matrixWidth,
       matrixHeight,
@@ -510,16 +517,16 @@ export default function Heatmap(props) {
       numCols: width,
     });
 
-    if(colI === null) {
-      if(transpose) {
+    if (colI === null) {
+      if (transpose) {
         updateCellsHover(null);
       } else {
         updateGenesHover(null);
       }
     }
-    
-    if(rowI === null) {
-      if(transpose) {
+
+    if (rowI === null) {
+      if (transpose) {
         updateGenesHover(null);
       } else {
         updateCellsHover(null);
@@ -528,12 +535,11 @@ export default function Heatmap(props) {
 
     const obsI = clusters.rows.indexOf(transpose
       ? axisTopLabels[colI]
-      : axisLeftLabels[rowI]
-    );
+      : axisLeftLabels[rowI]);
     const varI = clusters.cols.indexOf(transpose
       ? axisLeftLabels[rowI]
       : axisTopLabels[colI]);
-    
+
     const obsId = clusters.rows[obsI];
     const varId = clusters.cols[varI];
 
@@ -554,11 +560,46 @@ export default function Heatmap(props) {
     <>
       <DeckGL
         views={[
-          new OrthographicView({ id: 'heatmap', controller: true, x: offsetLeft, y: offsetTop, width: matrixWidth, height: matrixHeight }),
-          new OrthographicView({ id: 'axisLeft', controller: false, x: (transpose ? COLOR_BAR_SIZE : 0), y: offsetTop, width: axisOffsetLeft, height: matrixHeight }),
-          new OrthographicView({ id: 'axisTop', controller: false, x: offsetLeft, y: (transpose ? 0 : COLOR_BAR_SIZE), width: matrixWidth, height: axisOffsetTop }),
-          new OrthographicView({ id: 'colorsLeft', controller: false, x: axisOffsetLeft, y: offsetTop, width: COLOR_BAR_SIZE - 3, height: matrixHeight }),
-          new OrthographicView({ id: 'colorsTop', controller: false, x: offsetLeft, y: axisOffsetTop, width: matrixWidth, height: COLOR_BAR_SIZE - 3 }),
+          new OrthographicView({
+            id: 'heatmap',
+            controller: true,
+            x: offsetLeft,
+            y: offsetTop,
+            width: matrixWidth,
+            height: matrixHeight,
+          }),
+          new OrthographicView({
+            id: 'axisLeft',
+            controller: false,
+            x: (transpose ? COLOR_BAR_SIZE : 0),
+            y: offsetTop,
+            width: axisOffsetLeft,
+            height: matrixHeight,
+          }),
+          new OrthographicView({
+            id: 'axisTop',
+            controller: false,
+            x: offsetLeft,
+            y: (transpose ? 0 : COLOR_BAR_SIZE),
+            width: matrixWidth,
+            height: axisOffsetTop,
+          }),
+          new OrthographicView({
+            id: 'colorsLeft',
+            controller: false,
+            x: axisOffsetLeft,
+            y: offsetTop,
+            width: COLOR_BAR_SIZE - AXIS_MARGIN,
+            height: matrixHeight,
+          }),
+          new OrthographicView({
+            id: 'colorsTop',
+            controller: false,
+            x: offsetLeft,
+            y: axisOffsetTop,
+            width: matrixWidth,
+            height: COLOR_BAR_SIZE - AXIS_MARGIN,
+          }),
         ]}
         layers={layers}
         layerFilter={layerFilter}

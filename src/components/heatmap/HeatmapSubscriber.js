@@ -15,8 +15,8 @@ import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 export default function HeatmapSubscriber(props) {
   const {
     removeGridComponent, onReady, theme, transpose,
-    observationLabel = "cell",
-    variableLabel = "gene",
+    observationLabel = 'cell',
+    variableLabel = 'gene',
   } = props;
 
   const observationTitle = capitalize(pluralize(observationLabel));
@@ -85,7 +85,7 @@ export default function HeatmapSubscriber(props) {
   }, [onReadyCallback]);
 
   const getCellInfo = useCallback((cellId) => {
-    if(cellId) {
+    if (cellId) {
       const cellInfo = cells[cellId];
       return {
         [`${capitalize(observationLabel)} ID`]: cellId,
@@ -93,13 +93,13 @@ export default function HeatmapSubscriber(props) {
       };
     }
     return null;
-  }, [cells]);
-  const getGeneInfo = useCallback(geneId => {
-    if(geneId) {
-      return { [`${capitalize(variableLabel)} ID`]: geneId, };
+  }, [cells, observationLabel]);
+  const getGeneInfo = useCallback((geneId) => {
+    if (geneId) {
+      return { [`${capitalize(variableLabel)} ID`]: geneId };
     }
     return null;
-  }, []);
+  }, [variableLabel]);
 
   const cellsCount = clusters && clusters.rows ? clusters.rows.length : 0;
   const genesCount = clusters && clusters.cols ? clusters.cols.length : 0;
