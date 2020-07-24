@@ -8,6 +8,14 @@ export const AXIS_MIN_SIZE = 10;
 export const AXIS_MAX_SIZE = 85;
 export const AXIS_MARGIN = 3;
 
+/**
+ * Called before a layer is drawn to determine whether it should be rendered.
+ * Reference: https://deck.gl/docs/api-reference/core/deck#layerfilter
+ * @param {object} params A viewport, layer pair.
+ * @param {object} params.layer The layer to check.
+ * @param {object} params.viewport The viewport to check.
+ * @returns {boolean} Should this layer be rendered in this viewport?
+ */
 export function layerFilter({ layer, viewport }) {
   if (viewport.id === 'axisLeft') {
     return layer.id.startsWith('axisLeft');
@@ -23,6 +31,14 @@ export function layerFilter({ layer, viewport }) {
   return false;
 }
 
+/**
+ * Get the size of the left and top heatmap axes,
+ * taking into account the maximum label string lengths.
+ * @param {boolean} transpose Is the heatmap transposed?
+ * @param {number} geneLabelMaxLength What is the maximum length gene label?
+ * @param {number} cellLabelMaxLength What is the maximum length cell label?
+ * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
+ */
 export function getAxisSizes(transpose, geneLabelMaxLength, cellLabelMaxLength) {
   const axisOffsetLeft = clamp(
     (transpose ? geneLabelMaxLength : cellLabelMaxLength) * AXIS_LABEL_TEXT_SIZE,
@@ -39,10 +55,15 @@ export function getAxisSizes(transpose, geneLabelMaxLength, cellLabelMaxLength) 
 
 /**
  * Convert a mouse coordinate (x, y) to a heatmap coordinate (col index, row index).
+ * @param {number} mouseX The mouse X of interest.
+ * @param {number} mouseY The mouse Y of interest.
+ * @param {object} param2 An object containing current sizes and scale factors.
+ * @returns {number[]} [colI, rowI]
  */
 export function mouseToHeatmapPosition(mouseX, mouseY, {
   offsetLeft, offsetTop, targetX, targetY, scaleFactor, matrixWidth, matrixHeight, numRows, numCols,
 }) {
+  // TODO: use linear algebra
   const viewMouseX = mouseX - offsetLeft;
   const viewMouseY = mouseY - offsetTop;
 
@@ -74,10 +95,15 @@ export function mouseToHeatmapPosition(mouseX, mouseY, {
 
 /**
  * Convert a heatmap coordinate (col index, row index) to a mouse coordinate (x, y).
+ * @param {number} colI The column index of interest.
+ * @param {number} rowI The row index of interest.
+ * @param {object} param2 An object containing current sizes and scale factors.
+ * @returns {number[]} [x, y]
  */
 export function heatmapToMousePosition(colI, rowI, {
   offsetLeft, offsetTop, targetX, targetY, scaleFactor, matrixWidth, matrixHeight, numRows, numCols,
 }) {
+  // TODO: use linear algebra
   let zoomedMouseY = null;
   let zoomedMouseX = null;
 

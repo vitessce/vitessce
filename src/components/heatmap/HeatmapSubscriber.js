@@ -17,6 +17,7 @@ export default function HeatmapSubscriber(props) {
     removeGridComponent, onReady, theme, transpose,
     observationLabel = 'cell',
     variableLabel = 'gene',
+    disableTooltip = false,
   } = props;
 
   const observationTitle = capitalize(pluralize(observationLabel));
@@ -132,6 +133,7 @@ export default function HeatmapSubscriber(props) {
           observationTitle={observationTitle}
           variableTitle={variableTitle}
         />
+        {!disableTooltip && (
         <HeatmapTooltipSubscriber
           uuid={uuid}
           width={width}
@@ -140,6 +142,7 @@ export default function HeatmapSubscriber(props) {
           getCellInfo={getCellInfo}
           getGeneInfo={getGeneInfo}
         />
+        )}
       </div>
     </TitleInfo>
   );

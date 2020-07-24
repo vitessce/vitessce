@@ -21,6 +21,7 @@ export default function ScatterplotSubscriber(props) {
     view,
     removeGridComponent,
     theme,
+    disableTooltip = false,
   } = props;
 
   // Create a UUID so that hover events
@@ -128,12 +129,14 @@ export default function ScatterplotSubscriber(props) {
             layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
           }
         />
+        {!disableTooltip && (
         <ScatterplotTooltipSubscriber
           uuid={uuid}
           width={width}
           height={height}
           getCellInfo={getCellInfo}
         />
+        )}
       </div>
     </TitleInfo>
   );

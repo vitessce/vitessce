@@ -37,6 +37,7 @@ export default function SpatialSubscriber({
   view,
   cellRadius,
   theme,
+  disableTooltip = false,
 }) {
   // Create a UUID so that hover events
   // know from which DeckGL element they were generated.
@@ -236,12 +237,14 @@ export default function SpatialSubscriber({
           updateViewInfo={updateViewInfo}
           clearPleaseWait={clearPleaseWait}
         />
+        {!disableTooltip && (
         <SpatialTooltipSubscriber
           uuid={uuid}
           width={width}
           height={height}
           getCellInfo={getCellInfo}
         />
+        )}
       </div>
     </TitleInfo>
   );
