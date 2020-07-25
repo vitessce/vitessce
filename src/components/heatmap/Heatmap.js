@@ -30,13 +30,9 @@ import {
   getAxisSizes,
   mouseToHeatmapPosition,
   heatmapToMousePosition,
+  THEME_TO_TEXT_COLOR,
 } from './utils';
 
-
-const themeToTextColor = {
-  dark: [224, 224, 224],
-  light: [64, 64, 64],
-};
 
 /**
  * A heatmap component for cell x gene (and gene x cell) matrices.
@@ -329,7 +325,6 @@ export default function Heatmap(props) {
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
   const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, d]), [axisTopLabels]);
-
   const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d]), [axisLeftLabels]);
 
   // Set up the constants for the axis layers.
@@ -343,7 +338,7 @@ export default function Heatmap(props) {
   const axisTitleTop = viewState.target[1];
 
   // Generate the axis label and title TextLayer objects.
-  const axisLayers = (clusters && clusters.rows && clusters.cols ? [
+  const axisLayers = [
     new TextLayer({
       id: 'axisLeftLabels',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
@@ -351,7 +346,7 @@ export default function Heatmap(props) {
       getText: d => d[1],
       getPosition: d => [axisLabelLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
       getTextAnchor: 'end',
-      getColor: themeToTextColor[theme],
+      getColor: THEME_TO_TEXT_COLOR[theme],
       getSize: (showAxisLeftLabels ? AXIS_LABEL_TEXT_SIZE : 0),
       getAngle: 0,
       updateTriggers: {
@@ -367,7 +362,7 @@ export default function Heatmap(props) {
       getText: d => d[1],
       getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, axisLabelTop],
       getTextAnchor: 'start',
-      getColor: themeToTextColor[theme],
+      getColor: THEME_TO_TEXT_COLOR[theme],
       getSize: (showAxisTopLabels ? AXIS_LABEL_TEXT_SIZE : 0),
       getAngle: 75,
       updateTriggers: {
@@ -379,13 +374,11 @@ export default function Heatmap(props) {
     new TextLayer({
       id: 'axisLeftTitle',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: [{
-        title: axisLeftTitle,
-      }],
+      data: [{ title: axisLeftTitle }],
       getText: d => d.title,
       getPosition: [axisTitleLeft, axisTitleTop],
       getTextAnchor: 'middle',
-      getColor: themeToTextColor[theme],
+      getColor: THEME_TO_TEXT_COLOR[theme],
       getSize: (!showAxisLeftLabels ? AXIS_TITLE_TEXT_SIZE : 0),
       getAngle: 90,
       updateTriggers: {
@@ -396,13 +389,11 @@ export default function Heatmap(props) {
     new TextLayer({
       id: 'axisTopTitle',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: [{
-        title: axisTopTitle,
-      }],
+      data: [{ title: axisTopTitle }],
       getText: d => d.title,
       getPosition: [axisTitleLeft, axisTitleTop],
       getTextAnchor: 'middle',
-      getColor: themeToTextColor[theme],
+      getColor: THEME_TO_TEXT_COLOR[theme],
       getSize: (!showAxisTopLabels ? AXIS_TITLE_TEXT_SIZE : 0),
       getAngle: 0,
       updateTriggers: {
@@ -410,20 +401,18 @@ export default function Heatmap(props) {
         getColor: [theme],
       },
     }),
-  ] : []);
+  ];
 
   // Create a TextLayer for the "Loading..." indicator.
   const loadingLayers = (backlog.length ? [
     new TextLayer({
       id: 'heatmapLoading',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: [{
-        title: 'Loading...',
-      }],
+      data: [{ title: 'Loading...' }],
       getText: d => d.title,
       getPosition: [viewState.target[0], viewState.target[1]],
       getTextAnchor: 'middle',
-      getColor: themeToTextColor[theme],
+      getColor: THEME_TO_TEXT_COLOR[theme],
       getSize: LOADING_TEXT_SIZE,
       getAngle: 0,
       updateTriggers: {
