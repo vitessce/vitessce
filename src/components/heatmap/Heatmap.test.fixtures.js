@@ -1,5 +1,5 @@
 export const clusters = {
-  rows: ['cell-0', 'cell-1', 'cell-2', 'cell-3', 'gene-4'],
+  rows: ['cell-0', 'cell-1', 'cell-2', 'cell-3', 'cell-4'],
   cols: ['gene-0', 'gene-1', 'gene-2', 'gene-3'],
   matrix: {
     // "An image with an 'F' on it has a clear direction so it's easy to tell
@@ -16,9 +16,8 @@ export const clusters = {
 };
 
 export const cellColors = new Map([
-  ['cell-0', [0, 0, 255]],
   ['cell-1', [0, 0, 255]],
-  ['cell-2', [255, 0, 0]],
+  ['cell-0', [0, 0, 255]],
   ['cell-3', [255, 0, 0]],
-  ['cell-4', [0, 255, 0]],
+  ['cell-2', [255, 0, 0]],
 ]);

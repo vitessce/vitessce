@@ -1,4 +1,5 @@
 import clamp from 'lodash/clamp';
+import range from 'lodash/range';
 
 export const COLOR_BAR_SIZE = 20;
 export const LOADING_TEXT_SIZE = 13;
@@ -7,6 +8,67 @@ export const AXIS_TITLE_TEXT_SIZE = 14;
 export const AXIS_MIN_SIZE = 10;
 export const AXIS_MAX_SIZE = 85;
 export const AXIS_MARGIN = 3;
+
+export function getGeneByCellTile(view, {
+  tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
+}) {
+  const tileData = new Uint8Array(tileSize * tileSize);
+  let offset;
+  let value;
+  let cellI;
+  let geneI;
+  let sortedCellI;
+
+  range(tileSize).forEach((j) => {
+    // Need to iterate over cells in the outer loop.
+    cellI = (tileJ * tileSize) + j;
+    if (cellI < numCells) {
+      sortedCellI = cells.indexOf(cellOrdering[cellI]);
+      if (sortedCellI >= -1) {
+        range(tileSize).forEach((i) => {
+          geneI = (tileI * tileSize) + i;
+          value = view[sortedCellI * numGenes + geneI];
+          offset = ((tileSize - i - 1) * tileSize + j);
+          tileData[offset] = value;
+        });
+      }
+    }
+  });
+  return tileData;
+}
+
+export function getCellByGeneTile(view, {
+  tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
+}) {
+  const tileData = new Uint8Array(tileSize * tileSize);
+  let offset;
+  let value;
+  let cellI;
+  let geneI;
+  let sortedCellI;
+
+  range(tileSize).forEach((i) => {
+    // Need to iterate over cells in the outer loop.
+    cellI = (tileI * tileSize) + i;
+    if (cellI < numCells) {
+      sortedCellI = cells.indexOf(cellOrdering[cellI]);
+      if (sortedCellI >= -1) {
+        range(tileSize).forEach((j) => {
+          geneI = (tileJ * tileSize) + j;
+          if (geneI < numGenes) {
+            value = view[sortedCellI * numGenes + geneI];
+          } else {
+            value = 0;
+          }
+          offset = ((tileSize - i - 1) * tileSize + j);
+          tileData[offset] = value;
+        });
+      }
+    }
+  });
+
+  return tileData;
+}
 
 /**
  * Called before a layer is drawn to determine whether it should be rendered.
