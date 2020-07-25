@@ -59,8 +59,8 @@ describe('Vitessce', () => {
     // that won't have race condition problems.
 
     // Spatial:
-    cy.contains('1 cells');
-    cy.contains('1 molecules');
+    cy.contains('1 cell');
+    cy.contains('1 molecule');
     cy.contains('3 locations');
 
     // Heatmap:
