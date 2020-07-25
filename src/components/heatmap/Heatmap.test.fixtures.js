@@ -1,4 +1,4 @@
-export const clusters = {
+export const expression = {
   rows: ['cell-0', 'cell-1', 'cell-2', 'cell-3', 'cell-4'],
   cols: ['gene-0', 'gene-1', 'gene-2', 'gene-3'],
   matrix: {

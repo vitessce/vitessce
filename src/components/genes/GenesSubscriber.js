@@ -20,7 +20,7 @@ export default function GenesSubscriber(props) {
     theme,
   } = props;
 
-  const [clusters, setClusters] = useState();
+  const [expression, setExpression] = useState();
   const [selectedId, setSelectedId] = useState(null);
   const [urls, setUrls] = useState([]);
 
@@ -28,25 +28,21 @@ export default function GenesSubscriber(props) {
 
   useEffect(() => {
     const expressionMatrixAddToken = PubSub.subscribe(
-      EXPRESSION_MATRIX_ADD, (msg, { data, url }) => {
+      EXPRESSION_MATRIX_ADD, (msg, { data }) => {
         const [attrs, arr] = data;
 
         arr.get([null, null]).then((X) => {
-          setClusters({
+          setExpression({
             cols: attrs.cols,
             rows: attrs.rows,
             matrix: X,
           });
         });
-        setUrls((prevUrls) => {
-          const newUrls = [...prevUrls].concat({ url, name: 'Genes' });
-          return newUrls;
-        });
       },
     );
     const resetToken = PubSub.subscribe(RESET, () => {
       setUrls([]);
-      setClusters(null);
+      setExpression(null);
       setSelectedId({});
     });
     onReadyCallback();
@@ -59,11 +55,11 @@ export default function GenesSubscriber(props) {
   const setSelectedGene = useCallback((newSelectedId) => {
     setSelectedId(newSelectedId);
 
-    if (clusters) {
-      const colI = clusters.cols.indexOf(newSelectedId);
+    if (expression) {
+      const colI = expression.cols.indexOf(newSelectedId);
       if (colI !== -1) {
-        const cellColors = new Map(clusters.rows.map((cellId, rowI) => {
-          const value = clusters.matrix.data[rowI][colI];
+        const cellColors = new Map(expression.rows.map((cellId, rowI) => {
+          const value = expression.matrix.data[rowI][colI];
           // The lowest 25% does not have good contrast.
           const cellColor = interpolatePlasma(value / 255);
           return [cellId, cellColor];
@@ -71,16 +67,16 @@ export default function GenesSubscriber(props) {
         PubSub.publish(CELLS_COLOR, cellColors);
       }
     }
-  }, [clusters]);
+  }, [expression]);
 
   const genesSelected = useMemo(() => {
-    if (!clusters) {
+    if (!expression) {
       return null;
     }
-    return fromEntries(clusters.cols.map(geneId => [geneId, geneId === selectedId]));
-  }, [clusters, selectedId]);
+    return fromEntries(expression.cols.map(geneId => [geneId, geneId === selectedId]));
+  }, [expression, selectedId]);
 
-  const numGenes = clusters ? clusters.cols.length : '?';
+  const numGenes = expression ? expression.cols.length : '?';
 
   return (
     <TitleInfo

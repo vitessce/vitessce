@@ -4,7 +4,7 @@ import Adapter from 'enzyme-adapter-react-16';
 import { configure, mount } from 'enzyme';
 import expect from 'expect';
 import Heatmap from './Heatmap';
-import { clusters, cellColors } from './Heatmap.test.fixtures';
+import { expression, cellColors } from './Heatmap.test.fixtures';
 
 configure({ adapter: new Adapter() });
 
@@ -16,7 +16,7 @@ describe('<Heatmap/>', () => {
         theme="dark"
         width={100}
         height={100}
-        clusters={clusters}
+        expression={expression}
         cellColors={cellColors}
         transpose
       />,

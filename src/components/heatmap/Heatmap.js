@@ -49,7 +49,7 @@ export default function Heatmap(props) {
     },
     width: viewWidth,
     height: viewHeight,
-    clusters,
+    expression,
     cellColors,
     clearPleaseWait,
     updateCellsHover = createDefaultUpdateCellsHover('Heatmap'),
@@ -65,10 +65,10 @@ export default function Heatmap(props) {
   const axisTopTitle = (transpose ? observationTitle : variableTitle);
 
   useEffect(() => {
-    if (clearPleaseWait && clusters) {
+    if (clearPleaseWait && expression) {
       clearPleaseWait('expression-matrix');
     }
-  }, [clearPleaseWait, clusters]);
+  }, [clearPleaseWait, expression]);
 
   const workerRef = useRef(new HeatmapWorker());
   const tilesRef = useRef();
@@ -116,21 +116,21 @@ export default function Heatmap(props) {
   // since we need to access its array buffer to transfer
   // it back and forth from the worker thread.
   useEffect(() => {
-    // Store the clusters Uint8Array in the dataRef.
-    if (clusters && clusters.matrix) {
-      dataRef.current = clusters.matrix.data;
+    // Store the expression matrix Uint8Array in the dataRef.
+    if (expression && expression.matrix) {
+      dataRef.current = expression.matrix.data;
     }
-  }, [dataRef, clusters]);
+  }, [dataRef, expression]);
 
   // Check if the ordering of axis labels needs to be changed,
   // for example if the cells "selected" (technically just colored)
   // have changed.
   useEffect(() => {
-    if (!clusters) {
+    if (!expression) {
       return;
     }
     const newCellOrdering = (!cellColors || cellColors.size === 0
-      ? clusters.rows
+      ? expression.rows
       : Array.from(cellColors.keys())
     );
     const oldCellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
@@ -142,29 +142,29 @@ export default function Heatmap(props) {
         setAxisLeftLabels(newCellOrdering);
       }
     }
-  }, [clusters, cellColors, axisTopLabels, axisLeftLabels, transpose]);
+  }, [expression, cellColors, axisTopLabels, axisLeftLabels, transpose]);
 
   // Set the genes ordering.
   useEffect(() => {
-    if (!clusters) {
+    if (!expression) {
       return;
     }
     if (transpose) {
-      setAxisLeftLabels(clusters.cols);
+      setAxisLeftLabels(expression.cols);
     } else {
-      setAxisTopLabels(clusters.cols);
+      setAxisTopLabels(expression.cols);
     }
-  }, [clusters, transpose]);
+  }, [expression, transpose]);
 
   const [cellLabelMaxLength, geneLabelMaxLength] = useMemo(() => {
-    if (!clusters) {
+    if (!expression) {
       return [0, 0];
     }
     return [
-      max(clusters.rows.map(cellId => cellId.length)),
-      max(clusters.cols.map(geneId => geneId.length)),
+      max(expression.rows.map(cellId => cellId.length)),
+      max(expression.cols.map(geneId => geneId.length)),
     ];
-  }, [clusters]);
+  }, [expression]);
 
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
@@ -202,8 +202,8 @@ export default function Heatmap(props) {
   const aggSizeX = clamp(2 ** Math.ceil(Math.log2(1 / cellWidth)), MIN_ROW_AGG, MAX_ROW_AGG);
   const aggSizeY = clamp(2 ** Math.ceil(Math.log2(1 / cellHeight)), MIN_ROW_AGG, MAX_ROW_AGG);
 
-  // Emit the viewInfo event on viewState updates
-  // (used by external tooltips / crosshair elements).
+  // Emit the viewInfo object on viewState updates
+  // (used by tooltips / crosshair elements).
   useEffect(() => {
     updateViewInfo({
       uuid,
@@ -250,11 +250,11 @@ export default function Heatmap(props) {
     setViewState(nextViewState);
   }, [matrixRight, matrixBottom]);
 
-  // If `clusters` or `cellOrdering` have changed,
+  // If `expression` or `cellOrdering` have changed,
   // then new tiles need to be generated,
   // so add a new task to the backlog.
   useEffect(() => {
-    if (!clusters) {
+    if (!expression) {
       return;
     }
     // Use a uuid to give the task a unique ID,
@@ -262,7 +262,7 @@ export default function Heatmap(props) {
     // after the worker thread asynchronously sends the data back
     // to this thread.
     setBacklog(prev => ([...prev, uuidv4()]));
-  }, [dataRef, clusters, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
+  }, [dataRef, expression, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
 
   // When the backlog has updated, a new worker job can be submitted if:
   // - the backlog has length >= 1 (at least one job is waiting), and
@@ -273,7 +273,7 @@ export default function Heatmap(props) {
     }
     const curr = backlog[backlog.length - 1];
     if (dataRef.current && dataRef.current.buffer.byteLength) {
-      const { rows, cols } = clusters;
+      const { rows, cols } = expression;
       workerRef.current.postMessage(['getTiles', {
         curr,
         xTiles,
@@ -286,7 +286,7 @@ export default function Heatmap(props) {
         data: dataRef.current.buffer,
       }], [dataRef.current.buffer]);
     }
-  }, [axisLeftLabels, axisTopLabels, backlog, clusters, transpose, xTiles, yTiles]);
+  }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose, xTiles, yTiles]);
 
   // Update the heatmap tiles if:
   // - new tiles are available (`tileIteration` has changed), or
@@ -489,7 +489,7 @@ export default function Heatmap(props) {
 
   // Set up the onHover function.
   function onHover(info, event) {
-    if (!clusters) {
+    if (!expression) {
       return;
     }
     const { x: mouseX, y: mouseY } = event.offsetCenter;
@@ -522,15 +522,15 @@ export default function Heatmap(props) {
       }
     }
 
-    const obsI = clusters.rows.indexOf(transpose
+    const obsI = expression.rows.indexOf(transpose
       ? axisTopLabels[colI]
       : axisLeftLabels[rowI]);
-    const varI = clusters.cols.indexOf(transpose
+    const varI = expression.cols.indexOf(transpose
       ? axisLeftLabels[rowI]
       : axisTopLabels[colI]);
 
-    const obsId = clusters.rows[obsI];
-    const varId = clusters.cols[varI];
+    const obsId = expression.rows[obsI];
+    const varId = expression.cols[varI];
 
     updateCellsHover({
       cellId: obsId,
