@@ -2,15 +2,13 @@ import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
 import PubSub from 'pubsub-js';
-
-import Genes from './Genes';
-
-import TitleInfo from '../TitleInfo';
 import {
   EXPRESSION_MATRIX_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 import { interpolatePlasma } from '../interpolate-colors';
 import { fromEntries, pluralize } from '../utils';
+import TitleInfo from '../TitleInfo';
+import Genes from './Genes';
 
 export default function GenesSubscriber(props) {
   const {
@@ -58,9 +56,9 @@ export default function GenesSubscriber(props) {
     if (expression) {
       const colI = expression.cols.indexOf(newSelectedId);
       if (colI !== -1) {
+        // Create new cellColors map based on the selected gene.
         const cellColors = new Map(expression.rows.map((cellId, rowI) => {
           const value = expression.matrix.data[rowI][colI];
-          // The lowest 25% does not have good contrast.
           const cellColor = interpolatePlasma(value / 255);
           return [cellId, cellColor];
         }));
