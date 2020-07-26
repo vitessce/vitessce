@@ -16,8 +16,6 @@ import {
 const COMPONENT_NAME = 'Scatterplot';
 const CELLS_LAYER_ID = 'scatterplot';
 
-const FLIP_Y = true;
-
 /**
  * React component which renders a scatterplot from cell data, typically tSNE or PCA.
  * @prop {string} uuid
@@ -69,7 +67,7 @@ export default function Scatterplot(props) {
       const mappedCell = mappings[mapping];
       // The negative applied to the y-axis is because
       // graphics rendering has the y-axis positive going south.
-      return [mappedCell[0], (FLIP_Y ? -1 : 1) * mappedCell[1], 0];
+      return [mappedCell[0], -mappedCell[1], 0];
     },
     getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
     getCellIsSelected = cellEntry => (

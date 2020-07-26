@@ -49,7 +49,7 @@ export default function Heatmap(props) {
     },
     width: viewWidth,
     height: viewHeight,
-    expression,
+    expressionMatrix: expression,
     cellColors,
     clearPleaseWait,
     updateCellsHover = createDefaultUpdateCellsHover('Heatmap'),

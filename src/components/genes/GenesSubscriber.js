@@ -18,7 +18,7 @@ export default function GenesSubscriber(props) {
     theme,
   } = props;
 
-  const [expression, setExpression] = useState();
+  const [expressionMatrix, setExpressionMatrix] = useState();
   const [selectedId, setSelectedId] = useState(null);
   const [urls, setUrls] = useState([]);
 
@@ -30,7 +30,7 @@ export default function GenesSubscriber(props) {
         const [attrs, arr] = data;
 
         arr.get([null, null]).then((X) => {
-          setExpression({
+          setExpressionMatrix({
             cols: attrs.cols,
             rows: attrs.rows,
             matrix: X,
@@ -40,7 +40,7 @@ export default function GenesSubscriber(props) {
     );
     const resetToken = PubSub.subscribe(RESET, () => {
       setUrls([]);
-      setExpression(null);
+      setExpressionMatrix(null);
       setSelectedId({});
     });
     onReadyCallback();
@@ -53,28 +53,28 @@ export default function GenesSubscriber(props) {
   const setSelectedGene = useCallback((newSelectedId) => {
     setSelectedId(newSelectedId);
 
-    if (expression) {
-      const colI = expression.cols.indexOf(newSelectedId);
+    if (expressionMatrix) {
+      const colI = expressionMatrix.cols.indexOf(newSelectedId);
       if (colI !== -1) {
         // Create new cellColors map based on the selected gene.
-        const cellColors = new Map(expression.rows.map((cellId, rowI) => {
-          const value = expression.matrix.data[rowI][colI];
+        const cellColors = new Map(expressionMatrix.rows.map((cellId, rowI) => {
+          const value = expressionMatrix.matrix.data[rowI][colI];
           const cellColor = interpolatePlasma(value / 255);
           return [cellId, cellColor];
         }));
         PubSub.publish(CELLS_COLOR, cellColors);
       }
     }
-  }, [expression]);
+  }, [expressionMatrix]);
 
   const genesSelected = useMemo(() => {
-    if (!expression) {
-      return null;
+    if (!expressionMatrix) {
+      return {};
     }
-    return fromEntries(expression.cols.map(geneId => [geneId, geneId === selectedId]));
-  }, [expression, selectedId]);
+    return fromEntries(expressionMatrix.cols.map(geneId => [geneId, geneId === selectedId]));
+  }, [expressionMatrix, selectedId]);
 
-  const numGenes = expression ? expression.cols.length : '?';
+  const numGenes = expressionMatrix ? expressionMatrix.cols.length : 0;
 
   return (
     <TitleInfo

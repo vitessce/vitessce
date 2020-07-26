@@ -29,7 +29,7 @@ export default function HeatmapSubscriber(props) {
   const uuid = uuidv4();
 
   const [cells, setCells] = useState();
-  const [expression, setExpression] = useState();
+  const [expressionMatrix, setExpressionMatrix] = useState();
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
   const [urls, setUrls] = useState([]);
@@ -45,7 +45,7 @@ export default function HeatmapSubscriber(props) {
 
         // Get the full zarr array (all chunks & flat).
         arr.getRaw([null, null]).then((X) => {
-          setExpression({
+          setExpressionMatrix({
             cols: attrs.cols,
             rows: attrs.rows,
             matrix: X,
@@ -76,7 +76,7 @@ export default function HeatmapSubscriber(props) {
     const resetToken = PubSub.subscribe(RESET, () => {
       setUrls([]);
       setCells(null);
-      setExpression(null);
+      setExpressionMatrix(null);
       setCellColors(null);
       setSelectedCellIds(new Set());
     });
@@ -108,8 +108,10 @@ export default function HeatmapSubscriber(props) {
     return null;
   }, [variablesLabel]);
 
-  const cellsCount = expression && expression.rows ? expression.rows.length : 0;
-  const genesCount = expression && expression.cols ? expression.cols.length : 0;
+  const cellsCount = expressionMatrix && expressionMatrix.rows
+    ? expressionMatrix.rows.length : 0;
+  const genesCount = expressionMatrix && expressionMatrix.cols
+    ? expressionMatrix.cols.length : 0;
   const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
   return (
     <TitleInfo
@@ -127,7 +129,7 @@ export default function HeatmapSubscriber(props) {
           width={width}
           theme={theme}
           uuid={uuid}
-          expression={expression}
+          expressionMatrix={expressionMatrix}
           cellColors={cellColors}
           updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
           updateGenesHover={hoverInfo => PubSub.publish(GENES_HOVER, hoverInfo)}
