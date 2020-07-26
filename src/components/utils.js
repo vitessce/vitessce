@@ -118,7 +118,7 @@ export function createDefaultClearPleaseWait(componentName) {
  * @returns {array} `[width, height, containerRef]` where width and height
  * are numbers and containerRef is a React ref.
  */
-export function useGridItemSize(selector = null) {
+export function useGridItemSize() {
   const containerRef = useRef();
 
   const [height, setHeight] = useState();
@@ -127,10 +127,7 @@ export function useGridItemSize(selector = null) {
   useEffect(() => {
     function onResize() {
       if (!containerRef.current) return;
-      const container = (selector
-        ? containerRef.current.querySelector(selector)
-        : containerRef.current
-      );
+      const container = containerRef.current;
       const containerRect = container.getBoundingClientRect();
       setHeight(containerRect.height);
       setWidth(containerRect.width);
@@ -143,9 +140,42 @@ export function useGridItemSize(selector = null) {
       PubSub.unsubscribe(gridResizeToken);
       window.removeEventListener('resize', onResizeDebounced);
     };
-  }, [selector]);
+  }, []);
 
   return [width, height, containerRef];
+}
+
+/**
+ * Custom hook, subscribes to GRID_RESIZE and window resize events.
+ * @returns {array} `[width, height, deckRef]` where width and height
+ * are numbers and deckRef is a React ref to be used with
+ * a <DeckGL/> element (or a forwardRef to one).
+ */
+export function useDeckCanvasSize() {
+  const deckRef = useRef();
+
+  const [height, setHeight] = useState();
+  const [width, setWidth] = useState();
+
+  useEffect(() => {
+    function onResize() {
+      if (!deckRef.current) return;
+      const { canvas } = deckRef.current.deck;
+      const canvasRect = canvas.getBoundingClientRect();
+      setHeight(canvasRect.height);
+      setWidth(canvasRect.width);
+    }
+    const onResizeDebounced = debounce(onResize, 100, { trailing: true });
+    const gridResizeToken = PubSub.subscribe(GRID_RESIZE, onResize);
+    window.addEventListener('resize', onResizeDebounced);
+    onResize();
+    return () => {
+      PubSub.unsubscribe(gridResizeToken);
+      window.removeEventListener('resize', onResizeDebounced);
+    };
+  }, []);
+
+  return [width, height, deckRef];
 }
 
 export function pluralize(word, count = null) {

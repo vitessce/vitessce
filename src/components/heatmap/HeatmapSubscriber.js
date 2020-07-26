@@ -8,7 +8,7 @@ import {
   CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
   RESET, EXPRESSION_MATRIX_ADD, VIEW_INFO, GENES_HOVER,
 } from '../../events';
-import { useGridItemSize, pluralize, capitalize } from '../utils';
+import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
@@ -36,7 +36,7 @@ export default function HeatmapSubscriber(props) {
 
   const onReadyCallback = useCallback(onReady, []);
 
-  const [width, height, containerRef] = useGridItemSize('#deckgl-wrapper');
+  const [width, height, deckRef] = useDeckCanvasSize();
 
   useEffect(() => {
     const expressionMatrixAddToken = PubSub.subscribe(
@@ -122,36 +122,35 @@ export default function HeatmapSubscriber(props) {
       theme={theme}
       removeGridComponent={removeGridComponent}
     >
-      <div ref={containerRef}>
-        <Heatmap
-          transpose={transpose}
-          height={height}
-          width={width}
-          theme={theme}
-          uuid={uuid}
-          expressionMatrix={expressionMatrix}
-          cellColors={cellColors}
-          updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
-          updateGenesHover={hoverInfo => PubSub.publish(GENES_HOVER, hoverInfo)}
-          updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-          updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
-          clearPleaseWait={
-            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-          }
-          observationsTitle={observationsTitle}
-          variablesTitle={variablesTitle}
-        />
-        {!disableTooltip && (
-        <HeatmapTooltipSubscriber
-          uuid={uuid}
-          width={width}
-          height={height}
-          transpose={transpose}
-          getCellInfo={getCellInfo}
-          getGeneInfo={getGeneInfo}
-        />
-        )}
-      </div>
+      <Heatmap
+        ref={deckRef}
+        transpose={transpose}
+        height={height}
+        width={width}
+        theme={theme}
+        uuid={uuid}
+        expressionMatrix={expressionMatrix}
+        cellColors={cellColors}
+        updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
+        updateGenesHover={hoverInfo => PubSub.publish(GENES_HOVER, hoverInfo)}
+        updateStatus={message => PubSub.publish(STATUS_INFO, message)}
+        updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
+        clearPleaseWait={
+          layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
+        }
+        observationsTitle={observationsTitle}
+        variablesTitle={variablesTitle}
+      />
+      {!disableTooltip && (
+      <HeatmapTooltipSubscriber
+        uuid={uuid}
+        width={width}
+        height={height}
+        transpose={transpose}
+        getCellInfo={getCellInfo}
+        getGeneInfo={getGeneInfo}
+      />
+      )}
     </TitleInfo>
   );
 }

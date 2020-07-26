@@ -1,5 +1,5 @@
 import React, {
-  useState, useRef, useCallback, useMemo,
+  useState, useCallback, useMemo, forwardRef,
 } from 'react';
 import DeckGL, { OrthographicView } from 'deck.gl';
 import { quadtree } from 'd3-quadtree';
@@ -43,7 +43,7 @@ const CELLS_LAYER_ID = 'scatterplot';
  * @prop {function} clearPleaseWait
  * @prop {function} onCellClick Getter function for cell layer onClick.
  */
-export default function Scatterplot(props) {
+const Scatterplot = forwardRef((props, deckRef) => {
   const {
     uuid = null,
     theme,
@@ -93,7 +93,6 @@ export default function Scatterplot(props) {
     },
   } = props;
 
-  const deckRef = useRef();
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
 
@@ -214,4 +213,6 @@ export default function Scatterplot(props) {
       </DeckGL>
     </>
   );
-}
+});
+
+export default Scatterplot;

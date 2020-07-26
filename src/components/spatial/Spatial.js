@@ -1,5 +1,5 @@
 import React, {
-  useRef, useState, useCallback, useMemo,
+  useState, useCallback, useMemo, forwardRef,
 } from 'react';
 import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
@@ -58,7 +58,7 @@ export function square(x, y, r) {
  * @prop {function} clearPleaseWait
  * @prop {function} onCellClick Getter function for cell layer onClick.
  */
-export default function Spatial(props) {
+const Spatial = forwardRef((props, deckRef) => {
   const {
     uuid = null,
     view = {
@@ -120,7 +120,6 @@ export default function Spatial(props) {
   // can be created and destroyed quickly, if the data they wrap is stable.
   // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
 
-  const deckRef = useRef();
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
 
@@ -321,8 +320,8 @@ export default function Spatial(props) {
         setActiveTool={setTool}
       />
       <DeckGL
-        glOptions={DEFAULT_GL_OPTIONS}
         ref={deckRef}
+        glOptions={DEFAULT_GL_OPTIONS}
         onWebGLInitialized={setGl}
         {...deckProps}
       >
@@ -330,4 +329,6 @@ export default function Spatial(props) {
       </DeckGL>
     </>
   );
-}
+});
+
+export default Spatial;

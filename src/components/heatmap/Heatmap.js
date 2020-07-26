@@ -1,5 +1,5 @@
 import React, {
-  useRef, useState, useCallback, useMemo, useEffect, useReducer,
+  useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
@@ -38,7 +38,7 @@ import {
  * A heatmap component for cell x gene (and gene x cell) matrices.
  * @param {*} props
  */
-export default function Heatmap(props) {
+const Heatmap = forwardRef((props, deckRef) => {
   const {
     uuid,
     theme,
@@ -548,6 +548,7 @@ export default function Heatmap(props) {
   return (
     <>
       <DeckGL
+        ref={deckRef}
         views={[
           new OrthographicView({
             id: 'heatmap',
@@ -605,4 +606,6 @@ export default function Heatmap(props) {
       />
     </>
   );
-}
+});
+
+export default Heatmap;

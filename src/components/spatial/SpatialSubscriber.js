@@ -26,7 +26,7 @@ import {
   RESET,
   RASTER_ADD,
 } from '../../events';
-import { useGridItemSize, pluralize } from '../utils';
+import { useDeckCanvasSize, pluralize } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 
@@ -58,7 +58,7 @@ export default function SpatialSubscriber({
   const [areMoleculesOn, setMoleculesOn] = useState(true);
   const [urls, setUrls] = useState([]);
 
-  const [width, height, containerRef] = useGridItemSize('#deckgl-wrapper');
+  const [width, height, deckRef] = useDeckCanvasSize();
 
   const onReadyCallback = useCallback(onReady, []);
 
@@ -216,38 +216,37 @@ export default function SpatialSubscriber({
       theme={theme}
       removeGridComponent={removeGridComponent}
     >
-      <div ref={containerRef}>
-        <Spatial
-          cells={cells}
-          selectedCellIds={selectedCellIds}
-          neighborhoods={neighborhoods}
-          molecules={molecules}
-          moleculesOpacity={moleculesOpacity}
-          areCellsOn={areCellsOn}
-          cellOpacity={cellOpacity}
-          cellColors={cellColors}
-          areMoleculesOn={areMoleculesOn}
-          imageLayerProps={imageLayerProps}
-          imageLayerLoaders={imageLayerLoaders}
-          view={view}
-          cellRadius={cellRadius}
-          moleculeRadius={moleculeRadius}
-          uuid={uuid}
-          updateStatus={updateStatus}
-          updateCellsSelection={updateCellsSelection}
-          updateCellsHover={updateCellsHover}
-          updateViewInfo={updateViewInfo}
-          clearPleaseWait={clearPleaseWait}
-        />
-        {!disableTooltip && (
-        <SpatialTooltipSubscriber
-          uuid={uuid}
-          width={width}
-          height={height}
-          getCellInfo={getCellInfo}
-        />
-        )}
-      </div>
+      <Spatial
+        ref={deckRef}
+        cells={cells}
+        selectedCellIds={selectedCellIds}
+        neighborhoods={neighborhoods}
+        molecules={molecules}
+        moleculesOpacity={moleculesOpacity}
+        areCellsOn={areCellsOn}
+        cellOpacity={cellOpacity}
+        cellColors={cellColors}
+        areMoleculesOn={areMoleculesOn}
+        imageLayerProps={imageLayerProps}
+        imageLayerLoaders={imageLayerLoaders}
+        view={view}
+        cellRadius={cellRadius}
+        moleculeRadius={moleculeRadius}
+        uuid={uuid}
+        updateStatus={updateStatus}
+        updateCellsSelection={updateCellsSelection}
+        updateCellsHover={updateCellsHover}
+        updateViewInfo={updateViewInfo}
+        clearPleaseWait={clearPleaseWait}
+      />
+      {!disableTooltip && (
+      <SpatialTooltipSubscriber
+        uuid={uuid}
+        width={width}
+        height={height}
+        getCellInfo={getCellInfo}
+      />
+      )}
     </TitleInfo>
   );
 }
