@@ -9,8 +9,7 @@ import {
 
 import { typeToEvent } from './types';
 import { extensionToLoader } from './extensions';
-import { JsonLoader as DefaultLoader } from '../../loaders/index';
-import { AbstractLoaderError } from '../../loaders/errors/index';
+import { AbstractLoaderError, LoaderNotFoundError } from '../../loaders/errors/index';
 
 
 function warn(error) {
@@ -34,17 +33,18 @@ function loadLayer(layer) {
     name, type, url,
   } = layer;
 
-  // Iterate over loaders in reverse priority order,
-  // and choose the best match based on the URL file extension.
-  let loaderClass = DefaultLoader;
-  extensionToLoader.forEach((extLoader, ext) => {
-    if (url.endsWith(ext)) {
-      loaderClass = extLoader;
-    }
-  });
-
+  // Iterate over loaders in order,
+  // and choose the best/first match based on the URL file extension.
+  const match = Array.from(extensionToLoader.entries())
+    .find(([extension]) => url.endsWith(extension));
+  if (!match) {
+    warn(new LoaderNotFoundError(name, type, url));
+    return;
+  }
+  // eslint-disable-next-line no-unused-vars
+  const [matchingExtension, matchingLoaderClass] = match;
   // eslint-disable-next-line new-cap
-  const loader = new loaderClass(layer);
+  const loader = new matchingLoaderClass(layer);
   loader.load()
     .then((data) => {
       PubSub.publish(typeToEvent[type], { data, url });

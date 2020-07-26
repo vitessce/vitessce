@@ -6,12 +6,12 @@ import {
 } from '../../loaders/index';
 
 // Map here is important,
-// since this is ordered by reverse specificity / priority.
+// since this is ordered by specificity / priority.
 export const extensionToLoader = new Map([
-  // Least specific
-  ['.json', JsonLoader],
-  ['.expression-matrix.zarr', MatrixZarrLoader],
-  ['.genes.json', GenesJsonAsMatrixZarrLoader],
-  ['.clusters.json', ClustersJsonAsMatrixZarrLoader],
   // Most specific
+  ['.expression-matrix.zarr', MatrixZarrLoader],
+  ['.clusters.json', ClustersJsonAsMatrixZarrLoader],
+  ['.genes.json', GenesJsonAsMatrixZarrLoader],
+  ['.json', JsonLoader],
+  // Least specific
 ]);
