@@ -3,14 +3,14 @@ import {
   getCellByGeneTile, getGeneByCellTile,
   mouseToHeatmapPosition, heatmapToMousePosition,
 } from './utils';
-import { expression, cellColors } from './Heatmap.test.fixtures';
+import { expressionMatrix, cellColors } from './Heatmap.test.fixtures';
 
 describe('heatmap tiling utils', () => {
   it('creates cell x gene tiles (transpose = false)', () => {
-    const arr = expression.matrix.data;
-    const numGenes = expression.cols.length;
-    const cells = expression.rows;
-    const cellOrdering = expression.rows; // no re-ordering
+    const arr = expressionMatrix.matrix;
+    const numGenes = expressionMatrix.cols.length;
+    const cells = expressionMatrix.rows;
+    const cellOrdering = expressionMatrix.rows; // no re-ordering
     const numCells = cellOrdering.length;
     // Tile (0, 0)
     const tile00 = getCellByGeneTile(arr, {
@@ -42,10 +42,10 @@ describe('heatmap tiling utils', () => {
   });
 
   it('creates gene x cell tile (transpose = true)', () => {
-    const arr = expression.matrix.data;
-    const numGenes = expression.cols.length;
-    const cells = expression.rows;
-    const cellOrdering = expression.rows; // no re-ordering
+    const arr = expressionMatrix.matrix;
+    const numGenes = expressionMatrix.cols.length;
+    const cells = expressionMatrix.rows;
+    const cellOrdering = expressionMatrix.rows; // no re-ordering
     const numCells = cellOrdering.length;
     const tile00 = getGeneByCellTile(arr, {
       tileSize: 3, numCells, numGenes, tileI: 0, tileJ: 0, cellOrdering, cells,
@@ -74,9 +74,9 @@ describe('heatmap tiling utils', () => {
   });
 
   it('creates cell x gene tiles (transpose = false) with re-ordered cells', () => {
-    const arr = expression.matrix.data;
-    const numGenes = expression.cols.length;
-    const cells = expression.rows;
+    const arr = expressionMatrix.matrix;
+    const numGenes = expressionMatrix.cols.length;
+    const cells = expressionMatrix.rows;
     const cellOrdering = Array.from(cellColors.keys());
     const numCells = cellOrdering.length;
     // Tile (0, 0)
