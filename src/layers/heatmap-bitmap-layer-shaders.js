@@ -75,7 +75,6 @@ void main(void) {
   // These values will be the number of values to the left / above the current position to consider.
   vec2 modAggSize = vec2(-1.0 * mod(viewCoord.x, uAggSize.x), -1.0 * mod(viewCoord.y, uAggSize.y));
 
-
   // Take the sum of values along each axis.
   float intensitySum = 0.0;
   vec2 offsetPixels = vec2(0.0, 0.0);
