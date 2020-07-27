@@ -29,11 +29,12 @@ export default function GenesSubscriber(props) {
       EXPRESSION_MATRIX_ADD, (msg, { data }) => {
         const [attrs, arr] = data;
 
-        arr.get([null, null]).then((X) => {
+        arr.getRaw([null, null]).then((X) => {
+          console.log(X); // eslint-disable-line
           setExpressionMatrix({
             cols: attrs.cols,
             rows: attrs.rows,
-            matrix: X,
+            matrix: X.data,
           });
         });
       },
@@ -55,10 +56,12 @@ export default function GenesSubscriber(props) {
 
     if (expressionMatrix) {
       const colI = expressionMatrix.cols.indexOf(newSelectedId);
+      const numCols = expressionMatrix.cols.length;
       if (colI !== -1) {
+        console.log(expressionMatrix.matrix); // eslint-disable-line
         // Create new cellColors map based on the selected gene.
         const cellColors = new Map(expressionMatrix.rows.map((cellId, rowI) => {
-          const value = expressionMatrix.matrix.data[rowI][colI];
+          const value = expressionMatrix.matrix[rowI * numCols + colI];
           const cellColor = interpolatePlasma(value / 255);
           return [cellId, cellColor];
         }));

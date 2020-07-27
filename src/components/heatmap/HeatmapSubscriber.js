@@ -48,7 +48,7 @@ export default function HeatmapSubscriber(props) {
           setExpressionMatrix({
             cols: attrs.cols,
             rows: attrs.rows,
-            matrix: X,
+            matrix: X.data,
           });
         });
       },

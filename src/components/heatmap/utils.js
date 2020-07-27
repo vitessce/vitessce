@@ -3,10 +3,10 @@ import range from 'lodash/range';
 
 export const COLOR_BAR_SIZE = 20;
 export const LOADING_TEXT_SIZE = 14;
-export const AXIS_LABEL_TEXT_SIZE = 10;
+export const AXIS_LABEL_TEXT_SIZE = 9;
 export const AXIS_TITLE_TEXT_SIZE = 15;
 export const AXIS_MIN_SIZE = 10;
-export const AXIS_MAX_SIZE = 85;
+export const AXIS_MAX_SIZE = 90;
 export const AXIS_MARGIN = 3;
 export const THEME_TO_TEXT_COLOR = {
   dark: [224, 224, 224],

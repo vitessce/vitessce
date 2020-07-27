@@ -119,7 +119,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   useEffect(() => {
     // Store the expression matrix Uint8Array in the dataRef.
     if (expression && expression.matrix) {
-      dataRef.current = expression.matrix.data;
+      dataRef.current = expression.matrix;
     }
   }, [dataRef, expression]);
 
