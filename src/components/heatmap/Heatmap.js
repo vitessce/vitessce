@@ -3,15 +3,15 @@ import React, {
 } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
-import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
-import { TextLayer } from '@deck.gl/layers';
+import { OrthographicView } from '@deck.gl/core';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { max } from 'd3-array';
 import HeatmapControls from './HeatmapControls';
+import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
-import HeatmapBitmapLayer, { TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG } from '../../layers/HeatmapBitmapLayer';
+import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
 import {
   DEFAULT_GL_OPTIONS,
   createDefaultUpdateCellsHover,
@@ -21,19 +21,16 @@ import {
 } from '../utils';
 import HeatmapWorker from './heatmap.worker';
 import {
-  COLOR_BAR_SIZE,
-  LOADING_TEXT_SIZE,
-  AXIS_LABEL_TEXT_SIZE,
-  AXIS_TITLE_TEXT_SIZE,
-  AXIS_MARGIN,
   layerFilter,
   getAxisSizes,
   mouseToHeatmapPosition,
   heatmapToMousePosition,
-  THEME_TO_TEXT_COLOR,
-  AXIS_FONT_FAMILY,
 } from './utils';
-
+import {
+  TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
+  COLOR_BAR_SIZE,
+  AXIS_MARGIN,
+} from '../../layers/heatmap-constants';
 
 /**
  * A heatmap component for cell x gene (and gene x cell) matrices.
@@ -203,6 +200,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   const aggSizeX = clamp(2 ** Math.ceil(Math.log2(1 / cellWidth)), MIN_ROW_AGG, MAX_ROW_AGG);
   const aggSizeY = clamp(2 ** Math.ceil(Math.log2(1 / cellHeight)), MIN_ROW_AGG, MAX_ROW_AGG);
 
+  const [targetX, targetY] = viewState.target;
+
   // Emit the viewInfo object on viewState updates
   // (used by tooltips / crosshair elements).
   useEffect(() => {
@@ -328,104 +327,32 @@ const Heatmap = forwardRef((props, deckRef) => {
   const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, d]), [axisTopLabels]);
   const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d]), [axisLeftLabels]);
 
-  // Set up the constants for the axis layers.
-  const showAxisLeftLabels = cellHeight >= AXIS_LABEL_TEXT_SIZE;
-  const showAxisTopLabels = cellWidth >= AXIS_LABEL_TEXT_SIZE;
-
-  const axisLabelLeft = viewState.target[0] + (axisOffsetLeft - AXIS_MARGIN) / 2 / scaleFactor;
-  const axisLabelTop = viewState.target[1] + (axisOffsetTop - AXIS_MARGIN) / 2 / scaleFactor;
-
-  const axisTitleLeft = viewState.target[0];
-  const axisTitleTop = viewState.target[1];
-
-  // Generate the axis label and title TextLayer objects.
-  const axisLayers = [
-    new TextLayer({
-      id: 'axisLeftLabels',
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: axisLeftLabelData,
-      getText: d => d[1],
-      getPosition: d => [axisLabelLeft, matrixTop + ((d[0] + 0.5) / height) * matrixHeight],
-      getTextAnchor: 'end',
-      getColor: THEME_TO_TEXT_COLOR[theme],
-      getSize: (showAxisLeftLabels ? AXIS_LABEL_TEXT_SIZE : 0),
-      getAngle: 0,
-      fontFamily: AXIS_FONT_FAMILY,
-      updateTriggers: {
-        getPosition: [axisLabelLeft, matrixTop, matrixHeight, viewHeight],
-        getSize: [showAxisLeftLabels],
-        getColor: [theme],
-      },
-    }),
-    new TextLayer({
-      id: 'axisTopLabels',
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: axisTopLabelData,
-      getText: d => d[1],
-      getPosition: d => [matrixLeft + ((d[0] + 0.5) / width) * matrixWidth, axisLabelTop],
-      getTextAnchor: 'start',
-      getColor: THEME_TO_TEXT_COLOR[theme],
-      getSize: (showAxisTopLabels ? AXIS_LABEL_TEXT_SIZE : 0),
-      getAngle: 75,
-      fontFamily: AXIS_FONT_FAMILY,
-      updateTriggers: {
-        getPosition: [axisLabelTop, matrixLeft, matrixWidth, viewWidth],
-        getSize: [showAxisTopLabels],
-        getColor: [theme],
-      },
-    }),
-    new TextLayer({
-      id: 'axisLeftTitle',
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: [{ title: axisLeftTitle }],
-      getText: d => d.title,
-      getPosition: [axisTitleLeft, axisTitleTop],
-      getTextAnchor: 'middle',
-      getColor: THEME_TO_TEXT_COLOR[theme],
-      getSize: (!showAxisLeftLabels ? AXIS_TITLE_TEXT_SIZE : 0),
-      getAngle: 90,
-      fontFamily: AXIS_FONT_FAMILY,
-      updateTriggers: {
-        getSize: [showAxisLeftLabels],
-        getColor: [theme],
-      },
-    }),
-    new TextLayer({
-      id: 'axisTopTitle',
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: [{ title: axisTopTitle }],
-      getText: d => d.title,
-      getPosition: [axisTitleLeft, axisTitleTop],
-      getTextAnchor: 'middle',
-      getColor: THEME_TO_TEXT_COLOR[theme],
-      getSize: (!showAxisTopLabels ? AXIS_TITLE_TEXT_SIZE : 0),
-      getAngle: 0,
-      fontFamily: AXIS_FONT_FAMILY,
-      updateTriggers: {
-        getSize: [showAxisTopLabels],
-        getColor: [theme],
-      },
+  // Generate the axis label, axis title, and loading indicator text layers.
+  const textLayers = [
+    new HeatmapCompositeTextLayer({
+      showLoadingIndicator: backlog.length,
+      targetX,
+      targetY,
+      scaleFactor,
+      axisLeftLabelData,
+      matrixTop,
+      height,
+      matrixHeight,
+      cellHeight,
+      cellWidth,
+      axisTopLabelData,
+      matrixLeft,
+      width,
+      matrixWidth,
+      viewHeight,
+      viewWidth,
+      theme,
+      axisLeftTitle,
+      axisTopTitle,
+      axisOffsetLeft,
+      axisOffsetTop,
     }),
   ];
-
-  // Create a TextLayer for the "Loading..." indicator.
-  const loadingLayers = (backlog.length ? [
-    new TextLayer({
-      id: 'heatmapLoading',
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: [{ title: 'Loading...' }],
-      getText: d => d.title,
-      getPosition: [viewState.target[0], viewState.target[1]],
-      getTextAnchor: 'middle',
-      getColor: THEME_TO_TEXT_COLOR[theme],
-      getSize: LOADING_TEXT_SIZE,
-      getAngle: 0,
-      fontFamily: AXIS_FONT_FAMILY,
-      updateTriggers: {
-        getColor: [theme],
-      },
-    }),
-  ] : []);
 
   // Create the left color bar with a BitmapLayer.
   // TODO: find a way to do aggregation for this as well.
@@ -489,8 +416,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     matrixWidth, tileWidth, tileHeight, transpose]);
 
   const layers = heatmapLayers
-    .concat(axisLayers)
-    .concat(loadingLayers)
+    .concat(textLayers)
     .concat(cellColorsLayers);
 
   // Set up the onHover function.
@@ -499,7 +425,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       return;
     }
     const { x: mouseX, y: mouseY } = event.offsetCenter;
-    const [targetX, targetY] = viewState.target;
     const [colI, rowI] = mouseToHeatmapPosition(mouseX, mouseY, {
       offsetLeft,
       offsetTop,

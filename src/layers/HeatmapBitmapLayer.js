@@ -2,12 +2,8 @@ import GL from '@luma.gl/constants';
 import { _mergeShaders, project32, picking } from '@deck.gl/core';
 import { BitmapLayer } from '@deck.gl/layers';
 import { Texture2D } from '@luma.gl/core';
-import { PIXELATED_TEXTURE_PARAMETERS } from './bitmap-utils';
+import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE } from './heatmap-constants';
 import { vertexShader, fragmentShader } from './heatmap-bitmap-layer-shaders';
-
-export const TILE_SIZE = 2048;
-export const MIN_ROW_AGG = 1;
-export const MAX_ROW_AGG = 16;
 
 const defaultProps = {
   image: { type: 'object', value: null, async: true },

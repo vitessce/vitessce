@@ -1,6 +1,6 @@
 import { BitmapLayer } from '@deck.gl/layers';
 import { Texture2D } from '@luma.gl/core';
-import { PIXELATED_TEXTURE_PARAMETERS } from './bitmap-utils';
+import { PIXELATED_TEXTURE_PARAMETERS } from './heatmap-constants';
 
 
 // These are the same defaultProps as for BitmapLayer.
