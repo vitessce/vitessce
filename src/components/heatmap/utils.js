@@ -12,7 +12,7 @@ export const THEME_TO_TEXT_COLOR = {
   dark: [224, 224, 224],
   light: [64, 64, 64],
 };
-export const AXIS_FONT_FAMILY = '-apple-system';
+export const AXIS_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
 
 export function getGeneByCellTile(view, {
   tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
