@@ -3,6 +3,7 @@
 ## 0.1.11
 
 ### Added
+- Added the `fileType` property to the view config `layers` objects, which is used to choose a data loader class.
 
 ### Changed
 - Improved the heatmap by re-implementing using DeckGL layers.
