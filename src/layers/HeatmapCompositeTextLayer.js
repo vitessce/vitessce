@@ -10,7 +10,7 @@ import {
   AXIS_FONT_FAMILY,
 } from './heatmap-constants';
 
-export default class HeatmapCompositeLayer extends CompositeLayer {
+export default class HeatmapCompositeTextLayer extends CompositeLayer {
   _renderHeatmapLayers() {
     const {
       targetX, targetY, theme, showLoadingIndicator,
