@@ -200,7 +200,7 @@ export default function SpatialSubscriber({
   const getCellInfo = useCallback((cellId) => {
     const cellInfo = cells[cellId];
     return {
-      'Cell ID': cellId,
+      [`${capitalize(observationsLabel)} ID`]: cellId,
       ...(cellInfo ? cellInfo.factors : {}),
     };
   }, [cells]);

@@ -98,7 +98,7 @@ export default function ScatterplotSubscriber(props) {
   const getCellInfo = useCallback((cellId) => {
     const cellInfo = cells[cellId];
     return {
-      'Cell ID': cellId,
+      [`${capitalize(observationsLabel)} ID`]: cellId,
       ...(cellInfo ? cellInfo.factors : {}),
     };
   }, [cells]);
