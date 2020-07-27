@@ -31,6 +31,7 @@ import {
   mouseToHeatmapPosition,
   heatmapToMousePosition,
   THEME_TO_TEXT_COLOR,
+  AXIS_FONT_FAMILY,
 } from './utils';
 
 
@@ -349,6 +350,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       getColor: THEME_TO_TEXT_COLOR[theme],
       getSize: (showAxisLeftLabels ? AXIS_LABEL_TEXT_SIZE : 0),
       getAngle: 0,
+      fontFamily: AXIS_FONT_FAMILY,
       updateTriggers: {
         getPosition: [axisLabelLeft, matrixTop, matrixHeight, viewHeight],
         getSize: [showAxisLeftLabels],
@@ -365,6 +367,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       getColor: THEME_TO_TEXT_COLOR[theme],
       getSize: (showAxisTopLabels ? AXIS_LABEL_TEXT_SIZE : 0),
       getAngle: 75,
+      fontFamily: AXIS_FONT_FAMILY,
       updateTriggers: {
         getPosition: [axisLabelTop, matrixLeft, matrixWidth, viewWidth],
         getSize: [showAxisTopLabels],
@@ -381,6 +384,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       getColor: THEME_TO_TEXT_COLOR[theme],
       getSize: (!showAxisLeftLabels ? AXIS_TITLE_TEXT_SIZE : 0),
       getAngle: 90,
+      fontFamily: AXIS_FONT_FAMILY,
       updateTriggers: {
         getSize: [showAxisLeftLabels],
         getColor: [theme],
@@ -396,6 +400,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       getColor: THEME_TO_TEXT_COLOR[theme],
       getSize: (!showAxisTopLabels ? AXIS_TITLE_TEXT_SIZE : 0),
       getAngle: 0,
+      fontFamily: AXIS_FONT_FAMILY,
       updateTriggers: {
         getSize: [showAxisTopLabels],
         getColor: [theme],
@@ -415,6 +420,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       getColor: THEME_TO_TEXT_COLOR[theme],
       getSize: LOADING_TEXT_SIZE,
       getAngle: 0,
+      fontFamily: AXIS_FONT_FAMILY,
       updateTriggers: {
         getColor: [theme],
       },
