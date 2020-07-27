@@ -7,8 +7,7 @@ import {
   CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 
-import { typeToEvent } from './types';
-import { extensionToLoader } from './extensions';
+import { typeToEvent, fileTypeToLoader } from './types';
 import { AbstractLoaderError, LoaderNotFoundError } from '../../loaders/errors/index';
 
 
@@ -30,19 +29,14 @@ function reset() {
 
 function loadLayer(layer) {
   const {
-    name, type, url,
+    name, type, fileType, url,
   } = layer;
 
-  // Iterate over loaders in order,
-  // and choose the best/first match based on the URL file extension.
-  const match = Array.from(extensionToLoader.entries())
-    .find(([extension]) => url.split('?')[0].endsWith(extension));
-  if (!match) {
-    warn(new LoaderNotFoundError(name, type, url));
+  const matchingLoaderClass = fileTypeToLoader[fileType];
+  if (!matchingLoaderClass) {
+    warn(new LoaderNotFoundError(name, type, fileType, url));
     return;
   }
-  // eslint-disable-next-line no-unused-vars
-  const [matchingExtension, matchingLoaderClass] = match;
   // eslint-disable-next-line new-cap
   const loader = new matchingLoaderClass(layer);
   loader.load()

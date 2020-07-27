@@ -9,6 +9,7 @@ function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
     name,
     type: name.toUpperCase(),
+    fileType: `${name}.json`,
     url: `${urlPrefix}/${datasetPrefix}/${datasetPrefix}.${name}.json`,
   });
 }
@@ -26,6 +27,8 @@ const linnarssonBase = {
   layers: [
     ...linnarssonLayerNames.map(makeLayerNameToConfig('linnarsson')),
     {
+      // TODO: remove this temporary override when the
+      // clusters.json file has been converted to expression-matrix.zarr format.
       ...makeLayerNameToConfig('linnarsson')('clusters'),
       name: 'expression-matrix',
       type: 'EXPRESSION-MATRIX',
@@ -53,6 +56,8 @@ const wangBase = {
   layers: [
     ...['cells', 'molecules'].map(makeLayerNameToConfig('wang')),
     {
+      // TODO: remove this temporary override when the
+      // genes.json file has been converted to expression-matrix.zarr format.
       ...makeLayerNameToConfig('wang')('genes'),
       name: 'expression-matrix',
       type: 'EXPRESSION-MATRIX',
