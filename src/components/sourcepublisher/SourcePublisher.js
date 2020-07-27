@@ -36,7 +36,7 @@ function loadLayer(layer) {
   // Iterate over loaders in order,
   // and choose the best/first match based on the URL file extension.
   const match = Array.from(extensionToLoader.entries())
-    .find(([extension]) => url.endsWith(extension));
+    .find(([extension]) => url.split('?')[0].endsWith(extension));
   if (!match) {
     warn(new LoaderNotFoundError(name, type, url));
     return;
