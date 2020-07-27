@@ -9,7 +9,7 @@ import {
   CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
   CELL_SETS_VIEW, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
-import { useDeckCanvasSize, pluralize } from '../utils';
+import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 
@@ -101,7 +101,7 @@ export default function ScatterplotSubscriber(props) {
       [`${capitalize(observationsLabel)} ID`]: cellId,
       ...(cellInfo ? cellInfo.factors : {}),
     };
-  }, [cells]);
+  }, [cells, observationsLabel]);
 
   const cellsCount = Object.keys(cells).length;
   return (

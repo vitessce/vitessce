@@ -26,7 +26,7 @@ import {
   RESET,
   RASTER_ADD,
 } from '../../events';
-import { useDeckCanvasSize, pluralize } from '../utils';
+import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 
@@ -203,7 +203,7 @@ export default function SpatialSubscriber({
       [`${capitalize(observationsLabel)} ID`]: cellId,
       ...(cellInfo ? cellInfo.factors : {}),
     };
-  }, [cells]);
+  }, [cells, observationsLabel]);
 
   return (
     <TitleInfo
