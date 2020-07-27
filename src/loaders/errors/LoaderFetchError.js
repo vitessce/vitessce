@@ -1,12 +1,13 @@
 import AbstractLoaderError from './AbstractLoaderError';
 
 export default class LoaderFetchError extends AbstractLoaderError {
-  constructor(datasetName, datasetType, datasetUrl, responseHeaders) {
+  constructor(datasetName, datasetType, datasetFileType, datasetUrl, responseHeaders) {
     super(`Error HTTP status fetching ${datasetName}.`);
     this.name = 'LoaderFetchError';
 
     this.datasetName = datasetName;
     this.datasetType = datasetType;
+    this.datasetFileType = datasetFileType;
     this.datasetUrl = datasetUrl;
     this.responseHeaders = responseHeaders;
   }

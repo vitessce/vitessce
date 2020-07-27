@@ -28,7 +28,7 @@ export default class JsonLoader extends AbstractLoader {
 
   load() {
     const {
-      url, requestInit, type, name,
+      url, requestInit, type, fileType, name,
     } = this;
     if (this.data) {
       return this.data;
@@ -38,14 +38,14 @@ export default class JsonLoader extends AbstractLoader {
         if (response.ok) {
           return response.json();
         }
-        return Promise.reject(new LoaderFetchError(name, type, url, response.headers));
+        throw new LoaderFetchError(name, type, fileType, url, response.headers);
       })
       .then((data) => {
         const [valid, reason] = this.validate(data);
         if (valid) {
           return Promise.resolve(data);
         }
-        return Promise.reject(new LoaderValidationError(name, type, url, reason));
+        throw new LoaderValidationError(name, type, fileType, url, reason);
       });
     return this.data;
   }
