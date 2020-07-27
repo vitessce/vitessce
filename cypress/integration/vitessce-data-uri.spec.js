@@ -61,6 +61,7 @@ describe('Vitessce Data URIs', () => {
         {
           "name": "cells",
           "type": "CELLS",
+          "fileType": "cells.json",
           "url": "https://example.com/bad-url.json"
         }
       ],
