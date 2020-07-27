@@ -14,7 +14,7 @@ export default class ClustersJsonAsMatrixZarrLoader extends JsonLoader {
   load() {
     const jsonPromise = super.load();
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       jsonPromise.then((data) => {
         const { rows, cols, matrix } = data;
         const attrs = {
@@ -43,6 +43,8 @@ export default class ClustersJsonAsMatrixZarrLoader extends JsonLoader {
           getRaw: () => Promise.resolve({ data: typedNormalizedFlatMatrix }),
         };
         resolve([attrs, arrWrapper]);
+      }).catch((reason) => {
+        reject(reason);
       });
     });
   }

@@ -12,7 +12,7 @@ export default class GenesJsonAsMatrixZarrLoader extends JsonLoader {
   load() {
     const jsonPromise = super.load();
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       jsonPromise.then((data) => {
         const cols = Object.keys(data);
         const rows = (cols.length > 0 ? Object.keys(data[cols[0]].cells) : []);
@@ -33,6 +33,8 @@ export default class GenesJsonAsMatrixZarrLoader extends JsonLoader {
           getRaw: () => Promise.resolve({ data: typedNormalizedFlatMatrix }),
         };
         resolve([attrs, arrWrapper]);
+      }).catch((reason) => {
+        reject(reason);
       });
     });
   }
