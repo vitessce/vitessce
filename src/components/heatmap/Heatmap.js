@@ -556,6 +556,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       <DeckGL
         ref={deckRef}
         views={[
+          // Note that there are multiple views here,
+          // but only one viewState.
           new OrthographicView({
             id: 'heatmap',
             controller: true,
