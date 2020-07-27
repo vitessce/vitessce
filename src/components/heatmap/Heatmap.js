@@ -33,8 +33,36 @@ import {
 } from '../../layers/heatmap-constants';
 
 /**
- * A heatmap component for cell x gene (and gene x cell) matrices.
- * @param {*} props
+ * A heatmap component for cell x gene matrices.
+ * @param {object} props
+ * @param {string} props.uuid The uuid of this component,
+ * used by tooltips to determine whether to render a tooltip or
+ * a crosshair.
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.initialViewState The initial viewState for
+ * DeckGL.
+ * @param {number} props.width The width of the canvas.
+ * @param {number} props.height The height of the canvas.
+ * @param {object} props.expressionMatrix An object { rows, cols, matrix },
+ * where matrix is a flat Uint8Array, rows is a list of cell ID strings,
+ * and cols is a list of gene ID strings.
+ * @param {Map} props.cellColors Map of cell ID to color. Optional.
+ * If defined, the key ordering is used to order the cell axis of the heatmap.
+ * @param {function} props.clearPleaseWait The clear please wait callback,
+ * called when the expression matrix has loaded (is not null).
+ * @param {function} props.updateCellsHover Callback function called on
+ * hover with the cell ID. Optional.
+ * @param {function} props.updateGenesHover Callback function called on
+ * hover with the gene ID. Optional.
+ * @param {function} props.updateStatus Callback function called on hover,
+ * with a string containing the hovered cell ID and gene ID
+ * (used by the Status component). Optional.
+ * @param {function} props.updateViewInfo Callback function that gets called with an
+ * object { uuid, project() } where project is a function that maps (cellId, geneId)
+ * to canvas (x,y) coordinates. Used to show tooltips. Optional.
+ * @param {boolean} props.transpose By default, false.
+ * @param {string} variableTitle By default, 'Genes'.
+ * @param {string} observationTitle By default, 'Cells'.
  */
 const Heatmap = forwardRef((props, deckRef) => {
   const {
