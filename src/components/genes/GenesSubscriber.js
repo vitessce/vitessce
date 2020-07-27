@@ -30,7 +30,6 @@ export default function GenesSubscriber(props) {
         const [attrs, arr] = data;
 
         arr.getRaw([null, null]).then((X) => {
-          console.log(X); // eslint-disable-line
           setExpressionMatrix({
             cols: attrs.cols,
             rows: attrs.rows,
@@ -58,7 +57,6 @@ export default function GenesSubscriber(props) {
       const colI = expressionMatrix.cols.indexOf(newSelectedId);
       const numCols = expressionMatrix.cols.length;
       if (colI !== -1) {
-        console.log(expressionMatrix.matrix); // eslint-disable-line
         // Create new cellColors map based on the selected gene.
         const cellColors = new Map(expressionMatrix.rows.map((cellId, rowI) => {
           const value = expressionMatrix.matrix[rowI * numCols + colI];
@@ -72,7 +70,7 @@ export default function GenesSubscriber(props) {
 
   const genesSelected = useMemo(() => {
     if (!expressionMatrix) {
-      return {};
+      return null;
     }
     return fromEntries(expressionMatrix.cols.map(geneId => [geneId, geneId === selectedId]));
   }, [expressionMatrix, selectedId]);

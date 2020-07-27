@@ -20,11 +20,11 @@ export default function Genes(props) {
     }
   }, [setSelectedGene]);
 
-  const data = Object.entries(genesSelected).sort(
+  const data = genesSelected ? Object.entries(genesSelected).sort(
     (a, b) => a[0].localeCompare(b[0]),
   ).map(
     ([name, value]) => ({ name, value }),
-  );
+  ) : [];
 
   return (
     <SelectableTable
