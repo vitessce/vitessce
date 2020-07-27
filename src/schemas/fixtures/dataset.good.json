@@ -5,6 +5,7 @@
     {
       "name": "fake",
       "type": "FAKE",
+      "fileType": "fake.json",
       "url": "http://example.com",
       "requestInit": {
         "method": "POST",
