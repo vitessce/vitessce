@@ -185,3 +185,10 @@ export function pluralize(word, count = null) {
 export function capitalize(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
+
+export function copyTypedArray(arr) {
+  const newBuffer = new ArrayBuffer(arr.buffer.byteLength);
+  const newArr = new Uint8Array(newBuffer);
+  newArr.set(arr);
+  return newArr;
+}

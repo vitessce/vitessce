@@ -8,7 +8,9 @@ import {
   CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
   RESET, EXPRESSION_MATRIX_ADD, VIEW_INFO, GENES_HOVER,
 } from '../../events';
-import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
+import {
+  useDeckCanvasSize, copyTypedArray, pluralize, capitalize,
+} from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
@@ -42,14 +44,10 @@ export default function HeatmapSubscriber(props) {
     const expressionMatrixAddToken = PubSub.subscribe(
       EXPRESSION_MATRIX_ADD, (msg, { data }) => {
         const [attrs, arr] = data;
-
-        // Get the full zarr array (all chunks & flat).
-        arr.getRaw([null, null]).then((X) => {
-          setExpressionMatrix({
-            cols: attrs.cols,
-            rows: attrs.rows,
-            matrix: X.data,
-          });
+        setExpressionMatrix({
+          cols: attrs.cols,
+          rows: attrs.rows,
+          matrix: copyTypedArray(arr.data),
         });
       },
     );

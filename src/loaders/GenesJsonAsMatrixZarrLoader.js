@@ -23,10 +23,8 @@ export default class GenesJsonAsMatrixZarrLoader extends JsonLoader {
           ));
         // Need to wrap the NestedArray to mock the HTTPStore-based array
         // which returns promises.
-        const mockedHTTPStore = {
-          getRaw: () => Promise.resolve({ data: Uint8Array.from(normalizedFlatMatrix) }),
-        };
-        resolve([attrs, mockedHTTPStore]);
+        const arr = { data: Uint8Array.from(normalizedFlatMatrix) };
+        resolve([attrs, arr]);
       }).catch((reason) => {
         reject(reason);
       });

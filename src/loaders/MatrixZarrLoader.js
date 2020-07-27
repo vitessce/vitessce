@@ -30,11 +30,10 @@ export default class MatrixZarrLoader extends AbstractLoader {
     if (this.arr) {
       return this.arr;
     }
-    this.arr = openArray({
-      store,
-      path: '/',
-      mode: 'r',
-    });
+    this.arr = openArray({ store, path: '/', mode: 'r' }).then(z => new Promise((resolve) => {
+      z.getRaw([null, null])
+        .then(resolve);
+    }));
     return this.arr;
   }
 

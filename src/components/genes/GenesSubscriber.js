@@ -28,13 +28,10 @@ export default function GenesSubscriber(props) {
     const expressionMatrixAddToken = PubSub.subscribe(
       EXPRESSION_MATRIX_ADD, (msg, { data }) => {
         const [attrs, arr] = data;
-
-        arr.getRaw([null, null]).then((X) => {
-          setExpressionMatrix({
-            cols: attrs.cols,
-            rows: attrs.rows,
-            matrix: X.data,
-          });
+        setExpressionMatrix({
+          cols: attrs.cols,
+          rows: attrs.rows,
+          matrix: arr.data,
         });
       },
     );
