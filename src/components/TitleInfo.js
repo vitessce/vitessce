@@ -32,6 +32,7 @@ function DownloadOptions(props) {
         paddingTop: 0,
         marginLeft: '8px',
         backgroundColor: 'transparent',
+        outline: 0,
       }}
     >
       {urls.map(({ url, name }) => (
