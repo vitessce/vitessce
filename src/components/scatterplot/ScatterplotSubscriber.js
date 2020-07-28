@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PubSub from 'pubsub-js';
+import uuidv4 from 'uuid/v4';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
 
@@ -8,19 +9,26 @@ import {
   CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
   CELL_SETS_VIEW, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
+import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
 import Scatterplot from './Scatterplot';
+import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 
 
 export default function ScatterplotSubscriber(props) {
   const {
     onReady,
     mapping,
-    uuid = null,
-    children,
     view,
     removeGridComponent,
     theme,
+    disableTooltip = false,
+    observationsLabelOverride: observationsLabel = 'cell',
+    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
   } = props;
+
+  // Create a UUID so that hover events
+  // know from which DeckGL element they were generated.
+  const uuid = uuidv4();
 
   const [cells, setCells] = useState({});
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
@@ -28,6 +36,7 @@ export default function ScatterplotSubscriber(props) {
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
   const [urls, setUrls] = useState([]);
 
+  const [width, height, deckRef] = useDeckCanvasSize();
 
   const onReadyCallback = useCallback(onReady, []);
 
@@ -87,17 +96,25 @@ export default function ScatterplotSubscriber(props) {
     }
   }, [cells, mapping]);
 
+  const getCellInfo = useCallback((cellId) => {
+    const cellInfo = cells[cellId];
+    return {
+      [`${capitalize(observationsLabel)} ID`]: cellId,
+      ...(cellInfo ? cellInfo.factors : {}),
+    };
+  }, [cells, observationsLabel]);
+
   const cellsCount = Object.keys(cells).length;
   return (
     <TitleInfo
       title={`Scatterplot (${mapping})`}
-      info={`${cellsCount} cells`}
+      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
     >
-      {children}
       <Scatterplot
+        ref={deckRef}
         uuid={uuid}
         theme={theme}
         view={view}
@@ -114,6 +131,14 @@ export default function ScatterplotSubscriber(props) {
           layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
         }
       />
+      {!disableTooltip && (
+      <ScatterplotTooltipSubscriber
+        uuid={uuid}
+        width={width}
+        height={height}
+        getCellInfo={getCellInfo}
+      />
+      )}
     </TitleInfo>
   );
 }

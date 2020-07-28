@@ -17,7 +17,7 @@ describe('Vitessce', () => {
     // Any request we do not explicitly route will return 404,
     // so we won't end up depending on outside resources by accident.
     cy.server({ force404: true });
-    ['cells', 'cell-sets', 'molecules', 'raster', 'clusters', 'genes', 'factors', 'neighborhoods'].forEach(
+    ['cells', 'cell-sets', 'molecules', 'raster', 'clusters', 'factors', 'neighborhoods'].forEach(
       (type) => {
         cy.route(
           `${urlPrefix}/linnarsson/linnarsson.${type}.json`,
@@ -59,8 +59,8 @@ describe('Vitessce', () => {
     // that won't have race condition problems.
 
     // Spatial:
-    cy.contains('1 cells');
-    cy.contains('1 molecules');
+    cy.contains('1 cell');
+    cy.contains('1 molecule');
     cy.contains('3 locations');
 
     // Heatmap:
@@ -72,8 +72,8 @@ describe('Vitessce', () => {
     cy.contains('Clustering Algorithm');
 
     // Expression Levels:
-    cy.contains('2 genes');
-    cy.contains('Slc32a1');
+    cy.contains('3 genes');
+    cy.contains('Sox10');
 
     // Scatterplots:
     cy.contains('Scatterplot (t-SNE)');

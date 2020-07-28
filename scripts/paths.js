@@ -9,7 +9,7 @@ const resolveApp = utils.resolveApp;
 const resolveModule = utils.resolveModule;
 
 const componentsToExport = [
-    'cell-tooltip',
+    'tooltip',
     'layer-controller',
     'factors',
     'genes',

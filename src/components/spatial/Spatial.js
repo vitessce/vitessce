@@ -1,5 +1,5 @@
 import React, {
-  useRef, useState, useCallback, useMemo,
+  useState, useCallback, useMemo, forwardRef,
 } from 'react';
 import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
@@ -58,7 +58,7 @@ export function square(x, y, r) {
  * @prop {function} clearPleaseWait
  * @prop {function} onCellClick Getter function for cell layer onClick.
  */
-export default function Spatial(props) {
+const Spatial = forwardRef((props, deckRef) => {
   const {
     uuid = null,
     view = {
@@ -82,7 +82,7 @@ export default function Spatial(props) {
     cellColors = {},
     selectedCellIds = new Set(),
     getCellCoords = cell => cell.xy,
-    getCellColor = cellEntry => (cellColors && cellColors[cellEntry[0]]) || DEFAULT_COLOR,
+    getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
     getCellPolygon = (cellEntry) => {
       const cell = cellEntry[1];
       return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], cellRadius);
@@ -120,35 +120,23 @@ export default function Spatial(props) {
   // can be created and destroyed quickly, if the data they wrap is stable.
   // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
 
-  const deckRef = useRef();
-  const viewRef = useRef({
-    viewport: null,
-    width: null,
-    height: null,
-    uuid,
-  });
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
 
-  const onViewStateChange = useCallback(({ viewState }) => {
-    // Update the viewport field of the `viewRef` object
-    // to satisfy components (e.g. CellTooltip2D) that depend on an
-    // up-to-date viewport instance (to perform projections).
-    const viewport = (new OrthographicView()).makeViewport({
-      viewState,
-      width: viewRef.current.width,
-      height: viewRef.current.height,
+  const onInitializeViewInfo = useCallback(({ viewport }) => {
+    updateViewInfo({
+      uuid,
+      project: (cellId) => {
+        const cellInfo = cells[cellId];
+        try {
+          const [positionX, positionY] = getCellCoords(cellInfo);
+          return viewport.project([positionX, positionY]);
+        } catch (e) {
+          return [null, null];
+        }
+      },
     });
-    viewRef.current.viewport = viewport;
-    updateViewInfo(viewRef.current);
-  }, [viewRef, updateViewInfo]);
-
-  const onInitializeViewInfo = useCallback(({ width, height, viewport }) => {
-    viewRef.current.viewport = viewport;
-    viewRef.current.width = width;
-    viewRef.current.height = height;
-    updateViewInfo(viewRef.current);
-  }, [viewRef, updateViewInfo]);
+  }, [updateViewInfo, uuid, cells, getCellCoords]);
 
   const moleculesData = useMemo(() => {
     let result = null;
@@ -330,11 +318,10 @@ export default function Spatial(props) {
       <ToolMenu
         activeTool={tool}
         setActiveTool={setTool}
-        onViewStateChange={onViewStateChange}
       />
       <DeckGL
-        glOptions={DEFAULT_GL_OPTIONS}
         ref={deckRef}
+        glOptions={DEFAULT_GL_OPTIONS}
         onWebGLInitialized={setGl}
         {...deckProps}
       >
@@ -342,4 +329,6 @@ export default function Spatial(props) {
       </DeckGL>
     </>
   );
-}
+});
+
+export default Spatial;

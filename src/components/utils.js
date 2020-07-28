@@ -3,7 +3,6 @@ import { useRef, useState, useEffect } from 'react';
 import PubSub from 'pubsub-js';
 import debounce from 'lodash/debounce';
 import { COORDINATE_SYSTEM } from 'deck.gl';
-import { interpolatePlasma } from 'd3-scale-chromatic';
 import { GRID_RESIZE } from '../events';
 
 export function makeCellStatusMessage(cellInfoFactors) {
@@ -12,7 +11,7 @@ export function makeCellStatusMessage(cellInfoFactors) {
   ).join('; ');
 }
 
-export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid, flipY = false) {
+export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid) {
   return {
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     data: cells,
@@ -25,20 +24,11 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
     onHover: (info) => {
       if (info.object) {
         const [cellId, cellInfo] = info.object;
-        const { factors = {}, xy, mappings = {} } = cellInfo;
-        const scatterplotMappings = { ...mappings };
-        if (flipY) {
-          Object.keys(scatterplotMappings).forEach((mapping) => {
-            const arr = [scatterplotMappings[mapping][0], -scatterplotMappings[mapping][1]];
-            scatterplotMappings[mapping] = arr;
-          });
-        }
+        const { factors = {} } = cellInfo;
         updateStatus(makeCellStatusMessage(factors));
         updateCellsHover({
           cellId,
-          mappings: { xy, ...scatterplotMappings },
           uuid,
-          factors,
         });
       } else {
         // Clear the currently-hovered cell info by passing null.
@@ -73,20 +63,6 @@ export const VIEWER_PALETTE = [
   [255, 128, 0],
   [255, 0, 0],
 ];
-
-
-export function rgb(hexString) {
-  return [
-    parseInt(hexString.slice(1, 3), 16),
-    parseInt(hexString.slice(3, 5), 16),
-    parseInt(hexString.slice(5, 7), 16),
-  ];
-}
-
-export function interpolateColors(zeroToOne) {
-  // The lowest 25% does not have good contrast.
-  return rgb((interpolatePlasma(zeroToOne / 0.75 + 0.25)));
-}
 
 // Adapted from https://github.com/feross/fromentries/blob/29b52a850bb3a47c390937631c2638edf3443942/index.js
 export function fromEntries(iterable) {
@@ -125,6 +101,10 @@ export function createDefaultUpdateCellsHover(componentName) {
   return hoverInfo => console.warn(`${componentName} updateCellsHover: ${hoverInfo.cellId}`);
 }
 
+export function createDefaultUpdateGenesHover(componentName) {
+  return hoverInfo => console.warn(`${componentName} updateGenesHover: ${hoverInfo.geneId}`);
+}
+
 export function createDefaultUpdateViewInfo(componentName) {
   return viewInfo => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
 }
@@ -147,7 +127,8 @@ export function useGridItemSize() {
   useEffect(() => {
     function onResize() {
       if (!containerRef.current) return;
-      const containerRect = containerRef.current.getBoundingClientRect();
+      const container = containerRef.current;
+      const containerRect = container.getBoundingClientRect();
       setHeight(containerRect.height);
       setWidth(containerRect.width);
     }
@@ -162,4 +143,70 @@ export function useGridItemSize() {
   }, []);
 
   return [width, height, containerRef];
+}
+
+/**
+ * Custom hook, subscribes to GRID_RESIZE and window resize events.
+ * @returns {array} `[width, height, deckRef]` where width and height
+ * are numbers and deckRef is a React ref to be used with
+ * a <DeckGL/> element (or a forwardRef to one).
+ */
+export function useDeckCanvasSize() {
+  const deckRef = useRef();
+
+  const [height, setHeight] = useState();
+  const [width, setWidth] = useState();
+
+  useEffect(() => {
+    function onResize() {
+      if (!deckRef.current) return;
+      const { canvas } = deckRef.current.deck;
+      const canvasRect = canvas.getBoundingClientRect();
+      setHeight(canvasRect.height);
+      setWidth(canvasRect.width);
+    }
+    const onResizeDebounced = debounce(onResize, 100, { trailing: true });
+    const gridResizeToken = PubSub.subscribe(GRID_RESIZE, onResize);
+    window.addEventListener('resize', onResizeDebounced);
+    onResize();
+    return () => {
+      PubSub.unsubscribe(gridResizeToken);
+      window.removeEventListener('resize', onResizeDebounced);
+    };
+  }, []);
+
+  return [width, height, deckRef];
+}
+
+/**
+ * Select between a singular and plural version of a word,
+ * based on an item count.
+ * @param {string} singular The singular version of the word.
+ * @param {string} plural The plural version of the word.
+ * @param {number} count The number of items.
+ * @returns {string} Singular if count is one, else plural.
+ */
+export function pluralize(singular, plural, count) {
+  return (count === 1 ? singular : plural);
+}
+
+/**
+ * Capitalize a the first letter of a string.
+ * @param {string} word A string to capitalize.
+ * @returns {string} The word parameter with the first letter capitalized.
+ */
+export function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+/**
+ * Copy a typed array into a new array buffer.
+ * @param {Uint8Array} arr The typed array to be copied.
+ * @returns {Uint8Array} The copied array.
+ */
+export function copyUint8Array(arr) {
+  const newBuffer = new ArrayBuffer(arr.buffer.byteLength);
+  const newArr = new Uint8Array(newBuffer);
+  newArr.set(arr);
+  return newArr;
 }

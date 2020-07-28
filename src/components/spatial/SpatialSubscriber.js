@@ -2,8 +2,8 @@ import React, {
   useState, useCallback, useEffect, useMemo,
 } from 'react';
 import PubSub from 'pubsub-js';
+import uuidv4 from 'uuid/v4';
 import shortNumber from 'short-number';
-
 import TitleInfo from '../TitleInfo';
 import {
   MOLECULES_ADD,
@@ -26,19 +26,27 @@ import {
   RESET,
   RASTER_ADD,
 } from '../../events';
+import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
 import Spatial from './Spatial';
+import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 
 export default function SpatialSubscriber({
-  children,
   onReady,
   removeGridComponent,
   moleculeRadius,
   view,
   cellRadius,
-  observationsLabelOverride,
+  observationsLabelOverride: observationsLabel = 'cell',
+  observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
+  subobservationsLabelOverride: subobservationsLabel = 'molecule',
+  subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
   theme,
-  uuid = null,
+  disableTooltip = false,
 }) {
+  // Create a UUID so that hover events
+  // know from which DeckGL element they were generated.
+  const uuid = uuidv4();
+
   const [cells, setCells] = useState(null);
   const [molecules, setMolecules] = useState(null);
   const [cellColors, setCellColors] = useState(null);
@@ -51,6 +59,8 @@ export default function SpatialSubscriber({
   const [moleculesOpacity, setMoleculesOpacity] = useState(1);
   const [areMoleculesOn, setMoleculesOn] = useState(true);
   const [urls, setUrls] = useState([]);
+
+  const [width, height, deckRef] = useDeckCanvasSize();
 
   const onReadyCallback = useCallback(onReady, []);
 
@@ -188,20 +198,30 @@ export default function SpatialSubscriber({
     layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName),
     [],
   );
-  const observationsLabel = observationsLabelOverride || 'cells';
+
+  const getCellInfo = useCallback((cellId) => {
+    const cellInfo = cells[cellId];
+    return {
+      [`${capitalize(observationsLabel)} ID`]: cellId,
+      ...(cellInfo ? cellInfo.factors : {}),
+    };
+  }, [cells, observationsLabel]);
+
   return (
     <TitleInfo
       title="Spatial"
       info={
-        `${cellsCount} ${observationsLabel}, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
+        `${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)},
+         ${moleculesCount} ${pluralize(subobservationsLabel, subobservationsPluralLabel, moleculesCount)}
+         at ${shortNumber(locationsCount)} locations`
       }
       isSpatial
       urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}
     >
-      {children}
       <Spatial
+        ref={deckRef}
         cells={cells}
         selectedCellIds={selectedCellIds}
         neighborhoods={neighborhoods}
@@ -223,6 +243,14 @@ export default function SpatialSubscriber({
         updateViewInfo={updateViewInfo}
         clearPleaseWait={clearPleaseWait}
       />
+      {!disableTooltip && (
+      <SpatialTooltipSubscriber
+        uuid={uuid}
+        width={width}
+        height={height}
+        getCellInfo={getCellInfo}
+      />
+      )}
     </TitleInfo>
   );
 }

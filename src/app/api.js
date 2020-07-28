@@ -3,12 +3,13 @@ import Ajv from 'ajv';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.30/master_release';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
     name,
     type: name.toUpperCase(),
+    fileType: `${name}.json`,
     url: `${urlPrefix}/${datasetPrefix}/${datasetPrefix}.${name}.json`,
   });
 }
@@ -16,8 +17,6 @@ function makeLayerNameToConfig(datasetPrefix) {
 const linnarssonLayerNames = [
   'cells',
   'cell-sets',
-  'clusters',
-  'genes',
   'raster',
   'molecules',
   'neighborhoods',
@@ -25,8 +24,16 @@ const linnarssonLayerNames = [
 const linnarssonDescription = 'Spatial organization of the somatosensory cortex revealed by cyclic smFISH';
 const linnarssonBase = {
   description: linnarssonDescription,
-  layers: linnarssonLayerNames
-    .map(makeLayerNameToConfig('linnarsson')),
+  layers: [
+    ...linnarssonLayerNames.map(makeLayerNameToConfig('linnarsson')),
+    {
+      // TODO: remove this temporary override when the
+      // clusters.json file has been converted to expression-matrix.zarr format.
+      ...makeLayerNameToConfig('linnarsson')('clusters'),
+      name: 'expression-matrix',
+      type: 'EXPRESSION-MATRIX',
+    },
+  ],
 };
 const linnarssonBaseNoClusters = {
   description: linnarssonDescription,
@@ -47,10 +54,15 @@ const wangDescription = 'Multiplexed imaging of high-density libraries of RNAs w
 const wangBase = {
   description: wangDescription,
   layers: [
-    'cells',
-    'molecules',
-    'genes',
-  ].map(makeLayerNameToConfig('wang')),
+    ...['cells', 'molecules'].map(makeLayerNameToConfig('wang')),
+    {
+      // TODO: remove this temporary override when the
+      // genes.json file has been converted to expression-matrix.zarr format.
+      ...makeLayerNameToConfig('wang')('genes'),
+      name: 'expression-matrix',
+      type: 'EXPRESSION-MATRIX',
+    },
+  ],
 };
 
 const vanderbiltDescription = 'High Bit Depth (uint16) Multiplex Immunofluorescence Imaging';
@@ -165,6 +177,9 @@ const configs = {
       { component: 'cellSets',
         x: 9, y: 3, w: 3, h: 2 },
       { component: 'heatmap',
+        props: {
+          transpose: true,
+        },
         x: 2, y: 4, w: 10, h: 2 },
       { component: 'scatterplot',
         props: {

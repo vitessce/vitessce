@@ -61,7 +61,8 @@ describe('Vitessce Data URIs', () => {
         {
           "name": "cells",
           "type": "CELLS",
-          "url": "https://example.com/bad-url"
+          "fileType": "cells.json",
+          "url": "https://example.com/bad-url.json"
         }
       ],
       "staticLayout": [
@@ -74,7 +75,7 @@ describe('Vitessce Data URIs', () => {
       ]
     };
     loadConfig(config);
-    cy.contains('Error HTTP status from cells.');
+    cy.contains('Error HTTP status fetching cells.');
   });
 
   it('handles errors from bad view config', () => {

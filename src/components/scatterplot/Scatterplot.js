@@ -1,5 +1,5 @@
 import React, {
-  useState, useRef, useCallback, useMemo,
+  useState, useCallback, useMemo, forwardRef,
 } from 'react';
 import DeckGL, { OrthographicView } from 'deck.gl';
 import { quadtree } from 'd3-quadtree';
@@ -43,7 +43,7 @@ const CELLS_LAYER_ID = 'scatterplot';
  * @prop {function} clearPleaseWait
  * @prop {function} onCellClick Getter function for cell layer onClick.
  */
-export default function Scatterplot(props) {
+const Scatterplot = forwardRef((props, deckRef) => {
   const {
     uuid = null,
     theme,
@@ -69,7 +69,7 @@ export default function Scatterplot(props) {
       // graphics rendering has the y-axis positive going south.
       return [mappedCell[0], -mappedCell[1], 0];
     },
-    getCellColor = cellEntry => (cellColors && cellColors[cellEntry[0]]) || DEFAULT_COLOR,
+    getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
     getCellIsSelected = cellEntry => (
       selectedCellIds.size
         ? selectedCellIds.has(cellEntry[0])
@@ -93,35 +93,23 @@ export default function Scatterplot(props) {
     },
   } = props;
 
-  const deckRef = useRef();
-  const viewRef = useRef({
-    viewport: null,
-    width: null,
-    height: null,
-    uuid,
-  });
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
 
-  const onViewStateChange = useCallback(({ viewState }) => {
-    // Update the viewport field of the `viewRef` object
-    // to satisfy components (e.g. CellTooltip2D) that depend on an
-    // up-to-date viewport instance (to perform projections).
-    const viewport = (new OrthographicView()).makeViewport({
-      viewState,
-      width: viewRef.current.width,
-      height: viewRef.current.height,
+  const onInitializeViewInfo = useCallback(({ viewport }) => {
+    updateViewInfo({
+      uuid,
+      project: (cellId) => {
+        const cellInfo = cells[cellId];
+        try {
+          const [positionX, positionY] = getCellPosition([cellId, cellInfo]);
+          return viewport.project([positionX, positionY]);
+        } catch (e) {
+          return [null, null];
+        }
+      },
     });
-    viewRef.current.viewport = viewport;
-    updateViewInfo(viewRef.current);
-  }, [viewRef, updateViewInfo]);
-
-  const onInitializeViewInfo = useCallback(({ width, height, viewport }) => {
-    viewRef.current.viewport = viewport;
-    viewRef.current.width = width;
-    viewRef.current.height = height;
-    updateViewInfo(viewRef.current);
-  }, [viewRef, updateViewInfo]);
+  }, [updateViewInfo, uuid, cells, getCellPosition]);
 
   const cellsData = useMemo(() => {
     let result = null;
@@ -161,13 +149,13 @@ export default function Scatterplot(props) {
           onCellClick(info);
         },
         ...cellLayerDefaultProps(
-          cellsData, updateStatus, updateCellsHover, uuid, flipYTooltip,
+          cellsData, updateStatus, updateCellsHover, uuid,
         ),
       }),
     ];
   }, [cellsData, theme, getCellIsSelected, cellOpacity, cellRadiusScale,
     getCellPosition, getCellColor, updateStatus, updateCellsHover, uuid,
-    tool, onCellClick, flipYTooltip]);
+    tool, onCellClick]);
 
   const cellsQuadTree = useMemo(() => {
     // Use the cellsData variable since it is already
@@ -213,7 +201,6 @@ export default function Scatterplot(props) {
         <ToolMenu
           activeTool={tool}
           setActiveTool={setTool}
-          onViewStateChange={onViewStateChange}
         />
       </div>
       <DeckGL
@@ -226,4 +213,6 @@ export default function Scatterplot(props) {
       </DeckGL>
     </>
   );
-}
+});
+
+export default Scatterplot;

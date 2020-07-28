@@ -3,9 +3,9 @@ import StatusSubscriber from '../components/status/StatusSubscriber';
 import FactorsSubscriber from '../components/factors/FactorsSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
 import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscriber';
-import HoverableScatterplotSubscriber from '../components/scatterplot/HoverableScatterplotSubscriber';
-import HoverableSpatialSubscriber from '../components/spatial/HoverableSpatialSubscriber';
-import HoverableHeatmapSubscriber from '../components/heatmap/HoverableHeatmapSubscriber';
+import ScatterplotSubscriber from '../components/scatterplot/ScatterplotSubscriber';
+import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
+import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
 import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubscriber';
@@ -16,9 +16,9 @@ const registry = {
   factors: FactorsSubscriber,
   genes: GenesSubscriber,
   cellSets: CellSetsManagerSubscriber,
-  scatterplot: HoverableScatterplotSubscriber,
-  spatial: HoverableSpatialSubscriber,
-  heatmap: HoverableHeatmapSubscriber,
+  scatterplot: ScatterplotSubscriber,
+  spatial: SpatialSubscriber,
+  heatmap: HeatmapSubscriber,
   layerController: LayerControllerSubscriber,
   higlass: HiGlassSubscriber,
   cellSetSizes: CellSetSizesPlotSubscriber,

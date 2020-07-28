@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.11
+
+### Added
+- Added the `fileType` property to the view config `layers` objects, which is used to choose a data loader class.
+
+### Changed
+- Improved the heatmap by re-implementing using DeckGL layers.
+
 ## [0.1.10](https://www.npmjs.com/package/vitessce/v/0.1.10) - 2020-07-24
 
 ### Added
