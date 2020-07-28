@@ -36,7 +36,7 @@ function DownloadOptions(props) {
     >
       {urls.map(({ url, name }) => (
         <MenuItem dense key={url}>
-          <Link underline="none" href={url}>
+          <Link underline="none" href={url} target="_blank" rel="noopener">
             {name}
           </Link>
         </MenuItem>
