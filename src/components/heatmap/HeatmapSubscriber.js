@@ -9,7 +9,7 @@ import {
   RESET, EXPRESSION_MATRIX_ADD, VIEW_INFO, GENES_HOVER,
 } from '../../events';
 import {
-  useDeckCanvasSize, copyTypedArray, pluralize, capitalize,
+  useDeckCanvasSize, copyUint8Array, pluralize, capitalize,
 } from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
@@ -18,12 +18,14 @@ export default function HeatmapSubscriber(props) {
   const {
     removeGridComponent, onReady, theme, transpose,
     observationsLabelOverride: observationsLabel = 'cell',
+    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
     variablesLabelOverride: variablesLabel = 'gene',
+    variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     disableTooltip = false,
   } = props;
 
-  const observationsTitle = capitalize(pluralize(observationsLabel));
-  const variablesTitle = capitalize(pluralize(variablesLabel));
+  const observationsTitle = capitalize(observationsPluralLabel);
+  const variablesTitle = capitalize(variablesPluralLabel);
 
 
   // Create a UUID so that hover events
@@ -47,7 +49,7 @@ export default function HeatmapSubscriber(props) {
         setExpressionMatrix({
           cols: attrs.cols,
           rows: attrs.rows,
-          matrix: copyTypedArray(arr.data),
+          matrix: copyUint8Array(arr.data),
         });
       },
     );
@@ -114,8 +116,9 @@ export default function HeatmapSubscriber(props) {
   return (
     <TitleInfo
       title="Heatmap"
-      info={`${cellsCount} ${pluralize(observationsLabel, cellsCount)} × ${genesCount} ${pluralize(variablesLabel, genesCount)},
-              with ${selectedCount} ${pluralize(observationsLabel, selectedCount)} selected`}
+      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}
+             × ${genesCount} ${pluralize(variablesLabel, variablesPluralLabel, genesCount)},
+             with ${selectedCount} ${pluralize(observationsLabel, observationsPluralLabel, selectedCount)} selected`}
       urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}

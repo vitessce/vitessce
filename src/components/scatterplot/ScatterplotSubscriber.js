@@ -23,6 +23,7 @@ export default function ScatterplotSubscriber(props) {
     theme,
     disableTooltip = false,
     observationsLabelOverride: observationsLabel = 'cell',
+    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
   } = props;
 
   // Create a UUID so that hover events
@@ -107,7 +108,7 @@ export default function ScatterplotSubscriber(props) {
   return (
     <TitleInfo
       title={`Scatterplot (${mapping})`}
-      info={`${cellsCount} ${pluralize(observationsLabel, cellsCount)}`}
+      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

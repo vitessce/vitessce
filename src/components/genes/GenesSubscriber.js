@@ -15,6 +15,7 @@ export default function GenesSubscriber(props) {
     onReady,
     removeGridComponent,
     variablesLabelOverride: variablesLabel = 'gene',
+    variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
   } = props;
 
@@ -77,7 +78,7 @@ export default function GenesSubscriber(props) {
   return (
     <TitleInfo
       title="Expression Levels"
-      info={`${numGenes} ${pluralize(variablesLabel, numGenes)}`}
+      info={`${numGenes} ${pluralize(variablesLabel, variablesPluralLabel, numGenes)}`}
       isScroll
       urls={urls}
       theme={theme}

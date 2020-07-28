@@ -37,7 +37,9 @@ export default function SpatialSubscriber({
   view,
   cellRadius,
   observationsLabelOverride: observationsLabel = 'cell',
-  subObservationsLabelOverride: subObservationsLabel = 'molecule',
+  observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
+  subobservationsLabelOverride: subobservationsLabel = 'molecule',
+  subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
   theme,
   disableTooltip = false,
 }) {
@@ -209,7 +211,9 @@ export default function SpatialSubscriber({
     <TitleInfo
       title="Spatial"
       info={
-        `${cellsCount} ${pluralize(observationsLabel, cellsCount)}, ${moleculesCount} ${pluralize(subObservationsLabel, moleculesCount)} at ${shortNumber(locationsCount)} locations`
+        `${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)},
+         ${moleculesCount} ${pluralize(subobservationsLabel, subobservationsPluralLabel, moleculesCount)}
+         at ${shortNumber(locationsCount)} locations`
       }
       isSpatial
       urls={urls}
