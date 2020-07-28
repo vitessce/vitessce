@@ -7,6 +7,7 @@
 
 ### Changed
 - Improved the heatmap by re-implementing using DeckGL layers.
+- Update Download button style/action in `TitleInfo` as per #681.
 
 ## [0.1.10](https://www.npmjs.com/package/vitessce/v/0.1.10) - 2020-07-24
 
