@@ -116,8 +116,7 @@ export default function HeatmapSubscriber(props) {
   return (
     <TitleInfo
       title="Heatmap"
-      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}
-             × ${genesCount} ${pluralize(variablesLabel, variablesPluralLabel, genesCount)},
+      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)} × ${genesCount} ${pluralize(variablesLabel, variablesPluralLabel, genesCount)},
              with ${selectedCount} ${pluralize(observationsLabel, observationsPluralLabel, selectedCount)} selected`}
       urls={urls}
       theme={theme}
