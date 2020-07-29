@@ -70,10 +70,6 @@ function createReducer(handlers) {
  * @returns {array} The array representing the set associated with the node.
  */
 function nodeToSet(currNode) {
-  if (!currNode) {
-    console.warn('sets/reducer.js/nodeToSet: currNode should not be falsy.');
-    return [];
-  }
   if (!currNode.children) {
     return (ALLOW_SIDE_EFFECTS ? globalSets[currNode._state.key] : (currNode.set || []));
   }
@@ -907,10 +903,6 @@ function treeOnExpand(currTree, expandedKeys, targetKey, expanded) {
  * @returns {object[]} An array of descendants.
  */
 function nodeToDescendantsFlat(node) {
-  if (!node) {
-    console.warn('sets/reducer.js/nodeToDescendantsFlat: node should not be falsy.');
-    return [];
-  }
   if (!node.children) {
     return [];
   }
@@ -1102,10 +1094,6 @@ function treeSetVisibleKeys(currTree, visibleKeys, shouldInvalidateCheckedLevel 
  * @returns {object[]} An array of leaf nodes.
  */
 function nodeToLeavesFlat(node) {
-  if (!node) {
-    console.warn('sets/reducer.js/nodeToLeavesFlat: node should not be falsy.');
-    return [];
-  }
   if (!node.children) {
     return [node];
   }
@@ -1164,10 +1152,6 @@ function treeNodeView(currTree, targetKey) {
  * where the level is relative to the node.
  */
 function nodeToLevelDescendantsFlat(node, level, stopEarly = false) {
-  if (!node) {
-    console.warn('sets/reducer.js/nodeToLevelDescendantsFlat: node should not be falsy.');
-    return [];
-  }
   if (!node.children) {
     if (!stopEarly) {
       return [];
