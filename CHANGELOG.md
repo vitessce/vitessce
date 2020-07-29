@@ -4,6 +4,7 @@
 
 ### Added
 - Added the `fileType` property to the view config `layers` objects, which is used to choose a data loader class.
+- Added additional guards within cell set reducer functions that call `.children.flatMap` to try to resolve #697.
 
 ### Changed
 - Improved the heatmap by re-implementing using DeckGL layers.
