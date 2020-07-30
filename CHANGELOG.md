@@ -1,8 +1,13 @@
 # Changelog
 
-## 0.2.1
+## 0.2.2
 
 ### Added
+
+### Changed
+
+
+## [0.2.1](https://www.npmjs.com/package/vitessce/v/0.2.1) - 2020-07-30
 
 ### Changed
 - Fixed a bug (typo in prop name) in which the heatmap axis title overrides were not passed correctly from HeatmapSubscriber to Heatmap.
@@ -30,6 +35,7 @@
 - Add heatmap label override.
 - Fix #682 `TitleInfo` spacing bug.
 - Remove Global dimensions when there is only one value (for OME-TIFF, mostly).
+
 
 ## [0.1.9](https://www.npmjs.com/package/vitessce/v/0.1.9) - 2020-07-23
 
