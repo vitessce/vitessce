@@ -5,7 +5,7 @@
 ### Added
 
 ### Changed
-
+- Removed the lines between the radio buttons in the cell set manager to make a more compact interface.
 
 ## [0.2.1](https://www.npmjs.com/package/vitessce/v/0.2.1) - 2020-07-30
 

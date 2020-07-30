@@ -91,35 +91,13 @@
               }
 
               .level-buttons-container {
-                  height: #{$node-height}px;
+                  height: 20px;
                   width: 100%;
                   position: relative;
                   padding-left: 4px;
                   left: 0;
 
                   .level-buttons {
-                      position: relative;
-                      top: 0;
-                      display: inline-block;
-                      width: #{$node-height / 2 + 18}px;
-
-                      .level-line-zero {
-                          height: #{$node-height / 2}px;
-                          width: 3px;
-                          background-color: #555;
-                          position: absolute;
-                          top: 0;
-                          left: 0;
-                      }
-
-                      .level-line {
-                          height: 3px;
-                          width: #{$node-height / 2}px;
-                          background-color: #555;
-                          position: relative;
-                          top: #{$node-height / 2}px;
-                          left: 0;
-                      }
 
                       input.level-radio-button {
                           cursor: pointer;
@@ -127,18 +105,19 @@
                           -moz-appearance: none;
                           appearance: none;
                           /* create custom radiobutton appearance */
-                          display: inline-block;
-                          width: 16px;
-                          height: 16px;
-                          padding: 7px;
+                          width: 12px;
+                          height: 12px;
+                          padding: 5px;
                           /* background-color only for content */
                           background-clip: content-box;
-                          border: 2px solid lighten(map-get($theme-colors, "primary-foreground"), 5%);
-                          background-color: lighten(map-get($theme-colors, "primary-foreground"), 5%);
+                          border: 2px solid lighten(map-get($theme-colors, "primary-foreground"), 10%);
+                          background-color: lighten(map-get($theme-colors, "primary-foreground"), 10%);
                           border-radius: 50%;
                           position: relative;
-                          top: 5px;
-                          left: #{$node-height / 2}px;
+                          top: 3px;
+                          left: 0px;
+                          float: left;
+                          margin-right: 10px;
 
                           &:checked {
                               background-clip: unset;
