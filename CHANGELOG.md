@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.1.11
+## Next
+
+### Added
+
+### Changed
+
+## [0.2.0](https://www.npmjs.com/package/vitessce/v/0.2.0) - 2020-07-30
 
 ### Added
 - Added the `fileType` property to the view config `layers` objects, which is used to choose a data loader class.
