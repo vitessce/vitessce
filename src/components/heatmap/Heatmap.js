@@ -61,8 +61,8 @@ import {
  * object { uuid, project() } where project is a function that maps (cellId, geneId)
  * to canvas (x,y) coordinates. Used to show tooltips. Optional.
  * @param {boolean} props.transpose By default, false.
- * @param {string} variableTitle By default, 'Genes'.
- * @param {string} observationTitle By default, 'Cells'.
+ * @param {string} props.variablesTitle By default, 'Genes'.
+ * @param {string} props.observationsTitle By default, 'Cells'.
  */
 const Heatmap = forwardRef((props, deckRef) => {
   const {
@@ -83,12 +83,12 @@ const Heatmap = forwardRef((props, deckRef) => {
     updateStatus = createDefaultUpdateStatus('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
     transpose = false,
-    variableTitle = 'Genes',
-    observationTitle = 'Cells',
+    variablesTitle = 'Genes',
+    observationsTitle = 'Cells',
   } = props;
 
-  const axisLeftTitle = (transpose ? variableTitle : observationTitle);
-  const axisTopTitle = (transpose ? observationTitle : variableTitle);
+  const axisLeftTitle = (transpose ? variablesTitle : observationsTitle);
+  const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
 
   useEffect(() => {
     if (clearPleaseWait && expression) {
