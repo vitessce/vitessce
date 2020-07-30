@@ -390,6 +390,13 @@ export default class TreeNode extends RcTreeNode {
       },
     } = this.context;
 
+    const onNodeExpandWrapper = (e) => {
+      // Do not call onNodeExpand if the node is a leaf node.
+      if (!isLeaf) {
+        onNodeExpand(e, this);
+      }
+    };
+
     const switcherClass = classNames(
       `${prefixClass}-switcher`,
       { [`${prefixClass}-switcher_${(expanded ? 'open' : 'close')}`]: !isLeaf },
@@ -397,10 +404,8 @@ export default class TreeNode extends RcTreeNode {
     return (
       <span
         className={switcherClass}
-        onClick={e => onNodeExpand(e, this)}
-        onKeyPress={e => callbackOnKeyPress(e, 'd', () => {
-          onNodeExpand(e, this);
-        })}
+        onClick={onNodeExpandWrapper}
+        onKeyPress={e => callbackOnKeyPress(e, 'd', onNodeExpandWrapper)}
         role="button"
         tabIndex="0"
       >

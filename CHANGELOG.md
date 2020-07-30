@@ -9,6 +9,7 @@
 - Improved the heatmap by re-implementing using DeckGL layers.
 - Update Download button style/action in `TitleInfo` as per #681.
 - Bump Viv to 0.3.2.
+- Prevent CellSetManager leaf node "switcher icons" from calling the TreeNode component's `onNodeExpand` function.
 
 ## [0.1.10](https://www.npmjs.com/package/vitessce/v/0.1.10) - 2020-07-24
 
