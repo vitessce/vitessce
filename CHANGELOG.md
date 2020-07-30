@@ -5,6 +5,7 @@
 ### Added
 
 ### Changed
+- Fixed a bug (typo in prop name) in which the heatmap axis title overrides were not passed correctly from HeatmapSubscriber to Heatmap.
 
 
 ## [0.2.0](https://www.npmjs.com/package/vitessce/v/0.2.0) - 2020-07-30
