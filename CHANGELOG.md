@@ -1,10 +1,11 @@
 # Changelog
 
-## Next
+## 0.2.1
 
 ### Added
 
 ### Changed
+
 
 ## [0.2.0](https://www.npmjs.com/package/vitessce/v/0.2.0) - 2020-07-30
 
@@ -16,6 +17,7 @@
 - Update Download button style/action in `TitleInfo` as per #681.
 - Bump Viv to 0.3.2.
 - Prevent CellSetManager leaf node "switcher icons" from calling the TreeNode component's `onNodeExpand` function.
+
 
 ## [0.1.10](https://www.npmjs.com/package/vitessce/v/0.1.10) - 2020-07-24
 
