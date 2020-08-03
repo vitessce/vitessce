@@ -18,8 +18,7 @@ export default function VitessceGrid(props) {
     reactGridLayoutProps, onAllReady, rowHeight, theme, height,
   } = props;
 
-  // eslint-disable-next-line no-unused-vars
-  const [_readyComponentKeys, setReadyComponentKeys] = useState(new Set());
+  const [readyComponentKeys, setReadyComponentKeys] = useState(new Set());
   const [gridComponents, setGridComponents] = useState({});
   const [gridCols, setGridCols] = useState(null);
   const [gridLayouts, setGridLayouts] = useState(null);
@@ -54,15 +53,18 @@ export default function VitessceGrid(props) {
     </style>
   );
 
+  useEffect(() => {
+    if (readyComponentKeys.size === Object.keys(gridComponents).length) {
+      // The sets are now equal.
+      onAllReady();
+    }
+  }, [readyComponentKeys, gridComponents, onAllReady]);
+
   const layoutChildren = Object.entries(gridComponents).map(([k, v]) => {
     const Component = getComponent(v.component);
     const onReady = () => {
       setReadyComponentKeys((prevReadyComponentKeys) => {
         prevReadyComponentKeys.add(k);
-        if (prevReadyComponentKeys.size === Object.keys(gridComponents).length) {
-          // The sets are now equal.
-          onAllReady();
-        }
         return prevReadyComponentKeys;
       });
     };
