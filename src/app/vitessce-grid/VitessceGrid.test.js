@@ -1,8 +1,7 @@
-import expect from 'expect';
 import React from 'react';
-import { shallow, render, configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-
+import { mount, configure } from 'enzyme';
+import expect from 'expect';
 import VitessceGrid from './VitessceGrid';
 
 configure({ adapter: new Adapter() });
@@ -26,17 +25,16 @@ describe('VitessceGrid.js', () => {
       ],
     };
     /* eslint-enable */
-    it('shallow() works', () => {
-      const wrapper = shallow(<VitessceGrid
+    it('mount() works', () => {
+      const wrapper = mount(<VitessceGrid
         layout={layoutJson}
         getComponent={() => FakeComponent}
         draggableHandle=".my-handle"
       />);
 
-      expect(wrapper.find('div').length).toEqual(1);
-      expect(wrapper.find('div').text()).toEqual('<FakeComponent />');
-
-      expect(wrapper.find('span').length).toEqual(0);
+      expect(wrapper.find('.react-grid-item').length).toEqual(1);
+      expect(wrapper.find('.react-grid-item').text()).toEqual('Hello World');
+      expect(wrapper.find('.react-grid-item span:not(.react-resizable-handle)').length).toEqual(1);
 
       const style = wrapper.find('style');
       expect(style.length).toEqual(1);
@@ -44,32 +42,15 @@ describe('VitessceGrid.js', () => {
       expect(style.text()).toContain('.my-handle:active {');
     });
 
-    it('render() works', () => {
-      const wrapper = render(<VitessceGrid
-        layout={layoutJson}
-        getComponent={() => FakeComponent}
-        draggableHandle=".my-handle"
-      />);
-
-      expect(wrapper.find('div').length).toEqual(1);
-      expect(wrapper.find('div').text()).toEqual('Hello World');
-
-      expect(wrapper.find('span').length).toEqual(2);
-
-      const style = wrapper.find('style');
-      expect(style.length).toEqual(0);
-      // TODO: Why does render() not generate style?
-    });
-
     it('rowHeight works', () => {
-      const wrapper = render(<VitessceGrid
+      const wrapper = mount(<VitessceGrid
         layout={layoutJson}
         getComponent={() => FakeComponent}
         draggableHandle=".my-handle"
         rowHeight={123}
       />);
 
-      expect(wrapper['1'].children[0].attribs.style).toContain('height:123px');
+      expect(wrapper.find('.react-grid-item').getDOMNode().style.height).toEqual('123px');
     });
   });
 });

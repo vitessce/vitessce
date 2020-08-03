@@ -87,7 +87,7 @@ export default function VitessceGrid(props) {
     );
   });
   return (gridComponents && gridCols && gridLayouts && gridBreakpoints) && (
-    <React.Fragment>
+    <>
       {style}
       <ResponsiveHeightGridLayout
         className="layout"
@@ -108,7 +108,7 @@ export default function VitessceGrid(props) {
       >
         {layoutChildren}
       </ResponsiveHeightGridLayout>
-    </React.Fragment>
+    </>
   );
 }
 
