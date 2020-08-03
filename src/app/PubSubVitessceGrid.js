@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 // eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
-import VitessceGrid from 'vitessce-grid';
 
+import { VitessceGrid } from './vitessce-grid';
 import { SourcePublisher } from '../components/sourcepublisher';
 import { GRID_RESIZE, STATUS_WARN } from '../events';
 
