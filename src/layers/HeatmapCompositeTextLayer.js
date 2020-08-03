@@ -131,3 +131,5 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
     ];
   }
 }
+
+HeatmapCompositeTextLayer.layerName = 'HeatmapCompositeTextLayer';

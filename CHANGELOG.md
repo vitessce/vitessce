@@ -6,6 +6,8 @@
 
 ### Changed
 - Upgrade `vitessce-grid` to 0.0.10 to fix problem switching view configurations.
+- Copied the `vitessce-grid` source files into the `vitessce` repository to reduce friction when updating the `vitessce-grid` code (avoids an extra NPM publish / pull-down).
+- Fixed tests in `VitessceGrid.test.js`.
 
 ## [0.2.1](https://www.npmjs.com/package/vitessce/v/0.2.1) - 2020-07-30
 
