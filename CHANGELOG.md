@@ -5,7 +5,7 @@
 ### Added
 
 ### Changed
-
+- Upgrade `vitessce-grid` to 0.0.10 to fix problem switching view configurations.
 
 ## [0.2.1](https://www.npmjs.com/package/vitessce/v/0.2.1) - 2020-07-30
 
