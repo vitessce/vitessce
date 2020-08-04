@@ -241,8 +241,6 @@ function LevelsButtons(props) {
     <div className="level-buttons-container">
       {range(1, height + 1).map(i => (
         <div className="level-buttons" key={i}>
-          {i === 1 ? (<div className="level-line-zero" />) : null}
-          <div className="level-line" />
           <HelpTooltip title={getLevelTooltipText(i)}>
             <input
               className="level-radio-button"
