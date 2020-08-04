@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.3
+
+### Changed
+- Upgrade Viv to 0.3.3 to fix a tiff parsing issue.
+
 ## [0.2.2](https://www.npmjs.com/package/vitessce/v/0.2.2) - 2020-08-03
 
 ### Added
