@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3
+
+### Changed
+- Upgrade Viv to 0.3.3 to fix a tiff parsing issue.
+- Removed the lines between the radio buttons in the cell set manager to make a more compact interface.
+
 ## [0.2.2](https://www.npmjs.com/package/vitessce/v/0.2.2) - 2020-08-03
 
 ### Added
@@ -8,7 +14,6 @@
 - Upgrade `vitessce-grid` to 0.0.10 to fix problem switching view configurations.
 - Copied the `vitessce-grid` source files into the `vitessce` repository to reduce friction when updating the `vitessce-grid` code (avoids an extra NPM publish / pull-down).
 - Fixed tests in `VitessceGrid.test.js`.
-- Removed the lines between the radio buttons in the cell set manager to make a more compact interface.
 
 ## [0.2.1](https://www.npmjs.com/package/vitessce/v/0.2.1) - 2020-07-30
 
