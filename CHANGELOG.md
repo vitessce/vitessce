@@ -5,7 +5,8 @@
 ### Added
 
 ### Changed
-- Renamed `VitessceGrid` to `VitessceGridLayout`, then renamed `PubSubVitessceGrid` to `VitessceGrid`.
+- Renamed `VitessceGrid` to `VitessceGridLayout`.
+- Renamed `PubSubVitessceGrid` to `VitessceGrid`.
 - Introduced two provider components: `ViewConfigProvider` and `DatasetLoaderProvider`.
 - Updated the view config schema to handle multiple datasets, and a coordination space to support coordinated multiple view functionality.
 

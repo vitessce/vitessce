@@ -1,4 +1,3 @@
-/* eslint-disable */
 import Ajv from 'ajv';
 import AbstractLoader from './AbstractLoader';
 import { LoaderFetchError, LoaderValidationError } from './errors/index';
@@ -11,12 +10,12 @@ import rasterSchema from '../schemas/raster.schema.json';
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
 
 const typeToSchema = {
-  'cells': cellsSchema,
-  'factors': factorsSchema,
-  'molecules': moleculesSchema,
-  'neighborhoods': neighborhoodsSchema,
-  'raster': rasterSchema,
-  'CELL-SETS': cellSetsSchema,
+  cells: cellsSchema,
+  factors: factorsSchema,
+  molecules: moleculesSchema,
+  neighborhoods: neighborhoodsSchema,
+  raster: rasterSchema,
+  'cell-sets': cellSetsSchema,
 };
 
 export default class JsonLoader extends AbstractLoader {
