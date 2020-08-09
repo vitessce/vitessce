@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/hubmapconsortium/vitessce/#dataset",
+  "title": "Vitessce data set",
+  "type": "object",
+  "definitions": {
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["uid", "coordination", "component", "x", "y"],
+        "properties": {
+          "uid": { "type": "string" },
+          "component": { "type": "string" },
+          "props": { "type": "object" },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "w": { "type": "integer" },
+          "h": { "type": "integer" },
+          "coordination": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "requestInit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "body": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "string"
+        },
+        "cache": {
+          "type": "string"
+        },
+        "redirect": {
+          "type": "string"
+        },
+        "referrer": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": ["name", "datasets", "layout"],
+  "properties": {
+    "name": { "type": "string" },
+    "public": { "type": "boolean" },
+    "description": { "type": "string" },
+    "datasets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["uid", "files"],
+        "properties": {
+          "uid": { "type": "string" },
+          "name": { "type": "string" },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "fileType", "url"],
+              "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "fileType": { "type": "string" },
+                "url": { "type": "string" },
+                "requestInit": { "$ref": "#/definitions/requestInit" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "coordinationSpace": {
+      "type": "object",
+      "patternProperties": {
+        "dataset": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        },
+        "embeddingZoom": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "embeddingTarget": {
+          "type": "object",
+          "patternProperties": {
+            ".": { 
+              "type": "array",
+              "items": { "type": "number" }
+            }
+          }
+        },
+        "embeddingType": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        }
+      }
+    },
+    "layout": { "$ref": "#/definitions/components" }
+  }
+}

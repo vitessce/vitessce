@@ -13,8 +13,7 @@ import {
 import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
-import { viewConfigSlice } from '../../app/redux/slices';
-const { setCoordinationValue } = viewConfigSlice.actions;
+import { createCoordinationMappers } from '../../app/redux/mappers';
 
 
 function ScatterplotSubscriber(props) {
@@ -22,12 +21,11 @@ function ScatterplotSubscriber(props) {
     uid,
     loaders,
     dataset,
-    zoom,
-    target,
-    mapping,
-    setZoom,
-    setTarget,
-    coordination,
+    embeddingZoom: zoom,
+    embeddingTarget: target,
+    embeddingType: mapping,
+    setEmbeddingZoom: setZoom,
+    setEmbeddingTarget: setTarget,
     onReady,
     removeGridComponent,
     theme,
@@ -35,14 +33,8 @@ function ScatterplotSubscriber(props) {
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
   } = props;
-  
-  const view = { zoom, target };
-  /*console.log("uid", uid);
-  console.log("dataset", dataset);
-  console.log("loaders", loaders);
-  console.log("coordination", coordination);
-  console.log("coordinationSpace", zoom, target, mapping);*/
 
+  console.log(zoom, target, mapping)
 
   const [cells, setCells] = useState({});
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
@@ -134,24 +126,8 @@ function ScatterplotSubscriber(props) {
   );
 }
 
-
-const mapStateToProps = (state, ownProps) => {
-  const { coordinationSpace } = state.viewConfig || {};
-  const { coordination } = ownProps;
-  return {
-    dataset: coordinationSpace?.dataset[coordination.dataset],
-    zoom: coordinationSpace?.scatterplotZoom[coordination.scatterplotZoom],
-    target: coordinationSpace?.scatterplotTarget[coordination.scatterplotTarget],
-    mapping: coordinationSpace?.scatterplotMapping[coordination.scatterplotMapping],
-  };
-};
-
-const mapDispatchToProps = (dispatch, ownProps) => {
-  const { coordination } = ownProps;
-  return {
-    setZoom: value => dispatch(setCoordinationValue({ parameter: 'scatterplotZoom', scope: coordination.scatterplotZoom, value })),
-    setTarget: value => dispatch(setCoordinationValue({ parameter: 'scatterplotTarget', scope: coordination.scatterplotTarget, value })),
-  };
-};
-
+const [mapStateToProps, mapDispatchToProps] = createCoordinationMappers(
+  ['dataset', 'embeddingType', 'embeddingTarget', 'embeddingZoom'],
+  ['embeddingTarget', 'embeddingZoom'],
+);
 export default connect(mapStateToProps, mapDispatchToProps)(ScatterplotSubscriber);

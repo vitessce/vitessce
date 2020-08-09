@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core/styles';
 import packageJson from '../../package.json';
 import { muiTheme } from '../components/shared-mui/styles';
-import datasetSchema from '../schemas/dataset.schema.json';
+import configSchema from '../schemas/config.schema.json';
 
 import ViewConfigProvider from './ViewConfigProvider';
 import DatasetLoaderProvider from './DatasetLoaderProvider';
@@ -55,7 +55,7 @@ export default function Vitessce(props) {
   console.info(`data:,${JSON.stringify(config)}`);
   console.info(JSON.stringify(config, null, 2));
   console.groupEnd();
-  /*const validate = new Ajv().compile(datasetSchema);
+  const validate = new Ajv().compile(configSchema);
   const valid = validate(config);
   if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
@@ -66,13 +66,13 @@ export default function Vitessce(props) {
         theme={theme}
       />
     );
-  }*/
+  }
 
   // TODO: verify that all component uid values are unique.
   // TODO: fill in all missing coordination objects with default global values
   // TODO: fill in all missing component coordination scope mappings with "global" (if want to link everything by default)
   //       or alternatively a unique ID (if want to link nothing by default)
-  
+
   return (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>

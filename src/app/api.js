@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Ajv from 'ajv';
 
-import datasetSchema from '../schemas/dataset.schema.json';
+import configSchema from '../schemas/config.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
@@ -374,31 +374,31 @@ const configs = {
       dataset: {
         global: 'dries-2019',
       },
-      scatterplotZoom: {
+      embeddingZoom: {
         global: 0,
         A: 3,
         B: 3,
       },
-      scatterplotTarget: {
+      embeddingTarget: {
         global: [0, 0, 0],
         A: [0, 0, 0],
         B: [1, 1, 1]
       },
-      scatterplotMapping: {
+      embeddingType: {
         global: "PCA",
         A: "t-SNE",
         B: "UMAP"
       }
     },
     layout: [
-      { component: 'description',
+      /*{ component: 'description',
         props: {
           description: driesDescription,
         },
         x: 9, y: 0, w: 3, h: 2 },
       { component: 'status',
         x: 9, y: 2, w: 3, h: 2 },
-      /*{ component: 'cellSets',
+      { component: 'cellSets',
         x: 9, y: 4, w: 3, h: 4 },
       { component: 'cellSetSizes',
         x: 5, y: 4, w: 4, h: 4 },
@@ -415,20 +415,20 @@ const configs = {
         uid: 'tsne-scatterplot',
         coordination: {
           dataset: "global",
-          scatterplotZoom: "A",
-          scatterplotTarget: "A",
-          scatterplotMapping: "A",
+          embeddingZoom: "A",
+          embeddingTarget: "A",
+          embeddingType: "A",
         },
-        x: 0, y: 2, w: 5, h: 4 },
+        x: 0, y: 0, w: 6, h: 6 },
       { component: 'scatterplot',
         uid: 'umap-scatterplot',
         coordination: {
           dataset: "global",
-          scatterplotZoom: "A",
-          scatterplotTarget: "A",
-          scatterplotMapping: "B",
+          embeddingZoom: "B",
+          embeddingTarget: "A",
+          embeddingType: "B",
         },
-        x: 0, y: 0, w: 5, h: 4 },
+        x: 6, y: 0, w: 6, h: 6 },
     ],
   },
   'wang-2019': {
@@ -705,11 +705,11 @@ export function listConfigs(showAll) {
 
 export function getConfig(id) {
   const datasetConfig = configs[id];
-  /*const validate = new Ajv().compile(datasetSchema);
+  const validate = new Ajv().compile(configSchema);
   const valid = validate(datasetConfig);
   if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
     console.warn('dataset validation failed', failureReason);
-  }*/
+  }
   return datasetConfig;
 }

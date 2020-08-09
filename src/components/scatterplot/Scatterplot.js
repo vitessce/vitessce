@@ -94,7 +94,6 @@ const Scatterplot = forwardRef((props, deckRef) => {
     },
   } = props;
 
-  
   const viewState = { zoom, target };
   
   const [gl, setGl] = useState(null);
@@ -120,7 +119,6 @@ const Scatterplot = forwardRef((props, deckRef) => {
     const { zoom, target } = nextViewState;
     setZoom(zoom);
     setTarget(target);
-    console.log(nextViewState);
   }, [setZoom, setTarget]);
 
   const cellsData = useMemo(() => {
