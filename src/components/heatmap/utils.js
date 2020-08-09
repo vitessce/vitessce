@@ -17,13 +17,15 @@ export function getGeneByCellTile(view, {
   let geneI;
   let sortedCellI;
 
-  range(tileSize).forEach((j) => {
+  const tileSizeRange = range(tileSize);
+
+  tileSizeRange.forEach((j) => {
     // Need to iterate over cells in the outer loop.
     cellI = (tileJ * tileSize) + j;
     if (cellI < numCells) {
       sortedCellI = cells.indexOf(cellOrdering[cellI]);
       if (sortedCellI >= -1) {
-        range(tileSize).forEach((i) => {
+        tileSizeRange.forEach((i) => {
           geneI = (tileI * tileSize) + i;
           value = view[sortedCellI * numGenes + geneI];
           offset = ((tileSize - i - 1) * tileSize + j);
@@ -45,13 +47,15 @@ export function getCellByGeneTile(view, {
   let geneI;
   let sortedCellI;
 
-  range(tileSize).forEach((i) => {
+  const tileSizeRange = range(tileSize);
+
+  tileSizeRange.forEach((i) => {
     // Need to iterate over cells in the outer loop.
     cellI = (tileI * tileSize) + i;
     if (cellI < numCells) {
       sortedCellI = cells.indexOf(cellOrdering[cellI]);
       if (sortedCellI >= -1) {
-        range(tileSize).forEach((j) => {
+        tileSizeRange.forEach((j) => {
           geneI = (tileJ * tileSize) + j;
           if (geneI < numGenes) {
             value = view[sortedCellI * numGenes + geneI];

@@ -24,7 +24,7 @@ const registry = {
   cellSetSizes: CellSetSizesPlotSubscriber,
 };
 
-export default function getComponent(name) {
+export function getComponent(name) {
   const component = registry[name];
   if (component === undefined) {
     throw new Error(`Could not find definition for "${name}" in registry.`);

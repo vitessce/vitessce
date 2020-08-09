@@ -1,3 +1,5 @@
+import { range } from '../../utils';
+
 function sum(a) {
   return a.reduce((x, y) => x + y, 0);
 }
@@ -14,10 +16,6 @@ export function makeGridLayout(colXs, colLayout) {
     x: colXs[spec.x],
     w: sum(colWs.slice(spec.x, spec.x + (spec.w || 1))),
   }));
-}
-
-export function range(end) {
-  return Array.from(Array(end).keys());
 }
 
 export function getMaxRows(layouts) {

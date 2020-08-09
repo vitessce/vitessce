@@ -4,9 +4,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Link from '@material-ui/core/Link';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
-
 import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
 import ClosePaneButton from './ClosePaneButton';
+import LoadingIndicator from './LoadingIndicator';
 import { PopperMenu } from './shared-mui/components';
 
 function DownloadIcon({ open, theme }) {
@@ -49,6 +49,7 @@ function DownloadOptions(props) {
 export default function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls, theme,
+    isReady,
   } = props;
   // eslint-disable-next-line no-nested-ternary
   const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
@@ -69,7 +70,10 @@ export default function TitleInfo(props) {
           </span>
         </span>
       </div>
-      <div className={childClassName}>{children}</div>
+      <div className={childClassName}>
+        { !isReady && <LoadingIndicator /> }
+        {children}
+      </div>
     </>
     // "pl-2" only matters when the window is very narrow.
   );

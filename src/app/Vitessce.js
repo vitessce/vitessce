@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React from 'react';
 import Ajv from 'ajv';
 import {
@@ -13,7 +12,7 @@ import ViewConfigProvider from './ViewConfigProvider';
 import DatasetLoaderProvider from './DatasetLoaderProvider';
 import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
-import getComponent from './componentRegistry';
+import { getComponent } from './component-registry';
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
@@ -70,7 +69,8 @@ export default function Vitessce(props) {
 
   // TODO: verify that all component uid values are unique.
   // TODO: fill in all missing coordination objects with default global values
-  // TODO: fill in all missing component coordination scope mappings with "global" (if want to link everything by default)
+  // TODO: fill in all missing component coordination scope mappings with "global"
+  //       (if want to link everything by default)
   //       or alternatively a unique ID (if want to link nothing by default)
 
   return (

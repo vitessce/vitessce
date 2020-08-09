@@ -16,7 +16,6 @@ const componentsToExport = [
     'heatmap',
     'scatterplot',
     'sets',
-    'sourcepublisher',
     'spatial',
     'status',
 ];

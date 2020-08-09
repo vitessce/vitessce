@@ -26,7 +26,8 @@ import {
   RESET,
   RASTER_ADD,
 } from '../../events';
-import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
+import { pluralize, capitalize } from '../../utils';
+import { useDeckCanvasSize } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 

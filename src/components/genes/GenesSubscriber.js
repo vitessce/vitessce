@@ -6,7 +6,7 @@ import {
   EXPRESSION_MATRIX_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 import { interpolatePlasma } from '../interpolate-colors';
-import { fromEntries, pluralize } from '../utils';
+import { fromEntries, pluralize } from '../../utils';
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
 

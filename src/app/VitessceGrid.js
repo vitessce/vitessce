@@ -1,5 +1,6 @@
-/* eslint-disable */
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, {
+  useState, useEffect, useRef, useContext,
+} from 'react';
 import { connect } from 'react-redux';
 // eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
@@ -9,7 +10,8 @@ import { GRID_RESIZE, STATUS_WARN } from '../events';
 import { DatasetLoaderContext } from './redux/contexts';
 import { VitessceGridLayout } from './vitessce-grid-layout';
 import { viewConfigSlice } from './redux/slices';
-const { setViewConfig } = viewConfigSlice.actions;
+
+const { setViewConfig: setViewConfigAction } = viewConfigSlice.actions;
 
 /**
  * Return the bottom coordinate of the layout.
@@ -47,7 +49,7 @@ function getRowHeight(containerHeight, numRows, margin, padding) {
 const onResize = () => PubSub.publish(GRID_RESIZE);
 
 /**
- * The wrapper for the VitessceGrid and SourcePublisher components.
+ * The wrapper for the VitessceGrid and LoadingIndicator components.
  * @param {object} props
  * @param {number} props.rowHeight The height of each grid row. Optional.
  * @param {object} props.config The view config.
@@ -61,7 +63,6 @@ function VitessceGrid(props) {
   const {
     rowHeight: initialRowHeight,
     config,
-    onConfigChange,
     getComponent,
     theme,
     height,
@@ -71,7 +72,6 @@ function VitessceGrid(props) {
 
   const loaders = useContext(DatasetLoaderContext);
 
-  const [allReady, setAllReady] = useState(false);
   const [containerHeight, setContainerHeight] = useState(height);
   const [rowHeight, setRowHeight] = useState(initialRowHeight);
   const containerRef = useRef();
@@ -134,7 +134,7 @@ function VitessceGrid(props) {
 
   useEffect(() => {
     setViewConfig(config);
-  }, [config]);
+  }, [config, setViewConfig]);
 
   return (
     <div
@@ -148,7 +148,6 @@ function VitessceGrid(props) {
         rowHeight={rowHeight}
         theme={theme}
         getComponent={getComponent}
-        onAllReady={() => setAllReady(true)}
         draggableHandle=".title"
         margin={margin}
         padding={padding}
@@ -161,12 +160,8 @@ function VitessceGrid(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  
+const mapDispatchToProps = dispatch => ({
+  setViewConfig: viewConfig => dispatch(setViewConfigAction(viewConfig)),
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  setViewConfig: viewConfig => dispatch(setViewConfig(viewConfig)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(VitessceGrid);
+export default connect(null, mapDispatchToProps)(VitessceGrid);

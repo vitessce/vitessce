@@ -424,7 +424,7 @@ const configs = {
         uid: 'umap-scatterplot',
         coordination: {
           dataset: "global",
-          embeddingZoom: "B",
+          embeddingZoom: "A",
           embeddingTarget: "A",
           embeddingType: "B",
         },

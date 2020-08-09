@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import { getMaxRows, resolveLayout } from './layoutUtils';
+import { getMaxRows, resolveLayout } from './layout-utils';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 

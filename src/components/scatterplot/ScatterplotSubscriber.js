@@ -10,7 +10,8 @@ import {
   CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
   CELL_SETS_VIEW, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
-import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
+import { pluralize, capitalize } from '../../utils';
+import { useDeckCanvasSize } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import { createCoordinationMappers } from '../../app/redux/mappers';
@@ -34,8 +35,7 @@ function ScatterplotSubscriber(props) {
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
   } = props;
 
-  console.log(zoom, target, mapping)
-
+  const [isReady, setIsReady] = useState(false);
   const [cells, setCells] = useState({});
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
@@ -47,13 +47,12 @@ function ScatterplotSubscriber(props) {
   const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
-    console.log("use effect")
     loaders[dataset]?.loaders['cells'].load().then((d) => {
       setCells(d);
+      setIsReady(true);
     });
     
     onReadyCallback();
-    
   }, [onReadyCallback, mapping, loaders]);
 
   // After cells have loaded or changed,
@@ -92,6 +91,7 @@ function ScatterplotSubscriber(props) {
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
+      isReady={isReady}
     >
       <Scatterplot
         ref={deckRef}

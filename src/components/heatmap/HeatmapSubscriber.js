@@ -8,9 +8,8 @@ import {
   CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
   RESET, EXPRESSION_MATRIX_ADD, VIEW_INFO, GENES_HOVER,
 } from '../../events';
-import {
-  useDeckCanvasSize, copyUint8Array, pluralize, capitalize,
-} from '../utils';
+import { pluralize, capitalize } from '../../utils';
+import { useDeckCanvasSize, copyUint8Array } from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
