@@ -8,6 +8,14 @@ const store = configureStore({
   reducer: rootReducer,
 });
 
+/**
+ * Provider of the view config store,
+ * containing reducer for dataset definitions, coordination space,
+ * and layout.
+ * @param {object} params
+ * @param {React.Children} params.children Child component consumers of
+ * the store.
+ */
 export default function ViewConfigProvider({ children }) {
     return (
         <Provider store={store}>

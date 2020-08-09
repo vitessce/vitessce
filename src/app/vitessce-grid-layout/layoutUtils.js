@@ -41,7 +41,10 @@ export function resolveLayout(layout) {
     (def) => {
       const id = `r${def.x}_c${def.y}`;
       components[id] = {
-        component: def.component, props: def.props || {},
+        component: def.component,
+        props: def.props || {},
+        uid: def.uid,
+        coordination: def.coordination || {},
       };
       positions[id] = {
         id, x: def.x, y: def.y, w: def.w, h: def.h,

@@ -11,7 +11,7 @@ import datasetSchema from '../schemas/dataset.schema.json';
 
 import ViewConfigProvider from './ViewConfigProvider';
 import DatasetLoaderProvider from './DatasetLoaderProvider';
-import PubSubVitessceGrid from './PubSubVitessceGrid';
+import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
 import getComponent from './componentRegistry';
 
@@ -23,7 +23,7 @@ const generateClassName = createGenerateClassName({
  * The Vitessce component.
  * @param {object} props
  * @param {object} props.config A Vitessce view config.
- * If the config is valid, the PubSubVitessceGrid will be rendered as a child.
+ * If the config is valid, the VitessceGrid will be rendered as a child.
  * If the config is invalid, a Warning will be rendered instead.
  * @param {number} props.rowHeight Row height for grid layout. Optional.
  * @param {number} props.height Total height for grid layout. Optional.
@@ -34,6 +34,7 @@ const generateClassName = createGenerateClassName({
 export default function Vitessce(props) {
   const {
     config,
+    onConfigChange,
     rowHeight,
     height,
     theme,
@@ -66,13 +67,20 @@ export default function Vitessce(props) {
       />
     );
   }*/
+
+  // TODO: verify that all component uid values are unique.
+  // TODO: fill in all missing coordination objects with default global values
+  // TODO: fill in all missing component coordination scope mappings with "global" (if want to link everything by default)
+  //       or alternatively a unique ID (if want to link nothing by default)
+  
   return (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
         <ViewConfigProvider>
           <DatasetLoaderProvider>
-            <PubSubVitessceGrid
+            <VitessceGrid
               config={config}
+              onConfigChange={onConfigChange}
               getComponent={getComponent}
               rowHeight={rowHeight}
               height={height}

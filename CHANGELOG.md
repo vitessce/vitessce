@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.4
+
+### Added
+
+### Changed
+- Renamed `VitessceGrid` to `VitessceGridLayout`, then renamed `PubSubVitessceGrid` to `VitessceGrid`.
+- Introduced two provider components: `ViewConfigProvider` and `DatasetLoaderProvider`.
+- Updated the view config schema to handle multiple datasets, and a coordination space to support coordinated multiple view functionality.
+
 ## [0.2.3](https://www.npmjs.com/package/vitessce/v/0.2.3) - 2020-08-04
 
 ### Changed

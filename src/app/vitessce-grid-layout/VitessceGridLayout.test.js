@@ -2,12 +2,12 @@ import React from 'react';
 import Adapter from 'enzyme-adapter-react-16';
 import { mount, configure } from 'enzyme';
 import expect from 'expect';
-import VitessceGrid from './VitessceGrid';
+import VitessceGridLayout from './VitessceGridLayout';
 
 configure({ adapter: new Adapter() });
 
-describe('VitessceGrid.js', () => {
-  describe('<VitessceGrid />', () => {
+describe('VitessceGridLayout.js', () => {
+  describe('<VitessceGridLayout />', () => {
     function FakeComponent(props) {
       const { text } = props;
       return <span>{text}</span>;
@@ -26,7 +26,7 @@ describe('VitessceGrid.js', () => {
     };
     /* eslint-enable */
     it('mount() works', () => {
-      const wrapper = mount(<VitessceGrid
+      const wrapper = mount(<VitessceGridLayout
         layout={layoutJson}
         getComponent={() => FakeComponent}
         draggableHandle=".my-handle"
@@ -43,7 +43,7 @@ describe('VitessceGrid.js', () => {
     });
 
     it('rowHeight works', () => {
-      const wrapper = mount(<VitessceGrid
+      const wrapper = mount(<VitessceGridLayout
         layout={layoutJson}
         getComponent={() => FakeComponent}
         draggableHandle=".my-handle"

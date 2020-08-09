@@ -1,6 +1,7 @@
+/* eslint-disable */
 import React, { useState, useEffect, useCallback } from 'react';
+import { connect } from 'react-redux';
 import PubSub from 'pubsub-js';
-import uuidv4 from 'uuid/v4';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
 
@@ -14,21 +15,28 @@ import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 
 
-export default function ScatterplotSubscriber(props) {
+function ScatterplotSubscriber(props) {
   const {
-    onReady,
+    uid,
+    loaders,
+    zoom,
+    target,
     mapping,
-    view,
+    coordination,
+    onReady,
     removeGridComponent,
     theme,
     disableTooltip = false,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
   } = props;
+  
+  const view = { zoom, target };
+  console.log("uid", uid);
+  console.log("loaders", loaders);
+  console.log("coordination", coordination);
+  console.log("coordinationSpace", zoom, target, mapping);
 
-  // Create a UUID so that hover events
-  // know from which DeckGL element they were generated.
-  const uuid = uuidv4();
 
   const [cells, setCells] = useState({});
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
@@ -115,7 +123,7 @@ export default function ScatterplotSubscriber(props) {
     >
       <Scatterplot
         ref={deckRef}
-        uuid={uuid}
+        uuid={uid}
         theme={theme}
         view={view}
         cells={cells}
@@ -133,7 +141,7 @@ export default function ScatterplotSubscriber(props) {
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber
-        uuid={uuid}
+        uuid={uid}
         width={width}
         height={height}
         getCellInfo={getCellInfo}
@@ -142,3 +150,16 @@ export default function ScatterplotSubscriber(props) {
     </TitleInfo>
   );
 }
+
+
+const mapStateToProps = (state, ownProps) => {
+  const { coordinationSpace } = state.viewConfig || {};
+  const { coordination } = ownProps;
+  return {
+    zoom: coordinationSpace?.scatterplotZoom[coordination.scatterplotZoom],
+    target: coordinationSpace?.scatterplotTarget[coordination.scatterplotTarget],
+    mapping: coordinationSpace?.scatterplotMapping[coordination.scatterplotMapping],
+  };
+};
+
+export default connect(mapStateToProps)(ScatterplotSubscriber);

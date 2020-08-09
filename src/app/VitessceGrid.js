@@ -5,10 +5,9 @@ import { connect } from 'react-redux';
 import PubSub from 'pubsub-js';
 
 import { GRID_RESIZE, STATUS_WARN } from '../events';
-import { SourcePublisher } from '../components/sourcepublisher';
 
 import { DatasetLoaderContext } from './redux/contexts';
-import { VitessceGrid } from './vitessce-grid';
+import { VitessceGridLayout } from './vitessce-grid-layout';
 import { viewConfigSlice } from './redux/slices';
 const { setViewConfig } = viewConfigSlice.actions;
 
@@ -58,10 +57,11 @@ const onResize = () => PubSub.publish(GRID_RESIZE);
  * @param {number} props.height Total height for grid. Optional.
  * @param {function} props.onWarn A callback for warning messages. Optional.
  */
-function PubSubVitessceGrid(props) {
+function VitessceGrid(props) {
   const {
     rowHeight: initialRowHeight,
     config,
+    onConfigChange,
     getComponent,
     theme,
     height,
@@ -69,9 +69,7 @@ function PubSubVitessceGrid(props) {
     setViewConfig,
   } = props;
 
-  const context = useContext(DatasetLoaderContext);
-
-  console.log(context);
+  const loaders = useContext(DatasetLoaderContext);
 
   const [allReady, setAllReady] = useState(false);
   const [containerHeight, setContainerHeight] = useState(height);
@@ -143,8 +141,9 @@ function PubSubVitessceGrid(props) {
       ref={containerRef}
       className={`vitessce-container vitessce-theme-${theme}`}
     >
-      <VitessceGrid
+      <VitessceGridLayout
         layout={config.layout}
+        loaders={loaders}
         height={height}
         rowHeight={rowHeight}
         theme={theme}
@@ -170,4 +169,4 @@ const mapDispatchToProps = (dispatch) => ({
   setViewConfig: viewConfig => dispatch(setViewConfig(viewConfig)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(PubSubVitessceGrid);
+export default connect(mapStateToProps, mapDispatchToProps)(VitessceGrid);

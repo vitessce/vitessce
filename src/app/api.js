@@ -355,6 +355,7 @@ const configs = {
     datasets: [
       {
         uid: 'dries-2019',
+        name: 'Dries 2019',
         files: [
           {
             type: "cells",
@@ -372,11 +373,21 @@ const configs = {
     coordinationSpace: {
       dataset: {
         global: 'dries-2019',
-        local: {}
       },
       scatterplotZoom: {
         global: 0,
-        local: {}
+        A: 3,
+        B: 3,
+      },
+      scatterplotTarget: {
+        global: [0, 0, 0],
+        A: [0, 0, 0],
+        B: [1, 1, 1]
+      },
+      scatterplotMapping: {
+        global: "PCA",
+        A: "t-SNE",
+        B: "UMAP"
       }
     },
     layout: [
@@ -391,15 +402,6 @@ const configs = {
         x: 9, y: 4, w: 3, h: 4 },
       { component: 'cellSetSizes',
         x: 5, y: 4, w: 4, h: 4 },
-      { component: 'scatterplot',
-        props: {
-          mapping: 't-SNE',
-          view: {
-            zoom: 3,
-            target: [0, 0, 0],
-          },
-        },
-        x: 0, y: 2, w: 5, h: 4 },
       { component: 'spatial',
         props: {
           cellRadius: 50,
@@ -410,12 +412,21 @@ const configs = {
         },
         x: 5, y: 0, w: 4, h: 4 },
       { component: 'scatterplot',
-        props: {
-          mapping: 'UMAP',
-          view: {
-            zoom: 3,
-            target: [0, 0, 0],
-          },
+        uid: 'tsne-scatterplot',
+        coordination: {
+          dataset: "global",
+          scatterplotZoom: "A",
+          scatterplotTarget: "A",
+          scatterplotMapping: "A",
+        },
+        x: 0, y: 2, w: 5, h: 4 },
+      { component: 'scatterplot',
+        uid: 'umap-scatterplot',
+        coordination: {
+          dataset: "global",
+          scatterplotZoom: "B",
+          scatterplotTarget: "B",
+          scatterplotMapping: "B",
         },
         x: 0, y: 0, w: 5, h: 4 },
     ],
