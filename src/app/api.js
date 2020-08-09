@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Ajv from 'ajv';
 
 import datasetSchema from '../schemas/dataset.schema.json';
@@ -348,10 +349,37 @@ const configs = {
     ],
   },
   'dries-2019': {
-    ...driesBase,
     name: 'Dries',
+    description: driesDescription,
     public: true,
-    staticLayout: [
+    datasets: [
+      {
+        uid: 'dries-2019',
+        files: [
+          {
+            type: "cells",
+            fileType: "cells.json",
+            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json",
+          },
+          {
+            type: "cell-sets",
+            fileType: "cell-sets.json",
+            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json",
+          }
+        ]
+      }
+    ],
+    coordinationSpace: {
+      dataset: {
+        global: 'dries-2019',
+        local: {}
+      },
+      scatterplotZoom: {
+        global: 0,
+        local: {}
+      }
+    },
+    layout: [
       { component: 'description',
         props: {
           description: driesDescription,
@@ -651,7 +679,6 @@ const configs = {
     ],
   },
 };
-/* eslint-enable */
 
 export function listConfigs(showAll) {
   return Object.entries(configs).filter(
@@ -667,11 +694,11 @@ export function listConfigs(showAll) {
 
 export function getConfig(id) {
   const datasetConfig = configs[id];
-  const validate = new Ajv().compile(datasetSchema);
+  /*const validate = new Ajv().compile(datasetSchema);
   const valid = validate(datasetConfig);
   if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
     console.warn('dataset validation failed', failureReason);
-  }
+  }*/
   return datasetConfig;
 }

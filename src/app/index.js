@@ -1,4 +1,5 @@
-import { createApp, Vitessce } from './app';
+import { createApp } from './app';
+import Vitessce from './Vitessce';
 
 export {
   createApp,

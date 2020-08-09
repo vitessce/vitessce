@@ -1,0 +1,87 @@
+/* eslint-disable */
+import React from 'react';
+import Ajv from 'ajv';
+import {
+  ThemeProvider, StylesProvider,
+  createGenerateClassName,
+} from '@material-ui/core/styles';
+import packageJson from '../../package.json';
+import { muiTheme } from '../components/shared-mui/styles';
+import datasetSchema from '../schemas/dataset.schema.json';
+
+import ViewConfigProvider from './ViewConfigProvider';
+import DatasetLoaderProvider from './DatasetLoaderProvider';
+import PubSubVitessceGrid from './PubSubVitessceGrid';
+import Warning from './Warning';
+import getComponent from './componentRegistry';
+
+const generateClassName = createGenerateClassName({
+  disableGlobal: true,
+});
+
+/**
+ * The Vitessce component.
+ * @param {object} props
+ * @param {object} props.config A Vitessce view config.
+ * If the config is valid, the PubSubVitessceGrid will be rendered as a child.
+ * If the config is invalid, a Warning will be rendered instead.
+ * @param {number} props.rowHeight Row height for grid layout. Optional.
+ * @param {number} props.height Total height for grid layout. Optional.
+ * @param {string} props.theme The theme, used for styling as
+ * light or dark. Optional. By default, "dark"
+ * @param {function} props.onWarn A callback for warning messages. Optional.
+ */
+export default function Vitessce(props) {
+  const {
+    config,
+    rowHeight,
+    height,
+    theme,
+    onWarn,
+  } = props;
+  if (!config) {
+    // If the config value is undefined, show a warning message
+    return (
+      <Warning
+        title="No such dataset"
+        unformatted="The dataset configuration could not be found."
+        theme={theme}
+      />
+    );
+  }
+  // NOTE: Remove when this is available in UI.
+  console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) view configuration`);
+  console.info(`data:,${JSON.stringify(config)}`);
+  console.info(JSON.stringify(config, null, 2));
+  console.groupEnd();
+  /*const validate = new Ajv().compile(datasetSchema);
+  const valid = validate(config);
+  if (!valid) {
+    const failureReason = JSON.stringify(validate.errors, null, 2);
+    return (
+      <Warning
+        title="Config validation failed"
+        preformatted={failureReason}
+        theme={theme}
+      />
+    );
+  }*/
+  return (
+    <StylesProvider generateClassName={generateClassName}>
+      <ThemeProvider theme={muiTheme[theme]}>
+        <ViewConfigProvider>
+          <DatasetLoaderProvider>
+            <PubSubVitessceGrid
+              config={config}
+              getComponent={getComponent}
+              rowHeight={rowHeight}
+              height={height}
+              theme={theme}
+              onWarn={onWarn}
+            />
+          </DatasetLoaderProvider>
+        </ViewConfigProvider>
+      </ThemeProvider>
+    </StylesProvider>
+  );
+}

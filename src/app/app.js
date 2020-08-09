@@ -1,53 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Ajv from 'ajv';
-import {
-  ThemeProvider, StylesProvider,
-  createGenerateClassName,
-} from '@material-ui/core/styles';
-import packageJson from '../../package.json';
+import { getConfig, listConfigs } from './api';
+import Welcome from './Welcome';
+import Warning from './Warning';
+import Vitessce from './Vitessce';
 
-import datasetSchema from '../schemas/dataset.schema.json';
-
-import { PRIMARY_CARD } from '../components/classNames';
 
 import '../css/index.scss';
 import '../../node_modules/react-grid-layout/css/styles.css';
 import '../../node_modules/react-resizable/css/styles.css';
 
-import Welcome from './Welcome';
-import PubSubVitessceGrid from './PubSubVitessceGrid';
-
-import { getConfig, listConfigs } from './api';
-import getComponent from './componentRegistry';
-import { muiTheme } from '../components/shared-mui/styles';
-
-const generateClassName = createGenerateClassName({
-  disableGlobal: true,
-});
-
-function Warning(props) {
-  const {
-    title,
-    preformatted,
-    unformatted,
-    theme,
-  } = props;
-  return (
-    <div className={`vitessce-container vitessce-theme-${theme}`}>
-      <div className="warning-layout container-fluid">
-        <div className="row">
-          <div className="col-12">
-            <div className={PRIMARY_CARD}>
-              <h1>{title}</h1>
-              <pre>{preformatted}</pre>
-              <div>{unformatted}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function AwaitResponse(props) {
   const {
@@ -75,68 +36,6 @@ function preformattedDetails(response) {
     url: ${response.url}`; // TODO: headers
 }
 
-/**
- * The Vitessce component.
- * @param {object} props
- * @param {object} props.config A Vitessce view config.
- * If the config is valid, the PubSubVitessceGrid will be rendered as a child.
- * If the config is invalid, a Warning will be rendered instead.
- * @param {number} props.rowHeight Row height for grid layout. Optional.
- * @param {number} props.height Total height for grid layout. Optional.
- * @param {string} props.theme The theme, used for styling as
- * light or dark. Optional. By default, "dark"
- * @param {function} props.onWarn A callback for warning messages. Optional.
- */
-export function Vitessce(props) {
-  const {
-    config,
-    rowHeight,
-    height,
-    theme,
-    onWarn,
-  } = props;
-  if (!config) {
-    // If the config value is undefined, show a warning message
-    return (
-      <Warning
-        title="No such dataset"
-        unformatted="The dataset configuration could not be found."
-        theme={theme}
-      />
-    );
-  }
-  // NOTE: Remove when this is available in UI.
-  console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) view configuration`);
-  console.info(`data:,${JSON.stringify(config)}`);
-  console.info(JSON.stringify(config, null, 2));
-  console.groupEnd();
-  const validate = new Ajv().compile(datasetSchema);
-  const valid = validate(config);
-  if (!valid) {
-    const failureReason = JSON.stringify(validate.errors, null, 2);
-    return (
-      <Warning
-        title="Config validation failed"
-        preformatted={failureReason}
-        theme={theme}
-      />
-    );
-  }
-  return (
-    <StylesProvider generateClassName={generateClassName}>
-      <ThemeProvider theme={muiTheme[theme]}>
-        <PubSubVitessceGrid
-          config={config}
-          getComponent={getComponent}
-          rowHeight={rowHeight}
-          height={height}
-          theme={theme}
-          onWarn={onWarn}
-        />
-      </ThemeProvider>
-    </StylesProvider>
-  );
-}
 
 function checkResponse(response, theme) {
   if (!response.ok) {

@@ -1,10 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+/* eslint-disable */
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { connect } from 'react-redux';
 // eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
 
-import { VitessceGrid } from './vitessce-grid';
-import { SourcePublisher } from '../components/sourcepublisher';
 import { GRID_RESIZE, STATUS_WARN } from '../events';
+import { SourcePublisher } from '../components/sourcepublisher';
+
+import { DatasetLoaderContext } from './redux/contexts';
+import { VitessceGrid } from './vitessce-grid';
+import { viewConfigSlice } from './redux/slices';
+const { setViewConfig } = viewConfigSlice.actions;
 
 /**
  * Return the bottom coordinate of the layout.
@@ -52,7 +58,7 @@ const onResize = () => PubSub.publish(GRID_RESIZE);
  * @param {number} props.height Total height for grid. Optional.
  * @param {function} props.onWarn A callback for warning messages. Optional.
  */
-export default function PubSubVitessceGrid(props) {
+function PubSubVitessceGrid(props) {
   const {
     rowHeight: initialRowHeight,
     config,
@@ -60,7 +66,12 @@ export default function PubSubVitessceGrid(props) {
     theme,
     height,
     onWarn,
+    setViewConfig,
   } = props;
+
+  const context = useContext(DatasetLoaderContext);
+
+  console.log(context);
 
   const [allReady, setAllReady] = useState(false);
   const [containerHeight, setContainerHeight] = useState(height);
@@ -73,7 +84,7 @@ export default function PubSubVitessceGrid(props) {
   // Detect when the `config` or `containerHeight` variables
   // have changed, and update `rowHeight` in response.
   useEffect(() => {
-    const numRows = getNumRows(config.staticLayout);
+    const numRows = getNumRows(config.layout);
     const newRowHeight = getRowHeight(containerHeight, numRows, margin, padding);
     setRowHeight(newRowHeight);
   }, [containerHeight, config]);
@@ -123,14 +134,17 @@ export default function PubSubVitessceGrid(props) {
     return () => PubSub.unsubscribe(warnToken);
   }, [onWarn]);
 
+  useEffect(() => {
+    setViewConfig(config);
+  }, [config]);
+
   return (
     <div
       ref={containerRef}
       className={`vitessce-container vitessce-theme-${theme}`}
     >
-      { allReady && <SourcePublisher height={containerHeight} layers={config.layers} /> }
       <VitessceGrid
-        layout={config.staticLayout}
+        layout={config.layout}
         height={height}
         rowHeight={rowHeight}
         theme={theme}
@@ -147,3 +161,13 @@ export default function PubSubVitessceGrid(props) {
     </div>
   );
 }
+
+const mapStateToProps = (state) => ({
+  
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  setViewConfig: viewConfig => dispatch(setViewConfig(viewConfig)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(PubSubVitessceGrid);
