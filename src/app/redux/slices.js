@@ -6,26 +6,20 @@ export const viewConfigSlice = createSlice({
     initialState: null,
     reducers: {
         setViewConfig: (state, action) => action.payload,
-        updateCoordinationValue: (state, action) => {
+        setCoordinationValue: (state, action) => {
             const { parameter, scope, value } = action.payload;
             return {
                 ...state,
                 coordinationSpace: {
                     ...state.coordinationSpace,
-                    [parameter]: (scope === 'global' ? {
-                        global: value,
-                        local: state.coordinationSpace[parameter].local,
-                    } : {
-                        global: state.coordinationSpace[parameter].global,
-                        local: {
-                            ...state.coordinationSpace[parameter].local,
-                            [scope]: value,
-                        }
-                    })
+                    [parameter]: {
+                        ...state.coordinationSpace[parameter],
+                        [scope]: value,
+                    }
                 }
             };
         },
-        updateComponentCoordinationScope: (state, action) => {
+        setComponentCoordinationScope: (state, action) => {
             const { componentUid, parameter, scope } = action.payload;
             return {
                 ...state,

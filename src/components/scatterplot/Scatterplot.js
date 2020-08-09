@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useState, useCallback, useMemo, forwardRef,
 } from 'react';
@@ -47,10 +48,10 @@ const Scatterplot = forwardRef((props, deckRef) => {
   const {
     uuid = null,
     theme,
-    view = {
-      zoom: 2,
-      target: [0, 0, 0],
-    },
+    zoom = 0,
+    target = [0, 0, 0],
+    setZoom,
+    setTarget,
     cells,
     mapping,
     cellColors,
@@ -93,6 +94,9 @@ const Scatterplot = forwardRef((props, deckRef) => {
     },
   } = props;
 
+  
+  const viewState = { zoom, target };
+  
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
 
@@ -110,6 +114,14 @@ const Scatterplot = forwardRef((props, deckRef) => {
       },
     });
   }, [updateViewInfo, uuid, cells, getCellPosition]);
+
+  // Listen for viewState changes.
+  const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
+    const { zoom, target } = nextViewState;
+    setZoom(zoom);
+    setTarget(target);
+    console.log(nextViewState);
+  }, [setZoom, setTarget]);
 
   const cellsData = useMemo(() => {
     let result = null;
@@ -173,7 +185,7 @@ const Scatterplot = forwardRef((props, deckRef) => {
 
   const selectionLayers = getSelectionLayers(
     tool,
-    view.zoom,
+    zoom,
     CELLS_LAYER_ID,
     getCellCoords,
     updateCellsSelection,
@@ -185,7 +197,6 @@ const Scatterplot = forwardRef((props, deckRef) => {
     views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
     // gl needs to be initialized for us to use it in Texture creation
     layers: gl ? layers.concat(selectionLayers) : [],
-    initialViewState: view,
     ...(tool ? {
       controller: { dragPan: false },
       getCursor: () => 'crosshair',
@@ -207,6 +218,8 @@ const Scatterplot = forwardRef((props, deckRef) => {
         ref={deckRef}
         onWebGLInitialized={setGl}
         glOptions={DEFAULT_GL_OPTIONS}
+        onViewStateChange={onViewStateChange}
+        viewState={viewState}
         {...deckProps}
       >
         {onInitializeViewInfo}

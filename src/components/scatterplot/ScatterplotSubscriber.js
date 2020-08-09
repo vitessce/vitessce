@@ -13,15 +13,20 @@ import {
 import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
+import { viewConfigSlice } from '../../app/redux/slices';
+const { setCoordinationValue } = viewConfigSlice.actions;
 
 
 function ScatterplotSubscriber(props) {
   const {
     uid,
     loaders,
+    dataset,
     zoom,
     target,
     mapping,
+    setZoom,
+    setTarget,
     coordination,
     onReady,
     removeGridComponent,
@@ -32,10 +37,11 @@ function ScatterplotSubscriber(props) {
   } = props;
   
   const view = { zoom, target };
-  console.log("uid", uid);
+  /*console.log("uid", uid);
+  console.log("dataset", dataset);
   console.log("loaders", loaders);
   console.log("coordination", coordination);
-  console.log("coordinationSpace", zoom, target, mapping);
+  console.log("coordinationSpace", zoom, target, mapping);*/
 
 
   const [cells, setCells] = useState({});
@@ -49,40 +55,14 @@ function ScatterplotSubscriber(props) {
   const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
-    const cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, (msg, { data, url }) => {
-        setCells(data);
-        setUrls((prevUrls) => {
-          const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
-          return newUrls;
-        });
-      },
-    );
-    const cellsColorToken = PubSub.subscribe(
-      CELLS_COLOR, (msg, data) => {
-        setCellColors(data);
-      },
-    );
-    const cellsSelectionToken = PubSub.subscribe(
-      CELLS_SELECTION, (msg, data) => {
-        setSelectedCellIds(data);
-      },
-    );
-    const cellSetsViewToken = PubSub.subscribe(
-      CELL_SETS_VIEW, (msg, data) => {
-        setSelectedCellIds(data);
-      },
-    );
-    const resetToken = PubSub.subscribe(RESET, () => setUrls([]));
+    console.log("use effect")
+    loaders[dataset]?.loaders['cells'].load().then((d) => {
+      setCells(d);
+    });
+    
     onReadyCallback();
-    return () => {
-      PubSub.unsubscribe(cellsAddToken);
-      PubSub.unsubscribe(cellsColorToken);
-      PubSub.unsubscribe(cellsSelectionToken);
-      PubSub.unsubscribe(cellSetsViewToken);
-      PubSub.unsubscribe(resetToken);
-    };
-  }, [onReadyCallback, mapping]);
+    
+  }, [onReadyCallback, mapping, loaders]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -125,7 +105,10 @@ function ScatterplotSubscriber(props) {
         ref={deckRef}
         uuid={uid}
         theme={theme}
-        view={view}
+        zoom={zoom}
+        target={target}
+        setZoom={setZoom}
+        setTarget={setTarget}
         cells={cells}
         mapping={mapping}
         selectedCellIds={selectedCellIds}
@@ -156,10 +139,19 @@ const mapStateToProps = (state, ownProps) => {
   const { coordinationSpace } = state.viewConfig || {};
   const { coordination } = ownProps;
   return {
+    dataset: coordinationSpace?.dataset[coordination.dataset],
     zoom: coordinationSpace?.scatterplotZoom[coordination.scatterplotZoom],
     target: coordinationSpace?.scatterplotTarget[coordination.scatterplotTarget],
     mapping: coordinationSpace?.scatterplotMapping[coordination.scatterplotMapping],
   };
 };
 
-export default connect(mapStateToProps)(ScatterplotSubscriber);
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const { coordination } = ownProps;
+  return {
+    setZoom: value => dispatch(setCoordinationValue({ parameter: 'scatterplotZoom', scope: coordination.scatterplotZoom, value })),
+    setTarget: value => dispatch(setCoordinationValue({ parameter: 'scatterplotTarget', scope: coordination.scatterplotTarget, value })),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ScatterplotSubscriber);

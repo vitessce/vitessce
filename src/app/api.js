@@ -398,7 +398,7 @@ const configs = {
         x: 9, y: 0, w: 3, h: 2 },
       { component: 'status',
         x: 9, y: 2, w: 3, h: 2 },
-      { component: 'cellSets',
+      /*{ component: 'cellSets',
         x: 9, y: 4, w: 3, h: 4 },
       { component: 'cellSetSizes',
         x: 5, y: 4, w: 4, h: 4 },
@@ -410,7 +410,7 @@ const configs = {
             target: [3800, -900, 0],
           },
         },
-        x: 5, y: 0, w: 4, h: 4 },
+        x: 5, y: 0, w: 4, h: 4 },*/
       { component: 'scatterplot',
         uid: 'tsne-scatterplot',
         coordination: {
@@ -424,8 +424,8 @@ const configs = {
         uid: 'umap-scatterplot',
         coordination: {
           dataset: "global",
-          scatterplotZoom: "B",
-          scatterplotTarget: "B",
+          scatterplotZoom: "A",
+          scatterplotTarget: "A",
           scatterplotMapping: "B",
         },
         x: 0, y: 0, w: 5, h: 4 },
