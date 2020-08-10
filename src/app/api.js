@@ -1,6 +1,4 @@
-/* eslint-disable */
 import Ajv from 'ajv';
-import range from 'lodash/range';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
@@ -700,7 +698,7 @@ const configs = {
                     },
                     {
                       type: 'horizontal-gene-annotations',
-                      height: 60,
+                      height: 70,
                       tilesetUid: 'OHJakQICQD6gTD7skx4EWA',
                       server: '//higlass.io/api/v1',
                       uid: 'OHJakQICQD6gTD7skx4EWA',
@@ -725,21 +723,18 @@ const configs = {
                         trackBorderColor: 'black',
                       },
                     },
-                    ...range(10).map((i) => (
-                      {
-                        "type": "horizontal-bar",
-                        "uid": `cluster-bar-track-${i}`,
-                        "data": {
-                          "type": "zarr-multivec",
-                          "url": "//higlass-serverless.s3.amazonaws.com/multivec/pbmc_10x_peaks_by_cluster.zarr",
-                          "row": i
-                        },
-                        "options": {
-                          "barFillColor": "grey",
-                          "name": `Cluster ${i+1}`
-                        },
-                        "height": 50
-                      }))
+                    {
+                      type: 'horizontal-multivec',
+                      uid: 'clusters',
+                      data: {
+                        type: 'zarr-multivec',
+                        url: '//higlass-serverless.s3.amazonaws.com/multivec/pbmc_10x_peaks_by_cluster.zarr',
+                      },
+                      options: {
+                        zeroValueColor: 'transparent',
+                      },
+                      height: 500,
+                    },
                   ],
                   left: [],
                   center: [],

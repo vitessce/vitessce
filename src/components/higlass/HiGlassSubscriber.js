@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useMemo, useEffect, useCallback, Suspense,
 } from 'react';
@@ -6,6 +5,7 @@ import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
 import TitleInfo from '../TitleInfo';
 
+// Register the zarr-multivec plugin data fetcher.
 register(
   { dataFetcher: ZarrMultivecDataFetcher, config: ZarrMultivecDataFetcher.config },
   { pluginType: 'dataFetcher' },
