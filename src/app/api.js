@@ -1,5 +1,6 @@
+/* eslint-disable */
 import Ajv from 'ajv';
-
+import range from 'lodash/range';
 import datasetSchema from '../schemas/dataset.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
@@ -608,6 +609,140 @@ const configs = {
                       options: {},
                     },
                   ],
+                  right: [],
+                  bottom: [],
+                  whole: [],
+                  gallery: [],
+                },
+                layout: {
+                  w: 12,
+                  h: 12,
+                  x: 0,
+                  y: 0,
+                  moved: false,
+                  static: false,
+                },
+                initialYDomain: [
+                  496325459.31758535,
+                  2603674540.682415,
+                ],
+              },
+            ],
+            zoomLocks: {
+              locksByViewUid: {},
+              locksDict: {},
+            },
+            locationLocks: {
+              locksByViewUid: {},
+              locksDict: {},
+            },
+            valueScaleLocks: {
+              locksByViewUid: {},
+              locksDict: {},
+            },
+          },
+        },
+        x: 0, y: 0, w: 8, h: 2,
+      },
+      { component: 'description',
+        props: {
+          description: 'IMR90 cells profiled using dilution HiC as described in Rao et al (2014).',
+        },
+        x: 8, y: 0, w: 4, h: 2 },
+    ],
+  },
+  'sc-atac-seq-10x-genomics-pbmc': {
+    public: false,
+    layers: [],
+    name: 'HiGlass serverless demo with 10x Genomics scATAC-seq 5k PBMC dataset',
+    staticLayout: [
+      {
+        component: 'higlass',
+        props: {
+          hgViewConfig: {
+            editable: false,
+            zoomFixed: false,
+            trackSourceServers: [
+              '//higlass.io/api/v1',
+            ],
+            exportViewUrl: '/api/v1/viewconfs',
+            views: [
+              {
+                uid: 'A',
+                initialXDomain: [
+                  0,
+                  3100000000,
+                ],
+                autocompleteSource: '/api/v1/suggest/?d=OHJakQICQD6gTD7skx4EWA&',
+                genomePositionSearchBox: {
+                  autocompleteServer: '//higlass.io/api/v1',
+                  autocompleteId: 'OHJakQICQD6gTD7skx4EWA',
+                  chromInfoServer: '//higlass.io/api/v1',
+                  chromInfoId: 'hg19',
+                  visible: true,
+                },
+                chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
+                tracks: {
+                  top: [
+                    {
+                      chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
+                      type: 'horizontal-chromosome-labels',
+                      height: 30,
+                      uid: 'X4e_1DKiQHmyghDa6lLMVA',
+                      options: {
+                        color: '#808080',
+                        stroke: 'black',
+                        fontSize: 12,
+                        fontIsLeftAligned: false,
+                        showMousePosition: true,
+                        mousePositionColor: '#ff00ff',
+                      },
+                    },
+                    {
+                      type: 'horizontal-gene-annotations',
+                      height: 60,
+                      tilesetUid: 'OHJakQICQD6gTD7skx4EWA',
+                      server: '//higlass.io/api/v1',
+                      uid: 'OHJakQICQD6gTD7skx4EWA',
+                      options: {
+                        name: 'Gene Annotations (hg19)',
+                        fontSize: 10,
+                        labelPosition: 'hidden',
+                        labelLeftMargin: 0,
+                        labelRightMargin: 0,
+                        labelTopMargin: 0,
+                        labelBottomMargin: 0,
+                        minHeight: 24,
+                        geneAnnotationHeight: 16,
+                        geneLabelPosition: 'outside',
+                        geneStrandSpacing: 4,
+                        showMousePosition: true,
+                        mousePositionColor: '#ff00ff',
+                        plusStrandColor: '#fdff54',
+                        minusStrandColor: '#68bf30',
+                        labelColor: 'black',
+                        trackBorderWidth: 0,
+                        trackBorderColor: 'black',
+                      },
+                    },
+                    ...range(10).map((i) => (
+                      {
+                        "type": "horizontal-bar",
+                        "uid": `cluster-bar-track-${i}`,
+                        "data": {
+                          "type": "zarr-multivec",
+                          "url": "//higlass-serverless.s3.amazonaws.com/multivec/pbmc_10x_peaks_by_cluster.zarr",
+                          "row": i
+                        },
+                        "options": {
+                          "barFillColor": "grey",
+                          "name": `Cluster ${i+1}`
+                        },
+                        "height": 50
+                      }))
+                  ],
+                  left: [],
+                  center: [],
                   right: [],
                   bottom: [],
                   whole: [],
