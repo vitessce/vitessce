@@ -18,6 +18,7 @@
 - Updated the view config schema to handle multiple datasets, and added a `dataset` configuration object type for coordinated multi-dataset view configs.
 - Added a mapping from component type to coordination object types, streamlining the process of creating the `mapStateToProps` and `mapDispatchToProps` functions required for `connect`-ing `___Subscriber` components to the `viewConfig` store provided by the `ViewConfigProvider`. The `connect()` function allows `___Subscriber` components to get/set values in the top-level `coordinationSpace` and component-level `coordinationScopes`.
 - Removed the unnecessary `name` field from dataset file definitions (previously a property of the `layers` objects) in the view config.
+- Renamed `staticLayout` to `layout` in the view config.
 
 ## [0.2.3](https://www.npmjs.com/package/vitessce/v/0.2.3) - 2020-08-04
 
