@@ -55,7 +55,7 @@ function ScatterplotSubscriber(props) {
     });
     
     onReadyCallback();
-  }, [onReadyCallback, mapping, loaders]);
+  }, [onReadyCallback, mapping, loaders, dataset]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the

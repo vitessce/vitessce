@@ -68,11 +68,10 @@ const Heatmap = forwardRef((props, deckRef) => {
   const {
     uuid,
     theme,
-    initialViewState = {
-      minZoom: 0,
-      zoom: 0,
-      target: [0, 0, 0],
-    },
+    zoom,
+    target,
+    setZoom,
+    setTarget,
     width: viewWidth,
     height: viewHeight,
     expressionMatrix: expression,
@@ -87,6 +86,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     observationsTitle = 'Cells',
   } = props;
 
+  const viewState = { zoom, target: (transpose ? [target[1], target[0]] : target), minZoom: 0 };
+
   const axisLeftTitle = (transpose ? variablesTitle : observationsTitle);
   const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
 
@@ -99,7 +100,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   const workerRef = useRef(new HeatmapWorker());
   const tilesRef = useRef();
   const dataRef = useRef();
-  const [viewState, setViewState] = useState(initialViewState);
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
   const [colorScaleLo, setColorScaleLo] = useState(0.0);
@@ -260,23 +260,24 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
   const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
-    const { zoom } = nextViewState;
-    const nextScaleFactor = 2 ** zoom;
+    const { zoom: nextZoom } = nextViewState;
+    const nextScaleFactor = 2 ** nextZoom;
 
-    const minTargetX = zoom === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactor));
+    const minTargetX = nextZoom === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactor));
     const maxTargetX = -1 * minTargetX;
 
-    const minTargetY = zoom === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactor));
+    const minTargetY = nextZoom === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactor));
     const maxTargetY = -1 * minTargetY;
 
     // Manipulate view state if necessary to keep the user in the window.
-    // eslint-disable-next-line no-param-reassign
-    nextViewState.target[0] = clamp(nextViewState.target[0], minTargetX, maxTargetX);
-    // eslint-disable-next-line no-param-reassign
-    nextViewState.target[1] = clamp(nextViewState.target[1], minTargetY, maxTargetY);
+    const nextTarget = [
+      clamp(nextViewState.target[0], minTargetX, maxTargetX),
+      clamp(nextViewState.target[1], minTargetY, maxTargetY),
+    ];
 
-    setViewState(nextViewState);
-  }, [matrixRight, matrixBottom]);
+    setZoom(nextZoom);
+    setTarget(transpose ? [nextTarget[1], nextTarget[0]] : nextTarget);
+  }, [matrixRight, matrixBottom, transpose, setZoom, setTarget]);
 
   // If `expression` or `cellOrdering` have changed,
   // then new tiles need to be generated,

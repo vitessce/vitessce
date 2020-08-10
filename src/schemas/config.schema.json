@@ -96,6 +96,7 @@
     },
     "coordinationSpace": {
       "type": "object",
+      "additionalProperties": false,
       "patternProperties": {
         "dataset": {
           "type": "object",
@@ -122,6 +123,25 @@
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
+          }
+        },
+        "heatmapZoom": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "heatmapTarget": {
+          "type": "object",
+          "patternProperties": {
+            ".": { 
+              "type": "array",
+              "additionalItems": false,
+              "items": [
+                { "type": "number" },
+                { "type": "number" }
+              ]
+            }
           }
         }
       }

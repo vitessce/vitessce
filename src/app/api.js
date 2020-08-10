@@ -151,11 +151,67 @@ const configs = {
     ],
   },
   'linnarsson-2018': {
-    ...linnarssonBase,
     name: 'Linnarsson',
+    description: linnarssonDescription,
     public: true,
-    staticLayout: [
-      { component: 'description',
+    datasets: [
+      {
+        uid: 'linnarsson-2018',
+        name: 'Linnarsson 2018',
+        files: [
+          {
+            type: "cells",
+            fileType: "cells.json",
+            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cells.json",
+          },
+          {
+            type: "cell-sets",
+            fileType: "cell-sets.json",
+            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json",
+          },
+          {
+            type: "raster",
+            fileType: "raster.json",
+            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.raster.json",
+          },
+          {
+            type: "molecules",
+            fileType: "molecules.json",
+            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json",
+          },
+          {
+            type: "expression-matrix",
+            fileType: "clusters.json",
+            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json",
+          }
+        ]
+      }
+    ],
+    coordinationSpace: {
+      dataset: {
+        A: 'linnarsson-2018',
+      },
+      embeddingZoom: {
+        A: 0,
+        B: 0.75,
+      },
+      embeddingTarget: {
+        A: [0, 0, 0],
+        B: [0, 0, 0]
+      },
+      embeddingType: {
+        A: "PCA",
+        B: "t-SNE"
+      },
+      heatmapZoom: {
+        A: 0,
+      },
+      heatmapTarget: {
+        A: [0, 0],
+      }
+    },
+    layout: [
+      /*{ component: 'description',
         props: {
           description: `Linnarsson: ${linnarssonDescription}`,
         },
@@ -176,28 +232,47 @@ const configs = {
       { component: 'genes',
         x: 9, y: 0, w: 3, h: 2 },
       { component: 'cellSets',
-        x: 9, y: 3, w: 3, h: 2 },
+        x: 9, y: 3, w: 3, h: 2 },*/
       { component: 'heatmap',
+        uid: 'gene-exp-heatmap-1',
+        coordinationScopes: {
+          dataset: 'A',
+          heatmapZoom: 'A',
+          heatmapTarget: 'A'
+        },
         props: {
           transpose: true,
         },
-        x: 2, y: 4, w: 10, h: 2 },
-      { component: 'scatterplot',
+        x: 4, y: 4, w: 6, h: 4 },
+      { component: 'heatmap',
+        uid: 'gene-exp-heatmap-2',
+        coordinationScopes: {
+          dataset: 'A',
+          heatmapZoom: 'A',
+          heatmapTarget: 'A'
+        },
         props: {
-          mapping: 'PCA',
-          // This intentionally does not have a  "view" prop,
-          // in order to have an example that uses the default.
+          transpose: false,
+        },
+        x: 0, y: 0, w: 4, h: 6 },
+      { component: 'scatterplot',
+        uid: 'pca-scatterplot',
+        coordinationScopes: {
+          dataset: 'A',
+          embeddingType: 'A',
+          embeddingZoom: 'A',
+          embeddingTarget: 'A'
         },
         x: 6, y: 0, w: 3, h: 2 },
       { component: 'scatterplot',
-        props: {
-          mapping: 't-SNE',
-          view: {
-            zoom: 0.75,
-            target: [0, 0, 0],
-          },
+        uid: 'tsne-scatterplot',
+        coordinationScopes: {
+          dataset: 'A',
+          embeddingType: 'B',
+          embeddingZoom: 'A',
+          embeddingTarget: 'B'
         },
-        x: 6, y: 2, w: 3, h: 2 },
+        x: 9, y: 0, w: 3, h: 2 },
     ],
   },
   'linnarsson-2018-two-spatial': {

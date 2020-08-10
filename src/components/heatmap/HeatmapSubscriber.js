@@ -1,6 +1,7 @@
+/* eslint-disable */
 import React, { useEffect, useState, useCallback } from 'react';
+import { connect } from 'react-redux';
 import PubSub from 'pubsub-js';
-import uuidv4 from 'uuid/v4';
 
 import TitleInfo from '../TitleInfo';
 import {
@@ -12,9 +13,18 @@ import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, copyUint8Array } from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
+import { createCoordinationMappers } from '../../app/redux/mappers';
+import { componentCoordinationTypes } from '../../app/redux/coordination';
 
-export default function HeatmapSubscriber(props) {
+function HeatmapSubscriber(props) {
   const {
+    uid,
+    dataset,
+    loaders,
+    heatmapZoom: zoom,
+    heatmapTarget: target,
+    setHeatmapZoom: setZoom,
+    setHeatmapTarget: setTarget,
     removeGridComponent, onReady, theme, transpose,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
@@ -29,9 +39,11 @@ export default function HeatmapSubscriber(props) {
 
   // Create a UUID so that hover events
   // know from which element they were generated.
-  const uuid = uuidv4();
+  const uuid = uid;
 
+  const [isReady, setIsReady] = useState(false);
   const [cells, setCells] = useState();
+  const [cellSets, setCellSets] = useState();
   const [expressionMatrix, setExpressionMatrix] = useState();
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
@@ -42,53 +54,27 @@ export default function HeatmapSubscriber(props) {
   const [width, height, deckRef] = useDeckCanvasSize();
 
   useEffect(() => {
-    const expressionMatrixAddToken = PubSub.subscribe(
-      EXPRESSION_MATRIX_ADD, (msg, { data }) => {
-        const [attrs, arr] = data;
-        setExpressionMatrix({
-          cols: attrs.cols,
-          rows: attrs.rows,
-          matrix: copyUint8Array(arr.data),
-        });
-      },
-    );
-    const cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, (msg, { data }) => {
-        setCells(data);
-      },
-    );
-    const cellsColorToken = PubSub.subscribe(
-      CELLS_COLOR, (msg, newCellColors) => {
-        setCellColors(newCellColors);
-      },
-    );
-    const cellsSelectionToken = PubSub.subscribe(
-      CELLS_SELECTION, (msg, cellIds) => {
-        setSelectedCellIds(cellIds);
-      },
-    );
-    const cellSetsViewToken = PubSub.subscribe(
-      CELL_SETS_VIEW, (msg, cellIds) => {
-        setSelectedCellIds(cellIds);
-      },
-    );
-    const resetToken = PubSub.subscribe(RESET, () => {
-      setUrls([]);
-      setCells(null);
-      setExpressionMatrix(null);
-      setCellColors(null);
-      setSelectedCellIds(new Set());
+
+    loaders[dataset]?.loaders['cells'].load().then((data) => {
+      setCells(data);
     });
+
+    loaders[dataset]?.loaders['cell-sets'].load().then((data) => {
+      setCellSets(data);
+    });
+
+    loaders[dataset]?.loaders['expression-matrix'].load().then((data) => {
+      const [attrs, arr] = data;
+      setExpressionMatrix({
+        cols: attrs.cols,
+        rows: attrs.rows,
+        matrix: copyUint8Array(arr.data),
+      });
+      setIsReady(true);
+    });
+
     onReadyCallback();
-    return () => {
-      PubSub.unsubscribe(expressionMatrixAddToken);
-      PubSub.unsubscribe(cellsAddToken);
-      PubSub.unsubscribe(cellsColorToken);
-      PubSub.unsubscribe(cellsSelectionToken);
-      PubSub.unsubscribe(cellSetsViewToken);
-      PubSub.unsubscribe(resetToken);
-    };
-  }, [onReadyCallback]);
+  }, [onReadyCallback, loaders, dataset]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
@@ -120,10 +106,15 @@ export default function HeatmapSubscriber(props) {
       urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}
+      isReady={isReady}
     >
       <Heatmap
         ref={deckRef}
         transpose={transpose}
+        zoom={zoom}
+        target={target}
+        setZoom={setZoom}
+        setTarget={setTarget}
         height={height}
         width={width}
         theme={theme}
@@ -153,3 +144,8 @@ export default function HeatmapSubscriber(props) {
     </TitleInfo>
   );
 }
+
+const [mapStateToProps, mapDispatchToProps] = createCoordinationMappers(
+  componentCoordinationTypes.heatmap,
+);
+export default connect(mapStateToProps, mapDispatchToProps)(HeatmapSubscriber);
