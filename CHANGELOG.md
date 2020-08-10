@@ -5,6 +5,8 @@
 ### Added
 
 ### Changed
+- Moved the `Vitessce` component out of `src/app/app.js` into `src/app/Vitessce.js`.
+- Moved the `Warning` component out of `src/app/app.js` into `src/app/Warning.js`.
 - Renamed `VitessceGrid` to `VitessceGridLayout`.
 - Renamed `PubSubVitessceGrid` to `VitessceGrid`.
 - Moved utility functions that are common to both `src/components/` and `src/app/` to a new `src/utils.js` file.
