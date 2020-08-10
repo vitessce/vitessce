@@ -23,10 +23,10 @@ export const viewConfigSlice = createSlice({
             const { componentUid, parameter, scope } = action.payload;
             return {
                 ...state,
-                layout: {
+                layout: [
                     ...state.layout,
                     // TODO
-                }
+                ]
             }
         }
     },

@@ -372,20 +372,17 @@ const configs = {
     ],
     coordinationSpace: {
       dataset: {
-        global: 'dries-2019',
+        A: 'dries-2019',
       },
       embeddingZoom: {
-        global: 0,
         A: 3,
         B: 3,
       },
       embeddingTarget: {
-        global: [0, 0, 0],
         A: [0, 0, 0],
-        B: [1, 1, 1]
+        B: [0, 0, 0]
       },
       embeddingType: {
-        global: "PCA",
         A: "t-SNE",
         B: "UMAP"
       }
@@ -413,8 +410,8 @@ const configs = {
         x: 5, y: 0, w: 4, h: 4 },*/
       { component: 'scatterplot',
         uid: 'tsne-scatterplot',
-        coordination: {
-          dataset: "global",
+        coordinationScopes: {
+          dataset: "A",
           embeddingZoom: "A",
           embeddingTarget: "A",
           embeddingType: "A",
@@ -422,8 +419,8 @@ const configs = {
         x: 0, y: 0, w: 6, h: 6 },
       { component: 'scatterplot',
         uid: 'umap-scatterplot',
-        coordination: {
-          dataset: "global",
+        coordinationScopes: {
+          dataset: "A",
           embeddingZoom: "A",
           embeddingTarget: "A",
           embeddingType: "B",

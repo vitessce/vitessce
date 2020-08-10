@@ -9,7 +9,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["uid", "coordination", "component", "x", "y"],
+        "required": ["uid", "coordinationScopes", "component", "x", "y"],
         "properties": {
           "uid": { "type": "string" },
           "component": { "type": "string" },
@@ -18,7 +18,7 @@
           "y": { "type": "integer" },
           "w": { "type": "integer" },
           "h": { "type": "integer" },
-          "coordination": {
+          "coordinationScopes": {
             "type": "object",
             "patternProperties": {
               ".": { "type": "string" }

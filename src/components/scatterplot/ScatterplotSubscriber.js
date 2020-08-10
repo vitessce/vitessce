@@ -15,6 +15,7 @@ import { useDeckCanvasSize } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import { createCoordinationMappers } from '../../app/redux/mappers';
+import { componentCoordinationTypes } from '../../app/redux/coordination';
 
 
 function ScatterplotSubscriber(props) {
@@ -34,6 +35,7 @@ function ScatterplotSubscriber(props) {
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
   } = props;
+
 
   const [isReady, setIsReady] = useState(false);
   const [cells, setCells] = useState({});
@@ -127,7 +129,6 @@ function ScatterplotSubscriber(props) {
 }
 
 const [mapStateToProps, mapDispatchToProps] = createCoordinationMappers(
-  ['dataset', 'embeddingType', 'embeddingTarget', 'embeddingZoom'],
-  ['embeddingTarget', 'embeddingZoom'],
+  componentCoordinationTypes.scatterplot,
 );
 export default connect(mapStateToProps, mapDispatchToProps)(ScatterplotSubscriber);

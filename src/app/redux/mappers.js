@@ -3,23 +3,25 @@ import { viewConfigSlice } from './slices';
 
 const { setCoordinationValue } = viewConfigSlice.actions;
 
-export function createCoordinationMappers(stateParams, dispatchParams) {
+export function createCoordinationMappers(parameters) {
   const mapStateToProps = (state, ownProps) => {
-    const { coordinationSpace } = state.viewConfig || {};
-    const { coordination } = ownProps;
-    return fromEntries(stateParams.map((parameter) => {
-      const value = coordinationSpace[parameter][coordination[parameter]];
-      return [parameter, value];
+    const { coordinationSpace } = state.viewConfig;
+    const { coordinationScopes } = ownProps;
+    return fromEntries(parameters.map((parameter) => {
+      if (coordinationSpace && coordinationSpace[parameter]) {
+        const value = coordinationSpace[parameter][coordinationScopes[parameter]];
+        return [parameter, value];
+      }
+      return [parameter, undefined];
     }));
   };
   const mapDispatchToProps = (dispatch, ownProps) => {
-    const { coordination } = ownProps;
-
-    return fromEntries(dispatchParams.map((parameter) => {
+    const { coordinationScopes } = ownProps;
+    return fromEntries(parameters.map((parameter) => {
       const setterName = `set${capitalize(parameter)}`;
       const setterFunc = value => dispatch(setCoordinationValue({
         parameter,
-        scope: coordination[parameter],
+        scope: coordinationScopes[parameter],
         value,
       }));
       return [setterName, setterFunc];

@@ -42,7 +42,7 @@ export function resolveLayout(layout) {
         component: def.component,
         props: def.props || {},
         uid: def.uid,
-        coordination: def.coordination || {},
+        coordinationScopes: def.coordinationScopes || {},
       };
       positions[id] = {
         id, x: def.x, y: def.y, w: def.w, h: def.h,
