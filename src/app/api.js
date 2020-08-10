@@ -775,7 +775,7 @@ const configs = {
       },
       { component: 'description',
         props: {
-          description: 'IMR90 cells profiled using dilution HiC as described in Rao et al (2014).',
+          description: '10x Genomics scATAC-seq of 5k PBMCs.',
         },
         x: 8, y: 0, w: 4, h: 2 },
     ],
