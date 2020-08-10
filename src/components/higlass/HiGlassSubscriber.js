@@ -6,6 +6,9 @@ import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
 import TitleInfo from '../TitleInfo';
 
 // Register the zarr-multivec plugin data fetcher.
+// References:
+// - https://github.com/higlass/higlass-register
+// - https://github.com/higlass/higlass-zarr-datafetchers
 register(
   { dataFetcher: ZarrMultivecDataFetcher, config: ZarrMultivecDataFetcher.config },
   { pluginType: 'dataFetcher' },
