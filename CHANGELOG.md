@@ -7,8 +7,17 @@
 ### Changed
 - Renamed `VitessceGrid` to `VitessceGridLayout`.
 - Renamed `PubSubVitessceGrid` to `VitessceGrid`.
+- Moved utility functions that are common to both `src/components/` and `src/app/` to a new `src/utils.js` file.
 - Introduced two provider components: `ViewConfigProvider` and `DatasetLoaderProvider`.
-- Updated the view config schema to handle multiple datasets, and a coordination space to support coordinated multiple view functionality.
+    - `ViewConfigProvider` holds a redux store for managing the coordination space, component layout, and component coordination scopes.
+    - `DatasetLoaderProvider` is a consumer of the `ViewConfigProvider` store, and sets up Loader objects for each file of each dataset in the view config.
+    - `VitessceGrid` is a consumer of `DatasetLoaderProvider` and injects the mapping from datasets-to-loaders into the child `___Subscriber` components. This functionality replaces the `SourcePublisher` component.
+        - The loading spinner was moved into a new `LoadingIndicator` component.
+        - Added a new prop `isReady` for the `TitleInfo` component (parent of the `LoadingIndicator` component), which means that each `___Subscriber` component handles its own loading spinner.
+- Updated the view config schema to include a coordination space, which supports coordinated multiple view functionality. The coordination space holds coordination objects, each of which has a type, a set of scopes, and a value assigned to each scope.
+- Updated the view config schema to handle multiple datasets, and added a `dataset` configuration object type for coordinated multi-dataset view configs.
+- Added a mapping from component type to coordination object types, streamlining the process of creating the `mapStateToProps` and `mapDispatchToProps` functions required for `connect`-ing `___Subscriber` components to the `viewConfig` store provided by the `ViewConfigProvider`. The `connect()` function allows `___Subscriber` components to get/set values in the top-level `coordinationSpace` and component-level `coordinationScopes`.
+- Removed the unnecessary `name` field from dataset file definitions (previously a property of the `layers` objects) in the view config.
 
 ## [0.2.3](https://www.npmjs.com/package/vitessce/v/0.2.3) - 2020-08-04
 
