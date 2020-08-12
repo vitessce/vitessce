@@ -9,7 +9,7 @@ import {
   RESET, EXPRESSION_MATRIX_ADD, VIEW_INFO, GENES_HOVER,
 } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, copyUint8Array } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls, copyUint8Array } from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
@@ -46,39 +46,44 @@ export default function HeatmapSubscriber(props) {
   // know from which element they were generated.
   const uuid = uid;
 
-  const [isReady, setItemIsReady, resetReadyItems] = useReady([
-    'cells', 'cell-sets', 'expression-matrix',
-  ]);
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    ['cells', 'cell-sets', 'expression-matrix'],
+    Object.keys(loaders[dataset]?.loaders || {})
+  );
+  const [urls, addUrl, resetUrls] = useUrls();
+  const [width, height, deckRef] = useDeckCanvasSize();
+
 
   const [cells, setCells] = useState();
   const [cellSets, setCellSets] = useState();
   const [expressionMatrix, setExpressionMatrix] = useState();
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
-  const [urls, setUrls] = useState([]);
-
-  const [width, height, deckRef] = useDeckCanvasSize();
 
   useEffect(() => {
+    resetUrls();
     resetReadyItems();
 
-    loaders[dataset]?.loaders['cells'].load().then((data) => {
+    loaders[dataset]?.loaders['cells']?.load().then(({ data, url }) => {
       setCells(data);
+      addUrl(url, 'Cells');
       setItemIsReady('cells');
     });
 
-    loaders[dataset]?.loaders['cell-sets'].load().then((data) => {
+    loaders[dataset]?.loaders['cell-sets']?.load().then(({ data, url }) => {
       setCellSets(data);
+      addUrl(url, 'Cell Sets');
       setItemIsReady('cell-sets');
     });
 
-    loaders[dataset]?.loaders['expression-matrix'].load().then((data) => {
+    loaders[dataset]?.loaders['expression-matrix']?.load().then(({ data, url }) => {
       const [attrs, arr] = data;
       setExpressionMatrix({
         cols: attrs.cols,
         rows: attrs.rows,
         matrix: copyUint8Array(arr.data),
       });
+      addUrl(url, 'Expression Matrix');
       setItemIsReady('expression-matrix');
     });
 
@@ -133,9 +138,6 @@ export default function HeatmapSubscriber(props) {
         updateGenesHover={hoverInfo => PubSub.publish(GENES_HOVER, hoverInfo)}
         updateStatus={message => PubSub.publish(STATUS_INFO, message)}
         updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
-        clearPleaseWait={
-          layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-        }
         observationsTitle={observationsTitle}
         variablesTitle={variablesTitle}
       />

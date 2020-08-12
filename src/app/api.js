@@ -286,7 +286,7 @@ const configs = {
           dataset: 'A',
           embeddingType: 'B',
           embeddingZoom: 'A',
-          embeddingTarget: 'B'
+          embeddingTarget: 'A'
         },
         x: 9, y: 0, w: 3, h: 2 },
     ],
@@ -476,7 +476,13 @@ const configs = {
       embeddingType: {
         A: "t-SNE",
         B: "UMAP"
-      }
+      },
+      spatialZoom: {
+        A: -4.4,
+      },
+      spatialTarget: {
+        A: [3800, -900, 0],
+      },
     },
     layout: [
       /*{ component: 'description',
@@ -489,16 +495,18 @@ const configs = {
       { component: 'cellSets',
         x: 9, y: 4, w: 3, h: 4 },
       { component: 'cellSetSizes',
-        x: 5, y: 4, w: 4, h: 4 },
+        x: 5, y: 4, w: 4, h: 4 },*/
       { component: 'spatial',
+        uid: 'spatial',
+        coordinationScopes: {
+          dataset: "A",
+          spatialZoom: "A",
+          spatialTarget: "A",
+        },
         props: {
           cellRadius: 50,
-          view: {
-            zoom: -4.4,
-            target: [3800, -900, 0],
-          },
         },
-        x: 5, y: 0, w: 4, h: 4 },*/
+        x: 5, y: 0, w: 4, h: 4 },
       { component: 'scatterplot',
         uid: 'tsne-scatterplot',
         coordinationScopes: {
@@ -507,7 +515,7 @@ const configs = {
           embeddingTarget: "A",
           embeddingType: "A",
         },
-        x: 0, y: 0, w: 6, h: 6 },
+        x: 0, y: 2, w: 5, h: 4 },
       { component: 'scatterplot',
         uid: 'umap-scatterplot',
         coordinationScopes: {
@@ -516,7 +524,7 @@ const configs = {
           embeddingTarget: "A",
           embeddingType: "B",
         },
-        x: 6, y: 0, w: 6, h: 6 },
+        x: 0, y: 0, w: 5, h: 4 },
     ],
   },
   'wang-2019': {

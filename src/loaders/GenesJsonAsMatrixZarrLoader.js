@@ -12,7 +12,7 @@ export default class GenesJsonAsMatrixZarrLoader extends JsonLoader {
     const jsonPromise = super.load();
 
     return new Promise((resolve, reject) => {
-      jsonPromise.then((data) => {
+      jsonPromise.then(({ data, url }) => {
         const cols = Object.keys(data);
         const rows = (cols.length > 0 ? Object.keys(data[cols[0]].cells) : []);
         const attrs = { rows, cols };
@@ -24,7 +24,7 @@ export default class GenesJsonAsMatrixZarrLoader extends JsonLoader {
         // Need to wrap the NestedArray to mock the HTTPStore-based array
         // which returns promises.
         const arr = { data: Uint8Array.from(normalizedFlatMatrix) };
-        resolve([attrs, arr]);
+        resolve({ data: [attrs, arr], url });
       }).catch((reason) => {
         reject(reason);
       });

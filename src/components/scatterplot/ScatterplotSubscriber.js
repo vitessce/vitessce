@@ -10,7 +10,7 @@ import {
   CELL_SETS_VIEW, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 
@@ -40,21 +40,25 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingTarget: setTarget,
   }] = useCoordination(componentCoordinationTypes.scatterplot, coordinationScopes);
 
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(['cells']);
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    ['cells'],
+    Object.keys(loaders[dataset]?.loaders || {})
+  );
+  const [urls, addUrl, resetUrls] = useUrls();
+  const [width, height, deckRef] = useDeckCanvasSize();
 
   const [cells, setCells] = useState({});
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
-  const [urls, setUrls] = useState([]);
-
-  const [width, height, deckRef] = useDeckCanvasSize();
 
 
   useEffect(() => {
+    resetUrls();
     resetReadyItems();
-    loaders[dataset]?.loaders['cells'].load().then((d) => {
-      setCells(d);
+    loaders[dataset]?.loaders['cells']?.load().then(({ data, url }) => {
+      setCells(data);
+      addUrl(url, 'Cells');
       setItemIsReady('cells');
     });
     
@@ -115,9 +119,6 @@ export default function ScatterplotSubscriber(props) {
         updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
         updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
         updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
-        clearPleaseWait={
-          layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-        }
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber

@@ -56,7 +56,6 @@ export function square(x, y, r) {
  * @prop {function} updateCellsSelection
  * @prop {function} updateCellsHover
  * @prop {function} updateViewInfo
- * @prop {function} clearPleaseWait
  * @prop {function} onCellClick Getter function for cell layer onClick.
  */
 const Spatial = forwardRef((props, deckRef) => {

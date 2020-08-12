@@ -27,7 +27,7 @@ import {
   RASTER_ADD,
 } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 
@@ -62,9 +62,15 @@ export default function SpatialSubscriber(props) {
     setSpatialTarget: setTarget,
   }] = useCoordination(componentCoordinationTypes.spatial, coordinationScopes);
 
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(['cells']);
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    ['cells', 'molecules', 'neighborhoods', 'raster', 'cell-sets'],
+    Object.keys(loaders[dataset]?.loaders || {})
+  );
+  const [urls, addUrl, resetUrls] = useUrls();
+  const [width, height, deckRef] = useDeckCanvasSize();
 
   const [cellsData, setCellsData] = useState(null);
+  const [cellSets, setCellSets] = useState(null);
   const [molecules, setMolecules] = useState(null);
   const [cellColors, setCellColors] = useState(null);
   const [neighborhoods, setNeighborhoods] = useState(null);
@@ -75,20 +81,43 @@ export default function SpatialSubscriber(props) {
   const [areCellsOn, setCellsOn] = useState(true);
   const [moleculesOpacity, setMoleculesOpacity] = useState(1);
   const [areMoleculesOn, setMoleculesOn] = useState(true);
-  const [urls, setUrls] = useState([]);
-
-  const [width, height, deckRef] = useDeckCanvasSize();
-
 
   useEffect(() => {
+    resetUrls();
     resetReadyItems();
-    loaders[dataset]?.loaders['cells'].load().then((d) => {
-      setCellsData(Object.entries(d));
+
+    loaders[dataset]?.loaders['molecules']?.load().then(({ data, url }) => {
+      //setMolecules(data);
+      addUrl(url, 'Molecules');
+      setItemIsReady('molecules');
+    });
+
+    loaders[dataset]?.loaders['neighborhoods']?.load().then(({ data, url }) => {
+      setNeighborhoods(data);
+      addUrl(url, 'Neighborhoods');
+      setItemIsReady('neighborhoods');
+    });
+
+    loaders[dataset]?.loaders['cells']?.load().then(({ data, url }) => {
+      setCellsData(Object.entries(data));
+      addUrl(url, 'Cells');
       setItemIsReady('cells');
+    });
+
+    loaders[dataset]?.loaders['cell-sets']?.load().then(({ data, url }) => {
+      setCellSets(data);
+      addUrl(url, 'Cell Sets');
+      setItemIsReady('cell-sets');
+    });
+
+    loaders[dataset]?.loaders['raster']?.load().then(({ data }) => {
+      data.images.filter(image => !image.url.includes('zarr')).forEach((image) => {
+        addUrl(image.url, image.name);
+      });
+      setItemIsReady('raster');
     });
     
   }, [loaders, dataset]);
-
 
 
   const cellsCount = (cellsData ? cellsData.length : 0);
@@ -115,10 +144,6 @@ export default function SpatialSubscriber(props) {
   );
   const updateViewInfo = useCallback(
     viewInfo => PubSub.publish(VIEW_INFO, viewInfo),
-    [],
-  );
-  const clearPleaseWait = useCallback(
-    layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName),
     [],
   );
 
@@ -170,7 +195,6 @@ export default function SpatialSubscriber(props) {
         updateCellsSelection={updateCellsSelection}
         updateCellsHover={updateCellsHover}
         updateViewInfo={updateViewInfo}
-        clearPleaseWait={clearPleaseWait}
       />
       {!disableTooltip && (
       <SpatialTooltipSubscriber

@@ -99,8 +99,8 @@ export function createDefaultUpdateViewInfo(componentName) {
   return viewInfo => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
 }
 
-export function createDefaultClearPleaseWait(componentName) {
-  return layer => console.warn(`${componentName} "clearPleaseWait" not provided; layer: ${layer}`);
+export function createDefaultClearPleaseWait() {
+  return () => {};
 }
 
 /**
@@ -191,7 +191,8 @@ export function copyUint8Array(arr) {
  * setItemIsReady marks one item as ready,
  * and resetReadyItem marks all items as waiting.
  */
-export function useReady(items) {
+export function useReady(supportedItems, datasetItems) {
+  const items = datasetItems.filter(item => supportedItems.includes(item));
   const [waiting, setWaiting] = useState(items);
 
   function setItemIsReady(readyItem) {
@@ -205,4 +206,29 @@ export function useReady(items) {
   const isReady = waiting.length === 0;
 
   return [isReady, setItemIsReady, resetReadyItems];
+}
+
+/**
+ * This hook manages a list of URLs,
+ * with adding and resetting helpers.
+ * @returns {array} An array
+ * [urls, addUrl, resetUrls]
+ * where urls is the array of URL objects,
+ * addUrl is a function for adding a URL to the array,
+ * resetUrls is a function that clears the array.
+ */
+export function useUrls() {
+  const [urls, setUrls] = useState([]);
+
+  function addUrl(url, name) {
+    if (url) {
+      setUrls(prev => ([...prev, { url, name }]));
+    }
+  }
+
+  function resetUrls() {
+    setUrls([]);
+  }
+
+  return [urls, addUrl, resetUrls];
 }

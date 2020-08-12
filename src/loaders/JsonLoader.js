@@ -43,7 +43,7 @@ export default class JsonLoader extends AbstractLoader {
       .then((data) => {
         const [valid, reason] = this.validate(data);
         if (valid) {
-          return Promise.resolve(data);
+          return Promise.resolve({ data, url });
         }
         throw new LoaderValidationError(name, type, fileType, url, reason);
       });
