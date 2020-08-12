@@ -1,6 +1,5 @@
 /* eslint-disable */
 import React, { useState, useEffect, useCallback } from 'react';
-import { connect } from 'react-redux';
 import PubSub from 'pubsub-js';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
@@ -14,20 +13,16 @@ import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
-import { createCoordinationMappers } from '../../app/redux/mappers';
-import { componentCoordinationTypes } from '../../app/redux/coordination';
+
+import { useCoordination } from '../../app/state/mappers';
+import { componentCoordinationTypes } from '../../app/state/coordination';
 
 
-function ScatterplotSubscriber(props) {
+export default function ScatterplotSubscriber(props) {
   const {
     uid,
     loaders,
-    dataset,
-    embeddingZoom: zoom,
-    embeddingTarget: target,
-    embeddingType: mapping,
-    setEmbeddingZoom: setZoom,
-    setEmbeddingTarget: setTarget,
+    coordinationScopes,
     onReady,
     removeGridComponent,
     theme,
@@ -36,6 +31,15 @@ function ScatterplotSubscriber(props) {
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
   } = props;
 
+  const [{
+    dataset,
+    embeddingZoom: zoom,
+    embeddingTarget: target,
+    embeddingType: mapping,
+  }, {
+    setEmbeddingZoom: setZoom,
+    setEmbeddingTarget: setTarget,
+  }] = useCoordination(componentCoordinationTypes.scatterplot, coordinationScopes);
 
   const [isReady, setIsReady] = useState(false);
   const [cells, setCells] = useState({});
@@ -127,8 +131,3 @@ function ScatterplotSubscriber(props) {
     </TitleInfo>
   );
 }
-
-const [mapStateToProps, mapDispatchToProps] = createCoordinationMappers(
-  componentCoordinationTypes.scatterplot,
-);
-export default connect(mapStateToProps, mapDispatchToProps)(ScatterplotSubscriber);

@@ -33,7 +33,6 @@
     "@luma.gl/webgl": "^8.2.0",
     "@material-ui/core": "^4.8.3",
     "@material-ui/icons": "^4.9.1",
-    "@reduxjs/toolkit": "^1.4.0",
     "@turf/boolean-contains": "^6.0.1",
     "@turf/boolean-overlap": "^6.0.1",
     "@turf/boolean-point-in-polygon": "^6.0.1",
@@ -60,9 +59,7 @@
     "rc-tree": "2.1.0",
     "react-color": "^2.18.0",
     "react-grid-layout": "^0.16.6",
-    "react-redux": "^7.2.1",
     "react-vega": "^7.3.0",
-    "redux": "^4.0.5",
     "short-number": "^1.0.6",
     "store": "^2.0.12",
     "tinycolor2": "^1.4.1",
@@ -72,7 +69,8 @@
     "vega-lite-api": "^0.11.0",
     "vega-tooltip": "^0.23.0",
     "whatwg-fetch": "^3.0.0",
-    "zarr": "^0.3.0"
+    "zarr": "^0.3.0",
+    "zustand": "^2.2.4"
   },
   "devDependencies": {
     "@babel/core": "7.9.0",

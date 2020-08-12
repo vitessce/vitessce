@@ -8,7 +8,6 @@ import packageJson from '../../package.json';
 import { muiTheme } from '../components/shared-mui/styles';
 import configSchema from '../schemas/config.schema.json';
 
-import ViewConfigProvider from './ViewConfigProvider';
 import DatasetLoaderProvider from './DatasetLoaderProvider';
 import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
@@ -76,19 +75,17 @@ export default function Vitessce(props) {
   return (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
-        <ViewConfigProvider>
-          <DatasetLoaderProvider>
-            <VitessceGrid
-              config={config}
-              onConfigChange={onConfigChange}
-              getComponent={getComponent}
-              rowHeight={rowHeight}
-              height={height}
-              theme={theme}
-              onWarn={onWarn}
-            />
-          </DatasetLoaderProvider>
-        </ViewConfigProvider>
+        <DatasetLoaderProvider>
+          <VitessceGrid
+            config={config}
+            onConfigChange={onConfigChange}
+            getComponent={getComponent}
+            rowHeight={rowHeight}
+            height={height}
+            theme={theme}
+            onWarn={onWarn}
+          />
+        </DatasetLoaderProvider>
       </ThemeProvider>
     </StylesProvider>
   );

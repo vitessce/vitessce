@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { connect } from 'react-redux';
 import isEqual from 'lodash/isEqual';
 import { fileTypeToLoader } from '../loaders/types';
 import { LoaderNotFoundError } from '../loaders/errors/index';
 
-import { DatasetLoaderContext } from './redux/contexts';
+import { DatasetLoaderContext } from './state/contexts';
+import useStore from './state/store';
 
 // Create a mapping from dataset ID to loader objects by data type.
 function createLoaders(datasets) {
@@ -29,8 +29,10 @@ function createLoaders(datasets) {
   return result;
 }
 
-function DatasetLoaderProvider(props) {
-  const { datasets, children } = props;
+export default function DatasetLoaderProvider(props) {
+  const { children } = props;
+
+  const datasets = useStore(state => state.viewConfig?.datasets);
 
   // Want to store loaders in a mutable object,
   // with mapping from dataset ID to data types and loaders.
@@ -57,9 +59,3 @@ function DatasetLoaderProvider(props) {
     </DatasetLoaderContext.Provider>
   );
 }
-
-const mapStateToProps = state => ({
-  datasets: state.viewConfig?.datasets,
-});
-
-export default connect(mapStateToProps)(DatasetLoaderProvider);

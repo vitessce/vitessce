@@ -1,17 +1,14 @@
 import React, {
   useState, useEffect, useRef, useContext,
 } from 'react';
-import { connect } from 'react-redux';
 // eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
 
 import { GRID_RESIZE, STATUS_WARN } from '../events';
 
-import { DatasetLoaderContext } from './redux/contexts';
 import { VitessceGridLayout } from './vitessce-grid-layout';
-import { viewConfigSlice } from './redux/slices';
-
-const { setViewConfig: setViewConfigAction } = viewConfigSlice.actions;
+import { DatasetLoaderContext } from './state/contexts';
+import useStore from './state/store';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -59,7 +56,7 @@ const onResize = () => PubSub.publish(GRID_RESIZE);
  * @param {number} props.height Total height for grid. Optional.
  * @param {function} props.onWarn A callback for warning messages. Optional.
  */
-function VitessceGrid(props) {
+export default function VitessceGrid(props) {
   const {
     rowHeight: initialRowHeight,
     config,
@@ -67,7 +64,6 @@ function VitessceGrid(props) {
     theme,
     height,
     onWarn,
-    setViewConfig,
   } = props;
 
   const loaders = useContext(DatasetLoaderContext);
@@ -132,6 +128,8 @@ function VitessceGrid(props) {
     return () => PubSub.unsubscribe(warnToken);
   }, [onWarn]);
 
+  const setViewConfig = useStore(state => state.setViewConfig);
+
   useEffect(() => {
     setViewConfig(config);
   }, [config, setViewConfig]);
@@ -159,9 +157,3 @@ function VitessceGrid(props) {
     </div>
   );
 }
-
-const mapDispatchToProps = dispatch => ({
-  setViewConfig: viewConfig => dispatch(setViewConfigAction(viewConfig)),
-});
-
-export default connect(null, mapDispatchToProps)(VitessceGrid);

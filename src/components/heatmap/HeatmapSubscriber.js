@@ -1,6 +1,5 @@
 /* eslint-disable */
 import React, { useEffect, useState, useCallback } from 'react';
-import { connect } from 'react-redux';
 import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
@@ -13,18 +12,15 @@ import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, copyUint8Array } from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
-import { createCoordinationMappers } from '../../app/redux/mappers';
-import { componentCoordinationTypes } from '../../app/redux/coordination';
 
-function HeatmapSubscriber(props) {
+import { useCoordination } from '../../app/state/mappers';
+import { componentCoordinationTypes } from '../../app/state/coordination';
+
+export default function HeatmapSubscriber(props) {
   const {
     uid,
-    dataset,
     loaders,
-    heatmapZoom: zoom,
-    heatmapTarget: target,
-    setHeatmapZoom: setZoom,
-    setHeatmapTarget: setTarget,
+    coordinationScopes,
     removeGridComponent, onReady, theme, transpose,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
@@ -32,6 +28,15 @@ function HeatmapSubscriber(props) {
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     disableTooltip = false,
   } = props;
+
+  const [{
+    dataset,
+    heatmapZoom: zoom,
+    heatmapTarget: target,
+  }, {
+    setHeatmapZoom: setZoom,
+    setHeatmapTarget: setTarget,
+  }] = useCoordination(componentCoordinationTypes.heatmap, coordinationScopes);
 
   const observationsTitle = capitalize(observationsPluralLabel);
   const variablesTitle = capitalize(variablesPluralLabel);
@@ -144,8 +149,3 @@ function HeatmapSubscriber(props) {
     </TitleInfo>
   );
 }
-
-const [mapStateToProps, mapDispatchToProps] = createCoordinationMappers(
-  componentCoordinationTypes.heatmap,
-);
-export default connect(mapStateToProps, mapDispatchToProps)(HeatmapSubscriber);
