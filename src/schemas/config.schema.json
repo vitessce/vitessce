@@ -125,6 +125,21 @@
             ".": { "type": "string" }
           }
         },
+        "spatialZoom": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "spatialTarget": {
+          "type": "object",
+          "patternProperties": {
+            ".": { 
+              "type": "array",
+              "items": { "type": "number" }
+            }
+          }
+        },
         "heatmapZoom": {
           "type": "object",
           "patternProperties": {

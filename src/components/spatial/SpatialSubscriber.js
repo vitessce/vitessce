@@ -1,8 +1,8 @@
+/* eslint-disable */
 import React, {
-  useState, useCallback, useEffect, useMemo,
+  useState, useCallback, useEffect, useMemo, useRef,
 } from 'react';
 import PubSub from 'pubsub-js';
-import uuidv4 from 'uuid/v4';
 import shortNumber from 'short-number';
 import TitleInfo from '../TitleInfo';
 import {
@@ -27,28 +27,44 @@ import {
   RASTER_ADD,
 } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize } from '../utils';
+import { useDeckCanvasSize, useReady } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 
-export default function SpatialSubscriber({
-  onReady,
-  removeGridComponent,
-  moleculeRadius,
-  view,
-  cellRadius,
-  observationsLabelOverride: observationsLabel = 'cell',
-  observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
-  subobservationsLabelOverride: subobservationsLabel = 'molecule',
-  subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
-  theme,
-  disableTooltip = false,
-}) {
+import { useCoordination } from '../../app/state/hooks';
+import { componentCoordinationTypes } from '../../app/state/coordination';
+
+export default function SpatialSubscriber(props) {
+  const {
+    uid,
+    loaders,
+    coordinationScopes,
+    removeGridComponent,
+    moleculeRadius,
+    cellRadius,
+    observationsLabelOverride: observationsLabel = 'cell',
+    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
+    subobservationsLabelOverride: subobservationsLabel = 'molecule',
+    subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
+    theme,
+    disableTooltip = false,
+  } = props;
   // Create a UUID so that hover events
   // know from which DeckGL element they were generated.
-  const uuid = uuidv4();
+  const uuid = uid;
 
-  const [cells, setCells] = useState(null);
+  const [{
+    dataset,
+    spatialZoom: zoom,
+    spatialTarget: target,
+  }, {
+    setSpatialZoom: setZoom,
+    setSpatialTarget: setTarget,
+  }] = useCoordination(componentCoordinationTypes.spatial, coordinationScopes);
+
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(['cells']);
+
+  const [cellsData, setCellsData] = useState(null);
   const [molecules, setMolecules] = useState(null);
   const [cellColors, setCellColors] = useState(null);
   const [neighborhoods, setNeighborhoods] = useState(null);
@@ -63,113 +79,19 @@ export default function SpatialSubscriber({
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
-  const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
-    const moleculesAddSubscriber = (msg, { data: newMolecules, url }) => {
-      setMolecules(newMolecules);
-      setUrls((prevUrls) => {
-        const newUrls = [...prevUrls].concat({ url, name: 'Molecules' });
-        return newUrls;
-      });
-    };
-    const neighborhoodsAddSubscriber = (msg, { data: newNeighborhoods, url }) => {
-      setNeighborhoods(newNeighborhoods);
-      setUrls((prevUrls) => {
-        const newUrls = [...prevUrls].concat({ url, name: 'Neighborhoods' });
-        return newUrls;
-      });
-    };
-    const cellsAddSubscriber = (msg, { data: newCells, url }) => {
-      setCells(newCells);
-      setUrls((prevUrls) => {
-        const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
-        return newUrls;
-      });
-    };
-    const rasterAddSubscriber = (msg, { data: rasterSchema }) => {
-      setUrls((prevUrls) => {
-        // Filter out non-downloadable zarr
-        const rasterUrlsAndNames = rasterSchema.images.map(
-          image => ({ name: image.name, url: image.url }),
-        ).filter(urlAndName => !urlAndName.url.includes('zarr'));
-        const newUrls = [...prevUrls].concat(rasterUrlsAndNames);
-        return newUrls;
-      });
-    };
-    const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
-    const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
-    const cellsOpacitySubscriber = (msg, newCellOpacity) => setCellOpacity(newCellOpacity);
-    const moleculesOpacitySubscriber = (msg, newMoleculesOpacity) => setMoleculesOpacity(
-      newMoleculesOpacity,
-    );
-    const cellsOnSubscriber = (msg, newCellsOn) => setCellsOn(newCellsOn);
-    const moleculesOnSubscriber = (msg, newMoleculesOn) => setMoleculesOn(newMoleculesOn);
-    function layerAddSubscriber(msg, { layerId, loader, layerProps }) {
-      setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: layerProps }));
-      setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
-    }
-    function layerChangeSubscriber(msg, { layerId, layerProps }) {
-      setImageLayerProps(prevLayerProps => ({
-        ...prevLayerProps,
-        [layerId]: { ...prevLayerProps[layerId], ...layerProps },
-      }));
-    }
-    function layerRemoveSubscriber(msg, layerId) {
-      setImageLayerLoaders((prevLoaders) => {
-        const { [layerId]: _, ...nextLoaders } = prevLoaders;
-        return nextLoaders;
-      });
-      setImageLayerProps((prevLayerProps) => {
-        const { [layerId]: _, ...nextLayerProps } = prevLayerProps;
-        return nextLayerProps;
-      });
-    }
-    function clearSubscriber() {
-      setCells(null);
-      setMolecules(null);
-      setNeighborhoods(null);
-      setImageLayerProps({});
-      setImageLayerLoaders({});
-      setUrls([]);
-    }
-    const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
-    const moleculesOpacityToken = PubSub.subscribe(
-      MOLECULES_SET_OPACITY, moleculesOpacitySubscriber,
-    );
-    const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, neighborhoodsAddSubscriber);
-    const cellsAddToken = PubSub.subscribe(CELLS_ADD, cellsAddSubscriber);
-    const rasterAddToken = PubSub.subscribe(RASTER_ADD, rasterAddSubscriber);
-    const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, cellsSelectionSubscriber);
-    const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, cellsSelectionSubscriber);
-    const cellsColorToken = PubSub.subscribe(CELLS_COLOR, cellsColorSubscriber);
-    const layerAddToken = PubSub.subscribe(LAYER_ADD, layerAddSubscriber);
-    const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
-    const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
-    const cellsOpacityToken = PubSub.subscribe(CELLS_SET_OPACITY, cellsOpacitySubscriber);
-    const cellsOnToken = PubSub.subscribe(CELLS_TURN_ON, cellsOnSubscriber);
-    const moleculesOnToken = PubSub.subscribe(MOLECULES_TURN_ON, moleculesOnSubscriber);
-    const resetToken = PubSub.subscribe(RESET, clearSubscriber);
-    onReadyCallback();
-    return () => {
-      PubSub.unsubscribe(moleculesAddToken);
-      PubSub.unsubscribe(moleculesOpacityToken);
-      PubSub.unsubscribe(neighborhoodsAddToken);
-      PubSub.unsubscribe(cellsAddToken);
-      PubSub.unsubscribe(cellsSelectionToken);
-      PubSub.unsubscribe(cellSetsViewToken);
-      PubSub.unsubscribe(cellsColorToken);
-      PubSub.unsubscribe(cellsOpacityToken);
-      PubSub.unsubscribe(layerAddToken);
-      PubSub.unsubscribe(layerChangeToken);
-      PubSub.unsubscribe(layerRemoveToken);
-      PubSub.unsubscribe(cellsOnToken);
-      PubSub.unsubscribe(moleculesOnToken);
-      PubSub.unsubscribe(resetToken);
-      PubSub.unsubscribe(rasterAddToken);
-    };
-  }, [onReadyCallback, urls]);
-  const cellsCount = useMemo(() => (cells ? Object.keys(cells).length : 0), [cells]);
+    resetReadyItems();
+    loaders[dataset]?.loaders['cells'].load().then((d) => {
+      setCellsData(Object.entries(d));
+      setItemIsReady('cells');
+    });
+    
+  }, [loaders, dataset]);
+
+
+
+  const cellsCount = (cellsData ? cellsData.length : 0);
   const [moleculesCount, locationsCount] = useMemo(() => {
     if (!molecules) return [0, 0];
     return [
@@ -200,13 +122,15 @@ export default function SpatialSubscriber({
     [],
   );
 
-  const getCellInfo = useCallback((cellId) => {
-    const cellInfo = cells[cellId];
-    return {
-      [`${capitalize(observationsLabel)} ID`]: cellId,
-      ...(cellInfo ? cellInfo.factors : {}),
-    };
-  }, [cells, observationsLabel]);
+  const getCellInfo = (cellId) => {
+    const cell = cellsData.find(cell => cell[0] === cellId)
+    if(cell && cell[1]) {
+      return {
+        [`${capitalize(observationsLabel)} ID`]: cell[0],
+        ...cell[1].factors,
+      };
+    }
+  };
 
   return (
     <TitleInfo
@@ -220,10 +144,15 @@ export default function SpatialSubscriber({
       urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}
+      isReady={isReady}
     >
       <Spatial
         ref={deckRef}
-        cells={cells}
+        zoom={zoom}
+        target={target}
+        setZoom={setZoom}
+        setTarget={setTarget}
+        cells={cellsData}
         selectedCellIds={selectedCellIds}
         neighborhoods={neighborhoods}
         molecules={molecules}
@@ -234,7 +163,6 @@ export default function SpatialSubscriber({
         areMoleculesOn={areMoleculesOn}
         imageLayerProps={imageLayerProps}
         imageLayerLoaders={imageLayerLoaders}
-        view={view}
         cellRadius={cellRadius}
         moleculeRadius={moleculeRadius}
         uuid={uuid}

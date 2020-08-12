@@ -9,7 +9,7 @@ import {
   RESET, EXPRESSION_MATRIX_ADD, VIEW_INFO, GENES_HOVER,
 } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, copyUint8Array } from '../utils';
+import { useDeckCanvasSize, useReady, copyUint8Array } from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
@@ -21,7 +21,7 @@ export default function HeatmapSubscriber(props) {
     uid,
     loaders,
     coordinationScopes,
-    removeGridComponent, onReady, theme, transpose,
+    removeGridComponent, theme, transpose,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
     variablesLabelOverride: variablesLabel = 'gene',
@@ -46,7 +46,10 @@ export default function HeatmapSubscriber(props) {
   // know from which element they were generated.
   const uuid = uid;
 
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setItemIsReady, resetReadyItems] = useReady([
+    'cells', 'cell-sets', 'expression-matrix',
+  ]);
+
   const [cells, setCells] = useState();
   const [cellSets, setCellSets] = useState();
   const [expressionMatrix, setExpressionMatrix] = useState();
@@ -54,18 +57,19 @@ export default function HeatmapSubscriber(props) {
   const [cellColors, setCellColors] = useState(null);
   const [urls, setUrls] = useState([]);
 
-  const onReadyCallback = useCallback(onReady, []);
-
   const [width, height, deckRef] = useDeckCanvasSize();
 
   useEffect(() => {
+    resetReadyItems();
 
     loaders[dataset]?.loaders['cells'].load().then((data) => {
       setCells(data);
+      setItemIsReady('cells');
     });
 
     loaders[dataset]?.loaders['cell-sets'].load().then((data) => {
       setCellSets(data);
+      setItemIsReady('cell-sets');
     });
 
     loaders[dataset]?.loaders['expression-matrix'].load().then((data) => {
@@ -75,11 +79,10 @@ export default function HeatmapSubscriber(props) {
         rows: attrs.rows,
         matrix: copyUint8Array(arr.data),
       });
-      setIsReady(true);
+      setItemIsReady('expression-matrix');
     });
 
-    onReadyCallback();
-  }, [onReadyCallback, loaders, dataset]);
+  }, [loaders, dataset]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {

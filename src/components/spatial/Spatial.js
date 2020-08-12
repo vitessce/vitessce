@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useState, useCallback, useMemo, forwardRef,
 } from 'react';
@@ -61,12 +62,12 @@ export function square(x, y, r) {
 const Spatial = forwardRef((props, deckRef) => {
   const {
     uuid = null,
-    view = {
-      zoom: 2,
-      target: [0, 0, 0],
-    },
+    zoom = 0,
+    target = [0, 0, 0],
+    setZoom,
+    setTarget,
     molecules = {},
-    cells = {},
+    cells: cellsData,
     neighborhoods = {},
     areNeighborhoodsOn = false,
     cellRadius = 50,
@@ -116,6 +117,8 @@ const Spatial = forwardRef((props, deckRef) => {
     },
   } = props;
 
+  const viewState = { zoom, target };
+
   // In Deck.gl, layers are considered light weight, and
   // can be created and destroyed quickly, if the data they wrap is stable.
   // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
@@ -123,20 +126,27 @@ const Spatial = forwardRef((props, deckRef) => {
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
 
-  const onInitializeViewInfo = useCallback(({ viewport }) => {
+  const onInitializeViewInfo = ({ viewport }) => {
     updateViewInfo({
       uuid,
       project: (cellId) => {
-        const cellInfo = cells[cellId];
+        const cell = cellsData.find(cell => (cell[0] === cellId));
         try {
-          const [positionX, positionY] = getCellCoords(cellInfo);
+          const [positionX, positionY] = getCellCoords(cell[1]);
           return viewport.project([positionX, positionY]);
         } catch (e) {
           return [null, null];
         }
       },
-    });
-  }, [updateViewInfo, uuid, cells, getCellCoords]);
+    })
+  };
+
+  // Listen for viewState changes.
+  const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
+    const { zoom, target } = nextViewState;
+    setZoom(zoom);
+    setTarget(target);
+  }, [setZoom, setTarget]);
 
   const moleculesData = useMemo(() => {
     let result = null;
@@ -150,16 +160,6 @@ const Spatial = forwardRef((props, deckRef) => {
     }
     return result;
   }, [molecules, clearPleaseWait]);
-
-  const cellsData = useMemo(() => {
-    let result = null;
-    if (cells) {
-      // Process cells data and cache into re-usable array.
-      result = Object.entries(cells);
-      if (clearPleaseWait) clearPleaseWait('cells');
-    }
-    return result;
-  }, [cells, clearPleaseWait]);
 
   const neighborhoodsData = useMemo(() => {
     let result = null;
@@ -292,7 +292,7 @@ const Spatial = forwardRef((props, deckRef) => {
 
   const selectionLayers = getSelectionLayers(
     tool,
-    view.zoom,
+    zoom,
     CELLS_LAYER_ID,
     getCellCoords,
     updateCellsSelection,
@@ -303,7 +303,6 @@ const Spatial = forwardRef((props, deckRef) => {
     views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
     // gl needs to be initialized for us to use it in Texture creation
     layers: gl ? layers.concat(selectionLayers) : [],
-    initialViewState: view,
     ...(tool ? {
       controller: { dragPan: false },
       getCursor: () => 'crosshair',
@@ -323,6 +322,8 @@ const Spatial = forwardRef((props, deckRef) => {
         ref={deckRef}
         glOptions={DEFAULT_GL_OPTIONS}
         onWebGLInitialized={setGl}
+        onViewStateChange={onViewStateChange}
+        viewState={viewState}
         {...deckProps}
       >
         {onInitializeViewInfo}

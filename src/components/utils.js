@@ -179,3 +179,30 @@ export function copyUint8Array(arr) {
   newArr.set(arr);
   return newArr;
 }
+
+/**
+ * This hook handles a boolean isReady value,
+ * which only returns true once every item in the
+ * input list has been marked as "ready".
+ * @param {string[]} items The items to wait on.
+ * @returns {array} An array
+ * [isReady, setItemIsReady, resetReadyItems]
+ * where isReady is the boolean value,
+ * setItemIsReady marks one item as ready,
+ * and resetReadyItem marks all items as waiting.
+ */
+export function useReady(items) {
+  const [waiting, setWaiting] = useState(items);
+
+  function setItemIsReady(readyItem) {
+    setWaiting(waitingItems => waitingItems.filter(item => item !== readyItem));
+  }
+
+  function resetReadyItems() {
+    setWaiting(items);
+  }
+
+  const isReady = waiting.length === 0;
+
+  return [isReady, setItemIsReady, resetReadyItems];
+}

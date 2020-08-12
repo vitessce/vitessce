@@ -10,7 +10,7 @@ import {
   CELL_SETS_VIEW, CLEAR_PLEASE_WAIT, RESET,
 } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize } from '../utils';
+import { useDeckCanvasSize, useReady } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 
@@ -23,7 +23,6 @@ export default function ScatterplotSubscriber(props) {
     uid,
     loaders,
     coordinationScopes,
-    onReady,
     removeGridComponent,
     theme,
     disableTooltip = false,
@@ -41,7 +40,8 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingTarget: setTarget,
   }] = useCoordination(componentCoordinationTypes.scatterplot, coordinationScopes);
 
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(['cells']);
+
   const [cells, setCells] = useState({});
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellColors, setCellColors] = useState(null);
@@ -50,16 +50,15 @@ export default function ScatterplotSubscriber(props) {
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
-  const onReadyCallback = useCallback(onReady, []);
 
   useEffect(() => {
+    resetReadyItems();
     loaders[dataset]?.loaders['cells'].load().then((d) => {
       setCells(d);
-      setIsReady(true);
+      setItemIsReady('cells');
     });
     
-    onReadyCallback();
-  }, [onReadyCallback, mapping, loaders, dataset]);
+  }, [mapping, loaders, dataset]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the

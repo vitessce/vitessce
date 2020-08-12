@@ -208,6 +208,14 @@ const configs = {
       },
       heatmapTarget: {
         A: [0, 0],
+      },
+      spatialZoom: {
+        A: -5.5,
+        B: -5.5,
+      },
+      spatialTarget: {
+        A: [16000, 20000, 0],
+        B: [16000, 20000, 0],
       }
     },
     layout: [
@@ -220,16 +228,24 @@ const configs = {
         x: 0, y: 1, w: 2, h: 4,
       },
       { component: 'status',
-        x: 0, y: 5, w: 2, h: 1 },
+        x: 0, y: 5, w: 2, h: 1 },*/
       { component: 'spatial',
-        props: {
-          view: {
-            zoom: -5.5,
-            target: [16000, 20000, 0],
-          },
+        uid: 'spatial-1',
+        coordinationScopes: {
+          dataset: 'A',
+          spatialZoom: 'A',
+          spatialTarget: 'A'
         },
-        x: 2, y: 0, w: 4, h: 4 },
-      { component: 'genes',
+        x: 0, y: 0, w: 4, h: 4 },
+        { component: 'spatial',
+        uid: 'spatial-2',
+        coordinationScopes: {
+          dataset: 'A',
+          spatialZoom: 'A',
+          spatialTarget: 'A'
+        },
+        x: 0, y: 4, w: 4, h: 4 },
+      /*{ component: 'genes',
         x: 9, y: 0, w: 3, h: 2 },
       { component: 'cellSets',
         x: 9, y: 3, w: 3, h: 2 },*/
@@ -244,7 +260,7 @@ const configs = {
           transpose: true,
         },
         x: 4, y: 4, w: 6, h: 4 },
-      { component: 'heatmap',
+      /*{ component: 'heatmap',
         uid: 'gene-exp-heatmap-2',
         coordinationScopes: {
           dataset: 'A',
@@ -254,7 +270,7 @@ const configs = {
         props: {
           transpose: false,
         },
-        x: 0, y: 0, w: 4, h: 6 },
+        x: 0, y: 0, w: 4, h: 6 },*/
       { component: 'scatterplot',
         uid: 'pca-scatterplot',
         coordinationScopes: {
