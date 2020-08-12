@@ -4,7 +4,7 @@ import { fileTypeToLoader } from '../loaders/types';
 import { LoaderNotFoundError } from '../loaders/errors/index';
 
 import { DatasetLoaderContext } from './state/contexts';
-import useStore from './state/store';
+import { useStore } from './state/hooks';
 
 // Create a mapping from dataset ID to loader objects by data type.
 function createLoaders(datasets) {

@@ -14,7 +14,7 @@ import { useDeckCanvasSize } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 
-import { useCoordination } from '../../app/state/mappers';
+import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
 
 

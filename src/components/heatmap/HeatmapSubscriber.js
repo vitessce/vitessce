@@ -13,7 +13,7 @@ import { useDeckCanvasSize, copyUint8Array } from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
-import { useCoordination } from '../../app/state/mappers';
+import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
 
 export default function HeatmapSubscriber(props) {

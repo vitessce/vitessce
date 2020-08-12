@@ -8,7 +8,7 @@ import { GRID_RESIZE, STATUS_WARN } from '../events';
 
 import { VitessceGridLayout } from './vitessce-grid-layout';
 import { DatasetLoaderContext } from './state/contexts';
-import useStore from './state/store';
+import { useStore } from './state/hooks';
 
 /**
  * Return the bottom coordinate of the layout.
