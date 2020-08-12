@@ -24,11 +24,11 @@ export function makeSpatialSubtitle({
     parts.push(`${observationsCount} ${pluralize(observationsLabel, observationsPluralLabel, observationsCount)}`);
   }
   if (subobservationsCount > 0) {
-    let moleculesPart = `${subobservationsCount} ${pluralize(subobservationsLabel, subobservationsPluralLabel, subobservationsCount)}`;
+    let part = `${subobservationsCount} ${pluralize(subobservationsLabel, subobservationsPluralLabel, subobservationsCount)}`;
     if (locationsCount > 0) {
-      moleculesPart += ` at ${shortNumber(locationsCount)} locations`;
+      part += ` at ${shortNumber(locationsCount)} locations`;
     }
-    parts.push(moleculesPart);
+    parts.push(part);
   }
   return parts.join(', ');
 }
