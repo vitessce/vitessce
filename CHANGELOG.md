@@ -7,6 +7,7 @@
 - Added a demo containing a HiGlass component with a `horizontal-multivec` track using a `zarr-multivec` plugin data fetcher.
 
 ### Changed
+- In the SpatialSubscriber component, no longer display counts for cells, molecules, or locations if the count value is zero.
 
 
 ## [0.2.3](https://www.npmjs.com/package/vitessce/v/0.2.3) - 2020-08-04

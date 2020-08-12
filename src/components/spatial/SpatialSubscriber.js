@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import PubSub from 'pubsub-js';
 import uuidv4 from 'uuid/v4';
-import shortNumber from 'short-number';
 import TitleInfo from '../TitleInfo';
 import {
   MOLECULES_ADD,
@@ -26,9 +25,10 @@ import {
   RESET,
   RASTER_ADD,
 } from '../../events';
-import { useDeckCanvasSize, pluralize, capitalize } from '../utils';
+import { useDeckCanvasSize, capitalize } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
+import { makeSpatialSubtitle } from './utils';
 
 export default function SpatialSubscriber({
   onReady,
@@ -207,14 +207,19 @@ export default function SpatialSubscriber({
     };
   }, [cells, observationsLabel]);
 
+  const subtitle = makeSpatialSubtitle({
+    observationsCount: cellsCount,
+    observationsLabel,
+    observationsPluralLabel,
+    subobservationsCount: moleculesCount,
+    subobservationsLabel,
+    subobservationsPluralLabel,
+    locationsCount,
+  });
   return (
     <TitleInfo
       title="Spatial"
-      info={
-        `${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)},
-         ${moleculesCount} ${pluralize(subobservationsLabel, subobservationsPluralLabel, moleculesCount)}
-         at ${shortNumber(locationsCount)} locations`
-      }
+      info={subtitle}
       isSpatial
       urls={urls}
       theme={theme}
