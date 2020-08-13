@@ -43,6 +43,8 @@ Including `dataset` as a coordination type allows:
 
 ## Future UI ideas
 
+### Coordination scope dropdowns
+
 As a first step, linking of views will mainly be controlled via view config definitions.
 However, in the future, we would like to implement an interface to allow the end user to update linked views and coordination scopes during the exploration process.
 
@@ -55,6 +57,22 @@ For example, in the above mockup, notice that the PCA and t-SNE scatterplots hav
 
 This would also facilitate multi-dataset comparisons. For example, if you want to compare `linnarsson-2018` to `dries-2019`, just create two different scopes for the `dataset` coordination object. Then, map the half of the components to scope `A` and the other half to scope `B`, where the coordination object value looks like  `{ A: 'linnarsson-2018', B: 'dries-2019' }`. Then, let's say you want to switch the comparison, and now you want to compare `linnarsson-2018` to `spraggins-2020`. Then the only thing you need to do is update the coordination object `{ A: 'linnarsson-2018', B: 'spraggins-2020' }`. (Assuming the view config `datasets` property was an array containing the file URL mappings for all 3 datasets `linnarsson-2018`, `dries-2019`, and `spraggins-2020`).
 -->
+
+### Coordination object graph representation
+
+One may think of the coordination objects, components, and scopes as forming a network or graph. It may be helpful to display this graph to the user.
+
+### View duplication buttons
+
+To assist with view creation, one simple approach would be to add a "copy" / "duplicate" button to each view.
+
+Duplicating a view could either:
+- maintain all coordination objects / linking states from the source view
+    - coordination types for the new view would map to the same coordination scopes as in the source view
+- disconnect all linking by setting up a new coordination scope for every coordination type
+    - would probably not work well without some exceptions
+        - probably always want to retain the same `dataset` scope
+        - probably always want to retain the same `embeddingType` scope for embedding scatterplots
 
 ## Dataset loader objects
 
@@ -74,9 +92,13 @@ Note that cell/cell-set/gene selection/highlight/filtering states could also be 
 ## Specific issues
 
 Towards #30 
-Towards #189 (overview/detail problem can be mostly solved by using two different plots with all of the same scope mappings, except the overview plot maps to a different zoom scope, and keeps that zoom scope value fixed)
-Towards #693 (zoom/target reset problem reduces to updating a coordination object)
-Towards #574 
-Towards #465 
-Towards #716 (the coordination objects are an example of global app state)
 
+Towards #189 (overview/detail problem can be mostly solved by using two different plots with all of the same scope mappings, except the overview plot maps to a different zoom scope, and keeps that zoom scope value fixed)
+
+Towards #693 (zoom/target reset problem reduces to updating a coordination object)
+
+Towards #574 
+
+Towards #465 
+
+Towards #716 (the coordination objects are an example of global app state)
