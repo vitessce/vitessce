@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import PubSub from 'pubsub-js';
 import Grid from '@material-ui/core/Grid';
-import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer';
+import { createZarrLoader, createOMETiffLoader } from '@hms-dbmi/viv';
 import TitleInfo from '../TitleInfo';
 import RasterLayerController from './RasterLayerController';
 import VectorLayerController from './VectorLayerController';

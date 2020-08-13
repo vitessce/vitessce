@@ -1,7 +1,7 @@
 import React, {
   useState, useReducer, useEffect,
 } from 'react';
-import { getChannelStats, DTYPE_VALUES, MAX_SLIDERS_AND_CHANNELS } from '@hubmap/vitessce-image-viewer';
+import { getChannelStats, DTYPE_VALUES, MAX_SLIDERS_AND_CHANNELS } from '@hms-dbmi/viv';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -52,15 +52,16 @@ function buildDefaultSelection(imageDims) {
 }
 
 // Set the domain of the sliders based on either a full range or min/max.
-async function getDomain(loader, loaderSelection, domainType) {
-  let domain;
+async function getDomainsAndSliders(loader, loaderSelection, domainType) {
+  let domains;
+  const stats = await getChannelStats({ loader, loaderSelection });
+  const sliders = stats.map(stat => stat.autoSliders);
   if (domainType === 'Min/Max') {
-    const stats = await getChannelStats({ loader, loaderSelection });
-    domain = stats.map(stat => stat.domain);
+    domains = stats.map(stat => stat.domain);
   } if (domainType === 'Full') {
-    domain = loaderSelection.map(() => [0, DTYPE_VALUES[loader.dtype].max]);
+    domains = loaderSelection.map(() => [0, DTYPE_VALUES[loader.dtype].max]);
   }
-  return domain;
+  return { domains, sliders };
 }
 
 const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400 };
@@ -91,6 +92,7 @@ export default function RasterLayerController({
     // Get stats because initial value is Min/Max for domainType.
     getChannelStats({ loader, loaderSelection: defaultSelection }).then((stats) => {
       const domains = stats.map(stat => stat.domain);
+      const sliders = stats.map(stat => stat.autoSliders);
       dispatch({
         type: 'ADD_CHANNELS',
         layerId,
@@ -101,6 +103,7 @@ export default function RasterLayerController({
           // Otherwise, when we eventually handled interleaved data, this won't even matter.
           domains: loader.isRgb ? [[0, 255], [0, 255], [0, 255]] : domains,
           colors: loader.isRgb ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]] : null,
+          sliders: loader.isRgb ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]] : sliders,
         },
       });
     });
@@ -117,14 +120,15 @@ export default function RasterLayerController({
         ? Object.values(channels)[0].selection[dimension.field]
         : 0;
     });
-    const [domain] = await getDomain(loader, [selection], domainType);
+    const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType);
     dispatch({
       type: 'ADD_CHANNEL',
       layerId,
       handleLayerChange,
       payload: {
         selection,
-        domain,
+        domain: domains[0],
+        slider: sliders[0],
       },
     });
   };
@@ -147,21 +151,21 @@ export default function RasterLayerController({
     const sliders = Object.values(channels).map(
       channel => channel.slider,
     );
-    const domain = await getDomain(
+    const { domains } = await getDomainsAndSliders(
       loader,
       loaderSelection,
       value,
     );
     const update = {
-      domain,
+      domains,
       // If it's the right-most slider, we take the minimum of that and the new value.
       // Otherwise, we use the maximum of the left-hand side and the new value.
-      slider: sliders.map(
+      sliders: sliders.map(
         (slider, i) => {
           const [left, right] = slider;
           return [
-            Math.max(left, domain[i][0]),
-            Math.min(right, domain[i][1]),
+            Math.max(left, domains[i][0]),
+            Math.min(right, domains[i][1]),
           ];
         },
       ),
@@ -188,12 +192,12 @@ export default function RasterLayerController({
     const mouseUp = event.type === 'mouseup';
     const update = { selection };
     // Only update domains on a mouseup event for the same reason as above.
-    const domain = mouseUp
-      ? await getDomain(loader, loaderSelection, domainType)
+    const { domains, sliders } = mouseUp
+      ? await getDomainsAndSliders(loader, loaderSelection, domainType)
       : null;
-    if (domain) {
-      update.domain = domain;
-      update.slider = domain;
+    if (domains) {
+      update.domains = domains;
+      update.sliders = sliders;
     }
     dispatch({
       type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
@@ -221,9 +225,11 @@ export default function RasterLayerController({
           const update = { [property]: value };
           if (property === 'selection') {
             const loaderSelection = [{ ...channels[channelId][property], ...value }];
-            const domain = await getDomain(loader, loaderSelection, domainType);
-            [update.domain] = domain;
-            [update.slider] = domain;
+            const { domains, sliders } = await getDomainsAndSliders(
+              loader, loaderSelection, domainType,
+            );
+            [update.domain] = domains;
+            [update.slider] = sliders;
           }
           dispatch({
             type: 'CHANGE_SINGLE_CHANNEL_PROPERTIES',
