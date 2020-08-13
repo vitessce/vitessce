@@ -22,6 +22,12 @@
 - Removed the unnecessary `name` field from dataset file definitions (previously a property of the `layers` objects) in the view config.
 - Renamed `staticLayout` to `layout` in the view config.
 
+
+
+
+
+
+
 ## [0.2.3](https://www.npmjs.com/package/vitessce/v/0.2.3) - 2020-08-04
 
 ### Changed
