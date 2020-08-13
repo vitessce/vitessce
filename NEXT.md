@@ -96,6 +96,8 @@ Note that cell/cell-set/gene selection/highlight/filtering states could also be 
 
 ## Specific issues
 
+The following issues should be resolved or partially resolved by this next version of Vitessce.
+
 Towards #30 
 
 Towards #189 (overview/detail problem can be mostly solved by using two different plots with all of the same scope mappings, except the overview plot maps to a different zoom scope, and keeps that zoom scope value fixed)
