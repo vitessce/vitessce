@@ -103,7 +103,7 @@ export default function RasterLayerController({
           // Otherwise, when we eventually handled interleaved data, this won't even matter.
           domains: loader.isRgb ? [[0, 255], [0, 255], [0, 255]] : domains,
           colors: loader.isRgb ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]] : null,
-          sliders: loader.isRgb ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]] : sliders,
+          sliders: loader.isRgb ? [[0, 255], [0, 255], [0, 255]] : sliders,
         },
       });
     });
