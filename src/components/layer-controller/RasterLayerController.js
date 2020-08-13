@@ -157,10 +157,10 @@ export default function RasterLayerController({
       value,
     );
     const update = {
-      domains,
+      domain: domains,
       // If it's the right-most slider, we take the minimum of that and the new value.
       // Otherwise, we use the maximum of the left-hand side and the new value.
-      sliders: sliders.map(
+      slider: sliders.map(
         (slider, i) => {
           const [left, right] = slider;
           return [
@@ -196,8 +196,8 @@ export default function RasterLayerController({
       ? await getDomainsAndSliders(loader, loaderSelection, domainType)
       : null;
     if (domains) {
-      update.domains = domains;
-      update.sliders = sliders;
+      update.domain = domains;
+      update.slider = sliders;
     }
     dispatch({
       type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
