@@ -26,7 +26,8 @@ Perhaps another way to think of the coordination scopes model is:
 Storing coordination state in the view config will make this state:
 - easy to share
     - for example, via a URL containing the view config
-        - may want to exclude certain coordination types explicitly from such a URL, for example if a long list of selected cell IDs would exceed URL character limits
+        - may want to exclude certain coordination types explicitly from such a URL
+            - for example, a long list of selected cell IDs could exceed URL character limits
 - easy to navigate forwards / backwards (for undo/redo)
     - open question: what is the right granularity for history state
         - for example, probably do not want to record every zoom / pan interaction as discrete event
