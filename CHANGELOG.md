@@ -2,8 +2,13 @@
 
 ## 0.2.4
 
+### Added
+- Added the `higlass-zarr-datafetchers` dependency.
+- Added a demo containing a HiGlass component with a `horizontal-multivec` track using a `zarr-multivec` plugin data fetcher.
+
 ### Changed
 - In the SpatialSubscriber component, no longer display counts for cells, molecules, or locations if the count value is zero.
+
 
 ## [0.2.3](https://www.npmjs.com/package/vitessce/v/0.2.3) - 2020-08-04
 
@@ -11,14 +16,14 @@
 - Upgrade Viv to 0.3.3 to fix a tiff parsing issue.
 - Removed the lines between the radio buttons in the cell set manager to make a more compact interface.
 
-## [0.2.2](https://www.npmjs.com/package/vitessce/v/0.2.2) - 2020-08-03
 
-### Added
+## [0.2.2](https://www.npmjs.com/package/vitessce/v/0.2.2) - 2020-08-03
 
 ### Changed
 - Upgrade `vitessce-grid` to 0.0.10 to fix problem switching view configurations.
 - Copied the `vitessce-grid` source files into the `vitessce` repository to reduce friction when updating the `vitessce-grid` code (avoids an extra NPM publish / pull-down).
 - Fixed tests in `VitessceGrid.test.js`.
+
 
 ## [0.2.1](https://www.npmjs.com/package/vitessce/v/0.2.1) - 2020-07-30
 
