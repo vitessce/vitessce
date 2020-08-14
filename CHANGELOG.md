@@ -5,10 +5,11 @@
 ### Added
 - Added the `higlass-zarr-datafetchers` dependency.
 - Added a demo containing a HiGlass component with a `horizontal-multivec` track using a `zarr-multivec` plugin data fetcher.
+- Add auto-sliders to layer controller.
 
 ### Changed
 - In the SpatialSubscriber component, no longer display counts for cells, molecules, or locations if the count value is zero.
-
+- Upgrade Viv to 0.4.2.
 
 ## [0.2.3](https://www.npmjs.com/package/vitessce/v/0.2.3) - 2020-08-04
 
