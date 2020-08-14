@@ -98,8 +98,10 @@ class Spatial extends PureComponent {
     this.onUpdateNeighborhoods();
     this.onUpdateImages();
 
+    this.cellsLayer = null;
+    this.moleculesLayer = null;
+    this.neighborhoodsLayer = null;
     this.imageLayers = [];
-    this.selectionLayers = [];
   }
 
   onViewStateChange({ viewState: nextViewState }) {
@@ -133,7 +135,8 @@ class Spatial extends PureComponent {
     this.setState({ tool });
   }
 
-  createCellsLayer() {
+  createCellsLayer(layerDef) {
+    const { radius, stroked, visible, opacity } = layerDef;
     const {
       selectedCellIds = new Set(),
       getCellIsSelected = cellEntry => (
@@ -143,12 +146,10 @@ class Spatial extends PureComponent {
       ),
       cellColors = {},
       getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
-      cellRadius = 50,
       getCellPolygon = (cellEntry) => {
         const cell = cellEntry[1];
-        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], cellRadius);
+        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
       },
-      cellOpacity = 1.0,
       onCellClick = (info) => {
         const cellId = info.object[0];
         const newSelectedCellIds = new Set(selectedCellIds);
@@ -160,7 +161,6 @@ class Spatial extends PureComponent {
           updateCellsSelection(newSelectedCellIds);
         }
       },
-      areCellsOn = true,
       lineWidthScale = 10,
       lineWidthMaxPixels = 2,
       updateStatus, updateCellsHover, uuid,
@@ -176,14 +176,14 @@ class Spatial extends PureComponent {
       id: CELLS_LAYER_ID,
       backgroundColor: [0, 0, 0],
       isSelected: getCellIsSelected,
-      stroked: true,
+      stroked: stroked,
       getPolygon: getCellPolygon,
       updateTriggers: {
-        getFillColor: [cellOpacity],
+        getFillColor: [opacity],
       },
       getFillColor: (cellEntry) => {
         const color = getCellColor(cellEntry);
-        color[3] = cellOpacity * 255;
+        color[3] = opacity * 255;
         return color;
       },
       getLineColor: (cellEntry) => {
@@ -199,37 +199,38 @@ class Spatial extends PureComponent {
         }
         onCellClick(info);
       },
-      visible: areCellsOn,
+      visible: visible,
       ...cellLayerDefaultProps(cellsEntries, updateStatus, updateCellsHover, uuid, flipYTooltip),
-      getLineWidth: cellOpacity < 0.7 ? 1 : 0,
+      getLineWidth: stroked ? 1 : 0,
       lineWidthScale,
       lineWidthMaxPixels,
     });
   }
 
-  createMoleculesLayer() {
+  createMoleculesLayer(layerDef) {
     const {
-      moleculesOpacity = 1.0, moleculeRadius = 10, areMoleculesOn = true, updateStatus,
+      updateStatus,
       getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
       getMoleculePosition = d => [d[0], d[1], 0],
     } = this.props;
     const { moleculesEntries } = this;
+    
     return new ScatterplotLayer({
       id: MOLECULES_LAYER_ID,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: moleculesEntries,
       pickable: true,
-      opacity: moleculesOpacity,
       autoHighlight: true,
-      getRadius: moleculeRadius,
       radiusMaxPixels: 3,
+      opacity: layerDef.opacity,
+      visible: layerDef.visible,
+      getRadius: layerDef.radius,
       getPosition: getMoleculePosition,
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       onHover: (info) => {
         if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
       },
-      visible: areMoleculesOn,
     });
   }
 
@@ -246,17 +247,13 @@ class Spatial extends PureComponent {
     );
   }
 
-  createImageLayer(loaderDef, layerDef) {
-
-    console.log('createImageLayer', loaderDef, layerDef);
-
-    const { loader, index: layerId } = loaderDef;
+  createImageLayer(layerDef, loader) {
     const layerProps = {
       colormap: layerDef.colormap,
       opacity: layerDef.opacity,
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
-      visibilities: layerDef.channels.map(c => c.visibility),
+      visibilities: layerDef.channels.map(c => c.visible),
       selections: layerDef.channels.map(c => c.selection),
     };
 
@@ -265,7 +262,7 @@ class Spatial extends PureComponent {
     const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
     return new Layer({
       loader,
-      id: layerId,
+      id: layerDef.index,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
       loaderSelection: layerProps.selections,
@@ -294,20 +291,30 @@ class Spatial extends PureComponent {
   }
 
   onUpdateCells() {
-    const { cells = {}, getCellCoords = defaultGetCellCoords, } = this.props;
+    const { cells = {}, getCellCoords = defaultGetCellCoords, layers = [] } = this.props;
     const cellsEntries = Object.entries(cells);
     this.cellsEntries = cellsEntries;
     this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
-    this.cellsLayer = this.createCellsLayer();
+    const layerDef = layers.find(layer => layer.type === "cells");
+    if(layerDef) {
+      this.cellsLayer = this.createCellsLayer(layerDef);
+    } else {
+      this.cellsLayer = null;
+    }
   }
 
   onUpdateMolecules() {
-    const { molecules = {} } = this.props;
+    const { molecules = {}, layers = [] } = this.props;
     const moleculesEntries = Object
         .entries(molecules)
         .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]));
     this.moleculesEntries = moleculesEntries;
-    this.moleculesLayer = this.createMoleculesLayer();
+    const layerDef = layers.find(layer => layer.type === "molecules");
+    if(layerDef) {
+      this.moleculesLayer = this.createMoleculesLayer(layerDef);
+    } else {
+      this.moleculesLayer = null;
+    }
   }
 
   onUpdateNeighborhoods() {
@@ -315,28 +322,25 @@ class Spatial extends PureComponent {
   }
 
   onUpdateImages() {
-    const { imageLayerLoaders = [], imageLayerDefs = [] } = this.props;
+    const { imageLayerLoaders = {}, layers = [] } = this.props;
 
-    if(imageLayerDefs.length === imageLayerLoaders.length) {
-      this.imageLayers = imageLayerLoaders.map((loaderDef, i) => this.createImageLayer(loaderDef, imageLayerDefs[i]));
-    }
-    
-    
-    console.log(this.imageLayers);
+    this.imageLayers = layers
+      .filter(layer => layer.type === "raster")
+      .map((layer) => this.createImageLayer(layer, imageLayerLoaders[layer.index]));
   }
 
   componentDidUpdate(prevProps) {
-    if(prevProps.cells !== this.props.cells) {
+    if(prevProps.cells !== this.props.cells || prevProps.layers !== this.props.layers) {
       console.log("cells changed")
       this.onUpdateCells();
     }
 
-    if(prevProps.molecules !== this.props.molecules) {
+    if(prevProps.molecules !== this.props.molecules || prevProps.layers !== this.props.layers) {
       console.log("molecules changed")
       this.onUpdateMolecules();
     }
 
-    if(prevProps.imageLayerLoaders !== this.props.imageLayerLoaders || prevProps.imageLayerDefs !== this.props.imageLayerDefs) {
+    if(prevProps.imageLayerLoaders !== this.props.imageLayerLoaders || prevProps.layers !== this.props.layers) {
       console.log("images changed")
       this.onUpdateImages();
     }

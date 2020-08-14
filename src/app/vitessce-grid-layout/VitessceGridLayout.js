@@ -14,7 +14,8 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
 
 export default function VitessceGridLayout(props) {
   const {
-    layout, loaders, getComponent, padding, margin, draggableHandle,
+    layout, loaders, coordinationInitializationStrategy,
+    getComponent, padding, margin, draggableHandle,
     reactGridLayoutProps, onAllReady, rowHeight, theme, height,
   } = props;
 
@@ -82,6 +83,7 @@ export default function VitessceGridLayout(props) {
           uid={v.uid}
           coordinationScopes={v.coordinationScopes}
           loaders={loaders}
+          coordinationInitializationStrategy={coordinationInitializationStrategy}
           theme={theme}
           removeGridComponent={removeGridComponent}
           onReady={onReady}

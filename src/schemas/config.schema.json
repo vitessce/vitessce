@@ -140,7 +140,7 @@
             }
           }
         },
-        "spatialImageLayers": {
+        "spatialLayers": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "array", "items": { "type": "object" } }
@@ -167,6 +167,12 @@
         }
       }
     },
-    "layout": { "$ref": "#/definitions/components" }
+    "layout": { "$ref": "#/definitions/components" },
+    "coordinationInitializationStrategy": {
+      "type": "object",
+      "patternProperties": {
+        "spatialLayers": { "type": "string", "enum": ["auto"] }
+      }
+    }
   }
 }

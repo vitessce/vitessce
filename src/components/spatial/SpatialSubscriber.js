@@ -43,6 +43,7 @@ export default function SpatialSubscriber(props) {
     uid,
     loaders,
     coordinationScopes,
+    coordinationInitializationStrategy,
     removeGridComponent,
     moleculeRadius,
     cellRadius,
@@ -61,11 +62,11 @@ export default function SpatialSubscriber(props) {
     dataset,
     spatialZoom: zoom,
     spatialTarget: target,
-    spatialImageLayers: imageLayerDefs,
+    spatialLayers: layers,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTarget: setTarget,
-    setSpatialImageLayers: setImageLayerDefs,
+    setSpatialLayers: setLayers,
   }] = useCoordination(componentCoordinationTypes.spatial, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -92,8 +93,7 @@ export default function SpatialSubscriber(props) {
   // coordination space stored as JSON in the view config,
   // we need to set up a separate state variable here to store the
   // non-JSON objects, such as layer loader instances.
-  const [imageLayerLoaders, setImageLayerLoaders] = useState();
-
+  const [imageLayerLoaders, setImageLayerLoaders] = useState({});
 
   useEffect(() => {
     resetUrls();
@@ -130,17 +130,16 @@ export default function SpatialSubscriber(props) {
         addUrl(url, name);
       });
       
-      const { layers, renderLayers } = data;
-      initializeLayersAndChannels(layers, renderLayers).then((renderLayersWithLoaders) => {
-        setImageLayerLoaders(renderLayersWithLoaders.map(d => ({ index: d.index, loader: d.loader })));
-        if(!imageLayerDefs) {
-          setImageLayerDefs(renderLayersWithLoaders.map(d => ({ index: d.index, channels: d.channels, colormap: '', opacity: 1, })));
-        }
+      const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
+      initializeLayersAndChannels(rasterLayers, rasterRenderLayers, layers, coordinationInitializationStrategy.spatialLayers).then(([nextLayers, nextImageLoaders]) => {
+        console.log("setting layers", nextLayers, nextImageLoaders, layers)
+        setImageLayerLoaders(nextImageLoaders);
+        setLayers(nextLayers);
         setItemIsReady('raster');
       });
     });
     
-  }, [loaders, dataset]);
+  }, [loaders, dataset, coordinationInitializationStrategy]);
 
   const [moleculesCount, locationsCount] = useMemo(() => {
     if (!molecules) return [0, 0];
@@ -205,16 +204,14 @@ export default function SpatialSubscriber(props) {
         target={target}
         setZoom={setZoom}
         setTarget={setTarget}
+        layers={layers}
         cells={cells}
         selectedCellIds={selectedCellIds}
         neighborhoods={neighborhoods}
         molecules={molecules}
         moleculesOpacity={moleculesOpacity}
-        areCellsOn={areCellsOn}
         cellOpacity={cellOpacity}
         cellColors={cellColors}
-        areMoleculesOn={areMoleculesOn}
-        imageLayerDefs={imageLayerDefs}
         imageLayerLoaders={imageLayerLoaders}
         cellRadius={cellRadius}
         moleculeRadius={moleculeRadius}

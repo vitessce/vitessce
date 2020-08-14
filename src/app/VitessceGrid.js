@@ -129,6 +129,9 @@ export default function VitessceGrid(props) {
   }, [onWarn]);
 
   const setViewConfig = useStore(state => state.setViewConfig);
+  const coordinationInitializationStrategy = useStore(
+    state => state.viewConfig?.coordinationInitializationStrategy,
+  );
 
   useEffect(() => {
     setViewConfig(config);
@@ -142,6 +145,7 @@ export default function VitessceGrid(props) {
       <VitessceGridLayout
         layout={config.layout}
         loaders={loaders}
+        coordinationInitializationStrategy={coordinationInitializationStrategy}
         height={height}
         rowHeight={rowHeight}
         theme={theme}

@@ -187,6 +187,9 @@ const configs = {
         ]
       }
     ],
+    coordinationInitializationStrategy: {
+      spatialLayers: "auto",
+    },
     coordinationSpace: {
       dataset: {
         A: 'linnarsson-2018',
@@ -217,8 +220,29 @@ const configs = {
         A: [16000, 20000, 0],
         B: [16000, 20000, 0],
       },
-      spatialImageLayers: {
-        A: [],
+      spatialLayers: {
+        A: [
+          { type: 'raster', index: 0, opacity: 1, colormap: "", channels: [ { selection: { channel: 0 }, color: [0, 0, 255], domain: [0, 2676], slider: [1, 1473], visible: true } ] }
+        ],
+        B: [
+          { type: 'raster', index: 0, opacity: 1, colormap: "", channels: [ { selection: { channel: 0 }, color: [0, 255, 0], domain: [0, 2116], slider: [1, 447], visible: true } ] }
+        ],
+        C: [
+          { type: 'cells', visible: true, opacity: 1, radius: 50, stroked: false, },
+          { type: 'molecules', visible: true, opacity: 1, radius: 20, },
+          { type: 'raster', index: 0, opacity: 1, colormap: "", channels: [
+            { selection: { channel: 0 }, color: [0, 0, 255], domain: [0, 2676], slider: [1, 1473], visible: true },
+            { selection: { channel: 0 }, color: [0, 255, 0], domain: [0, 2116], slider: [1, 447], visible: true },
+
+          ] }
+        ],
+        D: [
+          { type: 'raster', index: 0, opacity: 1, colormap: "plasma", channels: [
+            { selection: { channel: 0 }, color: [0, 0, 255], domain: [0, 2676], slider: [1, 1473], visible: true },
+            { selection: { channel: 0 }, color: [0, 255, 0], domain: [0, 2116], slider: [1, 447], visible: true },
+
+          ] }
+        ],
       }
     },
     layout: [
@@ -238,18 +262,36 @@ const configs = {
           dataset: 'A',
           spatialZoom: 'A',
           spatialTarget: 'A',
-          spatialImageLayers: 'A'
+          spatialLayers: 'A'
         },
-        x: 0, y: 0, w: 4, h: 4 },
+        x: 0, y: 0, w: 3, h: 3 },
         { component: 'spatial',
         uid: 'spatial-2',
         coordinationScopes: {
           dataset: 'A',
           spatialZoom: 'A',
           spatialTarget: 'A',
-          spatialImageLayers: 'B'
+          spatialLayers: 'B'
         },
-        x: 0, y: 4, w: 4, h: 4 },
+        x: 0, y: 4, w: 3, h: 3 },
+        { component: 'spatial',
+        uid: 'spatial-3',
+        coordinationScopes: {
+          dataset: 'A',
+          spatialZoom: 'A',
+          spatialTarget: 'A',
+          spatialLayers: 'C'
+        },
+        x: 3, y: 0, w: 3, h: 3 },
+        { component: 'spatial',
+        uid: 'spatial-4',
+        coordinationScopes: {
+          dataset: 'A',
+          spatialZoom: 'A',
+          spatialTarget: 'A',
+          spatialLayers: 'D'
+        },
+        x: 3, y:3, w: 3, h: 3 },
       /*{ component: 'genes',
         x: 9, y: 0, w: 3, h: 2 },
       { component: 'cellSets',
@@ -264,7 +306,7 @@ const configs = {
         props: {
           transpose: true,
         },
-        x: 4, y: 4, w: 6, h: 4 },
+        x: 6, y: 3, w: 6, h: 4 },
       /*{ component: 'heatmap',
         uid: 'gene-exp-heatmap-2',
         coordinationScopes: {
@@ -284,7 +326,7 @@ const configs = {
           embeddingZoom: 'A',
           embeddingTarget: 'A'
         },
-        x: 6, y: 0, w: 3, h: 2 },
+        x: 6, y: 0, w: 3, h: 3 },
       { component: 'scatterplot',
         uid: 'tsne-scatterplot',
         coordinationScopes: {
@@ -293,7 +335,7 @@ const configs = {
           embeddingZoom: 'A',
           embeddingTarget: 'A'
         },
-        x: 9, y: 0, w: 3, h: 2 },
+        x: 9, y: 0, w: 3, h: 3 },
     ],
   },
   'linnarsson-2018-two-spatial': {
