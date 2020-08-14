@@ -84,9 +84,7 @@ export default function SpatialSubscriber(props) {
   const [neighborhoods, setNeighborhoods] = useState(null);
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
   const [cellOpacity, setCellOpacity] = useState(1);
-  const [areCellsOn, setCellsOn] = useState(true);
   const [moleculesOpacity, setMoleculesOpacity] = useState(1);
-  const [areMoleculesOn, setMoleculesOn] = useState(true);
   
   const [raster, setRaster] = useState();
   // Since we want the image layer / channel definitions to come from the
@@ -132,7 +130,6 @@ export default function SpatialSubscriber(props) {
       
       const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
       initializeLayersAndChannels(rasterLayers, rasterRenderLayers, layers, coordinationInitializationStrategy.spatialLayers).then(([nextLayers, nextImageLoaders]) => {
-        console.log("setting layers", nextLayers, nextImageLoaders, layers)
         setImageLayerLoaders(nextImageLoaders);
         setLayers(nextLayers);
         setItemIsReady('raster');
@@ -209,12 +206,8 @@ export default function SpatialSubscriber(props) {
         selectedCellIds={selectedCellIds}
         neighborhoods={neighborhoods}
         molecules={molecules}
-        moleculesOpacity={moleculesOpacity}
-        cellOpacity={cellOpacity}
         cellColors={cellColors}
         imageLayerLoaders={imageLayerLoaders}
-        cellRadius={cellRadius}
-        moleculeRadius={moleculeRadius}
         uuid={uuid}
         updateStatus={updateStatus}
         updateCellsSelection={updateCellsSelection}

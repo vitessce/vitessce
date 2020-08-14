@@ -46,6 +46,7 @@ export default function HeatmapSubscriber(props) {
   // know from which element they were generated.
   const uuid = uid;
 
+  const [isRendering, setIsRendering] = useState(false);
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     ['cells', 'cell-sets', 'expression-matrix'],
     Object.keys(loaders[dataset]?.loaders || {})
@@ -119,7 +120,7 @@ export default function HeatmapSubscriber(props) {
       urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}
-      isReady={isReady}
+      isReady={isReady && !isRendering}
     >
       <Heatmap
         ref={deckRef}
@@ -134,6 +135,7 @@ export default function HeatmapSubscriber(props) {
         uuid={uuid}
         expressionMatrix={expressionMatrix}
         cellColors={cellColors}
+        setIsRendering={setIsRendering}
         updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
         updateGenesHover={hoverInfo => PubSub.publish(GENES_HOVER, hoverInfo)}
         updateStatus={message => PubSub.publish(STATUS_INFO, message)}

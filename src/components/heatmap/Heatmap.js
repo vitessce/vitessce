@@ -81,6 +81,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     updateGenesHover = createDefaultUpdateGenesHover('Heatmap'),
     updateStatus = createDefaultUpdateStatus('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
+    setIsRendering = () => {},
     transpose = false,
     variablesTitle = 'Genes',
     observationsTitle = 'Cells',
@@ -317,6 +318,10 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
   }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose, xTiles, yTiles]);
 
+  useEffect(() => {
+    setIsRendering(backlog.length > 0);
+  }, [backlog, setIsRendering]);
+
   // Update the heatmap tiles if:
   // - new tiles are available (`tileIteration` has changed), or
   // - the matrix bounds have changed, or
@@ -347,7 +352,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       });
     }
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
-  }, [backlog.length, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
+  }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
     aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels]);
 
 
@@ -359,7 +364,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
     new HeatmapCompositeTextLayer({
-      showLoadingIndicator: backlog.length,
+      showLoadingIndicator: false,
       targetX,
       targetY,
       scaleFactor,
