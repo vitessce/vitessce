@@ -246,10 +246,20 @@ class Spatial extends PureComponent {
     );
   }
 
-  createImageLayer(layerId, loader) {
-    const { imageLayerProps = {} } = this.props;
+  createImageLayer(loaderDef, layerDef) {
 
-    const layerProps = imageLayerProps[layerId];
+    console.log('createImageLayer', loaderDef, layerDef);
+
+    const { loader, index: layerId } = loaderDef;
+    const layerProps = {
+      colormap: layerDef.colormap,
+      opacity: layerDef.opacity,
+      colors: layerDef.channels.map(c => c.color),
+      sliders: layerDef.channels.map(c => c.slider),
+      visibilities: layerDef.channels.map(c => c.visibility),
+      selections: layerDef.channels.map(c => c.selection),
+    };
+
     if (!loader || !layerProps) return null;
     const { scale, translate, isPyramid } = loader;
     const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
@@ -305,10 +315,12 @@ class Spatial extends PureComponent {
   }
 
   onUpdateImages() {
-    const { imageLayerLoaders = {} } = this.props;
+    const { imageLayerLoaders = [], imageLayerDefs = [] } = this.props;
 
-    this.imageLayers = Object.entries(imageLayerLoaders)
-      .map(([layerId, layerLoader]) => this.createImageLayer(layerId, layerLoader));
+    if(imageLayerDefs.length === imageLayerLoaders.length) {
+      this.imageLayers = imageLayerLoaders.map((loaderDef, i) => this.createImageLayer(loaderDef, imageLayerDefs[i]));
+    }
+    
     
     console.log(this.imageLayers);
   }
@@ -324,7 +336,7 @@ class Spatial extends PureComponent {
       this.onUpdateMolecules();
     }
 
-    if(prevProps.imageLayerLoaders !== this.props.imageLayerLoaders || prevProps.imageLayerProps !== this.props.imageLayerProps) {
+    if(prevProps.imageLayerLoaders !== this.props.imageLayerLoaders || prevProps.imageLayerDefs !== this.props.imageLayerDefs) {
       console.log("images changed")
       this.onUpdateImages();
     }

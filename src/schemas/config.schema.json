@@ -140,6 +140,12 @@
             }
           }
         },
+        "spatialImageLayers": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "array", "items": { "type": "object" } }
+          }
+        },
         "heatmapZoom": {
           "type": "object",
           "patternProperties": {

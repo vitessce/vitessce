@@ -30,7 +30,7 @@ import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
-import { makeSpatialSubtitle } from './utils';
+import { makeSpatialSubtitle, initializeLayersAndChannels } from './utils';
 
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
@@ -61,9 +61,11 @@ export default function SpatialSubscriber(props) {
     dataset,
     spatialZoom: zoom,
     spatialTarget: target,
+    spatialImageLayers: imageLayerDefs,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTarget: setTarget,
+    setSpatialImageLayers: setImageLayerDefs,
   }] = useCoordination(componentCoordinationTypes.spatial, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -80,12 +82,18 @@ export default function SpatialSubscriber(props) {
   const [cellColors, setCellColors] = useState(null);
   const [neighborhoods, setNeighborhoods] = useState(null);
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
-  const [imageLayerProps, setImageLayerProps] = useState({});
-  const [imageLayerLoaders, setImageLayerLoaders] = useState({});
   const [cellOpacity, setCellOpacity] = useState(1);
   const [areCellsOn, setCellsOn] = useState(true);
   const [moleculesOpacity, setMoleculesOpacity] = useState(1);
   const [areMoleculesOn, setMoleculesOn] = useState(true);
+  
+  const [raster, setRaster] = useState();
+  // Since we want the image layer / channel definitions to come from the
+  // coordination space stored as JSON in the view config,
+  // we need to set up a separate state variable here to store the
+  // non-JSON objects, such as layer loader instances.
+  const [imageLayerLoaders, setImageLayerLoaders] = useState();
+
 
   useEffect(() => {
     resetUrls();
@@ -116,21 +124,23 @@ export default function SpatialSubscriber(props) {
       setItemIsReady('cell-sets');
     });
 
-    loaders[dataset]?.loaders['raster']?.load().then(({ data: { images, layers }, urls }) => {
-      layers.forEach(({ layerId, loader }) => {
-        setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: DEFAULT_LAYER_PROPS }));
-        setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
-
-        // TODO: initialize layers and channels and set their options in the view config.
-      });
+    loaders[dataset]?.loaders['raster']?.load().then(({ data, urls }) => {
+      setRaster(data);
       urls.forEach(([url, name]) => {
         addUrl(url, name);
       });
-      setItemIsReady('raster');
+      
+      const { layers, renderLayers } = data;
+      initializeLayersAndChannels(layers, renderLayers).then((renderLayersWithLoaders) => {
+        setImageLayerLoaders(renderLayersWithLoaders.map(d => ({ index: d.index, loader: d.loader })));
+        if(!imageLayerDefs) {
+          setImageLayerDefs(renderLayersWithLoaders.map(d => ({ index: d.index, channels: d.channels, colormap: '', opacity: 1, })));
+        }
+        setItemIsReady('raster');
+      });
     });
     
   }, [loaders, dataset]);
-
 
   const [moleculesCount, locationsCount] = useMemo(() => {
     if (!molecules) return [0, 0];
@@ -204,7 +214,7 @@ export default function SpatialSubscriber(props) {
         cellOpacity={cellOpacity}
         cellColors={cellColors}
         areMoleculesOn={areMoleculesOn}
-        imageLayerProps={imageLayerProps}
+        imageLayerDefs={imageLayerDefs}
         imageLayerLoaders={imageLayerLoaders}
         cellRadius={cellRadius}
         moleculeRadius={moleculeRadius}

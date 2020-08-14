@@ -196,11 +196,16 @@ export function useReady(supportedItems, datasetItems) {
   const [waiting, setWaiting] = useState(items);
 
   function setItemIsReady(readyItem) {
-    setWaiting(waitingItems => waitingItems.filter(item => item !== readyItem));
+    setWaiting((waitingItems) => {
+      const nextWaitingItems = waitingItems.filter(item => item !== readyItem);
+      console.warn(`cleared ${readyItem}; waiting on ${nextWaitingItems.length}: ${JSON.stringify(nextWaitingItems)}`);
+      return nextWaitingItems;
+    });
   }
 
   function resetReadyItems() {
     setWaiting(items);
+    console.warn(`waiting on ${items.length}: ${JSON.stringify(items)}`);
   }
 
   const isReady = waiting.length === 0;

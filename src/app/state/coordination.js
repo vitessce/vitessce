@@ -86,11 +86,8 @@ export const coordinationTypes = {
     name: 'Cell Color Encoding',
     defaultValue: 'cellSetSelection',
   },
-  imageLayers: {
-    name: 'Image Layers',
-  },
-  lensLayers: {
-    name: 'Lens Layers',
+  spatialImageLayers: {
+    name: 'Spatial Image Layers',
   },
   genomicZoom: {
     name: 'Genomic Track Zoom',
@@ -122,8 +119,7 @@ export const componentCoordinationTypes = {
   ],
   spatial: [
     'dataset',
-    'spatialZoom', 'spatialTarget',
-    'imageLayers', 'lensLayers',
+    'spatialZoom', 'spatialTarget', 'spatialImageLayers',
     'cellFilter', 'cellHighlight', 'cellSelection',
     'cellSetSelection', 'cellSetHighlight',
     'geneHighlight', 'geneSelection',

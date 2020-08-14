@@ -66,25 +66,17 @@ export default class RasterLoader extends JsonLoader {
             .filter(image => !image.url.includes('zarr'))
             .map((image) => ([image.url, image.name]));
         
-        const layers = [];
+        const imagesWithLoaderCreators = images.map(image => {
+            return {
+                ...image,
+                loaderCreator: async () => {
+                    const loader = await initLoader(image);
+                    return loader;
+                },
+            };
+        });
         
-        // renderLayers provides the order for rendering initially.
-        if (!renderLayers) {
-            const layerId = uuidv4();
-            // Midpoint of images list as default image to show.
-            const imageData = images[Math.floor(images.length / 2)];
-            const loader = await initLoader(imageData);
-            layers.push({ layerId, imageData, loader });
-        } else {
-            const newLayersAndLoaders = await Promise.all(renderLayers.map(async (imageName) => {
-                const layerId = uuidv4();
-                const [imageData] = images.filter(image => image.name === imageName);
-                const loader = await initLoader(imageData);
-                return { layerId, imageData, loader };
-            }));
-            layers.concat(newLayersAndLoaders);
-        }
-        resolve({ data: { images, layers }, urls });
+        resolve({ data: { layers: imagesWithLoaderCreators, renderLayers }, urls });
       }).catch((reason) => {
         reject(reason);
       });

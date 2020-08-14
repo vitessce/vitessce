@@ -216,6 +216,9 @@ const configs = {
       spatialTarget: {
         A: [16000, 20000, 0],
         B: [16000, 20000, 0],
+      },
+      spatialImageLayers: {
+        A: [],
       }
     },
     layout: [
@@ -234,7 +237,8 @@ const configs = {
         coordinationScopes: {
           dataset: 'A',
           spatialZoom: 'A',
-          spatialTarget: 'A'
+          spatialTarget: 'A',
+          spatialImageLayers: 'A'
         },
         x: 0, y: 0, w: 4, h: 4 },
         { component: 'spatial',
@@ -242,7 +246,8 @@ const configs = {
         coordinationScopes: {
           dataset: 'A',
           spatialZoom: 'A',
-          spatialTarget: 'A'
+          spatialTarget: 'A',
+          spatialImageLayers: 'B'
         },
         x: 0, y: 4, w: 4, h: 4 },
       /*{ component: 'genes',
