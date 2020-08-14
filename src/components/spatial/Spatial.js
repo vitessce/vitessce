@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, {
-  useState, useCallback, useMemo, forwardRef,
+  useState, useCallback, useMemo, forwardRef, PureComponent,
 } from 'react';
 import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
@@ -19,10 +19,30 @@ import {
 
 const COMPONENT_NAME = 'Spatial';
 const CELLS_LAYER_ID = 'cells-layer';
+const MOLECULES_LAYER_ID = 'molecules-layer';
 
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
+}
+
+const getCursorWithTool = () => 'crosshair';
+const getCursor = interactionState => (interactionState.isDragging ? 'grabbing' : 'default');
+
+const defaultGetCellCoords = cell => cell.xy;
+
+function createCellsQuadTree(cellsEntries, getCellCoords) {
+  // Use the cellsEntries variable since it is already
+  // an array, converted by Object.entries().
+  if (!cellsEntries) {
+    // Abort if the cells data is not yet available.
+    return null;
+  }
+  const tree = quadtree()
+    .x(d => getCellCoords(d[1])[0])
+    .y(d => getCellCoords(d[1])[1])
+    .addAll(cellsEntries);
+  return tree;
 }
 
 /**
@@ -34,7 +54,6 @@ export function square(x, y, r) {
  * @prop {object} molecules
  * @prop {object} cells
  * @prop {object} neighborhoods
- * @prop {number} cellRadius
  * @prop {number} moleculeRadius
  * @prop {number} cellOpacity The value for `opacity` to pass
  * to the deck.gl cells PolygonLayer.
@@ -58,207 +77,178 @@ export function square(x, y, r) {
  * @prop {function} updateViewInfo
  * @prop {function} onCellClick Getter function for cell layer onClick.
  */
-const Spatial = forwardRef((props, deckRef) => {
-  const {
-    uuid = null,
-    zoom = 0,
-    target = [0, 0, 0],
-    setZoom,
-    setTarget,
-    molecules = {},
-    cells: cellsData,
-    neighborhoods = {},
-    areNeighborhoodsOn = false,
-    cellRadius = 50,
-    areCellsOn = true,
-    moleculeRadius = 10,
-    cellOpacity = 1.0,
-    moleculesOpacity = 1.0,
-    lineWidthScale = 10,
-    lineWidthMaxPixels = 2,
-    areMoleculesOn = true,
-    imageLayerProps = {},
-    imageLayerLoaders = {},
-    cellColors = {},
-    selectedCellIds = new Set(),
-    getCellCoords = cell => cell.xy,
-    getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
-    getCellPolygon = (cellEntry) => {
-      const cell = cellEntry[1];
-      return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], cellRadius);
-    },
-    getCellIsSelected = cellEntry => (
-      selectedCellIds.size
-        ? selectedCellIds.has(cellEntry[0])
-        : true // If nothing is selected, everything is selected.
-    ),
-    getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
-    getMoleculePosition = d => [d[0], d[1], 0],
-    getNeighborhoodPolygon = (neighborhoodsEntry) => {
-      const neighborhood = neighborhoodsEntry[1];
-      return neighborhood.poly;
-    },
-    updateStatus = createDefaultUpdateStatus(COMPONENT_NAME),
-    updateCellsSelection = createDefaultUpdateCellsSelection(COMPONENT_NAME),
-    updateCellsHover = createDefaultUpdateCellsHover(COMPONENT_NAME),
-    updateViewInfo = createDefaultUpdateViewInfo(COMPONENT_NAME),
-    clearPleaseWait = createDefaultClearPleaseWait(COMPONENT_NAME),
-    onCellClick = (info) => {
-      const cellId = info.object[0];
-      const newSelectedCellIds = new Set(selectedCellIds);
-      if (selectedCellIds.has(cellId)) {
-        newSelectedCellIds.delete(cellId);
-        updateCellsSelection(newSelectedCellIds);
-      } else {
-        newSelectedCellIds.add(cellId);
-        updateCellsSelection(newSelectedCellIds);
-      }
-    },
-  } = props;
 
-  const viewState = { zoom, target };
+class Spatial extends PureComponent {
 
-  // In Deck.gl, layers are considered light weight, and
-  // can be created and destroyed quickly, if the data they wrap is stable.
-  // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
+  constructor(props) {
+    super(props);
 
-  const [gl, setGl] = useState(null);
-  const [tool, setTool] = useState(null);
+    this.state = {
+      gl: null,
+      tool: null,
+    };
 
-  const onInitializeViewInfo = ({ viewport }) => {
+    this.onViewStateChange = this.onViewStateChange.bind(this);
+    this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
+    this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
+    this.onToolChange = this.onToolChange.bind(this);
+
+    this.onUpdateCells();
+    this.onUpdateMolecules();
+    this.onUpdateNeighborhoods();
+    this.onUpdateImages();
+
+    this.imageLayers = [];
+    this.selectionLayers = [];
+  }
+
+  onViewStateChange({ viewState: nextViewState }) {
+    const { setZoom, setTarget } = this.props;
+    const { zoom, target } = nextViewState;
+    setZoom(zoom);
+    setTarget(target);
+  }
+
+  onInitializeViewInfo({ viewport }) {
+    const { updateViewInfo, cells, uuid, getCellCoords = defaultGetCellCoords } = this.props;
     updateViewInfo({
       uuid,
       project: (cellId) => {
-        const cell = cellsData.find(cell => (cell[0] === cellId));
+        const cell = cells[cellId];
         try {
-          const [positionX, positionY] = getCellCoords(cell[1]);
+          const [positionX, positionY] = getCellCoords(cell);
           return viewport.project([positionX, positionY]);
         } catch (e) {
           return [null, null];
         }
       },
-    })
-  };
+    });
+  }
 
-  // Listen for viewState changes.
-  const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
-    const { zoom, target } = nextViewState;
-    setZoom(zoom);
-    setTarget(target);
-  }, [setZoom, setTarget]);
+  onWebGLInitialized(gl) {
+    this.setState({ gl });
+  }
 
-  const moleculesData = useMemo(() => {
-    let result = null;
-    if (molecules) {
-      // Process molecules data and cache into re-usable array.
-      result = [];
-      result = Object
-        .entries(molecules)
-        .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]));
-      if (clearPleaseWait) clearPleaseWait('molecules');
-    }
-    return result;
-  }, [molecules, clearPleaseWait]);
+  onToolChange(tool) {
+    this.setState({ tool });
+  }
 
-  const neighborhoodsData = useMemo(() => {
-    let result = null;
-    if (neighborhoods) {
-      // Process neighborhoods data and cache into re-usable array.
-      result = Object.entries(neighborhoods);
-      if (clearPleaseWait) clearPleaseWait('neighborhoods');
-    }
-    return result;
-  }, [neighborhoods, clearPleaseWait]);
+  createCellsLayer() {
+    const {
+      selectedCellIds = new Set(),
+      getCellIsSelected = cellEntry => (
+        selectedCellIds.size
+          ? selectedCellIds.has(cellEntry[0])
+          : true // If nothing is selected, everything is selected.
+      ),
+      cellColors = {},
+      getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
+      cellRadius = 50,
+      getCellPolygon = (cellEntry) => {
+        const cell = cellEntry[1];
+        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], cellRadius);
+      },
+      cellOpacity = 1.0,
+      onCellClick = (info) => {
+        const cellId = info.object[0];
+        const newSelectedCellIds = new Set(selectedCellIds);
+        if (selectedCellIds.has(cellId)) {
+          newSelectedCellIds.delete(cellId);
+          updateCellsSelection(newSelectedCellIds);
+        } else {
+          newSelectedCellIds.add(cellId);
+          updateCellsSelection(newSelectedCellIds);
+        }
+      },
+      areCellsOn = true,
+      lineWidthScale = 10,
+      lineWidthMaxPixels = 2,
+      updateStatus, updateCellsHover, uuid,
+    } = this.props;
 
-  const cellsQuadTree = useMemo(() => {
-    // Use the cellsData variable since it is already
-    // an array, converted by Object.entries().
-    if (!cellsData) {
-      // Abort if the cells data is not yet available.
-      return null;
-    }
-    const tree = quadtree()
-      .x(d => getCellCoords(d[1])[0])
-      .y(d => getCellCoords(d[1])[1])
-      .addAll(cellsData);
-    return tree;
-  }, [getCellCoords, cellsData]);
+    const { cellsEntries } = this;
+    
+    // Graphics rendering has the y-axis positive going south,
+    // so we need to flip it for rendering tooltips.
+    const flipYTooltip = true;
 
-  // Graphics rendering has the y-axis positive going south,
-  // so we need to flip it for rendering tooltips.
-  const flipYTooltip = true;
+    return new SelectablePolygonLayer({
+      id: CELLS_LAYER_ID,
+      backgroundColor: [0, 0, 0],
+      isSelected: getCellIsSelected,
+      stroked: true,
+      getPolygon: getCellPolygon,
+      updateTriggers: {
+        getFillColor: [cellOpacity],
+      },
+      getFillColor: (cellEntry) => {
+        const color = getCellColor(cellEntry);
+        color[3] = cellOpacity * 255;
+        return color;
+      },
+      getLineColor: (cellEntry) => {
+        const color = getCellColor(cellEntry);
+        color[3] = 255;
+        return color;
+      },
+      onClick: (info) => {
+        if (tool) {
+          // If using a tool, prevent individual cell selection.
+          // Let SelectionLayer handle the clicks instead.
+          return;
+        }
+        onCellClick(info);
+      },
+      visible: areCellsOn,
+      ...cellLayerDefaultProps(cellsEntries, updateStatus, updateCellsHover, uuid, flipYTooltip),
+      getLineWidth: cellOpacity < 0.7 ? 1 : 0,
+      lineWidthScale,
+      lineWidthMaxPixels,
+    });
+  }
 
-  const cellsLayer = useMemo(() => new SelectablePolygonLayer({
-    id: CELLS_LAYER_ID,
-    backgroundColor: [0, 0, 0],
-    isSelected: getCellIsSelected,
-    stroked: true,
-    getPolygon: getCellPolygon,
-    updateTriggers: {
-      getFillColor: [cellOpacity],
-    },
-    getFillColor: (cellEntry) => {
-      const color = getCellColor(cellEntry);
-      color[3] = cellOpacity * 255;
-      return color;
-    },
-    getLineColor: (cellEntry) => {
-      const color = getCellColor(cellEntry);
-      color[3] = 255;
-      return color;
-    },
-    onClick: (info) => {
-      if (tool) {
-        // If using a tool, prevent individual cell selection.
-        // Let SelectionLayer handle the clicks instead.
-        return;
-      }
-      onCellClick(info);
-    },
-    visible: areCellsOn,
-    ...cellLayerDefaultProps(cellsData, updateStatus, updateCellsHover, uuid, flipYTooltip),
-    getLineWidth: cellOpacity < 0.7 ? 1 : 0,
-    lineWidthScale,
-    lineWidthMaxPixels,
+  createMoleculesLayer() {
+    const {
+      moleculesOpacity = 1.0, moleculeRadius = 10, areMoleculesOn = true, updateStatus,
+      getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
+      getMoleculePosition = d => [d[0], d[1], 0],
+    } = this.props;
+    const { moleculesEntries } = this;
+    return new ScatterplotLayer({
+      id: MOLECULES_LAYER_ID,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: moleculesEntries,
+      pickable: true,
+      opacity: moleculesOpacity,
+      autoHighlight: true,
+      getRadius: moleculeRadius,
+      radiusMaxPixels: 3,
+      getPosition: getMoleculePosition,
+      getLineColor: getMoleculeColor,
+      getFillColor: getMoleculeColor,
+      onHover: (info) => {
+        if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
+      },
+      visible: areMoleculesOn,
+    });
+  }
 
-  }), [cellsData, updateStatus, updateCellsHover,
-    uuid, onCellClick, tool, getCellColor, getCellPolygon, cellOpacity,
-    getCellIsSelected, areCellsOn, lineWidthScale, lineWidthMaxPixels, flipYTooltip]);
+  createSelectionLayers() {
+    const { tool, zoom, getCellCoords = defaultGetCellCoords, updateCellsSelection } = this.props;
+    const { cellsQuadTree } = this;
+    return getSelectionLayers(
+      tool,
+      zoom,
+      CELLS_LAYER_ID,
+      getCellCoords,
+      updateCellsSelection,
+      cellsQuadTree,
+    );
+  }
 
-  const moleculesLayer = useMemo(() => new ScatterplotLayer({
-    id: 'molecules-layer',
-    coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: moleculesData,
-    pickable: true,
-    opacity: moleculesOpacity,
-    autoHighlight: true,
-    getRadius: moleculeRadius,
-    radiusMaxPixels: 3,
-    getPosition: getMoleculePosition,
-    getLineColor: getMoleculeColor,
-    getFillColor: getMoleculeColor,
-    onHover: (info) => {
-      if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
-    },
-    visible: areMoleculesOn,
-  }), [moleculesData, moleculeRadius, getMoleculePosition, getMoleculeColor,
-    updateStatus, moleculesOpacity, areMoleculesOn]);
+  createImageLayer(layerId, loader) {
+    const { imageLayerProps = {} } = this.props;
 
-  const neighborhoodsLayer = useMemo(() => new PolygonLayer({
-    id: 'neighborhoods-layer',
-    getPolygon: getNeighborhoodPolygon,
-    coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: neighborhoodsData,
-    pickable: true,
-    autoHighlight: true,
-    stroked: true,
-    filled: false,
-    getElevation: 0,
-    getLineWidth: 10,
-    visible: areNeighborhoodsOn,
-  }), [neighborhoodsData, getNeighborhoodPolygon, areNeighborhoodsOn]);
-
-  const renderImageLayer = useCallback((layerId, loader) => {
     const layerProps = imageLayerProps[layerId];
     if (!loader || !layerProps) return null;
     const { scale, translate, isPyramid } = loader;
@@ -275,60 +265,102 @@ const Spatial = forwardRef((props, deckRef) => {
       scale: scale || 1,
       translate: translate ? [translate.x, translate.y] : [0, 0],
     });
-  }, [imageLayerProps]);
+  }
 
-  const imageLayers = useMemo(() => Object.entries(imageLayerLoaders)
-    .map(([layerId, layerLoader]) => renderImageLayer(layerId, layerLoader)), [
-    renderImageLayer, imageLayerLoaders,
-  ]);
+  getLayers() {
+    const {
+      imageLayers,
+      cellsLayer,
+      neighborhoodsLayer,
+      moleculesLayer,
+    } = this;
+    return [
+      ...imageLayers,
+      cellsLayer,
+      ...this.createSelectionLayers(),
+      neighborhoodsLayer,
+      moleculesLayer,
+    ];
+  }
 
-  const layers = [
-    ...imageLayers,
-    cellsLayer,
-    neighborhoodsLayer,
-    moleculesLayer,
-  ];
+  onUpdateCells() {
+    const { cells = {}, getCellCoords = defaultGetCellCoords, } = this.props;
+    const cellsEntries = Object.entries(cells);
+    this.cellsEntries = cellsEntries;
+    this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
+    this.cellsLayer = this.createCellsLayer();
+  }
 
-  const selectionLayers = getSelectionLayers(
-    tool,
-    zoom,
-    CELLS_LAYER_ID,
-    getCellCoords,
-    updateCellsSelection,
-    cellsQuadTree,
-  );
+  onUpdateMolecules() {
+    const { molecules = {} } = this.props;
+    const moleculesEntries = Object
+        .entries(molecules)
+        .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]));
+    this.moleculesEntries = moleculesEntries;
+    this.moleculesLayer = this.createMoleculesLayer();
+  }
 
-  const deckProps = {
-    views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
-    // gl needs to be initialized for us to use it in Texture creation
-    layers: gl ? layers.concat(selectionLayers) : [],
-    ...(tool ? {
-      controller: { dragPan: false },
-      getCursor: () => 'crosshair',
-    } : {
-      controller: true,
-      getCursor: interactionState => (interactionState.isDragging ? 'grabbing' : 'default'),
-    }),
-  };
+  onUpdateNeighborhoods() {
 
-  return (
-    <>
-      <ToolMenu
-        activeTool={tool}
-        setActiveTool={setTool}
-      />
-      <DeckGL
-        ref={deckRef}
-        glOptions={DEFAULT_GL_OPTIONS}
-        onWebGLInitialized={setGl}
-        onViewStateChange={onViewStateChange}
-        viewState={viewState}
-        {...deckProps}
-      >
-        {onInitializeViewInfo}
-      </DeckGL>
-    </>
-  );
-});
+  }
 
-export default Spatial;
+  onUpdateImages() {
+    const { imageLayerLoaders = {} } = this.props;
+
+    this.imageLayers = Object.entries(imageLayerLoaders)
+      .map(([layerId, layerLoader]) => this.createImageLayer(layerId, layerLoader));
+    
+    console.log(this.imageLayers);
+  }
+
+  componentDidUpdate(prevProps) {
+    if(prevProps.cells !== this.props.cells) {
+      console.log("cells changed")
+      this.onUpdateCells();
+    }
+
+    if(prevProps.molecules !== this.props.molecules) {
+      console.log("molecules changed")
+      this.onUpdateMolecules();
+    }
+
+    if(prevProps.imageLayerLoaders !== this.props.imageLayerLoaders || prevProps.imageLayerProps !== this.props.imageLayerProps) {
+      console.log("images changed")
+      this.onUpdateImages();
+    }
+  }
+
+  render() {
+    const { deckRef, zoom = 0, target = [0, 0, 0], } = this.props;
+    const { gl, tool } = this.state;
+    const layers = this.getLayers();
+
+    const viewState = { zoom, target };
+
+    return (
+      <>
+        <ToolMenu
+          activeTool={tool}
+          setActiveTool={this.onToolChange}
+        />
+        <DeckGL
+          ref={deckRef}
+          views={[new OrthographicView({ id: 'ortho' })]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
+          layers={gl ? layers : ([])}
+          glOptions={DEFAULT_GL_OPTIONS}
+          onWebGLInitialized={this.onWebGLInitialized}
+          onViewStateChange={this.onViewStateChange}
+          viewState={viewState}
+          controller={tool ? ({ dragPan: false }) : true}
+          getCursor={tool ? getCursorWithTool : getCursor}
+        >
+          {this.onInitializeViewInfo}
+        </DeckGL>
+      </>
+    );
+  }
+}
+
+const SpatialWrapper = forwardRef((props, deckRef) => { return <Spatial {...props} deckRef={deckRef} />;  });
+
+export default SpatialWrapper;

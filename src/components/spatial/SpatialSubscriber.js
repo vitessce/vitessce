@@ -34,6 +34,9 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
 
+import { DEFAULT_LAYER_PROPS } from './constants';
+import { buildDefaultSelection } from './utils';
+
 export default function SpatialSubscriber(props) {
   const {
     uid,
@@ -69,9 +72,10 @@ export default function SpatialSubscriber(props) {
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
 
-  const [cellsData, setCellsData] = useState(null);
-  const [cellSets, setCellSets] = useState(null);
-  const [molecules, setMolecules] = useState(null);
+  const [cells, setCells] = useState();
+  const [cellsCount, setCellsCount] = useState(0);
+  const [cellSets, setCellSets] = useState();
+  const [molecules, setMolecules] = useState();
   const [cellColors, setCellColors] = useState(null);
   const [neighborhoods, setNeighborhoods] = useState(null);
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
@@ -87,7 +91,7 @@ export default function SpatialSubscriber(props) {
     resetReadyItems();
 
     loaders[dataset]?.loaders['molecules']?.load().then(({ data, url }) => {
-      //setMolecules(data);
+      setMolecules(data);
       addUrl(url, 'Molecules');
       setItemIsReady('molecules');
     });
@@ -99,7 +103,8 @@ export default function SpatialSubscriber(props) {
     });
 
     loaders[dataset]?.loaders['cells']?.load().then(({ data, url }) => {
-      setCellsData(Object.entries(data));
+      setCells(data);
+      setCellsCount(Object.keys(data).length);
       addUrl(url, 'Cells');
       setItemIsReady('cells');
     });
@@ -110,9 +115,15 @@ export default function SpatialSubscriber(props) {
       setItemIsReady('cell-sets');
     });
 
-    loaders[dataset]?.loaders['raster']?.load().then(({ data }) => {
-      data.images.filter(image => !image.url.includes('zarr')).forEach((image) => {
-        addUrl(image.url, image.name);
+    loaders[dataset]?.loaders['raster']?.load().then(({ data: { images, layers }, urls }) => {
+      layers.forEach(({ layerId, loader }) => {
+        setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: DEFAULT_LAYER_PROPS }));
+        setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
+
+        // TODO: initialize layers and channels and set their options in the view config.
+      });
+      urls.forEach(([url, name]) => {
+        addUrl(url, name);
       });
       setItemIsReady('raster');
     });
@@ -120,7 +131,6 @@ export default function SpatialSubscriber(props) {
   }, [loaders, dataset]);
 
 
-  const cellsCount = (cellsData ? cellsData.length : 0);
   const [moleculesCount, locationsCount] = useMemo(() => {
     if (!molecules) return [0, 0];
     return [
@@ -130,6 +140,8 @@ export default function SpatialSubscriber(props) {
         .reduce((a, b) => a + b, 0),
     ];
   }, [molecules]);
+
+  // TODO: remove these pubsub callbacks, use coordination objects instead.
   const updateStatus = useCallback(
     message => PubSub.publish(STATUS_INFO, message),
     [],
@@ -148,11 +160,11 @@ export default function SpatialSubscriber(props) {
   );
 
   const getCellInfo = (cellId) => {
-    const cell = cellsData.find(cell => cell[0] === cellId)
-    if(cell && cell[1]) {
+    const cell = cells[cellId]
+    if(cell) {
       return {
-        [`${capitalize(observationsLabel)} ID`]: cell[0],
-        ...cell[1].factors,
+        [`${capitalize(observationsLabel)} ID`]: cellId,
+        ...cell.factors,
       };
     }
   };
@@ -177,7 +189,7 @@ export default function SpatialSubscriber(props) {
         target={target}
         setZoom={setZoom}
         setTarget={setTarget}
-        cells={cellsData}
+        cells={cells}
         selectedCellIds={selectedCellIds}
         neighborhoods={neighborhoods}
         molecules={molecules}
