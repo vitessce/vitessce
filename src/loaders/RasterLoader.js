@@ -4,7 +4,7 @@ import range from 'lodash/range';
 import uuidv4 from 'uuid/v4';
 import rasterSchema from '../schemas/raster.schema.json';
 import JsonLoader from './JsonLoader';
-import { createZarrLoader, createOMETiffLoader } from '@hubmap/vitessce-image-viewer'; // TODO: change to @hms-dbmi/viv
+import { createZarrLoader, createOMETiffLoader } from '@hms-dbmi/viv';
 
 async function initLoader(imageData) {
     const {

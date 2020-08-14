@@ -5,7 +5,7 @@ import React, {
 import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
 } from 'deck.gl';
-import { VivViewerLayer, StaticImageLayer } from '@hubmap/vitessce-image-viewer';
+import { MultiscaleImageLayer, ImageLayer } from '@hms-dbmi/viv';
 import { quadtree } from 'd3-quadtree';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import ToolMenu from '../ToolMenu';
@@ -252,7 +252,7 @@ class Spatial extends PureComponent {
     const layerProps = imageLayerProps[layerId];
     if (!loader || !layerProps) return null;
     const { scale, translate, isPyramid } = loader;
-    const Layer = isPyramid ? VivViewerLayer : StaticImageLayer;
+    const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
     return new Layer({
       loader,
       id: layerId,

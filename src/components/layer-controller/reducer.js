@@ -126,13 +126,13 @@ export default function reducer(channels, action) {
       return nextChannels;
     }
     case 'ADD_CHANNEL': {
-      const { selection, domain } = payload;
+      const { selection, domain, slider } = payload;
       const channel = {
         selection,
         domain,
         color: [255, 255, 255],
         visibility: true,
-        slider: domain,
+        slider: slider || domain,
       };
       const channelId = String(Math.random());
       const nextChannels = { ...channels, [channelId]: channel };
@@ -143,16 +143,22 @@ export default function reducer(channels, action) {
     // Because the image layers are asynchronous, hurling a bunch of 'ADD_CHANNEL'
     // events can lead to unexpected behavior: https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176.
     case 'ADD_CHANNELS': {
-      const { selections, domains, colors } = payload;
+      const {
+        selections,
+        domains,
+        colors,
+        sliders,
+      } = payload;
       let nextChannels = { ...channels };
       selections.forEach((selection, i) => {
         const domain = domains[i];
+        const slider = sliders[i];
         const channel = {
           selection,
           domain,
           color: colors ? colors[i] : VIEWER_PALETTE[i],
           visibility: true,
-          slider: domain,
+          slider: slider || domain,
         };
         const channelId = String(Math.random());
         nextChannels = { ...nextChannels, [channelId]: channel };

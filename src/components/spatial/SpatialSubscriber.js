@@ -30,6 +30,7 @@ import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
+import { makeSpatialSubtitle } from './utils';
 
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
@@ -169,14 +170,19 @@ export default function SpatialSubscriber(props) {
     }
   };
 
+  const subtitle = makeSpatialSubtitle({
+    observationsCount: cellsCount,
+    observationsLabel,
+    observationsPluralLabel,
+    subobservationsCount: moleculesCount,
+    subobservationsLabel,
+    subobservationsPluralLabel,
+    locationsCount,
+  });
   return (
     <TitleInfo
       title="Spatial"
-      info={
-        `${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)},
-         ${moleculesCount} ${pluralize(subobservationsLabel, subobservationsPluralLabel, moleculesCount)}
-         at ${shortNumber(locationsCount)} locations`
-      }
+      info={subtitle}
       isSpatial
       urls={urls}
       theme={theme}
