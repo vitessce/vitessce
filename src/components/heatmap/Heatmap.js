@@ -68,10 +68,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   const {
     uuid,
     theme,
-    zoom,
-    target,
-    setZoom,
-    setTarget,
+    viewState: rawViewState,
+    setViewState,
     width: viewWidth,
     height: viewHeight,
     expressionMatrix: expression,
@@ -87,7 +85,11 @@ const Heatmap = forwardRef((props, deckRef) => {
     observationsTitle = 'Cells',
   } = props;
 
-  const viewState = { zoom, target: (transpose ? [target[1], target[0]] : target), minZoom: 0 };
+  const viewState = {
+    ...rawViewState,
+    target: (transpose ? [rawViewState.target[1], rawViewState.target[0]] : rawViewState.target),
+    minZoom: 0,
+  };
 
   const axisLeftTitle = (transpose ? variablesTitle : observationsTitle);
   const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
@@ -276,9 +278,11 @@ const Heatmap = forwardRef((props, deckRef) => {
       clamp(nextViewState.target[1], minTargetY, maxTargetY),
     ];
 
-    setZoom(nextZoom);
-    setTarget(transpose ? [nextTarget[1], nextTarget[0]] : nextTarget);
-  }, [matrixRight, matrixBottom, transpose, setZoom, setTarget]);
+    setViewState({
+      zoom: nextZoom,
+      target: (transpose ? [nextTarget[1], nextTarget[0]] : nextTarget),
+    });
+  }, [matrixRight, matrixBottom, transpose, setViewState]);
 
   // If `expression` or `cellOrdering` have changed,
   // then new tiles need to be generated,

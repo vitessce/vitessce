@@ -52,8 +52,10 @@ export function getSelectionLayers(
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     selectionType: tool,
     onSelect: ({ pickingInfos }) => {
-      const cellIds = new Set(pickingInfos.map(cellObj => cellObj[0]));
-      updateCellsSelection(cellIds);
+      const cellIds = pickingInfos.map(cellObj => cellObj[0]);
+      if (updateCellsSelection) {
+        updateCellsSelection(cellIds);
+      }
     },
     layerIds: [cellBaseLayerId],
     getTentativeFillColor: () => [255, 255, 255, 95],

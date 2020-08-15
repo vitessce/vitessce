@@ -33,11 +33,21 @@ export default function ScatterplotSubscriber(props) {
   const [{
     dataset,
     embeddingZoom: zoom,
-    embeddingTarget: target,
+    embeddingTargetX: targetX,
+    embeddingTargetY: targetY,
+    embeddingTargetZ: targetZ,
     embeddingType: mapping,
+    cellFilter,
+    cellSelection,
+    cellHighlight
   }, {
     setEmbeddingZoom: setZoom,
-    setEmbeddingTarget: setTarget,
+    setEmbeddingTargetX: setTargetX,
+    setEmbeddingTargetY: setTargetY,
+    setEmbeddingTargetZ: setTargetZ,
+    setCellFilter,
+    setCellSelection,
+    setCellHighlight,
   }] = useCoordination(componentCoordinationTypes.scatterplot, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -48,8 +58,6 @@ export default function ScatterplotSubscriber(props) {
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const [cells, setCells] = useState({});
-  const [selectedCellIds, setSelectedCellIds] = useState(new Set());
-  const [cellColors, setCellColors] = useState(null);
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
 
@@ -106,18 +114,25 @@ export default function ScatterplotSubscriber(props) {
         ref={deckRef}
         uuid={uid}
         theme={theme}
-        zoom={zoom}
-        target={target}
-        setZoom={setZoom}
-        setTarget={setTarget}
+        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        setViewState={({ zoom, target }) => {
+          setZoom(zoom);
+          setTargetX(target[0]);
+          setTargetY(target[1]);
+          setTargetZ(target[2]);
+        }}
         cells={cells}
         mapping={mapping}
-        selectedCellIds={selectedCellIds}
-        cellColors={cellColors}
+        cellFilter={cellFilter}
+        cellSelection={cellSelection}
+        cellHighlight={cellHighlight}
+
+        setCellFilter={setCellFilter}
+        setCellSelection={setCellSelection}
+        setCellHighlight={setCellHighlight}
+
         cellRadiusScale={cellRadiusScale}
-        updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-        updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
-        updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
+        
         updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
       />
       {!disableTooltip && (

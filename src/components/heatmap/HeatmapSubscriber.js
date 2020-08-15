@@ -31,11 +31,14 @@ export default function HeatmapSubscriber(props) {
 
   const [{
     dataset,
-    heatmapZoom: zoom,
-    heatmapTarget: target,
+    heatmapZoomX: zoomX,
+    heatmapTargetX: targetX,
+    heatmapTargetY: targetY,
   }, {
-    setHeatmapZoom: setZoom,
-    setHeatmapTarget: setTarget,
+    setHeatmapZoomX: setZoomX,
+    setHeatmapZoomY: setZoomY,
+    setHeatmapTargetX: setTargetX,
+    setHeatmapTargetY: setTargetY,
   }] = useCoordination(componentCoordinationTypes.heatmap, coordinationScopes);
 
   const observationsTitle = capitalize(observationsPluralLabel);
@@ -125,10 +128,13 @@ export default function HeatmapSubscriber(props) {
       <Heatmap
         ref={deckRef}
         transpose={transpose}
-        zoom={zoom}
-        target={target}
-        setZoom={setZoom}
-        setTarget={setTarget}
+        viewState={{ zoom: zoomX, target: [targetX, targetY] }}
+        setViewState={({ zoom, target }) => {
+          setZoomX(zoom);
+          setZoomY(zoom);
+          setTargetX(target[0]);
+          setTargetY(target[1]);
+        }}
         height={height}
         width={width}
         theme={theme}

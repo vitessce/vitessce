@@ -23,27 +23,37 @@ export function IconButton(props) {
 }
 
 export default function ToolMenu(props) {
-  const { setActiveTool, activeTool } = props;
+  const {
+    setActiveTool,
+    activeTool,
+    visibleTools = { pan: true, selectRectangle: true, selectLasso: true },
+  } = props;
   return (
     <div className="tool">
+      {visibleTools.pan && (
       <IconButton
         alt="pointer tool"
         onClick={() => setActiveTool(null)}
         isActive={activeTool === null}
       ><PointerIconSVG />
       </IconButton>
+      )}
+      {visibleTools.selectRectangle && (
       <IconButton
         alt="select rectangle"
         onClick={() => setActiveTool(SELECTION_TYPE.RECTANGLE)}
         isActive={activeTool === SELECTION_TYPE.RECTANGLE}
       ><SelectRectangleIconSVG />
       </IconButton>
+      )}
+      {visibleTools.selectLasso && (
       <IconButton
         alt="select lasso"
         onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
         isActive={activeTool === SELECTION_TYPE.POLYGON}
       ><SelectLassoIconSVG />
       </IconButton>
+      )}
     </div>
   );
 }

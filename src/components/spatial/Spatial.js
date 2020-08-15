@@ -2,6 +2,7 @@
 import React, {
   useState, useCallback, useMemo, forwardRef, PureComponent,
 } from 'react';
+import some from 'lodash/some';
 import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
 } from 'deck.gl';
@@ -105,10 +106,8 @@ class Spatial extends PureComponent {
   }
 
   onViewStateChange({ viewState: nextViewState }) {
-    const { setZoom, setTarget } = this.props;
-    const { zoom, target } = nextViewState;
-    setZoom(zoom);
-    setTarget(target);
+    const { setViewState } = this.props;
+    setViewState(nextViewState);
   }
 
   onInitializeViewInfo({ viewport }) {
@@ -132,41 +131,44 @@ class Spatial extends PureComponent {
   }
 
   onToolChange(tool) {
+    const { onToolChange: onToolChangeProp } = this.props;
     this.setState({ tool });
+    if (onToolChangeProp) {
+      onToolChangeProp(tool);
+    }
   }
 
   createCellsLayer(layerDef) {
     const { radius, stroked, visible, opacity } = layerDef;
     const {
-      selectedCellIds = new Set(),
+      cellFilter = null,
+      cellSelection = [],
+      cellHighlight = null,
+
+      setCellHighlight,
+
       getCellIsSelected = cellEntry => (
-        selectedCellIds.size
-          ? selectedCellIds.has(cellEntry[0])
+        cellSelection.length
+          ? cellSelection.includes(cellEntry[0])
           : true // If nothing is selected, everything is selected.
       ),
-      cellColors = {},
-      getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
+      // TODO: implement getCellColor based on cell set selections and gene expression selections.
+      getCellColor = () => DEFAULT_COLOR,
       getCellPolygon = (cellEntry) => {
         const cell = cellEntry[1];
         return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
       },
       onCellClick = (info) => {
         const cellId = info.object[0];
-        const newSelectedCellIds = new Set(selectedCellIds);
-        if (selectedCellIds.has(cellId)) {
-          newSelectedCellIds.delete(cellId);
-          updateCellsSelection(newSelectedCellIds);
-        } else {
-          newSelectedCellIds.add(cellId);
-          updateCellsSelection(newSelectedCellIds);
-        }
+        // TODO?
       },
       lineWidthScale = 10,
       lineWidthMaxPixels = 2,
-      updateStatus, updateCellsHover, uuid,
+      uuid,
     } = this.props;
-
+    const { tool } = this.state;
     const { cellsEntries } = this;
+    const filteredCellsEntries = (cellFilter ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0])) : cellsEntries);
     
     // Graphics rendering has the y-axis positive going south,
     // so we need to flip it for rendering tooltips.
@@ -181,14 +183,9 @@ class Spatial extends PureComponent {
       updateTriggers: {
         getFillColor: [opacity],
       },
-      getFillColor: (cellEntry) => {
+      getColor: (cellEntry) => {
         const color = getCellColor(cellEntry);
         color[3] = opacity * 255;
-        return color;
-      },
-      getLineColor: (cellEntry) => {
-        const color = getCellColor(cellEntry);
-        color[3] = 255;
         return color;
       },
       onClick: (info) => {
@@ -200,10 +197,10 @@ class Spatial extends PureComponent {
         onCellClick(info);
       },
       visible: visible,
-      ...cellLayerDefaultProps(cellsEntries, updateStatus, updateCellsHover, uuid, flipYTooltip),
       getLineWidth: stroked ? 1 : 0,
       lineWidthScale,
       lineWidthMaxPixels,
+      ...cellLayerDefaultProps(filteredCellsEntries, undefined, setCellHighlight, uuid, flipYTooltip),
     });
   }
 
@@ -229,20 +226,21 @@ class Spatial extends PureComponent {
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       onHover: (info) => {
-        if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
+        if (info.object && updateStatus) { updateStatus(`Gene: ${info.object[3]}`); }
       },
     });
   }
 
   createSelectionLayers() {
-    const { tool, zoom, getCellCoords = defaultGetCellCoords, updateCellsSelection } = this.props;
+    const { viewState, getCellCoords = defaultGetCellCoords, setCellSelection, setCellFilter } = this.props;
+    const { tool } = this.state;
     const { cellsQuadTree } = this;
     return getSelectionLayers(
       tool,
-      zoom,
+      viewState.zoom,
       CELLS_LAYER_ID,
       getCellCoords,
-      updateCellsSelection,
+      setCellSelection,
       cellsQuadTree,
     );
   }
@@ -262,7 +260,7 @@ class Spatial extends PureComponent {
     const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
     return new Layer({
       loader,
-      id: layerDef.index,
+      id: `image-layer-${layerDef.index}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
       loaderSelection: layerProps.selections,
@@ -284,9 +282,9 @@ class Spatial extends PureComponent {
     return [
       ...imageLayers,
       cellsLayer,
-      ...this.createSelectionLayers(),
       neighborhoodsLayer,
       moleculesLayer,
+      ...this.createSelectionLayers(),
     ];
   }
 
@@ -330,34 +328,41 @@ class Spatial extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if(prevProps.cells !== this.props.cells || prevProps.layers !== this.props.layers) {
+    const shallowDiff = (propName) => (prevProps[propName] !== this.props[propName]);
+    if(some(['layers', 'cells', 'cellFilter', 'cellSelection'], shallowDiff)) {
       console.log("cells changed")
       this.onUpdateCells();
     }
 
-    if(prevProps.molecules !== this.props.molecules || prevProps.layers !== this.props.layers) {
+    if(some(['layers', 'molecules'], shallowDiff)) {
       console.log("molecules changed")
       this.onUpdateMolecules();
     }
-
-    if(prevProps.imageLayerLoaders !== this.props.imageLayerLoaders || prevProps.layers !== this.props.layers) {
+    
+    if(some(['layers', 'imageLayerLoaders'], shallowDiff)) {
       console.log("images changed")
       this.onUpdateImages();
     }
   }
 
   render() {
-    const { deckRef, zoom = 0, target = [0, 0, 0], } = this.props;
+    const { deckRef, viewState, } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
 
-    const viewState = { zoom, target };
+    const showCellSelectionTools = this.cellsLayer !== null;
+    const showPanTool = this.cellsLayer !== null;
 
     return (
       <>
         <ToolMenu
           activeTool={tool}
           setActiveTool={this.onToolChange}
+          visibleTools={{
+            pan: showPanTool,
+            selectRectangle: showCellSelectionTools,
+            selectLasso: showCellSelectionTools,
+          }}
         />
         <DeckGL
           ref={deckRef}

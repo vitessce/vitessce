@@ -198,27 +198,42 @@ const configs = {
         A: 0,
         B: 0.75,
       },
-      embeddingTarget: {
-        A: [0, 0, 0],
-        B: [0, 0, 0]
+      embeddingTargetX: {
+        A: 0,
+        B: 0
+      },
+      embeddingTargetY: {
+        A: 0,
+        B: 0
       },
       embeddingType: {
         A: "PCA",
         B: "t-SNE"
       },
-      heatmapZoom: {
+      heatmapZoomX: {
         A: 0,
       },
-      heatmapTarget: {
-        A: [0, 0],
+      heatmapTargetX: {
+        A: 0,
+      },
+      heatmapTargetY: {
+        A: 0,
       },
       spatialZoom: {
         A: -5.5,
         B: -5.5,
       },
-      spatialTarget: {
-        A: [16000, 20000, 0],
-        B: [16000, 20000, 0],
+      spatialTargetX: {
+        A: 16000,
+        B: 16000,
+      },
+      spatialTargetY: {
+        A: 20000,
+        B: 20000,
+      },
+      spatialTargetZ: {
+        A: 0,
+        B: 0,
       },
       spatialLayers: {
         A: [
@@ -229,7 +244,7 @@ const configs = {
 
           ] }
         ],
-      }
+      },
     },
     layout: [
       /*{ component: 'description',
@@ -247,8 +262,13 @@ const configs = {
         coordinationScopes: {
           dataset: 'A',
           spatialZoom: 'A',
-          spatialTarget: 'A',
-          spatialLayers: 'A'
+          spatialTargetX: 'A',
+          spatialTargetY: 'A',
+          spatialTargetZ: 'A',
+          spatialLayers: 'A',
+          cellFilter: 'A',
+          cellHighlight: 'A',
+          cellSelection: 'A',
         },
         x: 0, y: 0, w: 3, h: 3 },
         { component: 'spatial',
@@ -256,8 +276,13 @@ const configs = {
         coordinationScopes: {
           dataset: 'A',
           spatialZoom: 'A',
-          spatialTarget: 'A',
-          spatialLayers: 'B'
+          spatialTargetX: 'A',
+          spatialTargetY: 'A',
+          spatialTargetZ: 'A',
+          spatialLayers: 'B',
+          cellFilter: 'A',
+          cellHighlight: 'A',
+          cellSelection: 'A',
         },
         x: 3, y: 0, w: 3, h: 3 },
       /*{ component: 'genes',
@@ -268,8 +293,9 @@ const configs = {
         uid: 'gene-exp-heatmap-1',
         coordinationScopes: {
           dataset: 'A',
-          heatmapZoom: 'A',
-          heatmapTarget: 'A'
+          heatmapZoomX: 'A',
+          heatmapTargetX: 'A',
+          heatmapTargetY: 'A'
         },
         props: {
           transpose: true,
@@ -292,7 +318,11 @@ const configs = {
           dataset: 'A',
           embeddingType: 'A',
           embeddingZoom: 'A',
-          embeddingTarget: 'A'
+          embeddingTargetX: 'A',
+          embeddingTargetY: 'A',
+          cellFilter: 'A',
+          cellHighlight: 'A',
+          cellSelection: 'A',
         },
         x: 6, y: 0, w: 3, h: 3 },
       { component: 'scatterplot',
@@ -301,7 +331,11 @@ const configs = {
           dataset: 'A',
           embeddingType: 'B',
           embeddingZoom: 'A',
-          embeddingTarget: 'A'
+          embeddingTargetX: 'A',
+          embeddingTargetY: 'A',
+          cellFilter: 'A',
+          cellHighlight: 'A',
+          cellSelection: 'A',
         },
         x: 9, y: 0, w: 3, h: 3 },
     ],

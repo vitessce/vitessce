@@ -48,14 +48,19 @@ const Scatterplot = forwardRef((props, deckRef) => {
   const {
     uuid = null,
     theme,
-    zoom = 0,
-    target = [0, 0, 0],
-    setZoom,
-    setTarget,
+    viewState,
+    setViewState,
     cells,
     mapping,
-    cellColors,
-    selectedCellIds = new Set(),
+    
+    cellFilter = null,
+    cellSelection = [],
+    cellHighlight = null,
+
+    setCellFilter,
+    setCellSelection,
+    setCellHighlight,
+
     cellRadiusScale = 0.2,
     cellOpacity = 1.0,
     getCellCoords = cell => cell.mappings[mapping],
@@ -70,31 +75,20 @@ const Scatterplot = forwardRef((props, deckRef) => {
       // graphics rendering has the y-axis positive going south.
       return [mappedCell[0], -mappedCell[1], 0];
     },
-    getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
+    // TODO: implement getCellColor based on cell set selections and gene expression selections.
+    getCellColor = cellEntry => DEFAULT_COLOR,
     getCellIsSelected = cellEntry => (
-      selectedCellIds.size
-        ? selectedCellIds.has(cellEntry[0])
+      cellSelection.length
+        ? cellSelection.includes(cellEntry[0])
         : true // If nothing is selected, everything is selected.
     ),
-    updateStatus = createDefaultUpdateStatus(COMPONENT_NAME),
-    updateCellsSelection = createDefaultUpdateCellsSelection(COMPONENT_NAME),
-    updateCellsHover = createDefaultUpdateCellsHover(COMPONENT_NAME),
+    
     updateViewInfo = createDefaultUpdateViewInfo(COMPONENT_NAME),
-    clearPleaseWait = createDefaultClearPleaseWait(COMPONENT_NAME),
     onCellClick = (info) => {
       const cellId = info.object[0];
-      const newSelectedCellIds = new Set(selectedCellIds);
-      if (selectedCellIds.has(cellId)) {
-        newSelectedCellIds.delete(cellId);
-        updateCellsSelection(newSelectedCellIds);
-      } else {
-        newSelectedCellIds.add(cellId);
-        updateCellsSelection(newSelectedCellIds);
-      }
+      // TODO?
     },
   } = props;
-
-  const viewState = { zoom, target };
   
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
@@ -116,20 +110,17 @@ const Scatterplot = forwardRef((props, deckRef) => {
 
   // Listen for viewState changes.
   const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
-    const { zoom, target } = nextViewState;
-    setZoom(zoom);
-    setTarget(target);
-  }, [setZoom, setTarget]);
+    setViewState(nextViewState);
+  }, [setViewState]);
 
   const cellsData = useMemo(() => {
     let result = null;
     if (cells) {
       // Process cells data and cache into re-usable array.
       result = Object.entries(cells);
-      if (clearPleaseWait) clearPleaseWait('cells');
     }
     return result;
-  }, [cells, clearPleaseWait]);
+  }, [cells]);
 
   // Graphics rendering has the y-axis positive going south,
   // so we need to flip it for rendering tooltips.
@@ -159,12 +150,12 @@ const Scatterplot = forwardRef((props, deckRef) => {
           onCellClick(info);
         },
         ...cellLayerDefaultProps(
-          cellsData, updateStatus, updateCellsHover, uuid,
+          cellsData, undefined, setCellHighlight, uuid,
         ),
       }),
     ];
   }, [cellsData, theme, getCellIsSelected, cellOpacity, cellRadiusScale,
-    getCellPosition, getCellColor, updateStatus, updateCellsHover, uuid,
+    getCellPosition, getCellColor, setCellHighlight, uuid,
     tool, onCellClick]);
 
   const cellsQuadTree = useMemo(() => {
@@ -183,10 +174,10 @@ const Scatterplot = forwardRef((props, deckRef) => {
 
   const selectionLayers = getSelectionLayers(
     tool,
-    zoom,
+    viewState.zoom,
     CELLS_LAYER_ID,
     getCellCoords,
-    updateCellsSelection,
+    setCellSelection,
     cellsQuadTree,
     flipYTooltip,
   );

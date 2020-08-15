@@ -110,13 +110,22 @@
             ".": { "type": "number" }
           }
         },
-        "embeddingTarget": {
+        "embeddingTargetX": {
           "type": "object",
           "patternProperties": {
-            ".": { 
-              "type": "array",
-              "items": { "type": "number" }
-            }
+            ".": { "type": "number" }
+          }
+        },
+        "embeddingTargetY": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "embeddingTargetZ": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
           }
         },
         "embeddingType": {
@@ -131,13 +140,22 @@
             ".": { "type": "number" }
           }
         },
-        "spatialTarget": {
+        "spatialTargetX": {
           "type": "object",
           "patternProperties": {
-            ".": { 
-              "type": "array",
-              "items": { "type": "number" }
-            }
+            ".": { "type": "number" }
+          }
+        },
+        "spatialTargetY": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "spatialTargetZ": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
           }
         },
         "spatialLayers": {
@@ -146,23 +164,76 @@
             ".": { "type": "array", "items": { "type": "object" } }
           }
         },
-        "heatmapZoom": {
+        "heatmapZoomX": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "number" }
           }
         },
-        "heatmapTarget": {
+        "heatmapZoomY": {
           "type": "object",
           "patternProperties": {
-            ".": { 
-              "type": "array",
-              "additionalItems": false,
-              "items": [
-                { "type": "number" },
-                { "type": "number" }
-              ]
-            }
+            ".": { "type": "number" }
+          }
+        },
+        "heatmapTargetX": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "heatmapTargetY": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "cellFilter": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "cellSelection": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "cellHighlight": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "object" }
+          }
+        },
+        "geneFilter": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "geneSelection": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "geneHighlight": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "object" }
+          }
+        },
+        "cellSetSelection": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "object" }
+          }
+        },
+        "cellSetHighlight": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "object" }
           }
         }
       }

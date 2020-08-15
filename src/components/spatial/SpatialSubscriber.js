@@ -61,12 +61,22 @@ export default function SpatialSubscriber(props) {
   const [{
     dataset,
     spatialZoom: zoom,
-    spatialTarget: target,
+    spatialTargetX: targetX,
+    spatialTargetY: targetY,
+    spatialTargetZ: targetZ,
     spatialLayers: layers,
+    cellFilter,
+    cellSelection,
+    cellHighlight
   }, {
     setSpatialZoom: setZoom,
-    setSpatialTarget: setTarget,
+    setSpatialTargetX: setTargetX,
+    setSpatialTargetY: setTargetY,
+    setSpatialTargetZ: setTargetZ,
     setSpatialLayers: setLayers,
+    setCellFilter,
+    setCellSelection,
+    setCellHighlight,
   }] = useCoordination(componentCoordinationTypes.spatial, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -80,11 +90,7 @@ export default function SpatialSubscriber(props) {
   const [cellsCount, setCellsCount] = useState(0);
   const [cellSets, setCellSets] = useState();
   const [molecules, setMolecules] = useState();
-  const [cellColors, setCellColors] = useState(null);
   const [neighborhoods, setNeighborhoods] = useState(null);
-  const [selectedCellIds, setSelectedCellIds] = useState(new Set());
-  const [cellOpacity, setCellOpacity] = useState(1);
-  const [moleculesOpacity, setMoleculesOpacity] = useState(1);
   
   const [raster, setRaster] = useState();
   // Since we want the image layer / channel definitions to come from the
@@ -149,18 +155,7 @@ export default function SpatialSubscriber(props) {
   }, [molecules]);
 
   // TODO: remove these pubsub callbacks, use coordination objects instead.
-  const updateStatus = useCallback(
-    message => PubSub.publish(STATUS_INFO, message),
-    [],
-  );
-  const updateCellsSelection = useCallback(
-    selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds),
-    [],
-  );
-  const updateCellsHover = useCallback(
-    hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo),
-    [],
-  );
+
   const updateViewInfo = useCallback(
     viewInfo => PubSub.publish(VIEW_INFO, viewInfo),
     [],
@@ -197,21 +192,29 @@ export default function SpatialSubscriber(props) {
     >
       <Spatial
         ref={deckRef}
-        zoom={zoom}
-        target={target}
-        setZoom={setZoom}
-        setTarget={setTarget}
+        uuid={uuid}
+        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        setViewState={({ zoom, target }) => {
+          setZoom(zoom);
+          setTargetX(target[0]);
+          setTargetY(target[1]);
+          setTargetZ(target[2]);
+        }}
         layers={layers}
         cells={cells}
-        selectedCellIds={selectedCellIds}
-        neighborhoods={neighborhoods}
+        
+        cellFilter={cellFilter}
+        cellSelection={cellSelection}
+        cellHighlight={cellHighlight}
+
+        setCellFilter={setCellFilter}
+        setCellSelection={setCellSelection}
+        setCellHighlight={setCellHighlight}
+
         molecules={molecules}
-        cellColors={cellColors}
+        neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
-        uuid={uuid}
-        updateStatus={updateStatus}
-        updateCellsSelection={updateCellsSelection}
-        updateCellsHover={updateCellsHover}
+        
         updateViewInfo={updateViewInfo}
       />
       {!disableTooltip && (

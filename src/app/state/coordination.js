@@ -12,35 +12,45 @@
 export const coordinationTypes = {
   dataset: {
     name: 'Dataset',
-    // Undefined by default
   },
   embeddingType: {
     name: 'Embedding Type',
-    // Undefined by default
   },
   embeddingZoom: {
     name: 'Embedding Zoom',
-    defaultValue: 0,
   },
-  embeddingTarget: {
-    name: 'Embedding Pan',
-    defaultValue: [0, 0, 0],
+  embeddingTargetX: {
+    name: 'Embedding Target X',
+  },
+  embeddingTargetY: {
+    name: 'Embedding Target Y',
+  },
+  embeddingTargetZ: {
+    name: 'Embedding Target Z',
   },
   spatialZoom: {
     name: 'Spatial Zoom',
-    defaultValue: 0,
   },
-  spatialTarget: {
-    name: 'Spatial Pan',
-    defaultValue: [0, 0, 0],
+  spatialTargetX: {
+    name: 'Spatial Target X',
   },
-  heatmapZoom: {
-    name: 'Heatmap Zoom',
-    defaultValue: 0,
+  spatialTargetY: {
+    name: 'Spatial Target Y',
   },
-  heatmapTarget: {
-    name: 'Heatmap Pan',
-    defaultValue: [0, 0],
+  spatialTargetZ: {
+    name: 'Spatial Target Z',
+  },
+  heatmapZoomX: {
+    name: 'Heatmap Zoom X',
+  },
+  heatmapZoomY: {
+    name: 'Heatmap Zoom Y',
+  },
+  heatmapTargetX: {
+    name: 'Heatmap Target X',
+  },
+  heatmapTargetY: {
+    name: 'Heatmap Target Y',
   },
   cellFilter: {
     name: 'Filtered Cells',
@@ -99,6 +109,7 @@ export const coordinationTypes = {
   },
 };
 
+
 /**
  * Mapping from component type to
  * supported coordination object types.
@@ -110,7 +121,8 @@ export const coordinationTypes = {
 export const componentCoordinationTypes = {
   scatterplot: [
     'dataset',
-    'embeddingType', 'embeddingZoom', 'embeddingTarget',
+    'embeddingType', 'embeddingZoom',
+    'embeddingTargetX', 'embeddingTargetY', 'embeddingTargetZ',
     'cellFilter', 'cellHighlight', 'cellSelection',
     'cellSetSelection', 'cellSetHighlight',
     'geneHighlight', 'geneSelection',
@@ -119,7 +131,8 @@ export const componentCoordinationTypes = {
   ],
   spatial: [
     'dataset',
-    'spatialZoom', 'spatialTarget', 'spatialLayers',
+    'spatialZoom', 'spatialLayers',
+    'spatialTargetX', 'spatialTargetY', 'spatialTargetZ',
     'cellFilter', 'cellHighlight', 'cellSelection',
     'cellSetSelection', 'cellSetHighlight',
     'geneHighlight', 'geneSelection',
@@ -128,7 +141,8 @@ export const componentCoordinationTypes = {
   ],
   heatmap: [
     'dataset',
-    'heatmapZoom', 'heatmapTarget',
+    'heatmapZoomX', 'heatmapZoomY',
+    'heatmapTargetX', 'heatmapTargetY',
     'cellFilter', 'cellHighlight', 'cellSelection',
     'cellSetSelection', 'cellSetHighlight',
     'geneFilter', 'geneHighlight', 'geneSelection',
@@ -137,6 +151,7 @@ export const componentCoordinationTypes = {
   ],
   cellSets: [
     'dataset',
+    'cellSelection', 'cellFilter',
     'cellSetSelection', 'cellSetHighlight',
     'cellColorEncoding',
   ],
