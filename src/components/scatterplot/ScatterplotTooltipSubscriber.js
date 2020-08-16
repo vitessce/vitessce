@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import PubSub from 'pubsub-js';
-import {
-  CELLS_HOVER, VIEW_INFO,
-} from '../../events';
+import { VIEW_INFO } from '../../events';
 import Tooltip2D from '../tooltip/Tooltip2D';
 import TooltipContent from '../tooltip/TooltipContent';
+import { useCoordination } from '../../app/state/hooks';
 
 export default function ScatterplotTooltipSubscriber(props) {
   const {
     uuid, width, height, getCellInfo,
+    coordinationScopes,
   } = props;
 
   const [cellInfo, setCellInfo] = useState();
@@ -18,24 +18,9 @@ export default function ScatterplotTooltipSubscriber(props) {
   const [x, setX] = useState(null);
   const [y, setY] = useState(null);
 
+  const [{ cellHighlight }] = useCoordination(['cellHighlight'], coordinationScopes);
+
   useEffect(() => {
-    const cellsHoverToken = PubSub.subscribe(
-      CELLS_HOVER, (msg, hoverInfo) => {
-        if (!hoverInfo) {
-          setCellInfo(null);
-          setSourceUuid(null);
-        } else {
-          const newCellInfo = getCellInfo(hoverInfo.cellId);
-          setCellInfo(newCellInfo);
-          setSourceUuid(hoverInfo.uuid);
-          if (viewInfo && viewInfo.project) {
-            const [newX, newY] = viewInfo.project(hoverInfo.cellId);
-            setX(newX);
-            setY(newY);
-          }
-        }
-      },
-    );
     const viewInfoToken = PubSub.subscribe(
       VIEW_INFO, (msg, newViewInfo) => {
         if (newViewInfo && newViewInfo.uuid && uuid === newViewInfo.uuid) {
@@ -43,11 +28,25 @@ export default function ScatterplotTooltipSubscriber(props) {
         }
       },
     );
-    return () => {
-      PubSub.unsubscribe(cellsHoverToken);
-      PubSub.unsubscribe(viewInfoToken);
-    };
-  }, [getCellInfo, uuid, viewInfo]);
+    return () => PubSub.unsubscribe(viewInfoToken);
+  }, [uuid, viewInfo]);
+
+  // React to cell highlight updates.
+  useEffect(() => {
+    if (!cellHighlight) {
+      setCellInfo(null);
+      setSourceUuid(null);
+    } else {
+      const newCellInfo = getCellInfo(cellHighlight.cellId);
+      setCellInfo(newCellInfo);
+      setSourceUuid(cellHighlight.uuid);
+      if (viewInfo && viewInfo.project) {
+        const [newX, newY] = viewInfo.project(cellHighlight.cellId);
+        setX(newX);
+        setY(newY);
+      }
+    }
+  }, [cellHighlight, viewInfo, getCellInfo]);
 
   return (
     (cellInfo ? (

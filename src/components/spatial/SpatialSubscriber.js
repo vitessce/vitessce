@@ -223,6 +223,7 @@ export default function SpatialSubscriber(props) {
         width={width}
         height={height}
         getCellInfo={getCellInfo}
+        coordinationScopes={coordinationScopes}
       />
       )}
     </TitleInfo>

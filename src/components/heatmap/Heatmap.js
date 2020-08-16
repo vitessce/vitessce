@@ -50,9 +50,9 @@ import {
  * If defined, the key ordering is used to order the cell axis of the heatmap.
  * @param {function} props.clearPleaseWait The clear please wait callback,
  * called when the expression matrix has loaded (is not null).
- * @param {function} props.updateCellsHover Callback function called on
+ * @param {function} props.setCellHighlight Callback function called on
  * hover with the cell ID. Optional.
- * @param {function} props.updateGenesHover Callback function called on
+ * @param {function} props.setGeneHighlight Callback function called on
  * hover with the gene ID. Optional.
  * @param {function} props.updateStatus Callback function called on hover,
  * with a string containing the hovered cell ID and gene ID
@@ -75,8 +75,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     expressionMatrix: expression,
     cellColors,
     clearPleaseWait,
-    updateCellsHover = createDefaultUpdateCellsHover('Heatmap'),
-    updateGenesHover = createDefaultUpdateGenesHover('Heatmap'),
+    setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
+    setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
     updateStatus = createDefaultUpdateStatus('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
     setIsRendering = () => {},
@@ -477,17 +477,17 @@ const Heatmap = forwardRef((props, deckRef) => {
 
     if (colI === null) {
       if (transpose) {
-        updateCellsHover(null);
+        setCellHighlight(null);
       } else {
-        updateGenesHover(null);
+        setGeneHighlight(null);
       }
     }
 
     if (rowI === null) {
       if (transpose) {
-        updateGenesHover(null);
+        setGeneHighlight(null);
       } else {
-        updateCellsHover(null);
+        setCellHighlight(null);
       }
     }
 
@@ -501,12 +501,12 @@ const Heatmap = forwardRef((props, deckRef) => {
     const obsId = expression.rows[obsI];
     const varId = expression.cols[varI];
 
-    updateCellsHover({
+    setCellHighlight({
       cellId: obsId,
       uuid,
     });
 
-    updateGenesHover({
+    setGeneHighlight({
       geneId: varId,
       uuid,
     });

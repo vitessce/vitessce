@@ -115,7 +115,7 @@ export const coordinationTypes = {
  * supported coordination object types.
  * This mapping can be used to determine
  * which pieces of state that a component will
- * need to be able to get/set.
+ * need to get/set.
  * Keys here are the component registry keys.
  */
 export const componentCoordinationTypes = {

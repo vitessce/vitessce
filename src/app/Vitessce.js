@@ -11,6 +11,7 @@ import configSchema from '../schemas/config.schema.json';
 import DatasetLoaderProvider from './DatasetLoaderProvider';
 import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
+import ViewConfigPublisher from './ViewConfigPublisher';
 import { getComponent } from './component-registry';
 
 const generateClassName = createGenerateClassName({
@@ -28,15 +29,20 @@ const generateClassName = createGenerateClassName({
  * @param {string} props.theme The theme, used for styling as
  * light or dark. Optional. By default, "dark"
  * @param {function} props.onWarn A callback for warning messages. Optional.
+ * @param {function} props.onConfigChange A callback for view config
+ * updates. Optional.
+ * @param {function} props.onLoaderChange A callback for loader
+ * updates. Optional.
  */
 export default function Vitessce(props) {
   const {
     config,
-    onConfigChange,
     rowHeight,
     height,
     theme,
     onWarn,
+    onConfigChange,
+    onLoaderChange,
   } = props;
   if (!config) {
     // If the config value is undefined, show a warning message
@@ -78,12 +84,15 @@ export default function Vitessce(props) {
         <DatasetLoaderProvider>
           <VitessceGrid
             config={config}
-            onConfigChange={onConfigChange}
             getComponent={getComponent}
             rowHeight={rowHeight}
             height={height}
             theme={theme}
             onWarn={onWarn}
+          />
+          <ViewConfigPublisher
+            onConfigChange={onConfigChange}
+            onLoaderChange={onLoaderChange}
           />
         </DatasetLoaderProvider>
       </ThemeProvider>

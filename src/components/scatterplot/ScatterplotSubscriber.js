@@ -3,17 +3,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PubSub from 'pubsub-js';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
-
 import TitleInfo from '../TitleInfo';
-import {
-  CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
-  CELL_SETS_VIEW, CLEAR_PLEASE_WAIT, RESET,
-} from '../../events';
+import { VIEW_INFO } from '../../events';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
-
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
 
@@ -141,6 +136,7 @@ export default function ScatterplotSubscriber(props) {
         width={width}
         height={height}
         getCellInfo={getCellInfo}
+        coordinationScopes={coordinationScopes}
       />
       )}
     </TitleInfo>

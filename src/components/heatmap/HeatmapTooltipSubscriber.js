@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import PubSub from 'pubsub-js';
-import {
-  GENES_HOVER, CELLS_HOVER, VIEW_INFO,
-} from '../../events';
+import { VIEW_INFO } from '../../events';
 import Tooltip2D from '../tooltip/Tooltip2D';
 import TooltipContent from '../tooltip/TooltipContent';
+import { useCoordination } from '../../app/state/hooks';
 
 export default function HeatmapTooltipSubscriber(props) {
   const {
     uuid, width, height, transpose, getCellInfo, getGeneInfo,
+    coordinationScopes,
   } = props;
 
   const [cellInfo, setCellInfo] = useState();
@@ -19,47 +19,9 @@ export default function HeatmapTooltipSubscriber(props) {
   const [x, setX] = useState(null);
   const [y, setY] = useState(null);
 
+  const [{ cellHighlight, geneHighlight }] = useCoordination(['cellHighlight', 'geneHighlight'], coordinationScopes);
+
   useEffect(() => {
-    const cellsHoverToken = PubSub.subscribe(
-      CELLS_HOVER, (msg, hoverInfo) => {
-        if (!hoverInfo) {
-          setCellInfo(null);
-          setSourceUuid(null);
-        } else {
-          const newCellInfo = getCellInfo(hoverInfo.cellId);
-          setCellInfo(newCellInfo);
-          setSourceUuid(hoverInfo.uuid);
-          if (viewInfo && viewInfo.project) {
-            const [newX, newY] = viewInfo.project(hoverInfo.cellId, null);
-            if (transpose) {
-              setX(newX);
-            } else {
-              setY(newY);
-            }
-          }
-        }
-      },
-    );
-    const genesHoverToken = PubSub.subscribe(
-      GENES_HOVER, (msg, hoverInfo) => {
-        if (!hoverInfo) {
-          setGeneInfo(null);
-          setSourceUuid(null);
-        } else {
-          const newGeneInfo = getGeneInfo(hoverInfo.geneId);
-          setGeneInfo(newGeneInfo);
-          setSourceUuid(hoverInfo.uuid);
-          if (viewInfo && viewInfo.project) {
-            const [newX, newY] = viewInfo.project(null, hoverInfo.geneId);
-            if (transpose) {
-              setY(newY);
-            } else {
-              setX(newX);
-            }
-          }
-        }
-      },
-    );
     const viewInfoToken = PubSub.subscribe(
       VIEW_INFO, (msg, newViewInfo) => {
         if (newViewInfo && newViewInfo.uuid && uuid === newViewInfo.uuid) {
@@ -67,12 +29,48 @@ export default function HeatmapTooltipSubscriber(props) {
         }
       },
     );
-    return () => {
-      PubSub.unsubscribe(cellsHoverToken);
-      PubSub.unsubscribe(genesHoverToken);
-      PubSub.unsubscribe(viewInfoToken);
-    };
-  }, [getCellInfo, getGeneInfo, transpose, uuid, viewInfo]);
+    return () => PubSub.unsubscribe(viewInfoToken);
+  }, [uuid, viewInfo]);
+
+  // React to cell highlight updates.
+  useEffect(() => {
+    if (!cellHighlight) {
+      setCellInfo(null);
+      setSourceUuid(null);
+    } else {
+      const newCellInfo = getCellInfo(cellHighlight.cellId);
+      setCellInfo(newCellInfo);
+      setSourceUuid(cellHighlight.uuid);
+      if (viewInfo && viewInfo.project) {
+        const [newX, newY] = viewInfo.project(cellHighlight.cellId, null);
+        if (transpose) {
+          setX(newX);
+        } else {
+          setY(newY);
+        }
+      }
+    }
+  }, [cellHighlight, viewInfo, getCellInfo, transpose]);
+
+  // React to gene highlight updates.
+  useEffect(() => {
+    if (!geneHighlight) {
+      setGeneInfo(null);
+      setSourceUuid(null);
+    } else {
+      const newGeneInfo = getGeneInfo(geneHighlight.geneId);
+      setGeneInfo(newGeneInfo);
+      setSourceUuid(geneHighlight.uuid);
+      if (viewInfo && viewInfo.project) {
+        const [newX, newY] = viewInfo.project(null, geneHighlight.geneId);
+        if (transpose) {
+          setY(newY);
+        } else {
+          setX(newX);
+        }
+      }
+    }
+  }, [geneHighlight, viewInfo, getGeneInfo, transpose]);
 
   return (
     (cellInfo || geneInfo ? (

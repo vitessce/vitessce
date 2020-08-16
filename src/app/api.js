@@ -295,7 +295,9 @@ const configs = {
           dataset: 'A',
           heatmapZoomX: 'A',
           heatmapTargetX: 'A',
-          heatmapTargetY: 'A'
+          heatmapTargetY: 'A',
+          cellHighlight: 'A',
+          geneHighlight: 'A',
         },
         props: {
           transpose: true,

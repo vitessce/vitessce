@@ -39,6 +39,8 @@ export default function HeatmapSubscriber(props) {
     setHeatmapZoomY: setZoomY,
     setHeatmapTargetX: setTargetX,
     setHeatmapTargetY: setTargetY,
+    setCellHighlight,
+    setGeneHighlight,
   }] = useCoordination(componentCoordinationTypes.heatmap, coordinationScopes);
 
   const observationsTitle = capitalize(observationsPluralLabel);
@@ -142,8 +144,8 @@ export default function HeatmapSubscriber(props) {
         expressionMatrix={expressionMatrix}
         cellColors={cellColors}
         setIsRendering={setIsRendering}
-        updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
-        updateGenesHover={hoverInfo => PubSub.publish(GENES_HOVER, hoverInfo)}
+        setCellHighlight={setCellHighlight}
+        setGeneHighlight={setGeneHighlight}
         updateStatus={message => PubSub.publish(STATUS_INFO, message)}
         updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
         observationsTitle={observationsTitle}
@@ -157,6 +159,7 @@ export default function HeatmapSubscriber(props) {
         transpose={transpose}
         getCellInfo={getCellInfo}
         getGeneInfo={getGeneInfo}
+        coordinationScopes={coordinationScopes}
       />
       )}
     </TitleInfo>
