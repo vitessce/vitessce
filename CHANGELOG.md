@@ -1,9 +1,18 @@
 # Changelog
 
-<<<<<<< HEAD
 ## Next
 
 ### Added
+- Introduced a global zustand store for managing the view config
+    - coordination space
+    - layout
+    - component-level coordination scopes
+    - coordination initialization strategy
+- Introduced a provider component: `DatasetLoaderProvider`.
+    - `DatasetLoaderProvider` is a consumer of the `ViewConfigProvider` store, and sets up Loader objects for each file of each dataset in the view config.
+    - `VitessceGrid` is a consumer of `DatasetLoaderProvider` and injects the mapping from datasets-to-loaders into the child `___Subscriber` components. This functionality replaces the `SourcePublisher` component.
+        - The loading spinner was moved into a new `LoadingIndicator` component.
+        - Added a new prop `isReady` for the `TitleInfo` component (parent of the `LoadingIndicator` component), which means that each `___Subscriber` component handles its own loading spinner.
 
 ### Changed
 - Moved the `Vitessce` component out of `src/app/app.js` into `src/app/Vitessce.js`.
@@ -11,24 +20,27 @@
 - Renamed `VitessceGrid` to `VitessceGridLayout`.
 - Renamed `PubSubVitessceGrid` to `VitessceGrid`.
 - Moved utility functions that are common to both `src/components/` and `src/app/` to a new `src/utils.js` file.
-- Introduced a provider component: `DatasetLoaderProvider`.
-    - `ViewConfigProvider` holds a zustand store for managing the coordination space, component layout, and component coordination scopes.
-    - `DatasetLoaderProvider` is a consumer of the `ViewConfigProvider` store, and sets up Loader objects for each file of each dataset in the view config.
-    - `VitessceGrid` is a consumer of `DatasetLoaderProvider` and injects the mapping from datasets-to-loaders into the child `___Subscriber` components. This functionality replaces the `SourcePublisher` component.
-        - The loading spinner was moved into a new `LoadingIndicator` component.
-        - Added a new prop `isReady` for the `TitleInfo` component (parent of the `LoadingIndicator` component), which means that each `___Subscriber` component handles its own loading spinner.
 - Updated the view config schema to include a coordination space, which supports coordinated multiple view functionality. The coordination space holds coordination objects, each of which has a type, a set of scopes, and a value assigned to each scope.
 - Updated the view config schema to handle multiple datasets, and added a `dataset` configuration object type for coordinated multi-dataset view configs.
-- Added a mapping from component type to coordination object types, streamlining the process of consuming and updating state in the `___Subscriber` components.
+- Added a mapping from component type to coordination object types, streamlining the process of consuming and updating coordination object state in the `___Subscriber` components.
 - Removed the unnecessary `name` field from dataset file definitions (previously a property of the `layers` objects) in the view config.
+- Changed view config `layers[].type` (now `datasets[].files[].type`) values to lowercase.
 - Renamed `staticLayout` to `layout` in the view config.
+- Changed the title text of `LayerController` from "Layer Controller" to "Spatial Layers".
+- Moved the Spatial layer initialization from `LayerControllerSubscriber` to `SpatialSubscriber`.
+    - Changed the `LayerControllerSubscriber` to a "controlled" component which obtains layer state information from the `spatialLayers` coordination object.
+    - Eliminated usage of randomly-generated uuids for layer and channel states.
+- Changed the `Spatial` component implementation (back) to a React class component, after experiencing difficult-to-debug performance issues with the function component implementation.
 
 
 
 
 
 
-=======
+
+
+
+
 ## 0.2.4
 
 ### Added
@@ -39,7 +51,6 @@
 ### Changed
 - In the SpatialSubscriber component, no longer display counts for cells, molecules, or locations if the count value is zero.
 - Upgrade Viv to 0.4.2.
->>>>>>> aef7c8ec867c8998edf8e6c5dff38c3e4d167b8a
 
 ## [0.2.3](https://www.npmjs.com/package/vitessce/v/0.2.3) - 2020-08-04
 
