@@ -152,7 +152,7 @@ function ChannelController({
           <ChannelVisibilityCheckbox
             color={rgbColor}
             checked={visibility}
-            toggle={() => handlePropertyChange('visibility')}
+            toggle={() => handlePropertyChange('visible', !visibility)}
           />
         </Grid>
         <Grid item xs={9}>

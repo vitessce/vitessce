@@ -96,6 +96,7 @@ export async function initializeLayerChannels(layer, loader) {
  */
 export async function initializeLayersAndChannels(rasterLayers, rasterRenderLayers, layerDefs, initStrategy = "auto") {
     const nextImageLoaders = {};
+    const nextImageMeta = {};
     const nextLayerDefs = [];
 
     if(layerDefs) {
@@ -110,6 +111,7 @@ export async function initializeLayersAndChannels(rasterLayers, rasterRenderLaye
                 // TODO: check if user provided a valid or partially-valid channels array
                 // TODO: if only a partial channels array, set up defaults for domain/sliders/etc.
                 nextImageLoaders[layerIndex] = loader;
+                nextImageMeta[layerIndex] = layer;
             }
             nextLayerDefs.push(layerDef);
         };
@@ -122,6 +124,7 @@ export async function initializeLayersAndChannels(rasterLayers, rasterRenderLaye
             const loader = await layer.loaderCreator();
             const channels = await initializeLayerChannels(layer, loader);
             nextImageLoaders[layerIndex] = loader;
+            nextImageMeta[layerIndex] = layer;
             nextLayerDefs.push({ type: "raster", index: layerIndex, channels, opacity: 1, colormap: '' });
         } else {
             // The renderLayers parameter is a list of layer names to show by default.
@@ -131,13 +134,14 @@ export async function initializeLayersAndChannels(rasterLayers, rasterRenderLaye
                 const loader = await layer.loaderCreator();
                 const channels = await initializeLayerChannels(layer, loader);
                 nextImageLoaders[layerIndex] = loader;
+                nextImageMeta[layerIndex] = layer;
                 nextLayerDefs.push({ type: "raster", index: layerIndex, channels, opacity: 1, colormap: '' });
             };
         }
         nextLayerDefs.push({ type: 'cells', opacity: 1, radius: 50, visible: true, stroked: false });
         nextLayerDefs.push({ type: 'molecules', opacity: 1, radius: 20, visible: true });
     }
-    return [nextLayerDefs, nextImageLoaders];
+    return [nextLayerDefs, nextImageLoaders, nextImageMeta];
 }
 
 /**

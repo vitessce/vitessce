@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useReducer } from 'react';
+import React, { useCallback } from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -11,13 +11,23 @@ import debounce from 'lodash/debounce';
 import { useExpansionPanelStyles } from './styles';
 
 export default function VectorLayerController(props) {
-  const [slider, setSliderValue] = useState(1);
-  const [isOn, toggle] = useReducer(v => !v, true);
+  const {
+    label,
+    layer,
+    handleLayerChange,
+  } = props;
 
-  const { label, handleOpacityChange, handleToggleChange } = props;
+  const slider = layer.opacity;
+  const isOn = layer.visible;
 
-  const handleSliderChange = v => isOn && (handleOpacityChange(v) && setSliderValue(v));
-  const handleCheckBoxChange = v => handleToggleChange(v) && toggle();
+  function handleSliderChange(v) {
+    handleLayerChange({ ...layer, opacity: v });
+  }
+
+  function handleCheckBoxChange(v) {
+    handleLayerChange({ ...layer, visible: v });
+  }
+
   const handleSliderChangeDebounced = useCallback(
     debounce(handleSliderChange, 3, { trailing: true }),
     [isOn],

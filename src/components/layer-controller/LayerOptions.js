@@ -164,7 +164,7 @@ function LayerOptions({
   domainType,
   isRgb,
 }) {
-  const hasDimensionsAndChannels = dimensions.length > 0 && Object.keys(channels).length > 0;
+  const hasDimensionsAndChannels = dimensions.length > 0 && channels.length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       {!isRgb ? (
@@ -204,7 +204,7 @@ function LayerOptions({
               <LayerOption name={field} inputId={`${field}-slider`} key={field}>
                 <GlobalSelectionSlider
                   field={field}
-                  value={channels[Object.keys(channels)[0]].selection[field]}
+                  value={channels[0].selection[field]}
                   handleChange={handleGlobalChannelsSelectionChange}
                   possibleValues={values}
                 />

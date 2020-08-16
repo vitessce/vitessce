@@ -3,6 +3,7 @@ import React, {
   useState, useCallback, useMemo, forwardRef, PureComponent,
 } from 'react';
 import some from 'lodash/some';
+import isEqual from 'lodash/isEqual';
 import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
 } from 'deck.gl';
@@ -94,15 +95,26 @@ class Spatial extends PureComponent {
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
 
-    this.onUpdateCells();
-    this.onUpdateMolecules();
-    this.onUpdateNeighborhoods();
-    this.onUpdateImages();
-
+    // To avoid storing large arrays/objects
+    // in React state, this component
+    // uses instance variables.
+    // All instance variables used in this class:
+    this.cellsEntries = [];
+    this.moleculesEntries = [];
+    this.cellsQuadTree = null;
     this.cellsLayer = null;
     this.moleculesLayer = null;
     this.neighborhoodsLayer = null;
     this.imageLayers = [];
+    this.layerLoaderSelections = {};
+    
+    // Initialize data and layers.
+    this.onUpdateCellsData();
+    this.onUpdateCellsLayer();
+    this.onUpdateMoleculesData();
+    this.onUpdateMoleculesLayer();
+    this.onUpdateNeighborhoods();
+    this.onUpdateImages();
   }
 
   onViewStateChange({ viewState: nextViewState }) {
@@ -245,14 +257,29 @@ class Spatial extends PureComponent {
     );
   }
 
-  createImageLayer(layerDef, loader) {
+  createImageLayer(layerDef, loader, i) {
+
+    // We need to keep the same loaderSelection array reference,
+    // otherwise the Viv layer will not be re-used as we want it to,
+    // since loaderSelection is one of its `updateTriggers`.
+    // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
+    let loaderSelection;
+    const nextLoaderSelection = layerDef.channels.map(c => c.selection);
+    const prevLoaderSelection = this.layerLoaderSelections[layerDef.index];
+    if(isEqual(prevLoaderSelection, nextLoaderSelection)) {
+      loaderSelection = prevLoaderSelection;
+    } else {
+      loaderSelection = nextLoaderSelection;
+      this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
+    }
+
+
     const layerProps = {
       colormap: layerDef.colormap,
       opacity: layerDef.opacity,
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
       visibilities: layerDef.channels.map(c => c.visible),
-      selections: layerDef.channels.map(c => c.selection),
     };
 
     if (!loader || !layerProps) return null;
@@ -260,16 +287,23 @@ class Spatial extends PureComponent {
     const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
     return new Layer({
       loader,
-      id: `image-layer-${layerDef.index}`,
+      id: `image-layer-${layerDef.index}-${i}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
-      loaderSelection: layerProps.selections,
+      loaderSelection: loaderSelection,
       channelIsOn: layerProps.visibilities,
       opacity: layerProps.opacity,
       colormap: layerProps.colormap.length > 0 && layerProps.colormap,
       scale: scale || 1,
       translate: translate ? [translate.x, translate.y] : [0, 0],
     });
+  }
+
+  createImageLayers() {
+    const { layers = [], imageLayerLoaders = {} } = this.props;
+    return layers
+      .filter(layer => layer.type === "raster")
+      .map((layer, i) => this.createImageLayer(layer, imageLayerLoaders[layer.index], i));
   }
 
   getLayers() {
@@ -288,11 +322,15 @@ class Spatial extends PureComponent {
     ];
   }
 
-  onUpdateCells() {
-    const { cells = {}, getCellCoords = defaultGetCellCoords, layers = [] } = this.props;
+  onUpdateCellsData() {
+    const { cells = {}, getCellCoords = defaultGetCellCoords } = this.props;
     const cellsEntries = Object.entries(cells);
     this.cellsEntries = cellsEntries;
     this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
+  }
+
+  onUpdateCellsLayer() {
+    const { layers = [] } = this.props;
     const layerDef = layers.find(layer => layer.type === "cells");
     if(layerDef) {
       this.cellsLayer = this.createCellsLayer(layerDef);
@@ -301,12 +339,16 @@ class Spatial extends PureComponent {
     }
   }
 
-  onUpdateMolecules() {
-    const { molecules = {}, layers = [] } = this.props;
+  onUpdateMoleculesData() {
+    const { molecules = {} } = this.props;
     const moleculesEntries = Object
         .entries(molecules)
         .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]));
     this.moleculesEntries = moleculesEntries;
+  }
+
+  onUpdateMoleculesLayer() {
+    const { layers = [] } = this.props;
     const layerDef = layers.find(layer => layer.type === "molecules");
     if(layerDef) {
       this.moleculesLayer = this.createMoleculesLayer(layerDef);
@@ -320,28 +362,47 @@ class Spatial extends PureComponent {
   }
 
   onUpdateImages() {
-    const { imageLayerLoaders = {}, layers = [] } = this.props;
-
-    this.imageLayers = layers
-      .filter(layer => layer.type === "raster")
-      .map((layer) => this.createImageLayer(layer, imageLayerLoaders[layer.index]));
+    this.imageLayers = this.createImageLayers();
   }
 
+  /**
+   * Here, asynchronously check whether props have
+   * updated which require re-computing memoized variables,
+   * followed by a re-render.
+   * This function does not follow React conventions or paradigms,
+   * it is only implemented this way to try to squeeze out every
+   * ounce of performance possible. Would not recommend this.
+   * @param {object} prevProps The previous props to diff against.
+   */
   componentDidUpdate(prevProps) {
     const shallowDiff = (propName) => (prevProps[propName] !== this.props[propName]);
+    if(some(['cells'], shallowDiff)) {
+      console.log("cells data changed")
+      this.onUpdateCellsData();
+      this.forceUpdate();
+    }
+
     if(some(['layers', 'cells', 'cellFilter', 'cellSelection'], shallowDiff)) {
-      console.log("cells changed")
-      this.onUpdateCells();
+      console.log("cells layer changed")
+      this.onUpdateCellsLayer();
+      this.forceUpdate();
+    }
+
+    if(some(['molecules'], shallowDiff)) {
+      console.log("molecules data changed")
+      this.onUpdateMoleculesData();
+      this.forceUpdate();
     }
 
     if(some(['layers', 'molecules'], shallowDiff)) {
-      console.log("molecules changed")
-      this.onUpdateMolecules();
+      console.log("molecules layer changed")
+      this.onUpdateMoleculesLayer();
+      this.forceUpdate();
     }
-    
+
     if(some(['layers', 'imageLayerLoaders'], shallowDiff)) {
-      console.log("images changed")
       this.onUpdateImages();
+      this.forceUpdate();
     }
   }
 
@@ -382,6 +443,13 @@ class Spatial extends PureComponent {
   }
 }
 
+/**
+ * Need this wrapper function here,
+ * since we want to pass a forwardRef
+ * so that outer components can
+ * access the grandchild DeckGL ref,
+ * but we are using a class component.
+ */
 const SpatialWrapper = forwardRef((props, deckRef) => { return <Spatial {...props} deckRef={deckRef} />;  });
 
 export default SpatialWrapper;

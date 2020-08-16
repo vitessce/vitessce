@@ -35,9 +35,6 @@ import { makeSpatialSubtitle, initializeLayersAndChannels } from './utils';
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
 
-import { DEFAULT_LAYER_PROPS } from './constants';
-import { buildDefaultSelection } from './utils';
-
 export default function SpatialSubscriber(props) {
   const {
     uid,
@@ -45,8 +42,6 @@ export default function SpatialSubscriber(props) {
     coordinationScopes,
     coordinationInitializationStrategy,
     removeGridComponent,
-    moleculeRadius,
-    cellRadius,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',

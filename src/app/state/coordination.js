@@ -173,7 +173,7 @@ export const componentCoordinationTypes = {
   ],
   layerController: [
     'dataset',
-    'imageLayers', 'lensLayers',
+    'spatialLayers',
   ],
   higlass: [
     'dataset',
