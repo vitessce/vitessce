@@ -56,11 +56,9 @@ export default function HeatmapTooltipSubscriber(props) {
   useEffect(() => {
     if (!geneHighlight) {
       setGeneInfo(null);
-      setSourceUuid(null);
     } else {
       const newGeneInfo = getGeneInfo(geneHighlight.geneId);
       setGeneInfo(newGeneInfo);
-      setSourceUuid(geneHighlight.uuid);
       if (viewInfo && viewInfo.project) {
         const [newX, newY] = viewInfo.project(null, geneHighlight.geneId);
         if (transpose) {

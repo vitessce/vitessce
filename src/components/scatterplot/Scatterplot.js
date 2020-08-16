@@ -76,7 +76,8 @@ const Scatterplot = forwardRef((props, deckRef) => {
       return [mappedCell[0], -mappedCell[1], 0];
     },
     // TODO: implement getCellColor based on cell set selections and gene expression selections.
-    getCellColor = cellEntry => DEFAULT_COLOR,
+    cellColors,
+    getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
     getCellIsSelected = cellEntry => (
       cellSelection.length
         ? cellSelection.includes(cellEntry[0])

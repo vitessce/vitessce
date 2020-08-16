@@ -10,9 +10,8 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["uid", "coordinationScopes", "component", "x", "y"],
+        "required": ["component", "x", "y"],
         "properties": {
-          "uid": { "type": "string" },
           "component": { "type": "string", "description": "Specify a component using its name." },
           "props": { "type": "object", "description": "Extra prop values for the component can be defined." },
           "x": { "type": "integer" },

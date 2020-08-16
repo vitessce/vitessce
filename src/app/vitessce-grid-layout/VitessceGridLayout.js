@@ -61,7 +61,7 @@ export default function VitessceGridLayout(props) {
     }
   }, [readyComponentKeys, gridComponents, onAllReady]);
 
-  const layoutChildren = Object.entries(gridComponents).map(([k, v]) => {
+  const layoutChildren = Object.entries(gridComponents).map(([k, v], i) => {
     const Component = getComponent(v.component);
     const onReady = () => {
       setReadyComponentKeys((prevReadyComponentKeys) => {
@@ -80,7 +80,7 @@ export default function VitessceGridLayout(props) {
       <div key={k}>
         <Component
           {... v.props}
-          uid={v.uid}
+          uid={i}
           coordinationScopes={v.coordinationScopes}
           loaders={loaders}
           theme={theme}

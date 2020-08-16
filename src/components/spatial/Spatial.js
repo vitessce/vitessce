@@ -1,11 +1,11 @@
 /* eslint-disable */
 import React, {
-  useState, useCallback, useMemo, forwardRef, PureComponent,
+  forwardRef, PureComponent,
 } from 'react';
 import some from 'lodash/some';
 import isEqual from 'lodash/isEqual';
 import DeckGL, {
-  ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
+  ScatterplotLayer, OrthographicView, COORDINATE_SYSTEM,
 } from 'deck.gl';
 import { MultiscaleImageLayer, ImageLayer } from '@hms-dbmi/viv';
 import { quadtree } from 'd3-quadtree';
@@ -14,12 +14,8 @@ import ToolMenu from '../ToolMenu';
 import {
   cellLayerDefaultProps, PALETTE, DEFAULT_COLOR,
   DEFAULT_GL_OPTIONS,
-  createDefaultUpdateStatus, createDefaultUpdateCellsSelection,
-  createDefaultUpdateCellsHover,
-  createDefaultUpdateViewInfo, createDefaultClearPleaseWait,
 } from '../utils';
 
-const COMPONENT_NAME = 'Spatial';
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
 
@@ -155,17 +151,14 @@ class Spatial extends PureComponent {
     const {
       cellFilter = null,
       cellSelection = [],
-      cellHighlight = null,
-
       setCellHighlight,
-
       getCellIsSelected = cellEntry => (
         cellSelection.length
           ? cellSelection.includes(cellEntry[0])
           : true // If nothing is selected, everything is selected.
       ),
-      // TODO: implement getCellColor based on cell set selections and gene expression selections.
-      getCellColor = () => DEFAULT_COLOR,
+      cellColors,
+      getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
       getCellPolygon = (cellEntry) => {
         const cell = cellEntry[1];
         return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
@@ -244,7 +237,7 @@ class Spatial extends PureComponent {
   }
 
   createSelectionLayers() {
-    const { viewState, getCellCoords = defaultGetCellCoords, setCellSelection, setCellFilter } = this.props;
+    const { viewState, getCellCoords = defaultGetCellCoords, setCellSelection } = this.props;
     const { tool } = this.state;
     const { cellsQuadTree } = this;
     return getSelectionLayers(
@@ -377,30 +370,31 @@ class Spatial extends PureComponent {
   componentDidUpdate(prevProps) {
     const shallowDiff = (propName) => (prevProps[propName] !== this.props[propName]);
     if(some(['cells'], shallowDiff)) {
-      console.log("cells data changed")
+      // Cells data changed.
       this.onUpdateCellsData();
       this.forceUpdate();
     }
 
-    if(some(['layers', 'cells', 'cellFilter', 'cellSelection'], shallowDiff)) {
-      console.log("cells layer changed")
+    if(some(['layers', 'cells', 'cellFilter', 'cellSelection', 'cellColors'], shallowDiff)) {
+      // Cells layer props changed.
       this.onUpdateCellsLayer();
       this.forceUpdate();
     }
 
     if(some(['molecules'], shallowDiff)) {
-      console.log("molecules data changed")
+      // Molecules data changed.
       this.onUpdateMoleculesData();
       this.forceUpdate();
     }
 
     if(some(['layers', 'molecules'], shallowDiff)) {
-      console.log("molecules layer changed")
+      // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
       this.forceUpdate();
     }
 
     if(some(['layers', 'imageLayerLoaders'], shallowDiff)) {
+      // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();
     }

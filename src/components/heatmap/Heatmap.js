@@ -18,6 +18,7 @@ import {
   createDefaultUpdateGenesHover,
   createDefaultUpdateStatus,
   createDefaultUpdateViewInfo,
+  copyUint8Array,
 } from '../utils';
 import HeatmapWorker from './heatmap.worker';
 import {
@@ -147,7 +148,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   useEffect(() => {
     // Store the expression matrix Uint8Array in the dataRef.
     if (expression && expression.matrix) {
-      dataRef.current = expression.matrix;
+      dataRef.current = copyUint8Array(expression.matrix);
     }
   }, [dataRef, expression]);
 

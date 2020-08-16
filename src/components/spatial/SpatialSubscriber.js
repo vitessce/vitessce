@@ -8,7 +8,7 @@ import {
   VIEW_INFO,
 } from '../../events';
 import { capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls, getCellColors } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle, initializeRasterLayersAndChannels } from './utils';
@@ -43,7 +43,8 @@ export default function SpatialSubscriber(props) {
     spatialLayers: layers,
     cellFilter,
     cellSelection,
-    cellHighlight
+    cellHighlight,
+    geneSelection,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -56,7 +57,7 @@ export default function SpatialSubscriber(props) {
   }] = useCoordination(componentCoordinationTypes.spatial, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
-    ['cells', 'molecules', 'raster', 'cell-sets'],
+    ['cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix'],
   );
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -65,7 +66,8 @@ export default function SpatialSubscriber(props) {
   const [cellsCount, setCellsCount] = useState(0);
   const [cellSets, setCellSets] = useState();
   const [molecules, setMolecules] = useState();
-  const [neighborhoods, setNeighborhoods] = useState(null);
+  const [neighborhoods, setNeighborhoods] = useState();
+  const [expressionMatrix, setExpressionMatrix] = useState();
 
   const [autoLayers, setAutoLayers] = useState([]);
   
@@ -140,6 +142,25 @@ export default function SpatialSubscriber(props) {
       setItemIsReady('cell-sets');
     }
 
+    if(loaders[dataset].loaders['expression-matrix']) {
+      loaders[dataset].loaders['expression-matrix'].load().then(({ data, url }) => {
+        const [attrs, arr] = data;
+        setExpressionMatrix({
+          cols: attrs.cols,
+          rows: attrs.rows,
+          matrix: arr.data,
+        });
+        addUrl(url, 'Expression Matrix');
+        setItemIsReady('expression-matrix');
+      });
+    } else {
+      // If no expression matrix loader was provided,
+      // just clear the expression matrix state.
+      setExpressionMatrix(null);
+      // Expression matrix is optional for scatterplot.
+      setItemIsReady('expression-matrix')
+    }
+
     if(loaders[dataset].loaders['raster']) {
       loaders[dataset].loaders['raster'].load().then(({ data, urls }) => {
         setRaster(data);
@@ -171,6 +192,15 @@ export default function SpatialSubscriber(props) {
       setLayers(autoLayers);
     }
   }, [autoLayers, isReady, layers, setLayers]);
+
+  const cellColors = useMemo(() => {
+    return getCellColors({
+      expressionMatrix,
+      geneSelection,
+      cellColorEncoding: 'geneSelection',
+      // TODO: cell sets
+    })
+  }, [geneSelection]);
 
   const [moleculesCount, locationsCount] = useMemo(() => {
     if (!molecules) return [0, 0];
@@ -232,6 +262,8 @@ export default function SpatialSubscriber(props) {
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
+
+        cellColors={cellColors}
 
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelection}

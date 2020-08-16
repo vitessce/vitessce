@@ -1,13 +1,10 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import Checkbox from '@material-ui/core/Checkbox';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
-
-import debounce from 'lodash/debounce';
-
 import { useExpansionPanelStyles } from './styles';
 
 export default function VectorLayerController(props) {
@@ -27,11 +24,6 @@ export default function VectorLayerController(props) {
   function handleCheckBoxChange(v) {
     handleLayerChange({ ...layer, visible: v });
   }
-
-  const handleSliderChangeDebounced = useCallback(
-    debounce(handleSliderChange, 3, { trailing: true }),
-    [isOn],
-  );
 
   const classes = useExpansionPanelStyles();
   return (
@@ -56,7 +48,7 @@ export default function VectorLayerController(props) {
               min={0}
               max={1}
               step={0.001}
-              onChange={(e, v) => handleSliderChangeDebounced(v)}
+              onChange={(e, v) => handleSliderChange(v)}
               style={{ marginTop: '7px' }}
               orientation="horizontal"
             />

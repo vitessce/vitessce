@@ -1,12 +1,12 @@
 /* eslint-disable */
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PubSub from 'pubsub-js';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
 import TitleInfo from '../TitleInfo';
 import { VIEW_INFO } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls, getCellColors } from '../utils';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import { useCoordination } from '../../app/state/hooks';
@@ -34,7 +34,8 @@ export default function ScatterplotSubscriber(props) {
     embeddingType: mapping,
     cellFilter,
     cellSelection,
-    cellHighlight
+    cellHighlight,
+    geneSelection,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -46,14 +47,14 @@ export default function ScatterplotSubscriber(props) {
   }] = useCoordination(componentCoordinationTypes.scatterplot, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
-    ['cells'],
+    ['cells', 'expression-matrix'],
   );
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const [cells, setCells] = useState({});
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
-
+  const [expressionMatrix, setExpressionMatrix] = useState();
 
   useEffect(() => {
     resetUrls();
@@ -71,12 +72,40 @@ export default function ScatterplotSubscriber(props) {
       });
     } else {
       // If no cells loader is available, set cells to null.
-      setCells(null);
+      setCells({});
       // But do not set cells to ready,
       // since cells are not optional for scatterplot.
-      console.warn('Scatterplot requires cells.');
+      console.warn('Scatterplot component requires cells data type.');
+    }
+
+    if(loaders[dataset].loaders['expression-matrix']) {
+      loaders[dataset].loaders['expression-matrix'].load().then(({ data, url }) => {
+        const [attrs, arr] = data;
+        setExpressionMatrix({
+          cols: attrs.cols,
+          rows: attrs.rows,
+          matrix: arr.data,
+        });
+        addUrl(url, 'Expression Matrix');
+        setItemIsReady('expression-matrix');
+      });
+    } else {
+      // If no expression matrix loader was provided,
+      // just clear the expression matrix state.
+      setExpressionMatrix(null);
+      // Expression matrix is optional for scatterplot.
+      setItemIsReady('expression-matrix')
     }
   }, [mapping, loaders, dataset]);
+
+  const cellColors = useMemo(() => {
+    return getCellColors({
+      expressionMatrix,
+      geneSelection,
+      cellColorEncoding: 'geneSelection',
+      // TODO: cell sets
+    })
+  }, [geneSelection]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -132,6 +161,7 @@ export default function ScatterplotSubscriber(props) {
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
+        cellColors={cellColors}
 
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelection}

@@ -1,15 +1,13 @@
 /* eslint-disable */
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
 import {
-  CELLS_COLOR, CELLS_ADD, CELLS_SELECTION,
-  CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
-  RESET, EXPRESSION_MATRIX_ADD, VIEW_INFO, GENES_HOVER,
+  STATUS_INFO, VIEW_INFO,
 } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls, copyUint8Array } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls, getCellColors } from '../utils';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
@@ -34,6 +32,7 @@ export default function HeatmapSubscriber(props) {
     heatmapZoomX: zoomX,
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
+    geneSelection,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -63,7 +62,6 @@ export default function HeatmapSubscriber(props) {
   const [cellSets, setCellSets] = useState();
   const [expressionMatrix, setExpressionMatrix] = useState();
   const [selectedCellIds, setSelectedCellIds] = useState(new Set());
-  const [cellColors, setCellColors] = useState(null);
 
   useEffect(() => {
     resetUrls();
@@ -90,13 +88,22 @@ export default function HeatmapSubscriber(props) {
       setExpressionMatrix({
         cols: attrs.cols,
         rows: attrs.rows,
-        matrix: copyUint8Array(arr.data),
+        matrix: arr.data,
       });
       addUrl(url, 'Expression Matrix');
       setItemIsReady('expression-matrix');
     });
 
   }, [loaders, dataset]);
+
+  const cellColors = useMemo(() => {
+    return getCellColors({
+      expressionMatrix,
+      geneSelection,
+      cellColorEncoding: 'geneSelection',
+      // TODO: cell sets
+    });
+  }, [geneSelection]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
@@ -108,6 +115,7 @@ export default function HeatmapSubscriber(props) {
     }
     return null;
   }, [cells, observationsLabel]);
+
   const getGeneInfo = useCallback((geneId) => {
     if (geneId) {
       return { [`${capitalize(variablesLabel)} ID`]: geneId };
