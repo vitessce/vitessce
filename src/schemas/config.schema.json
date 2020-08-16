@@ -5,6 +5,7 @@
   "type": "object",
   "definitions": {
     "components": {
+      "description": "The layout array defines the views, or components, rendered in the grid.",
       "type": "array",
       "items": {
         "type": "object",
@@ -12,14 +13,15 @@
         "required": ["uid", "coordinationScopes", "component", "x", "y"],
         "properties": {
           "uid": { "type": "string" },
-          "component": { "type": "string" },
-          "props": { "type": "object" },
+          "component": { "type": "string", "description": "Specify a component using its name." },
+          "props": { "type": "object", "description": "Extra prop values for the component can be defined." },
           "x": { "type": "integer" },
           "y": { "type": "integer" },
           "w": { "type": "integer" },
           "h": { "type": "integer" },
           "coordinationScopes": {
             "type": "object",
+            "description": "Component-level coordination scope mappings define which coordination object values a particular component can read and write.",
             "patternProperties": {
               ".": { "type": "string" }
             }
@@ -70,6 +72,7 @@
     "description": { "type": "string" },
     "datasets": {
       "type": "array",
+      "description": "The datasets array defines groups of files, where the files within each dataset reference the same entities (cells, genes, cell sets, etc).",
       "items": {
         "type": "object",
         "required": ["uid", "files"],
@@ -96,6 +99,7 @@
     },
     "coordinationSpace": {
       "type": "object",
+      "description": "The coordination space stores the values for each scope of each coordination object.",
       "additionalProperties": false,
       "patternProperties": {
         "dataset": {
@@ -161,7 +165,7 @@
         "spatialLayers": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "array", "items": { "type": "object" } }
+            ".": {"type": "array", "items": { "type": "object" } }
           }
         },
         "heatmapZoomX": {
@@ -239,11 +243,9 @@
       }
     },
     "layout": { "$ref": "#/definitions/components" },
-    "coordinationInitializationStrategy": {
-      "type": "object",
-      "patternProperties": {
-        "spatialLayers": { "type": "string", "enum": ["auto"] }
-      }
+    "initStrategy": {
+      "type": "string", "enum": ["auto", "legacy"],
+      "description": "The initialization strategy determines how missing coordination objects and coordination scope mappings are initially filled in."
     }
   }
 }

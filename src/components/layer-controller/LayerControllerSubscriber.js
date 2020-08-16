@@ -1,3 +1,4 @@
+/* eslint-disable dot-notation */
 import React, { useState, useEffect } from 'react';
 
 import Grid from '@material-ui/core/Grid';
@@ -9,7 +10,7 @@ import { useReady } from '../utils';
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
 import {
-  initializeLayersAndChannels,
+  initializeRasterLayersAndChannels,
   initializeLayerChannels,
 } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
@@ -18,7 +19,6 @@ function LayerControllerSubscriber(props) {
   const {
     loaders,
     coordinationScopes,
-    coordinationInitializationStrategy,
     removeGridComponent,
     theme,
   } = props;
@@ -32,7 +32,6 @@ function LayerControllerSubscriber(props) {
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     ['raster'],
-    Object.keys(loaders[dataset]?.loaders || {}),
   );
 
   // Since we want the image layer / channel definitions to come from the
@@ -46,28 +45,33 @@ function LayerControllerSubscriber(props) {
   useEffect(() => {
     resetReadyItems();
 
-    // eslint-disable-next-line no-unused-expressions
-    loaders[dataset]?.loaders['raster']?.load().then(({ data }) => {
-      const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
-      initializeLayersAndChannels(
-        rasterLayers, rasterRenderLayers, layers,
-        coordinationInitializationStrategy.spatialLayers,
-      // eslint-disable-next-line no-unused-vars
-      ).then(([nextLayers, nextImageLoaders, nextImageMeta]) => {
-        setImageLayerLoaders(nextImageLoaders);
-        setImageLayerMeta(nextImageMeta);
-        setItemIsReady('raster');
+    if (!loaders[dataset]) {
+      return;
+    }
+
+    if (loaders[dataset].loaders['raster']) {
+      loaders[dataset].loaders['raster'].load().then(({ data }) => {
+        const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
+        initializeRasterLayersAndChannels(
+          rasterLayers, rasterRenderLayers,
+        // eslint-disable-next-line no-unused-vars
+        ).then(([autoImageLayers, nextImageLoaders, nextImageMeta]) => {
+          setImageLayerLoaders(nextImageLoaders);
+          setImageLayerMeta(nextImageMeta);
+          setItemIsReady('raster');
+        });
       });
-    });
-  // The `layers` dependency must be excluded here since it will cause an infinite render loop.
-  // TODO: do not use layers in initializeLayersAndChannels to resolve this issue.
+    } else {
+      setImageLayerLoaders({});
+      setImageLayerMeta({});
+      setItemIsReady('raster');
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset, coordinationInitializationStrategy]);
+  }, [loaders, dataset]);
 
   const handleImageAdd = async (index) => {
     const loader = imageLayerLoaders[index];
-    const layerMeta = imageLayerMeta[index];
-    const newChannels = await initializeLayerChannels(layerMeta, loader);
+    const newChannels = await initializeLayerChannels(loader);
     const newLayer = {
       type: 'raster',
       index,

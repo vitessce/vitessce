@@ -187,9 +187,7 @@ const configs = {
         ]
       }
     ],
-    coordinationInitializationStrategy: {
-      spatialLayers: "auto",
-    },
+    initStrategy: "auto",
     coordinationSpace: {
       dataset: {
         A: 'linnarsson-2018',
@@ -237,13 +235,14 @@ const configs = {
       },
       spatialLayers: {
         A: [
-          { type: 'cells', visible: true, opacity: 1, radius: 50, stroked: false, },
+          { type: 'cells', visible: false, opacity: 1, radius: 50, stroked: false, },
           { type: 'raster', index: 0, opacity: 1, colormap: "", channels: [
-            { selection: { channel: 0 }, color: [0, 0, 255], domain: [0, 2676], slider: [1, 1473], visible: true },
-            { selection: { channel: 1 }, color: [0, 255, 0], domain: [0, 2116], slider: [1, 447], visible: true },
+            { selection: { channel: 0 }, color: [0, 0, 255], domain: [0, 2676], slider: [1, 845], visible: true },
+            { selection: { channel: 1 }, color: [255, 0, 0], domain: [0, 2116], slider: [1, 314], visible: true },
 
           ] }
         ],
+        // B is undefined, which means it will be initialized automatically.
       },
     },
     layout: [

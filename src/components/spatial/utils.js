@@ -50,7 +50,7 @@ function buildDefaultSelection(imageDims) {
  * @returns {object[]} An array of selected channels with default
  * domain/slider settings.
  */
-export async function initializeLayerChannels(layer, loader) {
+export async function initializeLayerChannels(loader) {
     const result = [];
     const loaderDimensions = loader.dimensions;
     // Add channel automatically as the first avaialable value for each dimension.
@@ -89,55 +89,37 @@ export async function initializeLayerChannels(layer, loader) {
  * @param {*} layers A list of layer metadata objects with fields { name, type, url, createLoader }.
  * @param {*} renderLayers A list of default layers, both raster (image) and vector (cells/molecules).
  */
-export async function initializeLayersAndChannels(rasterLayers, rasterRenderLayers, layerDefs, initStrategy = "auto") {
+export async function initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers) {
     const nextImageLoaders = {};
     const nextImageMeta = {};
-    const nextLayerDefs = [];
+    const autoImageLayerDefs = [];
 
-    if(layerDefs) {
-        // There were already layers defined so do not consider the initialization strategy.
-        for(const layerDef of layerDefs) {
-            const { type: layerType, index: layerIndex } = layerDef;
-            if(layerType === "raster") {
-                // Since this is an image layer we need to set up its loader.
-                const layer = rasterLayers[layerIndex];
-                const loader = await layer.loaderCreator();
-                // If channels array was provided, use it. Otherwise initialize automatically.
-                // TODO: check if user provided a valid or partially-valid channels array
-                // TODO: if only a partial channels array, set up defaults for domain/sliders/etc.
-                nextImageLoaders[layerIndex] = loader;
-                nextImageMeta[layerIndex] = layer;
-            }
-            nextLayerDefs.push(layerDef);
-        };
-    } else if(initStrategy === "auto") {
-        // No layers were pre-defined and the initialization stragegy was "auto"
-        // TODO: don't assume that molecules and cells data is available.
-        nextLayerDefs.push({ type: 'molecules', opacity: 1, radius: 20, visible: true });
-        nextLayerDefs.push({ type: 'cells', opacity: 1, radius: 50, visible: true, stroked: false });
-         if (!rasterRenderLayers) {
-            // Midpoint of images list as default image to show.
-            const layerIndex = Math.floor(rasterLayers.length / 2);
+    for (let i = 0; i < rasterLayers.length; i++) {
+      const layer = rasterLayers[i];
+      const loader = await layer.loaderCreator();
+      nextImageLoaders[i] = loader;
+      nextImageMeta[i] = layer;
+    }
+
+    // No layers were pre-defined so set up the default image layers.
+    if (!rasterRenderLayers) {
+        // Midpoint of images list as default image to show.
+        const layerIndex = Math.floor(rasterLayers.length / 2);
+        const layer = rasterLayers[layerIndex];
+        const loader = nextImageLoaders[layerIndex];
+        const channels = await initializeLayerChannels(loader);
+        autoImageLayerDefs.push({ type: "raster", index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, });
+    } else {
+        // The renderLayers parameter is a list of layer names to show by default.
+        const globalIndicesOfRenderLayers = rasterRenderLayers.map(imageName => rasterLayers.findIndex(image => image.name === imageName));
+        for(const layerIndex of globalIndicesOfRenderLayers) {
             const layer = rasterLayers[layerIndex];
-            const loader = await layer.loaderCreator();
-            const channels = await initializeLayerChannels(layer, loader);
-            nextImageLoaders[layerIndex] = loader;
-            nextImageMeta[layerIndex] = layer;
-            nextLayerDefs.push({ type: "raster", index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, });
-        } else {
-            // The renderLayers parameter is a list of layer names to show by default.
-            const globalIndicesOfRenderLayers = rasterRenderLayers.map(imageName => rasterLayers.findIndex(image => image.name === imageName));
-            for(const layerIndex of globalIndicesOfRenderLayers) {
-                const layer = rasterLayers[layerIndex];
-                const loader = await layer.loaderCreator();
-                const channels = await initializeLayerChannels(layer, loader);
-                nextImageLoaders[layerIndex] = loader;
-                nextImageMeta[layerIndex] = layer;
-                nextLayerDefs.push({ type: "raster", index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, });
-            };
+            const loader = nextImageLoaders[layerIndex];
+            const channels = await initializeLayerChannels(loader);
+            autoImageLayerDefs.push({ type: "raster", index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, });
         }
     }
-    return [nextLayerDefs, nextImageLoaders, nextImageMeta];
+    return [autoImageLayerDefs, nextImageLoaders, nextImageMeta];
 }
 
 /**

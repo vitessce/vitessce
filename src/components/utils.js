@@ -195,8 +195,8 @@ export function copyUint8Array(arr) {
  * setItemIsReady marks one item as ready,
  * and resetReadyItem marks all items as waiting.
  */
-export function useReady(supportedItems, datasetItems) {
-  const items = datasetItems.filter(item => supportedItems.includes(item));
+export function useReady(supportedItems) {
+  const items = supportedItems;
   const [waiting, setWaiting] = useState(items);
 
   function setItemIsReady(readyItem) {

@@ -47,7 +47,6 @@ export default function ScatterplotSubscriber(props) {
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     ['cells'],
-    Object.keys(loaders[dataset]?.loaders || {})
   );
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -59,12 +58,24 @@ export default function ScatterplotSubscriber(props) {
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-    loaders[dataset]?.loaders['cells']?.load().then(({ data, url }) => {
-      setCells(data);
-      addUrl(url, 'Cells');
-      setItemIsReady('cells');
-    });
-    
+
+    if (!loaders[dataset]) {
+      return;
+    }
+
+    if(loaders[dataset].loaders['cells']) {
+      loaders[dataset].loaders['cells'].load().then(({ data, url }) => {
+        setCells(data);
+        addUrl(url, 'Cells');
+        setItemIsReady('cells');
+      });
+    } else {
+      // If no cells loader is available, set cells to null.
+      setCells(null);
+      // But do not set cells to ready,
+      // since cells are not optional for scatterplot.
+      console.warn('Scatterplot requires cells.');
+    }
   }, [mapping, loaders, dataset]);
 
   // After cells have loaded or changed,

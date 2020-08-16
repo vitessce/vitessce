@@ -54,7 +54,6 @@ export default function HeatmapSubscriber(props) {
   const [isRendering, setIsRendering] = useState(false);
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     ['cells', 'cell-sets', 'expression-matrix'],
-    Object.keys(loaders[dataset]?.loaders || {})
   );
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -70,19 +69,23 @@ export default function HeatmapSubscriber(props) {
     resetUrls();
     resetReadyItems();
 
-    loaders[dataset]?.loaders['cells']?.load().then(({ data, url }) => {
+    if (!loaders[dataset]) {
+      return;
+    }
+
+    loaders[dataset].loaders['cells']?.load().then(({ data, url }) => {
       setCells(data);
       addUrl(url, 'Cells');
       setItemIsReady('cells');
     });
 
-    loaders[dataset]?.loaders['cell-sets']?.load().then(({ data, url }) => {
+    loaders[dataset].loaders['cell-sets']?.load().then(({ data, url }) => {
       setCellSets(data);
       addUrl(url, 'Cell Sets');
       setItemIsReady('cell-sets');
     });
 
-    loaders[dataset]?.loaders['expression-matrix']?.load().then(({ data, url }) => {
+    loaders[dataset].loaders['expression-matrix']?.load().then(({ data, url }) => {
       const [attrs, arr] = data;
       setExpressionMatrix({
         cols: attrs.cols,

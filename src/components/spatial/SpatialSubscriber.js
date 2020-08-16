@@ -3,34 +3,16 @@ import React, {
   useState, useCallback, useEffect, useMemo, useRef,
 } from 'react';
 import PubSub from 'pubsub-js';
-import shortNumber from 'short-number';
 import TitleInfo from '../TitleInfo';
 import {
-  MOLECULES_ADD,
-  MOLECULES_SET_OPACITY,
-  MOLECULES_TURN_ON,
-  NEIGHBORHOODS_ADD,
-  CELLS_ADD,
-  CELLS_COLOR,
-  CELLS_SET_OPACITY,
-  CELLS_TURN_ON,
-  STATUS_INFO,
-  CELLS_SELECTION,
-  CELLS_HOVER,
-  CLEAR_PLEASE_WAIT,
   VIEW_INFO,
-  CELL_SETS_VIEW,
-  LAYER_ADD,
-  LAYER_REMOVE,
-  LAYER_CHANGE,
-  RESET,
-  RASTER_ADD,
 } from '../../events';
-import { pluralize, capitalize } from '../../utils';
+import { capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../utils';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
-import { makeSpatialSubtitle, initializeLayersAndChannels } from './utils';
+import { makeSpatialSubtitle, initializeRasterLayersAndChannels } from './utils';
+import { DEFAULT_MOLECULES_LAYER, DEFAULT_CELLS_LAYER } from './constants';
 
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
@@ -40,7 +22,6 @@ export default function SpatialSubscriber(props) {
     uid,
     loaders,
     coordinationScopes,
-    coordinationInitializationStrategy,
     removeGridComponent,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
@@ -75,8 +56,7 @@ export default function SpatialSubscriber(props) {
   }] = useCoordination(componentCoordinationTypes.spatial, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
-    ['cells', 'molecules', 'neighborhoods', 'raster', 'cell-sets'],
-    Object.keys(loaders[dataset]?.loaders || {})
+    ['cells', 'molecules', 'raster', 'cell-sets'],
   );
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -86,6 +66,8 @@ export default function SpatialSubscriber(props) {
   const [cellSets, setCellSets] = useState();
   const [molecules, setMolecules] = useState();
   const [neighborhoods, setNeighborhoods] = useState(null);
+
+  const [autoLayers, setAutoLayers] = useState([]);
   
   const [raster, setRaster] = useState();
   // Since we want the image layer / channel definitions to come from the
@@ -98,46 +80,97 @@ export default function SpatialSubscriber(props) {
     resetUrls();
     resetReadyItems();
 
-    loaders[dataset]?.loaders['molecules']?.load().then(({ data, url }) => {
-      setMolecules(data);
-      addUrl(url, 'Molecules');
+    if(!loaders[dataset]) {
+      return;
+    }
+
+    if(loaders[dataset].loaders['molecules']) {
+      loaders[dataset].loaders['molecules'].load().then(({ data, url }) => {
+        setMolecules(data);
+        addUrl(url, 'Molecules');
+        setAutoLayers(prev => ([...prev, DEFAULT_MOLECULES_LAYER]));
+        setItemIsReady('molecules');
+      });
+    } else {
+      // There was no molecules loader for this dataset,
+      // and molecules should be optional.
+      setMolecules(null);
       setItemIsReady('molecules');
-    });
-
-    loaders[dataset]?.loaders['neighborhoods']?.load().then(({ data, url }) => {
-      setNeighborhoods(data);
-      addUrl(url, 'Neighborhoods');
-      setItemIsReady('neighborhoods');
-    });
-
-    loaders[dataset]?.loaders['cells']?.load().then(({ data, url }) => {
-      setCells(data);
-      setCellsCount(Object.keys(data).length);
-      addUrl(url, 'Cells');
-      setItemIsReady('cells');
-    });
-
-    loaders[dataset]?.loaders['cell-sets']?.load().then(({ data, url }) => {
-      setCellSets(data);
-      addUrl(url, 'Cell Sets');
-      setItemIsReady('cell-sets');
-    });
-
-    loaders[dataset]?.loaders['raster']?.load().then(({ data, urls }) => {
-      setRaster(data);
-      urls.forEach(([url, name]) => {
-        addUrl(url, name);
-      });
-      
-      const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
-      initializeLayersAndChannels(rasterLayers, rasterRenderLayers, layers, coordinationInitializationStrategy.spatialLayers).then(([nextLayers, nextImageLoaders]) => {
-        setImageLayerLoaders(nextImageLoaders);
-        setLayers(nextLayers);
-        setItemIsReady('raster');
-      });
-    });
+    }
     
-  }, [loaders, dataset, coordinationInitializationStrategy]);
+    if(loaders[dataset].loaders['neighborhoods']) {
+      loaders[dataset].loaders['neighborhoods'].load().then(({ data, url }) => {
+        setNeighborhoods(data);
+        addUrl(url, 'Neighborhoods');
+        // TODO: set up a neighborhoods default layer and add to autoLayers.
+        setItemIsReady('neighborhoods');
+      });
+    } else {
+      // There was no neighboorhoods loader for this dataset,
+      // and neighboorhoods should be optional.
+      setNeighborhoods(null);
+      setItemIsReady('neighborhoods');
+    }
+
+    if(loaders[dataset].loaders['cells']) {
+      loaders[dataset].loaders['cells'].load().then(({ data, url }) => {
+        setCells(data);
+        setCellsCount(Object.keys(data).length);
+        addUrl(url, 'Cells');
+        setAutoLayers(prev => ([...prev, DEFAULT_CELLS_LAYER]));
+        setItemIsReady('cells');
+      });
+    } else {
+      // There was no cells loader for this dataset,
+      // and cells should be optional.
+      setCells(null);
+      setItemIsReady('cells');
+    }
+
+    if(loaders[dataset].loaders['cell-sets']) {
+      loaders[dataset].loaders['cell-sets'].load().then(({ data, url }) => {
+        setCellSets(data);
+        addUrl(url, 'Cell Sets');
+        setItemIsReady('cell-sets');
+      });
+    } else {
+      // There was no cell sets loader for this dataset,
+      // and cell sets should be optional.
+      setCellSets(null);
+      setItemIsReady('cell-sets');
+    }
+
+    if(loaders[dataset].loaders['raster']) {
+      loaders[dataset].loaders['raster'].load().then(({ data, urls }) => {
+        setRaster(data);
+        urls.forEach(([url, name]) => {
+          addUrl(url, name);
+        });
+        
+        const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
+        initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers)
+          .then(([autoImageLayers, nextImageLoaders]) => {
+            setImageLayerLoaders(nextImageLoaders);
+            // `autoImageLayers` will be an array of automatically-initialized image layers.
+            setAutoLayers(prev => ([...prev, ...autoImageLayers]));
+            setItemIsReady('raster');
+          });
+      });
+    } else {
+      // There was no raster loader for this dataset,
+      // and raster should be optional.
+      setImageLayerLoaders({});
+      setItemIsReady('raster');
+    }
+  }, [loaders, dataset]);
+
+  // Try to set up the layers array automatically if null or undefined.
+  useEffect(() => {
+    if(isReady && !layers) {
+      // TODO: sort the default/automatic layers by type (raster, cell, molecules).
+      setLayers(autoLayers);
+    }
+  }, [autoLayers, isReady, layers, setLayers]);
 
   const [moleculesCount, locationsCount] = useMemo(() => {
     if (!molecules) return [0, 0];
@@ -148,8 +181,6 @@ export default function SpatialSubscriber(props) {
         .reduce((a, b) => a + b, 0),
     ];
   }, [molecules]);
-
-  // TODO: remove these pubsub callbacks, use coordination objects instead.
 
   const updateViewInfo = useCallback(
     viewInfo => PubSub.publish(VIEW_INFO, viewInfo),
