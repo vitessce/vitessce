@@ -12,6 +12,7 @@ import {
   initializeLayersAndChannels,
   initializeLayerChannels,
 } from '../spatial/utils';
+import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
 
 function LayerControllerSubscriber(props) {
   const {
@@ -58,8 +59,10 @@ function LayerControllerSubscriber(props) {
         setItemIsReady('raster');
       });
     });
-  }, [loaders, dataset, coordinationInitializationStrategy,
-    resetReadyItems, layers, setItemIsReady]);
+  // The `layers` dependency must be excluded here since it will cause an infinite render loop.
+  // TODO: do not use layers in initializeLayersAndChannels to resolve this issue.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset, coordinationInitializationStrategy]);
 
   const handleImageAdd = async (index) => {
     const loader = imageLayerLoaders[index];
@@ -68,8 +71,7 @@ function LayerControllerSubscriber(props) {
     const newLayer = {
       type: 'raster',
       index,
-      opacity: 1,
-      colormap: '',
+      ...DEFAULT_RASTER_LAYER_PROPS,
       channels: newChannels,
     };
     const newLayers = [...layers, newLayer];

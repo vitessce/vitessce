@@ -14,7 +14,7 @@ import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
 import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
-import { GLOBAL_SLIDER_DIMENSION_FIELDS } from './constants';
+import { GLOBAL_SLIDER_DIMENSION_FIELDS } from '../spatial/constants';
 
 
 // Set the domain of the sliders based on either a full range or min/max.
@@ -161,7 +161,7 @@ export default function RasterLayerController(props) {
     const { values: channelOptions, field: dimName } = dimensions[0];
     // Create the channel controllers for each channel.
     channelControllers = channels.map(
-      // c is an object like { color, selection, slider, visibility }.
+      // c is an object like { color, selection, slider, visible }.
       (c, channelId) => {
         // Change one property of a channel (for now - soon
         // nested structures allowing for multiple z/t selecitons at once, for example).

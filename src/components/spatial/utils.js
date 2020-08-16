@@ -3,14 +3,9 @@ import shortNumber from 'short-number';
 import { VIEWER_PALETTE } from '../utils';
 import { pluralize } from '../../utils';
 import {
-    GLOBAL_SLIDER_DIMENSION_FIELDS,
-    DEFAULT_LAYER_PROPS,
+    GLOBAL_SLIDER_DIMENSION_FIELDS, DEFAULT_RASTER_LAYER_PROPS
 } from './constants';
-import { getChannelStats, DTYPE_VALUES, MAX_SLIDERS_AND_CHANNELS } from '@hms-dbmi/viv';
-
-
-
-
+import { getChannelStats } from '@hms-dbmi/viv';
 
 
 
@@ -117,6 +112,9 @@ export async function initializeLayersAndChannels(rasterLayers, rasterRenderLaye
         };
     } else if(initStrategy === "auto") {
         // No layers were pre-defined and the initialization stragegy was "auto"
+        // TODO: don't assume that molecules and cells data is available.
+        nextLayerDefs.push({ type: 'molecules', opacity: 1, radius: 20, visible: true });
+        nextLayerDefs.push({ type: 'cells', opacity: 1, radius: 50, visible: true, stroked: false });
          if (!rasterRenderLayers) {
             // Midpoint of images list as default image to show.
             const layerIndex = Math.floor(rasterLayers.length / 2);
@@ -125,7 +123,7 @@ export async function initializeLayersAndChannels(rasterLayers, rasterRenderLaye
             const channels = await initializeLayerChannels(layer, loader);
             nextImageLoaders[layerIndex] = loader;
             nextImageMeta[layerIndex] = layer;
-            nextLayerDefs.push({ type: "raster", index: layerIndex, channels, opacity: 1, colormap: '' });
+            nextLayerDefs.push({ type: "raster", index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, });
         } else {
             // The renderLayers parameter is a list of layer names to show by default.
             const globalIndicesOfRenderLayers = rasterRenderLayers.map(imageName => rasterLayers.findIndex(image => image.name === imageName));
@@ -135,11 +133,9 @@ export async function initializeLayersAndChannels(rasterLayers, rasterRenderLaye
                 const channels = await initializeLayerChannels(layer, loader);
                 nextImageLoaders[layerIndex] = loader;
                 nextImageMeta[layerIndex] = layer;
-                nextLayerDefs.push({ type: "raster", index: layerIndex, channels, opacity: 1, colormap: '' });
+                nextLayerDefs.push({ type: "raster", index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, });
             };
         }
-        nextLayerDefs.push({ type: 'cells', opacity: 1, radius: 50, visible: true, stroked: false });
-        nextLayerDefs.push({ type: 'molecules', opacity: 1, radius: 20, visible: true });
     }
     return [nextLayerDefs, nextImageLoaders, nextImageMeta];
 }

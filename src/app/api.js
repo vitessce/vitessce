@@ -311,6 +311,14 @@ const configs = {
         },
         x: 0, y: 3, w: 3, h: 4,
       },
+      { component: 'layerController',
+        uid: 'layer-controller-2',
+        coordinationScopes: {
+          dataset: 'A',
+          spatialLayers: 'B',
+        },
+        x: 3, y: 3, w: 3, h: 4,
+      },
       /*{ component: 'heatmap',
         uid: 'gene-exp-heatmap-2',
         coordinationScopes: {
