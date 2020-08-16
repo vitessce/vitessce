@@ -246,6 +246,10 @@
     "initStrategy": {
       "type": "string", "enum": ["auto", "legacy"],
       "description": "The initialization strategy determines how missing coordination objects and coordination scope mappings are initially filled in."
+    },
+    "version": {
+      "type": "string", "enum": ["1.0.0"],
+      "description": "The schema version for the view config."
     }
   }
 }

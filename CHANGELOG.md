@@ -13,6 +13,13 @@
     - `VitessceGrid` is a consumer of `DatasetLoaderProvider` and injects the mapping from datasets-to-loaders into the child `___Subscriber` components. This functionality replaces the `SourcePublisher` component.
         - The loading spinner was moved into a new `LoadingIndicator` component.
         - Added a new prop `isReady` for the `TitleInfo` component (parent of the `LoadingIndicator` component), which means that each `___Subscriber` component handles its own loading spinner.
+- Added the `initStrategy` property to the view config, intended to be one of `"auto"`, `"legacy"`, or `"comparison"`
+    - This will determine how the coordination space is initialized.
+    - `"auto"` will be the default strategy if none is provided.
+    - `"legacy"` will result in the same behavior as the pre-"next" version of Vitessce, before the coordination space ideas were formalized.
+        - The `dataset` coordination object will have one scope, with the value initialized to the ID of the first item in the `datasets` array.
+    - `"comparison"` will result in the components in the view config `"layout"` being duplicated and initialized to two separate coordination scopes.
+        - The `dataset` coordination object will have two scopes, with the values initialized to the IDs of the first and second items in the `datasets` array.
 
 ### Changed
 - Moved the `Vitessce` component out of `src/app/app.js` into `src/app/Vitessce.js`.

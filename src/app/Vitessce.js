@@ -74,9 +74,8 @@ export default function Vitessce(props) {
 
   // TODO: verify that all component uid values are unique.
   // TODO: fill in all missing coordination objects with default global values
-  // TODO: fill in all missing component coordination scope mappings with "global"
-  //       (if want to link everything by default)
-  //       or alternatively a unique ID (if want to link nothing by default)
+  // TODO: fill in all missing component coordination scope mappings
+  //        based on the initStrategy view config field.
 
   return (
     <StylesProvider generateClassName={generateClassName}>
