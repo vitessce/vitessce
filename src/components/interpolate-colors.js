@@ -1,5 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
+import { treeToCellColorsBySetNames } from './sets/reducer';
 
 // The functions defined here have been adapted from d3-interpolate,
 // d3-color, and d3-scale-chromatic.
@@ -69,3 +70,46 @@ function interpolateSequentialMulti(range) {
 
 export const interpolateRdBu = interpolateRgbBasis(schemeRdBu);
 export const interpolatePlasma = interpolateSequentialMulti(schemePlasma);
+
+
+/**
+ * Get a mapping of cell IDs to cell colors based on
+ * gene / cell set selection coordination state.
+ * @param {object} params
+ * @param {object} params.expressionMatrix { rows, cols, matrix }
+ * @param {array} params.geneSelection Array of selected gene IDs.
+ * @param {object} params.cellSets The cell sets tree.
+ * @param {object} params.cellSetSelection Selected cell sets.
+ * @param {string} params.cellColorEncoding Which to use for
+ * coloring: gene expression or cell sets?
+ * @returns {Map} Mapping from cell IDs to [r, g, b] color arrays.
+ */
+export function getCellColors(params) {
+  const {
+    cellColorEncoding,
+    expressionMatrix, geneSelection,
+    cellSets, cellSetSelection,
+  } = params;
+  if (cellColorEncoding === 'geneSelection' && geneSelection && geneSelection.length >= 1 && expressionMatrix) {
+    const firstGeneSelected = geneSelection[0];
+    // TODO: allow other color maps.
+    const geneExpColormap = interpolatePlasma;
+    const geneIndex = expressionMatrix.cols.indexOf(firstGeneSelected);
+    if (geneIndex !== -1) {
+      const numGenes = expressionMatrix.cols.length;
+      // Create new cellColors map based on the selected gene.
+      return new Map(expressionMatrix.rows.map((cellId, cellIndex) => {
+        const value = expressionMatrix.matrix[cellIndex * numGenes + geneIndex];
+        const cellColor = geneExpColormap(value / 255);
+        return [cellId, cellColor];
+      }));
+    }
+  } else if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
+    // Cell sets can potentially lack set colors since the color property
+    // is not a required part of the schema.
+    // The `initializeSets` function fills in any empty colors
+    // with defaults and returns the processed tree object.
+    return treeToCellColorsBySetNames(cellSets, cellSetSelection);
+  }
+  return new Map([]);
+}

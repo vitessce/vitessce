@@ -8,7 +8,8 @@ import {
   VIEW_INFO,
 } from '../../events';
 import { capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls, getCellColors } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls, warn } from '../utils';
+import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle, initializeRasterLayersAndChannels } from './utils';
@@ -130,7 +131,8 @@ export default function SpatialSubscriber(props) {
     }
 
     if(loaders[dataset].loaders['cell-sets']) {
-      loaders[dataset].loaders['cell-sets'].load().then(({ data, url }) => {
+      loaders[dataset].loaders['cell-sets'].load().catch(warn).then((payload) => {
+        const { data, url } = payload || {};
         setCellSets(data);
         addUrl(url, 'Cell Sets');
         setItemIsReady('cell-sets');

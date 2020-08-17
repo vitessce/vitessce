@@ -64,7 +64,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["name", "datasets", "layout"],
+  "required": ["version", "name", "datasets", "layout"],
   "properties": {
     "name": { "type": "string" },
     "public": { "type": "boolean" },
@@ -230,7 +230,7 @@
         "cellSetSelection": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "object" }
+            ".": { "type": "array" }
           }
         },
         "cellSetHighlight": {

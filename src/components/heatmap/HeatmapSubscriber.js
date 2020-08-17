@@ -7,7 +7,8 @@ import {
   STATUS_INFO, VIEW_INFO,
 } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls, getCellColors } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls, warn } from '../utils';
+import { getCellColors } from '../interpolate-colors';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
@@ -71,28 +72,45 @@ export default function HeatmapSubscriber(props) {
       return;
     }
 
-    loaders[dataset].loaders['cells']?.load().then(({ data, url }) => {
-      setCells(data);
-      addUrl(url, 'Cells');
-      setItemIsReady('cells');
-    });
-
-    loaders[dataset].loaders['cell-sets']?.load().then(({ data, url }) => {
-      setCellSets(data);
-      addUrl(url, 'Cell Sets');
-      setItemIsReady('cell-sets');
-    });
-
-    loaders[dataset].loaders['expression-matrix']?.load().then(({ data, url }) => {
-      const [attrs, arr] = data;
-      setExpressionMatrix({
-        cols: attrs.cols,
-        rows: attrs.rows,
-        matrix: arr.data,
+    if(loaders[dataset].loaders['cells']) {
+      loaders[dataset].loaders['cells'].load().then(({ data, url }) => {
+        setCells(data);
+        addUrl(url, 'Cells');
+        setItemIsReady('cells');
       });
-      addUrl(url, 'Expression Matrix');
-      setItemIsReady('expression-matrix');
-    });
+    } else {
+      setCells(null);
+      console.warn("Heatmap component requires cells data type");
+    }
+
+    if(loaders[dataset].loaders['cell-sets']) {
+      loaders[dataset].loaders['cell-sets'].load().catch(warn).then((payload) => {
+        const { data, url } = payload || {};
+        setCellSets(data);
+        addUrl(url, 'Cell Sets');
+        setItemIsReady('cell-sets');
+      });
+    } else {
+      // Optional.
+      setCellSets(null);
+      setItemIsReady('cell-sets');
+    }
+
+    if(loaders[dataset].loaders['expression-matrix']) {
+      loaders[dataset].loaders['expression-matrix'].load().then(({ data, url }) => {
+        const [attrs, arr] = data;
+        setExpressionMatrix({
+          cols: attrs.cols,
+          rows: attrs.rows,
+          matrix: arr.data,
+        });
+        addUrl(url, 'Expression Matrix');
+        setItemIsReady('expression-matrix');
+      });
+    } else {
+      setExpressionMatrix(null);
+      console.warn("Heatmap component requires expression-matrix data type");
+    }
 
   }, [loaders, dataset]);
 

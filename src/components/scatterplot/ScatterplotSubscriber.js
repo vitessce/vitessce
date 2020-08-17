@@ -6,7 +6,8 @@ import clamp from 'lodash/clamp';
 import TitleInfo from '../TitleInfo';
 import { VIEW_INFO } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls, getCellColors } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls, warn } from '../utils';
+import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import { useCoordination } from '../../app/state/hooks';
@@ -36,6 +37,7 @@ export default function ScatterplotSubscriber(props) {
     cellSelection,
     cellHighlight,
     geneSelection,
+    cellSetSelection,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -47,7 +49,7 @@ export default function ScatterplotSubscriber(props) {
   }] = useCoordination(componentCoordinationTypes.scatterplot, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
-    ['cells', 'expression-matrix'],
+    ['cells', 'expression-matrix', 'cell-sets'],
   );
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -55,6 +57,7 @@ export default function ScatterplotSubscriber(props) {
   const [cells, setCells] = useState({});
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
   const [expressionMatrix, setExpressionMatrix] = useState();
+  const [cellSets, setCellSets] = useState();
 
   useEffect(() => {
     resetUrls();
@@ -69,7 +72,7 @@ export default function ScatterplotSubscriber(props) {
         setCells(data);
         addUrl(url, 'Cells');
         setItemIsReady('cells');
-      });
+      }).catch(warn);
     } else {
       // If no cells loader is available, set cells to null.
       setCells({});
@@ -88,13 +91,29 @@ export default function ScatterplotSubscriber(props) {
         });
         addUrl(url, 'Expression Matrix');
         setItemIsReady('expression-matrix');
-      });
+      }).catch(warn);
     } else {
       // If no expression matrix loader was provided,
       // just clear the expression matrix state.
       setExpressionMatrix(null);
       // Expression matrix is optional for scatterplot.
-      setItemIsReady('expression-matrix')
+      setItemIsReady('expression-matrix');
+    }
+
+    if(loaders[dataset].loaders['cell-sets']) {
+      loaders[dataset].loaders['cell-sets'].load().catch(warn).then((payload) => {
+        const { data, url } = payload || {};
+        setCellSets(data);
+        console.log(data);
+        addUrl(url, 'Cell Sets');
+        setItemIsReady('cell-sets');
+      });
+    } else {
+      // If no cell sets loader was provided,
+      // just clear the cell sets state.
+      setCellSets(null);
+      // Cell sets are optional for scatterplot.
+      setItemIsReady('cell-sets');
     }
   }, [mapping, loaders, dataset]);
 
@@ -103,9 +122,10 @@ export default function ScatterplotSubscriber(props) {
       expressionMatrix,
       geneSelection,
       cellColorEncoding: 'geneSelection',
-      // TODO: cell sets
+      cellSets,
+      cellSetSelection,
     })
-  }, [geneSelection]);
+  }, [geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the

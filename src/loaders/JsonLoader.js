@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
 import AbstractLoader from './AbstractLoader';
-import { LoaderFetchError, LoaderValidationError } from './errors/index';
+import { LoaderFetchError, LoaderValidationError, AbstractLoaderError } from './errors/index';
 
 import cellsSchema from '../schemas/cells.schema.json';
 import factorsSchema from '../schemas/factors.schema.json';
@@ -38,14 +38,18 @@ export default class JsonLoader extends AbstractLoader {
         if (response.ok) {
           return response.json();
         }
-        throw new LoaderFetchError(name, type, fileType, url, response.headers);
+        return Promise.reject(new LoaderFetchError(name, type, fileType, url, response.headers));
       })
+      .catch(reason => Promise.resolve(reason))
       .then((data) => {
+        if (data instanceof AbstractLoaderError) {
+          return Promise.reject(data);
+        }
         const [valid, reason] = this.validate(data);
         if (valid) {
           return Promise.resolve({ data, url });
         }
-        throw new LoaderValidationError(name, type, fileType, url, reason);
+        return Promise.reject(new LoaderValidationError(name, type, fileType, url, reason));
       });
     return this.data;
   }

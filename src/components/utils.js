@@ -3,8 +3,8 @@ import { useRef, useState, useEffect } from 'react';
 import PubSub from 'pubsub-js';
 import debounce from 'lodash/debounce';
 import { COORDINATE_SYSTEM } from 'deck.gl';
-import { GRID_RESIZE } from '../events';
-import { interpolatePlasma } from './interpolate-colors';
+import { GRID_RESIZE, STATUS_WARN } from '../events';
+import { AbstractLoaderError } from '../loaders/errors/index';
 
 export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
@@ -243,38 +243,10 @@ export function useUrls() {
   return [urls, addUrl, resetUrls];
 }
 
-/**
- * Get a mapping of cell IDs to cell colors based on
- * gene / cell set selection coordination state.
- * @param {object} params
- * @param {object} params.expressionMatrix { rows, cols, matrix }
- * @param {array} params.geneSelection Array of selected gene IDs.
- * @param {object} params.cellSets The cell sets tree.
- * @param {object} params.cellSetSelection Selected cell sets.
- * @param {string} params.cellColorEncoding Which to use for
- * coloring: gene expression or cell sets?
- * @returns {Map} Mapping from cell IDs to [r, g, b] color arrays.
- */
-export function getCellColors(params) {
-  const {
-    expressionMatrix, geneSelection, cellSets, cellSetSelection, cellColorEncoding,
-  } = params;
-  if (cellColorEncoding === 'geneSelection' && geneSelection && geneSelection.length >= 1 && expressionMatrix) {
-    const firstGeneSelected = geneSelection[0];
-    // TODO: allow other color maps.
-    const geneExpColormap = interpolatePlasma;
-    const geneIndex = expressionMatrix.cols.indexOf(firstGeneSelected);
-    if (geneIndex !== -1) {
-      const numGenes = expressionMatrix.cols.length;
-      // Create new cellColors map based on the selected gene.
-      return new Map(expressionMatrix.rows.map((cellId, cellIndex) => {
-        const value = expressionMatrix.matrix[cellIndex * numGenes + geneIndex];
-        const cellColor = geneExpColormap(value / 255);
-        return [cellId, cellColor];
-      }));
-    }
-  } else if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
-    // TODO
+export function warn(error) {
+  PubSub.publish(STATUS_WARN, error.message);
+  console.warn(error.message);
+  if (error instanceof AbstractLoaderError) {
+    error.warnInConsole();
   }
-  return new Map([]);
 }

@@ -152,6 +152,7 @@ const configs = {
   },
   'linnarsson-2018': {
     name: 'Linnarsson',
+    version: '1.0.0',
     description: linnarssonDescription,
     public: true,
     datasets: [
@@ -244,6 +245,9 @@ const configs = {
         ],
         // B is undefined, which means it will be initialized automatically.
       },
+      cellSetSelection: {
+        A: ["Astrocyte", "Vasculature", "Ventricle"]
+      }
     },
     layout: [
       /*{ component: 'description',
@@ -289,7 +293,14 @@ const configs = {
             geneSelection: 'A',
             geneFilter: 'A'
           },
-          x: 6, y: 3, w: 3, h: 4 },
+          x: 0, y: 3, w: 3, h: 4 },
+        { component: 'genes',
+          coordinationScopes: {
+            dataset: 'A',
+            geneSelection: 'B',
+            geneFilter: 'B'
+          },
+          x: 9, y: 3, w: 3, h: 4 },
       /*{ component: 'cellSets',
         x: 9, y: 3, w: 3, h: 2 },*/
       { component: 'heatmap',
@@ -305,7 +316,7 @@ const configs = {
         props: {
           transpose: true,
         },
-        x: 9, y: 4, w: 3, h: 4 },
+        x: 6, y: 4, w: 3, h: 4 },
       /*{ component: 'layerController',
         coordinationScopes: {
           dataset: 'A',
@@ -354,7 +365,9 @@ const configs = {
           cellFilter: 'A',
           cellHighlight: 'A',
           cellSelection: 'A',
-          geneSelection: 'A',
+          cellSetSelection: 'A',
+          geneSelection: 'B',
+          geneFilter: 'B'
         },
         x: 9, y: 0, w: 3, h: 4 },
     ],

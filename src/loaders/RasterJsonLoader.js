@@ -1,7 +1,4 @@
 /* eslint-disable */
-import { extent } from 'd3-array';
-import range from 'lodash/range';
-import uuidv4 from 'uuid/v4';
 import rasterSchema from '../schemas/raster.schema.json';
 import JsonLoader from './JsonLoader';
 import { createZarrLoader, createOMETiffLoader } from '@hms-dbmi/viv';

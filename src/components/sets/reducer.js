@@ -392,6 +392,16 @@ function treeFindNodeByKey(currTree, targetKey) {
 }
 
 /**
+ * Find a node with a matching name, relative to the whole tree.
+ * @param {object} currTree A tree object.
+ * @param {string} targetName The name for the node of interest.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
+function treeFindNodeByName(currTree, targetName) {
+  return treeFindNode(currTree, n => (n.name === targetName));
+}
+
+/**
  * Find the parent of a child node, using the child node's key.
  * @param {object} currTree A tree object.
  * @param {string} targetKey The key of the child node.
@@ -1431,6 +1441,32 @@ export function treeToVisibleCells(currTree) {
 }
 
 /**
+ * Given a tree with state, get the cellIds and cellColors,
+ * based on the nodes currently marked as "visible".
+ * @param {object} currTree A tree object.
+ * @returns {array} Tuple of [cellIds, cellColors]
+ * where cellIds is an array of strings,
+ * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
+ */
+export function treeToCellColorsBySetNames(currTree, selectedNames) {
+  let cellColorsArray = [];
+  selectedNames.forEach((setName) => {
+    const node = treeFindNodeByName(currTree, setName);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      cellColorsArray = [
+        ...cellColorsArray,
+        ...nodeSet.map(([cellId, prob]) => [
+          cellId,
+          (isNil(prob) ? node.color : colorMixWithUncertainty(node.color, prob)),
+        ]),
+      ];
+    }
+  });
+  return new Map(cellColorsArray);
+}
+
+/**
  * Given a tree with state, get the sizes of the
  * sets currently marked as "visible".
  * @param {object} currTree A tree object.
@@ -1452,6 +1488,12 @@ export function treeToVisibleSetSizes(currTree) {
     }
   });
   return sizes;
+}
+
+export function initializeSets(rawData) {
+  const setsType = rawData.datatype;
+  const initialTree = treeInitialize(setsType);
+  return treeImport(initialTree, rawData.tree);
 }
 
 
