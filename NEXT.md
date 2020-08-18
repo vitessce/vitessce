@@ -34,9 +34,10 @@ Storing coordination state in the view config will make this state:
 - easy to bubble up to a Jupyter notebook or other analysis environment via event handlers
 
 Challenges associated with storing coordination state in the view config:
-- old Vitessce view configs will break (however we currently have control over all vitessce view configs: demos here and those in the HuBMAP Portal)
 - need to provide an easy way for a user to set up a view config without overwhelming them by requiring every coordination to be explicitly defined
     - two possible solutions: "template" view configs or an "initialization strategy" view config field (to determine how to initialize missing coordination objects/scopes)
+- may want to provide support for old Vitessce view configs, by transforming from the old schema to the new schema (however we currently have control over all vitessce view configs: demos here and those in the HuBMAP Portal)
+
 
 Including `dataset` as a coordination type allows:
 - different components to be associated with different datasets
