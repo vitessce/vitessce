@@ -1,10 +1,9 @@
 /* eslint-disable */
-import React, {
-  useState, useEffect, useCallback, useMemo,
-} from 'react';
+import React, { useEffect } from 'react';
 
 import { pluralize } from '../../utils';
-import { useReady } from '../utils';
+import { useReady, useUrls } from '../utils';
+import { useExpressionMatrixData } from '../data-hooks';
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
 
@@ -21,6 +20,7 @@ export default function GenesSubscriber(props) {
     theme,
   } = props;
 
+  // Get "props" from the coordination space.
   const [{
     dataset,
     geneSelection,
@@ -31,35 +31,20 @@ export default function GenesSubscriber(props) {
     setGeneHighlight,
   }] = useCoordination(componentCoordinationTypes.genes, coordinationScopes);
 
+  const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     ['expression-matrix'],
   );
 
-  const [geneList, setGeneList] = useState([]);
-
-
+  // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
+    resetUrls();
     resetReadyItems();
-
-    if(!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].load().then(({ data }) => {
-        const [attrs] = data;
-        setGeneList(attrs.cols);
-        setItemIsReady('expression-matrix');
-      });
-    } else {
-      // If no gene expression loader is available, set to null.
-      setGeneList([]);
-      // But do not set to ready,
-      // since expression matrix is not optional for genes component.
-      console.warn('Genes component requires expression-matrix data type.');
-    }
   }, [loaders, dataset]);
 
+  // Get data from loaders using the data hooks.
+  const [expressionMatrix] = useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl, true);
+  const geneList = expressionMatrix ? expressionMatrix.cols : [];
   const numGenes = geneList.length;
 
   return (
@@ -70,6 +55,7 @@ export default function GenesSubscriber(props) {
       theme={theme}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
+      urls={urls}
     >
       <Genes
         geneList={geneList}

@@ -8,7 +8,6 @@ import {
 import { getChannelStats } from '@hms-dbmi/viv';
 
 
-
 /**
  * Return the midpoint of the global dimensions.
  * @param {object[]} imageDims Loader dimensions object array.
@@ -22,9 +21,13 @@ function getDefaultGlobalSelection(imageDims) {
     });
     return selection;
 }
-  
-// Create a default selection using the midpoint of the available global dimensions,
-// and then the first four available selections from the first selectable channel.
+
+/**
+ * Create a default selection using the midpoint of the available global dimensions,
+ * and then the first four available selections from the first selectable channel.
+ * @param {object[]} imageDims Loader dimensions object array.
+ * @returns {object} The selection.
+ */
 function buildDefaultSelection(imageDims) {
     const selection = [];
     const globalSelection = getDefaultGlobalSelection(imageDims);
@@ -45,7 +48,6 @@ function buildDefaultSelection(imageDims) {
 
 /**
  * Initialize the channel selections for an individual layer.
- * @param {object} layer A layer metadata object.
  * @param {object} loader A viv loader instance, for either Zarr or OME-TIFF.
  * @returns {object[]} An array of selected channels with default
  * domain/slider settings.
@@ -75,10 +77,8 @@ export async function initializeLayerChannels(loader) {
         };
         result.push(channel);
     });
-
     return result;
 }
-
 
 /**
  * Given a set of image layer loader creator functions,
@@ -86,8 +86,9 @@ export async function initializeLayerChannels(loader) {
  * which will be selected based on default values predefined in
  * the image data file or otherwise by a heuristic
  * (the midpoint of the layers array).
- * @param {*} layers A list of layer metadata objects with fields { name, type, url, createLoader }.
- * @param {*} renderLayers A list of default layers, both raster (image) and vector (cells/molecules).
+ * @param {object[]} rasterLayers A list of layer metadata objects with
+ * shape { name, type, url, createLoader }.
+ * @param {(string[]|null)} rasterRenderLayers A list of default raster layers. Optional.
  */
 export async function initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers) {
     const nextImageLoaders = {};
@@ -105,7 +106,6 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     if (!rasterRenderLayers) {
         // Midpoint of images list as default image to show.
         const layerIndex = Math.floor(rasterLayers.length / 2);
-        const layer = rasterLayers[layerIndex];
         const loader = nextImageLoaders[layerIndex];
         const channels = await initializeLayerChannels(loader);
         autoImageLayerDefs.push({ type: "raster", index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, });
@@ -113,7 +113,6 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
         // The renderLayers parameter is a list of layer names to show by default.
         const globalIndicesOfRenderLayers = rasterRenderLayers.map(imageName => rasterLayers.findIndex(image => image.name === imageName));
         for(const layerIndex of globalIndicesOfRenderLayers) {
-            const layer = rasterLayers[layerIndex];
             const loader = nextImageLoaders[layerIndex];
             const channels = await initializeLayerChannels(loader);
             autoImageLayerDefs.push({ type: "raster", index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, });

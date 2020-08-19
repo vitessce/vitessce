@@ -8,11 +8,15 @@ import {
   VIEW_INFO,
 } from '../../events';
 import { capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls, warn } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls } from '../utils';
+import {
+  useCellsData, useCellSetsData, useExpressionMatrixData,
+  useMoleculesData, useNeighborhoodsData, useRasterData
+} from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
-import { makeSpatialSubtitle, initializeRasterLayersAndChannels } from './utils';
+import { makeSpatialSubtitle } from './utils';
 import { DEFAULT_MOLECULES_LAYER, DEFAULT_CELLS_LAYER } from './constants';
 
 import { useCoordination } from '../../app/state/hooks';
@@ -20,7 +24,7 @@ import { componentCoordinationTypes } from '../../app/state/coordination';
 
 export default function SpatialSubscriber(props) {
   const {
-    uid,
+    uuid,
     loaders,
     coordinationScopes,
     removeGridComponent,
@@ -31,10 +35,8 @@ export default function SpatialSubscriber(props) {
     theme,
     disableTooltip = false,
   } = props;
-  // Create a UUID so that hover events
-  // know from which DeckGL element they were generated.
-  const uuid = uid;
 
+  // Get "props" from the coordination space.
   const [{
     dataset,
     spatialZoom: zoom,
@@ -46,6 +48,7 @@ export default function SpatialSubscriber(props) {
     cellSelection,
     cellHighlight,
     geneSelection,
+    cellSetSelection,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -56,141 +59,39 @@ export default function SpatialSubscriber(props) {
     setCellSelection,
     setCellHighlight,
   }] = useCoordination(componentCoordinationTypes.spatial, coordinationScopes);
-
+  
+  const [autoLayers, setAutoLayers] = useState([]);
+  
+  const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     ['cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix'],
   );
-  const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
-
-  const [cells, setCells] = useState();
-  const [cellsCount, setCellsCount] = useState(0);
-  const [cellSets, setCellSets] = useState();
-  const [molecules, setMolecules] = useState();
-  const [neighborhoods, setNeighborhoods] = useState();
-  const [expressionMatrix, setExpressionMatrix] = useState();
-
-  const [autoLayers, setAutoLayers] = useState([]);
   
-  const [raster, setRaster] = useState();
-  // Since we want the image layer / channel definitions to come from the
-  // coordination space stored as JSON in the view config,
-  // we need to set up a separate state variable here to store the
-  // non-JSON objects, such as layer loader instances.
-  const [imageLayerLoaders, setImageLayerLoaders] = useState({});
-
+  // Reset file URLs and loader progress when the dataset has changed.
+  // Also clear the array of automatically-initialized layers.
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-
-    if(!loaders[dataset]) {
-      return;
-    }
-
-    if(loaders[dataset].loaders['molecules']) {
-      loaders[dataset].loaders['molecules'].load().then(({ data, url }) => {
-        setMolecules(data);
-        addUrl(url, 'Molecules');
-        setAutoLayers(prev => ([...prev, DEFAULT_MOLECULES_LAYER]));
-        setItemIsReady('molecules');
-      });
-    } else {
-      // There was no molecules loader for this dataset,
-      // and molecules should be optional.
-      setMolecules(null);
-      setItemIsReady('molecules');
-    }
-    
-    if(loaders[dataset].loaders['neighborhoods']) {
-      loaders[dataset].loaders['neighborhoods'].load().then(({ data, url }) => {
-        setNeighborhoods(data);
-        addUrl(url, 'Neighborhoods');
-        // TODO: set up a neighborhoods default layer and add to autoLayers.
-        setItemIsReady('neighborhoods');
-      });
-    } else {
-      // There was no neighboorhoods loader for this dataset,
-      // and neighboorhoods should be optional.
-      setNeighborhoods(null);
-      setItemIsReady('neighborhoods');
-    }
-
-    if(loaders[dataset].loaders['cells']) {
-      loaders[dataset].loaders['cells'].load().then(({ data, url }) => {
-        setCells(data);
-        setCellsCount(Object.keys(data).length);
-        addUrl(url, 'Cells');
-        setAutoLayers(prev => ([...prev, DEFAULT_CELLS_LAYER]));
-        setItemIsReady('cells');
-      });
-    } else {
-      // There was no cells loader for this dataset,
-      // and cells should be optional.
-      setCells(null);
-      setItemIsReady('cells');
-    }
-
-    if(loaders[dataset].loaders['cell-sets']) {
-      loaders[dataset].loaders['cell-sets'].load().catch(warn).then((payload) => {
-        const { data, url } = payload || {};
-        setCellSets(data);
-        addUrl(url, 'Cell Sets');
-        setItemIsReady('cell-sets');
-      });
-    } else {
-      // There was no cell sets loader for this dataset,
-      // and cell sets should be optional.
-      setCellSets(null);
-      setItemIsReady('cell-sets');
-    }
-
-    if(loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].load().then(({ data, url }) => {
-        const [attrs, arr] = data;
-        setExpressionMatrix({
-          cols: attrs.cols,
-          rows: attrs.rows,
-          matrix: arr.data,
-        });
-        addUrl(url, 'Expression Matrix');
-        setItemIsReady('expression-matrix');
-      });
-    } else {
-      // If no expression matrix loader was provided,
-      // just clear the expression matrix state.
-      setExpressionMatrix(null);
-      // Expression matrix is optional for scatterplot.
-      setItemIsReady('expression-matrix')
-    }
-
-    if(loaders[dataset].loaders['raster']) {
-      loaders[dataset].loaders['raster'].load().then(({ data, urls }) => {
-        setRaster(data);
-        urls.forEach(([url, name]) => {
-          addUrl(url, name);
-        });
-        
-        const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
-        initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers)
-          .then(([autoImageLayers, nextImageLoaders]) => {
-            setImageLayerLoaders(nextImageLoaders);
-            // `autoImageLayers` will be an array of automatically-initialized image layers.
-            setAutoLayers(prev => ([...prev, ...autoImageLayers]));
-            setItemIsReady('raster');
-          });
-      });
-    } else {
-      // There was no raster loader for this dataset,
-      // and raster should be optional.
-      setImageLayerLoaders({});
-      setItemIsReady('raster');
-    }
+    setAutoLayers([]);
   }, [loaders, dataset]);
 
+  // Get data from loaders using the data hooks.
+  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, false, () =>  setAutoLayers(prev => ([...prev, DEFAULT_CELLS_LAYER])));
+  const [molecules, moleculesCount, locationsCount] = useMoleculesData(loaders, dataset, setItemIsReady, addUrl, false, () =>  setAutoLayers(prev => ([...prev, DEFAULT_MOLECULES_LAYER])));
+  // TODO: set up a neighborhoods default layer and add to autoLayers.
+  const [neighborhoods] = useNeighborhoodsData(loaders, dataset, setItemIsReady, addUrl, false);
+  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
+  const [expressionMatrix] = useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl, false);
+  // eslint-disable-next-line no-unused-vars
+  const [raster, imageLayerLoaders] = useRasterData(loaders, dataset, setItemIsReady, addUrl, false, (autoImageLayers) => {
+    setAutoLayers(prev => ([...prev, ...autoImageLayers]));
+  });
+  
   // Try to set up the layers array automatically if null or undefined.
   useEffect(() => {
     if(isReady && !layers) {
-      // TODO: sort the default/automatic layers by type (raster, cell, molecules).
+      // TODO: Sort the automatic layer list by layer type (molecules < cells < raster).
       setLayers(autoLayers);
     }
   }, [autoLayers, isReady, layers, setLayers]);
@@ -200,19 +101,10 @@ export default function SpatialSubscriber(props) {
       expressionMatrix,
       geneSelection,
       cellColorEncoding: 'geneSelection',
-      // TODO: cell sets
+      cellSets,
+      cellSetSelection,
     })
-  }, [geneSelection]);
-
-  const [moleculesCount, locationsCount] = useMemo(() => {
-    if (!molecules) return [0, 0];
-    return [
-      Object.keys(molecules).length,
-      Object.values(molecules)
-        .map(l => l.length)
-        .reduce((a, b) => a + b, 0),
-    ];
-  }, [molecules]);
+  }, [geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
   const updateViewInfo = useCallback(
     viewInfo => PubSub.publish(VIEW_INFO, viewInfo),
@@ -289,8 +181,3 @@ export default function SpatialSubscriber(props) {
     </TitleInfo>
   );
 }
-
-SpatialSubscriber.defaultProps = {
-  cellRadius: 50,
-  moleculeRadius: 10,
-};

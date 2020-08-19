@@ -1,5 +1,5 @@
 /* eslint-disable dot-notation */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import TitleInfo from '../TitleInfo';
@@ -7,10 +7,12 @@ import RasterLayerController from './RasterLayerController';
 import VectorLayerController from './VectorLayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady } from '../utils';
+import {
+  useRasterData,
+} from '../data-hooks';
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
 import {
-  initializeRasterLayersAndChannels,
   initializeLayerChannels,
 } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
@@ -23,6 +25,7 @@ function LayerControllerSubscriber(props) {
     theme,
   } = props;
 
+  // Get "props" from the coordination space.
   const [{
     dataset,
     spatialLayers: layers,
@@ -34,40 +37,16 @@ function LayerControllerSubscriber(props) {
     ['raster'],
   );
 
-  // Since we want the image layer / channel definitions to come from the
-  // coordination space stored as JSON in the view config,
-  // we need to set up a separate state variable here to store the
-  // non-JSON objects, such as layer loader instances.
-  const [imageLayerMeta, setImageLayerMeta] = useState({});
-  const [imageLayerLoaders, setImageLayerLoaders] = useState({});
-
-  // Load the raster manifest, and then get the associated layer metadata and loaders.
+  // Reset loader progress when the dataset has changed.
   useEffect(() => {
     resetReadyItems();
+  }, [loaders, dataset, resetReadyItems]);
 
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders['raster']) {
-      loaders[dataset].loaders['raster'].load().then(({ data }) => {
-        const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
-        initializeRasterLayersAndChannels(
-          rasterLayers, rasterRenderLayers,
-        // eslint-disable-next-line no-unused-vars
-        ).then(([autoImageLayers, nextImageLoaders, nextImageMeta]) => {
-          setImageLayerLoaders(nextImageLoaders);
-          setImageLayerMeta(nextImageMeta);
-          setItemIsReady('raster');
-        });
-      });
-    } else {
-      setImageLayerLoaders({});
-      setImageLayerMeta({});
-      setItemIsReady('raster');
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  // Get data from loaders using the data hooks.
+  // eslint-disable-next-line no-unused-vars
+  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
+    loaders, dataset, setItemIsReady, () => {}, true,
+  );
 
   const handleImageAdd = async (index) => {
     const loader = imageLayerLoaders[index];

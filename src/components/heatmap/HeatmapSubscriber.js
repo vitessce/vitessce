@@ -7,7 +7,8 @@ import {
   STATUS_INFO, VIEW_INFO,
 } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls, warn } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls } from '../utils';
+import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
@@ -17,7 +18,7 @@ import { componentCoordinationTypes } from '../../app/state/coordination';
 
 export default function HeatmapSubscriber(props) {
   const {
-    uid,
+    uuid,
     loaders,
     coordinationScopes,
     removeGridComponent, theme, transpose,
@@ -28,12 +29,15 @@ export default function HeatmapSubscriber(props) {
     disableTooltip = false,
   } = props;
 
+  // Get "props" from the coordination space.
   const [{
     dataset,
     heatmapZoomX: zoomX,
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
     geneSelection,
+    cellSelection,
+    cellSetSelection,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -46,11 +50,6 @@ export default function HeatmapSubscriber(props) {
   const observationsTitle = capitalize(observationsPluralLabel);
   const variablesTitle = capitalize(variablesPluralLabel);
 
-
-  // Create a UUID so that hover events
-  // know from which element they were generated.
-  const uuid = uid;
-
   const [isRendering, setIsRendering] = useState(false);
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     ['cells', 'cell-sets', 'expression-matrix'],
@@ -58,70 +57,26 @@ export default function HeatmapSubscriber(props) {
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
 
-
-  const [cells, setCells] = useState();
-  const [cellSets, setCellSets] = useState();
-  const [expressionMatrix, setExpressionMatrix] = useState();
-  const [selectedCellIds, setSelectedCellIds] = useState(new Set());
-
+  // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if(loaders[dataset].loaders['cells']) {
-      loaders[dataset].loaders['cells'].load().then(({ data, url }) => {
-        setCells(data);
-        addUrl(url, 'Cells');
-        setItemIsReady('cells');
-      });
-    } else {
-      setCells(null);
-      console.warn("Heatmap component requires cells data type");
-    }
-
-    if(loaders[dataset].loaders['cell-sets']) {
-      loaders[dataset].loaders['cell-sets'].load().catch(warn).then((payload) => {
-        const { data, url } = payload || {};
-        setCellSets(data);
-        addUrl(url, 'Cell Sets');
-        setItemIsReady('cell-sets');
-      });
-    } else {
-      // Optional.
-      setCellSets(null);
-      setItemIsReady('cell-sets');
-    }
-
-    if(loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].load().then(({ data, url }) => {
-        const [attrs, arr] = data;
-        setExpressionMatrix({
-          cols: attrs.cols,
-          rows: attrs.rows,
-          matrix: arr.data,
-        });
-        addUrl(url, 'Expression Matrix');
-        setItemIsReady('expression-matrix');
-      });
-    } else {
-      setExpressionMatrix(null);
-      console.warn("Heatmap component requires expression-matrix data type");
-    }
-
   }, [loaders, dataset]);
+
+  // Get data from loaders using the data hooks.
+  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [expressionMatrix] = useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
 
   const cellColors = useMemo(() => {
     return getCellColors({
       expressionMatrix,
       geneSelection,
       cellColorEncoding: 'geneSelection',
-      // TODO: cell sets
+      cellSets,
+      cellSetSelection,
     });
-  }, [geneSelection]);
+  }, [geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
@@ -145,7 +100,7 @@ export default function HeatmapSubscriber(props) {
     ? expressionMatrix.rows.length : 0;
   const genesCount = expressionMatrix && expressionMatrix.cols
     ? expressionMatrix.cols.length : 0;
-  const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
+  const selectedCount = cellSelection ? cellSelection.length : 0;
   return (
     <TitleInfo
       title="Heatmap"

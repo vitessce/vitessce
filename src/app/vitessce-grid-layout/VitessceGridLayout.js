@@ -80,7 +80,7 @@ export default function VitessceGridLayout(props) {
       <div key={k}>
         <Component
           {... v.props}
-          uid={i}
+          uuid={i}
           coordinationScopes={v.coordinationScopes}
           loaders={loaders}
           theme={theme}

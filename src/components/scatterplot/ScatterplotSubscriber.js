@@ -6,7 +6,8 @@ import clamp from 'lodash/clamp';
 import TitleInfo from '../TitleInfo';
 import { VIEW_INFO } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls, warn } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls } from '../utils';
+import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
@@ -16,7 +17,7 @@ import { componentCoordinationTypes } from '../../app/state/coordination';
 
 export default function ScatterplotSubscriber(props) {
   const {
-    uid,
+    uuid,
     loaders,
     coordinationScopes,
     removeGridComponent,
@@ -26,6 +27,7 @@ export default function ScatterplotSubscriber(props) {
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
   } = props;
 
+  // Get "props" from the coordination space.
   const [{
     dataset,
     embeddingZoom: zoom,
@@ -48,74 +50,24 @@ export default function ScatterplotSubscriber(props) {
     setCellHighlight,
   }] = useCoordination(componentCoordinationTypes.scatterplot, coordinationScopes);
 
+  const [urls, addUrl, resetUrls] = useUrls();
+  const [width, height, deckRef] = useDeckCanvasSize();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     ['cells', 'expression-matrix', 'cell-sets'],
   );
-  const [urls, addUrl, resetUrls] = useUrls();
-  const [width, height, deckRef] = useDeckCanvasSize();
 
-  const [cells, setCells] = useState({});
-  const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
-  const [expressionMatrix, setExpressionMatrix] = useState();
-  const [cellSets, setCellSets] = useState();
-
+  // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
     resetReadyItems();
+  }, [loaders, dataset]);
 
-    if (!loaders[dataset]) {
-      return;
-    }
+  // Get data from loaders using the data hooks.
+  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
+  const [expressionMatrix] = useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl, false);
 
-    if(loaders[dataset].loaders['cells']) {
-      loaders[dataset].loaders['cells'].load().then(({ data, url }) => {
-        setCells(data);
-        addUrl(url, 'Cells');
-        setItemIsReady('cells');
-      }).catch(warn);
-    } else {
-      // If no cells loader is available, set cells to null.
-      setCells({});
-      // But do not set cells to ready,
-      // since cells are not optional for scatterplot.
-      console.warn('Scatterplot component requires cells data type.');
-    }
-
-    if(loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].load().then(({ data, url }) => {
-        const [attrs, arr] = data;
-        setExpressionMatrix({
-          cols: attrs.cols,
-          rows: attrs.rows,
-          matrix: arr.data,
-        });
-        addUrl(url, 'Expression Matrix');
-        setItemIsReady('expression-matrix');
-      }).catch(warn);
-    } else {
-      // If no expression matrix loader was provided,
-      // just clear the expression matrix state.
-      setExpressionMatrix(null);
-      // Expression matrix is optional for scatterplot.
-      setItemIsReady('expression-matrix');
-    }
-
-    if(loaders[dataset].loaders['cell-sets']) {
-      loaders[dataset].loaders['cell-sets'].load().catch(warn).then((payload) => {
-        const { data, url } = payload || {};
-        setCellSets(data);
-        console.log(data);
-        addUrl(url, 'Cell Sets');
-        setItemIsReady('cell-sets');
-      });
-    } else {
-      // If no cell sets loader was provided,
-      // just clear the cell sets state.
-      setCellSets(null);
-      // Cell sets are optional for scatterplot.
-      setItemIsReady('cell-sets');
-    }
-  }, [mapping, loaders, dataset]);
+  const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
   const cellColors = useMemo(() => {
     return getCellColors({
@@ -155,7 +107,6 @@ export default function ScatterplotSubscriber(props) {
     };
   }, [cells, observationsLabel]);
 
-  const cellsCount = Object.keys(cells).length;
   return (
     <TitleInfo
       title={`Scatterplot (${mapping})`}
@@ -167,7 +118,7 @@ export default function ScatterplotSubscriber(props) {
     >
       <Scatterplot
         ref={deckRef}
-        uuid={uid}
+        uuid={uuid}
         theme={theme}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
         setViewState={({ zoom, target }) => {
@@ -193,7 +144,7 @@ export default function ScatterplotSubscriber(props) {
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber
-        uuid={uid}
+        uuid={uuid}
         width={width}
         height={height}
         getCellInfo={getCellInfo}
