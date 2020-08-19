@@ -11,6 +11,7 @@
 - In the SpatialSubscriber component, no longer display counts for cells, molecules, or locations if the count value is zero.
 - Upgrade Viv to 0.4.2.
 - Fix channel names bug (#721) where they do not show if they are not the first dimension.
+- Make sliders nicer for 32 bit data.
 
 ## [0.2.3](https://www.npmjs.com/package/vitessce/v/0.2.3) - 2020-08-04
 

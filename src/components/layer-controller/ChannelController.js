@@ -15,6 +15,14 @@ export const toRgbUIString = (on, arr, theme) => {
   return `rgb(${color})`;
 };
 
+function truncateDecimalNumber(value, maxLength) {
+  if (!value && value !== 0) return '';
+  const stringValue = value.toString();
+  return stringValue.length > maxLength
+    ? stringValue.substring(0, maxLength).replace(/\.$/, '')
+    : stringValue;
+}
+
 /**
  * Dropdown for selecting a channel.
  * @prop {function} handleChange Callback for each new selection.
@@ -51,19 +59,22 @@ function ChannelSelectionDropdown({
  * @prop {array} domain Current max/min allowable slider values.
  */
 function ChannelSlider({
-  color, slider, handleChange, domain: [min, max],
+  color, slider, handleChange, domain: [min, max], dtype,
 }) {
   const handleChangeDebounced = useCallback(
     debounce(handleChange, 3, { trailing: true }), [handleChange],
   );
+  const step = max - min < 500 && dtype === '<f4' ? (max - min) / 500 : 1;
   return (
     <Slider
       value={slider}
+      valueLabelFormat={v => truncateDecimalNumber(v, 5)}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
       getAriaLabel={() => `${color}-${slider}`}
       min={min}
       max={max}
+      step={step}
       orientation="horizontal"
       style={{ color, marginTop: '7px' }}
     />
@@ -108,6 +119,7 @@ function ChannelController({
   domain,
   dimName,
   theme,
+  dtype,
   colormapOn,
   channelOptions,
   handlePropertyChange,
@@ -160,6 +172,7 @@ function ChannelController({
             color={rgbColor}
             slider={slider}
             domain={domain}
+            dtype={dtype}
             handleChange={v => handlePropertyChange('slider', v)}
           />
         </Grid>
