@@ -17,9 +17,22 @@ export const toRgbUIString = (on, arr, theme) => {
 
 function truncateDecimalNumber(value, maxLength) {
   if (!value && value !== 0) return '';
+  // Number whose display value as exponential has more than
+  // maxLength characters with a decimal needs no decimal points for precision.
+  if (value >= 1e10) {
+    return value.toExponential(0);
+  }
+  // Number whose display value as exponential has less than
+  // maxLength characters without a decimal can have a decimal point for precision.
+  if (value >= eval(`1e${maxLength}`)) { // eslint-disable-line no-eval
+    return value.toExponential(1);
+  }
+  // Truncate small numbers with long decimal expansions.
   const stringValue = value.toString();
   return stringValue.length > maxLength
-    ? stringValue.substring(0, maxLength).replace(/\.$/, '')
+    ? Intl.NumberFormat(
+      'en-US', { maximumSignificantDigits: maxLength - 1, useGrouping: false },
+    ).format(stringValue)
     : stringValue;
 }
 
