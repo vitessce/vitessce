@@ -15,7 +15,8 @@ export const toRgbUIString = (on, arr, theme) => {
   return `rgb(${color})`;
 };
 
-function truncateDecimalNumber(value, maxLength) {
+function truncateDecimalNumber(value) {
+  const maxLength = 5;
   if (!value && value !== 0) return '';
   // Number whose display value as exponential has more than
   // maxLength characters with a decimal needs no decimal points for precision.
@@ -81,7 +82,7 @@ function ChannelSlider({
   return (
     <Slider
       value={slider}
-      valueLabelFormat={v => truncateDecimalNumber(v, 5)}
+      valueLabelFormat={v => truncateDecimalNumber(v)}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
       getAriaLabel={() => `${color}-${slider}`}
