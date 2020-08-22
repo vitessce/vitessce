@@ -1,6 +1,4 @@
-/* eslint-disable */
 import { quadtree } from 'd3-quadtree';
-
 
 /**
  * Create a d3-quadtree object for cells data points.
@@ -11,15 +9,15 @@ import { quadtree } from 'd3-quadtree';
  * @returns {object} Quadtree instance.
  */
 export function createCellsQuadTree(cellsEntries, getCellCoords) {
-    // Use the cellsEntries variable since it is already
-    // an array, converted by Object.entries().
-    if (!cellsEntries) {
-      // Abort if the cells data is not yet available.
-      return null;
-    }
-    const tree = quadtree()
-      .x(d => getCellCoords(d[1])[0])
-      .y(d => getCellCoords(d[1])[1])
-      .addAll(cellsEntries);
-    return tree;
+  // Use the cellsEntries variable since it is already
+  // an array, converted by Object.entries().
+  if (!cellsEntries) {
+    // Abort if the cells data is not yet available.
+    return null;
+  }
+  const tree = quadtree()
+    .x(d => getCellCoords(d[1])[0])
+    .y(d => getCellCoords(d[1])[1])
+    .addAll(cellsEntries);
+  return tree;
 }
