@@ -50,7 +50,8 @@ export function useCellsData(loaders, dataset, setItemIsReady, addUrl, isRequire
         setItemIsReady('cells');
       }
     }
-  }, [loaders, dataset, addUrl, onLoad, setItemIsReady, isRequired]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
   return [cells, cellsCount];
 }
@@ -96,7 +97,8 @@ export function useCellSetsData(loaders, dataset, setItemIsReady, addUrl, isRequ
         setItemIsReady('cell-sets');
       }
     }
-  }, [loaders, dataset, addUrl, setItemIsReady, isRequired]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
   return [cellSets];
 }
@@ -147,7 +149,8 @@ export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl
         setItemIsReady('expression-matrix');
       }
     }
-  }, [loaders, dataset, addUrl, setItemIsReady, isRequired]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
   return [expressionMatrix];
 }
@@ -208,7 +211,8 @@ export function useMoleculesData(
         setItemIsReady('molecules');
       }
     }
-  }, [loaders, dataset, addUrl, onLoad, setItemIsReady, isRequired]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
   return [molecules, moleculesCount, locationsCount];
 }
@@ -259,7 +263,8 @@ export function useNeighborhoodsData(
         setItemIsReady('neighborhoods');
       }
     }
-  }, [loaders, dataset, addUrl, onLoad, setItemIsReady, isRequired]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
   return [neighborhoods];
 }
@@ -328,7 +333,8 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
         setItemIsReady('raster');
       }
     }
-  }, [loaders, dataset, addUrl, onLoad, setItemIsReady, isRequired]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
   return [raster, imageLayerLoaders, imageLayerMeta];
 }

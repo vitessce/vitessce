@@ -41,7 +41,6 @@ export function resolveLayout(layout) {
       components[id] = {
         component: def.component,
         props: def.props || {},
-        uid: def.uid,
         coordinationScopes: def.coordinationScopes || {},
       };
       positions[id] = {

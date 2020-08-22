@@ -1,8 +1,8 @@
 import React from 'react';
 import { SELECTION_TYPE } from 'nebula.gl';
-import { ReactComponent as PointerIconSVG } from '../assets/tools/near_me.svg';
-import { ReactComponent as SelectRectangleIconSVG } from '../assets/tools/selection_rectangle.svg';
-import { ReactComponent as SelectLassoIconSVG } from '../assets/tools/selection_lasso.svg';
+import { ReactComponent as PointerIconSVG } from '../../assets/tools/near_me.svg';
+import { ReactComponent as SelectRectangleIconSVG } from '../../assets/tools/selection_rectangle.svg';
+import { ReactComponent as SelectLassoIconSVG } from '../../assets/tools/selection_lasso.svg';
 
 export function IconButton(props) {
   const {

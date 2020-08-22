@@ -1,7 +1,7 @@
 import Adapter from 'enzyme-adapter-react-16';
 import { configure } from 'enzyme';
 import expect from 'expect';
-import { square } from './Spatial';
+import { square } from './utils';
 
 configure({ adapter: new Adapter() });
 

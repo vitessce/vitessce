@@ -1,95 +1,62 @@
-/* eslint-disable */
-import React, {
-  forwardRef, PureComponent,
-} from 'react';
+import React, { forwardRef } from 'react';
 import some from 'lodash/some';
 import isEqual from 'lodash/isEqual';
-import DeckGL, {
-  ScatterplotLayer, OrthographicView, COORDINATE_SYSTEM,
-} from 'deck.gl';
+import { ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { MultiscaleImageLayer, ImageLayer } from '@hms-dbmi/viv';
-import { quadtree } from 'd3-quadtree';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
-import ToolMenu from '../ToolMenu';
+import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
+import { square } from './utils';
+import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import {
-  cellLayerDefaultProps, PALETTE, DEFAULT_COLOR,
-  DEFAULT_GL_OPTIONS,
-} from '../utils';
+  createCellsQuadTree,
+} from '../shared-spatial-scatterplot/quadtree';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
 
-
-export function square(x, y, r) {
-  return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
-}
-
-const getCursorWithTool = () => 'crosshair';
-const getCursor = interactionState => (interactionState.isDragging ? 'grabbing' : 'default');
-
+// Default getter function props.
 const defaultGetCellCoords = cell => cell.xy;
-
-function createCellsQuadTree(cellsEntries, getCellCoords) {
-  // Use the cellsEntries variable since it is already
-  // an array, converted by Object.entries().
-  if (!cellsEntries) {
-    // Abort if the cells data is not yet available.
-    return null;
-  }
-  const tree = quadtree()
-    .x(d => getCellCoords(d[1])[0])
-    .y(d => getCellCoords(d[1])[1])
-    .addAll(cellsEntries);
-  return tree;
-}
+const makeDefaultGetCellPolygon = radius => (cellEntry) => {
+  const cell = cellEntry[1];
+  return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
+};
+const makeDefaultGetCellColors = cellColors => cellEntry => (
+  cellColors && cellColors.get(cellEntry[0])
+) || DEFAULT_COLOR;
+const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
+  cellSelection.length
+    ? cellSelection.includes(cellEntry[0])
+    : true // If nothing is selected, everything is selected.
+);
 
 /**
  * React component which expresses the spatial relationships between cells and molecules.
- * @prop {string} uuid
- * @prop {object} view
- * @prop {number} view.zoom
- * @prop {number[]} view.target See https://github.com/uber/deck.gl/issues/2580 for more information.
- * @prop {object} molecules
- * @prop {object} cells
- * @prop {object} neighborhoods
- * @prop {number} moleculeRadius
- * @prop {number} cellOpacity The value for `opacity` to pass
- * to the deck.gl cells PolygonLayer.
- * @prop {number} lineWidthScale Width of cell border in view space (deck.gl).
- * @prop {number} lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
- * @prop {object} imageLayerProps
- * @prop {object} imageLayerLoaders
- * @prop {object} cellColors Object mapping cell IDs to colors.
- * @prop {Set} selectedCellIds Set of selected cell IDs.
- * @prop {function} getCellCoords Getter function for cell coordinates
+ * @param {object} props
+ * @param {string} props.uuid
+ * @param {object} props.viewState
+ * @param {function} props.setViewState
+ * @param {object} props.molecules
+ * @param {object} props.cells
+ * @param {object} props.neighborhoods
+ * @param {number} props.lineWidthScale Width of cell border in view space (deck.gl).
+ * @param {number} props.lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
+ * @param {object} props.imageLayerLoaders
+ * @param {object} props.cellColors Object mapping cell IDs to colors.
+ * @param {function} props.getCellCoords Getter function for cell coordinates
  * (used by the selection layer).
- * @prop {function} getCellColor Getter function for cell color as [r, g, b] array.
- * @prop {function} getCellPolygon
- * @prop {function} getCellIsSelected Getter function for cell layer isSelected.
- * @prop {function} getMoleculeColor
- * @prop {function} getMoleculePosition
- * @prop {function} getNeighborhoodPolygon
- * @prop {function} updateStatus
- * @prop {function} updateCellsSelection
- * @prop {function} updateCellsHover
- * @prop {function} updateViewInfo
- * @prop {function} onCellClick Getter function for cell layer onClick.
+ * @param {function} props.getCellColor Getter function for cell color as [r, g, b] array.
+ * @param {function} props.getCellPolygon
+ * @param {function} props.getCellIsSelected Getter function for cell layer isSelected.
+ * @param {function} props.getMoleculeColor
+ * @param {function} props.getMoleculePosition
+ * @param {function} props.getNeighborhoodPolygon
+ * @param {function} props.updateStatus
+ * @param {function} props.updateViewInfo
+ * @param {function} props.onCellClick Getter function for cell layer onClick.
  */
-
-class Spatial extends PureComponent {
-
+class Spatial extends AbstractSpatialOrScatterplot {
   constructor(props) {
     super(props);
-
-    this.state = {
-      gl: null,
-      tool: null,
-    };
-
-    this.onViewStateChange = this.onViewStateChange.bind(this);
-    this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
-    this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
-    this.onToolChange = this.onToolChange.bind(this);
 
     // To avoid storing large arrays/objects
     // in React state, this component
@@ -103,7 +70,7 @@ class Spatial extends PureComponent {
     this.neighborhoodsLayer = null;
     this.imageLayers = [];
     this.layerLoaderSelections = {};
-    
+
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
@@ -113,68 +80,33 @@ class Spatial extends PureComponent {
     this.onUpdateImages();
   }
 
-  onViewStateChange({ viewState: nextViewState }) {
-    const { setViewState } = this.props;
-    setViewState(nextViewState);
-  }
-
   onInitializeViewInfo({ viewport }) {
-    const { updateViewInfo, cells, uuid, getCellCoords = defaultGetCellCoords } = this.props;
-    updateViewInfo({
-      uuid,
-      project: (cellId) => {
-        const cell = cells[cellId];
-        try {
-          const [positionX, positionY] = getCellCoords(cell);
-          return viewport.project([positionX, positionY]);
-        } catch (e) {
-          return [null, null];
-        }
-      },
-    });
-  }
-
-  onWebGLInitialized(gl) {
-    this.setState({ gl });
-  }
-
-  onToolChange(tool) {
-    const { onToolChange: onToolChangeProp } = this.props;
-    this.setState({ tool });
-    if (onToolChangeProp) {
-      onToolChangeProp(tool);
-    }
+    const { getCellCoords = defaultGetCellCoords } = this.props;
+    super.onInitializeViewInfo(viewport, getCellCoords);
   }
 
   createCellsLayer(layerDef) {
-    const { radius, stroked, visible, opacity } = layerDef;
+    const {
+      radius, stroked, visible, opacity,
+    } = layerDef;
     const {
       cellFilter = null,
       cellSelection = [],
       setCellHighlight,
-      getCellIsSelected = cellEntry => (
-        cellSelection.length
-          ? cellSelection.includes(cellEntry[0])
-          : true // If nothing is selected, everything is selected.
-      ),
+      getCellIsSelected = makeDefaultGetCellIsSelected(cellSelection),
       cellColors,
-      getCellColor = cellEntry => (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR,
-      getCellPolygon = (cellEntry) => {
-        const cell = cellEntry[1];
-        return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
-      },
-      onCellClick = (info) => {
-        const cellId = info.object[0];
-        // TODO?
-      },
+      getCellColor = makeDefaultGetCellColors(cellColors),
+      getCellPolygon = makeDefaultGetCellPolygon(radius),
+      onCellClick,
       lineWidthScale = 10,
       lineWidthMaxPixels = 2,
       uuid,
     } = this.props;
-    const { tool } = this.state;
     const { cellsEntries } = this;
-    const filteredCellsEntries = (cellFilter ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0])) : cellsEntries);
-    
+    const filteredCellsEntries = (cellFilter
+      ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
+      : cellsEntries);
+
     // Graphics rendering has the y-axis positive going south,
     // so we need to flip it for rendering tooltips.
     const flipYTooltip = true;
@@ -183,29 +115,33 @@ class Spatial extends PureComponent {
       id: CELLS_LAYER_ID,
       backgroundColor: [0, 0, 0],
       isSelected: getCellIsSelected,
-      stroked: stroked,
       getPolygon: getCellPolygon,
       updateTriggers: {
         getFillColor: [opacity],
+        getLineWidth: [stroked],
       },
-      getColor: (cellEntry) => {
+      getFillColor: (cellEntry) => {
         const color = getCellColor(cellEntry);
         color[3] = opacity * 255;
         return color;
       },
-      onClick: (info) => {
-        if (tool) {
-          // If using a tool, prevent individual cell selection.
-          // Let SelectionLayer handle the clicks instead.
-          return;
-        }
-        onCellClick(info);
+      getLineColor: (cellEntry) => {
+        const color = getCellColor(cellEntry);
+        color[3] = 255;
+        return color;
       },
-      visible: visible,
+      onClick: (info) => {
+        if (onCellClick) {
+          onCellClick(info);
+        }
+      },
+      visible,
       getLineWidth: stroked ? 1 : 0,
       lineWidthScale,
       lineWidthMaxPixels,
-      ...cellLayerDefaultProps(filteredCellsEntries, undefined, setCellHighlight, uuid, flipYTooltip),
+      ...cellLayerDefaultProps(
+        filteredCellsEntries, undefined, setCellHighlight, uuid, flipYTooltip,
+      ),
     });
   }
 
@@ -216,7 +152,7 @@ class Spatial extends PureComponent {
       getMoleculePosition = d => [d[0], d[1], 0],
     } = this.props;
     const { moleculesEntries } = this;
-    
+
     return new ScatterplotLayer({
       id: MOLECULES_LAYER_ID,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
@@ -231,7 +167,9 @@ class Spatial extends PureComponent {
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       onHover: (info) => {
-        if (info.object && updateStatus) { updateStatus(`Gene: ${info.object[3]}`); }
+        if (info.object && updateStatus) {
+          updateStatus(`Gene: ${info.object[3]}`);
+        }
       },
     });
   }
@@ -251,7 +189,6 @@ class Spatial extends PureComponent {
   }
 
   createImageLayer(layerDef, loader, i) {
-
     // We need to keep the same loaderSelection array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
     // since loaderSelection is one of its `updateTriggers`.
@@ -259,13 +196,12 @@ class Spatial extends PureComponent {
     let loaderSelection;
     const nextLoaderSelection = layerDef.channels.map(c => c.selection);
     const prevLoaderSelection = this.layerLoaderSelections[layerDef.index];
-    if(isEqual(prevLoaderSelection, nextLoaderSelection)) {
+    if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
       loaderSelection = prevLoaderSelection;
     } else {
       loaderSelection = nextLoaderSelection;
       this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
     }
-
 
     const layerProps = {
       colormap: layerDef.colormap,
@@ -283,7 +219,7 @@ class Spatial extends PureComponent {
       id: `image-layer-${layerDef.index}-${i}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
-      loaderSelection: loaderSelection,
+      loaderSelection,
       channelIsOn: layerProps.visibilities,
       opacity: layerProps.opacity,
       colormap: layerProps.colormap.length > 0 && layerProps.colormap,
@@ -295,8 +231,10 @@ class Spatial extends PureComponent {
   createImageLayers() {
     const { layers = [], imageLayerLoaders = {} } = this.props;
     return layers
-      .filter(layer => layer.type === "raster")
-      .map((layer, i) => this.createImageLayer(layer, imageLayerLoaders[layer.index], i));
+      .filter(layer => layer.type === 'raster')
+      .map((layer, i) => this.createImageLayer(
+        layer, imageLayerLoaders[layer.index], i,
+      ));
   }
 
   getLayers() {
@@ -316,7 +254,10 @@ class Spatial extends PureComponent {
   }
 
   onUpdateCellsData() {
-    const { cells = {}, getCellCoords = defaultGetCellCoords } = this.props;
+    const {
+      cells = {},
+      getCellCoords = defaultGetCellCoords,
+    } = this.props;
     const cellsEntries = Object.entries(cells);
     this.cellsEntries = cellsEntries;
     this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
@@ -324,8 +265,8 @@ class Spatial extends PureComponent {
 
   onUpdateCellsLayer() {
     const { layers = [] } = this.props;
-    const layerDef = layers.find(layer => layer.type === "cells");
-    if(layerDef) {
+    const layerDef = layers.find(layer => layer.type === 'cells');
+    if (layerDef) {
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {
       this.cellsLayer = null;
@@ -335,21 +276,24 @@ class Spatial extends PureComponent {
   onUpdateMoleculesData() {
     const { molecules = {} } = this.props;
     const moleculesEntries = Object
-        .entries(molecules)
-        .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]));
+      .entries(molecules)
+      .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [
+        x, y, index, molecule,
+      ]));
     this.moleculesEntries = moleculesEntries;
   }
 
   onUpdateMoleculesLayer() {
     const { layers = [] } = this.props;
-    const layerDef = layers.find(layer => layer.type === "molecules");
-    if(layerDef) {
+    const layerDef = layers.find(layer => layer.type === 'molecules');
+    if (layerDef) {
       this.moleculesLayer = this.createMoleculesLayer(layerDef);
     } else {
       this.moleculesLayer = null;
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   onUpdateNeighborhoods() {
 
   }
@@ -363,78 +307,46 @@ class Spatial extends PureComponent {
    * updated which require re-computing memoized variables,
    * followed by a re-render.
    * This function does not follow React conventions or paradigms,
-   * it is only implemented this way to try to squeeze out every
-   * ounce of performance possible. Would not recommend this.
+   * it is only implemented this way to try to squeeze out
+   * performance.
    * @param {object} prevProps The previous props to diff against.
    */
   componentDidUpdate(prevProps) {
-    const shallowDiff = (propName) => (prevProps[propName] !== this.props[propName]);
-    if(some(['cells'], shallowDiff)) {
+    const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
+    if (some(['cells'], shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
       this.forceUpdate();
     }
 
-    if(some(['layers', 'cells', 'cellFilter', 'cellSelection', 'cellColors'], shallowDiff)) {
+    if (some([
+      'layers', 'cells', 'cellFilter', 'cellSelection', 'cellColors',
+    ], shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
       this.forceUpdate();
     }
 
-    if(some(['molecules'], shallowDiff)) {
+    if (some(['molecules'], shallowDiff)) {
       // Molecules data changed.
       this.onUpdateMoleculesData();
       this.forceUpdate();
     }
 
-    if(some(['layers', 'molecules'], shallowDiff)) {
+    if (some(['layers', 'molecules'], shallowDiff)) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
       this.forceUpdate();
     }
 
-    if(some(['layers', 'imageLayerLoaders'], shallowDiff)) {
+    if (some(['layers', 'imageLayerLoaders'], shallowDiff)) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();
     }
   }
 
-  render() {
-    const { deckRef, viewState, } = this.props;
-    const { gl, tool } = this.state;
-    const layers = this.getLayers();
-
-    const showCellSelectionTools = this.cellsLayer !== null;
-    const showPanTool = this.cellsLayer !== null;
-
-    return (
-      <>
-        <ToolMenu
-          activeTool={tool}
-          setActiveTool={this.onToolChange}
-          visibleTools={{
-            pan: showPanTool,
-            selectRectangle: showCellSelectionTools,
-            selectLasso: showCellSelectionTools,
-          }}
-        />
-        <DeckGL
-          ref={deckRef}
-          views={[new OrthographicView({ id: 'ortho' })]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
-          layers={gl ? layers : ([])}
-          glOptions={DEFAULT_GL_OPTIONS}
-          onWebGLInitialized={this.onWebGLInitialized}
-          onViewStateChange={this.onViewStateChange}
-          viewState={viewState}
-          controller={tool ? ({ dragPan: false }) : true}
-          getCursor={tool ? getCursorWithTool : getCursor}
-        >
-          {this.onInitializeViewInfo}
-        </DeckGL>
-      </>
-    );
-  }
+  // render() is implemented in the abstract parent class.
 }
 
 /**
@@ -444,6 +356,5 @@ class Spatial extends PureComponent {
  * access the grandchild DeckGL ref,
  * but we are using a class component.
  */
-const SpatialWrapper = forwardRef((props, deckRef) => { return <Spatial {...props} deckRef={deckRef} />;  });
-
+const SpatialWrapper = forwardRef((props, deckRef) => <Spatial {...props} deckRef={deckRef} />);
 export default SpatialWrapper;

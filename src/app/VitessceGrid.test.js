@@ -13,7 +13,7 @@ describe('VitessceGrid.js', () => {
         description: 'fake description',
         layers: [],
         name: 'fake name',
-        staticLayout: [
+        layout: [
           {
             component: 'FakeComponent',
             props: { description: 'fake prop description' },

@@ -14,6 +14,7 @@ import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
 
+const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
 export default function ScatterplotSubscriber(props) {
   const {
@@ -53,13 +54,14 @@ export default function ScatterplotSubscriber(props) {
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
-    ['cells', 'expression-matrix', 'cell-sets'],
+    SCATTERPLOT_DATA_TYPES,
   );
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
     resetReadyItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.

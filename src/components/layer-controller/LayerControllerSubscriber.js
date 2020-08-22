@@ -1,21 +1,18 @@
 /* eslint-disable dot-notation */
 import React, { useEffect } from 'react';
-
 import Grid from '@material-ui/core/Grid';
 import TitleInfo from '../TitleInfo';
 import RasterLayerController from './RasterLayerController';
 import VectorLayerController from './VectorLayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady } from '../utils';
-import {
-  useRasterData,
-} from '../data-hooks';
+import { useRasterData } from '../data-hooks';
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
-import {
-  initializeLayerChannels,
-} from '../spatial/utils';
+import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
+
+const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
 
 function LayerControllerSubscriber(props) {
   const {
@@ -34,13 +31,14 @@ function LayerControllerSubscriber(props) {
   }] = useCoordination(componentCoordinationTypes.layerController, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
-    ['raster'],
+    LAYER_CONTROLLER_DATA_TYPES,
   );
 
   // Reset loader progress when the dataset has changed.
   useEffect(() => {
     resetReadyItems();
-  }, [loaders, dataset, resetReadyItems]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars

@@ -61,6 +61,7 @@ export default function HeatmapSubscriber(props) {
   useEffect(() => {
     resetUrls();
     resetReadyItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.

@@ -1,4 +1,6 @@
-import { useRef, useState, useEffect } from 'react';
+import {
+  useRef, useState, useEffect, useCallback,
+} from 'react';
 // eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
 import debounce from 'lodash/debounce';
@@ -21,7 +23,6 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
     stroked: true,
     filled: true,
     getElevation: 0,
-    getLineWidth: 0,
     onHover: (info) => {
       if (info.object) {
         const [cellId, cellInfo] = info.object;
@@ -190,6 +191,9 @@ export function copyUint8Array(arr) {
  * which only returns true once every item in the
  * input list has been marked as "ready".
  * @param {string[]} items The items to wait on.
+ * Should be defined as a constant
+ * (outside a function component / render function),
+ * otherwise strange bugs may occur.
  * @returns {array} An array
  * [isReady, setItemIsReady, resetReadyItems]
  * where isReady is the boolean value,
@@ -200,18 +204,18 @@ export function useReady(supportedItems) {
   const items = supportedItems;
   const [waiting, setWaiting] = useState(items);
 
-  function setItemIsReady(readyItem) {
+  const setItemIsReady = useCallback((readyItem) => {
     setWaiting((waitingItems) => {
       const nextWaitingItems = waitingItems.filter(item => item !== readyItem);
       console.warn(`cleared ${readyItem}; waiting on ${nextWaitingItems.length}: ${JSON.stringify(nextWaitingItems)}`);
       return nextWaitingItems;
     });
-  }
+  }, [setWaiting]);
 
-  function resetReadyItems() {
+  const resetReadyItems = useCallback(() => {
     setWaiting(items);
     console.warn(`waiting on ${items.length}: ${JSON.stringify(items)}`);
-  }
+  }, [setWaiting, items]);
 
   const isReady = waiting.length === 0;
 
@@ -230,15 +234,15 @@ export function useReady(supportedItems) {
 export function useUrls() {
   const [urls, setUrls] = useState([]);
 
-  function addUrl(url, name) {
+  const addUrl = useCallback((url, name) => {
     if (url) {
       setUrls(prev => ([...prev, { url, name }]));
     }
-  }
+  }, [setUrls]);
 
-  function resetUrls() {
+  const resetUrls = useCallback(() => {
     setUrls([]);
-  }
+  }, [setUrls]);
 
   return [urls, addUrl, resetUrls];
 }

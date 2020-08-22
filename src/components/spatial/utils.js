@@ -1,12 +1,15 @@
 /* eslint-disable */
 import shortNumber from 'short-number';
+import { getChannelStats } from '@hms-dbmi/viv';
 import { VIEWER_PALETTE } from '../utils';
 import { pluralize } from '../../utils';
 import {
     GLOBAL_SLIDER_DIMENSION_FIELDS, DEFAULT_RASTER_LAYER_PROPS
 } from './constants';
-import { getChannelStats } from '@hms-dbmi/viv';
 
+export function square(x, y, r) {
+  return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
+}
 
 /**
  * Return the midpoint of the global dimensions.

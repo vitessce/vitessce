@@ -19,6 +19,7 @@ describe('<Heatmap/>', () => {
         expressionMatrix={expressionMatrix}
         cellColors={cellColors}
         transpose
+        viewState={{ zoom: 0, target: [0, 0] }}
       />,
     );
     expect(wrapper.find('#deckgl-wrapper').length).toEqual(1);

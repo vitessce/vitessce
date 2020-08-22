@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, {
-  useState, useCallback, useEffect, useMemo, useRef,
+  useState, useCallback, useEffect, useMemo,
 } from 'react';
 import PubSub from 'pubsub-js';
 import TitleInfo from '../TitleInfo';
@@ -18,9 +18,12 @@ import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle } from './utils';
 import { DEFAULT_MOLECULES_LAYER, DEFAULT_CELLS_LAYER } from './constants';
-
 import { useCoordination } from '../../app/state/hooks';
 import { componentCoordinationTypes } from '../../app/state/coordination';
+
+const SPATIAL_DATA_TYPES = [
+  'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix'
+];
 
 export default function SpatialSubscriber(props) {
   const {
@@ -64,7 +67,7 @@ export default function SpatialSubscriber(props) {
   
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
-    ['cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix'],
+    SPATIAL_DATA_TYPES,
   );
   const [width, height, deckRef] = useDeckCanvasSize();
   
@@ -74,19 +77,35 @@ export default function SpatialSubscriber(props) {
     resetUrls();
     resetReadyItems();
     setAutoLayers([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, false, () =>  setAutoLayers(prev => ([...prev, DEFAULT_CELLS_LAYER])));
-  const [molecules, moleculesCount, locationsCount] = useMoleculesData(loaders, dataset, setItemIsReady, addUrl, false, () =>  setAutoLayers(prev => ([...prev, DEFAULT_MOLECULES_LAYER])));
+  const [cells, cellsCount] = useCellsData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    () =>  setAutoLayers(prev => ([...prev, DEFAULT_CELLS_LAYER]))
+  );
+  const [molecules, moleculesCount, locationsCount] = useMoleculesData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    () =>  setAutoLayers(prev => ([...prev, DEFAULT_MOLECULES_LAYER]))
+  );
   // TODO: set up a neighborhoods default layer and add to autoLayers.
-  const [neighborhoods] = useNeighborhoodsData(loaders, dataset, setItemIsReady, addUrl, false);
-  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
-  const [expressionMatrix] = useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl, false);
+  const [neighborhoods] = useNeighborhoodsData(
+    loaders, dataset, setItemIsReady, addUrl, false
+  );
+  const [cellSets] = useCellSetsData(
+    loaders, dataset, setItemIsReady, addUrl, false
+  );
+  const [expressionMatrix] = useExpressionMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, false
+  );
   // eslint-disable-next-line no-unused-vars
-  const [raster, imageLayerLoaders] = useRasterData(loaders, dataset, setItemIsReady, addUrl, false, (autoImageLayers) => {
-    setAutoLayers(prev => ([...prev, ...autoImageLayers]));
-  });
+  const [raster, imageLayerLoaders] = useRasterData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    (autoImageLayers) => {
+      setAutoLayers(prev => ([...prev, ...autoImageLayers]));
+    },
+  );
   
   // Try to set up the layers array automatically if null or undefined.
   useEffect(() => {

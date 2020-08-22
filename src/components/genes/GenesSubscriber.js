@@ -1,6 +1,5 @@
 /* eslint-disable */
 import React, { useEffect } from 'react';
-
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../utils';
 import { useExpressionMatrixData } from '../data-hooks';
@@ -9,6 +8,8 @@ import { componentCoordinationTypes } from '../../app/state/coordination';
 
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
+
+const GENES_DATA_TYPES = ['expression-matrix'];
 
 export default function GenesSubscriber(props) {
   const {
@@ -33,13 +34,14 @@ export default function GenesSubscriber(props) {
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
-    ['expression-matrix'],
+    GENES_DATA_TYPES,
   );
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
     resetReadyItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.

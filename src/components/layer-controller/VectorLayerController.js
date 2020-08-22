@@ -18,7 +18,8 @@ export default function VectorLayerController(props) {
   const isOn = layer.visible;
 
   function handleSliderChange(v) {
-    handleLayerChange({ ...layer, opacity: v });
+    const stroked = layer.type === 'cells' && v < 0.7;
+    handleLayerChange({ ...layer, opacity: v, stroked });
   }
 
   function handleCheckBoxChange(v) {

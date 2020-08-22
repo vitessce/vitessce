@@ -87,10 +87,12 @@ describe('layout-utils.js', () => {
     const expectedComponents = {
       r0_c0: {
         component: 'NoProps',
+        coordinationScopes: {},
         props: {},
       },
       r1_c1: {
         component: 'HasProps',
+        coordinationScopes: {},
         props: {
           foo: 'bar',
         },
