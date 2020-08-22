@@ -4,7 +4,7 @@ import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../utils';
 import { useExpressionMatrixData } from '../data-hooks';
 import { useCoordination } from '../../app/state/hooks';
-import { componentCoordinationTypes } from '../../app/state/coordination';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
@@ -30,7 +30,7 @@ export default function GenesSubscriber(props) {
     setGeneSelection,
     setGeneFilter,
     setGeneHighlight,
-  }] = useCoordination(componentCoordinationTypes.genes, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(

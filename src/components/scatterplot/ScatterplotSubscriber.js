@@ -12,7 +12,7 @@ import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import { useCoordination } from '../../app/state/hooks';
-import { componentCoordinationTypes } from '../../app/state/coordination';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
@@ -49,7 +49,7 @@ export default function ScatterplotSubscriber(props) {
     setCellFilter,
     setCellSelection,
     setCellHighlight,
-  }] = useCoordination(componentCoordinationTypes.scatterplot, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();

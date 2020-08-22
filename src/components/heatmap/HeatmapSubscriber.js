@@ -14,7 +14,9 @@ import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
 import { useCoordination } from '../../app/state/hooks';
-import { componentCoordinationTypes } from '../../app/state/coordination';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+
+const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 
 export default function HeatmapSubscriber(props) {
   const {
@@ -45,14 +47,14 @@ export default function HeatmapSubscriber(props) {
     setHeatmapTargetY: setTargetY,
     setCellHighlight,
     setGeneHighlight,
-  }] = useCoordination(componentCoordinationTypes.heatmap, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
 
   const observationsTitle = capitalize(observationsPluralLabel);
   const variablesTitle = capitalize(variablesPluralLabel);
 
   const [isRendering, setIsRendering] = useState(false);
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
-    ['cells', 'cell-sets', 'expression-matrix'],
+    HEATMAP_DATA_TYPES,
   );
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();

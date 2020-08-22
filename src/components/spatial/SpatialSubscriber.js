@@ -19,7 +19,7 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle } from './utils';
 import { DEFAULT_MOLECULES_LAYER, DEFAULT_CELLS_LAYER } from './constants';
 import { useCoordination } from '../../app/state/hooks';
-import { componentCoordinationTypes } from '../../app/state/coordination';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SPATIAL_DATA_TYPES = [
   'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix'
@@ -61,7 +61,7 @@ export default function SpatialSubscriber(props) {
     setCellFilter,
     setCellSelection,
     setCellHighlight,
-  }] = useCoordination(componentCoordinationTypes.spatial, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
   
   const [autoLayers, setAutoLayers] = useState([]);
   

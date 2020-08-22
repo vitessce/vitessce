@@ -118,8 +118,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       radiusMinPixels: 1.5,
       radiusMaxPixels: 10,
       getPosition: getCellPosition,
-      getFillColor: getCellColor,
-      getLineColor: getCellColor,
+      getColor: getCellColor,
       getLineWidth: 0,
       onClick: (info) => {
         if (onCellClick) {

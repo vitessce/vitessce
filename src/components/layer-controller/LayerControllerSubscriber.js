@@ -8,7 +8,7 @@ import ImageAddButton from './ImageAddButton';
 import { useReady } from '../utils';
 import { useRasterData } from '../data-hooks';
 import { useCoordination } from '../../app/state/hooks';
-import { componentCoordinationTypes } from '../../app/state/coordination';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
 
@@ -28,7 +28,7 @@ function LayerControllerSubscriber(props) {
     spatialLayers: layers,
   }, {
     setSpatialLayers: setLayers,
-  }] = useCoordination(componentCoordinationTypes.layerController, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.layerController, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     LAYER_CONTROLLER_DATA_TYPES,

@@ -100,20 +100,20 @@ function mixFunction(colorFunction, backgroundColor) {
  */
 export function overlayBaseProps(props) {
   const {
-    id, backgroundColor, getLineColor, getFillColor, data, isSelected, ...rest
+    id, backgroundColor, getColor, data, isSelected, ...rest
   } = props;
   return {
     overlay: {
       id: getSelectedLayerId(id),
-      getFillColor,
-      getLineColor,
+      getFillColor: getColor,
+      getLineColor: getColor,
       data: data.filter(isSelected),
       ...rest,
     },
     base: {
       id: getBaseLayerId(id),
-      getFillColor: mixFunction(getFillColor, backgroundColor),
-      getLineColor: mixFunction(getLineColor, backgroundColor),
+      getLineColor: getColor ? mixFunction(getColor, backgroundColor) : undefined,
+      getFillColor: getColor ? mixFunction(getColor, backgroundColor) : undefined,
       // Alternatively: contrast outlines with solids:
       // getLineColor: getColor,
       // getFillColor: [255,255,255],

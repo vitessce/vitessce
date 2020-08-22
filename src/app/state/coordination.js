@@ -1,184 +1,146 @@
 
 /**
- * Mapping of coordination object types
- * to objects with more information,
- * including a human-readable name (`name`),
- * and a default value (`defaultValue`).
- * If default value is undefined,
- * then this object must be defined for the consuming
- * components.
- * If default value is null, this represents "empty"
+ * Constants representing names of coordination types,
+ * to help prevent typos.
  */
-export const coordinationTypes = {
-  dataset: {
-    name: 'Dataset',
-  },
-  embeddingType: {
-    name: 'Embedding Type',
-  },
-  embeddingZoom: {
-    name: 'Embedding Zoom',
-  },
-  embeddingTargetX: {
-    name: 'Embedding Target X',
-  },
-  embeddingTargetY: {
-    name: 'Embedding Target Y',
-  },
-  embeddingTargetZ: {
-    name: 'Embedding Target Z',
-  },
-  spatialZoom: {
-    name: 'Spatial Zoom',
-  },
-  spatialTargetX: {
-    name: 'Spatial Target X',
-  },
-  spatialTargetY: {
-    name: 'Spatial Target Y',
-  },
-  spatialTargetZ: {
-    name: 'Spatial Target Z',
-  },
-  heatmapZoomX: {
-    name: 'Heatmap Zoom X',
-  },
-  heatmapZoomY: {
-    name: 'Heatmap Zoom Y',
-  },
-  heatmapTargetX: {
-    name: 'Heatmap Target X',
-  },
-  heatmapTargetY: {
-    name: 'Heatmap Target Y',
-  },
-  cellFilter: {
-    name: 'Filtered Cells',
-    defaultValue: null,
-  },
-  cellSelection: {
-    name: 'Selected Cells',
-    defaultValue: [],
-  },
-  cellHighlight: {
-    name: 'Hovered Cell',
-    defaultValue: null,
-  },
-  cellSetSelection: {
-    name: 'Selected Cell Sets',
-    defaultValue: [],
-  },
-  cellSetHighlight: {
-    name: 'Hovered Cell Set',
-    defaultValue: null,
-  },
-  geneFilter: {
-    name: 'Filtered Genes',
-    defaultValue: null,
-  },
-  geneSelection: {
-    name: 'Selected Genes',
-    defaultValue: [],
-  },
-  geneHighlight: {
-    name: 'Hovered Gene',
-    defaultValue: null,
-  },
-  geneExpressionColormap: {
-    name: 'Gene Expression Colormap',
-    defaultValue: 'plasma',
-  },
-  geneExpressionColormapRange: {
-    name: 'Gene Expression Colormap Range',
-    defaultValue: [0.0, 1.0],
-  },
-  cellColorEncoding: {
-    name: 'Cell Color Encoding',
-    defaultValue: 'cellSetSelection',
-  },
-  spatialLayers: {
-    name: 'Spatial Layers',
-  },
-  genomicZoom: {
-    name: 'Genomic Track Zoom',
-    defaultValue: 0,
-  },
-  genomicTarget: {
-    name: 'Genomic Track Pan',
-    defaultValue: [0, 0],
-  },
+export const COORDINATION_TYPES = {
+  DATASET: 'dataset',
+  EMBEDDING_TYPE: 'embeddingType',
+  EMBEDDING_ZOOM: 'embeddingZoom',
+  EMBEDDING_TARGET_X: 'embeddingTargetX',
+  EMBEDDING_TARGET_Y: 'embeddingTargetY',
+  EMBEDDING_TARGET_Z: 'embeddingTargetZ',
+  SPATIAL_ZOOM: 'spatialZoom',
+  SPATIAL_TARGET_X: 'spatialTargetX',
+  SPATIAL_TARGET_Y: 'spatialTargetY',
+  SPATIAL_TARGET_Z: 'spatialTargetZ',
+  HEATMAP_ZOOM_X: 'heatmapZoomX',
+  HEATMAP_ZOOM_Y: 'heatmapZoomY',
+  HEATMAP_TARGET_X: 'heatmapTargetX',
+  HEATMAP_TARGET_Y: 'heatmapTargetY',
+  CELL_FILTER: 'cellFilter',
+  CELL_SELECTION: 'cellSelection',
+  CELL_HIGHLIGHT: 'cellHighlight',
+  CELL_SET_SELECTION: 'cellSetSelection',
+  CELL_SET_HIGHLIGHT: 'cellSetHighlight',
+  GENE_FILTER: 'geneFilter',
+  GENE_SELECTION: 'geneSelection',
+  GENE_HIGHLIGHT: 'geneHighlight',
+  GENE_EXPRESSION_COLORMAP: 'geneExpressionColormap',
+  GENE_EXPRESSION_COLORMAP_RANGE: 'geneExpressionColormapRange',
+  CELL_COLOR_ENCODING: 'cellColorEncoding',
+  SPATIAL_LAYERS: 'spatialLayers',
+  GENOMIC_ZOOM: 'genomicZoom',
+  GENOMIC_TARGET_X: 'genomicTargetX',
+  GENOMIC_TARGET_Y: 'genomicTargetY',
 };
 
 
 /**
- * Mapping from component type to
- * supported coordination object types.
- * This mapping can be used to determine
- * which pieces of state that a component will
- * need to get/set.
- * Keys here are the component registry keys.
- */
-export const componentCoordinationTypes = {
+   * Mapping from component type to
+   * supported coordination object types.
+   * This mapping can be used to determine
+   * which pieces of state that a component will
+   * need to get/set.
+   * Keys here are the component registry keys.
+   */
+export const COMPONENT_COORDINATION_TYPES = {
   scatterplot: [
-    'dataset',
-    'embeddingType', 'embeddingZoom',
-    'embeddingTargetX', 'embeddingTargetY', 'embeddingTargetZ',
-    'cellFilter', 'cellHighlight', 'cellSelection',
-    'cellSetSelection', 'cellSetHighlight',
-    'geneHighlight', 'geneSelection',
-    'geneExpressionColormap', 'geneExpressionColormapRange',
-    'cellColorEncoding',
+    COORDINATION_TYPES.DATASET,
+    COORDINATION_TYPES.EMBEDDING_TYPE,
+    COORDINATION_TYPES.EMBEDDING_ZOOM,
+    COORDINATION_TYPES.EMBEDDING_TARGET_X,
+    COORDINATION_TYPES.EMBEDDING_TARGET_Y,
+    COORDINATION_TYPES.EMBEDDING_TARGET_Z,
+    COORDINATION_TYPES.CELL_FILTER,
+    COORDINATION_TYPES.CELL_SELECTION,
+    COORDINATION_TYPES.CELL_HIGHLIGHT,
+    COORDINATION_TYPES.CELL_SET_SELECTION,
+    COORDINATION_TYPES.CELL_SET_HIGHLIGHT,
+    COORDINATION_TYPES.GENE_HIGHLIGHT,
+    COORDINATION_TYPES.GENE_SELECTION,
+    COORDINATION_TYPES.GENE_EXPRESSION_COLORMAP,
+    COORDINATION_TYPES.GENE_EXPRESSION_COLORMAP_RANGE,
+    COORDINATION_TYPES.CELL_COLOR_ENCODING,
   ],
   spatial: [
-    'dataset',
-    'spatialZoom', 'spatialLayers',
-    'spatialTargetX', 'spatialTargetY', 'spatialTargetZ',
-    'cellFilter', 'cellHighlight', 'cellSelection',
-    'cellSetSelection', 'cellSetHighlight',
-    'geneHighlight', 'geneSelection',
-    'geneExpressionColormap', 'geneExpressionColormapRange',
-    'cellColorEncoding',
+    COORDINATION_TYPES.DATASET,
+    COORDINATION_TYPES.SPATIAL_ZOOM,
+    COORDINATION_TYPES.SPATIAL_LAYERS,
+    COORDINATION_TYPES.SPATIAL_TARGET_X,
+    COORDINATION_TYPES.SPATIAL_TARGET_Y,
+    COORDINATION_TYPES.SPATIAL_TARGET_Z,
+    COORDINATION_TYPES.CELL_FILTER,
+    COORDINATION_TYPES.CELL_HIGHLIGHT,
+    COORDINATION_TYPES.CELL_SELECTION,
+    COORDINATION_TYPES.CELL_SET_SELECTION,
+    COORDINATION_TYPES.CELL_SET_HIGHLIGHT,
+    COORDINATION_TYPES.GENE_HIGHLIGHT,
+    COORDINATION_TYPES.GENE_SELECTION,
+    COORDINATION_TYPES.GENE_EXPRESSION_COLORMAP,
+    COORDINATION_TYPES.GENE_EXPRESSION_COLORMAP_RANGE,
+    COORDINATION_TYPES.CELL_COLOR_ENCODING,
   ],
   heatmap: [
-    'dataset',
-    'heatmapZoomX', 'heatmapZoomY',
-    'heatmapTargetX', 'heatmapTargetY',
-    'cellFilter', 'cellHighlight', 'cellSelection',
-    'cellSetSelection', 'cellSetHighlight',
-    'geneFilter', 'geneHighlight', 'geneSelection',
-    'geneExpressionColormap', 'geneExpressionColormapRange',
-    'cellColorEncoding',
+    COORDINATION_TYPES.DATASET,
+    COORDINATION_TYPES.HEATMAP_ZOOM_X,
+    COORDINATION_TYPES.HEATMAP_ZOOM_Y,
+    COORDINATION_TYPES.HEATMAP_TARGET_X,
+    COORDINATION_TYPES.HEATMAP_TARGET_Y,
+    COORDINATION_TYPES.CELL_FILTER,
+    COORDINATION_TYPES.CELL_HIGHLIGHT,
+    COORDINATION_TYPES.CELL_SELECTION,
+    COORDINATION_TYPES.CELL_SET_SELECTION,
+    COORDINATION_TYPES.CELL_SET_HIGHLIGHT,
+    COORDINATION_TYPES.GENE_FILTER,
+    COORDINATION_TYPES.GENE_HIGHLIGHT,
+    COORDINATION_TYPES.GENE_SELECTION,
+    COORDINATION_TYPES.GENE_EXPRESSION_COLORMAP,
+    COORDINATION_TYPES.GENE_EXPRESSION_COLORMAP_RANGE,
+    COORDINATION_TYPES.CELL_COLOR_ENCODING,
   ],
   cellSets: [
-    'dataset',
-    'cellSelection', 'cellFilter',
-    'cellSetSelection', 'cellSetHighlight',
-    'cellColorEncoding',
+    COORDINATION_TYPES.DATASET,
+    COORDINATION_TYPES.CELL_FILTER,
+    COORDINATION_TYPES.CELL_SELECTION,
+    COORDINATION_TYPES.CELL_SET_SELECTION,
+    COORDINATION_TYPES.CELL_SET_HIGHLIGHT,
+    COORDINATION_TYPES.CELL_COLOR_ENCODING,
   ],
   cellSetSizes: [
-    'dataset',
-    'cellSetSelection', 'cellSetHighlight',
+    COORDINATION_TYPES.DATASET,
+    COORDINATION_TYPES.CELL_SET_SELECTION,
+    COORDINATION_TYPES.CELL_SET_HIGHLIGHT,
   ],
   status: [
-    'dataset',
-    'geneHighlight', 'cellHighlight',
+    COORDINATION_TYPES.DATASET,
+    COORDINATION_TYPES.CELL_HIGHLIGHT,
+    COORDINATION_TYPES.GENE_HIGHLIGHT,
+    COORDINATION_TYPES.CELL_SET_HIGHLIGHT,
   ],
   factors: [
-    'dataset',
-    'cellSetSelection',
+    COORDINATION_TYPES.DATASET,
+    COORDINATION_TYPES.CELL_SET_SELECTION,
   ],
   genes: [
-    'dataset',
-    'geneFilter', 'geneHighlight', 'geneSelection',
+    COORDINATION_TYPES.DATASET,
+    COORDINATION_TYPES.GENE_FILTER,
+    COORDINATION_TYPES.GENE_HIGHLIGHT,
+    COORDINATION_TYPES.GENE_SELECTION,
   ],
   layerController: [
-    'dataset',
-    'spatialLayers',
+    COORDINATION_TYPES.DATASET,
+    COORDINATION_TYPES.SPATIAL_LAYERS,
   ],
   higlass: [
-    'dataset',
-    'genomicZoom', 'genomicTarget',
-    'geneFilter', 'geneHighlight', 'geneSelection',
-    'cellSetSelection', 'cellSetHighlight',
+    COORDINATION_TYPES.DATASET,
+    COORDINATION_TYPES.GENOMIC_ZOOM,
+    COORDINATION_TYPES.GENOMIC_TARGET_X,
+    COORDINATION_TYPES.GENOMIC_TARGET_Y,
+    COORDINATION_TYPES.GENE_FILTER,
+    COORDINATION_TYPES.GENE_HIGHLIGHT,
+    COORDINATION_TYPES.GENE_SELECTION,
+    COORDINATION_TYPES.CELL_SET_SELECTION,
+    COORDINATION_TYPES.CELL_SET_HIGHLIGHT,
   ],
 };
