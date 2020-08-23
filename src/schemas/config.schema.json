@@ -21,8 +21,37 @@
           "coordinationScopes": {
             "type": "object",
             "description": "Component-level coordination scope mappings define which coordination object values a particular component can read and write.",
+            "additionalProperties": false,
             "patternProperties": {
-              ".": { "type": "string" }
+              "dataset": { "type": "string" },
+              "embeddingType": { "type": "string" },
+              "embeddingZoom": { "type": "string" },
+              "embeddingTargetX": { "type": "string" },
+              "embeddingTargetY": { "type": "string" },
+              "embeddingTargetZ": { "type": "string" },
+              "spatialZoom": { "type": "string" },
+              "spatialTargetX": { "type": "string" },
+              "spatialTargetY": { "type": "string" },
+              "spatialTargetZ": { "type": "string" },
+              "heatmapZoomX": { "type": "string" },
+              "heatmapZoomY": { "type": "string" },
+              "heatmapTargetX": { "type": "string" },
+              "heatmapTargetY": { "type": "string" },
+              "cellFilter": { "type": "string" },
+              "cellSelection": { "type": "string" },
+              "cellHighlight": { "type": "string" },
+              "cellSetSelection": { "type": "string" },
+              "cellSetHighlight": { "type": "string" },
+              "geneFilter": { "type": "string" },
+              "geneSelection": { "type": "string" },
+              "geneHighlight": { "type": "string" },
+              "geneExpressionColormap": { "type": "string" },
+              "geneExpressionColormapRange": { "type": "string" },
+              "cellColorEncoding": { "type": "string" },
+              "spatialLayers": { "type": "string" },
+              "genomicZoom": { "type": "string" },
+              "genomicTargetX": { "type": "string" },
+              "genomicTargetY": { "type": "string" }
             }
           }
         }
@@ -209,6 +238,12 @@
             ".": { "type": "object" }
           }
         },
+        "cellColorEncoding": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "object" }
+          }
+        },
         "geneFilter": {
           "type": "object",
           "patternProperties": {
@@ -237,6 +272,36 @@
           "type": "object",
           "patternProperties": {
             ".": { "type": "object" }
+          }
+        },
+        "geneExpressionColormap": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        },
+        "geneExpressionColormapRange": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "array", "items": { "type": "number" } }
+          }
+        },
+        "genomicZoom": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "genomicTargetX": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "genomicTargetY": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
           }
         }
       }

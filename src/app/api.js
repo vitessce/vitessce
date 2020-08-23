@@ -190,9 +190,6 @@ const configs = {
     ],
     initStrategy: "auto",
     coordinationSpace: {
-      dataset: {
-        A: 'linnarsson-2018',
-      },
       embeddingZoom: {
         A: 0,
         B: 0.75,
@@ -262,7 +259,6 @@ const configs = {
         x: 0, y: 5, w: 2, h: 1 },*/
       { component: 'spatial',
         coordinationScopes: {
-          dataset: 'A',
           spatialZoom: 'A',
           spatialTargetX: 'A',
           spatialTargetY: 'A',
@@ -275,7 +271,6 @@ const configs = {
         x: 0, y: 0, w: 3, h: 4 },
         { component: 'spatial',
           coordinationScopes: {
-            dataset: 'A',
             spatialZoom: 'A',
             spatialTargetX: 'A',
             spatialTargetY: 'A',
@@ -289,14 +284,12 @@ const configs = {
           x: 3, y: 0, w: 3, h: 4 },
         { component: 'genes',
           coordinationScopes: {
-            dataset: 'A',
             geneSelection: 'A',
             geneFilter: 'A'
           },
           x: 0, y: 3, w: 3, h: 4 },
         { component: 'genes',
           coordinationScopes: {
-            dataset: 'A',
             geneSelection: 'B',
             geneFilter: 'B'
           },
@@ -305,7 +298,6 @@ const configs = {
         x: 9, y: 3, w: 3, h: 2 },*/
       { component: 'heatmap',
         coordinationScopes: {
-          dataset: 'A',
           heatmapZoomX: 'A',
           heatmapTargetX: 'A',
           heatmapTargetY: 'A',
@@ -326,7 +318,6 @@ const configs = {
       },*/
       { component: 'layerController',
         coordinationScopes: {
-          dataset: 'A',
           spatialLayers: 'B',
         },
         x: 3, y: 3, w: 3, h: 4,
@@ -344,7 +335,6 @@ const configs = {
         x: 0, y: 0, w: 4, h: 6 },*/
       { component: 'scatterplot',
         coordinationScopes: {
-          dataset: 'A',
           embeddingType: 'A',
           embeddingZoom: 'A',
           embeddingTargetX: 'A',
@@ -357,7 +347,6 @@ const configs = {
         x: 6, y: 0, w: 3, h: 4 },
       { component: 'scatterplot',
         coordinationScopes: {
-          dataset: 'A',
           embeddingType: 'B',
           embeddingZoom: 'A',
           embeddingTargetX: 'A',

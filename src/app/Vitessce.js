@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Ajv from 'ajv';
 import {
   ThemeProvider, StylesProvider,
   createGenerateClassName,
 } from '@material-ui/core/styles';
+import isEqual from 'lodash/isEqual';
 import packageJson from '../../package.json';
 import { muiTheme } from '../components/shared-mui/styles';
 import configSchema from '../schemas/config.schema.json';
@@ -13,10 +14,59 @@ import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
 import ViewConfigPublisher from './ViewConfigPublisher';
 import { getComponent } from './component-registry';
+import { initialize } from './view-config-utils';
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
 });
+
+
+function ValidVitessce(props) {
+  const {
+    config,
+    rowHeight,
+    height,
+    theme,
+    onWarn,
+    onConfigChange,
+    onLoaderChange,
+  } = props;
+
+  // Initialize the view config:
+  // - Fill in all missing coordination objects with default global values
+  // - Fill in all missing component coordination scope mappings
+  //   based on the initStrategy view config field.
+  const initializedConfig = initialize(config);
+
+  // Emit the initialized view config if it is different than the
+  // prop value.
+  useEffect(() => {
+    if (!isEqual(initializedConfig, config) && onConfigChange) {
+      onConfigChange(initializedConfig);
+    }
+  }, [initializedConfig, config, onConfigChange]);
+
+  return (
+    <StylesProvider generateClassName={generateClassName}>
+      <ThemeProvider theme={muiTheme[theme]}>
+        <DatasetLoaderProvider>
+          <VitessceGrid
+            config={initializedConfig}
+            getComponent={getComponent}
+            rowHeight={rowHeight}
+            height={height}
+            theme={theme}
+            onWarn={onWarn}
+          />
+          <ViewConfigPublisher
+            onConfigChange={onConfigChange}
+            onLoaderChange={onLoaderChange}
+          />
+        </DatasetLoaderProvider>
+      </ThemeProvider>
+    </StylesProvider>
+  );
+}
 
 /**
  * The Vitessce component.
@@ -37,12 +87,7 @@ const generateClassName = createGenerateClassName({
 export default function Vitessce(props) {
   const {
     config,
-    rowHeight,
-    height,
     theme,
-    onWarn,
-    onConfigChange,
-    onLoaderChange,
   } = props;
   if (!config) {
     // If the config value is undefined, show a warning message
@@ -72,29 +117,5 @@ export default function Vitessce(props) {
     );
   }
 
-  // TODO: verify that all component uid values are unique.
-  // TODO: fill in all missing coordination objects with default global values
-  // TODO: fill in all missing component coordination scope mappings
-  //        based on the initStrategy view config field.
-
-  return (
-    <StylesProvider generateClassName={generateClassName}>
-      <ThemeProvider theme={muiTheme[theme]}>
-        <DatasetLoaderProvider>
-          <VitessceGrid
-            config={config}
-            getComponent={getComponent}
-            rowHeight={rowHeight}
-            height={height}
-            theme={theme}
-            onWarn={onWarn}
-          />
-          <ViewConfigPublisher
-            onConfigChange={onConfigChange}
-            onLoaderChange={onLoaderChange}
-          />
-        </DatasetLoaderProvider>
-      </ThemeProvider>
-    </StylesProvider>
-  );
+  return <ValidVitessce {...props} />;
 }

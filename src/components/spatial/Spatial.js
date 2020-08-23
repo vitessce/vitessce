@@ -1,5 +1,4 @@
 import React, { forwardRef } from 'react';
-import some from 'lodash/some';
 import isEqual from 'lodash/isEqual';
 import { ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { MultiscaleImageLayer, ImageLayer } from '@hms-dbmi/viv';
@@ -313,33 +312,33 @@ class Spatial extends AbstractSpatialOrScatterplot {
    */
   componentDidUpdate(prevProps) {
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
-    if (some(['cells'], shallowDiff)) {
+    if (['cells'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
       this.forceUpdate();
     }
 
-    if (some([
+    if ([
       'layers', 'cells', 'cellFilter', 'cellSelection', 'cellColors',
-    ], shallowDiff)) {
+    ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
       this.forceUpdate();
     }
 
-    if (some(['molecules'], shallowDiff)) {
+    if (['molecules'].some(shallowDiff)) {
       // Molecules data changed.
       this.onUpdateMoleculesData();
       this.forceUpdate();
     }
 
-    if (some(['layers', 'molecules'], shallowDiff)) {
+    if (['layers', 'molecules'].some(shallowDiff)) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
       this.forceUpdate();
     }
 
-    if (some(['layers', 'imageLayerLoaders'], shallowDiff)) {
+    if (['layers', 'imageLayerLoaders'].some(shallowDiff)) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();

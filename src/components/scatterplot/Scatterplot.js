@@ -1,5 +1,4 @@
 import React, { forwardRef } from 'react';
-import some from 'lodash/some';
 import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
 import {
@@ -188,13 +187,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
    */
   componentDidUpdate(prevProps) {
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
-    if (some(['cells'], shallowDiff)) {
+    if (['cells'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
       this.forceUpdate();
     }
 
-    if (some(['cells', 'cellFilter', 'cellSelection', 'cellColors'], shallowDiff)) {
+    if (['cells', 'cellFilter', 'cellSelection', 'cellColors'].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
       this.forceUpdate();

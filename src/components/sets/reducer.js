@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
-import some from 'lodash/some';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
 import { DEFAULT_COLOR, PALETTE } from '../utils';
@@ -549,7 +548,7 @@ export function nodeTransform(node, predicate, transform) {
 function nodeTransformChildOrAppendChild(node,
   ancestorPredicate, descendantPredicate, transform, descendant) {
   if (node.children && ancestorPredicate(node)) {
-    if (some(node.children.map(descendantPredicate))) {
+    if (node.children.some(descendantPredicate)) {
       return {
         ...node,
         children: node.children

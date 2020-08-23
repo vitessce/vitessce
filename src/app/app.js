@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useRef, useState } from 'react';
 import { getConfig, listConfigs } from './api';
 import Welcome from './Welcome';
@@ -84,7 +85,7 @@ export function createApp(rowHeight = null) {
 
   if (datasetId) {
     const config = getConfig(datasetId);
-    return (<Vitessce config={config} rowHeight={rowHeight} theme={theme} />);
+    return (<Vitessce config={config} rowHeight={rowHeight} theme={theme} onConfigChange={console.log} />);
   }
   if (datasetUrl) {
     const responsePromise = fetch(datasetUrl)
