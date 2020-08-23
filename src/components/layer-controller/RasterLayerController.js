@@ -158,7 +158,7 @@ export default function RasterLayerController(props) {
 
   let channelControllers = [];
   if (dimensions.length > 0) {
-    const { values: channelOptions, field: dimName } = dimensions[0];
+    const { values: channelOptions, field: dimName } = (dimensions.find(dim => dim.field === 'channel') || dimensions[0]);
     // Create the channel controllers for each channel.
     channelControllers = channels.map(
       // c is an object like { color, selection, slider, visible }.
