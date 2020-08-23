@@ -187,7 +187,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     );
   }
 
-  createImageLayer(layerDef, loader, i) {
+  createImageLayer(rawLayerDef, loader, i) {
+    const layerDef = {
+      ...rawLayerDef,
+      channels: rawLayerDef.channels
+        .filter(channel => channel.selection && channel.color && channel.slider),
+    };
+
     // We need to keep the same loaderSelection array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
     // since loaderSelection is one of its `updateTriggers`.

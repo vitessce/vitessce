@@ -50,6 +50,31 @@ function buildDefaultSelection(imageDims) {
 }
 
 /**
+ * Initialize the channel settings for an individual channel and selection.
+ * @param {object} loader A viv loader instance, for either Zarr or OME-TIFF.
+ * @param {object} selection The channel selection object.
+ * @param {number} i The index of this channel for the layer.
+ * @returns {object} The initialized channel with
+ * domain/slider settings.
+ */
+export async function initializeChannelForSelection(loader, selection, i) {
+  // Get stats because initial value is Min/Max for domainType.
+  const stats = await getChannelStats({ loader, loaderSelection: [selection] });
+
+  const domain = loader.isRgb ? [[0, 255], [0, 255], [0, 255]][i] : stats[0].domain;
+  const color = loader.isRgb ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]][i] : VIEWER_PALETTE[i];
+  const slider = loader.isRgb ? [[0, 255], [0, 255], [0, 255]][i] : stats[0].autoSliders;
+
+  return {
+    selection,
+    domain,
+    color,
+    visible: true,
+    slider: slider || domain,
+  };
+}
+
+/**
  * Initialize the channel selections for an individual layer.
  * @param {object} loader A viv loader instance, for either Zarr or OME-TIFF.
  * @returns {object[]} An array of selected channels with default
@@ -81,6 +106,32 @@ export async function initializeLayerChannels(loader) {
         result.push(channel);
     });
     return result;
+}
+
+export async function initializeLayerChannelsIfMissing(layerDefs, loaders) {
+  let newLayerDefs = [...layerDefs];
+  let didInitialize = false;
+  for (let layerIndex = 0; layerIndex < layerDefs.length; layerIndex++) {
+    const layerDef = layerDefs[layerIndex];
+    const loader = loaders[layerDef.index];
+    if(layerDef.channels) {
+      for(let channelIndex = 0; channelIndex < layerDef.channels.length; channelIndex++) {
+        const channelDef = layerDef.channels[channelIndex];
+        // Only auto-initialize if domains, colors, or sliders is missing.
+        if(channelDef.selection && !(channelDef.domain && channelDef.color && channelDef.slider)) {
+          const autoChannelDef = await initializeChannelForSelection(loader, channelDef.selection, channelIndex);
+          const newChannelDef = { ...autoChannelDef, ...channelDef };
+          newLayerDefs[layerIndex] = {
+            ...layerDef,
+            channels: [...layerDef.channels]
+          }
+          newLayerDefs[layerIndex].channels[channelIndex] = newChannelDef;
+          didInitialize = true;
+        }
+      }
+    }
+  }
+  return [newLayerDefs, didInitialize];
 }
 
 /**

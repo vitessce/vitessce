@@ -51,8 +51,9 @@ function ChannelSelectionDropdown({
  * @prop {array} domain Current max/min allowable slider values.
  */
 function ChannelSlider({
-  color, slider, handleChange, domain: [min, max],
+  color, slider = [0, 0], handleChange, domain = [0, 0],
 }) {
+  const [min, max] = domain;
   const handleChangeDebounced = useCallback(
     debounce(handleChange, 3, { trailing: true }), [handleChange],
   );
@@ -102,7 +103,7 @@ function ChannelVisibilityCheckbox({ color, checked, toggle }) {
  * @prop {boolean} disableOptions Whether or not channel options are be disabled (default: false).
  */
 function ChannelController({
-  visibility,
+  visibility = false,
   slider,
   color,
   domain,

@@ -9,7 +9,7 @@ async function initLoader(imageData) {
     } = imageData;
     switch (type) {
       case ('zarr'): {
-        const { dimensions, isPyramid, transform } = metadata;
+        const { dimensions, isPyramid, transform } = metadata || {};
         const { scale = 0, translate = { x: 0, y: 0 } } = transform;
         const loader = await createZarrLoader({
           url, dimensions, isPyramid, scale, translate,
@@ -18,7 +18,7 @@ async function initLoader(imageData) {
       }
       case ('ome-tiff'): {
         // Fetch offsets for ome-tiff if needed.
-        if ('omeTiffOffsetsUrl' in metadata) {
+        if (metadata && 'omeTiffOffsetsUrl' in metadata) {
           const { omeTiffOffsetsUrl } = metadata;
           const res = await fetch(omeTiffOffsetsUrl, requestInit);
           if (res.ok) {
