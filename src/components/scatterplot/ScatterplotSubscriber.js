@@ -41,6 +41,7 @@ export default function ScatterplotSubscriber(props) {
     cellHighlight,
     geneSelection,
     cellSetSelection,
+    cellColorEncoding,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -73,13 +74,13 @@ export default function ScatterplotSubscriber(props) {
 
   const cellColors = useMemo(() => {
     return getCellColors({
+      cellColorEncoding,
       expressionMatrix,
       geneSelection,
-      cellColorEncoding: 'geneSelection',
       cellSets,
       cellSetSelection,
     })
-  }, [geneSelection, cellSets, cellSetSelection, expressionMatrix]);
+  }, [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the

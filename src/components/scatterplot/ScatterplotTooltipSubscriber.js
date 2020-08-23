@@ -23,7 +23,7 @@ export default function ScatterplotTooltipSubscriber(props) {
   useEffect(() => {
     const viewInfoToken = PubSub.subscribe(
       VIEW_INFO, (msg, newViewInfo) => {
-        if (newViewInfo && newViewInfo.uuid && uuid === newViewInfo.uuid) {
+        if (newViewInfo && uuid === newViewInfo.uuid) {
           setViewInfo(newViewInfo);
         }
       },

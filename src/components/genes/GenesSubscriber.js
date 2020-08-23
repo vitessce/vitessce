@@ -30,6 +30,7 @@ export default function GenesSubscriber(props) {
     setGeneSelection,
     setGeneFilter,
     setGeneHighlight,
+    setCellColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -49,6 +50,11 @@ export default function GenesSubscriber(props) {
   const geneList = expressionMatrix ? expressionMatrix.cols : [];
   const numGenes = geneList.length;
 
+  function setGeneSelectionAndColorEncoding(newSelection) {
+    setGeneSelection(newSelection);
+    setCellColorEncoding('geneSelection');
+  }
+
   return (
     <TitleInfo
       title="Expression Levels"
@@ -63,7 +69,7 @@ export default function GenesSubscriber(props) {
         geneList={geneList}
         geneSelection={geneSelection}
         geneFilter={geneFilter}
-        setGeneSelection={setGeneSelection}
+        setGeneSelection={setGeneSelectionAndColorEncoding}
         setGeneFilter={setGeneFilter}
         setGeneHighlight={setGeneHighlight}
       />

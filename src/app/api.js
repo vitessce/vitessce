@@ -194,26 +194,9 @@ const configs = {
         A: 0,
         B: 0.75,
       },
-      embeddingTargetX: {
-        A: 0,
-        B: 0
-      },
-      embeddingTargetY: {
-        A: 0,
-        B: 0
-      },
       embeddingType: {
         A: "PCA",
         B: "t-SNE"
-      },
-      heatmapZoomX: {
-        A: 0,
-      },
-      heatmapTargetX: {
-        A: 0,
-      },
-      heatmapTargetY: {
-        A: 0,
       },
       spatialZoom: {
         A: -5.5,
@@ -227,11 +210,7 @@ const configs = {
         A: 20000,
         B: 20000,
       },
-      spatialTargetZ: {
-        A: 0,
-        B: 0,
-      },
-      spatialLayers: {
+      /*spatialLayers: {
         A: [
           { type: 'cells', visible: false, opacity: 1, radius: 50, stroked: false, },
           { type: 'raster', index: 0, opacity: 1, colormap: "", channels: [
@@ -241,7 +220,7 @@ const configs = {
           ] }
         ],
         // B is undefined, which means it will be initialized automatically.
-      },
+      },*/
       cellSetSelection: {
         A: ["Astrocyte", "Vasculature", "Ventricle"]
       }
@@ -262,48 +241,30 @@ const configs = {
           spatialZoom: 'A',
           spatialTargetX: 'A',
           spatialTargetY: 'A',
-          spatialTargetZ: 'A',
-          spatialLayers: 'A',
-          cellFilter: 'A',
-          cellHighlight: 'A',
-          cellSelection: 'A',
         },
         x: 0, y: 0, w: 3, h: 4 },
         { component: 'spatial',
           coordinationScopes: {
-            spatialZoom: 'A',
-            spatialTargetX: 'A',
-            spatialTargetY: 'A',
-            spatialTargetZ: 'A',
-            spatialLayers: 'B',
-            cellFilter: 'A',
-            cellHighlight: 'A',
-            cellSelection: 'A',
-            geneSelection: 'A',
+            spatialZoom: 'B',
+            spatialTargetX: 'B',
+            spatialTargetY: 'B',
           },
           x: 3, y: 0, w: 3, h: 4 },
         { component: 'genes',
           coordinationScopes: {
-            geneSelection: 'A',
-            geneFilter: 'A'
+
           },
           x: 0, y: 3, w: 3, h: 4 },
         { component: 'genes',
           coordinationScopes: {
-            geneSelection: 'B',
-            geneFilter: 'B'
+
           },
           x: 9, y: 3, w: 3, h: 4 },
       /*{ component: 'cellSets',
         x: 9, y: 3, w: 3, h: 2 },*/
       { component: 'heatmap',
         coordinationScopes: {
-          heatmapZoomX: 'A',
-          heatmapTargetX: 'A',
-          heatmapTargetY: 'A',
-          cellHighlight: 'A',
-          geneHighlight: 'A',
-          geneSelection: 'A',
+
         },
         props: {
           transpose: true,
@@ -318,7 +279,7 @@ const configs = {
       },*/
       { component: 'layerController',
         coordinationScopes: {
-          spatialLayers: 'B',
+
         },
         x: 3, y: 3, w: 3, h: 4,
       },
@@ -337,26 +298,12 @@ const configs = {
         coordinationScopes: {
           embeddingType: 'A',
           embeddingZoom: 'A',
-          embeddingTargetX: 'A',
-          embeddingTargetY: 'A',
-          cellFilter: 'A',
-          cellHighlight: 'A',
-          cellSelection: 'A',
-          geneSelection: 'A',
         },
         x: 6, y: 0, w: 3, h: 4 },
       { component: 'scatterplot',
         coordinationScopes: {
           embeddingType: 'B',
-          embeddingZoom: 'A',
-          embeddingTargetX: 'A',
-          embeddingTargetY: 'A',
-          cellFilter: 'A',
-          cellHighlight: 'A',
-          cellSelection: 'A',
-          cellSetSelection: 'A',
-          geneSelection: 'B',
-          geneFilter: 'B'
+          embeddingZoom: 'B',
         },
         x: 9, y: 0, w: 3, h: 4 },
     ],

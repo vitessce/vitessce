@@ -1,15 +1,12 @@
-/* eslint-disable */
 import React, { useEffect, useRef, useState } from 'react';
 import { getConfig, listConfigs } from './api';
 import Welcome from './Welcome';
 import Warning from './Warning';
 import Vitessce from './Vitessce';
 
-
 import '../css/index.scss';
 import '../../node_modules/react-grid-layout/css/styles.css';
 import '../../node_modules/react-resizable/css/styles.css';
-
 
 function AwaitResponse(props) {
   const {
@@ -85,7 +82,7 @@ export function createApp(rowHeight = null) {
 
   if (datasetId) {
     const config = getConfig(datasetId);
-    return (<Vitessce config={config} rowHeight={rowHeight} theme={theme} onConfigChange={console.log} />);
+    return (<Vitessce config={config} rowHeight={rowHeight} theme={theme} />);
   }
   if (datasetUrl) {
     const responsePromise = fetch(datasetUrl)

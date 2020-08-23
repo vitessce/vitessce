@@ -52,6 +52,7 @@ export default function SpatialSubscriber(props) {
     cellHighlight,
     geneSelection,
     cellSetSelection,
+    cellColorEncoding,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -117,13 +118,13 @@ export default function SpatialSubscriber(props) {
 
   const cellColors = useMemo(() => {
     return getCellColors({
+      cellColorEncoding,
       expressionMatrix,
       geneSelection,
-      cellColorEncoding: 'geneSelection',
       cellSets,
       cellSetSelection,
     })
-  }, [geneSelection, cellSets, cellSetSelection, expressionMatrix]);
+  }, [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
   const updateViewInfo = useCallback(
     viewInfo => PubSub.publish(VIEW_INFO, viewInfo),

@@ -40,6 +40,7 @@ export default function HeatmapSubscriber(props) {
     geneSelection,
     cellSelection,
     cellSetSelection,
+    cellColorEncoding,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -73,13 +74,13 @@ export default function HeatmapSubscriber(props) {
 
   const cellColors = useMemo(() => {
     return getCellColors({
+      cellColorEncoding,
       expressionMatrix,
       geneSelection,
-      cellColorEncoding: 'geneSelection',
       cellSets,
       cellSetSelection,
     });
-  }, [geneSelection, cellSets, cellSetSelection, expressionMatrix]);
+  }, [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {

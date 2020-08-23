@@ -12,15 +12,15 @@
         "additionalProperties": false,
         "required": ["component", "x", "y"],
         "properties": {
-          "component": { "type": "string", "description": "Specify a component using its name." },
-          "props": { "type": "object", "description": "Extra prop values for the component can be defined." },
+          "component": { "type": "string", "description": "Specify a component using a name defined in the component registry." },
+          "props": { "type": "object", "description": "Extra prop values for the component." },
           "x": { "type": "integer" },
           "y": { "type": "integer" },
           "w": { "type": "integer" },
           "h": { "type": "integer" },
           "coordinationScopes": {
             "type": "object",
-            "description": "Component-level coordination scope mappings define which coordination object values a particular component can read and write.",
+            "description": "Component-level coordination scope mappings define which coordination object values a particular component can read and write, for each coordination type.",
             "additionalProperties": false,
             "patternProperties": {
               "dataset": { "type": "string" },
@@ -93,7 +93,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["version", "name", "datasets", "layout"],
+  "required": ["version", "name", "datasets", "layout", "initStrategy"],
   "properties": {
     "name": { "type": "string" },
     "public": { "type": "boolean" },
@@ -241,7 +241,7 @@
         "cellColorEncoding": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "object" }
+            ".": { "type": "string" }
           }
         },
         "geneFilter": {
@@ -308,7 +308,7 @@
     },
     "layout": { "$ref": "#/definitions/components" },
     "initStrategy": {
-      "type": "string", "enum": ["auto", "legacy"],
+      "type": "string", "enum": ["none", "auto", "dataset-comparison"],
       "description": "The initialization strategy determines how missing coordination objects and coordination scope mappings are initially filled in."
     },
     "version": {
