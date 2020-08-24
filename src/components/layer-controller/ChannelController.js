@@ -15,27 +15,32 @@ export const toRgbUIString = (on, arr, theme) => {
   return `rgb(${color})`;
 };
 
-function truncateDecimalNumber(value) {
+function abbreviateNumber(value) {
+  // Return an abbreviated representation of value, in 5 characters or less.
+
   const maxLength = 5;
-  if (!value && value !== 0) return '';
-  // Number whose display value as exponential has more than
-  // maxLength characters with a decimal needs no decimal points for precision.
-  if (value >= 1e10) {
-    return value.toExponential(0);
-  }
-  // Number whose display value as exponential has less than
-  // maxLength characters without a decimal can have a decimal point for precision.
-  if (value >= eval(`1e${maxLength}`)) { // eslint-disable-line no-eval
-    return value.toExponential(1);
-  }
-  // Truncate small numbers with long decimal expansions.
-  const stringValue = value.toString();
-  return stringValue.length > maxLength
-    ? Intl.NumberFormat(
-      'en-US', { maximumSignificantDigits: maxLength - 1, useGrouping: false },
-    ).format(stringValue)
-    : stringValue;
+  let maxNaiveDigits = maxLength;
+
+  /* eslint-disable no-plusplus */
+  if (!Number.isInteger(value)) { --maxNaiveDigits; } // Wasted on "."
+  if (value < 1) { --maxNaiveDigits; } // Wasted on "0."
+  /* eslint-disable no-plusplus */
+
+
+  const naive = Intl.NumberFormat(
+    'en-US',
+    {
+      maximumSignificantDigits: maxNaiveDigits,
+      useGrouping: false,
+    },
+  ).format(value);
+  if (naive.length <= maxLength) return naive;
+
+  // "e+9" consumes 3 characters, so if we even had two significant digits,
+  // it would take take us to six characters, including the decimal point.
+  return value.toExponential(0);
 }
+
 
 /**
  * Dropdown for selecting a channel.
@@ -82,7 +87,7 @@ function ChannelSlider({
   return (
     <Slider
       value={slider}
-      valueLabelFormat={v => truncateDecimalNumber(v)}
+      valueLabelFormat={v => abbreviateNumber(v)}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
       getAriaLabel={() => `${color}-${slider}`}
