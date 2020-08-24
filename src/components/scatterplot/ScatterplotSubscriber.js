@@ -1,5 +1,6 @@
-/* eslint-disable */
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  useState, useEffect, useCallback, useMemo,
+} from 'react';
 import PubSub from 'pubsub-js';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
@@ -52,8 +53,6 @@ export default function ScatterplotSubscriber(props) {
     setCellHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
-  console.log(cellSetSelection);
-
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -70,19 +69,19 @@ export default function ScatterplotSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
-  const [expressionMatrix] = useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl, false);
+  const [expressionMatrix] = useExpressionMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+  );
 
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
-  const cellColors = useMemo(() => {
-    return getCellColors({
-      cellColorEncoding,
-      expressionMatrix,
-      geneSelection,
-      cellSets,
-      cellSetSelection,
-    })
-  }, [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
+  const cellColors = useMemo(() => getCellColors({
+    cellColorEncoding,
+    expressionMatrix,
+    geneSelection,
+    cellSets,
+    cellSetSelection,
+  }), [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -126,8 +125,8 @@ export default function ScatterplotSubscriber(props) {
         uuid={uuid}
         theme={theme}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
-        setViewState={({ zoom, target }) => {
-          setZoom(zoom);
+        setViewState={({ zoom: newZoom, target }) => {
+          setZoom(newZoom);
           setTargetX(target[0]);
           setTargetY(target[1]);
           setTargetZ(target[2]);
@@ -144,7 +143,7 @@ export default function ScatterplotSubscriber(props) {
         setCellHighlight={setCellHighlight}
 
         cellRadiusScale={cellRadiusScale}
-        
+
         updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
       />
       {!disableTooltip && (

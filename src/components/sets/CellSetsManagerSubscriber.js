@@ -1,11 +1,11 @@
 /* eslint-disable */
 import React, {
-  useCallback,
   useEffect,
   useReducer,
   useState,
 } from 'react';
 import PubSub from 'pubsub-js';
+import isEqual from 'lodash/isEqual';
 import packageJson from '../../../package.json';
 import {
   STATUS_WARN,
@@ -15,7 +15,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import reducer, {
-  treeInitialize, ACTION, treeToVisibleCells,
+  treeInitialize, ACTION,
   treeExportLevelZeroNode, treeExportSet,
   treeHasCheckedSetsToView,
   treeHasCheckedSetsToUnion,
@@ -34,7 +34,6 @@ import {
 } from './constants';
 import { useUrls, useReady } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
-import { isEqual } from 'lodash';
 
 const SETS_DATATYPE_CELL = 'cell';
 const initialTree = treeInitialize(SETS_DATATYPE_CELL);
@@ -50,7 +49,7 @@ const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
  * to call when the component has been removed from the grid.
  * @param {function} onReady The function to call when the component has finished
  * initializing (subscribing to relevant events, etc).
- * @param {boolean} initEmit Should an event be emitted upon initialization,
+ * @param {boolean} initializeSelection Should an event be emitted upon initialization,
  * so that cells are colored by some heuristic (e.g. the first clustering in the cell_sets tree)?
  */
 export default function CellSetsManagerSubscriber(props) {
@@ -58,7 +57,7 @@ export default function CellSetsManagerSubscriber(props) {
     loaders,
     coordinationScopes,
     removeGridComponent,
-    initEmit = true,
+    initializeSelection = true,
     theme,
   } = props;
 
@@ -66,9 +65,7 @@ export default function CellSetsManagerSubscriber(props) {
     dataset,
     cellSelection,
     cellSetSelection,
-    cellColorEncoding,
   }, {
-    setCellSelection,
     setCellSetSelection,
     setCellColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
@@ -79,6 +76,8 @@ export default function CellSetsManagerSubscriber(props) {
     CELL_SETS_DATA_TYPES,
   );
 
+  const [autoSetSelections, setAutoSetSelections] = useState([]);
+
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
@@ -88,38 +87,63 @@ export default function CellSetsManagerSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true, (data) => {
+    if(data && data.tree.length >= 1) {
+      const newAutoSetSelections = data.tree[0].children.map(node => node.name);
+      console.log(newAutoSetSelections);
+      setAutoSetSelections(newAutoSetSelections);
+    }
+  });
 
   const [tree, dispatch] = useReducer(reducer, initialTree);
 
+  // Set the tree in the reducer when it loads initially.
   useEffect(() => {
-    dispatch({ type: ACTION.SET, tree: cellSets });
-  }, [cellSets]);
+    if (cellSets) {
+      const upgradedCellSets = tryUpgradeTreeToLatestSchema(cellSets, SETS_DATATYPE_CELL);
+      dispatch({ type: ACTION.SET, tree: upgradedCellSets });
+    }
+    if (cellSets && cells) {
+      dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
+    }
+  }, [cellSets, cells]);
+
 
   // Publish the updated tree when the tree changes.
   useEffect(() => {
-    if (!loaders[dataset] || !tree) {
+    if (!loaders[dataset] || !tree || (tree && tree._state && tree._state.publish === false)) {
       return;
     }
     if (loaders[dataset].loaders['cell-sets']) {
       loaders[dataset].loaders['cell-sets'].publish(tree);
     }
     const visibleSetNames = treeToVisibleSetNames(tree);
-    if(!isEqual(visibleSetNames, cellSetSelection)) {
+    if (!isEqual(visibleSetNames, cellSetSelection)) {
       setCellSetSelection(visibleSetNames);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tree]);
 
-  const setCellSetColorEncoding = useCallback(() => {
-    setCellColorEncoding('cellSetSelection');
-  });
-
+  // Try to set up the selected sets array automatically if null or undefined.
   useEffect(() => {
-    if(!tree || !cellSelection) {
+    if(isReady && !cellSetSelection && initializeSelection) {
+      setCellSetSelection(autoSetSelections);
+    }
+  }, [autoSetSelections, isReady, cellSetSelection, setCellSetSelection, initializeSelection]);
+
+  // A helper function
+  function setCellSetColorEncoding() {
+    setCellColorEncoding('cellSetSelection');
+  }
+
+  // Listen for changes to `cellSelection`, and create a new
+  // set when there is a new selection available.
+  useEffect(() => {
+    if (!tree || !cellSelection) {
       return;
     }
     dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: cellSelection });
-  }, [cellSelection]);
+  }, [cellSelection, tree]);
 
   // Callback functions
   function onCheckLevel(levelZeroKey, levelIndex) {
@@ -224,7 +248,7 @@ export default function CellSetsManagerSubscriber(props) {
 
   // Subscribe to cell set import events.
   // Subscribe to cell import and selection events.
-  /*useEffect(() => {
+  /* useEffect(() => {
     const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD,
       (msg, { data: treeToImport, url }) => {
         const actionType = (initEmit ? ACTION.IMPORT_AND_VIEW : ACTION.IMPORT);
@@ -256,16 +280,16 @@ export default function CellSetsManagerSubscriber(props) {
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(resetToken);
     };
-  }, [onReadyCallback, initEmit]);*/
+  }, [onReadyCallback, initEmit]); */
 
   // Publish cell visibility and color changes when the tree changes.
   // Publish the updated tree when the tree changes.
-  /*useEffect(() => {
+  /* useEffect(() => {
     const [cellIds, cellColors] = treeToVisibleCells(tree);
     PubSub.publish(CELLS_COLOR, cellColors);
     PubSub.publish(CELL_SETS_VIEW, new Set(cellIds));
     PubSub.publish(CELL_SETS_CHANGE, tree);
-  }, [tree]);*/
+  }, [tree]); */
 
   return (
     <TitleInfo

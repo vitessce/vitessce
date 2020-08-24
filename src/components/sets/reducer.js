@@ -1523,6 +1523,26 @@ export function treeToVisibleSetNames(currTree) {
   return names;
 }
 
+function treePreventPublish(currTree) {
+  return {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      publish: false,
+    },
+  };
+}
+
+function treePublish(currTree) {
+  return {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      publish: true,
+    },
+  };
+}
+
 
 /**
  * Constants for reducer action type strings.
@@ -1531,7 +1551,7 @@ export const ACTION = Object.freeze({
   SET: 'set',
   RESET: 'reset',
   IMPORT: 'import',
-  IMPORT_AND_VIEW: 'importAndView',
+  INITIALIZE_SELECTION: 'initializeSelection',
   SET_TREE_ITEMS: 'setTreeItems',
   SET_CURRENT_SET: 'setCurrentSet',
   EXPAND_NODE: 'expandNode',
@@ -1552,7 +1572,7 @@ export const ACTION = Object.freeze({
 });
 
 const reducer = createReducer({
-  [ACTION.SET]: (state, action) => action.tree,
+  [ACTION.SET]: (state, action) => treePreventPublish(action.tree),
   [ACTION.RESET]: state => treeReset(
     state,
   ),
@@ -1560,32 +1580,29 @@ const reducer = createReducer({
     state,
     action.levelZeroNodes,
   ),
-  [ACTION.IMPORT_AND_VIEW]: (state, action) => {
-    const postImportTree = treeImport(
-      state,
-      action.levelZeroNodes,
-    );
-    if (postImportTree.tree.length >= 1) {
-      const levelZeroKey = postImportTree.tree[0]._state.key;
+  [ACTION.INITIALIZE_SELECTION]: (state) => {
+    let result = state;
+    if (state.tree.length >= 1) {
+      const levelZeroKey = state.tree[0]._state.key;
       const levelIndex = 1;
-      const postCheckLevelTree = treeOnCheckLevel(postImportTree, levelZeroKey, levelIndex);
-      return treeNodeViewDescendants(
+      const postCheckLevelTree = treeOnCheckLevel(state, levelZeroKey, levelIndex);
+      result = treeNodeViewDescendants(
         postCheckLevelTree,
         levelZeroKey,
         levelIndex - 1,
         false,
       );
     }
-    return postImportTree;
+    return treePreventPublish(result);
   },
-  [ACTION.SET_TREE_ITEMS]: (state, action) => treeSetItems(
+  [ACTION.SET_TREE_ITEMS]: (state, action) => treePreventPublish(treeSetItems(
     state,
     action.cellIds,
-  ),
-  [ACTION.SET_CURRENT_SET]: (state, action) => treeSetCurrentSet(
+  )),
+  [ACTION.SET_CURRENT_SET]: (state, action) => treePublish(treeSetCurrentSet(
     state,
     action.cellIds,
-  ),
+  )),
   [ACTION.EXPAND_NODE]: (state, action) => treeOnExpand(
     state,
     action.expandedKeys,
@@ -1598,17 +1615,17 @@ const reducer = createReducer({
       action.targetKey,
       action.checked,
     );
-    return treeSetVisibleKeysToCheckedKeys(newTree);
+    return treePublish(treeSetVisibleKeysToCheckedKeys(newTree));
   },
 
   [ACTION.CHECK_LEVEL]: (state, action) => {
     const newTree = treeOnCheckLevel(state, action.levelZeroKey, action.levelIndex);
-    return treeNodeViewDescendants(
+    return treePublish(treeNodeViewDescendants(
       newTree,
       action.levelZeroKey,
       action.levelIndex - 1,
       false,
-    );
+    ));
   },
   [ACTION.DROP_NODE]: (state, action) => treeOnDropNode(
     state,
@@ -1637,16 +1654,16 @@ const reducer = createReducer({
     state,
     action.targetKey,
   ),
-  [ACTION.VIEW_NODE]: (state, action) => treeNodeView(
+  [ACTION.VIEW_NODE]: (state, action) => treePublish(treeNodeView(
     state,
     action.targetKey,
-  ),
-  [ACTION.VIEW_NODE_DESCENDANTS]: (state, action) => treeNodeViewDescendants(
+  )),
+  [ACTION.VIEW_NODE_DESCENDANTS]: (state, action) => treePublish(treeNodeViewDescendants(
     state,
     action.targetKey,
     action.level,
     action.shouldInvalidateCheckedLevel,
-  ),
+  )),
   [ACTION.CREATE_LEVEL_ZERO_NODE]: state => treeCreateLevelZeroNode(
     state,
   ),
