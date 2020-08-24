@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.2.4
+## In Progress
+
+### Added
+
+### Changed
+
+## [0.2.4](https://www.npmjs.com/package/vitessce/v/0.2.4) - 2020-08-24
 
 ### Added
 - Added the `higlass-zarr-datafetchers` dependency.
