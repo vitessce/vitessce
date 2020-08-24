@@ -15,8 +15,14 @@ export default class LoaderNotFoundError extends AbstractLoaderError {
     const {
       datasetName, datasetType, datasetFileType, datasetUrl,
     } = this;
-    console.warn(
-      `"${datasetName}" (${datasetType}) from ${datasetUrl}: unable to find loader for fileType ${datasetFileType}`,
-    );
+    if (datasetFileType && datasetUrl) {
+      console.warn(
+        `"${datasetName}" (${datasetType}) from ${datasetUrl}: unable to find loader for fileType ${datasetFileType}`,
+      );
+    } else {
+      console.warn(
+        `"${datasetName}" (${datasetType}): unable to find loader`,
+      );
+    }
   }
 }

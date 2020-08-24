@@ -52,6 +52,8 @@ export default function ScatterplotSubscriber(props) {
     setCellHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
+  console.log(cellSetSelection);
+
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(

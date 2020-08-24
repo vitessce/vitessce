@@ -1211,7 +1211,7 @@ function treeCreateLevelZeroNode(currTree) {
  * @returns {boolean} Does it make sense?
  */
 export function treeHasCheckedSetsToView(currTree) {
-  return currTree._state.checkedKeys.length > 0;
+  return currTree && currTree._state && currTree._state.checkedKeys.length > 0;
 }
 
 /**
@@ -1221,7 +1221,12 @@ export function treeHasCheckedSetsToView(currTree) {
  * @returns {boolean} Does it make sense?
  */
 export function treeHasCheckedSetsToComplement(currTree) {
-  return currTree._state.checkedKeys.length > 0 && treeToComplement(currTree).length > 0;
+  return (
+    currTree
+    && currTree._state
+    && currTree._state.checkedKeys.length > 0
+    && treeToComplement(currTree).length > 0
+  );
 }
 
 /**
@@ -1231,7 +1236,12 @@ export function treeHasCheckedSetsToComplement(currTree) {
  * @returns {boolean} Does it make sense?
  */
 export function treeHasCheckedSetsToIntersect(currTree) {
-  return currTree._state.checkedKeys.length > 1 && treeToIntersection(currTree).length > 0;
+  return (
+    currTree
+    && currTree._state
+    && currTree._state.checkedKeys.length > 1
+    && treeToIntersection(currTree).length > 0
+  );
 }
 
 /**
@@ -1241,7 +1251,12 @@ export function treeHasCheckedSetsToIntersect(currTree) {
  * @returns {boolean} Does it make sense?
  */
 export function treeHasCheckedSetsToUnion(currTree) {
-  return currTree._state.checkedKeys.length > 1 && treeToUnion(currTree).length > 0;
+  return (
+    currTree
+    && currTree._state
+    && currTree._state.checkedKeys.length > 1
+    && treeToUnion(currTree).length > 0
+  );
 }
 
 /**
@@ -1496,10 +1511,24 @@ export function initializeSets(rawData) {
 }
 
 
+export function treeToVisibleSetNames(currTree) {
+  const names = [];
+  currTree._state.visibleKeys.forEach((setKey) => {
+    const node = treeFindNodeByKey(currTree, setKey);
+    if (node) {
+      const nodeName = node.name;
+      names.push(nodeName);
+    }
+  });
+  return names;
+}
+
+
 /**
  * Constants for reducer action type strings.
  */
 export const ACTION = Object.freeze({
+  SET: 'set',
   RESET: 'reset',
   IMPORT: 'import',
   IMPORT_AND_VIEW: 'importAndView',
@@ -1523,6 +1552,7 @@ export const ACTION = Object.freeze({
 });
 
 const reducer = createReducer({
+  [ACTION.SET]: (state, action) => action.tree,
   [ACTION.RESET]: state => treeReset(
     state,
   ),

@@ -250,7 +250,7 @@ const configs = {
             spatialTargetY: 'B',
           },
           x: 3, y: 0, w: 3, h: 4 },
-        { component: 'genes',
+        { component: 'cellSets',
           coordinationScopes: {
 
           },
@@ -304,6 +304,7 @@ const configs = {
         coordinationScopes: {
           embeddingType: 'B',
           embeddingZoom: 'B',
+          cellSetSelection: 'A',
         },
         x: 9, y: 0, w: 3, h: 4 },
     ],

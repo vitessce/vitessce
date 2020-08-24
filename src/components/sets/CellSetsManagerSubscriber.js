@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useCallback,
   useEffect,
@@ -7,10 +8,10 @@ import React, {
 import PubSub from 'pubsub-js';
 import packageJson from '../../../package.json';
 import {
-  CELL_SETS_VIEW, CELLS_SELECTION,
-  CELLS_ADD, STATUS_WARN, CELLS_COLOR, CELL_SETS_ADD,
-  CELL_SETS_CHANGE, CLEAR_PLEASE_WAIT, RESET,
+  STATUS_WARN,
 } from '../../events';
+import { useCoordination } from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import reducer, {
@@ -20,6 +21,7 @@ import reducer, {
   treeHasCheckedSetsToUnion,
   treeHasCheckedSetsToIntersect,
   treeHasCheckedSetsToComplement,
+  treeToVisibleSetNames,
 } from './reducer';
 import {
   tryUpgradeTreeToLatestSchema,
@@ -30,9 +32,15 @@ import {
   FILE_EXTENSION_JSON,
   FILE_EXTENSION_TABULAR,
 } from './constants';
+import { useUrls, useReady } from '../utils';
+import { useCellsData, useCellSetsData } from '../data-hooks';
+import { isEqual } from 'lodash';
 
 const SETS_DATATYPE_CELL = 'cell';
 const initialTree = treeInitialize(SETS_DATATYPE_CELL);
+
+const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
+
 
 /**
  * A subscriber wrapper around the SetsManager component
@@ -47,23 +55,81 @@ const initialTree = treeInitialize(SETS_DATATYPE_CELL);
  */
 export default function CellSetsManagerSubscriber(props) {
   const {
+    loaders,
+    coordinationScopes,
     removeGridComponent,
-    onReady,
     initEmit = true,
     theme,
   } = props;
 
-  const onReadyCallback = useCallback(onReady, []);
+  const [{
+    dataset,
+    cellSelection,
+    cellSetSelection,
+    cellColorEncoding,
+  }, {
+    setCellSelection,
+    setCellSetSelection,
+    setCellColorEncoding,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
+
+
+  const [urls, addUrl, resetUrls] = useUrls();
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    CELL_SETS_DATA_TYPES,
+  );
+
+  // Reset file URLs and loader progress when the dataset has changed.
+  useEffect(() => {
+    resetUrls();
+    resetReadyItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
+
+  // Get data from loaders using the data hooks.
+  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true);
+
   const [tree, dispatch] = useReducer(reducer, initialTree);
-  const [urls, setUrls] = useState([]);
+
+  useEffect(() => {
+    dispatch({ type: ACTION.SET, tree: cellSets });
+  }, [cellSets]);
+
+  // Publish the updated tree when the tree changes.
+  useEffect(() => {
+    if (!loaders[dataset] || !tree) {
+      return;
+    }
+    if (loaders[dataset].loaders['cell-sets']) {
+      loaders[dataset].loaders['cell-sets'].publish(tree);
+    }
+    const visibleSetNames = treeToVisibleSetNames(tree);
+    if(!isEqual(visibleSetNames, cellSetSelection)) {
+      setCellSetSelection(visibleSetNames);
+    }
+  }, [tree]);
+
+  const setCellSetColorEncoding = useCallback(() => {
+    setCellColorEncoding('cellSetSelection');
+  });
+
+  useEffect(() => {
+    if(!tree || !cellSelection) {
+      return;
+    }
+    dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: cellSelection });
+  }, [cellSelection]);
 
   // Callback functions
   function onCheckLevel(levelZeroKey, levelIndex) {
     dispatch({ type: ACTION.CHECK_LEVEL, levelZeroKey, levelIndex });
+    setCellSetColorEncoding();
   }
 
   function onCheckNode(targetKey, checked) {
     dispatch({ type: ACTION.CHECK_NODE, targetKey, checked });
+    setCellSetColorEncoding();
   }
 
   function onExpandNode(expandedKeys, targetKey, expanded) {
@@ -100,6 +166,7 @@ export default function CellSetsManagerSubscriber(props) {
 
   function onNodeView(targetKey) {
     dispatch({ type: ACTION.VIEW_NODE, targetKey });
+    setCellSetColorEncoding();
   }
 
   function onCreateLevelZeroNode() {
@@ -108,18 +175,22 @@ export default function CellSetsManagerSubscriber(props) {
 
   function onUnion() {
     dispatch({ type: ACTION.UNION_CHECKED });
+    setCellSetColorEncoding();
   }
 
   function onIntersection() {
     dispatch({ type: ACTION.INTERSECTION_CHECKED });
+    setCellSetColorEncoding();
   }
 
   function onComplement() {
     dispatch({ type: ACTION.COMPLEMENT_CHECKED });
+    setCellSetColorEncoding();
   }
 
   function onView() {
     dispatch({ type: ACTION.VIEW_CHECKED });
+    setCellSetColorEncoding();
   }
 
   function onImportTree(treeToImport) {
@@ -153,7 +224,7 @@ export default function CellSetsManagerSubscriber(props) {
 
   // Subscribe to cell set import events.
   // Subscribe to cell import and selection events.
-  useEffect(() => {
+  /*useEffect(() => {
     const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD,
       (msg, { data: treeToImport, url }) => {
         const actionType = (initEmit ? ACTION.IMPORT_AND_VIEW : ACTION.IMPORT);
@@ -185,16 +256,16 @@ export default function CellSetsManagerSubscriber(props) {
       PubSub.unsubscribe(cellsSelectionToken);
       PubSub.unsubscribe(resetToken);
     };
-  }, [onReadyCallback, initEmit]);
+  }, [onReadyCallback, initEmit]);*/
 
   // Publish cell visibility and color changes when the tree changes.
   // Publish the updated tree when the tree changes.
-  useEffect(() => {
+  /*useEffect(() => {
     const [cellIds, cellColors] = treeToVisibleCells(tree);
     PubSub.publish(CELLS_COLOR, cellColors);
     PubSub.publish(CELL_SETS_VIEW, new Set(cellIds));
     PubSub.publish(CELL_SETS_CHANGE, tree);
-  }, [tree]);
+  }, [tree]);*/
 
   return (
     <TitleInfo
@@ -203,13 +274,11 @@ export default function CellSetsManagerSubscriber(props) {
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
+      isReady={isReady}
     >
       <SetsManager
         tree={tree}
         datatype={SETS_DATATYPE_CELL}
-        clearPleaseWait={
-          layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-        }
         onError={err => PubSub.publish(STATUS_WARN, err)}
         onCheckNode={onCheckNode}
         onExpandNode={onExpandNode}

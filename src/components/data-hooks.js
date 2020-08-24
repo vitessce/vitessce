@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { warn } from './utils'; // TODO: move warn to this file
+import { warn } from './utils';
 import { initializeRasterLayersAndChannels } from './spatial/utils';
+import { LoaderNotFoundError } from '../loaders/errors';
 
 /**
  * Get data from a cells data type loader,
@@ -83,16 +84,21 @@ export function useCellSetsData(loaders, dataset, setItemIsReady, addUrl, isRequ
     }
 
     if (loaders[dataset].loaders['cell-sets']) {
+      // Load the data initially.
       loaders[dataset].loaders['cell-sets'].load().catch(warn).then((payload) => {
         const { data, url } = payload || {};
         setCellSets(data);
         addUrl(url, 'Cell Sets');
         setItemIsReady('cell-sets');
       });
+      // Subscribe to data updates.
+      loaders[dataset].loaders['cell-sets'].subscribe((msg, data) => {
+        setCellSets(data);
+      });
     } else {
       setCellSets(null);
       if (isRequired) {
-        console.warn('Cell sets data type required but no loader was found.');
+        warn(new LoaderNotFoundError(dataset, 'cell-sets', null, null));
       } else {
         setItemIsReady('cell-sets');
       }
@@ -144,7 +150,7 @@ export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl
     } else {
       setExpressionMatrix(null);
       if (isRequired) {
-        console.warn('Expression matrix data type required but no loader was found.');
+        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null));
       } else {
         setItemIsReady('expression-matrix');
       }
@@ -206,7 +212,7 @@ export function useMoleculesData(
       setMoleculesCount(0);
       setLocationsCount(0);
       if (isRequired) {
-        console.warn('Molecules data type required but no loader was found.');
+        warn(new LoaderNotFoundError(dataset, 'molecules', null, null));
       } else {
         setItemIsReady('molecules');
       }
@@ -258,7 +264,7 @@ export function useNeighborhoodsData(
     } else {
       setNeighborhoods(null);
       if (isRequired) {
-        console.warn('Neighborhoods data type required but no loader was found.');
+        warn(new LoaderNotFoundError(dataset, 'neighborhoods', null, null));
       } else {
         setItemIsReady('neighborhoods');
       }
@@ -328,7 +334,7 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
       setImageLayerLoaders({});
       setImageLayerMeta({});
       if (isRequired) {
-        console.warn('Raster data type required but no loader was found.');
+        warn(new LoaderNotFoundError(dataset, 'raster', null, null));
       } else {
         setItemIsReady('raster');
       }
