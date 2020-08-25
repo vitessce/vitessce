@@ -60,7 +60,7 @@ export function getNextScope(prevScopes) {
  */
 export function getExistingScopesForCoordinationType(config, coordinationType) {
     const spaceScopes = Object.keys(config.coordinationSpace[coordinationType] || {});
-    const componentScopes = config.layout.map(c => c.coordinationScopes[coordinationType]);
+    const componentScopes = config.layout.map(c => c.coordinationScopes?.[coordinationType]);
     return Array.from(new Set([...spaceScopes, ...componentScopes]));
 }
 
@@ -210,4 +210,68 @@ export function initialize(config) {
     } else {
         return config;
     }
+}
+
+export function upgrade(config) {
+    const coordinationSpace = {
+        embeddingType: {},
+        embeddingZoom: {},
+        embeddingTargetX: {},
+        embeddingTargetY: {},
+        spatialZoom: {},
+        spatialTargetX: {},
+        spatialTargetY: {},
+    };
+    
+    config.staticLayout.forEach((component, i) => {
+        if(component.component === "scatterplot") {
+            // Need to set up the coordinationSpace
+            // with embeddingType to replace scatterplot
+            // component prop "mapping".
+            if(component.props.mapping) {
+                coordinationSpace.embeddingType[component.props.mapping] = component.props.mapping;
+                config.staticLayout[i] = {
+                    ...component,
+                    coordinationScopes: {
+                        embeddingType: component.props.mapping,
+                    },
+                };
+            }
+            // Need to set up the coordinationSpace
+            // with embeddingZoom / embeddingTargetX/Y to replace scatterplot
+            // component prop "view" ({ zoom, target }).
+            if(component.props.view) {
+                // TODO
+            }
+        }
+        if(component.component === "spatial") {
+            // Need to set up the coordinationSpace
+            // with spatialZoom / spatialTargetX/Y to replace spatial
+            // component prop "view" ({ zoom, target }).
+            if(component.props.view) {
+                // TODO
+            }
+        }
+    });
+
+    return {
+        version: '1.0.0',
+        name: config.name,
+        description: config.description,
+        public: config.public,
+        datasets: [
+            {
+                uid: 'A',
+                name: 'A',
+                files: config.layers.map(layer => ({
+                    type: layer.type.toLowerCase(),
+                    fileType: layer.fileType,
+                    url: layer.url,
+                })),
+            }
+        ],
+        initStrategy: "auto",
+        coordinationSpace,
+        layout: config.staticLayout,
+    };
 }

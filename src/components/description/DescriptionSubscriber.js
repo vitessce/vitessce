@@ -61,6 +61,7 @@ export default function DescriptionSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isScroll
       theme={theme}
+      isReady
     >
       <Description
         description={description}

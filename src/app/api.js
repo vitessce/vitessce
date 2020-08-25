@@ -462,52 +462,12 @@ const configs = {
     ],
   },
   'dries-2019': {
+    ...driesBase,
+    version: '0.1.0',
     name: 'Dries',
-    description: driesDescription,
     public: true,
-    datasets: [
-      {
-        uid: 'dries-2019',
-        name: 'Dries 2019',
-        files: [
-          {
-            type: "cells",
-            fileType: "cells.json",
-            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json",
-          },
-          {
-            type: "cell-sets",
-            fileType: "cell-sets.json",
-            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json",
-          }
-        ]
-      }
-    ],
-    coordinationSpace: {
-      dataset: {
-        A: 'dries-2019',
-      },
-      embeddingZoom: {
-        A: 3,
-        B: 3,
-      },
-      embeddingTarget: {
-        A: [0, 0, 0],
-        B: [0, 0, 0]
-      },
-      embeddingType: {
-        A: "t-SNE",
-        B: "UMAP"
-      },
-      spatialZoom: {
-        A: -4.4,
-      },
-      spatialTarget: {
-        A: [3800, -900, 0],
-      },
-    },
-    layout: [
-      /*{ component: 'description',
+    staticLayout: [
+      { component: 'description',
         props: {
           description: driesDescription,
         },
@@ -517,34 +477,32 @@ const configs = {
       { component: 'cellSets',
         x: 9, y: 4, w: 3, h: 4 },
       { component: 'cellSetSizes',
-        x: 5, y: 4, w: 4, h: 4 },*/
-      { component: 'spatial',
-        uid: 'spatial',
-        coordinationScopes: {
-          dataset: "A",
-          spatialZoom: "A",
-          spatialTarget: "A",
+        x: 5, y: 4, w: 4, h: 4 },
+      { component: 'scatterplot',
+        props: {
+          mapping: 't-SNE',
+          view: {
+            zoom: 3,
+            target: [0, 0, 0],
+          },
         },
+        x: 0, y: 2, w: 5, h: 4 },
+      { component: 'spatial',
         props: {
           cellRadius: 50,
+          view: {
+            zoom: -4.4,
+            target: [3800, -900, 0],
+          },
         },
         x: 5, y: 0, w: 4, h: 4 },
       { component: 'scatterplot',
-        uid: 'tsne-scatterplot',
-        coordinationScopes: {
-          dataset: "A",
-          embeddingZoom: "A",
-          embeddingTarget: "A",
-          embeddingType: "A",
-        },
-        x: 0, y: 2, w: 5, h: 4 },
-      { component: 'scatterplot',
-        uid: 'umap-scatterplot',
-        coordinationScopes: {
-          dataset: "A",
-          embeddingZoom: "A",
-          embeddingTarget: "A",
-          embeddingType: "B",
+        props: {
+          mapping: 'UMAP',
+          view: {
+            zoom: 3,
+            target: [0, 0, 0],
+          },
         },
         x: 0, y: 0, w: 5, h: 4 },
     ],

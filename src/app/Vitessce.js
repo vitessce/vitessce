@@ -8,13 +8,14 @@ import isEqual from 'lodash/isEqual';
 import packageJson from '../../package.json';
 import { muiTheme } from '../components/shared-mui/styles';
 import configSchema from '../schemas/config.schema.json';
+import legacyConfigSchema from '../schemas/config-legacy.schema.json';
 
 import DatasetLoaderProvider from './DatasetLoaderProvider';
 import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
 import ViewConfigPublisher from './ViewConfigPublisher';
 import { getComponent } from './component-registry';
-import { initialize } from './view-config-utils';
+import { initialize, upgrade } from './view-config-utils';
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
@@ -37,6 +38,7 @@ function ValidVitessce(props) {
   // - Fill in all missing component coordination scope mappings
   //   based on the initStrategy view config field.
   const initializedConfig = initialize(config);
+  console.log(initializedConfig); // eslint-disable-line
 
   // Emit the initialized view config if it is different than the
   // prop value.
@@ -99,13 +101,43 @@ export default function Vitessce(props) {
       />
     );
   }
+  if (!config.version) {
+    return (
+      <Warning
+        title="Missing version"
+        unformatted="The dataset configuration is missing a version, preventing validation."
+        theme={theme}
+      />
+    );
+  }
+
+  // Check if this is a "legacy" view config
+  let upgradedConfig = config;
+  if (config.version === '0.1.0') {
+    const validateLegacy = new Ajv().compile(legacyConfigSchema);
+    const validLegacy = validateLegacy(config);
+
+    if (!validLegacy) {
+      const failureReason = JSON.stringify(validateLegacy.errors, null, 2);
+      return (
+        <Warning
+          title="Config validation failed"
+          preformatted={failureReason}
+          theme={theme}
+        />
+      );
+    }
+    upgradedConfig = upgrade(config);
+  }
+
   // NOTE: Remove when this is available in UI.
   console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) view configuration`);
-  console.info(`data:,${JSON.stringify(config)}`);
-  console.info(JSON.stringify(config, null, 2));
+  console.info(`data:,${JSON.stringify(upgradedConfig)}`);
+  console.info(JSON.stringify(upgradedConfig, null, 2));
   console.groupEnd();
   const validate = new Ajv().compile(configSchema);
-  const valid = validate(config);
+  const valid = validate(upgradedConfig);
+
   if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
     return (
@@ -117,5 +149,5 @@ export default function Vitessce(props) {
     );
   }
 
-  return <ValidVitessce {...props} />;
+  return <ValidVitessce {...props} config={upgradedConfig} />;
 }
