@@ -193,46 +193,25 @@ const configs = {
     initStrategy: "auto",
     coordinationSpace: {
       embeddingZoom: {
-        A: 0,
-        B: 0.75,
+        PCA: 0,
+        TSNE: 0.75,
       },
       embeddingType: {
-        A: "PCA",
-        B: "t-SNE"
+        PCA: "PCA",
+        TSNE: "t-SNE"
       },
       spatialZoom: {
         A: -5.5,
-        B: -5.5,
       },
       spatialTargetX: {
         A: 16000,
-        B: 16000,
       },
       spatialTargetY: {
         A: 20000,
-        B: 20000,
       },
-      /*spatialLayers: {
-        A: [
-          { type: 'cells', visible: false, opacity: 1, radius: 50, stroked: false, },
-          { type: 'raster', index: 0, opacity: 1, colormap: "", channels: [
-            { selection: { channel: 0 }, color: [0, 0, 255], domain: [0, 2676], slider: [1, 845], visible: true },
-            { selection: { channel: 1 }, color: [255, 0, 0], domain: [0, 2116], slider: [1, 314], visible: true },
-
-          ] }
-        ],
-        // B is undefined, which means it will be initialized automatically.
-      },*/
-      cellSetSelection: {
-        A: [
-          ["Cell Type Annotations", "Astrocyte"],
-          ["Cell Type Annotations", "Vasculature"],
-          ["Cell Type Annotations", "Ventricle"]
-        ]
-      }
     },
     layout: [
-      /*{ component: 'description',
+      { component: 'description',
         props: {
           description: `Linnarsson: ${linnarssonDescription}`,
         },
@@ -241,78 +220,35 @@ const configs = {
         x: 0, y: 1, w: 2, h: 4,
       },
       { component: 'status',
-        x: 0, y: 5, w: 2, h: 1 },*/
+        x: 0, y: 5, w: 2, h: 1 },
       { component: 'spatial',
         coordinationScopes: {
           spatialZoom: 'A',
           spatialTargetX: 'A',
           spatialTargetY: 'A',
         },
-        x: 0, y: 0, w: 3, h: 4 },
-        { component: 'spatial',
-          coordinationScopes: {
-            spatialZoom: 'B',
-            spatialTargetX: 'B',
-            spatialTargetY: 'B',
-          },
-          x: 3, y: 0, w: 3, h: 4 },
-        { component: 'cellSets',
-          coordinationScopes: {
-
-          },
-          x: 0, y: 3, w: 3, h: 4 },
-        { component: 'genes',
-          coordinationScopes: {
-
-          },
-          x: 9, y: 3, w: 3, h: 4 },
-      /*{ component: 'cellSets',
-        x: 9, y: 3, w: 3, h: 2 },*/
+        x: 2, y: 0, w: 4, h: 4 },
+      { component: 'genes',
+        x: 9, y: 0, w: 3, h: 2 },
+      { component: 'cellSets',
+        x: 9, y: 3, w: 3, h: 2 },
       { component: 'heatmap',
-        coordinationScopes: {
-
-        },
         props: {
           transpose: true,
         },
-        x: 6, y: 4, w: 3, h: 4 },
-      /*{ component: 'layerController',
-        coordinationScopes: {
-          dataset: 'A',
-          spatialLayers: 'A',
-        },
-        x: 0, y: 3, w: 3, h: 4,
-      },*/
-      { component: 'layerController',
-        coordinationScopes: {
-
-        },
-        x: 3, y: 3, w: 3, h: 4,
-      },
-      /*{ component: 'heatmap',
-        uid: 'gene-exp-heatmap-2',
-        coordinationScopes: {
-          dataset: 'A',
-          heatmapZoom: 'A',
-          heatmapTarget: 'A'
-        },
-        props: {
-          transpose: false,
-        },
-        x: 0, y: 0, w: 4, h: 6 },*/
+        x: 2, y: 4, w: 10, h: 2 },
       { component: 'scatterplot',
         coordinationScopes: {
-          embeddingType: 'A',
-          embeddingZoom: 'A',
+          embeddingType: 'PCA',
+          embeddingZoom: 'PCA',
         },
-        x: 6, y: 0, w: 3, h: 4 },
+        x: 6, y: 0, w: 3, h: 2 },
       { component: 'scatterplot',
         coordinationScopes: {
-          embeddingType: 'B',
-          embeddingZoom: 'B',
-          cellSetSelection: 'A',
+          embeddingType: 'TSNE',
+          embeddingZoom: 'TSNE',
         },
-        x: 9, y: 0, w: 3, h: 4 },
+        x: 6, y: 2, w: 3, h: 2 },
     ],
   },
   'linnarsson-2018-two-spatial': {
