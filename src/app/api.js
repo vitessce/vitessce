@@ -222,7 +222,11 @@ const configs = {
         // B is undefined, which means it will be initialized automatically.
       },*/
       cellSetSelection: {
-        A: ["Astrocyte", "Vasculature", "Ventricle"]
+        A: [
+          ["Cell Type Annotations", "Astrocyte"],
+          ["Cell Type Annotations", "Vasculature"],
+          ["Cell Type Annotations", "Ventricle"]
+        ]
       }
     },
     layout: [

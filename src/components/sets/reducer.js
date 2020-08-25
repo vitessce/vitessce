@@ -351,6 +351,54 @@ function nodeFindNode(node, predicate) {
 }
 
 /**
+ * Find a node object that matches a predicate function.
+ * @param {object} node A node object.
+ * @param {function} predicate Returns true if a node matches a condition of interest.
+ * @returns {object|null} A node object matching the predicate, or null if none is found.
+ */
+function nodeFindNodePath(node, predicate, path) {
+  if (predicate(node)) {
+    return path;
+  }
+  if (!node.children) {
+    return null;
+  }
+  const foundNodes = node.children
+    .map(child => nodeFindNodePath(child, predicate, [...path, child]))
+    .filter(Boolean);
+  if (foundNodes.length === 1) {
+    return foundNodes[0];
+  }
+  return null;
+}
+
+/**
+ * Find a node matching a predicate function, relative to the whole tree.
+ * @param {object} currTree A tree object.
+ * @param {function} predicate Returns true if a node matches a condition of interest.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
+function treeFindNodePath(currTree, predicate) {
+  const foundNodes = currTree.tree
+    .map(levelZeroNode => nodeFindNodePath(levelZeroNode, predicate, [levelZeroNode]))
+    .filter(Boolean);
+  if (foundNodes.length === 1) {
+    return foundNodes[0];
+  }
+  return null;
+}
+
+/**
+ * Find a node matching a predicate function, relative to the whole tree.
+ * @param {object} currTree A tree object.
+ * @param {function} predicate Returns true if a node matches a condition of interest.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
+function treeFindNodePathByKey(currTree, targetKey) {
+  return treeFindNodePath(currTree, n => (n._state.key === targetKey));
+}
+
+/**
  * Find the level zero node flagged as .isForTools,
  * i.e. new sets created by the lasso/rectangle selection tools
  * should be placed as children of this node.
@@ -391,13 +439,44 @@ function treeFindNodeByKey(currTree, targetKey) {
 }
 
 /**
- * Find a node with a matching name, relative to the whole tree.
- * @param {object} currTree A tree object.
- * @param {string} targetName The name for the node of interest.
+ * Find a node with a matching name path, relative to a particular node.
+ * @param {object} node A node object.
+ * @param {string[]} path The name path for the node of interest.
+ * @param {number} currLevelIndex The index of the current hierarchy level.
  * @returns {object|null} A matching node object, or null if none is found.
  */
-function treeFindNodeByName(currTree, targetName) {
-  return treeFindNode(currTree, n => (n.name === targetName));
+function nodeFindNodeByNamePath(node, path, currLevelIndex) {
+  const currNodeName = path[currLevelIndex];
+  if (node.name === currNodeName) {
+    if (currLevelIndex === path.length - 1) {
+      return node;
+    }
+    if (node.children) {
+      const foundNodes = node.children
+        .map(child => nodeFindNodeByNamePath(child, path, currLevelIndex + 1))
+        .filter(Boolean);
+      if (foundNodes.length === 1) {
+        return foundNodes[0];
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Find a node with a matching name path, relative to the whole tree.
+ * @param {object} currTree A tree object.
+ * @param {string[]} targetNamePath The name path for the node of interest.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
+function treeFindNodeByNamePath(currTree, targetNamePath) {
+  const foundNodes = currTree.tree
+    .map(levelZeroNode => nodeFindNodeByNamePath(levelZeroNode, targetNamePath, 0))
+    .filter(Boolean);
+  if (foundNodes.length === 1) {
+    return foundNodes[0];
+  }
+  return null;
 }
 
 /**
@@ -1462,10 +1541,10 @@ export function treeToVisibleCells(currTree) {
  * where cellIds is an array of strings,
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
-export function treeToCellColorsBySetNames(currTree, selectedNames) {
+export function treeToCellColorsBySetNames(currTree, selectedNamePaths) {
   let cellColorsArray = [];
-  selectedNames.forEach((setName) => {
-    const node = treeFindNodeByName(currTree, setName);
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
       cellColorsArray = [
@@ -1510,17 +1589,20 @@ export function initializeSets(rawData) {
   return treeImport(initialTree, rawData.tree);
 }
 
-
-export function treeToVisibleSetNames(currTree) {
-  const names = [];
-  currTree._state.visibleKeys.forEach((setKey) => {
-    const node = treeFindNodeByKey(currTree, setKey);
-    if (node) {
-      const nodeName = node.name;
-      names.push(nodeName);
+export function treeToSetNamesByKeys(currTree, keys) {
+  const namePaths = [];
+  keys.forEach((setKey) => {
+    const nodePath = treeFindNodePathByKey(currTree, setKey);
+    if (nodePath) {
+      const namePath = nodePath.map(node => node.name);
+      namePaths.push(namePath);
     }
   });
-  return names;
+  return namePaths;
+}
+
+export function treeToVisibleSetNames(currTree) {
+  return treeToSetNamesByKeys(currTree, currTree._state.visibleKeys);
 }
 
 function treePreventPublish(currTree) {

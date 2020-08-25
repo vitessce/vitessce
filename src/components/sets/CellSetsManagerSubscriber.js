@@ -22,9 +22,9 @@ import reducer, {
   treeHasCheckedSetsToIntersect,
   treeHasCheckedSetsToComplement,
   treeToVisibleSetNames,
+  treeToSetNamesByKeys,
 } from './reducer';
 import {
-  tryUpgradeTreeToLatestSchema,
   handleExportJSON, downloadForUser,
   handleExportTabular,
 } from './io';
@@ -90,7 +90,8 @@ export default function CellSetsManagerSubscriber(props) {
   const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true, (data) => {
     if(data && data.tree.length >= 1) {
-      const newAutoSetSelections = data.tree[0].children.map(node => node.name);
+      const newAutoSetSelectionKeys = data.tree[0].children.map(node => node._state.key);
+      const newAutoSetSelections = treeToSetNamesByKeys(data, newAutoSetSelectionKeys);
       setAutoSetSelections(newAutoSetSelections);
     }
   });
@@ -100,8 +101,7 @@ export default function CellSetsManagerSubscriber(props) {
   // Set the tree in the reducer when it loads initially.
   useEffect(() => {
     if (cellSets) {
-      const upgradedCellSets = tryUpgradeTreeToLatestSchema(cellSets, SETS_DATATYPE_CELL);
-      dispatch({ type: ACTION.SET, tree: upgradedCellSets });
+      dispatch({ type: ACTION.SET, tree: cellSets });
     }
     if (cellSets && cells) {
       dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
@@ -137,7 +137,8 @@ export default function CellSetsManagerSubscriber(props) {
     }
   }, [autoSetSelections, isReady, cellSetSelection, setCellSetSelection, initializeSelection]);
 
-  // A helper function
+  // A helper function for updating the encoding for cell colors,
+  // which may have previously been set to 'geneSelection'.
   function setCellSetColorEncoding() {
     setCellColorEncoding('cellSetSelection');
   }
@@ -256,51 +257,6 @@ export default function CellSetsManagerSubscriber(props) {
       FILE_EXTENSION_JSON,
     );
   }
-
-  // Subscribe to cell set import events.
-  // Subscribe to cell import and selection events.
-  /* useEffect(() => {
-    const cellSetsAddToken = PubSub.subscribe(CELL_SETS_ADD,
-      (msg, { data: treeToImport, url }) => {
-        const actionType = (initEmit ? ACTION.IMPORT_AND_VIEW : ACTION.IMPORT);
-        const newTreeToImport = tryUpgradeTreeToLatestSchema(treeToImport, SETS_DATATYPE_CELL);
-        setUrls((prevUrls) => {
-          const newUrls = [...prevUrls].concat({ url, name: 'Cells Sets' });
-          return newUrls;
-        });
-        dispatch({ type: actionType, levelZeroNodes: newTreeToImport.tree });
-      });
-    const cellsAddToken = PubSub.subscribe(CELLS_ADD, (msg, { data: cells, url }) => {
-      setUrls((prevUrls) => {
-        const newUrls = [...prevUrls].concat({ url, name: 'Cells' });
-        return newUrls;
-      });
-      dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
-    });
-    const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, (msg, cellIds) => {
-      dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: Array.from(cellIds) });
-    });
-    const resetToken = PubSub.subscribe(RESET, () => {
-      setUrls([]);
-      dispatch({ type: ACTION.RESET });
-    });
-    onReadyCallback();
-    return () => {
-      PubSub.unsubscribe(cellSetsAddToken);
-      PubSub.unsubscribe(cellsAddToken);
-      PubSub.unsubscribe(cellsSelectionToken);
-      PubSub.unsubscribe(resetToken);
-    };
-  }, [onReadyCallback, initEmit]); */
-
-  // Publish cell visibility and color changes when the tree changes.
-  // Publish the updated tree when the tree changes.
-  /* useEffect(() => {
-    const [cellIds, cellColors] = treeToVisibleCells(tree);
-    PubSub.publish(CELLS_COLOR, cellColors);
-    PubSub.publish(CELL_SETS_VIEW, new Set(cellIds));
-    PubSub.publish(CELL_SETS_CHANGE, tree);
-  }, [tree]); */
 
   return (
     <TitleInfo
