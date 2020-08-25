@@ -4,11 +4,18 @@ import { getChannelStats } from '@hms-dbmi/viv';
 import { VIEWER_PALETTE } from '../utils';
 import { pluralize } from '../../utils';
 import {
-    GLOBAL_SLIDER_DIMENSION_FIELDS, DEFAULT_RASTER_LAYER_PROPS
+    GLOBAL_SLIDER_DIMENSION_FIELDS, DEFAULT_RASTER_LAYER_PROPS,
+    DEFAULT_LAYER_TYPE_ORDERING,
 } from './constants';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
+}
+
+export function sortLayers(layers) {
+  return layers.sort((a, b) => (
+    DEFAULT_LAYER_TYPE_ORDERING.indexOf(a.type) - DEFAULT_LAYER_TYPE_ORDERING.indexOf(b.type)
+  ));
 }
 
 /**

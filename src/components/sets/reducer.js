@@ -1634,11 +1634,11 @@ const reducer = createReducer({
     action.dropPosition,
     action.dropToGap,
   ),
-  [ACTION.SET_NODE_COLOR]: (state, action) => treeNodeSetColor(
+  [ACTION.SET_NODE_COLOR]: (state, action) => treePublish(treeNodeSetColor(
     state,
     action.targetKey,
     action.color,
-  ),
+  )),
   [ACTION.SET_NODE_NAME]: (state, action) => treeNodeSetName(
     state,
     action.targetKey,

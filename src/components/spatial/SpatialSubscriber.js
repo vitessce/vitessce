@@ -16,7 +16,7 @@ import {
 import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
-import { makeSpatialSubtitle, initializeLayerChannelsIfMissing } from './utils';
+import { makeSpatialSubtitle, initializeLayerChannelsIfMissing, sortLayers } from './utils';
 import { DEFAULT_MOLECULES_LAYER, DEFAULT_CELLS_LAYER } from './constants';
 import { useCoordination } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
@@ -112,7 +112,7 @@ export default function SpatialSubscriber(props) {
   useEffect(() => {
     if(isReady && !layers) {
       // TODO: Sort the automatic layer list by layer type (molecules < cells < raster).
-      setLayers(autoLayers);
+      setLayers(sortLayers(autoLayers));
     } else if(isReady && layers) {
       // Layers were defined, but check whether channels for each layer were also defined.
       // If channel / slider / domain definitions are missing, initialize in automatically.

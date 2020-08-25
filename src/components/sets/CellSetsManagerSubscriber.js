@@ -15,7 +15,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
 import reducer, {
-  treeInitialize, ACTION,
+  treeInitialize, ACTION, treeToVisibleCells,
   treeExportLevelZeroNode, treeExportSet,
   treeHasCheckedSetsToView,
   treeHasCheckedSetsToUnion,
@@ -66,6 +66,7 @@ export default function CellSetsManagerSubscriber(props) {
     cellSelection,
     cellSetSelection,
   }, {
+    setCellSelection,
     setCellSetSelection,
     setCellColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
@@ -90,7 +91,6 @@ export default function CellSetsManagerSubscriber(props) {
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true, (data) => {
     if(data && data.tree.length >= 1) {
       const newAutoSetSelections = data.tree[0].children.map(node => node.name);
-      console.log(newAutoSetSelections);
       setAutoSetSelections(newAutoSetSelections);
     }
   });
@@ -117,9 +117,15 @@ export default function CellSetsManagerSubscriber(props) {
     if (loaders[dataset].loaders['cell-sets']) {
       loaders[dataset].loaders['cell-sets'].publish(tree);
     }
+    // Create cell set selections using the names of the "visible" sets.
     const visibleSetNames = treeToVisibleSetNames(tree);
     if (!isEqual(visibleSetNames, cellSetSelection)) {
       setCellSetSelection(visibleSetNames);
+      // Create a cell selection consisting of all cells in the "visible" sets.
+      const [visibleCells] = treeToVisibleCells(tree);
+      if(!isEqual(visibleCells, cellSelection)) {
+        setCellSelection(visibleCells);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tree]);
@@ -139,11 +145,16 @@ export default function CellSetsManagerSubscriber(props) {
   // Listen for changes to `cellSelection`, and create a new
   // set when there is a new selection available.
   useEffect(() => {
-    if (!tree || !cellSelection) {
+    if (!cellSelection) {
       return;
     }
-    dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: cellSelection });
-  }, [cellSelection, tree]);
+    // Only create a new set if the new set is different than the current selection.
+    const [visibleCells] = treeToVisibleCells(tree);
+    // Do not create a new set if the selected cells are the same as the currently visible cells.
+    if(!isEqual(visibleCells, cellSelection)) {
+      dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: cellSelection });
+    }
+  }, [cellSelection]);
 
   // Callback functions
   function onCheckLevel(levelZeroKey, levelIndex) {
