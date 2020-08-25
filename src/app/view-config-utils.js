@@ -212,6 +212,11 @@ export function initialize(config) {
     }
 }
 
+/**
+ * Convert an older view config to a newer view config.
+ * @param {object} config A v0.1.0 "legacy" view config.
+ * @returns {object} A v1.0.0 "upgraded" view config.
+ */
 export function upgrade(config) {
     const coordinationSpace = {
         embeddingType: {},
@@ -223,35 +228,79 @@ export function upgrade(config) {
         spatialTargetY: {},
     };
     
-    config.staticLayout.forEach((component, i) => {
-        if(component.component === "scatterplot") {
+    config.staticLayout.forEach((componentDef, i) => {
+        let newComponentDef = {
+            ...componentDef,
+            coordinationScopes: {},
+        };
+        if(componentDef.component === "scatterplot") {
             // Need to set up the coordinationSpace
             // with embeddingType to replace scatterplot
             // component prop "mapping".
-            if(component.props.mapping) {
-                coordinationSpace.embeddingType[component.props.mapping] = component.props.mapping;
-                config.staticLayout[i] = {
-                    ...component,
+            if(componentDef.props.mapping) {
+                coordinationSpace.embeddingType[componentDef.props.mapping] = componentDef.props.mapping;
+                newComponentDef = {
+                    ...newComponentDef,
                     coordinationScopes: {
-                        embeddingType: component.props.mapping,
+                        ...newComponentDef.coordinationScopes,
+                        embeddingType: componentDef.props.mapping,
                     },
                 };
             }
             // Need to set up the coordinationSpace
             // with embeddingZoom / embeddingTargetX/Y to replace scatterplot
             // component prop "view" ({ zoom, target }).
-            if(component.props.view) {
-                // TODO
+            if(componentDef.props.view) {
+                const prevEZScopes = Object.keys(coordinationSpace.embeddingZoom);
+                const prevETXScopes = Object.keys(coordinationSpace.embeddingTargetX);
+                const prevETYScopes = Object.keys(coordinationSpace.embeddingTargetY);
+
+                const nextEZScope = getNextScope(prevEZScopes);
+                const nextETXScope = getNextScope(prevETXScopes);
+                const nextETYScope = getNextScope(prevETYScopes);
+
+                coordinationSpace.embeddingZoom[nextEZScope] = componentDef.props.view.zoom;
+                coordinationSpace.embeddingTargetX[nextETXScope] = componentDef.props.view.target[0];
+                coordinationSpace.embeddingTargetY[nextETYScope] = componentDef.props.view.target[1];
+                newComponentDef = {
+                    ...newComponentDef,
+                    coordinationScopes: {
+                        ...newComponentDef.coordinationScopes,
+                        embeddingZoom: nextEZScope,
+                        embeddingTargetX: nextETXScope,
+                        embeddingTargetY: nextETYScope,
+                    },
+                };
             }
         }
-        if(component.component === "spatial") {
+        if(componentDef.component === "spatial") {
             // Need to set up the coordinationSpace
             // with spatialZoom / spatialTargetX/Y to replace spatial
             // component prop "view" ({ zoom, target }).
-            if(component.props.view) {
-                // TODO
+            if(componentDef.props.view) {
+                const prevSZScopes = Object.keys(coordinationSpace.spatialZoom);
+                const prevSTXScopes = Object.keys(coordinationSpace.spatialTargetX);
+                const prevSTYScopes = Object.keys(coordinationSpace.spatialTargetY);
+
+                const nextSZScope = getNextScope(prevSZScopes);
+                const nextSTXScope = getNextScope(prevSTXScopes);
+                const nextSTYScope = getNextScope(prevSTYScopes);
+
+                coordinationSpace.spatialZoom[nextSZScope] = componentDef.props.view.zoom;
+                coordinationSpace.spatialTargetX[nextSTXScope] = componentDef.props.view.target[0];
+                coordinationSpace.spatialTargetY[nextSTYScope] = componentDef.props.view.target[1];
+                newComponentDef = {
+                    ...newComponentDef,
+                    coordinationScopes: {
+                        ...newComponentDef.coordinationScopes,
+                        spatialZoom: nextSZScope,
+                        spatialTargetX: nextSTXScope,
+                        spatialTargetY: nextSTYScope,
+                    },
+                };
             }
         }
+        config.staticLayout[i] = newComponentDef;
     });
 
     return {

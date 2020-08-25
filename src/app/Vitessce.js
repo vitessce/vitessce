@@ -38,7 +38,6 @@ function ValidVitessce(props) {
   // - Fill in all missing component coordination scope mappings
   //   based on the initStrategy view config field.
   const initializedConfig = initialize(config);
-  console.log(initializedConfig); // eslint-disable-line
 
   // Emit the initialized view config if it is different than the
   // prop value.
@@ -92,7 +91,7 @@ export default function Vitessce(props) {
     theme,
   } = props;
   if (!config) {
-    // If the config value is undefined, show a warning message
+    // If the config value is undefined, show a warning message.
     return (
       <Warning
         title="No such dataset"
@@ -101,6 +100,7 @@ export default function Vitessce(props) {
       />
     );
   }
+  // If the view config is missing a version, show a warning message.
   if (!config.version) {
     return (
       <Warning
@@ -110,10 +110,10 @@ export default function Vitessce(props) {
       />
     );
   }
-
-  // Check if this is a "legacy" view config
+  // Check if this is a "legacy" view config.
   let upgradedConfig = config;
   if (config.version === '0.1.0') {
+    // Validate under the legacy schema first.
     const validateLegacy = new Ajv().compile(legacyConfigSchema);
     const validLegacy = validateLegacy(config);
 
@@ -127,10 +127,11 @@ export default function Vitessce(props) {
         />
       );
     }
+    // Upgrade from v0.1.0 to v1.0.0 before v1.0.0 schema validation.
     upgradedConfig = upgrade(config);
   }
 
-  // NOTE: Remove when this is available in UI.
+  // NOTE: Remove when a view config viewer/editor is available in UI.
   console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) view configuration`);
   console.info(`data:,${JSON.stringify(upgradedConfig)}`);
   console.info(JSON.stringify(upgradedConfig, null, 2));

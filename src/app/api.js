@@ -81,6 +81,7 @@ const vanderbiltBase = {
 // resulting ordering of elements in the DOM.
 const configs = {
   'just-scatter': {
+    version: '0.1.0',
     public: false,
     layers: [
       {
@@ -118,6 +119,7 @@ const configs = {
     ],
   },
   'just-scatter-expression': {
+    version: '0.1.0',
     public: false,
     layers: [
       {
@@ -315,6 +317,7 @@ const configs = {
   },
   'linnarsson-2018-two-spatial': {
     ...linnarssonBase,
+    version: '0.1.0',
     name: 'Linnarsson (two spatial)',
     staticLayout: [
       { component: 'spatial',
@@ -349,6 +352,7 @@ const configs = {
   },
   'linnarsson-2018-just-spatial': {
     ...linnarssonBaseNoClusters,
+    version: '0.1.0',
     name: 'Linnarsson (just spatial)',
     staticLayout: [
       { component: 'spatial',
@@ -367,6 +371,7 @@ const configs = {
   },
   'linnarsson-2018-static': {
     ...linnarssonBase,
+    version: '0.1.0',
     name: 'Linnarsson (static layout)',
     staticLayout: [
       { component: 'description',
@@ -395,6 +400,7 @@ const configs = {
   },
   'linnarsson-2018-dozen': {
     ...linnarssonBase,
+    version: '0.1.0',
     name: 'Linnarsson (static layout, redundant components for performance testing)',
     staticLayout: [
       { component: 'spatial',
@@ -509,6 +515,7 @@ const configs = {
   },
   'wang-2019': {
     ...wangBase,
+    version: '0.1.0',
     name: 'Wang',
     public: true,
     staticLayout: [
@@ -528,6 +535,7 @@ const configs = {
 
   vanderbilt: {
     ...vanderbiltBase,
+    version: '0.1.0',
     name: 'Spraggins',
     public: true,
     staticLayout: [
@@ -545,6 +553,7 @@ const configs = {
   },
   'just-higlass': {
     public: false,
+    version: '0.1.0',
     layers: [],
     name: 'HiGlass demo',
     staticLayout: [
@@ -766,6 +775,7 @@ const configs = {
     ],
   },
   'sc-atac-seq-10x-genomics-pbmc': {
+    version: '0.1.0',
     public: false,
     layers: [],
     name: 'HiGlass serverless demo with 10x Genomics scATAC-seq 5k PBMC dataset',
