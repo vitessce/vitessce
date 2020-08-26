@@ -484,7 +484,7 @@ const configs = {
         },
         x: 0, y: 0, w: 9, h: 2 },
       { component: 'layerController',
-        x: 9, y: 0, w: 3, h: 2 },
+        x: 9, y: 0, w: 3, h: 1 },
     ],
   },
   'just-higlass': {
