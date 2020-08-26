@@ -1,12 +1,10 @@
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
-function makeLayerNameToConfig(datasetPrefix, withUppercaseType = false) {
+function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
-    ...(withUppercaseType ? { type: name } : {
-      name,
-      type: name.toUpperCase(),
-    }),
+    name,
+    type: name.toUpperCase(),
     fileType: `${name}.json`,
     url: `${urlPrefix}/${datasetPrefix}/${datasetPrefix}.${name}.json`,
   });
@@ -23,7 +21,7 @@ const linnarssonDescription = 'Spatial organization of the somatosensory cortex 
 const linnarssonBase = {
   description: linnarssonDescription,
   layers: [
-    ...linnarssonLayerNames.map(makeLayerNameToConfig('linnarsson', true)),
+    ...linnarssonLayerNames.map(makeLayerNameToConfig('linnarsson')),
     {
       // TODO: remove this temporary override when the
       // clusters.json file has been converted to expression-matrix.zarr format.
@@ -158,7 +156,11 @@ const configs = {
       {
         uid: 'linnarsson-2018',
         name: 'Linnarsson 2018',
-        files: linnarssonBase.layers,
+        files: linnarssonBase.layers.map(file => ({
+          type: file.type.toLowerCase(),
+          fileType: file.fileType,
+          url: file.url,
+        })),
       },
     ],
     initStrategy: 'auto',
