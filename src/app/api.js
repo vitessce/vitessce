@@ -1,5 +1,4 @@
 import Ajv from 'ajv';
-
 import configSchema from '../schemas/config.schema.json';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
@@ -833,12 +832,5 @@ export function listConfigs(showAll) {
 }
 
 export function getConfig(id) {
-  const datasetConfig = configs[id];
-  const validate = new Ajv().compile(configSchema);
-  const valid = validate(datasetConfig);
-  if (!valid) {
-    const failureReason = JSON.stringify(validate.errors, null, 2);
-    console.warn('dataset validation failed', failureReason);
-  }
-  return datasetConfig;
+  return configs[id];
 }
