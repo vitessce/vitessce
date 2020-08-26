@@ -5,14 +5,13 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../utils';
 import { useCellSetsData } from '../data-hooks';
 import { treeToSetSizesBySetNames } from './reducer';
-
 import CellSetSizesPlot from './CellSetSizesPlot';
 
 const CELL_SET_SIZES_DATA_TYPES = ['cell-sets'];
 
 /**
  * A subscriber component for `CellSetSizePlot`,
- * which listens for `CELL_SETS_CHANGE` events and
+ * which listens for cell sets data updates and
  * `GRID_RESIZE` events.
  * @param {object} props
  * @param {function} props.removeGridComponent The grid component removal function.
@@ -34,7 +33,7 @@ export default function CellSetSizesPlotSubscriber(props) {
     cellSetSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetSizes, coordinationScopes);
 
-
+  const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     CELL_SET_SIZES_DATA_TYPES,
@@ -50,8 +49,8 @@ export default function CellSetSizesPlotSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true);
 
-  const [width, height, containerRef] = useGridItemSize();
-
+  // From the cell sets hierarchy and the list of selected cell sets,
+  // generate the array of set sizes data points for the bar plot.
   const data = useMemo(() => (cellSets && cellSetSelection
     ? treeToSetSizesBySetNames(cellSets, cellSetSelection)
     : []
