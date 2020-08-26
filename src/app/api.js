@@ -1,4 +1,3 @@
-/* eslint-disable */
 import Ajv from 'ajv';
 
 import configSchema from '../schemas/config.schema.json';
@@ -6,10 +5,12 @@ import configSchema from '../schemas/config.schema.json';
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
-function makeLayerNameToConfig(datasetPrefix) {
+function makeLayerNameToConfig(datasetPrefix, withUppercaseType = false) {
   return name => ({
-    name,
-    type: name.toUpperCase(),
+    ...(withUppercaseType ? { type: name } : {
+      name,
+      type: name.toUpperCase(),
+    }),
     fileType: `${name}.json`,
     url: `${urlPrefix}/${datasetPrefix}/${datasetPrefix}.${name}.json`,
   });
@@ -26,13 +27,12 @@ const linnarssonDescription = 'Spatial organization of the somatosensory cortex 
 const linnarssonBase = {
   description: linnarssonDescription,
   layers: [
-    ...linnarssonLayerNames.map(makeLayerNameToConfig('linnarsson')),
+    ...linnarssonLayerNames.map(makeLayerNameToConfig('linnarsson', true)),
     {
       // TODO: remove this temporary override when the
       // clusters.json file has been converted to expression-matrix.zarr format.
       ...makeLayerNameToConfig('linnarsson')('clusters'),
-      name: 'expression-matrix',
-      type: 'EXPRESSION-MATRIX',
+      type: 'expression-matrix',
     },
   ],
 };
@@ -87,6 +87,7 @@ const configs = {
       {
         name: 'cells',
         type: 'CELLS',
+        fileType: 'cells.json',
         url: `${urlPrefix}/linnarsson/linnarsson.cells.json`,
         requestInit: {
           // Where the client checks that the value is from an enumeration,
@@ -161,44 +162,18 @@ const configs = {
       {
         uid: 'linnarsson-2018',
         name: 'Linnarsson 2018',
-        files: [
-          {
-            type: "cells",
-            fileType: "cells.json",
-            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cells.json",
-          },
-          {
-            type: "cell-sets",
-            fileType: "cell-sets.json",
-            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json",
-          },
-          {
-            type: "raster",
-            fileType: "raster.json",
-            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.raster.json",
-          },
-          {
-            type: "molecules",
-            fileType: "molecules.json",
-            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json",
-          },
-          {
-            type: "expression-matrix",
-            fileType: "clusters.json",
-            url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json",
-          }
-        ]
-      }
+        files: linnarssonBase.layers,
+      },
     ],
-    initStrategy: "auto",
+    initStrategy: 'auto',
     coordinationSpace: {
       embeddingZoom: {
         PCA: 0,
         TSNE: 0.75,
       },
       embeddingType: {
-        PCA: "PCA",
-        TSNE: "t-SNE"
+        PCA: 'PCA',
+        TSNE: 't-SNE',
       },
       spatialZoom: {
         A: -5.5,
