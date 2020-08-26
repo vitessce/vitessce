@@ -1,11 +1,10 @@
-/* eslint-disable */
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, {
+  useEffect, useState, useCallback, useMemo,
+} from 'react';
 import PubSub from 'pubsub-js';
 
 import TitleInfo from '../TitleInfo';
-import {
-  STATUS_INFO, VIEW_INFO,
-} from '../../events';
+import { VIEW_INFO } from '../../events';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../utils';
 import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
@@ -69,18 +68,18 @@ export default function HeatmapSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [expressionMatrix] = useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [expressionMatrix] = useExpressionMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, true,
+  );
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
 
-  const cellColors = useMemo(() => {
-    return getCellColors({
-      cellColorEncoding,
-      expressionMatrix,
-      geneSelection,
-      cellSets,
-      cellSetSelection,
-    });
-  }, [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
+  const cellColors = useMemo(() => getCellColors({
+    cellColorEncoding,
+    expressionMatrix,
+    geneSelection,
+    cellSets,
+    cellSetSelection,
+  }), [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
@@ -134,7 +133,6 @@ export default function HeatmapSubscriber(props) {
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
-        updateStatus={message => PubSub.publish(STATUS_INFO, message)}
         updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
         observationsTitle={observationsTitle}
         variablesTitle={variablesTitle}

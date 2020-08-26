@@ -484,7 +484,7 @@ const configs = {
         },
         x: 0, y: 0, w: 9, h: 2 },
       { component: 'layerController',
-        x: 9, y: 0, w: 3, h: 1 },
+        x: 9, y: 0, w: 3, h: 2 },
     ],
   },
   'just-higlass': {
@@ -843,6 +843,7 @@ const configs = {
     ],
   },
 };
+/* eslint-enable */
 
 export function listConfigs(showAll) {
   return Object.entries(configs).filter(

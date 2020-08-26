@@ -24,17 +24,6 @@ export const useStore = create(set => ({
       },
     },
   })),
-  // TODO
-  // eslint-disable-next-line
-    setComponentCoordinationScope: ({ componentUid, parameter, scope }) => set(state => ({
-    viewConfig: {
-      ...state.viewConfig,
-      layout: [
-        ...state.viewConfig.layout,
-        // TODO
-      ],
-    },
-  })),
 }))[0];
 
 /**

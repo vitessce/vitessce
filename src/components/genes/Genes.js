@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React from 'react';
 import { SelectableTable } from '../selectable-table/index';
 
@@ -8,8 +7,6 @@ export default function Genes(props) {
     geneSelection = [],
     geneFilter = null,
     setGeneSelection,
-    setGeneFilter,
-    setGeneHighlight,
   } = props;
 
   function onChange(selection) {
@@ -19,10 +16,10 @@ export default function Genes(props) {
   }
 
   const data = geneList
-    .filter(gene => geneFilter ? geneFilter.includes(gene) : true)
+    .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
     .sort((a, b) => a.localeCompare(b))
     .map(
-      (gene) => ({ name: gene, value: geneSelection.includes(gene) }),
+      gene => ({ name: gene, value: geneSelection.includes(gene) }),
     );
 
   return (

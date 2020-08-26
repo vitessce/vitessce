@@ -4,6 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Link from '@material-ui/core/Link';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
+
 import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
 import ClosePaneButton from './ClosePaneButton';
 import LoadingIndicator from './LoadingIndicator';

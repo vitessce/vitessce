@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useState, useEffect } from 'react';
 import { warn } from './utils';
 import { initializeRasterLayersAndChannels } from './spatial/utils';
@@ -76,7 +75,9 @@ export function useCellsData(loaders, dataset, setItemIsReady, addUrl, isRequire
  * @returns {array} [cellSets] where
  * cellSets is a sets tree object.
  */
-export function useCellSetsData(loaders, dataset, setItemIsReady, addUrl, isRequired, onLoad = null) {
+export function useCellSetsData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired, onLoad = null,
+) {
   const [cellSets, setCellSets] = useState();
 
   useEffect(() => {

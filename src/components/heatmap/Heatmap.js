@@ -16,7 +16,6 @@ import {
   DEFAULT_GL_OPTIONS,
   createDefaultUpdateCellsHover,
   createDefaultUpdateGenesHover,
-  createDefaultUpdateStatus,
   createDefaultUpdateViewInfo,
   copyUint8Array,
 } from '../utils';
@@ -55,9 +54,6 @@ import {
  * hover with the cell ID. Optional.
  * @param {function} props.setGeneHighlight Callback function called on
  * hover with the gene ID. Optional.
- * @param {function} props.updateStatus Callback function called on hover,
- * with a string containing the hovered cell ID and gene ID
- * (used by the Status component). Optional.
  * @param {function} props.updateViewInfo Callback function that gets called with an
  * object { uuid, project() } where project is a function that maps (cellId, geneId)
  * to canvas (x,y) coordinates. Used to show tooltips. Optional.
@@ -78,7 +74,6 @@ const Heatmap = forwardRef((props, deckRef) => {
     clearPleaseWait,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
     setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
-    updateStatus = createDefaultUpdateStatus('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
     setIsRendering = () => {},
     transpose = false,
@@ -511,8 +506,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       geneId: varId,
       uuid,
     });
-
-    updateStatus(`Hovered ${obsId} and ${varId}`);
   }
 
   return (

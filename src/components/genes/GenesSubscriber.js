@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../utils';
@@ -46,7 +45,9 @@ export default function GenesSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [expressionMatrix] = useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [expressionMatrix] = useExpressionMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, true,
+  );
   const geneList = expressionMatrix ? expressionMatrix.cols : [];
   const numGenes = geneList.length;
 
