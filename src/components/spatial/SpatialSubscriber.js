@@ -172,6 +172,8 @@ export default function SpatialSubscriber(props) {
       <Spatial
         ref={deckRef}
         uuid={uuid}
+        width={width}
+        height={height}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
         setViewState={({ zoom, target }) => {
           setZoom(zoom);

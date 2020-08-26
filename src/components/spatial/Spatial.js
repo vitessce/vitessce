@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
-import { MultiscaleImageLayer, ImageLayer } from '@hms-dbmi/viv';
+import { MultiscaleImageLayer, ImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import { square } from './utils';
@@ -187,6 +187,34 @@ class Spatial extends AbstractSpatialOrScatterplot {
     );
   }
 
+  createScaleBarLayer() {
+    const {
+      viewState, width, height, imageLayerLoaders = {},
+    } = this.props;
+    // Just get the first layer/loader since they should all be spatially
+    // resolved and therefore have the same unit size scale.
+    const loaders = Object.values(imageLayerLoaders);
+    if (!viewState || !width || !height || loaders.length < 1) return null;
+    const loader = loaders[0];
+    if (!loader) return null;
+    const { physicalSizes } = loader;
+    if (physicalSizes) {
+      const { x } = physicalSizes;
+      const { unit, value } = x;
+      if (unit && value) {
+        return new ScaleBarLayer({
+          id: 'scalebar-layer',
+          loader,
+          unit,
+          size: value,
+          viewState: { ...viewState, width, height },
+        });
+      }
+      return null;
+    }
+    return null;
+  }
+
   createImageLayer(rawLayerDef, loader, i) {
     const layerDef = {
       ...rawLayerDef,
@@ -254,6 +282,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       cellsLayer,
       neighborhoodsLayer,
       moleculesLayer,
+      this.createScaleBarLayer(),
       ...this.createSelectionLayers(),
     ];
   }
