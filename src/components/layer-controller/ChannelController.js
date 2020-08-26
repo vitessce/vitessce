@@ -15,6 +15,33 @@ export const toRgbUIString = (on, arr, theme) => {
   return `rgb(${color})`;
 };
 
+function abbreviateNumber(value) {
+  // Return an abbreviated representation of value, in 5 characters or less.
+
+  const maxLength = 5;
+  let maxNaiveDigits = maxLength;
+
+  /* eslint-disable no-plusplus */
+  if (!Number.isInteger(value)) { --maxNaiveDigits; } // Wasted on "."
+  if (value < 1) { --maxNaiveDigits; } // Wasted on "0."
+  /* eslint-disable no-plusplus */
+
+
+  const naive = Intl.NumberFormat(
+    'en-US',
+    {
+      maximumSignificantDigits: maxNaiveDigits,
+      useGrouping: false,
+    },
+  ).format(value);
+  if (naive.length <= maxLength) return naive;
+
+  // "e+9" consumes 3 characters, so if we even had two significant digits,
+  // it would take take us to six characters, including the decimal point.
+  return value.toExponential(0);
+}
+
+
 /**
  * Dropdown for selecting a channel.
  * @prop {function} handleChange Callback for each new selection.
@@ -51,19 +78,22 @@ function ChannelSelectionDropdown({
  * @prop {array} domain Current max/min allowable slider values.
  */
 function ChannelSlider({
-  color, slider, handleChange, domain: [min, max],
+  color, slider, handleChange, domain: [min, max], dtype,
 }) {
   const handleChangeDebounced = useCallback(
     debounce(handleChange, 3, { trailing: true }), [handleChange],
   );
+  const step = max - min < 500 && dtype === '<f4' ? (max - min) / 500 : 1;
   return (
     <Slider
       value={slider}
+      valueLabelFormat={v => abbreviateNumber(v)}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
       getAriaLabel={() => `${color}-${slider}`}
       min={min}
       max={max}
+      step={step}
       orientation="horizontal"
       style={{ color, marginTop: '7px' }}
     />
@@ -108,6 +138,7 @@ function ChannelController({
   domain,
   dimName,
   theme,
+  dtype,
   colormapOn,
   channelOptions,
   handlePropertyChange,
@@ -160,6 +191,7 @@ function ChannelController({
             color={rgbColor}
             slider={slider}
             domain={domain}
+            dtype={dtype}
             handleChange={v => handlePropertyChange('slider', v)}
           />
         </Grid>

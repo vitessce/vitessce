@@ -277,6 +277,7 @@ export default function RasterLayerController({
               selectionIndex={c.selection[dimName]}
               slider={c.slider}
               color={c.color}
+              dtype={loader.dtype}
               domain={c.domain}
               theme={theme}
               channelOptions={channelOptions}
