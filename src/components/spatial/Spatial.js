@@ -6,7 +6,6 @@ import DeckGL, {
 } from 'deck.gl';
 import { MultiscaleImageLayer, ImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
 import { quadtree } from 'd3-quadtree';
-import debounce from 'lodash/debounce';
 
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import ToolMenu from '../ToolMenu';
@@ -30,6 +29,8 @@ export function square(x, y, r) {
  * React component which expresses the spatial relationships between cells and molecules.
  * @prop {string} uuid
  * @prop {object} view
+ * @prop {number} height Parameter for controlling deck.gl canvas size.
+ * @prop {number} width Parameter for controlling deck.gl canvas size.
  * @prop {number} view.zoom
  * @prop {number[]} view.target See https://github.com/uber/deck.gl/issues/2580 for more information.
  * @prop {object} molecules
@@ -67,6 +68,8 @@ const Spatial = forwardRef((props, deckRef) => {
       zoom: 2,
       target: [0, 0, 0],
     },
+    height,
+    width,
     molecules = {},
     cells = {},
     neighborhoods = {},
@@ -127,21 +130,8 @@ const Spatial = forwardRef((props, deckRef) => {
   const [viewState, setViewState] = useState(view);
 
   useEffect(() => {
-    function onResize() {
-      if (!deckRef.current) return;
-      const { canvas } = deckRef.current.deck;
-      const canvasRect = canvas.getBoundingClientRect();
-      const { height, width } = canvasRect;
-      setViewState(prevViewState => ({
-        ...prevViewState,
-        height,
-        width,
-      }));
-    }
-    const onResizeDebounced = debounce(onResize, 100, { trailing: true });
-    window.addEventListener('resize', onResizeDebounced);
-    onResize();
-  }, [deckRef]);
+    setViewState(prevViewState => ({ ...prevViewState, height, width }));
+  }, [height, width]);
 
 
   const onInitializeViewInfo = useCallback(({ viewport }) => {
@@ -307,8 +297,8 @@ const Spatial = forwardRef((props, deckRef) => {
     // Just get the first layer/loader since they should all be spatially
     // resolved and therefore have the same unit size scale.
     const [layerIdAndLoader] = Object.entries(imageLayerLoaders);
-    const { height, width } = viewState;
-    if (!layerIdAndLoader || !height || !width) return null;
+    const { height: viewHeight, width: viewWidth } = viewState;
+    if (!layerIdAndLoader || !viewHeight || !viewWidth) return null;
     const loader = layerIdAndLoader[1];
     if (!loader) return null;
     const { physicalSizes } = loader;

@@ -228,6 +228,8 @@ export default function SpatialSubscriber({
       <Spatial
         ref={deckRef}
         cells={cells}
+        height={height}
+        width={width}
         selectedCellIds={selectedCellIds}
         neighborhoods={neighborhoods}
         molecules={molecules}
