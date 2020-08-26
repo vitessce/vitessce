@@ -2,7 +2,7 @@
 import expect from 'expect';
 import reducer, {
   treeInitialize, nodeToRenderProps, ACTION,
-  treeToVisibleSetSizes,
+  treeToSetSizesBySetNames,
 } from './reducer';
 
 import {
@@ -432,14 +432,14 @@ describe('Hierarchical sets reducer', () => {
       expect(postDragNode.tree[0].children[0].children[1]._state.key).toEqual('vasculature-pericytes');
     });
 
-    it('can convert a tree to an array with visible set sizes', () => {
+    it('can convert a tree to an array with set sizes', () => {
       const initialTree = tree;
       expect(initialTree._state.visibleKeys).toEqual([]);
       const postViewTree = reducer(initialTree, {
         type: ACTION.VIEW_NODE,
         targetKey: 'vasculature-endothelial',
       });
-      const setSizes = treeToVisibleSetSizes(postViewTree);
+      const setSizes = treeToSetSizesBySetNames(postViewTree, [['Cell Type Annotations', 'Vasculature', 'Endothelial']]);
       expect(setSizes.length).toEqual(1);
       expect(setSizes[0].key).toEqual('vasculature-endothelial');
       expect(setSizes[0].name).toEqual('Endothelial');

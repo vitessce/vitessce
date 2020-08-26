@@ -61,6 +61,7 @@ export default function CellSetsManagerSubscriber(props) {
     theme,
   } = props;
 
+  // Get "props" from the coordination space.
   const [{
     dataset,
     cellSelection,

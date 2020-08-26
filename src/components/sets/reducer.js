@@ -1566,10 +1566,10 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths) {
  * @returns {object[]} Array of objects
  * with the properties `name` and `size`.
  */
-export function treeToVisibleSetSizes(currTree) {
+export function treeToSetSizesBySetNames(currTree, selectedNamePaths) {
   const sizes = [];
-  currTree._state.visibleKeys.forEach((setKey) => {
-    const node = treeFindNodeByKey(currTree, setKey);
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
       sizes.push({
