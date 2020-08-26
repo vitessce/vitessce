@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useState, useCallback, useEffect, useMemo,
 } from 'react';
@@ -8,10 +7,10 @@ import {
   VIEW_INFO,
 } from '../../events';
 import { capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import {
   useCellsData, useCellSetsData, useExpressionMatrixData,
-  useMoleculesData, useNeighborhoodsData, useRasterData
+  useMoleculesData, useNeighborhoodsData, useRasterData,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
@@ -22,7 +21,7 @@ import { useCoordination } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SPATIAL_DATA_TYPES = [
-  'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix'
+  'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix',
 ];
 
 export default function SpatialSubscriber(props) {
@@ -63,15 +62,15 @@ export default function SpatialSubscriber(props) {
     setCellSelection,
     setCellHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
-  
+
   const [autoLayers, setAutoLayers] = useState([]);
-  
+
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     SPATIAL_DATA_TYPES,
   );
   const [width, height, deckRef] = useDeckCanvasSize();
-  
+
   // Reset file URLs and loader progress when the dataset has changed.
   // Also clear the array of automatically-initialized layers.
   useEffect(() => {
@@ -84,21 +83,21 @@ export default function SpatialSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () =>  setAutoLayers(prev => ([...prev, DEFAULT_CELLS_LAYER]))
+    () => setAutoLayers(prev => ([...prev, DEFAULT_CELLS_LAYER])),
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () =>  setAutoLayers(prev => ([...prev, DEFAULT_MOLECULES_LAYER]))
+    () => setAutoLayers(prev => ([...prev, DEFAULT_MOLECULES_LAYER])),
   );
   // TODO: set up a neighborhoods default layer and add to autoLayers.
   const [neighborhoods] = useNeighborhoodsData(
-    loaders, dataset, setItemIsReady, addUrl, false
+    loaders, dataset, setItemIsReady, addUrl, false,
   );
   const [cellSets] = useCellSetsData(
-    loaders, dataset, setItemIsReady, addUrl, false
+    loaders, dataset, setItemIsReady, addUrl, false,
   );
   const [expressionMatrix] = useExpressionMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, false
+    loaders, dataset, setItemIsReady, addUrl, false,
   );
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
@@ -107,33 +106,31 @@ export default function SpatialSubscriber(props) {
       setAutoLayers(prev => ([...prev, ...autoImageLayers]));
     },
   );
-  
+
   // Try to set up the layers array automatically if null or undefined.
   useEffect(() => {
-    if(isReady && !layers) {
-      // TODO: Sort the automatic layer list by layer type (molecules < cells < raster).
+    if (isReady && !layers) {
       setLayers(sortLayers(autoLayers));
-    } else if(isReady && layers) {
+    } else if (isReady && layers) {
       // Layers were defined, but check whether channels for each layer were also defined.
       // If channel / slider / domain definitions are missing, initialize in automatically.
-      initializeLayerChannelsIfMissing(layers, imageLayerLoaders).then(([newLayers, didInitialize]) => {
-        if(didInitialize) {
-          // Channels were only partially defined.
-          setLayers(newLayers);
-        }
-      });
+      initializeLayerChannelsIfMissing(layers, imageLayerLoaders)
+        .then(([newLayers, didInitialize]) => {
+          if (didInitialize) {
+            // Channels were only partially defined.
+            setLayers(newLayers);
+          }
+        });
     }
-  }, [autoLayers, isReady, layers, setLayers]);
+  }, [autoLayers, imageLayerLoaders, isReady, layers, setLayers]);
 
-  const cellColors = useMemo(() => {
-    return getCellColors({
-      cellColorEncoding,
-      expressionMatrix,
-      geneSelection,
-      cellSets,
-      cellSetSelection,
-    })
-  }, [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
+  const cellColors = useMemo(() => getCellColors({
+    cellColorEncoding,
+    expressionMatrix,
+    geneSelection,
+    cellSets,
+    cellSetSelection,
+  }), [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
   const updateViewInfo = useCallback(
     viewInfo => PubSub.publish(VIEW_INFO, viewInfo),
@@ -141,13 +138,14 @@ export default function SpatialSubscriber(props) {
   );
 
   const getCellInfo = (cellId) => {
-    const cell = cells[cellId]
-    if(cell) {
+    const cell = cells[cellId];
+    if (cell) {
       return {
         [`${capitalize(observationsLabel)} ID`]: cellId,
         ...cell.factors,
       };
     }
+    return null;
   };
 
   const subtitle = makeSpatialSubtitle({
@@ -175,29 +173,24 @@ export default function SpatialSubscriber(props) {
         width={width}
         height={height}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
-        setViewState={({ zoom, target }) => {
-          setZoom(zoom);
+        setViewState={({ zoom: newZoom, target }) => {
+          setZoom(newZoom);
           setTargetX(target[0]);
           setTargetY(target[1]);
           setTargetZ(target[2]);
         }}
         layers={layers}
         cells={cells}
-        
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
-
         cellColors={cellColors}
-
-        setCellFilter={setCellFilter}
-        setCellSelection={setCellSelection}
-        setCellHighlight={setCellHighlight}
-
         molecules={molecules}
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
-        
+        setCellFilter={setCellFilter}
+        setCellSelection={setCellSelection}
+        setCellHighlight={setCellHighlight}
         updateViewInfo={updateViewInfo}
       />
       {!disableTooltip && (

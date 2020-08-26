@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { useReady } from '../utils';
+import { useReady } from '../hooks';
 import { useRasterData } from '../data-hooks';
 import { useCoordination } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';

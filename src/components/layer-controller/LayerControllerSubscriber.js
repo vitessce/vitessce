@@ -5,7 +5,7 @@ import TitleInfo from '../TitleInfo';
 import RasterLayerController from './RasterLayerController';
 import VectorLayerController from './VectorLayerController';
 import ImageAddButton from './ImageAddButton';
-import { useReady } from '../utils';
+import { useReady } from '../hooks';
 import { useRasterData } from '../data-hooks';
 import { useCoordination } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';

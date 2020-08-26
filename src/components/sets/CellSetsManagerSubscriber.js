@@ -32,7 +32,7 @@ import {
   FILE_EXTENSION_JSON,
   FILE_EXTENSION_TABULAR,
 } from './constants';
-import { useUrls, useReady } from '../utils';
+import { useUrls, useReady } from '../hooks';
 import { useCellsData, useCellSetsData } from '../data-hooks';
 
 const SETS_DATATYPE_CELL = 'cell';

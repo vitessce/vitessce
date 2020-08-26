@@ -31,26 +31,33 @@ const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
 /**
  * React component which expresses the spatial relationships between cells and molecules.
  * @param {object} props
- * @param {string} props.uuid
- * @param {object} props.viewState
- * @param {function} props.setViewState
- * @param {object} props.molecules
- * @param {object} props.cells
- * @param {object} props.neighborhoods
+ * @param {string} props.uuid A unique identifier for this component,
+ * used to determine when to show tooltips vs. crosshairs.
+ * @param {number} props.height Height of the DeckGL canvas, used when
+ * rendering the scale bar layer.
+ * @param {number} props.width Width of the DeckGL canvas, used when
+ * rendering the scale bar layer.
+ * @param {object} props.viewState The DeckGL viewState object.
+ * @param {function} props.setViewState A handler for updating the DeckGL
+ * viewState object.
+ * @param {object} props.molecules Molecules data.
+ * @param {object} props.cells Cells data.
+ * @param {object} props.neighborhoods Neighborhoods data.
  * @param {number} props.lineWidthScale Width of cell border in view space (deck.gl).
  * @param {number} props.lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
- * @param {object} props.imageLayerLoaders
- * @param {object} props.cellColors Object mapping cell IDs to colors.
+ * @param {object} props.imageLayerLoaders An object mapping raster layer index to Viv loader
+ * instances.
+ * @param {object} props.cellColors Map from cell IDs to colors [r, g, b].
  * @param {function} props.getCellCoords Getter function for cell coordinates
  * (used by the selection layer).
  * @param {function} props.getCellColor Getter function for cell color as [r, g, b] array.
- * @param {function} props.getCellPolygon
+ * @param {function} props.getCellPolygon Getter function for cell polygons.
  * @param {function} props.getCellIsSelected Getter function for cell layer isSelected.
  * @param {function} props.getMoleculeColor
  * @param {function} props.getMoleculePosition
  * @param {function} props.getNeighborhoodPolygon
- * @param {function} props.updateStatus
- * @param {function} props.updateViewInfo
+ * @param {function} props.updateViewInfo Handler for DeckGL viewport updates,
+ * used when rendering tooltips and crosshairs.
  * @param {function} props.onCellClick Getter function for cell layer onClick.
  */
 class Spatial extends AbstractSpatialOrScatterplot {

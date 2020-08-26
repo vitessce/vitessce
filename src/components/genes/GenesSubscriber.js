@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
-import { useReady, useUrls } from '../utils';
+import { useReady, useUrls } from '../hooks';
 import { useExpressionMatrixData } from '../data-hooks';
 import { useCoordination } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';

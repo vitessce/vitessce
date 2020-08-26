@@ -6,7 +6,7 @@ import PubSub from 'pubsub-js';
 import TitleInfo from '../TitleInfo';
 import { VIEW_INFO } from '../../events';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls } from '../utils';
+import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Heatmap from './Heatmap';
