@@ -46,10 +46,6 @@ describe('Vitessce', () => {
 
   it('loads details (responsive)', () => {
     cy.visit('/?dataset=linnarsson-2018');
-    // https://github.com/cypress-io/cypress/issues/4395
-    // cy.get('.modal-dialog').should('be.visible');
-    cy.get('.modal-dialog').should('exist');
-    cy.get('.modal-dialog .please-wait-spinner').should('have.attr', 'title', 'Please wait...');
 
     // Data Set:
     cy.contains('Linnarsson: Spatial organization');
@@ -65,7 +61,7 @@ describe('Vitessce', () => {
 
     // Heatmap:
     cy.contains('3 cells × 3 genes');
-    cy.contains('with 4 cells selected');
+    cy.contains('with 0 cells selected');
 
     // Cell sets:
     cy.contains('Cell Sets');
