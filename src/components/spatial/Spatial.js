@@ -274,24 +274,6 @@ const Spatial = forwardRef((props, deckRef) => {
     visible: areNeighborhoodsOn,
   }), [neighborhoodsData, getNeighborhoodPolygon, areNeighborhoodsOn]);
 
-  const renderImageLayer = useCallback((layerId, loader) => {
-    const layerProps = imageLayerProps[layerId];
-    if (!loader || !layerProps) return null;
-    const { scale, translate, isPyramid } = loader;
-    const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
-    return new Layer({
-      loader,
-      id: layerId,
-      colorValues: layerProps.colors,
-      sliderValues: layerProps.sliders,
-      loaderSelection: layerProps.selections,
-      channelIsOn: layerProps.visibilities,
-      opacity: layerProps.opacity,
-      colormap: layerProps.colormap.length > 0 && layerProps.colormap,
-      scale: scale || 1,
-      translate: translate ? [translate.x, translate.y] : [0, 0],
-    });
-  }, [imageLayerProps]);
 
   const scalebarLayer = useMemo(() => {
     // Just get the first layer/loader since they should all be spatially
@@ -318,6 +300,25 @@ const Spatial = forwardRef((props, deckRef) => {
     }
     return null;
   }, [imageLayerLoaders, viewState]);
+
+  const renderImageLayer = useCallback((layerId, loader) => {
+    const layerProps = imageLayerProps[layerId];
+    if (!loader || !layerProps) return null;
+    const { scale, translate, isPyramid } = loader;
+    const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
+    return new Layer({
+      loader,
+      id: layerId,
+      colorValues: layerProps.colors,
+      sliderValues: layerProps.sliders,
+      loaderSelection: layerProps.selections,
+      channelIsOn: layerProps.visibilities,
+      opacity: layerProps.opacity,
+      colormap: layerProps.colormap.length > 0 && layerProps.colormap,
+      scale: scale || 1,
+      translate: translate ? [translate.x, translate.y] : [0, 0],
+    });
+  }, [imageLayerProps]);
 
   const imageLayers = useMemo(() => Object.entries(imageLayerLoaders)
     .map(([layerId, layerLoader]) => renderImageLayer(layerId, layerLoader)), [
