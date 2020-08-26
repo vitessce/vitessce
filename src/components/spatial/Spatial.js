@@ -1,11 +1,13 @@
 import React, {
-  useState, useCallback, useMemo, forwardRef,
+  useState, useCallback, useMemo, forwardRef, useEffect,
 } from 'react';
 import DeckGL, {
   ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
 } from 'deck.gl';
-import { MultiscaleImageLayer, ImageLayer } from '@hms-dbmi/viv';
+import { MultiscaleImageLayer, ImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
 import { quadtree } from 'd3-quadtree';
+import debounce from 'lodash/debounce';
+
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import ToolMenu from '../ToolMenu';
 import {
@@ -122,6 +124,25 @@ const Spatial = forwardRef((props, deckRef) => {
 
   const [gl, setGl] = useState(null);
   const [tool, setTool] = useState(null);
+  const [viewState, setViewState] = useState(view);
+
+  useEffect(() => {
+    function onResize() {
+      if (!deckRef.current) return;
+      const { canvas } = deckRef.current.deck;
+      const canvasRect = canvas.getBoundingClientRect();
+      const { height, width } = canvasRect;
+      setViewState(prevViewState => ({
+        ...prevViewState,
+        height,
+        width,
+      }));
+    }
+    const onResizeDebounced = debounce(onResize, 100, { trailing: true });
+    window.addEventListener('resize', onResizeDebounced);
+    onResize();
+  }, [deckRef]);
+
 
   const onInitializeViewInfo = useCallback(({ viewport }) => {
     updateViewInfo({
@@ -137,6 +158,10 @@ const Spatial = forwardRef((props, deckRef) => {
       },
     });
   }, [updateViewInfo, uuid, cells, getCellCoords]);
+
+  const onDeckViewStateChange = ({ viewState: nextViewState }) => {
+    setViewState(nextViewState);
+  };
 
   const moleculesData = useMemo(() => {
     let result = null;
@@ -278,6 +303,32 @@ const Spatial = forwardRef((props, deckRef) => {
     });
   }, [imageLayerProps]);
 
+  const scalebarLayer = useMemo(() => {
+    // Just get the first layer/loader since they should all be spatially
+    // resolved and therefore have the same unit size scale.
+    const [layerIdAndLoader] = Object.entries(imageLayerLoaders);
+    const { height, width } = viewState;
+    if (!layerIdAndLoader || !height || !width) return null;
+    const loader = layerIdAndLoader[1];
+    if (!loader) return null;
+    const { physicalSizes } = loader;
+    if (physicalSizes) {
+      const { x } = physicalSizes;
+      const { unit, value } = x;
+      if (unit && value) {
+        return new ScaleBarLayer({
+          id: 'scalebar-layer',
+          loader,
+          unit,
+          size: value,
+          viewState,
+        });
+      }
+      return null;
+    }
+    return null;
+  }, [imageLayerLoaders, viewState]);
+
   const imageLayers = useMemo(() => Object.entries(imageLayerLoaders)
     .map(([layerId, layerLoader]) => renderImageLayer(layerId, layerLoader)), [
     renderImageLayer, imageLayerLoaders,
@@ -288,6 +339,7 @@ const Spatial = forwardRef((props, deckRef) => {
     cellsLayer,
     neighborhoodsLayer,
     moleculesLayer,
+    scalebarLayer,
   ];
 
   const selectionLayers = getSelectionLayers(
@@ -303,7 +355,8 @@ const Spatial = forwardRef((props, deckRef) => {
     views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
     // gl needs to be initialized for us to use it in Texture creation
     layers: gl ? layers.concat(selectionLayers) : [],
-    initialViewState: view,
+    viewState,
+    onViewStateChange: onDeckViewStateChange,
     ...(tool ? {
       controller: { dragPan: false },
       getCursor: () => 'crosshair',
