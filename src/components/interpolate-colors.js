@@ -111,5 +111,5 @@ export function getCellColors(params) {
     // with defaults and returns the processed tree object.
     return treeToCellColorsBySetNames(cellSets, cellSetSelection);
   }
-  return new Map([]);
+  return new Map();
 }

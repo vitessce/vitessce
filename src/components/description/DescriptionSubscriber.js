@@ -39,12 +39,13 @@ export default function DescriptionSubscriber(props) {
   );
 
   const metadata = useMemo(() => {
-    const result = [];
+    const result = new Map();
     if (layers && raster && imageLayerMeta && imageLayerLoaders) {
       const rasterLayers = layers.filter(layer => layer.type === 'raster');
       rasterLayers.forEach((layer) => {
         if (imageLayerMeta[layer.index]) {
-          result.push({
+          // Want to ensure that layer index is a string.
+          result.set(`${layer.index}`, {
             name: raster.layers[layer.index].name,
             metadata: imageLayerLoaders[layer.index].getMetadata(),
           });
