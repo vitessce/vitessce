@@ -145,7 +145,7 @@ export default function RasterLayerController(props) {
     // Only update domains on a mouseup event for the same reason as above.
     const { domains, sliders } = mouseUp
       ? await getDomainsAndSliders(loader, loaderSelection, domainType)
-      : null;
+      : { domains: null, sliders: null };
     if (domains) {
       update.domain = domains;
       update.slider = sliders;
@@ -158,7 +158,8 @@ export default function RasterLayerController(props) {
 
   let channelControllers = [];
   if (dimensions.length > 0) {
-    const { values: channelOptions, field: dimName } = (dimensions.find(dim => dim.field === 'channel') || dimensions[0]);
+    const channelDimensions = loader.type === 'ome-tiff' ? dimensions.find(c => c.field === 'channel') : dimensions[0];
+    const { values: channelOptions, field: dimName } = channelDimensions;
     // Create the channel controllers for each channel.
     channelControllers = channels.map(
       // c is an object like { color, selection, slider, visible }.
@@ -202,6 +203,7 @@ export default function RasterLayerController(props) {
               selectionIndex={c.selection[dimName]}
               slider={c.slider}
               color={c.color}
+              dtype={loader.dtype}
               domain={c.domain}
               theme={theme}
               channelOptions={channelOptions}
