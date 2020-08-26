@@ -25,7 +25,7 @@ export default function StatusSubscriber(props) {
     const warnToken = PubSub.subscribe(STATUS_WARN, (msg, data) => {
       setWarn(data);
     });
-    return PubSub.unsubscribe(warnToken);
+    return () => PubSub.unsubscribe(warnToken);
   }, []);
 
   const infos = [
