@@ -24,7 +24,7 @@ export const useStore = create(set => ({
       },
     },
   })),
-}))[0];
+}));
 
 /**
  * The useCoordination hook returns both the

@@ -72,7 +72,7 @@
     "vega-tooltip": "^0.23.0",
     "whatwg-fetch": "^3.0.0",
     "zarr": "^0.3.0",
-    "zustand": "^2.2.4"
+    "zustand": "^3.0.2"
   },
   "devDependencies": {
     "@babel/core": "7.9.0",
