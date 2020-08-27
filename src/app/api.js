@@ -26,7 +26,7 @@ const linnarssonBase = {
       // TODO: remove this temporary override when the
       // clusters.json file has been converted to expression-matrix.zarr format.
       ...makeLayerNameToConfig('linnarsson')('clusters'),
-      type: 'expression-matrix',
+      type: 'EXPRESSION-MATRIX',
     },
   ],
 };
