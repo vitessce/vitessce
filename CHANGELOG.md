@@ -13,13 +13,15 @@
     - `VitessceGrid` is a consumer of `DatasetLoaderProvider` and injects the mapping from datasets-to-loaders into the child `___Subscriber` components. This functionality replaces the `SourcePublisher` component.
         - The loading spinner was moved into a new `LoadingIndicator` component.
         - Added a new prop `isReady` for the `TitleInfo` component (parent of the `LoadingIndicator` component), which means that each `___Subscriber` component handles its own loading spinner.
-- Added the `initStrategy` property to the view config, intended to be one of `"auto"`, `"legacy"`, or `"comparison"`
+- Added the `initStrategy` property to the view config, allowed to be one of `"auto"` or `"none"` (and potentially other strategies in the future).
     - This will determine how the coordination space is initialized.
-    - `"auto"` will be the default strategy if none is provided.
-    - `"legacy"` will result in the same behavior as the pre-"next" version of Vitessce, before the coordination space ideas were formalized.
-        - The `dataset` coordination object will have one scope, with the value initialized to the ID of the first item in the `datasets` array.
-    - `"comparison"` will result in the components in the view config `"layout"` being duplicated and initialized to two separate coordination scopes.
-        - The `dataset` coordination object will have two scopes, with the values initialized to the IDs of the first and second items in the `datasets` array.
+    - `"auto"` results in certain coordination types having "global" coordination (all components map to same scope) while the remaining coordination types have "independent" coordination (all components map to different scopes).
+        - The `"auto"` strategy also respects any initial coordination setup, and only fills in missing values.
+- Added support for both `v0.1.0` ("legacy") and `v1.0.0` (coordination model) view configs via an `upgrade()` function.
+    - `v0.1.0` view configs will be validated against the `v0.1.0` schema, then upgraded, and then validated again against the `v1.0.0` schema.
+- Added a unique name constraint for cell set names.
+    - Because `cellSetSelection` is now a coordination type, the value must be stored in the view config. Previously, multiple cell sets were allowed to exist with the same name because cell sets were identified with a random uuid key internally. We would not want a random uuid key to "leak" into the global state or view config, and instead want to use an externally-meaningful name when identifying cell sets in the view config.
+    - Due to this constraint, the automatic naming for cell selections as `"Current selection"` (or `"Current union"`, `"Current intersection"`, `"Current complement"`) have been changed to `"Selection {i}"` (or `"Union {i}"`, `"Intersection {i}"`, `"Complement {i}"`) where `{i}` is the next integer that does not cause a conflict.
 
 ### Changed
 - Moved the `Vitessce` component out of `src/app/app.js` into `src/app/Vitessce.js`.
@@ -39,7 +41,9 @@
     - Eliminated usage of randomly-generated uuids for layer and channel states.
 - Changed the `Spatial` component implementation (back) to a React class component, after experiencing difficult-to-debug performance issues with the function component implementation.
 - Simplified the `GenesSubscriber` implementation such that it no longer handles converting gene expression data to colors. Instead, the plot components (spatial, scatterplot, and heatmap) must look up the gene expression data and handle color conversion themselves, de-coupling them from `GenesSubscriber`.
-- Started to add error handling for loader instance `.load()` calls within component `useEffect` set up functions.
+- Added a file `src/components/data-hooks.js` containing React hook functions for initial data load (and data update subscriptions) for each data type.
+    - Added error handling for data loading errors within the hook functions, which emit the `STATUS_WARN` event and subsequently call the `Vitessce` component's `onWarn` prop.
+- Removed the global app-level "please wait" spinner, and replaced with component-level spinners, to account for the multi-dataset support (for example if the dataset coordination object for a component changes then the component will need to obtain a different dataset, and this may occur at any time).
 
 
 ## [0.2.4](https://www.npmjs.com/package/vitessce/v/0.2.4) - 2020-08-24
