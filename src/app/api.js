@@ -423,18 +423,42 @@ const configs = {
     ],
   },
   'wang-2019': {
-    ...wangBase,
-    version: '0.1.0',
     name: 'Wang',
+    version: '1.0.0',
+    description: wangDescription,
     public: true,
-    staticLayout: [
-      { component: 'spatial',
-        props: {
-          view: {
-            zoom: -1,
-            target: [0, 0, 0],
+    datasets: [
+      {
+        uid: 'wang-2019',
+        name: 'Wang 2019',
+        files: wangBase.layers.map(file => ({
+          type: file.type.toLowerCase(),
+          fileType: file.fileType,
+          url: file.url,
+        })),
+      },
+    ],
+    initStrategy: 'auto',
+    coordinationSpace: {
+      spatialZoom: {
+        A: -1,
+      },
+      spatialLayers: {
+        A: [
+          {
+            type: 'molecules', radius: 2, opacity: 1, visible: true,
           },
-          moleculeRadius: 2,
+          {
+            type: 'cells', opacity: 1, radius: 50, visible: true, stroked: false,
+          },
+        ],
+      },
+    },
+    layout: [
+      { component: 'spatial',
+        coordinationScopes: {
+          spatialZoom: 'A',
+          spatialLayers: 'A',
         },
         x: 0, y: 0, w: 10, h: 2 },
       { component: 'genes',
