@@ -74,6 +74,7 @@ export default function SetsManager(props) {
     onCheckLevel,
     onNodeSetColor,
     onNodeSetName,
+    onNodeCheckNewName,
     onNodeSetIsEditing,
     onNodeRemove,
     onNodeView,
@@ -123,6 +124,7 @@ export default function SetsManager(props) {
         onNodeView={onNodeView}
         onNodeSetColor={onNodeSetColor}
         onNodeSetName={onNodeSetName}
+        onNodeCheckNewName={onNodeCheckNewName}
         onNodeSetIsEditing={onNodeSetIsEditing}
         onNodeRemove={onNodeRemove}
         onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}

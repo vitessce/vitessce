@@ -23,6 +23,7 @@ import reducer, {
   treeHasCheckedSetsToComplement,
   treeToVisibleSetNames,
   treeToSetNamesByKeys,
+  treeCheckNameConflictsByKey,
 } from './reducer';
 import {
   handleExportJSON, downloadForUser,
@@ -191,6 +192,10 @@ export default function CellSetsManagerSubscriber(props) {
     });
   }
 
+  function onNodeCheckNewName(targetKey, name) {
+    return treeCheckNameConflictsByKey(tree, name, targetKey);
+  }
+
   function onNodeSetIsEditing(targetKey, value) {
     dispatch({
       type: ACTION.SET_NODE_IS_EDITING, targetKey, value,
@@ -278,6 +283,7 @@ export default function CellSetsManagerSubscriber(props) {
         onCheckLevel={onCheckLevel}
         onNodeSetColor={onNodeSetColor}
         onNodeSetName={onNodeSetName}
+        onNodeCheckNewName={onNodeCheckNewName}
         onNodeSetIsEditing={onNodeSetIsEditing}
         onNodeRemove={onNodeRemove}
         onNodeView={onNodeView}

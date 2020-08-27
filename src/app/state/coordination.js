@@ -1,4 +1,3 @@
-
 /**
  * Constants representing names of coordination types,
  * to help prevent typos.
@@ -64,7 +63,6 @@ export const DEFAULT_COORDINATION_VALUES = {
   [COORDINATION_TYPES.GENOMIC_TARGET_X]: 1549999999.5,
   [COORDINATION_TYPES.GENOMIC_TARGET_Y]: 1549999999.5,
 };
-
 
 /**
    * Mapping from component type to
