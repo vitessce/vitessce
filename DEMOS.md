@@ -37,3 +37,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2020-08-17: [next](https://s3.amazonaws.com/vitessce-data/demos/2020-08-17/8ed472e/index.html)
 - 2020-08-23: [next](https://s3.amazonaws.com/vitessce-data/demos/2020-08-23/7280b18/index.html)
 - 2020-08-24: [master](https://s3.amazonaws.com/vitessce-data/demos/2020-08-24/599c45f/index.html)
+- 2020-08-27: [next](https://s3.amazonaws.com/vitessce-data/demos/2020-08-27/a80a7a5/index.html)
