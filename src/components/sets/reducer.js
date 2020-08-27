@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
+import isEqual from 'lodash/isEqual';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
 import { DEFAULT_COLOR, PALETTE } from '../utils';
@@ -1706,6 +1707,34 @@ export function treeCheckNameConflictsByKey(currTree, potentialNewName, nodeKey)
   return treeCheckNamePathConflicts(currTree, [...namePath, potentialNewName], nodeKey);
 }
 
+export function treeToExpectedCheckedLevel(currTree, visibleNamePaths) {
+  let result = null;
+  if (currTree) {
+    currTree.tree.forEach((lzn) => {
+      const levelZeroKey = lzn._state.key;
+      const height = nodeToHeight(lzn);
+      range(height).forEach((i) => {
+        const levelIndex = i + 1;
+        const levelNodeKeys = nodeToLevelDescendantsFlat(lzn, levelIndex - 1, true)
+          .map(d => d._state.key);
+        const levelNodePaths = levelNodeKeys
+          .map(k => treeFindNodePathByKey(currTree, k).map(node => node.name));
+        if (isEqual(levelNodePaths, visibleNamePaths)) {
+          result = { levelZeroKey, levelIndex };
+        }
+      });
+    });
+  }
+  return result;
+}
+
+export function treeToCheckedLevel(currTree) {
+  if (currTree) {
+    return currTree._state.checkedLevel;
+  }
+  return null;
+}
+
 
 /**
  * Constants for reducer action type strings.
@@ -1714,7 +1743,6 @@ export const ACTION = Object.freeze({
   SET: 'set',
   RESET: 'reset',
   IMPORT: 'import',
-  INITIALIZE_SELECTION: 'initializeSelection',
   SET_TREE_ITEMS: 'setTreeItems',
   SET_CURRENT_SET: 'setCurrentSet',
   EXPAND_NODE: 'expandNode',
@@ -1743,29 +1771,17 @@ const reducer = createReducer({
     state,
     action.levelZeroNodes,
   ),
-  [ACTION.INITIALIZE_SELECTION]: (state) => {
-    let result = state;
-    if (state.tree.length >= 1) {
-      const levelZeroKey = state.tree[0]._state.key;
-      const levelIndex = 1;
-      const postCheckLevelTree = treeOnCheckLevel(state, levelZeroKey, levelIndex);
-      result = treeNodeViewDescendants(
-        postCheckLevelTree,
-        levelZeroKey,
-        levelIndex - 1,
-        false,
-      );
-    }
-    return treePreventPublish(result);
-  },
   [ACTION.SET_TREE_ITEMS]: (state, action) => treePreventPublish(treeSetItems(
     state,
     action.cellIds,
   )),
-  [ACTION.SET_CURRENT_SET]: (state, action) => treePublish(treeSetCurrentSet(
-    state,
-    action.cellIds,
-  )),
+  [ACTION.SET_CURRENT_SET]: (state, action) => {
+    const pubFunc = action.publish ? treePublish : treePreventPublish;
+    return pubFunc(treeSetCurrentSet(
+      state,
+      action.cellIds,
+    ));
+  },
   [ACTION.EXPAND_NODE]: (state, action) => treeOnExpand(
     state,
     action.expandedKeys,
@@ -1780,10 +1796,10 @@ const reducer = createReducer({
     );
     return treePublish(treeSetVisibleKeysToCheckedKeys(newTree));
   },
-
   [ACTION.CHECK_LEVEL]: (state, action) => {
     const newTree = treeOnCheckLevel(state, action.levelZeroKey, action.levelIndex);
-    return treePublish(treeNodeViewDescendants(
+    const pubFunc = action.publish ? treePublish : treePreventPublish;
+    return pubFunc(treeNodeViewDescendants(
       newTree,
       action.levelZeroKey,
       action.levelIndex - 1,

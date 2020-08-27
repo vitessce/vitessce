@@ -8,15 +8,13 @@ import PubSub from 'pubsub-js';
  */
 export default class AbstractLoader {
   constructor({
-    name, type, url, requestInit,
+    type, url, requestInit,
   }) {
-    this.name = name;
     this.type = type;
     this.url = url;
     this.requestInit = requestInit;
 
     this.subscriptions = [];
-
     this.uuid = uuidv4();
   }
 

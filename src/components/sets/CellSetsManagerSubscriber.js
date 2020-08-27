@@ -3,6 +3,7 @@ import React, {
   useEffect,
   useReducer,
   useState,
+  useMemo,
 } from 'react';
 import PubSub from 'pubsub-js';
 import isEqual from 'lodash/isEqual';
@@ -24,6 +25,7 @@ import reducer, {
   treeToVisibleSetNames,
   treeToSetNamesByKeys,
   treeCheckNameConflictsByKey,
+  treeToExpectedCheckedLevel,
 } from './reducer';
 import {
   handleExportJSON, downloadForUser,
@@ -91,7 +93,8 @@ export default function CellSetsManagerSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true, (data) => {
-    if(data && data.tree.length >= 1) {
+    if (data && data.tree.length >= 1) {
+      // eslint-disable-next-line no-underscore-dangle
       const newAutoSetSelectionKeys = data.tree[0].children.map(node => node._state.key);
       const newAutoSetSelections = treeToSetNamesByKeys(data, newAutoSetSelectionKeys);
       setAutoSetSelections(newAutoSetSelections);
@@ -110,9 +113,24 @@ export default function CellSetsManagerSubscriber(props) {
     }
   }, [cellSets, cells]);
 
+  // Listen for changes to `cellSelection`, and create a new
+  // set when there is a new selection available.
+  useEffect(() => {
+    if (!cellSelection) {
+      return;
+    }
+    // Only create a new set if the new set is different than the current selection.
+    const [visibleCells] = treeToVisibleCells(tree);
+    // Do not create a new set if the selected cells are the same as the currently visible cells.
+    if (cellSetSelection === null && !isEqual(visibleCells, cellSelection)) {
+      dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: cellSelection, publish: true });
+    }
+  }, [cellSetSelection, cellSelection, tree]);
+
 
   // Publish the updated tree when the tree changes.
   useEffect(() => {
+    // eslint-disable-next-line no-underscore-dangle
     if (!loaders[dataset] || !tree || (tree && tree._state && tree._state.publish === false)) {
       return;
     }
@@ -125,7 +143,7 @@ export default function CellSetsManagerSubscriber(props) {
       setCellSetSelection(visibleSetNames);
       // Create a cell selection consisting of all cells in the "visible" sets.
       const [visibleCells] = treeToVisibleCells(tree);
-      if(!isEqual(visibleCells, cellSelection)) {
+      if (!isEqual(visibleCells, cellSelection)) {
         setCellSelection(visibleCells);
       }
     }
@@ -134,10 +152,18 @@ export default function CellSetsManagerSubscriber(props) {
 
   // Try to set up the selected sets array automatically if null or undefined.
   useEffect(() => {
-    if(isReady && !cellSetSelection && initializeSelection) {
+    if (isReady && cellSetSelection === undefined && cellSelection === undefined && initializeSelection) {
       setCellSetSelection(autoSetSelections);
     }
-  }, [autoSetSelections, isReady, cellSetSelection, setCellSetSelection, initializeSelection]);
+  }, [autoSetSelections, isReady, cellSetSelection, cellSelection, setCellSetSelection, initializeSelection]);
+
+  const checkedLevel = useMemo(() => {
+    if (cellSetSelection && tree) {
+      return treeToExpectedCheckedLevel(tree, cellSetSelection);
+    }
+    return null;
+  }, [cellSetSelection, tree]);
+
 
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
@@ -145,23 +171,14 @@ export default function CellSetsManagerSubscriber(props) {
     setCellColorEncoding('cellSetSelection');
   }
 
-  // Listen for changes to `cellSelection`, and create a new
-  // set when there is a new selection available.
-  useEffect(() => {
-    if (!cellSelection) {
-      return;
-    }
-    // Only create a new set if the new set is different than the current selection.
-    const [visibleCells] = treeToVisibleCells(tree);
-    // Do not create a new set if the selected cells are the same as the currently visible cells.
-    if(!isEqual(visibleCells, cellSelection)) {
-      dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: cellSelection });
-    }
-  }, [cellSelection]);
-
   // Callback functions
   function onCheckLevel(levelZeroKey, levelIndex) {
-    dispatch({ type: ACTION.CHECK_LEVEL, levelZeroKey, levelIndex });
+    dispatch({
+      type: ACTION.CHECK_LEVEL,
+      levelZeroKey,
+      levelIndex,
+      publish: true,
+    });
     setCellSetColorEncoding();
   }
 
@@ -275,6 +292,7 @@ export default function CellSetsManagerSubscriber(props) {
     >
       <SetsManager
         tree={tree}
+        checkedLevel={checkedLevel}
         datatype={SETS_DATATYPE_CELL}
         onError={err => PubSub.publish(STATUS_WARN, err)}
         onCheckNode={onCheckNode}

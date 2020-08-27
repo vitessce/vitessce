@@ -1,4 +1,3 @@
-/* eslint-disable */
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import JsonLoader from './JsonLoader';
 import { initializeSets } from '../components/sets/reducer';
@@ -13,9 +12,9 @@ export default class CellSetsJsonLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch((reason) => Promise.resolve(reason));
-    if(payload instanceof AbstractLoaderError) {
-        return Promise.reject(payload);
+    const payload = await super.load().catch(reason => Promise.resolve(reason));
+    if (payload instanceof AbstractLoaderError) {
+      return Promise.reject(payload);
     }
     const { data: rawData, url } = payload;
     const upgradedData = tryUpgradeTreeToLatestSchema(rawData, 'cell');

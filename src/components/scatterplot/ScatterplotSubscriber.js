@@ -50,6 +50,7 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingTargetZ: setTargetZ,
     setCellFilter,
     setCellSelection,
+    setCellSetSelection,
     setCellHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
@@ -139,7 +140,10 @@ export default function ScatterplotSubscriber(props) {
         cellColors={cellColors}
 
         setCellFilter={setCellFilter}
-        setCellSelection={setCellSelection}
+        setCellSelection={(v) => {
+          setCellSetSelection(null);
+          setCellSelection(v);
+        }}
         setCellHighlight={setCellHighlight}
 
         cellRadiusScale={cellRadiusScale}

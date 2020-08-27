@@ -33,7 +33,9 @@ export function useCellsData(loaders, dataset, setItemIsReady, addUrl, isRequire
     }
 
     if (loaders[dataset].loaders.cells) {
-      loaders[dataset].loaders.cells.load().catch(warn).then(({ data, url }) => {
+      loaders[dataset].loaders.cells.load().catch(warn).then((payload) => {
+        if (!payload) return;
+        const { data, url } = payload;
         setCells(data);
         setCellsCount(Object.keys(data).length);
         addUrl(url, 'Cells');
@@ -88,7 +90,8 @@ export function useCellSetsData(
     if (loaders[dataset].loaders['cell-sets']) {
       // Load the data initially.
       loaders[dataset].loaders['cell-sets'].load().catch(warn).then((payload) => {
-        const { data, url } = payload || {};
+        if (!payload) return;
+        const { data, url } = payload;
         setCellSets(data);
         addUrl(url, 'Cell Sets');
         if (onLoad) {
@@ -142,7 +145,9 @@ export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl
     }
 
     if (loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].load().catch(warn).then(({ data, url }) => {
+      loaders[dataset].loaders['expression-matrix'].load().catch(warn).then((payload) => {
+        if (!payload) return;
+        const { data, url } = payload;
         const [attrs, arr] = data;
         setExpressionMatrix({
           cols: attrs.cols,
@@ -200,7 +205,9 @@ export function useMoleculesData(
     }
 
     if (loaders[dataset].loaders.molecules) {
-      loaders[dataset].loaders.molecules.load().catch(warn).then(({ data, url }) => {
+      loaders[dataset].loaders.molecules.load().catch(warn).then((payload) => {
+        if (!payload) return;
+        const { data, url } = payload;
         setMolecules(data);
         setMoleculesCount(Object.keys(data).length);
         setLocationsCount(Object.values(data)
@@ -258,7 +265,9 @@ export function useNeighborhoodsData(
     }
 
     if (loaders[dataset].loaders.neighborhoods) {
-      loaders[dataset].loaders.neighborhoods.load().then(({ data, url }) => {
+      loaders[dataset].loaders.neighborhoods.load().catch(warn).then((payload) => {
+        if (!payload) return;
+        const { data, url } = payload;
         setNeighborhoods(data);
         addUrl(url, 'Neighborhoods');
         if (onLoad) {
@@ -316,7 +325,9 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
     }
 
     if (loaders[dataset].loaders.raster) {
-      loaders[dataset].loaders.raster.load().then(({ data, urls }) => {
+      loaders[dataset].loaders.raster.load().catch(warn).then((payload) => {
+        if (!payload) return;
+        const { data, urls } = payload;
         setRaster(data);
         urls.forEach(([url, name]) => {
           addUrl(url, name);

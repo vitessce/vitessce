@@ -17,8 +17,9 @@ function createLoaders(datasets) {
     dataset.files.forEach((file) => {
       const matchingLoaderClass = fileTypeToLoader[file.fileType];
       if (!matchingLoaderClass) {
-        // TODO: remove `name` from loaders and loader error arguments.
-        datasetLoaders.loaders[file.type] = new LoaderNotFoundError('null', file.type, file.fileType, file.url);
+        datasetLoaders.loaders[file.type] = new LoaderNotFoundError(
+          file.type, file.fileType, file.url,
+        );
       } else {
         // eslint-disable-next-line new-cap
         datasetLoaders.loaders[file.type] = new matchingLoaderClass(file);

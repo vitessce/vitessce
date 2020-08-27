@@ -60,6 +60,7 @@ export default function SpatialSubscriber(props) {
     setSpatialLayers: setLayers,
     setCellFilter,
     setCellSelection,
+    setCellSetSelection,
     setCellHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
@@ -189,7 +190,10 @@ export default function SpatialSubscriber(props) {
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}
-        setCellSelection={setCellSelection}
+        setCellSelection={(v) => {
+          setCellSetSelection(null);
+          setCellSelection(v);
+        }}
         setCellHighlight={setCellHighlight}
         updateViewInfo={updateViewInfo}
       />

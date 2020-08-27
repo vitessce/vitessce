@@ -59,6 +59,7 @@ import { nodeToRenderProps } from './reducer';
 export default function SetsManager(props) {
   const {
     tree,
+    checkedLevel,
     datatype,
     draggable = true,
     checkable = true,
@@ -116,8 +117,8 @@ export default function SetsManager(props) {
         exportable={exportable}
 
         isChecking={tree._state.isChecking}
-        checkedLevelKey={tree._state.checkedLevel.levelZeroKey}
-        checkedLevelIndex={tree._state.checkedLevel.levelIndex}
+        checkedLevelKey={checkedLevel ? checkedLevel.levelZeroKey : null}
+        checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
 
         onCheckNode={onCheckNode}
         onCheckLevel={onCheckLevel}

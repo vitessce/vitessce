@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
@@ -172,9 +172,6 @@ function NamedSetNodeEditing(props) {
     onNodeCheckNewName,
   } = props;
   const [currentTitle, setCurrentTitle] = useState(title);
-  useEffect(() => {
-    setCurrentTitle(title);
-  }, [title]);
 
   // Do not allow the user to save a potential name if it conflicts with
   // another name in the hierarchy.
