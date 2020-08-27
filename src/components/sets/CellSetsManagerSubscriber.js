@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useEffect,
   useReducer,
@@ -121,7 +120,8 @@ export default function CellSetsManagerSubscriber(props) {
     }
     // Only create a new set if the new set is different than the current selection.
     const [visibleCells] = treeToVisibleCells(tree);
-    // Do not create a new set if the selected cells are the same as the currently visible cells.
+    // Only create a new set if the new set is coming from the lasso or rectangle selection tools,
+    // which explicitly set `cellSetSelection = null` so that we can detect it here.
     if (cellSetSelection === null && !isEqual(visibleCells, cellSelection)) {
       dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: cellSelection, publish: true });
     }
@@ -150,13 +150,24 @@ export default function CellSetsManagerSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tree]);
 
-  // Try to set up the selected sets array automatically if null or undefined.
+  // Try to set up the selected sets array automatically if undefined.
   useEffect(() => {
-    if (isReady && cellSetSelection === undefined && cellSelection === undefined && initializeSelection) {
+    // Need to check for `undefined` specifically because the selection tools (lasso / rectangle)
+    // use `cellSelection = null` as a special way to inform this component
+    // that the selection is coming from a tool.
+    if (
+      isReady
+      && cellSetSelection === undefined
+      && cellSelection === undefined
+      && initializeSelection
+    ) {
       setCellSetSelection(autoSetSelections);
     }
-  }, [autoSetSelections, isReady, cellSetSelection, cellSelection, setCellSetSelection, initializeSelection]);
+  }, [autoSetSelections, isReady, cellSetSelection, cellSelection,
+    setCellSetSelection, initializeSelection]);
 
+  // We want the "checked level" radio button to be initialized even when
+  // the tree object may not explicitly have the `._state.checkedLevel` set up.
   const checkedLevel = useMemo(() => {
     if (cellSetSelection && tree) {
       return treeToExpectedCheckedLevel(tree, cellSetSelection);
