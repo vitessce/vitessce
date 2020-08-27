@@ -22,14 +22,17 @@
             "type": "object",
             "description": "Component-level coordination scope mappings define which coordination object values a particular component can read and write, for each coordination type.",
             "additionalProperties": false,
-            "patternProperties": {
+            "required": [],
+            "properties": {
               "dataset": { "type": "string" },
               "embeddingType": { "type": "string" },
               "embeddingZoom": { "type": "string" },
+              "embeddingRotation": { "type": "string" },
               "embeddingTargetX": { "type": "string" },
               "embeddingTargetY": { "type": "string" },
               "embeddingTargetZ": { "type": "string" },
               "spatialZoom": { "type": "string" },
+              "spatialRotation": { "type": "string" },
               "spatialTargetX": { "type": "string" },
               "spatialTargetY": { "type": "string" },
               "spatialTargetZ": { "type": "string" },
@@ -103,6 +106,7 @@
       "description": "The datasets array defines groups of files, where the files within each dataset reference the same entities (cells, genes, cell sets, etc).",
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["uid", "files"],
         "properties": {
           "uid": { "type": "string" },
@@ -129,7 +133,8 @@
       "type": "object",
       "description": "The coordination space stores the values for each scope of each coordination object.",
       "additionalProperties": false,
-      "patternProperties": {
+      "required": [],
+      "properties": {
         "dataset": {
           "type": "object",
           "patternProperties": {
@@ -137,6 +142,12 @@
           }
         },
         "embeddingZoom": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "embeddingRotation": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "number" }
@@ -167,6 +178,12 @@
           }
         },
         "spatialZoom": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "spatialRotation": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "number" }
