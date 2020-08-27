@@ -325,7 +325,7 @@
     },
     "layout": { "$ref": "#/definitions/components" },
     "initStrategy": {
-      "type": "string", "enum": ["none", "auto", "dataset-comparison"],
+      "type": "string", "enum": ["none", "auto"],
       "description": "The initialization strategy determines how missing coordination objects and coordination scope mappings are initially filled in."
     },
     "version": {

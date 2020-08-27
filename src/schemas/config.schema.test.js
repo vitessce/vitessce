@@ -7,11 +7,11 @@ describe('view config schema', () => {
     it('defines schema for all valid coordination types', () => {
       const allCoordinationTypes = Object.values(COORDINATION_TYPES);
       const inCoordinationSpace = Object.keys(
-        viewConfigSchema.properties.coordinationSpace.patternProperties,
+        viewConfigSchema.properties.coordinationSpace.properties,
       );
       const inCoordinationScopes = Object.keys(
         viewConfigSchema.definitions.components.items.properties
-          .coordinationScopes.patternProperties,
+          .coordinationScopes.properties,
       );
 
       expect(inCoordinationSpace).toEqual(expect.arrayContaining(allCoordinationTypes));
@@ -21,11 +21,11 @@ describe('view config schema', () => {
     it('defines schema for only valid coordination types (does not have extra)', () => {
       const allCoordinationTypes = Object.values(COORDINATION_TYPES);
       const inCoordinationSpace = Object.keys(
-        viewConfigSchema.properties.coordinationSpace.patternProperties,
+        viewConfigSchema.properties.coordinationSpace.properties,
       );
       const inCoordinationScopes = Object.keys(
         viewConfigSchema.definitions.components.items.properties
-          .coordinationScopes.patternProperties,
+          .coordinationScopes.properties,
       );
 
       expect(allCoordinationTypes).toEqual(expect.arrayContaining(inCoordinationSpace));

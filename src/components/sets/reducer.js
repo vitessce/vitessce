@@ -653,6 +653,49 @@ function nodeTransformChildOrAppendChild(node,
 }
 
 /**
+ * Check whether a new potential node name already exists in the node
+ * or its descendants.
+ * @param {object} node A tree node.
+ * @param {string[]} potentialNamePath The new name to check.
+ * @param {number} currLevelIndex The level of the path currently
+ * being checked.
+ * @param {string} fromKey A key to ignore (never creates conflict). Optional.
+ * @returns {boolean} Returns true if there are conflicts, false otherwise.
+ */
+function nodeCheckNamePathConflicts(node, potentialNamePath, currLevelIndex, fromKey = null) {
+  if (fromKey !== null && node._state.key === fromKey) {
+    return false;
+  }
+  const potentialNodeName = potentialNamePath[currLevelIndex];
+  if (node.name === potentialNodeName) {
+    if (currLevelIndex === potentialNamePath.length - 1) {
+      return true;
+    }
+    if (node.children) {
+      const childrenHaveConflicts = node.children
+        .map(child => nodeCheckNamePathConflicts(
+          child, potentialNamePath, currLevelIndex + 1, fromKey,
+        ));
+      return childrenHaveConflicts.some(x => x);
+    }
+  }
+  return false;
+}
+
+/**
+ * Check whether a new potential node name already exists in the tree.
+ * @param {object} currTree A tree object.
+ * @param {string[]} potentialNamePath The new name to check.
+ * @param {string} fromKey A key to ignore (never creates conflict). Optional.
+ * @returns {boolean} Returns true if there are conflicts, false otherwise.
+ */
+function treeCheckNamePathConflicts(currTree, potentialNamePath, fromKey = null) {
+  const levelZeroNodesHaveConflicts = currTree.tree
+    .map(levelZeroNode => nodeCheckNamePathConflicts(levelZeroNode, potentialNamePath, 0, fromKey));
+  return levelZeroNodesHaveConflicts.some(x => x);
+}
+
+/**
  * Set the set associated with the node flagged as ._state.isCurrent,
  * under the level zero node flagged as ._state.isForTools.
  * If no .isForTools level zero node exists, then this function will add one.
@@ -684,11 +727,11 @@ function treeSetCurrentSet(currTree, cellIds, potentialName = CURRENT_SELECTION_
   const cellIdsWithProb = cellIds.map(cellId => ([cellId, null]));
 
   const nameParts = [potentialName, 1];
-  while (treeCheckNamePathConflicts(currTree, [toolsNode.name, nameParts.join(" ")])) {
+  while (treeCheckNamePathConflicts(currTree, [toolsNode.name, nameParts.join(' ')])) {
     // eslint-disable-next-line no-plusplus
     nameParts[1]++;
   }
-  const name = nameParts.join(" ");
+  const name = nameParts.join(' ');
 
   newTree = {
     ...newTree,
@@ -1110,15 +1153,18 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   // name among its new siblings.
   let hasSiblingNameConflict;
   const dragNodeName = dragNode.name;
-  if(!dropNodeIsLevelZero) {
-    hasSiblingNameConflict = dropParentNode.children.find(c => c.name === dragNodeName && c._state.key !== dragKey);
-  } else if(dropNodeIsLevelZero && !dropToGap) {
-    hasSiblingNameConflict = dropNode.children.find(c => c.name === dragNodeName && c._state.key !== dragKey);
+  if (!dropNodeIsLevelZero) {
+    hasSiblingNameConflict = dropParentNode.children
+      .find(c => c.name === dragNodeName && c._state.key !== dragKey);
+  } else if (dropNodeIsLevelZero && !dropToGap) {
+    hasSiblingNameConflict = dropNode.children
+      .find(c => c.name === dragNodeName && c._state.key !== dragKey);
   } else {
-    hasSiblingNameConflict = currTree.tree.find(lzn => lzn.name === dragNodeName && lzn._state.key !== dragKey);
+    hasSiblingNameConflict = currTree.tree
+      .find(lzn => lzn.name === dragNodeName && lzn._state.key !== dragKey);
   }
 
-  if(hasSiblingNameConflict) {
+  if (hasSiblingNameConflict) {
     return currTree;
   }
 
@@ -1649,47 +1695,8 @@ function treePublish(currTree) {
 }
 
 /**
- * 
- * @param {object} node 
- * @param {string[]} potentialNamePath 
- * @param {number} currLevelIndex
- * @param {string} fromKey A key to ignore (never creates conflict). Optional.
- * @returns {boolean}
- */
-function nodeCheckNamePathConflicts(node, potentialNamePath, currLevelIndex, fromKey = null) {
-  if(fromKey !== null && node._state.key === fromKey) {
-    return false;
-  }
-  const potentialNodeName = potentialNamePath[currLevelIndex];
-  if (node.name === potentialNodeName) {
-    if (currLevelIndex === potentialNamePath.length - 1) {
-      return true;
-    }
-    if (node.children) {
-      const childrenHaveConflicts = node.children
-        .map(child => nodeCheckNamePathConflicts(child, potentialNamePath, currLevelIndex + 1, fromKey));
-      return childrenHaveConflicts.some(x => x);
-    }
-  }
-  return false;
-}
-
-/**
- * 
- * @param {object} currTree 
- * @param {string[]} potentialNamePath 
- * @param {string} fromKey A key to ignore (never creates conflict). Optional.
- * @returns {boolean}
- */
-function treeCheckNamePathConflicts(currTree, potentialNamePath, fromKey = null) {
-  const levelZeroNodesHaveConflicts = currTree.tree
-    .map(levelZeroNode => nodeCheckNamePathConflicts(levelZeroNode, potentialNamePath, 0, fromKey));
-  return levelZeroNodesHaveConflicts.some(x => x);
-}
-
-/**
- * 
- * @param {object} currTree 
+ *
+ * @param {object} currTree
  * @param {string} potentialNewName The potential new name for the node.
  * @param {string} nodeKey The unique key of the node to check.
  */
@@ -1698,7 +1705,6 @@ export function treeCheckNameConflictsByKey(currTree, potentialNewName, nodeKey)
   namePath.pop();
   return treeCheckNamePathConflicts(currTree, [...namePath, potentialNewName], nodeKey);
 }
-
 
 
 /**
