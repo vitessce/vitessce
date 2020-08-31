@@ -1,7 +1,9 @@
 /* eslint-disable no-plusplus */
 import {
-  COORDINATION_TYPES, DEFAULT_COORDINATION_VALUES,
+  COORDINATION_TYPES,
+  DEFAULT_COORDINATION_VALUES,
   COMPONENT_COORDINATION_TYPES,
+  AUTO_INDEPENDENT_COORDINATION_TYPES,
 } from './state/coordination';
 
 /**
@@ -157,29 +159,14 @@ function coordinateComponentsIndependent(config, coordinationType, scopeValue) {
 
 function initializeAuto(config) {
   let newConfig = config;
-
-  // The following coordination types should be
-  // initialized to independent scopes when
-  // initialized automatically.
-  const AUTO_INDEPENDENT_COORDINATION_TYPES = [
-    COORDINATION_TYPES.SPATIAL_ZOOM,
-    COORDINATION_TYPES.SPATIAL_TARGET_X,
-    COORDINATION_TYPES.SPATIAL_TARGET_Y,
-    COORDINATION_TYPES.SPATIAL_TARGET_Z,
-    COORDINATION_TYPES.HEATMAP_ZOOM_X,
-    COORDINATION_TYPES.HEATMAP_ZOOM_Y,
-    COORDINATION_TYPES.HEATMAP_TARGET_X,
-    COORDINATION_TYPES.HEATMAP_TARGET_Y,
-    COORDINATION_TYPES.EMBEDDING_ZOOM,
-    COORDINATION_TYPES.EMBEDDING_TARGET_X,
-    COORDINATION_TYPES.EMBEDDING_TARGET_Y,
-    COORDINATION_TYPES.EMBEDDING_TARGET_Z,
-  ];
+  const { layout, datasets } = newConfig;
 
   // For each coordination type, check whether it requires initialization.
   Object.values(COORDINATION_TYPES).forEach((coordinationType) => {
     // A coordination type requires coordination if at least one component is missing
-    const requiresCoordination = !newConfig.layout
+    // a (coordination type, coordination scope) tuple.
+    // Components may only use a subset of all coordination types.
+    const requiresCoordination = !layout
       .every(c => (
         !COMPONENT_COORDINATION_TYPES[c.component].includes(coordinationType)
                 || c.coordinationScopes?.[coordinationType]
@@ -188,11 +175,16 @@ function initializeAuto(config) {
       // Note that the default value may be undefined.
       let defaultValue = DEFAULT_COORDINATION_VALUES[coordinationType];
       // Check whether this is the special 'dataset' coordination type.
-      if (coordinationType === 'dataset' && newConfig.datasets.length >= 1) {
+      if (coordinationType === 'dataset' && datasets.length >= 1) {
         // Use the first dataset ID as the default
         // if there is at least one dataset.
-        defaultValue = newConfig.datasets[0].uid;
+        defaultValue = datasets[0].uid;
       }
+      // Use the list of "independent" coordination types
+      // to determine whether a particular coordination type
+      // should be initialized to
+      // a unique scope for every component ("independent")
+      // vs. the same scope for every component ("together").
       if (AUTO_INDEPENDENT_COORDINATION_TYPES.includes(coordinationType)) {
         newConfig = coordinateComponentsIndependent(newConfig, coordinationType, defaultValue);
       } else {

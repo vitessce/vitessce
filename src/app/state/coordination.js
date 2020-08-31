@@ -64,6 +64,27 @@ export const DEFAULT_COORDINATION_VALUES = {
   [COORDINATION_TYPES.GENOMIC_TARGET_Y]: 1549999999.5,
 };
 
+// The following coordination types should be
+// initialized to independent scopes when
+// initialized automatically.
+// These make the resulting view config
+// (after auto-initialization) behave
+// like "legacy" Vitessce (pre-coordination model).
+export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
+  COORDINATION_TYPES.SPATIAL_ZOOM,
+  COORDINATION_TYPES.SPATIAL_TARGET_X,
+  COORDINATION_TYPES.SPATIAL_TARGET_Y,
+  COORDINATION_TYPES.SPATIAL_TARGET_Z,
+  COORDINATION_TYPES.HEATMAP_ZOOM_X,
+  COORDINATION_TYPES.HEATMAP_ZOOM_Y,
+  COORDINATION_TYPES.HEATMAP_TARGET_X,
+  COORDINATION_TYPES.HEATMAP_TARGET_Y,
+  COORDINATION_TYPES.EMBEDDING_ZOOM,
+  COORDINATION_TYPES.EMBEDDING_TARGET_X,
+  COORDINATION_TYPES.EMBEDDING_TARGET_Y,
+  COORDINATION_TYPES.EMBEDDING_TARGET_Z,
+];
+
 /**
    * Mapping from component type to
    * supported coordination object types.
