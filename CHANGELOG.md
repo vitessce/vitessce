@@ -3,6 +3,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [0.2.5](https://www.npmjs.com/package/vitessce/v/0.2.5) - 2020-08-31
+
+### Added
 - Add contributor information to homepage.
 
 ### Changed
