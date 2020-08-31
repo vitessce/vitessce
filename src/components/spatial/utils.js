@@ -14,6 +14,16 @@ export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
 
+/**
+ * Sort spatial layer definition array,
+ * to keep the ordering in the layer controller
+ * consistent.
+ * Intended to be used with auto-initialized layer
+ * definition arrays only, as a pre-defined layer array
+ * should not be re-ordered.
+ * @param {object[]} layers Array of layer definition objects.
+ * Object must have a .type property.
+ */
 export function sortLayers(layers) {
   return layers.sort((a, b) => (
     DEFAULT_LAYER_TYPE_ORDERING.indexOf(a.type) - DEFAULT_LAYER_TYPE_ORDERING.indexOf(b.type)
@@ -123,6 +133,26 @@ export async function initializeLayerChannels(loader) {
   return result;
 }
 
+/**
+ * A user may want to use pre-defined channels of interest
+ * (defined in a `spatialLayers` coordination object),
+ * but wants to allow Vitessce to auto-initialize the
+ * sliders, colors, and/or domains for those channels.
+ * This function allows those channel properties to
+ * be initialized.
+ * @param {object[]} layerDefsOrig The original array
+ * of user-defined layer definitions, which must contain
+ * an array of channel definitions with the .selection
+ * property, but may be missing the .domain, .color, .visible,
+ * or .slider properties.
+ * @param {object} loaders Mapping from layer index to loader
+ * instance.
+ * @returns {Promise<array>} A tuple of [newLayerDefs, didInitialize],
+ * where newLayerDefs is an array of the layers which contains
+ * initialized channel properties,
+ * and didInitialize is a boolean value indicating whether any
+ * channels were initialized.
+ */
 export async function initializeLayerChannelsIfMissing(layerDefsOrig, loaders) {
   const layerDefs = cloneDeep(layerDefsOrig);
   const newLayerDefPromises = [];
