@@ -5,9 +5,9 @@ import { fromEntries, capitalize } from '../../utils';
 /**
  * The useStore hook here is initialized via the zustand
  * create() function, which sets up both the state variables
- * and the reducer-type functions. For some reason
- * create() returns an array with one item [useStore].
+ * and the reducer-type functions.
  * Reference: https://github.com/react-spring/zustand
+ * @returns {function} The useStore hook.
  */
 export const useStore = create(set => ({
   viewConfig: null,
