@@ -30,7 +30,7 @@ describe('Vitessce', () => {
   it('has title, blurb, and link to "Please wait"', () => {
     cy.visit('/?show=all');
     cy.contains('Vitessce');
-    cy.contains('This is a demo');
+    cy.contains('Its modular design is optimized');
     cy.contains('just scatterplot as component'); // Not public; requires "show=all".
     cy.contains('Linnarsson as component')
       .click();
