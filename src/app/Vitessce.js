@@ -47,6 +47,11 @@ export default function Vitessce(props) {
     onLoaderChange,
   } = props;
 
+  // Process the view config and memoize the result:
+  // - Validate.
+  // - Upgrade, if legacy schema.
+  // - Validate after upgrade, if legacy schema.
+  // - Initialize (based on initStrategy).
   const [configOrWarning, success] = useMemo(() => {
     // If the config value is undefined, show a warning message.
     if (!config) {

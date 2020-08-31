@@ -10,8 +10,9 @@ describe('VitessceGrid.js', () => {
   describe('<VitessceGrid />', () => {
     it('renders', () => {
       const config = {
+        version: '1.0.0',
         description: 'fake description',
-        layers: [],
+        datasets: [],
         name: 'fake name',
         layout: [
           {
