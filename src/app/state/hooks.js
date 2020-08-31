@@ -10,8 +10,15 @@ import { fromEntries, capitalize } from '../../utils';
  * @returns {function} The useStore hook.
  */
 export const useStore = create(set => ({
+  // State:
+  // The viewConfig is an object which must conform to the schema
+  // found in src/schemas/config.schema.json.
   viewConfig: null,
+  // The loaders object is a mapping from dataset ID to
+  // data type to loader object instance.
   loaders: {},
+  // Reducer functions which update the state
+  // (although technically also part of state):
   setViewConfig: viewConfig => set({ viewConfig }),
   setCoordinationValue: ({ parameter, scope, value }) => set(state => ({
     viewConfig: {
@@ -71,6 +78,12 @@ export function useCoordination(parameters, coordinationScopes) {
   return [values, setters];
 }
 
+/**
+ * Obtain the loaders object from
+ * the global app state.
+ * @returns {object} The loaders object.
+ * in the `useStore` store.
+ */
 export function useLoaders() {
   return useStore(state => state.loaders);
 }
