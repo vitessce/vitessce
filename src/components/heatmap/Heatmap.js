@@ -364,7 +364,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
     new HeatmapCompositeTextLayer({
-      showLoadingIndicator: false,
       targetX,
       targetY,
       scaleFactor,
