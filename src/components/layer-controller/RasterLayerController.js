@@ -136,21 +136,16 @@ export default function RasterLayerController(props) {
   const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
     const loaderSelection = channels.map(channel => ({
       ...channel.selection,
-      selection,
+      ...selection,
     }));
     // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
     // we have to check mouseup.
     const mouseUp = event.type === 'mouseup';
-    const update = { selection };
     // Only update domains on a mouseup event for the same reason as above.
     const { domains, sliders } = mouseUp
       ? await getDomainsAndSliders(loader, loaderSelection, domainType)
-      : { domains: null, sliders: null };
-    if (domains) {
-      update.domain = domains;
-      update.slider = sliders;
-    }
-    const newChannels = channels.map(c => ({ ...c, ...update }));
+      : { domains: [], sliders: [] };
+    const newChannels = channels.map((c, i) => ({ ...c, domain: domains[i], slider: sliders[i], selection: { ...c.selection, ...selection } })); // eslint-disable-line
     if (mouseUp) {
       setChannels(newChannels);
     }
