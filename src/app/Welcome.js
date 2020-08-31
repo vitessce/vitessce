@@ -36,7 +36,7 @@ function Form(props) {
   const { configs, theme } = props;
   return (
     <form method="GET">
-      <h1> Vitessce</h1>
+      <h1>Vitessce</h1>
       <div>Select a dataset:</div>
       <DatasetList configs={configs} theme={theme} />
 
