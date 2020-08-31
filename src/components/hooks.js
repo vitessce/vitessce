@@ -92,14 +92,16 @@ export function useReady(supportedItems) {
   const setItemIsReady = useCallback((readyItem) => {
     setWaiting((waitingItems) => {
       const nextWaitingItems = waitingItems.filter(item => item !== readyItem);
-      console.warn(`cleared ${readyItem}; waiting on ${nextWaitingItems.length}: ${JSON.stringify(nextWaitingItems)}`);
+      // eslint-disable-next-line no-console
+      console.log(`cleared ${readyItem}; waiting on ${nextWaitingItems.length}: ${JSON.stringify(nextWaitingItems)}`);
       return nextWaitingItems;
     });
   }, [setWaiting]);
 
   const resetReadyItems = useCallback(() => {
     setWaiting(items);
-    console.warn(`waiting on ${items.length}: ${JSON.stringify(items)}`);
+    // eslint-disable-next-line no-console
+    console.log(`waiting on ${items.length}: ${JSON.stringify(items)}`);
   }, [setWaiting, items]);
 
   const isReady = waiting.length === 0;
