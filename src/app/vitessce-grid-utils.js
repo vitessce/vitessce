@@ -1,6 +1,5 @@
-/* eslint-disable */
 import {
-    useState, useEffect, useRef,
+  useState, useEffect, useRef,
 } from 'react';
 
 /**
@@ -10,16 +9,16 @@ import {
  * @returns {number} Bottom coordinate.
  */
 function getNumRows(layout) {
-    let max = 0;
-    let bottomY;
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0, len = layout.length; i < len; i++) {
-      bottomY = layout[i].y + layout[i].h;
-      if (bottomY > max) max = bottomY;
-    }
-    return max;
+  let max = 0;
+  let bottomY;
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0, len = layout.length; i < len; i++) {
+    bottomY = layout[i].y + layout[i].h;
+    if (bottomY > max) max = bottomY;
+  }
+  return max;
 }
-  
+
 /**
  * Compute the row height based on the container height, number of rows,
  * and margin/padding. Basically the reverse of the react-grid-layout's
@@ -32,22 +31,22 @@ function getNumRows(layout) {
  * @returns {number} The new row height value.
  */
 function getRowHeight(containerHeight, numRows, margin, padding) {
-    const effectiveContainerHeight = containerHeight - 2 * padding - (numRows - 1) * margin;
-    return effectiveContainerHeight / numRows;
+  const effectiveContainerHeight = containerHeight - 2 * padding - (numRows - 1) * margin;
+  return effectiveContainerHeight / numRows;
 }
 
 export function useRowHeight(config, initialRowHeight, height, margin, padding) {
-    const [containerHeight, setContainerHeight] = useState(height);
-    const [rowHeight, setRowHeight] = useState(initialRowHeight);
-    const containerRef = useRef();
+  const [containerHeight, setContainerHeight] = useState(height);
+  const [rowHeight, setRowHeight] = useState(initialRowHeight);
+  const containerRef = useRef();
 
-    // Detect when the `config` or `containerHeight` variables
+  // Detect when the `config` or `containerHeight` variables
   // have changed, and update `rowHeight` in response.
   useEffect(() => {
     const numRows = getNumRows(config.layout);
     const newRowHeight = getRowHeight(containerHeight, numRows, margin, padding);
     setRowHeight(newRowHeight);
-  }, [containerHeight, config]);
+  }, [containerHeight, config, margin, padding]);
 
   // Update the `containerHeight` state when the `height` prop has changed.
   useEffect(() => {
@@ -80,5 +79,5 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
   }, [containerRef, height]);
 
 
-    return [rowHeight, containerRef];
+  return [rowHeight, containerRef];
 }
