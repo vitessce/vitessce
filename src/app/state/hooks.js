@@ -16,10 +16,11 @@ export const useStore = create(set => ({
   viewConfig: null,
   // The loaders object is a mapping from dataset ID to
   // data type to loader object instance.
-  loaders: {},
+  loaders: null,
   // Reducer functions which update the state
   // (although technically also part of state):
   setViewConfig: viewConfig => set({ viewConfig }),
+  setLoaders: loaders => set({ loaders }),
   setCoordinationValue: ({ parameter, scope, value }) => set(state => ({
     viewConfig: {
       ...state.viewConfig,
@@ -32,7 +33,6 @@ export const useStore = create(set => ({
       },
     },
   })),
-  setLoaders: loaders => set({ loaders }),
 }));
 
 /**

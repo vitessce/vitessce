@@ -8,7 +8,7 @@ import { GRID_RESIZE, STATUS_WARN } from '../events';
 
 import { VitessceGridLayout } from './vitessce-grid-layout';
 import { useStore } from './state/hooks';
-import { useRowHeight } from './vitessce-grid-utils';
+import { useRowHeight, createLoaders } from './vitessce-grid-utils';
 
 const padding = 10;
 const margin = 5;
@@ -53,10 +53,19 @@ export default function VitessceGrid(props) {
   }, [onWarn]);
 
   const setViewConfig = useStore(state => state.setViewConfig);
+  const setLoaders = useStore(state => state.setLoaders);
 
+  // Update the view config and loaders in the global state.
   useEffect(() => {
-    setViewConfig(config);
-  }, [config, setViewConfig]);
+    if (config) {
+      setViewConfig(config);
+      const loaders = createLoaders(config.datasets);
+      setLoaders(loaders);
+    } else {
+      // No config found, so clear the loaders.
+      setLoaders({});
+    }
+  }, [config, setViewConfig, setLoaders]);
 
   return (
     <div

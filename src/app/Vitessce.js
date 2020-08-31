@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Ajv from 'ajv';
 import {
   ThemeProvider, StylesProvider,
@@ -10,7 +10,6 @@ import { muiTheme } from '../components/shared-mui/styles';
 import configSchema from '../schemas/config.schema.json';
 import legacyConfigSchema from '../schemas/config-legacy.schema.json';
 
-import DatasetLoaderProvider from './DatasetLoaderProvider';
 import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
 import ViewConfigPublisher from './ViewConfigPublisher';
@@ -20,54 +19,6 @@ import { initialize, upgrade } from './view-config-utils';
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
 });
-
-
-function ValidVitessce(props) {
-  const {
-    config,
-    rowHeight,
-    height,
-    theme,
-    onWarn,
-    onConfigChange,
-    onLoaderChange,
-  } = props;
-
-  // Initialize the view config:
-  // - Fill in all missing coordination objects with default global values
-  // - Fill in all missing component coordination scope mappings
-  //   based on the initStrategy view config field.
-  const initializedConfig = initialize(config);
-
-  // Emit the initialized view config if it is different than the
-  // prop value.
-  useEffect(() => {
-    if (!isEqual(initializedConfig, config) && onConfigChange) {
-      onConfigChange(initializedConfig);
-    }
-  }, [initializedConfig, config, onConfigChange]);
-
-  return (
-    <StylesProvider generateClassName={generateClassName}>
-      <ThemeProvider theme={muiTheme[theme]}>
-        <DatasetLoaderProvider>
-          <VitessceGrid
-            config={initializedConfig}
-            getComponent={getComponent}
-            rowHeight={rowHeight}
-            height={height}
-            theme={theme}
-            onWarn={onWarn}
-          />
-          <ViewConfigPublisher
-            onConfigChange={onConfigChange}
-            onLoaderChange={onLoaderChange}
-          />
-        </DatasetLoaderProvider>
-      </ThemeProvider>
-    </StylesProvider>
-  );
-}
 
 /**
  * The Vitessce component.
@@ -88,67 +39,95 @@ function ValidVitessce(props) {
 export default function Vitessce(props) {
   const {
     config,
+    rowHeight,
+    height,
     theme,
+    onWarn,
+    onConfigChange,
+    onLoaderChange,
   } = props;
-  if (!config) {
+
+  const [configOrWarning, success] = useMemo(() => {
     // If the config value is undefined, show a warning message.
-    return (
-      <Warning
-        title="No such dataset"
-        unformatted="The dataset configuration could not be found."
-        theme={theme}
-      />
-    );
-  }
-  // If the view config is missing a version, show a warning message.
-  if (!config.version) {
-    return (
-      <Warning
-        title="Missing version"
-        unformatted="The dataset configuration is missing a version, preventing validation."
-        theme={theme}
-      />
-    );
-  }
-  // Check if this is a "legacy" view config.
-  let upgradedConfig = config;
-  if (config.version === '0.1.0') {
-    // Validate under the legacy schema first.
-    const validateLegacy = new Ajv().compile(legacyConfigSchema);
-    const validLegacy = validateLegacy(config);
-
-    if (!validLegacy) {
-      const failureReason = JSON.stringify(validateLegacy.errors, null, 2);
-      return (
-        <Warning
-          title="Config validation failed"
-          preformatted={failureReason}
-          theme={theme}
-        />
-      );
+    if (!config) {
+      return [{
+        title: 'No such dataset',
+        unformatted: 'The dataset configuration could not be found.',
+      }, false];
     }
-    // Upgrade from v0.1.0 to v1.0.0 before v1.0.0 schema validation.
-    upgradedConfig = upgrade(config);
-  }
+    // If the view config is missing a version, show a warning message.
+    if (!config.version) {
+      return [{
+        title: 'Missing version',
+        unformatted: 'The dataset configuration is missing a version, preventing validation.',
+      }, false];
+    }
+    // Check if this is a "legacy" view config.
+    let upgradedConfig = config;
+    if (config.version === '0.1.0') {
+      // Validate under the legacy schema first.
+      const validateLegacy = new Ajv().compile(legacyConfigSchema);
+      const validLegacy = validateLegacy(config);
 
-  // NOTE: Remove when a view config viewer/editor is available in UI.
-  console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) view configuration`);
-  console.info(`data:,${JSON.stringify(upgradedConfig)}`);
-  console.info(JSON.stringify(upgradedConfig, null, 2));
-  console.groupEnd();
-  const validate = new Ajv().compile(configSchema);
-  const valid = validate(upgradedConfig);
+      if (!validLegacy) {
+        const failureReason = JSON.stringify(validateLegacy.errors, null, 2);
+        return [{
+          title: 'Config validation failed',
+          preformatted: failureReason,
+        }, false];
+      }
+      // Upgrade from v0.1.0 to v1.0.0 before v1.0.0 schema validation.
+      upgradedConfig = upgrade(config);
+    }
+    // NOTE: Remove when a view config viewer/editor is available in UI.
+    console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) view configuration`);
+    console.info(`data:,${JSON.stringify(upgradedConfig)}`);
+    console.info(JSON.stringify(upgradedConfig, null, 2));
+    console.groupEnd();
+    const validate = new Ajv().compile(configSchema);
+    const valid = validate(upgradedConfig);
 
-  if (!valid) {
-    const failureReason = JSON.stringify(validate.errors, null, 2);
-    return (
-      <Warning
-        title="Config validation failed"
-        preformatted={failureReason}
-        theme={theme}
-      />
-    );
-  }
+    if (!valid) {
+      const failureReason = JSON.stringify(validate.errors, null, 2);
+      return [{
+        title: 'Config validation failed',
+        preformatted: failureReason,
+      }, false];
+    }
+    // Initialize the view config according to the initStrategy.
+    const initializedConfig = initialize(upgradedConfig);
+    return [initializedConfig, true];
+  }, [config]);
 
-  return <ValidVitessce {...props} config={upgradedConfig} />;
+  // Emit the upgraded/initialized view config
+  // to onConfigChange if necessary.
+  useEffect(() => {
+    if (success && !isEqual(configOrWarning, config) && onConfigChange) {
+      onConfigChange(configOrWarning);
+    }
+  }, [success, config, configOrWarning, onConfigChange]);
+
+  return success ? (
+    <StylesProvider generateClassName={generateClassName}>
+      <ThemeProvider theme={muiTheme[theme]}>
+        <VitessceGrid
+          config={configOrWarning}
+          getComponent={getComponent}
+          rowHeight={rowHeight}
+          height={height}
+          theme={theme}
+          onWarn={onWarn}
+        />
+        <ViewConfigPublisher
+          onConfigChange={onConfigChange}
+          onLoaderChange={onLoaderChange}
+        />
+      </ThemeProvider>
+    </StylesProvider>
+  ) : (
+    <Warning
+      theme={theme}
+      {...configOrWarning}
+    />
+  );
 }

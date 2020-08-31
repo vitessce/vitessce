@@ -1,6 +1,8 @@
 import {
   useState, useEffect, useRef,
 } from 'react';
+import { fileTypeToLoader } from '../loaders/types';
+import JsonLoader from '../loaders/JsonLoader';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -80,4 +82,28 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
 
 
   return [rowHeight, containerRef];
+}
+
+/**
+ * Create a mapping from dataset ID to loader objects by data type.
+ * @param {object[]} datasets The datasets array from the view config.
+ * @returns {object} Mapping from dataset ID to data type to loader
+ * instance.
+ */
+export function createLoaders(datasets) {
+  const result = {};
+  datasets.forEach((dataset) => {
+    const datasetLoaders = {
+      name: dataset.name,
+      loaders: {},
+    };
+    dataset.files.forEach((file) => {
+      // Fall back to JsonLoader if a loader is not found for the file type.
+      const matchingLoaderClass = fileTypeToLoader[file.fileType] || JsonLoader;
+      // eslint-disable-next-line new-cap
+      datasetLoaders.loaders[file.type] = new matchingLoaderClass(file);
+    });
+    result[dataset.uid] = datasetLoaders;
+  });
+  return result;
 }
