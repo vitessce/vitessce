@@ -12,7 +12,7 @@ import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
-import { useCoordination } from '../../app/state/hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
@@ -20,7 +20,6 @@ const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 export default function ScatterplotSubscriber(props) {
   const {
     uuid,
-    loaders,
     coordinationScopes,
     removeGridComponent,
     theme,
@@ -28,6 +27,8 @@ export default function ScatterplotSubscriber(props) {
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
   } = props;
+
+  const loaders = useLoaders();
 
   // Get "props" from the coordination space.
   const [{

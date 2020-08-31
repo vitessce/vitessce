@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useReady } from '../hooks';
 import { useRasterData } from '../data-hooks';
-import { useCoordination } from '../../app/state/hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Description from './Description';
@@ -10,12 +10,13 @@ const DESCRIPTION_DATA_TYPES = ['raster'];
 
 export default function DescriptionSubscriber(props) {
   const {
-    loaders,
     coordinationScopes,
     description,
     removeGridComponent,
     theme,
   } = props;
+
+  const loaders = useLoaders();
 
   // Get "props" from the coordination space.
   const [{

@@ -10,7 +10,7 @@ import packageJson from '../../../package.json';
 import {
   STATUS_WARN,
 } from '../../events';
-import { useCoordination } from '../../app/state/hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
@@ -56,12 +56,13 @@ const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
  */
 export default function CellSetsManagerSubscriber(props) {
   const {
-    loaders,
     coordinationScopes,
     removeGridComponent,
     initializeSelection = true,
     theme,
   } = props;
+
+  const loaders = useLoaders();
 
   // Get "props" from the coordination space.
   const [{

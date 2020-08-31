@@ -17,7 +17,7 @@ import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle, initializeLayerChannelsIfMissing, sortLayers } from './utils';
 import { DEFAULT_MOLECULES_LAYER, DEFAULT_CELLS_LAYER } from './constants';
-import { useCoordination } from '../../app/state/hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SPATIAL_DATA_TYPES = [
@@ -27,7 +27,6 @@ const SPATIAL_DATA_TYPES = [
 export default function SpatialSubscriber(props) {
   const {
     uuid,
-    loaders,
     coordinationScopes,
     removeGridComponent,
     observationsLabelOverride: observationsLabel = 'cell',
@@ -37,6 +36,8 @@ export default function SpatialSubscriber(props) {
     theme,
     disableTooltip = false,
   } = props;
+
+  const loaders = useLoaders();
 
   // Get "props" from the coordination space.
   const [{

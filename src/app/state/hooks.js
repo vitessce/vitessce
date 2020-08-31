@@ -11,6 +11,7 @@ import { fromEntries, capitalize } from '../../utils';
  */
 export const useStore = create(set => ({
   viewConfig: null,
+  loaders: {},
   setViewConfig: viewConfig => set({ viewConfig }),
   setCoordinationValue: ({ parameter, scope, value }) => set(state => ({
     viewConfig: {
@@ -24,6 +25,7 @@ export const useStore = create(set => ({
       },
     },
   })),
+  setLoaders: loaders => set({ loaders }),
 }));
 
 /**
@@ -67,4 +69,8 @@ export function useCoordination(parameters, coordinationScopes) {
   }));
 
   return [values, setters];
+}
+
+export function useLoaders() {
+  return useStore(state => state.loaders);
 }

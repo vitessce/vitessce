@@ -1,6 +1,5 @@
-import { useEffect, useContext } from 'react';
-import { useStore } from './state/hooks';
-import { DatasetLoaderContext } from './state/contexts';
+import { useEffect } from 'react';
+import { useStore, useLoaders } from './state/hooks';
 
 /**
  * This is a dummy component which handles
@@ -19,7 +18,7 @@ export default function ViewConfigPublisher(props) {
   } = props;
 
   const viewConfig = useStore(state => state.viewConfig);
-  const loaders = useContext(DatasetLoaderContext);
+  const loaders = useLoaders();
 
   // Emit updates to the view config.
   useEffect(() => {

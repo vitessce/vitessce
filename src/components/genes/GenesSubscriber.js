@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
 import { useExpressionMatrixData } from '../data-hooks';
-import { useCoordination } from '../../app/state/hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 import TitleInfo from '../TitleInfo';
@@ -12,13 +12,14 @@ const GENES_DATA_TYPES = ['expression-matrix'];
 
 export default function GenesSubscriber(props) {
   const {
-    loaders,
     coordinationScopes,
     removeGridComponent,
     variablesLabelOverride: variablesLabel = 'gene',
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
   } = props;
+
+  const loaders = useLoaders();
 
   // Get "props" from the coordination space.
   const [{

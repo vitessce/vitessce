@@ -1,9 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import isEqual from 'lodash/isEqual';
 import { fileTypeToLoader } from '../loaders/types';
 import { LoaderNotFoundError } from '../loaders/errors/index';
 
-import { DatasetLoaderContext } from './state/contexts';
 import { useStore } from './state/hooks';
 
 // Create a mapping from dataset ID to loader objects by data type.
@@ -30,14 +29,13 @@ function createLoaders(datasets) {
   return result;
 }
 
+// TODO: move this logic somewhere else, perhaps VitessceGrid?
 export default function DatasetLoaderProvider(props) {
   const { children } = props;
 
   const datasets = useStore(state => state.viewConfig?.datasets);
+  const setLoaders = useStore(state => state.setLoaders);
 
-  // Want to store loaders in a mutable object,
-  // with mapping from dataset ID to data types and loaders.
-  const loadersRef = useRef({});
   // Need to have a state variable,
   // which will cause the provider to re-render
   // with the new ref value.
@@ -48,15 +46,11 @@ export default function DatasetLoaderProvider(props) {
       const newDefinitions = datasets;
       // Only need to update loaders if the dataset IDs have changed.
       if (!isEqual(definitions, newDefinitions)) {
-        loadersRef.current = createLoaders(newDefinitions);
+        setLoaders(createLoaders(newDefinitions));
         setDefinitions(newDefinitions);
       }
     }
-  }, [datasets, definitions]);
+  }, [datasets, definitions, setLoaders]);
 
-  return (
-    <DatasetLoaderContext.Provider value={loadersRef.current}>
-      {children}
-    </DatasetLoaderContext.Provider>
-  );
+  return children;
 }

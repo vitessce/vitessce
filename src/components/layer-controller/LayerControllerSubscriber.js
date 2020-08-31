@@ -7,7 +7,7 @@ import VectorLayerController from './VectorLayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady } from '../hooks';
 import { useRasterData } from '../data-hooks';
-import { useCoordination } from '../../app/state/hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
@@ -16,11 +16,12 @@ const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
 
 function LayerControllerSubscriber(props) {
   const {
-    loaders,
     coordinationScopes,
     removeGridComponent,
     theme,
   } = props;
+
+  const loaders = useLoaders();
 
   // Get "props" from the coordination space.
   const [{

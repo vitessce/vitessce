@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 import TitleInfo from '../TitleInfo';
-import { useCoordination } from '../../app/state/hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 import { useCellSetsData } from '../data-hooks';
@@ -21,11 +21,12 @@ const CELL_SET_SIZES_DATA_TYPES = ['cell-sets'];
  */
 export default function CellSetSizesPlotSubscriber(props) {
   const {
-    loaders,
     coordinationScopes,
     removeGridComponent,
     theme,
   } = props;
+
+  const loaders = useLoaders();
 
   // Get "props" from the coordination space.
   const [{

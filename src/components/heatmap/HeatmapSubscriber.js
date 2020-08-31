@@ -12,7 +12,7 @@ import { getCellColors } from '../interpolate-colors';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
-import { useCoordination } from '../../app/state/hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
@@ -20,7 +20,6 @@ const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 export default function HeatmapSubscriber(props) {
   const {
     uuid,
-    loaders,
     coordinationScopes,
     removeGridComponent, theme, transpose,
     observationsLabelOverride: observationsLabel = 'cell',
@@ -29,6 +28,8 @@ export default function HeatmapSubscriber(props) {
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     disableTooltip = false,
   } = props;
+
+  const loaders = useLoaders();
 
   // Get "props" from the coordination space.
   const [{
