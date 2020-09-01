@@ -193,7 +193,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['cells', 'cellFilter', 'cellSelection', 'cellColors'].some(shallowDiff)) {
+    if ([
+      'cells', 'cellFilter', 'cellSelection', 'cellColors', 'cellRadiusScale',
+    ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
       this.forceUpdate();
