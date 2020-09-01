@@ -34,3 +34,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2020-08-03: [master](https://s3.amazonaws.com/vitessce-data/demos/2020-08-03/5f87866/index.html)
 - 2020-08-04: [ilan-gold/release_0.2.3](https://s3.amazonaws.com/vitessce-data/demos/2020-08-04/9a53b08/index.html)
 - 2020-08-24: [master](https://s3.amazonaws.com/vitessce-data/demos/2020-08-24/599c45f/index.html)
+- 2020-08-31: [ilan-gold/v0.2.5](https://s3.amazonaws.com/vitessce-data/demos/2020-08-31/c6727b7/index.html)
