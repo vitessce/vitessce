@@ -58,6 +58,14 @@
 - Refactored the `Status` and `StatusSubscriber` components to move the `TitleInfo` child component out of `Status` and into `StatusSubscriber` to be consistent with the other subscriber components.
 
 
+## [0.2.5](https://www.npmjs.com/package/vitessce/v/0.2.5) - 2020-08-31
+
+### Added
+- Add contributor information to homepage.
+
+### Changed
+- Updated styling and text of homepage.
+
 ## [0.2.4](https://www.npmjs.com/package/vitessce/v/0.2.4) - 2020-08-24
 
 ### Added

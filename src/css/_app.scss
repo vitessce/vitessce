@@ -160,9 +160,9 @@
     }
 
     .welcome-col-left {
-        -ms-flex: 0 0 41.666667%;
-        flex: 0 0 41.666667%;
-        max-width: 41.666667%;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
 
         .list-group-item {
             background-color: map-get($theme-colors, "primary-background-highlight");
@@ -171,13 +171,25 @@
         .input-group input {
             background-color: map-get($theme-colors, "primary-background-input");
         }
+        a {
+            color: #ffffff;
+        }
     }
   
 
     .welcome-col-right {
-        -ms-flex: 0 0 58.333333%;
-        flex: 0 0 58.333333%;
-        max-width: 58.333333%;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+        .info-paragraph {
+            margin-bottom: 0 !important;
+        }
+        .info-section-text {
+            margin-top: 0.5rem
+        }
+        a {
+            color: #ffffff;
+        }
     }
   
 }
