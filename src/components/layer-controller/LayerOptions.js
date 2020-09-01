@@ -100,13 +100,12 @@ function GlobalSelectionSlider({
       // we have the two handlers.
       onChange={
         (event, newValue) => {
-          handleChange({ selection: { [field]: newValue }, event });
           setGlobalDimensionValue(newValue);
         }
       }
       onChangeCommitted={
         (event, newValue) => {
-          handleChange({ selection: { [field]: newValue }, event });
+          handleChange({ selection: { [field]: newValue } });
           setGlobalDimensionValue(newValue);
         }
       }
