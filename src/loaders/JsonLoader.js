@@ -3,7 +3,6 @@ import AbstractLoader from './AbstractLoader';
 import { LoaderFetchError, LoaderValidationError, AbstractLoaderError } from './errors/index';
 
 import cellsSchema from '../schemas/cells.schema.json';
-import factorsSchema from '../schemas/factors.schema.json';
 import moleculesSchema from '../schemas/molecules.schema.json';
 import neighborhoodsSchema from '../schemas/neighborhoods.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
@@ -11,7 +10,6 @@ import cellSetsSchema from '../schemas/cell-sets.schema.json';
 
 const typeToSchema = {
   cells: cellsSchema,
-  factors: factorsSchema,
   molecules: moleculesSchema,
   neighborhoods: neighborhoodsSchema,
   raster: rasterSchema,

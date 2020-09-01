@@ -16,7 +16,11 @@ import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle, initializeLayerChannelsIfMissing, sortLayers } from './utils';
-import { DEFAULT_MOLECULES_LAYER, DEFAULT_CELLS_LAYER } from './constants';
+import {
+  DEFAULT_MOLECULES_LAYER,
+  DEFAULT_CELLS_LAYER,
+  DEFAULT_NEIGHBORHOODS_LAYER,
+} from './constants';
 import { useCoordination, useLoaders, useSetComponentHover } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -94,9 +98,9 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, false,
     () => setAutoLayers(prev => ([...prev, DEFAULT_MOLECULES_LAYER])),
   );
-  // TODO: set up a neighborhoods default layer and add to autoLayers.
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
+    () => setAutoLayers(prev => ([...prev, DEFAULT_NEIGHBORHOODS_LAYER])),
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,

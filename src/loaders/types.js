@@ -10,7 +10,6 @@ export const fileTypeToLoader = {
   'clusters.json': ClustersJsonAsMatrixZarrLoader,
   'genes.json': GenesJsonAsMatrixZarrLoader,
   'cells.json': JsonLoader,
-  'factors.json': JsonLoader,
   'molecules.json': JsonLoader,
   'neighborhoods.json': JsonLoader,
   'raster.json': RasterJsonLoader,

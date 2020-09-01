@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
-import { ScatterplotLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { MultiscaleImageLayer, ImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
@@ -12,6 +12,7 @@ import {
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
+const NEIGHBORHOODS_LAYER_ID = 'neighborhoods-layer';
 
 // Default getter function props.
 const defaultGetCellCoords = cell => cell.xy;
@@ -82,7 +83,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.onUpdateCellsLayer();
     this.onUpdateMoleculesData();
     this.onUpdateMoleculesLayer();
-    this.onUpdateNeighborhoods();
+    this.onUpdateNeighborhoodsData();
+    this.onUpdateNeighborhoodsLayer();
     this.onUpdateImages();
   }
 
@@ -178,6 +180,30 @@ class Spatial extends AbstractSpatialOrScatterplot {
           updateStatus(`Gene: ${info.object[3]}`);
         }
       },
+    });
+  }
+
+  createNeighborhoodsLayer(layerDef) {
+    const {
+      getNeighborhoodPolygon = (neighborhoodsEntry) => {
+        const neighborhood = neighborhoodsEntry[1];
+        return neighborhood.poly;
+      },
+    } = this.props;
+    const { neighborhoodsEntries } = this;
+
+    return new PolygonLayer({
+      id: NEIGHBORHOODS_LAYER_ID,
+      getPolygon: getNeighborhoodPolygon,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: neighborhoodsEntries,
+      pickable: true,
+      autoHighlight: true,
+      stroked: true,
+      filled: false,
+      getElevation: 0,
+      getLineWidth: 10,
+      visible: layerDef.visible,
     });
   }
 
@@ -335,9 +361,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  onUpdateNeighborhoods() {
+  onUpdateNeighborhoodsData() {
+    const { neighborhoods = {} } = this.props;
+    const neighborhoodsEntries = Object
+      .entries(neighborhoods);
+    this.neighborhoodsEntries = neighborhoodsEntries;
+  }
 
+  onUpdateNeighborhoodsLayer() {
+    const { layers = [] } = this.props;
+    const layerDef = layers.find(layer => layer.type === 'neighborhoods');
+    if (layerDef) {
+      this.neighborhoodsLayer = this.createNeighborhoodsLayer(layerDef);
+    } else {
+      this.neighborhoodsLayer = null;
+    }
   }
 
   onUpdateImages() {
@@ -378,6 +416,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (['layers', 'molecules'].some(shallowDiff)) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
+      this.forceUpdate();
+    }
+
+    if (['neighborhoods'].some(shallowDiff)) {
+      // Neighborhoods data changed.
+      this.onUpdateNeighborhoodsData();
+      this.forceUpdate();
+    }
+
+    if (['layers', 'neighborhoods'].some(shallowDiff)) {
+      // Neighborhoods layer props changed.
+      this.onUpdateNeighborhoodsLayer();
       this.forceUpdate();
     }
 

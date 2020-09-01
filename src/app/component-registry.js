@@ -1,6 +1,5 @@
 import DescriptionSubscriber from '../components/description/DescriptionSubscriber';
 import StatusSubscriber from '../components/status/StatusSubscriber';
-import FactorsSubscriber from '../components/factors/FactorsSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
 import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscriber';
 import ScatterplotSubscriber from '../components/scatterplot/ScatterplotSubscriber';
@@ -13,7 +12,6 @@ import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubsc
 const registry = {
   description: DescriptionSubscriber,
   status: StatusSubscriber,
-  factors: FactorsSubscriber,
   genes: GenesSubscriber,
   cellSets: CellSetsManagerSubscriber,
   scatterplot: ScatterplotSubscriber,

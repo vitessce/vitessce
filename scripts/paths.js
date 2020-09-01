@@ -11,7 +11,6 @@ const resolveModule = utils.resolveModule;
 const componentsToExport = [
     'tooltip',
     'layer-controller',
-    'factors',
     'genes',
     'heatmap',
     'scatterplot',

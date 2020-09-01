@@ -257,7 +257,7 @@ export function useMoleculesData(
 export function useNeighborhoodsData(
   loaders, dataset, setItemIsReady, addUrl, isRequired, onLoad = null,
 ) {
-  const [neighborhoods, setNeighborhoods] = useState({});
+  const [neighborhoods, setNeighborhoods] = useState();
 
   useEffect(() => {
     if (!loaders[dataset]) {
@@ -276,7 +276,7 @@ export function useNeighborhoodsData(
         setItemIsReady('neighborhoods');
       });
     } else {
-      setNeighborhoods(null);
+      setNeighborhoods({});
       if (isRequired) {
         warn(new LoaderNotFoundError(dataset, 'neighborhoods', null, null));
       } else {

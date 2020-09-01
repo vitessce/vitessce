@@ -9,7 +9,6 @@ describe('schemas', () => {
     'config',
     'cells',
     'clusters',
-    'factors',
     'genes',
     'molecules',
     'neighborhoods',

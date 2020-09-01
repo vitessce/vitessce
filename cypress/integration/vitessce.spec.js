@@ -17,7 +17,7 @@ describe('Vitessce', () => {
     // Any request we do not explicitly route will return 404,
     // so we won't end up depending on outside resources by accident.
     cy.server({ force404: true });
-    ['cells', 'cell-sets', 'molecules', 'raster', 'clusters', 'factors', 'neighborhoods'].forEach(
+    ['cells', 'cell-sets', 'molecules', 'raster', 'clusters', 'neighborhoods'].forEach(
       (type) => {
         cy.route(
           `${urlPrefix}/linnarsson/linnarsson.${type}.json`,
