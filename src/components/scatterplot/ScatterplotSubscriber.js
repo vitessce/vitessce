@@ -4,18 +4,20 @@ import React, {
 import PubSub from 'pubsub-js';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
-import TitleInfo from '../TitleInfo';
 import { VIEW_INFO } from '../../events';
+import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
-import { useCoordination, useLoaders } from '../../app/state/hooks';
+import { useCoordination, useLoaders, useSetComponentHover } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
+
+const updateViewInfo = viewInfo => PubSub.publish(VIEW_INFO, viewInfo);
 
 export default function ScatterplotSubscriber(props) {
   const {
@@ -29,6 +31,7 @@ export default function ScatterplotSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const setComponentHover = useSetComponentHover();
 
   // Get "props" from the coordination space.
   const [{
@@ -146,18 +149,19 @@ export default function ScatterplotSubscriber(props) {
           setCellSelection(v);
         }}
         setCellHighlight={setCellHighlight}
-
         cellRadiusScale={cellRadiusScale}
-
-        updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
+        setComponentHover={() => {
+          setComponentHover(uuid);
+        }}
+        updateViewInfo={updateViewInfo}
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber
-        uuid={uuid}
+        parentUuid={uuid}
+        cellHighlight={cellHighlight}
         width={width}
         height={height}
         getCellInfo={getCellInfo}
-        coordinationScopes={coordinationScopes}
       />
       )}
     </TitleInfo>

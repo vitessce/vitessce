@@ -10,7 +10,7 @@ export function makeCellStatusMessage(cellInfoFactors) {
   ).join('; ');
 }
 
-export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid) {
+export function cellLayerDefaultProps(cells, updateStatus, setCellHighlight, setComponentHover) {
   return {
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     data: cells,
@@ -20,21 +20,23 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
     filled: true,
     getElevation: 0,
     onHover: (info) => {
+      // Notify the parent component that its child component is
+      // the "hover source".
+      if (setComponentHover) {
+        setComponentHover();
+      }
       if (info.object) {
         const [cellId, cellInfo] = info.object;
         const { factors = {} } = cellInfo;
         if (updateStatus) {
           updateStatus(makeCellStatusMessage(factors));
         }
-        if (updateCellsHover) {
-          updateCellsHover({
-            cellId,
-            uuid,
-          });
+        if (setCellHighlight) {
+          setCellHighlight(cellId);
         }
-      } else if (updateCellsHover) {
+      } else if (setCellHighlight) {
         // Clear the currently-hovered cell info by passing null.
-        updateCellsHover(null);
+        setCellHighlight(null);
       }
     },
   };

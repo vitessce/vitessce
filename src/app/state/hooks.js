@@ -17,10 +17,15 @@ export const useStore = create(set => ({
   // The loaders object is a mapping from dataset ID to
   // data type to loader object instance.
   loaders: null,
+  // Components may need to know if they are the "hover source"
+  // for tooltip interactions. This value should be a unique
+  // component ID, such as its index in the view config layout.
+  componentHover: null,
   // Reducer functions which update the state
   // (although technically also part of state):
   setViewConfig: viewConfig => set({ viewConfig }),
   setLoaders: loaders => set({ loaders }),
+  setComponentHover: componentHover => set({ componentHover }),
   setCoordinationValue: ({ parameter, scope, value }) => set(state => ({
     viewConfig: {
       ...state.viewConfig,
@@ -86,4 +91,14 @@ export function useCoordination(parameters, coordinationScopes) {
  */
 export function useLoaders() {
   return useStore(state => state.loaders);
+}
+
+
+export function useComponentHover() {
+  return useStore(state => state.componentHover);
+}
+
+
+export function useSetComponentHover() {
+  return useStore(state => state.setComponentHover);
 }

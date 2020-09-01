@@ -99,6 +99,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       cellFilter = null,
       cellSelection = [],
       setCellHighlight,
+      setComponentHover,
       getCellIsSelected = makeDefaultGetCellIsSelected(cellSelection),
       cellColors,
       getCellColor = makeDefaultGetCellColors(cellColors),
@@ -106,7 +107,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       onCellClick,
       lineWidthScale = 10,
       lineWidthMaxPixels = 2,
-      uuid,
     } = this.props;
     const { cellsEntries } = this;
     const filteredCellsEntries = (cellFilter
@@ -146,7 +146,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       lineWidthScale,
       lineWidthMaxPixels,
       ...cellLayerDefaultProps(
-        filteredCellsEntries, undefined, setCellHighlight, uuid, flipYTooltip,
+        filteredCellsEntries, undefined, setCellHighlight,
+        setComponentHover, flipYTooltip,
       ),
     });
   }

@@ -3,79 +3,57 @@ import PubSub from 'pubsub-js';
 import { VIEW_INFO } from '../../events';
 import Tooltip2D from '../tooltip/Tooltip2D';
 import TooltipContent from '../tooltip/TooltipContent';
-import { useCoordination } from '../../app/state/hooks';
+import { useComponentHover } from '../../app/state/hooks';
 
 export default function HeatmapTooltipSubscriber(props) {
   const {
-    uuid, width, height, transpose, getCellInfo, getGeneInfo,
-    coordinationScopes,
+    parentUuid,
+    width, height, transpose,
+    getCellInfo, getGeneInfo,
+    cellHighlight, geneHighlight,
   } = props;
 
-  const [cellInfo, setCellInfo] = useState();
-  const [geneInfo, setGeneInfo] = useState();
-
-  const [sourceUuid, setSourceUuid] = useState();
+  const sourceUuid = useComponentHover();
   const [viewInfo, setViewInfo] = useState();
-  const [x, setX] = useState(null);
-  const [y, setY] = useState(null);
-
-  const [{ cellHighlight, geneHighlight }] = useCoordination(['cellHighlight', 'geneHighlight'], coordinationScopes);
 
   useEffect(() => {
     const viewInfoToken = PubSub.subscribe(
       VIEW_INFO, (msg, newViewInfo) => {
-        if (newViewInfo && uuid === newViewInfo.uuid) {
+        if (newViewInfo && parentUuid === newViewInfo.uuid) {
           setViewInfo(newViewInfo);
         }
       },
     );
     return () => PubSub.unsubscribe(viewInfoToken);
-  }, [uuid, viewInfo]);
+  }, [parentUuid]);
 
-  // React to cell highlight updates.
-  useEffect(() => {
-    if (!cellHighlight) {
-      setCellInfo(null);
-      setSourceUuid(null);
-    } else {
-      const newCellInfo = getCellInfo(cellHighlight.cellId);
-      setCellInfo(newCellInfo);
-      setSourceUuid(cellHighlight.uuid);
-      if (viewInfo && viewInfo.project) {
-        const [newX, newY] = viewInfo.project(cellHighlight.cellId, null);
-        if (transpose) {
-          setX(newX);
-        } else {
-          setY(newY);
-        }
-      }
-    }
-  }, [cellHighlight, viewInfo, getCellInfo, transpose]);
+  const [cellInfo, cellCoord] = (cellHighlight && getCellInfo ? (
+    [
+      getCellInfo(cellHighlight),
+      (viewInfo && viewInfo.project
+        ? viewInfo.project(cellHighlight, null)[(transpose ? 0 : 1)]
+        : null),
+    ]
+  ) : ([null, null]));
 
-  // React to gene highlight updates.
-  useEffect(() => {
-    if (!geneHighlight) {
-      setGeneInfo(null);
-    } else {
-      const newGeneInfo = getGeneInfo(geneHighlight.geneId);
-      setGeneInfo(newGeneInfo);
-      if (viewInfo && viewInfo.project) {
-        const [newX, newY] = viewInfo.project(null, geneHighlight.geneId);
-        if (transpose) {
-          setY(newY);
-        } else {
-          setX(newX);
-        }
-      }
-    }
-  }, [geneHighlight, viewInfo, getGeneInfo, transpose]);
+  const [geneInfo, geneCoord] = (geneHighlight && getGeneInfo ? (
+    [
+      getGeneInfo(geneHighlight),
+      (viewInfo && viewInfo.project
+        ? viewInfo.project(null, geneHighlight)[(transpose ? 1 : 0)]
+        : null),
+    ]
+  ) : ([null, null]));
+
+  const x = (transpose ? cellCoord : geneCoord);
+  const y = (transpose ? geneCoord : cellCoord);
 
   return (
     (cellInfo || geneInfo ? (
       <Tooltip2D
         x={x}
         y={y}
-        parentUuid={uuid}
+        parentUuid={parentUuid}
         parentWidth={width}
         parentHeight={height}
         sourceUuid={sourceUuid}

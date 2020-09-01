@@ -72,6 +72,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     expressionMatrix: expression,
     cellColors,
     clearPleaseWait,
+    setComponentHover,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
     setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
@@ -495,16 +496,11 @@ const Heatmap = forwardRef((props, deckRef) => {
 
     const obsId = expression.rows[obsI];
     const varId = expression.cols[varI];
-
-    setCellHighlight({
-      cellId: obsId,
-      uuid,
-    });
-
-    setGeneHighlight({
-      geneId: varId,
-      uuid,
-    });
+    if (setComponentHover) {
+      setComponentHover();
+    }
+    setCellHighlight(obsId);
+    setGeneHighlight(varId);
   }
 
   return (

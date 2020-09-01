@@ -1,62 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PubSub from 'pubsub-js';
 import { VIEW_INFO } from '../../events';
 import Tooltip2D from '../tooltip/Tooltip2D';
 import TooltipContent from '../tooltip/TooltipContent';
-import { useCoordination } from '../../app/state/hooks';
+import { useComponentHover } from '../../app/state/hooks';
 
 export default function SpatialTooltipSubscriber(props) {
   const {
-    uuid, width, height, getCellInfo,
-    coordinationScopes,
+    parentUuid,
+    cellHighlight,
+    width,
+    height,
+    getCellInfo,
   } = props;
 
-  const [cellInfo, setCellInfo] = useState();
-
-  const [sourceUuid, setSourceUuid] = useState();
+  const sourceUuid = useComponentHover();
   const [viewInfo, setViewInfo] = useState();
-  const [x, setX] = useState(null);
-  const [y, setY] = useState(null);
-
-  const [{ cellHighlight }] = useCoordination(['cellHighlight'], coordinationScopes);
 
   useEffect(() => {
     const viewInfoToken = PubSub.subscribe(
       VIEW_INFO, (msg, newViewInfo) => {
-        if (newViewInfo && uuid === newViewInfo.uuid) {
+        if (newViewInfo && parentUuid === newViewInfo.uuid) {
           setViewInfo(newViewInfo);
         }
       },
     );
     return () => PubSub.unsubscribe(viewInfoToken);
-  }, [uuid, viewInfo]);
+  }, [parentUuid]);
 
-  // React to cell highlight updates.
-  useEffect(() => {
-    if (!cellHighlight) {
-      setCellInfo(null);
-      setSourceUuid(null);
-    } else {
-      const newCellInfo = getCellInfo(cellHighlight.cellId);
-      setCellInfo(newCellInfo);
-      setSourceUuid(cellHighlight.uuid);
-      if (viewInfo && viewInfo.project) {
-        const [newX, newY] = viewInfo.project(cellHighlight.cellId);
-        setX(newX);
-        setY(newY);
-      }
-    }
-  }, [cellHighlight, viewInfo, getCellInfo]);
+
+  const [cellInfo, x, y] = (cellHighlight && getCellInfo ? (
+    [
+      getCellInfo(cellHighlight),
+      ...(viewInfo && viewInfo.project ? viewInfo.project(cellHighlight) : [null, null]),
+    ]
+  ) : ([null, null, null]));
 
   return (
     (cellInfo ? (
       <Tooltip2D
         x={x}
         y={y}
-        parentUuid={uuid}
+        parentUuid={parentUuid}
+        sourceUuid={sourceUuid}
         parentWidth={width}
         parentHeight={height}
-        sourceUuid={sourceUuid}
       >
         <TooltipContent info={cellInfo} />
       </Tooltip2D>

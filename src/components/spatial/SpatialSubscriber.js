@@ -1,5 +1,5 @@
 import React, {
-  useState, useCallback, useEffect, useMemo,
+  useState, useEffect, useMemo,
 } from 'react';
 import PubSub from 'pubsub-js';
 import TitleInfo from '../TitleInfo';
@@ -17,12 +17,14 @@ import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle, initializeLayerChannelsIfMissing, sortLayers } from './utils';
 import { DEFAULT_MOLECULES_LAYER, DEFAULT_CELLS_LAYER } from './constants';
-import { useCoordination, useLoaders } from '../../app/state/hooks';
+import { useCoordination, useLoaders, useSetComponentHover } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SPATIAL_DATA_TYPES = [
   'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix',
 ];
+
+const updateViewInfo = viewInfo => PubSub.publish(VIEW_INFO, viewInfo);
 
 export default function SpatialSubscriber(props) {
   const {
@@ -38,6 +40,7 @@ export default function SpatialSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const setComponentHover = useSetComponentHover();
 
   // Get "props" from the coordination space.
   const [{
@@ -134,11 +137,6 @@ export default function SpatialSubscriber(props) {
     cellSetSelection,
   }), [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
-  const updateViewInfo = useCallback(
-    viewInfo => PubSub.publish(VIEW_INFO, viewInfo),
-    [],
-  );
-
   const getCellInfo = (cellId) => {
     const cell = cells[cellId];
     if (cell) {
@@ -196,15 +194,18 @@ export default function SpatialSubscriber(props) {
           setCellSelection(v);
         }}
         setCellHighlight={setCellHighlight}
+        setComponentHover={() => {
+          setComponentHover(uuid);
+        }}
         updateViewInfo={updateViewInfo}
       />
       {!disableTooltip && (
       <SpatialTooltipSubscriber
-        uuid={uuid}
+        parentUuid={uuid}
+        cellHighlight={cellHighlight}
         width={width}
         height={height}
         getCellInfo={getCellInfo}
-        coordinationScopes={coordinationScopes}
       />
       )}
     </TitleInfo>

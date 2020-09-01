@@ -90,7 +90,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   createCellsLayer() {
     const {
       theme,
-      uuid,
       mapping,
       getCellPosition = makeDefaultGetCellPosition(mapping),
       cellRadiusScale = 0.2,
@@ -98,6 +97,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellFilter = null,
       cellSelection = [],
       setCellHighlight,
+      setComponentHover,
       getCellIsSelected = makeDefaultGetCellIsSelected(cellSelection),
       cellColors,
       getCellColor = makeDefaultGetCellColors(cellColors),
@@ -125,7 +125,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         }
       },
       ...cellLayerDefaultProps(
-        filteredCellsEntries, undefined, setCellHighlight, uuid,
+        filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
       ),
     });
   }
