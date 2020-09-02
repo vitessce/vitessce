@@ -4,13 +4,13 @@ import React, {
   useState,
   useMemo,
 } from 'react';
-import PubSub from 'pubsub-js';
 import isEqual from 'lodash/isEqual';
 import packageJson from '../../../package.json';
 import {
-  STATUS_WARN,
-} from '../../events';
-import { useCoordination, useLoaders } from '../../app/state/hooks';
+  useCoordination,
+  useLoaders,
+  useSetWarning,
+} from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
@@ -62,6 +62,7 @@ export default function CellSetsManagerSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const setWarning = useSetWarning();
 
   // Get "props" from the coordination space.
   const [{
@@ -312,7 +313,7 @@ export default function CellSetsManagerSubscriber(props) {
         tree={tree}
         checkedLevel={checkedLevel}
         datatype={SETS_DATATYPE_CELL}
-        onError={err => PubSub.publish(STATUS_WARN, err)}
+        onError={setWarning}
         onCheckNode={onCheckNode}
         onExpandNode={onExpandNode}
         onDropNode={onDropNode}

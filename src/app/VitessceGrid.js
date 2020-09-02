@@ -4,10 +4,10 @@ import React, {
 // eslint-disable-next-line vitessce-rules/prevent-pubsub-import
 import PubSub from 'pubsub-js';
 
-import { GRID_RESIZE, STATUS_WARN } from '../events';
+import { GRID_RESIZE } from '../events';
 
 import { VitessceGridLayout } from './vitessce-grid-layout';
-import { useStore } from './state/hooks';
+import { useSetViewConfig, useSetLoaders } from './state/hooks';
 import { useRowHeight, createLoaders } from './vitessce-grid-utils';
 
 const padding = 10;
@@ -32,7 +32,6 @@ export default function VitessceGrid(props) {
     getComponent,
     theme,
     height,
-    onWarn,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -42,18 +41,8 @@ export default function VitessceGrid(props) {
     onResize();
   }, [rowHeight]);
 
-  // Subscribe to warning messages, and re-publish them via the onWarn callback.
-  useEffect(() => {
-    const warnToken = PubSub.subscribe(STATUS_WARN, (msg, data) => {
-      if (onWarn) {
-        onWarn(data);
-      }
-    });
-    return () => PubSub.unsubscribe(warnToken);
-  }, [onWarn]);
-
-  const setViewConfig = useStore(state => state.setViewConfig);
-  const setLoaders = useStore(state => state.setLoaders);
+  const setViewConfig = useSetViewConfig();
+  const setLoaders = useSetLoaders();
 
   // Update the view config and loaders in the global state.
   useEffect(() => {

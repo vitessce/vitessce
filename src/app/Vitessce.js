@@ -12,7 +12,7 @@ import legacyConfigSchema from '../schemas/config-legacy.schema.json';
 
 import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
-import ViewConfigPublisher from './ViewConfigPublisher';
+import CallbackPublisher from './CallbackPublisher';
 import { getComponent } from './component-registry';
 import { initialize, upgrade } from './view-config-utils';
 
@@ -121,9 +121,9 @@ export default function Vitessce(props) {
           rowHeight={rowHeight}
           height={height}
           theme={theme}
-          onWarn={onWarn}
         />
-        <ViewConfigPublisher
+        <CallbackPublisher
+          onWarn={onWarn}
           onConfigChange={onConfigChange}
           onLoaderChange={onLoaderChange}
         />

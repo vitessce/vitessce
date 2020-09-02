@@ -3,13 +3,13 @@ import shallow from 'zustand/shallow';
 import { fromEntries, capitalize } from '../../utils';
 
 /**
- * The useStore hook here is initialized via the zustand
+ * The useViewConfigStore hook is initialized via the zustand
  * create() function, which sets up both the state variables
  * and the reducer-type functions.
  * Reference: https://github.com/react-spring/zustand
  * @returns {function} The useStore hook.
  */
-export const useStore = create(set => ({
+const useViewConfigStore = create(set => ({
   // State:
   // The viewConfig is an object which must conform to the schema
   // found in src/schemas/config.schema.json.
@@ -17,15 +17,10 @@ export const useStore = create(set => ({
   // The loaders object is a mapping from dataset ID to
   // data type to loader object instance.
   loaders: null,
-  // Components may need to know if they are the "hover source"
-  // for tooltip interactions. This value should be a unique
-  // component ID, such as its index in the view config layout.
-  componentHover: null,
   // Reducer functions which update the state
   // (although technically also part of state):
   setViewConfig: viewConfig => set({ viewConfig }),
   setLoaders: loaders => set({ loaders }),
-  setComponentHover: componentHover => set({ componentHover }),
   setCoordinationValue: ({ parameter, scope, value }) => set(state => ({
     viewConfig: {
       ...state.viewConfig,
@@ -38,6 +33,32 @@ export const useStore = create(set => ({
       },
     },
   })),
+}));
+
+/**
+ * The hover store can be used to store global state
+ * related to which component is currently hovered,
+ * which is required for tooltip / crossover elements.
+ * @returns {function} The useStore hook.
+ */
+const useHoverStore = create(set => ({
+  // Components may need to know if they are the "hover source"
+  // for tooltip interactions. This value should be a unique
+  // component ID, such as its index in the view config layout.
+  componentHover: null,
+  setComponentHover: componentHover => set({ componentHover }),
+}));
+
+/**
+ * The warning store can be used to store global state
+ * related to app warning messages.
+ * @returns {function} The useStore hook.
+ */
+const useWarnStore = create(set => ({
+  // Want a global state to collect warning messages
+  // that occur anywhere in the app.
+  warning: null,
+  setWarning: warning => set({ warning }),
 }));
 
 /**
@@ -57,9 +78,9 @@ export const useStore = create(set => ({
  * prefix.
  */
 export function useCoordination(parameters, coordinationScopes) {
-  const setCoordinationValue = useStore(state => state.setCoordinationValue);
+  const setCoordinationValue = useViewConfigStore(state => state.setCoordinationValue);
 
-  const values = useStore((state) => {
+  const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
     return fromEntries(parameters.map((parameter) => {
       if (coordinationSpace && coordinationSpace[parameter]) {
@@ -87,18 +108,78 @@ export function useCoordination(parameters, coordinationScopes) {
  * Obtain the loaders object from
  * the global app state.
  * @returns {object} The loaders object.
- * in the `useStore` store.
+ * in the `useViewConfigStore` store.
  */
 export function useLoaders() {
-  return useStore(state => state.loaders);
+  return useViewConfigStore(state => state.loaders);
 }
 
+/**
+ * Obtain the loaders setter function from
+ * the global app state.
+ * @returns {function} The loaders setter function.
+ * in the `useViewConfigStore` store.
+ */
+export function useSetLoaders() {
+  return useViewConfigStore(state => state.setLoaders);
+}
 
+/**
+ * Obtain the view config object from
+ * the global app state.
+ * @returns {object} The view config object.
+ * in the `useViewConfigStore` store.
+ */
+export function useViewConfig() {
+  return useViewConfigStore(state => state.viewConfig);
+}
+
+/**
+ * Obtain the view config setter function from
+ * the global app state.
+ * @returns {function} The view config setter function.
+ * in the `useViewConfigStore` store.
+ */
+export function useSetViewConfig() {
+  return useViewConfigStore(state => state.setViewConfig);
+}
+
+/**
+ * Obtain the component hover value from
+ * the global app state.
+ * @returns {number} The hovered component ID.
+ * in the `useHoverStore` store.
+ */
 export function useComponentHover() {
-  return useStore(state => state.componentHover);
+  return useHoverStore(state => state.componentHover);
 }
 
-
+/**
+ * Obtain the component hover setter function from
+ * the global app state.
+ * @returns {function} The component hover setter function.
+ * in the `useHoverStore` store.
+ */
 export function useSetComponentHover() {
-  return useStore(state => state.setComponentHover);
+  return useHoverStore(state => state.setComponentHover);
+}
+
+/**
+ * Obtain the warning message from
+ * the global app state.
+ * @returns {string} The warning message.
+ * in the `useWarnStore` store.
+ */
+export function useWarning() {
+  return useWarnStore(state => state.warning);
+}
+
+/**
+ * Obtain the warning setter function from
+ * the global app state.
+ * @returns {function} The warning setter function.
+ * in the `useWarnStore` store.
+ */
+export function useSetWarning() {
+  return useWarnStore(state => state.setWarning);
 }

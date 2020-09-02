@@ -1,8 +1,4 @@
-// eslint-disable-next-line vitessce-rules/prevent-pubsub-import
-import PubSub from 'pubsub-js';
 import { COORDINATE_SYSTEM } from 'deck.gl';
-import { STATUS_WARN } from '../events';
-import { AbstractLoaderError } from '../loaders/errors/index';
 
 export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
@@ -118,12 +114,4 @@ export function copyUint8Array(arr) {
   const newArr = new Uint8Array(newBuffer);
   newArr.set(arr);
   return newArr;
-}
-
-export function warn(error) {
-  PubSub.publish(STATUS_WARN, error.message);
-  console.warn(error.message);
-  if (error instanceof AbstractLoaderError) {
-    error.warnInConsole();
-  }
 }

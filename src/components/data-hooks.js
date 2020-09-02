@@ -1,7 +1,23 @@
 import { useState, useEffect } from 'react';
-import { warn } from './utils';
+import { useSetWarning } from '../app/state/hooks';
+import {
+  AbstractLoaderError,
+  LoaderNotFoundError,
+} from '../loaders/errors/index';
 import { initializeRasterLayersAndChannels } from './spatial/utils';
-import { LoaderNotFoundError } from '../loaders/errors';
+
+/**
+ * Warn via publishing to the console
+ * and to the global warning store.
+ * @param {AbstractLoaderError} error An error instance.
+ */
+function warn(error, setWarning) {
+  setWarning(error.message);
+  console.warn(error.message);
+  if (error instanceof AbstractLoaderError) {
+    error.warnInConsole();
+  }
+}
 
 /**
  * Get data from a cells data type loader,
@@ -27,13 +43,15 @@ export function useCellsData(loaders, dataset, setItemIsReady, addUrl, isRequire
   const [cells, setCells] = useState({});
   const [cellsCount, setCellsCount] = useState(0);
 
+  const setWarning = useSetWarning();
+
   useEffect(() => {
     if (!loaders[dataset]) {
       return;
     }
 
     if (loaders[dataset].loaders.cells) {
-      loaders[dataset].loaders.cells.load().catch(warn).then((payload) => {
+      loaders[dataset].loaders.cells.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url } = payload;
         setCells(data);
@@ -48,7 +66,7 @@ export function useCellsData(loaders, dataset, setItemIsReady, addUrl, isRequire
       setCells({});
       setCellsCount(0);
       if (isRequired) {
-        console.warn('Cells data type required but no loader was found.');
+        warn(new LoaderNotFoundError(dataset, 'cells', null, null), setWarning);
       } else {
         setItemIsReady('cells');
       }
@@ -82,6 +100,8 @@ export function useCellSetsData(
 ) {
   const [cellSets, setCellSets] = useState();
 
+  const setWarning = useSetWarning();
+
   useEffect(() => {
     if (!loaders[dataset]) {
       return;
@@ -89,7 +109,7 @@ export function useCellSetsData(
 
     if (loaders[dataset].loaders['cell-sets']) {
       // Load the data initially.
-      loaders[dataset].loaders['cell-sets'].load().catch(warn).then((payload) => {
+      loaders[dataset].loaders['cell-sets'].load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url } = payload;
         setCellSets(data);
@@ -106,7 +126,7 @@ export function useCellSetsData(
     } else {
       setCellSets(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'cell-sets', null, null));
+        warn(new LoaderNotFoundError(dataset, 'cell-sets', null, null), setWarning);
       } else {
         setItemIsReady('cell-sets');
       }
@@ -139,13 +159,15 @@ export function useCellSetsData(
 export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl, isRequired) {
   const [expressionMatrix, setExpressionMatrix] = useState();
 
+  const setWarning = useSetWarning();
+
   useEffect(() => {
     if (!loaders[dataset]) {
       return;
     }
 
     if (loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].load().catch(warn).then((payload) => {
+      loaders[dataset].loaders['expression-matrix'].load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url } = payload;
         const [attrs, arr] = data;
@@ -160,7 +182,7 @@ export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl
     } else {
       setExpressionMatrix(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null));
+        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
       } else {
         setItemIsReady('expression-matrix');
       }
@@ -199,13 +221,15 @@ export function useMoleculesData(
   const [moleculesCount, setMoleculesCount] = useState(0);
   const [locationsCount, setLocationsCount] = useState(0);
 
+  const setWarning = useSetWarning();
+
   useEffect(() => {
     if (!loaders[dataset]) {
       return;
     }
 
     if (loaders[dataset].loaders.molecules) {
-      loaders[dataset].loaders.molecules.load().catch(warn).then((payload) => {
+      loaders[dataset].loaders.molecules.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url } = payload;
         setMolecules(data);
@@ -224,7 +248,7 @@ export function useMoleculesData(
       setMoleculesCount(0);
       setLocationsCount(0);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'molecules', null, null));
+        warn(new LoaderNotFoundError(dataset, 'molecules', null, null), setWarning);
       } else {
         setItemIsReady('molecules');
       }
@@ -259,26 +283,29 @@ export function useNeighborhoodsData(
 ) {
   const [neighborhoods, setNeighborhoods] = useState();
 
+  const setWarning = useSetWarning();
+
   useEffect(() => {
     if (!loaders[dataset]) {
       return;
     }
 
     if (loaders[dataset].loaders.neighborhoods) {
-      loaders[dataset].loaders.neighborhoods.load().catch(warn).then((payload) => {
-        if (!payload) return;
-        const { data, url } = payload;
-        setNeighborhoods(data);
-        addUrl(url, 'Neighborhoods');
-        if (onLoad) {
-          onLoad();
-        }
-        setItemIsReady('neighborhoods');
-      });
+      loaders[dataset].loaders.neighborhoods.load().catch(e => warn(e, setWarning))
+        .then((payload) => {
+          if (!payload) return;
+          const { data, url } = payload;
+          setNeighborhoods(data);
+          addUrl(url, 'Neighborhoods');
+          if (onLoad) {
+            onLoad();
+          }
+          setItemIsReady('neighborhoods');
+        });
     } else {
       setNeighborhoods({});
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'neighborhoods', null, null));
+        warn(new LoaderNotFoundError(dataset, 'neighborhoods', null, null), setWarning);
       } else {
         setItemIsReady('neighborhoods');
       }
@@ -319,13 +346,15 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
   const [imageLayerLoaders, setImageLayerLoaders] = useState({});
   const [imageLayerMeta, setImageLayerMeta] = useState({});
 
+  const setWarning = useSetWarning();
+
   useEffect(() => {
     if (!loaders[dataset]) {
       return;
     }
 
     if (loaders[dataset].loaders.raster) {
-      loaders[dataset].loaders.raster.load().catch(warn).then((payload) => {
+      loaders[dataset].loaders.raster.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, urls } = payload;
         setRaster(data);
@@ -350,7 +379,7 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
       setImageLayerLoaders({});
       setImageLayerMeta({});
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'raster', null, null));
+        warn(new LoaderNotFoundError(dataset, 'raster', null, null), setWarning);
       } else {
         setItemIsReady('raster');
       }

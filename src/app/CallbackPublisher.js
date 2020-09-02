@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useStore, useLoaders } from './state/hooks';
+import { useWarning, useViewConfig, useLoaders } from './state/hooks';
 
 /**
  * This is a dummy component which handles
@@ -11,14 +11,23 @@ import { useStore, useLoaders } from './state/hooks';
  * @param {function} props.onLoaderChange A callback function
  * to execute on each change of the loaders object.
  */
-export default function ViewConfigPublisher(props) {
+export default function CallbackPublisher(props) {
   const {
+    onWarn,
     onConfigChange,
     onLoaderChange,
   } = props;
 
-  const viewConfig = useStore(state => state.viewConfig);
+  const warning = useWarning();
+  const viewConfig = useViewConfig();
   const loaders = useLoaders();
+
+  // Emit updates to the warning message.
+  useEffect(() => {
+    if (onWarn && warning) {
+      onWarn(warning);
+    }
+  }, [warning, onWarn]);
 
   // Emit updates to the view config.
   useEffect(() => {

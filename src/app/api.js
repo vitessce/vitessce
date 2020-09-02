@@ -1,5 +1,5 @@
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
-export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
+export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_releases';
 
 function makeLayerNameToConfig(datasetPrefix) {
   return name => ({
