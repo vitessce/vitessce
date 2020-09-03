@@ -69,15 +69,28 @@ const useWarnStore = create(set => ({
  * @returns {function} The useStore hook.
  */
 const useViewInfoStore = create(set => ({
-  // Components may need to know if they are the "hover source"
-  // for tooltip interactions. This value should be a unique
-  // component ID, such as its index in the view config layout.
+  // The viewInfo object is a mapping from
+  // component IDs to component view info objects.
+  // Each view info object must have a project() function.
   viewInfo: {},
   setComponentViewInfo: (uuid, viewInfo) => set(state => ({
     viewInfo: {
       ...state.viewInfo,
       [uuid]: viewInfo,
     },
+  })),
+}));
+
+/**
+ * The grid size store can be used to store a
+ * counter which updates on each window or react-grid-layout
+ * resize event.
+ * @returns {function} The useStore hook.
+ */
+const useGridSizeStore = create(set => ({
+  resizeCount: {},
+  incrementResizeCount: () => set(state => ({
+    resizeCount: state.resizeCount + 1,
   })),
 }));
 
@@ -216,4 +229,23 @@ export function useSetComponentViewInfo(uuid) {
   const setViewInfoRef = useRef(useViewInfoStore.getState().setComponentViewInfo);
   const setComponentViewInfo = viewInfo => setViewInfoRef.current(uuid, viewInfo);
   return setComponentViewInfo;
+}
+
+/**
+ * Obtain the grid resize count value
+ * from the global app state.
+ * @returns {number} The grid resize increment value.
+ */
+export function useGridResize() {
+  return useGridSizeStore(state => state.resizeCount);
+}
+
+/**
+ * Obtain the grid resize count increment function
+ * from the global app state.
+ * @returns {function} The grid resize count increment
+ * function.
+ */
+export function useEmitGridResize() {
+  return useGridSizeStore(state => state.incrementResizeCount);
 }

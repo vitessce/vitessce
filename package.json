@@ -56,7 +56,6 @@
     "node-sass": "^4.13.1",
     "pixi.js": "^5.2.3",
     "prop-types": "^15.7.2",
-    "pubsub-js": "^1.7.0",
     "rc-tooltip": "^4.0.3",
     "rc-tree": "2.1.0",
     "react-color": "^2.18.0",

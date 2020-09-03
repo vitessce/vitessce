@@ -120,7 +120,7 @@ export function useCellSetsData(
         setItemIsReady('cell-sets');
       });
       // Subscribe to data updates.
-      loaders[dataset].loaders['cell-sets'].subscribe((msg, data) => {
+      loaders[dataset].loaders['cell-sets'].subscribe((data) => {
         setCellSets(data);
       });
     } else {

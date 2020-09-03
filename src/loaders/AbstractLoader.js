@@ -1,6 +1,4 @@
 import uuidv4 from 'uuid/v4';
-// eslint-disable-next-line vitessce-rules/prevent-pubsub-import
-import PubSub from 'pubsub-js';
 
 /**
  * A loader ancestor class containing a default constructor
@@ -14,8 +12,7 @@ export default class AbstractLoader {
     this.url = url;
     this.requestInit = requestInit;
 
-    this.subscriptions = [];
-    this.uuid = uuidv4();
+    this.subscriptions = {};
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -24,15 +21,18 @@ export default class AbstractLoader {
   }
 
   subscribe(subscriber) {
-    return PubSub.subscribe(this.uuid, subscriber);
+    const token = uuidv4();
+    this.subscriptions[token] = subscriber;
+    return token;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   unsubscribe(token) {
-    PubSub.unsubscribe(token);
+    delete this.subscriptions[token];
   }
 
   publish(data) {
-    PubSub.publish(this.uuid, data);
+    Object.values(this.subscriptions).forEach((subscriber) => {
+      subscriber(data);
+    });
   }
 }

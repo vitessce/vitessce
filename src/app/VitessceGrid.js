@@ -1,18 +1,12 @@
 import React, {
   useEffect,
 } from 'react';
-// eslint-disable-next-line vitessce-rules/prevent-pubsub-import
-import PubSub from 'pubsub-js';
-
-import { GRID_RESIZE } from '../events';
-
 import { VitessceGridLayout } from './vitessce-grid-layout';
-import { useSetViewConfig, useSetLoaders } from './state/hooks';
+import { useSetViewConfig, useSetLoaders, useEmitGridResize } from './state/hooks';
 import { useRowHeight, createLoaders } from './vitessce-grid-utils';
 
 const padding = 10;
 const margin = 5;
-const onResize = () => PubSub.publish(GRID_RESIZE);
 
 /**
  * The wrapper for the VitessceGrid and LoadingIndicator components.
@@ -35,11 +29,12 @@ export default function VitessceGrid(props) {
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
+  const onResize = useEmitGridResize();
 
   // When the row height has changed, publish a GRID_RESIZE event.
   useEffect(() => {
     onResize();
-  }, [rowHeight]);
+  }, [rowHeight, onResize]);
 
   const setViewConfig = useSetViewConfig();
   const setLoaders = useSetLoaders();

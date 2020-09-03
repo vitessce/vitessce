@@ -1,10 +1,8 @@
 import {
   useRef, useState, useEffect, useCallback,
 } from 'react';
-// eslint-disable-next-line vitessce-rules/prevent-pubsub-import
-import PubSub from 'pubsub-js';
 import debounce from 'lodash/debounce';
-import { GRID_RESIZE } from '../events';
+import { useGridResize, useEmitGridResize } from '../app/state/hooks';
 
 /**
  * Custom hook, subscribes to GRID_RESIZE and window resize events.
@@ -17,23 +15,31 @@ export function useGridItemSize() {
   const [height, setHeight] = useState();
   const [width, setWidth] = useState();
 
+  const resizeCount = useGridResize();
+  const incrementResizeCount = useEmitGridResize();
+
+  // On window resize events, increment the grid resize count.
   useEffect(() => {
-    function onResize() {
-      if (!containerRef.current) return;
-      const container = containerRef.current;
-      const containerRect = container.getBoundingClientRect();
-      setHeight(containerRect.height);
-      setWidth(containerRect.width);
+    function onWindowResize() {
+      incrementResizeCount();
     }
-    const onResizeDebounced = debounce(onResize, 100, { trailing: true });
-    const gridResizeToken = PubSub.subscribe(GRID_RESIZE, onResize);
+    const onResizeDebounced = debounce(onWindowResize, 100, { trailing: true });
     window.addEventListener('resize', onResizeDebounced);
-    onResize();
+    onWindowResize();
     return () => {
-      PubSub.unsubscribe(gridResizeToken);
       window.removeEventListener('resize', onResizeDebounced);
     };
-  }, []);
+  }, [incrementResizeCount]);
+
+  // On new grid resize counts, re-compute the component
+  // width/height.
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const container = containerRef.current;
+    const containerRect = container.getBoundingClientRect();
+    setHeight(containerRect.height);
+    setWidth(containerRect.width);
+  }, [resizeCount]);
 
   return [width, height, containerRef];
 }
@@ -50,23 +56,31 @@ export function useDeckCanvasSize() {
   const [height, setHeight] = useState();
   const [width, setWidth] = useState();
 
+  const resizeCount = useGridResize();
+  const incrementResizeCount = useEmitGridResize();
+
+  // On window resize events, increment the grid resize count.
   useEffect(() => {
-    function onResize() {
-      if (!deckRef.current) return;
-      const { canvas } = deckRef.current.deck;
-      const canvasRect = canvas.getBoundingClientRect();
-      setHeight(canvasRect.height);
-      setWidth(canvasRect.width);
+    function onWindowResize() {
+      incrementResizeCount();
     }
-    const onResizeDebounced = debounce(onResize, 100, { trailing: true });
-    const gridResizeToken = PubSub.subscribe(GRID_RESIZE, onResize);
+    const onResizeDebounced = debounce(onWindowResize, 100, { trailing: true });
     window.addEventListener('resize', onResizeDebounced);
-    onResize();
+    onWindowResize();
     return () => {
-      PubSub.unsubscribe(gridResizeToken);
       window.removeEventListener('resize', onResizeDebounced);
     };
-  }, []);
+  }, [incrementResizeCount]);
+
+  // On new grid resize counts, re-compute the DeckGL canvas
+  // width/height.
+  useEffect(() => {
+    if (!deckRef.current) return;
+    const { canvas } = deckRef.current.deck;
+    const canvasRect = canvas.getBoundingClientRect();
+    setHeight(canvasRect.height);
+    setWidth(canvasRect.width);
+  }, [resizeCount]);
 
   return [width, height, deckRef];
 }
