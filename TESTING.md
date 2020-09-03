@@ -79,6 +79,9 @@ slowly disappear while the cell boundaries should remain as opacity decreases.
 Hover:
 - As you move the mouse over different cells, the "Status" component should update.
 - Tooltips should appear over all other components that show data except for the one on which you are hovering.
+- Where the tooltip does not appear, crosshairs should appear instead.
+- Hover over a cell in the scatterplot and confirm that the crosshair appears over a cell with the same color in the spatial plot.
+- Hover over a cell in the spatial plot and confirm that the crosshair appears over a cell with the same color in the scatterplot.
 
 Select cells:
 - Click on the marquee tool, and drag a rectangle over the middle of the view.
