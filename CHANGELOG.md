@@ -5,6 +5,8 @@
 ### Added
 
 ### Changed
+- Separate out development from production builds.
+- Only test/publish on production builds.
 
 ## [0.2.5](https://www.npmjs.com/package/vitessce/v/0.2.5) - 2020-08-31
 

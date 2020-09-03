@@ -9,6 +9,7 @@ const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeM
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const getPublicUrlOrPath = require('react-dev-utils/getPublicUrlOrPath');
+const nodeExternals = require('webpack-node-externals');
 
 const webpackCommon = require('./webpack.config-common');
 const getClientEnvironment = webpackCommon.getClientEnvironment;
@@ -59,103 +60,108 @@ module.exports = function(paths, environment, target) {
     const performanceInfo = getPerformanceInfo();
 
     return {
-        mode: environment,
-        bail: isEnvProduction,
-        devtool: devtoolInfo,
-        entry: {
-            index: paths.libIndexJs,
-            ...paths.libOtherJs
-        },
-        output: {
-            // The build folder.
-            path: path.join(paths.libBuild, target, environment),
-            // We want there to be separate files, one for each entry file.
-            filename: (isEnvProduction ? "[name].min.js" : "[name].js"),
-            library: [ appPackageJson.name, "[name]" ],
-            libraryTarget: (target === "es" ? "commonjs2" : target),
-            // Add /* filename */ comments to generated require()s in the output.
-            pathinfo: isEnvDevelopment,
-            // TODO: remove this when upgrading to webpack 5
-            futureEmitAssets: true,
-            // Webpack uses `publicPath` to determine where the app is being served from.
-            // It requires a trailing slash, or the file assets will get an incorrect path.
-            publicPath: publicUrlOrPath,
-            // Point sourcemap entries to original disk location (format as URL on Windows)
-            devtoolModuleFilenameTemplate: devtoolModuleFilenameTemplate,
-            // Prevents conflicts when multiple webpack runtimes (from different apps)
-            // are used on the same page.
-            jsonpFunction: `webpackJsonp${appPackageJson.name}`,
-            // this defaults to 'window', but by setting it to 'this' then
-            // module chunks which are built will work in web workers as well.
-            globalObject: 'this'
-        },
+      mode: environment,
+      bail: isEnvProduction,
+      devtool: devtoolInfo,
+      entry: {
+        index: paths.libIndexJs,
+        ...paths.libOtherJs,
+      },
+      output: {
+        // The build folder.
+        path: path.join(paths.libBuild, target, environment),
+        // We want there to be separate files, one for each entry file.
+        filename: isEnvProduction && target !== "es" ? "[name].min.js" : "[name].js",
+        library: [appPackageJson.name, "[name]"],
+        libraryTarget: target === "es" ? "commonjs2" : target,
+        // Add /* filename */ comments to generated require()s in the output.
+        pathinfo: isEnvDevelopment,
+        // TODO: remove this when upgrading to webpack 5
+        futureEmitAssets: true,
+        // Webpack uses `publicPath` to determine where the app is being served from.
+        // It requires a trailing slash, or the file assets will get an incorrect path.
+        publicPath: publicUrlOrPath,
+        // Point sourcemap entries to original disk location (format as URL on Windows)
+        devtoolModuleFilenameTemplate: devtoolModuleFilenameTemplate,
+        // Prevents conflicts when multiple webpack runtimes (from different apps)
+        // are used on the same page.
+        jsonpFunction: `webpackJsonp${appPackageJson.name}`,
+        // this defaults to 'window', but by setting it to 'this' then
+        // module chunks which are built will work in web workers as well.
+        globalObject: "this",
+      },
         optimization: {
-            minimize: isEnvProduction,
-            minimizer: optimizationMinimizer,
-        },
-        resolve: resolveInfo,
-        resolveLoader: resolveLoaderInfo,
-        module: moduleInfo,
-        plugins: [
-            // Inlines the webpack runtime script. This script is too small to warrant
-            // a network request.
-            // https://github.com/facebook/create-react-app/issues/5358
-            ...((isEnvProduction && shouldInlineRuntimeChunk) ? [ 
-                new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime-.+[.]js/]) 
-            ] : []),
-            // Makes some environment variables available in index.html.
-            // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-            // <link rel="icon" href="%PUBLIC_URL%/favicon.ico">
-            // It will be an empty string unless you specify "homepage"
-            // in `package.json`, in which case it will be the pathname of that URL.
-            new InterpolateHtmlPlugin(HtmlWebpackPlugin, clientEnv.raw),
-            // This gives some necessary context to module not found errors, such as
-            // the requesting resource.
-            new ModuleNotFoundPlugin(paths.appPath),
-            // Makes some environment variables available to the JS code, for example:
-            // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
-            // It is absolutely essential that NODE_ENV is set to production
-            // during a production build.
-            // Otherwise React will be compiled in the very slow development mode.
-            new webpack.DefinePlugin(clientEnv.stringified),
-            // This is necessary to emit hot updates (currently CSS only):
-            ...(isEnvDevelopment ? [ new webpack.HotModuleReplacementPlugin() ] : []),
-            // Watcher doesn't work well if you mistype casing in a path so we use
-            // a plugin that prints an error when you attempt to do this.
-            // See https://github.com/facebook/create-react-app/issues/240
-            ...(isEnvDevelopment ? [ new CaseSensitivePathsPlugin() ] : []),
-            // If you require a missing module and then `npm install` it, you still have
-            // to restart the development server for webpack to discover it. This plugin
-            // makes the discovery automatic so you don't have to restart.
-            // See https://github.com/facebook/create-react-app/issues/186
-            ...(isEnvDevelopment ? [ new WatchMissingNodeModulesPlugin(paths.appNodeModules) ] : []),
-            new MiniCssExtractPlugin({
-                // Options similar to the same options in webpackOptions.output
-                // both options are optional
-                filename: 'static/css/[name].css',
-                chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
-            }),
-        ].filter(Boolean),
-        externals: {
+        // Don't minify the ES builds because they will be used only in upstream applications.
+        minimize: target === "es" ? false : isEnvProduction,
+        minimizer: optimizationMinimizer,
+      },
+      resolve: resolveInfo,
+      resolveLoader: resolveLoaderInfo,
+      module: moduleInfo,
+      plugins: [
+        // Inlines the webpack runtime script. This script is too small to warrant
+        // a network request.
+        // https://github.com/facebook/create-react-app/issues/5358
+        ...(isEnvProduction && shouldInlineRuntimeChunk
+          ? [new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime-.+[.]js/])]
+          : []),
+        // Makes some environment variables available in index.html.
+        // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
+        // <link rel="icon" href="%PUBLIC_URL%/favicon.ico">
+        // It will be an empty string unless you specify "homepage"
+        // in `package.json`, in which case it will be the pathname of that URL.
+        new InterpolateHtmlPlugin(HtmlWebpackPlugin, clientEnv.raw),
+        // This gives some necessary context to module not found errors, such as
+        // the requesting resource.
+        new ModuleNotFoundPlugin(paths.appPath),
+        // Makes some environment variables available to the JS code, for example:
+        // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
+        // It is absolutely essential that NODE_ENV is set to production
+        // during a production build.
+        // Otherwise React will be compiled in the very slow development mode.
+        new webpack.DefinePlugin(clientEnv.stringified),
+        // This is necessary to emit hot updates (currently CSS only):
+        ...(isEnvDevelopment ? [new webpack.HotModuleReplacementPlugin()] : []),
+        // Watcher doesn't work well if you mistype casing in a path so we use
+        // a plugin that prints an error when you attempt to do this.
+        // See https://github.com/facebook/create-react-app/issues/240
+        ...(isEnvDevelopment ? [new CaseSensitivePathsPlugin()] : []),
+        // If you require a missing module and then `npm install` it, you still have
+        // to restart the development server for webpack to discover it. This plugin
+        // makes the discovery automatic so you don't have to restart.
+        // See https://github.com/facebook/create-react-app/issues/186
+        ...(isEnvDevelopment
+          ? [new WatchMissingNodeModulesPlugin(paths.appNodeModules)]
+          : []),
+        new MiniCssExtractPlugin({
+          // Options similar to the same options in webpackOptions.output
+          // both options are optional
+          filename: "static/css/[name].css",
+          chunkFilename: "static/css/[name].[contenthash:8].chunk.css",
+        }),
+      ].filter(Boolean),
+        externals: target === "es" && isEnvProduction
+        ? [nodeExternals()]
+        : ({
             // Only because this is the library target.
-            'react': {
-                commonjs: 'react',
-                commonjs2: 'react',
-                amd: 'react',
-                root: 'React'
+            react: {
+                commonjs: "react",
+                commonjs2: "react",
+                amd: "react",
+                root: "React",
+                },
+            "react-dom": {
+                commonjs: "react-dom",
+                commonjs2: "react-dom",
+                amd: "react-dom",
+                root: "ReactDOM",
             },
-            'react-dom': {
-                commonjs: 'react-dom',
-                commonjs2: 'react-dom',
-                amd: 'react-dom',
-                root: 'ReactDOM'
-            },
-        },
-        // Some libraries import Node modules but don't use them in the browser.
-        // Tell webpack to provide empty mocks for them so importing them works.
-        node: nodeInfo,
-        // Turn off performance processing because we utilize
-        // our own hints via the FileSizeReporter
-        performance: performanceInfo,
+        }),
+      // Some libraries import Node modules but don't use them in the browser.
+      // Tell webpack to provide empty mocks for them so importing them works.
+      node: nodeInfo,
+      // Turn off performance processing because we utilize
+      // our own hints via the FileSizeReporter
+      performance: performanceInfo,
     };
 };
