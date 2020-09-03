@@ -47,11 +47,15 @@ export default function RasterLayerController(props) {
   } = props;
 
   const { colormap, opacity, channels } = layer;
-  const [{ selection: firstSelection }] = channels;
+  const firstSelection = channels[0]?.selection || {};
+
+  const { dimensions } = loader;
 
   const [domainType, setDomainType] = useState('Min/Max');
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
-    GLOBAL_SLIDER_DIMENSION_FIELDS.reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
+    GLOBAL_SLIDER_DIMENSION_FIELDS
+      .filter(field => firstSelection[field])
+      .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
   );
 
   function setColormap(v) {
@@ -83,8 +87,6 @@ export default function RasterLayerController(props) {
     handleLayerChange({ ...layer, channels: newChannels });
   }
 
-  const { dimensions } = loader;
-
   // Handles adding a channel, creating a default selection
   // for the current global settings and domain type.
   const handleChannelAdd = async () => {
@@ -93,7 +95,7 @@ export default function RasterLayerController(props) {
       // Set new image to default selection for non-global selections (0)
       // and use current global selection otherwise.
       selection[dimension.field] = GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
-        ? channels[0].selection[dimension.field]
+        ? globalDimensionValues[dimension.field]
         : 0;
     });
     const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType);
