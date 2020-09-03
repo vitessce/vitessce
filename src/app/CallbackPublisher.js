@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useWarning, useViewConfig, useLoaders } from './state/hooks';
+import { useViewConfigStore, useLoaders, useWarning } from './state/hooks';
 
 /**
  * This is a dummy component which handles
@@ -19,11 +19,23 @@ export default function CallbackPublisher(props) {
   } = props;
 
   const warning = useWarning();
-  const viewConfig = useViewConfig();
   const loaders = useLoaders();
 
-  // TODO: change useViewConfig to use
-  // https://github.com/react-spring/zustand#transient-updates-for-often-occuring-state-changes
+  // View config updates are often-occurring, so
+  // we want to use the "transient update" approach
+  // to subscribe to view config changes.
+  // Reference: https://github.com/react-spring/zustand#transient-updates-for-often-occuring-state-changes
+  useEffect(() => useViewConfigStore.subscribe(
+    // The function to run on each publish.
+    (viewConfig) => {
+      if (onConfigChange && viewConfig) {
+        onConfigChange(viewConfig);
+      }
+    },
+    // The function to specify which part of the store
+    // we want to subscribe to.
+    state => state.viewConfig,
+  ), [onConfigChange]);
 
   // Emit updates to the warning message.
   useEffect(() => {
@@ -31,13 +43,6 @@ export default function CallbackPublisher(props) {
       onWarn(warning);
     }
   }, [warning, onWarn]);
-
-  // Emit updates to the view config.
-  useEffect(() => {
-    if (onConfigChange && viewConfig) {
-      onConfigChange(viewConfig);
-    }
-  }, [viewConfig, onConfigChange]);
 
   // Emit updates to the loaders.
   useEffect(() => {

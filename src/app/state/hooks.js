@@ -10,7 +10,7 @@ import { fromEntries, capitalize } from '../../utils';
  * Reference: https://github.com/react-spring/zustand
  * @returns {function} The useStore hook.
  */
-const useViewConfigStore = create(set => ({
+export const useViewConfigStore = create(set => ({
   // State:
   // The viewConfig is an object which must conform to the schema
   // found in src/schemas/config.schema.json.
@@ -145,23 +145,15 @@ export function useSetLoaders() {
 }
 
 /**
- * Obtain the view config object from
- * the global app state.
- * @returns {object} The view config object.
- * in the `useViewConfigStore` store.
- */
-export function useViewConfig() {
-  return useViewConfigStore(state => state.viewConfig);
-}
-
-/**
  * Obtain the view config setter function from
  * the global app state.
  * @returns {function} The view config setter function.
  * in the `useViewConfigStore` store.
  */
 export function useSetViewConfig() {
-  return useViewConfigStore(state => state.setViewConfig);
+  const setViewConfigRef = useRef(useViewConfigStore.getState().setViewConfig);
+  const setViewConfig = setViewConfigRef.current;
+  return setViewConfig;
 }
 
 /**
