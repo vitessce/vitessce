@@ -143,10 +143,13 @@
     "worker-loader": "^2.0.0"
   },
   "scripts": {
-    "build-demo": "node scripts/build-demo.js",
-    "build-lib": "node scripts/build-lib.js",
-    "build": "npm run build-demo && npm run build-lib",
-    "prepublishOnly": "npm run build-lib",
+    "build-demo:prod": "node scripts/build-demo.js production",
+    "build-lib:prod": "node scripts/build-lib.js production",
+    "build-demo:dev": "node scripts/build-demo.js development",
+    "build-lib:dev": "node scripts/build-lib.js development",
+    "build:prod": "npm run build-demo:prod && npm run build-lib:prod",
+    "build:dev": "npm run build-demo:dev && npm run build-lib:dev",
+    "prepublishOnly": "npm run build-lib:prod",
     "clean": "rm -r dist-demo dist",
     "start": "node scripts/start-demo.js",
     "test": "karma start scripts/karma.config.js --single-run",
