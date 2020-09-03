@@ -1,10 +1,8 @@
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
-import PubSub from 'pubsub-js';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
-import { VIEW_INFO } from '../../events';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
@@ -12,12 +10,13 @@ import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
-import { useCoordination, useLoaders, useSetComponentHover } from '../../app/state/hooks';
+import {
+  useCoordination, useLoaders,
+  useSetComponentHover, useSetComponentViewInfo,
+} from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
-
-const updateViewInfo = viewInfo => PubSub.publish(VIEW_INFO, viewInfo);
 
 export default function ScatterplotSubscriber(props) {
   const {
@@ -32,6 +31,7 @@ export default function ScatterplotSubscriber(props) {
 
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
+  const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
   // Get "props" from the coordination space.
   const [{
@@ -153,7 +153,7 @@ export default function ScatterplotSubscriber(props) {
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
-        updateViewInfo={updateViewInfo}
+        updateViewInfo={setComponentViewInfo}
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber

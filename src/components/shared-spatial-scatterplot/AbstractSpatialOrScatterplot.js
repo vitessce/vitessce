@@ -19,6 +19,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       tool: null,
     };
 
+    this.viewport = null;
+
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
@@ -41,29 +43,11 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   /**
    * Called by DeckGL upon viewport
    * initialization.
-   * Emits a function to project from the
-   * cell ID space to the scatterplot or
-   * spatial coordinate space, via the
-   * `updateViewInfo` prop.
-   * @param {object} viewport
-   * @param {function} getCellCoords
+   * @param {object} viewState
+   * @param {object} viewState.viewport
    */
-  onInitializeViewInfo(viewport, getCellCoords) {
-    const { updateViewInfo, cells, uuid } = this.props;
-    if (updateViewInfo) {
-      updateViewInfo({
-        uuid,
-        project: (cellId) => {
-          const cell = cells[cellId];
-          try {
-            const [positionX, positionY] = getCellCoords(cell);
-            return viewport.project([positionX, positionY]);
-          } catch (e) {
-            return [null, null];
-          }
-        },
-      });
-    }
+  onInitializeViewInfo({ viewport }) {
+    this.viewport = viewport;
   }
 
   /**
@@ -99,6 +83,31 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   // eslint-disable-next-line class-methods-use-this
   getLayers() {
     return [];
+  }
+
+  /**
+   * Emits a function to project from the
+   * cell ID space to the scatterplot or
+   * spatial coordinate space, via the
+   * `updateViewInfo` prop.
+   */
+  viewInfoDidUpdate(getCellCoords) {
+    const { updateViewInfo, cells, uuid } = this.props;
+    const { viewport } = this;
+    if (updateViewInfo && viewport) {
+      updateViewInfo({
+        uuid,
+        project: (cellId) => {
+          const cell = cells[cellId];
+          try {
+            const [positionX, positionY] = getCellCoords(cell);
+            return viewport.project([positionX, positionY]);
+          } catch (e) {
+            return [null, null];
+          }
+        },
+      });
+    }
   }
 
   /**

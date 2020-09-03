@@ -22,6 +22,9 @@ export default function CallbackPublisher(props) {
   const viewConfig = useViewConfig();
   const loaders = useLoaders();
 
+  // TODO: change useViewConfig to use
+  // https://github.com/react-spring/zustand#transient-updates-for-often-occuring-state-changes
+
   // Emit updates to the warning message.
   useEffect(() => {
     if (onWarn && warning) {

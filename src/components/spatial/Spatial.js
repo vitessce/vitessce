@@ -88,11 +88,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.onUpdateImages();
   }
 
-  onInitializeViewInfo({ viewport }) {
-    const { getCellCoords = defaultGetCellCoords } = this.props;
-    super.onInitializeViewInfo(viewport, getCellCoords);
-  }
-
   createCellsLayer(layerDef) {
     const {
       radius, stroked, visible, opacity,
@@ -382,6 +377,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.imageLayers = this.createImageLayers();
   }
 
+  viewInfoDidUpdate() {
+    const { getCellCoords = defaultGetCellCoords } = this.props;
+    super.viewInfoDidUpdate(getCellCoords);
+  }
+
   /**
    * Here, asynchronously check whether props have
    * updated which require re-computing memoized variables,
@@ -392,6 +392,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
    * @param {object} prevProps The previous props to diff against.
    */
   componentDidUpdate(prevProps) {
+    this.viewInfoDidUpdate();
+
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
     if (['cells'].some(shallowDiff)) {
       // Cells data changed.

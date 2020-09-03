@@ -1,11 +1,7 @@
 import React, {
   useState, useEffect, useMemo,
 } from 'react';
-import PubSub from 'pubsub-js';
 import TitleInfo from '../TitleInfo';
-import {
-  VIEW_INFO,
-} from '../../events';
 import { capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import {
@@ -21,14 +17,15 @@ import {
   DEFAULT_CELLS_LAYER,
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './constants';
-import { useCoordination, useLoaders, useSetComponentHover } from '../../app/state/hooks';
+import {
+  useCoordination, useLoaders,
+  useSetComponentHover, useSetComponentViewInfo,
+} from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SPATIAL_DATA_TYPES = [
   'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix',
 ];
-
-const updateViewInfo = viewInfo => PubSub.publish(VIEW_INFO, viewInfo);
 
 export default function SpatialSubscriber(props) {
   const {
@@ -45,6 +42,7 @@ export default function SpatialSubscriber(props) {
 
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
+  const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
   // Get "props" from the coordination space.
   const [{
@@ -201,7 +199,7 @@ export default function SpatialSubscriber(props) {
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
-        updateViewInfo={updateViewInfo}
+        updateViewInfo={setComponentViewInfo}
       />
       {!disableTooltip && (
       <SpatialTooltipSubscriber

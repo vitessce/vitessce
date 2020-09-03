@@ -1,3 +1,4 @@
+import { useRef, useCallback } from 'react';
 import create from 'zustand';
 import shallow from 'zustand/shallow';
 import { fromEntries, capitalize } from '../../utils';
@@ -59,6 +60,25 @@ const useWarnStore = create(set => ({
   // that occur anywhere in the app.
   warning: null,
   setWarning: warning => set({ warning }),
+}));
+
+/**
+ * The view info store can be used to store component-level
+ * viewInfo objects,
+ * which are required for tooltip / crossover elements.
+ * @returns {function} The useStore hook.
+ */
+const useViewInfoStore = create(set => ({
+  // Components may need to know if they are the "hover source"
+  // for tooltip interactions. This value should be a unique
+  // component ID, such as its index in the view config layout.
+  viewInfo: {},
+  setComponentViewInfo: (uuid, viewInfo) => set(state => ({
+    viewInfo: {
+      ...state.viewInfo,
+      [uuid]: viewInfo,
+    },
+  })),
 }));
 
 /**
@@ -182,4 +202,26 @@ export function useWarning() {
  */
 export function useSetWarning() {
   return useWarnStore(state => state.setWarning);
+}
+
+/**
+ * Obtain the component view info value from
+ * the global app state.
+ * @returns {object} The view info object for the component.
+ * in the `useViewInfoStore` store.
+ */
+export function useComponentViewInfo(uuid) {
+  return useViewInfoStore(useCallback(state => state.viewInfo[uuid], [uuid]));
+}
+
+/**
+ * Obtain the component view info setter function from
+ * the global app state.
+ * @returns {function} The component view info setter function.
+ * in the `useViewInfoStore` store.
+ */
+export function useSetComponentViewInfo(uuid) {
+  const setViewInfoRef = useRef(useViewInfoStore.getState().setComponentViewInfo);
+  const setComponentViewInfo = viewInfo => setViewInfoRef.current(uuid, viewInfo);
+  return setComponentViewInfo;
 }

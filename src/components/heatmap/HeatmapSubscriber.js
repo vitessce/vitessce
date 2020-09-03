@@ -1,22 +1,20 @@
 import React, {
   useEffect, useState, useCallback, useMemo,
 } from 'react';
-import PubSub from 'pubsub-js';
 import TitleInfo from '../TitleInfo';
-import { VIEW_INFO } from '../../events';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
+import {
+  useCoordination, useLoaders,
+  useSetComponentHover, useSetComponentViewInfo,
+} from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
-import { useCoordination, useLoaders, useSetComponentHover } from '../../app/state/hooks';
-import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-
 const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
-
-const updateViewInfo = viewInfo => PubSub.publish(VIEW_INFO, viewInfo);
 
 export default function HeatmapSubscriber(props) {
   const {
@@ -32,6 +30,7 @@ export default function HeatmapSubscriber(props) {
 
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
+  const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
   // Get "props" from the coordination space.
   const [{
@@ -141,7 +140,7 @@ export default function HeatmapSubscriber(props) {
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
-        updateViewInfo={updateViewInfo}
+        updateViewInfo={setComponentViewInfo}
         observationsTitle={observationsTitle}
         variablesTitle={variablesTitle}
       />

@@ -76,17 +76,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.onUpdateCellsLayer();
   }
 
-  onInitializeViewInfo({ viewport }) {
-    const {
-      mapping,
-      getCellPosition = makeDefaultGetCellPosition(mapping),
-    } = this.props;
-    super.onInitializeViewInfo(
-      viewport,
-      cell => getCellPosition([null, cell]),
-    );
-  }
-
   createCellsLayer() {
     const {
       theme,
@@ -176,6 +165,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellsLayer = this.createCellsLayer();
   }
 
+  viewInfoDidUpdate() {
+    const {
+      mapping,
+      getCellPosition = makeDefaultGetCellPosition(mapping),
+    } = this.props;
+    super.viewInfoDidUpdate(cell => getCellPosition([null, cell]));
+  }
+
   /**
    * Here, asynchronously check whether props have
    * updated which require re-computing memoized variables,
@@ -186,6 +183,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
    * @param {object} prevProps The previous props to diff against.
    */
   componentDidUpdate(prevProps) {
+    this.viewInfoDidUpdate();
+
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
     if (['cells'].some(shallowDiff)) {
       // Cells data changed.

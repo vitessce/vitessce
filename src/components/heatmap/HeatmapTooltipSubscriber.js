@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import PubSub from 'pubsub-js';
-import { VIEW_INFO } from '../../events';
+import React from 'react';
 import Tooltip2D from '../tooltip/Tooltip2D';
 import TooltipContent from '../tooltip/TooltipContent';
-import { useComponentHover } from '../../app/state/hooks';
+import { useComponentHover, useComponentViewInfo } from '../../app/state/hooks';
 
 export default function HeatmapTooltipSubscriber(props) {
   const {
@@ -14,18 +12,7 @@ export default function HeatmapTooltipSubscriber(props) {
   } = props;
 
   const sourceUuid = useComponentHover();
-  const [viewInfo, setViewInfo] = useState();
-
-  useEffect(() => {
-    const viewInfoToken = PubSub.subscribe(
-      VIEW_INFO, (msg, newViewInfo) => {
-        if (newViewInfo && parentUuid === newViewInfo.uuid) {
-          setViewInfo(newViewInfo);
-        }
-      },
-    );
-    return () => PubSub.unsubscribe(viewInfoToken);
-  }, [parentUuid]);
+  const viewInfo = useComponentViewInfo(parentUuid);
 
   const [cellInfo, cellCoord] = (cellHighlight && getCellInfo ? (
     [
