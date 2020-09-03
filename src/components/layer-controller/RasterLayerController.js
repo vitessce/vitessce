@@ -47,8 +47,16 @@ export default function RasterLayerController(props) {
   } = props;
 
   const { colormap, opacity, channels } = layer;
+  const firstSelection = channels[0]?.selection || {};
+
+  const { dimensions } = loader;
 
   const [domainType, setDomainType] = useState('Min/Max');
+  const [globalDimensionValues, setGlobalDimensionValues] = useState(
+    GLOBAL_SLIDER_DIMENSION_FIELDS
+      .filter(field => firstSelection[field])
+      .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
+  );
 
   function setColormap(v) {
     handleLayerChange({ ...layer, colormap: v });
@@ -79,8 +87,6 @@ export default function RasterLayerController(props) {
     handleLayerChange({ ...layer, channels: newChannels });
   }
 
-  const { dimensions } = loader;
-
   // Handles adding a channel, creating a default selection
   // for the current global settings and domain type.
   const handleChannelAdd = async () => {
@@ -89,7 +95,7 @@ export default function RasterLayerController(props) {
       // Set new image to default selection for non-global selections (0)
       // and use current global selection otherwise.
       selection[dimension.field] = GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
-        ? channels[0].selection[dimension.field]
+        ? globalDimensionValues[dimension.field]
         : 0;
     });
     const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType);
@@ -133,19 +139,26 @@ export default function RasterLayerController(props) {
   };
 
   // This call updates all channel selections with new global selection from the UI.
-  const handleGlobalChannelsSelectionChange = async ({ selection }) => {
+  const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
     const loaderSelection = channels.map(channel => ({
       ...channel.selection,
       ...selection,
     }));
+    const mouseUp = event.type === 'mouseup';
     // Only update domains on a mouseup event for the same reason as above.
-    const { domains, sliders } = await getDomainsAndSliders(loader, loaderSelection, domainType);
-    const newChannels = channels.map((c, i) => (
-      {
-        ...c, domain: domains[i], slider: sliders[i], selection: { ...c.selection, ...selection },
-      }
-    ));
-    setChannels(newChannels);
+    const { domains, sliders } = mouseUp
+      ? await getDomainsAndSliders(loader, loaderSelection, domainType)
+      : { domains: [], sliders: [] };
+    if (mouseUp) {
+      const newChannels = channels.map((c, i) => ({
+        ...c,
+        domain: domains[i],
+        slider: sliders[i],
+        selection: { ...c.selection, ...selection },
+      }));
+      setChannels(newChannels);
+    }
+    setGlobalDimensionValues(prev => ({ ...prev, ...selection }));
   };
 
   let channelControllers = [];
@@ -163,7 +176,10 @@ export default function RasterLayerController(props) {
           // value is the actual change, like { channel: "DAPI" }.
           const update = { [property]: value };
           if (property === 'selection') {
-            const loaderSelection = [{ ...channels[channelId][property], ...value }];
+            update.selection = { ...globalDimensionValues, ...update.selection };
+            const loaderSelection = [
+              { ...channels[channelId][property], ...value },
+            ];
             const { domains, sliders } = await getDomainsAndSliders(
               loader, loaderSelection, domainType,
             );
@@ -236,6 +252,7 @@ export default function RasterLayerController(props) {
                 dimension => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field),
               )
             }
+            globalDimensionValues={globalDimensionValues}
             handleOpacityChange={setOpacity}
             handleColormapChange={setColormap}
             handleGlobalChannelsSelectionChange={
