@@ -214,6 +214,42 @@ export function initialize(config) {
 }
 
 /**
+ * A helper function for the `upgrade()` function,
+ * which helps convert `props.view` (for scatterplot and spatial),
+ * into new coordination scopes, setting their values
+ * in the coordination space and returning the new scope mappings.
+ * This function does mutate the `coordinationSpace` parameter.
+ * @param {string} prefix The coordination type prefix,
+ * either 'embedding' or 'spatial'.
+ * @param {object} view The view prop object containing
+ * the properties `.target` and `.zoom`.
+ * @param {object} coordinationSpace The coordination space.
+ * @returns {object} The new coordination scope names.
+ */
+function upgradeReplaceViewProp(prefix, view, coordinationSpace) {
+  const prevZScopes = Object.keys(coordinationSpace[`${prefix}Zoom`]);
+  const prevTXScopes = Object.keys(coordinationSpace[`${prefix}TargetX`]);
+  const prevTYScopes = Object.keys(coordinationSpace[`${prefix}TargetY`]);
+
+  const nextZScope = getNextScope(prevZScopes);
+  const nextTXScope = getNextScope(prevTXScopes);
+  const nextTYScope = getNextScope(prevTYScopes);
+
+  const { zoom, target: [targetX, targetY] } = view;
+  // eslint-disable-next-line no-param-reassign
+  coordinationSpace[`${prefix}Zoom`][nextZScope] = zoom;
+  // eslint-disable-next-line no-param-reassign
+  coordinationSpace[`${prefix}TargetX`][nextTXScope] = targetX;
+  // eslint-disable-next-line no-param-reassign
+  coordinationSpace[`${prefix}TargetY`][nextTYScope] = targetY;
+  return {
+    [`${prefix}Zoom`]: nextZScope,
+    [`${prefix}TargetX`]: nextTXScope,
+    [`${prefix}TargetY`]: nextTYScope,
+  };
+}
+
+/**
  * Convert an older view config to a newer view config.
  * @param {object} config A v0.1.0 "legacy" view config.
  * @returns {object} A v1.0.0 "upgraded" view config.
@@ -253,25 +289,15 @@ export function upgrade(config) {
       // with embeddingZoom / embeddingTargetX/Y to replace scatterplot
       // component prop "view" ({ zoom, target }).
       if (componentDef.props.view) {
-        const prevEZScopes = Object.keys(coordinationSpace.embeddingZoom);
-        const prevETXScopes = Object.keys(coordinationSpace.embeddingTargetX);
-        const prevETYScopes = Object.keys(coordinationSpace.embeddingTargetY);
-
-        const nextEZScope = getNextScope(prevEZScopes);
-        const nextETXScope = getNextScope(prevETXScopes);
-        const nextETYScope = getNextScope(prevETYScopes);
-
-        coordinationSpace.embeddingZoom[nextEZScope] = componentDef.props.view.zoom;
-        const [targetX, targetY] = componentDef.props.view.target;
-        coordinationSpace.embeddingTargetX[nextETXScope] = targetX;
-        coordinationSpace.embeddingTargetY[nextETYScope] = targetY;
+        // Note that the below function does mutate the coordinationSpace param.
+        const newScopeValues = upgradeReplaceViewProp(
+          'embedding', componentDef.props.view, coordinationSpace,
+        );
         newComponentDef = {
           ...newComponentDef,
           coordinationScopes: {
             ...newComponentDef.coordinationScopes,
-            embeddingZoom: nextEZScope,
-            embeddingTargetX: nextETXScope,
-            embeddingTargetY: nextETYScope,
+            ...newScopeValues,
           },
         };
       }
@@ -281,25 +307,15 @@ export function upgrade(config) {
       // with spatialZoom / spatialTargetX/Y to replace spatial
       // component prop "view" ({ zoom, target }).
       if (componentDef.props.view) {
-        const prevSZScopes = Object.keys(coordinationSpace.spatialZoom);
-        const prevSTXScopes = Object.keys(coordinationSpace.spatialTargetX);
-        const prevSTYScopes = Object.keys(coordinationSpace.spatialTargetY);
-
-        const nextSZScope = getNextScope(prevSZScopes);
-        const nextSTXScope = getNextScope(prevSTXScopes);
-        const nextSTYScope = getNextScope(prevSTYScopes);
-
-        coordinationSpace.spatialZoom[nextSZScope] = componentDef.props.view.zoom;
-        const [targetX, targetY] = componentDef.props.view.target;
-        coordinationSpace.spatialTargetX[nextSTXScope] = targetX;
-        coordinationSpace.spatialTargetY[nextSTYScope] = targetY;
+        // Note that the below function does mutate the coordinationSpace param.
+        const newScopeValues = upgradeReplaceViewProp(
+          'spatial', componentDef.props.view, coordinationSpace,
+        );
         newComponentDef = {
           ...newComponentDef,
           coordinationScopes: {
             ...newComponentDef.coordinationScopes,
-            spatialZoom: nextSZScope,
-            spatialTargetX: nextSTXScope,
-            spatialTargetY: nextSTYScope,
+            ...newScopeValues,
           },
         };
       }
