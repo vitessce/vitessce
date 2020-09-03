@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
@@ -92,21 +92,19 @@ function GlobalSelectionSlider({
   handleChange,
   possibleValues,
 }) {
-  const [globalDimensionValue, setGlobalDimensionValue] = useState(value);
   return (
     <Slider
-      value={globalDimensionValue}
+      value={value}
       // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
       // we have the two handlers.
       onChange={
         (event, newValue) => {
-          setGlobalDimensionValue(newValue);
+          handleChange({ selection: { [field]: newValue }, event });
         }
       }
       onChangeCommitted={
         (event, newValue) => {
-          handleChange({ selection: { [field]: newValue } });
-          setGlobalDimensionValue(newValue);
+          handleChange({ selection: { [field]: newValue }, event });
         }
       }
       valueLabelDisplay="auto"
@@ -163,6 +161,7 @@ function LayerOptions({
   handleColormapChange,
   handleOpacityChange,
   globalControlDimensions,
+  globalDimensionValues,
   handleGlobalChannelsSelectionChange,
   handleDomainChange,
   channels,
@@ -210,7 +209,7 @@ function LayerOptions({
               <LayerOption name={field} inputId={`${field}-slider`} key={field}>
                 <GlobalSelectionSlider
                   field={field}
-                  value={channels[0].selection[field]}
+                  value={globalDimensionValues[field]}
                   handleChange={handleGlobalChannelsSelectionChange}
                   possibleValues={values}
                 />
