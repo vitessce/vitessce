@@ -3,14 +3,14 @@ const path = require('path');
 const paths = require('./paths');
 const constants = require('./constants');
 
-const LIB_ENVIRONMENTS = constants.LIB_ENVIRONMENTS;
+const LIB_ENVIRONMENTS = ['production'];
 const LIB_TARGETS = constants.LIB_TARGETS;
 
 // Construct an array of expected file paths.
 let expectedLibFiles = [];
 for(let environment of LIB_ENVIRONMENTS) {
-    const extension = (environment === 'production' ? 'min.js' : 'js')
     for (let target of LIB_TARGETS) {
+        const extension = (environment === 'production' && target !== 'es' ? 'min.js' : 'js')
         // Construct path to index.js and index.css files.
         const indexJs = path.join(paths.libBuild, target, environment, `index.${extension}`);
         const indexCss = path.join(paths.libBuild, target, environment, 'static', 'css', 'index.css');
