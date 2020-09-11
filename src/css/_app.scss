@@ -76,12 +76,17 @@
     }
 
     /* Styling for closing button on the grid items */
-    .close-pane-button {
+    .title-info-button {
         border: none;
-        font-family: Ampersand;
-        margin-left: .5em;
+        margin: 0 0 0 .6em;
+        padding: 0;
         background: none;
-        color: map-get($theme-colors, "primary-foreground-dim");
+        color: map-get($theme-colors, "primary-foreground");
+        svg {
+            height: 0.7em;
+            width: 0.7em;
+            vertical-align: middle;
+        }
     }
 
     /* Tool styles */

@@ -1,5 +1,5 @@
-import React, { useReducer } from 'react';
-import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+/* eslint-disable */
+import React, { useReducer, useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import Link from '@material-ui/core/Link';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -7,15 +7,15 @@ import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 
 import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
 import ClosePaneButton from './ClosePaneButton';
+import HelpButton from './HelpButton';
 import { PopperMenu } from './shared-mui/components';
 
 function DownloadIcon({ open, theme }) {
   const color = theme === 'dark' ? '#D3D3D3' : '#333333';
   return (
-    <>
-      <CloudDownloadIcon style={{ color }} />
-      {open ? <ArrowDropUpIcon style={{ color }} /> : <ArrowDropDownIcon style={{ color }} />}
-    </>
+    <span className="title-info-button">
+      {open ? <ArrowDropUpIcon style={{ color }} viewBox="4 4 16 16" /> : <ArrowDropDownIcon style={{ color }} viewBox="4 4 16 16" />}
+    </span>
   );
 }
 
@@ -49,22 +49,26 @@ function DownloadOptions(props) {
 export default function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls, theme,
+    helpComponent,
   } = props;
   // eslint-disable-next-line no-nested-ternary
   const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
+  const [showHelpInfo, setShowHelpInfo] = useState(false);
+
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
       <div className="title d-flex justify-content-between align-items-baseline">
         <div className="justify-content-between d-flex align-items-end">
           <span>{title}</span>
-          {urls && urls.length > 0 ? (
-            <DownloadOptions urls={urls} theme={theme} />
-          ) : null}
         </div>
         <span className="details pl-2 align-items-end">
           <span className="d-flex justify-content-between">
             {info}
+            {urls && urls.length > 0 ? (
+              <DownloadOptions urls={urls} theme={theme} />
+            ) : null}
+            <HelpButton setShowHelpInfo={setShowHelpInfo} />
             <ClosePaneButton removeGridComponent={removeGridComponent} />
           </span>
         </span>
