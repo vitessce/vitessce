@@ -30,7 +30,7 @@ The implementation of coordinated multiple views in Vitessce follows the coordin
 Below left is Figure 1 from Boukhelifa and Rodgers.
 Below right is that figure adapted to the Vitessce view config. 
 
-[![Coordination object model in vitessce](https://docs.google.com/drawings/d/e/2PACX-1vQmqp-urG6EczQCCujcXQQUoYRSEMqy7mdd-lzAoEqpV_k69kljptr5CoVVMeftp2vrZ3lYJYZ5kgHt/pub?w=650)](https://docs.google.com/drawings/d/1jsNd2aG3OFlHfNzI3nfOl6UpMACw9JKyexCQUEd31fc/edit)
+[![Coordination object model in vitessce](https://docs.google.com/drawings/d/e/2PACX-1vQmqp-urG6EczQCCujcXQQUoYRSEMqy7mdd-lzAoEqpV_k69kljptr5CoVVMeftp2vrZ3lYJYZ5kgHt/pub?w=850)](https://docs.google.com/drawings/d/1jsNd2aG3OFlHfNzI3nfOl6UpMACw9JKyexCQUEd31fc/edit)
 
 One can think about the coordination 
 
@@ -65,7 +65,7 @@ Coordination values may be stored in an abstract format rather than the format r
 
 One can think about the coordination model as a graph:
 
-[![Coordination model as graph representation - single coordination type](https://docs.google.com/drawings/d/e/2PACX-1vTT0Flm_xnbtbaeFoqL_eVigQ6eWev-VeIeQBLGMM-iLJRFTRlpalrRpjt_GyqjUdGR8TahQe4uJu8D/pub?w=609&h=666)](https://docs.google.com/drawings/d/13943UGjcbBC2wKAmhnIrxBrQTArPojTr5abZlqOFAzk/edit)
+[![Coordination model as graph representation - single coordination type](https://docs.google.com/drawings/d/e/2PACX-1vTT0Flm_xnbtbaeFoqL_eVigQ6eWev-VeIeQBLGMM-iLJRFTRlpalrRpjt_GyqjUdGR8TahQe4uJu8D/pub?w=400)](https://docs.google.com/drawings/d/13943UGjcbBC2wKAmhnIrxBrQTArPojTr5abZlqOFAzk/edit)
 
-[![Coordination model as graph representation - multiple coordination types - node encoding](https://docs.google.com/drawings/d/e/2PACX-1vRdNNkA8lCXj62edJMB7i6dvDxYxlv127sg9ZvtS7fLMCatG5jh3AyD1A6yqnhTFqi5YIft-T1nsBIT/pub?w=1643&h=876)](https://docs.google.com/drawings/d/1w64tYpHgkxgoUlmYw02HKM6q2GDiz_ev77TZFhqywi4/edit)
+[![Coordination model as graph representation - multiple coordination types - node encoding](https://docs.google.com/drawings/d/e/2PACX-1vRdNNkA8lCXj62edJMB7i6dvDxYxlv127sg9ZvtS7fLMCatG5jh3AyD1A6yqnhTFqi5YIft-T1nsBIT/pub?w=800)](https://docs.google.com/drawings/d/1w64tYpHgkxgoUlmYw02HKM6q2GDiz_ev77TZFhqywi4/edit)
 
