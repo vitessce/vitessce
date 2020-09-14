@@ -32,8 +32,6 @@ Below right is that figure adapted to the Vitessce view config.
 
 [![Coordination object model in vitessce](https://docs.google.com/drawings/d/e/2PACX-1vQmqp-urG6EczQCCujcXQQUoYRSEMqy7mdd-lzAoEqpV_k69kljptr5CoVVMeftp2vrZ3lYJYZ5kgHt/pub?w=850)](https://docs.google.com/drawings/d/1jsNd2aG3OFlHfNzI3nfOl6UpMACw9JKyexCQUEd31fc/edit)
 
-One can think about the coordination 
-
 ## Multiple Views
 The term "multiple views" in the context of information visualization systems refers to "any instance where data is represented in multiple windows" (Roberts 2007).
 
