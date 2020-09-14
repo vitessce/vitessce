@@ -62,6 +62,7 @@
     },
     "requestInit": {
       "type": "object",
+      "description": "The properties of this object correspond to the parameters of the JavaScript fetch() function.",
       "additionalProperties": false,
       "required": [],
       "properties": {
