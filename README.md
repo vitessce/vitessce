@@ -77,6 +77,10 @@ export default function App() {
 }
 ```
 
+If you are interested in using Vitessce in the browser as part of a `script` tag or the like, we also export a `umd` build (the above snippet uses an `es` bundle).
+Note that our `es` bundles contain none of the dependencies, all of which should be installed by `npm` automatically when it reads the `package.json` file that our package ships with.
+The advanatage of not bundling everything is that we can keep the size of our bundle down and avoid any upstream compilation issues or the like.
+
 ## Development
 
 First check your NodeJS version: It should work with NodeJS 8, 10, 12, 13, or 14.

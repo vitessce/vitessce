@@ -56,7 +56,9 @@
 - Updated `___TooltipSubscriber` components and the `Status` component to use the `cellHighlight` and `geneHighlight` coordination object values. This allows highlight functionality to be local to a particular coordination scope (rather than global to the whole app).
 - Updated the `DescriptionSubscriber` to use the image layer definitions in the `spatialLayers` coordination object.
 - Refactored the `Status` and `StatusSubscriber` components to move the `TitleInfo` child component out of `Status` and into `StatusSubscriber` to be consistent with the other subscriber components.
-
+- Separate out development from production builds.
+- Only test/publish on production builds.
+- Don't include dependencies in production ES build.
 
 ## [0.2.5](https://www.npmjs.com/package/vitessce/v/0.2.5) - 2020-08-31
 
