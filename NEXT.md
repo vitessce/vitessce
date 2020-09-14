@@ -9,9 +9,9 @@ Please see the changelog for detailed information about what has been changed so
 
 The implementation of coordinated multiple views here follows the coordination object model proposed by Boukhelifa and Rodgers (Information Visualization 2003).
 
-Below left is Figure 1 from Boukhelifa and Rodgers. Below right is that figure adapted to the Vitessce view config. ([view the diagram on google drawings here](https://docs.google.com/drawings/d/1jsNd2aG3OFlHfNzI3nfOl6UpMACw9JKyexCQUEd31fc/edit)).
+Below left is Figure 1 from Boukhelifa and Rodgers. Below right is that figure adapted to the Vitessce view config. 
 
-![Coordination object model in vitessce](https://user-images.githubusercontent.com/7525285/89790691-49008b00-daf0-11ea-95b5-cd74fe3499af.png)
+[![Coordination object model in vitessce](https://user-images.githubusercontent.com/7525285/89790691-49008b00-daf0-11ea-95b5-cd74fe3499af.png)](https://docs.google.com/drawings/d/1jsNd2aG3OFlHfNzI3nfOl6UpMACw9JKyexCQUEd31fc/edit)
 
 Note that "Dataset" is also a coordination type here.
 
