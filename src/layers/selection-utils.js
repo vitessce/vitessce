@@ -52,8 +52,10 @@ export function getSelectionLayers(
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     selectionType: tool,
     onSelect: ({ pickingInfos }) => {
-      const cellIds = new Set(pickingInfos.map(cellObj => cellObj[0]));
-      updateCellsSelection(cellIds);
+      const cellIds = pickingInfos.map(cellObj => cellObj[0]);
+      if (updateCellsSelection) {
+        updateCellsSelection(cellIds);
+      }
     },
     layerIds: [cellBaseLayerId],
     getTentativeFillColor: () => [255, 255, 255, 95],
@@ -110,8 +112,8 @@ export function overlayBaseProps(props) {
     },
     base: {
       id: getBaseLayerId(id),
-      getLineColor: mixFunction(getColor, backgroundColor),
-      getFillColor: mixFunction(getColor, backgroundColor),
+      getLineColor: getColor ? mixFunction(getColor, backgroundColor) : undefined,
+      getFillColor: getColor ? mixFunction(getColor, backgroundColor) : undefined,
       // Alternatively: contrast outlines with solids:
       // getLineColor: getColor,
       // getFillColor: [255,255,255],

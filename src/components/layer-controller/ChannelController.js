@@ -78,8 +78,9 @@ function ChannelSelectionDropdown({
  * @prop {array} domain Current max/min allowable slider values.
  */
 function ChannelSlider({
-  color, slider, handleChange, domain: [min, max], dtype,
+  color, slider = [0, 0], handleChange, domain = [0, 0], dtype,
 }) {
+  const [min, max] = domain;
   const handleChangeDebounced = useCallback(
     debounce(handleChange, 3, { trailing: true }), [handleChange],
   );
@@ -87,7 +88,7 @@ function ChannelSlider({
   return (
     <Slider
       value={slider}
-      valueLabelFormat={v => abbreviateNumber(v)}
+      valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
       getAriaLabel={() => `${color}-${slider}`}
@@ -132,7 +133,7 @@ function ChannelVisibilityCheckbox({ color, checked, toggle }) {
  * @prop {boolean} disableOptions Whether or not channel options are be disabled (default: false).
  */
 function ChannelController({
-  visibility,
+  visibility = false,
   slider,
   color,
   domain,
@@ -183,7 +184,7 @@ function ChannelController({
           <ChannelVisibilityCheckbox
             color={rgbColor}
             checked={visibility}
-            toggle={() => handlePropertyChange('visibility')}
+            toggle={() => handlePropertyChange('visible', !visibility)}
           />
         </Grid>
         <Grid item xs={9}>

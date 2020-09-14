@@ -1,14 +1,14 @@
 import { Heatmap } from './components/heatmap';
 import { Spatial } from './components/spatial';
 import { Scatterplot } from './components/scatterplot';
-import PubSubVitessceGrid from './app/PubSubVitessceGrid';
+import VitessceGrid from './app/VitessceGrid';
 import { createApp, Vitessce } from './app';
 
 export {
   Heatmap,
   Spatial,
   Scatterplot,
-  PubSubVitessceGrid,
+  VitessceGrid,
   createApp,
   Vitessce,
 };

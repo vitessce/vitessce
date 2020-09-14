@@ -1,22 +1,26 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import PubSub from 'pubsub-js';
-import uuidv4 from 'uuid/v4';
-
+import React, {
+  useEffect, useState, useCallback, useMemo,
+} from 'react';
 import TitleInfo from '../TitleInfo';
+import { pluralize, capitalize } from '../../utils';
+import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
+import { getCellColors } from '../interpolate-colors';
 import {
-  CELLS_COLOR, CELLS_ADD, CELLS_SELECTION,
-  CLEAR_PLEASE_WAIT, CELLS_HOVER, STATUS_INFO, CELL_SETS_VIEW,
-  RESET, EXPRESSION_MATRIX_ADD, VIEW_INFO, GENES_HOVER,
-} from '../../events';
-import {
-  useDeckCanvasSize, copyUint8Array, pluralize, capitalize,
-} from '../utils';
+  useCoordination, useLoaders,
+  useSetComponentHover, useSetComponentViewInfo,
+} from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
+const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
+
 export default function HeatmapSubscriber(props) {
   const {
-    removeGridComponent, onReady, theme, transpose,
+    uuid,
+    coordinationScopes,
+    removeGridComponent, theme, transpose,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
     variablesLabelOverride: variablesLabel = 'gene',
@@ -24,72 +28,62 @@ export default function HeatmapSubscriber(props) {
     disableTooltip = false,
   } = props;
 
+  const loaders = useLoaders();
+  const setComponentHover = useSetComponentHover();
+  const setComponentViewInfo = useSetComponentViewInfo(uuid);
+
+  // Get "props" from the coordination space.
+  const [{
+    dataset,
+    heatmapZoomX: zoomX,
+    heatmapTargetX: targetX,
+    heatmapTargetY: targetY,
+    geneSelection,
+    cellSelection,
+    cellHighlight,
+    geneHighlight,
+    cellSetSelection,
+    cellColorEncoding,
+  }, {
+    setHeatmapZoomX: setZoomX,
+    setHeatmapZoomY: setZoomY,
+    setHeatmapTargetX: setTargetX,
+    setHeatmapTargetY: setTargetY,
+    setCellHighlight,
+    setGeneHighlight,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
+
   const observationsTitle = capitalize(observationsPluralLabel);
   const variablesTitle = capitalize(variablesPluralLabel);
 
-
-  // Create a UUID so that hover events
-  // know from which element they were generated.
-  const uuid = uuidv4();
-
-  const [cells, setCells] = useState();
-  const [expressionMatrix, setExpressionMatrix] = useState();
-  const [selectedCellIds, setSelectedCellIds] = useState(new Set());
-  const [cellColors, setCellColors] = useState(null);
-  const [urls, setUrls] = useState([]);
-
-  const onReadyCallback = useCallback(onReady, []);
-
+  const [isRendering, setIsRendering] = useState(false);
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    HEATMAP_DATA_TYPES,
+  );
+  const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
 
+  // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
-    const expressionMatrixAddToken = PubSub.subscribe(
-      EXPRESSION_MATRIX_ADD, (msg, { data }) => {
-        const [attrs, arr] = data;
-        setExpressionMatrix({
-          cols: attrs.cols,
-          rows: attrs.rows,
-          matrix: copyUint8Array(arr.data),
-        });
-      },
-    );
-    const cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, (msg, { data }) => {
-        setCells(data);
-      },
-    );
-    const cellsColorToken = PubSub.subscribe(
-      CELLS_COLOR, (msg, newCellColors) => {
-        setCellColors(newCellColors);
-      },
-    );
-    const cellsSelectionToken = PubSub.subscribe(
-      CELLS_SELECTION, (msg, cellIds) => {
-        setSelectedCellIds(cellIds);
-      },
-    );
-    const cellSetsViewToken = PubSub.subscribe(
-      CELL_SETS_VIEW, (msg, cellIds) => {
-        setSelectedCellIds(cellIds);
-      },
-    );
-    const resetToken = PubSub.subscribe(RESET, () => {
-      setUrls([]);
-      setCells(null);
-      setExpressionMatrix(null);
-      setCellColors(null);
-      setSelectedCellIds(new Set());
-    });
-    onReadyCallback();
-    return () => {
-      PubSub.unsubscribe(expressionMatrixAddToken);
-      PubSub.unsubscribe(cellsAddToken);
-      PubSub.unsubscribe(cellsColorToken);
-      PubSub.unsubscribe(cellsSelectionToken);
-      PubSub.unsubscribe(cellSetsViewToken);
-      PubSub.unsubscribe(resetToken);
-    };
-  }, [onReadyCallback]);
+    resetUrls();
+    resetReadyItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
+
+  // Get data from loaders using the data hooks.
+  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [expressionMatrix] = useExpressionMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, true,
+  );
+  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
+
+  const cellColors = useMemo(() => getCellColors({
+    cellColorEncoding,
+    expressionMatrix,
+    geneSelection,
+    cellSets,
+    cellSetSelection,
+  }), [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
@@ -101,6 +95,7 @@ export default function HeatmapSubscriber(props) {
     }
     return null;
   }, [cells, observationsLabel]);
+
   const getGeneInfo = useCallback((geneId) => {
     if (geneId) {
       return { [`${capitalize(variablesLabel)} ID`]: geneId };
@@ -112,7 +107,7 @@ export default function HeatmapSubscriber(props) {
     ? expressionMatrix.rows.length : 0;
   const genesCount = expressionMatrix && expressionMatrix.cols
     ? expressionMatrix.cols.length : 0;
-  const selectedCount = selectedCellIds ? selectedCellIds.size : 0;
+  const selectedCount = cellSelection ? cellSelection.length : 0;
   return (
     <TitleInfo
       title="Heatmap"
@@ -121,34 +116,44 @@ export default function HeatmapSubscriber(props) {
       urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}
+      isReady={isReady && !isRendering}
     >
       <Heatmap
         ref={deckRef}
         transpose={transpose}
+        viewState={{ zoom: zoomX, target: [targetX, targetY] }}
+        setViewState={({ zoom, target }) => {
+          setZoomX(zoom);
+          setZoomY(zoom);
+          setTargetX(target[0]);
+          setTargetY(target[1]);
+        }}
         height={height}
         width={width}
         theme={theme}
         uuid={uuid}
         expressionMatrix={expressionMatrix}
         cellColors={cellColors}
-        updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
-        updateGenesHover={hoverInfo => PubSub.publish(GENES_HOVER, hoverInfo)}
-        updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-        updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
-        clearPleaseWait={
-          layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-        }
+        setIsRendering={setIsRendering}
+        setCellHighlight={setCellHighlight}
+        setGeneHighlight={setGeneHighlight}
+        setComponentHover={() => {
+          setComponentHover(uuid);
+        }}
+        updateViewInfo={setComponentViewInfo}
         observationsTitle={observationsTitle}
         variablesTitle={variablesTitle}
       />
       {!disableTooltip && (
       <HeatmapTooltipSubscriber
-        uuid={uuid}
+        parentUuid={uuid}
         width={width}
         height={height}
         transpose={transpose}
         getCellInfo={getCellInfo}
         getGeneInfo={getGeneInfo}
+        cellHighlight={cellHighlight}
+        geneHighlight={geneHighlight}
       />
       )}
     </TitleInfo>

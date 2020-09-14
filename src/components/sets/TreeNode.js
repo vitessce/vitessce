@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
@@ -169,11 +169,18 @@ function NamedSetNodeEditing(props) {
     title,
     nodeKey,
     onNodeSetName,
+    onNodeCheckNewName,
   } = props;
   const [currentTitle, setCurrentTitle] = useState(title);
-  useEffect(() => {
-    setCurrentTitle(title);
-  }, [title]);
+
+  // Do not allow the user to save a potential name if it conflicts with
+  // another name in the hierarchy.
+  const hasConflicts = onNodeCheckNewName(nodeKey, currentTitle);
+  function trySetName() {
+    if (!hasConflicts) {
+      onNodeSetName(nodeKey, currentTitle, true);
+    }
+  }
   return (
     <span className="title-button-with-input">
       <input
@@ -186,17 +193,19 @@ function NamedSetNodeEditing(props) {
         onKeyPress={e => callbackOnKeyPress(
           e,
           'Enter',
-          () => onNodeSetName(nodeKey, currentTitle, true),
+          trySetName,
         )}
         onFocus={e => e.target.select()}
       />
-      <button
-        type="button"
-        className="title-save-button"
-        onClick={() => onNodeSetName(nodeKey, currentTitle, true)}
-      >
-        Save
-      </button>
+      {!hasConflicts && (
+        <button
+          type="button"
+          className="title-save-button"
+          onClick={trySetName}
+        >
+          Save
+        </button>
+      )}
     </span>
   );
 }

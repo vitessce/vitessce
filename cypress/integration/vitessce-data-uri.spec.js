@@ -34,6 +34,7 @@ describe('Vitessce Data URIs', () => {
   it('loads valid data URI', () => {
     const message = 'Hello World!';
     const config = {
+      version: '0.1.0',
       name: '-',
       description: '-',
       layers: [],
@@ -55,6 +56,7 @@ describe('Vitessce Data URIs', () => {
 
   it('handles errors from bad URL in config', () => {
     const config = {
+      "version": "0.1.0",
       "name": "fake",
       "description": "Good schema, Bad URL",
       "layers": [
@@ -70,7 +72,18 @@ describe('Vitessce Data URIs', () => {
           "component": "status",
           "x": 0,
           "y": 0,
-          "w": 12
+          "w": 4,
+          "h": 8,
+        },
+        {
+          "component": "scatterplot",
+          "props": {
+            "mapping": "PCA",
+          },
+          "x": 4,
+          "y": 0,
+          "w": 4,
+          "h": 8,
         }
       ]
     };
@@ -78,10 +91,23 @@ describe('Vitessce Data URIs', () => {
     cy.contains('Error HTTP status fetching cells.');
   });
 
-  it('handles errors from bad view config', () => {
-    const config = {'bad': 'config'};
+  it('handles errors from bad view config v0.1.0', () => {
+    const config = {'bad': 'config', 'version': '0.1.0'};
     loadConfig(config);
     cy.contains('Config validation failed');
     cy.contains('"additionalProperty": "bad"');
+  });
+
+  it('handles errors from bad view config v1.0.0', () => {
+    const config = {'bad': 'config', 'version': '1.0.0'};
+    loadConfig(config);
+    cy.contains('Config validation failed');
+    cy.contains('"additionalProperty": "bad"');
+  });
+
+  it('handles errors from bad view config missing version', () => {
+    const config = {'bad': 'config'};
+    loadConfig(config);
+    cy.contains('Missing version');
   });
 });

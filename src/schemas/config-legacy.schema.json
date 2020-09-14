@@ -1,0 +1,85 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/hubmapconsortium/vitessce/#dataset",
+    "title": "Vitessce data set",
+    "type": "object",
+    "definitions": {
+      "components": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["component", "x", "y"],
+          "properties": {
+            "component": { "type": "string" },
+            "props": { "type": "object" },
+            "x": { "type": "integer" },
+            "y": { "type": "integer" },
+            "w": { "type": "integer" },
+            "h": { "type": "integer" }
+          }
+        }
+      },
+      "requestInit": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "method": {
+            "type": "string"
+          },
+          "headers": {
+            "type": "object"
+          },
+          "body": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "credentials": {
+            "type": "string"
+          },
+          "cache": {
+            "type": "string"
+          },
+          "redirect": {
+            "type": "string"
+          },
+          "referrer": {
+            "type": "string"
+          },
+          "integrity": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "additionalProperties": false,
+    "required": ["version", "name", "layers"],
+    "properties": {
+      "name": { "type": "string" },
+      "public": { "type": "boolean" },
+      "description": { "type": "string" },
+      "layers": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "type", "fileType", "url"],
+          "properties": {
+            "name": { "type": "string" },
+            "type": { "type": "string" },
+            "fileType": { "type": "string" },
+            "url": { "type": "string" },
+            "requestInit": { "$ref": "#/definitions/requestInit" }
+          }
+        }
+      },
+      "staticLayout": { "$ref": "#/definitions/components" },
+      "version": {
+        "type": "string", "enum": ["0.1.0"]
+      }
+    }
+  }
+  

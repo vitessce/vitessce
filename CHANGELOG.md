@@ -1,10 +1,61 @@
 # Changelog
 
-## In Progress
+## 1.0.0
 
 ### Added
+- Introduced a [zustand](https://github.com/react-spring/zustand) store for managing the view config:
+    - coordination space
+    - layout
+        - component-level coordination scopes
+- Introduced a provider component: `DatasetLoaderProvider`.
+    - `DatasetLoaderProvider` sets up Loader objects for each file of each dataset in the view config.
+    - `VitessceGrid` is a consumer of `DatasetLoaderProvider` and injects the mapping from datasets-to-loaders into the child `___Subscriber` components. This functionality replaces the `SourcePublisher` component.
+        - The loading spinner was moved into a new `LoadingIndicator` component.
+        - Added a new prop `isReady` for the `TitleInfo` component (parent of the `LoadingIndicator` component), so that each `___Subscriber` component can handle its own loading spinner.
+- Added a required `version` property to the view config schema.
+- Added the `initStrategy` property to the `v1.0.0` view config schema, where the value can be one of `"auto"` or `"none"` (and potentially other things in the future).
+    - This will determine how the coordination space is initialized.
+    - `"auto"` results in certain coordination types having "global" coordination (all components map to same scope) while the remaining coordination types have "independent" coordination (all components map to different scopes).
+        - The `"auto"` strategy also respects any initial coordination setup, and only fills in missing values.
+- Added support for both `v0.1.0` ("legacy") and `v1.0.0` (coordination model) view configs via an `upgrade()` function.
+    - `v0.1.0` view configs will be validated against the `v0.1.0` schema, then upgraded, and then validated again against the `v1.0.0` schema.
+- Added a unique name constraint for cell set names.
+    - Because `cellSetSelection` is now a coordination type, the value must be stored in the view config. Previously, multiple cell sets were allowed to exist with the same name because cell sets were identified with a random uuid key internally. We would not want a random uuid key to "leak" into the global state or view config, and instead want to use an externally-meaningful name when identifying cell sets in the view config.
+    - Due to this constraint, the automatic naming for cell selections as `"Current selection"` (or `"Current union"`, `"Current intersection"`, `"Current complement"`) have been changed to `"Selection {i}"` (or `"Union {i}"`, `"Intersection {i}"`, `"Complement {i}"`) where `{i}` is the next integer that does not cause a conflict.
+- Added the optional `onConfigChange` and `onLoaderChange` callback props to the `Vitessce` component.
+    - These allow a consumer app to be notified of all view config (and by extension coordination object) updates.
 
 ### Changed
+- Moved the `Vitessce` component out of `src/app/app.js` into `src/app/Vitessce.js`.
+- Moved the `Warning` component out of `src/app/app.js` into `src/app/Warning.js`.
+- Renamed `VitessceGrid` to `VitessceGridLayout`.
+- Renamed `PubSubVitessceGrid` to `VitessceGrid`.
+- Moved utility functions that are common to both `src/components/` and `src/app/` to a new `src/utils.js` file.
+- Updated the view config schema to include a coordination space, which supports coordinated multiple view functionality. The coordination space holds coordination objects, each of which has a type, a set of scopes, and a value assigned to each scope.
+- Updated the view config schema to handle multiple datasets, and added a `dataset` configuration object type for coordinated multi-dataset view configs.
+- Added a mapping from component type to coordination object types, streamlining the process of consuming and updating coordination object state in the `___Subscriber` components.
+- Removed the unnecessary `name` field from dataset file definitions (previously a property of the `layers` objects) in the view config.
+- Changed view config `layers[].type` (now `datasets[].files[].type`) values to lowercase.
+- Renamed `staticLayout` to `layout` in the view config.
+- Changed the title text of `LayerController` from "Layer Controller" to "Spatial Layers".
+- Moved the Spatial layer initialization from `LayerControllerSubscriber` to `SpatialSubscriber`.
+    - Changed the `LayerControllerSubscriber` to a "controlled" component which obtains layer state information from the `spatialLayers` coordination object.
+    - Eliminated usage of randomly-generated uuids for layer and channel states.
+- Changed the `Spatial` component implementation (back) to a React class component, after experiencing difficult-to-debug performance issues with the function component implementation.
+- Simplified the `GenesSubscriber` implementation such that it no longer handles converting gene expression data to colors. Instead, the plot components (spatial, scatterplot, and heatmap) must look up the gene expression data and handle color conversion themselves, de-coupling them from `GenesSubscriber`.
+- Added a file `src/components/data-hooks.js` containing React hook functions for initial data load (and data update subscriptions) for each data type.
+    - Added error handling for data loading errors within the hook functions, which emit the `STATUS_WARN` event and subsequently call the `Vitessce` component's `onWarn` prop.
+- Added a file `src/components/hooks.js` containing custom React hook functions which are un-related to dataset management (see above bullet).
+    - Moved existing hook functions out of `src/components/utils.js` and into this `src/components/hooks.js` file.
+- Removed the global app-level "please wait" spinner, and replaced with component-level spinners, to account for the multi-dataset support (for example if the dataset coordination object for a component changes then the component will need to obtain a different dataset, and this may occur at any time).
+- Moved auto image layer initialization out of `LayerControllerSubscriber` and into `SpatialSubscriber` to allow initialization even when no `layerController` component exists.
+- Removed usage of random uuid values from image layer identifiers, and instead replace with the `index` property, which refers to the index of the layer within the `raster.json` layer array.
+- Switched from a local layer controller state management approach (via local reducer functions) to a global coordination object layer state management approach.
+- Switched from using the property `visibility` to `visible` in image channel state to be more consistent with DeckGL layer `visible` convention.
+- Moved a `range()` function call out of a "hot" loop in `src/components/heatmap/utils.js` to cache the value and prevent calling every iteration (every row and column during heatmap tile creation).
+- Updated `___TooltipSubscriber` components and the `Status` component to use the `cellHighlight` and `geneHighlight` coordination object values. This allows highlight functionality to be local to a particular coordination scope (rather than global to the whole app).
+- Updated the `DescriptionSubscriber` to use the image layer definitions in the `spatialLayers` coordination object.
+- Refactored the `Status` and `StatusSubscriber` components to move the `TitleInfo` child component out of `Status` and into `StatusSubscriber` to be consistent with the other subscriber components.
 - Separate out development from production builds.
 - Only test/publish on production builds.
 - Don't include dependencies in production ES build.

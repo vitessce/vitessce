@@ -2,7 +2,6 @@
 import { COORDINATE_SYSTEM, CompositeLayer } from '@deck.gl/core';
 import { TextLayer } from '@deck.gl/layers';
 import {
-  LOADING_TEXT_SIZE,
   AXIS_LABEL_TEXT_SIZE,
   AXIS_TITLE_TEXT_SIZE,
   AXIS_MARGIN,
@@ -11,29 +10,6 @@ import {
 } from './heatmap-constants';
 
 export default class HeatmapCompositeTextLayer extends CompositeLayer {
-  _renderHeatmapLayers() {
-    const {
-      targetX, targetY, theme, showLoadingIndicator,
-    } = this.props;
-    return (showLoadingIndicator ? [
-      new TextLayer({
-        id: 'heatmapLoading',
-        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        data: [{ title: 'Loading...' }],
-        getText: d => d.title,
-        getPosition: [targetX, targetY],
-        getTextAnchor: 'middle',
-        getColor: THEME_TO_TEXT_COLOR[theme],
-        getSize: LOADING_TEXT_SIZE,
-        getAngle: 0,
-        fontFamily: AXIS_FONT_FAMILY,
-        updateTriggers: {
-          getColor: [theme],
-        },
-      }),
-    ] : []);
-  }
-
   _renderAxisTopLayers() {
     const {
       axisTopLabelData, matrixLeft, width, matrixWidth, viewWidth, theme,
@@ -125,7 +101,6 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
 
   renderLayers() {
     return [
-      this._renderHeatmapLayers(),
       this._renderAxisTopLayers(),
       this._renderAxisLeftLayers(),
     ];

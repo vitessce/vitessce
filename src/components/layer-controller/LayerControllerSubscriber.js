@@ -1,193 +1,128 @@
-import React, { useState, useEffect, useCallback } from 'react';
-
-import PubSub from 'pubsub-js';
+/* eslint-disable dot-notation */
+import React, { useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
-import { createZarrLoader, createOMETiffLoader } from '@hms-dbmi/viv';
 import TitleInfo from '../TitleInfo';
 import RasterLayerController from './RasterLayerController';
 import VectorLayerController from './VectorLayerController';
 import ImageAddButton from './ImageAddButton';
-import {
-  RASTER_ADD,
-  LAYER_REMOVE,
-  CLEAR_PLEASE_WAIT,
-  METADATA_REMOVE,
-  LAYER_ADD,
-  METADATA_ADD,
-  CELLS_SET_OPACITY,
-  CELLS_ADD,
-  CELLS_TURN_ON,
-  LAYER_CHANGE,
-  MOLECULES_ADD,
-  MOLECULES_SET_OPACITY,
-  MOLECULES_TURN_ON,
-} from '../../events';
-import { DEFAULT_LAYER_PROPS } from './constants';
+import { useReady } from '../hooks';
+import { useRasterData } from '../data-hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { initializeLayerChannels } from '../spatial/utils';
+import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
 
-function genId() {
-  return String(Math.random());
-}
+const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
 
-async function initLoader(imageData) {
+function LayerControllerSubscriber(props) {
   const {
-    type, url, metadata, requestInit,
-  } = imageData;
-  switch (type) {
-    case ('zarr'): {
-      const { dimensions, isPyramid, transform } = metadata;
-      const { scale = 0, translate = { x: 0, y: 0 } } = transform;
-      const loader = await createZarrLoader({
-        url, dimensions, isPyramid, scale, translate,
-      });
-      return loader;
-    }
-    case ('ome-tiff'): {
-      // Fetch offsets for ome-tiff if needed.
-      if ('omeTiffOffsetsUrl' in metadata) {
-        const { omeTiffOffsetsUrl } = metadata;
-        const res = await fetch(omeTiffOffsetsUrl, requestInit);
-        if (res.ok) {
-          const offsets = await res.json();
-          const loader = await createOMETiffLoader({
-            url,
-            offsets,
-            headers: requestInit,
-          });
-          return loader;
-        }
-        throw new Error('Offsets not found but provided.');
-      }
-      const loader = createOMETiffLoader({
-        url,
-        headers: requestInit,
-      });
-      return loader;
-    }
-    default: {
-      throw Error(`Image type (${type}) is not supported`);
-    }
-  }
-}
+    coordinationScopes,
+    removeGridComponent,
+    theme,
+  } = props;
 
-function publishLayer({ loader, imageData, layerId }) {
-  PubSub.publish(LAYER_ADD, {
-    layerId,
-    loader,
-    layerProps: DEFAULT_LAYER_PROPS,
-  });
-  if (loader.getMetadata) {
-    PubSub.publish(METADATA_ADD, {
-      layerId,
-      layerName: imageData.name,
-      layerMetadata: loader.getMetadata(),
-    });
-  }
-}
+  const loaders = useLoaders();
 
-function LayerControllerSubscriber({ onReady, removeGridComponent, theme }) {
-  const [imageOptions, setImageOptions] = useState(null);
-  const [areCellsPlotted, setAreCellsPlotted] = useState(false);
-  const [areMoleculesPlotted, setAreMoleculesPlotted] = useState(false);
-  const [layersAndLoaders, setLayersAndLoaders] = useState([]);
-  const memoizedOnReady = useCallback(onReady, []);
+  // Get "props" from the coordination space.
+  const [{
+    dataset,
+    spatialLayers: layers,
+  }, {
+    setSpatialLayers: setLayers,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.layerController, coordinationScopes);
 
-  useEffect(() => {
-    async function handleRasterAdd(msg, { data: raster }) {
-      // render_layers provides the order for rendering initially.
-      const { images, renderLayers } = raster;
-      setImageOptions(images);
-      if (!renderLayers) {
-        const layerId = genId();
-        // Midpoint of images list as default image to show.
-        const imageData = images[Math.floor(images.length / 2)];
-        const loader = await initLoader(imageData);
-        publishLayer({ loader, imageData, layerId });
-        setLayersAndLoaders([{ layerId, imageData, loader }]);
-      } else {
-        const newLayersAndLoaders = await Promise.all(renderLayers.map(async (imageName) => {
-          const layerId = genId();
-          const [imageData] = images.filter(image => image.name === imageName);
-          const loader = await initLoader(imageData);
-          return { layerId, imageData, loader };
-        }));
-        newLayersAndLoaders.forEach(({ imageData, loader, layerId: id }) => {
-          publishLayer({ loader, imageData, layerId: id });
-        });
-        setLayersAndLoaders(newLayersAndLoaders);
-      }
-      PubSub.publish(CLEAR_PLEASE_WAIT, 'raster');
-    }
-    memoizedOnReady();
-    const rasterAddtoken = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
-    const cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, () => setAreCellsPlotted(true),
-    );
-    const moleculesAddToken = PubSub.subscribe(
-      MOLECULES_ADD, () => setAreMoleculesPlotted(true),
-    );
-    return () => {
-      PubSub.unsubscribe(rasterAddtoken);
-      PubSub.unsubscribe(cellsAddToken);
-      PubSub.unsubscribe(moleculesAddToken);
-    };
-  }, [memoizedOnReady]);
-
-  const handleImageAdd = async (imageData) => {
-    const layerId = genId();
-    const loader = await initLoader(imageData);
-    publishLayer({ loader, imageData, layerId });
-    setLayersAndLoaders(prevState => [...prevState, { layerId, imageData, loader }]);
-  };
-
-  const handleLayerRemove = (layerId, layerName) => {
-    const nextLayersAndLoaders = layersAndLoaders.filter(d => d.layerId !== layerId);
-    setLayersAndLoaders(nextLayersAndLoaders);
-    PubSub.publish(LAYER_REMOVE, layerId);
-    PubSub.publish(METADATA_REMOVE, { layerId, layerName });
-  };
-  const handleLayerChange = useCallback(
-    message => PubSub.publish(LAYER_CHANGE, message),
-    [],
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    LAYER_CONTROLLER_DATA_TYPES,
   );
-  const layerControllers = layersAndLoaders.map(({ layerId, imageData, loader }) => (
-    <Grid key={layerId} item style={{ marginTop: '10px' }}>
-      <RasterLayerController
-        layerId={layerId}
-        imageData={imageData}
-        handleLayerRemove={() => handleLayerRemove(layerId, imageData.name)}
-        loader={loader}
-        theme={theme}
-        handleLayerChange={handleLayerChange}
-      />
-    </Grid>
-  ));
+
+  // Reset loader progress when the dataset has changed.
+  useEffect(() => {
+    resetReadyItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
+
+  // Get data from loaders using the data hooks.
+  // eslint-disable-next-line no-unused-vars
+  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
+    loaders, dataset, setItemIsReady, () => {}, true,
+  );
+
+  const handleImageAdd = async (index) => {
+    const loader = imageLayerLoaders[index];
+    const newChannels = await initializeLayerChannels(loader);
+    const newLayer = {
+      type: 'raster',
+      index,
+      ...DEFAULT_RASTER_LAYER_PROPS,
+      channels: newChannels,
+    };
+    const newLayers = [...layers, newLayer];
+    setLayers(newLayers);
+  };
+
+  function handleLayerChange(newLayer, i) {
+    const newLayers = [...layers];
+    newLayers[i] = newLayer;
+    setLayers(newLayers);
+  }
+
+  function handleLayerRemove(i) {
+    const newLayers = [...layers];
+    newLayers.splice(i, 1);
+    setLayers(newLayers);
+  }
 
   return (
     <TitleInfo
-      title="Layer Controller"
+      title="Spatial Layers"
       isScroll
       removeGridComponent={removeGridComponent}
       theme={theme}
+      isReady={isReady}
     >
       <div className="layer-controller-container">
-        {areCellsPlotted ? (
-          <VectorLayerController
-            label="Cell Segmentations"
-            handleOpacityChange={v => PubSub.publish(CELLS_SET_OPACITY, v)}
-            handleToggleChange={v => PubSub.publish(CELLS_TURN_ON, v)}
-          />
-        ) : null}
-        {areMoleculesPlotted ? (
-          <VectorLayerController
-            label="Molecules"
-            handleOpacityChange={v => PubSub.publish(MOLECULES_SET_OPACITY, v)}
-            handleToggleChange={v => PubSub.publish(MOLECULES_TURN_ON, v)}
-          />
-        ) : null}
-        {layerControllers}
+        {layers && layers.map((layer, i) => {
+          if (layer.type === 'cells') {
+            return (
+              <VectorLayerController
+                key="cells"
+                label="Cell Segmentations"
+                layer={layer}
+                handleLayerChange={v => handleLayerChange(v, i)}
+              />
+            );
+          } if (layer.type === 'molecules') {
+            return (
+              <VectorLayerController
+                key="molecules"
+                label="Molecules"
+                layer={layer}
+                handleLayerChange={v => handleLayerChange(v, i)}
+              />
+            );
+          } if (layer.type === 'raster') {
+            const { index } = layer;
+            const loader = imageLayerLoaders[index];
+            const layerMeta = imageLayerMeta[index];
+            return (loader && layerMeta ? (
+              // eslint-disable-next-line react/no-array-index-key
+              <Grid key={`raster-layer-${index}-${i}`} item style={{ marginTop: '10px' }}>
+                <RasterLayerController
+                  name={layerMeta.name}
+                  layer={layer}
+                  loader={loader}
+                  theme={theme}
+                  handleLayerChange={v => handleLayerChange(v, i)}
+                  handleLayerRemove={() => handleLayerRemove(i)}
+                />
+              </Grid>
+            ) : null);
+          }
+          return null;
+        })}
         <Grid item>
           <ImageAddButton
-            imageOptions={imageOptions}
+            imageOptions={imageLayerMeta}
             handleImageAdd={handleImageAdd}
           />
         </Grid>

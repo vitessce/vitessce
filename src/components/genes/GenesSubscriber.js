@@ -1,95 +1,79 @@
-import React, {
-  useState, useEffect, useCallback, useMemo,
-} from 'react';
-import PubSub from 'pubsub-js';
-import {
-  EXPRESSION_MATRIX_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT, RESET,
-} from '../../events';
-import { interpolatePlasma } from '../interpolate-colors';
-import { fromEntries, pluralize } from '../utils';
+import React, { useEffect } from 'react';
+import { pluralize } from '../../utils';
+import { useReady, useUrls } from '../hooks';
+import { useExpressionMatrixData } from '../data-hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
 
+const GENES_DATA_TYPES = ['expression-matrix'];
+
 export default function GenesSubscriber(props) {
   const {
-    onReady,
+    coordinationScopes,
     removeGridComponent,
     variablesLabelOverride: variablesLabel = 'gene',
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
   } = props;
 
-  const [expressionMatrix, setExpressionMatrix] = useState();
-  const [selectedId, setSelectedId] = useState(null);
-  const [urls, setUrls] = useState([]);
+  const loaders = useLoaders();
 
-  const onReadyCallback = useCallback(onReady, []);
+  // Get "props" from the coordination space.
+  const [{
+    dataset,
+    geneSelection,
+    geneFilter,
+  }, {
+    setGeneSelection,
+    setGeneFilter,
+    setGeneHighlight,
+    setCellColorEncoding,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
+  const [urls, addUrl, resetUrls] = useUrls();
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    GENES_DATA_TYPES,
+  );
+
+  // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
-    const expressionMatrixAddToken = PubSub.subscribe(
-      EXPRESSION_MATRIX_ADD, (msg, { data }) => {
-        const [attrs, arr] = data;
-        setExpressionMatrix({
-          cols: attrs.cols,
-          rows: attrs.rows,
-          matrix: arr.data,
-        });
-      },
-    );
-    const resetToken = PubSub.subscribe(RESET, () => {
-      setUrls([]);
-      setExpressionMatrix(null);
-      setSelectedId({});
-    });
-    onReadyCallback();
-    return () => {
-      PubSub.unsubscribe(expressionMatrixAddToken);
-      PubSub.unsubscribe(resetToken);
-    };
-  }, [onReadyCallback]);
+    resetUrls();
+    resetReadyItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
-  const setSelectedGene = useCallback((newSelectedId) => {
-    setSelectedId(newSelectedId);
+  // Get data from loaders using the data hooks.
+  const [expressionMatrix] = useExpressionMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, true,
+  );
+  const geneList = expressionMatrix ? expressionMatrix.cols : [];
+  const numGenes = geneList.length;
 
-    if (expressionMatrix) {
-      const colI = expressionMatrix.cols.indexOf(newSelectedId);
-      const numCols = expressionMatrix.cols.length;
-      if (colI !== -1) {
-        // Create new cellColors map based on the selected gene.
-        const cellColors = new Map(expressionMatrix.rows.map((cellId, rowI) => {
-          const value = expressionMatrix.matrix[rowI * numCols + colI];
-          const cellColor = interpolatePlasma(value / 255);
-          return [cellId, cellColor];
-        }));
-        PubSub.publish(CELLS_COLOR, cellColors);
-      }
-    }
-  }, [expressionMatrix]);
-
-  const genesSelected = useMemo(() => {
-    if (!expressionMatrix) {
-      return null;
-    }
-    return fromEntries(expressionMatrix.cols.map(geneId => [geneId, geneId === selectedId]));
-  }, [expressionMatrix, selectedId]);
-
-  const numGenes = expressionMatrix ? expressionMatrix.cols.length : 0;
+  function setGeneSelectionAndColorEncoding(newSelection) {
+    setGeneSelection(newSelection);
+    setCellColorEncoding('geneSelection');
+  }
 
   return (
     <TitleInfo
       title="Expression Levels"
       info={`${numGenes} ${pluralize(variablesLabel, variablesPluralLabel, numGenes)}`}
       isScroll
-      urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}
+      isReady={isReady}
+      urls={urls}
     >
       <Genes
-        genesSelected={genesSelected}
-        setSelectedGene={setSelectedGene}
-        clearPleaseWait={
-          layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-        }
+        geneList={geneList}
+        geneSelection={geneSelection}
+        geneFilter={geneFilter}
+        setGeneSelection={setGeneSelectionAndColorEncoding}
+        setGeneFilter={setGeneFilter}
+        setGeneHighlight={setGeneHighlight}
       />
     </TitleInfo>
   );

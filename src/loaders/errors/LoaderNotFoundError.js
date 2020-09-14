@@ -1,11 +1,10 @@
 import AbstractLoaderError from './AbstractLoaderError';
 
 export default class LoaderNotFoundError extends AbstractLoaderError {
-  constructor(datasetName, datasetType, datasetFileType, datasetUrl) {
-    super(`Error finding loader for ${datasetName}.`);
+  constructor(datasetType, datasetFileType, datasetUrl) {
+    super(`Error finding loader for ${datasetType}.`);
     this.name = 'LoaderNotFoundError';
 
-    this.datasetName = datasetName;
     this.datasetType = datasetType;
     this.datasetFileType = datasetFileType;
     this.datasetUrl = datasetUrl;
@@ -13,10 +12,16 @@ export default class LoaderNotFoundError extends AbstractLoaderError {
 
   warnInConsole() {
     const {
-      datasetName, datasetType, datasetFileType, datasetUrl,
+      datasetType, datasetFileType, datasetUrl,
     } = this;
-    console.warn(
-      `"${datasetName}" (${datasetType}) from ${datasetUrl}: unable to find loader for fileType ${datasetFileType}`,
-    );
+    if (datasetFileType && datasetUrl) {
+      console.warn(
+        `${datasetType} from ${datasetUrl}: unable to find loader for fileType ${datasetFileType}`,
+      );
+    } else {
+      console.warn(
+        `${datasetType}: unable to find loader`,
+      );
+    }
   }
 }

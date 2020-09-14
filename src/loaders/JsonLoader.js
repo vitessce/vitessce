@@ -1,21 +1,19 @@
 import Ajv from 'ajv';
 import AbstractLoader from './AbstractLoader';
-import { LoaderFetchError, LoaderValidationError } from './errors/index';
+import { LoaderFetchError, LoaderValidationError, AbstractLoaderError } from './errors/index';
 
 import cellsSchema from '../schemas/cells.schema.json';
-import factorsSchema from '../schemas/factors.schema.json';
 import moleculesSchema from '../schemas/molecules.schema.json';
 import neighborhoodsSchema from '../schemas/neighborhoods.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
 
 const typeToSchema = {
-  CELLS: cellsSchema,
-  FACTORS: factorsSchema,
-  MOLECULES: moleculesSchema,
-  NEIGHBORHOODS: neighborhoodsSchema,
-  RASTER: rasterSchema,
-  'CELL-SETS': cellSetsSchema,
+  cells: cellsSchema,
+  molecules: moleculesSchema,
+  neighborhoods: neighborhoodsSchema,
+  raster: rasterSchema,
+  'cell-sets': cellSetsSchema,
 };
 
 export default class JsonLoader extends AbstractLoader {
@@ -28,7 +26,7 @@ export default class JsonLoader extends AbstractLoader {
 
   load() {
     const {
-      url, requestInit, type, fileType, name,
+      url, requestInit, type, fileType,
     } = this;
     if (this.data) {
       return this.data;
@@ -38,14 +36,18 @@ export default class JsonLoader extends AbstractLoader {
         if (response.ok) {
           return response.json();
         }
-        throw new LoaderFetchError(name, type, fileType, url, response.headers);
+        return Promise.reject(new LoaderFetchError(type, fileType, url, response.headers));
       })
+      .catch(reason => Promise.resolve(reason))
       .then((data) => {
+        if (data instanceof AbstractLoaderError) {
+          return Promise.reject(data);
+        }
         const [valid, reason] = this.validate(data);
         if (valid) {
-          return Promise.resolve(data);
+          return Promise.resolve({ data, url });
         }
-        throw new LoaderValidationError(name, type, fileType, url, reason);
+        return Promise.reject(new LoaderValidationError(type, fileType, url, reason));
       });
     return this.data;
   }

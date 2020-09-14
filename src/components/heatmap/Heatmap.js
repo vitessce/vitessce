@@ -16,8 +16,8 @@ import {
   DEFAULT_GL_OPTIONS,
   createDefaultUpdateCellsHover,
   createDefaultUpdateGenesHover,
-  createDefaultUpdateStatus,
   createDefaultUpdateViewInfo,
+  copyUint8Array,
 } from '../utils';
 import HeatmapWorker from './heatmap.worker';
 import {
@@ -50,13 +50,10 @@ import {
  * If defined, the key ordering is used to order the cell axis of the heatmap.
  * @param {function} props.clearPleaseWait The clear please wait callback,
  * called when the expression matrix has loaded (is not null).
- * @param {function} props.updateCellsHover Callback function called on
+ * @param {function} props.setCellHighlight Callback function called on
  * hover with the cell ID. Optional.
- * @param {function} props.updateGenesHover Callback function called on
+ * @param {function} props.setGeneHighlight Callback function called on
  * hover with the gene ID. Optional.
- * @param {function} props.updateStatus Callback function called on hover,
- * with a string containing the hovered cell ID and gene ID
- * (used by the Status component). Optional.
  * @param {function} props.updateViewInfo Callback function that gets called with an
  * object { uuid, project() } where project is a function that maps (cellId, geneId)
  * to canvas (x,y) coordinates. Used to show tooltips. Optional.
@@ -68,24 +65,28 @@ const Heatmap = forwardRef((props, deckRef) => {
   const {
     uuid,
     theme,
-    initialViewState = {
-      minZoom: 0,
-      zoom: 0,
-      target: [0, 0, 0],
-    },
+    viewState: rawViewState,
+    setViewState,
     width: viewWidth,
     height: viewHeight,
     expressionMatrix: expression,
     cellColors,
     clearPleaseWait,
-    updateCellsHover = createDefaultUpdateCellsHover('Heatmap'),
-    updateGenesHover = createDefaultUpdateGenesHover('Heatmap'),
-    updateStatus = createDefaultUpdateStatus('Heatmap'),
+    setComponentHover,
+    setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
+    setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
+    setIsRendering = () => {},
     transpose = false,
     variablesTitle = 'Genes',
     observationsTitle = 'Cells',
   } = props;
+
+  const viewState = {
+    ...rawViewState,
+    target: (transpose ? [rawViewState.target[1], rawViewState.target[0]] : rawViewState.target),
+    minZoom: 0,
+  };
 
   const axisLeftTitle = (transpose ? variablesTitle : observationsTitle);
   const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
@@ -99,7 +100,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   const workerRef = useRef(new HeatmapWorker());
   const tilesRef = useRef();
   const dataRef = useRef();
-  const [viewState, setViewState] = useState(initialViewState);
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
   const [colorScaleLo, setColorScaleLo] = useState(0.0);
@@ -144,7 +144,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   useEffect(() => {
     // Store the expression matrix Uint8Array in the dataRef.
     if (expression && expression.matrix) {
-      dataRef.current = expression.matrix;
+      dataRef.current = copyUint8Array(expression.matrix);
     }
   }, [dataRef, expression]);
 
@@ -260,23 +260,26 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
   const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
-    const { zoom } = nextViewState;
-    const nextScaleFactor = 2 ** zoom;
+    const { zoom: nextZoom } = nextViewState;
+    const nextScaleFactor = 2 ** nextZoom;
 
-    const minTargetX = zoom === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactor));
+    const minTargetX = nextZoom === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactor));
     const maxTargetX = -1 * minTargetX;
 
-    const minTargetY = zoom === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactor));
+    const minTargetY = nextZoom === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactor));
     const maxTargetY = -1 * minTargetY;
 
     // Manipulate view state if necessary to keep the user in the window.
-    // eslint-disable-next-line no-param-reassign
-    nextViewState.target[0] = clamp(nextViewState.target[0], minTargetX, maxTargetX);
-    // eslint-disable-next-line no-param-reassign
-    nextViewState.target[1] = clamp(nextViewState.target[1], minTargetY, maxTargetY);
+    const nextTarget = [
+      clamp(nextViewState.target[0], minTargetX, maxTargetX),
+      clamp(nextViewState.target[1], minTargetY, maxTargetY),
+    ];
 
-    setViewState(nextViewState);
-  }, [matrixRight, matrixBottom]);
+    setViewState({
+      zoom: nextZoom,
+      target: (transpose ? [nextTarget[1], nextTarget[0]] : nextTarget),
+    });
+  }, [matrixRight, matrixBottom, transpose, setViewState]);
 
   // If `expression` or `cellOrdering` have changed,
   // then new tiles need to be generated,
@@ -316,6 +319,10 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
   }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose, xTiles, yTiles]);
 
+  useEffect(() => {
+    setIsRendering(backlog.length > 0);
+  }, [backlog, setIsRendering]);
+
   // Update the heatmap tiles if:
   // - new tiles are available (`tileIteration` has changed), or
   // - the matrix bounds have changed, or
@@ -346,7 +353,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       });
     }
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
-  }, [backlog.length, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
+  }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
     aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels]);
 
 
@@ -358,7 +365,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
     new HeatmapCompositeTextLayer({
-      showLoadingIndicator: backlog.length,
       targetX,
       targetY,
       scaleFactor,
@@ -467,17 +473,17 @@ const Heatmap = forwardRef((props, deckRef) => {
 
     if (colI === null) {
       if (transpose) {
-        updateCellsHover(null);
+        setCellHighlight(null);
       } else {
-        updateGenesHover(null);
+        setGeneHighlight(null);
       }
     }
 
     if (rowI === null) {
       if (transpose) {
-        updateGenesHover(null);
+        setGeneHighlight(null);
       } else {
-        updateCellsHover(null);
+        setCellHighlight(null);
       }
     }
 
@@ -490,18 +496,11 @@ const Heatmap = forwardRef((props, deckRef) => {
 
     const obsId = expression.rows[obsI];
     const varId = expression.cols[varI];
-
-    updateCellsHover({
-      cellId: obsId,
-      uuid,
-    });
-
-    updateGenesHover({
-      geneId: varId,
-      uuid,
-    });
-
-    updateStatus(`Hovered ${obsId} and ${varId}`);
+    if (setComponentHover) {
+      setComponentHover();
+    }
+    setCellHighlight(obsId);
+    setGeneHighlight(varId);
   }
 
   return (

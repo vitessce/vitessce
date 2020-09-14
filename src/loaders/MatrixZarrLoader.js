@@ -38,6 +38,8 @@ export default class MatrixZarrLoader extends AbstractLoader {
   }
 
   load() {
-    return Promise.all([this.loadAttrs(), this.loadArr()]);
+    return Promise
+      .all([this.loadAttrs(), this.loadArr()])
+      .then(data => Promise.resolve({ data, url: null }));
   }
 }

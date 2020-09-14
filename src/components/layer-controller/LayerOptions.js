@@ -98,10 +98,14 @@ function GlobalSelectionSlider({
       // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
       // we have the two handlers.
       onChange={
-        (event, newValue) => handleChange({ selection: { [field]: newValue }, event })
+        (event, newValue) => {
+          handleChange({ selection: { [field]: newValue }, event });
+        }
       }
       onChangeCommitted={
-        (event, newValue) => handleChange({ selection: { [field]: newValue }, event })
+        (event, newValue) => {
+          handleChange({ selection: { [field]: newValue }, event });
+        }
       }
       valueLabelDisplay="auto"
       getAriaLabel={() => `${field} slider`}
@@ -157,6 +161,7 @@ function LayerOptions({
   handleColormapChange,
   handleOpacityChange,
   globalControlDimensions,
+  globalDimensionValues,
   handleGlobalChannelsSelectionChange,
   handleDomainChange,
   channels,
@@ -164,7 +169,7 @@ function LayerOptions({
   domainType,
   isRgb,
 }) {
-  const hasDimensionsAndChannels = dimensions.length > 0 && Object.keys(channels).length > 0;
+  const hasDimensionsAndChannels = dimensions.length > 0 && channels.length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       {!isRgb ? (
@@ -204,7 +209,7 @@ function LayerOptions({
               <LayerOption name={field} inputId={`${field}-slider`} key={field}>
                 <GlobalSelectionSlider
                   field={field}
-                  value={channels[Object.keys(channels)[0]].selection[field]}
+                  value={globalDimensionValues[field]}
                   handleChange={handleGlobalChannelsSelectionChange}
                   possibleValues={values}
                 />

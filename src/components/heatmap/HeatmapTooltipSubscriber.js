@@ -1,85 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import PubSub from 'pubsub-js';
-import {
-  GENES_HOVER, CELLS_HOVER, VIEW_INFO,
-} from '../../events';
+import React from 'react';
 import Tooltip2D from '../tooltip/Tooltip2D';
 import TooltipContent from '../tooltip/TooltipContent';
+import { useComponentHover, useComponentViewInfo } from '../../app/state/hooks';
 
 export default function HeatmapTooltipSubscriber(props) {
   const {
-    uuid, width, height, transpose, getCellInfo, getGeneInfo,
+    parentUuid,
+    width, height, transpose,
+    getCellInfo, getGeneInfo,
+    cellHighlight, geneHighlight,
   } = props;
 
-  const [cellInfo, setCellInfo] = useState();
-  const [geneInfo, setGeneInfo] = useState();
+  const sourceUuid = useComponentHover();
+  const viewInfo = useComponentViewInfo(parentUuid);
 
-  const [sourceUuid, setSourceUuid] = useState();
-  const [viewInfo, setViewInfo] = useState();
-  const [x, setX] = useState(null);
-  const [y, setY] = useState(null);
+  const [cellInfo, cellCoord] = (cellHighlight && getCellInfo ? (
+    [
+      getCellInfo(cellHighlight),
+      (viewInfo && viewInfo.project
+        ? viewInfo.project(cellHighlight, null)[(transpose ? 0 : 1)]
+        : null),
+    ]
+  ) : ([null, null]));
 
-  useEffect(() => {
-    const cellsHoverToken = PubSub.subscribe(
-      CELLS_HOVER, (msg, hoverInfo) => {
-        if (!hoverInfo) {
-          setCellInfo(null);
-          setSourceUuid(null);
-        } else {
-          const newCellInfo = getCellInfo(hoverInfo.cellId);
-          setCellInfo(newCellInfo);
-          setSourceUuid(hoverInfo.uuid);
-          if (viewInfo && viewInfo.project) {
-            const [newX, newY] = viewInfo.project(hoverInfo.cellId, null);
-            if (transpose) {
-              setX(newX);
-            } else {
-              setY(newY);
-            }
-          }
-        }
-      },
-    );
-    const genesHoverToken = PubSub.subscribe(
-      GENES_HOVER, (msg, hoverInfo) => {
-        if (!hoverInfo) {
-          setGeneInfo(null);
-          setSourceUuid(null);
-        } else {
-          const newGeneInfo = getGeneInfo(hoverInfo.geneId);
-          setGeneInfo(newGeneInfo);
-          setSourceUuid(hoverInfo.uuid);
-          if (viewInfo && viewInfo.project) {
-            const [newX, newY] = viewInfo.project(null, hoverInfo.geneId);
-            if (transpose) {
-              setY(newY);
-            } else {
-              setX(newX);
-            }
-          }
-        }
-      },
-    );
-    const viewInfoToken = PubSub.subscribe(
-      VIEW_INFO, (msg, newViewInfo) => {
-        if (newViewInfo && newViewInfo.uuid && uuid === newViewInfo.uuid) {
-          setViewInfo(newViewInfo);
-        }
-      },
-    );
-    return () => {
-      PubSub.unsubscribe(cellsHoverToken);
-      PubSub.unsubscribe(genesHoverToken);
-      PubSub.unsubscribe(viewInfoToken);
-    };
-  }, [getCellInfo, getGeneInfo, transpose, uuid, viewInfo]);
+  const [geneInfo, geneCoord] = (geneHighlight && getGeneInfo ? (
+    [
+      getGeneInfo(geneHighlight),
+      (viewInfo && viewInfo.project
+        ? viewInfo.project(null, geneHighlight)[(transpose ? 1 : 0)]
+        : null),
+    ]
+  ) : ([null, null]));
+
+  const x = (transpose ? cellCoord : geneCoord);
+  const y = (transpose ? geneCoord : cellCoord);
 
   return (
     (cellInfo || geneInfo ? (
       <Tooltip2D
         x={x}
         y={y}
-        parentUuid={uuid}
+        parentUuid={parentUuid}
         parentWidth={width}
         parentHeight={height}
         sourceUuid={sourceUuid}

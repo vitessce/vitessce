@@ -1,10 +1,10 @@
 import expect from 'expect';
 
 import {
-  makeGridLayout, range, getMaxRows, resolveLayout,
-} from './layoutUtils';
+  makeGridLayout, getMaxRows, resolveLayout,
+} from './layout-utils';
 
-describe('layoutUtils.js', () => {
+describe('layout-utils.js', () => {
   describe('makeGridLayout', () => {
     it('applies columnXs and makes list from object', () => {
       const columnXs = [0, 4, 8, 12];
@@ -62,12 +62,6 @@ describe('layoutUtils.js', () => {
     });
   });
 
-  describe('range', () => {
-    it('works like python', () => {
-      expect(range(4)).toEqual([0, 1, 2, 3]);
-    });
-  });
-
   describe('getMaxRows', () => {
     it('works', () => {
       const columnXs = [0, 4, 8, 12];
@@ -93,10 +87,12 @@ describe('layoutUtils.js', () => {
     const expectedComponents = {
       r0_c0: {
         component: 'NoProps',
+        coordinationScopes: {},
         props: {},
       },
       r1_c1: {
         component: 'HasProps',
+        coordinationScopes: {},
         props: {
           foo: 'bar',
         },

@@ -1,6 +1,3 @@
-import Ajv from 'ajv';
-import datasetSchema from '../schemas/dataset.schema.json';
-
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
@@ -29,7 +26,6 @@ const linnarssonBase = {
       // TODO: remove this temporary override when the
       // clusters.json file has been converted to expression-matrix.zarr format.
       ...makeLayerNameToConfig('linnarsson')('clusters'),
-      name: 'expression-matrix',
       type: 'EXPRESSION-MATRIX',
     },
   ],
@@ -79,11 +75,13 @@ const vanderbiltBase = {
 // resulting ordering of elements in the DOM.
 const configs = {
   'just-scatter': {
+    version: '0.1.0',
     public: false,
     layers: [
       {
         name: 'cells',
         type: 'CELLS',
+        fileType: 'cells.json',
         url: `${urlPrefix}/linnarsson/linnarsson.cells.json`,
         requestInit: {
           // Where the client checks that the value is from an enumeration,
@@ -116,6 +114,7 @@ const configs = {
     ],
   },
   'just-scatter-expression': {
+    version: '0.1.0',
     public: false,
     layers: [
       {
@@ -149,10 +148,42 @@ const configs = {
     ],
   },
   'linnarsson-2018': {
-    ...linnarssonBase,
     name: 'Linnarsson',
+    version: '1.0.0',
+    description: linnarssonDescription,
     public: true,
-    staticLayout: [
+    datasets: [
+      {
+        uid: 'linnarsson-2018',
+        name: 'Linnarsson 2018',
+        files: linnarssonBase.layers.map(file => ({
+          type: file.type.toLowerCase(),
+          fileType: file.fileType,
+          url: file.url,
+        })),
+      },
+    ],
+    initStrategy: 'auto',
+    coordinationSpace: {
+      embeddingZoom: {
+        PCA: 0,
+        TSNE: 0.75,
+      },
+      embeddingType: {
+        PCA: 'PCA',
+        TSNE: 't-SNE',
+      },
+      spatialZoom: {
+        A: -5.5,
+      },
+      spatialTargetX: {
+        A: 16000,
+      },
+      spatialTargetY: {
+        A: 20000,
+      },
+    },
+    layout: [
       { component: 'description',
         props: {
           description: `Linnarsson: ${linnarssonDescription}`,
@@ -164,11 +195,10 @@ const configs = {
       { component: 'status',
         x: 0, y: 5, w: 2, h: 1 },
       { component: 'spatial',
-        props: {
-          view: {
-            zoom: -5.5,
-            target: [16000, 20000, 0],
-          },
+        coordinationScopes: {
+          spatialZoom: 'A',
+          spatialTargetX: 'A',
+          spatialTargetY: 'A',
         },
         x: 2, y: 0, w: 4, h: 4 },
       { component: 'genes',
@@ -181,25 +211,22 @@ const configs = {
         },
         x: 2, y: 4, w: 10, h: 2 },
       { component: 'scatterplot',
-        props: {
-          mapping: 'PCA',
-          // This intentionally does not have a  "view" prop,
-          // in order to have an example that uses the default.
+        coordinationScopes: {
+          embeddingType: 'PCA',
+          embeddingZoom: 'PCA',
         },
         x: 6, y: 0, w: 3, h: 2 },
       { component: 'scatterplot',
-        props: {
-          mapping: 't-SNE',
-          view: {
-            zoom: 0.75,
-            target: [0, 0, 0],
-          },
+        coordinationScopes: {
+          embeddingType: 'TSNE',
+          embeddingZoom: 'TSNE',
         },
         x: 6, y: 2, w: 3, h: 2 },
     ],
   },
   'linnarsson-2018-two-spatial': {
     ...linnarssonBase,
+    version: '0.1.0',
     name: 'Linnarsson (two spatial)',
     staticLayout: [
       { component: 'spatial',
@@ -224,8 +251,6 @@ const configs = {
       { component: 'scatterplot',
         props: { mapping: 'PCA' },
         x: 5, y: 2, w: 5, h: 2 },
-      { component: 'factors',
-        x: 10, y: 0, w: 2, h: 2 },
       { component: 'genes',
         x: 10, y: 2, w: 2, h: 2 },
       { component: 'heatmap',
@@ -234,6 +259,7 @@ const configs = {
   },
   'linnarsson-2018-just-spatial': {
     ...linnarssonBaseNoClusters,
+    version: '0.1.0',
     name: 'Linnarsson (just spatial)',
     staticLayout: [
       { component: 'spatial',
@@ -244,14 +270,13 @@ const configs = {
           },
         },
         x: 0, y: 0, w: 10, h: 2 },
-      { component: 'factors',
-        x: 10, y: 0, w: 2, h: 1 },
       { component: 'genes',
         x: 10, y: 1, w: 2, h: 1 },
     ],
   },
   'linnarsson-2018-static': {
     ...linnarssonBase,
+    version: '0.1.0',
     name: 'Linnarsson (static layout)',
     staticLayout: [
       { component: 'description',
@@ -270,8 +295,6 @@ const configs = {
           },
         },
         x: 3, y: 0, w: 6, h: 4 },
-      { component: 'factors',
-        x: 9, y: 0, w: 3, h: 2 },
       { component: 'genes',
         x: 9, y: 2, w: 3, h: 2 },
       { component: 'heatmap',
@@ -280,6 +303,7 @@ const configs = {
   },
   'linnarsson-2018-dozen': {
     ...linnarssonBase,
+    version: '0.1.0',
     name: 'Linnarsson (static layout, redundant components for performance testing)',
     staticLayout: [
       { component: 'spatial',
@@ -338,8 +362,6 @@ const configs = {
       { component: 'scatterplot',
         props: { mapping: 'PCA' },
         x: 4, y: 5, w: 4, h: 1 },
-      { component: 'factors',
-        x: 8, y: 0, w: 4, h: 2 },
       { component: 'genes',
         x: 8, y: 2, w: 4, h: 2 },
       { component: 'heatmap',
@@ -348,6 +370,7 @@ const configs = {
   },
   'dries-2019': {
     ...driesBase,
+    version: '0.1.0',
     name: 'Dries',
     public: true,
     staticLayout: [
@@ -392,17 +415,42 @@ const configs = {
     ],
   },
   'wang-2019': {
-    ...wangBase,
     name: 'Wang',
+    version: '1.0.0',
+    description: wangDescription,
     public: true,
-    staticLayout: [
-      { component: 'spatial',
-        props: {
-          view: {
-            zoom: -1,
-            target: [0, 0, 0],
+    datasets: [
+      {
+        uid: 'wang-2019',
+        name: 'Wang 2019',
+        files: wangBase.layers.map(file => ({
+          type: file.type.toLowerCase(),
+          fileType: file.fileType,
+          url: file.url,
+        })),
+      },
+    ],
+    initStrategy: 'auto',
+    coordinationSpace: {
+      spatialZoom: {
+        A: -1,
+      },
+      spatialLayers: {
+        A: [
+          {
+            type: 'molecules', radius: 2, opacity: 1, visible: true,
           },
-          moleculeRadius: 2,
+          {
+            type: 'cells', opacity: 1, radius: 50, visible: true, stroked: false,
+          },
+        ],
+      },
+    },
+    layout: [
+      { component: 'spatial',
+        coordinationScopes: {
+          spatialZoom: 'A',
+          spatialLayers: 'A',
         },
         x: 0, y: 0, w: 10, h: 2 },
       { component: 'genes',
@@ -412,6 +460,7 @@ const configs = {
 
   vanderbilt: {
     ...vanderbiltBase,
+    version: '0.1.0',
     name: 'Spraggins',
     public: true,
     staticLayout: [
@@ -429,6 +478,7 @@ const configs = {
   },
   'just-higlass': {
     public: false,
+    version: '0.1.0',
     layers: [],
     name: 'HiGlass demo',
     staticLayout: [
@@ -650,6 +700,7 @@ const configs = {
     ],
   },
   'sc-atac-seq-10x-genomics-pbmc': {
+    version: '0.1.0',
     public: false,
     layers: [],
     name: 'HiGlass serverless demo with 10x Genomics scATAC-seq 5k PBMC dataset',
@@ -796,12 +847,5 @@ export function listConfigs(showAll) {
 }
 
 export function getConfig(id) {
-  const datasetConfig = configs[id];
-  const validate = new Ajv().compile(datasetSchema);
-  const valid = validate(datasetConfig);
-  if (!valid) {
-    const failureReason = JSON.stringify(validate.errors, null, 2);
-    console.warn('dataset validation failed', failureReason);
-  }
-  return datasetConfig;
+  return configs[id];
 }

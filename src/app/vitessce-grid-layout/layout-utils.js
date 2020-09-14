@@ -1,3 +1,5 @@
+import { range } from '../../utils';
+
 function sum(a) {
   return a.reduce((x, y) => x + y, 0);
 }
@@ -14,10 +16,6 @@ export function makeGridLayout(colXs, colLayout) {
     x: colXs[spec.x],
     w: sum(colWs.slice(spec.x, spec.x + (spec.w || 1))),
   }));
-}
-
-export function range(end) {
-  return Array.from(Array(end).keys());
 }
 
 export function getMaxRows(layouts) {
@@ -41,7 +39,9 @@ export function resolveLayout(layout) {
     (def) => {
       const id = `r${def.x}_c${def.y}`;
       components[id] = {
-        component: def.component, props: def.props || {},
+        component: def.component,
+        props: def.props || {},
+        coordinationScopes: def.coordinationScopes || {},
       };
       positions[id] = {
         id, x: def.x, y: def.y, w: def.w, h: def.h,

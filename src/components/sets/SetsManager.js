@@ -59,8 +59,8 @@ import { nodeToRenderProps } from './reducer';
 export default function SetsManager(props) {
   const {
     tree,
+    checkedLevel,
     datatype,
-    clearPleaseWait,
     draggable = true,
     checkable = true,
     editable = true,
@@ -75,6 +75,7 @@ export default function SetsManager(props) {
     onCheckLevel,
     onNodeSetColor,
     onNodeSetName,
+    onNodeCheckNewName,
     onNodeSetIsEditing,
     onNodeRemove,
     onNodeView,
@@ -92,10 +93,6 @@ export default function SetsManager(props) {
     hasCheckedSetsToIntersect,
     hasCheckedSetsToComplement,
   } = props;
-
-  if (clearPleaseWait && tree) {
-    clearPleaseWait('cell-sets');
-  }
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -120,14 +117,15 @@ export default function SetsManager(props) {
         exportable={exportable}
 
         isChecking={tree._state.isChecking}
-        checkedLevelKey={tree._state.checkedLevel.levelZeroKey}
-        checkedLevelIndex={tree._state.checkedLevel.levelIndex}
+        checkedLevelKey={checkedLevel ? checkedLevel.levelZeroKey : null}
+        checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
 
         onCheckNode={onCheckNode}
         onCheckLevel={onCheckLevel}
         onNodeView={onNodeView}
         onNodeSetColor={onNodeSetColor}
         onNodeSetName={onNodeSetName}
+        onNodeCheckNewName={onNodeCheckNewName}
         onNodeSetIsEditing={onNodeSetIsEditing}
         onNodeRemove={onNodeRemove}
         onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
@@ -146,32 +144,34 @@ export default function SetsManager(props) {
   return (
     <div className="sets-manager">
       <div className="sets-manager-tree">
-        <Tree
-          draggable={draggable}
-          checkable={checkable}
+        {tree && (
+          <Tree
+            draggable={draggable}
+            checkable={checkable}
 
-          checkedKeys={tree._state.checkedKeys}
-          expandedKeys={tree._state.expandedKeys}
-          autoExpandParent={tree._state.autoExpandParent}
+            checkedKeys={tree && tree._state ? tree._state.checkedKeys : []}
+            expandedKeys={tree && tree._state ? tree._state.expandedKeys : []}
+            autoExpandParent={tree && tree._state ? tree._state.autoExpandParent : false}
 
-          onCheck={(checkedKeys, info) => onCheckNode(
-            info.node.props.nodeKey,
-            info.checked,
-          )}
-          onExpand={(expandedKeys, info) => onExpandNode(
-            expandedKeys,
-            info.node.props.nodeKey,
-            info.expanded,
-          )}
-          onDrop={(info) => {
-            const { eventKey: dropKey } = info.node.props;
-            const { eventKey: dragKey } = info.dragNode.props;
-            const { dropToGap, dropPosition } = info;
-            onDropNode(dropKey, dragKey, dropPosition, dropToGap);
-          }}
-        >
-          {renderTreeNodes(tree.tree)}
-        </Tree>
+            onCheck={(checkedKeys, info) => onCheckNode(
+              info.node.props.nodeKey,
+              info.checked,
+            )}
+            onExpand={(expandedKeys, info) => onExpandNode(
+              expandedKeys,
+              info.node.props.nodeKey,
+              info.expanded,
+            )}
+            onDrop={(info) => {
+              const { eventKey: dropKey } = info.node.props;
+              const { eventKey: dragKey } = info.dragNode.props;
+              const { dropToGap, dropPosition } = info;
+              onDropNode(dropKey, dragKey, dropPosition, dropToGap);
+            }}
+          >
+            {renderTreeNodes(tree.tree)}
+          </Tree>
+        )}
         <PlusButton
           datatype={datatype}
           onError={onError}
@@ -181,7 +181,7 @@ export default function SetsManager(props) {
           editable={editable}
         />
       </div>
-      {tree._state.isChecking ? (
+      {tree && tree._state && tree._state.isChecking ? (
         <div className="set-operation-buttons">
           <SetOperationButtons
             onUnion={onUnion}

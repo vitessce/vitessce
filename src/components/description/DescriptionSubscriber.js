@@ -1,59 +1,60 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import PubSub from 'pubsub-js';
-import { METADATA_ADD, METADATA_REMOVE, RESET } from '../../events';
+import React, { useEffect, useMemo } from 'react';
+import { useReady } from '../hooks';
+import { useRasterData } from '../data-hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Description from './Description';
 
+const DESCRIPTION_DATA_TYPES = ['raster'];
+
 export default function DescriptionSubscriber(props) {
   const {
+    coordinationScopes,
     description,
-    onReady,
     removeGridComponent,
     theme,
   } = props;
 
-  const onReadyCallback = useCallback(onReady, []);
-  const [metadata, setMetadata] = useState({});
+  const loaders = useLoaders();
 
+  // Get "props" from the coordination space.
+  const [{
+    dataset,
+    spatialLayers: layers,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.description, coordinationScopes);
+
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    DESCRIPTION_DATA_TYPES,
+  );
+
+  // Reset loader progress when the dataset has changed.
   useEffect(() => {
-    function handleMetadataAdd(msg, { layerId, layerName, layerMetadata }) {
-      setMetadata((prevMetadata) => {
-        if (prevMetadata[layerName]) {
-          // Metadata for this layer has already been added. Just append the layer ID.
-          prevMetadata[layerName].ids.add(layerId);
-          return prevMetadata;
+    resetReadyItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
+
+  // Get data from loaders using the data hooks.
+  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
+    loaders, dataset, setItemIsReady, () => {}, false,
+  );
+
+  const metadata = useMemo(() => {
+    const result = new Map();
+    if (layers && raster && imageLayerMeta && imageLayerLoaders) {
+      const rasterLayers = layers.filter(layer => layer.type === 'raster');
+      rasterLayers.forEach((layer) => {
+        if (imageLayerMeta[layer.index]) {
+          // Want to ensure that layer index is a string.
+          result.set(`${layer.index}`, {
+            name: raster.layers[layer.index].name,
+            metadata: imageLayerLoaders[layer.index].getMetadata(),
+          });
         }
-        return {
-          ...prevMetadata,
-          [layerName]: {
-            ids: new Set([layerId]),
-            metadata: layerMetadata,
-          },
-        };
       });
     }
-    function handleMetadataRemove(msg, { layerId, layerName }) {
-      setMetadata((prevMetadata) => {
-        prevMetadata[layerName].ids.delete(layerId);
-        if (prevMetadata[layerName].ids.size < 1) {
-          return {
-            ...prevMetadata,
-            [layerName]: undefined,
-          };
-        }
-        return prevMetadata;
-      });
-    }
-    const metadataAddToken = PubSub.subscribe(METADATA_ADD, handleMetadataAdd);
-    const metadataRemoveToken = PubSub.subscribe(METADATA_REMOVE, handleMetadataRemove);
-    const resetToken = PubSub.subscribe(RESET, () => setMetadata({}));
-    onReadyCallback();
-    return () => {
-      PubSub.unsubscribe(metadataAddToken);
-      PubSub.unsubscribe(metadataRemoveToken);
-      PubSub.unsubscribe(resetToken);
-    };
-  }, [onReadyCallback]);
+    return result;
+  }, [raster, layers, imageLayerMeta, imageLayerLoaders]);
 
   return (
     <TitleInfo
@@ -61,6 +62,7 @@ export default function DescriptionSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isScroll
       theme={theme}
+      isReady={isReady}
     >
       <Description
         description={description}

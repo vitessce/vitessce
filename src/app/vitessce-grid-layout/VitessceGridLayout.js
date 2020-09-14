@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import { getMaxRows, resolveLayout } from './layoutUtils';
+import { getMaxRows, resolveLayout } from './layout-utils';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -12,9 +12,10 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
   }
 }
 
-export default function VitessceGrid(props) {
+export default function VitessceGridLayout(props) {
   const {
-    layout, getComponent, padding, margin, draggableHandle,
+    layout,
+    getComponent, padding, margin, draggableHandle,
     reactGridLayoutProps, onAllReady, rowHeight, theme, height,
   } = props;
 
@@ -60,7 +61,7 @@ export default function VitessceGrid(props) {
     }
   }, [readyComponentKeys, gridComponents, onAllReady]);
 
-  const layoutChildren = Object.entries(gridComponents).map(([k, v]) => {
+  const layoutChildren = Object.entries(gridComponents).map(([k, v], i) => {
     const Component = getComponent(v.component);
     const onReady = () => {
       setReadyComponentKeys((prevReadyComponentKeys) => {
@@ -79,6 +80,8 @@ export default function VitessceGrid(props) {
       <div key={k}>
         <Component
           {... v.props}
+          uuid={i}
+          coordinationScopes={v.coordinationScopes}
           theme={theme}
           removeGridComponent={removeGridComponent}
           onReady={onReady}
@@ -112,7 +115,7 @@ export default function VitessceGrid(props) {
   );
 }
 
-VitessceGrid.defaultProps = {
+VitessceGridLayout.defaultProps = {
   padding: 10,
   margin: 10,
   onAllReady: () => {},

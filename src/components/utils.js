@@ -1,9 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
-// eslint-disable-next-line vitessce-rules/prevent-pubsub-import
-import PubSub from 'pubsub-js';
-import debounce from 'lodash/debounce';
 import { COORDINATE_SYSTEM } from 'deck.gl';
-import { GRID_RESIZE } from '../events';
 
 export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
@@ -11,7 +6,7 @@ export function makeCellStatusMessage(cellInfoFactors) {
   ).join('; ');
 }
 
-export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uuid) {
+export function cellLayerDefaultProps(cells, updateStatus, setCellHighlight, setComponentHover) {
   return {
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     data: cells,
@@ -20,19 +15,24 @@ export function cellLayerDefaultProps(cells, updateStatus, updateCellsHover, uui
     stroked: true,
     filled: true,
     getElevation: 0,
-    getLineWidth: 0,
     onHover: (info) => {
+      // Notify the parent component that its child component is
+      // the "hover source".
+      if (setComponentHover) {
+        setComponentHover();
+      }
       if (info.object) {
         const [cellId, cellInfo] = info.object;
         const { factors = {} } = cellInfo;
-        updateStatus(makeCellStatusMessage(factors));
-        updateCellsHover({
-          cellId,
-          uuid,
-        });
-      } else {
+        if (updateStatus) {
+          updateStatus(makeCellStatusMessage(factors));
+        }
+        if (setCellHighlight) {
+          setCellHighlight(cellId);
+        }
+      } else if (setCellHighlight) {
         // Clear the currently-hovered cell info by passing null.
-        updateCellsHover(null);
+        setCellHighlight(null);
       }
     },
   };
@@ -63,16 +63,6 @@ export const VIEWER_PALETTE = [
   [255, 128, 0],
   [255, 0, 0],
 ];
-
-// Adapted from https://github.com/feross/fromentries/blob/29b52a850bb3a47c390937631c2638edf3443942/index.js
-export function fromEntries(iterable) {
-  return [...iterable]
-    .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {});
-}
-
-export function range(length) {
-  return [...Array(length).keys()];
-}
 
 export const COLORMAP_OPTIONS = [
   'viridis',
@@ -109,95 +99,10 @@ export function createDefaultUpdateViewInfo(componentName) {
   return viewInfo => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
 }
 
-export function createDefaultClearPleaseWait(componentName) {
-  return layer => console.warn(`${componentName} "clearPleaseWait" not provided; layer: ${layer}`);
+export function createDefaultClearPleaseWait() {
+  return () => {};
 }
 
-/**
- * Custom hook, subscribes to GRID_RESIZE and window resize events.
- * @returns {array} `[width, height, containerRef]` where width and height
- * are numbers and containerRef is a React ref.
- */
-export function useGridItemSize() {
-  const containerRef = useRef();
-
-  const [height, setHeight] = useState();
-  const [width, setWidth] = useState();
-
-  useEffect(() => {
-    function onResize() {
-      if (!containerRef.current) return;
-      const container = containerRef.current;
-      const containerRect = container.getBoundingClientRect();
-      setHeight(containerRect.height);
-      setWidth(containerRect.width);
-    }
-    const onResizeDebounced = debounce(onResize, 100, { trailing: true });
-    const gridResizeToken = PubSub.subscribe(GRID_RESIZE, onResize);
-    window.addEventListener('resize', onResizeDebounced);
-    onResize();
-    return () => {
-      PubSub.unsubscribe(gridResizeToken);
-      window.removeEventListener('resize', onResizeDebounced);
-    };
-  }, []);
-
-  return [width, height, containerRef];
-}
-
-/**
- * Custom hook, subscribes to GRID_RESIZE and window resize events.
- * @returns {array} `[width, height, deckRef]` where width and height
- * are numbers and deckRef is a React ref to be used with
- * a <DeckGL/> element (or a forwardRef to one).
- */
-export function useDeckCanvasSize() {
-  const deckRef = useRef();
-
-  const [height, setHeight] = useState();
-  const [width, setWidth] = useState();
-
-  useEffect(() => {
-    function onResize() {
-      if (!deckRef.current) return;
-      const { canvas } = deckRef.current.deck;
-      const canvasRect = canvas.getBoundingClientRect();
-      setHeight(canvasRect.height);
-      setWidth(canvasRect.width);
-    }
-    const onResizeDebounced = debounce(onResize, 100, { trailing: true });
-    const gridResizeToken = PubSub.subscribe(GRID_RESIZE, onResize);
-    window.addEventListener('resize', onResizeDebounced);
-    onResize();
-    return () => {
-      PubSub.unsubscribe(gridResizeToken);
-      window.removeEventListener('resize', onResizeDebounced);
-    };
-  }, []);
-
-  return [width, height, deckRef];
-}
-
-/**
- * Select between a singular and plural version of a word,
- * based on an item count.
- * @param {string} singular The singular version of the word.
- * @param {string} plural The plural version of the word.
- * @param {number} count The number of items.
- * @returns {string} Singular if count is one, else plural.
- */
-export function pluralize(singular, plural, count) {
-  return (count === 1 ? singular : plural);
-}
-
-/**
- * Capitalize a the first letter of a string.
- * @param {string} word A string to capitalize.
- * @returns {string} The word parameter with the first letter capitalized.
- */
-export function capitalize(word) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
-}
 
 /**
  * Copy a typed array into a new array buffer.

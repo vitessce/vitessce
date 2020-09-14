@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
-import some from 'lodash/some';
+import isEqual from 'lodash/isEqual';
 import intersection from 'lodash/intersection';
 import range from 'lodash/range';
 import { DEFAULT_COLOR, PALETTE } from '../utils';
@@ -10,10 +10,10 @@ import {
 } from './constants';
 
 // Constants.
-const CURRENT_SELECTION_NAME = 'Current selection';
-const CURRENT_UNION_NAME = 'Current union';
-const CURRENT_INTERSECTION_NAME = 'Current intersection';
-const CURRENT_COMPLEMENT_NAME = 'Current complement';
+const CURRENT_SELECTION_NAME = 'Selection';
+const CURRENT_UNION_NAME = 'Union';
+const CURRENT_INTERSECTION_NAME = 'Intersection';
+const CURRENT_COMPLEMENT_NAME = 'Complement';
 const NEW_HIERARCHY_NAME = 'New hierarchy';
 /**
  * If the following variable is true, the expand node interaction
@@ -352,6 +352,54 @@ function nodeFindNode(node, predicate) {
 }
 
 /**
+ * Find a node object that matches a predicate function.
+ * @param {object} node A node object.
+ * @param {function} predicate Returns true if a node matches a condition of interest.
+ * @returns {object|null} A node object matching the predicate, or null if none is found.
+ */
+function nodeFindNodePath(node, predicate, path) {
+  if (predicate(node)) {
+    return path;
+  }
+  if (!node.children) {
+    return null;
+  }
+  const foundNodes = node.children
+    .map(child => nodeFindNodePath(child, predicate, [...path, child]))
+    .filter(Boolean);
+  if (foundNodes.length === 1) {
+    return foundNodes[0];
+  }
+  return null;
+}
+
+/**
+ * Find a node matching a predicate function, relative to the whole tree.
+ * @param {object} currTree A tree object.
+ * @param {function} predicate Returns true if a node matches a condition of interest.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
+function treeFindNodePath(currTree, predicate) {
+  const foundNodes = currTree.tree
+    .map(levelZeroNode => nodeFindNodePath(levelZeroNode, predicate, [levelZeroNode]))
+    .filter(Boolean);
+  if (foundNodes.length === 1) {
+    return foundNodes[0];
+  }
+  return null;
+}
+
+/**
+ * Find a node matching a predicate function, relative to the whole tree.
+ * @param {object} currTree A tree object.
+ * @param {function} predicate Returns true if a node matches a condition of interest.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
+function treeFindNodePathByKey(currTree, targetKey) {
+  return treeFindNodePath(currTree, n => (n._state.key === targetKey));
+}
+
+/**
  * Find the level zero node flagged as .isForTools,
  * i.e. new sets created by the lasso/rectangle selection tools
  * should be placed as children of this node.
@@ -389,6 +437,47 @@ function treeFindNode(currTree, predicate) {
  */
 function treeFindNodeByKey(currTree, targetKey) {
   return treeFindNode(currTree, n => (n._state.key === targetKey));
+}
+
+/**
+ * Find a node with a matching name path, relative to a particular node.
+ * @param {object} node A node object.
+ * @param {string[]} path The name path for the node of interest.
+ * @param {number} currLevelIndex The index of the current hierarchy level.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
+function nodeFindNodeByNamePath(node, path, currLevelIndex) {
+  const currNodeName = path[currLevelIndex];
+  if (node.name === currNodeName) {
+    if (currLevelIndex === path.length - 1) {
+      return node;
+    }
+    if (node.children) {
+      const foundNodes = node.children
+        .map(child => nodeFindNodeByNamePath(child, path, currLevelIndex + 1))
+        .filter(Boolean);
+      if (foundNodes.length === 1) {
+        return foundNodes[0];
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Find a node with a matching name path, relative to the whole tree.
+ * @param {object} currTree A tree object.
+ * @param {string[]} targetNamePath The name path for the node of interest.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
+function treeFindNodeByNamePath(currTree, targetNamePath) {
+  const foundNodes = currTree.tree
+    .map(levelZeroNode => nodeFindNodeByNamePath(levelZeroNode, targetNamePath, 0))
+    .filter(Boolean);
+  if (foundNodes.length === 1) {
+    return foundNodes[0];
+  }
+  return null;
 }
 
 /**
@@ -539,7 +628,7 @@ export function nodeTransform(node, predicate, transform) {
 function nodeTransformChildOrAppendChild(node,
   ancestorPredicate, descendantPredicate, transform, descendant) {
   if (node.children && ancestorPredicate(node)) {
-    if (some(node.children.map(descendantPredicate))) {
+    if (node.children.some(descendantPredicate)) {
       return {
         ...node,
         children: node.children
@@ -565,6 +654,49 @@ function nodeTransformChildOrAppendChild(node,
 }
 
 /**
+ * Check whether a new potential node name already exists in the node
+ * or its descendants.
+ * @param {object} node A tree node.
+ * @param {string[]} potentialNamePath The new name to check.
+ * @param {number} currLevelIndex The level of the path currently
+ * being checked.
+ * @param {string} fromKey A key to ignore (never creates conflict). Optional.
+ * @returns {boolean} Returns true if there are conflicts, false otherwise.
+ */
+function nodeCheckNamePathConflicts(node, potentialNamePath, currLevelIndex, fromKey = null) {
+  if (fromKey !== null && node._state.key === fromKey) {
+    return false;
+  }
+  const potentialNodeName = potentialNamePath[currLevelIndex];
+  if (node.name === potentialNodeName) {
+    if (currLevelIndex === potentialNamePath.length - 1) {
+      return true;
+    }
+    if (node.children) {
+      const childrenHaveConflicts = node.children
+        .map(child => nodeCheckNamePathConflicts(
+          child, potentialNamePath, currLevelIndex + 1, fromKey,
+        ));
+      return childrenHaveConflicts.some(x => x);
+    }
+  }
+  return false;
+}
+
+/**
+ * Check whether a new potential node name already exists in the tree.
+ * @param {object} currTree A tree object.
+ * @param {string[]} potentialNamePath The new name to check.
+ * @param {string} fromKey A key to ignore (never creates conflict). Optional.
+ * @returns {boolean} Returns true if there are conflicts, false otherwise.
+ */
+function treeCheckNamePathConflicts(currTree, potentialNamePath, fromKey = null) {
+  const levelZeroNodesHaveConflicts = currTree.tree
+    .map(levelZeroNode => nodeCheckNamePathConflicts(levelZeroNode, potentialNamePath, 0, fromKey));
+  return levelZeroNodesHaveConflicts.some(x => x);
+}
+
+/**
  * Set the set associated with the node flagged as ._state.isCurrent,
  * under the level zero node flagged as ._state.isForTools.
  * If no .isForTools level zero node exists, then this function will add one.
@@ -576,7 +708,7 @@ function nodeTransformChildOrAppendChild(node,
  * By default, 'Current selection'.
  * @returns {object} The updated tree.
  */
-function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME) {
+function treeSetCurrentSet(currTree, cellIds, potentialName = CURRENT_SELECTION_NAME) {
   let newTree = currTree;
   let toolsNode = newTree.tree.find(nodeFindIsForToolsNode);
   if (!toolsNode) {
@@ -594,6 +726,13 @@ function treeSetCurrentSet(currTree, cellIds, name = CURRENT_SELECTION_NAME) {
   const nextCurrentSetColor = PALETTE[numToolsNodeChildren % PALETTE.length];
 
   const cellIdsWithProb = cellIds.map(cellId => ([cellId, null]));
+
+  const nameParts = [potentialName, 1];
+  while (treeCheckNamePathConflicts(currTree, [toolsNode.name, nameParts.join(' ')])) {
+    // eslint-disable-next-line no-plusplus
+    nameParts[1]++;
+  }
+  const name = nameParts.join(' ');
 
   newTree = {
     ...newTree,
@@ -1011,6 +1150,25 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
     dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dropKey);
   }
 
+  // Further, only allow dragging if the dragged node will have a unique
+  // name among its new siblings.
+  let hasSiblingNameConflict;
+  const dragNodeName = dragNode.name;
+  if (!dropNodeIsLevelZero) {
+    hasSiblingNameConflict = dropParentNode.children
+      .find(c => c.name === dragNodeName && c._state.key !== dragKey);
+  } else if (dropNodeIsLevelZero && !dropToGap) {
+    hasSiblingNameConflict = dropNode.children
+      .find(c => c.name === dragNodeName && c._state.key !== dragKey);
+  } else {
+    hasSiblingNameConflict = currTree.tree
+      .find(lzn => lzn.name === dragNodeName && lzn._state.key !== dragKey);
+  }
+
+  if (hasSiblingNameConflict) {
+    return currTree;
+  }
+
   // Remove the dragged object from its current position.
   const newTree = treeNodeRemove(currTree, dragKey, true);
 
@@ -1202,7 +1360,7 @@ function treeCreateLevelZeroNode(currTree) {
  * @returns {boolean} Does it make sense?
  */
 export function treeHasCheckedSetsToView(currTree) {
-  return currTree._state.checkedKeys.length > 0;
+  return currTree && currTree._state && currTree._state.checkedKeys.length > 0;
 }
 
 /**
@@ -1212,7 +1370,12 @@ export function treeHasCheckedSetsToView(currTree) {
  * @returns {boolean} Does it make sense?
  */
 export function treeHasCheckedSetsToComplement(currTree) {
-  return currTree._state.checkedKeys.length > 0 && treeToComplement(currTree).length > 0;
+  return (
+    currTree
+    && currTree._state
+    && currTree._state.checkedKeys.length > 0
+    && treeToComplement(currTree).length > 0
+  );
 }
 
 /**
@@ -1222,7 +1385,12 @@ export function treeHasCheckedSetsToComplement(currTree) {
  * @returns {boolean} Does it make sense?
  */
 export function treeHasCheckedSetsToIntersect(currTree) {
-  return currTree._state.checkedKeys.length > 1 && treeToIntersection(currTree).length > 0;
+  return (
+    currTree
+    && currTree._state
+    && currTree._state.checkedKeys.length > 1
+    && treeToIntersection(currTree).length > 0
+  );
 }
 
 /**
@@ -1232,7 +1400,12 @@ export function treeHasCheckedSetsToIntersect(currTree) {
  * @returns {boolean} Does it make sense?
  */
 export function treeHasCheckedSetsToUnion(currTree) {
-  return currTree._state.checkedKeys.length > 1 && treeToUnion(currTree).length > 0;
+  return (
+    currTree
+    && currTree._state
+    && currTree._state.checkedKeys.length > 1
+    && treeToUnion(currTree).length > 0
+  );
 }
 
 /**
@@ -1431,16 +1604,42 @@ export function treeToVisibleCells(currTree) {
 }
 
 /**
+ * Given a tree with state, get the cellIds and cellColors,
+ * based on the nodes currently marked as "visible".
+ * @param {object} currTree A tree object.
+ * @returns {array} Tuple of [cellIds, cellColors]
+ * where cellIds is an array of strings,
+ * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
+ */
+export function treeToCellColorsBySetNames(currTree, selectedNamePaths) {
+  let cellColorsArray = [];
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      cellColorsArray = [
+        ...cellColorsArray,
+        ...nodeSet.map(([cellId, prob]) => [
+          cellId,
+          (isNil(prob) ? node.color : colorMixWithUncertainty(node.color, prob)),
+        ]),
+      ];
+    }
+  });
+  return new Map(cellColorsArray);
+}
+
+/**
  * Given a tree with state, get the sizes of the
  * sets currently marked as "visible".
  * @param {object} currTree A tree object.
  * @returns {object[]} Array of objects
  * with the properties `name` and `size`.
  */
-export function treeToVisibleSetSizes(currTree) {
+export function treeToSetSizesBySetNames(currTree, selectedNamePaths) {
   const sizes = [];
-  currTree._state.visibleKeys.forEach((setKey) => {
-    const node = treeFindNodeByKey(currTree, setKey);
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
       sizes.push({
@@ -1454,14 +1653,96 @@ export function treeToVisibleSetSizes(currTree) {
   return sizes;
 }
 
+export function initializeSets(rawData) {
+  const setsType = rawData.datatype;
+  const initialTree = treeInitialize(setsType);
+  return treeImport(initialTree, rawData.tree);
+}
+
+export function treeToSetNamesByKeys(currTree, keys) {
+  const namePaths = [];
+  keys.forEach((setKey) => {
+    const nodePath = treeFindNodePathByKey(currTree, setKey);
+    if (nodePath) {
+      const namePath = nodePath.map(node => node.name);
+      namePaths.push(namePath);
+    }
+  });
+  return namePaths;
+}
+
+export function treeToVisibleSetNames(currTree) {
+  return treeToSetNamesByKeys(currTree, currTree._state.visibleKeys);
+}
+
+function treePreventPublish(currTree) {
+  return {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      publish: false,
+    },
+  };
+}
+
+function treePublish(currTree) {
+  return {
+    ...currTree,
+    _state: {
+      ...currTree._state,
+      publish: true,
+    },
+  };
+}
+
+/**
+ *
+ * @param {object} currTree
+ * @param {string} potentialNewName The potential new name for the node.
+ * @param {string} nodeKey The unique key of the node to check.
+ */
+export function treeCheckNameConflictsByKey(currTree, potentialNewName, nodeKey) {
+  const namePath = treeFindNodePathByKey(currTree, nodeKey).map(node => node.name);
+  namePath.pop();
+  return treeCheckNamePathConflicts(currTree, [...namePath, potentialNewName], nodeKey);
+}
+
+export function treeToExpectedCheckedLevel(currTree, visibleNamePaths) {
+  let result = null;
+  if (currTree) {
+    currTree.tree.forEach((lzn) => {
+      const levelZeroKey = lzn._state.key;
+      const height = nodeToHeight(lzn);
+      range(height).forEach((i) => {
+        const levelIndex = i + 1;
+        const levelNodeKeys = nodeToLevelDescendantsFlat(lzn, levelIndex - 1, true)
+          .map(d => d._state.key);
+        const levelNodePaths = levelNodeKeys
+          .map(k => treeFindNodePathByKey(currTree, k).map(node => node.name));
+        if (isEqual(levelNodePaths, visibleNamePaths)) {
+          result = { levelZeroKey, levelIndex };
+        }
+      });
+    });
+  }
+  return result;
+}
+
+export function treeToCheckedLevel(currTree) {
+  if (currTree) {
+    return currTree._state.checkedLevel;
+  }
+  return null;
+}
+
 
 /**
  * Constants for reducer action type strings.
  */
 export const ACTION = Object.freeze({
+  SET: 'set',
   RESET: 'reset',
   IMPORT: 'import',
-  IMPORT_AND_VIEW: 'importAndView',
   SET_TREE_ITEMS: 'setTreeItems',
   SET_CURRENT_SET: 'setCurrentSet',
   EXPAND_NODE: 'expandNode',
@@ -1482,6 +1763,7 @@ export const ACTION = Object.freeze({
 });
 
 const reducer = createReducer({
+  [ACTION.SET]: (state, action) => treePreventPublish(action.tree),
   [ACTION.RESET]: state => treeReset(
     state,
   ),
@@ -1489,32 +1771,17 @@ const reducer = createReducer({
     state,
     action.levelZeroNodes,
   ),
-  [ACTION.IMPORT_AND_VIEW]: (state, action) => {
-    const postImportTree = treeImport(
+  [ACTION.SET_TREE_ITEMS]: (state, action) => treePreventPublish(treeSetItems(
+    state,
+    action.cellIds,
+  )),
+  [ACTION.SET_CURRENT_SET]: (state, action) => {
+    const pubFunc = action.publish ? treePublish : treePreventPublish;
+    return pubFunc(treeSetCurrentSet(
       state,
-      action.levelZeroNodes,
-    );
-    if (postImportTree.tree.length >= 1) {
-      const levelZeroKey = postImportTree.tree[0]._state.key;
-      const levelIndex = 1;
-      const postCheckLevelTree = treeOnCheckLevel(postImportTree, levelZeroKey, levelIndex);
-      return treeNodeViewDescendants(
-        postCheckLevelTree,
-        levelZeroKey,
-        levelIndex - 1,
-        false,
-      );
-    }
-    return postImportTree;
+      action.cellIds,
+    ));
   },
-  [ACTION.SET_TREE_ITEMS]: (state, action) => treeSetItems(
-    state,
-    action.cellIds,
-  ),
-  [ACTION.SET_CURRENT_SET]: (state, action) => treeSetCurrentSet(
-    state,
-    action.cellIds,
-  ),
   [ACTION.EXPAND_NODE]: (state, action) => treeOnExpand(
     state,
     action.expandedKeys,
@@ -1527,17 +1794,17 @@ const reducer = createReducer({
       action.targetKey,
       action.checked,
     );
-    return treeSetVisibleKeysToCheckedKeys(newTree);
+    return treePublish(treeSetVisibleKeysToCheckedKeys(newTree));
   },
-
   [ACTION.CHECK_LEVEL]: (state, action) => {
     const newTree = treeOnCheckLevel(state, action.levelZeroKey, action.levelIndex);
-    return treeNodeViewDescendants(
+    const pubFunc = action.publish ? treePublish : treePreventPublish;
+    return pubFunc(treeNodeViewDescendants(
       newTree,
       action.levelZeroKey,
       action.levelIndex - 1,
       false,
-    );
+    ));
   },
   [ACTION.DROP_NODE]: (state, action) => treeOnDropNode(
     state,
@@ -1546,11 +1813,11 @@ const reducer = createReducer({
     action.dropPosition,
     action.dropToGap,
   ),
-  [ACTION.SET_NODE_COLOR]: (state, action) => treeNodeSetColor(
+  [ACTION.SET_NODE_COLOR]: (state, action) => treePublish(treeNodeSetColor(
     state,
     action.targetKey,
     action.color,
-  ),
+  )),
   [ACTION.SET_NODE_NAME]: (state, action) => treeNodeSetName(
     state,
     action.targetKey,
@@ -1566,16 +1833,16 @@ const reducer = createReducer({
     state,
     action.targetKey,
   ),
-  [ACTION.VIEW_NODE]: (state, action) => treeNodeView(
+  [ACTION.VIEW_NODE]: (state, action) => treePublish(treeNodeView(
     state,
     action.targetKey,
-  ),
-  [ACTION.VIEW_NODE_DESCENDANTS]: (state, action) => treeNodeViewDescendants(
+  )),
+  [ACTION.VIEW_NODE_DESCENDANTS]: (state, action) => treePublish(treeNodeViewDescendants(
     state,
     action.targetKey,
     action.level,
     action.shouldInvalidateCheckedLevel,
-  ),
+  )),
   [ACTION.CREATE_LEVEL_ZERO_NODE]: state => treeCreateLevelZeroNode(
     state,
   ),

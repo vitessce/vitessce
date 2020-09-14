@@ -2,18 +2,19 @@ import React from 'react';
 import Adapter from 'enzyme-adapter-react-16';
 import { mount, configure } from 'enzyme';
 import expect from 'expect';
-import PubSubVitessceGrid from './PubSubVitessceGrid';
+import VitessceGrid from './VitessceGrid';
 
 configure({ adapter: new Adapter() });
 
-describe('PubSubVitessceGrid.js', () => {
-  describe('<PubSubVitessceGrid />', () => {
+describe('VitessceGrid.js', () => {
+  describe('<VitessceGrid />', () => {
     it('renders', () => {
       const config = {
+        version: '1.0.0',
         description: 'fake description',
-        layers: [],
+        datasets: [],
         name: 'fake name',
-        staticLayout: [
+        layout: [
           {
             component: 'FakeComponent',
             props: { description: 'fake prop description' },
@@ -27,7 +28,7 @@ describe('PubSubVitessceGrid.js', () => {
         return <p>FakeComponent!</p>;
       }
       const getComponent = () => FakeComponent;
-      const wrapper = mount(<PubSubVitessceGrid config={config} getComponent={getComponent} />);
+      const wrapper = mount(<VitessceGrid config={config} getComponent={getComponent} />);
       expect(wrapper.debug()).toContain('FakeComponent!');
     });
   });

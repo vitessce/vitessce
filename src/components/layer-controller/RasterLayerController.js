@@ -1,6 +1,4 @@
-import React, {
-  useState, useReducer, useEffect,
-} from 'react';
+import React, { useState } from 'react';
 import { getChannelStats, DTYPE_VALUES, MAX_SLIDERS_AND_CHANNELS } from '@hms-dbmi/viv';
 
 import Grid from '@material-ui/core/Grid';
@@ -15,41 +13,9 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
-import reducer from './reducer';
 import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
-import {
-  GLOBAL_SLIDER_DIMENSION_FIELDS, DEFAULT_LAYER_PROPS,
-} from './constants';
+import { GLOBAL_SLIDER_DIMENSION_FIELDS } from '../spatial/constants';
 
-// Return the midpoint of the global dimensions.
-function getDefaultGlobalSelection(imageDims) {
-  const globalIndices = imageDims.filter(dim => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim.field));
-  const selection = {};
-  globalIndices.forEach((dim) => {
-    selection[dim.field] = Math.floor((dim.values.length || 0) / 2);
-  });
-  return selection;
-}
-
-// Create a default selection using the midpoint of the available global dimensions,
-// and then the first four available selections from the first selectable channel.
-function buildDefaultSelection(imageDims) {
-  const selection = [];
-  const globalSelection = getDefaultGlobalSelection(imageDims);
-  // First non-global dimension with some sort of selectable values
-  const firstNonGlobalDimension = imageDims.filter(
-    dim => !GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim.field) && dim.values,
-  )[0];
-  for (let i = 0; i < Math.min(4, firstNonGlobalDimension.values.length); i += 1) {
-    selection.push(
-      {
-        [firstNonGlobalDimension.field]: i,
-        ...globalSelection,
-      },
-    );
-  }
-  return selection;
-}
 
 // Set the domain of the sliders based on either a full range or min/max.
 async function getDomainsAndSliders(loader, loaderSelection, domainType) {
@@ -74,40 +40,52 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  * @prop {object} loader Loader object for the current imaging layer.
  * @prop {function} handleLayerChange Callback for handling the changing of layer properties.
  */
-export default function RasterLayerController({
-  imageData, layerId, handleLayerRemove, loader, theme, handleLayerChange,
-}) {
-  const [colormap, setColormap] = useState(DEFAULT_LAYER_PROPS.colormap);
-  const [opacity, setOpacity] = useState(DEFAULT_LAYER_PROPS.opacity);
-  const [channels, dispatch] = useReducer(reducer, {});
-  const [dimensions, setDimensions] = useState([]);
+export default function RasterLayerController(props) {
+  const {
+    layer, name, loader, theme,
+    handleLayerRemove, handleLayerChange,
+  } = props;
+
+  const { colormap, opacity, channels } = layer;
+  const firstSelection = channels[0]?.selection || {};
+
+  const { dimensions } = loader;
+
   const [domainType, setDomainType] = useState('Min/Max');
+  const [globalDimensionValues, setGlobalDimensionValues] = useState(
+    GLOBAL_SLIDER_DIMENSION_FIELDS
+      .filter(field => firstSelection[field])
+      .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
+  );
 
+  function setColormap(v) {
+    handleLayerChange({ ...layer, colormap: v });
+  }
 
-  useEffect(() => {
-    const loaderDimensions = loader.dimensions;
-    setDimensions(loaderDimensions);
-    // Add channel on image add automatically as the first avaialable value for each dimension.
-    const defaultSelection = buildDefaultSelection(loaderDimensions);
-    // Get stats because initial value is Min/Max for domainType.
-    getChannelStats({ loader, loaderSelection: defaultSelection }).then((stats) => {
-      const domains = stats.map(stat => stat.domain);
-      const sliders = stats.map(stat => stat.autoSliders);
-      dispatch({
-        type: 'ADD_CHANNELS',
-        layerId,
-        handleLayerChange,
-        payload: {
-          selections: defaultSelection,
-          // RGB needs to be set initially - if this is not-interleaved, this works.
-          // Otherwise, when we eventually handled interleaved data, this won't even matter.
-          domains: loader.isRgb ? [[0, 255], [0, 255], [0, 255]] : domains,
-          colors: loader.isRgb ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]] : null,
-          sliders: loader.isRgb ? [[0, 255], [0, 255], [0, 255]] : sliders,
-        },
-      });
-    });
-  }, [layerId, imageData, loader, handleLayerChange]);
+  function setOpacity(v) {
+    handleLayerChange({ ...layer, opacity: v });
+  }
+
+  function setChannels(v) {
+    handleLayerChange({ ...layer, channels: v });
+  }
+
+  function setChannel(v, i) {
+    const newChannels = [...channels];
+    newChannels[i] = v;
+    handleLayerChange({ ...layer, channels: newChannels });
+  }
+
+  function addChannel(v) {
+    const newChannels = [...channels, v];
+    handleLayerChange({ ...layer, channels: newChannels });
+  }
+
+  function removeChannel(i) {
+    const newChannels = [...channels];
+    newChannels.splice(i, 1);
+    handleLayerChange({ ...layer, channels: newChannels });
+  }
 
   // Handles adding a channel, creating a default selection
   // for the current global settings and domain type.
@@ -117,38 +95,25 @@ export default function RasterLayerController({
       // Set new image to default selection for non-global selections (0)
       // and use current global selection otherwise.
       selection[dimension.field] = GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
-        ? Object.values(channels)[0].selection[dimension.field]
+        ? globalDimensionValues[dimension.field]
         : 0;
     });
     const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType);
-    dispatch({
-      type: 'ADD_CHANNEL',
-      layerId,
-      handleLayerChange,
-      payload: {
-        selection,
-        domain: domains[0],
-        slider: sliders[0],
-      },
+    const domain = domains[0];
+    const slider = sliders[0] || domain;
+    const color = [255, 255, 255];
+    const visible = true;
+    addChannel({
+      selection, domain, slider, visible, color,
     });
-  };
-
-  const handleOpacityChange = (sliderValue) => {
-    setOpacity(sliderValue);
-    handleLayerChange({ layerId, layerProps: { opacity: sliderValue } });
-  };
-
-  const handleColormapChange = (colormapName) => {
-    setColormap(colormapName);
-    handleLayerChange({ layerId, layerProps: { colormap: colormapName } });
   };
 
   const handleDomainChange = async (value) => {
     setDomainType(value);
-    const loaderSelection = Object.values(channels).map(
+    const loaderSelection = channels.map(
       channel => channel.selection,
     );
-    const sliders = Object.values(channels).map(
+    let sliders = channels.map(
       channel => channel.slider,
     );
     const { domains } = await getDomainsAndSliders(
@@ -156,68 +121,54 @@ export default function RasterLayerController({
       loaderSelection,
       value,
     );
-    const update = {
-      domain: domains,
-      // If it's the right-most slider, we take the minimum of that and the new value.
-      // Otherwise, we use the maximum of the left-hand side and the new value.
-      slider: sliders.map(
-        (slider, i) => {
-          const [left, right] = slider;
-          return [
-            Math.max(left, domains[i][0]),
-            Math.min(right, domains[i][1]),
-          ];
-        },
-      ),
-    };
-    dispatch({
-      type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
-      layerId,
-      handleLayerChange,
-      payload: {
-        update,
-        publish: true,
+
+    // If it's the right-most slider, we take the minimum of that and the new value.
+    // Otherwise, we use the maximum of the left-hand side and the new value.
+    sliders = sliders.map(
+      (slider, i) => {
+        const [left, right] = slider;
+        return [
+          Math.max(left, domains[i][0]),
+          Math.min(right, domains[i][1]),
+        ];
       },
-    });
+    );
+
+    const newChannels = channels.map((c, i) => ({ ...c, domain: domains[i], slider: sliders[i] }));
+    setChannels(newChannels);
   };
 
   // This call updates all channel selections with new global selection from the UI.
   const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
-    const loaderSelection = Object.values(channels).map(channel => ({
+    const loaderSelection = channels.map(channel => ({
       ...channel.selection,
-      selection,
+      ...selection,
     }));
-    // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
-    // we have to check mouseup.
     const mouseUp = event.type === 'mouseup';
-    const update = { selection };
     // Only update domains on a mouseup event for the same reason as above.
     const { domains, sliders } = mouseUp
       ? await getDomainsAndSliders(loader, loaderSelection, domainType)
-      : { domains: null, sliders: null };
-    if (domains) {
-      update.domain = domains;
-      update.slider = sliders;
+      : { domains: [], sliders: [] };
+    if (mouseUp) {
+      const newChannels = channels.map((c, i) => ({
+        ...c,
+        domain: domains[i],
+        slider: sliders[i],
+        selection: { ...c.selection, ...selection },
+      }));
+      setChannels(newChannels);
     }
-    dispatch({
-      type: 'CHANGE_GLOBAL_CHANNELS_PROPERTIES',
-      layerId,
-      handleLayerChange,
-      payload: {
-        update,
-        publish: mouseUp,
-      },
-    });
+    setGlobalDimensionValues(prev => ({ ...prev, ...selection }));
   };
 
   let channelControllers = [];
   if (dimensions.length > 0) {
-    const channelDimensions = loader.type === 'ome-tiff' ? dimensions.filter(c => c.field === 'channel')[0] : dimensions[0];
+    const channelDimensions = loader.type === 'ome-tiff' ? dimensions.find(c => c.field === 'channel') : dimensions[0];
     const { values: channelOptions, field: dimName } = channelDimensions;
     // Create the channel controllers for each channel.
-    channelControllers = Object.entries(channels).map(
-      // c is an object like { color, selection, slider, visibility }.
-      ([channelId, c]) => {
+    channelControllers = channels.map(
+      // c is an object like { color, selection, slider, visible }.
+      (c, channelId) => {
         // Change one property of a channel (for now - soon
         // nested structures allowing for multiple z/t selecitons at once, for example).
         const handleChannelPropertyChange = async (property, value) => {
@@ -225,55 +176,38 @@ export default function RasterLayerController({
           // value is the actual change, like { channel: "DAPI" }.
           const update = { [property]: value };
           if (property === 'selection') {
-            const loaderSelection = [{ ...channels[channelId][property], ...value }];
+            update.selection = { ...globalDimensionValues, ...update.selection };
+            const loaderSelection = [
+              { ...channels[channelId][property], ...value },
+            ];
             const { domains, sliders } = await getDomainsAndSliders(
               loader, loaderSelection, domainType,
             );
             [update.domain] = domains;
             [update.slider] = sliders;
           }
-          dispatch({
-            type: 'CHANGE_SINGLE_CHANNEL_PROPERTIES',
-            layerId,
-            handleLayerChange,
-            payload: {
-              channelId,
-              update,
-            },
-          });
+          setChannel({ ...c, ...update }, channelId);
         };
         const handleChannelRemove = () => {
-          dispatch({
-            type: 'REMOVE_CHANNEL',
-            layerId,
-            handleLayerChange,
-            payload: { channelId },
-          });
+          removeChannel(channelId);
         };
         const handleIQRUpdate = async () => {
           const stats = await getChannelStats(
             { loader, loaderSelection: [channels[channelId].selection] },
           );
           const { q1, q3 } = stats[0];
-          dispatch({
-            type: 'CHANGE_SINGLE_CHANNEL_PROPERTIES',
-            layerId,
-            handleLayerChange,
-            payload: {
-              channelId,
-              update: { slider: [q1, q3] },
-            },
-          });
+          setChannel({ ...c, slider: [q1, q3] }, channelId);
         };
         return (
           <Grid
+            // eslint-disable-next-line react/no-array-index-key
             key={`channel-controller-${channelId}`}
             item
             style={{ width: '100%' }}
           >
             <ChannelController
               dimName={dimName}
-              visibility={c.visibility}
+              visibility={c.visible}
               selectionIndex={c.selection[dimName]}
               slider={c.slider}
               color={c.color}
@@ -298,10 +232,10 @@ export default function RasterLayerController({
     <ExpansionPanel defaultExpanded className={classes.root}>
       <ExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
-        aria-controls={`layer-${imageData.name}-controls`}
+        aria-controls={`layer-${name}-controls`}
         classes={{ ...summaryClasses }}
       >
-        {imageData.name}
+        {name}
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.root}>
         <Grid item>
@@ -318,8 +252,9 @@ export default function RasterLayerController({
                 dimension => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field),
               )
             }
-            handleOpacityChange={handleOpacityChange}
-            handleColormapChange={handleColormapChange}
+            globalDimensionValues={globalDimensionValues}
+            handleOpacityChange={setOpacity}
+            handleColormapChange={setColormap}
             handleGlobalChannelsSelectionChange={
               handleGlobalChannelsSelectionChange
             }
@@ -330,7 +265,7 @@ export default function RasterLayerController({
         {!loader.isRgb ? channelControllers : null}
         <Grid item>
           <Button
-            disabled={Object.values(channels).length === MAX_SLIDERS_AND_CHANNELS}
+            disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
             onClick={handleChannelAdd}
             fullWidth
             variant="outlined"

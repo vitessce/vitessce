@@ -1,44 +1,45 @@
 import React from 'react';
-import PubSub from 'pubsub-js';
+import { useCoordination, useWarning } from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import TitleInfo from '../TitleInfo';
 import Status from './Status';
 
-import { STATUS_WARN, STATUS_INFO } from '../../events';
+export default function StatusSubscriber(props) {
+  const {
+    coordinationScopes,
+    removeGridComponent,
+    theme,
+  } = props;
 
-export default class StatusSubscriber extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { warn: null, info: null };
-  }
+  // Get "props" from the coordination space.
+  const [{
+    cellHighlight,
+    geneHighlight,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.status, coordinationScopes);
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillMount() {
-    this.warnToken = PubSub.subscribe(STATUS_WARN, this.warnSubscriber.bind(this));
-    this.infoToken = PubSub.subscribe(STATUS_INFO, this.infoSubscriber.bind(this));
-  }
+  const warn = useWarning();
 
-  componentDidMount() {
-    const { onReady } = this.props;
-    onReady();
-  }
+  const infos = [
+    ...(cellHighlight && cellHighlight.cellId
+      ? [`Hovered cell ${cellHighlight.cellId}`]
+      : []
+    ),
+    ...(geneHighlight && geneHighlight.geneId
+      ? [`Hovered gene ${geneHighlight.geneId}`]
+      : []
+    ),
+  ];
+  const info = infos.join('; ');
 
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.warnToken);
-    PubSub.unsubscribe(this.infoToken);
-  }
-
-  warnSubscriber(msg, data) {
-    this.setState(prevState => ({ warn: data, info: prevState.info }));
-  }
-
-  infoSubscriber(msg, data) {
-    this.setState(prevState => ({ info: data, warn: prevState.warn }));
-  }
-
-  render() {
-    const { warn, info } = this.state;
-    const { removeGridComponent } = this.props;
-    return (
-      <Status warn={warn} info={info} removeGridComponent={removeGridComponent} />
-    );
-  }
+  return (
+    <TitleInfo
+      title="Status"
+      theme={theme}
+      removeGridComponent={removeGridComponent}
+      isScroll
+      isReady
+    >
+      <Status warn={warn} info={info} />
+    </TitleInfo>
+  );
 }

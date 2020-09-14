@@ -6,13 +6,12 @@ import expect from 'expect';
 
 describe('schemas', () => {
   [
+    'config',
     'cells',
     'clusters',
-    'factors',
     'genes',
     'molecules',
     'neighborhoods',
-    'dataset',
     'cell-sets',
     'cell-sets-tabular',
     'raster',

@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-// eslint-disable-next-line vitessce-rules/prevent-pubsub-import
-import PubSub from 'pubsub-js';
-
-import { VitessceGrid } from './vitessce-grid';
-import { SourcePublisher } from '../components/sourcepublisher';
-import { GRID_RESIZE, STATUS_WARN } from '../events';
+import {
+  useState, useEffect, useRef,
+} from 'react';
+import { fileTypeToLoader } from '../loaders/types';
+import JsonLoader from '../loaders/JsonLoader';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -39,44 +37,18 @@ function getRowHeight(containerHeight, numRows, margin, padding) {
   return effectiveContainerHeight / numRows;
 }
 
-const onResize = () => PubSub.publish(GRID_RESIZE);
-
-/**
- * The wrapper for the VitessceGrid and SourcePublisher components.
- * @param {object} props
- * @param {number} props.rowHeight The height of each grid row. Optional.
- * @param {object} props.config The view config.
- * @param {function} props.getComponent A function that maps component names to their
- * React counterparts.
- * @param {string} props.theme The theme name.
- * @param {number} props.height Total height for grid. Optional.
- * @param {function} props.onWarn A callback for warning messages. Optional.
- */
-export default function PubSubVitessceGrid(props) {
-  const {
-    rowHeight: initialRowHeight,
-    config,
-    getComponent,
-    theme,
-    height,
-    onWarn,
-  } = props;
-
-  const [allReady, setAllReady] = useState(false);
+export function useRowHeight(config, initialRowHeight, height, margin, padding) {
   const [containerHeight, setContainerHeight] = useState(height);
   const [rowHeight, setRowHeight] = useState(initialRowHeight);
   const containerRef = useRef();
 
-  const padding = 10;
-  const margin = 5;
-
   // Detect when the `config` or `containerHeight` variables
   // have changed, and update `rowHeight` in response.
   useEffect(() => {
-    const numRows = getNumRows(config.staticLayout);
+    const numRows = getNumRows(config.layout);
     const newRowHeight = getRowHeight(containerHeight, numRows, margin, padding);
     setRowHeight(newRowHeight);
-  }, [containerHeight, config]);
+  }, [containerHeight, config, margin, padding]);
 
   // Update the `containerHeight` state when the `height` prop has changed.
   useEffect(() => {
@@ -84,11 +56,6 @@ export default function PubSubVitessceGrid(props) {
       setContainerHeight(height);
     }
   }, [height]);
-
-  useEffect(() => {
-    // The row height has changed, so emit a GRID_RESIZE event.
-    onResize();
-  }, [rowHeight]);
 
   // If no height prop has been provided, set the `containerHeight`
   // using height of the `.vitessce-container` element.
@@ -113,37 +80,30 @@ export default function PubSubVitessceGrid(props) {
     };
   }, [containerRef, height]);
 
-  // Subscribe to warning messages, and re-publish them via the onWarn callback.
-  useEffect(() => {
-    const warnToken = PubSub.subscribe(STATUS_WARN, (msg, data) => {
-      if (onWarn) {
-        onWarn(data);
-      }
-    });
-    return () => PubSub.unsubscribe(warnToken);
-  }, [onWarn]);
 
-  return (
-    <div
-      ref={containerRef}
-      className={`vitessce-container vitessce-theme-${theme}`}
-    >
-      { allReady && <SourcePublisher height={containerHeight} layers={config.layers} /> }
-      <VitessceGrid
-        layout={config.staticLayout}
-        height={height}
-        rowHeight={rowHeight}
-        theme={theme}
-        getComponent={getComponent}
-        onAllReady={() => setAllReady(true)}
-        draggableHandle=".title"
-        margin={margin}
-        padding={padding}
-        reactGridLayoutProps={{
-          onResize,
-          onResizeStop: onResize,
-        }}
-      />
-    </div>
-  );
+  return [rowHeight, containerRef];
+}
+
+/**
+ * Create a mapping from dataset ID to loader objects by data type.
+ * @param {object[]} datasets The datasets array from the view config.
+ * @returns {object} Mapping from dataset ID to data type to loader
+ * instance.
+ */
+export function createLoaders(datasets) {
+  const result = {};
+  datasets.forEach((dataset) => {
+    const datasetLoaders = {
+      name: dataset.name,
+      loaders: {},
+    };
+    dataset.files.forEach((file) => {
+      // Fall back to JsonLoader if a loader is not found for the file type.
+      const matchingLoaderClass = fileTypeToLoader[file.fileType] || JsonLoader;
+      // eslint-disable-next-line new-cap
+      datasetLoaders.loaders[file.type] = new matchingLoaderClass(file);
+    });
+    result[dataset.uid] = datasetLoaders;
+  });
+  return result;
 }

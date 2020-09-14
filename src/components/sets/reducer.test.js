@@ -2,7 +2,7 @@
 import expect from 'expect';
 import reducer, {
   treeInitialize, nodeToRenderProps, ACTION,
-  treeToVisibleSetSizes,
+  treeToSetSizesBySetNames,
 } from './reducer';
 
 import {
@@ -219,7 +219,7 @@ describe('Hierarchical sets reducer', () => {
       expect(postSelectionTree.tree[1]._state.level).toEqual(0);
       expect(postSelectionTree.tree[0]._state.isForTools).toEqual(false);
       expect(postSelectionTree.tree[1].children.length).toEqual(1);
-      expect(postSelectionTree.tree[1].children[0].name).toEqual('Current selection');
+      expect(postSelectionTree.tree[1].children[0].name).toEqual('Selection 1');
       expect(postSelectionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postSelectionTree.tree[1].children[0]._state.level).toEqual(1);
       expect(postSelectionTree.tree[1].children[0].set).toEqual([
@@ -333,7 +333,7 @@ describe('Hierarchical sets reducer', () => {
       expect(postUnionTree.tree.length).toEqual(2);
       expect(postUnionTree.tree[1].name).toEqual('My Selections');
       expect(postUnionTree.tree[1]._state.isForTools).toEqual(true);
-      expect(postUnionTree.tree[1].children[0].name).toEqual('Current union');
+      expect(postUnionTree.tree[1].children[0].name).toEqual('Union 1');
       expect(postUnionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postUnionTree.tree[1].children[0]._state.level).toEqual(1);
       expect(postUnionTree.tree[1].children[0].set).toEqual([
@@ -365,7 +365,7 @@ describe('Hierarchical sets reducer', () => {
       expect(postIntersectionTree.tree.length).toEqual(2);
       expect(postIntersectionTree.tree[1].name).toEqual('My Selections');
       expect(postIntersectionTree.tree[1]._state.isForTools).toEqual(true);
-      expect(postIntersectionTree.tree[1].children[0].name).toEqual('Current intersection');
+      expect(postIntersectionTree.tree[1].children[0].name).toEqual('Intersection 1');
       expect(postIntersectionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postIntersectionTree.tree[1].children[0]._state.level).toEqual(1);
       expect(postIntersectionTree.tree[1].children[0].set).toEqual([
@@ -393,7 +393,7 @@ describe('Hierarchical sets reducer', () => {
       expect(postIntersectionTree.tree.length).toEqual(2);
       expect(postIntersectionTree.tree[1].name).toEqual('My Selections');
       expect(postIntersectionTree.tree[1]._state.isForTools).toEqual(true);
-      expect(postIntersectionTree.tree[1].children[0].name).toEqual('Current complement');
+      expect(postIntersectionTree.tree[1].children[0].name).toEqual('Complement 1');
       expect(postIntersectionTree.tree[1].children[0]._state.isCurrent).toEqual(true);
       expect(postIntersectionTree.tree[1].children[0]._state.level).toEqual(1);
       expect(postIntersectionTree.tree[1].children[0].set).toEqual([
@@ -432,14 +432,14 @@ describe('Hierarchical sets reducer', () => {
       expect(postDragNode.tree[0].children[0].children[1]._state.key).toEqual('vasculature-pericytes');
     });
 
-    it('can convert a tree to an array with visible set sizes', () => {
+    it('can convert a tree to an array with set sizes', () => {
       const initialTree = tree;
       expect(initialTree._state.visibleKeys).toEqual([]);
       const postViewTree = reducer(initialTree, {
         type: ACTION.VIEW_NODE,
         targetKey: 'vasculature-endothelial',
       });
-      const setSizes = treeToVisibleSetSizes(postViewTree);
+      const setSizes = treeToSetSizesBySetNames(postViewTree, [['Cell Type Annotations', 'Vasculature', 'Endothelial']]);
       expect(setSizes.length).toEqual(1);
       expect(setSizes[0].key).toEqual('vasculature-endothelial');
       expect(setSizes[0].name).toEqual('Endothelial');
