@@ -9,18 +9,14 @@
 const fs = require('fs');
 const utils = require('./utils');
 const paths = require('./paths');
-const constants = require('./constants');
 const configFactory = require('./webpack.config-demo');
 
 utils.scriptInit();
 
-const environments = constants.DEMO_ENVIRONMENTS;
 const target = 'demo';
-
+const environment = process.argv[2];
 // Build demo output files.
 (async () => {
-    for(let environment of environments) {
-        const config = configFactory(paths, environment);
-        await utils.build(config, paths, environment, target);
-    }
+    const config = configFactory(paths, environment);
+    await utils.build(config, paths, environment, target);
 })();

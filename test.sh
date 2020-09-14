@@ -37,6 +37,6 @@ start schema
 end schema
 
 start build
-npm run build
+npm run build:prod
 node ./scripts/verify-build.js
 end build

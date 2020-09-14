@@ -9,6 +9,7 @@ const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeM
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const getPublicUrlOrPath = require('react-dev-utils/getPublicUrlOrPath');
+const nodeExternals = require("webpack-node-externals");
 
 const webpackCommon = require('./webpack.config-common');
 const getClientEnvironment = webpackCommon.getClientEnvironment;
@@ -70,7 +71,7 @@ module.exports = function(paths, environment, target) {
             // The build folder.
             path: path.join(paths.libBuild, target, environment),
             // We want there to be separate files, one for each entry file.
-            filename: (isEnvProduction ? "[name].min.js" : "[name].js"),
+            filename: isEnvProduction && target !== "es" ? "[name].min.js" : "[name].js",
             library: [ appPackageJson.name, "[name]" ],
             libraryTarget: (target === "es" ? "commonjs2" : target),
             // Add /* filename */ comments to generated require()s in the output.
@@ -90,7 +91,8 @@ module.exports = function(paths, environment, target) {
             globalObject: 'this'
         },
         optimization: {
-            minimize: isEnvProduction,
+            // Don't minify the ES builds because they will be used only in upstream applications.
+            minimize: target === "es" ? false : isEnvProduction,
             minimizer: optimizationMinimizer,
         },
         resolve: resolveInfo,
@@ -136,7 +138,9 @@ module.exports = function(paths, environment, target) {
                 chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
             }),
         ].filter(Boolean),
-        externals: {
+        externals: target === "es" && isEnvProduction
+        ? [nodeExternals()]
+        : ({
             // Only because this is the library target.
             'react': {
                 commonjs: 'react',
@@ -150,7 +154,7 @@ module.exports = function(paths, environment, target) {
                 amd: 'react-dom',
                 root: 'ReactDOM'
             },
-        },
+        }),
         // Some libraries import Node modules but don't use them in the browser.
         // Tell webpack to provide empty mocks for them so importing them works.
         node: nodeInfo,

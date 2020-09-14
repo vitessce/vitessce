@@ -14,15 +14,13 @@ const configFactory = require('./webpack.config-lib');
 
 utils.scriptInit();
 
-const environments = constants.LIB_ENVIRONMENTS;
 const targets = constants.LIB_TARGETS;
+const environment = process.argv[2];
 
 // Build library output files.
 (async () => {
-    for(let environment of environments) {
-        for (let target of targets) {
-            const config = configFactory(paths, environment, target);
-            await utils.build(config, paths, environment, target);
-        }
+    for (let target of targets) {
+        const config = configFactory(paths, environment, target);
+        await utils.build(config, paths, environment, target);
     }
 })();
