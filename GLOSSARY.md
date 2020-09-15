@@ -30,7 +30,7 @@ The implementation of coordinated multiple views in Vitessce follows the coordin
 Below left is Figure 1 from Boukhelifa and Rodgers.
 Below right is that figure adapted to the Vitessce view config. 
 
-[![Coordination object model in vitessce](https://user-images.githubusercontent.com/7525285/89790691-49008b00-daf0-11ea-95b5-cd74fe3499af.png)](https://docs.google.com/drawings/d/1jsNd2aG3OFlHfNzI3nfOl6UpMACw9JKyexCQUEd31fc/edit)
+[![Coordination object model in vitessce](https://docs.google.com/drawings/d/e/2PACX-1vQmqp-urG6EczQCCujcXQQUoYRSEMqy7mdd-lzAoEqpV_k69kljptr5CoVVMeftp2vrZ3lYJYZ5kgHt/pub?w=850)](https://docs.google.com/drawings/d/1jsNd2aG3OFlHfNzI3nfOl6UpMACw9JKyexCQUEd31fc/edit)
 
 ## Multiple Views
 The term "multiple views" in the context of information visualization systems refers to "any instance where data is represented in multiple windows" (Roberts 2007).
@@ -54,7 +54,16 @@ In the context of Vitessce, the term "coordination value" refers to the value of
 In the context of Vitessce, the term "coordination object" refers to the container for a particular coordination type and its associated coordination scopes & values. There can be at most one coordination object for each coordination type.
 
 ## Coordination Space
-In the context of the coordination model described by Boukhelifa and Rodgers (2003), the term "coordination space" refers to the container for all coordination objects in a visualization system. In Vitessce, the coordination space is stored in the view configuration in a serializable JSON format.
+In the context of the coordination model described by Boukhelifa and Rodgers (2003), the term "coordination space" refers to the container for all coordination objects in a visualization system. In Vitessce, the coordination space is stored in the view config in a serializable JSON format.
 
 ## Translation Function
 Coordination values may be stored in an abstract format rather than the format required for any particular view. For this reason, coordinated views must define a translation function for each coordination type, which maps coordination values onto the native format used by the view. In the simplest case the identity function may be used.
+
+## Graph representation
+
+One can think about the coordination model as a graph:
+
+[![Coordination model as graph representation - single coordination type](https://docs.google.com/drawings/d/e/2PACX-1vTT0Flm_xnbtbaeFoqL_eVigQ6eWev-VeIeQBLGMM-iLJRFTRlpalrRpjt_GyqjUdGR8TahQe4uJu8D/pub?w=400)](https://docs.google.com/drawings/d/13943UGjcbBC2wKAmhnIrxBrQTArPojTr5abZlqOFAzk/edit)
+
+[![Coordination model as graph representation - multiple coordination types - node encoding](https://docs.google.com/drawings/d/e/2PACX-1vRdNNkA8lCXj62edJMB7i6dvDxYxlv127sg9ZvtS7fLMCatG5jh3AyD1A6yqnhTFqi5YIft-T1nsBIT/pub?w=800)](https://docs.google.com/drawings/d/1w64tYpHgkxgoUlmYw02HKM6q2GDiz_ev77TZFhqywi4/edit)
+
