@@ -1,4 +1,4 @@
-# 🚄  Vitessce
+# Vitessce
 
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
@@ -6,7 +6,15 @@ Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 - [Previous demos](DEMOS.md)
 - [Previous releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
 
-![Vitessce screenshot](https://user-images.githubusercontent.com/730388/58634506-78472580-82b9-11e9-9df8-a1362de73818.png)
+![Screenshot of Vitessce with Linnarsson data](https://user-images.githubusercontent.com/1216518/93336741-2b60c880-f7f6-11ea-8b82-7e1e0ea45e43.png)
+
+![Same data, zoomed in to cellular scale](https://user-images.githubusercontent.com/1216518/93337080-a4f8b680-f7f6-11ea-9e53-2c73cc661b94.png)
+
+## Integrations
+
+Vitessce is being used in the following projects:
+
+- [HuBMAP Data Portal](https://portal.hubmapconsortium.org)
 
 ## Architecture
 
