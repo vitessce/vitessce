@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.1
+## 1.0.1 (in progress)
 
 - Update README screenshots.
 
