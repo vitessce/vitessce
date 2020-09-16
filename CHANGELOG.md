@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- Update README screenshots.
+
 ## 1.0.0
 
 ### Added
