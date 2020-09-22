@@ -2,7 +2,7 @@
 
 ## 1.0.1 (in progress)
 
-## Added
+### Changed
 
 ## Changed
 
@@ -32,6 +32,8 @@
     - These allow a consumer app to be notified of all view config (and by extension coordination object) updates.
 
 ### Changed
+- Update README screenshots.
+- Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
 - Moved the `Vitessce` component out of `src/app/app.js` into `src/app/Vitessce.js`.
 - Moved the `Warning` component out of `src/app/app.js` into `src/app/Warning.js`.
 - Renamed `VitessceGrid` to `VitessceGridLayout`.
