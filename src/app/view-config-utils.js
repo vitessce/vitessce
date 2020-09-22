@@ -255,7 +255,7 @@ function upgradeReplaceViewProp(prefix, view, coordinationSpace) {
  * @param {object} config A v0.1.0 "legacy" view config.
  * @returns {object} A v1.0.0 "upgraded" view config.
  */
-export function upgrade(config) {
+export function upgrade(config, datasetUid = null) {
   const coordinationSpace = {
     embeddingType: {},
     embeddingZoom: {},
@@ -326,7 +326,9 @@ export function upgrade(config) {
 
   // Use a random dataset ID when initializing automatically,
   // so that it changes with each new v0.1.0 view config.
-  const datasetUid = uuidv4();
+  // However, check if the `datasetUid` parameter was passed,
+  // which allows for unit testing.
+  const newDatasetUid = datasetUid || uuidv4();
 
   return {
     version: '1.0.0',
@@ -335,8 +337,8 @@ export function upgrade(config) {
     public: config.public,
     datasets: [
       {
-        uid: datasetUid,
-        name: datasetUid,
+        uid: newDatasetUid,
+        name: newDatasetUid,
         files: config.layers.map(layer => ({
           type: layer.type.toLowerCase(),
           fileType: layer.fileType,

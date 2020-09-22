@@ -53,7 +53,7 @@ describe('src/app/view-config-utils.js', () => {
 
   describe('upgrade', () => {
     it('upgrade view config from v0.1.0 to v1.0.0', () => {
-      expect(upgrade(legacyViewConfig)).toEqual(upgradedViewConfig);
+      expect(upgrade(legacyViewConfig, 'A')).toEqual(upgradedViewConfig);
     });
   });
 
