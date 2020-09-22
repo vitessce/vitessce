@@ -2,7 +2,10 @@
 
 ## 1.0.1 (in progress)
 
+### Changed
 - Update README screenshots.
+- Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
+
 
 ## 1.0.0
 
