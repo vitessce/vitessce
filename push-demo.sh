@@ -17,7 +17,7 @@ echo '{
   "date": "'$DATE'",
   "hash": "'$HASH'"
 }' > src/version.json
-npm run build-demo
+npm run build-demo:prod
 
 DIST_DIR='dist-demo/'
 # and add an error page for vitessce.io...
