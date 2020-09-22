@@ -1,4 +1,5 @@
 /* eslint-disable no-plusplus */
+import uuidv4 from 'uuid/v4';
 import {
   COORDINATION_TYPES,
   DEFAULT_COORDINATION_VALUES,
@@ -323,6 +324,10 @@ export function upgrade(config) {
     layout.push(newComponentDef);
   });
 
+  // Use a random dataset ID when initializing automatically,
+  // so that it changes with each new v0.1.0 view config.
+  const datasetUid = uuidv4();
+
   return {
     version: '1.0.0',
     name: config.name,
@@ -330,8 +335,8 @@ export function upgrade(config) {
     public: config.public,
     datasets: [
       {
-        uid: 'A',
-        name: 'A',
+        uid: datasetUid,
+        name: datasetUid,
         files: config.layers.map(layer => ({
           type: layer.type.toLowerCase(),
           fileType: layer.fileType,

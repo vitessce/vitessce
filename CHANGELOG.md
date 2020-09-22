@@ -2,7 +2,9 @@
 
 ## 1.0.1 (in progress)
 
+### Changed
 - Update README screenshots.
+- Use a random `uuid` when upgrading `v0.1.0` view configs to `v1.0.0` to enable the data hook `dataset` dependency to detect dataset updates resulting from passing new view configs.
 
 ## 1.0.0
 
