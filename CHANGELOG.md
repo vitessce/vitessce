@@ -2,9 +2,11 @@
 
 ## 1.0.1 (in progress)
 
-- Update README screenshots.
+## Added
 
-## 1.0.0
+## Changed
+
+## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 
 ### Added
 - Introduced a [zustand](https://github.com/react-spring/zustand) store for managing the view config:
@@ -64,6 +66,7 @@
 - Only test/publish on production builds.
 - Don't include dependencies in production ES build.
 - Added terms and diagrams related to the coordination model to the `GLOSSARY.md` document.
+- Update README screenshots.
 
 ## [0.2.5](https://www.npmjs.com/package/vitessce/v/0.2.5) - 2020-08-31
 
