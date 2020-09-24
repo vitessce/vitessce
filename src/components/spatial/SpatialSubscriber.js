@@ -181,7 +181,7 @@ export default function SpatialSubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2]);
         }}
-        layers={layers}
+        layers={(isReady ? layers : [])}
         cells={cells}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
