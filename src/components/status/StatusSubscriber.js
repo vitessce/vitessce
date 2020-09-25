@@ -20,12 +20,12 @@ export default function StatusSubscriber(props) {
   const warn = useWarning();
 
   const infos = [
-    ...(cellHighlight && cellHighlight.cellId
-      ? [`Hovered cell ${cellHighlight.cellId}`]
+    ...(cellHighlight
+      ? [`Hovered cell ${cellHighlight}`]
       : []
     ),
-    ...(geneHighlight && geneHighlight.geneId
-      ? [`Hovered gene ${geneHighlight.geneId}`]
+    ...(geneHighlight
+      ? [`Hovered gene ${geneHighlight}`]
       : []
     ),
   ];

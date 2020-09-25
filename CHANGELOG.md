@@ -5,6 +5,8 @@
 ### Changed
 - Update README screenshots.
 - Use a random `uuid` when upgrading `v0.1.0` view configs to `v1.0.0` to enable the data hook `dataset` dependency to detect dataset updates resulting from passing new view configs.
+- Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
+
 
 ## 1.0.0
 
