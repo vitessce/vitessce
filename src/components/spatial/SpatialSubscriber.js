@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useMemo,
+  useState, useEffect, useLayoutEffect, useMemo,
 } from 'react';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
@@ -70,7 +70,7 @@ export default function SpatialSubscriber(props) {
     setCellHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
-  const [autoLayers, setAutoLayers] = useState([]);
+  const [autoLayers, setAutoLayers] = useState({});
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -80,25 +80,31 @@ export default function SpatialSubscriber(props) {
 
   // Reset file URLs and loader progress when the dataset has changed.
   // Also clear the array of automatically-initialized layers.
-  useEffect(() => {
+  useLayoutEffect(() => {
     resetUrls();
     resetReadyItems();
-    setAutoLayers([]);
+    setAutoLayers({});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => setAutoLayers(prev => ([...prev, DEFAULT_CELLS_LAYER])),
+    () => setAutoLayers(prev => (
+      { [dataset]: [...(prev[dataset] || []), DEFAULT_CELLS_LAYER] }
+    )),
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => setAutoLayers(prev => ([...prev, DEFAULT_MOLECULES_LAYER])),
+    () => setAutoLayers(prev => (
+      { [dataset]: [...(prev[dataset] || []), DEFAULT_MOLECULES_LAYER] }
+    )),
   );
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => setAutoLayers(prev => ([...prev, DEFAULT_NEIGHBORHOODS_LAYER])),
+    () => setAutoLayers(prev => (
+      { [dataset]: [...(prev[dataset] || []), DEFAULT_NEIGHBORHOODS_LAYER] }
+    )),
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -109,15 +115,15 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    (autoImageLayers) => {
-      setAutoLayers(prev => ([...prev, ...autoImageLayers]));
-    },
+    autoImageLayers => setAutoLayers(prev => (
+      { [dataset]: [...(prev[dataset] || []), ...autoImageLayers] }
+    )),
   );
 
   // Try to set up the layers array automatically if null or undefined.
   useEffect(() => {
-    if (isReady && !layers) {
-      setLayers(sortLayers(autoLayers));
+    if (isReady && !layers && autoLayers[dataset]) {
+      setLayers(sortLayers(autoLayers[dataset]));
     } else if (isReady && layers) {
       // Layers were defined, but check whether channels for each layer were also defined.
       // If channel / slider / domain definitions are missing, initialize in automatically.
@@ -129,7 +135,7 @@ export default function SpatialSubscriber(props) {
           }
         });
     }
-  }, [autoLayers, imageLayerLoaders, isReady, layers, setLayers]);
+  }, [dataset, autoLayers, imageLayerLoaders, isReady, layers, setLayers]);
 
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
