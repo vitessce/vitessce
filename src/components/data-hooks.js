@@ -58,7 +58,7 @@ export function useCellsData(loaders, dataset, setItemIsReady, addUrl, isRequire
         setCellsCount(Object.keys(data).length);
         addUrl(url, 'Cells');
         if (onLoad) {
-          onLoad();
+          onLoad(dataset);
         }
         setItemIsReady('cells');
       });
@@ -115,7 +115,7 @@ export function useCellSetsData(
         setCellSets(data);
         addUrl(url, 'Cell Sets');
         if (onLoad) {
-          onLoad(data);
+          onLoad(dataset, data);
         }
         setItemIsReady('cell-sets');
       });
@@ -239,7 +239,7 @@ export function useMoleculesData(
           .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
         if (onLoad) {
-          onLoad();
+          onLoad(dataset);
         }
         setItemIsReady('molecules');
       });
@@ -298,7 +298,7 @@ export function useNeighborhoodsData(
           setNeighborhoods(data);
           addUrl(url, 'Neighborhoods');
           if (onLoad) {
-            onLoad();
+            onLoad(dataset);
           }
           setItemIsReady('neighborhoods');
         });
@@ -368,7 +368,7 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
             setImageLayerLoaders(nextImageLoaders);
             setImageLayerMeta(nextImageMeta);
             if (onLoad) {
-              onLoad(autoImageLayers);
+              onLoad(dataset, autoImageLayers);
             }
             setItemIsReady('raster');
           });
