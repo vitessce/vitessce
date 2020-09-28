@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useMemo,
+  useState, useEffect, useLayoutEffect, useMemo,
 } from 'react';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
@@ -80,7 +80,7 @@ export default function SpatialSubscriber(props) {
 
   // Reset file URLs and loader progress when the dataset has changed.
   // Also clear the array of automatically-initialized layers.
-  useEffect(() => {
+  useLayoutEffect(() => {
     resetUrls();
     resetReadyItems();
     setAutoLayers({});
