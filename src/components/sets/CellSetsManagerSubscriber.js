@@ -87,7 +87,7 @@ export default function CellSetsManagerSubscriber(props) {
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-    setAutoSetSelections(undefined);
+    setAutoSetSelections({});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
@@ -101,12 +101,12 @@ export default function CellSetsManagerSubscriber(props) {
         const newAutoSetSelections = treeToSetNamesByKeys(data, newAutoSetSelectionKeys);
         setAutoSetSelections(prev => ({
           [dataset]: [
-            ...((prev && prev[dataset]) || []),
+            ...(prev[dataset] || []),
             ...newAutoSetSelections,
           ],
         }));
       } else {
-        setAutoSetSelections(prev => ({ [dataset]: ((prev && prev[dataset]) || []) }));
+        setAutoSetSelections(prev => ({ [dataset]: (prev[dataset] || []) }));
       }
     });
 
