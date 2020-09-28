@@ -99,9 +99,14 @@ export default function CellSetsManagerSubscriber(props) {
         // eslint-disable-next-line no-underscore-dangle
         const newAutoSetSelectionKeys = data.tree[0].children.map(node => node._state.key);
         const newAutoSetSelections = treeToSetNamesByKeys(data, newAutoSetSelectionKeys);
-        setAutoSetSelections(prev => ({ ...prev, [dataset]: newAutoSetSelections }));
+        setAutoSetSelections(prev => ({
+          [dataset]: [
+            ...((prev && prev[dataset]) || []),
+            ...newAutoSetSelections,
+          ],
+        }));
       } else {
-        setAutoSetSelections(prev => ({ ...prev, [dataset]: [] }));
+        setAutoSetSelections(prev => ({ [dataset]: ((prev && prev[dataset]) || []) }));
       }
     });
 
