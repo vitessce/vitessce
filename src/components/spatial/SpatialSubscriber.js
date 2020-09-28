@@ -70,7 +70,9 @@ export default function SpatialSubscriber(props) {
     setCellHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
-  const [autoLayers, setAutoLayers] = useState({});
+  const [autoLayers, setAutoLayers] = useState({
+    [dataset]: [DEFAULT_CELLS_LAYER, DEFAULT_MOLECULES_LAYER, DEFAULT_NEIGHBORHOODS_LAYER],
+  });
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -83,28 +85,24 @@ export default function SpatialSubscriber(props) {
   useLayoutEffect(() => {
     resetUrls();
     resetReadyItems();
-    setAutoLayers({});
+    setAutoLayers({
+      [dataset]: [DEFAULT_CELLS_LAYER, DEFAULT_MOLECULES_LAYER, DEFAULT_NEIGHBORHOODS_LAYER],
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => setAutoLayers(prev => (
-      { [dataset]: [...(prev[dataset] || []), DEFAULT_CELLS_LAYER] }
-    )),
+    () => {},
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => setAutoLayers(prev => (
-      { [dataset]: [...(prev[dataset] || []), DEFAULT_MOLECULES_LAYER] }
-    )),
+    () => {},
   );
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => setAutoLayers(prev => (
-      { [dataset]: [...(prev[dataset] || []), DEFAULT_NEIGHBORHOODS_LAYER] }
-    )),
+    () => {},
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
