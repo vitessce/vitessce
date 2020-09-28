@@ -70,7 +70,7 @@ export default function SpatialSubscriber(props) {
     setCellHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
-  const [autoLayers, setAutoLayers] = useState([]);
+  const [autoLayers, setAutoLayers] = useState({});
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -109,15 +109,17 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    (autoImageLayers) => {
-      setAutoLayers(prev => ([...prev, ...autoImageLayers]));
+    (autoImageLayers, autoLayersDataset) => {
+      setAutoLayers(prev => ({ ...prev, [autoLayersDataset]: [...prev[autoLayersDataset], ...autoImageLayers] }));
     },
   );
 
   // Try to set up the layers array automatically if null or undefined.
   useEffect(() => {
-    if (isReady && !layers) {
-      setLayers(sortLayers(autoLayers));
+    if(isReady && autoLayers[dataset]) {
+      if (isReady && !layers) {
+        setLayers(sortLayers(autoLayers[dataset]));
+      }
     } else if (isReady && layers) {
       // Layers were defined, but check whether channels for each layer were also defined.
       // If channel / slider / domain definitions are missing, initialize in automatically.
@@ -129,7 +131,7 @@ export default function SpatialSubscriber(props) {
           }
         });
     }
-  }, [autoLayers, imageLayerLoaders, isReady, layers, setLayers]);
+  }, [dataset, autoLayers, imageLayerLoaders, isReady, layers, setLayers]);
 
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
