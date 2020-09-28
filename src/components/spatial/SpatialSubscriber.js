@@ -90,7 +90,9 @@ export default function SpatialSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => setAutoLayers(prev => ({ [dataset]: [...(prev[dataset] || []), DEFAULT_CELLS_LAYER] })),
+    () => setAutoLayers(prev => (
+      { [dataset]: [...(prev[dataset] || []), DEFAULT_CELLS_LAYER] }
+    )),
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -113,17 +115,15 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    (autoImageLayers) => {
-      setAutoLayers(prev => ({ [dataset]: [...(prev[dataset] || []), ...autoImageLayers] }));
-    },
+    autoImageLayers => setAutoLayers(prev => (
+      { [dataset]: [...(prev[dataset] || []), ...autoImageLayers] }
+    )),
   );
 
   // Try to set up the layers array automatically if null or undefined.
   useEffect(() => {
-    if (isReady && autoLayers[dataset]) {
-      if (isReady && !layers) {
-        setLayers(sortLayers(autoLayers[dataset]));
-      }
+    if (isReady && !layers && autoLayers[dataset]) {
+      setLayers(sortLayers(autoLayers[dataset]));
     } else if (isReady && layers) {
       // Layers were defined, but check whether channels for each layer were also defined.
       // If channel / slider / domain definitions are missing, initialize in automatically.
