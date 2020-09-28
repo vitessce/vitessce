@@ -83,22 +83,26 @@ export default function SpatialSubscriber(props) {
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-    setAutoLayers([]);
+    setAutoLayers({});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => setAutoLayers(prev => ([...prev, DEFAULT_CELLS_LAYER])),
+    () => setAutoLayers(prev => ({ [dataset]: [...(prev[dataset] || []), DEFAULT_CELLS_LAYER] })),
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => setAutoLayers(prev => ([...prev, DEFAULT_MOLECULES_LAYER])),
+    () => setAutoLayers(prev => (
+      { [dataset]: [...(prev[dataset] || []), DEFAULT_MOLECULES_LAYER] }
+    )),
   );
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => setAutoLayers(prev => ([...prev, DEFAULT_NEIGHBORHOODS_LAYER])),
+    () => setAutoLayers(prev => (
+      { [dataset]: [...(prev[dataset] || []), DEFAULT_NEIGHBORHOODS_LAYER] }
+    )),
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -109,14 +113,14 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    (autoImageLayers, autoLayersDataset) => {
-      setAutoLayers(prev => ({ ...prev, [autoLayersDataset]: [...prev[autoLayersDataset], ...autoImageLayers] }));
+    (autoImageLayers) => {
+      setAutoLayers(prev => ({ [dataset]: [...(prev[dataset] || []), ...autoImageLayers] }));
     },
   );
 
   // Try to set up the layers array automatically if null or undefined.
   useEffect(() => {
-    if(isReady && autoLayers[dataset]) {
+    if (isReady && autoLayers[dataset]) {
       if (isReady && !layers) {
         setLayers(sortLayers(autoLayers[dataset]));
       }
