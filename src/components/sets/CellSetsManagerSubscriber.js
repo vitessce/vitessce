@@ -94,14 +94,14 @@ export default function CellSetsManagerSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true,
-    (loadedDataset, data) => {
+    (data) => {
       if (data && data.tree.length >= 1) {
         // eslint-disable-next-line no-underscore-dangle
         const newAutoSetSelectionKeys = data.tree[0].children.map(node => node._state.key);
         const newAutoSetSelections = treeToSetNamesByKeys(data, newAutoSetSelectionKeys);
-        setAutoSetSelections(prev => ({ ...prev, [loadedDataset]: newAutoSetSelections }));
+        setAutoSetSelections(prev => ({ ...prev, [dataset]: newAutoSetSelections }));
       } else {
-        setAutoSetSelections(prev => ({ ...prev, [loadedDataset]: [] }));
+        setAutoSetSelections(prev => ({ ...prev, [dataset]: [] }));
       }
     });
 
