@@ -4,8 +4,6 @@
 
 ### Changed
 
-## Changed
-
 ## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 
 ### Added
@@ -69,6 +67,8 @@
 - Don't include dependencies in production ES build.
 - Added terms and diagrams related to the coordination model to the `GLOSSARY.md` document.
 - Update README screenshots.
+- Use a random `uuid` when upgrading `v0.1.0` view configs to `v1.0.0` to enable the data hook `dataset` dependency to detect dataset updates resulting from passing new view configs.
+- Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
 
 ## [0.2.5](https://www.npmjs.com/package/vitessce/v/0.2.5) - 2020-08-31
 

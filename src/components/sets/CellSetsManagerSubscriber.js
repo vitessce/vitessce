@@ -81,28 +81,34 @@ export default function CellSetsManagerSubscriber(props) {
   );
 
   const [tree, dispatch] = useReducer(reducer, initialTree);
-  const [autoSetSelections, setAutoSetSelections] = useState();
+  const [autoSetSelections, setAutoSetSelections] = useState({});
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-    setAutoSetSelections(undefined);
+    setAutoSetSelections({});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
   const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true, (data) => {
-    if (data && data.tree.length >= 1) {
-      // eslint-disable-next-line no-underscore-dangle
-      const newAutoSetSelectionKeys = data.tree[0].children.map(node => node._state.key);
-      const newAutoSetSelections = treeToSetNamesByKeys(data, newAutoSetSelectionKeys);
-      setAutoSetSelections(newAutoSetSelections);
-    } else {
-      setAutoSetSelections([]);
-    }
-  });
+  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true,
+    (data) => {
+      if (data && data.tree.length >= 1) {
+        // eslint-disable-next-line no-underscore-dangle
+        const newAutoSetSelectionKeys = data.tree[0].children.map(node => node._state.key);
+        const newAutoSetSelections = treeToSetNamesByKeys(data, newAutoSetSelectionKeys);
+        setAutoSetSelections(prev => ({
+          [dataset]: [
+            ...(prev[dataset] || []),
+            ...newAutoSetSelections,
+          ],
+        }));
+      } else {
+        setAutoSetSelections(prev => ({ [dataset]: (prev[dataset] || []) }));
+      }
+    });
 
   // Try to set up the selected sets array automatically if undefined.
   useEffect(() => {
@@ -111,14 +117,14 @@ export default function CellSetsManagerSubscriber(props) {
     // that the selection is coming from a tool.
     if (
       isReady
-      && autoSetSelections !== undefined
+      && autoSetSelections[dataset] !== undefined
       && cellSetSelection === undefined
       && cellSelection === undefined
       && initializeSelection
     ) {
-      setCellSetSelection(autoSetSelections);
+      setCellSetSelection(autoSetSelections[dataset]);
     }
-  }, [autoSetSelections, isReady, cellSetSelection, cellSelection,
+  }, [dataset, autoSetSelections, isReady, cellSetSelection, cellSelection,
     setCellSetSelection, initializeSelection]);
 
   // Set the tree in the reducer when it loads initially.
@@ -158,7 +164,7 @@ export default function CellSetsManagerSubscriber(props) {
     }
     // Don't do anything if still waiting for `autoSetSelections`
     // to be initialized.
-    if (!autoSetSelections) {
+    if (!autoSetSelections[dataset]) {
       return;
     }
     // Create cell set selections using the names of the "visible" sets.

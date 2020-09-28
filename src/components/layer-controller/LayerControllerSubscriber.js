@@ -85,7 +85,7 @@ function LayerControllerSubscriber(props) {
           if (layer.type === 'cells') {
             return (
               <VectorLayerController
-                key="cells"
+                key={`${dataset}-cells`}
                 label="Cell Segmentations"
                 layer={layer}
                 handleLayerChange={v => handleLayerChange(v, i)}
@@ -94,7 +94,7 @@ function LayerControllerSubscriber(props) {
           } if (layer.type === 'molecules') {
             return (
               <VectorLayerController
-                key="molecules"
+                key={`${dataset}-molecules`}
                 label="Molecules"
                 layer={layer}
                 handleLayerChange={v => handleLayerChange(v, i)}
@@ -106,7 +106,7 @@ function LayerControllerSubscriber(props) {
             const layerMeta = imageLayerMeta[index];
             return (loader && layerMeta ? (
               // eslint-disable-next-line react/no-array-index-key
-              <Grid key={`raster-layer-${index}-${i}`} item style={{ marginTop: '10px' }}>
+              <Grid key={`${dataset}-raster-${index}-${i}`} item style={{ marginTop: '10px' }}>
                 <RasterLayerController
                   name={layerMeta.name}
                   layer={layer}
