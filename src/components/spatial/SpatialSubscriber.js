@@ -71,7 +71,11 @@ export default function SpatialSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [autoLayers, setAutoLayers] = useState({
-    [dataset]: [DEFAULT_CELLS_LAYER, DEFAULT_MOLECULES_LAYER, DEFAULT_NEIGHBORHOODS_LAYER],
+    [dataset]: [
+      loaders[dataset].loaders.cells?.url ? DEFAULT_CELLS_LAYER : null,
+      loaders[dataset].loaders.molecules?.url ? DEFAULT_MOLECULES_LAYER : null,
+      loaders[dataset].loaders.neighborhoods?.url ? DEFAULT_NEIGHBORHOODS_LAYER : null,
+    ].filter(i => i),
   });
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -86,7 +90,11 @@ export default function SpatialSubscriber(props) {
     resetUrls();
     resetReadyItems();
     setAutoLayers({
-      [dataset]: [DEFAULT_CELLS_LAYER, DEFAULT_MOLECULES_LAYER, DEFAULT_NEIGHBORHOODS_LAYER],
+      [dataset]: [
+        loaders[dataset].loaders.cells?.url ? DEFAULT_CELLS_LAYER : null,
+        loaders[dataset].loaders.molecules?.url ? DEFAULT_MOLECULES_LAYER : null,
+        loaders[dataset].loaders.neighborhoods?.url ? DEFAULT_NEIGHBORHOODS_LAYER : null,
+      ].filter(i => i),
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
