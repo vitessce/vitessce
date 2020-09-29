@@ -1,6 +1,10 @@
 # Changelog
 
-## 1.0.0
+## 1.0.1 (in progress)
+
+### Changed
+
+## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 
 ### Added
 - Introduced a [zustand](https://github.com/react-spring/zustand) store for managing the view config:
@@ -26,6 +30,8 @@
     - These allow a consumer app to be notified of all view config (and by extension coordination object) updates.
 
 ### Changed
+- Update README screenshots.
+- Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
 - Moved the `Vitessce` component out of `src/app/app.js` into `src/app/Vitessce.js`.
 - Moved the `Warning` component out of `src/app/app.js` into `src/app/Warning.js`.
 - Renamed `VitessceGrid` to `VitessceGridLayout`.

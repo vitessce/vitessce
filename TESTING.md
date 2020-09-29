@@ -24,7 +24,7 @@ cd ..
  - Info about the current deployment.
 
  There is an input field where the URL of a config could be given.
- You can also paste a data URI like this: `data:,{"name":"FAKE", "description":"fake dataset", "layers":[], "staticLayout":[{"component":"description", "props":{"description": "Hello World"}, "x":0, "y": 0, "w": 2, "h": 2}]}`
+ You can also paste a data URI like this: `data:,{"name":"FAKE", "version": "0.1.0", "description":"fake dataset", "layers":[], "staticLayout":[{"component":"description", "props":{"description": "Hello World"}, "x":0, "y": 0, "w": 2, "h": 2}]}`
 
 ## Application Layout
 
