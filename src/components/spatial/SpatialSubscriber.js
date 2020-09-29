@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useLayoutEffect, useMemo,
+  useState, useEffect, useMemo,
 } from 'react';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
@@ -25,6 +25,10 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SPATIAL_DATA_TYPES = [
   'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix',
+];
+
+const SPATIAL_LAYER_TYPES = [
+  'cells', 'molecules', 'raster', 'neighborhoods',
 ];
 
 export default function SpatialSubscriber(props) {
@@ -86,7 +90,7 @@ export default function SpatialSubscriber(props) {
 
   // Reset file URLs and loader progress when the dataset has changed.
   // Also clear the array of automatically-initialized layers.
-  useLayoutEffect(() => {
+  useEffect(() => {
     resetUrls();
     resetReadyItems();
     setAutoLayers({
@@ -122,27 +126,41 @@ export default function SpatialSubscriber(props) {
   const [raster, imageLayerLoaders] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
     autoImageLayers => setAutoLayers(prev => (
-      { [dataset]: [...(prev[dataset] || []), ...autoImageLayers] }
+      // This prevents old updates from overriding the current dataset.
+      // The previous state must be for this dataset, otherwise it's an old update.
+      Object.keys(prev).includes(dataset)
+        ? { [dataset]: [...(prev[dataset] || []), ...autoImageLayers] }
+        : prev
     )),
   );
-
   // Try to set up the layers array automatically if null or undefined.
   useEffect(() => {
-    if (isReady && !layers && autoLayers[dataset]) {
-      setLayers(sortLayers(autoLayers[dataset]));
-    } else if (isReady && layers) {
-      // Layers were defined, but check whether channels for each layer were also defined.
-      // If channel / slider / domain definitions are missing, initialize in automatically.
-      initializeLayerChannelsIfMissing(layers, imageLayerLoaders)
-        .then(([newLayers, didInitialize]) => {
-          if (didInitialize) {
-            // Channels were only partially defined.
-            setLayers(newLayers);
-          }
-        });
+    // Check if the autoLayers have a layer for each spatial layer loader type.
+    const areAutoLayersComplete = Object.keys(loaders[dataset].loaders)?.every(
+      loaderType => !SPATIAL_LAYER_TYPES.includes(loaderType)
+        || (
+          autoLayers[dataset] && autoLayers[dataset].filter(
+            layer => layer.type === loaderType,
+          ).length > 0
+        )
+    );
+    if (isReady) {
+      if (!layers && autoLayers[dataset] && areAutoLayersComplete) {
+        setLayers(sortLayers(autoLayers[dataset]));
+      } else if (layers) {
+        // Layers were defined, but check whether channels for each layer were also defined.
+        // If channel / slider / domain definitions are missing, initialize in automatically.
+        initializeLayerChannelsIfMissing(layers, imageLayerLoaders).then(
+          ([newLayers, didInitialize]) => {
+            if (didInitialize) {
+              // Channels were only partially defined.
+              setLayers(newLayers);
+            }
+          },
+        );
+      }
     }
-  }, [dataset, autoLayers, imageLayerLoaders, isReady, layers, setLayers]);
-
+  }, [dataset, loaders, autoLayers, imageLayerLoaders, isReady, layers, setLayers]);
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionMatrix,
