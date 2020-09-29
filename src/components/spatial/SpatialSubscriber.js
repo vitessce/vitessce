@@ -79,7 +79,7 @@ export default function SpatialSubscriber(props) {
       loaders[dataset].loaders.cells?.url ? DEFAULT_CELLS_LAYER : null,
       loaders[dataset].loaders.molecules?.url ? DEFAULT_MOLECULES_LAYER : null,
       loaders[dataset].loaders.neighborhoods?.url ? DEFAULT_NEIGHBORHOODS_LAYER : null,
-    ].filter(i => i),
+    ].filter(Boolean),
   });
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -98,7 +98,7 @@ export default function SpatialSubscriber(props) {
         loaders[dataset].loaders.cells?.url ? DEFAULT_CELLS_LAYER : null,
         loaders[dataset].loaders.molecules?.url ? DEFAULT_MOLECULES_LAYER : null,
         loaders[dataset].loaders.neighborhoods?.url ? DEFAULT_NEIGHBORHOODS_LAYER : null,
-      ].filter(i => i),
+      ].filter(Boolean),
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
