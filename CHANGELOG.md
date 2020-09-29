@@ -1,12 +1,5 @@
 # Changelog
 
-## 1.0.1 (in progress)
-
-### Changed
-- Update README screenshots.
-- Use a random `uuid` when upgrading `v0.1.0` view configs to `v1.0.0` to enable the data hook `dataset` dependency to detect dataset updates resulting from passing new view configs.
-- Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
-
 ## 1.0.0
 
 ### Added
@@ -67,6 +60,10 @@
 - Only test/publish on production builds.
 - Don't include dependencies in production ES build.
 - Added terms and diagrams related to the coordination model to the `GLOSSARY.md` document.
+- Update README screenshots.
+- Use a random `uuid` when upgrading `v0.1.0` view configs to `v1.0.0` to enable the data hook `dataset` dependency to detect dataset updates resulting from passing new view configs.
+- Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
+- Fix `Spatial` initialization bug.
 
 ## [0.2.5](https://www.npmjs.com/package/vitessce/v/0.2.5) - 2020-08-31
 
