@@ -1,11 +1,22 @@
 import React, {
   useMemo, useEffect, useCallback, Suspense, useState,
 } from 'react';
+import register from 'higlass-register';
+import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
 import PubSub from 'pubsub-js';
 import { CELL_SETS_CHANGE } from '../../events';
 import { treeToVisibleSetSizes } from '../sets/reducer';
 import { colorArrayToString } from '../sets/utils';
 import TitleInfo from '../TitleInfo';
+
+// Register the zarr-multivec plugin data fetcher.
+// References:
+// - https://github.com/higlass/higlass-register
+// - https://github.com/higlass/higlass-zarr-datafetchers
+register(
+  { dataFetcher: ZarrMultivecDataFetcher, config: ZarrMultivecDataFetcher.config },
+  { pluginType: 'dataFetcher' },
+);
 
 // Reference: https://stackoverflow.com/a/55161634
 const HiGlassComponent = React.lazy(() => import('./HiGlass').then(({ default: Component }) => ({
