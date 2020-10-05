@@ -32,7 +32,7 @@ export function cellLayerDefaultProps(cells, updateStatus, setCellHighlight, set
         }
       } else if (setCellHighlight) {
         // Clear the currently-hovered cell info by passing null.
-        setCellHighlight(null);
+        setCellHighlight('');
       }
     },
   };

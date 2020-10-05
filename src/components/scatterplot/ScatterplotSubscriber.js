@@ -145,7 +145,7 @@ export default function ScatterplotSubscriber(props) {
 
         setCellFilter={setCellFilter}
         setCellSelection={(v) => {
-          setCellSetSelection(null);
+          setCellSetSelection([]);
           setCellSelection(v);
         }}
         setCellHighlight={setCellHighlight}

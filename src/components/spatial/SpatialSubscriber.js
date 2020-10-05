@@ -222,7 +222,7 @@ export default function SpatialSubscriber(props) {
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}
         setCellSelection={(v) => {
-          setCellSetSelection(null);
+          setCellSetSelection([]);
           setCellSelection(v);
         }}
         setCellHighlight={setCellHighlight}
