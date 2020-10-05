@@ -17,7 +17,7 @@ module.exports = config => {
     // The maximum number of tries a browser will attempt upon disconnection.
     browserDisconnectTolerance: 2,
     // How long will Karma wait for a message from a browser before disconnecting?
-    browserNoActivityTimeout: 20000, // in ms
+    browserNoActivityTimeout: 30000, // in ms
     basePath: '../src/',
     frameworks: ['mocha'],
 

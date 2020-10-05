@@ -29,7 +29,7 @@ describe('Vitessce.js', () => {
         }
         expect(valid).toEqual(true);
         done();
-      }, 15000);
-    }).timeout(20000);
+      }, 20000);
+    }).timeout(25000);
   });
 });
