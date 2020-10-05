@@ -41,7 +41,7 @@ export default function DescriptionSubscriber(props) {
 
   const metadata = useMemo(() => {
     const result = new Map();
-    if (layers && raster && imageLayerMeta && imageLayerLoaders) {
+    if ((layers.length > 0) && raster && imageLayerMeta && imageLayerLoaders) {
       const rasterLayers = layers.filter(layer => layer.type === 'raster');
       rasterLayers.forEach((layer) => {
         if (imageLayerMeta[layer.index]) {

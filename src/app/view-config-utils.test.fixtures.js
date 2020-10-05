@@ -171,19 +171,19 @@ export const initializedViewConfig = {
       A: 'cellSetSelection',
     },
     cellFilter: {
-      A: undefined,
+      A: [],
     },
     cellHighlight: {
-      A: undefined,
+      A: '',
     },
     cellSelection: {
-      A: undefined,
+      A: [],
     },
     cellSetHighlight: {
-      A: undefined,
+      A: '',
     },
     cellSetSelection: {
-      A: undefined,
+      A: [],
     },
     dataset: {
       A: 'A',
@@ -216,13 +216,13 @@ export const initializedViewConfig = {
       ],
     },
     geneHighlight: {
-      A: undefined,
+      A: '',
     },
     geneSelection: {
-      A: undefined,
+      A: [],
     },
     spatialLayers: {
-      A: undefined,
+      A: [],
     },
     spatialRotation: {
       A: 0,

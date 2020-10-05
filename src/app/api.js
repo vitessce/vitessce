@@ -73,7 +73,7 @@ const vanderbiltBase = {
 // Note that the ordering of the components in the staticLayout
 // can affect the z-index of plot tooltips due to the
 // resulting ordering of elements in the DOM.
-const configs = {
+export const configs = {
   'just-scatter': {
     version: '0.1.0',
     public: false,

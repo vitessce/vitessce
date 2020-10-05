@@ -5,7 +5,7 @@ export default function Genes(props) {
   const {
     geneList = [],
     geneSelection = [],
-    geneFilter = null,
+    geneFilter = [],
     setGeneSelection,
   } = props;
 
@@ -16,7 +16,7 @@ export default function Genes(props) {
   }
 
   const data = geneList
-    .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
+    .filter(gene => (geneFilter.length > 0 ? geneFilter.includes(gene) : true))
     .sort((a, b) => a.localeCompare(b))
     .map(
       gene => ({ name: gene, value: geneSelection.includes(gene) }),

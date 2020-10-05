@@ -93,7 +93,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       radius, stroked, visible, opacity,
     } = layerDef;
     const {
-      cellFilter = null,
+      cellFilter = [],
       cellSelection = [],
       setCellHighlight,
       setComponentHover,
@@ -106,7 +106,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       lineWidthMaxPixels = 2,
     } = this.props;
     const { cellsEntries } = this;
-    const filteredCellsEntries = (cellFilter
+    const filteredCellsEntries = (cellFilter.length > 0
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
 

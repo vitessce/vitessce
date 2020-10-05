@@ -118,8 +118,8 @@ export default function CellSetsManagerSubscriber(props) {
     if (
       isReady
       && autoSetSelections[dataset] !== undefined
-      && cellSetSelection === undefined
-      && cellSelection === undefined
+      && cellSetSelection.length === 0
+      && cellSelection.length === 0
       && initializeSelection
     ) {
       setCellSetSelection(autoSetSelections[dataset]);
@@ -147,7 +147,7 @@ export default function CellSetsManagerSubscriber(props) {
     const [visibleCells] = treeToVisibleCells(tree);
     // Only create a new set if the new set is coming from the lasso or rectangle selection tools,
     // which explicitly set `cellSetSelection = null` so that we can detect it here.
-    if (cellSetSelection === null && !isEqual(visibleCells, cellSelection)) {
+    if (cellSetSelection.length === 0 && !isEqual(visibleCells, cellSelection)) {
       dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: cellSelection, publish: true });
     }
   }, [cellSetSelection, cellSelection, tree]);
@@ -183,7 +183,7 @@ export default function CellSetsManagerSubscriber(props) {
   // We want the "checked level" radio button to be initialized even when
   // the tree object may not explicitly have the `._state.checkedLevel` set up.
   const checkedLevel = useMemo(() => {
-    if (cellSetSelection && tree) {
+    if (cellSetSelection.length > 0 && tree) {
       return treeToExpectedCheckedLevel(tree, cellSetSelection);
     }
     return null;

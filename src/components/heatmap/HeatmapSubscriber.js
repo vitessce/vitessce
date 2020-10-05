@@ -107,7 +107,7 @@ export default function HeatmapSubscriber(props) {
     ? expressionMatrix.rows.length : 0;
   const genesCount = expressionMatrix && expressionMatrix.cols
     ? expressionMatrix.cols.length : 0;
-  const selectedCount = cellSelection ? cellSelection.length : 0;
+  const selectedCount = cellSelection.length;
   return (
     <TitleInfo
       title="Heatmap"

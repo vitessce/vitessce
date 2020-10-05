@@ -145,9 +145,9 @@ export default function SpatialSubscriber(props) {
         )
     );
     if (isReady) {
-      if (!layers && autoLayers[dataset] && areAutoLayersComplete) {
+      if (layers.length === 0 && autoLayers[dataset] && areAutoLayersComplete) {
         setLayers(sortLayers(autoLayers[dataset]));
-      } else if (layers) {
+      } else if ((layers.length > 0)) {
         // Layers were defined, but check whether channels for each layer were also defined.
         // If channel / slider / domain definitions are missing, initialize in automatically.
         initializeLayerChannelsIfMissing(layers, imageLayerLoaders).then(
@@ -211,7 +211,7 @@ export default function SpatialSubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2]);
         }}
-        layers={(isReady ? layers : [])}
+        layers={layers}
         cells={cells}
         cellFilter={cellFilter}
         cellSelection={cellSelection}

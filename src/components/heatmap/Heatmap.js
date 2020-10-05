@@ -506,6 +506,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   return (
     <>
       <DeckGL
+        id={`deckgl-overlay-${uuid}`}
         ref={deckRef}
         views={[
           // Note that there are multiple views here,
