@@ -9,9 +9,10 @@ import configSchema from '../schemas/config.schema.json';
 
 configure({ adapter: new Adapter() });
 
-describe('Vitessce.js', () => {
-  describe('<Vitessce />', () => {
-    it('renders', (done) => {
+// I don't know why but without these arguments, the test never stops.
+describe('Vitessce.js', (doneFile) => {
+  describe('<Vitessce />', (doneComponent) => {
+    it('Produces valid view config', (done) => {
       const config = configs['linnarsson-2018'];
       let updatedConfig = {};
       // eslint-disable-next-line no-return-assign
@@ -28,8 +29,9 @@ describe('Vitessce.js', () => {
           console.error(failureReason);
         }
         expect(valid).toEqual(true);
+        wrapper.unmount();
         done();
       }, 20000);
-    }).timeout(25000);
+    }).timeout(30000);
   });
 });
