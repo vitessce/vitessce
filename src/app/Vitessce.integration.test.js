@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 // import React from 'react';
 // import Adapter from 'enzyme-adapter-react-16';
 // import { mount, configure } from 'enzyme';
