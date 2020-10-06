@@ -3,6 +3,7 @@
 ## 1.0.1 (in progress)
 
 ### Changed
+- Fixed schema validity as state updates.
 
 ## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 
