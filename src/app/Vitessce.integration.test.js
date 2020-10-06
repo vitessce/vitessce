@@ -9,11 +9,8 @@ import configSchema from '../schemas/config.schema.json';
 
 configure({ adapter: new Adapter() });
 
-// I don't know why but without these arguments, the test never stops.
-/* eslint-disable no-unused-vars */
-describe('Vitessce.js', (doneFile) => {
-  describe('<Vitessce />', (doneComponent) => {
-  /* eslint-disable no-unused-vars */
+describe('Vitessce.js', () => {
+  describe('<Vitessce />', () => {
     it('Produces valid view config', (done) => {
       const config = configs['linnarsson-2018'];
       let updatedConfig = {};
