@@ -82,6 +82,8 @@ export default function CellSetsManagerSubscriber(props) {
 
   const [tree, dispatch] = useReducer(reducer, initialTree);
   const [autoSetSelections, setAutoSetSelections] = useState({});
+  const [loaderTreeNames, setLoaderTreeNames] = useState([]);
+  const [datasetInitialized, setDatasetInitialized] = useState(false);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
@@ -105,6 +107,7 @@ export default function CellSetsManagerSubscriber(props) {
             ...newAutoSetSelections,
           ],
         }));
+        setLoaderTreeNames(data.tree.map(i => i.name));
       } else {
         setAutoSetSelections(prev => ({ [dataset]: (prev[dataset] || []) }));
       }
@@ -117,15 +120,17 @@ export default function CellSetsManagerSubscriber(props) {
     // that the selection is coming from a tool.
     if (
       isReady
-      && autoSetSelections[dataset] !== undefined
+      && autoSetSelections[dataset]?.length !== 0
       && cellSetSelection.length === 0
       && cellSelection.length === 0
       && initializeSelection
+      && !datasetInitialized
     ) {
+      setDatasetInitialized(true);
       setCellSetSelection(autoSetSelections[dataset]);
     }
   }, [dataset, autoSetSelections, isReady, cellSetSelection, cellSelection,
-    setCellSetSelection, initializeSelection]);
+    setCellSetSelection, initializeSelection, datasetInitialized]);
 
   // Set the tree in the reducer when it loads initially.
   useEffect(() => {
@@ -140,7 +145,7 @@ export default function CellSetsManagerSubscriber(props) {
   // Listen for changes to `cellSelection`, and create a new
   // set when there is a new selection available.
   useEffect(() => {
-    if (!cellSelection) {
+    if (cellSelection.length === 0) {
       return;
     }
     // Only create a new set if the new set is different than the current selection.
@@ -151,9 +156,8 @@ export default function CellSetsManagerSubscriber(props) {
       dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: cellSelection, publish: true });
     }
   }, [cellSetSelection, cellSelection, tree]);
-
-
   // Publish the updated tree when the tree changes.
+
   useEffect(() => {
     // eslint-disable-next-line no-underscore-dangle
     if (!loaders[dataset] || !tree || (tree && tree._state && tree._state.publish === false)) {
@@ -172,13 +176,22 @@ export default function CellSetsManagerSubscriber(props) {
     if (!isEqual(visibleSetNames, cellSetSelection)) {
       setCellSetSelection(visibleSetNames);
       // Create a cell selection consisting of all cells in the "visible" sets.
+      if (visibleSetNames.length === 0) {
+        setCellSelection([]);
+        return;
+      }
+      const [[treeName]] = visibleSetNames;
       const [visibleCells] = treeToVisibleCells(tree);
-      if (!isEqual(visibleCells, cellSelection)) {
+      if (!isEqual(visibleCells, cellSelection)
+        && !loaderTreeNames.includes(treeName)
+        && cellSelection.length > 0) {
         setCellSelection(visibleCells);
+      } else if (loaderTreeNames.includes(treeName)) {
+        setCellSelection([]);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tree]);
+  }, [cellSelection, tree]);
 
   // We want the "checked level" radio button to be initialized even when
   // the tree object may not explicitly have the `._state.checkedLevel` set up.
