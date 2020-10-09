@@ -44,6 +44,7 @@ export default function HeatmapSubscriber(props) {
     geneHighlight,
     cellSetSelection,
     cellColorEncoding,
+    geneExpressionColormapRange,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -139,6 +140,7 @@ export default function HeatmapSubscriber(props) {
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
         setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+        geneExpressionColormapRange={geneExpressionColormapRange}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}

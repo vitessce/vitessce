@@ -62,6 +62,7 @@ import {
  * @param {string} props.observationsTitle By default, 'Cells'.
  * @param {function} props.setGeneExpressionColormapRange Callback for updating
  * the colormap range values.
+ * @param {function} props.geneExpressionColormapRange Initial colormap range values.
  */
 const Heatmap = forwardRef((props, deckRef) => {
   const {
@@ -78,7 +79,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
     setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
-    setGeneExpressionColormapRange = () => {},
+    setGeneExpressionColormapRange = () => { },
+    geneExpressionColormapRange = [0, 1],
     setIsRendering = () => {},
     transpose = false,
     variablesTitle = 'Genes',
@@ -105,8 +107,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   const dataRef = useRef();
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
-  const [colorScaleLo, setColorScaleLo] = useState(0.0);
-  const [colorScaleHi, setColorScaleHi] = useState(1.0);
+  const [colorScaleLo, setColorScaleLo] = useState(geneExpressionColormapRange[0]);
+  const [colorScaleHi, setColorScaleHi] = useState(geneExpressionColormapRange[1]);
 
   // Callback function for the color scale slider change event.
   const onColorScaleChange = useCallback((event, newValue) => {
