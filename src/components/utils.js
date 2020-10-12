@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { COORDINATE_SYSTEM } from 'deck.gl';
 
 export function makeCellStatusMessage(cellInfoFactors) {
@@ -114,4 +115,39 @@ export function copyUint8Array(arr) {
   const newArr = new Uint8Array(newBuffer);
   newArr.set(arr);
   return newArr;
+}
+
+/**
+ * Create a new selected cell set based on a cell selection.
+ * @param {string[]} cellSelection An array of cell IDs.
+ * @param {object[]} additionalCellSets The previous array of user-defined cell sets.
+ * @param {function} setCellSetSelection The setter function for cell set selections.
+ * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
+ */
+export function setCellSelection(cellSelection, additionalCellSets, setCellSetSelection, setAdditionalCellSets) {
+  console.log(cellSelection, additionalCellSets);
+  setAdditionalCellSets([
+    ...additionalCellSets,
+    {
+      "name": "My Selections",
+      "children": [
+        {
+          "name": "Selection 1",
+          "set": cellSelection,
+        },
+      ],
+    },
+  ]);
+  setCellSetSelection([["My Selections", "Selection 1"]]);
+}
+
+export function mergeCellSets(cellSets, additionalCellSets) {
+  
+  return cellSets ? {
+    ...cellSets,
+    tree: [
+      ...cellSets.tree,
+      ...additionalCellSets,
+    ],
+  } : cellSets;
 }

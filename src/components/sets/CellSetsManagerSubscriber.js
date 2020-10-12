@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useEffect,
   useReducer,
@@ -35,6 +36,7 @@ import {
   FILE_EXTENSION_TABULAR,
 } from './constants';
 import { useUrls, useReady } from '../hooks';
+import { setCellSelection } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
 
 const SETS_DATATYPE_CELL = 'cell';
@@ -67,12 +69,12 @@ export default function CellSetsManagerSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    cellSelection,
     cellSetSelection,
+    additionalCellSets,
   }, {
-    setCellSelection,
     setCellSetSelection,
     setCellColorEncoding,
+    setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -83,7 +85,6 @@ export default function CellSetsManagerSubscriber(props) {
   const [tree, dispatch] = useReducer(reducer, initialTree);
   const [autoSetSelections, setAutoSetSelections] = useState({});
   const [loaderTreeNames, setLoaderTreeNames] = useState([]);
-  const [datasetInitialized, setDatasetInitialized] = useState(false);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
@@ -115,22 +116,18 @@ export default function CellSetsManagerSubscriber(props) {
 
   // Try to set up the selected sets array automatically if undefined.
   useEffect(() => {
-    // Need to check for `undefined` specifically because the selection tools (lasso / rectangle)
-    // use `cellSelection = null` as a special way to inform this component
-    // that the selection is coming from a tool.
+    // Only initialize cell sets if the value of `cellSetSelection` is `null`
+    // and the `initializeSelection` prop is `true`.
     if (
       isReady
-      && autoSetSelections[dataset]?.length !== 0
-      && cellSetSelection.length === 0
-      && cellSelection.length === 0
       && initializeSelection
-      && !datasetInitialized
+      && autoSetSelections[dataset]
+      && !cellSetSelection
     ) {
-      setDatasetInitialized(true);
       setCellSetSelection(autoSetSelections[dataset]);
     }
-  }, [dataset, autoSetSelections, isReady, cellSetSelection, cellSelection,
-    setCellSetSelection, initializeSelection, datasetInitialized]);
+  }, [dataset, autoSetSelections, isReady, cellSetSelection,
+    setCellSetSelection, initializeSelection]);
 
   // Set the tree in the reducer when it loads initially.
   useEffect(() => {
@@ -142,61 +139,10 @@ export default function CellSetsManagerSubscriber(props) {
     }
   }, [cellSets, cells]);
 
-  // Listen for changes to `cellSelection`, and create a new
-  // set when there is a new selection available.
-  useEffect(() => {
-    if (cellSelection.length === 0) {
-      return;
-    }
-    // Only create a new set if the new set is different than the current selection.
-    const [visibleCells] = treeToVisibleCells(tree);
-    // Only create a new set if the new set is coming from the lasso or rectangle selection tools,
-    // which explicitly set `cellSetSelection = null` so that we can detect it here.
-    if (cellSetSelection.length === 0 && !isEqual(visibleCells, cellSelection)) {
-      dispatch({ type: ACTION.SET_CURRENT_SET, cellIds: cellSelection, publish: true });
-    }
-  }, [cellSetSelection, cellSelection, tree]);
-  // Publish the updated tree when the tree changes.
-
-  useEffect(() => {
-    // eslint-disable-next-line no-underscore-dangle
-    if (!loaders[dataset] || !tree || (tree && tree._state && tree._state.publish === false)) {
-      return;
-    }
-    if (loaders[dataset].loaders['cell-sets']) {
-      loaders[dataset].loaders['cell-sets'].publish(tree);
-    }
-    // Don't do anything if still waiting for `autoSetSelections`
-    // to be initialized.
-    if (!autoSetSelections[dataset]) {
-      return;
-    }
-    // Create cell set selections using the names of the "visible" sets.
-    const visibleSetNames = treeToVisibleSetNames(tree);
-    if (!isEqual(visibleSetNames, cellSetSelection)) {
-      setCellSetSelection(visibleSetNames);
-      // Create a cell selection consisting of all cells in the "visible" sets.
-      if (visibleSetNames.length === 0) {
-        setCellSelection([]);
-        return;
-      }
-      const [[treeName]] = visibleSetNames;
-      const [visibleCells] = treeToVisibleCells(tree);
-      if (!isEqual(visibleCells, cellSelection)
-        && !loaderTreeNames.includes(treeName)
-        && cellSelection.length > 0) {
-        setCellSelection(visibleCells);
-      } else if (loaderTreeNames.includes(treeName)) {
-        setCellSelection([]);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cellSelection, tree]);
-
   // We want the "checked level" radio button to be initialized even when
   // the tree object may not explicitly have the `._state.checkedLevel` set up.
   const checkedLevel = useMemo(() => {
-    if (cellSetSelection.length > 0 && tree) {
+    if (cellSetSelection && tree) {
       return treeToExpectedCheckedLevel(tree, cellSetSelection);
     }
     return null;

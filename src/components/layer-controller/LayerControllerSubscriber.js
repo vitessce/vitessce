@@ -81,7 +81,7 @@ function LayerControllerSubscriber(props) {
       isReady={isReady}
     >
       <div className="layer-controller-container">
-        {layers.length > 0 && layers.map((layer, i) => {
+        {layers && layers.map((layer, i) => {
           if (layer.type === 'cells') {
             return (
               <VectorLayerController

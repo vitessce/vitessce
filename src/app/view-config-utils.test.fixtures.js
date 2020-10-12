@@ -171,19 +171,16 @@ export const initializedViewConfig = {
       A: 'cellSetSelection',
     },
     cellFilter: {
-      A: [],
+      A: null,
     },
     cellHighlight: {
-      A: '',
-    },
-    cellSelection: {
-      A: [],
+      A: null,
     },
     cellSetHighlight: {
-      A: '',
+      A: null,
     },
     cellSetSelection: {
-      A: [],
+      A: null,
     },
     dataset: {
       A: 'A',
@@ -215,14 +212,20 @@ export const initializedViewConfig = {
         1,
       ],
     },
-    geneHighlight: {
-      A: '',
+    geneFilter: {
+      A: null,
     },
-    geneSelection: {
-      A: [],
+    geneHighlight: {
+      A: null,
+    },
+    geneSetSelection: {
+      A: null,
+    },
+    geneSetHighlight: {
+      A: null,
     },
     spatialLayers: {
-      A: [],
+      A: null,
     },
     spatialRotation: {
       A: 0,
@@ -239,6 +242,12 @@ export const initializedViewConfig = {
     spatialZoom: {
       A: -4.4,
     },
+    additionalCellSets: {
+      A: [],
+    },
+    additionalGeneSets: {
+      A: [],
+    }
   },
   datasets: [
     {
@@ -279,7 +288,6 @@ export const initializedViewConfig = {
         cellColorEncoding: 'A',
         cellFilter: 'A',
         cellHighlight: 'A',
-        cellSelection: 'A',
         cellSetHighlight: 'A',
         cellSetSelection: 'A',
         dataset: 'A',
@@ -291,8 +299,12 @@ export const initializedViewConfig = {
         embeddingZoom: 'A',
         geneExpressionColormap: 'A',
         geneExpressionColormapRange: 'A',
+        geneFilter: 'A',
         geneHighlight: 'A',
-        geneSelection: 'A',
+        geneSetSelection: 'A',
+        geneSetHighlight: 'A',
+        additionalCellSets: 'A',
+        additionalGeneSets: 'A',
       },
       h: 4,
       props: {

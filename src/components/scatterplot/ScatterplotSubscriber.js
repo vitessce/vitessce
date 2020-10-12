@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
@@ -6,15 +7,19 @@ import clamp from 'lodash/clamp';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import { setCellSelection, mergeCellSets } from '../utils';
 import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import {
-  useCoordination, useLoaders,
-  useSetComponentHover, useSetComponentViewInfo,
+  useCoordination,
+  useLoaders,
+  useSetComponentHover,
+  useSetComponentViewInfo,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { treeToVisibleCells } from '../sets/reducer';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
@@ -42,20 +47,20 @@ export default function ScatterplotSubscriber(props) {
     embeddingTargetZ: targetZ,
     embeddingType: mapping,
     cellFilter,
-    cellSelection,
     cellHighlight,
     geneSelection,
     cellSetSelection,
     cellColorEncoding,
+    additionalCellSets,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
     setEmbeddingTargetY: setTargetY,
     setEmbeddingTargetZ: setTargetZ,
     setCellFilter,
-    setCellSelection,
     setCellSetSelection,
     setCellHighlight,
+    setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -73,20 +78,28 @@ export default function ScatterplotSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
+  const [cellSets] = useCellSetsData(
+    loaders,
+    dataset,
+    setItemIsReady,
+    addUrl,
+    false,
+  );
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
 
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
+  const mergedCellSets = mergeCellSets(cellSets, additionalCellSets);
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionMatrix,
     geneSelection,
-    cellSets,
+    cellSets: mergedCellSets,
     cellSetSelection,
-  }), [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
+  }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetSelection, expressionMatrix]);
+  const cellSelection = Array.from(cellColors.keys());
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -145,8 +158,7 @@ export default function ScatterplotSubscriber(props) {
 
         setCellFilter={setCellFilter}
         setCellSelection={(v) => {
-          setCellSetSelection([]);
-          setCellSelection(v);
+          setCellSelection(v, additionalCellSets, setCellSetSelection, setAdditionalCellSets);
         }}
         setCellHighlight={setCellHighlight}
         cellRadiusScale={cellRadiusScale}

@@ -473,17 +473,17 @@ const Heatmap = forwardRef((props, deckRef) => {
 
     if (colI === null) {
       if (transpose) {
-        setCellHighlight('');
+        setCellHighlight(null);
       } else {
-        setGeneHighlight('');
+        setGeneHighlight(null);
       }
     }
 
     if (rowI === null) {
       if (transpose) {
-        setGeneHighlight('');
+        setGeneHighlight(null);
       } else {
-        setCellHighlight('');
+        setCellHighlight(null);
       }
     }
 

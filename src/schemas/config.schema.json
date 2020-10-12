@@ -41,20 +41,22 @@
               "heatmapTargetX": { "type": "string" },
               "heatmapTargetY": { "type": "string" },
               "cellFilter": { "type": "string" },
-              "cellSelection": { "type": "string" },
               "cellHighlight": { "type": "string" },
               "cellSetSelection": { "type": "string" },
               "cellSetHighlight": { "type": "string" },
               "geneFilter": { "type": "string" },
-              "geneSelection": { "type": "string" },
               "geneHighlight": { "type": "string" },
+              "geneSetSelection": { "type": "string" },
+              "geneSetHighlight": { "type": "string" },
               "geneExpressionColormap": { "type": "string" },
               "geneExpressionColormapRange": { "type": "string" },
               "cellColorEncoding": { "type": "string" },
               "spatialLayers": { "type": "string" },
               "genomicZoom": { "type": "string" },
               "genomicTargetX": { "type": "string" },
-              "genomicTargetY": { "type": "string" }
+              "genomicTargetY": { "type": "string" },
+              "additionalCellSets": { "type": "string" },
+              "additionalGeneSets": { "type": "string" }
             }
           }
         }
@@ -211,7 +213,15 @@
         "spatialLayers": {
           "type": "object",
           "patternProperties": {
-            ".": {"type": "array", "items": { "type": "object" } }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
+                },
+                { "type": "array", "items": { "type": "object" } }
+              ]
+            }
           }
         },
         "heatmapZoomX": {
@@ -241,19 +251,57 @@
         "cellFilter": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "array", "items": { "type": "string" } }
-          }
-        },
-        "cellSelection": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "array", "items": { "type": "string" } }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no cells will be filtered out initially."
+                },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            }
           }
         },
         "cellHighlight": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "string" }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no cell will be highlighted initially."
+                },
+                { "type": "string" }
+              ]
+            }
+          }
+        },
+        "cellSetSelection": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided and auto cell set initialization is enabled, cell set selections will be automatically initialized."
+                },
+                { "type": "array" }
+              ]
+            }
+          }
+        },
+        "cellSetHighlight": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no cell sets will be highlighted initially."
+                },
+                { "type": "string" }
+              ]
+            }
           }
         },
         "cellColorEncoding": {
@@ -265,31 +313,57 @@
         "geneFilter": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "array", "items": { "type": "string" } }
-          }
-        },
-        "geneSelection": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "array", "items": { "type": "string" } }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no genes will be filtered out initially."
+                },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            }
           }
         },
         "geneHighlight": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "string" }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no genes will be highlighted initially."
+                },
+                { "type": "string" }
+              ]
+            }
           }
         },
-        "cellSetSelection": {
+        "geneSetSelection": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "array" }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided and auto gene set initialization is enabled, gene set selections will be automatically initialized."
+                },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            }
           }
         },
-        "cellSetHighlight": {
+        "geneSetHighlight": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "string" }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no gene sets will be highlighted initially."
+                },
+                { "type": "array" }
+              ]
+            }
           }
         },
         "geneExpressionColormap": {
@@ -320,6 +394,24 @@
           "type": "object",
           "patternProperties": {
             ".": { "type": "number" }
+          }
+        },
+        "additionalCellSets": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "description": "User-defined cell sets that will be merged with dataset-defined cell sets.",
+              "type": "array"
+            }
+          }
+        },
+        "additionalGeneSets": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "description": "User-defined gene sets that will be merged with dataset-defined gene sets.",
+              "type": "array"
+            }
           }
         }
       }

@@ -24,7 +24,7 @@ const makeDefaultGetCellColors = cellColors => cellEntry => (
   cellColors && cellColors.get(cellEntry[0])
 ) || DEFAULT_COLOR;
 const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
-  cellSelection.length
+  cellSelection
     ? cellSelection.includes(cellEntry[0])
     : true // If nothing is selected, everything is selected.
 );
@@ -93,8 +93,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       radius, stroked, visible, opacity,
     } = layerDef;
     const {
-      cellFilter = [],
-      cellSelection = [],
+      cellFilter,
+      cellSelection,
       setCellHighlight,
       setComponentHover,
       getCellIsSelected = makeDefaultGetCellIsSelected(cellSelection),
@@ -106,7 +106,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       lineWidthMaxPixels = 2,
     } = this.props;
     const { cellsEntries } = this;
-    const filteredCellsEntries = (cellFilter.length > 0
+    const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
 
@@ -291,8 +291,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createImageLayers() {
-    const { layers = [], imageLayerLoaders = {} } = this.props;
-    return layers
+    const { layers, imageLayerLoaders = {} } = this.props;
+    return (layers || [])
       .filter(layer => layer.type === 'raster')
       .map((layer, i) => this.createImageLayer(
         layer, imageLayerLoaders[layer.index], i,
@@ -327,8 +327,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellsLayer() {
-    const { layers = [] } = this.props;
-    const layerDef = layers.find(layer => layer.type === 'cells');
+    const { layers } = this.props;
+    const layerDef = (layers || []).find(layer => layer.type === 'cells');
     if (layerDef) {
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {
@@ -347,8 +347,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateMoleculesLayer() {
-    const { layers = [] } = this.props;
-    const layerDef = layers.find(layer => layer.type === 'molecules');
+    const { layers } = this.props;
+    const layerDef = (layers || []).find(layer => layer.type === 'molecules');
     if (layerDef) {
       this.moleculesLayer = this.createMoleculesLayer(layerDef);
     } else {
@@ -364,8 +364,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateNeighborhoodsLayer() {
-    const { layers = [] } = this.props;
-    const layerDef = layers.find(layer => layer.type === 'neighborhoods');
+    const { layers } = this.props;
+    const layerDef = (layers || []).find(layer => layer.type === 'neighborhoods');
     if (layerDef) {
       this.neighborhoodsLayer = this.createNeighborhoodsLayer(layerDef);
     } else {
