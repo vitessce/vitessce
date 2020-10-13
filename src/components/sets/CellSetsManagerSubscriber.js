@@ -26,6 +26,7 @@ import reducer, {
   treeToSetNamesByKeys,
   treeCheckNameConflictsByKey,
   treeToExpectedCheckedLevel,
+  nodeToLevelDescendantNamePaths,
 } from './reducer';
 import {
   handleExportJSON, downloadForUser,
@@ -36,7 +37,7 @@ import {
   FILE_EXTENSION_TABULAR,
 } from './constants';
 import { useUrls, useReady } from '../hooks';
-import { setCellSelection } from '../utils';
+import { setCellSelection, mergeCellSets } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
 
 const SETS_DATATYPE_CELL = 'cell';
@@ -70,10 +71,12 @@ export default function CellSetsManagerSubscriber(props) {
   const [{
     dataset,
     cellSetSelection,
+    cellSetColor,
     additionalCellSets,
   }, {
     setCellSetSelection,
     setCellColorEncoding,
+    setCellSetColor,
     setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
 
@@ -84,7 +87,6 @@ export default function CellSetsManagerSubscriber(props) {
 
   const [tree, dispatch] = useReducer(reducer, initialTree);
   const [autoSetSelections, setAutoSetSelections] = useState({});
-  const [loaderTreeNames, setLoaderTreeNames] = useState([]);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
@@ -108,7 +110,6 @@ export default function CellSetsManagerSubscriber(props) {
             ...newAutoSetSelections,
           ],
         }));
-        setLoaderTreeNames(data.tree.map(i => i.name));
       } else {
         setAutoSetSelections(prev => ({ [dataset]: (prev[dataset] || []) }));
       }
@@ -150,6 +151,11 @@ export default function CellSetsManagerSubscriber(props) {
     return null;
   }, [cellSetSelection, tree]);
 
+  // Get an array of all cell IDs to use for set complement operations.
+  const allCellIds = useMemo(() => {
+    return (cells ? Object.keys(cells) : []);
+  }, [cells]);
+
 
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
@@ -157,15 +163,20 @@ export default function CellSetsManagerSubscriber(props) {
     setCellColorEncoding('cellSetSelection');
   }
 
+  // Merged cell sets are only to be used for convenience when READING
+  // (if WRITING: update either `cellSets` _or_ `additionalCellSets`).
+  const mergedCellSets = mergeCellSets(cellSets, additionalCellSets);
+
   // Callback functions
-  function onCheckLevel(levelZeroKey, levelIndex) {
-    dispatch({
-      type: ACTION.CHECK_LEVEL,
-      levelZeroKey,
-      levelIndex,
-      publish: true,
-    });
-    setCellSetColorEncoding();
+  function onCheckLevel(levelZeroName, levelIndex) {
+    // TODO: set cell
+    const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
+    if(lzn) {
+      const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [], true)
+      console.log(newCellSetSelection);
+      setCellSetSelection(newCellSetSelection);
+      setCellSetColorEncoding();
+    }
   }
 
   function onCheckNode(targetKey, checked) {
@@ -185,8 +196,15 @@ export default function CellSetsManagerSubscriber(props) {
     });
   }
 
-  function onNodeSetColor(targetKey, color) {
-    dispatch({ type: ACTION.SET_NODE_COLOR, targetKey, color });
+  function onNodeSetColor(targetPath, color) {
+    // TODO: replace if an array element for this path already exists.
+    setCellSetColor([
+      ...cellSetColor,
+      {
+        path: targetPath,
+        color
+      }
+    ]);
   }
 
   function onNodeSetName(targetKey, name, stopEditing) {
@@ -277,6 +295,7 @@ export default function CellSetsManagerSubscriber(props) {
       isReady={isReady}
     >
       <SetsManager
+        cellSetColor={cellSetColor} // TODO: use this
         tree={tree}
         checkedLevel={checkedLevel}
         datatype={SETS_DATATYPE_CELL}
@@ -300,10 +319,14 @@ export default function CellSetsManagerSubscriber(props) {
         onIntersection={onIntersection}
         onComplement={onComplement}
         onView={onView}
-        hasCheckedSetsToView={treeHasCheckedSetsToView(tree)}
-        hasCheckedSetsToUnion={treeHasCheckedSetsToUnion(tree)}
-        hasCheckedSetsToIntersect={treeHasCheckedSetsToIntersect(tree)}
-        hasCheckedSetsToComplement={treeHasCheckedSetsToComplement(tree)}
+        //hasCheckedSetsToView={treeHasCheckedSetsToView(tree)}
+        //hasCheckedSetsToUnion={treeHasCheckedSetsToUnion(tree)}
+        //hasCheckedSetsToIntersect={treeHasCheckedSetsToIntersect(tree)}
+        //hasCheckedSetsToComplement={treeHasCheckedSetsToComplement(tree)}
+        hasCheckedSetsToView={true}
+        hasCheckedSetsToUnion={true}
+        hasCheckedSetsToIntersect={true}
+        hasCheckedSetsToComplement={true}
       />
     </TitleInfo>
   );

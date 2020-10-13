@@ -44,6 +44,7 @@
               "cellHighlight": { "type": "string" },
               "cellSetSelection": { "type": "string" },
               "cellSetHighlight": { "type": "string" },
+              "cellSetColor": { "type": "string" },
               "geneFilter": { "type": "string" },
               "geneHighlight": { "type": "string" },
               "geneSetSelection": { "type": "string" },
@@ -300,6 +301,31 @@
                   "description": "If null is provided, no cell sets will be highlighted initially."
                 },
                 { "type": "string" }
+              ]
+            }
+          }
+        },
+        "cellSetColor": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, cell set colors will be automatically initialized."
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["path", "color"],
+                    "properties": {
+                      "path": { "type": "array", "items": { "type": "string" } },
+                      "color": { "type": "array", "items": { "type": "number" } }
+                    }
+                  }
+                }
               ]
             }
           }

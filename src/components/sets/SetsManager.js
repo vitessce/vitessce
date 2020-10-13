@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import React, { useState } from 'react';
 import Tree from './Tree';
@@ -95,6 +96,8 @@ export default function SetsManager(props) {
   } = props;
 
   const [isDragging, setIsDragging] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+  const [autoExpandParent, setAutoExpandParent] = useState(true);
 
   /**
    * Recursively render TreeNode components.
@@ -116,7 +119,7 @@ export default function SetsManager(props) {
         expandable={expandable}
         exportable={exportable}
 
-        isChecking={tree._state.isChecking}
+        isChecking={isChecking}
         checkedLevelKey={checkedLevel ? checkedLevel.levelZeroKey : null}
         checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
 
@@ -151,7 +154,7 @@ export default function SetsManager(props) {
 
             checkedKeys={tree && tree._state ? tree._state.checkedKeys : []}
             expandedKeys={tree && tree._state ? tree._state.expandedKeys : []}
-            autoExpandParent={tree && tree._state ? tree._state.autoExpandParent : false}
+            autoExpandParent={autoExpandParent}
 
             onCheck={(checkedKeys, info) => onCheckNode(
               info.node.props.nodeKey,

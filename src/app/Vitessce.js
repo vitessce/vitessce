@@ -35,6 +35,9 @@ const generateClassName = createGenerateClassName({
  * updates. Optional.
  * @param {function} props.onLoaderChange A callback for loader
  * updates. Optional.
+ * @param {boolean} props.validateOnConfigChange Whether to validate
+ * against the view config schema when publishing changes. Use for debugging
+ * purposes, as this may have a performance impact. By default, false.
  */
 export default function Vitessce(props) {
   const {
@@ -45,6 +48,7 @@ export default function Vitessce(props) {
     onWarn,
     onConfigChange,
     onLoaderChange,
+    validateOnConfigChange = false,
   } = props;
 
   // Process the view config and memoize the result:
@@ -126,6 +130,7 @@ export default function Vitessce(props) {
           onWarn={onWarn}
           onConfigChange={onConfigChange}
           onLoaderChange={onLoaderChange}
+          validateOnConfigChange={validateOnConfigChange}
         />
       </ThemeProvider>
     </StylesProvider>

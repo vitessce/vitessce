@@ -24,22 +24,6 @@ const NEW_HIERARCHY_NAME = 'New hierarchy';
 const UPDATE_VISIBLE_ON_EXPAND = false;
 
 /**
- * If this ALLOW_SIDE_EFFECTS flag is set to true, then tree nodes will store
- * _references_ to their associated sets, rather than storing the set in the .set property
- * of the node object. When the node needs to access its set, it can look it up in
- * the globalSets object (below). And the same idea for a tree's .items property:
- * the tree can look up the value in the globalItems object (below).
- *
- * TODO: Figure out whether this actually has a performance benefit.
- * I hypothesized that with all of the spread operators
- * a lot of copying is required for to account for the .set and .items arrays (which can
- * be thousands of elements long). But maybe modern JS engines are smarter than I think?
- */
-const ALLOW_SIDE_EFFECTS = false;
-const globalSets = {};
-const globalItems = {};
-
-/**
  * Alias for the uuidv4 function to make code more readable.
  * @returns {string} UUID.
  */
@@ -72,7 +56,7 @@ function createReducer(handlers) {
  */
 function nodeToSet(currNode) {
   if (!currNode.children) {
-    return (ALLOW_SIDE_EFFECTS ? globalSets[currNode._state.key] : (currNode.set || []));
+    return (currNode.set || []);
   }
   return currNode.children.flatMap(c => nodeToSet(c));
 }
@@ -176,12 +160,9 @@ function nodeSetName(currNode, newName) {
  * @returns {object} The updated node.
  */
 function nodeSetSet(currNode, newSet) {
-  if (ALLOW_SIDE_EFFECTS) {
-    globalSets[currNode._state.key] = newSet;
-  }
   return {
     ...currNode,
-    set: (ALLOW_SIDE_EFFECTS ? true : newSet),
+    set: newSet,
   };
 }
 
@@ -254,9 +235,6 @@ function nodeSetColor(currNode, newColor) {
  */
 function nodeWithState(currNode, level = 0, stateOverrides = {}, useDefaultColor = true) {
   const nodeKey = generateKey();
-  if (ALLOW_SIDE_EFFECTS && !currNode.children) {
-    globalSets[nodeKey] = currNode.set || [];
-  }
   return {
     name: currNode.name,
     color: (level > 0
@@ -270,7 +248,7 @@ function nodeWithState(currNode, level = 0, stateOverrides = {}, useDefaultColor
         useDefaultColor,
       )),
     } : {
-      set: (ALLOW_SIDE_EFFECTS ? true : (currNode.set || [])),
+      set: (currNode.set || []),
     }),
     _state: {
       key: nodeKey,
@@ -318,14 +296,11 @@ function treeAppendChildren(currTree, nodes) {
  * @returns {object} The updated tree.
  */
 function treeSetItems(currTree, cellIds) {
-  if (ALLOW_SIDE_EFFECTS) {
-    globalItems[currTree._state.key] = cellIds;
-  }
   return {
     ...currTree,
     _state: {
       ...currTree._state,
-      items: (ALLOW_SIDE_EFFECTS ? true : cellIds),
+      items: cellIds,
     },
   };
 }
@@ -902,9 +877,7 @@ function treeToIntersection(currTree) {
  * @returns {array} An array representing all possible set values.
  */
 function treeToItems(currTree) {
-  return (ALLOW_SIDE_EFFECTS
-    ? globalItems[currTree._state.key]
-    : currTree._state.items) || [];
+  return currTree._state.items || [];
 }
 
 /**
@@ -1310,7 +1283,7 @@ function treeNodeView(currTree, targetKey) {
  * @returns {object[]} An array of descendants at the specified level,
  * where the level is relative to the node.
  */
-function nodeToLevelDescendantsFlat(node, level, stopEarly = false) {
+export function nodeToLevelDescendantsFlat(node, level, stopEarly = false) {
   if (!node.children) {
     if (!stopEarly) {
       return [];
@@ -1321,6 +1294,31 @@ function nodeToLevelDescendantsFlat(node, level, stopEarly = false) {
     return node.children;
   }
   return node.children.flatMap(c => nodeToLevelDescendantsFlat(c, level - 1, stopEarly));
+}
+
+/**
+ * Get an flattened array of descendants at a particular relative
+ * level of interest.
+ * @param {object} node A node object.
+ * @param {number} level The relative level of interest.
+ * 0 for this node's children, 1 for grandchildren, etc.
+ * @param {boolean} stopEarly Should a node be returned early if no children exist?
+ * @returns {object[]} An array of descendants at the specified level,
+ * where the level is relative to the node.
+ */
+export function nodeToLevelDescendantNamePaths(node, level, prevPath, stopEarly = false) {
+  if (!node.children) {
+    if (!stopEarly) {
+      return null;
+    }
+    return [...prevPath, node.name];
+  }
+  if (level === 0) {
+    return node.children.map(n => ([...prevPath, n.name]));
+  }
+  return node.children
+    .flatMap(c => nodeToLevelDescendantNamePaths(c, level - 1, [...prevPath, node.name], stopEarly))
+    .filter(Boolean);
 }
 
 /**
@@ -1495,45 +1493,10 @@ export function treeExportSet(currTree, nodeKey) {
  * @returns {object} Empty tree.
  */
 export function treeInitialize(datatype) {
-  const treeKey = generateKey();
   return {
     version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
     datatype,
     tree: [],
-    _state: {
-      key: treeKey,
-      items: (ALLOW_SIDE_EFFECTS ? true : []),
-      checkedKeys: [],
-      visibleKeys: [],
-      checkedLevel: { levelZeroKey: null, levelIndex: null },
-      expandedKeys: [],
-      autoExpandParent: true,
-      // Hide checkboxes until the user has
-      // clicked "Select" in a node dropdown.
-      isChecking: false,
-    },
-  };
-}
-
-/**
- * Reset the tree state.
- * @param {object} currTree A tree object.
- * @returns {object} The tree after reset.
- */
-export function treeReset(currTree) {
-  return {
-    ...currTree,
-    tree: [],
-    _state: {
-      ...currTree._state,
-      items: (ALLOW_SIDE_EFFECTS ? true : []),
-      checkedKeys: [],
-      visibleKeys: [],
-      checkedLevel: { levelZeroKey: null, levelIndex: null },
-      expandedKeys: [],
-      autoExpandParent: true,
-      isChecking: false,
-    },
   };
 }
 
@@ -1677,26 +1640,6 @@ export function treeToVisibleSetNames(currTree) {
   return treeToSetNamesByKeys(currTree, currTree._state.visibleKeys);
 }
 
-function treePreventPublish(currTree) {
-  return {
-    ...currTree,
-    _state: {
-      ...currTree._state,
-      publish: false,
-    },
-  };
-}
-
-function treePublish(currTree) {
-  return {
-    ...currTree,
-    _state: {
-      ...currTree._state,
-      publish: true,
-    },
-  };
-}
-
 /**
  *
  * @param {object} currTree
@@ -1743,7 +1686,6 @@ export function treeToCheckedLevel(currTree) {
  */
 export const ACTION = Object.freeze({
   SET: 'set',
-  RESET: 'reset',
   IMPORT: 'import',
   SET_TREE_ITEMS: 'setTreeItems',
   SET_CURRENT_SET: 'setCurrentSet',
@@ -1765,24 +1707,20 @@ export const ACTION = Object.freeze({
 });
 
 const reducer = createReducer({
-  [ACTION.SET]: (state, action) => treePreventPublish(action.tree),
-  [ACTION.RESET]: state => treeReset(
-    state,
-  ),
+  [ACTION.SET]: (state, action) => action.tree,
   [ACTION.IMPORT]: (state, action) => treeImport(
     state,
     action.levelZeroNodes,
   ),
-  [ACTION.SET_TREE_ITEMS]: (state, action) => treePreventPublish(treeSetItems(
+  [ACTION.SET_TREE_ITEMS]: (state, action) => treeSetItems(
     state,
     action.cellIds,
-  )),
+  ),
   [ACTION.SET_CURRENT_SET]: (state, action) => {
-    const pubFunc = action.publish ? treePublish : treePreventPublish;
-    return pubFunc(treeSetCurrentSet(
+    return treeSetCurrentSet(
       state,
       action.cellIds,
-    ));
+    );
   },
   [ACTION.EXPAND_NODE]: (state, action) => treeOnExpand(
     state,
@@ -1796,17 +1734,16 @@ const reducer = createReducer({
       action.targetKey,
       action.checked,
     );
-    return treePublish(treeSetVisibleKeysToCheckedKeys(newTree));
+    return treeSetVisibleKeysToCheckedKeys(newTree);
   },
   [ACTION.CHECK_LEVEL]: (state, action) => {
     const newTree = treeOnCheckLevel(state, action.levelZeroKey, action.levelIndex);
-    const pubFunc = action.publish ? treePublish : treePreventPublish;
-    return pubFunc(treeNodeViewDescendants(
+    return treeNodeViewDescendants(
       newTree,
       action.levelZeroKey,
       action.levelIndex - 1,
       false,
-    ));
+    );
   },
   [ACTION.DROP_NODE]: (state, action) => treeOnDropNode(
     state,
@@ -1815,11 +1752,11 @@ const reducer = createReducer({
     action.dropPosition,
     action.dropToGap,
   ),
-  [ACTION.SET_NODE_COLOR]: (state, action) => treePublish(treeNodeSetColor(
+  [ACTION.SET_NODE_COLOR]: (state, action) => treeNodeSetColor(
     state,
     action.targetKey,
     action.color,
-  )),
+  ),
   [ACTION.SET_NODE_NAME]: (state, action) => treeNodeSetName(
     state,
     action.targetKey,
@@ -1835,16 +1772,16 @@ const reducer = createReducer({
     state,
     action.targetKey,
   ),
-  [ACTION.VIEW_NODE]: (state, action) => treePublish(treeNodeView(
+  [ACTION.VIEW_NODE]: (state, action) => treeNodeView(
     state,
     action.targetKey,
-  )),
-  [ACTION.VIEW_NODE_DESCENDANTS]: (state, action) => treePublish(treeNodeViewDescendants(
+  ),
+  [ACTION.VIEW_NODE_DESCENDANTS]: (state, action) => treeNodeViewDescendants(
     state,
     action.targetKey,
     action.level,
     action.shouldInvalidateCheckedLevel,
-  )),
+  ),
   [ACTION.CREATE_LEVEL_ZERO_NODE]: state => treeCreateLevelZeroNode(
     state,
   ),

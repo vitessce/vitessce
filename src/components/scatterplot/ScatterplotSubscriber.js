@@ -50,6 +50,7 @@ export default function ScatterplotSubscriber(props) {
     cellHighlight,
     geneSelection,
     cellSetSelection,
+    cellSetColor,
     cellColorEncoding,
     additionalCellSets,
   }, {
@@ -59,6 +60,7 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingTargetZ: setTargetZ,
     setCellFilter,
     setCellSetSelection,
+    setCellSetColor,
     setCellHighlight,
     setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);

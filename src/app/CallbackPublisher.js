@@ -1,5 +1,24 @@
+/* eslint-disable */
+import Ajv from 'ajv';
 import { useEffect } from 'react';
+import configSchema from '../schemas/config.schema.json';
 import { useViewConfigStore, useLoaders, useWarning } from './state/hooks';
+
+function validateViewConfig(viewConfig) {
+  // Need the try-catch here since Zustand will actually
+  // just catch and ignore errors in its subscription callbacks.
+  try {
+    const validate = new Ajv().compile(configSchema);
+    const valid = validate(viewConfig);
+    if (!valid) {
+      const failureReason = JSON.stringify(validate.errors, null, 2);
+      throw new Error(`Config validation failed: ${failureReason}`);
+    }
+  } catch(e) {
+    console.error(e);
+  }
+  // Do nothing if successful.
+}
 
 /**
  * This is a dummy component which handles
@@ -10,12 +29,15 @@ import { useViewConfigStore, useLoaders, useWarning } from './state/hooks';
  * to execute on each change of the Vitessce view config.
  * @param {function} props.onLoaderChange A callback function
  * to execute on each change of the loaders object.
+ * @param {boolean} props.validateOnConfigChange Whether to validate
+ * against the view config schema when publishing changes.
  */
 export default function CallbackPublisher(props) {
   const {
     onWarn,
     onConfigChange,
     onLoaderChange,
+    validateOnConfigChange,
   } = props;
 
   const warning = useWarning();
@@ -28,6 +50,9 @@ export default function CallbackPublisher(props) {
   useEffect(() => useViewConfigStore.subscribe(
     // The function to run on each publish.
     (viewConfig) => {
+      if (validateOnConfigChange && viewConfig) {
+        validateViewConfig(viewConfig);
+      }
       if (onConfigChange && viewConfig) {
         onConfigChange(viewConfig);
       }
@@ -35,7 +60,7 @@ export default function CallbackPublisher(props) {
     // The function to specify which part of the store
     // we want to subscribe to.
     state => state.viewConfig,
-  ), [onConfigChange]);
+  ), [onConfigChange, validateOnConfigChange]);
 
   // Emit updates to the warning message.
   useEffect(() => {
