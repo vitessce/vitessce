@@ -113,6 +113,8 @@ export default function CellSetsManagerSubscriber(props) {
         setAutoSetSelections(prev => ({ [dataset]: (prev[dataset] || []) }));
       }
     });
+  
+  console.log(cellSets?.tree, additionalCellSets);
 
   // Try to set up the selected sets array automatically if undefined.
   useEffect(() => {

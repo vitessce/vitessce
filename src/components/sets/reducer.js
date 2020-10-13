@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
@@ -1413,9 +1414,10 @@ export function treeHasCheckedSetsToUnion(currTree) {
  * with state and appending to the current tree.
  * @param {object} currTree A tree object.
  * @param {object[]} levelZeroNodes Array of level zero nodes to append.
+ * @param {boolean} readOnly Should the imported nodes be read-only or read-write?
  * @returns {object} The tree with the new level nodes appended.
  */
-export function treeImport(currTree, levelZeroNodes) {
+export function treeImport(currTree, levelZeroNodes, readOnly = true) {
   if (!levelZeroNodes || levelZeroNodes.length === 0) {
     return currTree;
   }

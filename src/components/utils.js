@@ -125,20 +125,39 @@ export function copyUint8Array(arr) {
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
 export function setCellSelection(cellSelection, additionalCellSets, setCellSetSelection, setAdditionalCellSets) {
-  console.log(cellSelection, additionalCellSets);
-  setAdditionalCellSets([
+  const CELL_SELECTIONS_LEVEL_ZERO_NAME = "My Selections";
+
+  const selectionsLevelZeroNode = additionalCellSets.find(n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME);
+  const nextAdditionalCellSets = [
     ...additionalCellSets,
-    {
-      "name": "My Selections",
+  ];
+
+  let i = 1;
+  if(selectionsLevelZeroNode) {
+    while(selectionsLevelZeroNode.children.find(n => n.name === `Selection ${i}`)) {
+      i++;
+    }
+    selectionsLevelZeroNode.children.push({
+      "color": [255, 255, 255],
+      "name": `Selection ${i}`,
+      "set": cellSelection.map(d => ([d, null])),
+    });
+  } else {
+    nextAdditionalCellSets.push({
+      "name": CELL_SELECTIONS_LEVEL_ZERO_NAME,
       "children": [
         {
-          "name": "Selection 1",
-          "set": cellSelection,
+          "color": [255, 255, 255],
+          "name": `Selection ${i}`,
+          "set": cellSelection.map(d => ([d, null])),
         },
       ],
-    },
-  ]);
-  setCellSetSelection([["My Selections", "Selection 1"]]);
+    });
+  }
+  setAdditionalCellSets(nextAdditionalCellSets);
+  setCellSetSelection([["My Selections", `Selection ${i}`]]);
+
+  console.log(nextAdditionalCellSets);
 }
 
 export function mergeCellSets(cellSets, additionalCellSets) {
