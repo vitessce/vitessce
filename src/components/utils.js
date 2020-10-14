@@ -157,14 +157,14 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
   }
   setAdditionalCellSets(nextAdditionalCellSets);
   const nextPath = ["My Selections", `Selection ${i}`];
-  setCellSetSelection([nextPath]);
   setCellSetColor([
     ...cellSetColor,
     {
       path: nextPath,
-      color: PALETTE[i % PALETTE.length],
+      color: PALETTE[(i-1) % PALETTE.length],
     },
   ]);
+  setCellSetSelection([nextPath]);
 }
 
 export function mergeCellSets(cellSets, additionalCellSets) {

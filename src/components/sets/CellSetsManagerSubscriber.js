@@ -155,6 +155,7 @@ export default function CellSetsManagerSubscriber(props) {
       isReady
       && initializeColor
       && autoSetColors[dataset]
+      && !cellSetColor
     ) {
       setCellSetColor(autoSetColors[dataset]);
     }
