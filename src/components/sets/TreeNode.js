@@ -16,6 +16,7 @@ import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
  */
 function makeNodeViewMenuConfig(props) {
   const {
+    path,
     nodeKey,
     level,
     height,
@@ -65,7 +66,7 @@ function makeNodeViewMenuConfig(props) {
       ...(checkable ? [
         {
           title: (checked ? 'Uncheck' : 'Check'),
-          handler: () => { onCheckNode(nodeKey, !checked); },
+          handler: () => { onCheckNode(path, !checked); },
           handlerKey: 's',
         },
       ] : []),

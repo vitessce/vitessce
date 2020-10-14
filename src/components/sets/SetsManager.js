@@ -1,10 +1,42 @@
 /* eslint-disable */
 /* eslint-disable no-underscore-dangle */
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
-import { nodeToRenderProps } from './reducer';
+import { nodeToRenderProps, nodeToSet } from './reducer';
+import { PALETTE } from '../utils';
+
+function processNode(node, level, prevPath, setColor, siblingIndex) {
+  const nodePath = [...prevPath, node.name];
+  return {
+    ...node,
+    ...(node.children ? ({
+      children: node.children
+        .map((c, siblingIndex) => processNode(c, level + 1, nodePath, setColor, siblingIndex)),
+    }) : {}),
+    _state: {
+      path: nodePath,
+      nodeKey: pathToKey(nodePath),
+      level,
+      size: nodeToSet(node).length,
+      color: setColor?.find(d => d.path === nodePath)?.color || PALETTE[siblingIndex % PALETTE.length],
+      isLeaf: !node.children,
+    }
+  };
+}
+
+function processSets(sets, setColor) {
+  // TODO
+  return {
+    ...sets,
+    tree: sets ? sets.tree.map((lzn, siblingIndex) => processNode(lzn, 0, [], setColor, siblingIndex)) : [],
+  }
+}
+
+function pathToKey(path) {
+  return path.join("___");
+}
 
 /**
  * A generic hierarchical set manager component.
@@ -59,8 +91,15 @@ import { nodeToRenderProps } from './reducer';
  */
 export default function SetsManager(props) {
   const {
-    tree,
-    checkedLevel,
+    sets,
+    additionalSets,
+    setColor,  // TODO: use this
+    levelSelection: checkedLevel,
+    setSelection,
+    setExpansion,
+
+    setSetExpansion,
+
     datatype,
     draggable = true,
     checkable = true,
@@ -97,7 +136,21 @@ export default function SetsManager(props) {
 
   const [isDragging, setIsDragging] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  const [isEditingNodeName, setIsEditingNodeName] = useState(null);
   const [autoExpandParent, setAutoExpandParent] = useState(true);
+
+  const processedSets = useMemo(() => {
+    return processSets(sets);
+  }, [sets]);
+
+  const processedAdditionalSets = useMemo(() => {
+    return processSets(additionalSets);
+  }, [additionalSets]);
+
+  const setSelectionKeys = (setSelection ? setSelection : []).map(pathToKey);
+  const setExpansionKeys = (setExpansion ? setExpansion : []).map(pathToKey);
+
+  console.log(processedSets);
 
   /**
    * Recursively render TreeNode components.
@@ -110,7 +163,7 @@ export default function SetsManager(props) {
     }
     return nodes.map(node => (
       <TreeNode
-        key={node._state.key}
+        key={pathToKey(node._state.path)}
         {...nodeToRenderProps(node)}
         datatype={datatype}
         draggable={draggable}
@@ -147,34 +200,34 @@ export default function SetsManager(props) {
   return (
     <div className="sets-manager">
       <div className="sets-manager-tree">
-        {tree && (
-          <Tree
-            draggable={draggable}
-            checkable={checkable}
+        <Tree
+          draggable={false}
+          checkable={checkable}
 
-            checkedKeys={tree && tree._state ? tree._state.checkedKeys : []}
-            expandedKeys={tree && tree._state ? tree._state.expandedKeys : []}
-            autoExpandParent={autoExpandParent}
+          checkedKeys={setSelectionKeys}
+          expandedKeys={setExpansionKeys}
+          autoExpandParent={autoExpandParent}
 
-            onCheck={(checkedKeys, info) => onCheckNode(
-              info.node.props.nodeKey,
-              info.checked,
-            )}
-            onExpand={(expandedKeys, info) => onExpandNode(
-              expandedKeys,
-              info.node.props.nodeKey,
-              info.expanded,
-            )}
-            onDrop={(info) => {
-              const { eventKey: dropKey } = info.node.props;
-              const { eventKey: dragKey } = info.dragNode.props;
-              const { dropToGap, dropPosition } = info;
-              onDropNode(dropKey, dragKey, dropPosition, dropToGap);
-            }}
-          >
-            {renderTreeNodes(tree.tree)}
-          </Tree>
-        )}
+          onCheck={(checkedKeys, info) => onCheckNode(
+            info.node.props.nodeKey,
+            info.checked,
+          )}
+          onExpand={(expandedKeys, info) => onExpandNode(
+            expandedKeys,
+            info.node.props.nodeKey,
+            info.expanded,
+          )}
+          onDrop={(info) => {
+            const { eventKey: dropKey } = info.node.props;
+            const { eventKey: dragKey } = info.dragNode.props;
+            const { dropToGap, dropPosition } = info;
+            onDropNode(dropKey, dragKey, dropPosition, dropToGap);
+          }}
+        >
+          {renderTreeNodes(processedSets.tree)}
+          {renderTreeNodes(processedAdditionalSets.tree)}
+        </Tree>
+
         <PlusButton
           datatype={datatype}
           onError={onError}
@@ -184,7 +237,7 @@ export default function SetsManager(props) {
           editable={editable}
         />
       </div>
-      {tree && tree._state && tree._state.isChecking ? (
+      {isChecking ? (
         <div className="set-operation-buttons">
           <SetOperationButtons
             onUnion={onUnion}

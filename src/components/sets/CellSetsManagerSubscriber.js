@@ -88,6 +88,8 @@ export default function CellSetsManagerSubscriber(props) {
   const [tree, dispatch] = useReducer(reducer, initialTree);
   const [autoSetSelections, setAutoSetSelections] = useState({});
 
+  const [cellSetExpansion, setCellSetExpansion] = useState([]);
+
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
@@ -115,7 +117,7 @@ export default function CellSetsManagerSubscriber(props) {
       }
     });
   
-  console.log(cellSets?.tree, additionalCellSets);
+  //console.log(cellSets?.tree, additionalCellSets);
 
   // Try to set up the selected sets array automatically if undefined.
   useEffect(() => {
@@ -180,20 +182,24 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onCheckNode(targetKey, checked) {
-    dispatch({ type: ACTION.CHECK_NODE, targetKey, checked });
+    const targetPath = targetKey.split("___");
+    if(!targetKey) {
+      return;
+    }
+    if(checked) {
+      setCellSetSelection([...cellSetSelection, targetPath]);
+    } else {
+      setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, targetPath)));
+    }
     setCellSetColorEncoding();
   }
 
   function onExpandNode(expandedKeys, targetKey, expanded) {
-    dispatch({
-      type: ACTION.EXPAND_NODE, expandedKeys, targetKey, expanded,
-    });
+    setCellSetExpansion(expandedKeys.map(d => d.split("___")));
   }
 
   function onDropNode(dropKey, dragKey, dropPosition, dropToGap) {
-    dispatch({
-      type: ACTION.DROP_NODE, dropKey, dragKey, dropPosition, dropToGap,
-    });
+    // dispatch({ type: ACTION.DROP_NODE, dropKey, dragKey, dropPosition, dropToGap });
   }
 
   function onNodeSetColor(targetPath, color) {
@@ -208,9 +214,7 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onNodeSetName(targetKey, name, stopEditing) {
-    dispatch({
-      type: ACTION.SET_NODE_NAME, targetKey, name, stopEditing,
-    });
+    // dispatch({ type: ACTION.SET_NODE_NAME, targetKey, name, stopEditing });
   }
 
   function onNodeCheckNewName(targetKey, name) {
@@ -218,46 +222,44 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onNodeSetIsEditing(targetKey, value) {
-    dispatch({
-      type: ACTION.SET_NODE_IS_EDITING, targetKey, value,
-    });
+    // dispatch({ type: ACTION.SET_NODE_IS_EDITING, targetKey, value });
   }
 
   function onNodeRemove(targetKey) {
-    dispatch({ type: ACTION.REMOVE_NODE, targetKey });
+    // dispatch({ type: ACTION.REMOVE_NODE, targetKey });
   }
 
   function onNodeView(targetKey) {
-    dispatch({ type: ACTION.VIEW_NODE, targetKey });
+    // dispatch({ type: ACTION.VIEW_NODE, targetKey });
     setCellSetColorEncoding();
   }
 
   function onCreateLevelZeroNode() {
-    dispatch({ type: ACTION.CREATE_LEVEL_ZERO_NODE });
+    // dispatch({ type: ACTION.CREATE_LEVEL_ZERO_NODE });
   }
 
   function onUnion() {
-    dispatch({ type: ACTION.UNION_CHECKED });
+    // dispatch({ type: ACTION.UNION_CHECKED });
     setCellSetColorEncoding();
   }
 
   function onIntersection() {
-    dispatch({ type: ACTION.INTERSECTION_CHECKED });
+    // dispatch({ type: ACTION.INTERSECTION_CHECKED });
     setCellSetColorEncoding();
   }
 
   function onComplement() {
-    dispatch({ type: ACTION.COMPLEMENT_CHECKED });
+    // dispatch({ type: ACTION.COMPLEMENT_CHECKED });
     setCellSetColorEncoding();
   }
 
   function onView() {
-    dispatch({ type: ACTION.VIEW_CHECKED });
+    // dispatch({ type: ACTION.VIEW_CHECKED });
     setCellSetColorEncoding();
   }
 
   function onImportTree(treeToImport) {
-    dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
+    // dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
   }
 
   function onExportLevelZeroNodeJSON(nodeKey) {
@@ -295,9 +297,15 @@ export default function CellSetsManagerSubscriber(props) {
       isReady={isReady}
     >
       <SetsManager
-        cellSetColor={cellSetColor} // TODO: use this
-        tree={tree}
-        checkedLevel={checkedLevel}
+        setColor={cellSetColor}
+        sets={cellSets}
+        additionalSets={additionalCellSets}
+        levelSelection={checkedLevel}
+        setSelection={cellSetSelection}
+        setExpansion={cellSetExpansion}
+
+        setSetExpansion={setCellSetExpansion}
+
         datatype={SETS_DATATYPE_CELL}
         onError={setWarning}
         onCheckNode={onCheckNode}

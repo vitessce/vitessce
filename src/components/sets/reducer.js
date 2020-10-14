@@ -54,7 +54,7 @@ function createReducer(handlers) {
  * @param {object} currNode A node object.
  * @returns {array} The array representing the set associated with the node.
  */
-function nodeToSet(currNode) {
+export function nodeToSet(currNode) {
   if (!currNode.children) {
     return (currNode.set || []);
   }
@@ -1510,14 +1510,17 @@ export function treeInitialize(datatype) {
 export function nodeToRenderProps(node) {
   return {
     title: node.name,
-    nodeKey: node._state.key,
-    size: nodeToSet(node).length,
-    color: node.color,
+    nodeKey: node._state.nodeKey,
+    path: node._state.path,
+    size: node._state.size,
+    color: node._state.color,
     level: node._state.level,
+    isLeaf: node._state.isLeaf,
+    
     isEditing: node._state.isEditing,
     isCurrentSet: node._state.isCurrent,
     isForTools: node._state.isForTools,
-    isLeaf: !node.children,
+    //isLeaf: !node.children,
     height: nodeToHeight(node),
   };
 }

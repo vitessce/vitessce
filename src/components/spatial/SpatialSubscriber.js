@@ -167,7 +167,10 @@ export default function SpatialSubscriber(props) {
     }
   }, [dataset, loaders, autoLayers, imageLayerLoaders, isReady, layers, setLayers, initializeLayers]);
   
-  const mergedCellSets = mergeCellSets(cellSets, additionalCellSets);
+  const mergedCellSets = useMemo(() => {
+    return mergeCellSets(cellSets, additionalCellSets);
+  }, [cellSets, additionalCellSets]);
+  
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionMatrix,

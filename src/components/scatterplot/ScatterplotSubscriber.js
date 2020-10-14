@@ -93,7 +93,10 @@ export default function ScatterplotSubscriber(props) {
 
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
-  const mergedCellSets = mergeCellSets(cellSets, additionalCellSets);
+  const mergedCellSets = useMemo(() => {
+    return mergeCellSets(cellSets, additionalCellSets);
+  }, [cellSets, additionalCellSets]);
+  
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionMatrix,

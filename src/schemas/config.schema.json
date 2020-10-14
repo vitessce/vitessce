@@ -426,8 +426,16 @@
           "type": "object",
           "patternProperties": {
             ".": {
-              "description": "User-defined cell sets that will be merged with dataset-defined cell sets.",
-              "type": "array"
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, the user-defined cell sets schema may be initialized to an empty hierarchy."
+                },
+                {
+                  "description": "User-defined cell sets that will be merged with dataset-defined cell sets. Object must conform to the cell-sets schema.",
+                  "type": "object"
+                }
+              ]
             }
           }
         },
@@ -435,8 +443,16 @@
           "type": "object",
           "patternProperties": {
             ".": {
-              "description": "User-defined gene sets that will be merged with dataset-defined gene sets.",
-              "type": "array"
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, the user-defined gene sets schema may be initialized to an empty hierarchy."
+                },
+                {
+                  "description": "User-defined gene sets that will be merged with dataset-defined gene sets. Object must conform to the gene-sets schema.",
+                  "type": "object"
+                }
+              ]
             }
           }
         }

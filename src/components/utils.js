@@ -127,10 +127,10 @@ export function copyUint8Array(arr) {
 export function setCellSelection(cellSelection, additionalCellSets, setCellSetSelection, setAdditionalCellSets) {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = "My Selections";
 
-  const selectionsLevelZeroNode = additionalCellSets.find(n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME);
-  const nextAdditionalCellSets = [
-    ...additionalCellSets,
-  ];
+  const selectionsLevelZeroNode = additionalCellSets?.tree.find(n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME);
+  const nextAdditionalCellSets = {
+    tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
+  };
 
   let i = 1;
   if(selectionsLevelZeroNode) {
@@ -143,7 +143,7 @@ export function setCellSelection(cellSelection, additionalCellSets, setCellSetSe
       "set": cellSelection.map(d => ([d, null])),
     });
   } else {
-    nextAdditionalCellSets.push({
+    nextAdditionalCellSets.tree.push({
       "name": CELL_SELECTIONS_LEVEL_ZERO_NAME,
       "children": [
         {
@@ -161,12 +161,10 @@ export function setCellSelection(cellSelection, additionalCellSets, setCellSetSe
 }
 
 export function mergeCellSets(cellSets, additionalCellSets) {
-  
-  return cellSets ? {
-    ...cellSets,
+  return {
     tree: [
-      ...cellSets.tree,
-      ...additionalCellSets,
+      ...(cellSets ? cellSets.tree : []),
+      ...(additionalCellSets ? additionalCellSets.tree : []),
     ],
-  } : cellSets;
+  };
 }
