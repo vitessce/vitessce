@@ -89,6 +89,7 @@ export function getCellColors(params) {
     cellColorEncoding,
     expressionMatrix, geneSelection,
     cellSets, cellSetSelection,
+    cellSetColor,
   } = params;
   if (cellColorEncoding === 'geneSelection' && geneSelection && geneSelection.length >= 1 && expressionMatrix) {
     const firstGeneSelected = geneSelection[0];
@@ -109,7 +110,7 @@ export function getCellColors(params) {
     // is not a required part of the schema.
     // The `initializeSets` function fills in any empty colors
     // with defaults and returns the processed tree object.
-    return treeToCellColorsBySetNames(cellSets, cellSetSelection);
+    return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor);
   }
   return new Map();
 }

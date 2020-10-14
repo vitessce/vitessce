@@ -1,14 +1,16 @@
 /* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useMemo } from 'react';
+import isEqual from 'lodash/isEqual';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
 import { nodeToRenderProps, nodeToSet } from './reducer';
-import { PALETTE } from '../utils';
+import { PALETTE, DEFAULT_COLOR } from '../utils';
 
 function processNode(node, level, prevPath, setColor, siblingIndex) {
   const nodePath = [...prevPath, node.name];
+  console.log(setColor, nodePath);
   return {
     ...node,
     ...(node.children ? ({
@@ -20,7 +22,7 @@ function processNode(node, level, prevPath, setColor, siblingIndex) {
       nodeKey: pathToKey(nodePath),
       level,
       size: nodeToSet(node).length,
-      color: setColor?.find(d => d.path === nodePath)?.color || PALETTE[siblingIndex % PALETTE.length],
+      color: setColor?.find(d => isEqual(d.path, nodePath))?.color || DEFAULT_COLOR,
       isLeaf: !node.children,
     }
   };
@@ -140,12 +142,12 @@ export default function SetsManager(props) {
   const [autoExpandParent, setAutoExpandParent] = useState(true);
 
   const processedSets = useMemo(() => {
-    return processSets(sets);
-  }, [sets]);
+    return processSets(sets, setColor);
+  }, [sets, setColor]);
 
   const processedAdditionalSets = useMemo(() => {
-    return processSets(additionalSets);
-  }, [additionalSets]);
+    return processSets(additionalSets, setColor);
+  }, [additionalSets, setColor]);
 
   const setSelectionKeys = (setSelection ? setSelection : []).map(pathToKey);
   const setExpansionKeys = (setExpansion ? setExpansion : []).map(pathToKey);
@@ -173,7 +175,7 @@ export default function SetsManager(props) {
         exportable={exportable}
 
         isChecking={isChecking}
-        checkedLevelKey={checkedLevel ? checkedLevel.levelZeroKey : null}
+        checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
         checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
 
         onCheckNode={onCheckNode}

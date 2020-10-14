@@ -60,8 +60,8 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingTargetZ: setTargetZ,
     setCellFilter,
     setCellSetSelection,
-    setCellSetColor,
     setCellHighlight,
+    setCellSetColor,
     setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
@@ -103,7 +103,8 @@ export default function ScatterplotSubscriber(props) {
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
-  }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetSelection, expressionMatrix]);
+    cellSetColor,
+  }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetSelection, cellSetColor, expressionMatrix]);
   const cellSelection = Array.from(cellColors.keys());
 
   // After cells have loaded or changed,
@@ -163,7 +164,7 @@ export default function ScatterplotSubscriber(props) {
 
         setCellFilter={setCellFilter}
         setCellSelection={(v) => {
-          setCellSelection(v, additionalCellSets, setCellSetSelection, setAdditionalCellSets);
+          setCellSelection(v, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor);
         }}
         setCellHighlight={setCellHighlight}
         cellRadiusScale={cellRadiusScale}

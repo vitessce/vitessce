@@ -1579,17 +1579,18 @@ export function treeToVisibleCells(currTree) {
  * where cellIds is an array of strings,
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
-export function treeToCellColorsBySetNames(currTree, selectedNamePaths) {
+export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetColor) {
   let cellColorsArray = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
+      const nodeColor = cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color || DEFAULT_COLOR;
       cellColorsArray = [
         ...cellColorsArray,
         ...nodeSet.map(([cellId, prob]) => [
           cellId,
-          (isNil(prob) ? node.color : colorMixWithUncertainty(node.color, prob)),
+          (isNil(prob) ? nodeColor : colorMixWithUncertainty(nodeColor, prob)),
         ]),
       ];
     }
@@ -1663,7 +1664,7 @@ export function treeToExpectedCheckedLevel(currTree, visibleNamePaths) {
       const height = nodeToHeight(lzn);
       range(height).forEach((i) => {
         const levelIndex = i + 1;
-        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [], true);
+        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [lzn.name], true);
         if (isEqual(levelNodePaths, visibleNamePaths)) {
           result = { levelZeroPath, levelIndex };
         }

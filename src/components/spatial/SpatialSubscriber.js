@@ -65,6 +65,7 @@ export default function SpatialSubscriber(props) {
     cellHighlight,
     geneSelection,
     cellSetSelection,
+    cellSetColor,
     cellColorEncoding,
     additionalCellSets,
   }, {
@@ -76,6 +77,7 @@ export default function SpatialSubscriber(props) {
     setCellFilter,
     setCellSetSelection,
     setCellHighlight,
+    setCellSetColor,
     setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
@@ -170,14 +172,15 @@ export default function SpatialSubscriber(props) {
   const mergedCellSets = useMemo(() => {
     return mergeCellSets(cellSets, additionalCellSets);
   }, [cellSets, additionalCellSets]);
-  
+
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionMatrix,
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
-  }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetSelection, expressionMatrix]);
+    cellSetColor,
+  }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetColor, cellSetSelection, expressionMatrix]);
   const cellSelection = Array.from(cellColors.keys());
 
   const getCellInfo = (cellId) => {
@@ -233,7 +236,7 @@ export default function SpatialSubscriber(props) {
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}
         setCellSelection={(v) => {
-          setCellSelection(v, additionalCellSets, setCellSetSelection, setAdditionalCellSets);
+          setCellSelection(v, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor);
         }}
         setCellHighlight={setCellHighlight}
         setComponentHover={() => {

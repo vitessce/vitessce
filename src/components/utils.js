@@ -124,7 +124,7 @@ export function copyUint8Array(arr) {
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
-export function setCellSelection(cellSelection, additionalCellSets, setCellSetSelection, setAdditionalCellSets) {
+export function setCellSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor) {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = "My Selections";
 
   const selectionsLevelZeroNode = additionalCellSets?.tree.find(n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME);
@@ -155,9 +155,15 @@ export function setCellSelection(cellSelection, additionalCellSets, setCellSetSe
     });
   }
   setAdditionalCellSets(nextAdditionalCellSets);
-  setCellSetSelection([["My Selections", `Selection ${i}`]]);
-
-  console.log(nextAdditionalCellSets);
+  const nextPath = ["My Selections", `Selection ${i}`];
+  setCellSetSelection([nextPath]);
+  setCellSetColor([
+    ...cellSetColor,
+    {
+      path: nextPath,
+      color: PALETTE[i % PALETTE.length],
+    },
+  ]);
 }
 
 export function mergeCellSets(cellSets, additionalCellSets) {

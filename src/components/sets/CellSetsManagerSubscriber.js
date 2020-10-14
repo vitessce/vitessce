@@ -146,15 +146,6 @@ export default function CellSetsManagerSubscriber(props) {
     }
   }, [cellSets, cells]);
 
-  // We want the "checked level" radio button to be initialized even when
-  // the tree object may not explicitly have the `._state.checkedLevel` set up.
-  const checkedLevel = useMemo(() => {
-    if (cellSetSelection && tree) {
-      return treeToExpectedCheckedLevel(tree, cellSetSelection);
-    }
-    return null;
-  }, [cellSetSelection, tree]);
-
   // Get an array of all cell IDs to use for set complement operations.
   const allCellIds = useMemo(() => {
     return (cells ? Object.keys(cells) : []);
@@ -171,12 +162,21 @@ export default function CellSetsManagerSubscriber(props) {
   // (if WRITING: update either `cellSets` _or_ `additionalCellSets`).
   const mergedCellSets = mergeCellSets(cellSets, additionalCellSets);
 
+  // We want the "checked level" radio button to be initialized even when
+  // the tree object may not explicitly have the `._state.checkedLevel` set up.
+  const checkedLevel = useMemo(() => {
+    if (cellSetSelection && mergedCellSets) {
+      return treeToExpectedCheckedLevel(mergedCellSets, cellSetSelection);
+    }
+    return null;
+  }, [cellSetSelection, mergedCellSets]);
+
   // Callback functions
   function onCheckLevel(levelZeroName, levelIndex) {
-    // TODO: set cell
+    console.log(levelZeroName, levelIndex);
     const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
     if(lzn) {
-      const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [], true)
+      const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [levelZeroName], true);
       console.log(newCellSetSelection);
       setCellSetSelection(newCellSetSelection);
       setCellSetColorEncoding();

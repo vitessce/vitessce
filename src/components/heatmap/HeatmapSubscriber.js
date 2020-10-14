@@ -1,9 +1,11 @@
+/* eslint-disable */
 import React, {
   useEffect, useState, useCallback, useMemo,
 } from 'react';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import { mergeCellSets } from '../utils';
 import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import {
@@ -43,7 +45,9 @@ export default function HeatmapSubscriber(props) {
     cellHighlight,
     geneHighlight,
     cellSetSelection,
+    cellSetColor,
     cellColorEncoding,
+    additionalCellSets,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -77,13 +81,18 @@ export default function HeatmapSubscriber(props) {
   );
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
 
+  const mergedCellSets = useMemo(() => {
+    return mergeCellSets(cellSets, additionalCellSets);
+  }, [cellSets, additionalCellSets]);
+
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionMatrix,
     geneSelection,
-    cellSets,
+    cellSets: mergedCellSets,
     cellSetSelection,
-  }), [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
+    cellSetColor,
+  }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetColor, cellSetSelection, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {

@@ -3,6 +3,7 @@ import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
 import range from 'lodash/range';
+import isEqual from 'lodash/isEqual';
 import PopoverMenu from './PopoverMenu';
 import HelpTooltip from './HelpTooltip';
 import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from './utils';
@@ -101,7 +102,7 @@ function NamedSetNodeStatic(props) {
     onNodeView,
     expanded,
     onCheckLevel,
-    checkedLevelKey,
+    checkedLevelPath,
     checkedLevelIndex,
     disableTooltip,
     size,
@@ -110,7 +111,7 @@ function NamedSetNodeStatic(props) {
   } = props;
   const shouldCheckNextLevel = (level === 0 && !expanded);
   const nextLevelToCheck = (
-    (checkedLevelIndex && nodeKey === checkedLevelKey && checkedLevelIndex < height)
+    (checkedLevelIndex && isEqual(path, checkedLevelPath) && checkedLevelIndex < height)
       ? checkedLevelIndex + 1
       : 1
   );
@@ -237,9 +238,10 @@ function NamedSetNode(props) {
 function LevelsButtons(props) {
   const {
     nodeKey,
+    path,
     height,
     onCheckLevel,
-    checkedLevelKey,
+    checkedLevelPath,
     checkedLevelIndex,
   } = props;
   function onCheck(event) {
@@ -257,7 +259,7 @@ function LevelsButtons(props) {
               className="level-radio-button"
               type="checkbox"
               value={i}
-              checked={nodeKey === checkedLevelKey && i === checkedLevelIndex}
+              checked={isEqual(path, checkedLevelPath) && i === checkedLevelIndex}
               onChange={onCheck}
             />
           </HelpTooltip>
