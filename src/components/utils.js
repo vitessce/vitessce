@@ -1,4 +1,5 @@
 /* eslint-disable */
+import isEqual from 'lodash/isEqual';
 import { COORDINATE_SYSTEM } from 'deck.gl';
 
 export function makeCellStatusMessage(cellInfoFactors) {
@@ -173,4 +174,28 @@ export function mergeCellSets(cellSets, additionalCellSets) {
       ...(additionalCellSets ? additionalCellSets.tree : []),
     ],
   };
+}
+
+export function initializeCellSetColor(cellSets, cellSetColor) {
+  const nextCellSetColor = [ ...(cellSetColor || []) ];
+
+  function processNode(node, prevPath, siblingIndex) {
+    const nodePath = [...prevPath, node.name];
+    
+    const nodeColor = nextCellSetColor.find(d => isEqual(d.path, nodePath));
+
+    if(!nodeColor) {
+      nextCellSetColor.push({
+        path: nodePath,
+        color: PALETTE[siblingIndex % PALETTE.length],
+      });
+    }
+    if(node.children) {
+      node.children.forEach((c, i) => processNode(c, nodePath, i));
+    }
+  }
+
+  cellSets.tree.forEach((lzn) => processNode(lzn, [], 0));
+
+  return nextCellSetColor;
 }

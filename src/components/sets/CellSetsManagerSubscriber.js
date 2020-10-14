@@ -37,7 +37,7 @@ import {
   FILE_EXTENSION_TABULAR,
 } from './constants';
 import { useUrls, useReady } from '../hooks';
-import { setCellSelection, mergeCellSets } from '../utils';
+import { setCellSelection, mergeCellSets, initializeCellSetColor } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
 
 const SETS_DATATYPE_CELL = 'cell';
@@ -61,6 +61,7 @@ export default function CellSetsManagerSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     initializeSelection = true,
+    initializeColor = true,
     theme,
   } = props;
 
@@ -87,6 +88,7 @@ export default function CellSetsManagerSubscriber(props) {
 
   const [tree, dispatch] = useReducer(reducer, initialTree);
   const [autoSetSelections, setAutoSetSelections] = useState({});
+  const [autoSetColors, setAutoSetColors] = useState({});
 
   const [cellSetExpansion, setCellSetExpansion] = useState([]);
 
@@ -114,8 +116,17 @@ export default function CellSetsManagerSubscriber(props) {
             ...newAutoSetSelections,
           ],
         }));
+
+        const newAutoSetColors = initializeCellSetColor(data, cellSetColor);
+        setAutoSetColors(prev => ({
+          [dataset]: [
+            ...(prev[dataset] || []),
+            ...newAutoSetColors,
+          ],
+        }))
       } else {
         setAutoSetSelections(prev => ({ [dataset]: (prev[dataset] || []) }));
+        setAutoSetColors(prev => ({ [dataset]: (prev[dataset] || []) }));
       }
     });
   
@@ -135,6 +146,20 @@ export default function CellSetsManagerSubscriber(props) {
     }
   }, [dataset, autoSetSelections, isReady, cellSetSelection,
     setCellSetSelection, initializeSelection]);
+
+    // Try to set up the selected sets array automatically if undefined.
+  useEffect(() => {
+    // Only initialize cell sets if the value of `cellSetSelection` is `null`
+    // and the `initializeSelection` prop is `true`.
+    if (
+      isReady
+      && initializeColor
+      && autoSetColors[dataset]
+    ) {
+      setCellSetColor(autoSetColors[dataset]);
+    }
+  }, [dataset, autoSetColors, isReady,
+    setCellSetColor, initializeColor]);
 
   // Set the tree in the reducer when it loads initially.
   useEffect(() => {
@@ -173,7 +198,6 @@ export default function CellSetsManagerSubscriber(props) {
 
   // Callback functions
   function onCheckLevel(levelZeroName, levelIndex) {
-    console.log(levelZeroName, levelIndex);
     const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
     if(lzn) {
       const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [levelZeroName], true);
