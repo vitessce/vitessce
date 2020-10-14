@@ -90,6 +90,8 @@ export default function CellSetsManagerSubscriber(props) {
 
   const [cellSetExpansion, setCellSetExpansion] = useState([]);
 
+  console.log(cellSetColor)
+
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
@@ -104,8 +106,8 @@ export default function CellSetsManagerSubscriber(props) {
     (data) => {
       if (data && data.tree.length >= 1) {
         // eslint-disable-next-line no-underscore-dangle
-        const newAutoSetSelectionKeys = data.tree[0].children.map(node => node._state.key);
-        const newAutoSetSelections = treeToSetNamesByKeys(data, newAutoSetSelectionKeys);
+        const newAutoSetSelectionParentName = data.tree[0].name;
+        const newAutoSetSelections = data.tree[0].children.map(node => ([newAutoSetSelectionParentName, node.name]));
         setAutoSetSelections(prev => ({
           [dataset]: [
             ...(prev[dataset] || []),
@@ -203,14 +205,25 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onNodeSetColor(targetPath, color) {
-    // TODO: replace if an array element for this path already exists.
-    setCellSetColor([
-      ...cellSetColor,
-      {
-        path: targetPath,
-        color
-      }
-    ]);
+    // Replace the color if an array element for this path already exists.
+    const prevNodeColor = cellSetColor?.find(d => isEqual(d.path, targetPath));
+    if(!prevNodeColor) {
+      setCellSetColor([
+        ...(cellSetColor ? cellSetColor : []),
+        {
+          path: targetPath,
+          color
+        }
+      ]);
+    } else {
+      setCellSetColor([
+        ...cellSetColor.filter(d => !isEqual(d.path, targetPath)),
+        {
+          path: targetPath,
+          color
+        }
+      ]);
+    }
   }
 
   function onNodeSetName(targetKey, name, stopEditing) {

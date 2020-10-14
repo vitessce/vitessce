@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
@@ -383,8 +384,8 @@ export const configs = {
         x: 9, y: 2, w: 3, h: 2 },
       { component: 'cellSets',
         x: 9, y: 4, w: 3, h: 4 },
-      { component: 'cellSetSizes',
-        x: 5, y: 4, w: 4, h: 4 },
+      /*{ component: 'cellSetSizes',
+        x: 5, y: 4, w: 4, h: 4 },*/
       { component: 'scatterplot',
         props: {
           mapping: 't-SNE',

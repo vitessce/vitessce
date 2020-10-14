@@ -1659,16 +1659,13 @@ export function treeToExpectedCheckedLevel(currTree, visibleNamePaths) {
   let result = null;
   if (currTree) {
     currTree.tree.forEach((lzn) => {
-      const levelZeroKey = lzn._state.key;
+      const levelZeroPath = [lzn.name];
       const height = nodeToHeight(lzn);
       range(height).forEach((i) => {
         const levelIndex = i + 1;
-        const levelNodeKeys = nodeToLevelDescendantsFlat(lzn, levelIndex - 1, true)
-          .map(d => d._state.key);
-        const levelNodePaths = levelNodeKeys
-          .map(k => treeFindNodePathByKey(currTree, k).map(node => node.name));
+        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [], true);
         if (isEqual(levelNodePaths, visibleNamePaths)) {
-          result = { levelZeroKey, levelIndex };
+          result = { levelZeroPath, levelIndex };
         }
       });
     });

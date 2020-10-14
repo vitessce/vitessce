@@ -89,6 +89,7 @@ function makeNodeViewMenuConfig(props) {
 function NamedSetNodeStatic(props) {
   const {
     title,
+    path,
     nodeKey,
     level,
     height,
@@ -149,7 +150,7 @@ function NamedSetNodeStatic(props) {
         <PopoverMenu
           menuConfig={makeNodeViewMenuConfig(props)}
           color={level > 0 && editable ? color : null}
-          setColor={c => onNodeSetColor(nodeKey, c)}
+          setColor={c => onNodeSetColor(path, c)}
         >
           <MenuSVG className="node-menu-icon" />
         </PopoverMenu>
