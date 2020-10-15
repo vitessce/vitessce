@@ -129,8 +129,6 @@ export default function SetsManager(props) {
     onUnion,
     onIntersection,
     onComplement,
-    onView,
-    hasCheckedSetsToView,
     hasCheckedSetsToUnion,
     hasCheckedSetsToIntersect,
     hasCheckedSetsToComplement,
@@ -159,7 +157,7 @@ export default function SetsManager(props) {
    * @param {object[]} nodes An array of node objects.
    * @returns {TreeNode[]|null} Array of TreeNode components or null.
    */
-  function renderTreeNodes(nodes) {
+  function renderTreeNodes(nodes, readOnly) {
     if (!nodes) {
       return null;
     }
@@ -168,9 +166,9 @@ export default function SetsManager(props) {
         key={pathToKey(node._state.path)}
         {...nodeToRenderProps(node)}
         datatype={datatype}
-        draggable={draggable}
+        draggable={draggable && !readOnly}
+        editable={editable && !readOnly}
         checkable={checkable}
-        editable={editable}
         expandable={expandable}
         exportable={exportable}
 
@@ -194,7 +192,7 @@ export default function SetsManager(props) {
         onDragStart={() => setIsDragging(true)}
         onDragEnd={() => setIsDragging(false)}
       >
-        {renderTreeNodes(node.children)}
+        {renderTreeNodes(node.children, readOnly)}
       </TreeNode>
     ));
   }
@@ -219,6 +217,26 @@ export default function SetsManager(props) {
             info.node.props.nodeKey,
             info.expanded,
           )}
+        >
+          {renderTreeNodes(processedSets.tree, true)}
+        </Tree>
+        <Tree
+          draggable={draggable}
+          checkable={checkable}
+
+          checkedKeys={setSelectionKeys}
+          expandedKeys={setExpansionKeys}
+          autoExpandParent={autoExpandParent}
+
+          onCheck={(checkedKeys, info) => onCheckNode(
+            info.node.props.nodeKey,
+            info.checked,
+          )}
+          onExpand={(expandedKeys, info) => onExpandNode(
+            expandedKeys,
+            info.node.props.nodeKey,
+            info.expanded,
+          )}
           onDrop={(info) => {
             const { eventKey: dropKey } = info.node.props;
             const { eventKey: dragKey } = info.dragNode.props;
@@ -226,8 +244,7 @@ export default function SetsManager(props) {
             onDropNode(dropKey, dragKey, dropPosition, dropToGap);
           }}
         >
-          {renderTreeNodes(processedSets.tree)}
-          {renderTreeNodes(processedAdditionalSets.tree)}
+          {renderTreeNodes(processedAdditionalSets.tree, false)}
         </Tree>
 
         <PlusButton
@@ -245,10 +262,8 @@ export default function SetsManager(props) {
             onUnion={onUnion}
             onIntersection={onIntersection}
             onComplement={onComplement}
-            onView={onView}
             operatable={operatable}
 
-            hasCheckedSetsToView={hasCheckedSetsToView}
             hasCheckedSetsToUnion={hasCheckedSetsToUnion}
             hasCheckedSetsToIntersect={hasCheckedSetsToIntersect}
             hasCheckedSetsToComplement={hasCheckedSetsToComplement}

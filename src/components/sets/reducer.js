@@ -849,9 +849,8 @@ function treeOnCheckLevel(currTree, levelZeroKey, levelIndex) {
  * @param {object} currTree A tree object.
  * @returns {array} An array representing the union of the sets of checked nodes.
  */
-function treeToUnion(currTree) {
-  const { checkedKeys } = currTree._state;
-  const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
+export function treeToUnion(currTree, checkedPaths) {
+  const nodes = checkedPaths.map(path => treeFindNodeByNamePath(currTree, path));
   const nodeSets = nodes.map(node => nodeToSet(node).map(([cellId]) => cellId));
   return nodeSets
     .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0] || []);
@@ -862,22 +861,11 @@ function treeToUnion(currTree) {
  * @param {object} currTree A tree object.
  * @returns {array} An array representing the intersection of the sets of checked nodes.
  */
-function treeToIntersection(currTree) {
-  const { checkedKeys } = currTree._state;
-  const nodes = checkedKeys.map(key => treeFindNodeByKey(currTree, key));
+export function treeToIntersection(currTree, checkedPaths) {
+  const nodes = checkedPaths.map(path => treeFindNodeByNamePath(currTree, path));
   const nodeSets = nodes.map(node => nodeToSet(node).map(([cellId]) => cellId));
   return nodeSets
     .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0] || []);
-}
-
-/**
- * Get an array of all possible set values.
- * Necessary to be able to perform complement operations.
- * @param {object} currTree A tree object.
- * @returns {array} An array representing all possible set values.
- */
-function treeToItems(currTree) {
-  return currTree._state.items || [];
 }
 
 /**
@@ -886,9 +874,8 @@ function treeToItems(currTree) {
  * @returns {array} An array representing the complement of the
  * union of the sets of checked nodes.
  */
-function treeToComplement(currTree) {
-  const primaryUnion = treeToUnion(currTree);
-  const items = treeToItems(currTree);
+export function treeToComplement(currTree, checkedPaths, items) {
+  const primaryUnion = treeToUnion(currTree, checkedPaths);
   return items.filter(el => !primaryUnion.includes(el));
 }
 
@@ -909,7 +896,7 @@ function treeClearCheckedKeys(currTree) {
  * @param {object} currTree
  * @returns {object} The updated tree.
  */
-function treeOnUnion(currTree) {
+export function treeOnUnion(currTree) {
   const checkedUnion = treeToUnion(currTree);
   const newTree = treeSetCurrentSet(currTree, checkedUnion, CURRENT_UNION_NAME);
   return treeClearCheckedKeys(newTree);
@@ -922,7 +909,7 @@ function treeOnUnion(currTree) {
  * @param {object} currTree
  * @returns {object} The updated tree.
  */
-function treeOnIntersection(currTree) {
+function treeOnIntersection(currTree, checkedPaths) {
   const checkedIntersection = treeToIntersection(currTree);
   const newTree = treeSetCurrentSet(currTree, checkedIntersection, CURRENT_INTERSECTION_NAME);
   return treeClearCheckedKeys(newTree);
@@ -1368,12 +1355,12 @@ export function treeHasCheckedSetsToView(currTree) {
  * @param {object} currTree A tree object.
  * @returns {boolean} Does it make sense?
  */
-export function treeHasCheckedSetsToComplement(currTree) {
+export function treeHasCheckedSetsToComplement(currTree, checkedPaths, items) {
   return (
     currTree
-    && currTree._state
-    && currTree._state.checkedKeys.length > 0
-    && treeToComplement(currTree).length > 0
+    && checkedPaths
+    && checkedPaths.length > 0
+    && treeToComplement(currTree, checkedPaths, items).length > 0
   );
 }
 
@@ -1383,12 +1370,12 @@ export function treeHasCheckedSetsToComplement(currTree) {
  * @param {object} currTree A tree object.
  * @returns {boolean} Does it make sense?
  */
-export function treeHasCheckedSetsToIntersect(currTree) {
+export function treeHasCheckedSetsToIntersect(currTree, checkedPaths) {
   return (
     currTree
-    && currTree._state
-    && currTree._state.checkedKeys.length > 1
-    && treeToIntersection(currTree).length > 0
+    && checkedPaths
+    && checkedPaths.length > 1
+    && treeToIntersection(currTree, checkedPaths).length > 0
   );
 }
 
@@ -1398,12 +1385,12 @@ export function treeHasCheckedSetsToIntersect(currTree) {
  * @param {object} currTree A tree object.
  * @returns {boolean} Does it make sense?
  */
-export function treeHasCheckedSetsToUnion(currTree) {
+export function treeHasCheckedSetsToUnion(currTree, checkedPaths) {
   return (
     currTree
-    && currTree._state
-    && currTree._state.checkedKeys.length > 1
-    && treeToUnion(currTree).length > 0
+    && checkedPaths
+    && checkedPaths.length > 1
+    && treeToUnion(currTree, checkedPaths).length > 0
   );
 }
 
@@ -1656,7 +1643,7 @@ export function treeCheckNameConflictsByKey(currTree, potentialNewName, nodeKey)
   return treeCheckNamePathConflicts(currTree, [...namePath, potentialNewName], nodeKey);
 }
 
-export function treeToExpectedCheckedLevel(currTree, visibleNamePaths) {
+export function treeToExpectedCheckedLevel(currTree, checkedPaths) {
   let result = null;
   if (currTree) {
     currTree.tree.forEach((lzn) => {
@@ -1665,7 +1652,7 @@ export function treeToExpectedCheckedLevel(currTree, visibleNamePaths) {
       range(height).forEach((i) => {
         const levelIndex = i + 1;
         const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [lzn.name], true);
-        if (isEqual(levelNodePaths, visibleNamePaths)) {
+        if (isEqual(levelNodePaths, checkedPaths)) {
           result = { levelZeroPath, levelIndex };
         }
       });
@@ -1679,6 +1666,18 @@ export function treeToCheckedLevel(currTree) {
     return currTree._state.checkedLevel;
   }
   return null;
+}
+
+export function treeToCheckedSetOperations(currTree, checkedPaths, items) {
+  const hasCheckedSetsToUnion = treeHasCheckedSetsToUnion(currTree, checkedPaths);
+  const hasCheckedSetsToIntersect = treeHasCheckedSetsToIntersect(currTree, checkedPaths);
+  const hasCheckedSetsToComplement = treeHasCheckedSetsToComplement(currTree, checkedPaths, items);
+
+  return {
+    hasCheckedSetsToUnion,
+    hasCheckedSetsToIntersect,
+    hasCheckedSetsToComplement,
+  };
 }
 
 

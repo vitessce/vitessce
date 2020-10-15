@@ -43,7 +43,7 @@ function makeNodeViewMenuConfig(props) {
       {
         title: 'Delete',
         confirm: true,
-        handler: () => { onNodeRemove(nodeKey); },
+        handler: () => { onNodeRemove(path); },
         handlerKey: 'd',
       },
     ] : []),
@@ -131,7 +131,7 @@ function NamedSetNodeStatic(props) {
   // click should trigger onNodeView.
   const onClick = (level === 0 && !expanded
     ? () => onCheckLevel(nodeKey, nextLevelToCheck)
-    : () => onNodeView(nodeKey)
+    : () => onNodeView(path)
   );
   const tooltipProps = (disableTooltip ? { visible: false } : {});
   const popoverMenuConfig = makeNodeViewMenuConfig(props);
@@ -141,7 +141,7 @@ function NamedSetNodeStatic(props) {
         <button
           type="button"
           onClick={onClick}
-          onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(nodeKey))}
+          onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(path))}
           className="title-button"
         >
           {title}

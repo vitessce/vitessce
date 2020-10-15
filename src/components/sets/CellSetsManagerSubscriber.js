@@ -27,6 +27,10 @@ import reducer, {
   treeCheckNameConflictsByKey,
   treeToExpectedCheckedLevel,
   nodeToLevelDescendantNamePaths,
+  treeToCheckedSetOperations,
+  treeToIntersection,
+  treeToUnion,
+  treeToComplement,
 } from './reducer';
 import {
   handleExportJSON, downloadForUser,
@@ -37,7 +41,7 @@ import {
   FILE_EXTENSION_TABULAR,
 } from './constants';
 import { useUrls, useReady } from '../hooks';
-import { setCellSelection, mergeCellSets, initializeCellSetColor } from '../utils';
+import { setCellSelection, mergeCellSets, initializeCellSetColor, getNextNumberedNodeName } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
 
 const SETS_DATATYPE_CELL = 'cell';
@@ -91,8 +95,6 @@ export default function CellSetsManagerSubscriber(props) {
   const [autoSetColors, setAutoSetColors] = useState({});
 
   const [cellSetExpansion, setCellSetExpansion] = useState([]);
-
-  console.log(cellSetColor)
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
@@ -177,7 +179,6 @@ export default function CellSetsManagerSubscriber(props) {
     return (cells ? Object.keys(cells) : []);
   }, [cells]);
 
-
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
   function setCellSetColorEncoding() {
@@ -197,6 +198,17 @@ export default function CellSetsManagerSubscriber(props) {
     return null;
   }, [cellSetSelection, mergedCellSets]);
 
+  const {
+    hasCheckedSetsToUnion = false,
+    hasCheckedSetsToIntersect = false,
+    hasCheckedSetsToComplement = false,
+  } = useMemo(() => {
+    if (cellSetSelection && mergedCellSets) {
+      return treeToCheckedSetOperations(mergedCellSets, cellSetSelection, allCellIds);
+    }
+    return {};
+  }, [cellSetSelection, mergedCellSets, allCellIds]);
+
   // Callback functions
   function onCheckLevel(levelZeroName, levelIndex) {
     const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
@@ -209,7 +221,7 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onCheckNode(targetKey, checked) {
-    const targetPath = targetKey.split("___");
+    const targetPath = (Array.isArray(targetKey) ? targetKey : targetKey.split("___"));
     if(!targetKey) {
       return;
     }
@@ -263,36 +275,66 @@ export default function CellSetsManagerSubscriber(props) {
     // dispatch({ type: ACTION.SET_NODE_IS_EDITING, targetKey, value });
   }
 
-  function onNodeRemove(targetKey) {
-    // dispatch({ type: ACTION.REMOVE_NODE, targetKey });
+  function onNodeRemove(targetPath) {
+    // Recursively check whether each node path
+    // matches the path of the node to delete.
+    // If so, return null, and then always use
+    // .filter(Boolean) to eliminate any null array elements.
+    function filterNode(node, prevPath) {
+      if(isEqual([...prevPath, node.name], targetPath)) {
+        return null;
+      } else {
+        if(!node.children) {
+          return node;
+        } else {
+          return {
+            ...node,
+            children: node.children.map(c => filterNode(c, [...prevPath, node.name])).filter(Boolean),
+          };
+        }
+      }
+    }
+    const nextAdditionalCellSets = {
+      ...additionalCellSets,
+      tree: additionalCellSets.tree.map(lzn => filterNode(lzn, [])).filter(Boolean),
+    };
+    setAdditionalCellSets(nextAdditionalCellSets);
   }
 
-  function onNodeView(targetKey) {
-    // dispatch({ type: ACTION.VIEW_NODE, targetKey });
+  function onNodeView(targetPath) {
+    setCellSetSelection([targetPath]);
     setCellSetColorEncoding();
   }
 
   function onCreateLevelZeroNode() {
-    // dispatch({ type: ACTION.CREATE_LEVEL_ZERO_NODE });
+    const [nextName, i] = getNextNumberedNodeName(additionalCellSets?.tree, `My hierarchy `);
+    setAdditionalCellSets({
+      ...(additionalCellSets ? additionalCellSets : {}),
+      tree: [
+        ...(additionalCellSets ? additionalCellSets.tree : []),
+        {
+          "name": nextName,
+          "children": [],
+        }
+      ]
+    });
   }
 
   function onUnion() {
-    // dispatch({ type: ACTION.UNION_CHECKED });
+    const newSet = treeToUnion(mergedCellSets, cellSetSelection);
+    setCellSelection(newSet, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, 'Union ');
     setCellSetColorEncoding();
   }
 
   function onIntersection() {
-    // dispatch({ type: ACTION.INTERSECTION_CHECKED });
+    const newSet = treeToIntersection(mergedCellSets, cellSetSelection);
+    setCellSelection(newSet, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, 'Intersection ');
     setCellSetColorEncoding();
   }
 
   function onComplement() {
-    // dispatch({ type: ACTION.COMPLEMENT_CHECKED });
-    setCellSetColorEncoding();
-  }
-
-  function onView() {
-    // dispatch({ type: ACTION.VIEW_CHECKED });
+    const newSet = treeToComplement(mergedCellSets, cellSetSelection, allCellIds);
+    setCellSelection(newSet, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, 'Complement ');
     setCellSetColorEncoding();
   }
 
@@ -364,15 +406,9 @@ export default function CellSetsManagerSubscriber(props) {
         onUnion={onUnion}
         onIntersection={onIntersection}
         onComplement={onComplement}
-        onView={onView}
-        //hasCheckedSetsToView={treeHasCheckedSetsToView(tree)}
-        //hasCheckedSetsToUnion={treeHasCheckedSetsToUnion(tree)}
-        //hasCheckedSetsToIntersect={treeHasCheckedSetsToIntersect(tree)}
-        //hasCheckedSetsToComplement={treeHasCheckedSetsToComplement(tree)}
-        hasCheckedSetsToView={true}
-        hasCheckedSetsToUnion={true}
-        hasCheckedSetsToIntersect={true}
-        hasCheckedSetsToComplement={true}
+        hasCheckedSetsToUnion={hasCheckedSetsToUnion}
+        hasCheckedSetsToIntersect={hasCheckedSetsToIntersect}
+        hasCheckedSetsToComplement={hasCheckedSetsToComplement}
       />
     </TitleInfo>
   );

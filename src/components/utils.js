@@ -118,6 +118,16 @@ export function copyUint8Array(arr) {
   return newArr;
 }
 
+export function getNextNumberedNodeName(nodes, prefix) {
+  let i = 1;
+  if(nodes) {
+    while(nodes.find(n => n.name === `${prefix}${i}`)) {
+      i++;
+    }
+  }
+  return [`${prefix}${i}`, i];
+}
+
 /**
  * Create a new selected cell set based on a cell selection.
  * @param {string[]} cellSelection An array of cell IDs.
@@ -125,7 +135,7 @@ export function copyUint8Array(arr) {
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
-export function setCellSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor) {
+export function setCellSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, prefix = 'Selection ') {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = "My Selections";
 
   const selectionsLevelZeroNode = additionalCellSets?.tree.find(n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME);
@@ -133,14 +143,13 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
     tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
   };
 
-  let i = 1;
+  const [nextName, i] = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix);
+  let colorIndex = 0;
   if(selectionsLevelZeroNode) {
-    while(selectionsLevelZeroNode.children.find(n => n.name === `Selection ${i}`)) {
-      i++;
-    }
+    colorIndex = selectionsLevelZeroNode.children.length;
     selectionsLevelZeroNode.children.push({
       "color": [255, 255, 255],
-      "name": `Selection ${i}`,
+      "name": nextName,
       "set": cellSelection.map(d => ([d, null])),
     });
   } else {
@@ -149,19 +158,19 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
       "children": [
         {
           "color": [255, 255, 255],
-          "name": `Selection ${i}`,
+          "name": nextName,
           "set": cellSelection.map(d => ([d, null])),
         },
       ],
     });
   }
   setAdditionalCellSets(nextAdditionalCellSets);
-  const nextPath = ["My Selections", `Selection ${i}`];
+  const nextPath = ["My Selections", nextName];
   setCellSetColor([
     ...cellSetColor,
     {
       path: nextPath,
-      color: PALETTE[(i-1) % PALETTE.length],
+      color: PALETTE[colorIndex % PALETTE.length],
     },
   ]);
   setCellSetSelection([nextPath]);
@@ -199,3 +208,4 @@ export function initializeCellSetColor(cellSets, cellSetColor) {
 
   return nextCellSetColor;
 }
+
