@@ -67,8 +67,6 @@ function pathToKey(path) {
  * via the "Color by cluster" and "Color by subcluster" buttons below collapsed level zero nodes.
  * @prop {function} onNodeSetColor Function to call when a new node color has been selected.
  * @prop {function} onNodeSetName Function to call when a node has been renamed.
- * @prop {function} onNodeSetIsEditing Function to call when a user clicks the "Rename" menu button
- * to start editing the node name in a text input.
  * @prop {function} onNodeRemove Function to call when the user clicks the "Delete" menu button
  * to remove a node.
  * @prop {function} onNodeView Function to call when the user wants to view the set associated
@@ -100,8 +98,6 @@ export default function SetsManager(props) {
     setSelection,
     setExpansion,
 
-    setSetExpansion,
-
     datatype,
     draggable = true,
     checkable = true,
@@ -118,7 +114,6 @@ export default function SetsManager(props) {
     onNodeSetColor,
     onNodeSetName,
     onNodeCheckNewName,
-    onNodeSetIsEditing,
     onNodeRemove,
     onNodeView,
     onImportTree,
@@ -165,6 +160,9 @@ export default function SetsManager(props) {
       <TreeNode
         key={pathToKey(node._state.path)}
         {...nodeToRenderProps(node)}
+
+        isEditing={isEqual(isEditingNodeName, node._state.path)}
+
         datatype={datatype}
         draggable={draggable && !readOnly}
         editable={editable && !readOnly}
@@ -180,9 +178,12 @@ export default function SetsManager(props) {
         onCheckLevel={onCheckLevel}
         onNodeView={onNodeView}
         onNodeSetColor={onNodeSetColor}
-        onNodeSetName={onNodeSetName}
+        onNodeSetName={(targetPath, name) => {
+          onNodeSetName(targetPath, name);
+          setIsEditingNodeName(null);
+        }}
         onNodeCheckNewName={onNodeCheckNewName}
-        onNodeSetIsEditing={onNodeSetIsEditing}
+        onNodeSetIsEditing={setIsEditingNodeName}
         onNodeRemove={onNodeRemove}
         onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
         onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}

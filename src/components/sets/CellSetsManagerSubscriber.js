@@ -1,7 +1,6 @@
 /* eslint-disable */
 import React, {
   useEffect,
-  useReducer,
   useState,
   useMemo,
 } from 'react';
@@ -15,25 +14,20 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import SetsManager from './SetsManager';
 import TitleInfo from '../TitleInfo';
-import reducer, {
-  treeInitialize, ACTION, treeToVisibleCells,
-  treeExportLevelZeroNode, treeExportSet,
-  treeHasCheckedSetsToView,
-  treeHasCheckedSetsToUnion,
-  treeHasCheckedSetsToIntersect,
-  treeHasCheckedSetsToComplement,
-  treeToVisibleSetNames,
-  treeToSetNamesByKeys,
-  treeCheckNameConflictsByKey,
+import {
+  treeExportLevelZeroNode,
+  treeExportSet,
   treeToExpectedCheckedLevel,
   nodeToLevelDescendantNamePaths,
   treeToCheckedSetOperations,
   treeToIntersection,
   treeToUnion,
   treeToComplement,
+  treeFindNodeByNamePath,
 } from './reducer';
 import {
-  handleExportJSON, downloadForUser,
+  downloadForUser,
+  handleExportJSON,
   handleExportTabular,
 } from './io';
 import {
@@ -45,8 +39,6 @@ import { setCellSelection, mergeCellSets, initializeCellSetColor, getNextNumbere
 import { useCellsData, useCellSetsData } from '../data-hooks';
 
 const SETS_DATATYPE_CELL = 'cell';
-const initialTree = treeInitialize(SETS_DATATYPE_CELL);
-
 const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
 
 /**
@@ -90,7 +82,6 @@ export default function CellSetsManagerSubscriber(props) {
     CELL_SETS_DATA_TYPES,
   );
 
-  const [tree, dispatch] = useReducer(reducer, initialTree);
   const [autoSetSelections, setAutoSetSelections] = useState({});
   const [autoSetColors, setAutoSetColors] = useState({});
 
@@ -132,8 +123,6 @@ export default function CellSetsManagerSubscriber(props) {
       }
     });
   
-  //console.log(cellSets?.tree, additionalCellSets);
-
   // Try to set up the selected sets array automatically if undefined.
   useEffect(() => {
     // Only initialize cell sets if the value of `cellSetSelection` is `null`
@@ -163,16 +152,6 @@ export default function CellSetsManagerSubscriber(props) {
     }
   }, [dataset, autoSetColors, isReady,
     setCellSetColor, initializeColor]);
-
-  // Set the tree in the reducer when it loads initially.
-  useEffect(() => {
-    if (cellSets) {
-      dispatch({ type: ACTION.SET, tree: cellSets });
-    }
-    if (cellSets && cells) {
-      dispatch({ type: ACTION.SET_TREE_ITEMS, cellIds: Object.keys(cells) });
-    }
-  }, [cellSets, cells]);
 
   // Get an array of all cell IDs to use for set complement operations.
   const allCellIds = useMemo(() => {
@@ -214,7 +193,6 @@ export default function CellSetsManagerSubscriber(props) {
     const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
     if(lzn) {
       const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [levelZeroName], true);
-      console.log(newCellSetSelection);
       setCellSetSelection(newCellSetSelection);
       setCellSetColorEncoding();
     }
@@ -238,6 +216,10 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onDropNode(dropKey, dragKey, dropPosition, dropToGap) {
+    // TODO
+    const dropPath = dropKey.split("___");
+    const dragPath = dragKey.split("___");
+    console.log(dropPath, dragPath, dropPosition, dropToGap);
     // dispatch({ type: ACTION.DROP_NODE, dropKey, dragKey, dropPosition, dropToGap });
   }
 
@@ -263,16 +245,57 @@ export default function CellSetsManagerSubscriber(props) {
     }
   }
 
-  function onNodeSetName(targetKey, name, stopEditing) {
-    // dispatch({ type: ACTION.SET_NODE_NAME, targetKey, name, stopEditing });
+  function onNodeSetName(targetPath, name) {
+    const nextNamePath = [...targetPath];
+    nextNamePath.pop();
+    nextNamePath.push(name);
+
+    function renameNode(node, prevPath) {
+      if(isEqual([...prevPath, node.name], targetPath)) {
+        return {
+          ...node,
+          name,
+        };
+      } else {
+        if(!node.children) {
+          return node;
+        } else {
+          return {
+            ...node,
+            children: node.children.map(c => renameNode(c, [...prevPath, node.name])),
+          };
+        }
+      }
+    }
+    const nextAdditionalCellSets = {
+      ...additionalCellSets,
+      tree: additionalCellSets.tree.map(lzn => renameNode(lzn, [])),
+    };
+    const nextCellSetColor = cellSetColor.map(d => ({
+      path: (isEqual(targetPath, d.path) ? nextNamePath : d.path),
+      color: d.color,
+    }));
+    const nextCellSetSelection = cellSetSelection.map(d => (
+      isEqual(d, targetPath) ? nextNamePath : d
+    ));
+    const nextCellSetExpansion = cellSetSelection.map(d => (
+      isEqual(d, targetPath) ? nextNamePath : d
+    ));
+    setAdditionalCellSets(nextAdditionalCellSets);
+    setCellSetColor(nextCellSetColor);
+    setCellSetSelection(nextCellSetSelection);
+    setCellSetExpansion(nextCellSetExpansion);
   }
 
-  function onNodeCheckNewName(targetKey, name) {
-    return treeCheckNameConflictsByKey(tree, name, targetKey);
-  }
-
-  function onNodeSetIsEditing(targetKey, value) {
-    // dispatch({ type: ACTION.SET_NODE_IS_EDITING, targetKey, value });
+  function onNodeCheckNewName(targetPath, name) {
+    const nextNamePath = [...targetPath];
+    nextNamePath.pop();
+    nextNamePath.push(name);
+    const hasConflicts = (
+      !isEqual(targetPath, nextNamePath)
+      && treeFindNodeByNamePath(additionalCellSets, nextNamePath)
+    );
+    return hasConflicts;
   }
 
   function onNodeRemove(targetPath) {
@@ -302,7 +325,21 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onNodeView(targetPath) {
-    setCellSetSelection([targetPath]);
+    // If parent node is clicked, and if it is expanded,
+    // then select the expanded descendent nodes.
+    const setsToView = [];
+    function viewNode(node, nodePath) {
+      if(cellSetExpansion.find(expandedPath => isEqual(nodePath, expandedPath))) {
+        node.children.forEach((c) => {
+          viewNode(c, [...nodePath, c.name]);
+        });
+      } else {
+        setsToView.push(nodePath);
+      }
+    }
+    const targetNode = treeFindNodeByNamePath(mergedCellSets, targetPath);
+    viewNode(targetNode, targetPath);
+    setCellSetSelection(setsToView);
     setCellSetColorEncoding();
   }
 
@@ -343,28 +380,28 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onExportLevelZeroNodeJSON(nodeKey) {
-    const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
+    /*const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
     downloadForUser(
       handleExportJSON(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_JSON}`,
-    );
+    );*/
   }
 
   function onExportLevelZeroNodeTabular(nodeKey) {
-    const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
+    /*const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
     downloadForUser(
       handleExportTabular(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_TABULAR}`,
-    );
+    );*/
   }
 
   function onExportSetJSON(nodeKey) {
-    const { setToExport, nodeName } = treeExportSet(tree, nodeKey);
+    /*const { setToExport, nodeName } = treeExportSet(tree, nodeKey);
     downloadForUser(
       handleExportJSON(setToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-set.${FILE_EXTENSION_JSON}`,
       FILE_EXTENSION_JSON,
-    );
+    );*/
   }
 
   return (
@@ -384,8 +421,6 @@ export default function CellSetsManagerSubscriber(props) {
         setSelection={cellSetSelection}
         setExpansion={cellSetExpansion}
 
-        setSetExpansion={setCellSetExpansion}
-
         datatype={SETS_DATATYPE_CELL}
         onError={setWarning}
         onCheckNode={onCheckNode}
@@ -395,7 +430,6 @@ export default function CellSetsManagerSubscriber(props) {
         onNodeSetColor={onNodeSetColor}
         onNodeSetName={onNodeSetName}
         onNodeCheckNewName={onNodeCheckNewName}
-        onNodeSetIsEditing={onNodeSetIsEditing}
         onNodeRemove={onNodeRemove}
         onNodeView={onNodeView}
         onImportTree={onImportTree}

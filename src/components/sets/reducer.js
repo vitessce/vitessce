@@ -446,7 +446,7 @@ function nodeFindNodeByNamePath(node, path, currLevelIndex) {
  * @param {string[]} targetNamePath The name path for the node of interest.
  * @returns {object|null} A matching node object, or null if none is found.
  */
-function treeFindNodeByNamePath(currTree, targetNamePath) {
+export function treeFindNodeByNamePath(currTree, targetNamePath) {
   const foundNodes = currTree.tree
     .map(levelZeroNode => nodeFindNodeByNamePath(levelZeroNode, targetNamePath, 0))
     .filter(Boolean);
@@ -454,6 +454,18 @@ function treeFindNodeByNamePath(currTree, targetNamePath) {
     return foundNodes[0];
   }
   return null;
+}
+
+/**
+ * Find a node with a matching name path, relative to the whole tree.
+ * @param {object} currTree A tree object.
+ * @param {string[]} targetNamePath The name path for the node of interest.
+ * @returns {object|null} A matching node object, or null if none is found.
+ */
+function treeFindNodeParentByNamePath(currTree, targetNamePath) {
+  const parentNamePath = [...targetNamePath];
+  parentNamePath.pop();
+  return treeFindNodeByNamePath(currTree, parentNamePath);
 }
 
 /**
@@ -1074,16 +1086,16 @@ function treeOnCheckNode(currTree, targetKey, checked) {
  * @param {boolean} dropToGap Was the dragged node dropped onto the drop node?
  * @returns {object} The updated tree.
  */
-function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
+export function treeOnDropNode(currTree, dropPath, dragPath, dropPosition, dropToGap) {
   // Get drop node.
-  const dropNode = treeFindNodeByKey(currTree, dropKey);
+  const dropNode = treeFindNodeByNamePath(currTree, dropPath);
   const dropNodeLevel = dropNode._state.level;
   const dropNodeIsLevelZero = dropNodeLevel === 0;
   const dropNodeIsLevelZeroEmpty = (dropNodeIsLevelZero && (
     !dropNode.children || dropNode.children.length === 0));
   const dropNodeHeight = nodeToHeight(dropNode);
   // Get drag node.
-  const dragNode = treeFindNodeByKey(currTree, dragKey);
+  const dragNode = treeFindNodeByNamePath(currTree, dragPath);
   const dragNodeHeight = nodeToHeight(dragNode);
 
   // Only allow dragging if:
@@ -1100,15 +1112,16 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   }
 
   let dropParentNode;
-  let dropParentKey;
+  let dropParentPath;
   let dropNodeCurrIndex;
 
   if (!dropNodeIsLevelZero) {
-    dropParentNode = treeFindNodeParentByKey(currTree, dropKey);
-    dropParentKey = dropParentNode._state.key;
-    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.key === dropKey);
+    dropParentNode = treeFindNodeParentByNamePath(currTree, dropPath);
+    dropParentPath = [...dropKey];
+    dropParentPath.pop();
+    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.name === dropPath[dropPath.length - 1]);
   } else {
-    dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dropKey);
+    dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn.name === dropPath[dropPath.length - 1]);
   }
 
   // Further, only allow dragging if the dragged node will have a unique
@@ -1117,13 +1130,13 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   const dragNodeName = dragNode.name;
   if (!dropNodeIsLevelZero) {
     hasSiblingNameConflict = dropParentNode.children
-      .find(c => c.name === dragNodeName && c._state.key !== dragKey);
+      .find(c => c.name === dragNodeName && isEqual([...dropParentPath, c.name], dragPath));
   } else if (dropNodeIsLevelZero && !dropToGap) {
     hasSiblingNameConflict = dropNode.children
-      .find(c => c.name === dragNodeName && c._state.key !== dragKey);
+      .find(c => c.name === dragNodeName && isEqual([...dropParentPath, c.name], dragPath));
   } else {
     hasSiblingNameConflict = currTree.tree
-      .find(lzn => lzn.name === dragNodeName && lzn._state.key !== dragKey);
+      .find(lzn => lzn.name === dragNodeName && isEqual([lzn.name], dragPath));
   }
 
   if (hasSiblingNameConflict) {
@@ -1131,13 +1144,14 @@ function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   }
 
   // Remove the dragged object from its current position.
-  const newTree = treeNodeRemove(currTree, dragKey, true);
+  // TODO: update treeNodeRemove to deal with paths rather than keys
+  const newTree = treeNodeRemove(currTree, dragPath, true);
 
   // Update index values after temporarily removing the dragged node.
   if (!dropNodeIsLevelZero) {
-    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.key === dropKey);
+    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.name === dropKey[dropKey.length - 1]);
   } else {
-    dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dropKey);
+    dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn.name === dropKey[dropKey.length - 1]);
   }
 
   // Append the dragNode to dropNode's children if dropping _onto_ the dropNode.

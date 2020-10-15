@@ -37,7 +37,7 @@ function makeNodeViewMenuConfig(props) {
     ...(editable ? [
       {
         title: 'Rename',
-        handler: () => { onNodeSetIsEditing(nodeKey, true); },
+        handler: () => { onNodeSetIsEditing(path, true); },
         handlerKey: 'r',
       },
       {
@@ -170,7 +170,7 @@ function NamedSetNodeStatic(props) {
 function NamedSetNodeEditing(props) {
   const {
     title,
-    nodeKey,
+    path,
     onNodeSetName,
     onNodeCheckNewName,
   } = props;
@@ -178,10 +178,10 @@ function NamedSetNodeEditing(props) {
 
   // Do not allow the user to save a potential name if it conflicts with
   // another name in the hierarchy.
-  const hasConflicts = onNodeCheckNewName(nodeKey, currentTitle);
+  const hasConflicts = onNodeCheckNewName(path, currentTitle);
   function trySetName() {
     if (!hasConflicts) {
-      onNodeSetName(nodeKey, currentTitle, true);
+      onNodeSetName(path, currentTitle, true);
     }
   }
   return (
