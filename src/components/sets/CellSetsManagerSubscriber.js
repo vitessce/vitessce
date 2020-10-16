@@ -459,7 +459,7 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onExportLevelZeroNodeJSON(nodePath) {
-    const { treeToExport, nodeName } = treeExportLevelZeroNode(mergedCellSets, nodePath);
+    const { treeToExport, nodeName } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL);
     downloadForUser(
       handleExportJSON(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_JSON}`,
@@ -467,7 +467,7 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onExportLevelZeroNodeTabular(nodePath) {
-    const { treeToExport, nodeName } = treeExportLevelZeroNode(mergedCellSets, nodePath);
+    const { treeToExport, nodeName } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL);
     downloadForUser(
       handleExportTabular(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_TABULAR}`,

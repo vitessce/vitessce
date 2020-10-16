@@ -19,7 +19,6 @@ import {
   useSetComponentViewInfo,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { treeToVisibleCells } from '../sets/reducer';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
