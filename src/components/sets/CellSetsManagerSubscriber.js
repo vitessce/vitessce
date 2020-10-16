@@ -28,6 +28,7 @@ import {
 import {
   isEqualOrPrefix,
   tryRenamePath,
+  PATH_SEP,
 } from './utils';
 import {
   downloadForUser,
@@ -215,7 +216,7 @@ export default function CellSetsManagerSubscriber(props) {
 
   // The user wants to check or uncheck a cell set node.
   function onCheckNode(targetKey, checked) {
-    const targetPath = (Array.isArray(targetKey) ? targetKey : targetKey.split('___'));
+    const targetPath = (Array.isArray(targetKey) ? targetKey : targetKey.split(PATH_SEP));
     if (!targetKey) {
       return;
     }
@@ -230,17 +231,17 @@ export default function CellSetsManagerSubscriber(props) {
   // The user wants to expand or collapse a node in the tree.
   function onExpandNode(expandedKeys, targetKey, expanded) {
     if (expanded) {
-      setCellSetExpansion(prev => ([...prev, targetKey.split('___')]));
+      setCellSetExpansion(prev => ([...prev, targetKey.split(PATH_SEP)]));
     } else {
-      setCellSetExpansion(prev => prev.filter(d => !isEqual(d, targetKey.split('___'))));
+      setCellSetExpansion(prev => prev.filter(d => !isEqual(d, targetKey.split(PATH_SEP))));
     }
   }
 
   // TODO: re-implement using dropPath and dragPath rather than keys.
   function onDropNode(/* dropKey, dragKey, dropPosition, dropToGap */) {
     /*
-    const dropPath = dropKey.split("___");
-    const dragPath = dragKey.split("___");
+    const dropPath = dropKey.split(PATH_SEP);
+    const dragPath = dragKey.split(PATH_SEP);
     console.log(dropPath, dragPath, dropPosition, dropToGap);
     */
   }

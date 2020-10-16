@@ -11,6 +11,8 @@
     - Added the `additionalCellSets` coordination type to store user-defined cell sets
     - Added the `cellSetColor` coordination type to store mappings from cell set paths to cell set colors (for both user-defined and dataset-defined cell sets).
     - Updated the code to avoid reliance on uuid "key" variables. Instead, we want to always use the "name path": the array of strings representing the path down the hierarchy to the node.
+    - Removed the distinction between "visible" sets and "selected" (i.e. checked) sets.
+
 
 ## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 

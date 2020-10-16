@@ -1,4 +1,3 @@
-/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useMemo } from 'react';
 import isEqual from 'lodash/isEqual';
@@ -7,6 +6,7 @@ import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
 import { nodeToRenderProps, nodeToSet } from './reducer';
 import { DEFAULT_COLOR } from '../utils';
+import { pathToKey } from './utils';
 
 function processNode(node, level, prevPath, setColor) {
   const nodePath = [...prevPath, node.name];
@@ -14,7 +14,7 @@ function processNode(node, level, prevPath, setColor) {
     ...node,
     ...(node.children ? ({
       children: node.children
-        .map((c) => processNode(c, level + 1, nodePath, setColor)),
+        .map(c => processNode(c, level + 1, nodePath, setColor)),
     }) : {}),
     _state: {
       path: nodePath,
@@ -23,31 +23,25 @@ function processNode(node, level, prevPath, setColor) {
       size: nodeToSet(node).length,
       color: setColor?.find(d => isEqual(d.path, nodePath))?.color || DEFAULT_COLOR,
       isLeaf: !node.children,
-    }
+    },
   };
 }
 
 function processSets(sets, setColor) {
-  // TODO
   return {
     ...sets,
-    tree: sets ? sets.tree.map((lzn) => processNode(lzn, 0, [], setColor)) : [],
-  }
+    tree: sets ? sets.tree.map(lzn => processNode(lzn, 0, [], setColor)) : [],
+  };
 }
 
 function getAllKeys(node) {
-  if(!node) {
+  if (!node) {
     return [null];
   }
-  if(node.children) {
+  if (node.children) {
     return [node._state.nodeKey, ...node.children.flatMap(getAllKeys)];
-  } else {
-    return [node._state.nodeKey];
   }
-}
-
-function pathToKey(path) {
-  return path.join("___");
+  return [node._state.nodeKey];
 }
 
 /**
@@ -103,7 +97,7 @@ export default function SetsManager(props) {
   const {
     sets,
     additionalSets,
-    setColor,  // TODO: use this
+    setColor, // TODO: use this
     levelSelection: checkedLevel,
     setSelection,
     setExpansion,
@@ -139,23 +133,26 @@ export default function SetsManager(props) {
     hasCheckedSetsToComplement,
   } = props;
 
+  const isChecking = true;
+  const autoExpandParent = true;
   const [isDragging, setIsDragging] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
   const [isEditingNodeName, setIsEditingNodeName] = useState(null);
-  const [autoExpandParent, setAutoExpandParent] = useState(true);
 
-  const processedSets = useMemo(() => {
-    return processSets(sets, setColor);
-  }, [sets, setColor]);
+  const processedSets = useMemo(() => processSets(
+    sets, setColor,
+  ), [sets, setColor]);
 
-  const processedAdditionalSets = useMemo(() => {
-    return processSets(additionalSets, setColor);
-  }, [additionalSets, setColor]);
+  const processedAdditionalSets = useMemo(() => processSets(
+    additionalSets, setColor,
+  ), [additionalSets, setColor]);
 
-  const additionalSetKeys = (processedAdditionalSets ? processedAdditionalSets.tree.flatMap(getAllKeys) : []);
+  const additionalSetKeys = (processedAdditionalSets
+    ? processedAdditionalSets.tree.flatMap(getAllKeys)
+    : []
+  );
 
-  const allSetSelectionKeys = (setSelection ? setSelection : []).map(pathToKey);
-  const allSetExpansionKeys = (setExpansion ? setExpansion : []).map(pathToKey);
+  const allSetSelectionKeys = (setSelection || []).map(pathToKey);
+  const allSetExpansionKeys = (setExpansion || []).map(pathToKey);
 
   const setSelectionKeys = allSetSelectionKeys.filter(k => !additionalSetKeys.includes(k));
   const setExpansionKeys = allSetExpansionKeys.filter(k => !additionalSetKeys.includes(k));

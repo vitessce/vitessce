@@ -60,3 +60,9 @@ export function tryRenamePath(targetPath, testPath, nextTargetPath) {
   }
   return testPath;
 }
+
+export const PATH_SEP = '___';
+
+export function pathToKey(path) {
+  return path.join(PATH_SEP);
+}

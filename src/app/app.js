@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useEffect, useRef, useState } from 'react';
 import { getConfig, listConfigs } from './api';
 import Welcome from './Welcome';
@@ -89,6 +88,7 @@ export function createApp(rowHeight = null) {
         config={config}
         rowHeight={rowHeight}
         theme={theme}
+        // eslint-disable-next-line no-console
         onConfigChange={(debug ? console.log : undefined)}
         validateOnConfigChange={debug}
       />
