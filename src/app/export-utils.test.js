@@ -52,4 +52,21 @@ describe('src/app/export-utils.js', () => {
       expect(viewConfig2).toEqual(fakeConfig);
     });
   });
+  describe('encodeConfAsURLParams with custom param', () => {
+    it('encodes a view config for a URL', () => {
+      const urlParams1 = encodeConfAsURLParams({}, 'foo');
+      expect(urlParams1).toEqual('foo=N4XyA&version=0.0.1');
+
+      const urlParams2 = encodeConfAsURLParams(fakeConfig, 'foo');
+      expect(urlParams2).toEqual('foo=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA&version=0.0.1');
+    });
+
+    it('decodes a view config for a URL', () => {
+      const viewConfig1 = decodeURLParamsToConf('foo=N4XyA&version=0.0.1', 'foo');
+      expect(viewConfig1).toEqual({});
+
+      const viewConfig2 = decodeURLParamsToConf('foo=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA&version=0.0.1', 'foo');
+      expect(viewConfig2).toEqual(fakeConfig);
+    });
+  });
 });
