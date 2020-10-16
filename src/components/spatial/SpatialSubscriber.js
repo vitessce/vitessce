@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useState, useEffect, useMemo, useCallback,
 } from 'react';
@@ -167,15 +166,20 @@ export default function SpatialSubscriber(props) {
         );
       }
     }
-  }, [dataset, loaders, autoLayers, imageLayerLoaders, isReady, layers, setLayers, initializeLayers]);
-  
-  const mergedCellSets = useMemo(() => {
-    return mergeCellSets(cellSets, additionalCellSets);
-  }, [cellSets, additionalCellSets]);
+  }, [dataset, loaders, autoLayers, imageLayerLoaders,
+    isReady, layers, setLayers, initializeLayers]);
+
+  const mergedCellSets = useMemo(() => mergeCellSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
 
   const setCellSelectionProp = useCallback((v) => {
-    setCellSelection(v, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor);
-  }, [additionalCellSets, cellSetColor]);
+    setCellSelection(
+      v, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+    );
+  }, [additionalCellSets, cellSetColor,
+    setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
@@ -184,11 +188,10 @@ export default function SpatialSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-  }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetColor, cellSetSelection, expressionMatrix]);
-  
-  const cellSelection = useMemo(() => {
-    return Array.from(cellColors.keys());
-  }, [cellColors]);
+  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    cellSetColor, cellSetSelection, expressionMatrix]);
+
+  const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const getCellInfo = (cellId) => {
     const cell = cells[cellId];

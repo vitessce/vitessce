@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
@@ -92,14 +91,18 @@ export default function ScatterplotSubscriber(props) {
 
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
-  const mergedCellSets = useMemo(() => {
-    return mergeCellSets(cellSets, additionalCellSets);
-  }, [cellSets, additionalCellSets]);
+  const mergedCellSets = useMemo(() => mergeCellSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
 
   const setCellSelectionProp = useCallback((v) => {
-    setCellSelection(v, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor);
-  }, [additionalCellSets, cellSetColor]);
-  
+    setCellSelection(
+      v, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+    );
+  }, [additionalCellSets, cellSetColor,
+    setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
+
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionMatrix,
@@ -107,11 +110,10 @@ export default function ScatterplotSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-  }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetSelection, cellSetColor, expressionMatrix]);
-  
-  const cellSelection = useMemo(() => {
-    return Array.from(cellColors.keys());
-  }, [cellColors]);
+  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    cellSetSelection, cellSetColor, expressionMatrix]);
+
+  const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the

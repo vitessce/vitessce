@@ -247,7 +247,7 @@ export const initializedViewConfig = {
     },
     additionalGeneSets: {
       A: [],
-    }
+    },
   },
   datasets: [
     {

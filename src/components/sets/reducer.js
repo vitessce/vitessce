@@ -1,20 +1,12 @@
-/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
 import isEqual from 'lodash/isEqual';
 import range from 'lodash/range';
-import { DEFAULT_COLOR, PALETTE } from '../utils';
+import { DEFAULT_COLOR } from '../utils';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
-
-// Constants.
-const CURRENT_SELECTION_NAME = 'Selection';
-const CURRENT_UNION_NAME = 'Union';
-const CURRENT_INTERSECTION_NAME = 'Intersection';
-const CURRENT_COMPLEMENT_NAME = 'Complement';
-const NEW_HIERARCHY_NAME = 'New hierarchy';
 
 /**
  * Alias for the uuidv4 function to make code more readable.
@@ -58,6 +50,7 @@ function nodeToHeight(currNode, level = 0) {
  * @param {number} newLevel The level value.
  * @returns {object} The updated node.
  */
+/*
 function nodeSetLevel(currNode, newLevel) {
   return {
     ...currNode,
@@ -67,6 +60,7 @@ function nodeSetLevel(currNode, newLevel) {
     },
   };
 }
+*/
 
 /**
  * Append a child to a parent node.
@@ -74,6 +68,7 @@ function nodeSetLevel(currNode, newLevel) {
  * @param {object} newChild The child node object.
  * @returns {object} The updated node.
  */
+/*
 function nodeAppendChild(currNode, newChild) {
   const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
   return {
@@ -81,6 +76,7 @@ function nodeAppendChild(currNode, newChild) {
     children: [...currNode.children, newChildWithLevel],
   };
 }
+*/
 
 /**
  * Prepend a child to a parent node.
@@ -88,6 +84,7 @@ function nodeAppendChild(currNode, newChild) {
  * @param {object} newChild The child node object.
  * @returns {object} The updated node.
  */
+/*
 function nodePrependChild(currNode, newChild) {
   const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
   return {
@@ -95,6 +92,7 @@ function nodePrependChild(currNode, newChild) {
     children: [newChildWithLevel, ...currNode.children],
   };
 }
+*/
 
 /**
  * Insert a child to a parent node.
@@ -103,6 +101,7 @@ function nodePrependChild(currNode, newChild) {
  * @param {*} insertIndex The index at which to insert the child.
  * @returns {object} The updated node.
  */
+/*
 function nodeInsertChild(currNode, newChild, insertIndex) {
   const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
   const newChildren = Array.from(currNode.children);
@@ -112,7 +111,7 @@ function nodeInsertChild(currNode, newChild, insertIndex) {
     children: newChildren,
   };
 }
-
+*/
 
 
 /**
@@ -121,6 +120,7 @@ function nodeInsertChild(currNode, newChild, insertIndex) {
  * @param {function} predicate Returns true if a node matches a condition of interest.
  * @returns {object|null} A node object matching the predicate, or null if none is found.
  */
+/*
 function nodeFindNode(node, predicate) {
   if (predicate(node)) {
     return node;
@@ -136,6 +136,7 @@ function nodeFindNode(node, predicate) {
   }
   return null;
 }
+*/
 
 
 /**
@@ -144,6 +145,7 @@ function nodeFindNode(node, predicate) {
  * @param {function} predicate Returns true if a node matches a condition of interest.
  * @returns {object|null} A matching node object, or null if none is found.
  */
+/*
 function treeFindNode(currTree, predicate) {
   const foundNodes = currTree.tree
     .map(levelZeroNode => nodeFindNode(levelZeroNode, predicate))
@@ -153,6 +155,7 @@ function treeFindNode(currTree, predicate) {
   }
   return null;
 }
+*/
 
 /**
  * Find a node with a matching key, relative to the whole tree.
@@ -160,9 +163,11 @@ function treeFindNode(currTree, predicate) {
  * @param {string} targetKey The key for the node of interest.
  * @returns {object|null} A matching node object, or null if none is found.
  */
+/*
 function treeFindNodeByKey(currTree, targetKey) {
   return treeFindNode(currTree, n => (n._state.key === targetKey));
 }
+*/
 
 /**
  * Find a node with a matching name path, relative to a particular node.
@@ -211,12 +216,13 @@ export function treeFindNodeByNamePath(currTree, targetNamePath) {
  * @param {string[]} targetNamePath The name path for the node of interest.
  * @returns {object|null} A matching node object, or null if none is found.
  */
+/*
 function treeFindNodeParentByNamePath(currTree, targetNamePath) {
   const parentNamePath = [...targetNamePath];
   parentNamePath.pop();
   return treeFindNodeByNamePath(currTree, parentNamePath);
 }
-
+*/
 
 
 /**
@@ -225,6 +231,7 @@ function treeFindNodeParentByNamePath(currTree, targetNamePath) {
  * @param {string} targetKey The key of the descendant node.
  * @returns {object|null} A matching level zero node object, or null if none is found.
  */
+/*
 function treeFindLevelZeroNodeByDescendantKey(currTree, targetKey) {
   const predicate = n => (n._state.key === targetKey);
   const foundNodes = currTree.tree
@@ -237,6 +244,7 @@ function treeFindLevelZeroNodeByDescendantKey(currTree, targetKey) {
   }
   return null;
 }
+*/
 
 /**
  * Remove a node or any node descendants that match a predicate.
@@ -245,6 +253,7 @@ function treeFindLevelZeroNodeByDescendantKey(currTree, targetKey) {
  * @param {function} predicate Predicate function, returns true if the node should be removed.
  * @returns {object|null} The updated node, or null if the node matches the predicate.
  */
+/*
 function nodeRemove(node, predicate) {
   if (predicate(node)) {
     return null;
@@ -259,6 +268,7 @@ function nodeRemove(node, predicate) {
   }
   return node;
 }
+*/
 
 /**
  * Remove any node matching a predicate, relative to the tree.
@@ -270,6 +280,7 @@ function nodeRemove(node, predicate) {
  * By default, false.
  * @returns {object} The updated tree.
  */
+/*
 function treeNodeRemove(currTree, targetKey, temporary = false) {
   const nodeToRemove = treeFindNodeByKey(currTree, targetKey);
   const levelZeroNode = treeFindLevelZeroNodeByDescendantKey(currTree, targetKey);
@@ -300,6 +311,7 @@ function treeNodeRemove(currTree, targetKey, temporary = false) {
     },
   };
 }
+*/
 
 /**
  * Transform a node object using a transform function.
@@ -331,6 +343,7 @@ export function nodeTransform(node, predicate, transform) {
  * returns a transformed version of the node.
  * @returns {object} The updated tree.
  */
+/*
 function treeTransformNodeByKey(currTree, targetKey, transform) {
   return {
     ...currTree,
@@ -342,6 +355,7 @@ function treeTransformNodeByKey(currTree, targetKey, transform) {
       )),
   };
 }
+*/
 
 
 /**
@@ -666,11 +680,11 @@ export function nodeToRenderProps(node) {
     color: node._state.color,
     level: node._state.level,
     isLeaf: node._state.isLeaf,
-    
+
     isEditing: node._state.isEditing,
     isCurrentSet: node._state.isCurrent,
     isForTools: node._state.isForTools,
-    //isLeaf: !node.children,
+    // isLeaf: !node.children,
     height: nodeToHeight(node),
   };
 }
@@ -707,7 +721,10 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color || DEFAULT_COLOR;
+      const nodeColor = (
+        cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+        || DEFAULT_COLOR
+      );
       cellColorsArray = [
         ...cellColorsArray,
         ...nodeSet.map(([cellId, prob]) => [
@@ -774,4 +791,34 @@ export function treeToCheckedSetOperations(currTree, checkedPaths, items) {
     hasCheckedSetsToIntersect,
     hasCheckedSetsToComplement,
   };
+}
+
+
+export function treesConflict(cellSets, testCellSets) {
+  const paths = [];
+  const testPaths = [];
+  let hasConflict = false;
+
+  function getPaths(node, prevPath) {
+    paths.push([...prevPath, node.name]);
+    if (node.children) {
+      node.children.forEach(c => getPaths(c, [...prevPath, node.name]));
+    }
+  }
+  cellSets.tree.forEach(lzn => getPaths(lzn, []));
+
+  function getTestPaths(node, prevPath) {
+    testPaths.push([...prevPath, node.name]);
+    if (node.children) {
+      node.children.forEach(c => getPaths(c, [...prevPath, node.name]));
+    }
+  }
+  testCellSets.tree.forEach(lzn => getTestPaths(lzn, []));
+
+  testPaths.forEach((testPath) => {
+    if (paths.find(p => isEqual(p, testPath))) {
+      hasConflict = true;
+    }
+  });
+  return hasConflict;
 }

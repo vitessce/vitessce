@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useEffect,
   useState,
@@ -24,7 +23,12 @@ import {
   treeToUnion,
   treeToComplement,
   treeFindNodeByNamePath,
+  treesConflict,
 } from './reducer';
+import {
+  isEqualOrPrefix,
+  tryRenamePath,
+} from './utils';
 import {
   downloadForUser,
   handleExportJSON,
@@ -35,54 +39,16 @@ import {
   FILE_EXTENSION_TABULAR,
 } from './constants';
 import { useUrls, useReady } from '../hooks';
-import { setCellSelection, mergeCellSets, initializeCellSetColor, getNextNumberedNodeName } from '../utils';
+import {
+  setCellSelection,
+  mergeCellSets,
+  initializeCellSetColor,
+  getNextNumberedNodeName,
+} from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
 
 const SETS_DATATYPE_CELL = 'cell';
 const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
-
-function isEqualOrPrefix(targetPath, testPath) {
-  if(targetPath.length <= testPath.length) {
-    return isEqual(targetPath, testPath.slice(0, targetPath.length));
-  }
-  return false;
-}
-
-function tryRenamePath(targetPath, testPath, nextTargetPath) {
-  if(isEqualOrPrefix(targetPath, testPath)) {
-    return [...nextTargetPath, ...testPath.slice(nextTargetPath.length)];
-  }
-  return testPath;
-}
-
-function treesConflict(cellSets, testCellSets) {
-  const paths = [];
-  const testPaths = [];
-  let hasConflict = false;
-  
-  function getPaths(node, prevPath) {
-    paths.push([...prevPath, node.name]);
-    if(node.children) {
-      node.children.forEach(c => getPaths(c, [...prevPath, node.name]));
-    }
-  }
-  cellSets.tree.forEach(lzn => getPaths(lzn, []));
-
-  function getTestPaths(node, prevPath) {
-    testPaths.push([...prevPath, node.name]);
-    if(node.children) {
-      node.children.forEach(c => getPaths(c, [...prevPath, node.name]));
-    }
-  }
-  testCellSets.tree.forEach(lzn => getTestPaths(lzn, []));
-
-  testPaths.forEach(testPath => {
-    if(paths.find(p => isEqual(p, testPath))) {
-      hasConflict = true;
-    }
-  });
-  return hasConflict;
-}
 
 /**
  * A subscriber wrapper around the SetsManager component
@@ -112,6 +78,7 @@ export default function CellSetsManagerSubscriber(props) {
     dataset,
     cellSetSelection,
     cellSetColor,
+    cellColorEncoding,
     additionalCellSets,
   }, {
     setCellSetSelection,
@@ -147,7 +114,8 @@ export default function CellSetsManagerSubscriber(props) {
       if (data && data.tree.length >= 1) {
         // eslint-disable-next-line no-underscore-dangle
         const newAutoSetSelectionParentName = data.tree[0].name;
-        const newAutoSetSelections = data.tree[0].children.map(node => ([newAutoSetSelectionParentName, node.name]));
+        const newAutoSetSelections = data.tree[0].children
+          .map(node => ([newAutoSetSelectionParentName, node.name]));
         setAutoSetSelections(prev => ({
           [dataset]: [
             ...(prev[dataset] || []),
@@ -161,13 +129,13 @@ export default function CellSetsManagerSubscriber(props) {
             ...(prev[dataset] || []),
             ...newAutoSetColors,
           ],
-        }))
+        }));
       } else {
         setAutoSetSelections(prev => ({ [dataset]: (prev[dataset] || []) }));
         setAutoSetColors(prev => ({ [dataset]: (prev[dataset] || []) }));
       }
     });
-  
+
   // Try to set up the selected sets array automatically if undefined.
   useEffect(() => {
     // Only initialize cell sets if the value of `cellSetSelection` is `null`
@@ -183,10 +151,10 @@ export default function CellSetsManagerSubscriber(props) {
   }, [dataset, autoSetSelections, isReady, cellSetSelection,
     setCellSetSelection, initializeSelection]);
 
-    // Try to set up the selected sets array automatically if undefined.
+  // Try to set up the colored sets array automatically if undefined.
   useEffect(() => {
-    // Only initialize cell sets if the value of `cellSetSelection` is `null`
-    // and the `initializeSelection` prop is `true`.
+    // Only initialize cell sets if the value of `cellSetColor` is `null`
+    // and the `initializeColor` prop is `true`.
     if (
       isReady
       && initializeColor
@@ -195,13 +163,10 @@ export default function CellSetsManagerSubscriber(props) {
     ) {
       setCellSetColor(autoSetColors[dataset]);
     }
-  }, [dataset, autoSetColors, isReady,
-    setCellSetColor, initializeColor]);
+  }, [dataset, autoSetColors, isReady, setCellSetColor, initializeColor, cellSetColor]);
 
   // Get an array of all cell IDs to use for set complement operations.
-  const allCellIds = useMemo(() => {
-    return (cells ? Object.keys(cells) : []);
-  }, [cells]);
+  const allCellIds = useMemo(() => (cells ? Object.keys(cells) : []), [cells]);
 
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
@@ -209,19 +174,22 @@ export default function CellSetsManagerSubscriber(props) {
     setCellColorEncoding('cellSetSelection');
   }
 
-  // Merged cell sets are only to be used for convenience when READING
-  // (if WRITING: update either `cellSets` _or_ `additionalCellSets`).
+  // Merged cell sets are only to be used for convenience when reading
+  // (if writing: update either `cellSets` _or_ `additionalCellSets`).
   const mergedCellSets = mergeCellSets(cellSets, additionalCellSets);
 
-  // We want the "checked level" radio button to be initialized even when
-  // the tree object may not explicitly have the `._state.checkedLevel` set up.
+  // Infer the state of the "checked level" radio button based on the selected cell sets.
   const checkedLevel = useMemo(() => {
-    if (cellSetSelection && cellSetSelection.length > 0 && mergedCellSets) {
+    if (cellColorEncoding === 'cellSetSelection'
+    && cellSetSelection && cellSetSelection.length > 0
+    && mergedCellSets) {
       return treeToExpectedCheckedLevel(mergedCellSets, cellSetSelection);
     }
     return null;
-  }, [cellSetSelection, mergedCellSets]);
+  }, [cellSetSelection, mergedCellSets, cellColorEncoding]);
 
+  // Determine which of the set operation buttons should be enabled/disabled
+  // based on the currently selected sets.
   const {
     hasCheckedSetsToUnion = false,
     hasCheckedSetsToIntersect = false,
@@ -234,21 +202,24 @@ export default function CellSetsManagerSubscriber(props) {
   }, [cellSetSelection, mergedCellSets, allCellIds]);
 
   // Callback functions
+
+  // The user wants to select all nodes at a particular hierarchy level.
   function onCheckLevel(levelZeroName, levelIndex) {
     const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
-    if(lzn) {
+    if (lzn) {
       const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
       setCellSetSelection(newCellSetSelection);
       setCellSetColorEncoding();
     }
   }
 
+  // The user wants to check or uncheck a cell set node.
   function onCheckNode(targetKey, checked) {
-    const targetPath = (Array.isArray(targetKey) ? targetKey : targetKey.split("___"));
-    if(!targetKey) {
+    const targetPath = (Array.isArray(targetKey) ? targetKey : targetKey.split('___'));
+    if (!targetKey) {
       return;
     }
-    if(checked) {
+    if (checked) {
       setCellSetSelection([...cellSetSelection, targetPath]);
     } else {
       setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, targetPath)));
@@ -256,16 +227,17 @@ export default function CellSetsManagerSubscriber(props) {
     setCellSetColorEncoding();
   }
 
+  // The user wants to expand or collapse a node in the tree.
   function onExpandNode(expandedKeys, targetKey, expanded) {
-    if(expanded) {
-      setCellSetExpansion(prev => ([...prev, targetKey.split("___")]));
+    if (expanded) {
+      setCellSetExpansion(prev => ([...prev, targetKey.split('___')]));
     } else {
-      setCellSetExpansion(prev => prev.filter(d => !isEqual(d, targetKey.split("___"))));
+      setCellSetExpansion(prev => prev.filter(d => !isEqual(d, targetKey.split('___'))));
     }
   }
 
+  // TODO: re-implement using dropPath and dragPath rather than keys.
   function onDropNode(/* dropKey, dragKey, dropPosition, dropToGap */) {
-    // TODO
     /*
     const dropPath = dropKey.split("___");
     const dragPath = dragKey.split("___");
@@ -273,49 +245,52 @@ export default function CellSetsManagerSubscriber(props) {
     */
   }
 
+  // The user wants to change the color of a cell set node.
   function onNodeSetColor(targetPath, color) {
     // Replace the color if an array element for this path already exists.
     const prevNodeColor = cellSetColor?.find(d => isEqual(d.path, targetPath));
-    if(!prevNodeColor) {
+    if (!prevNodeColor) {
       setCellSetColor([
-        ...(cellSetColor ? cellSetColor : []),
+        ...(cellSetColor || []),
         {
           path: targetPath,
-          color
-        }
+          color,
+        },
       ]);
     } else {
       setCellSetColor([
         ...cellSetColor.filter(d => !isEqual(d.path, targetPath)),
         {
           path: targetPath,
-          color
-        }
+          color,
+        },
       ]);
     }
   }
 
+  // The user wants to change the name of a cell set node.
   function onNodeSetName(targetPath, name) {
     const nextNamePath = [...targetPath];
     nextNamePath.pop();
     nextNamePath.push(name);
 
+    // Recursively check whether each node path
+    // matches the path or a prefix of the path of the node to rename.
+    // If so, rename the node using the new path.
     function renameNode(node, prevPath) {
-      if(isEqual([...prevPath, node.name], targetPath)) {
+      if (isEqual([...prevPath, node.name], targetPath)) {
         return {
           ...node,
           name,
         };
-      } else {
-        if(!node.children) {
-          return node;
-        } else {
-          return {
-            ...node,
-            children: node.children.map(c => renameNode(c, [...prevPath, node.name])),
-          };
-        }
       }
+      if (!node.children) {
+        return node;
+      }
+      return {
+        ...node,
+        children: node.children.map(c => renameNode(c, [...prevPath, node.name])),
+      };
     }
     const nextAdditionalCellSets = {
       ...additionalCellSets,
@@ -339,6 +314,10 @@ export default function CellSetsManagerSubscriber(props) {
     setCellSetExpansion(nextCellSetExpansion);
   }
 
+  // Each time the user types while renaming a cell set node,
+  // we need to check whether the potential new name conflicts
+  // with any existing cell set node names.
+  // If there are conflicts, we want to disable the "Save" button.
   function onNodeCheckNewName(targetPath, name) {
     const nextNamePath = [...targetPath];
     nextNamePath.pop();
@@ -350,30 +329,30 @@ export default function CellSetsManagerSubscriber(props) {
     return hasConflicts;
   }
 
+  // The user wants to delete a cell set node, and has confirmed their choice.
   function onNodeRemove(targetPath) {
     // Recursively check whether each node path
     // matches the path of the node to delete.
     // If so, return null, and then always use
     // .filter(Boolean) to eliminate any null array elements.
     function filterNode(node, prevPath) {
-      if(isEqual([...prevPath, node.name], targetPath)) {
+      if (isEqual([...prevPath, node.name], targetPath)) {
         return null;
-      } else {
-        if(!node.children) {
-          return node;
-        } else {
-          return {
-            ...node,
-            children: node.children.map(c => filterNode(c, [...prevPath, node.name])).filter(Boolean),
-          };
-        }
       }
+      if (!node.children) {
+        return node;
+      }
+      return {
+        ...node,
+        children: node.children.map(c => filterNode(c, [...prevPath, node.name])).filter(Boolean),
+      };
     }
     const nextAdditionalCellSets = {
       ...additionalCellSets,
       tree: additionalCellSets.tree.map(lzn => filterNode(lzn, [])).filter(Boolean),
     };
-    // Delete state for all paths that have this node path as a prefix (i.e. delete all descendents).
+    // Delete state for all paths that have this node
+    // path as a prefix (i.e. delete all descendents).
     const nextCellSetColor = cellSetColor.filter(d => !isEqualOrPrefix(targetPath, d.path));
     const nextCellSetSelection = cellSetSelection.filter(d => !isEqualOrPrefix(targetPath, d));
     const nextCellSetExpansion = cellSetExpansion.filter(d => !isEqualOrPrefix(targetPath, d));
@@ -383,13 +362,16 @@ export default function CellSetsManagerSubscriber(props) {
     setCellSetExpansion(nextCellSetExpansion);
   }
 
+  // The user wants to view (i.e. select) a particular node,
+  // or its expanded descendents.
   function onNodeView(targetPath) {
     // If parent node is clicked, and if it is expanded,
     // then select the expanded descendent nodes.
     const setsToView = [];
+    // Recursively determine which descendent nodes are currently expanded.
     function viewNode(node, nodePath) {
-      if(cellSetExpansion.find(expandedPath => isEqual(nodePath, expandedPath))) {
-        if(node.children) {
+      if (cellSetExpansion.find(expandedPath => isEqual(nodePath, expandedPath))) {
+        if (node.children) {
           node.children.forEach((c) => {
             viewNode(c, [...nodePath, c.name]);
           });
@@ -406,49 +388,70 @@ export default function CellSetsManagerSubscriber(props) {
     setCellSetColorEncoding();
   }
 
+  // The user wants to create a new level zero node.
   function onCreateLevelZeroNode() {
-    const nextName = getNextNumberedNodeName(additionalCellSets?.tree, `My hierarchy `);
+    const nextName = getNextNumberedNodeName(additionalCellSets?.tree, 'My hierarchy ');
     setAdditionalCellSets({
-      ...(additionalCellSets ? additionalCellSets : {}),
+      ...(additionalCellSets || {}),
       tree: [
         ...(additionalCellSets ? additionalCellSets.tree : []),
         {
-          "name": nextName,
-          "children": [],
-        }
-      ]
+          name: nextName,
+          children: [],
+        },
+      ],
     });
   }
 
+  // The user wants to create a new node corresponding to
+  // the union of the selected sets.
   function onUnion() {
     const newSet = treeToUnion(mergedCellSets, cellSetSelection);
-    setCellSelection(newSet, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, 'Union ');
+    setCellSelection(
+      newSet, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      'Union ',
+    );
     setCellSetColorEncoding();
   }
 
+  // The user wants to create a new node corresponding to
+  // the intersection of the selected sets.
   function onIntersection() {
     const newSet = treeToIntersection(mergedCellSets, cellSetSelection);
-    setCellSelection(newSet, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, 'Intersection ');
+    setCellSelection(
+      newSet, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      'Intersection ',
+    );
     setCellSetColorEncoding();
   }
 
+  // The user wants to create a new node corresponding to
+  // the complement of the selected sets.
   function onComplement() {
     const newSet = treeToComplement(mergedCellSets, cellSetSelection, allCellIds);
-    setCellSelection(newSet, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, 'Complement ');
+    setCellSelection(
+      newSet, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      'Complement ',
+    );
     setCellSetColorEncoding();
   }
 
+  // The user wants to import a cell set hierarchy,
+  // probably from a CSV or JSON file.
   function onImportTree(treeToImport) {
     // Check for any naming conflicts with the current sets
     // (both user-defined and dataset-defined) before importing.
     const hasConflict = treesConflict(mergedCellSets, treeToImport);
-    if(!hasConflict) {
+    if (!hasConflict) {
       setAdditionalCellSets({
-        ...(additionalCellSets ? additionalCellSets : {}),
+        ...(additionalCellSets || {}),
         tree: [
           ...(additionalCellSets ? additionalCellSets.tree : []),
           ...treeToImport.tree,
-        ]
+        ],
       });
       // Automatically initialize set colors for the imported sets.
       const importAutoSetColors = initializeCellSetColor(treeToImport, cellSetColor);
@@ -459,22 +462,29 @@ export default function CellSetsManagerSubscriber(props) {
     }
   }
 
+  // The user wants to download a particular hierarchy to a JSON file.
   function onExportLevelZeroNodeJSON(nodePath) {
-    const { treeToExport, nodeName } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL);
+    const {
+      treeToExport, nodeName,
+    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL);
     downloadForUser(
       handleExportJSON(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_JSON}`,
     );
   }
 
+  // The user wants to download a particular hierarchy to a CSV file.
   function onExportLevelZeroNodeTabular(nodePath) {
-    const { treeToExport, nodeName } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL);
+    const {
+      treeToExport, nodeName,
+    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL);
     downloadForUser(
       handleExportTabular(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_TABULAR}`,
     );
   }
 
+  // The user wants to download a particular set to a JSON file.
   function onExportSetJSON(nodePath) {
     const { setToExport, nodeName } = treeExportSet(mergedCellSets, nodePath);
     downloadForUser(

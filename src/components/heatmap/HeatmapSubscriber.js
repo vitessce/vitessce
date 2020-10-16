@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useEffect, useState, useCallback, useMemo,
 } from 'react';
@@ -80,9 +79,9 @@ export default function HeatmapSubscriber(props) {
   );
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
 
-  const mergedCellSets = useMemo(() => {
-    return mergeCellSets(cellSets, additionalCellSets);
-  }, [cellSets, additionalCellSets]);
+  const mergedCellSets = useMemo(() => mergeCellSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
 
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
@@ -91,7 +90,8 @@ export default function HeatmapSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-  }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetColor, cellSetSelection, expressionMatrix]);
+  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    cellSetColor, cellSetSelection, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
