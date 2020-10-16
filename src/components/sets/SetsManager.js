@@ -6,15 +6,15 @@ import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
 import { nodeToRenderProps, nodeToSet } from './reducer';
-import { PALETTE, DEFAULT_COLOR } from '../utils';
+import { DEFAULT_COLOR } from '../utils';
 
-function processNode(node, level, prevPath, setColor, siblingIndex) {
+function processNode(node, level, prevPath, setColor) {
   const nodePath = [...prevPath, node.name];
   return {
     ...node,
     ...(node.children ? ({
       children: node.children
-        .map((c, siblingIndex) => processNode(c, level + 1, nodePath, setColor, siblingIndex)),
+        .map((c) => processNode(c, level + 1, nodePath, setColor)),
     }) : {}),
     _state: {
       path: nodePath,
@@ -31,7 +31,7 @@ function processSets(sets, setColor) {
   // TODO
   return {
     ...sets,
-    tree: sets ? sets.tree.map((lzn, siblingIndex) => processNode(lzn, 0, [], setColor, siblingIndex)) : [],
+    tree: sets ? sets.tree.map((lzn) => processNode(lzn, 0, [], setColor)) : [],
   }
 }
 
@@ -163,8 +163,6 @@ export default function SetsManager(props) {
   const additionalSetSelectionKeys = allSetSelectionKeys.filter(k => additionalSetKeys.includes(k));
   const additionalSetExpansionKeys = allSetExpansionKeys.filter(k => additionalSetKeys.includes(k));
 
-
-
   /**
    * Recursively render TreeNode components.
    * @param {object[]} nodes An array of node objects.
@@ -240,7 +238,7 @@ export default function SetsManager(props) {
           {renderTreeNodes(processedSets.tree, true)}
         </Tree>
         <Tree
-          draggable={draggable}
+          draggable={false} /* TODO */
           checkable={checkable}
 
           checkedKeys={additionalSetSelectionKeys}

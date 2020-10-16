@@ -237,7 +237,7 @@ export default function CellSetsManagerSubscriber(props) {
   function onCheckLevel(levelZeroName, levelIndex) {
     const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
     if(lzn) {
-      const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [levelZeroName], true);
+      const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
       setCellSetSelection(newCellSetSelection);
       setCellSetColorEncoding();
     }
@@ -264,12 +264,13 @@ export default function CellSetsManagerSubscriber(props) {
     }
   }
 
-  function onDropNode(dropKey, dragKey, dropPosition, dropToGap) {
+  function onDropNode(/* dropKey, dragKey, dropPosition, dropToGap */) {
     // TODO
+    /*
     const dropPath = dropKey.split("___");
     const dragPath = dragKey.split("___");
     console.log(dropPath, dragPath, dropPosition, dropToGap);
-    // dispatch({ type: ACTION.DROP_NODE, dropKey, dragKey, dropPosition, dropToGap });
+    */
   }
 
   function onNodeSetColor(targetPath, color) {
@@ -328,7 +329,7 @@ export default function CellSetsManagerSubscriber(props) {
     const nextCellSetSelection = cellSetSelection.map(d => (
       tryRenamePath(targetPath, d, nextNamePath)
     ));
-    const nextCellSetExpansion = cellSetSelection.map(d => (
+    const nextCellSetExpansion = cellSetExpansion.map(d => (
       tryRenamePath(targetPath, d, nextNamePath)
     ));
     // Need to update the node path everywhere it may be present.
@@ -375,7 +376,7 @@ export default function CellSetsManagerSubscriber(props) {
     // Delete state for all paths that have this node path as a prefix (i.e. delete all descendents).
     const nextCellSetColor = cellSetColor.filter(d => !isEqualOrPrefix(targetPath, d.path));
     const nextCellSetSelection = cellSetSelection.filter(d => !isEqualOrPrefix(targetPath, d));
-    const nextCellSetExpansion = cellSetSelection.filter(d => !isEqualOrPrefix(targetPath, d));
+    const nextCellSetExpansion = cellSetExpansion.filter(d => !isEqualOrPrefix(targetPath, d));
     setAdditionalCellSets(nextAdditionalCellSets);
     setCellSetColor(nextCellSetColor);
     setCellSetSelection(nextCellSetSelection);

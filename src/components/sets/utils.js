@@ -8,6 +8,7 @@ import tinycolor from 'tinycolor2';
  */
 export function callbackOnKeyPress(event, key, callback) {
   if (event.key === key) {
+    event.preventDefault();
     callback();
   }
 }

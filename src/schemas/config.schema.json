@@ -47,8 +47,7 @@
               "cellSetColor": { "type": "string" },
               "geneFilter": { "type": "string" },
               "geneHighlight": { "type": "string" },
-              "geneSetSelection": { "type": "string" },
-              "geneSetHighlight": { "type": "string" },
+              "geneSelection": { "type": "string" },
               "geneExpressionColormap": { "type": "string" },
               "geneExpressionColormapRange": { "type": "string" },
               "cellColorEncoding": { "type": "string" },
@@ -56,8 +55,7 @@
               "genomicZoom": { "type": "string" },
               "genomicTargetX": { "type": "string" },
               "genomicTargetY": { "type": "string" },
-              "additionalCellSets": { "type": "string" },
-              "additionalGeneSets": { "type": "string" }
+              "additionalCellSets": { "type": "string" }
             }
           }
         }
@@ -364,30 +362,15 @@
             }
           }
         },
-        "geneSetSelection": {
+        "geneSelection": {
           "type": "object",
           "patternProperties": {
             ".": {
               "oneOf": [
                 {
-                  "type": "null",
-                  "description": "If null is provided and auto gene set initialization is enabled, gene set selections will be automatically initialized."
+                  "type": "null"
                 },
                 { "type": "array", "items": { "type": "string" } }
-              ]
-            }
-          }
-        },
-        "geneSetHighlight": {
-          "type": "object",
-          "patternProperties": {
-            ".": {
-              "oneOf": [
-                {
-                  "type": "null",
-                  "description": "If null is provided, no gene sets will be highlighted initially."
-                },
-                { "type": "array" }
               ]
             }
           }
@@ -433,23 +416,6 @@
                 },
                 {
                   "description": "User-defined cell sets that will be merged with dataset-defined cell sets. Object must conform to the cell-sets schema.",
-                  "type": "object"
-                }
-              ]
-            }
-          }
-        },
-        "additionalGeneSets": {
-          "type": "object",
-          "patternProperties": {
-            ".": {
-              "oneOf": [
-                {
-                  "type": "null",
-                  "description": "If null is provided, the user-defined gene sets schema may be initialized to an empty hierarchy."
-                },
-                {
-                  "description": "User-defined gene sets that will be merged with dataset-defined gene sets. Object must conform to the gene-sets schema.",
                   "type": "object"
                 }
               ]

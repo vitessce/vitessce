@@ -396,7 +396,6 @@ export function treeToComplement(currTree, checkedPaths, items) {
   return items.filter(el => !primaryUnion.includes(el));
 }
 
-
 /**
  * Respond to a node drag-and-drop interaction.
  * @param {object} currTree A tree object.
@@ -408,16 +407,17 @@ export function treeToComplement(currTree, checkedPaths, items) {
  * @param {boolean} dropToGap Was the dragged node dropped onto the drop node?
  * @returns {object} The updated tree.
  */
-export function treeOnDropNode(currTree, dropPath, dragPath, dropPosition, dropToGap) {
+/* TODO: re-implement using node paths rather than keys.
+function treeOnDropNode(currTree, dropKey, dragKey, dropPosition, dropToGap) {
   // Get drop node.
-  const dropNode = treeFindNodeByNamePath(currTree, dropPath);
+  const dropNode = treeFindNodeByKey(currTree, dropKey);
   const dropNodeLevel = dropNode._state.level;
   const dropNodeIsLevelZero = dropNodeLevel === 0;
   const dropNodeIsLevelZeroEmpty = (dropNodeIsLevelZero && (
     !dropNode.children || dropNode.children.length === 0));
   const dropNodeHeight = nodeToHeight(dropNode);
   // Get drag node.
-  const dragNode = treeFindNodeByNamePath(currTree, dragPath);
+  const dragNode = treeFindNodeByKey(currTree, dragKey);
   const dragNodeHeight = nodeToHeight(dragNode);
 
   // Only allow dragging if:
@@ -434,16 +434,15 @@ export function treeOnDropNode(currTree, dropPath, dragPath, dropPosition, dropT
   }
 
   let dropParentNode;
-  let dropParentPath;
+  let dropParentKey;
   let dropNodeCurrIndex;
 
   if (!dropNodeIsLevelZero) {
-    dropParentNode = treeFindNodeParentByNamePath(currTree, dropPath);
-    dropParentPath = [...dropKey];
-    dropParentPath.pop();
-    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.name === dropPath[dropPath.length - 1]);
+    dropParentNode = treeFindNodeParentByKey(currTree, dropKey);
+    dropParentKey = dropParentNode._state.key;
+    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.key === dropKey);
   } else {
-    dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn.name === dropPath[dropPath.length - 1]);
+    dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dropKey);
   }
 
   // Further, only allow dragging if the dragged node will have a unique
@@ -452,13 +451,13 @@ export function treeOnDropNode(currTree, dropPath, dragPath, dropPosition, dropT
   const dragNodeName = dragNode.name;
   if (!dropNodeIsLevelZero) {
     hasSiblingNameConflict = dropParentNode.children
-      .find(c => c.name === dragNodeName && isEqual([...dropParentPath, c.name], dragPath));
+      .find(c => c.name === dragNodeName && c._state.key !== dragKey);
   } else if (dropNodeIsLevelZero && !dropToGap) {
     hasSiblingNameConflict = dropNode.children
-      .find(c => c.name === dragNodeName && isEqual([...dropParentPath, c.name], dragPath));
+      .find(c => c.name === dragNodeName && c._state.key !== dragKey);
   } else {
     hasSiblingNameConflict = currTree.tree
-      .find(lzn => lzn.name === dragNodeName && isEqual([lzn.name], dragPath));
+      .find(lzn => lzn.name === dragNodeName && lzn._state.key !== dragKey);
   }
 
   if (hasSiblingNameConflict) {
@@ -466,14 +465,13 @@ export function treeOnDropNode(currTree, dropPath, dragPath, dropPosition, dropT
   }
 
   // Remove the dragged object from its current position.
-  // TODO: update treeNodeRemove to deal with paths rather than keys
-  const newTree = treeNodeRemove(currTree, dragPath, true);
+  const newTree = treeNodeRemove(currTree, dragKey, true);
 
   // Update index values after temporarily removing the dragged node.
   if (!dropNodeIsLevelZero) {
-    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.name === dropKey[dropKey.length - 1]);
+    dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.key === dropKey);
   } else {
-    dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn.name === dropKey[dropKey.length - 1]);
+    dropNodeCurrIndex = currTree.tree.findIndex(lzn => lzn._state.key === dropKey);
   }
 
   // Append the dragNode to dropNode's children if dropping _onto_ the dropNode.
@@ -521,6 +519,7 @@ export function treeOnDropNode(currTree, dropPath, dragPath, dropPosition, dropT
     tree: newLevelZero,
   };
 }
+*/
 
 /**
  * Get an flattened array of descendants at a particular relative
@@ -537,10 +536,10 @@ export function nodeToLevelDescendantNamePaths(node, level, prevPath, stopEarly 
     if (!stopEarly) {
       return null;
     }
-    return [...prevPath, node.name];
+    return [[...prevPath, node.name]];
   }
   if (level === 0) {
-    return node.children.map(n => ([...prevPath, n.name]));
+    return [[...prevPath, node.name]];
   }
   return node.children
     .flatMap(c => nodeToLevelDescendantNamePaths(c, level - 1, [...prevPath, node.name], stopEarly))
@@ -754,7 +753,7 @@ export function treeToExpectedCheckedLevel(currTree, checkedPaths) {
       const height = nodeToHeight(lzn);
       range(height).forEach((i) => {
         const levelIndex = i + 1;
-        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex - 1, [lzn.name], true);
+        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
         if (isEqual(levelNodePaths, checkedPaths)) {
           result = { levelZeroPath, levelIndex };
         }
