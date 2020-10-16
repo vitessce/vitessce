@@ -95,6 +95,10 @@ export default function ScatterplotSubscriber(props) {
   const mergedCellSets = useMemo(() => {
     return mergeCellSets(cellSets, additionalCellSets);
   }, [cellSets, additionalCellSets]);
+
+  const setCellSelectionProp = useCallback((v) => {
+    setCellSelection(v, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor);
+  }, [additionalCellSets, cellSetColor]);
   
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
@@ -104,7 +108,10 @@ export default function ScatterplotSubscriber(props) {
     cellSetSelection,
     cellSetColor,
   }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetSelection, cellSetColor, expressionMatrix]);
-  const cellSelection = Array.from(cellColors.keys());
+  
+  const cellSelection = useMemo(() => {
+    return Array.from(cellColors.keys());
+  }, [cellColors]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -162,9 +169,7 @@ export default function ScatterplotSubscriber(props) {
         cellColors={cellColors}
 
         setCellFilter={setCellFilter}
-        setCellSelection={(v) => {
-          setCellSelection(v, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor);
-        }}
+        setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
         cellRadiusScale={cellRadiusScale}
         setComponentHover={() => {

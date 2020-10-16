@@ -41,7 +41,6 @@ export default function HeatmapSubscriber(props) {
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
     geneSelection,
-    cellSelection,
     cellHighlight,
     geneHighlight,
     cellSetSelection,
@@ -116,7 +115,7 @@ export default function HeatmapSubscriber(props) {
     ? expressionMatrix.rows.length : 0;
   const genesCount = expressionMatrix && expressionMatrix.cols
     ? expressionMatrix.cols.length : 0;
-  const selectedCount = cellSelection.length;
+  const selectedCount = cellColors.size;
   return (
     <TitleInfo
       title="Heatmap"

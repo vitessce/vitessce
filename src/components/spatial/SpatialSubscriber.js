@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, {
-  useState, useEffect, useMemo,
+  useState, useEffect, useMemo, useCallback,
 } from 'react';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
@@ -173,6 +173,10 @@ export default function SpatialSubscriber(props) {
     return mergeCellSets(cellSets, additionalCellSets);
   }, [cellSets, additionalCellSets]);
 
+  const setCellSelectionProp = useCallback((v) => {
+    setCellSelection(v, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor);
+  }, [additionalCellSets, cellSetColor]);
+
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionMatrix,
@@ -181,7 +185,10 @@ export default function SpatialSubscriber(props) {
     cellSetSelection,
     cellSetColor,
   }), [cellColorEncoding, geneSelection, mergedCellSets, cellSetColor, cellSetSelection, expressionMatrix]);
-  const cellSelection = Array.from(cellColors.keys());
+  
+  const cellSelection = useMemo(() => {
+    return Array.from(cellColors.keys());
+  }, [cellColors]);
 
   const getCellInfo = (cellId) => {
     const cell = cells[cellId];
@@ -235,9 +242,7 @@ export default function SpatialSubscriber(props) {
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}
-        setCellSelection={(v) => {
-          setCellSelection(v, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor);
-        }}
+        setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);

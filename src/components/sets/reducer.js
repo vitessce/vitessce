@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* eslint-disable no-underscore-dangle */
+import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
 import isEqual from 'lodash/isEqual';
 import range from 'lodash/range';
@@ -14,6 +15,14 @@ const CURRENT_UNION_NAME = 'Union';
 const CURRENT_INTERSECTION_NAME = 'Intersection';
 const CURRENT_COMPLEMENT_NAME = 'Complement';
 const NEW_HIERARCHY_NAME = 'New hierarchy';
+
+/**
+ * Alias for the uuidv4 function to make code more readable.
+ * @returns {string} UUID.
+ */
+function generateKey() {
+  return uuidv4();
+}
 
 /**
  * Get the set associated with a particular node.
@@ -719,17 +728,18 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
  * @returns {object[]} Array of objects
  * with the properties `name` and `size`.
  */
-export function treeToSetSizesBySetNames(currTree, selectedNamePaths) {
+export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor) {
   const sizes = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
+      const nodeColor = setColor.find(d => isEqual(d.path, setNamePath))?.color || DEFAULT_COLOR;
       sizes.push({
-        key: node._state.key,
+        key: generateKey(),
         name: node.name,
         size: nodeSet.length,
-        color: node.color,
+        color: nodeColor,
       });
     }
   });
