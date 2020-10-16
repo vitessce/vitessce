@@ -1,4 +1,3 @@
-/* eslint-disable */
 import Ajv from 'ajv';
 import { useEffect } from 'react';
 import configSchema from '../schemas/config.schema.json';
@@ -14,7 +13,7 @@ function validateViewConfig(viewConfig) {
       const failureReason = JSON.stringify(validate.errors, null, 2);
       throw new Error(`Config validation failed: ${failureReason}`);
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   }
   // Do nothing if successful.

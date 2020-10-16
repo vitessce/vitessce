@@ -4,6 +4,13 @@
 
 ### Changed
 - Fixed schema validity as state updates.
+    - Expanded schema to allow null values which denote that these values can be auto-initialized.
+        - Note that we do not want the empty array to denote anything special.
+- For demos, added a `&debug=true` GET parameter option, to enable logging and validating the published view config on every change.
+- Updated cell set functionality to support exporting state via view config:
+    - Added the `additionalCellSets` coordination type to store user-defined cell sets
+    - Added the `cellSetColor` coordination type to store mappings from cell set paths to cell set colors (for both user-defined and dataset-defined cell sets).
+    - Updated the code to avoid reliance on uuid "key" variables. Instead, we want to always use the "name path": the array of strings representing the path down the hierarchy to the node.
 
 ## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 
