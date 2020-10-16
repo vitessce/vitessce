@@ -10,7 +10,6 @@ import { PALETTE, DEFAULT_COLOR } from '../utils';
 
 function processNode(node, level, prevPath, setColor, siblingIndex) {
   const nodePath = [...prevPath, node.name];
-  console.log(setColor, nodePath);
   return {
     ...node,
     ...(node.children ? ({
@@ -33,6 +32,17 @@ function processSets(sets, setColor) {
   return {
     ...sets,
     tree: sets ? sets.tree.map((lzn, siblingIndex) => processNode(lzn, 0, [], setColor, siblingIndex)) : [],
+  }
+}
+
+function getAllKeys(node) {
+  if(!node) {
+    return [null];
+  }
+  if(node.children) {
+    return [node._state.nodeKey, ...node.children.flatMap(getAllKeys)];
+  } else {
+    return [node._state.nodeKey];
   }
 }
 
@@ -142,10 +152,18 @@ export default function SetsManager(props) {
     return processSets(additionalSets, setColor);
   }, [additionalSets, setColor]);
 
-  const setSelectionKeys = (setSelection ? setSelection : []).map(pathToKey);
-  const setExpansionKeys = (setExpansion ? setExpansion : []).map(pathToKey);
+  const additionalSetKeys = (processedAdditionalSets ? processedAdditionalSets.tree.flatMap(getAllKeys) : []);
 
-  console.log(processedSets);
+  const allSetSelectionKeys = (setSelection ? setSelection : []).map(pathToKey);
+  const allSetExpansionKeys = (setExpansion ? setExpansion : []).map(pathToKey);
+
+  const setSelectionKeys = allSetSelectionKeys.filter(k => !additionalSetKeys.includes(k));
+  const setExpansionKeys = allSetExpansionKeys.filter(k => !additionalSetKeys.includes(k));
+
+  const additionalSetSelectionKeys = allSetSelectionKeys.filter(k => additionalSetKeys.includes(k));
+  const additionalSetExpansionKeys = allSetExpansionKeys.filter(k => additionalSetKeys.includes(k));
+
+
 
   /**
    * Recursively render TreeNode components.
@@ -225,8 +243,8 @@ export default function SetsManager(props) {
           draggable={draggable}
           checkable={checkable}
 
-          checkedKeys={setSelectionKeys}
-          expandedKeys={setExpansionKeys}
+          checkedKeys={additionalSetSelectionKeys}
+          expandedKeys={additionalSetExpansionKeys}
           autoExpandParent={autoExpandParent}
 
           onCheck={(checkedKeys, info) => onCheckNode(

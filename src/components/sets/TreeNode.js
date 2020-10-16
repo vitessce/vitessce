@@ -18,7 +18,6 @@ import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
 function makeNodeViewMenuConfig(props) {
   const {
     path,
-    nodeKey,
     level,
     height,
     onCheckNode,
@@ -51,14 +50,14 @@ function makeNodeViewMenuConfig(props) {
       {
         title: 'Export hierarchy',
         subtitle: '(to JSON file)',
-        handler: () => { onExportLevelZeroNodeJSON(nodeKey); },
+        handler: () => { onExportLevelZeroNodeJSON(path); },
         handlerKey: 'j',
       },
       ...(height <= 1 ? [
         {
           title: 'Export hierarchy',
           subtitle: '(to CSV file)',
-          handler: () => { onExportLevelZeroNodeTabular(nodeKey); },
+          handler: () => { onExportLevelZeroNodeTabular(path); },
           handlerKey: 't',
         },
       ] : []),
@@ -75,7 +74,7 @@ function makeNodeViewMenuConfig(props) {
         {
           title: 'Export set',
           subtitle: '(to JSON file)',
-          handler: () => { onExportSetJSON(nodeKey); },
+          handler: () => { onExportSetJSON(path); },
           handlerKey: 'e',
         },
       ] : []),

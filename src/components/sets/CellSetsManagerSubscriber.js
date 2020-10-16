@@ -41,6 +41,49 @@ import { useCellsData, useCellSetsData } from '../data-hooks';
 const SETS_DATATYPE_CELL = 'cell';
 const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
 
+function isEqualOrPrefix(targetPath, testPath) {
+  if(targetPath.length <= testPath.length) {
+    return isEqual(targetPath, testPath.slice(0, targetPath.length));
+  }
+  return false;
+}
+
+function tryRenamePath(targetPath, testPath, nextTargetPath) {
+  if(isEqualOrPrefix(targetPath, testPath)) {
+    return [...nextTargetPath, ...testPath.slice(nextTargetPath.length)];
+  }
+  return testPath;
+}
+
+function treesConflict(cellSets, testCellSets) {
+  const paths = [];
+  const testPaths = [];
+  let hasConflict = false;
+  
+  function getPaths(node, prevPath) {
+    paths.push([...prevPath, node.name]);
+    if(node.children) {
+      node.children.forEach(c => getPaths(c, [...prevPath, node.name]));
+    }
+  }
+  cellSets.tree.forEach(lzn => getPaths(lzn, []));
+
+  function getTestPaths(node, prevPath) {
+    testPaths.push([...prevPath, node.name]);
+    if(node.children) {
+      node.children.forEach(c => getPaths(c, [...prevPath, node.name]));
+    }
+  }
+  testCellSets.tree.forEach(lzn => getTestPaths(lzn, []));
+
+  testPaths.forEach(testPath => {
+    if(paths.find(p => isEqual(p, testPath))) {
+      hasConflict = true;
+    }
+  });
+  return hasConflict;
+}
+
 /**
  * A subscriber wrapper around the SetsManager component
  * for the 'cell' datatype.
@@ -92,6 +135,8 @@ export default function CellSetsManagerSubscriber(props) {
     resetUrls();
     resetReadyItems();
     setAutoSetSelections({});
+    setAutoSetColors({});
+    setCellSetExpansion([]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
@@ -171,7 +216,7 @@ export default function CellSetsManagerSubscriber(props) {
   // We want the "checked level" radio button to be initialized even when
   // the tree object may not explicitly have the `._state.checkedLevel` set up.
   const checkedLevel = useMemo(() => {
-    if (cellSetSelection && mergedCellSets) {
+    if (cellSetSelection && cellSetSelection.length > 0 && mergedCellSets) {
       return treeToExpectedCheckedLevel(mergedCellSets, cellSetSelection);
     }
     return null;
@@ -212,7 +257,11 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onExpandNode(expandedKeys, targetKey, expanded) {
-    setCellSetExpansion(expandedKeys.map(d => d.split("___")));
+    if(expanded) {
+      setCellSetExpansion(prev => ([...prev, targetKey.split("___")]));
+    } else {
+      setCellSetExpansion(prev => prev.filter(d => !isEqual(d, targetKey.split("___"))));
+    }
   }
 
   function onDropNode(dropKey, dragKey, dropPosition, dropToGap) {
@@ -271,16 +320,18 @@ export default function CellSetsManagerSubscriber(props) {
       ...additionalCellSets,
       tree: additionalCellSets.tree.map(lzn => renameNode(lzn, [])),
     };
+    // Change all paths that have this node as a prefix (i.e. descendants).
     const nextCellSetColor = cellSetColor.map(d => ({
-      path: (isEqual(targetPath, d.path) ? nextNamePath : d.path),
+      path: tryRenamePath(targetPath, d.path, nextNamePath),
       color: d.color,
     }));
     const nextCellSetSelection = cellSetSelection.map(d => (
-      isEqual(d, targetPath) ? nextNamePath : d
+      tryRenamePath(targetPath, d, nextNamePath)
     ));
     const nextCellSetExpansion = cellSetSelection.map(d => (
-      isEqual(d, targetPath) ? nextNamePath : d
+      tryRenamePath(targetPath, d, nextNamePath)
     ));
+    // Need to update the node path everywhere it may be present.
     setAdditionalCellSets(nextAdditionalCellSets);
     setCellSetColor(nextCellSetColor);
     setCellSetSelection(nextCellSetSelection);
@@ -321,7 +372,14 @@ export default function CellSetsManagerSubscriber(props) {
       ...additionalCellSets,
       tree: additionalCellSets.tree.map(lzn => filterNode(lzn, [])).filter(Boolean),
     };
+    // Delete state for all paths that have this node path as a prefix (i.e. delete all descendents).
+    const nextCellSetColor = cellSetColor.filter(d => !isEqualOrPrefix(targetPath, d.path));
+    const nextCellSetSelection = cellSetSelection.filter(d => !isEqualOrPrefix(targetPath, d));
+    const nextCellSetExpansion = cellSetSelection.filter(d => !isEqualOrPrefix(targetPath, d));
     setAdditionalCellSets(nextAdditionalCellSets);
+    setCellSetColor(nextCellSetColor);
+    setCellSetSelection(nextCellSetSelection);
+    setCellSetExpansion(nextCellSetExpansion);
   }
 
   function onNodeView(targetPath) {
@@ -330,9 +388,13 @@ export default function CellSetsManagerSubscriber(props) {
     const setsToView = [];
     function viewNode(node, nodePath) {
       if(cellSetExpansion.find(expandedPath => isEqual(nodePath, expandedPath))) {
-        node.children.forEach((c) => {
-          viewNode(c, [...nodePath, c.name]);
-        });
+        if(node.children) {
+          node.children.forEach((c) => {
+            viewNode(c, [...nodePath, c.name]);
+          });
+        } else {
+          setsToView.push(nodePath);
+        }
       } else {
         setsToView.push(nodePath);
       }
@@ -344,7 +406,7 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onCreateLevelZeroNode() {
-    const [nextName, i] = getNextNumberedNodeName(additionalCellSets?.tree, `My hierarchy `);
+    const nextName = getNextNumberedNodeName(additionalCellSets?.tree, `My hierarchy `);
     setAdditionalCellSets({
       ...(additionalCellSets ? additionalCellSets : {}),
       tree: [
@@ -376,32 +438,49 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   function onImportTree(treeToImport) {
-    // dispatch({ type: ACTION.IMPORT, levelZeroNodes: treeToImport.tree });
+    // Check for any naming conflicts with the current sets
+    // (both user-defined and dataset-defined) before importing.
+    const hasConflict = treesConflict(mergedCellSets, treeToImport);
+    if(!hasConflict) {
+      setAdditionalCellSets({
+        ...(additionalCellSets ? additionalCellSets : {}),
+        tree: [
+          ...(additionalCellSets ? additionalCellSets.tree : []),
+          ...treeToImport.tree,
+        ]
+      });
+      // Automatically initialize set colors for the imported sets.
+      const importAutoSetColors = initializeCellSetColor(treeToImport, cellSetColor);
+      setCellSetColor([
+        ...cellSetColor,
+        ...importAutoSetColors,
+      ]);
+    }
   }
 
-  function onExportLevelZeroNodeJSON(nodeKey) {
-    /*const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
+  function onExportLevelZeroNodeJSON(nodePath) {
+    const { treeToExport, nodeName } = treeExportLevelZeroNode(mergedCellSets, nodePath);
     downloadForUser(
       handleExportJSON(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_JSON}`,
-    );*/
+    );
   }
 
-  function onExportLevelZeroNodeTabular(nodeKey) {
-    /*const { treeToExport, nodeName } = treeExportLevelZeroNode(tree, nodeKey);
+  function onExportLevelZeroNodeTabular(nodePath) {
+    const { treeToExport, nodeName } = treeExportLevelZeroNode(mergedCellSets, nodePath);
     downloadForUser(
       handleExportTabular(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_TABULAR}`,
-    );*/
+    );
   }
 
-  function onExportSetJSON(nodeKey) {
-    /*const { setToExport, nodeName } = treeExportSet(tree, nodeKey);
+  function onExportSetJSON(nodePath) {
+    const { setToExport, nodeName } = treeExportSet(mergedCellSets, nodePath);
     downloadForUser(
       handleExportJSON(setToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-set.${FILE_EXTENSION_JSON}`,
       FILE_EXTENSION_JSON,
-    );*/
+    );
   }
 
   return (

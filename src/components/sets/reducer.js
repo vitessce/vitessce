@@ -1465,11 +1465,11 @@ export function treeExport(currTree) {
  * @returns {object} { treeToExport, nodeName }
  * Tree with one level zero node, and with state removed.
  */
-export function treeExportLevelZeroNode(currTree, nodeKey) {
-  const node = treeFindNodeByKey(currTree, nodeKey);
+export function treeExportLevelZeroNode(currTree, nodePath) {
+  const node = treeFindNodeByNamePath(currTree, nodePath);
   const treeWithOneLevelZeroNode = {
     ...currTree,
-    tree: currTree.tree.filter(n => n._state.key === nodeKey),
+    tree: currTree.tree.filter(n => n.name === nodePath[0]),
   };
   return {
     treeToExport: treeExport(treeWithOneLevelZeroNode),
@@ -1483,8 +1483,8 @@ export function treeExportLevelZeroNode(currTree, nodeKey) {
  * @param {string} nodeKey The key of the node of interest.
  * @returns {object} { setToExport, nodeName } The set as an array.
  */
-export function treeExportSet(currTree, nodeKey) {
-  const node = treeFindNodeByKey(currTree, nodeKey);
+export function treeExportSet(currTree, nodePath) {
+  const node = treeFindNodeByNamePath(currTree, nodePath);
   return { setToExport: nodeToSet(node), nodeName: node.name };
 }
 

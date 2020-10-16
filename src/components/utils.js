@@ -125,7 +125,7 @@ export function getNextNumberedNodeName(nodes, prefix) {
       i++;
     }
   }
-  return [`${prefix}${i}`, i];
+  return `${prefix}${i}`;
 }
 
 /**
@@ -143,7 +143,7 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
     tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
   };
 
-  const [nextName, i] = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix);
+  const nextName = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix);
   let colorIndex = 0;
   if(selectionsLevelZeroNode) {
     colorIndex = selectionsLevelZeroNode.children.length;
