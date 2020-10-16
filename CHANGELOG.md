@@ -2,6 +2,9 @@
 
 ## 1.0.1 (in progress)
 
+### Added
+- Built-in support for encoding and decoding compressed conf as url param.
+
 ### Changed
 
 ## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
