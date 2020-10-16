@@ -60,6 +60,7 @@ export default function ScatterplotSubscriber(props) {
     setCellSetSelection,
     setCellHighlight,
     setCellSetColor,
+    setCellColorEncoding,
     setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
@@ -99,8 +100,9 @@ export default function ScatterplotSubscriber(props) {
     setCellSelection(
       v, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
     );
-  }, [additionalCellSets, cellSetColor,
+  }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
   const cellColors = useMemo(() => getCellColors({

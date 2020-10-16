@@ -77,6 +77,7 @@ export default function SpatialSubscriber(props) {
     setCellSetSelection,
     setCellHighlight,
     setCellSetColor,
+    setCellColorEncoding,
     setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
@@ -177,8 +178,9 @@ export default function SpatialSubscriber(props) {
     setCellSelection(
       v, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
     );
-  }, [additionalCellSets, cellSetColor,
+  }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
   const cellColors = useMemo(() => getCellColors({

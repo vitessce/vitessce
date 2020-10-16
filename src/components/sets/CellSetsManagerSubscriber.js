@@ -411,9 +411,9 @@ export default function CellSetsManagerSubscriber(props) {
     setCellSelection(
       newSet, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
       'Union ',
     );
-    setCellSetColorEncoding();
   }
 
   // The user wants to create a new node corresponding to
@@ -423,9 +423,9 @@ export default function CellSetsManagerSubscriber(props) {
     setCellSelection(
       newSet, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
       'Intersection ',
     );
-    setCellSetColorEncoding();
   }
 
   // The user wants to create a new node corresponding to
@@ -435,9 +435,9 @@ export default function CellSetsManagerSubscriber(props) {
     setCellSelection(
       newSet, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
       'Complement ',
     );
-    setCellSetColorEncoding();
   }
 
   // The user wants to import a cell set hierarchy,

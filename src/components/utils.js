@@ -135,7 +135,7 @@ export function getNextNumberedNodeName(nodes, prefix) {
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
-export function setCellSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, prefix = 'Selection ') {
+export function setCellSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ') {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = "My Selections";
 
   const selectionsLevelZeroNode = additionalCellSets?.tree.find(n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME);
@@ -174,6 +174,7 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
     },
   ]);
   setCellSetSelection([nextPath]);
+  setCellColorEncoding('cellSetSelection');
 }
 
 export function mergeCellSets(cellSets, additionalCellSets) {
