@@ -2,6 +2,9 @@
 
 ## 1.0.1 (in progress)
 
+### Added
+- Built-in support for encoding and decoding compressed conf as url param.
+
 ### Changed
 - Fixed schema validity as state updates.
     - Expanded schema to allow null values which denote that these values can be auto-initialized.
