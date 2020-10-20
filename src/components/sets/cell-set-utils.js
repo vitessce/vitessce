@@ -3,7 +3,7 @@ import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
 import isEqual from 'lodash/isEqual';
 import range from 'lodash/range';
-import { DEFAULT_COLOR } from '../utils';
+import { DEFAULT_COLOR, PALETTE } from '../utils';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
@@ -36,7 +36,7 @@ export function nodeToSet(currNode) {
  * @returns {number} The height. If the node has a .children property,
  * then the minimum value returned is 1.
  */
-function nodeToHeight(currNode, level = 0) {
+export function nodeToHeight(currNode, level = 0) {
   if (!currNode.children) {
     return level;
   }
@@ -444,4 +444,32 @@ export function treesConflict(cellSets, testCellSets) {
     }
   });
   return hasConflict;
+}
+
+export function initializeCellSetColor(cellSets, cellSetColor) {
+  const nextCellSetColor = [...(cellSetColor || [])];
+  const nodeCountPerTreePerLevel = cellSets.tree.map(tree => Array
+    .from({
+      length: nodeToHeight(tree) + 1, // Need to add one because its an array.
+    }).fill(0));
+
+  function processNode(node, prevPath, hierarchyLevel, treeIndex) {
+    const index = nodeCountPerTreePerLevel[treeIndex][hierarchyLevel];
+    const nodePath = [...prevPath, node.name];
+
+    const nodeColor = nextCellSetColor.find(d => isEqual(d.path, nodePath));
+    if (!nodeColor) {
+      nextCellSetColor.push({
+        path: nodePath,
+        color: PALETTE[index % PALETTE.length],
+      });
+    }
+    nodeCountPerTreePerLevel[treeIndex][hierarchyLevel] += 1;
+    if (node.children) {
+      node.children.forEach(c => processNode(c, nodePath, hierarchyLevel + 1, treeIndex));
+    }
+  }
+
+  cellSets.tree.forEach((lzn, treeIndex) => processNode(lzn, [], 0, treeIndex));
+  return nextCellSetColor;
 }

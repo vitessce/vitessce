@@ -24,6 +24,7 @@ import {
   treeToComplement,
   treeFindNodeByNamePath,
   treesConflict,
+  initializeCellSetColor,
 } from './cell-set-utils';
 import {
   isEqualOrPrefix,
@@ -43,7 +44,6 @@ import { useUrls, useReady } from '../hooks';
 import {
   setCellSelection,
   mergeCellSets,
-  initializeCellSetColor,
   getNextNumberedNodeName,
 } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
@@ -494,7 +494,6 @@ export default function CellSetsManagerSubscriber(props) {
       FILE_EXTENSION_JSON,
     );
   }
-
   return (
     <TitleInfo
       title="Cell Sets"

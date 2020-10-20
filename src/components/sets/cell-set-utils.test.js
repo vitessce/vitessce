@@ -3,7 +3,7 @@
 import expect from 'expect';
 import {
   treeInitialize, nodeToRenderProps,
-} from './reducer';
+} from './cell-set-utils';
 
 import {
   levelTwoNodeLeaf,
@@ -11,7 +11,7 @@ import {
 } from './cell-set-utils.test.fixtures';
 
 
-describe('Hierarchical sets reducer', () => {
+describe('Hierarchical sets cell-set-utils', () => {
   describe('Node rendering', () => {
     it('can get render properties for a node', () => {
       const levelTwoRenderProps = nodeToRenderProps(levelTwoNodeLeaf);
