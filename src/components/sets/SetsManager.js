@@ -4,7 +4,7 @@ import isEqual from 'lodash/isEqual';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
-import { nodeToRenderProps, nodeToSet } from './reducer';
+import { nodeToRenderProps, nodeToSet } from './cell-set-utils';
 import { DEFAULT_COLOR } from '../utils';
 import { pathToKey } from './utils';
 

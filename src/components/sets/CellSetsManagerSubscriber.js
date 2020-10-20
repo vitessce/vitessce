@@ -24,7 +24,7 @@ import {
   treeToComplement,
   treeFindNodeByNamePath,
   treesConflict,
-} from './reducer';
+} from './cell-set-utils';
 import {
   isEqualOrPrefix,
   tryRenamePath,

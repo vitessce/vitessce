@@ -6,7 +6,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 import { mergeCellSets } from '../utils';
 import { useCellSetsData } from '../data-hooks';
-import { treeToSetSizesBySetNames } from './reducer';
+import { treeToSetSizesBySetNames } from './cell-set-utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
 
 const CELL_SET_SIZES_DATA_TYPES = ['cell-sets'];

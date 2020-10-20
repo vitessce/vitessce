@@ -3,7 +3,7 @@ import isNil from 'lodash/isNil';
 import { dsvFormat } from 'd3-dsv';
 import { parse as json2csv } from 'json2csv';
 import { colorArrayToString, colorStringToArray } from './utils';
-import { nodeTransform } from './reducer';
+import { nodeTransform } from './cell-set-utils';
 import { DEFAULT_COLOR } from '../utils';
 import {
   HIERARCHICAL_SCHEMAS, TABULAR_SCHEMAS,

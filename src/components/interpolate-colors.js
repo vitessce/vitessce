@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
-import { treeToCellColorsBySetNames } from './sets/reducer';
+import { treeToCellColorsBySetNames } from './sets/cell-set-utils';
 
 // The functions defined here have been adapted from d3-interpolate,
 // d3-color, and d3-scale-chromatic.
