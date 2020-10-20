@@ -499,8 +499,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (setComponentHover) {
       setComponentHover();
     }
-    setCellHighlight(obsId);
-    setGeneHighlight(varId);
+    setCellHighlight(obsId || null);
+    setGeneHighlight(varId || null);
   }
 
   return (
