@@ -1,20 +1,14 @@
 /* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import expect from 'expect';
-import reducer, {
+import {
   treeInitialize, nodeToRenderProps,
-  treeToSetSizesBySetNames,
 } from './reducer';
 
 import {
   levelTwoNodeLeaf,
   levelZeroNode,
-  treeWithoutState,
-  treeWithoutStateOrColors,
-  treeIgnoreKeys,
-  tree,
-  emptyTree,
-} from './reducer.test.fixtures';
+} from './cell-set-utils.test.fixtures';
 
 
 describe('Hierarchical sets reducer', () => {
