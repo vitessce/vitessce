@@ -15,11 +15,11 @@ export const levelTwoNodeLeafWithoutState = {
 
 export const levelTwoNodeLeaf = {
   name: 'Pericytes',
-  color: [255, 0, 0],
   set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
   _state: {
-    key: 'pericytes',
+    nodeKey: 'pericytes',
     level: 2,
+    color: [255, 0, 0],
     isEditing: false,
     isCurrent: false,
     isForTools: false,
@@ -28,10 +28,10 @@ export const levelTwoNodeLeaf = {
 
 export const levelTwoNodeLeafIgnoreKeys = {
   name: 'Pericytes',
-  color: [255, 0, 0],
   set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
   _state: {
-    key: expect.anything(),
+    nodeKey: expect.anything(),
+    color: [255, 0, 0],
     level: 2,
     isEditing: false,
     isCurrent: false,
@@ -41,7 +41,9 @@ export const levelTwoNodeLeafIgnoreKeys = {
 
 export const levelOneNodeWithoutState = {
   name: 'Vasculature',
-  color: [0, 255, 0],
+  _state: {
+    color: [0, 255, 0],
+  },
   children: [
     {
       name: 'Pericytes',
@@ -58,14 +60,13 @@ export const levelOneNodeWithoutState = {
 
 export const levelOneNode = {
   name: 'Vasculature',
-  color: [0, 255, 0],
   children: [
     {
       name: 'Pericytes',
-      color: [255, 0, 0],
       set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
       _state: {
-        key: 'vasculature-pericytes',
+        nodeKey: 'vasculature-pericytes',
+        color: [255, 0, 0],
         level: 2,
         isEditing: false,
         isCurrent: false,
@@ -74,11 +75,11 @@ export const levelOneNode = {
     },
     {
       name: 'Endothelial',
-      color: [100, 0, 0],
       set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
       _state: {
-        key: 'vasculature-endothelial',
+        nodeKey: 'vasculature-endothelial',
         level: 2,
+        color: [100, 0, 0],
         isEditing: false,
         isCurrent: false,
         isForTools: false,
@@ -86,8 +87,9 @@ export const levelOneNode = {
     },
   ],
   _state: {
-    key: 'vasculature',
+    nodeKey: 'vasculature',
     level: 1,
+    color: [0, 255, 0],
     isEditing: false,
     isCurrent: false,
     isForTools: false,
@@ -96,15 +98,14 @@ export const levelOneNode = {
 
 export const levelOneNodeIgnoreKeys = {
   name: 'Vasculature',
-  color: [0, 255, 0],
   children: [
     {
       name: 'Pericytes',
-      color: [255, 0, 0],
       set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
       _state: {
-        key: expect.anything(),
+        nodeKey: expect.anything(),
         level: 2,
+        color: [255, 0, 0],
         isEditing: false,
         isCurrent: false,
         isForTools: false,
@@ -112,11 +113,11 @@ export const levelOneNodeIgnoreKeys = {
     },
     {
       name: 'Endothelial',
-      color: [100, 0, 0],
       set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
       _state: {
-        key: expect.anything(),
+        nodeKey: expect.anything(),
         level: 2,
+        color: [100, 0, 0],
         isEditing: false,
         isCurrent: false,
         isForTools: false,
@@ -124,7 +125,8 @@ export const levelOneNodeIgnoreKeys = {
     },
   ],
   _state: {
-    key: expect.anything(),
+    nodeKey: expect.anything(),
+    color: [0, 255, 0],
     level: 1,
     isEditing: false,
     isCurrent: false,
@@ -137,7 +139,9 @@ export const levelZeroNodeWithoutState = {
   children: [
     {
       name: 'Vasculature',
-      color: [0, 255, 0],
+      _state: {
+        color: [0, 255, 0],
+      },
       children: [
         {
           name: 'Pericytes',
@@ -159,15 +163,14 @@ export const levelZeroNode = {
   children: [
     {
       name: 'Vasculature',
-      color: [0, 255, 0],
       children: [
         {
           name: 'Pericytes',
-          color: [255, 0, 0],
           set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
           _state: {
-            key: 'vasculature-pericytes',
+            nodeKey: 'vasculature-pericytes',
             level: 2,
+            color: [255, 0, 0],
             isEditing: false,
             isCurrent: false,
             isForTools: false,
@@ -175,11 +178,11 @@ export const levelZeroNode = {
         },
         {
           name: 'Endothelial',
-          color: [100, 0, 0],
           set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
           _state: {
-            key: 'vasculature-endothelial',
+            nodeKey: 'vasculature-endothelial',
             level: 2,
+            color: [100, 0, 0],
             isEditing: false,
             isCurrent: false,
             isForTools: false,
@@ -187,8 +190,9 @@ export const levelZeroNode = {
         },
       ],
       _state: {
-        key: 'vasculature',
+        nodeKey: 'vasculature',
         level: 1,
+        color: [0, 255, 0],
         isEditing: false,
         isCurrent: false,
         isForTools: false,
@@ -196,7 +200,7 @@ export const levelZeroNode = {
     },
   ],
   _state: {
-    key: 'cell-type-annotations',
+    nodeKey: 'cell-type-annotations',
     level: 0,
     isEditing: false,
     isCurrent: false,
@@ -209,15 +213,14 @@ export const levelZeroNodeIgnoreKeys = {
   children: [
     {
       name: 'Vasculature',
-      color: [0, 255, 0],
       children: [
         {
           name: 'Pericytes',
-          color: [255, 0, 0],
           set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
           _state: {
-            key: expect.anything(),
+            nodeKey: expect.anything(),
             level: 2,
+            color: [255, 0, 0],
             isEditing: false,
             isCurrent: false,
             isForTools: false,
@@ -225,11 +228,11 @@ export const levelZeroNodeIgnoreKeys = {
         },
         {
           name: 'Endothelial',
-          color: [100, 0, 0],
           set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
           _state: {
-            key: expect.anything(),
+            nodeKey: expect.anything(),
             level: 2,
+            color: [100, 0, 0],
             isEditing: false,
             isCurrent: false,
             isForTools: false,
@@ -237,8 +240,9 @@ export const levelZeroNodeIgnoreKeys = {
         },
       ],
       _state: {
-        key: expect.anything(),
+        nodeKey: expect.anything(),
         level: 1,
+        color: [0, 255, 0],
         isEditing: false,
         isCurrent: false,
         isForTools: false,
@@ -246,7 +250,7 @@ export const levelZeroNodeIgnoreKeys = {
     },
   ],
   _state: {
-    key: expect.anything(),
+    nodeKey: expect.anything(),
     level: 0,
     isEditing: false,
     isCurrent: false,
@@ -316,15 +320,14 @@ export const tree = {
       children: [
         {
           name: 'Vasculature',
-          color: [0, 255, 0],
           children: [
             {
               name: 'Pericytes',
-              color: [255, 0, 0],
               set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
               _state: {
-                key: 'vasculature-pericytes',
+                nodeKey: 'vasculature-pericytes',
                 level: 2,
+                color: [255, 0, 0],
                 isEditing: false,
                 isCurrent: false,
                 isForTools: false,
@@ -332,11 +335,11 @@ export const tree = {
             },
             {
               name: 'Endothelial',
-              color: [100, 0, 0],
               set: [['cell_3', null], ['cell_4', null], ['cell_5', null]],
               _state: {
-                key: 'vasculature-endothelial',
+                nodeKey: 'vasculature-endothelial',
                 level: 2,
+                color: [100, 0, 0],
                 isEditing: false,
                 isCurrent: false,
                 isForTools: false,
@@ -344,8 +347,9 @@ export const tree = {
             },
           ],
           _state: {
-            key: 'vasculature',
+            nodeKey: 'vasculature',
             level: 1,
+            color: [0, 255, 0],
             isEditing: false,
             isCurrent: false,
             isForTools: false,
@@ -353,7 +357,7 @@ export const tree = {
         },
       ],
       _state: {
-        key: 'cell-type-annotations',
+        nodeKey: 'cell-type-annotations',
         level: 0,
         isEditing: false,
         isCurrent: false,
@@ -362,7 +366,7 @@ export const tree = {
     },
   ],
   _state: {
-    key: 'my-tree',
+    nodeKey: 'my-tree',
     items: ['cell_1', 'cell_2', 'cell_3', 'cell_4', 'cell_5', 'cell_6'],
     checkedKeys: [],
     visibleKeys: [],
@@ -382,15 +386,14 @@ export const treeIgnoreKeys = {
       children: [
         {
           name: 'Vasculature',
-          color: [0, 255, 0],
           children: [
             {
               name: 'Pericytes',
-              color: [255, 0, 0],
               set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
               _state: {
-                key: expect.anything(),
+                nodeKey: expect.anything(),
                 level: 2,
+                color: [255, 0, 0],
                 isEditing: false,
                 isCurrent: false,
                 isForTools: false,
@@ -398,11 +401,11 @@ export const treeIgnoreKeys = {
             },
             {
               name: 'Endothelial',
-              color: [100, 0, 0],
               set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
               _state: {
-                key: expect.anything(),
+                nodeKey: expect.anything(),
                 level: 2,
+                color: [100, 0, 0],
                 isEditing: false,
                 isCurrent: false,
                 isForTools: false,
@@ -410,8 +413,9 @@ export const treeIgnoreKeys = {
             },
           ],
           _state: {
-            key: expect.anything(),
+            nodeKey: expect.anything(),
             level: 1,
+            color: [0, 255, 0],
             isEditing: false,
             isCurrent: false,
             isForTools: false,
@@ -419,7 +423,7 @@ export const treeIgnoreKeys = {
         },
       ],
       _state: {
-        key: expect.anything(),
+        nodeKey: expect.anything(),
         level: 0,
         isEditing: false,
         isCurrent: false,
@@ -428,7 +432,7 @@ export const treeIgnoreKeys = {
     },
   ],
   _state: {
-    key: expect.anything(),
+    nodeKey: expect.anything(),
     items: [],
     checkedKeys: [],
     visibleKeys: [],
@@ -450,7 +454,7 @@ export const emptyTree = {
   datatype: 'cell',
   tree: [],
   _state: {
-    key: 'empty-tree',
+    nodeKey: 'empty-tree',
     items: [],
     checkedKeys: [],
     visibleKeys: [],
@@ -465,7 +469,7 @@ export const emptyTreeIgnoreKeys = {
   datatype: 'cell',
   tree: [],
   _state: {
-    key: expect.anything(),
+    nodeKey: expect.anything(),
     items: [],
     checkedKeys: [],
     visibleKeys: [],

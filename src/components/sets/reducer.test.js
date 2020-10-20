@@ -24,26 +24,26 @@ describe('Hierarchical sets reducer', () => {
 
       expect(levelTwoRenderProps.title).toEqual('Pericytes');
       expect(levelTwoRenderProps.nodeKey).toEqual('pericytes');
-      expect(levelTwoRenderProps.size).toEqual(3);
+      expect(levelTwoRenderProps.size).toEqual(undefined);
       expect(levelTwoRenderProps.color).toEqual([255, 0, 0]);
       expect(levelTwoRenderProps.level).toEqual(2);
       expect(levelTwoRenderProps.isEditing).toEqual(false);
       expect(levelTwoRenderProps.isCurrentSet).toEqual(false);
       expect(levelTwoRenderProps.isForTools).toEqual(false);
-      expect(levelTwoRenderProps.isLeaf).toEqual(true);
+      expect(levelTwoRenderProps.isLeaf).toEqual(undefined);
       expect(levelTwoRenderProps.height).toEqual(0);
 
       const levelZeroRenderProps = nodeToRenderProps(levelZeroNode);
 
       expect(levelZeroRenderProps.title).toEqual('Cell Type Annotations');
       expect(levelZeroRenderProps.nodeKey).toEqual('cell-type-annotations');
-      expect(levelZeroRenderProps.size).toEqual(6);
+      expect(levelZeroRenderProps.size).toEqual(undefined);
       expect(levelZeroRenderProps.color).toEqual(undefined);
       expect(levelZeroRenderProps.level).toEqual(0);
       expect(levelZeroRenderProps.isEditing).toEqual(false);
       expect(levelZeroRenderProps.isCurrentSet).toEqual(false);
       expect(levelZeroRenderProps.isForTools).toEqual(false);
-      expect(levelZeroRenderProps.isLeaf).toEqual(false);
+      expect(levelZeroRenderProps.isLeaf).toEqual(undefined);
       expect(levelZeroRenderProps.height).toEqual(2);
     });
   });
@@ -55,19 +55,6 @@ describe('Hierarchical sets reducer', () => {
       expect(initialTree.datatype).toEqual('cell');
       expect(initialTree.version).toEqual('0.1.3');
       expect(initialTree.tree.length).toEqual(0);
-      expect(initialTree._state.items.length).toEqual(0);
-      expect(initialTree._state.checkedKeys.length).toEqual(0);
-      expect(initialTree._state.visibleKeys.length).toEqual(0);
-      expect(initialTree._state.checkedLevel.levelZeroKey).toEqual(null);
-      expect(initialTree._state.checkedLevel.levelIndex).toEqual(null);
-      expect(initialTree._state.expandedKeys.length).toEqual(0);
-      expect(initialTree._state.autoExpandParent).toEqual(true);
-      expect(initialTree._state.isChecking).toEqual(false);
-    });
-
-    it('should return the initial state', () => {
-      const initialTree = treeInitialize('cell');
-      expect(reducer(initialTree, {})).toEqual(initialTree);
     });
 
     /*it('can import a tree with colors', () => {
