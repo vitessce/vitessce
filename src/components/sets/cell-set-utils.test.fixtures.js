@@ -145,12 +145,16 @@ export const levelZeroNodeWithoutState = {
       children: [
         {
           name: 'Pericytes',
-          color: [255, 0, 0],
+          _state: {
+            color: [255, 0, 0],
+          },
           set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
         },
         {
           name: 'Endothelial',
-          color: [100, 0, 0],
+          _state: {
+            color: [100, 0, 0],
+          },
           set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
         },
       ],
@@ -267,16 +271,22 @@ export const treeWithoutState = {
       children: [
         {
           name: 'Vasculature',
-          color: [0, 255, 0],
+          _state: {
+            color: [0, 255, 0],
+          },
           children: [
             {
               name: 'Pericytes',
-              color: [255, 0, 0],
+              _state: {
+                color: [255, 0, 0],
+              },
               set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
             },
             {
               name: 'Endothelial',
-              color: [100, 0, 0],
+              _state: {
+                color: [100, 0, 0],
+              },
               set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
             },
           ],
@@ -345,6 +355,31 @@ export const tree = {
                 isForTools: false,
               },
             },
+            {
+              name: 'Epithelial',
+              children: [
+                {
+                  name: 'Squamous',
+                  set: [['cell_5', null], ['cell_6', null], ['cell_7', null]],
+                  _state: {
+                    nodeKey: 'vasculature-epithelial-squamous',
+                    level: 2,
+                    color: [100, 0, 0],
+                    isEditing: false,
+                    isCurrent: false,
+                    isForTools: false,
+                  },
+                },
+              ],
+              _state: {
+                nodeKey: 'vasculature-endothelial',
+                level: 2,
+                color: [100, 0, 0],
+                isEditing: false,
+                isCurrent: false,
+                isForTools: false,
+              },
+            },
           ],
           _state: {
             nodeKey: 'vasculature',
@@ -365,16 +400,6 @@ export const tree = {
       },
     },
   ],
-  _state: {
-    nodeKey: 'my-tree',
-    items: ['cell_1', 'cell_2', 'cell_3', 'cell_4', 'cell_5', 'cell_6'],
-    checkedKeys: [],
-    visibleKeys: [],
-    checkedLevel: { levelZeroKey: null, levelIndex: null },
-    expandedKeys: [],
-    autoExpandParent: true,
-    isChecking: false,
-  },
 };
 
 export const treeIgnoreKeys = {
@@ -431,51 +456,4 @@ export const treeIgnoreKeys = {
       },
     },
   ],
-  _state: {
-    nodeKey: expect.anything(),
-    items: [],
-    checkedKeys: [],
-    visibleKeys: [],
-    checkedLevel: { levelZeroKey: null, levelIndex: null },
-    expandedKeys: [],
-    autoExpandParent: true,
-    isChecking: false,
-  },
-};
-
-export const emptyTreeWithoutState = {
-  version: '0.1.3',
-  datatype: 'cell',
-  tree: [],
-};
-
-export const emptyTree = {
-  version: '0.1.3',
-  datatype: 'cell',
-  tree: [],
-  _state: {
-    nodeKey: 'empty-tree',
-    items: [],
-    checkedKeys: [],
-    visibleKeys: [],
-    checkedLevel: { levelZeroKey: null, levelIndex: null },
-    expandedKeys: [],
-    autoExpandParent: true,
-    isChecking: false,
-  },
-};
-export const emptyTreeIgnoreKeys = {
-  version: '0.1.3',
-  datatype: 'cell',
-  tree: [],
-  _state: {
-    nodeKey: expect.anything(),
-    items: [],
-    checkedKeys: [],
-    visibleKeys: [],
-    checkedLevel: { levelZeroKey: null, levelIndex: null },
-    expandedKeys: [],
-    autoExpandParent: true,
-    isChecking: false,
-  },
 };
