@@ -235,7 +235,7 @@ export default function SetsManager(props) {
           {renderTreeNodes(processedSets.tree, true)}
         </Tree>
         <Tree
-          draggable={false} /* TODO */
+          draggable /* TODO */
           checkable={checkable}
 
           checkedKeys={additionalSetSelectionKeys}

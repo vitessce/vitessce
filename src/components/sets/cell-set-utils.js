@@ -3,10 +3,30 @@ import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
 import isEqual from 'lodash/isEqual';
 import range from 'lodash/range';
-import { DEFAULT_COLOR, PALETTE } from '../utils';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
+
+export const PATH_SEP = '___';
+
+export function pathToKey(path) {
+  return path.join(PATH_SEP);
+}
+
+export const DEFAULT_COLOR = [128, 128, 128];
+
+// From https://personal.sron.nl/~pault/#sec:qualitative
+export const PALETTE = [
+  [68, 119, 170],
+  [136, 204, 238],
+  [68, 170, 153],
+  [17, 119, 51],
+  [153, 153, 51],
+  [221, 204, 119],
+  [204, 102, 119],
+  [136, 34, 85],
+  [170, 68, 153],
+];
 
 /**
  * Alias for the uuidv4 function to make code more readable.
@@ -124,12 +144,80 @@ function nodeClearState(currNode) {
 }
 
 /**
+ * Set the ._state.level value for a node.
+ * @param {object} currNode A node object.
+ * @param {number} newLevel The level value.
+ * @returns {object} The updated node.
+ */
+export function nodeSetLevel(currNode, newLevel) {
+  return {
+    ...currNode,
+    _state: {
+      ...currNode._state,
+      level: newLevel,
+    },
+  };
+}
+
+/**
+ * Append a child to a parent node.
+ * @param {object} currNode A node object.
+ * @param {object} newChild The child node object.
+ * @returns {object} The updated node.
+ */
+export function nodeAppendChild(currNode, newChild) {
+  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
+  newChildWithLevel._state.path = [...currNode._state.path, newChildWithLevel.name];
+  newChildWithLevel._state.nodeKey = pathToKey(newChildWithLevel._state.path);
+  return {
+    ...currNode,
+    children: [...currNode.children, newChildWithLevel],
+  };
+}
+
+/**
+ * Prepend a child to a parent node.
+ * @param {object} currNode A node object.
+ * @param {object} newChild The child node object.
+ * @returns {object} The updated node.
+ */
+export function nodePrependChild(currNode, newChild) {
+  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
+  newChildWithLevel._state.path = [...currNode._state.path, newChildWithLevel.name];
+  newChildWithLevel._state.nodeKey = pathToKey(newChildWithLevel._state.path);
+  return {
+    ...currNode,
+    children: [newChildWithLevel, ...currNode.children],
+  };
+}
+
+/**
+ * Insert a child to a parent node.
+ * @param {object} currNode A node object.
+ * @param {*} newChild The child node object.
+ * @param {*} insertIndex The index at which to insert the child.
+ * @returns {object} The updated node.
+ */
+export function nodeInsertChild(currNode, newChild, insertIndex) {
+  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
+  newChildWithLevel._state.path = [...currNode._state.path, newChildWithLevel.name];
+  newChildWithLevel._state.nodeKey = pathToKey(newChildWithLevel._state.path);
+  const newChildren = Array.from(currNode.children);
+  newChildren.splice(insertIndex, 0, newChildWithLevel);
+  return {
+    ...currNode,
+    children: newChildren,
+  };
+}
+
+/**
  * Get an array representing the union of the sets of checked nodes.
  * @param {object} currTree A tree object.
  * @returns {array} An array representing the union of the sets of checked nodes.
  */
 export function treeToUnion(currTree, checkedPaths) {
   const nodes = checkedPaths.map(path => treeFindNodeByNamePath(currTree, path));
+  console.log(currTree, checkedPaths, nodes); // eslint-disable-line
   const nodeSets = nodes.map(node => nodeToSet(node).map(([cellId]) => cellId));
   return nodeSets
     .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0] || []);

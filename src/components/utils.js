@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { COORDINATE_SYSTEM } from 'deck.gl';
+import { pathToKey } from './sets/utils';
 
 export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
@@ -144,23 +145,46 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
 
   const nextName = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix);
   let colorIndex = 0;
+  const path = [CELL_SELECTIONS_LEVEL_ZERO_NAME, nextName];
   if(selectionsLevelZeroNode) {
     colorIndex = selectionsLevelZeroNode.children.length;
     selectionsLevelZeroNode.children.push({
-      "color": [255, 255, 255],
-      "name": nextName,
-      "set": cellSelection.map(d => ([d, null])),
+      name: nextName,
+      set: cellSelection.map((d) => [d, null]),
+      _state: {
+        path,
+        nodeKey: pathToKey(path),
+        level: 1,
+        size: cellSelection.length,
+        color: [255, 255, 255],
+        leaf: true,
+      },
     });
   } else {
     nextAdditionalCellSets.tree.push({
-      "name": CELL_SELECTIONS_LEVEL_ZERO_NAME,
-      "children": [
+      name: CELL_SELECTIONS_LEVEL_ZERO_NAME,
+      children: [
         {
-          "color": [255, 255, 255],
-          "name": nextName,
-          "set": cellSelection.map(d => ([d, null])),
+          name: nextName,
+          set: cellSelection.map((d) => [d, null]),
+          _state: {
+            path,
+            nodeKey: pathToKey(path),
+            level: 1,
+            size: cellSelection.length,
+            color: [255, 255, 255],
+            leaf: true,
+          },
         },
       ],
+      _state: {
+        path: [CELL_SELECTIONS_LEVEL_ZERO_NAME],
+        nodeKey: pathToKey([CELL_SELECTIONS_LEVEL_ZERO_NAME]),
+        level: 1,
+        size: cellSelection.length,
+        color: [255, 255, 255],
+        leaf: false,
+      },
     });
   }
   setAdditionalCellSets(nextAdditionalCellSets);

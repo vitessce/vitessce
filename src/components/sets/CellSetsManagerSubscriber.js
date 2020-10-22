@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+
 import React, {
   useEffect,
   useState,
@@ -25,11 +27,18 @@ import {
   treeFindNodeByNamePath,
   treesConflict,
   initializeCellSetColor,
+  nodeToHeight,
+  nodeTransform,
+  nodeAppendChild,
+  nodePrependChild,
+  nodeInsertChild,
+  nodeSetLevel,
 } from './cell-set-utils';
 import {
   isEqualOrPrefix,
   tryRenamePath,
   PATH_SEP,
+  pathToKey,
 } from './utils';
 import {
   downloadForUser,
@@ -238,12 +247,162 @@ export default function CellSetsManagerSubscriber(props) {
   }
 
   // TODO: re-implement using dropPath and dragPath rather than keys.
-  function onDropNode(/* dropKey, dragKey, dropPosition, dropToGap */) {
-    /*
+  function onDropNode(dropKey, dragKey, dropPosition, dropToGap) {
     const dropPath = dropKey.split(PATH_SEP);
+    const dropNode = treeFindNodeByNamePath(additionalCellSets, dropPath);
+    const dropNodeLevel = dropNode._state.level;
+    const dropNodeIsLevelZero = dropNodeLevel === 0;
+    const dropNodeIsLevelZeroEmpty = (dropNodeIsLevelZero && (
+      !dropNode.children || dropNode.children.length === 0));
+    const dropNodeHeight = nodeToHeight(dropNode);
+    // Get drag node.
     const dragPath = dragKey.split(PATH_SEP);
-    console.log(dropPath, dragPath, dropPosition, dropToGap);
-    */
+    const dragNode = treeFindNodeByNamePath(additionalCellSets, dragPath);
+    const dragNodeHeight = nodeToHeight(dragNode);
+
+    // Only allow dragging if:
+    // - dropping between nodes, and both drag and drop node have same height, OR
+    // - dropping the dragNode into the dropNode,
+    //   where the dragNode has one less level than the dropNode.
+    // - dropping the dragNode into the dropNode,
+    //   where the dropNode is an _empty_ level zero node.
+    const isAllowed = (dropToGap && dropNodeHeight === dragNodeHeight)
+    || (!dropToGap && dropNodeHeight - 1 === dragNodeHeight) || dropNodeIsLevelZeroEmpty;
+
+    if (!isAllowed) {
+      return;
+    }
+
+    let dropParentNode;
+    let dropParentKey;
+    let dropNodeCurrIndex;
+    const dropNodeKey = pathToKey(dropPath);
+    const dragNodeKey = pathToKey(dragPath);
+    if (!dropNodeIsLevelZero) {
+      dropParentNode = treeFindNodeByNamePath(additionalCellSets, dropPath);
+      dropParentKey = dropParentNode._state.nodeKey;
+      dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.nodeKey === dropNodeKey);
+    } else {
+      dropNodeCurrIndex = additionalCellSets.tree.findIndex(
+        lzn => lzn._state.nodeKey === dropNodeKey,
+      );
+    }
+
+    // Further, only allow dragging if the dragged node will have a unique
+    // name among its new siblings.
+    let hasSiblingNameConflict;
+    const dragNodeName = dragNode.name;
+    if (!dropNodeIsLevelZero) {
+      hasSiblingNameConflict = dropParentNode.children
+        .find(c => c.name === dragNodeName && c._state.nodeKey !== dragNodeKey);
+    } else if (dropNodeIsLevelZero && !dropToGap) {
+      hasSiblingNameConflict = dropNode.children
+        .find(c => c.name === dragNodeName && c._state.nodeKey !== dragNodeKey);
+    } else {
+      hasSiblingNameConflict = additionalCellSets.tree
+        .find(lzn => lzn.name === dragNodeName && lzn._state.nodeKey !== dragNodeKey);
+    }
+
+    if (hasSiblingNameConflict) {
+      return;
+    }
+
+    // Remove the dragged object from its current position.
+    // Recursively check whether each node path
+    // matches the path of the node to delete.
+    // If so, return null, and then always use
+    // .filter(Boolean) to eliminate any null array elements.
+    function filterNode(node, prevPath) {
+      if (isEqual([...prevPath, node.name], dragPath)) {
+        return null;
+      }
+      if (!node.children) {
+        return node;
+      }
+      return {
+        ...node,
+        children: node.children.map(c => filterNode(c, [...prevPath, node.name])).filter(Boolean),
+      };
+    }
+    const nextAdditionalCellSets = {
+      ...additionalCellSets,
+      tree: additionalCellSets.tree.map(lzn => filterNode(lzn, [])).filter(Boolean),
+    };
+
+    // Update index values after temporarily removing the dragged node.
+    if (!dropNodeIsLevelZero) {
+      dropNodeCurrIndex = dropParentNode.children.findIndex(c => c._state.nodeKey === dropNodeKey);
+    } else {
+      dropNodeCurrIndex = nextAdditionalCellSets.tree.findIndex(
+        lzn => lzn._state.nodeKey === dropNodeKey,
+      );
+    }
+
+    // Append the dragNode to dropNode's children if dropping _onto_ the dropNode.
+    if (!dropToGap) {
+      // Set dragNode as the last child of dropNode.
+      nextAdditionalCellSets.tree = nextAdditionalCellSets.tree.map(
+        node => nodeTransform(
+          node, n => (n._state.nodeKey === dropNodeKey), (n) => {
+            const newNode = nodeAppendChild(n, dragNode);
+            setCellSetSelection(newNode.children.slice(-1)[0]._state.path);
+            return newNode;
+          },
+        ),
+      );
+      setAdditionalCellSets(nextAdditionalCellSets);
+      return;
+    }
+
+    // Prepend or insert the dragNode if dropping _between_ (above or below dropNode).
+    if (!dropNodeIsLevelZero) {
+      // The dropNode is at a level greater than zero,
+      // so it has a parent.
+      if (dropPosition === -1) {
+        // Set dragNode as first child of dropParentNode.
+        nextAdditionalCellSets.tree = nextAdditionalCellSets.tree.map(
+          node => nodeTransform(
+            node, n => (n._state.nodeKey === dropParentKey), (n) => {
+              const newNode = nodePrependChild(n, dragNode);
+              setCellSetSelection(newNode.children[0]._state.path);
+              return newNode;
+            },
+          ),
+        );
+        setAdditionalCellSets(nextAdditionalCellSets);
+        return;
+      }
+      // Set dragNode before or after dropNode.
+      const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
+      nextAdditionalCellSets.tree = nextAdditionalCellSets.tree.map(
+        node => nodeTransform(
+          node,
+          n => (n._state.nodeKey === dropParentKey),
+          (n) => {
+            const newNode = nodeInsertChild(n, dragNode, insertIndex);
+            setCellSetSelection(newNode.children[insertIndex]._state.path);
+            return newNode;
+          },
+        ),
+      );
+      setAdditionalCellSets(nextAdditionalCellSets);
+      return;
+    }
+    // We need to drop the dragNode to level zero,
+    // and level zero nodes do not have parents.
+    const newDragNode = nodeSetLevel(dragNode, 0);
+    if (dropPosition === -1) {
+      // Set dragNode as first level zero node of the tree.
+      nextAdditionalCellSets.tree.unshift(newDragNode);
+      setAdditionalCellSets(nextAdditionalCellSets);
+      setCellSetSelection(newDragNode._state.path);
+    }
+    // Set dragNode before or after dropNode in level zero.
+    const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
+    const newLevelZero = Array.from(nextAdditionalCellSets.tree);
+    newLevelZero.splice(insertIndex, 0, newDragNode);
+    nextAdditionalCellSets.tree = newLevelZero;
+    setAdditionalCellSets(nextAdditionalCellSets);
   }
 
   // The user wants to change the color of a cell set node.
@@ -399,6 +558,12 @@ export default function CellSetsManagerSubscriber(props) {
         {
           name: nextName,
           children: [],
+          _state: {
+            path: [nextName],
+            nodeKey: pathToKey([nextName]),
+            level: 0,
+            size: 0,
+          },
         },
       ],
     });
@@ -510,7 +675,7 @@ export default function CellSetsManagerSubscriber(props) {
         levelSelection={checkedLevel}
         setSelection={cellSetSelection}
         setExpansion={cellSetExpansion}
-
+        draggable
         datatype={SETS_DATATYPE_CELL}
         onError={setWarning}
         onCheckNode={onCheckNode}
