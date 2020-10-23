@@ -3,6 +3,7 @@ import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
 import isEqual from 'lodash/isEqual';
 import range from 'lodash/range';
+
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
@@ -113,14 +114,24 @@ export function treeFindNodeByNamePath(currTree, targetNamePath) {
  * a transformed version of the node.
  * @returns {object} The updated node.
  */
-export function nodeTransform(node, predicate, transform) {
-  if (predicate(node)) {
+export function nodeTransform(node, predicate, transform, transformedPaths, currPath) {
+  let newPath;
+  if (!currPath) {
+    newPath = [node.name];
+  } else {
+    newPath = [...currPath];
+  }
+  if (predicate(node, newPath)) {
+    transformedPaths.push(newPath);
     return transform(node);
   }
   if (node.children) {
     return {
       ...node,
-      children: node.children.map(child => nodeTransform(child, predicate, transform)),
+      children: node.children.map((child) => {
+        newPath.push(child.name);
+        return nodeTransform(child, predicate, transform, transformedPaths, newPath);
+      }),
     };
   }
   return node;
@@ -217,7 +228,6 @@ export function nodeInsertChild(currNode, newChild, insertIndex) {
  */
 export function treeToUnion(currTree, checkedPaths) {
   const nodes = checkedPaths.map(path => treeFindNodeByNamePath(currTree, path));
-  console.log(currTree, checkedPaths, nodes); // eslint-disable-line
   const nodeSets = nodes.map(node => nodeToSet(node).map(([cellId]) => cellId));
   return nodeSets
     .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0] || []);
@@ -382,11 +392,11 @@ export function treeInitialize(datatype) {
  * @returns {object} An object containing properties required
  * by the TreeNode render functions.
  */
-export function nodeToRenderProps(node) {
+export function nodeToRenderProps(node, path) {
   return {
     title: node.name,
     nodeKey: node._state.nodeKey,
-    path: node._state.path,
+    path,
     size: node._state.size,
     color: node._state.color,
     level: node._state.level,

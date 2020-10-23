@@ -165,50 +165,53 @@ export default function SetsManager(props) {
    * @param {object[]} nodes An array of node objects.
    * @returns {TreeNode[]|null} Array of TreeNode components or null.
    */
-  function renderTreeNodes(nodes, readOnly) {
+  function renderTreeNodes(nodes, readOnly, currPath) {
     if (!nodes) {
       return null;
     }
-    return nodes.map(node => (
-      <TreeNode
-        key={pathToKey(node._state.path)}
-        {...nodeToRenderProps(node)}
+    return nodes.map((node) => {
+      const newPath = [...currPath, node.name];
+      return (
+        <TreeNode
+          key={pathToKey(newPath)}
+          {...nodeToRenderProps(node, newPath)}
 
-        isEditing={isEqual(isEditingNodeName, node._state.path)}
+          isEditing={isEqual(isEditingNodeName, newPath)}
 
-        datatype={datatype}
-        draggable={draggable && !readOnly}
-        editable={editable && !readOnly}
-        checkable={checkable}
-        expandable={expandable}
-        exportable={exportable}
+          datatype={datatype}
+          draggable={draggable && !readOnly}
+          editable={editable && !readOnly}
+          checkable={checkable}
+          expandable={expandable}
+          exportable={exportable}
 
-        isChecking={isChecking}
-        checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
-        checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
+          isChecking={isChecking}
+          checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
+          checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
 
-        onCheckNode={onCheckNode}
-        onCheckLevel={onCheckLevel}
-        onNodeView={onNodeView}
-        onNodeSetColor={onNodeSetColor}
-        onNodeSetName={(targetPath, name) => {
-          onNodeSetName(targetPath, name);
-          setIsEditingNodeName(null);
-        }}
-        onNodeCheckNewName={onNodeCheckNewName}
-        onNodeSetIsEditing={setIsEditingNodeName}
-        onNodeRemove={onNodeRemove}
-        onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
-        onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
-        onExportSetJSON={onExportSetJSON}
+          onCheckNode={onCheckNode}
+          onCheckLevel={onCheckLevel}
+          onNodeView={onNodeView}
+          onNodeSetColor={onNodeSetColor}
+          onNodeSetName={(targetPath, name) => {
+            onNodeSetName(targetPath, name);
+            setIsEditingNodeName(null);
+          }}
+          onNodeCheckNewName={onNodeCheckNewName}
+          onNodeSetIsEditing={setIsEditingNodeName}
+          onNodeRemove={onNodeRemove}
+          onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
+          onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
+          onExportSetJSON={onExportSetJSON}
 
-        disableTooltip={isDragging}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={() => setIsDragging(false)}
-      >
-        {renderTreeNodes(node.children, readOnly)}
-      </TreeNode>
-    ));
+          disableTooltip={isDragging}
+          onDragStart={() => setIsDragging(true)}
+          onDragEnd={() => setIsDragging(false)}
+        >
+          {renderTreeNodes(node.children, readOnly, newPath)}
+        </TreeNode>
+      );
+    });
   }
 
   return (
@@ -232,7 +235,7 @@ export default function SetsManager(props) {
             info.expanded,
           )}
         >
-          {renderTreeNodes(processedSets.tree, true)}
+          {renderTreeNodes(processedSets.tree, true, [])}
         </Tree>
         <Tree
           draggable /* TODO */
@@ -258,7 +261,7 @@ export default function SetsManager(props) {
             onDropNode(dropKey, dragKey, dropPosition, dropToGap);
           }}
         >
-          {renderTreeNodes(processedAdditionalSets.tree, false)}
+          {renderTreeNodes(processedAdditionalSets.tree, false, [])}
         </Tree>
 
         <PlusButton

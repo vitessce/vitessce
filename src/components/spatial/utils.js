@@ -1,6 +1,6 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash';
 import { getChannelStats } from '@hms-dbmi/viv';
 import { pluralize } from '../../utils';
 import { VIEWER_PALETTE } from '../utils';

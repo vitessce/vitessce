@@ -28,7 +28,7 @@ export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
       tree: currTree.tree.map(levelZeroNode => nodeTransform(
         levelZeroNode,
         n => !n.children && Array.isArray(n.set),
-        n => ({ ...n, set: n.set.map(itemId => ([itemId, null])) }),
+        n => ({ ...n, set: n.set.map(itemId => ([itemId, null])) }), [],
       )),
     };
   }
