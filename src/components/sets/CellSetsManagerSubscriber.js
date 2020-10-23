@@ -32,13 +32,11 @@ import {
   nodeAppendChild,
   nodePrependChild,
   nodeInsertChild,
-  nodeSetLevel,
 } from './cell-set-utils';
 import {
   isEqualOrPrefix,
   tryRenamePath,
   PATH_SEP,
-  pathToKey,
 } from './utils';
 import {
   downloadForUser,
@@ -145,7 +143,6 @@ export default function CellSetsManagerSubscriber(props) {
         setAutoSetColors(prev => ({ [dataset]: (prev[dataset] || []) }));
       }
     });
-
   // Try to set up the selected sets array automatically if undefined.
   useEffect(() => {
     // Only initialize cell sets if the value of `cellSetSelection` is `null`
@@ -250,7 +247,7 @@ export default function CellSetsManagerSubscriber(props) {
   function onDropNode(dropKey, dragKey, dropPosition, dropToGap) {
     const dropPath = dropKey.split(PATH_SEP);
     const dropNode = treeFindNodeByNamePath(additionalCellSets, dropPath);
-    const dropNodeLevel = dropNode._state.level;
+    const dropNodeLevel = dropPath.length - 1;
     const dropNodeIsLevelZero = dropNodeLevel === 0;
     const dropNodeIsLevelZeroEmpty = (dropNodeIsLevelZero && (
       !dropNode.children || dropNode.children.length === 0));
@@ -367,21 +364,20 @@ export default function CellSetsManagerSubscriber(props) {
     }
     // We need to drop the dragNode to level zero,
     // and level zero nodes do not have parents.
-    const newDragNode = nodeSetLevel(dragNode, 0);
     if (dropPosition === -1) {
       // Set dragNode as first level zero node of the tree.
-      nextAdditionalCellSets.tree.unshift(newDragNode);
+      nextAdditionalCellSets.tree.unshift(dragNode);
       setAdditionalCellSets(nextAdditionalCellSets);
-      setCellSetSelection([[newDragNode.name]]);
+      setCellSetSelection([[dragNode.name]]);
       return;
     }
     // Set dragNode before or after dropNode in level zero.
     const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
     const newLevelZero = Array.from(nextAdditionalCellSets.tree);
-    newLevelZero.splice(insertIndex, 0, newDragNode);
+    newLevelZero.splice(insertIndex, 0, dragNode);
     nextAdditionalCellSets.tree = newLevelZero;
     setAdditionalCellSets(nextAdditionalCellSets);
-    setCellSetSelection([[newDragNode.name]]);
+    setCellSetSelection([[dragNode.name]]);
   }
 
   // The user wants to change the color of a cell set node.
@@ -537,12 +533,6 @@ export default function CellSetsManagerSubscriber(props) {
         {
           name: nextName,
           children: [],
-          _state: {
-            path: [nextName],
-            nodeKey: pathToKey([nextName]),
-            level: 0,
-            size: 0,
-          },
         },
       ],
     });

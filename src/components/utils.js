@@ -151,40 +151,19 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
     selectionsLevelZeroNode.children.push({
       name: nextName,
       set: cellSelection.map((d) => [d, null]),
-      _state: {
-        path,
-        nodeKey: pathToKey(path),
-        level: 1,
-        size: cellSelection.length,
-        color: [255, 255, 255],
-        leaf: true,
-      },
+      color: [255, 255, 255],
     });
   } else {
     nextAdditionalCellSets.tree.push({
       name: CELL_SELECTIONS_LEVEL_ZERO_NAME,
+      color: [255, 255, 255],
       children: [
         {
           name: nextName,
           set: cellSelection.map((d) => [d, null]),
-          _state: {
-            path,
-            nodeKey: pathToKey(path),
-            level: 1,
-            size: cellSelection.length,
-            color: [255, 255, 255],
-            leaf: true,
-          },
+          color: [255, 255, 255],
         },
       ],
-      _state: {
-        path: [CELL_SELECTIONS_LEVEL_ZERO_NAME],
-        nodeKey: pathToKey([CELL_SELECTIONS_LEVEL_ZERO_NAME]),
-        level: 1,
-        size: cellSelection.length,
-        color: [255, 255, 255],
-        leaf: false,
-      },
     });
   }
   setAdditionalCellSets(nextAdditionalCellSets);

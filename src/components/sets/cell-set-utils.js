@@ -155,34 +155,15 @@ function nodeClearState(currNode) {
 }
 
 /**
- * Set the ._state.level value for a node.
- * @param {object} currNode A node object.
- * @param {number} newLevel The level value.
- * @returns {object} The updated node.
- */
-export function nodeSetLevel(currNode, newLevel) {
-  return {
-    ...currNode,
-    _state: {
-      ...currNode._state,
-      level: newLevel,
-    },
-  };
-}
-
-/**
  * Append a child to a parent node.
  * @param {object} currNode A node object.
  * @param {object} newChild The child node object.
  * @returns {object} The updated node.
  */
 export function nodeAppendChild(currNode, newChild) {
-  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
-  newChildWithLevel._state.path = [...currNode._state.path, newChildWithLevel.name];
-  newChildWithLevel._state.nodeKey = pathToKey(newChildWithLevel._state.path);
   return {
     ...currNode,
-    children: [...currNode.children, newChildWithLevel],
+    children: [...currNode.children, newChild],
   };
 }
 
@@ -193,12 +174,9 @@ export function nodeAppendChild(currNode, newChild) {
  * @returns {object} The updated node.
  */
 export function nodePrependChild(currNode, newChild) {
-  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
-  newChildWithLevel._state.path = [...currNode._state.path, newChildWithLevel.name];
-  newChildWithLevel._state.nodeKey = pathToKey(newChildWithLevel._state.path);
   return {
     ...currNode,
-    children: [newChildWithLevel, ...currNode.children],
+    children: [newChild, ...currNode.children],
   };
 }
 
@@ -210,11 +188,8 @@ export function nodePrependChild(currNode, newChild) {
  * @returns {object} The updated node.
  */
 export function nodeInsertChild(currNode, newChild, insertIndex) {
-  const newChildWithLevel = nodeSetLevel(newChild, currNode._state.level + 1);
-  newChildWithLevel._state.path = [...currNode._state.path, newChildWithLevel.name];
-  newChildWithLevel._state.nodeKey = pathToKey(newChildWithLevel._state.path);
   const newChildren = Array.from(currNode.children);
-  newChildren.splice(insertIndex, 0, newChildWithLevel);
+  newChildren.splice(insertIndex, 0, newChild);
   return {
     ...currNode,
     children: newChildren,
@@ -395,17 +370,12 @@ export function treeInitialize(datatype) {
 export function nodeToRenderProps(node, path) {
   return {
     title: node.name,
-    nodeKey: node._state.nodeKey,
+    nodeKey: pathToKey(path),
     path,
-    size: node._state.size,
-    color: node._state.color,
-    level: node._state.level,
-    isLeaf: node._state.isLeaf,
-
-    isEditing: node._state.isEditing,
-    isCurrentSet: node._state.isCurrent,
-    isForTools: node._state.isForTools,
-    // isLeaf: !node.children,
+    size: nodeToSet(node).length,
+    color: node.color,
+    level: path.length - 1,
+    isLeaf: (!node.children || node.children.length === 0) && Boolean(node.set),
     height: nodeToHeight(node),
   };
 }

@@ -4,44 +4,38 @@ import isEqual from 'lodash/isEqual';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
-import { nodeToRenderProps, nodeToSet } from './cell-set-utils';
+import { nodeToRenderProps } from './cell-set-utils';
 import { DEFAULT_COLOR } from '../utils';
 import { pathToKey } from './utils';
 
-function processNode(node, level, prevPath, setColor) {
+function processNode(node, prevPath, setColor) {
   const nodePath = [...prevPath, node.name];
   return {
     ...node,
     ...(node.children ? ({
       children: node.children
-        .map(c => processNode(c, level + 1, nodePath, setColor)),
+        .map(c => processNode(c, nodePath, setColor)),
     }) : {}),
-    _state: {
-      path: nodePath,
-      nodeKey: pathToKey(nodePath),
-      level,
-      size: nodeToSet(node).length,
-      color: setColor?.find(d => isEqual(d.path, nodePath))?.color || DEFAULT_COLOR,
-      isLeaf: !node.children,
-    },
+    color: setColor?.find(d => isEqual(d.path, nodePath))?.color || DEFAULT_COLOR,
   };
 }
 
 function processSets(sets, setColor) {
   return {
     ...sets,
-    tree: sets ? sets.tree.map(lzn => processNode(lzn, 0, [], setColor)) : [],
+    tree: sets ? sets.tree.map(lzn => processNode(lzn, [], setColor)) : [],
   };
 }
 
-function getAllKeys(node) {
+function getAllKeys(node, path = []) {
   if (!node) {
     return [null];
   }
   if (node.children) {
-    return [node._state.nodeKey, ...node.children.flatMap(getAllKeys)];
+    const newPath = [...path, node.name];
+    return [pathToKey(path), ...node.children.flatMap(v => getAllKeys(v, newPath))];
   }
-  return [node._state.nodeKey];
+  return [pathToKey(path)];
 }
 
 /**
@@ -147,7 +141,7 @@ export default function SetsManager(props) {
   ), [additionalSets, setColor]);
 
   const additionalSetKeys = (processedAdditionalSets
-    ? processedAdditionalSets.tree.flatMap(getAllKeys)
+    ? processedAdditionalSets.tree.flatMap(v => getAllKeys(v, [v.name]))
     : []
   );
 
@@ -171,6 +165,7 @@ export default function SetsManager(props) {
     }
     return nodes.map((node) => {
       const newPath = [...currPath, node.name];
+      console.log(pathToKey(newPath)); // eslint-disable-line
       return (
         <TreeNode
           key={pathToKey(newPath)}
