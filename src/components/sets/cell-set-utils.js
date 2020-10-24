@@ -61,8 +61,9 @@ export function nodeToHeight(currNode, level = 0) {
   if (!currNode.children) {
     return level;
   }
-  const childrenHeights = currNode.children.map(c => nodeToHeight(c, level + 1));
-  return Math.max(...childrenHeights, 1);
+  const newLevel = level + 1;
+  const childrenHeights = currNode.children.map(c => nodeToHeight(c, newLevel));
+  return Math.max(...childrenHeights, newLevel);
 }
 
 /**
@@ -368,15 +369,16 @@ export function treeInitialize(datatype) {
  * by the TreeNode render functions.
  */
 export function nodeToRenderProps(node, path) {
+  const level = path.length - 1;
   return {
     title: node.name,
     nodeKey: pathToKey(path),
     path,
     size: nodeToSet(node).length,
     color: node.color,
-    level: path.length - 1,
+    level,
     isLeaf: (!node.children || node.children.length === 0) && Boolean(node.set),
-    height: nodeToHeight(node),
+    height: nodeToHeight(node, level),
   };
 }
 
