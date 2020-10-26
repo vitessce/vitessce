@@ -29,13 +29,13 @@ function processSets(sets, setColor) {
 
 function getAllKeys(node, path = []) {
   if (!node) {
-    return [null];
+    return null;
   }
+  const newPath = [...path, node.name];
   if (node.children) {
-    const newPath = [...path, node.name];
-    return [pathToKey(path), ...node.children.flatMap(v => getAllKeys(v, newPath))];
+    return [pathToKey(newPath), ...node.children.flatMap(v => getAllKeys(v, newPath))];
   }
-  return [pathToKey(path)];
+  return pathToKey(newPath);
 }
 
 /**
@@ -135,13 +135,12 @@ export default function SetsManager(props) {
   const processedSets = useMemo(() => processSets(
     sets, setColor,
   ), [sets, setColor]);
-
   const processedAdditionalSets = useMemo(() => processSets(
     additionalSets, setColor,
   ), [additionalSets, setColor]);
 
   const additionalSetKeys = (processedAdditionalSets
-    ? processedAdditionalSets.tree.flatMap(v => getAllKeys(v, [v.name]))
+    ? processedAdditionalSets.tree.flatMap(v => getAllKeys(v, []))
     : []
   );
 
@@ -165,7 +164,6 @@ export default function SetsManager(props) {
     }
     return nodes.map((node) => {
       const newPath = [...currPath, node.name];
-      console.log(pathToKey(newPath)); // eslint-disable-line
       return (
         <TreeNode
           key={pathToKey(newPath)}
