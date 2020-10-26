@@ -368,14 +368,14 @@ export function treeInitialize(datatype) {
  * @returns {object} An object containing properties required
  * by the TreeNode render functions.
  */
-export function nodeToRenderProps(node, path) {
+export function nodeToRenderProps(node, path, cellSetColor) {
   const level = path.length - 1;
   return {
     title: node.name,
     nodeKey: pathToKey(path),
     path,
     size: nodeToSet(node).length,
-    color: node.color,
+    color: cellSetColor?.find(d => isEqual(d.path, path))?.color,
     level,
     isLeaf: (!node.children || node.children.length === 0) && Boolean(node.set),
     height: nodeToHeight(node, level),

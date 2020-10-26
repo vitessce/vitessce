@@ -167,7 +167,7 @@ export default function SetsManager(props) {
       return (
         <TreeNode
           key={pathToKey(newPath)}
-          {...nodeToRenderProps(node, newPath)}
+          {...nodeToRenderProps(node, newPath, setColor)}
 
           isEditing={isEqual(isEditingNodeName, newPath)}
 
