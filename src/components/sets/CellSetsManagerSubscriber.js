@@ -285,7 +285,7 @@ export default function CellSetsManagerSubscriber(props) {
     let hasSiblingNameConflict;
     const dragNodeName = dragNode.name;
     if (!dropNodeIsLevelZero) {
-      hasSiblingNameConflict = dropParentNode.children
+      hasSiblingNameConflict = dropNode.children
         .find(c => c.name === dragNodeName);
     } else if (dropNodeIsLevelZero && !dropToGap) {
       hasSiblingNameConflict = dropNode.children
