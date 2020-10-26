@@ -129,10 +129,11 @@ export function nodeTransform(node, predicate, transform, transformedPaths, curr
   if (node.children) {
     return {
       ...node,
-      children: node.children.map((child) => {
-        newPath.push(child.name);
-        return nodeTransform(child, predicate, transform, transformedPaths, newPath);
-      }),
+      children: node.children.map(
+        child => nodeTransform(
+          child, predicate, transform, transformedPaths, newPath.concat([child.name]),
+        ),
+      ),
     };
   }
   return node;

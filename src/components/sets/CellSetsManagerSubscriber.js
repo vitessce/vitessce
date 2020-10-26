@@ -27,7 +27,6 @@ import {
   treeFindNodeByNamePath,
   treesConflict,
   initializeCellSetColor,
-  nodeToHeight,
   nodeTransform,
   nodeAppendChild,
   nodePrependChild,
@@ -247,28 +246,15 @@ export default function CellSetsManagerSubscriber(props) {
   function onDropNode(dropKey, dragKey, dropPosition, dropToGap) {
     const dropPath = dropKey.split(PATH_SEP);
     const dropNode = treeFindNodeByNamePath(additionalCellSets, dropPath);
+    if (!dropNode.children) {
+      return;
+    }
     const dropNodeLevel = dropPath.length - 1;
     const dropNodeIsLevelZero = dropNodeLevel === 0;
-    const dropNodeIsLevelZeroEmpty = (dropNodeIsLevelZero && (
-      !dropNode.children || dropNode.children.length === 0));
-    const dropNodeHeight = nodeToHeight(dropNode);
+
     // Get drag node.
     const dragPath = dragKey.split(PATH_SEP);
     const dragNode = treeFindNodeByNamePath(additionalCellSets, dragPath);
-    const dragNodeHeight = nodeToHeight(dragNode);
-
-    // Only allow dragging if:
-    // - dropping between nodes, and both drag and drop node have same height, OR
-    // - dropping the dragNode into the dropNode,
-    //   where the dragNode has one less level than the dropNode.
-    // - dropping the dragNode into the dropNode,
-    //   where the dropNode is an _empty_ level zero node.
-    const isAllowed = (dropToGap && dropNodeHeight === dragNodeHeight)
-    || (!dropToGap && dropNodeHeight - 1 === dragNodeHeight) || dropNodeIsLevelZeroEmpty;
-
-    if (!isAllowed) {
-      return;
-    }
 
     let dropParentNode;
     let dropNodeCurrIndex;
@@ -331,9 +317,9 @@ export default function CellSetsManagerSubscriber(props) {
       );
     }
     if (!dropToGap || !dropNodeIsLevelZero) {
-      // Append the dragNode to dropNode's children if dropping _onto_ the dropNode.
       let addChildFunction;
       const newPath = [];
+      // Append the dragNode to dropNode's children if dropping _onto_ the dropNode.
       if (!dropToGap) {
         addChildFunction = n => nodeAppendChild(n, dragNode);
       // Prepend or insert the dragNode if dropping _between_ (above or below dropNode).
