@@ -359,7 +359,13 @@ export default function CellSetsManagerSubscriber(props) {
         ),
       );
       setAdditionalCellSets(nextAdditionalCellSets);
-      setCellSetSelection([[...newPath[0], dragNode.name]]);
+      const newDragPath = [...newPath[0], dragNode.name];
+      setCellSetSelection([newDragPath]);
+      const oldColor = cellSetColor.find(i => isEqual(i.path, dragPath));
+      const newColor = { ...oldColor, path: newDragPath };
+      const newCellSetColor = cellSetColor.filter(i => !isEqual(i.path, dragPath));
+      newCellSetColor.push(newColor);
+      setCellSetColor(newCellSetColor);
       return;
     }
     // We need to drop the dragNode to level zero,
@@ -368,7 +374,13 @@ export default function CellSetsManagerSubscriber(props) {
       // Set dragNode as first level zero node of the tree.
       nextAdditionalCellSets.tree.unshift(dragNode);
       setAdditionalCellSets(nextAdditionalCellSets);
-      setCellSetSelection([[dragNode.name]]);
+      const newDragPath = [dragNode.name];
+      setCellSetSelection([newDragPath]);
+      const oldColor = cellSetColor.find(i => isEqual(i.path, dragPath));
+      const newColor = { ...oldColor, path: newDragPath };
+      const newCellSetColor = cellSetColor.filter(i => !isEqual(i.path, dragPath));
+      newCellSetColor.push(newColor);
+      setCellSetColor(newCellSetColor);
       return;
     }
     // Set dragNode before or after dropNode in level zero.
@@ -377,7 +389,13 @@ export default function CellSetsManagerSubscriber(props) {
     newLevelZero.splice(insertIndex, 0, dragNode);
     nextAdditionalCellSets.tree = newLevelZero;
     setAdditionalCellSets(nextAdditionalCellSets);
-    setCellSetSelection([[dragNode.name]]);
+    const newDragPath = [dragNode.name];
+    setCellSetSelection([newDragPath]);
+    const oldColor = cellSetColor.find(i => isEqual(i.path, dragPath));
+    const newColor = { ...oldColor, path: newDragPath };
+    const newCellSetColor = cellSetColor.filter(i => !isEqual(i.path, dragPath));
+    newCellSetColor.push(newColor);
+    setCellSetColor(newCellSetColor);
   }
 
   // The user wants to change the color of a cell set node.
