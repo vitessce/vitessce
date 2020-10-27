@@ -361,7 +361,7 @@ export function nodeToRenderProps(node, path, cellSetColor) {
     color: cellSetColor?.find(d => isEqual(d.path, path))?.color,
     level,
     isLeaf: (!node.children || node.children.length === 0) && Boolean(node.set),
-    height: nodeToHeight(node, level),
+    height: nodeToHeight(node),
   };
 }
 

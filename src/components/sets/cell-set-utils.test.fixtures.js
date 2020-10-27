@@ -1,61 +1,6 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import expect from 'expect';
-
-/**
- * The variables with the IgnoreKeys suffix are
- * matchers for the expect.toMatchObject() assertion.
- * https://jestjs.io/docs/en/expect.html#tomatchobjectobject
- */
-
-export const levelTwoNodeLeafWithoutState = {
-  name: 'Pericytes',
-  color: [255, 0, 0],
-  set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-};
-
 export const levelTwoNodeLeaf = {
   name: 'Pericytes',
   set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-  _state: {
-    nodeKey: 'pericytes',
-    level: 2,
-    color: [255, 0, 0],
-    isEditing: false,
-    isCurrent: false,
-    isForTools: false,
-  },
-};
-
-export const levelTwoNodeLeafIgnoreKeys = {
-  name: 'Pericytes',
-  set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-  _state: {
-    nodeKey: expect.anything(),
-    color: [255, 0, 0],
-    level: 2,
-    isEditing: false,
-    isCurrent: false,
-    isForTools: false,
-  },
-};
-
-export const levelOneNodeWithoutState = {
-  name: 'Vasculature',
-  _state: {
-    color: [0, 255, 0],
-  },
-  children: [
-    {
-      name: 'Pericytes',
-      color: [255, 0, 0],
-      set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-    },
-    {
-      name: 'Endothelial',
-      color: [100, 0, 0],
-      set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
-    },
-  ],
 };
 
 export const levelOneNode = {
@@ -64,100 +9,10 @@ export const levelOneNode = {
     {
       name: 'Pericytes',
       set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-      _state: {
-        nodeKey: 'vasculature-pericytes',
-        color: [255, 0, 0],
-        level: 2,
-        isEditing: false,
-        isCurrent: false,
-        isForTools: false,
-      },
     },
     {
       name: 'Endothelial',
       set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
-      _state: {
-        nodeKey: 'vasculature-endothelial',
-        level: 2,
-        color: [100, 0, 0],
-        isEditing: false,
-        isCurrent: false,
-        isForTools: false,
-      },
-    },
-  ],
-  _state: {
-    nodeKey: 'vasculature',
-    level: 1,
-    color: [0, 255, 0],
-    isEditing: false,
-    isCurrent: false,
-    isForTools: false,
-  },
-};
-
-export const levelOneNodeIgnoreKeys = {
-  name: 'Vasculature',
-  children: [
-    {
-      name: 'Pericytes',
-      set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-      _state: {
-        nodeKey: expect.anything(),
-        level: 2,
-        color: [255, 0, 0],
-        isEditing: false,
-        isCurrent: false,
-        isForTools: false,
-      },
-    },
-    {
-      name: 'Endothelial',
-      set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
-      _state: {
-        nodeKey: expect.anything(),
-        level: 2,
-        color: [100, 0, 0],
-        isEditing: false,
-        isCurrent: false,
-        isForTools: false,
-      },
-    },
-  ],
-  _state: {
-    nodeKey: expect.anything(),
-    color: [0, 255, 0],
-    level: 1,
-    isEditing: false,
-    isCurrent: false,
-    isForTools: false,
-  },
-};
-
-export const levelZeroNodeWithoutState = {
-  name: 'Cell Type Annotations',
-  children: [
-    {
-      name: 'Vasculature',
-      _state: {
-        color: [0, 255, 0],
-      },
-      children: [
-        {
-          name: 'Pericytes',
-          _state: {
-            color: [255, 0, 0],
-          },
-          set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-        },
-        {
-          name: 'Endothelial',
-          _state: {
-            color: [100, 0, 0],
-          },
-          set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
-        },
-      ],
     },
   ],
 };
@@ -171,150 +26,10 @@ export const levelZeroNode = {
         {
           name: 'Pericytes',
           set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-          _state: {
-            nodeKey: 'vasculature-pericytes',
-            level: 2,
-            color: [255, 0, 0],
-            isEditing: false,
-            isCurrent: false,
-            isForTools: false,
-          },
         },
         {
           name: 'Endothelial',
           set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
-          _state: {
-            nodeKey: 'vasculature-endothelial',
-            level: 2,
-            color: [100, 0, 0],
-            isEditing: false,
-            isCurrent: false,
-            isForTools: false,
-          },
-        },
-      ],
-      _state: {
-        nodeKey: 'vasculature',
-        level: 1,
-        color: [0, 255, 0],
-        isEditing: false,
-        isCurrent: false,
-        isForTools: false,
-      },
-    },
-  ],
-  _state: {
-    nodeKey: 'cell-type-annotations',
-    level: 0,
-    isEditing: false,
-    isCurrent: false,
-    isForTools: false,
-  },
-};
-
-export const levelZeroNodeIgnoreKeys = {
-  name: 'Cell Type Annotations',
-  children: [
-    {
-      name: 'Vasculature',
-      children: [
-        {
-          name: 'Pericytes',
-          set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-          _state: {
-            nodeKey: expect.anything(),
-            level: 2,
-            color: [255, 0, 0],
-            isEditing: false,
-            isCurrent: false,
-            isForTools: false,
-          },
-        },
-        {
-          name: 'Endothelial',
-          set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
-          _state: {
-            nodeKey: expect.anything(),
-            level: 2,
-            color: [100, 0, 0],
-            isEditing: false,
-            isCurrent: false,
-            isForTools: false,
-          },
-        },
-      ],
-      _state: {
-        nodeKey: expect.anything(),
-        level: 1,
-        color: [0, 255, 0],
-        isEditing: false,
-        isCurrent: false,
-        isForTools: false,
-      },
-    },
-  ],
-  _state: {
-    nodeKey: expect.anything(),
-    level: 0,
-    isEditing: false,
-    isCurrent: false,
-    isForTools: false,
-  },
-};
-
-export const treeWithoutState = {
-  version: '0.1.3',
-  datatype: 'cell',
-  tree: [
-    {
-      name: 'Cell Type Annotations',
-      children: [
-        {
-          name: 'Vasculature',
-          _state: {
-            color: [0, 255, 0],
-          },
-          children: [
-            {
-              name: 'Pericytes',
-              _state: {
-                color: [255, 0, 0],
-              },
-              set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-            },
-            {
-              name: 'Endothelial',
-              _state: {
-                color: [100, 0, 0],
-              },
-              set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
-
-export const treeWithoutStateOrColors = {
-  version: '0.1.3',
-  datatype: 'cell',
-  tree: [
-    {
-      name: 'Cell Type Annotations',
-      children: [
-        {
-          name: 'Vasculature',
-          children: [
-            {
-              name: 'Pericytes',
-              set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-            },
-            {
-              name: 'Endothelial',
-              set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
-            },
-          ],
         },
       ],
     },
@@ -334,26 +49,10 @@ export const tree = {
             {
               name: 'Pericytes',
               set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-              _state: {
-                nodeKey: 'vasculature-pericytes',
-                level: 2,
-                color: [255, 0, 0],
-                isEditing: false,
-                isCurrent: false,
-                isForTools: false,
-              },
             },
             {
               name: 'Endothelial',
               set: [['cell_3', null], ['cell_4', null], ['cell_5', null]],
-              _state: {
-                nodeKey: 'vasculature-endothelial',
-                level: 2,
-                color: [100, 0, 0],
-                isEditing: false,
-                isCurrent: false,
-                isForTools: false,
-              },
             },
             {
               name: 'Epithelial',
@@ -361,99 +60,12 @@ export const tree = {
                 {
                   name: 'Squamous',
                   set: [['cell_5', null], ['cell_6', null], ['cell_7', null]],
-                  _state: {
-                    nodeKey: 'vasculature-epithelial-squamous',
-                    level: 2,
-                    color: [100, 0, 0],
-                    isEditing: false,
-                    isCurrent: false,
-                    isForTools: false,
-                  },
                 },
               ],
-              _state: {
-                nodeKey: 'vasculature-endothelial',
-                level: 2,
-                color: [100, 0, 0],
-                isEditing: false,
-                isCurrent: false,
-                isForTools: false,
-              },
             },
           ],
-          _state: {
-            nodeKey: 'vasculature',
-            level: 1,
-            color: [0, 255, 0],
-            isEditing: false,
-            isCurrent: false,
-            isForTools: false,
-          },
         },
       ],
-      _state: {
-        nodeKey: 'cell-type-annotations',
-        level: 0,
-        isEditing: false,
-        isCurrent: false,
-        isForTools: false,
-      },
-    },
-  ],
-};
-
-export const treeIgnoreKeys = {
-  version: '0.1.3',
-  datatype: 'cell',
-  tree: [
-    {
-      name: 'Cell Type Annotations',
-      children: [
-        {
-          name: 'Vasculature',
-          children: [
-            {
-              name: 'Pericytes',
-              set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
-              _state: {
-                nodeKey: expect.anything(),
-                level: 2,
-                color: [255, 0, 0],
-                isEditing: false,
-                isCurrent: false,
-                isForTools: false,
-              },
-            },
-            {
-              name: 'Endothelial',
-              set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
-              _state: {
-                nodeKey: expect.anything(),
-                level: 2,
-                color: [100, 0, 0],
-                isEditing: false,
-                isCurrent: false,
-                isForTools: false,
-              },
-            },
-          ],
-          _state: {
-            nodeKey: expect.anything(),
-            level: 1,
-            color: [0, 255, 0],
-            isEditing: false,
-            isCurrent: false,
-            isForTools: false,
-          },
-        },
-      ],
-      _state: {
-        nodeKey: expect.anything(),
-        level: 0,
-        isEditing: false,
-        isCurrent: false,
-        isForTools: false,
-      },
     },
   ],
 };

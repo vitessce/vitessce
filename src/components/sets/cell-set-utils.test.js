@@ -18,8 +18,6 @@ import {
 import {
   levelTwoNodeLeaf,
   levelZeroNode,
-  levelZeroNodeWithoutState,
-  levelTwoNodeLeafWithoutState,
   tree,
 } from './cell-set-utils.test.fixtures';
 
@@ -27,51 +25,46 @@ import {
 describe('Hierarchical sets cell-set-utils', () => {
   describe('Node rendering', () => {
     it('can get render properties for a node', () => {
-      const levelTwoRenderProps = nodeToRenderProps(levelTwoNodeLeaf);
+      const levelTwoRenderProps = nodeToRenderProps(levelTwoNodeLeaf, ['Cell Type Annotations', 'Vasculature', 'Pericytes'], [{
+        path: ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
+        color: [255, 0, 0],
+      }]);
 
       expect(levelTwoRenderProps.title).toEqual('Pericytes');
-      expect(levelTwoRenderProps.nodeKey).toEqual('pericytes');
-      expect(levelTwoRenderProps.size).toEqual(undefined);
+      expect(levelTwoRenderProps.size).toEqual(3);
       expect(levelTwoRenderProps.color).toEqual([255, 0, 0]);
       expect(levelTwoRenderProps.level).toEqual(2);
-      expect(levelTwoRenderProps.isEditing).toEqual(false);
-      expect(levelTwoRenderProps.isCurrentSet).toEqual(false);
-      expect(levelTwoRenderProps.isForTools).toEqual(false);
-      expect(levelTwoRenderProps.isLeaf).toEqual(undefined);
+      expect(levelTwoRenderProps.isLeaf).toEqual(true);
       expect(levelTwoRenderProps.height).toEqual(0);
 
-      const levelZeroRenderProps = nodeToRenderProps(levelZeroNode);
+      const levelZeroRenderProps = nodeToRenderProps(levelZeroNode, ['Cell Type Annotations'], []);
 
       expect(levelZeroRenderProps.title).toEqual('Cell Type Annotations');
-      expect(levelZeroRenderProps.nodeKey).toEqual('cell-type-annotations');
-      expect(levelZeroRenderProps.size).toEqual(undefined);
+      expect(levelZeroRenderProps.size).toEqual(6);
       expect(levelZeroRenderProps.color).toEqual(undefined);
       expect(levelZeroRenderProps.level).toEqual(0);
-      expect(levelZeroRenderProps.isEditing).toEqual(false);
-      expect(levelZeroRenderProps.isCurrentSet).toEqual(false);
-      expect(levelZeroRenderProps.isForTools).toEqual(false);
-      expect(levelZeroRenderProps.isLeaf).toEqual(undefined);
+      expect(levelZeroRenderProps.isLeaf).toEqual(false);
       expect(levelZeroRenderProps.height).toEqual(2);
     });
   });
 
   describe('Get derived Node properties', () => {
     it('Get children set for Node', () => {
-      const nodeSet = nodeToSet(levelZeroNodeWithoutState);
+      const nodeSet = nodeToSet(levelZeroNode);
       expect(nodeSet).toEqual([['cell_1', null], ['cell_2', null], ['cell_3', null], ['cell_4', null], ['cell_5', null], ['cell_6', null]]);
     });
 
     it('Get height for Node', () => {
-      const nodeHeight = nodeToHeight(levelZeroNodeWithoutState);
+      const nodeHeight = nodeToHeight(levelZeroNode);
       expect(nodeHeight).toEqual(2);
 
-      const nodeHeightZero = nodeToHeight(levelTwoNodeLeafWithoutState);
+      const nodeHeightZero = nodeToHeight(levelTwoNodeLeaf);
       expect(nodeHeightZero).toEqual(0);
     });
 
     it('Get Node by Path', () => {
       const node = treeFindNodeByNamePath(tree, ['Cell Type Annotations', 'Vasculature', 'Pericytes']);
-      expect(node._state.nodeKey).toEqual('vasculature-pericytes');
+      expect(node.name).toEqual('Pericytes');
 
       const noNode = treeFindNodeByNamePath(tree, ['Cell Type Annotations', 'Foo', 'Bar']);
       expect(noNode).toEqual(null);
@@ -81,29 +74,33 @@ describe('Hierarchical sets cell-set-utils', () => {
   describe('Alter Node properties', () => {
     it('Node Transform', () => {
       const nodeTransformedWithPredicate = nodeTransform(
-        cloneDeep(levelZeroNodeWithoutState),
-        node => node.name === 'Vasculature',
+        cloneDeep(levelZeroNode),
+        node => node.name === 'Pericytes',
         // eslint-disable-next-line no-param-reassign
-        (node) => { node._state.color = [255, 255, 255]; return node; },
+        (node) => { node.name = 'New name'; return node; },
+        [],
+        ['Cell Type Annotations'],
       );
       // Node matching predicate is transformed but none others
-      expect(nodeTransformedWithPredicate.children[0]._state.color).toEqual([255, 255, 255]);
+      expect(nodeTransformedWithPredicate.name).toEqual('Cell Type Annotations');
       expect(
-        nodeTransformedWithPredicate.children[0].children[0]._state.color,
-      ).toEqual([255, 0, 0]);
+        nodeTransformedWithPredicate.children[0].children[0].name,
+      ).toEqual('New name');
 
       // eslint-disable-next-line no-param-reassign
       const nodeTransformedWithoutPredicate = nodeTransform(
-        cloneDeep(levelZeroNodeWithoutState),
+        cloneDeep(levelZeroNode),
         () => false,
         // eslint-disable-next-line no-param-reassign
-        (node) => { node._state.color = [255, 255, 255]; return node; },
+        (node) => { node.name = 'New name'; return node; },
+        [],
+        ['Cell Type Annotations'],
       );
       // No nodes transformed for fals-y predicate.
-      expect(nodeTransformedWithoutPredicate.children[0]._state.color).toEqual([0, 255, 0]);
+      expect(nodeTransformedWithoutPredicate.name).toEqual('Cell Type Annotations');
       expect(
-        nodeTransformedWithoutPredicate.children[0].children[0]._state.color,
-      ).toEqual([255, 0, 0]);
+        nodeTransformedWithoutPredicate.children[0].children[0].name,
+      ).toEqual('Pericytes');
     });
   });
 
