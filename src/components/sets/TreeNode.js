@@ -8,6 +8,7 @@ import PopoverMenu from './PopoverMenu';
 import HelpTooltip from './HelpTooltip';
 import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from './utils';
 import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
+import { DEFAULT_COLOR } from '../utils';
 
 
 /**
@@ -149,7 +150,7 @@ function NamedSetNodeStatic(props) {
       {popoverMenuConfig.length > 0 ? (
         <PopoverMenu
           menuConfig={makeNodeViewMenuConfig(props)}
-          color={level > 0 && editable ? color : null}
+          color={level > 0 && editable ? (color || DEFAULT_COLOR) : null}
           setColor={c => onNodeSetColor(path, c)}
         >
           <MenuSVG className="node-menu-icon" />
