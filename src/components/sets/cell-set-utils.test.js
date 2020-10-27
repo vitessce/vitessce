@@ -12,7 +12,7 @@ import {
   treeToIntersection,
   treeToComplement,
   nodeToLevelDescendantNamePaths,
-  treeExport
+  treeExport,
 } from './cell-set-utils';
 
 import {
@@ -164,6 +164,5 @@ describe('Hierarchical sets cell-set-utils', () => {
       expect(exportedTree.tree[0].children[0].children[0].name)
         .toEqual(tree.tree[0].children[0].children[0].name);
     });
-
   });
 });
