@@ -347,10 +347,23 @@ export default function CellSetsManagerSubscriber(props) {
       setAdditionalCellSets(nextAdditionalCellSets);
       const newDragPath = [...newPath[0], dragNode.name];
       setCellSetSelection([newDragPath]);
-      const oldColor = cellSetColor.find(i => isEqual(i.path, dragPath));
-      const newColor = { ...oldColor, path: newDragPath };
-      const newCellSetColor = cellSetColor.filter(i => !isEqual(i.path, dragPath));
-      newCellSetColor.push(newColor);
+      const oldColors = cellSetColor.filter(
+        i => isEqual(i.path.slice(0, dragPath.length), dragPath),
+      );
+      const newColors = oldColors.map(
+        i => (
+          {
+            ...i,
+            path: !isEqual(i.path, dragPath)
+              ? newDragPath.concat(i.path.slice(newDragPath.length - 1))
+              : newDragPath,
+          }
+        ),
+      );
+      const newCellSetColor = cellSetColor.filter(
+        i => !isEqual(i.path.slice(0, dragPath.length), dragPath),
+      );
+      newCellSetColor.push(...newColors);
       setCellSetColor(newCellSetColor);
       return;
     }
@@ -362,10 +375,23 @@ export default function CellSetsManagerSubscriber(props) {
       setAdditionalCellSets(nextAdditionalCellSets);
       const newDragPath = [dragNode.name];
       setCellSetSelection([newDragPath]);
-      const oldColor = cellSetColor.find(i => isEqual(i.path, dragPath));
-      const newColor = { ...oldColor, path: newDragPath };
-      const newCellSetColor = cellSetColor.filter(i => !isEqual(i.path, dragPath));
-      newCellSetColor.push(newColor);
+      const oldColors = cellSetColor.filter(
+        i => isEqual(i.path.slice(0, dragPath.length), dragPath),
+      );
+      const newColors = oldColors.map(
+        i => (
+          {
+            ...i,
+            path: !isEqual(i.path, dragPath)
+              ? newDragPath.concat(i.path.slice(newDragPath.length - 1))
+              : newDragPath,
+          }
+        ),
+      );
+      const newCellSetColor = cellSetColor.filter(
+        i => !isEqual(i.path.slice(0, dragPath.length), dragPath),
+      );
+      newCellSetColor.push(...newColors);
       setCellSetColor(newCellSetColor);
       return;
     }
@@ -377,10 +403,24 @@ export default function CellSetsManagerSubscriber(props) {
     setAdditionalCellSets(nextAdditionalCellSets);
     const newDragPath = [dragNode.name];
     setCellSetSelection([newDragPath]);
-    const oldColor = cellSetColor.find(i => isEqual(i.path, dragPath));
-    const newColor = { ...oldColor, path: newDragPath };
-    const newCellSetColor = cellSetColor.filter(i => !isEqual(i.path, dragPath));
-    newCellSetColor.push(newColor);
+    setCellSetSelection([newDragPath]);
+    const oldColors = cellSetColor.filter(
+      i => isEqual(i.path.slice(0, dragPath.length), dragPath),
+    );
+    const newColors = oldColors.map(
+      i => (
+        {
+          ...i,
+          path: !isEqual(i.path, dragPath)
+            ? newDragPath.concat(i.path.slice(newDragPath.length - 1))
+            : newDragPath,
+        }
+      ),
+    );
+    const newCellSetColor = cellSetColor.filter(
+      i => !isEqual(i.path.slice(0, dragPath.length), dragPath),
+    );
+    newCellSetColor.push(...newColors);
     setCellSetColor(newCellSetColor);
   }
 
