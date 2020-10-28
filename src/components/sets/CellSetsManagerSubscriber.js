@@ -315,7 +315,7 @@ export default function CellSetsManagerSubscriber(props) {
         lzn => lzn.name === dropNode.name,
       );
     }
-
+    let newDragPath = [];
     if (!dropToGap || !dropNodeIsLevelZero) {
       let addChildFunction;
       let checkPathFunction;
@@ -352,65 +352,26 @@ export default function CellSetsManagerSubscriber(props) {
       );
       // Done
       setAdditionalCellSets(nextAdditionalCellSets);
-      const newDragPath = [...newPath[0], dragNode.name];
+      newDragPath = [...newPath[0], dragNode.name];
       setCellSetSelection([newDragPath]);
-      const oldColors = cellSetColor.filter(
-        i => isEqual(i.path.slice(0, dragPath.length), dragPath),
-      );
-      const newColors = oldColors.map(
-        i => (
-          {
-            ...i,
-            path: !isEqual(i.path, dragPath)
-              ? newDragPath.concat(i.path.slice(newDragPath.length - 1))
-              : newDragPath,
-          }
-        ),
-      );
-      const newCellSetColor = cellSetColor.filter(
-        i => !isEqual(i.path.slice(0, dragPath.length), dragPath),
-      );
-      newCellSetColor.push(...newColors);
-      setCellSetColor(newCellSetColor);
-      return;
-    }
-    // We need to drop the dragNode to level zero,
-    // and level zero nodes do not have parents.
-    if (dropPosition === -1) {
+    } else if (dropPosition === -1) {
+      // We need to drop the dragNode to level zero,
+      // and level zero nodes do not have parents.
       // Set dragNode as first level zero node of the tree.
       nextAdditionalCellSets.tree.unshift(dragNode);
       setAdditionalCellSets(nextAdditionalCellSets);
-      const newDragPath = [dragNode.name];
+      newDragPath = [dragNode.name];
       setCellSetSelection([newDragPath]);
-      const oldColors = cellSetColor.filter(
-        i => isEqual(i.path.slice(0, dragPath.length), dragPath),
-      );
-      const newColors = oldColors.map(
-        i => (
-          {
-            ...i,
-            path: !isEqual(i.path, dragPath)
-              ? newDragPath.concat(i.path.slice(newDragPath.length - 1))
-              : newDragPath,
-          }
-        ),
-      );
-      const newCellSetColor = cellSetColor.filter(
-        i => !isEqual(i.path.slice(0, dragPath.length), dragPath),
-      );
-      newCellSetColor.push(...newColors);
-      setCellSetColor(newCellSetColor);
-      return;
+    } else {
+      // Set dragNode before or after dropNode in level zero.
+      const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
+      const newLevelZero = Array.from(nextAdditionalCellSets.tree);
+      newLevelZero.splice(insertIndex, 0, dragNode);
+      nextAdditionalCellSets.tree = newLevelZero;
+      setAdditionalCellSets(nextAdditionalCellSets);
+      newDragPath = [dragNode.name];
+      setCellSetSelection([newDragPath]);
     }
-    // Set dragNode before or after dropNode in level zero.
-    const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
-    const newLevelZero = Array.from(nextAdditionalCellSets.tree);
-    newLevelZero.splice(insertIndex, 0, dragNode);
-    nextAdditionalCellSets.tree = newLevelZero;
-    setAdditionalCellSets(nextAdditionalCellSets);
-    const newDragPath = [dragNode.name];
-    setCellSetSelection([newDragPath]);
-    setCellSetSelection([newDragPath]);
     const oldColors = cellSetColor.filter(
       i => isEqual(i.path.slice(0, dragPath.length), dragPath),
     );
