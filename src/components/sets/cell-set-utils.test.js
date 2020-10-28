@@ -13,6 +13,7 @@ import {
   treeToComplement,
   nodeToLevelDescendantNamePaths,
   treeExport,
+  filterNode,
 } from './cell-set-utils';
 
 import {
@@ -68,6 +69,17 @@ describe('Hierarchical sets cell-set-utils', () => {
 
       const noNode = treeFindNodeByNamePath(tree, ['Cell Type Annotations', 'Foo', 'Bar']);
       expect(noNode).toEqual(null);
+    });
+
+    it('Filter node by path', () => {
+      const node = tree.tree[0];
+      const newNodeFiltered = filterNode(node, [], ['Cell Type Annotations', 'Vasculature', 'Pericytes']);
+      // eslint-disable-next-line no-return-assign
+      expect(newNodeFiltered.children[0].children.findIndex(i => i.name === 'Pericytes')).toEqual(-1);
+
+      const vasculatureNode = tree.tree[0].children.find(i => i.name === 'Vasculature');
+      const newNodeFilteredFromLevel1 = filterNode(vasculatureNode, ['Cell Type Annotations'], ['Cell Type Annotations', 'Vasculature', 'Pericytes']);
+      expect(newNodeFilteredFromLevel1.children.findIndex(i => i.name === 'Pericytes')).toEqual(-1);
     });
   });
 
