@@ -373,7 +373,7 @@ export default function CellSetsManagerSubscriber(props) {
       setCellSetSelection([newDragPath]);
     }
     const oldColors = cellSetColor.filter(
-      i => isEqual(i.path.slice(0, dragPath.length), dragPath),
+      i => isEqualOrPrefix(dragPath, i.path),
     );
     const newColors = oldColors.map(
       i => (
@@ -386,7 +386,7 @@ export default function CellSetsManagerSubscriber(props) {
       ),
     );
     const newCellSetColor = cellSetColor.filter(
-      i => !isEqual(i.path.slice(0, dragPath.length), dragPath),
+      i => !isEqualOrPrefix(dragPath, i.path),
     );
     newCellSetColor.push(...newColors);
     setCellSetColor(newCellSetColor);
