@@ -380,7 +380,7 @@ export default function CellSetsManagerSubscriber(props) {
         {
           ...i,
           path: !isEqual(i.path, dragPath)
-            ? newDragPath.concat(i.path.slice(newDragPath.length - 1))
+            ? newDragPath.concat(i.path.slice(dragPath.length))
             : newDragPath,
         }
       ),
