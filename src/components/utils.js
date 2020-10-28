@@ -1,6 +1,4 @@
-/* eslint-disable */
 import { COORDINATE_SYSTEM } from 'deck.gl';
-import { pathToKey } from './sets/utils';
 
 export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
@@ -120,8 +118,10 @@ export function copyUint8Array(arr) {
 
 export function getNextNumberedNodeName(nodes, prefix) {
   let i = 1;
-  if(nodes) {
-    while(nodes.find(n => n.name === `${prefix}${i}`)) {
+  if (nodes) {
+    // eslint-disable-next-line no-loop-func
+    while (nodes.find(n => n.name === `${prefix}${i}`)) {
+      // eslint-disable-next-line no-plusplus
       i++;
     }
   }
@@ -136,21 +136,22 @@ export function getNextNumberedNodeName(nodes, prefix) {
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
 export function setCellSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ') {
-  const CELL_SELECTIONS_LEVEL_ZERO_NAME = "My Selections";
+  const CELL_SELECTIONS_LEVEL_ZERO_NAME = 'My Selections';
 
-  const selectionsLevelZeroNode = additionalCellSets?.tree.find(n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME);
+  const selectionsLevelZeroNode = additionalCellSets?.tree.find(
+    n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME,
+  );
   const nextAdditionalCellSets = {
     tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
   };
 
   const nextName = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix);
   let colorIndex = 0;
-  const path = [CELL_SELECTIONS_LEVEL_ZERO_NAME, nextName];
-  if(selectionsLevelZeroNode) {
+  if (selectionsLevelZeroNode) {
     colorIndex = selectionsLevelZeroNode.children.length;
     selectionsLevelZeroNode.children.push({
       name: nextName,
-      set: cellSelection.map((d) => [d, null]),
+      set: cellSelection.map(d => [d, null]),
       color: [255, 255, 255],
     });
   } else {
@@ -160,14 +161,14 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
       children: [
         {
           name: nextName,
-          set: cellSelection.map((d) => [d, null]),
+          set: cellSelection.map(d => [d, null]),
           color: [255, 255, 255],
         },
       ],
     });
   }
   setAdditionalCellSets(nextAdditionalCellSets);
-  const nextPath = ["My Selections", nextName];
+  const nextPath = ['My Selections', nextName];
   setCellSetColor([
     ...cellSetColor,
     {
@@ -187,4 +188,3 @@ export function mergeCellSets(cellSets, additionalCellSets) {
     ],
   };
 }
-

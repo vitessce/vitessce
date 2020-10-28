@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useMemo, useEffect } from 'react';
 import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
@@ -54,9 +53,10 @@ export default function CellSetSizesPlotSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true);
 
-  const mergedCellSets = useMemo(() => {
-    return mergeCellSets(cellSets, additionalCellSets);
-  }, [cellSets, additionalCellSets]);
+  const mergedCellSets = useMemo(
+    () => mergeCellSets(cellSets, additionalCellSets),
+    [cellSets, additionalCellSets],
+  );
 
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
