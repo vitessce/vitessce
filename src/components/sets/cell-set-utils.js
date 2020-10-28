@@ -7,27 +7,8 @@ import range from 'lodash/range';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
-
-export const PATH_SEP = '___';
-
-export function pathToKey(path) {
-  return path.join(PATH_SEP);
-}
-
-export const DEFAULT_COLOR = [128, 128, 128];
-
-// From https://personal.sron.nl/~pault/#sec:qualitative
-export const PALETTE = [
-  [68, 119, 170],
-  [136, 204, 238],
-  [68, 170, 153],
-  [17, 119, 51],
-  [153, 153, 51],
-  [221, 204, 119],
-  [204, 102, 119],
-  [136, 34, 85],
-  [170, 68, 153],
-];
+import { DEFAULT_COLOR, PALETTE } from '../utils';
+import { pathToKey } from './utils';
 
 /**
  * Alias for the uuidv4 function to make code more readable.
