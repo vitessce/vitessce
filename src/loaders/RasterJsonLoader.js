@@ -24,7 +24,7 @@ async function initLoader(imageData) {
         if (res.ok) {
           const offsets = await res.json();
           const loader = await createOMETiffLoader({
-            url,
+            urlOrFile: url,
             offsets,
             headers: requestInit,
           });
@@ -33,7 +33,7 @@ async function initLoader(imageData) {
         throw new Error('Offsets not found but provided.');
       }
       const loader = createOMETiffLoader({
-        url,
+        urlOrFile: url,
         headers: requestInit,
       });
       return loader;
