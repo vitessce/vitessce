@@ -29,6 +29,7 @@ import {
   nodeAppendChild,
   nodePrependChild,
   nodeInsertChild,
+  filterNode,
 } from './cell-set-utils';
 import {
   isEqualOrPrefix,
@@ -300,21 +301,9 @@ export default function CellSetsManagerSubscriber(props) {
     // matches the path of the node to delete.
     // If so, return null, and then always use
     // .filter(Boolean) to eliminate any null array elements.
-    function filterNode(node, prevPath) {
-      if (isEqual([...prevPath, node.name], dragPath)) {
-        return null;
-      }
-      if (!node.children) {
-        return node;
-      }
-      return {
-        ...node,
-        children: node.children.map(c => filterNode(c, [...prevPath, node.name])).filter(Boolean),
-      };
-    }
     const nextAdditionalCellSets = {
       ...additionalCellSets,
-      tree: additionalCellSets.tree.map(lzn => filterNode(lzn, [])).filter(Boolean),
+      tree: additionalCellSets.tree.map(lzn => filterNode(lzn, [], dragPath)).filter(Boolean),
     };
 
     // Update index values after temporarily removing the dragged node.
@@ -554,21 +543,9 @@ export default function CellSetsManagerSubscriber(props) {
     // matches the path of the node to delete.
     // If so, return null, and then always use
     // .filter(Boolean) to eliminate any null array elements.
-    function filterNode(node, prevPath) {
-      if (isEqual([...prevPath, node.name], targetPath)) {
-        return null;
-      }
-      if (!node.children) {
-        return node;
-      }
-      return {
-        ...node,
-        children: node.children.map(c => filterNode(c, [...prevPath, node.name])).filter(Boolean),
-      };
-    }
     const nextAdditionalCellSets = {
       ...additionalCellSets,
-      tree: additionalCellSets.tree.map(lzn => filterNode(lzn, [])).filter(Boolean),
+      tree: additionalCellSets.tree.map(lzn => filterNode(lzn, [], targetPath)).filter(Boolean),
     };
     // Delete state for all paths that have this node
     // path as a prefix (i.e. delete all descendents).

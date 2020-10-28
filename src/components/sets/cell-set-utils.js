@@ -438,6 +438,28 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor) 
   return sizes;
 }
 
+/**
+ * Find and remove a node from the descendants of the current node.
+ * @param {object} node A node to search on.
+ * @param {array} prevPath Path of the current node to be searched.
+ * @param {array} filterPath The path sought.
+ * @returns {object} A new node without a node at filterPath.
+ */
+export function filterNode(node, prevPath, filterPath) {
+  if (isEqual([...prevPath, node.name], filterPath)) {
+    return null;
+  }
+  if (!node.children) {
+    return node;
+  }
+  return {
+    ...node,
+    children: node.children.map(
+      c => filterNode(c, [...prevPath, node.name], filterPath),
+    ).filter(Boolean),
+  };
+}
+
 export function treeToExpectedCheckedLevel(currTree, checkedPaths) {
   let result = null;
   if (currTree) {
