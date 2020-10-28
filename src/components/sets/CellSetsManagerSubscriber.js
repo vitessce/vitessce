@@ -318,61 +318,39 @@ export default function CellSetsManagerSubscriber(props) {
 
     if (!dropToGap || !dropNodeIsLevelZero) {
       let addChildFunction;
+      let checkPathFunction;
       const newPath = [];
       if (!dropToGap) {
         // Append the dragNode to dropNode's children if dropping _onto_ the dropNode.
         // Set dragNode as the last child of dropNode.
         addChildFunction = n => nodeAppendChild(n, dragNode);
-        nextAdditionalCellSets.tree = nextAdditionalCellSets.tree.map(
-          node => nodeTransform(
-            node,
-            (n, path) => isEqual(path, dropPath),
-            (n) => {
-              const newNode = addChildFunction(n);
-              return newNode;
-            },
-            newPath,
-          ),
-        );
-        // Done
+        checkPathFunction = path => isEqual(path, dropPath);
       } else if (!dropNodeIsLevelZero) {
         // Prepend or insert the dragNode if dropping _between_ (above or below dropNode).
         // The dropNode is at a level greater than zero,
         // so it has a parent.
+        checkPathFunction = path => isEqual(path, dropParentPath);
         if (dropPosition === -1) {
           // Set dragNode as first child of dropParentNode.
           addChildFunction = n => nodePrependChild(n, dragNode);
-          nextAdditionalCellSets.tree = nextAdditionalCellSets.tree.map(
-            node => nodeTransform(
-              node,
-              (n, path) => isEqual(path, dropParentPath),
-              (n) => {
-                const newNode = addChildFunction(n);
-                return newNode;
-              },
-              newPath,
-            ),
-          );
-          // Done
         } else {
           // Set dragNode before or after dropNode.
           const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
           addChildFunction = n => nodeInsertChild(n, dragNode, insertIndex);
-          nextAdditionalCellSets.tree = nextAdditionalCellSets.tree.map(
-            node => nodeTransform(
-              node,
-              (n, path) => isEqual(path, dropParentPath),
-              (n) => {
-                const newNode = addChildFunction(n);
-                return newNode;
-              },
-              newPath,
-            ),
-          );
-          // Done
         }
       }
-
+      nextAdditionalCellSets.tree = nextAdditionalCellSets.tree.map(
+        node => nodeTransform(
+          node,
+          (n, path) => checkPathFunction(path),
+          (n) => {
+            const newNode = addChildFunction(n);
+            return newNode;
+          },
+          newPath,
+        ),
+      );
+      // Done
       setAdditionalCellSets(nextAdditionalCellSets);
       const newDragPath = [...newPath[0], dragNode.name];
       setCellSetSelection([newDragPath]);
