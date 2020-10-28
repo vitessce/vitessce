@@ -140,23 +140,6 @@ export function nodeTransform(node, predicate, transform, transformedPaths, curr
 }
 
 /**
- * Clear node state.
- * Recursive.
- * @param {object} currNode A node object.
- * @returns {object} Node with state removed (for itself and all descendants).
- */
-function nodeClearState(currNode) {
-  return {
-    ...currNode,
-    children: (currNode.children
-      ? currNode.children.map(nodeClearState)
-      : undefined
-    ),
-    _state: undefined,
-  };
-}
-
-/**
  * Append a child to a parent node.
  * @param {object} currNode A node object.
  * @param {object} newChild The child node object.
@@ -313,8 +296,7 @@ export function treeExport(currTree, datatype) {
   return {
     version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
     datatype,
-    tree: currTree.tree.map(node => nodeClearState(node)),
-    _state: undefined,
+    tree: currTree.tree,
   };
 }
 
@@ -379,7 +361,7 @@ export function nodeToRenderProps(node, path, cellSetColor) {
     color: cellSetColor?.find(d => isEqual(d.path, path))?.color,
     level,
     isLeaf: (!node.children || node.children.length === 0) && Boolean(node.set),
-    height: nodeToHeight(node, level),
+    height: nodeToHeight(node),
   };
 }
 
