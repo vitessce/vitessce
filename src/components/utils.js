@@ -152,17 +152,14 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
     selectionsLevelZeroNode.children.push({
       name: nextName,
       set: cellSelection.map(d => [d, null]),
-      color: [255, 255, 255],
     });
   } else {
     nextAdditionalCellSets.tree.push({
       name: CELL_SELECTIONS_LEVEL_ZERO_NAME,
-      color: [255, 255, 255],
       children: [
         {
           name: nextName,
           set: cellSelection.map(d => [d, null]),
-          color: [255, 255, 255],
         },
       ],
     });
