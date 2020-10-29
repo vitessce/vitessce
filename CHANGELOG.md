@@ -16,6 +16,7 @@
     - Updated the code to avoid reliance on uuid "key" variables. Instead, we want to always use the "name path": the array of strings representing the path down the hierarchy to the node.
     - Removed the distinction between "visible" sets and "selected" (i.e. checked) sets.
 - Upgrade deck.gl to 8.3 and viv to 0.5
+- Fix build issues with nebula.
 
 ## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 
