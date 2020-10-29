@@ -530,6 +530,11 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
             }
           }
         },
+        {
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: "javascript/auto",
+        }
     ]
   };
 }
