@@ -187,7 +187,7 @@ export default function CellSetsManagerSubscriber(props) {
   const checkedLevel = useMemo(() => {
     if (cellColorEncoding === 'cellSetSelection'
     && cellSetSelection && cellSetSelection.length > 0
-    && mergedCellSets) {
+    && mergedCellSets && mergedCellSets.tree.length > 0) {
       return treeToExpectedCheckedLevel(mergedCellSets, cellSetSelection);
     }
     return null;
@@ -200,7 +200,8 @@ export default function CellSetsManagerSubscriber(props) {
     hasCheckedSetsToIntersect = false,
     hasCheckedSetsToComplement = false,
   } = useMemo(() => {
-    if (cellSetSelection && mergedCellSets) {
+    if (cellSetSelection && cellSetSelection.length > 0
+      && mergedCellSets && mergedCellSets.tree.length > 0) {
       return treeToCheckedSetOperations(mergedCellSets, cellSetSelection, allCellIds);
     }
     return {};
