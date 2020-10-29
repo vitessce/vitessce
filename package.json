@@ -53,7 +53,7 @@
     "lodash": "^4.17.15",
     "lz-string": "^1.4.4",
     "math.gl": "^3.1.3",
-    "nebula.gl": "^0.17.4",
+    "nebula.gl": "^0.21.1",
     "node-sass": "^4.13.1",
     "pixi.js": "^5.2.3",
     "prop-types": "^15.7.2",
@@ -158,7 +158,8 @@
     "test:watch": "karma start scripts/karma.config.js --auto-watch",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "lint-fix": "eslint -c .eslintrc.yml --ext .js --fix src/"
+    "lint-fix": "eslint -c .eslintrc.yml --ext .js --fix src/",
+    "postinstall": "find ./node_modules/@turf/difference ../@turf/difference -name \"*.mjs\" | xargs rm"
   },
   "browserslist": {
     "production": [
