@@ -7,6 +7,7 @@
 
 ### Changed
 - Upgrade deck.gl to 8.3 and viv to 0.5
+- Fix build issues with nebula.
 
 ## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 

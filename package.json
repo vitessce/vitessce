@@ -161,8 +161,7 @@
     "test:watch": "karma start scripts/karma.config.js --auto-watch",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "lint-fix": "eslint -c .eslintrc.yml --ext .js --fix src/",
-    "preinstall": "npx npm-force-resolutions"
+    "lint-fix": "eslint -c .eslintrc.yml --ext .js --fix src/"
   },
   "browserslist": {
     "production": [
