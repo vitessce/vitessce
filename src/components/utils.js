@@ -1,4 +1,8 @@
 import { COORDINATE_SYSTEM } from 'deck.gl';
+import {
+  SETS_DATATYPE_CELL,
+  HIERARCHICAL_SCHEMAS,
+} from './sets/constants';
 
 export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
@@ -142,6 +146,8 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
     n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME,
   );
   const nextAdditionalCellSets = {
+    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_CELL].latestVersion,
+    datatype: SETS_DATATYPE_CELL,
     tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
   };
 
@@ -179,6 +185,8 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
 
 export function mergeCellSets(cellSets, additionalCellSets) {
   return {
+    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_CELL].latestVersion,
+    datatype: SETS_DATATYPE_CELL,
     tree: [
       ...(cellSets ? cellSets.tree : []),
       ...(additionalCellSets ? additionalCellSets.tree : []),

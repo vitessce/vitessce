@@ -40,10 +40,12 @@ import {
   downloadForUser,
   handleExportJSON,
   handleExportTabular,
+  tryUpgradeTreeToLatestSchema,
 } from './io';
 import {
   FILE_EXTENSION_JSON,
   FILE_EXTENSION_TABULAR,
+  SETS_DATATYPE_CELL,
 } from './constants';
 import { useUrls, useReady } from '../hooks';
 import {
@@ -53,7 +55,6 @@ import {
 } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
 
-const SETS_DATATYPE_CELL = 'cell';
 const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
 
 /**
@@ -169,6 +170,13 @@ export default function CellSetsManagerSubscriber(props) {
       setCellSetColor(autoSetColors[dataset]);
     }
   }, [dataset, autoSetColors, isReady, setCellSetColor, initializeColor, cellSetColor]);
+
+  // Validate and upgrade the additionalCellSets.
+  useEffect(() => {
+    if (additionalCellSets) {
+      setAdditionalCellSets(tryUpgradeTreeToLatestSchema(additionalCellSets, SETS_DATATYPE_CELL));
+    }
+  }, [additionalCellSets, setAdditionalCellSets]);
 
   // Get an array of all cell IDs to use for set complement operations.
   const allCellIds = useMemo(() => (cells ? Object.keys(cells) : []), [cells]);
