@@ -174,9 +174,16 @@ export default function CellSetsManagerSubscriber(props) {
   // Validate and upgrade the additionalCellSets.
   useEffect(() => {
     if (additionalCellSets) {
-      setAdditionalCellSets(tryUpgradeTreeToLatestSchema(additionalCellSets, SETS_DATATYPE_CELL));
+      let upgradedCellSets;
+      try {
+        upgradedCellSets = tryUpgradeTreeToLatestSchema(additionalCellSets, SETS_DATATYPE_CELL);
+      } catch (e) {
+        setWarning(e.message);
+        return;
+      }
+      setAdditionalCellSets(upgradedCellSets);
     }
-  }, [additionalCellSets, setAdditionalCellSets]);
+  }, [additionalCellSets, setAdditionalCellSets, setWarning]);
 
   // Get an array of all cell IDs to use for set complement operations.
   const allCellIds = useMemo(() => (cells ? Object.keys(cells) : []), [cells]);
