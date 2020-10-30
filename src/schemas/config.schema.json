@@ -405,21 +405,10 @@
             ".": { "type": "number" }
           }
         },
-        "additionalCellSets": {
+        "additionalCellSets": { 
           "type": "object",
           "patternProperties": {
-            ".": {
-              "oneOf": [
-                {
-                  "type": "null",
-                  "description": "If null is provided, the user-defined cell sets schema may be initialized to an empty hierarchy."
-                },
-                {
-                  "description": "User-defined cell sets that will be merged with dataset-defined cell sets. Object must conform to the cell-sets schema.",
-                  "type": "object"
-                }
-              ]
-            }
+            ".": { "$ref": "https://github.com/hubmapconsortium/vitessce/#cell-sets" }
           }
         }
       }

@@ -1,13 +1,14 @@
 import Ajv from 'ajv';
 import { useEffect } from 'react';
 import configSchema from '../schemas/config.schema.json';
+import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import { useViewConfigStore, useLoaders, useWarning } from './state/hooks';
 
 function validateViewConfig(viewConfig) {
   // Need the try-catch here since Zustand will actually
   // just catch and ignore errors in its subscription callbacks.
   try {
-    const validate = new Ajv().compile(configSchema);
+    const validate = new Ajv().addSchema(cellSetsSchema).compile(configSchema);
     const valid = validate(viewConfig);
     if (!valid) {
       const failureReason = JSON.stringify(validate.errors, null, 2);
