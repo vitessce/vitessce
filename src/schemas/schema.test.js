@@ -19,7 +19,13 @@ describe('schemas', () => {
     const schemaFile = `${type}.schema.json`;
     describe(schemaFile, () => {
       const schema = require(`./${schemaFile}`);
-      const validate = new Ajv().compile(schema);
+      let validate;
+      if (type === 'config') {
+        const cellSets = require('./cell-sets.schema.json');
+        validate = new Ajv().addSchema(cellSets).compile(schema);
+      } else {
+        validate = new Ajv().compile(schema);
+      }
 
       const [goodFixture, badFixture, badMessage] = [
         'good', 'bad', 'bad.message',
