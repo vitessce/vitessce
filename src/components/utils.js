@@ -173,7 +173,7 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
   setAdditionalCellSets(nextAdditionalCellSets);
   const nextPath = ['My Selections', nextName];
   setCellSetColor([
-    ...cellSetColor,
+    ...(cellSetColor || []),
     {
       path: nextPath,
       color: PALETTE[colorIndex % PALETTE.length],
