@@ -12,8 +12,14 @@
         "additionalProperties": false,
         "required": ["component", "x", "y"],
         "properties": {
-          "component": { "type": "string", "description": "Specify a component using a name defined in the component registry." },
-          "props": { "type": "object", "description": "Extra prop values for the component." },
+          "component": {
+            "type": "string",
+            "description": "Specify a component using a name defined in the component registry."
+          },
+          "props": {
+            "type": "object",
+            "description": "Extra prop values for the component."
+          },
           "x": { "type": "integer" },
           "y": { "type": "integer" },
           "w": { "type": "integer" },
@@ -319,8 +325,14 @@
                     "additionalProperties": false,
                     "required": ["path", "color"],
                     "properties": {
-                      "path": { "type": "array", "items": { "type": "string" } },
-                      "color": { "type": "array", "items": { "type": "number" } }
+                      "path": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      },
+                      "color": {
+                        "type": "array",
+                        "items": { "type": "number" }
+                      }
                     }
                   }
                 }
@@ -405,21 +417,33 @@
             ".": { "type": "number" }
           }
         },
-        "additionalCellSets": { 
+        "additionalCellSets": {
           "type": "object",
           "patternProperties": {
-            ".": { "$ref": "https://github.com/hubmapconsortium/vitessce/#cell-sets" }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no cell will be highlighted initially."
+                },
+                {
+                  "$ref": "https://github.com/hubmapconsortium/vitessce/#cell-sets"
+                }
+              ]
+            }
           }
         }
       }
     },
     "layout": { "$ref": "#/definitions/components" },
     "initStrategy": {
-      "type": "string", "enum": ["none", "auto"],
+      "type": "string",
+      "enum": ["none", "auto"],
       "description": "The initialization strategy determines how missing coordination objects and coordination scope mappings are initially filled in."
     },
     "version": {
-      "type": "string", "enum": ["1.0.0"],
+      "type": "string",
+      "enum": ["1.0.0"],
       "description": "The schema version for the view config."
     }
   }
