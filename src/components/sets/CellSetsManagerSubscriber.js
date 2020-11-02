@@ -196,7 +196,10 @@ export default function CellSetsManagerSubscriber(props) {
 
   // Merged cell sets are only to be used for convenience when reading
   // (if writing: update either `cellSets` _or_ `additionalCellSets`).
-  const mergedCellSets = mergeCellSets(cellSets, additionalCellSets);
+  const mergedCellSets = useMemo(
+    () => mergeCellSets(cellSets, additionalCellSets),
+    [cellSets, additionalCellSets],
+  );
 
   // Infer the state of the "checked level" radio button based on the selected cell sets.
   const checkedLevel = useMemo(() => {
@@ -216,7 +219,9 @@ export default function CellSetsManagerSubscriber(props) {
     hasCheckedSetsToComplement = false,
   } = useMemo(() => {
     if (cellSetSelection && cellSetSelection.length > 0
-      && mergedCellSets && mergedCellSets.tree.length > 0) {
+      && mergedCellSets && mergedCellSets.tree.length > 0
+      && allCellIds && allCellIds.length > 0
+      && cellSetSelection.every(node => treeFindNodeByNamePath(mergedCellSets, node))) {
       return treeToCheckedSetOperations(mergedCellSets, cellSetSelection, allCellIds);
     }
     return {};
