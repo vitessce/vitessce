@@ -1,9 +1,10 @@
 import React, {
-  useState, useEffect, useMemo,
+  useState, useEffect, useMemo, useCallback,
 } from 'react';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import { setCellSelection, mergeCellSets } from '../utils';
 import {
   useCellsData, useCellSetsData, useExpressionMatrixData,
   useMoleculesData, useNeighborhoodsData, useRasterData,
@@ -18,8 +19,10 @@ import {
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './constants';
 import {
-  useCoordination, useLoaders,
-  useSetComponentHover, useSetComponentViewInfo,
+  useCoordination,
+  useLoaders,
+  useSetComponentHover,
+  useSetComponentViewInfo,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -36,6 +39,7 @@ export default function SpatialSubscriber(props) {
     uuid,
     coordinationScopes,
     removeGridComponent,
+    initializeLayers = true,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
@@ -57,11 +61,12 @@ export default function SpatialSubscriber(props) {
     spatialTargetZ: targetZ,
     spatialLayers: layers,
     cellFilter,
-    cellSelection,
     cellHighlight,
     geneSelection,
     cellSetSelection,
+    cellSetColor,
     cellColorEncoding,
+    additionalCellSets,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -69,9 +74,11 @@ export default function SpatialSubscriber(props) {
     setSpatialTargetZ: setTargetZ,
     setSpatialLayers: setLayers,
     setCellFilter,
-    setCellSelection,
     setCellSetSelection,
     setCellHighlight,
+    setCellSetColor,
+    setCellColorEncoding,
+    setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [autoLayers, setAutoLayers] = useState({
@@ -144,7 +151,7 @@ export default function SpatialSubscriber(props) {
           ).length > 0
         )
     );
-    if (isReady) {
+    if (isReady && initializeLayers) {
       if (!layers && autoLayers[dataset] && areAutoLayersComplete) {
         setLayers(sortLayers(autoLayers[dataset]));
       } else if (layers) {
@@ -160,14 +167,33 @@ export default function SpatialSubscriber(props) {
         );
       }
     }
-  }, [dataset, loaders, autoLayers, imageLayerLoaders, isReady, layers, setLayers]);
+  }, [dataset, loaders, autoLayers, imageLayerLoaders,
+    isReady, layers, setLayers, initializeLayers]);
+
+  const mergedCellSets = useMemo(() => mergeCellSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
+
+  const setCellSelectionProp = useCallback((v) => {
+    setCellSelection(
+      v, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
+    );
+  }, [additionalCellSets, cellSetColor, setCellColorEncoding,
+    setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
+
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionMatrix,
     geneSelection,
-    cellSets,
+    cellSets: mergedCellSets,
     cellSetSelection,
-  }), [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
+    cellSetColor,
+  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    cellSetColor, cellSetSelection, expressionMatrix]);
+
+  const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const getCellInfo = (cellId) => {
     const cell = cells[cellId];
@@ -211,7 +237,7 @@ export default function SpatialSubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2]);
         }}
-        layers={(isReady ? layers : [])}
+        layers={layers}
         cells={cells}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
@@ -221,10 +247,7 @@ export default function SpatialSubscriber(props) {
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}
-        setCellSelection={(v) => {
-          setCellSetSelection(null);
-          setCellSelection(v);
-        }}
+        setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);

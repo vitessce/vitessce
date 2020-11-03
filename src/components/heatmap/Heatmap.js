@@ -499,13 +499,14 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (setComponentHover) {
       setComponentHover();
     }
-    setCellHighlight(obsId);
-    setGeneHighlight(varId);
+    setCellHighlight(obsId || null);
+    setGeneHighlight(varId || null);
   }
 
   return (
     <>
       <DeckGL
+        id={`deckgl-overlay-${uuid}`}
         ref={deckRef}
         views={[
           // Note that there are multiple views here,

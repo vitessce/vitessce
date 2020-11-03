@@ -3,10 +3,12 @@ import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
 import range from 'lodash/range';
+import isEqual from 'lodash/isEqual';
 import PopoverMenu from './PopoverMenu';
 import HelpTooltip from './HelpTooltip';
 import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from './utils';
 import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
+import { DEFAULT_COLOR } from '../utils';
 
 
 /**
@@ -16,7 +18,7 @@ import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
  */
 function makeNodeViewMenuConfig(props) {
   const {
-    nodeKey,
+    path,
     level,
     height,
     onCheckNode,
@@ -35,13 +37,13 @@ function makeNodeViewMenuConfig(props) {
     ...(editable ? [
       {
         title: 'Rename',
-        handler: () => { onNodeSetIsEditing(nodeKey, true); },
+        handler: () => { onNodeSetIsEditing(path, true); },
         handlerKey: 'r',
       },
       {
         title: 'Delete',
         confirm: true,
-        handler: () => { onNodeRemove(nodeKey); },
+        handler: () => { onNodeRemove(path); },
         handlerKey: 'd',
       },
     ] : []),
@@ -49,14 +51,14 @@ function makeNodeViewMenuConfig(props) {
       {
         title: 'Export hierarchy',
         subtitle: '(to JSON file)',
-        handler: () => { onExportLevelZeroNodeJSON(nodeKey); },
+        handler: () => { onExportLevelZeroNodeJSON(path); },
         handlerKey: 'j',
       },
       ...(height <= 1 ? [
         {
           title: 'Export hierarchy',
           subtitle: '(to CSV file)',
-          handler: () => { onExportLevelZeroNodeTabular(nodeKey); },
+          handler: () => { onExportLevelZeroNodeTabular(path); },
           handlerKey: 't',
         },
       ] : []),
@@ -65,7 +67,7 @@ function makeNodeViewMenuConfig(props) {
       ...(checkable ? [
         {
           title: (checked ? 'Uncheck' : 'Check'),
-          handler: () => { onCheckNode(nodeKey, !checked); },
+          handler: () => { onCheckNode(path, !checked); },
           handlerKey: 's',
         },
       ] : []),
@@ -73,7 +75,7 @@ function makeNodeViewMenuConfig(props) {
         {
           title: 'Export set',
           subtitle: '(to JSON file)',
-          handler: () => { onExportSetJSON(nodeKey); },
+          handler: () => { onExportSetJSON(path); },
           handlerKey: 'e',
         },
       ] : []),
@@ -88,6 +90,7 @@ function makeNodeViewMenuConfig(props) {
 function NamedSetNodeStatic(props) {
   const {
     title,
+    path,
     nodeKey,
     level,
     height,
@@ -99,7 +102,7 @@ function NamedSetNodeStatic(props) {
     onNodeView,
     expanded,
     onCheckLevel,
-    checkedLevelKey,
+    checkedLevelPath,
     checkedLevelIndex,
     disableTooltip,
     size,
@@ -108,7 +111,7 @@ function NamedSetNodeStatic(props) {
   } = props;
   const shouldCheckNextLevel = (level === 0 && !expanded);
   const nextLevelToCheck = (
-    (checkedLevelIndex && nodeKey === checkedLevelKey && checkedLevelIndex < height)
+    (checkedLevelIndex && isEqual(path, checkedLevelPath) && checkedLevelIndex < height)
       ? checkedLevelIndex + 1
       : 1
   );
@@ -128,7 +131,7 @@ function NamedSetNodeStatic(props) {
   // click should trigger onNodeView.
   const onClick = (level === 0 && !expanded
     ? () => onCheckLevel(nodeKey, nextLevelToCheck)
-    : () => onNodeView(nodeKey)
+    : () => onNodeView(path)
   );
   const tooltipProps = (disableTooltip ? { visible: false } : {});
   const popoverMenuConfig = makeNodeViewMenuConfig(props);
@@ -138,7 +141,7 @@ function NamedSetNodeStatic(props) {
         <button
           type="button"
           onClick={onClick}
-          onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(nodeKey))}
+          onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(path))}
           className="title-button"
         >
           {title}
@@ -147,8 +150,8 @@ function NamedSetNodeStatic(props) {
       {popoverMenuConfig.length > 0 ? (
         <PopoverMenu
           menuConfig={makeNodeViewMenuConfig(props)}
-          color={level > 0 && editable ? color : null}
-          setColor={c => onNodeSetColor(nodeKey, c)}
+          color={level > 0 && editable ? (color || DEFAULT_COLOR) : null}
+          setColor={c => onNodeSetColor(path, c)}
         >
           <MenuSVG className="node-menu-icon" />
         </PopoverMenu>
@@ -167,7 +170,7 @@ function NamedSetNodeStatic(props) {
 function NamedSetNodeEditing(props) {
   const {
     title,
-    nodeKey,
+    path,
     onNodeSetName,
     onNodeCheckNewName,
   } = props;
@@ -175,10 +178,10 @@ function NamedSetNodeEditing(props) {
 
   // Do not allow the user to save a potential name if it conflicts with
   // another name in the hierarchy.
-  const hasConflicts = onNodeCheckNewName(nodeKey, currentTitle);
+  const hasConflicts = onNodeCheckNewName(path, currentTitle);
   function trySetName() {
     if (!hasConflicts) {
-      onNodeSetName(nodeKey, currentTitle, true);
+      onNodeSetName(path, currentTitle, true);
     }
   }
   return (
@@ -235,9 +238,10 @@ function NamedSetNode(props) {
 function LevelsButtons(props) {
   const {
     nodeKey,
+    path,
     height,
     onCheckLevel,
-    checkedLevelKey,
+    checkedLevelPath,
     checkedLevelIndex,
   } = props;
   function onCheck(event) {
@@ -255,7 +259,7 @@ function LevelsButtons(props) {
               className="level-radio-button"
               type="checkbox"
               value={i}
-              checked={nodeKey === checkedLevelKey && i === checkedLevelIndex}
+              checked={isEqual(path, checkedLevelPath) && i === checkedLevelIndex}
               onChange={onCheck}
             />
           </HelpTooltip>

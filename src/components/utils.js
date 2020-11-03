@@ -1,4 +1,8 @@
 import { COORDINATE_SYSTEM } from 'deck.gl';
+import {
+  SETS_DATATYPE_CELL,
+  HIERARCHICAL_SCHEMAS,
+} from './sets/constants';
 
 export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
@@ -32,7 +36,7 @@ export function cellLayerDefaultProps(cells, updateStatus, setCellHighlight, set
         }
       } else if (setCellHighlight) {
         // Clear the currently-hovered cell info by passing null.
-        setCellHighlight(null);
+        setCellHighlight('');
       }
     },
   };
@@ -114,4 +118,78 @@ export function copyUint8Array(arr) {
   const newArr = new Uint8Array(newBuffer);
   newArr.set(arr);
   return newArr;
+}
+
+export function getNextNumberedNodeName(nodes, prefix) {
+  let i = 1;
+  if (nodes) {
+    // eslint-disable-next-line no-loop-func
+    while (nodes.find(n => n.name === `${prefix}${i}`)) {
+      // eslint-disable-next-line no-plusplus
+      i++;
+    }
+  }
+  return `${prefix}${i}`;
+}
+
+/**
+ * Create a new selected cell set based on a cell selection.
+ * @param {string[]} cellSelection An array of cell IDs.
+ * @param {object[]} additionalCellSets The previous array of user-defined cell sets.
+ * @param {function} setCellSetSelection The setter function for cell set selections.
+ * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
+ */
+export function setCellSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ') {
+  const CELL_SELECTIONS_LEVEL_ZERO_NAME = 'My Selections';
+
+  const selectionsLevelZeroNode = additionalCellSets?.tree.find(
+    n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME,
+  );
+  const nextAdditionalCellSets = {
+    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_CELL].latestVersion,
+    datatype: SETS_DATATYPE_CELL,
+    tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
+  };
+
+  const nextName = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix);
+  let colorIndex = 0;
+  if (selectionsLevelZeroNode) {
+    colorIndex = selectionsLevelZeroNode.children.length;
+    selectionsLevelZeroNode.children.push({
+      name: nextName,
+      set: cellSelection.map(d => [d, null]),
+    });
+  } else {
+    nextAdditionalCellSets.tree.push({
+      name: CELL_SELECTIONS_LEVEL_ZERO_NAME,
+      children: [
+        {
+          name: nextName,
+          set: cellSelection.map(d => [d, null]),
+        },
+      ],
+    });
+  }
+  setAdditionalCellSets(nextAdditionalCellSets);
+  const nextPath = ['My Selections', nextName];
+  setCellSetColor([
+    ...(cellSetColor || []),
+    {
+      path: nextPath,
+      color: PALETTE[colorIndex % PALETTE.length],
+    },
+  ]);
+  setCellSetSelection([nextPath]);
+  setCellColorEncoding('cellSetSelection');
+}
+
+export function mergeCellSets(cellSets, additionalCellSets) {
+  return {
+    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_CELL].latestVersion,
+    datatype: SETS_DATATYPE_CELL,
+    tree: [
+      ...(cellSets ? cellSets.tree : []),
+      ...(additionalCellSets ? additionalCellSets.tree : []),
+    ],
+  };
 }

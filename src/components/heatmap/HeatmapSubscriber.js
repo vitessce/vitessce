@@ -4,6 +4,7 @@ import React, {
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import { mergeCellSets } from '../utils';
 import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import {
@@ -39,11 +40,12 @@ export default function HeatmapSubscriber(props) {
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
     geneSelection,
-    cellSelection,
     cellHighlight,
     geneHighlight,
     cellSetSelection,
+    cellSetColor,
     cellColorEncoding,
+    additionalCellSets,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -77,13 +79,19 @@ export default function HeatmapSubscriber(props) {
   );
   const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
 
+  const mergedCellSets = useMemo(() => mergeCellSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
+
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionMatrix,
     geneSelection,
-    cellSets,
+    cellSets: mergedCellSets,
     cellSetSelection,
-  }), [cellColorEncoding, geneSelection, cellSets, cellSetSelection, expressionMatrix]);
+    cellSetColor,
+  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    cellSetColor, cellSetSelection, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
@@ -107,7 +115,7 @@ export default function HeatmapSubscriber(props) {
     ? expressionMatrix.rows.length : 0;
   const genesCount = expressionMatrix && expressionMatrix.cols
     ? expressionMatrix.cols.length : 0;
-  const selectedCount = cellSelection ? cellSelection.length : 0;
+  const selectedCount = cellColors.size;
   return (
     <TitleInfo
       title="Heatmap"

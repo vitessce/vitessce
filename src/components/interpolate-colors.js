@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
-import { treeToCellColorsBySetNames } from './sets/reducer';
+import { treeToCellColorsBySetNames } from './sets/cell-set-utils';
 
 // The functions defined here have been adapted from d3-interpolate,
 // d3-color, and d3-scale-chromatic.
@@ -89,6 +89,7 @@ export function getCellColors(params) {
     cellColorEncoding,
     expressionMatrix, geneSelection,
     cellSets, cellSetSelection,
+    cellSetColor,
   } = params;
   if (cellColorEncoding === 'geneSelection' && geneSelection && geneSelection.length >= 1 && expressionMatrix) {
     const firstGeneSelected = geneSelection[0];
@@ -109,7 +110,7 @@ export function getCellColors(params) {
     // is not a required part of the schema.
     // The `initializeSets` function fills in any empty colors
     // with defaults and returns the processed tree object.
-    return treeToCellColorsBySetNames(cellSets, cellSetSelection);
+    return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor);
   }
   return new Map();
 }

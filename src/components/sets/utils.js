@@ -1,4 +1,5 @@
 import tinycolor from 'tinycolor2';
+import isEqual from 'lodash/isEqual';
 
 /**
  * Execute a callback function based on a keypress event.
@@ -8,6 +9,7 @@ import tinycolor from 'tinycolor2';
  */
 export function callbackOnKeyPress(event, key, callback) {
   if (event.key === key) {
+    event.preventDefault();
     callback();
   }
 }
@@ -43,4 +45,24 @@ export function getLevelTooltipText(i) {
     return `Color by ${subs(i - 1)}cluster`;
   }
   return `Color by cluster level ${i}`;
+}
+
+export function isEqualOrPrefix(targetPath, testPath) {
+  if (targetPath.length <= testPath.length) {
+    return isEqual(targetPath, testPath.slice(0, targetPath.length));
+  }
+  return false;
+}
+
+export function tryRenamePath(targetPath, testPath, nextTargetPath) {
+  if (isEqualOrPrefix(targetPath, testPath)) {
+    return [...nextTargetPath, ...testPath.slice(nextTargetPath.length)];
+  }
+  return testPath;
+}
+
+export const PATH_SEP = '___';
+
+export function pathToKey(path) {
+  return path.join(PATH_SEP);
 }

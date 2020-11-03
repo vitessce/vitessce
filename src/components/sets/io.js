@@ -3,7 +3,7 @@ import isNil from 'lodash/isNil';
 import { dsvFormat } from 'd3-dsv';
 import { parse as json2csv } from 'json2csv';
 import { colorArrayToString, colorStringToArray } from './utils';
-import { nodeTransform } from './reducer';
+import { nodeTransform } from './cell-set-utils';
 import { DEFAULT_COLOR } from '../utils';
 import {
   HIERARCHICAL_SCHEMAS, TABULAR_SCHEMAS,
@@ -13,12 +13,22 @@ import {
 
 /**
  * Check if an imported tree has an old schema version that we know how to
- * "upgrade" to the latest schema version.
+ * "upgrade" to the latest schema version.  Validate against the schema.
  * @param {object} currTree A hierarchical tree object with a .version property,
  * which has already passed schema validation, but may not have the latest schema version.
  * @param {string} datatype The data type of the items in the schema.
  */
 export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
+  const validate = new Ajv().compile(HIERARCHICAL_SCHEMAS[datatype].schema);
+  const valid = validate(currTree);
+  if (!valid) {
+    const failureReason = JSON.stringify(validate.errors, null, 2);
+    throw new Error(`Tree validation failed: ${failureReason}`);
+  } else if (currTree.datatype !== datatype) {
+    throw new Error(
+      `The data type does not match the expected data type of '${datatype}'.`,
+    );
+  }
   if (currTree.version === '0.1.2') {
     // To upgrade from cell-sets schema 0.1.2 to 0.1.3,
     // add a confidence value of null for each cell ID.
@@ -28,7 +38,7 @@ export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
       tree: currTree.tree.map(levelZeroNode => nodeTransform(
         levelZeroNode,
         n => !n.children && Array.isArray(n.set),
-        n => ({ ...n, set: n.set.map(itemId => ([itemId, null])) }),
+        n => ({ ...n, set: n.set.map(itemId => ([itemId, null])) }), [],
       )),
     };
   }
@@ -36,7 +46,7 @@ export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
 }
 
 /**
- * Handler for JSON imports. Validates against the hierarchical sets schema.
+ * Handler for JSON imports. Validates and upgrades against the hierarchical sets schema.
  * @param {string} result The data passed from the FileReader as a string.
  * @param {string} datatype The data type to validate against.
  * @returns {object} The imported tree object.
@@ -45,19 +55,8 @@ export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
 export function handleImportJSON(result, datatype) {
   let importData = JSON.parse(result);
   // Validate the imported file.
-  const validate = new Ajv().compile(HIERARCHICAL_SCHEMAS[datatype].schema);
-  const valid = validate(importData);
-  if (!valid) {
-    const failureReason = JSON.stringify(validate.errors, null, 2);
-    throw new Error(`Import validation failed: ${failureReason}`);
-  } else if (importData.datatype !== datatype) {
-    throw new Error(
-      `The imported data type does not match the expected data type of '${datatype}'.`,
-    );
-  } else {
-    importData = tryUpgradeTreeToLatestSchema(importData, datatype);
-    return importData;
-  }
+  importData = tryUpgradeTreeToLatestSchema(importData, datatype);
+  return importData;
 }
 
 /**

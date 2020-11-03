@@ -122,7 +122,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * and Scatterplot components.
    */
   render() {
-    const { deckRef, viewState } = this.props;
+    const { deckRef, viewState, uuid } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
 
@@ -141,6 +141,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           }}
         />
         <DeckGL
+          id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
           views={[new OrthographicView({ id: 'ortho' })]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
           layers={gl ? layers : ([])}

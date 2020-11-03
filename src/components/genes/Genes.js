@@ -19,7 +19,7 @@ export default function Genes(props) {
     .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
     .sort((a, b) => a.localeCompare(b))
     .map(
-      gene => ({ name: gene, value: geneSelection.includes(gene) }),
+      gene => ({ name: gene, value: (geneSelection ? geneSelection.includes(gene) : false) }),
     );
 
   return (

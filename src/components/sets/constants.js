@@ -11,6 +11,7 @@ export const SEPARATOR_TABULAR = ',';
 // value "NA" in the cell-sets-tabular JSON schema.
 export const NA_VALUE_TABULAR = 'NA';
 
+export const SETS_DATATYPE_CELL = 'cell';
 export const HIERARCHICAL_SCHEMAS = {
   cell: {
     latestVersion: '0.1.3',

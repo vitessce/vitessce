@@ -12,8 +12,14 @@
         "additionalProperties": false,
         "required": ["component", "x", "y"],
         "properties": {
-          "component": { "type": "string", "description": "Specify a component using a name defined in the component registry." },
-          "props": { "type": "object", "description": "Extra prop values for the component." },
+          "component": {
+            "type": "string",
+            "description": "Specify a component using a name defined in the component registry."
+          },
+          "props": {
+            "type": "object",
+            "description": "Extra prop values for the component."
+          },
           "x": { "type": "integer" },
           "y": { "type": "integer" },
           "w": { "type": "integer" },
@@ -41,20 +47,21 @@
               "heatmapTargetX": { "type": "string" },
               "heatmapTargetY": { "type": "string" },
               "cellFilter": { "type": "string" },
-              "cellSelection": { "type": "string" },
               "cellHighlight": { "type": "string" },
               "cellSetSelection": { "type": "string" },
               "cellSetHighlight": { "type": "string" },
+              "cellSetColor": { "type": "string" },
               "geneFilter": { "type": "string" },
-              "geneSelection": { "type": "string" },
               "geneHighlight": { "type": "string" },
+              "geneSelection": { "type": "string" },
               "geneExpressionColormap": { "type": "string" },
               "geneExpressionColormapRange": { "type": "string" },
               "cellColorEncoding": { "type": "string" },
               "spatialLayers": { "type": "string" },
               "genomicZoom": { "type": "string" },
               "genomicTargetX": { "type": "string" },
-              "genomicTargetY": { "type": "string" }
+              "genomicTargetY": { "type": "string" },
+              "additionalCellSets": { "type": "string" }
             }
           }
         }
@@ -211,7 +218,15 @@
         "spatialLayers": {
           "type": "object",
           "patternProperties": {
-            ".": {"type": "array", "items": { "type": "object" } }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
+                },
+                { "type": "array", "items": { "type": "object" } }
+              ]
+            }
           }
         },
         "heatmapZoomX": {
@@ -241,19 +256,88 @@
         "cellFilter": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "array", "items": { "type": "string" } }
-          }
-        },
-        "cellSelection": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "array", "items": { "type": "string" } }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no cells will be filtered out initially."
+                },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            }
           }
         },
         "cellHighlight": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "string" }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no cell will be highlighted initially."
+                },
+                { "type": "string" }
+              ]
+            }
+          }
+        },
+        "cellSetSelection": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided and auto cell set initialization is enabled, cell set selections will be automatically initialized."
+                },
+                { "type": "array" }
+              ]
+            }
+          }
+        },
+        "cellSetHighlight": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no cell sets will be highlighted initially."
+                },
+                { "type": "string" }
+              ]
+            }
+          }
+        },
+        "cellSetColor": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, cell set colors will be automatically initialized."
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["path", "color"],
+                    "properties": {
+                      "path": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      },
+                      "color": {
+                        "type": "array",
+                        "items": { "type": "number" }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
           }
         },
         "cellColorEncoding": {
@@ -265,31 +349,42 @@
         "geneFilter": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "array", "items": { "type": "string" } }
-          }
-        },
-        "geneSelection": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "array", "items": { "type": "string" } }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no genes will be filtered out initially."
+                },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            }
           }
         },
         "geneHighlight": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "string" }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no genes will be highlighted initially."
+                },
+                { "type": "string" }
+              ]
+            }
           }
         },
-        "cellSetSelection": {
+        "geneSelection": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "array" }
-          }
-        },
-        "cellSetHighlight": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "string" }
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            }
           }
         },
         "geneExpressionColormap": {
@@ -321,16 +416,34 @@
           "patternProperties": {
             ".": { "type": "number" }
           }
+        },
+        "additionalCellSets": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no cell will be highlighted initially."
+                },
+                {
+                  "$ref": "https://github.com/hubmapconsortium/vitessce/#cell-sets"
+                }
+              ]
+            }
+          }
         }
       }
     },
     "layout": { "$ref": "#/definitions/components" },
     "initStrategy": {
-      "type": "string", "enum": ["none", "auto"],
+      "type": "string",
+      "enum": ["none", "auto"],
       "description": "The initialization strategy determines how missing coordination objects and coordination scope mappings are initially filled in."
     },
     "version": {
-      "type": "string", "enum": ["1.0.0"],
+      "type": "string",
+      "enum": ["1.0.0"],
       "description": "The schema version for the view config."
     }
   }

@@ -25,7 +25,7 @@ const makeDefaultGetCellColors = cellColors => cellEntry => (
   cellColors && cellColors.get(cellEntry[0])
 ) || DEFAULT_COLOR;
 const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
-  cellSelection.length
+  cellSelection
     ? cellSelection.includes(cellEntry[0])
     : true // If nothing is selected, everything is selected.
 );
@@ -83,8 +83,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getCellPosition = makeDefaultGetCellPosition(mapping),
       cellRadiusScale = 0.2,
       cellOpacity = 1.0,
-      cellFilter = null,
-      cellSelection = [],
+      cellFilter,
+      cellSelection,
       setCellHighlight,
       setComponentHover,
       getCellIsSelected = makeDefaultGetCellIsSelected(cellSelection),

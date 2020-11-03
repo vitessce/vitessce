@@ -76,13 +76,23 @@ function validateTheme(theme) {
 export function createApp(rowHeight = null) {
   const urlParams = new URLSearchParams(window.location.search);
   const datasetId = urlParams.get('dataset');
+  const debug = urlParams.get('debug') === 'true';
   const datasetUrl = urlParams.get('url');
   const showAll = urlParams.get('show') === 'all';
   const theme = validateTheme(urlParams.get('theme'));
 
   if (datasetId) {
     const config = getConfig(datasetId);
-    return (<Vitessce config={config} rowHeight={rowHeight} theme={theme} />);
+    return (
+      <Vitessce
+        config={config}
+        rowHeight={rowHeight}
+        theme={theme}
+        // eslint-disable-next-line no-console
+        onConfigChange={(debug ? console.log : undefined)}
+        validateOnConfigChange={debug}
+      />
+    );
   }
   if (datasetUrl) {
     const responsePromise = fetch(datasetUrl)

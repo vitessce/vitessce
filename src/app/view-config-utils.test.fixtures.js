@@ -171,19 +171,16 @@ export const initializedViewConfig = {
       A: 'cellSetSelection',
     },
     cellFilter: {
-      A: undefined,
+      A: null,
     },
     cellHighlight: {
-      A: undefined,
-    },
-    cellSelection: {
-      A: undefined,
+      A: null,
     },
     cellSetHighlight: {
-      A: undefined,
+      A: null,
     },
     cellSetSelection: {
-      A: undefined,
+      A: null,
     },
     dataset: {
       A: 'A',
@@ -216,13 +213,13 @@ export const initializedViewConfig = {
       ],
     },
     geneHighlight: {
-      A: undefined,
+      A: null,
     },
     geneSelection: {
-      A: undefined,
+      A: null,
     },
     spatialLayers: {
-      A: undefined,
+      A: null,
     },
     spatialRotation: {
       A: 0,
@@ -238,6 +235,12 @@ export const initializedViewConfig = {
     },
     spatialZoom: {
       A: -4.4,
+    },
+    additionalCellSets: {
+      A: null,
+    },
+    cellSetColor: {
+      A: null,
     },
   },
   datasets: [
@@ -279,9 +282,9 @@ export const initializedViewConfig = {
         cellColorEncoding: 'A',
         cellFilter: 'A',
         cellHighlight: 'A',
-        cellSelection: 'A',
         cellSetHighlight: 'A',
         cellSetSelection: 'A',
+        cellSetColor: 'A',
         dataset: 'A',
         embeddingRotation: 'A',
         embeddingTargetX: 'A',
@@ -293,6 +296,7 @@ export const initializedViewConfig = {
         geneExpressionColormapRange: 'A',
         geneHighlight: 'A',
         geneSelection: 'A',
+        additionalCellSets: 'A',
       },
       h: 4,
       props: {
@@ -316,9 +320,9 @@ export const initializedViewConfig = {
         cellColorEncoding: 'A',
         cellFilter: 'A',
         cellHighlight: 'A',
-        cellSelection: 'A',
         cellSetHighlight: 'A',
         cellSetSelection: 'A',
+        cellSetColor: 'A',
         dataset: 'A',
         geneExpressionColormap: 'A',
         geneExpressionColormapRange: 'A',
@@ -330,6 +334,7 @@ export const initializedViewConfig = {
         spatialTargetY: 'A',
         spatialTargetZ: 'A',
         spatialZoom: 'A',
+        additionalCellSets: 'A',
       },
       h: 4,
       props: {
