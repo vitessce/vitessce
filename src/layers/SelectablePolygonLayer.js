@@ -1,8 +1,8 @@
 import { CompositeLayer, PolygonLayer } from 'deck.gl';
 
-import { overlayBaseProps } from './utils';
+import { overlayBaseProps } from './selection-utils';
 
-export class SelectablePolygonLayer extends CompositeLayer {
+export default class SelectablePolygonLayer extends CompositeLayer {
   renderLayers() {
     const props = overlayBaseProps(this.props);
     const base = new PolygonLayer(props.base);

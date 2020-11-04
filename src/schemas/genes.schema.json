@@ -4,11 +4,11 @@
   "title": "Vitessce gene data",
   "type": "object",
   "definitions": {
-    "positiveIntegerValues": {
+    "positiveFloatValues": {
       "type": "object",
       "patternProperties": {
         ".": {
-          "type": "integer",
+          "type": "number",
           "minimum": 0
         }
       }
@@ -20,7 +20,7 @@
       "required": ["max", "cells"],
       "properties": {
         "max": { "type": "number" },
-        "cells": { "$ref": "#/definitions/positiveIntegerValues" }
+        "cells": { "$ref": "#/definitions/positiveFloatValues" }
       }
     }
   }

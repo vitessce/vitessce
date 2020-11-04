@@ -1,340 +1,454 @@
-import React, {
-  useRef, useState, useCallback, useEffect, useMemo,
-} from 'react';
-import DeckGL, {
-  ScatterplotLayer, PolygonLayer, OrthographicView, COORDINATE_SYSTEM,
-} from 'deck.gl';
-import { VivViewerLayer, StaticImageLayer } from '@hubmap/vitessce-image-viewer';
+import React, { forwardRef } from 'react';
+import isEqual from 'lodash/isEqual';
+import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { MultiscaleImageLayer, ImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
-import LayersMenu from './LayersMenu';
-import ToolMenu from '../ToolMenu';
+import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
+import { square } from './utils';
+import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import {
-  cellLayerDefaultProps, PALETTE, DEFAULT_COLOR,
-  DEFAULT_GL_OPTIONS,
-  createDefaultUpdateStatus, createDefaultUpdateCellsSelection,
-  createDefaultUpdateCellsHover,
-  createDefaultUpdateViewInfo, createDefaultClearPleaseWait,
-} from '../utils';
+  createCellsQuadTree,
+} from '../shared-spatial-scatterplot/quadtree';
 
-const COMPONENT_NAME = 'Spatial';
 const CELLS_LAYER_ID = 'cells-layer';
+const MOLECULES_LAYER_ID = 'molecules-layer';
+const NEIGHBORHOODS_LAYER_ID = 'neighborhoods-layer';
 
-
-export function square(x, y, r) {
-  return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
-}
+// Default getter function props.
+const defaultGetCellCoords = cell => cell.xy;
+const makeDefaultGetCellPolygon = radius => (cellEntry) => {
+  const cell = cellEntry[1];
+  return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
+};
+const makeDefaultGetCellColors = cellColors => cellEntry => (
+  cellColors && cellColors.get(cellEntry[0])
+) || DEFAULT_COLOR;
+const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
+  cellSelection
+    ? cellSelection.includes(cellEntry[0])
+    : true // If nothing is selected, everything is selected.
+);
 
 /**
  * React component which expresses the spatial relationships between cells and molecules.
- * @prop {string} uuid
- * @prop {object} view
- * @prop {number} view.zoom
- * @prop {number[]} view.target See https://github.com/uber/deck.gl/issues/2580 for more information.
- * @prop {object} molecules
- * @prop {object} cells
- * @prop {object} neighborhoods
- * @prop {number} cellRadius
- * @prop {number} moleculeRadius
- * @prop {number} cellOpacity The value for `opacity` to pass
- * to the deck.gl cells PolygonLayer.
- * @prop {object} imageLayerProps
- * @prop {object} imageLayerLoaders
- * @prop {object} cellColors Object mapping cell IDs to colors.
- * @prop {Set} selectedCellIds Set of selected cell IDs.
- * @prop {function} getCellCoords Getter function for cell coordinates
+ * @param {object} props
+ * @param {string} props.uuid A unique identifier for this component,
+ * used to determine when to show tooltips vs. crosshairs.
+ * @param {number} props.height Height of the DeckGL canvas, used when
+ * rendering the scale bar layer.
+ * @param {number} props.width Width of the DeckGL canvas, used when
+ * rendering the scale bar layer.
+ * @param {object} props.viewState The DeckGL viewState object.
+ * @param {function} props.setViewState A handler for updating the DeckGL
+ * viewState object.
+ * @param {object} props.molecules Molecules data.
+ * @param {object} props.cells Cells data.
+ * @param {object} props.neighborhoods Neighborhoods data.
+ * @param {number} props.lineWidthScale Width of cell border in view space (deck.gl).
+ * @param {number} props.lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
+ * @param {object} props.imageLayerLoaders An object mapping raster layer index to Viv loader
+ * instances.
+ * @param {object} props.cellColors Map from cell IDs to colors [r, g, b].
+ * @param {function} props.getCellCoords Getter function for cell coordinates
  * (used by the selection layer).
- * @prop {function} getCellColor Getter function for cell color as [r, g, b] array.
- * @prop {function} getCellPolygon
- * @prop {function} getCellIsSelected Getter function for cell layer isSelected.
- * @prop {function} getMoleculeColor
- * @prop {function} getMoleculePosition
- * @prop {function} getNeighborhoodPolygon
- * @prop {function} updateStatus
- * @prop {function} updateCellsSelection
- * @prop {function} updateCellsHover
- * @prop {function} updateViewInfo
- * @prop {function} clearPleaseWait
- * @prop {function} onCellClick Getter function for cell layer onClick.
+ * @param {function} props.getCellColor Getter function for cell color as [r, g, b] array.
+ * @param {function} props.getCellPolygon Getter function for cell polygons.
+ * @param {function} props.getCellIsSelected Getter function for cell layer isSelected.
+ * @param {function} props.getMoleculeColor
+ * @param {function} props.getMoleculePosition
+ * @param {function} props.getNeighborhoodPolygon
+ * @param {function} props.updateViewInfo Handler for DeckGL viewport updates,
+ * used when rendering tooltips and crosshairs.
+ * @param {function} props.onCellClick Getter function for cell layer onClick.
  */
-export default function Spatial(props) {
-  const {
-    uuid = null,
-    view = {
-      zoom: 2,
-      target: [0, 0, 0],
-    },
-    molecules = {},
-    cells = {},
-    neighborhoods = {},
-    cellRadius = 50,
-    moleculeRadius = 10,
-    cellOpacity = 1.0,
-    imageLayerProps = {},
-    imageLayerLoaders = {},
-    cellColors = {},
-    selectedCellIds = new Set(),
-    getCellCoords = cell => cell.xy,
-    getCellColor = cellEntry => (cellColors && cellColors[cellEntry[0]]) || DEFAULT_COLOR,
-    getCellPolygon = (cellEntry) => {
-      const cell = cellEntry[1];
-      return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], cellRadius);
-    },
-    getCellIsSelected = cellEntry => (
-      selectedCellIds.size
-        ? selectedCellIds.has(cellEntry[0])
-        : true // If nothing is selected, everything is selected.
-    ),
-    getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
-    getMoleculePosition = d => [d[0], d[1], 0],
-    getNeighborhoodPolygon = (neighborhoodsEntry) => {
-      const neighborhood = neighborhoodsEntry[1];
-      return neighborhood.poly;
-    },
-    updateStatus = createDefaultUpdateStatus(COMPONENT_NAME),
-    updateCellsSelection = createDefaultUpdateCellsSelection(COMPONENT_NAME),
-    updateCellsHover = createDefaultUpdateCellsHover(COMPONENT_NAME),
-    updateViewInfo = createDefaultUpdateViewInfo(COMPONENT_NAME),
-    clearPleaseWait = createDefaultClearPleaseWait(COMPONENT_NAME),
-    onCellClick = (info) => {
-      const cellId = info.object[0];
-      const newSelectedCellIds = new Set(selectedCellIds);
-      if (selectedCellIds.has(cellId)) {
-        newSelectedCellIds.delete(cellId);
-        updateCellsSelection(newSelectedCellIds);
-      } else {
-        newSelectedCellIds.add(cellId);
-        updateCellsSelection(newSelectedCellIds);
-      }
-    },
-  } = props;
+class Spatial extends AbstractSpatialOrScatterplot {
+  constructor(props) {
+    super(props);
 
-  // In Deck.gl, layers are considered light weight, and
-  // can be created and destroyed quickly, if the data they wrap is stable.
-  // https://deck.gl/#/documentation/developer-guide/using-layers?section=creating-layer-instances-is-cheap
-  const moleculesDataRef = useRef(null);
-  const cellsDataRef = useRef(null);
-  const neighborhoodsDataRef = useRef(null);
+    // To avoid storing large arrays/objects
+    // in React state, this component
+    // uses instance variables.
+    // All instance variables used in this class:
+    this.cellsEntries = [];
+    this.moleculesEntries = [];
+    this.cellsQuadTree = null;
+    this.cellsLayer = null;
+    this.moleculesLayer = null;
+    this.neighborhoodsLayer = null;
+    this.imageLayers = [];
+    this.layerLoaderSelections = {};
 
-  const [layerIsVisible, setLayerIsVisible] = useState({
-    molecules: false,
-    cells: false,
-    neighborhoods: false,
-  });
+    // Initialize data and layers.
+    this.onUpdateCellsData();
+    this.onUpdateCellsLayer();
+    this.onUpdateMoleculesData();
+    this.onUpdateMoleculesLayer();
+    this.onUpdateNeighborhoodsData();
+    this.onUpdateNeighborhoodsLayer();
+    this.onUpdateImages();
+  }
 
-  const deckRef = useRef();
-  const viewRef = useRef({
-    viewport: null,
-    width: null,
-    height: null,
-    uuid,
-  });
-  const [gl, setGl] = useState(null);
-  const [tool, setTool] = useState(null);
+  createCellsLayer(layerDef) {
+    const {
+      radius, stroked, visible, opacity,
+    } = layerDef;
+    const {
+      cellFilter,
+      cellSelection,
+      setCellHighlight,
+      setComponentHover,
+      getCellIsSelected = makeDefaultGetCellIsSelected(cellSelection),
+      cellColors,
+      getCellColor = makeDefaultGetCellColors(cellColors),
+      getCellPolygon = makeDefaultGetCellPolygon(radius),
+      onCellClick,
+      lineWidthScale = 10,
+      lineWidthMaxPixels = 2,
+    } = this.props;
+    const { cellsEntries } = this;
+    const filteredCellsEntries = (cellFilter
+      ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
+      : cellsEntries);
 
-  const onViewStateChange = useCallback(({ viewState }) => {
-    // Update the viewport field of the `viewRef` object
-    // to satisfy components (e.g. CellTooltip2D) that depend on an
-    // up-to-date viewport instance (to perform projections).
-    const viewport = (new OrthographicView()).makeViewport({
-      viewState,
-      width: viewRef.current.width,
-      height: viewRef.current.height,
+    // Graphics rendering has the y-axis positive going south,
+    // so we need to flip it for rendering tooltips.
+    const flipYTooltip = true;
+
+    return new SelectablePolygonLayer({
+      id: CELLS_LAYER_ID,
+      backgroundColor: [0, 0, 0],
+      isSelected: getCellIsSelected,
+      getPolygon: getCellPolygon,
+      updateTriggers: {
+        getFillColor: [opacity],
+        getLineWidth: [stroked],
+      },
+      getFillColor: (cellEntry) => {
+        const color = getCellColor(cellEntry);
+        color[3] = opacity * 255;
+        return color;
+      },
+      getLineColor: (cellEntry) => {
+        const color = getCellColor(cellEntry);
+        color[3] = 255;
+        return color;
+      },
+      onClick: (info) => {
+        if (onCellClick) {
+          onCellClick(info);
+        }
+      },
+      visible,
+      getLineWidth: stroked ? 1 : 0,
+      lineWidthScale,
+      lineWidthMaxPixels,
+      ...cellLayerDefaultProps(
+        filteredCellsEntries, undefined, setCellHighlight,
+        setComponentHover, flipYTooltip,
+      ),
     });
-    viewRef.current.viewport = viewport;
-    updateViewInfo(viewRef.current);
-  }, [viewRef, updateViewInfo]);
+  }
 
-  const onInitializeViewInfo = useCallback(({ width, height, viewport }) => {
-    viewRef.current.viewport = viewport;
-    viewRef.current.width = width;
-    viewRef.current.height = height;
-    updateViewInfo(viewRef.current);
-  }, [viewRef, updateViewInfo]);
+  createMoleculesLayer(layerDef) {
+    const {
+      updateStatus,
+      getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
+      getMoleculePosition = d => [d[0], d[1], 0],
+    } = this.props;
+    const { moleculesEntries } = this;
 
-  useEffect(() => {
-    // Process molecules data and cache into re-usable array.
-    if (molecules && !moleculesDataRef.current) {
-      let moleculesData = [];
-      Object.entries(molecules).forEach(([molecule, coords], index) => {
-        moleculesData = moleculesData.concat(
-          coords.map(([x, y]) => [x, y, index, molecule]), // eslint-disable-line no-loop-func
-          // Because we use the inner function immediately,
-          // the eslint warning about closures is a red herring:
-          // The index and molecule values are correct.
-        );
-      });
-      moleculesDataRef.current = moleculesData;
-      if (clearPleaseWait) clearPleaseWait('molecules');
-      setLayerIsVisible({
-        molecules: true,
-        cells: layerIsVisible.cells,
-        neighborhoods: layerIsVisible.neighborhoods,
-      });
-    }
-  }, [molecules, moleculesDataRef, clearPleaseWait, layerIsVisible]);
+    return new ScatterplotLayer({
+      id: MOLECULES_LAYER_ID,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: moleculesEntries,
+      pickable: true,
+      autoHighlight: true,
+      radiusMaxPixels: 3,
+      opacity: layerDef.opacity,
+      visible: layerDef.visible,
+      getRadius: layerDef.radius,
+      getPosition: getMoleculePosition,
+      getLineColor: getMoleculeColor,
+      getFillColor: getMoleculeColor,
+      onHover: (info) => {
+        if (info.object && updateStatus) {
+          updateStatus(`Gene: ${info.object[3]}`);
+        }
+      },
+    });
+  }
 
-  useEffect(() => {
-    // Process cells data and cache into re-usable array.
-    if (cells && !cellsDataRef.current) {
-      cellsDataRef.current = Object.entries(cells);
-      if (clearPleaseWait) clearPleaseWait('cells');
-      setLayerIsVisible({
-        molecules: layerIsVisible.molecules,
-        cells: true,
-        neighborhoods: layerIsVisible.neighborhoods,
-      });
-    }
-  }, [cells, cellsDataRef, clearPleaseWait, layerIsVisible]);
+  createNeighborhoodsLayer(layerDef) {
+    const {
+      getNeighborhoodPolygon = (neighborhoodsEntry) => {
+        const neighborhood = neighborhoodsEntry[1];
+        return neighborhood.poly;
+      },
+    } = this.props;
+    const { neighborhoodsEntries } = this;
 
-  useEffect(() => {
-    // Process neighborhoods data and cache into re-usable array.
-    if (neighborhoods && !neighborhoodsDataRef.current) {
-      neighborhoodsDataRef.current = Object.entries(neighborhoods);
-      if (clearPleaseWait) clearPleaseWait('neighborhoods');
-      setLayerIsVisible({
-        molecules: layerIsVisible.molecules,
-        cells: layerIsVisible.cells,
-        neighborhoods: false,
-      });
-    }
-  }, [neighborhoods, neighborhoodsDataRef, clearPleaseWait, layerIsVisible]);
+    return new PolygonLayer({
+      id: NEIGHBORHOODS_LAYER_ID,
+      getPolygon: getNeighborhoodPolygon,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: neighborhoodsEntries,
+      pickable: true,
+      autoHighlight: true,
+      stroked: true,
+      filled: false,
+      getElevation: 0,
+      getLineWidth: 10,
+      visible: layerDef.visible,
+    });
+  }
 
-  const cellsLayer = useMemo(() => new SelectablePolygonLayer({
-    id: CELLS_LAYER_ID,
-    backgroundColor: [0, 0, 0],
-    opacity: cellOpacity,
-    isSelected: getCellIsSelected,
-    stroked: false,
-    getPolygon: getCellPolygon,
-    getColor: getCellColor,
-    onClick: (info) => {
-      if (tool) {
-        // If using a tool, prevent individual cell selection.
-        // Let SelectionLayer handle the clicks instead.
-        return;
+  createSelectionLayers() {
+    const { viewState, getCellCoords = defaultGetCellCoords, setCellSelection } = this.props;
+    const { tool } = this.state;
+    const { cellsQuadTree } = this;
+    return getSelectionLayers(
+      tool,
+      viewState.zoom,
+      CELLS_LAYER_ID,
+      getCellCoords,
+      setCellSelection,
+      cellsQuadTree,
+    );
+  }
+
+  createScaleBarLayer() {
+    const {
+      viewState, width, height, imageLayerLoaders = {},
+    } = this.props;
+    // Just get the first layer/loader since they should all be spatially
+    // resolved and therefore have the same unit size scale.
+    const loaders = Object.values(imageLayerLoaders);
+    if (!viewState || !width || !height || loaders.length < 1) return null;
+    const loader = loaders[0];
+    if (!loader) return null;
+    const { physicalSizes } = loader;
+    if (physicalSizes) {
+      const { x } = physicalSizes;
+      const { unit, value } = x;
+      if (unit && value) {
+        return new ScaleBarLayer({
+          id: 'scalebar-layer',
+          loader,
+          unit,
+          size: value,
+          viewState: { ...viewState, width, height },
+        });
       }
-      onCellClick(info);
-    },
-    visible: layerIsVisible.cells,
-    ...cellLayerDefaultProps(cellsDataRef.current, updateStatus, updateCellsHover, uuid),
-  }), [layerIsVisible, updateStatus, updateCellsHover, uuid, onCellClick,
-    tool, getCellColor, getCellPolygon, cellOpacity,
-    getCellIsSelected]);
+      return null;
+    }
+    return null;
+  }
 
-  const moleculesLayer = useMemo(() => new ScatterplotLayer({
-    id: 'molecules-layer',
-    coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: moleculesDataRef.current,
-    pickable: true,
-    autoHighlight: true,
-    getRadius: moleculeRadius,
-    radiusMaxPixels: 3,
-    getPosition: getMoleculePosition,
-    getLineColor: getMoleculeColor,
-    getFillColor: getMoleculeColor,
-    onHover: (info) => {
-      if (info.object) { updateStatus(`Gene: ${info.object[3]}`); }
-    },
-    visible: layerIsVisible.molecules,
-  }), [moleculeRadius, getMoleculePosition, getMoleculeColor,
-    layerIsVisible.molecules, updateStatus]);
+  createImageLayer(rawLayerDef, loader, i) {
+    const layerDef = {
+      ...rawLayerDef,
+      channels: rawLayerDef.channels
+        .filter(channel => channel.selection && channel.color && channel.slider),
+    };
 
-  const neighborhoodsLayer = useMemo(() => new PolygonLayer({
-    id: 'neighborhoods-layer',
-    getPolygon: getNeighborhoodPolygon,
-    coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: neighborhoodsDataRef.current,
-    pickable: true,
-    autoHighlight: true,
-    stroked: true,
-    filled: false,
-    getElevation: 0,
-    getLineWidth: 10,
-    visible: layerIsVisible.neighborhoods,
-  }), [neighborhoodsDataRef, layerIsVisible, getNeighborhoodPolygon]);
+    // We need to keep the same loaderSelection array reference,
+    // otherwise the Viv layer will not be re-used as we want it to,
+    // since loaderSelection is one of its `updateTriggers`.
+    // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
+    let loaderSelection;
+    const nextLoaderSelection = layerDef.channels.map(c => c.selection);
+    const prevLoaderSelection = this.layerLoaderSelections[layerDef.index];
+    if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
+      loaderSelection = prevLoaderSelection;
+    } else {
+      loaderSelection = nextLoaderSelection;
+      this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
+    }
 
-  const renderImageLayer = useCallback((layerId, loader) => {
-    const layerProps = imageLayerProps[layerId];
+    const layerProps = {
+      colormap: layerDef.colormap,
+      opacity: layerDef.opacity,
+      colors: layerDef.channels.map(c => c.color),
+      sliders: layerDef.channels.map(c => c.slider),
+      visibilities: layerDef.channels.map(c => c.visible),
+    };
+
     if (!loader || !layerProps) return null;
     const { scale, translate, isPyramid } = loader;
-    const Layer = isPyramid ? VivViewerLayer : StaticImageLayer;
+    const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
     return new Layer({
       loader,
-      id: layerId,
+      id: `image-layer-${layerDef.index}-${i}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
-      loaderSelection: layerProps.selections,
+      loaderSelection,
       channelIsOn: layerProps.visibilities,
       opacity: layerProps.opacity,
       colormap: layerProps.colormap.length > 0 && layerProps.colormap,
       scale: scale || 1,
       translate: translate ? [translate.x, translate.y] : [0, 0],
     });
-  }, [imageLayerProps]);
+  }
 
-  const imageLayers = useMemo(() => Object.entries(imageLayerLoaders)
-    .map(([layerId, layerLoader]) => renderImageLayer(layerId, layerLoader)), [
-    renderImageLayer, imageLayerLoaders,
-  ]);
+  createImageLayers() {
+    const { layers, imageLayerLoaders = {} } = this.props;
+    return (layers || [])
+      .filter(layer => layer.type === 'raster')
+      .map((layer, i) => this.createImageLayer(
+        layer, imageLayerLoaders[layer.index], i,
+      ));
+  }
 
-  const layers = [
-    ...imageLayers,
-    cellsLayer,
-    neighborhoodsLayer,
-    moleculesLayer,
-  ];
+  getLayers() {
+    const {
+      imageLayers,
+      cellsLayer,
+      neighborhoodsLayer,
+      moleculesLayer,
+    } = this;
+    return [
+      ...imageLayers,
+      cellsLayer,
+      neighborhoodsLayer,
+      moleculesLayer,
+      this.createScaleBarLayer(),
+      ...this.createSelectionLayers(),
+    ];
+  }
 
-  const selectionLayers = getSelectionLayers(
-    tool,
-    view.zoom,
-    CELLS_LAYER_ID,
-    getCellCoords,
-    updateCellsSelection,
-  );
+  onUpdateCellsData() {
+    const {
+      cells = {},
+      getCellCoords = defaultGetCellCoords,
+    } = this.props;
+    const cellsEntries = Object.entries(cells);
+    this.cellsEntries = cellsEntries;
+    this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
+  }
 
-  const layersMenu = useMemo(() => {
-    // Don't render if just image data
-    if (!molecules && !neighborhoods && !cells) return null;
-    return (
-      <LayersMenu
-        layerIsVisible={layerIsVisible}
-        setLayerIsVisible={setLayerIsVisible}
-      />
-    );
-  }, [setLayerIsVisible, layerIsVisible, molecules, neighborhoods, cells]);
+  onUpdateCellsLayer() {
+    const { layers } = this.props;
+    const layerDef = (layers || []).find(layer => layer.type === 'cells');
+    if (layerDef) {
+      this.cellsLayer = this.createCellsLayer(layerDef);
+    } else {
+      this.cellsLayer = null;
+    }
+  }
 
-  const deckProps = {
-    views: [new OrthographicView({ id: 'ortho' })], // id is a fix for https://github.com/uber/deck.gl/issues/3259
-    // gl needs to be initialized for us to use it in Texture creation
-    layers: gl ? layers.concat(selectionLayers) : [],
-    initialViewState: view,
-    ...(tool ? {
-      controller: { dragPan: false },
-      getCursor: () => 'crosshair',
-    } : {
-      controller: true,
-      getCursor: interactionState => (interactionState.isDragging ? 'grabbing' : 'default'),
-    }),
-  };
+  onUpdateMoleculesData() {
+    const { molecules = {} } = this.props;
+    const moleculesEntries = Object
+      .entries(molecules)
+      .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [
+        x, y, index, molecule,
+      ]));
+    this.moleculesEntries = moleculesEntries;
+  }
 
-  return (
-    <>
-      <div className="d-flex">
-        <ToolMenu
-          activeTool={tool}
-          setActiveTool={setTool}
-          onViewStateChange={onViewStateChange}
-        />
-        {layersMenu}
-      </div>
-      <DeckGL
-        glOptions={DEFAULT_GL_OPTIONS}
-        ref={deckRef}
-        onWebGLInitialized={setGl}
-        {...deckProps}
-      >
-        {onInitializeViewInfo}
-      </DeckGL>
-    </>
-  );
+  onUpdateMoleculesLayer() {
+    const { layers } = this.props;
+    const layerDef = (layers || []).find(layer => layer.type === 'molecules');
+    if (layerDef) {
+      this.moleculesLayer = this.createMoleculesLayer(layerDef);
+    } else {
+      this.moleculesLayer = null;
+    }
+  }
+
+  onUpdateNeighborhoodsData() {
+    const { neighborhoods = {} } = this.props;
+    const neighborhoodsEntries = Object
+      .entries(neighborhoods);
+    this.neighborhoodsEntries = neighborhoodsEntries;
+  }
+
+  onUpdateNeighborhoodsLayer() {
+    const { layers } = this.props;
+    const layerDef = (layers || []).find(layer => layer.type === 'neighborhoods');
+    if (layerDef) {
+      this.neighborhoodsLayer = this.createNeighborhoodsLayer(layerDef);
+    } else {
+      this.neighborhoodsLayer = null;
+    }
+  }
+
+  onUpdateImages() {
+    this.imageLayers = this.createImageLayers();
+  }
+
+  viewInfoDidUpdate() {
+    const { getCellCoords = defaultGetCellCoords } = this.props;
+    super.viewInfoDidUpdate(getCellCoords);
+  }
+
+  /**
+   * Here, asynchronously check whether props have
+   * updated which require re-computing memoized variables,
+   * followed by a re-render.
+   * This function does not follow React conventions or paradigms,
+   * it is only implemented this way to try to squeeze out
+   * performance.
+   * @param {object} prevProps The previous props to diff against.
+   */
+  componentDidUpdate(prevProps) {
+    this.viewInfoDidUpdate();
+
+    const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
+    if (['cells'].some(shallowDiff)) {
+      // Cells data changed.
+      this.onUpdateCellsData();
+      this.forceUpdate();
+    }
+
+    if ([
+      'layers', 'cells', 'cellFilter', 'cellSelection', 'cellColors',
+    ].some(shallowDiff)) {
+      // Cells layer props changed.
+      this.onUpdateCellsLayer();
+      this.forceUpdate();
+    }
+
+    if (['molecules'].some(shallowDiff)) {
+      // Molecules data changed.
+      this.onUpdateMoleculesData();
+      this.forceUpdate();
+    }
+
+    if (['layers', 'molecules'].some(shallowDiff)) {
+      // Molecules layer props changed.
+      this.onUpdateMoleculesLayer();
+      this.forceUpdate();
+    }
+
+    if (['neighborhoods'].some(shallowDiff)) {
+      // Neighborhoods data changed.
+      this.onUpdateNeighborhoodsData();
+      this.forceUpdate();
+    }
+
+    if (['layers', 'neighborhoods'].some(shallowDiff)) {
+      // Neighborhoods layer props changed.
+      this.onUpdateNeighborhoodsLayer();
+      this.forceUpdate();
+    }
+
+    if (['layers', 'imageLayerLoaders'].some(shallowDiff)) {
+      // Image layers changed.
+      this.onUpdateImages();
+      this.forceUpdate();
+    }
+  }
+
+  // render() is implemented in the abstract parent class.
 }
+
+/**
+ * Need this wrapper function here,
+ * since we want to pass a forwardRef
+ * so that outer components can
+ * access the grandchild DeckGL ref,
+ * but we are using a class component.
+ */
+const SpatialWrapper = forwardRef((props, deckRef) => <Spatial {...props} deckRef={deckRef} />);
+export default SpatialWrapper;

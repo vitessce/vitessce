@@ -1,7 +1,18 @@
 # Test protocol
 
 This doesn't replace automated tests, but we do want a detailed explanation of the functionality.
-The description below should work for any deployment.
+The description below should work for any deployment.  All three major browsers (Safari, Chrome, Firefox) should be tested - if it's too much for just one person,
+you can enlist the reviewer of the version bump PR, for example.
+
+If the release involves heavy changes to functionality that is used in the Portal, it may be a good idea to build locally and test there.
+```bash
+npm run-script build-lib && npm pack
+cd ../path/to/portal-ui
+cd context
+npm i ../path/to/vitessce/vitessce-VERSION.tar.gz
+cd ..
+./dev-start.sh
+```
 
 ## Welcome Page
 
@@ -13,23 +24,24 @@ The description below should work for any deployment.
  - Info about the current deployment.
 
  There is an input field where the URL of a config could be given.
- You can also paste a data URI like this: `data:,{"name":"FAKE", "description":"fake dataset", "layers":[], "staticLayout":[{"component":"description", "props":{"description": "Hello World"}, "x":0, "y": 0, "w": 2, "h": 2}]}`
+ You can also paste a data URI like this: `data:,{"name":"FAKE", "version": "0.1.0", "description":"fake dataset", "layers":[], "staticLayout":[{"component":"description", "props":{"description": "Hello World"}, "x":0, "y": 0, "w": 2, "h": 2}]}`
 
 ## Application Layout
 
 Click on "Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH".
 
-While data loads, there should be a modal please-wait.
+While data loads, there should be a spinner over every component on the grid, which disappear independently as data loads.
 
-The components are arranged in three columns, with another component (heatmap) as a footer.
+The components are arranged in four columns, with another component (heatmap) as a footer.
 The components in the successive columns should be:
-- Data Set, Status, Scatterplot (t-SNE)
-- Spatial, Scatterplot (PCA)
-- Factors, Expression Levels
+- Data Set, Layer Controller, Status
+- Spatial
+- Scatterplot (PCA),Scatterplot (t-SNE)
+- Expression Levels, Cell-Sets
 
 Except for "Data Set" and "Status", each component should have summary in the upper right. In particular:
 - For "Spatial": "4839 cells, 39 molecules at 2M locations"
-- For "Heatmap": "4839 cells x 33 genes, with 0 cells selected"
+- For "Heatmap": "4839 cells x 33 genes, with 4839 cells selected"
 
 - If you change the width of the window, the columns should resize responsively:
 The right-most column (with radio buttons) should remain an approximately constant width,
@@ -54,18 +66,28 @@ Change the Spatial viewport:
 (For me, it's a two finger swipe up and down on trackpad.)
 
 Change the Spatial layers:
-- Hover over "Layers": The menu should become opaque.
-- Starting at the top, turn off each layer in turn, and you are left with just a black view.
-- Turn "cells" back on: You should have an arc of small grey blobs. (Or rectangles, if you zoom in enough.)
+- On the lefthand side, use the Layer Controller to change the opacity of each layer -  molecules should
+slowly disappear while the cell boundaries should remain as opacity decreases.
+- Turn on and off the molecules and cell segmentations layers.
+- In the image layer, change the colormap, domain, and opacity - confirm that each works as expected.
+  - The colormap should change the image so that both channels are in one colormap.
+  - The domain should change considerably how the sliders display but not how the image renders.
+  - Opacity should slowly decrease the opacity of whatever is shown in the image.
+- Change the channels and try adding another channel as well as removing channels.
+- Remove the image layer and then add it back.
 
 Hover:
 - As you move the mouse over different cells, the "Status" component should update.
+- Tooltips should appear over all other components that show data except for the one on which you are hovering.
+- Where the tooltip does not appear, crosshairs should appear instead.
+- Hover over a cell in the scatterplot and confirm that the crosshair appears over a cell with the same color in the spatial plot.
+- Hover over a cell in the spatial plot and confirm that the crosshair appears over a cell with the same color in the scatterplot.
 
 Select cells:
 - Click on the marquee tool, and drag a rectangle over the middle of the view.
 - When you release the mouse, the cells contained in your rectangle should be brighter.
 - The corresponding points in the scatterplots should also be brighter.
-- On the heatmap, there should be tickmarks above the matrix, corresponding to your cells.
+- On the heatmap, only selected cells should appear.
 
 Color the cells:
 - Leave a subset of cells selected.
@@ -76,3 +98,10 @@ All the components are now more colorful:
 - In "Scatterplot (PCA)", the pattern is less clear.
 - In "Heatmap", there should now be a corresponding band of color across the top.
 - The selected cells should remain brighter than the unselected cells.
+
+Heatmap:
+- Use the colormapping tool to bring out expression levels.
+- Try zooming and panning.
+- As you hover over cells in other components, the tooltip should appear in the middle of the label on the heatmap.
+
+Finally, make sure you can download some of the available data (it will likely just appear as parsed JSON in another window).

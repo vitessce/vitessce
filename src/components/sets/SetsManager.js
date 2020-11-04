@@ -1,9 +1,42 @@
 /* eslint-disable no-underscore-dangle */
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import isEqual from 'lodash/isEqual';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
-import { nodeToRenderProps } from './reducer';
+import { nodeToRenderProps } from './cell-set-utils';
+import { DEFAULT_COLOR } from '../utils';
+import { pathToKey } from './utils';
+
+function processNode(node, prevPath, setColor) {
+  const nodePath = [...prevPath, node.name];
+  return {
+    ...node,
+    ...(node.children ? ({
+      children: node.children
+        .map(c => processNode(c, nodePath, setColor)),
+    }) : {}),
+    color: setColor?.find(d => isEqual(d.path, nodePath))?.color || DEFAULT_COLOR,
+  };
+}
+
+function processSets(sets, setColor) {
+  return {
+    ...sets,
+    tree: sets ? sets.tree.map(lzn => processNode(lzn, [], setColor)) : [],
+  };
+}
+
+function getAllKeys(node, path = []) {
+  if (!node) {
+    return null;
+  }
+  const newPath = [...path, node.name];
+  if (node.children) {
+    return [pathToKey(newPath), ...node.children.flatMap(v => getAllKeys(v, newPath))];
+  }
+  return pathToKey(newPath);
+}
 
 /**
  * A generic hierarchical set manager component.
@@ -32,8 +65,6 @@ import { nodeToRenderProps } from './reducer';
  * via the "Color by cluster" and "Color by subcluster" buttons below collapsed level zero nodes.
  * @prop {function} onNodeSetColor Function to call when a new node color has been selected.
  * @prop {function} onNodeSetName Function to call when a node has been renamed.
- * @prop {function} onNodeSetIsEditing Function to call when a user clicks the "Rename" menu button
- * to start editing the node name in a text input.
  * @prop {function} onNodeRemove Function to call when the user clicks the "Delete" menu button
  * to remove a node.
  * @prop {function} onNodeView Function to call when the user wants to view the set associated
@@ -58,9 +89,14 @@ import { nodeToRenderProps } from './reducer';
  */
 export default function SetsManager(props) {
   const {
-    tree,
+    sets,
+    additionalSets,
+    setColor, // TODO: use this
+    levelSelection: checkedLevel,
+    setSelection,
+    setExpansion,
+
     datatype,
-    clearPleaseWait,
     draggable = true,
     checkable = true,
     editable = true,
@@ -75,7 +111,7 @@ export default function SetsManager(props) {
     onCheckLevel,
     onNodeSetColor,
     onNodeSetName,
-    onNodeSetIsEditing,
+    onNodeCheckNewName,
     onNodeRemove,
     onNodeView,
     onImportTree,
@@ -86,73 +122,121 @@ export default function SetsManager(props) {
     onUnion,
     onIntersection,
     onComplement,
-    onView,
-    hasCheckedSetsToView,
     hasCheckedSetsToUnion,
     hasCheckedSetsToIntersect,
     hasCheckedSetsToComplement,
   } = props;
 
-  if (clearPleaseWait && tree) {
-    clearPleaseWait('cell-sets');
-  }
-
+  const isChecking = true;
+  const autoExpandParent = true;
   const [isDragging, setIsDragging] = useState(false);
+  const [isEditingNodeName, setIsEditingNodeName] = useState(null);
+
+  const processedSets = useMemo(() => processSets(
+    sets, setColor,
+  ), [sets, setColor]);
+  const processedAdditionalSets = useMemo(() => processSets(
+    additionalSets, setColor,
+  ), [additionalSets, setColor]);
+
+  const additionalSetKeys = (processedAdditionalSets
+    ? processedAdditionalSets.tree.flatMap(v => getAllKeys(v, []))
+    : []
+  );
+
+  const allSetSelectionKeys = (setSelection || []).map(pathToKey);
+  const allSetExpansionKeys = (setExpansion || []).map(pathToKey);
+
+  const setSelectionKeys = allSetSelectionKeys.filter(k => !additionalSetKeys.includes(k));
+  const setExpansionKeys = allSetExpansionKeys.filter(k => !additionalSetKeys.includes(k));
+
+  const additionalSetSelectionKeys = allSetSelectionKeys.filter(k => additionalSetKeys.includes(k));
+  const additionalSetExpansionKeys = allSetExpansionKeys.filter(k => additionalSetKeys.includes(k));
 
   /**
    * Recursively render TreeNode components.
    * @param {object[]} nodes An array of node objects.
    * @returns {TreeNode[]|null} Array of TreeNode components or null.
    */
-  function renderTreeNodes(nodes) {
+  function renderTreeNodes(nodes, readOnly, currPath) {
     if (!nodes) {
       return null;
     }
-    return nodes.map(node => (
-      <TreeNode
-        key={node._state.key}
-        {...nodeToRenderProps(node)}
-        datatype={datatype}
-        draggable={draggable}
-        checkable={checkable}
-        editable={editable}
-        expandable={expandable}
-        exportable={exportable}
+    return nodes.map((node) => {
+      const newPath = [...currPath, node.name];
+      return (
+        <TreeNode
+          key={pathToKey(newPath)}
+          {...nodeToRenderProps(node, newPath, setColor)}
 
-        isChecking={tree._state.isChecking}
-        checkedLevelKey={tree._state.checkedLevel.levelZeroKey}
-        checkedLevelIndex={tree._state.checkedLevel.levelIndex}
+          isEditing={isEqual(isEditingNodeName, newPath)}
 
-        onCheckNode={onCheckNode}
-        onCheckLevel={onCheckLevel}
-        onNodeView={onNodeView}
-        onNodeSetColor={onNodeSetColor}
-        onNodeSetName={onNodeSetName}
-        onNodeSetIsEditing={onNodeSetIsEditing}
-        onNodeRemove={onNodeRemove}
-        onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
-        onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
-        onExportSetJSON={onExportSetJSON}
+          datatype={datatype}
+          draggable={draggable && !readOnly}
+          editable={editable && !readOnly}
+          checkable={checkable}
+          expandable={expandable}
+          exportable={exportable}
 
-        disableTooltip={isDragging}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={() => setIsDragging(false)}
-      >
-        {renderTreeNodes(node.children)}
-      </TreeNode>
-    ));
+          isChecking={isChecking}
+          checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
+          checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
+
+          onCheckNode={onCheckNode}
+          onCheckLevel={onCheckLevel}
+          onNodeView={onNodeView}
+          onNodeSetColor={onNodeSetColor}
+          onNodeSetName={(targetPath, name) => {
+            onNodeSetName(targetPath, name);
+            setIsEditingNodeName(null);
+          }}
+          onNodeCheckNewName={onNodeCheckNewName}
+          onNodeSetIsEditing={setIsEditingNodeName}
+          onNodeRemove={onNodeRemove}
+          onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
+          onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
+          onExportSetJSON={onExportSetJSON}
+
+          disableTooltip={isDragging}
+          onDragStart={() => setIsDragging(true)}
+          onDragEnd={() => setIsDragging(false)}
+        >
+          {renderTreeNodes(node.children, readOnly, newPath)}
+        </TreeNode>
+      );
+    });
   }
 
   return (
     <div className="sets-manager">
       <div className="sets-manager-tree">
         <Tree
-          draggable={draggable}
+          draggable={false}
           checkable={checkable}
 
-          checkedKeys={tree._state.checkedKeys}
-          expandedKeys={tree._state.expandedKeys}
-          autoExpandParent={tree._state.autoExpandParent}
+          checkedKeys={setSelectionKeys}
+          expandedKeys={setExpansionKeys}
+          autoExpandParent={autoExpandParent}
+
+          onCheck={(checkedKeys, info) => onCheckNode(
+            info.node.props.nodeKey,
+            info.checked,
+          )}
+          onExpand={(expandedKeys, info) => onExpandNode(
+            expandedKeys,
+            info.node.props.nodeKey,
+            info.expanded,
+          )}
+        >
+          {renderTreeNodes(processedSets.tree, true, [])}
+        </Tree>
+        <Tree
+          draggable /* TODO */
+          checkable={checkable}
+
+          checkedKeys={additionalSetSelectionKeys}
+          expandedKeys={additionalSetExpansionKeys}
+          autoExpandParent={autoExpandParent}
 
           onCheck={(checkedKeys, info) => onCheckNode(
             info.node.props.nodeKey,
@@ -170,8 +254,9 @@ export default function SetsManager(props) {
             onDropNode(dropKey, dragKey, dropPosition, dropToGap);
           }}
         >
-          {renderTreeNodes(tree.tree)}
+          {renderTreeNodes(processedAdditionalSets.tree, false, [])}
         </Tree>
+
         <PlusButton
           datatype={datatype}
           onError={onError}
@@ -181,16 +266,14 @@ export default function SetsManager(props) {
           editable={editable}
         />
       </div>
-      {tree._state.isChecking ? (
+      {isChecking ? (
         <div className="set-operation-buttons">
           <SetOperationButtons
             onUnion={onUnion}
             onIntersection={onIntersection}
             onComplement={onComplement}
-            onView={onView}
             operatable={operatable}
 
-            hasCheckedSetsToView={hasCheckedSetsToView}
             hasCheckedSetsToUnion={hasCheckedSetsToUnion}
             hasCheckedSetsToIntersect={hasCheckedSetsToIntersect}
             hasCheckedSetsToComplement={hasCheckedSetsToComplement}

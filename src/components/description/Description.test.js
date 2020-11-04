@@ -19,17 +19,17 @@ describe('Description.js', () => {
     });
 
     it('shows metadata', () => {
-      const layerId = String(0.1234);
+      const layerIndex = '0';
       const layerName = 'My layer';
-      const metadata = {
-        [layerName]: {
-          ids: new Set([layerId]),
+      const metadata = new Map([
+        [layerIndex, {
+          name: layerName,
           metadata: {
             Channels: 4,
             'Pixels Type': 'uint16',
           },
-        },
-      };
+        }],
+      ]);
       const wrapper = shallow(<Description metadata={metadata} />);
       assertElementHasText(wrapper, '[className="description"]', 'My layerChannels4Pixels Typeuint16');
     });

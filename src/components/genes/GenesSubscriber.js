@@ -1,75 +1,80 @@
-import React from 'react';
-import PubSub from 'pubsub-js';
-
-import Genes from './Genes';
+import React, { useEffect } from 'react';
+import { pluralize } from '../../utils';
+import { useReady, useUrls } from '../hooks';
+import { useExpressionMatrixData } from '../data-hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 import TitleInfo from '../TitleInfo';
-import { GENES_ADD, CELLS_COLOR, CLEAR_PLEASE_WAIT } from '../../events';
-import { interpolateColors } from '../utils';
+import Genes from './Genes';
 
-export default class GenesSubscriber extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { genes: {}, selectedId: null };
-    this.setSelectedGene = this.setSelectedGene.bind(this);
-    this.componentWillUnmount = this.componentWillUnmount.bind(this);
+const GENES_DATA_TYPES = ['expression-matrix'];
+
+export default function GenesSubscriber(props) {
+  const {
+    coordinationScopes,
+    removeGridComponent,
+    variablesLabelOverride: variablesLabel = 'gene',
+    variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
+    theme,
+  } = props;
+
+  const loaders = useLoaders();
+
+  // Get "props" from the coordination space.
+  const [{
+    dataset,
+    geneSelection,
+    geneFilter,
+  }, {
+    setGeneSelection,
+    setGeneFilter,
+    setGeneHighlight,
+    setCellColorEncoding,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
+
+  const [urls, addUrl, resetUrls] = useUrls();
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    GENES_DATA_TYPES,
+  );
+
+  // Reset file URLs and loader progress when the dataset has changed.
+  useEffect(() => {
+    resetUrls();
+    resetReadyItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
+
+  // Get data from loaders using the data hooks.
+  const [expressionMatrix] = useExpressionMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, true,
+  );
+  const geneList = expressionMatrix ? expressionMatrix.cols : [];
+  const numGenes = geneList.length;
+
+  function setGeneSelectionAndColorEncoding(newSelection) {
+    setGeneSelection(newSelection);
+    setCellColorEncoding('geneSelection');
   }
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillMount() {
-    this.genesAddToken = PubSub.subscribe(GENES_ADD, this.genesAddSubscriber.bind(this));
-  }
-
-  componentDidMount() {
-    const { onReady } = this.props;
-    onReady();
-  }
-
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.genesAddToken);
-  }
-
-  genesAddSubscriber(msg, genes) {
-    this.setState({ genes });
-  }
-
-  setSelectedGene(selectedId) {
-    this.setState({ selectedId });
-    const { genes } = this.state;
-    const cellColors = {};
-
-    const { cells, max } = genes[selectedId];
-    Object.entries(cells).forEach(
-      ([cellId, value]) => {
-        cellColors[cellId] = interpolateColors(value / max);
-      },
-    );
-    PubSub.publish(CELLS_COLOR, cellColors);
-  }
-
-  render() {
-    const { genes, selectedId } = this.state;
-    const { removeGridComponent } = this.props;
-    const genesSelected = {};
-    const genesKeys = Object.keys(genes);
-    genesKeys.forEach((geneId) => {
-      genesSelected[geneId] = geneId === selectedId;
-    });
-    return (
-      <TitleInfo
-        title="Expression Levels"
-        info={`${genesKeys.length} genes`}
-        isScroll
-        removeGridComponent={removeGridComponent}
-      >
-        <Genes
-          genesSelected={genesSelected}
-          setSelectedGene={this.setSelectedGene}
-          clearPleaseWait={
-            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-          }
-        />
-      </TitleInfo>
-    );
-  }
+  return (
+    <TitleInfo
+      title="Expression Levels"
+      info={`${numGenes} ${pluralize(variablesLabel, variablesPluralLabel, numGenes)}`}
+      isScroll
+      theme={theme}
+      removeGridComponent={removeGridComponent}
+      isReady={isReady}
+      urls={urls}
+    >
+      <Genes
+        geneList={geneList}
+        geneSelection={geneSelection}
+        geneFilter={geneFilter}
+        setGeneSelection={setGeneSelectionAndColorEncoding}
+        setGeneFilter={setGeneFilter}
+        setGeneHighlight={setGeneHighlight}
+      />
+    </TitleInfo>
+  );
 }

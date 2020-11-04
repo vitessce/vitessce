@@ -1,63 +1,121 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import PubSub from 'pubsub-js';
+import React, {
+  useState, useEffect, useCallback, useMemo,
+} from 'react';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
-
 import TitleInfo from '../TitleInfo';
-import {
-  CELLS_ADD, CELLS_COLOR, CELLS_HOVER, STATUS_INFO, VIEW_INFO, CELLS_SELECTION,
-  CELL_SETS_VIEW, CLEAR_PLEASE_WAIT,
-} from '../../events';
+import { pluralize, capitalize } from '../../utils';
+import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import { setCellSelection, mergeCellSets } from '../utils';
+import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
+import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
+import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
+import {
+  useCoordination,
+  useLoaders,
+  useSetComponentHover,
+  useSetComponentViewInfo,
+} from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
+const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
 export default function ScatterplotSubscriber(props) {
   const {
-    onReady,
-    mapping,
-    uuid = null,
-    children,
-    view,
+    uuid,
+    coordinationScopes,
     removeGridComponent,
     theme,
+    disableTooltip = false,
+    observationsLabelOverride: observationsLabel = 'cell',
+    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
   } = props;
 
-  const [cells, setCells] = useState({});
-  const [selectedCellIds, setSelectedCellIds] = useState(new Set());
-  const [cellColors, setCellColors] = useState(null);
+  const loaders = useLoaders();
+  const setComponentHover = useSetComponentHover();
+  const setComponentViewInfo = useSetComponentViewInfo(uuid);
+
+  // Get "props" from the coordination space.
+  const [{
+    dataset,
+    embeddingZoom: zoom,
+    embeddingTargetX: targetX,
+    embeddingTargetY: targetY,
+    embeddingTargetZ: targetZ,
+    embeddingType: mapping,
+    cellFilter,
+    cellHighlight,
+    geneSelection,
+    cellSetSelection,
+    cellSetColor,
+    cellColorEncoding,
+    additionalCellSets,
+  }, {
+    setEmbeddingZoom: setZoom,
+    setEmbeddingTargetX: setTargetX,
+    setEmbeddingTargetY: setTargetY,
+    setEmbeddingTargetZ: setTargetZ,
+    setCellFilter,
+    setCellSetSelection,
+    setCellHighlight,
+    setCellSetColor,
+    setCellColorEncoding,
+    setAdditionalCellSets,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
+
+  const [urls, addUrl, resetUrls] = useUrls();
+  const [width, height, deckRef] = useDeckCanvasSize();
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    SCATTERPLOT_DATA_TYPES,
+  );
+
+  // Reset file URLs and loader progress when the dataset has changed.
+  useEffect(() => {
+    resetUrls();
+    resetReadyItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
+
+  // Get data from loaders using the data hooks.
+  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cellSets] = useCellSetsData(
+    loaders,
+    dataset,
+    setItemIsReady,
+    addUrl,
+    false,
+  );
+  const [expressionMatrix] = useExpressionMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+  );
+
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
-  const onReadyCallback = useCallback(onReady, []);
+  const mergedCellSets = useMemo(() => mergeCellSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
 
-  useEffect(() => {
-    const cellsAddToken = PubSub.subscribe(
-      CELLS_ADD, (msg, data) => {
-        setCells(data);
-      },
+  const setCellSelectionProp = useCallback((v) => {
+    setCellSelection(
+      v, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
     );
-    const cellsColorToken = PubSub.subscribe(
-      CELLS_COLOR, (msg, data) => {
-        setCellColors(data);
-      },
-    );
-    const cellsSelectionToken = PubSub.subscribe(
-      CELLS_SELECTION, (msg, data) => {
-        setSelectedCellIds(data);
-      },
-    );
-    const cellSetsViewToken = PubSub.subscribe(
-      CELL_SETS_VIEW, (msg, data) => {
-        setSelectedCellIds(data);
-      },
-    );
-    onReadyCallback();
-    return () => {
-      PubSub.unsubscribe(cellsAddToken);
-      PubSub.unsubscribe(cellsColorToken);
-      PubSub.unsubscribe(cellsSelectionToken);
-      PubSub.unsubscribe(cellSetsViewToken);
-    };
-  }, [onReadyCallback, mapping]);
+  }, [additionalCellSets, cellSetColor, setCellColorEncoding,
+    setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
+
+  const cellColors = useMemo(() => getCellColors({
+    cellColorEncoding,
+    expressionMatrix,
+    geneSelection,
+    cellSets: mergedCellSets,
+    cellSetSelection,
+    cellSetColor,
+  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    cellSetSelection, cellSetColor, expressionMatrix]);
+
+  const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -79,31 +137,59 @@ export default function ScatterplotSubscriber(props) {
     }
   }, [cells, mapping]);
 
-  const cellsCount = Object.keys(cells).length;
+  const getCellInfo = useCallback((cellId) => {
+    const cellInfo = cells[cellId];
+    return {
+      [`${capitalize(observationsLabel)} ID`]: cellId,
+      ...(cellInfo ? cellInfo.factors : {}),
+    };
+  }, [cells, observationsLabel]);
+
   return (
     <TitleInfo
       title={`Scatterplot (${mapping})`}
-      info={`${cellsCount} cells`}
+      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
+      urls={urls}
+      theme={theme}
+      isReady={isReady}
     >
-      {children}
       <Scatterplot
+        ref={deckRef}
         uuid={uuid}
         theme={theme}
-        view={view}
+        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        setViewState={({ zoom: newZoom, target }) => {
+          setZoom(newZoom);
+          setTargetX(target[0]);
+          setTargetY(target[1]);
+          setTargetZ(target[2]);
+        }}
         cells={cells}
         mapping={mapping}
-        selectedCellIds={selectedCellIds}
+        cellFilter={cellFilter}
+        cellSelection={cellSelection}
+        cellHighlight={cellHighlight}
         cellColors={cellColors}
+
+        setCellFilter={setCellFilter}
+        setCellSelection={setCellSelectionProp}
+        setCellHighlight={setCellHighlight}
         cellRadiusScale={cellRadiusScale}
-        updateStatus={message => PubSub.publish(STATUS_INFO, message)}
-        updateCellsSelection={selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)}
-        updateCellsHover={hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)}
-        updateViewInfo={viewInfo => PubSub.publish(VIEW_INFO, viewInfo)}
-        clearPleaseWait={
-          layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-        }
+        setComponentHover={() => {
+          setComponentHover(uuid);
+        }}
+        updateViewInfo={setComponentViewInfo}
       />
+      {!disableTooltip && (
+      <ScatterplotTooltipSubscriber
+        parentUuid={uuid}
+        cellHighlight={cellHighlight}
+        width={width}
+        height={height}
+        getCellInfo={getCellInfo}
+      />
+      )}
     </TitleInfo>
   );
 }

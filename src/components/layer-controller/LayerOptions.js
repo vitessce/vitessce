@@ -98,10 +98,14 @@ function GlobalSelectionSlider({
       // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
       // we have the two handlers.
       onChange={
-        (event, newValue) => handleChange({ selection: { [field]: newValue }, event })
+        (event, newValue) => {
+          handleChange({ selection: { [field]: newValue }, event });
+        }
       }
       onChangeCommitted={
-        (event, newValue) => handleChange({ selection: { [field]: newValue }, event })
+        (event, newValue) => {
+          handleChange({ selection: { [field]: newValue }, event });
+        }
       }
       valueLabelDisplay="auto"
       getAriaLabel={() => `${field} slider`}
@@ -149,6 +153,7 @@ function LayerOption({ name, inputId, children }) {
  * @prop {array} channels Current channel object for inferring the current global selection.
  * @prop {array} dimensions Currently available dimensions (channel, z, t etc.).
  * @prop {string} domainType One of Max/Min or Full (soon presets as well).
+ * @prop {boolean} isRgb Whether or not the image is rgb (so we don't need colormap controllers).
  */
 function LayerOptions({
   colormap,
@@ -156,34 +161,40 @@ function LayerOptions({
   handleColormapChange,
   handleOpacityChange,
   globalControlDimensions,
+  globalDimensionValues,
   handleGlobalChannelsSelectionChange,
   handleDomainChange,
   channels,
   dimensions,
   domainType,
+  isRgb,
 }) {
-  const hasDimensionsAndChannels = dimensions.length > 0 && Object.keys(channels).length > 0;
+  const hasDimensionsAndChannels = dimensions.length > 0 && channels.length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
-      <Grid item>
-        <LayerOption name="Colormap" inputId="colormap-select">
-          <ColormapSelect
-            value={colormap}
-            inputId="colormap-select"
-            handleChange={handleColormapChange}
-          />
-        </LayerOption>
-      </Grid>
-      <Grid item>
-        <LayerOption name="Domain" inputId="domain-selector">
-          <SliderDomainSelector
-            value={domainType}
-            handleChange={(value) => {
-              handleDomainChange(value);
-            }}
-          />
-        </LayerOption>
-      </Grid>
+      {!isRgb ? (
+        <>
+          <Grid item>
+            <LayerOption name="Colormap" inputId="colormap-select">
+              <ColormapSelect
+                value={colormap}
+                inputId="colormap-select"
+                handleChange={handleColormapChange}
+              />
+            </LayerOption>
+          </Grid>
+          <Grid item>
+            <LayerOption name="Domain" inputId="domain-selector">
+              <SliderDomainSelector
+                value={domainType}
+                handleChange={(value) => {
+                  handleDomainChange(value);
+                }}
+              />
+            </LayerOption>
+          </Grid>
+        </>
+      ) : null}
       <Grid item>
         <LayerOption name="Opacity" inputId="opacity-slider">
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
@@ -192,15 +203,18 @@ function LayerOptions({
       {hasDimensionsAndChannels
         && globalControlDimensions.map((dimension) => {
           const { field, values } = dimension;
+          // If there is only one value in the dimension, do not return a slider.
           return (
-            <LayerOption name={field} inputId={`${field}-slider`} key={field}>
-              <GlobalSelectionSlider
-                field={field}
-                value={channels[Object.keys(channels)[0]].selection[field]}
-                handleChange={handleGlobalChannelsSelectionChange}
-                possibleValues={values}
-              />
-            </LayerOption>
+            values.length > 1 && (
+              <LayerOption name={field} inputId={`${field}-slider`} key={field}>
+                <GlobalSelectionSlider
+                  field={field}
+                  value={globalDimensionValues[field]}
+                  handleChange={handleGlobalChannelsSelectionChange}
+                  possibleValues={values}
+                />
+              </LayerOption>
+            )
           );
         })}
     </Grid>

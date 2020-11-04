@@ -519,6 +519,22 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
             // Make sure to add the new loader(s) before the "file" loader.
           ],
         },
+        // Process workers
+        {
+          test: /\.worker\.js$/,
+          use: {
+            loader: 'worker-loader',
+            options: {
+              inline: true,
+              fallback: false,
+            }
+          }
+        },
+        {
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: "javascript/auto",
+        }
     ]
   };
 }

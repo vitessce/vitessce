@@ -1,11 +1,14 @@
 import React, { useCallback } from 'react';
 import PopoverMenu from './PopoverMenu';
 import {
-  handleImportJSON, MIME_TYPE_JSON,
-  handleImportTabular, MIME_TYPE_TABULAR,
+  handleImportJSON,
+  handleImportTabular,
 } from './io';
+import {
+  MIME_TYPE_JSON,
+  MIME_TYPE_TABULAR,
+} from './constants';
 
-import { ReactComponent as SetViewSVG } from '../../assets/sets/eye.svg';
 import { ReactComponent as SetUnionSVG } from '../../assets/sets/union.svg';
 import { ReactComponent as SetIntersectionSVG } from '../../assets/sets/intersection.svg';
 import { ReactComponent as SetComplementSVG } from '../../assets/sets/complement.svg';
@@ -107,7 +110,6 @@ export function PlusButton(props) {
  * @param {function} props.onUnion A callback for the union button.
  * @param {function} props.onIntersection A callback for the intersection button.
  * @param {function} props.onComplement A callback for the complement button.
- * @param {function} props.onView A callback for the view button.
  * @param {boolean} props.operatable Are set operations allowed?
  * If not, the union, intersection, and complement buttons will not be rendered.
  */
@@ -116,9 +118,7 @@ export function SetOperationButtons(props) {
     onUnion,
     onIntersection,
     onComplement,
-    onView,
     operatable,
-    hasCheckedSetsToView,
     hasCheckedSetsToUnion,
     hasCheckedSetsToIntersect,
     hasCheckedSetsToComplement,
@@ -126,14 +126,6 @@ export function SetOperationButtons(props) {
 
   return (
     <>
-      <button
-        onClick={onView}
-        type="submit"
-        title="View checked sets"
-        disabled={!hasCheckedSetsToView}
-      >
-        <SetViewSVG />
-      </button>
       {operatable && (
         <>
           <button

@@ -1,12 +1,213 @@
 # Changelog
 
-## 0.1.7 - in progress
+## 1.0.1 (in progress)
+
+### Added
+- Built-in support for encoding and decoding compressed conf as url param.
+
+### Changed
+- Fixed schema validity as state updates.
+    - Expanded schema to allow null values which denote that these values can be auto-initialized.
+        - Note that we do not want the empty array to denote anything special.
+- For demos, added a `&debug=true` GET parameter option, to enable logging and validating the published view config on every change.
+- Updated cell set functionality to support exporting state via view config:
+    - Added the `additionalCellSets` coordination type to store user-defined cell sets
+    - Added the `cellSetColor` coordination type to store mappings from cell set paths to cell set colors (for both user-defined and dataset-defined cell sets).
+    - Updated the code to avoid reliance on uuid "key" variables. Instead, we want to always use the "name path": the array of strings representing the path down the hierarchy to the node.
+    - Removed the distinction between "visible" sets and "selected" (i.e. checked) sets.
+- Upgrade deck.gl to 8.3 and viv to 0.5
+- Fix build issues with nebula.
+
+## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
+
+### Added
+- Introduced a [zustand](https://github.com/react-spring/zustand) store for managing the view config:
+    - coordination space
+    - layout
+        - component-level coordination scopes
+- Introduced a provider component: `DatasetLoaderProvider`.
+    - `DatasetLoaderProvider` sets up Loader objects for each file of each dataset in the view config.
+    - `VitessceGrid` is a consumer of `DatasetLoaderProvider` and injects the mapping from datasets-to-loaders into the child `___Subscriber` components. This functionality replaces the `SourcePublisher` component.
+        - The loading spinner was moved into a new `LoadingIndicator` component.
+        - Added a new prop `isReady` for the `TitleInfo` component (parent of the `LoadingIndicator` component), so that each `___Subscriber` component can handle its own loading spinner.
+- Added a required `version` property to the view config schema.
+- Added the `initStrategy` property to the `v1.0.0` view config schema, where the value can be one of `"auto"` or `"none"` (and potentially other things in the future).
+    - This will determine how the coordination space is initialized.
+    - `"auto"` results in certain coordination types having "global" coordination (all components map to same scope) while the remaining coordination types have "independent" coordination (all components map to different scopes).
+        - The `"auto"` strategy also respects any initial coordination setup, and only fills in missing values.
+- Added support for both `v0.1.0` ("legacy") and `v1.0.0` (coordination model) view configs via an `upgrade()` function.
+    - `v0.1.0` view configs will be validated against the `v0.1.0` schema, then upgraded, and then validated again against the `v1.0.0` schema.
+- Added a unique name constraint for cell set names.
+    - Because `cellSetSelection` is now a coordination type, the value must be stored in the view config. Previously, multiple cell sets were allowed to exist with the same name because cell sets were identified with a random uuid key internally. We would not want a random uuid key to "leak" into the global state or view config, and instead want to use an externally-meaningful name when identifying cell sets in the view config.
+    - Due to this constraint, the automatic naming for cell selections as `"Current selection"` (or `"Current union"`, `"Current intersection"`, `"Current complement"`) have been changed to `"Selection {i}"` (or `"Union {i}"`, `"Intersection {i}"`, `"Complement {i}"`) where `{i}` is the next integer that does not cause a conflict.
+- Added the optional `onConfigChange` and `onLoaderChange` callback props to the `Vitessce` component.
+    - These allow a consumer app to be notified of all view config (and by extension coordination object) updates.
+
+### Changed
+- Update README screenshots.
+- Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
+- Moved the `Vitessce` component out of `src/app/app.js` into `src/app/Vitessce.js`.
+- Moved the `Warning` component out of `src/app/app.js` into `src/app/Warning.js`.
+- Renamed `VitessceGrid` to `VitessceGridLayout`.
+- Renamed `PubSubVitessceGrid` to `VitessceGrid`.
+- Moved utility functions that are common to both `src/components/` and `src/app/` to a new `src/utils.js` file.
+- Updated the view config schema to include a coordination space, which supports coordinated multiple view functionality. The coordination space holds coordination objects, each of which has a type, a set of scopes, and a value assigned to each scope.
+- Updated the view config schema to handle multiple datasets, and added a `dataset` configuration object type for coordinated multi-dataset view configs.
+- Added a mapping from component type to coordination object types, streamlining the process of consuming and updating coordination object state in the `___Subscriber` components.
+- Removed the unnecessary `name` field from dataset file definitions (previously a property of the `layers` objects) in the view config.
+- Changed view config `layers[].type` (now `datasets[].files[].type`) values to lowercase.
+- Renamed `staticLayout` to `layout` in the view config.
+- Changed the title text of `LayerController` from "Layer Controller" to "Spatial Layers".
+- Moved the Spatial layer initialization from `LayerControllerSubscriber` to `SpatialSubscriber`.
+    - Changed the `LayerControllerSubscriber` to a "controlled" component which obtains layer state information from the `spatialLayers` coordination object.
+    - Eliminated usage of randomly-generated uuids for layer and channel states.
+- Changed the `Spatial` component implementation (back) to a React class component, after experiencing difficult-to-debug performance issues with the function component implementation.
+- Simplified the `GenesSubscriber` implementation such that it no longer handles converting gene expression data to colors. Instead, the plot components (spatial, scatterplot, and heatmap) must look up the gene expression data and handle color conversion themselves, de-coupling them from `GenesSubscriber`.
+- Added a file `src/components/data-hooks.js` containing React hook functions for initial data load (and data update subscriptions) for each data type.
+    - Added error handling for data loading errors within the hook functions, which emit the `STATUS_WARN` event and subsequently call the `Vitessce` component's `onWarn` prop.
+- Added a file `src/components/hooks.js` containing custom React hook functions which are un-related to dataset management (see above bullet).
+    - Moved existing hook functions out of `src/components/utils.js` and into this `src/components/hooks.js` file.
+- Removed the global app-level "please wait" spinner, and replaced with component-level spinners, to account for the multi-dataset support (for example if the dataset coordination object for a component changes then the component will need to obtain a different dataset, and this may occur at any time).
+- Moved auto image layer initialization out of `LayerControllerSubscriber` and into `SpatialSubscriber` to allow initialization even when no `layerController` component exists.
+- Removed usage of random uuid values from image layer identifiers, and instead replace with the `index` property, which refers to the index of the layer within the `raster.json` layer array.
+- Switched from a local layer controller state management approach (via local reducer functions) to a global coordination object layer state management approach.
+- Switched from using the property `visibility` to `visible` in image channel state to be more consistent with DeckGL layer `visible` convention.
+- Moved a `range()` function call out of a "hot" loop in `src/components/heatmap/utils.js` to cache the value and prevent calling every iteration (every row and column during heatmap tile creation).
+- Updated `___TooltipSubscriber` components and the `Status` component to use the `cellHighlight` and `geneHighlight` coordination object values. This allows highlight functionality to be local to a particular coordination scope (rather than global to the whole app).
+- Updated the `DescriptionSubscriber` to use the image layer definitions in the `spatialLayers` coordination object.
+- Refactored the `Status` and `StatusSubscriber` components to move the `TitleInfo` child component out of `Status` and into `StatusSubscriber` to be consistent with the other subscriber components.
+- Separate out development from production builds.
+- Only test/publish on production builds.
+- Don't include dependencies in production ES build.
+- Added terms and diagrams related to the coordination model to the `GLOSSARY.md` document.
+- Update README screenshots.
+- Use a random `uuid` when upgrading `v0.1.0` view configs to `v1.0.0` to enable the data hook `dataset` dependency to detect dataset updates resulting from passing new view configs.
+- Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
+- Fix `Spatial` initialization bug.
+
+## [0.2.5](https://www.npmjs.com/package/vitessce/v/0.2.5) - 2020-08-31
+
+### Added
+- Add contributor information to homepage.
+
+### Changed
+- Updated styling and text of homepage.
+
+## [0.2.4](https://www.npmjs.com/package/vitessce/v/0.2.4) - 2020-08-24
+
+### Added
+- Added the `higlass-zarr-datafetchers` dependency.
+- Added a demo containing a HiGlass component with a `horizontal-multivec` track using a `zarr-multivec` plugin data fetcher.
+- Add auto-sliders to layer controller.
+
+### Changed
+- In the SpatialSubscriber component, no longer display counts for cells, molecules, or locations if the count value is zero.
+- Upgrade Viv to 0.4.2.
+- Fix channel names bug (#721) where they do not show if they are not the first dimension.
+- Make sliders nicer for 32 bit data.
+
+## [0.2.3](https://www.npmjs.com/package/vitessce/v/0.2.3) - 2020-08-04
+
+### Changed
+- Upgrade Viv to 0.3.3 to fix a tiff parsing issue.
+- Removed the lines between the radio buttons in the cell set manager to make a more compact interface.
+
+
+## [0.2.2](https://www.npmjs.com/package/vitessce/v/0.2.2) - 2020-08-03
+
+### Changed
+- Upgrade `vitessce-grid` to 0.0.10 to fix problem switching view configurations.
+- Copied the `vitessce-grid` source files into the `vitessce` repository to reduce friction when updating the `vitessce-grid` code (avoids an extra NPM publish / pull-down).
+- Fixed tests in `VitessceGrid.test.js`.
+
+
+## [0.2.1](https://www.npmjs.com/package/vitessce/v/0.2.1) - 2020-07-30
+
+### Changed
+- Fixed a bug (typo in prop name) in which the heatmap axis title overrides were not passed correctly from HeatmapSubscriber to Heatmap.
+
+
+## [0.2.0](https://www.npmjs.com/package/vitessce/v/0.2.0) - 2020-07-30
+
+### Added
+- Added the `fileType` property to the view config `layers` objects, which is used to choose a data loader class.
+
+### Changed
+- Improved the heatmap by re-implementing using DeckGL layers.
+- Update Download button style/action in `TitleInfo` as per #681.
+- Bump Viv to 0.3.2.
+- Prevent CellSetManager leaf node "switcher icons" from calling the TreeNode component's `onNodeExpand` function.
+
+
+## [0.1.10](https://www.npmjs.com/package/vitessce/v/0.1.10) - 2020-07-24
 
 ### Added
 
 ### Changed
+- Fix #674 bug around flipped scatterplots.
+- Fix #645 bug around clearing genes and heatmap.
+- Add heatmap label override.
+- Fix #682 `TitleInfo` spacing bug.
+- Remove Global dimensions when there is only one value (for OME-TIFF, mostly).
+
+
+## [0.1.9](https://www.npmjs.com/package/vitessce/v/0.1.9) - 2020-07-23
+
+### Added
+- Add `labelOverride` prop for genes component.
+- Cell boundaries are visible when opacity drops below a cutoff.
+- Add download lists for files to components that display data.
+- Added `onWarn` callback to the `<Vitessce/>` component to allow a consumer app to manage display of warning messages.
+- Set RGB defaults for Viv.
+
+### Changed
+- Remove layers menu and add functionality to layer controller + opacity control.
+- Update genes schema to take non-integer values.
+- Changed the `SelectionLayer` picking approach to use a quadtree rather than the built-in deck.gl pixel-based method.
+- Flip y-axis for our graphics use-case.
+- Clean up pubsub events in layer controller.
+- Slider range remains as unchanged as possible under domain changes.
+- Take away some spacing from `LayerController`.
+- Make `LayerControllerSubscriber` names booleans-questions.
+- Fix reisizing bug.
+- Bump `vitessce-data` to 0.0.30.
+- Changed the "Please wait" modal to a spinner.
+- Bump `viv` to 0.3.1.
+- Fix Heatmap regression/bug.
+- Fix Cypress tests.
+- Make cell boundaries depend on a pixel size setting.
+- Fix small slider bug so the range stays the same.
+- Filter our zarr from file list.
+
+## [0.1.8](https://www.npmjs.com/package/vitessce/v/0.1.8) - 2020-07-02
+
+### Added
+- Trevor's slides from NLM conference to README.md.
+- Added a `cell-sets.json` schema version `0.1.3` to support probabilistic cell set assignments, with backwards compatibility with schema version `0.1.2`.
+- Added a `RESET` event so that the `SourcePublisher` can notify other components that a new viewconfig and dataset has been loaded.
+- Added a callback for the `RESET` event in the `SpatialSubscriber` component to clear previous cells, molecules, neighborhoods, and imaging data.
+- Added a callback for the `RESET` event in the `DescriptionSubscriber` component to clear previous imaging metadata tables.
+- Added a callback for the `RESET` event in the `CellSetsManagerSubscriber` component to clear previous cell sets.
+- Added a publisher for `GRID_RESIZE` when `rowHeight` changes in `PubSubVitessceGrid` to allow the `useGridItemSize` hook to update in this additional case. 
+
+### Changed
+- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
+- Updated the `cell-sets.json` schemas to allow both leaf nodes and non-leaf nodes in the same tree level.
+- Update layer controller overflow.
+- Updated the `Spatial` component data processing of `cells`, `molecules`, and `neighborhoods` with `useMemo` (rather than `useRef` + `useEffect`).
+- Temporarily removed the `React.lazy` wrapper for the `Vega` component from `react-vega`, as a workaround for https://github.com/hubmapconsortium/portal-ui/issues/571 (using Vitessce viewconfigs with React.lazy components is causing the HuBMAP portal interface to crash).
+- Increased the `isNarrow` threshold from `300` to `500` for the `CellTooltip` component, to use a smaller font size at a wider plot width.
+
+
+## [0.1.7](https://www.npmjs.com/package/vitessce/v/0.1.7) - 2020-06-25
+
+## Added
+- Testing protocol calls for all three browsers now.
+
+### Changed
 - Fix Safari channel controller bug.
 - Fix Safari heatmap display bug.
+- Heatmap color canvas has precedence over selection canvas when resizing.
 
 ## [0.1.6](https://www.npmjs.com/package/vitessce/v/0.1.6) - 2020-06-23
 

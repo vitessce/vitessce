@@ -1,30 +1,27 @@
-import React, { useEffect, useCallback } from 'react';
+import React from 'react';
 import { SelectableTable } from '../selectable-table/index';
 
 export default function Genes(props) {
   const {
-    setSelectedGene,
-    genesSelected,
-    clearPleaseWait,
+    geneList = [],
+    geneSelection = [],
+    geneFilter = null,
+    setGeneSelection,
   } = props;
 
-  useEffect(() => {
-    if (clearPleaseWait && genesSelected) {
-      clearPleaseWait('genes');
+  function onChange(selection) {
+    if (setGeneSelection && selection && selection.name) {
+      setGeneSelection([selection.name]);
     }
-  }, [clearPleaseWait, genesSelected]);
+  }
 
-  const onChange = useCallback((selection) => {
-    if (selection && selection.name) {
-      setSelectedGene(selection.name);
-    }
-  }, [setSelectedGene]);
+  const data = geneList
+    .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
+    .sort((a, b) => a.localeCompare(b))
+    .map(
+      gene => ({ name: gene, value: (geneSelection ? geneSelection.includes(gene) : false) }),
+    );
 
-  const data = Object.entries(genesSelected).sort(
-    (a, b) => a[0].localeCompare(b[0]),
-  ).map(
-    ([name, value]) => ({ name, value }),
-  );
   return (
     <SelectableTable
       columns={['name']}
