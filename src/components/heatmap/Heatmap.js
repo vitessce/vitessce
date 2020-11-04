@@ -68,7 +68,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     viewState: rawViewState,
     setViewState,
     setHeatmapControls,
-    heatmapControls,
+    heatmapControls = [0, 1],
     width: viewWidth,
     height: viewHeight,
     expressionMatrix: expression,
