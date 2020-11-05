@@ -1,5 +1,7 @@
 # Changelog
 
+- Update Viv reference
+
 ## 1.0.1 (in progress)
 
 ### Changed
