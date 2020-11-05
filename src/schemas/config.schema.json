@@ -46,7 +46,6 @@
               "heatmapZoomY": { "type": "string" },
               "heatmapTargetX": { "type": "string" },
               "heatmapTargetY": { "type": "string" },
-              "heatmapControls": { "type": "string" },
               "cellFilter": { "type": "string" },
               "cellHighlight": { "type": "string" },
               "cellSetSelection": { "type": "string" },
@@ -254,12 +253,6 @@
             ".": { "type": "number" }
           }
         },
-        "heatmapControls": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "array", "items": { "type": "number" } }
-            }
-          },
         "cellFilter": {
           "type": "object",
           "patternProperties": {
