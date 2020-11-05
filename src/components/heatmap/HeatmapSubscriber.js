@@ -46,6 +46,7 @@ export default function HeatmapSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
+    geneExpressionColormapRange: heatmapControls,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -53,6 +54,7 @@ export default function HeatmapSubscriber(props) {
     setHeatmapTargetY: setTargetY,
     setCellHighlight,
     setGeneHighlight,
+    setGeneExpressionColormapRange: setHeatmapControls,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
 
   const observationsTitle = capitalize(observationsPluralLabel);
@@ -136,6 +138,8 @@ export default function HeatmapSubscriber(props) {
           setTargetX(target[0]);
           setTargetY(target[1]);
         }}
+        heatmapControls={heatmapControls}
+        setHeatmapControls={setHeatmapControls}
         height={height}
         width={width}
         theme={theme}

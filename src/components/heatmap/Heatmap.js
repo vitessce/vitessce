@@ -67,6 +67,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     theme,
     viewState: rawViewState,
     setViewState,
+    setHeatmapControls,
+    heatmapControls = [0, 1],
     width: viewWidth,
     height: viewHeight,
     expressionMatrix: expression,
@@ -102,14 +104,15 @@ const Heatmap = forwardRef((props, deckRef) => {
   const dataRef = useRef();
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
-  const [colorScaleLo, setColorScaleLo] = useState(0.0);
-  const [colorScaleHi, setColorScaleHi] = useState(1.0);
+  const [colorScaleLo, setColorScaleLo] = useState(heatmapControls[0]);
+  const [colorScaleHi, setColorScaleHi] = useState(heatmapControls[1]);
 
   // Callback function for the color scale slider change event.
   const onColorScaleChange = useCallback((event, newValue) => {
     setColorScaleLo(newValue[0]);
     setColorScaleHi(newValue[1]);
-  }, []);
+    setHeatmapControls(newValue);
+  }, [setHeatmapControls]);
 
   // Since we are storing the tile data in a ref,
   // and updating it asynchronously when the worker finishes,
