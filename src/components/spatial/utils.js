@@ -197,8 +197,8 @@ export async function initializeLayerChannelsIfMissing(layerDefsOrig, loaders) {
  * @param {(string[]|null)} rasterRenderLayers A list of default raster layers. Optional.
  */
 export async function initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers) {
-  const nextImageLoaders = {};
-  const nextImageMeta = {};
+  const nextImageLoaders = [];
+  const nextImageMeta = [];
   const autoImageLayerDefPromises = [];
 
   // Start all loader creators immediately.
