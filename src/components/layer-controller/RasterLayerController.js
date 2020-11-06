@@ -69,7 +69,7 @@ export default function RasterLayerController(props) {
     handleLayerChange({ ...layer, channels: v });
   }
 
-  function setChannelsAndDomain(newChannels, newDomainType) {
+  function setChannelsAndDomainType(newChannels, newDomainType) {
     handleLayerChange({
       ...layer,
       channels: newChannels,
@@ -142,7 +142,7 @@ export default function RasterLayerController(props) {
     );
 
     const newChannels = channels.map((c, i) => ({ ...c, domain: domains[i], slider: sliders[i] }));
-    setChannelsAndDomain(newChannels, value);
+    setChannelsAndDomainType(newChannels, value);
   };
 
   // This call updates all channel selections with new global selection from the UI.
