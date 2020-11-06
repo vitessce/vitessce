@@ -50,8 +50,7 @@ export default function RasterLayerController(props) {
   const firstSelection = channels[0]?.selection || {};
 
   const { dimensions } = loader;
-
-  const [domainType, setDomainType] = useState('Min/Max');
+  const [domainType, setDomainType] = useState(layer.domainType || 'Min/Max');
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
     GLOBAL_SLIDER_DIMENSION_FIELDS
       .filter(field => firstSelection[field])
@@ -68,6 +67,14 @@ export default function RasterLayerController(props) {
 
   function setChannels(v) {
     handleLayerChange({ ...layer, channels: v });
+  }
+
+  function setChannelsAndDomain(newChannels, newDomainType) {
+    handleLayerChange({
+      ...layer,
+      channels: newChannels,
+      domainType: newDomainType,
+    });
   }
 
   function setChannel(v, i) {
@@ -135,7 +142,7 @@ export default function RasterLayerController(props) {
     );
 
     const newChannels = channels.map((c, i) => ({ ...c, domain: domains[i], slider: sliders[i] }));
-    setChannels(newChannels);
+    setChannelsAndDomain(newChannels, value);
   };
 
   // This call updates all channel selections with new global selection from the UI.
