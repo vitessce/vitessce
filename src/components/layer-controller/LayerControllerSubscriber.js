@@ -55,6 +55,7 @@ function LayerControllerSubscriber(props) {
       index,
       ...DEFAULT_RASTER_LAYER_PROPS,
       channels: newChannels,
+      domainType: 'Min/Max',
     };
     const newLayers = [...layers, newLayer];
     setLayers(newLayers);

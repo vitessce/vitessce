@@ -105,7 +105,7 @@
     "rasterLayer": {
       "additionalProperties": false,
       "description": "The properties of this object are the rendering settings for the raster layer.",
-      "required": ["channels", "colormap", "index", "opacity", "type"],
+      "required": ["channels", "colormap", "index", "opacity", "type", "domainType"],
       "properties": {
         "channels": {
           "type": "array",
@@ -143,6 +143,10 @@
         },
         "opacity": {
           "type": "number"
+        },
+        "domainType": {
+          "type": "string",
+          "enum": ["Full", "Min/Max"]
         },
         "type": {
           "type": "string",

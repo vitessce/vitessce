@@ -231,7 +231,7 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
       const loader = nextImageLoaders[layerIndex];
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         .then(channels => Promise.resolve({
-          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels,
+          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max',
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }

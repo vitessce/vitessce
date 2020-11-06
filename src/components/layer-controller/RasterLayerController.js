@@ -50,7 +50,7 @@ export default function RasterLayerController(props) {
   const firstSelection = channels[0]?.selection || {};
 
   const { dimensions } = loader;
-  const [domainType, setDomainType] = useState(layer.domainType || 'Min/Max');
+  const [domainType, setDomainType] = useState(layer.domainType);
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
     GLOBAL_SLIDER_DIMENSION_FIELDS
       .filter(field => firstSelection[field])
