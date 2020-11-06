@@ -6,7 +6,8 @@
 
 ### Added
 - Built-in support for encoding and decoding compressed conf as url param.
-- Add heatmap support to schema.
+- Add heatmap controls state to saved view config.
+- Add `spatialLayers` validation to config schema.
 
 ### Changed
 - Fixed schema validity as state updates.

@@ -101,6 +101,131 @@
           "type": "string"
         }
       }
+    },
+    "rasterLayer": {
+      "additionalProperties": false,
+      "description": "The properties of this object are the rendering settings for the raster layer.",
+      "required": ["channels", "colormap", "index", "opacity", "type"],
+      "properties": {
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["color", "domain", "selection", "slider", "visible"],
+            "properties": {
+              "color": {
+                "type": "array",
+                "items": { "type": "number" }
+              },
+              "domain": {
+                "type": "array",
+                "items": { "type": "number" }
+              },
+              "selection": {
+                "type": "object"
+              },
+              "slider": {
+                "type": "array",
+                "items": { "type": "number" }
+              },
+              "visible": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "colormap": {
+          "type": "string"
+        },
+        "index": {
+          "type": "number"
+        },
+        "opacity": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["raster"]
+        }
+      }
+    },
+    "moleculesLayer": {
+      "additionalProperties": false,
+      "description": "The properties of this object are the rendering settings for the molecules layer.",
+      "required": ["visible", "radius", "opacity", "type"],
+      "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "radius": {
+          "type": "number"
+        },
+        "opacity": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["molecules"]
+        }
+      }
+    },
+    "cellsLayer": {
+      "additionalProperties": false,
+      "description": "The properties of this object are the rendering settings for the cells layer.",
+      "required": ["visible", "stroked", "radius", "opacity", "type"],
+      "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "stroked": {
+          "type": "boolean"
+        },
+        "radius": {
+          "type": "number"
+        },
+        "opacity": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["cells"]
+        }
+      }
+    },
+    "neighborhoodsLayer": {
+      "additionalProperties": false,
+      "description": "The properties of this object are the rendering settings for the neighborhoods layer.",
+      "required": ["visible", "type"],
+      "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["neighborhoods"]
+        }
+      }
+    },
+    "spatialLayers": {
+      "type": "array",
+      "description": "Array of Spatial Layers",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/rasterLayer"
+          },
+          {
+            "$ref": "#/definitions/cellsLayer"
+          },
+          {
+            "$ref": "#/definitions/moleculesLayer"
+          },
+          {
+            "$ref": "#/definitions/neighborhoodsLayer"
+          }
+        ]
+      }
     }
   },
   "additionalProperties": false,
@@ -224,7 +349,7 @@
                   "type": "null",
                   "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                 },
-                { "type": "array", "items": { "type": "object" } }
+                { "$ref": "#/definitions/spatialLayers" }
               ]
             }
           }
