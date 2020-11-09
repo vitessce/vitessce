@@ -284,7 +284,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       loaderSelection,
       channelIsOn: layerProps.visibilities,
       opacity: layerProps.opacity,
-      colormap: layerProps.colormap.length > 0 && layerProps.colormap,
+      colormap: (layerProps.colormap ? layerProps.colormap : ''),
       scale: scale || 1,
       translate: translate ? [translate.x, translate.y] : [0, 0],
     });
