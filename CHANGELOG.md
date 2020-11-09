@@ -9,7 +9,8 @@
 - Add heatmap controls state to saved view config.
 - Add `spatialLayers` validation to config schema.
 - Add heatmap support to schema.
-- domainType is now part of the spatial layers.
+- `domainType` is now part of the raster spatial layers.
+- `domain` is now removed from raster spatial layer channel definition schema, since channel-level domain settings could conflict with layer-level domain _type_ settings.
 
 ### Changed
 - Fixed schema validity as state updates.
