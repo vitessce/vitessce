@@ -26,6 +26,7 @@ export default function GenesSubscriber(props) {
     dataset,
     geneSelection,
     geneFilter,
+    cellColorEncoding,
   }, {
     setGeneSelection,
     setGeneFilter,
@@ -44,6 +45,12 @@ export default function GenesSubscriber(props) {
     resetReadyItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
+
+  useEffect(() => {
+    if (cellColorEncoding === 'cellSetSelection') {
+      setGeneSelection(null);
+    }
+  }, [cellColorEncoding, setGeneSelection]);
 
   // Get data from loaders using the data hooks.
   const [expressionMatrix] = useExpressionMatrixData(
