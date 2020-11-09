@@ -103,8 +103,8 @@
       }
     },
     "rasterLayer": {
-      "additionalProperties": false,
       "description": "The properties of this object are the rendering settings for the raster layer.",
+      "additionalProperties": false,
       "required": ["channels", "colormap", "index", "opacity", "type", "domainType"],
       "properties": {
         "channels": {
@@ -155,8 +155,8 @@
       }
     },
     "moleculesLayer": {
-      "additionalProperties": false,
       "description": "The properties of this object are the rendering settings for the molecules layer.",
+      "additionalProperties": false,
       "required": ["visible", "radius", "opacity", "type"],
       "properties": {
         "visible": {
@@ -175,8 +175,8 @@
       }
     },
     "cellsLayer": {
-      "additionalProperties": false,
       "description": "The properties of this object are the rendering settings for the cells layer.",
+      "additionalProperties": false,
       "required": ["visible", "stroked", "radius", "opacity", "type"],
       "properties": {
         "visible": {
@@ -198,8 +198,8 @@
       }
     },
     "neighborhoodsLayer": {
-      "additionalProperties": false,
       "description": "The properties of this object are the rendering settings for the neighborhoods layer.",
+      "additionalProperties": false,
       "required": ["visible", "type"],
       "properties": {
         "visible": {
