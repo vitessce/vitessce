@@ -163,17 +163,21 @@ function ChannelController({
       ];
 
       let domains;
-      getChannelStats({ loader, loaderSelection }).then((stats) => {
         if (domainType === 'Full') {
           domains = [[0, DTYPE_VALUES[dtype].max]];
+          const [newDomain] = domains;
+          if (mounted) {
+             setDomain(newDomain);
+           }
         } else {
-          domains = stats.map(stat => stat.domain);
+         getChannelStats({ loader, loaderSelection }).then((stats) => {
+             domains = stats.map(stat => stat.domain);
+             const [newDomain] = domains;
+             if (mounted) {
+                 setDomain(newDomain);
+             }
+         });
         }
-        const [newDomain] = domains;
-        if (mounted) {
-          setDomain(newDomain);
-        }
-      });
     }
     return () => {
       mounted = false;
