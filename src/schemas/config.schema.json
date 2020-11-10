@@ -105,48 +105,59 @@
     "rasterLayer": {
       "description": "The properties of this object are the rendering settings for the raster layer.",
       "additionalProperties": false,
-      "required": ["channels", "colormap", "index", "opacity", "type", "domainType"],
+      "required": ["channels", "colormap", "index", "opacity", "type"],
       "properties": {
         "channels": {
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["color", "domain", "selection", "slider", "visible"],
+            "required": ["selection"],
             "properties": {
               "color": {
                 "type": "array",
-                "items": { "type": "number" }
-              },
-              "domain": {
-                "type": "array",
-                "items": { "type": "number" }
+                "items": { "type": "number" },
+                "description": "The color to use when rendering this channel under the null colormap."
               },
               "selection": {
-                "type": "object"
+                "type": "object",
+                "description": "Determines the channel selection, e.g. some Z and time slice."
               },
               "slider": {
                 "type": "array",
-                "items": { "type": "number" }
+                "items": { "type": "number" },
+                "description": "Determines the range for color mapping."
               },
               "visible": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Determines whether this channel of the layer will be rendered in the spatial component."
               }
             }
           }
         },
         "colormap": {
-          "type": "string"
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "The name of the colormap to use for this layer."
+            },
+            {
+              "type": "null",
+              "description": "Use the solid color definitions."
+            }
+          ]
         },
         "index": {
-          "type": "number"
+          "type": "number",
+          "description": "The index of the layer among the array of layers available in the image file."
         },
         "opacity": {
           "type": "number"
         },
         "domainType": {
           "type": "string",
-          "enum": ["Full", "Min/Max"]
+          "enum": ["Full", "Min/Max"],
+          "description": "Determines the extent of the channel slider input element in the layer controller."
         },
         "type": {
           "type": "string",
