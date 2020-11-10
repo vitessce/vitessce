@@ -21,8 +21,9 @@ export default function VectorLayerController(props) {
     if (layer.type === 'cells') {
       const stroked = v < 0.7;
       handleLayerChange({ ...layer, opacity: v, stroked });
+    } else {
+      handleLayerChange({ ...layer, opacity: v });
     }
-    handleLayerChange({ ...layer, opacity: v });
   }
 
   function handleCheckBoxChange(v) {
