@@ -101,6 +101,146 @@
           "type": "string"
         }
       }
+    },
+    "rasterLayer": {
+      "description": "The properties of this object are the rendering settings for the raster layer.",
+      "additionalProperties": false,
+      "required": ["channels", "colormap", "index", "opacity", "type"],
+      "properties": {
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["selection"],
+            "properties": {
+              "color": {
+                "type": "array",
+                "items": { "type": "number" },
+                "description": "The color to use when rendering this channel under the null colormap."
+              },
+              "selection": {
+                "type": "object",
+                "description": "Determines the channel selection, e.g. some Z and time slice."
+              },
+              "slider": {
+                "type": "array",
+                "items": { "type": "number" },
+                "description": "Determines the range for color mapping."
+              },
+              "visible": {
+                "type": "boolean",
+                "description": "Determines whether this channel of the layer will be rendered in the spatial component."
+              }
+            }
+          }
+        },
+        "colormap": {
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "The name of the colormap to use for this layer."
+            },
+            {
+              "type": "null",
+              "description": "Use the solid color definitions."
+            }
+          ]
+        },
+        "index": {
+          "type": "number",
+          "description": "The index of the layer among the array of layers available in the image file."
+        },
+        "opacity": {
+          "type": "number"
+        },
+        "domainType": {
+          "type": "string",
+          "enum": ["Full", "Min/Max"],
+          "description": "Determines the extent of the channel slider input element in the layer controller."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["raster"]
+        }
+      }
+    },
+    "moleculesLayer": {
+      "description": "The properties of this object are the rendering settings for the molecules layer.",
+      "additionalProperties": false,
+      "required": ["visible", "radius", "opacity", "type"],
+      "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "radius": {
+          "type": "number"
+        },
+        "opacity": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["molecules"]
+        }
+      }
+    },
+    "cellsLayer": {
+      "description": "The properties of this object are the rendering settings for the cells layer.",
+      "additionalProperties": false,
+      "required": ["visible", "stroked", "radius", "opacity", "type"],
+      "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "stroked": {
+          "type": "boolean"
+        },
+        "radius": {
+          "type": "number"
+        },
+        "opacity": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["cells"]
+        }
+      }
+    },
+    "neighborhoodsLayer": {
+      "description": "The properties of this object are the rendering settings for the neighborhoods layer.",
+      "additionalProperties": false,
+      "required": ["visible", "type"],
+      "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["neighborhoods"]
+        }
+      }
+    },
+    "spatialLayers": {
+      "type": "array",
+      "description": "Array of Spatial Layers",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/rasterLayer"
+          },
+          {
+            "$ref": "#/definitions/cellsLayer"
+          },
+          {
+            "$ref": "#/definitions/moleculesLayer"
+          },
+          {
+            "$ref": "#/definitions/neighborhoodsLayer"
+          }
+        ]
+      }
     }
   },
   "additionalProperties": false,
@@ -224,7 +364,7 @@
                   "type": "null",
                   "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                 },
-                { "type": "array", "items": { "type": "object" } }
+                { "$ref": "#/definitions/spatialLayers" }
               ]
             }
           }

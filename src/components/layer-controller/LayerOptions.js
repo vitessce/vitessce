@@ -6,6 +6,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 
 import { COLORMAP_OPTIONS } from '../utils';
+import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 
@@ -19,7 +20,7 @@ function ColormapSelect({ value, inputId, handleChange }) {
   return (
     <Select
       native
-      onChange={e => handleChange(e.target.value)}
+      onChange={e => handleChange(e.target.value === '' ? null : e.target.value)}
       value={value}
       inputProps={{ name: 'colormap', id: inputId }}
       style={{ width: '100%' }}
@@ -177,7 +178,7 @@ function LayerOptions({
           <Grid item>
             <LayerOption name="Colormap" inputId="colormap-select">
               <ColormapSelect
-                value={colormap}
+                value={colormap || ''}
                 inputId="colormap-select"
                 handleChange={handleColormapChange}
               />
@@ -186,7 +187,7 @@ function LayerOptions({
           <Grid item>
             <LayerOption name="Domain" inputId="domain-selector">
               <SliderDomainSelector
-                value={domainType}
+                value={domainType || DEFAULT_RASTER_DOMAIN_TYPE}
                 handleChange={(value) => {
                   handleDomainChange(value);
                 }}
