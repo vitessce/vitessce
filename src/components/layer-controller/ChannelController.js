@@ -163,21 +163,21 @@ function ChannelController({
       ];
 
       let domains;
-        if (domainType === 'Full') {
-          domains = [[0, DTYPE_VALUES[dtype].max]];
+      if (domainType === 'Full') {
+        domains = [[0, DTYPE_VALUES[dtype].max]];
+        const [newDomain] = domains;
+        if (mounted) {
+          setDomain(newDomain);
+        }
+      } else {
+        getChannelStats({ loader, loaderSelection }).then((stats) => {
+          domains = stats.map(stat => stat.domain);
           const [newDomain] = domains;
           if (mounted) {
-             setDomain(newDomain);
-           }
-        } else {
-         getChannelStats({ loader, loaderSelection }).then((stats) => {
-             domains = stats.map(stat => stat.domain);
-             const [newDomain] = domains;
-             if (mounted) {
-                 setDomain(newDomain);
-             }
-         });
-        }
+            setDomain(newDomain);
+          }
+        });
+      }
     }
     return () => {
       mounted = false;
