@@ -26,12 +26,12 @@ export default function GenesSubscriber(props) {
     dataset,
     geneSelection,
     geneFilter,
-    cellColorEncoding,
   }, {
     setGeneSelection,
     setGeneFilter,
     setGeneHighlight,
     setCellColorEncoding,
+    setCellSetSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -46,12 +46,6 @@ export default function GenesSubscriber(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
-  useEffect(() => {
-    if (cellColorEncoding === 'cellSetSelection') {
-      setGeneSelection(null);
-    }
-  }, [cellColorEncoding, setGeneSelection]);
-
   // Get data from loaders using the data hooks.
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
@@ -60,6 +54,7 @@ export default function GenesSubscriber(props) {
   const numGenes = geneList.length;
 
   function setGeneSelectionAndColorEncoding(newSelection) {
+    setCellSetSelection([]);
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
   }
