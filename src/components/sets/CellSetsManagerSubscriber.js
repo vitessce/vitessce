@@ -85,13 +85,13 @@ export default function CellSetsManagerSubscriber(props) {
     dataset,
     cellSetSelection,
     cellSetColor,
-    cellColorEncoding,
     additionalCellSets,
   }, {
     setCellSetSelection,
     setCellColorEncoding,
     setCellSetColor,
     setAdditionalCellSets,
+    setGeneSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -191,6 +191,7 @@ export default function CellSetsManagerSubscriber(props) {
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
   function setCellSetColorEncoding() {
+    setGeneSelection([]);
     setCellColorEncoding('cellSetSelection');
   }
 
@@ -203,13 +204,12 @@ export default function CellSetsManagerSubscriber(props) {
 
   // Infer the state of the "checked level" radio button based on the selected cell sets.
   const checkedLevel = useMemo(() => {
-    if (cellColorEncoding === 'cellSetSelection'
-    && cellSetSelection && cellSetSelection.length > 0
+    if (cellSetSelection && cellSetSelection.length > 0
     && mergedCellSets && mergedCellSets.tree.length > 0) {
       return treeToExpectedCheckedLevel(mergedCellSets, cellSetSelection);
     }
     return null;
-  }, [cellSetSelection, mergedCellSets, cellColorEncoding]);
+  }, [cellSetSelection, mergedCellSets]);
 
   // Determine which of the set operation buttons should be enabled/disabled
   // based on the currently selected sets.
