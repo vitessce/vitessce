@@ -339,8 +339,8 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
   // coordination space stored as JSON in the view config,
   // we need to set up a separate state variable here to store the
   // non-JSON objects, such as layer loader instances.
-  const [imageLayerLoaders, setImageLayerLoaders] = useState({});
-  const [imageLayerMeta, setImageLayerMeta] = useState({});
+  const [imageLayerLoaders, setImageLayerLoaders] = useState([]);
+  const [imageLayerMeta, setImageLayerMeta] = useState([]);
 
   const setWarning = useSetWarning();
 
@@ -372,8 +372,8 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
     } else {
       // There was no raster loader for this dataset,
       // and raster should be optional.
-      setImageLayerLoaders({});
-      setImageLayerMeta({});
+      setImageLayerLoaders([]);
+      setImageLayerMeta([]);
       if (isRequired) {
         warn(new LoaderNotFoundError(dataset, 'raster', null, null), setWarning);
       } else {

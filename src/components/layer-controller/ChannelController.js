@@ -1,4 +1,5 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
+import { getChannelStats, DTYPE_VALUES } from '@hms-dbmi/viv';
 
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
@@ -136,10 +137,12 @@ function ChannelController({
   visibility = false,
   slider,
   color,
-  domain,
+  channels,
+  channelId,
+  domainType: newDomainType,
   dimName,
   theme,
-  dtype,
+  loader,
   colormapOn,
   channelOptions,
   handlePropertyChange,
@@ -148,7 +151,44 @@ function ChannelController({
   selectionIndex,
   disableOptions = false,
 }) {
+  const { dtype } = loader;
+  const [domain, setDomain] = useState(null);
+  const [domainType, setDomainType] = useState(null);
   const rgbColor = toRgbUIString(colormapOn, color, theme);
+
+  useEffect(() => {
+    let mounted = true;
+    if (dtype && loader && channels) {
+      const loaderSelection = [
+        { ...channels[channelId].selection },
+      ];
+
+      let domains;
+      if (newDomainType !== domainType) {
+        if (newDomainType === 'Full') {
+          domains = [[0, DTYPE_VALUES[dtype].max]];
+          const [newDomain] = domains;
+          if (mounted) {
+            setDomain(newDomain);
+            setDomainType(newDomainType);
+          }
+        } else {
+          getChannelStats({ loader, loaderSelection }).then((stats) => {
+            domains = stats.map(stat => stat.domain);
+            const [newDomain] = domains;
+            if (mounted) {
+              setDomain(newDomain);
+              setDomainType(newDomainType);
+            }
+          });
+        }
+      }
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [domainType, channels, channelId, loader, dtype, newDomainType]);
+
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
   *  index of the image along that particular dimension.
@@ -188,13 +228,15 @@ function ChannelController({
           />
         </Grid>
         <Grid item xs={9}>
-          <ChannelSlider
-            color={rgbColor}
-            slider={slider}
-            domain={domain}
-            dtype={dtype}
-            handleChange={v => handlePropertyChange('slider', v)}
-          />
+          {domain && (
+            <ChannelSlider
+              color={rgbColor}
+              slider={slider}
+              domain={domain}
+              dtype={dtype}
+              handleChange={v => handlePropertyChange('slider', v)}
+            />
+          )}
         </Grid>
       </Grid>
     </Grid>
