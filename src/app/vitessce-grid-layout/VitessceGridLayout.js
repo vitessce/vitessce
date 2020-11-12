@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import { getMaxRows, resolveLayout } from './layout-utils';
+import isEqual from 'lodash/isEqual';
+import { getMaxRows, resolveLayout, COMPONENT_ID_PREFIX } from './layout-utils';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -16,10 +17,10 @@ export default function VitessceGridLayout(props) {
   const {
     layout,
     getComponent, padding, margin, draggableHandle,
-    reactGridLayoutProps, onAllReady, rowHeight, theme, height,
+    reactGridLayoutProps, rowHeight, theme, height,
+    onRemoveComponent, onComponentChange,
   } = props;
 
-  const [readyComponentKeys, setReadyComponentKeys] = useState(new Set());
   const [gridComponents, setGridComponents] = useState({});
   const [gridCols, setGridCols] = useState(null);
   const [gridLayouts, setGridLayouts] = useState(null);
@@ -44,36 +45,43 @@ export default function VitessceGridLayout(props) {
   const style = (
     <style>
       {`
-          ${draggableHandle} {
-            cursor: grab;
-          }
-          ${draggableHandle}:active {
-            cursor: grabbing;
-          }
+        ${draggableHandle} {
+          cursor: grab;
+        }
+        ${draggableHandle}:active {
+          cursor: grabbing;
+        }
      `}
     </style>
   );
 
-  useEffect(() => {
-    if (readyComponentKeys.size === Object.keys(gridComponents).length) {
-      // The sets are now equal.
-      onAllReady();
+  const onLayoutChange = (newLayout) => {
+    if (newLayout.length === Object.entries(gridComponents).length) {
+      newLayout.forEach((nextC) => {
+        const id = nextC.i;
+        const prevC = gridComponents[id];
+        const i = parseInt(id.substring(id.indexOf(COMPONENT_ID_PREFIX) + 1), 10);
+        const nextProps = {
+          x: nextC.x, y: nextC.y, w: nextC.w, h: nextC.h,
+        };
+        const prevProps = {
+          x: prevC.x, y: prevC.y, w: prevC.w, h: prevC.h,
+        };
+        if (!isEqual(nextProps, prevProps)) {
+          onComponentChange(i, nextProps);
+        }
+      });
     }
-  }, [readyComponentKeys, gridComponents, onAllReady]);
+  };
 
   const layoutChildren = Object.entries(gridComponents).map(([k, v], i) => {
     const Component = getComponent(v.component);
-    const onReady = () => {
-      setReadyComponentKeys((prevReadyComponentKeys) => {
-        prevReadyComponentKeys.add(k);
-        return prevReadyComponentKeys;
-      });
-    };
 
     const removeGridComponent = () => {
-      const newGridComponents = { ...gridComponents };
-      delete newGridComponents[k];
-      setGridComponents(newGridComponents);
+      const nextGridComponents = { ...gridComponents };
+      delete nextGridComponents[k];
+      setGridComponents(nextGridComponents);
+      onRemoveComponent(i);
     };
 
     return (
@@ -84,7 +92,6 @@ export default function VitessceGridLayout(props) {
           coordinationScopes={v.coordinationScopes}
           theme={theme}
           removeGridComponent={removeGridComponent}
-          onReady={onReady}
         />
       </div>
     );
@@ -107,6 +114,7 @@ export default function VitessceGridLayout(props) {
         containerPadding={[padding, padding]}
         margin={[margin, margin]}
         draggableHandle={draggableHandle}
+        onLayoutChange={onLayoutChange}
         {... reactGridLayoutProps}
       >
         {layoutChildren}
@@ -118,5 +126,4 @@ export default function VitessceGridLayout(props) {
 VitessceGridLayout.defaultProps = {
   padding: 10,
   margin: 10,
-  onAllReady: () => {},
 };
