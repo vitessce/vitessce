@@ -139,7 +139,7 @@ function ChannelController({
   color,
   channels,
   channelId,
-  domainType,
+  domainType: newDomainType,
   dimName,
   theme,
   loader,
@@ -153,6 +153,7 @@ function ChannelController({
 }) {
   const { dtype } = loader;
   const [domain, setDomain] = useState(null);
+  const [domainType, setDomainType] = useState(null);
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {
@@ -163,26 +164,30 @@ function ChannelController({
       ];
 
       let domains;
-      if (domainType === 'Full') {
-        domains = [[0, DTYPE_VALUES[dtype].max]];
-        const [newDomain] = domains;
-        if (mounted) {
-          setDomain(newDomain);
-        }
-      } else {
-        getChannelStats({ loader, loaderSelection }).then((stats) => {
-          domains = stats.map(stat => stat.domain);
+      if (newDomainType !== domainType) {
+        if (newDomainType === 'Full') {
+          domains = [[0, DTYPE_VALUES[dtype].max]];
           const [newDomain] = domains;
           if (mounted) {
             setDomain(newDomain);
+            setDomainType(newDomainType);
           }
-        });
+        } else {
+          getChannelStats({ loader, loaderSelection }).then((stats) => {
+            domains = stats.map(stat => stat.domain);
+            const [newDomain] = domains;
+            if (mounted) {
+              setDomain(newDomain);
+              setDomainType(newDomainType);
+            }
+          });
+        }
       }
     }
     return () => {
       mounted = false;
     };
-  }, [domainType, channels, channelId, loader, dtype]);
+  }, [domainType, channels, channelId, loader, dtype, newDomainType]);
 
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
