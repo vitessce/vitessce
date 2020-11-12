@@ -32,7 +32,7 @@ export function decodeURLParamsToConf(queryString, confParameter) {
   const compressedConfString = params.get(confParameter || VITESSCE_CONF_QUERY_STRING);
   const expectedConfLength = Number(params.get(LENGTH_QUERY_STRING));
   if (expectedConfLength !== compressedConfString.length) {
-    throw new Error('URL param containing view conf was truncated.');
+    throw new Error('Compressed conf string length was different than expected.  URL param containing view conf could be truncated.');
   }
   const version = params.get(VERSION_QUERY_STRING);
   if (version === CURRENT_VERSION) {
