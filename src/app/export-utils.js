@@ -26,7 +26,8 @@ const MAX_BROWSER_URL_LENGTHS = {
  * @param {Object} params
  * @param {Object} params.conf Previous scope names.
  * @param {Object} params.baseUrl The URL to which the params should be appended.
- * @param {function} params.onOverMaximumUrlLength Callback for when new url is over max length for your browser (optional).
+ * @param {function} params.onOverMaximumUrlLength Callback for when new url
+ * is over max length for your browser (optional).
  * @param {Object} params.confParameter The parameter to use instead of vitessce_conf for
  * the view config in the URL (optional).
  * @returns {string} The URL like https://example.com/conf_length=10&version=0.0.1#vitessce_conf=fksdfasdfjkl
@@ -60,7 +61,8 @@ export function encodeConfInUrl({
  * Decode URL params to a Vitessce configuration.
  * The URL params must have version and vitessce_conf params,
  * like conf_length=10&version=0.0.1#vitessce_conf=fksdfasdfjkl.
- * @param {Object} queryString The URL params, like conf_length=10&version=0.0.1#vitessce_conf=fksdfasdfjkl.
+ * @param {Object} queryString The URL params,
+ * like conf_length=10&version=0.0.1#vitessce_conf=fksdfasdfjkl.
  * @param {Object} confParameter The parameter to use instead of vitessce_conf
  * for the view config in the URL (optional).
  * @returns {string} A vitessce configuration.
