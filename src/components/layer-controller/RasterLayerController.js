@@ -50,8 +50,7 @@ export default function RasterLayerController(props) {
   const firstSelection = channels[0]?.selection || {};
 
   const { dimensions } = loader;
-
-  const [domainType, setDomainType] = useState('Min/Max');
+  const [domainType, setDomainType] = useState(layer.domainType);
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
     GLOBAL_SLIDER_DIMENSION_FIELDS
       .filter(field => firstSelection[field])
@@ -68,6 +67,14 @@ export default function RasterLayerController(props) {
 
   function setChannels(v) {
     handleLayerChange({ ...layer, channels: v });
+  }
+
+  function setChannelsAndDomainType(newChannels, newDomainType) {
+    handleLayerChange({
+      ...layer,
+      channels: newChannels,
+      domainType: newDomainType,
+    });
   }
 
   function setChannel(v, i) {
@@ -104,7 +111,7 @@ export default function RasterLayerController(props) {
     const color = [255, 255, 255];
     const visible = true;
     addChannel({
-      selection, domain, slider, visible, color,
+      selection, slider, visible, color,
     });
   };
 
@@ -134,8 +141,8 @@ export default function RasterLayerController(props) {
       },
     );
 
-    const newChannels = channels.map((c, i) => ({ ...c, domain: domains[i], slider: sliders[i] }));
-    setChannels(newChannels);
+    const newChannels = channels.map((c, i) => ({ ...c, slider: sliders[i] }));
+    setChannelsAndDomainType(newChannels, value);
   };
 
   // This call updates all channel selections with new global selection from the UI.
@@ -146,13 +153,12 @@ export default function RasterLayerController(props) {
     }));
     const mouseUp = event.type === 'mouseup';
     // Only update domains on a mouseup event for the same reason as above.
-    const { domains, sliders } = mouseUp
+    const { sliders } = mouseUp
       ? await getDomainsAndSliders(loader, loaderSelection, domainType)
       : { domains: [], sliders: [] };
     if (mouseUp) {
       const newChannels = channels.map((c, i) => ({
         ...c,
-        domain: domains[i],
         slider: sliders[i],
         selection: { ...c.selection, ...selection },
       }));
@@ -180,10 +186,9 @@ export default function RasterLayerController(props) {
             const loaderSelection = [
               { ...channels[channelId][property], ...value },
             ];
-            const { domains, sliders } = await getDomainsAndSliders(
+            const { sliders } = await getDomainsAndSliders(
               loader, loaderSelection, domainType,
             );
-            [update.domain] = domains;
             [update.slider] = sliders;
           }
           setChannel({ ...c, ...update }, channelId);
@@ -211,8 +216,11 @@ export default function RasterLayerController(props) {
               selectionIndex={c.selection[dimName]}
               slider={c.slider}
               color={c.color}
-              dtype={loader.dtype}
-              domain={c.domain}
+              channels={channels}
+              channelId={channelId}
+              domainType={domainType}
+              loader={loader}
+              globalDimensionValues={globalDimensionValues}
               theme={theme}
               channelOptions={channelOptions}
               colormapOn={Boolean(colormap)}

@@ -33,7 +33,7 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
         fontWeight: 400,
       }}
     >
-      {Object.entries(imageOptions).map(([i, imgData]) => (
+      {imageOptions.map((imgData, i) => (
         <MenuItem dense key={imgData.name} onClick={() => handleAdd(i)}>
           <span>{imgData.name}</span>
         </MenuItem>

@@ -1,8 +1,11 @@
 export const GLOBAL_SLIDER_DIMENSION_FIELDS = ['z', 'time'];
 
+export const DEFAULT_RASTER_DOMAIN_TYPE = 'Min/Max';
+
 export const DEFAULT_RASTER_LAYER_PROPS = {
-  colormap: '',
+  colormap: null,
   opacity: 1,
+  domainType: DEFAULT_RASTER_DOMAIN_TYPE,
 };
 
 export const DEFAULT_MOLECULES_LAYER = {
