@@ -39,6 +39,7 @@
     "@turf/boolean-within": "^6.0.1",
     "@turf/helpers": "^6.1.4",
     "ajv": "^6.10.0",
+    "bowser": "^2.11.0",
     "classnames": "^2.2.6",
     "d3-array": "^2.4.0",
     "d3-dsv": "^1.1.1",
