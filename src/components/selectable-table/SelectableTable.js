@@ -84,8 +84,12 @@ export default function SelectableTable(props) {
         return null;
       })
       .filter(Boolean);
-    if (initialSelectedRows.length > 0 && !isEqual(initialSelectedRows, selectedRows)) {
-      setSelectedRows(initialSelectedRows);
+    if (!isEqual(initialSelectedRows, selectedRows)) {
+      if (initialSelectedRows.length > 0) {
+        setSelectedRows(initialSelectedRows);
+      } else {
+        setSelectedRows(null);
+      }
     }
   }, [data, idKey, valueKey]);
 
