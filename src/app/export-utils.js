@@ -58,9 +58,9 @@ export function encodeConfInUrl({
 /**
  * Decode URL params to a Vitessce configuration.
  * The URL params must have version and vitessce_conf params,
- * like conf_length=10&version=0.0.1#vitessce_conf=fksdfasdfjkl.
+ * like conf_length=10&version=0.0.1&vitessce_conf=fksdfasdfjkl.
  * @param {Object} queryString The URL params,
- * like conf_length=10&version=0.0.1#vitessce_conf=fksdfasdfjkl.
+ * like conf_length=10&version=0.0.1&vitessce_conf=fksdfasdfjkl.
  * @param {Object} confParameter The parameter to use instead of vitessce_conf
  * for the view config in the URL (optional).
  * @returns {string} A vitessce configuration.
