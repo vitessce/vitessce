@@ -47,7 +47,9 @@ export function encodeConfInUrl({
   const browser = sniffBrowser();
   const maxLength = MAX_BROWSER_URL_LENGTHS[browser];
   if (newParams.length > maxLength) {
-    const willWorkOn = Object.entries(MAX_BROWSER_URL_LENGTHS).filter(entry => entry[1] > newParams.length).map(entry => entry[0]);
+    const willWorkOn = Object.entries(MAX_BROWSER_URL_LENGTHS)
+      .filter(entry => entry[1] > newParams.length)
+      .map(entry => entry[0]);
     const message = `Configuration is ${compressedConf.length} characters; max URL for ${browser} is ${maxLength}: it will work on ${willWorkOn.join(', ') || 'no browser'}.`;
     console.error(message);
     onOverMaximumUrlLength({ message, willWorkOn });
