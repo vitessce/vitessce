@@ -381,7 +381,21 @@ export class VitessceConfig {
         );
       });
     });
-    // TODO: coordination space and component layout
+    Object.keys(config.coordinationSpace).forEach((cType) => {
+      if (cType !== COORDINATION_TYPES.DATASET) {
+        const cObj = config.coordinationSpace[cType];
+        vc.config.coordinationSpace[cType] = {};
+        Object.entries(cObj).forEach(([cScopeName, cScopeValue]) => {
+          const scope = new VitessceConfigCoordinationScope(cType, cScopeName);
+          scope.setValue(cScopeValue);
+          vc.config.coordinationSpace[cType][cScopeName] = scope;
+        });
+      }
+    });
+    config.layout.forEach((c) => {
+      const newView = new VitessceConfigView(c.component, c.coordinationScopes, c.x, c.y, c.w, c.h);
+      vc.config.layout.push(newView);
+    });
     return vc;
   }
 }

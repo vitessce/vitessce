@@ -271,5 +271,73 @@ describe('src/api/VitessceConfig.js', () => {
         version: '1.0.0',
       });
     });
+
+    it('can load a view config from JSON', () => {
+      const config = new VitessceConfig('My config');
+      const dataset = config.addDataset('My dataset');
+      const v1 = config.addView(dataset, 'spatial');
+      const v2 = config.addView(dataset, 'scatterplot', { mapping: 'PCA' });
+      const v3 = config.addView(dataset, 'status');
+
+      config.layout(hconcat(v1, vconcat(v2, v3)));
+
+      const origConfigJSON = config.toJSON();
+
+      const loadedConfig = VitessceConfig.fromJSON(origConfigJSON);
+      const loadedConfigJSON = loadedConfig.toJSON();
+
+      expect(loadedConfigJSON).toEqual({
+        coordinationSpace: {
+          dataset: {
+            A: 'A',
+          },
+          embeddingType: {
+            A: 'PCA',
+          },
+        },
+        datasets: [{
+          name: 'My dataset',
+          uid: 'A',
+          files: [],
+        }],
+        description: '',
+        initStrategy: 'auto',
+        layout: [
+          {
+            component: 'spatial',
+            coordinationScopes: {
+              dataset: 'A',
+            },
+            x: 0,
+            y: 0,
+            w: 6,
+            h: 12,
+          },
+          {
+            component: 'scatterplot',
+            coordinationScopes: {
+              dataset: 'A',
+              embeddingType: 'A',
+            },
+            x: 6,
+            y: 0,
+            w: 6,
+            h: 6,
+          },
+          {
+            component: 'status',
+            coordinationScopes: {
+              dataset: 'A',
+            },
+            x: 6,
+            y: 6,
+            w: 6,
+            h: 6,
+          },
+        ],
+        name: 'My config',
+        version: '1.0.0',
+      });
+    });
   });
 });
