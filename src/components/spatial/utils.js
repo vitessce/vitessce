@@ -87,7 +87,6 @@ export async function initializeChannelForSelection(loader, selection, i) {
 
   return {
     selection,
-    domain,
     color,
     visible: true,
     slider: slider || domain,
@@ -123,7 +122,6 @@ export async function initializeLayerChannels(loader) {
     const slider = sliders[i];
     const channel = {
       selection,
-      domain,
       color: colors ? colors[i] : VIEWER_PALETTE[i],
       visible: true,
       slider: slider || domain,
@@ -168,7 +166,7 @@ export async function initializeLayerChannelsIfMissing(layerDefsOrig, loaders) {
         const channelDef = layerDef.channels[channelIndex];
         let newChannelDefPromise = Promise.resolve(channelDef);
         // Only auto-initialize if domains, colors, or sliders is missing.
-        if (channelDef.selection && !(channelDef.domain && channelDef.color && channelDef.slider)) {
+        if (channelDef.selection && !(channelDef.color && channelDef.slider)) {
           newChannelDefPromise = initializeChannelForSelection(
             loader, channelDef.selection, channelIndex,
           )
@@ -197,8 +195,8 @@ export async function initializeLayerChannelsIfMissing(layerDefsOrig, loaders) {
  * @param {(string[]|null)} rasterRenderLayers A list of default raster layers. Optional.
  */
 export async function initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers) {
-  const nextImageLoaders = {};
-  const nextImageMeta = {};
+  const nextImageLoaders = [];
+  const nextImageMeta = [];
   const autoImageLayerDefPromises = [];
 
   // Start all loader creators immediately.
@@ -231,7 +229,7 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
       const loader = nextImageLoaders[layerIndex];
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         .then(channels => Promise.resolve({
-          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels,
+          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max',
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }
