@@ -18,7 +18,6 @@ const MAX_BROWSER_URL_LENGTHS = {
   Edge: 2047,
   Safari: 65000,
   Firefox: 65000,
-
 };
 
 /**
@@ -43,16 +42,10 @@ export function encodeConfInUrl({
   const browser = sniffBrowser();
   const maxLength = MAX_BROWSER_URL_LENGTHS[browser];
   if (newUrl.length > maxLength) {
-    let message;
-    if (newUrl.length < MAX_BROWSER_URL_LENGTHS.Firefox) {
-      message = `URL is too long to be used in current browser ${browser} but will work in Firefox or Safari.`;
-    } else if (newUrl.length < MAX_BROWSER_URL_LENGTHS.Chrome) {
-      message = `URL is too long to be used in current browser ${browser} but will work in Firefox, Chrome, or Safari.`;
-    } else if (newUrl.length > MAX_BROWSER_URL_LENGTHS.Firefox) {
-      message = 'URL is too long to be used reliably in modern browsers.';
-    }
+    const willWorkOn = Object.entries(MAX_BROWSER_URL_LENGTHS).filter((entry) => entry[1] > maxLength).map((entry) => entry[0]).join(', ') || 'no browser';
+    const message = `Configuration is ${compressedConf.length} characters; max URL for ${browser} is ${maxLength}: it will work on ${willWorkOn}.`;
     console.error(message);
-    onOverMaximumUrlLength(message);
+    throw CustonException(message);
   }
   return newUrl;
 }
