@@ -49,21 +49,21 @@ describe('src/app/export-utils.js', () => {
   describe('encodeConfInUrl', () => {
     it('encodes a view config for a URL', () => {
       const urlParams1 = encodeConfInUrl({ conf: {}, baseUrl: 'https://example.com' });
-      expect(urlParams1).toEqual('https://example.com#conf_length=5&version=0.0.1&vitessce_conf=N4XyA');
+      expect(urlParams1).toEqual('conf_length=5&version=0.0.1&vitessce_conf=N4XyA');
 
       const urlParams2 = encodeConfInUrl({ conf: fakeConfig, baseUrl: 'https://example.com' });
-      expect(urlParams2).toEqual('https://example.com#conf_length=327&version=0.0.1&vitessce_conf=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
+      expect(urlParams2).toEqual('conf_length=327&version=0.0.1&vitessce_conf=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
     });
 
     it('Calls onOverMaximumUrlLength for conf too long', () => {
-      let message;
+      let browsers;
       // eslint-disable-next-line no-return-assign
-      const onOverMaximumUrlLength = warning => message = warning;
-      encodeConfInUrl({ conf: { foo: makeLongString(65000) }, baseUrl: 'https://example.com', onOverMaximumUrlLength });
-      expect(message).toEqual('URL is too long to be used reliably in modern browsers.');
+      const onOverMaximumUrlLength = ({ willWorkOn }) => browsers = willWorkOn;
+      encodeConfInUrl({ conf: { foo: makeLongString(69000) }, baseUrl: 'https://example.com', onOverMaximumUrlLength });
+      expect(browsers).toEqual([]);
 
       encodeConfInUrl({ conf: { foo: makeLongString(37000) }, baseUrl: 'https://example.com', onOverMaximumUrlLength });
-      expect(message).toEqual('URL is too long to be used in current browser Chrome but will work in Firefox or Safari.');
+      expect(browsers).toEqual(['Safari', 'Firefox']);
     });
 
     it('decodes a view config for a URL', () => {
@@ -77,10 +77,10 @@ describe('src/app/export-utils.js', () => {
   describe('encodeConfInUrl with custom param', () => {
     it('encodes a view config for a URL', () => {
       const urlParams1 = encodeConfInUrl({ conf: {}, baseUrl: 'https://example.com', confParameter: 'foo' });
-      expect(urlParams1).toEqual('https://example.com#conf_length=5&version=0.0.1&foo=N4XyA');
+      expect(urlParams1).toEqual('conf_length=5&version=0.0.1&foo=N4XyA');
 
       const urlParams2 = encodeConfInUrl({ conf: fakeConfig, baseUrl: 'https://example.com', confParameter: 'foo' });
-      expect(urlParams2).toEqual('https://example.com#conf_length=327&version=0.0.1&foo=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
+      expect(urlParams2).toEqual('conf_length=327&version=0.0.1&foo=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
     });
 
     it('decodes a view config for a URL', () => {
