@@ -1,7 +1,17 @@
 import { getNextScope, fromEntries } from '../utils';
 import { COORDINATION_TYPES } from '../app/state/coordination';
 
+
+/**
+ * Class representing a file within a Vitessce config dataset.
+ */
 export class VitessceConfigDatasetFile {
+  /**
+   * Construct a new file definition instance.
+   * @param {string} url The URL to the file.
+   * @param {string} dataType The type of data contained in the file.
+   * @param {string} fileType The file type.
+   */
   constructor(url, dataType, fileType) {
     this.file = {
       url,
@@ -10,12 +20,23 @@ export class VitessceConfigDatasetFile {
     };
   }
 
+  /**
+   * @returns {object} This dataset file as a JSON object.
+   */
   toJSON() {
     return this.file;
   }
 }
 
+/**
+ * Class representing a dataset within a Vitessce config.
+ */
 export class VitessceConfigDataset {
+  /**
+   * Construct a new dataset definition instance.
+   * @param {string} uid The unique ID for the dataset.
+   * @param {string} name The name of the dataset.
+   */
   constructor(uid, name) {
     this.dataset = {
       uid,
@@ -24,10 +45,21 @@ export class VitessceConfigDataset {
     };
   }
 
+  /**
+   * Add a file definition to the dataset.
+   * @param {string} url The URL to the file.
+   * @param {string} dataType The type of data contained in the file.
+   * @param {string} fileType The file type.
+   * @returns {VitessceConfigDataset} This, to allow chaining.
+   */
   addFile(url, dataType, fileType) {
     this.dataset.files.push(new VitessceConfigDatasetFile(url, dataType, fileType));
+    return this;
   }
 
+  /**
+   * @returns {object} This dataset as a JSON object.
+   */
   toJSON() {
     return {
       ...this.dataset,
@@ -36,7 +68,20 @@ export class VitessceConfigDataset {
   }
 }
 
+/**
+ * Class representing a view within a Vitessce layout.
+ */
 export class VitessceConfigView {
+  /**
+   * Construct a new view instance.
+   * @param {string} component The name of the Vitessce component type.
+   * @param {object} coordinationScopes A mapping from coordination type
+   * names to coordination scope names.
+   * @param {number} x The x-coordinate of the view in the layout.
+   * @param {number} y The y-coordinate of the view in the layout.
+   * @param {number} w The width of the view in the layout.
+   * @param {number} h The height of the view in the layout.
+   */
   constructor(component, coordinationScopes, x, y, w, h) {
     this.view = {
       component,
@@ -48,6 +93,12 @@ export class VitessceConfigView {
     };
   }
 
+  /**
+   * Attach coordination scopes to this view.
+   * @param  {...VitessceConfigCoordinationScope} args A variable number of
+   * coordination scope instances.
+   * @returns {VitessceConfigView} This, to allow chaining.
+   */
   useCoordination(...args) {
     const cScopes = args;
     cScopes.forEach((cScope) => {
@@ -56,6 +107,13 @@ export class VitessceConfigView {
     return this;
   }
 
+  /**
+    * Set the x, y, w, h values for this view.
+    * @param {number} x The x-coordinate of the view in the layout.
+    * @param {number} y The y-coordinate of the view in the layout.
+    * @param {number} w The width of the view in the layout.
+    * @param {number} h The height of the view in the layout.
+    */
   setXYWH(x, y, w, h) {
     this.view.x = x;
     this.view.y = y;
@@ -63,47 +121,89 @@ export class VitessceConfigView {
     this.view.h = h;
   }
 
+  /**
+   * @returns {object} This view as a JSON object.
+   */
   toJSON() {
     return this.view;
   }
 }
 
+/**
+ * Class representing a horizontal concatenation of views.
+ */
 export class VitessceConfigViewHConcat {
   constructor(views) {
     this.views = views;
   }
 }
 
+/**
+ * Class representing a vertical concatenation of views.
+ */
 export class VitessceConfigViewVConcat {
   constructor(views) {
     this.views = views;
   }
 }
 
+/**
+ * A helper function to create a horizontal concatenation of views.
+ * @param  {...(VitessceConfigView|VitessceConfigViewHConcat|VitessceConfigViewVConcat)} views A
+ * variable number of views or view concatenations.
+ * @returns {VitessceConfigViewHConcat} A new horizontal view concatenation instance.
+ */
 export function hconcat(...views) {
   const vcvhc = new VitessceConfigViewHConcat(views);
   return vcvhc;
 }
 
+/**
+ * A helper function to create a vertical concatenation of views.
+ * @param  {...(VitessceConfigView|VitessceConfigViewHConcat|VitessceConfigViewVConcat)} views A
+ * variable number of views or view concatenations.
+ * @returns {VitessceConfigViewVConcat} A new vertical view concatenation instance.
+ */
 export function vconcat(...views) {
   const vcvvc = new VitessceConfigViewVConcat(views);
   return vcvvc;
 }
 
+/**
+ * Class representing a coordination scope in the coordination space.
+ */
 export class VitessceConfigCoordinationScope {
+  /**
+   * Construct a new coordination scope instance.
+   * @param {string} cType The coordination type for this coordination scope.
+   * @param {string} cScope The name of the coordination scope.
+   */
   constructor(cType, cScope) {
     this.cType = cType;
     this.cScope = cScope;
     this.cValue = null;
   }
 
+  /**
+   * Set the coordination value of the coordination scope.
+   * @param {any} cValue The value to set.
+   * @returns {VitessceConfigCoordinationScope} This, to allow chaining.
+   */
   setValue(cValue) {
     this.cValue = cValue;
     return this;
   }
 }
 
+/**
+ * Class representing a Vitessce view config.
+ */
 export class VitessceConfig {
+  /**
+   * Construct a new view config instance.
+   * @param {string} name A name for the config. Optional.
+   * @param {string} description A description for the config. Optional.
+   */
   constructor(name = '', description = '') {
     this.config = {
       version: '1.0.0',
@@ -116,6 +216,12 @@ export class VitessceConfig {
     };
   }
 
+  /**
+   * Add a new dataset to the config.
+   * @param {string} name A name for the dataset. Optional.
+   * @param {string} uid Optional.
+   * @returns {VitessceConfigDataset} A new dataset instance.
+   */
   addDataset(name = '', uid = null) {
     const prevDatasetUids = this.config.datasets.map(d => d.dataset.uid);
     const nextUid = (uid || getNextScope(prevDatasetUids));
@@ -126,6 +232,20 @@ export class VitessceConfig {
     return newDataset;
   }
 
+  /**
+   * Add a new view to the config.
+   * @param {VitessceConfigDataset} dataset The dataset instance which defines the data
+   * that will be displayed in the view.
+   * @param {string} component A component name, such as "scatterplot" or "spatial".
+   * @param {object} options Extra options for the component.
+   * @param {number} options.x The x-coordinate for the view in the grid layout.
+   * @param {number} options.y The y-coordinate for the view in the grid layout.
+   * @param {number} options.w The width for the view in the grid layout.
+   * @param {number} options.h The height for the view in the grid layout.
+   * @param {number} options.mapping A convenience parameter for setting the EMBEDDING_TYPE
+   * coordination value. Only applicable if the component is "scatterplot".
+   * @returns {VitessceConfigView} A new view instance.
+   */
   addView(dataset, component, options) {
     const {
       x = 0,
@@ -161,6 +281,12 @@ export class VitessceConfig {
     return newView;
   }
 
+  /**
+   * Get an array of new coordination scope instances corresponding to coordination types
+   * of interest.
+   * @param  {...string} args A variable number of coordination type names.
+   * @returns {VitessceConfigCoordinationScope[]} An array of coordination scope instances.
+   */
   addCoordination(...args) {
     const cTypes = args;
     const result = [];
@@ -180,6 +306,12 @@ export class VitessceConfig {
     return result;
   }
 
+  /**
+   * Set the layout of views.
+   * @param {VitessceConfigView|VitessceConfigViewHConcat|VitessceConfigViewVConcat} viewConcat A
+   * view or a concatenation of views.
+   * @returns {VitessceConfig} This, to allow chaining.
+   */
   layout(viewConcat) {
     function layoutAux(obj, xMin, xMax, yMin, yMax) {
       const w = xMax - xMin;
@@ -206,6 +338,10 @@ export class VitessceConfig {
     return this;
   }
 
+  /**
+   * Convert this instance to a JSON object that can be passed to the Vitessce component.
+   * @returns {object} The view config as a JSON object.
+   */
   toJSON() {
     return {
       ...this.config,
@@ -225,6 +361,13 @@ export class VitessceConfig {
     };
   }
 
+  /**
+   * Create a VitessceConfig instance from an existing view config, to enable
+   * manipulation with the JSON API.
+   * @param {object} config An existing Vitessce view config as a JSON object.
+   * @returns {VitessceConfig} A new config instance, with values set to match
+   * the config parameter.
+   */
   static fromJSON(config) {
     const { name, description } = config;
     const vc = new VitessceConfig(name, description);
@@ -238,6 +381,7 @@ export class VitessceConfig {
         );
       });
     });
+    // TODO: coordination space and component layout
     return vc;
   }
 }
