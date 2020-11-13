@@ -8,7 +8,8 @@ import {
   useSetLoaders,
   useEmitGridResize,
   useRemoveComponent,
-  useSetComponentProps,
+  useChangeLayout,
+  useLayout,
 } from './state/hooks';
 
 const padding = 10;
@@ -45,7 +46,8 @@ export default function VitessceGrid(props) {
   const setViewConfig = useSetViewConfig();
   const setLoaders = useSetLoaders();
   const removeComponent = useRemoveComponent();
-  const setComponentProps = useSetComponentProps();
+  const changeLayout = useChangeLayout();
+  const layout = useLayout();
 
   // Update the view config and loaders in the global state.
   useEffect(() => {
@@ -64,22 +66,24 @@ export default function VitessceGrid(props) {
       ref={containerRef}
       className={`vitessce-container vitessce-theme-${theme}`}
     >
-      <VitessceGridLayout
-        layout={config.layout}
-        height={height}
-        rowHeight={rowHeight}
-        theme={theme}
-        getComponent={getComponent}
-        draggableHandle=".title"
-        margin={margin}
-        padding={padding}
-        onRemoveComponent={removeComponent}
-        onComponentChange={setComponentProps}
-        reactGridLayoutProps={{
-          onResize,
-          onResizeStop: onResize,
-        }}
-      />
+      {layout && (
+        <VitessceGridLayout
+          layout={layout}
+          height={height}
+          rowHeight={rowHeight}
+          theme={theme}
+          getComponent={getComponent}
+          draggableHandle=".title"
+          margin={margin}
+          padding={padding}
+          onRemoveComponent={removeComponent}
+          onLayoutChange={changeLayout}
+          reactGridLayoutProps={{
+            onResize,
+            onResizeStop: onResize,
+          }}
+        />
+      )}
     </div>
   );
 }

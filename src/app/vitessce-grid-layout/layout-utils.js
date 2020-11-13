@@ -39,7 +39,7 @@ export function resolveLayout(layout) {
 
   (('components' in layout) ? layout.components : layout).forEach(
     (def, i) => {
-      const id = `r${def.x}_c${def.y}_${COMPONENT_ID_PREFIX}${i}`;
+      const id = `_${COMPONENT_ID_PREFIX}${i}`;
       components[id] = {
         component: def.component,
         props: def.props || {},

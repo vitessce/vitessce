@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import isEqual from 'lodash/isEqual';
 import { getMaxRows, resolveLayout, COMPONENT_ID_PREFIX } from './layout-utils';
@@ -18,27 +18,17 @@ export default function VitessceGridLayout(props) {
     layout,
     getComponent, padding, margin, draggableHandle,
     reactGridLayoutProps, rowHeight, theme, height,
-    onRemoveComponent, onComponentChange,
+    onRemoveComponent, onLayoutChange: onLayoutChangeProp,
   } = props;
 
-  const [gridComponents, setGridComponents] = useState({});
-  const [gridCols, setGridCols] = useState(null);
-  const [gridLayouts, setGridLayouts] = useState(null);
-  const [gridBreakpoints, setGridBreakpoints] = useState(null);
-  const [maxRows, setMaxRows] = useState(0);
+  // If layout changes, update grid components and clear ready components.
 
   // If layout changes, update grid components and clear ready components.
-  useEffect(() => {
-    const {
-      cols, layouts, breakpoints, components,
-    } = resolveLayout(layout);
-    // Hold all of these in state in the case of new layouts coming in.
-    setGridComponents(components);
-    setGridCols(cols);
-    setGridLayouts(layouts);
-    setGridBreakpoints(breakpoints);
-    setMaxRows(getMaxRows(layouts));
-  }, [layout]);
+  const {
+    cols: gridCols, layouts: gridLayouts, breakpoints: gridBreakpoints, components: gridComponents,
+  } = resolveLayout(layout);
+
+  const maxRows = getMaxRows(gridLayouts);
 
   // Inline CSS is generally avoided, but this saves the end-user a little work,
   // and prevents class names from getting out of sync.
@@ -57,20 +47,26 @@ export default function VitessceGridLayout(props) {
 
   const onLayoutChange = (newLayout) => {
     if (newLayout.length === Object.entries(gridComponents).length) {
+      const newComponentProps = [];
       newLayout.forEach((nextC) => {
         const id = nextC.i;
         const prevC = gridComponents[id];
-        const i = parseInt(id.substring(id.indexOf(COMPONENT_ID_PREFIX) + 1), 10);
-        const nextProps = {
-          x: nextC.x, y: nextC.y, w: nextC.w, h: nextC.h,
-        };
-        const prevProps = {
-          x: prevC.x, y: prevC.y, w: prevC.w, h: prevC.h,
-        };
-        if (!isEqual(nextProps, prevProps)) {
-          onComponentChange(i, nextProps);
+        if (prevC) {
+          const i = parseInt(id.substring(id.indexOf(COMPONENT_ID_PREFIX) + 1), 10);
+          const nextProps = {
+            x: nextC.x, y: nextC.y, w: nextC.w, h: nextC.h,
+          };
+          const prevProps = {
+            x: prevC.x, y: prevC.y, w: prevC.w, h: prevC.h,
+          };
+          if (!isEqual(nextProps, prevProps)) {
+            newComponentProps.push([i, nextProps]);
+          }
         }
       });
+      if (newComponentProps.length > 0) {
+        onLayoutChangeProp(newComponentProps);
+      }
     }
   };
 
@@ -78,9 +74,6 @@ export default function VitessceGridLayout(props) {
     const Component = getComponent(v.component);
 
     const removeGridComponent = () => {
-      const nextGridComponents = { ...gridComponents };
-      delete nextGridComponents[k];
-      setGridComponents(nextGridComponents);
       onRemoveComponent(i);
     };
 
@@ -96,7 +89,7 @@ export default function VitessceGridLayout(props) {
       </div>
     );
   });
-  return (gridComponents && gridCols && gridLayouts && gridBreakpoints) && (
+  return (gridLayouts && gridComponents && gridBreakpoints && gridCols) && (
     <>
       {style}
       <ResponsiveHeightGridLayout

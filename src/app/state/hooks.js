@@ -44,12 +44,14 @@ export const useViewConfigStore = create(set => ({
       },
     };
   }),
-  setComponentProps: (i, newProps) => set((state) => {
+  changeLayout: newComponentProps => set((state) => {
     const newLayout = state.viewConfig.layout.slice();
-    newLayout[i] = {
-      ...newLayout[i],
-      ...newProps,
-    };
+    newComponentProps.forEach(([i, newProps]) => {
+      newLayout[i] = {
+        ...newLayout[i],
+        ...newProps,
+      };
+    });
     return {
       viewConfig: {
         ...state.viewConfig,
@@ -196,8 +198,8 @@ export function useRemoveComponent() {
  * @returns {function} The set component props function
  * in the `useViewInfoStore` store.
  */
-export function useSetComponentProps() {
-  return useViewConfigStore(state => state.setComponentProps);
+export function useChangeLayout() {
+  return useViewConfigStore(state => state.changeLayout);
 }
 
 /**
