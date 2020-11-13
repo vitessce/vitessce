@@ -85,12 +85,12 @@ describe('layout-utils.js', () => {
       },
     ];
     const expectedComponents = {
-      r0_c0: {
+      i0: {
         component: 'NoProps',
         coordinationScopes: {},
         props: {},
       },
-      r1_c1: {
+      i1: {
         component: 'HasProps',
         coordinationScopes: {},
         props: {
@@ -114,18 +114,18 @@ describe('layout-utils.js', () => {
         {
           800: [
             {
-              h: 1, i: '_i0', w: 4, x: 0, y: 0,
+              h: 1, i: 'i0', w: 4, x: 0, y: 0,
             },
             {
-              h: 1, i: '_i1', w: 4, x: 4, y: 1,
+              h: 1, i: 'i1', w: 4, x: 4, y: 1,
             },
           ],
           1000: [
             {
-              h: 1, i: '_i0', w: 3, x: 0, y: 0,
+              h: 1, i: 'i0', w: 3, x: 0, y: 0,
             },
             {
-              h: 1, i: '_i1', w: 6, x: 3, y: 1,
+              h: 1, i: 'i1', w: 6, x: 3, y: 1,
             },
           ],
         },
@@ -148,10 +148,10 @@ describe('layout-utils.js', () => {
         {
           ID: [
             {
-              h: 1, i: '_i0', w: 1, x: 0, y: 0,
+              h: 1, i: 'i0', w: 1, x: 0, y: 0,
             },
             {
-              h: 1, i: '_i1', w: 1, x: 1, y: 1,
+              h: 1, i: 'i1', w: 1, x: 1, y: 1,
             },
           ],
         },

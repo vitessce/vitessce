@@ -21,9 +21,7 @@ export default function VitessceGridLayout(props) {
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
   } = props;
 
-  // If layout changes, update grid components and clear ready components.
-
-  // If layout changes, update grid components and clear ready components.
+  // If layout changes, update grid components.
   const {
     cols: gridCols, layouts: gridLayouts, breakpoints: gridBreakpoints, components: gridComponents,
   } = resolveLayout(layout);
