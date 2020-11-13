@@ -77,7 +77,7 @@ describe('src/app/export-utils.js', () => {
   describe('encodeConfInUrl with custom param', () => {
     it('encodes a view config for a URL', () => {
       const urlParams1 = encodeConfInUrl({ conf: {}, baseUrl: 'https://example.com', confParameter: 'foo' });
-      expect(urlParams1).toEqual("https://example.com?conf_length=5&version=0.0.1#foo=N4XyA");
+      expect(urlParams1).toEqual('https://example.com?conf_length=5&version=0.0.1#foo=N4XyA');
 
       const urlParams2 = encodeConfInUrl({ conf: fakeConfig, baseUrl: 'https://example.com', confParameter: 'foo' });
       expect(urlParams2).toEqual('https://example.com?conf_length=327&version=0.0.1#foo=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
