@@ -34,6 +34,31 @@ export const useViewConfigStore = create(set => ({
       },
     },
   })),
+  removeComponent: i => set((state) => {
+    const newLayout = state.viewConfig.layout.slice();
+    newLayout.splice(i, 1);
+    return {
+      viewConfig: {
+        ...state.viewConfig,
+        layout: newLayout,
+      },
+    };
+  }),
+  changeLayout: newComponentProps => set((state) => {
+    const newLayout = state.viewConfig.layout.slice();
+    newComponentProps.forEach(([i, newProps]) => {
+      newLayout[i] = {
+        ...newLayout[i],
+        ...newProps,
+      };
+    });
+    return {
+      viewConfig: {
+        ...state.viewConfig,
+        layout: newLayout,
+      },
+    };
+  }),
 }));
 
 /**
@@ -140,7 +165,7 @@ export function useCoordination(parameters, coordinationScopes) {
 /**
  * Obtain the loaders object from
  * the global app state.
- * @returns {object} The loaders object.
+ * @returns {object} The loaders object
  * in the `useViewConfigStore` store.
  */
 export function useLoaders() {
@@ -148,9 +173,39 @@ export function useLoaders() {
 }
 
 /**
+ * Obtain the view config layout array from
+ * the global app state.
+ * @returns {object[]} The layout array
+ * in the `useViewConfigStore` store.
+ */
+export function useLayout() {
+  return useViewConfigStore(state => state.viewConfig?.layout);
+}
+
+/**
+ * Obtain the component removal function from
+ * the global app state.
+ * @returns {function} The remove component function
+ * in the `useViewInfoStore` store.
+ */
+export function useRemoveComponent() {
+  return useViewConfigStore(state => state.removeComponent);
+}
+
+/**
+ * Obtain the component prop setter function from
+ * the global app state.
+ * @returns {function} The set component props function
+ * in the `useViewInfoStore` store.
+ */
+export function useChangeLayout() {
+  return useViewConfigStore(state => state.changeLayout);
+}
+
+/**
  * Obtain the loaders setter function from
  * the global app state.
- * @returns {function} The loaders setter function.
+ * @returns {function} The loaders setter function
  * in the `useViewConfigStore` store.
  */
 export function useSetLoaders() {
@@ -160,7 +215,7 @@ export function useSetLoaders() {
 /**
  * Obtain the view config setter function from
  * the global app state.
- * @returns {function} The view config setter function.
+ * @returns {function} The view config setter function
  * in the `useViewConfigStore` store.
  */
 export function useSetViewConfig() {
@@ -172,7 +227,7 @@ export function useSetViewConfig() {
 /**
  * Obtain the component hover value from
  * the global app state.
- * @returns {number} The hovered component ID.
+ * @returns {number} The hovered component ID
  * in the `useHoverStore` store.
  */
 export function useComponentHover() {
@@ -182,7 +237,7 @@ export function useComponentHover() {
 /**
  * Obtain the component hover setter function from
  * the global app state.
- * @returns {function} The component hover setter function.
+ * @returns {function} The component hover setter function
  * in the `useHoverStore` store.
  */
 export function useSetComponentHover() {
@@ -192,7 +247,7 @@ export function useSetComponentHover() {
 /**
  * Obtain the warning message from
  * the global app state.
- * @returns {string} The warning message.
+ * @returns {string} The warning message
  * in the `useWarnStore` store.
  */
 export function useWarning() {
@@ -202,7 +257,7 @@ export function useWarning() {
 /**
  * Obtain the warning setter function from
  * the global app state.
- * @returns {function} The warning setter function.
+ * @returns {function} The warning setter function
  * in the `useWarnStore` store.
  */
 export function useSetWarning() {
@@ -212,7 +267,7 @@ export function useSetWarning() {
 /**
  * Obtain the component view info value from
  * the global app state.
- * @returns {object} The view info object for the component.
+ * @returns {object} The view info object for the component
  * in the `useViewInfoStore` store.
  */
 export function useComponentViewInfo(uuid) {
@@ -222,7 +277,7 @@ export function useComponentViewInfo(uuid) {
 /**
  * Obtain the component view info setter function from
  * the global app state.
- * @returns {function} The component view info setter function.
+ * @returns {function} The component view info setter function
  * in the `useViewInfoStore` store.
  */
 export function useSetComponentViewInfo(uuid) {

@@ -1,5 +1,7 @@
 import { range } from '../../utils';
 
+export const COMPONENT_ID_PREFIX = 'i';
+
 function sum(a) {
   return a.reduce((x, y) => x + y, 0);
 }
@@ -36,8 +38,8 @@ export function resolveLayout(layout) {
   const positions = {};
 
   (('components' in layout) ? layout.components : layout).forEach(
-    (def) => {
-      const id = `r${def.x}_c${def.y}`;
+    (def, i) => {
+      const id = `${COMPONENT_ID_PREFIX}${i}`;
       components[id] = {
         component: def.component,
         props: def.props || {},
