@@ -363,7 +363,7 @@ export class VitessceConfig {
 
   /**
    * Create a VitessceConfig instance from an existing view config, to enable
-   * manipulation with the JSON API.
+   * manipulation with the JavaScript API.
    * @param {object} config An existing Vitessce view config as a JSON object.
    * @returns {VitessceConfig} A new config instance, with values set to match
    * the config parameter.
