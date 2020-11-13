@@ -25,7 +25,9 @@
 - Upgrade deck.gl to 8.3 and viv to 0.5
 - Fix build issues with nebula.
 - Use URL fragment instead of query param for `export-utils`.
+- Store updates to the grid layout (removing / moving / resizing) in the view config zustand store.
 - Clear the cell set selection when selecting a gene in `GenesSubsrciber`. Clear the gene selection when selecting cell set(s) in `CellSetsManagerSubscriber`.
+
 
 ## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 
