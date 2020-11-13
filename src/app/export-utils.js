@@ -39,7 +39,7 @@ export function encodeConfInUrl({
   confParameter,
 }) {
   const compressedConf = compressToEncodedURIComponent(JSON.stringify(conf));
-  const newUrl = `${baseUrl}?${LENGTH_QUERY_STRING}=${compressedConf.length}&${VERSION_QUERY_STRING}=${CURRENT_VERSION}#${confParameter || VITESSCE_CONF_QUERY_STRING}=${compressedConf}`;
+  const newUrl = `${baseUrl}#${LENGTH_QUERY_STRING}=${compressedConf.length}&${VERSION_QUERY_STRING}=${CURRENT_VERSION}&${confParameter || VITESSCE_CONF_QUERY_STRING}=${compressedConf}`;
   const browser = sniffBrowser();
   const maxLength = MAX_BROWSER_URL_LENGTHS[browser];
   if (newUrl.length > maxLength) {
