@@ -48,10 +48,10 @@ function makeLongString(length) {
 describe('src/app/export-utils.js', () => {
   describe('encodeConfInUrl', () => {
     it('encodes a view config for a URL', () => {
-      const urlParams1 = encodeConfInUrl({ conf: {}, baseUrl: 'https://example.com' });
+      const urlParams1 = encodeConfInUrl({ conf: {} });
       expect(urlParams1).toEqual('vitessce_conf_length=5&vitessce_conf_version=0.0.1&vitessce_conf=N4XyA');
 
-      const urlParams2 = encodeConfInUrl({ conf: fakeConfig, baseUrl: 'https://example.com' });
+      const urlParams2 = encodeConfInUrl({ conf: fakeConfig });
       expect(urlParams2).toEqual('vitessce_conf_length=327&vitessce_conf_version=0.0.1&vitessce_conf=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
     });
 
@@ -59,10 +59,10 @@ describe('src/app/export-utils.js', () => {
       let browsers;
       // eslint-disable-next-line no-return-assign
       const onOverMaximumUrlLength = ({ willWorkOn }) => browsers = willWorkOn;
-      encodeConfInUrl({ conf: { foo: makeLongString(69000) }, baseUrl: 'https://example.com', onOverMaximumUrlLength });
+      encodeConfInUrl({ conf: { foo: makeLongString(69000) }, onOverMaximumUrlLength });
       expect(browsers).toEqual([]);
 
-      encodeConfInUrl({ conf: { foo: makeLongString(37000) }, baseUrl: 'https://example.com', onOverMaximumUrlLength });
+      encodeConfInUrl({ conf: { foo: makeLongString(37000) }, onOverMaximumUrlLength });
       expect(browsers).toEqual(['Safari', 'Firefox']);
     });
 
