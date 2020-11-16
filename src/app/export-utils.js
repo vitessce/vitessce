@@ -33,7 +33,8 @@ export default class CompressedConfLengthError {
  * @param {function} params.onOverMaximumUrlLength Callback for when new url
  * is over max length for your browser - takes two arguments: { message, willWorkOn }
  * for the error message and the browsers for which the url will work (optional).
- * @returns {string} The new params like conf_length=10&version=0.0.1&vitessce_conf=fksdfasdfjkl
+ * @returns {string} The new params like
+ * vitessce_conf_length=10&vitessce_conf_version=0.0.1&vitessce_conf=fksdfasdfjkl
  */
 export function encodeConfInUrl({
   conf,
@@ -57,9 +58,9 @@ export function encodeConfInUrl({
 /**
  * Decode URL params to a Vitessce configuration.
  * The URL params must have version and vitessce_conf params,
- * like conf_length=10&version=0.0.1&vitessce_conf=fksdfasdfjkl.
+ * like vitessce_conf_length=10&vitessce_conf_version=0.0.1&vitessce_conf=fksdfasdfjkl.
  * @param {Object} queryString The URL params,
- * like conf_length=10&version=0.0.1&vitessce_conf=fksdfasdfjkl.
+ * like vitessce_conf_length=10&vitessce_conf_version=0.0.1&vitessce_conf=fksdfasdfjkl.
  * @returns {string} A vitessce configuration.
  */
 export function decodeURLParamsToConf(queryString) {
