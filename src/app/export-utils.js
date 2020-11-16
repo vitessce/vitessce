@@ -3,8 +3,8 @@ import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from
 
 const CURRENT_VERSION = '0.0.1';
 const VITESSCE_CONF_QUERY_STRING = 'vitessce_conf';
-const VERSION_QUERY_STRING = 'version';
-const LENGTH_QUERY_STRING = 'conf_length';
+const VERSION_QUERY_STRING = 'vitessce_conf_version';
+const LENGTH_QUERY_STRING = 'vitessce_conf_length';
 
 function sniffBrowser() {
   const { browser } = Bowser.parse(window.navigator.userAgent);
@@ -33,17 +33,14 @@ export default class CompressedConfLengthError {
  * @param {function} params.onOverMaximumUrlLength Callback for when new url
  * is over max length for your browser - takes two arguments: { message, willWorkOn }
  * for the error message and the browsers for which the url will work (optional).
- * @param {Object} params.confParameter The parameter to use instead of vitessce_conf for
- * the view config in the URL (optional).
  * @returns {string} The new params like conf_length=10&version=0.0.1&vitessce_conf=fksdfasdfjkl
  */
 export function encodeConfInUrl({
   conf,
   onOverMaximumUrlLength = () => { },
-  confParameter,
 }) {
   const compressedConf = compressToEncodedURIComponent(JSON.stringify(conf));
-  const newParams = `${LENGTH_QUERY_STRING}=${compressedConf.length}&${VERSION_QUERY_STRING}=${CURRENT_VERSION}&${confParameter || VITESSCE_CONF_QUERY_STRING}=${compressedConf}`;
+  const newParams = `${LENGTH_QUERY_STRING}=${compressedConf.length}&${VERSION_QUERY_STRING}=${CURRENT_VERSION}&${VITESSCE_CONF_QUERY_STRING}=${compressedConf}`;
   const browser = sniffBrowser();
   const maxLength = MAX_BROWSER_URL_LENGTHS[browser];
   if (newParams.length > maxLength) {
@@ -63,13 +60,11 @@ export function encodeConfInUrl({
  * like conf_length=10&version=0.0.1&vitessce_conf=fksdfasdfjkl.
  * @param {Object} queryString The URL params,
  * like conf_length=10&version=0.0.1&vitessce_conf=fksdfasdfjkl.
- * @param {Object} confParameter The parameter to use instead of vitessce_conf
- * for the view config in the URL (optional).
  * @returns {string} A vitessce configuration.
  */
-export function decodeURLParamsToConf(queryString, confParameter) {
+export function decodeURLParamsToConf(queryString) {
   const params = new URLSearchParams(queryString.replace('#', '&'));
-  const compressedConfString = params.get(confParameter || VITESSCE_CONF_QUERY_STRING);
+  const compressedConfString = params.get(VITESSCE_CONF_QUERY_STRING);
   const expectedConfLength = Number(params.get(LENGTH_QUERY_STRING));
   if (expectedConfLength !== compressedConfString.length) {
     throw new CompressedConfLengthError(`Compressed conf length (${compressedConfString.length}) != expected (${expectedConfLength}). URL truncated?`);

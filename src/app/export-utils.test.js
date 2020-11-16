@@ -49,10 +49,10 @@ describe('src/app/export-utils.js', () => {
   describe('encodeConfInUrl', () => {
     it('encodes a view config for a URL', () => {
       const urlParams1 = encodeConfInUrl({ conf: {}, baseUrl: 'https://example.com' });
-      expect(urlParams1).toEqual('conf_length=5&version=0.0.1&vitessce_conf=N4XyA');
+      expect(urlParams1).toEqual('vitessce_conf_length=5&vitessce_conf_version=0.0.1&vitessce_conf=N4XyA');
 
       const urlParams2 = encodeConfInUrl({ conf: fakeConfig, baseUrl: 'https://example.com' });
-      expect(urlParams2).toEqual('conf_length=327&version=0.0.1&vitessce_conf=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
+      expect(urlParams2).toEqual('vitessce_conf_length=327&vitessce_conf_version=0.0.1&vitessce_conf=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
     });
 
     it('Calls onOverMaximumUrlLength for conf too long', () => {
@@ -67,27 +67,10 @@ describe('src/app/export-utils.js', () => {
     });
 
     it('decodes a view config for a URL', () => {
-      const viewConfig1 = decodeURLParamsToConf('conf_length=5&version=0.0.1&vitessce_conf=N4XyA');
+      const viewConfig1 = decodeURLParamsToConf('vitessce_conf_length=5&vitessce_conf_version=0.0.1&vitessce_conf=N4XyA');
       expect(viewConfig1).toEqual({});
 
-      const viewConfig2 = decodeURLParamsToConf('conf_length=327&version=0.0.1&vitessce_conf=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
-      expect(viewConfig2).toEqual(fakeConfig);
-    });
-  });
-  describe('encodeConfInUrl with custom param', () => {
-    it('encodes a view config for a URL', () => {
-      const urlParams1 = encodeConfInUrl({ conf: {}, baseUrl: 'https://example.com', confParameter: 'foo' });
-      expect(urlParams1).toEqual('conf_length=5&version=0.0.1&foo=N4XyA');
-
-      const urlParams2 = encodeConfInUrl({ conf: fakeConfig, baseUrl: 'https://example.com', confParameter: 'foo' });
-      expect(urlParams2).toEqual('conf_length=327&version=0.0.1&foo=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
-    });
-
-    it('decodes a view config for a URL', () => {
-      const viewConfig1 = decodeURLParamsToConf('conf_length=5&version=0.0.1&foo=N4XyA', 'foo');
-      expect(viewConfig1).toEqual({});
-
-      const viewConfig2 = decodeURLParamsToConf('conf_length=327&version=0.0.1&foo=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA', 'foo');
+      const viewConfig2 = decodeURLParamsToConf('vitessce_conf_length=327&vitessce_conf_version=0.0.1&vitessce_conf=N4IgbgpgTgzglgewHYgFwgAwDoCMWMgA0IADgK4BGANnAMZoBmAhlTBMVUwJ7QxoDaoJEwC2ENCFoQqrIiAAuXEuPQBhAKIAZTQGU5DOFQgAVJSsnTWWAFYxkcslCoSAFvPklUAei8QAHqIkRli0CCJeUjIwNnYoAL4AusTCYhIAUmQw8gAEMLRM7tBBCPJyWQV0mtwIZKWogpJhJMgQSHUgeQXyRVQlciRQCCR8qKAiTCQkcEgA5hLyALQ6AHLqcmBwEADuaKAAXghhaNgA7ACsxPJMUDMQdfwYhI8YCXFxxH7HxFxfIDuoOAATMQXGhAYk4kA');
       expect(viewConfig2).toEqual(fakeConfig);
     });
   });
