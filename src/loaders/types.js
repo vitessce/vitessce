@@ -4,6 +4,9 @@ import GenesJsonAsMatrixZarrLoader from './GenesJsonAsMatrixZarrLoader';
 import ClustersJsonAsMatrixZarrLoader from './ClustersJsonAsMatrixZarrLoader';
 import RasterJsonLoader from './RasterJsonLoader';
 import CellSetsJsonLoader from './CellSetsJsonLoader';
+import AnnDataLoaders from './anndata-loaders';
+
+const ANNDATA = 'anndata';
 
 export const fileTypeToLoader = {
   'expression-matrix.zarr': MatrixZarrLoader,
@@ -14,4 +17,6 @@ export const fileTypeToLoader = {
   'neighborhoods.json': JsonLoader,
   'raster.json': RasterJsonLoader,
   'cell-sets.json': CellSetsJsonLoader,
+  [`${ANNDATA}-cell-sets.zarr`]: AnnDataLoaders.CellSetsZarrLoader,
+  [`${ANNDATA}-cells.zarr`]: AnnDataLoaders.CellsZarrLoader,
 };

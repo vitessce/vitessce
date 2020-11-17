@@ -1,7 +1,7 @@
 import { HTTPStore, openArray } from 'zarr';
 import AbstractLoader from '../AbstractLoader';
 
-export default class MatrixZarrLoader extends AbstractLoader {
+export default class CellSetsZarrLoader extends AbstractLoader {
   constructor(params) {
     super(params);
 
@@ -25,27 +25,35 @@ export default class MatrixZarrLoader extends AbstractLoader {
     return this.attrs;
   }
 
-  loadArr() {
+  loadCellSets() {
     const { store } = this;
-    if (this.arr) {
-      return this.arr;
+    if (this.cellSets) {
+      return this.cellSets;
+    }
+    this.cellSets = openArray({ store, path: 'obs/leiden', mode: 'r' }).then(z => z.store
+      .getItem('0')
+      .then(buf => new Uint8Array(buf))
+      .then(cbytes => z.compressor.decode(cbytes))
+      .then(dbytes => new TextDecoder().decode(dbytes)));
+    return this.cellSets;
+  }
+
+  loadCellNames() {
+    const { store } = this;
+    if (this.cellNames) {
+      return this.cellNames;
     }
     this.cellNames = openArray({ store, path: '/obs/_index', mode: 'r' }).then(z => z.store
       .getItem('0')
       .then(buf => new Uint8Array(buf))
       .then(cbytes => z.compressor.decode(cbytes))
       .then(dbytes => new TextDecoder().decode(dbytes)));
-    this.cellSets = openArray({ store, path: 'obs/leiden', mode: 'r' }).then(z => z.store
-      .getItem('0')
-      .then(buf => new Uint8Array(buf))
-      .then(cbytes => z.compressor.decode(cbytes))
-      .then(dbytes => new TextDecoder().decode(dbytes)));
-    return this.arr;
+    return this.cellNames;
   }
 
   load() {
     return Promise
-      .all([this.loadAttrs(), this.loadArr()])
+      .all([this.loadAttrs(), this.loadCellNames(), this.loadCellSets()])
       .then(data => Promise.resolve({ data, url: null }));
   }
 }
