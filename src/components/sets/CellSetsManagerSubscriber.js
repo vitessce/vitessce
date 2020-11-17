@@ -30,6 +30,7 @@ import {
   nodePrependChild,
   nodeInsertChild,
   filterNode,
+  treeInitialize,
 } from './cell-set-utils';
 import {
   isEqualOrPrefix,
@@ -142,6 +143,7 @@ export default function CellSetsManagerSubscriber(props) {
         setAutoSetColors(prev => ({ [dataset]: (prev[dataset] || []) }));
       }
     });
+
   // Try to set up the selected sets array automatically if undefined.
   useEffect(() => {
     // Only initialize cell sets if the value of `cellSetSelection` is `null`
@@ -548,7 +550,7 @@ export default function CellSetsManagerSubscriber(props) {
   function onCreateLevelZeroNode() {
     const nextName = getNextNumberedNodeName(additionalCellSets?.tree, 'My hierarchy ');
     setAdditionalCellSets({
-      ...(additionalCellSets || {}),
+      ...(additionalCellSets || treeInitialize(SETS_DATATYPE_CELL)),
       tree: [
         ...(additionalCellSets ? additionalCellSets.tree : []),
         {
@@ -603,7 +605,7 @@ export default function CellSetsManagerSubscriber(props) {
     const hasConflict = treesConflict(mergedCellSets, treeToImport);
     if (!hasConflict) {
       setAdditionalCellSets({
-        ...(additionalCellSets || {}),
+        ...(additionalCellSets || treeInitialize(SETS_DATATYPE_CELL)),
         tree: [
           ...(additionalCellSets ? additionalCellSets.tree : []),
           ...treeToImport.tree,
