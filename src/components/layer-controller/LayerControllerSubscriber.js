@@ -44,7 +44,7 @@ function LayerControllerSubscriber(props) {
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
-    loaders, dataset, setItemIsReady, () => {}, true,
+    loaders, dataset, setItemIsReady, () => {}, false,
   );
 
   const handleImageAdd = async (index) => {
