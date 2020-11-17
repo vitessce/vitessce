@@ -219,7 +219,8 @@ export class VitessceConfig {
   /**
    * Add a new dataset to the config.
    * @param {string} name A name for the dataset. Optional.
-   * @param {string} uid Optional.
+   * @param {string} uid Override the automatically-generated dataset ID. Optional.
+   * Intended for internal usage by the VitessceConfig.fromJSON code.
    * @returns {VitessceConfigDataset} A new dataset instance.
    */
   addDataset(name = '', uid = null) {
