@@ -159,6 +159,7 @@ function ChannelController({
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {
+    let mounted = true;
     if (dtype && loader && channels) {
       const loaderSelection = [
         { ...channels[channelId].selection },
@@ -170,21 +171,29 @@ function ChannelController({
         if (newDomainType === 'Full') {
           domains = [[0, DTYPE_VALUES[dtype].max]];
           const [newDomain] = domains;
-          setDomain(newDomain);
-          setDomainType(newDomainType);
+          if (mounted) {
+            setDomain(newDomain);
+            setDomainType(newDomainType);
+            if (hasSelectionChanged) {
+              setSelection(loaderSelection);
+            }
+          }
         } else {
           getChannelStats({ loader, loaderSelection }).then((stats) => {
             domains = stats.map(stat => stat.domain);
             const [newDomain] = domains;
-            setDomain(newDomain);
-            setDomainType(newDomainType);
+            if (mounted) {
+              setDomain(newDomain);
+              setDomainType(newDomainType);
+              if (hasSelectionChanged) {
+                setSelection(loaderSelection);
+              }
+            }
           });
-        }
-        if (hasSelectionChanged) {
-          setSelection(loaderSelection);
         }
       }
     }
+    return () => { mounted = false; };
   }, [domainType, channels, channelId, loader, dtype, newDomainType, selection]);
 
   /* A valid selection is defined by an object where the keys are
