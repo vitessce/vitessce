@@ -29,6 +29,7 @@
 - Clear the cell set selection when selecting a gene in `GenesSubsrciber`. Clear the gene selection when selecting cell set(s) in `CellSetsManagerSubscriber`.
 - Don't require raster imagery for `layerController`.
 - Fix bug from removing `domain` from the config schema that prevented updates when loader selection changes.
+- Fix `additionalCellSets` having a tree without a version number.
 
 ## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 
