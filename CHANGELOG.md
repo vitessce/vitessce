@@ -1,8 +1,10 @@
-# Changelog
+## 1.1.1 (In Progress)
 
-- Update Viv reference
+### Added
 
-## 1.0.1 (in progress)
+### Changed
+
+## [1.1.0](https://www.npmjs.com/package/vitessce/v/1.1.0) - 2020-11-17
 
 ### Added
 - Built-in support for encoding and decoding compressed conf as url param.
@@ -30,6 +32,7 @@
 - Don't require raster imagery for `layerController`.
 - Fix bug from removing `domain` from the config schema that prevented updates when loader selection changes.
 - Fix `additionalCellSets` having a tree without a version number.
+- Update Viv reference
 
 ## [1.0.0](https://www.npmjs.com/package/vitessce/v/1.0.0) - 2020-09-2
 
