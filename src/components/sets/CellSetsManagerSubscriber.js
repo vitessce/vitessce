@@ -47,7 +47,6 @@ import {
   FILE_EXTENSION_JSON,
   FILE_EXTENSION_TABULAR,
   SETS_DATATYPE_CELL,
-  HIERARCHICAL_SCHEMAS,  // eslint-disable-line
 } from './constants';
 import { useUrls, useReady } from '../hooks';
 import {
