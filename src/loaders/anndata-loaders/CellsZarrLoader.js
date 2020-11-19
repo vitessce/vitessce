@@ -11,30 +11,31 @@ export default class CellsZarrLoader extends AbstractLoader {
     this.store = new HTTPStore(url);
   }
 
-  loadAttrs() {
-    const { store } = this;
-    if (this.attrs) {
-      return this.attrs;
+  loadCellSetIds() {
+    const { url } = this;
+    if (this.cellSets) {
+      return this.cellSets;
     }
-    this.attrs = store.getItem('.zattrs')
-      .then((bytes) => {
-        const decoder = new TextDecoder('utf-8');
-        const json = JSON.parse(decoder.decode(bytes));
-        return json;
-      });
-    return this.attrs;
+    this.cellSets = openArray({ store: `${url}/obs/leiden`, mode: 'r' }).then(arr => new Promise(resolve => arr.get().then(resolve)));
+    return this.cellSets;
   }
 
   loadCellNames() {
-    const { store } = this;
+    const { url } = this;
     if (this.cellNames) {
       return this.cellNames;
     }
-    this.cellNames = openArray({ store, path: '/obs/_index', mode: 'r' }).then(z => z.store
+    this.cellNames = openArray({ store: `${url}/obs/_index`, mode: 'r' }).then(z => z.store
       .getItem('0')
       .then(buf => new Uint8Array(buf))
       .then(cbytes => z.compressor.decode(cbytes))
-      .then(dbytes => new TextDecoder().decode(dbytes)));
+      // eslint-disable-next-line no-control-regex
+      .then(dbytes => new TextDecoder().decode(dbytes)
+        .replace(/\0/g, '')
+        .replace(/\cP/g, ',')
+        .replace(RegExp(String.fromCharCode(30), 'g'), '')
+        .split(',')
+        .slice(1)));
     return this.cellNames;
   }
 
@@ -48,19 +49,15 @@ export default class CellsZarrLoader extends AbstractLoader {
     return this.UMAPCoords;
   }
 
-  loadPCACoords() {
-    const { store } = this;
-    if (this.PCACoords) {
-      return this.PCACoords;
-    }
-    // eslint-disable-next-line
-    this.PCACoords = openArray({ store, path: 'obsm/X_pca', mode: 'r' }).then(arr => new Promise(resolve => { arr.get().then(resolve) }));
-    return this.PCACoords;
-  }
-
   load() {
     return Promise
-      .all([this.loadAttrs(), this.loadPCACoords(), this.loadUMAPCoords()])
-      .then(data => Promise.resolve({ data, url: null }));
+      .all([this.loadCellNames(), this.loadUMAPCoords(), this.loadCellSetIds()])
+      .then((data) => {
+        const [cellNames, { data: umapCoords }, { data: cellSetIds }] = data;
+        const cells = {};
+        // eslint-disable-next-line no-return-assign,max-len
+        cellNames.forEach((name, i) => cells[name] = { mappings: { UMAP: umapCoords[i] }, factors: { 'Leiden Cluster': String(cellSetIds[i]) } });
+        return { data: cells, url: null };
+      });
   }
 }

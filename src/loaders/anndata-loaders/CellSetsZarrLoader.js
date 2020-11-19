@@ -1,4 +1,13 @@
+/* eslint-disable no-control-regex */
 import { HTTPStore, openArray } from 'zarr';
+
+import {
+  treeInitialize,
+  nodeAppendChild,
+} from '../../components/sets/cell-set-utils';
+import {
+  SETS_DATATYPE_CELL,
+} from '../../components/sets/constants';
 import AbstractLoader from '../AbstractLoader';
 
 export default class CellSetsZarrLoader extends AbstractLoader {
@@ -11,49 +20,56 @@ export default class CellSetsZarrLoader extends AbstractLoader {
     this.store = new HTTPStore(url);
   }
 
-  loadAttrs() {
-    const { store } = this;
-    if (this.attrs) {
-      return this.attrs;
-    }
-    this.attrs = store.getItem('.zattrs')
-      .then((bytes) => {
-        const decoder = new TextDecoder('utf-8');
-        const json = JSON.parse(decoder.decode(bytes));
-        return json;
-      });
-    return this.attrs;
-  }
 
-  loadCellSets() {
-    const { store } = this;
+  loadCellSetIds() {
+    const { url } = this;
     if (this.cellSets) {
       return this.cellSets;
     }
-    this.cellSets = openArray({ store, path: 'obs/leiden', mode: 'r' }).then(z => z.store
-      .getItem('0')
-      .then(buf => new Uint8Array(buf))
-      .then(cbytes => z.compressor.decode(cbytes))
-      .then(dbytes => new TextDecoder().decode(dbytes)));
+    this.cellSets = openArray({ store: `${url}/obs/leiden`, mode: 'r' }).then(arr => new Promise(resolve => arr.get().then(resolve)));
     return this.cellSets;
   }
 
   loadCellNames() {
-    const { store } = this;
+    const { url } = this;
     if (this.cellNames) {
       return this.cellNames;
     }
-    this.cellNames = openArray({ store, path: '/obs/_index', mode: 'r' }).then(z => z.store
+    this.cellNames = openArray({ store: `${url}/obs/_index`, mode: 'r' }).then(z => z.store
       .getItem('0')
       .then(buf => new Uint8Array(buf))
       .then(cbytes => z.compressor.decode(cbytes))
-      .then(dbytes => new TextDecoder().decode(dbytes)));
+      .then(dbytes => new TextDecoder().decode(dbytes)
+        .replace(/\0/g, '')
+        .replace(/\cP/g, ',')
+        .replace(RegExp(String.fromCharCode(30), 'g'), '')
+        .split(',')
+        .slice(1)));
     return this.cellNames;
   }
 
   load() {
     return Promise
-      .all([this.loadAttrs(), this.loadCellNames(), this.loadCellSets()])
-      .then(data => Promise.resolve({ data, url: null }));
+      .all([this.loadCellNames(), this.loadCellSetIds()])
+      .then((data) => {
+        console.log(data) // eslint-disable-line
+        const [cellNames, { data: cellSetIds }] = data;
+        const cellSets = treeInitialize(SETS_DATATYPE_CELL);
+        let leidenNode = {
+          name: 'Leiden Cluster',
+          children: [],
+        };
+        const uniqueCellSetIds = Array(...(new Set(cellSetIds))).sort();
+        const leidenClusters = uniqueCellSetIds.map(id => ({
+          name: `Cluster ${id}`,
+          set: [],
+        }));
+        cellSetIds.forEach((id, i) => leidenClusters[id].set.push([cellNames[i], null]));
+        // eslint-disable-next-line no-return-assign
+        leidenClusters.forEach(cluster => leidenNode = nodeAppendChild(leidenNode, cluster));
+        cellSets.tree.push(leidenNode);
+        console.log(cellSets) // eslint-disable-line
+        return { data: cellSets, url: null };
+      });
   }
 }
