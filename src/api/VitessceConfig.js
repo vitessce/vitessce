@@ -285,7 +285,7 @@ export class VitessceConfig {
   /**
    * Get an array of new coordination scope instances corresponding to coordination types
    * of interest.
-   * @param  {...string} args A variable number of coordination type names.
+   * @param {...string} args A variable number of coordination type names.
    * @returns {VitessceConfigCoordinationScope[]} An array of coordination scope instances.
    */
   addCoordination(...args) {
@@ -305,6 +305,24 @@ export class VitessceConfig {
       result.push(scope);
     });
     return result;
+  }
+
+  /**
+   * A convenience function for setting up new coordination scopes across a set of views.
+   * @param {VitessceConfigView[]} views An array of view objects to link together.
+   * @param {string[]} cTypes The coordination types on which to coordinate the views.
+   * @returns {VitessceConfig} This, to allow chaining.
+   */
+  linkViews(views, cTypes) {
+    const cScopes = this.addCoordination(...cTypes);
+
+    views.forEach((view) => {
+      cScopes.forEach((cScope) => {
+        view.useCoordination(cScope);
+      });
+    });
+
+    return this;
   }
 
   /**

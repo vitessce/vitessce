@@ -208,6 +208,83 @@ describe('src/api/VitessceConfig.js', () => {
       });
     });
 
+    it('can add a coordination scope using the link views convenience function', () => {
+      const config = new VitessceConfig('My config');
+      const dataset = config.addDataset('My dataset');
+      const pca = config.addView(dataset, 'scatterplot', { mapping: 'PCA' });
+      const tsne = config.addView(dataset, 'scatterplot', { mapping: 't-SNE' });
+
+      config.linkViews(
+        [pca, tsne],
+        [
+          COORDINATION_TYPES.EMBEDDING_ZOOM,
+          COORDINATION_TYPES.EMBEDDING_TARGET_X,
+          COORDINATION_TYPES.EMBEDDING_TARGET_Y,
+        ],
+      );
+
+      const configJSON = config.toJSON();
+      expect(configJSON).toEqual({
+        coordinationSpace: {
+          dataset: {
+            A: 'A',
+          },
+          embeddingType: {
+            A: 'PCA',
+            B: 't-SNE',
+          },
+          embeddingZoom: {
+            A: null,
+          },
+          embeddingTargetX: {
+            A: null,
+          },
+          embeddingTargetY: {
+            A: null,
+          },
+        },
+        datasets: [{
+          name: 'My dataset',
+          uid: 'A',
+          files: [],
+        }],
+        description: '',
+        initStrategy: 'auto',
+        layout: [
+          {
+            component: 'scatterplot',
+            coordinationScopes: {
+              dataset: 'A',
+              embeddingType: 'A',
+              embeddingTargetX: 'A',
+              embeddingTargetY: 'A',
+              embeddingZoom: 'A',
+            },
+            x: 0,
+            y: 0,
+            w: 1,
+            h: 1,
+          },
+          {
+            component: 'scatterplot',
+            coordinationScopes: {
+              dataset: 'A',
+              embeddingType: 'B',
+              embeddingTargetX: 'A',
+              embeddingTargetY: 'A',
+              embeddingZoom: 'A',
+            },
+            x: 0,
+            y: 0,
+            w: 1,
+            h: 1,
+          },
+        ],
+        name: 'My config',
+        version: '1.0.0',
+      });
+    });
+
     it('can create a layout', () => {
       const config = new VitessceConfig('My config');
       const dataset = config.addDataset('My dataset');
