@@ -218,8 +218,18 @@ describe('src/api/VitessceConfig.js', () => {
         [pca, tsne],
         [
           COORDINATION_TYPES.EMBEDDING_ZOOM,
+        ],
+      );
+
+      config.linkViews(
+        [pca, tsne],
+        [
           COORDINATION_TYPES.EMBEDDING_TARGET_X,
           COORDINATION_TYPES.EMBEDDING_TARGET_Y,
+        ],
+        [
+          2,
+          3,
         ],
       );
 
@@ -237,10 +247,10 @@ describe('src/api/VitessceConfig.js', () => {
             A: null,
           },
           embeddingTargetX: {
-            A: null,
+            A: 2,
           },
           embeddingTargetY: {
-            A: null,
+            A: 3,
           },
         },
         datasets: [{

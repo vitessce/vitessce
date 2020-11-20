@@ -311,9 +311,11 @@ export class VitessceConfig {
    * A convenience function for setting up new coordination scopes across a set of views.
    * @param {VitessceConfigView[]} views An array of view objects to link together.
    * @param {string[]} cTypes The coordination types on which to coordinate the views.
+   * @param {any[]} cValues Initial values corresponding to each coordination type.
+   * Should have the same length as the cTypes array. Optional.
    * @returns {VitessceConfig} This, to allow chaining.
    */
-  linkViews(views, cTypes) {
+  linkViews(views, cTypes, cValues = null) {
     const cScopes = this.addCoordination(...cTypes);
 
     views.forEach((view) => {
@@ -321,6 +323,12 @@ export class VitessceConfig {
         view.useCoordination(cScope);
       });
     });
+
+    if (Array.isArray(cValues) && cValues.length === cTypes.length) {
+      cScopes.forEach((cScope, i) => {
+        cScope.setValue(cValues[i]);
+      });
+    }
 
     return this;
   }
