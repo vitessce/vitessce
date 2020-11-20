@@ -317,19 +317,16 @@ export class VitessceConfig {
    */
   linkViews(views, cTypes, cValues = null) {
     const cScopes = this.addCoordination(...cTypes);
-
     views.forEach((view) => {
       cScopes.forEach((cScope) => {
         view.useCoordination(cScope);
       });
     });
-
     if (Array.isArray(cValues) && cValues.length === cTypes.length) {
       cScopes.forEach((cScope, i) => {
         cScope.setValue(cValues[i]);
       });
     }
-
     return this;
   }
 
