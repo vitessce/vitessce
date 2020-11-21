@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import { getMaxRows, resolveLayout } from './layout-utils';
+import isEqual from 'lodash/isEqual';
+import { getMaxRows, resolveLayout, COMPONENT_ID_PREFIX } from './layout-utils';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -16,64 +17,62 @@ export default function VitessceGridLayout(props) {
   const {
     layout,
     getComponent, padding, margin, draggableHandle,
-    reactGridLayoutProps, onAllReady, rowHeight, theme, height,
+    reactGridLayoutProps, rowHeight, theme, height,
+    onRemoveComponent, onLayoutChange: onLayoutChangeProp,
   } = props;
 
-  const [readyComponentKeys, setReadyComponentKeys] = useState(new Set());
-  const [gridComponents, setGridComponents] = useState({});
-  const [gridCols, setGridCols] = useState(null);
-  const [gridLayouts, setGridLayouts] = useState(null);
-  const [gridBreakpoints, setGridBreakpoints] = useState(null);
-  const [maxRows, setMaxRows] = useState(0);
+  // If layout changes, update grid components.
+  const {
+    cols: gridCols, layouts: gridLayouts, breakpoints: gridBreakpoints, components: gridComponents,
+  } = resolveLayout(layout);
 
-  // If layout changes, update grid components and clear ready components.
-  useEffect(() => {
-    const {
-      cols, layouts, breakpoints, components,
-    } = resolveLayout(layout);
-    // Hold all of these in state in the case of new layouts coming in.
-    setGridComponents(components);
-    setGridCols(cols);
-    setGridLayouts(layouts);
-    setGridBreakpoints(breakpoints);
-    setMaxRows(getMaxRows(layouts));
-  }, [layout]);
+  const maxRows = getMaxRows(gridLayouts);
 
   // Inline CSS is generally avoided, but this saves the end-user a little work,
   // and prevents class names from getting out of sync.
   const style = (
     <style>
       {`
-          ${draggableHandle} {
-            cursor: grab;
-          }
-          ${draggableHandle}:active {
-            cursor: grabbing;
-          }
+        ${draggableHandle} {
+          cursor: grab;
+        }
+        ${draggableHandle}:active {
+          cursor: grabbing;
+        }
      `}
     </style>
   );
 
-  useEffect(() => {
-    if (readyComponentKeys.size === Object.keys(gridComponents).length) {
-      // The sets are now equal.
-      onAllReady();
+  const onLayoutChange = (newLayout) => {
+    if (newLayout.length === Object.entries(gridComponents).length) {
+      const newComponentProps = [];
+      newLayout.forEach((nextC) => {
+        const id = nextC.i;
+        const prevC = gridComponents[id];
+        if (prevC) {
+          const i = parseInt(id.substring(id.indexOf(COMPONENT_ID_PREFIX) + 1), 10);
+          const nextProps = {
+            x: nextC.x, y: nextC.y, w: nextC.w, h: nextC.h,
+          };
+          const prevProps = {
+            x: prevC.x, y: prevC.y, w: prevC.w, h: prevC.h,
+          };
+          if (!isEqual(nextProps, prevProps)) {
+            newComponentProps.push([i, nextProps]);
+          }
+        }
+      });
+      if (newComponentProps.length > 0) {
+        onLayoutChangeProp(newComponentProps);
+      }
     }
-  }, [readyComponentKeys, gridComponents, onAllReady]);
+  };
 
   const layoutChildren = Object.entries(gridComponents).map(([k, v], i) => {
     const Component = getComponent(v.component);
-    const onReady = () => {
-      setReadyComponentKeys((prevReadyComponentKeys) => {
-        prevReadyComponentKeys.add(k);
-        return prevReadyComponentKeys;
-      });
-    };
 
     const removeGridComponent = () => {
-      const newGridComponents = { ...gridComponents };
-      delete newGridComponents[k];
-      setGridComponents(newGridComponents);
+      onRemoveComponent(i);
     };
 
     return (
@@ -84,12 +83,11 @@ export default function VitessceGridLayout(props) {
           coordinationScopes={v.coordinationScopes}
           theme={theme}
           removeGridComponent={removeGridComponent}
-          onReady={onReady}
         />
       </div>
     );
   });
-  return (gridComponents && gridCols && gridLayouts && gridBreakpoints) && (
+  return (gridLayouts && gridComponents && gridBreakpoints && gridCols) && (
     <>
       {style}
       <ResponsiveHeightGridLayout
@@ -107,6 +105,7 @@ export default function VitessceGridLayout(props) {
         containerPadding={[padding, padding]}
         margin={[margin, margin]}
         draggableHandle={draggableHandle}
+        onLayoutChange={onLayoutChange}
         {... reactGridLayoutProps}
       >
         {layoutChildren}
@@ -118,5 +117,4 @@ export default function VitessceGridLayout(props) {
 VitessceGridLayout.defaultProps = {
   padding: 10,
   margin: 10,
-  onAllReady: () => {},
 };

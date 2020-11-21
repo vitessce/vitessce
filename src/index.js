@@ -5,7 +5,7 @@ import VitessceGrid from './app/VitessceGrid';
 import {
   createApp,
   Vitessce,
-  encodeConfAsURLParams,
+  encodeConfInUrl,
   decodeURLParamsToConf,
 } from './app';
 import {
@@ -21,7 +21,7 @@ export {
   VitessceGrid,
   createApp,
   Vitessce,
-  encodeConfAsURLParams,
+  encodeConfInUrl,
   decodeURLParamsToConf,
   VitessceConfig,
   hconcat,

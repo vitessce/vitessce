@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 import Select from '@material-ui/core/Select';
 import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 
 import ChannelOptions from './ChannelOptions';
 
@@ -154,6 +155,7 @@ function ChannelController({
   const { dtype } = loader;
   const [domain, setDomain] = useState(null);
   const [domainType, setDomainType] = useState(null);
+  const [selection, setSelection] = useState([{ ...channels[channelId].selection }]);
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {
@@ -162,15 +164,19 @@ function ChannelController({
       const loaderSelection = [
         { ...channels[channelId].selection },
       ];
-
       let domains;
-      if (newDomainType !== domainType) {
+      const hasDomainChanged = newDomainType !== domainType;
+      const hasSelectionChanged = !isEqual(loaderSelection, selection);
+      if (hasDomainChanged || hasSelectionChanged) {
         if (newDomainType === 'Full') {
           domains = [[0, DTYPE_VALUES[dtype].max]];
           const [newDomain] = domains;
           if (mounted) {
             setDomain(newDomain);
             setDomainType(newDomainType);
+            if (hasSelectionChanged) {
+              setSelection(loaderSelection);
+            }
           }
         } else {
           getChannelStats({ loader, loaderSelection }).then((stats) => {
@@ -179,15 +185,16 @@ function ChannelController({
             if (mounted) {
               setDomain(newDomain);
               setDomainType(newDomainType);
+              if (hasSelectionChanged) {
+                setSelection(loaderSelection);
+              }
             }
           });
         }
       }
     }
-    return () => {
-      mounted = false;
-    };
-  }, [domainType, channels, channelId, loader, dtype, newDomainType]);
+    return () => { mounted = false; };
+  }, [domainType, channels, channelId, loader, dtype, newDomainType, selection]);
 
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
