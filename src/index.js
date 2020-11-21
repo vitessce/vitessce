@@ -8,6 +8,11 @@ import {
   encodeConfInUrl,
   decodeURLParamsToConf,
 } from './app';
+import {
+  VitessceConfig,
+  hconcat,
+  vconcat,
+} from './api';
 
 export {
   Heatmap,
@@ -18,4 +23,7 @@ export {
   Vitessce,
   encodeConfInUrl,
   decodeURLParamsToConf,
+  VitessceConfig,
+  hconcat,
+  vconcat,
 };
