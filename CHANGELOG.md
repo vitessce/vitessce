@@ -1,6 +1,7 @@
 ## 1.1.1 (In Progress)
 
 ### Added
+- Implemented the view config API in JavaScript in a class called `VitessceConfig`.
 
 ### Changed
 
