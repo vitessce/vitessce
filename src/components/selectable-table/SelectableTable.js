@@ -116,10 +116,13 @@ export default function SelectableTable(props) {
   const hiddenInputsClass = (showTableInputs ? '' : 'hidden-input-column');
 
   const rowRenderer = ({ index, style }) => (
+    // eslint-disable-next-line jsx-a11y/interactive-supports-focus
     <div
       key={data[index][idKey]}
       className={(isSelected(data[index][idKey]) ? 'row-checked list-item' : 'list-item')}
       style={style}
+      role="button"
+      onClick={() => onSelectRow(data[index][idKey], !isSelected(data[index][idKey]))}
     >
       <div className={`input-container ${hiddenInputsClass} list-cell`}>
         <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>
@@ -135,12 +138,9 @@ export default function SelectableTable(props) {
         </label>
       </div>
       {columns.map(column => (
-        // eslint-disable-next-line jsx-a11y/interactive-supports-focus
         <div
           className="list-cell"
           key={column}
-          role="button"
-          onClick={() => onSelectRow(data[index][idKey], !isSelected(data[index][idKey]))}
         >
           {data[index][column]}
         </div>
