@@ -5,10 +5,12 @@
         flex: 1 1 auto;
         outline : none;
     }
-    .list-item {
+    .table-row {
         display: flex;
         flex-direction: row;
         border-bottom: 1px solid map-get($theme-colors, "secondary-background-dim");
+    }
+    .table-item {
         cursor: pointer;
         &:not(.row-checked):hover {
             @if $theme-name == dark {
@@ -23,7 +25,7 @@
         .hidden-input-column {
             display: none;
         }
-        .list-cell {
+        .table-cell {
             padding: 0 4px;
         }
         .input-container {

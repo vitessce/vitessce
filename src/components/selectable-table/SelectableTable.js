@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useEffect, useCallback, useState } from 'react';
-import { List, AutoSizer } from 'react-virtualized';
+import { Table, AutoSizer } from 'react-virtualized';
 import uuidv4 from 'uuid/v4';
 import union from 'lodash/union';
 import difference from 'lodash/difference';
@@ -33,6 +33,7 @@ export default function SelectableTable(props) {
     valueKey = 'value',
     allowMultiple = false,
     allowUncheck = false,
+    showTableHead = true,
     showTableInputs = false,
   } = props;
 
@@ -119,12 +120,12 @@ export default function SelectableTable(props) {
     // eslint-disable-next-line jsx-a11y/interactive-supports-focus
     <div
       key={data[index][idKey]}
-      className={(isSelected(data[index][idKey]) ? 'row-checked list-item' : 'list-item')}
+      className={`table-item table-row ${isSelected(data[index][idKey]) ? 'row-checked ' : ''}`}
       style={style}
       role="button"
       onClick={() => onSelectRow(data[index][idKey], !isSelected(data[index][idKey]))}
     >
-      <div className={`input-container ${hiddenInputsClass} list-cell`}>
+      <div className={`input-container ${hiddenInputsClass} table-cell`}>
         <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>
           <input
             id={`${inputUuid}_${data[index][idKey]}`}
@@ -139,7 +140,7 @@ export default function SelectableTable(props) {
       </div>
       {columns.map(column => (
         <div
-          className="list-cell"
+          className="table-cell"
           key={column}
         >
           {data[index][column]}
@@ -148,17 +149,28 @@ export default function SelectableTable(props) {
     </div>
   );
 
+  const headerRowRenderer = ({ style }) => (
+    <div className={`${hiddenInputsClass} table-row`} style={style}>
+      {columns.map(column => (
+        <div key={column}>{column}</div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="selectable-table">
       <AutoSizer>
         {({ width, height }) => (
-          <List
+          <Table
             height={height}
-            style={{ outline: 'none' }}
+            gridStyle={{ outline: 'none' }}
             rowCount={data.length}
             rowHeight={24}
+            headerHeight={showTableHead ? 24 : undefined}
             rowRenderer={rowRenderer}
             width={width}
+            headerRowRenderer={showTableHead ? headerRowRenderer : undefined}
+            rowGetter={({ index }) => data[index]}
           />
         )}
       </AutoSizer>
