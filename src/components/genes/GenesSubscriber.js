@@ -64,6 +64,9 @@ export default function GenesSubscriber(props) {
       title="Expression Levels"
       info={`${numGenes} ${pluralize(variablesLabel, variablesPluralLabel, numGenes)}`}
       theme={theme}
+      // Virtual scroll is used but this allows for the same styling as a scroll component
+      // even though this no longer uses the TitleInfo component's
+      // scroll css (SelectableTable is virtual scroll).
       isScroll
       removeGridComponent={removeGridComponent}
       isReady={isReady}
