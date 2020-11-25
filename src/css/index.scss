@@ -12,6 +12,7 @@
 @import 'higlass';
 @import 'vega';
 @import 'heatmap';
+@import 'genes';
 
 @mixin vitessce-themable($theme-name, $theme-colors) {
   @include app($theme-name, $theme-colors);
@@ -26,6 +27,7 @@
   @include higlass($theme-name, $theme-colors);
   @include vega($theme-name, $theme-colors);
   @include heatmap($theme-name, $theme-colors);
+  @include genes($theme-name, $theme-colors);
 }
 
 .vitessce-container {
