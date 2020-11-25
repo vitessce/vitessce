@@ -64,6 +64,7 @@ export default function GenesSubscriber(props) {
       title="Expression Levels"
       info={`${numGenes} ${pluralize(variablesLabel, variablesPluralLabel, numGenes)}`}
       theme={theme}
+      isScroll
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       urls={urls}

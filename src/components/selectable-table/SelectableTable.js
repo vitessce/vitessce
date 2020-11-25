@@ -118,10 +118,10 @@ export default function SelectableTable(props) {
   const rowRenderer = ({ index, style }) => (
     <div
       key={data[index][idKey]}
-      className={(isSelected(data[index][idKey]) ? 'row-checked gene-item' : 'gene-item')}
+      className={(isSelected(data[index][idKey]) ? 'row-checked list-item' : 'list-item')}
       style={style}
     >
-      <div className={`input-container ${hiddenInputsClass}`}>
+      <div className={`input-container ${hiddenInputsClass} list-cell`}>
         <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>
           <input
             id={`${inputUuid}_${data[index][idKey]}`}
@@ -137,6 +137,7 @@ export default function SelectableTable(props) {
       {columns.map(column => (
         // eslint-disable-next-line jsx-a11y/interactive-supports-focus
         <div
+          className="list-cell"
           key={column}
           role="button"
           onClick={() => onSelectRow(data[index][idKey], !isSelected(data[index][idKey]))}
@@ -148,16 +149,19 @@ export default function SelectableTable(props) {
   );
 
   return (
-    <AutoSizer>
-      {({ width, height }) => (
-        <List
-          height={height}
-          rowCount={data.length}
-          rowHeight={30}
-          rowRenderer={rowRenderer}
-          width={width}
-        />
-      )}
-    </AutoSizer>
+    <div className="selectable-table">
+      <AutoSizer>
+        {({ width, height }) => (
+          <List
+            height={height}
+            style={{ outline: 'none' }}
+            rowCount={data.length}
+            rowHeight={24}
+            rowRenderer={rowRenderer}
+            width={width}
+          />
+        )}
+      </AutoSizer>
+    </div>
   );
 }
