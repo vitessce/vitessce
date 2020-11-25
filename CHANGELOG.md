@@ -2,6 +2,7 @@
 
 ### Added
 - Implemented the view config API in JavaScript in a class called `VitessceConfig`.
+- Add searchable genes list.
 
 ### Changed
 
