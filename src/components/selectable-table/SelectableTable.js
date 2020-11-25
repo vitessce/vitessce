@@ -165,6 +165,7 @@ export default function SelectableTable(props) {
             height={height}
             gridStyle={{ outline: 'none' }}
             rowCount={data.length}
+            // 24 is 1 em + padding in either direction (see _selectable_table.scss).
             rowHeight={24}
             headerHeight={showTableHead ? 24 : undefined}
             rowRenderer={rowRenderer}
