@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useEffect, useCallback, useState } from 'react';
+import { List, AutoSizer } from 'react-virtualized';
 import uuidv4 from 'uuid/v4';
 import union from 'lodash/union';
 import difference from 'lodash/difference';
@@ -32,7 +33,6 @@ export default function SelectableTable(props) {
     valueKey = 'value',
     allowMultiple = false,
     allowUncheck = false,
-    showTableHead = true,
     showTableInputs = false,
   } = props;
 
@@ -115,51 +115,49 @@ export default function SelectableTable(props) {
   // Class for first column of inputs, to hide them if desired.
   const hiddenInputsClass = (showTableInputs ? '' : 'hidden-input-column');
 
-  return (
-    <div className="selectable-table">
-      <table>
-        {showTableHead ? (
-          <thead>
-            <tr>
-              <th className={hiddenInputsClass} />
-              {columns.map(column => (
-                <th key={column}>{column}</th>
-              ))}
-            </tr>
-          </thead>
-        ) : null}
-        <tbody>
-          {data.map(item => (
-            <tr
-              key={item[idKey]}
-              className={(isSelected(item[idKey]) ? 'row-checked' : '')}
-            >
-              <td className={`input-container ${hiddenInputsClass}`}>
-                <label htmlFor={`${inputUuid}_${item[idKey]}`}>
-                  <input
-                    id={`${inputUuid}_${item[idKey]}`}
-                    type="checkbox"
-                    className={(allowMultiple ? 'checkbox' : 'radio')}
-                    name={inputUuid}
-                    value={item[idKey]}
-                    onChange={handleInputChange}
-                    checked={isSelected(item[idKey])}
-                  />
-                </label>
-              </td>
-              {columns.map(column => (
-                <td
-                  key={column}
-                  role="button"
-                  onClick={() => onSelectRow(item[idKey], !isSelected(item[idKey]))}
-                >
-                  {item[column]}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  const rowRenderer = ({ index, style }) => (
+    <div
+      key={data[index][idKey]}
+      className={(isSelected(data[index][idKey]) ? 'row-checked gene-item' : 'gene-item')}
+      style={style}
+    >
+      <div className={`input-container ${hiddenInputsClass}`}>
+        <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>
+          <input
+            id={`${inputUuid}_${data[index][idKey]}`}
+            type="checkbox"
+            className={(allowMultiple ? 'checkbox' : 'radio')}
+            name={inputUuid}
+            value={data[index][idKey]}
+            onChange={handleInputChange}
+            checked={isSelected(data[index][idKey])}
+          />
+        </label>
+      </div>
+      {columns.map(column => (
+        // eslint-disable-next-line jsx-a11y/interactive-supports-focus
+        <div
+          key={column}
+          role="button"
+          onClick={() => onSelectRow(data[index][idKey], !isSelected(data[index][idKey]))}
+        >
+          {data[index][column]}
+        </div>
+      ))}
     </div>
+  );
+
+  return (
+    <AutoSizer>
+      {({ width, height }) => (
+        <List
+          height={height}
+          rowCount={data.length}
+          rowHeight={30}
+          rowRenderer={rowRenderer}
+          width={width}
+        />
+      )}
+    </AutoSizer>
   );
 }
