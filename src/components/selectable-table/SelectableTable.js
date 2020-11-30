@@ -35,6 +35,8 @@ export default function SelectableTable(props) {
     allowUncheck = false,
     showTableHead = true,
     showTableInputs = false,
+    testHeight = undefined,
+    testWidth = undefined,
   } = props;
 
   const [selectedRows, setSelectedRows] = useState(null);
@@ -162,14 +164,14 @@ export default function SelectableTable(props) {
       <AutoSizer>
         {({ width, height }) => (
           <Table
-            height={height}
+            height={testHeight || height}
             gridStyle={{ outline: 'none' }}
             rowCount={data.length}
             // 24 is 1 em + padding in either direction (see _selectable_table.scss).
             rowHeight={24}
             headerHeight={showTableHead ? 24 : undefined}
             rowRenderer={rowRenderer}
-            width={width}
+            width={testWidth || width}
             headerRowRenderer={showTableHead ? headerRowRenderer : undefined}
             rowGetter={({ index }) => data[index]}
           />
