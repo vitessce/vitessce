@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useEffect, useCallback, useState } from 'react';
+import { Table, AutoSizer } from 'react-virtualized';
 import uuidv4 from 'uuid/v4';
 import union from 'lodash/union';
 import difference from 'lodash/difference';
@@ -34,6 +35,8 @@ export default function SelectableTable(props) {
     allowUncheck = false,
     showTableHead = true,
     showTableInputs = false,
+    testHeight = undefined,
+    testWidth = undefined,
   } = props;
 
   const [selectedRows, setSelectedRows] = useState(null);
@@ -115,51 +118,65 @@ export default function SelectableTable(props) {
   // Class for first column of inputs, to hide them if desired.
   const hiddenInputsClass = (showTableInputs ? '' : 'hidden-input-column');
 
+  const rowRenderer = ({ index, style }) => (
+    // eslint-disable-next-line jsx-a11y/interactive-supports-focus
+    <div
+      key={data[index][idKey]}
+      className={`table-item table-row ${isSelected(data[index][idKey]) ? 'row-checked ' : ''}`}
+      style={style}
+      role="button"
+      onClick={() => onSelectRow(data[index][idKey], !isSelected(data[index][idKey]))}
+    >
+      <div className={`input-container ${hiddenInputsClass} table-cell`}>
+        <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>
+          <input
+            id={`${inputUuid}_${data[index][idKey]}`}
+            type="checkbox"
+            className={(allowMultiple ? 'checkbox' : 'radio')}
+            name={inputUuid}
+            value={data[index][idKey]}
+            onChange={handleInputChange}
+            checked={isSelected(data[index][idKey])}
+          />
+        </label>
+      </div>
+      {columns.map(column => (
+        <div
+          className="table-cell"
+          key={column}
+        >
+          {data[index][column]}
+        </div>
+      ))}
+    </div>
+  );
+
+  const headerRowRenderer = ({ style }) => (
+    <div className={`${hiddenInputsClass} table-row`} style={style}>
+      {columns.map(column => (
+        <div key={column}>{column}</div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="selectable-table">
-      <table>
-        {showTableHead ? (
-          <thead>
-            <tr>
-              <th className={hiddenInputsClass} />
-              {columns.map(column => (
-                <th key={column}>{column}</th>
-              ))}
-            </tr>
-          </thead>
-        ) : null}
-        <tbody>
-          {data.map(item => (
-            <tr
-              key={item[idKey]}
-              className={(isSelected(item[idKey]) ? 'row-checked' : '')}
-            >
-              <td className={`input-container ${hiddenInputsClass}`}>
-                <label htmlFor={`${inputUuid}_${item[idKey]}`}>
-                  <input
-                    id={`${inputUuid}_${item[idKey]}`}
-                    type="checkbox"
-                    className={(allowMultiple ? 'checkbox' : 'radio')}
-                    name={inputUuid}
-                    value={item[idKey]}
-                    onChange={handleInputChange}
-                    checked={isSelected(item[idKey])}
-                  />
-                </label>
-              </td>
-              {columns.map(column => (
-                <td
-                  key={column}
-                  role="button"
-                  onClick={() => onSelectRow(item[idKey], !isSelected(item[idKey]))}
-                >
-                  {item[column]}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <AutoSizer>
+        {({ width, height }) => (
+          <Table
+            height={testHeight || height}
+            gridStyle={{ outline: 'none' }}
+            rowCount={data.length}
+            // 24 is 1 em + padding in either direction (see _selectable_table.scss).
+            rowHeight={24}
+            headerHeight={showTableHead ? 24 : undefined}
+            rowRenderer={rowRenderer}
+            width={testWidth || width}
+            headerRowRenderer={showTableHead ? headerRowRenderer : undefined}
+            rowGetter={({ index }) => data[index]}
+          />
+        )}
+      </AutoSizer>
     </div>
   );
 }
