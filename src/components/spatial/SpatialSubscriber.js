@@ -79,6 +79,7 @@ export default function SpatialSubscriber(props) {
     setCellSetColor,
     setCellColorEncoding,
     setAdditionalCellSets,
+    setMoleculeHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [autoLayers, setAutoLayers] = useState({
@@ -249,6 +250,7 @@ export default function SpatialSubscriber(props) {
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
+        setMoleculeHighlight={setMoleculeHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}

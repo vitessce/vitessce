@@ -15,6 +15,7 @@ export default function StatusSubscriber(props) {
   const [{
     cellHighlight,
     geneHighlight,
+    moleculeHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.status, coordinationScopes);
 
   const warn = useWarning();
@@ -26,6 +27,10 @@ export default function StatusSubscriber(props) {
     ),
     ...(geneHighlight
       ? [`Hovered gene ${geneHighlight}`]
+      : []
+    ),
+    ...(moleculeHighlight
+      ? [`Hovered gene ${moleculeHighlight}`]
       : []
     ),
   ];
