@@ -6,6 +6,7 @@
 
 ### Changed
 - Genes list is now a virtual scroll to allow for more performant rendering.
+- Fix molecules highlight reversion - hovered molecules now appear in the status component.
 
 ## [1.1.0](https://www.npmjs.com/package/vitessce/v/1.1.0) - 2020-11-17
 
