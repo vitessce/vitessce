@@ -48,6 +48,7 @@
     "deck.gl": "^8.3.2",
     "dynamic-import-polyfill": "^0.1.1",
     "glslify": "^7.0.0",
+    "higlass": "^1.11.4",
     "higlass-register": "^0.3.0",
     "higlass-zarr-datafetchers": "^0.2.0",
     "json2csv": "^4.5.2",
