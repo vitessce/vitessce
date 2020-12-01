@@ -6,8 +6,8 @@ import dynamicImportPolyfill from 'dynamic-import-polyfill';
 import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
 import TitleInfo from '../TitleInfo';
+import { createWarningComponent, asEsModule } from '../utils';
 import { useReady, useUrls } from '../hooks';
-import { useCellSetsData } from '../data-hooks';
 import {
   useCoordination, useLoaders,
 } from '../../app/state/hooks';
@@ -16,7 +16,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 const PIXI_BUNDLE_URL = 'https://unpkg.com/window-pixi@5.3.3/dist/pixi.min.js';
 const HIGLASS_BUNDLE_URL = 'https://unpkg.com/higlass@1.11.4/dist/hglib.min.js';
 
-const HIGLASS_DATA_TYPES = ['cell-sets'];
+const HIGLASS_DATA_TYPES = [];
 
 // Initialize the dynamic __import__() function
 // if necessary.
@@ -41,18 +41,22 @@ const HiGlassComponent = React.lazy(() => {
     window.ReactDOM = ReactDOM;
   }
   return new Promise((resolve) => {
+    const handleImportError = (e) => {
+      console.warn(e);
+      resolve(asEsModule(createWarningComponent({
+        title: 'Could not load HiGlass',
+        message: 'The HiGlass scripts could not be dynamically imported.',
+      })));
+    };
     // eslint-disable-next-line no-undef
     __import__(PIXI_BUNDLE_URL).then(() => {
       // eslint-disable-next-line no-undef
       __import__(HIGLASS_BUNDLE_URL).then(() => {
         // React.lazy promise must return an ES module with the
         // component as the default export.
-        resolve({
-          __esModule: true,
-          default: window.hglib.HiGlassComponent,
-        });
-      });
-    });
+        resolve(asEsModule(window.hglib.HiGlassComponent));
+      }).catch(handleImportError);
+    }).catch(handleImportError);
   });
 });
 
@@ -89,9 +93,11 @@ export default function HiGlassSubscriber(props) {
     dataset,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.higlass, coordinationScopes);
 
+  // eslint-disable-next-line no-unused-vars
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     HIGLASS_DATA_TYPES,
   );
+  // eslint-disable-next-line no-unused-vars
   const [urls, addUrl, resetUrls] = useUrls();
 
   // Reset file URLs and loader progress when the dataset has changed.
@@ -100,9 +106,6 @@ export default function HiGlassSubscriber(props) {
     resetReadyItems();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
-
-  // eslint-disable-next-line no-unused-vars
-  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
 
   const hgComponent = useMemo(() => (
     <HiGlassComponent
