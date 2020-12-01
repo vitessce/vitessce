@@ -5,7 +5,9 @@
 - Add searchable genes list.
 
 ### Changed
+- Genes list is now a virtual scroll to allow for more performant rendering.
 - Lazy load HiGlass (and PIXI.js) from absolute URLs (unpkg) to avoid dynamic script import issues with relative paths after bundling.
+
 
 ## [1.1.0](https://www.npmjs.com/package/vitessce/v/1.1.0) - 2020-11-17
 
