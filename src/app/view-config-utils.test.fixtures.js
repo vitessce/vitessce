@@ -242,6 +242,9 @@ export const initializedViewConfig = {
     cellSetColor: {
       A: null,
     },
+    moleculeHighlight: {
+      A: null,
+    },
   },
   datasets: [
     {
@@ -335,6 +338,7 @@ export const initializedViewConfig = {
         spatialTargetZ: 'A',
         spatialZoom: 'A',
         additionalCellSets: 'A',
+        moleculeHighlight: 'A',
       },
       h: 4,
       props: {

@@ -151,7 +151,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createMoleculesLayer(layerDef) {
     const {
-      updateStatus,
+      setMoleculeHighlight,
       getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
       getMoleculePosition = d => [d[0], d[1], 0],
     } = this.props;
@@ -171,8 +171,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       onHover: (info) => {
-        if (info.object && updateStatus) {
-          updateStatus(`Gene: ${info.object[3]}`);
+        if (setMoleculeHighlight) {
+          if (info.object) {
+            setMoleculeHighlight(info.object[3]);
+          } else {
+            setMoleculeHighlight(null);
+          }
         }
       },
     });

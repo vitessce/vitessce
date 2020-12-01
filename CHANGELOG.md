@@ -6,6 +6,7 @@
 
 ### Changed
 - Genes list is now a virtual scroll to allow for more performant rendering.
+- Fix molecules highlight reversion - hovered molecules now appear in the status component.
 - Lazy load HiGlass (and PIXI.js) from absolute URLs (unpkg) to avoid dynamic script import issues with relative paths after bundling.
 
 
