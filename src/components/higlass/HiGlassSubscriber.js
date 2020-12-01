@@ -13,27 +13,40 @@ import {
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
-// Initialize the dynamic __import__() function before
-// doing any importing.
+const PIXI_BUNDLE_URL = 'https://unpkg.com/window-pixi@5.3.3/dist/pixi.min.js';
+const HIGLASS_BUNDLE_URL = 'https://unpkg.com/higlass@1.11.4/dist/hglib.min.js';
+
+const HIGLASS_DATA_TYPES = ['cell-sets'];
+
+// Initialize the dynamic __import__() function
+// if necessary.
 dynamicImportPolyfill.initialize();
 
 // Register the zarr-multivec plugin data fetcher.
 // References:
-// - https://github.com/higlass/higlass-register
-// - https://github.com/higlass/higlass-zarr-datafetchers
+// https://github.com/higlass/higlass-register
+// https://github.com/higlass/higlass-zarr-datafetchers
 register(
   { dataFetcher: ZarrMultivecDataFetcher, config: ZarrMultivecDataFetcher.config },
   { pluginType: 'dataFetcher' },
 );
 
+// Lazy load the HiGlass React component,
+// using dynamic imports with absolute URLs.
 const HiGlassComponent = React.lazy(() => {
-  window.React = React;
-  window.ReactDOM = ReactDOM;
+  if (!window.React) {
+    window.React = React;
+  }
+  if (!window.ReactDOM) {
+    window.ReactDOM = ReactDOM;
+  }
   return new Promise((resolve) => {
     // eslint-disable-next-line no-undef
-    __import__('http://localhost:9000/pixi.js').then(() => {
+    __import__(PIXI_BUNDLE_URL).then(() => {
       // eslint-disable-next-line no-undef
-      __import__('http://unpkg.com/higlass@1.11.4/dist/hglib.js').then(() => {
+      __import__(HIGLASS_BUNDLE_URL).then(() => {
+        // React.lazy promise must return an ES module with the
+        // component as the default export.
         resolve({
           __esModule: true,
           default: window.hglib.HiGlassComponent,
@@ -42,8 +55,6 @@ const HiGlassComponent = React.lazy(() => {
     });
   });
 });
-
-const HIGLASS_DATA_TYPES = ['cell-sets'];
 
 /**
  * A wrapper around HiGlass (http://higlass.io/).
