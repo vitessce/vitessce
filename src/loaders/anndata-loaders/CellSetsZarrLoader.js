@@ -39,12 +39,8 @@ export default class CellSetsZarrLoader extends AbstractLoader {
       .getItem('0')
       .then(buf => new Uint8Array(buf))
       .then(cbytes => z.compressor.decode(cbytes))
-      .then(dbytes => new TextDecoder().decode(dbytes)
-        .replace(/\0/g, '')
-        .replace(/\cP/g, ',')
-        .replace(RegExp(String.fromCharCode(30), 'g'), '')
-        .split(',')
-        .slice(1)));
+      // eslint-disable-next-line no-control-regex
+      .then(dbytes => new TextDecoder().decode(dbytes).match(/[ACTG]+/g).filter(Boolean)));
     return this.cellNames;
   }
 
@@ -52,7 +48,6 @@ export default class CellSetsZarrLoader extends AbstractLoader {
     return Promise
       .all([this.loadCellNames(), this.loadCellSetIds()])
       .then((data) => {
-        console.log(data) // eslint-disable-line
         const [cellNames, { data: cellSetIds }] = data;
         const cellSets = treeInitialize(SETS_DATATYPE_CELL);
         let leidenNode = {

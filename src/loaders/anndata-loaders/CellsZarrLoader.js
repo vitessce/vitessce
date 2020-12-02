@@ -30,12 +30,7 @@ export default class CellsZarrLoader extends AbstractLoader {
       .then(buf => new Uint8Array(buf))
       .then(cbytes => z.compressor.decode(cbytes))
       // eslint-disable-next-line no-control-regex
-      .then(dbytes => new TextDecoder().decode(dbytes)
-        .replace(/\0/g, '')
-        .replace(/\cP/g, ',')
-        .replace(RegExp(String.fromCharCode(30), 'g'), '')
-        .split(',')
-        .slice(1)));
+      .then(dbytes => new TextDecoder().decode(dbytes).match(/[ACTG]+/g).filter(Boolean)));
     return this.cellNames;
   }
 
@@ -57,6 +52,7 @@ export default class CellsZarrLoader extends AbstractLoader {
         const cells = {};
         // eslint-disable-next-line no-return-assign,max-len
         cellNames.forEach((name, i) => cells[name] = { mappings: { UMAP: umapCoords[i] }, factors: { 'Leiden Cluster': String(cellSetIds[i]) } });
+        console.log(cells, cellNames, cellSetIds); // eslint-disable-line
         return { data: cells, url: null };
       });
   }
