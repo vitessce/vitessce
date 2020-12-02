@@ -1,39 +1,7 @@
-import { HTTPStore, openArray } from 'zarr';
-import AbstractLoader from '../AbstractLoader';
+import { openArray } from 'zarr';
+import BaseCellsZarrLoader from './BaseCellsZarrLoader';
 
-export default class CellsZarrLoader extends AbstractLoader {
-  constructor(params) {
-    super(params);
-
-    // TODO: Use this.requestInit to provide headers, tokens, etc.
-    // eslint-disable-next-line no-unused-vars
-    const { url, requestInit } = this;
-    this.store = new HTTPStore(url);
-  }
-
-  loadCellSetIds() {
-    const { url } = this;
-    if (this.cellSets) {
-      return this.cellSets;
-    }
-    this.cellSets = openArray({ store: `${url}/obs/leiden`, mode: 'r' }).then(arr => new Promise(resolve => arr.get().then(resolve)));
-    return this.cellSets;
-  }
-
-  loadCellNames() {
-    const { url } = this;
-    if (this.cellNames) {
-      return this.cellNames;
-    }
-    this.cellNames = openArray({ store: `${url}/obs/_index`, mode: 'r' }).then(z => z.store
-      .getItem('0')
-      .then(buf => new Uint8Array(buf))
-      .then(cbytes => z.compressor.decode(cbytes))
-      // eslint-disable-next-line no-control-regex
-      .then(dbytes => new TextDecoder().decode(dbytes).match(/[ACTG]+/g).filter(Boolean)));
-    return this.cellNames;
-  }
-
+export default class CellsZarrLoader extends BaseCellsZarrLoader {
   loadUMAPCoords() {
     const { store } = this;
     if (this.UMAPCoords) {
@@ -44,15 +12,33 @@ export default class CellsZarrLoader extends AbstractLoader {
     return this.UMAPCoords;
   }
 
+  loadSlideSEQCoords() {
+    const { store } = this;
+    if (this.slideSEQCoords) {
+      return this.slideSEQCoords;
+    }
+    // eslint-disable-next-line
+    this.slideSEQCoords = openArray({ store, path: 'obsm/X_slideseq', mode: 'r' }).then(arr => new Promise(resolve => { arr.get().then(resolve) }));
+    return this.slideSEQCoords;
+  }
+
   load() {
     return Promise
-      .all([this.loadCellNames(), this.loadUMAPCoords(), this.loadCellSetIds()])
+      .all([
+        this.loadCellNames(),
+        this.loadUMAPCoords(),
+        this.loadCellSetIds(),
+        this.loadSlideSEQCoords(),
+      ])
       .then((data) => {
-        const [cellNames, { data: umapCoords }, { data: cellSetIds }] = data;
+        const [cellNames,
+          { data: umapCoords },
+          { data: cellSetIds },
+          { data: slideSEQCoords }] = data;
         const cells = {};
-        // eslint-disable-next-line no-return-assign,max-len
-        cellNames.forEach((name, i) => cells[name] = { mappings: { UMAP: umapCoords[i] }, factors: { 'Leiden Cluster': String(cellSetIds[i]) } });
-        console.log(cells, cellNames, cellSetIds); // eslint-disable-line
+        // eslint-disable-next-line
+        cellNames.forEach((name, i) => cells[name] = { mappings: { UMAP: umapCoords[i] }, xy: slideSEQCoords[i], poly: [], factors: { 'Leiden Cluster': String(cellSetIds[i]) } });
+        console.log(cells, cellNames, cellSetIds, slideSEQCoords); // eslint-disable-line
         return { data: cells, url: null };
       });
   }
