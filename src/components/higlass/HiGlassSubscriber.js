@@ -1,5 +1,6 @@
+/* eslint-disable */
 import React, {
-  useMemo, useEffect, Suspense,
+  useMemo, useEffect, useRef, Suspense,
 } from 'react';
 import ReactDOM from 'react-dom';
 import dynamicImportPolyfill from 'dynamic-import-polyfill';
@@ -76,14 +77,8 @@ export default function HiGlassSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    hgViewConfig,
-    hgOptions = {
-      bounded: true,
-      pixelPreciseMarginPadding: true,
-      containerPaddingX: 0,
-      containerPaddingY: 0,
-      sizeMode: 'default',
-    },
+    hgViewConfig: hgViewConfigProp,
+    hgOptions: hgOptionsProp,
   } = props;
 
   const loaders = useLoaders();
@@ -91,7 +86,16 @@ export default function HiGlassSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    genomicZoom,
+    genomicTargetX,
+    genomicTargetY,
+  }, {
+    setGenomicZoom,
+    setGenomicTargetX,
+    setGenomicTargetY,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.higlass, coordinationScopes);
+
+  const hgRef = useRef();
 
   // eslint-disable-next-line no-unused-vars
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -107,16 +111,68 @@ export default function HiGlassSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
+  const hgOptions = useMemo(() => ({
+    ...hgOptionsProp,
+    theme,
+  }), [hgOptionsProp, theme]);
+
+  const hgViewConfig = useMemo(() => {
+    return {
+      editable: false,
+      zoomFixed: false,
+      trackSourceServers: [
+        '//higlass.io/api/v1',
+      ],
+      exportViewUrl: '//higlass.io/api/v1/viewconfs',
+      views: [
+        {
+          ...hgViewConfigProp,
+          initialXDomain: [
+            genomicTargetX - genomicZoom,
+            genomicTargetX + genomicZoom,
+          ],
+          initialYDomain: [
+            genomicTargetY - genomicZoom,
+            genomicTargetY + genomicZoom,
+          ],
+        },
+      ],
+      zoomLocks: {
+        locksByViewUid: {},
+        locksDict: {},
+      },
+      locationLocks: {
+        locksByViewUid: {},
+        locksDict: {},
+      },
+      valueScaleLocks: {
+        locksByViewUid: {},
+        locksDict: {},
+      },
+    };
+  }, [hgViewConfigProp, genomicZoom, genomicTargetX, genomicTargetY]);
+
+  useEffect(() => {
+    if(hgRef.current) {
+      hgRef.current.api.on('location', (loc) => {
+        setGenomicZoom(Math.log2(loc.xDomain[1] - loc.xDomain[0]));
+        setGenomicTargetX((loc.xDomain[1] - loc.xDomain[0]) / 2);
+        setGenomicTargetY((loc.yDomain[1] - loc.yDomain[0]) / 2);
+      });
+      return () => hgRef.current.api.off('location');
+    } else {
+      return () => {};
+    }
+  }, [hgRef, ]);
+
   const hgComponent = useMemo(() => (
     <HiGlassComponent
+      ref={hgRef}
       zoomFixed={false}
       viewConfig={hgViewConfig}
-      options={{
-        ...hgOptions,
-        theme,
-      }}
+      options={hgOptions}
     />
-  ), [hgViewConfig, hgOptions, theme]);
+  ), [hgViewConfig, hgOptions]);
 
   return (
     <div className="higlass-title-wrapper">
@@ -138,3 +194,13 @@ export default function HiGlassSubscriber(props) {
     </div>
   );
 }
+
+HiGlassSubscriber.defaultProps = {
+  hgOptions: {
+    bounded: true,
+    pixelPreciseMarginPadding: true,
+    containerPaddingX: 0,
+    containerPaddingY: 0,
+    sizeMode: 'default',
+  },
+};
