@@ -159,15 +159,19 @@ export default function HiGlassSubscriber(props) {
       return;
     }
     console.log("on")
-    hgInstance.api.on('viewConfig', (newViewConfigString) => {
-      const viewConfig = JSON.parse(newViewConfigString);
-      const loc = {
-        xDomain: viewConfig.views[0].initialXDomain,
-        yDomain: viewConfig.views[0].initialYDomain,
-      };
-      setGenomicZoom(Math.log2(genomeSize / (loc.xDomain[1] - loc.xDomain[0])));
-      setGenomicTargetX(loc.xDomain[0] + (loc.xDomain[1] - loc.xDomain[0]) / 2);
-      setGenomicTargetY(loc.yDomain[0] + (loc.yDomain[1] - loc.yDomain[0]) / 2);
+    hgInstance.api.on('viewConfig', (viewConfigString) => {
+      const viewConfig = JSON.parse(viewConfigString);
+      const xDomain = viewConfig.views[0].initialXDomain;
+      const yDomain = viewConfig.views[0].initialYDomain;
+
+      const nextGenomicZoom = Math.log2(genomeSize / (xDomain[1] - xDomain[0]));
+      const nextGenomicTargetX = xDomain[0] + (xDomain[1] - xDomain[0]) / 2;
+      const nextGenomicTargetY = yDomain[0] + (yDomain[1] - yDomain[0]) / 2;
+      // TODO: only set if the user mouse is over this component.
+      // otherwise this is just the initial on viewConfig change callback from a sibling, which will cause an infinite loop.
+      setGenomicZoom(nextGenomicZoom);
+      setGenomicTargetX(nextGenomicTargetX);
+      setGenomicTargetY(nextGenomicTargetY);
     });
   }, [hgInstance]);
 
