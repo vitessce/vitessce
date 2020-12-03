@@ -1,8 +1,10 @@
+import React from 'react';
 import { COORDINATE_SYSTEM } from 'deck.gl';
 import {
   SETS_DATATYPE_CELL,
   HIERARCHICAL_SCHEMAS,
 } from './sets/constants';
+import { PRIMARY_CARD } from './classNames';
 
 export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
@@ -191,5 +193,27 @@ export function mergeCellSets(cellSets, additionalCellSets) {
       ...(cellSets ? cellSets.tree : []),
       ...(additionalCellSets ? additionalCellSets.tree : []),
     ],
+  };
+}
+
+export function createWarningComponent(props) {
+  return () => {
+    const {
+      title,
+      message,
+    } = props;
+    return (
+      <div className={PRIMARY_CARD}>
+        <h1>{title}</h1>
+        <div>{message}</div>
+      </div>
+    );
+  };
+}
+
+export function asEsModule(component) {
+  return {
+    __esModule: true,
+    default: component,
   };
 }
