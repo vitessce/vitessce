@@ -1,11 +1,12 @@
 /* eslint-disable */
 import React, {
-  useMemo, useEffect, useRef, Suspense,
+  useMemo, useEffect, useRef, useReducer, Suspense, useState, useCallback,
 } from 'react';
 import ReactDOM from 'react-dom';
 import dynamicImportPolyfill from 'dynamic-import-polyfill';
 import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
+import debounce from 'lodash/debounce';
 import TitleInfo from '../TitleInfo';
 import { createWarningComponent, asEsModule } from '../utils';
 import { useReady, useUrls } from '../hooks';
@@ -79,6 +80,7 @@ export default function HiGlassSubscriber(props) {
     theme,
     hgViewConfig: hgViewConfigProp,
     hgOptions: hgOptionsProp,
+    genomeSize,
   } = props;
 
   const loaders = useLoaders();
@@ -95,7 +97,7 @@ export default function HiGlassSubscriber(props) {
     setGenomicTargetY,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.higlass, coordinationScopes);
 
-  const hgRef = useRef();
+  const [hgInstance, setHgInstance] = useState();
 
   // eslint-disable-next-line no-unused-vars
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -128,12 +130,12 @@ export default function HiGlassSubscriber(props) {
         {
           ...hgViewConfigProp,
           initialXDomain: [
-            genomicTargetX - genomicZoom,
-            genomicTargetX + genomicZoom,
+            genomicTargetX - (genomeSize/Math.pow(2, genomicZoom)/2),
+            genomicTargetX + (genomeSize/Math.pow(2, genomicZoom)/2),
           ],
           initialYDomain: [
-            genomicTargetY - genomicZoom,
-            genomicTargetY + genomicZoom,
+            genomicTargetY - (genomeSize/Math.pow(2, genomicZoom)/2),
+            genomicTargetY + (genomeSize/Math.pow(2, genomicZoom)/2),
           ],
         },
       ],
@@ -153,26 +155,21 @@ export default function HiGlassSubscriber(props) {
   }, [hgViewConfigProp, genomicZoom, genomicTargetX, genomicTargetY]);
 
   useEffect(() => {
-    if(hgRef.current) {
-      hgRef.current.api.on('location', (loc) => {
-        setGenomicZoom(Math.log2(loc.xDomain[1] - loc.xDomain[0]));
-        setGenomicTargetX((loc.xDomain[1] - loc.xDomain[0]) / 2);
-        setGenomicTargetY((loc.yDomain[1] - loc.yDomain[0]) / 2);
-      });
-      return () => hgRef.current.api.off('location');
-    } else {
-      return () => {};
+    if(!hgInstance) {
+      return;
     }
-  }, [hgRef, ]);
-
-  const hgComponent = useMemo(() => (
-    <HiGlassComponent
-      ref={hgRef}
-      zoomFixed={false}
-      viewConfig={hgViewConfig}
-      options={hgOptions}
-    />
-  ), [hgViewConfig, hgOptions]);
+    console.log("on")
+    hgInstance.api.on('viewConfig', (newViewConfigString) => {
+      const viewConfig = JSON.parse(newViewConfigString);
+      const loc = {
+        xDomain: viewConfig.views[0].initialXDomain,
+        yDomain: viewConfig.views[0].initialYDomain,
+      };
+      setGenomicZoom(Math.log2(genomeSize / (loc.xDomain[1] - loc.xDomain[0])));
+      setGenomicTargetX(loc.xDomain[0] + (loc.xDomain[1] - loc.xDomain[0]) / 2);
+      setGenomicTargetY(loc.yDomain[0] + (loc.yDomain[1] - loc.yDomain[0]) / 2);
+    });
+  }, [hgInstance]);
 
   return (
     <div className="higlass-title-wrapper">
@@ -186,7 +183,12 @@ export default function HiGlassSubscriber(props) {
         <div className="higlass-wrapper-parent">
           <div className="higlass-wrapper">
             <Suspense fallback={<div>Loading...</div>}>
-              {hgComponent}
+              <HiGlassComponent
+                ref={setHgInstance}
+                zoomFixed={false}
+                viewConfig={hgViewConfig}
+                options={hgOptions}
+              />
             </Suspense>
           </div>
         </div>
@@ -203,4 +205,5 @@ HiGlassSubscriber.defaultProps = {
     containerPaddingY: 0,
     sizeMode: 'default',
   },
+  genomeSize: 3100000000,
 };
