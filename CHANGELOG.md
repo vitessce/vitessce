@@ -10,6 +10,8 @@
 - Remove "Add Channel" button for RGB images.
 - Lazy load HiGlass (and PIXI.js) from absolute URLs (unpkg) to avoid dynamic script import issues with relative paths after bundling.
     - When loading JS resources for HiGlass and PIXI.js, use the current environment (dev/prod) to determine `min.js` vs `js` extensions, and use `package.json` to determine package versions.
+- Implemented the `genomicZoomX`, `genomicZoomY`, `genomicTargetX`, and `genomicTargetY` coordination types for coordinating the zoom and pan interactions of multiple HiGlass views.
+    - Simplified the `hgViewConfig` prop so that it supports only a single HiGlass view, and then allows Vitessce to handle the HiGlass view's `initialXDomain` and `initialYDomain` properties (through the coordination space), as well as the rest of the view config.
 
 ## [1.1.0](https://www.npmjs.com/package/vitessce/v/1.1.0) - 2020-11-17
 
