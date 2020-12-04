@@ -271,19 +271,21 @@ export default function RasterLayerController(props) {
           />
         </Grid>
         {!loader.isRgb ? channelControllers : null}
-        <Grid item>
-          <Button
-            disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
-            onClick={handleChannelAdd}
-            fullWidth
-            variant="outlined"
-            style={buttonStyles}
-            startIcon={<AddIcon />}
-            size="small"
-          >
-            Add Channel
-          </Button>
-        </Grid>
+        {!loader.isRgb && (
+          <Grid item>
+            <Button
+              disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
+              onClick={handleChannelAdd}
+              fullWidth
+              variant="outlined"
+              style={buttonStyles}
+              startIcon={<AddIcon />}
+              size="small"
+            >
+              Add Channel
+            </Button>
+          </Grid>
+        )}
         <Grid item>
           <Button
             onClick={handleLayerRemove}

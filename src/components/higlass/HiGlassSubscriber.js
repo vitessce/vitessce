@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import dynamicImportPolyfill from 'dynamic-import-polyfill';
 import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
+import packageJson from '../../../package.json';
 import TitleInfo from '../TitleInfo';
 import { createWarningComponent, asEsModule } from '../utils';
 import { useReady, useUrls, useGridItemSize } from '../hooks';
@@ -13,8 +14,11 @@ import {
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
-const PIXI_BUNDLE_URL = 'https://unpkg.com/window-pixi@5.3.3/dist/pixi.min.js';
-const HIGLASS_BUNDLE_URL = 'https://unpkg.com/higlass@1.11.4/dist/hglib.min.js';
+const PIXI_BUNDLE_VERSION = packageJson.dependencies['window-pixi'];
+const HIGLASS_BUNDLE_VERSION = packageJson.dependencies.higlass;
+const BUNDLE_FILE_EXT = process.env.NODE_ENV === 'development' ? 'js' : 'min.js';
+const PIXI_BUNDLE_URL = `https://unpkg.com/window-pixi@${PIXI_BUNDLE_VERSION}/dist/pixi.${BUNDLE_FILE_EXT}`;
+const HIGLASS_BUNDLE_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.${BUNDLE_FILE_EXT}`;
 
 const HIGLASS_DATA_TYPES = [];
 
