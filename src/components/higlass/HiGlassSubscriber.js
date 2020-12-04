@@ -1,6 +1,5 @@
-/* eslint-disable */
 import React, {
-  useMemo, useEffect, useRef, useReducer, Suspense, useState, useCallback,
+  useMemo, useEffect, useRef, Suspense, useState,
 } from 'react';
 import ReactDOM from 'react-dom';
 import dynamicImportPolyfill from 'dynamic-import-polyfill';
@@ -61,6 +60,8 @@ const HiGlassComponent = React.lazy(() => {
   });
 });
 
+// Use an arbitrary size for normalization of the zoom level.
+// (800 means 800 px width for the full genome)
 const HG_SIZE = 800;
 
 /**
@@ -101,8 +102,8 @@ export default function HiGlassSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.higlass, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
-  const isActive = useRef();
   const [hgInstance, setHgInstance] = useState();
+  const isActiveRef = useRef();
 
   // eslint-disable-next-line no-unused-vars
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -123,20 +124,16 @@ export default function HiGlassSubscriber(props) {
     theme,
   }), [hgOptionsProp, theme]);
 
-  const adjWidth = width - 10;
-  const adjHeight = 600 - 10;
-
   const hgViewConfig = useMemo(() => {
+    // HiGlass needs the start and end absolute genome coordinates
     const initialXDomain = [
-      genomicTargetX - ((genomeSize/Math.pow(2, genomicZoomX)))*((adjWidth/2)/HG_SIZE),
-      genomicTargetX + ((genomeSize/Math.pow(2, genomicZoomX)))*((adjWidth/2)/HG_SIZE),
+      genomicTargetX - ((genomeSize / (2 ** genomicZoomX))) * ((width / 2) / HG_SIZE),
+      genomicTargetX + ((genomeSize / (2 ** genomicZoomX))) * ((width / 2) / HG_SIZE),
     ];
     const initialYDomain = [
-      genomicTargetY - ((genomeSize/Math.pow(2, genomicZoomY)))*((adjHeight/2)/HG_SIZE),
-      genomicTargetY + ((genomeSize/Math.pow(2, genomicZoomY)))*((adjHeight/2)/HG_SIZE),
+      genomicTargetY - ((genomeSize / (2 ** genomicZoomY))) * ((height / 2) / HG_SIZE),
+      genomicTargetY + ((genomeSize / (2 ** genomicZoomY))) * ((height / 2) / HG_SIZE),
     ];
-    console.log("width", adjWidth, "height", adjHeight);
-    console.log("received", initialXDomain, initialYDomain);
     return {
       editable: false,
       zoomFixed: false,
@@ -164,54 +161,56 @@ export default function HiGlassSubscriber(props) {
         locksDict: {},
       },
     };
-  }, [hgViewConfigProp, genomicZoomX, genomicZoomY, genomicTargetX, genomicTargetY, width, height]);
+  }, [genomicTargetX, genomeSize, genomicZoomX, width, genomicTargetY,
+    genomicZoomY, height, hgViewConfigProp]);
 
   useEffect(() => {
     const handleMouseEnter = () => {
-      isActive.current = true;
+      isActiveRef.current = true;
     };
     const handleMouseLeave = () => {
-      isActive.current = false;
+      isActiveRef.current = false;
     };
-    containerRef.current.addEventListener("mouseenter", handleMouseEnter);
-    containerRef.current.addEventListener("mouseleave", handleMouseLeave);
+    const container = containerRef.current;
+    container.addEventListener('mouseenter', handleMouseEnter);
+    container.addEventListener('mouseleave', handleMouseLeave);
     return () => {
-      containerRef.current.removeEventListener("mouseenter", handleMouseEnter);
-      containerRef.current.removeEventListener("mouseenter", handleMouseLeave);
+      container.removeEventListener('mouseenter', handleMouseEnter);
+      container.removeEventListener('mouseenter', handleMouseLeave);
     };
   }, [containerRef]);
-  
+
 
   useEffect(() => {
-    if(!hgInstance) {
-      return;
+    if (!hgInstance) {
+      return () => {};
     }
     hgInstance.api.on('viewConfig', (viewConfigString) => {
       const viewConfig = JSON.parse(viewConfigString);
       const xDomain = viewConfig.views[0].initialXDomain;
       const yDomain = viewConfig.views[0].initialYDomain;
 
-      const nextGenomicZoomX = Math.log2(genomeSize / ((xDomain[1] - xDomain[0])*(HG_SIZE/adjWidth)));
-      const nextGenomicZoomY = Math.log2(genomeSize / ((yDomain[1] - yDomain[0])*(HG_SIZE/adjHeight)));
+      const nextGenomicZoomX = Math.log2(
+        genomeSize / ((xDomain[1] - xDomain[0]) * (HG_SIZE / width)),
+      );
+      const nextGenomicZoomY = Math.log2(
+        genomeSize / ((yDomain[1] - yDomain[0]) * (HG_SIZE / height)),
+      );
       const nextGenomicTargetX = (xDomain[0] + (xDomain[1] - xDomain[0]) / 2);
       const nextGenomicTargetY = (yDomain[0] + (yDomain[1] - yDomain[0]) / 2);
-      console.log("nextGenomicZoomX", nextGenomicZoomX);
-      console.log("nextGenomicZoomY", nextGenomicZoomY);
-      console.log("nextGenomicTargetX", nextGenomicTargetX);
-      console.log("nextGenomicTargetY", nextGenomicTargetY);
-      // TODO: only set if the user mouse is over this component.
-      // otherwise this is just the initial on viewConfig change callback from a sibling, which will cause an infinite loop.
-      if(isActive.current) {
+      // Only set if the user mouse is over this component ("is active").
+      // Otherwise, this could be an initial on viewConfig change callback from a sibling,
+      // which will cause an infinite loop.
+      if (isActiveRef.current) {
         setGenomicZoomX(nextGenomicZoomX);
         setGenomicZoomY(nextGenomicZoomY);
         setGenomicTargetX(nextGenomicTargetX);
         setGenomicTargetY(nextGenomicTargetY);
       }
     });
-    return () => {
-      hgInstance.api.off('viewConfig');
-    };
-  }, [hgInstance, genomeSize, isActive, adjWidth, adjHeight]);
+    return () => hgInstance.api.off('viewConfig');
+  }, [hgInstance, genomeSize, width, height, setGenomicZoomX, setGenomicZoomY,
+    setGenomicTargetX, setGenomicTargetY]);
 
   return (
     <div className="higlass-title-wrapper">
