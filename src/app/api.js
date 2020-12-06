@@ -886,18 +886,6 @@ export const configs = {
         props: {
           hgViewConfig: {
             uid: 'A',
-            initialXDomain: [
-              0,
-              3100000000,
-            ],
-            autocompleteSource: '/api/v1/suggest/?d=OHJakQICQD6gTD7skx4EWA&',
-            genomePositionSearchBox: {
-              autocompleteServer: '//higlass.io/api/v1',
-              autocompleteId: 'OHJakQICQD6gTD7skx4EWA',
-              chromInfoServer: '//higlass.io/api/v1',
-              chromInfoId: 'hg19',
-              visible: true,
-            },
             chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
             tracks: {
               top: [
@@ -955,12 +943,6 @@ export const configs = {
                   height: 500,
                 },
               ],
-              left: [],
-              center: [],
-              right: [],
-              bottom: [],
-              whole: [],
-              gallery: [],
             },
             layout: {
               w: 12,
