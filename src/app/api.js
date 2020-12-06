@@ -1,3 +1,8 @@
+
+/* eslint-disable */
+
+import { range } from "lodash";
+
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
@@ -1005,6 +1010,150 @@ export const configs = {
           description: '10x Genomics scATAC-seq of 5k PBMCs.',
         },
         x: 8, y: 0, w: 4, h: 2 },
+    ],
+  },
+  'hubmap-higlass': {
+    public: false,
+    initStrategy: 'auto',
+    version: '1.0.0',
+    datasets: [
+      {
+        uid: 'higlass-dataset',
+        name: 'HiGlass Dataset',
+        files: [],
+      },
+    ],
+    name: 'HiGlass demo',
+    coordinationSpace: {
+      genomicZoomX: {
+        A: 0,
+      },
+      genomicZoomY: {
+        A: 0,
+      },
+      genomicTargetX: {
+        A: 1549999999.5,
+      },
+      genomicTargetY: {
+        A: 1549999999.5,
+      },
+    },
+    layout: [
+      {
+        component: 'higlass',
+        coordinationScopes: {
+          genomicZoomX: 'A',
+          genomicZoomY: 'A',
+          genomicTargetX: 'A',
+          genomicTargetY: 'A',
+        },
+        props: {
+          hgViewConfig: {
+            uid: 'aa',
+            autocompleteSource: '/api/v1/suggest/?d=OHJakQICQD6gTD7skx4EWA&',
+            genomePositionSearchBox: {
+              autocompleteServer: '//higlass.io/api/v1',
+              autocompleteId: 'OHJakQICQD6gTD7skx4EWA',
+              chromInfoServer: '//higlass.io/api/v1',
+              chromInfoId: 'hg19',
+              visible: true,
+            },
+            chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg38/chromSizes.tsv',
+            tracks: {
+              top: [
+                {
+                  type: "horizontal-chromosome-labels",
+                  server: "https://higlass.io/api/v1",
+                  tilesetUid: "NyITQvZsS_mOFNlz5C2LJg",
+                  uid: "chromosome-labels-track-1",
+                  options: {
+                    color: '#808080',
+                    stroke: 'black',
+                    fontSize: 12,
+                    fontIsLeftAligned: false,
+                    showMousePosition: true,
+                    mousePositionColor: '#ff00ff',
+                  },
+                  height: 30
+                },
+                {
+                  type: "horizontal-gene-annotations",
+                  server: "https://higlass.io/api/v1",
+                  tilesetUid: "P0PLbQMwTYGy-5uPIQid7A",
+                  uid: "gene-labels-track-1",
+                  options: {
+                    name: 'Gene Annotations (hg38)',
+                    fontSize: 10,
+                    labelPosition: 'hidden',
+                    labelLeftMargin: 0,
+                    labelRightMargin: 0,
+                    labelTopMargin: 0,
+                    labelBottomMargin: 0,
+                    minHeight: 24,
+                    geneAnnotationHeight: 16,
+                    geneLabelPosition: 'outside',
+                    geneStrandSpacing: 4,
+                    showMousePosition: true,
+                    mousePositionColor: '#ff00ff',
+                    plusStrandColor: '#fdff54',
+                    minusStrandColor: '#68bf30',
+                    labelColor: 'black',
+                    trackBorderWidth: 0,
+                    trackBorderColor: 'black',
+                  },
+                  height: 70
+                },
+                ...range(17).map((i) => ({
+                  "type": "horizontal-bar",
+                  "uid": `bar-track-${i}`,
+                  "data": {
+                    "type": "zarr-multivec",
+                    "url": "http://localhost:9000/out.snap.multivec.zarr",
+                    "row": i,
+                  },
+                  "options": {
+                    name: `Cluster ${i}`,
+                    "labelColor": "black",
+                    "labelPosition": "topLeft",
+                    "axisPositionHorizontal": "right",
+                    "barFillColor": "darkgreen",
+                    "valueScaling": "linear",
+                    "trackBorderWidth": 0,
+                    "trackBorderColor": "black",
+                    "labelTextOpacity": 0.4,
+                    "barOpacity": 1,
+                    "align": "bottom",
+                    "labelLeftMargin": 0,
+                    "labelRightMargin": 0,
+                    "labelTopMargin": 0,
+                    "labelBottomMargin": 0,
+                    "labelShowResolution": false,
+                    "axisLabelFormatting": "scientific",
+                    "labelShowAssembly": false
+                  },
+                  "width": 568,
+                  "height": 42
+                })),
+              ],
+              left: [],
+              center: [],
+              right: [],
+              bottom: [],
+              whole: [],
+              gallery: [],
+            },
+            layout: {
+              w: 12,
+              h: 12,
+              x: 0,
+              y: 0,
+              moved: false,
+              static: false,
+            },
+          },
+        },
+        x: 0, y: 0, w: 8, h: 2,
+      },
     ],
   },
 };
