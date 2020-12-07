@@ -12,14 +12,14 @@ export default class CellsZarrLoader extends BaseCellsZarrLoader {
     return this.UMAPCoords;
   }
 
-  loadSlideSEQCoords() {
+  loadSpatial() {
     const { store } = this;
-    if (this.slideSEQCoords) {
-      return this.slideSEQCoords;
+    if (this.spatial) {
+      return this.spatial;
     }
     // eslint-disable-next-line
-    this.slideSEQCoords = openArray({ store, path: 'obsm/X_slideseq', mode: 'r' }).then(arr => new Promise(resolve => { arr.get().then(resolve) }));
-    return this.slideSEQCoords;
+    this.spatial = openArray({ store, path: 'obsm/X_spatial', mode: 'r' }).then(arr => new Promise(resolve => { arr.get().then(resolve) }));
+    return this.spatial;
   }
 
   load() {
@@ -28,17 +28,18 @@ export default class CellsZarrLoader extends BaseCellsZarrLoader {
         this.loadCellNames(),
         this.loadUMAPCoords(),
         this.loadCellSetIds(),
-        this.loadSlideSEQCoords(),
+        this.loadSpatial(),
       ])
       .then((data) => {
         const [cellNames,
           { data: umapCoords },
           { data: cellSetIds },
-          { data: slideSEQCoords }] = data;
+          { data: spatialData }] = data;
+        const { options: { spatial } } = this;
         const cells = {};
+        console.log(spatial) // eslint-disable-line
         // eslint-disable-next-line
-        cellNames.forEach((name, i) => cells[name] = { mappings: { UMAP: umapCoords[i] }, xy: slideSEQCoords[i], poly: [], factors: { 'Leiden Cluster': String(cellSetIds[i]) } });
-        console.log(cells, cellNames, cellSetIds, slideSEQCoords); // eslint-disable-line
+        cellNames.forEach((name, i) => cells[name] = { mappings: { UMAP: umapCoords[i] }, [spatial]: spatialData[i], poly: [], factors: { 'Leiden Cluster': String(cellSetIds[i]) } });
         return { data: cells, url: null };
       });
   }
