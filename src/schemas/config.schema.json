@@ -263,7 +263,7 @@
             "type": "array",
             "items": {
               "type": "object",
-              "additionalProperties": false,
+              "additionalProperties": true,
               "required": ["type", "fileType", "url"],
               "properties": {
                 "name": { "type": "string" },

@@ -37,9 +37,8 @@ export default class CellsZarrLoader extends BaseCellsZarrLoader {
           { data: spatialData }] = data;
         const { options: { spatial } } = this;
         const cells = {};
-        console.log(spatial) // eslint-disable-line
         // eslint-disable-next-line
-        cellNames.forEach((name, i) => cells[name] = { mappings: { UMAP: umapCoords[i] }, [spatial]: spatialData[i], poly: [], factors: { 'Leiden Cluster': String(cellSetIds[i]) } });
+        cellNames.forEach((name, i) => cells[name] = { mappings: { UMAP: umapCoords[i] }, [spatial]: spatialData[i], factors: { 'Leiden Cluster': String(cellSetIds[i]) } });
         return { data: cells, url: null };
       });
   }
