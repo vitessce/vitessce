@@ -196,6 +196,12 @@ export default function HiGlassSubscriber(props) {
       return () => {};
     }
     hgInstance.api.on('viewConfig', (viewConfigString) => {
+      // Only set if the user mouse is over this component ("is active").
+      // Otherwise, this could be an initial on viewConfig change callback from a sibling,
+      // which will cause an infinite loop.
+      if (!isActiveRef.current) {
+        return;
+      }
       const viewConfig = JSON.parse(viewConfigString);
       const xDomain = viewConfig.views[0].initialXDomain;
       const yDomain = viewConfig.views[0].initialYDomain;
@@ -208,15 +214,10 @@ export default function HiGlassSubscriber(props) {
       );
       const nextGenomicTargetX = xDomain[0] + (xDomain[1] - xDomain[0]) / 2;
       const nextGenomicTargetY = yDomain[0] + (yDomain[1] - yDomain[0]) / 2;
-      // Only set if the user mouse is over this component ("is active").
-      // Otherwise, this could be an initial on viewConfig change callback from a sibling,
-      // which will cause an infinite loop.
-      if (isActiveRef.current) {
-        setGenomicZoomX(nextGenomicZoomX);
-        setGenomicZoomY(nextGenomicZoomY);
-        setGenomicTargetX(nextGenomicTargetX);
-        setGenomicTargetY(nextGenomicTargetY);
-      }
+      setGenomicZoomX(nextGenomicZoomX);
+      setGenomicZoomY(nextGenomicZoomY);
+      setGenomicTargetX(nextGenomicTargetX);
+      setGenomicTargetY(nextGenomicTargetY);
     });
     return () => hgInstance.api.off('viewConfig');
   }, [hgInstance, genomeSize, width, height, setGenomicZoomX, setGenomicZoomY,
