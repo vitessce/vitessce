@@ -130,13 +130,19 @@ export default function HiGlassSubscriber(props) {
 
   const hgViewConfig = useMemo(() => {
     // HiGlass needs the start and end absolute genome coordinates
+    const centerX = genomicTargetX;
+    const genomesPerUnitX = genomeSize / (2 ** genomicZoomX);
+    const unitX = width / HG_SIZE;
     const initialXDomain = [
-      genomicTargetX - ((genomeSize / (2 ** genomicZoomX))) * ((width / 2) / HG_SIZE),
-      genomicTargetX + ((genomeSize / (2 ** genomicZoomX))) * ((width / 2) / HG_SIZE),
+      centerX - genomesPerUnitX * unitX / 2,
+      centerX + genomesPerUnitX * unitX / 2,
     ];
+    const centerY = genomicTargetY;
+    const genomesPerUnitY = genomeSize / (2 ** genomicZoomY);
+    const unitY = height / HG_SIZE;
     const initialYDomain = [
-      genomicTargetY - ((genomeSize / (2 ** genomicZoomY))) * ((height / 2) / HG_SIZE),
-      genomicTargetY + ((genomeSize / (2 ** genomicZoomY))) * ((height / 2) / HG_SIZE),
+      centerY - genomesPerUnitY * unitY / 2,
+      centerY + genomesPerUnitY * unitY / 2,
     ];
     return {
       editable: false,
@@ -200,8 +206,8 @@ export default function HiGlassSubscriber(props) {
       const nextGenomicZoomY = Math.log2(
         genomeSize / ((yDomain[1] - yDomain[0]) * (HG_SIZE / height)),
       );
-      const nextGenomicTargetX = (xDomain[0] + (xDomain[1] - xDomain[0]) / 2);
-      const nextGenomicTargetY = (yDomain[0] + (yDomain[1] - yDomain[0]) / 2);
+      const nextGenomicTargetX = xDomain[0] + (xDomain[1] - xDomain[0]) / 2;
+      const nextGenomicTargetY = yDomain[0] + (yDomain[1] - yDomain[0]) / 2;
       // Only set if the user mouse is over this component ("is active").
       // Otherwise, this could be an initial on viewConfig change callback from a sibling,
       // which will cause an infinite loop.
