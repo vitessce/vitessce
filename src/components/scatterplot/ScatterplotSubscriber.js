@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
@@ -8,7 +9,7 @@ import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
-import { getCellColors } from '../interpolate-colors';
+import { getCellColors, getCellSetPolygons } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import {
@@ -114,6 +115,14 @@ export default function ScatterplotSubscriber(props) {
     cellSetColor,
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetSelection, cellSetColor, expressionMatrix]);
+  
+  const cellSetPolygons = useMemo(() => getCellSetPolygons({
+    cells,
+    mapping,
+    cellSets: mergedCellSets,
+    cellSetSelection,
+    cellSetColor,
+  }), [cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
@@ -171,6 +180,7 @@ export default function ScatterplotSubscriber(props) {
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
         cellColors={cellColors}
+        cellSetPolygons={cellSetPolygons}
 
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}

@@ -1,4 +1,6 @@
+/* eslint-disable */
 import React, { forwardRef } from 'react';
+import { PolygonLayer, TextLayer } from '@deck.gl/layers';
 import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
 import {
@@ -70,10 +72,12 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellsEntries = [];
     this.cellsQuadTree = null;
     this.cellsLayer = null;
+    this.cellSetsLayers = [];
 
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
+    this.onUpdateCellSetsLayers();
   }
 
   createCellsLayer() {
@@ -119,6 +123,38 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     });
   }
 
+  createCellSetsLayers() {
+    const {
+      cellSetPolygons,
+    } = this.props;
+
+    return [
+      /*new PolygonLayer({
+        id: 'cell-sets-polygon-layer',
+        data: cellSetPolygons,
+        stroked: true,
+        filled: false,
+        wireframe: true,
+        lineWidthMaxPixels: 1,
+        getPolygon: d => d.hull.geometry.coordinates,
+        getFillColor: d => d.color,
+        getLineColor: d => d.color,
+        getLineWidth: 1,
+      }),*/
+      new TextLayer({
+        id: 'cell-sets-text-layer',
+        data: cellSetPolygons,
+        getPosition: d => d.poic,
+        getText: d => d.name,
+        getColor: [255, 255, 255],
+        getSize: 14,
+        getAngle: 0,
+        getTextAnchor: 'middle',
+        getAlignmentBaseline: 'center',
+      }),
+    ];
+  }
+
   createSelectionLayers() {
     const {
       viewState,
@@ -143,9 +179,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   getLayers() {
     const {
       cellsLayer,
+      cellSetsLayers,
     } = this;
     return [
       cellsLayer,
+      ...cellSetsLayers,
       ...this.createSelectionLayers(),
     ];
   }
@@ -163,6 +201,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
   onUpdateCellsLayer() {
     this.cellsLayer = this.createCellsLayer();
+  }
+
+  onUpdateCellSetsLayers() {
+    this.cellSetsLayers = this.createCellSetsLayers();
   }
 
   viewInfoDidUpdate() {
@@ -197,6 +239,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
+      this.forceUpdate();
+    }
+    if (['cellSetPolygons'].some(shallowDiff)) {
+      // Cell sets layer props changed.
+      this.onUpdateCellSetsLayers();
       this.forceUpdate();
     }
   }
