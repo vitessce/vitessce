@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useMemo, useEffect, useRef, Suspense, useState,
 } from 'react';
@@ -129,21 +130,7 @@ export default function HiGlassSubscriber(props) {
   }), [hgOptionsProp, theme]);
 
   const hgViewConfig = useMemo(() => {
-    // HiGlass needs the start and end absolute genome coordinates
-    const centerX = genomicTargetX;
-    const genomesPerUnitX = genomeSize / (2 ** genomicZoomX);
-    const unitX = width / HG_SIZE;
-    const initialXDomain = [
-      centerX - genomesPerUnitX * unitX / 2,
-      centerX + genomesPerUnitX * unitX / 2,
-    ];
-    const centerY = genomicTargetY;
-    const genomesPerUnitY = genomeSize / (2 ** genomicZoomY);
-    const unitY = height / HG_SIZE;
-    const initialYDomain = [
-      centerY - genomesPerUnitY * unitY / 2,
-      centerY + genomesPerUnitY * unitY / 2,
-    ];
+    
     return {
       editable: false,
       zoomFixed: false,
@@ -154,8 +141,7 @@ export default function HiGlassSubscriber(props) {
       views: [
         {
           ...hgViewConfigProp,
-          initialXDomain,
-          initialYDomain,
+          uid: 'A',
         },
       ],
       zoomLocks: {
@@ -171,8 +157,26 @@ export default function HiGlassSubscriber(props) {
         locksDict: {},
       },
     };
+  }, [hgViewConfigProp]);
+
+  useEffect(() => {
+    if (!hgInstance) {
+      return () => {};
+    }
+    // HiGlass needs the start and end absolute genome coordinates
+    const centerX = genomicTargetX;
+    const genomesPerUnitX = genomeSize / (2 ** genomicZoomX);
+    const unitX = width / HG_SIZE;
+    const startX = centerX - genomesPerUnitX * unitX / 2;
+    const endX = centerX + genomesPerUnitX * unitX / 2;
+    const centerY = genomicTargetY;
+    const genomesPerUnitY = genomeSize / (2 ** genomicZoomY);
+    const unitY = height / HG_SIZE;
+    const startY = centerY - genomesPerUnitY * unitY / 2;
+    const endY = centerY + genomesPerUnitY * unitY / 2;
+    hgInstance.api.zoomTo('A', startX, endX, startY, endY);
   }, [genomicTargetX, genomeSize, genomicZoomX, width, genomicTargetY,
-    genomicZoomY, height, hgViewConfigProp]);
+    genomicZoomY, height]);
 
   useEffect(() => {
     const handleMouseEnter = () => {
@@ -223,6 +227,17 @@ export default function HiGlassSubscriber(props) {
   }, [hgInstance, genomeSize, width, height, setGenomicZoomX, setGenomicZoomY,
     setGenomicTargetX, setGenomicTargetY]);
 
+  const hgComponent = useMemo(() => {
+    return (
+      <HiGlassComponent
+        ref={setHgInstance}
+        zoomFixed={false}
+        viewConfig={hgViewConfig}
+        options={hgOptions}
+      />
+    );
+  }, [hgViewConfig, hgOptions]);
+
   return (
     <div className="higlass-title-wrapper">
       <TitleInfo
@@ -235,12 +250,7 @@ export default function HiGlassSubscriber(props) {
         <div className="higlass-wrapper-parent">
           <div className="higlass-wrapper" ref={containerRef}>
             <Suspense fallback={<div>Loading...</div>}>
-              <HiGlassComponent
-                ref={setHgInstance}
-                zoomFixed={false}
-                viewConfig={hgViewConfig}
-                options={hgOptions}
-              />
+              {hgComponent}
             </Suspense>
           </div>
         </div>
