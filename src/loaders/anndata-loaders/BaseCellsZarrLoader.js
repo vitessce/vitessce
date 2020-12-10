@@ -1,4 +1,5 @@
 import { HTTPStore, openArray } from 'zarr';
+
 import AbstractLoader from '../AbstractLoader';
 
 export default class BaseCellsZarrLoader extends AbstractLoader {
@@ -11,12 +12,29 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     this.store = new HTTPStore(url);
   }
 
-  loadCellSetIds() {
-    const { url } = this;
+  async loadCellSetIds() {
+    const { url, options } = this;
     if (this.cellSets) {
       return this.cellSets;
     }
-    this.cellSets = openArray({ store: `${url}/obs/leiden`, mode: 'r' }).then(arr => new Promise(resolve => arr.get().then(resolve)));
+    this.cellSets = Promise.all(options.map(async ({ set_name: setName }) => {
+      const res = await fetch(`${this.url}/${setName.replace('.', '/')}/.zattrs`);
+      const { categories } = await res.json();
+      const categoriesValuesArr = await openArray({ store: `${url}/obs/${categories}`, mode: 'r' });
+      const categoriesBuffer = await categoriesValuesArr.compressor.decode(new Uint8Array(await categoriesValuesArr.store.getItem('0')));
+      const categoriesValues = new TextDecoder().decode(categoriesBuffer)
+        // eslint-disable-next-line no-control-regex
+        .replace(/[\u0000-\u0019]/g, ',')
+        .split(',')
+        .filter(Boolean);
+      /* eslint-disable */
+      console.log(categoriesValues); // eslint-disable-line
+      const cellSetsArr = await openArray({ store: `${url}/${setName.replace('.', '/')}`, mode: 'r' });
+      const cellSetsValues = await cellSetsArr.get();
+      const { data } = cellSetsValues;
+      const mappedCellSetValues = new Array(...data).map(i => categoriesValues[i]);
+      return mappedCellSetValues;
+    }));
     return this.cellSets;
   }
 
@@ -25,16 +43,30 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     return openArray({ store, path: path.replace('obsm.', 'obsm.X_').replace('.', '/'), mode: 'r' }).then(arr => new Promise((resolve) => { arr.get().then(resolve); }));
   }
 
-  loadCellNames() {
+  async loadCellNames() {
     if (this.cellNames) {
       return this.cellNames;
     }
-    this.cellNames = openArray({ store: `${this.url}/obs/_index`, mode: 'r' }).then(z => z.store
-      .getItem('0')
-      .then(buf => new Uint8Array(buf))
-      .then(cbytes => z.compressor.decode(cbytes))
-      // eslint-disable-next-line no-control-regex
-      .then(dbytes => new TextDecoder().decode(dbytes).match(/[ACTG]+/g).filter(Boolean)));
+    const res = await fetch(`${this.url}/obs/.zattrs`);
+    const { _index } = await res.json();
+    this.cellNames = openArray({
+      store: `${this.url}/obs/${_index}`,
+      mode: "r",
+    }).then((z) =>
+      z.store
+        .getItem("0")
+        .then((buf) => new Uint8Array(buf))
+        .then((cbytes) => z.compressor.decode(cbytes))
+        // eslint-disable-next-line no-control-regex
+        .then((dbytes) =>
+          new TextDecoder()
+            .decode(dbytes)
+            .replace(/[\u0000-\u001a]/g, ",")
+            .split(",")
+            .filter(Boolean)
+            .filter((i) => !Number(i))
+        )
+    );
     return this.cellNames;
   }
 }

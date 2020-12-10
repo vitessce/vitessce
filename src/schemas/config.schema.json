@@ -270,7 +270,7 @@
                 "type": { "type": "string" },
                 "fileType": { "type": "string" },
                 "url": { "type": "string" },
-                "options": { "type": "object" },
+                "options": { "oneOf":  [{ "type": "object" }, { "type": "array" }] },
                 "requestInit": { "$ref": "#/definitions/requestInit" }
               }
             }
