@@ -65,6 +65,7 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
             .split(",")
             .filter(Boolean)
             .filter((i) => !Number(i))
+            .filter(i => i.length > 2)
         )
     );
     return this.cellNames;
