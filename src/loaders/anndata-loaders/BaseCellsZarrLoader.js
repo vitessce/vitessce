@@ -20,12 +20,16 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     return this.cellSets;
   }
 
+  loadNumeric(path) {
+    const { store } = this;
+    return openArray({ store, path: path.replace('obsm.', 'obsm.X_').replace('.', '/'), mode: 'r' }).then(arr => new Promise((resolve) => { arr.get().then(resolve); }));
+  }
+
   loadCellNames() {
-    const { url } = this;
     if (this.cellNames) {
       return this.cellNames;
     }
-    this.cellNames = openArray({ store: `${url}/obs/_index`, mode: 'r' }).then(z => z.store
+    this.cellNames = openArray({ store: `${this.url}/obs/_index`, mode: 'r' }).then(z => z.store
       .getItem('0')
       .then(buf => new Uint8Array(buf))
       .then(cbytes => z.compressor.decode(cbytes))
