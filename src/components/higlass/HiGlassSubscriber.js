@@ -15,6 +15,7 @@ import {
   useCoordination, useLoaders,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import isEqual from 'lodash/isEqual';
 
 const PIXI_BUNDLE_VERSION = packageJson.dependencies['window-pixi'];
 const HIGLASS_BUNDLE_VERSION = packageJson.dependencies.higlass;
@@ -101,6 +102,7 @@ export default function HiGlassSubscriber(props) {
     genomicTargetX,
     genomicTargetY,
     cellSetColor,
+    cellSetSelection,
   }, {
     setGenomicZoomX,
     setGenomicZoomY,
@@ -162,9 +164,12 @@ export default function HiGlassSubscriber(props) {
               if(track.type === "horizontal-bar") {
                 const name = track.options.name;
                 const setColor = cellSetColor?.find(s => s.path[s.path.length - 1] === name);
-                if(setColor) {
+                const setInSelection = cellSetSelection?.find(s => isEqual(s, setColor.path));
+                if(setColor && setInSelection) {
                   const c = setColor.color;
                   track.options.barFillColor = `rgb(${c[0]},${c[1]},${c[2]})`;
+                } else {
+                  track.options.barFillColor = 'silver';
                 }
               }
               return track;
@@ -188,7 +193,7 @@ export default function HiGlassSubscriber(props) {
       },
     };
   }, [genomicTargetX, genomeSize, genomicZoomX, width, genomicTargetY,
-    genomicZoomY, height, hgViewConfigProp, cellSetColor]);
+    genomicZoomY, height, hgViewConfigProp, cellSetColor, cellSetSelection]);
 
   useEffect(() => {
     const handleMouseEnter = () => {
