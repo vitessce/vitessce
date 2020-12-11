@@ -247,7 +247,7 @@ export default function HiGlassSubscriber(props) {
   return (
     <div className="higlass-title-wrapper">
       <TitleInfo
-        title="HiGlass"
+        title="snATAC-seq (Clusters)"
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady={isReady}
