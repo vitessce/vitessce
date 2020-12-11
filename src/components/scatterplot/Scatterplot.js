@@ -9,6 +9,7 @@ import {
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 
 const CELLS_LAYER_ID = 'scatterplot';
+export const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
 
 // Default getter function props.
 const makeDefaultGetCellPosition = mapping => (cellEntry) => {
@@ -125,6 +126,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
   createCellSetsLayers() {
     const {
+      theme,
       cellSetPolygons,
     } = this.props;
 
@@ -146,11 +148,12 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         data: cellSetPolygons,
         getPosition: d => d.poic,
         getText: d => d.name,
-        getColor: [255, 255, 255],
+        getColor: (theme === 'dark' ? [255, 255, 255] : [0, 0, 0]),
         getSize: 14,
         getAngle: 0,
         getTextAnchor: 'middle',
         getAlignmentBaseline: 'center',
+        fontFamily: LABEL_FONT_FAMILY,
       }),
     ];
   }

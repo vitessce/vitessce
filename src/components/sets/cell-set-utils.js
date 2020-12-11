@@ -420,7 +420,7 @@ export function treeToCellPolygonsBySetNames(currTree, cells, mapping, selectedN
         const hull = concave(points);
         if(hull) {
           //const poic = polylabel(hull.geometry.coordinates, 1.0);
-          const poic = centroid(hull).geometry.coordinates;
+          const poic = centroid(points).geometry.coordinates;
           cellSetPolygons.push({
             path: setNamePath,
             name: setNamePath[setNamePath.length-1],
