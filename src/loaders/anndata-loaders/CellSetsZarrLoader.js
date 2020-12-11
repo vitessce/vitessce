@@ -16,7 +16,6 @@ export default class CellSetsZarrLoader extends BaseCellsZarrLoader {
         const [cellNames, [cellSetIds]] = data;
         // eslint-disable-next-line camelcase
         const { options: [{ group_name }] } = this;
-        console.log(cellSetIds, cellNames); // eslint-disable-line
         const cellSets = treeInitialize(SETS_DATATYPE_CELL);
         let leidenNode = {
           name: group_name,
@@ -35,6 +34,7 @@ export default class CellSetsZarrLoader extends BaseCellsZarrLoader {
           cluster => leidenNode = nodeAppendChild(leidenNode, cluster),
         );
         cellSets.tree.push(leidenNode);
+        console.log(cellSets) // eslint-disable-line
         return { data: cellSets, url: null };
       });
   }

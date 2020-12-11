@@ -36,19 +36,17 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
           .replace(/[\u0000-\u001c]/g, ',')
           .split(',')
           .filter(Boolean);
-        /* eslint-disable */
-        console.log(categoriesValues); // eslint-disable-line
         const cellSetsArr = await openArray({
-          store: `${url}/${setName.replace(".", "/")}`,
-          mode: "r",
+          store: `${url}/${setName.replace('.', '/')}`,
+          mode: 'r',
         });
         const cellSetsValues = await cellSetsArr.get();
         const { data } = cellSetsValues;
         const mappedCellSetValues = new Array(...data).map(
-          (i) => categoriesValues[i]
+          i => categoriesValues[i],
         );
         return mappedCellSetValues;
-      })
+      }),
     );
     return this.cellSets;
   }
@@ -57,13 +55,12 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     const { store } = this;
     return openArray({
       store,
-      path: path.replace("obsm.", "obsm.X_").replace(".", "/"),
-      mode: "r",
+      path: path.replace('obsm.', 'obsm.X_').replace('.', '/'),
+      mode: 'r',
     }).then(
-      (arr) =>
-        new Promise((resolve) => {
-          arr.get().then(resolve);
-        })
+      arr => new Promise((resolve) => {
+        arr.get().then(resolve);
+      }),
     );
   }
 
@@ -75,23 +72,19 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     const { _index } = await res.json();
     this.cellNames = openArray({
       store: `${this.url}/obs/${_index}`,
-      mode: "r",
-    }).then((z) =>
-      z.store
-        .getItem("0")
-        .then((buf) => new Uint8Array(buf))
-        .then((cbytes) => z.compressor.decode(cbytes))
-        // eslint-disable-next-line no-control-regex
-        .then((dbytes) =>
-          new TextDecoder()
-            .decode(dbytes)
-            .replace(/[\u0000-\u001c]/g, ",")
-            .split(",")
-            .filter(Boolean)
-            .filter((i) => !Number(i))
-            .filter((i) => i.length > 2)
-        )
-    );
+      mode: 'r',
+    }).then(z => z.store
+      .getItem('0')
+      .then(buf => new Uint8Array(buf))
+      .then(cbytes => z.compressor.decode(cbytes))
+      .then(dbytes => new TextDecoder()
+        .decode(dbytes)
+      // eslint-disable-next-line no-control-regex
+        .replace(/[\u0000-\u001c]/g, ',')
+        .split(',')
+        .filter(Boolean)
+        .filter(i => !Number(i))
+        .filter(i => i.length > 2)));
     return this.cellNames;
   }
 
@@ -103,23 +96,19 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     const { _index } = await res.json();
     this.geneNames = openArray({
       store: `${this.url}/var/${_index}`,
-      mode: "r",
-    }).then((z) =>
-      z.store
-        .getItem("0")
-        .then((buf) => new Uint8Array(buf))
-        .then((cbytes) => z.compressor.decode(cbytes))
+      mode: 'r',
+    }).then(z => z.store
+      .getItem('0')
+      .then(buf => new Uint8Array(buf))
+      .then(cbytes => z.compressor.decode(cbytes))
+      .then(dbytes => new TextDecoder()
+        .decode(dbytes)
         // eslint-disable-next-line no-control-regex
-        .then((dbytes) =>
-          new TextDecoder()
-            .decode(dbytes)
-            .replace(/[\u0000-\u001c]/g, ",")
-            .split(",")
-            .filter(Boolean)
-            .filter((i) => !Number(i))
-            .filter((i) => i.length > 2)
-        )
-    );
+        .replace(/[\u0000-\u001c]/g, ',')
+        .split(',')
+        .filter(Boolean)
+        .filter(i => !Number(i))
+        .filter(i => i.length > 2)));
     return this.geneNames;
   }
 }

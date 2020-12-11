@@ -20,9 +20,7 @@ export default class MatrixZarrLoader extends BaseCellsZarrLoader {
       .all([this.loadCellNames(), this.loadGeneNames(), this.loadCellXGene()])
       .then((data) => {
         const [cellNames, geneNames, { data: cellXGene }] = data;
-        console.log(cellXGene); // eslint-disable-line
         const attrs = { rows: cellNames, cols: geneNames };
-        console.log(attrs); // eslint-disable-line
         let max = -Infinity;
         let min = Infinity;
         for (let i = 0; i < cellXGene.length; i += 1) {
