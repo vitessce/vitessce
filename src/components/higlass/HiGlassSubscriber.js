@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useMemo, useEffect, useRef, Suspense, useState,
 } from 'react';
@@ -9,6 +10,7 @@ import packageJson from '../../../package.json';
 import TitleInfo from '../TitleInfo';
 import { createWarningComponent, asEsModule } from '../utils';
 import { useReady, useUrls, useGridItemSize } from '../hooks';
+import { useCellSetsData } from '../data-hooks';
 import {
   useCoordination, useLoaders,
 } from '../../app/state/hooks';
@@ -98,6 +100,7 @@ export default function HiGlassSubscriber(props) {
     genomicZoomY,
     genomicTargetX,
     genomicTargetY,
+    cellSetColor,
   }, {
     setGenomicZoomX,
     setGenomicZoomY,
@@ -154,6 +157,19 @@ export default function HiGlassSubscriber(props) {
       views: [
         {
           ...hgViewConfigProp,
+          tracks: {
+            top: hgViewConfigProp.tracks.top.map(track => {
+              if(track.type === "horizontal-bar") {
+                const name = track.options.name;
+                const setColor = cellSetColor?.find(s => s.path[s.path.length - 1] === name);
+                if(setColor) {
+                  const c = setColor.color;
+                  track.options.barFillColor = `rgb(${c[0]},${c[1]},${c[2]})`;
+                }
+              }
+              return track;
+            }),
+          },
           initialXDomain,
           initialYDomain,
         },
@@ -172,7 +188,7 @@ export default function HiGlassSubscriber(props) {
       },
     };
   }, [genomicTargetX, genomeSize, genomicZoomX, width, genomicTargetY,
-    genomicZoomY, height, hgViewConfigProp]);
+    genomicZoomY, height, hgViewConfigProp, cellSetColor]);
 
   useEffect(() => {
     const handleMouseEnter = () => {

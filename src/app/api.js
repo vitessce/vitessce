@@ -1,3 +1,5 @@
+/* eslint-disable */
+import range from 'lodash/range';
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
@@ -962,6 +964,170 @@ export const configs = {
         },
         x: 8, y: 0, w: 4, h: 2 },
     ],
+  },
+  'sn-atac-seq-hubmap': {
+    "version": "1.0.0",
+    "name": "HiGlass",
+    "description": "HiGlass",
+    "datasets": [
+      {
+        "uid": "A",
+        "name": "HBM485.TBWH.322",
+        "files": [
+          {
+            type: 'cells',
+            fileType: 'cells.json',
+            url: 'https://vitessce-export-examples.s3.amazonaws.com/sn-atac-seq-hubmap/out.cells.json',
+          },
+          {
+            type: 'cell-sets',
+            fileType: 'cell-sets.json',
+            url: 'https://vitessce-export-examples.s3.amazonaws.com/sn-atac-seq-hubmap/out.cell-sets.json',
+          },
+        ]
+      }
+    ],
+    "coordinationSpace": {
+      "dataset": {
+        "A": "A"
+      },
+      "embeddingType": {
+        "A": "UMAP"
+      },
+      "embeddingZoom": {
+        "A": 4,
+      }
+    },
+    "layout": [
+      {
+        "component": "higlass",
+        "coordinationScopes": {
+          "dataset": "A"
+        },
+        "x": 0.0,
+        "y": 0,
+        "w": 6.0,
+        "h": 12,
+        "props": {
+          "hgViewConfig": {
+            "uid": "A",
+            "chromInfoPath": "//s3.amazonaws.com/pkerp/data/hg38/chromSizes.tsv",
+            "tracks": {
+              "top": [
+                {
+                  "type": "horizontal-chromosome-labels",
+                  "server": "https://higlass.io/api/v1",
+                  "tilesetUid": "NyITQvZsS_mOFNlz5C2LJg",
+                  "uid": "chromosome-labels",
+                  "options": {
+                    "color": "#808080",
+                    "stroke": "black",
+                    "fontSize": 12,
+                    "fontIsLeftAligned": false,
+                    "showMousePosition": true,
+                    "mousePositionColor": "#ff00ff"
+                  },
+                  "height": 30
+                },
+                {
+                  "type": "horizontal-gene-annotations",
+                  "server": "https://higlass.io/api/v1",
+                  "tilesetUid": "P0PLbQMwTYGy-5uPIQid7A",
+                  "uid": "gene-labels",
+                  "options": {
+                    "name": "Gene Annotations (hg38)",
+                    "fontSize": 10,
+                    "labelPosition": "hidden",
+                    "labelLeftMargin": 0,
+                    "labelRightMargin": 0,
+                    "labelTopMargin": 0,
+                    "labelBottomMargin": 0,
+                    "minHeight": 24,
+                    "geneAnnotationHeight": 16,
+                    "geneLabelPosition": "outside",
+                    "geneStrandSpacing": 4,
+                    "showMousePosition": true,
+                    "mousePositionColor": "#ff00ff",
+                    "plusStrandColor": "silver",
+                    "minusStrandColor": "silver",
+                    "labelColor": "black",
+                    "trackBorderWidth": 0,
+                    "trackBorderColor": "black"
+                  },
+                  "height": 70
+                },
+                ...range(17).map(i => ({
+                  "type": "horizontal-bar",
+                  "uid": `bar-track-${i}`,
+                  "data": {
+                    "type": "zarr-multivec",
+                    "url": "https://vitessce-export-examples.s3.amazonaws.com/sn-atac-seq-hubmap/out.snap.multivec.zarr",
+                    "row": i
+                  },
+                  "options": {
+                    "name": `${i+1}`,
+                    "labelColor": "black",
+                    "labelPosition": "topLeft",
+                    "axisPositionHorizontal": "right",
+                    "barFillColor": "silver",
+                    "valueScaling": "linear",
+                    "trackBorderWidth": 0,
+                    "trackBorderColor": "black",
+                    "labelTextOpacity": 0.4,
+                    "barOpacity": 1,
+                    "align": "bottom",
+                    "labelLeftMargin": 0,
+                    "labelRightMargin": 0,
+                    "labelTopMargin": 0,
+                    "labelBottomMargin": 0,
+                    "labelShowResolution": false,
+                    "axisLabelFormatting": "scientific",
+                    "labelShowAssembly": false
+                  },
+                  "width": 568,
+                  "height": 42
+                })),
+              ],
+              "left": [],
+              "center": [],
+              "right": [],
+              "bottom": []
+            },
+            "layout": {
+              "w": 12,
+              "h": 12,
+              "x": 0,
+              "y": 0,
+              "moved": false,
+              "static": false
+            }
+          }
+        }
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "dataset": "A",
+          "embeddingType": "A",
+          "embeddingZoom": "A",
+        },
+        "x": 6.0,
+        "y": 0.0,
+        "w": 6.0,
+        "h": 6.0
+      },
+      {
+        "component": "cellSets",
+        "coordinationScopes": {
+          "dataset": "A"
+        },
+        "x": 6.0,
+        "y": 6.0,
+        "w": 6.0,
+        "h": 6.0
+      }
+    ],
+    "initStrategy": "auto"
   },
 };
 /* eslint-enable */
