@@ -76,6 +76,6 @@ export default class CellsZarrLoader extends BaseCellsZarrLoader {
         cells[name].poly = poly.data[i];
       }
     });
-    return { data: cells, url: null };
+    return Promise.resolve({ data: cells, url: null });
   }
 }

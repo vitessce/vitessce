@@ -34,7 +34,7 @@ export default class CellSetsZarrLoader extends BaseCellsZarrLoader {
           cluster => leidenNode = nodeAppendChild(leidenNode, cluster),
         );
         cellSets.tree.push(leidenNode);
-        return { data: cellSets, url: null };
+        return Promise.resolve({ data: cellSets, url: null });
       });
   }
 }
