@@ -24,7 +24,7 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
       const categoriesBuffer = await categoriesValuesArr.compressor.decode(new Uint8Array(await categoriesValuesArr.store.getItem('0')));
       const categoriesValues = new TextDecoder().decode(categoriesBuffer)
         // eslint-disable-next-line no-control-regex
-        .replace(/[\u0000-\u0019]/g, ',')
+        .replace(/[\u0000-\u001c]/g, ',')
         .split(',')
         .filter(Boolean);
       /* eslint-disable */
@@ -61,7 +61,7 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
         .then((dbytes) =>
           new TextDecoder()
             .decode(dbytes)
-            .replace(/[\u0000-\u001a]/g, ",")
+            .replace(/[\u0000-\u001c]/g, ",")
             .split(",")
             .filter(Boolean)
             .filter((i) => !Number(i))
