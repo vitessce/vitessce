@@ -61,7 +61,8 @@
               "genomicZoom": { "type": "string" },
               "genomicTargetX": { "type": "string" },
               "genomicTargetY": { "type": "string" },
-              "additionalCellSets": { "type": "string" }
+              "additionalCellSets": { "type": "string" },
+              "moleculeHighlight": { "type": "string" }
             }
           }
         }
@@ -570,6 +571,20 @@
                 {
                   "$ref": "https://github.com/hubmapconsortium/vitessce/#cell-sets"
                 }
+              ]
+            }
+          }
+        },
+        "moleculeHighlight": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, no molecule will be highlighted initially."
+                },
+                { "type": "string" }
               ]
             }
           }
