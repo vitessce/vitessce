@@ -34,7 +34,6 @@ export default class CellSetsZarrLoader extends BaseCellsZarrLoader {
           cluster => leidenNode = nodeAppendChild(leidenNode, cluster),
         );
         cellSets.tree.push(leidenNode);
-        console.log(cellSets) // eslint-disable-line
         return { data: cellSets, url: null };
       });
   }

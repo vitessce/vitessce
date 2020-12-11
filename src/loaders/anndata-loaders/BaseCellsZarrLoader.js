@@ -12,7 +12,7 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     this.store = new HTTPStore(url);
   }
 
-  async loadCellSetIds() {
+  loadCellSetIds() {
     const { url, options } = this;
     if (this.cellSets) {
       return this.cellSets;
@@ -64,13 +64,11 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     );
   }
 
-  async loadCellNames() {
+  loadCellNames() {
     if (this.cellNames) {
       return this.cellNames;
     }
-    const res = await fetch(`${this.url}/obs/.zattrs`);
-    const { _index } = await res.json();
-    this.cellNames = openArray({
+    this.cellNames = fetch(`${this.url}/obs/.zattrs`).then(attrs => attrs.json()).then(({ _index }) => openArray({
       store: `${this.url}/obs/${_index}`,
       mode: 'r',
     }).then(z => z.store
@@ -84,7 +82,7 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
         .split(',')
         .filter(Boolean)
         .filter(i => !Number(i))
-        .filter(i => i.length > 2)));
+        .filter(i => i.length > 2))));
     return this.cellNames;
   }
 
