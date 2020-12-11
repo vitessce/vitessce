@@ -14,17 +14,19 @@ export default class CellSetsZarrLoader extends BaseCellsZarrLoader {
       .all([this.loadCellNames(), this.loadCellSetIds()])
       .then((data) => {
         const [cellNames, [cellSetIds]] = data;
+        // eslint-disable-next-line camelcase
+        const { options: [{ group_name }] } = this;
         console.log(cellSetIds, cellNames); // eslint-disable-line
         const cellSets = treeInitialize(SETS_DATATYPE_CELL);
         let leidenNode = {
-          name: 'Leiden Cluster',
+          name: group_name,
           children: [],
         };
         const uniqueCellSetIds = Array(...(new Set(cellSetIds))).sort();
         const clusters = {};
         // eslint-disable-next-line no-return-assign
         uniqueCellSetIds.forEach(id => clusters[id] = {
-          name: `Cluster ${id}`,
+          name: id,
           set: [],
         });
         cellSetIds.forEach((id, i) => clusters[id].set.push([cellNames[i], null]));

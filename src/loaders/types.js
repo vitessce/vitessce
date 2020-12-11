@@ -19,4 +19,5 @@ export const fileTypeToLoader = {
   'cell-sets.json': CellSetsJsonLoader,
   [`${ANNDATA}-cell-sets.zarr`]: AnnDataLoaders.CellSetsZarrLoader,
   [`${ANNDATA}-cells.zarr`]: AnnDataLoaders.CellsZarrLoader,
+  [`${ANNDATA}-expression-matrix.zarr`]: AnnDataLoaders.MatrixZarrLoader,
 };
