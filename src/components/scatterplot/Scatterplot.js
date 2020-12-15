@@ -1,12 +1,14 @@
 /* eslint-disable */
 import React, { forwardRef } from 'react';
 import { PolygonLayer, TextLayer } from '@deck.gl/layers';
+import { forceSimulation } from "d3-force";
 import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
 import {
   createCellsQuadTree,
 } from '../shared-spatial-scatterplot/quadtree';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
+import { forceCollideRects } from '../shared-spatial-scatterplot/force-collide-rects';
 
 const CELLS_LAYER_ID = 'scatterplot';
 export const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
@@ -128,7 +130,37 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const {
       theme,
       cellSetPolygons,
+      viewState,
+      cellRadiusScale, // TODO: use this to determine font size
     } = this.props;
+
+    const { zoom } = viewState;
+
+    const fontSize = 14;
+
+    const points = cellSetPolygons.map(p => ({
+      x: p.poic[0],
+      y: p.poic[1],
+      label: p.name,
+      width: p.name.length * fontSize * 1/(2**zoom) * 4,
+      height: fontSize * 1/(2**zoom) * 1.5,
+    }));
+    
+    const graph = ({
+        nodes: points.map(p => ({
+            x: p.x, y: p.y, label: p.label, width: p.width, height: p.height,
+        })),
+        links: [],
+    });
+
+    const collisionForce = forceCollideRects()
+      .size(d => ([d.width, d.height]));
+    
+    const simulation = forceSimulation()
+      .nodes(graph.nodes)
+      .force("center", collisionForce);
+    
+    simulation.tick(100);
 
     return [
       /*new PolygonLayer({
@@ -145,11 +177,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       }),*/
       new TextLayer({
         id: 'cell-sets-text-layer',
-        data: cellSetPolygons,
-        getPosition: d => d.poic,
-        getText: d => d.name,
+        data: graph.nodes,
+        getPosition: d => ([d.x, d.y]),
+        getText: d => d.label,
         getColor: (theme === 'dark' ? [255, 255, 255] : [0, 0, 0]),
-        getSize: 14,
+        getSize: fontSize,
         getAngle: 0,
         getTextAnchor: 'middle',
         getAlignmentBaseline: 'center',
@@ -244,7 +276,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       this.onUpdateCellsLayer();
       this.forceUpdate();
     }
-    if (['cellSetPolygons'].some(shallowDiff)) {
+    if (['cellSetPolygons', 'viewState'].some(shallowDiff)) {
       // Cell sets layer props changed.
       this.onUpdateCellSetsLayers();
       this.forceUpdate();
