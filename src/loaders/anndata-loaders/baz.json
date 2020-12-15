@@ -21,7 +21,7 @@
                 "dims": [0, 2]
               }
             },
-            "factors": ["obs.bulk_labels"]
+            "factors": ["obs.bulk_labels", "obs.louvain"]
           }
         },
         {
@@ -32,13 +32,20 @@
             {
               "group_name": "bulk_labels",
               "set_name": "obs.bulk_labels"
+            },
+            {
+              "group_name": "louvain",
+              "set_name": "obs.louvain"
             }
           ]
         },
         {
           "type": "expression-matrix",
           "fileType": "anndata-expression-matrix.zarr",
-          "url": "http://127.0.0.1:8081/pbmc.zarr"
+          "url": "http://127.0.0.1:8081/pbmc.zarr",
+          "options": {
+            "matrix": "X"
+          }
         }
       ]
     }

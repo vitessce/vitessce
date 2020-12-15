@@ -16,28 +16,29 @@ export default class CellSetsZarrLoader extends BaseCellsZarrLoader {
     return Promise
       .all([this.loadCellNames(), this.loadCellSetIds(cellSetZarrLocation)])
       .then((data) => {
-        const [cellNames, [cellSetIds]] = data;
-        // eslint-disable-next-line camelcase
-        const { options: [{ group_name }] } = this;
-        const cellSets = treeInitialize(SETS_DATATYPE_CELL);
-        let leidenNode = {
-          name: group_name,
-          children: [],
-        };
-        const uniqueCellSetIds = Array(...(new Set(cellSetIds))).sort();
-        const clusters = {};
-        // eslint-disable-next-line no-return-assign
-        uniqueCellSetIds.forEach(id => clusters[id] = {
-          name: id,
-          set: [],
-        });
-        cellSetIds.forEach((id, i) => clusters[id].set.push([cellNames[i], null]));
-        Object.values(clusters).forEach(
+        const [cellNames, cellSets] = data;
+        const cellSetsTree = treeInitialize(SETS_DATATYPE_CELL);
+        cellSets.forEach((cellSetIds, j) => {
+          const name = options[j].group_name;
+          let levelZeroNode = {
+            name,
+            children: [],
+          };
+          const uniqueCellSetIds = Array(...(new Set(cellSetIds))).sort();
+          const clusters = {};
           // eslint-disable-next-line no-return-assign
-          cluster => leidenNode = nodeAppendChild(leidenNode, cluster),
-        );
-        cellSets.tree.push(leidenNode);
-        return Promise.resolve({ data: cellSets, url: null });
+          uniqueCellSetIds.forEach(id => clusters[id] = {
+            name: id,
+            set: [],
+          });
+          cellSetIds.forEach((id, i) => clusters[id].set.push([cellNames[i], null]));
+          Object.values(clusters).forEach(
+            // eslint-disable-next-line no-return-assign
+            cluster => levelZeroNode = nodeAppendChild(levelZeroNode, cluster),
+          );
+          cellSetsTree.tree.push(levelZeroNode);
+        });
+        return Promise.resolve({ data: cellSetsTree, url: null });
       });
   }
 }
