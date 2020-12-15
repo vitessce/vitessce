@@ -45,25 +45,42 @@
     }
     .options-pane-container {
         padding: 1em;
-        background-color: map-get($theme-colors, "primary-background");
+        background-color: rgba(map-get($theme-colors, "primary-background"), 0.9);
 
     }
 
-    .options-pane-container-appear {
+    .options-pane-container-enter {
         width: 0%;
         opacity: 0;
     }
       
-    .options-pane-container-appear-active {
+    .options-pane-container-enter-active {
         width: 100%;
         opacity: 1;
         transition: width 0.25s ease-in, opacity 0.25s ease-in;
     }
 
-    .options-pane-container-appear-done {
+    .options-pane-container-enter-done {
         width: 100%;
         opacity: 1;
     }
+
+    .options-pane-container-exit {
+        width: 100%;
+        opacity: 1;
+    }
+      
+    .options-pane-container-exit-active {
+        width: 0%;
+        opacity: 0;
+        transition: width 0.25s ease-out, opacity 0.25s ease-out;
+    }
+
+    .options-pane-container-exit-done {
+        width: 0%;
+        opacity: 0;
+    }
+    
     
 
 

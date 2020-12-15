@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, cloneElement } from 'react';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import MenuItem from '@material-ui/core/MenuItem';
 import Link from '@material-ui/core/Link';
@@ -76,7 +76,7 @@ export default function TitleInfo(props) {
       </div>
       <div className={childClassName}>
         { !isReady && <LoadingIndicator /> }
-        { isReady && optionsPaneOpen && options }
+        { isReady && options && cloneElement(options, { open: optionsPaneOpen }) }
         {children}
       </div>
     </>

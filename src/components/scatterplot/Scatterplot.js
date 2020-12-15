@@ -131,37 +131,15 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       theme,
       cellSetPolygons,
       viewState,
-      cellRadiusScale, // TODO: use this to determine font size
-      isLabelsOn,
+      cellSetPolygonsVisible,
+      cellSetLabelsVisible,
+      cellSetLabelSize,
     } = this.props;
 
-    if(!isLabelsOn) {
-      return [];
-    }
+    const result = [];
 
-    const { zoom } = viewState;
-
-    const fontSize = 14;
-
-    const nodes = cellSetPolygons.map(p => ({
-      x: p.poic[0],
-      y: p.poic[1],
-      label: p.name,
-      width: p.name.length * fontSize * 1/(2**zoom) * 4,
-      height: fontSize * 1/(2**zoom) * 1.5,
-    }));
-
-    const collisionForce = forceCollideRects()
-      .size(d => ([d.width, d.height]));
-    
-    const simulation = forceSimulation()
-      .nodes(nodes)
-      .force("center", collisionForce);
-    
-    simulation.tick(70);
-
-    return [
-      /*new PolygonLayer({
+    if(cellSetPolygonsVisible) {
+      result.push(new PolygonLayer({
         id: 'cell-sets-polygon-layer',
         data: cellSetPolygons,
         stroked: true,
@@ -169,11 +147,34 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         wireframe: true,
         lineWidthMaxPixels: 1,
         getPolygon: d => d.hull.geometry.coordinates,
-        getFillColor: d => d.color,
         getLineColor: d => d.color,
         getLineWidth: 1,
-      }),*/
-      new TextLayer({
+      }));
+    }
+
+    if(cellSetLabelsVisible) {
+      const { zoom } = viewState;
+
+      const fontSize = cellSetLabelSize;
+
+      const nodes = cellSetPolygons.map(p => ({
+        x: p.poic[0],
+        y: p.poic[1],
+        label: p.name,
+        width: p.name.length * fontSize * 1/(2**zoom) * 4,
+        height: fontSize * 1/(2**zoom) * 1.5,
+      }));
+
+      const collisionForce = forceCollideRects()
+        .size(d => ([d.width, d.height]));
+      
+      const simulation = forceSimulation()
+        .nodes(nodes)
+        .force("center", collisionForce);
+      
+      simulation.tick(70);
+
+      result.push(new TextLayer({
         id: 'cell-sets-text-layer',
         data: nodes,
         getPosition: d => ([d.x, d.y]),
@@ -185,8 +186,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getAlignmentBaseline: 'center',
         fontFamily: LABEL_FONT_FAMILY,
         fontWeight: 'bold'
-      }),
-    ];
+      }));
+    }
+
+    return result;
   }
 
   createSelectionLayers() {
@@ -275,7 +278,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       this.onUpdateCellsLayer();
       this.forceUpdate();
     }
-    if (['cellSetPolygons', 'viewState'].some(shallowDiff)) {
+    if ([
+      'cellSetPolygons', 'viewState', 'cellSetPolygonsVisible',
+      'cellSetLabelsVisible', 'cellSetLabelSize',
+    ].some(shallowDiff)) {
       // Cell sets layer props changed.
       this.onUpdateCellSetsLayers();
       this.forceUpdate();

@@ -53,6 +53,10 @@ export default function ScatterplotSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
+    embeddingCellSetPolygonsVisible: cellSetPolygonsVisible,
+    embeddingCellSetLabelsVisible: cellSetLabelsVisible,
+    embeddingCellSetLabelSize: cellSetLabelSize,
+    embeddingCellRadius: cellRadius,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -64,6 +68,10 @@ export default function ScatterplotSubscriber(props) {
     setCellSetColor,
     setCellColorEncoding,
     setAdditionalCellSets,
+    setEmbeddingCellSetPolygonsVisible: setCellSetPolygonsVisible,
+    setEmbeddingCellSetLabelsVisible: setCellSetLabelsVisible,
+    setEmbeddingCellSetLabelSize: setCellSetLabelSize,
+    setEmbeddingCellRadius: setCellRadius,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -93,7 +101,6 @@ export default function ScatterplotSubscriber(props) {
   );
   
   const [isLabelsOn, setIsLabelsOn] = useState(true);
-  const [cellRadius, setCellRadius] = useState(1);
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
@@ -165,7 +172,7 @@ export default function ScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
-      options={<ScatterplotOptions isLabelsOn={isLabelsOn} setIsLabelsOn={setIsLabelsOn} cellRadius={cellRadius} setCellRadius={setCellRadius} />}
+      options={<ScatterplotOptions cellSetLabelsVisible={cellSetLabelsVisible} setCellSetLabelsVisible={setCellSetLabelsVisible} cellRadius={cellRadius} setCellRadius={setCellRadius} />}
     >
       <Scatterplot
         ref={deckRef}
@@ -185,12 +192,15 @@ export default function ScatterplotSubscriber(props) {
         cellHighlight={cellHighlight}
         cellColors={cellColors}
         cellSetPolygons={cellSetPolygons}
-        isLabelsOn={isLabelsOn}
+
+        cellSetLabelSize={cellSetLabelSize}
+        cellSetLabelsVisible={cellSetLabelsVisible}
+        cellSetPolygonsVisible={cellSetPolygonsVisible}
 
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
-        cellRadiusScale={cellRadiusScale}
+        cellRadiusScale={cellRadiusScale * cellRadius}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
