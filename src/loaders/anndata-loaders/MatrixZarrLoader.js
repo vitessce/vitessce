@@ -42,10 +42,12 @@ export default class MatrixZarrLoader extends BaseCellsZarrLoader {
       options: { matrix },
     } = this;
     const res = await fetch(`${url}/${matrix}/.zattrs`);
-    const zattrs = await res.json();
-    if (matrix === 'X' && zattrs['encoding-type'] === 'csr_matrix') {
-      this.arr = this.loadSparseCellXGene(zattrs);
-      return this.arr;
+    if (matrix === 'X' && res.status !== 404) {
+      const zattrs = await res.json();
+      if (zattrs['encoding-type'] === 'csr_matrix') {
+        this.arr = this.loadSparseCellXGene(zattrs);
+        return this.arr;
+      }
     }
     this.arr = openArray({ store, path: matrix, mode: 'r' }).then(z => new Promise((resolve) => {
       z.getRaw(null)

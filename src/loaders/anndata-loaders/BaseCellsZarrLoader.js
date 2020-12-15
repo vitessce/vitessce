@@ -12,13 +12,13 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     this.store = new HTTPStore(url);
   }
 
-  loadCellSetIds() {
-    const { url, options } = this;
+  loadCellSetIds(cellSetZarrLocation) {
+    const { url } = this;
     if (this.cellSets) {
       return this.cellSets;
     }
     this.cellSets = Promise.all(
-      options.map(async ({ set_name: setName }) => {
+      cellSetZarrLocation.map(async (setName) => {
         const res = await fetch(
           `${this.url}/${setName.replace('.', '/')}/.zattrs`,
         );

@@ -10,8 +10,11 @@ import BaseCellsZarrLoader from './BaseCellsZarrLoader';
 
 export default class CellSetsZarrLoader extends BaseCellsZarrLoader {
   load() {
+    const { options } = this;
+    // eslint-disable-next-line camelcase
+    const cellSetZarrLocation = options.map(({ set_name }) => set_name);
     return Promise
-      .all([this.loadCellNames(), this.loadCellSetIds()])
+      .all([this.loadCellNames(), this.loadCellSetIds(cellSetZarrLocation)])
       .then((data) => {
         const [cellNames, [cellSetIds]] = data;
         // eslint-disable-next-line camelcase

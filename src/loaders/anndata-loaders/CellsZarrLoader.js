@@ -51,10 +51,21 @@ export default class CellsZarrLoader extends BaseCellsZarrLoader {
     return this.mappings;
   }
 
+  loadFactors() {
+    const {
+      options: { factors },
+    } = this;
+    return this.loadCellSetIds(factors);
+  }
+
   async load() {
-    const [mappings, xy, poly, cellNames] = await Promise.all(
-      [this.loadMappings(), this.loadXy(), this.loadPoly(), this.loadCellNames()],
-    );
+    const [mappings, xy, poly, cellNames, factors] = await Promise.all([
+      this.loadMappings(),
+      this.loadXy(),
+      this.loadPoly(),
+      this.loadCellNames(),
+      this.loadFactors(),
+    ]);
     const cells = {};
     cellNames.forEach((name, i) => {
       cells[name] = {};
@@ -74,6 +85,12 @@ export default class CellsZarrLoader extends BaseCellsZarrLoader {
       }
       if (poly) {
         cells[name].poly = poly.data[i];
+      }
+      if (factors) {
+        const factorsObj = {};
+        // eslint-disable-next-line no-return-assign
+        factors.forEach((factor, j) => factorsObj[this.options.factors[j].split('.').slice(-1)] = factor[i]);
+        cells[name].factors = factorsObj;
       }
     });
     return Promise.resolve({ data: cells, url: null });

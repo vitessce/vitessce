@@ -16,7 +16,8 @@
                 "key": "obsm.umap",
                 "dims": [0, 1]
               }
-            }
+            },
+            "factors": ["obs.CellType"]
           }
         },
         {

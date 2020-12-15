@@ -20,7 +20,8 @@
                 "key": "obsm.pca",
                 "dims": [0, 2]
               }
-            }
+            },
+            "factors": ["obs.bulk_labels"]
           }
         },
         {
