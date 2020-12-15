@@ -9,7 +9,7 @@
         {
           "type": "cells",
           "fileType": "anndata-cells.zarr",
-          "url": "http://127.0.0.1:8081/habib.zarr",
+          "url": "http://127.0.0.1:8081/habib_200_hvg.zarr",
           "options": {
             "mappings": {
               "UMAP": {
@@ -22,13 +22,21 @@
         {
           "type": "cell-sets",
           "fileType": "anndata-cell-sets.zarr",
-          "url": "http://127.0.0.1:8081/habib.zarr",
+          "url": "http://127.0.0.1:8081/habib_200_hvg.zarr",
           "options": [
             {
               "group_name": "Cell Type",
               "set_name": "obs.CellType"
             }
           ]
+        },
+        {
+          "type": "expression-matrix",
+          "fileType": "anndata-expression-matrix.zarr",
+          "url": "http://127.0.0.1:8081/habib_200_hvg.zarr",
+          "options": {
+            "matrix": "X"
+          }
         }
       ]
     }
@@ -38,23 +46,28 @@
     "embeddingType": { "UMAP": "UMAP" },
     "embeddingZoom": { "A": 4 },
     "embeddingTargetX": { "A": 0 },
-    "embeddingTargetY": { "A": 0 },
-    "spatialZoom": { "A": 0 },
-    "spatialTargetX": { "A": 1000 },
-    "spatialTargetY": { "A": 1000 }
+    "embeddingTargetY": { "A": 0 }
   },
   "layout": [
     {
       "component": "cellSets",
-      "h": 6,
+      "h": 3,
       "w": 3,
       "x": 9,
       "y": 0,
       "coordinationScopes": {}
     },
     {
+      "component": "genes",
+      "h": 3,
+      "w": 3,
+      "x": 9,
+      "y": 3,
+      "coordinationScopes": {}
+    },
+    {
       "component": "scatterplot",
-      "h": 6,
+      "h": 3,
       "w": 9,
       "x": 0,
       "y": 0,
@@ -64,6 +77,14 @@
         "embeddingTargetX": "A",
         "embeddingTargetY": "A"
       }
+    },
+    {
+      "component": "heatmap",
+      "h": 3,
+      "w": 9,
+      "x": 0,
+      "y": 3,
+      "coordinationScopes": {}
     }
   ]
 }

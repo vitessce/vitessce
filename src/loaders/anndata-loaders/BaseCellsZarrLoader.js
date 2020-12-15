@@ -99,14 +99,17 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
       .getItem('0')
       .then(buf => new Uint8Array(buf))
       .then(cbytes => z.compressor.decode(cbytes))
-      .then(dbytes => new TextDecoder()
-        .decode(dbytes)
-        // eslint-disable-next-line no-control-regex
-        .replace(/[\u0000-\u001c]/g, ',')
-        .split(',')
-        .filter(Boolean)
-        .filter(i => !Number(i))
-        .filter(i => i.length > 2)));
+      .then((dbytes) => {
+        const text = new TextDecoder()
+          .decode(dbytes)
+          // eslint-disable-next-line no-control-regex
+          .replace(/[\u0000-\u001c]/g, ',')
+          .split(',')
+          .filter(Boolean)
+          .filter(i => !Number(i))
+          .filter(i => i.length >= 2);
+        return text;
+      }));
     return this.geneNames;
   }
 }

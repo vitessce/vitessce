@@ -9,7 +9,7 @@
         {
           "type": "cells",
           "fileType": "anndata-cells.zarr",
-          "url": "http://127.0.0.1:8081/secondary_analysis.zarr",
+          "url": "http://127.0.0.1:8081/secondary_analysis_hvg_subset.zarr",
           "options": {
             "xy": "obsm.spatial",
             "mappings": {
@@ -27,13 +27,21 @@
         {
           "type": "cell-sets",
           "fileType": "anndata-cell-sets.zarr",
-          "url": "http://127.0.0.1:8081/secondary_analysis.zarr",
+          "url": "http://127.0.0.1:8081/secondary_analysis_hvg_subset.zarr",
           "options": [
             {
               "group_name": "Ledien",
               "set_name": "obs.leiden"
             }
           ]
+        },
+        {
+          "type": "expression-matrix",
+          "fileType": "anndata-expression-matrix.zarr",
+          "url": "http://127.0.0.1:8081/secondary_analysis_hvg_subset.zarr",
+          "options": {
+            "matrix": "X"
+          }
         }
       ]
     }
@@ -51,10 +59,18 @@
   "layout": [
     {
       "component": "cellSets",
-      "h": 6,
+      "h": 3,
       "w": 3,
       "x": 9,
       "y": 0,
+      "coordinationScopes": {}
+    },
+    {
+      "component": "genes",
+      "h": 3,
+      "w": 3,
+      "x": 9,
+      "y": 3,
       "coordinationScopes": {}
     },
     {
@@ -71,29 +87,24 @@
       }
     },
     {
-      "component": "scatterplot",
+      "component": "spatial",
       "h": 3,
       "w": 5,
       "x": 4,
       "y": 0,
       "coordinationScopes": {
-        "embeddingType": "PCA",
-        "embeddingZoom": "A",
-        "embeddingTargetX": "A",
-        "embeddingTargetY": "A"
-      }
-    },
-    {
-      "component": "spatial",
-      "h": 3,
-      "w": 9,
-      "x": 0,
-      "y": 3,
-      "coordinationScopes": {
         "spatialZoom": "A",
         "spatialTargetX": "A",
         "spatialTargetY": "A"
       }
+    },
+    {
+      "component": "heatmap",
+      "h": 3,
+      "w": 9,
+      "x": 0,
+      "y": 3,
+      "coordinationScopes": {}
     }
   ]
 }
