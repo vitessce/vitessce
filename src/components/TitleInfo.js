@@ -7,6 +7,7 @@ import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 
 import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
 import ClosePaneButton from './ClosePaneButton';
+import OptionsPaneButton from './OptionsPaneButton';
 import LoadingIndicator from './LoadingIndicator';
 import { PopperMenu } from './shared-mui/components';
 
@@ -50,10 +51,11 @@ function DownloadOptions(props) {
 export default function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls, theme,
-    isReady,
+    isReady, options,
   } = props;
   // eslint-disable-next-line no-nested-ternary
   const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
+  const [optionsPaneOpen, toggleOptionsPane] = useReducer(v => !v, false);
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
@@ -67,12 +69,14 @@ export default function TitleInfo(props) {
         <span className="details pl-2 align-items-end">
           <span className="d-flex justify-content-between">
             {info}
+            { options && <OptionsPaneButton onClick={toggleOptionsPane} /> }
             <ClosePaneButton removeGridComponent={removeGridComponent} />
           </span>
         </span>
       </div>
       <div className={childClassName}>
         { !isReady && <LoadingIndicator /> }
+        { isReady && optionsPaneOpen && options }
         {children}
       </div>
     </>

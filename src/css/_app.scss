@@ -23,13 +23,16 @@
         }
     }
 
-    .loading-indicator-backdrop {
+    .loading-indicator-backdrop, .options-pane-container {
         position: absolute;
         top: 0;
-        left: 0;
+        right: 0;
         z-index: 1040;
-        width: 100%;
         height: 100%;
+        border-radius: 0.25rem;
+    }
+    .loading-indicator-backdrop {
+        width: 100%;
         background-color: rgba(0, 0, 0, 0.5);
 
         .loading-indicator-container {
@@ -40,6 +43,28 @@
             height: 100%;
         }
     }
+    .options-pane-container {
+        padding: 1em;
+        background-color: map-get($theme-colors, "primary-background");
+
+    }
+
+    .options-pane-container-appear {
+        width: 0%;
+        opacity: 0;
+    }
+      
+    .options-pane-container-appear-active {
+        width: 100%;
+        opacity: 1;
+        transition: width 0.25s ease-in, opacity 0.25s ease-in;
+    }
+
+    .options-pane-container-appear-done {
+        width: 100%;
+        opacity: 1;
+    }
+    
 
 
     /* Flex grid items */
@@ -66,12 +91,27 @@
     }
 
     /* Styling for closing button on the grid items */
-    .close-pane-button {
+    .title-pane-button {
         border: none;
         font-family: Ampersand;
-        margin-left: .5em;
+        margin-left: 0;
         background: none;
-        color: map-get($theme-colors, "primary-foreground-dim");
+        color: map-get($theme-colors, "primary-foreground");
+        padding-left: 0.25em;
+        padding-right: 0.25em;
+
+        &:first-child {
+            padding-left: 1em;
+        }
+        &:last-child {
+            padding-right: 0.5em;
+        }
+
+        svg {
+            width: 0.7em;
+            height: 0.7em;
+            vertical-align: middle;
+        }
     }
 
     /* Tool styles */

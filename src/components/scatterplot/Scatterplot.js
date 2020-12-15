@@ -132,35 +132,33 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellSetPolygons,
       viewState,
       cellRadiusScale, // TODO: use this to determine font size
+      isLabelsOn,
     } = this.props;
+
+    if(!isLabelsOn) {
+      return [];
+    }
 
     const { zoom } = viewState;
 
     const fontSize = 14;
 
-    const points = cellSetPolygons.map(p => ({
+    const nodes = cellSetPolygons.map(p => ({
       x: p.poic[0],
       y: p.poic[1],
       label: p.name,
       width: p.name.length * fontSize * 1/(2**zoom) * 4,
       height: fontSize * 1/(2**zoom) * 1.5,
     }));
-    
-    const graph = ({
-        nodes: points.map(p => ({
-            x: p.x, y: p.y, label: p.label, width: p.width, height: p.height,
-        })),
-        links: [],
-    });
 
     const collisionForce = forceCollideRects()
       .size(d => ([d.width, d.height]));
     
     const simulation = forceSimulation()
-      .nodes(graph.nodes)
+      .nodes(nodes)
       .force("center", collisionForce);
     
-    simulation.tick(100);
+    simulation.tick(70);
 
     return [
       /*new PolygonLayer({
@@ -177,7 +175,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       }),*/
       new TextLayer({
         id: 'cell-sets-text-layer',
-        data: graph.nodes,
+        data: nodes,
         getPosition: d => ([d.x, d.y]),
         getText: d => d.label,
         getColor: (theme === 'dark' ? [255, 255, 255] : [0, 0, 0]),
@@ -186,6 +184,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getTextAnchor: 'middle',
         getAlignmentBaseline: 'center',
         fontFamily: LABEL_FONT_FAMILY,
+        fontWeight: 'bold'
       }),
     ];
   }

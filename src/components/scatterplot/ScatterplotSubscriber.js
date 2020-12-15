@@ -12,6 +12,7 @@ import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-
 import { getCellColors, getCellSetPolygons } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
+import ScatterplotOptions from './ScatterplotOptions';
 import {
   useCoordination,
   useLoaders,
@@ -90,7 +91,9 @@ export default function ScatterplotSubscriber(props) {
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
-
+  
+  const [isLabelsOn, setIsLabelsOn] = useState(true);
+  const [cellRadius, setCellRadius] = useState(1);
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
@@ -162,6 +165,7 @@ export default function ScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      options={<ScatterplotOptions isLabelsOn={isLabelsOn} setIsLabelsOn={setIsLabelsOn} cellRadius={cellRadius} setCellRadius={setCellRadius} />}
     >
       <Scatterplot
         ref={deckRef}
@@ -181,6 +185,7 @@ export default function ScatterplotSubscriber(props) {
         cellHighlight={cellHighlight}
         cellColors={cellColors}
         cellSetPolygons={cellSetPolygons}
+        isLabelsOn={isLabelsOn}
 
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
