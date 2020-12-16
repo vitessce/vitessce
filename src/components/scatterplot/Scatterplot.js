@@ -145,7 +145,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         filled: false,
         wireframe: true,
         lineWidthMaxPixels: 1,
-        getPolygon: d => d.hull.geometry.coordinates,
+        getPolygon: d => d.hull,
         getLineColor: d => d.color,
         getLineWidth: 1,
       }));
@@ -157,8 +157,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       const fontSize = cellSetLabelSize;
 
       const nodes = cellSetPolygons.map(p => ({
-        x: p.poic[0],
-        y: p.poic[1],
+        x: p.centroid[0],
+        y: p.centroid[1],
         label: p.name,
         width: p.name.length * fontSize * 1 / (2 ** zoom) * 4,
         height: fontSize * 1 / (2 ** zoom) * 1.5,

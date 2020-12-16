@@ -1,7 +1,6 @@
-/* eslint-disable */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
-import { treeToCellColorsBySetNames, treeToCellPolygonsBySetNames } from './sets/cell-set-utils';
+import { treeToCellColorsBySetNames } from './sets/cell-set-utils';
 
 // The functions defined here have been adapted from d3-interpolate,
 // d3-color, and d3-scale-chromatic.
@@ -114,18 +113,4 @@ export function getCellColors(params) {
     return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor);
   }
   return new Map();
-}
-
-export function getCellSetPolygons(params) {
-  const {
-    cells,
-    mapping,
-    cellSets,
-    cellSetSelection,
-    cellSetColor,
-  } = params;
-  if(cellSetSelection && cellSetSelection.length > 0 && cellSets && cells) {
-    return treeToCellPolygonsBySetNames(cellSets, cells, mapping, cellSetSelection, cellSetColor);
-  }
-  return [];
 }

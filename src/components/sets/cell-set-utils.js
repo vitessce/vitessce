@@ -1,4 +1,3 @@
-/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
@@ -7,8 +6,6 @@ import range from 'lodash/range';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 import concave from '@turf/concave';
 import centroid from '@turf/centroid';
-import polylabel from 'polylabel';
-
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
@@ -399,8 +396,10 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
   return new Map(cellColorsArray);
 }
 
-export function treeToCellPolygonsBySetNames(currTree, cells, mapping, selectedNamePaths, cellSetColor) {
-  let cellSetPolygons = [];
+export function treeToCellPolygonsBySetNames(
+  currTree, cells, mapping, selectedNamePaths, cellSetColor,
+) {
+  const cellSetPolygons = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
@@ -410,23 +409,26 @@ export function treeToCellPolygonsBySetNames(currTree, cells, mapping, selectedN
         || DEFAULT_COLOR
       );
       const cellPositions = nodeSet
-        .map(([cellId]) => ([cells[cellId]?.mappings[mapping][0], -cells[cellId]?.mappings[mapping][1]]))
+        .map(([cellId]) => ([
+          cells[cellId]?.mappings[mapping][0],
+          -cells[cellId]?.mappings[mapping][1],
+        ]))
         .filter(Boolean);
-      
-      if(cellPositions.length > 2) {
+
+      if (cellPositions.length > 2) {
         const points = turfFeatureCollection(
-          cellPositions.map(turfPoint)
+          cellPositions.map(turfPoint),
         );
         const hull = concave(points);
-        if(hull) {
-          //const poic = polylabel(hull.geometry.coordinates, 1.0);
-          const poic = centroid(points).geometry.coordinates;
+        if (hull) {
+          const hullCoords = hull.geometry.coordinates;
+          const centroidCoords = centroid(points).geometry.coordinates;
           cellSetPolygons.push({
             path: setNamePath,
-            name: setNamePath[setNamePath.length-1],
-            hull,
+            name: setNamePath[setNamePath.length - 1],
+            hull: hullCoords,
             color: nodeColor,
-            poic,
+            centroid: centroidCoords,
           });
         }
       }
@@ -569,4 +571,18 @@ export function initializeCellSetColor(cellSets, cellSetColor) {
 
   cellSets.tree.forEach((lzn, treeIndex) => processNode(lzn, [], 0, treeIndex));
   return nextCellSetColor;
+}
+
+export function getCellSetPolygons(params) {
+  const {
+    cells,
+    mapping,
+    cellSets,
+    cellSetSelection,
+    cellSetColor,
+  } = params;
+  if (cellSetSelection && cellSetSelection.length > 0 && cellSets && cells) {
+    return treeToCellPolygonsBySetNames(cellSets, cells, mapping, cellSetSelection, cellSetColor);
+  }
+  return [];
 }
