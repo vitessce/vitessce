@@ -66,7 +66,6 @@
     "rc-tree": "2.1.0",
     "react-color": "^2.18.0",
     "react-grid-layout": "^1.1.1",
-    "react-transition-group": "^2.9.0",
     "react-vega": "^7.3.0",
     "react-virtualized": "^9.22.2",
     "short-number": "^1.0.6",

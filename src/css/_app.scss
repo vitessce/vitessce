@@ -26,13 +26,11 @@
     .loading-indicator-backdrop {
         position: absolute;
         top: 0;
-        right: 0;
+        left: 0;
         z-index: 1040;
+        width: 100%;
         height: 100%;
         border-radius: 0.25rem;
-    }
-    .loading-indicator-backdrop {
-        width: 100%;
         background-color: rgba(0, 0, 0, 0.5);
 
         .loading-indicator-container {
@@ -42,11 +40,6 @@
             width: 100%;
             height: 100%;
         }
-    }
-    .options-pane-container {
-        padding: 1em;
-        background-color: rgba(map-get($theme-colors, "primary-background"), 0.9);
-
     }
     
     
