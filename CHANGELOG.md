@@ -3,6 +3,8 @@
 ### Added
 - Implemented the view config API in JavaScript in a class called `VitessceConfig`.
 - Add searchable genes list.
+- Added scatterplot component options pane.
+- Added a `TextLayer` to render cell set names over the corresponding cell set centroid in the scatterplot.
 
 ### Changed
 - Genes list is now a virtual scroll to allow for more performant rendering.
