@@ -95,13 +95,13 @@ export default function ScatterplotOptions(props) {
               <TableCell className={classes.labelCell}>Cell Set Label Size</TableCell>
               <TableCell className={classes.inputCell}>
                 <Slider
+                  disabled={!cellSetLabelsVisible}
                   classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
                   value={cellSetLabelSize}
                   onChange={handleLabelSizeChange}
                   aria-labelledby="cell-set-label-size-slider"
                   valueLabelDisplay="auto"
                   step={1}
-                  marks
                   min={8}
                   max={36}
                 />
@@ -130,7 +130,7 @@ export default function ScatterplotOptions(props) {
                   valueLabelDisplay="auto"
                   step={0.25}
                   min={0.25}
-                  max={5}
+                  max={8}
                 />
               </TableCell>
             </TableRow>

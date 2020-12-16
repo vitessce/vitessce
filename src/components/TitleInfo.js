@@ -37,19 +37,38 @@ const useStyles = makeStyles(theme => ({
       verticalAlign: 'middle',
     },
   },
-  downloadButton: {
-    paddingBottom: 0,
-    paddingTop: 0,
-    marginLeft: '8px !important',
-    backgroundColor: 'transparent',
-    outline: 0,
-    '& svg': {
-      color: theme.palette.primaryForeground,
-    },
+  downloadLink: {
+    color: theme.palette.primaryForeground,
   },
 }));
 
-function DownloadIcon({ open }) {
+function SettingsIconWithArrow({ open }) {
+  return (
+    <>
+      <SettingsIcon />
+      {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+    </>
+  );
+}
+
+function PlotOptions(props) {
+  const { options } = props;
+  const [open, toggle] = useReducer(v => !v, false);
+  const classes = useStyles();
+  return (
+    <PopperMenu
+      open={open}
+      toggle={toggle}
+      buttonIcon={<SettingsIconWithArrow open={open} />}
+      buttonClassName={classes.iconButton}
+      placement="bottom-end"
+    >
+      {options}
+    </PopperMenu>
+  );
+}
+
+function CloudDownloadIconWithArrow({ open }) {
   return (
     <>
       <CloudDownloadIcon />
@@ -59,19 +78,21 @@ function DownloadIcon({ open }) {
 }
 
 function DownloadOptions(props) {
+  const { urls } = props;
   const [open, toggle] = useReducer(v => !v, false);
-  const { urls, buttonClassName } = props;
+  const classes = useStyles();
   return (
     <PopperMenu
       open={open}
       toggle={toggle}
-      buttonIcon={<DownloadIcon open={open} />}
-      buttonClassName={buttonClassName}
+      buttonIcon={<CloudDownloadIconWithArrow open={open} />}
+      buttonClassName={classes.iconButton}
+      placement="bottom-end"
     >
       {urls.map(({ url, name }) => (
         <MenuItem dense key={url}>
-          <Link underline="none" href={url} target="_blank" rel="noopener">
-            {name}
+          <Link underline="none" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
+            Download {name}
           </Link>
         </MenuItem>
       ))}
@@ -80,12 +101,13 @@ function DownloadOptions(props) {
 }
 
 function ClosePaneButton(props) {
-  const { removeGridComponent, buttonClassName } = props;
+  const { removeGridComponent } = props;
+  const classes = useStyles();
   return (
     <IconButton
       onClick={removeGridComponent}
       size="small"
-      className={buttonClassName}
+      className={classes.iconButton}
       title="close"
     >
       <CloseIcon />
@@ -100,38 +122,28 @@ export default function TitleInfo(props) {
   } = props;
   // eslint-disable-next-line no-nested-ternary
   const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
-  const [optionsPaneOpen, toggleOptionsPaneOpen] = useReducer(v => !v, false);
-  const classes = useStyles();
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
       <div className="title d-flex justify-content-between align-items-baseline">
         <div className="justify-content-between d-flex align-items-end">
           <span>{title}</span>
-          {urls && urls.length > 0 ? (
-            <DownloadOptions
-              urls={urls}
-              buttonClassName={classes.downloadButton}
-            />
-          ) : null}
         </div>
         <span className="details pl-2 align-items-end">
           <span className="d-flex justify-content-between">
             {info}
             { options && (
-              <PopperMenu
-                open={optionsPaneOpen}
-                toggle={toggleOptionsPaneOpen}
-                buttonIcon={<SettingsIcon />}
-                buttonClassName={classes.iconButton}
-                placement="bottom-end"
-              >
-                {options}
-              </PopperMenu>
+              <PlotOptions
+                options={options}
+              />
             ) }
+            {urls && urls.length > 0 && (
+              <DownloadOptions
+                urls={urls}
+              />
+            )}
             <ClosePaneButton
               removeGridComponent={removeGridComponent}
-              buttonClassName={classes.iconButton}
             />
           </span>
         </span>

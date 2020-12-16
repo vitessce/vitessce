@@ -30,9 +30,7 @@ function MuiPaper(props) {
   const { children } = props;
   const classes = styles();
   return (
-    <Paper
-      classes={{ root: classes.paper }}
-    >
+    <Paper className={classes.paper} elevation={4}>
       {children}
     </Paper>
   );
@@ -71,9 +69,7 @@ export function PopperMenu(props) {
         anchorEl={anchorRef}
         placement={placement}
       >
-        <MuiPaper
-          className={classes.paper}
-        >
+        <MuiPaper>
           <ClickAwayListener onClickAway={toggle}>
             <MenuList>{children}</MenuList>
           </ClickAwayListener>

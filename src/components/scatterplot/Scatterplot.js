@@ -109,7 +109,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       isSelected: getCellIsSelected,
       opacity: cellOpacity,
       radiusScale: cellRadiusScale,
-      radiusMinPixels: 1.5,
+      radiusMinPixels: 1,
       radiusMaxPixels: 10,
       getPosition: getCellPosition,
       getColor: getCellColor,
@@ -133,6 +133,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellSetPolygonsVisible,
       cellSetLabelsVisible,
       cellSetLabelSize,
+      numTicks = 50,
     } = this.props;
 
     const result = [];
@@ -171,7 +172,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         .nodes(nodes)
         .force('center', collisionForce);
 
-      simulation.tick(70);
+      simulation.tick(numTicks);
 
       result.push(new TextLayer({
         id: 'cell-sets-text-layer',

@@ -32,6 +32,7 @@ export default function ScatterplotSubscriber(props) {
     disableTooltip = false,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
+    numTicks = 50,
   } = props;
 
   const loaders = useLoaders();
@@ -215,6 +216,7 @@ export default function ScatterplotSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
+        numTicks={numTicks}
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber

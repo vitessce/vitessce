@@ -28,7 +28,7 @@ export const muiTheme = {
       primaryBackgroundHighlight: '#000000',
       primaryBackgroundInput: '#D3D3D3',
       primaryBackgroundDim: '#333333',
-      primaryBackgroundLight: '#9e9e9e',
+      primaryBackgroundLight: '#757575',
       primaryForeground: '#D3D3D3',
       primaryForegroundDim: '#000000',
       primaryForegroundActive: '#9bb7d6',
