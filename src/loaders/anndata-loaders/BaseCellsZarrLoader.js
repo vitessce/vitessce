@@ -71,18 +71,31 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     this.cellNames = fetch(`${this.url}/obs/.zattrs`).then(attrs => attrs.json()).then(({ _index }) => openArray({
       store: `${this.url}/obs/${_index}`,
       mode: 'r',
-    }).then(z => z.store
-      .getItem('0')
-      .then(buf => new Uint8Array(buf))
-      .then(cbytes => z.compressor.decode(cbytes))
-      .then(dbytes => new TextDecoder()
-        .decode(dbytes)
-      // eslint-disable-next-line no-control-regex
+    }).then(async (z) => {
+      let data = new Uint8Array();
+      let item = 0;
+      // eslint-disable-next-line no-await-in-loop
+      while (await z.store.containsItem(String(item))) {
+        // eslint-disable-next-line no-await-in-loop
+        const buf = await z.store.getItem(String(item));
+        // eslint-disable-next-line no-await-in-loop
+        const dbytes = await z.compressor.decode(buf);
+        const tmp = new Uint8Array(dbytes.buffer.byteLength + data.buffer.byteLength);
+        tmp.set(new Uint8Array(data.buffer), 0);
+        tmp.set(dbytes, data.buffer.byteLength);
+        data = tmp;
+        item += 1;
+      }
+      const text = new TextDecoder()
+        .decode(data)
+        // eslint-disable-next-line no-control-regex
         .replace(/[\u0000-\u001c]/g, ',')
         .split(',')
         .filter(Boolean)
         .filter(i => !Number(i))
-        .filter(i => i.length > 2))));
+        .filter(i => i.length > 2);
+      return text;
+    }));
     return this.cellNames;
   }
 
