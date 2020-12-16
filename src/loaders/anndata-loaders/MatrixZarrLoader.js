@@ -3,7 +3,7 @@ import { openArray } from 'zarr';
 import BaseCellsZarrLoader from './BaseCellsZarrLoader';
 
 export default class MatrixZarrLoader extends BaseCellsZarrLoader {
-  async loadSparseCellXGene(zattrs) {
+  async loadCSRSparseCellXGene(zattrs) {
     const { store } = this;
     const { data: rows } = await openArray({ store, path: 'X/indptr', mode: 'r' }).then(z => new Promise((resolve) => {
       z.getRaw(null)
@@ -33,6 +33,36 @@ export default class MatrixZarrLoader extends BaseCellsZarrLoader {
     return { data: cellXGeneMatrix };
   }
 
+  async loadCSCSparseCellXGene(zattrs) {
+    const { store } = this;
+    const { data: cols } = await openArray({ store, path: 'X/indptr', mode: 'r' }).then(z => new Promise((resolve) => {
+      z.getRaw(null)
+        .then(resolve);
+    }));
+    const { data: rows } = await openArray({ store, path: 'X/indices', mode: 'r' }).then(z => new Promise((resolve) => {
+      z.getRaw(null)
+        .then(resolve);
+    }));
+    const { data: cellXGene } = await openArray({ store, path: 'X/data', mode: 'r' }).then(z => new Promise((resolve) => {
+      z.getRaw(null)
+        .then(resolve);
+    }));
+    const { shape } = zattrs;
+    const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
+    let col = 0;
+    cols.forEach((_, index) => {
+      const colStart = cols[index];
+      const colEnd = cols[index + 1];
+      for (let i = colStart; i < colEnd; i += 1) {
+        const val = cellXGene[i];
+        const row = rows[i];
+        cellXGeneMatrix[row * shape[1] + col] = val;
+      }
+      col += 1;
+    });
+    return { data: cellXGeneMatrix };
+  }
+
   async loadCellXGene() {
     const { store, url } = this;
     if (this.arr) {
@@ -45,7 +75,11 @@ export default class MatrixZarrLoader extends BaseCellsZarrLoader {
     if (matrix === 'X' && res.status !== 404) {
       const zattrs = await res.json();
       if (zattrs['encoding-type'] === 'csr_matrix') {
-        this.arr = this.loadSparseCellXGene(zattrs);
+        this.arr = this.loadCSRSparseCellXGene(zattrs);
+        return this.arr;
+      }
+      if (zattrs['encoding-type'] === 'csc_matrix') {
+        this.arr = this.loadCSCSparseCellXGene(zattrs);
         return this.arr;
       }
     }
