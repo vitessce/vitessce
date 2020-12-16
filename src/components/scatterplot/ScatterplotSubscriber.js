@@ -100,7 +100,6 @@ export default function ScatterplotSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, false,
   );
   
-  const [isLabelsOn, setIsLabelsOn] = useState(true);
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
@@ -172,7 +171,18 @@ export default function ScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
-      options={<ScatterplotOptions cellSetLabelsVisible={cellSetLabelsVisible} setCellSetLabelsVisible={setCellSetLabelsVisible} cellRadius={cellRadius} setCellRadius={setCellRadius} />}
+      options={(
+        <ScatterplotOptions
+          cellRadius={cellRadius}
+          setCellRadius={setCellRadius}
+          cellSetLabelsVisible={cellSetLabelsVisible}
+          setCellSetLabelsVisible={setCellSetLabelsVisible}
+          cellSetLabelSize={cellSetLabelSize}
+          setCellSetLabelSize={setCellSetLabelSize}
+          cellSetPolygonsVisible={cellSetPolygonsVisible}
+          setCellSetPolygonsVisible={setCellSetPolygonsVisible}
+        />
+      )}
     >
       <Scatterplot
         ref={deckRef}

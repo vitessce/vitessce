@@ -14,7 +14,7 @@ const useStyles = makeStyles(theme => ({
         color: theme.palette.primaryForeground,
         '&:checked': {
             color: theme.palette.primaryForeground,
-        }
+        },
     },
     label: {
         marginLeft: 0,
@@ -24,25 +24,40 @@ const useStyles = makeStyles(theme => ({
     },
     slider: {
         width: '50%',
-        padding: 0,
-        margin: '2px 10px',
-    }
-  }));
+        margin: '0px 15px',
+        verticalAlign: 'middle',
+    },
+}));
 
 export default function ScatterplotOptions(props) {
     const {
         open,
-        cellSetLabelsVisible,
-        setCellSetLabelsVisible,
         cellRadius,
         setCellRadius,
+        cellSetLabelsVisible,
+        setCellSetLabelsVisible,
+        cellSetLabelSize,
+        setCellSetLabelSize,
+        cellSetPolygonsVisible,
+        setCellSetPolygonsVisible,
     } = props;
 
     const classes = useStyles();
 
+    function handleRadiusChange(event, value) {
+        setCellRadius(value);
+    }
 
     function handleLabelVisibilityChange(event) {
         setCellSetLabelsVisible(event.target.checked);
+    }
+
+    function handleLabelSizeChange(event, value) {
+        setCellSetLabelSize(value);
+    }
+
+    function handlePolygonVisibilityChange(event) {
+        setCellSetPolygonsVisible(event.target.checked);
     }
 
     return (
@@ -52,10 +67,23 @@ export default function ScatterplotOptions(props) {
             appear
             exit
             unmountOnExit
-            timeout={500}
+            timeout={200}
         >
             <div className="options-pane-container">
                 <h4>Scatterplot Options</h4>
+                <Typography gutterBottom display="inline">
+                    Cell Radius
+                </Typography>
+                <Slider
+                    className={classes.slider}
+                    value={cellRadius}
+                    onChange={handleRadiusChange}
+                    aria-labelledby="cell-radius-slider"
+                    valueLabelDisplay="auto"
+                    step={0.25}
+                    min={0.25}
+                    max={5}
+                />
                 <FormControl component="fieldset" className={classes.formControl}>
                     <FormGroup aria-label="position" row>
                         <FormControlLabel
@@ -80,15 +108,34 @@ export default function ScatterplotOptions(props) {
                 </Typography>
                 <Slider
                     className={classes.slider}
-                    defaultValue={14}
-                    aria-labelledby="discrete-slider"
+                    value={cellSetLabelSize}
+                    onChange={handleLabelSizeChange}
+                    aria-labelledby="cell-set-label-size-slider"
                     valueLabelDisplay="auto"
                     step={1}
                     marks
                     min={8}
                     max={36}
                 />
-                
+                <FormControl component="fieldset" className={classes.formControl}>
+                    <FormGroup aria-label="position" row>
+                        <FormControlLabel
+                            className={classes.label}
+                            value="start"
+                            control={(
+                                <Checkbox
+                                    className={classes.checkbox}
+                                    checked={cellSetPolygonsVisible}
+                                    onChange={handlePolygonVisibilityChange}
+                                    name="scatterplot-option-cell-set-polygons"
+                                    color="default"
+                                />
+                            )}
+                            label="Cell Set Polygons Visible"
+                            labelPlacement="start"
+                        />
+                    </FormGroup>
+                </FormControl>
             </div>
         </CSSTransition>
     );

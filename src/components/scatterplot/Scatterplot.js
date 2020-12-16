@@ -185,7 +185,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getTextAnchor: 'middle',
         getAlignmentBaseline: 'center',
         fontFamily: LABEL_FONT_FAMILY,
-        fontWeight: 'bold'
+        fontWeight: 'normal'
       }));
     }
 

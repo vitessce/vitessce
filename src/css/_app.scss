@@ -116,12 +116,17 @@
         color: map-get($theme-colors, "primary-foreground");
         padding-left: 0.25em;
         padding-right: 0.25em;
+        border-radius: 2px;
+
+        &:hover {
+            background-color: lighten(map-get($theme-colors, "primary-background-dim"), 20);
+        }
 
         &:first-child {
-            padding-left: 1em;
+            margin-left: 0.75em;
         }
         &:last-child {
-            padding-right: 0.5em;
+            margin-right: 0.25em;
         }
 
         svg {
