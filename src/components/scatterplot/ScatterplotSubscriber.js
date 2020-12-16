@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
@@ -99,7 +98,7 @@ export default function ScatterplotSubscriber(props) {
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
-  
+
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
@@ -124,7 +123,7 @@ export default function ScatterplotSubscriber(props) {
     cellSetColor,
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetSelection, cellSetColor, expressionMatrix]);
-  
+
   const cellSetPolygons = useMemo(() => getCellSetPolygons({
     cells,
     mapping,

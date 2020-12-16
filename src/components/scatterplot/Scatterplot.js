@@ -1,7 +1,6 @@
-/* eslint-disable */
 import React, { forwardRef } from 'react';
 import { PolygonLayer, TextLayer } from '@deck.gl/layers';
-import { forceSimulation } from "d3-force";
+import { forceSimulation } from 'd3-force';
 import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
 import {
@@ -138,7 +137,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
     const result = [];
 
-    if(cellSetPolygonsVisible) {
+    if (cellSetPolygonsVisible) {
       result.push(new PolygonLayer({
         id: 'cell-sets-polygon-layer',
         data: cellSetPolygons,
@@ -152,7 +151,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       }));
     }
 
-    if(cellSetLabelsVisible) {
+    if (cellSetLabelsVisible) {
       const { zoom } = viewState;
 
       const fontSize = cellSetLabelSize;
@@ -161,17 +160,17 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         x: p.poic[0],
         y: p.poic[1],
         label: p.name,
-        width: p.name.length * fontSize * 1/(2**zoom) * 4,
-        height: fontSize * 1/(2**zoom) * 1.5,
+        width: p.name.length * fontSize * 1 / (2 ** zoom) * 4,
+        height: fontSize * 1 / (2 ** zoom) * 1.5,
       }));
 
       const collisionForce = forceCollideRects()
         .size(d => ([d.width, d.height]));
-      
+
       const simulation = forceSimulation()
         .nodes(nodes)
-        .force("center", collisionForce);
-      
+        .force('center', collisionForce);
+
       simulation.tick(70);
 
       result.push(new TextLayer({
@@ -185,7 +184,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getTextAnchor: 'middle',
         getAlignmentBaseline: 'center',
         fontFamily: LABEL_FONT_FAMILY,
-        fontWeight: 'normal'
+        fontWeight: 'normal',
       }));
     }
 
