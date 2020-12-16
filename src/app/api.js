@@ -369,11 +369,54 @@ export const configs = {
     ],
   },
   'dries-2019': {
-    ...driesBase,
-    version: '0.1.0',
     name: 'Dries',
+    version: '1.0.0',
+    description: driesDescription,
     public: true,
-    staticLayout: [
+    datasets: [
+      {
+        uid: 'dries-2019',
+        name: 'Dries 2019',
+        files: driesBase.layers.map(file => ({
+          type: file.type.toLowerCase(),
+          fileType: file.fileType,
+          url: file.url,
+        })),
+      },
+    ],
+    initStrategy: 'auto',
+    coordinationSpace: {
+      embeddingType: {
+        TSNE: 't-SNE',
+        UMAP: 'UMAP',
+      },
+      embeddingCellSetPolygonsVisible: {
+        A: false,
+      },
+      embeddingCellSetLabelsVisible: {
+        A: true,
+      },
+      embeddingCellSetLabelSize: {
+        A: 16,
+      },
+      embeddingCellRadius: {
+        A: 1,
+      },
+      embeddingZoom: {
+        TSNE: 3,
+        UMAP: 3,
+      },
+      spatialZoom: {
+        A: -4.4,
+      },
+      spatialTargetX: {
+        A: 3800,
+      },
+      spatialTargetY: {
+        A: 900,
+      },
+    },
+    layout: [
       { component: 'description',
         props: {
           description: driesDescription,
@@ -386,30 +429,33 @@ export const configs = {
       { component: 'cellSetSizes',
         x: 5, y: 4, w: 4, h: 4 },
       { component: 'scatterplot',
-        props: {
-          mapping: 't-SNE',
-          view: {
-            zoom: 3,
-            target: [0, 0, 0],
-          },
+        coordinationScopes: {
+          embeddingType: 'TSNE',
+          embeddingZoom: 'TSNE',
+          embeddingCellSetLabelsVisible: 'A',
+          embeddingCellSetLabelSize: 'A',
+          embeddingCellSetPolygonsVisible: 'A',
+          embeddingCellRadius: 'A',
         },
         x: 0, y: 2, w: 5, h: 4 },
       { component: 'spatial',
         props: {
           cellRadius: 50,
-          view: {
-            zoom: -4.4,
-            target: [3800, -900, 0],
-          },
+        },
+        coordinationScopes: {
+          spatialZoom: 'A',
+          spatialTargetX: 'A',
+          spatialTargetY: 'A',
         },
         x: 5, y: 0, w: 4, h: 4 },
       { component: 'scatterplot',
-        props: {
-          mapping: 'UMAP',
-          view: {
-            zoom: 3,
-            target: [0, 0, 0],
-          },
+        coordinationScopes: {
+          embeddingType: 'UMAP',
+          embeddingZoom: 'UMAP',
+          embeddingCellSetLabelsVisible: 'A',
+          embeddingCellSetLabelSize: 'A',
+          embeddingCellSetPolygonsVisible: 'A',
+          embeddingCellRadius: 'A',
         },
         x: 0, y: 0, w: 5, h: 4 },
     ],
