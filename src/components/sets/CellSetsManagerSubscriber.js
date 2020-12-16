@@ -18,7 +18,6 @@ import {
   treeExportSet,
   treeToExpectedCheckedLevel,
   nodeToLevelDescendantNamePaths,
-  treeToCheckedSetOperations,
   treeToIntersection,
   treeToUnion,
   treeToComplement,
@@ -212,22 +211,6 @@ export default function CellSetsManagerSubscriber(props) {
     }
     return null;
   }, [cellSetSelection, mergedCellSets]);
-
-  // Determine which of the set operation buttons should be enabled/disabled
-  // based on the currently selected sets.
-  const {
-    hasCheckedSetsToUnion = false,
-    hasCheckedSetsToIntersect = false,
-    hasCheckedSetsToComplement = false,
-  } = useMemo(() => {
-    if (cellSetSelection && cellSetSelection.length > 0
-      && mergedCellSets && mergedCellSets.tree.length > 0
-      && allCellIds && allCellIds.length > 0
-      && cellSetSelection.every(node => treeFindNodeByNamePath(mergedCellSets, node))) {
-      return treeToCheckedSetOperations(mergedCellSets, cellSetSelection, allCellIds);
-    }
-    return {};
-  }, [cellSetSelection, mergedCellSets, allCellIds]);
 
   // Callback functions
 
@@ -687,9 +670,9 @@ export default function CellSetsManagerSubscriber(props) {
         onUnion={onUnion}
         onIntersection={onIntersection}
         onComplement={onComplement}
-        hasCheckedSetsToUnion={hasCheckedSetsToUnion}
-        hasCheckedSetsToIntersect={hasCheckedSetsToIntersect}
-        hasCheckedSetsToComplement={hasCheckedSetsToComplement}
+        hasCheckedSetsToUnion={cellSetSelection?.length > 1}
+        hasCheckedSetsToIntersect={cellSetSelection?.length > 1}
+        hasCheckedSetsToComplement={cellSetSelection?.length > 0}
       />
     </TitleInfo>
   );
