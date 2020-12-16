@@ -1,11 +1,23 @@
 import React, { useReducer } from 'react';
-
+import { makeStyles } from '@material-ui/core/styles';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import MenuItem from '@material-ui/core/MenuItem';
 import { PopperMenu, MuiSpan } from '../shared-mui/components';
-import { colorPaletteStyles } from '../shared-mui/styles';
 
 import ColorPalette from './ColorPalette';
+
+const useStyles = makeStyles(() => ({
+  menuButton: {
+    backgroundColor: 'transparent',
+  },
+  colors: {
+    '&:hover': {
+      backgroundColor: 'transparent',
+    },
+    paddingLeft: '2px',
+    paddingRight: '2px',
+  },
+}));
 
 /**
  * Dropdown for options for a channel on the three dots button.
@@ -15,6 +27,8 @@ import ColorPalette from './ColorPalette';
  */
 function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUpdate }) {
   const [open, toggle] = useReducer(v => !v, false);
+
+  const classes = useStyles();
 
   const handleColorSelect = (color) => {
     handlePropertyChange('color', color);
@@ -30,7 +44,7 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
       open={open}
       toggle={toggle}
       buttonIcon={<MoreVertIcon fontSize="small" />}
-      buttonStyles={{ backgroundColor: 'transparent' }}
+      buttonClassName={classes.menuButton}
     >
       <MenuItem dense disableGutters onClick={handleRemove}>
         <MuiSpan>Remove</MuiSpan>
@@ -38,7 +52,7 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
       <MenuItem dense disableGutters onClick={handleIQRUpdate}>
         <MuiSpan>Use IQR</MuiSpan>
       </MenuItem>
-      <MenuItem dense disableGutters className={colorPaletteStyles().colors}>
+      <MenuItem dense disableGutters className={classes.colors}>
         <ColorPalette handleChange={handleColorSelect} />
       </MenuItem>
     </PopperMenu>

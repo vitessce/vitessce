@@ -23,7 +23,7 @@
         }
     }
 
-    .loading-indicator-backdrop, .options-pane-container {
+    .loading-indicator-backdrop {
         position: absolute;
         top: 0;
         right: 0;
@@ -47,38 +47,6 @@
         padding: 1em;
         background-color: rgba(map-get($theme-colors, "primary-background"), 0.9);
 
-    }
-
-    .options-pane-container-enter {
-        width: 0%;
-        opacity: 0;
-    }
-      
-    .options-pane-container-enter-active {
-        width: 100%;
-        opacity: 1;
-        transition: width 0.25s ease-in, opacity 0.25s ease-in;
-    }
-
-    .options-pane-container-enter-done {
-        width: 100%;
-        opacity: 1;
-    }
-
-    .options-pane-container-exit {
-        width: 100%;
-        opacity: 1;
-    }
-      
-    .options-pane-container-exit-active {
-        width: 0%;
-        opacity: 0;
-        transition: width 0.25s ease-out, opacity 0.25s ease-out;
-    }
-
-    .options-pane-container-exit-done {
-        width: 0%;
-        opacity: 0;
     }
     
     
@@ -105,35 +73,6 @@
         Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
     .d-flex {
         flex-shrink: 0;
-    }
-
-    /* Styling for closing button on the grid items */
-    .title-pane-button {
-        border: none;
-        font-family: Ampersand;
-        margin-left: 0;
-        background: none;
-        color: map-get($theme-colors, "primary-foreground");
-        padding-left: 0.25em;
-        padding-right: 0.25em;
-        border-radius: 2px;
-
-        &:hover {
-            background-color: lighten(map-get($theme-colors, "primary-background-dim"), 20);
-        }
-
-        &:first-child {
-            margin-left: 0.75em;
-        }
-        &:last-child {
-            margin-right: 0.25em;
-        }
-
-        svg {
-            width: 0.7em;
-            height: 0.7em;
-            vertical-align: middle;
-        }
     }
 
     /* Tool styles */

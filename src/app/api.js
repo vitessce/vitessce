@@ -413,7 +413,7 @@ export const configs = {
         A: 3800,
       },
       spatialTargetY: {
-        A: 900,
+        A: -900,
       },
     },
     layout: [

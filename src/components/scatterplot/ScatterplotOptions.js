@@ -1,36 +1,51 @@
 import React from 'react';
-import { CSSTransition } from 'react-transition-group';
 import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slider from '@material-ui/core/Slider';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormGroup from '@material-ui/core/FormGroup';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableRow from '@material-ui/core/TableRow';
 
 const useStyles = makeStyles(theme => ({
+  box: {
+    boxSizing: 'border-box',
+  },
   checkbox: {
+    padding: '3px',
     color: theme.palette.primaryForeground,
     '&:checked': {
       color: theme.palette.primaryForeground,
     },
   },
-  label: {
-    marginLeft: 0,
-  },
-  formControl: {
-    width: '100%',
-  },
   slider: {
-    width: '50%',
-    margin: '0px 15px',
-    verticalAlign: 'middle',
+    color: theme.palette.primaryForeground,
+    minWidth: '60px',
+    padding: '10px 0 6px 0',
+  },
+  sliderValueLabel: {
+    '& span': {
+      '& span': {
+        color: theme.palette.primaryBackground,
+      },
+    },
+  },
+  tableContainer: {
+    overflow: 'hidden',
+  },
+  labelCell: {
+    padding: '2px 8px 2px 16px',
+  },
+  inputCell: {
+    padding: '2px 16px 2px 8px',
+    overflowX: 'hidden',
   },
 }));
 
 export default function ScatterplotOptions(props) {
   const {
-    open,
     cellRadius,
     setCellRadius,
     cellSetLabelsVisible,
@@ -60,35 +75,13 @@ export default function ScatterplotOptions(props) {
   }
 
   return (
-    <CSSTransition
-      classNames="options-pane-container"
-      in={open}
-      appear
-      exit
-      unmountOnExit
-      timeout={200}
-    >
-      <div className="options-pane-container">
-        <h4>Scatterplot Options</h4>
-        <Typography gutterBottom display="inline">
-                    Cell Radius
-        </Typography>
-        <Slider
-          className={classes.slider}
-          value={cellRadius}
-          onChange={handleRadiusChange}
-          aria-labelledby="cell-radius-slider"
-          valueLabelDisplay="auto"
-          step={0.25}
-          min={0.25}
-          max={5}
-        />
-        <FormControl component="fieldset" className={classes.formControl}>
-          <FormGroup aria-label="position" row>
-            <FormControlLabel
-              className={classes.label}
-              value="start"
-              control={(
+    <Box className={classes.box}>
+      <TableContainer className={classes.tableContainer}>
+        <Table className={classes.table} size="small">
+          <TableBody>
+            <TableRow>
+              <TableCell className={classes.labelCell}>Cell Set Labels Visible</TableCell>
+              <TableCell className={classes.inputCell}>
                 <Checkbox
                   className={classes.checkbox}
                   checked={cellSetLabelsVisible}
@@ -96,32 +89,27 @@ export default function ScatterplotOptions(props) {
                   name="scatterplot-option-cell-set-labels"
                   color="default"
                 />
-                            )}
-              label="Cell Set Labels Visible"
-              labelPlacement="start"
-            />
-          </FormGroup>
-        </FormControl>
-        <Typography gutterBottom display="inline">
-                    Cell Set Label Size
-        </Typography>
-        <Slider
-          className={classes.slider}
-          value={cellSetLabelSize}
-          onChange={handleLabelSizeChange}
-          aria-labelledby="cell-set-label-size-slider"
-          valueLabelDisplay="auto"
-          step={1}
-          marks
-          min={8}
-          max={36}
-        />
-        <FormControl component="fieldset" className={classes.formControl}>
-          <FormGroup aria-label="position" row>
-            <FormControlLabel
-              className={classes.label}
-              value="start"
-              control={(
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className={classes.labelCell}>Cell Set Label Size</TableCell>
+              <TableCell className={classes.inputCell}>
+                <Slider
+                  classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+                  value={cellSetLabelSize}
+                  onChange={handleLabelSizeChange}
+                  aria-labelledby="cell-set-label-size-slider"
+                  valueLabelDisplay="auto"
+                  step={1}
+                  marks
+                  min={8}
+                  max={36}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className={classes.labelCell}>Cell Set Polygons Visible</TableCell>
+              <TableCell className={classes.inputCell}>
                 <Checkbox
                   className={classes.checkbox}
                   checked={cellSetPolygonsVisible}
@@ -129,13 +117,26 @@ export default function ScatterplotOptions(props) {
                   name="scatterplot-option-cell-set-polygons"
                   color="default"
                 />
-                            )}
-              label="Cell Set Polygons Visible"
-              labelPlacement="start"
-            />
-          </FormGroup>
-        </FormControl>
-      </div>
-    </CSSTransition>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className={classes.labelCell}>Cell Radius</TableCell>
+              <TableCell className={classes.inputCell}>
+                <Slider
+                  classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+                  value={cellRadius}
+                  onChange={handleRadiusChange}
+                  aria-labelledby="cell-radius-slider"
+                  valueLabelDisplay="auto"
+                  step={0.25}
+                  min={0.25}
+                  max={5}
+                />
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
