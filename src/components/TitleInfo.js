@@ -43,6 +43,9 @@ const useStyles = makeStyles(theme => ({
     marginLeft: '8px !important',
     backgroundColor: 'transparent',
     outline: 0,
+    '& svg': {
+      color: theme.palette.primaryForeground,
+    },
   },
 }));
 
@@ -121,8 +124,7 @@ export default function TitleInfo(props) {
                 toggle={toggleOptionsPaneOpen}
                 buttonIcon={<SettingsIcon />}
                 buttonClassName={classes.iconButton}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                placement="bottom-end"
               >
                 {options}
               </PopperMenu>

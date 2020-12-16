@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
   },
   inputCell: {
     padding: '2px 16px 2px 8px',
-    overflowX: 'hidden',
+    overflow: 'visible',
   },
 }));
 
