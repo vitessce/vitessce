@@ -7,7 +7,7 @@ slug: /coordination
 
 Vitessce supports *coordinated multiple views*, meaning that visualizations can be linked together on many properties.
 
-The implementation of coordinated multiple views in Vitessce follows a coordination model proposed by Boukhelifa and Rodgers (Information Visualization 2003).
+The implementation of coordinated multiple views in Vitessce follows a coordination model proposed by Boukhelifa and Rodgers (Information Visualization 2003). The coordination details live in the Vitessce view config.
 
 ## Graph Representation
 

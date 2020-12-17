@@ -4,6 +4,5 @@ module.exports = {
     'View Configs': ['coordination', 'view-config-js', 'view-config-json'],
     'Data Preparation': ['data-file-types', 'data-serving'],
     'React Components': ['component-vitessce', 'component-scatterplot'],
-    'Features': ['mdx'],
   },
 };
