@@ -170,7 +170,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
       forceSimulation()
         .nodes(nodes)
-        .force('center', collisionForce)
+        .force('collision', collisionForce)
         .tick(numTicks);
 
       result.push(new TextLayer({
