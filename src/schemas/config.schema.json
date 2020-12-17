@@ -90,9 +90,9 @@
     "annDataCells": {
       "type": "object",
       "description": "The properties of this object are the configuration for how to layout scatterplots and spatial information",
+      "minProperties": 1,
       "additionalProperties": false,
       "required": [],
-      "minProperties": 1,
       "properties": {
         "xy": {
           "type": "string",
@@ -114,6 +114,8 @@
             ".": {
               "type": "object",
               "description": "An object containing key-values for mappings like { UMAP: { key: 'obsm.X_umap', dims: [0, 1] } }.",
+              "additionalProperties": false,
+              "required": ["key"],
               "properties": {
                 "key": {
                   "type": "string",
