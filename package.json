@@ -39,7 +39,6 @@
     "@turf/boolean-within": "^6.0.1",
     "@turf/centroid": "^6.0.2",
     "@turf/concave": "^6.0.5",
-    "@turf/convex": "^6.0.3",
     "@turf/helpers": "^6.1.4",
     "ajv": "^6.10.0",
     "bowser": "^2.11.0",

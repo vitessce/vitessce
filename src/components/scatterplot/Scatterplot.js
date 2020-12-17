@@ -10,7 +10,9 @@ import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/Abstract
 import { forceCollideRects } from '../shared-spatial-scatterplot/force-collide-rects';
 
 const CELLS_LAYER_ID = 'scatterplot';
-export const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
+const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
+const NUM_FORCE_SIMULATION_TICKS = 100;
+const LABEL_UPDATE_ZOOM_DELTA = 0.25;
 
 // Default getter function props.
 const makeDefaultGetCellPosition = mapping => (cellEntry) => {
@@ -75,6 +77,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellsQuadTree = null;
     this.cellsLayer = null;
     this.cellSetsForceSimulation = forceCollideRects();
+    this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
 
     // Initialize data and layers.
@@ -134,7 +137,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellSetPolygonsVisible,
       cellSetLabelsVisible,
       cellSetLabelSize,
-      numTicks = 50,
     } = this.props;
 
     const result = [];
@@ -155,7 +157,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
     if (cellSetLabelsVisible) {
       const { zoom } = viewState;
-
       const nodes = cellSetPolygons.map(p => ({
         x: p.centroid[0],
         y: p.centroid[1],
@@ -171,7 +172,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       forceSimulation()
         .nodes(nodes)
         .force('collision', collisionForce)
-        .tick(numTicks);
+        .tick(NUM_FORCE_SIMULATION_TICKS);
 
       result.push(new TextLayer({
         id: 'cell-sets-text-layer',
@@ -239,8 +240,33 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellsLayer = this.createCellsLayer();
   }
 
-  onUpdateCellSetsLayers() {
-    this.cellSetsLayers = this.createCellSetsLayers();
+  onUpdateCellSetsLayers(onlyViewStateChange) {
+    // Because the label sizes for the force simulation depend on the zoom level,
+    // we _could_ run the simulation every time the zoom level changes.
+    // However, this has a performance impact in firefox.
+    if (onlyViewStateChange) {
+      const { viewState, cellSetLabelsVisible } = this.props;
+      const { zoom } = viewState;
+      const { cellSetsLabelPrevZoom } = this;
+      // Instead, we can just check if the zoom level has changed
+      // by some relatively large delta, to be more conservative
+      // about re-running the force simulation.
+      if (cellSetLabelsVisible
+        && (
+          cellSetsLabelPrevZoom === null
+          || Math.abs(cellSetsLabelPrevZoom - zoom) > LABEL_UPDATE_ZOOM_DELTA
+        )
+      ) {
+        this.cellSetsLayers = this.createCellSetsLayers();
+        this.cellSetsLabelPrevZoom = zoom;
+      }
+    } else {
+      // Otherwise, something more substantial than just
+      // the viewState has changed, such as the label array
+      // itself, so we always want to update the layer
+      // in this case.
+      this.cellSetsLayers = this.createCellSetsLayers();
+    }
   }
 
   viewInfoDidUpdate() {
@@ -278,11 +304,16 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
     if ([
-      'cellSetPolygons', 'viewState', 'cellSetPolygonsVisible',
+      'cellSetPolygons', 'cellSetPolygonsVisible',
       'cellSetLabelsVisible', 'cellSetLabelSize',
     ].some(shallowDiff)) {
       // Cell sets layer props changed.
-      this.onUpdateCellSetsLayers();
+      this.onUpdateCellSetsLayers(false);
+      this.forceUpdate();
+    }
+    if (shallowDiff('viewState')) {
+      // The viewState prop has changed (due to zoom or pan).
+      this.onUpdateCellSetsLayers(true);
       this.forceUpdate();
     }
   }
