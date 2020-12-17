@@ -9,16 +9,16 @@
         {
           "type": "cells",
           "fileType": "anndata-cells.zarr",
-          "url": "http://127.0.0.1:8081/secondary_analysis_hvg_subset.zarr",
+          "url": "http://127.0.0.1:8081/secondary_analysis_hvg_obsm.zarr",
           "options": {
-            "xy": "obsm.spatial",
+            "xy": "obsm.X_spatial",
             "mappings": {
               "UMAP": {
-                "key": "obsm.umap",
+                "key": "obsm.X_umap",
                 "dims": [0, 1]
               },
               "PCA": {
-                "key": "obsm.pca",
+                "key": "obsm.X_pca",
                 "dims": [0, 2]
               }
             },
@@ -28,7 +28,7 @@
         {
           "type": "cell-sets",
           "fileType": "anndata-cell-sets.zarr",
-          "url": "http://127.0.0.1:8081/secondary_analysis_hvg_subset.zarr",
+          "url": "http://127.0.0.1:8081/secondary_analysis_hvg_obsm.zarr",
           "options": [
             {
               "group_name": "Ledien",
@@ -39,9 +39,10 @@
         {
           "type": "expression-matrix",
           "fileType": "anndata-expression-matrix.zarr",
-          "url": "http://127.0.0.1:8081/secondary_analysis_hvg_subset.zarr",
+          "url": "http://127.0.0.1:8081/secondary_analysis_hvg_obsm.zarr",
           "options": {
-            "matrix": "X"
+            "matrix": "obsm.X_top_200_genes",
+            "genesFilter": "var.highly_variable"
           }
         }
       ]

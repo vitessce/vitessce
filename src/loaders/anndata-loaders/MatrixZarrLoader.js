@@ -83,7 +83,7 @@ export default class MatrixZarrLoader extends BaseCellsZarrLoader {
         return this.arr;
       }
     }
-    this.arr = openArray({ store, path: matrix, mode: 'r' }).then(z => new Promise((resolve) => {
+    this.arr = openArray({ store, path: matrix.replace('.', '/'), mode: 'r' }).then(z => new Promise((resolve) => {
       z.getRaw(null)
         .then(resolve);
     }));
@@ -96,21 +96,26 @@ export default class MatrixZarrLoader extends BaseCellsZarrLoader {
       .then((d) => {
         const [cellNames, geneNames, { data: cellXGeneMatrix }] = d;
         const attrs = { rows: cellNames, cols: geneNames };
-        let max = -Infinity;
-        let min = Infinity;
-        for (let i = 0; i < cellXGeneMatrix.length; i += 1) {
-          const val = cellXGeneMatrix[i];
-          if (val > max) {
-            max = val;
-          } else if (val < min) {
-            min = val;
+        if (!this.min || !this.max) {
+          let max = -Infinity;
+          let min = Infinity;
+          for (let i = 0; i < cellXGeneMatrix.length; i += 1) {
+            const val = cellXGeneMatrix[i];
+            if (val > max) {
+              max = val;
+            } else if (val < min) {
+              min = val;
+            }
           }
+          this.min = min;
+          this.max = max;
         }
-        const ratio = 255 / (max - min);
-        const data = new Uint8Array(cellXGeneMatrix.map(i => Math.floor((i - min) * ratio)));
+        const ratio = 255 / (this.max - this.min);
+        const data = new Uint8Array(cellXGeneMatrix.map(i => Math.floor((i - this.min) * ratio)));
         return {
           data: [
-            attrs, { data }],
+            attrs, { data },
+          ],
           url: null,
         };
       });

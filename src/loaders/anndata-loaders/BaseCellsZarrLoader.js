@@ -55,7 +55,7 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     const { store } = this;
     return openArray({
       store,
-      path: path.replace('obsm.', 'obsm.X_').replace('.', '/'),
+      path: path.replace('.', '/'),
       mode: 'r',
     }).then(
       arr => new Promise((resolve) => {
@@ -103,8 +103,21 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
     if (this.geneNames) {
       return this.geneNames;
     }
+    const { genesFilter: genesFilterZarr } = this.options;
+    let genesFilter;
+    if (genesFilterZarr) {
+      const genesFilterArr = await openArray({
+        store: `${this.url}/${genesFilterZarr.replace('.', '/')}`,
+        mode: 'r',
+      });
+      const genesBufferCompressed = await genesFilterArr.store.getItem('0');
+      genesFilter = await genesFilterArr.compressor.decode(genesBufferCompressed);
+    }
     const res = await fetch(`${this.url}/var/.zattrs`);
     const { _index } = await res.json();
+    if (this.geneNames) {
+      return this.geneNames;
+    }
     this.geneNames = openArray({
       store: `${this.url}/var/${_index}`,
       mode: 'r',
@@ -120,7 +133,8 @@ export default class BaseCellsZarrLoader extends AbstractLoader {
           .split(',')
           .filter(Boolean)
           .filter(i => !Number(i))
-          .filter(i => i.length >= 2);
+          .filter(i => i.length >= 2)
+          .filter((_, j) => !genesFilter || genesFilter[j]);
         return text;
       }));
     return this.geneNames;
