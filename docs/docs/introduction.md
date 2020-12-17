@@ -26,9 +26,3 @@ Vitessce is being used in the following projects:
 
 * [HuBMAP Data Portal](https://portal.hubmapconsortium.org/)
 
-## Funding
-
-* NIH/OD Human BioMolecular Atlas Program (HuBMAP) (OT2OD026677, PI: Nils Gehlenborg).
-* NIH/NLM Biomedical Informatics and Data Science Research Training Program (T15LM007092, PI: Nils Gehlenborg)
-* Harvard Stem Cell Institute (CF-0014-17-03, PI: Nils Gehlenborg)
-

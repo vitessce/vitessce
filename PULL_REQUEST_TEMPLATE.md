@@ -4,8 +4,6 @@
 
 
 
-> Why is it necessary?
-
 Fixes #___
 
 ## Checklist

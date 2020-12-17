@@ -78,16 +78,17 @@ module.exports = {
           ],
         },
         {
-          title: 'More',
+          title: 'Funding',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/vitessce',
+              html: 'NIH/OD Human BioMolecular Atlas Program (HuBMAP) (OT2OD026677, PI: Nils Gehlenborg)',
             },
             {
-              label: 'GitHub Discussions',
-              href: 'https://github.com/vitessce/vitessce/discussions',
+              html: 'NIH/NLM Biomedical Informatics and Data Science Research Training Program (T15LM007092, PI: Nils Gehlenborg)',
             },
+            {
+              html: 'Harvard Stem Cell Institute (CF-0014-17-03, PI: Nils Gehlenborg)',
+            }
           ],
         },
       ],

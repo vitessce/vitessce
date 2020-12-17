@@ -1,8 +1,9 @@
 module.exports = {
   someSidebar: {
     'Getting Started': ['introduction', 'installation'],
-    'View Configs': ['coordination', 'view-config-js', 'view-config-json'],
-    'Data Preparation': ['data-file-types', 'data-serving'],
+    'Features': ['components', 'coordination', 'coordination-types'],
+    'View Configs': ['view-config-js', 'view-config-json'],
+    'Data Preparation': ['data-file-types', 'data-hosting'],
     'React Components': ['component-vitessce', 'component-scatterplot'],
   },
 };

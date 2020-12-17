@@ -1,11 +1,11 @@
 ---
-id: data-serving
-title: Serving Data
-sidebar_label: Serving Data
-slug: /data-serving
+id: data-hosting
+title: Hosting Data
+sidebar_label: Hosting Data
+slug: /data-hosting
 ---
 
-Vitessce is a "serverless" tool, and can read data hosted in object stores or static web servers, such as AWS S3.
+Vitessce is a "serverless" tool, and can read data hosted in object stores or static web servers, such as AWS S3. In fact, this means that both the Vitessce viewer static web app and your data resources can be hosted in this way.
 
 ## AWS S3
 
@@ -75,3 +75,7 @@ Simply add your data files to the `gh-pages` branch of your repository, enable G
 :::note
 Zarr-based file types will not work on GitHub pages (GitHub does not serve hidden files, and Zarr attributes are stored in a hidden file called `.zattrs`). However, the JSON-based file types can be served from GitHub pages.
 :::
+
+## Zenodo
+
+TODO

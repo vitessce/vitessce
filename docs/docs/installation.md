@@ -13,6 +13,8 @@ Looking for the [**Python**](https://vitessce.github.io/vitessce-python/getting_
 
 :::
 
+## Installation with NPM
+
 Installation requires [NodeJS](https://nodejs.org/). Vitessce has been tested with NodeJS 14, and should work with versions 8, 10, 12, 13, and 14.
 
 To install Vitessce from [NPM](https://www.npmjs.com/package/vitessce), go to your project folder in the terminal, and run:
