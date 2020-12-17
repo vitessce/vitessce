@@ -3,6 +3,7 @@
 ### Added
 - Implemented the view config API in JavaScript in a class called `VitessceConfig`.
 - Add searchable genes list.
+- Added a new documentation site.
 
 ### Changed
 - Genes list is now a virtual scroll to allow for more performant rendering.
