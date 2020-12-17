@@ -6,9 +6,12 @@ import {
 import {
   SETS_DATATYPE_CELL,
 } from '../../components/sets/constants';
-import BaseCellsZarrLoader from './BaseCellsZarrLoader';
+import BaseAnnDataLoader from './BaseAnnDataLoader';
 
-export default class CellSetsZarrLoader extends BaseCellsZarrLoader {
+/**
+ * Loader for converting zarr into the cell sets json schema.
+ */
+export default class CellSetsZarrLoader extends BaseAnnDataLoader {
   load() {
     const { options } = this;
     // eslint-disable-next-line camelcase

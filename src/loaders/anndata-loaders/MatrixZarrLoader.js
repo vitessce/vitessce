@@ -1,9 +1,18 @@
-/* eslint-disable no-control-regex */
+/* eslint-disable no-underscore-dangle */
 import { openArray } from 'zarr';
-import BaseCellsZarrLoader from './BaseCellsZarrLoader';
+import BaseAnnDataLoader from './BaseAnnDataLoader';
 
-export default class MatrixZarrLoader extends BaseCellsZarrLoader {
-  async loadCSRSparseCellXGene(zattrs) {
+/**
+ * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
+ */
+export default class MatrixZarrLoader extends BaseAnnDataLoader {
+  /**
+   * Class method for loading row oriented (CSR) sparse data from zarr.
+   * @param {string} zattrs The zattrs file for the X store,
+   * containing the shape of the non-sparse output.
+   * @returns {Object} A { data: Float32Array } contianing the CellXGene matrix.
+   */
+  async _loadCSRSparseCellXGene(zattrs) {
     const { store } = this;
     const { data: rows } = await openArray({ store, path: 'X/indptr', mode: 'r' }).then(z => new Promise((resolve) => {
       z.getRaw(null)
@@ -33,7 +42,13 @@ export default class MatrixZarrLoader extends BaseCellsZarrLoader {
     return { data: cellXGeneMatrix };
   }
 
-  async loadCSCSparseCellXGene(zattrs) {
+  /**
+   * Class method for loading column oriented (CSC) sparse data from zarr.
+   * @param {string} zattrs The zattrs file for the X store,
+   * containing the shape of the non-sparse output.
+   * @returns {Object} A { data: Float32Array } contianing the CellXGene matrix.
+   */
+  async _loadCSCSparseCellXGene(zattrs) {
     const { store } = this;
     const { data: cols } = await openArray({ store, path: 'X/indptr', mode: 'r' }).then(z => new Promise((resolve) => {
       z.getRaw(null)
@@ -63,6 +78,10 @@ export default class MatrixZarrLoader extends BaseCellsZarrLoader {
     return { data: cellXGeneMatrix };
   }
 
+  /**
+   * Class method for loading the cell x gene matrix.
+   * @returns {Promise} A promise for the zarr array contianing the cell x gene data.
+   */
   async loadCellXGene() {
     const { store, url } = this;
     if (this.arr) {
@@ -75,11 +94,11 @@ export default class MatrixZarrLoader extends BaseCellsZarrLoader {
     if (matrix === 'X' && res.status !== 404) {
       const zattrs = await res.json();
       if (zattrs['encoding-type'] === 'csr_matrix') {
-        this.arr = this.loadCSRSparseCellXGene(zattrs);
+        this.arr = this._loadCSRSparseCellXGene(zattrs);
         return this.arr;
       }
       if (zattrs['encoding-type'] === 'csc_matrix') {
-        this.arr = this.loadCSCSparseCellXGene(zattrs);
+        this.arr = this._loadCSCSparseCellXGene(zattrs);
         return this.arr;
       }
     }
@@ -88,6 +107,46 @@ export default class MatrixZarrLoader extends BaseCellsZarrLoader {
         .then(resolve);
     }));
     return this.arr;
+  }
+
+  /**
+   * Class method for loading the genes list from AnnData.var.
+   * @returns {Promise} A promise for the zarr array contianing the gene names.
+   */
+  async loadGeneNames() {
+    if (this.geneNames) {
+      return this.geneNames;
+    }
+    const { genesFilter: genesFilterZarr } = this.options;
+    let genesFilter;
+    if (genesFilterZarr) {
+      const genesFilterArr = await openArray({
+        store: `${this.url}/${genesFilterZarr.replace('.', '/')}`,
+        mode: 'r',
+      });
+      const genesBufferCompressed = await genesFilterArr.store.getItem('0');
+      genesFilter = await genesFilterArr.compressor.decode(genesBufferCompressed);
+    }
+    const res = await fetch(`${this.url}/var/.zattrs`);
+    const { _index } = await res.json();
+    if (this.geneNames) {
+      return this.geneNames;
+    }
+    this.geneNames = openArray({
+      store: `${this.url}/var/${_index}`,
+      mode: 'r',
+    }).then(z => z.store
+      .getItem('0')
+      .then(buf => new Uint8Array(buf))
+      .then(cbytes => z.compressor.decode(cbytes))
+      .then((dbytes) => {
+        const text = this.decodeTextArray(dbytes)
+          .filter(i => !Number(i))
+          .filter(i => i.length >= 2)
+          .filter((_, j) => !genesFilter || genesFilter[j]);
+        return text;
+      }));
+    return this.geneNames;
   }
 
   load() {

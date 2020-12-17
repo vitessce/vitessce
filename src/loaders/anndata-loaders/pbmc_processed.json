@@ -9,32 +9,36 @@
         {
           "type": "cells",
           "fileType": "anndata-cells.zarr",
-          "url": "http://127.0.0.1:8081/habib_200_hvg.zarr",
+          "url": "http://127.0.0.1:8081/pbmc3k_processed.zarr",
           "options": {
             "mappings": {
               "UMAP": {
                 "key": "obsm.X_umap",
                 "dims": [0, 1]
+              },
+              "PCA": {
+                "key": "obsm.X_pca",
+                "dims": [0, 2]
               }
             },
-            "factors": ["obs.CellType"]
+            "factors": ["obs.louvain"]
           }
         },
         {
           "type": "cell-sets",
           "fileType": "anndata-cell-sets.zarr",
-          "url": "http://127.0.0.1:8081/habib_200_hvg.zarr",
+          "url": "http://127.0.0.1:8081/pbmc3k_processed.zarr",
           "options": [
             {
-              "group_name": "Cell Type",
-              "set_name": "obs.CellType"
+              "group_name": "louvain",
+              "set_name": "obs.louvain"
             }
           ]
         },
         {
           "type": "expression-matrix",
           "fileType": "anndata-expression-matrix.zarr",
-          "url": "http://127.0.0.1:8081/habib_200_hvg.zarr",
+          "url": "http://127.0.0.1:8081/pbmc3k_processed.zarr",
           "options": {
             "matrix": "X"
           }
@@ -44,10 +48,13 @@
   ],
   "initStrategy": "auto",
   "coordinationSpace": {
-    "embeddingType": { "UMAP": "UMAP" },
+    "embeddingType": { "UMAP": "UMAP", "PCA": "PCA" },
     "embeddingZoom": { "A": 4 },
     "embeddingTargetX": { "A": 0 },
-    "embeddingTargetY": { "A": 0 }
+    "embeddingTargetY": { "A": 0 },
+    "spatialZoom": { "A": 0 },
+    "spatialTargetX": { "A": 1000 },
+    "spatialTargetY": { "A": 1000 }
   },
   "layout": [
     {
@@ -55,7 +62,7 @@
       "h": 3,
       "w": 3,
       "x": 9,
-      "y": 0,
+      "y": 3,
       "coordinationScopes": {}
     },
     {
@@ -63,17 +70,30 @@
       "h": 3,
       "w": 3,
       "x": 9,
-      "y": 3,
+      "y": 0,
       "coordinationScopes": {}
     },
     {
       "component": "scatterplot",
       "h": 3,
-      "w": 9,
+      "w": 4,
       "x": 0,
       "y": 0,
       "coordinationScopes": {
         "embeddingType": "UMAP",
+        "embeddingZoom": "A",
+        "embeddingTargetX": "A",
+        "embeddingTargetY": "A"
+      }
+    },
+    {
+      "component": "scatterplot",
+      "h": 3,
+      "w": 5,
+      "x": 4,
+      "y": 0,
+      "coordinationScopes": {
+        "embeddingType": "PCA",
         "embeddingZoom": "A",
         "embeddingTargetX": "A",
         "embeddingTargetY": "A"

@@ -1,6 +1,13 @@
-import BaseCellsZarrLoader from './BaseCellsZarrLoader';
+import BaseAnnDataLoader from './BaseAnnDataLoader';
 
-export default class CellsZarrLoader extends BaseCellsZarrLoader {
+/**
+ * Loader for converting zarr into the cell json schema.
+ */
+export default class CellsZarrLoader extends BaseAnnDataLoader {
+  /**
+   * Class method for loading spatial cell centroids.
+   * @returns {Promise} A promise for an array of tuples/triples for cell centroids.
+   */
   loadXy() {
     const {
       options: { xy },
@@ -16,6 +23,10 @@ export default class CellsZarrLoader extends BaseCellsZarrLoader {
     return this.xy;
   }
 
+  /**
+   * Class method for loading spatial cell polygons.
+   * @returns {Promise} A promise for an array of arrays for cell polygons.
+   */
   loadPoly() {
     const {
       options: { poly },
@@ -31,6 +42,10 @@ export default class CellsZarrLoader extends BaseCellsZarrLoader {
     return this.poly;
   }
 
+  /**
+   * Class method for loading various mappings, like UMAP or tSNE cooridnates.
+   * @returns {Promise} A promise for an array of tuples of coordinates.
+   */
   loadMappings() {
     const {
       options: { mappings },
@@ -51,6 +66,11 @@ export default class CellsZarrLoader extends BaseCellsZarrLoader {
     return this.mappings;
   }
 
+  /**
+   * Class method for loading factors, which are cell set ids.
+   * @returns {Promise} A promise for an array of an array of strings of ids,
+   * where subarray is a clustering/factor.
+   */
   loadFactors() {
     const {
       options: { factors },
@@ -88,8 +108,10 @@ export default class CellsZarrLoader extends BaseCellsZarrLoader {
       }
       if (factors) {
         const factorsObj = {};
-        // eslint-disable-next-line no-return-assign
-        factors.forEach((factor, j) => factorsObj[this.options.factors[j].split('.').slice(-1)] = factor[i]);
+        factors.forEach(
+          // eslint-disable-next-line no-return-assign
+          (factor, j) => (factorsObj[this.options.factors[j].split('.').slice(-1)] = factor[i]),
+        );
         cells[name].factors = factorsObj;
       }
     });
