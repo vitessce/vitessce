@@ -74,6 +74,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellsEntries = [];
     this.cellsQuadTree = null;
     this.cellsLayer = null;
+    this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLayers = [];
 
     // Initialize data and layers.
@@ -155,24 +156,22 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if (cellSetLabelsVisible) {
       const { zoom } = viewState;
 
-      const fontSize = cellSetLabelSize;
-
       const nodes = cellSetPolygons.map(p => ({
         x: p.centroid[0],
         y: p.centroid[1],
         label: p.name,
-        width: p.name.length * fontSize * 1 / (2 ** zoom) * 4,
-        height: fontSize * 1 / (2 ** zoom) * 1.5,
       }));
 
-      const collisionForce = forceCollideRects()
-        .size(d => ([d.width, d.height]));
+      const collisionForce = this.cellSetsForceSimulation
+        .size(d => ([
+          cellSetLabelSize * 1 / (2 ** zoom) * 4 * d.label.length,
+          cellSetLabelSize * 1 / (2 ** zoom) * 1.5,
+        ]));
 
-      const simulation = forceSimulation()
+      forceSimulation()
         .nodes(nodes)
-        .force('center', collisionForce);
-
-      simulation.tick(numTicks);
+        .force('center', collisionForce)
+        .tick(numTicks);
 
       result.push(new TextLayer({
         id: 'cell-sets-text-layer',
@@ -180,7 +179,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getPosition: d => ([d.x, d.y]),
         getText: d => d.label,
         getColor: (theme === 'dark' ? [255, 255, 255] : [0, 0, 0]),
-        getSize: fontSize,
+        getSize: cellSetLabelSize,
         getAngle: 0,
         getTextAnchor: 'middle',
         getAlignmentBaseline: 'center',
