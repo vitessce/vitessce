@@ -18,7 +18,7 @@
               },
               "PCA": {
                 "key": "obsm.X_pca",
-                "dims": [0, 2]
+                "dims": [0, 1]
               }
             },
             "factors": ["obs.louvain"]

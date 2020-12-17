@@ -13,12 +13,12 @@
           "options": {
             "mappings": {
               "UMAP": {
-                "key": "obsm.umap",
+                "key": "obsm.X_umap",
                 "dims": [0, 1]
               },
               "PCA": {
-                "key": "obsm.pca",
-                "dims": [0, 2]
+                "key": "obsm.X_pca",
+                "dims": [0, 1]
               }
             },
             "factors": ["obs.bulk_labels", "obs.louvain"]
