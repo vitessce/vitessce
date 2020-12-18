@@ -6,6 +6,9 @@
  */
 
 /* You can override the default Infima variables here. */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
 :root {
   --ifm-color-primary: #757575;
   --ifm-color-primary-dark: rgb(33, 175, 144);
@@ -15,6 +18,16 @@
   --ifm-color-primary-lighter: rgb(102, 212, 189);
   --ifm-color-primary-lightest: rgb(146, 224, 208);
   --ifm-code-font-size: 95%;
+
+  --ifm-navbar-height: 3.0rem;
+
+  font-family: 'Inter', sans-serif;
+
+}
+
+:root[data-theme='dark'] {
+  --ifm-navbar-background-color: #333;
+  --ifm-footer-background-color: rgb(73, 73, 73);
 }
 
 .docusaurus-highlight-code-line {

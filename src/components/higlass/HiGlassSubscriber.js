@@ -24,7 +24,9 @@ const HIGLASS_DATA_TYPES = [];
 
 // Initialize the dynamic __import__() function
 // if necessary.
-dynamicImportPolyfill.initialize();
+if (dynamicImportPolyfill) {
+  dynamicImportPolyfill.initialize();
+}
 
 // Register the zarr-multivec plugin data fetcher.
 // References:
