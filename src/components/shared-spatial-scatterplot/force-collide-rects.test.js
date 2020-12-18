@@ -40,7 +40,6 @@ describe('force-collide-rects.js', () => {
         Math.abs(nodes[0].x - nodes[1].x) < 100
             && Math.abs(nodes[0].y - nodes[1].y) < 100
       );
-      console.log(nodes);
       expect(collisionAB).toEqual(true);
     });
 
