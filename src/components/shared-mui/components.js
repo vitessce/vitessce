@@ -30,10 +30,7 @@ function MuiPaper(props) {
   const { children } = props;
   const classes = styles();
   return (
-    <Paper
-      className={classes.paper}
-      style={{ maxHeight: 200, overflow: 'auto', zIndex: 1500 }}
-    >
+    <Paper className={classes.paper} elevation={4}>
       {children}
     </Paper>
   );
@@ -52,7 +49,7 @@ export function PopperMenu(props) {
     toggle,
     children,
     placement,
-    buttonStyles,
+    buttonClassName,
   } = props;
   const anchorRef = useRef(null);
   const classes = styles();
@@ -62,7 +59,7 @@ export function PopperMenu(props) {
         onClick={toggle}
         size="small"
         ref={anchorRef}
-        style={buttonStyles}
+        className={buttonClassName}
       >
         {buttonIcon}
       </IconButton>
@@ -72,10 +69,7 @@ export function PopperMenu(props) {
         anchorEl={anchorRef}
         placement={placement}
       >
-        <MuiPaper
-          className={classes.paper}
-          style={{ maxHeight: 200, overflow: 'auto', zIndex: 1500 }}
-        >
+        <MuiPaper>
           <ClickAwayListener onClickAway={toggle}>
             <MenuList>{children}</MenuList>
           </ClickAwayListener>
