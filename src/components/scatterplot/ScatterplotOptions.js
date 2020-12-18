@@ -8,6 +8,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
+import { capitalize } from '../../utils';
 
 const useStyles = makeStyles(theme => ({
   box: {
@@ -46,6 +47,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ScatterplotOptions(props) {
   const {
+    observationsLabel,
     cellRadius,
     setCellRadius,
     cellSetLabelsVisible,
@@ -55,6 +57,8 @@ export default function ScatterplotOptions(props) {
     cellSetPolygonsVisible,
     setCellSetPolygonsVisible,
   } = props;
+
+  const observationsLabelNice = capitalize(observationsLabel);
 
   const classes = useStyles();
 
@@ -80,7 +84,9 @@ export default function ScatterplotOptions(props) {
         <Table className={classes.table} size="small">
           <TableBody>
             <TableRow>
-              <TableCell className={classes.labelCell}>Cell Set Labels Visible</TableCell>
+              <TableCell className={classes.labelCell}>
+                {observationsLabelNice} Set Labels Visible
+              </TableCell>
               <TableCell className={classes.inputCell}>
                 <Checkbox
                   className={classes.checkbox}
@@ -92,7 +98,9 @@ export default function ScatterplotOptions(props) {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className={classes.labelCell}>Cell Set Label Size</TableCell>
+              <TableCell className={classes.labelCell}>
+                {observationsLabelNice} Set Label Size
+              </TableCell>
               <TableCell className={classes.inputCell}>
                 <Slider
                   disabled={!cellSetLabelsVisible}
@@ -108,7 +116,9 @@ export default function ScatterplotOptions(props) {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className={classes.labelCell}>Cell Set Polygons Visible</TableCell>
+              <TableCell className={classes.labelCell}>
+                {observationsLabelNice} Set Polygons Visible
+              </TableCell>
               <TableCell className={classes.inputCell}>
                 <Checkbox
                   className={classes.checkbox}
@@ -120,7 +130,9 @@ export default function ScatterplotOptions(props) {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className={classes.labelCell}>Cell Radius</TableCell>
+              <TableCell className={classes.labelCell}>
+                {observationsLabelNice} Radius
+              </TableCell>
               <TableCell className={classes.inputCell}>
                 <Slider
                   classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}

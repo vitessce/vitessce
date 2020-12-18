@@ -173,6 +173,7 @@ export default function ScatterplotSubscriber(props) {
       isReady={isReady}
       options={(
         <ScatterplotOptions
+          observationsLabel={observationsLabel}
           cellRadius={cellRadius}
           setCellRadius={setCellRadius}
           cellSetLabelsVisible={cellSetLabelsVisible}
