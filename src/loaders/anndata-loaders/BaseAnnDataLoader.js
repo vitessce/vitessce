@@ -25,8 +25,10 @@ export default class BaseAnnDataLoader extends AbstractLoader {
     return (
       new TextDecoder()
         .decode(buffer)
+        // https://stackoverflow.com/questions/11159118/incorrect-string-value-xef-xbf-xbd-for-column
+        // for information on the right hand side of the | in the regex.
         // eslint-disable-next-line no-control-regex
-        .replace(/[\u0000-\u001c]/g, ',')
+        .replace(/[\u0000-\u001c]|�c/g, ',')
         .split(',')
         .filter(Boolean)
     );
