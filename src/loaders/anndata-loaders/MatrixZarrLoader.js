@@ -15,9 +15,11 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    */
   async _loadCSRSparseCellXGene(matrix, shape) {
     const { store } = this;
-    const { data: rows } = await openArray({ store, path: `${matrix}/indptr`, mode: 'r' }).then(z => z.getRaw(null));
-    const { data: cols } = await openArray({ store, path: `${matrix}/indices`, mode: 'r' }).then(z => z.getRaw(null));
-    const { data: cellXGene } = await openArray({ store, path: `${matrix}/data`, mode: 'r' }).then(z => z.getRaw(null));
+    const [rows, cols, cellXGene] = await Promise.all(['indptr', 'indices', 'data'].map(async (name) => {
+      const z = await openArray({ store, path: `${matrix}/${name}`, mode: 'r' });
+      const { data } = await z.getRaw(null);
+      return data;
+    }));
     const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
     let row = 0;
     rows.forEach((_, index) => {
@@ -41,9 +43,11 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    */
   async _loadCSCSparseCellXGene(matrix, shape) {
     const { store } = this;
-    const { data: cols } = await openArray({ store, path: `${matrix}/indptr`, mode: 'r' }).then(z => z.getRaw(null));
-    const { data: rows } = await openArray({ store, path: `${matrix}/indices`, mode: 'r' }).then(z => z.getRaw(null));
-    const { data: cellXGene } = await openArray({ store, path: `${matrix}/data`, mode: 'r' }).then(z => z.getRaw(null));
+    const [cols, rows, cellXGene] = await Promise.all(['indptr', 'indices', 'data'].map(async (name) => {
+      const z = await openArray({ store, path: `${matrix}/${name}`, mode: 'r' });
+      const { data } = await z.getRaw(null);
+      return data;
+    }));
     const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
     let col = 0;
     cols.forEach((_, index) => {
