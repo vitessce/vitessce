@@ -30,6 +30,7 @@
         z-index: 1040;
         width: 100%;
         height: 100%;
+        border-radius: 0.25rem;
         background-color: rgba(0, 0, 0, 0.5);
 
         .loading-indicator-container {
@@ -40,7 +41,7 @@
             height: 100%;
         }
     }
-
+    
 
     /* Flex grid items */
     .react-grid-item {
@@ -63,15 +64,6 @@
         Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
     .d-flex {
         flex-shrink: 0;
-    }
-
-    /* Styling for closing button on the grid items */
-    .close-pane-button {
-        border: none;
-        font-family: Ampersand;
-        margin-left: .5em;
-        background: none;
-        color: map-get($theme-colors, "primary-foreground-dim");
     }
 
     /* Tool styles */

@@ -7,10 +7,12 @@ import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
+import { getCellSetPolygons } from '../sets/cell-set-utils';
 import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
+import ScatterplotOptions from './ScatterplotOptions';
 import {
   useCoordination,
   useLoaders,
@@ -51,6 +53,10 @@ export default function ScatterplotSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
+    embeddingCellSetPolygonsVisible: cellSetPolygonsVisible,
+    embeddingCellSetLabelsVisible: cellSetLabelsVisible,
+    embeddingCellSetLabelSize: cellSetLabelSize,
+    embeddingCellRadius: cellRadius,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -62,6 +68,10 @@ export default function ScatterplotSubscriber(props) {
     setCellSetColor,
     setCellColorEncoding,
     setAdditionalCellSets,
+    setEmbeddingCellSetPolygonsVisible: setCellSetPolygonsVisible,
+    setEmbeddingCellSetLabelsVisible: setCellSetLabelsVisible,
+    setEmbeddingCellSetLabelSize: setCellSetLabelSize,
+    setEmbeddingCellRadius: setCellRadius,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -115,6 +125,14 @@ export default function ScatterplotSubscriber(props) {
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetSelection, cellSetColor, expressionMatrix]);
 
+  const cellSetPolygons = useMemo(() => getCellSetPolygons({
+    cells,
+    mapping,
+    cellSets: mergedCellSets,
+    cellSetSelection,
+    cellSetColor,
+  }), [cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
+
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   // After cells have loaded or changed,
@@ -153,6 +171,19 @@ export default function ScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      options={(
+        <ScatterplotOptions
+          observationsLabel={observationsLabel}
+          cellRadius={cellRadius}
+          setCellRadius={setCellRadius}
+          cellSetLabelsVisible={cellSetLabelsVisible}
+          setCellSetLabelsVisible={setCellSetLabelsVisible}
+          cellSetLabelSize={cellSetLabelSize}
+          setCellSetLabelSize={setCellSetLabelSize}
+          cellSetPolygonsVisible={cellSetPolygonsVisible}
+          setCellSetPolygonsVisible={setCellSetPolygonsVisible}
+        />
+      )}
     >
       <Scatterplot
         ref={deckRef}
@@ -171,11 +202,16 @@ export default function ScatterplotSubscriber(props) {
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
         cellColors={cellColors}
+        cellSetPolygons={cellSetPolygons}
+
+        cellSetLabelSize={cellSetLabelSize}
+        cellSetLabelsVisible={cellSetLabelsVisible}
+        cellSetPolygonsVisible={cellSetPolygonsVisible}
 
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
-        cellRadiusScale={cellRadiusScale}
+        cellRadiusScale={cellRadiusScale * cellRadius}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
