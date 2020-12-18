@@ -1,4 +1,4 @@
-import { HTTPStore, openArray } from 'zarr';
+import { HTTPStore, openArray, KeyError } from 'zarr';
 
 import AbstractLoader from '../AbstractLoader';
 
@@ -14,6 +14,23 @@ export default class BaseAnnDataLoader extends AbstractLoader {
     // eslint-disable-next-line no-unused-vars
     const { url, requestInit } = this;
     this.store = new HTTPStore(url);
+  }
+
+  /**
+   * Class method for decoding json from the store.
+   * @returns {string} An path to the item.
+   */
+  async getJson(key) {
+    try {
+      const buf = await this.store.getItem(key);
+      const text = new TextDecoder().decode(buf);
+      return JSON.parse(text);
+    } catch (err) {
+      if (err instanceof KeyError) {
+        return {};
+      }
+      throw err;
+    }
   }
 
   /**
@@ -42,26 +59,29 @@ export default class BaseAnnDataLoader extends AbstractLoader {
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
   loadCellSetIds(cellSetZarrLocation) {
-    const { url } = this;
+    const { store } = this;
     if (this.cellSets) {
       return this.cellSets;
     }
     this.cellSets = Promise.all(
       cellSetZarrLocation.map(async (setName) => {
-        const res = await fetch(
-          `${this.url}/${setName.replace('.', '/')}/.zattrs`,
+        const { categories } = await this.getJson(
+          `${setName}/.zattrs`,
         );
-        const { categories } = await res.json();
         const categoriesValuesArr = await openArray({
-          store: `${url}/obs/${categories}`,
+          store,
+          path: `/obs/${categories}`,
           mode: 'r',
         });
         const categoriesBuffer = await categoriesValuesArr.compressor.decode(
-          new Uint8Array(await categoriesValuesArr.store.getItem('0')),
+          new Uint8Array(
+            await categoriesValuesArr.store.getItem(`${categoriesValuesArr.keyPrefix}0`),
+          ),
         );
         const categoriesValues = this.decodeTextArray(categoriesBuffer);
         const cellSetsArr = await openArray({
-          store: `${url}/${setName.replace('.', '/')}`,
+          store,
+          path: setName,
           mode: 'r',
         });
         const cellSetsValues = await cellSetsArr.get();
@@ -84,13 +104,9 @@ export default class BaseAnnDataLoader extends AbstractLoader {
     const { store } = this;
     return openArray({
       store,
-      path: path.replace('.', '/'),
+      path,
       mode: 'r',
-    }).then(
-      arr => new Promise((resolve) => {
-        arr.get().then(resolve);
-      }),
-    );
+    }).then(arr => arr.get());
   }
 
   /**
@@ -101,27 +117,35 @@ export default class BaseAnnDataLoader extends AbstractLoader {
     if (this.cellNames) {
       return this.cellNames;
     }
-    this.cellNames = fetch(`${this.url}/obs/.zattrs`)
-      .then(attrs => attrs.json())
+    const { store } = this;
+    this.cellNames = this.getJson('obs/.zattrs')
       .then(({ _index }) => openArray({
-        store: `${this.url}/obs/${_index}`,
+        store,
+        path: `/obs/${_index}`,
         mode: 'r',
       }).then(async (z) => {
         let data = new Uint8Array();
         let item = 0;
-        // eslint-disable-next-line no-await-in-loop
-        while (await z.store.containsItem(String(item))) {
-          // eslint-disable-next-line no-await-in-loop
-          const buf = await z.store.getItem(String(item));
-          // eslint-disable-next-line no-await-in-loop
-          const dbytes = await z.compressor.decode(buf);
-          const tmp = new Uint8Array(
-            dbytes.buffer.byteLength + data.buffer.byteLength,
-          );
-          tmp.set(new Uint8Array(data.buffer), 0);
-          tmp.set(dbytes, data.buffer.byteLength);
-          data = tmp;
-          item += 1;
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            const buf = await store.getItem(`${z.keyPrefix}${String(item)}`);
+            // eslint-disable-next-line no-await-in-loop
+            const dbytes = await z.compressor.decode(buf);
+            const tmp = new Uint8Array(
+              dbytes.buffer.byteLength + data.buffer.byteLength,
+            );
+            tmp.set(new Uint8Array(data.buffer), 0);
+            tmp.set(dbytes, data.buffer.byteLength);
+            data = tmp;
+            item += 1;
+          } catch (err) {
+            if (err instanceof KeyError) {
+              break;
+            }
+            throw err;
+          }
         }
         const text = this.decodeTextArray(data)
           .filter(i => !Number(i))

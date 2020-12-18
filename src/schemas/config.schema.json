@@ -144,7 +144,7 @@
           "type": "string",
            "description": "The location in the AnnData store of the cell x gene matrix, like 'obsm.hvg_subset.' or 'X'"
         },
-        "genesFilter": {
+        "geneFilter": {
           "type": "string",
            "description": "The location in the AnnData store of a filter for the genes if using a subset of the data, like 'vae.highly_variable.' if the matrix comes from 'obsm.hvg_subset.'"
         }

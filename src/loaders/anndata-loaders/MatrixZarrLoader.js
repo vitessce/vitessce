@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { openArray } from 'zarr';
+import { extent } from 'd3-array';
 import BaseAnnDataLoader from './BaseAnnDataLoader';
 
 /**
@@ -14,18 +15,9 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    */
   async _loadCSRSparseCellXGene(matrix, shape) {
     const { store } = this;
-    const { data: rows } = await openArray({ store, path: `${matrix}/indptr`, mode: 'r' }).then(z => new Promise((resolve) => {
-      z.getRaw(null)
-        .then(resolve);
-    }));
-    const { data: cols } = await openArray({ store, path: `${matrix}/indices`, mode: 'r' }).then(z => new Promise((resolve) => {
-      z.getRaw(null)
-        .then(resolve);
-    }));
-    const { data: cellXGene } = await openArray({ store, path: `${matrix}/data`, mode: 'r' }).then(z => new Promise((resolve) => {
-      z.getRaw(null)
-        .then(resolve);
-    }));
+    const { data: rows } = await openArray({ store, path: `${matrix}/indptr`, mode: 'r' }).then(z => z.getRaw(null));
+    const { data: cols } = await openArray({ store, path: `${matrix}/indices`, mode: 'r' }).then(z => z.getRaw(null));
+    const { data: cellXGene } = await openArray({ store, path: `${matrix}/data`, mode: 'r' }).then(z => z.getRaw(null));
     const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
     let row = 0;
     rows.forEach((_, index) => {
@@ -49,18 +41,9 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    */
   async _loadCSCSparseCellXGene(matrix, shape) {
     const { store } = this;
-    const { data: cols } = await openArray({ store, path: `${matrix}/indptr`, mode: 'r' }).then(z => new Promise((resolve) => {
-      z.getRaw(null)
-        .then(resolve);
-    }));
-    const { data: rows } = await openArray({ store, path: `${matrix}/indices`, mode: 'r' }).then(z => new Promise((resolve) => {
-      z.getRaw(null)
-        .then(resolve);
-    }));
-    const { data: cellXGene } = await openArray({ store, path: `${matrix}/data`, mode: 'r' }).then(z => new Promise((resolve) => {
-      z.getRaw(null)
-        .then(resolve);
-    }));
+    const { data: cols } = await openArray({ store, path: `${matrix}/indptr`, mode: 'r' }).then(z => z.getRaw(null));
+    const { data: rows } = await openArray({ store, path: `${matrix}/indices`, mode: 'r' }).then(z => z.getRaw(null));
+    const { data: cellXGene } = await openArray({ store, path: `${matrix}/data`, mode: 'r' }).then(z => z.getRaw(null));
     const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
     let col = 0;
     cols.forEach((_, index) => {
@@ -81,26 +64,26 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    * @returns {Promise} A promise for the zarr array contianing the cell x gene data.
    */
   async loadCellXGene() {
-    const { store, url } = this;
+    const { store } = this;
     if (this.arr) {
       return this.arr;
     }
     const {
       options: { matrix },
     } = this;
-    const res = await fetch(`${url}/${matrix.replace('.', '/')}/.zattrs`);
-    if (res.status !== 404) {
-      const zattrs = await res.json();
-      if (zattrs['encoding-type'] === 'csr_matrix') {
-        this.arr = this._loadCSRSparseCellXGene(matrix.replace('.', '/'), zattrs.shape);
+    const zattrs = await this.getJson(`${matrix}/.zattrs`);
+    const encodingType = zattrs['encoding-type'];
+    if (encodingType) {
+      if (encodingType === 'csr_matrix') {
+        this.arr = this._loadCSRSparseCellXGene(matrix, zattrs.shape);
         return this.arr;
       }
-      if (zattrs['encoding-type'] === 'csc_matrix') {
-        this.arr = this._loadCSCSparseCellXGene(matrix.replace('.', '/'), zattrs.shape);
+      if (encodingType === 'csc_matrix') {
+        this.arr = this._loadCSCSparseCellXGene(matrix, zattrs.shape);
         return this.arr;
       }
     }
-    this.arr = openArray({ store, path: matrix.replace('.', '/'), mode: 'r' }).then(z => new Promise((resolve) => {
+    this.arr = openArray({ store, path: matrix, mode: 'r' }).then(z => new Promise((resolve) => {
       z.getRaw(null)
         .then(resolve);
     }));
@@ -115,33 +98,35 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     if (this.geneNames) {
       return this.geneNames;
     }
-    const { genesFilter: genesFilterZarr } = this.options;
-    let genesFilter;
-    if (genesFilterZarr) {
-      const genesFilterArr = await openArray({
-        store: `${this.url}/${genesFilterZarr.replace('.', '/')}`,
+    const { store } = this;
+    const { geneFilter: geneFilterZarr } = this.options;
+    let geneFilter;
+    if (geneFilterZarr) {
+      const geneFilterArr = await openArray({
+        store,
+        path: geneFilterZarr,
         mode: 'r',
       });
-      const genesBufferCompressed = await genesFilterArr.store.getItem('0');
-      genesFilter = await genesFilterArr.compressor.decode(genesBufferCompressed);
+      const genesBufferCompressed = await store.getItem(`${geneFilterArr.keyPrefix}0`);
+      geneFilter = await geneFilterArr.compressor.decode(genesBufferCompressed);
     }
-    const res = await fetch(`${this.url}/var/.zattrs`);
-    const { _index } = await res.json();
+    const { _index } = await this.getJson('var/.zattrs');
     if (this.geneNames) {
       return this.geneNames;
     }
     this.geneNames = openArray({
-      store: `${this.url}/var/${_index}`,
+      store,
+      path: `var/${_index}`,
       mode: 'r',
     }).then(z => z.store
-      .getItem('0')
+      .getItem(`${z.keyPrefix}0`)
       .then(buf => new Uint8Array(buf))
       .then(cbytes => z.compressor.decode(cbytes))
       .then((dbytes) => {
         const text = this.decodeTextArray(dbytes)
           .filter(i => !Number(i))
           .filter(i => i.length >= 2)
-          .filter((_, j) => !genesFilter || genesFilter[j]);
+          .filter((_, j) => !geneFilter || geneFilter[j]);
         return text;
       }));
     return this.geneNames;
@@ -154,18 +139,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         const [cellNames, geneNames, { data: cellXGeneMatrix }] = d;
         const attrs = { rows: cellNames, cols: geneNames };
         if (!this.min || !this.max) {
-          let max = -Infinity;
-          let min = Infinity;
-          for (let i = 0; i < cellXGeneMatrix.length; i += 1) {
-            const val = cellXGeneMatrix[i];
-            if (val > max) {
-              max = val;
-            } else if (val < min) {
-              min = val;
-            }
-          }
-          this.min = min;
-          this.max = max;
+          [this.min, this.max] = extent(cellXGeneMatrix);
         }
         const ratio = 255 / (this.max - this.min);
         const data = new Uint8Array(cellXGeneMatrix.map(i => Math.floor((i - this.min) * ratio)));
