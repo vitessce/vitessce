@@ -13,10 +13,11 @@
     "@docusaurus/core": "2.0.0-alpha.69",
     "@docusaurus/preset-classic": "2.0.0-alpha.69",
     "@mdx-js/react": "^1.6.21",
+    "babel-preset-react-app": "^9.1.2",
     "clsx": "^1.1.1",
+    "prism-react-renderer": "^1.1.1",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "babel-preset-react-app": "^9.1.2"
+    "react-dom": "^16.8.6"
   },
   "browserslist": {
     "production": [

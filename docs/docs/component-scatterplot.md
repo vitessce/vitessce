@@ -12,7 +12,7 @@ Note the `vitessce-container` and `vitessce-theme-light` classes added to the pa
 
 :::
 
-```js
+```jsx
 import React, { useState } from 'react';
 import { Scatterplot } from 'vitessce/es/production/scatterplot.min.js';
 import 'vitessce/es/production/static/css/index.css';
