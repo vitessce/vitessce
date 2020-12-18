@@ -8,6 +8,7 @@ module.exports = {
   favicon: 'img/favicon.ico',
   organizationName: 'vitessce', // Usually your GitHub org/user name.
   projectName: 'vitessce', // Usually your repo name.
+  themes: ['@docusaurus/theme-live-codeblock'],
   themeConfig: {
     prism: {
       theme: require('prism-react-renderer/themes/github'),
@@ -21,6 +22,11 @@ module.exports = {
       },
       items: [
         {
+          to: 'app/',
+          label: 'App',
+          position: 'left',
+        },
+        {
           to: 'demos/',
           label: 'Demos',
           position: 'left',
@@ -28,7 +34,7 @@ module.exports = {
         {
           to: 'docs/',
           activeBasePath: 'docs',
-          label: 'JavaScript Docs',
+          label: 'Core Docs',
           position: 'left',
         },
         {
@@ -41,7 +47,9 @@ module.exports = {
           label: 'R Docs',
           position: 'left',
         },
+        /* // TODO: uncomment when the blog contains something interesting
         {to: 'blog', label: 'Blog', position: 'right'},
+        */
         {
           href: 'https://github.com/vitessce/',
           label: 'GitHub',

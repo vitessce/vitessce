@@ -2,7 +2,7 @@ module.exports = {
   someSidebar: {
     'Getting Started': ['introduction', 'installation'],
     'Features': ['components', 'coordination', 'coordination-types'],
-    'View Configs': ['view-config-js', 'view-config-json'],
+    'View Configs': ['view-config-js', 'view-config-json', 'view-config-live-editor'],
     'Data Preparation': ['data-file-types', 'data-hosting'],
     'React Components': ['component-vitessce', 'component-scatterplot'],
   },
