@@ -66,11 +66,11 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 }
 
 .vitessce-container.vitessce-theme-light .card {
-  border: 0;
+  border: none !important;
 }
 
 .vitessce-container.vitessce-theme-dark .card {
-  border: 0;
+  border: none !important;
 }
 
 .vitessce-container table * {

@@ -79,3 +79,43 @@ Zarr-based file types will not work on GitHub pages (GitHub does not serve hidde
 ## Zenodo
 
 TODO
+
+## Local
+
+Before uploading data to a cloud object store, you may want to work with the data locally.
+Vitessce supports local file URLs.
+To serve data locally, any web server that can serve a directory should work, but we recommend [`http-server`](https://www.npmjs.com/package/http-server), which can be installed with Homebrew (on macOS) or NPM:
+
+```sh
+brew install http-server
+# or
+npm install --global http-server
+```
+
+Then, navigate to your data directory and run the server:
+
+```sh
+http-server ./ --cors -p 9000
+```
+
+And make sure that the `url` values in your Vitessce view config point to the local files:
+
+```json
+...,
+"datasets": [
+    {
+        "uid": "my-dataset",
+        "name": "My amazing dataset",
+        "files": [
+            {
+                "type": "cells",
+                "fileType": "cells.json",
+                "url": "http://localhost:9000/path/to/my-local-file.json"
+            }
+        ]
+    }
+],
+...
+```
+
+
