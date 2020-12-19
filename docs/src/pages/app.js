@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useReducer } from 'react';
-import { useQueryParam, NumberParam, StringParam, JsonParam, BooleanParam, QueryParamProvider } from 'use-query-params';
+import { useQueryParam, StringParam, BooleanParam, QueryParamProvider } from 'use-query-params';
 import Layout from '@theme/Layout';
 import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
@@ -94,7 +94,7 @@ function ThemedControlledEditor(props) {
   const { isDarkTheme } = useThemeContext();
   return <ControlledEditor
     {...props}
-    theme={(isDarkTheme ? "dark" : "light")}
+    theme={(isDarkTheme ? "dark" : "GitHub")}
   />
 }
 
@@ -107,17 +107,24 @@ function App() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [validConfig, setValidConfig] = useState(null);
+  
   const [pendingConfig, setPendingConfig] = useState(baseConfig);
+  const [pendingUrl, setPendingUrl] = useState('');
+  const [pendingFileContents, setPendingFileContents] = useState('');
 
   const onDrop = useCallback(acceptedFiles => {
     if(acceptedFiles.length === 1) {
-
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        const { result } = reader;
+        setPendingFileContents(result);
+      });
+      reader.readAsText(acceptedFiles[0]);
     }
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxFiles: 1});
 
   useEffect(() => {
-    console.log(url);
     async function processParams() {
       if (url) {
         setLoading(true);
@@ -185,15 +192,31 @@ function App() {
     processParams();
   }, [url, edit]);
 
-  function handleGo() {
+  function handleEditorGo() {
     setEdit(false, 'pushIn');
     setUrl('data:,' + encodeURIComponent(pendingConfig), 'replace');
+    increment();
+  }
+
+  function handleUrlGo() {
+    setEdit(false, 'pushIn');
+    setUrl(pendingUrl, 'replace');
+    increment();
+  }
+
+  function handleFileGo() {
+    setEdit(false, 'pushIn');
+    setUrl('data:,' + encodeURIComponent(pendingFileContents), 'replace');
     increment();
   }
 
   function handleClear() {
     setEdit(true, 'pushIn');
     increment();
+  }
+
+  function handleUrlChange(event) {
+    setPendingUrl(event.target.value);
   }
 
   return (
@@ -208,11 +231,26 @@ function App() {
           {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error)}</pre>}
           <div {...getRootProps()} className={styles.dropzone}>
             <input {...getInputProps()} className={styles.dropzoneInfo} />
-            {
-              isDragActive ?
-                <p>Drop the file here ...</p> :
-                <p>Drag &amp; drop a view config as a JSON file</p>
-            }
+            {isDragActive ?
+              <p>Drop the file here ...</p> :
+              (pendingFileContents ? (
+                <p>Successfully read the file.</p>
+              ) : (
+              <p>Drag &amp; drop a view config as a JSON file</p>
+              )
+            )}
+          </div>
+          <button className={styles.viewConfigGo} onClick={handleFileGo}>Load from File</button>
+          <div className={styles.dropzoneOr}>OR</div>
+          <div>
+            <input
+              type="text"
+              className={styles.viewConfigUrlInput}
+              placeholder="Specify the URL to a view config JSON file"
+              value={pendingUrl}
+              onChange={handleUrlChange}
+            />
+            <button className={styles.viewConfigGo} onClick={handleUrlGo}>Load from URL</button>
           </div>
           <div className={styles.dropzoneOr}>OR</div>
           <div className={styles.viewConfigEditor}>
@@ -232,7 +270,7 @@ function App() {
             />
           </div>
           <div className={styles.viewConfigEditorFooter}>
-            <button className={styles.viewConfigGo} onClick={handleGo}>Go</button>
+            <button className={styles.viewConfigGo} onClick={handleEditorGo}>Load from editor</button>
           </div>
         </main>
       ) : (
@@ -258,7 +296,7 @@ function App() {
 function WrappedApp() {
   return(
   <QueryParamProvider>
-    <App></App>
+    <App/>
   </QueryParamProvider>
   );
 }

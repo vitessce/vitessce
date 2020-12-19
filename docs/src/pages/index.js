@@ -4,25 +4,11 @@ import Layout from '@theme/Layout';
 import { VitessceConfig, hconcat, vconcat } from '../../../dist/umd/production/index.min.js';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import linnarsson from './demo-configs/index.json';
 import ThemedVitessce from './_ThemedVitessce';
 import styles from './styles.module.scss';
 
-const config = new VitessceConfig("Dries");
-const dataset = config
-  .addDataset("Dries")
-  .addFile("https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json", 'cells', 'cells.json')
-  .addFile("https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json", 'cell-sets', 'cell-sets.json');
-const spatial = config.addView(dataset, "spatial");
-const umap = config.addView(dataset, "scatterplot", { mapping: "UMAP" });
-const tsne = config.addView(dataset, "scatterplot", { mapping: "t-SNE" });
-const cellSets = config.addView(dataset, "cellSets");
-const cellSetSizes = config.addView(dataset, "cellSetSizes");
-config.linkViews([umap], ["embeddingZoom"], [2.5]);
-config.linkViews([tsne], ["embeddingZoom"], [2.5]);
-config.linkViews([spatial], ["spatialTargetX", "spatialTargetY", "spatialZoom"], [3800, -900, -4.4])
-config.layout(vconcat(hconcat(tsne, umap, cellSets), hconcat(spatial, cellSetSizes)));
-
-const configJson = config.toJSON();
+const configJson = linnarsson;
 
 const features = [
   {

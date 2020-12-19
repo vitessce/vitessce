@@ -1,0 +1,67 @@
+{
+    "version": "1.0.0",
+    "name": "Spraggins",
+    "description": "High Bit Depth (uint16) Multiplex Immunofluorescence Imaging",
+    "public": true,
+    "datasets": [
+      {
+        "uid": "83edd3a6-d70d-4c2a-8d73-6ada34c51d85",
+        "name": "83edd3a6-d70d-4c2a-8d73-6ada34c51d85",
+        "files": [
+          {
+            "type": "raster",
+            "fileType": "raster.json",
+            "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/spraggins/spraggins.raster.json"
+          }
+        ]
+      }
+    ],
+    "initStrategy": "auto",
+    "coordinationSpace": {
+      "embeddingType": {},
+      "embeddingZoom": {},
+      "embeddingTargetX": {},
+      "embeddingTargetY": {},
+      "spatialZoom": {
+        "A": -6.5
+      },
+      "spatialTargetX": {
+        "A": 20000
+      },
+      "spatialTargetY": {
+        "A": 20000
+      }
+    },
+    "layout": [
+      {
+        "component": "spatial",
+        "props": {
+          "view": {
+            "zoom": -6.5,
+            "target": [
+              20000,
+              20000,
+              0
+            ]
+          }
+        },
+        "x": 0,
+        "y": 0,
+        "w": 9,
+        "h": 2,
+        "coordinationScopes": {
+          "spatialZoom": "A",
+          "spatialTargetX": "A",
+          "spatialTargetY": "A"
+        }
+      },
+      {
+        "component": "layerController",
+        "x": 9,
+        "y": 0,
+        "w": 3,
+        "h": 2,
+        "coordinationScopes": {}
+      }
+    ]
+  }

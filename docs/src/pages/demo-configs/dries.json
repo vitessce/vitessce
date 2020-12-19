@@ -1,0 +1,160 @@
+{
+    "version": "1.0.0",
+    "name": "Dries",
+    "description": "Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data",
+    "public": true,
+    "datasets": [
+      {
+        "uid": "75888e9e-0d8d-4680-b40e-d8d2784f878b",
+        "name": "75888e9e-0d8d-4680-b40e-d8d2784f878b",
+        "files": [
+          {
+            "type": "cells",
+            "fileType": "cells.json",
+            "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json"
+          },
+          {
+            "type": "cell-sets",
+            "fileType": "cell-sets.json",
+            "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json"
+          }
+        ]
+      }
+    ],
+    "initStrategy": "auto",
+    "coordinationSpace": {
+      "embeddingType": {
+        "t-SNE": "t-SNE",
+        "UMAP": "UMAP"
+      },
+      "embeddingZoom": {
+        "A": 3,
+        "B": 3
+      },
+      "embeddingTargetX": {
+        "A": 0,
+        "B": 0
+      },
+      "embeddingTargetY": {
+        "A": 0,
+        "B": 0
+      },
+      "spatialZoom": {
+        "A": -4.4
+      },
+      "spatialTargetX": {
+        "A": 3800
+      },
+      "spatialTargetY": {
+        "A": -900
+      }
+    },
+    "layout": [
+      {
+        "component": "description",
+        "props": {
+          "description": "Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data"
+        },
+        "x": 9,
+        "y": 0,
+        "w": 3,
+        "h": 2,
+        "coordinationScopes": {}
+      },
+      {
+        "component": "status",
+        "x": 9,
+        "y": 2,
+        "w": 3,
+        "h": 2,
+        "coordinationScopes": {}
+      },
+      {
+        "component": "cellSets",
+        "x": 9,
+        "y": 4,
+        "w": 3,
+        "h": 4,
+        "coordinationScopes": {}
+      },
+      {
+        "component": "cellSetSizes",
+        "x": 5,
+        "y": 4,
+        "w": 4,
+        "h": 4,
+        "coordinationScopes": {}
+      },
+      {
+        "component": "scatterplot",
+        "props": {
+          "mapping": "t-SNE",
+          "view": {
+            "zoom": 3,
+            "target": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "x": 0,
+        "y": 2,
+        "w": 5,
+        "h": 4,
+        "coordinationScopes": {
+          "embeddingType": "t-SNE",
+          "embeddingZoom": "A",
+          "embeddingTargetX": "A",
+          "embeddingTargetY": "A"
+        }
+      },
+      {
+        "component": "spatial",
+        "props": {
+          "cellRadius": 50,
+          "view": {
+            "zoom": -4.4,
+            "target": [
+              3800,
+              -900,
+              0
+            ]
+          }
+        },
+        "x": 5,
+        "y": 0,
+        "w": 4,
+        "h": 4,
+        "coordinationScopes": {
+          "spatialZoom": "A",
+          "spatialTargetX": "A",
+          "spatialTargetY": "A"
+        }
+      },
+      {
+        "component": "scatterplot",
+        "props": {
+          "mapping": "UMAP",
+          "view": {
+            "zoom": 3,
+            "target": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "x": 0,
+        "y": 0,
+        "w": 5,
+        "h": 4,
+        "coordinationScopes": {
+          "embeddingType": "UMAP",
+          "embeddingZoom": "B",
+          "embeddingTargetX": "B",
+          "embeddingTargetY": "B"
+        }
+      }
+    ]
+  }

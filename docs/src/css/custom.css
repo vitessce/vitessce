@@ -21,6 +21,9 @@
 
   --ifm-navbar-height: 3.0rem;
 
+  --vit-input-foreground: #0451a5;
+  --vit-input-background: #ffffff;
+
   font-family: 'Inter', sans-serif;
 
 }
@@ -28,6 +31,8 @@
 :root[data-theme='dark'] {
   --ifm-navbar-background-color: #333;
   --ifm-footer-background-color: rgb(73, 73, 73);
+  --vit-input-background: #202124;
+  --vit-input-foreground: #9cdcfe;
 }
 
 .docusaurus-highlight-code-line {
@@ -53,8 +58,21 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 .vitessce-app {
   flex: 1;
 }
+
 .vitessce-app .vitessce-container {
   height: calc(100vh - var(--ifm-navbar-height));
   width: 100%;
   overflow: hidden;
+}
+
+.vitessce-container table * {
+  border: none;
+}
+
+.vitessce-container table tr:nth-child(2n) {
+  background-color: transparent;
+}
+
+.monaco-editor {
+  box-shadow: -3px 3px 5px 5px rgba(0,0,0,.06);
 }
