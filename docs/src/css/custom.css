@@ -65,6 +65,14 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   overflow: hidden;
 }
 
+.vitessce-container.vitessce-theme-light .card {
+  border: 0;
+}
+
+.vitessce-container.vitessce-theme-dark .card {
+  border: 0;
+}
+
 .vitessce-container table * {
   border: none;
 }

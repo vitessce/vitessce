@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 import Layout from '@theme/Layout';
-import { VitessceConfig, hconcat, vconcat } from '../../../dist/umd/production/index.min.js';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import linnarsson from './demo-configs/index.json';
@@ -85,6 +85,14 @@ function Home() {
         )}
       </main>
     </Layout>
+  );
+}
+
+function WrappedHome() {
+  return(
+    <BrowserOnly>
+      <Home/>
+    </BrowserOnly>
   );
 }
 

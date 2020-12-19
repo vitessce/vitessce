@@ -175,3 +175,16 @@
 .demoGridItemDescription {
   margin: 0rem 1rem;
 }
+
+.liveEditorHeader, .livePreviewHeader {
+  background: var(--ifm-color-emphasis-600);
+  color: var(--ifm-color-content-inverse);
+  letter-spacing: .08rem;
+  padding: .75rem;
+  font-weight: 700;
+  margin-bottom: 0 !important;
+}
+
+.livePreview {
+
+}
