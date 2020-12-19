@@ -1,12 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
 import Layout from '@theme/Layout';
-import useThemeContext from '@theme/hooks/useThemeContext';
-import { Vitessce, VitessceConfig, hconcat, vconcat } from '../../../dist/umd/production/index.min.js';
+import { VitessceConfig, hconcat, vconcat } from '../../../dist/umd/production/index.min.js';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import styles from './styles.module.css';
-import '../../../dist/umd/production/static/css/index.css';
+import ThemedVitessce from './_ThemedVitessce';
+import styles from './styles.module.scss';
 
 const config = new VitessceConfig("Dries");
 const dataset = config
@@ -64,16 +63,6 @@ function Feature({imageUrl, title, description}) {
       <h3>{title}</h3>
       <p>{description}</p>
     </div>
-  );
-}
-
-function ThemedVitessce(props) {
-  const { isDarkTheme } = useThemeContext();
-  return (
-    <Vitessce
-      {...props}
-      theme={isDarkTheme ? "dark" : "light"}
-    />
   );
 }
 

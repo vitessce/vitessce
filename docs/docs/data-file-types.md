@@ -13,11 +13,11 @@ For example, a file that conforms to the `cells` data type may contain embedding
 
 | Data Type | File Types |
 | --- | --- |
-| `cells` | <ul><li>`cells.json`</li><li>`anndata-cells.zarr` (WIP)</li></ul> |
+| `cells` | <ul><li>`cells.json`</li><li>`anndata-cells.zarr`</li></ul> |
 | `molecules` | <ul><li>`molecules.json`</li></ul> |
-| `cell-sets` | <ul><li>`cell-sets.json`</li></ul> |
+| `cell-sets` | <ul><li>`cell-sets.json`</li><li>`anndata-cell-sets.zarr`</li></ul> |
 | `raster` | <ul><li>`ome-raster.zarr` (WIP)</li><li>`ome-raster.tiff` (WIP)</li></ul> |
-| `expression-matrix` | <ul><li>`expression-matrix.zarr`</li><li>`clusters.json` (deprecated)</li><li>`genes.json` (deprecated)</li></ul> |
+| `expression-matrix` | <ul><li>`expression-matrix.zarr`</li><li>`anndata-expression-matrix.zarr`</li><li>`clusters.json` (deprecated)</li><li>`genes.json` (deprecated)</li></ul> |
 | `neighborhoods` | <ul><li>`neighborhoods.json` (deprecated)</li></ul> |
 | `genomic-profiles` | <ul><li>`genomic-profiles.zarr` (WIP)</li></ul> |
 
@@ -25,10 +25,14 @@ For example, a file that conforms to the `cells` data type may contain embedding
 
 In the `vitessce` Python package, we provide data conversion [helper classes and functions](https://vitessce.github.io/vitessce-python/wrappers.html#vitessce.wrappers.AnnDataWrapper).
 
+### AnnData
+
+File types with the prefix `anndata-` and suffix `.zarr` are intended to be used with the output of the AnnData [`.write_zarr`](https://anndata.readthedocs.io/en/latest/anndata.AnnData.write_zarr.html) function.
+
 ## File Loaders
 
 If you develop a loader class for a new file type, please make a pull request to add it to the [existing loaders](https://github.com/hubmapconsortium/vitessce/tree/master/src/loaders).
 
 ### Limitations
 
-Vitessce is a web-based tool, and it is currently very difficult or impossible to read certain file types such as HDF5 over HTTP. [Zarr](https://github.com/zarr-developers) is a modern format which supports most HDF5 features (arrays, groups, unstructured attributes) and can be read in a web browser using [zarr.js](https://github.com/gzuidhof/zarr.js/).
+Vitessce is a web-based tool, and it is currently difficult or impossible to read certain file types such as HDF5 directly over HTTP. Fortunately, HDF5 files can be easily converted to [Zarr](https://github.com/zarr-developers) stores, which support most HDF5 features (arrays, groups, unstructured attributes) and can be read in a web browser using [zarr.js](https://github.com/gzuidhof/zarr.js/).

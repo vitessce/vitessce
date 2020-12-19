@@ -9,6 +9,7 @@ module.exports = {
   organizationName: 'vitessce', // Usually your GitHub org/user name.
   projectName: 'vitessce', // Usually your repo name.
   themes: ['@docusaurus/theme-live-codeblock'],
+  plugins: ['docusaurus-plugin-sass'],
   themeConfig: {
     prism: {
       theme: require('prism-react-renderer/themes/github'),
