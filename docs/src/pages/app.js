@@ -13,7 +13,7 @@ const baseConfig = `{
   "description": "",
   "datasets": [
     {
-      "uid": "A",
+      "uid": "D1",
       "name": "Dries",
       "files": [
         {
@@ -31,7 +31,7 @@ const baseConfig = `{
   ],
   "coordinationSpace": {
     "dataset": {
-      "A": "A"
+      "A": "D1"
     },
     "embeddingType": {
       "A": "UMAP",

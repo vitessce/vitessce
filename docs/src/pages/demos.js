@@ -6,6 +6,7 @@ import linnarsson from './demo-configs/linnarsson.json';
 import spraggins from './demo-configs/spraggins.json';
 import dries from './demo-configs/dries.json';
 import baysorAllenSmFish from './demo-configs/baysor-allen-smfish.json';
+import satija from './demo-configs/satija.json';
 
 import styles from './styles.module.scss';
 
@@ -14,6 +15,7 @@ const demos = [
   spraggins,
   dries,
   baysorAllenSmFish,
+  satija,
 ];
 
 function getDemoUrl(config) {
