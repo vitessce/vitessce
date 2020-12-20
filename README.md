@@ -54,7 +54,7 @@ $ aws iam list-account-aliases --query 'AccountAliases[0]'
 "gehlenborglab"
 ```
 
-### Minimal Demo
+### Staging: Minimal Demo
 
 To build the current branch and push the "minimal" demo site to S3, run this script:
 ```
@@ -63,14 +63,14 @@ $ ./push-demo.sh
 
 This will build the demo, push to S3, and finally open the demo deployment in your browser.
 
-### Public App, Demos, and Docs
+### Staging: App, Demos, and Docs
 
 To build the current branch and push the public-facing docs/app/demo site to S3, run this script:
 ```
 $ ./push-docs.sh
 ```
 
-### Release
+### Release: App, Demos, and Docs
 
 If you haven't already, push a fresh docs site and
 do a last [manual test](TESTING.md) of the deployment.
