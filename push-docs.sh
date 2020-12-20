@@ -32,7 +32,7 @@ export VITESSCE_DOCS_BASE_URL="/"
 npm run build-root
 export VITESSCE_DOCS_BASE_URL="/$VERSIONED_DOCS_URL_PATH/"
 npm run build-versioned
-# Reset the base url exported variable
+# Un-set the base url exported variable.
 unset VITESSCE_DOCS_BASE_URL
 
 # The following lines are relative to docs/ directory.
