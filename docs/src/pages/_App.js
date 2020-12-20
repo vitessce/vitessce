@@ -234,11 +234,11 @@ function App() {
     <Layout
       noFooter
       title="App"
-      description="Use Vitessce with a custom configuration.">
+      description="Use Vitessce with your data.">
       {loading ? (
         <pre>Loading...</pre>
       ) : (!validConfig ? (
-        <main>
+        <main className={styles.viewConfigEditorMain}>
           {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error)}</pre>}
           <div {...getRootProps()} className={styles.dropzone}>
             <input {...getInputProps()} className={styles.dropzoneInfo} />

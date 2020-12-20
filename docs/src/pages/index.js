@@ -57,7 +57,7 @@ function Home() {
   const height = 600;
   return (
     <Layout
-      description="Description will go into a meta tag in <head />">
+      description="Visual integration tool for exploration of spatial single cell experiments">
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className="container">
           <h1 className="hero__title">{siteConfig.title}</h1>

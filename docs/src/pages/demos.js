@@ -19,7 +19,7 @@ const demos = [
 ];
 
 function getDemoUrl(config) {
-  return useBaseUrl('app/?url=data:,' + encodeURIComponent(JSON.stringify(config)));
+  return useBaseUrl('app/index.html?url=data:,' + encodeURIComponent(JSON.stringify(config)));
 }
 
 function Demos() {

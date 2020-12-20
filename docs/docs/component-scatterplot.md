@@ -4,7 +4,7 @@ title: Scatterplot Component
 slug: /component-scatterplot
 ---
 
-Now that you have [installed](./installation) the `vitessce` package, you can import individual components into your app.
+Now that you have [installed](../installation/index.html) the `vitessce` package, you can import individual components into your app.
 
 :::tip
 

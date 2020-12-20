@@ -23,17 +23,17 @@ module.exports = {
       },
       items: [
         {
-          to: 'app/',
+          to: 'app/index.html',
           label: 'App',
           position: 'left',
         },
         {
-          to: 'demos/',
+          to: 'demos/index.html',
           label: 'Demos',
           position: 'left',
         },
         {
-          to: 'docs/',
+          to: 'docs/index.html',
           activeBasePath: 'docs',
           label: 'Core Docs',
           position: 'left',
@@ -65,7 +65,7 @@ module.exports = {
           items: [
             {
               label: 'JavaScript',
-              to: 'docs/',
+              to: 'docs/index.html',
             },
             {
               label: 'Python',

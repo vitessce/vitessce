@@ -9,7 +9,7 @@ slug: /view-config-json
 
 Writing view configs directly as JSON can be tedious and error-prone.
 Our object-oriented view config APIs may be easier to use:
-- [JavaScript View Config API](./view-config-js)
+- [JavaScript View Config API](../view-config-js/index.html)
 - [Python View Config API](https://vitessce.github.io/vitessce-python/config_api.html)
 - [R View Config API](https://vitessce.github.io/vitessce-r/reference/VitessceConfig.html#examples)
 
@@ -17,7 +17,7 @@ Our object-oriented view config APIs may be easier to use:
 
 ## Overview
 
-The Vitessce view config defines the datasets (and the URLs to the files they contain) and the individual visualization components that the data will be mapped onto. The view config also stores the [coordination space](./coordination#coordination-space) and defines whether multiple views are linked to each other (and on which properties they are linked, if any).
+The Vitessce view config defines the datasets (and the URLs to the files they contain) and the individual visualization components that the data will be mapped onto. The view config also stores the [coordination space](../coordination/index.html#coordination-space) and defines whether multiple views are linked to each other (and on which properties they are linked, if any).
 
 ## Required properties
 
@@ -74,7 +74,7 @@ A human-readable name for the dataset. Optional.
 #### `files`
 - Type: `object[]`
 
-The files array stores a list of file objects for a dataset. Each dataset may have one file of each `type`. File objects must contain a `type` ("data type"), `fileType` ("file type"), and a `url`. For more information about data types and file types, please visit our [Supported File Types](./data-file-types) documentation page. We don't associate any semantics with URL strings.
+The files array stores a list of file objects for a dataset. Each dataset may have one file of each `type`. File objects must contain a `type` ("data type"), `fileType` ("file type"), and a `url`. For more information about data types and file types, please visit our [Supported File Types](../data-file-types/index.html) documentation page. We don't associate any semantics with URL strings.
 
 ```json
 ...,
@@ -104,9 +104,9 @@ The files array stores a list of file objects for a dataset. Each dataset may ha
 
 The layout property defines which visualization (and controller) components will be rendered, how they will be arranged on the screen, and optionally how they will map onto coordination scopes. Each layout object represents one "component" or "view", and must contain a component name `component`, width `w` and height `h`, and horizontal position `x` and vertical position `y`. Components are arranged in a 12 x 12 grid. Optionally, each component may contain the properties `coordinationScopes` and `props`.
 
-For more information about the components that are available, please visit the [Visualization Components](./components) documentation page.
+For more information about the components that are available, please visit the [Visualization Components](../components/index.html) documentation page.
 
-For more information about the coordination types that are available, please visit the [Coordination Types](./coordination-types) documentation page.
+For more information about the coordination types that are available, please visit the [Coordination Types](../coordination-types/index.html) documentation page.
 
 ```json
 ...,
