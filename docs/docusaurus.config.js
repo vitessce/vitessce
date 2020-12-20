@@ -11,6 +11,10 @@ module.exports = {
   themes: ['@docusaurus/theme-live-codeblock'],
   plugins: [],
   themeConfig: {
+    colorMode: {
+      defaultMode: 'dark',
+      respectPrefersColorScheme: false,
+    },
     prism: {
       theme: require('prism-react-renderer/themes/github'),
       darkTheme: require('prism-react-renderer/themes/dracula'),
