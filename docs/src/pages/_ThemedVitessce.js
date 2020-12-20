@@ -1,7 +1,6 @@
 import React from 'react';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import useThemeContext from '@theme/hooks/useThemeContext';
-import '../../../dist/umd/production/static/css/index.css';
 
 // Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
 export default function ThemedVitessce(props) {

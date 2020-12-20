@@ -54,3 +54,7 @@ See the discussion about `npm link` causing the "duplicate/incompatible reacts" 
 ### Internal links
 
 AWS S3 allows defining a single "index document", such as `index.html`. However, this index document does not apply to sub-directories, because S3 does not actually support "directories", only "keys" which we can think about as directories if they contain slashes. Instead, we need to be sure to add the trailing `/index.html` when linking between pages in the documentation markdown files. Also, we need to think about the current markdown file location relative to the `/index.html` location. So a link on `/docs/installation/index.html` to the "introduction" page must be `[introduction](../introduction/index.html)` which allows the link to work in the built website. This unfortunately prevents the links from working in GitHub when interacting with the plain markdown files.
+
+### CSS issues after building for production
+
+By default, docusaurus (as of version 2.0.0-alpha.69) uses a CSS minimizer that breaks some of the Vitessce styles. The documentation notes that this is a known issue [here](https://github.com/facebook/docusaurus/blob/v2.0.0-alpha.69/website/versioned_docs/version-2.0.0-alpha.69/cli.md) and that the solution is to set the environment variable `export USE_SIMPLE_CSS_MINIFIER=true`.

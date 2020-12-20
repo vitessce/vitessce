@@ -92,3 +92,18 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 .table-concat td {
   text-align: center;
 }
+
+div[role='tooltip'] table tr {
+  background-color: transparent;
+  border-top: none;
+}
+
+div[role='tooltip'] table {
+  margin-bottom: 0;
+}
+
+div[role='tooltip'] table td, div[role='tooltip'] table th {
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+}

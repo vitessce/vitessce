@@ -9,7 +9,7 @@ module.exports = {
   organizationName: 'vitessce', // Usually your GitHub org/user name.
   projectName: 'vitessce', // Usually your repo name.
   themes: ['@docusaurus/theme-live-codeblock'],
-  plugins: ['docusaurus-plugin-sass'],
+  plugins: [],
   themeConfig: {
     prism: {
       theme: require('prism-react-renderer/themes/github'),
@@ -124,7 +124,10 @@ module.exports = {
             'https://github.com/vitessce/vitessce/edit/master/docs/blog/',
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          customCss: [
+            require.resolve('./src/css/custom.css'),
+            require.resolve('../dist/umd/production/static/css/index.css'),
+          ],
         },
       },
     ],

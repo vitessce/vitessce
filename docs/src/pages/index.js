@@ -5,7 +5,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import linnarsson from './demo-configs/index.json';
 import ThemedVitessce from './_ThemedVitessce';
-import styles from './styles.module.scss';
+import styles from './styles.module.css';
 
 const configJson = linnarsson;
 

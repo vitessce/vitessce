@@ -5,8 +5,7 @@ import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
 import { ControlledEditor } from '@monaco-editor/react';
 import { Vitessce } from '../../../dist/umd/production/index.min.js';
-import styles from './styles.module.scss';
-import '../../../dist/umd/production/static/css/index.css';
+import styles from './styles.module.css';
 
 const baseConfig = `{
   "version": "1.0.0",

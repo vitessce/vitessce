@@ -3,8 +3,7 @@ import usePrismTheme from '@theme/hooks/usePrismTheme';
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live';
 import Highlight, { defaultProps } from "prism-react-renderer";
 import BrowserOnly from '@docusaurus/BrowserOnly';
-import styles from './styles.module.scss';
-import '../../../dist/umd/production/static/css/index.css';
+import styles from './styles.module.css';
 
 const code = `function VitessceConfigEditor() {
     const bucketDomain = "https://s3.amazonaws.com"

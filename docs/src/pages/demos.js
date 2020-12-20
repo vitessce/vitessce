@@ -8,7 +8,7 @@ import dries from './demo-configs/dries.json';
 import baysorAllenSmFish from './demo-configs/baysor-allen-smfish.json';
 import satija from './demo-configs/satija.json';
 
-import styles from './styles.module.scss';
+import styles from './styles.module.css';
 
 const demos = [
   linnarsson,
