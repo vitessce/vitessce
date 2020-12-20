@@ -37,6 +37,10 @@
               "embeddingTargetX": { "type": "string" },
               "embeddingTargetY": { "type": "string" },
               "embeddingTargetZ": { "type": "string" },
+              "embeddingCellSetPolygonsVisible": { "type": "string" },
+              "embeddingCellSetLabelsVisible": { "type": "string" },
+              "embeddingCellSetLabelSize": { "type": "string" },
+              "embeddingCellRadius": { "type": "string" },
               "spatialZoom": { "type": "string" },
               "spatialRotation": { "type": "string" },
               "spatialTargetX": { "type": "string" },
@@ -324,6 +328,30 @@
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
+          }
+        },
+        "embeddingCellSetPolygonsVisible": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "boolean" }
+          }
+        },
+        "embeddingCellSetLabelsVisible": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "boolean" }
+          }
+        },
+        "embeddingCellSetLabelSize": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "embeddingCellRadius": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
           }
         },
         "spatialZoom": {

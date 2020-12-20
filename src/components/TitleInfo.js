@@ -1,45 +1,98 @@
 import React, { useReducer } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import MenuItem from '@material-ui/core/MenuItem';
+import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
+import SettingsIcon from '@material-ui/icons/Settings';
+import CloseIcon from '@material-ui/icons/Close';
 
 import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
-import ClosePaneButton from './ClosePaneButton';
 import LoadingIndicator from './LoadingIndicator';
 import { PopperMenu } from './shared-mui/components';
 
-function DownloadIcon({ open, theme }) {
-  const color = theme === 'dark' ? '#D3D3D3' : '#333333';
+const useStyles = makeStyles(theme => ({
+  iconButton: {
+    border: 'none',
+    marginLeft: 0,
+    background: 'none',
+    color: theme.palette.primaryForeground,
+    paddingLeft: '0.25em',
+    paddingRight: '0.25em',
+    borderRadius: '2px',
+    '&:hover': {
+      backgroundColor: theme.palette.primaryBackgroundLight,
+    },
+    '&:first-child': {
+      marginLeft: '0.75em',
+    },
+    '&:last-child': {
+      marginRight: '0.25em',
+    },
+    '& svg': {
+      width: '0.7em',
+      height: '0.7em',
+      verticalAlign: 'middle',
+    },
+  },
+  downloadLink: {
+    color: theme.palette.primaryForeground,
+  },
+}));
+
+function SettingsIconWithArrow({ open }) {
   return (
     <>
-      <CloudDownloadIcon style={{ color }} />
-      {open ? <ArrowDropUpIcon style={{ color }} /> : <ArrowDropDownIcon style={{ color }} />}
+      <SettingsIcon />
+      {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+    </>
+  );
+}
+
+function PlotOptions(props) {
+  const { options } = props;
+  const [open, toggle] = useReducer(v => !v, false);
+  const classes = useStyles();
+  return (
+    <PopperMenu
+      open={open}
+      toggle={toggle}
+      buttonIcon={<SettingsIconWithArrow open={open} />}
+      buttonClassName={classes.iconButton}
+      placement="bottom-end"
+    >
+      {options}
+    </PopperMenu>
+  );
+}
+
+function CloudDownloadIconWithArrow({ open }) {
+  return (
+    <>
+      <CloudDownloadIcon />
+      {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
     </>
   );
 }
 
 function DownloadOptions(props) {
+  const { urls } = props;
   const [open, toggle] = useReducer(v => !v, false);
-  const { urls, theme } = props;
+  const classes = useStyles();
   return (
     <PopperMenu
       open={open}
       toggle={toggle}
-      buttonIcon={<DownloadIcon open={open} theme={theme} />}
-      buttonStyles={{
-        paddingBottom: 0,
-        paddingTop: 0,
-        marginLeft: '8px',
-        backgroundColor: 'transparent',
-        outline: 0,
-      }}
+      buttonIcon={<CloudDownloadIconWithArrow open={open} />}
+      buttonClassName={classes.iconButton}
+      placement="bottom-end"
     >
       {urls.map(({ url, name }) => (
         <MenuItem dense key={url}>
-          <Link underline="none" href={url} target="_blank" rel="noopener">
-            {name}
+          <Link underline="none" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
+            Download {name}
           </Link>
         </MenuItem>
       ))}
@@ -47,10 +100,25 @@ function DownloadOptions(props) {
   );
 }
 
+function ClosePaneButton(props) {
+  const { removeGridComponent } = props;
+  const classes = useStyles();
+  return (
+    <IconButton
+      onClick={removeGridComponent}
+      size="small"
+      className={classes.iconButton}
+      title="close"
+    >
+      <CloseIcon />
+    </IconButton>
+  );
+}
+
 export default function TitleInfo(props) {
   const {
-    title, info, children, isScroll, isSpatial, removeGridComponent, urls, theme,
-    isReady,
+    title, info, children, isScroll, isSpatial, removeGridComponent, urls,
+    isReady, options,
   } = props;
   // eslint-disable-next-line no-nested-ternary
   const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
@@ -60,14 +128,23 @@ export default function TitleInfo(props) {
       <div className="title d-flex justify-content-between align-items-baseline">
         <div className="justify-content-between d-flex align-items-end">
           <span>{title}</span>
-          {urls && urls.length > 0 ? (
-            <DownloadOptions urls={urls} theme={theme} />
-          ) : null}
         </div>
         <span className="details pl-2 align-items-end">
           <span className="d-flex justify-content-between">
             {info}
-            <ClosePaneButton removeGridComponent={removeGridComponent} />
+            { options && (
+              <PlotOptions
+                options={options}
+              />
+            ) }
+            {urls && urls.length > 0 && (
+              <DownloadOptions
+                urls={urls}
+              />
+            )}
+            <ClosePaneButton
+              removeGridComponent={removeGridComponent}
+            />
           </span>
         </span>
       </div>
