@@ -73,6 +73,7 @@ function LivePreviewHeader() {
     );
 }
 
+// Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
 export default function LiveViewConfigEditor() {
     const prismTheme = usePrismTheme();
     return (

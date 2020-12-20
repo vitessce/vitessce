@@ -304,6 +304,7 @@ function App() {
   );
 }
 
+// Reference: https://github.com/pbeshai/use-query-params#usage
 function WrappedApp() {
   return(
     <QueryParamProvider>

@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
-    "name": "Dries",
-    "description": "Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data",
+    "name": "Eng et al., Nature 2019",
+    "description": "Visualization of a mouse somatosensory cortex profiled by seqFISH+",
     "public": true,
     "datasets": [
       {
@@ -53,7 +53,7 @@
       {
         "component": "description",
         "props": {
-          "description": "Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data"
+          "description": "Eng et al., Nature 2019: Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH"
         },
         "x": 9,
         "y": 0,

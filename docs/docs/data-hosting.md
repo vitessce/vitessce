@@ -73,7 +73,7 @@ TODO
 Simply add your data files to the `gh-pages` branch of your repository, enable GitHub Pages in the repository settings tab, and add a `.nojekyll` file to the root of the `gh-pages` branch.
 
 :::note
-Zarr-based file types will not work on GitHub pages (GitHub does not serve hidden files, and Zarr attributes are stored in a hidden file called `.zattrs`). However, the JSON-based file types can be served from GitHub pages.
+Zarr-based file types will **not** work on GitHub Pages (GitHub Pages does not serve hidden files, and Zarr stores rely on attributes located in hidden files called `.zattrs`). However, the JSON-based file types can be served from GitHub Pages.
 :::
 
 ## Zenodo

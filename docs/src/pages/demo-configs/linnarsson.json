@@ -1,7 +1,7 @@
 {
-    "name": "Linnarsson",
+    "name": "Codeluppi et al., Nature Methods 2018",
     "version": "1.0.0",
-    "description": "Spatial organization of the somatosensory cortex revealed by cyclic smFISH",
+    "description": "Spatial organization of the somatosensory cortex revealed by osmFISH",
     "public": true,
     "datasets": [
       {
@@ -65,7 +65,7 @@
       {
         "component": "description",
         "props": {
-          "description": "Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH"
+          "description": "Codeluppi et al., Nature Methods 2018: Spatial organization of the somatosensory cortex revealed by osmFISH"
         },
         "x": 0,
         "y": 0,

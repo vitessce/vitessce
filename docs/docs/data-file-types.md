@@ -21,6 +21,10 @@ For example, a file that conforms to the `cells` data type may contain embedding
 | `neighborhoods` | <ul><li>`neighborhoods.json` (deprecated)</li></ul> |
 | `genomic-profiles` | <ul><li>`genomic-profiles.zarr` (WIP)</li></ul> |
 
+:::note
+For JSON file types, the file type will determine a JSON schema to validate against.
+:::
+
 ## Data Conversion
 
 In the `vitessce` Python package, we provide data conversion [helper classes and functions](https://vitessce.github.io/vitessce-python/wrappers.html#vitessce.wrappers.AnnDataWrapper).

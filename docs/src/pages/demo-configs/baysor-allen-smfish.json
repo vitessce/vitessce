@@ -1,7 +1,7 @@
 {
- "name": "Allen smFISH",
+ "name": "Allen Brain Institute, SpaceTx",
  "version": "1.0.0",
- "description": "Allen smFISH; https://github.com/spacetx-spacejam/data",
+ "description": "Multiplexed smFISH data of mouse primary visual cortex generated as part of the SpaceTx consortium, with cell segmentations from Baysor (Petukhov et al. 2020)",
  "public": true,
  "datasets": [
   {
@@ -80,12 +80,12 @@
   {
    "component": "description",
    "props": {
-    "description": "Allen smFISH; https://github.com/spacetx-spacejam/data"
+    "description": "Multiplexed smFISH data of mouse primary visual cortex generated as part of the SpaceTx consortium, with cell segmentations from Baysor (Petukhov et al. 2020)"
    },
    "x": 0,
    "y": 0,
    "w": 2,
-   "h": 1
+   "h": 2
   },
   {
    "component": "layerController",
@@ -93,9 +93,9 @@
     "spatialLayers": "A"
    },
    "x": 0,
-   "y": 1,
+   "y": 2,
    "w": 2,
-   "h": 4
+   "h": 3
   },
   {
    "component": "status",

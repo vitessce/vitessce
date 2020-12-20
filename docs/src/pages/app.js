@@ -1,6 +1,7 @@
 import React from 'react';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 
+// Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
 function WrappedApp(props) {
   return (
     <BrowserOnly>

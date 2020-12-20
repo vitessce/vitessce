@@ -74,7 +74,7 @@ A human-readable name for the dataset. Optional.
 #### `files`
 - Type: `object[]`
 
-The files array stores a list of file objects for a dataset. Each dataset may have one file of each `type`. File objects must contain a `type` ("data type"), `fileType` ("file type"), and a `url`. For more information about data types and file types, please visit our [Supported File Types](./data-file-types) documentation page.
+The files array stores a list of file objects for a dataset. Each dataset may have one file of each `type`. File objects must contain a `type` ("data type"), `fileType` ("file type"), and a `url`. For more information about data types and file types, please visit our [Supported File Types](./data-file-types) documentation page. We don't associate any semantics with URL strings.
 
 ```json
 ...,

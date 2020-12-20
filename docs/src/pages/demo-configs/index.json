@@ -49,6 +49,12 @@
       },
       "spatialTargetY": {
         "A": 20000
+      },
+      "geneSelection": {
+        "A": ["Rorb"]
+      },
+      "geneExpressionColormapRange": {
+        "A": [0, 0.75]
       }
     },
     "layout": [
@@ -74,7 +80,8 @@
         "coordinationScopes": {
           "spatialZoom": "A",
           "spatialTargetX": "A",
-          "spatialTargetY": "A"
+          "spatialTargetY": "A",
+          "geneSelection": "A"
         },
         "x": 2,
         "y": 0,
@@ -83,6 +90,9 @@
       },
       {
         "component": "genes",
+        "coordinationScopes": {
+          "geneSelection": "A"
+        },
         "x": 9,
         "y": 0,
         "w": 3,
@@ -97,6 +107,10 @@
       },
       {
         "component": "heatmap",
+        "coordinationScopes": {
+          "geneSelection": "A",
+          "geneExpressionColormapRange": "A"
+        },
         "props": {
           "transpose": true
         },
@@ -109,7 +123,8 @@
         "component": "scatterplot",
         "coordinationScopes": {
           "embeddingType": "TSNE",
-          "embeddingZoom": "TSNE"
+          "embeddingZoom": "TSNE",
+          "geneSelection": "A"
         },
         "x": 6,
         "y": 0,

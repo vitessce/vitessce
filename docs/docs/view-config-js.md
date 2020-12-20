@@ -11,9 +11,8 @@ The Vitessce view config defines how data is retrieved, which visualization comp
 
 
 ## `VitessceConfig`
-- Type: `class`
 
-To begin creating a view config with the API, you will need to instantiate a `VitessceConfig` object.
+`VitessceConfig` is a class representing a Vitessce view config. To begin creating a view config with the API, you will need to instantiate a `VitessceConfig` object.
 The methods of this object (and the objects its methods return) allow you to manipulate the underlying configuration.
 When you are ready, you will use the `.toJSON()` method to convert the `VitessceConfig` object to a plain JSON object.
 
@@ -53,7 +52,7 @@ import { VitessceConfig } from 'vitessce';
 const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset")
     .addFile(
-        "http://example.com/cells.json",
+        "http://example.com/my-cells-data.json",
         "cells",
         "cells.json"
     );
@@ -227,6 +226,74 @@ const v2 = vc.addView(dataset, "spatial");
 vc.layout(hconcat(v1, v2));
 ```
 
+### Visual Examples
+
+- Split grid in half horizontally
+    ```js
+    hconcat(v1, v2)
+    ```
+    <table className="table-concat">
+        <tbody>
+            <tr>
+                <td>v1</td>
+                <td>v2</td>
+            </tr>
+        </tbody>
+    </table>
+
+- Split grid in thirds horizontally
+    ```js
+    hconcat(v1, v2, v3)
+    ```
+    <table className="table-concat">
+        <tbody>
+            <tr>
+                <td>v1</td>
+                <td>v2</td>
+                <td>v3</td>
+            </tr>
+        </tbody>
+    </table>
+
+- Split grid in half horizontally and in half again vertically on right side
+    ```js
+    hconcat(v1, vconcat(v2, v3))
+    ```
+    <table className="table-concat">
+        <tbody>
+            <tr>
+                <td rowspan="2">v1</td>
+                <td>v2</td>
+            </tr>
+            <tr>
+                <td>v3</td>
+            </tr>
+        </tbody>
+    </table>
+
+- Use a nested `hconcat` to split in half on left side and fourths on right side (top row).
+    ```js {2}
+    vconcat(
+        hconcat(v1, hconcat(v2, v3)),
+        hconcat(v4, v5, v6, v7)
+    )
+    ```
+    <table className="table-concat">
+        <tbody>
+            <tr>
+                <td colspan="2">v1</td>
+                <td>v2</td>
+                <td>v3</td>
+            </tr>
+            <tr>
+                <td>v4</td>
+                <td>v5</td>
+                <td>v6</td>
+                <td>v7</td>
+            </tr>
+        </tbody>
+    </table>
+
 
 ## `vconcat`
 
@@ -242,16 +309,95 @@ const v2 = vc.addView(dataset, "spatial");
 vc.layout(vconcat(v1, v2));
 ```
 
+### Visual Examples
+
+- Split grid in half vertically
+    ```js
+    vconcat(v1, v2)
+    ```
+    <table className="table-concat">
+        <tbody>
+            <tr>
+                <td>v1</td>
+            </tr>
+            <tr>
+                <td>v2</td>
+            </tr>
+        </tbody>
+    </table>
+
+- Split grid in thirds horizontally
+    ```js
+    vconcat(v1, v2, v3)
+    ```
+    <table className="table-concat">
+        <tbody>
+            <tr>
+                <td>v1</td>
+            </tr>
+            <tr>
+                <td>v2</td>
+            </tr>
+            <tr>
+                <td>v3</td>
+            </tr>
+        </tbody>
+    </table>
+
+- Split grid in half horizontally and in half again vertically on right side
+    ```js
+    vconcat(v1, hconcat(v2, v3))
+    ```
+    <table className="table-concat">
+        <tbody>
+            <tr>
+                <td colspan="2">v1</td>
+            </tr>
+            <tr>
+                <td>v2</td>
+                <td>v3</td>
+            </tr>
+        </tbody>
+    </table>
+
+
+- Use a nested `vconcat` to split in half on top and fourths on bottom (left column).
+    ```js {2}
+    hconcat(
+        vconcat(v1, vconcat(v2, v3)),
+        vconcat(v4, v5, v6, v7)
+    )
+    ```
+    <table className="table-concat">
+        <tbody>
+            <tr>
+                <td rowspan="2">v1</td>
+                <td>v4</td>
+            </tr>
+            <tr>
+                <td>v5</td>
+            </tr>
+            <tr>
+                <td>v2</td>
+                <td>v6</td>
+            </tr>
+            <tr>
+                <td>v3</td>
+                <td>v7</td>
+            </tr>
+        </tbody>
+    </table>
+
 ## `VitessceConfigDataset`
 
-A class to represent a dataset (i.e. list of files containing common biological entities) in the Vitessce view config.
+`VitessceConfigDataset` is a class used to represent a dataset (i.e. list of files containing common biological entities) in the Vitessce view config.
 
-Not meant to be instantiated directly, but instead created and returned by the `VitessceConfig.addDataset()` method.
+This class is not meant to be instantiated directly, but instances will be created and returned by the `VitessceConfig.addDataset()` method.
 
 ### `addFile(url, dataType, fileType)`
 
 #### Parameters:
-- `url` (`string`) - The URL for the file, pointing to either a local or remote location.
+- `url` (`string`) - The URL for the file, pointing to either a local or remote location. We don't associate any semantics with URL strings.
 - `dataType` (`string`) - The type of data stored in the file. Must be compatible with the specified [file type](./data-file-types).
 - `fileType` (`string`) - The file type. Must be compatible with the specified [data type](./data-file-types).
 
@@ -266,7 +412,7 @@ import { VitessceConfig } from 'vitessce';
 const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset")
     .addFile(
-        "http://example.com/cells.json",
+        "http://example.com/my-cells-data.json",
         "cells",
         "cells.json"
     );
@@ -274,9 +420,9 @@ const dataset = vc.addDataset("My dataset")
 
 ## `VitessceConfigView`
 
-A class to represent a view (i.e. visualization component) in the Vitessce view config layout.
+`VitessceConfigView` is a class used to represent a view (i.e. visualization or controller component) in the Vitessce view config layout.
 
-Not meant to be instantiated directly, but instead created and returned by the `VitessceConfig.addView()` method.
+This class is not meant to be instantiated directly, but instances will be created and returned by the `VitessceConfig.addView()` method.
 
 ### `useCoordination(...cScopes)`
 
@@ -294,6 +440,9 @@ Returns `this` to allow chaining.
 
 Set extra props for this view. Mostly for debugging.
 
+#### Parameters:
+- `props` (`object`) - The props as a JSON object.
+
 #### Returns:
 - Type: `VitessceConfigView`
 
@@ -301,7 +450,7 @@ Returns `this` to allow chaining.
 
 ### `setXYWH(x, y, w, h)`
 
-Set the x, y, w, h values for this view.
+Set the x, y, w, h values for this view. This method can be used in place of calling `VitessceConfig.layout()` if more fine-grained control over the layout is required.
 
 #### Returns:
 - Type: `VitessceConfigView`

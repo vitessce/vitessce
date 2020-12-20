@@ -1,6 +1,5 @@
 import React from 'react';
 import clsx from 'clsx';
-import BrowserOnly from '@docusaurus/BrowserOnly';
 import Layout from '@theme/Layout';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -85,14 +84,6 @@ function Home() {
         )}
       </main>
     </Layout>
-  );
-}
-
-function WrappedHome() {
-  return(
-    <BrowserOnly>
-      <Home/>
-    </BrowserOnly>
   );
 }
 
