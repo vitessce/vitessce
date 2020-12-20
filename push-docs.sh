@@ -28,10 +28,12 @@ cd docs
 # We need to build the docs site twice:
 # 1. With baseUrl: "/" which may be copied to vitessce.io (by running ./copy-prod.sh).
 # 2. With baseUrl: "/vitessce-data/docs/2020-12-19/b416e16/" for the staging and versioned access.
-VITESSCE_DOCS_BASE_URL="/"
+export VITESSCE_DOCS_BASE_URL="/"
 npm run build-root
-VITESSCE_DOCS_BASE_URL="/$VERSIONED_DOCS_URL_PATH/"
+export VITESSCE_DOCS_BASE_URL="/$VERSIONED_DOCS_URL_PATH/"
 npm run build-versioned
+# Reset the base url exported variable
+unset VITESSCE_DOCS_BASE_URL
 
 # The following lines are relative to docs/ directory.
 ROOT_DIST_DIR='dist-root/'
