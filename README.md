@@ -70,6 +70,8 @@ To build the current branch and push the public-facing docs/app/demo site to S3,
 $ ./push-docs.sh
 ```
 
+This will build the library and docs, push to S3, and finally open the docs deployment in your browser.
+
 ### Release: App, Demos, and Docs
 
 If you haven't already, push a fresh docs site and
