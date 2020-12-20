@@ -3,7 +3,7 @@ module.exports = {
   tagline: 'Visual integration tool for exploration of spatial single cell experiments',
   url: 'http://vitessce.io',
   baseUrl: process.env.VITESSCE_DOCS_BASE_URL || '/',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'vitessce', // Usually your GitHub org/user name.
