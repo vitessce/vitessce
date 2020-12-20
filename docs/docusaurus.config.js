@@ -18,6 +18,7 @@ module.exports = {
     navbar: {
       title: 'Vitessce',
       logo: {
+        href: '/index.html',
         alt: 'Vitessce Logo',
         src: 'img/logo.png',
       },
