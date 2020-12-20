@@ -48,28 +48,36 @@ The development server will refresh the browser as you edit the code.
 
 ## Deployment
 
-### Demo
-
-To build the current branch and push to S3, first confirm that you have installed the AWS CLI and are in the appropriate AWS account:
+Before running any of the deployment scripts, confirm that you have installed the AWS CLI and are in the appropriate AWS account:
 ```
 $ aws iam list-account-aliases --query 'AccountAliases[0]'
 "gehlenborglab"
 ```
-and then run this script:
+
+### Minimal Demo
+
+To build the current branch and push the "minimal" demo site to S3, run this script:
 ```
 $ ./push-demo.sh
 ```
 
-This will build, push to S3, and finally open the demo deployment in your browser.
+This will build the demo, push to S3, and finally open the demo deployment in your browser.
+
+### Public Demo and Docs
+
+To build the current branch and push the public-facing docs/app/demo site to S3, run this script:
+```
+$ ./push-docs.sh
+```
 
 ### Release
 
-If you haven't already, push a fresh demo and
+If you haven't already, push a fresh docs site and
 do a last [manual test](TESTING.md) of the deployment.
 If it looks good, copy it to vitessce.io:
 
 ```
-$ ./copy-prod.sh https://{url returned by push-demo.sh}
+$ ./copy-prod.sh https://{url returned by push-docs.sh}
 ```
 
 The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update:
