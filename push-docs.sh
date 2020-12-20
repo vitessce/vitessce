@@ -5,7 +5,9 @@ set -o pipefail
 BRANCH=`git rev-parse --abbrev-ref HEAD`
 DATE=`date "+%Y-%m-%d"`
 HASH=`git rev-parse --short HEAD`
-DOCS_URL_PATH="vitessce-data/docs/$DATE/$HASH"
+
+ROOT_DOCS_URL_PATH="vitessce-data/docs-root/$DATE/$HASH"
+VERSIONED_DOCS_URL_PATH="vitessce-data/docs/$DATE/$HASH"
 
 die() { set +v; echo "$*" 1>&2 ; exit 1; }
 git diff --quiet || die 'Uncommitted changes: Stash or commit before pushing docs.'
@@ -23,18 +25,29 @@ npm link docs/node_modules/react
 
 # Build docs site...
 cd docs
-npm run build
+# We need to build the docs site twice:
+# 1. With baseUrl: "/" which may be copied to vitessce.io (by running ./copy-prod.sh).
+# 2. With baseUrl: "/vitessce-data/docs/2020-12-19/b416e16/" for the staging and versioned access.
+VITESSCE_DOCS_BASE_URL="/"
+npm run build-root
+VITESSCE_DOCS_BASE_URL="/$VERSIONED_DOCS_URL_PATH/"
+npm run build-versioned
 
 # The following lines are relative to docs/ directory.
-DIST_DIR='build/'
+ROOT_DIST_DIR='dist-root/'
+VERSIONED_DIST_DIR='dist-versioned/'
 # and add an error page for vitessce.io...
-cp ../error.html $DIST_DIR
+cp ../error.html $ROOT_DIST_DIR
+cp ../error.html $VERSIONED_DIST_DIR
 # and push to S3.
-aws s3 cp --recursive $DIST_DIR s3://$DOCS_URL_PATH
-TARGET_URL="https://s3.amazonaws.com/$DOCS_URL_PATH/index.html"
+aws s3 cp --recursive $ROOT_DIST_DIR s3://$ROOT_DOCS_URL_PATH
+aws s3 cp --recursive $VERSIONED_DIST_DIR s3://$VERSIONED_DOCS_URL_PATH
+VERSIONED_TARGET_URL="https://s3.amazonaws.com/$VERSIONED_DOCS_URL_PATH/index.html"
+COPY_TARGET_URL="https://s3.amazonaws.com/$VERSIONED_DOCS_URL_PATH/index.html"
 
-echo "- $DATE: [$BRANCH]($TARGET_URL)" >> ../DOCS.md
+echo "- $DATE: [$BRANCH]($VERSIONED_TARGET_URL)" >> ../DOCS.md
 
-echo "Deployed to $TARGET_URL"
+echo "Deployed to $VERSIONED_TARGET_URL"
+echo "Copy to $COPY_TARGET_URL"
 # Open in browser and see if it works:
-open "$TARGET_URL"
+open "$VERSIONED_TARGET_URL"

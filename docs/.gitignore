@@ -3,6 +3,8 @@
 
 # Production
 /build
+/dist-root
+/dist-versioned
 
 # Generated files
 .docusaurus

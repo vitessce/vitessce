@@ -2,7 +2,7 @@ module.exports = {
   title: 'Vitessce',
   tagline: 'Visual integration tool for exploration of spatial single cell experiments',
   url: 'http://vitessce.io',
-  baseUrl: '/',
+  baseUrl: process.env.VITESSCE_DOCS_BASE_URL || '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
