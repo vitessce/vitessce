@@ -63,7 +63,7 @@ $ ./push-demo.sh
 
 This will build the demo, push to S3, and finally open the demo deployment in your browser.
 
-### Public Demo and Docs
+### Public App, Demos, and Docs
 
 To build the current branch and push the public-facing docs/app/demo site to S3, run this script:
 ```
