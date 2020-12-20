@@ -80,6 +80,8 @@ If it looks good, copy it to vitessce.io:
 $ ./copy-prod.sh https://{url returned by push-docs.sh}
 ```
 
+### Release: NPM package
+
 The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update:
 - Check out a new branch for the release,
     - Update the CHANGELOG.md to remove the "in progress" text from the current version heading.
