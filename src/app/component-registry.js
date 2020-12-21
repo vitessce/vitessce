@@ -8,6 +8,7 @@ import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
 import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubscriber';
+import CellSetGenomicProfilesSubscriber from '../components/higlass/CellSetGenomicProfilesSubscriber';
 
 const registry = {
   description: DescriptionSubscriber,
@@ -18,8 +19,9 @@ const registry = {
   spatial: SpatialSubscriber,
   heatmap: HeatmapSubscriber,
   layerController: LayerControllerSubscriber,
-  higlass: HiGlassSubscriber,
+  higlass: HiGlassSubscriber, // for development purposes / undocumented
   cellSetSizes: CellSetSizesPlotSubscriber,
+  cellSetGenomicProfiles: CellSetGenomicProfilesSubscriber,
 };
 
 export function getComponent(name) {

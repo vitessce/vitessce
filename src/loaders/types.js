@@ -5,6 +5,7 @@ import ClustersJsonAsMatrixZarrLoader from './ClustersJsonAsMatrixZarrLoader';
 import RasterJsonLoader from './RasterJsonLoader';
 import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
+import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 
 const ANNDATA = 'anndata';
 
@@ -20,4 +21,5 @@ export const fileTypeToLoader = {
   [`${ANNDATA}-cell-sets.zarr`]: AnnDataLoaders.CellSetsZarrLoader,
   [`${ANNDATA}-cells.zarr`]: AnnDataLoaders.CellsZarrLoader,
   [`${ANNDATA}-expression-matrix.zarr`]: AnnDataLoaders.MatrixZarrLoader,
+  'genomic-profiles.zarr': GenomicProfilesZarrLoader,
 };

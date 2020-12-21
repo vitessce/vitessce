@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
@@ -1008,6 +1009,66 @@ export const configs = {
         },
         x: 8, y: 0, w: 4, h: 2 },
     ],
+  },
+  'higlass-hubmap': {
+    "version": "1.0.0",
+    "name": "HiGlass",
+    "description": "HiGlass",
+    "datasets": [
+      {
+        "uid": "A",
+        "name": "HBM485.TBWH.322",
+        "files": [
+          {
+            "type": "cells",
+            "fileType": "cells.json",
+            "url": "http://localhost:9000/out.cells.json"
+          },
+          {
+            "type": "cell-sets",
+            "fileType": "cell-sets.json",
+            "url": "http://localhost:9000/out.cell-sets.json"
+          },
+          {
+            "type": "genomic-profiles",
+            "fileType": "genomic-profiles.zarr",
+            "url": "http://localhost:9000/out.snap.multivec.zarr"
+          }
+        ]
+      }
+    ],
+    "coordinationSpace": {
+      "embeddingType": {
+        "A": "UMAP"
+      }
+    },
+    "layout": [
+      {
+        "component": "cellSetGenomicProfiles",
+        "x": 0.0,
+        "y": 0,
+        "w": 6.0,
+        "h": 12,
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "embeddingType": "A"
+        },
+        "x": 6.0,
+        "y": 0.0,
+        "w": 6.0,
+        "h": 6.0
+      },
+      {
+        "component": "cellSets",
+        "x": 6.0,
+        "y": 6.0,
+        "w": 6.0,
+        "h": 6.0
+      }
+    ],
+    "initStrategy": "auto"
   },
 };
 /* eslint-enable */
