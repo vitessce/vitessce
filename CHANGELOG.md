@@ -3,6 +3,7 @@
 ### Added
 - Implemented the view config API in JavaScript in a class called `VitessceConfig`.
 - Add searchable genes list.
+- Support loading AnnData from zarr.
 - Added scatterplot component options pane.
 - Added a `TextLayer` to render cell set names over the corresponding cell set centroid in the scatterplot.
 
