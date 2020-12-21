@@ -19,3 +19,5 @@ Fixes #___
 - [ ] Demos added or updated
 - [ ] Schemas in `/src/schemas/` updated (if there are changes to data file formats)
 - [ ] Screenshot for visual changes (e.g. new components or UI changes)
+- [ ] Make a corresponding PR in [vitessce-python](https://github.com/vitessce/vitessce-python) if your change requires a corresponding change in the Python package.
+- [ ] Make a corresponding PR in [vitessce-r](https://github.com/vitessce/vitessce-r) if your change requires a corresponding change in the R package.
