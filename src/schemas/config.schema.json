@@ -37,6 +37,10 @@
               "embeddingTargetX": { "type": "string" },
               "embeddingTargetY": { "type": "string" },
               "embeddingTargetZ": { "type": "string" },
+              "embeddingCellSetPolygonsVisible": { "type": "string" },
+              "embeddingCellSetLabelsVisible": { "type": "string" },
+              "embeddingCellSetLabelSize": { "type": "string" },
+              "embeddingCellRadius": { "type": "string" },
               "spatialZoom": { "type": "string" },
               "spatialRotation": { "type": "string" },
               "spatialTargetX": { "type": "string" },
@@ -66,6 +70,88 @@
               "moleculeHighlight": { "type": "string" }
             }
           }
+        }
+      }
+    },
+    "annDataCellSets": {
+      "type": "array",
+      "description": "Array of cell set configuration, following closely the conventions of the tabular schema",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["group_name", "set_name"],
+        "properties": {
+          "group_name": {
+            "type": "string",
+            "description": "The display name for the set, like 'Cell Type' or 'Louvain.'"
+          },
+          "set_name": {
+            "type": "string",
+            "description": "The location in the AnnData store for the set, like 'obs/louvain' or 'obs/celltype.'"
+          }
+        }
+      }
+    },
+    "annDataCells": {
+      "type": "object",
+      "description": "The properties of this object are the configuration for how to layout scatterplots and spatial information",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "xy": {
+          "type": "string",
+          "description": "The location in the AnnData store of cell centroids, like 'obsm/X_centroids.'"
+        },
+        "poly": {
+          "type": "string",
+          "description": "The location in the AnnData store of cell polygon outlines, like 'obsm/X_polygons.'"
+        },
+        "factors": {
+          "type": "array",
+          "description": "List of locations in the AnnData store of cell sets, like 'obs/louvain'",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mappings": {
+          "patternProperties": {
+            ".": {
+              "type": "object",
+              "description": "An object containing key-values for mappings like { UMAP: { key: 'obsm/X_umap', dims: [0, 1] } }.",
+              "additionalProperties": false,
+              "required": ["key"],
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "description": "Where to look in the AnnData store for this mapping, like 'obsm/X_umap.'"
+                },
+                "dims": {
+                  "type": "array",
+                  "description": "Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": { "type": "number" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "annDataExpressionMatrix": {
+      "type": "object",
+      "description": "The properties of this object are the configuration for how to fetch the cell x genes matrix",
+      "additionalProperties": false,
+      "required": ["matrix"],
+      "properties": {
+        "matrix": {
+          "type": "string",
+           "description": "The location in the AnnData store of the cell x gene matrix, like 'obsm/hvg_subset.' or 'X'"
+        },
+        "geneFilter": {
+          "type": "string",
+           "description": "The location in the AnnData store of a filter for the genes if using a subset of the data, like 'vae.highly_variable.' if the matrix comes from 'obsm/hvg_subset.'"
         }
       }
     },
@@ -272,6 +358,7 @@
                 "type": { "type": "string" },
                 "fileType": { "type": "string" },
                 "url": { "type": "string" },
+                "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
                 "requestInit": { "$ref": "#/definitions/requestInit" }
               }
             }
@@ -325,6 +412,30 @@
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
+          }
+        },
+        "embeddingCellSetPolygonsVisible": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "boolean" }
+          }
+        },
+        "embeddingCellSetLabelsVisible": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "boolean" }
+          }
+        },
+        "embeddingCellSetLabelSize": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "embeddingCellRadius": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
           }
         },
         "spatialZoom": {

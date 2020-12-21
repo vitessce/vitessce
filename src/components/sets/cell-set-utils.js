@@ -3,7 +3,9 @@ import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
 import isEqual from 'lodash/isEqual';
 import range from 'lodash/range';
-
+import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
+import concave from '@turf/concave';
+import centroid from '@turf/centroid';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
@@ -223,52 +225,6 @@ export function nodeToLevelDescendantNamePaths(node, level, prevPath, stopEarly 
 }
 
 /**
- * Return whether it makes sense to show a "complement checked sets"
- * button.
- * @param {object} currTree A tree object.
- * @returns {boolean} Does it make sense?
- */
-export function treeHasCheckedSetsToComplement(currTree, checkedPaths, items) {
-  return (
-    currTree
-    && checkedPaths
-    && checkedPaths.length > 0
-    && treeToComplement(currTree, checkedPaths, items).length > 0
-  );
-}
-
-/**
- * Return whether it makes sense to show a "intersect checked sets"
- * button.
- * @param {object} currTree A tree object.
- * @returns {boolean} Does it make sense?
- */
-export function treeHasCheckedSetsToIntersect(currTree, checkedPaths) {
-  return (
-    currTree
-    && checkedPaths
-    && checkedPaths.length > 1
-    && treeToIntersection(currTree, checkedPaths).length > 0
-  );
-}
-
-/**
- * Return whether it makes sense to show a "union checked sets"
- * button.
- * @param {object} currTree A tree object.
- * @returns {boolean} Does it make sense?
- */
-export function treeHasCheckedSetsToUnion(currTree, checkedPaths) {
-  return (
-    currTree
-    && checkedPaths
-    && checkedPaths.length > 1
-    && treeToUnion(currTree, checkedPaths).length > 0
-  );
-}
-
-
-/**
  * Export the tree by clearing tree state and all node states.
  * @param {object} currTree A tree object.
  * @returns {object} Tree object with tree and node state removed.
@@ -394,6 +350,47 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
   return new Map(cellColorsArray);
 }
 
+export function treeToCellPolygonsBySetNames(
+  currTree, cells, mapping, selectedNamePaths, cellSetColor,
+) {
+  const cellSetPolygons = [];
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      const nodeColor = (
+        cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+        || DEFAULT_COLOR
+      );
+      const cellPositions = nodeSet
+        .map(([cellId]) => ([
+          cells[cellId]?.mappings[mapping][0],
+          -cells[cellId]?.mappings[mapping][1],
+        ]))
+        .filter(Boolean);
+
+      if (cellPositions.length > 2) {
+        const points = turfFeatureCollection(
+          cellPositions.map(turfPoint),
+        );
+        const hull = concave(points);
+        if (hull) {
+          const hullCoords = hull.geometry.coordinates;
+          const centroidCoords = centroid(points).geometry.coordinates;
+          cellSetPolygons.push({
+            path: setNamePath,
+            name: setNamePath[setNamePath.length - 1],
+            hull: hullCoords,
+            color: nodeColor,
+            centroid: centroidCoords,
+          });
+        }
+      }
+    }
+  });
+  return cellSetPolygons;
+}
+
 /**
  * Given a tree with state, get the sizes of the
  * sets currently marked as "visible".
@@ -459,20 +456,6 @@ export function treeToExpectedCheckedLevel(currTree, checkedPaths) {
   return result;
 }
 
-
-export function treeToCheckedSetOperations(currTree, checkedPaths, items) {
-  const hasCheckedSetsToUnion = treeHasCheckedSetsToUnion(currTree, checkedPaths);
-  const hasCheckedSetsToIntersect = treeHasCheckedSetsToIntersect(currTree, checkedPaths);
-  const hasCheckedSetsToComplement = treeHasCheckedSetsToComplement(currTree, checkedPaths, items);
-
-  return {
-    hasCheckedSetsToUnion,
-    hasCheckedSetsToIntersect,
-    hasCheckedSetsToComplement,
-  };
-}
-
-
 export function treesConflict(cellSets, testCellSets) {
   const paths = [];
   const testPaths = [];
@@ -528,4 +511,18 @@ export function initializeCellSetColor(cellSets, cellSetColor) {
 
   cellSets.tree.forEach((lzn, treeIndex) => processNode(lzn, [], 0, treeIndex));
   return nextCellSetColor;
+}
+
+export function getCellSetPolygons(params) {
+  const {
+    cells,
+    mapping,
+    cellSets,
+    cellSetSelection,
+    cellSetColor,
+  } = params;
+  if (cellSetSelection && cellSetSelection.length > 0 && cellSets && cells) {
+    return treeToCellPolygonsBySetNames(cellSets, cells, mapping, cellSetSelection, cellSetColor);
+  }
+  return [];
 }

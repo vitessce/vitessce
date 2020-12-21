@@ -3,6 +3,9 @@
 ### Added
 - Implemented the view config API in JavaScript in a class called `VitessceConfig`.
 - Add searchable genes list.
+- Support loading AnnData from zarr.
+- Added scatterplot component options pane.
+- Added a `TextLayer` to render cell set names over the corresponding cell set centroid in the scatterplot.
 
 ### Changed
 - Genes list is now a virtual scroll to allow for more performant rendering.
@@ -10,6 +13,7 @@
 - Remove "Add Channel" button for RGB images.
 - Lazy load HiGlass (and PIXI.js) from absolute URLs (unpkg) to avoid dynamic script import issues with relative paths after bundling.
     - When loading JS resources for HiGlass and PIXI.js, use the current environment (dev/prod) to determine `min.js` vs `js` extensions, and use `package.json` to determine package versions.
+- Make ability to do cell set operations (union, intersection, complement) less restrictive
 - Implemented the `genomicZoomX`, `genomicZoomY`, `genomicTargetX`, and `genomicTargetY` coordination types for coordinating the zoom and pan interactions of multiple HiGlass views.
     - Simplified the `hgViewConfig` prop so that it supports only a single HiGlass view, and then allows Vitessce to handle the HiGlass view's `initialXDomain` and `initialYDomain` properties (through the coordination space), as well as the rest of the view config.
 

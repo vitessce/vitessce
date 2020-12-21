@@ -203,6 +203,18 @@ export const initializedViewConfig = {
     embeddingZoom: {
       A: 3,
     },
+    embeddingCellRadius: {
+      A: 1,
+    },
+    embeddingCellSetLabelSize: {
+      A: 14,
+    },
+    embeddingCellSetLabelsVisible: {
+      A: false,
+    },
+    embeddingCellSetPolygonsVisible: {
+      A: false,
+    },
     geneExpressionColormap: {
       A: 'plasma',
     },
@@ -295,6 +307,10 @@ export const initializedViewConfig = {
         embeddingTargetZ: 'A',
         embeddingType: 't-SNE',
         embeddingZoom: 'A',
+        embeddingCellRadius: 'A',
+        embeddingCellSetLabelSize: 'A',
+        embeddingCellSetLabelsVisible: 'A',
+        embeddingCellSetPolygonsVisible: 'A',
         geneExpressionColormap: 'A',
         geneExpressionColormapRange: 'A',
         geneHighlight: 'A',
