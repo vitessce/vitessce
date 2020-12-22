@@ -44,23 +44,32 @@ export default function CellSetGenomicProfilesSubscriber(props) {
         if(!genomicProfilesAttrs || urls.length !== 1) {
             return null;
         }
+
+        const foregroundColor = (theme === "dark" ? "#C0C0C0" : "#000000");
+        const backgroundColor = (theme === "dark" ? "#000000" : "#f1f1f1");
+        const dimColor = (theme === "dark" ? "dimgray" : "silver");
         
+        const url = urls[0].url;
         const profileTracks = genomicProfilesAttrs['row_infos'].map((rowInfo, i) => {
             const { path } = rowInfo;
             const setInSelection = cellSetSelection?.find(s => isEqual(s, path));
             const setColor = cellSetColor?.find(s => isEqual(s.path, path))?.color;
             const pathString = path.join("__");
             const track = {
-                "type": "horizontal-bar",
-                "uid": `bar-track-${pathString}`,
+                type: "horizontal-bar",
+                uid: `bar-track-${pathString}`,
                 "data": {
                     "type": "zarr-multivec",
-                    "url": urls[0].url,
+                    "url": url,
                     "row": i
                 },
                 "options": {
-                  "name": path[path.length - 1],
-                  "barFillColor": "silver",
+                  "name": path.join(" > "),
+                  "showMousePosition": true,
+                  "mousePositionColor": foregroundColor,
+                  "labelColor": (theme === "dark" ? "white" : "black"),
+                 "labelBackgroundColor": (theme === "dark" ? "black" : "white"),
+                 "labelShowAssembly": false,
                 },
                 "height": 30
             };
@@ -68,7 +77,7 @@ export default function CellSetGenomicProfilesSubscriber(props) {
                 const c = setColor;
                 track.options.barFillColor = `rgb(${c[0]},${c[1]},${c[2]})`;
             } else {
-                track.options.barFillColor = 'silver';
+                track.options.barFillColor = dimColor;
             }
             return track;
         });
@@ -82,12 +91,11 @@ export default function CellSetGenomicProfilesSubscriber(props) {
                         "tilesetUid": "NyITQvZsS_mOFNlz5C2LJg",
                         "uid": "chromosome-labels-1",
                         "options": {
-                            "color": (theme === "dark" ? "red" : "red"),
-                            "stroke": (theme === "dark" ? "red" : "red"),
+                            "color": foregroundColor,
                             "fontSize": 12,
                             "fontIsLeftAligned": false,
                             "showMousePosition": true,
-                            "mousePositionColor": (theme === "dark" ? "red" : "red"),
+                            "mousePositionColor": foregroundColor,
                         },
                         "height": 30
                     },
@@ -109,10 +117,11 @@ export default function CellSetGenomicProfilesSubscriber(props) {
                             "geneLabelPosition": "outside",
                             "geneStrandSpacing": 4,
                             "showMousePosition": true,
-                            "mousePositionColor": (theme === "dark" ? "#ff00ff" : "#ff00ff"),
-                            "plusStrandColor": "silver",
-                            "minusStrandColor": "silver",
+                            "mousePositionColor": foregroundColor,
+                            "plusStrandColor": foregroundColor,
+                            "minusStrandColor": foregroundColor,
                             "labelColor": "black",
+                            "labelBackgroundColor": backgroundColor,
                             "trackBorderWidth": 0,
                             "trackBorderColor": "black"
                         },
@@ -136,7 +145,6 @@ export default function CellSetGenomicProfilesSubscriber(props) {
                 "static": false
             }
         };
-
         return hgView;
     }, [genomicProfilesAttrs, urls, cellSetColor, cellSetSelection, theme]);
 
@@ -147,7 +155,6 @@ export default function CellSetGenomicProfilesSubscriber(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loaders, dataset]);
 
-    console.log(hgViewConfig);
 
     return (
         <div className="higlass-title-wrapper">

@@ -125,7 +125,7 @@ export default function HiGlassLazy(props) {
       centerY + genomesPerUnitY * unitY / 2,
     ];
     return {
-        "editable": true,
+        "editable": false,
         "zoomFixed": false,
         "trackSourceServers": [
           "//higlass.io/api/v1"
@@ -154,8 +154,6 @@ export default function HiGlassLazy(props) {
       };
   }, [genomicTargetX, genomeSize, genomicZoomX, width, genomicTargetY,
     genomicZoomY, height, hgViewConfigProp]);
-
-console.log(hgViewConfig);
 
   useEffect(() => {
     const handleMouseEnter = () => {
