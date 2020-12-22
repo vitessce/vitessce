@@ -16,7 +16,7 @@ For example, a file that conforms to the `cells` data type may contain embedding
 | `cells` | <ul><li>`cells.json`</li><li>`anndata-cells.zarr`</li></ul> |
 | `molecules` | <ul><li>`molecules.json`</li></ul> |
 | `cell-sets` | <ul><li>`cell-sets.json`</li><li>`anndata-cell-sets.zarr`</li></ul> |
-| `raster` | <ul><li>`ome-raster.zarr` (WIP)</li><li>`ome-raster.tiff` (WIP)</li></ul> |
+| `raster` | <ul><li>`raster.ome-zarr` (WIP)</li><li>`raster.ome-tiff` (WIP)</li></ul> |
 | `expression-matrix` | <ul><li>`expression-matrix.zarr`</li><li>`anndata-expression-matrix.zarr`</li><li>`clusters.json`</li><li>`genes.json`</li></ul> |
 | `neighborhoods` | <ul><li>`neighborhoods.json`</li></ul> |
 | `genomic-profiles` | <ul><li>`genomic-profiles.zarr` (WIP)</li></ul> |
