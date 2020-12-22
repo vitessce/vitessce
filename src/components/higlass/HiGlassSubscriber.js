@@ -1,6 +1,6 @@
 import React from 'react';
 import TitleInfo from '../TitleInfo';
-import { useReady, useUrls } from '../hooks';
+import { useReady, useUrls, useGridItemSize } from '../hooks';
 import HiGlassLazy from './HiGlassLazy';
 
 const HIGLASS_DATA_TYPES = [];
@@ -25,6 +25,9 @@ export default function HiGlassSubscriber(props) {
   } = props;
 
   // eslint-disable-next-line no-unused-vars
+  const [width, height, containerRef] = useGridItemSize();
+
+  // eslint-disable-next-line no-unused-vars
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     HIGLASS_DATA_TYPES,
   );
@@ -40,11 +43,14 @@ export default function HiGlassSubscriber(props) {
         isReady={isReady}
         urls={urls}
       >
-        <HiGlassLazy
-          coordinationScopes={coordinationScopes}
-          theme={theme}
-          hgViewConfig={hgViewConfig}
-        />
+        <div className="higlass-lazy-wrapper" ref={containerRef}>
+          <HiGlassLazy
+            coordinationScopes={coordinationScopes}
+            theme={theme}
+            hgViewConfig={hgViewConfig}
+            height={height}
+          />
+        </div>
       </TitleInfo>
     </div>
   );

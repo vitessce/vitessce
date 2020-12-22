@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useMemo, useEffect, useRef, Suspense, useState,
 } from 'react';
@@ -84,6 +83,7 @@ export default function HiGlassLazy(props) {
     hgViewConfig: hgViewConfigProp,
     hgOptions: hgOptionsProp,
     genomeSize,
+    height,
   } = props;
 
   // Get "props" from the coordination space.
@@ -99,7 +99,8 @@ export default function HiGlassLazy(props) {
     setGenomicTargetY,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.higlass, coordinationScopes);
 
-  const [width, height, containerRef] = useGridItemSize();
+  // eslint-disable-next-line no-unused-vars
+  const [width, computedHeight, containerRef] = useGridItemSize();
   const [hgInstance, setHgInstance] = useState();
   const isActiveRef = useRef();
 
@@ -125,33 +126,33 @@ export default function HiGlassLazy(props) {
       centerY + genomesPerUnitY * unitY / 2,
     ];
     return {
-        "editable": false,
-        "zoomFixed": false,
-        "trackSourceServers": [
-          "//higlass.io/api/v1"
-        ],
-        "exportViewUrl": "//higlass.io/api/v1/viewconfs",
-        "views": [
-            {
-                "uid": "aa",
-                ...hgViewConfigProp,
-                initialXDomain,
-                initialYDomain,
-            }
-        ],
-        "zoomLocks": {
-          "locksByViewUid": {},
-          "locksDict": {}
+      editable: false,
+      zoomFixed: false,
+      trackSourceServers: [
+        '//higlass.io/api/v1',
+      ],
+      exportViewUrl: '//higlass.io/api/v1/viewconfs',
+      views: [
+        {
+          uid: 'main',
+          ...hgViewConfigProp,
+          initialXDomain,
+          initialYDomain,
         },
-        "locationLocks": {
-          "locksByViewUid": {},
-          "locksDict": {}
-        },
-        "valueScaleLocks": {
-          "locksByViewUid": {},
-          "locksDict": {}
-        }
-      };
+      ],
+      zoomLocks: {
+        locksByViewUid: {},
+        locksDict: {},
+      },
+      locationLocks: {
+        locksByViewUid: {},
+        locksDict: {},
+      },
+      valueScaleLocks: {
+        locksByViewUid: {},
+        locksDict: {},
+      },
+    };
   }, [genomicTargetX, genomeSize, genomicZoomX, width, genomicTargetY,
     genomicZoomY, height, hgViewConfigProp]);
 
@@ -206,7 +207,7 @@ export default function HiGlassLazy(props) {
 
   return (
     <div className="higlass-wrapper-parent">
-      <div className="higlass-wrapper" ref={containerRef}>
+      <div className="higlass-wrapper" ref={containerRef} style={{ height: `${height}px` }}>
         <Suspense fallback={<div>Loading...</div>}>
           <HiGlassComponent
             ref={setHgInstance}

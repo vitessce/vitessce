@@ -1,4 +1,3 @@
-/* eslint-disable */
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
@@ -923,152 +922,121 @@ export const configs = {
     ],
   },
   'sc-atac-seq-10x-genomics-pbmc': {
-    version: '0.1.0',
-    public: false,
-    layers: [],
+    version: '1.0.0',
     name: 'HiGlass serverless demo with 10x Genomics scATAC-seq 5k PBMC dataset',
-    staticLayout: [
+    datasets: [
       {
-        component: 'higlass',
-        props: {
-          hgViewConfig: {
-            uid: 'A',
-            chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
-            tracks: {
-              top: [
-                {
-                  chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
-                  type: 'horizontal-chromosome-labels',
-                  height: 30,
-                  uid: 'X4e_1DKiQHmyghDa6lLMVA',
-                  options: {
-                    color: '#808080',
-                    stroke: 'black',
-                    fontSize: 12,
-                    fontIsLeftAligned: false,
-                    showMousePosition: true,
-                    mousePositionColor: '#ff00ff',
-                  },
-                },
-                {
-                  type: 'horizontal-gene-annotations',
-                  height: 70,
-                  tilesetUid: 'OHJakQICQD6gTD7skx4EWA',
-                  server: '//higlass.io/api/v1',
-                  uid: 'OHJakQICQD6gTD7skx4EWA',
-                  options: {
-                    name: 'Gene Annotations (hg19)',
-                    fontSize: 10,
-                    labelPosition: 'hidden',
-                    labelLeftMargin: 0,
-                    labelRightMargin: 0,
-                    labelTopMargin: 0,
-                    labelBottomMargin: 0,
-                    minHeight: 24,
-                    geneAnnotationHeight: 16,
-                    geneLabelPosition: 'outside',
-                    geneStrandSpacing: 4,
-                    showMousePosition: true,
-                    mousePositionColor: '#ff00ff',
-                    plusStrandColor: '#fdff54',
-                    minusStrandColor: '#68bf30',
-                    labelColor: 'black',
-                    trackBorderWidth: 0,
-                    trackBorderColor: 'black',
-                  },
-                },
-                {
-                  type: 'horizontal-multivec',
-                  uid: 'clusters',
-                  data: {
-                    type: 'zarr-multivec',
-                    url: '//higlass-serverless.s3.amazonaws.com/multivec/pbmc_10x_peaks_by_cluster.zarr',
-                  },
-                  options: {
-                    zeroValueColor: 'transparent',
-                  },
-                  height: 500,
-                },
-              ],
-            },
-            layout: {
-              w: 12,
-              h: 12,
-              x: 0,
-              y: 0,
-              moved: false,
-              static: false,
-            },
+        uid: '10x-genomics-pbmc',
+        name: '10x Genomics PBMC',
+        files: [
+          {
+            type: 'genomic-profiles',
+            fileType: 'genomic-profiles.zarr',
+            url: 'http://higlass-serverless.s3.amazonaws.com/multivec/pbmc_10x_peaks_by_cluster.zarr',
           },
+        ],
+      },
+    ],
+    layout: [
+      { component: 'genomicProfiles',
+        props: {
+          profileTrackUidKey: 'file',
         },
         x: 0, y: 0, w: 8, h: 2,
       },
       { component: 'description',
         props: {
-          description: '10x Genomics scATAC-seq of 5k PBMCs.',
+          description: '10x Genomics scATAC-seq of 5k PBMCs. Note: the Zarr HiGlass Plugin Datafetcher is not yet optimized. Please be patient while the HiGlass tracks load.',
         },
         x: 8, y: 0, w: 4, h: 2 },
     ],
+    initStrategy: 'auto',
   },
   'higlass-hubmap': {
-    "version": "1.0.0",
-    "name": "HiGlass",
-    "description": "HiGlass",
-    "datasets": [
+    version: '1.0.0',
+    name: 'HBM485.TBWH.322',
+    description: 'HiGlass',
+    datasets: [
       {
-        "uid": "A",
-        "name": "HBM485.TBWH.322",
-        "files": [
+        uid: '210d118a14c8624b6bb9610a9062656e',
+        name: 'HBM485.TBWH.322',
+        files: [
           {
-            "type": "cells",
-            "fileType": "cells.json",
-            "url": "http://localhost:9000/out.cells.json"
+            type: 'cells',
+            fileType: 'cells.json',
+            url: 'http://localhost:9000/out.cells.json',
           },
           {
-            "type": "cell-sets",
-            "fileType": "cell-sets.json",
-            "url": "http://localhost:9000/out.cell-sets.json"
+            type: 'cell-sets',
+            fileType: 'cell-sets.json',
+            url: 'http://localhost:9000/out.cell-sets.json',
           },
           {
-            "type": "genomic-profiles",
-            "fileType": "genomic-profiles.zarr",
-            "url": "http://localhost:9000/out.snap.multivec.zarr"
-          }
-        ]
-      }
+            type: 'genomic-profiles',
+            fileType: 'genomic-profiles.zarr',
+            url: 'http://localhost:9000/out.snap.multivec.zarr',
+          },
+        ],
+      },
     ],
-    "coordinationSpace": {
-      "embeddingType": {
-        "A": "UMAP"
-      }
+    coordinationSpace: {
+      embeddingType: {
+        A: 'UMAP',
+      },
+      embeddingZoom: {
+        A: 4.3395,
+      },
+      embeddingTargetX: {
+        A: -1.3209,
+      },
+      embeddingTargetY: {
+        A: 1.0427,
+      },
+      embeddingCellRadius: {
+        A: 0.25,
+      },
     },
-    "layout": [
+    layout: [
       {
-        "component": "cellSetGenomicProfiles",
-        "x": 0.0,
-        "y": 0,
-        "w": 6.0,
-        "h": 12,
+        component: 'genomicProfiles',
+        x: 0.0,
+        y: 0,
+        w: 6.0,
+        h: 12,
       },
       {
-        "component": "scatterplot",
-        "coordinationScopes": {
-          "embeddingType": "A"
+        component: 'scatterplot',
+        coordinationScopes: {
+          embeddingType: 'A',
+          embeddingZoom: 'A',
+          embeddingTargetX: 'A',
+          embeddingTargetY: 'A',
+          embeddingCellRadius: 'A',
         },
-        "x": 6.0,
-        "y": 0.0,
-        "w": 6.0,
-        "h": 6.0
+        x: 6.0,
+        y: 0.0,
+        w: 6.0,
+        h: 6.0,
       },
       {
-        "component": "cellSets",
-        "x": 6.0,
-        "y": 6.0,
-        "w": 6.0,
-        "h": 6.0
-      }
+        component: 'cellSets',
+        x: 6.0,
+        y: 6.0,
+        w: 3.0,
+        h: 6.0,
+      },
+      {
+        component: 'description',
+        props: {
+          description: 'HuBMAP snATAC-seq of large intestine, processed by the SnapATAC pipeline (HBM485.TBWH.322)',
+        },
+        x: 9.0,
+        y: 6.0,
+        w: 3.0,
+        h: 6.0,
+      },
     ],
-    "initStrategy": "auto"
+    initStrategy: 'auto',
   },
 };
 /* eslint-enable */
