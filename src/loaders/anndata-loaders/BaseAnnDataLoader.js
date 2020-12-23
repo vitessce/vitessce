@@ -17,23 +17,6 @@ export default class BaseAnnDataLoader extends AbstractLoader {
   }
 
   /**
-   * Class method for decoding json from the store.
-   * @returns {string} An path to the item.
-   */
-  async getJson(key) {
-    try {
-      const buf = await this.store.getItem(key);
-      const text = new TextDecoder().decode(buf);
-      return JSON.parse(text);
-    } catch (err) {
-      if (err instanceof KeyError) {
-        return {};
-      }
-      throw err;
-    }
-  }
-
-  /**
    * Class method for decoding text arrays from zarr.
    * @returns {string[]} An array of strings.
    */
