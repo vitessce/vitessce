@@ -1,6 +1,6 @@
 import * as vl from 'vega-lite-api';
-import * as Vega from 'vega';
-import * as VegaLite from 'vega-lite';
+import * as Vega from 'vega/build-es5/vega';
+import * as VegaLite from 'vega-lite/build-es5/vega-lite';
 
 /**
  * Vega-Lite themes that can be passed to the `config` property

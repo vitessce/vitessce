@@ -3,7 +3,6 @@ const path = require('path');
 const chalk = require('react-dev-utils/chalk');
 const webpack = require('webpack');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
-const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const FileSizeReporter = require('react-dev-utils/FileSizeReporter');
 const { checkBrowsers } = require('react-dev-utils/browsersHelper');
 
@@ -25,6 +24,10 @@ function copyPublicFolder(paths) {
     dereference: true,
     filter: file => file !== paths.appHtml,
   });
+}
+
+function formatWebpackMessages(messages) {
+  console.log(messages);
 }
 
 function compile(config, environment, target, previousFileSizes) {

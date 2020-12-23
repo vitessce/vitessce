@@ -1,15 +1,13 @@
-const fs = require('fs');
 const path = require('path');
 const chalk = require('react-dev-utils/chalk');
 const utils = require("./utils");
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const postcssNormalize = require('postcss-normalize');
-const safePostCssParser = require('postcss-safe-parser');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
-const PnpWebpackPlugin = require('pnp-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 const moduleFileExtensions = utils.moduleFileExtensions;
 const imageInlineSizeLimit = 10000;
@@ -66,45 +64,42 @@ function getStyleLoaders(cssOptions, preProcessor, environment, publicUrlOrPath,
     const isEnvProduction = environment === 'production';
     const isEnvDevelopment = !isEnvProduction;
 
-    const loaders = [
-      ...(isEnvDevelopment ? [ require.resolve('style-loader') ] : []),
-      ...(true ? [ {
-        loader: MiniCssExtractPlugin.loader,
-        // css is located in `static/css`, use '../../' to locate index.html folder
-        // in production `paths.publicUrlOrPath` can be a relative path
-        options: (publicUrlOrPath.startsWith('.')
-          ? { publicPath: '../../' }
-          : {}),
-      } ] : []),
-      {
-        loader: require.resolve('css-loader'),
-        options: cssOptions,
-      },
-      {
+    return [
+      (isEnvDevelopment
+        ? 'style-loader'
+        : {
+          loader: MiniCssExtractPlugin.loader,
+          // css is located in `static/css`, use '../../' to locate index.html folder
+          // in production `paths.publicUrlOrPath` can be a relative path
+          options: (publicUrlOrPath.startsWith('.')
+            ? { publicPath: '../../' }
+            : {}),
+        }
+      ),
+      'css-loader',
+      'sass-loader'
+      /*{
         // Options for PostCSS as we reference these options twice
         // Adds vendor prefixing based on your specified browser support in
         // package.json
         loader: require.resolve('postcss-loader'),
         options: {
-          // Necessary for external CSS imports to work
-          // https://github.com/facebook/create-react-app/issues/2677
-          ident: 'postcss',
-          plugins: () => [
-            require('postcss-flexbugs-fixes'),
-            require('postcss-preset-env')({
-              autoprefixer: {
-                flexbox: 'no-2009',
-              },
-              stage: 3,
-            }),
-            // Adds PostCSS Normalize as the reset css with default options,
-            // so that it honors browserslist config in package.json
-            // which in turn let's users customize the target behavior as per their needs.
-            postcssNormalize(),
-          ],
+          postcssOptions: {
+            plugins: [
+              [
+                'postcss-preset-env',
+                {
+                  autoprefixer: {
+                    flexbox: 'no-2009',
+                  },
+                  stage: 3,
+                },
+              ],
+            ]
+          },
           sourceMap: (isEnvProduction && shouldUseSourceMap),
         },
-      },
+      },*/
     ].filter(Boolean);
     if (preProcessor) {
       loaders.push(
@@ -176,25 +171,12 @@ function getOptimizationMinimizer(shouldDoProfiling, shouldUseSourceMap) {
               ascii_only: true,
             },
           },
-          sourceMap: shouldUseSourceMap,
         }),
         // This is only used in production mode
-        new OptimizeCSSAssetsPlugin({
-          cssProcessorOptions: {
-            parser: safePostCssParser,
-            map: shouldUseSourceMap
-              ? {
-                  // `inline: false` forces the sourcemap to be output into a
-                  // separate file
-                  inline: false,
-                  // `annotation: true` appends the sourceMappingURL to the end of
-                  // the css file, helping the browser find the sourcemap
-                  annotation: true,
-                }
-              : false,
-          },
-          cssProcessorPluginOptions: {
-            preset: ['default', { minifyFontValues: { removeQuotes: false } }],
+        new CssMinimizerPlugin({
+          sourceMap: shouldUseSourceMap,
+          minimizerOptions: {
+            preset: ['default', { minifyFontValues: { removeQuotes: false } }]
           },
         }),
     ];
@@ -229,9 +211,6 @@ function getResolveInfo(paths, additionalModulePaths, useTypeScript, shouldDoPro
       ...(webpackAliases || {}),
     },
     plugins: [
-      // Adds support for installing with Plug'n'Play, leading to faster installs and adding
-      // guards against forgotten dependencies and such.
-      PnpWebpackPlugin,
       // Prevents users from importing files from outside of src/ (or node_modules/).
       // This often causes confusion because we only process files within src/ with babel.
       // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
@@ -239,15 +218,16 @@ function getResolveInfo(paths, additionalModulePaths, useTypeScript, shouldDoPro
       // Make sure your source files are compiled, as they will not be processed in any way.
       new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
     ],
+    fallback: {
+      "buffer": false
+    }
   };
 }
 
 function getResolveLoaderInfo() {
   return {
     plugins: [
-      // Also related to Plug'n'Play, but this time it tells webpack to load its loaders
-      // from the current package.
-      PnpWebpackPlugin.moduleLoader(module),
+
     ],
   };
 }
@@ -335,28 +315,6 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
     return {
       strictExportPresence: true,
       rules: [
-        // Disable require.ensure as it's not a standard language feature.
-        { parser: { requireEnsure: false } },
-
-        // First, run the linter.
-        // It's important to do this before Babel processes the JS.
-        {
-          test: /\.(js|mjs|jsx|ts|tsx)$/,
-          enforce: 'pre',
-          use: [
-            {
-              options: {
-                cache: true,
-                formatter: require.resolve('react-dev-utils/eslintFormatter'),
-                eslintPath: require.resolve('eslint'),
-                resolvePluginsRelativeTo: __dirname,
-                
-              },
-              loader: require.resolve('eslint-loader'),
-            },
-          ],
-          include: paths.appSrc,
-        },
         {
           // "oneOf" will traverse all following loaders until one will
           // match the requirements. When no loader matches it will fall
@@ -367,11 +325,7 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
             // A missing `test` is equivalent to a match.
             {
               test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-              loader: require.resolve('url-loader'),
-              options: {
-                limit: imageInlineSizeLimit,
-                name: 'static/media/[name].[hash:8].[ext]',
-              },
+              type: 'asset/inline',
             },
             // Process application JS with Babel.
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
@@ -409,7 +363,7 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
             // Process any JS outside of the app with Babel.
             // Unlike the application JS, we only compile the standard ES features.
             {
-              test: /\.(js|mjs)$/,
+              test: /\.(js|mjs|cjs)$/,
               exclude: /@babel(?:\/|\\{1,2})runtime/,
               loader: require.resolve('babel-loader'),
               options: {
@@ -453,18 +407,6 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
               // See https://github.com/webpack/webpack/issues/6571
               sideEffects: true,
             },
-            // Adds support for CSS Modules (https://github.com/css-modules/css-modules)
-            // using the extension .module.css
-            {
-              test: cssModuleRegex,
-              use: getStyleLoaders({
-                importLoaders: 1,
-                sourceMap: (isEnvProduction && shouldUseSourceMap),
-                modules: {
-                  getLocalIdent: getCSSModuleLocalIdent,
-                },
-              }, undefined, environment, publicUrlOrPath, shouldUseSourceMap),
-            },
             // Opt-in support for SASS (using .scss or .sass extensions).
             // By default we support SASS Modules with the
             // extensions .module.scss or .module.sass
@@ -483,21 +425,6 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
               // Remove this when webpack adds a warning or an error for this.
               // See https://github.com/webpack/webpack/issues/6571
               sideEffects: true,
-            },
-            // Adds support for CSS Modules, but using SASS
-            // using the extension .module.scss or .module.sass
-            {
-              test: sassModuleRegex,
-              use: getStyleLoaders(
-                {
-                  importLoaders: 3,
-                  sourceMap: (isEnvProduction && shouldUseSourceMap),
-                  modules: {
-                    getLocalIdent: getCSSModuleLocalIdent,
-                  },
-                },
-                'sass-loader', environment, publicUrlOrPath, shouldUseSourceMap
-              ),
             },
             // "file" loader makes sure those assets get served by WebpackDevServer.
             // When you `import` an asset, you get its (virtual) filename.
@@ -525,15 +452,16 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
           use: {
             loader: 'worker-loader',
             options: {
-              inline: true,
-              fallback: false,
+              inline: 'no-fallback',
             }
           }
         },
         {
-          test: /\.mjs$/,
-          include: /node_modules/,
+          test: /\.m?js$/,
           type: "javascript/auto",
+          resolve: {
+            fullySpecified: false
+          }
         }
     ]
   };

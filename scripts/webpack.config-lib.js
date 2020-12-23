@@ -76,16 +76,11 @@ module.exports = function(paths, environment, target) {
             libraryTarget: (target === "es" ? "commonjs2" : target),
             // Add /* filename */ comments to generated require()s in the output.
             pathinfo: isEnvDevelopment,
-            // TODO: remove this when upgrading to webpack 5
-            futureEmitAssets: true,
             // Webpack uses `publicPath` to determine where the app is being served from.
             // It requires a trailing slash, or the file assets will get an incorrect path.
             publicPath: publicUrlOrPath,
             // Point sourcemap entries to original disk location (format as URL on Windows)
             devtoolModuleFilenameTemplate: devtoolModuleFilenameTemplate,
-            // Prevents conflicts when multiple webpack runtimes (from different apps)
-            // are used on the same page.
-            jsonpFunction: `webpackJsonp${appPackageJson.name}`,
             // this defaults to 'window', but by setting it to 'this' then
             // module chunks which are built will work in web workers as well.
             globalObject: 'this'
@@ -157,7 +152,7 @@ module.exports = function(paths, environment, target) {
         }),
         // Some libraries import Node modules but don't use them in the browser.
         // Tell webpack to provide empty mocks for them so importing them works.
-        node: nodeInfo,
+        node: false,
         // Turn off performance processing because we utilize
         // our own hints via the FileSizeReporter
         performance: performanceInfo,

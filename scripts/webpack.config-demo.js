@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const PnpWebpackPlugin = require('pnp-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin');
@@ -74,7 +73,7 @@ module.exports = function(paths, environment) {
             // the line below with these two lines if you prefer the stock client:
             // require.resolve('webpack-dev-server/client') + '?/',
             // require.resolve('webpack/hot/dev-server'),
-            ...(isEnvDevelopment ? [ require.resolve('react-dev-utils/webpackHotDevClient') ] : []),
+            ...(isEnvDevelopment ? [ require.resolve('webpack-dev-server/client') ] : []),
             // Finally, this is your app's code:
             paths.appIndexJs,
         ],
@@ -85,20 +84,12 @@ module.exports = function(paths, environment) {
             pathinfo: isEnvDevelopment,
             // There will be one main bundle, and one file per asynchronous chunk.
             // In development, it does not produce real files.
-            filename: (isEnvProduction
-                ? 'static/js/[name].[contenthash:8].js'
-                : 'static/js/bundle.js'
-            ),
-            // TODO: remove this when upgrading to webpack 5
-            futureEmitAssets: true,
+            filename: 'static/js/[name].[contenthash:8].js',
             // Webpack uses `publicPath` to determine where the app is being served from.
             // It requires a trailing slash, or the file assets will get an incorrect path.
             publicPath: publicUrlOrPath,
             // Point sourcemap entries to original disk location (format as URL on Windows)
             devtoolModuleFilenameTemplate: devtoolModuleFilenameTemplate,
-            // Prevents conflicts when multiple webpack runtimes (from different apps)
-            // are used on the same page.
-            jsonpFunction: `webpackJsonp${appPackageJson.name}`,
             // this defaults to 'window', but by setting it to 'this' then
             // module chunks which are built will work in web workers as well.
             globalObject: 'this',
@@ -129,6 +120,7 @@ module.exports = function(paths, environment) {
         resolveLoader: resolveLoaderInfo,
         module: moduleInfo,
         plugins: [
+            new webpack.ProgressPlugin(),
             // Generates an `index.html` file with the <script> injected.
             new HtmlWebpackPlugin(
                 Object.assign(
@@ -196,7 +188,7 @@ module.exports = function(paths, environment) {
         externals: {
             // No externals, demo should come with everything.
         },
-        node: nodeInfo,
+        node: false,
         performance: performanceInfo,
     };
 };
