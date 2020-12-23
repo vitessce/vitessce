@@ -11,7 +11,7 @@
   position: relative;
   overflow: hidden;
 
-  background-color: #757575;
+  background-color: var(--hero-banner-background);
 }
 
 @media screen and (max-width: 966px) {
@@ -33,9 +33,15 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 2rem 0;
   width: 100%;
   background-color: var(--ifm-navbar-background-color);
+  padding: var(--ifm-footer-padding-vertical) var(--ifm-footer-padding-horizontal);
+}
+
+@media (max-width: 996px) {
+  .features {
+      --ifm-footer-padding-horizontal: 0;
+  }
 }
 
 .featureImage {

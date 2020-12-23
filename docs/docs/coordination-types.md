@@ -7,7 +7,7 @@ slug: /coordination-types
 
 ## Overview
 
-Vitessce defines several coordination types upon which views can be coordinated via the view config.
+Vitessce defines several coordination types upon which views can be coordinated via the view config. The coordination types found on this page are all valid values for the keys of the [`coordinationSpace`](../view-config-json/index.html#coordinationspace) object in the view config.
 
 ### `dataset`
 ### `embeddingType`

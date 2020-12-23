@@ -7,7 +7,9 @@ slug: /components
 
 ## Overview
 
-Vitessce supports several components for visualization of single-cell data, and several controller components for updating visualization parameters. More information about the data types mentioned on this page can be found on the [Supported File Types](../data-file-types/index.html) page.
+Vitessce supports several components for visualization of single-cell data, and several controller components for updating visualization parameters. The component names found on this page are all valid values for the field [`layout[].component`](../view-config-json/index.html#layout) in the view config.
+
+More information about the data types mentioned on this page can be found on the [Supported File Types](../data-file-types/index.html) page.
 
 :::note
 The terms "component" and "view" are used interchangably thoughout this documentation.
