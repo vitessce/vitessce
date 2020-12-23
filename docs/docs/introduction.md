@@ -16,7 +16,7 @@ The diagram below highlights how Vitessce is composed of a top-level `<Vitessce/
 
 ## Configuration
 
-When using the top-level `<Vitessce/>` component (or the Python/R widgets), a [JSON-based configuration](../view-config-json/index.html) termed the "view config" defines how data is retrieved, which visualization components are rendered, and how different components are coordinated.
+When using the top-level `<Vitessce/>` component (or the Python/R widgets), a [JSON-based configuration](./view-config-json/index.html) termed the "view config" defines how data is retrieved, which visualization components are rendered, and how different components are coordinated.
 To simplify the configuration process, we also provide object-oriented APIs for generating view configs in [JavaScript](../view-config-js/index.html), [Python](https://vitessce.github.io/vitessce-python/config_api.html), and [R](https://vitessce.github.io/vitessce-r/reference/VitessceConfig.html#examples).
 
 ## Distribution
