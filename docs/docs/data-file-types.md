@@ -35,7 +35,7 @@ File types with the prefix `anndata-` and suffix `.zarr` are intended to be used
 
 ## File Loaders
 
-If you develop a loader class for a new file type, please make a pull request to add it to the [existing loaders](https://github.com/hubmapconsortium/vitessce/tree/master/src/loaders).
+If you develop a loader class for a new file type, please make a pull request to add it to the [existing loaders](https://github.com/vitessce/vitessce/tree/master/src/loaders).
 
 ### Limitations
 

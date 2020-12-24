@@ -23,7 +23,7 @@ The Vitessce view config defines the datasets (and the URLs to the files they co
 
 :::note
 
-The full view config JSON schema can be found [here](https://github.com/hubmapconsortium/vitessce/blob/master/src/schemas/config.schema.json).
+The full view config JSON schema can be found [here](https://github.com/vitessce/vitessce/blob/master/src/schemas/config.schema.json).
 
 :::
 

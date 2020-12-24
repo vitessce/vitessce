@@ -5,3 +5,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 
 
 - 2020-12-20: [keller-mark/docs](https://s3.amazonaws.com/vitessce-data/docs/2020-12-20/0adaf54/index.html)
+- 2020-12-23: [keller-mark/docs](https://s3.amazonaws.com/vitessce-data/docs/2020-12-23/aecb0c8/index.html)
