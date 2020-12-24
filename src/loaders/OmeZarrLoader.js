@@ -1,8 +1,7 @@
 import { ZarrLoader } from '@hms-dbmi/viv';
 import { openArray, HTTPStore } from 'zarr';
-import rasterSchema from '../schemas/raster.schema.json';
-import AbstractLoader from './AbstractLoader';
-import { LoaderFetchError, AbstractLoaderError } from './errors';
+import AbstractZarrLoader from './AbstractZarrLoader';
+import { AbstractLoaderError } from './errors';
 
 async function openMultiResolutionData(store, rootAttrs) {
   let resolutions = ['0'];
@@ -57,12 +56,7 @@ function createLoader(dataArr, imageData) {
   return new ZarrLoader({ data, dimensions });
 }
 
-export default class OmeZarrLoader extends AbstractLoader {
-  constructor(params) {
-    super(params);
-    this.schema = rasterSchema;
-  }
-
+export default class OmeZarrLoader extends AbstractZarrLoader {
   async initLoader(imageData) {
     const {
       url,
@@ -77,23 +71,12 @@ export default class OmeZarrLoader extends AbstractLoader {
   }
 
   async loadZattrs() {
-    // We need to load the .zattrs json, not the 'url' itself
-    // We don't do any validation (yet)
-    const url = `${this.url}/.zattrs`;
-    const { requestInit, fileType, type } = this;
-    this.data = fetch(url, requestInit)
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        return Promise.reject(new LoaderFetchError(type, fileType, url, response.headers));
-      })
-      .catch(reason => Promise.resolve(reason))
+    this.data = this.getJson('.zattrs')
       .then((data) => {
         if (data instanceof AbstractLoaderError) {
           return Promise.reject(data);
         }
-        return Promise.resolve({ data, url });
+        return Promise.resolve({ data, url: this.url });
       });
     return this.data;
   }

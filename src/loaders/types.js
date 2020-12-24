@@ -17,7 +17,7 @@ export const fileTypeToLoader = {
   'molecules.json': JsonLoader,
   'neighborhoods.json': JsonLoader,
   'raster.json': RasterJsonLoader,
-  'ome-zarr.json': OmeZarrLoader,
+  'raster.ome-zarr': OmeZarrLoader,
   'cell-sets.json': CellSetsJsonLoader,
   [`${ANNDATA}-cell-sets.zarr`]: AnnDataLoaders.CellSetsZarrLoader,
   [`${ANNDATA}-cells.zarr`]: AnnDataLoaders.CellsZarrLoader,
