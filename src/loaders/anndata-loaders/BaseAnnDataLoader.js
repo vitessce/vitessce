@@ -1,21 +1,11 @@
-import { HTTPStore, openArray, KeyError } from 'zarr';
-
-import AbstractLoader from '../AbstractLoader';
+import { openArray, KeyError } from 'zarr';
+import AbstractZarrLoader from '../AbstractZarrLoader';
 
 /**
  * A base AnnData loader which has all shared methods for more comlpex laoders,
  * like loading cell names and ids. It inherits from AbstractLoader.
  */
-export default class BaseAnnDataLoader extends AbstractLoader {
-  constructor(params) {
-    super(params);
-
-    // TODO: Use this.requestInit to provide headers, tokens, etc.
-    // eslint-disable-next-line no-unused-vars
-    const { url, requestInit } = this;
-    this.store = new HTTPStore(url);
-  }
-
+export default class BaseAnnDataLoader extends AbstractZarrLoader {
   /**
    * Class method for decoding text arrays from zarr.
    * @returns {string[]} An array of strings.

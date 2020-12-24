@@ -17,7 +17,10 @@ export default class AbstractZarrLoader extends AbstractLoader {
 
   /**
    * Class method for decoding json from the store.
-   * @returns {string} An path to the item.
+   * @param {string} key A path to the item.
+   * @returns {Promise} This async function returns a promise
+   * that resolves to the parsed JSON if successful.
+   * @throws This may throw an error.
    */
   async getJson(key) {
     try {
