@@ -1,5 +1,4 @@
 import { HTTPStore, KeyError } from 'zarr';
-
 import AbstractLoader from './AbstractLoader';
 
 /**
