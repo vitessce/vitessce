@@ -1,5 +1,6 @@
 import { ZarrLoader } from '@hms-dbmi/viv';
-import { openArray, HTTPStore } from 'zarr';
+import range from 'lodash/range';
+import { openArray } from 'zarr';
 import AbstractZarrLoader from './AbstractZarrLoader';
 import { AbstractLoaderError } from './errors';
 
@@ -14,7 +15,7 @@ async function openMultiResolutionData(store, rootAttrs) {
   return data;
 }
 
-function createLoader(dataArr, imageData) {
+function createLoader(dataArr, dimensions) {
   // TODO: There should be a much better way to do this.
   // If base image is small, we don't need to fetch data for the
   // top levels of the pyramid. For large images, the tile sizes (chunks)
@@ -26,77 +27,59 @@ function createLoader(dataArr, imageData) {
   // Lowest resolution doesn't need to have square chunks, but all others do.
   const data = dataArr.length === 1 || tileHeight !== tileWidth ? base : dataArr;
   // need to make dimensions to use ZarrLoader, but not necessary
-  const dimensions = [
-    {
-      field: 't',
-      type: 'ordinal',
-      values: ['0'],
-    },
-    {
-      field: 'channel',
-      type: 'nominal',
-      values: imageData.metadata.channelNames,
-    },
-    {
-      field: 'z',
-      type: 'ordinal',
-      values: ['0'],
-    },
-    {
-      field: 'y',
-      type: 'quantitative',
-      values: [],
-    },
-    {
-      field: 'x',
-      type: 'quantitative',
-      values: [],
-    },
-  ];
   return new ZarrLoader({ data, dimensions });
 }
 
 export default class OmeZarrLoader extends AbstractZarrLoader {
-  async initLoader(imageData) {
-    const {
-      url,
-    } = imageData;
-
-    this.store = new HTTPStore(url);
-    const rootAttrs = (await this.getJson('.zattrs'));
-    const data = await openMultiResolutionData(this.store, rootAttrs);
-    const loader = createLoader(data, imageData);
-
-    return loader;
-  }
-
-  async loadZattrs() {
-    this.data = this.getJson('.zattrs')
-      .then((data) => {
-        if (data instanceof AbstractLoaderError) {
-          return Promise.reject(data);
-        }
-        return Promise.resolve({ data, url: this.url });
-      });
-    return this.data;
-  }
-
   async load() {
-    const payload = await this.loadZattrs().catch(reason => Promise.resolve(reason));
+    const payload = await this.getJson('.zattrs').catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
     }
 
-    const renderLayers = undefined;
-    const urls = [[this.url, 'Image']];
+    const { rdefs, channels, name } = payload.omero;
 
+    // TODO: figure out how to use these
+    // eslint-disable-next-line no-unused-vars
+    const t = rdefs.defaultT ?? 0;
+    // eslint-disable-next-line no-unused-vars
+    const z = rdefs.defaultZ ?? 0;
+
+    const multiresData = await openMultiResolutionData(this.store, payload);
+    const { shape } = multiresData[0];
     const image = {
-      name: 'Image',
-      url: this.url,
+      name,
       type: 'ome-zarr',
+      url: this.url,
       metadata: {
-        channelNames: payload.data.omero.channels.map(ch => ch.label),
         isPyramid: true,
+        dimensions: [
+          {
+            field: 'time',
+            type: 'ordinal',
+            values: range(shape[0]),
+          },
+          {
+            field: 'channel',
+            type: 'nominal',
+            values: channels.map(ch => ch.label),
+          },
+          {
+            field: 'z',
+            type: 'ordinal',
+            values: range(shape[2]),
+          },
+          {
+            field: 'y',
+            type: 'quantitative',
+            values: [],
+          },
+          {
+            field: 'x',
+            type: 'quantitative',
+            values: [],
+          },
+        ],
         transform: {
           translate: {
             y: 0,
@@ -111,11 +94,11 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
       {
         ...image,
         loaderCreator: async () => {
-          const loader = await this.initLoader(image);
+          const loader = createLoader(multiresData, image.metadata.dimensions);
           return loader;
         },
       },
     ];
-    return Promise.resolve({ data: { layers: imagesWithLoaderCreators, renderLayers }, urls });
+    return Promise.resolve({ data: { layers: imagesWithLoaderCreators }, urls: [] });
   }
 }

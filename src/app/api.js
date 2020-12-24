@@ -877,57 +877,6 @@ export const configs = {
         x: 8, y: 0, w: 4, h: 2 },
     ],
   },
-  'ome-zarr': {
-    version: '1.0.0',
-    name: 'OME-Zarr test',
-    description: 'test',
-    datasets: [
-      {
-        uid: 'my-dataset',
-        files: [
-          {
-            type: 'raster',
-            fileType: 'raster.ome-zarr',
-            url: 'https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/179706.zarr',
-          },
-        ],
-      },
-    ],
-    coordinationSpace: {
-      spatialZoom: {
-        A: -2,
-      },
-      spatialTargetX: {
-        A: 100,
-      },
-      spatialTargetY: {
-        A: 100,
-      },
-    },
-    layout: [
-      {
-        component: 'spatial',
-        coordinationScopes: {
-          spatialZoom: 'A',
-          spatialTargetX: 'A',
-          spatialTargetY: 'A',
-        },
-        x: 0,
-        y: 0,
-        w: 8,
-        h: 6,
-      },
-      {
-        component: 'layerController',
-        x: 8,
-        y: 0,
-        w: 4,
-        h: 6,
-      },
-    ],
-    initStrategy: 'auto',
-  },
-
 };
 /* eslint-enable */
 
