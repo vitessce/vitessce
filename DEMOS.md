@@ -45,3 +45,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2020-11-17: [ilan-gold/v1.1.0](https://s3.amazonaws.com/vitessce-data/demos/2020-11-17/80319c8/index.html)
 - 2020-12-17: [ilan-gold/load_anndata](https://s3.amazonaws.com/vitessce-data/demos/2020-12-17/3b4f5ed/index.html)
 - 2020-12-16: [keller-mark/text-labels-and-options](https://s3.amazonaws.com/vitessce-data/demos/2020-12-16/5ec3bcc/index.html)
+- 2020-12-23: [keller-mark/ome-zarr](https://s3.amazonaws.com/vitessce-data/demos/2020-12-23/eb362ec/index.html)

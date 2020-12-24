@@ -1,5 +1,4 @@
 import uuidv4 from 'uuid/v4';
-import { KeyError } from 'zarr';
 
 /**
  * A loader ancestor class containing a default constructor
@@ -20,23 +19,6 @@ export default class AbstractLoader {
   // eslint-disable-next-line class-methods-use-this
   load() {
     throw new Error('The load() method has not been implemented.');
-  }
-
-  /**
-   * Class method for decoding json from the store.
-   * @returns {string} An path to the item.
-   */
-  async getJson(key) {
-    try {
-      const buf = await this.store.getItem(key);
-      const text = new TextDecoder().decode(buf);
-      return JSON.parse(text);
-    } catch (err) {
-      if (err instanceof KeyError) {
-        return {};
-      }
-      throw err;
-    }
   }
 
   subscribe(subscriber) {

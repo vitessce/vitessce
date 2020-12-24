@@ -109,6 +109,7 @@ function LayerControllerSubscriber(props) {
               <Grid key={`${dataset}-raster-${index}-${i}`} item style={{ marginTop: '10px' }}>
                 <RasterLayerController
                   name={layerMeta.name}
+                  rasterType={layerMeta.type}
                   layer={layer}
                   loader={loader}
                   theme={theme}
