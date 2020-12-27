@@ -29,7 +29,7 @@ export default function MyApp() {
 ### `config`
 - Type: `object`
 
-This parameter takes a Vitessce view config as a JSON object. Please visit our [view config](../view-config-json/index.html) documentation pages for more details.
+This parameter takes a Vitessce view config as a JSON object. Please visit our [view config](/docs/view-config-json/index.html) documentation pages for more details.
 
 ### `height`
 - Type: `number`
@@ -65,7 +65,7 @@ purposes only, as this has a performance impact.
 We are aware that the main JavaScript bundle for Vitessce is large.
 If you would like to use the `<Vitessce/>` component in certain parts of your app without increasing the bundle size, one option is lazy loading.
 
-### Approach 1: bundle splitting
+### Bundle splitting approach
 
 `React.lazy` only works with [default exports](https://reactjs.org/docs/code-splitting.html#named-exports) (rather than named exports), but we can work around this by adding a new file to wrap the `Vitessce` named export as a default export.
 ```js title="/src/components/VitessceWrapper.js"
@@ -90,7 +90,7 @@ export default function MyApp(props) {
 ```
 
 <!--
-### Approach 2: CDN URL
+### CDN dynamic import approach
 
 One disadvantage of React.lazy is that it works with the bundler (e.g. Webpack) to do "bundle splitting", i.e. the bundle will now be split into two files: the main bundle and the separate bundle for the lazy component.
 This can be problematic if you are building a component (which wraps `<Vitessce/>`) which you also intend to publish, as those users dependent on your app will not necessarily be aware that one of your component's dependencies is lazily loaded.

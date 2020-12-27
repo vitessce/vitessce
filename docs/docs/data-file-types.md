@@ -22,7 +22,7 @@ For example, a file that conforms to the `cells` data type may contain embedding
 | `genomic-profiles` | <ul><li>`genomic-profiles.zarr` (WIP)</li></ul> |
 
 :::note
-For JSON file types, the file type will determine a JSON schema to validate against.
+For JSON file types, the file type determines a JSON schema to validate against.
 :::
 
 ## Data Conversion

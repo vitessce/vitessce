@@ -6,7 +6,7 @@ slug: /installation
 ---
 
 :::note
-There is **no installation required** to use the Vitessce [**web app**](../../app/index.html) with your own data!
+There is **no installation required** to use the Vitessce [**web app**](/app/index.html) with your own data!
 These installation instructions are targeted towards developers who would like to integrate Vitessce into new web apps or libraries. 
 :::
 
