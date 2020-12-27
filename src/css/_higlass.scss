@@ -13,9 +13,11 @@
           height: inherit;
           padding: 5px;
           background-color: map-get($theme-colors, "secondary-background");
-          .higlass-wrapper-parent {
+          .higlass-lazy-wrapper {
             width: inherit;
             height: inherit;
+          }
+          .higlass-wrapper-parent {
             display: block;
             position: relative;
             box-sizing: border-box;

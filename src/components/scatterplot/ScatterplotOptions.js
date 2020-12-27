@@ -20,6 +20,9 @@ const useStyles = makeStyles(theme => ({
     '&:checked': {
       color: theme.palette.primaryForeground,
     },
+    '& input': {
+      height: '100%',
+    },
   },
   slider: {
     color: theme.palette.primaryForeground,
