@@ -14,6 +14,7 @@
 - Lazy load HiGlass (and PIXI.js) from absolute URLs (unpkg) to avoid dynamic script import issues with relative paths after bundling.
     - When loading JS resources for HiGlass and PIXI.js, use the current environment (dev/prod) to determine `min.js` vs `js` extensions, and use `package.json` to determine package versions.
 - Make ability to do cell set operations (union, intersection, complement) less restrictive
+- Upgrade Viv to 0.8.0 and deck.gl to 8.4.0-alpha.2
 
 ## [1.1.0](https://www.npmjs.com/package/vitessce/v/1.1.0) - 2020-11-17
 
