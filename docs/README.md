@@ -53,7 +53,7 @@ See the discussion about `npm link` causing the "duplicate/incompatible reacts" 
 
 ### Internal links
 
-AWS S3 allows defining a single "index document", such as `index.html`. However, this index document does not apply to sub-directories, because S3 does not actually support "directories", only "keys" which we can think about as directories if they contain slashes. Instead, we need to be sure to add the trailing `/index.html` when linking between pages in the documentation markdown files. Also, we need to use links relative to the root. A link on the page `/docs/installation/index.html` to the "Visualization Components" page must be `[visualization components](/docs/components/index.html)` which allows the link to work in the built website. This unfortunately prevents the links from working in GitHub when interacting with the plain markdown files.
+AWS S3 allows defining a single "index document", such as `index.html`. However, this index document does not apply to sub-directories unless you use the [region-specific](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteEndpoints.html) [domain](https://stackoverflow.com/questions/49082709/redirect-to-index-html-for-s3-subfolder).
 
 ### CSS issues after building for production
 
