@@ -60,7 +60,7 @@ function Info() {
         Vitessce is a visual integration tool for exploration of spatial single cell experiments.
         Its modular design is optimized for scalable, linked visualizations that support the
         spatial and non-spatial representation of tissue-, cell- and molecule-level data.
-        Vitessce integrates the <a href="https://github.com/hms-dbmi/viv">Viv library</a> to visualize
+        Vitessce integrates the <a href="http://viv.gehlenborglab.org/">Viv library</a> to visualize
         highly multiplexed, high-resolution, high-bit depth image data directly from
         OME-TIFF files and Bio-Formats-compatible Zarr stores.
       </p>

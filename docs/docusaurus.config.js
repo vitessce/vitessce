@@ -87,11 +87,11 @@ module.exports = {
           items: [
             {
               label: 'Viv',
-              href: 'https://github.com/hms-dbmi/viv',
+              href: 'http://viv.gehlenborglab.org/',
             },
             {
               label: 'HiGlass',
-              href: 'https://github.com/higlass/higlass',
+              href: 'http://higlass.io',
             },
           ],
         },
