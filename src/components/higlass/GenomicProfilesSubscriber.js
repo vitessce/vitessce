@@ -12,9 +12,42 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useGenomicProfilesData } from '../data-hooks';
 import HiGlassLazy from './HiGlassLazy';
 
-const HIGLASS_SERVER = 'https://higlass.io/api/v1';
 const GENOMIC_PROFILES_DATA_TYPES = ['genomic-profiles'];
 
+const REFERENCE_TILESETS = {
+  hg38: {
+    chromosomes: 'NyITQvZsS_mOFNlz5C2LJg',
+    genes: 'P0PLbQMwTYGy-5uPIQid7A',
+  },
+  hg19: {
+    chromosomes: 'N12wVGG9SPiTkk03yUayUw',
+    genes: 'OHJakQICQD6gTD7skx4EWA',
+  },
+  mm9: {
+    chromosomes: 'WAVhNHYxQVueq6KulwgWiQ',
+    genes: 'GUm5aBiLRCyz2PsBea7Yzg',
+  },
+  mm10: {
+    chromosomes: 'EtrWT0VtScixmsmwFSd7zg',
+    genes: 'QDutvmyiSrec5nX4pA5WGQ',
+  },
+};
+
+/**
+ * A component for visualization of genomic profiles
+ * with genome-wide bar plots.
+ * @param {object} props The component props.
+ * @param {string} props.profileTrackUidKey The key in the genomic profiles row_info that identifies
+ * each track. By default, 'path'.
+ * @param {string} props.profileTrackNameKey The key in the genomic profiles row_info that
+ * gives a name for each track. By default, null. When null is provided, uses the
+ * profileTrackUidKey for both UID and name. If UID values are path arrays,
+ * they will be converted to name strings.
+ * @param {string} props.higlassServer The URL for the higlass server used to retreive
+ * reference tilesets for the chromosome and gene annotations.
+ * @param {string} props.assembly The genome assembly to use for the reference
+ * tilesets for the chromosome and gene annotations.
+ */
 export default function GenomicProfilesSubscriber(props) {
   const {
     coordinationScopes,
@@ -22,6 +55,8 @@ export default function GenomicProfilesSubscriber(props) {
     removeGridComponent,
     profileTrackUidKey = 'path',
     profileTrackNameKey = null,
+    higlassServer = 'https://higlass.io/api/v1',
+    assembly = 'hg38',
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -65,9 +100,8 @@ export default function GenomicProfilesSubscriber(props) {
     const referenceTracks = [
       {
         type: 'horizontal-chromosome-labels',
-        server: HIGLASS_SERVER,
-        // TODO: support different assemblies
-        tilesetUid: 'NyITQvZsS_mOFNlz5C2LJg',
+        server: higlassServer,
+        tilesetUid: REFERENCE_TILESETS[assembly].chromosomes,
         uid: 'chromosome-labels',
         options: {
           color: foregroundColor,
@@ -80,9 +114,8 @@ export default function GenomicProfilesSubscriber(props) {
       },
       {
         type: 'horizontal-gene-annotations',
-        server: HIGLASS_SERVER,
-        // TODO: support different assemblies
-        tilesetUid: 'P0PLbQMwTYGy-5uPIQid7A',
+        server: higlassServer,
+        tilesetUid: REFERENCE_TILESETS[assembly].genes,
         uid: 'gene-annotations',
         options: {
           name: 'Gene Annotations (hg38)',
@@ -181,13 +214,13 @@ export default function GenomicProfilesSubscriber(props) {
         h: 12,
         x: 0,
         y: 0,
-        moved: false,
         static: false,
       },
     };
     return hgView;
   }, [genomicProfilesAttrs, urls, theme, height, profileTrackUidKey,
-    profileTrackNameKey, cellSetSelection, cellSetColor]);
+    profileTrackNameKey, cellSetSelection, cellSetColor,
+    higlassServer, assembly]);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
