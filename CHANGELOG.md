@@ -1,4 +1,10 @@
-## 1.1.1 (In Progress)
+## In Progress
+
+### Added
+
+### Changed
+
+## [1.1.1](https://www.npmjs.com/package/vitessce/v/1.1.1) - 2020-12-27
 
 ### Added
 - Implemented the view config API in JavaScript in a class called `VitessceConfig`.
