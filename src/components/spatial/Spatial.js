@@ -18,7 +18,7 @@ const NEIGHBORHOODS_LAYER_ID = 'neighborhoods-layer';
 const defaultGetCellCoords = cell => cell.xy;
 const makeDefaultGetCellPolygon = radius => (cellEntry) => {
   const cell = cellEntry[1];
-  return cell.poly.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
+  return cell.poly?.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
 };
 const makeDefaultGetCellColors = cellColors => cellEntry => (
   cellColors && cellColors.get(cellEntry[0])

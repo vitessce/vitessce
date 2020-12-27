@@ -1,70 +1,9 @@
-import React, {
-  useMemo, useEffect, Suspense,
-} from 'react';
-import ReactDOM from 'react-dom';
-import dynamicImportPolyfill from 'dynamic-import-polyfill';
-import register from 'higlass-register';
-import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
-import packageJson from '../../../package.json';
+import React from 'react';
 import TitleInfo from '../TitleInfo';
-import { createWarningComponent, asEsModule } from '../utils';
-import { useReady, useUrls } from '../hooks';
-import {
-  useCoordination, useLoaders,
-} from '../../app/state/hooks';
-import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-
-const PIXI_BUNDLE_VERSION = packageJson.dependencies['window-pixi'];
-const HIGLASS_BUNDLE_VERSION = packageJson.dependencies.higlass;
-const BUNDLE_FILE_EXT = process.env.NODE_ENV === 'development' ? 'js' : 'min.js';
-const PIXI_BUNDLE_URL = `https://unpkg.com/window-pixi@${PIXI_BUNDLE_VERSION}/dist/pixi.${BUNDLE_FILE_EXT}`;
-const HIGLASS_BUNDLE_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.${BUNDLE_FILE_EXT}`;
+import { useReady, useUrls, useGridItemSize } from '../hooks';
+import HiGlassLazy from './HiGlassLazy';
 
 const HIGLASS_DATA_TYPES = [];
-
-// Initialize the dynamic __import__() function
-// if necessary.
-if (dynamicImportPolyfill) {
-  dynamicImportPolyfill.initialize();
-}
-
-// Register the zarr-multivec plugin data fetcher.
-// References:
-// https://github.com/higlass/higlass-register
-// https://github.com/higlass/higlass-zarr-datafetchers
-register(
-  { dataFetcher: ZarrMultivecDataFetcher, config: ZarrMultivecDataFetcher.config },
-  { pluginType: 'dataFetcher' },
-);
-
-// Lazy load the HiGlass React component,
-// using dynamic imports with absolute URLs.
-const HiGlassComponent = React.lazy(() => {
-  if (!window.React) {
-    window.React = React;
-  }
-  if (!window.ReactDOM) {
-    window.ReactDOM = ReactDOM;
-  }
-  return new Promise((resolve) => {
-    const handleImportError = (e) => {
-      console.warn(e);
-      resolve(asEsModule(createWarningComponent({
-        title: 'Could not load HiGlass',
-        message: 'The HiGlass scripts could not be dynamically imported.',
-      })));
-    };
-    // eslint-disable-next-line no-undef
-    __import__(PIXI_BUNDLE_URL).then(() => {
-      // eslint-disable-next-line no-undef
-      __import__(HIGLASS_BUNDLE_URL).then(() => {
-        // React.lazy promise must return an ES module with the
-        // component as the default export.
-        resolve(asEsModule(window.hglib.HiGlassComponent));
-      }).catch(handleImportError);
-    }).catch(handleImportError);
-  });
-});
 
 /**
  * A wrapper around HiGlass (http://higlass.io/).
@@ -80,24 +19,13 @@ const HiGlassComponent = React.lazy(() => {
 export default function HiGlassSubscriber(props) {
   const {
     coordinationScopes,
-    removeGridComponent,
     theme,
     hgViewConfig,
-    hgOptions = {
-      bounded: true,
-      pixelPreciseMarginPadding: true,
-      containerPaddingX: 0,
-      containerPaddingY: 0,
-      sizeMode: 'default',
-    },
+    removeGridComponent,
   } = props;
 
-  const loaders = useLoaders();
-
-  // Get "props" from the coordination space.
-  const [{
-    dataset,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.higlass, coordinationScopes);
+  // eslint-disable-next-line no-unused-vars
+  const [width, height, containerRef] = useGridItemSize();
 
   // eslint-disable-next-line no-unused-vars
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -105,24 +33,6 @@ export default function HiGlassSubscriber(props) {
   );
   // eslint-disable-next-line no-unused-vars
   const [urls, addUrl, resetUrls] = useUrls();
-
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
-  const hgComponent = useMemo(() => (
-    <HiGlassComponent
-      zoomFixed={false}
-      viewConfig={hgViewConfig}
-      options={{
-        ...hgOptions,
-        theme,
-      }}
-    />
-  ), [hgViewConfig, hgOptions, theme]);
 
   return (
     <div className="higlass-title-wrapper">
@@ -133,12 +43,13 @@ export default function HiGlassSubscriber(props) {
         isReady={isReady}
         urls={urls}
       >
-        <div className="higlass-wrapper-parent">
-          <div className="higlass-wrapper">
-            <Suspense fallback={<div>Loading...</div>}>
-              {hgComponent}
-            </Suspense>
-          </div>
+        <div className="higlass-lazy-wrapper" ref={containerRef}>
+          <HiGlassLazy
+            coordinationScopes={coordinationScopes}
+            theme={theme}
+            hgViewConfig={hgViewConfig}
+            height={height}
+          />
         </div>
       </TitleInfo>
     </div>
