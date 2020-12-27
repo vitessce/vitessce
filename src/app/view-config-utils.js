@@ -19,7 +19,7 @@ import {
  * @returns {string[]} Array of existing coordination scope names.
  */
 export function getExistingScopesForCoordinationType(config, coordinationType) {
-  const spaceScopes = Object.keys(config.coordinationSpace[coordinationType] || {});
+  const spaceScopes = Object.keys(config?.coordinationSpace?.[coordinationType] || {});
   const componentScopes = config.layout.map(c => c.coordinationScopes?.[coordinationType]);
   return Array.from(new Set([...spaceScopes, ...componentScopes]));
 }
@@ -40,7 +40,7 @@ function coordinateComponentsTogether(config, coordinationType, scopeValue) {
     coordinationSpace: {
       ...config.coordinationSpace,
       [coordinationType]: {
-        ...config.coordinationSpace[coordinationType],
+        ...config?.coordinationSpace?.[coordinationType],
         // Add the new scope name and value to the coordination space.
         [scopeName]: scopeValue,
       },
