@@ -62,7 +62,8 @@
               "geneExpressionColormapRange": { "type": "string" },
               "cellColorEncoding": { "type": "string" },
               "spatialLayers": { "type": "string" },
-              "genomicZoom": { "type": "string" },
+              "genomicZoomX": { "type": "string" },
+              "genomicZoomY": { "type": "string" },
               "genomicTargetX": { "type": "string" },
               "genomicTargetY": { "type": "string" },
               "additionalCellSets": { "type": "string" },
@@ -651,7 +652,13 @@
             ".": { "type": "array", "items": { "type": "number" } }
           }
         },
-        "genomicZoom": {
+        "genomicZoomX": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "genomicZoomY": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "number" }
