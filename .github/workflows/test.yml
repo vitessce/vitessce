@@ -8,7 +8,7 @@ jobs:
     
     strategy:
       matrix:
-        node: [12, 14]
+        node: [10, 12, 14]
     
     name: Node ${{ matrix.node }}
     
@@ -24,10 +24,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node }}
-      - name: Configure node
-        run: export NODE_OPTIONS=--max_old_space_size=4096
       - name: Install NPM dependencies
         run: npm install
       - name: Run tests
         run: ./test.sh
+        env:
+          NODE_OPTIONS: '--max_old_space_size=4096'
         
