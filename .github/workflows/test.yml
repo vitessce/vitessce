@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - name: Install NPM dependencies
-        run: npm install
+        run: npm ci
       - name: Run tests
         run: ./test.sh
         env:
