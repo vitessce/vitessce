@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Allow for non-remote raster schemas.
 
 ### Changed
 
