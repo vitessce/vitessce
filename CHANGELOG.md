@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Upgrade Viv to 0.8.0 and deck.gl to 8.4.0-alpha.2
 
 ## [1.1.1](https://www.npmjs.com/package/vitessce/v/1.1.1) - 2020-12-27
 
@@ -23,7 +24,6 @@
 - Implemented the `genomicZoomX`, `genomicZoomY`, `genomicTargetX`, and `genomicTargetY` coordination types for coordinating the zoom and pan interactions of multiple HiGlass views.
     - Simplified the `hgViewConfig` prop so that it supports only a single HiGlass view, and then allows Vitessce to handle the HiGlass view's `initialXDomain` and `initialYDomain` properties (through the coordination space), as well as the rest of the view config.
     - Added the `genomicProfiles` component which abstracts away the HiGlass view config.
-- Upgrade Viv to 0.8.0 and deck.gl to 8.4.0-alpha.2
 
 ## [1.1.0](https://www.npmjs.com/package/vitessce/v/1.1.0) - 2020-11-17
 
