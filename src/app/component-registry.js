@@ -9,6 +9,7 @@ import LayerControllerSubscriber from '../components/layer-controller/LayerContr
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
 import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubscriber';
 import GenomicProfilesSubscriber from '../components/higlass/GenomicProfilesSubscriber';
+import ExpressionHistogramSubscriber from '../components/genes/ExpressionHistogramSubscriber';
 
 const registry = {
   description: DescriptionSubscriber,
@@ -20,6 +21,7 @@ const registry = {
   heatmap: HeatmapSubscriber,
   layerController: LayerControllerSubscriber,
   cellSetSizes: CellSetSizesPlotSubscriber,
+  expressionHistogram: ExpressionHistogramSubscriber,
   genomicProfiles: GenomicProfilesSubscriber,
   // The plain higlass component does not abstract away the HiGlass view config,
   // so we probably want to avoid documenting it, only use it for development purposes.

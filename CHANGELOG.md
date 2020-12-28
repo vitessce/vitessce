@@ -6,6 +6,7 @@
 - Support loading AnnData from zarr.
 - Added scatterplot component options pane.
 - Added a `TextLayer` to render cell set names over the corresponding cell set centroid in the scatterplot.
+- Added a gene expression histogram Vega-Lite component.
 
 ### Changed
 - Genes list is now a virtual scroll to allow for more performant rendering.
