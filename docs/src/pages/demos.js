@@ -2,21 +2,11 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-import linnarsson from './demo-configs/linnarsson.json';
-import spraggins from './demo-configs/spraggins.json';
-import dries from './demo-configs/dries.json';
-import baysorAllenSmFish from './demo-configs/baysor-allen-smfish.json';
-import satija from './demo-configs/satija.json';
+import { configs } from '../../../src/demo/configs';
 
 import styles from './styles.module.css';
 
-const demos = [
-  linnarsson,
-  spraggins,
-  dries,
-  baysorAllenSmFish,
-  satija,
-];
+const demos = Object.entries(configs).filter(([k, v]) => v.public);
 
 function getDemoUrl(config) {
   return useBaseUrl('app/index.html?url=data:,' + encodeURIComponent(JSON.stringify(config)));
@@ -32,8 +22,8 @@ function Demos() {
         The demos compiled here showcase the core features of Vitessce.
       </p>
       <div className={styles.demoGridContainer}>
-        {demos.map(d => (
-          <div key={d.name} className={styles.demoGridItem}>
+        {demos.map(([key, d]) => (
+          <div key={key} className={styles.demoGridItem}>
             <a href={getDemoUrl(d)}  className={styles.demoGridItemLink}>{d.name}</a>
             <p className={styles.demoGridItemDescription}>{d.description}</p>
           </div>

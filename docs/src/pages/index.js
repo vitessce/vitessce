@@ -3,11 +3,11 @@ import clsx from 'clsx';
 import Layout from '@theme/Layout';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import linnarsson from './demo-configs/index.json';
+import { linnarssonWithRorb } from '../../../src/demo/view-configs/codeluppi';
 import ThemedVitessce from './_ThemedVitessce';
 import styles from './styles.module.css';
 
-const configJson = linnarsson;
+const configJson = linnarssonWithRorb;
 
 const features = [
   {

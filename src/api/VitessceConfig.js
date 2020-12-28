@@ -113,12 +113,27 @@ export class VitessceConfigView {
     * @param {number} y The y-coordinate of the view in the layout.
     * @param {number} w The width of the view in the layout.
     * @param {number} h The height of the view in the layout.
+    * @returns {VitessceConfigView} This, to allow chaining.
     */
   setXYWH(x, y, w, h) {
     this.view.x = x;
     this.view.y = y;
     this.view.w = w;
     this.view.h = h;
+
+    return this;
+  }
+
+  /**
+   * Set props for this view.
+   * @returns {VitessceConfigView} This, to allow chaining.
+   */
+  setProps(props) {
+    this.view.props = {
+      ...(this.view.props || {}),
+      ...props,
+    };
+    return this;
   }
 
   /**
