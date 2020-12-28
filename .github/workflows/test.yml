@@ -1,5 +1,5 @@
 # Adapted from https://github.com/vega/vega/blob/4b945e22905c610ccc2bdd28471a6f1f80aa1636/.github/workflows/test.yml
-name: CI for Vitessce
+name: Test
 on: [push, pull_request]
 
 jobs:
