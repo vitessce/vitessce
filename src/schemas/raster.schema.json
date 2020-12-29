@@ -12,7 +12,9 @@
         "scale": { "type": "number" },
         "matrix": {
           "type": "array",
-          "items": { "type": "number" }
+          "items": { "type": "number" },
+          "minItems": 16,
+          "maxItems": 16
         },
         "translate": {
           "type": "object",
