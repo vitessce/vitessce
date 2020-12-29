@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Upgrade Viv to 0.8.0 and deck.gl to 8.4.0-alpha.2
 - Added GitHub Actions workflow to replace the Travis CI workflow.
 - Fix `test.sh` branch variable again.
 - Fix deploy step.
