@@ -35,14 +35,14 @@ File types with the prefix `anndata-` and suffix `.zarr` are intended to be used
 
 There are some things worth noting about the `anndata` stores.
   1. All links to stores like
-```javascript
-{
-  ...,
-  "xy": "obsm/spatial_cell_centroids"
-  ...
-}
-```
-are paths within the `zarr` store instead of dot notation like `obsm.spatial_cell_centroids` as in `python`.
+  ```javascript
+  {
+    ...,
+    "xy": "obsm/spatial_cell_centroids"
+    ...
+  }
+  ```
+  are paths within the `zarr` store instead of dot notation like `obsm.spatial_cell_centroids` as in `python`.
   2. There are a lot of options for the  `AnnData` store, mostly corresponding to the various `json` options for displaying data, and the following store highlights most of them, with comments noting what each part does:
   ```javascript
   {
