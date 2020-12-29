@@ -268,13 +268,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
       loaderSelection = nextLoaderSelection;
       this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
     }
-
     const layerProps = {
       colormap: layerDef.colormap,
       opacity: layerDef.opacity,
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
       visibilities: layerDef.channels.map(c => c.visible),
+      modelMatrix: layerDef.modelMatrix,
     };
 
     if (!loader || !layerProps) return null;

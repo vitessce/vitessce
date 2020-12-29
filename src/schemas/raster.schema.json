@@ -7,9 +7,13 @@
     "transform": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["scale", "translate"],
+      "oneOf":[{"required": ["scale", "translate"]}, {"required": ["matrix"]}],
       "properties": {
         "scale": { "type": "number" },
+        "matrix": {
+          "type": "array",
+          "items": { "type": "number" }
+        },
         "translate": {
           "type": "object",
           "additionalProperties": false,
@@ -43,7 +47,7 @@
     "metadata": {
       "type": "object",
       "additionalProperties": false,
-      "oneOf":[{"required": ["dimensions","isPyramid","transform"]},{"required": ["omeTiffOffsetsUrl"]}],
+      "oneOf":[{"required": ["transform"]}, {"required": ["dimensions","isPyramid","transform"]},{"required": ["omeTiffOffsetsUrl"]}],
       "properties": {
         "dimensions": { "$ref": "#/definitions/dimensions" },
         "isPyramid": { "type": "boolean" },
