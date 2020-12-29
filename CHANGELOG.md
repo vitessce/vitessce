@@ -4,6 +4,7 @@
 
 ### Changed
 - Added GitHub Actions workflow to replace the Travis CI workflow.
+- Fix `test.sh` branch variable.
 
 ## [1.1.1](https://www.npmjs.com/package/vitessce/v/1.1.1) - 2020-12-27
 
