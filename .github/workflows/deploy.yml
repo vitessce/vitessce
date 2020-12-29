@@ -24,4 +24,5 @@ jobs:
       - name: Deploy to NPM
         run: npm publish
         env:
+          NODE_OPTIONS: '--max_old_space_size=4096'
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
