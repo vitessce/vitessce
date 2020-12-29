@@ -4,13 +4,15 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-18.04
+    runs-on: ${{ matrix.os }}
     
     strategy:
+      fail-fast: false
       matrix:
         node: [10, 12, 14]
+        os: [ubuntu-18.04, windows-latest]
     
-    name: Node ${{ matrix.node }}
+    name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
     
     # We want to run on external PRs, but not on our own internal PRs as they'll be run
     # by the push to the branch.
