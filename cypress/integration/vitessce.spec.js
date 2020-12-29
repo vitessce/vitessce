@@ -1,4 +1,4 @@
-import { urlPrefix } from '../../src/app/api';
+import { urlPrefix } from '../../src/demo/utils';
 
 Cypress.on('window:before:load', (win) => {
   // Forces fallback to XHR, so cypress can mock response.
@@ -32,7 +32,7 @@ describe('Vitessce', () => {
     cy.contains('Vitessce');
     cy.contains('Its modular design is optimized');
     cy.contains('just scatterplot as component'); // Not public; requires "show=all".
-    cy.contains('Linnarsson as component')
+    cy.contains('Spraggins as component')
       .click();
     // This part seems to be fragile: Might run too fast?
     // cy.contains('Please wait');
