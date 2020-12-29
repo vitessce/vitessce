@@ -5,6 +5,7 @@
 ### Changed
 - Added GitHub Actions workflow to replace the Travis CI workflow.
 - Fix `test.sh` branch variable.
+- Added a check for undefined in the `nodeToSet` function in `cell-set-utils.js`.
 
 ## [1.1.1](https://www.npmjs.com/package/vitessce/v/1.1.1) - 2020-12-27
 
