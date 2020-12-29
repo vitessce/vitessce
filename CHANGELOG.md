@@ -4,6 +4,7 @@
 - Allow for non-remote raster schemas.
 
 ### Changed
+- Added GitHub Actions workflow to replace the Travis CI workflow.
 
 ## [1.1.1](https://www.npmjs.com/package/vitessce/v/1.1.1) - 2020-12-27
 
