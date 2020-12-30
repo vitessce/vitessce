@@ -12,7 +12,7 @@ module.exports = {
   plugins: [],
   themeConfig: {
     colorMode: {
-      defaultMode: 'dark',
+      defaultMode: 'light',
       respectPrefersColorScheme: false,
     },
     prism: {
