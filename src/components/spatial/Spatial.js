@@ -269,7 +269,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       loaderSelection = nextLoaderSelection;
       this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
     }
-
     const layerProps = {
       colormap: layerDef.colormap,
       opacity: layerDef.opacity,
@@ -283,10 +282,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     let modelMatrix;
     if (scale && translate) {
       modelMatrix = new Matrix4().translate([translate.x, translate.y, 0]).scale(scale);
-    } else if (scale) {
-      modelMatrix.scale(scale);
-    } else if (translate) {
-      modelMatrix.translate([translate.x, translate.y, 0]);
+    } else if (layerDef.modelMatrix) {
+      // eslint-disable-next-line prefer-destructuring
+      modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
     const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
     return new Layer({

@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Allow for non-remote raster schemas.
 
 ### Changed
 - Upgrade Viv to 0.8.0 and deck.gl to 8.4.0-alpha.2

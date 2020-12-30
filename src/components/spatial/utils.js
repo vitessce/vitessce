@@ -209,7 +209,6 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     nextImageLoaders[i] = loader;
     nextImageMeta[i] = layer;
   }
-
   // No layers were pre-defined so set up the default image layers.
   if (!rasterRenderLayers) {
     // Midpoint of images list as default image to show.
@@ -217,7 +216,7 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     const loader = nextImageLoaders[layerIndex];
     const autoImageLayerDefPromise = initializeLayerChannels(loader)
       .then(channels => Promise.resolve({
-        type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels,
+        type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix,
       }));
     autoImageLayerDefPromises.push(autoImageLayerDefPromise);
   } else {
@@ -228,8 +227,9 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
       const layerIndex = globalIndicesOfRenderLayers[i];
       const loader = nextImageLoaders[layerIndex];
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
+        // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max',
+          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max', modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix,
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }
