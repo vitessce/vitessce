@@ -7,15 +7,9 @@
     "transform": {
       "type": "object",
       "additionalProperties": false,
-      "oneOf":[{"required": ["scale", "translate"]}, {"required": ["matrix"]}],
+      "oneOf":[{"required": ["scale", "translate"]},{"required": ["matrix"]}],
       "properties": {
         "scale": { "type": "number" },
-        "matrix": {
-          "type": "array",
-          "items": { "type": "number" },
-          "minItems": 16,
-          "maxItems": 16
-        },
         "translate": {
           "type": "object",
           "additionalProperties": false,
@@ -24,6 +18,12 @@
             "y": { "type": "number" },
             "x": { "type": "number" }
           }
+        },
+        "matrix": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 16,
+          "maxItems": 16
         }
       }
     },
@@ -49,7 +49,7 @@
     "metadata": {
       "type": "object",
       "additionalProperties": false,
-      "oneOf":[{"required": ["transform"]}, {"required": ["dimensions","isPyramid","transform"]},{"required": ["omeTiffOffsetsUrl"]}],
+      "anyOf":[{"required": ["dimensions","isPyramid"]},{"required": ["transform"]},{"required": ["omeTiffOffsetsUrl"]}],
       "properties": {
         "dimensions": { "$ref": "#/definitions/dimensions" },
         "isPyramid": { "type": "boolean" },
