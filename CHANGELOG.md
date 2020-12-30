@@ -8,6 +8,8 @@
 - Added GitHub Actions workflow to replace the Travis CI workflow.
 - Fix `test.sh` branch variable again.
 - Fix deploy step again.
+- Changed to using camelCase in the cell-sets-tabular schema.
+- Fixed CSV and JSON file import / export bugs in the cell set manager component.
 
 ## [1.1.1](https://www.npmjs.com/package/vitessce/v/1.1.1) - 2020-12-27
 

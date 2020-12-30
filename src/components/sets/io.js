@@ -69,17 +69,17 @@ export function handleImportJSON(result, datatype) {
 export function handleImportTabular(result, datatype) {
   const dsvParser = dsvFormat(SEPARATOR_TABULAR);
   const importData = dsvParser.parse(result, row => ({
-    group_name: row.group_name,
-    set_name: row.set_name,
-    set_color: (row.set_color ? colorStringToArray(row.set_color) : DEFAULT_COLOR),
-    cell_id: row.cell_id,
-    prediction_score: (
+    groupName: row.groupName,
+    setName: row.setName,
+    setColor: (row.setColor ? colorStringToArray(row.setColor) : DEFAULT_COLOR),
+    obsId: row.obsId,
+    predictionScore: (
       (
-        isNil(row.prediction_score)
-        || row.prediction_score === NA_VALUE_TABULAR
+        isNil(row.predictionScore)
+        || row.predictionScore === NA_VALUE_TABULAR
       )
         ? null
-        : +row.prediction_score
+        : +row.predictionScore
     ),
   }));
   // Validate the imported file.
@@ -95,21 +95,21 @@ export function handleImportTabular(result, datatype) {
       datatype,
       tree: [],
     };
-    const uniqueGroupNames = Array.from(new Set(importData.map(d => d.group_name)));
+    const uniqueGroupNames = Array.from(new Set(importData.map(d => d.groupName)));
     uniqueGroupNames.forEach((groupName) => {
       const levelZeroNode = {
         name: groupName,
         children: [],
       };
-      const groupRows = importData.filter(d => d.group_name === groupName);
-      const uniqueSetNames = Array.from(new Set(groupRows.map(d => d.set_name)));
+      const groupRows = importData.filter(d => d.groupName === groupName);
+      const uniqueSetNames = Array.from(new Set(groupRows.map(d => d.setName)));
       uniqueSetNames.forEach((setName) => {
-        const setRows = groupRows.filter(d => d.set_name === setName);
-        const setColor = setRows[0].set_color;
+        const setRows = groupRows.filter(d => d.setName === setName);
+        const { setColor } = setRows[0];
         const levelOneNode = {
           name: setName,
           color: setColor,
-          set: setRows.map(d => ([d.cell_id, d.prediction_score])),
+          set: setRows.map(d => ([d.obsId, d.predictionScore])),
         };
         levelZeroNode.children.push(levelOneNode);
       });
@@ -141,20 +141,20 @@ export function handleExportTabular(result) {
   result.tree.forEach((levelZeroNode) => {
     levelZeroNode.children.forEach((levelOneNode) => {
       if (levelOneNode.set) {
-        levelOneNode.set.forEach(([cellId, prob]) => {
+        levelOneNode.set.forEach(([obsId, prob]) => {
           exportData.push({
-            group_name: levelZeroNode.name,
-            set_name: levelOneNode.name,
-            set_color: colorArrayToString(levelOneNode.color),
-            cell_id: cellId,
-            prediction_score: isNil(prob) ? NA_VALUE_TABULAR : prob,
+            groupName: levelZeroNode.name,
+            setName: levelOneNode.name,
+            setColor: colorArrayToString(levelOneNode.color),
+            obsId,
+            predictionScore: isNil(prob) ? NA_VALUE_TABULAR : prob,
           });
         });
       }
     });
   });
   const csvString = json2csv(exportData, {
-    fields: ['group_name', 'set_name', 'set_color', 'cell_id', 'prediction_score'],
+    fields: ['groupName', 'setName', 'setColor', 'obsId', 'predictionScore'],
     delimiter: SEPARATOR_TABULAR,
   });
   const dataString = `data:${MIME_TYPE_TABULAR};charset=utf-8,${encodeURIComponent(csvString)}`;
