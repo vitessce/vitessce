@@ -352,13 +352,13 @@
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type", "fileType", "url"],
+              "required": ["type", "fileType"],
               "properties": {
                 "name": { "type": "string" },
                 "type": { "type": "string" },
                 "fileType": { "type": "string" },
                 "url": { "type": "string" },
-                "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
+                "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "https://github.com/hubmapconsortium/vitessce/#raster" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
                 "requestInit": { "$ref": "#/definitions/requestInit" }
               }
             }

@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { Matrix4 } from 'math.gl';
 import { MultiscaleImageLayer, ImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
@@ -268,7 +269,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       loaderSelection = nextLoaderSelection;
       this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
     }
-
     const layerProps = {
       colormap: layerDef.colormap,
       opacity: layerDef.opacity,
@@ -279,6 +279,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (!loader || !layerProps) return null;
     const { scale, translate, isPyramid } = loader;
+    let modelMatrix;
+    if (scale && translate) {
+      modelMatrix = new Matrix4().translate([translate.x, translate.y, 0]).scale(scale);
+    } else if (layerDef.modelMatrix) {
+      // eslint-disable-next-line prefer-destructuring
+      modelMatrix = new Matrix4(layerDef.modelMatrix);
+    }
     const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
     return new Layer({
       loader,
@@ -289,8 +296,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       channelIsOn: layerProps.visibilities,
       opacity: layerProps.opacity,
       colormap: (layerProps.colormap ? layerProps.colormap : ''),
-      scale: scale || 1,
-      translate: translate ? [translate.x, translate.y] : [0, 0],
+      modelMatrix,
     });
   }
 
