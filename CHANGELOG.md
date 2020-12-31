@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.2](https://www.npmjs.com/package/vitessce/v/1.1.2) - 2020-12-31
+
+### Added
 - Allow for non-remote raster schemas.
 
 ### Changed
