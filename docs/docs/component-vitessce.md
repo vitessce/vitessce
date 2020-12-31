@@ -89,7 +89,7 @@ export default function MyApp(props) {
 }
 ```
 
-<!--
+
 ### CDN dynamic import approach
 
 One disadvantage of React.lazy is that it works with the bundler (e.g. Webpack) to do "bundle splitting", i.e. the bundle will now be split into two files: the main bundle and the separate bundle for the lazy component.
@@ -168,4 +168,3 @@ export default function MyApp(props) {
   );
 }
 ```
--->

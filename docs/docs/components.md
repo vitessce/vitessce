@@ -30,7 +30,7 @@ The heatmap can support very large matrices (~6,000 x ~9,000) when using Zarr-ba
 
 ### `spatial`
 
-The spatial component is meant to display data with spatial coordinates, including spatially-resolved cell segmentations (from the `cells` data type) and molecule positions (from the `molecules` data type). The spatial component also includes a multiplexed and multi-scale image viewer (implemented with [Viv](http://viv.gehlenborglab.org/)). Image files can be defined with the `raster` data type. Cell segmentations can be colored by gene expression data through the `expression-matrix` data type or cell set color assignments through the `cell-sets` data type.
+The spatial component is meant to display data with spatial coordinates, including spatially-resolved cell segmentations as polygons (from the `cells` data type) and molecule positions as points (from the `molecules` data type). The spatial component also includes a multiplexed and multi-scale image viewer (implemented with [Viv](http://viv.gehlenborglab.org/)). Image files can be defined with the `raster` data type. Cell segmentations can be colored by gene expression data through the `expression-matrix` data type or cell set color assignments through the `cell-sets` data type.
 
 
 ### `layerController`

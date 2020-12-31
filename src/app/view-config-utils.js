@@ -1,8 +1,8 @@
 /* eslint-disable no-plusplus */
 import uuidv4 from 'uuid/v4';
 import { getNextScope } from '../utils';
+import { CoordinationType } from './constants';
 import {
-  COORDINATION_TYPES,
   DEFAULT_COORDINATION_VALUES,
   COMPONENT_COORDINATION_TYPES,
   AUTO_INDEPENDENT_COORDINATION_TYPES,
@@ -116,7 +116,7 @@ function initializeAuto(config) {
   const { layout, datasets } = newConfig;
 
   // For each coordination type, check whether it requires initialization.
-  Object.values(COORDINATION_TYPES).forEach((coordinationType) => {
+  Object.values(CoordinationType).forEach((coordinationType) => {
     // A coordination type requires coordination if at least one component is missing
     // a (coordination type, coordination scope) tuple.
     // Components may only use a subset of all coordination types.

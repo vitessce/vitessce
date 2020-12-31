@@ -1,5 +1,5 @@
 import { getNextScope, fromEntries } from '../utils';
-import { COORDINATION_TYPES } from '../app/state/coordination';
+import { CoordinationType } from '../app/constants';
 
 
 /**
@@ -243,7 +243,7 @@ export class VitessceConfig {
     const nextUid = (uid || getNextScope(prevDatasetUids));
     const newDataset = new VitessceConfigDataset(nextUid, name);
     this.config.datasets.push(newDataset);
-    const [newScope] = this.addCoordination(COORDINATION_TYPES.DATASET);
+    const [newScope] = this.addCoordination(CoordinationType.DATASET);
     newScope.setValue(nextUid);
     return newDataset;
   }
@@ -271,8 +271,8 @@ export class VitessceConfig {
       mapping = null,
     } = options || {};
     const datasetMatches = (
-      this.config.coordinationSpace[COORDINATION_TYPES.DATASET]
-        ? Object.entries(this.config.coordinationSpace[COORDINATION_TYPES.DATASET])
+      this.config.coordinationSpace[CoordinationType.DATASET]
+        ? Object.entries(this.config.coordinationSpace[CoordinationType.DATASET])
         // eslint-disable-next-line no-unused-vars
           .filter(([scopeName, datasetScope]) => datasetScope.cValue === dataset.dataset.uid)
           .map(([scopeName]) => scopeName)
@@ -285,11 +285,11 @@ export class VitessceConfig {
       throw new Error('No coordination scope matching the dataset parameter could be found in the coordination space.');
     }
     const coordinationScopes = {
-      [COORDINATION_TYPES.DATASET]: datasetScope,
+      [CoordinationType.DATASET]: datasetScope,
     };
     const newView = new VitessceConfigView(component, coordinationScopes, x, y, w, h);
     if (mapping) {
-      const [etScope] = this.addCoordination(COORDINATION_TYPES.EMBEDDING_TYPE);
+      const [etScope] = this.addCoordination(CoordinationType.EMBEDDING_TYPE);
       etScope.setValue(mapping);
       newView.useCoordination(etScope);
     }
@@ -421,7 +421,7 @@ export class VitessceConfig {
       });
     });
     Object.keys(config.coordinationSpace).forEach((cType) => {
-      if (cType !== COORDINATION_TYPES.DATASET) {
+      if (cType !== CoordinationType.DATASET) {
         const cObj = config.coordinationSpace[cType];
         vc.config.coordinationSpace[cType] = {};
         Object.entries(cObj).forEach(([cScopeName, cScopeValue]) => {

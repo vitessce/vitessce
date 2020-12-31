@@ -14,17 +14,21 @@ const code = `function VitessceConfigEditor() {
     // Add a dataset and its files.
     const dataset = vc
         .addDataset("Dries")
-        .addFile(baseUrl + '/dries.cells.json', 'cells', 'cells.json')
-        .addFile(baseUrl + '/dries.cell-sets.json', 'cell-sets', 'cell-sets.json');
+        .addFile(baseUrl + '/dries.cells.json', DataType.CELLS, FileType.CELLS_JSON)
+        .addFile(baseUrl + '/dries.cell-sets.json', DataType.CELL_SETS, FileType.CELL_SETS_JSON);
     // Add components.
-    const umap = vc.addView(dataset, "scatterplot", { mapping: "UMAP" });
-    const tsne = vc.addView(dataset, "scatterplot", { mapping: "t-SNE" });
-    const cellSetsManager = vc.addView(dataset, "cellSets");
-    const cellSetSizesPlot = vc.addView(dataset, "cellSetSizes");
+    // Use mapping: "UMAP" so that cells are mapped to the UMAP positions from the JSON file.
+    const umap = vc.addView(dataset, Component.SCATTERPLOT, { mapping: "UMAP" });
+    // Use mapping: "t-SNE" so that cells are mapped to the t-SNE positions from the JSON file.
+    const tsne = vc.addView(dataset, Component.SCATTERPLOT, { mapping: "t-SNE" });
+    // Add the cell sets controller component.
+    const cellSetsManager = vc.addView(dataset, Component.CELL_SETS);
+    // Add the cell set sizes bar plot component.
+    const cellSetSizesPlot = vc.addView(dataset, Component.CELL_SET_SIZES);
     // Link the zoom levels of the two scatterplots.
-    vc.linkViews([umap, tsne], ["embeddingZoom"], [2.5]);
+    vc.linkViews([umap, tsne], [CoordinationType.EMBEDDING_ZOOM], [2.5]);
     // Try un-commenting the line below!
-    //vc.linkViews([umap, tsne], ["embeddingTargetX", "embeddingTargetY"], [0, 0]);
+    //vc.linkViews([umap, tsne], [CoordinationType.EMBEDDING_TARGET_X, CoordinationType.EMBEDDING_TARGET_Y], [0, 0]);
     vc.layout(
         vconcat(
             hconcat(tsne, umap),
@@ -83,6 +87,10 @@ export default function LiveViewConfigEditor() {
                     VitessceConfig: require('../../../dist/umd/production/index.min.js').VitessceConfig,
                     hconcat: require('../../../dist/umd/production/index.min.js').hconcat,
                     vconcat: require('../../../dist/umd/production/index.min.js').vconcat,
+                    Component: require('../../../dist/umd/production/index.min.js').Component,
+                    DataType: require('../../../dist/umd/production/index.min.js').DataType,
+                    FileType: require('../../../dist/umd/production/index.min.js').FileType,
+                    CoordinationType: require('../../../dist/umd/production/index.min.js').CoordinationType,
                     Highlight: JsonHighlight,
                 };
                 return (

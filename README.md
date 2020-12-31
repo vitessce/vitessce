@@ -99,7 +99,6 @@ Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the 
 - [vitessce-python](https://github.com/vitessce/vitessce-python): Python API and Jupyter widget.
 - [vitessce-r](https://github.com/vitessce/vitessce-r): R API and R htmlwidget.
 - [vitessce-data](https://github.com/hms-dbmi/vitessce-data): Scripts to generate sample data
-- [ome-tiff-tiler](https://github.com/hms-dbmi/ome-tiff-tiler): Docker container to generate tiles from OME-TIFF
 
 ## Old Presentations
 
