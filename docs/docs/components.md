@@ -65,7 +65,7 @@ The description component can be used to display text content. This may be usefu
 
 ### `status`
 
-The status component is meant for debugging purposes. This component displays app-wide error messages when datasets fail to load or schemas fail to validate.
+The status component displays debugging messages, including app-wide error messages when datasets fail to load or when schemas fail to validate. Details about the entity under the mouse cursor (cell, gene, and/or molecule) are displayed during hover interactions.
 
 
 
