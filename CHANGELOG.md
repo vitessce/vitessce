@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Upgraded to Webpack 5.
 
 ## [1.1.2](https://www.npmjs.com/package/vitessce/v/1.1.2) - 2020-12-31
 
