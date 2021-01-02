@@ -7,7 +7,7 @@ import isEqual from 'lodash/isEqual';
 import PopoverMenu from './PopoverMenu';
 import HelpTooltip from './HelpTooltip';
 import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from './utils';
-import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
+import MenuSVG from '../../assets/menu.svg';
 import { DEFAULT_COLOR } from '../utils';
 
 

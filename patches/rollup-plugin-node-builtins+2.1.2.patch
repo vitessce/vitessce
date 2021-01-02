@@ -1,0 +1,117 @@
+diff --git a/node_modules/rollup-plugin-node-builtins/dist/rollup-plugin-node-builtins.cjs.js b/node_modules/rollup-plugin-node-builtins/dist/rollup-plugin-node-builtins.cjs.js
+index 176b076..6ca3375 100644
+--- a/node_modules/rollup-plugin-node-builtins/dist/rollup-plugin-node-builtins.cjs.js
++++ b/node_modules/rollup-plugin-node-builtins/dist/rollup-plugin-node-builtins.cjs.js
+@@ -21,11 +21,11 @@ libs.set('https', require.resolve(path.join('..', 'src', 'es6', 'http')));
+ libs.set('os', require.resolve(path.join('..', 'src', 'es6', 'os')));
+ libs.set('assert', require.resolve(path.join('..', 'src', 'es6', 'assert')));
+ libs.set('constants', require.resolve('./constants'));
+-libs.set('_stream_duplex', require.resolve(path.join('..', 'src', 'es6', 'readable-stream', 'duplex')));
+-libs.set('_stream_passthrough', require.resolve(path.join('..', 'src', 'es6', 'readable-stream', 'passthrough')));
+-libs.set('_stream_readable', require.resolve(path.join('..', 'src', 'es6', 'readable-stream', 'readable')));
+-libs.set('_stream_writable', require.resolve(path.join('..', 'src', 'es6', 'readable-stream', 'writable')));
+-libs.set('_stream_transform', require.resolve(path.join('..', 'src', 'es6', 'readable-stream', 'transform')));
++libs.set('_stream_duplex', require.resolve(path.join('..', 'src', 'es6', 'readabl-stream', 'duplex')));
++libs.set('_stream_passthrough', require.resolve(path.join('..', 'src', 'es6', 'readabl-stream', 'passthrough')));
++libs.set('_stream_readable', require.resolve(path.join('..', 'src', 'es6', 'readabl-stream', 'readable')));
++libs.set('_stream_writable', require.resolve(path.join('..', 'src', 'es6', 'readabl-stream', 'writable')));
++libs.set('_stream_transform', require.resolve(path.join('..', 'src', 'es6', 'readabl-stream', 'transform')));
+ libs.set('timers', require.resolve(path.join('..', 'src', 'es6', 'timers')));
+ libs.set('console', require.resolve(path.join('..', 'src', 'es6', 'console')));
+ libs.set('vm', require.resolve(path.join('..', 'src', 'es6', 'vm')));
+diff --git a/node_modules/rollup-plugin-node-builtins/src/es6/http-lib/to-arraybuffer.js b/node_modules/rollup-plugin-node-builtins/src/es6/http-lib/to-arraybuffer.js
+index b0a4671..def4ca2 100644
+--- a/node_modules/rollup-plugin-node-builtins/src/es6/http-lib/to-arraybuffer.js
++++ b/node_modules/rollup-plugin-node-builtins/src/es6/http-lib/to-arraybuffer.js
+@@ -2,7 +2,7 @@
+ 
+ // MIT License
+ // Copyright (c) 2016 John Hiesey
+-import {isBuffer} from 'buffer';
++import {isBuffer} from 'buffer-es6';
+ export default function (buf) {
+   // If the buffer is backed by a Uint8Array, a faster version will work
+   if (buf instanceof Uint8Array) {
+diff --git a/node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/buffer-list.js b/node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/buffer-list.js
+similarity index 100%
+rename from node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/buffer-list.js
+rename to node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/buffer-list.js
+diff --git a/node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/duplex.js b/node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/duplex.js
+similarity index 96%
+rename from node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/duplex.js
+rename to node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/duplex.js
+index ecc01a7..085ec1b 100644
+--- a/node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/duplex.js
++++ b/node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/duplex.js
+@@ -1,6 +1,6 @@
+ 
+ import {inherits} from 'util';
+-import {nextTick} from 'process';
++import {nextTick} from 'process-es6';
+ import {Readable} from './readable';
+ import {Writable} from './writable';
+ 
+diff --git a/node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/passthrough.js b/node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/passthrough.js
+similarity index 100%
+rename from node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/passthrough.js
+rename to node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/passthrough.js
+diff --git a/node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/readable.js b/node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/readable.js
+similarity index 99%
+rename from node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/readable.js
+rename to node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/readable.js
+index 71b3be5..d938939 100644
+--- a/node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/readable.js
++++ b/node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/readable.js
+@@ -7,7 +7,7 @@ import {inherits, debuglog} from 'util';
+ import BufferList from './buffer-list';
+ import {StringDecoder} from 'string_decoder';
+ import {Duplex} from './duplex';
+-import {nextTick} from 'process';
++import {nextTick} from 'process-es6';
+ 
+ var debug = debuglog('stream');
+ inherits(Readable, EventEmitter);
+diff --git a/node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/transform.js b/node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/transform.js
+similarity index 100%
+rename from node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/transform.js
+rename to node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/transform.js
+diff --git a/node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/writable.js b/node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/writable.js
+similarity index 99%
+rename from node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/writable.js
+rename to node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/writable.js
+index f345a6b..0c8b3c3 100644
+--- a/node_modules/rollup-plugin-node-builtins/src/es6/readable-stream/writable.js
++++ b/node_modules/rollup-plugin-node-builtins/src/es6/readabl-stream/writable.js
+@@ -6,9 +6,9 @@
+ import {inherits, deprecate} from 'util';
+ import {Buffer} from 'buffer';
+ Writable.WritableState = WritableState;
+-import {EventEmitter} from 'events';
++import EventEmitter from 'events';
+ import {Duplex} from './duplex';
+-import {nextTick} from 'process';
++import {nextTick} from 'process-es6';
+ inherits(Writable, EventEmitter);
+ 
+ function nop() {}
+diff --git a/node_modules/rollup-plugin-node-builtins/src/es6/stream.js b/node_modules/rollup-plugin-node-builtins/src/es6/stream.js
+index 8cf9974..8167d8f 100644
+--- a/node_modules/rollup-plugin-node-builtins/src/es6/stream.js
++++ b/node_modules/rollup-plugin-node-builtins/src/es6/stream.js
+@@ -1,11 +1,11 @@
+ import EE from 'events';
+ import {inherits} from 'util';
+ 
+-import {Duplex} from './readable-stream/duplex.js';
+-import {Readable} from './readable-stream/readable.js';
+-import {Writable} from './readable-stream/writable.js';
+-import {Transform} from './readable-stream/transform.js';
+-import {PassThrough} from './readable-stream/passthrough.js';
++import {Duplex} from './readabl-stream/duplex.js';
++import {Readable} from './readabl-stream/readable.js';
++import {Writable} from './readabl-stream/writable.js';
++import {Transform} from './readabl-stream/transform.js';
++import {PassThrough} from './readabl-stream/passthrough.js';
+ inherits(Stream, EE);
+ Stream.Readable = Readable;
+ Stream.Writable = Writable;

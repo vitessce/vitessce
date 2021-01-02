@@ -9,9 +9,9 @@ import {
   MIME_TYPE_TABULAR,
 } from './constants';
 
-import { ReactComponent as SetUnionSVG } from '../../assets/sets/union.svg';
-import { ReactComponent as SetIntersectionSVG } from '../../assets/sets/intersection.svg';
-import { ReactComponent as SetComplementSVG } from '../../assets/sets/complement.svg';
+import SetUnionSVG from '../../assets/sets/union.svg';
+import SetIntersectionSVG from '../../assets/sets/intersection.svg';
+import SetComplementSVG from '../../assets/sets/complement.svg';
 
 /**
  * A plus button for creating or importing set hierarchies.

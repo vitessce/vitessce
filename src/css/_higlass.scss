@@ -2,7 +2,7 @@
 .vitessce-container .higlass-wrapper {
   // https://sass-lang.com/documentation/at-rules/import#nesting
   // https://sass-lang.com/documentation/at-rules/import#importing-css
-  @import "~higlass/dist/hglib";
+  @import "higlass/dist/hglib";
 }
 @mixin higlass($theme-name, $theme-colors) {
 

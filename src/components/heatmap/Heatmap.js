@@ -19,7 +19,7 @@ import {
   createDefaultUpdateViewInfo,
   copyUint8Array,
 } from '../utils';
-import HeatmapWorker from './heatmap.worker';
+import HeatmapWorker from 'web-worker:./heatmap.worker'; // eslint-disable-line import/no-unresolved
 import {
   layerFilter,
   getAxisSizes,
