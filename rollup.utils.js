@@ -9,7 +9,7 @@ function htmlFromTemplate({ attributes, files, publicPath }) {
     })
     .join('\n');
 
-  const links = (files.css || [])
+  const links = (files.css || [{ fileName: 'demo.css'}])
     .map(({ fileName }) => {
       const attrs = makeHtmlAttributes(attributes.link);
       return `<link href="${publicPath}${fileName}" rel="stylesheet"${attrs}>`;

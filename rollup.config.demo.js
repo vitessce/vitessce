@@ -35,7 +35,7 @@ module.exports = {
         // We want sourcemap files to be created for debugging purposes.
         // https://rollupjs.org/guide/en/#outputsourcemap
         sourcemap: true,
-        dir: DEMO_DIST_DIR
+        dir: DEMO_DIST_DIR,
     },
     plugins: [
         // Tell Rollup how to resolve packages in node_modules.
@@ -99,7 +99,7 @@ module.exports = {
             exclude: 'node_modules/**'
         }),
         globals(),
-        builtins({ fs: true }),
+        builtins(),
         replace({
             // React uses process.env to determine whether a development or production environment.
             // Reference: https://github.com/rollup/rollup/issues/487#issuecomment-177596512
