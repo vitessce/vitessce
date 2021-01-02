@@ -1,0 +1,42 @@
+diff --git a/node_modules/react-dev-utils/formatWebpackMessages.js b/node_modules/react-dev-utils/formatWebpackMessages.js
+index 68afa22..8a9c825 100644
+--- a/node_modules/react-dev-utils/formatWebpackMessages.js
++++ b/node_modules/react-dev-utils/formatWebpackMessages.js
+@@ -7,7 +7,6 @@
+ 
+ 'use strict';
+ 
+-const chalk = require('chalk');
+ const friendlySyntaxErrorLabel = 'Syntax error:';
+ 
+ function isLikelyASyntaxError(message) {
+@@ -16,7 +15,19 @@ function isLikelyASyntaxError(message) {
+ 
+ // Cleans up webpack error messages.
+ function formatMessage(message) {
+-  let lines = message.split('\n');
++  let lines = [];
++
++  if (typeof message === 'string') {
++    lines = message.split('\n');
++  } else if ('message' in message) {
++    lines = message['message'].split('\n');
++  } else if (Array.isArray(message)) {
++    message.forEach(message => {
++      if ('message' in message) {
++        lines = lines.concat(message['message'].split('\n'));
++      }
++    });
++  }
+ 
+   // Strip webpack-added headers off errors/warnings
+   // https://github.com/webpack/webpack/blob/master/lib/ModuleError.js
+@@ -80,8 +91,6 @@ function formatMessage(message) {
+       'Run `npm install node-sass` or `yarn add node-sass` inside your workspace.';
+   }
+ 
+-  lines[0] = chalk.inverse(lines[0]);
+-
+   message = lines.join('\n');
+   // Internal stacks are generally useless so we strip them... with the
+   // exception of stacks containing `webpack:` because they're normally

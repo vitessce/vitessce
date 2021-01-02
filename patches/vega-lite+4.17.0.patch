@@ -1,0 +1,12 @@
+diff --git a/node_modules/vega-lite/build/src/index.js b/node_modules/vega-lite/build/src/index.js
+index 34342d5..f03b2a2 100644
+--- a/node_modules/vega-lite/build/src/index.js
++++ b/node_modules/vega-lite/build/src/index.js
+@@ -1,5 +1,6 @@
+-import { version } from '../package.json';
++import pkg from '../package.json';
+ import { normalize } from './normalize';
++const { version } = pkg;
+ export { compile } from './compile/compile';
+ export * from './util';
+ export { normalize, version };
