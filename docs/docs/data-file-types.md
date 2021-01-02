@@ -49,7 +49,7 @@ There are some things worth noting about the `anndata` stores.
     ...,
     {
       "type": "cells",
-      // This is just like cell-sets.json, but from AnnData stores.
+      // This is just like cells.json, but from AnnData stores.
       "fileType": "anndata-cells.zarr",
       "url": "https://storage.googleapis.com/anndata-test/my_store.zarr",
       "options": {
@@ -88,16 +88,16 @@ There are some things worth noting about the `anndata` stores.
       "fileType": "anndata-cell-sets.zarr",
       "url": "https://storage.googleapis.com/anndata-test/my_store.zarr",
       // These are the various cell sets (clustering results) for the cell sets component.
-      // The `group_name` is the display name and the `set_name` is the path within the zarr store
+      // The `groupName` is the display name and the `setName` is the path within the zarr store
       // (this schema corresponds to the `cell-sets-tabular` schema).
       "options": [
         {
-          "group_name": "Ledien",
-          "set_name": "obs/leiden"
+          "groupName": "Ledien",
+          "setName": "obs/leiden"
         },
         {
-          "group_name": "Cell Type",
-          "set_name": "obs/cell_type"
+          "groupName": "Cell Type",
+          "setName": "obs/cell_type"
         },
       ]
     },
