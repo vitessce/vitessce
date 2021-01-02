@@ -21,7 +21,6 @@ module.exports = config => {
     captureTimeout: 50000,
     browserDisconnectTimeout: 50000, // in ms
     basePath: '../src/',
-    frameworks: ['mocha'],
 
     files: [
         { pattern: '**/*.test.js' },
@@ -30,29 +29,29 @@ module.exports = config => {
     preprocessors: {
       '**/*.js': ['webpack', 'sourcemap']
     },
+    
+    frameworks: ['mocha', 'webpack'],
 
-    webpack: configFactory(paths, process.env.NODE_ENV),
-    webpackServer: {
-      noInfo: true // please don't spam the console when running in karma!
+    webpack: {
+      ...configFactory(paths, process.env.NODE_ENV),
+      entry: undefined,
+      output: undefined,
+      devtool: 'inline-source-map'
     },
-    plugins: [
-      'karma-webpack',
-      'karma-mocha',
-      'karma-sourcemap-loader',
-      'karma-chrome-launcher',
-      'karma-mocha-reporter'
-    ],
+    webpackServer: {
+      //noInfo: true // please don't spam the console when running in karma!
+    },
     babelPreprocessor: {
       options: {
         presets: ['airbnb']
       }
     },
-    reporters: ['mocha'],
+    reporters: ['progress'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
-    autoWatch: true,
-    browsers: ['ChromeHeadless'],
+    autoWatch: false,
+    browsers: ['Chrome'],
     singleRun: false
   });
 };

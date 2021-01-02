@@ -1,0 +1,31 @@
+diff --git a/node_modules/karma-sourcemap-loader/index.js b/node_modules/karma-sourcemap-loader/index.js
+index c13b033..ac3a478 100644
+--- a/node_modules/karma-sourcemap-loader/index.js
++++ b/node_modules/karma-sourcemap-loader/index.js
+@@ -53,9 +53,23 @@ var createSourceMapLocatorPreprocessor = function(args, logger) {
+       });
+     }
+     
+-    var lines = content.split(/\n/);
+-    var lastLine = lines.pop();
+-    while (/^\s*$/.test(lastLine)) {
++    let lines = [];
++    
++    const message = content;
++    if (typeof message === 'string') {
++      lines = message.split('\n');
++    } else if (message && 'message' in message) {
++      lines = message['message'].split('\n');
++    } else if (Array.isArray(message)) {
++      message.forEach(message => {
++        if ('message' in message) {
++          lines = lines.concat(message['message'].split('\n'));
++        }
++      });
++    }
++
++    var lastLine = lines.length > 0 ? lines.pop() : null;
++    while (lastLine && /^\s*$/.test(lastLine)) {
+       lastLine = lines.pop();
+     }
+ 

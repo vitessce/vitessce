@@ -226,6 +226,8 @@ function getResolveInfo(paths, additionalModulePaths, useTypeScript, shouldDoPro
       "https": false,
       "http": false,
       "fs": false,
+      "stream": false,
+      "util": false,
     }
   };
 }
