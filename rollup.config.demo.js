@@ -12,9 +12,6 @@ const { babel } = require('@rollup/plugin-babel');
 const replace = require('@rollup/plugin-replace');
 const html = require('@rollup/plugin-html');
 const workerLoader = require('rollup-plugin-web-worker-loader');
-const sucrase = require('@rollup/plugin-sucrase');
-const globals = require('rollup-plugin-node-globals');
-const builtins = require('rollup-plugin-node-builtins');
 const empty = require('rollup-plugin-node-empty');
 // Development server plugins.
 const serve = require('rollup-plugin-serve');
