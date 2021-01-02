@@ -188,11 +188,7 @@ module.exports = function(paths, environment) {
         externals: {
             // No externals, demo should come with everything.
         },
-        node: {
-            global: true,
-            __filename: false,
-            __dirname: false,
-        },
+        node: nodeInfo,
         performance: performanceInfo,
     };
 };

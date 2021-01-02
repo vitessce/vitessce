@@ -477,14 +477,9 @@ function getNodeInfo() {
     // Some libraries import Node modules but don't use them in the browser.
     // Tell webpack to provide empty mocks for them so importing them works.
     return {
-        module: 'empty',
-        dgram: 'empty',
-        dns: 'mock',
-        fs: 'empty',
-        http2: 'empty',
-        net: 'empty',
-        tls: 'empty',
-        child_process: 'empty',
+      global: true,
+      __filename: false,
+      __dirname: false,
     };
 }
 
