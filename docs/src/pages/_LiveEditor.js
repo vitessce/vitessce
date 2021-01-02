@@ -9,8 +9,7 @@ import styles from './styles.module.css';
 const code = `// Instantiate a view config object.
 const vc = new VitessceConfig("My config");
 // Add a dataset and its files.
-const bucketDomain = "https://s3.amazonaws.com"
-const baseUrl = bucketDomain + '/vitessce-data/0.0.31/master_release/dries';
+const baseUrl = "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries";
 const dataset = vc
     .addDataset("Dries")
     .addFile(baseUrl + '/dries.cells.json', DataType.CELLS, FileType.CELLS_JSON)

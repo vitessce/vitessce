@@ -19,12 +19,14 @@
     "@monaco-editor/react": "^3.7.4",
     "babel-preset-react-app": "^9.1.2",
     "clsx": "^1.1.1",
+    "copy-text-to-clipboard": "^2.2.0",
     "docusaurus-plugin-sass": "^0.1.11",
     "prism-react-renderer": "^1.1.1",
     "query-string": "^6.13.7",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-dropzone": "^11.2.4",
+    "react-live": "^2.2.3",
     "use-query-params": "^1.1.9"
   },
   "browserslist": {
