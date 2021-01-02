@@ -1,9 +1,9 @@
-import React, {
-  useMemo, useEffect, useCallback, Suspense,
-} from 'react';
+import React from 'react';
 import TitleInfo from '../TitleInfo';
+import { useReady, useUrls, useGridItemSize } from '../hooks';
+import HiGlassLazy from './HiGlassLazy';
 
-const HiGlassComponent = React.lazy(() => import('./HiGlass'));
+const HIGLASS_DATA_TYPES = [];
 
 /**
  * A wrapper around HiGlass (http://higlass.io/).
@@ -18,47 +18,38 @@ const HiGlassComponent = React.lazy(() => import('./HiGlass'));
  */
 export default function HiGlassSubscriber(props) {
   const {
+    coordinationScopes,
+    theme,
     hgViewConfig,
-    hgOptions = {
-      bounded: true,
-      pixelPreciseMarginPadding: true,
-      containerPaddingX: 0,
-      containerPaddingY: 0,
-      sizeMode: 'default',
-    },
     removeGridComponent,
-    onReady,
   } = props;
 
-  const onReadyCallback = useCallback(onReady, []);
+  // eslint-disable-next-line no-unused-vars
+  const [width, height, containerRef] = useGridItemSize();
 
-  useEffect(() => {
-    onReadyCallback();
-  }, [onReadyCallback]);
-
-  const hgComponent = useMemo(() => (
-    <HiGlassComponent
-      zoomFixed={false}
-      viewConfig={hgViewConfig}
-      options={{
-        ...hgOptions,
-        theme: 'dark',
-      }}
-    />
-  ), [hgViewConfig, hgOptions]);
+  // eslint-disable-next-line no-unused-vars
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    HIGLASS_DATA_TYPES,
+  );
+  // eslint-disable-next-line no-unused-vars
+  const [urls, addUrl, resetUrls] = useUrls();
 
   return (
-    <div className="v-higlass-title-wrapper">
+    <div className="higlass-title-wrapper">
       <TitleInfo
         title="HiGlass"
         removeGridComponent={removeGridComponent}
+        theme={theme}
+        isReady={isReady}
+        urls={urls}
       >
-        <div className="v-higlass-wrapper-parent">
-          <div className="v-higlass-wrapper">
-            <Suspense fallback={<div>Loading...</div>}>
-              {hgComponent}
-            </Suspense>
-          </div>
+        <div className="higlass-lazy-wrapper" ref={containerRef}>
+          <HiGlassLazy
+            coordinationScopes={coordinationScopes}
+            theme={theme}
+            hgViewConfig={hgViewConfig}
+            height={height}
+          />
         </div>
       </TitleInfo>
     </div>

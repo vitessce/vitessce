@@ -1,60 +1,132 @@
-import React, { useState, useEffect, useCallback } from 'react';
-
-import PubSub from 'pubsub-js';
+/* eslint-disable dot-notation */
+import React, { useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
-import { ThemeProvider } from '@material-ui/core/styles';
-
-
 import TitleInfo from '../TitleInfo';
-import LayerController from './LayerController';
+import RasterLayerController from './RasterLayerController';
+import VectorLayerController from './VectorLayerController';
 import ImageAddButton from './ImageAddButton';
-import { RASTER_ADD, LAYER_REMOVE, CLEAR_PLEASE_WAIT } from '../../events';
-import { darkTheme } from './styles';
+import { useReady } from '../hooks';
+import { useRasterData } from '../data-hooks';
+import { useCoordination, useLoaders } from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { initializeLayerChannels } from '../spatial/utils';
+import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
 
-function LayerControllerSubscriber({ onReady, removeGridComponent }) {
-  const [imageOptions, setImageOptions] = useState(null);
-  const [layers, setLayers] = useState([]);
-  const memoizedOnReady = useCallback(onReady, []);
+const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
 
+function LayerControllerSubscriber(props) {
+  const {
+    coordinationScopes,
+    removeGridComponent,
+    theme,
+  } = props;
+
+  const loaders = useLoaders();
+
+  // Get "props" from the coordination space.
+  const [{
+    dataset,
+    spatialLayers: layers,
+  }, {
+    setSpatialLayers: setLayers,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.layerController, coordinationScopes);
+
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    LAYER_CONTROLLER_DATA_TYPES,
+  );
+
+  // Reset loader progress when the dataset has changed.
   useEffect(() => {
-    function handleRasterAdd(msg, raster) {
-      setImageOptions(raster.images);
-      PubSub.publish(CLEAR_PLEASE_WAIT, 'raster');
-    }
-    memoizedOnReady();
-    const token = PubSub.subscribe(RASTER_ADD, handleRasterAdd);
-    return () => PubSub.unsubscribe(token);
-  }, [memoizedOnReady]);
+    resetReadyItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
-  const handleImageAdd = (imageData) => {
-    const layerId = String(Math.random());
-    setLayers([...layers, { layerId, imageData }]);
+  // Get data from loaders using the data hooks.
+  // eslint-disable-next-line no-unused-vars
+  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
+    loaders, dataset, setItemIsReady, () => {}, false,
+  );
+
+  const handleImageAdd = async (index) => {
+    const loader = imageLayerLoaders[index];
+    const newChannels = await initializeLayerChannels(loader);
+    const newLayer = {
+      type: 'raster',
+      index,
+      ...DEFAULT_RASTER_LAYER_PROPS,
+      channels: newChannels,
+    };
+    const newLayers = [...layers, newLayer];
+    setLayers(newLayers);
   };
 
-  const handleLayerRemove = (layerId) => {
-    const nextLayers = layers.filter(d => d.layerId !== layerId);
-    setLayers(nextLayers);
-    PubSub.publish(LAYER_REMOVE, layerId);
-  };
+  function handleLayerChange(newLayer, i) {
+    const newLayers = [...layers];
+    newLayers[i] = newLayer;
+    setLayers(newLayers);
+  }
 
-  const layerControllers = layers.map(({ layerId, imageData }) => (
-    <Grid key={layerId} item style={{ marginTop: '10px' }}>
-      <LayerController
-        layerId={layerId}
-        imageData={imageData}
-        handleLayerRemove={() => handleLayerRemove(layerId)}
-      />
-    </Grid>
-  ));
+  function handleLayerRemove(i) {
+    const newLayers = [...layers];
+    newLayers.splice(i, 1);
+    setLayers(newLayers);
+  }
 
   return (
-    <TitleInfo title="Layer Controller" isScroll removeGridComponent={removeGridComponent}>
-      <ThemeProvider theme={darkTheme}>
-        {layerControllers}
+    <TitleInfo
+      title="Spatial Layers"
+      isScroll
+      removeGridComponent={removeGridComponent}
+      theme={theme}
+      isReady={isReady}
+    >
+      <div className="layer-controller-container">
+        {layers && layers.map((layer, i) => {
+          if (layer.type === 'cells') {
+            return (
+              <VectorLayerController
+                key={`${dataset}-cells`}
+                label="Cell Segmentations"
+                layer={layer}
+                handleLayerChange={v => handleLayerChange(v, i)}
+              />
+            );
+          } if (layer.type === 'molecules') {
+            return (
+              <VectorLayerController
+                key={`${dataset}-molecules`}
+                label="Molecules"
+                layer={layer}
+                handleLayerChange={v => handleLayerChange(v, i)}
+              />
+            );
+          } if (layer.type === 'raster') {
+            const { index } = layer;
+            const loader = imageLayerLoaders[index];
+            const layerMeta = imageLayerMeta[index];
+            return (loader && layerMeta ? (
+              // eslint-disable-next-line react/no-array-index-key
+              <Grid key={`${dataset}-raster-${index}-${i}`} item style={{ marginTop: '10px' }}>
+                <RasterLayerController
+                  name={layerMeta.name}
+                  layer={layer}
+                  loader={loader}
+                  theme={theme}
+                  handleLayerChange={v => handleLayerChange(v, i)}
+                  handleLayerRemove={() => handleLayerRemove(i)}
+                />
+              </Grid>
+            ) : null);
+          }
+          return null;
+        })}
         <Grid item>
-          <ImageAddButton imageOptions={imageOptions} handleImageAdd={handleImageAdd} />
+          <ImageAddButton
+            imageOptions={imageLayerMeta}
+            handleImageAdd={handleImageAdd}
+          />
         </Grid>
-      </ThemeProvider>
+      </div>
     </TitleInfo>
   );
 }

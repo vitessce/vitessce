@@ -24,6 +24,8 @@
       100% { height: 100%; }
   }
   .tool {
+      position: absolute;
+      display: inline;
       z-index: 1000;
       opacity: .65;
       color: black;

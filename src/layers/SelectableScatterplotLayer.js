@@ -1,8 +1,8 @@
 import { CompositeLayer, ScatterplotLayer } from 'deck.gl';
 
-import { overlayBaseProps } from './utils';
+import { overlayBaseProps } from './selection-utils';
 
-export class SelectableScatterplotLayer extends CompositeLayer {
+export default class SelectableScatterplotLayer extends CompositeLayer {
   renderLayers() {
     const props = overlayBaseProps(this.props);
     const base = new ScatterplotLayer(props.base);

@@ -1,39 +1,58 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SelectableTable } from '../selectable-table/index';
 
 export default function Genes(props) {
   const {
-    setSelectedGene,
-    genesSelected,
-    clearPleaseWait,
+    geneList = [],
+    geneSelection = [],
+    geneFilter = null,
+    setGeneSelection,
   } = props;
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState(geneList);
+
   useEffect(() => {
-    if (clearPleaseWait && genesSelected) {
-      clearPleaseWait('genes');
-    }
-  }, [clearPleaseWait, genesSelected]);
+    const results = geneList
+      .filter(gene => gene.toLowerCase().includes(searchTerm.toLowerCase()));
+    setSearchResults(results);
+  }, [searchTerm, geneList]);
 
-  const onChange = useCallback((selection) => {
-    if (selection && selection.name) {
-      setSelectedGene(selection.name);
+  function onChange(selection) {
+    if (setGeneSelection && selection && selection.name) {
+      setGeneSelection([selection.name]);
     }
-  }, [setSelectedGene]);
+  }
 
-  const data = Object.entries(genesSelected).sort(
-    (a, b) => a[0].localeCompare(b[0]),
-  ).map(
-    ([name, value]) => ({ name, value }),
-  );
+  const data = searchResults
+    .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
+    .sort((a, b) => a.localeCompare(b))
+    .map(
+      gene => ({ name: gene, value: (geneSelection ? geneSelection.includes(gene) : false) }),
+    );
+
+  const handleChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
   return (
-    <SelectableTable
-      columns={['name']}
-      data={data}
-      idKey="name"
-      valueKey="value"
-      onChange={onChange}
-      allowUncheck={false}
-      showTableHead={false}
-    />
+    <>
+      <input
+        className="search-bar"
+        type="text"
+        placeholder="Search"
+        value={searchTerm}
+        onChange={handleChange}
+      />
+      <SelectableTable
+        columns={['name']}
+        data={data}
+        idKey="name"
+        valueKey="value"
+        onChange={onChange}
+        allowUncheck={false}
+        showTableHead={false}
+      />
+    </>
   );
 }

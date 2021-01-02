@@ -1,25 +1,29 @@
-import React, { useReducer, useRef } from 'react';
-
-import Button from '@material-ui/core/Button';
+import React, { useReducer } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
-import Paper from '@material-ui/core/Paper';
-import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
-import MenuList from '@material-ui/core/MenuList';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { useOptionStyles } from './styles';
+import { PopperMenu } from '../shared-mui/components';
 
-const buttonStyles = {
-  borderStyle: 'dashed',
-  marginTop: '10px',
-  fontWeight: 400,
-};
+const useStyles = makeStyles(() => ({
+  addButton: {
+    marginTop: '10px',
+    marginBottom: '10px',
+    fontWeight: 400,
+  },
+}));
+
+function ImageAddIcon() {
+  return (
+    <>
+      <AddIcon />
+      Add Image Layer
+    </>
+  );
+}
 
 function ImageAddButton({ imageOptions, handleImageAdd }) {
   const [open, toggle] = useReducer(v => !v, false);
-  const anchorRef = useRef(null);
-
-  const classes = useOptionStyles();
+  const classes = useStyles();
 
   const handleAdd = (imgData) => {
     toggle();
@@ -28,36 +32,18 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
 
   if (!imageOptions) return null;
   return (
-    <>
-      <Button
-        onClick={toggle}
-        fullWidth
-        variant="outlined"
-        style={buttonStyles}
-        startIcon={<AddIcon />}
-        size="small"
-        ref={anchorRef}
-      >
-            Add Image Layer
-      </Button>
-      <Popper open={open} anchorEl={anchorRef.current} placement="bottom-end">
-        <Paper className={classes.paper}>
-          <ClickAwayListener onClickAway={toggle}>
-            <MenuList id="image-layer-options">
-              {imageOptions.map(imgData => (
-                <MenuItem
-                  dense
-                  key={imgData.name}
-                  onClick={() => handleAdd(imgData)}
-                >
-                  <span>{imgData.name}</span>
-                </MenuItem>
-              ))}
-            </MenuList>
-          </ClickAwayListener>
-        </Paper>
-      </Popper>
-    </>
+    <PopperMenu
+      open={open}
+      toggle={toggle}
+      buttonIcon={<ImageAddIcon />}
+      buttonClassName={classes.addButton}
+    >
+      {imageOptions.map((imgData, i) => (
+        <MenuItem dense key={imgData.name} onClick={() => handleAdd(i)}>
+          <span>{imgData.name}</span>
+        </MenuItem>
+      ))}
+    </PopperMenu>
   );
 }
 

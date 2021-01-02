@@ -1,8 +1,19 @@
+@import 'colors';
 
 @mixin app($theme-name, $theme-colors) {
 
+    &.welcome-container {
+        overflow: visible;
+        .react-grid-layout, .warning-layout {
+            position: relative;
+        }
+    }
+
     .react-grid-layout, .warning-layout {
         background-color: map-get($theme-colors, "grid-layout-background");
+        height: auto;
+        position: absolute;
+        width: 100%;
     }
 
     .warning-layout {
@@ -11,6 +22,26 @@
             margin-left: 0.5rem;
         }
     }
+
+    .loading-indicator-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1040;
+        width: 100%;
+        height: 100%;
+        border-radius: 0.25rem;
+        background-color: rgba(0, 0, 0, 0.5);
+
+        .loading-indicator-container {
+            display: grid;
+            place-items: center;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+    }
+    
 
     /* Flex grid items */
     .react-grid-item {
@@ -35,15 +66,6 @@
         flex-shrink: 0;
     }
 
-    /* Styling for closing button on the grid items */
-    .close-pane-button {
-        border: none;
-        font-family: Ampersand;
-        margin-left: .5em;
-        background: none;
-        color: map-get($theme-colors, "primary-foreground-dim");
-    }
-
     /* Tool styles */
     .title {
         color: map-get($theme-colors, "primary-foreground");
@@ -52,6 +74,14 @@
 
     .card {
         border: 1px solid map-get($theme-colors, "card-border");
+    }
+
+    .bg-black {
+        background-color: map-get($global-colors, "black");
+        color: map-get($global-colors, "white");
+        a {
+            color: map-get($global-colors, "white");
+        }
     }
 
     .bg-primary {
@@ -76,6 +106,38 @@
         opacity: 0.8;
     }
 
+    .description {
+        p, details, table {
+            font-size: 80%;
+            opacity: 0.8;
+        }
+        details {
+            margin-bottom: 6px;
+        }
+        summary {
+            border-bottom: 1px solid lighten(map-get($theme-colors, "primary-background"), 10%);
+            cursor: pointer;
+        }
+        .metadata-container {
+            padding-left: 14px;
+            table {
+                width: 100%;
+                td, th {
+                    outline: none;
+                    padding: 2px 2px;
+                    max-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    width: 50%;
+                }
+                tr:nth-child(even) {
+                    background-color: lighten(map-get($theme-colors, "primary-background"), 5%);
+                }
+            }
+        }
+    }
+
     .coll-full, .welcome-col-left, .welcome-col-right {
         position: relative;
         width: 100%;
@@ -90,9 +152,9 @@
     }
 
     .welcome-col-left {
-        -ms-flex: 0 0 41.666667%;
-        flex: 0 0 41.666667%;
-        max-width: 41.666667%;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
 
         .list-group-item {
             background-color: map-get($theme-colors, "primary-background-highlight");
@@ -101,13 +163,25 @@
         .input-group input {
             background-color: map-get($theme-colors, "primary-background-input");
         }
+        a {
+            color: #ffffff;
+        }
     }
   
 
     .welcome-col-right {
-        -ms-flex: 0 0 58.333333%;
-        flex: 0 0 58.333333%;
-        max-width: 58.333333%;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+        .info-paragraph {
+            margin-bottom: 0 !important;
+        }
+        .info-section-text {
+            margin-top: 0.5rem
+        }
+        a {
+            color: #ffffff;
+        }
     }
   
 }

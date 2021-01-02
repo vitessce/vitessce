@@ -17,7 +17,7 @@ describe('Vitessce', () => {
     // Any request we do not explicitly route will return 404,
     // so we won't end up depending on outside resources by accident.
     cy.server({ force404: true });
-    ['cells', 'molecules', 'raster', 'clusters', 'genes', 'factors', 'neighborhoods'].forEach(
+    ['cells', 'cell-sets', 'molecules', 'raster', 'clusters', 'neighborhoods'].forEach(
       (type) => {
         cy.route(
           `${urlPrefix}/linnarsson/linnarsson.${type}.json`,
@@ -30,7 +30,7 @@ describe('Vitessce', () => {
   it('has title, blurb, and link to "Please wait"', () => {
     cy.visit('/?show=all');
     cy.contains('Vitessce');
-    cy.contains('This is a demo');
+    cy.contains('Its modular design is optimized');
     cy.contains('just scatterplot as component'); // Not public; requires "show=all".
     cy.contains('Linnarsson as component')
       .click();
@@ -46,8 +46,6 @@ describe('Vitessce', () => {
 
   it('loads details (responsive)', () => {
     cy.visit('/?dataset=linnarsson-2018');
-    cy.contains('Please wait');
-    cy.get('.modal-body').should('be.visible');
 
     // Data Set:
     cy.contains('Linnarsson: Spatial organization');
@@ -57,21 +55,21 @@ describe('Vitessce', () => {
     // that won't have race condition problems.
 
     // Spatial:
-    cy.contains('1 cells');
-    cy.contains('1 molecules');
+    cy.contains('1 cell');
+    cy.contains('1 molecule');
     cy.contains('3 locations');
 
     // Heatmap:
     cy.contains('3 cells × 3 genes');
-    cy.contains('with 0 cells selected');
+    cy.contains(/with [0-9]+ cells selected/g);
 
-    // Factors:
-    cy.contains('2 factors');
-    cy.contains('subcluster');
+    // Cell sets:
+    cy.contains('Cell Sets');
+    cy.contains('Clustering Algorithm');
 
     // Expression Levels:
-    cy.contains('2 genes');
-    cy.contains('Slc32a1');
+    cy.contains('3 genes');
+    cy.contains('Sox10');
 
     // Scatterplots:
     cy.contains('Scatterplot (t-SNE)');

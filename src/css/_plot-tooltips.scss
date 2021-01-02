@@ -1,0 +1,46 @@
+/* Tooltips for plot hover events. */
+@mixin plot-tooltips($theme-name, $theme-colors) {
+  .cell-tooltip, .cell-emphasis-crosshair {
+    z-index: 50;
+    position: absolute;
+    pointer-events: none;
+    box-sizing: border-box;
+  }
+
+  .cell-emphasis-crosshair {
+      background-color: map-get($theme-colors, "secondary-foreground");
+  }
+
+  .cell-tooltip {
+      height: auto;
+      width: auto;
+      opacity: 0;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid gray;
+
+      animation-name: cell-tooltip;
+      animation-duration: 0.5s;
+      animation-fill-mode: forwards;
+
+      table > tbody > tr > th, table > tbody > tr > td {
+          font-size: 80%;
+          opacity: 0.8;
+          outline: 0;
+          padding: 0 2px;
+      }
+
+      table {
+          border-collapse: collapse;
+      }
+  }
+
+  @keyframes cell-tooltip {
+      from {
+          opacity: 0;
+      }
+      to {
+          opacity: 0.9;
+      }
+  }
+}

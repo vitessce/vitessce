@@ -1,0 +1,194 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/hubmapconsortium/vitessce/#cell-sets",
+    "title": "Vitessce cell sets data",
+    "type": "object",
+    "definitions": {
+        "stringArray": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "stringProbabilityTupleArray": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "additionalItems": false,
+                "items": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "oneOf": [
+                            {
+                                "type": "number",
+                                "minimum": 0.0,
+                                "maximum": 1.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "colorArray": {
+            "type": "array",
+            "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+            },
+            "minItems": 3,
+            "maxItems": 3
+        },
+        "treeNodeLeaf": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/colorArray"
+                },
+                "set": {
+                    "$ref": "#/definitions/stringArray"
+                }
+            }
+        },
+        "treeNodeNonLeaf": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/colorArray"
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/treeNode"
+                    }
+                }
+            }
+        },
+        "treeNode": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/treeNodeNonLeaf"
+                },
+                {
+                    "$ref": "#/definitions/treeNodeLeaf"
+                }
+            ]
+        },
+        "version0.1.2": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["version", "datatype", "tree"],
+            "properties": {
+                "dataset": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string",
+                    "enum": ["0.1.2"]
+                },
+                "datatype": {
+                    "type": "string",
+                    "enum": ["cell"]
+                },
+                "tree": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/treeNodeNonLeaf"
+                    }
+                }
+            }
+        },
+        "treeNodeLeafProbabilistic": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/colorArray"
+                },
+                "set": {
+                    "$ref": "#/definitions/stringProbabilityTupleArray"
+                }
+            }
+        },
+        "treeNodeNonLeafProbabilistic": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/colorArray"
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/treeNodeProbabilistic"
+                    }
+                }
+            }
+        },
+        "treeNodeProbabilistic": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/treeNodeNonLeafProbabilistic"
+                },
+                {
+                    "$ref": "#/definitions/treeNodeLeafProbabilistic"
+                }
+            ]
+        },
+        "version0.1.3": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["version", "datatype", "tree"],
+            "properties": {
+                "dataset": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string",
+                    "enum": ["0.1.3"]
+                },
+                "datatype": {
+                    "type": "string",
+                    "enum": ["cell"]
+                },
+                "tree": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/treeNodeNonLeafProbabilistic"
+                    }
+                }
+            }
+        }
+    },
+    "oneOf": [
+        {
+            "$ref": "#/definitions/version0.1.2"
+        },
+        {
+            "$ref": "#/definitions/version0.1.3"
+        }
+    ]
+}

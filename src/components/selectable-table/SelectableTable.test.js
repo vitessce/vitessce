@@ -1,6 +1,6 @@
 import React from 'react';
 import Adapter from 'enzyme-adapter-react-16';
-import { shallow, configure, mount } from 'enzyme';
+import { configure, mount } from 'enzyme';
 import expect from 'expect';
 import SelectableTable from './SelectableTable';
 
@@ -30,28 +30,21 @@ const tableColumns = [
 
 configure({ adapter: new Adapter() });
 
-function assertElementHasText(wrapper, query, text) {
-  expect(wrapper.find(query).text()).toEqual(text);
-}
-
-function assertElementContainsText(wrapper, query, text) {
-  expect(wrapper.find(query).text()).toContain(text);
-}
-
 describe('SelectableTable.js', () => {
   describe('<SelectableTable />', () => {
     it('renders column values', () => {
-      const wrapper = shallow(
+      const wrapper = mount(
         <SelectableTable
           data={tableData}
           columns={tableColumns}
           idKey={tableIdKey}
+          testHeight={500}
+          testWidth={500}
         />,
       );
-      assertElementHasText(wrapper, '.selectable-table thead', 'XYName');
-      assertElementContainsText(wrapper, '.selectable-table tbody', 'X1Y1Tile 1');
-      assertElementContainsText(wrapper, '.selectable-table tbody', 'X1Y2Tile 2');
-      assertElementContainsText(wrapper, '.selectable-table tbody', 'X3Y3Tile 3');
+      expect(wrapper.find('.table-row').first().text()).toEqual('XYName');
+      // Since the button (although hidden) is also a table-cell, it has a blank string.
+      expect(wrapper.find('.table-cell').map(node => node.text())).toEqual(['', 'X1', 'Y1', 'Tile 1', '', 'X1', 'Y2', 'Tile 2', '', 'X3', 'Y3', 'Tile 3']);
     });
 
     it('emits single selected object when allowMultiple is false', (done) => {
@@ -65,9 +58,11 @@ describe('SelectableTable.js', () => {
             expect(selection.Name).toEqual('Tile 1');
             done();
           }}
+          testHeight={500}
+          testWidth={500}
         />,
       );
-      wrapper.find('.selectable-table tbody tr td').at(1).simulate('click');
+      wrapper.find('.table-item').first().simulate('click');
     });
 
     it('emits an array of selected objects when allowMultiple is true', (done) => {
@@ -83,9 +78,11 @@ describe('SelectableTable.js', () => {
             expect(selection[0].Name).toEqual('Tile 2');
             done();
           }}
+          testHeight={500}
+          testWidth={500}
         />,
       );
-      wrapper.find('.selectable-table tbody tr td').at(5).simulate('click');
+      wrapper.find('.table-item').at(1).simulate('click');
     });
   });
 });

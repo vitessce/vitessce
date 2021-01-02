@@ -1,149 +1,270 @@
 import React, {
-  useState, useCallback, useEffect, useMemo,
+  useState, useEffect, useMemo, useCallback,
 } from 'react';
-import PubSub from 'pubsub-js';
-import shortNumber from 'short-number';
-
 import TitleInfo from '../TitleInfo';
+import { capitalize } from '../../utils';
+import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import { setCellSelection, mergeCellSets } from '../utils';
 import {
-  MOLECULES_ADD,
-  NEIGHBORHOODS_ADD,
-  CELLS_ADD,
-  CELLS_COLOR,
-  STATUS_INFO,
-  CELLS_SELECTION,
-  CELLS_HOVER,
-  CLEAR_PLEASE_WAIT,
-  VIEW_INFO,
-  CELL_SETS_VIEW,
-  LAYER_ADD,
-  LAYER_REMOVE,
-  LAYER_CHANGE,
-} from '../../events';
+  useCellsData, useCellSetsData, useExpressionMatrixData,
+  useMoleculesData, useNeighborhoodsData, useRasterData,
+} from '../data-hooks';
+import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
+import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
+import { makeSpatialSubtitle, initializeLayerChannelsIfMissing, sortLayers } from './utils';
+import {
+  DEFAULT_MOLECULES_LAYER,
+  DEFAULT_CELLS_LAYER,
+  DEFAULT_NEIGHBORHOODS_LAYER,
+} from './constants';
+import {
+  useCoordination,
+  useLoaders,
+  useSetComponentHover,
+  useSetComponentViewInfo,
+} from '../../app/state/hooks';
+import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
-export default function SpatialSubscriber({
-  children,
-  onReady,
-  removeGridComponent,
-  moleculeRadius,
-  view,
-  cellRadius,
-  uuid = null,
-}) {
-  const [cells, setCells] = useState(null);
-  const [molecules, setMolecules] = useState(null);
-  const [cellColors, setCellColors] = useState(null);
-  const [neighborhoods, setNeighborhoods] = useState(null);
-  const [selectedCellIds, setSelectedCellIds] = useState(new Set());
-  const [imageLayerProps, setImageLayerProps] = useState({});
-  const [imageLayerLoaders, setImageLayerLoaders] = useState({});
+const SPATIAL_DATA_TYPES = [
+  'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix',
+];
 
-  const onReadyCallback = useCallback(onReady, []);
+const SPATIAL_LAYER_TYPES = [
+  'cells', 'molecules', 'raster', 'neighborhoods',
+];
 
+export default function SpatialSubscriber(props) {
+  const {
+    uuid,
+    coordinationScopes,
+    removeGridComponent,
+    initializeLayers = true,
+    observationsLabelOverride: observationsLabel = 'cell',
+    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
+    subobservationsLabelOverride: subobservationsLabel = 'molecule',
+    subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
+    theme,
+    disableTooltip = false,
+  } = props;
+
+  const loaders = useLoaders();
+  const setComponentHover = useSetComponentHover();
+  const setComponentViewInfo = useSetComponentViewInfo(uuid);
+
+  // Get "props" from the coordination space.
+  const [{
+    dataset,
+    spatialZoom: zoom,
+    spatialTargetX: targetX,
+    spatialTargetY: targetY,
+    spatialTargetZ: targetZ,
+    spatialLayers: layers,
+    cellFilter,
+    cellHighlight,
+    geneSelection,
+    cellSetSelection,
+    cellSetColor,
+    cellColorEncoding,
+    additionalCellSets,
+  }, {
+    setSpatialZoom: setZoom,
+    setSpatialTargetX: setTargetX,
+    setSpatialTargetY: setTargetY,
+    setSpatialTargetZ: setTargetZ,
+    setSpatialLayers: setLayers,
+    setCellFilter,
+    setCellSetSelection,
+    setCellHighlight,
+    setCellSetColor,
+    setCellColorEncoding,
+    setAdditionalCellSets,
+    setMoleculeHighlight,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
+
+  const [autoLayers, setAutoLayers] = useState({
+    [dataset]: [
+      loaders[dataset].loaders.cells?.url ? DEFAULT_CELLS_LAYER : null,
+      loaders[dataset].loaders.molecules?.url ? DEFAULT_MOLECULES_LAYER : null,
+      loaders[dataset].loaders.neighborhoods?.url ? DEFAULT_NEIGHBORHOODS_LAYER : null,
+    ].filter(Boolean),
+  });
+
+  const [urls, addUrl, resetUrls] = useUrls();
+  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+    SPATIAL_DATA_TYPES,
+  );
+  const [width, height, deckRef] = useDeckCanvasSize();
+
+  // Reset file URLs and loader progress when the dataset has changed.
+  // Also clear the array of automatically-initialized layers.
   useEffect(() => {
-    const moleculesAddSubscriber = (msg, newMolecules) => setMolecules(newMolecules);
-    const neighborhoodsAddSubscriber = (msg, newNeighborhoods) => setNeighborhoods(newNeighborhoods); // eslint-disable-line max-len
-    const cellsAddSubscriber = (msg, newCells) => setCells(newCells);
-    const cellsSelectionSubscriber = (msg, newCellIds) => setSelectedCellIds(newCellIds);
-    const cellsColorSubscriber = (msg, newColors) => setCellColors(newColors);
-    function layerAddSubscriber(msg, { layerId, loader, layerProps }) {
-      setImageLayerProps(prevLayerProps => ({ ...prevLayerProps, [layerId]: layerProps }));
-      setImageLayerLoaders(prevLoaders => ({ ...prevLoaders, [layerId]: loader }));
-    }
-    function layerChangeSubscriber(msg, { layerId, layerProps }) {
-      setImageLayerProps(prevLayerProps => ({
-        ...prevLayerProps,
-        [layerId]: { ...prevLayerProps[layerId], ...layerProps },
-      }));
-    }
-    function layerRemoveSubscriber(msg, layerId) {
-      setImageLayerLoaders((prevLoaders) => {
-        const { [layerId]: _, ...nextLoaders } = prevLoaders;
-        return nextLoaders;
-      });
-      setImageLayerProps((prevLayerProps) => {
-        const { [layerId]: _, ...nextLayerProps } = prevLayerProps;
-        return nextLayerProps;
-      });
-    }
+    resetUrls();
+    resetReadyItems();
+    setAutoLayers({
+      [dataset]: [
+        loaders[dataset].loaders.cells?.url ? DEFAULT_CELLS_LAYER : null,
+        loaders[dataset].loaders.molecules?.url ? DEFAULT_MOLECULES_LAYER : null,
+        loaders[dataset].loaders.neighborhoods?.url ? DEFAULT_NEIGHBORHOODS_LAYER : null,
+      ].filter(Boolean),
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
-    const moleculesAddToken = PubSub.subscribe(MOLECULES_ADD, moleculesAddSubscriber);
-    const neighborhoodsAddToken = PubSub.subscribe(NEIGHBORHOODS_ADD, neighborhoodsAddSubscriber);
-    const cellsAddToken = PubSub.subscribe(CELLS_ADD, cellsAddSubscriber);
-    const cellsSelectionToken = PubSub.subscribe(CELLS_SELECTION, cellsSelectionSubscriber);
-    const cellSetsViewToken = PubSub.subscribe(CELL_SETS_VIEW, cellsSelectionSubscriber);
-    const cellsColorToken = PubSub.subscribe(CELLS_COLOR, cellsColorSubscriber);
-    const layerAddToken = PubSub.subscribe(LAYER_ADD, layerAddSubscriber);
-    const layerChangeToken = PubSub.subscribe(LAYER_CHANGE, layerChangeSubscriber);
-    const layerRemoveToken = PubSub.subscribe(LAYER_REMOVE, layerRemoveSubscriber);
-    onReadyCallback();
-    return () => {
-      PubSub.unsubscribe(moleculesAddToken);
-      PubSub.unsubscribe(neighborhoodsAddToken);
-      PubSub.unsubscribe(cellsAddToken);
-      PubSub.unsubscribe(cellsSelectionToken);
-      PubSub.unsubscribe(cellSetsViewToken);
-      PubSub.unsubscribe(cellsColorToken);
-      PubSub.unsubscribe(layerAddToken);
-      PubSub.unsubscribe(layerChangeToken);
-      PubSub.unsubscribe(layerRemoveToken);
-    };
-  }, [onReadyCallback]);
+  // Get data from loaders using the data hooks.
+  const [cells, cellsCount] = useCellsData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    () => {},
+  );
+  const [molecules, moleculesCount, locationsCount] = useMoleculesData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    () => {},
+  );
+  const [neighborhoods] = useNeighborhoodsData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    () => {},
+  );
+  const [cellSets] = useCellSetsData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+  );
+  const [expressionMatrix] = useExpressionMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+  );
+  // eslint-disable-next-line no-unused-vars
+  const [raster, imageLayerLoaders] = useRasterData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    autoImageLayers => setAutoLayers(prev => (
+      // This prevents old updates from overriding the current dataset.
+      // The previous state must be for this dataset, otherwise it's an old update.
+      Object.keys(prev).includes(dataset)
+        ? { [dataset]: [...(prev[dataset] || []), ...autoImageLayers] }
+        : prev
+    )),
+  );
+  // Try to set up the layers array automatically if null or undefined.
+  useEffect(() => {
+    // Check if the autoLayers have a layer for each spatial layer loader type.
+    const areAutoLayersComplete = Object.keys(loaders[dataset].loaders)?.every(
+      loaderType => !SPATIAL_LAYER_TYPES.includes(loaderType)
+        || (
+          autoLayers[dataset] && autoLayers[dataset].filter(
+            layer => layer.type === loaderType,
+          ).length > 0
+        )
+    );
+    if (isReady && initializeLayers) {
+      if (!layers && autoLayers[dataset] && areAutoLayersComplete) {
+        setLayers(sortLayers(autoLayers[dataset]));
+      } else if (layers) {
+        // Layers were defined, but check whether channels for each layer were also defined.
+        // If channel / slider / domain definitions are missing, initialize in automatically.
+        initializeLayerChannelsIfMissing(layers, imageLayerLoaders).then(
+          ([newLayers, didInitialize]) => {
+            if (didInitialize) {
+              // Channels were only partially defined.
+              setLayers(newLayers);
+            }
+          },
+        );
+      }
+    }
+  }, [dataset, loaders, autoLayers, imageLayerLoaders,
+    isReady, layers, setLayers, initializeLayers]);
 
-  const cellsCount = useMemo(() => (cells ? Object.keys(cells).length : 0), [cells]);
-  const [moleculesCount, locationsCount] = useMemo(() => {
-    if (!molecules) return [0, 0];
-    return [
-      Object.keys(molecules).length,
-      Object.values(molecules)
-        .map(l => l.length)
-        .reduce((a, b) => a + b, 0),
-    ];
-  }, [molecules]);
+  const mergedCellSets = useMemo(() => mergeCellSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
 
+  const setCellSelectionProp = useCallback((v) => {
+    setCellSelection(
+      v, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
+    );
+  }, [additionalCellSets, cellSetColor, setCellColorEncoding,
+    setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
+
+  const cellColors = useMemo(() => getCellColors({
+    cellColorEncoding,
+    expressionMatrix,
+    geneSelection,
+    cellSets: mergedCellSets,
+    cellSetSelection,
+    cellSetColor,
+  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    cellSetColor, cellSetSelection, expressionMatrix]);
+
+  const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
+
+  const getCellInfo = (cellId) => {
+    const cell = cells[cellId];
+    if (cell) {
+      return {
+        [`${capitalize(observationsLabel)} ID`]: cellId,
+        ...cell.factors,
+      };
+    }
+    return null;
+  };
+
+  const subtitle = makeSpatialSubtitle({
+    observationsCount: cellsCount,
+    observationsLabel,
+    observationsPluralLabel,
+    subobservationsCount: moleculesCount,
+    subobservationsLabel,
+    subobservationsPluralLabel,
+    locationsCount,
+  });
   return (
     <TitleInfo
       title="Spatial"
-      info={
-        `${cellsCount} cells, ${moleculesCount} molecules at ${shortNumber(locationsCount)} locations`
-      }
+      info={subtitle}
+      isSpatial
+      urls={urls}
+      theme={theme}
       removeGridComponent={removeGridComponent}
+      isReady={isReady}
     >
-      {children}
       <Spatial
-        cells={cells}
-        selectedCellIds={selectedCellIds}
-        neighborhoods={neighborhoods}
-        molecules={molecules}
-        cellColors={cellColors}
-        imageLayerProps={imageLayerProps}
-        imageLayerLoaders={imageLayerLoaders}
-        view={view}
-        cellRadius={cellRadius}
-        moleculeRadius={moleculeRadius}
+        ref={deckRef}
         uuid={uuid}
-        updateStatus={
-            message => PubSub.publish(STATUS_INFO, message)
-          }
-        updateCellsSelection={
-            selectedIds => PubSub.publish(CELLS_SELECTION, selectedIds)
-          }
-        updateCellsHover={
-            hoverInfo => PubSub.publish(CELLS_HOVER, hoverInfo)
-          }
-        updateViewInfo={
-            viewInfo => PubSub.publish(VIEW_INFO, viewInfo)
-          }
-        clearPleaseWait={
-            layerName => PubSub.publish(CLEAR_PLEASE_WAIT, layerName)
-          }
+        width={width}
+        height={height}
+        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        setViewState={({ zoom: newZoom, target }) => {
+          setZoom(newZoom);
+          setTargetX(target[0]);
+          setTargetY(target[1]);
+          setTargetZ(target[2]);
+        }}
+        layers={layers}
+        cells={cells}
+        cellFilter={cellFilter}
+        cellSelection={cellSelection}
+        cellHighlight={cellHighlight}
+        cellColors={cellColors}
+        molecules={molecules}
+        neighborhoods={neighborhoods}
+        imageLayerLoaders={imageLayerLoaders}
+        setCellFilter={setCellFilter}
+        setCellSelection={setCellSelectionProp}
+        setCellHighlight={setCellHighlight}
+        setMoleculeHighlight={setMoleculeHighlight}
+        setComponentHover={() => {
+          setComponentHover(uuid);
+        }}
+        updateViewInfo={setComponentViewInfo}
       />
+      {!disableTooltip && (
+      <SpatialTooltipSubscriber
+        parentUuid={uuid}
+        cellHighlight={cellHighlight}
+        width={width}
+        height={height}
+        getCellInfo={getCellInfo}
+      />
+      )}
     </TitleInfo>
   );
 }
-
-SpatialSubscriber.defaultProps = {
-  cellRadius: 50,
-  moleculeRadius: 10,
-};

@@ -1,131 +1,223 @@
 import React, { useState } from 'react';
-import Icon from '@ant-design/icons';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
+import range from 'lodash/range';
+import isEqual from 'lodash/isEqual';
 import PopoverMenu from './PopoverMenu';
-import PopoverColor from './PopoverColor';
-import { callbackOnKeyPress, range, levelNameFromIndex } from './utils';
+import HelpTooltip from './HelpTooltip';
+import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from './utils';
+import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
+import { DEFAULT_COLOR } from '../utils';
 
-import EyeSVG from '../../assets/tools/eye.svg';
-import PenSVG from '../../assets/tools/pen.svg';
-import TrashSVG from '../../assets/tools/trash.svg';
 
+/**
+ * Construct a `menuConfig` array for the PopoverMenu component.
+ * @param {object} props The props for the TreeNode component.
+ * @returns {object[]} An array of menu items to pass to PopoverMenu.
+ */
 function makeNodeViewMenuConfig(props) {
   const {
-    tree,
-    setKey,
+    path,
     level,
+    height,
+    onCheckNode,
+    onNodeRemove,
+    onNodeSetIsEditing,
+    onExportLevelZeroNodeJSON,
+    onExportLevelZeroNodeTabular,
+    onExportSetJSON,
+    checkable,
+    editable,
+    exportable,
+    checked,
   } = props;
 
   return [
-    {
-      name: 'View',
-      handler: () => tree.viewSet(setKey),
-      handlerKey: 'v',
-    },
-    // Show view buttons for viewing descendants at each level.
-    ...range(level).map(i => (
+    ...(editable ? [
       {
-        name: `View ${levelNameFromIndex(i)}`,
-        handler: () => tree.viewSetDescendants(setKey, i),
-        handlerKey: `${i}`,
-      }
-    )),
-    // Show new tab button if not a leaf node.
-    ...(level > 0 ? [{
-      name: 'Open in new tab',
-      handler: () => tree.newTab(setKey),
-      handlerKey: 't',
-    }] : []),
+        title: 'Rename',
+        handler: () => { onNodeSetIsEditing(path, true); },
+        handlerKey: 'r',
+      },
+      {
+        title: 'Delete',
+        confirm: true,
+        handler: () => { onNodeRemove(path); },
+        handlerKey: 'd',
+      },
+    ] : []),
+    ...(level === 0 && exportable ? [
+      {
+        title: 'Export hierarchy',
+        subtitle: '(to JSON file)',
+        handler: () => { onExportLevelZeroNodeJSON(path); },
+        handlerKey: 'j',
+      },
+      ...(height <= 1 ? [
+        {
+          title: 'Export hierarchy',
+          subtitle: '(to CSV file)',
+          handler: () => { onExportLevelZeroNodeTabular(path); },
+          handlerKey: 't',
+        },
+      ] : []),
+    ] : []),
+    ...(level > 0 ? [
+      ...(checkable ? [
+        {
+          title: (checked ? 'Uncheck' : 'Check'),
+          handler: () => { onCheckNode(path, !checked); },
+          handlerKey: 's',
+        },
+      ] : []),
+      ...(exportable ? [
+        {
+          title: 'Export set',
+          subtitle: '(to JSON file)',
+          handler: () => { onExportSetJSON(path); },
+          handlerKey: 'e',
+        },
+      ] : []),
+    ] : []),
   ];
 }
 
+/**
+ * The "static" node component to render when the user is not renaming.
+ * @param {object} props The props for the TreeNode component.
+ */
 function NamedSetNodeStatic(props) {
   const {
     title,
-    prefixClass,
-    tree,
-    setKey,
+    path,
+    nodeKey,
+    level,
+    height,
+    color,
+    checkbox,
+    isChecking,
+    isLeaf,
+    onNodeSetColor,
+    onNodeView,
+    expanded,
+    onCheckLevel,
+    checkedLevelPath,
+    checkedLevelIndex,
+    disableTooltip,
+    size,
+    datatype,
+    editable,
   } = props;
-  const [iconsVisible, setIconsVisible] = useState(false);
+  const shouldCheckNextLevel = (level === 0 && !expanded);
+  const nextLevelToCheck = (
+    (checkedLevelIndex && isEqual(path, checkedLevelPath) && checkedLevelIndex < height)
+      ? checkedLevelIndex + 1
+      : 1
+  );
+  const numberFormatter = new Intl.NumberFormat('en-US');
+  const niceSize = numberFormatter.format(size);
+  let tooltipText;
+  if (shouldCheckNextLevel) {
+    tooltipText = getLevelTooltipText(nextLevelToCheck);
+  } else if (isLeaf || !expanded) {
+    tooltipText = `Color individual set (${niceSize} ${datatype}${(size === 1 ? '' : 's')})`;
+  } else {
+    tooltipText = 'Color by expanded descendants';
+  }
+  // If this is a level zero node and is _not_ expanded, then upon click,
+  // the behavior should be to color by the first or next cluster level.
+  // If this is a level zero node and _is_ expanded, or if any other node,
+  // click should trigger onNodeView.
+  const onClick = (level === 0 && !expanded
+    ? () => onCheckLevel(nodeKey, nextLevelToCheck)
+    : () => onNodeView(path)
+  );
+  const tooltipProps = (disableTooltip ? { visible: false } : {});
+  const popoverMenuConfig = makeNodeViewMenuConfig(props);
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => { tree.viewSet(setKey); }}
-        onKeyPress={e => callbackOnKeyPress(e, 'v', () => tree.viewSet(setKey))}
-        onMouseMove={() => setIconsVisible(true)}
-        onMouseLeave={() => setIconsVisible(false)}
-        className={`${prefixClass}-title`}
-        title={`View ${title}`}
-      >
-        {title}
-      </button>
-      <span
-        className={`${prefixClass}-node-menu-trigger-container`}
-        style={{ opacity: (iconsVisible ? 1 : 0) }}
-        onMouseMove={() => setIconsVisible(true)}
-        onMouseLeave={() => setIconsVisible(false)}
-      >
+    <span>
+      <HelpTooltip title={tooltipText} {...tooltipProps}>
+        <button
+          type="button"
+          onClick={onClick}
+          onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(path))}
+          className="title-button"
+        >
+          {title}
+        </button>
+      </HelpTooltip>
+      {popoverMenuConfig.length > 0 ? (
         <PopoverMenu
           menuConfig={makeNodeViewMenuConfig(props)}
-          onClose={() => setIconsVisible(false)}
+          color={level > 0 && editable ? (color || DEFAULT_COLOR) : null}
+          setColor={c => onNodeSetColor(path, c)}
         >
-          <Icon component={EyeSVG} className={`${prefixClass}-node-menu-trigger`} title="View options" />
+          <MenuSVG className="node-menu-icon" />
         </PopoverMenu>
-        <Icon component={PenSVG} className={`${prefixClass}-node-menu-trigger`} title="Rename" onClick={() => tree.startEditing(setKey)} />
-        <PopoverMenu
-          menuConfig={[{
-            name: 'Delete',
-            handler: () => tree.deleteNode(setKey),
-            handlerKey: 'd',
-          }, {
-            name: 'Cancel',
-            handler: () => {},
-            handlerKey: 'x',
-          }]}
-          onClose={() => setIconsVisible(false)}
-        >
-          <Icon component={TrashSVG} className={`${prefixClass}-node-menu-trigger`} title="Delete" />
-        </PopoverMenu>
-      </span>
-    </>
+      ) : null}
+      {level > 0 && isChecking ? checkbox : null}
+      {level > 0 && (<span className="node-size-label">{niceSize}</span>)}
+    </span>
   );
 }
 
+/**
+ * The "editing" node component to render when the user is renaming,
+ * containing a text input field and a save button.
+ * @param {object} props The props for the TreeNode component.
+ */
 function NamedSetNodeEditing(props) {
   const {
     title,
-    prefixClass,
-    tree,
-    setKey,
+    path,
+    onNodeSetName,
+    onNodeCheckNewName,
   } = props;
   const [currentTitle, setCurrentTitle] = useState(title);
+
+  // Do not allow the user to save a potential name if it conflicts with
+  // another name in the hierarchy.
+  const hasConflicts = onNodeCheckNewName(path, currentTitle);
+  function trySetName() {
+    if (!hasConflicts) {
+      onNodeSetName(path, currentTitle, true);
+    }
+  }
   return (
-    <>
+    <span className="title-button-with-input">
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
-        className={`${prefixClass}-title-input`}
+        className="title-input"
         type="text"
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
-        onKeyPress={e => callbackOnKeyPress(e, 'Enter', () => tree.changeNodeName(setKey, currentTitle, true))}
+        onKeyPress={e => callbackOnKeyPress(
+          e,
+          'Enter',
+          trySetName,
+        )}
         onFocus={e => e.target.select()}
       />
-      <button
-        type="button"
-        className={`${prefixClass}-title-save-button`}
-        onClick={() => tree.changeNodeName(setKey, currentTitle, true)}
-      >
-        Save
-      </button>
-    </>
+      {!hasConflicts && (
+        <button
+          type="button"
+          className="title-save-button"
+          onClick={trySetName}
+        >
+          Save
+        </button>
+      )}
+    </span>
   );
 }
 
-
+/**
+ * A "delegation" component, to decide whether to render
+ * an "editing" vs. "static" node component.
+ * @param {object} props The props for the TreeNode component.
+ */
 function NamedSetNode(props) {
   const {
     isEditing,
@@ -138,17 +230,110 @@ function NamedSetNode(props) {
   );
 }
 
+/**
+ * Buttons for viewing each hierarchy level,
+ * rendered below collapsed level zero nodes.
+ * @param {object} props The props for the (level zero) TreeNode component.
+ */
+function LevelsButtons(props) {
+  const {
+    nodeKey,
+    path,
+    height,
+    onCheckLevel,
+    checkedLevelPath,
+    checkedLevelIndex,
+  } = props;
+  function onCheck(event) {
+    if (event.target.checked) {
+      const newLevel = parseInt(event.target.value, 10);
+      onCheckLevel(nodeKey, newLevel);
+    }
+  }
+  return (
+    <div className="level-buttons-container">
+      {range(1, height + 1).map(i => (
+        <div className="level-buttons" key={i}>
+          <HelpTooltip title={getLevelTooltipText(i)}>
+            <input
+              className="level-radio-button"
+              type="checkbox"
+              value={i}
+              checked={isEqual(path, checkedLevelPath) && i === checkedLevelIndex}
+              onChange={onCheck}
+            />
+          </HelpTooltip>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Render the "switcher" icon.
+ * Arrow for collapsed/expanded non-leaf nodes,
+ * or square for leaf nodes.
+ * @param {object} props The props for the TreeNode component.
+ */
+function SwitcherIcon(props) {
+  const {
+    isLeaf, isOpen, color,
+  } = props;
+  const hexColor = (color ? colorArrayToString(color) : undefined);
+  if (isLeaf) {
+    return (
+      <i
+        className="anticon anticon-circle rc-tree-switcher-icon"
+      >
+        <svg
+          viewBox="0 0 1024 1024"
+          focusable="false"
+          data-icon="caret-down"
+          width="1em"
+          height="1em"
+          aria-hidden="true"
+        >
+          <rect fill={hexColor} x={600 / 2} y={600 / 2} width={1024 - 600} height={1024 - 600} />
+        </svg>
+      </i>
+    );
+  }
+  return (
+    <i
+      className="anticon anticon-caret-down rc-tree-switcher-icon"
+    >
+      <svg
+        viewBox="0 0 1024 1024"
+        focusable="false"
+        data-icon="caret-down"
+        width="1em"
+        height="1em"
+        aria-hidden="true"
+      >
+        <path
+          fill={(isOpen ? '#444' : hexColor)}
+          d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"
+        />
+      </svg>
+    </i>
+  );
+}
+
+/**
+ * A custom TreeNode component.
+ * @extends {RcTreeNode} TreeNode from the rc-tree library.
+ */
 export default class TreeNode extends RcTreeNode {
+  /**
+   * Override the main node text elements.
+   */
   renderSelector = () => {
     const {
-      tree,
-      setKey,
       title,
-      size,
-      color,
       isCurrentSet,
       isSelected,
       isEditing,
+      onDragStart: onDragStartProp,
     } = this.props;
     const {
       rcTree: {
@@ -156,6 +341,11 @@ export default class TreeNode extends RcTreeNode {
         draggable,
       },
     } = this.context;
+
+    const onDragStart = (e) => {
+      onDragStartProp();
+      this.onDragStart(e);
+    };
 
     const wrapClass = `${prefixClass}-node-content-wrapper`;
     const isDraggable = (!isCurrentSet && !isEditing && draggable);
@@ -171,28 +361,87 @@ export default class TreeNode extends RcTreeNode {
         )}
         draggable={isDraggable}
         aria-grabbed={isDraggable}
-        onDragStart={isDraggable ? this.onDragStart : undefined}
+        onDragStart={isDraggable ? onDragStart : undefined}
       >
-        <NamedSetNode {...this.props} prefixClass={prefixClass} />
-        <span className={`${prefixClass}-title-right`}>
-          <span className={`${prefixClass}-set-size`}>{size || null}</span>
-          <PopoverColor
-            prefixClass={prefixClass}
-            color={color}
-            setColor={c => tree.changeNodeColor(setKey, c)}
-          />
-        </span>
+        <NamedSetNode
+          {...this.props}
+          prefixClass={prefixClass}
+          checkbox={this.renderCheckbox()}
+        />
+        {this.renderLevels()}
       </span>
     );
   };
 
-  render() {
-    const { loading } = this.props;
+  /**
+   * Render the LevelsButtons component if this node
+   * is a collapsed level zero node.
+   */
+  renderLevels = () => {
+    const { level, expanded } = this.props;
+    if (level !== 0 || expanded) {
+      return null;
+    }
+    return (
+      <LevelsButtons
+        {...this.props}
+      />
+    );
+  }
+
+  /**
+   * Override the switcher element.
+   */
+  renderSwitcher = () => {
+    const { expanded, isLeaf, color } = this.props;
     const {
-      className, style,
+      rcTree: {
+        prefixCls: prefixClass,
+        onNodeExpand,
+      },
+    } = this.context;
+
+    const onNodeExpandWrapper = (e) => {
+      // Do not call onNodeExpand if the node is a leaf node.
+      if (!isLeaf) {
+        onNodeExpand(e, this);
+      }
+    };
+
+    const switcherClass = classNames(
+      `${prefixClass}-switcher`,
+      { [`${prefixClass}-switcher_${(expanded ? 'open' : 'close')}`]: !isLeaf },
+    );
+    return (
+      <span
+        className={switcherClass}
+        onClick={onNodeExpandWrapper}
+        onKeyPress={e => callbackOnKeyPress(e, 'd', onNodeExpandWrapper)}
+        role="button"
+        tabIndex="0"
+      >
+        <SwitcherIcon
+          isLeaf={isLeaf}
+          isOpen={expanded}
+          color={color}
+        />
+      </span>
+    );
+  };
+
+  /**
+   * Override main render function,
+   * to enable overriding the sub-render functions
+   * for switcher, selector, etc.
+   */
+  render() {
+    const {
+      style, loading, level,
       dragOver, dragOverGapTop, dragOverGapBottom,
       isLeaf,
       expanded, selected, checked, halfChecked,
+      onDragEnd: onDragEndProp,
+      expandable,
       ...otherProps
     } = this.props;
     const {
@@ -204,9 +453,15 @@ export default class TreeNode extends RcTreeNode {
     } = this.context;
     const disabled = this.isDisabled();
     const dataAndAriaAttributeProps = getDataAndAria(otherProps);
+
+    const onDragEnd = (e) => {
+      onDragEndProp();
+      this.onDragEnd(e);
+    };
+
     return (
       <li
-        className={classNames(className, {
+        className={classNames('rc-tree-treenode', `level-${level}-treenode`, {
           [`${prefixClass}-treenode-disabled`]: disabled,
           [`${prefixClass}-treenode-switcher-${expanded ? 'open' : 'close'}`]: !isLeaf,
           [`${prefixClass}-treenode-checkbox-checked`]: checked,
@@ -225,11 +480,10 @@ export default class TreeNode extends RcTreeNode {
         onDragOver={draggable ? this.onDragOver : undefined}
         onDragLeave={draggable ? this.onDragLeave : undefined}
         onDrop={draggable ? this.onDrop.bind(this) : undefined}
-        onDragEnd={draggable ? this.onDragEnd : undefined}
+        onDragEnd={draggable ? onDragEnd : undefined}
         {...dataAndAriaAttributeProps}
       >
-        {this.renderSwitcher()}
-        {this.renderCheckbox()}
+        {expandable ? this.renderSwitcher() : null}
         {this.renderSelector()}
         {this.renderChildren()}
       </li>

@@ -1,210 +1,176 @@
-import { dsvFormat } from 'd3-dsv';
 import Ajv from 'ajv';
-import tinycolor from 'tinycolor2';
+import isNil from 'lodash/isNil';
+import { dsvFormat } from 'd3-dsv';
 import { parse as json2csv } from 'json2csv';
-import { version } from '../../../package.json';
-import { PATH_SEP } from './sets';
-
-import hierarchicalSetsSchema from '../../schemas/hierarchical-sets.schema.json';
-
-export const tabularFileType = 'TSV';
-export const tabularFileExtension = 'tsv';
-const tabularColumnSeparator = '\t';
-const tabularHierarchySeparator = ';';
-const tabularNA = 'NA';
+import { colorArrayToString, colorStringToArray } from './utils';
+import { nodeTransform } from './cell-set-utils';
+import { DEFAULT_COLOR } from '../utils';
+import {
+  HIERARCHICAL_SCHEMAS, TABULAR_SCHEMAS,
+  MIME_TYPE_JSON, MIME_TYPE_TABULAR,
+  SEPARATOR_TABULAR, NA_VALUE_TABULAR,
+} from './constants';
 
 /**
- * Check whether the elements of two arrays are equal.
- * @param {Array} a One of the two arrays.
- * @param {Array} b The other of the two arrays.
- * @returns {boolean} Whether the two arrays contain the same elements.
+ * Check if an imported tree has an old schema version that we know how to
+ * "upgrade" to the latest schema version.  Validate against the schema.
+ * @param {object} currTree A hierarchical tree object with a .version property,
+ * which has already passed schema validation, but may not have the latest schema version.
+ * @param {string} datatype The data type of the items in the schema.
  */
-function arraysEqual(a, b) {
-  return a.length === b.length && a.every((v, i) => v === b[i]);
-}
-
-/**
- * Make a timestamped name for an import root node.
- * @returns {string} A new name for an import node.
- */
-function makeImportName() {
-  const timestamp = (new Date()).toLocaleString();
-  return `Import ${timestamp}`;
-}
-
-/**
- * Handler for tabular (TSV) imports.
- * @param {object} props The component props.
- * @param {string} result The data passed from the onImport function as a string.
- */
-export function handleImportTabular(props, result) {
-  const {
-    setsTree,
-  } = props;
-  const dsvParser = dsvFormat(tabularColumnSeparator);
-  /**
-    * Convert a string color representation to an array of [r,g,b].
-    * @param {string} colorString The color as a string.
-    * @returns {Array} The color as an array.
-    */
-  function colorAsArray(colorString) {
-    const colorObj = tinycolor(colorString).toRgb();
-    return [colorObj.r, colorObj.g, colorObj.b];
+export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
+  const validate = new Ajv().compile(HIERARCHICAL_SCHEMAS[datatype].schema);
+  const valid = validate(currTree);
+  if (!valid) {
+    const failureReason = JSON.stringify(validate.errors, null, 2);
+    throw new Error(`Tree validation failed: ${failureReason}`);
+  } else if (currTree.datatype !== datatype) {
+    throw new Error(
+      `The data type does not match the expected data type of '${datatype}'.`,
+    );
   }
-  // Fall back to set name if set key not provided.
-  const importData = dsvParser.parse(result, row => ({
-    itemId: row['Item ID'],
-    setName: row['Set Name'],
-    setKey: row['Set Key'] || row['Set Name'].split(tabularHierarchySeparator).join(PATH_SEP),
-    setColor: colorAsArray(row['Set Color']),
-  }));
-  // Make array of unique set key strings.
-  const importedSetKeys = Array.from(new Set(importData.map(d => d.setKey)));
-  // Construct the array representation of the tree required by the tree import function.
-  const importedSetsTree = [];
-  // Iterate over each set and append to the tree array representation.
-  importedSetKeys.forEach((setKey) => {
-    const setItems = importData.filter(d => d.setKey === setKey);
-    // length === 1 because we include a parent item in the export.
-    const isEmpty = setItems.length === 1 && setItems[0].itemId === tabularNA;
-    // Use the first item of the set to get the set name and set color values
-    // that will be used for the whole set.
-    const firstItem = setItems[0];
-    const setNameArray = firstItem.setName.split(tabularHierarchySeparator);
-    importedSetsTree.push({
-      name: setNameArray[setNameArray.length - 1],
-      key: setKey,
-      color: firstItem.setColor,
-      ...(!isEmpty ? { set: setItems.map(d => d.itemId) } : null),
-    });
-  });
-  setsTree.import(importedSetsTree, makeImportName());
+  if (currTree.version === '0.1.2') {
+    // To upgrade from cell-sets schema 0.1.2 to 0.1.3,
+    // add a confidence value of null for each cell ID.
+    return {
+      ...currTree,
+      version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
+      tree: currTree.tree.map(levelZeroNode => nodeTransform(
+        levelZeroNode,
+        n => !n.children && Array.isArray(n.set),
+        n => ({ ...n, set: n.set.map(itemId => ([itemId, null])) }), [],
+      )),
+    };
+  }
+  return currTree;
 }
 
 /**
- * Handler for JSON imports.
- * @param {object} props The component props.
- * @param {string} result The data passed from the onImport function as a string.
+ * Handler for JSON imports. Validates and upgrades against the hierarchical sets schema.
+ * @param {string} result The data passed from the FileReader as a string.
+ * @param {string} datatype The data type to validate against.
+ * @returns {object} The imported tree object.
+ * @throws {Error} Throws error if validation fails or if the datatype does not match.
  */
-export function handleImportJSON(props, result) {
-  const {
-    datasetId,
-    setsType,
-    setsTree,
-    onError,
-  } = props;
-  const importData = JSON.parse(result);
+export function handleImportJSON(result, datatype) {
+  let importData = JSON.parse(result);
   // Validate the imported file.
-  const validate = new Ajv().compile(hierarchicalSetsSchema);
+  importData = tryUpgradeTreeToLatestSchema(importData, datatype);
+  return importData;
+}
+
+/**
+ * Handler for tabular imports. Validates against the tabular sets schema.
+ * @param {string} result The data passed from the FileReader as a string.
+ * @param {string} datatype The data type to validate against.
+ * @returns {object} The imported tree object.
+ * @throws {Error} Throws error if validation fails or if the datatype does not match.
+ */
+export function handleImportTabular(result, datatype) {
+  const dsvParser = dsvFormat(SEPARATOR_TABULAR);
+  const importData = dsvParser.parse(result, row => ({
+    groupName: row.groupName,
+    setName: row.setName,
+    setColor: (row.setColor ? colorStringToArray(row.setColor) : DEFAULT_COLOR),
+    obsId: row.obsId,
+    predictionScore: (
+      (
+        isNil(row.predictionScore)
+        || row.predictionScore === NA_VALUE_TABULAR
+      )
+        ? null
+        : +row.predictionScore
+    ),
+  }));
+  // Validate the imported file.
+  const validate = new Ajv().compile(TABULAR_SCHEMAS[datatype].schema);
   const valid = validate(importData);
   if (!valid) {
     const failureReason = JSON.stringify(validate.errors, null, 2);
-    onError(`Import validation failed: ${failureReason}`);
-  } else if (importData.datasetId !== datasetId) {
-    onError('The imported datasetId does not match the current datasetId.');
-  } else if (importData.version !== version) {
-    onError('The imported schema version is not compatible with the current schema version.');
-  } else if (importData.setsType !== setsType) {
-    onError('The imported setsType does not match the current setsType.');
+    throw new Error(`Import validation failed: ${failureReason}`);
   } else {
-    onError(false); // Clear any previous import error.
-    setsTree.import(importData.setsTree, makeImportName());
+    // Convert the validated array to a tree representation.
+    const treeToImport = {
+      version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
+      datatype,
+      tree: [],
+    };
+    const uniqueGroupNames = Array.from(new Set(importData.map(d => d.groupName)));
+    uniqueGroupNames.forEach((groupName) => {
+      const levelZeroNode = {
+        name: groupName,
+        children: [],
+      };
+      const groupRows = importData.filter(d => d.groupName === groupName);
+      const uniqueSetNames = Array.from(new Set(groupRows.map(d => d.setName)));
+      uniqueSetNames.forEach((setName) => {
+        const setRows = groupRows.filter(d => d.setName === setName);
+        const { setColor } = setRows[0];
+        const levelOneNode = {
+          name: setName,
+          color: setColor,
+          set: setRows.map(d => ([d.obsId, d.predictionScore])),
+        };
+        levelZeroNode.children.push(levelOneNode);
+      });
+      treeToImport.tree.push(levelZeroNode);
+    });
+    return treeToImport;
   }
 }
 
 /**
- * Convert the tree to a tabular representation and then a string.
- * Uses set keys as unique set identifiers to allow repeated set names.
- * @param {object} props The component props.
+ * Convert a tree object to a JSON representation.
+ * @param {object} result The object to export.
  * @returns {string} The data in a string representation.
  */
-export function handleExportTabular(props) {
-  const {
-    setsTree,
-  } = props;
-  const exportedSetsTree = setsTree.export();
+export function handleExportJSON(result) {
+  const jsonString = JSON.stringify(result);
+  const dataString = `data:${MIME_TYPE_JSON};charset=utf-8,${encodeURIComponent(jsonString)}`;
+  return dataString;
+}
+
+/**
+ * Convert a tree object with one level (height === 1) to a tabular representation.
+ * @param {object} result The object to export.
+ * @returns {string} The data in a string representation.
+ */
+export function handleExportTabular(result) {
+  // Convert a tree object to an array of JSON objects.
   const exportData = [];
-  if (exportedSetsTree.length > 0) {
-    let prevNodeNameArray = [exportedSetsTree[0].name];
-    let prevNodeKeyArray = [exportedSetsTree[0].key];
-    // Iterate over each set.
-    exportedSetsTree.forEach((node) => {
-    // Compute the hierarchical name for the current node,
-    // assuming the array of exported nodes is sorted.
-      const currNodeKeyArray = node.key.split(PATH_SEP);
-      if (arraysEqual(currNodeKeyArray, prevNodeKeyArray)) {
-      // Do nothing, the node key and name are correct.
-      } else if (arraysEqual(
-        currNodeKeyArray.slice(0, currNodeKeyArray.length - 1),
-        prevNodeKeyArray,
-      )) {
-      // The current node is a child of the previous node, so update the prev key and name.
-        prevNodeKeyArray = currNodeKeyArray;
-        prevNodeNameArray.push(node.name);
-      } else if (currNodeKeyArray.length === 1) {
-      // The current node is at the first level of the tree, so reset the prev key and name.
-        prevNodeNameArray = [node.name];
-        prevNodeKeyArray = currNodeKeyArray;
-      } else if (arraysEqual(
-        currNodeKeyArray.slice(0, currNodeKeyArray.length - 1),
-        prevNodeKeyArray.slice(0, prevNodeKeyArray.length - 1),
-      )) {
-      // The current node is at the same level as the previous node but is different.
-        prevNodeKeyArray = currNodeKeyArray;
-        prevNodeNameArray = [
-          ...prevNodeNameArray.slice(0, prevNodeNameArray.length - 1),
-          node.name,
-        ];
-      }
-      // Within a set, iterate over each item to create a new row of the table.
-      if (node.set && node.set.length > 0) {
-        node.set.forEach((item) => {
+  result.tree.forEach((levelZeroNode) => {
+    levelZeroNode.children.forEach((levelOneNode) => {
+      if (levelOneNode.set) {
+        levelOneNode.set.forEach(([obsId, prob]) => {
           exportData.push({
-            'Item ID': item,
-            'Set Key': node.key,
-            'Set Name': prevNodeNameArray.join(tabularHierarchySeparator),
-            'Set Color': tinycolor({ r: node.color[0], g: node.color[1], b: node.color[2] })
-              .toHexString(),
+            groupName: levelZeroNode.name,
+            setName: levelOneNode.name,
+            setColor: colorArrayToString(levelOneNode.color),
+            obsId,
+            predictionScore: isNil(prob) ? NA_VALUE_TABULAR : prob,
           });
-        });
-      } else {
-        exportData.push({
-          'Item ID': tabularNA,
-          'Set Key': node.key,
-          'Set Name': prevNodeNameArray.join(tabularHierarchySeparator),
-          'Set Color': tinycolor({ r: node.color[0], g: node.color[1], b: node.color[2] })
-            .toHexString(),
         });
       }
     });
-  }
-  // Export to tabular file and do the download.
-  const csv = json2csv(exportData, {
-    fields: ['Item ID', 'Set Key', 'Set Name', 'Set Color'],
-    delimiter: tabularColumnSeparator,
   });
-  const dataString = `data:text/${tabularFileExtension};charset=utf-8,${encodeURIComponent(csv)}`;
+  const csvString = json2csv(exportData, {
+    fields: ['groupName', 'setName', 'setColor', 'obsId', 'predictionScore'],
+    delimiter: SEPARATOR_TABULAR,
+  });
+  const dataString = `data:${MIME_TYPE_TABULAR};charset=utf-8,${encodeURIComponent(csvString)}`;
   return dataString;
 }
 
 /**
- * Download the sets tree in a JSON representation.
- * @param {object} props The component props.
- * @returns {string} The data in a string representation.
+ * Download a file. Appends and removes an anchor node in the DOM.
+ * @param {string} dataString The function that converts the data to a string.
+ * @param {string} fileName The name of the file to be downloaded.
  */
-export function handleExportJSON(props) {
-  const {
-    datasetId,
-    setsType,
-    setsTree,
-  } = props;
-  const exportData = {
-    datasetId,
-    setsType,
-    version,
-    setsTree: setsTree.export(),
-  };
-  // eslint-disable-next-line prefer-template
-  const dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportData));
-  return dataString;
+export function downloadForUser(dataString, fileName) {
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute('href', dataString);
+  downloadAnchorNode.setAttribute('download', fileName);
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
 }

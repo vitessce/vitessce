@@ -1,145 +1,147 @@
-/* eslint-disable no-tabs */
 import expect from 'expect';
-import SetsTree, { SetsTreeNode } from './sets';
+
 import {
-  handleImportTabular, handleImportJSON,
-  handleExportTabular, handleExportJSON,
+  handleImportJSON, handleExportJSON, handleImportTabular, handleExportTabular,
 } from './io';
 
-import { version } from '../../../package.json';
-
-const tree = new SetsTree();
-tree.appendChild(new SetsTreeNode({
-  setKey: 'empty-selection',
-  name: 'Empty selection',
-  color: [0, 0, 0],
-}));
-tree.appendChild(new SetsTreeNode({
-  setKey: 'neurons',
-  name: 'Neurons',
-  color: [0, 0, 0],
-  set: ['cell_3'],
-  children: [
-    new SetsTreeNode({
-      setKey: 'inhibitory',
-      name: 'Inhibitory Neurons',
-      color: [1, 0, 0],
-      set: ['cell_4', 'cell_5'],
-    }),
-    new SetsTreeNode({
-      setKey: 'excitatory',
-      name: 'Excitatory Neurons',
-      color: [1, 1, 1],
-      set: ['cell_6', 'cell_7', 'cell_8'],
-    }),
+const treeV012 = {
+  version: '0.1.2',
+  datatype: 'cell',
+  tree: [
+    {
+      name: 'Clustering Algorithm',
+      children: [
+        {
+          name: 'Cluster A',
+          color: [255, 0, 0],
+          set: ['cell_243', 'cell_271', 'cell_247', 'cell_248'],
+        },
+      ],
+    },
   ],
-}));
-tree.appendChild(new SetsTreeNode({
-  setKey: 'other-selection',
-  name: 'Other selection',
-  color: [0, 0, 0],
-  set: ['cell_9', 'cell_10'],
-}));
+};
+const treeV013 = {
+  version: '0.1.3',
+  datatype: 'cell',
+  tree: [
+    {
+      name: 'Clustering Algorithm',
+      children: [
+        {
+          name: 'Cluster A',
+          color: [255, 0, 0],
+          set: [
+            ['cell_243', null],
+            ['cell_271', null],
+            ['cell_247', null],
+            ['cell_248', null],
+          ],
+        },
+      ],
+    },
+  ],
+};
 
-const correctProcessedJSON = [{
-  key: 'empty-selection', name: 'Empty selection', color: [0, 0, 0],
-}, {
-  key: 'neurons', name: 'Neurons', color: [0, 0, 0], set: ['cell_3'],
-}, {
-  key: 'neurons\tinhibitory', name: 'Inhibitory Neurons', color: [1, 0, 0], set: ['cell_4', 'cell_5'],
-}, {
-  key: 'neurons\texcitatory', name: 'Excitatory Neurons', color: [1, 1, 1], set: ['cell_6'],
-}, {
-  key: 'other-selection', name: 'Other selection', color: [0, 0, 0], set: ['cell_9', 'cell_10'],
-}];
+const treeV013WithPredictionScores = {
+  version: '0.1.3',
+  datatype: 'cell',
+  tree: [
+    {
+      name: 'Clustering Algorithm',
+      children: [
+        {
+          name: 'Cluster A',
+          color: [255, 0, 0],
+          set: [
+            ['cell_243', 0.5],
+            ['cell_271', 0.6],
+            ['cell_247', 0.12345],
+            ['cell_248', 0],
+          ],
+        },
+      ],
+    },
+  ],
+};
+const treeV012AsJson = JSON.stringify(treeV012);
+const treeV013AsJson = JSON.stringify(treeV013);
+const treeV013WithPredictionScoresAsJson = JSON.stringify(treeV013WithPredictionScores);
 
-const tabularString = `"Item ID"	"Set Key"	"Set Name"	"Set Color"
-"NA"	"empty-selection"	"Empty selection"	"#000000"
-"cell_3"	"neurons"	"Neurons"	"#000000"
-"cell_4"	"neurons	inhibitory"	"Neurons;Inhibitory Neurons"	"#010000"
-"cell_5"	"neurons	inhibitory"	"Neurons;Inhibitory Neurons"	"#010000"
-"cell_6"	"neurons	excitatory"	"Neurons;Excitatory Neurons"	"#010101"
-"cell_9"	"other-selection"	"Other selection"	"#000000"
-"cell_10"	"other-selection"	"Other selection"	"#000000"`;
+const expectedExportedJson = `data:application/json;charset=utf-8,${encodeURIComponent(treeV013AsJson)}`;
+const expectedExportedJsonWithPredictionScores = `data:application/json;charset=utf-8,${encodeURIComponent(treeV013WithPredictionScoresAsJson)}`;
 
-const jsonString = JSON.stringify({
-  datasetId: 'linnarsson-2018',
-  setsType: 'cell',
-  version,
-  setsTree: correctProcessedJSON,
-});
+const treeV012AsCsv = `"groupName","setName","setColor","obsId"
+"Clustering Algorithm","Cluster A","#ff0000","cell_243"
+"Clustering Algorithm","Cluster A","#ff0000","cell_271"
+"Clustering Algorithm","Cluster A","#ff0000","cell_247"
+"Clustering Algorithm","Cluster A","#ff0000","cell_248"`;
 
-const jsonPrefix = 'data:text/json;charset=utf-8,';
-const correctExportedJSON = jsonPrefix + encodeURIComponent(
-  // Note the '//t' below: We want a literal '/t', so we escape the '/'.
-  `{"datasetId":"linnarsson-2018","setsType":"cell","version":"${version}","setsTree":[{"key":"other-selection","name":"Other selection","color":[0,0,0],"set":["cell_9","cell_10"]},{"key":"neurons","name":"Neurons","color":[0,0,0],"set":["cell_3"]},{"key":"neurons\\texcitatory","name":"Excitatory Neurons","color":[1,1,1],"set":["cell_6","cell_7","cell_8"]},{"key":"neurons\\tinhibitory","name":"Inhibitory Neurons","color":[1,0,0],"set":["cell_4","cell_5"]},{"key":"empty-selection","name":"Empty selection","color":[0,0,0]}]}`,
-);
-const correctExportedEmptyJSON = jsonPrefix + encodeURIComponent(
-  `{"datasetId":"linnarsson-2018","setsType":"cell","version":"${version}","setsTree":[]}`,
-);
+const treeV013AsCsv = `"groupName","setName","setColor","obsId","predictionScore"
+"Clustering Algorithm","Cluster A","#ff0000","cell_243","NA"
+"Clustering Algorithm","Cluster A","#ff0000","cell_271","NA"
+"Clustering Algorithm","Cluster A","#ff0000","cell_247","NA"
+"Clustering Algorithm","Cluster A","#ff0000","cell_248","NA"`;
+const expectedExportedTabular = `data:text/csv;charset=utf-8,${encodeURIComponent(treeV013AsCsv)}`;
 
-const tsvPrefix = 'data:text/tsv;charset=utf-8,';
-const correctExportedTSV = tsvPrefix + encodeURIComponent(
-  `"Item ID"	"Set Key"	"Set Name"	"Set Color"
-"cell_9"	"other-selection"	"Other selection"	"#000000"
-"cell_10"	"other-selection"	"Other selection"	"#000000"
-"cell_3"	"neurons"	"Neurons"	"#000000"
-"cell_6"	"neurons	excitatory"	"Neurons;Excitatory Neurons"	"#010101"
-"cell_7"	"neurons	excitatory"	"Neurons;Excitatory Neurons"	"#010101"
-"cell_8"	"neurons	excitatory"	"Neurons;Excitatory Neurons"	"#010101"
-"cell_4"	"neurons	inhibitory"	"Neurons;Inhibitory Neurons"	"#010000"
-"cell_5"	"neurons	inhibitory"	"Neurons;Inhibitory Neurons"	"#010000"
-"NA"	"empty-selection"	"Empty selection"	"#000000"`,
-);
-const correctExportedEmptyTSV = tsvPrefix + encodeURIComponent(
-  '"Item ID"	"Set Key"	"Set Name"	"Set Color"',
-);
+const treeV013WithPredictionScoresAsCsv = `"groupName","setName","setColor","obsId","predictionScore"
+"Clustering Algorithm","Cluster A","#ff0000","cell_243",0.5
+"Clustering Algorithm","Cluster A","#ff0000","cell_271",0.6
+"Clustering Algorithm","Cluster A","#ff0000","cell_247",0.12345
+"Clustering Algorithm","Cluster A","#ff0000","cell_248",0`;
+const expectedExportedTabularWithPredictionScores = `data:text/csv;charset=utf-8,${encodeURIComponent(treeV013WithPredictionScoresAsCsv)}`;
 
 describe('io.js', () => {
   describe('importing sets', () => {
-    it('can import sets from a JSON file', (done) => {
-      const setsTree = {
-        import: (processedJSON) => {
-          expect(processedJSON.length).toEqual(correctProcessedJSON.length);
-          expect(processedJSON).toEqual(correctProcessedJSON);
-          done();
-        },
-      };
-      handleImportJSON({
-        datasetId: 'linnarsson-2018', setsType: 'cell', onError: () => {}, setsTree,
-      }, jsonString);
+    it('can import cell sets from a JSON file v0.1.2', () => {
+      const importedTree = handleImportJSON(treeV012AsJson, 'cell');
+      expect(importedTree).toEqual(treeV013);
     });
 
-    it('can import sets from a TSV file', (done) => {
-      const setsTree = {
-        import: (processedJSON) => {
-          expect(processedJSON.length).toEqual(correctProcessedJSON.length);
-          expect(processedJSON).toEqual(correctProcessedJSON);
-          done();
-        },
-      };
-      handleImportTabular({
-        setsTree,
-      }, tabularString);
+    it('can import cell sets from a JSON file v0.1.3', () => {
+      const importedTree = handleImportJSON(treeV013AsJson, 'cell');
+      expect(importedTree).toEqual(treeV013);
+    });
+
+    it('can import cell sets from a JSON file v0.1.3 with prediction scores', () => {
+      const importedTree = handleImportJSON(treeV013WithPredictionScoresAsJson, 'cell');
+      expect(importedTree).toEqual(treeV013WithPredictionScores);
+    });
+
+    it('can import cell sets from a CSV file v0.1.2', () => {
+      const importedTree = handleImportTabular(treeV012AsCsv, 'cell');
+      expect(importedTree).toEqual(treeV013);
+    });
+
+    it('can import cell sets from a CSV file v0.1.3', () => {
+      const importedTree = handleImportTabular(treeV013AsCsv, 'cell');
+      expect(importedTree).toEqual(treeV013);
+    });
+
+    it('can import cell sets from a CSV file v0.1.3 with prediction scores', () => {
+      const importedTree = handleImportTabular(treeV013WithPredictionScoresAsCsv, 'cell');
+      expect(importedTree).toEqual(treeV013WithPredictionScores);
     });
   });
 
   describe('exporting sets', () => {
-    it('can export sets to a JSON file', () => {
-      const dataString = handleExportJSON({ setsTree: tree, setsType: 'cell', datasetId: 'linnarsson-2018' });
-      expect(dataString).toEqual(correctExportedJSON);
+    it('can export sets to a JSON file v0.1.3', () => {
+      const dataString = handleExportJSON(treeV013);
+      expect(dataString).toEqual(expectedExportedJson);
     });
-    it('can export sets to a tabular file', () => {
-      const dataString = handleExportTabular({ setsTree: tree });
-      expect(dataString).toEqual(correctExportedTSV);
+
+    it('can export sets to a JSON file v0.1.3 with prediction scores', () => {
+      const dataString = handleExportJSON(treeV013WithPredictionScores);
+      expect(dataString).toEqual(expectedExportedJsonWithPredictionScores);
     });
-    it('can export to a JSON file when no sets are available', () => {
-      const dataString = handleExportJSON({ setsTree: new SetsTree(), setsType: 'cell', datasetId: 'linnarsson-2018' });
-      expect(dataString).toEqual(correctExportedEmptyJSON);
+
+    it('can export sets to a CSV file v0.1.3', () => {
+      const dataString = handleExportTabular(treeV013);
+      expect(dataString).toEqual(expectedExportedTabular);
     });
-    it('can export to a tabular file when no sets are available', () => {
-      const dataString = handleExportTabular({ setsTree: new SetsTree() });
-      expect(dataString).toEqual(correctExportedEmptyTSV);
+
+    it('can export sets to a CSV file v0.1.3 with prediction scores', () => {
+      const dataString = handleExportTabular(treeV013WithPredictionScores);
+      expect(dataString).toEqual(expectedExportedTabularWithPredictionScores);
     });
   });
 });

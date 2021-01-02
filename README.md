@@ -1,4 +1,4 @@
-# 🚄  Vitessce
+# Vitessce
 
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
@@ -6,13 +6,21 @@ Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 - [Previous demos](DEMOS.md)
 - [Previous releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
 
-![Vitessce screenshot](https://user-images.githubusercontent.com/730388/58634506-78472580-82b9-11e9-9df8-a1362de73818.png)
+![Screenshot of Vitessce with Linnarsson data](https://user-images.githubusercontent.com/1216518/93336741-2b60c880-f7f6-11ea-8b82-7e1e0ea45e43.png)
+
+![Same data, zoomed in to cellular scale](https://user-images.githubusercontent.com/1216518/93337080-a4f8b680-f7f6-11ea-9e53-2c73cc661b94.png)
+
+## Integrations
+
+Vitessce is being used in the following projects:
+
+- [HuBMAP Data Portal](https://portal.hubmapconsortium.org)
 
 ## Architecture
 
 [![Architecture diagram](https://docs.google.com/drawings/d/e/2PACX-1vSoB3YGPxOTKnFOpYHeHX4JruHnibGXruM36uAZtuvPQNM3a7F4uS3q4b5jwGNQ6TJ7bQ9IPB32rdle/pub?w=650)](https://docs.google.com/drawings/d/1vS6wP1vs5QepLhXGDRww7LR505HJ-aIqnGn9O19f6xg/edit)
 
-For more information, see the [documentation](http://vitessce.io/prod-docs/index.html).
+For more information, see the [glossary](./GLOSSARY.md).
 
 ## Data
 
@@ -77,12 +85,21 @@ export default function App() {
 }
 ```
 
+If you are interested in using Vitessce in the browser as part of a `script` tag or the like, we also export a `umd` build (the above snippet uses an `es` bundle).
+Note that our `es` bundles contain none of the dependencies, all of which should be installed by `npm` automatically when it reads the `package.json` file that our package ships with.
+The advanatage of not bundling everything is that we can keep the size of our bundle down and avoid any upstream compilation issues or the like.
+
 ## Development
 
-First check your NodeJS version: It should work with NodeJS 8, 10, 12, or 13.
+First check your NodeJS version: It should work with NodeJS 8, 10, 12, 13, or 14.
 ```
 $ node --version
-v13.13.0
+v14.0.0
+```
+
+Note: NodeJS 14 may require the `max_old_space_size` option to be increased ([apparently due to a different heap management strategy](https://stackoverflow.com/a/59572966)):
+```sh
+export NODE_OPTIONS=--max_old_space_size=4096
 ```
 
 Checkout the project, `cd`, and then:
@@ -124,22 +141,25 @@ $ ./copy-prod.sh https://{url returned by push-demo.sh}
 ```
 
 The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update:
-- On the `dev` branch,
+- Check out a new branch for the release,
     - Update the CHANGELOG.md to remove the "in progress" text from the current version heading.
     - Update the version by running `npm version [major | minor | patch]` (note: this will add a git commit and a git tag).
-- Merge `dev` into `master` by making a pull request (please do not squash from `dev` to `master`).
+- Make a pull request to merge from the release branch into `master`.
 
 Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the [web interface](https://travis-ci.org/github/hubmapconsortium/vitessce/settings) (Settings -> Environment Variables).
 
 ## Related Subsidiary Projects
 
-- [vitessce-image-viewer](https://github.com/hubmapconsortium/vitessce-image-viewer): A Deck.gl layer for high bit depth, high resolution, multi-channel images.
+- [Viv](https://github.com/hms-dbmi/viv): A library for multiscale visualization of high-resolution multiplexed tissue data on the web.
 - [vitessce-grid](https://github.com/hms-dbmi/vitessce-grid): Wrapper for [`react-grid-layout`](https://github.com/STRML/react-grid-layout#readme)
 - [vitessce-data](https://github.com/hms-dbmi/vitessce-data): Scripts to generate sample data
 - [ome-tiff-tiler](https://github.com/hms-dbmi/ome-tiff-tiler): Docker container to generate tiles from OME-TIFF
 
 ## Old Presentations
 
+- [July 2020: Ilan Gold's lab meeting update](https://docs.google.com/presentation/d/1QzKYP6sXPefBMNfY4PW4H0AMoWVbw9HeNoweLmJg17Y/edit?usp=sharing)
+- [2020 NLM Informatics Training Conference (Trevor)](https://docs.google.com/presentation/d/1eYslI4y1LbnEGwj4XHXxqYcRKpYgqc9Y2mZTd5iCzMc/edit?usp=sharing)
+- [Trevor Manz's overview of multimodal imaging in Vitessce](https://docs.google.com/presentation/d/1NPYZPduymN7wzgN-NYRQwd15D-nUZYILJTgBR2oNb04/edit?usp=sharing)
 - [Ilan Gold's overview of IF Imagery](https://docs.google.com/presentation/d/1BSz2JefN2WSF_RwVpOrIhYD2V8D7ZLc5b21VTy2Xmlo/edit#slide=id.p)
 - [Trevor Manz's wrap-up on Arrow, Zarr, and IMS](https://docs.google.com/presentation/d/1H2hff-bW4SZ3KFD5_q0iN-Dv1yew7pVe0MbdMsA2gko/edit)
 - [September 2019 HuBMAP Poster](https://drive.google.com/open?id=1pRiTN99-wZ6QuEMWzorcD4fA2Fi-7eW4)
