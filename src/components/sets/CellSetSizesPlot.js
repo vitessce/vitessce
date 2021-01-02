@@ -73,7 +73,7 @@ export default function CellSetSizesPlot(props) {
     .width(clamp(width - marginRight, 10, Infinity))
     .height(clamp(height - marginBottom, 10, Infinity))
     .config(VEGA_THEMES[theme])
-    .toJSON();
+    .toSpec();
 
   return (
     <VegaPlot

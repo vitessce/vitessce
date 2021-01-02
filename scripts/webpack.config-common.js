@@ -219,7 +219,10 @@ function getResolveInfo(paths, additionalModulePaths, useTypeScript, shouldDoPro
       new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
     ],
     fallback: {
-      "buffer": false
+      "buffer": false,
+      "https": false,
+      "http": false,
+      "fs": false,
     }
   };
 }
@@ -386,6 +389,9 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
                 sourceMaps: shouldUseSourceMap,
                 inputSourceMap: shouldUseSourceMap,
               },
+              resolve: {
+                fullySpecified: false,
+              },
             },
             // "postcss" loader applies autoprefixer to our CSS.
             // "css" loader resolves paths in CSS and adds assets as dependencies.
@@ -457,12 +463,12 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
           }
         },
         {
-          test: /\.m?js$/,
-          type: "javascript/auto",
-          resolve: {
-            fullySpecified: false
-          }
-        }
+            test: /\.m?js/,
+            resolve: {
+                fullySpecified: false
+            }
+        },
+
     ]
   };
 }
