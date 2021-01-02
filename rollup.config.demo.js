@@ -15,6 +15,7 @@ const workerLoader = require('rollup-plugin-web-worker-loader');
 const sucrase = require('@rollup/plugin-sucrase');
 const globals = require('rollup-plugin-node-globals');
 const builtins = require('rollup-plugin-node-builtins');
+const empty = require('rollup-plugin-node-empty');
 // Development server plugins.
 const serve = require('rollup-plugin-serve');
 const livereload = require('rollup-plugin-livereload');
@@ -57,6 +58,13 @@ module.exports = {
             targetPlatform: 'browser',
             inline: true,
         }),
+        empty({
+            fs: "empty",
+            http: "empty",
+            https: "empty",
+            buffer: "empty",
+            stream: "empty",
+        }),
         // Need to convert CommonJS modules in node_modules to ES6.
         // Reference: https://github.com/rollup/plugins/tree/master/packages/node-resolve#using-with-rollupplugin-commonjs
         commonjs({
@@ -84,7 +92,6 @@ module.exports = {
                 'node_modules/json2csv/dist/json2csv.umd.js': ['parse'],
                 'node_modules/turf-jsts/jsts.min.js': ['GeoJSONReader', 'GeoJSONWriter', 'BufferOp'],
                 'node_modules/lz-string/libs/lz-string.js': ['compressToEncodedURIComponent', 'decompressFromEncodedURIComponent'],
-                'node_modules/browserify-fs/index.js': ['open', 'read', 'close']
             }
         }),
         // Tell Rollup to compile our source files with Babel.
@@ -98,8 +105,6 @@ module.exports = {
             // Reference: https://github.com/rollup/plugins/tree/master/packages/babel#extensions
             exclude: 'node_modules/**'
         }),
-        globals(),
-        builtins(),
         replace({
             // React uses process.env to determine whether a development or production environment.
             // Reference: https://github.com/rollup/rollup/issues/487#issuecomment-177596512

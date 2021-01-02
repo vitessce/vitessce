@@ -9,7 +9,7 @@ function htmlFromTemplate({ attributes, files, publicPath }) {
     })
     .join('\n');
 
-  const links = (files.css || [{ fileName: 'demo.css'}])
+  const links = (files.css || [{ fileName: 'demo.css' }])
     .map(({ fileName }) => {
       const attrs = makeHtmlAttributes(attributes.link);
       return `<link href="${publicPath}${fileName}" rel="stylesheet"${attrs}>`;
@@ -30,6 +30,27 @@ function htmlFromTemplate({ attributes, files, publicPath }) {
   
     gtag('config', 'UA-96954979-2');
     </script>
+    <style>
+      html, body {
+        height: 100%;
+      }
+      body {
+        font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+      }
+      #full-app {
+        flex: 1;
+      }
+      #full-app .vitessce-container {
+        height: max(100%, 100vh);
+        width: 100%;
+        overflow: hidden;
+      }
+      #full-app #small-app .vitessce-container {
+        height: 600px;
+      }
+    </style>
       
     <title>🚄  Vitessce</title>
     ${links}
