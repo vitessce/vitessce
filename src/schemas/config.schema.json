@@ -79,13 +79,13 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["group_name", "set_name"],
+        "required": ["groupName", "setName"],
         "properties": {
-          "group_name": {
+          "groupName": {
             "type": "string",
             "description": "The display name for the set, like 'Cell Type' or 'Louvain.'"
           },
-          "set_name": {
+          "setName": {
             "type": "string",
             "description": "The location in the AnnData store for the set, like 'obs/louvain' or 'obs/celltype.'"
           }
