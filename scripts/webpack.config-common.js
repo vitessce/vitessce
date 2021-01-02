@@ -130,11 +130,14 @@ function getDevtoolInfo(environment, shouldUseSourceMap) {
 }
 
 // Common function to get the optimization.minimizer value.
-function getOptimizationMinimizer(shouldDoProfiling, shouldUseSourceMap) {
+function getOptimizationMinimizer(shouldDoProfiling, shouldUseSourceMap, target) {
     return [
         // This is only used in production mode
         new TerserPlugin({
           terserOptions: {
+            ...(target === "es" ? ({
+              module: true,
+            }) : {}),
             parse: {
               // We want terser to parse ecma 8 code. However, we don't want it
               // to apply any minification steps that turns valid ecma 5 code
@@ -216,7 +219,7 @@ function getResolveInfo(paths, additionalModulePaths, useTypeScript, shouldDoPro
       // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
       // please link the files into your node_modules/ and let module-resolution kick in.
       // Make sure your source files are compiled, as they will not be processed in any way.
-      new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
+      //new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
     ],
     fallback: {
       "buffer": false,

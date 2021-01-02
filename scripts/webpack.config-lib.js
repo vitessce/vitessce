@@ -50,7 +50,7 @@ module.exports = function(paths, environment, target) {
     const additionalModulePaths = getAdditionalModulePaths(paths);
     const webpackAliases = getWebpackAliases(paths);
     const devtoolModuleFilenameTemplate = getDevtoolModuleFilenameTemplate(paths, environment);
-    const optimizationMinimizer = getOptimizationMinimizer(shouldDoProfiling, shouldUseSourceMap);
+    const optimizationMinimizer = getOptimizationMinimizer(shouldDoProfiling, shouldUseSourceMap, target);
     
     const devtoolInfo = getDevtoolInfo(environment, shouldUseSourceMap);
     const resolveInfo = getResolveInfo(paths, additionalModulePaths, useTypeScript, shouldDoProfiling, webpackAliases);
@@ -67,13 +67,14 @@ module.exports = function(paths, environment, target) {
             index: paths.libIndexJs,
             ...paths.libOtherJs
         },
+        target: ["web"],
         output: {
             // The build folder.
             path: path.join(paths.libBuild, target, environment),
             // We want there to be separate files, one for each entry file.
             filename: isEnvProduction && target !== "es" ? "[name].min.js" : "[name].js",
             library: [ appPackageJson.name, "[name]" ],
-            libraryTarget: (target === "es" ? "commonjs2" : target),
+            libraryTarget: (target === "es" ? "module" : target),
             // Add /* filename */ comments to generated require()s in the output.
             pathinfo: isEnvDevelopment,
             // Webpack uses `publicPath` to determine where the app is being served from.
@@ -83,7 +84,10 @@ module.exports = function(paths, environment, target) {
             devtoolModuleFilenameTemplate: devtoolModuleFilenameTemplate,
             // this defaults to 'window', but by setting it to 'this' then
             // module chunks which are built will work in web workers as well.
-            globalObject: 'this'
+            globalObject: 'this',
+            ...(target === "es" ? ({
+                scriptType: "module"
+            }) : {}),
         },
         optimization: {
             // Don't minify the ES builds because they will be used only in upstream applications.
@@ -157,5 +161,8 @@ module.exports = function(paths, environment, target) {
         // Turn off performance processing because we utilize
         // our own hints via the FileSizeReporter
         performance: performanceInfo,
+        experiments: {
+            outputModule: (target === "es"),
+        }
     };
 };
