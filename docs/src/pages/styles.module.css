@@ -199,3 +199,22 @@
 .viewConfigEditorMain {
   padding-bottom: 4rem;
 }
+
+.copyButtonContainer {
+  position: relative;
+}
+.copyButton {
+    background: rgba(0, 0, 0, 0.3);
+    border: none;
+    border-radius: var(--ifm-global-radius);
+    color: var(--ifm-color-white);
+    cursor: pointer;
+    opacity: 1;
+    -webkit-user-select: none;
+    user-select: none;
+    padding: 0.4rem 0.5rem;
+    position: absolute;
+    right: calc(var(--ifm-pre-padding) / 2);
+    top: calc(var(--ifm-pre-padding) / 2);
+    transition: opacity 200ms ease-in-out;
+}
