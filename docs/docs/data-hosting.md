@@ -22,17 +22,17 @@ For a bucket named `foo-bar`, you will need to add the following in `Permissions
 
 ```json
 {
-    "Version": "2012-10-17",
-    "Id": "Policy12345",
-    "Statement": [
-        {
-            "Sid": "Stmt6789",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::foo-bar/*"
-        }
-    ]
+  "Version": "2012-10-17",
+  "Id": "Policy12345",
+  "Statement": [
+    {
+      "Sid": "Stmt6789",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::foo-bar/*"
+    }
+  ]
 }
 ```
 
@@ -46,30 +46,30 @@ Add the following CORS configuration to the bucket to allow files to be read fro
 
 ```json
 [
-    {
-        "AllowedHeaders": [
-            "*"
-        ],
-        "AllowedMethods": [
-            "GET"
-        ],
-        "AllowedOrigins": [
-            "*"
-        ],
-        "ExposeHeaders": [
-            "Content-Range"
-        ],
-        "MaxAgeSeconds": 3000
-    }
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET"],
+    "AllowedOrigins": ["*"],
+    "ExposeHeaders": ["Content-Range"],
+    "MaxAgeSeconds": 3000
+  }
 ]
 ```
 
-<!--
 ## Google Cloud
 
-TODO
+First ensure that your bucket has fully public permissions for reading data - grant full read permissions to the user `allUsers` - then use the following cors config along with the command `gsutil cors set my-config.json gs://my-bucket`:
 
--->
+```
+[
+    {
+        "origin":["*"],
+        "responseHeader": ["Content-Type", "Accept-Ranges", "Content-Range", "Content-Encoding", "Content-Length", "Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Range"],
+        "method": ["OPTIONS", "GET", "HEAD"],
+        "maxAgeSeconds": 3600
+    }
+]
+```
 
 <!--
 ## Zenodo
@@ -118,5 +118,3 @@ And make sure that the `url` values in your Vitessce view config point to the lo
 ],
 ...
 ```
-
-
