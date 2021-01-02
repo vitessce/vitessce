@@ -7,7 +7,7 @@
     "transform": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["scale", "translate"],
+      "oneOf":[{"required": ["scale", "translate"]},{"required": ["matrix"]}],
       "properties": {
         "scale": { "type": "number" },
         "translate": {
@@ -18,6 +18,12 @@
             "y": { "type": "number" },
             "x": { "type": "number" }
           }
+        },
+        "matrix": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 16,
+          "maxItems": 16
         }
       }
     },
@@ -43,7 +49,7 @@
     "metadata": {
       "type": "object",
       "additionalProperties": false,
-      "oneOf":[{"required": ["dimensions","isPyramid","transform"]},{"required": ["omeTiffOffsetsUrl"]}],
+      "anyOf":[{"required": ["dimensions","isPyramid"]},{"required": ["transform"]},{"required": ["omeTiffOffsetsUrl"]}],
       "properties": {
         "dimensions": { "$ref": "#/definitions/dimensions" },
         "isPyramid": { "type": "boolean" },

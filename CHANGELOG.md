@@ -1,4 +1,21 @@
-## 1.1.1 (In Progress)
+## In Progress
+
+### Added
+
+### Changed
+
+## [1.1.2](https://www.npmjs.com/package/vitessce/v/1.1.2) - 2020-12-31
+
+### Added
+- Allow for non-remote raster schemas.
+
+### Changed
+- Upgrade Viv to 0.8.0 and deck.gl to 8.4.0-alpha.2
+- Added GitHub Actions workflow to replace the Travis CI workflow.
+- Fix `test.sh` branch variable again.
+- Fix deploy step again.
+
+## [1.1.1](https://www.npmjs.com/package/vitessce/v/1.1.1) - 2020-12-27
 
 ### Added
 - Implemented the view config API in JavaScript in a class called `VitessceConfig`.
@@ -14,6 +31,9 @@
 - Lazy load HiGlass (and PIXI.js) from absolute URLs (unpkg) to avoid dynamic script import issues with relative paths after bundling.
     - When loading JS resources for HiGlass and PIXI.js, use the current environment (dev/prod) to determine `min.js` vs `js` extensions, and use `package.json` to determine package versions.
 - Make ability to do cell set operations (union, intersection, complement) less restrictive
+- Implemented the `genomicZoomX`, `genomicZoomY`, `genomicTargetX`, and `genomicTargetY` coordination types for coordinating the zoom and pan interactions of multiple HiGlass views.
+    - Simplified the `hgViewConfig` prop so that it supports only a single HiGlass view, and then allows Vitessce to handle the HiGlass view's `initialXDomain` and `initialYDomain` properties (through the coordination space), as well as the rest of the view config.
+    - Added the `genomicProfiles` component which abstracts away the HiGlass view config.
 
 ## [1.1.0](https://www.npmjs.com/package/vitessce/v/1.1.0) - 2020-11-17
 

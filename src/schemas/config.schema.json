@@ -62,7 +62,8 @@
               "geneExpressionColormapRange": { "type": "string" },
               "cellColorEncoding": { "type": "string" },
               "spatialLayers": { "type": "string" },
-              "genomicZoom": { "type": "string" },
+              "genomicZoomX": { "type": "string" },
+              "genomicZoomY": { "type": "string" },
               "genomicTargetX": { "type": "string" },
               "genomicTargetY": { "type": "string" },
               "additionalCellSets": { "type": "string" },
@@ -351,13 +352,13 @@
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type", "fileType", "url"],
+              "required": ["type", "fileType"],
               "properties": {
                 "name": { "type": "string" },
                 "type": { "type": "string" },
                 "fileType": { "type": "string" },
                 "url": { "type": "string" },
-                "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
+                "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "https://github.com/hubmapconsortium/vitessce/#raster" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
                 "requestInit": { "$ref": "#/definitions/requestInit" }
               }
             }
@@ -651,7 +652,13 @@
             ".": { "type": "array", "items": { "type": "number" } }
           }
         },
-        "genomicZoom": {
+        "genomicZoomX": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
+          }
+        },
+        "genomicZoomY": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "number" }
