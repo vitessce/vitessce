@@ -54,13 +54,6 @@ module.exports = {
         },
         {
             // Reference: https://rollupjs.org/guide/en/#outputformat
-            format: 'cjs',
-            dir: LIB_DIR,
-            ...outputBase,
-            ...outputModuleBase,
-        },
-        {
-            // Reference: https://rollupjs.org/guide/en/#outputformat
             format: 'umd',
             // UMD builds require a name.
             name: pkg.name,
