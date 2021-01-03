@@ -7,7 +7,7 @@ import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
 import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
-import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubscriber';
+//import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubscriber';
 import GenomicProfilesSubscriber from '../components/higlass/GenomicProfilesSubscriber';
 
 const registry = {
@@ -19,7 +19,7 @@ const registry = {
   spatial: SpatialSubscriber,
   heatmap: HeatmapSubscriber,
   layerController: LayerControllerSubscriber,
-  cellSetSizes: CellSetSizesPlotSubscriber,
+  //cellSetSizes: CellSetSizesPlotSubscriber,
   genomicProfiles: GenomicProfilesSubscriber,
   // The plain higlass component does not abstract away the HiGlass view config,
   // so we probably want to avoid documenting it, only use it for development purposes.

@@ -1,4 +1,5 @@
-import { CompositeLayer, ScatterplotLayer } from 'deck.gl';
+import { CompositeLayer } from '@deck.gl/core';
+import { ScatterplotLayer } from '@deck.gl/layers';
 
 import { overlayBaseProps } from './selection-utils';
 

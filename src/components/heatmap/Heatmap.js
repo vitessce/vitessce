@@ -2,7 +2,7 @@ import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
 import uuidv4 from 'uuid/v4';
-import DeckGL from 'deck.gl';
+import { DeckGL } from '@deck.gl/react';
 import { OrthographicView } from '@deck.gl/core';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';

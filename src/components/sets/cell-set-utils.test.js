@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import expect from 'expect';
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
 
 import {
   nodeToRenderProps,

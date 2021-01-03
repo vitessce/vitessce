@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
-import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { ScatterplotLayer, PolygonLayer } from '@deck.gl/layers';
+import { COORDINATE_SYSTEM } from '@deck.gl/core';
 import { Matrix4 } from 'math.gl';
 import { MultiscaleImageLayer, ImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';

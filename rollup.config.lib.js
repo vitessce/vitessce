@@ -12,6 +12,7 @@ const workers = require('rollup-plugin-web-worker-loader');
 const empty = require('rollup-plugin-node-empty');
 const builtins = require('rollup-plugin-node-builtins');
 const { terser } = require('rollup-plugin-terser');
+const visualizer = require('rollup-plugin-visualizer');
 
 import {
     IN, OUT,
@@ -94,6 +95,7 @@ module.exports = {
         ...(isProduction ? [
             terser(PLUGIN_TERSER_OPTS),
         ] : []),
+        visualizer(),
     ],
     // We do not to inclue React or ReactDOM in the bundle.
     external: ['react', 'react-dom']

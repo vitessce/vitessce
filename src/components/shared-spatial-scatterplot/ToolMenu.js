@@ -1,5 +1,5 @@
 import React from 'react';
-import { SELECTION_TYPE } from 'nebula.gl';
+import { SELECTION_TYPE } from '../../layers/SelectionLayer';
 import PointerIconSVG from '../../assets/tools/near_me.svg';
 import SelectRectangleIconSVG from '../../assets/tools/selection_rectangle.svg';
 import SelectLassoIconSVG from '../../assets/tools/selection_lasso.svg';

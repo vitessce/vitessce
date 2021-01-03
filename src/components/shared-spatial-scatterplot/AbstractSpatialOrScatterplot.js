@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
-import DeckGL, { OrthographicView } from 'deck.gl';
+import { DeckGL } from '@deck.gl/react';
+import { OrthographicView } from '@deck.gl/core';
 import ToolMenu from './ToolMenu';
 import { DEFAULT_GL_OPTIONS } from '../utils';
 import { getCursor, getCursorWithTool } from './cursor';

@@ -140,6 +140,7 @@
     "rollup-plugin-scss": "^2.1.0",
     "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-terser": "^5.2.0",
+    "rollup-plugin-visualizer": "^4.2.0",
     "rollup-plugin-web-worker-loader": "^1.5.0",
     "semver": "6.3.0",
     "wait-on": "^3.2.0"
