@@ -1,5 +1,6 @@
 const pkg = require('./package.json');
 const { join } = require('path');
+const fromEntries = require('object.fromentries');
 
 const resolve = require('@rollup/plugin-node-resolve');
 const json = require('@rollup/plugin-json');
@@ -15,6 +16,7 @@ const { terser } = require('rollup-plugin-terser');
 
 import {
     IN, OUT,
+    COMPONENTS_LIST,
     PLUGIN_RESOLVE_OPTS,
     PLUGIN_COMMONJS_OPTS,
     PLUGIN_BABEL_OPTS,
@@ -39,16 +41,13 @@ const outputBase = {
 };
 
 module.exports = {
-    input: IN.LIB,
+    input: {
+        ...fromEntries(COMPONENTS_LIST.map(name => ([
+            join('component', name),
+            join(IN.COMPONENTS, name, 'index.js'),
+        ]))),
+    },
     output: [
-        {
-            // Reference: https://rollupjs.org/guide/en/#outputformat
-            format: 'umd',
-            // UMD builds require a name.
-            name: pkg.name,
-            file: (isProduction ? OUT.LIB_UMD_PROD_FILE : OUT.LIB_UMD_DEV_FILE),
-            ...outputBase,
-        },
         {
             // Reference: https://rollupjs.org/guide/en/#outputformat
             format: 'es',
@@ -69,7 +68,9 @@ module.exports = {
         json(),
         // Tell Rollup how to handle CSS and SCSS imports.
         scss({
-            output: OUT.LIB_CSS,
+            // By default, the plugin uses the same output filename,
+            // where .js is replaced by .css
+            output: true,
         }),
         // Tell Rollup how to handle SVG imports.
         svgr(),
@@ -92,7 +93,7 @@ module.exports = {
         builtins(),
         replace(PLUGIN_REPLACE_OPTS),
         ...(isProduction ? [
-            terser(PLUGIN_TERSER_OPTS),
+            terser(PLUGIN_TERSER_OPTS)
         ] : []),
     ],
     // We do not to inclue React or ReactDOM in the bundle.

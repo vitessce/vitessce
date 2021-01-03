@@ -1,7 +1,5 @@
 const pkg = require('./package.json');
 const { join } = require('path');
-const React = require('react');
-const ReactDOM = require('react-dom');
 
 const resolve = require('@rollup/plugin-node-resolve');
 const json = require('@rollup/plugin-json');
@@ -20,6 +18,7 @@ const livereload = require('rollup-plugin-livereload');
 const { htmlFromTemplate } = require('./rollup.utils');
 import {
     IN, OUT,
+    PLUGIN_RESOLVE_OPTS,
     PLUGIN_COMMONJS_OPTS,
     PLUGIN_BABEL_OPTS,
     PLUGIN_REPLACE_OPTS,
@@ -38,11 +37,7 @@ module.exports = {
     plugins: [
         // Tell Rollup how to resolve packages in node_modules.
         // Reference: https://github.com/rollup/plugins/tree/master/packages/commonjs#using-with-rollupplugin-node-resolve
-        resolve({
-            browser: true,
-            // Disable warnings like (!) Plugin node-resolve: preferring built-in module 'url' over local alternative.
-            preferBuiltins: false,
-        }),
+        resolve(PLUGIN_RESOLVE_OPTS),
         // Tell Rollup how to handle JSON imports.
         json(),
         // Tell Rollup how to handle CSS and SCSS imports.
