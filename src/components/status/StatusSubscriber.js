@@ -38,7 +38,7 @@ export default function StatusSubscriber(props) {
 
   return (
     <TitleInfo
-      title="Status"
+      title="Status 2"
       theme={theme}
       removeGridComponent={removeGridComponent}
       isScroll

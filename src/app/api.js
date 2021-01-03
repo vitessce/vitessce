@@ -148,7 +148,7 @@ export const configs = {
     ],
   },
   'linnarsson-2018': {
-    name: 'Linnarsson',
+    name: 'Linnarsson 5',
     version: '1.0.0',
     description: linnarssonDescription,
     public: true,

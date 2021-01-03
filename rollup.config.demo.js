@@ -1,7 +1,7 @@
 const pkg = require('./package.json');
 const { join } = require('path');
 
-const resolve = require('@rollup/plugin-node-resolve');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const json = require('@rollup/plugin-json');
 const scss = require('rollup-plugin-scss');
 const svgr = require('@svgr/rollup').default;
@@ -13,8 +13,6 @@ const workers = require('rollup-plugin-web-worker-loader');
 const empty = require('rollup-plugin-node-empty');
 const builtins = require('rollup-plugin-node-builtins');
 // Development server plugins.
-const serve = require('rollup-plugin-serve');
-const livereload = require('rollup-plugin-livereload');
 const { htmlFromTemplate } = require('./rollup.utils');
 import {
     IN, OUT,
@@ -23,26 +21,27 @@ import {
     PLUGIN_BABEL_OPTS,
     PLUGIN_REPLACE_OPTS,
     PLUGIN_WORKERS_OPTS,
-} from './rollup.constants';
+} from './rollup.constants.js';
 
 module.exports = {
     input: IN.DEMO,
     output: {
-        format: 'umd',
+        format: 'iife',
         // We want sourcemap files to be created for debugging purposes.
         // https://rollupjs.org/guide/en/#outputsourcemap
-        sourcemap: true,
+        sourcemap: 'inline',
         dir: OUT.DEMO_DIR,
     },
     plugins: [
         // Tell Rollup how to resolve packages in node_modules.
         // Reference: https://github.com/rollup/plugins/tree/master/packages/commonjs#using-with-rollupplugin-node-resolve
-        resolve(PLUGIN_RESOLVE_OPTS),
+        nodeResolve(PLUGIN_RESOLVE_OPTS),
         // Tell Rollup how to handle JSON imports.
         json(),
         // Tell Rollup how to handle CSS and SCSS imports.
         scss({
-            output: OUT.DEMO_CSS,
+            output: false,
+            watch: 'src/css/index.scss',
         }),
         // Tell Rollup how to handle SVG imports.
         svgr(),
@@ -73,15 +72,11 @@ module.exports = {
             // Reference: https://github.com/rollup/plugins/tree/master/packages/html#template
             template: htmlFromTemplate,
         }),
-        // Serve the demo on port 3000 for development.
-        serve({
-            port: 3000,
-            contentBase: OUT.DEMO_DIR,
-        }),
-        // Reload the development server when demo outputs change.
-        livereload(OUT.DEMO_DIR)
     ],
     // We do not want to declare any externals.
     // The demo needs React and ReactDOM even though these are externals for the library output.
-    external: []
+    external: [],
+    watch: {
+        exclude: ['dist-demo', 'node_modules', '.git']
+    }
 };

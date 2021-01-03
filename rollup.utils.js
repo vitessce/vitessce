@@ -2,6 +2,7 @@ const html = require('@rollup/plugin-html');
 const { makeHtmlAttributes }  = html;
 
 function htmlFromTemplate({ attributes, files, publicPath }) {
+  console.log(files.css);
   const scripts = (files.js || [])
     .map(({ fileName }) => {
       const attrs = makeHtmlAttributes(attributes.script);

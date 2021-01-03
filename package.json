@@ -84,16 +84,16 @@
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/plugin-transform-runtime": "^7.12.10",
-    "@rollup/plugin-alias": "^3.1.0",
-    "@rollup/plugin-babel": "^5.0.0",
-    "@rollup/plugin-commonjs": "^11.1.0",
+    "@rollup/plugin-alias": "^3.1.1",
+    "@rollup/plugin-babel": "^5.2.2",
+    "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-eslint": "^8.0.1",
-    "@rollup/plugin-html": "^0.1.1",
-    "@rollup/plugin-json": "^4.0.1",
-    "@rollup/plugin-node-resolve": "^7.0.0",
-    "@rollup/plugin-replace": "^2.3.2",
+    "@rollup/plugin-html": "^0.2.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^11.0.1",
+    "@rollup/plugin-replace": "^2.3.4",
     "@rollup/plugin-sucrase": "^3.1.0",
-    "@svgr/rollup": "^5.4.0",
+    "@svgr/rollup": "^5.5.0",
     "@testing-library/dom": "^7.29.0",
     "@testing-library/jest-dom": "^5.11.8",
     "@testing-library/react": "^11.2.2",
@@ -121,6 +121,7 @@
     "glsl-colormap": "^1.0.1",
     "identity-obj-proxy": "3.0.0",
     "js-yaml": "^3.13.1",
+    "nollup": "^0.14.4",
     "object.fromentries": "^2.0.2",
     "patch-package": "^6.2.2",
     "postcss-flexbugs-fixes": "4.1.0",
@@ -132,14 +133,18 @@
     "react-app-polyfill": "^1.0.6",
     "react-dev-utils": "^10.2.0",
     "react-dom": "^16.8.6",
+    "react-hot-loader": "^4.13.0",
+    "react-refresh": "^0.9.0",
     "resolve": "^1.15.0",
-    "rollup": "^1.29.1",
-    "rollup-plugin-livereload": "^1.0.4",
+    "rollup": "^2.35.1",
+    "rollup-plugin-hot-css": "^0.4.0",
+    "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-empty": "^2.1.1",
-    "rollup-plugin-scss": "^2.1.0",
-    "rollup-plugin-serve": "^1.0.1",
-    "rollup-plugin-terser": "^5.2.0",
+    "rollup-plugin-react-refresh": "0.0.2",
+    "rollup-plugin-scss": "^2.6.1",
+    "rollup-plugin-serve": "^1.1.0",
+    "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-web-worker-loader": "^1.5.0",
     "semver": "6.3.0",
     "wait-on": "^3.2.0"
@@ -150,7 +155,7 @@
   "scripts": {
     "clean": "rm -r dist-demo dist",
     "prepublishOnly": "npm run build-lib:prod",
-    "start": "rollup -c rollup.config.demo.js --environment NODE_ENV:development --watch",
+    "start": "nollup -c rollup.config.demo.js --hot --port 3000 --content-base demo-dist --environment NODE_ENV:development",
     "build-demo:dev": "rollup -c rollup.config.demo.js --environment NODE_ENV:development",
     "build-demo:prod": "rollup -c rollup.config.demo.js --environment NODE_ENV:production",
     "build-lib:dev": "rollup -c rollup.config.lib.js --environment NODE_ENV:development",
@@ -184,7 +189,8 @@
       "react-app"
     ],
     "plugins": [
-      "glsl"
+      "glsl",
+      "react-hot-loader/babel"
     ]
   }
 }

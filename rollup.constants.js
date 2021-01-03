@@ -54,19 +54,6 @@ export const PLUGIN_COMMONJS_OPTS = {
         'node_modules/is-observable/node_modules/symbol-observable/es/index.js',
         'src/components/heatmap/heatmap.worker.js'
     ],
-    namedExports: {
-        // Need to explicitly tell Rollup how to handle imports like `React, { useState }`
-        // Reference: https://github.com/rollup/rollup-plugin-commonjs/issues/407#issuecomment-527837831
-        // Reference: https://github.com/facebook/react/issues/11503
-        'node_modules/react/index.js': Object.keys(React),
-        'node_modules/react-dom/index.js': Object.keys(ReactDOM),
-        'node_modules/probe.gl/env.js': ['global', 'isBrowser', 'getBrowser'],
-        'node_modules/react-is/index.js': ['isFragment', 'ForwardRef', 'Memo'],
-        'node_modules/@hms-dbmi/viv/dist/bundle.es.js': ['VivViewerLayer', 'StaticImageLayer', 'createZarrLoader', 'createOMETiffLoader'],
-        'node_modules/json2csv/dist/json2csv.umd.js': ['parse'],
-        'node_modules/turf-jsts/jsts.min.js': ['GeoJSONReader', 'GeoJSONWriter', 'BufferOp'],
-        'node_modules/lz-string/libs/lz-string.js': ['compressToEncodedURIComponent', 'decompressFromEncodedURIComponent'],
-    }
 };
 
 export const PLUGIN_BABEL_OPTS = {
@@ -91,6 +78,7 @@ export const PLUGIN_REPLACE_OPTS = {
 export const PLUGIN_WORKERS_OPTS = {
     targetPlatform: 'browser',
     inline: true,
+    skipPlugins: ['react-refresh-runtime']
 };
 
 export const PLUGIN_TERSER_OPTS = {
