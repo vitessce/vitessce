@@ -13,6 +13,7 @@ const replace = require('@rollup/plugin-replace');
 const html = require('@rollup/plugin-html');
 const workerLoader = require('rollup-plugin-web-worker-loader');
 const empty = require('rollup-plugin-node-empty');
+const builtins = require('rollup-plugin-node-builtins');
 // Development server plugins.
 const serve = require('rollup-plugin-serve');
 const livereload = require('rollup-plugin-livereload');
@@ -102,6 +103,8 @@ module.exports = {
             // Reference: https://github.com/rollup/plugins/tree/master/packages/babel#extensions
             exclude: 'node_modules/**'
         }),
+        // Need to polyfill the node "events" package for NebulaGL.
+        builtins(),
         replace({
             // React uses process.env to determine whether a development or production environment.
             // Reference: https://github.com/rollup/rollup/issues/487#issuecomment-177596512
