@@ -53,9 +53,10 @@ export default function RasterLayerController(props) {
   const [domainType, setDomainType] = useState(layer.domainType);
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
     GLOBAL_SLIDER_DIMENSION_FIELDS
-      .filter(field => firstSelection[field])
+      .filter(field => typeof firstSelection[field] === 'number')
       .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
   );
+  console.log(globalDimensionValues, firstSelection); // eslint-disable-line
 
   function setColormap(v) {
     handleLayerChange({ ...layer, colormap: v });
