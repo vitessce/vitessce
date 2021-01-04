@@ -4,6 +4,15 @@ import { openArray } from 'zarr';
 import AbstractZarrLoader from './AbstractZarrLoader';
 import { AbstractLoaderError } from './errors';
 
+function hexToRgb(hex) {
+  const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
+  return [
+    parseInt(result[1].toLowerCase(), 16),
+    parseInt(result[2].toLowerCase(), 16),
+    parseInt(result[3].toLowerCase(), 16),
+  ];
+}
+
 async function openMultiResolutionData(store, rootAttrs) {
   let resolutions = ['0'];
   if ('multiscales' in rootAttrs) {
@@ -41,7 +50,7 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
 
     // TODO: figure out how to use these
     // eslint-disable-next-line no-unused-vars
-    const t = rdefs.defaultT ?? 0;
+    const time = rdefs.defaultT ?? 0;
     // eslint-disable-next-line no-unused-vars
     const z = rdefs.defaultZ ?? 0;
 
@@ -93,6 +102,11 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
     const imagesWithLoaderCreators = [
       {
         ...image,
+        channels: channels.map(channel => ({
+          selection: { z, time, channel: channel.label },
+          slider: [channel.window.start, channel.window.end],
+          color: hexToRgb(channel.color),
+        })),
         loaderCreator: async () => {
           const loader = createLoader(multiresData, image.metadata.dimensions);
           return loader;
