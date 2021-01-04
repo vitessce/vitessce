@@ -35,6 +35,11 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
     return shaders;
   }
 
+  updateState(args) {
+    super.updateState(args);
+    this.loadTexture(this.props.image);
+  }
+
   /**
    * Need to override to provide custom shaders.
    */
