@@ -216,7 +216,16 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     const loader = nextImageLoaders[layerIndex];
     const autoImageLayerDefPromise = initializeLayerChannels(loader)
       .then(channels => Promise.resolve({
-        type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels: channels.map((channel, j) => ({ ...channel, ...nextImageMetaAndLayers[layerIndex].channels[j] })), modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
+        type: 'raster',
+        index: layerIndex,
+        ...DEFAULT_RASTER_LAYER_PROPS,
+        channels: channels.map((channel, j) => ({
+          ...channel,
+          ...(nextImageMetaAndLayers[layerIndex].channels
+            ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
+        })),
+        modelMatrix:
+        nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
       }));
     autoImageLayerDefPromises.push(autoImageLayerDefPromise);
   } else {
@@ -229,7 +238,16 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels: channels.map((channel, j) => ({ ...channel, ...nextImageMetaAndLayers[layerIndex].channels[j] })), domainType: 'Min/Max', modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
+          type: 'raster',
+          index: layerIndex,
+          ...DEFAULT_RASTER_LAYER_PROPS,
+          channels: channels.map((channel, j) => ({
+            ...channel,
+            ...(nextImageMetaAndLayers[layerIndex].channels
+              ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
+          })),
+          domainType: 'Min/Max',
+          modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }
