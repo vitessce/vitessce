@@ -1,0 +1,31 @@
+# Adapted from https://github.com/vega/vega/blob/4b945e22905c610ccc2bdd28471a6f1f80aa1636/.github/workflows/test.yml
+name: Test
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+    
+    strategy:
+      matrix:
+        node: [10, 12, 14]
+    
+    name: Node ${{ matrix.node }}
+    
+    # We want to run on external PRs, but not on our own internal PRs as they'll be run
+    # by the push to the branch.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install NPM dependencies
+        run: npm ci
+      - name: Run tests
+        run: ./test.sh
+        env:
+          NODE_OPTIONS: '--max_old_space_size=4096'
+        

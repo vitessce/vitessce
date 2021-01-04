@@ -10,6 +10,7 @@ import { muiTheme } from '../components/shared-mui/styles';
 import configSchema from '../schemas/config.schema.json';
 import legacyConfigSchema from '../schemas/config-legacy.schema.json';
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
+import rasterSchema from '../schemas/raster.schema.json';
 
 import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
@@ -93,7 +94,8 @@ export default function Vitessce(props) {
     console.info(`data:,${JSON.stringify(upgradedConfig)}`);
     console.info(JSON.stringify(upgradedConfig, null, 2));
     console.groupEnd();
-    const validate = new Ajv().addSchema(cellSetsSchema).compile(configSchema);
+    const validate = new Ajv()
+      .addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema);
     const valid = validate(upgradedConfig);
 
     if (!valid) {

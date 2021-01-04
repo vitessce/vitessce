@@ -1,0 +1,28 @@
+# Adapted from https://github.com/actions/starter-workflows/blob/e9e00b017736d3b3811cedf1ee2e8ceb3c48e3dd/ci/npm-publish.yml
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-18.04
+    env:
+      NODE_OPTIONS: '--max_old_space_size=4096'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: Install NPM dependencies
+        run: npm ci
+      - name: Run tests
+        run: ./test.sh
+      - name: Deploy to NPM
+        continue-on-error: true
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

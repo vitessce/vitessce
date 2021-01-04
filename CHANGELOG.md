@@ -4,6 +4,19 @@
 
 ### Changed
 
+## [1.1.2](https://www.npmjs.com/package/vitessce/v/1.1.2) - 2020-12-31
+
+### Added
+- Allow for non-remote raster schemas.
+
+### Changed
+- Upgrade Viv to 0.8.0 and deck.gl to 8.4.0-alpha.2
+- Added GitHub Actions workflow to replace the Travis CI workflow.
+- Fix `test.sh` branch variable again.
+- Fix deploy step again.
+- Changed to using camelCase in the cell-sets-tabular schema.
+- Fixed CSV and JSON file import / export bugs in the cell set manager component.
+
 ## [1.1.1](https://www.npmjs.com/package/vitessce/v/1.1.1) - 2020-12-27
 
 ### Added
