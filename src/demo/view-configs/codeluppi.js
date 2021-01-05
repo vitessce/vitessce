@@ -29,6 +29,26 @@ const linnarssonBase = {
   ],
 };
 
+const linnarssonBaseNoMolecules = {
+  name: linnarssonName,
+  description: linnarssonDescription,
+  version: '1.0.0',
+  initStrategy: 'auto',
+  datasets: [
+    {
+      uid: 'codeluppi',
+      name: 'Codeluppi',
+      files: [
+        ...linnarssonDataTypes.filter(dt => dt !== 'molecules').map(makeDatasetNameToJsonFiles('linnarsson')),
+        {
+          ...makeDatasetNameToJsonFiles('linnarsson')('clusters'),
+          type: 'expression-matrix',
+        },
+      ],
+    },
+  ],
+};
+
 export const justScatter = {
   version: '1.0.0',
   name: 'Codeluppi, just scatterplot',
@@ -271,7 +291,7 @@ export const codeluppi2018 = {
 };
 
 export const linnarssonWithRorb = {
-  ...linnarssonBase,
+  ...linnarssonBaseNoMolecules,
   coordinationSpace: {
     embeddingZoom: {
       PCA: 0,

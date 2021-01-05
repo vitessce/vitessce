@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState, useReducer } from 'react';
 import { useQueryParam, StringParam, BooleanParam, QueryParamProvider } from 'use-query-params';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Layout from '@theme/Layout';
 import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
@@ -251,48 +252,65 @@ function App() {
       ) : (!validConfig ? (
         <main className={styles.viewConfigEditorMain}>
           {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error)}</pre>}
-          <div {...getRootProps()} className={styles.dropzone}>
-            <input {...getInputProps()} className={styles.dropzoneInfo} />
-            {isDragActive ?
-              <p>Drop the file here ...</p> :
-              (pendingFileContents ? (
-                <p>Successfully read the file.</p>
-              ) : (
-              <p>Drag &amp; drop a view config as a JSON file</p>
-              )
-            )}
+          <p className={styles.viewConfigEditorInfo}>
+            To use Vitessce, enter a&nbsp;
+            <a href={useBaseUrl('/docs/view-config-json/index.html')}>view config</a>
+            &nbsp;using the editor below.
+          </p>
+          <div className={styles.viewConfigEditorType}>
+            <label>
+              <select className={styles.viewConfigEditorTypeSelect}>
+                <option>JSON</option>
+                <option>JS</option>
+              </select>
+            </label>
           </div>
-          <button className={styles.viewConfigGo} onClick={handleFileGo}>Load from File</button>
-          <div className={styles.dropzoneOr}>OR</div>
-          <div>
-            <input
-              type="text"
-              className={styles.viewConfigUrlInput}
-              placeholder="Specify the URL to a view config JSON file"
-              value={pendingUrl}
-              onChange={handleUrlChange}
-            />
-            <button className={styles.viewConfigGo} onClick={handleUrlGo}>Load from URL</button>
-          </div>
-          <div className={styles.dropzoneOr}>OR</div>
-          <div className={styles.viewConfigEditor}>
-            <p className={styles.viewConfigEditorInfo}>Use the JSON view config editor below</p>
-            <ThemedControlledEditor
-              value={pendingConfig}
-              onChange={(event, value) => setPendingConfig(value)}
-              height="50vh"
-              language="json"
-              options={{
-                fontSize: 14,
-                minimap: {
-                  enabled: false,
-                },
-                contextmenu: false,
-              }}
-            />
-          </div>
-          <div className={styles.viewConfigEditorFooter}>
-            <button className={styles.viewConfigGo} onClick={handleEditorGo}>Load from editor</button>
+          <div className={styles.viewConfigEditorInputsSplit}>
+            <div className={styles.viewConfigEditor}>
+              <ThemedControlledEditor
+                value={pendingConfig}
+                onChange={(event, value) => setPendingConfig(value)}
+                height="60vh"
+                language="json"
+                options={{
+                  fontSize: 14,
+                  minimap: {
+                    enabled: false,
+                  },
+                  contextmenu: false,
+                }}
+              />
+            </div>
+            <div className={styles.viewConfigInputs}>
+              <div className={styles.viewConfigInputUrlOrFile}>
+                <p className={styles.viewConfigInputUrlOrFileText}>
+                  Alternatively, provide a URL or drag &amp; drop a view config file.
+                </p>
+                <div className={styles.viewConfigInputUrlOrFileSplit}>
+                  <input
+                    type="text"
+                    className={styles.viewConfigUrlInput}
+                    placeholder="Enter a URL"
+                    value={pendingUrl}
+                    onChange={handleUrlChange}
+                  />
+                  <div {...getRootProps()} className={styles.dropzone}>
+                    <input {...getInputProps()} className={styles.dropzoneInfo} />
+                    {isDragActive ?
+                      <span>Drop the file here ...</span> :
+                      (pendingFileContents ? (
+                        <span>Successfully read the file.</span>
+                      ) : (
+                      <span>Drop a file</span>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className={styles.viewConfigInputButton}>
+                <button className={styles.viewConfigGo} onClick={handleEditorGo}>Load</button>
+              </div>
+            </div>
           </div>
         </main>
       ) : (

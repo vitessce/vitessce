@@ -54,18 +54,18 @@
 }
 
 .dropzone {
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0 0.5rem 20px;
   position: relative;
   display: block;
-  margin-top: 20px;
   margin-left: 20px;
-  margin-right: 20px;
   box-sizing: border-box;
-  border-radius: 20px;
-  border: 2px dashed gray;
+  border-radius: 0px;
+  border: 2px dashed var(--dropzone);
+  color: var(--dropzone);
   cursor: pointer;
   text-align: center;
-  padding-top: 15px;
-  margin-bottom: 0.25rem;
+  box-shadow: -3px 3px 5px 5px rgba(0,0,0,.06);
 }
 
 .dropzoneInfo {
@@ -74,50 +74,42 @@
   margin-top: 25vh;
   margin-left: 25%;
 }
-.dropzoneOr {
-  display: block;
-  text-align: center;
-  font-size: 24px;
-  margin-top: 0.75rem;
-}
+
 .viewConfigEditor {
   margin-left: 20px;
   margin-right: 20px;
   margin-bottom: 0.5rem;
 }
 .viewConfigEditorInfo {
-  text-align: center;
+  margin-left: 20px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  display: inline-block;
 }
 .viewConfigEditorFooter {
   position: relative;
   display: block;
 }
 
-.viewConfigUrlInput {
-  width: calc(100% - 2rem);
-  display: block;
-  padding: 1rem;
-  font-size: 16px;
-  margin: 1rem 0 0.5rem 1rem;
-  border: 0;
-  box-shadow: -3px 3px 5px 5px rgba(0,0,0,.06);
-  outline: none;
-  color: var(--vit-input-foreground);
-  background-color: var(--vit-input-background);
-  box-sizing: border-box;
-  text-align: center;
+.viewConfigEditorType {
+  position: absolute;
+  right: 0;
+  z-index: 5;
+  top: 12px;
 }
 
-.viewConfigUrlInput::placeholder {
-  color: var(--ifm-font-color-base);
+.viewConfigEditorTypeSelect {
+  margin-right: 20px;
+  margin-bottom: 4px;
+}
+
+.viewConfigInputButton {
+  padding: 1.8rem 20px 0.4rem 2rem;
 }
 
 .viewConfigGo {
-  position: absolute;
-  right: 20px;
   border: 2px solid var(--ifm-color-primary);
   background-color: var(--ifm-color-primary);
-  line-height: 1.2em;
   text-decoration: none !important;
   text-transform: uppercase;
   border-radius: 8px;
@@ -125,9 +117,44 @@
   font-size: 16px;
   font-weight: 700;
   padding: 5px 10px;
-  margin-top: 5px;
   cursor: pointer;
+  width: 100%;
+  height: 100%;
 }
+
+.viewConfigInputUrlOrFileSplit {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+}
+
+.viewConfigInputs {
+  height: 5vh;
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+}
+
+.viewConfigInputUrlOrFileText {
+  margin-bottom: 0;
+  margin-left: 20px;
+}
+
+.viewConfigInputButton {
+
+}
+
+.viewConfigUrlInput {
+  padding: 0.5rem 1rem;
+  font-size: 16px;
+  margin: 0.5rem 0 0.5rem 20px;
+  border: 0;
+  box-shadow: -3px 3px 5px 5px rgba(0,0,0,.06);
+  outline: none;
+  color: var(--vit-input-foreground);
+  background-color: var(--vit-input-background);
+  box-sizing: border-box;
+}
+
+
 
 .vitessceClear {
   text-align: center;
@@ -154,6 +181,10 @@
 .vitessceAppLoadError {
   background-color: lightcoral;
   margin: 20px;
+}
+
+.viewConfigUrlDiv {
+  width: 50%;
 }
 
 .demoGridContainer {
