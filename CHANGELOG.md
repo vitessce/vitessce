@@ -1,9 +1,11 @@
 ## In Progress
 
 ### Added
+- Added a windows OS build to the Github Actions test matrix.
 
 ### Changed
 - Added a check for undefined in the `nodeToSet` function in `cell-set-utils.js`.
+- Upgrade Viv to 0.8.1 and deck.gl to 8.4.0-alpha.4
 
 ## [1.1.2](https://www.npmjs.com/package/vitessce/v/1.1.2) - 2020-12-31
 
@@ -16,6 +18,8 @@
 - Fix `test.sh` branch variable.
 - Fix `test.sh` branch variable again.
 - Fix deploy step again.
+- Changed to using camelCase in the cell-sets-tabular schema.
+- Fixed CSV and JSON file import / export bugs in the cell set manager component.
 
 ## [1.1.1](https://www.npmjs.com/package/vitessce/v/1.1.1) - 2020-12-27
 
