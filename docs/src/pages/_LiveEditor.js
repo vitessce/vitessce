@@ -120,6 +120,10 @@ export default function LiveViewConfigEditor() {
                     DataType: require('../../../dist/umd/production/index.min.js').DataType,
                     FileType: require('../../../dist/umd/production/index.min.js').FileType,
                     CoordinationType: require('../../../dist/umd/production/index.min.js').CoordinationType,
+                    cm: require('../../../dist/umd/production/index.min.js').Component,
+                    dt: require('../../../dist/umd/production/index.min.js').DataType,
+                    ft: require('../../../dist/umd/production/index.min.js').FileType,
+                    ct: require('../../../dist/umd/production/index.min.js').CoordinationType,
                     Highlight: JsonHighlight,
                 };
                 return (
