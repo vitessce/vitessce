@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Added a windows OS build to the Github Actions test matrix.
 
 ### Changed
 
