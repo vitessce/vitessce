@@ -4,6 +4,7 @@
 - Added a windows OS build to the Github Actions test matrix.
 
 ### Changed
+- Upgrade Viv to 0.8.1 and deck.gl to 8.4.0-alpha.4
 
 ## [1.1.2](https://www.npmjs.com/package/vitessce/v/1.1.2) - 2020-12-31
 
