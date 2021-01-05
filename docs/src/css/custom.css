@@ -24,7 +24,7 @@
   --vit-input-foreground: #0451a5;
   --vit-input-background: #ffffff;
 
-  --hero-banner-background: #757575;
+  --hero-banner-background: #4bAB83;
 
   font-family: 'Inter', sans-serif;
 
@@ -35,7 +35,6 @@
   --ifm-footer-background-color: rgb(73, 73, 73);
   --vit-input-background: #202124;
   --vit-input-foreground: #9cdcfe;
-  --hero-banner-background: #a0a0a0;
 }
 
 .docusaurus-highlight-code-line {

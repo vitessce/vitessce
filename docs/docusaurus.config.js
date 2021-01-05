@@ -13,7 +13,8 @@ module.exports = {
   themeConfig: {
     colorMode: {
       defaultMode: 'light',
-      respectPrefersColorScheme: false,
+      respectPrefersColorScheme: true,
+      disableSwitch: false,
     },
     prism: {
       theme: require('prism-react-renderer/themes/github'),
@@ -40,17 +41,17 @@ module.exports = {
         {
           to: 'docs/index.html',
           activeBasePath: 'docs',
-          label: 'Core Docs',
+          label: 'Documentation',
           position: 'left',
         },
         {
           href: 'https://vitessce.github.io/vitessce-python/',
-          label: 'Python Docs',
+          label: 'Python Package',
           position: 'left',
         },
         {
           href: 'https://vitessce.github.io/vitessce-r/',
-          label: 'R Docs',
+          label: 'R Package',
           position: 'left',
         },
         /* // TODO: uncomment when the blog contains something interesting
@@ -110,7 +111,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Gehlenborg Lab`,
+      copyright: `Copyright © ${new Date().getFullYear()} <a href="http://gehlenborglab.org/">Gehlenborg Lab</a>.<br/> Vitessce is open source and MIT licensed. Vitessce documentation is Creative Commons licensed (CC BY 4.0).`,
     },
   },
   presets: [

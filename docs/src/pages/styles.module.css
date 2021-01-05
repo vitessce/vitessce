@@ -6,17 +6,21 @@
  */
 
 .heroBanner {
-  padding: 4rem 0;
-  text-align: center;
+  padding: 0.75rem 1rem 0rem 1rem;
+  text-align: left;
   position: relative;
   overflow: hidden;
 
   background-color: var(--hero-banner-background);
 }
 
+.heroContainer {
+  margin: 1rem !important;
+}
+
 @media screen and (max-width: 966px) {
   .heroBanner {
-    padding: 2rem;
+    padding: 0.5rem 0.5rem 0rem 0.5rem;
   }
 }
 
