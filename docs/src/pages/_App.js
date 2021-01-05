@@ -7,6 +7,8 @@ import { ControlledEditor } from '@monaco-editor/react';
 import { Vitessce } from '../../../dist/umd/production/index.min.js';
 import styles from './styles.module.css';
 
+import { configs } from '../../../src/demo/configs';
+
 const baseConfig = `{
   "version": "1.0.0",
   "name": "My config",
@@ -109,6 +111,7 @@ function ThemedVitessce(props) {
 }
 
 function App() {
+  const [demo, setDemo] = useQueryParam('dataset', StringParam);
   const [debug, setDebug] = useQueryParam('debug', BooleanParam);
   const [url, setUrl] = useQueryParam('url', StringParam);
   const [edit, setEdit] = useQueryParam('edit', BooleanParam);
@@ -192,6 +195,15 @@ function App() {
           setPendingConfig('{}');
           setValidConfig(null);
         }
+      } else if(demo && configs[demo]) {
+        setPendingConfig(JSON.stringify(configs[demo], null, 2));
+        if(edit) {
+          setValidConfig(null); 
+        } else {
+          setValidConfig(configs[demo]); 
+        }
+        setError(null);
+        setLoading(false);
       } else {
         setPendingConfig(baseConfig);
         setValidConfig(null);
@@ -200,7 +212,7 @@ function App() {
       }
     }
     processParams();
-  }, [url, edit]);
+  }, [url, edit, demo]);
 
   function handleEditorGo() {
     setEdit(false, 'pushIn');

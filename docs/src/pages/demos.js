@@ -8,8 +8,8 @@ import styles from './styles.module.css';
 
 const demos = Object.entries(configs).filter(([k, v]) => v.public);
 
-function getDemoUrl(config) {
-  return useBaseUrl('app/index.html?url=data:,' + encodeURIComponent(JSON.stringify(config)));
+function getDemoUrl(demoKey) {
+  return useBaseUrl(`app/index.html?dataset=${demoKey}`);
 }
 
 function Demos() {
@@ -24,7 +24,7 @@ function Demos() {
       <div className={styles.demoGridContainer}>
         {demos.map(([key, d]) => (
           <div key={key} className={styles.demoGridItem}>
-            <a href={getDemoUrl(d)}  className={styles.demoGridItemLink}>{d.name}</a>
+            <a href={getDemoUrl(key)}  className={styles.demoGridItemLink}>{d.name}</a>
             <p className={styles.demoGridItemDescription}>{d.description}</p>
           </div>
         ))}
