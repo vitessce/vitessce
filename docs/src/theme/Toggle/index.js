@@ -40,8 +40,8 @@ function VitessceToggle(props) {
     <Toggle
       disabled={!isClient}
       icons={{
-        checked: <Light />,
-        unchecked: <Dark />,
+        checked: <Dark />,
+        unchecked: <Light />,
       }}
       {...props}
     />

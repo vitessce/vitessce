@@ -5,10 +5,48 @@ import Layout from '@theme/Layout';
 import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
 import { ControlledEditor } from '@monaco-editor/react';
-import { Vitessce } from '../../../dist/umd/production/index.min.js';
+import { LiveProvider, LiveContext, LiveError, LivePreview } from 'react-live';
+import Highlight, { defaultProps } from "prism-react-renderer";
+import usePrismTheme from '@theme/hooks/usePrismTheme';
+import copy from 'copy-text-to-clipboard';
+import {
+  Vitessce,
+  VitessceConfig, hconcat, vconcat,
+  CoordinationType, Component, DataType, FileType,
+} from '../../../dist/umd/production/index.min.js';
 import styles from './styles.module.css';
 
 import { configs } from '../../../src/demo/configs';
+
+const baseJs = `// Instantiate a view config object.
+const vc = new VitessceConfig("My config");
+// Add a dataset and its files.
+const baseUrl = "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries";
+const dataset = vc
+    .addDataset("Dries")
+    .addFile(baseUrl + '/dries.cells.json', dt.CELLS, ft.CELLS_JSON)
+    .addFile(baseUrl + '/dries.cell-sets.json', dt.CELL_SETS, ft.CELL_SETS_JSON);
+// Add components.
+// Use mapping: "UMAP" so that cells are mapped to the UMAP positions from the JSON file.
+const umap = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "UMAP" });
+// Use mapping: "t-SNE" so that cells are mapped to the t-SNE positions from the JSON file.
+const tsne = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "t-SNE" });
+// Add the cell sets controller component.
+const cellSetsManager = vc.addView(dataset, cm.CELL_SETS);
+// Add the cell set sizes bar plot component.
+const cellSetSizesPlot = vc.addView(dataset, cm.CELL_SET_SIZES);
+// Link the zoom levels of the two scatterplots.
+vc.linkViews([umap, tsne], [ct.EMBEDDING_ZOOM], [2.5]);
+// Try un-commenting the line below!
+//vc.linkViews([umap, tsne], [ct.EMBEDDING_TARGET_X, ct.EMBEDDING_TARGET_Y], [0, 0]);
+vc.layout(
+    vconcat(
+        hconcat(tsne, umap),
+        hconcat(cellSetsManager, cellSetSizesPlot)
+    )
+);
+
+return vc.toJSON();`;
 
 const baseConfig = `{
   "version": "1.0.0",
@@ -93,6 +131,21 @@ const baseConfig = `{
   "initStrategy": "auto"
 }`;
 
+function transformCode(code) {
+  return `function vitessceConfigEditor() {
+      
+      function createConfig() {
+          ${code}
+      }
+      
+      const vcJson = createConfig();
+  
+      return (
+          <Highlight json={vcJson} />
+      );
+  }`;
+}
+
 function ThemedControlledEditor(props) {
   const { isDarkTheme } = useThemeContext();
   return <ControlledEditor
@@ -111,6 +164,64 @@ function ThemedVitessce(props) {
     );
 }
 
+
+function JsonHighlight(props) {
+  const {
+      json,
+  } = props;
+  const prismTheme = usePrismTheme();
+  const jsonCode = JSON.stringify(json, null, 2);
+  
+  const [showCopied, setShowCopied] = useState(false);
+  
+  const handleCopyCode = () => {
+      copy(jsonCode);
+      setShowCopied(true);
+  
+      setTimeout(() => setShowCopied(false), 2000);
+    };
+  
+  return (
+      <Highlight {...defaultProps} code={jsonCode} language="json" theme={prismTheme}>
+          {({ className, style, tokens, getLineProps, getTokenProps }) => (
+              <div className={styles.copyButtonContainer}>
+                  <pre className={className} style={style}>
+                      {tokens.map((line, i) => (
+                      <div {...getLineProps({ line, key: i })}>
+                          {line.map((token, key) => (
+                          <span {...getTokenProps({ token, key })} />
+                          ))}
+                      </div>
+                      ))}
+                  </pre>
+                  <button
+                    type="button"
+                    aria-label="Copy code to clipboard"
+                    className={styles.copyButton}
+                    onClick={handleCopyCode}>
+                    {showCopied ? 'Copied' : 'Copy'}
+                  </button>
+              </div>
+          )}
+      </Highlight>
+  )
+}
+
+const scope = {
+  VitessceConfig: VitessceConfig,
+  hconcat: hconcat,
+  vconcat: vconcat,
+  Component: Component,
+  DataType: DataType,
+  FileType: FileType,
+  CoordinationType: CoordinationType,
+  cm: Component,
+  dt: DataType,
+  ft: FileType,
+  ct: CoordinationType,
+  Highlight: JsonHighlight,
+};
+
 function App() {
   const [demo, setDemo] = useQueryParam('dataset', StringParam);
   const [debug, setDebug] = useQueryParam('debug', BooleanParam);
@@ -122,9 +233,14 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [validConfig, setValidConfig] = useState(null);
   
+  const [pendingJs, setPendingJs] = useState(baseJs);
   const [pendingConfig, setPendingConfig] = useState(baseConfig);
   const [pendingUrl, setPendingUrl] = useState('');
   const [pendingFileContents, setPendingFileContents] = useState('');
+
+  const [syntaxType, setSyntaxType] = useState('JS');
+
+  const prismTheme = usePrismTheme();
 
   const onDrop = useCallback(acceptedFiles => {
     if(acceptedFiles.length === 1) {
@@ -242,12 +358,12 @@ function App() {
     setPendingUrl(event.target.value);
   }
 
+  function handleSyntaxChange(event) {
+    setSyntaxType(event.target.value);
+  }
+
   return (
-    <Layout
-      noFooter
-      title="App"
-      description="Use Vitessce with your data.">
-      {loading ? (
+      loading ? (
         <pre>Loading...</pre>
       ) : (!validConfig ? (
         <main className={styles.viewConfigEditorMain}>
@@ -259,27 +375,57 @@ function App() {
           </p>
           <div className={styles.viewConfigEditorType}>
             <label>
-              <select className={styles.viewConfigEditorTypeSelect}>
-                <option>JSON</option>
-                <option>JS</option>
+              <select className={styles.viewConfigEditorTypeSelect} value={syntaxType} onChange={handleSyntaxChange}>
+                <option value="JSON">JSON</option>
+                <option value="JS">JS</option>
               </select>
             </label>
           </div>
           <div className={styles.viewConfigEditorInputsSplit}>
             <div className={styles.viewConfigEditor}>
-              <ThemedControlledEditor
-                value={pendingConfig}
-                onChange={(event, value) => setPendingConfig(value)}
-                height="60vh"
-                language="json"
-                options={{
-                  fontSize: 14,
-                  minimap: {
-                    enabled: false,
-                  },
-                  contextmenu: false,
-                }}
-              />
+              {syntaxType === "JSON" ? (
+                <ThemedControlledEditor
+                  value={pendingConfig}
+                  onChange={(event, value) => setPendingConfig(value)}
+                  height="60vh"
+                  language="json"
+                  options={{
+                    fontSize: 14,
+                    minimap: {
+                      enabled: false,
+                    },
+                    contextmenu: false,
+                  }}
+                />
+              ) : (
+                <div className={styles.viewConfigEditorPreviewJSSplit}>
+                  <LiveProvider code={baseJs} scope={scope} theme={prismTheme} transformCode={transformCode}>
+                    <LiveContext.Consumer>
+                      {({ code, disabled, onChange }) => (
+                        <div className={styles.viewConfigEditorJS}>
+                          <ThemedControlledEditor
+                            value={code}
+                            onChange={onChange}
+                            height="60vh"
+                            language="javascript"
+                            options={{
+                              fontSize: 14,
+                              minimap: {
+                                enabled: false,
+                              },
+                              contextmenu: false,
+                            }}
+                          />
+                        </div>
+                      )}
+                    </LiveContext.Consumer>
+                    <div className={styles.viewConfigPreviewJS}>
+                      <LiveError className={styles.viewConfigErrorJS} />
+                      <LivePreview className={styles.livePreview} />
+                    </div>
+                  </LiveProvider>
+                </div>
+              )}
             </div>
             <div className={styles.viewConfigInputs}>
               <div className={styles.viewConfigInputUrlOrFile}>
@@ -328,8 +474,7 @@ function App() {
             </button>
           </div>
         </main>
-      ))}
-    </Layout>
+      ))
   );
 }
 

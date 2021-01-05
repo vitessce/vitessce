@@ -80,6 +80,19 @@
   margin-right: 20px;
   margin-bottom: 0.5rem;
 }
+.viewConfigEditorJS {
+
+}
+.viewConfigPreviewJS {
+  margin-left: 10px;
+}
+.viewConfigErrorJS {
+  background-color: lightcoral;
+}
+.viewConfigEditorPreviewJSSplit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
 .viewConfigEditorInfo {
   margin-left: 20px;
   margin-bottom: 10px;
@@ -154,6 +167,10 @@
   box-sizing: border-box;
 }
 
+.viewConfigUrlInput::placeholder {
+  color: var(--dropzone);
+  opacity: 1;
+}
 
 
 .vitessceClear {
