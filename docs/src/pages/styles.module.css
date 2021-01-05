@@ -83,8 +83,15 @@
 .viewConfigEditorJS {
 
 }
-.viewConfigPreviewJS {
+.viewConfigPreviewJSCode {
+  overflow: visible;
+  background-color: transparent !important;
+  font: 75%/var(--ifm-pre-line-height) var(--ifm-font-family-monospace);
+}
+.viewConfigPreviewErrorSplit {
   margin-left: 10px;
+  height: 60vh;
+  overflow-y: scroll;
 }
 .viewConfigErrorJS {
   background-color: lightcoral;
@@ -141,7 +148,6 @@
 }
 
 .viewConfigInputs {
-  height: 5vh;
   display: grid;
   grid-template-columns: 4fr 1fr;
 }
@@ -244,9 +250,7 @@
   margin-bottom: 0 !important;
 }
 
-.livePreview {
 
-}
 
 .viewConfigEditorMain {
   padding-bottom: 4rem;

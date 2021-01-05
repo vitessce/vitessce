@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState, useReducer } from 'react';
+import clsx from 'clsx';
 import { useQueryParam, StringParam, BooleanParam, QueryParamProvider } from 'use-query-params';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import Layout from '@theme/Layout';
 import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
-import { ControlledEditor } from '@monaco-editor/react';
+import ControlledEditor from './_ControlledEditor';
 import { LiveProvider, LiveContext, LiveError, LivePreview } from 'react-live';
 import Highlight, { defaultProps } from "prism-react-renderer";
 import usePrismTheme from '@theme/hooks/usePrismTheme';
@@ -164,6 +164,11 @@ function ThemedVitessce(props) {
     );
 }
 
+function LivePreviewHeader() {
+  return (
+      <p className={styles.livePreviewHeader}>Translation to JSON</p>
+  );
+}
 
 function JsonHighlight(props) {
   const {
@@ -185,7 +190,7 @@ function JsonHighlight(props) {
       <Highlight {...defaultProps} code={jsonCode} language="json" theme={prismTheme}>
           {({ className, style, tokens, getLineProps, getTokenProps }) => (
               <div className={styles.copyButtonContainer}>
-                  <pre className={className} style={style}>
+                  <pre className={clsx(className, styles.viewConfigPreviewJSCode)} style={style}>
                       {tokens.map((line, i) => (
                       <div {...getLineProps({ line, key: i })}>
                           {line.map((token, key) => (
@@ -405,7 +410,9 @@ function App() {
                         <div className={styles.viewConfigEditorJS}>
                           <ThemedControlledEditor
                             value={code}
-                            onChange={onChange}
+                            onChange={(event, value) => {
+                              onChange(value);
+                            }}
                             height="60vh"
                             language="javascript"
                             options={{
@@ -419,9 +426,10 @@ function App() {
                         </div>
                       )}
                     </LiveContext.Consumer>
-                    <div className={styles.viewConfigPreviewJS}>
+                    <div className={styles.viewConfigPreviewErrorSplit}>
+                      <LivePreviewHeader/>
                       <LiveError className={styles.viewConfigErrorJS} />
-                      <LivePreview className={styles.livePreview} />
+                      <LivePreview className={styles.viewConfigPreviewJS} />
                     </div>
                   </LiveProvider>
                 </div>
