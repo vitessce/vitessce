@@ -18,8 +18,24 @@ import styles from './styles.module.css';
 
 import { configs } from '../../../src/demo/configs';
 
-const baseJs = `// Instantiate a view config object.
-const vc = new VitessceConfig("My config");
+const JSON_TRANSLATION_KEY = 'vitessceJsonTranslation';
+
+const baseJson = `{
+  "version": "1.0.0",
+  "name": "My config",
+  "description": "",
+  "datasets": [],
+  "coordinationSpace": {},
+  "layout": [],
+  "initStrategy": "auto"
+}`;
+
+const baseJs = `const vc = new VitessceConfig("My config");
+
+return vc.toJSON();`;
+
+const exampleJs = `// Instantiate a view config object.
+const vc = new VitessceConfig("My example config", "This demonstrates the JavaScript API");
 // Add a dataset and its files.
 const baseUrl = "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries";
 const dataset = vc
@@ -37,7 +53,7 @@ const cellSetsManager = vc.addView(dataset, cm.CELL_SETS);
 const cellSetSizesPlot = vc.addView(dataset, cm.CELL_SET_SIZES);
 // Link the zoom levels of the two scatterplots.
 vc.linkViews([umap, tsne], [ct.EMBEDDING_ZOOM], [2.5]);
-// Try un-commenting the line below!
+// Try un-commenting the line below to link center points of the two scatterplots!
 //vc.linkViews([umap, tsne], [ct.EMBEDDING_TARGET_X, ct.EMBEDDING_TARGET_Y], [0, 0]);
 vc.layout(
     vconcat(
@@ -48,10 +64,10 @@ vc.layout(
 
 return vc.toJSON();`;
 
-const baseConfig = `{
+const exampleJson = `{
   "version": "1.0.0",
-  "name": "My config",
-  "description": "",
+  "name": "My example config",
+  "description": "This demonstrates the JSON schema",
   "datasets": [
     {
       "uid": "D1",
@@ -184,7 +200,13 @@ function JsonHighlight(props) {
       setShowCopied(true);
   
       setTimeout(() => setShowCopied(false), 2000);
-    };
+  };
+
+  useEffect(() => {
+    // Put the current translation on the window for easy retrieval.
+    // There is probably a better way to do this.
+    window[JSON_TRANSLATION_KEY] = jsonCode;
+  });
   
   return (
       <Highlight {...defaultProps} code={jsonCode} language="json" theme={prismTheme}>
@@ -238,12 +260,14 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [validConfig, setValidConfig] = useState(null);
   
-  const [pendingJs, setPendingJs] = useState(baseJs);
-  const [pendingConfig, setPendingConfig] = useState(baseConfig);
+  const [pendingConfig, setPendingConfig] = useState(baseJson);
   const [pendingUrl, setPendingUrl] = useState('');
   const [pendingFileContents, setPendingFileContents] = useState('');
 
-  const [syntaxType, setSyntaxType] = useState('JS');
+  const [pendingJs, setPendingJs] = useState(baseJs);
+
+  const [syntaxType, setSyntaxType] = useState('JSON');
+  const [loadFrom, setLoadFrom] = useState('editor');
 
   const prismTheme = usePrismTheme();
 
@@ -253,6 +277,7 @@ function App() {
       reader.addEventListener('load', () => {
         const { result } = reader;
         setPendingFileContents(result);
+        setLoadFrom('file');
       });
       reader.readAsText(acceptedFiles[0]);
     }
@@ -327,7 +352,7 @@ function App() {
         setError(null);
         setLoading(false);
       } else {
-        setPendingConfig(baseConfig);
+        setPendingConfig(baseJson);
         setValidConfig(null);
         setError(null);
         setLoading(false);
@@ -338,19 +363,18 @@ function App() {
 
   function handleEditorGo() {
     setEdit(false, 'pushIn');
-    setUrl('data:,' + encodeURIComponent(pendingConfig), 'replace');
-    increment();
-  }
-
-  function handleUrlGo() {
-    setEdit(false, 'pushIn');
-    setUrl(pendingUrl, 'replace');
-    increment();
-  }
-
-  function handleFileGo() {
-    setEdit(false, 'pushIn');
-    setUrl('data:,' + encodeURIComponent(pendingFileContents), 'replace');
+    if(loadFrom === 'editor') {
+      let nextConfig = pendingConfig;
+      if(syntaxType === "JS") {
+        nextConfig = window[JSON_TRANSLATION_KEY];
+        setSyntaxType("JSON");
+      }
+      setUrl('data:,' + encodeURIComponent(nextConfig), 'replace');
+    } else if(loadFrom === 'url') {
+      setUrl(pendingUrl, 'replace');
+    } else if(loadFrom === 'file') {
+      setUrl('data:,' + encodeURIComponent(pendingFileContents), 'replace');
+    }
     increment();
   }
 
@@ -361,11 +385,31 @@ function App() {
 
   function handleUrlChange(event) {
     setPendingUrl(event.target.value);
+    setLoadFrom('url');
   }
 
   function handleSyntaxChange(event) {
     setSyntaxType(event.target.value);
   }
+
+  function tryExample() {
+    if(syntaxType === "JSON") {
+      setPendingConfig(exampleJson);
+    } else {
+      setPendingJs(exampleJs);
+    }
+    setLoadFrom('editor');
+  }
+
+  function resetEditor() {
+    if(syntaxType === "JSON") {
+      setPendingConfig(baseJson);
+    } else {
+      setPendingJs(baseJs);
+    }
+  }
+
+  const showReset = syntaxType === "JSON" && pendingConfig !== baseJson || syntaxType === "JS" && pendingJs !== baseJs;
 
   return (
       loading ? (
@@ -377,6 +421,8 @@ function App() {
             To use Vitessce, enter a&nbsp;
             <a href={useBaseUrl('/docs/view-config-json/index.html')}>view config</a>
             &nbsp;using the editor below.
+            &nbsp;<button onClick={tryExample}>Try an example</button>&nbsp;
+            {showReset && <button onClick={resetEditor}>Reset the editor</button>}
           </p>
           <div className={styles.viewConfigEditorType}>
             <label>
@@ -389,29 +435,35 @@ function App() {
           <div className={styles.viewConfigEditorInputsSplit}>
             <div className={styles.viewConfigEditor}>
               {syntaxType === "JSON" ? (
-                <ThemedControlledEditor
-                  value={pendingConfig}
-                  onChange={(event, value) => setPendingConfig(value)}
-                  height="60vh"
-                  language="json"
-                  options={{
-                    fontSize: 14,
-                    minimap: {
-                      enabled: false,
-                    },
-                    contextmenu: false,
-                  }}
-                />
+                <>
+                  <ThemedControlledEditor
+                    value={pendingConfig}
+                    onChange={(event, value) => {
+                      setPendingConfig(value);
+                      setLoadFrom('editor');
+                    }}
+                    height="60vh"
+                    language="json"
+                    options={{
+                      fontSize: 14,
+                      minimap: {
+                        enabled: false,
+                      },
+                      contextmenu: false,
+                    }}
+                  />
+                </>
               ) : (
                 <div className={styles.viewConfigEditorPreviewJSSplit}>
-                  <LiveProvider code={baseJs} scope={scope} theme={prismTheme} transformCode={transformCode}>
+                  <LiveProvider code={pendingJs} scope={scope} theme={prismTheme} transformCode={transformCode}>
                     <LiveContext.Consumer>
                       {({ code, disabled, onChange }) => (
                         <div className={styles.viewConfigEditorJS}>
                           <ThemedControlledEditor
                             value={code}
                             onChange={(event, value) => {
-                              onChange(value);
+                              setPendingJs(value);
+                              setLoadFrom('editor');
                             }}
                             height="60vh"
                             language="javascript"
@@ -428,8 +480,10 @@ function App() {
                     </LiveContext.Consumer>
                     <div className={styles.viewConfigPreviewErrorSplit}>
                       <LivePreviewHeader/>
-                      <LiveError className={styles.viewConfigErrorJS} />
-                      <LivePreview className={styles.viewConfigPreviewJS} />
+                      <div className={styles.viewConfigPreviewScroll}>
+                        <LiveError className={styles.viewConfigErrorJS} />
+                        <LivePreview className={styles.viewConfigPreviewJS} />
+                      </div>
                     </div>
                   </LiveProvider>
                 </div>
@@ -462,7 +516,7 @@ function App() {
                 </div>
               </div>
               <div className={styles.viewConfigInputButton}>
-                <button className={styles.viewConfigGo} onClick={handleEditorGo}>Load</button>
+                <button className={styles.viewConfigGo} onClick={handleEditorGo}>Load from {loadFrom}</button>
               </div>
             </div>
           </div>

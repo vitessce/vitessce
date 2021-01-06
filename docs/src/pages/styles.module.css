@@ -79,10 +79,28 @@
   margin-left: 20px;
   margin-right: 20px;
   margin-bottom: 0.5rem;
+  position: relative;
 }
-.viewConfigEditorJS {
+.tryButtonJSON {
+  position: absolute;
+  width: 170px;
+  height: 40px;
+  left: calc(50% - 85px);
+  top: calc(50% - 20px);
+  
+  border: 2px solid var(--ifm-color-primary);
+  background-color: var(--ifm-color-primary);
+  text-decoration: none !important;
+  text-transform: uppercase;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 5px 10px;
+  cursor: pointer;
+  box-shadow: -3px 3px 9px 9px rgba(0,0,0,.1);
+}
 
-}
 .viewConfigPreviewJSCode {
   overflow: visible;
   background-color: transparent !important;
@@ -91,10 +109,19 @@
 .viewConfigPreviewErrorSplit {
   margin-left: 10px;
   height: 60vh;
+  position: relative;
+  width: 100%;
+}
+.viewConfigPreviewScroll {
   overflow-y: scroll;
+  top: 36px;
+  position: absolute;
+  height: calc(60vh - 36px);
+  width: 100%;
 }
 .viewConfigErrorJS {
   background-color: lightcoral;
+  border-radius: 0;
 }
 .viewConfigEditorPreviewJSSplit {
   display: grid;
@@ -241,15 +268,16 @@
   margin: 0rem 1rem 1rem 1rem;
 }
 
-.liveEditorHeader, .livePreviewHeader {
-  background: var(--ifm-color-emphasis-600);
+.livePreviewHeader {
+  background: var(--ifm-color-emphasis-500);
   color: var(--ifm-color-content-inverse);
   letter-spacing: .08rem;
-  padding: .75rem;
-  font-weight: 700;
+  padding: 0.25rem .75rem;
   margin-bottom: 0 !important;
+  position: absolute;
+  height: 36px;
+  width: 100%;
 }
-
 
 
 .viewConfigEditorMain {
@@ -273,4 +301,8 @@
     right: calc(var(--ifm-pre-padding) / 2);
     top: calc(var(--ifm-pre-padding) / 2);
     transition: opacity 200ms ease-in-out;
+}
+
+:global(.monaco-editor .mtk8) {
+  color: #aac593;
 }
