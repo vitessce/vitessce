@@ -60,7 +60,7 @@ Add the following CORS configuration to the bucket to allow files to be read fro
 
 First ensure that your bucket has fully public permissions for reading data - grant full read permissions to the user `allUsers` - then use the following cors config along with the command `gsutil cors set my-config.json gs://my-bucket`:
 
-```json
+```json title="my-config.json"
 [
   {
     "origin": ["*"],
