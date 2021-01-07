@@ -28,7 +28,7 @@
     "react-dom": "^16.8.6",
     "react-dropzone": "^11.2.4",
     "react-live": "^2.2.3",
-    "use-hash-param": "^0.2.3",
+    "react-loadable": "^5.5.0",
     "use-query-params": "^1.1.9"
   },
   "browserslist": {
