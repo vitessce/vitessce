@@ -306,3 +306,7 @@
 :global(.monaco-editor .mtk8) {
   color: #aac593;
 }
+
+:global(.monaco-editor .mtk20) {
+  color:#e3116c;
+}

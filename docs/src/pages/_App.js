@@ -190,7 +190,60 @@ function JsonHighlight(props) {
   const {
       json,
   } = props;
-  const prismTheme = usePrismTheme();
+  const { isDarkTheme } = useThemeContext();
+  const prismTheme = {
+    "plain":{
+      "color":(isDarkTheme ? "#dcdcdc" : "#393A34"),
+      "backgroundColor":"#f6f8fa"
+    },
+    "styles":[
+      {
+        "types":["comment","prolog","doctype","cdata"],
+        "style":{"color":"#999988","fontStyle":"italic"}
+      },
+      {
+        "types":["namespace"],
+        "style":{"opacity":0.7}
+      },
+      {
+        "types":["string","attr-value"],
+        "style":{"color":(isDarkTheme ? "#ce9178" : "#0451a5")}
+      },
+      {
+        "types":["punctuation","operator"],
+        "style":{"color":(isDarkTheme ? "#dcdcdc" : "#393A34")}
+      },
+      {
+        "types":["entity","url","symbol","variable","constant","property","regex","inserted"],
+        "style":{"color":(isDarkTheme ? "#9cdcfe" : "#e3116c")}
+      },
+      {
+        "types":["boolean"],
+        "style":{"color":(isDarkTheme ? "#ce9178" : "#0451a5")}
+      },
+      {
+        "types":["number"],
+        "style":{"color":(isDarkTheme ? "#aac593" : "#098658")}
+      },
+      {
+        "types":["atrule","keyword","attr-name","selector"],
+        "style":{"color":"#00a4db"}
+      },
+      {
+        "types":["function","deleted","tag"],
+        "style":{"color":"#d73a49"}
+      },
+      {
+        "types":["function-variable"],
+        "style":{"color":"#6f42c1"}
+      },
+      {
+        "types":["tag","selector","keyword"],
+        "style":{"color":(isDarkTheme ? "#ce9178" : "#00009f")}
+      }
+    ]
+  };
+
   const jsonCode = JSON.stringify(json, null, 2);
   
   const [showCopied, setShowCopied] = useState(false);
@@ -269,7 +322,6 @@ function App() {
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
 
-  const prismTheme = usePrismTheme();
 
   const onDrop = useCallback(acceptedFiles => {
     if(acceptedFiles.length === 1) {
@@ -455,7 +507,7 @@ function App() {
                 </>
               ) : (
                 <div className={styles.viewConfigEditorPreviewJSSplit}>
-                  <LiveProvider code={pendingJs} scope={scope} theme={prismTheme} transformCode={transformCode}>
+                  <LiveProvider code={pendingJs} scope={scope} transformCode={transformCode}>
                     <LiveContext.Consumer>
                       {({ code, disabled, onChange }) => (
                         <div className={styles.viewConfigEditorJS}>
