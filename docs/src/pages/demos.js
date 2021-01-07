@@ -1,36 +1,33 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 
 import { configs } from '../../../src/demo/configs';
 
-import styles from './styles.module.css';
+const descriptions = {
 
-const demos = Object.entries(configs).filter(([k, v]) => v.public);
+};
 
-function getDemoUrl(demoKey) {
-  return useBaseUrl(`app/index.html?dataset=${demoKey}`);
-}
-
-function Demos() {
+// Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
+function WrappedDemos(props) {
   return (
     <Layout
       title="Demos"
       description="Demos of Vitessce features">
-      
-      <p className={styles.demoDescription}>
-        The demos compiled here showcase the core features of Vitessce.
-      </p>
-      <div className={styles.demoGridContainer}>
-        {demos.map(([key, d]) => (
-          <div key={key} className={styles.demoGridItem}>
-            <a href={getDemoUrl(key)}  className={styles.demoGridItemLink}>{d.name}</a>
-            <p className={styles.demoGridItemDescription}>{d.description}</p>
-          </div>
-        ))}
-      </div>
+      <BrowserOnly>
+        {() => {
+          const Demos = require('./_Demos.js').default;
+          return (
+            <Demos
+              {...props}
+              configs={configs}
+              descriptions={descriptions}
+            />
+          );
+        }}
+      </BrowserOnly>
     </Layout>
   );
 }
 
-export default Demos;
+export default WrappedDemos;
