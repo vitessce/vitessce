@@ -1,26 +1,26 @@
 [
     {
-        "group_name": "Clustering Algorithm",
-        "set_name": "Cluster A",
-        "set_color": [255, 0, 0],
-        "cell_id": "cell_243"
+        "groupName": "Clustering Algorithm",
+        "setName": "Cluster A",
+        "setColor": [255, 0, 0],
+        "obsId": "cell_243"
     },
     {
-        "group_name": "Clustering Algorithm",
-        "set_name": "Cluster A",
-        "set_color": [255, 0, 0],
-        "cell_id": "cell_271"
+        "groupName": "Clustering Algorithm",
+        "setName": "Cluster A",
+        "setColor": [255, 0, 0],
+        "obsId": "cell_271"
     },
     {
-        "group_name": "Clustering Algorithm",
-        "set_name": "Cluster A",
-        "set_color": [255, 0, 0],
-        "cell_id": "cell_247"
+        "groupName": "Clustering Algorithm",
+        "setName": "Cluster A",
+        "setColor": [255, 0, 0],
+        "obsId": "cell_247"
     },
     {
-        "group_name": "Clustering Algorithm",
-        "set_name": "Cluster A",
-        "set_color": [255, 0, 0],
-        "cell_id": "cell_248"
+        "groupName": "Clustering Algorithm",
+        "setName": "Cluster A",
+        "setColor": [255, 0, 0],
+        "obsId": "cell_248"
     }
 ]

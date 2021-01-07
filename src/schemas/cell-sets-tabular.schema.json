@@ -14,13 +14,13 @@
     "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["group_name", "set_name", "cell_id"],
+        "required": ["groupName", "setName", "obsId"],
         "properties": {
-            "group_name": { "type": "string" },
-            "set_name": { "type": "string" },
-            "set_color": { "$ref": "#/definitions/colorArray" },
-            "cell_id": { "type": "string" },
-            "prediction_score": {
+            "groupName": { "type": "string" },
+            "setName": { "type": "string" },
+            "setColor": { "$ref": "#/definitions/colorArray" },
+            "obsId": { "type": "string" },
+            "predictionScore": {
                 "oneOf": [
                     {
                         "type": "number",

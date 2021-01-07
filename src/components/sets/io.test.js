@@ -70,20 +70,20 @@ const treeV013WithPredictionScoresAsJson = JSON.stringify(treeV013WithPrediction
 const expectedExportedJson = `data:application/json;charset=utf-8,${encodeURIComponent(treeV013AsJson)}`;
 const expectedExportedJsonWithPredictionScores = `data:application/json;charset=utf-8,${encodeURIComponent(treeV013WithPredictionScoresAsJson)}`;
 
-const treeV012AsCsv = `"group_name","set_name","set_color","cell_id"
+const treeV012AsCsv = `"groupName","setName","setColor","obsId"
 "Clustering Algorithm","Cluster A","#ff0000","cell_243"
 "Clustering Algorithm","Cluster A","#ff0000","cell_271"
 "Clustering Algorithm","Cluster A","#ff0000","cell_247"
 "Clustering Algorithm","Cluster A","#ff0000","cell_248"`;
 
-const treeV013AsCsv = `"group_name","set_name","set_color","cell_id","prediction_score"
+const treeV013AsCsv = `"groupName","setName","setColor","obsId","predictionScore"
 "Clustering Algorithm","Cluster A","#ff0000","cell_243","NA"
 "Clustering Algorithm","Cluster A","#ff0000","cell_271","NA"
 "Clustering Algorithm","Cluster A","#ff0000","cell_247","NA"
 "Clustering Algorithm","Cluster A","#ff0000","cell_248","NA"`;
 const expectedExportedTabular = `data:text/csv;charset=utf-8,${encodeURIComponent(treeV013AsCsv)}`;
 
-const treeV013WithPredictionScoresAsCsv = `"group_name","set_name","set_color","cell_id","prediction_score"
+const treeV013WithPredictionScoresAsCsv = `"groupName","setName","setColor","obsId","predictionScore"
 "Clustering Algorithm","Cluster A","#ff0000","cell_243",0.5
 "Clustering Algorithm","Cluster A","#ff0000","cell_271",0.6
 "Clustering Algorithm","Cluster A","#ff0000","cell_247",0.12345
