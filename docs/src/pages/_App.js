@@ -7,7 +7,6 @@ import { useDropzone } from 'react-dropzone';
 import ControlledEditor from './_ControlledEditor';
 import { LiveProvider, LiveContext, LiveError, LivePreview } from 'react-live';
 import Highlight, { defaultProps } from "prism-react-renderer";
-import usePrismTheme from '@theme/hooks/usePrismTheme';
 import copy from 'copy-text-to-clipboard';
 import {
   Vitessce,
