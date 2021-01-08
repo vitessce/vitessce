@@ -13,151 +13,28 @@ import {
   VitessceConfig, hconcat, vconcat,
   CoordinationType, Component, DataType, FileType,
 } from '../../../dist/umd/production/index.min.js';
-import styles from './styles.module.css';
+import { getHighlightTheme } from './_highlight-theme';
+import { baseJs, baseJson, exampleJs, exampleJson } from './_live-editor-examples';
 
 import { configs } from '../../../src/demo/configs';
 
+import styles from './styles.module.css';
+
 const JSON_TRANSLATION_KEY = 'vitessceJsonTranslation';
 
-const baseJson = `{
-  "version": "1.0.0",
-  "name": "My config",
-  "description": "",
-  "datasets": [],
-  "coordinationSpace": {},
-  "layout": [],
-  "initStrategy": "auto"
-}`;
-
-const baseJs = `const vc = new VitessceConfig("My config");
-
-return vc.toJSON();`;
-
-const exampleJs = `// Instantiate a view config object.
-const vc = new VitessceConfig("My example config", "This demonstrates the JavaScript API");
-// Add a dataset and its files.
-const baseUrl = "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries";
-const dataset = vc
-    .addDataset("Dries")
-    .addFile(baseUrl + '/dries.cells.json', dt.CELLS, ft.CELLS_JSON)
-    .addFile(baseUrl + '/dries.cell-sets.json', dt.CELL_SETS, ft.CELL_SETS_JSON);
-// Add components.
-// Use mapping: "UMAP" so that cells are mapped to the UMAP positions from the JSON file.
-const umap = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "UMAP" });
-// Use mapping: "t-SNE" so that cells are mapped to the t-SNE positions from the JSON file.
-const tsne = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "t-SNE" });
-// Add the cell sets controller component.
-const cellSetsManager = vc.addView(dataset, cm.CELL_SETS);
-// Add the cell set sizes bar plot component.
-const cellSetSizesPlot = vc.addView(dataset, cm.CELL_SET_SIZES);
-// Link the zoom levels of the two scatterplots.
-vc.linkViews([umap, tsne], [ct.EMBEDDING_ZOOM], [2.5]);
-// Try un-commenting the line below to link center points of the two scatterplots!
-//vc.linkViews([umap, tsne], [ct.EMBEDDING_TARGET_X, ct.EMBEDDING_TARGET_Y], [0, 0]);
-vc.layout(
-    vconcat(
-        hconcat(tsne, umap),
-        hconcat(cellSetsManager, cellSetSizesPlot)
-    )
-);
-
-return vc.toJSON();`;
-
-const exampleJson = `{
-  "version": "1.0.0",
-  "name": "My example config",
-  "description": "This demonstrates the JSON schema",
-  "datasets": [
-    {
-      "uid": "D1",
-      "name": "Dries",
-      "files": [
-        {
-          "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json",
-          "type": "cells",
-          "fileType": "cells.json"
-        },
-        {
-          "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json",
-          "type": "cell-sets",
-          "fileType": "cell-sets.json"
-        }
-      ]
-    }
-  ],
-  "coordinationSpace": {
-    "dataset": {
-      "A": "D1"
-    },
-    "embeddingType": {
-      "A": "UMAP",
-      "B": "t-SNE"
-    },
-    "embeddingZoom": {
-      "A": 2.5
-    }
-  },
-  "layout": [
-    {
-      "component": "scatterplot",
-      "coordinationScopes": {
-        "dataset": "A",
-        "embeddingType": "A",
-        "embeddingZoom": "A"
-      },
-      "x": 6,
-      "y": 0,
-      "w": 6,
-      "h": 6
-    },
-    {
-      "component": "scatterplot",
-      "coordinationScopes": {
-        "dataset": "A",
-        "embeddingType": "B",
-        "embeddingZoom": "A"
-      },
-      "x": 0,
-      "y": 0,
-      "w": 6,
-      "h": 6
-    },
-    {
-      "component": "cellSets",
-      "coordinationScopes": {
-        "dataset": "A"
-      },
-      "x": 0,
-      "y": 6,
-      "w": 6,
-      "h": 6
-    },
-    {
-      "component": "cellSetSizes",
-      "coordinationScopes": {
-        "dataset": "A"
-      },
-      "x": 6,
-      "y": 6,
-      "w": 6,
-      "h": 6
-    }
-  ],
-  "initStrategy": "auto"
-}`;
-
+// To simplify the JS editor, the user only needs to write
+// the inner part of the createConfig() function,
+// because this code will wrap the user's code to
+// return a React component for react-live.
 function transformCode(code) {
   return `function vitessceConfigEditor() {
-      
-      function createConfig() {
-          ${code}
-      }
-      
-      const vcJson = createConfig();
-  
-      return (
-          <Highlight json={vcJson} />
-      );
+    function createConfig() {
+      ${code}
+    }
+    const vcJson = createConfig();
+    return (
+      <Highlight json={vcJson} />
+    );
   }`;
 }
 
@@ -166,124 +43,72 @@ function ThemedControlledEditor(props) {
   return <ControlledEditor
     {...props}
     theme={(isDarkTheme ? "dark" : "GitHub")}
+    height="60vh"
+    options={{
+      fontSize: 14,
+      minimap: {
+        enabled: false,
+      },
+      contextmenu: false,
+    }}
   />
 }
 
 function ThemedVitessce(props) {
-    const { isDarkTheme } = useThemeContext();
-    return (
-        <Vitessce
-            theme={isDarkTheme ? "dark" : "light"}
-            {...props}
-        />
-    );
-}
-
-function LivePreviewHeader() {
+  const { isDarkTheme } = useThemeContext();
   return (
-      <p className={styles.livePreviewHeader}>Translation to JSON</p>
+    <Vitessce
+      theme={isDarkTheme ? "dark" : "light"}
+      {...props}
+    />
   );
 }
 
 function JsonHighlight(props) {
-  const {
-      json,
-  } = props;
+  const { json } = props;
   const { isDarkTheme } = useThemeContext();
-  const prismTheme = {
-    "plain":{
-      "color":(isDarkTheme ? "#dcdcdc" : "#393A34"),
-      "backgroundColor":"#f6f8fa"
-    },
-    "styles":[
-      {
-        "types":["comment","prolog","doctype","cdata"],
-        "style":{"color":"#999988","fontStyle":"italic"}
-      },
-      {
-        "types":["namespace"],
-        "style":{"opacity":0.7}
-      },
-      {
-        "types":["string","attr-value"],
-        "style":{"color":(isDarkTheme ? "#ce9178" : "#0451a5")}
-      },
-      {
-        "types":["punctuation","operator"],
-        "style":{"color":(isDarkTheme ? "#dcdcdc" : "#393A34")}
-      },
-      {
-        "types":["entity","url","symbol","variable","constant","property","regex","inserted"],
-        "style":{"color":(isDarkTheme ? "#9cdcfe" : "#e3116c")}
-      },
-      {
-        "types":["boolean"],
-        "style":{"color":(isDarkTheme ? "#ce9178" : "#0451a5")}
-      },
-      {
-        "types":["number"],
-        "style":{"color":(isDarkTheme ? "#aac593" : "#098658")}
-      },
-      {
-        "types":["atrule","keyword","attr-name","selector"],
-        "style":{"color":"#00a4db"}
-      },
-      {
-        "types":["function","deleted","tag"],
-        "style":{"color":"#d73a49"}
-      },
-      {
-        "types":["function-variable"],
-        "style":{"color":"#6f42c1"}
-      },
-      {
-        "types":["tag","selector","keyword"],
-        "style":{"color":(isDarkTheme ? "#ce9178" : "#00009f")}
-      }
-    ]
-  };
+  const highlightTheme = getHighlightTheme(isDarkTheme);
+  const [showCopied, setShowCopied] = useState(false);
 
   const jsonCode = JSON.stringify(json, null, 2);
-  
-  const [showCopied, setShowCopied] = useState(false);
   
   const handleCopyCode = () => {
       copy(jsonCode);
       setShowCopied(true);
-  
       setTimeout(() => setShowCopied(false), 2000);
   };
 
   useEffect(() => {
     // Put the current translation on the window for easy retrieval.
-    // There is probably a better way to do this.
+    // There is probably a cleaner way to do this.
     window[JSON_TRANSLATION_KEY] = jsonCode;
   });
   
+  // Adapted from https://github.com/FormidableLabs/prism-react-renderer/blob/master/README.md#usage
   return (
-      <Highlight {...defaultProps} code={jsonCode} language="json" theme={prismTheme}>
-          {({ className, style, tokens, getLineProps, getTokenProps }) => (
-              <div className={styles.copyButtonContainer}>
-                  <pre className={clsx(className, styles.viewConfigPreviewJSCode)} style={style}>
-                      {tokens.map((line, i) => (
-                      <div {...getLineProps({ line, key: i })}>
-                          {line.map((token, key) => (
-                          <span {...getTokenProps({ token, key })} />
-                          ))}
-                      </div>
-                      ))}
-                  </pre>
-                  <button
-                    type="button"
-                    aria-label="Copy code to clipboard"
-                    className={styles.copyButton}
-                    onClick={handleCopyCode}>
-                    {showCopied ? 'Copied' : 'Copy'}
-                  </button>
+    <Highlight {...defaultProps} code={jsonCode} language="json" theme={highlightTheme}>
+      {({ className, style, tokens, getLineProps, getTokenProps }) => (
+        <div className={styles.copyButtonContainer}>
+          <pre className={clsx(className, styles.viewConfigPreviewJSCode)} style={style}>
+            {tokens.map((line, i) => (
+              <div {...getLineProps({ line, key: i })}>
+                {line.map((token, key) => (
+                  <span {...getTokenProps({ token, key })} />
+                ))}
               </div>
-          )}
-      </Highlight>
-  )
+            ))}
+          </pre>
+          <button
+            type="button"
+            aria-label="Copy code to clipboard"
+            className={styles.copyButton}
+            onClick={handleCopyCode}>
+            {showCopied ? 'Copied' : 'Copy'}
+          </button>
+        </div>
+      )}
+    </Highlight>
+  );
 }
 
 const scope = {
@@ -336,13 +161,20 @@ function App() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxFiles: 1});
 
   useEffect(() => {
+    let unmounted = false;
     async function processParams() {
       if (url) {
         setLoading(true);
         try {
           const response = await fetch(url);
+          if(unmounted) {
+            return;
+          }
           if(response.ok) {
             const responseText = await response.text();
+            if(unmounted) {
+              return;
+            }
             if(edit) {
               // User wants to edit the URL-based config.
               try {
@@ -410,29 +242,30 @@ function App() {
       }
     }
     processParams();
+    return () => {
+      unmounted = true;
+    };
   }, [url, edit, demo]);
 
-  console.log(edit);
-
   function handleEditorGo() {
-    setEdit(false, 'pushIn');
+    setEdit(false);
     if(loadFrom === 'editor') {
       let nextConfig = pendingConfig;
       if(syntaxType === "JS") {
         nextConfig = window[JSON_TRANSLATION_KEY];
         setSyntaxType("JSON");
       }
-      setUrl('data:,' + encodeURIComponent(nextConfig), 'replace');
+      setUrl('data:,' + encodeURIComponent(nextConfig));
     } else if(loadFrom === 'url') {
-      setUrl(pendingUrl, 'replace');
+      setUrl(pendingUrl);
     } else if(loadFrom === 'file') {
-      setUrl('data:,' + encodeURIComponent(pendingFileContents), 'replace');
+      setUrl('data:,' + encodeURIComponent(pendingFileContents));
     }
     increment();
   }
 
   function handleClear() {
-    setEdit(true, 'pushIn');
+    setEdit(true);
     increment();
   }
 
@@ -495,15 +328,7 @@ function App() {
                       setPendingConfig(value);
                       setLoadFrom('editor');
                     }}
-                    height="60vh"
                     language="json"
-                    options={{
-                      fontSize: 14,
-                      minimap: {
-                        enabled: false,
-                      },
-                      contextmenu: false,
-                    }}
                   />
                 </>
               ) : (
@@ -518,21 +343,13 @@ function App() {
                               setPendingJs(value);
                               setLoadFrom('editor');
                             }}
-                            height="60vh"
                             language="javascript"
-                            options={{
-                              fontSize: 14,
-                              minimap: {
-                                enabled: false,
-                              },
-                              contextmenu: false,
-                            }}
                           />
                         </div>
                       )}
                     </LiveContext.Consumer>
                     <div className={styles.viewConfigPreviewErrorSplit}>
-                      <LivePreviewHeader/>
+                      <p className={styles.livePreviewHeader}>Translation to JSON</p>
                       <div className={styles.viewConfigPreviewScroll}>
                         <LiveError className={styles.viewConfigErrorJS} />
                         <LivePreview className={styles.viewConfigPreviewJS} />
@@ -583,8 +400,7 @@ function App() {
           <div className={styles.vitessceClear}>
             <button
               className={styles.vitessceClearButton}
-              onClick={handleClear}
-            >
+              onClick={handleClear}>
               Edit
             </button>
           </div>

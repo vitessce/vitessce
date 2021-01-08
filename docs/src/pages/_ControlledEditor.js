@@ -10,21 +10,17 @@ const DEFAULT_UPDATE_DEBOUNCE_DELAY = 100
 const ControlledEditor = ({ value, onChange, editorDidMount, ...props }) => {
   const previousValue = useRef(value)
   const editorRef = useRef()
-  const debouncedOnChange = useMemo(
-    () =>
-      debounce((event, value) => {
-        previousValue.current = value
-        onChange(event, value)
-      }, DEFAULT_UPDATE_DEBOUNCE_DELAY),
-    [onChange]
-  )
+  const debouncedOnChange = useMemo(() => debounce((event, value) => {
+    previousValue.current = value;
+    onChange(event, value);
+  }, DEFAULT_UPDATE_DEBOUNCE_DELAY), [onChange]);
 
   useEffect(() => {
     if (value !== previousValue.current && editorRef.current) {
       editorRef.current.setValue(value)
     }
     previousValue.current = value
-  }, [value])
+  }, [value]);
 
   const handleEditorDidMount = (getValue, editor) => {
     editorRef.current = editor
@@ -37,7 +33,7 @@ const ControlledEditor = ({ value, onChange, editorDidMount, ...props }) => {
     })
 
     editorDidMount(getValue, editor)
-  }
+  };
 
   return (
     <Editor value="" editorDidMount={handleEditorDidMount} {...props} />

@@ -4,10 +4,6 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 
 import { configs } from '../../../src/demo/configs';
 
-const descriptions = {
-
-};
-
 // Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
 function WrappedDemos(props) {
   return (
@@ -19,9 +15,7 @@ function WrappedDemos(props) {
           const Demos = require('./_Demos.js').default;
           return (
             <Demos
-              {...props}
               configs={configs}
-              descriptions={descriptions}
             />
           );
         }}

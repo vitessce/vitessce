@@ -213,6 +213,7 @@
 }
 
 .vitessceClearButton {
+  display: inline-block;
   right: 20px;
   border: 2px solid var(--ifm-color-primary);
   color: var(--ifm-color-primary);
@@ -313,4 +314,8 @@
 
 .demoHeaderContainer {
   margin: 1rem;
+}
+
+.demoHeaderText {
+  color: var(--ifm-color-emphasis-700);
 }

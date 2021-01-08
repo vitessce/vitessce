@@ -1,9 +1,9 @@
 import React from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useThemeContext from '@theme/hooks/useThemeContext';
-import {
-    Vitessce
-  } from '../../../dist/umd/production/index.min.js';
+import { Vitessce } from '../../../dist/umd/production/index.min.js';
+import DemoDescription from './_DemoDescription';
+import ErrorBoundary from './_ErrorBoundary';
 
 import styles from './styles.module.css';
 
@@ -19,19 +19,21 @@ function ThemedVitessce(props) {
 
 function Demo(props) {
     const {
+        demo,
         config,
-        description
     } = props;
 
     return (
         <>
             <div className={styles.demoHeaderContainer}>
-                <h4>Demo</h4>
-                <h1>{config.name}</h1>
-                <h2>{config.description}</h2>
+                <h4 className={styles.demoHeaderText}>Demo</h4>
+                <h1 className={styles.demoHeaderText}>{config.name}</h1>
+                <h2 className={styles.demoHeaderText}>{config.description}</h2>
                 
                 <div className={styles.demoMarkdownContainer}>
-                    {description}
+                    <ErrorBoundary>
+                        <DemoDescription demo={demo} />
+                    </ErrorBoundary>
                 </div>
             </div>
             <main className={'vitessce-app'}>

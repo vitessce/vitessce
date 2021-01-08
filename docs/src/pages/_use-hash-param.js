@@ -39,40 +39,48 @@ const setHashParam = (key, value, location = window.location) => {
   location.hash = search ? `${prefix}?${search}` : prefix;
 };
 
+// There is no "pushState" or "replaceState" event on the
+// window, only a "popstate" event. We can add our own
+// pushState and replaceState events by wrapping the
+// methods of the window.history object and dispatching
+// as custom events.
+// Reference: https://stackoverflow.com/a/25673911
+const wrapHistoryMethod = (methodName) => {
+    const orig = window.history[methodName];
+    window.history.wrapped = true;
+    return function() {
+        const rv = orig.apply(this, arguments);
+        const e = new Event(methodName);
+        e.arguments = arguments;
+        window.dispatchEvent(e);
+        return rv;
+    };
+};
+
 const useHashParam = (key, defaultValue, varType) => {
   const [innerValue, setInnerValue] = useState(getTypedHashParam(key, varType));
 
   useEffect(() => {
-    // There is no "pushState" or "replaceState" event on the
-    // window, only a "popstate" event. We can add our own
-    // pushState and replaceState events by wrapping the
-    // methods of the window.history object and dispatching
-    // as custom events.
-    // Reference: https://stackoverflow.com/a/25673911
-    const wrapHistoryMethod = (methodName) => {
-        const orig = history[methodName];
-        return function() {
-            const rv = orig.apply(this, arguments);
-            const e = new Event(methodName);
-            e.arguments = arguments;
-            window.dispatchEvent(e);
-            return rv;
-        };
-    };
-    history.pushState = wrapHistoryMethod('pushState');
-    history.replaceState = wrapHistoryMethod('replaceState');
+    let unmounted = false;
+    
+    if(window.history && !window.history.wrapped) {
+        window.history.pushState = wrapHistoryMethod('pushState');
+    }
 
     const handleHashChange = () => {
+        if(unmounted) {
+            return;
+        }
+        console.log("handleHashChange");
         const nextValue = getTypedHashParam(key, varType);
         setInnerValue(nextValue);
     };
     window.addEventListener('hashchange', handleHashChange);
     window.addEventListener('pushState', handleHashChange);
-    window.addEventListener('replaceState', handleHashChange);
     return () => {
+        unmounted = true;
         window.removeEventListener('hashchange', handleHashChange);
         window.removeEventListener('pushState', handleHashChange);
-        window.removeEventListener('replaceState', handleHashChange);
     };
   }, [key, varType]);
   
@@ -84,8 +92,6 @@ const useHashParam = (key, defaultValue, varType) => {
     }
   }, [key]);
 
-  console.log(innerValue, defaultValue === undefined);
-  
   return [innerValue === undefined ? defaultValue : innerValue, setValue];
 };
 
