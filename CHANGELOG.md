@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07
+
+### Added
 - Added a windows OS build to the Github Actions test matrix.
 
 ### Changed
