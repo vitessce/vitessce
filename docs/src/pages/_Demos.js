@@ -17,8 +17,10 @@ function Demos(props) {
 
   // Try to get the Description component from the markdown file in
   // the docs/demos/ directory (if one exists).
-  const chunkRegistry = Object.values(registry)
-    .find(c => c[1] === `@site/docs/demos/${demo}.md`);
+  const chunkRegistry = registry ? (
+      Object.values(registry)
+        .find(c => c[1] === `@site/docs/demos/${demo}.md`)
+  ) : null;
 
   let Description = () => null;
   if(chunkRegistry) {

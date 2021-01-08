@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useReducer } from 'react';
 import clsx from 'clsx';
-import { useQueryParam, StringParam, BooleanParam, QueryParamProvider } from 'use-query-params';
+import useHashParam from './_use-hash-param';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
@@ -302,10 +302,10 @@ const scope = {
 };
 
 function App() {
-  const [demo, setDemo] = useQueryParam('dataset', StringParam);
-  const [debug, setDebug] = useQueryParam('debug', BooleanParam);
-  const [url, setUrl] = useQueryParam('url', StringParam);
-  const [edit, setEdit] = useQueryParam('edit', BooleanParam);
+  const [demo, setDemo] = useHashParam('dataset', undefined, 'string');
+  const [debug, setDebug] = useHashParam('debug', false, 'boolean');
+  const [url, setUrl] = useHashParam('url', undefined, 'string');
+  const [edit, setEdit] = useHashParam('edit', true, 'boolean');
   const [i, increment] = useReducer(v => v+1, 1);
 
   const [error, setError] = useState(null);
@@ -411,6 +411,8 @@ function App() {
     }
     processParams();
   }, [url, edit, demo]);
+
+  console.log(edit);
 
   function handleEditorGo() {
     setEdit(false, 'pushIn');
@@ -594,9 +596,7 @@ function App() {
 // Reference: https://github.com/pbeshai/use-query-params#usage
 function WrappedApp() {
   return(
-    <QueryParamProvider>
-        <App/>
-    </QueryParamProvider>
+    <App/>
   );
 }
 

@@ -13,6 +13,19 @@ const getHashParam = (key, location = window.location) => {
   return searchParams.get(key);
 };
 
+const getTypedHashParam = (key, varType) => {
+    const val = getHashParam(key);
+    let typedVal = val;
+    if(varType === 'boolean') {
+        try {
+            typedVal = JSON.parse(val);
+        } catch(e) {
+            typedVal = false;
+        }
+    }
+    return typedVal;
+}
+
 const setHashParam = (key, value, location = window.location) => {
   const [prefix, searchParams] = getHashSearchParams(location);
 
@@ -26,8 +39,8 @@ const setHashParam = (key, value, location = window.location) => {
   location.hash = search ? `${prefix}?${search}` : prefix;
 };
 
-const useHashParam = (key, defaultValue) => {
-  const [innerValue, setInnerValue] = useState(getHashParam(key));
+const useHashParam = (key, defaultValue, varType) => {
+  const [innerValue, setInnerValue] = useState(getTypedHashParam(key, varType));
 
   useEffect(() => {
     // There is no "pushState" or "replaceState" event on the
@@ -50,7 +63,7 @@ const useHashParam = (key, defaultValue) => {
     history.replaceState = wrapHistoryMethod('replaceState');
 
     const handleHashChange = () => {
-        const nextValue = getHashParam(key);
+        const nextValue = getTypedHashParam(key, varType);
         setInnerValue(nextValue);
     };
     window.addEventListener('hashchange', handleHashChange);
@@ -61,7 +74,7 @@ const useHashParam = (key, defaultValue) => {
         window.removeEventListener('pushState', handleHashChange);
         window.removeEventListener('replaceState', handleHashChange);
     };
-  }, [key]);
+  }, [key, varType]);
   
   const setValue = useCallback((value) => {
     if (typeof value === 'function') {
@@ -70,8 +83,10 @@ const useHashParam = (key, defaultValue) => {
       setHashParam(key, value);
     }
   }, [key]);
+
+  console.log(innerValue, defaultValue === undefined);
   
-  return [innerValue || defaultValue, setValue];
+  return [innerValue === undefined ? defaultValue : innerValue, setValue];
 };
 
 export default useHashParam;

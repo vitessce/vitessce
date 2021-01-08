@@ -19,41 +19,37 @@ function ThemedVitessce(props) {
 
 function Demo(props) {
     const {
-        demo,
         config,
         description
     } = props;
 
-    function handleEdit() {
-
-    }
-  return (
-    <>
-        <h5>Demo</h5>
-        <h1>{config.name}</h1>
-        <h2>{config.description}</h2>
-        
-        <div className={styles.demoMarkdownContainer}>
-            {description}
-        </div>
-
-        <div className={styles.vitessceClear}>
-            <button
-              className={styles.vitessceClearButton}
-              onClick={handleEdit}
-            >
-              Edit
-            </button>
-        </div>
-
-        <main className={'vitessce-app'}>
-          <ThemedVitessce
-            validateOnConfigChange={false}
-            config={config}
-          />
-        </main>
-    </>
-  );
+    return (
+        <>
+            <div className={styles.demoHeaderContainer}>
+                <h4>Demo</h4>
+                <h1>{config.name}</h1>
+                <h2>{config.description}</h2>
+                
+                <div className={styles.demoMarkdownContainer}>
+                    {description}
+                </div>
+            </div>
+            <main className={'vitessce-app'}>
+                <ThemedVitessce
+                    validateOnConfigChange={false}
+                    config={config}
+                />
+                <div className={styles.vitessceClear}>
+                    <a
+                        className={styles.vitessceClearButton}
+                        href={useBaseUrl(`/app/index.html#?edit=1&url=data:,` + encodeURIComponent(JSON.stringify(config)))}
+                    >
+                    Edit
+                    </a>
+                </div>
+            </main>
+        </>
+    );
 }
 
 export default Demo;
