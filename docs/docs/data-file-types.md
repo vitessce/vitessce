@@ -387,6 +387,8 @@ Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) famil
 
 ### Seurat
 
+The Vitessce R package can be used to [convert Seurat objects](https://vitessce.github.io/vitessce-r/reference/SeuratWrapper.html) to the [`cells.json`](#cellsjson) and [`cell-sets.json](#cell-setsjson) file types.
+
 ### SnapATAC
 
 The Vitessce Python package can be used to [convert SnapATAC outputs](https://vitessce.github.io/vitessce-python/data_examples.html) to the [`genomic-profiles.zarr`](#genomic-profileszarr), [`cells.json`](#cellsjson), and [`cell-sets.json`](#cell-setsjson) file types.
