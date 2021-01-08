@@ -319,3 +319,11 @@
 .demoHeaderText {
   color: var(--ifm-color-emphasis-700);
 }
+
+.dataTypesTable code {
+  white-space: nowrap;
+}
+
+.dataTypesTable ul {
+  padding-left: 0.75rem;
+}

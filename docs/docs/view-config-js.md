@@ -398,8 +398,8 @@ This class is not meant to be instantiated directly, but instances will be creat
 
 #### Parameters:
 - `url` (`string`) - The URL for the file, pointing to either a local or remote location. We don't associate any semantics with URL strings.
-- `dataType` (`string`) - The type of data stored in the file. Must be compatible with the specified [file type](/docs/data-file-types/index.html). We recommend using the [`DataType`](/docs/data-types-file-types/index.html#constants) constant values rather than writing strings directly.
-- `fileType` (`string`) - The file type. Must be compatible with the specified [data type](/docs/data-file-types/index.html). We recommend using the [`FileType`](/docs/data-types-file-types/index.html#constants) constant values rather than writing strings directly.
+- `dataType` (`string`) - The type of data stored in the file. Must be compatible with the specified [file type](/docs/data-types-file-types/index.html). We recommend using the [`DataType`](/docs/data-types-file-types/index.html#constants) constant values rather than writing strings directly.
+- `fileType` (`string`) - The file type. Must be compatible with the specified [data type](/docs/data-types-file-types/index.html). We recommend using the [`FileType`](/docs/data-types-file-types/index.html#constants) constant values rather than writing strings directly.
 
 #### Returns:
 - Type: `VitessceConfigDataset`
