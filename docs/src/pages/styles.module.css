@@ -327,3 +327,7 @@
 .dataTypesTable ul {
   padding-left: 0.75rem;
 }
+
+.viewConfigTabs {
+  max-width: 600px;
+}
