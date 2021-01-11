@@ -11,12 +11,16 @@ export class VitessceConfigDatasetFile {
    * @param {string} url The URL to the file.
    * @param {string} dataType The type of data contained in the file.
    * @param {string} fileType The file type.
+   * @param {object|array|null} options An optional object or array
+   * which may provide additional parameters to the loader class
+   * corresponding to the specified fileType.
    */
-  constructor(url, dataType, fileType) {
+  constructor(url, dataType, fileType, options) {
     this.file = {
       url,
       type: dataType,
       fileType,
+      ...(options !== null ? { options } : {}),
     };
   }
 
@@ -47,13 +51,18 @@ export class VitessceConfigDataset {
 
   /**
    * Add a file definition to the dataset.
-   * @param {string} url The URL to the file.
+   * @param {string|undefined} url The URL to the file.
    * @param {string} dataType The type of data contained in the file.
    * @param {string} fileType The file type.
+   * @param {object|array} options An optional object or array
+   * which may provide additional parameters to the loader class
+   * corresponding to the specified fileType.
    * @returns {VitessceConfigDataset} This, to allow chaining.
    */
-  addFile(url, dataType, fileType) {
-    this.dataset.files.push(new VitessceConfigDatasetFile(url, dataType, fileType));
+  addFile(url, dataType, fileType, options = null) {
+    this.dataset.files.push(
+      new VitessceConfigDatasetFile(url, dataType, fileType, options),
+    );
     return this;
   }
 

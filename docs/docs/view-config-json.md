@@ -74,7 +74,9 @@ A human-readable name for the dataset. Optional.
 #### `files`
 - Type: `object[]`
 
-The files array stores a list of file objects for a dataset. Each dataset may have one file of each `type`. File objects must contain a `type` ("data type"), `fileType` ("file type"), and a `url`. For more information about data types and file types, please visit our [Data Types and File Types](/docs/data-types-file-types/index.html) documentation page. We don't associate any semantics with URL strings.
+The files array stores a list of file objects for a dataset. Each dataset may have one file of each `type`. File objects must contain a `type` ("data type") and `fileType` ("file type"). All file types require a `url` string, with the exception of [`raster.json`](/docs/data-file-types/index.html#rasterjson) which may point to multiple image URLs via an `options` object. We don't associate any semantics with URL strings.
+
+For more information about data types and file types, please visit our [Data Types and File Types](/docs/data-types-file-types/index.html) documentation page.
 
 ```json
 ...,
@@ -84,14 +86,21 @@ The files array stores a list of file objects for a dataset. Each dataset may ha
         "name": "My amazing dataset",
         "files": [
             {
+                "url": "http://example.com/a.json",
                 "type": "cells",
-                "fileType": "cells.json",
-                "url": "http://example.com/a.json"
+                "fileType": "cells.json"
             },
             {
+                "url": "http://example.com/b.json",
                 "type": "cell-sets",
-                "fileType": "cell-sets.json",
-                "url": "http://example.com/b.json"
+                "fileType": "cell-sets.json"
+            },
+            {
+                "type": "raster",
+                "fileType": "raster.json",
+                "options": {
+                    ...
+                }
             }
         ]
     }

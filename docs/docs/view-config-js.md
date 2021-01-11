@@ -7,7 +7,7 @@ slug: /view-config-js
 
 ## Overview
 
-The Vitessce view config defines how data is retrieved, which visualization components are rendered, and how different components are coordinated. Ultimately, this configuration must be a JSON object when it is passed to the `<Vitessce/>` React component's `config` prop. Writing large JSON objects by hand can be difficult, so we have developed object-oriented APIs to simplify this process. There are corresponding APIs in [Python](https://vitessce.github.io/vitessce-python/) and [R](https://vitessce.github.io/vitessce-r/) if one of those languages is more familiar to you.
+The Vitessce view config defines how data is retrieved, which visualization components are rendered, and how different components are coordinated. Ultimately, this configuration must be a JSON object when it is passed to the `<Vitessce/>` React component's `config` prop. Writing large JSON objects by hand can be difficult and prevents from using variables for more easily maintainable string constants, so we have developed object-oriented APIs to simplify this process. There are corresponding APIs in [Python](https://vitessce.github.io/vitessce-python/) and [R](https://vitessce.github.io/vitessce-r/) if one of those languages is more familiar to you.
 
 
 ## `VitessceConfig`
@@ -394,12 +394,13 @@ vc.layout(vconcat(v1, v2));
 
 This class is not meant to be instantiated directly, but instances will be created and returned by the `VitessceConfig.addDataset()` method.
 
-### `addFile(url, dataType, fileType)`
+### `addFile(url, dataType, fileType, options = null)`
 
 #### Parameters:
-- `url` (`string`) - The URL for the file, pointing to either a local or remote location. We don't associate any semantics with URL strings.
+- `url` (`string|undefined`) - The URL for the file, pointing to either a local or remote location. We don't associate any semantics with URL strings.
 - `dataType` (`string`) - The type of data stored in the file. Must be compatible with the specified [file type](/docs/data-types-file-types/index.html). We recommend using the [`DataType`](/docs/data-types-file-types/index.html#constants) constant values rather than writing strings directly.
 - `fileType` (`string`) - The file type. Must be compatible with the specified [data type](/docs/data-types-file-types/index.html). We recommend using the [`FileType`](/docs/data-types-file-types/index.html#constants) constant values rather than writing strings directly.
+- `options` (`object|array|null`) -  An optional object or array which may provide additional parameters to the loader class corresponding to the specified `fileType`.
 
 #### Returns:
 - Type: `VitessceConfigDataset`
