@@ -112,13 +112,12 @@ div[role='tooltip'] table td, div[role='tooltip'] table th {
   border-top: 0;
 }
 
-@media (min-width: 997px) and (max-width: 1320px) {
-  .docItemWrapper_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
-    max-width: none !important;
-  }
-}
 
 .tableOfContents_node_modules-\@docusaurus-theme-classic-lib-theme-TOC- .table-of-contents__link code {
   overflow: visible;
   white-space: nowrap;
+}
+
+.docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
+  overflow-x: hidden;
 }

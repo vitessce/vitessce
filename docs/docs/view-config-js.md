@@ -14,7 +14,7 @@ The Vitessce view config defines how data is retrieved, which visualization comp
 
 `VitessceConfig` is a class representing a Vitessce view config. To begin creating a view config with the API, you will need to instantiate a `VitessceConfig` object.
 The methods of this object (and the objects its methods return) allow you to manipulate the underlying configuration.
-When you are ready, you will use the `.toJSON()` method to convert the `VitessceConfig` object to a plain JSON object.
+When you are ready to render the Vitessce component, you can use the `.toJSON()` method to translate the `VitessceConfig` object to a plain JSON object.
 
 
 ### `constructor(name, description)`

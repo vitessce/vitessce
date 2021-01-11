@@ -9,10 +9,13 @@ import TabItem from '@theme/TabItem';
 import CodeBlock from '@theme/CodeBlock';
 
 This page contains details about the file types that are supported by Vitessce, both those which can be loaded natively (by specifying file URLs in the view config) and those other file types for which conversion to native file types is straightforward.
+Use the tabs on the page to toggle between code snippets for [JSON-](/docs/view-config-json/index.html) and [JavaScript API-](/docs/view-config-js/index.html)based view configs.
 
 ## Native File Types
 
-Native file types are those which Vitessce can read directly from a static web server via a [loader class](https://github.com/vitessce/vitessce/tree/master/src/loaders). We welcome pull requests which implement loader classes to support additional file types natively.
+Native file types are those which Vitessce can read directly from a static web server via a [loader class](https://github.com/vitessce/vitessce/tree/master/src/loaders).
+We welcome pull requests which implement loader classes to support additional file types natively.
+
 
 ### AnnData as Zarr
 
@@ -103,9 +106,9 @@ const dataset = vc
   <ViewConfigTabs
 json={`
   {
-    "fileType": "anndata-cell-sets.zarr",
-    "type": "cell-sets",
     "url": "http://example.com/my_store.zarr",
+    "type": "cell-sets",
+    "fileType": "anndata-cell-sets.zarr",
     // Options defines which columns contain cell sets (clustering results) in the cell sets component.
     // The groupName is the display name and the setName is the path within the Zarr store.
     "options": [
@@ -300,9 +303,9 @@ const dataset = vc
   <ViewConfigTabs
 json={`
   {
+    "url": "http://example.com/my_matrix_a.json",
     "type": "expression-matrix",
-    "fileType": "genes.json",
-    "url": "http://example.com/my_matrix_a.json"
+    "fileType": "genes.json"
   }
 `}
 js={`
@@ -324,9 +327,9 @@ const dataset = vc
   <ViewConfigTabs
 json={`
   {
+    "url": "http://example.com/my_matrix_b.json",
     "type": "expression-matrix",
-    "fileType": "clusters.json",
-    "url": "http://example.com/my_matrix_b.json"
+    "fileType": "clusters.json"
   }
 `}
 js={`
@@ -348,9 +351,9 @@ const dataset = vc
   <ViewConfigTabs
 json={`
   {
+    "url": "http://example.com/my_matrix.zarr",
     "type": "expression-matrix",
-    "fileType": "expression-matrix.zarr",
-    "url": "http://example.com/my_matrix.zarr"
+    "fileType": "expression-matrix.zarr"
   }
 `}
 js={`
@@ -367,6 +370,14 @@ const dataset = vc
 ### `raster.json`
 
 - [JSON schema for options](https://github.com/vitessce/vitessce/blob/master/src/schemas/raster.schema.json)
+
+  :::note
+
+  When defining image data with the `raster.json` file type, the main `url` property is not used.
+  Instead, image URLs may be specified in the `images` array in the `options` property.
+
+  :::note
+
 - View config file definition snippet with an OME-TIFF:
 
   <ViewConfigTabs
@@ -629,7 +640,10 @@ Use AnnData's [`read_loom`](https://anndata.readthedocs.io/en/latest/anndata.rea
 ```python
 from anndata import read_loom
 
-adata = read_loom('path/to/my_dataset.loom', obsm_names={ "tSNE": ["_tSNE_1", "_tSNE_2"], "spatial": ["X", "Y"] })
+adata = read_loom(
+  'path/to/my_dataset.loom',
+  obsm_names={ "tSNE": ["_tSNE_1", "_tSNE_2"], "spatial": ["X", "Y"] }
+)
 adata.write_zarr('my_store.zarr')
 ```
 
@@ -637,7 +651,7 @@ Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) famil
 
 ### Seurat
 
-The Vitessce R package can be used to [convert Seurat objects](https://vitessce.github.io/vitessce-r/reference/SeuratWrapper.html) to the [`cells.json`](#cellsjson) and [`cell-sets.json](#cell-setsjson) file types.
+The Vitessce R package can be used to [convert Seurat objects](https://vitessce.github.io/vitessce-r/reference/SeuratWrapper.html) to the [`cells.json`](#cellsjson) and [`cell-sets.json`](#cell-setsjson) file types.
 
 ### SnapATAC
 

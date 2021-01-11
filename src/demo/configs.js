@@ -6,7 +6,6 @@ import { wang2018 } from './view-configs/wang';
 import { spraggins2020 } from './view-configs/spraggins';
 import { satija2020 } from './view-configs/satija';
 import { justHiglass } from './view-configs/rao';
-import { allenSpaceTx } from './view-configs/spacetx';
 import { scAtacSeq10xPbmc } from './view-configs/tenx';
 
 // Note that the ordering of the components in the layout
@@ -24,5 +23,4 @@ export const configs = {
   'spraggins-2020': spraggins2020,
   'satija-2020': satija2020,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
-  'allen-spacetx': allenSpaceTx,
 };

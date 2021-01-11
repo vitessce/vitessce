@@ -316,10 +316,6 @@
   margin: 1rem;
 }
 
-.demoHeaderText {
-  color: var(--ifm-color-emphasis-700);
-}
-
 .dataTypesTable code {
   white-space: nowrap;
 }
@@ -329,5 +325,5 @@
 }
 
 .viewConfigTabs {
-  max-width: 600px;
+  max-width: 100%;
 }
