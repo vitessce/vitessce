@@ -183,29 +183,12 @@ function AppConsumer() {
                 // use JSON.stringify to add nice indentation.
                 const responseJson = JSON.parse(responseText);
                 setPendingConfig(JSON.stringify(responseJson, null, 2));
-                setValidConfig(null);
               } catch(e) {
                 // However, this may be an invalid JSON object
                 // so we can just let the user edit the unformatted string.
                 setPendingConfig(responseText);
-                setValidConfig(null);
               }
               setError(null);
-            } else {
-              try {
-                const responseJson = JSON.parse(responseText);
-                // TODO: validate here.
-                setPendingConfig(responseJson);
-                setValidConfig(responseJson);
-                setError(null);
-              } catch(e) {
-                setError({
-                  title: "Error parsing JSON",
-                  message: e.message,
-                });
-                setPendingConfig(responseText);
-                setValidConfig(null);
-              }
             }
             setLoading(false);
           } else {
@@ -215,7 +198,6 @@ function AppConsumer() {
             });
             setLoading(false);
             setPendingConfig('{}');
-            setValidConfig(null);
           }
         } catch(e) {
           setError({
@@ -224,20 +206,13 @@ function AppConsumer() {
           });
           setLoading(false);
           setPendingConfig('{}');
-          setValidConfig(null);
         }
       } else if(demo && configs[demo]) {
         setPendingConfig(JSON.stringify(configs[demo], null, 2));
-        if(edit) {
-          setValidConfig(null); 
-        } else {
-          setValidConfig(configs[demo]); 
-        }
         setError(null);
         setLoading(false);
       } else {
         setPendingConfig(baseJson);
-        setValidConfig(null);
         setError(null);
         setLoading(false);
       }
@@ -262,11 +237,6 @@ function AppConsumer() {
       nextUrl = 'data:,' + encodeURIComponent(pendingFileContents);
     }
     window.location.href = baseUrl + nextUrl;
-  }
-
-  function handleClear() {
-    setEdit(true, 'pushIn');
-    increment();
   }
 
   function handleUrlChange(event) {
@@ -300,7 +270,7 @@ function AppConsumer() {
   return (
       loading ? (
         <pre>Loading...</pre>
-      ) : (!validConfig ? (
+      ) : (
         <main className={styles.viewConfigEditorMain}>
           {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error)}</pre>}
           <p className={styles.viewConfigEditorInfo}>
@@ -391,21 +361,7 @@ function AppConsumer() {
             </div>
           </div>
         </main>
-      ) : (
-        <main className={'vitessce-app'}>
-          <ThemedVitessce
-            validateOnConfigChange={debug}
-            config={validConfig}
-          />
-          <div className={styles.vitessceClear}>
-            <button
-              className={styles.vitessceClearButton}
-              onClick={handleClear}>
-              Edit
-            </button>
-          </div>
-        </main>
-      ))
+      )
   );
 }
 
