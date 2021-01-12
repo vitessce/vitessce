@@ -25,6 +25,6 @@ export const configs = {
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': codeluppi2018,
-  'vanderbilt': spraggins2020,
+  vanderbilt: spraggins2020,
   'dries-2019': eng2019,
 };

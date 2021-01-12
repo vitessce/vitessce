@@ -9,7 +9,6 @@ import { LiveProvider, LiveContext, LiveError, LivePreview } from 'react-live';
 import Highlight, { defaultProps } from "prism-react-renderer";
 import copy from 'copy-text-to-clipboard';
 import {
-  Vitessce,
   VitessceConfig, hconcat, vconcat,
   CoordinationType, Component, DataType, FileType,
 } from '../../../dist/umd/production/index.min.js';
@@ -52,16 +51,6 @@ function ThemedControlledEditor(props) {
       contextmenu: false,
     }}
   />
-}
-
-function ThemedVitessce(props) {
-  const { isDarkTheme } = useThemeContext();
-  return (
-    <Vitessce
-      theme={isDarkTheme ? "dark" : "light"}
-      {...props}
-    />
-  );
 }
 
 function JsonHighlight(props) {
