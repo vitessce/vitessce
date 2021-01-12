@@ -23,6 +23,8 @@ function Demo(props) {
         config,
     } = props;
 
+    const baseUrl = useBaseUrl('/app/index.html?edit=1&url=');
+
     return (
         <>
             <div className={styles.demoHeaderContainer}>
@@ -44,7 +46,7 @@ function Demo(props) {
                 <div className={styles.vitessceClear}>
                     <a
                         className={styles.vitessceClearButton}
-                        href={useBaseUrl(`/app/index.html#?edit=1&url=data:,` + encodeURIComponent(JSON.stringify(config)))}
+                        href={baseUrl + 'data:,' + encodeURIComponent(JSON.stringify(config))}
                     >
                     Edit
                     </a>

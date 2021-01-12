@@ -394,6 +394,8 @@ json={`
           "type": "ome-tiff",
           "metadata": {
             "transform": {
+              // An optional transformation matrix
+              // in column-major order.
               "matrix": [
                 0.81915098, -0.57357901, 0, 3264.76514684,
                 0.57357502, 0.819152, 0, 556.50440621,
@@ -417,6 +419,8 @@ const options = {
       "type": "ome-tiff",
       "metadata": {
         "transform": {
+          // An optional transformation matrix
+          // in column-major order.
           "matrix": [
             0.81915098, -0.57357901, 0, 3264.76514684,
             0.57357502, 0.819152, 0, 556.50440621,
@@ -439,7 +443,7 @@ const dataset = vc
 `}
   />
 
-- View config file definition snippet with a Bioformats-compatible Zarr store:
+- View config file definition snippet with a Zarr store:
 
   <ViewConfigTabs
 json={`
@@ -629,7 +633,7 @@ adata.obsm['X_top_200_genes'] = adata[:, adata.var['highly_variable']].X.copy()
 adata.write_zarr('my_store.zarr')
 ```
 
-Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) family of native file types.
+Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) family of native file types. Both dense and sparse expression matrices are supported.
 
 ### Loom
 

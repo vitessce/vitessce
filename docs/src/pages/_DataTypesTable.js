@@ -49,7 +49,7 @@ export default function DataTypesTable(props) {
                             <a href={useBaseUrl('/docs/data-file-types/index.html#rasterjson')}><code>raster.json</code></a>
                             <ul>
                                 <li>OME-TIFF</li>
-                                <li>Bioformats-Zarr</li>
+                                <li>Zarr</li>
                             </ul>
                         </li>
                     </ul></td>

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useReducer } from 'react';
 import clsx from 'clsx';
-import useHashParam from './_use-hash-param';
+import { QueryParamProvider, useQueryParam, StringParam, BooleanParam } from 'use-query-params';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
@@ -126,11 +126,12 @@ const scope = {
   Highlight: JsonHighlight,
 };
 
-function App() {
-  const [demo, setDemo] = useHashParam('dataset', undefined, 'string');
-  const [debug, setDebug] = useHashParam('debug', false, 'boolean');
-  const [url, setUrl] = useHashParam('url', undefined, 'string');
-  const [edit, setEdit] = useHashParam('edit', true, 'boolean');
+function AppConsumer() {
+  const baseUrl = useBaseUrl('/index.html?url=');
+  const [demo, setDemo] = useQueryParam('dataset', StringParam);
+  const [debug, setDebug] = useQueryParam('debug', BooleanParam);
+  const [url, setUrl] = useQueryParam('url', StringParam);
+  const [edit, setEdit] = useQueryParam('edit', BooleanParam);
   const [i, increment] = useReducer(v => v+1, 1);
 
   const [error, setError] = useState(null);
@@ -248,24 +249,23 @@ function App() {
   }, [url, edit, demo]);
 
   function handleEditorGo() {
-    setEdit(false);
+    let nextUrl;
     if(loadFrom === 'editor') {
       let nextConfig = pendingConfig;
       if(syntaxType === "JS") {
         nextConfig = window[JSON_TRANSLATION_KEY];
-        setSyntaxType("JSON");
       }
-      setUrl('data:,' + encodeURIComponent(nextConfig));
+      nextUrl = 'data:,' + encodeURIComponent(nextConfig);
     } else if(loadFrom === 'url') {
-      setUrl(pendingUrl);
+      nextUrl = pendingUrl;
     } else if(loadFrom === 'file') {
-      setUrl('data:,' + encodeURIComponent(pendingFileContents));
+      nextUrl = 'data:,' + encodeURIComponent(pendingFileContents);
     }
-    increment();
+    window.location.href = baseUrl + nextUrl;
   }
 
   function handleClear() {
-    setEdit(true);
+    setEdit(true, 'pushIn');
     increment();
   }
 
@@ -410,10 +410,10 @@ function App() {
 }
 
 // Reference: https://github.com/pbeshai/use-query-params#usage
-function WrappedApp() {
+export default function App() {
   return(
-    <App/>
+    <QueryParamProvider>
+      <AppConsumer />
+    </QueryParamProvider>
   );
 }
-
-export default WrappedApp;

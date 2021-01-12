@@ -3,17 +3,22 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import styles from './styles.module.css';
 
-function getDemoUrl(demoKey) {
-  return useBaseUrl(`demos/index.html#?dataset=${demoKey}`);
-}
+const publicConfigs = [
+    'codeluppi-2018',
+    'eng-2019',
+    'wang-2018',
+    'spraggins-2020',
+    'satija-2020',
+];
 
 function DemoList(props) {
     const {
         configs,
-        descriptions,
     } = props;
 
-    const demos = Object.entries(configs).filter(([k, v]) => v.public);
+    const baseUrl = useBaseUrl('/index.html?dataset=')
+
+    const demos = publicConfigs.map(key => ([key, configs[key]]));
     return (
         <>
             <p className={styles.demoDescription}>
@@ -22,7 +27,7 @@ function DemoList(props) {
             <div className={styles.demoGridContainer}>
                 {demos.map(([key, d]) => (
                 <div key={key} className={styles.demoGridItem}>
-                    <a href={getDemoUrl(key)}  className={styles.demoGridItemLink}>{d.name}</a>
+                    <a href={baseUrl + key}  className={styles.demoGridItemLink}>{d.name}</a>
                     <p className={styles.demoGridItemDescription}>{d.description}</p>
                 </div>
                 ))}

@@ -11,6 +11,7 @@ export const baseJson = `{
   
 export const baseJs = `const vc = new VitessceConfig("My config");
 
+// Return the view config as JSON.
 return vc.toJSON();`;
   
 export const exampleJs = `// Instantiate a view config object.
@@ -41,6 +42,7 @@ vc.layout(
   )
 );
 
+// Return the view config as JSON.
 return vc.toJSON();`;
   
 export const exampleJson = `{

@@ -4,7 +4,7 @@ import Layout from '@theme/Layout';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 
 // Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
-function WrappedApp(props) {
+export default function WrappedApp(props) {
   return (
     <Layout
       noFooter
@@ -20,4 +20,3 @@ function WrappedApp(props) {
   );
 }
 
-export default WrappedApp;

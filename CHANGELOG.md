@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Added a new documentation site.
 
 ### Changed
 
@@ -33,7 +34,6 @@
 - Support loading AnnData from zarr.
 - Added scatterplot component options pane.
 - Added a `TextLayer` to render cell set names over the corresponding cell set centroid in the scatterplot.
-- Added a new documentation site.
 
 ### Changed
 - Genes list is now a virtual scroll to allow for more performant rendering.
