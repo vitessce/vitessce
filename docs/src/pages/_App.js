@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState, useReducer } from 'react';
+import Ajv from 'ajv';
 import clsx from 'clsx';
 import { QueryParamProvider, useQueryParam, StringParam, BooleanParam } from 'use-query-params';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -12,6 +13,11 @@ import {
   VitessceConfig, hconcat, vconcat,
   CoordinationType, Component, DataType, FileType,
 } from '../../../dist/umd/production/index.min.js';
+
+import configSchema from '../../../src/schemas/config.schema.json';
+import cellSetsSchema from '../../../src/schemas/cell-sets.schema.json';
+import rasterSchema from '../../../src/schemas/raster.schema.json';
+
 import { getHighlightTheme } from './_highlight-theme';
 import { baseJs, baseJson, exampleJs, exampleJson } from './_live-editor-examples';
 
@@ -20,6 +26,12 @@ import { configs } from '../../../src/demo/configs';
 import styles from './styles.module.css';
 
 const JSON_TRANSLATION_KEY = 'vitessceJsonTranslation';
+
+const validate = new Ajv()
+      .addSchema(cellSetsSchema)
+      .addSchema(rasterSchema)
+      .compile(configSchema);
+
 
 // To simplify the JS editor, the user only needs to write
 // the inner part of the createConfig() function,
@@ -212,6 +224,16 @@ function AppConsumer() {
     };
   }, [url, edit, demo]);
 
+  function validateConfig(nextConfig) {
+    const valid = validate(JSON.parse(nextConfig));
+
+    let failureReason = '';
+    if (!valid) {
+      failureReason = validate.errors;
+    }
+    return [valid, failureReason];
+  }
+
   function handleEditorGo() {
     let nextUrl;
     if(loadFrom === 'editor') {
@@ -220,6 +242,12 @@ function AppConsumer() {
         nextConfig = window[JSON_TRANSLATION_KEY];
       }
       nextUrl = 'data:,' + encodeURIComponent(nextConfig);
+
+      const [valid, failureReason] = validateConfig(nextConfig);
+      if(!valid) {
+        setError(failureReason);
+        return;
+      }
     } else if(loadFrom === 'url') {
       nextUrl = pendingUrl;
     } else if(loadFrom === 'file') {
@@ -261,7 +289,7 @@ function AppConsumer() {
         <pre>Loading...</pre>
       ) : (
         <main className={styles.viewConfigEditorMain}>
-          {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error)}</pre>}
+          {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error, null, 2)}</pre>}
           <p className={styles.viewConfigEditorInfo}>
             To use Vitessce, enter a&nbsp;
             <a href={useBaseUrl('/docs/view-config-json/index.html')}>view config</a>
