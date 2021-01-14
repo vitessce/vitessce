@@ -6,8 +6,9 @@ BRANCH=`git rev-parse --abbrev-ref HEAD`
 DATE=`date "+%Y-%m-%d"`
 HASH=`git rev-parse --short HEAD`
 
-ROOT_DOCS_URL_PATH="vitessce-data/docs-root/$DATE/$HASH"
-VERSIONED_DOCS_URL_PATH="vitessce-data/docs/$DATE/$HASH"
+BUCKET="vitessce-data"
+ROOT_DOCS_URL_PATH="$BUCKET/docs-root/$DATE/$HASH"
+VERSIONED_DOCS_URL_PATH="docs/$DATE/$HASH"
 
 die() { set +v; echo "$*" 1>&2 ; exit 1; }
 git diff --quiet || die 'Uncommitted changes: Stash or commit before pushing docs.'
@@ -43,8 +44,8 @@ cp ../error.html $ROOT_DIST_DIR
 cp ../error.html $VERSIONED_DIST_DIR
 # and push to S3.
 aws s3 cp --recursive $ROOT_DIST_DIR s3://$ROOT_DOCS_URL_PATH
-aws s3 cp --recursive $VERSIONED_DIST_DIR s3://$VERSIONED_DOCS_URL_PATH
-VERSIONED_TARGET_URL="https://s3.amazonaws.com/$VERSIONED_DOCS_URL_PATH/index.html"
+aws s3 cp --recursive $VERSIONED_DIST_DIR s3://$BUCKET/$VERSIONED_DOCS_URL_PATH
+VERSIONED_TARGET_URL="http://$BUCKET.s3-website-us-east-1.amazonaws.com/$VERSIONED_DOCS_URL_PATH/index.html"
 COPY_TARGET_URL="https://s3.amazonaws.com/$ROOT_DOCS_URL_PATH/index.html"
 
 echo "- $DATE: [$BRANCH]($VERSIONED_TARGET_URL)" >> ../DOCS.md
