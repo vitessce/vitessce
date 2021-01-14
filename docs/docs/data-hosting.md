@@ -90,6 +90,8 @@ TODO
 
 Simply add your data files to the `gh-pages` branch of your repository, enable GitHub Pages in the repository settings tab, and add a `.nojekyll` file to the root of the `gh-pages` branch.
 
+Note: OME-TIFF files hosted on GitHub Pages are currently not supported, as GitHub Pages does not support HTTP requests with the `Range` header.
+
 ## Local
 
 Before uploading data to a cloud object store, you may want to work with the data locally.
