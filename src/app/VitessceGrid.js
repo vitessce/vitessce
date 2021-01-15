@@ -53,7 +53,7 @@ export default function VitessceGrid(props) {
   useEffect(() => {
     if (config) {
       setViewConfig(config);
-      const loaders = createLoaders(config.datasets);
+      const loaders = createLoaders(config.datasets, config.description);
       setLoaders(loaders);
     } else {
       // No config found, so clear the loaders.
