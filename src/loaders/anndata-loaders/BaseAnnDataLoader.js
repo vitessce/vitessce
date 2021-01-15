@@ -41,7 +41,8 @@ export default class BaseAnnDataLoader extends AbstractLoader {
   decodeTextArray(buffer) {
     return (
       new TextDecoder()
-        .decode(buffer)
+        // Not clear to me why, but the first four bytes are meaningless, random, and error-prone.
+        .decode(buffer.slice(4))
         // https://stackoverflow.com/questions/11159118/incorrect-string-value-xef-xbf-xbd-for-column
         // for information on the right hand side of the | in the regex.
         // eslint-disable-next-line no-control-regex
@@ -147,9 +148,7 @@ export default class BaseAnnDataLoader extends AbstractLoader {
             throw err;
           }
         }
-        const text = this.decodeTextArray(data)
-          .filter(i => !Number(i))
-          .filter(i => i.length > 2);
+        const text = this.decodeTextArray(data);
         return text;
       }));
     return this.cellNames;

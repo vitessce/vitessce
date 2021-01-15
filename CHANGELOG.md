@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Fix AnnData text decoding.
 
 ## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07
 
