@@ -36,11 +36,13 @@ export class VitessceConfigDataset {
    * Construct a new dataset definition instance.
    * @param {string} uid The unique ID for the dataset.
    * @param {string} name The name of the dataset.
+   * @param {string} description A description for the dataset.
    */
-  constructor(uid, name) {
+  constructor(uid, name, description) {
     this.dataset = {
       uid,
       name,
+      description,
       files: [],
     };
   }
@@ -204,7 +206,7 @@ export class VitessceConfig {
    * @param {string} name A name for the config. Optional.
    * @param {string} description A description for the config. Optional.
    */
-  constructor(name = '', description = '') {
+  constructor(name = undefined, description = undefined) {
     this.config = {
       version: '1.0.0',
       name,
@@ -219,14 +221,16 @@ export class VitessceConfig {
   /**
    * Add a new dataset to the config.
    * @param {string} name A name for the dataset. Optional.
+   * @param {string} description A description for the dataset. Optional.
    * @param {string} uid Override the automatically-generated dataset ID. Optional.
    * Intended for internal usage by the VitessceConfig.fromJSON code.
    * @returns {VitessceConfigDataset} A new dataset instance.
    */
-  addDataset(name = '', uid = null) {
+  addDataset(name = undefined, description = undefined, options = undefined) {
+    const { uid } = options || {};
     const prevDatasetUids = this.config.datasets.map(d => d.dataset.uid);
     const nextUid = (uid || getNextScope(prevDatasetUids));
-    const newDataset = new VitessceConfigDataset(nextUid, name);
+    const newDataset = new VitessceConfigDataset(nextUid, name, description);
     this.config.datasets.push(newDataset);
     const [newScope] = this.addCoordination(COORDINATION_TYPES.DATASET);
     newScope.setValue(nextUid);
@@ -396,7 +400,7 @@ export class VitessceConfig {
     const { name, description } = config;
     const vc = new VitessceConfig(name, description);
     config.datasets.forEach((d) => {
-      const newDataset = vc.addDataset(d.name, d.uid);
+      const newDataset = vc.addDataset(d.name, d.description, { uid: d.uid });
       d.files.forEach((f) => {
         newDataset.addFile(
           f.url,
