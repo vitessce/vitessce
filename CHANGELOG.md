@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Added an optional `description` field to the dataset definition config object. Updated the `<Description/>` component to prefer this value over the top-level description value, if available.
 
 ### Changed
 

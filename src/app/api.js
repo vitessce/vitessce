@@ -156,6 +156,7 @@ export const configs = {
       {
         uid: 'linnarsson-2018',
         name: 'Linnarsson 2018',
+        description: `Linnarsson: ${linnarssonDescription}`,
         files: linnarssonBase.layers.map(file => ({
           type: file.type.toLowerCase(),
           fileType: file.fileType,
@@ -185,9 +186,6 @@ export const configs = {
     },
     layout: [
       { component: 'description',
-        props: {
-          description: `Linnarsson: ${linnarssonDescription}`,
-        },
         x: 0, y: 0, w: 2, h: 1 },
       { component: 'layerController',
         x: 0, y: 1, w: 2, h: 4,
@@ -418,9 +416,6 @@ export const configs = {
     },
     layout: [
       { component: 'description',
-        props: {
-          description: driesDescription,
-        },
         x: 9, y: 0, w: 3, h: 2 },
       { component: 'status',
         x: 9, y: 2, w: 3, h: 2 },
