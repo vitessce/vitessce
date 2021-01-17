@@ -31,7 +31,6 @@ export default function GenesSubscriber(props) {
     setGeneFilter,
     setGeneHighlight,
     setCellColorEncoding,
-    setCellSetSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -54,7 +53,6 @@ export default function GenesSubscriber(props) {
   const numGenes = geneList.length;
 
   function setGeneSelectionAndColorEncoding(newSelection) {
-    setCellSetSelection([]);
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
   }

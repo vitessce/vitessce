@@ -1,17 +1,18 @@
+/* eslint-disable */
 import React, { useMemo, useEffect } from 'react';
-import { sum } from 'd3-array';
-
 import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
-import { useExpressionMatrixData } from '../data-hooks';
-import ExpressionHistogram from './ExpressionHistogram';
+import { mergeCellSets } from '../utils';
+import { useExpressionMatrixData, useCellSetsData } from '../data-hooks';
+import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-utils';
+import CellSetExpressionPlot from './CellSetExpressionPlot';
 
-const EXPRESSION_HISTOGRAM_DATA_TYPES = ['expression-matrix'];
+const CELL_SET_EXPRESSION_DATA_TYPES = ['cell-sets', 'expression-matrix'];
 
 /**
- * A subscriber component for `ExpressionHistogram`,
+ * A subscriber component for `CellSetExpressionPlot`,
  * which listens for gene selection updates and
  * `GRID_RESIZE` events.
  * @param {object} props
@@ -20,7 +21,7 @@ const EXPRESSION_HISTOGRAM_DATA_TYPES = ['expression-matrix'];
  * have been made.
  * @param {string} props.theme The name of the current Vitessce theme.
  */
-export default function ExpressionHistogramSubscriber(props) {
+export default function CellSetExpressionPlotSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
@@ -33,12 +34,15 @@ export default function ExpressionHistogramSubscriber(props) {
   const [{
     dataset,
     geneSelection,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.expressionHistogram, coordinationScopes);
+    cellSetSelection,
+    cellSetColor,
+    additionalCellSets,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetExpression, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
-    EXPRESSION_HISTOGRAM_DATA_TYPES,
+    CELL_SET_EXPRESSION_DATA_TYPES,
   );
 
   // Reset file URLs and loader progress when the dataset has changed.
@@ -52,48 +56,57 @@ export default function ExpressionHistogramSubscriber(props) {
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
+  const [cellSets] = useCellSetsData(
+    loaders, dataset, setItemIsReady, addUrl, true,
+  );
 
-  const firstGeneSelected = geneSelection && geneSelection.length >= 1
-    ? geneSelection[0]
-    : null;
+  const mergedCellSets = useMemo(
+    () => mergeCellSets(cellSets, additionalCellSets),
+    [cellSets, additionalCellSets],
+  );
+  
 
-  // From the expression matrix and the list of selected genes,
-  // generate the array of data points for the histogram.
+  // From the expression matrix and the list of selected genes / cell sets,
+  // generate the array of data points for the plot.
   const data = useMemo(() => {
-    if (firstGeneSelected && expressionMatrix) {
-      const numGenes = expressionMatrix.cols.length;
+    if (mergedCellSets && cellSetSelection && geneSelection && geneSelection.length >= 1 && expressionMatrix) {
+      
+      const cellObjects = treeToObjectsBySetNames(mergedCellSets, cellSetSelection, cellSetColor);
+
+      const firstGeneSelected = geneSelection[0];
       const geneIndex = expressionMatrix.cols.indexOf(firstGeneSelected);
       if (geneIndex !== -1) {
+        const numGenes = expressionMatrix.cols.length;
         // Create new cellColors map based on the selected gene.
-        return expressionMatrix.rows.map((cellId, cellIndex) => {
+        return cellObjects.map((cell) => {
+          const cellIndex = expressionMatrix.rows.indexOf(cell.obsId);
           const value = expressionMatrix.matrix[cellIndex * numGenes + geneIndex];
           const normValue = value * 100 / 255;
-          return { value: normValue, gene: firstGeneSelected };
+          return { value: normValue, gene: firstGeneSelected, set: cell.name };
         });
       }
-    } else if (expressionMatrix) {
-      const numGenes = expressionMatrix.cols.length;
-      return expressionMatrix.rows.map((cellId, cellIndex) => {
-        const values = expressionMatrix.matrix
-          .subarray(cellIndex * numGenes, (cellIndex + 1) * numGenes);
-        const sumValue = sum(values) * 100 / 255;
-        return { value: sumValue, gene: null };
-      });
     }
     return null;
-  }, [expressionMatrix, firstGeneSelected]);
+  }, [expressionMatrix, geneSelection, mergedCellSets, cellSetSelection, cellSetColor]);
+
+  // From the cell sets hierarchy and the list of selected cell sets,
+  // generate the array of set sizes data points for the bar plot.
+  const colors = useMemo(() => (mergedCellSets && cellSetSelection
+    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor)
+    : []
+  ), [mergedCellSets, cellSetSelection, cellSetColor]);
 
   return (
     <TitleInfo
-      title={`Expression Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title="Expression by Cell Set"
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
       isReady={isReady}
     >
       <div ref={containerRef} className="vega-container">
-        <ExpressionHistogram
-          geneSelection={geneSelection}
+        <CellSetExpressionPlot
+          colors={colors}
           data={data}
           theme={theme}
           width={width}

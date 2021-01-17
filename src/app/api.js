@@ -210,7 +210,7 @@ export const configs = {
           transpose: true,
         },
         x: 2, y: 4, w: 5, h: 2 },
-      { component: 'expressionHistogram',
+      { component: 'cellSetExpression',
         x: 7, y: 4, w: 5, h: 2 },
       { component: 'scatterplot',
         coordinationScopes: {

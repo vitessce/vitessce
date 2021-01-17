@@ -91,7 +91,6 @@ export default function CellSetsManagerSubscriber(props) {
     setCellColorEncoding,
     setCellSetColor,
     setAdditionalCellSets,
-    setGeneSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -192,7 +191,6 @@ export default function CellSetsManagerSubscriber(props) {
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
   function setCellSetColorEncoding() {
-    setGeneSelection([]);
     setCellColorEncoding('cellSetSelection');
   }
 

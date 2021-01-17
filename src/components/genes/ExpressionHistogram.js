@@ -1,8 +1,6 @@
 import React from 'react';
 import clamp from 'lodash/clamp';
-import { VegaPlot, createVegaLiteApi, VEGA_THEMES } from '../vega';
-
-const vl = createVegaLiteApi();
+import { VegaPlot, VEGA_THEMES } from '../vega';
 
 /**
  * Gene expression histogram displayed as a bar chart,
@@ -22,6 +20,7 @@ const vl = createVegaLiteApi();
  */
 export default function ExpressionHistogram(props) {
   const {
+    geneSelection,
     data,
     theme,
     width,
@@ -30,19 +29,30 @@ export default function ExpressionHistogram(props) {
     marginBottom = 50,
   } = props;
 
-  const spec = vl
-    .markBar()
-    .encode(
-      vl.x().fieldQ('value').bin({ })
-        .title('Normalized Expression Value'),
-      vl.y().count()
-        .title('Number of Cells'),
-      vl.color().value('gray'),
-    )
-    .width(clamp(width - marginRight, 10, Infinity))
-    .height(clamp(height - marginBottom, 10, Infinity))
-    .config(VEGA_THEMES[theme])
-    .toJSON();
+  const xTitle = geneSelection && geneSelection.length >= 1
+    ? 'Normalized Expression Value'
+    : 'Total Normalized Transcript Count';
+
+  const spec = {
+    mark: { type: 'bar' },
+    encoding: {
+      x: {
+        field: 'value',
+        type: 'quantitative',
+        bin: { maxbins: 50 },
+        title: xTitle,
+      },
+      y: {
+        type: 'quantitative',
+        aggregate: 'count',
+        title: 'Number of Cells',
+      },
+      color: { value: 'gray' },
+    },
+    width: clamp(width - marginRight, 10, Infinity),
+    height: clamp(height - marginBottom, 10, Infinity),
+    config: VEGA_THEMES[theme],
+  };
 
   return (
     <VegaPlot

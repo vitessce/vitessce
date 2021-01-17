@@ -1,9 +1,7 @@
 import React from 'react';
 import clamp from 'lodash/clamp';
-import { VegaPlot, createVegaLiteApi, VEGA_THEMES } from '../vega';
+import { VegaPlot, VEGA_THEMES } from '../vega';
 import { colorArrayToString } from './utils';
-
-const vl = createVegaLiteApi();
 
 /**
  * Cell set sizes displayed as a bar chart,
@@ -56,24 +54,36 @@ export default function CellSetSizesPlot(props) {
   // Get an array of keys for sorting purposes.
   const keys = data.map(d => d.keyName);
 
-  const spec = vl
-    .markBar()
-    .encode(
-      vl.x().fieldN('keyName')
-        .axis({ labelExpr: `substring(datum.label, ${keyLength})` })
-        .title('Cell Set Name')
-        .sort(keys),
-      vl.y().fieldQ('size')
-        .title('Cell Set Size'),
-      vl.color().fieldN('key')
-        .scale(colors)
-        .legend(null),
-      vl.tooltip().fieldQ('size'),
-    )
-    .width(clamp(width - marginRight, 10, Infinity))
-    .height(clamp(height - marginBottom, 10, Infinity))
-    .config(VEGA_THEMES[theme])
-    .toJSON();
+  const spec = {
+    mark: { type: 'bar' },
+    encoding: {
+      x: {
+        field: 'keyName',
+        type: 'nominal',
+        axis: { labelExpr: `substring(datum.label, ${keyLength})` },
+        title: 'Cell Set Name',
+        sort: keys,
+      },
+      y: {
+        field: 'size',
+        type: 'quantitative',
+        title: 'Cell Set Size',
+      },
+      color: {
+        field: 'key',
+        type: 'nominal',
+        scale: colors,
+        legend: null,
+      },
+      tooltip: {
+        field: 'size',
+        type: 'quantitative',
+      },
+    },
+    width: clamp(width - marginRight, 10, Infinity),
+    height: clamp(height - marginBottom, 10, Infinity),
+    config: VEGA_THEMES[theme],
+  };
 
   return (
     <VegaPlot

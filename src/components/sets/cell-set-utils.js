@@ -350,6 +350,38 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
   return new Map(cellColorsArray);
 }
 
+/**
+ * Given a tree with state, get an array of
+ * objects with cellIds and cellColors,
+ * based on the nodes currently marked as "visible".
+ * @param {object} currTree A tree object.
+ * @returns {array} Tuple of [cellIds, cellColors]
+ * where cellIds is an array of strings,
+ * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
+ */
+export function treeToObjectsBySetNames(currTree, selectedNamePaths, cellSetColor) {
+  let cellsArray = [];
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      const nodeColor = (
+        cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+        || DEFAULT_COLOR
+      );
+      cellsArray = [
+        ...cellsArray,
+        ...nodeSet.map(([cellId]) => ({
+          obsId: cellId,
+          name: node.name,
+          color: nodeColor,
+        })),
+      ];
+    }
+  });
+  return cellsArray;
+}
+
 export function treeToCellPolygonsBySetNames(
   currTree, cells, mapping, selectedNamePaths, cellSetColor,
 ) {
