@@ -28,7 +28,7 @@ export default function CellSetExpressionPlot(props) {
     width,
     height,
     marginRight = 90,
-    marginBottom = 50,
+    marginBottom = 120,
   } = props;
 
   // Manually set the color scale so that Vega-Lite does
@@ -42,7 +42,7 @@ export default function CellSetExpressionPlot(props) {
   const plotHeight = clamp(height - marginBottom, 10, Infinity);
 
   const numBands = colorsRaw.length;
-  const bandHeight = plotHeight / numBands;
+  const bandWidth = plotWidth / numBands;
 
   const spec = {
     "$schema": "https://vega.github.io/schema/vega/v5.json",
@@ -59,8 +59,9 @@ export default function CellSetExpressionPlot(props) {
     },
   
     "signals": [
-      { "name": "plotWidth", "value": bandHeight },
-      { "name": "height", "update": `(plotWidth) * ${numBands}`},
+      { "name": "bandWidth", "value": bandWidth },
+      { "name": "width", "value": plotWidth },
+      { "name": "height", "value": plotHeight }
     ],
   
     "data": [
@@ -73,7 +74,7 @@ export default function CellSetExpressionPlot(props) {
             "field": "value",
             "groupby": ["set"],
             "bandwidth": 0,
-            "extent": [0, 100]
+            "extent": {"signal": "[0, 100]"}
           }
         ]
       },
@@ -96,22 +97,30 @@ export default function CellSetExpressionPlot(props) {
       {
         "name": "layout",
         "type": "band",
-        "range": "height",
+        "range": "width",
         "domain": {"data": DATASET_NAME, "field": "set"}
       },
       {
-        "name": "xscale",
+        "name": "yscale",
         "type": "linear",
-        "range": "width", "round": true,
+        "range": "height",
+        "round": true,
         "domain": {"data": DATASET_NAME, "field": "value"},
         "domainMin": 0,
-        "domainMax": 100,
-        "zero": false, "nice": true
+        "zero": false,
+        "nice": true
       },
       {
-        "name": "hscale",
+        "name": "wscale",
         "type": "linear",
-        "range": [0, {"signal": "plotWidth"}],
+        "range": [0, {"signal": "bandWidth"}],
+        "domain": {"data": "density", "field": "density"}
+      },
+      {
+        "name": "wscaleReversed",
+        "type": "linear",
+        "reverse": true,
+        "range": [0, {"signal": "bandWidth"}],
         "domain": {"data": "density", "field": "density"}
       },
       {
@@ -123,8 +132,21 @@ export default function CellSetExpressionPlot(props) {
     ],
   
     "axes": [
-      {"orient": "bottom", "scale": "xscale", "zindex": 1},
-      {"orient": "left", "scale": "layout", "tickCount": 5, "zindex": 1}
+      {
+        "orient": "left",
+        "scale": "yscale",
+        "zindex": 1,
+        "title": "Normalized Expression Level"
+      },
+      {
+        "orient": "bottom",
+        "scale": "layout",
+        "tickCount": 5,
+        "zindex": 1,
+        "title": "Cell Set",
+        "labelAngle": -45,
+        "labelAlign": "right"
+      }
     ],
   
     "marks": [
@@ -140,9 +162,9 @@ export default function CellSetExpressionPlot(props) {
   
         "encode": {
           "enter": {
-            "yc": {"scale": "layout", "field": "set", "band": 0.5},
-            "height": {"signal": "plotWidth"},
-            "width": {"signal": "width"}
+            "xc": {"scale": "layout", "field": "set", "band": 0.5},
+            "width": {"signal": "bandWidth"},
+            "height": {"signal": "height"}
           }
         },
   
@@ -162,15 +184,33 @@ export default function CellSetExpressionPlot(props) {
         "marks": [
           {
             "type": "area",
+            "orient": "vertical",
             "from": {"data": "violin"},
             "encode": {
               "enter": {
                 "fill": {"scale": "color", "field": {"parent": "set"}}
               },
               "update": {
-                "x": {"scale": "xscale", "field": "value"},
-                "yc": {"signal": "plotWidth / 2"},
-                "height": {"scale": "hscale", "field": "density"}
+                "width": {"scale": "wscale", "field": "density"},
+                "xc": {"signal": "bandWidth / 2"},
+                "y2": {"scale": "yscale", "field": "value"},
+                "y": {"scale": "yscale", "value": 0}
+              }
+            }
+          },
+           {
+            "type": "area",
+            "orient": "vertical",
+            "from": {"data": "violin"},
+            "encode": {
+              "enter": {
+                "fill": {"scale": "color", "field": {"parent": "set"}}
+              },
+              "update": {
+                "width": {"scale": "wscaleReversed", "field": "density"},
+                "xc": {"signal": "bandWidth"},
+                "y2": {"scale": "yscale", "field": "value"},
+                "y": {"scale": "yscale", "value": 0}
               }
             }
           },
@@ -180,12 +220,12 @@ export default function CellSetExpressionPlot(props) {
             "encode": {
               "enter": {
                 "fill": {"value": "black"},
-                "height": {"value": 2}
+                "width": {"value": 2}
               },
               "update": {
-                "x": {"scale": "xscale", "field": "q1"},
-                "x2": {"scale": "xscale", "field": "q3"},
-                "yc": {"signal": "plotWidth / 2"}
+                "y": {"scale": "yscale", "field": "q1"},
+                "y2": {"scale": "yscale", "field": "q3"},
+                "xc": {"signal": "bandWidth / 2"}
               }
             }
           },
@@ -195,12 +235,12 @@ export default function CellSetExpressionPlot(props) {
             "encode": {
               "enter": {
                 "fill": {"value": "black"},
-                "width": {"value": 2},
-                "height": {"value": 8}
+                "height": {"value": 2},
+                "width": {"value": 8}
               },
               "update": {
-                "x": {"scale": "xscale", "field": "median"},
-                "yc": {"signal": "plotWidth / 2"}
+                "y": {"scale": "yscale", "field": "median"},
+                "xc": {"signal": "bandWidth / 2"}
               }
             }
           }
@@ -209,6 +249,7 @@ export default function CellSetExpressionPlot(props) {
     ]
   };
 
+  
   return (
     <VegaPlot
       data={data}

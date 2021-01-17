@@ -61,7 +61,7 @@ export default function CellSetSizesPlot(props) {
         field: 'keyName',
         type: 'nominal',
         axis: { labelExpr: `substring(datum.label, ${keyLength})` },
-        title: 'Cell Set Name',
+        title: 'Cell Set',
         sort: keys,
       },
       y: {
