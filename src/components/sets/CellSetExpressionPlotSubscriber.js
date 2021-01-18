@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useMemo, useEffect } from 'react';
 import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
@@ -64,13 +63,15 @@ export default function CellSetExpressionPlotSubscriber(props) {
     () => mergeCellSets(cellSets, additionalCellSets),
     [cellSets, additionalCellSets],
   );
-  
+
 
   // From the expression matrix and the list of selected genes / cell sets,
   // generate the array of data points for the plot.
   const data = useMemo(() => {
-    if (mergedCellSets && cellSetSelection && geneSelection && geneSelection.length >= 1 && expressionMatrix) {
-      
+    if (mergedCellSets && cellSetSelection
+      && geneSelection && geneSelection.length >= 1
+      && expressionMatrix
+    ) {
       const cellObjects = treeToObjectsBySetNames(mergedCellSets, cellSetSelection, cellSetColor);
 
       const firstGeneSelected = geneSelection[0];
@@ -105,13 +106,17 @@ export default function CellSetExpressionPlotSubscriber(props) {
       isReady={isReady}
     >
       <div ref={containerRef} className="vega-container">
-        <CellSetExpressionPlot
-          colors={colors}
-          data={data}
-          theme={theme}
-          width={width}
-          height={height}
-        />
+        {data ? (
+          <CellSetExpressionPlot
+            colors={colors}
+            data={data}
+            theme={theme}
+            width={width}
+            height={height}
+          />
+        ) : (
+          <span>Select a gene.</span>
+        )}
       </div>
     </TitleInfo>
   );

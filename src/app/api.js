@@ -211,7 +211,9 @@ export const configs = {
         },
         x: 2, y: 4, w: 5, h: 2 },
       { component: 'cellSetExpression',
-        x: 7, y: 4, w: 5, h: 2 },
+        x: 7, y: 4, w: 3, h: 2 },
+      { component: 'expressionHistogram',
+        x: 10, y: 4, w: 2, h: 2 },
       { component: 'scatterplot',
         coordinationScopes: {
           embeddingType: 'PCA',
