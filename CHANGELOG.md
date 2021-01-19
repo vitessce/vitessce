@@ -4,6 +4,7 @@
 - Added an optional `description` field to the dataset definition config object. Updated the `<Description/>` component to prefer this value over the top-level description value, if available.
 
 ### Changed
+- Fix AnnData text decoding.
 
 ## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07
 
