@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slider from '@material-ui/core/Slider';
+import Select from '@material-ui/core/Select';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -59,6 +60,8 @@ export default function ScatterplotOptions(props) {
     setCellSetLabelSize,
     cellSetPolygonsVisible,
     setCellSetPolygonsVisible,
+    cellColorEncoding,
+    setCellColorEncoding,
   } = props;
 
   const observationsLabelNice = capitalize(observationsLabel);
@@ -79,6 +82,10 @@ export default function ScatterplotOptions(props) {
 
   function handlePolygonVisibilityChange(event) {
     setCellSetPolygonsVisible(event.target.checked);
+  }
+
+  function handleColorEncodingChange(event) {
+    setCellColorEncoding(event.target.value);
   }
 
   return (
@@ -147,6 +154,24 @@ export default function ScatterplotOptions(props) {
                   min={0.25}
                   max={8}
                 />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className={classes.labelCell} htmlFor="cell-color-encoding-select">
+                {observationsLabelNice} Color Encoding
+              </TableCell>
+              <TableCell className={classes.inputCell}>
+                <Select
+                  native
+                  value={cellColorEncoding}
+                  onChange={handleColorEncodingChange}
+                  inputProps={{
+                    id: 'cell-color-encoding-select',
+                  }}
+                >
+                  <option value="cellSetSelection">Cell Sets</option>
+                  <option value="geneSelection">Gene Expression</option>
+                </Select>
               </TableCell>
             </TableRow>
           </TableBody>

@@ -86,6 +86,7 @@ export default function CellSetsManagerSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     additionalCellSets,
+    cellColorEncoding,
   }, {
     setCellSetSelection,
     setCellColorEncoding,
@@ -648,6 +649,7 @@ export default function CellSetsManagerSubscriber(props) {
         levelSelection={checkedLevel}
         setSelection={cellSetSelection}
         setExpansion={cellSetExpansion}
+        hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
         draggable
         datatype={SETS_DATATYPE_CELL}
         onError={setWarning}
