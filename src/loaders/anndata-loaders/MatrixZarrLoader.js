@@ -102,37 +102,18 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     if (this.geneNames) {
       return this.geneNames;
     }
-    const { store } = this;
     const { geneFilter: geneFilterZarr } = this.options;
     let geneFilter;
     if (geneFilterZarr) {
-      const geneFilterArr = await openArray({
-        store,
-        path: geneFilterZarr,
-        mode: 'r',
-      });
-      const genesBufferCompressed = await store.getItem(`${geneFilterArr.keyPrefix}0`);
-      geneFilter = await geneFilterArr.compressor.decode(genesBufferCompressed);
+      geneFilter = await this.getFlatArrDecompressed(geneFilterZarr);
     }
     const { _index } = await this.getJson('var/.zattrs');
     if (this.geneNames) {
       return this.geneNames;
     }
-    this.geneNames = openArray({
-      store,
-      path: `var/${_index}`,
-      mode: 'r',
-    }).then(z => z.store
-      .getItem(`${z.keyPrefix}0`)
-      .then(buf => new Uint8Array(buf))
-      .then(cbytes => z.compressor.decode(cbytes))
-      .then((dbytes) => {
-        const text = this.decodeTextArray(dbytes)
-          .filter(i => !Number(i))
-          .filter(i => i.length >= 2)
-          .filter((_, j) => !geneFilter || geneFilter[j]);
-        return text;
-      }));
+    this.geneNames = this.getFlatTextArr(`var/${_index}`).then(data => data.filter(
+      (_, j) => !geneFilter || geneFilter[j],
+    ));
     return this.geneNames;
   }
 
