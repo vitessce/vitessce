@@ -16,8 +16,8 @@ const EXPRESSION_HISTOGRAM_DATA_TYPES = ['expression-matrix'];
  * `GRID_RESIZE` events.
  * @param {object} props
  * @param {function} props.removeGridComponent The grid component removal function.
- * @param {function} props.onReady The function to call when the subscriptions
- * have been made.
+ * @param {object} props.coordinationScopes An object mapping coordination
+ * types to coordination scopes.
  * @param {string} props.theme The name of the current Vitessce theme.
  */
 export default function ExpressionHistogramSubscriber(props) {

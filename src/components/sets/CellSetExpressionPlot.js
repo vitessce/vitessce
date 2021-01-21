@@ -7,8 +7,11 @@ import { colorArrayToString } from './utils';
  * Gene expression histogram displayed as a bar chart,
  * implemented with the VegaPlot component.
  * @param {object} props
- * @param {object[]} props.data The set size data, an array
- * of objects with properties `value` and `gene`.
+ * @param {object[]} props.data The expression data, an array
+ * of objects with properties `value`, `gene`, and `set`.
+ * @param {number} props.domainMax The maximum gene expression value.
+ * @param {object[]} props.colors An object for each
+ * cell set, with properties `name` and `color`.
  * @param {string} props.theme The name of the current Vitessce theme.
  * @param {number} props.width The container width.
  * @param {number} props.height The container height.
@@ -21,6 +24,7 @@ import { colorArrayToString } from './utils';
  */
 export default function CellSetExpressionPlot(props) {
   const {
+    domainMax = 100,
     colors,
     data,
     theme,
@@ -42,6 +46,8 @@ export default function CellSetExpressionPlot(props) {
 
   const numBands = colors.length;
   const bandWidth = plotWidth / numBands;
+
+  const rectColor = (theme === 'dark' ? 'white' : 'black');
 
   const spec = {
     $schema: 'https://vega.github.io/schema/vega/v5.json',
@@ -74,7 +80,7 @@ export default function CellSetExpressionPlot(props) {
             field: 'value',
             groupby: ['set'],
             bandwidth: 0,
-            extent: [0, 100],
+            extent: [0, domainMax],
           },
         ],
       },
@@ -104,7 +110,7 @@ export default function CellSetExpressionPlot(props) {
         name: 'yscale',
         type: 'linear',
         range: 'height',
-        domain: [0, 100],
+        domain: [0, domainMax],
       },
       {
         name: 'wscale',
@@ -214,7 +220,7 @@ export default function CellSetExpressionPlot(props) {
             from: { data: 'summary' },
             encode: {
               enter: {
-                fill: { value: 'black' },
+                fill: { value: rectColor },
                 width: { value: 2 },
               },
               update: {
@@ -229,7 +235,7 @@ export default function CellSetExpressionPlot(props) {
             from: { data: 'summary' },
             encode: {
               enter: {
-                fill: { value: 'black' },
+                fill: { value: rectColor },
                 height: { value: 2 },
                 width: { value: 8 },
               },

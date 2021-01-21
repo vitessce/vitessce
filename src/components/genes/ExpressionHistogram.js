@@ -6,7 +6,9 @@ import { VegaPlot, VEGA_THEMES } from '../vega';
  * Gene expression histogram displayed as a bar chart,
  * implemented with the VegaPlot component.
  * @param {object} props
- * @param {object[]} props.data The set size data, an array
+ * @param {string[]} props.geneSelection The list of genes
+ * currently selected.
+ * @param {object[]} props.data The expression data, an array
  * of objects with properties `value` and `gene`.
  * @param {string} props.theme The name of the current Vitessce theme.
  * @param {number} props.width The container width.

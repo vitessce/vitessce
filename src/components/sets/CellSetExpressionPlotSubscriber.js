@@ -16,8 +16,8 @@ const CELL_SET_EXPRESSION_DATA_TYPES = ['cell-sets', 'expression-matrix'];
  * `GRID_RESIZE` events.
  * @param {object} props
  * @param {function} props.removeGridComponent The grid component removal function.
- * @param {function} props.onReady The function to call when the subscriptions
- * have been made.
+ * @param {object} props.coordinationScopes An object mapping coordination
+ * types to coordination scopes.
  * @param {string} props.theme The name of the current Vitessce theme.
  */
 export default function CellSetExpressionPlotSubscriber(props) {
@@ -67,7 +67,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
 
   // From the expression matrix and the list of selected genes / cell sets,
   // generate the array of data points for the plot.
-  const data = useMemo(() => {
+  const [data, domainMax] = useMemo(() => {
     if (mergedCellSets && cellSetSelection
       && geneSelection && geneSelection.length >= 1
       && expressionMatrix
@@ -79,15 +79,18 @@ export default function CellSetExpressionPlotSubscriber(props) {
       if (geneIndex !== -1) {
         const numGenes = expressionMatrix.cols.length;
         // Create new cellColors map based on the selected gene.
-        return cellObjects.map((cell) => {
+        let exprMax = -Infinity;
+        const exprValues = cellObjects.map((cell) => {
           const cellIndex = expressionMatrix.rows.indexOf(cell.obsId);
           const value = expressionMatrix.matrix[cellIndex * numGenes + geneIndex];
           const normValue = value * 100 / 255;
+          exprMax = Math.max(normValue, exprMax);
           return { value: normValue, gene: firstGeneSelected, set: cell.name };
         });
+        return [exprValues, exprMax];
       }
     }
-    return null;
+    return [null, null];
   }, [expressionMatrix, geneSelection, mergedCellSets, cellSetSelection, cellSetColor]);
 
   // From the cell sets hierarchy and the list of selected cell sets,
@@ -108,6 +111,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
       <div ref={containerRef} className="vega-container">
         {data ? (
           <CellSetExpressionPlot
+            domainMax={domainMax}
             colors={colors}
             data={data}
             theme={theme}
