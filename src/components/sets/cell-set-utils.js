@@ -96,6 +96,10 @@ export function treeFindNodeByNamePath(currTree, targetNamePath) {
  * @param {function} predicate Returns true if a node matches a condition of interest.
  * @param {function} transform Takes the node matching the predicate as input, returns
  * a transformed version of the node.
+ * @param {array} transformedPaths This array parameter is mutated. The path of
+ * each transformed node is appended to this array.
+ * @param {string[]} The current path of the node being updated, used internally
+ * during recursion.
  * @returns {object} The updated node.
  */
 export function nodeTransform(node, predicate, transform, transformedPaths, currPath) {
@@ -107,7 +111,7 @@ export function nodeTransform(node, predicate, transform, transformedPaths, curr
   }
   if (predicate(node, newPath)) {
     transformedPaths.push(newPath);
-    return transform(node);
+    return transform(node, newPath);
   }
   if (node.children) {
     return {
@@ -120,6 +124,43 @@ export function nodeTransform(node, predicate, transform, transformedPaths, curr
     };
   }
   return node;
+}
+
+/**
+ * Transform many node objects using a transform function.
+ * @param {object} node A node object.
+ * @param {function} predicate Returns true if a node matches a condition of interest.
+ * @param {function} transform Takes the node matching the predicate as input, returns
+ * a transformed version of the node.
+ * @param {array} transformedPaths This array parameter is mutated. The path of
+ * each transformed node is appended to this array.
+ * @param {string[]} The current path of the node being updated, used internally
+ * during recursion.
+ * @returns {object} The updated node.
+ */
+export function nodeTransformAll(node, predicate, transform, transformedPaths, currPath) {
+  let newPath;
+  if (!currPath) {
+    newPath = [node.name];
+  } else {
+    newPath = [...currPath];
+  }
+  let newNode = node;
+  if (predicate(node, newPath)) {
+    transformedPaths.push(newPath);
+    newNode = transform(node, newPath);
+  }
+  if (node.children) {
+    return {
+      ...newNode,
+      children: newNode.children.map(
+        child => nodeTransformAll(
+          child, predicate, transform, transformedPaths, newPath.concat([child.name]),
+        ),
+      ),
+    };
+  }
+  return newNode;
 }
 
 /**
@@ -245,11 +286,18 @@ export function treeExport(currTree, datatype) {
  * @returns {object} { treeToExport, nodeName }
  * Tree with one level zero node, and with state removed.
  */
-export function treeExportLevelZeroNode(currTree, nodePath, datatype) {
+export function treeExportLevelZeroNode(currTree, nodePath, datatype, cellSetColors) {
   const node = treeFindNodeByNamePath(currTree, nodePath);
+  const nodeWithColors = nodeTransformAll(node, () => true, (n, nPath) => {
+    const nodeColor = cellSetColors?.find(c => isEqual(c.path, nPath))?.color ?? DEFAULT_COLOR;
+    return {
+      ...n,
+      color: nodeColor.slice(0, 3),
+    };
+  }, []);
   const treeWithOneLevelZeroNode = {
     ...currTree,
-    tree: currTree.tree.filter(n => n.name === nodePath[0]),
+    tree: [nodeWithColors],
   };
   return {
     treeToExport: treeExport(treeWithOneLevelZeroNode, datatype),

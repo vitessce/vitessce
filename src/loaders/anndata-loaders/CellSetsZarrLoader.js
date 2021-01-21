@@ -15,14 +15,14 @@ export default class CellSetsZarrLoader extends BaseAnnDataLoader {
   load() {
     const { options } = this;
     // eslint-disable-next-line camelcase
-    const cellSetZarrLocation = options.map(({ set_name }) => set_name);
+    const cellSetZarrLocation = options.map(({ setName }) => setName);
     return Promise
       .all([this.loadCellNames(), this.loadCellSetIds(cellSetZarrLocation)])
       .then((data) => {
         const [cellNames, cellSets] = data;
         const cellSetsTree = treeInitialize(SETS_DATATYPE_CELL);
         cellSets.forEach((cellSetIds, j) => {
-          const name = options[j].group_name;
+          const name = options[j].groupName;
           let levelZeroNode = {
             name,
             children: [],

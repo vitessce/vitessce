@@ -15,7 +15,6 @@ describe('src/api/VitessceConfig.js', () => {
       expect(configJSON).toEqual({
         coordinationSpace: {},
         datasets: [],
-        description: '',
         initStrategy: 'auto',
         layout: [],
         name: 'My config',
@@ -38,7 +37,6 @@ describe('src/api/VitessceConfig.js', () => {
           uid: 'A',
           files: [],
         }],
-        description: '',
         initStrategy: 'auto',
         layout: [],
         name: 'My config',
@@ -46,8 +44,8 @@ describe('src/api/VitessceConfig.js', () => {
       });
     });
     it('can add a file to a dataset', () => {
-      const config = new VitessceConfig('My config');
-      config.addDataset('My dataset').addFile(
+      const config = new VitessceConfig('My config', 'My config description');
+      config.addDataset('My dataset', 'My dataset description').addFile(
         'http://example.com/cells.json',
         'cells',
         'cells.json',
@@ -62,6 +60,7 @@ describe('src/api/VitessceConfig.js', () => {
         },
         datasets: [{
           name: 'My dataset',
+          description: 'My dataset description',
           uid: 'A',
           files: [{
             url: 'http://example.com/cells.json',
@@ -69,7 +68,7 @@ describe('src/api/VitessceConfig.js', () => {
             fileType: 'cells.json',
           }],
         }],
-        description: '',
+        description: 'My config description',
         initStrategy: 'auto',
         layout: [],
         name: 'My config',
@@ -98,7 +97,6 @@ describe('src/api/VitessceConfig.js', () => {
           uid: 'A',
           files: [],
         }],
-        description: '',
         initStrategy: 'auto',
         layout: [
           {
@@ -171,7 +169,6 @@ describe('src/api/VitessceConfig.js', () => {
           uid: 'A',
           files: [],
         }],
-        description: '',
         initStrategy: 'auto',
         layout: [
           {
@@ -258,7 +255,6 @@ describe('src/api/VitessceConfig.js', () => {
           uid: 'A',
           files: [],
         }],
-        description: '',
         initStrategy: 'auto',
         layout: [
           {
@@ -319,7 +315,6 @@ describe('src/api/VitessceConfig.js', () => {
           uid: 'A',
           files: [],
         }],
-        description: '',
         initStrategy: 'auto',
         layout: [
           {
@@ -387,7 +382,6 @@ describe('src/api/VitessceConfig.js', () => {
           uid: 'A',
           files: [],
         }],
-        description: '',
         initStrategy: 'auto',
         layout: [
           {
