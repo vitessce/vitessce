@@ -1,11 +1,11 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
-import { mergeCellSets } from '../utils';
 import { useExpressionMatrixData, useCellSetsData } from '../data-hooks';
-import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-utils';
+import { useExpressionByCellSet } from './hooks';
+
 import CellSetExpressionPlot from './CellSetExpressionPlot';
 
 const CELL_SET_EXPRESSION_DATA_TYPES = ['cell-sets', 'expression-matrix'];
@@ -59,46 +59,10 @@ export default function CellSetExpressionPlotSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, true,
   );
 
-  const mergedCellSets = useMemo(
-    () => mergeCellSets(cellSets, additionalCellSets),
-    [cellSets, additionalCellSets],
+  const [expressionArr, setArr, { expressionMax }] = useExpressionByCellSet(
+    expressionMatrix, cellSets, additionalCellSets,
+    geneSelection, cellSetSelection, cellSetColor,
   );
-
-
-  // From the expression matrix and the list of selected genes / cell sets,
-  // generate the array of data points for the plot.
-  const [data, domainMax] = useMemo(() => {
-    if (mergedCellSets && cellSetSelection
-      && geneSelection && geneSelection.length >= 1
-      && expressionMatrix
-    ) {
-      const cellObjects = treeToObjectsBySetNames(mergedCellSets, cellSetSelection, cellSetColor);
-
-      const firstGeneSelected = geneSelection[0];
-      const geneIndex = expressionMatrix.cols.indexOf(firstGeneSelected);
-      if (geneIndex !== -1) {
-        const numGenes = expressionMatrix.cols.length;
-        // Create new cellColors map based on the selected gene.
-        let exprMax = -Infinity;
-        const exprValues = cellObjects.map((cell) => {
-          const cellIndex = expressionMatrix.rows.indexOf(cell.obsId);
-          const value = expressionMatrix.matrix[cellIndex * numGenes + geneIndex];
-          const normValue = value * 100 / 255;
-          exprMax = Math.max(normValue, exprMax);
-          return { value: normValue, gene: firstGeneSelected, set: cell.name };
-        });
-        return [exprValues, exprMax];
-      }
-    }
-    return [null, null];
-  }, [expressionMatrix, geneSelection, mergedCellSets, cellSetSelection, cellSetColor]);
-
-  // From the cell sets hierarchy and the list of selected cell sets,
-  // generate the array of set sizes data points for the bar plot.
-  const colors = useMemo(() => (mergedCellSets && cellSetSelection
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor)
-    : []
-  ), [mergedCellSets, cellSetSelection, cellSetColor]);
 
   return (
     <TitleInfo
@@ -109,11 +73,11 @@ export default function CellSetExpressionPlotSubscriber(props) {
       isReady={isReady}
     >
       <div ref={containerRef} className="vega-container">
-        {data ? (
+        {expressionArr ? (
           <CellSetExpressionPlot
-            domainMax={domainMax}
-            colors={colors}
-            data={data}
+            domainMax={expressionMax}
+            colors={setArr}
+            data={expressionArr}
             theme={theme}
             width={width}
             height={height}
