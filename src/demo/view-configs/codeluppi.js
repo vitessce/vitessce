@@ -262,7 +262,14 @@ export const codeluppi2018 = {
       },
       x: 2,
       y: 4,
-      w: 10,
+      w: 5,
+      h: 2,
+    },
+    {
+      component: 'expressionHistogram',
+      x: 7,
+      y: 4,
+      w: 5,
       h: 2,
     },
     {
