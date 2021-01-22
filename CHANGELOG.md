@@ -1,8 +1,32 @@
 ## In Progress
 
 ### Added
+- Added an optional `description` field to the dataset definition config object. Updated the `<Description/>` component to prefer this value over the top-level description value, if available.
 
 ### Changed
+- Fix AnnData text decoding.
+- Refactor AnnData flat array decoding and resolve bug.
+
+## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07
+
+### Added
+- Added a windows OS build to the Github Actions test matrix.
+
+### Changed
+- Upgrade Viv to 0.8.2 and deck.gl to 8.4.0-alpha.4
+
+## [1.1.2](https://www.npmjs.com/package/vitessce/v/1.1.2) - 2020-12-31
+
+### Added
+- Allow for non-remote raster schemas.
+
+### Changed
+- Upgrade Viv to 0.8.0 and deck.gl to 8.4.0-alpha.2
+- Added GitHub Actions workflow to replace the Travis CI workflow.
+- Fix `test.sh` branch variable again.
+- Fix deploy step again.
+- Changed to using camelCase in the cell-sets-tabular schema.
+- Fixed CSV and JSON file import / export bugs in the cell set manager component.
 
 ## [1.1.1](https://www.npmjs.com/package/vitessce/v/1.1.1) - 2020-12-27
 

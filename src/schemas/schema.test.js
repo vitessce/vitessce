@@ -22,7 +22,11 @@ describe('schemas', () => {
       let validate;
       if (type === 'config') {
         const cellSets = require('./cell-sets.schema.json');
-        validate = new Ajv().addSchema(cellSets).compile(schema);
+        const raster = require('./raster.schema.json');
+        validate = new Ajv()
+          .addSchema(cellSets)
+          .addSchema(raster)
+          .compile(schema);
       } else {
         validate = new Ajv().compile(schema);
       }
