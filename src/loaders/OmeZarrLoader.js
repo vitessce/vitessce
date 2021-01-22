@@ -1,8 +1,12 @@
+/* eslint-disable */
 import { ZarrLoader } from '@hms-dbmi/viv';
 import range from 'lodash/range';
 import { openArray } from 'zarr';
 import AbstractZarrLoader from './AbstractZarrLoader';
 import { AbstractLoaderError } from './errors';
+import LoaderResult from './LoaderResult';
+
+import { initializeRasterLayersAndChannels, initializeLayerChannelsIfMissing } from '../components/spatial/utils';
 
 async function openMultiResolutionData(store, rootAttrs) {
   let resolutions = ['0'];
@@ -39,11 +43,8 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
 
     const { rdefs, channels, name } = payload.omero;
 
-    // TODO: figure out how to use these
-    // eslint-disable-next-line no-unused-vars
-    const t = rdefs.defaultT ?? 0;
-    // eslint-disable-next-line no-unused-vars
-    const z = rdefs.defaultZ ?? 0;
+    const initialT = rdefs.defaultT ?? 0;
+    const initialZ = rdefs.defaultZ ?? 0;
 
     const multiresData = await openMultiResolutionData(this.store, payload);
     const { shape } = multiresData[0];
@@ -99,6 +100,27 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
         },
       },
     ];
-    return Promise.resolve({ data: { layers: imagesWithLoaderCreators }, urls: [] });
+
+    const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = await initializeRasterLayersAndChannels(imagesWithLoaderCreators, undefined);
+    const [newLayers] = await initializeLayerChannelsIfMissing(autoImageLayers, imageLayerLoaders);
+
+    const ztLayers = newLayers.map(d => ({
+      ...d,
+      channels: d.channels.map(c => ({
+        ...c,
+        selection: {
+          ...c.selection,
+          z: initialZ,
+          time: initialT,
+        }
+      }))
+    }));
+
+    // TODO: split spatialLayers into three coordination types
+    // spatialRasterLayers, spatialCellLayers, spatialMoleculeLayers
+    const coordinationValues = {
+      spatialLayers: ztLayers
+    };
+    return Promise.resolve(new LoaderResult({ loaders: imageLayerLoaders, meta: imageLayerMeta }, [], coordinationValues));
   }
 }

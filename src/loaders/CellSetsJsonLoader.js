@@ -2,6 +2,7 @@ import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import JsonLoader from './JsonLoader';
 import { tryUpgradeTreeToLatestSchema } from '../components/sets/io';
 import { AbstractLoaderError } from './errors';
+import LoaderResult from './LoaderResult';
 
 export default class CellSetsJsonLoader extends JsonLoader {
   constructor(params) {
@@ -17,6 +18,6 @@ export default class CellSetsJsonLoader extends JsonLoader {
     }
     const { data: rawData, url } = payload;
     const upgradedData = tryUpgradeTreeToLatestSchema(rawData, 'cell');
-    return Promise.resolve({ data: upgradedData, url });
+    return Promise.resolve(new LoaderResult(upgradedData, url));
   }
 }

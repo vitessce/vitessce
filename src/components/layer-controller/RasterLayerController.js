@@ -53,7 +53,7 @@ export default function RasterLayerController(props) {
   const [domainType, setDomainType] = useState(layer.domainType);
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
     GLOBAL_SLIDER_DIMENSION_FIELDS
-      .filter(field => firstSelection[field])
+      .filter(field => firstSelection[field] !== undefined)
       .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
   );
 

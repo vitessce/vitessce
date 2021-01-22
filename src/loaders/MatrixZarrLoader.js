@@ -1,5 +1,6 @@
 import { openArray } from 'zarr';
 import AbstractZarrLoader from './AbstractZarrLoader';
+import LoaderResult from './LoaderResult';
 
 export default class MatrixZarrLoader extends AbstractZarrLoader {
   loadAttrs() {
@@ -25,6 +26,6 @@ export default class MatrixZarrLoader extends AbstractZarrLoader {
   load() {
     return Promise
       .all([this.loadAttrs(), this.loadArr()])
-      .then(data => Promise.resolve({ data, url: null }));
+      .then(data => Promise.resolve(new LoaderResult(data, null)));
   }
 }

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
+import { capitalize } from '../utils';
 import { useSetWarning } from '../app/state/hooks';
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
 } from '../loaders/errors/index';
-import { initializeRasterLayersAndChannels } from './spatial/utils';
 
 /**
  * Warn via publishing to the console
@@ -340,6 +340,19 @@ export function useNeighborhoodsData(
   return [neighborhoods];
 }
 
+function initCoordinationSpace(values, setters) {
+  if (!values || !setters) {
+    return;
+  }
+  Object.entries(values).forEach(([coordinationType, initialValue]) => {
+    const setterName = `set${capitalize(coordinationType)}`;
+    const setterFunc = setters[setterName];
+    if (setterFunc) {
+      setterFunc(initialValue);
+    }
+  });
+}
+
 /**
  * Get data from a raster data type loader,
  * updating "ready" and URL state appropriately.
@@ -361,7 +374,9 @@ export function useNeighborhoodsData(
  * imageLayerLoaders is an object, and
  * imageLayerMeta is an object.
  */
-export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequired, onLoad = null) {
+export function useRasterData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired, coordinationSetters,
+) {
   const [raster, setRaster] = useState();
   // Since we want the image layer / channel definitions to come from the
   // coordination space stored as JSON in the view config,
@@ -380,22 +395,16 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
     if (loaders[dataset].loaders.raster) {
       loaders[dataset].loaders.raster.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
-        const { data, urls } = payload;
+        const { data, url: urls, coordinationValues } = payload;
         setRaster(data);
         urls.forEach(([url, name]) => {
           addUrl(url, name);
         });
-
-        const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
-        initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers)
-          .then(([autoImageLayers, nextImageLoaders, nextImageMeta]) => {
-            setImageLayerLoaders(nextImageLoaders);
-            setImageLayerMeta(nextImageMeta);
-            if (onLoad) {
-              onLoad(autoImageLayers);
-            }
-            setItemIsReady('raster');
-          });
+        const { loaders: nextImageLoaders, meta: nextImageMeta } = data;
+        setImageLayerLoaders(nextImageLoaders);
+        setImageLayerMeta(nextImageMeta);
+        initCoordinationSpace(coordinationValues, coordinationSetters);
+        setItemIsReady('raster');
       });
     } else {
       // There was no raster loader for this dataset,

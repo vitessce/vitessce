@@ -45,6 +45,7 @@ function LayerControllerSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, () => {}, false,
+    { setSpatialLayers: setLayers },
   );
 
   const handleImageAdd = async (index) => {

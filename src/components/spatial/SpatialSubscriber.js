@@ -1,6 +1,4 @@
-import React, {
-  useState, useEffect, useMemo, useCallback,
-} from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
@@ -12,12 +10,7 @@ import {
 import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
-import { makeSpatialSubtitle, initializeLayerChannelsIfMissing, sortLayers } from './utils';
-import {
-  DEFAULT_MOLECULES_LAYER,
-  DEFAULT_CELLS_LAYER,
-  DEFAULT_NEIGHBORHOODS_LAYER,
-} from './constants';
+import { makeSpatialSubtitle } from './utils';
 import {
   useCoordination,
   useLoaders,
@@ -30,16 +23,11 @@ const SPATIAL_DATA_TYPES = [
   'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix',
 ];
 
-const SPATIAL_LAYER_TYPES = [
-  'cells', 'molecules', 'raster', 'neighborhoods',
-];
-
 export default function SpatialSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
     removeGridComponent,
-    initializeLayers = true,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
@@ -82,14 +70,6 @@ export default function SpatialSubscriber(props) {
     setMoleculeHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
-  const [autoLayers, setAutoLayers] = useState({
-    [dataset]: [
-      loaders[dataset].loaders.cells?.url ? DEFAULT_CELLS_LAYER : null,
-      loaders[dataset].loaders.molecules?.url ? DEFAULT_MOLECULES_LAYER : null,
-      loaders[dataset].loaders.neighborhoods?.url ? DEFAULT_NEIGHBORHOODS_LAYER : null,
-    ].filter(Boolean),
-  });
-
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     SPATIAL_DATA_TYPES,
@@ -101,13 +81,6 @@ export default function SpatialSubscriber(props) {
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-    setAutoLayers({
-      [dataset]: [
-        loaders[dataset].loaders.cells?.url ? DEFAULT_CELLS_LAYER : null,
-        loaders[dataset].loaders.molecules?.url ? DEFAULT_MOLECULES_LAYER : null,
-        loaders[dataset].loaders.neighborhoods?.url ? DEFAULT_NEIGHBORHOODS_LAYER : null,
-      ].filter(Boolean),
-    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
@@ -133,43 +106,8 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    autoImageLayers => setAutoLayers(prev => (
-      // This prevents old updates from overriding the current dataset.
-      // The previous state must be for this dataset, otherwise it's an old update.
-      Object.keys(prev).includes(dataset)
-        ? { [dataset]: [...(prev[dataset] || []), ...autoImageLayers] }
-        : prev
-    )),
+    { setSpatialLayers: setLayers },
   );
-  // Try to set up the layers array automatically if null or undefined.
-  useEffect(() => {
-    // Check if the autoLayers have a layer for each spatial layer loader type.
-    const areAutoLayersComplete = Object.keys(loaders[dataset].loaders)?.every(
-      loaderType => !SPATIAL_LAYER_TYPES.includes(loaderType)
-        || (
-          autoLayers[dataset] && autoLayers[dataset].filter(
-            layer => layer.type === loaderType,
-          ).length > 0
-        )
-    );
-    if (isReady && initializeLayers) {
-      if (!layers && autoLayers[dataset] && areAutoLayersComplete) {
-        setLayers(sortLayers(autoLayers[dataset]));
-      } else if (layers) {
-        // Layers were defined, but check whether channels for each layer were also defined.
-        // If channel / slider / domain definitions are missing, initialize in automatically.
-        initializeLayerChannelsIfMissing(layers, imageLayerLoaders).then(
-          ([newLayers, didInitialize]) => {
-            if (didInitialize) {
-              // Channels were only partially defined.
-              setLayers(newLayers);
-            }
-          },
-        );
-      }
-    }
-  }, [dataset, loaders, autoLayers, imageLayerLoaders,
-    isReady, layers, setLayers, initializeLayers]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,

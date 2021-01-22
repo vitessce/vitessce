@@ -1,5 +1,6 @@
 import { HTTPStore } from 'zarr';
 import AbstractLoader from './AbstractLoader';
+import LoaderResult from './LoaderResult';
 
 export default class GenomicProfilesZarrLoader extends AbstractLoader {
   constructor(params) {
@@ -28,6 +29,6 @@ export default class GenomicProfilesZarrLoader extends AbstractLoader {
   load() {
     const { url } = this;
     return this.loadAttrs()
-      .then(attrs => Promise.resolve({ data: attrs, url }));
+      .then(attrs => Promise.resolve(new LoaderResult(attrs, url)));
   }
 }
