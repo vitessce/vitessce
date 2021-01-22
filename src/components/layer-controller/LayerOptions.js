@@ -50,17 +50,12 @@ function TransparentColorSelect({ value, inputId, handleChange }) {
             <Select
               native
               onChange={(e) => {
-                if (e.target.value === '') {
-                  handleChange(null);
-                  return;
-                }
                 const newVal = [...value];
-                newVal[i] = Number(e.target.value);
+                newVal[i] = e.target.value !== '' ? Number(e.target.value) : null;
                 handleChange(newVal);
               }}
               value={typeof value[i] !== 'number' ? '' : value[i]}
               inputProps={{ name: 'transparent-color', id: inputId }}
-              style={{ width: '100%' }}
             >
               <option aria-label="None" value="" />
               {range(256).map(name => (
@@ -170,7 +165,7 @@ function GlobalSelectionSlider({
  */
 function LayerOption({ name, inputId, children }) {
   return (
-    <Grid container direction="row" alignItems="flex-start" justify="space-between">
+    <Grid container direction="row" alignItems="center" justify="center">
       <Grid item xs={6}>
         <InputLabel htmlFor={inputId}>
           {name}:
@@ -240,16 +235,19 @@ function LayerOptions({
         </>
       ) : null}
       <Grid item>
-        <LayerOption name="Opacity" inputId="opacity-slider">
-          <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
-        </LayerOption>
-      </Grid>
-      <Grid item>
-        <LayerOption name="Transparent Color" inputId="transparent-color-selector">
+        <LayerOption
+          name="Transparent Color"
+          inputId="transparent-color-selector"
+        >
           <TransparentColorSelect
             value={transparentColor}
             handleChange={handleTransparentColorChange}
           />
+        </LayerOption>
+      </Grid>
+      <Grid item>
+        <LayerOption name="Opacity" inputId="opacity-slider">
+          <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
         </LayerOption>
       </Grid>
       {hasDimensionsAndChannels
