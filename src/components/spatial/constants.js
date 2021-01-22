@@ -6,6 +6,7 @@ export const DEFAULT_RASTER_LAYER_PROPS = {
   colormap: null,
   opacity: 1,
   domainType: DEFAULT_RASTER_DOMAIN_TYPE,
+  transparentColor: [0, 0, 0],
 };
 
 export const DEFAULT_MOLECULES_LAYER = {
