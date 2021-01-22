@@ -61,5 +61,5 @@ export function useExpressionByCellSet(
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor]);
 
-  return [expressionArr, setArr, { expressionMax }];
+  return [expressionArr, setArr, expressionMax];
 }

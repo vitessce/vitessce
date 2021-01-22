@@ -36,4 +36,9 @@ export const useStyles = makeStyles(theme => ({
     padding: '2px 16px 2px 8px',
     overflow: 'visible',
   },
+  select: {
+    '& select': {
+      fontSize: '.875rem',
+    },
+  },
 }));

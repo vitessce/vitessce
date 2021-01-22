@@ -28,6 +28,7 @@ export default function CellColorEncodingOption(props) {
       <TableCell className={classes.inputCell}>
         <Select
           native
+          className={classes.select}
           value={cellColorEncoding}
           onChange={handleColorEncodingChange}
           inputProps={{

@@ -59,7 +59,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, true,
   );
 
-  const [expressionArr, setArr, { expressionMax }] = useExpressionByCellSet(
+  const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
     expressionMatrix, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
   );
