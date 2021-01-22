@@ -235,9 +235,41 @@
             }
           ]
         },
+        "transparentColor": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { 
+            "oneOf": [
+              {
+                "type": "number",
+                "description": "One of R G or B (0 - 255)."
+              },
+              {
+                "type": "null",
+                "description": "No selection."
+              }
+            ] 
+          },
+          "description": "Determines the color to be set to opacity 0"
+        },
         "index": {
           "type": "number",
           "description": "The index of the layer among the array of layers available in the image file."
+        },
+        "modelMatrix": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 16,
+              "maxItems": 16,
+              "description": "transformation matrix for this layer"
+            },
+            {
+              "type": "null",
+              "description": "Use the solid color definitions."
+            }
+          ]
         },
         "opacity": {
           "type": "number"
