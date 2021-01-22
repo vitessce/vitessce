@@ -1,40 +1,40 @@
 ---
-id: component-tutorial
-title: Development of new components
-slug: /component-tutorial
+id: develop-component
+title: Component development
+slug: /develop-component
 ---
 
 This page walks through the steps required to create a new visualization component.
-In general, Vitessce components are simply React components, and may be implemented with libraries such as Vega-Lite, D3, DeckGL or plain JavaScript code.
+Vitessce components are React components which conform to certain conventions, and may be implemented with libraries such as Vega-Lite, D3, DeckGL or plain JavaScript code.
 
 ## The Subscriber component
 
-All Vitessce components should consist of at least two React components, an outer "subscriber" component and an inner "plain" component.
+All Vitessce components should consist of at least two React components: an outer "subscriber" component and an inner "plain" component.
 By convention, we add the suffix `Subscriber` to the name of the subscriber component.
 
 
 The subscriber component carries out several functions:
 - the subscriber component may get and set values from the coordination space with the `useCoordination` hook function.
 - the subscriber component should render the `<TitleInfo />` component as a parent of its "plain" component.
-- the subscriber component may get data from the data loader classes with the `use___Data` hook functions.
+- the subscriber component may load data from files specified in the view config with React hook functions.
 
-Therefore, the nodes of the React tree should ultimately look like:
+The nodes of the React subtree for a component called `Genes` should ultimately look like:
 
 ```jsx
-<ExpressionHistogramSubscriber>
+<GenesSubscriber>
   <TitleInfo>
-    <ExpressionHistogram />
+    <Genes />
   </TitleInfo>
-</ExpressionHistogramSubscriber>
+</GenesSubscriber>
 ```
 
-An example of a subscriber component can be found [here](https://github.com/vitessce/vitessce/blob/master/src/components/genes/GenesSubscriber.js).
+A full example of a subscriber component can be found [here](https://github.com/vitessce/vitessce/blob/master/src/components/genes/GenesSubscriber.js).
 
 ## The plain component
 
 The plain component may take data and callback functions as props from its parent subscriber function, and should use its props to render a visualization or controller component. The plain component should not use the `useCoordination` hook or any of the `use___Data` hook functions.
 
-An example of a plain component can be found [here](https://github.com/vitessce/vitessce/blob/master/src/components/genes/Genes.js).
+A full example of a plain component can be found [here](https://github.com/vitessce/vitessce/blob/master/src/components/genes/Genes.js).
 
 ## The coordination constants
 
