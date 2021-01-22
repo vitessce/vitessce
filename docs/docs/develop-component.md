@@ -40,3 +40,7 @@ A full example of a plain component can be found [here](https://github.com/vites
 
 In order for a component to access or change values in the coordination space, the mapping from components to coordination types must be defined [here](https://github.com/vitessce/vitessce/blob/master/src/app/state/coordination.js).
 For each component, a subset of coordination types may be specified. This helps to avoid unnecessary component re-rendering events (i.e. we know that the heatmap does not depend on the `spatialZoom` coordination type, so we omit this from the list of coordination types used by the heatmap component).
+
+## The component registry
+
+Once the component has been developed, add a key for the component in the component registry [here](https://github.com/vitessce/vitessce/blob/master/src/app/component-registry.js). This key is the string that will be used to specify the component in the `component` property of the [layout](/docs/view-config-json/index.html#layout) array in JSON view configurations.
