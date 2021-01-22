@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
 import { useEffect } from 'react';
-import configSchema from '../schemas/config.schema.json';
+import configSchema from '../schemas/config-1.0.0.schema.json';
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
 import { useViewConfigStore, useLoaders, useWarning } from './state/hooks';

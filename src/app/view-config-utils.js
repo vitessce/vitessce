@@ -1,6 +1,7 @@
 /* eslint-disable no-plusplus */
+/* eslint-disable camelcase */
 import uuidv4 from 'uuid/v4';
-import { getNextScope } from '../utils';
+import { getNextScope, capitalize } from '../utils';
 import {
   COORDINATION_TYPES,
   DEFAULT_COORDINATION_VALUES,
@@ -208,7 +209,7 @@ function upgradeReplaceViewProp(prefix, view, coordinationSpace) {
  * @param {object} config A v0.1.0 "legacy" view config.
  * @returns {object} A v1.0.0 "upgraded" view config.
  */
-export function upgrade(config, datasetUid = null) {
+export function upgradeFrom0_1_0(config, datasetUid = null) {
   const coordinationSpace = {
     embeddingType: {},
     embeddingZoom: {},
@@ -303,4 +304,60 @@ export function upgrade(config, datasetUid = null) {
     coordinationSpace,
     layout,
   };
+}
+
+export function upgradeFrom1_0_0(config) {
+  const coordinationSpace = { ...config.coordinationSpace };
+
+  function replaceLayerType(layerType) {
+    coordinationSpace[`spatial${capitalize(layerType)}Layers`] = {};
+    Object.entries(coordinationSpace.spatialLayers).forEach(([scope, layers]) => {
+      if (Array.isArray(layers) && layers.find(layer => layer.type === layerType)) {
+        coordinationSpace[`spatial${capitalize(layerType)}Layers`][scope] = layers
+          .filter(layer => layer.type === layerType)
+          .map(layer => ({ ...layer, type: undefined }));
+      } else {
+        coordinationSpace[`spatial${capitalize(layerType)}Layers`][scope] = null;
+      }
+    });
+  }
+
+  if (coordinationSpace.spatialLayers) {
+    replaceLayerType('raster');
+    replaceLayerType('cells');
+    replaceLayerType('molecules');
+    replaceLayerType('neighborhoods');
+  }
+
+  const layout = config.layout.map((component) => {
+    const newComponent = { ...component };
+    if (newComponent.coordinationScopes && newComponent.coordinationScopes.spatialLayers) {
+      newComponent.coordinationScopes
+        .spatialRasterLayers = newComponent.coordinationScopes.spatialLayers;
+      newComponent.coordinationScopes
+        .spatialCellsLayers = newComponent.coordinationScopes.spatialLayers;
+      newComponent.coordinationScopes
+        .spatialMoleculesLayers = newComponent.coordinationScopes.spatialLayers;
+      newComponent.coordinationScopes
+        .spatialNeighborhoodsLayers = newComponent.coordinationScopes.spatialLayers;
+    }
+    return newComponent;
+  });
+
+  return {
+    ...config,
+    coordinationSpace,
+    layout,
+    version: '1.0.1',
+  };
+}
+
+export function upgrade(fromVersion, oldConfig) {
+  if (fromVersion === '0.1.0') {
+    return upgradeFrom0_1_0(oldConfig);
+  }
+  if (fromVersion === '1.0.0') {
+    return upgradeFrom1_0_0(oldConfig);
+  }
+  throw new Error(`Unable to upgrade from unknown version ${fromVersion}`);
 }

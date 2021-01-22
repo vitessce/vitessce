@@ -87,7 +87,7 @@ export default class RasterLoader extends JsonLoader {
     // TODO: split spatialLayers into three coordination types
     // spatialRasterLayers, spatialCellLayers, spatialMoleculeLayers
     const coordinationValues = {
-      spatialLayers: newLayers
+      spatialRasterLayers: newLayers
     };
 
     return Promise.resolve(

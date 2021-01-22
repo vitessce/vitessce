@@ -196,7 +196,7 @@ export async function initializeLayerChannelsIfMissing(layerDefsOrig, loaders) {
  */
 export async function initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers) {
   const nextImageLoaders = [];
-  const nextImageMeta = [];
+  const nextImageMetaAndLayers = [];
   const autoImageLayerDefPromises = [];
 
   // Start all loader creators immediately.
@@ -207,7 +207,7 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     const layer = rasterLayers[i];
     const loader = loaders[i];
     nextImageLoaders[i] = loader;
-    nextImageMeta[i] = layer;
+    nextImageMetaAndLayers[i] = layer;
   }
   // No layers were pre-defined so set up the default image layers.
   if (!rasterRenderLayers) {
@@ -216,7 +216,15 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     const loader = nextImageLoaders[layerIndex];
     const autoImageLayerDefPromise = initializeLayerChannels(loader)
       .then(channels => Promise.resolve({
-        type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix,
+        type: 'raster',
+        index: layerIndex,
+        ...DEFAULT_RASTER_LAYER_PROPS,
+        channels: channels.map((channel, j) => ({
+          ...channel,
+          ...(nextImageMetaAndLayers[layerIndex].channels
+            ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
+        })),
+        modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
       }));
     autoImageLayerDefPromises.push(autoImageLayerDefPromise);
   } else {
@@ -229,14 +237,23 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max', modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix,
+          type: 'raster',
+          index: layerIndex,
+          ...DEFAULT_RASTER_LAYER_PROPS,
+          channels: channels.map((channel, j) => ({
+            ...channel,
+            ...(nextImageMetaAndLayers[layerIndex].channels
+              ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
+          })),
+          domainType: 'Min/Max',
+          modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }
   }
 
   const autoImageLayerDefs = await Promise.all(autoImageLayerDefPromises);
-  return [autoImageLayerDefs, nextImageLoaders, nextImageMeta];
+  return [autoImageLayerDefs, nextImageLoaders, nextImageMetaAndLayers];
 }
 
 /**

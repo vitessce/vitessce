@@ -6,7 +6,7 @@ import RasterLayerController from './RasterLayerController';
 import VectorLayerController from './VectorLayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady } from '../hooks';
-import { useRasterData } from '../data-hooks';
+import { useCellsData, useMoleculesData, useRasterData } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
@@ -26,9 +26,13 @@ function LayerControllerSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    spatialLayers: layers,
+    spatialRasterLayers: rasterLayers,
+    spatialCellsLayers: cellsLayers,
+    spatialMoleculesLayers: moleculesLayers,
   }, {
-    setSpatialLayers: setLayers,
+    setSpatialRasterLayers: setRasterLayers,
+    setSpatialCellsLayers: setCellsLayers,
+    setSpatialMoleculesLayers: setMoleculesLayers,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.layerController, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -45,32 +49,52 @@ function LayerControllerSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialLayers: setLayers },
+    { setSpatialRasterLayers: setRasterLayers },
+  );
+
+  useCellsData(
+    loaders, dataset, setItemIsReady, () => {}, false,
+    { setSpatialCellsLayers: setCellsLayers },
+  );
+  useMoleculesData(
+    loaders, dataset, setItemIsReady, () => {}, false,
+    { setSpatialMoleculesLayers: setMoleculesLayers },
   );
 
   const handleImageAdd = async (index) => {
     const loader = imageLayerLoaders[index];
     const newChannels = await initializeLayerChannels(loader);
     const newLayer = {
-      type: 'raster',
       index,
       ...DEFAULT_RASTER_LAYER_PROPS,
       channels: newChannels,
     };
-    const newLayers = [...layers, newLayer];
-    setLayers(newLayers);
+    const newLayers = [...rasterLayers, newLayer];
+    setRasterLayers(newLayers);
   };
 
-  function handleLayerChange(newLayer, i) {
-    const newLayers = [...layers];
+  function handleCellsLayerChange(newLayer, i) {
+    const newLayers = [...cellsLayers];
     newLayers[i] = newLayer;
-    setLayers(newLayers);
+    setCellsLayers(newLayers);
   }
 
-  function handleLayerRemove(i) {
-    const newLayers = [...layers];
+  function handleMoleculesLayerChange(newLayer, i) {
+    const newLayers = [...moleculesLayers];
+    newLayers[i] = newLayer;
+    setMoleculesLayers(newLayers);
+  }
+
+  function handleRasterLayerChange(newLayer, i) {
+    const newLayers = [...rasterLayers];
+    newLayers[i] = newLayer;
+    setRasterLayers(newLayers);
+  }
+
+  function handleRasterLayerRemove(i) {
+    const newLayers = [...rasterLayers];
     newLayers.splice(i, 1);
-    setLayers(newLayers);
+    setRasterLayers(newLayers);
   }
 
   return (
@@ -82,45 +106,40 @@ function LayerControllerSubscriber(props) {
       isReady={isReady}
     >
       <div className="layer-controller-container">
-        {layers && layers.map((layer, i) => {
-          if (layer.type === 'cells') {
-            return (
-              <VectorLayerController
-                key={`${dataset}-cells`}
-                label="Cell Segmentations"
+        {cellsLayers && cellsLayers.map((layer, i) => (
+          <VectorLayerController
+            key={`${dataset}-cells`}
+            label="Cell Segmentations"
+            layer={layer}
+            handleLayerChange={v => handleCellsLayerChange(v, i)}
+          />
+        ))}
+        {moleculesLayers && moleculesLayers.map((layer, i) => (
+          <VectorLayerController
+            key={`${dataset}-molecules`}
+            label="Molecules"
+            layer={layer}
+            handleLayerChange={v => handleMoleculesLayerChange(v, i)}
+          />
+        ))}
+        {rasterLayers && rasterLayers.map((layer, i) => {
+          const { index } = layer;
+          const loader = imageLayerLoaders[index];
+          const layerMeta = imageLayerMeta[index];
+          return (loader && layerMeta ? (
+            // eslint-disable-next-line react/no-array-index-key
+            <Grid key={`${dataset}-raster-${index}-${i}`} item style={{ marginTop: '10px' }}>
+              <RasterLayerController
+                name={layerMeta.name}
+                rasterType={layerMeta.type}
                 layer={layer}
-                handleLayerChange={v => handleLayerChange(v, i)}
+                loader={loader}
+                theme={theme}
+                handleLayerChange={v => handleRasterLayerChange(v, i)}
+                handleLayerRemove={() => handleRasterLayerRemove(i)}
               />
-            );
-          } if (layer.type === 'molecules') {
-            return (
-              <VectorLayerController
-                key={`${dataset}-molecules`}
-                label="Molecules"
-                layer={layer}
-                handleLayerChange={v => handleLayerChange(v, i)}
-              />
-            );
-          } if (layer.type === 'raster') {
-            const { index } = layer;
-            const loader = imageLayerLoaders[index];
-            const layerMeta = imageLayerMeta[index];
-            return (loader && layerMeta ? (
-              // eslint-disable-next-line react/no-array-index-key
-              <Grid key={`${dataset}-raster-${index}-${i}`} item style={{ marginTop: '10px' }}>
-                <RasterLayerController
-                  name={layerMeta.name}
-                  rasterType={layerMeta.type}
-                  layer={layer}
-                  loader={loader}
-                  theme={theme}
-                  handleLayerChange={v => handleLayerChange(v, i)}
-                  handleLayerRemove={() => handleLayerRemove(i)}
-                />
-              </Grid>
-            ) : null);
-          }
-          return null;
+            </Grid>
+          ) : null);
         })}
         <Grid item>
           <ImageAddButton

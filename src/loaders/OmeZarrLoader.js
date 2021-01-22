@@ -8,6 +8,15 @@ import LoaderResult from './LoaderResult';
 
 import { initializeRasterLayersAndChannels, initializeLayerChannelsIfMissing } from '../components/spatial/utils';
 
+function hexToRgb(hex) {
+  const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
+  return [
+    parseInt(result[1].toLowerCase(), 16),
+    parseInt(result[2].toLowerCase(), 16),
+    parseInt(result[3].toLowerCase(), 16),
+  ];
+}
+
 async function openMultiResolutionData(store, rootAttrs) {
   let resolutions = ['0'];
   if ('multiscales' in rootAttrs) {
@@ -43,8 +52,8 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
 
     const { rdefs, channels, name } = payload.omero;
 
-    const initialT = rdefs.defaultT ?? 0;
-    const initialZ = rdefs.defaultZ ?? 0;
+    const time = rdefs.defaultT ?? 0;
+    const z = rdefs.defaultZ ?? 0;
 
     const multiresData = await openMultiResolutionData(this.store, payload);
     const { shape } = multiresData[0];
@@ -94,6 +103,11 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
     const imagesWithLoaderCreators = [
       {
         ...image,
+        channels: channels.map(channel => ({
+          selection: { z, time, channel: channel.label },
+          slider: [channel.window.start, channel.window.end],
+          color: hexToRgb(channel.color),
+        })),
         loaderCreator: async () => {
           const loader = createLoader(multiresData, image.metadata.dimensions);
           return loader;
@@ -102,24 +116,11 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
     ];
 
     const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = await initializeRasterLayersAndChannels(imagesWithLoaderCreators, undefined);
-    const [newLayers] = await initializeLayerChannelsIfMissing(autoImageLayers, imageLayerLoaders);
-
-    const ztLayers = newLayers.map(d => ({
-      ...d,
-      channels: d.channels.map(c => ({
-        ...c,
-        selection: {
-          ...c.selection,
-          z: initialZ,
-          time: initialT,
-        }
-      }))
-    }));
 
     // TODO: split spatialLayers into three coordination types
     // spatialRasterLayers, spatialCellLayers, spatialMoleculeLayers
     const coordinationValues = {
-      spatialLayers: ztLayers
+      spatialRasterLayers: autoImageLayers
     };
     return Promise.resolve(new LoaderResult({ loaders: imageLayerLoaders, meta: imageLayerMeta }, [], coordinationValues));
   }

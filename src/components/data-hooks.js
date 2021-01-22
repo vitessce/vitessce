@@ -19,6 +19,19 @@ function warn(error, setWarning) {
   }
 }
 
+function initCoordinationSpace(values, setters) {
+  if (!values || !setters) {
+    return;
+  }
+  Object.entries(values).forEach(([coordinationType, initialValue]) => {
+    const setterName = `set${capitalize(coordinationType)}`;
+    const setterFunc = setters[setterName];
+    if (setterFunc) {
+      setterFunc(initialValue);
+    }
+  });
+}
+
 /**
  * Get the dataset description string.
  * @param {object} loaders The object mapping
@@ -67,7 +80,9 @@ export function useDescription(loaders, dataset) {
  * cells is an object and cellsCount is the
  * number of items in the cells object.
  */
-export function useCellsData(loaders, dataset, setItemIsReady, addUrl, isRequired, onLoad = null) {
+export function useCellsData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired, coordinationSetters,
+) {
   const [cells, setCells] = useState({});
   const [cellsCount, setCellsCount] = useState(0);
 
@@ -81,13 +96,11 @@ export function useCellsData(loaders, dataset, setItemIsReady, addUrl, isRequire
     if (loaders[dataset].loaders.cells) {
       loaders[dataset].loaders.cells.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
-        const { data, url } = payload;
+        const { data, url, coordinationValues } = payload;
         setCells(data);
         setCellsCount(Object.keys(data).length);
         addUrl(url, 'Cells');
-        if (onLoad) {
-          onLoad();
-        }
+        initCoordinationSpace(coordinationValues, coordinationSetters);
         setItemIsReady('cells');
       });
     } else {
@@ -239,7 +252,7 @@ export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl
  * locationsCount is the number of molecules.
  */
 export function useMoleculesData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired, onLoad = null,
+  loaders, dataset, setItemIsReady, addUrl, isRequired, coordinationSetters,
 ) {
   const [molecules, setMolecules] = useState();
   const [moleculesCount, setMoleculesCount] = useState(0);
@@ -255,16 +268,14 @@ export function useMoleculesData(
     if (loaders[dataset].loaders.molecules) {
       loaders[dataset].loaders.molecules.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
-        const { data, url } = payload;
+        const { data, url, coordinationValues } = payload;
         setMolecules(data);
         setMoleculesCount(Object.keys(data).length);
         setLocationsCount(Object.values(data)
           .map(l => l.length)
           .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
-        if (onLoad) {
-          onLoad();
-        }
+        initCoordinationSpace(coordinationValues, coordinationSetters);
         setItemIsReady('molecules');
       });
     } else {
@@ -303,7 +314,7 @@ export function useMoleculesData(
  * neighborhoods is an object.
  */
 export function useNeighborhoodsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired, onLoad = null,
+  loaders, dataset, setItemIsReady, addUrl, isRequired, coordinationSetters,
 ) {
   const [neighborhoods, setNeighborhoods] = useState();
 
@@ -318,12 +329,10 @@ export function useNeighborhoodsData(
       loaders[dataset].loaders.neighborhoods.load().catch(e => warn(e, setWarning))
         .then((payload) => {
           if (!payload) return;
-          const { data, url } = payload;
+          const { data, url, coordinationValues } = payload;
           setNeighborhoods(data);
           addUrl(url, 'Neighborhoods');
-          if (onLoad) {
-            onLoad();
-          }
+          initCoordinationSpace(coordinationValues, coordinationSetters);
           setItemIsReady('neighborhoods');
         });
     } else {
@@ -338,19 +347,6 @@ export function useNeighborhoodsData(
   }, [loaders, dataset]);
 
   return [neighborhoods];
-}
-
-function initCoordinationSpace(values, setters) {
-  if (!values || !setters) {
-    return;
-  }
-  Object.entries(values).forEach(([coordinationType, initialValue]) => {
-    const setterName = `set${capitalize(coordinationType)}`;
-    const setterFunc = setters[setterName];
-    if (setterFunc) {
-      setterFunc(initialValue);
-    }
-  });
 }
 
 /**

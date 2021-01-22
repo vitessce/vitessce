@@ -47,7 +47,10 @@ export default function SpatialSubscriber(props) {
     spatialTargetX: targetX,
     spatialTargetY: targetY,
     spatialTargetZ: targetZ,
-    spatialLayers: layers,
+    spatialRasterLayers: rasterLayers,
+    spatialCellsLayers: cellsLayers,
+    spatialMoleculesLayers: moleculesLayers,
+    spatialNeighborhoodsLayers: neighborhoodsLayers,
     cellFilter,
     cellHighlight,
     geneSelection,
@@ -60,7 +63,10 @@ export default function SpatialSubscriber(props) {
     setSpatialTargetX: setTargetX,
     setSpatialTargetY: setTargetY,
     setSpatialTargetZ: setTargetZ,
-    setSpatialLayers: setLayers,
+    setSpatialRasterLayers: setRasterLayers,
+    setSpatialCellsLayers: setCellsLayers,
+    setSpatialMoleculesLayers: setMoleculesLayers,
+    setSpatialNeighborhoodsLayers: setNeighborhoodsLayers,
     setCellFilter,
     setCellSetSelection,
     setCellHighlight,
@@ -88,14 +94,17 @@ export default function SpatialSubscriber(props) {
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     () => {},
+    { setSpatialCellsLayers: setCellsLayers },
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
     () => {},
+    { setSpatialMoleculesLayers: setMoleculesLayers },
   );
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     () => {},
+    { setSpatialNeighborhoodsLayers: setNeighborhoodsLayers },
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -106,8 +115,18 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialLayers: setLayers },
+    { setSpatialRasterLayers: setRasterLayers },
   );
+
+  const layers = useMemo(() => [
+    ...(cellsLayers ? cellsLayers.map(l => ({ ...l, type: 'cells' })) : []),
+    ...(moleculesLayers ? moleculesLayers.map(l => ({ ...l, type: 'molecules' })) : []),
+    ...(neighborhoodsLayers
+      ? neighborhoodsLayers.map(l => ({ ...l, type: 'neighborhoods' }))
+      : []
+    ),
+    ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: 'raster' })) : []),
+  ], [cellsLayers, moleculesLayers, neighborhoodsLayers, rasterLayers]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
