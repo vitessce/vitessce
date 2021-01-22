@@ -229,7 +229,7 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max', modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix, transparentColor: layerIndex > 0 ? [0, 0, 0] : [null, null, null],
+          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max', modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix, transparentColor: i > 0 ? [0, 0, 0] : [null, null, null],
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }
