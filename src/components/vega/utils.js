@@ -1,7 +1,3 @@
-import * as vl from 'vega-lite-api';
-import * as Vega from 'vega';
-import * as VegaLite from 'vega-lite';
-
 /**
  * Vega-Lite themes that can be passed to the `config` property
  * of the vega-lite spec.
@@ -31,13 +27,3 @@ export const VEGA_THEMES = {
     background: null,
   },
 };
-
-/**
- * Get a `vl` Vega-Lite API object.
- * @returns {object} The Vega-Lite API object, configured
- * by registering the Vega and Vega-Lite libraries.
- */
-export function createVegaLiteApi() {
-  vl.register(Vega, VegaLite);
-  return vl;
-}

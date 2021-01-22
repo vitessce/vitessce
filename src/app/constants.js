@@ -9,6 +9,8 @@ export const Component = {
   LAYER_CONTROLLER: 'layerController',
   CELL_SET_SIZES: 'cellSetSizes',
   GENOMIC_PROFILES: 'genomicProfiles',
+  CELL_SET_EXPRESSION: 'cellSetExpression',
+  EXPRESSION_HISTOGRAM: 'expressionHistogram',
 };
 
 export const DataType = {

@@ -87,14 +87,17 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
 /**
  * Create a mapping from dataset ID to loader objects by data type.
  * @param {object[]} datasets The datasets array from the view config.
+ * @param {string} configDescription The top-level description in the
+ * view config.
  * @returns {object} Mapping from dataset ID to data type to loader
  * instance.
  */
-export function createLoaders(datasets) {
+export function createLoaders(datasets, configDescription) {
   const result = {};
   datasets.forEach((dataset) => {
     const datasetLoaders = {
       name: dataset.name,
+      description: dataset.description || configDescription,
       loaders: {},
     };
     dataset.files.forEach((file) => {

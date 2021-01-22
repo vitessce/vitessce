@@ -372,6 +372,10 @@ function colorMixWithUncertainty(originalColor, p, mixingColor = [128, 128, 128]
  * Given a tree with state, get the cellIds and cellColors,
  * based on the nodes currently marked as "visible".
  * @param {object} currTree A tree object.
+ *  @param {array} selectedNamePaths Array of arrays of strings,
+ * representing set "paths".
+ * @param {object[]} cellSetColor Array of objects with the
+ * properties `path` and `color`.
  * @returns {array} Tuple of [cellIds, cellColors]
  * where cellIds is an array of strings,
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
@@ -396,6 +400,41 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
     }
   });
   return new Map(cellColorsArray);
+}
+
+/**
+ * Given a tree with state, get an array of
+ * objects with cellIds and cellColors,
+ * based on the nodes currently marked as "visible".
+ * @param {object} currTree A tree object.
+ * @param {array} selectedNamePaths Array of arrays of strings,
+ * representing set "paths".
+ * @param {object[]} setColor Array of objects with the
+ * properties `path` and `color`.
+ * @returns {object[]} Array of objects with properties
+ * `obsId`, `name`, and `color`.
+ */
+export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor) {
+  let cellsArray = [];
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      const nodeColor = (
+        setColor?.find(d => isEqual(d.path, setNamePath))?.color
+        || DEFAULT_COLOR
+      );
+      cellsArray = [
+        ...cellsArray,
+        ...nodeSet.map(([cellId]) => ({
+          obsId: cellId,
+          name: node.name,
+          color: nodeColor,
+        })),
+      ];
+    }
+  });
+  return cellsArray;
 }
 
 export function treeToCellPolygonsBySetNames(
@@ -443,8 +482,13 @@ export function treeToCellPolygonsBySetNames(
  * Given a tree with state, get the sizes of the
  * sets currently marked as "visible".
  * @param {object} currTree A tree object.
+ * @param {array} selectedNamePaths Array of arrays of strings,
+ * representing set "paths".
+ * @param {object[]} setColor Array of objects with the
+ * properties `path` and `color`.
  * @returns {object[]} Array of objects
- * with the properties `name` and `size`.
+ * with the properties `name`, `size`, `key`,
+ * and `color`.
  */
 export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor) {
   const sizes = [];

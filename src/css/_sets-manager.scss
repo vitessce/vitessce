@@ -112,14 +112,14 @@
                           background-clip: content-box;
                           border: 2px solid lighten(map-get($theme-colors, "primary-foreground"), 10%);
                           background-color: lighten(map-get($theme-colors, "primary-foreground"), 10%);
-                          border-radius: 50%;
+                          border-radius: 6px;
                           position: relative;
                           top: 3px;
                           left: 0px;
                           float: left;
                           margin-right: 10px;
 
-                          &:checked {
+                          &:checked, &.checked {
                               background-clip: unset;
                           }
                       }
