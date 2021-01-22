@@ -267,7 +267,7 @@
             },
             {
               "type": "null",
-              "description": "Use the solid color definitions."
+              "description": "Use no transformation."
             }
           ]
         },
