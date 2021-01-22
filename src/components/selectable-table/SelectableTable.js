@@ -26,6 +26,7 @@ import isEqual from 'lodash/isEqual';
  */
 export default function SelectableTable(props) {
   const {
+    hasColorEncoding,
     columns,
     data,
     onChange,
@@ -125,7 +126,10 @@ export default function SelectableTable(props) {
       className={`table-item table-row ${isSelected(data[index][idKey]) ? 'row-checked ' : ''}`}
       style={style}
       role="button"
-      onClick={() => onSelectRow(data[index][idKey], !isSelected(data[index][idKey]))}
+      onClick={() => onSelectRow(
+        data[index][idKey],
+        !isSelected(data[index][idKey]) || !hasColorEncoding,
+      )}
     >
       <div className={`input-container ${hiddenInputsClass} table-cell`}>
         <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>

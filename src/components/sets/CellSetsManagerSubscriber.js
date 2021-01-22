@@ -86,12 +86,12 @@ export default function CellSetsManagerSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     additionalCellSets,
+    cellColorEncoding,
   }, {
     setCellSetSelection,
     setCellColorEncoding,
     setCellSetColor,
     setAdditionalCellSets,
-    setGeneSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -192,7 +192,6 @@ export default function CellSetsManagerSubscriber(props) {
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
   function setCellSetColorEncoding() {
-    setGeneSelection([]);
     setCellColorEncoding('cellSetSelection');
   }
 
@@ -650,6 +649,7 @@ export default function CellSetsManagerSubscriber(props) {
         levelSelection={checkedLevel}
         setSelection={cellSetSelection}
         setExpansion={cellSetExpansion}
+        hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
         draggable
         datatype={SETS_DATATYPE_CELL}
         onError={setWarning}
