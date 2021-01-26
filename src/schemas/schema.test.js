@@ -6,7 +6,7 @@ import expect from 'expect';
 
 describe('schemas', () => {
   [
-    'config',
+    'config-1.0.1',
     'cells',
     'clusters',
     'genes',
