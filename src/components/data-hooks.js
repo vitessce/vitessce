@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect } from 'react';
 import { capitalize } from '../utils';
 import { useSetWarning } from '../app/state/hooks';
@@ -19,14 +20,16 @@ function warn(error, setWarning) {
   }
 }
 
-function initCoordinationSpace(values, setters) {
+function initCoordinationSpace(values, setters, preferences) {
   if (!values || !setters) {
     return;
   }
   Object.entries(values).forEach(([coordinationType, initialValue]) => {
     const setterName = `set${capitalize(coordinationType)}`;
+    const prefName = `initialize${capitalize(coordinationType)}`;
     const setterFunc = setters[setterName];
-    if (setterFunc) {
+    const shouldInit = preferences && preferences[prefName];
+    if (shouldInit && setterFunc) {
       setterFunc(initialValue);
     }
   });
@@ -81,7 +84,8 @@ export function useDescription(loaders, dataset) {
  * number of items in the cells object.
  */
 export function useCellsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired, coordinationSetters,
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, coordinationPreferences,
 ) {
   const [cells, setCells] = useState({});
   const [cellsCount, setCellsCount] = useState(0);
@@ -100,7 +104,21 @@ export function useCellsData(
         setCells(data);
         setCellsCount(Object.keys(data).length);
         addUrl(url, 'Cells');
-        initCoordinationSpace(coordinationValues, coordinationSetters);
+        // This dataset has cells, so set up the
+        // spatial cells layer coordination value
+        // using the cell layer singleton.
+        const mergedCoordinationValues = {
+          spatialCellsLayers: [
+            {
+              opacity: 1, radius: 50, visible: true, stroked: false,
+            },
+          ],
+          ...coordinationValues,
+        };
+        initCoordinationSpace(
+          mergedCoordinationValues,
+          coordinationSetters, coordinationPreferences,
+        );
         setItemIsReady('cells');
       });
     } else {
@@ -137,7 +155,8 @@ export function useCellsData(
  * cellSets is a sets tree object.
  */
 export function useCellSetsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired, onLoad = null,
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, coordinationPreferences,
 ) {
   const [cellSets, setCellSets] = useState();
 
@@ -152,12 +171,14 @@ export function useCellSetsData(
       // Load the data initially.
       loaders[dataset].loaders['cell-sets'].load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
-        const { data, url } = payload;
+        const { data, url, coordinationValues } = payload;
         setCellSets(data);
         addUrl(url, 'Cell Sets');
-        if (onLoad) {
-          onLoad(data);
-        }
+        initCoordinationSpace(
+          coordinationValues,
+          coordinationSetters,
+          coordinationPreferences,
+        );
         setItemIsReady('cell-sets');
       });
     } else {
@@ -193,7 +214,10 @@ export function useCellSetsData(
  * expressionMatrix is an object with
  * shape { cols, rows, matrix }.
  */
-export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl, isRequired) {
+export function useExpressionMatrixData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, coordinationPreferences,
+) {
   const [expressionMatrix, setExpressionMatrix] = useState();
 
   const setWarning = useSetWarning();
@@ -206,7 +230,7 @@ export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl
     if (loaders[dataset].loaders['expression-matrix']) {
       loaders[dataset].loaders['expression-matrix'].load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
-        const { data, url } = payload;
+        const { data, url, coordinationValues } = payload;
         const [attrs, arr] = data;
         setExpressionMatrix({
           cols: attrs.cols,
@@ -214,6 +238,11 @@ export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl
           matrix: arr.data,
         });
         addUrl(url, 'Expression Matrix');
+        initCoordinationSpace(
+          coordinationValues,
+          coordinationSetters,
+          coordinationPreferences,
+        );
         setItemIsReady('expression-matrix');
       });
     } else {
@@ -252,7 +281,8 @@ export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl
  * locationsCount is the number of molecules.
  */
 export function useMoleculesData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired, coordinationSetters,
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, coordinationPreferences,
 ) {
   const [molecules, setMolecules] = useState();
   const [moleculesCount, setMoleculesCount] = useState(0);
@@ -275,7 +305,19 @@ export function useMoleculesData(
           .map(l => l.length)
           .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
-        initCoordinationSpace(coordinationValues, coordinationSetters);
+        const mergedCoordinationValues = {
+          spatialMoleculesLayers: [
+            {
+              opacity: 1, radius: 20, visible: true,
+            },
+          ],
+          ...coordinationValues,
+        };
+        initCoordinationSpace(
+          mergedCoordinationValues,
+          coordinationSetters,
+          coordinationPreferences,
+        );
         setItemIsReady('molecules');
       });
     } else {
@@ -314,7 +356,8 @@ export function useMoleculesData(
  * neighborhoods is an object.
  */
 export function useNeighborhoodsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired, coordinationSetters,
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, coordinationPreferences,
 ) {
   const [neighborhoods, setNeighborhoods] = useState();
 
@@ -332,7 +375,19 @@ export function useNeighborhoodsData(
           const { data, url, coordinationValues } = payload;
           setNeighborhoods(data);
           addUrl(url, 'Neighborhoods');
-          initCoordinationSpace(coordinationValues, coordinationSetters);
+          const mergedCoordinationValues = {
+            spatialNeighborhoodsLayers: [
+              {
+                visible: false,
+              },
+            ],
+            ...coordinationValues,
+          };
+          initCoordinationSpace(
+            mergedCoordinationValues,
+            coordinationSetters,
+            coordinationPreferences,
+          );
           setItemIsReady('neighborhoods');
         });
     } else {
@@ -371,7 +426,8 @@ export function useNeighborhoodsData(
  * imageLayerMeta is an object.
  */
 export function useRasterData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired, coordinationSetters,
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, coordinationPreferences,
 ) {
   const [raster, setRaster] = useState();
   // Since we want the image layer / channel definitions to come from the
@@ -399,7 +455,11 @@ export function useRasterData(
         const { loaders: nextImageLoaders, meta: nextImageMeta } = data;
         setImageLayerLoaders(nextImageLoaders);
         setImageLayerMeta(nextImageMeta);
-        initCoordinationSpace(coordinationValues, coordinationSetters);
+        initCoordinationSpace(
+          coordinationValues,
+          coordinationSetters,
+          coordinationPreferences,
+        );
         setItemIsReady('raster');
       });
     } else {
@@ -439,7 +499,8 @@ export function useRasterData(
  * neighborhoods is an object.
  */
 export function useGenomicProfilesData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired, onLoad = null,
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, coordinationPreferences,
 ) {
   const [genomicProfilesAttrs, setGenomicProfilesAttrs] = useState();
 
@@ -454,12 +515,14 @@ export function useGenomicProfilesData(
       loaders[dataset].loaders['genomic-profiles'].load().catch(e => warn(e, setWarning))
         .then((payload) => {
           if (!payload) return;
-          const { data, url } = payload;
+          const { data, url, coordinationValues } = payload;
           setGenomicProfilesAttrs(data);
           addUrl(url);
-          if (onLoad) {
-            onLoad();
-          }
+          initCoordinationSpace(
+            coordinationValues,
+            coordinationSetters,
+            coordinationPreferences,
+          );
           setItemIsReady('genomic-profiles');
         });
     } else {

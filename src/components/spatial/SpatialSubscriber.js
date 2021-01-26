@@ -34,6 +34,12 @@ export default function SpatialSubscriber(props) {
     subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
     theme,
     disableTooltip = false,
+    initializeSpatialCellsLayers = true,
+    initializeSpatialMoleculesLayers = true,
+    initializeSpatialNeighborhoodsLayers = true,
+    initializeSpatialRasterLayers = true,
+    initializeCellSetSelection = true,
+    initializeCellSetColor = true,
   } = props;
 
   const loaders = useLoaders();
@@ -93,21 +99,23 @@ export default function SpatialSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => {},
     { setSpatialCellsLayers: setCellsLayers },
+    { initializeSpatialCellsLayers },
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => {},
     { setSpatialMoleculesLayers: setMoleculesLayers },
+    { initializeSpatialMoleculesLayers },
   );
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    () => {},
     { setSpatialNeighborhoodsLayers: setNeighborhoodsLayers },
+    { initializeSpatialNeighborhoodsLayers },
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
+    { setCellSetSelection, setCellSetColor },
+    { initializeCellSetSelection, initializeCellSetColor },
   );
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -116,11 +124,12 @@ export default function SpatialSubscriber(props) {
   const [raster, imageLayerLoaders] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialRasterLayers: setRasterLayers },
+    { initializeSpatialRasterLayers },
   );
 
   const layers = useMemo(() => [
-    ...(cellsLayers ? cellsLayers.map(l => ({ ...l, type: 'cells' })) : []),
     ...(moleculesLayers ? moleculesLayers.map(l => ({ ...l, type: 'molecules' })) : []),
+    ...(cellsLayers ? cellsLayers.map(l => ({ ...l, type: 'cells' })) : []),
     ...(neighborhoodsLayers
       ? neighborhoodsLayers.map(l => ({ ...l, type: 'neighborhoods' }))
       : []

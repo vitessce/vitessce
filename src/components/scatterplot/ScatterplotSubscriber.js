@@ -32,6 +32,8 @@ export default function ScatterplotSubscriber(props) {
     disableTooltip = false,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
+    initializeCellSetSelection = true,
+    initializeCellSetColor = true,
   } = props;
 
   const loaders = useLoaders();
@@ -95,6 +97,8 @@ export default function ScatterplotSubscriber(props) {
     setItemIsReady,
     addUrl,
     false,
+    { setCellSetSelection, setCellSetColor },
+    { initializeCellSetSelection, initializeCellSetColor },
   );
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, false,

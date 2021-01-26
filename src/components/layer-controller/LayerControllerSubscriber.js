@@ -19,6 +19,9 @@ function LayerControllerSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
+    initializeSpatialRasterLayers = true,
+    initializeSpatialCellsLayers = true,
+    initializeSpatialMoleculesLayers = true,
   } = props;
 
   const loaders = useLoaders();
@@ -50,15 +53,18 @@ function LayerControllerSubscriber(props) {
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialRasterLayers: setRasterLayers },
+    { initializeSpatialRasterLayers },
   );
 
   useCellsData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialCellsLayers: setCellsLayers },
+    { initializeSpatialCellsLayers },
   );
   useMoleculesData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialMoleculesLayers: setMoleculesLayers },
+    { initializeSpatialMoleculesLayers },
   );
 
   const handleImageAdd = async (index) => {
@@ -106,20 +112,22 @@ function LayerControllerSubscriber(props) {
       isReady={isReady}
     >
       <div className="layer-controller-container">
-        {cellsLayers && cellsLayers.map((layer, i) => (
-          <VectorLayerController
-            key={`${dataset}-cells`}
-            label="Cell Segmentations"
-            layer={layer}
-            handleLayerChange={v => handleCellsLayerChange(v, i)}
-          />
-        ))}
         {moleculesLayers && moleculesLayers.map((layer, i) => (
           <VectorLayerController
             key={`${dataset}-molecules`}
             label="Molecules"
+            layerType="molecules"
             layer={layer}
             handleLayerChange={v => handleMoleculesLayerChange(v, i)}
+          />
+        ))}
+        {cellsLayers && cellsLayers.map((layer, i) => (
+          <VectorLayerController
+            key={`${dataset}-cells`}
+            label="Cell Segmentations"
+            layerType="cells"
+            layer={layer}
+            handleLayerChange={v => handleCellsLayerChange(v, i)}
           />
         ))}
         {rasterLayers && rasterLayers.map((layer, i) => {

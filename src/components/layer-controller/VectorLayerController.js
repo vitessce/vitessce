@@ -11,6 +11,7 @@ export default function VectorLayerController(props) {
   const {
     label,
     layer,
+    layerType,
     handleLayerChange,
   } = props;
 
@@ -18,7 +19,7 @@ export default function VectorLayerController(props) {
   const isOn = layer.visible;
 
   function handleSliderChange(v) {
-    if (layer.type === 'cells') {
+    if (layerType === 'cells') {
       const stroked = v < 0.7;
       handleLayerChange({ ...layer, opacity: v, stroked });
     } else {

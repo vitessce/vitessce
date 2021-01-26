@@ -77,10 +77,10 @@ export default function Vitessce(props) {
     }
     // Check if this is a "legacy" view config.
     let upgradedConfig = config;
-    if (config.version === '0.1.0') {
+    if (upgradedConfig.version === '0.1.0') {
       // Validate under the legacy schema first.
       const validateLegacy = new Ajv().compile(configSchema0_1_0);
-      const validLegacy = validateLegacy(config);
+      const validLegacy = validateLegacy(upgradedConfig);
       if (!validLegacy) {
         const failureReason = JSON.stringify(validateLegacy.errors, null, 2);
         return [{
@@ -89,12 +89,13 @@ export default function Vitessce(props) {
         }, false];
       }
       // Upgrade from v0.1.0 to v1.0.1 before v1.0.1 schema validation.
-      upgradedConfig = upgrade('0.1.0', config);
-    } else if (config.version === '1.0.0') {
+      upgradedConfig = upgrade('0.1.0', upgradedConfig);
+    }
+    if (upgradedConfig.version === '1.0.0') {
       // Validate under the legacy schema first.
       const validateLegacy = new Ajv()
         .addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_0);
-      const validLegacy = validateLegacy(config);
+      const validLegacy = validateLegacy(upgradedConfig);
       if (!validLegacy) {
         const failureReason = JSON.stringify(validateLegacy.errors, null, 2);
         return [{
@@ -103,7 +104,7 @@ export default function Vitessce(props) {
         }, false];
       }
       // Upgrade from v1.0.0 to v1.0.1 before v1.0.1 schema validation.
-      upgradedConfig = upgrade('1.0.0', config);
+      upgradedConfig = upgrade('1.0.0', upgradedConfig);
     }
     // NOTE: Remove when a view config viewer/editor is available in UI.
     console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) view configuration`);

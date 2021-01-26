@@ -23,7 +23,6 @@ import {
   treeToComplement,
   treeFindNodeByNamePath,
   treesConflict,
-  initializeCellSetColor,
   nodeTransform,
   nodeAppendChild,
   nodePrependChild,
@@ -72,8 +71,8 @@ export default function CellSetsManagerSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
-    initializeSelection = true,
-    initializeColor = true,
+    initializeCellSetSelection = true,
+    initializeCellSetColor = true,
     theme,
   } = props;
 
@@ -99,78 +98,23 @@ export default function CellSetsManagerSubscriber(props) {
     CELL_SETS_DATA_TYPES,
   );
 
-  const [autoSetSelections, setAutoSetSelections] = useState({});
-  const [autoSetColors, setAutoSetColors] = useState({});
-
   const [cellSetExpansion, setCellSetExpansion] = useState([]);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-    setAutoSetSelections({});
-    setAutoSetColors({});
     setCellSetExpansion([]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
   const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true,
-    (data) => {
-      if (data && data.tree.length >= 1) {
-        // eslint-disable-next-line no-underscore-dangle
-        const newAutoSetSelectionParentName = data.tree[0].name;
-        const newAutoSetSelections = data.tree[0].children
-          .map(node => ([newAutoSetSelectionParentName, node.name]));
-        setAutoSetSelections(prev => ({
-          [dataset]: [
-            ...(prev[dataset] || []),
-            ...newAutoSetSelections,
-          ],
-        }));
-
-        const newAutoSetColors = initializeCellSetColor(data, cellSetColor);
-        setAutoSetColors(prev => ({
-          [dataset]: [
-            ...(prev[dataset] || []),
-            ...newAutoSetColors,
-          ],
-        }));
-      } else {
-        setAutoSetSelections(prev => ({ [dataset]: (prev[dataset] || []) }));
-        setAutoSetColors(prev => ({ [dataset]: (prev[dataset] || []) }));
-      }
-    });
-
-  // Try to set up the selected sets array automatically if undefined.
-  useEffect(() => {
-    // Only initialize cell sets if the value of `cellSetSelection` is `null`
-    // and the `initializeSelection` prop is `true`.
-    if (
-      isReady
-      && initializeSelection
-      && autoSetSelections[dataset]
-      && !cellSetSelection
-    ) {
-      setCellSetSelection(autoSetSelections[dataset]);
-    }
-  }, [dataset, autoSetSelections, isReady, cellSetSelection,
-    setCellSetSelection, initializeSelection]);
-
-  // Try to set up the colored sets array automatically if undefined.
-  useEffect(() => {
-    // Only initialize cell sets if the value of `cellSetColor` is `null`
-    // and the `initializeColor` prop is `true`.
-    if (
-      isReady
-      && initializeColor
-      && autoSetColors[dataset]
-      && !cellSetColor
-    ) {
-      setCellSetColor(autoSetColors[dataset]);
-    }
-  }, [dataset, autoSetColors, isReady, setCellSetColor, initializeColor, cellSetColor]);
+  const [cellSets] = useCellSetsData(
+    loaders, dataset, setItemIsReady, addUrl, true,
+    { setCellSetSelection, setCellSetColor },
+    { initializeCellSetSelection, initializeCellSetColor },
+  );
 
   // Validate and upgrade the additionalCellSets.
   useEffect(() => {
