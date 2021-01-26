@@ -20,6 +20,18 @@ function warn(error, setWarning) {
   }
 }
 
+/**
+ * Initialize values in the coordination space.
+ * @param {object} values Object where
+ * keys are coordination type names,
+ * values are initial coordination values.
+ * @param {object} setters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} preferences Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
+ */
 function initCoordinationSpace(values, setters, preferences) {
   if (!values || !setters) {
     return;
@@ -78,7 +90,12 @@ export function useDescription(loaders, dataset) {
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
- * @param {(function|null)} onLoad An extra function to execute upon load of the data.
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} coordinationPreferences Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
  * @returns {array} [cells, cellsCount] where
  * cells is an object and cellsCount is the
  * number of items in the cells object.
@@ -151,6 +168,12 @@ export function useCellsData(
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} coordinationPreferences Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
  * @returns {array} [cellSets] where
  * cellSets is a sets tree object.
  */
@@ -210,6 +233,12 @@ export function useCellSetsData(
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} coordinationPreferences Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
  * @returns {array} [expressionMatrix] where
  * expressionMatrix is an object with
  * shape { cols, rows, matrix }.
@@ -274,7 +303,12 @@ export function useExpressionMatrixData(
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
- * @param {(function|null)} onLoad An extra function to execute upon load of the data.
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} coordinationPreferences Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
  * @returns {array} [molecules, moleculesCount, locationsCount] where
  * molecules is an object,
  * moleculesCount is the number of unique molecule types, and
@@ -351,7 +385,12 @@ export function useMoleculesData(
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
- * @param {(function|null)} onLoad An extra function to execute upon load of the data.
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} coordinationPreferences Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
  * @returns {array} [neighborhoods] where
  * neighborhoods is an object.
  */
@@ -419,7 +458,12 @@ export function useNeighborhoodsData(
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
- * @param {(function|null)} onLoad An extra function to execute upon load of the data.
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} coordinationPreferences Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
  * @returns {array} [raster, imageLayerLoaders, imageLayerMeta] where
  * raster is an object,
  * imageLayerLoaders is an object, and
@@ -494,7 +538,12 @@ export function useRasterData(
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
- * @param {(function|null)} onLoad An extra function to execute upon load of the data.
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} coordinationPreferences Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
  * @returns {array} [neighborhoods] where
  * neighborhoods is an object.
  */

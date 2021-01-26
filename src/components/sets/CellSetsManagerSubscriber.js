@@ -60,12 +60,15 @@ const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
  * A subscriber wrapper around the SetsManager component
  * for the 'cell' datatype.
  * @param {object} props
- * @param {function} removeGridComponent The callback function to pass to TitleInfo,
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
- * @param {function} onReady The function to call when the component has finished
- * initializing (subscribing to relevant events, etc).
- * @param {boolean} initializeSelection Should an event be emitted upon initialization,
- * so that cells are colored by some heuristic (e.g. the first clustering in the cell_sets tree)?
+ * @param {boolean} props.initializeCellSetSelection Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeCellSetColor Should the coordination
+ * value be automatically initialized based on the data?
  */
 export default function CellSetsManagerSubscriber(props) {
   const {

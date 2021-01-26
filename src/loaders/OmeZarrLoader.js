@@ -6,7 +6,7 @@ import AbstractZarrLoader from './AbstractZarrLoader';
 import { AbstractLoaderError } from './errors';
 import LoaderResult from './LoaderResult';
 
-import { initializeRasterLayersAndChannels, initializeLayerChannelsIfMissing } from '../components/spatial/utils';
+import { initializeRasterLayersAndChannels } from '../components/spatial/utils';
 
 function hexToRgb(hex) {
   const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
@@ -115,10 +115,10 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
       },
     ];
 
+    // TODO: use options for initial selection of channels
+    // which omit domain/slider ranges.
     const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = await initializeRasterLayersAndChannels(imagesWithLoaderCreators, undefined);
 
-    // TODO: split spatialLayers into three coordination types
-    // spatialRasterLayers, spatialCellLayers, spatialMoleculeLayers
     const coordinationValues = {
       spatialRasterLayers: autoImageLayers
     };

@@ -37,6 +37,11 @@ const REFERENCE_TILESETS = {
  * A component for visualization of genomic profiles
  * with genome-wide bar plots.
  * @param {object} props The component props.
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
  * @param {string} props.profileTrackUidKey The key in the genomic profiles row_info that identifies
  * each track. By default, 'path'.
  * @param {string} props.profileTrackNameKey The key in the genomic profiles row_info that

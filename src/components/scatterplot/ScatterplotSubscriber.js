@@ -23,6 +23,21 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
+/**
+ * A subscriber component for the scatterplot.
+ * @param {object} props
+ * @param {number} props.uuid The unique identifier for this component.
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {boolean} props.disableTooltip Should the tooltip be disabled?
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {boolean} props.initializeCellSetSelection Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeCellSetColor Should the coordination
+ * value be automatically initialized based on the data?
+ */
 export default function ScatterplotSubscriber(props) {
   const {
     uuid,

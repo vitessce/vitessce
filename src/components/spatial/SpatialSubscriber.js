@@ -23,6 +23,27 @@ const SPATIAL_DATA_TYPES = [
   'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix',
 ];
 
+/**
+ * A subscriber component for the spatial plot.
+ * @param {object} props
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {boolean} props.initializeSpatialRasterLayers Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeSpatialCellsLayers Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeSpatialMoleculesLayers Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeSpatialNeighborhoodsLayers Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeCellSetSelection Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeCellSetColor Should the coordination
+ * value be automatically initialized based on the data?
+ */
 export default function SpatialSubscriber(props) {
   const {
     uuid,

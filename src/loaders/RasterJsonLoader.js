@@ -5,7 +5,7 @@ import JsonLoader from './JsonLoader';
 import { AbstractLoaderError } from './errors';
 import LoaderResult from './LoaderResult';
 
-import { initializeRasterLayersAndChannels, initializeLayerChannelsIfMissing } from '../components/spatial/utils';
+import { initializeRasterLayersAndChannels } from '../components/spatial/utils';
 
 async function initLoader(imageData) {
   const {
@@ -81,13 +81,12 @@ export default class RasterLoader extends JsonLoader {
       },
     }));
 
+    // TODO: use options for initial selection of channels
+    // which omit domain/slider ranges.
     const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = await initializeRasterLayersAndChannels(imagesWithLoaderCreators, renderLayers);
-    const [newLayers] = await initializeLayerChannelsIfMissing(autoImageLayers, imageLayerLoaders);
 
-    // TODO: split spatialLayers into three coordination types
-    // spatialRasterLayers, spatialCellLayers, spatialMoleculeLayers
     const coordinationValues = {
-      spatialRasterLayers: newLayers
+      spatialRasterLayers: autoImageLayers
     };
 
     return Promise.resolve(

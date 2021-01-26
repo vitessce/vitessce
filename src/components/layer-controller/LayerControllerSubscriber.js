@@ -14,6 +14,21 @@ import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
 
 const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
 
+/**
+ * A subscriber component for the spatial layer controller.
+ * @param {object} props
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {boolean} props.initializeSpatialRasterLayers Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeSpatialCellsLayers Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeSpatialMoleculesLayers Should the coordination
+ * value be automatically initialized based on the data?
+ */
 function LayerControllerSubscriber(props) {
   const {
     coordinationScopes,

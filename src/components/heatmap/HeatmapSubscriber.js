@@ -17,6 +17,18 @@ import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
 const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 
+/**
+ * @param {object} props
+ * @param {number} props.uuid The unique identifier for this component.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {boolean} props.initializeCellSetSelection Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeCellSetColor Should the coordination
+ * value be automatically initialized based on the data?
+ */
 export default function HeatmapSubscriber(props) {
   const {
     uuid,
@@ -27,6 +39,8 @@ export default function HeatmapSubscriber(props) {
     variablesLabelOverride: variablesLabel = 'gene',
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     disableTooltip = false,
+    initializeCellSetSelection = true,
+    initializeCellSetColor = true,
   } = props;
 
   const loaders = useLoaders();
@@ -54,6 +68,8 @@ export default function HeatmapSubscriber(props) {
     setHeatmapTargetY: setTargetY,
     setCellHighlight,
     setGeneHighlight,
+    setCellSetSelection,
+    setCellSetColor,
     setGeneExpressionColormapRange: setHeatmapControls,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
 
@@ -79,7 +95,11 @@ export default function HeatmapSubscriber(props) {
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
-  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
+  const [cellSets] = useCellSetsData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    { setCellSetSelection, setCellSetColor },
+    { initializeCellSetSelection, initializeCellSetColor },
+  );
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,

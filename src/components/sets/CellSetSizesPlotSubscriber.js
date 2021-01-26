@@ -19,12 +19,18 @@ const CELL_SET_SIZES_DATA_TYPES = ['cell-sets'];
  * @param {function} props.onReady The function to call when the subscriptions
  * have been made.
  * @param {string} props.theme The name of the current Vitessce theme.
+ * @param {boolean} props.initializeCellSetSelection Should the coordination
+ * value be automatically initialized based on the data?
+ * @param {boolean} props.initializeCellSetColor Should the coordination
+ * value be automatically initialized based on the data?
  */
 export default function CellSetSizesPlotSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
     theme,
+    initializeCellSetSelection = true,
+    initializeCellSetColor = true,
   } = props;
 
   const loaders = useLoaders();
@@ -35,6 +41,9 @@ export default function CellSetSizesPlotSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     additionalCellSets,
+  }, {
+    setCellSetSelection,
+    setCellSetColor,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetSizes, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
@@ -51,7 +60,11 @@ export default function CellSetSizesPlotSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cellSets] = useCellSetsData(
+    loaders, dataset, setItemIsReady, addUrl, true,
+    { setCellSetSelection, setCellSetColor },
+    { initializeCellSetSelection, initializeCellSetColor },
+  );
 
   const mergedCellSets = useMemo(
     () => mergeCellSets(cellSets, additionalCellSets),
