@@ -13,7 +13,7 @@ RE="$S3_BASE$S3_BUCKET$S3_PATH"
 S3_SRC_PATH=$( echo "$@" | perl -pne 's{^.*'"$S3_BASE"'}{}; s{/index.html}{}; s{/$}{}' )
 
 S3_SRC="s3://$S3_SRC_PATH"
-S3_TARGET='s3://vitessce.io'
+S3_TARGET='s3://beta.vitessce.io'
 
 b=$(tput bold)
 n=$(tput sgr0)
