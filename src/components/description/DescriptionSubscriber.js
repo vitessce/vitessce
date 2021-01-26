@@ -21,7 +21,7 @@ export default function DescriptionSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    spatialLayers: layers,
+    spatialRasterLayers: rasterLayers,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.description, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -42,8 +42,7 @@ export default function DescriptionSubscriber(props) {
 
   const metadata = useMemo(() => {
     const result = new Map();
-    if (layers && layers.length > 0 && raster && imageLayerMeta && imageLayerLoaders) {
-      const rasterLayers = layers.filter(layer => layer.type === 'raster');
+    if (rasterLayers && rasterLayers.length > 0 && raster && imageLayerMeta && imageLayerLoaders) {
       rasterLayers.forEach((layer) => {
         if (imageLayerMeta[layer.index]) {
           // Want to ensure that layer index is a string.
@@ -55,7 +54,7 @@ export default function DescriptionSubscriber(props) {
       });
     }
     return result;
-  }, [raster, layers, imageLayerMeta, imageLayerLoaders]);
+  }, [raster, rasterLayers, imageLayerMeta, imageLayerLoaders]);
 
   return (
     <TitleInfo

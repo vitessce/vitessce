@@ -285,7 +285,7 @@ export function upgradeFrom0_1_0(config, datasetUid = null) {
   const newDatasetUid = datasetUid || uuidv4();
 
   return {
-    version: '1.0.0',
+    version: '1.0.1',
     name: config.name,
     description: config.description,
     public: config.public,
@@ -315,7 +315,11 @@ export function upgradeFrom1_0_0(config) {
       if (Array.isArray(layers) && layers.find(layer => layer.type === layerType)) {
         coordinationSpace[`spatial${capitalize(layerType)}Layers`][scope] = layers
           .filter(layer => layer.type === layerType)
-          .map(layer => ({ ...layer, type: undefined }));
+          .map((layer) => {
+            const newLayer = { ...layer };
+            delete newLayer.type;
+            return newLayer;
+          });
       } else {
         coordinationSpace[`spatial${capitalize(layerType)}Layers`][scope] = null;
       }
@@ -327,19 +331,24 @@ export function upgradeFrom1_0_0(config) {
     replaceLayerType('cells');
     replaceLayerType('molecules');
     replaceLayerType('neighborhoods');
+    delete coordinationSpace.spatialLayers;
   }
 
   const layout = config.layout.map((component) => {
     const newComponent = { ...component };
+
+    function replaceCoordinationScope(layerType) {
+      if (COMPONENT_COORDINATION_TYPES[newComponent.component].includes(`spatial${capitalize(layerType)}Layers`)) {
+        newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layers`] = newComponent.coordinationScopes.spatialLayers;
+      }
+    }
+
     if (newComponent.coordinationScopes && newComponent.coordinationScopes.spatialLayers) {
-      newComponent.coordinationScopes
-        .spatialRasterLayers = newComponent.coordinationScopes.spatialLayers;
-      newComponent.coordinationScopes
-        .spatialCellsLayers = newComponent.coordinationScopes.spatialLayers;
-      newComponent.coordinationScopes
-        .spatialMoleculesLayers = newComponent.coordinationScopes.spatialLayers;
-      newComponent.coordinationScopes
-        .spatialNeighborhoodsLayers = newComponent.coordinationScopes.spatialLayers;
+      replaceCoordinationScope('raster');
+      replaceCoordinationScope('cells');
+      replaceCoordinationScope('molecules');
+      replaceCoordinationScope('neighborhoods');
+      delete newComponent.coordinationScopes.spatialLayers;
     }
     return newComponent;
   });
