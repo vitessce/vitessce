@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useState, useEffect } from 'react';
 import { capitalize } from '../utils';
 import { useSetWarning } from '../app/state/hooks';

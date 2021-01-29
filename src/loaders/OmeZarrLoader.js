@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { ZarrLoader } from '@hms-dbmi/viv';
 import range from 'lodash/range';
 import { openArray } from 'zarr';
@@ -117,11 +116,19 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
 
     // TODO: use options for initial selection of channels
     // which omit domain/slider ranges.
-    const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = await initializeRasterLayersAndChannels(imagesWithLoaderCreators, undefined);
+    const [
+      autoImageLayers, imageLayerLoaders, imageLayerMeta,
+    ] = await initializeRasterLayersAndChannels(
+      imagesWithLoaderCreators, undefined,
+    );
 
     const coordinationValues = {
-      spatialRasterLayers: autoImageLayers
+      spatialRasterLayers: autoImageLayers,
     };
-    return Promise.resolve(new LoaderResult({ loaders: imageLayerLoaders, meta: imageLayerMeta }, [], coordinationValues));
+    return Promise.resolve(new LoaderResult(
+      { loaders: imageLayerLoaders, meta: imageLayerMeta },
+      [],
+      coordinationValues,
+    ));
   }
 }
