@@ -9,6 +9,7 @@ import {
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
+import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle } from './utils';
 import {
@@ -214,6 +215,13 @@ export default function SpatialSubscriber(props) {
       theme={theme}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
+      options={(
+        <SpatialOptions
+          observationsLabel={observationsLabel}
+          cellColorEncoding={cellColorEncoding}
+          setCellColorEncoding={setCellColorEncoding}
+        />
+      )}
     >
       <Spatial
         ref={deckRef}

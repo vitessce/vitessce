@@ -1,2 +1,2 @@
-export { default as VegaPlot } from './VegaPlot';
-export { createVegaLiteApi, VEGA_THEMES } from './utils';
+export { default as VegaPlot, DATASET_NAME } from './VegaPlot';
+export { VEGA_THEMES } from './utils';

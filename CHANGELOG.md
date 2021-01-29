@@ -11,6 +11,7 @@
 ### Changed
 - Fix AnnData text decoding.
 - Refactor AnnData flat array decoding and resolve bug.
+- Fix non-string cell id parsing in AnnData.
 - Updated the data hook functions to handle coordination value initialization, rather than doing initialization at the subscriber component level.
 
 ## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07
@@ -42,6 +43,7 @@
 - Support loading AnnData from zarr.
 - Added scatterplot component options pane.
 - Added a `TextLayer` to render cell set names over the corresponding cell set centroid in the scatterplot.
+- Added a gene expression histogram Vega-Lite component and a cell set by gene expression violin plot Vega component.
 
 ### Changed
 - Genes list is now a virtual scroll to allow for more performant rendering.

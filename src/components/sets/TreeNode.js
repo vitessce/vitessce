@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import clsx from 'clsx';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import classNames from 'classnames';
@@ -243,6 +244,7 @@ function LevelsButtons(props) {
     onCheckLevel,
     checkedLevelPath,
     checkedLevelIndex,
+    hasColorEncoding,
   } = props;
   function onCheck(event) {
     if (event.target.checked) {
@@ -252,19 +254,22 @@ function LevelsButtons(props) {
   }
   return (
     <div className="level-buttons-container">
-      {range(1, height + 1).map(i => (
-        <div className="level-buttons" key={i}>
-          <HelpTooltip title={getLevelTooltipText(i)}>
-            <input
-              className="level-radio-button"
-              type="checkbox"
-              value={i}
-              checked={isEqual(path, checkedLevelPath) && i === checkedLevelIndex}
-              onChange={onCheck}
-            />
-          </HelpTooltip>
-        </div>
-      ))}
+      {range(1, height + 1).map((i) => {
+        const isChecked = isEqual(path, checkedLevelPath) && i === checkedLevelIndex;
+        return (
+          <div className="level-buttons" key={i}>
+            <HelpTooltip title={getLevelTooltipText(i)}>
+              <input
+                className={clsx('level-radio-button', { checked: isChecked && !hasColorEncoding })}
+                type="checkbox"
+                value={i}
+                checked={isChecked && hasColorEncoding}
+                onChange={onCheck}
+              />
+            </HelpTooltip>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -205,6 +205,8 @@ export default function ScatterplotSubscriber(props) {
           setCellSetLabelSize={setCellSetLabelSize}
           cellSetPolygonsVisible={cellSetPolygonsVisible}
           setCellSetPolygonsVisible={setCellSetPolygonsVisible}
+          cellColorEncoding={cellColorEncoding}
+          setCellColorEncoding={setCellColorEncoding}
         />
       )}
     >
