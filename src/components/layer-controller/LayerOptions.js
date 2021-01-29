@@ -39,7 +39,8 @@ function ColormapSelect({ value, inputId, handleChange }) {
 function TransparentColorCheckbox({ value, handleChange }) {
   return (
     <Checkbox
-      style={{ paddingLeft: '50%' }}
+      style={{ float: 'left', padding: 0 }}
+      color="default"
       onChange={() => {
         if (value.every(i => typeof i === 'number')) {
           handleChange([null, null, null]);
@@ -190,17 +191,6 @@ function LayerOptions({
   const hasDimensionsAndChannels = dimensions.length > 0 && channels.length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
-      <Grid item>
-        <LayerOption
-          name="Black Transparent"
-          inputId="transparent-color-selector"
-        >
-          <TransparentColorCheckbox
-            value={transparentColor}
-            handleChange={handleTransparentColorChange}
-          />
-        </LayerOption>
-      </Grid>
       {!isRgb ? (
         <>
           <Grid item>
@@ -227,6 +217,17 @@ function LayerOptions({
       <Grid item>
         <LayerOption name="Opacity" inputId="opacity-slider">
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
+        </LayerOption>
+      </Grid>
+      <Grid item>
+        <LayerOption
+          name="Zero Transparent"
+          inputId="transparent-color-selector"
+        >
+          <TransparentColorCheckbox
+            value={transparentColor}
+            handleChange={handleTransparentColorChange}
+          />
         </LayerOption>
       </Grid>
       {hasDimensionsAndChannels
