@@ -6,6 +6,7 @@
 ### Changed
 - Fix AnnData text decoding.
 - Refactor AnnData flat array decoding and resolve bug.
+- Fix non-string cell id parsing in AnnData.
 
 ## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07
 

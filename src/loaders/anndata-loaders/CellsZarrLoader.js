@@ -110,7 +110,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
         const factorsObj = {};
         factors.forEach(
           // eslint-disable-next-line no-return-assign
-          (factor, j) => (factorsObj[this.options.factors[j].split('.').slice(-1)] = factor[i]),
+          (factor, j) => (factorsObj[this.options.factors[j].split('/').slice(-1)] = factor[i]),
         );
         cells[name].factors = factorsObj;
       }
