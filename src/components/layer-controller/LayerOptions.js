@@ -4,9 +4,9 @@ import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
+import Checkbox from '@material-ui/core/Checkbox';
 
 import { COLORMAP_OPTIONS } from '../utils';
-import { range } from '../../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
@@ -36,38 +36,19 @@ function ColormapSelect({ value, inputId, handleChange }) {
   );
 }
 
-function TransparentColorSelect({ value, inputId, handleChange }) {
+function TransparentColorCheckbox({ value, handleChange }) {
   return (
-    <Grid
-      container
-      direction="row"
-      justify="center"
-      alignItems="center"
-    >
-      {
-        range(3).map(i => (
-          <Grid item xs={4} key={`select-${String(i)}`}>
-            <Select
-              native
-              onChange={(e) => {
-                const newVal = [...value];
-                newVal[i] = e.target.value !== '' ? Number(e.target.value) : null;
-                handleChange(newVal);
-              }}
-              value={typeof value[i] !== 'number' ? '' : value[i]}
-              inputProps={{ name: 'transparent-color', id: inputId }}
-            >
-              <option aria-label="None" value="" />
-              {range(256).map(name => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </Select>
-          </Grid>
-        ))
-      }
-    </Grid>
+    <Checkbox
+      style={{ paddingLeft: '50%' }}
+      onChange={() => {
+        if (value.every(i => typeof i === 'number')) {
+          handleChange([null, null, null]);
+        } else {
+          handleChange([0, 0, 0]);
+        }
+      }}
+      checked={value.every(i => typeof i === 'number')}
+    />
   );
 }
 
@@ -167,9 +148,7 @@ function LayerOption({ name, inputId, children }) {
   return (
     <Grid container direction="row" alignItems="center" justify="center">
       <Grid item xs={6}>
-        <InputLabel htmlFor={inputId}>
-          {name}:
-        </InputLabel>
+        <InputLabel htmlFor={inputId}>{name}:</InputLabel>
       </Grid>
       <Grid item xs={6}>
         {children}
@@ -211,6 +190,17 @@ function LayerOptions({
   const hasDimensionsAndChannels = dimensions.length > 0 && channels.length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
+      <Grid item>
+        <LayerOption
+          name="Black Transparent"
+          inputId="transparent-color-selector"
+        >
+          <TransparentColorCheckbox
+            value={transparentColor}
+            handleChange={handleTransparentColorChange}
+          />
+        </LayerOption>
+      </Grid>
       {!isRgb ? (
         <>
           <Grid item>
@@ -234,17 +224,6 @@ function LayerOptions({
           </Grid>
         </>
       ) : null}
-      <Grid item>
-        <LayerOption
-          name="Transparent Color"
-          inputId="transparent-color-selector"
-        >
-          <TransparentColorSelect
-            value={transparentColor}
-            handleChange={handleTransparentColorChange}
-          />
-        </LayerOption>
-      </Grid>
       <Grid item>
         <LayerOption name="Opacity" inputId="opacity-slider">
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
