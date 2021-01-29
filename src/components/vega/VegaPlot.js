@@ -8,7 +8,11 @@ import ReactVega from './ReactVega';
 // we should eventually try to resolve this issue.
 // const ReactVega = React.lazy(() => import('./ReactVega'));
 
-const DATASET_NAME = 'table';
+export const DATASET_NAME = 'table';
+
+function isVega(spec) {
+  return spec.$schema === 'https://vega.github.io/schema/vega/v5.json';
+}
 
 /**
  * A wrapper around the react-vega Vega component.
@@ -26,7 +30,13 @@ export default function VegaPlot(props) {
 
   const spec = {
     ...partialSpec,
-    data: { name: DATASET_NAME },
+    data: (isVega(partialSpec)
+      ? [
+        { name: DATASET_NAME },
+        ...partialSpec.data,
+      ]
+      : { name: DATASET_NAME }
+    ),
   };
 
   const vegaComponent = useMemo(() => (

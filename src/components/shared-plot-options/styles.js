@@ -1,0 +1,44 @@
+import { makeStyles } from '@material-ui/core/styles';
+
+export const useStyles = makeStyles(theme => ({
+  box: {
+    boxSizing: 'border-box',
+  },
+  checkbox: {
+    padding: '3px',
+    color: theme.palette.primaryForeground,
+    '&:checked': {
+      color: theme.palette.primaryForeground,
+    },
+    '& input': {
+      height: '100%',
+    },
+  },
+  slider: {
+    color: theme.palette.primaryForeground,
+    minWidth: '60px',
+    padding: '10px 0 6px 0',
+  },
+  sliderValueLabel: {
+    '& span': {
+      '& span': {
+        color: theme.palette.primaryBackground,
+      },
+    },
+  },
+  tableContainer: {
+    overflow: 'hidden',
+  },
+  labelCell: {
+    padding: '2px 8px 2px 16px',
+  },
+  inputCell: {
+    padding: '2px 16px 2px 8px',
+    overflow: 'visible',
+  },
+  select: {
+    '& select': {
+      fontSize: '.875rem',
+    },
+  },
+}));

@@ -95,7 +95,7 @@ export default function SetsManager(props) {
     levelSelection: checkedLevel,
     setSelection,
     setExpansion,
-
+    hasColorEncoding,
     datatype,
     draggable = true,
     checkable = true,
@@ -178,6 +178,7 @@ export default function SetsManager(props) {
           expandable={expandable}
           exportable={exportable}
 
+          hasColorEncoding={hasColorEncoding}
           isChecking={isChecking}
           checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
           checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
