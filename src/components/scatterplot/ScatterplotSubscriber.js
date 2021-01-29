@@ -37,6 +37,7 @@ const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
  * value be automatically initialized based on the data?
  * @param {boolean} props.initializeCellSetColor Should the coordination
  * value be automatically initialized based on the data?
+ * @param {string} props.title An override value for the component title.
  */
 export default function ScatterplotSubscriber(props) {
   const {
@@ -49,6 +50,7 @@ export default function ScatterplotSubscriber(props) {
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
     initializeCellSetSelection = true,
     initializeCellSetColor = true,
+    title: titleOverride,
   } = props;
 
   const loaders = useLoaders();
@@ -96,6 +98,8 @@ export default function ScatterplotSubscriber(props) {
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     SCATTERPLOT_DATA_TYPES,
   );
+
+  const title = titleOverride || `Scatterplot (${mapping})`;
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
@@ -184,7 +188,7 @@ export default function ScatterplotSubscriber(props) {
 
   return (
     <TitleInfo
-      title={`Scatterplot (${mapping})`}
+      title={title}
       info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}

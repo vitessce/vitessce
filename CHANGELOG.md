@@ -6,6 +6,7 @@
     - Added an auto-upgrade function to upgrade from v1.0.0 to v1.0.1.
     - Spatial layer definition objects in v1.0.1 do not have a `type` property.
 - Added support for OME-Zarr raster files with the `OmeZarrLoader` class.
+- Added a `title` prop for all subscriber components, to allow users to override component titles through the view config.
 
 ### Changed
 - Fix AnnData text decoding.

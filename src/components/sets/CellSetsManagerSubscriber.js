@@ -69,6 +69,7 @@ const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
  * value be automatically initialized based on the data?
  * @param {boolean} props.initializeCellSetColor Should the coordination
  * value be automatically initialized based on the data?
+ * @param {string} props.title The component title.
  */
 export default function CellSetsManagerSubscriber(props) {
   const {
@@ -77,6 +78,7 @@ export default function CellSetsManagerSubscriber(props) {
     initializeCellSetSelection = true,
     initializeCellSetColor = true,
     theme,
+    title = 'Cell Sets',
   } = props;
 
   const loaders = useLoaders();
@@ -583,7 +585,7 @@ export default function CellSetsManagerSubscriber(props) {
   }
   return (
     <TitleInfo
-      title="Cell Sets"
+      title={title}
       isScroll
       removeGridComponent={removeGridComponent}
       urls={urls}

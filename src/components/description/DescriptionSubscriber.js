@@ -8,12 +8,24 @@ import Description from './Description';
 
 const DESCRIPTION_DATA_TYPES = ['raster'];
 
+/**
+ * A subscriber component for a text description component.
+ * Also renders a table containing image metadata.
+ * @param {object} props
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {string} props.title The component title.
+ */
 export default function DescriptionSubscriber(props) {
   const {
     coordinationScopes,
     description: descriptionOverride,
     removeGridComponent,
     theme,
+    title = 'Data Set',
   } = props;
 
   const loaders = useLoaders();
@@ -58,7 +70,7 @@ export default function DescriptionSubscriber(props) {
 
   return (
     <TitleInfo
-      title="Data Set"
+      title={title}
       removeGridComponent={removeGridComponent}
       isScroll
       theme={theme}

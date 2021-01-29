@@ -43,6 +43,7 @@ const SPATIAL_DATA_TYPES = [
  * value be automatically initialized based on the data?
  * @param {boolean} props.initializeCellSetColor Should the coordination
  * value be automatically initialized based on the data?
+ * @param {string} props.title The component title.
  */
 export default function SpatialSubscriber(props) {
   const {
@@ -61,6 +62,7 @@ export default function SpatialSubscriber(props) {
     initializeSpatialRasterLayers = true,
     initializeCellSetSelection = true,
     initializeCellSetColor = true,
+    title = 'Spatial',
   } = props;
 
   const loaders = useLoaders();
@@ -205,7 +207,7 @@ export default function SpatialSubscriber(props) {
   });
   return (
     <TitleInfo
-      title="Spatial"
+      title={title}
       info={subtitle}
       isSpatial
       urls={urls}

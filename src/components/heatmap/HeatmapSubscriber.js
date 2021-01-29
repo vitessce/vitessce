@@ -28,6 +28,19 @@ const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
  * value be automatically initialized based on the data?
  * @param {boolean} props.initializeCellSetColor Should the coordination
  * value be automatically initialized based on the data?
+ * @param {string} props.title The component title.
+ * @param {boolean} props.transpose Whether to
+ * render as cell-by-gene or gene-by-cell.
+ * @param {string} props.observationsLabelOverride The singular
+ * form of the name of the observation.
+ * @param {string} props.observationsPluralLabelOverride The
+ * plural form of the name of the observation.
+ * @param {string} props.variablesLabelOverride The singular
+ * form of the name of the variable.
+ * @param {string} props.variablesPluralLabelOverride The plural
+ * form of the name of the variable.
+ * @param {boolean} props.disableTooltip Whether to disable the
+ * tooltip on mouse hover.
  */
 export default function HeatmapSubscriber(props) {
   const {
@@ -41,6 +54,7 @@ export default function HeatmapSubscriber(props) {
     disableTooltip = false,
     initializeCellSetSelection = true,
     initializeCellSetColor = true,
+    title = 'Heatmap',
   } = props;
 
   const loaders = useLoaders();
@@ -140,7 +154,7 @@ export default function HeatmapSubscriber(props) {
   const selectedCount = cellColors.size;
   return (
     <TitleInfo
-      title="Heatmap"
+      title={title}
       info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)} × ${genesCount} ${pluralize(variablesLabel, variablesPluralLabel, genesCount)},
              with ${selectedCount} ${pluralize(observationsLabel, observationsPluralLabel, selectedCount)} selected`}
       urls={urls}

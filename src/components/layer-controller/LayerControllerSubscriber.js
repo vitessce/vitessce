@@ -28,6 +28,7 @@ const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
  * value be automatically initialized based on the data?
  * @param {boolean} props.initializeSpatialMoleculesLayers Should the coordination
  * value be automatically initialized based on the data?
+ * @param {string} props.title The component title.
  */
 function LayerControllerSubscriber(props) {
   const {
@@ -37,6 +38,7 @@ function LayerControllerSubscriber(props) {
     initializeSpatialRasterLayers = true,
     initializeSpatialCellsLayers = true,
     initializeSpatialMoleculesLayers = true,
+    title = 'Spatial Layers',
   } = props;
 
   const loaders = useLoaders();
@@ -120,7 +122,7 @@ function LayerControllerSubscriber(props) {
 
   return (
     <TitleInfo
-      title="Spatial Layers"
+      title={title}
       isScroll
       removeGridComponent={removeGridComponent}
       theme={theme}
