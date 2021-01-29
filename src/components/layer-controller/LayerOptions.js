@@ -42,13 +42,13 @@ function TransparentColorCheckbox({ value, handleChange }) {
       style={{ float: 'left', padding: 0 }}
       color="default"
       onChange={() => {
-        if (value.every(i => typeof i === 'number')) {
-          handleChange([null, null, null]);
+        if (value) {
+          handleChange(null);
         } else {
           handleChange([0, 0, 0]);
         }
       }}
-      checked={value.every(i => typeof i === 'number')}
+      checked={Boolean(value)}
     />
   );
 }
