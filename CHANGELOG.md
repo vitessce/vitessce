@@ -2,10 +2,12 @@
 
 ### Added
 - Added an optional `description` field to the dataset definition config object. Updated the `<Description/>` component to prefer this value over the top-level description value, if available.
+- Add `transparentColor` to `LayerController` for multi-modal imaging.
 
 ### Changed
 - Fix AnnData text decoding.
 - Refactor AnnData flat array decoding and resolve bug.
+- Upgrade viv to 0.8.3
 - Fix non-string cell id parsing in AnnData.
 
 ## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07

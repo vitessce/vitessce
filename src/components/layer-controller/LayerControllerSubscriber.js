@@ -53,6 +53,7 @@ function LayerControllerSubscriber(props) {
     const newLayer = {
       type: 'raster',
       index,
+      modelMatrix: imageLayerMeta[index]?.metadata?.transform?.matrix,
       ...DEFAULT_RASTER_LAYER_PROPS,
       channels: newChannels,
     };
