@@ -327,3 +327,27 @@
 .viewConfigTabs {
   max-width: 100%;
 }
+
+.homeComponent {
+  display: none;
+}
+
+.homeScreenshots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.homeScreenshots > div {
+  flex: 0 1 600px;
+  margin: 5px;
+}
+
+@media screen and (min-width: 877px) {
+  .homeComponent {
+    display: block;
+  }
+  .homeScreenshots {
+    display: none;
+  }
+}

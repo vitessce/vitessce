@@ -5,6 +5,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { linnarssonWithRorb } from '../../../src/demo/view-configs/codeluppi';
 import ThemedVitessce from './_ThemedVitessce';
+import ScreenshotImage from './_ScreenshotImage';
 import styles from './styles.module.css';
 
 const configJson = linnarssonWithRorb;
@@ -55,6 +56,7 @@ export default function Home() {
   const context = useDocusaurusContext();
   const {siteConfig = {}} = context;
   const height = 600;
+
   return (
     <>
         <header className={clsx('hero hero--primary', styles.heroBanner)}>
@@ -64,11 +66,17 @@ export default function Home() {
             </div>
         </header>
         <main>
-            <section style={{ height: `${height}px` }}>
+            <section className={styles.homeComponent} style={{ height: `${height}px` }}>
                 <ThemedVitessce
                     height={height}
                     config={configJson}
                 />
+            </section>
+            <section className={styles.homeScreenshots}>
+              <ScreenshotImage filename="web.png" alt="Vitessce as a web application" />
+              <ScreenshotImage filename="hubmap.png" alt="Vitessce as an embedded web component (HuBMAP Portal)" />
+              <ScreenshotImage filename="jupyterlab.png" alt="Vitessce as an ipywidget in JupyterLab" />
+              <ScreenshotImage filename="rstudio.png" alt="Vitessce as an htmlwidget in RStudio" />
             </section>
             {features && features.length > 0 && (
                 <section className={styles.features}>
