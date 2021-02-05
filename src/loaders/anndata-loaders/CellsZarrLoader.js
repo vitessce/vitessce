@@ -75,7 +75,10 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
     const {
       options: { factors },
     } = this;
-    return this.loadCellSetIds(factors);
+    if (factors) {
+      return this.loadCellSetIds(factors);
+    }
+    return Promise.resolve(null);
   }
 
   async load() {

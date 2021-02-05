@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
@@ -74,6 +75,56 @@ const vanderbiltBase = {
 // can affect the z-index of plot tooltips due to the
 // resulting ordering of elements in the DOM.
 export const configs = {
+  'visium': {
+    version: '1.0.0',
+    name: '10x visium mouse brain',
+    initStrategy: 'auto',
+    datasets: [
+      {
+        "uid": "visium",
+        "files": [
+          {
+            type: "expression-matrix",
+            fileType: "anndata-expression-matrix.zarr",
+            url: "https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/mouse_brain_10x/mouse_brain_10x.h5ad.zarr",
+            options: {
+              "matrix": "X"
+            }
+          },
+          {
+            type: "cells",
+            fileType: "anndata-cells.zarr",
+            url: "https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/mouse_brain_10x/mouse_brain_10x.h5ad.zarr",
+            options: {
+              "xy": "obsm/spatial",
+            }
+          },
+          {
+            type: "cell-sets",
+            fileType: "anndata-cell-sets.zarr",
+            url: "https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/mouse_brain_10x/mouse_brain_10x.h5ad.zarr",
+            options: []
+          }
+        ]
+      }
+    ],
+    coordinationSpace: {
+      spatialLayers: {
+        A: [
+          { type: 'cells', radius: 0.75, stroked: true, visible: true, opacity: 1, }
+        ]
+      }
+    },
+    layout: [
+      {
+        component: 'spatial',
+        coordinationScopes: {
+          spatialLayers: 'A',
+        },
+        x: 0, y: 0, w: 6, h: 6,
+      }
+    ]
+  },
   'just-scatter': {
     version: '0.1.0',
     public: false,
