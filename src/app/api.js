@@ -74,7 +74,7 @@ const vanderbiltBase = {
 // can affect the z-index of plot tooltips due to the
 // resulting ordering of elements in the DOM.
 export const configs = {
-  visium: {
+  'human-lymph-node-10x-visium': {
     version: '1.0.0',
     name: '10x visium human lymph node',
     initStrategy: 'auto',
