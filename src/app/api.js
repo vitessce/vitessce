@@ -145,6 +145,9 @@ export const configs = {
       spatialTargetY: {
         A: 0,
       },
+      geneSelection: {
+        A: ['CR2'],
+      },
     },
     layout: [
       {
@@ -166,6 +169,7 @@ export const configs = {
           spatialTargetX: 'A',
           spatialTargetY: 'A',
           cellColorEncoding: 'B',
+          geneSelection: 'A',
         },
         x: 6, y: 0, w: 6, h: 6,
       },
@@ -178,10 +182,17 @@ export const configs = {
       },
       {
         component: 'cellSets',
+        coordinationScopes: {
+          cellColorEncoding: 'A',
+        },
         x: 6, y: 6, w: 3, h: 6,
       },
       {
         component: 'genes',
+        coordinationScopes: {
+          cellColorEncoding: 'B',
+          geneSelection: 'A',
+        },
         x: 9, y: 6, w: 3, h: 6,
       },
     ],
