@@ -96,7 +96,7 @@ export const configs = {
             fileType: 'anndata-cells.zarr',
             url: 'https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_lymph_node_10x/human_lymph_node_10x.h5ad.zarr',
             options: {
-              xy: 'obsm/xy',
+              xy: 'obsm/spatial',
               mappings: {
                 UMAP: {
                   key: 'obsm/X_umap',
@@ -130,13 +130,13 @@ export const configs = {
               schemaVersion: '0.0.2',
               images: [
                 {
-                  name: 'Hi-res image',
-                  url: 'https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_lymph_node_10x/human_lymph_node_10x.h5ad.zarr/uns/spatial/V1_Human_Lymph_Node/images/lowres',
+                  name: 'H&E Image',
+                  url: 'https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_lymph_node_10x/human_lymph_node_10x.h5ad.zarr/uns/spatial/V1_Human_Lymph_Node/images/hires',
                   type: 'zarr',
                   metadata: {
                     isPyramid: false,
                     transform: {
-                      scale: 1,
+                      scale: 19.5,
                       translate: { x: 0, y: 0 },
                     },
                     dimensions: [
@@ -171,7 +171,7 @@ export const configs = {
     coordinationSpace: {
       spatialLayers: {
         A: [
-          { type: 'cells', radius: 0.75, stroked: true, visible: false, opacity: 1 },
+          { type: 'cells', radius: 65, stroked: true, visible: true, opacity: 1 },
           {
             type: 'raster',
             index: 0,
@@ -190,7 +190,7 @@ export const configs = {
                 visible: true,
                 slider: [
                   0,
-                  255,
+                  1,
                 ],
               },
               {
@@ -203,7 +203,7 @@ export const configs = {
                 visible: true,
                 slider: [
                   0,
-                  255,
+                  1,
                 ],
               },
               {
@@ -216,7 +216,7 @@ export const configs = {
                 visible: true,
                 slider: [
                   0,
-                  255,
+                  1,
                 ],
               },
             ],
@@ -228,13 +228,13 @@ export const configs = {
         B: 'geneSelection',
       },
       spatialZoom: {
-        A: 0,
+        A: -4.455728265917529,
       },
       spatialTargetX: {
-        A: 0,
+        A: 4975.310550270499,
       },
       spatialTargetY: {
-        A: 0,
+        A: 5678.288421953778,
       },
       geneSelection: {
         A: ['CR2'],
