@@ -123,13 +123,104 @@ export const configs = {
               },
             ],
           },
+          {
+            type: 'raster',
+            fileType: 'raster.json',
+            options: {
+              schemaVersion: '0.0.2',
+              images: [
+                {
+                  name: 'Hi-res image',
+                  url: 'https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_lymph_node_10x/human_lymph_node_10x.h5ad.zarr/uns/spatial/V1_Human_Lymph_Node/images/lowres',
+                  type: 'zarr',
+                  metadata: {
+                    isPyramid: false,
+                    transform: {
+                      scale: 1,
+                      translate: { x: 0, y: 0 },
+                    },
+                    dimensions: [
+                      {
+                        field: 'channel',
+                        type: 'nominal',
+                        values: [
+                          'R',
+                          'G',
+                          'B',
+                        ],
+                      },
+                      {
+                        field: 'y',
+                        type: 'quantitative',
+                        values: null,
+                      },
+                      {
+                        field: 'x',
+                        type: 'quantitative',
+                        values: null,
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
         ],
       },
     ],
     coordinationSpace: {
       spatialLayers: {
         A: [
-          { type: 'cells', radius: 0.75, stroked: true, visible: true, opacity: 1 },
+          { type: 'cells', radius: 0.75, stroked: true, visible: false, opacity: 1 },
+          {
+            type: 'raster',
+            index: 0,
+            colormap: null,
+            transparentColor: null,
+            opacity: 1,
+            domainType: 'Min/Max',
+            channels: [
+              {
+                selection: { channel: 0 },
+                color: [
+                  255,
+                  0,
+                  0,
+                ],
+                visible: true,
+                slider: [
+                  0,
+                  255,
+                ],
+              },
+              {
+                selection: { channel: 1 },
+                color: [
+                  0,
+                  255,
+                  0,
+                ],
+                visible: true,
+                slider: [
+                  0,
+                  255,
+                ],
+              },
+              {
+                selection: { channel: 2 },
+                color: [
+                  0,
+                  0,
+                  255,
+                ],
+                visible: true,
+                slider: [
+                  0,
+                  255,
+                ],
+              },
+            ],
+          },
         ],
       },
       cellColorEncoding: {
@@ -174,9 +265,9 @@ export const configs = {
         x: 6, y: 0, w: 6, h: 6,
       },
       {
-        component: 'heatmap',
+        component: 'layerController',
         coordinationScopes: {
-          cellColorEncoding: 'A',
+          spatialLayers: 'A',
         },
         x: 0, y: 6, w: 6, h: 6,
       },
