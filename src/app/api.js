@@ -136,7 +136,7 @@ export const configs = {
                   metadata: {
                     isPyramid: false,
                     transform: {
-                      scale: 19.5,
+                      scale: 5.87,
                       translate: { x: 0, y: 0 },
                     },
                     dimensions: [
