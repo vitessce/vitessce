@@ -265,18 +265,25 @@ export const configs = {
         x: 6, y: 0, w: 6, h: 6,
       },
       {
+        component: 'heatmap',
+        coordinationScopes: {
+          cellColorEncoding: 'A',
+        },
+        x: 6, y: 6, w: 6, h: 6,
+      },
+      {
         component: 'layerController',
         coordinationScopes: {
           spatialLayers: 'A',
         },
-        x: 0, y: 6, w: 6, h: 6,
+        x: 0, y: 6, w: 2, h: 6,
       },
       {
         component: 'cellSets',
         coordinationScopes: {
           cellColorEncoding: 'A',
         },
-        x: 6, y: 6, w: 3, h: 6,
+        x: 2, y: 6, w: 2, h: 6,
       },
       {
         component: 'genes',
@@ -284,7 +291,7 @@ export const configs = {
           cellColorEncoding: 'B',
           geneSelection: 'A',
         },
-        x: 9, y: 6, w: 3, h: 6,
+        x: 4, y: 6, w: 2, h: 6,
       },
     ],
   },
