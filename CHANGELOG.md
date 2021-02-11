@@ -9,6 +9,7 @@
 - Refactor AnnData flat array decoding and resolve bug.
 - Upgrade viv to 0.8.3
 - Fix non-string cell id parsing in AnnData.
+- Add automatic physical size scaling for multi-modal imaging if sizes are found.
 
 ## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07
 

@@ -1,7 +1,9 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import { getChannelStats } from '@hms-dbmi/viv';
+import { Matrix4 } from 'math.gl';
+import { divide, compare, unit } from 'mathjs';
 import { pluralize } from '../../utils';
 import { VIEWER_PALETTE } from '../utils';
 import {
@@ -184,6 +186,51 @@ export async function initializeLayerChannelsIfMissing(layerDefsOrig, loaders) {
   return [newLayerDefs, didInitialize];
 }
 
+function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
+  // Do not fill in transformation matrices if any of the layers specify one.
+  if (
+    imageMeta.map(meta => meta?.metadata?.transform?.matrix
+      || meta?.metadata?.transform?.scale
+      || meta?.metadata?.transform?.translate).some(Boolean)
+      || imageLoaders.every(loader => !loader?.physicalSizes?.x || !loader?.physicalSizes?.y)
+  ) {
+    return imageMeta;
+  }
+  // Get the minimum physical among all the current images.
+  const minPhysicalSize = imageLoaders.reduce((acc, loader) => {
+    const sizes = [
+      unit(`${loader.physicalSizes.x.value} ${loader.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${loader.physicalSizes.y.value} ${loader.physicalSizes.y.unit}`.replace('µ', 'u')),
+    ];
+    acc[0] = (acc[0] === undefined || compare(sizes[0], acc[0]) === -1) ? sizes[0] : acc[0];
+    acc[1] = (acc[1] === undefined || compare(sizes[1], acc[1]) === -1) ? sizes[1] : acc[1];
+    return acc;
+  }, []);
+  const imageMetaWithTransform = imageMeta.map((meta, j) => {
+    const loader = imageLoaders[j];
+    const sizes = [
+      unit(`${loader.physicalSizes.x.value} ${loader.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${loader.physicalSizes.y.value} ${loader.physicalSizes.y.unit}`.replace('µ', 'u')),
+    ];
+    // Find the ratio of the sizes to get the scaling factor.
+    const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));
+    // no need to store/use identity scaling
+    if (isEqual(scale, [1, 1])) {
+      return meta;
+    }
+    // Make sure to scale the z direction by one.
+    const matrix = new Matrix4().scale([...scale, 1]);
+    const newMeta = { ...meta };
+    newMeta.metadata = {
+      ...newMeta.metadata,
+      // We don't want to store matrix objects in the view config.
+      transform: { matrix: matrix.toArray() },
+    };
+    return newMeta;
+  });
+  return imageMetaWithTransform;
+}
+
 /**
  * Given a set of image layer loader creator functions,
  * create loader objects for an initial layer or set of layers,
@@ -209,6 +256,7 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     nextImageLoaders[i] = loader;
     nextImageMeta[i] = layer;
   }
+  const imageMetaWithTransform = getMetaWithTransformMatrices(nextImageMeta, nextImageLoaders);
   // No layers were pre-defined so set up the default image layers.
   if (!rasterRenderLayers) {
     // Midpoint of images list as default image to show.
@@ -216,7 +264,7 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     const loader = nextImageLoaders[layerIndex];
     const autoImageLayerDefPromise = initializeLayerChannels(loader)
       .then(channels => Promise.resolve({
-        type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix, transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
+        type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, modelMatrix: imageMetaWithTransform[layerIndex]?.metadata?.transform?.matrix, transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
       }));
     autoImageLayerDefPromises.push(autoImageLayerDefPromise);
   } else {
@@ -229,14 +277,14 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max', modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix, transparentColor: i > 0 ? [0, 0, 0] : null,
+          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max', modelMatrix: imageMetaWithTransform[layerIndex]?.metadata?.transform?.matrix, transparentColor: i > 0 ? [0, 0, 0] : null,
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }
   }
 
   const autoImageLayerDefs = await Promise.all(autoImageLayerDefPromises);
-  return [autoImageLayerDefs, nextImageLoaders, nextImageMeta];
+  return [autoImageLayerDefs, nextImageLoaders, imageMetaWithTransform];
 }
 
 /**
