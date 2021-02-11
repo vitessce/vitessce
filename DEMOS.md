@@ -51,3 +51,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-01-07: [ilan-gold/v1.1.3](https://s3.amazonaws.com/vitessce-data/demos/2021-01-07/b944ed8/index.html)
 - 2021-02-06: [keller-mark/visium-10x-demo](https://s3.amazonaws.com/vitessce-data/demos/2021-02-06/bba1275/index.html)
 - 2021-02-06: [keller-mark/visium-10x-demo-with-image](https://s3.amazonaws.com/vitessce-data/demos/2021-02-06/cac4f16/index.html)
+- 2021-02-09: [keller-mark/visium-10x-demo-with-image](https://s3.amazonaws.com/vitessce-data/demos/2021-02-09/13acefe/index.html)
