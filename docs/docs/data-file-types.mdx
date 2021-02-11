@@ -22,7 +22,14 @@ We welcome pull requests which implement loader classes to support additional fi
 Once your AnnData object has been written to a Zarr store, columns and keys in the original object (such as `adata.obs["leiden"]` or `adata.obsm["X_umap"]`) become relative file paths such as `obs/leiden` and `obsm/X_umap`.
 In the `options` property for file definitions in the Vitessce view config, you must specify which columns and keys will be used for visualization using POSIX-style paths.
 
-Note that the same Zarr store URL can be used for defining multiple files in the view config, for different data types and file types.
+:::note
+The same Zarr store URL can be used for defining multiple files in the view config, for different data types and file types.
+:::
+
+:::caution
+The Zarr file types are not yet compatible with the Vitessce R package because [Zarr is not yet supported in R](https://github.com/vitessce/vitessce-r/issues/7).
+:::
+
 
 #### `anndata-cells.zarr`
 
@@ -224,6 +231,8 @@ const dataset = vc
 ### `cells.json`
 
 - [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/cells.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/cells.good.json)
+- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json)
 - View config file definition snippet:
 
   <ViewConfigTabs
@@ -249,6 +258,8 @@ const dataset = vc
 ### `cell-sets.json`
 
 - [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/cell-sets.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/cell-sets.good.json)
+- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json)
 - View config file definition snippet:
 
   <ViewConfigTabs
@@ -273,7 +284,9 @@ const dataset = vc
 
 ### `molecules.json`
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/cell-sets.schema.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/molecules.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/molecules.good.json)
+- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json)
 - View config file definition snippet:
 
   <ViewConfigTabs
@@ -297,7 +310,14 @@ const dataset = vc
 
 ### `genes.json`
 
+:::tip
+The `genes.json` format is not very efficient from a file size perspective.
+For large expression matrices, we recommend using the more compact Zarr `expression-matrix.zarr` or `anndata-expression-matrix.zarr` formats.
+:::
+
 - [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/genes.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/genes.good.json)
+- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.genes.json)
 - View config file definition snippet:
 
   <ViewConfigTabs
@@ -321,7 +341,19 @@ const dataset = vc
 
 ### `clusters.json`
 
+:::note
+The name `clusters.json` is misleading; this file type is not intended to store clustering results (see `cell-sets.json` for storing clustering results).
+`clusters.json` is meant to store cell-by-gene expression matrices.
+:::
+
+:::tip
+The `clusters.json` format is not very efficient from a file size perspective.
+For large expression matrices, we recommend using the more compact Zarr `expression-matrix.zarr` or `anndata-expression-matrix.zarr` formats.
+:::
+
 - [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/clusters.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/clusters.good.json)
+- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json)
 - View config file definition snippet:
 
   <ViewConfigTabs
@@ -552,6 +584,8 @@ const dataset = vc
 ### `neighborhoods.json`
 
 - [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/neighborhoods.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/neighborhoods.good.json)
+- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.neighborhoods.json)
 - View config file definition snippet:
 
   <ViewConfigTabs
