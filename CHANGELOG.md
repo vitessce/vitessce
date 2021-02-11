@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.4](https://www.npmjs.com/package/vitessce/v/1.1.4) - 2021-02-11
+
+### Added
 - Added an optional `description` field to the dataset definition config object. Updated the `<Description/>` component to prefer this value over the top-level description value, if available.
 - Add `transparentColor` to `LayerController` for multi-modal imaging.
 
