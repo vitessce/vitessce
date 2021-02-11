@@ -386,8 +386,13 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
           addUrl(url, name);
         });
 
-        const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
-        initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers)
+        const {
+          layers: rasterLayers,
+          renderLayers:
+          rasterRenderLayers,
+          usePhysicalSizeScaling,
+        } = data;
+        initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers, usePhysicalSizeScaling)
           .then(([autoImageLayers, nextImageLoaders, nextImageMeta]) => {
             setImageLayerLoaders(nextImageLoaders);
             setImageLayerMeta(nextImageMeta);
