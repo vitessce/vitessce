@@ -241,9 +241,13 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
  * shape { name, type, url, createLoader }.
  * @param {(string[]|null)} rasterRenderLayers A list of default raster layers. Optional.
  */
-export async function initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers) {
+export async function initializeRasterLayersAndChannels(
+  rasterLayers,
+  rasterRenderLayers,
+  usePhysicalSizeScaling,
+) {
   const nextImageLoaders = [];
-  const nextImageMeta = [];
+  let nextImageMeta = [];
   const autoImageLayerDefPromises = [];
 
   // Start all loader creators immediately.
@@ -256,7 +260,9 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     nextImageLoaders[i] = loader;
     nextImageMeta[i] = layer;
   }
-  const imageMetaWithTransform = getMetaWithTransformMatrices(nextImageMeta, nextImageLoaders);
+  if (usePhysicalSizeScaling) {
+    nextImageMeta = getMetaWithTransformMatrices(nextImageMeta, nextImageLoaders);
+  }
   // No layers were pre-defined so set up the default image layers.
   if (!rasterRenderLayers) {
     // Midpoint of images list as default image to show.
@@ -264,7 +270,7 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     const loader = nextImageLoaders[layerIndex];
     const autoImageLayerDefPromise = initializeLayerChannels(loader)
       .then(channels => Promise.resolve({
-        type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, modelMatrix: imageMetaWithTransform[layerIndex]?.metadata?.transform?.matrix, transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
+        type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix, transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
       }));
     autoImageLayerDefPromises.push(autoImageLayerDefPromise);
   } else {
@@ -277,14 +283,14 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max', modelMatrix: imageMetaWithTransform[layerIndex]?.metadata?.transform?.matrix, transparentColor: i > 0 ? [0, 0, 0] : null,
+          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max', modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix, transparentColor: i > 0 ? [0, 0, 0] : null,
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }
   }
 
   const autoImageLayerDefs = await Promise.all(autoImageLayerDefPromises);
-  return [autoImageLayerDefs, nextImageLoaders, imageMetaWithTransform];
+  return [autoImageLayerDefs, nextImageLoaders, nextImageMeta];
 }
 
 /**
