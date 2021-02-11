@@ -389,7 +389,8 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
         const {
           layers: rasterLayers,
           renderLayers:
-          rasterRenderLayers, usePhysicalSizeScaling,
+          rasterRenderLayers,
+          usePhysicalSizeScaling,
         } = data;
         initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers, usePhysicalSizeScaling)
           .then(([autoImageLayers, nextImageLoaders, nextImageMeta]) => {
