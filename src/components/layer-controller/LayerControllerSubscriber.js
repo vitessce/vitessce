@@ -35,7 +35,6 @@ function LayerControllerSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    initializeSpatialRasterLayers = true,
     initializeSpatialCellsLayers = true,
     initializeSpatialMoleculesLayers = true,
     title = 'Spatial Layers',
@@ -69,8 +68,6 @@ function LayerControllerSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialRasterLayers: setRasterLayers },
-    { initializeSpatialRasterLayers },
   );
 
   useCellsData(

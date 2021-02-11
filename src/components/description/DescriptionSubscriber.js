@@ -59,7 +59,7 @@ export default function DescriptionSubscriber(props) {
         if (imageLayerMeta[layer.index]) {
           // Want to ensure that layer index is a string.
           result.set(`${layer.index}`, {
-            name: raster.layers[layer.index].name,
+            name: raster.meta[layer.index].name,
             metadata: imageLayerLoaders[layer.index].getMetadata(),
           });
         }
