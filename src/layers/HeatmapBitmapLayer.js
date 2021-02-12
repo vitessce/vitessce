@@ -3,7 +3,8 @@ import { _mergeShaders, project32, picking } from '@deck.gl/core';
 import { BitmapLayer } from '@deck.gl/layers';
 import { Texture2D } from '@luma.gl/core';
 import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE } from './heatmap-constants';
-import { vertexShader, fragmentShader } from './heatmap-bitmap-layer-shaders';
+import vertexShader from './heatmap-bitmap-layer.vertex.glsl';
+import fragmentShader from './heatmap-bitmap-layer.fragment.glsl';
 
 const defaultProps = {
   image: { type: 'object', value: null, async: true },
