@@ -427,7 +427,7 @@ export const configs = {
         x: 9, y: 4, w: 3, h: 4 },
       { component: 'cellSetSizes',
         x: 5, y: 4, w: 4, h: 4 },
-      /*{ component: 'scatterplot',
+      { component: 'scatterplot',
         coordinationScopes: {
           embeddingType: 'TSNE',
           embeddingZoom: 'TSNE',
@@ -456,7 +456,7 @@ export const configs = {
           embeddingCellSetPolygonsVisible: 'A',
           embeddingCellRadius: 'A',
         },
-        x: 0, y: 0, w: 5, h: 4 },*/
+        x: 0, y: 0, w: 5, h: 4 },
     ],
   },
   'wang-2019': {

@@ -2,9 +2,9 @@ import DescriptionSubscriber from '../components/description/DescriptionSubscrib
 import StatusSubscriber from '../components/status/StatusSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
 import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscriber';
-//import ScatterplotSubscriber from '../components/scatterplot/ScatterplotSubscriber';
-//import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
-//import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
+import ScatterplotSubscriber from '../components/scatterplot/ScatterplotSubscriber';
+import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
+import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
 import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubscriber';
@@ -17,9 +17,9 @@ const registry = {
   status: StatusSubscriber,
   genes: GenesSubscriber,
   cellSets: CellSetsManagerSubscriber,
-  //scatterplot: ScatterplotSubscriber,
-  //spatial: SpatialSubscriber,
-  //heatmap: HeatmapSubscriber,
+  scatterplot: ScatterplotSubscriber,
+  spatial: SpatialSubscriber,
+  heatmap: HeatmapSubscriber,
   layerController: LayerControllerSubscriber,
   cellSetSizes: CellSetSizesPlotSubscriber,
   expressionHistogram: ExpressionHistogramSubscriber,

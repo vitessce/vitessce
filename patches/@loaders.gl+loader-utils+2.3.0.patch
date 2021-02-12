@@ -1,0 +1,30 @@
+diff --git a/node_modules/@loaders.gl/loader-utils/dist/esm/lib/library-utils/library-utils.js b/node_modules/@loaders.gl/loader-utils/dist/esm/lib/library-utils/library-utils.js
+index 9d4341a..2f7ceca 100644
+--- a/node_modules/@loaders.gl/loader-utils/dist/esm/lib/library-utils/library-utils.js
++++ b/node_modules/@loaders.gl/loader-utils/dist/esm/lib/library-utils/library-utils.js
+@@ -1,7 +1,6 @@
+ import _regeneratorRuntime from "@babel/runtime/regenerator";
+ import _asyncToGenerator from "@babel/runtime/helpers/esm/asyncToGenerator";
+ import { global, isBrowser, isWorker } from '../env-utils/globals';
+-import * as node from '../node/require-utils.node';
+ import assert from '../env-utils/assert';
+ var LATEST = 'beta';
+ var VERSION = typeof "2.3.0" !== 'undefined' ? "2.3.0" : LATEST;
+@@ -100,7 +99,7 @@ function _loadLibraryFromFile() {
+               break;
+             }
+ 
+-            return _context2.abrupt("return", node.requireFromFile && node.requireFromFile(libraryUrl));
++            return null;
+ 
+           case 9:
+             if (!isWorker) {
+@@ -135,7 +134,7 @@ function _loadLibraryFromFile() {
+ 
+ function loadLibraryFromString(scriptSource, id) {
+   if (!isBrowser) {
+-    return node.requireFromString && node.requireFromString(scriptSource, id);
++    return null;
+   }
+ 
+   if (isWorker) {

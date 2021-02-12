@@ -24,6 +24,19 @@ function resolveGeotiff() {
   }
 }
 
+function resolveLoaders() {
+  return {
+    name: 'resolve-empty-loaders-gl',
+    async load(id) {
+      if (!id.includes('require-utils.node')) return;
+      return `
+      export const node = '';
+      `;
+    }
+  }
+}
+
+
 /**
  * https://vitejs.dev/config/
  * @type { import('vite').UserConfig }
@@ -33,6 +46,7 @@ export default {
     inject({
       global: path.resolve( 'global.js' )
     }),
+    resolveLoaders(),
     resolveGeotiff(),
     svgr(),
     reactRefresh()
