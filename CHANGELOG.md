@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Fix bug which previously caused `anndata-cells.zarr` file types to fail to load when lacking a `"factors"` option.
 
 ## [1.1.4](https://www.npmjs.com/package/vitessce/v/1.1.4) - 2021-02-11
 
