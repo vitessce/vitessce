@@ -12,3 +12,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-01-14: [keller-mark/docs](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2021-01-14/5366fb3/index.html)
 - 2021-01-22: [keller-mark/docs](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2021-01-22/31d4075/index.html)
 - 2021-02-03: [keller-mark/docs](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2021-02-03/34862c1/index.html)
+- 2021-02-11: [keller-mark/docs](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2021-02-11/545a3e8/index.html)
