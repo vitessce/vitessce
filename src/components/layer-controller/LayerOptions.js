@@ -4,6 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
+import Checkbox from '@material-ui/core/Checkbox';
 
 import { COLORMAP_OPTIONS } from '../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
@@ -32,6 +33,23 @@ function ColormapSelect({ value, inputId, handleChange }) {
         </option>
       ))}
     </Select>
+  );
+}
+
+function TransparentColorCheckbox({ value, handleChange }) {
+  return (
+    <Checkbox
+      style={{ float: 'left', padding: 0 }}
+      color="default"
+      onChange={() => {
+        if (value) {
+          handleChange(null);
+        } else {
+          handleChange([0, 0, 0]);
+        }
+      }}
+      checked={Boolean(value)}
+    />
   );
 }
 
@@ -129,11 +147,9 @@ function GlobalSelectionSlider({
  */
 function LayerOption({ name, inputId, children }) {
   return (
-    <Grid container direction="row" alignItems="flex-start" justify="space-between">
+    <Grid container direction="row" alignItems="center" justify="center">
       <Grid item xs={6}>
-        <InputLabel htmlFor={inputId}>
-          {name}:
-        </InputLabel>
+        <InputLabel htmlFor={inputId}>{name}:</InputLabel>
       </Grid>
       <Grid item xs={6}>
         {children}
@@ -161,10 +177,12 @@ function LayerOptions({
   opacity,
   handleColormapChange,
   handleOpacityChange,
+  handleTransparentColorChange,
   globalControlDimensions,
   globalDimensionValues,
   handleGlobalChannelsSelectionChange,
   handleDomainChange,
+  transparentColor,
   channels,
   dimensions,
   domainType,
@@ -199,6 +217,17 @@ function LayerOptions({
       <Grid item>
         <LayerOption name="Opacity" inputId="opacity-slider">
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
+        </LayerOption>
+      </Grid>
+      <Grid item>
+        <LayerOption
+          name="Zero Transparent"
+          inputId="transparent-color-selector"
+        >
+          <TransparentColorCheckbox
+            value={transparentColor}
+            handleChange={handleTransparentColorChange}
+          />
         </LayerOption>
       </Grid>
       {hasDimensionsAndChannels

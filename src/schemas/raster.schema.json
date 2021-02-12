@@ -108,6 +108,7 @@
   "required": ["schemaVersion", "images"],
   "properties": {
     "schemaVersion": { "type": "string" },
+    "usePhysicalSizeScaling": { "type": "boolean", "description": "Default is false: passing true in will infer scaling from the reported physcial size" },
     "renderLayers": { "type": "array", "items": { "type": "string" } },
     "images": {
       "type": "array",

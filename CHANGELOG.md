@@ -1,11 +1,31 @@
 ## In Progress
 
 ### Added
-- Added a windows OS build to the Github Actions test matrix.
 
 ### Changed
 - Added a check for undefined in the `nodeToSet` function in `cell-set-utils.js`.
+
+## [1.1.4](https://www.npmjs.com/package/vitessce/v/1.1.4) - 2021-02-11
+
+### Added
+- Added an optional `description` field to the dataset definition config object. Updated the `<Description/>` component to prefer this value over the top-level description value, if available.
+- Add `transparentColor` to `LayerController` for multi-modal imaging.
+
+### Changed
+- Fix AnnData text decoding.
+- Refactor AnnData flat array decoding and resolve bug.
+- Upgrade viv to 0.8.3
+- Fix non-string cell id parsing in AnnData.
+- Add automatic physical size scaling for multi-modal imaging if sizes are found.
+
+## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07
+
+### Added
+- Added a windows OS build to the Github Actions test matrix.
+
+### Changed
 - Upgrade Viv to 0.8.1 and deck.gl to 8.4.0-alpha.4
+- Upgrade Viv to 0.8.2 and deck.gl to 8.4.0-alpha.4
 
 ## [1.1.2](https://www.npmjs.com/package/vitessce/v/1.1.2) - 2020-12-31
 
@@ -29,6 +49,7 @@
 - Support loading AnnData from zarr.
 - Added scatterplot component options pane.
 - Added a `TextLayer` to render cell set names over the corresponding cell set centroid in the scatterplot.
+- Added a gene expression histogram Vega-Lite component and a cell set by gene expression violin plot Vega component.
 
 ### Changed
 - Genes list is now a virtual scroll to allow for more performant rendering.

@@ -42,11 +42,20 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  */
 export default function RasterLayerController(props) {
   const {
-    layer, name, loader, theme,
-    handleLayerRemove, handleLayerChange,
+    layer,
+    name,
+    loader,
+    theme,
+    handleLayerRemove,
+    handleLayerChange,
   } = props;
 
-  const { colormap, opacity, channels } = layer;
+  const {
+    colormap,
+    opacity,
+    channels,
+    transparentColor,
+  } = layer;
   const firstSelection = channels[0]?.selection || {};
 
   const { dimensions } = loader;
@@ -67,6 +76,9 @@ export default function RasterLayerController(props) {
 
   function setChannels(v) {
     handleLayerChange({ ...layer, channels: v });
+  }
+  function setTransparentColor(v) {
+    handleLayerChange({ ...layer, transparentColor: v });
   }
 
   function setChannelsAndDomainType(newChannels, newDomainType) {
@@ -252,6 +264,7 @@ export default function RasterLayerController(props) {
             dimensions={dimensions}
             opacity={opacity}
             colormap={colormap}
+            transparentColor={transparentColor}
             domainType={domainType}
             // Only allow for global dimension controllers that
             // exist in the `dimensions` part of the loader.
@@ -266,6 +279,7 @@ export default function RasterLayerController(props) {
             handleGlobalChannelsSelectionChange={
               handleGlobalChannelsSelectionChange
             }
+            handleTransparentColorChange={setTransparentColor}
             isRgb={loader.isRgb}
             handleDomainChange={handleDomainChange}
           />

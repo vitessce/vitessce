@@ -35,7 +35,7 @@ function preformattedDetails(response) {
 }
 
 
-function checkResponse(response, theme) {
+function checkResponse(response, theme, debug) {
   if (!response.ok) {
     return Promise.resolve(
       () => (
@@ -50,7 +50,15 @@ function checkResponse(response, theme) {
   return response.text().then((text) => {
     try {
       const config = JSON.parse(text);
-      return Promise.resolve(() => (<Vitessce config={config} theme={theme} />));
+      return Promise.resolve(() => (
+        <Vitessce
+          config={config}
+          theme={theme}
+          // eslint-disable-next-line no-console
+          onConfigChange={debug ? console.log : undefined}
+          validateOnConfigChange={debug}
+        />
+      ));
     } catch (e) {
       return Promise.resolve(() => (
         <Warning
@@ -96,7 +104,7 @@ export function createApp(rowHeight = null) {
   }
   if (datasetUrl) {
     const responsePromise = fetch(datasetUrl)
-      .then(response => checkResponse(response, theme))
+      .then(response => checkResponse(response, theme, debug))
       .catch(error => Promise.resolve(
         <Warning
           title="Error fetching"

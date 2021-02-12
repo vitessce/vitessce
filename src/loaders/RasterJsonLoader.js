@@ -61,7 +61,7 @@ export default class RasterLoader extends JsonLoader {
       return Promise.reject(payload);
     }
     const { data: raster } = payload;
-    const { images, renderLayers } = raster;
+    const { images, renderLayers, usePhysicalSizeScaling = false } = raster;
 
     // Get image name and URL tuples.
     const urls = images
@@ -76,6 +76,9 @@ export default class RasterLoader extends JsonLoader {
         return loader;
       },
     }));
-    return Promise.resolve({ data: { layers: imagesWithLoaderCreators, renderLayers }, urls });
+    return Promise.resolve({
+      data: { layers: imagesWithLoaderCreators, renderLayers, usePhysicalSizeScaling },
+      urls,
+    });
   }
 }

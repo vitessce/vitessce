@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { useReady } from '../hooks';
-import { useRasterData } from '../data-hooks';
+import { useDescription, useRasterData } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
@@ -11,7 +11,7 @@ const DESCRIPTION_DATA_TYPES = ['raster'];
 export default function DescriptionSubscriber(props) {
   const {
     coordinationScopes,
-    description,
+    description: descriptionOverride,
     removeGridComponent,
     theme,
   } = props;
@@ -35,6 +35,7 @@ export default function DescriptionSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
+  const [description] = useDescription(loaders, dataset);
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, () => {}, false,
   );
@@ -65,7 +66,7 @@ export default function DescriptionSubscriber(props) {
       isReady={isReady}
     >
       <Description
-        description={description}
+        description={descriptionOverride || description}
         metadata={metadata}
       />
     </TitleInfo>

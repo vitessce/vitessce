@@ -41,7 +41,9 @@ export default class BaseAnnDataLoader extends AbstractLoader {
   decodeTextArray(buffer) {
     return (
       new TextDecoder()
-        .decode(buffer)
+        // Remove header: https://github.com/zarr-developers/numcodecs/blob/2c1aff98e965c3c4747d9881d8b8d4aad91adb3a/numcodecs/vlen.pyx#L34
+        // Should we validate? Seems unnecessary, but maybe?
+        .decode(buffer.slice(4))
         // https://stackoverflow.com/questions/11159118/incorrect-string-value-xef-xbf-xbd-for-column
         // for information on the right hand side of the | in the regex.
         // eslint-disable-next-line no-control-regex
@@ -68,17 +70,10 @@ export default class BaseAnnDataLoader extends AbstractLoader {
         const { categories } = await this.getJson(
           `${setName}/.zattrs`,
         );
-        const categoriesValuesArr = await openArray({
-          store,
-          path: `/obs/${categories}`,
-          mode: 'r',
-        });
-        const categoriesBuffer = await categoriesValuesArr.compressor.decode(
-          new Uint8Array(
-            await categoriesValuesArr.store.getItem(`${categoriesValuesArr.keyPrefix}0`),
-          ),
-        );
-        const categoriesValues = this.decodeTextArray(categoriesBuffer);
+        let categoriesValues;
+        if (categories) {
+          categoriesValues = await this.getFlatTextArr(`/obs/${categories}`);
+        }
         const cellSetsArr = await openArray({
           store,
           path: setName,
@@ -87,7 +82,7 @@ export default class BaseAnnDataLoader extends AbstractLoader {
         const cellSetsValues = await cellSetsArr.get();
         const { data } = cellSetsValues;
         const mappedCellSetValues = new Array(...data).map(
-          i => categoriesValues[i],
+          i => (!categoriesValues ? i : categoriesValues[i]),
         );
         return mappedCellSetValues;
       }),
@@ -109,6 +104,47 @@ export default class BaseAnnDataLoader extends AbstractLoader {
     }).then(arr => arr.get());
   }
 
+  getFlatArrDecompressed(path) {
+    const { store } = this;
+    return openArray({
+      store,
+      path,
+      mode: 'r',
+    }).then(async (z) => {
+      let data = new Uint8Array();
+      let item = 0;
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          const buf = await store.getItem(`${z.keyPrefix}${String(item)}`);
+          // eslint-disable-next-line no-await-in-loop
+          const dbytes = await z.compressor.decode(buf);
+          const tmp = new Uint8Array(
+            dbytes.buffer.byteLength + data.buffer.byteLength,
+          );
+          tmp.set(new Uint8Array(data.buffer), 0);
+          tmp.set(dbytes, data.buffer.byteLength);
+          data = tmp;
+          item += 1;
+        } catch (err) {
+          if (err instanceof KeyError) {
+            break;
+          }
+          throw err;
+        }
+      }
+      return data;
+    });
+  }
+
+  getFlatTextArr(path) {
+    return this.getFlatArrDecompressed(path).then((data) => {
+      const text = this.decodeTextArray(data);
+      return text;
+    });
+  }
+
   /**
    * Class method for loading the cell names from obs.
    * @returns {Promise} An promise for a zarr array containing the names.
@@ -117,41 +153,8 @@ export default class BaseAnnDataLoader extends AbstractLoader {
     if (this.cellNames) {
       return this.cellNames;
     }
-    const { store } = this;
     this.cellNames = this.getJson('obs/.zattrs')
-      .then(({ _index }) => openArray({
-        store,
-        path: `/obs/${_index}`,
-        mode: 'r',
-      }).then(async (z) => {
-        let data = new Uint8Array();
-        let item = 0;
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            const buf = await store.getItem(`${z.keyPrefix}${String(item)}`);
-            // eslint-disable-next-line no-await-in-loop
-            const dbytes = await z.compressor.decode(buf);
-            const tmp = new Uint8Array(
-              dbytes.buffer.byteLength + data.buffer.byteLength,
-            );
-            tmp.set(new Uint8Array(data.buffer), 0);
-            tmp.set(dbytes, data.buffer.byteLength);
-            data = tmp;
-            item += 1;
-          } catch (err) {
-            if (err instanceof KeyError) {
-              break;
-            }
-            throw err;
-          }
-        }
-        const text = this.decodeTextArray(data)
-          .filter(i => !Number(i))
-          .filter(i => i.length > 2);
-        return text;
-      }));
+      .then(({ _index }) => this.getFlatTextArr(`/obs/${_index}`));
     return this.cellNames;
   }
 }

@@ -26,12 +26,12 @@ export default function GenesSubscriber(props) {
     dataset,
     geneSelection,
     geneFilter,
+    cellColorEncoding,
   }, {
     setGeneSelection,
     setGeneFilter,
     setGeneHighlight,
     setCellColorEncoding,
-    setCellSetSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -54,7 +54,6 @@ export default function GenesSubscriber(props) {
   const numGenes = geneList.length;
 
   function setGeneSelectionAndColorEncoding(newSelection) {
-    setCellSetSelection([]);
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
   }
@@ -73,6 +72,7 @@ export default function GenesSubscriber(props) {
       urls={urls}
     >
       <Genes
+        hasColorEncoding={cellColorEncoding === 'geneSelection'}
         geneList={geneList}
         geneSelection={geneSelection}
         geneFilter={geneFilter}

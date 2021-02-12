@@ -20,6 +20,34 @@ function warn(error, setWarning) {
 }
 
 /**
+ * Get the dataset description string.
+ * @param {object} loaders The object mapping
+ * datasets and data types to loader instances.
+ * @param {string} dataset The key for a dataset,
+ * used to identify which loader to use.
+ * @returns {array} [description] where
+ * description is a string.
+ */
+export function useDescription(loaders, dataset) {
+  const [description, setDescription] = useState();
+
+  useEffect(() => {
+    if (!loaders[dataset]) {
+      return;
+    }
+
+    if (loaders[dataset].description) {
+      setDescription(loaders[dataset].description);
+    } else {
+      setDescription(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
+
+  return [description];
+}
+
+/**
  * Get data from a cells data type loader,
  * updating "ready" and URL state appropriately.
  * Throw warnings if the data is marked as required.
@@ -358,8 +386,13 @@ export function useRasterData(loaders, dataset, setItemIsReady, addUrl, isRequir
           addUrl(url, name);
         });
 
-        const { layers: rasterLayers, renderLayers: rasterRenderLayers } = data;
-        initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers)
+        const {
+          layers: rasterLayers,
+          renderLayers:
+          rasterRenderLayers,
+          usePhysicalSizeScaling,
+        } = data;
+        initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers, usePhysicalSizeScaling)
           .then(([autoImageLayers, nextImageLoaders, nextImageMeta]) => {
             setImageLayerLoaders(nextImageLoaders);
             setImageLayerMeta(nextImageMeta);

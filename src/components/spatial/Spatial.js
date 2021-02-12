@@ -272,6 +272,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const layerProps = {
       colormap: layerDef.colormap,
       opacity: layerDef.opacity,
+      transparentColor: layerDef.transparentColor,
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
       visibilities: layerDef.channels.map(c => c.visible),
@@ -297,6 +298,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       opacity: layerProps.opacity,
       colormap: (layerProps.colormap ? layerProps.colormap : ''),
       modelMatrix,
+      transparentColor: layerProps.transparentColor,
     });
   }
 

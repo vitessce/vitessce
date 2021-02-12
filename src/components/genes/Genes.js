@@ -3,6 +3,7 @@ import { SelectableTable } from '../selectable-table/index';
 
 export default function Genes(props) {
   const {
+    hasColorEncoding,
     geneList = [],
     geneSelection = [],
     geneFilter = null,
@@ -47,6 +48,7 @@ export default function Genes(props) {
       <SelectableTable
         columns={['name']}
         data={data}
+        hasColorEncoding={hasColorEncoding}
         idKey="name"
         valueKey="value"
         onChange={onChange}

@@ -156,6 +156,7 @@ export const configs = {
       {
         uid: 'linnarsson-2018',
         name: 'Linnarsson 2018',
+        description: `Linnarsson: ${linnarssonDescription}`,
         files: linnarssonBase.layers.map(file => ({
           type: file.type.toLowerCase(),
           fileType: file.fileType,
@@ -185,9 +186,6 @@ export const configs = {
     },
     layout: [
       { component: 'description',
-        props: {
-          description: `Linnarsson: ${linnarssonDescription}`,
-        },
         x: 0, y: 0, w: 2, h: 1 },
       { component: 'layerController',
         x: 0, y: 1, w: 2, h: 4,
@@ -209,7 +207,11 @@ export const configs = {
         props: {
           transpose: true,
         },
-        x: 2, y: 4, w: 10, h: 2 },
+        x: 2, y: 4, w: 5, h: 2 },
+      { component: 'cellSetExpression',
+        x: 7, y: 4, w: 3, h: 2 },
+      { component: 'expressionHistogram',
+        x: 10, y: 4, w: 2, h: 2 },
       { component: 'scatterplot',
         coordinationScopes: {
           embeddingType: 'PCA',
@@ -418,9 +420,6 @@ export const configs = {
     },
     layout: [
       { component: 'description',
-        props: {
-          description: driesDescription,
-        },
         x: 9, y: 0, w: 3, h: 2 },
       { component: 'status',
         x: 9, y: 2, w: 3, h: 2 },
@@ -500,7 +499,9 @@ export const configs = {
         },
         x: 0, y: 0, w: 10, h: 2 },
       { component: 'genes',
-        x: 10, y: 0, w: 2, h: 2 },
+        x: 10, y: 0, w: 2, h: 4 },
+      { component: 'expressionHistogram',
+        x: 0, y: 2, w: 10, h: 2 },
     ],
   },
 
