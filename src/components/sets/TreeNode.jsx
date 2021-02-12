@@ -332,7 +332,7 @@ export default class TreeNode extends RcTreeNode {
   /**
    * Override the main node text elements.
    */
-  renderSelector = () => {
+  renderSelector() {
     const {
       title,
       isCurrentSet,
@@ -382,7 +382,7 @@ export default class TreeNode extends RcTreeNode {
    * Render the LevelsButtons component if this node
    * is a collapsed level zero node.
    */
-  renderLevels = () => {
+  renderLevels() {
     const { level, expanded } = this.props;
     if (level !== 0 || expanded) {
       return null;
@@ -397,7 +397,7 @@ export default class TreeNode extends RcTreeNode {
   /**
    * Override the switcher element.
    */
-  renderSwitcher = () => {
+  renderSwitcher() {
     const { expanded, isLeaf, color } = this.props;
     const {
       rcTree: {

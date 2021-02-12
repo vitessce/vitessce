@@ -19,7 +19,7 @@ import {
   createDefaultUpdateViewInfo,
   copyUint8Array,
 } from '../utils';
-import HeatmapWorker from './heatmap.worker';
+import HeatmapWorker from './heatmap.worker.js?worker&inline';
 import {
   layerFilter,
   getAxisSizes,

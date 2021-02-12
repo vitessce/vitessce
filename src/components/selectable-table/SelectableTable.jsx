@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useEffect, useCallback, useState } from 'react';
-import { Table, AutoSizer } from 'react-virtualized';
+import AutoSizer from 'react-virtualized/dist/es/AutoSizer';
+import Table from 'react-virtualized/dist/es/Table';
 import uuidv4 from 'uuid/v4';
 import union from 'lodash/union';
 import difference from 'lodash/difference';

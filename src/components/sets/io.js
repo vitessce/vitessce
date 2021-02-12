@@ -1,7 +1,7 @@
 import Ajv from 'ajv';
 import isNil from 'lodash/isNil';
 import { dsvFormat } from 'd3-dsv';
-import { parse as json2csv } from 'json2csv';
+import { unparse as json2csv } from 'papaparse';
 import { colorArrayToString, colorStringToArray } from './utils';
 import { nodeTransform } from './cell-set-utils';
 import { DEFAULT_COLOR } from '../utils';
@@ -154,7 +154,8 @@ export function handleExportTabular(result) {
     });
   });
   const csvString = json2csv(exportData, {
-    fields: ['groupName', 'setName', 'setColor', 'obsId', 'predictionScore'],
+    header: true,
+    columns: ['groupName', 'setName', 'setColor', 'obsId', 'predictionScore'],
     delimiter: SEPARATOR_TABULAR,
   });
   const dataString = `data:${MIME_TYPE_TABULAR};charset=utf-8,${encodeURIComponent(csvString)}`;
