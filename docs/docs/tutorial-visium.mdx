@@ -4,6 +4,7 @@ title: 'Tutorial: 10x Genomics Visium Dataset'
 sidebar_label: 10x Genomics Visium Dataset
 slug: /tutorial-visium
 ---
+import ViewConfigTabs from '../src/pages/_ViewConfigTabs';
 
 In this tutorial, we will visualize a 10x Genomics visium dataset from start to finish with the Vitessce web app.
 
@@ -189,26 +190,21 @@ View configurations can be written using either a JSON syntax or a JavaScript sy
 
 We begin with a skeleton of a view config which lacks any visualizations or datasets.
 
-```json
+<ViewConfigTabs
+  json={`
 {
   "version": "1.0.0",
   "name": "10x visium human lymph node",
   "initStrategy": "auto",
-  "datasets": [
-
-  ],
-  "coordinationSpace": {
-    
-  },
-  "layout": [
-   
-  ]
+  "datasets": [],
+  "coordinationSpace": {},
+  "layout": []
 }
-```
-
-```javascript
+  `}
+  js={`
 const vc = new VitessceConfig("10x visium human lymph node");
-```
+  `}
+/>
 
 ### Dimensionality reduction scatterplots
 
@@ -217,117 +213,211 @@ We know that we want to visualize cell-level observations in scatterplots displa
 Cell positions for scatterplots and spatial plots must be defined in a file that has the `cells` data type.
 The file definition for the cells data should look like:
 
-```json
-{
+<ViewConfigTabs
+  json={`
+  ...,
+  {
     "type": "cells",
     "fileType": "anndata-cells.zarr",
     "url": "http://localhost:9000/V1_Human_Lymph_Node.zarr",
     "options": {
-        "mappings": {
-            "UMAP": {
-                "key": "obsm/X_umap",
-                "dims": [0, 1]
-            },
-            "PCA": {
-                "key": "obsm/X_pca",
-                "dims": [0, 1]
-            }
+      "mappings": {
+        "UMAP": {
+          "key": "obsm/X_umap",
+          "dims": [0, 1]
+        },
+        "PCA": {
+          "key": "obsm/X_pca",
+          "dims": [0, 1]
         }
+      }
     }
-}
-```
+  },
+  ...
+  `}
+  js={`
+...
+const dataset = vc
+  .addDataset("my-visium-dataset")
+  .addFile(
+    "http://localhost:9000/V1_Human_Lymph_Node.zarr",
+    dt.CELLS,
+    ft.ANNDATA_CELLS_ZARR,
+    {
+      "mappings": {
+        "UMAP": {
+          "key": "obsm/X_umap",
+          "dims": [0, 1]
+        },
+        "PCA": {
+          "key": "obsm/X_pca",
+          "dims": [0, 1]
+        }
+      }
+    }
+  );
+...
+  `}
+/>
+
+
 
 The `options` part of the file definition above is specific to the `anndata-cells.zarr` file type, and the `mappings` object tells Vitessce how to map names of dimensionality reductions to arrays in the Zarr store. The strings `"UMAP"` and `"PCA"` in the above example are arbitrary names that we are choosing, and these strings will appear in the Vitessce user interface. The value for `"key"` must be a key to an array in the Zarr store, and the value for `"dims"` must be a tuple that specifies which dimensions of the dimensionality reduction array to use for the [X, Y] axes of the scatterplot.
 
 Before defining a scatterplot component, we need to set up the `embeddingType` coordination object in the coordination space.
 Embedding type is a coordination type because it allows us to coordinate which scatterplots should be displaying the same dimensionality reduction (e.g., PCA or UMAP).
 
-```json
-{
-    "embeddingType": {
-        "ET1": "PCA",
-        "ET2": "UMAP"
-    }
-}
-```
+<ViewConfigTabs
+  json={`
+...,
+"coordinationSpace": {
+  "embeddingType": {
+    "ET1": "PCA",
+    "ET2": "UMAP"
+  }
+},
+...
+  `}
+  js={`
+...
+const [ET1, ET2] = vc.addCoordination("embeddingType", "embeddingType");
+ET1.setValue("PCA");
+ET2.setValue("UMAP");
+...
+  `}
+/>
 
-The strings `"ET1"` and `"ET2"` above are arbitrary names for the two coordination scopes.
+
+The `ET1` and `ET2` above are arbitrary names for the two coordination scopes.
 
 Next, we can define the visualization components:
 
-```json
-{
+<ViewConfigTabs
+  json={`
+...,
+  {
     "component": "scatterplot",
     "coordinationScopes": {
-        "embeddingType": "ET1"
+      "embeddingType": "ET1"
     },
     "x": 0, "y": 0, "w": 6, "h": 12
-},
-{
+  },
+  {
     "component": "scatterplot",
     "coordinationScopes": {
-        "embeddingType": "ET2"
+      "embeddingType": "ET2"
     },
     "x": 6, "y": 0, "w": 6, "h": 12
-}
-```
+  }
+...
+  `}
+  js={`
+...
+const pcaPlot = vc
+  .addView(dataset, cm.SCATTERPLOT)
+  .useCoordination(ET1);
+const umapPlot = vc
+  .addView(dataset, cm.SCATTERPLOT)
+  .useCoordination(ET2);
+...
+  `}
+/>
 
 Putting this all together:
 
-```json
+<ViewConfigTabs
+  json={`
 {
   "version": "1.0.0",
   "name": "10x visium human lymph node",
   "initStrategy": "auto",
   "datasets": [
-      {
-        "uid": "my-visium-dataset",
-        "files": [
-            {
-                "type": "cells",
-                "fileType": "anndata-cells.zarr",
-                "url": "http://localhost:9000/V1_Human_Lymph_Node.zarr",
-                "options": {
-                    "mappings": {
-                        "UMAP": {
-                            "key": "obsm/X_umap",
-                            "dims": [0, 1]
-                        },
-                        "PCA": {
-                            "key": "obsm/X_pca",
-                            "dims": [0, 1]
-                        }
-                    }
-                }
+    {
+      "uid": "my-visium-dataset",
+      "files": [
+        {
+          "type": "cells",
+          "fileType": "anndata-cells.zarr",
+          "url": "http://localhost:9000/V1_Human_Lymph_Node.zarr",
+          "options": {
+            "mappings": {
+              "UMAP": {
+                "key": "obsm/X_umap",
+                "dims": [0, 1]
+              },
+              "PCA": {
+                "key": "obsm/X_pca",
+                "dims": [0, 1]
+              }
             }
-        ]
-      }
+          }
+        }
+      ]
+    }
   ],
   "coordinationSpace": {
     "embeddingType": {
-        "ET1": "PCA",
-        "ET2": "UMAP"
+      "ET1": "PCA",
+      "ET2": "UMAP"
     }
   },
   "layout": [
-      {
-        "component": "scatterplot",
-        "coordinationScopes": {
-            "embeddingType": "ET1"
-        },
-        "x": 0, "y": 0, "w": 6, "h": 12
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "embeddingType": "ET1"
       },
-      {
-        "component": "scatterplot",
-        "coordinationScopes": {
-            "embeddingType": "ET2"
-        },
-        "x": 6, "y": 0, "w": 6, "h": 12
-      }
+      "x": 0, "y": 0, "w": 6, "h": 12
+    },
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "embeddingType": "ET2"
+      },
+      "x": 6, "y": 0, "w": 6, "h": 12
+    }
   ]
 }
-```
+  `}
+  js={`
+const vc = new VitessceConfig("10x visium human lymph node");
+const dataset = vc
+  .addDataset("my-visium-dataset")
+  .addFile(
+    "http://localhost:9000/V1_Human_Lymph_Node.zarr",
+    dt.CELLS,
+    ft.ANNDATA_CELLS_ZARR,
+    {
+      "mappings": {
+        "UMAP": {
+          "key": "obsm/X_umap",
+          "dims": [0, 1]
+        },
+        "PCA": {
+          "key": "obsm/X_pca",
+          "dims": [0, 1]
+        }
+      }
+    }
+  );
+const [ET1, ET2] = vc.addCoordination("embeddingType", "embeddingType");
+ET1.setValue("PCA");
+ET2.setValue("UMAP");
+const pcaPlot = vc
+  .addView(dataset, cm.SCATTERPLOT)
+  .useCoordination(ET1);
+const umapPlot = vc
+  .addView(dataset, cm.SCATTERPLOT)
+  .useCoordination(ET2);
+vc.layout(hconcat(pcaPlot, umapPlot));
+  `}
+/>
 
+
+
+### Images and heatmap
+
+The following is a full configuration with two spatial views (with coordinated zoom and pan interactions), a heatmap, and controller components for managing cell sets, spatial layers, and genes.
 
 ```json
 {
@@ -341,7 +431,7 @@ Putting this all together:
         {
           "type": "expression-matrix",
           "fileType": "anndata-expression-matrix.zarr",
-          "url": "https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_lymph_node_10x/human_lymph_node_10x.h5ad.zarr",
+          "url": "http://localhost:9000/V1_Human_Lymph_Node.zarr",
           "options": {
             "matrix": "obsm/X_hvg",
             "geneFilter": "var/highly_variable"
@@ -350,7 +440,7 @@ Putting this all together:
         {
           "type": "cells",
           "fileType": "anndata-cells.zarr",
-          "url": "https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_lymph_node_10x/human_lymph_node_10x.h5ad.zarr",
+          "url": "http://localhost:9000/V1_Human_Lymph_Node.zarr",
           "options": {
             "xy": "obsm/spatial",
             "mappings": {
@@ -377,7 +467,7 @@ Putting this all together:
         {
           "type": "cell-sets",
           "fileType": "anndata-cell-sets.zarr",
-          "url": "https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_lymph_node_10x/human_lymph_node_10x.h5ad.zarr",
+          "url": "http://localhost:9000/V1_Human_Lymph_Node.zarr",
           "options": [
             {
               "groupName": "Leiden",
@@ -393,7 +483,7 @@ Putting this all together:
             "images": [
               {
                 "name": "H&E Image",
-                "url": "https://s3.amazonaws.com/vitessce-data/0.0.32/master_release…e_10x.h5ad.zarr/uns/spatial/V1_Human_Lymph_Node/images/hires",
+                "url": "http://localhost:9000/V1_Human_Lymph_Node.zarr/uns/spatial/V1_Human_Lymph_Node/images/hires",
                 "type": "zarr",
                 "metadata": {
                   "isPyramid": false,

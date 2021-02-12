@@ -11,12 +11,11 @@ const jsonSuffix = ",\n  ...";
 const jsPrefix = "const vc = new VitessceConfig(\"My config\");\n";
 
 export default function ViewConfigTabs(props) {
-    const { json, js } = props;
+    const { json, js, forData = false } = props;
 
     return (
         <div className={styles.viewConfigTabs}>
             <Tabs
-                groupId="vc-js-json"
                 defaultValue="json"
                 values={[
                     {label: 'JSON', value: 'json'},
@@ -24,10 +23,10 @@ export default function ViewConfigTabs(props) {
                 ]}
             >
                 <TabItem value="json">
-                    <CodeBlock className="language-javascript">{jsonPrefix + json.trim() + jsonSuffix}</CodeBlock>
+                    <CodeBlock className="language-javascript">{(forData ? jsonPrefix : '') + json.trim() + (forData ? jsonSuffix : '')}</CodeBlock>
                 </TabItem>
                 <TabItem value="js">
-                    <CodeBlock className="language-javascript">{jsPrefix + js.trim()}</CodeBlock>
+                    <CodeBlock className="language-javascript">{(forData ? jsPrefix : '') + js.trim()}</CodeBlock>
                 </TabItem>
             </Tabs>
         </div>
