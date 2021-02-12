@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.4](https://www.npmjs.com/package/vitessce/v/1.1.4) - 2021-02-11
+
+### Added
 - Added an optional `description` field to the dataset definition config object. Updated the `<Description/>` component to prefer this value over the top-level description value, if available.
 - Add `transparentColor` to `LayerController` for multi-modal imaging.
 - Added a new demo view config for a ScanPy 10x genomics visium human lymph node dataset.
@@ -10,6 +16,7 @@
 - Refactor AnnData flat array decoding and resolve bug.
 - Upgrade viv to 0.8.3
 - Fix non-string cell id parsing in AnnData.
+- Add automatic physical size scaling for multi-modal imaging if sizes are found.
 
 ## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07
 
