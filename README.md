@@ -19,7 +19,7 @@ Vitessce components can be used in React projects by installing the package from
 npm install vitessce
 ```
 
-For more details, please visit the [documentation](http://vitessce.io/docs/).
+For more details, please visit the [documentation](http://beta.vitessce.io/docs/).
 
 ## Development
 
@@ -63,6 +63,16 @@ $ ./push-demo.sh
 
 This will build the demo, push to S3, and finally open the demo deployment in your browser.
 
+### Release: Minimal Demo
+
+If you haven't already, push a fresh demo site and
+do a last [manual test](TESTING.md) of the deployment.
+If it looks good, copy it to vitessce.io:
+
+```
+$ ./copy-prod.sh https://{url returned by push-demo.sh}
+```
+
 ### Staging: App, Demos, and Docs
 
 To build the current branch and push the public-facing docs/app/demo site to S3, run this script:
@@ -74,12 +84,11 @@ This will build the library and docs, push to S3, and finally open the docs depl
 
 ### Release: App, Demos, and Docs
 
-If you haven't already, push a fresh docs site and
-do a last [manual test](TESTING.md) of the deployment.
-If it looks good, copy it to vitessce.io:
+If you haven't already, push a fresh docs site.
+If it looks good, copy it to beta.vitessce.io:
 
 ```
-$ ./copy-prod.sh https://{url returned by push-docs.sh}
+$ ./copy-beta.sh https://{url returned by push-docs.sh}
 ```
 
 ### Release: NPM package
@@ -102,6 +111,7 @@ Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the 
 
 ## Old Presentations
 
+- [January 2021: Ilan Gold's lab meeting update](https://docs.google.com/presentation/d/10kmjLxQh5ji-4TVMq06KRpXek3uje_fQpTXBqjFj0p4/edit?usp=sharing)
 - [December 2020: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1rG0s5eH_NrFSk3_7lpmc9dsaUPFvnakYD59ff9D-G1M/edit?usp=sharing)
 - [November 2020: Ilan Gold's lab meeting update](https://docs.google.com/presentation/d/1egAwCR8UwdRCWiGYVRelebwNDH9boBX1nJIX5auvf1w/edit?usp=sharing)
 - [October 2020: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1M8dGbIGA_cfa3uZnGLnk3iMzMNVbxzza33OKBqwwlNQ/edit?usp=sharing)
