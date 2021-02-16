@@ -25,6 +25,6 @@ then
   aws s3 cp --acl public-read \
             --recursive \
             $S3_SRC $S3_TARGET
-  open http://vitessce.io
+  open http://beta.vitessce.io
   echo 'Done. NOTE: Your browser may have cached an older verion; Reload if necessary.'
 fi
