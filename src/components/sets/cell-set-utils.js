@@ -27,6 +27,9 @@ function generateKey() {
  * @returns {array} The array representing the set associated with the node.
  */
 export function nodeToSet(currNode) {
+  if (!currNode) {
+    return [];
+  }
   if (!currNode.children) {
     return (currNode.set || []);
   }
