@@ -70,7 +70,10 @@ export default class BaseAnnDataLoader extends AbstractLoader {
         const { categories } = await this.getJson(
           `${setName}/.zattrs`,
         );
-        const categoriesValues = await this.getFlatTextArr(`/obs/${categories}`);
+        let categoriesValues;
+        if (categories) {
+          categoriesValues = await this.getFlatTextArr(`/obs/${categories}`);
+        }
         const cellSetsArr = await openArray({
           store,
           path: setName,
@@ -79,7 +82,7 @@ export default class BaseAnnDataLoader extends AbstractLoader {
         const cellSetsValues = await cellSetsArr.get();
         const { data } = cellSetsValues;
         const mappedCellSetValues = new Array(...data).map(
-          i => categoriesValues[i],
+          i => (!categoriesValues ? i : categoriesValues[i]),
         );
         return mappedCellSetValues;
       }),
