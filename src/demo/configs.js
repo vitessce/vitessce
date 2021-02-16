@@ -1,3 +1,4 @@
+import { notPublic } from './utils';
 import {
   justScatter, justScatterExpression, justSpatial, codeluppi2018,
 } from './view-configs/codeluppi';
@@ -24,7 +25,7 @@ export const configs = {
   'satija-2020': satija2020,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   // Keys which enable backwards compatibility with old links.
-  'linnarsson-2018': codeluppi2018,
-  vanderbilt: spraggins2020,
-  'dries-2019': eng2019,
+  'linnarsson-2018': notPublic(codeluppi2018),
+  vanderbilt: notPublic(spraggins2020),
+  'dries-2019': notPublic(eng2019),
 };

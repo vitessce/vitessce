@@ -24,6 +24,7 @@
   --vit-input-foreground: #0451a5;
   --vit-input-background: #ffffff;
   --dropzone: #989898;
+  --code-block-background: rgb(246, 248, 250);
 
   --hero-banner-background: #4bAB83;
 
@@ -37,6 +38,7 @@
   --vit-input-background: #202124;
   --vit-input-foreground: #9cdcfe;
   --dropzone: #5f5f60;
+  --code-block-background: rgb(40, 42, 54);
 }
 
 .docusaurus-highlight-code-line {
@@ -118,6 +120,30 @@ div[role='tooltip'] table td, div[role='tooltip'] table th {
   white-space: nowrap;
 }
 
-.docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
-  overflow-x: hidden;
+.codeBlock_node_modules-\@docusaurus-theme-classic-lib-theme-CodeBlock- {
+  overflow-x: scroll;
+  background-color: var(--code-block-background);
+}
+
+.codeBlockLines_node_modules-\@docusaurus-theme-classic-lib-theme-CodeBlock- {
+  overflow-x: auto;
+  float: none;
+}
+
+@media (min-width: 997px) and (max-width: 1320px) {
+  .docItemWrapper_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
+    margin: 0;
+  }
+}
+
+@media (min-width: 997px) {
+  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
+    width: calc(100% - var(--doc-sidebar-width));
+  }
+}
+
+@media (max-width: 997px) {
+  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
+    max-width: 100%;
+  }
 }

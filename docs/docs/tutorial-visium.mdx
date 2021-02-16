@@ -167,7 +167,7 @@ http-server ./ --cors -p 9000
 ```
 
 To test that the server is working as expected, try to access [http://localhost:9000/V1_Human_Lymph_Node.zarr/.zgroup](http://localhost:9000/V1_Human_Lymph_Node.zarr/.zgroup) in a web browser.
-This download a new file called `.zgroup` to your Downloads folder.
+This downloads a new file called `.zgroup` to your Downloads folder.
 When `.zgroup` is opened in a text editor, it should contain the following contents:
 
 ```
@@ -208,7 +208,7 @@ const vc = new VitessceConfig("10x visium human lymph node");
 
 ### Dimensionality reduction scatterplots
 
-We know that we want to visualize cell-level observations in scatterplots displaying the PCA and UMAP dimensionality reductions (which we computed with Scanpy earlier).
+We want to visualize cell-level observations in scatterplots displaying the PCA and UMAP dimensionality reductions (which we computed with Scanpy earlier).
 
 Cell positions for scatterplots and spatial plots must be defined in a file that has the `cells` data type.
 The file definition for the cells data should look like:
@@ -265,7 +265,7 @@ const dataset = vc
 The `options` part of the file definition above is specific to the `anndata-cells.zarr` file type, and the `mappings` object tells Vitessce how to map names of dimensionality reductions to arrays in the Zarr store. The strings `"UMAP"` and `"PCA"` in the above example are arbitrary names that we are choosing, and these strings will appear in the Vitessce user interface. The value for `"key"` must be a key to an array in the Zarr store, and the value for `"dims"` must be a tuple that specifies which dimensions of the dimensionality reduction array to use for the [X, Y] axes of the scatterplot.
 
 Before defining a scatterplot component, we need to set up the `embeddingType` coordination object in the coordination space.
-Embedding type is a coordination type because it allows us to coordinate which scatterplots should be displaying the same dimensionality reduction (e.g., PCA or UMAP).
+"Embedding type" is a coordination type because it allows us to coordinate which scatterplots should be displaying the same dimensionality reduction (e.g., PCA or UMAP).
 
 <ViewConfigTabs
   json={`
@@ -326,6 +326,7 @@ const umapPlot = vc
 Putting this all together:
 
 <ViewConfigTabs
+  withJsonLink
   json={`
 {
   "version": "1.0.0",
@@ -410,11 +411,12 @@ const umapPlot = vc
   .addView(dataset, cm.SCATTERPLOT)
   .useCoordination(ET2);
 vc.layout(hconcat(pcaPlot, umapPlot));
+return vc.toJSON();
   `}
 />
 
 
-
+<!--
 ### Images and heatmap
 
 The following is a full configuration with two spatial views (with coordinated zoom and pan interactions), a heatmap, and controller components for managing cell sets, spatial layers, and genes.
@@ -688,3 +690,4 @@ The following is a full configuration with two spatial views (with coordinated z
 
 
 
+-->

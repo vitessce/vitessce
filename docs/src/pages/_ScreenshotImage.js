@@ -9,9 +9,10 @@ export default function ScreenshotImage(props) {
     } = props;
     const { isDarkTheme } = useThemeContext();
     const theme = (isDarkTheme ? "dark" : "light");
+    const baseUrl = useBaseUrl('/img/screenshots');
     return (
         <div>
-            <img src={useBaseUrl(`/img/screenshots/${theme}/${filename}`)} alt={alt} title={alt} />
+            <img src={`${baseUrl}/${theme}/${filename}`} alt={alt} title={alt} />
             <h3 style={{ textAlign: 'center' }}>{alt}</h3>
         </div>
     );

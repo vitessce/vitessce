@@ -8,3 +8,10 @@ export function makeDatasetNameToJsonFiles(datasetPrefix) {
     url: `${urlPrefix}/${datasetPrefix}/${datasetPrefix}.${name}.json`,
   });
 }
+
+export function notPublic(config) {
+  return {
+    ...config,
+    public: undefined,
+  };
+}
