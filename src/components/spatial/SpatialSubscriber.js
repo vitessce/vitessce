@@ -1,6 +1,7 @@
 import React, {
   useState, useEffect, useMemo, useCallback,
 } from 'react';
+import { getDefaultInitialViewState } from '@hms-dbmi/viv';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
@@ -168,7 +169,45 @@ export default function SpatialSubscriber(props) {
           },
         );
       }
+      if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
+        let newTargetX = 0;
+        let newTargetY = 0;
+        let newZoom = 0;
+        const cellValues = Object.values(cells);
+        const setMax = (x, y, maxZoom) => {
+          if (x > newTargetX) {
+            newTargetX = x;
+            newZoom = maxZoom;
+          }
+          if (y > newTargetY) {
+            newTargetY = y;
+            newZoom = maxZoom;
+          }
+        };
+        if (imageLayerLoaders.length > 0) {
+          /* eslint-disable guard-for-in, no-restricted-syntax */
+          for (let i = 0; i < imageLayerLoaders.length; i += 1) {
+            const viewSize = { height, width };
+            const {
+              target,
+              zoom: newViewStateZoom,
+            } = getDefaultInitialViewState(imageLayerLoaders[i], viewSize);
+            setMax(target[0], target[1], newViewStateZoom);
+          }
+        } else if (cellValues.length > 0) {
+          for (const cell in Object.values(cells)) {
+            const [x, y] = cell.xy;
+            const newViewStateZoom = Math.log2(Math.min(width / x, height / y));
+            setMax(x, y, newViewStateZoom);
+          }
+          /* eslint-disable guard-for-in, no-restricted-syntax */
+        }
+        setTargetX(newTargetX);
+        setTargetY(newTargetY);
+        setZoom(newZoom);
+      }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataset, loaders, autoLayers, imageLayerLoaders,
     isReady, layers, setLayers, initializeLayers]);
 
