@@ -151,8 +151,32 @@ export default function ScatterplotSubscriber(props) {
       const newScale = clamp(diagonalLength / 300, 0, 0.2);
       if (newScale) {
         setCellRadiusScale(newScale);
+      } if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+        let newTargetX = 0;
+        let newTargetY = 0;
+        let newZoom = 0;
+        const setMax = (x, y, maxZoom) => {
+          if (x > newTargetX) {
+            newTargetX = x;
+            newZoom = maxZoom;
+          }
+          if (y > newTargetY) {
+            newTargetY = y;
+            newZoom = maxZoom;
+          }
+        };
+        // eslint-disable-next-line guard-for-in, no-restricted-syntax
+        for (const coord in cellCoordinates) {
+          const [x, y] = coord;
+          const newViewStateZoom = Math.log2(Math.min(width / x, height / y));
+          setMax(x, y, newViewStateZoom);
+        }
+        setTargetX(newTargetX);
+        setTargetY(newTargetY);
+        setZoom(newZoom);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cells, mapping]);
 
   const getCellInfo = useCallback((cellId) => {

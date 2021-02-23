@@ -195,7 +195,7 @@ export default function SpatialSubscriber(props) {
             setMax(target[0], target[1], newViewStateZoom);
           }
         } else if (cellValues.length > 0) {
-          for (const cell in Object.values(cells)) {
+          for (const cell in cellValues) {
             const [x, y] = cell.xy;
             const newViewStateZoom = Math.log2(Math.min(width / x, height / y));
             setMax(x, y, newViewStateZoom);
