@@ -155,9 +155,10 @@ export default function ScatterplotSubscriber(props) {
       } if (typeof targetX !== 'number' || typeof targetY !== 'number') {
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
-        const newZoom = Math.log2(Math.min(width / xRange, height / yRange)) - 0.5;
+        const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
         setTargetX(newTargetX);
-        setTargetY(newTargetY);
+        // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+        setTargetY(-newTargetY);
         setZoom(newZoom);
       }
     }

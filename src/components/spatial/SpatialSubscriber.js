@@ -174,6 +174,8 @@ export default function SpatialSubscriber(props) {
         let newTargetX = -Infinity;
         let newTargetY = -Infinity;
         let newZoom = -Infinity;
+        // Some backoff from completely filling the screen.
+        const zoomBackoff = 0.1;
         const cellValues = Object.values(cells);
         const setMax = (x, y, maxZoom) => {
           if (x > newTargetX) {
@@ -191,7 +193,7 @@ export default function SpatialSubscriber(props) {
             const {
               target,
               zoom: newViewStateZoom,
-            } = getDefaultInitialViewState(imageLayerLoaders[i], viewSize, 0.5);
+            } = getDefaultInitialViewState(imageLayerLoaders[i], viewSize, zoomBackoff);
             setMax(target[0], target[1], newViewStateZoom);
           }
         } else if (cellValues.length > 0) {
@@ -203,7 +205,7 @@ export default function SpatialSubscriber(props) {
           const yRange = yExtent[1] - yExtent[0];
           newTargetX = xExtent[0] + xRange / 2;
           newTargetY = yExtent[0] + yRange / 2;
-          newZoom = Math.log2(Math.min(width / xRange, height / yRange)) - 0.5;
+          newZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
         }
         setTargetX(newTargetX);
         setTargetY(newTargetY);
