@@ -186,7 +186,6 @@ export default function SpatialSubscriber(props) {
           }
         };
         if (imageLayerLoaders.length > 0) {
-          /* eslint-disable guard-for-in, no-restricted-syntax */
           for (let i = 0; i < imageLayerLoaders.length; i += 1) {
             const viewSize = { height, width };
             const {
@@ -205,7 +204,6 @@ export default function SpatialSubscriber(props) {
           newTargetX = xExtent[0] + xRange / 2;
           newTargetY = yExtent[0] + yRange / 2;
           newZoom = Math.log2(Math.min(width / xRange, height / yRange)) - 0.5;
-          /* eslint-disable guard-for-in, no-restricted-syntax */
         }
         setTargetX(newTargetX);
         setTargetY(newTargetY);
