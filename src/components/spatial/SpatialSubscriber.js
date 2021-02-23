@@ -1,6 +1,7 @@
 import React, {
   useState, useEffect, useMemo, useCallback,
 } from 'react';
+import { extent } from 'd3-array';
 import { getDefaultInitialViewState } from '@hms-dbmi/viv';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
@@ -170,9 +171,9 @@ export default function SpatialSubscriber(props) {
         );
       }
       if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
-        let newTargetX = 0;
-        let newTargetY = 0;
-        let newZoom = 0;
+        let newTargetX = -Infinity;
+        let newTargetY = -Infinity;
+        let newZoom = -Infinity;
         const cellValues = Object.values(cells);
         const setMax = (x, y, maxZoom) => {
           if (x > newTargetX) {
@@ -191,15 +192,19 @@ export default function SpatialSubscriber(props) {
             const {
               target,
               zoom: newViewStateZoom,
-            } = getDefaultInitialViewState(imageLayerLoaders[i], viewSize);
+            } = getDefaultInitialViewState(imageLayerLoaders[i], viewSize, 0.5);
             setMax(target[0], target[1], newViewStateZoom);
           }
         } else if (cellValues.length > 0) {
-          for (const cell in cellValues) {
-            const [x, y] = cell.xy;
-            const newViewStateZoom = Math.log2(Math.min(width / x, height / y));
-            setMax(x, y, newViewStateZoom);
-          }
+          const cellCoordinates = Object.values(cells)
+            .map(c => c.xy);
+          const xExtent = extent(cellCoordinates, c => c[0]);
+          const yExtent = extent(cellCoordinates, c => c[1]);
+          const xRange = xExtent[1] - xExtent[0];
+          const yRange = yExtent[1] - yExtent[0];
+          newTargetX = xExtent[0] + xRange / 2;
+          newTargetY = yExtent[0] + yRange / 2;
+          newZoom = Math.log2(Math.min(width / xRange, height / yRange)) - 0.5;
           /* eslint-disable guard-for-in, no-restricted-syntax */
         }
         setTargetX(newTargetX);

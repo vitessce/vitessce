@@ -139,7 +139,8 @@ export default function ScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    if (cells) {
+    const cellValues = cells && Object.values(cells);
+    if (cellValues?.length) {
       const cellCoordinates = Object.values(cells)
         .map(c => c.mappings[mapping]);
       const xExtent = extent(cellCoordinates, c => c[0]);
@@ -152,25 +153,9 @@ export default function ScatterplotSubscriber(props) {
       if (newScale) {
         setCellRadiusScale(newScale);
       } if (typeof targetX !== 'number' || typeof targetY !== 'number') {
-        let newTargetX = 0;
-        let newTargetY = 0;
-        let newZoom = 0;
-        const setMax = (x, y, maxZoom) => {
-          if (x > newTargetX) {
-            newTargetX = x;
-            newZoom = maxZoom;
-          }
-          if (y > newTargetY) {
-            newTargetY = y;
-            newZoom = maxZoom;
-          }
-        };
-        // eslint-disable-next-line guard-for-in, no-restricted-syntax
-        for (const coord in cellCoordinates) {
-          const [x, y] = coord;
-          const newViewStateZoom = Math.log2(Math.min(width / x, height / y));
-          setMax(x, y, newViewStateZoom);
-        }
+        const newTargetX = xExtent[0] + xRange / 2;
+        const newTargetY = yExtent[0] + yRange / 2;
+        const newZoom = Math.log2(Math.min(width / xRange, height / yRange)) - 0.5;
         setTargetX(newTargetX);
         setTargetY(newTargetY);
         setZoom(newZoom);
