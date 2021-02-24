@@ -1,8 +1,6 @@
 import React, {
   useState, useEffect, useMemo, useCallback,
 } from 'react';
-import { extent } from 'd3-array';
-import { getDefaultInitialViewState } from '@hms-dbmi/viv';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
@@ -15,7 +13,12 @@ import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
-import { makeSpatialSubtitle, initializeLayerChannelsIfMissing, sortLayers } from './utils';
+import {
+  makeSpatialSubtitle,
+  initializeLayerChannelsIfMissing,
+  sortLayers,
+  getInitialSpatialTargets,
+} from './utils';
 import {
   DEFAULT_MOLECULES_LAYER,
   DEFAULT_CELLS_LAYER,
@@ -171,45 +174,15 @@ export default function SpatialSubscriber(props) {
         );
       }
       if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
-        let newTargetX = -Infinity;
-        let newTargetY = -Infinity;
-        let newZoom = -Infinity;
-        // Some backoff from completely filling the screen.
-        const zoomBackoff = 0.1;
-        const cellValues = Object.values(cells);
-        const setMax = (x, y, maxZoom) => {
-          if (x > newTargetX) {
-            newTargetX = x;
-            newZoom = maxZoom;
-          }
-          if (y > newTargetY) {
-            newTargetY = y;
-            newZoom = maxZoom;
-          }
-        };
-        if (imageLayerLoaders.length > 0) {
-          for (let i = 0; i < imageLayerLoaders.length; i += 1) {
-            const viewSize = { height, width };
-            const {
-              target,
-              zoom: newViewStateZoom,
-            } = getDefaultInitialViewState(imageLayerLoaders[i], viewSize, zoomBackoff);
-            setMax(target[0], target[1], newViewStateZoom);
-          }
-        } else if (cellValues.length > 0) {
-          const cellCoordinates = Object.values(cells)
-            .map(c => c.xy);
-          const xExtent = extent(cellCoordinates, c => c[0]);
-          const yExtent = extent(cellCoordinates, c => c[1]);
-          const xRange = xExtent[1] - xExtent[0];
-          const yRange = yExtent[1] - yExtent[0];
-          newTargetX = xExtent[0] + xRange / 2;
-          newTargetY = yExtent[0] + yRange / 2;
-          newZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
-        }
-        setTargetX(newTargetX);
-        setTargetY(newTargetY);
-        setZoom(newZoom);
+        const { initialTargetX, initialTargetY, initialZoom } = getInitialSpatialTargets({
+          width,
+          height,
+          cells,
+          imageLayerLoaders,
+        });
+        setTargetX(initialTargetX);
+        setTargetY(initialTargetY);
+        setZoom(initialZoom);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
