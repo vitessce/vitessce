@@ -358,7 +358,7 @@ export function getInitialSpatialTargets({
       }
     }
   } else if (cellValues.length > 0) {
-    const cellCoordinates = Object.values(cells).map(c => c.xy);
+    const cellCoordinates = cellValues.map(c => c.xy);
     const xExtent = extent(cellCoordinates, c => c[0]);
     const yExtent = extent(cellCoordinates, c => c[1]);
     const xRange = xExtent[1] - xExtent[0];
