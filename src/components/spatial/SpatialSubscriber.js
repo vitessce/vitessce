@@ -187,7 +187,7 @@ export default function SpatialSubscriber(props) {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataset, loaders, autoLayers, imageLayerLoaders,
-    isReady, layers, setLayers, initializeLayers]);
+    isReady, layers, setLayers, initializeLayers, cells]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
