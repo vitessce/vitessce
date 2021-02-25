@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.5](https://www.npmjs.com/package/vitessce/v/1.1.5) - 2021-02-25
+
+### Added
 - View state will automatically be set if it is not found for `Scatterplot` and `Spatial` components.
 
 ### Changed
