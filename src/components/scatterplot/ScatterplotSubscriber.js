@@ -139,7 +139,8 @@ export default function ScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    if (cells) {
+    const cellValues = cells && Object.values(cells);
+    if (cellValues?.length) {
       const cellCoordinates = Object.values(cells)
         .map(c => c.mappings[mapping]);
       const xExtent = extent(cellCoordinates, c => c[0]);
@@ -151,8 +152,17 @@ export default function ScatterplotSubscriber(props) {
       const newScale = clamp(diagonalLength / 300, 0, 0.2);
       if (newScale) {
         setCellRadiusScale(newScale);
+      } if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+        const newTargetX = xExtent[0] + xRange / 2;
+        const newTargetY = yExtent[0] + yRange / 2;
+        const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
+        setTargetX(newTargetX);
+        // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+        setTargetY(-newTargetY);
+        setZoom(newZoom);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cells, mapping]);
 
   const getCellInfo = useCallback((cellId) => {

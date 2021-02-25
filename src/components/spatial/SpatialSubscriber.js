@@ -13,7 +13,12 @@ import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
-import { makeSpatialSubtitle, initializeLayerChannelsIfMissing, sortLayers } from './utils';
+import {
+  makeSpatialSubtitle,
+  initializeLayerChannelsIfMissing,
+  sortLayers,
+  getInitialSpatialTargets,
+} from './utils';
 import {
   DEFAULT_MOLECULES_LAYER,
   DEFAULT_CELLS_LAYER,
@@ -168,9 +173,21 @@ export default function SpatialSubscriber(props) {
           },
         );
       }
+      if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
+        const { initialTargetX, initialTargetY, initialZoom } = getInitialSpatialTargets({
+          width,
+          height,
+          cells,
+          imageLayerLoaders,
+        });
+        setTargetX(initialTargetX);
+        setTargetY(initialTargetY);
+        setZoom(initialZoom);
+      }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataset, loaders, autoLayers, imageLayerLoaders,
-    isReady, layers, setLayers, initializeLayers]);
+    isReady, layers, setLayers, initializeLayers, cells]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,

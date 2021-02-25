@@ -144,7 +144,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
           views={[new OrthographicView({ id: 'ortho' })]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
-          layers={gl ? layers : ([])}
+          layers={(gl && viewState.target.every(i => typeof i === 'number')) ? layers : ([])}
           glOptions={DEFAULT_GL_OPTIONS}
           onWebGLInitialized={this.onWebGLInitialized}
           onViewStateChange={this.onViewStateChange}
