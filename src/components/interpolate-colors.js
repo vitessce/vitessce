@@ -87,25 +87,22 @@ export const interpolatePlasma = interpolateSequentialMulti(schemePlasma);
 export function getCellColors(params) {
   const {
     cellColorEncoding,
-    expressionMatrix, geneSelection,
+    expressionData,
     cellSets, cellSetSelection,
     cellSetColor,
+    cells,
   } = params;
-  if (cellColorEncoding === 'geneSelection' && geneSelection && geneSelection.length >= 1 && expressionMatrix) {
-    const firstGeneSelected = geneSelection[0];
+  if (cellColorEncoding === 'geneSelection' && expressionData) {
     // TODO: allow other color maps.
     const geneExpColormap = interpolatePlasma;
-    const geneIndex = expressionMatrix.cols.indexOf(firstGeneSelected);
-    if (geneIndex !== -1) {
-      const numGenes = expressionMatrix.cols.length;
-      // Create new cellColors map based on the selected gene.
-      return new Map(expressionMatrix.rows.map((cellId, cellIndex) => {
-        const value = expressionMatrix.matrix[cellIndex * numGenes + geneIndex];
-        const cellColor = geneExpColormap(value / 255);
-        return [cellId, cellColor];
-      }));
+    const colors = new Map();
+    for (let i = 0; i < expressionData.length; i += 1) {
+      const value = expressionData[i];
+      const cellColor = geneExpColormap(value / 255);
+      colors.set(cells[i][0], cellColor);
     }
-  } else if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
+    return colors;
+  } if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
     // Cell sets can potentially lack set colors since the color property
     // is not a required part of the schema.
     // The `initializeSets` function fills in any empty colors

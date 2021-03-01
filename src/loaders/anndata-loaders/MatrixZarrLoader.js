@@ -3,6 +3,15 @@ import { openArray } from 'zarr';
 import { extent } from 'd3-array';
 import BaseAnnDataLoader from './BaseAnnDataLoader';
 
+const normalize = (arr) => {
+  const [min, max] = extent(arr);
+  const ratio = 255 / (max - min);
+  const data = new Uint8Array(
+    arr.map(i => Math.floor((i - min) * ratio)),
+  );
+  return { data };
+};
+
 /**
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
@@ -32,7 +41,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       }
       row += 1;
     });
-    return { data: cellXGeneMatrix };
+    return normalize(cellXGeneMatrix);
   }
 
   /**
@@ -60,7 +69,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       }
       col += 1;
     });
-    return { data: cellXGeneMatrix };
+    return normalize(cellXGeneMatrix);
   }
 
   /**
@@ -87,10 +96,9 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         return this.arr;
       }
     }
-    this.arr = openArray({ store, path: matrix, mode: 'r' }).then(z => new Promise((resolve) => {
-      z.getRaw(null)
-        .then(resolve);
-    }));
+    this.zarrArr = openArray({ store, path: matrix, mode: 'r' });
+    this.arr = this.zarrArr.then(z => z.getRaw(null)
+      .then(cellXGeneMatrix => normalize(cellXGeneMatrix)));
     return this.arr;
   }
 
@@ -117,20 +125,31 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     return this.geneNames;
   }
 
+  async loadGeneSelection(selection) {
+    const {
+      options: { matrix },
+      store,
+    } = this;
+    const geneNames = await this.loadGeneNames();
+    const indices = selection.map(gene => geneNames.indexOf(gene));
+    if (!this.zarrArr) {
+      this.zarrArr = openArray({ store, path: matrix, mode: 'r' });
+    }
+    const genes = await Promise.all(
+      indices.map(index => this.zarrArr.then(z => z.get([null, index]))),
+    );
+    return { data: genes.map(i => normalize(i.data).data), url: null };
+  }
+
   load() {
     return Promise
-      .all([this.loadCellNames(), this.loadGeneNames(), this.loadCellXGene()])
+      .all([this.loadCellNames(), this.loadGeneNames()])
       .then((d) => {
-        const [cellNames, geneNames, { data: cellXGeneMatrix }] = d;
+        const [cellNames, geneNames] = d;
         const attrs = { rows: cellNames, cols: geneNames };
-        if (!this.min || !this.max) {
-          [this.min, this.max] = extent(cellXGeneMatrix);
-        }
-        const ratio = 255 / (this.max - this.min);
-        const data = new Uint8Array(cellXGeneMatrix.map(i => Math.floor((i - this.min) * ratio)));
         return {
           data: [
-            attrs, { data },
+            attrs, {},
           ],
           url: null,
         };
