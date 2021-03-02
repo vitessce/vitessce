@@ -91,7 +91,7 @@ export function overlayBaseProps(props) {
       data,
       getFilterValue: isSelected,
       extensions: [new DataFilterExtension({ filterSize: 1 })],
-      filterRange: [0.99, 1.01],
+      filterRange: [1, 1],
       ...rest,
     },
     base: {
