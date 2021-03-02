@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Used `DataFilterExtension` from `deck.gl` to speed up filtering selections.
 
 ## [1.1.5](https://www.npmjs.com/package/vitessce/v/1.1.5) - 2021-02-25
 
