@@ -81,7 +81,7 @@ export function getSelectionLayers(
  */
 export function overlayBaseProps(props) {
   const {
-    id, backgroundColor, getColor, data, isSelected, ...rest
+    id, getColor, data, isSelected, ...rest
   } = props;
   return {
     overlay: {
