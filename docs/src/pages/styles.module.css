@@ -342,12 +342,3 @@
   flex: 0 1 600px;
   margin: 5px;
 }
-
-@media screen and (min-width: 877px) {
-  .homeComponent {
-    display: block;
-  }
-  .homeScreenshots {
-    display: none;
-  }
-}
