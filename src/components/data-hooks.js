@@ -272,6 +272,56 @@ export function useGeneSelection(loaders, dataset, setItemIsReady, addUrl, isReq
 }
 
 /**
+ * Get data from an expression matrix data type loader,
+ * updating "ready" and URL state appropriately.
+ * Throw warnings if the data is marked as required.
+ * Subscribe to loader updates.
+ * @param {object} loaders The object mapping
+ * datasets and data types to loader instances.
+ * @param {string} dataset The key for a dataset,
+ * used to identify which loader to use.
+ * @param {function} setItemIsReady A function to call
+ * when done loading.
+ * @param {function} addUrl A function to call to update
+ * the URL list.
+ * @param {boolean} isRequired Should a warning be thrown if
+ * loading is unsuccessful?
+ * @returns {array} [expressionMatrix] where
+ * expressionMatrix is an object with
+ * shape { cols, rows, matrix }.
+ */
+export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isRequired) {
+  const [attrs, setAttrs] = useState();
+
+  const setWarning = useSetWarning();
+
+  useEffect(() => {
+    if (!loaders[dataset]) {
+      return;
+    }
+    if (loaders[dataset].loaders['expression-matrix']) {
+      loaders[dataset].loaders['expression-matrix'].loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
+        if (!payload) return;
+        const { data, url } = payload;
+        setAttrs(data);
+        addUrl(url, 'Expression Matrix');
+        setItemIsReady('expression-matrix');
+      });
+    } else {
+      setAttrs(null);
+      if (isRequired) {
+        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
+      } else {
+        setItemIsReady('expression-matrix');
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
+
+  return [attrs];
+}
+
+/**
  * Get data from a molecules data type loader,
  * updating "ready" and URL state appropriately.
  * Throw warnings if the data is marked as required.

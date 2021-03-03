@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
-import { useExpressionMatrixData } from '../data-hooks';
+import { useExpressionAttrs } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -47,10 +47,10 @@ export default function GenesSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [expressionMatrix] = useExpressionMatrixData(
+  const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
-  const geneList = expressionMatrix ? expressionMatrix.cols : [];
+  const geneList = attrs ? attrs.cols : [];
   const numGenes = geneList.length;
 
   function setGeneSelectionAndColorEncoding(newSelection) {

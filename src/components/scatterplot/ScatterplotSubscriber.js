@@ -96,7 +96,7 @@ export default function ScatterplotSubscriber(props) {
     addUrl,
     false,
   );
-  const [expressionMatrix] = useGeneSelection(
+  const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, addUrl, false, geneSelection,
   );
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
@@ -118,14 +118,14 @@ export default function ScatterplotSubscriber(props) {
 
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
-    expressionData: expressionMatrix && expressionMatrix[0],
+    expressionData: expressionData && expressionData[0],
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
     cells: cellEntriesCached,
   }), [cellColorEncoding, geneSelection, mergedCellSets,
-    cellSetSelection, cellSetColor, expressionMatrix, cellEntriesCached]);
+    cellSetSelection, cellSetColor, expressionData, cellEntriesCached]);
 
   const cellSetPolygons = useMemo(() => getCellSetPolygons({
     cells,

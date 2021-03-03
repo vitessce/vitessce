@@ -6,7 +6,7 @@ import { capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import {
-  useCellsData, useCellSetsData, useExpressionMatrixData,
+  useCellsData, useCellSetsData, useGeneSelection,
   useMoleculesData, useNeighborhoodsData, useRasterData,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
@@ -133,8 +133,8 @@ export default function SpatialSubscriber(props) {
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
-  const [expressionMatrix] = useExpressionMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [expressionData] = useGeneSelection(
+    loaders, dataset, setItemIsReady, addUrl, false, geneSelection,
   );
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
@@ -202,15 +202,18 @@ export default function SpatialSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
+  const cellEntriesCached = useMemo(() => Object.entries(cells), [cells]);
+
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
-    expressionMatrix,
+    expressionData: expressionData && expressionData[0],
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
+    cells: cellEntriesCached,
   }), [cellColorEncoding, geneSelection, mergedCellSets,
-    cellSetColor, cellSetSelection, expressionMatrix]);
+    cellSetColor, cellSetSelection, expressionData, cellEntriesCached]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 

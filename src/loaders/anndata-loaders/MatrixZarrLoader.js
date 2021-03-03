@@ -78,8 +78,8 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    */
   async loadCellXGene() {
     const { store } = this;
-    if (this.arr) {
-      return this.arr;
+    if (this.cellXGene) {
+      return this.cellXGene;
     }
     const {
       options: { matrix },
@@ -88,18 +88,18 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     const encodingType = zattrs['encoding-type'];
     if (encodingType) {
       if (encodingType === 'csr_matrix') {
-        this.arr = this._loadCSRSparseCellXGene(matrix, zattrs.shape);
-        return this.arr;
+        this.cellXGene = this._loadCSRSparseCellXGene(matrix, zattrs.shape);
+        return this.cellXGene;
       }
       if (encodingType === 'csc_matrix') {
-        this.arr = this._loadCSCSparseCellXGene(matrix, zattrs.shape);
-        return this.arr;
+        this.cellXGene = this._loadCSCSparseCellXGene(matrix, zattrs.shape);
+        return this.cellXGene;
       }
     }
-    this.zarrArr = openArray({ store, path: matrix, mode: 'r' });
-    this.arr = this.zarrArr.then(z => z.getRaw(null)
+    this.arr = openArray({ store, path: matrix, mode: 'r' });
+    this.cellXGene = this.arr.then(z => z.getRaw(null)
       .then(cellXGeneMatrix => normalize(cellXGeneMatrix)));
-    return this.arr;
+    return this.cellXGene;
   }
 
   /**
@@ -132,24 +132,36 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     } = this;
     const geneNames = await this.loadGeneNames();
     const indices = selection.map(gene => geneNames.indexOf(gene));
-    if (!this.zarrArr) {
-      this.zarrArr = openArray({ store, path: matrix, mode: 'r' });
+    if (!this.arr) {
+      this.arr = openArray({ store, path: matrix, mode: 'r' });
     }
     const genes = await Promise.all(
-      indices.map(index => this.zarrArr.then(z => z.get([null, index]))),
+      indices.map(index => this.arr.then(z => z.get([null, index]))),
     );
     return { data: genes.map(i => normalize(i.data).data), url: null };
   }
 
-  load() {
+  loadAttrs() {
     return Promise
       .all([this.loadCellNames(), this.loadGeneNames()])
       .then((d) => {
         const [cellNames, geneNames] = d;
         const attrs = { rows: cellNames, cols: geneNames };
         return {
+          data: attrs,
+          url: null,
+        };
+      });
+  }
+
+  load() {
+    return Promise
+      .all([this.loadAttrs(), this.loadCellXGene()])
+      .then((d) => {
+        const [{ data: attrs }, { data }] = d;
+        return {
           data: [
-            attrs, {},
+            attrs, { data },
           ],
           url: null,
         };
