@@ -1,7 +1,8 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
 import { cloneDeep, isEqual } from 'lodash';
-import { getChannelStats } from '@hms-dbmi/viv';
+import { getChannelStats, getDefaultInitialViewState } from '@hms-dbmi/viv';
+import { extent } from 'd3-array';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
 import { pluralize } from '../../utils';
@@ -323,4 +324,48 @@ export function makeSpatialSubtitle({
     parts.push(`${observationsCount} ${pluralize(observationsLabel, observationsPluralLabel, observationsCount)}`);
   }
   return parts.join(', ');
+}
+
+export function getInitialSpatialTargets({
+  width,
+  height,
+  cells,
+  imageLayerLoaders,
+}) {
+  let initialTargetX = -Infinity;
+  let initialTargetY = -Infinity;
+  let initialZoom = -Infinity;
+  // Some backoff from completely filling the screen.
+  const zoomBackoff = 0.1;
+  const cellValues = Object.values(cells);
+  if (imageLayerLoaders.length > 0) {
+    for (let i = 0; i < imageLayerLoaders.length; i += 1) {
+      const viewSize = { height, width };
+      const { target, zoom: newViewStateZoom } = getDefaultInitialViewState(
+        imageLayerLoaders[i],
+        viewSize,
+        zoomBackoff,
+      );
+      if (target[0] > initialTargetX) {
+        // eslint-disable-next-line prefer-destructuring
+        initialTargetX = target[0];
+        initialZoom = newViewStateZoom;
+      }
+      if (target[1] > initialTargetY) {
+        // eslint-disable-next-line prefer-destructuring
+        initialTargetY = target[1];
+        initialZoom = newViewStateZoom;
+      }
+    }
+  } else if (cellValues.length > 0) {
+    const cellCoordinates = cellValues.map(c => c.xy);
+    const xExtent = extent(cellCoordinates, c => c[0]);
+    const yExtent = extent(cellCoordinates, c => c[1]);
+    const xRange = xExtent[1] - xExtent[0];
+    const yRange = yExtent[1] - yExtent[0];
+    initialTargetX = xExtent[0] + xRange / 2;
+    initialTargetY = yExtent[0] + yRange / 2;
+    initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
+  }
+  return { initialTargetX, initialTargetY, initialZoom };
 }

@@ -260,7 +260,7 @@ export function upgrade(config, datasetUid = null) {
       // Need to set up the coordinationSpace
       // with spatialZoom / spatialTargetX/Y to replace spatial
       // component prop "view" ({ zoom, target }).
-      if (componentDef.props.view) {
+      if (componentDef?.props?.view) {
         // Note that the below function does mutate the coordinationSpace param.
         const newScopeValues = upgradeReplaceViewProp(
           'spatial', componentDef.props.view, coordinationSpace,

@@ -1,6 +1,6 @@
 {
   "name": "vitessce",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Vitessce app and React component library",
   "author": "C McCallum",
   "homepage": "http://vitessce.io/",
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@deck.gl/core": "8.4.0-alpha.4",
+    "@deck.gl/extensions": "8.4.0-alpha.4",
     "@deck.gl/layers": "8.4.0-alpha.4",
     "@hms-dbmi/viv": "^0.8.3",
     "@loaders.gl/3d-tiles": "^2.3.0",
