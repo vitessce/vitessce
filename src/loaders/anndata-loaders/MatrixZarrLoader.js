@@ -96,9 +96,11 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         return this.cellXGene;
       }
     }
-    this.arr = openArray({ store, path: matrix, mode: 'r' });
+    if (!this.arr) {
+      this.arr = openArray({ store, path: matrix, mode: 'r' });
+    }
     this.cellXGene = this.arr.then(z => z.getRaw(null)
-      .then(cellXGeneMatrix => normalize(cellXGeneMatrix)));
+      .then(({ data }) => normalize(data)));
     return this.cellXGene;
   }
 
@@ -158,10 +160,10 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     return Promise
       .all([this.loadAttrs(), this.loadCellXGene()])
       .then((d) => {
-        const [{ data: attrs }, { data }] = d;
+        const [{ data: attrs }, cellXGene] = d;
         return {
           data: [
-            attrs, { data },
+            attrs, cellXGene,
           ],
           url: null,
         };
