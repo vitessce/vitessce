@@ -217,25 +217,6 @@ export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl
   return [expressionMatrix];
 }
 
-/**
- * Get data from an expression matrix data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @returns {array} [expressionMatrix] where
- * expressionMatrix is an object with
- * shape { cols, rows, matrix }.
- */
 export function useGeneSelection(loaders, dataset, setItemIsReady, addUrl, isRequired, selection) {
   const [geneData, setGeneData] = useState();
 
@@ -249,14 +230,40 @@ export function useGeneSelection(loaders, dataset, setItemIsReady, addUrl, isReq
       setItemIsReady('expression-matrix');
       return;
     }
-    if (loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].loadGeneSelection(selection).catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url } = payload;
-        setGeneData(data);
-        addUrl(url, 'Expression Matrix');
-        setItemIsReady('expression-matrix');
-      });
+    const loader = loaders[dataset].loaders['expression-matrix'];
+    if (loader) {
+      const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
+      if (implementsGeneSelection) {
+        loaders[dataset].loaders['expression-matrix']
+          .loadGeneSelection(selection)
+          .catch(e => warn(e, setWarning))
+          .then((payload) => {
+            if (!payload) return;
+            const { data, url } = payload;
+            setGeneData(data);
+            addUrl(url, 'Expression Matrix');
+            setItemIsReady('expression-matrix');
+          });
+      } else {
+        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
+          if (!payload) return;
+          const { data, url } = payload;
+          const [attrs, { data: matrix }] = data;
+          const expressionDataForSelection = selection.map((sel) => {
+            const geneIndex = attrs.cols.indexOf(sel);
+            const numGenes = attrs.cols.length;
+            const numCells = attrs.rows.length;
+            const expressionData = new Uint8Array(numCells);
+            for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
+              expressionData[cellIndex] = matrix[cellIndex * numGenes + geneIndex];
+            }
+            return expressionData;
+          });
+          setGeneData(expressionDataForSelection);
+          addUrl(url, 'Expression Matrix');
+          setItemIsReady('expression-matrix');
+        });
+      }
     } else {
       setGeneData(null);
       if (isRequired) {
@@ -271,25 +278,6 @@ export function useGeneSelection(loaders, dataset, setItemIsReady, addUrl, isReq
   return [geneData];
 }
 
-/**
- * Get data from an expression matrix data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @returns {array} [expressionMatrix] where
- * expressionMatrix is an object with
- * shape { cols, rows, matrix }.
- */
 export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isRequired) {
   const [attrs, setAttrs] = useState();
 
@@ -299,14 +287,26 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
     if (!loaders[dataset]) {
       return;
     }
-    if (loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url } = payload;
-        setAttrs(data);
-        addUrl(url, 'Expression Matrix');
-        setItemIsReady('expression-matrix');
-      });
+    const loader = loaders[dataset].loaders['expression-matrix'];
+    if (loader) {
+      const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
+      if (implementsLoadAttrs) {
+        loader.loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
+          if (!payload) return;
+          const { data, url } = payload;
+          setAttrs(data);
+          addUrl(url, 'Expression Matrix');
+          setItemIsReady('expression-matrix');
+        });
+      } else {
+        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
+          if (!payload) return;
+          const { data, url } = payload;
+          setAttrs(data[0]);
+          addUrl(url, 'Expression Matrix');
+          setItemIsReady('expression-matrix');
+        });
+      }
     } else {
       setAttrs(null);
       if (isRequired) {
