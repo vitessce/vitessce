@@ -4,6 +4,8 @@
 
 ### Changed
 - Used `DataFilterExtension` from `deck.gl` to speed up filtering selections.
+- Separate out hooks to allow for arbitrary gene slicing.
+- Update AnnData loader to handle artbitrary gene slicing.
 
 ## [1.1.5](https://www.npmjs.com/package/vitessce/v/1.1.5) - 2021-02-25
 
