@@ -86,7 +86,7 @@ export default class BaseAnnDataLoader extends AbstractLoader {
         });
         const cellSetsValues = await cellSetsArr.get();
         const { data } = cellSetsValues;
-        const mappedCellSetValues = new Array(...data).map(
+        const mappedCellSetValues = Array.from(data).map(
           i => (!categoriesValues ? String(i) : categoriesValues[i]),
         );
         return mappedCellSetValues;
