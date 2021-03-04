@@ -150,6 +150,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           controller={tool ? ({ dragPan: false }) : true}
+          useDevicePixels={false}
           getCursor={tool ? getCursorWithTool : getCursor}
         >
           {this.onInitializeViewInfo}
