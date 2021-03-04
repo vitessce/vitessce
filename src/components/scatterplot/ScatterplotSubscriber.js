@@ -7,6 +7,7 @@ import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
+// eslint-disable-next-line no-unused-vars
 import { getCellSetPolygons } from '../sets/cell-set-utils';
 import { useCellsData, useCellSetsData, useGeneSelection } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
@@ -127,13 +128,14 @@ export default function ScatterplotSubscriber(props) {
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetSelection, cellSetColor, expressionData, cellEntriesCached]);
 
-  const cellSetPolygons = useMemo(() => getCellSetPolygons({
-    cells,
-    mapping,
-    cellSets: mergedCellSets,
-    cellSetSelection,
-    cellSetColor,
-  }), [cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
+  // eslint-disable-next-line no-unused-vars
+  // const cellSetPolygons = useMemo(() => getCellSetPolygons({
+  //   cells,
+  //   mapping,
+  //   cellSets: mergedCellSets,
+  //   cellSetSelection,
+  //   cellSetColor,
+  // }), [cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
@@ -216,7 +218,7 @@ export default function ScatterplotSubscriber(props) {
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
         cellColors={cellColors}
-        cellSetPolygons={cellSetPolygons}
+        cellSetPolygons={null}
 
         cellSetLabelSize={cellSetLabelSize}
         cellSetLabelsVisible={cellSetLabelsVisible}
