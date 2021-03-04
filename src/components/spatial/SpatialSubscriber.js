@@ -134,7 +134,7 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, false,
   );
   const [expressionData] = useGeneSelection(
-    loaders, dataset, setItemIsReady, addUrl, false, geneSelection,
+    loaders, dataset, setItemIsReady, false, geneSelection,
   );
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
