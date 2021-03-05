@@ -81,7 +81,7 @@ function validateTheme(theme) {
   return (['light', 'dark'].includes(theme) ? theme : 'dark');
 }
 
-export function createApp(rowHeight = null, showBetaHeader = false) {
+export function createApp(rowHeight = null) {
   const urlParams = new URLSearchParams(window.location.search);
   const datasetId = urlParams.get('dataset');
   const debug = urlParams.get('debug') === 'true';
@@ -117,5 +117,5 @@ export function createApp(rowHeight = null, showBetaHeader = false) {
     );
   }
   const configs = listConfigs(showAll);
-  return (<Welcome configs={configs} theme={theme} showBetaHeader={showBetaHeader} />);
+  return (<Welcome configs={configs} theme={theme} />);
 }
