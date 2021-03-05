@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Added a banner to the current minimal demo site, pointing to the beta version of the documentation and next iteration of the demo site.
 
 ### Changed
 - Used `DataFilterExtension` from `deck.gl` to speed up filtering selections.
