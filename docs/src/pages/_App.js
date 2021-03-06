@@ -130,7 +130,6 @@ const scope = {
 function AppConsumer() {
   const baseUrl = useBaseUrl('/index.html?url=');
   const [demo, setDemo] = useQueryParam('dataset', StringParam);
-  const [debug, setDebug] = useQueryParam('debug', BooleanParam);
   const [url, setUrl] = useQueryParam('url', StringParam);
   const [edit, setEdit] = useQueryParam('edit', BooleanParam);
   const [i, increment] = useReducer(v => v+1, 1);

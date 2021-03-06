@@ -7,7 +7,9 @@ export default function WrappedDemos(props) {
   return (
     <Layout
       title="Demos"
-      description="Demos of Vitessce features">
+      description="Demos of Vitessce features"
+      image="http://beta.vitessce.io/img/home.png"
+    >
       <BrowserOnly>
         {() => {
           const Demos = require('./_Demos.js').default;

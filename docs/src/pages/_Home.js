@@ -51,6 +51,8 @@ export default function Home() {
   const context = useDocusaurusContext();
   const {siteConfig = {}} = context;
 
+  const introUrl = useBaseUrl("/docs/index.html");
+
   return (
     <>
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
@@ -61,10 +63,10 @@ export default function Home() {
       </header>
       <main>
         <section className={styles.homeScreenshots}>
-          <ScreenshotImage filename="web.png" alt="Vitessce as a web application" />
-          <ScreenshotImage filename="hubmap.png" alt="Vitessce as an embedded web component (HuBMAP Portal)" />
-          <ScreenshotImage filename="jupyterlab.png" alt="Vitessce as an ipywidget in JupyterLab" />
-          <ScreenshotImage filename="rstudio.png" alt="Vitessce as an htmlwidget in RStudio" />
+          <a href={`${introUrl}#web-application`}><ScreenshotImage filename="web.png" alt="Vitessce as a web application" /></a>
+          <a href={`${introUrl}#embedded-component`}><ScreenshotImage filename="hubmap.png" alt="Vitessce as an embedded web component (HuBMAP Portal)" /></a>
+          <a href={`${introUrl}#python-jupyter-widget`}><ScreenshotImage filename="jupyterlab.png" alt="Vitessce as an ipywidget in JupyterLab" /></a>
+          <a href={`${introUrl}#r-htmlwidget`}><ScreenshotImage filename="rstudio.png" alt="Vitessce as an htmlwidget in RStudio" /></a>
         </section>
         {features && features.length > 0 && (
           <section className={styles.features}>

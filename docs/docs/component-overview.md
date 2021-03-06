@@ -11,4 +11,4 @@ In addition to using Vitessce as a web application or Python/R widget, Vitessce 
 
 The following documentation pages contain details for developers who would like to integrate the Vitessce React components into other web applications.
 
-These component documentation pages are intended for developers, rather than biologists or other general users of Vitessce.
+These component documentation pages are intended for web developers, rather than general users of Vitessce.

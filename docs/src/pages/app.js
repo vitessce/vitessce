@@ -9,7 +9,9 @@ export default function WrappedApp(props) {
     <Layout
       noFooter
       title="App"
-      description="Use Vitessce with your data.">
+      description="Use Vitessce with your data."
+      image="http://beta.vitessce.io/img/home.png"
+    >
       <BrowserOnly>
         {() => {
           const App = require('./_App.js').default;

@@ -262,7 +262,7 @@ vc.layout(hconcat(v1, v2));
     <table className="table-concat">
         <tbody>
             <tr>
-                <td rowspan="2">v1</td>
+                <td rowSpan="2">v1</td>
                 <td>v2</td>
             </tr>
             <tr>
@@ -281,7 +281,7 @@ vc.layout(hconcat(v1, v2));
     <table className="table-concat">
         <tbody>
             <tr>
-                <td colspan="2">v1</td>
+                <td colSpan="2">v1</td>
                 <td>v2</td>
                 <td>v3</td>
             </tr>
@@ -351,7 +351,7 @@ vc.layout(vconcat(v1, v2));
     <table className="table-concat">
         <tbody>
             <tr>
-                <td colspan="2">v1</td>
+                <td colSpan="2">v1</td>
             </tr>
             <tr>
                 <td>v2</td>
@@ -371,7 +371,7 @@ vc.layout(vconcat(v1, v2));
     <table className="table-concat">
         <tbody>
             <tr>
-                <td rowspan="2">v1</td>
+                <td rowSpan="2">v1</td>
                 <td>v4</td>
             </tr>
             <tr>

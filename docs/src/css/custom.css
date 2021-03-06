@@ -147,3 +147,7 @@ div[role='tooltip'] table td, div[role='tooltip'] table th {
     max-width: 100%;
   }
 }
+
+.ar-16x9 {
+  aspect-ratio: 16 / 9;
+}

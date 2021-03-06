@@ -127,6 +127,7 @@ function IndexConsumer() {
             <VitessceAppStyles />
             <ThemedVitessce
                 validateOnConfigChange={debug}
+                onConfigChange={debug ? console.log : undefined}
                 config={validConfig}
             />
             <div className={styles.vitessceClear}>

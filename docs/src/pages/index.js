@@ -6,7 +6,9 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 export default function WrappedIndex() {
   return (
     <Layout
-      description="Vitessce is a visual integration tool for exploration of spatial single-cell experiments.">
+      description="Vitessce is a visual integration tool for exploration of spatial single-cell experiments."
+      image="http://beta.vitessce.io/img/home.png"
+    >
       <BrowserOnly>
         {() => {
           const Index = require('./_Index.js').default;

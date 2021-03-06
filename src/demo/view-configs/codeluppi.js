@@ -1,4 +1,8 @@
-import { makeDatasetNameToJsonFiles } from '../utils';
+import {
+  makeDatasetNameToJsonFiles,
+  getS3Url, vapi,
+} from '../utils';
+
 
 const linnarssonDataTypes = [
   'cells',
@@ -39,7 +43,7 @@ const linnarssonBaseNoMolecules = {
       uid: 'codeluppi',
       name: 'Codeluppi',
       files: [
-        ...linnarssonDataTypes.filter(dt => dt !== 'molecules').map(makeDatasetNameToJsonFiles('linnarsson')),
+        ...linnarssonDataTypes.filter(dtype => dtype !== 'molecules').map(makeDatasetNameToJsonFiles('linnarsson')),
         {
           ...makeDatasetNameToJsonFiles('linnarsson')('clusters'),
           type: 'expression-matrix',
@@ -400,3 +404,13 @@ export const linnarssonWithRorb = {
     },
   ],
 };
+
+export function getCodeluppiViewConfig(name, description) {
+  const vc = new vapi.VitessceConfig(name, description);
+  const dataset = vc.addDataset(linnarssonName, linnarssonDescription)
+    .addFile(getS3Url('linnarsson', 'cells'), vapi.dt.CELLS, vapi.ft.CELLS_JSON)
+    .addFile(getS3Url('linnarsson', 'cell-sets'), vapi.dt.CELL_SETS, vapi.ft.CELL_SETS_JSON)
+    .addFile(getS3Url('linnarsson', 'raster'), vapi.dt.RASTER, vapi.ft.RASTER_JSON)
+    .addFile(getS3Url('linnarsson', 'molecules'), vapi.dt.MOLECULES, vapi.ft.MOLECULES_JSON);
+  return [vc, dataset];
+}

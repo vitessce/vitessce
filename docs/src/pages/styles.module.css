@@ -338,7 +338,10 @@
   justify-content: center;
 }
 
-.homeScreenshots > div {
+.homeScreenshots > a {
   flex: 0 1 600px;
   margin: 5px;
+  color: var(--ifm-heading-color);
+  font-weight: 400;
+  text-decoration: none;
 }

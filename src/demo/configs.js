@@ -1,4 +1,4 @@
-import { notPublic } from './utils';
+import { notPublic, vapi } from './utils';
 import {
   justScatter, justScatterExpression, justSpatial, codeluppi2018,
 } from './view-configs/codeluppi';
@@ -8,6 +8,20 @@ import { spraggins2020 } from './view-configs/spraggins';
 import { satija2020 } from './view-configs/satija';
 import { justHiglass } from './view-configs/rao';
 import { scAtacSeq10xPbmc } from './view-configs/tenx';
+import {
+  embeddingZoomConfig,
+  embeddingTargetXConfig,
+  embeddingTargetYConfig,
+  embeddingCellSetPolygonsVisibleConfig,
+} from './view-configs/coordination-types/index';
+
+
+export const coordinationTypeConfigs = {
+  [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
+  [vapi.ct.EMBEDDING_TARGET_X]: embeddingTargetXConfig,
+  [vapi.ct.EMBEDDING_TARGET_Y]: embeddingTargetYConfig,
+  [vapi.ct.EMBEDDING_CELL_SET_POLYGONS_VISIBLE]: embeddingCellSetPolygonsVisibleConfig,
+};
 
 // Note that the ordering of the components in the layout
 // can affect the z-index of plot tooltips due to the
@@ -28,4 +42,5 @@ export const configs = {
   'linnarsson-2018': notPublic(codeluppi2018),
   vanderbilt: notPublic(spraggins2020),
   'dries-2019': notPublic(eng2019),
+  ...coordinationTypeConfigs,
 };
