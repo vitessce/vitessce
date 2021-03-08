@@ -137,4 +137,13 @@ module.exports = {
       },
     ],
   ],
+  scripts: [
+    {
+      src: "https://www.googletagmanager.com/gtag/js?id=UA-96954979-2",
+      async: true,
+    }
+  ],
+  clientModules: [
+    require.resolve('./analytics.js'),
+  ],
 };
