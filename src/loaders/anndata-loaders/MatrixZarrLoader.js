@@ -155,9 +155,6 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     } = this;
     const geneNames = await this.loadGeneNames();
     const indices = selection.map(gene => geneNames.indexOf(gene));
-    if (!this.arr) {
-      this.arr = openArray({ store, path: matrix, mode: 'r' });
-    }
     const zattrs = await this.getJson(`${matrix}/.zattrs`);
     const encodingType = zattrs['encoding-type'];
     let genes;
@@ -168,23 +165,27 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       // If there is not change in the column indexer, then the data is all zeros
       genes = await Promise.all(indices.map(async (index) => {
         const startRowIndex = cols[index];
-        const endRowIndex = cols[index];
+        const endRowIndex = cols[index + 1];
         const isColumnAllZeros = startRowIndex === endRowIndex;
         const geneData = new Uint8Array(cellNames.length).fill(0);
         if (isColumnAllZeros) {
-          return geneData;
+          return { data: geneData };
         }
-        const rowIndices = await indexArr.get([slice(startRowIndex, endRowIndex)]);
-        const cellXGeneData = await cellXGeneArr.get([slice(startRowIndex, endRowIndex)]);
+        const { data: rowIndices } = await indexArr.get([slice(startRowIndex, endRowIndex)]);
+        const { data: cellXGeneData } = await cellXGeneArr.get([slice(startRowIndex, endRowIndex)]);
         for (let rowIndex = 0; rowIndex < rowIndices.length; rowIndex += 1) {
-          geneData[rowIndex] = cellXGeneData[rowIndex];
+          geneData[rowIndices[rowIndex]] = cellXGeneData[rowIndex];
         }
-        return geneData;
+        return { data: geneData };
       }));
+    } else {
+      if (!this.arr) {
+        this.arr = openArray({ store, path: matrix, mode: 'r' });
+      }
+      genes = await Promise.all(
+        indices.map(index => this.arr.then(z => z.get([null, index]))),
+      );
     }
-    genes = await Promise.all(
-      indices.map(index => this.arr.then(z => z.get([null, index]))),
-    );
     return { data: genes.map(i => normalize(i.data).data), url: null };
   }
 
