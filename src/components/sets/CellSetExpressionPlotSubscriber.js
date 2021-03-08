@@ -3,7 +3,7 @@ import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
-import { useExpressionMatrixData, useCellSetsData } from '../data-hooks';
+import { useGeneSelection, useExpressionAttrs, useCellSetsData } from '../data-hooks';
 import { useExpressionByCellSet } from './hooks';
 
 import CellSetExpressionPlot from './CellSetExpressionPlot';
@@ -52,7 +52,10 @@ export default function CellSetExpressionPlotSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [expressionMatrix] = useExpressionMatrixData(
+  const [expressionData] = useGeneSelection(
+    loaders, dataset, setItemIsReady, false, geneSelection,
+  );
+  const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
   const [cellSets] = useCellSetsData(
@@ -60,7 +63,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
   );
 
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
-    expressionMatrix, cellSets, additionalCellSets,
+    expressionData, attrs, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
   );
 

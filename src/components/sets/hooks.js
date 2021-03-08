@@ -19,7 +19,8 @@ import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-ut
  * `path` and `color`.
  */
 export function useExpressionByCellSet(
-  expressionMatrix, cellSets, additionalCellSets, geneSelection, cellSetSelection, cellSetColor,
+  expressionData, attrs, cellSets, additionalCellSets,
+  geneSelection, cellSetSelection, cellSetColor,
 ) {
   const mergedCellSets = useMemo(
     () => mergeCellSets(cellSets, additionalCellSets),
@@ -31,28 +32,24 @@ export function useExpressionByCellSet(
   const [expressionArr, expressionMax] = useMemo(() => {
     if (mergedCellSets && cellSetSelection
         && geneSelection && geneSelection.length >= 1
-        && expressionMatrix
+        && expressionData
     ) {
       const cellObjects = treeToObjectsBySetNames(mergedCellSets, cellSetSelection, cellSetColor);
 
       const firstGeneSelected = geneSelection[0];
-      const geneIndex = expressionMatrix.cols.indexOf(firstGeneSelected);
-      if (geneIndex !== -1) {
-        const numGenes = expressionMatrix.cols.length;
-        // Create new cellColors map based on the selected gene.
-        let exprMax = -Infinity;
-        const exprValues = cellObjects.map((cell) => {
-          const cellIndex = expressionMatrix.rows.indexOf(cell.obsId);
-          const value = expressionMatrix.matrix[cellIndex * numGenes + geneIndex];
-          const normValue = value * 100 / 255;
-          exprMax = Math.max(normValue, exprMax);
-          return { value: normValue, gene: firstGeneSelected, set: cell.name };
-        });
-        return [exprValues, exprMax];
-      }
+      // Create new cellColors map based on the selected gene.
+      let exprMax = -Infinity;
+      const exprValues = cellObjects.map((cell) => {
+        const cellIndex = attrs.rows.indexOf(cell.obsId);
+        const value = expressionData[0][cellIndex];
+        const normValue = value * 100 / 255;
+        exprMax = Math.max(normValue, exprMax);
+        return { value: normValue, gene: firstGeneSelected, set: cell.name };
+      });
+      return [exprValues, exprMax];
     }
     return [null, null];
-  }, [expressionMatrix, geneSelection, mergedCellSets, cellSetSelection, cellSetColor]);
+  }, [expressionData, attrs, geneSelection, mergedCellSets, cellSetSelection, cellSetColor]);
 
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
