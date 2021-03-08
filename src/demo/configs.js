@@ -8,6 +8,7 @@ import { spraggins2020 } from './view-configs/spraggins';
 import { satija2020 } from './view-configs/satija';
 import { justHiglass } from './view-configs/rao';
 import { scAtacSeq10xPbmc } from './view-configs/tenx';
+import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap';
 import {
   embeddingZoomConfig,
   embeddingTargetXConfig,
@@ -37,6 +38,7 @@ export const configs = {
   'wang-2018': wang2018,
   'spraggins-2020': spraggins2020,
   'satija-2020': satija2020,
+  'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': notPublic(codeluppi2018),

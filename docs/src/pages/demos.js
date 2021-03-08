@@ -8,7 +8,7 @@ export default function WrappedDemos(props) {
     <Layout
       title="Demos"
       description="Demos of Vitessce features"
-      image="http://beta.vitessce.io/img/home.png"
+      image="http://beta.vitessce.io/img/logo-card.png"
     >
       <BrowserOnly>
         {() => {

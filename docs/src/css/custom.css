@@ -26,7 +26,7 @@
   --dropzone: #989898;
   --code-block-background: rgb(246, 248, 250);
 
-  --hero-banner-background: #4bAB83;
+  --hero-banner-background: #49a5b7;
 
   font-family: 'Inter', sans-serif;
 
@@ -150,4 +150,10 @@ div[role='tooltip'] table td, div[role='tooltip'] table th {
 
 .ar-16x9 {
   aspect-ratio: 16 / 9;
+}
+
+.hero__title {
+  max-width: 400px;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }

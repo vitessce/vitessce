@@ -9,8 +9,8 @@ export default function WrappedApp(props) {
     <Layout
       noFooter
       title="App"
-      description="Use Vitessce with your data."
-      image="http://beta.vitessce.io/img/home.png"
+      description="Configure Vitessce instances based on single-cell datasets."
+      image="http://beta.vitessce.io/img/logo-card.png"
     >
       <BrowserOnly>
         {() => {

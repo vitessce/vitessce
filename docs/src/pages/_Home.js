@@ -4,6 +4,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import ScreenshotImage from './_ScreenshotImage';
 import styles from './styles.module.css';
+import useThemeContext from '@theme/hooks/useThemeContext';
 
 const features = [
   {
@@ -50,14 +51,16 @@ function Feature({imageUrl, title, description}) {
 export default function Home() {
   const context = useDocusaurusContext();
   const {siteConfig = {}} = context;
+  const { isDarkTheme } = useThemeContext();
 
   const introUrl = useBaseUrl("/docs/index.html");
+  const logoUrl = useBaseUrl(`/img/logo-vitessce-${(isDarkTheme ? 'dark' : 'light')}.png`);
 
   return (
     <>
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className={clsx("container", styles.heroContainer)}>
-          <h1 className="hero__title">{siteConfig.title}</h1>
+          <img className="hero__title" src={logoUrl} title="Vitessce" alt="Vitessce logo" />
           <p className="hero__subtitle">{siteConfig.tagline}</p>
         </div>
       </header>

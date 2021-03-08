@@ -9,6 +9,7 @@ const publicConfigs = [
     'wang-2018',
     'spraggins-2020',
     'satija-2020',
+    'sn-atac-seq-hubmap-2020'
 ];
 
 function DemoList(props) {

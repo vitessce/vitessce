@@ -25,7 +25,7 @@ module.exports = {
       logo: {
         href: '/index.html',
         alt: 'Vitessce Logo',
-        src: 'img/logo.png',
+        src: 'img/logo-v.png',
       },
       items: [
         {
