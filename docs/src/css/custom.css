@@ -154,6 +154,7 @@ div[role='tooltip'] table td, div[role='tooltip'] table th {
 
 .hero__title {
   max-width: 400px;
+  width: 90%;
   margin-top: 15px;
   margin-bottom: 15px;
 }
