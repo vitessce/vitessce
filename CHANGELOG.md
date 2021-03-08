@@ -2,6 +2,14 @@
 
 ### Added
 - Added a new documentation site.
+- Added logo to README.
+
+### Changed
+
+## [1.1.6](https://www.npmjs.com/package/vitessce/v/1.1.6) - 2021-03-05
+
+### Added
+- Added a banner to the current minimal demo site, pointing to the beta version of the documentation and next iteration of the demo site.
 
 ### Changed
 - Used `DataFilterExtension` from `deck.gl` to speed up filtering selections.

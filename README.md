@@ -1,4 +1,6 @@
-# Vitessce
+<a href="http://vitessce.io">
+    <img src="./img/logo-transparent.png" alt="Vitessce logo" title="Vitessce" />
+</a>
 
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 

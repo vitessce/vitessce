@@ -8,7 +8,7 @@ function renderComponent(react, id) {
 
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.has('small')) {
-  renderComponent(createApp(100), 'small-app');
+  renderComponent(createApp({ rowHeight: 100 }), 'small-app');
 } else {
-  renderComponent(createApp(), 'full-app');
+  renderComponent(createApp({ showBetaHeader: true }), 'full-app');
 }
