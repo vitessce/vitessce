@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { openArray } from 'zarr';
+import { openArray, slice } from 'zarr';
 import { extent } from 'd3-array';
 import BaseAnnDataLoader from './BaseAnnDataLoader';
 
@@ -158,7 +158,31 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     if (!this.arr) {
       this.arr = openArray({ store, path: matrix, mode: 'r' });
     }
-    const genes = await Promise.all(
+    const zattrs = await this.getJson(`${matrix}/.zattrs`);
+    const encodingType = zattrs['encoding-type'];
+    let genes;
+    if (encodingType === 'csc_matrix') {
+      const [indptrArr, indexArr, cellXGeneArr] = await Promise.all(['indptr', 'indices', 'data'].map(name => openArray({ store, path: `${matrix}/${name}`, mode: 'r' })));
+      const cellNames = await this.loadCellNames();
+      const { data: cols } = await indptrArr.getRaw(null);
+      // If there is not change in the column indexer, then the data is all zeros
+      genes = await Promise.all(indices.map(async (index) => {
+        const startRowIndex = cols[index];
+        const endRowIndex = cols[index];
+        const isColumnAllZeros = startRowIndex === endRowIndex;
+        const geneData = new Uint8Array(cellNames.length).fill(0);
+        if (isColumnAllZeros) {
+          return geneData;
+        }
+        const rowIndices = await indexArr.get([slice(startRowIndex, endRowIndex)]);
+        const cellXGeneData = await cellXGeneArr.get([slice(startRowIndex, endRowIndex)]);
+        for (let rowIndex = 0; rowIndex < rowIndices.length; rowIndex += 1) {
+          geneData[rowIndex] = cellXGeneData[rowIndex];
+        }
+        return geneData;
+      }));
+    }
+    genes = await Promise.all(
       indices.map(index => this.arr.then(z => z.get([null, index]))),
     );
     return { data: genes.map(i => normalize(i.data).data), url: null };
