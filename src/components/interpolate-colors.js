@@ -90,16 +90,16 @@ export function getCellColors(params) {
     expressionData,
     cellSets, cellSetSelection,
     cellSetColor,
-    cells,
+    attrs,
   } = params;
-  if (cellColorEncoding === 'geneSelection' && expressionData) {
+  if (cellColorEncoding === 'geneSelection' && expressionData && attrs) {
     // TODO: allow other color maps.
     const geneExpColormap = interpolatePlasma;
     const colors = new Map();
     for (let i = 0; i < expressionData.length; i += 1) {
       const value = expressionData[i];
       const cellColor = geneExpColormap(value / 255);
-      colors.set(cells[i][0], cellColor);
+      colors.set(attrs.rows[i], cellColor);
     }
     return colors;
   } if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {

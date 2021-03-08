@@ -6,8 +6,13 @@ import { capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import {
-  useCellsData, useCellSetsData, useGeneSelection,
-  useMoleculesData, useNeighborhoodsData, useRasterData,
+  useCellsData,
+  useCellSetsData,
+  useGeneSelection,
+  useMoleculesData,
+  useNeighborhoodsData,
+  useRasterData,
+  useExpressionAttrs,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
@@ -136,6 +141,9 @@ export default function SpatialSubscriber(props) {
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection,
   );
+  const [attrs] = useExpressionAttrs(
+    loaders, dataset, setItemIsReady, addUrl, true,
+  );
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -202,8 +210,6 @@ export default function SpatialSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
-  const cellEntriesCached = useMemo(() => Object.entries(cells), [cells]);
-
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionData: expressionData && expressionData[0],
@@ -211,9 +217,9 @@ export default function SpatialSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    cells: cellEntriesCached,
+    attrs,
   }), [cellColorEncoding, geneSelection, mergedCellSets,
-    cellSetColor, cellSetSelection, expressionData, cellEntriesCached]);
+    cellSetColor, cellSetSelection, expressionData, attrs]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
