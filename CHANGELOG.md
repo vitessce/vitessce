@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Added logo to README.
 
 ### Changed
 
