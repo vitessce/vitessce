@@ -22,11 +22,11 @@ module.exports = function(context, options) {
             }
           ]
         },
-        plugins: [
+        plugins: (!isServer ? [
             new MonacoWebpackPlugin({
               languages: ['json', 'javascript']
             })
-        ],
+        ] : []),
       };
     },
   };
