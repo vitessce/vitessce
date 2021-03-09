@@ -12,7 +12,6 @@ module.exports = function(context, options) {
   return {
     name: 'monaco-editor-docusaurus-plugin',
     configureWebpack(config, isServer, utils) {
-      console.log("isServer", isServer);
       return {
         module: {
           rules: [
