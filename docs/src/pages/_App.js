@@ -310,7 +310,7 @@ function AppConsumer() {
                 <>
                   <ThemedControlledEditor
                     value={pendingConfig}
-                    onChange={(event, value) => {
+                    onChange={(value) => {
                       setPendingConfig(value);
                       setLoadFrom('editor');
                     }}
@@ -325,7 +325,8 @@ function AppConsumer() {
                         <div className={styles.viewConfigEditorJS}>
                           <ThemedControlledEditor
                             value={code}
-                            onChange={(event, value) => {
+                            onChange={(value) => {
+                              console.log(value)
                               setPendingJs(value);
                               setLoadFrom('editor');
                             }}

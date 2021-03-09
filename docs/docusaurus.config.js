@@ -1,3 +1,4 @@
+const path = require('path');
 module.exports = {
   title: 'Vitessce',
   tagline: 'Visual integration tool for exploration of spatial single cell experiments',
@@ -9,7 +10,9 @@ module.exports = {
   organizationName: 'vitessce', // Usually your GitHub org/user name.
   projectName: 'vitessce', // Usually your repo name.
   themes: ['@docusaurus/theme-live-codeblock'],
-  plugins: [],
+  plugins: [
+    path.resolve(__dirname, 'monaco-editor-plugin'),
+  ],
   themeConfig: {
     colorMode: {
       defaultMode: 'light',
