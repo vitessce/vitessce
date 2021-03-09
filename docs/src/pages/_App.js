@@ -53,7 +53,7 @@ function ThemedControlledEditor(props) {
   const { isDarkTheme } = useThemeContext();
   return <ControlledEditor
     {...props}
-    theme={(isDarkTheme ? "dark" : "GitHub")}
+    theme={(isDarkTheme ? "vs-dark" : "GitHub")}
     height="60vh"
     options={{
       fontSize: 14,
@@ -326,7 +326,6 @@ function AppConsumer() {
                           <ThemedControlledEditor
                             value={code}
                             onChange={(value) => {
-                              console.log(value)
                               setPendingJs(value);
                               setLoadFrom('editor');
                             }}

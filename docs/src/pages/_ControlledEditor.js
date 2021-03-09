@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react'
-import MonacoEditor from 'react-monaco-editor';
+import React, { useCallback } from 'react';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 
 function ControlledEditor(props) {
   const {
@@ -15,11 +15,16 @@ function ControlledEditor(props) {
   });
   
   return (
-    <MonacoEditor
-      {...props}
-      onChange={onChangeInternal}
-      editorDidMount={editorDidMount}
-    />
+    <BrowserOnly>
+      {() => {
+        const MonacoEditor = require('react-monaco-editor').default;
+        return (<MonacoEditor
+          {...props}
+          onChange={onChangeInternal}
+          editorDidMount={editorDidMount}
+        />);
+      }}
+    </BrowserOnly>
   );
 }
 
