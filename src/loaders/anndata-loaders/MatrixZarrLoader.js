@@ -131,20 +131,21 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     const encodingType = zattrs['encoding-type'];
     if (encodingType === 'csr_matrix') {
       if (heatmapFilter) {
-        const cellXGene = this._loadCSRSparseCellXGene();
-        const genes = await this._getFilteredGenes(heatmapFilter);
-        const numGenes = genes.length;
-        const cellNames = await this.loadCellNames();
-        const geneNames = await this.loadGeneNames();
-        const numCells = cellNames.length;
-        const cellXGeneMatrixFiltered = new Float32Array(numCells * numGenes).fill(0);
-        for (let i = 0; i < numGenes; i += 1) {
-          const index = geneNames.indexOf(genes);
-          for (let j = 0; j < numCells; j += 1) {
-            cellXGeneMatrixFiltered[j * numGenes + i] = cellXGene[j * geneNames.length + index];
+        this.cellXGene = this._loadCSRSparseCellXGene().then(async ({ data: cellXGene }) => {
+          const filteredGenes = await this._getFilteredGenes(heatmapFilter);
+          const numGenes = filteredGenes.length;
+          const cellNames = await this.loadCellNames();
+          const geneNames = await this.loadGeneNames();
+          const numCells = cellNames.length;
+          const cellXGeneMatrixFiltered = new Uint8Array(numCells * numGenes).fill(0);
+          for (let i = 0; i < numGenes; i += 1) {
+            const index = geneNames.indexOf(filteredGenes[i]);
+            for (let j = 0; j < numCells; j += 1) {
+              cellXGeneMatrixFiltered[j * numGenes + i] = cellXGene[j * geneNames.length + index];
+            }
           }
-        }
-        this.cellXGene = cellXGeneMatrixFiltered;
+          return { data: cellXGeneMatrixFiltered };
+        });
         return this.cellXGene;
       }
       this.cellXGene = this._loadCSRSparseCellXGene();
