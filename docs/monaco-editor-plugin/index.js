@@ -11,7 +11,8 @@ const MONACO_DIR = path.resolve(__dirname, '../node_modules/monaco-editor');
 module.exports = function(context, options) {
   return {
     name: 'monaco-editor-docusaurus-plugin',
-    configureWebpack(config, isServer, utils) {      
+    configureWebpack(config, isServer, utils) {
+      console.log("isServer", isServer);
       return {
         module: {
           rules: [
