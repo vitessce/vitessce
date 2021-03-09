@@ -85,7 +85,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         }
         row += 1;
       });
-      return normalize(cellXGeneMatrix);
+      return cellXGeneMatrix;
     });
     return this._sparseMatrix;
   }
@@ -117,7 +117,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         }
         col += 1;
       });
-      return normalize(cellXGeneMatrix);
+      return cellXGeneMatrix;
     });
     return this._sparseMatrix;
   }
@@ -139,29 +139,29 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     if (encodingType === 'csr_matrix') {
       // If there is a heatmapFilter, we should load the cellXGene matrix and then filter it.
       if (heatmapFilter) {
-        this.cellXGene = this._loadCSRSparseCellXGene().then(async ({ data: cellXGene }) => {
+        this.cellXGene = this._loadCSRSparseCellXGene().then(async (cellXGene) => {
           const filteredGenes = await this._getFilteredGenes(heatmapFilter);
           const numGenes = filteredGenes.length;
           const cellNames = await this.loadCellNames();
           const geneNames = await this.loadGeneNames();
           const numCells = cellNames.length;
-          const cellXGeneMatrixFiltered = new Uint8Array(numCells * numGenes).fill(0);
+          const cellXGeneMatrixFiltered = new Float32Array(numCells * numGenes).fill(0);
           for (let i = 0; i < numGenes; i += 1) {
             const index = geneNames.indexOf(filteredGenes[i]);
             for (let j = 0; j < numCells; j += 1) {
               cellXGeneMatrixFiltered[j * numGenes + i] = cellXGene[j * geneNames.length + index];
             }
           }
-          return { data: cellXGeneMatrixFiltered };
+          return normalize(cellXGeneMatrixFiltered);
         });
         return this.cellXGene;
       }
-      this.cellXGene = this._loadCSRSparseCellXGene();
+      this.cellXGene = this._loadCSRSparseCellXGene().then(data => normalize(data));
       return this.cellXGene;
     }
     // No heatmap filter and CSC matrix means we are loading the whole matrix.
     if (encodingType === 'csc_matrix' && !heatmapFilter) {
-      this.cellXGene = this._loadCSCSparseCellXGene(zattrs.shape);
+      this.cellXGene = this._loadCSCSparseCellXGene().then(data => normalize(data));
       return this.cellXGene;
     }
     // Non-sparse matrices should cache their zarray.
@@ -235,27 +235,27 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         for (let rowIndex = 0; rowIndex < rowIndices.length; rowIndex += 1) {
           geneData[rowIndices[rowIndex]] = cellXGeneData[rowIndex];
         }
-        return { data: geneData };
+        return geneData;
       }));
     } else if (encodingType === 'csr_matrix') {
-      const { data: cellXGene } = await this._loadCSRSparseCellXGene();
+      const cellXGene = await this._loadCSRSparseCellXGene();
       const cellNames = await this.loadCellNames();
       genes = indices.map((index) => {
-        const geneData = new Uint8Array(cellNames.length).fill(0);
+        const geneData = new Float32Array(cellNames.length).fill(0);
         for (let i = 0; i < cellNames.length; i += 1) {
           geneData[i] = cellXGene[i * geneNames.length + index];
         }
-        return { data: geneData };
+        return geneData;
       });
     } else {
       if (!this.arr) {
         this.arr = openArray({ store, path: matrix, mode: 'r' });
       }
       genes = await Promise.all(
-        indices.map(index => this.arr.then(z => z.get([null, index]))),
+        indices.map(index => this.arr.then(z => z.get([null, index])).then(({ data }) => data)),
       );
     }
-    return { data: genes.map(i => normalize(i.data).data), url: null };
+    return { data: genes.map(i => normalize(i).data), url: null };
   }
 
   /**
