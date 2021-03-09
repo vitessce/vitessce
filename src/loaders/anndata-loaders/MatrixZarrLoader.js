@@ -228,7 +228,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         const isColumnAllZeros = startRowIndex === endRowIndex;
         const geneData = new Uint8Array(cellNames.length).fill(0);
         if (isColumnAllZeros) {
-          return { data: geneData };
+          return geneData;
         }
         const { data: rowIndices } = await indexArr.get([slice(startRowIndex, endRowIndex)]);
         const { data: cellXGeneData } = await cellXGeneArr.get([slice(startRowIndex, endRowIndex)]);
