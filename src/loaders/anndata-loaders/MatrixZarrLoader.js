@@ -28,6 +28,10 @@ const concatenateGenes = (arr) => {
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
 export default class MatrixZarrLoader extends BaseAnnDataLoader {
+  /**
+   * Class method for opening the sparse matrix arrays in zarr.
+   * @returns {Array} A list of promises pointing to the indptr, indices, and data of the matrix.
+   */
   async _openSparseArrays() {
     const {
       options: { matrix },
@@ -42,6 +46,11 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     return this.sparseArrays;
   }
 
+  /**
+   * Class method for loading a filtered subset of the genes list
+   * @param {Array} filterZarr A location in the zarr store to fetch a boolean array from.
+   * @returns {Array} A list of filtered genes.
+   */
   async _getFilteredGenes(filterZarr) {
     const filter = await this.getFlatArrDecompressed(filterZarr);
     const geneNames = await this.loadGeneNames();
@@ -51,7 +60,6 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
 
   /**
    * Class method for loading row oriented (CSR) sparse data from zarr.
-   * @param {string} shape Shape of the non-sparse output.
    * @returns {Object} A { data: Float32Array } contianing the CellXGene matrix.
    */
   async _loadCSRSparseCellXGene() {
@@ -84,7 +92,6 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
 
   /**
    * Class method for loading column oriented (CSC) sparse data from zarr.
-   * @param {string} shape Shape of the non-sparse output.
    * @returns {Object} A { data: Float32Array } contianing the CellXGene matrix.
    */
   async _loadCSCSparseCellXGene() {
@@ -130,6 +137,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     const zattrs = await this.getJson(`${matrix}/.zattrs`);
     const encodingType = zattrs['encoding-type'];
     if (encodingType === 'csr_matrix') {
+      // If there is a heatmapFilter, we should load the cellXGene matrix and then filter it.
       if (heatmapFilter) {
         this.cellXGene = this._loadCSRSparseCellXGene().then(async ({ data: cellXGene }) => {
           const filteredGenes = await this._getFilteredGenes(heatmapFilter);
@@ -151,10 +159,12 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       this.cellXGene = this._loadCSRSparseCellXGene();
       return this.cellXGene;
     }
+    // No heatmap filter and CSC matrix means we are loading the whole matrix.
     if (encodingType === 'csc_matrix' && !heatmapFilter) {
       this.cellXGene = this._loadCSCSparseCellXGene(zattrs.shape);
       return this.cellXGene;
     }
+    // Non-sparse matrices should cache their zarray.
     if (!this.arr && encodingType !== 'csc_matrix') {
       this.arr = openArray({ store, path: matrix, mode: 'r' });
     }
@@ -192,6 +202,11 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     return this.geneNames;
   }
 
+  /**
+   * Class method for loading a gene selection.
+   * @param {Array} selection A list of gene names whose data should be fetched.
+   * @returns {Object} { data } containing an array of gene expression data.
+   */
   async loadGeneSelection(selection) {
     const {
       options: { matrix },
@@ -243,6 +258,11 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     return { data: genes.map(i => normalize(i.data).data), url: null };
   }
 
+  /**
+   * Class method for loading only attributes i.e rows and columns
+   * @param {Array} selection A list of gene names whose data should be fetched.
+   * @returns {Object} { data: { rows, cols }, url } containing row and col labels for the matrix.
+   */
   loadAttrs() {
     return Promise
       .all([this.loadCellNames(), this.loadGeneNames()])
