@@ -341,6 +341,8 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         const {
           options: { heatmapFilter: heatmapFilterZarr },
         } = this;
+        // In order to return the correct gene list with the heatmap data,
+        // we need to filter the columns of attrs so it matches the cellXGene data.
         if (heatmapFilterZarr) {
           const heatmapFilter = await this.getFlatArrDecompressed(
             heatmapFilterZarr,
