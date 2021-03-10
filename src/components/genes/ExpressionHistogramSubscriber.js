@@ -65,16 +65,13 @@ export default function ExpressionHistogramSubscriber(props) {
   // generate the array of data points for the histogram.
   const data = useMemo(() => {
     if (firstGeneSelected && expressionMatrix && expressionData) {
-      const geneIndex = expressionMatrix.cols.indexOf(firstGeneSelected);
-      if (geneIndex !== -1) {
-        // Create new cellColors map based on the selected gene.
-        return expressionMatrix.rows.map((cellId, cellIndex) => {
-          const value = expressionData[0][cellIndex];
-          const normValue = value * 100 / 255;
-          return { value: normValue, gene: firstGeneSelected };
-        });
-      }
-    } else if (expressionMatrix) {
+      // Create new cellColors map based on the selected gene.
+      return Array.from(expressionData[0]).map((_, index) => {
+        const value = expressionData[0][index];
+        const normValue = value * 100 / 255;
+        return { value: normValue, gene: firstGeneSelected };
+      });
+    } if (expressionMatrix) {
       const numGenes = expressionMatrix.cols.length;
       return expressionMatrix.rows.map((cellId, cellIndex) => {
         const values = expressionMatrix.matrix
