@@ -247,49 +247,41 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     } = this;
     const zattrs = await this.getJson(`${matrix}/.zattrs`);
     const encodingType = zattrs['encoding-type'];
-    if (encodingType === 'csr_matrix') {
-      // If there is a heatmapFilter, we should load the cellXGene matrix and then filter it.
-      if (heatmapFilter) {
-        this.cellXGene = this._loadCSRSparseCellXGene().then(
-          async (cellXGene) => {
-            const filteredGenes = await this._getFilteredGenes(heatmapFilter);
-            const numGenesFiltered = filteredGenes.length;
-            const geneNames = await this.loadGeneNames();
-            const numGenes = geneNames.length;
-            const numCells = await this._getNumCells();
-            const cellXGeneMatrixFiltered = new Float32Array(
-              numCells * numGenesFiltered,
-            ).fill(0);
-            for (let i = 0; i < numGenesFiltered; i += 1) {
-              const index = geneNames.indexOf(filteredGenes[i]);
-              for (let j = 0; j < numCells; j += 1) {
-                cellXGeneMatrixFiltered[j * numGenesFiltered + i] = cellXGene[j * numGenes + index];
-              }
-            }
-            return normalize(cellXGeneMatrixFiltered);
-          },
-        );
-        return this.cellXGene;
+    if (!heatmapFilter) {
+      if (encodingType === 'csr_matrix') {
+        this.cellXGene = this._loadCSRSparseCellXGene().then(data => normalize(data));
+      } if (encodingType === 'csc_matrix') {
+        this.cellXGene = this._loadCSCSparseCellXGene().then(data => normalize(data));
       }
-      this.cellXGene = this._loadCSRSparseCellXGene().then(data => normalize(data));
-      return this.cellXGene;
-    }
-    // No heatmap filter and CSC matrix means we are loading the whole matrix.
-    if (encodingType === 'csc_matrix' && !heatmapFilter) {
-      this.cellXGene = this._loadCSCSparseCellXGene().then(data => normalize(data));
-      return this.cellXGene;
-    }
-    // Non-sparse matrices should cache their zarray.
-    if (!this.arr && encodingType !== 'csc_matrix') {
-      this.arr = openArray({ store, path: matrix, mode: 'r' });
-    }
-    if (heatmapFilter) {
+      if (!this.arr) {
+        this.arr = openArray({ store, path: matrix, mode: 'r' });
+      }
+      this.cellXGene = this.arr.then(z => z.getRaw(null).then(({ data }) => normalize(data)));
+    } else if (encodingType === 'csr_matrix') {
+      this.cellXGene = this._loadCSRSparseCellXGene().then(
+        async (cellXGene) => {
+          const filteredGenes = await this._getFilteredGenes(heatmapFilter);
+          const numGenesFiltered = filteredGenes.length;
+          const geneNames = await this.loadGeneNames();
+          const numGenes = geneNames.length;
+          const numCells = await this._getNumCells();
+          const cellXGeneMatrixFiltered = new Float32Array(
+            numCells * numGenesFiltered,
+          ).fill(0);
+          for (let i = 0; i < numGenesFiltered; i += 1) {
+            const index = geneNames.indexOf(filteredGenes[i]);
+            for (let j = 0; j < numCells; j += 1) {
+              cellXGeneMatrixFiltered[j * numGenesFiltered + i] = cellXGene[j * numGenes + index];
+            }
+          }
+          return normalize(cellXGeneMatrixFiltered);
+        },
+      );
+    } else {
       const genes = await this._getFilteredGenes(heatmapFilter);
       this.cellXGene = this.loadGeneSelection(genes).then(({ data }) => ({
         data: concatenateGenes(data),
       }));
-    } else {
-      this.cellXGene = this.arr.then(z => z.getRaw(null).then(({ data }) => normalize(data)));
     }
     return this.cellXGene;
   }
@@ -316,6 +308,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         this.arr = openArray({ store, path: matrix, mode: 'r' });
       }
       const indices = await this._getGeneIndices(selection);
+      // We can index directly into a normal dense array zarr store via `get`.
       genes = await Promise.all(
         indices.map(index => this.arr.then(z => z.get([null, index])).then(({ data }) => data)),
       );
