@@ -2,6 +2,7 @@
 
 ### Added
 - Added logo to README.
+- Log2 (plus 1) scaling for Violin Plot
 
 ### Changed
 
