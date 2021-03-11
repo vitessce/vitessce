@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 import { useExpressionMatrixData, useCellSetsData } from '../data-hooks';
 import { useExpressionByCellSet } from './hooks';
+import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 
 import CellSetExpressionPlot from './CellSetExpressionPlot';
 
@@ -44,6 +45,8 @@ export default function CellSetExpressionPlotSubscriber(props) {
     CELL_SET_EXPRESSION_DATA_TYPES,
   );
 
+  const [useLog2Transform, toggleLog2Transform] = useReducer(v => !v, false);
+
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
@@ -61,7 +64,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
 
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
     expressionMatrix, cellSets, additionalCellSets,
-    geneSelection, cellSetSelection, cellSetColor,
+    geneSelection, cellSetSelection, cellSetColor, useLog2Transform,
   );
 
   return (
@@ -71,6 +74,12 @@ export default function CellSetExpressionPlotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      options={(
+        <CellSetExpressionPlotOptions
+          useLog2Transform={useLog2Transform}
+          toggleLog2Transform={toggleLog2Transform}
+        />
+      )}
     >
       <div ref={containerRef} className="vega-container">
         {expressionArr ? (
