@@ -162,7 +162,7 @@ export function useCellSetsData(
 }
 
 /**
- * Get (potenitally filtered) data from an expression matrix data type loader,
+ * Get (potentially filtered) data from an expression matrix data type loader,
  * updating "ready" and URL state appropriately.
  * Throw warnings if the data is marked as required.
  * Subscribe to loader updates.  Should not be used in conjunction
