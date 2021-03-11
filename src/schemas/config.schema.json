@@ -58,6 +58,7 @@
               "geneFilter": { "type": "string" },
               "geneHighlight": { "type": "string" },
               "geneSelection": { "type": "string" },
+              "geneExpressionTransform": { "type": "string" },
               "geneExpressionColormap": { "type": "string" },
               "geneExpressionColormapRange": { "type": "string" },
               "cellColorEncoding": { "type": "string" },
@@ -711,6 +712,19 @@
                   "type": "null"
                 },
                 { "type": "array", "items": { "type": "string" } }
+              ]
+            }
+          }
+        },
+        "geneExpressionTransform": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                { "type": "string", "pattern": "log1p" }
               ]
             }
           }
