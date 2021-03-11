@@ -16,7 +16,7 @@ export default function CellSetExpressionPlotOptions(props) {
   return (
     <OptionsContainer>
       <TableRow>
-        <TableCell className={classes.labelCell}>Use Log2 Transform</TableCell>
+        <TableCell className={classes.labelCell}>Log Transform</TableCell>
         <TableCell className={classes.inputCell}>
           <Checkbox
             className={classes.checkbox}
