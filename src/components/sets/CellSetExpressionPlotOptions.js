@@ -20,7 +20,7 @@ export default function CellSetExpressionPlotOptions(props) {
         <TableCell className={classes.inputCell}>
           <Checkbox
             className={classes.checkbox}
-            checked={useGeneExpressionTransform}
+            checked={Boolean(useGeneExpressionTransform)}
             onChange={handleGeneExpressionTransformChange}
             name="scatterplot-option-cell-set-labels"
             color="default"

@@ -52,7 +52,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
     const newValue = !v;
     setGeneExpressionTransform(newValue ? 'log1p' : null);
     return newValue;
-  }, Boolean(geneExpressionTransform));
+  }, geneExpressionTransform);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
