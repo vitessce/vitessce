@@ -74,9 +74,12 @@ export default function CellSetExpressionPlotSubscriber(props) {
     geneSelection, cellSetSelection, cellSetColor, useGeneExpressionTransform,
   );
 
+  const firstGeneSelected = geneSelection && geneSelection.length >= 1
+    ? geneSelection[0]
+    : null;
   return (
     <TitleInfo
-      title="Expression by Cell Set"
+      title={`Expression by Cell Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
