@@ -73,6 +73,7 @@ export const CoordinationType = {
   GENE_SELECTION: 'geneSelection',
   GENE_EXPRESSION_COLORMAP: 'geneExpressionColormap',
   GENE_EXPRESSION_COLORMAP_RANGE: 'geneExpressionColormapRange',
+  GENE_EXPRESSION_TRANSFORM: 'geneExpressionTransform',
   CELL_COLOR_ENCODING: 'cellColorEncoding',
   SPATIAL_LAYERS: 'spatialLayers',
   GENOMIC_ZOOM_X: 'genomicZoomX',
