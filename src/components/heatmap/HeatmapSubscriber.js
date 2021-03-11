@@ -100,7 +100,7 @@ export default function HeatmapSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    attrs: expressionMatrix,
+    expressionDataAttrs: expressionMatrix,
   }), [cellColorEncoding, mergedCellSets, geneSelection,
     cellSetColor, cellSetSelection, expressionData, expressionMatrix]);
 

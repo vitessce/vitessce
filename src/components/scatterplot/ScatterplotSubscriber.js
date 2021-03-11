@@ -129,7 +129,7 @@ export default function ScatterplotSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    attrs,
+    expressionDataAttrs: attrs,
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetSelection, cellSetColor, expressionData, attrs]);
 

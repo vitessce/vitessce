@@ -217,7 +217,7 @@ export default function SpatialSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    attrs,
+    expressionDataAttrs: attrs,
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetColor, cellSetSelection, expressionData, attrs]);
 
