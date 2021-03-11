@@ -71,7 +71,8 @@ export default function ExpressionHistogramSubscriber(props) {
         const normValue = value * 100 / 255;
         return { value: normValue, gene: firstGeneSelected };
       });
-    } if (expressionMatrix) {
+    }
+    if (expressionMatrix) {
       const numGenes = expressionMatrix.cols.length;
       return expressionMatrix.rows.map((cellId, cellIndex) => {
         const values = expressionMatrix.matrix
