@@ -165,7 +165,7 @@ export function useCellSetsData(
  * Get (potenitally filtered) data from an expression matrix data type loader,
  * updating "ready" and URL state appropriately.
  * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.  Should not be used in conjunction
+ * Subscribe to loader updates.  Should not be used in conjunction (called in the same component)
  * with useExpressionAttrs as this returns a potentially filtered set of attributes
  * specifically for the returned expression data.
  * @param {object} loaders The object mapping
@@ -222,8 +222,7 @@ export function useExpressionMatrixData(loaders, dataset, setItemIsReady, addUrl
 /**
  * Get data from the expression matrix data type loader for a given gene selection.
  * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.  Should not be used in conjunction
- * with useExpressionAttrs.
+ * Subscribe to loader updates.
  * @param {object} loaders The object mapping
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
@@ -297,8 +296,8 @@ export function useGeneSelection(loaders, dataset, setItemIsReady, isRequired, s
  * Get the attributes for the expression matrix data type loader,
  * i.e names of cells and genes.
  * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.  Should not be used in conjunction
- * with useExpressionAttrs.
+ * Subscribe to loader updates.  Should not be used in conjunction (called in the same component)
+ * with useExpressionMatrixData.
  * @param {object} loaders The object mapping
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
