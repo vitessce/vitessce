@@ -2,6 +2,7 @@
 
 ### Added
 - Added logo to README.
+- Add gene name to expression violin plot.
 
 ### Changed
 - Fix bug from #867 where the view config is temporarily invalid due to null values.
