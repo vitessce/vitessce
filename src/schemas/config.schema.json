@@ -415,7 +415,14 @@
         "embeddingZoom": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".": { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "embeddingRotation": {
@@ -427,13 +434,27 @@
         "embeddingTargetX": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".": { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "embeddingTargetY": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "embeddingTargetZ": {
@@ -475,7 +496,14 @@
         "spatialZoom": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "spatialRotation": {
@@ -487,13 +515,27 @@
         "spatialTargetX": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "spatialTargetY": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "spatialTargetZ": {

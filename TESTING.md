@@ -28,9 +28,9 @@ cd ..
 
 ## Application Layout
 
-Click on "Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH".
+Click on "Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH", and, after it loads, add `debug=true` as a URL argument before reloading the page.  Make sure that the dataset loads and you can do a few basic interactions without raising an error about the config schema being invalid.
 
-While data loads, there should be a spinner over every component on the grid, which disappear independently as data loads.
+Remove the argument `debug=true` and reload the page from the new url.  While data loads, there should be a spinner over every component on the grid, which disappear independently as data loads.
 
 The components are arranged in four columns, with another component (heatmap) as a footer.
 The components in the successive columns should be:
