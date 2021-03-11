@@ -27,6 +27,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.HEATMAP_TARGET_Y]: 0,
   [CoordinationType.GENE_EXPRESSION_COLORMAP]: 'plasma',
   [CoordinationType.GENE_EXPRESSION_COLORMAP_RANGE]: [0.0, 1.0],
+  [CoordinationType.GENE_EXPRESSION_TRANSFORM]: null,
   [CoordinationType.GENE_FILTER]: null,
   [CoordinationType.GENE_HIGHLIGHT]: null,
   [CoordinationType.GENE_SELECTION]: null,
@@ -176,6 +177,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   [Component.CELL_SET_EXPRESSION]: [
     CoordinationType.DATASET,
     CoordinationType.GENE_SELECTION,
+    CoordinationType.GENE_EXPRESSION_TRANSFORM,
     CoordinationType.CELL_SET_SELECTION,
     CoordinationType.CELL_SET_HIGHLIGHT,
     CoordinationType.CELL_SET_COLOR,

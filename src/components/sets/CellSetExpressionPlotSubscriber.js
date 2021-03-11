@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 import { useExpressionMatrixData, useCellSetsData } from '../data-hooks';
 import { useExpressionByCellSet } from './hooks';
+import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 
 import CellSetExpressionPlot from './CellSetExpressionPlot';
 
@@ -33,9 +34,12 @@ export default function CellSetExpressionPlotSubscriber(props) {
   const [{
     dataset,
     geneSelection,
+    geneExpressionTransform,
     cellSetSelection,
     cellSetColor,
     additionalCellSets,
+  }, {
+    setGeneExpressionTransform,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetExpression, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
@@ -43,6 +47,12 @@ export default function CellSetExpressionPlotSubscriber(props) {
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     CELL_SET_EXPRESSION_DATA_TYPES,
   );
+
+  const [useGeneExpressionTransform, toggleGeneExpressionTransform] = useReducer((v) => {
+    const newValue = !v;
+    setGeneExpressionTransform(newValue ? 'log1p' : null);
+    return newValue;
+  }, geneExpressionTransform);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
@@ -61,16 +71,25 @@ export default function CellSetExpressionPlotSubscriber(props) {
 
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
     expressionMatrix, cellSets, additionalCellSets,
-    geneSelection, cellSetSelection, cellSetColor,
+    geneSelection, cellSetSelection, cellSetColor, useGeneExpressionTransform,
   );
 
+  const firstGeneSelected = geneSelection && geneSelection.length >= 1
+    ? geneSelection[0]
+    : null;
   return (
     <TitleInfo
-      title="Expression by Cell Set"
+      title={`Expression by Cell Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
       isReady={isReady}
+      options={(
+        <CellSetExpressionPlotOptions
+          useGeneExpressionTransform={useGeneExpressionTransform}
+          toggleGeneExpressionTransform={toggleGeneExpressionTransform}
+        />
+      )}
     >
       <div ref={containerRef} className="vega-container">
         {expressionArr ? (
