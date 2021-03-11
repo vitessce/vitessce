@@ -414,7 +414,14 @@
         "embeddingZoom": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".": { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "embeddingRotation": {
