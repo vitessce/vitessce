@@ -6,11 +6,11 @@ import { useStyles } from '../shared-plot-options/styles';
 import OptionsContainer from '../shared-plot-options/OptionsContainer';
 
 export default function CellSetExpressionPlotOptions(props) {
-  const { toggleLog2Transform, useLog2Transform } = props;
+  const { toggleGeneExpressionTransform, useGeneExpressionTransform } = props;
   const classes = useStyles();
 
-  function handleLog2TransformChange() {
-    toggleLog2Transform();
+  function handleGeneExpressionTransformChange() {
+    toggleGeneExpressionTransform();
   }
 
   return (
@@ -20,8 +20,8 @@ export default function CellSetExpressionPlotOptions(props) {
         <TableCell className={classes.inputCell}>
           <Checkbox
             className={classes.checkbox}
-            checked={useLog2Transform}
-            onChange={handleLog2TransformChange}
+            checked={useGeneExpressionTransform}
+            onChange={handleGeneExpressionTransformChange}
             name="scatterplot-option-cell-set-labels"
             color="default"
           />

@@ -34,9 +34,12 @@ export default function CellSetExpressionPlotSubscriber(props) {
   const [{
     dataset,
     geneSelection,
+    geneExpressionTransform,
     cellSetSelection,
     cellSetColor,
     additionalCellSets,
+  }, {
+    setGeneExpressionTransform,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetExpression, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
@@ -45,7 +48,11 @@ export default function CellSetExpressionPlotSubscriber(props) {
     CELL_SET_EXPRESSION_DATA_TYPES,
   );
 
-  const [useLog2Transform, toggleLog2Transform] = useReducer(v => !v, false);
+  const [useGeneExpressionTransform, toggleGeneExpressionTransform] = useReducer((v) => {
+    const newValue = !v;
+    setGeneExpressionTransform(newValue ? 'log1p' : null);
+    return newValue;
+  }, geneExpressionTransform);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
@@ -64,7 +71,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
 
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
     expressionMatrix, cellSets, additionalCellSets,
-    geneSelection, cellSetSelection, cellSetColor, useLog2Transform,
+    geneSelection, cellSetSelection, cellSetColor, useGeneExpressionTransform,
   );
 
   return (
@@ -76,8 +83,8 @@ export default function CellSetExpressionPlotSubscriber(props) {
       isReady={isReady}
       options={(
         <CellSetExpressionPlotOptions
-          useLog2Transform={useLog2Transform}
-          toggleLog2Transform={toggleLog2Transform}
+          useGeneExpressionTransform={useGeneExpressionTransform}
+          toggleGeneExpressionTransform={toggleGeneExpressionTransform}
         />
       )}
     >
