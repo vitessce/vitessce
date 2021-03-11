@@ -2,6 +2,7 @@
 
 ### Added
 - Added logo to README.
+- Add gene name to expression violin plot.
 
 ### Changed
 
