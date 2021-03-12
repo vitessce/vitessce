@@ -15,14 +15,16 @@ const normalize = (arr) => {
 const concatenateGenes = (arr) => {
   const numGenes = arr.length;
   const numCells = arr[0].length;
-  const view = new DataView(new ArrayBuffer(numGenes * numCells * arr[0].BYTES_PER_ELEMENT));
-  const dtype = arr[0].constructor.name.replace('Array', '');
+  const { BYTES_PER_ELEMENT } = arr[0];
+  const view = new DataView(new ArrayBuffer(numGenes * numCells * BYTES_PER_ELEMENT));
+  const TypedArray = arr[0].constructor;
+  const dtype = TypedArray.name.replace('Array', '');
   for (let i = 0; i < numGenes; i += 1) {
     for (let j = 0; j < numCells; j += 1) {
-      view[`set${dtype}`](j * numGenes + i, arr[i][j]);
+      view[`set${dtype}`](BYTES_PER_ELEMENT * (j * numGenes + i), arr[i][j], true);
     }
   }
-  return new Uint8Array(view.buffer);
+  return new TypedArray(view.buffer);
 };
 
 /**
