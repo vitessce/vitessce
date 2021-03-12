@@ -45,7 +45,7 @@ export function useExpressionByCellSet(
         const normValue = value * 100 / 255;
         const transformedValue = useGeneExpressionTransform ? Math.log(1 + normValue) : normValue;
         exprMax = Math.max(transformedValue, exprMax);
-        return { value: normValue, gene: firstGeneSelected, set: cell.name };
+        return { value: transformedValue, gene: firstGeneSelected, set: cell.name };
       });
       return [exprValues, exprMax];
     }
