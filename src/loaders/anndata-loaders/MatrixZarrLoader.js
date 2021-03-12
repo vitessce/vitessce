@@ -13,15 +13,15 @@ const normalize = (arr) => {
 };
 
 const concatenateColumnVectors = (arr) => {
-  const numGenes = arr.length;
-  const numCells = arr[0].length;
+  const numCols = arr.length;
+  const numRows = arr[0].length;
   const { BYTES_PER_ELEMENT } = arr[0];
-  const view = new DataView(new ArrayBuffer(numGenes * numCells * BYTES_PER_ELEMENT));
+  const view = new DataView(new ArrayBuffer(numCols * numRows * BYTES_PER_ELEMENT));
   const TypedArray = arr[0].constructor;
   const dtype = TypedArray.name.replace('Array', '');
-  for (let i = 0; i < numGenes; i += 1) {
-    for (let j = 0; j < numCells; j += 1) {
-      view[`set${dtype}`](BYTES_PER_ELEMENT * (j * numGenes + i), arr[i][j], true);
+  for (let i = 0; i < numCols; i += 1) {
+    for (let j = 0; j < numRows; j += 1) {
+      view[`set${dtype}`](BYTES_PER_ELEMENT * (j * numCols + i), arr[i][j], true);
     }
   }
   return new TypedArray(view.buffer);
