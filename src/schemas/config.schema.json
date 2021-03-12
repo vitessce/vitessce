@@ -153,9 +153,9 @@
           "type": "string",
            "description": "The location in the AnnData store of a filter for the genes if using a subset of the data, like 'var.highly_variable.' if the matrix comes from 'obsm/hvg_subset.'"
         },
-        "heatmapFilter": {
+        "matrixGeneFilter": {
           "type": "string",
-           "description": "The location in the AnnData store of a filter for the heatmap, like 'var.highly_variable.''"
+           "description": "The location in the AnnData store of a filter for the matrix data (used in heatmap and histogram), like 'var.highly_variable.''"
         }
       }
     },

@@ -242,11 +242,11 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       return this.cellXGene;
     }
     const {
-      options: { matrix, heatmapFilter },
+      options: { matrix, matrixGeneFilter },
     } = this;
     const zattrs = await this.getJson(`${matrix}/.zattrs`);
     const encodingType = zattrs['encoding-type'];
-    if (!heatmapFilter) {
+    if (!matrixGeneFilter) {
       if (encodingType === 'csr_matrix') {
         this.cellXGene = this._loadCSRSparseCellXGene().then(data => normalize(data));
       } else if (encodingType === 'csc_matrix') {
@@ -260,7 +260,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     } else if (encodingType === 'csr_matrix') {
       this.cellXGene = this._loadCSRSparseCellXGene().then(
         async (cellXGene) => {
-          const filteredGenes = await this._getFilteredGenes(heatmapFilter);
+          const filteredGenes = await this._getFilteredGenes(matrixGeneFilter);
           const numGenesFiltered = filteredGenes.length;
           const geneNames = await this.loadGeneNames();
           const numGenes = geneNames.length;
@@ -278,7 +278,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         },
       );
     } else {
-      const genes = await this._getFilteredGenes(heatmapFilter);
+      const genes = await this._getFilteredGenes(matrixGeneFilter);
       this.cellXGene = this.loadGeneSelection({ selection: genes, shouldNormalize: false })
         .then(({ data }) => ({
           data: normalize(concatenate(data)),
@@ -342,15 +342,15 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       async (d) => {
         const [{ data: attrs }, cellXGene] = d;
         const {
-          options: { heatmapFilter: heatmapFilterZarr },
+          options: { matrixGeneFilter: matrixGeneFilterZarr },
         } = this;
         // In order to return the correct gene list with the heatmap data,
         // we need to filter the columns of attrs so it matches the cellXGene data.
-        if (heatmapFilterZarr) {
-          const heatmapFilter = await this.getFlatArrDecompressed(
-            heatmapFilterZarr,
+        if (matrixGeneFilterZarr) {
+          const matrixGeneFilter = await this.getFlatArrDecompressed(
+            matrixGeneFilterZarr,
           );
-          attrs.cols = attrs.cols.filter((_, i) => heatmapFilter[i]);
+          attrs.cols = attrs.cols.filter((_, i) => matrixGeneFilter[i]);
         }
         return {
           data: [attrs, cellXGene],
