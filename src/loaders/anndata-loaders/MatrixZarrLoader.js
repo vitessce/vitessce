@@ -12,7 +12,7 @@ const normalize = (arr) => {
   return { data };
 };
 
-const concatenateGenes = (arr) => {
+const concatenateColumnVectors = (arr) => {
   const numGenes = arr.length;
   const numCells = arr[0].length;
   const { BYTES_PER_ELEMENT } = arr[0];
@@ -285,7 +285,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     } else {
       const genes = await this._getFilteredGenes(matrixGeneFilter);
       this.cellXGene = this.loadGeneSelection({ selection: genes, shouldNormalize: false })
-        .then(({ data }) => (normalize(concatenateGenes(data))));
+        .then(({ data }) => (normalize(concatenateColumnVectors(data))));
     }
     return this.cellXGene;
   }
