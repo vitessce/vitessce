@@ -20,7 +20,7 @@ import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-ut
  */
 export function useExpressionByCellSet(
   expressionData, expressionDataAttrs, cellSets, additionalCellSets,
-  geneSelection, cellSetSelection, cellSetColor,
+  geneSelection, cellSetSelection, cellSetColor, useGeneExpressionTransform,
 ) {
   const mergedCellSets = useMemo(
     () => mergeCellSets(cellSets, additionalCellSets),
@@ -43,14 +43,15 @@ export function useExpressionByCellSet(
         const cellIndex = expressionDataAttrs.rows.indexOf(cell.obsId);
         const value = expressionData[0][cellIndex];
         const normValue = value * 100 / 255;
-        exprMax = Math.max(normValue, exprMax);
+        const transformedValue = useGeneExpressionTransform ? Math.log(1 + normValue) : normValue;
+        exprMax = Math.max(transformedValue, exprMax);
         return { value: normValue, gene: firstGeneSelected, set: cell.name };
       });
       return [exprValues, exprMax];
     }
     return [null, null];
   }, [expressionData, expressionDataAttrs, geneSelection,
-    mergedCellSets, cellSetSelection, cellSetColor]);
+    mergedCellSets, cellSetSelection, cellSetColor, useGeneExpressionTransform]);
 
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.

@@ -58,6 +58,7 @@
               "geneFilter": { "type": "string" },
               "geneHighlight": { "type": "string" },
               "geneSelection": { "type": "string" },
+              "geneExpressionTransform": { "type": "string" },
               "geneExpressionColormap": { "type": "string" },
               "geneExpressionColormapRange": { "type": "string" },
               "cellColorEncoding": { "type": "string" },
@@ -418,7 +419,14 @@
         "embeddingZoom": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".": { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "embeddingRotation": {
@@ -430,13 +438,27 @@
         "embeddingTargetX": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".": { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "embeddingTargetY": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "embeddingTargetZ": {
@@ -478,7 +500,14 @@
         "spatialZoom": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "spatialRotation": {
@@ -490,13 +519,27 @@
         "spatialTargetX": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "spatialTargetY": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "spatialTargetZ": {
@@ -673,6 +716,19 @@
                   "type": "null"
                 },
                 { "type": "array", "items": { "type": "string" } }
+              ]
+            }
+          }
+        },
+        "geneExpressionTransform": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                { "type": "string", "pattern": "log1p" }
               ]
             }
           }

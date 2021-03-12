@@ -2,8 +2,11 @@
 
 ### Added
 - Added logo to README.
+- Log2 (plus 1) scaling for Violin Plot
+- Add gene name to expression violin plot.
 
 ### Changed
+- Fix bug from #867 where the view config is temporarily invalid due to null values.
 
 ## [1.1.6](https://www.npmjs.com/package/vitessce/v/1.1.6) - 2021-03-05
 
