@@ -167,7 +167,7 @@
     "prepublishOnly": "npm run build-lib:prod",
     "clean": "rm -r dist-demo dist",
     "start": "node scripts/start-demo.js",
-    "test": "concurrently --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\" \" \"karma start scripts/karma.config.js --single-run\"",
+    "test": "concurrently --success first --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\" \" \"karma start scripts/karma.config.js --single-run\"",
     "test:watch": "concurrently --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\" \" \"karma start scripts/karma.config.js --auto-watch\"",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
