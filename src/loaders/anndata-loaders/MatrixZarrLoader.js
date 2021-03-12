@@ -280,9 +280,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     } else {
       const genes = await this._getFilteredGenes(matrixGeneFilter);
       this.cellXGene = this.loadGeneSelection({ selection: genes, shouldNormalize: false })
-        .then(({ data }) => ({
-          data: normalize(concatenate(data)),
-        }));
+        .then(({ data }) => (normalize(concatenate(data))));
     }
     return this.cellXGene;
   }
