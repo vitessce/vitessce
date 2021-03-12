@@ -12,16 +12,14 @@ const normalize = (arr) => {
   return { data };
 };
 
-const concatenateGenes = (arr) => {
-  const numGenes = arr.length;
-  const numCells = arr[0].length;
-  const view = new DataView(new ArrayBuffer(numGenes * numCells));
-  for (let i = 0; i < numGenes; i += 1) {
-    for (let j = 0; j < numCells; j += 1) {
-      view.setUint8(j * numGenes + i, arr[i][j]);
-    }
+const concatenate = (arr) => {
+  const ret = new arr[0].constructor(arr.reduce((acc, tArr) => acc + tArr.byteLength, 0));
+  let off = 0;
+  for (let i = 0; i < arr.length; i += 1) {
+    ret.set(arr, off);
+    off += arr.byteLength;
   }
-  return new Uint8Array(view.buffer);
+  return ret;
 };
 
 /**
@@ -124,7 +122,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         const startRowIndex = cols[index];
         const endRowIndex = cols[index + 1];
         const isColumnAllZeros = startRowIndex === endRowIndex;
-        const geneData = new Uint8Array(numCells).fill(0);
+        const geneData = new Float32Array(numCells).fill(0);
         if (isColumnAllZeros) {
           return geneData;
         }
@@ -157,6 +155,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       for (let i = 0; i < numCells; i += 1) {
         geneData[i] = cellXGene[i * numGenes + index];
       }
+      console.log(index, geneData) // eslint-disable-line
       return geneData;
     });
   }
@@ -250,13 +249,14 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     if (!heatmapFilter) {
       if (encodingType === 'csr_matrix') {
         this.cellXGene = this._loadCSRSparseCellXGene().then(data => normalize(data));
-      } if (encodingType === 'csc_matrix') {
+      } else if (encodingType === 'csc_matrix') {
         this.cellXGene = this._loadCSCSparseCellXGene().then(data => normalize(data));
+      } else {
+        if (!this.arr) {
+          this.arr = openArray({ store, path: matrix, mode: 'r' });
+        }
+        this.cellXGene = this.arr.then(z => z.getRaw(null).then(({ data }) => normalize(data)));
       }
-      if (!this.arr) {
-        this.arr = openArray({ store, path: matrix, mode: 'r' });
-      }
-      this.cellXGene = this.arr.then(z => z.getRaw(null).then(({ data }) => normalize(data)));
     } else if (encodingType === 'csr_matrix') {
       this.cellXGene = this._loadCSRSparseCellXGene().then(
         async (cellXGene) => {
@@ -279,19 +279,22 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       );
     } else {
       const genes = await this._getFilteredGenes(heatmapFilter);
-      this.cellXGene = this.loadGeneSelection(genes).then(({ data }) => ({
-        data: concatenateGenes(data),
-      }));
+      this.cellXGene = this.loadGeneSelection({ selection: genes, shouldNormalize: false })
+        .then(({ data }) => ({
+          data: normalize(concatenate(data)),
+        }));
     }
     return this.cellXGene;
   }
 
   /**
    * Class method for loading a gene selection.
-   * @param {Array} selection A list of gene names whose data should be fetched.
+   * @param {Object} args
+   * @param {Array} args.selection A list of gene names whose data should be fetched.
+   * @param {Boolean} args.shouldNormalize A list of gene names whose data should be fetched.
    * @returns {Object} { data } containing an array of gene expression data.
    */
-  async loadGeneSelection(selection) {
+  async loadGeneSelection({ selection, shouldNormalize = true }) {
     const {
       options: { matrix },
       store,
@@ -313,7 +316,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         indices.map(index => this.arr.then(z => z.get([null, index])).then(({ data }) => data)),
       );
     }
-    return { data: genes.map(i => normalize(i).data), url: null };
+    return { data: genes.map(i => (shouldNormalize ? normalize(i).data : i)), url: null };
   }
 
   /**

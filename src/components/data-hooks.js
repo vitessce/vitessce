@@ -253,7 +253,7 @@ export function useGeneSelection(loaders, dataset, setItemIsReady, isRequired, s
       const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
       if (implementsGeneSelection) {
         loaders[dataset].loaders['expression-matrix']
-          .loadGeneSelection(selection)
+          .loadGeneSelection({ selection })
           .catch(e => warn(e, setWarning))
           .then((payload) => {
             if (!payload) return;
