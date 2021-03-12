@@ -12,14 +12,17 @@ const normalize = (arr) => {
   return { data };
 };
 
-const concatenate = (arr) => {
-  const ret = new arr[0].constructor(arr.reduce((acc, tArr) => acc + tArr.byteLength, 0));
-  let off = 0;
-  for (let i = 0; i < arr.length; i += 1) {
-    ret.set(arr, off);
-    off += arr.byteLength;
+const concatenateGenes = (arr) => {
+  const numGenes = arr.length;
+  const numCells = arr[0].length;
+  const view = new DataView(new ArrayBuffer(numGenes * numCells * arr[0].BYTES_PER_ELEMENT));
+  const dtype = arr[0].constructor.name.replace('Array', '');
+  for (let i = 0; i < numGenes; i += 1) {
+    for (let j = 0; j < numCells; j += 1) {
+      view[`set${dtype}`](j * numGenes + i, arr[i][j]);
+    }
   }
-  return ret;
+  return new Uint8Array(view.buffer);
 };
 
 /**
@@ -280,7 +283,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     } else {
       const genes = await this._getFilteredGenes(matrixGeneFilter);
       this.cellXGene = this.loadGeneSelection({ selection: genes, shouldNormalize: false })
-        .then(({ data }) => (normalize(concatenate(data))));
+        .then(({ data }) => (normalize(concatenateGenes(data))));
     }
     return this.cellXGene;
   }
