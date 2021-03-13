@@ -87,6 +87,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createCellsLayer() {
+    const { cellsEntries } = this;
     const {
       theme,
       mapping,
@@ -97,12 +98,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellSelection,
       setCellHighlight,
       setComponentHover,
-      getCellIsSelected = makeDefaultGetCellIsSelected(cellSelection),
+      getCellIsSelected = makeDefaultGetCellIsSelected(
+        cellsEntries.length === cellSelection.length ? null : cellSelection,
+      ),
       cellColors,
       getCellColor = makeDefaultGetCellColors(cellColors),
       onCellClick,
     } = this.props;
-    const { cellsEntries } = this;
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
