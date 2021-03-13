@@ -463,7 +463,9 @@ export function treeToCellPolygonsBySetNames(
         const points = turfFeatureCollection(
           cellPositions.map(turfPoint),
         );
-        const hullCoords = concaveman(cellPositions);
+        // Convex hull.
+        const concavity = Infinity;
+        const hullCoords = concaveman(cellPositions, concavity);
         if (hullCoords) {
           const centroidCoords = centroid(points).geometry.coordinates;
           cellSetPolygons.push({
