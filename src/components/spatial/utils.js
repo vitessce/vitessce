@@ -1,7 +1,10 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
-import { cloneDeep } from 'lodash';
-import { getChannelStats } from '@hms-dbmi/viv';
+import { cloneDeep, isEqual } from 'lodash';
+import { getChannelStats, getDefaultInitialViewState } from '@hms-dbmi/viv';
+import { extent } from 'd3-array';
+import { Matrix4 } from 'math.gl';
+import { divide, compare, unit } from 'mathjs';
 import { pluralize } from '../../utils';
 import { VIEWER_PALETTE } from '../utils';
 import {
@@ -184,6 +187,51 @@ export async function initializeLayerChannelsIfMissing(layerDefsOrig, loaders) {
   return [newLayerDefs, didInitialize];
 }
 
+function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
+  // Do not fill in transformation matrices if any of the layers specify one.
+  if (
+    imageMeta.map(meta => meta?.metadata?.transform?.matrix
+      || meta?.metadata?.transform?.scale
+      || meta?.metadata?.transform?.translate).some(Boolean)
+      || imageLoaders.every(loader => !loader?.physicalSizes?.x || !loader?.physicalSizes?.y)
+  ) {
+    return imageMeta;
+  }
+  // Get the minimum physical among all the current images.
+  const minPhysicalSize = imageLoaders.reduce((acc, loader) => {
+    const sizes = [
+      unit(`${loader.physicalSizes.x.value} ${loader.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${loader.physicalSizes.y.value} ${loader.physicalSizes.y.unit}`.replace('µ', 'u')),
+    ];
+    acc[0] = (acc[0] === undefined || compare(sizes[0], acc[0]) === -1) ? sizes[0] : acc[0];
+    acc[1] = (acc[1] === undefined || compare(sizes[1], acc[1]) === -1) ? sizes[1] : acc[1];
+    return acc;
+  }, []);
+  const imageMetaWithTransform = imageMeta.map((meta, j) => {
+    const loader = imageLoaders[j];
+    const sizes = [
+      unit(`${loader.physicalSizes.x.value} ${loader.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${loader.physicalSizes.y.value} ${loader.physicalSizes.y.unit}`.replace('µ', 'u')),
+    ];
+    // Find the ratio of the sizes to get the scaling factor.
+    const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));
+    // no need to store/use identity scaling
+    if (isEqual(scale, [1, 1])) {
+      return meta;
+    }
+    // Make sure to scale the z direction by one.
+    const matrix = new Matrix4().scale([...scale, 1]);
+    const newMeta = { ...meta };
+    newMeta.metadata = {
+      ...newMeta.metadata,
+      // We don't want to store matrix objects in the view config.
+      transform: { matrix: matrix.toArray() },
+    };
+    return newMeta;
+  });
+  return imageMetaWithTransform;
+}
+
 /**
  * Given a set of image layer loader creator functions,
  * create loader objects for an initial layer or set of layers,
@@ -194,9 +242,13 @@ export async function initializeLayerChannelsIfMissing(layerDefsOrig, loaders) {
  * shape { name, type, url, createLoader }.
  * @param {(string[]|null)} rasterRenderLayers A list of default raster layers. Optional.
  */
-export async function initializeRasterLayersAndChannels(rasterLayers, rasterRenderLayers) {
+export async function initializeRasterLayersAndChannels(
+  rasterLayers,
+  rasterRenderLayers,
+  usePhysicalSizeScaling,
+) {
   const nextImageLoaders = [];
-  const nextImageMetaAndLayers = [];
+  let nextImageMetaAndLayers = [];
   const autoImageLayerDefPromises = [];
 
   // Start all loader creators immediately.
@@ -208,6 +260,9 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
     const loader = loaders[i];
     nextImageLoaders[i] = loader;
     nextImageMetaAndLayers[i] = layer;
+  }
+  if (usePhysicalSizeScaling) {
+    nextImageMetaAndLayers = getMetaWithTransformMatrices(nextImageMetaAndLayers, nextImageLoaders);
   }
   // No layers were pre-defined so set up the default image layers.
   if (!rasterRenderLayers) {
@@ -225,6 +280,7 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
             ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
         })),
         modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
+        transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
       }));
     autoImageLayerDefPromises.push(autoImageLayerDefPromise);
   } else {
@@ -247,6 +303,7 @@ export async function initializeRasterLayersAndChannels(rasterLayers, rasterRend
           })),
           domainType: 'Min/Max',
           modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
+          transparentColor: i > 0 ? [0, 0, 0] : null,
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }
@@ -286,4 +343,48 @@ export function makeSpatialSubtitle({
     parts.push(`${observationsCount} ${pluralize(observationsLabel, observationsPluralLabel, observationsCount)}`);
   }
   return parts.join(', ');
+}
+
+export function getInitialSpatialTargets({
+  width,
+  height,
+  cells,
+  imageLayerLoaders,
+}) {
+  let initialTargetX = -Infinity;
+  let initialTargetY = -Infinity;
+  let initialZoom = -Infinity;
+  // Some backoff from completely filling the screen.
+  const zoomBackoff = 0.1;
+  const cellValues = Object.values(cells);
+  if (imageLayerLoaders.length > 0) {
+    for (let i = 0; i < imageLayerLoaders.length; i += 1) {
+      const viewSize = { height, width };
+      const { target, zoom: newViewStateZoom } = getDefaultInitialViewState(
+        imageLayerLoaders[i],
+        viewSize,
+        zoomBackoff,
+      );
+      if (target[0] > initialTargetX) {
+        // eslint-disable-next-line prefer-destructuring
+        initialTargetX = target[0];
+        initialZoom = newViewStateZoom;
+      }
+      if (target[1] > initialTargetY) {
+        // eslint-disable-next-line prefer-destructuring
+        initialTargetY = target[1];
+        initialZoom = newViewStateZoom;
+      }
+    }
+  } else if (cellValues.length > 0) {
+    const cellCoordinates = cellValues.map(c => c.xy);
+    const xExtent = extent(cellCoordinates, c => c[0]);
+    const yExtent = extent(cellCoordinates, c => c[1]);
+    const xRange = xExtent[1] - xExtent[0];
+    const yRange = yExtent[1] - yExtent[0];
+    initialTargetX = xExtent[0] + xRange / 2;
+    initialTargetY = yExtent[0] + yRange / 2;
+    initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
+  }
+  return { initialTargetX, initialTargetY, initialZoom };
 }

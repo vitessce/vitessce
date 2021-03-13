@@ -7,6 +7,23 @@
         .react-grid-layout, .warning-layout {
             position: relative;
         }
+        .row > div > .card {
+            margin: 1rem 0;
+        }
+    }
+
+    .welcome-beta-header {
+        background-color: #93e5c3;
+        padding: 1rem;
+        p {
+            margin: 0;
+            color: #222222;
+            a {
+                color: #000;
+                text-decoration: underline;
+                font-weight: 600;
+            }
+        }
     }
 
     .react-grid-layout, .warning-layout {

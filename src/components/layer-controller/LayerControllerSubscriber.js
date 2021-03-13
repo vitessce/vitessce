@@ -86,6 +86,7 @@ function LayerControllerSubscriber(props) {
     const newChannels = await initializeLayerChannels(loader);
     const newLayer = {
       index,
+      modelMatrix: imageLayerMeta[index]?.metadata?.transform?.matrix,
       ...DEFAULT_RASTER_LAYER_PROPS,
       channels: newChannels,
     };

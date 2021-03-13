@@ -58,6 +58,7 @@
               "geneFilter": { "type": "string" },
               "geneHighlight": { "type": "string" },
               "geneSelection": { "type": "string" },
+              "geneExpressionTransform": { "type": "string" },
               "geneExpressionColormap": { "type": "string" },
               "geneExpressionColormapRange": { "type": "string" },
               "cellColorEncoding": { "type": "string" },
@@ -151,7 +152,11 @@
         },
         "geneFilter": {
           "type": "string",
-           "description": "The location in the AnnData store of a filter for the genes if using a subset of the data, like 'vae.highly_variable.' if the matrix comes from 'obsm/hvg_subset.'"
+           "description": "The location in the AnnData store of a filter for the genes if using a subset of the data, like 'var.highly_variable.' if the matrix comes from 'obsm/hvg_subset.'"
+        },
+        "matrixGeneFilter": {
+          "type": "string",
+           "description": "The location in the AnnData store of a filter for the matrix data (used in heatmap and histogram), like 'var.highly_variable.''"
         }
       }
     },
@@ -235,9 +240,41 @@
             }
           ]
         },
+        "transparentColor": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": { 
+                "type": "number",
+                "description": "One of R G or B (0 - 255)." 
+              },
+              "description": "Determines the color to be set to opacity 0"
+            },
+            {
+              "type": "null",
+              "description": "No selection."
+            }
+          ]
+        },
         "index": {
           "type": "number",
           "description": "The index of the layer among the array of layers available in the image file."
+        },
+        "modelMatrix": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 16,
+              "maxItems": 16,
+              "description": "transformation matrix for this layer"
+            },
+            {
+              "type": "null",
+              "description": "Use no transformation."
+            }
+          ]
         },
         "opacity": {
           "type": "number"
@@ -382,7 +419,14 @@
         "embeddingZoom": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".": { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "embeddingRotation": {
@@ -394,13 +438,27 @@
         "embeddingTargetX": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".": { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "embeddingTargetY": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "embeddingTargetZ": {
@@ -442,7 +500,14 @@
         "spatialZoom": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "spatialRotation": {
@@ -454,13 +519,27 @@
         "spatialTargetX": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "spatialTargetY": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "spatialTargetZ": {
@@ -637,6 +716,19 @@
                   "type": "null"
                 },
                 { "type": "array", "items": { "type": "string" } }
+              ]
+            }
+          }
+        },
+        "geneExpressionTransform": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                { "type": "string", "pattern": "log1p" }
               ]
             }
           }

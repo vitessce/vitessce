@@ -8,7 +8,12 @@ import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
-import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
+import {
+  useCellsData,
+  useCellSetsData,
+  useGeneSelection,
+  useExpressionAttrs,
+} from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
@@ -119,10 +124,12 @@ export default function ScatterplotSubscriber(props) {
     { setCellSetSelection, setCellSetColor },
     { initializeCellSetSelection, initializeCellSetColor },
   );
-  const [expressionMatrix] = useExpressionMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [expressionData] = useGeneSelection(
+    loaders, dataset, setItemIsReady, false, geneSelection,
   );
-
+  const [attrs] = useExpressionAttrs(
+    loaders, dataset, setItemIsReady, addUrl, true,
+  );
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
@@ -140,13 +147,14 @@ export default function ScatterplotSubscriber(props) {
 
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
-    expressionMatrix,
+    expressionData: expressionData && expressionData[0],
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
+    expressionDataAttrs: attrs,
   }), [cellColorEncoding, geneSelection, mergedCellSets,
-    cellSetSelection, cellSetColor, expressionMatrix]);
+    cellSetSelection, cellSetColor, expressionData, attrs]);
 
   const cellSetPolygons = useMemo(() => getCellSetPolygons({
     cells,
@@ -162,7 +170,8 @@ export default function ScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    if (cells) {
+    const cellValues = cells && Object.values(cells);
+    if (cellValues?.length) {
       const cellCoordinates = Object.values(cells)
         .map(c => c.mappings[mapping]);
       const xExtent = extent(cellCoordinates, c => c[0]);
@@ -174,8 +183,17 @@ export default function ScatterplotSubscriber(props) {
       const newScale = clamp(diagonalLength / 300, 0, 0.2);
       if (newScale) {
         setCellRadiusScale(newScale);
+      } if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+        const newTargetX = xExtent[0] + xRange / 2;
+        const newTargetY = yExtent[0] + yRange / 2;
+        const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
+        setTargetX(newTargetX);
+        // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+        setTargetY(-newTargetY);
+        setZoom(newZoom);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cells, mapping]);
 
   const getCellInfo = useCallback((cellId) => {

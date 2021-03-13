@@ -5,7 +5,12 @@ import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { mergeCellSets } from '../utils';
-import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
+import {
+  useCellsData,
+  useCellSetsData,
+  useExpressionMatrixData,
+  useGeneSelection,
+} from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import {
   useCoordination, useLoaders,
@@ -109,6 +114,9 @@ export default function HeatmapSubscriber(props) {
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
+  const [expressionData] = useGeneSelection(
+    loaders, dataset, setItemIsReady, false, geneSelection,
+  );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setCellSetSelection, setCellSetColor },
@@ -121,13 +129,14 @@ export default function HeatmapSubscriber(props) {
 
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
-    expressionMatrix,
+    expressionData: expressionData && expressionData[0],
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-  }), [cellColorEncoding, geneSelection, mergedCellSets,
-    cellSetColor, cellSetSelection, expressionMatrix]);
+    expressionDataAttrs: expressionMatrix,
+  }), [cellColorEncoding, mergedCellSets, geneSelection,
+    cellSetColor, cellSetSelection, expressionData, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {

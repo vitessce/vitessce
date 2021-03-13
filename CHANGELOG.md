@@ -1,18 +1,50 @@
 ## In Progress
 
 ### Added
-- Added an optional `description` field to the dataset definition config object. Updated the `<Description/>` component to prefer this value over the top-level description value, if available.
+- Added logo to README.
+- Log2 (plus 1) scaling for Violin Plot
+- Add gene name to expression violin plot.
 - Added a new view config schema version `1.0.1` which splits `spatialLayers` into `spatialRasterLayers`, `spatialCellsLayers`, `spatialMoleculesLayers`, and `spatialNeighborhoodsLayers`.
     - Added an auto-upgrade function to upgrade from v1.0.0 to v1.0.1.
     - Spatial layer definition objects in v1.0.1 do not have a `type` property.
 - Added support for OME-Zarr raster files with the `OmeZarrLoader` class.
 - Added a `title` prop for all subscriber components, to allow users to override component titles through the view config.
+### Changed
+- Fix bug from #867 where the view config is temporarily invalid due to null values.
+- Separate out hooks to allow for arbitrary gene slicing.
+- Update AnnData loader to handle artbitrary gene slicing.
+- Updated the data hook functions to handle coordination value initialization, rather than doing initialization at the subscriber component level.
+
+## [1.1.6](https://www.npmjs.com/package/vitessce/v/1.1.6) - 2021-03-05
+
+### Added
+- Added a banner to the current minimal demo site, pointing to the beta version of the documentation and next iteration of the demo site.
+
+### Changed
+- Used `DataFilterExtension` from `deck.gl` to speed up filtering selections.
+
+## [1.1.5](https://www.npmjs.com/package/vitessce/v/1.1.5) - 2021-02-25
+
+### Added
+- View state will automatically be set if it is not found for `Scatterplot` and `Spatial` components.
+
+### Changed
+- Added a check for undefined in the `nodeToSet` function in `cell-set-utils.js`.
+- Fix bug which previously caused `anndata-cells.zarr` file types to fail to load when lacking a `"factors"` option.
+- `targetX` and `targetY` coordination values are `null` by default.
+
+## [1.1.4](https://www.npmjs.com/package/vitessce/v/1.1.4) - 2021-02-11
+
+### Added
+- Added an optional `description` field to the dataset definition config object. Updated the `<Description/>` component to prefer this value over the top-level description value, if available.
+- Add `transparentColor` to `LayerController` for multi-modal imaging.
 
 ### Changed
 - Fix AnnData text decoding.
 - Refactor AnnData flat array decoding and resolve bug.
+- Upgrade viv to 0.8.3
 - Fix non-string cell id parsing in AnnData.
-- Updated the data hook functions to handle coordination value initialization, rather than doing initialization at the subscriber component level.
+- Add automatic physical size scaling for multi-modal imaging if sizes are found.
 
 ## [1.1.3](https://www.npmjs.com/package/vitessce/v/1.1.3) - 2021-01-07
 
