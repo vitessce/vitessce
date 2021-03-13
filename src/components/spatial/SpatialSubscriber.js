@@ -16,7 +16,7 @@ import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
-import { makeSpatialSubtitle } from './utils';
+import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils';
 import {
   useCoordination,
   useLoaders,
@@ -150,7 +150,7 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, setItemIsReady, false, geneSelection,
   );
   const [attrs] = useExpressionAttrs(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, setItemIsReady, addUrl, false,
   );
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders] = useRasterData(
@@ -168,6 +168,21 @@ export default function SpatialSubscriber(props) {
     ),
     ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: 'raster' })) : []),
   ], [cellsLayers, moleculesLayers, neighborhoodsLayers, rasterLayers]);
+
+  useEffect(() => {
+    if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
+      const { initialTargetX, initialTargetY, initialZoom } = getInitialSpatialTargets({
+        width,
+        height,
+        cells,
+        imageLayerLoaders,
+      });
+      setTargetX(initialTargetX);
+      setTargetY(initialTargetY);
+      setZoom(initialZoom);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
