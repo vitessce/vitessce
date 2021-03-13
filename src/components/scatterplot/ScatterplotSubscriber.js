@@ -8,7 +8,12 @@ import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
-import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
+import {
+  useCellsData,
+  useCellSetsData,
+  useGeneSelection,
+  useExpressionAttrs,
+} from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
@@ -96,10 +101,12 @@ export default function ScatterplotSubscriber(props) {
     addUrl,
     false,
   );
-  const [expressionMatrix] = useExpressionMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [expressionData] = useGeneSelection(
+    loaders, dataset, setItemIsReady, false, geneSelection,
   );
-
+  const [attrs] = useExpressionAttrs(
+    loaders, dataset, setItemIsReady, addUrl, true,
+  );
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
@@ -117,13 +124,14 @@ export default function ScatterplotSubscriber(props) {
 
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
-    expressionMatrix,
+    expressionData: expressionData && expressionData[0],
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
+    expressionDataAttrs: attrs,
   }), [cellColorEncoding, geneSelection, mergedCellSets,
-    cellSetSelection, cellSetColor, expressionMatrix]);
+    cellSetSelection, cellSetColor, expressionData, attrs]);
 
   const cellSetPolygons = useMemo(() => getCellSetPolygons({
     cells,

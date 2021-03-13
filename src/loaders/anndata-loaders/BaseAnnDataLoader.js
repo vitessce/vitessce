@@ -57,7 +57,7 @@ export default class BaseAnnDataLoader extends AbstractLoader {
    * Class method for loading cell set ids.
    * Takes the location as an argument because this is shared across objects,
    * which have different ways of specifying location.
-   * @param {string} cellSetZarrLocation A string like obs.leiden or obs.bulk_labels.
+   * @param {Array} cellSetZarrLocation An array of strings like obs.leiden or obs.bulk_labels.
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
   loadCellSetIds(cellSetZarrLocation) {
@@ -82,7 +82,7 @@ export default class BaseAnnDataLoader extends AbstractLoader {
         const cellSetsValues = await cellSetsArr.get();
         const { data } = cellSetsValues;
         const mappedCellSetValues = new Array(...data).map(
-          i => (!categoriesValues ? i : categoriesValues[i]),
+          i => (!categoriesValues ? String(i) : categoriesValues[i]),
         );
         return mappedCellSetValues;
       }),
