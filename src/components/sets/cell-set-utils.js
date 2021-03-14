@@ -457,13 +457,12 @@ export function treeToCellPolygonsBySetNames(
           cells[cellId]?.mappings[mapping][0],
           -cells[cellId]?.mappings[mapping][1],
         ]))
-        .filter(Boolean);
+        .filter(cell => cell.every(i => typeof i === 'number'));
 
       if (cellPositions.length > 2) {
         const points = turfFeatureCollection(
           cellPositions.map(turfPoint),
         );
-        // Convex hull.
         const concavity = Infinity;
         const hullCoords = concaveman(cellPositions, concavity);
         if (hullCoords) {
