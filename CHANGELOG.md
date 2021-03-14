@@ -9,6 +9,7 @@
 - Fix bug from #867 where the view config is temporarily invalid due to null values.
 - Separate out hooks to allow for arbitrary gene slicing.
 - Update AnnData loader to handle artbitrary gene slicing.
+- Use `Array.from` instead of `new Array` for `BaseAnnDataLoader`
 
 ## [1.1.6](https://www.npmjs.com/package/vitessce/v/1.1.6) - 2021-03-05
 
