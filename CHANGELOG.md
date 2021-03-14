@@ -12,7 +12,8 @@
 - Do not do call `makeDefaultGetCellIsSelected` if not necessary.
 - Fix `categories` parsing for AnnData with `dtype=|O1`.
 - Use `concaveman` instead of `@turf/concave`.
- 
+- Use `Array.from` instead of `new Array` for `BaseAnnDataLoader`
+
 ## [1.1.6](https://www.npmjs.com/package/vitessce/v/1.1.6) - 2021-03-05
 
 ### Added
