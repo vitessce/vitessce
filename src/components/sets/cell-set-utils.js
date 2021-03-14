@@ -4,8 +4,8 @@ import isNil from 'lodash/isNil';
 import isEqual from 'lodash/isEqual';
 import range from 'lodash/range';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
-import concave from '@turf/concave';
 import centroid from '@turf/centroid';
+import concaveman from 'concaveman';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
@@ -457,15 +457,15 @@ export function treeToCellPolygonsBySetNames(
           cells[cellId]?.mappings[mapping][0],
           -cells[cellId]?.mappings[mapping][1],
         ]))
-        .filter(Boolean);
+        .filter(cell => cell.every(i => typeof i === 'number'));
 
       if (cellPositions.length > 2) {
         const points = turfFeatureCollection(
           cellPositions.map(turfPoint),
         );
-        const hull = concave(points);
-        if (hull) {
-          const hullCoords = hull.geometry.coordinates;
+        const concavity = Infinity;
+        const hullCoords = concaveman(cellPositions, concavity);
+        if (hullCoords) {
           const centroidCoords = centroid(points).geometry.coordinates;
           cellSetPolygons.push({
             path: setNamePath,
