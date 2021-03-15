@@ -128,8 +128,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
 
     const showCellSelectionTools = this.cellsLayer !== null;
     const showPanTool = this.cellsLayer !== null;
-    // For large datasets, the visual quality takes minima
-    // hit in exchange for much better performance:
+    // For large datasets, the visual quality takes only a small
+    // hit in exchange for much better performance by setting this to false:
     // https://deck.gl/docs/api-reference/core/deck#usedevicepixels
     const useDevicePixels = this.cellsEntries.length < 100000;
 
