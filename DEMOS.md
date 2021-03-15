@@ -55,3 +55,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-03-09: [genes_slicing](https://s3.amazonaws.com/vitessce-data/demos/2021-03-09/456ac0a/index.html)
 - 2021-03-09: [genes_slicing](https://s3.amazonaws.com/vitessce-data/demos/2021-03-09/87eb8aa/index.html)
 - 2021-03-13: [ilan-gold/demo_big_sets](https://s3.amazonaws.com/vitessce-data/demos/2021-03-13/b7bd27a/index.html)
+- 2021-03-15: [ilan-gold/demo_big_sets](https://s3.amazonaws.com/vitessce-data/demos/2021-03-15/e4fec9d/index.html)
