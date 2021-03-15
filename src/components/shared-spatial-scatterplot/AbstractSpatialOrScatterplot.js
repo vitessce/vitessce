@@ -128,8 +128,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
 
     const showCellSelectionTools = this.cellsLayer !== null;
     const showPanTool = this.cellsLayer !== null;
-    // For large datasets, the visual quality takes minima
-    // hit in exchange for much better performance:
+    // For large datasets, the visual quality takes only a small
+    // hit in exchange for much better performance by setting this to false:
     // https://deck.gl/docs/api-reference/core/deck#usedevicepixels
     const useDevicePixels = this.cellsEntries.length < 100000;
 
@@ -147,14 +147,18 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         <DeckGL
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
-          views={[new OrthographicView({ id: 'ortho' })]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
-          layers={(gl && viewState.target.every(i => typeof i === 'number')) ? layers : ([])}
+          views={[new OrthographicView({ id: "ortho" })]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
+          layers={
+            gl && viewState.target.every((i) => typeof i === "number")
+              ? layers
+              : []
+          }
           glOptions={DEFAULT_GL_OPTIONS}
           onWebGLInitialized={this.onWebGLInitialized}
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           useDevicePixels={useDevicePixels}
-          controller={tool ? ({ dragPan: false }) : true}
+          controller={tool ? { dragPan: false } : true}
           getCursor={tool ? getCursorWithTool : getCursor}
         >
           {this.onInitializeViewInfo}
