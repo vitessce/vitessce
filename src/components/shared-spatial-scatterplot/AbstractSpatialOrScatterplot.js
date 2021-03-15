@@ -131,7 +131,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     // For large datasets, the visual quality takes minima
     // hit in exchange for much better performance:
     // https://deck.gl/docs/api-reference/core/deck#usedevicepixels
-    console.log(this.cellsEntries); // eslint-disable-line
     const useDevicePixels = this.cellsEntries.length < 100000;
 
     return (
