@@ -13,6 +13,7 @@
 - Fix `categories` parsing for AnnData with `dtype=|O1`.
 - Use `concaveman` instead of `@turf/concave`.
 - Use `Array.from` instead of `new Array` for `BaseAnnDataLoader`
+- `useDevicePixels` for large datasets in `AbstractSpatialOrScatterplot`.
 
 ## [1.1.6](https://www.npmjs.com/package/vitessce/v/1.1.6) - 2021-03-05
 
