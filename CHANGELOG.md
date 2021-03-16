@@ -9,6 +9,7 @@
 - Fix bug from #867 where the view config is temporarily invalid due to null values.
 - Separate out hooks to allow for arbitrary gene slicing.
 - Update AnnData loader to handle artbitrary gene slicing.
+- Use `Array.from` instead of `new Array` for `BaseAnnDataLoader`
 - Use `concaveman` instead of `@turf/concave`.
 - Fix `categories` parsing for AnnData with `dtype=|O`.
 - Do not do call `makeDefaultGetCellIsSelected` if not necessary.
