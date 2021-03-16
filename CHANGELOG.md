@@ -10,7 +10,9 @@
 - Separate out hooks to allow for arbitrary gene slicing.
 - Update AnnData loader to handle artbitrary gene slicing.
 - Use `concaveman` instead of `@turf/concave`.
- 
+- Fix `categories` parsing for AnnData with `dtype=|O`.
+- Do not do call `makeDefaultGetCellIsSelected` if not necessary.
+
 ## [1.1.6](https://www.npmjs.com/package/vitessce/v/1.1.6) - 2021-03-05
 
 ### Added

@@ -72,7 +72,12 @@ export default class BaseAnnDataLoader extends AbstractLoader {
         );
         let categoriesValues;
         if (categories) {
-          categoriesValues = await this.getFlatTextArr(`/obs/${categories}`);
+          const { dtype } = await this.getJson(
+            `/obs/${categories}/.zarray`,
+          );
+          if (dtype === '|O') {
+            categoriesValues = await this.getFlatTextArr(`/obs/${categories}`);
+          }
         }
         const cellSetsArr = await openArray({
           store,
