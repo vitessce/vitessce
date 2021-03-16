@@ -93,12 +93,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       radius, stroked, visible, opacity,
     } = layerDef;
+    const { cellsEntries } = this;
     const {
       cellFilter,
       cellSelection,
       setCellHighlight,
       setComponentHover,
-      getCellIsSelected = makeDefaultGetCellIsSelected(cellSelection),
+      getCellIsSelected = makeDefaultGetCellIsSelected(
+        cellsEntries.length === cellSelection.length ? null : cellSelection,
+      ),
       cellColors,
       getCellColor = makeDefaultGetCellColors(cellColors),
       getCellPolygon = makeDefaultGetCellPolygon(radius),
@@ -106,7 +109,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       lineWidthScale = 10,
       lineWidthMaxPixels = 2,
     } = this.props;
-    const { cellsEntries } = this;
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
