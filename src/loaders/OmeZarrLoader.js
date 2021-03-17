@@ -49,7 +49,14 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
       return Promise.reject(payload);
     }
 
-    const { rdefs, channels, name } = payload.omero;
+    const { omero } = payload;
+
+    if (!omero) {
+      console.error('Path for image not valid');
+      return Promise.reject(payload);
+    }
+
+    const { rdefs, channels, name } = omero;
 
     const time = rdefs.defaultT ?? 0;
     const z = rdefs.defaultZ ?? 0;
