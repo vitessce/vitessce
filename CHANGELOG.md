@@ -14,6 +14,11 @@
 - Separate out hooks to allow for arbitrary gene slicing.
 - Update AnnData loader to handle artbitrary gene slicing.
 - Updated the data hook functions to handle coordination value initialization, rather than doing initialization at the subscriber component level.
+- `useDevicePixels` for large datasets in `AbstractSpatialOrScatterplot`.
+- Use `Array.from` instead of `new Array` for `BaseAnnDataLoader`
+- Use `concaveman` instead of `@turf/concave`.
+- Fix `categories` parsing for AnnData with `dtype=|O`.
+- Do not do call `makeDefaultGetCellIsSelected` if not necessary.
 
 ## [1.1.6](https://www.npmjs.com/package/vitessce/v/1.1.6) - 2021-03-05
 

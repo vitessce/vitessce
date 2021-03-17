@@ -45,7 +45,12 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
         );
         let categoriesValues;
         if (categories) {
-          categoriesValues = await this.getFlatTextArr(`/obs/${categories}`);
+          const { dtype } = await this.getJson(
+            `/obs/${categories}/.zarray`,
+          );
+          if (dtype === '|O') {
+            categoriesValues = await this.getFlatTextArr(`/obs/${categories}`);
+          }
         }
         const cellSetsArr = await openArray({
           store,
@@ -54,7 +59,7 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
         });
         const cellSetsValues = await cellSetsArr.get();
         const { data } = cellSetsValues;
-        const mappedCellSetValues = new Array(...data).map(
+        const mappedCellSetValues = Array.from(data).map(
           i => (!categoriesValues ? String(i) : categoriesValues[i]),
         );
         return mappedCellSetValues;
