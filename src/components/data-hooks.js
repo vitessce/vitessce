@@ -474,16 +474,8 @@ export function useMoleculesData(
           .map(l => l.length)
           .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
-        const mergedCoordinationValues = {
-          spatialMoleculesLayers: [
-            {
-              opacity: 1, radius: 20, visible: true,
-            },
-          ],
-          ...coordinationValues,
-        };
         initCoordinationSpace(
-          mergedCoordinationValues,
+          coordinationValues,
           coordinationSetters,
           coordinationPreferences,
         );
