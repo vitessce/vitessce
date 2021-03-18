@@ -290,6 +290,7 @@
       }
     },
     "moleculesLayer": {
+      "type": "object",
       "description": "The properties of this object are the rendering settings for the molecules layer.",
       "additionalProperties": false,
       "required": ["visible", "radius", "opacity"],
@@ -306,6 +307,7 @@
       }
     },
     "cellsLayer": {
+      "type": "object",
       "description": "The properties of this object are the rendering settings for the cells layer.",
       "additionalProperties": false,
       "required": ["visible", "stroked", "radius", "opacity"],
@@ -325,6 +327,7 @@
       }
     },
     "neighborhoodsLayer": {
+      "type": "object",
       "description": "The properties of this object are the rendering settings for the neighborhoods layer.",
       "additionalProperties": false,
       "required": ["visible"],
