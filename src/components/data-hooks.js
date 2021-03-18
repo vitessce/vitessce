@@ -123,16 +123,8 @@ export function useCellsData(
         // This dataset has cells, so set up the
         // spatial cells layer coordination value
         // using the cell layer singleton.
-        const mergedCoordinationValues = {
-          spatialCellsLayers: [
-            {
-              opacity: 1, radius: 50, visible: true, stroked: false,
-            },
-          ],
-          ...coordinationValues,
-        };
         initCoordinationSpace(
-          mergedCoordinationValues,
+          coordinationValues,
           coordinationSetters, coordinationPreferences,
         );
         setItemIsReady('cells');
