@@ -5,6 +5,11 @@ import {
   AbstractLoaderError,
   LoaderNotFoundError,
 } from '../loaders/errors/index';
+import {
+  DEFAULT_MOLECULES_LAYER,
+  DEFAULT_CELLS_LAYER,
+  DEFAULT_NEIGHBORHOODS_LAYER,
+} from './spatial/constants';
 
 /**
  * Warn via publishing to the console
@@ -123,8 +128,11 @@ export function useCellsData(
         // This dataset has cells, so set up the
         // spatial cells layer coordination value
         // using the cell layer singleton.
+        const coordinationValuesOrDefault = coordinationValues || {
+          spatialCellsLayers: [DEFAULT_CELLS_LAYER],
+        };
         initCoordinationSpace(
-          coordinationValues,
+          coordinationValuesOrDefault,
           coordinationSetters, coordinationPreferences,
         );
         setItemIsReady('cells');
@@ -466,8 +474,11 @@ export function useMoleculesData(
           .map(l => l.length)
           .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
+        const coordinationValuesOrDefault = coordinationValues || {
+          spatialMoleculesLayers: [DEFAULT_MOLECULES_LAYER],
+        };
         initCoordinationSpace(
-          coordinationValues,
+          coordinationValuesOrDefault,
           coordinationSetters,
           coordinationPreferences,
         );
@@ -533,16 +544,11 @@ export function useNeighborhoodsData(
           const { data, url, coordinationValues } = payload;
           setNeighborhoods(data);
           addUrl(url, 'Neighborhoods');
-          const mergedCoordinationValues = {
-            spatialNeighborhoodsLayers: [
-              {
-                visible: false,
-              },
-            ],
-            ...coordinationValues,
+          const coordinationValuesOrDefault = coordinationValues || {
+            spatialNeighborhoodsLayers: [DEFAULT_NEIGHBORHOODS_LAYER],
           };
           initCoordinationSpace(
-            mergedCoordinationValues,
+            coordinationValuesOrDefault,
             coordinationSetters,
             coordinationPreferences,
           );
