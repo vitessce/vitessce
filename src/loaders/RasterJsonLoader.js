@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { createZarrLoader, createOMETiffLoader } from '@hms-dbmi/viv';
 import rasterSchema from '../schemas/raster.schema.json';
 import JsonLoader from './JsonLoader';
@@ -90,15 +89,19 @@ export default class RasterLoader extends JsonLoader {
     ] = await initializeRasterLayersAndChannels(
       imagesWithLoaderCreators,
       renderLayers,
-      usePhysicalSizeScaling
+      usePhysicalSizeScaling,
     );
 
     const coordinationValues = {
-      spatialRasterLayers: autoImageLayers
+      spatialRasterLayers: autoImageLayers,
     };
 
     return Promise.resolve(
-      new LoaderResult({ loaders: imageLayerLoaders, meta: imageLayerMeta }, urls, coordinationValues),
+      new LoaderResult(
+        { loaders: imageLayerLoaders, meta: imageLayerMeta },
+        urls,
+        coordinationValues,
+      ),
     );
   }
 }
