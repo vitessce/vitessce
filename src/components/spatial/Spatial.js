@@ -159,6 +159,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getMoleculePosition = d => [d[0], d[1], 0],
     } = this.props;
     const { moleculesEntries } = this;
+    console.log(layerDef) // eslint-disable-line
 
     return new ScatterplotLayer({
       id: MOLECULES_LAYER_ID,

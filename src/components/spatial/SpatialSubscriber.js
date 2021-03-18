@@ -39,9 +39,9 @@ const SPATIAL_DATA_TYPES = [
  * to call when the component has been removed from the grid.
  * @param {boolean} props.initializeSpatialRasterLayers Should the coordination
  * value be automatically initialized based on the data?
- * @param {boolean} props.initializeSpatialCellsLayers Should the coordination
+ * @param {boolean} props.initializespatialCellsLayer Should the coordination
  * value be automatically initialized based on the data?
- * @param {boolean} props.initializeSpatialMoleculesLayers Should the coordination
+ * @param {boolean} props.initializespatialMoleculesLayer Should the coordination
  * value be automatically initialized based on the data?
  * @param {boolean} props.initializeSpatialNeighborhoodsLayers Should the coordination
  * value be automatically initialized based on the data?
@@ -62,8 +62,8 @@ export default function SpatialSubscriber(props) {
     subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
     theme,
     disableTooltip = false,
-    initializeSpatialCellsLayers = true,
-    initializeSpatialMoleculesLayers = true,
+    initializespatialCellsLayer = true,
+    initializespatialMoleculesLayer = true,
     initializeSpatialNeighborhoodsLayers = true,
     initializeSpatialRasterLayers = true,
     initializeCellSetSelection = true,
@@ -83,9 +83,9 @@ export default function SpatialSubscriber(props) {
     spatialTargetY: targetY,
     spatialTargetZ: targetZ,
     spatialRasterLayers: rasterLayers,
-    spatialCellsLayers: cellsLayers,
-    spatialMoleculesLayers: moleculesLayers,
-    spatialNeighborhoodsLayers: neighborhoodsLayers,
+    spatialCellsLayer: cellsLayer,
+    spatialMoleculesLayer: moleculesLayer,
+    spatialNeighborhoodsLayer: neighborhoodsLayer,
     cellFilter,
     cellHighlight,
     geneSelection,
@@ -99,8 +99,8 @@ export default function SpatialSubscriber(props) {
     setSpatialTargetY: setTargetY,
     setSpatialTargetZ: setTargetZ,
     setSpatialRasterLayers: setRasterLayers,
-    setSpatialCellsLayers: setCellsLayers,
-    setSpatialMoleculesLayers: setMoleculesLayers,
+    setspatialCellsLayer: setCellsLayer,
+    setspatialMoleculesLayer: setMoleculesLayer,
     setSpatialNeighborhoodsLayers: setNeighborhoodsLayers,
     setCellFilter,
     setCellSetSelection,
@@ -128,13 +128,13 @@ export default function SpatialSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialCellsLayers: setCellsLayers },
-    { initializeSpatialCellsLayers },
+    { setspatialCellsLayer: setCellsLayer },
+    { initializespatialCellsLayer },
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialMoleculesLayers: setMoleculesLayers },
-    { initializeSpatialMoleculesLayers },
+    { setspatialMoleculesLayer: setMoleculesLayer },
+    { initializespatialMoleculesLayer },
   );
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -160,14 +160,11 @@ export default function SpatialSubscriber(props) {
   );
 
   const layers = useMemo(() => [
-    ...(moleculesLayers ? moleculesLayers.map(l => ({ ...l, type: 'molecules' })) : []),
-    ...(cellsLayers ? cellsLayers.map(l => ({ ...l, type: 'cells' })) : []),
-    ...(neighborhoodsLayers
-      ? neighborhoodsLayers.map(l => ({ ...l, type: 'neighborhoods' }))
-      : []
-    ),
+    ...(moleculesLayer ? [{ ...moleculesLayer, type: 'molecules' }] : []),
+    ...(cellsLayer ? [{ ...cellsLayer, type: 'cells' }] : []),
+    ...(neighborhoodsLayer ? [{ ...neighborhoodsLayer, type: 'neighborhoods' }] : []),
     ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: 'raster' })) : []),
-  ], [cellsLayers, moleculesLayers, neighborhoodsLayers, rasterLayers]);
+  ], [cellsLayer, moleculesLayer, neighborhoodsLayer, rasterLayers]);
 
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {

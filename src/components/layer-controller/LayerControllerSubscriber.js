@@ -24,9 +24,9 @@ const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
  * to call when the component has been removed from the grid.
  * @param {boolean} props.initializeSpatialRasterLayers Should the coordination
  * value be automatically initialized based on the data?
- * @param {boolean} props.initializeSpatialCellsLayers Should the coordination
+ * @param {boolean} props.initializespatialCellsLayer Should the coordination
  * value be automatically initialized based on the data?
- * @param {boolean} props.initializeSpatialMoleculesLayers Should the coordination
+ * @param {boolean} props.initializespatialMoleculesLayer Should the coordination
  * value be automatically initialized based on the data?
  * @param {string} props.title The component title.
  */
@@ -35,8 +35,8 @@ function LayerControllerSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    initializeSpatialCellsLayers = true,
-    initializeSpatialMoleculesLayers = true,
+    initializespatialCellsLayer = true,
+    initializespatialMoleculesLayer = true,
     title = 'Spatial Layers',
   } = props;
 
@@ -46,12 +46,12 @@ function LayerControllerSubscriber(props) {
   const [{
     dataset,
     spatialRasterLayers: rasterLayers,
-    spatialCellsLayers: cellsLayers,
-    spatialMoleculesLayers: moleculesLayers,
+    spatialCellsLayer: cellsLayer,
+    spatialMoleculesLayer: moleculesLayer,
   }, {
     setSpatialRasterLayers: setRasterLayers,
-    setSpatialCellsLayers: setCellsLayers,
-    setSpatialMoleculesLayers: setMoleculesLayers,
+    setspatialCellsLayer: setCellsLayer,
+    setspatialMoleculesLayer: setMoleculesLayer,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.layerController, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -72,13 +72,13 @@ function LayerControllerSubscriber(props) {
 
   useCellsData(
     loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialCellsLayers: setCellsLayers },
-    { initializeSpatialCellsLayers },
+    { setspatialCellsLayer: setCellsLayer },
+    { initializespatialCellsLayer },
   );
   useMoleculesData(
     loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialMoleculesLayers: setMoleculesLayers },
-    { initializeSpatialMoleculesLayers },
+    { setspatialMoleculesLayer: setMoleculesLayer },
+    { initializespatialMoleculesLayer },
   );
 
   const handleImageAdd = async (index) => {
@@ -94,16 +94,12 @@ function LayerControllerSubscriber(props) {
     setRasterLayers(newLayers);
   };
 
-  function handleCellsLayerChange(newLayer, i) {
-    const newLayers = [...cellsLayers];
-    newLayers[i] = newLayer;
-    setCellsLayers(newLayers);
+  function handleCellsLayerChange(newLayer) {
+    setCellsLayer(newLayer);
   }
 
-  function handleMoleculesLayerChange(newLayer, i) {
-    const newLayers = [...moleculesLayers];
-    newLayers[i] = newLayer;
-    setMoleculesLayers(newLayers);
+  function handleMoleculesLayerChange(newLayer) {
+    setMoleculesLayer(newLayer);
   }
 
   function handleRasterLayerChange(newLayer, i) {
@@ -127,24 +123,24 @@ function LayerControllerSubscriber(props) {
       isReady={isReady}
     >
       <div className="layer-controller-container">
-        {moleculesLayers && moleculesLayers.map((layer, i) => (
+        {moleculesLayer && (
           <VectorLayerController
             key={`${dataset}-molecules`}
             label="Molecules"
             layerType="molecules"
-            layer={layer}
-            handleLayerChange={v => handleMoleculesLayerChange(v, i)}
+            layer={moleculesLayer}
+            handleLayerChange={v => handleMoleculesLayerChange(v)}
           />
-        ))}
-        {cellsLayers && cellsLayers.map((layer, i) => (
+        )}
+        {cellsLayer && (
           <VectorLayerController
             key={`${dataset}-cells`}
             label="Cell Segmentations"
             layerType="cells"
-            layer={layer}
-            handleLayerChange={v => handleCellsLayerChange(v, i)}
+            layer={cellsLayer}
+            handleLayerChange={v => handleCellsLayerChange(v)}
           />
-        ))}
+        )}
         {rasterLayers && rasterLayers.map((layer, i) => {
           const { index } = layer;
           const loader = imageLayerLoaders[index];

@@ -244,17 +244,17 @@ export const upgradedLegacyViewConfig1_0_0 = {
         { index: 3 },
       ],
     },
-    spatialCellsLayers: {
+    spatialCellsLayer: {
       A: [
         { radius: 10, visible: true },
       ],
     },
-    spatialMoleculesLayers: {
+    spatialMoleculesLayer: {
       A: [
         { visible: false },
       ],
     },
-    spatialNeighborhoodsLayers: {
+    spatialNeighborhoodsLayer: {
       A: null,
     },
   },
@@ -285,9 +285,9 @@ export const upgradedLegacyViewConfig1_0_0 = {
       coordinationScopes: {
         dataset: 'A',
         spatialRasterLayers: 'A',
-        spatialCellsLayers: 'A',
-        spatialMoleculesLayers: 'A',
-        spatialNeighborhoodsLayers: 'A',
+        spatialCellsLayer: 'A',
+        spatialMoleculesLayer: 'A',
+        spatialNeighborhoodsLayer: 'A',
       },
       h: 4,
       props: {
@@ -382,13 +382,13 @@ export const initializedViewConfig = {
     spatialRasterLayers: {
       A: null,
     },
-    spatialCellsLayers: {
+    spatialCellsLayer: {
       A: null,
     },
-    spatialMoleculesLayers: {
+    spatialMoleculesLayer: {
       A: null,
     },
-    spatialNeighborhoodsLayers: {
+    spatialNeighborhoodsLayer: {
       A: null,
     },
     spatialRotation: {
@@ -506,9 +506,9 @@ export const initializedViewConfig = {
         geneHighlight: 'A',
         geneSelection: 'A',
         spatialRasterLayers: 'A',
-        spatialCellsLayers: 'A',
-        spatialMoleculesLayers: 'A',
-        spatialNeighborhoodsLayers: 'A',
+        spatialCellsLayer: 'A',
+        spatialMoleculesLayer: 'A',
+        spatialNeighborhoodsLayer: 'A',
         spatialRotation: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',

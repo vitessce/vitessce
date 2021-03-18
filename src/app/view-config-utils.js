@@ -310,18 +310,20 @@ export function upgradeFrom1_0_0(config) {
   const coordinationSpace = { ...config.coordinationSpace };
 
   function replaceLayerType(layerType) {
-    coordinationSpace[`spatial${capitalize(layerType)}Layers`] = {};
+    const isRaster = layerType === 'raster';
+    coordinationSpace[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = {};
     Object.entries(coordinationSpace.spatialLayers).forEach(([scope, layers]) => {
       if (Array.isArray(layers) && layers.find(layer => layer.type === layerType)) {
-        coordinationSpace[`spatial${capitalize(layerType)}Layers`][scope] = layers
+        const typedLayers = layers
           .filter(layer => layer.type === layerType)
           .map((layer) => {
             const newLayer = { ...layer };
             delete newLayer.type;
             return newLayer;
           });
+        coordinationSpace[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`][scope] = isRaster ? typedLayers : typedLayers[0];
       } else {
-        coordinationSpace[`spatial${capitalize(layerType)}Layers`][scope] = null;
+        coordinationSpace[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`][scope] = null;
       }
     });
   }
@@ -338,8 +340,9 @@ export function upgradeFrom1_0_0(config) {
     const newComponent = { ...component };
 
     function replaceCoordinationScope(layerType) {
-      if (COMPONENT_COORDINATION_TYPES[newComponent.component].includes(`spatial${capitalize(layerType)}Layers`)) {
-        newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layers`] = newComponent.coordinationScopes.spatialLayers;
+      const isRaster = layerType === 'raster';
+      if (COMPONENT_COORDINATION_TYPES[newComponent.component].includes(`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`)) {
+        newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = newComponent.coordinationScopes.spatialLayers;
       }
     }
 

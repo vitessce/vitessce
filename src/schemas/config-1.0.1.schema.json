@@ -63,9 +63,9 @@
               "geneExpressionTransform": { "type": "string" },
               "cellColorEncoding": { "type": "string" },
               "spatialRasterLayers": { "type": "string" },
-              "spatialCellsLayers": { "type": "string" },
-              "spatialMoleculesLayers": { "type": "string" },
-              "spatialNeighborhoodsLayers": { "type": "string" },
+              "spatialCellsLayer": { "type": "string" },
+              "spatialMoleculesLayer": { "type": "string" },
+              "spatialNeighborhoodsLayer": { "type": "string" },
               "genomicZoomX": { "type": "string" },
               "genomicZoomY": { "type": "string" },
               "genomicTargetX": { "type": "string" },
@@ -340,27 +340,6 @@
       "items": {
         "$ref": "#/definitions/rasterLayer"
       }
-    },
-    "spatialCellsLayers": {
-      "type": "array",
-      "description": "Array of Spatial Layers",
-      "items": {
-        "$ref": "#/definitions/cellsLayer"
-      }
-    },
-    "spatialMoleculesLayers": {
-      "type": "array",
-      "description": "Array of Spatial Layers",
-      "items": {
-        "$ref": "#/definitions/moleculesLayer"
-      }
-    },
-    "spatialNeighborhoodsLayers": {
-      "type": "array",
-      "description": "Array of Spatial Layers",
-      "items": {
-        "$ref": "#/definitions/neighborhoodsLayer"
-      }
     }
   },
   "additionalProperties": false,
@@ -550,7 +529,7 @@
             }
           }
         },
-        "spatialCellsLayers": {
+        "spatialCellsLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -559,12 +538,12 @@
                   "type": "null",
                   "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                 },
-                { "$ref": "#/definitions/spatialCellsLayers" }
+                { "$ref": "#/definitions/cellsLayer" }
               ]
             }
           }
         },
-        "spatialMoleculesLayers": {
+        "spatialNeighborhoodsLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -573,12 +552,12 @@
                   "type": "null",
                   "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                 },
-                { "$ref": "#/definitions/spatialMoleculesLayers" }
+                { "$ref": "#/definitions/neighborhoodsLayer" }
               ]
             }
           }
         },
-        "spatialNeighborhoodsLayers": {
+        "spatialMoleculesLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -587,7 +566,7 @@
                   "type": "null",
                   "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                 },
-                { "$ref": "#/definitions/spatialNeighborhoodsLayers" }
+                { "$ref": "#/definitions/moleculesLayer" }
               ]
             }
           }

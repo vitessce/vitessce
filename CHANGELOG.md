@@ -4,7 +4,7 @@
 - Added logo to README.
 - Log2 (plus 1) scaling for Violin Plot
 - Add gene name to expression violin plot.
-- Added a new view config schema version `1.0.1` which splits `spatialLayers` into `spatialRasterLayers`, `spatialCellsLayers`, `spatialMoleculesLayers`, and `spatialNeighborhoodsLayers`.
+- Added a new view config schema version `1.0.1` which splits `spatialLayers` into `spatialRasterLayers`, `spatialCellsLayer`, `spatialMoleculesLayer`, and `spatialNeighborhoodsLayer`.
     - Added an auto-upgrade function to upgrade from v1.0.0 to v1.0.1.
     - Spatial layer definition objects in v1.0.1 do not have a `type` property.
 - Added support for OME-Zarr raster files with the `OmeZarrLoader` class.

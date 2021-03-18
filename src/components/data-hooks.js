@@ -128,8 +128,8 @@ export function useCellsData(
         // This dataset has cells, so set up the
         // spatial cells layer coordination value
         // using the cell layer singleton.
-        const coordinationValuesOrDefault = coordinationValues || {
-          spatialCellsLayers: [DEFAULT_CELLS_LAYER],
+        const coordinationValuesOrDefault = {
+          spatialCellsLayer: coordinationValues || DEFAULT_CELLS_LAYER,
         };
         initCoordinationSpace(
           coordinationValuesOrDefault,
@@ -474,8 +474,8 @@ export function useMoleculesData(
           .map(l => l.length)
           .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
-        const coordinationValuesOrDefault = coordinationValues || {
-          spatialMoleculesLayers: [DEFAULT_MOLECULES_LAYER],
+        const coordinationValuesOrDefault = {
+          spatialMoleculesLayer: coordinationValues || DEFAULT_MOLECULES_LAYER,
         };
         initCoordinationSpace(
           coordinationValuesOrDefault,
@@ -544,9 +544,11 @@ export function useNeighborhoodsData(
           const { data, url, coordinationValues } = payload;
           setNeighborhoods(data);
           addUrl(url, 'Neighborhoods');
-          const coordinationValuesOrDefault = coordinationValues || {
-            spatialNeighborhoodsLayers: [DEFAULT_NEIGHBORHOODS_LAYER],
+          const coordinationValuesOrDefault = {
+            spatialNeighborhoodsLayer:
+              coordinationValues || DEFAULT_NEIGHBORHOODS_LAYER,
           };
+          console.log(coordinationValuesOrDefault); // eslint-disable-line
           initCoordinationSpace(
             coordinationValuesOrDefault,
             coordinationSetters,
