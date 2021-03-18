@@ -24,9 +24,9 @@ const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
  * to call when the component has been removed from the grid.
  * @param {boolean} props.initializeSpatialRasterLayers Should the coordination
  * value be automatically initialized based on the data?
- * @param {boolean} props.initializespatialCellsLayer Should the coordination
+ * @param {boolean} props.initializeSpatialCellsLayer Should the coordination
  * value be automatically initialized based on the data?
- * @param {boolean} props.initializespatialMoleculesLayer Should the coordination
+ * @param {boolean} props.initializeSpatialMoleculesLayer Should the coordination
  * value be automatically initialized based on the data?
  * @param {string} props.title The component title.
  */
@@ -35,8 +35,8 @@ function LayerControllerSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    initializespatialCellsLayer = true,
-    initializespatialMoleculesLayer = true,
+    initializeSpatialCellsLayer = true,
+    initializeSpatialMoleculesLayer = true,
     title = 'Spatial Layers',
   } = props;
 
@@ -50,8 +50,8 @@ function LayerControllerSubscriber(props) {
     spatialMoleculesLayer: moleculesLayer,
   }, {
     setSpatialRasterLayers: setRasterLayers,
-    setspatialCellsLayer: setCellsLayer,
-    setspatialMoleculesLayer: setMoleculesLayer,
+    setSpatialCellsLayer: setCellsLayer,
+    setSpatialMoleculesLayer: setMoleculesLayer,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.layerController, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -72,13 +72,13 @@ function LayerControllerSubscriber(props) {
 
   useCellsData(
     loaders, dataset, setItemIsReady, () => {}, false,
-    { setspatialCellsLayer: setCellsLayer },
-    { initializespatialCellsLayer },
+    { setSpatialCellsLayer: setCellsLayer },
+    { initializeSpatialCellsLayer },
   );
   useMoleculesData(
     loaders, dataset, setItemIsReady, () => {}, false,
-    { setspatialMoleculesLayer: setMoleculesLayer },
-    { initializespatialMoleculesLayer },
+    { setSpatialMoleculesLayer: setMoleculesLayer },
+    { initializeSpatialMoleculesLayer },
   );
 
   const handleImageAdd = async (index) => {

@@ -245,14 +245,10 @@ export const upgradedLegacyViewConfig1_0_0 = {
       ],
     },
     spatialCellsLayer: {
-      A: [
-        { radius: 10, visible: true },
-      ],
+      A: { radius: 10, visible: true },
     },
     spatialMoleculesLayer: {
-      A: [
-        { visible: false },
-      ],
+      A: { visible: false },
     },
     spatialNeighborhoodsLayer: {
       A: null,

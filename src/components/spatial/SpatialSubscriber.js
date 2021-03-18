@@ -39,11 +39,11 @@ const SPATIAL_DATA_TYPES = [
  * to call when the component has been removed from the grid.
  * @param {boolean} props.initializeSpatialRasterLayers Should the coordination
  * value be automatically initialized based on the data?
- * @param {boolean} props.initializespatialCellsLayer Should the coordination
+ * @param {boolean} props.initializeSpatialCellsLayer Should the coordination
  * value be automatically initialized based on the data?
- * @param {boolean} props.initializespatialMoleculesLayer Should the coordination
+ * @param {boolean} props.initializeSpatialMoleculesLayer Should the coordination
  * value be automatically initialized based on the data?
- * @param {boolean} props.initializeSpatialNeighborhoodsLayers Should the coordination
+ * @param {boolean} props.initializeSpatialNeighborhoodsLayer Should the coordination
  * value be automatically initialized based on the data?
  * @param {boolean} props.initializeCellSetSelection Should the coordination
  * value be automatically initialized based on the data?
@@ -62,9 +62,9 @@ export default function SpatialSubscriber(props) {
     subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
     theme,
     disableTooltip = false,
-    initializespatialCellsLayer = true,
-    initializespatialMoleculesLayer = true,
-    initializeSpatialNeighborhoodsLayers = true,
+    initializeSpatialCellsLayer = true,
+    initializeSpatialMoleculesLayer = true,
+    initializeSpatialNeighborhoodsLayer = true,
     initializeSpatialRasterLayers = true,
     initializeCellSetSelection = true,
     initializeCellSetColor = true,
@@ -99,9 +99,9 @@ export default function SpatialSubscriber(props) {
     setSpatialTargetY: setTargetY,
     setSpatialTargetZ: setTargetZ,
     setSpatialRasterLayers: setRasterLayers,
-    setspatialCellsLayer: setCellsLayer,
-    setspatialMoleculesLayer: setMoleculesLayer,
-    setSpatialNeighborhoodsLayers: setNeighborhoodsLayers,
+    setSpatialCellsLayer: setCellsLayer,
+    setSpatialMoleculesLayer: setMoleculesLayer,
+    setSpatialNeighborhoodsLayer: setNeighborhoodsLayer,
     setCellFilter,
     setCellSetSelection,
     setCellHighlight,
@@ -128,18 +128,18 @@ export default function SpatialSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setspatialCellsLayer: setCellsLayer },
-    { initializespatialCellsLayer },
+    { setSpatialCellsLayer: setCellsLayer },
+    { initializeSpatialCellsLayer },
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setspatialMoleculesLayer: setMoleculesLayer },
-    { initializespatialMoleculesLayer },
+    { setSpatialMoleculesLayer: setMoleculesLayer },
+    { initializeSpatialMoleculesLayer },
   );
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialNeighborhoodsLayers: setNeighborhoodsLayers },
-    { initializeSpatialNeighborhoodsLayers },
+    { setSpatialNeighborhoodsLayer: setNeighborhoodsLayer },
+    { initializeSpatialNeighborhoodsLayer },
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
