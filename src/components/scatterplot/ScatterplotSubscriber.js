@@ -128,7 +128,7 @@ export default function ScatterplotSubscriber(props) {
     loaders, dataset, setItemIsReady, false, geneSelection,
   );
   const [attrs] = useExpressionAttrs(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, setItemIsReady, addUrl, false,
   );
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 

@@ -66,7 +66,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
     loaders, dataset, setItemIsReady, false, geneSelection,
   );
   const [attrs] = useExpressionAttrs(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, setItemIsReady, addUrl, false,
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, true,
