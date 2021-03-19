@@ -28,6 +28,18 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
+/**
+ * A subscriber component for the scatterplot.
+ * @param {object} props
+ * @param {number} props.uuid The unique identifier for this component.
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {boolean} props.disableTooltip Should the tooltip be disabled?
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {string} props.title An override value for the component title.
+ */
 export default function ScatterplotSubscriber(props) {
   const {
     uuid,
@@ -37,6 +49,7 @@ export default function ScatterplotSubscriber(props) {
     disableTooltip = false,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
+    title: titleOverride,
   } = props;
 
   const loaders = useLoaders();
@@ -85,6 +98,8 @@ export default function ScatterplotSubscriber(props) {
     SCATTERPLOT_DATA_TYPES,
   );
 
+  const title = titleOverride || `Scatterplot (${mapping})`;
+
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
@@ -100,12 +115,14 @@ export default function ScatterplotSubscriber(props) {
     setItemIsReady,
     addUrl,
     false,
+    { setCellSetSelection, setCellSetColor },
+    { cellSetSelection, cellSetColor },
   );
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection,
   );
   const [attrs] = useExpressionAttrs(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, setItemIsReady, addUrl, false,
   );
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
@@ -183,7 +200,7 @@ export default function ScatterplotSubscriber(props) {
 
   return (
     <TitleInfo
-      title={`Scatterplot (${mapping})`}
+      title={title}
       info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}

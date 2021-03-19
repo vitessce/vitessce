@@ -248,7 +248,7 @@ export async function initializeRasterLayersAndChannels(
   usePhysicalSizeScaling,
 ) {
   const nextImageLoaders = [];
-  let nextImageMeta = [];
+  let nextImageMetaAndLayers = [];
   const autoImageLayerDefPromises = [];
 
   // Start all loader creators immediately.
@@ -259,10 +259,10 @@ export async function initializeRasterLayersAndChannels(
     const layer = rasterLayers[i];
     const loader = loaders[i];
     nextImageLoaders[i] = loader;
-    nextImageMeta[i] = layer;
+    nextImageMetaAndLayers[i] = layer;
   }
   if (usePhysicalSizeScaling) {
-    nextImageMeta = getMetaWithTransformMatrices(nextImageMeta, nextImageLoaders);
+    nextImageMetaAndLayers = getMetaWithTransformMatrices(nextImageMetaAndLayers, nextImageLoaders);
   }
   // No layers were pre-defined so set up the default image layers.
   if (!rasterRenderLayers) {
@@ -271,7 +271,16 @@ export async function initializeRasterLayersAndChannels(
     const loader = nextImageLoaders[layerIndex];
     const autoImageLayerDefPromise = initializeLayerChannels(loader)
       .then(channels => Promise.resolve({
-        type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix, transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
+        type: 'raster',
+        index: layerIndex,
+        ...DEFAULT_RASTER_LAYER_PROPS,
+        channels: channels.map((channel, j) => ({
+          ...channel,
+          ...(nextImageMetaAndLayers[layerIndex].channels
+            ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
+        })),
+        modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
+        transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
       }));
     autoImageLayerDefPromises.push(autoImageLayerDefPromise);
   } else {
@@ -284,14 +293,24 @@ export async function initializeRasterLayersAndChannels(
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max', modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix, transparentColor: i > 0 ? [0, 0, 0] : null,
+          type: 'raster',
+          index: layerIndex,
+          ...DEFAULT_RASTER_LAYER_PROPS,
+          channels: channels.map((channel, j) => ({
+            ...channel,
+            ...(nextImageMetaAndLayers[layerIndex].channels
+              ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
+          })),
+          domainType: 'Min/Max',
+          modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
+          transparentColor: i > 0 ? [0, 0, 0] : null,
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }
   }
 
   const autoImageLayerDefs = await Promise.all(autoImageLayerDefPromises);
-  return [autoImageLayerDefs, nextImageLoaders, nextImageMeta];
+  return [autoImageLayerDefs, nextImageLoaders, nextImageMetaAndLayers];
 }
 
 /**
@@ -366,6 +385,8 @@ export function getInitialSpatialTargets({
     initialTargetX = xExtent[0] + xRange / 2;
     initialTargetY = yExtent[0] + yRange / 2;
     initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
+  } else {
+    return { initialTargetX: null, initialTargetY: null, initialZoom: null };
   }
   return { initialTargetX, initialTargetY, initialZoom };
 }

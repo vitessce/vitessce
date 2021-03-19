@@ -2,11 +2,13 @@
 import {
   treeInitialize,
   nodeAppendChild,
+  initializeCellSetColor,
 } from '../../components/sets/cell-set-utils';
 import {
   SETS_DATATYPE_CELL,
 } from '../../components/sets/constants';
 import BaseAnnDataLoader from './BaseAnnDataLoader';
+import LoaderResult from '../LoaderResult';
 
 /**
  * Loader for converting zarr into the cell sets json schema.
@@ -41,7 +43,17 @@ export default class CellSetsZarrLoader extends BaseAnnDataLoader {
           );
           cellSetsTree.tree.push(levelZeroNode);
         });
-        return Promise.resolve({ data: cellSetsTree, url: null });
+        const coordinationValues = {};
+        const { tree } = cellSetsTree;
+        const newAutoSetSelectionParentName = tree[0].name;
+        // Create a list of set paths to initally select.
+        const newAutoSetSelections = tree[0].children
+          .map(node => ([newAutoSetSelectionParentName, node.name]));
+        // Create a list of cell set objects with color mappings.
+        const newAutoSetColors = initializeCellSetColor(cellSetsTree, []);
+        coordinationValues.cellSetSelection = newAutoSetSelections;
+        coordinationValues.cellSetColor = newAutoSetColors;
+        return Promise.resolve(new LoaderResult(cellSetsTree, null, coordinationValues));
       });
   }
 }

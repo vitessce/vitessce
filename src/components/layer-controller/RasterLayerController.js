@@ -42,12 +42,8 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  */
 export default function RasterLayerController(props) {
   const {
-    layer,
-    name,
-    loader,
-    theme,
-    handleLayerRemove,
-    handleLayerChange,
+    layer, name, loader, theme, rasterType,
+    handleLayerRemove, handleLayerChange,
   } = props;
 
   const {
@@ -62,7 +58,7 @@ export default function RasterLayerController(props) {
   const [domainType, setDomainType] = useState(layer.domainType);
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
     GLOBAL_SLIDER_DIMENSION_FIELDS
-      .filter(field => firstSelection[field])
+      .filter(field => typeof firstSelection[field] === 'number')
       .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
   );
 
@@ -114,7 +110,7 @@ export default function RasterLayerController(props) {
       // Set new image to default selection for non-global selections (0)
       // and use current global selection otherwise.
       selection[dimension.field] = GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
-        ? globalDimensionValues[dimension.field]
+        ? (globalDimensionValues[dimension.field] || 0)
         : 0;
     });
     const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType);
@@ -181,7 +177,7 @@ export default function RasterLayerController(props) {
 
   let channelControllers = [];
   if (dimensions.length > 0) {
-    const channelDimensions = loader.type === 'ome-tiff' ? dimensions.find(c => c.field === 'channel') : dimensions[0];
+    const channelDimensions = rasterType === 'ome-tiff' || rasterType === 'ome-zarr' ? dimensions.find(c => c.field === 'channel') : dimensions[0];
     const { values: channelOptions, field: dimName } = channelDimensions;
     // Create the channel controllers for each channel.
     channelControllers = channels.map(

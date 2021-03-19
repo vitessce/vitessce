@@ -1,4 +1,5 @@
 import BaseAnnDataLoader from './BaseAnnDataLoader';
+import LoaderResult from '../LoaderResult';
 
 /**
  * Loader for converting zarr into the cell json schema.
@@ -118,6 +119,6 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
         cells[name].factors = factorsObj;
       }
     });
-    return Promise.resolve({ data: cells, url: null });
+    return Promise.resolve(new LoaderResult(cells, null));
   }
 }

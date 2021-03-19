@@ -1,6 +1,7 @@
 /* eslint-disable no-plusplus */
+/* eslint-disable camelcase */
 import uuidv4 from 'uuid/v4';
-import { getNextScope } from '../utils';
+import { getNextScope, capitalize } from '../utils';
 import {
   COORDINATION_TYPES,
   DEFAULT_COORDINATION_VALUES,
@@ -208,7 +209,7 @@ function upgradeReplaceViewProp(prefix, view, coordinationSpace) {
  * @param {object} config A v0.1.0 "legacy" view config.
  * @returns {object} A v1.0.0 "upgraded" view config.
  */
-export function upgrade(config, datasetUid = null) {
+export function upgradeFrom0_1_0(config, datasetUid = null) {
   const coordinationSpace = {
     embeddingType: {},
     embeddingZoom: {},
@@ -284,7 +285,7 @@ export function upgrade(config, datasetUid = null) {
   const newDatasetUid = datasetUid || uuidv4();
 
   return {
-    version: '1.0.0',
+    version: '1.0.1',
     name: config.name,
     description: config.description,
     public: config.public,
@@ -303,4 +304,72 @@ export function upgrade(config, datasetUid = null) {
     coordinationSpace,
     layout,
   };
+}
+
+export function upgradeFrom1_0_0(config) {
+  const coordinationSpace = { ...config.coordinationSpace };
+
+  function replaceLayerType(layerType) {
+    const isRaster = layerType === 'raster';
+    coordinationSpace[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = {};
+    Object.entries(coordinationSpace.spatialLayers).forEach(([scope, layers]) => {
+      if (Array.isArray(layers) && layers.find(layer => layer.type === layerType)) {
+        const typedLayers = layers
+          .filter(layer => layer.type === layerType)
+          .map((layer) => {
+            const newLayer = { ...layer };
+            delete newLayer.type;
+            return newLayer;
+          });
+        coordinationSpace[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`][scope] = isRaster ? typedLayers : typedLayers[0];
+      } else {
+        coordinationSpace[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`][scope] = null;
+      }
+    });
+  }
+
+  if (coordinationSpace.spatialLayers) {
+    replaceLayerType('raster');
+    replaceLayerType('cells');
+    replaceLayerType('molecules');
+    replaceLayerType('neighborhoods');
+    delete coordinationSpace.spatialLayers;
+  }
+
+  const layout = config.layout.map((component) => {
+    const newComponent = { ...component };
+
+    function replaceCoordinationScope(layerType) {
+      const isRaster = layerType === 'raster';
+      if (COMPONENT_COORDINATION_TYPES[newComponent.component].includes(`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`)) {
+        newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = newComponent.coordinationScopes.spatialLayers;
+      }
+    }
+
+    if (newComponent.coordinationScopes && newComponent.coordinationScopes.spatialLayers) {
+      replaceCoordinationScope('raster');
+      replaceCoordinationScope('cells');
+      replaceCoordinationScope('molecules');
+      replaceCoordinationScope('neighborhoods');
+      delete newComponent.coordinationScopes.spatialLayers;
+    }
+    return newComponent;
+  });
+
+  return {
+    ...config,
+    coordinationSpace,
+    layout,
+    version: '1.0.1',
+  };
+}
+
+export function upgrade(fromVersion, oldConfig) {
+  if (fromVersion === '0.1.0') {
+    return upgradeFrom0_1_0(oldConfig);
+  }
+  if (fromVersion === '1.0.0') {
+    return upgradeFrom1_0_0(oldConfig);
+  }
+  throw new Error(`Unable to upgrade from unknown version ${fromVersion}`);
 }

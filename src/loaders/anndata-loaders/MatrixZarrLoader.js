@@ -2,6 +2,7 @@
 import { openArray, slice } from 'zarr';
 import { extent } from 'd3-array';
 import BaseAnnDataLoader from './BaseAnnDataLoader';
+import LoaderResult from '../LoaderResult';
 
 const normalize = (arr) => {
   const [min, max] = extent(arr);
@@ -160,7 +161,6 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       for (let i = 0; i < numCells; i += 1) {
         geneData[i] = cellXGene[i * numGenes + index];
       }
-      console.log(index, geneData) // eslint-disable-line
       return geneData;
     });
   }
@@ -355,10 +355,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
           );
           attrs.cols = attrs.cols.filter((_, i) => matrixGeneFilter[i]);
         }
-        return {
-          data: [attrs, cellXGene],
-          url: null,
-        };
+        return Promise.resolve(new LoaderResult([attrs, cellXGene], null));
       },
     );
   }

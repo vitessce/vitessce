@@ -2,6 +2,9 @@ import { createZarrLoader, createOMETiffLoader } from '@hms-dbmi/viv';
 import rasterSchema from '../schemas/raster.schema.json';
 import JsonLoader from './JsonLoader';
 import { AbstractLoaderError } from './errors';
+import LoaderResult from './LoaderResult';
+
+import { initializeRasterLayersAndChannels } from '../components/spatial/utils';
 
 async function initLoader(imageData) {
   const {
@@ -76,9 +79,29 @@ export default class RasterLoader extends JsonLoader {
         return loader;
       },
     }));
-    return Promise.resolve({
-      data: { layers: imagesWithLoaderCreators, renderLayers, usePhysicalSizeScaling },
-      urls,
-    });
+
+    // TODO: use options for initial selection of channels
+    // which omit domain/slider ranges.
+    const [
+      autoImageLayers,
+      imageLayerLoaders,
+      imageLayerMeta,
+    ] = await initializeRasterLayersAndChannels(
+      imagesWithLoaderCreators,
+      renderLayers,
+      usePhysicalSizeScaling,
+    );
+
+    const coordinationValues = {
+      spatialRasterLayers: autoImageLayers,
+    };
+
+    return Promise.resolve(
+      new LoaderResult(
+        { loaders: imageLayerLoaders, meta: imageLayerMeta },
+        urls,
+        coordinationValues,
+      ),
+    );
   }
 }

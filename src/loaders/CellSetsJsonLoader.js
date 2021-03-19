@@ -2,6 +2,9 @@ import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import JsonLoader from './JsonLoader';
 import { tryUpgradeTreeToLatestSchema } from '../components/sets/io';
 import { AbstractLoaderError } from './errors';
+import LoaderResult from './LoaderResult';
+
+import { initializeCellSetColor } from '../components/sets/cell-set-utils';
 
 export default class CellSetsJsonLoader extends JsonLoader {
   constructor(params) {
@@ -17,6 +20,24 @@ export default class CellSetsJsonLoader extends JsonLoader {
     }
     const { data: rawData, url } = payload;
     const upgradedData = tryUpgradeTreeToLatestSchema(rawData, 'cell');
-    return Promise.resolve({ data: upgradedData, url });
+
+    const coordinationValues = {
+      cellSetSelection: [],
+      cellSetColor: [],
+    };
+
+    // Set up the initial coordination values.
+    if (upgradedData && upgradedData.tree.length >= 1) {
+      const { tree } = upgradedData;
+      const newAutoSetSelectionParentName = tree[0].name;
+      // Create a list of set paths to initally select.
+      const newAutoSetSelections = tree[0].children
+        .map(node => ([newAutoSetSelectionParentName, node.name]));
+      // Create a list of cell set objects with color mappings.
+      const newAutoSetColors = initializeCellSetColor(upgradedData, []);
+      coordinationValues.cellSetSelection = newAutoSetSelections;
+      coordinationValues.cellSetColor = newAutoSetColors;
+    }
+    return Promise.resolve(new LoaderResult(upgradedData, url, coordinationValues));
   }
 }
