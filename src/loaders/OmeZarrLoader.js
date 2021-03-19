@@ -55,6 +55,7 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
       console.error('Path for image not valid');
       return Promise.reject(payload);
     }
+    console.log(omero) // eslint-disable-line 
 
     const { rdefs, channels, name } = omero;
 
@@ -109,8 +110,8 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
     const imagesWithLoaderCreators = [
       {
         ...image,
-        channels: channels.map(channel => ({
-          selection: { z, time, channel: channel.label },
+        channels: channels.map((channel, i) => ({
+          selection: { z, time, channel: i },
           slider: [channel.window.start, channel.window.end],
           color: hexToRgb(channel.color),
         })),
