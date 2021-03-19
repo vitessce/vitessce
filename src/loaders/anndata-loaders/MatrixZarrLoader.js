@@ -160,7 +160,6 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       for (let i = 0; i < numCells; i += 1) {
         geneData[i] = cellXGene[i * numGenes + index];
       }
-      console.log(index, geneData) // eslint-disable-line
       return geneData;
     });
   }

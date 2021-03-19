@@ -497,9 +497,7 @@ export const configs = {
           spatialZoom: 'A',
           spatialLayers: 'A',
         },
-        props: {
-          initializeSpatialMoleculesLayer: false,
-        },
+        props: {},
         x: 0, y: 0, w: 10, h: 2 },
       { component: 'genes',
         x: 10, y: 0, w: 2, h: 4 },

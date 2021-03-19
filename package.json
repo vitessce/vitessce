@@ -52,6 +52,7 @@
     "d3-scale-chromatic": "^1.3.3",
     "deck.gl": "8.4.0-alpha.4",
     "dynamic-import-polyfill": "^0.1.1",
+    "fast-deep-equal": "^3.1.3",
     "glslify": "^7.0.0",
     "higlass": "1.11.4",
     "higlass-register": "^0.3.0",

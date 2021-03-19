@@ -29,6 +29,7 @@ import {
   nodeInsertChild,
   filterNode,
   treeInitialize,
+  initializeCellSetColor,
 } from './cell-set-utils';
 import {
   isEqualOrPrefix,
@@ -65,18 +66,12 @@ const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
  * scopes.
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
- * @param {boolean} props.initializeCellSetSelection Should the coordination
- * value be automatically initialized based on the data?
- * @param {boolean} props.initializeCellSetColor Should the coordination
- * value be automatically initialized based on the data?
  * @param {string} props.title The component title.
  */
 export default function CellSetsManagerSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
-    initializeCellSetSelection = true,
-    initializeCellSetColor = true,
     theme,
     title = 'Cell Sets',
   } = props;
@@ -118,7 +113,7 @@ export default function CellSetsManagerSubscriber(props) {
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, true,
     { setCellSetSelection, setCellSetColor },
-    { initializeCellSetSelection, initializeCellSetColor },
+    { cellSetSelection, cellSetColor },
   );
 
   // Validate and upgrade the additionalCellSets.

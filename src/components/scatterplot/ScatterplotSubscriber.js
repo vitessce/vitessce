@@ -38,10 +38,6 @@ const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
  * @param {boolean} props.disableTooltip Should the tooltip be disabled?
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
- * @param {boolean} props.initializeCellSetSelection Should the coordination
- * value be automatically initialized based on the data?
- * @param {boolean} props.initializeCellSetColor Should the coordination
- * value be automatically initialized based on the data?
  * @param {string} props.title An override value for the component title.
  */
 export default function ScatterplotSubscriber(props) {
@@ -53,8 +49,6 @@ export default function ScatterplotSubscriber(props) {
     disableTooltip = false,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
-    initializeCellSetSelection = true,
-    initializeCellSetColor = true,
     title: titleOverride,
   } = props;
 
@@ -122,7 +116,7 @@ export default function ScatterplotSubscriber(props) {
     addUrl,
     false,
     { setCellSetSelection, setCellSetColor },
-    { initializeCellSetSelection, initializeCellSetColor },
+    { cellSetSelection, cellSetColor },
   );
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection,

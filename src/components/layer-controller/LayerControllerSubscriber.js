@@ -22,12 +22,6 @@ const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
  * scopes.
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
- * @param {boolean} props.initializeSpatialRasterLayers Should the coordination
- * value be automatically initialized based on the data?
- * @param {boolean} props.initializeSpatialCellsLayer Should the coordination
- * value be automatically initialized based on the data?
- * @param {boolean} props.initializeSpatialMoleculesLayer Should the coordination
- * value be automatically initialized based on the data?
  * @param {string} props.title The component title.
  */
 function LayerControllerSubscriber(props) {
@@ -35,8 +29,6 @@ function LayerControllerSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    initializeSpatialCellsLayer = true,
-    initializeSpatialMoleculesLayer = true,
     title = 'Spatial Layers',
   } = props;
 
@@ -73,12 +65,12 @@ function LayerControllerSubscriber(props) {
   useCellsData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialCellsLayer: setCellsLayer },
-    { initializeSpatialCellsLayer },
+    { spatialRasterLayers: rasterLayers },
   );
   useMoleculesData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialMoleculesLayer: setMoleculesLayer },
-    { initializeSpatialMoleculesLayer },
+    { spatialMoleculesLayer: moleculesLayer },
   );
 
   const handleImageAdd = async (index) => {

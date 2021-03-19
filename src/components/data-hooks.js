@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import equal from 'fast-deep-equal';
 import { capitalize } from '../utils';
 import { useSetWarning } from '../app/state/hooks';
 import {
@@ -10,6 +11,7 @@ import {
   DEFAULT_CELLS_LAYER,
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
+import { DEFAULT_COORDINATION_VALUES } from '../app/state/coordination';
 
 /**
  * Warn via publishing to the console
@@ -32,21 +34,20 @@ function warn(error, setWarning) {
  * @param {object} setters Object where
  * keys are coordination type names with the prefix 'set',
  * values are coordination setter functions.
- * @param {object} preferences Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
+ * @param {object} initialValues Object where
+ * keys are coordination type names and keys are values.
  */
-function initCoordinationSpace(values, setters, preferences) {
+function initCoordinationSpace(values, setters, initialValues) {
   if (!values || !setters) {
     return;
   }
-  Object.entries(values).forEach(([coordinationType, initialValue]) => {
+  Object.entries(values).forEach(([coordinationType, value]) => {
     const setterName = `set${capitalize(coordinationType)}`;
-    const prefName = `initialize${capitalize(coordinationType)}`;
     const setterFunc = setters[setterName];
-    const shouldInit = preferences && preferences[prefName];
+    const initialValue = initialValues && initialValues[coordinationType];
+    const shouldInit = equal(initialValue, DEFAULT_COORDINATION_VALUES[coordinationType]);
     if (shouldInit && setterFunc) {
-      setterFunc(initialValue);
+      setterFunc(value);
     }
   });
 }
@@ -97,7 +98,7 @@ export function useDescription(loaders, dataset) {
  * @param {object} coordinationSetters Object where
  * keys are coordination type names with the prefix 'set',
  * values are coordination setter functions.
- * @param {object} coordinationPreferences Object where
+ * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
  * @returns {array} [cells, cellsCount] where
@@ -106,7 +107,7 @@ export function useDescription(loaders, dataset) {
  */
 export function useCellsData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, coordinationPreferences,
+  coordinationSetters, initialCoordinationValues,
 ) {
   const [cells, setCells] = useState({});
   const [cellsCount, setCellsCount] = useState(0);
@@ -134,7 +135,7 @@ export function useCellsData(
         };
         initCoordinationSpace(
           coordinationValuesOrDefault,
-          coordinationSetters, coordinationPreferences,
+          coordinationSetters, initialCoordinationValues,
         );
         setItemIsReady('cells');
       });
@@ -171,15 +172,14 @@ export function useCellsData(
  * @param {object} coordinationSetters Object where
  * keys are coordination type names with the prefix 'set',
  * values are coordination setter functions.
- * @param {object} coordinationPreferences Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
+ * @param {object} initialCoordinationValues Object where
+ * keys are coordination type names and values are the current values.
  * @returns {array} [cellSets] where
  * cellSets is a sets tree object.
  */
 export function useCellSetsData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, coordinationPreferences,
+  coordinationSetters, initialCoordinationValues,
 ) {
   const [cellSets, setCellSets] = useState();
 
@@ -200,7 +200,7 @@ export function useCellSetsData(
         initCoordinationSpace(
           coordinationValues,
           coordinationSetters,
-          coordinationPreferences,
+          initialCoordinationValues,
         );
         setItemIsReady('cell-sets');
       });
@@ -238,7 +238,7 @@ export function useCellSetsData(
  * @param {object} coordinationSetters Object where
  * keys are coordination type names with the prefix 'set',
  * values are coordination setter functions.
- * @param {object} coordinationPreferences Object where
+ * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
  * @returns {array} [expressionMatrix] where
@@ -247,7 +247,7 @@ export function useCellSetsData(
  */
 export function useExpressionMatrixData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, coordinationPreferences,
+  coordinationSetters, initialCoordinationValues,
 ) {
   const [expressionMatrix, setExpressionMatrix] = useState();
 
@@ -272,7 +272,7 @@ export function useExpressionMatrixData(
         initCoordinationSpace(
           coordinationValues,
           coordinationSetters,
-          coordinationPreferences,
+          initialCoordinationValues,
         );
         setItemIsReady('expression-matrix');
       });
@@ -442,7 +442,7 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
  * @param {object} coordinationSetters Object where
  * keys are coordination type names with the prefix 'set',
  * values are coordination setter functions.
- * @param {object} coordinationPreferences Object where
+ * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
  * @returns {array} [molecules, moleculesCount, locationsCount] where
@@ -452,7 +452,7 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
  */
 export function useMoleculesData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, coordinationPreferences,
+  coordinationSetters, initialCoordinationValues,
 ) {
   const [molecules, setMolecules] = useState();
   const [moleculesCount, setMoleculesCount] = useState(0);
@@ -482,7 +482,7 @@ export function useMoleculesData(
         initCoordinationSpace(
           coordinationValuesOrDefault,
           coordinationSetters,
-          coordinationPreferences,
+          initialCoordinationValues,
         );
         setItemIsReady('molecules');
       });
@@ -520,7 +520,7 @@ export function useMoleculesData(
  * @param {object} coordinationSetters Object where
  * keys are coordination type names with the prefix 'set',
  * values are coordination setter functions.
- * @param {object} coordinationPreferences Object where
+ * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
  * @returns {array} [neighborhoods] where
@@ -528,7 +528,7 @@ export function useMoleculesData(
  */
 export function useNeighborhoodsData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, coordinationPreferences,
+  coordinationSetters, initialCoordinationValues,
 ) {
   const [neighborhoods, setNeighborhoods] = useState();
 
@@ -553,7 +553,7 @@ export function useNeighborhoodsData(
           initCoordinationSpace(
             coordinationValuesOrDefault,
             coordinationSetters,
-            coordinationPreferences,
+            initialCoordinationValues,
           );
           setItemIsReady('neighborhoods');
         });
@@ -589,7 +589,7 @@ export function useNeighborhoodsData(
  * @param {object} coordinationSetters Object where
  * keys are coordination type names with the prefix 'set',
  * values are coordination setter functions.
- * @param {object} coordinationPreferences Object where
+ * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
  * @returns {array} [raster, imageLayerLoaders, imageLayerMeta] where
@@ -599,7 +599,7 @@ export function useNeighborhoodsData(
  */
 export function useRasterData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, coordinationPreferences,
+  coordinationSetters, initialCoordinationValues,
 ) {
   const [raster, setRaster] = useState();
   // Since we want the image layer / channel definitions to come from the
@@ -630,7 +630,7 @@ export function useRasterData(
         initCoordinationSpace(
           coordinationValues,
           coordinationSetters,
-          coordinationPreferences,
+          initialCoordinationValues,
         );
         setItemIsReady('raster');
       });
@@ -669,7 +669,7 @@ export function useRasterData(
  * @param {object} coordinationSetters Object where
  * keys are coordination type names with the prefix 'set',
  * values are coordination setter functions.
- * @param {object} coordinationPreferences Object where
+ * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
  * @returns {array} [neighborhoods] where
@@ -677,7 +677,7 @@ export function useRasterData(
  */
 export function useGenomicProfilesData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, coordinationPreferences,
+  coordinationSetters, initialCoordinationValues,
 ) {
   const [genomicProfilesAttrs, setGenomicProfilesAttrs] = useState();
 
@@ -698,7 +698,7 @@ export function useGenomicProfilesData(
           initCoordinationSpace(
             coordinationValues,
             coordinationSetters,
-            coordinationPreferences,
+            initialCoordinationValues,
           );
           setItemIsReady('genomic-profiles');
         });

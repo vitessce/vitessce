@@ -16,7 +16,9 @@ import {
   useCoordination, useLoaders,
   useSetComponentHover, useSetComponentViewInfo,
 } from '../../app/state/hooks';
-import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import {
+  COMPONENT_COORDINATION_TYPES,
+} from '../../app/state/coordination';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
@@ -29,10 +31,6 @@ const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
  * scopes.
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
- * @param {boolean} props.initializeCellSetSelection Should the coordination
- * value be automatically initialized based on the data?
- * @param {boolean} props.initializeCellSetColor Should the coordination
- * value be automatically initialized based on the data?
  * @param {string} props.title The component title.
  * @param {boolean} props.transpose Whether to
  * render as cell-by-gene or gene-by-cell.
@@ -57,8 +55,6 @@ export default function HeatmapSubscriber(props) {
     variablesLabelOverride: variablesLabel = 'gene',
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     disableTooltip = false,
-    initializeCellSetSelection = true,
-    initializeCellSetColor = true,
     title = 'Heatmap',
   } = props;
 
@@ -120,7 +116,7 @@ export default function HeatmapSubscriber(props) {
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setCellSetSelection, setCellSetColor },
-    { initializeCellSetSelection, initializeCellSetColor },
+    { cellSetSelection, cellSetColor },
   );
 
   const mergedCellSets = useMemo(() => mergeCellSets(

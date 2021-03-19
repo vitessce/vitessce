@@ -37,18 +37,6 @@ const SPATIAL_DATA_TYPES = [
  * scopes.
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
- * @param {boolean} props.initializeSpatialRasterLayers Should the coordination
- * value be automatically initialized based on the data?
- * @param {boolean} props.initializeSpatialCellsLayer Should the coordination
- * value be automatically initialized based on the data?
- * @param {boolean} props.initializeSpatialMoleculesLayer Should the coordination
- * value be automatically initialized based on the data?
- * @param {boolean} props.initializeSpatialNeighborhoodsLayer Should the coordination
- * value be automatically initialized based on the data?
- * @param {boolean} props.initializeCellSetSelection Should the coordination
- * value be automatically initialized based on the data?
- * @param {boolean} props.initializeCellSetColor Should the coordination
- * value be automatically initialized based on the data?
  * @param {string} props.title The component title.
  */
 export default function SpatialSubscriber(props) {
@@ -62,12 +50,6 @@ export default function SpatialSubscriber(props) {
     subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
     theme,
     disableTooltip = false,
-    initializeSpatialCellsLayer = true,
-    initializeSpatialMoleculesLayer = true,
-    initializeSpatialNeighborhoodsLayer = true,
-    initializeSpatialRasterLayers = true,
-    initializeCellSetSelection = true,
-    initializeCellSetColor = true,
     title = 'Spatial',
   } = props;
 
@@ -129,22 +111,22 @@ export default function SpatialSubscriber(props) {
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialCellsLayer: setCellsLayer },
-    { initializeSpatialCellsLayer },
+    { spatialCellsLayer: cellsLayer },
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialMoleculesLayer: setMoleculesLayer },
-    { initializeSpatialMoleculesLayer },
+    { spatialMoleculesLayer: moleculesLayer },
   );
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialNeighborhoodsLayer: setNeighborhoodsLayer },
-    { initializeSpatialNeighborhoodsLayer },
+    { spatialNeighborhoodsLayer: neighborhoodsLayer },
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setCellSetSelection, setCellSetColor },
-    { initializeCellSetSelection, initializeCellSetColor },
+    { cellSetSelection, cellSetColor },
   );
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection,
@@ -156,7 +138,7 @@ export default function SpatialSubscriber(props) {
   const [raster, imageLayerLoaders] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialRasterLayers: setRasterLayers },
-    { initializeSpatialRasterLayers },
+    { spatialRasterLayers: rasterLayers },
   );
 
   const layers = useMemo(() => [
