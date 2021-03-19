@@ -4,9 +4,7 @@ import { tryUpgradeTreeToLatestSchema } from '../components/sets/io';
 import { AbstractLoaderError } from './errors';
 import LoaderResult from './LoaderResult';
 
-import {
-  initializeCellSetColor,
-} from '../components/sets/cell-set-utils';
+import { initializeCellSetColor } from '../components/sets/cell-set-utils';
 
 export default class CellSetsJsonLoader extends JsonLoader {
   constructor(params) {
