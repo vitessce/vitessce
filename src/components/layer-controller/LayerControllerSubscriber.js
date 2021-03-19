@@ -86,14 +86,6 @@ function LayerControllerSubscriber(props) {
     setRasterLayers(newLayers);
   };
 
-  function handleCellsLayerChange(newLayer) {
-    setCellsLayer(newLayer);
-  }
-
-  function handleMoleculesLayerChange(newLayer) {
-    setMoleculesLayer(newLayer);
-  }
-
   function handleRasterLayerChange(newLayer, i) {
     const newLayers = [...rasterLayers];
     newLayers[i] = newLayer;
@@ -121,7 +113,7 @@ function LayerControllerSubscriber(props) {
             label="Molecules"
             layerType="molecules"
             layer={moleculesLayer}
-            handleLayerChange={v => handleMoleculesLayerChange(v)}
+            handleLayerChange={setMoleculesLayer}
           />
         )}
         {cellsLayer && (
@@ -130,7 +122,7 @@ function LayerControllerSubscriber(props) {
             label="Cell Segmentations"
             layerType="cells"
             layer={cellsLayer}
-            handleLayerChange={v => handleCellsLayerChange(v)}
+            handleLayerChange={setCellsLayer}
           />
         )}
         {rasterLayers && rasterLayers.map((layer, i) => {
