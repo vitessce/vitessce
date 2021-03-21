@@ -28,7 +28,7 @@ end test
 
 start cypress
 npm start & wait-on http://localhost:3000/
-npm run cypress:run
+cypress run
 echo 'NOTE: Server is still running.'
 end cypress
 

@@ -12,7 +12,7 @@ Cypress.on('window:before:load', (win) => {
   delete win.fetch; // eslint-disable-line no-param-reassign
 });
 
-describe('Vitessc Mocked Routes', () => {
+describe('Vitessce', () => {
   beforeEach(() => {
     // Any request we do not explicitly route will return 404,
     // so we won't end up depending on outside resources by accident.
@@ -82,15 +82,5 @@ describe('Vitessc Mocked Routes', () => {
   it('loads a warning message for undefined dataset config', () => {
     cy.visit('/?dataset=nonexistent-dataset');
     cy.contains('No such dataset');
-  });
-});
-
-describe('Vitessce Zarr Store Routes', () => {
-  it('loads AnnData zarr store', () => {
-    // 8080 is serving the AnnData fixtures directory.
-    cy.visit('/?url=http://127.0.0.1:8080/good-config.json');
-    cy.contains('UMAP');
-    // This should exist as per the create-fixtures.py file.
-    cy.contains('gene_0');
   });
 });
