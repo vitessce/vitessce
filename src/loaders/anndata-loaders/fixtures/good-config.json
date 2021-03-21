@@ -106,14 +106,6 @@
       }
     },
     {
-      "component": "spatial",
-      "h": 3,
-      "w": 4,
-      "x": 5,
-      "y": 0,
-      "coordinationScopes": {}
-    },
-    {
       "component": "heatmap",
       "h": 3,
       "w": 9,
