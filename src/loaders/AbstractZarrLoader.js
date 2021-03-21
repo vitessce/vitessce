@@ -11,6 +11,8 @@ export default class AbstractZarrLoader extends AbstractLoader {
 
     // eslint-disable-next-line no-unused-vars
     const { url, requestInit } = this;
+    // TODO: We should probably add a way of allowing HEAD requests as well:
+    // https://github.com/gzuidhof/zarr.js/blob/375ce0c299469a970da6bb5653513564e25806bb/docs/getting-started/remote-data.md#stores
     const supportedMethods = ['GET'];
     this.store = new HTTPStore(url, {
       supportedMethods, fetchOptions: requestInit,
