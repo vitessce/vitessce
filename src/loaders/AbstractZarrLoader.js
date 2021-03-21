@@ -11,8 +11,7 @@ export default class AbstractZarrLoader extends AbstractLoader {
 
     // eslint-disable-next-line no-unused-vars
     const { url, requestInit } = this;
-    console.log(requestInit); // eslint-disable-line
-    this.store = new HTTPStore(url, { fetchOptions: requestInit });
+    this.store = new HTTPStore(url, requestInit);
   }
 
   /**
