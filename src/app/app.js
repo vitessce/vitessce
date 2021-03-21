@@ -116,13 +116,13 @@ export function createApp(params) {
   if (datasetUrl) {
     const responsePromise = fetch(datasetUrl)
       .then(response => checkResponse(response, theme, debug))
-      .catch(error => Promise.resolve(
+      .catch(error => Promise.resolve(() => (
         <Warning
           title="Error fetching"
           unformatted={error.message}
           theme={theme}
-        />,
-      ));
+        />
+      )));
     return (
       <AwaitResponse response={responsePromise} theme={theme} />
     );

@@ -168,10 +168,10 @@
     "prepublishOnly": "npm run build-lib:prod",
     "clean": "rm -r dist-demo dist",
     "start": "node scripts/start-demo.js",
-    "test": "concurrently --success first --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\"\" \"karma start scripts/karma.config.js --single-run\"",
-    "test:watch": "concurrently --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\"\" \"karma start scripts/karma.config.js --auto-watch\"",
-    "cypress:open": "concurrently --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\"\" \"cypress open\"",
-    "cypress:run": "concurrently --success first --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\"\" \"cypress run\"",
+    "test": "concurrently --success first --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\" -s \" \"karma start scripts/karma.config.js --single-run\"",
+    "test:watch": "concurrently --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\" -s \" \"karma start scripts/karma.config.js --auto-watch\"",
+    "cypress:open": "concurrently --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\" -s \" \"cypress open\"",
+    "cypress:run": "concurrently --success first --kill-others \"http-server src/loaders/anndata-loaders/fixtures/ --cors=\"*\" -s \" \"cypress run\"",
     "lint-fix": "eslint -c .eslintrc.yml --ext .js --fix src/"
   },
   "browserslist": {
