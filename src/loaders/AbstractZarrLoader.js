@@ -9,10 +9,9 @@ export default class AbstractZarrLoader extends AbstractLoader {
   constructor(params) {
     super(params);
 
-    // TODO: Use this.requestInit to provide headers, tokens, etc.
     // eslint-disable-next-line no-unused-vars
     const { url, requestInit } = this;
-    this.store = new HTTPStore(url);
+    this.store = new HTTPStore(url, { fetchOptions: requestInit });
   }
 
   /**
