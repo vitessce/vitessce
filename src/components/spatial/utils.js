@@ -1,6 +1,6 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
-import { cloneDeep, isEqual } from 'lodash';
+import { isEqual } from 'lodash';
 import { getChannelStats, getDefaultInitialViewState } from '@hms-dbmi/viv';
 import { extent } from 'd3-array';
 import { Matrix4 } from 'math.gl';
@@ -38,12 +38,14 @@ export function sortLayers(layers) {
  * @param {object[]} imageDims Loader dimensions object array.
  * @returns {object} The selection.
  */
-function getDefaultGlobalSelection(imageDims) {
-  const globalIndices = imageDims
-    .filter(dim => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim.field));
+function getDefaultGlobalSelection(source) {
+  const globalIndices = source.labels
+    .filter(dim => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim));
   const selection = {};
   globalIndices.forEach((dim) => {
-    selection[dim.field] = Math.floor((dim.values.length || 0) / 2);
+    selection[dim] = Math.floor(
+      (source.shape[source.labels.indexOf(dim)] || 0) / 2,
+    );
   });
   return selection;
 }
@@ -54,17 +56,20 @@ function getDefaultGlobalSelection(imageDims) {
  * @param {object[]} imageDims Loader dimensions object array.
  * @returns {object} The selection.
  */
-function buildDefaultSelection(imageDims) {
+function buildDefaultSelection(source) {
   const selection = [];
-  const globalSelection = getDefaultGlobalSelection(imageDims);
+  const globalSelection = getDefaultGlobalSelection(source);
   // First non-global dimension with some sort of selectable values
-  const firstNonGlobalDimension = imageDims.filter(
-    dim => !GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim.field) && dim.values,
+  const firstNonGlobalDimension = source.labels.filter(
+    dim => !GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim)
+      && source.shape[source.labels.indexOf(dim)],
   )[0];
-  for (let i = 0; i < Math.min(4, firstNonGlobalDimension.values.length); i += 1) {
+  for (let i = 0; i < Math.min(4, source.shape[
+    source.labels.indexOf(firstNonGlobalDimension)
+  ]); i += 1) {
     selection.push(
       {
-        [firstNonGlobalDimension.field]: i,
+        [firstNonGlobalDimension]: i,
         ...globalSelection,
       },
     );
@@ -104,11 +109,16 @@ export async function initializeChannelForSelection(loader, selection, i) {
  */
 export async function initializeLayerChannels(loader) {
   const result = [];
-  const loaderDimensions = loader.dimensions;
+  const { data } = loader;
+  const source = Array.isArray(data) ? data[data.length - 1] : data;
   // Add channel automatically as the first avaialable value for each dimension.
-  const defaultSelection = buildDefaultSelection(loaderDimensions);
+  const defaultSelection = buildDefaultSelection(source);
   // Get stats because initial value is Min/Max for domainType.
-  const stats = await getChannelStats({ loader, loaderSelection: defaultSelection });
+  const raster = await Promise.all(
+    defaultSelection.map(selection => source.getRaster({ selection })),
+  );
+  console.log(raster); // eslint-disable-line
+  const stats = await Promise.all(raster.map(({ data: d }) => getChannelStats(d)));
 
   const domains = loader.isRgb
     ? [[0, 255], [0, 255], [0, 255]]
@@ -134,74 +144,23 @@ export async function initializeLayerChannels(loader) {
   return result;
 }
 
-/**
- * A user may want to use pre-defined channels of interest
- * (defined in a `spatialLayers` coordination object),
- * but wants to allow Vitessce to auto-initialize the
- * sliders, colors, and/or domains for those channels.
- * This function allows those channel properties to
- * be initialized.
- * @param {object[]} layerDefsOrig The original array
- * of user-defined layer definitions, which must contain
- * an array of channel definitions with the .selection
- * property, but may be missing the .domain, .color, .visible,
- * or .slider properties.
- * @param {object} loaders Mapping from layer index to loader
- * instance.
- * @returns {Promise<array>} A tuple of [newLayerDefs, didInitialize],
- * where newLayerDefs is an array of the layers which contains
- * initialized channel properties,
- * and didInitialize is a boolean value indicating whether any
- * channels were initialized.
- */
-export async function initializeLayerChannelsIfMissing(layerDefsOrig, loaders) {
-  const layerDefs = cloneDeep(layerDefsOrig);
-  const newLayerDefPromises = [];
-
-  let didInitialize = false;
-  for (let layerIndex = 0; layerIndex < layerDefs.length; layerIndex++) {
-    const layerDef = layerDefs[layerIndex];
-    const loader = loaders[layerDef.index];
-    let newLayerDefPromise = Promise.resolve(layerDef);
-    if (layerDef.channels) {
-      const newChannelDefPromises = [];
-      for (let channelIndex = 0; channelIndex < layerDef.channels.length; channelIndex++) {
-        const channelDef = layerDef.channels[channelIndex];
-        let newChannelDefPromise = Promise.resolve(channelDef);
-        // Only auto-initialize if domains, colors, or sliders is missing.
-        if (channelDef.selection && !(channelDef.color && channelDef.slider)) {
-          newChannelDefPromise = initializeChannelForSelection(
-            loader, channelDef.selection, channelIndex,
-          )
-            .then(autoChannelDef => Promise.resolve({ ...autoChannelDef, ...channelDef }));
-          didInitialize = true;
-        }
-        newChannelDefPromises.push(newChannelDefPromise);
-      }
-      newLayerDefPromise = Promise.all(newChannelDefPromises)
-        .then(newChannelDefs => Promise.resolve({ ...layerDef, channels: newChannelDefs }));
-    }
-    newLayerDefPromises.push(newLayerDefPromise);
-  }
-  const newLayerDefs = await Promise.all(newLayerDefPromises);
-  return [newLayerDefs, didInitialize];
-}
-
 function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   // Do not fill in transformation matrices if any of the layers specify one.
   if (
     imageMeta.map(meta => meta?.metadata?.transform?.matrix
       || meta?.metadata?.transform?.scale
       || meta?.metadata?.transform?.translate).some(Boolean)
-      || imageLoaders.every(loader => !loader?.physicalSizes?.x || !loader?.physicalSizes?.y)
+    || imageLoaders.every(
+      loader => !loader.data[0].meta?.physicalSizes?.x || !loader.data[0].meta?.physicalSizes?.y,
+    )
   ) {
     return imageMeta;
   }
   // Get the minimum physical among all the current images.
   const minPhysicalSize = imageLoaders.reduce((acc, loader) => {
     const sizes = [
-      unit(`${loader.physicalSizes.x.value} ${loader.physicalSizes.x.unit}`.replace('µ', 'u')),
-      unit(`${loader.physicalSizes.y.value} ${loader.physicalSizes.y.unit}`.replace('µ', 'u')),
+      unit(`${loader.data[0].meta?.physicalSizes.x.value} ${loader.data[0].meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${loader.data[0].meta?.physicalSizes.y.value} ${loader.data[0].meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
     ];
     acc[0] = (acc[0] === undefined || compare(sizes[0], acc[0]) === -1) ? sizes[0] : acc[0];
     acc[1] = (acc[1] === undefined || compare(sizes[1], acc[1]) === -1) ? sizes[1] : acc[1];
@@ -210,8 +169,8 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   const imageMetaWithTransform = imageMeta.map((meta, j) => {
     const loader = imageLoaders[j];
     const sizes = [
-      unit(`${loader.physicalSizes.x.value} ${loader.physicalSizes.x.unit}`.replace('µ', 'u')),
-      unit(`${loader.physicalSizes.y.value} ${loader.physicalSizes.y.unit}`.replace('µ', 'u')),
+      unit(`${loader.data[0].meta?.physicalSizes.x.value} ${loader.data[0].meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${loader.data[0].meta?.physicalSizes.y.value} ${loader.data[0].meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
     ];
     // Find the ratio of the sizes to get the scaling factor.
     const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));

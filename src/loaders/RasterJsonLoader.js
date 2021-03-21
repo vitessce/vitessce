@@ -25,15 +25,15 @@ async function initLoader(imageData) {
         const paths = Object.keys(zarrMetadata)
           .filter(metaKey => metaKey.includes('.zarray'))
           .map(arrMetaKeys => arrMetaKeys.slice(0, -7));
-        const data = Promise.all(
+        const data = await Promise.all(
           paths.map(path => openArray({ store: url, path })),
         );
-        source = data.map(d => ZarrPixelSource(d, labels));
+        source = data.map(d => new ZarrPixelSource(d, labels));
       } else {
-        const data = openArray({ store: url });
-        source = ZarrPixelSource(data, labels);
+        const data = await openArray({ store: url });
+        source = new ZarrPixelSource(data, labels);
       }
-      return { source, metadata: dimensions };
+      return { data: source, metadata: dimensions };
     }
     case ('ome-tiff'): {
       // Fetch offsets for ome-tiff if needed.
@@ -92,10 +92,7 @@ export default class RasterLoader extends JsonLoader {
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = images.map(image => ({
       ...image,
-      loaderCreator: async () => {
-        const loader = await initLoader(image);
-        return loader;
-      },
+      loaderCreator: async () => initLoader(image),
     }));
 
     // TODO: use options for initial selection of channels

@@ -54,7 +54,8 @@ export default function RasterLayerController(props) {
   } = layer;
   const firstSelection = channels[0]?.selection || {};
 
-  const { dimensions } = loader;
+  // eslint-disable-next-line no-undef
+  const { [data]: { labels }, metadata } = loader;
   const [domainType, setDomainType] = useState(layer.domainType);
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
     GLOBAL_SLIDER_DIMENSION_FIELDS
@@ -106,11 +107,11 @@ export default function RasterLayerController(props) {
   // for the current global settings and domain type.
   const handleChannelAdd = async () => {
     const selection = {};
-    dimensions.forEach((dimension) => {
+    labels.forEach((label) => {
       // Set new image to default selection for non-global selections (0)
       // and use current global selection otherwise.
-      selection[dimension.field] = GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
-        ? (globalDimensionValues[dimension.field] || 0)
+      selection[label] = GLOBAL_SLIDER_DIMENSION_FIELDS.includes(label)
+        ? (globalDimensionValues[label] || 0)
         : 0;
     });
     const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType);
@@ -176,9 +177,8 @@ export default function RasterLayerController(props) {
   };
 
   let channelControllers = [];
-  if (dimensions.length > 0) {
-    const channelDimensions = rasterType === 'ome-tiff' || rasterType === 'ome-zarr' ? dimensions.find(c => c.field === 'channel') : dimensions[0];
-    const { values: channelOptions, field: dimName } = channelDimensions;
+  if (labels.length > 0) {
+    const channelLabel = rasterType === 'ome-tiff' || rasterType === 'ome-zarr' ? labels.find(c => c === 'channel' || 'c') : labels[0];
     // Create the channel controllers for each channel.
     channelControllers = channels.map(
       // c is an object like { color, selection, slider, visible }.
@@ -216,12 +216,12 @@ export default function RasterLayerController(props) {
             // eslint-disable-next-line react/no-array-index-key
             key={`channel-controller-${channelId}`}
             item
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
           >
             <ChannelController
-              dimName={dimName}
+              dimName={channelLabel}
               visibility={c.visible}
-              selectionIndex={c.selection[dimName]}
+              selectionIndex={c.selection[channelLabel]}
               slider={c.slider}
               color={c.color}
               channels={channels}
@@ -230,7 +230,7 @@ export default function RasterLayerController(props) {
               loader={loader}
               globalDimensionValues={globalDimensionValues}
               theme={theme}
-              channelOptions={channelOptions}
+              channelOptions={[metadata]}
               colormapOn={Boolean(colormap)}
               handlePropertyChange={handleChannelPropertyChange}
               handleChannelRemove={handleChannelRemove}

@@ -291,7 +291,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
     return new Layer({
-      loader,
+      loader: loader.data,
       id: `image-layer-${layerDef.index}-${i}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
