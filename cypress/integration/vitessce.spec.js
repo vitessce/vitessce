@@ -12,7 +12,7 @@ Cypress.on('window:before:load', (win) => {
   delete win.fetch; // eslint-disable-line no-param-reassign
 });
 
-describe('Vitessc Mocked Routes', () => {
+describe('Vitessce Mocked Routes', () => {
   beforeEach(() => {
     // Any request we do not explicitly route will return 404,
     // so we won't end up depending on outside resources by accident.
