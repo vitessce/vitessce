@@ -79,7 +79,7 @@
     "vega-tooltip": "^0.23.0",
     "whatwg-fetch": "^3.0.0",
     "window-pixi": "5.3.3",
-    "zarr": "^0.3.0",
+    "zarr": "^0.3.1",
     "zustand": "^3.0.2"
   },
   "devDependencies": {
