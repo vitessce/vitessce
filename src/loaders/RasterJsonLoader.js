@@ -1,4 +1,5 @@
-import { createZarrLoader, createOMETiffLoader } from '@hms-dbmi/viv';
+import { ZarrPixelSource, loadOmeTiff } from '@hms-dbmi/viv';
+import { openArray } from 'zarr';
 import rasterSchema from '../schemas/raster.schema.json';
 import JsonLoader from './JsonLoader';
 import { AbstractLoaderError } from './errors';
@@ -12,12 +13,27 @@ async function initLoader(imageData) {
   } = imageData;
   switch (type) {
     case ('zarr'): {
-      const { dimensions, isPyramid, transform } = metadata || {};
-      const { scale = 0, translate = { x: 0, y: 0 } } = transform;
-      const loader = await createZarrLoader({
-        url, dimensions, isPyramid, scale, translate,
-      });
-      return loader;
+      const { dimensions, isPyramid } = metadata || {};
+      const labels = dimensions.map(d => d.field);
+      let source;
+      if (isPyramid) {
+        const metadataUrl = `${url}${
+          url.slice(-1) === '/' ? '' : '/'
+        }.zmetadata`;
+        const response = await fetch(metadataUrl);
+        const { metadata: zarrMetadata } = await response.json();
+        const paths = Object.keys(zarrMetadata)
+          .filter(metaKey => metaKey.includes('.zarray'))
+          .map(arrMetaKeys => arrMetaKeys.slice(0, -7));
+        const data = Promise.all(
+          paths.map(path => openArray({ store: url, path })),
+        );
+        source = data.map(d => ZarrPixelSource(d, labels));
+      } else {
+        const data = openArray({ store: url });
+        source = ZarrPixelSource(data, labels);
+      }
+      return { source, metadata: dimensions };
     }
     case ('ome-tiff'): {
       // Fetch offsets for ome-tiff if needed.
@@ -26,19 +42,21 @@ async function initLoader(imageData) {
         const res = await fetch(omeTiffOffsetsUrl, requestInit);
         if (res.ok) {
           const offsets = await res.json();
-          const loader = await createOMETiffLoader({
-            urlOrFile: url,
-            offsets,
-            headers: requestInit,
-          });
+          const loader = await loadOmeTiff(
+            url,
+            {
+              offsets,
+              headers: requestInit.headers,
+            },
+          );
           return loader;
         }
         throw new Error('Offsets not found but provided.');
       }
-      const loader = createOMETiffLoader({
-        urlOrFile: url,
-        headers: requestInit,
-      });
+      const loader = loadOmeTiff(
+        url,
+        { headers: requestInit.headers },
+      );
       return loader;
     }
     default: {
