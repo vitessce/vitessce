@@ -11,7 +11,10 @@ export default class AbstractZarrLoader extends AbstractLoader {
 
     // eslint-disable-next-line no-unused-vars
     const { url, requestInit } = this;
-    this.store = new HTTPStore(url, { fetchOptions: requestInit });
+    const supportedMethods = ['GET'];
+    this.store = new HTTPStore(url, {
+      supportedMethods, fetchOptions: requestInit,
+    });
   }
 
   /**
