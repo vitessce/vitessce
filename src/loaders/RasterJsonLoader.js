@@ -30,7 +30,11 @@ async function initLoader(imageData) {
         const data = await Promise.all(
           paths.map(path => openArray({ store: url, path })),
         );
-        source = data.map(d => new ZarrPixelSource(d, labels));
+        const [yChunk, xChunk] = data[0].chunks.slice(-2);
+        const size = Math.min(yChunk, xChunk);
+        // deck.gl requirement for power-of-two tile size.
+        const tileSize = 2 ** Math.floor(Math.log2(size));
+        source = data.map(d => new ZarrPixelSource(d, labels, tileSize));
       } else {
         const data = await openArray({ store: url });
         source = new ZarrPixelSource(data, labels);

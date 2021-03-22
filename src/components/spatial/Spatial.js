@@ -290,7 +290,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
     const Layer = (data.length > 1) ? MultiscaleImageLayer : ImageLayer;
-    console.log(loaderSelection) // eslint-disable-line
     return new Layer({
       loader: loader.data,
       id: `image-layer-${layerDef.index}-${i}`,
