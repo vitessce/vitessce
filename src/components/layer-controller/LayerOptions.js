@@ -184,11 +184,11 @@ function LayerOptions({
   handleDomainChange,
   transparentColor,
   channels,
-  dimensions,
+  labels,
   domainType,
   isRgb,
 }) {
-  const hasDimensionsAndChannels = dimensions.length > 0 && channels.length > 0;
+  const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       {!isRgb ? (

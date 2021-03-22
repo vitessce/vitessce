@@ -87,7 +87,10 @@ function buildDefaultSelection(source) {
  */
 export async function initializeChannelForSelection(loader, selection, i) {
   // Get stats because initial value is Min/Max for domainType.
-  const stats = await getChannelStats({ loader, loaderSelection: [selection] });
+  const { data } = loader;
+  const source = Array.isArray(data) ? data[data.length - 1] : data;
+  const raster = await source.getRaster({ selection });
+  const stats = getChannelStats(raster);
 
   const domain = loader.isRgb ? [[0, 255], [0, 255], [0, 255]][i] : stats[0].domain;
   const color = loader.isRgb ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]][i] : VIEWER_PALETTE[i];
@@ -117,8 +120,7 @@ export async function initializeLayerChannels(loader) {
   const raster = await Promise.all(
     defaultSelection.map(selection => source.getRaster({ selection })),
   );
-  console.log(raster); // eslint-disable-line
-  const stats = await Promise.all(raster.map(({ data: d }) => getChannelStats(d)));
+  const stats = raster.map(({ data: d }) => getChannelStats(d));
 
   const domains = loader.isRgb
     ? [[0, 255], [0, 255], [0, 255]]

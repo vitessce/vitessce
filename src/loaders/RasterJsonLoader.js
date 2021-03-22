@@ -13,7 +13,9 @@ async function initLoader(imageData) {
   } = imageData;
   switch (type) {
     case ('zarr'): {
-      const { dimensions, isPyramid } = metadata || {};
+      const {
+        dimensions, isPyramid, transform,
+      } = metadata || {};
       const labels = dimensions.map(d => d.field);
       let source;
       if (isPyramid) {
@@ -33,31 +35,36 @@ async function initLoader(imageData) {
         const data = await openArray({ store: url });
         source = new ZarrPixelSource(data, labels);
       }
-      return { data: source, metadata: dimensions };
+      return { data: source, metadata: { dimensions, transform }, channels: (dimensions.find(d => d.field === 'channel') || dimensions[0]).values };
     }
     case ('ome-tiff'): {
+      let loader;
       // Fetch offsets for ome-tiff if needed.
       if (metadata && 'omeTiffOffsetsUrl' in metadata) {
         const { omeTiffOffsetsUrl } = metadata;
         const res = await fetch(omeTiffOffsetsUrl, requestInit);
         if (res.ok) {
           const offsets = await res.json();
-          const loader = await loadOmeTiff(
+          loader = await loadOmeTiff(
             url,
             {
               offsets,
               headers: requestInit.headers,
             },
           );
-          return loader;
         }
         throw new Error('Offsets not found but provided.');
+      } else {
+        loader = loadOmeTiff(url, { headers: requestInit.headers });
       }
-      const loader = loadOmeTiff(
-        url,
-        { headers: requestInit.headers },
-      );
-      return loader;
+      const { Pixels } = this.metadataOMEXML.Image.length
+        ? this.metadataOMEXML.Image[0]
+        : this.metadataOMEXML.Image;
+      const { Channel } = Pixels;
+      const channels = Array.isArray(Channel)
+        ? Channel.map((channel, i) => channel['@_Name'] || `Channel ${i}`)
+        : [Channel['@_Name'] || `Channel ${0}`];
+      return { ...loader, channels };
     }
     default: {
       throw Error(`Image type (${type}) is not supported`);

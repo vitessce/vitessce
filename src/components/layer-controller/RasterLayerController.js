@@ -20,12 +20,17 @@ import { GLOBAL_SLIDER_DIMENSION_FIELDS } from '../spatial/constants';
 // Set the domain of the sliders based on either a full range or min/max.
 async function getDomainsAndSliders(loader, loaderSelection, domainType) {
   let domains;
-  const stats = await getChannelStats({ loader, loaderSelection });
+  const { data } = loader;
+  const source = Array.isArray(data) ? data[data.length - 1] : data;
+  const raster = await Promise.all(
+    loaderSelection.map(selection => source.getRaster({ selection })),
+  );
+  const stats = raster.map(({ data: d }) => getChannelStats(d));
   const sliders = stats.map(stat => stat.autoSliders);
   if (domainType === 'Min/Max') {
     domains = stats.map(stat => stat.domain);
   } if (domainType === 'Full') {
-    domains = loaderSelection.map(() => [0, DTYPE_VALUES[loader.dtype].max]);
+    domains = loaderSelection.map(() => [0, DTYPE_VALUES[source.dtype].max]);
   }
   return { domains, sliders };
 }
@@ -54,8 +59,8 @@ export default function RasterLayerController(props) {
   } = layer;
   const firstSelection = channels[0]?.selection || {};
 
-  // eslint-disable-next-line no-undef
-  const { [data]: { labels }, metadata } = loader;
+  const { data, channels: channelOptions } = loader;
+  const { labels } = Array.isArray(data) ? data[data.length - 1] : data;
   const [domainType, setDomainType] = useState(layer.domainType);
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
     GLOBAL_SLIDER_DIMENSION_FIELDS
@@ -205,9 +210,11 @@ export default function RasterLayerController(props) {
           removeChannel(channelId);
         };
         const handleIQRUpdate = async () => {
-          const stats = await getChannelStats(
-            { loader, loaderSelection: [channels[channelId].selection] },
-          );
+          const { data: loaderData } = loader;
+          const raster = await loaderData[loaderData.length - 1].getRaster({
+            selection: channels[channelId].selection,
+          });
+          const stats = getChannelStats(raster);
           const { q1, q3 } = stats[0];
           setChannel({ ...c, slider: [q1, q3] }, channelId);
         };
@@ -216,7 +223,7 @@ export default function RasterLayerController(props) {
             // eslint-disable-next-line react/no-array-index-key
             key={`channel-controller-${channelId}`}
             item
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
           >
             <ChannelController
               dimName={channelLabel}
@@ -230,7 +237,7 @@ export default function RasterLayerController(props) {
               loader={loader}
               globalDimensionValues={globalDimensionValues}
               theme={theme}
-              channelOptions={[metadata]}
+              channelOptions={channelOptions}
               colormapOn={Boolean(colormap)}
               handlePropertyChange={handleChannelPropertyChange}
               handleChannelRemove={handleChannelRemove}
@@ -257,7 +264,7 @@ export default function RasterLayerController(props) {
         <Grid item>
           <LayerOptions
             channels={channels}
-            dimensions={dimensions}
+            labels={labels}
             opacity={opacity}
             colormap={colormap}
             transparentColor={transparentColor}
@@ -265,8 +272,8 @@ export default function RasterLayerController(props) {
             // Only allow for global dimension controllers that
             // exist in the `dimensions` part of the loader.
             globalControlDimensions={
-              dimensions.filter(
-                dimension => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field),
+              labels.filter(
+                label => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(label),
               )
             }
             globalDimensionValues={globalDimensionValues}

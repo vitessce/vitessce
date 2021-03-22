@@ -281,7 +281,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     };
 
     if (!loader || !layerProps) return null;
-    const { scale, translate, isPyramid } = loader;
+    const { metadata: { transform: { scale, translate } }, data } = loader;
     let modelMatrix;
     if (scale && translate) {
       modelMatrix = new Matrix4().translate([translate.x, translate.y, 0]).scale(scale);
@@ -289,7 +289,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // eslint-disable-next-line prefer-destructuring
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
-    const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
+    const Layer = (data.length > 1) ? MultiscaleImageLayer : ImageLayer;
+    console.log(loaderSelection) // eslint-disable-line
     return new Layer({
       loader: loader.data,
       id: `image-layer-${layerDef.index}-${i}`,

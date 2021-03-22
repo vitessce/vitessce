@@ -152,7 +152,7 @@ function ChannelController({
   selectionIndex,
   disableOptions = false,
 }) {
-  const { dtype } = loader;
+  const { dtype } = (Array.isArray(loader.data) ? loader.data[0] : loader.data);
   const [domain, setDomain] = useState(null);
   const [domainType, setDomainType] = useState(null);
   const [selection, setSelection] = useState([{ ...channels[channelId].selection }]);
@@ -179,7 +179,12 @@ function ChannelController({
             }
           }
         } else {
-          getChannelStats({ loader, loaderSelection }).then((stats) => {
+          const { data } = loader;
+          const source = Array.isArray(data) ? data[data.length - 1] : data;
+          Promise.all(
+            loaderSelection.map(sel => source.getRaster({ selection: sel })),
+          ).then((raster) => {
+            const stats = raster.map(({ data: d }) => getChannelStats(d));
             domains = stats.map(stat => stat.domain);
             const [newDomain] = domains;
             if (mounted) {
