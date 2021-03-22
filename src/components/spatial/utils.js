@@ -322,7 +322,7 @@ export function getInitialSpatialTargets({
     for (let i = 0; i < imageLayerLoaders.length; i += 1) {
       const viewSize = { height, width };
       const { target, zoom: newViewStateZoom } = getDefaultInitialViewState(
-        imageLayerLoaders[i],
+        imageLayerLoaders[i].data,
         viewSize,
         zoomBackoff,
       );

@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { range } from 'lodash';
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -185,6 +185,7 @@ function LayerOptions({
   transparentColor,
   channels,
   labels,
+  shape,
   domainType,
   isRgb,
 }) {
@@ -231,22 +232,19 @@ function LayerOptions({
         </LayerOption>
       </Grid>
       {hasDimensionsAndChannels
-        && globalControlDimensions.map((dimension) => {
-          const { field, values } = dimension;
+        && globalControlDimensions.map(field => (
           // If there is only one value in the dimension, do not return a slider.
-          return (
-            values.length > 1 && (
-              <LayerOption name={field} inputId={`${field}-slider`} key={field}>
-                <GlobalSelectionSlider
-                  field={field}
-                  value={globalDimensionValues[field]}
-                  handleChange={handleGlobalChannelsSelectionChange}
-                  possibleValues={values}
-                />
-              </LayerOption>
-            )
-          );
-        })}
+          shape[labels.indexOf(field)] > 1 && (
+          <LayerOption name={field} inputId={`${field}-slider`} key={field}>
+            <GlobalSelectionSlider
+              field={field}
+              value={globalDimensionValues[field]}
+              handleChange={handleGlobalChannelsSelectionChange}
+              possibleValues={range(shape[labels.indexOf(field)])}
+            />
+          </LayerOption>
+          )
+        ))}
     </Grid>
   );
 }

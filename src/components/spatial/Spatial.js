@@ -281,9 +281,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
     };
 
     if (!loader || !layerProps) return null;
-    const { metadata: { transform: { scale, translate } }, data } = loader;
+    const { metadata: { transform }, data } = loader;
     let modelMatrix;
-    if (scale && translate) {
+    if (transform) {
+      const { scale, translate } = transform;
       modelMatrix = new Matrix4().translate([translate.x, translate.y, 0]).scale(scale);
     } else if (layerDef.modelMatrix) {
       // eslint-disable-next-line prefer-destructuring

@@ -46,28 +46,27 @@ async function initLoader(imageData) {
       // Fetch offsets for ome-tiff if needed.
       if (metadata && 'omeTiffOffsetsUrl' in metadata) {
         const { omeTiffOffsetsUrl } = metadata;
-        const res = await fetch(omeTiffOffsetsUrl, requestInit);
+        const res = await fetch(omeTiffOffsetsUrl, (requestInit || {}));
         if (res.ok) {
           const offsets = await res.json();
           loader = await loadOmeTiff(
             url,
             {
               offsets,
-              headers: requestInit.headers,
+              headers: requestInit?.headers,
             },
           );
+        } else {
+          throw new Error('Offsets not found but provided.');
         }
-        throw new Error('Offsets not found but provided.');
       } else {
-        loader = loadOmeTiff(url, { headers: requestInit.headers });
+        loader = await loadOmeTiff(url, { headers: requestInit.headers });
       }
-      const { Pixels } = this.metadataOMEXML.Image.length
-        ? this.metadataOMEXML.Image[0]
-        : this.metadataOMEXML.Image;
-      const { Channel } = Pixels;
-      const channels = Array.isArray(Channel)
-        ? Channel.map((channel, i) => channel['@_Name'] || `Channel ${i}`)
-        : [Channel['@_Name'] || `Channel ${0}`];
+      console.log(loader) // eslint-disable-line
+      const { Pixels: { Channels } } = loader.metadata;
+      const channels = Array.isArray(Channels)
+        ? Channels.map((channel, i) => channel['@_Name'] || `Channel ${i}`)
+        : [Channels['@_Name'] || `Channel ${0}`];
       return { ...loader, channels };
     }
     default: {

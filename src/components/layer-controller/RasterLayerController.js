@@ -60,7 +60,7 @@ export default function RasterLayerController(props) {
   const firstSelection = channels[0]?.selection || {};
 
   const { data, channels: channelOptions } = loader;
-  const { labels } = Array.isArray(data) ? data[data.length - 1] : data;
+  const { labels, shape } = Array.isArray(data) ? data[data.length - 1] : data;
   const [domainType, setDomainType] = useState(layer.domainType);
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
     GLOBAL_SLIDER_DIMENSION_FIELDS
@@ -265,6 +265,7 @@ export default function RasterLayerController(props) {
           <LayerOptions
             channels={channels}
             labels={labels}
+            shape={shape}
             opacity={opacity}
             colormap={colormap}
             transparentColor={transparentColor}
