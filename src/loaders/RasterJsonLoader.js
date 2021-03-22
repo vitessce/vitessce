@@ -60,9 +60,8 @@ async function initLoader(imageData) {
           throw new Error('Offsets not found but provided.');
         }
       } else {
-        loader = await loadOmeTiff(url, { headers: requestInit.headers });
+        loader = await loadOmeTiff(url, { headers: requestInit?.headers });
       }
-      console.log(loader) // eslint-disable-line
       const { Pixels: { Channels } } = loader.metadata;
       const channels = Array.isArray(Channels)
         ? Channels.map((channel, i) => channel['@_Name'] || `Channel ${i}`)

@@ -148,31 +148,34 @@ export async function initializeLayerChannels(loader) {
 
 function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   // Do not fill in transformation matrices if any of the layers specify one.
+  const sources = imageLoaders.map(({ data }) => (Array.isArray(data)
+    ? data[0]
+    : data));
   if (
     imageMeta.map(meta => meta?.metadata?.transform?.matrix
       || meta?.metadata?.transform?.scale
       || meta?.metadata?.transform?.translate).some(Boolean)
-    || imageLoaders.every(
-      loader => !loader.data[0].meta?.physicalSizes?.x || !loader.data[0].meta?.physicalSizes?.y,
+    || sources.every(
+      source => !source.meta?.physicalSizes?.x || !source.meta?.physicalSizes?.y,
     )
   ) {
     return imageMeta;
   }
   // Get the minimum physical among all the current images.
-  const minPhysicalSize = imageLoaders.reduce((acc, loader) => {
+  const minPhysicalSize = sources.reduce((acc, source) => {
     const sizes = [
-      unit(`${loader.data[0].meta?.physicalSizes.x.value} ${loader.data[0].meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
-      unit(`${loader.data[0].meta?.physicalSizes.y.value} ${loader.data[0].meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
     ];
     acc[0] = (acc[0] === undefined || compare(sizes[0], acc[0]) === -1) ? sizes[0] : acc[0];
     acc[1] = (acc[1] === undefined || compare(sizes[1], acc[1]) === -1) ? sizes[1] : acc[1];
     return acc;
   }, []);
   const imageMetaWithTransform = imageMeta.map((meta, j) => {
-    const loader = imageLoaders[j];
+    const source = sources[j];
     const sizes = [
-      unit(`${loader.data[0].meta?.physicalSizes.x.value} ${loader.data[0].meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
-      unit(`${loader.data[0].meta?.physicalSizes.y.value} ${loader.data[0].meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
     ];
     // Find the ratio of the sizes to get the scaling factor.
     const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));
