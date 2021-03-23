@@ -211,11 +211,12 @@ export default function RasterLayerController(props) {
         };
         const handleIQRUpdate = async () => {
           const { data: loaderData } = loader;
-          const raster = await loaderData[loaderData.length - 1].getRaster({
+          const source = Array.isArray(loaderData) ? loaderData[loaderData.length - 1] : loaderData;
+          const raster = await source.getRaster({
             selection: channels[channelId].selection,
           });
-          const stats = getChannelStats(raster);
-          const { q1, q3 } = stats[0];
+          const stats = getChannelStats(raster.data);
+          const { q1, q3 } = stats;
           setChannel({ ...c, slider: [q1, q3] }, channelId);
         };
         return (
