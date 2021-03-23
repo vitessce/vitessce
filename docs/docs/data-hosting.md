@@ -29,8 +29,15 @@ For a bucket named `foo-bar`, you will need to add the following in `Permissions
       "Sid": "Stmt6789",
       "Effect": "Allow",
       "Principal": "*",
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::foo-bar/*"
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectAcl",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::foo-bar",
+        "arn:aws:s3:::foo-bar/*"
+      ]
     }
   ]
 }
