@@ -647,7 +647,6 @@ export function useRasterData(
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
-  // console.trace(raster, imageLayerLoaders, imageLayerMeta); // eslint-disable-line
   return [raster, imageLayerLoaders, imageLayerMeta];
 }
 

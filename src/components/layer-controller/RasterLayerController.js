@@ -62,7 +62,7 @@ export default function RasterLayerController(props) {
   const { data, channels: channelOptions } = loader;
   const { labels, shape } = Array.isArray(data) ? data[data.length - 1] : data;
   const [domainType, setDomainType] = useState(layer.domainType);
-  const [globalDimensionValues, setGlobalDimensionValues] = useState(
+  const [globalLabelValues, setGlobalLabelValues] = useState(
     GLOBAL_LABELS
       .filter(field => typeof firstSelection[field] === 'number')
       .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
@@ -116,7 +116,7 @@ export default function RasterLayerController(props) {
       // Set new image to default selection for non-global selections (0)
       // and use current global selection otherwise.
       selection[label] = GLOBAL_LABELS.includes(label)
-        ? (globalDimensionValues[label] || 0)
+        ? (globalLabelValues[label] || 0)
         : 0;
     });
     const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType);
@@ -178,7 +178,7 @@ export default function RasterLayerController(props) {
       }));
       setChannels(newChannels);
     }
-    setGlobalDimensionValues(prev => ({ ...prev, ...selection }));
+    setGlobalLabelValues(prev => ({ ...prev, ...selection }));
   };
 
   let channelControllers = [];
@@ -195,7 +195,7 @@ export default function RasterLayerController(props) {
           // value is the actual change, like { channel: "DAPI" }.
           const update = { [property]: value };
           if (property === 'selection') {
-            update.selection = { ...globalDimensionValues, ...update.selection };
+            update.selection = { ...globalLabelValues, ...update.selection };
             const loaderSelection = [
               { ...channels[channelId][property], ...value },
             ];
@@ -236,7 +236,7 @@ export default function RasterLayerController(props) {
               channelId={channelId}
               domainType={domainType}
               loader={loader}
-              globalDimensionValues={globalDimensionValues}
+              globalLabelValues={globalLabelValues}
               theme={theme}
               channelOptions={channelOptions}
               colormapOn={Boolean(colormap)}
@@ -273,12 +273,12 @@ export default function RasterLayerController(props) {
             domainType={domainType}
             // Only allow for global dimension controllers that
             // exist in the `dimensions` part of the loader.
-            globalControlDimensions={
+            globalControlLabels={
               labels.filter(
                 label => GLOBAL_LABELS.includes(label),
               )
             }
-            globalDimensionValues={globalDimensionValues}
+            globalLabelValues={globalLabelValues}
             handleOpacityChange={setOpacity}
             handleColormapChange={setColormap}
             handleGlobalChannelsSelectionChange={
