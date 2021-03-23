@@ -14,7 +14,7 @@ import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
 import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
-import { GLOBAL_SLIDER_DIMENSION_FIELDS } from '../spatial/constants';
+import { GLOBAL_LABELS } from '../spatial/constants';
 
 
 // Set the domain of the sliders based on either a full range or min/max.
@@ -63,7 +63,7 @@ export default function RasterLayerController(props) {
   const { labels, shape } = Array.isArray(data) ? data[data.length - 1] : data;
   const [domainType, setDomainType] = useState(layer.domainType);
   const [globalDimensionValues, setGlobalDimensionValues] = useState(
-    GLOBAL_SLIDER_DIMENSION_FIELDS
+    GLOBAL_LABELS
       .filter(field => typeof firstSelection[field] === 'number')
       .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
   );
@@ -115,7 +115,7 @@ export default function RasterLayerController(props) {
     labels.forEach((label) => {
       // Set new image to default selection for non-global selections (0)
       // and use current global selection otherwise.
-      selection[label] = GLOBAL_SLIDER_DIMENSION_FIELDS.includes(label)
+      selection[label] = GLOBAL_LABELS.includes(label)
         ? (globalDimensionValues[label] || 0)
         : 0;
     });
@@ -275,7 +275,7 @@ export default function RasterLayerController(props) {
             // exist in the `dimensions` part of the loader.
             globalControlDimensions={
               labels.filter(
-                label => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(label),
+                label => GLOBAL_LABELS.includes(label),
               )
             }
             globalDimensionValues={globalDimensionValues}

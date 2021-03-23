@@ -8,7 +8,7 @@ import { divide, compare, unit } from 'mathjs';
 import { pluralize } from '../../utils';
 import { VIEWER_PALETTE } from '../utils';
 import {
-  GLOBAL_SLIDER_DIMENSION_FIELDS,
+  GLOBAL_LABELS,
   DEFAULT_RASTER_LAYER_PROPS,
   DEFAULT_LAYER_TYPE_ORDERING,
 } from './constants';
@@ -35,12 +35,12 @@ export function sortLayers(layers) {
 
 /**
  * Return the midpoint of the global dimensions.
- * @param {object[]} imageDims Loader dimensions object array.
+ * @param {object} source PixelSource object from Viv
  * @returns {object} The selection.
  */
 function getDefaultGlobalSelection(source) {
   const globalIndices = source.labels
-    .filter(dim => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim));
+    .filter(dim => GLOBAL_LABELS.includes(dim));
   const selection = {};
   globalIndices.forEach((dim) => {
     selection[dim] = Math.floor(
@@ -53,7 +53,7 @@ function getDefaultGlobalSelection(source) {
 /**
  * Create a default selection using the midpoint of the available global dimensions,
  * and then the first four available selections from the first selectable channel.
- * @param {object[]} imageDims Loader dimensions object array.
+ * @param {object} source PixelSource object from Viv
  * @returns {object} The selection.
  */
 function buildDefaultSelection(source) {
@@ -61,7 +61,7 @@ function buildDefaultSelection(source) {
   const globalSelection = getDefaultGlobalSelection(source);
   // First non-global dimension with some sort of selectable values
   const firstNonGlobalDimension = source.labels.filter(
-    dim => !GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim)
+    dim => !GLOBAL_LABELS.includes(dim)
       && source.shape[source.labels.indexOf(dim)],
   )[0];
   for (let i = 0; i < Math.min(4, source.shape[
@@ -79,7 +79,8 @@ function buildDefaultSelection(source) {
 
 /**
  * Initialize the channel selections for an individual layer.
- * @param {object} loader A viv loader instance, for either Zarr or OME-TIFF.
+ * @param {object} loader A viv loader instance with channel names appended by Vitessce loaders
+ * of the form { data: (PixelSource[]|PixelSource), metadata: Object, channels }
  * @returns {object[]} An array of selected channels with default
  * domain/slider settings.
  */

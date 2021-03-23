@@ -21,7 +21,7 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
       return Promise.reject(payload);
     }
 
-    const loader = loadOmeZarr(this.url, this.requestInit);
+    const loader = await loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
     const { metadata } = loader;
 
     const { omero } = metadata;
@@ -33,17 +33,18 @@ export default class OmeZarrLoader extends AbstractZarrLoader {
 
     const { rdefs, channels } = omero;
 
-    const time = rdefs.defaultT ?? 0;
+    const t = rdefs.defaultT ?? 0;
     const z = rdefs.defaultZ ?? 0;
 
     const imagesWithLoaderCreators = [
       {
+        name: omero.name,
         channels: channels.map((channel, i) => ({
-          selection: { z, time, channel: i },
+          selection: { z, t, c: i },
           slider: [channel.window.start, channel.window.end],
           color: hexToRgb(channel.color),
         })),
-        loaderCreator: async () => loader,
+        loaderCreator: async () => ({ ...loader, channels: channels.map(c => c.label) }),
       },
     ];
 
