@@ -15,13 +15,13 @@ import LayerOptions from './LayerOptions';
 
 import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
 import { GLOBAL_LABELS } from '../spatial/constants';
+import { getSourceFromLoader } from '../../utils';
 
 
 // Set the domain of the sliders based on either a full range or min/max.
 async function getDomainsAndSliders(loader, loaderSelection, domainType) {
   let domains;
-  const { data } = loader;
-  const source = Array.isArray(data) ? data[data.length - 1] : data;
+  const source = getSourceFromLoader(loader);
   const raster = await Promise.all(
     loaderSelection.map(selection => source.getRaster({ selection })),
   );

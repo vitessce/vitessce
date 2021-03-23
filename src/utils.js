@@ -79,3 +79,16 @@ export function getNextScope(prevScopes) {
   } while (prevScopes.includes(nextScope));
   return nextScope;
 }
+
+/**
+ * Get a representative PixelSource from a loader object returned from
+ * the Vitessce imaging loaders
+ * @param {object} loader { data: (PixelSource[]|PixelSource), metadata, channels } object
+ * @param {number=} level Level of the multiscale loader from which to get a PixelSource
+ * @returns {object} PixelSource object
+ */
+export function getSourceFromLoader(loader, level) {
+  const { data } = loader;
+  const source = Array.isArray(data) ? data[(level || data.length - 1)] : data;
+  return source;
+}

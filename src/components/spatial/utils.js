@@ -5,7 +5,7 @@ import { getChannelStats, getDefaultInitialViewState } from '@hms-dbmi/viv';
 import { extent } from 'd3-array';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
-import { pluralize } from '../../utils';
+import { pluralize, getSourceFromLoader } from '../../utils';
 import { VIEWER_PALETTE } from '../utils';
 import {
   GLOBAL_LABELS,
@@ -86,8 +86,7 @@ function buildDefaultSelection(source) {
  */
 export async function initializeLayerChannels(loader) {
   const result = [];
-  const { data } = loader;
-  const source = Array.isArray(data) ? data[data.length - 1] : data;
+  const source = getSourceFromLoader(loader);
   // Add channel automatically as the first avaialable value for each dimension.
   const defaultSelection = buildDefaultSelection(source);
   // Get stats because initial value is Min/Max for domainType.
@@ -122,9 +121,7 @@ export async function initializeLayerChannels(loader) {
 
 function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   // Do not fill in transformation matrices if any of the layers specify one.
-  const sources = imageLoaders.map(({ data }) => (Array.isArray(data)
-    ? data[0]
-    : data));
+  const sources = imageLoaders.map(getSourceFromLoader);
   if (
     imageMeta.map(meta => meta?.metadata?.transform?.matrix
       || meta?.metadata?.transform?.scale

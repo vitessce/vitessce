@@ -9,6 +9,7 @@ import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 
 import ChannelOptions from './ChannelOptions';
+import { getSourceFromLoader } from '../../utils';
 
 // Returns an rgb string for display, and changes the color (arr)
 // to use a grey for light theme + white color or if the colormap is on.
@@ -152,7 +153,7 @@ function ChannelController({
   selectionIndex,
   disableOptions = false,
 }) {
-  const { dtype } = (Array.isArray(loader.data) ? loader.data[0] : loader.data);
+  const { dtype } = getSourceFromLoader(loader);
   const [domain, setDomain] = useState(null);
   const [domainType, setDomainType] = useState(null);
   const [selection, setSelection] = useState([{ ...channels[channelId].selection }]);
@@ -179,8 +180,7 @@ function ChannelController({
             }
           }
         } else {
-          const { data } = loader;
-          const source = Array.isArray(data) ? data[data.length - 1] : data;
+          const source = getSourceFromLoader(loader);
           Promise.all(
             loaderSelection.map(sel => source.getRaster({ selection: sel })),
           ).then((raster) => {

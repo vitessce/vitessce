@@ -1,4 +1,4 @@
-export const GLOBAL_SLIDER_DIMENSION_FIELDS = ['z', 't'];
+export const GLOBAL_LABELS = ['z', 't'];
 
 export const DEFAULT_RASTER_DOMAIN_TYPE = 'Min/Max';
 
