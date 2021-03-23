@@ -5,7 +5,7 @@ import { getChannelStats, getDefaultInitialViewState } from '@hms-dbmi/viv';
 import { extent } from 'd3-array';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
-import { pluralize, getSourceFromLoader } from '../../utils';
+import { pluralize, getSourceFromLoader, isRgb } from '../../utils';
 import { VIEWER_PALETTE } from '../utils';
 import {
   GLOBAL_LABELS,
@@ -95,13 +95,13 @@ export async function initializeLayerChannels(loader) {
   );
   const stats = raster.map(({ data: d }) => getChannelStats(d));
 
-  const domains = loader.isRgb
+  const domains = isRgb(loader)
     ? [[0, 255], [0, 255], [0, 255]]
     : stats.map(stat => stat.domain);
-  const colors = loader.isRgb
+  const colors = isRgb(loader)
     ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
     : null;
-  const sliders = loader.isRgb
+  const sliders = isRgb(loader)
     ? [[0, 255], [0, 255], [0, 255]]
     : stats.map(stat => stat.autoSliders);
 

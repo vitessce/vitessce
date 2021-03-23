@@ -15,7 +15,7 @@ import LayerOptions from './LayerOptions';
 
 import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
 import { GLOBAL_LABELS } from '../spatial/constants';
-import { getSourceFromLoader } from '../../utils';
+import { getSourceFromLoader, isRgb } from '../../utils';
 
 
 // Set the domain of the sliders based on either a full range or min/max.
@@ -285,12 +285,12 @@ export default function RasterLayerController(props) {
               handleGlobalChannelsSelectionChange
             }
             handleTransparentColorChange={setTransparentColor}
-            isRgb={loader.isRgb}
+            isRgb={isRgb(loader)}
             handleDomainChange={handleDomainChange}
           />
         </Grid>
-        {!loader.isRgb ? channelControllers : null}
-        {!loader.isRgb && (
+        {!isRgb(loader) ? channelControllers : null}
+        {!isRgb(loader) && (
           <Grid item>
             <Button
               disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}

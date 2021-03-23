@@ -92,3 +92,13 @@ export function getSourceFromLoader(loader, level) {
   const source = Array.isArray(data) ? data[(level || data.length - 1)] : data;
   return source;
 }
+
+/*
+ * Helper method to determine whether pixel data is interleaved and rgb or not.
+ */
+export function isRgb(loader) {
+  const source = getSourceFromLoader(loader);
+  const { shape, dtype, labels } = source;
+  const channelSize = shape[labels.indexOf('c')];
+  return (channelSize === 3) && dtype === 'Uint8';
+}
