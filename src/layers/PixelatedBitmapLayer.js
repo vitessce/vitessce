@@ -1,5 +1,5 @@
-import { BitmapLayer } from '@deck.gl/layers';
-import { CompositeLayer } from '@deck.gl/core';
+import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { CompositeLayer } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { PIXELATED_TEXTURE_PARAMETERS } from './heatmap-constants';
 
 

@@ -11,6 +11,11 @@ import isEqual from 'lodash/isEqual';
 import ChannelOptions from './ChannelOptions';
 import { getSourceFromLoader } from '../../utils';
 
+// min is not exported.
+DTYPE_VALUES.Int8.min = -((DTYPE_VALUES.Uint8.max + 1) / 2);
+DTYPE_VALUES.Int16.min = -((DTYPE_VALUES.Uint16.max + 1) / 2);
+DTYPE_VALUES.Int32.min = -((DTYPE_VALUES.Uint32.max + 1) / 2);
+
 // Returns an rgb string for display, and changes the color (arr)
 // to use a grey for light theme + white color or if the colormap is on.
 export const toRgbUIString = (on, arr, theme) => {
@@ -87,7 +92,7 @@ function ChannelSlider({
   const handleChangeDebounced = useCallback(
     debounce(handleChange, 3, { trailing: true }), [handleChange],
   );
-  const step = max - min < 500 && dtype === '<f4' ? (max - min) / 500 : 1;
+  const step = max - min < 500 && dtype === 'Float32' ? (max - min) / 500 : 1;
   return (
     <Slider
       value={slider}
@@ -170,7 +175,7 @@ function ChannelController({
       const hasSelectionChanged = !isEqual(loaderSelection, selection);
       if (hasDomainChanged || hasSelectionChanged) {
         if (newDomainType === 'Full') {
-          domains = [[0, DTYPE_VALUES[dtype].max]];
+          domains = [[DTYPE_VALUES[dtype].min, DTYPE_VALUES[dtype].max]];
           const [newDomain] = domains;
           if (mounted) {
             setDomain(newDomain);

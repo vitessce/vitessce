@@ -87,10 +87,20 @@ describe('Vitessce Mocked Routes', () => {
 
 describe('Vitessce Zarr Store Routes', () => {
   it('loads AnnData zarr store', () => {
-    // 8080 is serving the AnnData fixtures directory.
-    cy.visit('/?url=http://127.0.0.1:8080/good-config.json');
+    // 8080 is serving the loader fixtures directory.
+    cy.visit('/?url=http://127.0.0.1:8080/anndata/good-config.json');
     cy.contains('UMAP');
     // This should exist as per the create-fixtures.py file.
     cy.contains('gene_0');
+  });
+
+  it('loads OME-TIFF', () => {
+    // 8080 is serving the loader fixtures directory.
+    cy.visit('/?url=http://127.0.0.1:8080/ome/good-config.json');
+    cy.contains('Multi Channel Test');
+    // This is a 3-channel image
+    cy.contains('Channel 0');
+    cy.contains('Channel 1');
+    cy.contains('Channel 2');
   });
 });

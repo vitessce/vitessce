@@ -47,7 +47,7 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  */
 export default function RasterLayerController(props) {
   const {
-    layer, name, loader, theme, rasterType,
+    layer, name, loader, theme,
     handleLayerRemove, handleLayerChange,
   } = props;
 
@@ -183,7 +183,7 @@ export default function RasterLayerController(props) {
 
   let channelControllers = [];
   if (labels.length > 0) {
-    const channelLabel = rasterType === 'ome-tiff' || rasterType === 'ome-zarr' ? labels.find(c => c === 'channel' || 'c') : labels[0];
+    const channelLabel = labels.find(c => c === 'channel' || c === 'c') || labels[0];
     // Create the channel controllers for each channel.
     channelControllers = channels.map(
       // c is an object like { color, selection, slider, visible }.

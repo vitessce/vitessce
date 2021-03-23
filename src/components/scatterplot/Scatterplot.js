@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { PolygonLayer, TextLayer } from '@deck.gl/layers';
+import { PolygonLayer, TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
 import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';

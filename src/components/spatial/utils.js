@@ -189,6 +189,7 @@ export async function initializeRasterLayersAndChannels(
   // Start all loader creators immediately.
   // Reference: https://eslint.org/docs/rules/no-await-in-loop
   const loaders = await Promise.all(rasterLayers.map(layer => layer.loaderCreator()));
+  const sources = loaders.map(getSourceFromLoader);
 
   for (let i = 0; i < rasterLayers.length; i++) {
     const layer = rasterLayers[i];
@@ -206,7 +207,7 @@ export async function initializeRasterLayersAndChannels(
     const loader = nextImageLoaders[layerIndex];
     const autoImageLayerDefPromise = initializeLayerChannels(loader)
       .then(channels => Promise.resolve({
-        type: 'raster',
+        type: sources[layerIndex].constructor.name,
         index: layerIndex,
         ...DEFAULT_RASTER_LAYER_PROPS,
         channels: channels.map((channel, j) => ({
@@ -228,7 +229,7 @@ export async function initializeRasterLayersAndChannels(
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: 'raster',
+          type: sources[layerIndex].constructor.name,
           index: layerIndex,
           ...DEFAULT_RASTER_LAYER_PROPS,
           channels: channels.map((channel, j) => ({

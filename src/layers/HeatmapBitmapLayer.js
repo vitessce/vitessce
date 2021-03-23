@@ -1,6 +1,6 @@
 import GL from '@luma.gl/constants';
-import { _mergeShaders, project32, picking } from '@deck.gl/core';
-import { BitmapLayer } from '@deck.gl/layers';
+import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
+import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D } from '@luma.gl/core';
 import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE } from './heatmap-constants';
 import { vertexShader, fragmentShader } from './heatmap-bitmap-layer-shaders';

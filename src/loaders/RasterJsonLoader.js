@@ -64,8 +64,8 @@ async function initLoader(imageData) {
       }
       const { Pixels: { Channels } } = loader.metadata;
       const channels = Array.isArray(Channels)
-        ? Channels.map((channel, i) => channel['@_Name'] || `Channel ${i}`)
-        : [Channels['@_Name'] || `Channel ${0}`];
+        ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
+        : [Channels.Name || `Channel ${0}`];
       return { ...loader, channels };
     }
     default: {

@@ -290,16 +290,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // eslint-disable-next-line prefer-destructuring
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
-    const Layer = (data.length > 1) ? MultiscaleImageLayer : ImageLayer;
+    const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;
+    const layerLoader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
+      ? data : data[0];
     return new Layer({
-      loader: loader.data,
+      loader: layerLoader,
       id: `image-layer-${layerDef.index}-${i}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
       loaderSelection,
       channelIsOn: layerProps.visibilities,
       opacity: layerProps.opacity,
-      colormap: (layerProps.colormap ? layerProps.colormap : ''),
+      colormap: layerProps.colormap ? layerProps.colormap : '',
       modelMatrix,
       transparentColor: layerProps.transparentColor,
     });
