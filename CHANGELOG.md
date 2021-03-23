@@ -9,6 +9,8 @@
     - Spatial layer definition objects in v1.0.1 do not have a `type` property.
 - Added support for OME-Zarr raster files with the `OmeZarrLoader` class.
 - Added a `title` prop for all subscriber components, to allow users to override component titles through the view config.
+- `fetchOptions` for zarr loader via `requestInit` in config.
+
 ### Changed
 - Fix bug from #867 where the view config is temporarily invalid due to null values.
 - Separate out hooks to allow for arbitrary gene slicing.
