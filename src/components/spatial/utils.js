@@ -78,33 +78,6 @@ function buildDefaultSelection(source) {
 }
 
 /**
- * Initialize the channel settings for an individual channel and selection.
- * @param {object} loader A viv loader instance, for either Zarr or OME-TIFF.
- * @param {object} selection The channel selection object.
- * @param {number} i The index of this channel for the layer.
- * @returns {object} The initialized channel with
- * domain/slider settings.
- */
-export async function initializeChannelForSelection(loader, selection, i) {
-  // Get stats because initial value is Min/Max for domainType.
-  const { data } = loader;
-  const source = Array.isArray(data) ? data[data.length - 1] : data;
-  const raster = await source.getRaster({ selection });
-  const stats = getChannelStats(raster);
-
-  const domain = loader.isRgb ? [[0, 255], [0, 255], [0, 255]][i] : stats[0].domain;
-  const color = loader.isRgb ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]][i] : VIEWER_PALETTE[i];
-  const slider = loader.isRgb ? [[0, 255], [0, 255], [0, 255]][i] : stats[0].autoSliders;
-
-  return {
-    selection,
-    color,
-    visible: true,
-    slider: slider || domain,
-  };
-}
-
-/**
  * Initialize the channel selections for an individual layer.
  * @param {object} loader A viv loader instance, for either Zarr or OME-TIFF.
  * @returns {object[]} An array of selected channels with default
