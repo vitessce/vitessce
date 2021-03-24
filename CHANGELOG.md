@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.7](https://www.npmjs.com/package/vitessce/v/1.1.7) - 2021-03-24
+
+### Added
 - Added logo to README.
 - Log2 (plus 1) scaling for Violin Plot
 - Add gene name to expression violin plot.
