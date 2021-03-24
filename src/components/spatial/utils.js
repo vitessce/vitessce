@@ -1,6 +1,6 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 import { getChannelStats, getDefaultInitialViewState } from '@hms-dbmi/viv';
 import { extent } from 'd3-array';
 import { Matrix4 } from 'math.gl';

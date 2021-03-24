@@ -1,5 +1,5 @@
 import React from 'react';
-import { range } from 'lodash';
+import range from 'lodash/range';
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';

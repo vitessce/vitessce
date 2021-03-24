@@ -95,6 +95,7 @@ export function getSourceFromLoader(loader, level) {
 
 /*
  * Helper method to determine whether pixel data is interleaved and rgb or not.
+ * @param {object} loader
  */
 export function isRgb(loader) {
   const source = getSourceFromLoader(loader);
