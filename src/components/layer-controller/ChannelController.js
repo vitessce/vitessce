@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { getChannelStats, DTYPE_VALUES } from '@hms-dbmi/viv';
+import { getChannelStats } from '@hms-dbmi/viv';
 
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
@@ -9,12 +9,8 @@ import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 
 import ChannelOptions from './ChannelOptions';
+import { DOMAINS } from './constants';
 import { getSourceFromLoader } from '../../utils';
-
-// min is not exported.
-DTYPE_VALUES.Int8.min = -((DTYPE_VALUES.Uint8.max + 1) / 2);
-DTYPE_VALUES.Int16.min = -((DTYPE_VALUES.Uint16.max + 1) / 2);
-DTYPE_VALUES.Int32.min = -((DTYPE_VALUES.Uint32.max + 1) / 2);
 
 // Returns an rgb string for display, and changes the color (arr)
 // to use a grey for light theme + white color or if the colormap is on.
@@ -175,7 +171,7 @@ function ChannelController({
       const hasSelectionChanged = !isEqual(loaderSelection, selection);
       if (hasDomainChanged || hasSelectionChanged) {
         if (newDomainType === 'Full') {
-          domains = [[DTYPE_VALUES[dtype].min, DTYPE_VALUES[dtype].max]];
+          domains = [DOMAINS[dtype]];
           const [newDomain] = domains;
           if (mounted) {
             setDomain(newDomain);

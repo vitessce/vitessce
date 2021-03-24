@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getChannelStats, DTYPE_VALUES, MAX_SLIDERS_AND_CHANNELS } from '@hms-dbmi/viv';
+import { getChannelStats, MAX_SLIDERS_AND_CHANNELS } from '@hms-dbmi/viv';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -16,6 +16,7 @@ import LayerOptions from './LayerOptions';
 import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
 import { GLOBAL_LABELS } from '../spatial/constants';
 import { getSourceFromLoader, isRgb } from '../../utils';
+import { DOMAINS } from './constants';
 
 
 // Set the domain of the sliders based on either a full range or min/max.
@@ -30,7 +31,7 @@ async function getDomainsAndSliders(loader, loaderSelection, domainType) {
   if (domainType === 'Min/Max') {
     domains = stats.map(stat => stat.domain);
   } if (domainType === 'Full') {
-    domains = loaderSelection.map(() => [0, DTYPE_VALUES[source.dtype].max]);
+    domains = loaderSelection.map(() => DOMAINS[source.dtype]);
   }
   return { domains, sliders };
 }
