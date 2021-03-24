@@ -126,7 +126,7 @@ export async function initializeLayerChannels(loader) {
 
 function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   // Do not fill in transformation matrices if any of the layers specify one.
-  const sources = imageLoaders.map(getSourceFromLoader);
+  const sources = imageLoaders.map(loader => getSourceFromLoader(loader));
   if (
     imageMeta.map(meta => meta?.metadata?.transform?.matrix
       || meta?.metadata?.transform?.scale
@@ -194,7 +194,7 @@ export async function initializeRasterLayersAndChannels(
   // Start all loader creators immediately.
   // Reference: https://eslint.org/docs/rules/no-await-in-loop
   const loaders = await Promise.all(rasterLayers.map(layer => layer.loaderCreator()));
-  const sources = loaders.map(getSourceFromLoader);
+  const sources = loaders.map(loader => getSourceFromLoader(loader));
 
   for (let i = 0; i < rasterLayers.length; i++) {
     const layer = rasterLayers[i];
