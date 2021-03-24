@@ -2,10 +2,10 @@ import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { Matrix4 } from 'math.gl';
-import { MultiscaleImageLayer, ImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
+import { ScaleBarLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
-import { square } from './utils';
+import { square, getLayerLoaderTuple } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import {
   createCellsQuadTree,
@@ -290,9 +290,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // eslint-disable-next-line prefer-destructuring
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
-    const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;
-    const layerLoader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
-      ? data : data[0];
+    const [Layer, layerLoader] = getLayerLoaderTuple(data);
     return new Layer({
       loader: layerLoader,
       id: `image-layer-${layerDef.index}-${i}`,
@@ -301,7 +299,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       loaderSelection,
       channelIsOn: layerProps.visibilities,
       opacity: layerProps.opacity,
-      colormap: layerProps.colormap ? layerProps.colormap : '',
+      colormap: layerProps.colormap,
       modelMatrix,
       transparentColor: layerProps.transparentColor,
     });

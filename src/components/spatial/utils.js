@@ -1,7 +1,12 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
 import isEqual from 'lodash/isEqual';
-import { getChannelStats, getDefaultInitialViewState } from '@hms-dbmi/viv';
+import {
+  getChannelStats,
+  getDefaultInitialViewState,
+  MultiscaleImageLayer,
+  ImageLayer,
+} from '@hms-dbmi/viv';
 import { extent } from 'd3-array';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
@@ -325,4 +330,16 @@ export function getInitialSpatialTargets({
     return { initialTargetX: null, initialTargetY: null, initialZoom: null };
   }
   return { initialTargetX, initialTargetY, initialZoom };
+}
+
+/**
+ * Make a subtitle for the spatial component.
+ * @param {object} data PixelSource | PixelSource[]
+ * @returns {Array} [Layer, PixelSource | PixelSource[]] tuple.
+ */
+export function getLayerLoaderTuple(data) {
+  const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;
+  const loader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
+    ? data : data[0];
+  return [Layer, loader];
 }
