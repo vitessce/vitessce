@@ -58,9 +58,10 @@ export default function DescriptionSubscriber(props) {
       rasterLayers.forEach((layer) => {
         if (imageLayerMeta[layer.index]) {
           // Want to ensure that layer index is a string.
+          const { format } = imageLayerLoaders[layer.index].metadata;
           result.set(`${layer.index}`, {
             name: raster.meta[layer.index].name,
-            metadata: imageLayerLoaders[layer.index].metadata?.format(),
+            metadata: format && format(),
           });
         }
       });
