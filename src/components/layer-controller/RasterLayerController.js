@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getChannelStats, DTYPE_VALUES, MAX_SLIDERS_AND_CHANNELS } from '@hms-dbmi/viv';
+import { getChannelStats, MAX_SLIDERS_AND_CHANNELS } from '@hms-dbmi/viv';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -14,18 +14,24 @@ import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
 import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
-import { GLOBAL_SLIDER_DIMENSION_FIELDS } from '../spatial/constants';
+import { GLOBAL_LABELS } from '../spatial/constants';
+import { getSourceFromLoader, isRgb } from '../../utils';
+import { DOMAINS } from './constants';
 
 
 // Set the domain of the sliders based on either a full range or min/max.
 async function getDomainsAndSliders(loader, loaderSelection, domainType) {
   let domains;
-  const stats = await getChannelStats({ loader, loaderSelection });
+  const source = getSourceFromLoader(loader);
+  const raster = await Promise.all(
+    loaderSelection.map(selection => source.getRaster({ selection })),
+  );
+  const stats = raster.map(({ data: d }) => getChannelStats(d));
   const sliders = stats.map(stat => stat.autoSliders);
   if (domainType === 'Min/Max') {
     domains = stats.map(stat => stat.domain);
   } if (domainType === 'Full') {
-    domains = loaderSelection.map(() => [0, DTYPE_VALUES[loader.dtype].max]);
+    domains = loaderSelection.map(() => DOMAINS[source.dtype]);
   }
   return { domains, sliders };
 }
@@ -42,7 +48,7 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  */
 export default function RasterLayerController(props) {
   const {
-    layer, name, loader, theme, rasterType,
+    layer, name, loader, theme,
     handleLayerRemove, handleLayerChange,
   } = props;
 
@@ -54,10 +60,11 @@ export default function RasterLayerController(props) {
   } = layer;
   const firstSelection = channels[0]?.selection || {};
 
-  const { dimensions } = loader;
+  const { data, channels: channelOptions } = loader;
+  const { labels, shape } = Array.isArray(data) ? data[data.length - 1] : data;
   const [domainType, setDomainType] = useState(layer.domainType);
-  const [globalDimensionValues, setGlobalDimensionValues] = useState(
-    GLOBAL_SLIDER_DIMENSION_FIELDS
+  const [globalLabelValues, setGlobalLabelValues] = useState(
+    GLOBAL_LABELS
       .filter(field => typeof firstSelection[field] === 'number')
       .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
   );
@@ -106,11 +113,11 @@ export default function RasterLayerController(props) {
   // for the current global settings and domain type.
   const handleChannelAdd = async () => {
     const selection = {};
-    dimensions.forEach((dimension) => {
+    labels.forEach((label) => {
       // Set new image to default selection for non-global selections (0)
       // and use current global selection otherwise.
-      selection[dimension.field] = GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field)
-        ? (globalDimensionValues[dimension.field] || 0)
+      selection[label] = GLOBAL_LABELS.includes(label)
+        ? (globalLabelValues[label] || 0)
         : 0;
     });
     const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType);
@@ -172,13 +179,12 @@ export default function RasterLayerController(props) {
       }));
       setChannels(newChannels);
     }
-    setGlobalDimensionValues(prev => ({ ...prev, ...selection }));
+    setGlobalLabelValues(prev => ({ ...prev, ...selection }));
   };
 
   let channelControllers = [];
-  if (dimensions.length > 0) {
-    const channelDimensions = rasterType === 'ome-tiff' || rasterType === 'ome-zarr' ? dimensions.find(c => c.field === 'channel') : dimensions[0];
-    const { values: channelOptions, field: dimName } = channelDimensions;
+  if (labels.length > 0) {
+    const channelLabel = labels.find(c => c === 'channel' || c === 'c') || labels[0];
     // Create the channel controllers for each channel.
     channelControllers = channels.map(
       // c is an object like { color, selection, slider, visible }.
@@ -190,7 +196,7 @@ export default function RasterLayerController(props) {
           // value is the actual change, like { channel: "DAPI" }.
           const update = { [property]: value };
           if (property === 'selection') {
-            update.selection = { ...globalDimensionValues, ...update.selection };
+            update.selection = { ...globalLabelValues, ...update.selection };
             const loaderSelection = [
               { ...channels[channelId][property], ...value },
             ];
@@ -205,10 +211,13 @@ export default function RasterLayerController(props) {
           removeChannel(channelId);
         };
         const handleIQRUpdate = async () => {
-          const stats = await getChannelStats(
-            { loader, loaderSelection: [channels[channelId].selection] },
-          );
-          const { q1, q3 } = stats[0];
+          const { data: loaderData } = loader;
+          const source = Array.isArray(loaderData) ? loaderData[loaderData.length - 1] : loaderData;
+          const raster = await source.getRaster({
+            selection: channels[channelId].selection,
+          });
+          const stats = getChannelStats(raster.data);
+          const { q1, q3 } = stats;
           setChannel({ ...c, slider: [q1, q3] }, channelId);
         };
         return (
@@ -219,16 +228,16 @@ export default function RasterLayerController(props) {
             style={{ width: '100%' }}
           >
             <ChannelController
-              dimName={dimName}
+              dimName={channelLabel}
               visibility={c.visible}
-              selectionIndex={c.selection[dimName]}
+              selectionIndex={c.selection[channelLabel]}
               slider={c.slider}
               color={c.color}
               channels={channels}
               channelId={channelId}
               domainType={domainType}
               loader={loader}
-              globalDimensionValues={globalDimensionValues}
+              globalLabelValues={globalLabelValues}
               theme={theme}
               channelOptions={channelOptions}
               colormapOn={Boolean(colormap)}
@@ -257,31 +266,32 @@ export default function RasterLayerController(props) {
         <Grid item>
           <LayerOptions
             channels={channels}
-            dimensions={dimensions}
+            labels={labels}
+            shape={shape}
             opacity={opacity}
             colormap={colormap}
             transparentColor={transparentColor}
             domainType={domainType}
             // Only allow for global dimension controllers that
             // exist in the `dimensions` part of the loader.
-            globalControlDimensions={
-              dimensions.filter(
-                dimension => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dimension.field),
+            globalControlLabels={
+              labels.filter(
+                label => GLOBAL_LABELS.includes(label),
               )
             }
-            globalDimensionValues={globalDimensionValues}
+            globalLabelValues={globalLabelValues}
             handleOpacityChange={setOpacity}
             handleColormapChange={setColormap}
             handleGlobalChannelsSelectionChange={
               handleGlobalChannelsSelectionChange
             }
             handleTransparentColorChange={setTransparentColor}
-            isRgb={loader.isRgb}
+            isRgb={isRgb(loader)}
             handleDomainChange={handleDomainChange}
           />
         </Grid>
-        {!loader.isRgb ? channelControllers : null}
-        {!loader.isRgb && (
+        {!isRgb(loader) ? channelControllers : null}
+        {!isRgb(loader) && (
           <Grid item>
             <Button
               disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}

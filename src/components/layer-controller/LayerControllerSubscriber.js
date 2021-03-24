@@ -59,13 +59,15 @@ function LayerControllerSubscriber(props) {
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
-    loaders, dataset, setItemIsReady, () => {}, false,
+    loaders, dataset, setItemIsReady, () => { }, false,
+    { setSpatialRasterLayers: setRasterLayers },
+    { spatialRasterLayers: rasterLayers },
   );
 
   useCellsData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialCellsLayer: setCellsLayer },
-    { spatialRasterLayers: rasterLayers },
+    { spatialCellsLayer: cellsLayer },
   );
   useMoleculesData(
     loaders, dataset, setItemIsReady, () => {}, false,
@@ -134,7 +136,6 @@ function LayerControllerSubscriber(props) {
             <Grid key={`${dataset}-raster-${index}-${i}`} item style={{ marginTop: '10px' }}>
               <RasterLayerController
                 name={layerMeta.name}
-                rasterType={layerMeta.type}
                 layer={layer}
                 loader={loader}
                 theme={theme}

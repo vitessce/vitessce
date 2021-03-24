@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
-import { OrthographicView } from '@deck.gl/core';
+import { OrthographicView } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';

@@ -1,5 +1,5 @@
 import React from 'react';
-
+import range from 'lodash/range';
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -164,7 +164,7 @@ function LayerOption({ name, inputId, children }) {
  * @prop {number} opacity Current opacity value.
  * @prop {function} handleColormapChange Callback for when colormap changes.
  * @prop {function} handleOpacityChange Callback for when opacity changes.
- * @prop {object} globalControlDimensions All available options for global control (z and t).
+ * @prop {object} globalControlLabels All available options for global control (z and t).
  * @prop {function} handleGlobalChannelsSelectionChange Callback for global selection changes.
  * @prop {function} handleDomainChange Callback for domain type changes (full or min/max).
  * @prop {array} channels Current channel object for inferring the current global selection.
@@ -178,17 +178,18 @@ function LayerOptions({
   handleColormapChange,
   handleOpacityChange,
   handleTransparentColorChange,
-  globalControlDimensions,
-  globalDimensionValues,
+  globalControlLabels,
+  globalLabelValues,
   handleGlobalChannelsSelectionChange,
   handleDomainChange,
   transparentColor,
   channels,
-  dimensions,
+  labels,
+  shape,
   domainType,
   isRgb,
 }) {
-  const hasDimensionsAndChannels = dimensions.length > 0 && channels.length > 0;
+  const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       {!isRgb ? (
@@ -231,22 +232,19 @@ function LayerOptions({
         </LayerOption>
       </Grid>
       {hasDimensionsAndChannels
-        && globalControlDimensions.map((dimension) => {
-          const { field, values } = dimension;
+        && globalControlLabels.map(field => (
           // If there is only one value in the dimension, do not return a slider.
-          return (
-            values.length > 1 && (
-              <LayerOption name={field} inputId={`${field}-slider`} key={field}>
-                <GlobalSelectionSlider
-                  field={field}
-                  value={globalDimensionValues[field]}
-                  handleChange={handleGlobalChannelsSelectionChange}
-                  possibleValues={values}
-                />
-              </LayerOption>
-            )
-          );
-        })}
+          shape[labels.indexOf(field)] > 1 && (
+          <LayerOption name={field} inputId={`${field}-slider`} key={field}>
+            <GlobalSelectionSlider
+              field={field}
+              value={globalLabelValues[field]}
+              handleChange={handleGlobalChannelsSelectionChange}
+              possibleValues={range(shape[labels.indexOf(field)])}
+            />
+          </LayerOption>
+          )
+        ))}
     </Grid>
   );
 }

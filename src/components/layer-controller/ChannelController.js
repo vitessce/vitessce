@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { getChannelStats, DTYPE_VALUES } from '@hms-dbmi/viv';
+import { getChannelStats } from '@hms-dbmi/viv';
 
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
@@ -9,6 +9,8 @@ import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 
 import ChannelOptions from './ChannelOptions';
+import { DOMAINS } from './constants';
+import { getSourceFromLoader } from '../../utils';
 
 // Returns an rgb string for display, and changes the color (arr)
 // to use a grey for light theme + white color or if the colormap is on.
@@ -86,7 +88,7 @@ function ChannelSlider({
   const handleChangeDebounced = useCallback(
     debounce(handleChange, 3, { trailing: true }), [handleChange],
   );
-  const step = max - min < 500 && dtype === '<f4' ? (max - min) / 500 : 1;
+  const step = max - min < 500 && dtype === 'Float32' ? (max - min) / 500 : 1;
   return (
     <Slider
       value={slider}
@@ -152,7 +154,7 @@ function ChannelController({
   selectionIndex,
   disableOptions = false,
 }) {
-  const { dtype } = loader;
+  const { dtype } = getSourceFromLoader(loader);
   const [domain, setDomain] = useState(null);
   const [domainType, setDomainType] = useState(null);
   const [selection, setSelection] = useState([{ ...channels[channelId].selection }]);
@@ -169,7 +171,7 @@ function ChannelController({
       const hasSelectionChanged = !isEqual(loaderSelection, selection);
       if (hasDomainChanged || hasSelectionChanged) {
         if (newDomainType === 'Full') {
-          domains = [[0, DTYPE_VALUES[dtype].max]];
+          domains = [DOMAINS[dtype]];
           const [newDomain] = domains;
           if (mounted) {
             setDomain(newDomain);
@@ -179,7 +181,11 @@ function ChannelController({
             }
           }
         } else {
-          getChannelStats({ loader, loaderSelection }).then((stats) => {
+          const source = getSourceFromLoader(loader);
+          Promise.all(
+            loaderSelection.map(sel => source.getRaster({ selection: sel })),
+          ).then((raster) => {
+            const stats = raster.map(({ data: d }) => getChannelStats(d));
             domains = stats.map(stat => stat.domain);
             const [newDomain] = domains;
             if (mounted) {

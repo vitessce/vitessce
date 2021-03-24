@@ -2,10 +2,10 @@ import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { Matrix4 } from 'math.gl';
-import { MultiscaleImageLayer, ImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
+import { ScaleBarLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
-import { square } from './utils';
+import { square, getLayerLoaderTuple } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import {
   createCellsQuadTree,
@@ -281,24 +281,25 @@ class Spatial extends AbstractSpatialOrScatterplot {
     };
 
     if (!loader || !layerProps) return null;
-    const { scale, translate, isPyramid } = loader;
+    const { metadata: { transform }, data } = loader;
     let modelMatrix;
-    if (scale && translate) {
+    if (transform) {
+      const { scale, translate } = transform;
       modelMatrix = new Matrix4().translate([translate.x, translate.y, 0]).scale(scale);
     } else if (layerDef.modelMatrix) {
       // eslint-disable-next-line prefer-destructuring
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
-    const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
+    const [Layer, layerLoader] = getLayerLoaderTuple(data);
     return new Layer({
-      loader,
+      loader: layerLoader,
       id: `image-layer-${layerDef.index}-${i}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
       loaderSelection,
       channelIsOn: layerProps.visibilities,
       opacity: layerProps.opacity,
-      colormap: (layerProps.colormap ? layerProps.colormap : ''),
+      colormap: layerProps.colormap,
       modelMatrix,
       transparentColor: layerProps.transparentColor,
     });

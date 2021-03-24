@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-import { COORDINATE_SYSTEM, CompositeLayer } from '@deck.gl/core';
-import { TextLayer } from '@deck.gl/layers';
+import { COORDINATE_SYSTEM, CompositeLayer } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
+import { TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import {
   AXIS_LABEL_TEXT_SIZE,
   AXIS_TITLE_TEXT_SIZE,
