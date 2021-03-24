@@ -22,6 +22,7 @@
 - Fix `categories` parsing for AnnData with `dtype=|O`.
 - Do not do call `makeDefaultGetCellIsSelected` if not necessary.
 - Upgrade `Viv` to 0.9.3.
+- Fix bug where formatting was required for image loader `metadata`.
 
 ## [1.1.6](https://www.npmjs.com/package/vitessce/v/1.1.6) - 2021-03-05
 
