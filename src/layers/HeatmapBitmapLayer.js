@@ -1,4 +1,4 @@
-import GL from '@luma.gl/constants';
+import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D } from '@luma.gl/core';
