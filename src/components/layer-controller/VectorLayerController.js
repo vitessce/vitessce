@@ -5,7 +5,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
-import { useExpansionPanelStyles } from './styles';
+import { useExpansionPanelStyles, useCheckboxStyles } from './styles';
 
 export default function VectorLayerController(props) {
   const {
@@ -31,10 +31,11 @@ export default function VectorLayerController(props) {
     handleLayerChange({ ...layer, visible: v });
   }
 
-  const classes = useExpansionPanelStyles();
+  const expansionClasses = useExpansionPanelStyles();
+  const checkboxClasses = useCheckboxStyles();
   return (
     <Grid item style={{ marginTop: '10px' }}>
-      <Paper className={classes.root}>
+      <Paper className={expansionClasses.root}>
         <Typography
           style={{
             paddingTop: '15px',
@@ -47,8 +48,8 @@ export default function VectorLayerController(props) {
         <Grid container direction="row" justify="space-between">
           <Grid item xs={2}>
             <Checkbox
+              classes={checkboxClasses}
               color="primary"
-              style={{ height: '100% !important' }}
               checked={isOn}
               onChange={(e, v) => handleCheckBoxChange(v)}
             />
