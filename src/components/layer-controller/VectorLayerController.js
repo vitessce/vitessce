@@ -46,7 +46,12 @@ export default function VectorLayerController(props) {
         </Typography>
         <Grid container direction="row" justify="space-between">
           <Grid item xs={2}>
-            <Checkbox color="primary" checked={isOn} onChange={(e, v) => handleCheckBoxChange(v)} />
+            <Checkbox
+              color="primary"
+              style={{ height: '100% !important' }}
+              checked={isOn}
+              onChange={(e, v) => handleCheckBoxChange(v)}
+            />
           </Grid>
           <Grid item xs={9} style={{ paddingRight: '8px' }}>
             <Slider

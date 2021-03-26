@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Fix `layerController` checkbox `height` css being overriden in Jupyter Lab.
 
 ## [1.1.7](https://www.npmjs.com/package/vitessce/v/1.1.7) - 2021-03-24
 

@@ -39,7 +39,8 @@ function ColormapSelect({ value, inputId, handleChange }) {
 function TransparentColorCheckbox({ value, handleChange }) {
   return (
     <Checkbox
-      style={{ float: 'left', padding: 0 }}
+      // height attribute needed to solve: https://github.com/vitessce/vitessce/issues/833
+      style={{ float: 'left', padding: 0, height: '100% !important' }}
       color="default"
       onChange={() => {
         if (value) {

@@ -116,7 +116,8 @@ function ChannelVisibilityCheckbox({ color, checked, toggle }) {
     <Checkbox
       onChange={toggle}
       checked={checked}
-      style={{ color, '&$checked': { color } }}
+      // height attribute needed to solve: https://github.com/vitessce/vitessce/issues/833
+      style={{ color, '&$checked': { color }, height: '100% !important' }}
     />
   );
 }
