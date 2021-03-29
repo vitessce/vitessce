@@ -249,8 +249,10 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     const {
       options: { matrix, matrixGeneFilter },
     } = this;
-    const zattrs = await this.getJson(`${matrix}/.zattrs`);
-    const encodingType = zattrs['encoding-type'];
+    if (!this._matrixZattrs) {
+      this._matrixZattrs = await this.getJson(`${matrix}/.zattrs`);
+    }
+    const encodingType = this._matrixZattrs['encoding-type'];
     if (!matrixGeneFilter) {
       if (encodingType === 'csr_matrix') {
         this.cellXGene = this._loadCSRSparseCellXGene().then(data => normalize(data));
@@ -302,8 +304,10 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       options: { matrix },
       store,
     } = this;
-    const zattrs = await this.getJson(`${matrix}/.zattrs`);
-    const encodingType = zattrs['encoding-type'];
+    if (!this._matrixZattrs) {
+      this._matrixZattrs = await this.getJson(`${matrix}/.zattrs`);
+    }
+    const encodingType = this._matrixZattrs['encoding-type'];
     let genes;
     if (encodingType === 'csc_matrix') {
       genes = await this._loadCSCGeneSelection(selection);

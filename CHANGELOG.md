@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Don't request `zattrs` every time when running `loadGeneSelection` on the AnnData loader.
 
 ## [1.1.7](https://www.npmjs.com/package/vitessce/v/1.1.7) - 2021-03-24
 
