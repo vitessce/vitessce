@@ -40,12 +40,12 @@ describe('Vitessce Mocked Routes', () => {
   });
 
   it('loads details (static)', () => {
-    cy.visit('/?dataset=linnarsson-2018-static');
+    cy.visit('/?dataset=linnarsson-2018-static&debug=true');
     cy.contains('Linnarsson (static layout): Spatial organization');
   });
 
   it('loads details (responsive)', () => {
-    cy.visit('/?dataset=linnarsson-2018');
+    cy.visit('/?dataset=linnarsson-2018&debug=true');
 
     // Data Set:
     cy.contains('Linnarsson: Spatial organization');
@@ -88,7 +88,7 @@ describe('Vitessce Mocked Routes', () => {
 describe('Vitessce Zarr Store Routes', () => {
   it('loads AnnData zarr store', () => {
     // 8080 is serving the loader fixtures directory.
-    cy.visit('/?url=http://127.0.0.1:8080/anndata/good-config.json');
+    cy.visit('/?url=http://127.0.0.1:8080/anndata/good-config.json&debug=true');
     cy.contains('UMAP');
     // This should exist as per the create-fixtures.py file.
     cy.contains('gene_0');
@@ -96,7 +96,7 @@ describe('Vitessce Zarr Store Routes', () => {
 
   it('loads OME-TIFF', () => {
     // 8080 is serving the loader fixtures directory.
-    cy.visit('/?url=http://127.0.0.1:8080/ome/good-config.json');
+    cy.visit('/?url=http://127.0.0.1:8080/ome/good-config.json&debug=true');
     cy.contains('Multi Channel Test');
     // This is a 3-channel image
     cy.contains('Channel 0');

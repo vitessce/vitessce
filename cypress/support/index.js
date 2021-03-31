@@ -14,7 +14,17 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
+import './commands';
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+import failOnConsoleError, { consoleType } from 'cypress-fail-on-console-error';
+
+const config = {
+  excludeMessages: ['^((?!Error: Config validation failed).)*$'],
+  includeConsoleTypes: [
+    consoleType.ERROR,
+  ],
+};
+
+failOnConsoleError(config);
