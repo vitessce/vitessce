@@ -5,6 +5,7 @@ import { Matrix4 } from 'math.gl';
 import { ScaleBarLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
+import { getSourceFromLoader } from '../../utils';
 import { square, getLayerLoaderTuple } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import {
@@ -233,16 +234,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (!viewState || !width || !height || loaders.length < 1) return null;
     const loader = loaders[0];
     if (!loader) return null;
-    const { physicalSizes } = loader;
+    const source = getSourceFromLoader(loader);
+    if (!source.meta) return null;
+    const { physicalSizes } = source.meta;
     if (physicalSizes) {
       const { x } = physicalSizes;
-      const { unit, value } = x;
-      if (unit && value) {
+      const { unit, size } = x;
+      if (unit && size) {
         return new ScaleBarLayer({
           id: 'scalebar-layer',
           loader,
           unit,
-          size: value,
+          size,
           viewState: { ...viewState, width, height },
         });
       }
