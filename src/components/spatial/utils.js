@@ -83,6 +83,14 @@ function buildDefaultSelection(source) {
 }
 
 /**
+ * @param {Array.<number>} shape loader shape
+ */
+export function isInterleaved(shape) {
+  const lastDimSize = shape[shape.length - 1];
+  return lastDimSize === 3 || lastDimSize === 4;
+}
+
+/**
  * Initialize the channel selections for an individual layer.
  * @param {object} loader A viv loader instance with channel names appended by Vitessce loaders
  * of the form { data: (PixelSource[]|PixelSource), metadata: Object, channels }
@@ -93,7 +101,9 @@ export async function initializeLayerChannels(loader) {
   const result = [];
   const source = getSourceFromLoader(loader);
   // Add channel automatically as the first avaialable value for each dimension.
-  const defaultSelection = buildDefaultSelection(source);
+  let defaultSelection = buildDefaultSelection(source);
+  defaultSelection = isInterleaved(source.shape)
+    ? [{ ...defaultSelection[0], c: 0 }] : defaultSelection;
   // Get stats because initial value is Min/Max for domainType.
   const raster = await Promise.all(
     defaultSelection.map(selection => source.getRaster({ selection })),
