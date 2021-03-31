@@ -3,6 +3,8 @@
 ### Added
 
 ### Changed
+- Fixed scale bar not displaying from `Viv` `0.9.3` issue.
+- Fixed interleaved image not dispalying bug.
 
 ## [1.1.7](https://www.npmjs.com/package/vitessce/v/1.1.7) - 2021-03-24
 
