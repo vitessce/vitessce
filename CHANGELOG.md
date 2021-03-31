@@ -3,6 +3,8 @@
 ### Added
 
 ### Changed
+- Fixed scale bar not displaying from `Viv` `0.9.3` issue.
+- Fixed interleaved image not dispalying bug.
 - Fix `layerController` checkbox `height` css being overriden in Jupyter Lab.
 - Add the `ScopedCssBaseline` component from the Material UI library to reset the CSS within the Vitessce widget.
 
