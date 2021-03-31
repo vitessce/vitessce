@@ -288,8 +288,7 @@
           "description": "Determines the extent of the channel slider input element in the layer controller."
         },
         "type": {
-          "type": "string",
-          "enum": ["raster"]
+          "type": "string"
         }
       }
     },
