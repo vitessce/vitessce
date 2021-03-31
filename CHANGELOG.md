@@ -3,6 +3,8 @@
 ### Added
 
 ### Changed
+- Fix `layerController` checkbox `height` css being overriden in Jupyter Lab.
+- Add the `ScopedCssBaseline` component from the Material UI library to reset the CSS within the Vitessce widget.
 
 ## [1.1.7](https://www.npmjs.com/package/vitessce/v/1.1.7) - 2021-03-24
 
