@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Add opacity slider when `layerController` is closed.
 
 ### Changed
 - Don't request `zattrs` every time when running `loadGeneSelection` on the AnnData loader.
