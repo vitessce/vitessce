@@ -257,10 +257,10 @@ export default function RasterLayerController(props) {
   const summaryClasses = useExpansionPanelSummaryStyles();
   return (
     <ExpansionPanel
-      defaultExpanded
       className={classes.root}
-      onChange={(e, expanded) => setIsExpanded(expanded)}
+      onChange={(e, expanded) => setIsExpanded(expanded && e?.target?.attributes?.role?.value === 'presentation')}
       TransitionProps={{ enter: false }}
+      expanded={isExpanded}
     >
       <ExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
