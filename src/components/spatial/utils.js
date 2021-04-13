@@ -134,12 +134,11 @@ export async function initializeLayerChannels(loader) {
   return result;
 }
 
-function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
+function getMetaWithTransformMatrices(imageMeta, imageLoaders, scaleTranslation) {
   // Do not fill in transformation matrices if any of the layers specify one.
   const sources = imageLoaders.map(loader => getSourceFromLoader(loader));
   if (
-    imageMeta.map(meta => meta?.metadata?.transform?.matrix
-      || meta?.metadata?.transform?.scale
+    imageMeta.map(meta => meta?.metadata?.transform?.scale
       || meta?.metadata?.transform?.translate).some(Boolean)
     || sources.every(
       source => !source.meta?.physicalSizes?.x || !source.meta?.physicalSizes?.y,
@@ -170,7 +169,12 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
       return meta;
     }
     // Make sure to scale the z direction by one.
-    const matrix = new Matrix4().scale([...scale, 1]);
+    const matrix = new Matrix4(meta?.metadata?.transform?.matrix).scale([...scale, 1]);
+    if (scaleTranslation) {
+      const translation = matrix.getTranslation();
+      const scaledTranslation = translation.map((val, ind) => val * (scale[ind] || 1));
+      matrix.setColumn(3, [...scaledTranslation, 1]);
+    }
     const newMeta = { ...meta };
     newMeta.metadata = {
       ...newMeta.metadata,
@@ -196,6 +200,7 @@ export async function initializeRasterLayersAndChannels(
   rasterLayers,
   rasterRenderLayers,
   usePhysicalSizeScaling,
+  scaleTranslation,
 ) {
   const nextImageLoaders = [];
   let nextImageMetaAndLayers = [];
@@ -213,7 +218,9 @@ export async function initializeRasterLayersAndChannels(
     nextImageMetaAndLayers[i] = layer;
   }
   if (usePhysicalSizeScaling) {
-    nextImageMetaAndLayers = getMetaWithTransformMatrices(nextImageMetaAndLayers, nextImageLoaders);
+    nextImageMetaAndLayers = getMetaWithTransformMatrices(
+      nextImageMetaAndLayers, nextImageLoaders, scaleTranslation,
+    );
   }
   // No layers were pre-defined so set up the default image layers.
   if (!rasterRenderLayers) {

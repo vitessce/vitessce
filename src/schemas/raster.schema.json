@@ -109,6 +109,7 @@
   "properties": {
     "schemaVersion": { "type": "string" },
     "usePhysicalSizeScaling": { "type": "boolean", "description": "Default is false: passing true in will infer scaling from the reported physcial size" },
+    "scaleTranslation": { "type": "boolean", "description": "Default is true: passing false in will cause the physical size scaling not to be applied to the metadata.transform.matrix" },
     "renderLayers": { "type": "array", "items": { "type": "string" } },
     "images": {
       "type": "array",
