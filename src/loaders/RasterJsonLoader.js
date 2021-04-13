@@ -91,7 +91,9 @@ export default class RasterLoader extends JsonLoader {
       return Promise.reject(payload);
     }
     const { data: raster } = payload;
-    const { images, renderLayers, usePhysicalSizeScaling = false } = raster;
+    const {
+      images, renderLayers, usePhysicalSizeScaling = false, scaleTranslation = true,
+    } = raster;
 
     // Get image name and URL tuples.
     const urls = images
@@ -114,6 +116,7 @@ export default class RasterLoader extends JsonLoader {
       imagesWithLoaderCreators,
       renderLayers,
       usePhysicalSizeScaling,
+      scaleTranslation,
     );
 
     const coordinationValues = {
