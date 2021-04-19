@@ -5,7 +5,6 @@ import {
   ThemeProvider, StylesProvider,
   createGenerateClassName,
 } from '@material-ui/core/styles';
-import ScopedCssBaseline from '@material-ui/core/ScopedCssBaseline';
 import isEqual from 'lodash/isEqual';
 import packageJson from '../../package.json';
 import { muiTheme } from '../components/shared-mui/styles';
@@ -20,7 +19,6 @@ import Warning from './Warning';
 import CallbackPublisher from './CallbackPublisher';
 import { getComponent } from './component-registry';
 import { initialize, upgrade } from './view-config-utils';
-import { useBaselineStyles } from './styles';
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
@@ -56,8 +54,6 @@ export default function Vitessce(props) {
     onLoaderChange,
     validateOnConfigChange = false,
   } = props;
-
-  const classes = useBaselineStyles();
 
   // Process the view config and memoize the result:
   // - Validate.
@@ -142,21 +138,19 @@ export default function Vitessce(props) {
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
-        <ScopedCssBaseline classes={classes}>
-          <VitessceGrid
-            config={configOrWarning}
-            getComponent={getComponent}
-            rowHeight={rowHeight}
-            height={height}
-            theme={theme}
-          />
-          <CallbackPublisher
-            onWarn={onWarn}
-            onConfigChange={onConfigChange}
-            onLoaderChange={onLoaderChange}
-            validateOnConfigChange={validateOnConfigChange}
-          />
-        </ScopedCssBaseline>
+        <VitessceGrid
+          config={configOrWarning}
+          getComponent={getComponent}
+          rowHeight={rowHeight}
+          height={height}
+          theme={theme}
+        />
+        <CallbackPublisher
+          onWarn={onWarn}
+          onConfigChange={onConfigChange}
+          onLoaderChange={onLoaderChange}
+          validateOnConfigChange={validateOnConfigChange}
+        />
       </ThemeProvider>
     </StylesProvider>
   ) : (
