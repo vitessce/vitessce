@@ -4,13 +4,12 @@ import { getChannelStats } from '@hms-dbmi/viv';
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
-import NativeSelect from '@material-ui/core/NativeSelect';
+import Select from '@material-ui/core/Select';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 
 import ChannelOptions from './ChannelOptions';
 import { DOMAINS } from './constants';
-import { useCheckboxStyles } from './styles';
 import { getSourceFromLoader } from '../../utils';
 
 // Returns an rgb string for display, and changes the color (arr)
@@ -61,7 +60,8 @@ function ChannelSelectionDropdown({
   selectionIndex,
 }) {
   return (
-    <NativeSelect
+    <Select
+      native
       value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}
     >
@@ -70,7 +70,7 @@ function ChannelSelectionDropdown({
           {opt}
         </option>
       ))}
-    </NativeSelect>
+    </Select>
   );
 }
 
@@ -112,12 +112,10 @@ function ChannelSlider({
  * @prop {function} toggle Callback for toggling on/off.
  */
 function ChannelVisibilityCheckbox({ color, checked, toggle }) {
-  const classes = useCheckboxStyles();
   return (
     <Checkbox
       onChange={toggle}
       checked={checked}
-      classes={classes}
       style={{ color, '&$checked': { color } }}
     />
   );
