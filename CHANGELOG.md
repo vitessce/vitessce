@@ -3,6 +3,12 @@
 ### Added
 
 ### Changed
+
+## [1.1.8](https://www.npmjs.com/package/vitessce/v/1.1.8) - 2021-03-31
+
+### Added
+
+### Changed
 - Don't request `zattrs` every time when running `loadGeneSelection` on the AnnData loader.
 - Fixed scale bar not displaying from `Viv` `0.9.3` issue.
 - Fixed interleaved image not dispalying bug.
