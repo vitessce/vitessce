@@ -3,12 +3,11 @@ import range from 'lodash/range';
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
-import NativeSelect from '@material-ui/core/NativeSelect';
+import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 
 import { COLORMAP_OPTIONS } from '../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
-import { useCheckboxStyles } from './styles';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 
@@ -20,7 +19,8 @@ const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
  */
 function ColormapSelect({ value, inputId, handleChange }) {
   return (
-    <NativeSelect
+    <Select
+      native
       onChange={e => handleChange(e.target.value === '' ? null : e.target.value)}
       value={value}
       inputProps={{ name: 'colormap', id: inputId }}
@@ -32,15 +32,13 @@ function ColormapSelect({ value, inputId, handleChange }) {
           {name}
         </option>
       ))}
-    </NativeSelect>
+    </Select>
   );
 }
 
 function TransparentColorCheckbox({ value, handleChange }) {
-  const classes = useCheckboxStyles();
   return (
     <Checkbox
-      classes={classes}
       style={{ float: 'left', padding: 0 }}
       color="default"
       onChange={() => {
@@ -84,7 +82,8 @@ function OpacitySlider({ value, handleChange }) {
  */
 function SliderDomainSelector({ value, inputId, handleChange }) {
   return (
-    <NativeSelect
+    <Select
+      native
       onChange={e => handleChange(e.target.value)}
       value={value}
       inputProps={{ name: 'domain-selector', id: inputId }}
@@ -95,7 +94,7 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
           {name}
         </option>
       ))}
-    </NativeSelect>
+    </Select>
   );
 }
 
