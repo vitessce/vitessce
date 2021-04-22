@@ -106,26 +106,25 @@ export default class RasterLoader extends JsonLoader {
 
     // TODO: use options for initial selection of channels
     // which omit domain/slider ranges.
-    const [
-      autoImageLayers,
-      imageLayerLoaders,
-      imageLayerMeta,
-    ] = await initializeRasterLayersAndChannels(
-      imagesWithLoaderCreators,
-      renderLayers,
-      usePhysicalSizeScaling,
-    );
+    if (!this.autoImageCache) {
+      this.autoImageCache = initializeRasterLayersAndChannels(
+        imagesWithLoaderCreators,
+        renderLayers,
+        usePhysicalSizeScaling,
+      );
+    }
 
-    const coordinationValues = {
-      spatialRasterLayers: autoImageLayers,
-    };
+    return this.autoImageCache.then((autoImages) => {
+      const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = autoImages;
 
-    return Promise.resolve(
-      new LoaderResult(
+      const coordinationValues = {
+        spatialRasterLayers: autoImageLayers,
+      };
+      return new LoaderResult(
         { loaders: imageLayerLoaders, meta: imageLayerMeta },
         urls,
         coordinationValues,
-      ),
-    );
+      );
+    });
   }
 }
