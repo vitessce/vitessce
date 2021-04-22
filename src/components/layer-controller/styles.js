@@ -54,3 +54,9 @@ export const useExpansionPanelSummaryStyles = makeStyles(theme => ({
     },
   },
 }));
+
+export const useSmallInputLabelStyles = makeStyles(() => ({
+  root: {
+    fontSize: '14px',
+  },
+}));

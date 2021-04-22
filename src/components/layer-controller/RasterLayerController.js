@@ -4,6 +4,8 @@ import { getChannelStats, MAX_SLIDERS_AND_CHANNELS } from '@hms-dbmi/viv';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
+import Slider from '@material-ui/core/Slider';
+import InputLabel from '@material-ui/core/InputLabel';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -13,7 +15,11 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
-import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
+import {
+  useExpansionPanelStyles,
+  useExpansionPanelSummaryStyles,
+  useSmallInputLabelStyles,
+} from './styles';
 import { GLOBAL_LABELS } from '../spatial/constants';
 import { getSourceFromLoader, isRgb } from '../../utils';
 import { DOMAINS } from './constants';
@@ -63,6 +69,7 @@ export default function RasterLayerController(props) {
   const { data, channels: channelOptions } = loader;
   const { labels, shape } = Array.isArray(data) ? data[data.length - 1] : data;
   const [domainType, setDomainType] = useState(layer.domainType);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [globalLabelValues, setGlobalLabelValues] = useState(
     GLOBAL_LABELS
       .filter(field => typeof firstSelection[field] === 'number')
@@ -253,14 +260,43 @@ export default function RasterLayerController(props) {
 
   const classes = useExpansionPanelStyles();
   const summaryClasses = useExpansionPanelSummaryStyles();
+  const closedOpacityLabelClasses = useSmallInputLabelStyles();
+
   return (
-    <ExpansionPanel defaultExpanded className={classes.root}>
+    <ExpansionPanel
+      className={classes.root}
+      onChange={(e, expanded) => setIsExpanded(expanded && e?.target?.attributes?.role?.value === 'presentation')}
+      TransitionProps={{ enter: false }}
+      expanded={isExpanded}
+    >
       <ExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`layer-${name}-controls`}
         classes={{ ...summaryClasses }}
       >
-        {name}
+        <Grid container direction="column" m={1} justify="center">
+          <Grid item>{name}</Grid>
+          {!isExpanded && (
+            <Grid container direction="row" alignItems="center" justify="center">
+              <Grid item xs={6}>
+                <InputLabel htmlFor={`layer-${name}-opacity-closed`} classes={closedOpacityLabelClasses}>Opacity:</InputLabel>
+              </Grid>
+              <Grid item xs={6}>
+                <Slider
+                  id={`layer-${name}-opacity-closed`}
+                  value={opacity}
+                  onChange={(e, v) => setOpacity(v)}
+                  valueLabelDisplay="auto"
+                  getAriaLabel={() => 'opacity slider'}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  orientation="horizontal"
+                />
+              </Grid>
+            </Grid>
+          )}
+        </Grid>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.root}>
         <Grid item>
@@ -274,11 +310,7 @@ export default function RasterLayerController(props) {
             domainType={domainType}
             // Only allow for global dimension controllers that
             // exist in the `dimensions` part of the loader.
-            globalControlLabels={
-              labels.filter(
-                label => GLOBAL_LABELS.includes(label),
-              )
-            }
+            globalControlLabels={labels.filter(label => GLOBAL_LABELS.includes(label))}
             globalLabelValues={globalLabelValues}
             handleOpacityChange={setOpacity}
             handleColormapChange={setColormap}

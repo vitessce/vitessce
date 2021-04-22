@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Add opacity slider when `layerController` is closed, with label.
 
 ### Changed
 
