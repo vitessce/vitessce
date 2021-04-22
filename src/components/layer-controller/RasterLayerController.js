@@ -5,6 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import Slider from '@material-ui/core/Slider';
+import InputLabel from '@material-ui/core/InputLabel';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -14,7 +15,11 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
-import { useExpansionPanelStyles, useExpansionPanelSummaryStyles } from './styles';
+import {
+  useExpansionPanelStyles,
+  useExpansionPanelSummaryStyles,
+  useSmallInputLabelStyles,
+} from './styles';
 import { GLOBAL_LABELS } from '../spatial/constants';
 import { getSourceFromLoader, isRgb } from '../../utils';
 import { DOMAINS } from './constants';
@@ -255,6 +260,8 @@ export default function RasterLayerController(props) {
 
   const classes = useExpansionPanelStyles();
   const summaryClasses = useExpansionPanelSummaryStyles();
+  const closedOpacityLabelClasses = useSmallInputLabelStyles();
+
   return (
     <ExpansionPanel
       className={classes.root}
@@ -270,17 +277,23 @@ export default function RasterLayerController(props) {
         <Grid container direction="column" m={1} justify="center">
           <Grid item>{name}</Grid>
           {!isExpanded && (
-            <Grid item>
-              <Slider
-                value={opacity}
-                onChange={(e, v) => setOpacity(v)}
-                valueLabelDisplay="auto"
-                getAriaLabel={() => 'opacity slider'}
-                min={0}
-                max={1}
-                step={0.01}
-                orientation="horizontal"
-              />
+            <Grid container direction="row" alignItems="center" justify="center">
+              <Grid item xs={6}>
+                <InputLabel htmlFor={`layer-${name}-opacity-closed`} classes={closedOpacityLabelClasses}>Opacity:</InputLabel>
+              </Grid>
+              <Grid item xs={6}>
+                <Slider
+                  id={`layer-${name}-opacity-closed`}
+                  value={opacity}
+                  onChange={(e, v) => setOpacity(v)}
+                  valueLabelDisplay="auto"
+                  getAriaLabel={() => 'opacity slider'}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  orientation="horizontal"
+                />
+              </Grid>
             </Grid>
           )}
         </Grid>

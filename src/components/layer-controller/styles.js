@@ -41,3 +41,9 @@ export const useCheckboxStyles = makeStyles(() => ({
     },
   },
 }));
+
+export const useSmallInputLabelStyles = makeStyles(() => ({
+  root: {
+    fontSize: '14px',
+  },
+}));
