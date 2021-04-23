@@ -4,6 +4,7 @@
 - Add opacity slider when `layerController` is closed, with label.
 
 ### Changed
+- Fix `cellSetColor` null bug.
 
 ## [1.1.8](https://www.npmjs.com/package/vitessce/v/1.1.8) - 2021-03-31
 
