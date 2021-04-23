@@ -69,7 +69,7 @@ export default function CellSetSizesPlotSubscriber(props) {
 
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
-  const data = useMemo(() => (mergedCellSets && cellSetSelection
+  const data = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
     ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor)
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor]);
