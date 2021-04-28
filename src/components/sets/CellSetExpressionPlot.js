@@ -39,7 +39,7 @@ export default function CellSetExpressionPlot(props) {
     acc = acc === undefined || val.set.length > acc ? val.set.length : acc;
     return acc;
   }, 0);
-  const autoMarginBottom = marginBottom || Math.max(maxCharactersForLabel * 6, 50);
+  const autoMarginBottom = marginBottom || Math.max(maxCharactersForLabel * 7, 50);
   // Manually set the color scale so that Vega-Lite does
   // not choose the colors automatically.
   const colorScale = {
