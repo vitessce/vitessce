@@ -20,7 +20,7 @@ import { colorArrayToString } from './utils';
  * By default, 90.
  * @param {number} props.marginBottom The size of the margin
  * on the bottom of the plot, to account for long x-axis labels.
- * By default, 50.
+ * Default is allowing the component to automatically determine the margin.
  */
 export default function CellSetExpressionPlot(props) {
   const {
