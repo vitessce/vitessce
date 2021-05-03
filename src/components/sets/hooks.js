@@ -39,8 +39,12 @@ export function useExpressionByCellSet(
       const firstGeneSelected = geneSelection[0];
       // Create new cellColors map based on the selected gene.
       let exprMax = -Infinity;
+      const cellIndices = {};
+      for (let i = 0; i < expressionDataAttrs.rows.length; i += 1) {
+        cellIndices[expressionDataAttrs.rows[i]] = i;
+      }
       const exprValues = cellObjects.map((cell) => {
-        const cellIndex = expressionDataAttrs.rows.indexOf(cell.obsId);
+        const cellIndex = cellIndices[cell.obsId];
         const value = expressionData[0][cellIndex];
         const normValue = value * 100 / 255;
         const transformedValue = useGeneExpressionTransform ? Math.log(1 + normValue) : normValue;

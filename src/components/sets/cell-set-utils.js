@@ -419,7 +419,8 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
  */
 export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor) {
   let cellsArray = [];
-  selectedNamePaths.forEach((setNamePath) => {
+  for (let i = 0; i < selectedNamePaths.length; i += 1) {
+    const setNamePath = selectedNamePaths[i];
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
@@ -427,16 +428,13 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor) {
         setColor?.find(d => isEqual(d.path, setNamePath))?.color
         || DEFAULT_COLOR
       );
-      cellsArray = [
-        ...cellsArray,
-        ...nodeSet.map(([cellId]) => ({
-          obsId: cellId,
-          name: node.name,
-          color: nodeColor,
-        })),
-      ];
+      cellsArray = cellsArray.concat(nodeSet.map(([cellId]) => ({
+        obsId: cellId,
+        name: node.name,
+        color: nodeColor,
+      })));
     }
-  });
+  }
   return cellsArray;
 }
 
