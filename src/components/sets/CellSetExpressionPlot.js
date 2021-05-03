@@ -20,7 +20,7 @@ import { colorArrayToString } from './utils';
  * By default, 90.
  * @param {number} props.marginBottom The size of the margin
  * on the bottom of the plot, to account for long x-axis labels.
- * By default, 50.
+ * Default is allowing the component to automatically determine the margin.
  */
 export default function CellSetExpressionPlot(props) {
   const {
@@ -31,9 +31,15 @@ export default function CellSetExpressionPlot(props) {
     width,
     height,
     marginRight = 90,
-    marginBottom = 120,
+    marginBottom,
   } = props;
-
+  // Get the max characters in an axis label for autsizing the bottom margin.
+  const maxCharactersForLabel = data.reduce((acc, val) => {
+    // eslint-disable-next-line no-param-reassign
+    acc = acc === undefined || val.set.length > acc ? val.set.length : acc;
+    return acc;
+  }, 0);
+  const autoMarginBottom = marginBottom || Math.max(maxCharactersForLabel * 7, 50);
   // Manually set the color scale so that Vega-Lite does
   // not choose the colors automatically.
   const colorScale = {
@@ -42,7 +48,7 @@ export default function CellSetExpressionPlot(props) {
   };
 
   const plotWidth = clamp(width - marginRight, 10, Infinity);
-  const plotHeight = clamp(height - marginBottom, 10, Infinity);
+  const plotHeight = clamp(height - autoMarginBottom, 10, Infinity);
 
   const numBands = colors.length;
   const bandWidth = plotWidth / numBands;
