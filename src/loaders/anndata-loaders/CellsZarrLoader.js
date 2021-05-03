@@ -10,9 +10,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
    * @returns {Promise} A promise for an array of tuples/triples for cell centroids.
    */
   loadXy() {
-    const {
-      options: { xy },
-    } = this;
+    const { xy } = this.options || {};
     if (this.xy) {
       return this.xy;
     }
@@ -29,9 +27,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
    * @returns {Promise} A promise for an array of arrays for cell polygons.
    */
   loadPoly() {
-    const {
-      options: { poly },
-    } = this;
+    const { poly } = (this.options || {});
     if (this.poly) {
       return this.poly;
     }
@@ -48,9 +44,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
    * @returns {Promise} A promise for an array of tuples of coordinates.
    */
   loadMappings() {
-    const {
-      options: { mappings },
-    } = this;
+    const { mappings } = (this.options || {});
     if (this.mappings) {
       return this.mappings;
     }
@@ -73,9 +67,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
    * where subarray is a clustering/factor.
    */
   loadFactors() {
-    const {
-      options: { factors },
-    } = this;
+    const { factors } = this.options || {};
     if (factors) {
       return this.loadCellSetIds(factors);
     }

@@ -49,11 +49,12 @@
     "metadata": {
       "type": "object",
       "additionalProperties": false,
-      "anyOf":[{"required": ["dimensions","isPyramid"]},{"required": ["transform"]},{"required": ["omeTiffOffsetsUrl"]}],
+      "anyOf":[{"required": ["dimensions","isPyramid"]},{"required": ["transform"]},{"required": ["omeTiffOffsetsUrl"]},{"required": ["isBitmask"]}],
       "properties": {
         "dimensions": { "$ref": "#/definitions/dimensions" },
         "isPyramid": { "type": "boolean" },
         "transform": { "$ref": "#/definitions/transform" },
+        "isBitmask": { "type": "boolean" },
         "omeTiffOffsetsUrl": { "type": "string", "format": "uri" }
       }
     },

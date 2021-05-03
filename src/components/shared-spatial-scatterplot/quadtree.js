@@ -11,7 +11,8 @@ import { quadtree } from 'd3-quadtree';
 export function createCellsQuadTree(cellsEntries, getCellCoords) {
   // Use the cellsEntries variable since it is already
   // an array, converted by Object.entries().
-  if (!cellsEntries) {
+  // eslint-disable-next-line no-unused-vars
+  if (!cellsEntries || !cellsEntries.every(([_, v]) => Object.keys(v).length)) {
     // Abort if the cells data is not yet available.
     return null;
   }

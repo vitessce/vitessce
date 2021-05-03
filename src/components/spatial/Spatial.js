@@ -2,11 +2,11 @@ import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { Matrix4 } from 'math.gl';
-import { ScaleBarLayer } from '@hms-dbmi/viv';
+import { ScaleBarLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import { getSourceFromLoader } from '../../utils';
-import { square, getLayerLoaderTuple } from './utils';
+import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import {
   createCellsQuadTree,
@@ -79,6 +79,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.neighborhoodsLayer = null;
     this.imageLayers = [];
     this.layerLoaderSelections = {};
+    this.randomColorData = {
+      data: new Uint8Array(4096 * 4096 * 3).map(
+        (_, j) => (j < 4 ? 0 : Math.round(255 * Math.random())),
+      ),
+      height: 4096,
+      width: 4096,
+    };
 
     // Initialize data and layers.
     this.onUpdateCellsData();
@@ -293,7 +300,40 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // eslint-disable-next-line prefer-destructuring
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
-    const [Layer, layerLoader] = getLayerLoaderTuple(data);
+    if (rawLayerDef.type === 'bitmask') {
+      const color = this.randomColorData;
+      const { size } = this.props.cellColors;
+      if (size) {
+        color.height = Math.ceil(this.props.cellColors.size / color.width);
+        color.data = new Uint8Array(color.height * color.width * 3);
+        Array.from({ length: size }).forEach(
+          (_, j) => {
+            if (j > 0) {
+              const cellColor = this.props.cellColors.get(String(j));
+              if (cellColor) {
+                color.data.set(cellColor, j * 3);
+              }
+            }
+          },
+        );
+      }
+      return new MultiscaleImageLayer({
+        id: `bitmask-layer-${layerDef.index}-${i}`,
+        channelIsOn: layerProps.visibilities,
+        opacity: layerProps.opacity,
+        modelMatrix,
+        hoveredCell: this.props.cellHighlight,
+        renderSubLayers: renderSubBitmaskLayers,
+        loader: data,
+        loaderSelection,
+        color,
+        excludeBackground: true,
+      });
+    }
+    const [Layer, layerLoader] = getLayerLoaderTuple(
+      data,
+      rawLayerDef.isBitmask,
+    );
     return new Layer({
       loader: layerLoader,
       id: `image-layer-${layerDef.index}-${i}`,
@@ -311,7 +351,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createImageLayers() {
     const { layers, imageLayerLoaders = {} } = this.props;
     return (layers || [])
-      .filter(layer => layer.type === 'raster')
+      .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
       .map((layer, i) => this.createImageLayer(
         layer, imageLayerLoaders[layer.index], i,
       ));
@@ -347,7 +387,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdateCellsLayer() {
     const { layers } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'cells');
-    if (layerDef) {
+    // eslint-disable-next-line no-unused-vars
+    if (layerDef && this.cellsEntries.every(([_, v]) => Object.keys(v).length)) {
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {
       this.cellsLayer = null;

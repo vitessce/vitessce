@@ -17,6 +17,7 @@ import {
   DEFAULT_RASTER_LAYER_PROPS,
   DEFAULT_LAYER_TYPE_ORDERING,
 } from './constants';
+import BitmaskLayer from '../../layers/BitmaskLayer';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
@@ -204,7 +205,6 @@ export async function initializeRasterLayersAndChannels(
   // Start all loader creators immediately.
   // Reference: https://eslint.org/docs/rules/no-await-in-loop
   const loaders = await Promise.all(rasterLayers.map(layer => layer.loaderCreator()));
-  const sources = loaders.map(loader => getSourceFromLoader(loader));
 
   for (let i = 0; i < rasterLayers.length; i++) {
     const layer = rasterLayers[i];
@@ -222,7 +222,7 @@ export async function initializeRasterLayersAndChannels(
     const loader = nextImageLoaders[layerIndex];
     const autoImageLayerDefPromise = initializeLayerChannels(loader)
       .then(channels => Promise.resolve({
-        type: sources[layerIndex].constructor.name,
+        type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
         index: layerIndex,
         ...DEFAULT_RASTER_LAYER_PROPS,
         channels: channels.map((channel, j) => ({
@@ -244,7 +244,7 @@ export async function initializeRasterLayersAndChannels(
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: sources[layerIndex].constructor.name,
+          type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
           index: layerIndex,
           ...DEFAULT_RASTER_LAYER_PROPS,
           channels: channels.map((channel, j) => ({
@@ -327,7 +327,7 @@ export function getInitialSpatialTargets({
         initialZoom = newViewStateZoom;
       }
     }
-  } else if (cellValues.length > 0) {
+  } else if (cellValues.length > 0 && cellValues.every(v => Object.keys(v).length)) {
     const cellCoordinates = cellValues.map(c => c.xy);
     const xExtent = extent(cellCoordinates, c => c[0]);
     const yExtent = extent(cellCoordinates, c => c[1]);
@@ -352,4 +352,43 @@ export function getLayerLoaderTuple(data) {
   const loader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
     ? data : data[0];
   return [Layer, loader];
+}
+
+
+export function renderSubBitmaskLayers(props) {
+  const {
+    bbox: {
+      left, top, right, bottom,
+    },
+    x,
+    y,
+    z,
+  } = props.tile;
+  const { data, id, loader } = props;
+  // Only render in positive coorinate system
+  if ([left, bottom, right, top].some(v => v < 0) || !data) {
+    return null;
+  }
+  const base = loader[0];
+  const [height, width] = loader[0].shape.slice(-2);
+  // Tiles are exactly fitted to have height and width such that their bounds
+  // match that of the actual image (not some padded version).
+  // Thus the right/bottom given by deck.gl are incorrect since
+  // they assume tiles are of uniform sizes, which is not the case for us.
+  const bounds = [
+    left,
+    data.height < base.tileSize ? height : bottom,
+    data.width < base.tileSize ? width : right,
+    top,
+  ];
+  return new BitmaskLayer(props, {
+    channelData: data,
+    // Uncomment to help debugging - shades the tile being hovered over.
+    // autoHighlight: true,
+    // highlightColor: [80, 80, 80, 50],
+    // Shared props with BitmapLayer:
+    bounds,
+    id: `bitmask-sub-layer-${bounds}-${id}`,
+    tileId: { x, y, z },
+  });
 }
