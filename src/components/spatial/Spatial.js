@@ -301,22 +301,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
     if (rawLayerDef.type === 'bitmask') {
-      const color = this.randomColorData;
-      const { size } = this.props.cellColors;
-      if (size) {
-        color.height = Math.ceil(this.props.cellColors.size / color.width);
-        color.data = new Uint8Array(color.height * color.width * 3);
-        Array.from({ length: size }).forEach(
-          (_, j) => {
-            if (j > 0) {
-              const cellColor = this.props.cellColors.get(String(j));
-              if (cellColor) {
-                color.data.set(cellColor, j * 3);
-              }
-            }
-          },
-        );
-      }
+      const color = this.color || this.randomColorData;
       return new MultiscaleImageLayer({
         id: `bitmask-layer-${layerDef.index}-${i}`,
         channelIsOn: layerProps.visibilities,
@@ -392,6 +377,24 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {
       this.cellsLayer = null;
+    }
+    const hasBitmaskLayers = (layers || []).find(layer => layer.type === 'bitmask');
+    if (hasBitmaskLayers) {
+      const color = this.randomColorData;
+      const { size } = this.props.cellColors;
+      if (size) {
+        color.height = Math.ceil(this.props.cellColors.size / color.width);
+        color.data = new Uint8Array(color.height * color.width * 3);
+        Array.from({ length: size }).forEach((_, j) => {
+          if (j > 0) {
+            const cellColor = this.props.cellColors.get(String(j));
+            if (cellColor) {
+              color.data.set(cellColor, j * 3);
+            }
+          }
+        });
+      }
+      this.color = color;
     }
   }
 
@@ -492,7 +495,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'imageLayerLoaders'].some(shallowDiff)) {
+    if (['layers', 'imageLayerLoaders', 'cellColors'].some(shallowDiff)) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();

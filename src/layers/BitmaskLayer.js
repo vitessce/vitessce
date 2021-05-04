@@ -47,12 +47,16 @@ export default class BitmaskLayer extends XRLayer {
     };
   }
 
-  getDefaultColorTexture() {
-    if (this.state.defaultColorTex) {
-      return this.state.defaultColorTex;
+  updateState({ props, oldProps, changeFlags }) {
+    super.updateState({ props, oldProps, changeFlags });
+    if (props.color !== oldProps.color) {
+      this.setColorTexture();
     }
+  }
+
+  setColorTexture() {
     const { height, width, data } = this.props.color;
-    const defaultColorTex = new Texture2D(this.context.gl, {
+    const colorTex = new Texture2D(this.context.gl, {
       width,
       height,
       // Only use Float32 so we don't have to write two shaders
@@ -71,17 +75,15 @@ export default class BitmaskLayer extends XRLayer {
       dataFormat: GL.RGB,
       type: GL.UNSIGNED_BYTE,
     });
-    this.setState({ defaultColorTex });
-    return defaultColorTex;
+    this.setState({ colorTex });
   }
 
   draw(opts) {
     const { uniforms } = opts;
-    const { colorTexture, channelIsOn, hoveredCell } = this.props;
-    const { textures, model } = this.state;
+    const { channelIsOn, hoveredCell } = this.props;
+    const { textures, model, colorTex } = this.state;
     // Render the image
-    if (textures && model) {
-      const colorTex = colorTexture || this.getDefaultColorTexture();
+    if (textures && model && colorTex) {
       model
         .setUniforms(
           Object.assign({}, uniforms, {
@@ -89,7 +91,11 @@ export default class BitmaskLayer extends XRLayer {
             colorTex,
             colorTexHeight: colorTex.height,
             colorTexWidth: colorTex.width,
-            channelIsOn: padWithDefault(channelIsOn, false, 6 - channelIsOn.length),
+            channelIsOn: padWithDefault(
+              channelIsOn,
+              false,
+              6 - channelIsOn.length,
+            ),
             ...textures,
           }),
         )
@@ -101,16 +107,11 @@ export default class BitmaskLayer extends XRLayer {
    * This function creates textures from the data
    */
   dataToTexture(data, width, height) {
-    const rand = new Float32Array(
-      new Uint32Array((new Uint8Array(data.buffer)).filter((_, j) => j % 8 < 4).buffer),
-    );
-        console.log(new Uint8Array(data.buffer), data, rand); // eslint-disable-line
-
     return new Texture2D(this.context.gl, {
       width,
       height,
       // Only use Float32 so we don't have to write two shaders
-      data: rand,
+      data: new Float32Array(new Uint32Array(data.buffer)),
       // we don't want or need mimaps
       mipmaps: false,
       parameters: {
