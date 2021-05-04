@@ -301,13 +301,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
     if (rawLayerDef.type === 'bitmask') {
-      const color = this.color || this.randomColorData;
+      const color = this.randomColorData;
       return new MultiscaleImageLayer({
         id: `bitmask-layer-${layerDef.index}-${i}`,
         channelIsOn: layerProps.visibilities,
         opacity: layerProps.opacity,
         modelMatrix,
-        hoveredCell: this.props.cellHighlight,
+        hoveredCell: Number(this.props.cellHighlight),
         renderSubLayers: renderSubBitmaskLayers,
         loader: data,
         loaderSelection,
@@ -378,24 +378,24 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } else {
       this.cellsLayer = null;
     }
-    const hasBitmaskLayers = (layers || []).find(layer => layer.type === 'bitmask');
-    if (hasBitmaskLayers) {
-      const color = this.randomColorData;
-      const { size } = this.props.cellColors;
-      if (size) {
-        color.height = Math.ceil(this.props.cellColors.size / color.width);
-        color.data = new Uint8Array(color.height * color.width * 3);
-        Array.from({ length: size }).forEach((_, j) => {
-          if (j > 0) {
-            const cellColor = this.props.cellColors.get(String(j));
-            if (cellColor) {
-              color.data.set(cellColor, j * 3);
-            }
-          }
-        });
-      }
-      this.color = color;
-    }
+    // const hasBitmaskLayers = (layers || []).find(layer => layer.type === 'bitmask');
+    // if (hasBitmaskLayers) {
+    //   const color = this.randomColorData;
+    //   const { size } = this.props.cellColors;
+    //   if (size) {
+    //     color.height = Math.ceil(this.props.cellColors.size / color.width);
+    //     color.data = new Uint8Array(color.height * color.width * 3);
+    //     Array.from({ length: size }).forEach((_, j) => {
+    //       if (j > 0) {
+    //         const cellColor = this.props.cellColors.get(String(j));
+    //         if (cellColor) {
+    //           color.data.set(cellColor, j * 3);
+    //         }
+    //       }
+    //     });
+    //   }
+    //   this.color = color;
+    // }
   }
 
   onUpdateMoleculesData() {
@@ -495,7 +495,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'imageLayerLoaders', 'cellColors'].some(shallowDiff)) {
+    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight'].some(shallowDiff)) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();

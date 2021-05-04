@@ -355,6 +355,22 @@ export function getLayerLoaderTuple(data) {
 }
 
 
+const kBuf = new ArrayBuffer(8);
+const kBufAsF64 = new Float64Array(kBuf);
+const kBufAsI32 = new Int32Array(kBuf);
+
+function hashNumber(n) {
+  // Remove this `if` if you want 0 and -0 to hash to different values.
+  // eslint-disable-next-line no-bitwise
+  if (~~n === n) {
+    // eslint-disable-next-line no-bitwise
+    return ~~n;
+  }
+  kBufAsF64[0] = n;
+  // eslint-disable-next-line no-bitwise
+  return kBufAsI32[0] ^ kBufAsI32[1];
+}
+
 export function renderSubBitmaskLayers(props) {
   const {
     bbox: {
@@ -381,6 +397,7 @@ export function renderSubBitmaskLayers(props) {
     data.width < base.tileSize ? width : right,
     top,
   ];
+  data.data = data.data.map(d => new Float32Array(d.map(hashNumber)));
   return new BitmaskLayer(props, {
     channelData: data,
     // Uncomment to help debugging - shades the tile being hovered over.

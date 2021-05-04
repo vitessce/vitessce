@@ -12,22 +12,6 @@ function padWithDefault(arr, defaultValue, padWidth) {
   return newArr;
 }
 
-// const kBuf = new ArrayBuffer(8);
-// const kBufAsF64 = new Float64Array(kBuf);
-// const kBufAsI32 = new Int32Array(kBuf);
-
-// function hashNumber(n) {
-//   // Remove this `if` if you want 0 and -0 to hash to different values.
-//   // eslint-disable-next-line no-bitwise
-//   if (~~n === n) {
-//     // eslint-disable-next-line no-bitwise
-//     return ~~n;
-//   }
-//   kBufAsF64[0] = n;
-//   // eslint-disable-next-line no-bitwise
-//   return kBufAsI32[0] ^ kBufAsI32[1];
-// }
-
 const defaultProps = {
   hoveredCell: { type: 'number', value: null, compare: true },
   colorTexture: { type: 'object', value: null, compare: true },
@@ -111,7 +95,7 @@ export default class BitmaskLayer extends XRLayer {
       width,
       height,
       // Only use Float32 so we don't have to write two shaders
-      data: new Float32Array(new Uint32Array(data.buffer)),
+      data,
       // we don't want or need mimaps
       mipmaps: false,
       parameters: {
