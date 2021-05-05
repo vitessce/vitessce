@@ -310,7 +310,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
         renderSubLayers: renderSubBitmaskLayers,
         loader: data,
         loaderSelection,
-        cellColor: this.color,
+        cellColorData: this.color.data,
+        cellColorHeight: this.color.height,
+        cellColorWidth: this.color.width,
         excludeBackground: true,
       });
     }
