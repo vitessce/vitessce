@@ -167,7 +167,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const { gl, tool } = this.state;
     const layers = this.getLayers();
 
-    const showCellSelectionTools = this.cellsLayer !== null;
+    const showCellSelectionTools = this.cellsLayer !== null || layers.indexOf(l => l.type === 'bitmask');
     const showPanTool = this.cellsLayer !== null;
     // For large datasets, the visual quality takes only a small
     // hit in exchange for much better performance by setting this to false:

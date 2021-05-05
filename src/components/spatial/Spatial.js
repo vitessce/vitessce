@@ -373,13 +373,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdateCellsLayer() {
     const { layers } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'cells');
-    // eslint-disable-next-line no-unused-vars
-    if (layerDef && this.cellsEntries.every(([_, v]) => Object.keys(v).length)) {
+    const hasBitmaskLayers = (layers || []).find(layer => layer.type === 'bitmask');
+    if (layerDef
+      // eslint-disable-next-line no-unused-vars
+      && this.cellsEntries.every(([_, v]) => Object.keys(v).length)
+      && !hasBitmaskLayers) {
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {
       this.cellsLayer = null;
     }
-    const hasBitmaskLayers = (layers || []).find(layer => layer.type === 'bitmask');
     if (hasBitmaskLayers) {
       const color = this.randomColorData;
       const { size } = this.props.cellColors;
