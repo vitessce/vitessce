@@ -14,7 +14,7 @@ function padWithDefault(arr, defaultValue, padWidth) {
 
 const defaultProps = {
   hoveredCell: { type: 'number', value: null, compare: true },
-  colorTexture: { type: 'object', value: null, compare: true },
+  cellColor: { type: 'object', value: null, compare: true },
 };
 
 /**
@@ -33,13 +33,13 @@ export default class BitmaskLayer extends XRLayer {
 
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
-    if (props.color !== oldProps.color) {
+    if (props.cellColor !== oldProps.cellColor) {
       this.setColorTexture();
     }
   }
 
   setColorTexture() {
-    const { height, width, data } = this.props.color;
+    const { height, width, data } = this.props.cellColor;
     const colorTex = new Texture2D(this.context.gl, {
       width,
       height,
@@ -95,7 +95,7 @@ export default class BitmaskLayer extends XRLayer {
       width,
       height,
       // Only use Float32 so we don't have to write two shaders
-      data,
+      data: new Float32Array(data),
       // we don't want or need mimaps
       mipmaps: false,
       parameters: {

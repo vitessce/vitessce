@@ -47,8 +47,8 @@ varying vec2 vTexCoord;
 
 vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn){
   float sampledData = texture(dataTex, coord).r;
-  vec4 hoveredColor = float(sampledData == hovered && sampledData > 0.) * vec4(0., 0., 1., 1.);
-  vec4 sampledColor = vec4(texture(colorTex, vec2(mod(sampledData, colorTexWidth) / colorTexWidth, ceil(sampledData / colorTexHeight) / colorTexHeight)).rgb, 1.);
+  vec4 hoveredColor = float(sampledData == hovered && sampledData > 0. && hovered > 0.) * vec4(0., 0., 1., 1.);
+  vec4 sampledColor = vec4(texture(colorTex, vec2(mod(sampledData, colorTexWidth) / colorTexWidth, floor(sampledData / colorTexWidth) / (colorTexHeight - 1.))).rgb, 1.);
   return float(isOn) * (sampledColor + hoveredColor);
 }
 
