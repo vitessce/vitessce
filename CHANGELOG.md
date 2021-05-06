@@ -2,6 +2,7 @@
 
 ### Added
 - Add opacity slider when `layerController` is closed, with label.
+- Add support for bitmasks to `Spatial` component and raster schema.
 
 ### Changed
 - Fix `cellSetColor` null bug.
