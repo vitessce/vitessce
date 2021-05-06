@@ -1,6 +1,6 @@
 import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import { Texture2D } from '@luma.gl/core';
+import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
 import { fs, vs } from './bitmask-layer-shaders';
 
@@ -91,6 +91,7 @@ export default class BitmaskLayer extends XRLayer {
    * This function creates textures from the data
    */
   dataToTexture(data, width, height) {
+    const isWebGL2On = isWebGL2(this.context.gl);
     return new Texture2D(this.context.gl, {
       width,
       height,
@@ -106,8 +107,8 @@ export default class BitmaskLayer extends XRLayer {
         [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
         [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
       },
-      format: GL.R32F,
-      dataFormat: GL.RED,
+      format: isWebGL2On ? GL.R32F : GL.LUMINANCE,
+      dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
       type: GL.FLOAT,
     });
   }
