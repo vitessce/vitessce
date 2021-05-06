@@ -101,6 +101,10 @@ function LayerControllerSubscriber(props) {
     setRasterLayers(newLayers);
   }
 
+  const shouldWaitForRaster = loaders[dataset].loaders.raster;
+  // Only want to show vector cells controller if there is no bitmask
+  const canShowCells = shouldWaitForRaster ? !(rasterLayers || []).indexOf(l => l.type === 'bitmask') : true;
+
   return (
     <TitleInfo
       title={title}
@@ -119,36 +123,42 @@ function LayerControllerSubscriber(props) {
             handleLayerChange={setMoleculesLayer}
           />
         )}
-        {cellsLayer && (
-          <VectorLayerController
-            key={`${dataset}-cells`}
-            label="Cell Segmentations"
-            layerType="cells"
-            layer={cellsLayer}
-            handleLayerChange={setCellsLayer}
-          />
+        {cellsLayer
+          && canShowCells && (
+            <VectorLayerController
+              key={`${dataset}-cells`}
+              label="Cell Segmentations"
+              layerType="cells"
+              layer={cellsLayer}
+              handleLayerChange={setCellsLayer}
+            />
         )}
-        {rasterLayers && rasterLayers.map((layer, i) => {
-          const { index } = layer;
-          const loader = imageLayerLoaders[index];
-          const layerMeta = imageLayerMeta[index];
-          const Controller = layer.type === 'raster'
-            ? RasterLayerController
-            : BitmaskLayerController;
-          return (loader && layerMeta ? (
-            // eslint-disable-next-line react/no-array-index-key
-            <Grid key={`${dataset}-raster-${index}-${i}`} item style={{ marginTop: '10px' }}>
-              <Controller
-                name={layerMeta.name}
-                layer={layer}
-                loader={loader}
-                theme={theme}
-                handleLayerChange={v => handleRasterLayerChange(v, i)}
-                handleLayerRemove={() => handleRasterLayerRemove(i)}
-              />
-            </Grid>
-          ) : null);
-        })}
+        {rasterLayers
+          && rasterLayers.map((layer, i) => {
+            const { index } = layer;
+            const loader = imageLayerLoaders[index];
+            const layerMeta = imageLayerMeta[index];
+            const Controller = layer.type === 'raster'
+              ? RasterLayerController
+              : BitmaskLayerController;
+            return loader && layerMeta ? (
+              <Grid
+                // eslint-disable-next-line react/no-array-index-key
+                key={`${dataset}-raster-${index}-${i}`}
+                item
+                style={{ marginTop: '10px' }}
+              >
+                <Controller
+                  name={layerMeta.name}
+                  layer={layer}
+                  loader={loader}
+                  theme={theme}
+                  handleLayerChange={v => handleRasterLayerChange(v, i)}
+                  handleLayerRemove={() => handleRasterLayerRemove(i)}
+                />
+              </Grid>
+            ) : null;
+          })}
         <Grid item>
           <ImageAddButton
             imageOptions={imageLayerMeta}
