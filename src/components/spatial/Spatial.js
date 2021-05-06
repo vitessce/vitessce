@@ -387,7 +387,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       const { size } = this.props.cellColors;
       if (size) {
         const cellIds = this.props.cellColors.keys();
-        color.height = Math.ceil(size / color.width);
         color.data = (new Uint8Array(color.height * color.width * 3)).fill(128);
         color.data[0] = 0;
         color.data[1] = 0;
