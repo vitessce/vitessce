@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import TitleInfo from '../TitleInfo';
 import RasterLayerController from './RasterLayerController';
+import BitmaskLayerController from './BitmaskLayerController';
 import VectorLayerController from './VectorLayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady } from '../hooks';
@@ -131,10 +132,13 @@ function LayerControllerSubscriber(props) {
           const { index } = layer;
           const loader = imageLayerLoaders[index];
           const layerMeta = imageLayerMeta[index];
+          const Controller = layer.type === 'raster'
+            ? RasterLayerController
+            : BitmaskLayerController;
           return (loader && layerMeta ? (
             // eslint-disable-next-line react/no-array-index-key
             <Grid key={`${dataset}-raster-${index}-${i}`} item style={{ marginTop: '10px' }}>
-              <RasterLayerController
+              <Controller
                 name={layerMeta.name}
                 layer={layer}
                 loader={loader}
