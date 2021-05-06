@@ -89,7 +89,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   // eslint-disable-next-line consistent-return
   onHover(info) {
     const { coordinate, layer, sourceLayer } = info;
-    const { setCellHighlight, setComponentHover, cellHighlight } = this.props;
+    const { setCellHighlight, setComponentHover } = this.props;
     if (!sourceLayer) {
       return null;
     }
@@ -128,7 +128,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         setComponentHover();
       }
       // eslint-disable-next-line no-unused-expressions
-      cellHighlight !== cellId && setCellHighlight(cellId ? String(cellId) : '');
+      setCellHighlight(cellId ? String(cellId) : '');
     }
   }
 
