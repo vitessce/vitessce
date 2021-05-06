@@ -386,16 +386,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
       const color = this.randomColorData;
       const { size } = this.props.cellColors;
       if (size) {
-        color.height = Math.ceil(this.props.cellColors.size / color.width);
-        color.data = new Uint8Array(color.height * color.width * 3);
-        Array.from({ length: size }).forEach((_, j) => {
-          if (j > 0) {
-            const cellColor = this.props.cellColors.get(String(j));
+        const cellIds = this.props.cellColors.keys();
+        color.height = Math.ceil(size / color.width);
+        color.data = (new Uint8Array(color.height * color.width * 3)).fill(128);
+        color.data[0] = 0;
+        color.data[1] = 0;
+        color.data[2] = 0;
+        // eslint-disable-next-line no-restricted-syntax
+        for (const id of cellIds) {
+          if (id > 0) {
+            const cellColor = this.props.cellColors.get(id);
             if (cellColor) {
-              color.data.set(cellColor, j * 3);
+              color.data.set(cellColor, Number(id) * 3);
             }
           }
-        });
+        }
       }
       this.color = color;
     }
