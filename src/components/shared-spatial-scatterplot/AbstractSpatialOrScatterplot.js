@@ -124,7 +124,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       const coords = dataCoords[1] * width + dataCoords[0];
       const hoverData = data.map(d => d[coords]);
       const cellId = hoverData.find(i => i > 0);
-      setCellHighlight(cellId ? String(cellId) : '');
+      console.log(this.props.cellHighlight); // eslint-disable-line
+      // eslint-disable-next-line no-unused-expressions, react/destructuring-assignment
+      this.props.cellHighlight !== cellId && setCellHighlight(cellId ? String(cellId) : '');
     }
   }
 
