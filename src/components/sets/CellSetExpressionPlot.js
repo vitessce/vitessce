@@ -40,7 +40,7 @@ export default function CellSetExpressionPlot(props) {
     return acc;
   }, 0);
   // Use a square-root term because the angle of the labels is 45 degrees (see below)
-  // so the perpindicular distance to the bottom of the labels is proportional to the
+  // so the perpendicular distance to the bottom of the labels is proportional to the
   // square root of the length of the labels along the imaginary hypotenuse.
   // 30 is an estimate of the pixel size of a given character and seems to work well.
   const autoMarginBottom = marginBottom
