@@ -39,7 +39,12 @@ export default function CellSetExpressionPlot(props) {
     acc = acc === undefined || val.set.length > acc ? val.set.length : acc;
     return acc;
   }, 0);
-  const autoMarginBottom = marginBottom || Math.max(maxCharactersForLabel * 7, 50);
+  // Use a square-root term because the angle of the labels is 45 degrees (see below)
+  // so the perpendicular distance to the bottom of the labels is proportional to the
+  // square root of the length of the labels along the imaginary hypotenuse.
+  // 30 is an estimate of the pixel size of a given character and seems to work well.
+  const autoMarginBottom = marginBottom
+    || 30 + Math.sqrt(maxCharactersForLabel / 2) * 30;
   // Manually set the color scale so that Vega-Lite does
   // not choose the colors automatically.
   const colorScale = {
