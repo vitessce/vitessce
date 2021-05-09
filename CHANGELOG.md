@@ -13,6 +13,7 @@
 - Fix `cellSetColor` null bug.
 - Improve violin plot performance by making `useExpressionByCellSet` faster.
 - Allow for autosizing `CellSetExpressionPlot` bottom margin depending on axis labels.
+- Make margin bottom of `CellSetExpressionPlot` proportional to the square root of the number of characters because the `labelAngle` is 45.
 
 ## [1.1.8](https://www.npmjs.com/package/vitessce/v/1.1.8) - 2021-03-31
 
