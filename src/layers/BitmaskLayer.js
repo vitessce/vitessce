@@ -64,14 +64,51 @@ export default class BitmaskLayer extends XRLayer {
 
   draw(opts) {
     const { uniforms } = opts;
-    const { channelIsOn, hoveredCell } = this.props;
+    const { channelIsOn, bounds } = this.props;
     const { textures, model, colorTex } = this.state;
     // Render the image
     if (textures && model && colorTex) {
+      const { mousePosition } = this.context;
+      const layerView = this.context.deck.viewManager.views.filter(
+        view => view.id === 'ortho',
+      )[0];
+      const { viewState } = this.context.deck.viewManager;
+      const { height, width } = this.context.deck;
+      const viewport = layerView.makeViewport({
+        height,
+        width,
+        viewState,
+      });
+      let hoveredCell;
+      if (mousePosition && viewport.containsPixel(mousePosition)) {
+        const coordinate = viewport.unproject(Object.values(mousePosition));
+        // The zoomed out layer needs to use the fixed zoom at which it is rendered.
+        // See: https://github.com/visgl/deck.gl/blob/2b15bc459c6534ea38ce1153f254ce0901f51d6f/modules/geo-layers/src/tile-layer/utils.js#L130.
+        const { tileSize } = this.props.loader[0];
+        const { z } = this.props.tileId;
+        // The zoomed out layer needs to use the fixed zoom at which it is rendered.
+        // See: https://github.com/visgl/deck.gl/blob/2b15bc459c6534ea38ce1153f254ce0901f51d6f/modules/geo-layers/src/tile-layer/utils.js#L130.
+        const layerZoomScale = Math.max(
+          1,
+          2 ** Math.round(-z + Math.log2(512 / tileSize)),
+        );
+        const dataCoords = [
+          Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
+          Math.floor((coordinate[1] - bounds[3]) / layerZoomScale),
+        ];
+        if (dataCoords.every(i => i > 0)
+          && coordinate[0] < bounds[2]
+          && coordinate[1] < bounds[1]) {
+          const coords = dataCoords[1] * this.props.channelData.width + dataCoords[0];
+          const hoverData = this.props.channelData.data.map(d => d[coords]);
+          hoveredCell = hoverData.find(i => i > 0);
+          this.parent.parent.setState({ hoveredCell });
+        }
+      }
       model
         .setUniforms(
           Object.assign({}, uniforms, {
-            hovered: hoveredCell || 0,
+            hovered: hoveredCell || this.parent.parent.state.hoveredCell || 0,
             colorTex,
             colorTexHeight: colorTex.height,
             colorTexWidth: colorTex.width,

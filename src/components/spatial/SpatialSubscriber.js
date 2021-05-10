@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
+// eslint-disable-next-line quotes
+import debounce from "lodash/debounce";
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
@@ -153,6 +155,14 @@ export default function SpatialSubscriber(props) {
     ];
   }, [cellsLayer, dataset, loaders, moleculesLayer, neighborhoodsLayer, rasterLayers]);
 
+  // Setting cellHighlight on every draw for the bitmask layer with
+  // zustand is too slow so we need to debounce.
+  const hasBitmask = (rasterLayers || []).findIndex(l => l.type === 'bitmask') > 0;
+  const setCellHighlightCallback = useCallback(hasBitmask
+    ? debounce(setCellHighlight, 250, { trailing: true })
+    : setCellHighlight,
+  [hasBitmask, setCellHighlight]);
+
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
       const { initialTargetX, initialTargetY, initialZoom } = getInitialSpatialTargets({
@@ -254,7 +264,7 @@ export default function SpatialSubscriber(props) {
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
-        setCellHighlight={setCellHighlight}
+        setCellHighlight={setCellHighlightCallback}
         setMoleculeHighlight={setMoleculeHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
