@@ -34,6 +34,7 @@ jobs:
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get install xvfb
           fi
+        shell: bash
       - name: Run tests
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
@@ -41,6 +42,7 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
               ./test.sh
           fi
+        shell: bash
         env:
           NODE_OPTIONS: '--max_old_space_size=4096'
         
