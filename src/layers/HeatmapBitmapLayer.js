@@ -9,8 +9,6 @@ const defaultProps = {
   image: { type: 'object', value: null, async: true },
   colormap: { type: 'string', value: 'plasma', compare: true },
   bounds: { type: 'array', value: [1, 0, 0, 1], compare: true },
-  aggSizeX: { type: 'number', value: 8.0, compare: true },
-  aggSizeY: { type: 'number', value: 8.0, compare: true },
   colorScaleLo: { type: 'number', value: 0.0, compare: true },
   colorScaleHi: { type: 'number', value: 1.0, compare: true },
 };
@@ -62,12 +60,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
   draw(opts) {
     const { uniforms } = opts;
     const { bitmapTexture, model } = this.state;
-    const {
-      aggSizeX,
-      aggSizeY,
-      colorScaleLo,
-      colorScaleHi,
-    } = this.props;
+    const { colorScaleLo, colorScaleHi } = this.props;
 
     // Render the image
     if (bitmapTexture && model) {
@@ -75,8 +68,6 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
         .setUniforms(
           Object.assign({}, uniforms, {
             uBitmapTexture: bitmapTexture,
-            uTextureSize: [TILE_SIZE, TILE_SIZE],
-            uAggSize: [aggSizeX, aggSizeY],
             uColorScaleRange: [colorScaleLo, colorScaleHi],
           }),
         )
@@ -106,7 +97,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       this.setState({
         bitmapTexture: new Texture2D(gl, {
           data: image,
-          mipmaps: false,
+          mipmaps: true,
           parameters: PIXELATED_TEXTURE_PARAMETERS,
           // Each color contains a single luminance value.
           // When sampled, rgb are all set to this luminance, alpha is 1.0.

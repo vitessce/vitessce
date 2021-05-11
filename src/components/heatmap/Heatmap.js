@@ -27,7 +27,7 @@ import {
   heatmapToMousePosition,
 } from './utils';
 import {
-  TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
+  TILE_SIZE,
   COLOR_BAR_SIZE,
   AXIS_MARGIN,
 } from '../../layers/heatmap-constants';
@@ -226,11 +226,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   const cellHeight = (matrixHeight * scaleFactor) / height;
   const cellWidth = (matrixWidth * scaleFactor) / width;
 
-  // Get power of 2 between 1 and 16,
-  // for number of cells to aggregate together in each direction.
-  const aggSizeX = clamp(2 ** Math.ceil(Math.log2(1 / cellWidth)), MIN_ROW_AGG, MAX_ROW_AGG);
-  const aggSizeY = clamp(2 ** Math.ceil(Math.log2(1 / cellHeight)), MIN_ROW_AGG, MAX_ROW_AGG);
-
   const [targetX, targetY] = viewState.target;
 
   // Emit the viewInfo object on viewState updates
@@ -345,8 +340,6 @@ const Heatmap = forwardRef((props, deckRef) => {
           matrixLeft + (j + 1) * tileWidth,
           matrixTop + (i + 1) * tileHeight,
         ],
-        aggSizeX,
-        aggSizeY,
         colorScaleLo,
         colorScaleHi,
         updateTriggers: {
@@ -357,7 +350,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
-    aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels]);
+    colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels]);
 
 
   // Map cell and gene names to arrays with indices,

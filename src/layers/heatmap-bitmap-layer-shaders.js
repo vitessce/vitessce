@@ -53,12 +53,6 @@ precision mediump float;
 // The texture (GL.LUMINANCE & Uint8Array).
 uniform sampler2D uBitmapTexture;
 
-// What are the dimensions of the texture (width, height)?
-uniform vec2 uTextureSize;
-
-// How many consecutive pixels should be aggregated together along each axis?
-uniform vec2 uAggSize;
-
 // What are the values of the color scale sliders?
 uniform vec2 uColorScaleRange;
 
@@ -66,47 +60,8 @@ uniform vec2 uColorScaleRange;
 varying vec2 vTexCoord;
 
 void main(void) {
-  // Compute 1 pixel in texture coordinates
-  vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
-  
-  vec2 viewCoord = vec2(floor(vTexCoord.x * uTextureSize.x), floor(vTexCoord.y * uTextureSize.y));
-
-  // Compute (x % aggSizeX, y % aggSizeY).
-  // These values will be the number of values to the left / above the current position to consider.
-  vec2 modAggSize = vec2(-1.0 * mod(viewCoord.x, uAggSize.x), -1.0 * mod(viewCoord.y, uAggSize.y));
-
-  // Take the sum of values along each axis.
-  float intensitySum = 0.0;
-  vec2 offsetPixels = vec2(0.0, 0.0);
-
-  for(int i = 0; i < 16; i++) {
-    // Check to break outer loop early.
-    // Uniforms cannot be used as conditions in GLSL for loops.
-    if(float(i) >= uAggSize.y) {
-      // Done in the y direction.
-      break;
-    }
-
-    offsetPixels = vec2(offsetPixels.x, (modAggSize.y + float(i)) * onePixel.y);
-
-    for(int j = 0; j < 16; j++) {
-      // Check to break inner loop early.
-      // Uniforms cannot be used as conditions in GLSL for loops.
-      if(float(j) >= uAggSize.x) {
-        // Done in the x direction.
-        break;
-      }
-
-      offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
-      intensitySum += texture2D(uBitmapTexture, vTexCoord + offsetPixels).r;
-    }
-  }
-  
-  // Compute the mean value.
-  float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
-  
   // Re-scale using the color scale slider values.
-  float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
+  float scaledIntensityMean = (texture2D(uBitmapTexture, vTexCoord).r - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
 
   gl_FragColor = __colormap(clamp(scaledIntensityMean, 0.0, 1.0));
 
