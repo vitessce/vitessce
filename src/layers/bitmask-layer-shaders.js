@@ -60,7 +60,7 @@ void main() {
   gl_FragColor += sampleAndGetColor(channel3, vTexCoord, channelIsOn[3]);
   gl_FragColor += sampleAndGetColor(channel4, vTexCoord, channelIsOn[4]);
   gl_FragColor += sampleAndGetColor(channel5, vTexCoord, channelIsOn[5]);
-  gl_FragColor = vec4(gl_FragColor.rgb, (1. - float(gl_FragColor.rgb == vec3(0., 0., 0.))) * opacity);
+  gl_FragColor = vec4(gl_FragColor.rgb, (gl_FragColor.rgb == vec3(0., 0., 0.)) ? 0.0 : opacity);
   geometry.uv = vTexCoord;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);
 }
