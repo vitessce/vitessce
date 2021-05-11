@@ -29,8 +29,18 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Install NPM dependencies
         run: npm ci
+      - name: Install dependencies needed for testing with cypress
+        run: | # needed for cypress on linux github actions
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get install xvfb
+          fi
       - name: Run tests
-        run: ./test.sh
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+              xvfb-run --auto-servernum ./test.sh
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+              ./test.sh
+          fi
         env:
           NODE_OPTIONS: '--max_old_space_size=4096'
         
