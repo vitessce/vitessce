@@ -46,7 +46,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: cypress-io/github-action@v2
         with:
-          start: npm start & wait-on http://localhost:3000/, npm run start:fixtures
+          start: npm start, npm run start:fixtures
+          wait-on: 'http://localhost:3000'
           browser: chrome
           headless: true
         
