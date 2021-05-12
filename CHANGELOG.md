@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.9](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-07
+
+### Added
 - Add opacity slider when `layerController` is closed, with label.
 
 ### Changed
