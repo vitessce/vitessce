@@ -164,10 +164,10 @@
     "clean": "rm -r dist-demo dist",
     "start": "node scripts/start-demo.js",
     "start:fixtures": "http-server src/loaders/fixtures/ --cors=\"*\" -s",
-    "test": "concurrently --success first --kill-others \"npm start:fixtures\" \"karma start scripts/karma.config.js --single-run\"",
-    "test:watch": "concurrently --kill-others \"npm start:fixtures\" \"karma start scripts/karma.config.js --auto-watch\"",
-    "cypress:open": "concurrently --kill-others \"npm start:fixtures\" \"cypress open\"",
-    "cypress:run": "concurrently --success first --kill-others \"npm start:fixtures\" \"cypress run --headed --browser chrome\"",
+    "test": "concurrently --success first --kill-others \"npm run start:fixtures\" \"karma start scripts/karma.config.js --single-run\"",
+    "test:watch": "concurrently --kill-others \"npm run start:fixtures\" \"karma start scripts/karma.config.js --auto-watch\"",
+    "cypress:open": "concurrently --kill-others \"npm run start:fixtures\" \"cypress open\"",
+    "cypress:run": "concurrently --success first --kill-others \"npm run start:fixtures\" \"cypress run --headed --browser chrome\"",
     "lint-fix": "eslint -c .eslintrc.yml --ext .js --fix src/"
   },
   "browserslist": {
