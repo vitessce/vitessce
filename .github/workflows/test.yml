@@ -48,6 +48,7 @@ jobs:
         with:
           start: npm start, npm run start:fixtures
           wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
           browser: chrome
           headless: true
         
