@@ -40,4 +40,12 @@ jobs:
         if: runner.os == 'Windows'
         env:
           NODE_OPTIONS: '--max_old_space_size=4096'
+  cypress-run:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: cypress-io/github-action@v2
+        with:
+          browser: chrome
+          headless: true
         
