@@ -29,19 +29,12 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Install NPM dependencies
         run: npm ci
-      - name: Install dependencies needed for testing with cypress on Linux
-        run: sudo apt-get install xvfb # needed for cypress
-        if: runner.os == 'Linux'
-      - name: Run tests (Linux)
-        run: xvfb-run --auto-servernum ./test.sh
-        if: runner.os == 'Linux'
-      - name: Run tests (Windows)
+      - name: Run tests
         run: ./test.sh
-        if: runner.os == 'Windows'
         env:
           NODE_OPTIONS: '--max_old_space_size=4096'
   cypress-run:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - uses: cypress-io/github-action@v2
