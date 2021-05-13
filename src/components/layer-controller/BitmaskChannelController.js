@@ -3,61 +3,9 @@ import React from 'react';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import IconButton from '@material-ui/core/IconButton';
 
-import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
-import Select from '@material-ui/core/Select';
 
-// Returns an rgb string for display, and changes the color (arr)
-// to use a grey for light theme + white color or if the colormap is on.
-export const toRgbUIString = (on, arr, theme) => {
-  const color = (on || (theme === 'light' && arr.every(i => i === 255))) ? [220, 220, 220] : arr;
-  return `rgb(${color})`;
-};
-
-
-/**
- * Dropdown for selecting a channel.
- * @prop {function} handleChange Callback for each new selection.
- * @prop {boolean} disableOptions Whether or not to allow options.
- * @prop {array} channelOptions List of available selections, like ['DAPI', 'FITC', ...].
- * @prop {number} selectionIndex Current numeric index of a selection.
- */
-function ChannelSelectionDropdown({
-  handleChange,
-  disableOptions,
-  channelOptions,
-  selectionIndex,
-}) {
-  return (
-    <Select
-      native
-      value={selectionIndex}
-      onChange={e => handleChange(Number(e.target.value))}
-    >
-      {channelOptions.map((opt, i) => (
-        <option disabled={disableOptions} key={opt} value={i}>
-          {opt}
-        </option>
-      ))}
-    </Select>
-  );
-}
-
-/**
- * Checkbox for toggling on/off of a channel.
- * @prop {string} color Current color for this channel.
- * @prop {boolean} checked Whether or not this channel is "on".
- * @prop {function} toggle Callback for toggling on/off.
- */
-function ChannelVisibilityCheckbox({ color, checked, toggle }) {
-  return (
-    <Checkbox
-      onChange={toggle}
-      checked={checked}
-      style={{ color, '&$checked': { color } }}
-    />
-  );
-}
+import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './sharedComponents';
 
 /**
  * Controller for the handling the colormapping sliders.
@@ -77,15 +25,12 @@ function ChannelVisibilityCheckbox({ color, checked, toggle }) {
 function BitmaskChannelController({
   visibility = false,
   dimName,
-  theme,
   channelOptions,
   handlePropertyChange,
   handleChannelRemove,
   selectionIndex,
   disableOptions = false,
 }) {
-  const rgbColor = toRgbUIString(true, null, theme);
-
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
   *  index of the image along that particular dimension.
@@ -102,7 +47,7 @@ function BitmaskChannelController({
       <Grid container direction="row" justify="space-between">
         <Grid item xs={2}>
           <ChannelVisibilityCheckbox
-            color={rgbColor}
+            color={[220, 220, 220]}
             checked={visibility}
             toggle={() => handlePropertyChange('visible', !visibility)}
           />
