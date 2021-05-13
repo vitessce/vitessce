@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
-// eslint-disable-next-line quotes
-import debounce from "lodash/debounce";
+import debounce from 'lodash/debounce';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
