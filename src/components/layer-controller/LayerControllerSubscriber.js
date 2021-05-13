@@ -2,9 +2,10 @@
 import React, { useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import TitleInfo from '../TitleInfo';
-import RasterLayerController from './RasterLayerController';
-import BitmaskLayerController from './BitmaskLayerController';
+import RasterChannelController from './RasterChannelController';
+import BitmaskChannelController from './BitmaskChannelController';
 import VectorLayerController from './VectorLayerController';
+import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady } from '../hooks';
 import { useCellsData, useMoleculesData, useRasterData } from '../data-hooks';
@@ -138,9 +139,10 @@ function LayerControllerSubscriber(props) {
             const { index } = layer;
             const loader = imageLayerLoaders[index];
             const layerMeta = imageLayerMeta[index];
-            const Controller = layer.type === 'raster'
-              ? RasterLayerController
-              : BitmaskLayerController;
+            const isRaster = layer.type === 'raster';
+            const ChannelController = layer.type === 'raster'
+              ? RasterChannelController
+              : BitmaskChannelController;
             return loader && layerMeta ? (
               <Grid
                 // eslint-disable-next-line react/no-array-index-key
@@ -148,13 +150,17 @@ function LayerControllerSubscriber(props) {
                 item
                 style={{ marginTop: '10px' }}
               >
-                <Controller
+                <LayerController
                   name={layerMeta.name}
                   layer={layer}
                   loader={loader}
                   theme={theme}
                   handleLayerChange={v => handleRasterLayerChange(v, i)}
                   handleLayerRemove={() => handleRasterLayerRemove(i)}
+                  ChannelController={ChannelController}
+                  shouldShowTransparentColor={isRaster}
+                  shouldShowDomain={isRaster}
+                  shouldShowColormap={isRaster}
                 />
               </Grid>
             ) : null;

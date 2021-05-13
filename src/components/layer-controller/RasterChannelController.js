@@ -90,7 +90,7 @@ function ChannelSlider({
  * @prop {number} selectionIndex The current numeric index of the selection.
  * @prop {boolean} disableOptions Whether or not channel options are be disabled (default: false).
  */
-function ChannelController({
+function RasterChannelController({
   visibility = false,
   slider,
   color,
@@ -210,4 +210,4 @@ function ChannelController({
   );
 }
 
-export default ChannelController;
+export default RasterChannelController;
