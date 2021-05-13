@@ -163,10 +163,12 @@
     "prepublishOnly": "npm run build-lib:prod",
     "clean": "rm -r dist-demo dist",
     "start": "node scripts/start-demo.js",
-    "test": "concurrently --success first --kill-others \"http-server src/loaders/fixtures/ --cors=\"*\" -s \" \"karma start scripts/karma.config.js --single-run\"",
-    "test:watch": "concurrently --kill-others \"http-server src/loaders/fixtures/ --cors=\"*\" -s \" \"karma start scripts/karma.config.js --auto-watch\"",
-    "cypress:open": "concurrently --kill-others \"http-server src/loaders/fixtures/ --cors=\"*\" -s \" \"cypress open\"",
-    "cypress:run": "concurrently --success first --kill-others \"http-server src/loaders/fixtures/ --cors=\"*\" -s \" \"cypress run\"",
+    "start:fixtures": "http-server src/loaders/fixtures/ --cors=\"*\" -s",
+    "start:fixtures-concurrently": "concurrently --kill-others \"npm run start:fixtures\"",
+    "test": "npm run start:fixtures-concurrently -- --success first \"karma start scripts/karma.config.js --single-run\"",
+    "test:watch": "npm run start:fixtures-concurrently -- \"karma start scripts/karma.config.js --auto-watch\"",
+    "cypress:open": "npm run start:fixtures-concurrently -- \"cypress open\"",
+    "cypress:run": "npm run start:fixtures-concurrently -- --success first --kill-others \"cypress run\"",
     "lint-fix": "eslint -c .eslintrc.yml --ext .js --fix src/"
   },
   "browserslist": {
