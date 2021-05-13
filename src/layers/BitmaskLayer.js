@@ -107,15 +107,14 @@ export default class BitmaskLayer extends XRLayer {
 
   draw(opts) {
     const { uniforms } = opts;
-    const { channelIsOn } = this.props;
+    const { channelIsOn, hoveredCell } = this.props;
     const { textures, model, colorTex } = this.state;
     // Render the image
     if (textures && model && colorTex) {
-      const hovered = this.getHoveredId();
       model
         .setUniforms(
           Object.assign({}, uniforms, {
-            hovered: hovered || this.parent.parent.state.hoveredCell || 0,
+            hovered: hoveredCell || 0,
             colorTex,
             colorTexHeight: colorTex.height,
             colorTexWidth: colorTex.width,

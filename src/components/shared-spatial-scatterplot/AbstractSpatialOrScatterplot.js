@@ -25,6 +25,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
+    this.onHover = this.onHover.bind(this);
   }
 
   /**
@@ -83,6 +84,54 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   // eslint-disable-next-line class-methods-use-this
   getLayers() {
     return [];
+  }
+
+  // eslint-disable-next-line consistent-return
+  onHover(info) {
+    const { coordinate, layer, sourceLayer } = info;
+    const { setCellHighlight, cellHighlight, setComponentHover } = this.props;
+    if (!sourceLayer) {
+      return null;
+    }
+    if (!setCellHighlight) {
+      return null;
+    }
+    if (!coordinate) {
+      return null;
+    }
+    const { channelData, bounds } = sourceLayer.props;
+    if (!channelData) {
+      return null;
+    }
+    const { data, width } = channelData;
+    if (!data) {
+      return null;
+    }
+    // Tiled layer needs a custom layerZoomScale.
+    if (sourceLayer.id.includes('bitmask')) {
+      const { tileSize } = layer.props.loader[0];
+      const { z } = sourceLayer.props.tileId;
+      // The zoomed out layer needs to use the fixed zoom at which it is rendered.
+      // See: https://github.com/visgl/deck.gl/blob/2b15bc459c6534ea38ce1153f254ce0901f51d6f/modules/geo-layers/src/tile-layer/utils.js#L130.
+      const layerZoomScale = Math.max(
+        1,
+        2 ** Math.round(-z + Math.log2(512 / tileSize)),
+      );
+      const dataCoords = [
+        Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
+        Math.floor((coordinate[1] - bounds[3]) / layerZoomScale),
+      ];
+      const coords = dataCoords[1] * width + dataCoords[0];
+      const hoverData = data.map(d => d[coords]);
+      const cellId = hoverData.find(i => i > 0);
+      if (cellId !== Number(cellHighlight)) {
+        if (setComponentHover) {
+          setComponentHover();
+        }
+        // eslint-disable-next-line no-unused-expressions
+        setCellHighlight(cellId ? String(cellId) : '');
+      }
+    }
   }
 
   /**
@@ -156,6 +205,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           useDevicePixels={useDevicePixels}
           controller={tool ? ({ dragPan: false }) : true}
           getCursor={tool ? getCursorWithTool : getCursor}
+          onHover={this.onHover}
         >
           {this.onInitializeViewInfo}
         </DeckGL>
