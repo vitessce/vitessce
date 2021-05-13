@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Add support for bitmasks to `Spatial` component and raster schema.
 
 ### Changed
 - Use GH Action for Cypress specifically due to random failures on OME-TIFF example.
@@ -9,7 +10,6 @@
 
 ### Added
 - Add opacity slider when `layerController` is closed, with label.
-- Add support for bitmasks to `Spatial` component and raster schema.
 
 ### Changed
 - Fix `cellSetColor` null bug.
