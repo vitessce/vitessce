@@ -87,6 +87,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       height: 4096,
       width: 4096,
     };
+    this.color = { ...this.randomColorData };
 
     // Initialize data and layers.
     this.onUpdateCellsData();
@@ -378,7 +379,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdateCellsLayer() {
     const { layers } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'cells');
-    const hasBitmaskLayers = (layers || []).find(layer => layer.type === 'bitmask');
+    const hasBitmaskLayers = (layers || []).find(
+      layer => layer.type === 'bitmask',
+    );
     if (layerDef
       // eslint-disable-next-line no-unused-vars
       && this.cellsEntries.every(([_, v]) => Object.keys(v).length)
@@ -387,27 +390,28 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } else {
       this.cellsLayer = null;
     }
-    if (hasBitmaskLayers) {
-      const color = this.randomColorData;
-      const { size } = this.props.cellColors;
-      if (size) {
-        const cellIds = this.props.cellColors.keys();
-        color.data = (new Uint8Array(color.height * color.width * 3)).fill(128);
-        color.data[0] = 0;
-        color.data[1] = 0;
-        color.data[2] = 0;
-        // eslint-disable-next-line no-restricted-syntax
-        for (const id of cellIds) {
-          if (id > 0) {
-            const cellColor = this.props.cellColors.get(id);
-            if (cellColor) {
-              color.data.set(cellColor, Number(id) * 3);
-            }
+  }
+
+  onUpdateCellColors() {
+    const color = this.randomColorData;
+    const { size } = this.props.cellColors;
+    if (size) {
+      const cellIds = this.props.cellColors.keys();
+      color.data = new Uint8Array(color.height * color.width * 3).fill(128);
+      color.data[0] = 0;
+      color.data[1] = 0;
+      color.data[2] = 0;
+      // eslint-disable-next-line no-restricted-syntax
+      for (const id of cellIds) {
+        if (id > 0) {
+          const cellColor = this.props.cellColors.get(id);
+          if (cellColor) {
+            color.data.set(cellColor, Number(id) * 3);
           }
         }
       }
-      this.color = color;
     }
+    this.color = color;
   }
 
   onUpdateMoleculesData() {
@@ -480,6 +484,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
+      this.forceUpdate();
+    }
+
+    if (['cellColors'].some(shallowDiff)) {
+      // Cells Color layer props changed.
+      this.onUpdateCellColors();
       this.forceUpdate();
     }
 

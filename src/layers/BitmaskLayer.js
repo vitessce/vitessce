@@ -33,7 +33,7 @@ export default class BitmaskLayer extends XRLayer {
 
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
-    if (props.cellColor !== oldProps.cellColor) {
+    if (props.cellColor?.data !== oldProps.cellColor?.data) {
       this.setColorTexture();
     }
   }
