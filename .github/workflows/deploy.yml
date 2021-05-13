@@ -20,10 +20,8 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Install NPM dependencies
         run: npm ci
-      - name: Install dependencies needed for testing with cypress
-        run: sudo apt-get install xvfb # needed for cypress
       - name: Run tests
-        run: xvfb-run --auto-servernum ./test.sh
+        run: ./test.sh
       - name: Deploy to NPM
         continue-on-error: true
         run: npm publish
@@ -40,4 +38,3 @@ jobs:
           wait-on-timeout: 120
           browser: chrome
           headless: true
-        

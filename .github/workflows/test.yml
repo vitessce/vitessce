@@ -34,10 +34,12 @@ jobs:
         env:
           NODE_OPTIONS: '--max_old_space_size=4096'
   cypress-run:
+    runs-on: ubuntu-18.04
+
     # We want to run on external PRs, but not on our own internal PRs as they'll be run
     # by the push to the branch.
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
-    runs-on: ubuntu-18.04
+    
     steps:
       - uses: actions/checkout@v2
       - uses: cypress-io/github-action@v2
@@ -47,4 +49,3 @@ jobs:
           wait-on-timeout: 120
           browser: chrome
           headless: true
-        

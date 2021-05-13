@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Use GH Action for Cypress specifically due to random failures on OME-TIFF example.
 
 ## [1.1.9](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-07
 
