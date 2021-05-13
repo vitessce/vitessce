@@ -310,6 +310,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         renderSubLayers: renderSubBitmaskLayers,
         loader: data,
         loaderSelection,
+        // For some reason, deck.gl doesn't recognize the prop diffing
+        // unless these are separated out.  I don't think it's a bug, just
+        // has to do with the fact that we don't have it in the `defaultProps`,
+        // could be wrong though.
         cellColorData: this.color.data,
         cellColorHeight: this.color.height,
         cellColorWidth: this.color.width,
