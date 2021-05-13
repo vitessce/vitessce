@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-18.04
     name: Deploy
     env:
-      NODE_OPTIONS: '--max_old_space_size=4096'
+      NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
       - uses: actions/checkout@v2
       - name: Setup Node 14
@@ -34,7 +34,7 @@ jobs:
       - uses: cypress-io/github-action@v2
         with:
           start: npm start, npm run start:fixtures
-          wait-on: 'http://localhost:3000'
+          wait-on: "http://localhost:3000"
           wait-on-timeout: 120
           browser: chrome
           headless: true
