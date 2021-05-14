@@ -74,6 +74,129 @@ const vanderbiltBase = {
 // can affect the z-index of plot tooltips due to the
 // resulting ordering of elements in the DOM.
 export const configs = {
+  'human-lymph-node-10x-visium': {
+    version: '1.0.0',
+    name: '10x visium human lymph node',
+    initStrategy: 'auto',
+    datasets: [
+      {
+        uid: 'visium',
+        files: [
+          {
+            type: 'expression-matrix',
+            fileType: 'anndata-expression-matrix.zarr',
+            url: 'https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_lymph_node_10x/human_lymph_node_10x.h5ad.zarr',
+            options: {
+              matrix: 'obsm/X_hvg',
+              geneFilter: 'var/highly_variable',
+            },
+          },
+          {
+            type: 'cells',
+            fileType: 'anndata-cells.zarr',
+            url: 'https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_lymph_node_10x/human_lymph_node_10x.h5ad.zarr',
+            options: {
+              xy: 'obsm/xy',
+              mappings: {
+                UMAP: {
+                  key: 'obsm/X_umap',
+                  dims: [0, 1],
+                },
+                PCA: {
+                  key: 'obsm/X_pca',
+                  dims: [0, 1],
+                },
+              },
+              factors: [
+                'obs/clusters',
+              ],
+            },
+          },
+          {
+            type: 'cell-sets',
+            fileType: 'anndata-cell-sets.zarr',
+            url: 'https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_lymph_node_10x/human_lymph_node_10x.h5ad.zarr',
+            options: [
+              {
+                groupName: 'Leiden',
+                setName: 'obs/clusters',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    coordinationSpace: {
+      spatialLayers: {
+        A: [
+          { type: 'cells', radius: 0.75, stroked: true, visible: true, opacity: 1 },
+        ],
+      },
+      cellColorEncoding: {
+        A: 'cellSetSelection',
+        B: 'geneSelection',
+      },
+      spatialZoom: {
+        A: 0,
+      },
+      spatialTargetX: {
+        A: 0,
+      },
+      spatialTargetY: {
+        A: 0,
+      },
+      geneSelection: {
+        A: ['CR2'],
+      },
+    },
+    layout: [
+      {
+        component: 'spatial',
+        coordinationScopes: {
+          spatialLayers: 'A',
+          spatialZoom: 'A',
+          spatialTargetX: 'A',
+          spatialTargetY: 'A',
+          cellColorEncoding: 'A',
+        },
+        x: 0, y: 0, w: 6, h: 6,
+      },
+      {
+        component: 'spatial',
+        coordinationScopes: {
+          spatialLayers: 'A',
+          spatialZoom: 'A',
+          spatialTargetX: 'A',
+          spatialTargetY: 'A',
+          cellColorEncoding: 'B',
+          geneSelection: 'A',
+        },
+        x: 6, y: 0, w: 6, h: 6,
+      },
+      {
+        component: 'heatmap',
+        coordinationScopes: {
+          cellColorEncoding: 'A',
+        },
+        x: 0, y: 6, w: 6, h: 6,
+      },
+      {
+        component: 'cellSets',
+        coordinationScopes: {
+          cellColorEncoding: 'A',
+        },
+        x: 6, y: 6, w: 3, h: 6,
+      },
+      {
+        component: 'genes',
+        coordinationScopes: {
+          cellColorEncoding: 'B',
+          geneSelection: 'A',
+        },
+        x: 9, y: 6, w: 3, h: 6,
+      },
+    ],
+  },
   'just-scatter': {
     version: '0.1.0',
     public: false,

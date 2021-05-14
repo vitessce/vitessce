@@ -76,6 +76,7 @@
 ### Added
 - Added an optional `description` field to the dataset definition config object. Updated the `<Description/>` component to prefer this value over the top-level description value, if available.
 - Add `transparentColor` to `LayerController` for multi-modal imaging.
+- Added a new demo view config for a ScanPy 10x genomics visium human lymph node dataset.
 
 ### Changed
 - Fix AnnData text decoding.
