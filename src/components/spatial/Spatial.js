@@ -81,11 +81,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.layerLoaderSelections = {};
     // Needed for the bitmask layer.
     this.randomColorData = {
-      data: new Uint8Array(4096 * 4096 * 3).map(
+      data: new Uint8Array(2048 * 2048 * 3).map(
         (_, j) => (j < 4 ? 0 : Math.round(255 * Math.random())),
       ),
-      height: 4096,
-      width: 4096,
+      height: 2048,
+      width: 2048,
     };
     this.color = { ...this.randomColorData };
 
