@@ -243,15 +243,16 @@ function LayerOptions({
       {hasDimensionsAndChannels
         && globalControlLabels.map(field => (
           shape[labels.indexOf(field)] > 1 && (
-          <LayerOption name={field} inputId={`${field}-slider`} key={field}>
-            <GlobalSelectionSlider
-              field={field}
-              value={globalLabelValues[field]}
-              handleChange={handleGlobalChannelsSelectionChange}
-              possibleValues={range(shape[labels.indexOf(field)])}
-            />
-          </LayerOption>
-          ))}
+            <LayerOption name={field} inputId={`${field}-slider`} key={field}>
+              <GlobalSelectionSlider
+                field={field}
+                value={globalLabelValues[field]}
+                handleChange={handleGlobalChannelsSelectionChange}
+                possibleValues={range(shape[labels.indexOf(field)])}
+              />
+            </LayerOption>
+          )
+        ))}
     </Grid>
   );
 }
