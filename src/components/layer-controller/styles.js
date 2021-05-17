@@ -22,10 +22,8 @@ export const useOptionStyles = makeStyles(theme => ({
   },
 }));
 
-export const useExpansionPanelStyles = makeStyles(theme => ({
+export const useExpansionPanelStyles = makeStyles(() => ({
   root: {
-    paddingLeft: theme.spacing(0),
-    paddingRight: theme.spacing(0),
     width: '100%',
     flexDirection: 'column',
   },
@@ -33,7 +31,6 @@ export const useExpansionPanelStyles = makeStyles(theme => ({
 
 export const useExpansionPanelSummaryStyles = makeStyles(theme => ({
   root: {
-    marginBottom: theme.spacing(-2),
     top: theme.spacing(-1),
     paddingLeft: theme.spacing(0),
     paddingRight: theme.spacing(0),

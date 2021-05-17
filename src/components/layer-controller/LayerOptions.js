@@ -241,9 +241,8 @@ function LayerOptions({
       </Grid>
       )}
       {hasDimensionsAndChannels
-        && globalControlLabels.map(
-          // If there is only one value in the dimension, do not return a slider.
-          field => shape[labels.indexOf(field)] > 1 && (
+        && globalControlLabels.map(field => (
+          shape[labels.indexOf(field)] > 1 && (
           <LayerOption name={field} inputId={`${field}-slider`} key={field}>
             <GlobalSelectionSlider
               field={field}
@@ -252,8 +251,7 @@ function LayerOptions({
               possibleValues={range(shape[labels.indexOf(field)])}
             />
           </LayerOption>
-          ),
-        )}
+          ))}
     </Grid>
   );
 }

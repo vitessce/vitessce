@@ -140,7 +140,7 @@ function LayerControllerSubscriber(props) {
             const loader = imageLayerLoaders[index];
             const layerMeta = imageLayerMeta[index];
             const isRaster = layer.type === 'raster';
-            const ChannelController = layer.type === 'raster'
+            const ChannelController = isRaster
               ? RasterChannelController
               : BitmaskChannelController;
             return loader && layerMeta ? (

@@ -383,6 +383,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       layer => layer.type === 'bitmask',
     );
     if (layerDef
+      // Only use cellEntries in quadtree calculation if there is
+      // some sort of data in the cells (i.e not just ids).
       // eslint-disable-next-line no-unused-vars
       && this.cellsEntries.every(([_, v]) => Object.keys(v).length)
       && !hasBitmaskLayers) {
@@ -398,6 +400,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (size) {
       const cellIds = this.props.cellColors.keys();
       color.data = new Uint8Array(color.height * color.width * 3).fill(128);
+      // 0th cell id is the empty space of the image i.e black color.
       color.data[0] = 0;
       color.data[1] = 0;
       color.data[2] = 0;

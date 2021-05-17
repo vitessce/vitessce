@@ -327,7 +327,10 @@ export function getInitialSpatialTargets({
         initialZoom = newViewStateZoom;
       }
     }
-  } else if (cellValues.length > 0 && cellValues.every(v => Object.keys(v).length)) {
+  } else if (cellValues.length > 0
+    // Only use cellEntries in quadtree calculation if there is
+    // some sort of data in the cells (i.e not just ids).
+    && cellValues.every(v => Object.keys(v).length)) {
     const cellCoordinates = cellValues.map(c => c.xy);
     const xExtent = extent(cellCoordinates, c => c[0]);
     const yExtent = extent(cellCoordinates, c => c[1]);
