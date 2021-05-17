@@ -383,7 +383,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       layer => layer.type === 'bitmask',
     );
     if (layerDef
-      // Only use cellEntries in quadtree calculation if there is
+      // Only use cellsEntries in quadtree calculation if there is
       // some sort of data in the cells (i.e not just ids).
       // eslint-disable-next-line no-unused-vars
       && this.cellsEntries.every(([_, v]) => Object.keys(v).length)

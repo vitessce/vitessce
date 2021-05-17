@@ -328,7 +328,7 @@ export function getInitialSpatialTargets({
       }
     }
   } else if (cellValues.length > 0
-    // Only use cellEntries in quadtree calculation if there is
+    // Only use cellValues in quadtree calculation if there is
     // some sort of data in the cells (i.e not just ids).
     && cellValues.every(v => Object.keys(v).length)) {
     const cellCoordinates = cellValues.map(c => c.xy);
