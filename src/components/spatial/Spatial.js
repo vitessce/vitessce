@@ -84,6 +84,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       data: new Uint8Array(2048 * 2048 * 3).map(
         (_, j) => (j < 4 ? 0 : Math.round(255 * Math.random())),
       ),
+      // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
       height: 2048,
       width: 2048,
     };
