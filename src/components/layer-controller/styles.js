@@ -32,8 +32,6 @@ export const useExpansionPanelStyles = makeStyles(() => ({
 export const useExpansionPanelSummaryStyles = makeStyles(theme => ({
   root: {
     top: theme.spacing(-1),
-    paddingLeft: theme.spacing(0),
-    paddingRight: theme.spacing(0),
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
