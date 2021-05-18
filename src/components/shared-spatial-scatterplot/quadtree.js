@@ -12,9 +12,9 @@ export function createCellsQuadTree(cellsEntries, getCellCoords) {
   // Use the cellsEntries variable since it is already
   // an array, converted by Object.entries().
   // Only use cellsEntries in quadtree calculation if there is
-  // some sort of data in the cells (i.e not just ids).
+  // centroid data in the cells (i.e not just ids).
   // eslint-disable-next-line no-unused-vars
-  if (!cellsEntries || !cellsEntries.every(([_, v]) => Object.keys(v).length)) {
+  if (!cellsEntries || !cellsEntries.every(([_, v]) => Object.keys(v).findIndex(i => i === 'xy') > 0)) {
     // Abort if the cells data is not yet available.
     return null;
   }
