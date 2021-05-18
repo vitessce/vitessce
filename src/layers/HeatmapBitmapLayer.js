@@ -2,7 +2,7 @@ import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D } from '@luma.gl/core';
-import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE } from './heatmap-constants';
+import { PIXELATED_TEXTURE_PARAMETERS } from './heatmap-constants';
 import { vertexShader, fragmentShader } from './heatmap-bitmap-layer-shaders';
 
 const defaultProps = {
@@ -67,6 +67,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       aggSizeY,
       colorScaleLo,
       colorScaleHi,
+      tileWidth,
+      tileHeight,
     } = this.props;
 
     // Render the image
@@ -75,7 +77,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
         .setUniforms(
           Object.assign({}, uniforms, {
             uBitmapTexture: bitmapTexture,
-            uTextureSize: [TILE_SIZE, TILE_SIZE],
+            uTextureSize: [tileWidth, tileHeight],
             uAggSize: [aggSizeX, aggSizeY],
             uColorScaleRange: [colorScaleLo, colorScaleHi],
           }),
@@ -93,6 +95,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    */
   loadTexture(image) {
     const { gl } = this.context;
+    const { tileHeight, tileWidth } = this.props;
 
     if (this.state.bitmapTexture) {
       this.state.bitmapTexture.delete();
@@ -114,8 +117,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
           format: GL.LUMINANCE,
           dataFormat: GL.LUMINANCE,
           type: GL.UNSIGNED_BYTE,
-          width: TILE_SIZE,
-          height: TILE_SIZE,
+          width: tileWidth,
+          height: tileHeight,
         }),
       });
     }

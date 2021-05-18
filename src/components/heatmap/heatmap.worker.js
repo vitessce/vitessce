@@ -24,7 +24,8 @@ function getTiles({
   curr,
   xTiles,
   yTiles,
-  tileSize,
+  tileHeight,
+  tileWidth,
   cellOrdering,
   rows,
   cols,
@@ -41,7 +42,8 @@ function getTiles({
   const result = range(yTiles).map(i => range(xTiles).map(j => getTileFunction(
     view,
     {
-      tileSize,
+      tileHeight,
+      tileWidth,
       tileI: i,
       tileJ: j,
       numCells,

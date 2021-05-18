@@ -213,14 +213,18 @@ const Heatmap = forwardRef((props, deckRef) => {
   const matrixTop = -matrixHeight / 2;
   const matrixBottom = matrixHeight / 2;
 
-  const xTiles = Math.ceil(width / TILE_SIZE);
-  const yTiles = Math.ceil(height / TILE_SIZE);
 
-  const widthRatio = 1 - (TILE_SIZE - (width % TILE_SIZE)) / (xTiles * TILE_SIZE);
-  const heightRatio = 1 - (TILE_SIZE - (height % TILE_SIZE)) / (yTiles * TILE_SIZE);
+  const tilePixelHeight = Math.min(height, TILE_SIZE);
+  const tilePixelWidth = Math.min(width, TILE_SIZE);
+  const xTiles = Math.ceil(width / tilePixelWidth);
+  const yTiles = Math.ceil(height / tilePixelHeight);
 
-  const tileWidth = (matrixWidth / widthRatio) / (xTiles);
-  const tileHeight = (matrixHeight / heightRatio) / (yTiles);
+  const widthRatio = 1 - (tilePixelWidth - (width % tilePixelWidth)) / (xTiles * tilePixelWidth);
+  const heightRatio = 1
+    - (tilePixelHeight - (height % tilePixelHeight)) / (yTiles * tilePixelHeight);
+
+  const tileWidth = (matrixWidth / (widthRatio || 1)) / (xTiles);
+  const tileHeight = (matrixHeight / (heightRatio || 1)) / (yTiles);
 
   const scaleFactor = 2 ** viewState.zoom;
   const cellHeight = (matrixHeight * scaleFactor) / height;
@@ -312,7 +316,8 @@ const Heatmap = forwardRef((props, deckRef) => {
         curr,
         xTiles,
         yTiles,
-        tileSize: TILE_SIZE,
+        tileHeight: tilePixelHeight,
+        tileWidth: tilePixelWidth,
         cellOrdering: (transpose ? axisTopLabels : axisLeftLabels),
         rows,
         cols,
@@ -345,6 +350,8 @@ const Heatmap = forwardRef((props, deckRef) => {
           matrixLeft + (j + 1) * tileWidth,
           matrixTop + (i + 1) * tileHeight,
         ],
+        tileHeight: tilePixelHeight,
+        tileWidth: tilePixelWidth,
         aggSizeX,
         aggSizeY,
         colorScaleLo,
@@ -355,9 +362,11 @@ const Heatmap = forwardRef((props, deckRef) => {
         },
       });
     }
+    console.log(tilesRef); // eslint-disable-line
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
-    aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels]);
+    aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels,
+    axisTopLabels, tilePixelHeight, tilePixelWidth]);
 
 
   // Map cell and gene names to arrays with indices,
@@ -404,18 +413,18 @@ const Heatmap = forwardRef((props, deckRef) => {
     let rowI;
 
     const cellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
-    const colorBarTileWidthPx = (transpose ? TILE_SIZE : 1);
-    const colorBarTileHeightPx = (transpose ? 1 : TILE_SIZE);
+    const colorBarTileWidthPx = (transpose ? tilePixelWidth : 1);
+    const colorBarTileHeightPx = (transpose ? 1 : tilePixelHeight);
 
     const result = range((transpose ? xTiles : yTiles)).map((i) => {
-      const tileData = new Uint8ClampedArray(TILE_SIZE * 1 * 4);
+      const tileData = new Uint8ClampedArray(tilePixelHeight * 1 * 4);
 
-      range(TILE_SIZE).forEach((tileY) => {
-        rowI = (i * TILE_SIZE) + tileY; // the row / cell index
+      range(tilePixelHeight).forEach((tileY) => {
+        rowI = (i * tilePixelHeight) + tileY; // the row / cell index
         if (rowI < cellOrdering.length) {
           cellId = cellOrdering[rowI];
           color = cellColors.get(cellId);
-          offset = (transpose ? tileY : (TILE_SIZE - tileY - 1)) * 4;
+          offset = (transpose ? tileY : (tilePixelHeight - tileY - 1)) * 4;
           if (color) {
             const [rValue, gValue, bValue] = color;
             tileData[offset + 0] = rValue;
@@ -430,7 +439,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     });
 
     return result;
-  }, [cellColors, transpose, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
+  }, [cellColors, transpose, axisTopLabels, axisLeftLabels,
+    tilePixelWidth, tilePixelHeight, xTiles, yTiles]);
 
   const cellColorsLayers = useMemo(() => (cellColorsTiles
     ? cellColorsTiles

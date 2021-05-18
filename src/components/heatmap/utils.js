@@ -8,27 +8,27 @@ import {
 } from '../../layers/heatmap-constants';
 
 export function getGeneByCellTile(view, {
-  tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
+  tileHeight, tileWidth, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
 }) {
-  const tileData = new Uint8Array(tileSize * tileSize);
+  const tileData = new Uint8Array(tileHeight * tileWidth);
   let offset;
   let value;
   let cellI;
   let geneI;
   let sortedCellI;
 
-  const tileSizeRange = range(tileSize);
+  const tileSizeRange = range(tileWidth);
 
   tileSizeRange.forEach((j) => {
     // Need to iterate over cells in the outer loop.
-    cellI = (tileJ * tileSize) + j;
+    cellI = (tileJ * tileWidth) + j;
     if (cellI < numCells) {
       sortedCellI = cells.indexOf(cellOrdering[cellI]);
       if (sortedCellI >= -1) {
         tileSizeRange.forEach((i) => {
-          geneI = (tileI * tileSize) + i;
+          geneI = (tileI * tileHeight) + i;
           value = view[sortedCellI * numGenes + geneI];
-          offset = ((tileSize - i - 1) * tileSize + j);
+          offset = ((tileHeight - i - 1) * tileHeight + j);
           tileData[offset] = value;
         });
       }
@@ -38,31 +38,31 @@ export function getGeneByCellTile(view, {
 }
 
 export function getCellByGeneTile(view, {
-  tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
+  tileHeight, tileWidth, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
 }) {
-  const tileData = new Uint8Array(tileSize * tileSize);
+  const tileData = new Uint8Array(tileHeight * tileWidth);
   let offset;
   let value;
   let cellI;
   let geneI;
   let sortedCellI;
 
-  const tileSizeRange = range(tileSize);
+  const tileSizeRange = range(tileWidth);
 
   tileSizeRange.forEach((i) => {
     // Need to iterate over cells in the outer loop.
-    cellI = (tileI * tileSize) + i;
+    cellI = tileI * tileWidth + i;
     if (cellI < numCells) {
       sortedCellI = cells.indexOf(cellOrdering[cellI]);
       if (sortedCellI >= -1) {
         tileSizeRange.forEach((j) => {
-          geneI = (tileJ * tileSize) + j;
+          geneI = (tileJ * tileHeight) + j;
           if (geneI < numGenes) {
             value = view[sortedCellI * numGenes + geneI];
           } else {
             value = 0;
           }
-          offset = ((tileSize - i - 1) * tileSize + j);
+          offset = ((tileHeight - i - 1) * tileHeight + j);
           tileData[offset] = value;
         });
       }
