@@ -8,7 +8,7 @@ import Grid from '@material-ui/core/Grid';
 import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './sharedComponents';
 
 /**
- * Controller for the handling the colormapping sliders.
+ * Controller for the handling the bitmask channels.
  * @prop {boolean} visibility Whether or not this channel is "on"
  * @prop {string} dimName Name of the dimensions this slider controls (usually "channel").
  * @prop {object} channelOptions All available options for this dimension (i.e channel names).
