@@ -1,9 +1,9 @@
 import expect from 'expect';
-import { toRgbUIString } from './ChannelController';
+import { toRgbUIString } from './RasterChannelController';
 
 const GREY = [220, 220, 220];
 
-describe('layer-controller/ChannelController.js', () => {
+describe('layer-controller/RasterChannelController.js', () => {
   describe('toRgbUIString()', () => {
     it('Maps color value to itself when colormap off and not white with dark theme', () => {
       expect(toRgbUIString(false, [200, 200, 200], 'dark')).toEqual(`rgb(${[200, 200, 200]})`);

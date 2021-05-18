@@ -2,11 +2,11 @@ import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { Matrix4 } from 'math.gl';
-import { ScaleBarLayer } from '@hms-dbmi/viv';
+import { ScaleBarLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import { getSourceFromLoader } from '../../utils';
-import { square, getLayerLoaderTuple } from './utils';
+import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import {
   createCellsQuadTree,
@@ -79,6 +79,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.neighborhoodsLayer = null;
     this.imageLayers = [];
     this.layerLoaderSelections = {};
+    // Better for the bitmask layer when there is no color data to use this.
+    // 2048 is best for performance and for stability (4096 texture size is not always supported).
+    this.randomColorData = {
+      data: new Uint8Array(2048 * 2048 * 3).map(
+        (_, j) => (j < 4 ? 0 : Math.round(255 * Math.random())),
+      ),
+      // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
+      height: 2048,
+      width: 2048,
+    };
+    this.color = { ...this.randomColorData };
 
     // Initialize data and layers.
     this.onUpdateCellsData();
@@ -293,7 +304,32 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // eslint-disable-next-line prefer-destructuring
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
-    const [Layer, layerLoader] = getLayerLoaderTuple(data);
+    if (rawLayerDef.type === 'bitmask') {
+      return new MultiscaleImageLayer({
+        // `bitmask` is used by the AbstractSpatialOrScatterplot
+        // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
+        id: `bitmask-layer-${layerDef.index}-${i}`,
+        channelIsOn: layerProps.visibilities,
+        opacity: layerProps.opacity,
+        modelMatrix,
+        hoveredCell: Number(this.props.cellHighlight),
+        renderSubLayers: renderSubBitmaskLayers,
+        loader: data,
+        loaderSelection,
+        // For some reason, deck.gl doesn't recognize the prop diffing
+        // unless these are separated out.  I don't think it's a bug, just
+        // has to do with the fact that we don't have it in the `defaultProps`,
+        // could be wrong though.
+        cellColorData: this.color.data,
+        cellColorHeight: this.color.height,
+        cellColorWidth: this.color.width,
+        excludeBackground: true,
+      });
+    }
+    const [Layer, layerLoader] = getLayerLoaderTuple(
+      data,
+      rawLayerDef.isBitmask,
+    );
     return new Layer({
       loader: layerLoader,
       id: `image-layer-${layerDef.index}-${i}`,
@@ -311,7 +347,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createImageLayers() {
     const { layers, imageLayerLoaders = {} } = this.props;
     return (layers || [])
-      .filter(layer => layer.type === 'raster')
+      .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
       .map((layer, i) => this.createImageLayer(
         layer, imageLayerLoaders[layer.index], i,
       ));
@@ -347,11 +383,43 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdateCellsLayer() {
     const { layers } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'cells');
-    if (layerDef) {
+    const hasBitmaskLayers = (layers || []).find(
+      layer => layer.type === 'bitmask',
+    );
+    if (layerDef
+      && this.cellsEntries.length
+      // Only use cellsEntries in quadtree calculation if there is
+      // centroid data in the cells (i.e not just ids).
+      // eslint-disable-next-line no-unused-vars
+      && this.cellsEntries[0][1].xy
+      && !hasBitmaskLayers) {
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {
       this.cellsLayer = null;
     }
+  }
+
+  onUpdateCellColors() {
+    const color = this.randomColorData;
+    const { size } = this.props.cellColors;
+    if (size) {
+      const cellIds = this.props.cellColors.keys();
+      color.data = new Uint8Array(color.height * color.width * 3).fill(128);
+      // 0th cell id is the empty space of the image i.e black color.
+      color.data[0] = 0;
+      color.data[1] = 0;
+      color.data[2] = 0;
+      // eslint-disable-next-line no-restricted-syntax
+      for (const id of cellIds) {
+        if (id > 0) {
+          const cellColor = this.props.cellColors.get(id);
+          if (cellColor) {
+            color.data.set(cellColor, Number(id) * 3);
+          }
+        }
+      }
+    }
+    this.color = color;
   }
 
   onUpdateMoleculesData() {
@@ -427,6 +495,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
+    if (['cellColors'].some(shallowDiff)) {
+      // Cells Color layer props changed.
+      this.onUpdateCellColors();
+      this.forceUpdate();
+    }
+
     if (['molecules'].some(shallowDiff)) {
       // Molecules data changed.
       this.onUpdateMoleculesData();
@@ -451,7 +525,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'imageLayerLoaders'].some(shallowDiff)) {
+    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight'].some(shallowDiff)) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();

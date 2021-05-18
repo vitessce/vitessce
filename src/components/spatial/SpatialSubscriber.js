@@ -141,12 +141,17 @@ export default function SpatialSubscriber(props) {
     { spatialRasterLayers: rasterLayers },
   );
 
-  const layers = useMemo(() => [
-    ...(moleculesLayer ? [{ ...moleculesLayer, type: 'molecules' }] : []),
-    ...(cellsLayer ? [{ ...cellsLayer, type: 'cells' }] : []),
-    ...(neighborhoodsLayer ? [{ ...neighborhoodsLayer, type: 'neighborhoods' }] : []),
-    ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: 'raster' })) : []),
-  ], [cellsLayer, moleculesLayer, neighborhoodsLayer, rasterLayers]);
+  const layers = useMemo(() => {
+    const shouldWaitForRaster = loaders[dataset].loaders.raster;
+    // Only want to show cells once the dataset has loaded because centroids are often not visible.
+    const canPassInCellsLayer = shouldWaitForRaster ? rasterLayers : true;
+    return [
+      ...(moleculesLayer ? [{ ...moleculesLayer, type: 'molecules' }] : []),
+      ...((cellsLayer && canPassInCellsLayer) ? [{ ...cellsLayer, type: 'cells' }] : []),
+      ...(neighborhoodsLayer ? [{ ...neighborhoodsLayer, type: 'neighborhoods' }] : []),
+      ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: l.type || 'raster' })) : []),
+    ];
+  }, [cellsLayer, dataset, loaders, moleculesLayer, neighborhoodsLayer, rasterLayers]);
 
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {

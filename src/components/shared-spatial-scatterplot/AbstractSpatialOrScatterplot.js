@@ -25,6 +25,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
+    this.onHover = this.onHover.bind(this);
   }
 
   /**
@@ -85,6 +86,55 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     return [];
   }
 
+  // eslint-disable-next-line consistent-return
+  onHover(info) {
+    const { coordinate, layer, sourceLayer } = info;
+    const { setCellHighlight, cellHighlight, setComponentHover } = this.props;
+    if (!sourceLayer) {
+      return null;
+    }
+    if (!setCellHighlight) {
+      return null;
+    }
+    if (!coordinate) {
+      return null;
+    }
+    const { channelData, bounds } = sourceLayer.props;
+    if (!channelData) {
+      return null;
+    }
+    const { data, width } = channelData;
+    if (!data) {
+      return null;
+    }
+    // Tiled layer needs a custom layerZoomScale.
+    if (sourceLayer.id.includes('bitmask')) {
+      const { tileSize } = layer.props.loader[0];
+      const { z } = sourceLayer.props.tileId;
+      // The zoomed out layer needs to use the fixed zoom at which it is rendered.
+      // See the following for why we have this calculation with 512:
+      // https://github.com/visgl/deck.gl/blob/2b15bc459c6534ea38ce1153f254ce0901f51d6f/modules/geo-layers/src/tile-layer/utils.js#L130.
+      const layerZoomScale = Math.max(
+        1,
+        2 ** Math.round(-z + Math.log2(512 / tileSize)),
+      );
+      const dataCoords = [
+        Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
+        Math.floor((coordinate[1] - bounds[3]) / layerZoomScale),
+      ];
+      const coords = dataCoords[1] * width + dataCoords[0];
+      const hoverData = data.map(d => d[coords]);
+      const cellId = hoverData.find(i => i > 0);
+      if (cellId !== Number(cellHighlight)) {
+        if (setComponentHover) {
+          setComponentHover();
+        }
+        // eslint-disable-next-line no-unused-expressions
+        setCellHighlight(cellId ? String(cellId) : '');
+      }
+    }
+  }
+
   /**
    * Emits a function to project from the
    * cell ID space to the scatterplot or
@@ -122,12 +172,14 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * and Scatterplot components.
    */
   render() {
-    const { deckRef, viewState, uuid } = this.props;
+    const {
+      deckRef, viewState, uuid, layers: layerProps,
+    } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
 
-    const showCellSelectionTools = this.cellsLayer !== null;
-    const showPanTool = this.cellsLayer !== null;
+    const showCellSelectionTools = this.cellsLayer !== null || layerProps.findIndex(l => l.type === 'cells') > 0;
+    const showPanTool = this.cellsLayer !== null || layerProps.findIndex(l => l.type === 'bitmask') > 0;
     // For large datasets, the visual quality takes only a small
     // hit in exchange for much better performance by setting this to false:
     // https://deck.gl/docs/api-reference/core/deck#usedevicepixels
@@ -156,6 +208,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           useDevicePixels={useDevicePixels}
           controller={tool ? ({ dragPan: false }) : true}
           getCursor={tool ? getCursorWithTool : getCursor}
+          onHover={this.onHover}
         >
           {this.onInitializeViewInfo}
         </DeckGL>

@@ -188,12 +188,16 @@ function LayerOptions({
   shape,
   domainType,
   isRgb,
+  shouldShowTransparentColor,
+  shouldShowDomain,
+  shouldShowColormap,
 }) {
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       {!isRgb ? (
         <>
+          {shouldShowColormap && (
           <Grid item>
             <LayerOption name="Colormap" inputId="colormap-select">
               <ColormapSelect
@@ -203,6 +207,8 @@ function LayerOptions({
               />
             </LayerOption>
           </Grid>
+          )}
+          {shouldShowDomain && (
           <Grid item>
             <LayerOption name="Domain" inputId="domain-selector">
               <SliderDomainSelector
@@ -213,6 +219,7 @@ function LayerOptions({
               />
             </LayerOption>
           </Grid>
+          )}
         </>
       ) : null}
       <Grid item>
@@ -220,6 +227,7 @@ function LayerOptions({
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
         </LayerOption>
       </Grid>
+      {shouldShowTransparentColor && (
       <Grid item>
         <LayerOption
           name="Zero Transparent"
@@ -231,18 +239,18 @@ function LayerOptions({
           />
         </LayerOption>
       </Grid>
+      )}
       {hasDimensionsAndChannels
         && globalControlLabels.map(field => (
-          // If there is only one value in the dimension, do not return a slider.
           shape[labels.indexOf(field)] > 1 && (
-          <LayerOption name={field} inputId={`${field}-slider`} key={field}>
-            <GlobalSelectionSlider
-              field={field}
-              value={globalLabelValues[field]}
-              handleChange={handleGlobalChannelsSelectionChange}
-              possibleValues={range(shape[labels.indexOf(field)])}
-            />
-          </LayerOption>
+            <LayerOption name={field} inputId={`${field}-slider`} key={field}>
+              <GlobalSelectionSlider
+                field={field}
+                value={globalLabelValues[field]}
+                handleChange={handleGlobalChannelsSelectionChange}
+                possibleValues={range(shape[labels.indexOf(field)])}
+              />
+            </LayerOption>
           )
         ))}
     </Grid>

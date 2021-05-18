@@ -1,16 +1,15 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { getChannelStats } from '@hms-dbmi/viv';
 
-import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
-import Select from '@material-ui/core/Select';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 
 import ChannelOptions from './ChannelOptions';
 import { DOMAINS } from './constants';
 import { getSourceFromLoader } from '../../utils';
+import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls';
 
 // Returns an rgb string for display, and changes the color (arr)
 // to use a grey for light theme + white color or if the colormap is on.
@@ -45,35 +44,6 @@ function abbreviateNumber(value) {
   return value.toExponential(0);
 }
 
-
-/**
- * Dropdown for selecting a channel.
- * @prop {function} handleChange Callback for each new selection.
- * @prop {boolean} disableOptions Whether or not to allow options.
- * @prop {array} channelOptions List of available selections, like ['DAPI', 'FITC', ...].
- * @prop {number} selectionIndex Current numeric index of a selection.
- */
-function ChannelSelectionDropdown({
-  handleChange,
-  disableOptions,
-  channelOptions,
-  selectionIndex,
-}) {
-  return (
-    <Select
-      native
-      value={selectionIndex}
-      onChange={e => handleChange(Number(e.target.value))}
-    >
-      {channelOptions.map((opt, i) => (
-        <option disabled={disableOptions} key={opt} value={i}>
-          {opt}
-        </option>
-      ))}
-    </Select>
-  );
-}
-
 /**
  * Slider for controlling current colormap.
  * @prop {string} color Current color for this channel.
@@ -106,22 +76,6 @@ function ChannelSlider({
 }
 
 /**
- * Checkbox for toggling on/off of a channel.
- * @prop {string} color Current color for this channel.
- * @prop {boolean} checked Whether or not this channel is "on".
- * @prop {function} toggle Callback for toggling on/off.
- */
-function ChannelVisibilityCheckbox({ color, checked, toggle }) {
-  return (
-    <Checkbox
-      onChange={toggle}
-      checked={checked}
-      style={{ color, '&$checked': { color } }}
-    />
-  );
-}
-
-/**
  * Controller for the handling the colormapping sliders.
  * @prop {boolean} visibility Whether or not this channel is "on"
  * @prop {array} slider Current slider range.
@@ -136,7 +90,7 @@ function ChannelVisibilityCheckbox({ color, checked, toggle }) {
  * @prop {number} selectionIndex The current numeric index of the selection.
  * @prop {boolean} disableOptions Whether or not channel options are be disabled (default: false).
  */
-function ChannelController({
+function RasterChannelController({
   visibility = false,
   slider,
   color,
@@ -256,4 +210,4 @@ function ChannelController({
   );
 }
 
-export default ChannelController;
+export default RasterChannelController;

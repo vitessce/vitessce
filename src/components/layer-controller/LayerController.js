@@ -12,7 +12,6 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import ChannelController from './ChannelController';
 import LayerOptions from './LayerOptions';
 
 import {
@@ -52,10 +51,12 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  * @prop {object} loader Loader object for the current imaging layer.
  * @prop {function} handleLayerChange Callback for handling the changing of layer properties.
  */
-export default function RasterLayerController(props) {
+export default function LayerController(props) {
   const {
     layer, name, loader, theme,
     handleLayerRemove, handleLayerChange,
+    shouldShowTransparentColor,
+    shouldShowDomain, shouldShowColormap, ChannelController,
   } = props;
 
   const {
@@ -228,31 +229,26 @@ export default function RasterLayerController(props) {
           setChannel({ ...c, slider: [q1, q3] }, channelId);
         };
         return (
-          <Grid
+          <ChannelController
             // eslint-disable-next-line react/no-array-index-key
             key={`channel-controller-${channelId}`}
-            item
-            style={{ width: '100%' }}
-          >
-            <ChannelController
-              dimName={channelLabel}
-              visibility={c.visible}
-              selectionIndex={c.selection[channelLabel]}
-              slider={c.slider}
-              color={c.color}
-              channels={channels}
-              channelId={channelId}
-              domainType={domainType}
-              loader={loader}
-              globalLabelValues={globalLabelValues}
-              theme={theme}
-              channelOptions={channelOptions}
-              colormapOn={Boolean(colormap)}
-              handlePropertyChange={handleChannelPropertyChange}
-              handleChannelRemove={handleChannelRemove}
-              handleIQRUpdate={handleIQRUpdate}
-            />
-          </Grid>
+            dimName={channelLabel}
+            visibility={c.visible}
+            selectionIndex={c.selection[channelLabel]}
+            slider={c.slider}
+            color={c.color}
+            channels={channels}
+            channelId={channelId}
+            domainType={domainType}
+            loader={loader}
+            globalLabelValues={globalLabelValues}
+            theme={theme}
+            channelOptions={channelOptions}
+            colormapOn={Boolean(colormap)}
+            handlePropertyChange={handleChannelPropertyChange}
+            handleChannelRemove={handleChannelRemove}
+            handleIQRUpdate={handleIQRUpdate}
+          />
         );
       },
     );
@@ -299,56 +295,53 @@ export default function RasterLayerController(props) {
         </Grid>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.root}>
-        <Grid item>
-          <LayerOptions
-            channels={channels}
-            labels={labels}
-            shape={shape}
-            opacity={opacity}
-            colormap={colormap}
-            transparentColor={transparentColor}
-            domainType={domainType}
+        <LayerOptions
+          channels={channels}
+          labels={labels}
+          shape={shape}
+          opacity={opacity}
+          colormap={colormap}
+          transparentColor={transparentColor}
+          domainType={domainType}
             // Only allow for global dimension controllers that
             // exist in the `dimensions` part of the loader.
-            globalControlLabels={labels.filter(label => GLOBAL_LABELS.includes(label))}
-            globalLabelValues={globalLabelValues}
-            handleOpacityChange={setOpacity}
-            handleColormapChange={setColormap}
-            handleGlobalChannelsSelectionChange={
+          globalControlLabels={labels.filter(label => GLOBAL_LABELS.includes(label))}
+          globalLabelValues={globalLabelValues}
+          handleOpacityChange={setOpacity}
+          handleColormapChange={setColormap}
+          handleGlobalChannelsSelectionChange={
               handleGlobalChannelsSelectionChange
             }
-            handleTransparentColorChange={setTransparentColor}
-            isRgb={isRgb(loader)}
-            handleDomainChange={handleDomainChange}
-          />
-        </Grid>
+          handleTransparentColorChange={setTransparentColor}
+          isRgb={isRgb(loader)}
+          handleDomainChange={handleDomainChange}
+          shouldShowTransparentColor={shouldShowTransparentColor}
+          shouldShowDomain={shouldShowDomain}
+          shouldShowColormap={shouldShowColormap}
+        />
         {!isRgb(loader) ? channelControllers : null}
         {!isRgb(loader) && (
-          <Grid item>
-            <Button
-              disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
-              onClick={handleChannelAdd}
-              fullWidth
-              variant="outlined"
-              style={buttonStyles}
-              startIcon={<AddIcon />}
-              size="small"
-            >
+        <Button
+          disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
+          onClick={handleChannelAdd}
+          fullWidth
+          variant="outlined"
+          style={buttonStyles}
+          startIcon={<AddIcon />}
+          size="small"
+        >
               Add Channel
-            </Button>
-          </Grid>
+        </Button>
         )}
-        <Grid item>
-          <Button
-            onClick={handleLayerRemove}
-            fullWidth
-            variant="outlined"
-            style={buttonStyles}
-            size="small"
-          >
+        <Button
+          onClick={handleLayerRemove}
+          fullWidth
+          variant="outlined"
+          style={buttonStyles}
+          size="small"
+        >
             Remove Image Layer
-          </Button>
-        </Grid>
+        </Button>
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );

@@ -310,6 +310,7 @@ export function upgradeFrom1_0_0(config) {
   const coordinationSpace = { ...config.coordinationSpace };
 
   function replaceLayerType(layerType) {
+    // Layer type could be one of a few things, bitmask or raster at the moment.
     const isRaster = layerType === 'raster';
     coordinationSpace[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = {};
     Object.entries(coordinationSpace.spatialLayers).forEach(([scope, layers]) => {
