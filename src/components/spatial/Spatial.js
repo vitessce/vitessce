@@ -387,10 +387,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       layer => layer.type === 'bitmask',
     );
     if (layerDef
+      && this.cellsEntries.length
       // Only use cellsEntries in quadtree calculation if there is
       // centroid data in the cells (i.e not just ids).
       // eslint-disable-next-line no-unused-vars
-      && this.cellsEntries.every(([_, v]) => Object.keys(v).findIndex(i => i === 'xy') > 0)
+      && this.cellsEntries[0][1].xy
       && !hasBitmaskLayers) {
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {

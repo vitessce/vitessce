@@ -330,7 +330,7 @@ export function getInitialSpatialTargets({
   } else if (cellValues.length > 0
     // Only use cellValues in quadtree calculation if there is
     // centroid data in the cells (i.e not just ids).
-    && cellValues.every(v => Object.keys(v).findIndex(i => i === 'xy') > 0)) {
+    && cellValues[0].xy) {
     const cellCoordinates = cellValues.map(c => c.xy);
     const xExtent = extent(cellCoordinates, c => c[0]);
     const yExtent = extent(cellCoordinates, c => c[1]);
