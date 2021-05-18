@@ -1,5 +1,5 @@
 export const vs = `
-#define SHADER_NAME xr-layer-vertex-shader
+#define SHADER_NAME bitmask-layer-vertex-shader
 
 attribute vec2 texCoords;
 attribute vec3 positions;
@@ -21,7 +21,7 @@ void main(void) {
 `;
 
 export const fs = `
-#define SHADER_NAME xr-layer-fragment-shader
+#define SHADER_NAME bitmask-layer-fragment-shader
 precision highp float;
 
 // Data (mask) texture

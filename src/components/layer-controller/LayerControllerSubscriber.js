@@ -104,7 +104,7 @@ function LayerControllerSubscriber(props) {
 
   const shouldWaitForRaster = loaders[dataset].loaders.raster;
   // Only want to show vector cells controller if there is no bitmask
-  const canShowCells = shouldWaitForRaster ? (rasterLayers || [{ type: 'bitmask' }]).findIndex(l => l.type === 'bitmask') < 0 : true;
+  const canShowCellVecmask = shouldWaitForRaster ? (rasterLayers || [{ type: 'bitmask' }]).findIndex(l => l.type === 'bitmask') < 0 : true;
 
   return (
     <TitleInfo
@@ -125,7 +125,7 @@ function LayerControllerSubscriber(props) {
           />
         )}
         {cellsLayer
-          && canShowCells && (
+          && canShowCellVecmask && (
             <VectorLayerController
               key={`${dataset}-cells`}
               label="Cell Segmentations"

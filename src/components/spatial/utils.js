@@ -396,7 +396,7 @@ export function renderSubBitmaskLayers(props) {
     // highlightColor: [80, 80, 80, 50],
     // Shared props with BitmapLayer:
     bounds,
-    id: `bitmask-sub-layer-${bounds}-${id}`,
+    id: `sub-layer-${bounds}-${id}`,
     tileId: { x, y, z },
   });
 }

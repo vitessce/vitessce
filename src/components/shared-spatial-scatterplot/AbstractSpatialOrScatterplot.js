@@ -112,7 +112,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       const { tileSize } = layer.props.loader[0];
       const { z } = sourceLayer.props.tileId;
       // The zoomed out layer needs to use the fixed zoom at which it is rendered.
-      // See: https://github.com/visgl/deck.gl/blob/2b15bc459c6534ea38ce1153f254ce0901f51d6f/modules/geo-layers/src/tile-layer/utils.js#L130.
+      // See the following for why we have this calculation with 512:
+      // https://github.com/visgl/deck.gl/blob/2b15bc459c6534ea38ce1153f254ce0901f51d6f/modules/geo-layers/src/tile-layer/utils.js#L130.
       const layerZoomScale = Math.max(
         1,
         2 ** Math.round(-z + Math.log2(512 / tileSize)),

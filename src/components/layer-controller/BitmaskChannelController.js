@@ -5,7 +5,7 @@ import IconButton from '@material-ui/core/IconButton';
 
 import Grid from '@material-ui/core/Grid';
 
-import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './sharedComponents';
+import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls';
 
 /**
  * Controller for the handling the bitmask channels.

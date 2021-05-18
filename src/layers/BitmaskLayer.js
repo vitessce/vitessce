@@ -78,6 +78,7 @@ export default class BitmaskLayer extends XRLayer {
             channelIsOn: padWithDefault(
               channelIsOn,
               false,
+              // There are six texture entries on the shaders
               6 - channelIsOn.length,
             ),
             ...textures,

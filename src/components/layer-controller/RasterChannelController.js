@@ -9,7 +9,7 @@ import isEqual from 'lodash/isEqual';
 import ChannelOptions from './ChannelOptions';
 import { DOMAINS } from './constants';
 import { getSourceFromLoader } from '../../utils';
-import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './sharedComponents';
+import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls';
 
 // Returns an rgb string for display, and changes the color (arr)
 // to use a grey for light theme + white color or if the colormap is on.

@@ -79,7 +79,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.neighborhoodsLayer = null;
     this.imageLayers = [];
     this.layerLoaderSelections = {};
-    // Needed for the bitmask layer.
+    // Better for the bitmask layer when there is no color data to use this.
+    // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
       data: new Uint8Array(2048 * 2048 * 3).map(
         (_, j) => (j < 4 ? 0 : Math.round(255 * Math.random())),
@@ -305,6 +306,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     if (rawLayerDef.type === 'bitmask') {
       return new MultiscaleImageLayer({
+        // `bitmask` is used by the AbstractSpatialOrScatterplot
+        // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
         id: `bitmask-layer-${layerDef.index}-${i}`,
         channelIsOn: layerProps.visibilities,
         opacity: layerProps.opacity,
