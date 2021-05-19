@@ -362,7 +362,6 @@ const Heatmap = forwardRef((props, deckRef) => {
         },
       });
     }
-    console.log(tilesRef); // eslint-disable-line
     return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
     aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels,

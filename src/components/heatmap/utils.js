@@ -17,23 +17,25 @@ export function getGeneByCellTile(view, {
   let geneI;
   let sortedCellI;
 
-  const tileSizeRange = range(tileWidth);
+  const tileHeightRange = range(tileHeight);
+  const tileWidthRange = range(tileWidth);
 
-  tileSizeRange.forEach((j) => {
+  tileWidthRange.forEach((j) => {
     // Need to iterate over cells in the outer loop.
-    cellI = (tileJ * tileWidth) + j;
+    cellI = tileJ * tileWidth + j;
     if (cellI < numCells) {
       sortedCellI = cells.indexOf(cellOrdering[cellI]);
       if (sortedCellI >= -1) {
-        tileSizeRange.forEach((i) => {
-          geneI = (tileI * tileHeight) + i;
+        tileHeightRange.forEach((i) => {
+          geneI = tileI * tileHeight + i;
           value = view[sortedCellI * numGenes + geneI];
-          offset = ((tileHeight - i - 1) * tileHeight + j);
+          offset = (tileHeight - i - 1) * tileHeight + j;
           tileData[offset] = value;
         });
       }
     }
   });
+  console.log(tileData) // eslint-disable-line
   return tileData;
 }
 
@@ -47,16 +49,17 @@ export function getCellByGeneTile(view, {
   let geneI;
   let sortedCellI;
 
-  const tileSizeRange = range(tileWidth);
+  const tileHeightRange = range(tileHeight);
+  const tileWidthRange = range(tileWidth);
 
-  tileSizeRange.forEach((i) => {
+  tileHeightRange.forEach((i) => {
     // Need to iterate over cells in the outer loop.
-    cellI = tileI * tileWidth + i;
+    cellI = tileI * tileHeight + i;
     if (cellI < numCells) {
       sortedCellI = cells.indexOf(cellOrdering[cellI]);
       if (sortedCellI >= -1) {
-        tileSizeRange.forEach((j) => {
-          geneI = (tileJ * tileHeight) + j;
+        tileWidthRange.forEach((j) => {
+          geneI = (tileJ * tileWidth) + j;
           if (geneI < numGenes) {
             value = view[sortedCellI * numGenes + geneI];
           } else {
@@ -68,6 +71,7 @@ export function getCellByGeneTile(view, {
       }
     }
   });
+  console.log(cells, cellOrdering, tileWidth, tileHeight, tileI, tileJ, tileData, view); // eslint-disable-line
 
   return tileData;
 }
