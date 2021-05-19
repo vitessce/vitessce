@@ -301,6 +301,7 @@ export function getInitialSpatialTargets({
   height,
   cells,
   imageLayerLoaders,
+  useRaster,
 }) {
   let initialTargetX = -Infinity;
   let initialTargetY = -Infinity;
@@ -308,7 +309,7 @@ export function getInitialSpatialTargets({
   // Some backoff from completely filling the screen.
   const zoomBackoff = 0.1;
   const cellValues = Object.values(cells);
-  if (imageLayerLoaders.length > 0) {
+  if (imageLayerLoaders.length > 0 && useRaster) {
     for (let i = 0; i < imageLayerLoaders.length; i += 1) {
       const viewSize = { height, width };
       const { target, zoom: newViewStateZoom } = getDefaultInitialViewState(
@@ -330,7 +331,8 @@ export function getInitialSpatialTargets({
   } else if (cellValues.length > 0
     // Only use cellValues in quadtree calculation if there is
     // centroid data in the cells (i.e not just ids).
-    && cellValues[0].xy) {
+    && cellValues[0].xy
+    && !useRaster) {
     const cellCoordinates = cellValues.map(c => c.xy);
     const xExtent = extent(cellCoordinates, c => c[0]);
     const yExtent = extent(cellCoordinates, c => c[1]);

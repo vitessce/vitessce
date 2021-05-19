@@ -160,6 +160,7 @@ export default function SpatialSubscriber(props) {
         height,
         cells,
         imageLayerLoaders,
+        useRaster: Boolean(loaders[dataset].loaders.raster),
       });
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);
