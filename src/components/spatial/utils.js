@@ -338,20 +338,22 @@ export function getInitialSpatialTargets({
     let yExtent = extent(cellCoordinates, c => c[1]);
     let xRange = xExtent[1] - xExtent[0];
     let yRange = yExtent[1] - yExtent[0];
+    const getViewExtentFromPolygonExtents = extents => [
+      Math.min(...extents.map(i => i[0])),
+      Math.max(...extents.map(i => i[1])),
+    ];
     if (xRange === 0) {
-      // The fall back is the firt cell's polygon coordinates, if the original difference
-      // of the extent is 0 i.e the centroids are all on the same axis.
-      const polygonExtents = cellValues.map(cell => extent(cell.poly, i => i[0]));
-      xExtent = [Math.min(...polygonExtents.map(i => i[0])),
-        Math.max(...polygonExtents.map(i => i[1]))];
+      // The fall back is the cells' polygon coordinates, if the original range
+      // is 0 i.e the centroids are all on the same axis.
+      const polygonExtentsX = cellValues.map(cell => extent(cell.poly, i => i[0]));
+      xExtent = getViewExtentFromPolygonExtents(polygonExtentsX);
       xRange = xExtent[1] - xExtent[0];
     }
     if (yRange === 0) {
-      // The fall back is the firt cell's polygon coordinates, if the original difference
-      // of the extent is 0 i.e the centroids are all on the same axis.
-      const polygonExtents = cellValues.map(cell => extent(cell.poly, i => i[1]));
-      yExtent = [Math.min(...polygonExtents.map(i => i[0])),
-        Math.max(...polygonExtents.map(i => i[1]))];
+      // The fall back is the first cells' polygon coordinates, if the original range
+      // is 0 i.e the centroids are all on the same axis.
+      const polygonExtentsY = cellValues.map(cell => extent(cell.poly, i => i[1]));
+      yExtent = getViewExtentFromPolygonExtents(polygonExtentsY);
       yRange = yExtent[1] - yExtent[0];
     }
     initialTargetX = xExtent[0] + xRange / 2;
