@@ -301,6 +301,7 @@ export function getInitialSpatialTargets({
   height,
   cells,
   imageLayerLoaders,
+  useRaster,
 }) {
   let initialTargetX = -Infinity;
   let initialTargetY = -Infinity;
@@ -308,7 +309,7 @@ export function getInitialSpatialTargets({
   // Some backoff from completely filling the screen.
   const zoomBackoff = 0.1;
   const cellValues = Object.values(cells);
-  if (imageLayerLoaders.length > 0) {
+  if (imageLayerLoaders.length > 0 && useRaster) {
     for (let i = 0; i < imageLayerLoaders.length; i += 1) {
       const viewSize = { height, width };
       const { target, zoom: newViewStateZoom } = getDefaultInitialViewState(
@@ -330,12 +331,31 @@ export function getInitialSpatialTargets({
   } else if (cellValues.length > 0
     // Only use cellValues in quadtree calculation if there is
     // centroid data in the cells (i.e not just ids).
-    && cellValues[0].xy) {
+    && cellValues[0].xy
+    && !useRaster) {
     const cellCoordinates = cellValues.map(c => c.xy);
-    const xExtent = extent(cellCoordinates, c => c[0]);
-    const yExtent = extent(cellCoordinates, c => c[1]);
-    const xRange = xExtent[1] - xExtent[0];
-    const yRange = yExtent[1] - yExtent[0];
+    let xExtent = extent(cellCoordinates, c => c[0]);
+    let yExtent = extent(cellCoordinates, c => c[1]);
+    let xRange = xExtent[1] - xExtent[0];
+    let yRange = yExtent[1] - yExtent[0];
+    const getViewExtentFromPolygonExtents = extents => [
+      Math.min(...extents.map(i => i[0])),
+      Math.max(...extents.map(i => i[1])),
+    ];
+    if (xRange === 0) {
+      // The fall back is the cells' polygon coordinates, if the original range
+      // is 0 i.e the centroids are all on the same axis.
+      const polygonExtentsX = cellValues.map(cell => extent(cell.poly, i => i[0]));
+      xExtent = getViewExtentFromPolygonExtents(polygonExtentsX);
+      xRange = xExtent[1] - xExtent[0];
+    }
+    if (yRange === 0) {
+      // The fall back is the first cells' polygon coordinates, if the original range
+      // is 0 i.e the centroids are all on the same axis.
+      const polygonExtentsY = cellValues.map(cell => extent(cell.poly, i => i[1]));
+      yExtent = getViewExtentFromPolygonExtents(polygonExtentsY);
+      yRange = yExtent[1] - yExtent[0];
+    }
     initialTargetX = xExtent[0] + xRange / 2;
     initialTargetY = yExtent[0] + yRange / 2;
     initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
