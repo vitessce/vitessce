@@ -341,13 +341,17 @@ export function getInitialSpatialTargets({
     if (xRange === 0) {
       // The fall back is the firt cell's polygon coordinates, if the original difference
       // of the extent is 0 i.e the centroids are all on the same axis.
-      xExtent = extent(cellValues[0].poly, i => i[0]);
+      const polygonExtents = cellValues.map(cell => extent(cell.poly, i => i[0]));
+      xExtent = [Math.min(...polygonExtents.map(i => i[0])),
+        Math.max(...polygonExtents.map(i => i[1]))];
       xRange = xExtent[1] - xExtent[0];
     }
     if (yRange === 0) {
       // The fall back is the firt cell's polygon coordinates, if the original difference
       // of the extent is 0 i.e the centroids are all on the same axis.
-      yExtent = extent(cellValues[0].poly, i => i[1]);
+      const polygonExtents = cellValues.map(cell => extent(cell.poly, i => i[1]));
+      yExtent = [Math.min(...polygonExtents.map(i => i[0])),
+        Math.max(...polygonExtents.map(i => i[1]))];
       yRange = yExtent[1] - yExtent[0];
     }
     initialTargetX = xExtent[0] + xRange / 2;
