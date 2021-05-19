@@ -334,10 +334,22 @@ export function getInitialSpatialTargets({
     && cellValues[0].xy
     && !useRaster) {
     const cellCoordinates = cellValues.map(c => c.xy);
-    const xExtent = extent(cellCoordinates, c => c[0]);
-    const yExtent = extent(cellCoordinates, c => c[1]);
-    const xRange = xExtent[1] - xExtent[0];
-    const yRange = yExtent[1] - yExtent[0];
+    let xExtent = extent(cellCoordinates, c => c[0]);
+    let yExtent = extent(cellCoordinates, c => c[1]);
+    let xRange = xExtent[1] - xExtent[0];
+    let yRange = yExtent[1] - yExtent[0];
+    if (xRange === 0) {
+      // The fall back is the firt cell's polygon coordinates, if the original difference
+      // of the extent is 0 i.e the centroids are all on the same axis.
+      xExtent = extent(cellValues[0].poly, i => i[0]);
+      xRange = xExtent[1] - xExtent[0];
+    }
+    if (yRange === 0) {
+      // The fall back is the firt cell's polygon coordinates, if the original difference
+      // of the extent is 0 i.e the centroids are all on the same axis.
+      yExtent = extent(cellValues[0].poly, i => i[1]);
+      yRange = yExtent[1] - yExtent[0];
+    }
     initialTargetX = xExtent[0] + xRange / 2;
     initialTargetY = yExtent[0] + yRange / 2;
     initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
