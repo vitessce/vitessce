@@ -6,6 +6,7 @@
 ### Changed
 - Use GH Action for Cypress specifically due to random failures on OME-TIFF example.
 - Use raster loader for initial view state when present instead of cells.
+- Fix condition for showing lasso with bitmask and/or centroids.
 
 ## [1.1.9](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-07
 

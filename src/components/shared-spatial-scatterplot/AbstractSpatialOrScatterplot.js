@@ -178,8 +178,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const { gl, tool } = this.state;
     const layers = this.getLayers();
 
-    const showCellSelectionTools = this.cellsLayer !== null || layerProps.findIndex(l => l.type === 'cells') > 0;
-    const showPanTool = this.cellsLayer !== null || layerProps.findIndex(l => l.type === 'bitmask') > 0;
+    const showCellSelectionTools = this.cellsLayer !== null
+      || (this.cellsEntries.length && this.cellsEntries[0][1].xy);
+    const showPanTool = this.cellsLayer !== null || layerProps.findIndex(l => l.type === 'bitmask' || l.type === 'raster') >= 0;
     // For large datasets, the visual quality takes only a small
     // hit in exchange for much better performance by setting this to false:
     // https://deck.gl/docs/api-reference/core/deck#usedevicepixels
