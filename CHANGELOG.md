@@ -1,5 +1,6 @@
 
 ### Added
+- Add loader for `GeoJSON` polygons/points as cells.  QuPath outputs GeoJSON for annotations.
 
 ### Changed
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details. 
