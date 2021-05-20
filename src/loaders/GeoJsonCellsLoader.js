@@ -6,7 +6,7 @@ import JsonLoader from './JsonLoader';
 import LoaderResult from './LoaderResult';
 import { LoaderValidationError } from './errors/index';
 
-export default class QuPathCellsJsonLoader extends JsonLoader {
+export default class GeoJsonCellsLoader extends JsonLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
     this.schema = cells;
