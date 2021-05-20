@@ -25,21 +25,29 @@ export default class JsonLoader extends AbstractLoader {
     this.schema = typeToSchema[type];
   }
 
-  load() {
+  loadJson() {
     const {
       url, requestInit, type, fileType,
     } = this;
-    if (this.data) {
-      return this.data;
-    }
-    this.data = fetch(url, requestInit)
+    return fetch(url, requestInit)
       .then((response) => {
         if (response.ok) {
           return response.json();
         }
-        return Promise.reject(new LoaderFetchError(type, fileType, url, response.headers));
-      })
-      .catch(reason => Promise.resolve(reason))
+        return Promise.reject(
+          new LoaderFetchError(type, fileType, url, response.headers),
+        );
+      });
+  }
+
+  load() {
+    const {
+      url, type, fileType,
+    } = this;
+    if (this.data) {
+      return this.data;
+    }
+    this.data = this.loadJson()
       .then((data) => {
         if (data instanceof AbstractLoaderError) {
           return Promise.reject(data);
