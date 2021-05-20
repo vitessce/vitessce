@@ -14,6 +14,7 @@
 - Use raster loader for initial view state when present instead of cells.
 - Fix bug where adding/removing layers only adds a `bitmask` controller.
 - Fix bug where polygons or centroids would show under the `bitmask`.
+- `bitmask` color texture creation assumed that `cellColors` prop was only rgb, but it can be rgba.
 
 ## [1.1.9](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-07
 
