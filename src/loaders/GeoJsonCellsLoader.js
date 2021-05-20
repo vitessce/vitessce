@@ -5,7 +5,7 @@ import cells from '../schemas/cells.schema.json';
 import JsonLoader from './JsonLoader';
 import { LoaderFetchError, LoaderValidationError } from './errors/index';
 
-export default class GeoJsonJsonLoader extends JsonLoader {
+export default class GeoJsonCellsLoader extends JsonLoader {
   constructor(params) {
     super(params);
     this.schema = cells;
