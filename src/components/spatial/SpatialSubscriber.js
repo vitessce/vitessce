@@ -142,7 +142,9 @@ export default function SpatialSubscriber(props) {
   );
 
   const layers = useMemo(() => {
-    // Only want to pass in cells once if there is not `bitmask`.
+    // Only want to pass in cells layer once if there is not `bitmask`.
+    // We pass in the cells data regardless because it is needed for selection,
+    // but the rendering layer itself is not needed.
     const canPassInCellsLayer = !imageLayerMeta.some(l => l?.metadata?.isBitmask);
     return [
       ...(moleculesLayer ? [{ ...moleculesLayer, type: 'molecules' }] : []),
