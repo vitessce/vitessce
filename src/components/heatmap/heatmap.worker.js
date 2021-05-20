@@ -37,7 +37,8 @@ function getTiles({
   const numCells = cellOrdering.length;
 
   const getTileFunction = (transpose ? getGeneByCellTile : getCellByGeneTile);
-
+  
+  // TODO(heatmap): use smaller tile size for partial/edge tiles
   const result = range(yTiles).map(i => range(xTiles).map(j => getTileFunction(
     view,
     {

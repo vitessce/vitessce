@@ -216,6 +216,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const xTiles = Math.ceil(width / TILE_SIZE);
   const yTiles = Math.ceil(height / TILE_SIZE);
 
+  // TODO(heatmap): replace with logic to handle partial/edge tiles
   const widthRatio = 1 - (TILE_SIZE - (width % TILE_SIZE)) / (xTiles * TILE_SIZE);
   const heightRatio = 1 - (TILE_SIZE - (height % TILE_SIZE)) / (yTiles * TILE_SIZE);
 
@@ -340,6 +341,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
         image: tile,
         bounds: [
+          // TODO(heatmap): add logic to handle partial/edge tiles
           matrixLeft + j * tileWidth,
           matrixTop + i * tileHeight,
           matrixLeft + (j + 1) * tileWidth,
@@ -392,7 +394,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   ];
 
   // Create the left color bar with a BitmapLayer.
-  // TODO: find a way to do aggregation for this as well.
+  // TODO(heatmap): find a way to do aggregation for this as well.
   const cellColorsTiles = useMemo(() => {
     if (!cellColors) {
       return null;

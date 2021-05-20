@@ -137,6 +137,7 @@ export function mouseToHeatmapPosition(mouseX, mouseY, {
   }
 
   // Determine the rowI and colI values based on the current viewState.
+  // TODO(heatmap): update this logic to account for partial/edge tiles
   const bboxTargetX = targetX * scaleFactor + matrixWidth * scaleFactor / 2;
   const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
 

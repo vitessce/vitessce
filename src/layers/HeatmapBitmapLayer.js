@@ -114,6 +114,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
           format: GL.LUMINANCE,
           dataFormat: GL.LUMINANCE,
           type: GL.UNSIGNED_BYTE,
+          // TODO(heatmap): does this need to have logic to handle the edge tiles?
           width: TILE_SIZE,
           height: TILE_SIZE,
         }),
