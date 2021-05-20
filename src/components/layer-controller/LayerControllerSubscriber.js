@@ -85,6 +85,7 @@ function LayerControllerSubscriber(props) {
       modelMatrix: imageLayerMeta[index]?.metadata?.transform?.matrix,
       ...DEFAULT_RASTER_LAYER_PROPS,
       channels: newChannels,
+      type: imageLayerMeta[index]?.metadata?.isBitmask ? 'bitmask' : 'raster',
     };
     const newLayers = [...rasterLayers, newLayer];
     setRasterLayers(newLayers);
