@@ -43,7 +43,6 @@ export default class GeoJsonJsonLoader extends JsonLoader {
             };
           }
         });
-        console.log(cellsJson); // eslint-disable-line
         return cellsJson;
       }
       return Promise.reject(
