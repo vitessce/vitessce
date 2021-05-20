@@ -12,9 +12,14 @@ export default class QuPathCellsJsonLoader extends JsonLoader {
     this.schema = cells;
   }
 
+  rejectGeoJson(reason) {
+    const { url, type, fileType } = this;
+    return Promise.reject(new LoaderValidationError(type, fileType, url, reason));
+  }
+
   load() {
     const {
-      url, type, fileType,
+      url,
     } = this;
     if (this.data) {
       return this.data;
@@ -24,8 +29,7 @@ export default class QuPathCellsJsonLoader extends JsonLoader {
         const cellsJson = {};
         if (!(geoJson.every(cell => cell.geometry.type === 'Polygon')
           || geoJson.every(cell => cell.geometry.type === 'Point'))) {
-          const reason = 'Vitessce only accepts GeoJSON that is excusively Points (i.e centroids) or Polygons';
-          return Promise.reject(new LoaderValidationError(type, fileType, url, reason));
+          this.rejectGeoJson('Vitessce only accepts GeoJSON that is excusively Points (i.e centroids) or Polygons');
         }
         geoJson.forEach((cell, index) => {
           if (cell.geometry.type === 'Polygon') {
