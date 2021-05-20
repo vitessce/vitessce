@@ -394,7 +394,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   ];
 
   // Create the left color bar with a BitmapLayer.
-  // TODO(heatmap): find a way to do aggregation for this as well.
+  // TODO: find a way to do aggregation for this as well.
   const cellColorsTiles = useMemo(() => {
     if (!cellColors) {
       return null;
