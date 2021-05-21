@@ -383,16 +383,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdateCellsLayer() {
     const { layers } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'cells');
-    const hasBitmaskLayers = (layers || []).find(
-      layer => layer.type === 'bitmask',
-    );
-    if (layerDef
-      && this.cellsEntries.length
-      // Only use cellsEntries in quadtree calculation if there is
-      // centroid data in the cells (i.e not just ids).
-      // eslint-disable-next-line no-unused-vars
-      && this.cellsEntries[0][1].xy
-      && !hasBitmaskLayers) {
+    if (layerDef) {
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {
       this.cellsLayer = null;
@@ -414,7 +405,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         if (id > 0) {
           const cellColor = this.props.cellColors.get(id);
           if (cellColor) {
-            color.data.set(cellColor, Number(id) * 3);
+            color.data.set(cellColor.slice(0, 3), Number(id) * 3);
           }
         }
       }
