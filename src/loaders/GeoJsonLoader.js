@@ -6,7 +6,7 @@ import JsonLoader from './JsonLoader';
 import LoaderResult from './LoaderResult';
 import { LoaderValidationError } from './errors/index';
 
-export default class GeoJsonCellsLoader extends JsonLoader {
+export default class GeoJsonLoader extends JsonLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
     this.schema = cells;
@@ -36,6 +36,9 @@ export default class GeoJsonCellsLoader extends JsonLoader {
             const points = turfFeatureCollection(
               cell.geometry.coordinates[0].map(turfPoint),
             );
+            if (cell.geometry.coordinates.length > 1) {
+              console.warn('Vitessce only accepts polygons with no holes.  Only the first ring will be used');
+            }
             cellsJson[String(index)] = {
               poly: cell.geometry.coordinates[0],
               xy: centroid(points).geometry.coordinates,
