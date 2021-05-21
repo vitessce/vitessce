@@ -38,22 +38,22 @@ export default function ToolMenu(props) {
       ><PointerIconSVG />
       </IconButton>
       )}
-      {visibleTools.selectRectangle && (
-      <IconButton
-        alt="select rectangle"
-        onClick={() => setActiveTool(SELECTION_TYPE.RECTANGLE)}
-        isActive={activeTool === SELECTION_TYPE.RECTANGLE}
-      ><SelectRectangleIconSVG />
-      </IconButton>
-      )}
-      {visibleTools.selectLasso && (
-      <IconButton
-        alt="select lasso"
-        onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
-        isActive={activeTool === SELECTION_TYPE.POLYGON}
-      ><SelectLassoIconSVG />
-      </IconButton>
-      )}
+      {visibleTools.selectRectangle ? (
+        <IconButton
+          alt="select rectangle"
+          onClick={() => setActiveTool(SELECTION_TYPE.RECTANGLE)}
+          isActive={activeTool === SELECTION_TYPE.RECTANGLE}
+        ><SelectRectangleIconSVG />
+        </IconButton>
+      ) : null}
+      {visibleTools.selectLasso ? (
+        <IconButton
+          alt="select lasso"
+          onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
+          isActive={activeTool === SELECTION_TYPE.POLYGON}
+        ><SelectLassoIconSVG />
+        </IconButton>
+      ) : null}
     </div>
   );
 }
