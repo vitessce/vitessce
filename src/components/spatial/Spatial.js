@@ -414,7 +414,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         if (id > 0) {
           const cellColor = this.props.cellColors.get(id);
           if (cellColor) {
-            color.data.set(cellColor, Number(id) * 3);
+            color.data.set(cellColor.slice(0, 3), Number(id) * 3);
           }
         }
       }
