@@ -6,6 +6,7 @@
 ### Changed
 - Use GH Action for Cypress specifically due to random failures on OME-TIFF example.
 - Use raster loader for initial view state when present instead of cells.
+- Fix condition for showing lasso with bitmask and/or centroids.
 - Fix 0's displaying when selection is not enabled for `Spatial`.
 - Fix bug where polygons or centroids would show under the `bitmask`.
 - `bitmask` color texture creation assumed that `cellColors` prop was only rgb, but it can be rgba.
