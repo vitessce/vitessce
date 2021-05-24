@@ -49,7 +49,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
     if (this.geneNames) {
       return this.geneNames;
     }
-    this.geneNames = this.getFlatTextArr(`var/${_index}`).then(data => data.filter((_, j) => !geneFilter || geneFilter[j]));
+    this.geneNames = this.getFlatArrDecompressed(`var/${_index}`).then(data => data.filter((_, j) => !geneFilter || geneFilter[j]));
     return this.geneNames;
   }
 
