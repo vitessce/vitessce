@@ -26,7 +26,7 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
     let data = 0;
     const dataEnd = data + buffer.length;
     const length = readFloat32FromUint8(buffer.slice(data, HEADER_LENGTH));
-    if (length < HEADER_LENGTH) {
+    if (buffer.length < HEADER_LENGTH) {
       throw new Error('corrupt buffer, missing or truncated header');
     }
     data += HEADER_LENGTH;
