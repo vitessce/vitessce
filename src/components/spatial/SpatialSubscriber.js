@@ -135,23 +135,24 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, false,
   );
   // eslint-disable-next-line no-unused-vars
-  const [raster, imageLayerLoaders] = useRasterData(
+  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialRasterLayers: setRasterLayers },
     { spatialRasterLayers: rasterLayers },
   );
 
   const layers = useMemo(() => {
-    const shouldWaitForRaster = loaders[dataset].loaders.raster;
-    // Only want to show cells once the dataset has loaded because centroids are often not visible.
-    const canPassInCellsLayer = shouldWaitForRaster ? rasterLayers : true;
+    // Only want to pass in cells layer once if there is not `bitmask`.
+    // We pass in the cells data regardless because it is needed for selection,
+    // but the rendering layer itself is not needed.
+    const canPassInCellsLayer = !imageLayerMeta.some(l => l?.metadata?.isBitmask);
     return [
       ...(moleculesLayer ? [{ ...moleculesLayer, type: 'molecules' }] : []),
       ...((cellsLayer && canPassInCellsLayer) ? [{ ...cellsLayer, type: 'cells' }] : []),
       ...(neighborhoodsLayer ? [{ ...neighborhoodsLayer, type: 'neighborhoods' }] : []),
       ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: l.type || 'raster' })) : []),
     ];
-  }, [cellsLayer, dataset, loaders, moleculesLayer, neighborhoodsLayer, rasterLayers]);
+  }, [cellsLayer, moleculesLayer, neighborhoodsLayer, rasterLayers, imageLayerMeta]);
 
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
