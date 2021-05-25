@@ -277,7 +277,12 @@ const Heatmap = forwardRef((props, deckRef) => {
     // to help identify where in the list it is located
     // after the worker thread asynchronously sends the data back
     // to this thread.
-    setBacklog(prev => ([...prev, uuidv4()]));
+    // eslint-disable-next-line no-unused-expressions
+    axisTopLabels
+    && axisLeftLabels
+    && xTiles
+    && yTiles
+    && setBacklog(prev => ([...prev, uuidv4()]));
   }, [dataRef, expression, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
 
   // When the backlog has updated, a new worker job can be submitted if:
@@ -302,7 +307,6 @@ const Heatmap = forwardRef((props, deckRef) => {
         transpose,
         data: matrix.buffer.slice(),
       })));
-      console.log(promises); // eslint-disable-line
       const decode = async () => {
         const tiles = await Promise.all(promises.flat());
         tilesRef.current = tiles.map(i => i.tile);
@@ -313,7 +317,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       decode();
     }
   }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose, xTiles, yTiles, workerPool]);
-  console.log(tilesRef) // eslint-disable-line
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
@@ -325,11 +328,9 @@ const Heatmap = forwardRef((props, deckRef) => {
   // - the `aggSizeX` or `aggSizeY` have changed, or
   // - the cell ordering has changed.
   const heatmapLayers = useMemo(() => {
-    console.log(!tilesRef.current || backlog.length, backlog, tilesRef); // eslint-disable-line
     if (!tilesRef.current || backlog.length) {
       return [];
     }
-    console.log('here', tilesRef.current.flatMap()) // eslint-disable-line
     function getLayer(i, j, tile) {
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
@@ -351,11 +352,10 @@ const Heatmap = forwardRef((props, deckRef) => {
       });
     }
     const layers = tilesRef
-      .current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
-    console.log(layers) // eslint-disable-line
+      .current.map((tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile));
     return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
-    aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels]);
+    aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels, xTiles]);
 
 
   // Map cell and gene names to arrays with indices,

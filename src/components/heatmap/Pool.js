@@ -42,7 +42,6 @@ export default class Pool {
       currentWorker.onmessage = (event) => {
         // this.workers.push(currentWorker);
         this.finishTask(currentWorker);
-        console.log(event) // eslint-disable-line
         resolve(event.data);
       };
       currentWorker.onerror = (error) => {
@@ -50,7 +49,6 @@ export default class Pool {
         this.finishTask(currentWorker);
         reject(error);
       };
-      console.log(args) // eslint-disable-line
       currentWorker.postMessage(['getTile', args], [args.data]);
     });
   }
