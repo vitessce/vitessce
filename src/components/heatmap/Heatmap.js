@@ -307,7 +307,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         transpose,
         data: matrix.buffer.slice(),
       })));
-      const decode = async () => {
+      const process = async () => {
         const tiles = await Promise.all(promises.flat());
         tilesRef.current = tiles.map(i => i.tile);
         incTileIteration();
@@ -318,7 +318,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           return prev.slice(currIndex + 1, prev.length);
         });
       };
-      decode();
+      process();
     }
   }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose, xTiles, yTiles, workerPool]);
 
