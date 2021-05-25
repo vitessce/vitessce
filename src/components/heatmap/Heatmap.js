@@ -295,7 +295,6 @@ const Heatmap = forwardRef((props, deckRef) => {
     const curr = backlog[backlog.length - 1];
     if (dataRef.current && dataRef.current.buffer.byteLength) {
       const { rows, cols, matrix } = expression;
-      // eslint-disable-next-line no-return-assign
       const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
         curr,
         tileI: i,

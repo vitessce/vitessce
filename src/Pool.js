@@ -11,7 +11,7 @@ const defaultPoolSize = typeof navigator !== 'undefined' ? navigator.hardwareCon
 export default class Pool {
   /**
    * @constructor
-   * @param {object} Worker The worker class to be used for processing;
+   * @param {object} Worker The worker class to be used for processing.
    */
   constructor(Worker) {
     this.workers = [];
