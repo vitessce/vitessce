@@ -6,12 +6,7 @@ import Pool from '../../Pool';
  * This is a line-for-line copy of GeoTIFFs old implementation: https://github.com/geotiffjs/geotiff.js/blob/v1.0.0-beta.6/src/pool.js
  */
 export default class HeatmapPool extends Pool {
-  /**
-   * @constructor
-   * @param {Number} size The size of the pool. Defaults to the number of CPUs
-   *                      available. When this parameter is `null` or 0, then the
-   *                      decoding will be done in the main thread.
-   */
+
   constructor() {
     super(Worker);
   }
