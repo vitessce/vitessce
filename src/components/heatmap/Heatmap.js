@@ -30,7 +30,7 @@ import {
   COLOR_BAR_SIZE,
   AXIS_MARGIN,
 } from '../../layers/heatmap-constants';
-import Pool from './Pool';
+import HeatmapWorkerPool from './HeatmapWorkerPool';
 /**
  * A heatmap component for cell x gene matrices.
  * @param {object} props
@@ -92,7 +92,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const axisLeftTitle = (transpose ? variablesTitle : observationsTitle);
   const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
 
-  const workerPool = useMemo(() => new Pool(), []);
+  const workerPool = useMemo(() => new HeatmapWorkerPool(), []);
 
   useEffect(() => {
     if (clearPleaseWait && expression) {
@@ -296,7 +296,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (dataRef.current && dataRef.current.buffer.byteLength) {
       const { rows, cols, matrix } = expression;
       // eslint-disable-next-line no-return-assign
-      const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.decode({
+      const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
         curr,
         tileI: i,
         tileJ: j,
