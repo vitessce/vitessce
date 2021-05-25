@@ -27,6 +27,11 @@ export default class Pool {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  async process() {
+    throw new Error('Pool needs to implement "process" method');
+  }
+
   async waitForWorker() {
     const idleWorker = this.idleWorkers.pop();
     if (idleWorker) {
