@@ -2,6 +2,7 @@
 
 ### Added
 - Add support for bitmasks to `Spatial` component and raster schema.
+- Worker pool for processing heatmap tiles.
 
 ### Changed
 - Use GH Action for Cypress specifically due to random failures on OME-TIFF example.
