@@ -1,5 +1,4 @@
 /* eslint-disable no-restricted-globals */
-import range from 'lodash/range';
 import { getCellByGeneTile, getGeneByCellTile } from './utils';
 
 /**
@@ -20,10 +19,10 @@ import { getCellByGeneTile, getGeneByCellTile } from './utils';
  * @param {boolean} params.transpose Is the heatmap transposed?
  * @returns {array} [message, transfers]
  */
-function getTiles({
+function getTile({
   curr,
-  xTiles,
-  yTiles,
+  tileI,
+  tileJ,
   tileSize,
   cellOrdering,
   rows,
@@ -38,19 +37,19 @@ function getTiles({
 
   const getTileFunction = (transpose ? getGeneByCellTile : getCellByGeneTile);
 
-  const result = range(yTiles).map(i => range(xTiles).map(j => getTileFunction(
+  const result = getTileFunction(
     view,
     {
       tileSize,
-      tileI: i,
-      tileJ: j,
+      tileI,
+      tileJ,
       numCells,
       numGenes,
       cellOrdering,
       cells: rows,
     },
-  )));
-  return [{ tiles: result, buffer: data, curr }, [data]];
+  );
+  return [{ tile: result, buffer: data, curr }, [data]];
 }
 
 /**
@@ -58,7 +57,7 @@ function getTiles({
  */
 if (typeof self !== 'undefined') {
   const nameToFunction = {
-    getTiles,
+    getTile,
   };
 
   self.addEventListener('message', (event) => {
