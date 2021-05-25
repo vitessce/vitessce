@@ -277,12 +277,11 @@ const Heatmap = forwardRef((props, deckRef) => {
     // to help identify where in the list it is located
     // after the worker thread asynchronously sends the data back
     // to this thread.
-    // eslint-disable-next-line no-unused-expressions
-    axisTopLabels
-    && axisLeftLabels
-    && xTiles
-    && yTiles
-    && setBacklog(prev => ([...prev, uuidv4()]));
+    if (
+      axisTopLabels && axisLeftLabels && xTiles && yTiles
+    ) {
+      setBacklog(prev => [...prev, uuidv4()]);
+    }
   }, [dataRef, expression, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
 
   // When the backlog has updated, a new worker job can be submitted if:
