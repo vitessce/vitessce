@@ -19,7 +19,6 @@ import {
   createDefaultUpdateViewInfo,
   copyUint8Array,
 } from '../utils';
-import HeatmapWorker from './heatmap.worker';
 import {
   layerFilter,
   getAxisSizes,
@@ -31,7 +30,7 @@ import {
   COLOR_BAR_SIZE,
   AXIS_MARGIN,
 } from '../../layers/heatmap-constants';
-
+import Pool from './Pool';
 /**
  * A heatmap component for cell x gene matrices.
  * @param {object} props
@@ -93,13 +92,14 @@ const Heatmap = forwardRef((props, deckRef) => {
   const axisLeftTitle = (transpose ? variablesTitle : observationsTitle);
   const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
 
+  const workerPool = useMemo(() => new Pool(), []);
+
   useEffect(() => {
     if (clearPleaseWait && expression) {
       clearPleaseWait('expression-matrix');
     }
   }, [clearPleaseWait, expression]);
 
-  const workerRef = useRef(new HeatmapWorker());
   const tilesRef = useRef();
   const dataRef = useRef();
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
@@ -122,24 +122,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   // We need to keep a backlog of the tasks for the worker thread,
   // since the array buffer can only be held by one thread at a time.
   const [backlog, setBacklog] = useState([]);
-
-  // Use an effect to listen for the worker to send the array of tiles.
-  useEffect(() => {
-    workerRef.current.addEventListener('message', (event) => {
-      // The tiles have been generated.
-      tilesRef.current = event.data.tiles;
-      // The buffer has been transferred back to the main thread.
-      dataRef.current = new Uint8Array(event.data.buffer);
-      // Increment the counter to notify the downstream useEffects and useMemos.
-      incTileIteration();
-      // Remove this task and everything prior from the backlog.
-      const { curr } = event.data;
-      setBacklog((prev) => {
-        const currIndex = prev.indexOf(curr);
-        return prev.slice(currIndex + 1, prev.length);
-      });
-    });
-  }, [workerRef, tilesRef]);
 
   // Store a reference to the matrix Uint8Array in the dataRef,
   // since we need to access its array buffer to transfer
@@ -307,20 +289,31 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
     const curr = backlog[backlog.length - 1];
     if (dataRef.current && dataRef.current.buffer.byteLength) {
-      const { rows, cols } = expression;
-      workerRef.current.postMessage(['getTiles', {
+      const { rows, cols, matrix } = expression;
+      // eslint-disable-next-line no-return-assign
+      const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.decode({
         curr,
-        xTiles,
-        yTiles,
+        tileI: i,
+        tileJ: j,
         tileSize: TILE_SIZE,
-        cellOrdering: (transpose ? axisTopLabels : axisLeftLabels),
+        cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
         rows,
         cols,
         transpose,
-        data: dataRef.current.buffer,
-      }], [dataRef.current.buffer]);
+        data: matrix.buffer.slice(),
+      })));
+      console.log(promises); // eslint-disable-line
+      const decode = async () => {
+        const tiles = await Promise.all(promises.flat());
+        tilesRef.current = tiles.map(i => i.tile);
+        incTileIteration();
+        dataRef.current = new Uint8Array(tiles[0].buffer);
+        setBacklog([]);
+      };
+      decode();
     }
-  }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose, xTiles, yTiles]);
+  }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose, xTiles, yTiles, workerPool]);
+  console.log(tilesRef) // eslint-disable-line
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
@@ -332,9 +325,11 @@ const Heatmap = forwardRef((props, deckRef) => {
   // - the `aggSizeX` or `aggSizeY` have changed, or
   // - the cell ordering has changed.
   const heatmapLayers = useMemo(() => {
+    console.log(!tilesRef.current || backlog.length, backlog, tilesRef); // eslint-disable-line
     if (!tilesRef.current || backlog.length) {
       return [];
     }
+    console.log('here', tilesRef.current.flatMap()) // eslint-disable-line
     function getLayer(i, j, tile) {
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
@@ -355,7 +350,10 @@ const Heatmap = forwardRef((props, deckRef) => {
         },
       });
     }
-    return tilesRef.current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
+    const layers = tilesRef
+      .current.flatMap((tileRow, i) => tileRow.map((tile, j) => getLayer(i, j, tile)));
+    console.log(layers) // eslint-disable-line
+    return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
     aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels]);
 
