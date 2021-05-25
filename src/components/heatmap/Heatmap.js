@@ -312,7 +312,11 @@ const Heatmap = forwardRef((props, deckRef) => {
         tilesRef.current = tiles.map(i => i.tile);
         incTileIteration();
         dataRef.current = new Uint8Array(tiles[0].buffer);
-        setBacklog([]);
+        const { curr: currWork } = tiles[0];
+        setBacklog((prev) => {
+          const currIndex = prev.indexOf(currWork);
+          return prev.slice(currIndex + 1, prev.length);
+        });
       };
       decode();
     }
