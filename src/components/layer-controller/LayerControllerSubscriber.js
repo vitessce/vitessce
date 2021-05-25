@@ -103,10 +103,11 @@ function LayerControllerSubscriber(props) {
     setRasterLayers(newLayers);
   }
 
-  const hasBitmask = (imageLayerMeta.length ? imageLayerMeta : [{ metadata: { isBitmask: true } }])
-    .every(l => !l?.metadata?.isBitmask);
+  const hasNoBitmask = (
+    imageLayerMeta.length ? imageLayerMeta : [{ metadata: { isBitmask: true } }]
+  ).every(l => !l?.metadata?.isBitmask);
   // Only want to show vector cells controller if there is no bitmask
-  const canShowCellVecmask = hasBitmask;
+  const canShowCellVecmask = hasNoBitmask;
 
   return (
     <TitleInfo
