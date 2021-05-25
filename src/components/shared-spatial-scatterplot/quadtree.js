@@ -14,7 +14,7 @@ export function createCellsQuadTree(cellsEntries, getCellCoords) {
   // Only use cellsEntries in quadtree calculation if there is
   // centroid data in the cells (i.e not just ids).
   // eslint-disable-next-line no-unused-vars
-  if (!cellsEntries || !cellsEntries.length || !cellsEntries[0][1].xy) {
+  if (!cellsEntries || !cellsEntries.length || !getCellCoords(cellsEntries[0][1])) {
     // Abort if the cells data is not yet available.
     return null;
   }
