@@ -1,5 +1,4 @@
 /* eslint-disable no-restricted-globals */
-import range from 'lodash/range';
 import { getCellByGeneTile, getGeneByCellTile } from './utils';
 
 /**
