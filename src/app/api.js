@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
@@ -74,6 +75,137 @@ const vanderbiltBase = {
 // can affect the z-index of plot tooltips due to the
 // resulting ordering of elements in the DOM.
 export const configs = {
+  'nanosaber-mcmicro': {
+    name: 'NANOSABER MCMICRO',
+    version: '1.0.0',
+    description: "",
+    public: true,
+    datasets: [
+      {
+        uid: 'lung_2_1',
+        name: 'Lung 2.1',
+        description: "Lung 2.1",
+        files: [
+          {
+            "type": "raster",
+            "fileType": "raster.json",
+            "options": {
+              "schemaVersion": "0.0.2",
+              "usePhysicalSizeScaling": false,
+              "images": [
+                {
+                  "name": "Mask",
+                  "type": "ome-tiff",
+                  "url": "http://127.0.0.1:8081/segmentation/unmicst-lung_2_1/cellMask.ome.tiff",
+                  "metadata": {
+                    "isBitmask": true,
+                    "transform": {
+                      "matrix": [
+                        1.0234, 0, 0, 0,
+                        0, 1.0234, 0, 0,
+                        0, 0, 1, 0,
+                        0, 0, 0, 1
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "Image",
+                  "type": "ome-tiff",
+                  "url": "http://127.0.0.1:8081/registration/lung_2_1.ome.tiff",
+                  "metadata": {
+                    "isBitmask": false
+                  }
+                }
+              ],
+              "renderLayers": [
+                "Image",
+                "Mask"
+              ]
+            }
+          },
+          /*{
+            "type": "cell-sets",
+            "fileType": "anndata-cell-sets.zarr",
+            "url": "http://127.0.0.1:8081/anndata-zarr/reg1_stitched_expressions-anndata.zarr",
+            "options": [
+              {
+                "groupName": "K-Means [Mean] Expression",
+                "setName": "obs/K-Means [Mean] Expression"
+              },
+              {
+                "groupName": "K-Means [Texture]",
+                "setName": "obs/K-Means [Texture]"
+              }
+            ]
+          },
+          {
+            "type": "cells",
+            "fileType": "anndata-cells.zarr",
+            "url": "http://127.0.0.1:8081/anndata-zarr/reg1_stitched_expressions-anndata.zarr",
+            "options": {
+              "xy": "obsm/xy",
+              "poly": "obsm/poly",
+              "factors": [
+                "obs/K-Means [Mean] Expression"
+              ]
+            }
+          },
+          {
+            "type": "expression-matrix",
+            "fileType": "anndata-expression-matrix.zarr",
+            "url": "http://127.0.0.1:8081/anndata-zarr/reg1_stitched_expressions-anndata.zarr",
+            "options": {
+              "matrix": "X"
+            }
+          }*/
+        ],
+      },
+    ],
+    initStrategy: 'auto',
+    coordinationSpace: {
+      
+    },
+    layout: [
+      { component: 'description',
+        x: 0, y: 0, w: 2, h: 3 },
+      { component: 'layerController',
+        x: 10, y: 0, w: 2, h: 4,
+      },
+      { component: 'status',
+        x: 0, y: 3, w: 2, h: 1 },
+      { component: 'spatial',
+        coordinationScopes: {
+          
+        },
+        x: 2, y: 0, w: 8, h: 4 },
+      /*{ component: 'genes',
+        x: 9, y: 0, w: 3, h: 2 },
+      { component: 'cellSets',
+        x: 9, y: 3, w: 3, h: 2 },
+      { component: 'heatmap',
+        props: {
+          transpose: true,
+        },
+        x: 2, y: 4, w: 5, h: 2 },
+      { component: 'cellSetExpression',
+        x: 7, y: 4, w: 3, h: 2 },
+      { component: 'expressionHistogram',
+        x: 10, y: 4, w: 2, h: 2 },
+      { component: 'scatterplot',
+        coordinationScopes: {
+          embeddingType: 'PCA',
+          embeddingZoom: 'PCA',
+        },
+        x: 6, y: 0, w: 3, h: 2 },
+      { component: 'scatterplot',
+        coordinationScopes: {
+          embeddingType: 'TSNE',
+          embeddingZoom: 'TSNE',
+        },
+        x: 6, y: 2, w: 3, h: 2 },*/
+    ],
+  },
   'just-scatter': {
     version: '0.1.0',
     public: false,
