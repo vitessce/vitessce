@@ -8,17 +8,17 @@ import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import LayerOptions from './LayerOptions';
 
 import {
-  useExpansionPanelStyles,
-  useExpansionPanelSummaryStyles,
+  useControllerSectionStyles,
   useSmallInputLabelStyles,
+  StyledExpansionPanelDetails,
+  StyledExpansionPanelSummary,
 } from './styles';
+
 import { GLOBAL_LABELS } from '../spatial/constants';
 import { getSourceFromLoader, isRgb } from '../../utils';
 import { DOMAINS } from './constants';
@@ -254,21 +254,19 @@ export default function LayerController(props) {
     );
   }
 
-  const classes = useExpansionPanelStyles();
-  const summaryClasses = useExpansionPanelSummaryStyles();
+  const controllerSectionClasses = useControllerSectionStyles();
   const closedOpacityLabelClasses = useSmallInputLabelStyles();
 
   return (
     <ExpansionPanel
-      className={classes.root}
+      className={controllerSectionClasses.root}
       onChange={(e, expanded) => setIsExpanded(expanded && e?.target?.attributes?.role?.value === 'presentation')}
       TransitionProps={{ enter: false }}
       expanded={isExpanded}
     >
-      <ExpansionPanelSummary
+      <StyledExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`layer-${name}-controls`}
-        classes={{ ...summaryClasses }}
       >
         <Grid container direction="column" m={1} justify="center">
           <Grid item>{name}</Grid>
@@ -293,8 +291,8 @@ export default function LayerController(props) {
             </Grid>
           )}
         </Grid>
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails className={classes.root}>
+      </StyledExpansionPanelSummary>
+      <StyledExpansionPanelDetails>
         <LayerOptions
           channels={channels}
           labels={labels}
@@ -342,7 +340,7 @@ export default function LayerController(props) {
         >
             Remove Image Layer
         </Button>
-      </ExpansionPanelDetails>
+      </StyledExpansionPanelDetails>
     </ExpansionPanel>
   );
 }
