@@ -69,22 +69,19 @@ const vanderbiltBase = {
   ].map(makeLayerNameToConfig('spraggins')),
 };
 
-/* eslint-disable object-property-newline */
-/* eslint-disable object-curly-newline */
-// Note that the ordering of the components in the staticLayout
-// can affect the z-index of plot tooltips due to the
-// resulting ordering of elements in the DOM.
-export const configs = {
-  'nanosaber-mcmicro': {
-    name: 'NANOSABER MCMICRO',
+const makeNanosaberConfig = (sampleId, maskScaleX, maskScaleY) => {
+  const useLocal = false;
+  const baseUrl = (useLocal ? `http://127.0.0.1:8081/${sampleId}` : `https://storage.googleapis.com/vitessce-demo-data/nanosaber-mcmicro/${sampleId}`);
+  return {
+    name: sampleId,
     version: '1.0.0',
     description: "",
     public: true,
     datasets: [
       {
-        uid: 'lung_2_1',
-        name: 'Lung 2.1',
-        description: "Lung 2.1",
+        uid: sampleId,
+        name: sampleId,
+        description: sampleId,
         files: [
           {
             "type": "raster",
@@ -96,13 +93,13 @@ export const configs = {
                 {
                   "name": "Mask",
                   "type": "ome-tiff",
-                  "url": "http://127.0.0.1:8081/segmentation/unmicst-lung_2_1/cellMask.ome.tiff",
+                  "url": `${baseUrl}/segmentation/unmicst-${sampleId}/cellMask.ome.tiff`,
                   "metadata": {
                     "isBitmask": true,
                     "transform": {
                       "matrix": [
-                        1.0234, 0, 0, 0,
-                        0, 1.0234, 0, 0,
+                        maskScaleX, 0, 0, 0,
+                        0, maskScaleY, 0, 0,
                         0, 0, 1, 0,
                         0, 0, 0, 1
                       ]
@@ -112,7 +109,7 @@ export const configs = {
                 {
                   "name": "Image",
                   "type": "ome-tiff",
-                  "url": "http://127.0.0.1:8081/registration/lung_2_1.ome.tiff",
+                  "url": `${baseUrl}/registration/${sampleId}.ome.tiff`,
                   "metadata": {
                     "isBitmask": false
                   }
@@ -124,34 +121,17 @@ export const configs = {
               ]
             }
           },
-          /*{
+          {
             "type": "cell-sets",
-            "fileType": "anndata-cell-sets.zarr",
-            "url": "http://127.0.0.1:8081/anndata-zarr/reg1_stitched_expressions-anndata.zarr",
-            "options": [
-              {
-                "groupName": "K-Means [Mean] Expression",
-                "setName": "obs/K-Means [Mean] Expression"
-              },
-              {
-                "groupName": "K-Means [Texture]",
-                "setName": "obs/K-Means [Texture]"
-              }
-            ]
+            "fileType": "cell-sets.json",
+            "url": `${baseUrl}/flowcore/${sampleId}.cell-sets.json`
           },
           {
             "type": "cells",
-            "fileType": "anndata-cells.zarr",
-            "url": "http://127.0.0.1:8081/anndata-zarr/reg1_stitched_expressions-anndata.zarr",
-            "options": {
-              "xy": "obsm/xy",
-              "poly": "obsm/poly",
-              "factors": [
-                "obs/K-Means [Mean] Expression"
-              ]
-            }
+            "fileType": "cells.json",
+            "url": `${baseUrl}/flowcore/${sampleId}.cells.json`
           },
-          {
+          /*{
             "type": "expression-matrix",
             "fileType": "anndata-expression-matrix.zarr",
             "url": "http://127.0.0.1:8081/anndata-zarr/reg1_stitched_expressions-anndata.zarr",
@@ -168,17 +148,19 @@ export const configs = {
     },
     layout: [
       { component: 'description',
-        x: 0, y: 0, w: 2, h: 3 },
+        x: 0, y: 0, w: 2, h: 1 },
       { component: 'layerController',
         x: 10, y: 0, w: 2, h: 4,
       },
       { component: 'status',
-        x: 0, y: 3, w: 2, h: 1 },
+        x: 0, y: 1, w: 2, h: 1 },
       { component: 'spatial',
         coordinationScopes: {
           
         },
         x: 2, y: 0, w: 8, h: 4 },
+      { component: 'cellSets',
+        x: 0, y: 2, w: 2, h: 2 },
       /*{ component: 'genes',
         x: 9, y: 0, w: 3, h: 2 },
       { component: 'cellSets',
@@ -205,7 +187,19 @@ export const configs = {
         },
         x: 6, y: 2, w: 3, h: 2 },*/
     ],
-  },
+  };
+};
+
+/* eslint-disable object-property-newline */
+/* eslint-disable object-curly-newline */
+// Note that the ordering of the components in the staticLayout
+// can affect the z-index of plot tooltips due to the
+// resulting ordering of elements in the DOM.
+export const configs = {
+  'nanosaber-lung_1_1': makeNanosaberConfig("lung_1_1", 1.0331, 1.0331),
+  'nanosaber-lung_2_1': makeNanosaberConfig("lung_2_1", 1.0234, 1.0234),
+  'nanosaber-lung_2_2': makeNanosaberConfig("lung_2_2", 1.167, 1),
+  
   'just-scatter': {
     version: '0.1.0',
     public: false,
