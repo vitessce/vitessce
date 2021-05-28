@@ -12,7 +12,6 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import RasterChannelController from './RasterChannelController';
 import LayerOptions from './LayerOptions';
 
 import {
@@ -57,7 +56,7 @@ export default function LayerController(props) {
     layer, name, loader, theme,
     handleLayerRemove, handleLayerChange,
     shouldShowTransparentColor,
-    shouldShowDomain, shouldShowColormap,
+    shouldShowDomain, shouldShowColormap, ChannelController
   } = props;
 
   const {
@@ -236,7 +235,7 @@ export default function LayerController(props) {
             item
             style={{ width: '100%' }}
           >
-            <RasterChannelController
+            <ChannelController
               // eslint-disable-next-line react/no-array-index-key
               key={`channel-controller-${channelId}`}
               dimName={channelLabel}
