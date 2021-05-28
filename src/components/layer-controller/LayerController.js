@@ -56,7 +56,7 @@ export default function LayerController(props) {
     layer, name, loader, theme,
     handleLayerRemove, handleLayerChange,
     shouldShowTransparentColor,
-    shouldShowDomain, shouldShowColormap, ChannelController
+    shouldShowDomain, shouldShowColormap, ChannelController,
   } = props;
 
   const {
