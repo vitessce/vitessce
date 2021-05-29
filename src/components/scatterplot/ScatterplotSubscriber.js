@@ -150,13 +150,25 @@ export default function ScatterplotSubscriber(props) {
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetSelection, cellSetColor, expressionData, attrs]);
 
-  const cellSetPolygons = useMemo(() => getCellSetPolygons({
-    cells,
-    mapping,
-    cellSets: mergedCellSets,
-    cellSetSelection,
-    cellSetColor,
-  }), [cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
+  const [haveCellSetPolygonsBeenCalculated,
+    setHaveCellSetPolygonsBeenCalculated] = useState(false);
+  const [cellSetPolygonCache, setCellSetPolygonCache] = useState(null);
+  const cellSetPolygons = useMemo(() => {
+    if (!haveCellSetPolygonsBeenCalculated && cellSetPolygonsVisible) {
+      const newCellSetPolygons = getCellSetPolygons({
+        cells,
+        mapping,
+        cellSets: mergedCellSets,
+        cellSetSelection,
+        cellSetColor,
+      });
+      setHaveCellSetPolygonsBeenCalculated(true);
+      setCellSetPolygonCache(newCellSetPolygons);
+      return newCellSetPolygons;
+    }
+    return cellSetPolygonCache;
+  }, [haveCellSetPolygonsBeenCalculated, cellSetPolygonsVisible, cellSetPolygonCache,
+    cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
