@@ -496,6 +496,12 @@
             ".": { "type": "number" }
           }
         },
+        "use3D": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "boolean" }
+          }
+        },
         "spatialTargetX": {
           "type": "object",
           "patternProperties": {

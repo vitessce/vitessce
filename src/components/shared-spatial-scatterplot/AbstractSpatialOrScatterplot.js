@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import DeckGL, { OrthographicView } from 'deck.gl';
+import DeckGL, { OrthographicView, OrbitView } from 'deck.gl';
 import ToolMenu from './ToolMenu';
 import { DEFAULT_GL_OPTIONS } from '../utils';
 import { getCursor, getCursorWithTool } from './cursor';
@@ -173,7 +173,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    */
   render() {
     const {
-      deckRef, viewState, uuid, layers: layerProps,
+      deckRef, viewState, uuid, layers: layerProps, use3D,
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
@@ -200,14 +200,24 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         <DeckGL
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
-          views={[new OrthographicView({ id: 'ortho' })]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
-          layers={(gl && viewState.target.every(i => typeof i === 'number')) ? layers : ([])}
+          views={[
+            use3D
+              ? new OrbitView({ id: 'orbit', controller: true, orbitAxis: 'Y' })
+              : new OrthographicView({
+                id: 'ortho',
+              }),
+          ]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
+          layers={
+            gl && viewState.target.every(i => typeof i === 'number')
+              ? layers
+              : []
+          }
           glOptions={DEFAULT_GL_OPTIONS}
           onWebGLInitialized={this.onWebGLInitialized}
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           useDevicePixels={useDevicePixels}
-          controller={tool ? ({ dragPan: false }) : true}
+          controller={tool ? { dragPan: false } : true}
           getCursor={tool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
         >

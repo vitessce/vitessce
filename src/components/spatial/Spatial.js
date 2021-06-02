@@ -237,7 +237,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createScaleBarLayer() {
     const {
-      viewState, width, height, imageLayerLoaders = {},
+      viewState, width, height, imageLayerLoaders = {}, use3D,
     } = this.props;
     // Just get the first layer/loader since they should all be spatially
     // resolved and therefore have the same unit size scale.
@@ -248,7 +248,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const source = getSourceFromLoader(loader);
     if (!source.meta) return null;
     const { physicalSizes } = source.meta;
-    if (physicalSizes) {
+    if (physicalSizes && !use3D) {
       const { x } = physicalSizes;
       const { unit, size } = x;
       if (unit && size) {
@@ -328,11 +328,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(
       data,
-      rawLayerDef.isBitmask,
+      this.props.use3D,
     );
     return new Layer({
       loader: layerLoader,
-      id: `image-layer-${layerDef.index}-${i}`,
+      id: `${this.props.use3D ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
       loaderSelection,
@@ -341,6 +341,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colormap: layerProps.colormap,
       modelMatrix,
       transparentColor: layerProps.transparentColor,
+      resolution: layerLoader.length - 2,
+      renderingMode: 'Additive',
     });
   }
 
@@ -516,7 +518,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight'].some(shallowDiff)) {
+    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight', 'use3D'].some(shallowDiff)) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();

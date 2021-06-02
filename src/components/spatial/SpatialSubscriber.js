@@ -75,6 +75,7 @@ export default function SpatialSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
+    use3D,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -91,6 +92,7 @@ export default function SpatialSubscriber(props) {
     setCellColorEncoding,
     setAdditionalCellSets,
     setMoleculeHighlight,
+    setUse3D,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -162,13 +164,14 @@ export default function SpatialSubscriber(props) {
         cells,
         imageLayerLoaders,
         useRaster: Boolean(loaders[dataset].loaders.raster),
+        use3D,
       });
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);
       setZoom(initialZoom);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom]);
+  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom, use3D]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
@@ -230,6 +233,8 @@ export default function SpatialSubscriber(props) {
           observationsLabel={observationsLabel}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
+          use3D={use3D}
+          setUse3D={setUse3D}
         />
       )}
     >
@@ -262,6 +267,7 @@ export default function SpatialSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
+        use3D={use3D}
       />
       {!disableTooltip && (
       <SpatialTooltipSubscriber

@@ -6,6 +6,7 @@ import {
   getDefaultInitialViewState,
   MultiscaleImageLayer,
   ImageLayer,
+  VolumeLayer,
 } from '@hms-dbmi/viv';
 import { extent } from 'd3-array';
 import { Matrix4 } from 'math.gl';
@@ -302,6 +303,7 @@ export function getInitialSpatialTargets({
   cells,
   imageLayerLoaders,
   useRaster,
+  use3D,
 }) {
   let initialTargetX = -Infinity;
   let initialTargetY = -Infinity;
@@ -316,6 +318,7 @@ export function getInitialSpatialTargets({
         imageLayerLoaders[i].data,
         viewSize,
         zoomBackoff,
+        use3D,
       );
       if (target[0] > initialTargetX) {
         // eslint-disable-next-line prefer-destructuring
@@ -370,10 +373,13 @@ export function getInitialSpatialTargets({
  * @param {object} data PixelSource | PixelSource[]
  * @returns {Array} [Layer, PixelSource | PixelSource[]] tuple.
  */
-export function getLayerLoaderTuple(data) {
-  const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;
+export function getLayerLoaderTuple(data, use3D) {
   const loader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
     ? data : data[0];
+  if (use3D) {
+    return [VolumeLayer, loader];
+  }
+  const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;
   return [Layer, loader];
 }
 
