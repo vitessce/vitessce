@@ -307,6 +307,7 @@ export function getInitialSpatialTargets({
 }) {
   let initialTargetX = -Infinity;
   let initialTargetY = -Infinity;
+  let initialTargetZ = -Infinity;
   let initialZoom = -Infinity;
   // Some backoff from completely filling the screen.
   const zoomBackoff = 0.1;
@@ -329,6 +330,13 @@ export function getInitialSpatialTargets({
         // eslint-disable-next-line prefer-destructuring
         initialTargetY = target[1];
         initialZoom = newViewStateZoom;
+      }
+      if (target[2] > initialTargetZ) {
+        // eslint-disable-next-line prefer-destructuring
+        initialTargetZ = target[2];
+        initialZoom = newViewStateZoom;
+      } else {
+        initialTargetZ = null;
       }
     }
   } else if (cellValues.length > 0
@@ -363,9 +371,13 @@ export function getInitialSpatialTargets({
     initialTargetY = yExtent[0] + yRange / 2;
     initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
   } else {
-    return { initialTargetX: null, initialTargetY: null, initialZoom: null };
+    return {
+      initialTargetX: null, initialTargetY: null, initialTargetZ: null, initialZoom: null,
+    };
   }
-  return { initialTargetX, initialTargetY, initialZoom };
+  return {
+    initialTargetX, initialTargetY, initialZoom, initialTargetZ,
+  };
 }
 
 /**

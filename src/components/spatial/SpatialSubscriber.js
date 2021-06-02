@@ -158,7 +158,9 @@ export default function SpatialSubscriber(props) {
 
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
-      const { initialTargetX, initialTargetY, initialZoom } = getInitialSpatialTargets({
+      const {
+        initialTargetX, initialTargetY, initialTargetZ, initialZoom,
+      } = getInitialSpatialTargets({
         width,
         height,
         cells,
@@ -168,6 +170,7 @@ export default function SpatialSubscriber(props) {
       });
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);
+      setTargetZ(initialTargetZ);
       setZoom(initialZoom);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -243,7 +246,12 @@ export default function SpatialSubscriber(props) {
         uuid={uuid}
         width={width}
         height={height}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        viewState={{
+          zoom,
+          target: [targetX, targetY, targetZ],
+          rotationX: 0,
+          rotationOrbit: 0,
+        }}
         setViewState={({ zoom: newZoom, target }) => {
           setZoom(newZoom);
           setTargetX(target[0]);
@@ -270,13 +278,13 @@ export default function SpatialSubscriber(props) {
         use3D={use3D}
       />
       {!disableTooltip && (
-      <SpatialTooltipSubscriber
-        parentUuid={uuid}
-        cellHighlight={cellHighlight}
-        width={width}
-        height={height}
-        getCellInfo={getCellInfo}
-      />
+        <SpatialTooltipSubscriber
+          parentUuid={uuid}
+          cellHighlight={cellHighlight}
+          width={width}
+          height={height}
+          getCellInfo={getCellInfo}
+        />
       )}
     </TitleInfo>
   );
