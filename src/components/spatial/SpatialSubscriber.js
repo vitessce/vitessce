@@ -64,6 +64,10 @@ export default function SpatialSubscriber(props) {
     spatialTargetX: targetX,
     spatialTargetY: targetY,
     spatialTargetZ: targetZ,
+    spatialRotationX: rotationX,
+    spatialRotationY: rotationY,
+    spatialRotationZ: rotationZ,
+    spatialRotationOrbit: rotationOrbit,
     spatialRasterLayers: rasterLayers,
     spatialCellsLayer: cellsLayer,
     spatialMoleculesLayer: moleculesLayer,
@@ -81,6 +85,10 @@ export default function SpatialSubscriber(props) {
     setSpatialTargetX: setTargetX,
     setSpatialTargetY: setTargetY,
     setSpatialTargetZ: setTargetZ,
+    setSpatialRotationX: setRotationX,
+    setSpatialRotationY: setRotationY,
+    setSpatialRotationZ: setRotationZ,
+    setSpatialRotationOrbit: setRotationOrbit,
     setSpatialRasterLayers: setRasterLayers,
     setSpatialCellsLayer: setCellsLayer,
     setSpatialMoleculesLayer: setMoleculesLayer,
@@ -249,14 +257,27 @@ export default function SpatialSubscriber(props) {
         viewState={{
           zoom,
           target: [targetX, targetY, targetZ],
-          rotationX: 0,
-          rotationOrbit: 0,
+          rotationX,
+          rotationY,
+          rotationZ,
+          rotationOrbit,
         }}
-        setViewState={({ zoom: newZoom, target }) => {
+        setViewState={({
+          zoom: newZoom,
+          target,
+          rotationX: newRotationX,
+          rotationY: newRotationY,
+          rotationZ: newRotationZ,
+          rotationOrbit: newRotationOrbit,
+        }) => {
           setZoom(newZoom);
           setTargetX(target[0]);
           setTargetY(target[1]);
           setTargetZ(target[2]);
+          setRotationX(newRotationX);
+          setRotationY(newRotationY);
+          setRotationZ(newRotationZ);
+          setRotationOrbit(newRotationOrbit);
         }}
         layers={layers}
         cells={cells}

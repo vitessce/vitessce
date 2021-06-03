@@ -534,6 +534,62 @@
             ".": { "type": "number" }
           }
         },
+        "spatialRotationX": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set. Only useful for 3D viewing."
+                },
+                { "type": "number" }
+              ]
+            }
+          }
+        },
+        "spatialRotationY": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set. Only useful for 3D viewing."
+                },
+                { "type": "number" }
+              ]
+            }
+          }
+        },
+        "spatialRotationZ": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set. Only useful for 3D viewing."
+                },
+                { "type": "number" }
+              ]
+            }
+          }
+        },
+         "spatialRotationOrbit": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set. Only useful for 3D viewing."
+                },
+                { "type": "number" }
+              ]
+            }
+          }
+        },
         "spatialRasterLayers": {
           "type": "object",
           "patternProperties": {
