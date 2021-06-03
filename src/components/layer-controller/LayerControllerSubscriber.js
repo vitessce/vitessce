@@ -110,7 +110,6 @@ function LayerControllerSubscriber(props) {
   ).every(l => !l?.metadata?.isBitmask);
   // Only want to show vector cells controller if there is no bitmask
   const canShowCellVecmask = hasNoBitmask;
-  console.log(use3D, coordinationScopes); // eslint-disable-line
 
   return (
     <TitleInfo

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useReducer, useRef } from 'react';
 import range from 'lodash/range';
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
@@ -6,10 +6,172 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 
+import { getMultiSelectionStats, getBoundingCube } from './utils';
 import { COLORMAP_OPTIONS } from '../utils';
+import { isRgb as guessRgb } from '../../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
+
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  // eslint-disable-next-line no-restricted-properties
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+const getStatsForResolution = (loader, resolution) => {
+  const { shape, labels } = loader[resolution];
+  const height = shape[labels.indexOf('y')];
+  const width = shape[labels.indexOf('x')];
+  const depth = shape[labels.indexOf('z')];
+  const depthDownsampled = Math.floor(depth / (2 ** resolution));
+  // Check memory allocation limits for Float32Array (used in XR3DLayer for rendering)
+  const totalBytes = 4 * height * width * depthDownsampled;
+  return {
+    height, width, depthDownsampled, totalBytes,
+  };
+};
+
+const canLoadResolution = (loader, resolution) => {
+  const { totalBytes } = getStatsForResolution(loader, resolution);
+  const maxHeapSize = window.performance?.memory
+    && window.performance?.memory?.jsHeapSizeLimit / 2;
+  const maxSize = maxHeapSize || (2 ** 31) - 1;
+  return totalBytes < maxSize;
+};
+
+function VolumeDropdown({
+  use3D,
+  setUse3D,
+  loader,
+  handleSliderChange,
+  handleDomainChange,
+  selections,
+  resolution
+}) {
+  const { setImageSetting } = useImageSettingsStore();
+  const { loader, selections } = useChannelSettings();
+  const { setPropertiesForChannel } = useChannelSetters();
+  const {
+    metadata,
+    setViewerState,
+    isViewerLoading,
+  } = useViewerStore();
+
+  const anchorRef = useRef(null);
+  const classes = useStyles();
+  const { shape, labels } = Array.isArray(loader) ? loader[0] : loader;
+  const handleChange = () => {
+    toggle();
+    // eslint-disable-next-line no-unused-expressions
+    if (use3D) {
+      setUse3D(!use3D);
+      setViewerState({
+        isChannelLoading: selections.map(_ => true),
+      });
+      getMultiSelectionStats({ loader, selections, use3D: !use3D }).then(
+        ({ domains, sliders }) => {
+          handleSliderChange(sliders);
+          handleDomainChange(domains);
+          setViewerState({
+            isChannelLoading: selections.map(_ => false),
+          });
+        },
+      );
+      if (!guessRgb(loader) && metadata) {
+        setViewerState({ useLens: true });
+      }
+    } else {
+      setViewerState({
+        isChannelLoading: selections.map(_ => true),
+      });
+      const [xSlice, ySlice, zSlice] = getBoundingCube(loader);
+      setImageSetting({
+        resolution,
+        xSlice,
+        ySlice,
+        zSlice,
+      });
+      toggle();
+      getMultiSelectionStats({
+        loader,
+        selections,
+        use3D: true,
+      }).then(({ domains, sliders }) => {
+        setImageSetting({
+          onViewportLoad: () => {
+            handleSliderChange(sliders);
+            handleDomainChange(domains);
+            setImageSetting({ onViewportLoad: () => {} });
+            setViewerState({
+              isChannelLoading: selections.map(_ => false),
+            });
+          },
+        });
+        setUse3D(!use3D);
+        const isWebGL2Supported = !!document
+          .createElement('canvas')
+          .getContext('webgl2');
+        if (!isWebGL2Supported) {
+          toggleIsVolumeRenderingWarningOn();
+        }
+      });
+      setViewerState({ useLens: false });
+    }
+  };
+  return (
+    <>
+      <Select
+        native
+        value={resolution}
+        onChange={e => handleChange(Number(e.target.value))}
+      >
+        {<option
+          dense
+          disableGutters
+          key="2D"
+        >
+          2D Visualization
+        </option>}
+        {Array.from({ length: loader.length })
+          .fill(0)
+          // eslint-disable-next-line no-unused-vars
+          .map((_, resolution) => {
+            if (loader) {
+              if (canLoadResolution(loader, resolution)) {
+                const {
+                  height,
+                  width,
+                  depthDownsampled,
+                  totalBytes,
+                } = getStatsForResolution(loader, resolution);
+                return (
+                  <option
+                    dense
+                    disableGutters
+                    key={`(${height}, ${width}, ${depthDownsampled})`}
+                  >
+                    {`${resolution}x Downsampled, ~${formatBytes(
+                      totalBytes,
+                    )} per channel, (${height}, ${width}, ${depthDownsampled})`}
+                  </option>
+                );
+              }
+            }
+            return null;
+          })}
+      </Select>
+    </>
+  );
+}
+
 
 /**
  * Wrapper for the dropdown that selects a colormap (None, viridis, magma, etc.).
@@ -181,6 +343,7 @@ function LayerOptions({
   globalControlLabels,
   globalLabelValues,
   handleGlobalChannelsSelectionChange,
+  handleSliderChange,
   handleDomainChange,
   transparentColor,
   channels,
@@ -196,67 +359,67 @@ function LayerOptions({
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
+      {hasDimensionsAndChannels
+        && !use3D
+        && globalControlLabels.map(
+          field => shape[labels.indexOf(field)] > 1 && (
+          <LayerOption name={field} inputId={`${field}-slider`} key={field}>
+            <GlobalSelectionSlider
+              field={field}
+              value={globalLabelValues[field]}
+              handleChange={handleGlobalChannelsSelectionChange}
+              possibleValues={range(shape[labels.indexOf(field)])}
+            />
+          </LayerOption>
+          ),
+        )}
       {!isRgb ? (
         <>
           {shouldShowColormap && (
-          <Grid item>
-            <LayerOption name="Colormap" inputId="colormap-select">
-              <ColormapSelect
-                value={colormap || ''}
-                inputId="colormap-select"
-                handleChange={handleColormapChange}
-              />
-            </LayerOption>
-          </Grid>
+            <Grid item>
+              <LayerOption name="Colormap" inputId="colormap-select">
+                <ColormapSelect
+                  value={colormap || ''}
+                  inputId="colormap-select"
+                  handleChange={handleColormapChange}
+                />
+              </LayerOption>
+            </Grid>
           )}
           {shouldShowDomain && (
-          <Grid item>
-            <LayerOption name="Domain" inputId="domain-selector">
-              <SliderDomainSelector
-                value={domainType || DEFAULT_RASTER_DOMAIN_TYPE}
-                handleChange={(value) => {
-                  handleDomainChange(value);
-                }}
-              />
-            </LayerOption>
-          </Grid>
+            <Grid item>
+              <LayerOption name="Domain" inputId="domain-selector">
+                <SliderDomainSelector
+                  value={domainType || DEFAULT_RASTER_DOMAIN_TYPE}
+                  handleChange={(value) => {
+                    handleDomainChange(value);
+                  }}
+                />
+              </LayerOption>
+            </Grid>
           )}
         </>
       ) : null}
       {!use3D && (
-      <Grid item>
-        <LayerOption name="Opacity" inputId="opacity-slider">
-          <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
-        </LayerOption>
-      </Grid>
+        <Grid item>
+          <LayerOption name="Opacity" inputId="opacity-slider">
+            <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
+          </LayerOption>
+        </Grid>
       )}
       {shouldShowTransparentColor && !use3D && (
-      <Grid item>
-        <LayerOption
-          name="Zero Transparent"
-          inputId="transparent-color-selector"
-        >
-          <TransparentColorCheckbox
-            value={transparentColor}
-            handleChange={handleTransparentColorChange}
-          />
-        </LayerOption>
-      </Grid>
+        <Grid item>
+          <LayerOption
+            name="Zero Transparent"
+            inputId="transparent-color-selector"
+          >
+            <TransparentColorCheckbox
+              value={transparentColor}
+              handleChange={handleTransparentColorChange}
+            />
+          </LayerOption>
+        </Grid>
       )}
-      {hasDimensionsAndChannels
-        && !use3D
-        && globalControlLabels.map(field => (
-          shape[labels.indexOf(field)] > 1 && (
-            <LayerOption name={field} inputId={`${field}-slider`} key={field}>
-              <GlobalSelectionSlider
-                field={field}
-                value={globalLabelValues[field]}
-                handleChange={handleGlobalChannelsSelectionChange}
-                possibleValues={range(shape[labels.indexOf(field)])}
-              />
-            </LayerOption>
-          )
-        ))}
     </Grid>
   );
 }
