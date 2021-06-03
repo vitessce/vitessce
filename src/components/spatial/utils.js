@@ -310,7 +310,7 @@ export function getInitialSpatialTargets({
   let initialTargetZ = -Infinity;
   let initialZoom = -Infinity;
   // Some backoff from completely filling the screen.
-  const zoomBackoff = 0.1;
+  const zoomBackoff = use3D ? 1.5 : 0.1;
   const cellValues = Object.values(cells);
   if (imageLayerLoaders.length > 0 && useRaster) {
     for (let i = 0; i < imageLayerLoaders.length; i += 1) {

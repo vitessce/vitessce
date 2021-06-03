@@ -46,6 +46,11 @@
               "spatialTargetX": { "type": "string" },
               "spatialTargetY": { "type": "string" },
               "spatialTargetZ": { "type": "string" },
+              "spatialRotationX": { "type": "string" },
+              "spatialRotationY": { "type": "string" },
+              "spatialRotationZ": { "type": "string" },
+              "spatialRotationOrbit": { "type": "string" },
+              "use3D": { "type": "string" },
               "heatmapZoomX": { "type": "string" },
               "heatmapZoomY": { "type": "string" },
               "heatmapTargetX": { "type": "string" },
@@ -531,7 +536,14 @@
         "spatialTargetZ": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "number" }
+            ".":  { "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set."
+                },
+                { "type": "number" }
+              ]
+            }
           }
         },
         "spatialRotationX": {

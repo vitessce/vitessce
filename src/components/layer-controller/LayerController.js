@@ -57,6 +57,7 @@ export default function LayerController(props) {
     handleLayerRemove, handleLayerChange,
     shouldShowTransparentColor,
     shouldShowDomain, shouldShowColormap, ChannelController,
+    use3D, setUse3D,
   } = props;
 
   const {
@@ -272,7 +273,7 @@ export default function LayerController(props) {
       >
         <Grid container direction="column" m={1} justify="center">
           <Grid item>{name}</Grid>
-          {!isExpanded && (
+          {!isExpanded && !use3D && (
             <Grid container direction="row" alignItems="center" justify="center">
               <Grid item xs={6}>
                 <InputLabel htmlFor={`layer-${name}-opacity-closed`} classes={closedOpacityLabelClasses}>Opacity:</InputLabel>
@@ -318,6 +319,8 @@ export default function LayerController(props) {
           shouldShowTransparentColor={shouldShowTransparentColor}
           shouldShowDomain={shouldShowDomain}
           shouldShowColormap={shouldShowColormap}
+          setUse3D={setUse3D}
+          use3D={use3D}
         />
         {!isRgb(loader) ? channelControllers : null}
         {!isRgb(loader) && (

@@ -191,6 +191,7 @@ function LayerOptions({
   shouldShowTransparentColor,
   shouldShowDomain,
   shouldShowColormap,
+  use3D,
 }) {
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
   return (
@@ -222,12 +223,14 @@ function LayerOptions({
           )}
         </>
       ) : null}
+      {!use3D && (
       <Grid item>
         <LayerOption name="Opacity" inputId="opacity-slider">
           <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
         </LayerOption>
       </Grid>
-      {shouldShowTransparentColor && (
+      )}
+      {shouldShowTransparentColor && !use3D && (
       <Grid item>
         <LayerOption
           name="Zero Transparent"
@@ -241,6 +244,7 @@ function LayerOptions({
       </Grid>
       )}
       {hasDimensionsAndChannels
+        && !use3D
         && globalControlLabels.map(field => (
           shape[labels.indexOf(field)] > 1 && (
             <LayerOption name={field} inputId={`${field}-slider`} key={field}>

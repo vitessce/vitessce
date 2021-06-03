@@ -39,6 +39,7 @@ function LayerControllerSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    use3D,
     spatialRasterLayers: rasterLayers,
     spatialCellsLayer: cellsLayer,
     spatialMoleculesLayer: moleculesLayer,
@@ -46,6 +47,7 @@ function LayerControllerSubscriber(props) {
     setSpatialRasterLayers: setRasterLayers,
     setSpatialCellsLayer: setCellsLayer,
     setSpatialMoleculesLayer: setMoleculesLayer,
+    setUse3D,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.layerController, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -108,6 +110,7 @@ function LayerControllerSubscriber(props) {
   ).every(l => !l?.metadata?.isBitmask);
   // Only want to show vector cells controller if there is no bitmask
   const canShowCellVecmask = hasNoBitmask;
+  console.log(use3D, coordinationScopes); // eslint-disable-line
 
   return (
     <TitleInfo
@@ -165,6 +168,8 @@ function LayerControllerSubscriber(props) {
                   shouldShowTransparentColor={isRaster}
                   shouldShowDomain={isRaster}
                   shouldShowColormap={isRaster}
+                  use3D={use3D}
+                  setUse3D={setUse3D}
                 />
               </Grid>
             ) : null;
