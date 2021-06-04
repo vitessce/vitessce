@@ -292,6 +292,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
       visibilities: layerDef.channels.map(c => c.visible),
+      resolution: layerDef.resolution,
     };
 
     if (!loader || !layerProps) return null;
@@ -330,9 +331,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       data,
       this.props.use3D,
     );
+
     return new Layer({
       loader: layerLoader,
-      id: `${this.props.use3D ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,
+      id: `${this.props.use3D ? 'volume' : 'image'}-layer-${
+        layerDef.index
+      }-${i}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
       loaderSelection,
@@ -341,7 +345,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colormap: layerProps.colormap,
       modelMatrix,
       transparentColor: layerProps.transparentColor,
-      resolution: layerLoader.length - 2,
+      resolution: layerProps.resolution,
       renderingMode: 'Additive',
       pickable: false,
     });

@@ -6,7 +6,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 
-import { getMultiSelectionStats, getBoundingCube } from './utils';
+import { getBoundingCube } from './utils';
 import { COLORMAP_OPTIONS } from '../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
 
@@ -50,37 +50,23 @@ function VolumeDropdown({
   use3D,
   setUse3D,
   loader: loaderWithMeta,
-  handleSliderChange,
-  handleDomainChange,
-  selections,
-  setResolution,
-  setBoundingCube,
+  handleMultiPropertyChange,
   resolution: currResolution,
 }) {
   const { data: loader } = loaderWithMeta;
   const handleChange = (resolution) => {
     // eslint-disable-next-line no-unused-expressions
     if (use3D) {
+      handleMultiPropertyChange({
+        resolution,
+      });
       setUse3D(!use3D);
-      getMultiSelectionStats({ loader, selections, use3D: !use3D }).then(
-        ({ domains, sliders }) => {
-          handleSliderChange(sliders);
-          handleDomainChange(domains);
-        },
-      );
     } else {
       const [xSlice, ySlice, zSlice] = getBoundingCube(loader);
-      setResolution(resolution);
-      setBoundingCube(xSlice, ySlice, zSlice);
-      getMultiSelectionStats({
-        loader,
-        selections,
-        use3D: true,
-      }).then(({ domains, sliders }) => {
-        handleSliderChange(sliders);
-        handleDomainChange(domains);
-        setUse3D(!use3D);
+      handleMultiPropertyChange({
+        resolution, xSlice, ySlice, zSlice,
       });
+      setUse3D(!use3D);
     }
   };
   return (
@@ -110,8 +96,8 @@ function VolumeDropdown({
                   totalBytes,
                 } = getStatsForResolution(loader, resolution);
                 return (
-                  <option key={`(${height}, ${width}, ${depthDownsampled})`}>
-                    {`${resolution}x Downsampled, ~${formatBytes(
+                  <option key={`(${height}, ${width}, ${depthDownsampled})`} value={resolution}>
+                    {`3D: ${resolution}x Downsampled, ~${formatBytes(
                       totalBytes,
                     )} per channel, (${height}, ${width}, ${depthDownsampled})`}
                   </option>
@@ -311,8 +297,7 @@ function LayerOptions({
   setUse3D,
   loader,
   selections,
-  setResolution,
-  setBoundingCube,
+  handleMultiPropertyChange,
   resolution,
 }) {
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
@@ -320,17 +305,16 @@ function LayerOptions({
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       {hasZStack && (
-      <VolumeDropdown
-        use3D={use3D}
-        setUse3D={setUse3D}
-        loader={loader}
-        handleSliderChange={handleSliderChange}
-        handleDomainChange={handleDomainChange}
-        selections={selections}
-        setResolution={setResolution}
-        setBoundingCube={setBoundingCube}
-        resolution={resolution}
-      />
+        <VolumeDropdown
+          use3D={use3D}
+          setUse3D={setUse3D}
+          loader={loader}
+          handleSliderChange={handleSliderChange}
+          handleDomainChange={handleDomainChange}
+          selections={selections}
+          handleMultiPropertyChange={handleMultiPropertyChange}
+          resolution={resolution}
+        />
       )}
       {hasDimensionsAndChannels
         && !use3D

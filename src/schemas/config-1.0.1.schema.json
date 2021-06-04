@@ -292,6 +292,51 @@
           "enum": ["Full", "Min/Max"],
           "description": "Determines the extent of the channel slider input element in the layer controller."
         },
+        "resolution": {
+          "type": "number"
+        },
+        "xSlice": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "description": "Slice bounds"
+            },
+            {
+              "type": "null",
+              "description": "No slicing"
+            }
+          ]
+        },
+        "ySlice": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "description": "Slice bounds"
+            },
+            {
+              "type": "null",
+              "description": "No slicing"
+            }
+          ]
+        },
+        "zSlice": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "description": "Slice bounds"
+            },
+            {
+              "type": "null",
+              "description": "No slicing"
+            }
+          ]
+        },
         "type": {
           "type": "string"
         }

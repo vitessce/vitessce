@@ -100,7 +100,6 @@ export default function SpatialSubscriber(props) {
     setCellColorEncoding,
     setAdditionalCellSets,
     setMoleculeHighlight,
-    setUse3D,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -244,8 +243,6 @@ export default function SpatialSubscriber(props) {
           observationsLabel={observationsLabel}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
-          use3D={use3D}
-          setUse3D={setUse3D}
         />
       )}
     >

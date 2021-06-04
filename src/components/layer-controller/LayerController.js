@@ -93,6 +93,10 @@ export default function LayerController(props) {
     handleLayerChange({ ...layer, transparentColor: v });
   }
 
+  function handleMultiPropertyChange(obj) {
+    handleLayerChange({ ...layer, ...obj });
+  }
+
   function setChannelsAndDomainType(newChannels, newDomainType) {
     handleLayerChange({
       ...layer,
@@ -262,7 +266,10 @@ export default function LayerController(props) {
   return (
     <ExpansionPanel
       className={classes.root}
-      onChange={(e, expanded) => setIsExpanded(expanded && e?.target?.attributes?.role?.value === 'presentation')}
+      onChange={(e, expanded) => setIsExpanded(
+        expanded && e?.target?.attributes?.role?.value === 'presentation',
+      )
+      }
       TransitionProps={{ enter: false }}
       expanded={isExpanded}
     >
@@ -274,9 +281,19 @@ export default function LayerController(props) {
         <Grid container direction="column" m={1} justify="center">
           <Grid item>{name}</Grid>
           {!isExpanded && !use3D && (
-            <Grid container direction="row" alignItems="center" justify="center">
+            <Grid
+              container
+              direction="row"
+              alignItems="center"
+              justify="center"
+            >
               <Grid item xs={6}>
-                <InputLabel htmlFor={`layer-${name}-opacity-closed`} classes={closedOpacityLabelClasses}>Opacity:</InputLabel>
+                <InputLabel
+                  htmlFor={`layer-${name}-opacity-closed`}
+                  classes={closedOpacityLabelClasses}
+                >
+                  Opacity:
+                </InputLabel>
               </Grid>
               <Grid item xs={6}>
                 <Slider
@@ -304,15 +321,15 @@ export default function LayerController(props) {
           colormap={colormap}
           transparentColor={transparentColor}
           domainType={domainType}
-            // Only allow for global dimension controllers that
-            // exist in the `dimensions` part of the loader.
+          // Only allow for global dimension controllers that
+          // exist in the `dimensions` part of the loader.
           globalControlLabels={labels.filter(label => GLOBAL_LABELS.includes(label))}
           globalLabelValues={globalLabelValues}
           handleOpacityChange={setOpacity}
           handleColormapChange={setColormap}
           handleGlobalChannelsSelectionChange={
-              handleGlobalChannelsSelectionChange
-            }
+            handleGlobalChannelsSelectionChange
+          }
           handleTransparentColorChange={setTransparentColor}
           isRgb={isRgb(loader)}
           handleDomainChange={handleDomainChange}
@@ -322,20 +339,21 @@ export default function LayerController(props) {
           setUse3D={setUse3D}
           use3D={use3D}
           loader={loader}
+          handleMultiPropertyChange={handleMultiPropertyChange}
         />
         {!isRgb(loader) ? channelControllers : null}
         {!isRgb(loader) && (
-        <Button
-          disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
-          onClick={handleChannelAdd}
-          fullWidth
-          variant="outlined"
-          style={buttonStyles}
-          startIcon={<AddIcon />}
-          size="small"
-        >
-              Add Channel
-        </Button>
+          <Button
+            disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
+            onClick={handleChannelAdd}
+            fullWidth
+            variant="outlined"
+            style={buttonStyles}
+            startIcon={<AddIcon />}
+            size="small"
+          >
+            Add Channel
+          </Button>
         )}
         <Button
           onClick={handleLayerRemove}
@@ -344,7 +362,7 @@ export default function LayerController(props) {
           style={buttonStyles}
           size="small"
         >
-            Remove Image Layer
+          Remove Image Layer
         </Button>
       </ExpansionPanelDetails>
     </ExpansionPanel>
