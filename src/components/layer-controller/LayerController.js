@@ -6,6 +6,8 @@ import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -22,6 +24,25 @@ import {
 import { GLOBAL_LABELS } from '../spatial/constants';
 import { getSourceFromLoader, isRgb } from '../../utils';
 import { DOMAINS } from './constants';
+
+
+function TabPanel(props) {
+  const {
+    children, value, index, ...other
+  } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && children}
+    </div>
+  );
+}
 
 
 // Set the domain of the sliders based on either a full range or min/max.
@@ -69,6 +90,11 @@ export default function LayerController(props) {
   const firstSelection = channels[0]?.selection || {};
 
   const { data, channels: channelOptions } = loader;
+  const [tab, setTab] = useState(0);
+
+  const handleTabChange = (event, newTab) => {
+    setTab(newTab);
+  };
   const { labels, shape } = Array.isArray(data) ? data[data.length - 1] : data;
   const [domainType, setDomainType] = useState(layer.domainType);
   const [isExpanded, setIsExpanded] = useState(true);
@@ -313,48 +339,59 @@ export default function LayerController(props) {
         </Grid>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.root}>
-        <LayerOptions
-          channels={channels}
-          labels={labels}
-          shape={shape}
-          opacity={opacity}
-          colormap={colormap}
-          transparentColor={transparentColor}
-          domainType={domainType}
-          // Only allow for global dimension controllers that
-          // exist in the `dimensions` part of the loader.
-          globalControlLabels={labels.filter(label => GLOBAL_LABELS.includes(label))}
-          globalLabelValues={globalLabelValues}
-          handleOpacityChange={setOpacity}
-          handleColormapChange={setColormap}
-          handleGlobalChannelsSelectionChange={
-            handleGlobalChannelsSelectionChange
-          }
-          handleTransparentColorChange={setTransparentColor}
-          isRgb={isRgb(loader)}
-          handleDomainChange={handleDomainChange}
-          shouldShowTransparentColor={shouldShowTransparentColor}
-          shouldShowDomain={shouldShowDomain}
-          shouldShowColormap={shouldShowColormap}
-          setUse3D={setUse3D}
-          use3D={use3D}
-          loader={loader}
-          handleMultiPropertyChange={handleMultiPropertyChange}
-        />
-        {!isRgb(loader) ? channelControllers : null}
-        {!isRgb(loader) && (
-          <Button
-            disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
-            onClick={handleChannelAdd}
-            fullWidth
-            variant="outlined"
-            style={buttonStyles}
-            startIcon={<AddIcon />}
-            size="small"
-          >
-            Add Channel
-          </Button>
-        )}
+        <Tabs
+          value={tab}
+          onChange={handleTabChange}
+          aria-label="simple tabs example"
+          style={{ height: '24px', minHeight: '24px' }}
+        >
+          <Tab label="Channels" style={{ fontSize: '.75rem', bottom: 12 }} />
+          <Tab label="Volume" style={{ fontSize: '.75rem', bottom: 12 }} />
+        </Tabs>
+        <TabPanel value={tab} index={0}>
+          <LayerOptions
+            channels={channels}
+            labels={labels}
+            shape={shape}
+            opacity={opacity}
+            colormap={colormap}
+            transparentColor={transparentColor}
+            domainType={domainType}
+            // Only allow for global dimension controllers that
+            // exist in the `dimensions` part of the loader.
+            globalControlLabels={labels.filter(label => GLOBAL_LABELS.includes(label))}
+            globalLabelValues={globalLabelValues}
+            handleOpacityChange={setOpacity}
+            handleColormapChange={setColormap}
+            handleGlobalChannelsSelectionChange={
+              handleGlobalChannelsSelectionChange
+            }
+            handleTransparentColorChange={setTransparentColor}
+            isRgb={isRgb(loader)}
+            handleDomainChange={handleDomainChange}
+            shouldShowTransparentColor={shouldShowTransparentColor}
+            shouldShowDomain={shouldShowDomain}
+            shouldShowColormap={shouldShowColormap}
+            setUse3D={setUse3D}
+            use3D={use3D}
+            loader={loader}
+            handleMultiPropertyChange={handleMultiPropertyChange}
+          />
+          {!isRgb(loader) ? channelControllers : null}
+          {!isRgb(loader) && (
+            <Button
+              disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
+              onClick={handleChannelAdd}
+              fullWidth
+              variant="outlined"
+              style={buttonStyles}
+              startIcon={<AddIcon />}
+              size="small"
+            >
+              Add Channel
+            </Button>
+          )}
+        </TabPanel>
         <Button
           onClick={handleLayerRemove}
           fullWidth
