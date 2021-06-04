@@ -14,7 +14,7 @@ import {
   CoordinationType, Component, DataType, FileType,
 } from '../../../dist/umd/production/index.min.js';
 
-import configSchema from '../../../src/schemas/config.schema.json';
+import configSchema from '../../../src/schemas/config-1.0.1.schema.json';
 import cellSetsSchema from '../../../src/schemas/cell-sets.schema.json';
 import rasterSchema from '../../../src/schemas/raster.schema.json';
 

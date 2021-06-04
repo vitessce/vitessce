@@ -8,6 +8,7 @@ const publicConfigs = [
     'eng-2019',
     'wang-2018',
     'spraggins-2020',
+    'patterson-2020',
     'satija-2020',
     'sn-atac-seq-hubmap-2020'
 ];

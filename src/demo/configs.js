@@ -4,7 +4,7 @@ import {
 } from './view-configs/codeluppi';
 import { eng2019 } from './view-configs/eng';
 import { wang2018 } from './view-configs/wang';
-import { spraggins2020 } from './view-configs/spraggins';
+import { spraggins2020, patterson2020 } from './view-configs/spraggins';
 import { satija2020 } from './view-configs/satija';
 import { justHiglass } from './view-configs/rao';
 import { scAtacSeq10xPbmc } from './view-configs/tenx';
@@ -37,6 +37,7 @@ export const configs = {
   'eng-2019': eng2019,
   'wang-2018': wang2018,
   'spraggins-2020': spraggins2020,
+  'patterson-2020': patterson2020,
   'satija-2020': satija2020,
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
