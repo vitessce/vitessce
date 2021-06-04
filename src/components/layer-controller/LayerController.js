@@ -321,6 +321,7 @@ export default function LayerController(props) {
           shouldShowColormap={shouldShowColormap}
           setUse3D={setUse3D}
           use3D={use3D}
+          loader={loader}
         />
         {!isRgb(loader) ? channelControllers : null}
         {!isRgb(loader) && (

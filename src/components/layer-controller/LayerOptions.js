@@ -1,4 +1,4 @@
-import React, { useReducer, useRef } from 'react';
+import React from 'react';
 import range from 'lodash/range';
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
@@ -8,7 +8,6 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 import { getMultiSelectionStats, getBoundingCube } from './utils';
 import { COLORMAP_OPTIONS } from '../utils';
-import { isRgb as guessRgb } from '../../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
@@ -50,96 +49,54 @@ const canLoadResolution = (loader, resolution) => {
 function VolumeDropdown({
   use3D,
   setUse3D,
-  loader,
+  loader: loaderWithMeta,
   handleSliderChange,
   handleDomainChange,
   selections,
-  resolution
+  setResolution,
+  setBoundingCube,
+  resolution: currResolution,
 }) {
-  const { setImageSetting } = useImageSettingsStore();
-  const { loader, selections } = useChannelSettings();
-  const { setPropertiesForChannel } = useChannelSetters();
-  const {
-    metadata,
-    setViewerState,
-    isViewerLoading,
-  } = useViewerStore();
-
-  const anchorRef = useRef(null);
-  const classes = useStyles();
-  const { shape, labels } = Array.isArray(loader) ? loader[0] : loader;
-  const handleChange = () => {
-    toggle();
+  const { data: loader } = loaderWithMeta;
+  const handleChange = (resolution) => {
     // eslint-disable-next-line no-unused-expressions
     if (use3D) {
       setUse3D(!use3D);
-      setViewerState({
-        isChannelLoading: selections.map(_ => true),
-      });
       getMultiSelectionStats({ loader, selections, use3D: !use3D }).then(
         ({ domains, sliders }) => {
           handleSliderChange(sliders);
           handleDomainChange(domains);
-          setViewerState({
-            isChannelLoading: selections.map(_ => false),
-          });
         },
       );
-      if (!guessRgb(loader) && metadata) {
-        setViewerState({ useLens: true });
-      }
     } else {
-      setViewerState({
-        isChannelLoading: selections.map(_ => true),
-      });
       const [xSlice, ySlice, zSlice] = getBoundingCube(loader);
-      setImageSetting({
-        resolution,
-        xSlice,
-        ySlice,
-        zSlice,
-      });
-      toggle();
+      setResolution(resolution);
+      setBoundingCube(xSlice, ySlice, zSlice);
       getMultiSelectionStats({
         loader,
         selections,
         use3D: true,
       }).then(({ domains, sliders }) => {
-        setImageSetting({
-          onViewportLoad: () => {
-            handleSliderChange(sliders);
-            handleDomainChange(domains);
-            setImageSetting({ onViewportLoad: () => {} });
-            setViewerState({
-              isChannelLoading: selections.map(_ => false),
-            });
-          },
-        });
+        handleSliderChange(sliders);
+        handleDomainChange(domains);
         setUse3D(!use3D);
-        const isWebGL2Supported = !!document
-          .createElement('canvas')
-          .getContext('webgl2');
-        if (!isWebGL2Supported) {
-          toggleIsVolumeRenderingWarningOn();
-        }
       });
-      setViewerState({ useLens: false });
     }
   };
   return (
     <>
       <Select
         native
-        value={resolution}
+        value={currResolution}
         onChange={e => handleChange(Number(e.target.value))}
       >
-        {<option
-          dense
-          disableGutters
-          key="2D"
-        >
-          2D Visualization
-        </option>}
+        {
+          <option
+            key="2D"
+          >
+            2D Visualization
+          </option>
+        }
         {Array.from({ length: loader.length })
           .fill(0)
           // eslint-disable-next-line no-unused-vars
@@ -153,11 +110,7 @@ function VolumeDropdown({
                   totalBytes,
                 } = getStatsForResolution(loader, resolution);
                 return (
-                  <option
-                    dense
-                    disableGutters
-                    key={`(${height}, ${width}, ${depthDownsampled})`}
-                  >
+                  <option key={`(${height}, ${width}, ${depthDownsampled})`}>
                     {`${resolution}x Downsampled, ~${formatBytes(
                       totalBytes,
                     )} per channel, (${height}, ${width}, ${depthDownsampled})`}
@@ -355,10 +308,30 @@ function LayerOptions({
   shouldShowDomain,
   shouldShowColormap,
   use3D,
+  setUse3D,
+  loader,
+  selections,
+  setResolution,
+  setBoundingCube,
+  resolution,
 }) {
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
+  const hasZStack = shape[labels.indexOf('z')] > 1;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
+      {hasZStack && (
+      <VolumeDropdown
+        use3D={use3D}
+        setUse3D={setUse3D}
+        loader={loader}
+        handleSliderChange={handleSliderChange}
+        handleDomainChange={handleDomainChange}
+        selections={selections}
+        setResolution={setResolution}
+        setBoundingCube={setBoundingCube}
+        resolution={resolution}
+      />
+      )}
       {hasDimensionsAndChannels
         && !use3D
         && globalControlLabels.map(
