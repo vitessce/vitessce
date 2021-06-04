@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React, { useEffect, useMemo } from 'react';
 import Ajv from 'ajv';
 import {
@@ -7,8 +8,9 @@ import {
 import isEqual from 'lodash/isEqual';
 import packageJson from '../../package.json';
 import { muiTheme } from '../components/shared-mui/styles';
-import configSchema from '../schemas/config.schema.json';
-import legacyConfigSchema from '../schemas/config-legacy.schema.json';
+import configSchema from '../schemas/config-1.0.1.schema.json';
+import configSchema1_0_0 from '../schemas/config-1.0.0.schema.json';
+import configSchema0_1_0 from '../schemas/config-0.1.0.schema.json';
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
 
@@ -75,10 +77,10 @@ export default function Vitessce(props) {
     }
     // Check if this is a "legacy" view config.
     let upgradedConfig = config;
-    if (config.version === '0.1.0') {
+    if (upgradedConfig.version === '0.1.0') {
       // Validate under the legacy schema first.
-      const validateLegacy = new Ajv().compile(legacyConfigSchema);
-      const validLegacy = validateLegacy(config);
+      const validateLegacy = new Ajv().compile(configSchema0_1_0);
+      const validLegacy = validateLegacy(upgradedConfig);
       if (!validLegacy) {
         const failureReason = JSON.stringify(validateLegacy.errors, null, 2);
         return [{
@@ -86,8 +88,23 @@ export default function Vitessce(props) {
           preformatted: failureReason,
         }, false];
       }
-      // Upgrade from v0.1.0 to v1.0.0 before v1.0.0 schema validation.
-      upgradedConfig = upgrade(config);
+      // Upgrade from v0.1.0 to v1.0.1 before v1.0.1 schema validation.
+      upgradedConfig = upgrade('0.1.0', upgradedConfig);
+    }
+    if (upgradedConfig.version === '1.0.0') {
+      // Validate under the legacy schema first.
+      const validateLegacy = new Ajv()
+        .addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_0);
+      const validLegacy = validateLegacy(upgradedConfig);
+      if (!validLegacy) {
+        const failureReason = JSON.stringify(validateLegacy.errors, null, 2);
+        return [{
+          title: 'Config validation failed',
+          preformatted: failureReason,
+        }, false];
+      }
+      // Upgrade from v1.0.0 to v1.0.1 before v1.0.1 schema validation.
+      upgradedConfig = upgrade('1.0.0', upgradedConfig);
     }
     // NOTE: Remove when a view config viewer/editor is available in UI.
     console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) view configuration`);

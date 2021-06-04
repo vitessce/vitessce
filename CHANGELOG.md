@@ -2,12 +2,67 @@
 
 ### Added
 - Added a new documentation site.
+- Add support for bitmasks to `Spatial` component and raster schema.
+- Worker pool for processing heatmap tiles.
+
+### Changed
+- Use GH Action for Cypress specifically due to random failures on OME-TIFF example.
+- Use raster loader for initial view state when present instead of cells.
+- Fix `VlenUtf8` parsing for zarr.
+- Fix bug where adding/removing layers only adds a `bitmask` controller.
+- Fix condition for showing lasso with bitmask and/or centroids.
+- Fix 0's displaying when selection is not enabled for `Spatial`.
+- Fix bug where polygons or centroids would show under the `bitmask`.
+- `bitmask` color texture creation assumed that `cellColors` prop was only rgb, but it can be rgba.
+- Fix bug where quadtree wouldn't work with only scatterplot.
+
+## [1.1.9](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-07
+
+### Added
+- Add opacity slider when `layerController` is closed, with label.
+
+### Changed
+- Fix `cellSetColor` null bug.
+- Improve violin plot performance by making `useExpressionByCellSet` faster.
+- Allow for autosizing `CellSetExpressionPlot` bottom margin depending on axis labels.
+- Make margin bottom of `CellSetExpressionPlot` proportional to the square root of the number of characters because the `labelAngle` is 45.
+
+## [1.1.8](https://www.npmjs.com/package/vitessce/v/1.1.8) - 2021-03-31
+
+### Added
+
+### Changed
+- Don't request `zattrs` every time when running `loadGeneSelection` on the AnnData loader.
+- Fixed scale bar not displaying from `Viv` `0.9.3` issue.
+- Fixed interleaved image not dispalying bug.
+- Fix `raster` schema bug.
+- Cache initial load of image settings.
+
+## [1.1.7](https://www.npmjs.com/package/vitessce/v/1.1.7) - 2021-03-24
+
+### Added
 - Added logo to README.
 - Log2 (plus 1) scaling for Violin Plot
 - Add gene name to expression violin plot.
+- Added a new view config schema version `1.0.1` which splits `spatialLayers` into `spatialRasterLayers`, `spatialCellsLayer`, `spatialMoleculesLayer`, and `spatialNeighborhoodsLayer`.
+    - Added an auto-upgrade function to upgrade from v1.0.0 to v1.0.1.
+    - Spatial layer definition objects in v1.0.1 do not have a `type` property.
+- Added support for OME-Zarr raster files with the `OmeZarrLoader` class.
+- Added a `title` prop for all subscriber components, to allow users to override component titles through the view config.
+- `fetchOptions` for zarr loader via `requestInit` in config.
 
 ### Changed
 - Fix bug from #867 where the view config is temporarily invalid due to null values.
+- Separate out hooks to allow for arbitrary gene slicing.
+- Update AnnData loader to handle artbitrary gene slicing.
+- Updated the data hook functions to handle coordination value initialization, rather than doing initialization at the subscriber component level.
+- `useDevicePixels` for large datasets in `AbstractSpatialOrScatterplot`.
+- Use `Array.from` instead of `new Array` for `BaseAnnDataLoader`
+- Use `concaveman` instead of `@turf/concave`.
+- Fix `categories` parsing for AnnData with `dtype=|O`.
+- Do not do call `makeDefaultGetCellIsSelected` if not necessary.
+- Upgrade `Viv` to 0.9.3.
+- Fix bug where formatting was required for image loader `metadata`.
 
 ## [1.1.6](https://www.npmjs.com/package/vitessce/v/1.1.6) - 2021-03-05
 

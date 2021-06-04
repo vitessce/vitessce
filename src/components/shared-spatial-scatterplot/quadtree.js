@@ -11,7 +11,10 @@ import { quadtree } from 'd3-quadtree';
 export function createCellsQuadTree(cellsEntries, getCellCoords) {
   // Use the cellsEntries variable since it is already
   // an array, converted by Object.entries().
-  if (!cellsEntries) {
+  // Only use cellsEntries in quadtree calculation if there is
+  // centroid data in the cells (i.e not just ids).
+  // eslint-disable-next-line no-unused-vars
+  if (!cellsEntries || !cellsEntries.length || !getCellCoords(cellsEntries[0][1])) {
     // Abort if the cells data is not yet available.
     return null;
   }

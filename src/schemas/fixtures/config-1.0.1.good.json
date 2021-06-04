@@ -33,5 +33,5 @@
     { "component": "FooBar", "props": { "foo": "bar" }, "x": 1, "y": 1, "w": 1, "h": 1 }
   ],
   "initStrategy": "auto",
-  "version": "1.0.0"
+  "version": "1.0.1"
 }

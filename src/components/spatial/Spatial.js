@@ -2,10 +2,11 @@ import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
 import { Matrix4 } from 'math.gl';
-import { MultiscaleImageLayer, ImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
+import { ScaleBarLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
-import { square } from './utils';
+import { getSourceFromLoader } from '../../utils';
+import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import {
   createCellsQuadTree,
@@ -78,6 +79,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.neighborhoodsLayer = null;
     this.imageLayers = [];
     this.layerLoaderSelections = {};
+    // Better for the bitmask layer when there is no color data to use this.
+    // 2048 is best for performance and for stability (4096 texture size is not always supported).
+    this.randomColorData = {
+      data: new Uint8Array(2048 * 2048 * 3).map(
+        (_, j) => (j < 4 ? 0 : Math.round(255 * Math.random())),
+      ),
+      // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
+      height: 2048,
+      width: 2048,
+    };
+    this.color = { ...this.randomColorData };
 
     // Initialize data and layers.
     this.onUpdateCellsData();
@@ -93,12 +105,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       radius, stroked, visible, opacity,
     } = layerDef;
+    const { cellsEntries } = this;
     const {
       cellFilter,
       cellSelection,
       setCellHighlight,
       setComponentHover,
-      getCellIsSelected = makeDefaultGetCellIsSelected(cellSelection),
+      getCellIsSelected = makeDefaultGetCellIsSelected(
+        cellsEntries.length === cellSelection.length ? null : cellSelection,
+      ),
       cellColors,
       getCellColor = makeDefaultGetCellColors(cellColors),
       getCellPolygon = makeDefaultGetCellPolygon(radius),
@@ -106,7 +121,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       lineWidthScale = 10,
       lineWidthMaxPixels = 2,
     } = this.props;
-    const { cellsEntries } = this;
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
@@ -231,16 +245,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (!viewState || !width || !height || loaders.length < 1) return null;
     const loader = loaders[0];
     if (!loader) return null;
-    const { physicalSizes } = loader;
+    const source = getSourceFromLoader(loader);
+    if (!source.meta) return null;
+    const { physicalSizes } = source.meta;
     if (physicalSizes) {
       const { x } = physicalSizes;
-      const { unit, value } = x;
-      if (unit && value) {
+      const { unit, size } = x;
+      if (unit && size) {
         return new ScaleBarLayer({
           id: 'scalebar-layer',
           loader,
           unit,
-          size: value,
+          size,
           viewState: { ...viewState, width, height },
         });
       }
@@ -279,24 +295,50 @@ class Spatial extends AbstractSpatialOrScatterplot {
     };
 
     if (!loader || !layerProps) return null;
-    const { scale, translate, isPyramid } = loader;
+    const { metadata: { transform }, data } = loader;
     let modelMatrix;
-    if (scale && translate) {
+    if (transform) {
+      const { scale, translate } = transform;
       modelMatrix = new Matrix4().translate([translate.x, translate.y, 0]).scale(scale);
     } else if (layerDef.modelMatrix) {
       // eslint-disable-next-line prefer-destructuring
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
-    const Layer = isPyramid ? MultiscaleImageLayer : ImageLayer;
+    if (rawLayerDef.type === 'bitmask') {
+      return new MultiscaleImageLayer({
+        // `bitmask` is used by the AbstractSpatialOrScatterplot
+        // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
+        id: `bitmask-layer-${layerDef.index}-${i}`,
+        channelIsOn: layerProps.visibilities,
+        opacity: layerProps.opacity,
+        modelMatrix,
+        hoveredCell: Number(this.props.cellHighlight),
+        renderSubLayers: renderSubBitmaskLayers,
+        loader: data,
+        loaderSelection,
+        // For some reason, deck.gl doesn't recognize the prop diffing
+        // unless these are separated out.  I don't think it's a bug, just
+        // has to do with the fact that we don't have it in the `defaultProps`,
+        // could be wrong though.
+        cellColorData: this.color.data,
+        cellColorHeight: this.color.height,
+        cellColorWidth: this.color.width,
+        excludeBackground: true,
+      });
+    }
+    const [Layer, layerLoader] = getLayerLoaderTuple(
+      data,
+      rawLayerDef.isBitmask,
+    );
     return new Layer({
-      loader,
+      loader: layerLoader,
       id: `image-layer-${layerDef.index}-${i}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
       loaderSelection,
       channelIsOn: layerProps.visibilities,
       opacity: layerProps.opacity,
-      colormap: (layerProps.colormap ? layerProps.colormap : ''),
+      colormap: layerProps.colormap,
       modelMatrix,
       transparentColor: layerProps.transparentColor,
     });
@@ -305,7 +347,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createImageLayers() {
     const { layers, imageLayerLoaders = {} } = this.props;
     return (layers || [])
-      .filter(layer => layer.type === 'raster')
+      .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
       .map((layer, i) => this.createImageLayer(
         layer, imageLayerLoaders[layer.index], i,
       ));
@@ -346,6 +388,29 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } else {
       this.cellsLayer = null;
     }
+  }
+
+  onUpdateCellColors() {
+    const color = this.randomColorData;
+    const { size } = this.props.cellColors;
+    if (size) {
+      const cellIds = this.props.cellColors.keys();
+      color.data = new Uint8Array(color.height * color.width * 3).fill(128);
+      // 0th cell id is the empty space of the image i.e black color.
+      color.data[0] = 0;
+      color.data[1] = 0;
+      color.data[2] = 0;
+      // eslint-disable-next-line no-restricted-syntax
+      for (const id of cellIds) {
+        if (id > 0) {
+          const cellColor = this.props.cellColors.get(id);
+          if (cellColor) {
+            color.data.set(cellColor.slice(0, 3), Number(id) * 3);
+          }
+        }
+      }
+    }
+    this.color = color;
   }
 
   onUpdateMoleculesData() {
@@ -421,6 +486,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
+    if (['cellColors'].some(shallowDiff)) {
+      // Cells Color layer props changed.
+      this.onUpdateCellColors();
+      this.forceUpdate();
+    }
+
     if (['molecules'].some(shallowDiff)) {
       // Molecules data changed.
       this.onUpdateMoleculesData();
@@ -445,7 +516,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'imageLayerLoaders'].some(shallowDiff)) {
+    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight'].some(shallowDiff)) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();

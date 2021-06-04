@@ -4,8 +4,8 @@ import isNil from 'lodash/isNil';
 import isEqual from 'lodash/isEqual';
 import range from 'lodash/range';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
-import concave from '@turf/concave';
 import centroid from '@turf/centroid';
+import concaveman from 'concaveman';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
@@ -419,7 +419,8 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
  */
 export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor) {
   let cellsArray = [];
-  selectedNamePaths.forEach((setNamePath) => {
+  for (let i = 0; i < selectedNamePaths.length; i += 1) {
+    const setNamePath = selectedNamePaths[i];
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
@@ -427,16 +428,13 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor) {
         setColor?.find(d => isEqual(d.path, setNamePath))?.color
         || DEFAULT_COLOR
       );
-      cellsArray = [
-        ...cellsArray,
-        ...nodeSet.map(([cellId]) => ({
-          obsId: cellId,
-          name: node.name,
-          color: nodeColor,
-        })),
-      ];
+      cellsArray = cellsArray.concat(nodeSet.map(([cellId]) => ({
+        obsId: cellId,
+        name: node.name,
+        color: nodeColor,
+      })));
     }
-  });
+  }
   return cellsArray;
 }
 
@@ -457,15 +455,15 @@ export function treeToCellPolygonsBySetNames(
           cells[cellId]?.mappings[mapping][0],
           -cells[cellId]?.mappings[mapping][1],
         ]))
-        .filter(Boolean);
+        .filter(cell => cell.every(i => typeof i === 'number'));
 
       if (cellPositions.length > 2) {
         const points = turfFeatureCollection(
           cellPositions.map(turfPoint),
         );
-        const hull = concave(points);
-        if (hull) {
-          const hullCoords = hull.geometry.coordinates;
+        const concavity = Infinity;
+        const hullCoords = concaveman(cellPositions, concavity);
+        if (hullCoords) {
           const centroidCoords = centroid(points).geometry.coordinates;
           cellSetPolygons.push({
             path: setNamePath,

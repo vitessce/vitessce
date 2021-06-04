@@ -8,7 +8,12 @@ import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
-import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
+import {
+  useCellsData,
+  useCellSetsData,
+  useGeneSelection,
+  useExpressionAttrs,
+} from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
@@ -23,6 +28,18 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
+/**
+ * A subscriber component for the scatterplot.
+ * @param {object} props
+ * @param {number} props.uuid The unique identifier for this component.
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {boolean} props.disableTooltip Should the tooltip be disabled?
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {string} props.title An override value for the component title.
+ */
 export default function ScatterplotSubscriber(props) {
   const {
     uuid,
@@ -32,6 +49,7 @@ export default function ScatterplotSubscriber(props) {
     disableTooltip = false,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
+    title: titleOverride,
   } = props;
 
   const loaders = useLoaders();
@@ -80,6 +98,8 @@ export default function ScatterplotSubscriber(props) {
     SCATTERPLOT_DATA_TYPES,
   );
 
+  const title = titleOverride || `Scatterplot (${mapping})`;
+
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
@@ -95,11 +115,15 @@ export default function ScatterplotSubscriber(props) {
     setItemIsReady,
     addUrl,
     false,
+    { setCellSetSelection, setCellSetColor },
+    { cellSetSelection, cellSetColor },
   );
-  const [expressionMatrix] = useExpressionMatrixData(
+  const [expressionData] = useGeneSelection(
+    loaders, dataset, setItemIsReady, false, geneSelection,
+  );
+  const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
-
   const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
@@ -117,13 +141,14 @@ export default function ScatterplotSubscriber(props) {
 
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
-    expressionMatrix,
+    expressionData: expressionData && expressionData[0],
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
+    expressionDataAttrs: attrs,
   }), [cellColorEncoding, geneSelection, mergedCellSets,
-    cellSetSelection, cellSetColor, expressionMatrix]);
+    cellSetSelection, cellSetColor, expressionData, attrs]);
 
   const cellSetPolygons = useMemo(() => getCellSetPolygons({
     cells,
@@ -175,7 +200,7 @@ export default function ScatterplotSubscriber(props) {
 
   return (
     <TitleInfo
-      title={`Scatterplot (${mapping})`}
+      title={title}
       info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}

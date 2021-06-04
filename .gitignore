@@ -5,6 +5,7 @@
 /.docz
 /demo/dist
 npm-debug.log*
+venv
 
 # misc
 .DS_Store

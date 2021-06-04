@@ -1,4 +1,4 @@
-export const GLOBAL_SLIDER_DIMENSION_FIELDS = ['z', 'time'];
+export const GLOBAL_LABELS = ['z', 't'];
 
 export const DEFAULT_RASTER_DOMAIN_TYPE = 'Min/Max';
 
@@ -10,13 +10,13 @@ export const DEFAULT_RASTER_LAYER_PROPS = {
 };
 
 export const DEFAULT_MOLECULES_LAYER = {
-  type: 'molecules', opacity: 1, radius: 20, visible: true,
+  opacity: 1, radius: 20, visible: true,
 };
 export const DEFAULT_CELLS_LAYER = {
-  type: 'cells', opacity: 1, radius: 50, visible: true, stroked: false,
+  opacity: 1, radius: 50, visible: true, stroked: false,
 };
 export const DEFAULT_NEIGHBORHOODS_LAYER = {
-  type: 'neighborhoods', visible: false,
+  visible: false,
 };
 
 export const DEFAULT_LAYER_TYPE_ORDERING = [

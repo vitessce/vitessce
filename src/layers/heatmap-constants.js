@@ -1,4 +1,4 @@
-import GL from '@luma.gl/constants';
+import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 
 export const TILE_SIZE = 2048;
 export const MIN_ROW_AGG = 1;

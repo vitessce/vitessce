@@ -1,17 +1,23 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
-import { cloneDeep, isEqual } from 'lodash';
-import { getChannelStats, getDefaultInitialViewState } from '@hms-dbmi/viv';
+import isEqual from 'lodash/isEqual';
+import {
+  getChannelStats,
+  getDefaultInitialViewState,
+  MultiscaleImageLayer,
+  ImageLayer,
+} from '@hms-dbmi/viv';
 import { extent } from 'd3-array';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
-import { pluralize } from '../../utils';
+import { pluralize, getSourceFromLoader, isRgb } from '../../utils';
 import { VIEWER_PALETTE } from '../utils';
 import {
-  GLOBAL_SLIDER_DIMENSION_FIELDS,
+  GLOBAL_LABELS,
   DEFAULT_RASTER_LAYER_PROPS,
   DEFAULT_LAYER_TYPE_ORDERING,
 } from './constants';
+import BitmaskLayer from '../../layers/BitmaskLayer';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
@@ -35,15 +41,17 @@ export function sortLayers(layers) {
 
 /**
  * Return the midpoint of the global dimensions.
- * @param {object[]} imageDims Loader dimensions object array.
+ * @param {object} source PixelSource object from Viv
  * @returns {object} The selection.
  */
-function getDefaultGlobalSelection(imageDims) {
-  const globalIndices = imageDims
-    .filter(dim => GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim.field));
+function getDefaultGlobalSelection(source) {
+  const globalIndices = source.labels
+    .filter(dim => GLOBAL_LABELS.includes(dim));
   const selection = {};
   globalIndices.forEach((dim) => {
-    selection[dim.field] = Math.floor((dim.values.length || 0) / 2);
+    selection[dim] = Math.floor(
+      (source.shape[source.labels.indexOf(dim)] || 0) / 2,
+    );
   });
   return selection;
 }
@@ -51,20 +59,23 @@ function getDefaultGlobalSelection(imageDims) {
 /**
  * Create a default selection using the midpoint of the available global dimensions,
  * and then the first four available selections from the first selectable channel.
- * @param {object[]} imageDims Loader dimensions object array.
+ * @param {object} source PixelSource object from Viv
  * @returns {object} The selection.
  */
-function buildDefaultSelection(imageDims) {
+function buildDefaultSelection(source) {
   const selection = [];
-  const globalSelection = getDefaultGlobalSelection(imageDims);
+  const globalSelection = getDefaultGlobalSelection(source);
   // First non-global dimension with some sort of selectable values
-  const firstNonGlobalDimension = imageDims.filter(
-    dim => !GLOBAL_SLIDER_DIMENSION_FIELDS.includes(dim.field) && dim.values,
+  const firstNonGlobalDimension = source.labels.filter(
+    dim => !GLOBAL_LABELS.includes(dim)
+      && source.shape[source.labels.indexOf(dim)],
   )[0];
-  for (let i = 0; i < Math.min(4, firstNonGlobalDimension.values.length); i += 1) {
+  for (let i = 0; i < Math.min(4, source.shape[
+    source.labels.indexOf(firstNonGlobalDimension)
+  ]); i += 1) {
     selection.push(
       {
-        [firstNonGlobalDimension.field]: i,
+        [firstNonGlobalDimension]: i,
         ...globalSelection,
       },
     );
@@ -73,50 +84,40 @@ function buildDefaultSelection(imageDims) {
 }
 
 /**
- * Initialize the channel settings for an individual channel and selection.
- * @param {object} loader A viv loader instance, for either Zarr or OME-TIFF.
- * @param {object} selection The channel selection object.
- * @param {number} i The index of this channel for the layer.
- * @returns {object} The initialized channel with
- * domain/slider settings.
+ * @param {Array.<number>} shape loader shape
  */
-export async function initializeChannelForSelection(loader, selection, i) {
-  // Get stats because initial value is Min/Max for domainType.
-  const stats = await getChannelStats({ loader, loaderSelection: [selection] });
-
-  const domain = loader.isRgb ? [[0, 255], [0, 255], [0, 255]][i] : stats[0].domain;
-  const color = loader.isRgb ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]][i] : VIEWER_PALETTE[i];
-  const slider = loader.isRgb ? [[0, 255], [0, 255], [0, 255]][i] : stats[0].autoSliders;
-
-  return {
-    selection,
-    color,
-    visible: true,
-    slider: slider || domain,
-  };
+export function isInterleaved(shape) {
+  const lastDimSize = shape[shape.length - 1];
+  return lastDimSize === 3 || lastDimSize === 4;
 }
 
 /**
  * Initialize the channel selections for an individual layer.
- * @param {object} loader A viv loader instance, for either Zarr or OME-TIFF.
+ * @param {object} loader A viv loader instance with channel names appended by Vitessce loaders
+ * of the form { data: (PixelSource[]|PixelSource), metadata: Object, channels }
  * @returns {object[]} An array of selected channels with default
  * domain/slider settings.
  */
 export async function initializeLayerChannels(loader) {
   const result = [];
-  const loaderDimensions = loader.dimensions;
+  const source = getSourceFromLoader(loader);
   // Add channel automatically as the first avaialable value for each dimension.
-  const defaultSelection = buildDefaultSelection(loaderDimensions);
+  let defaultSelection = buildDefaultSelection(source);
+  defaultSelection = isInterleaved(source.shape)
+    ? [{ ...defaultSelection[0], c: 0 }] : defaultSelection;
   // Get stats because initial value is Min/Max for domainType.
-  const stats = await getChannelStats({ loader, loaderSelection: defaultSelection });
+  const raster = await Promise.all(
+    defaultSelection.map(selection => source.getRaster({ selection })),
+  );
+  const stats = raster.map(({ data: d }) => getChannelStats(d));
 
-  const domains = loader.isRgb
+  const domains = isRgb(loader)
     ? [[0, 255], [0, 255], [0, 255]]
     : stats.map(stat => stat.domain);
-  const colors = loader.isRgb
+  const colors = isRgb(loader)
     ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
     : null;
-  const sliders = loader.isRgb
+  const sliders = isRgb(loader)
     ? [[0, 255], [0, 255], [0, 255]]
     : stats.map(stat => stat.autoSliders);
 
@@ -134,84 +135,34 @@ export async function initializeLayerChannels(loader) {
   return result;
 }
 
-/**
- * A user may want to use pre-defined channels of interest
- * (defined in a `spatialLayers` coordination object),
- * but wants to allow Vitessce to auto-initialize the
- * sliders, colors, and/or domains for those channels.
- * This function allows those channel properties to
- * be initialized.
- * @param {object[]} layerDefsOrig The original array
- * of user-defined layer definitions, which must contain
- * an array of channel definitions with the .selection
- * property, but may be missing the .domain, .color, .visible,
- * or .slider properties.
- * @param {object} loaders Mapping from layer index to loader
- * instance.
- * @returns {Promise<array>} A tuple of [newLayerDefs, didInitialize],
- * where newLayerDefs is an array of the layers which contains
- * initialized channel properties,
- * and didInitialize is a boolean value indicating whether any
- * channels were initialized.
- */
-export async function initializeLayerChannelsIfMissing(layerDefsOrig, loaders) {
-  const layerDefs = cloneDeep(layerDefsOrig);
-  const newLayerDefPromises = [];
-
-  let didInitialize = false;
-  for (let layerIndex = 0; layerIndex < layerDefs.length; layerIndex++) {
-    const layerDef = layerDefs[layerIndex];
-    const loader = loaders[layerDef.index];
-    let newLayerDefPromise = Promise.resolve(layerDef);
-    if (layerDef.channels) {
-      const newChannelDefPromises = [];
-      for (let channelIndex = 0; channelIndex < layerDef.channels.length; channelIndex++) {
-        const channelDef = layerDef.channels[channelIndex];
-        let newChannelDefPromise = Promise.resolve(channelDef);
-        // Only auto-initialize if domains, colors, or sliders is missing.
-        if (channelDef.selection && !(channelDef.color && channelDef.slider)) {
-          newChannelDefPromise = initializeChannelForSelection(
-            loader, channelDef.selection, channelIndex,
-          )
-            .then(autoChannelDef => Promise.resolve({ ...autoChannelDef, ...channelDef }));
-          didInitialize = true;
-        }
-        newChannelDefPromises.push(newChannelDefPromise);
-      }
-      newLayerDefPromise = Promise.all(newChannelDefPromises)
-        .then(newChannelDefs => Promise.resolve({ ...layerDef, channels: newChannelDefs }));
-    }
-    newLayerDefPromises.push(newLayerDefPromise);
-  }
-  const newLayerDefs = await Promise.all(newLayerDefPromises);
-  return [newLayerDefs, didInitialize];
-}
-
 function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   // Do not fill in transformation matrices if any of the layers specify one.
+  const sources = imageLoaders.map(loader => getSourceFromLoader(loader));
   if (
     imageMeta.map(meta => meta?.metadata?.transform?.matrix
       || meta?.metadata?.transform?.scale
       || meta?.metadata?.transform?.translate).some(Boolean)
-      || imageLoaders.every(loader => !loader?.physicalSizes?.x || !loader?.physicalSizes?.y)
+    || sources.every(
+      source => !source.meta?.physicalSizes?.x || !source.meta?.physicalSizes?.y,
+    )
   ) {
     return imageMeta;
   }
   // Get the minimum physical among all the current images.
-  const minPhysicalSize = imageLoaders.reduce((acc, loader) => {
+  const minPhysicalSize = sources.reduce((acc, source) => {
     const sizes = [
-      unit(`${loader.physicalSizes.x.value} ${loader.physicalSizes.x.unit}`.replace('µ', 'u')),
-      unit(`${loader.physicalSizes.y.value} ${loader.physicalSizes.y.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
     ];
     acc[0] = (acc[0] === undefined || compare(sizes[0], acc[0]) === -1) ? sizes[0] : acc[0];
     acc[1] = (acc[1] === undefined || compare(sizes[1], acc[1]) === -1) ? sizes[1] : acc[1];
     return acc;
   }, []);
   const imageMetaWithTransform = imageMeta.map((meta, j) => {
-    const loader = imageLoaders[j];
+    const source = sources[j];
     const sizes = [
-      unit(`${loader.physicalSizes.x.value} ${loader.physicalSizes.x.unit}`.replace('µ', 'u')),
-      unit(`${loader.physicalSizes.y.value} ${loader.physicalSizes.y.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
     ];
     // Find the ratio of the sizes to get the scaling factor.
     const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));
@@ -248,7 +199,7 @@ export async function initializeRasterLayersAndChannels(
   usePhysicalSizeScaling,
 ) {
   const nextImageLoaders = [];
-  let nextImageMeta = [];
+  let nextImageMetaAndLayers = [];
   const autoImageLayerDefPromises = [];
 
   // Start all loader creators immediately.
@@ -259,10 +210,10 @@ export async function initializeRasterLayersAndChannels(
     const layer = rasterLayers[i];
     const loader = loaders[i];
     nextImageLoaders[i] = loader;
-    nextImageMeta[i] = layer;
+    nextImageMetaAndLayers[i] = layer;
   }
   if (usePhysicalSizeScaling) {
-    nextImageMeta = getMetaWithTransformMatrices(nextImageMeta, nextImageLoaders);
+    nextImageMetaAndLayers = getMetaWithTransformMatrices(nextImageMetaAndLayers, nextImageLoaders);
   }
   // No layers were pre-defined so set up the default image layers.
   if (!rasterRenderLayers) {
@@ -271,7 +222,16 @@ export async function initializeRasterLayersAndChannels(
     const loader = nextImageLoaders[layerIndex];
     const autoImageLayerDefPromise = initializeLayerChannels(loader)
       .then(channels => Promise.resolve({
-        type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix, transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
+        type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
+        index: layerIndex,
+        ...DEFAULT_RASTER_LAYER_PROPS,
+        channels: channels.map((channel, j) => ({
+          ...channel,
+          ...(nextImageMetaAndLayers[layerIndex].channels
+            ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
+        })),
+        modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
+        transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
       }));
     autoImageLayerDefPromises.push(autoImageLayerDefPromise);
   } else {
@@ -284,14 +244,24 @@ export async function initializeRasterLayersAndChannels(
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: 'raster', index: layerIndex, ...DEFAULT_RASTER_LAYER_PROPS, channels, domainType: 'Min/Max', modelMatrix: nextImageMeta[layerIndex]?.metadata?.transform?.matrix, transparentColor: i > 0 ? [0, 0, 0] : null,
+          type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
+          index: layerIndex,
+          ...DEFAULT_RASTER_LAYER_PROPS,
+          channels: channels.map((channel, j) => ({
+            ...channel,
+            ...(nextImageMetaAndLayers[layerIndex].channels
+              ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
+          })),
+          domainType: 'Min/Max',
+          modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
+          transparentColor: i > 0 ? [0, 0, 0] : null,
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);
     }
   }
 
   const autoImageLayerDefs = await Promise.all(autoImageLayerDefPromises);
-  return [autoImageLayerDefs, nextImageLoaders, nextImageMeta];
+  return [autoImageLayerDefs, nextImageLoaders, nextImageMetaAndLayers];
 }
 
 /**
@@ -331,6 +301,7 @@ export function getInitialSpatialTargets({
   height,
   cells,
   imageLayerLoaders,
+  useRaster,
 }) {
   let initialTargetX = -Infinity;
   let initialTargetY = -Infinity;
@@ -338,11 +309,11 @@ export function getInitialSpatialTargets({
   // Some backoff from completely filling the screen.
   const zoomBackoff = 0.1;
   const cellValues = Object.values(cells);
-  if (imageLayerLoaders.length > 0) {
+  if (imageLayerLoaders.length > 0 && useRaster) {
     for (let i = 0; i < imageLayerLoaders.length; i += 1) {
       const viewSize = { height, width };
       const { target, zoom: newViewStateZoom } = getDefaultInitialViewState(
-        imageLayerLoaders[i],
+        imageLayerLoaders[i].data,
         viewSize,
         zoomBackoff,
       );
@@ -357,15 +328,95 @@ export function getInitialSpatialTargets({
         initialZoom = newViewStateZoom;
       }
     }
-  } else if (cellValues.length > 0) {
+  } else if (cellValues.length > 0
+    // Only use cellValues in quadtree calculation if there is
+    // centroid data in the cells (i.e not just ids).
+    && cellValues[0].xy
+    && !useRaster) {
     const cellCoordinates = cellValues.map(c => c.xy);
-    const xExtent = extent(cellCoordinates, c => c[0]);
-    const yExtent = extent(cellCoordinates, c => c[1]);
-    const xRange = xExtent[1] - xExtent[0];
-    const yRange = yExtent[1] - yExtent[0];
+    let xExtent = extent(cellCoordinates, c => c[0]);
+    let yExtent = extent(cellCoordinates, c => c[1]);
+    let xRange = xExtent[1] - xExtent[0];
+    let yRange = yExtent[1] - yExtent[0];
+    const getViewExtentFromPolygonExtents = extents => [
+      Math.min(...extents.map(i => i[0])),
+      Math.max(...extents.map(i => i[1])),
+    ];
+    if (xRange === 0) {
+      // The fall back is the cells' polygon coordinates, if the original range
+      // is 0 i.e the centroids are all on the same axis.
+      const polygonExtentsX = cellValues.map(cell => extent(cell.poly, i => i[0]));
+      xExtent = getViewExtentFromPolygonExtents(polygonExtentsX);
+      xRange = xExtent[1] - xExtent[0];
+    }
+    if (yRange === 0) {
+      // The fall back is the first cells' polygon coordinates, if the original range
+      // is 0 i.e the centroids are all on the same axis.
+      const polygonExtentsY = cellValues.map(cell => extent(cell.poly, i => i[1]));
+      yExtent = getViewExtentFromPolygonExtents(polygonExtentsY);
+      yRange = yExtent[1] - yExtent[0];
+    }
     initialTargetX = xExtent[0] + xRange / 2;
     initialTargetY = yExtent[0] + yRange / 2;
     initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
+  } else {
+    return { initialTargetX: null, initialTargetY: null, initialZoom: null };
   }
   return { initialTargetX, initialTargetY, initialZoom };
+}
+
+/**
+ * Make a subtitle for the spatial component.
+ * @param {object} data PixelSource | PixelSource[]
+ * @returns {Array} [Layer, PixelSource | PixelSource[]] tuple.
+ */
+export function getLayerLoaderTuple(data) {
+  const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;
+  const loader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
+    ? data : data[0];
+  return [Layer, loader];
+}
+
+
+export function renderSubBitmaskLayers(props) {
+  const {
+    bbox: {
+      left, top, right, bottom,
+    },
+    x,
+    y,
+    z,
+  } = props.tile;
+  const { data, id, loader } = props;
+  // Only render in positive coorinate system
+  if ([left, bottom, right, top].some(v => v < 0) || !data) {
+    return null;
+  }
+  const base = loader[0];
+  const [height, width] = loader[0].shape.slice(-2);
+  // Tiles are exactly fitted to have height and width such that their bounds
+  // match that of the actual image (not some padded version).
+  // Thus the right/bottom given by deck.gl are incorrect since
+  // they assume tiles are of uniform sizes, which is not the case for us.
+  const bounds = [
+    left,
+    data.height < base.tileSize ? height : bottom,
+    data.width < base.tileSize ? width : right,
+    top,
+  ];
+  return new BitmaskLayer(props, {
+    channelData: data,
+    cellColor: {
+      data: props.cellColorData,
+      height: props.cellColorHeight,
+      width: props.cellColorWidth,
+    },
+    // Uncomment to help debugging - shades the tile being hovered over.
+    // autoHighlight: true,
+    // highlightColor: [80, 80, 80, 50],
+    // Shared props with BitmapLayer:
+    bounds,
+    id: `sub-layer-${bounds}-${id}`,
+    tileId: { x, y, z },
+  });
 }

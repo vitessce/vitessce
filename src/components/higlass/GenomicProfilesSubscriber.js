@@ -37,6 +37,11 @@ const REFERENCE_TILESETS = {
  * A component for visualization of genomic profiles
  * with genome-wide bar plots.
  * @param {object} props The component props.
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
  * @param {string} props.profileTrackUidKey The key in the genomic profiles row_info that identifies
  * each track. By default, 'path'.
  * @param {string} props.profileTrackNameKey The key in the genomic profiles row_info that
@@ -47,6 +52,7 @@ const REFERENCE_TILESETS = {
  * reference tilesets for the chromosome and gene annotations.
  * @param {string} props.assembly The genome assembly to use for the reference
  * tilesets for the chromosome and gene annotations.
+ * @param {string} props.title The title of the component.
  */
 export default function GenomicProfilesSubscriber(props) {
   const {
@@ -57,6 +63,7 @@ export default function GenomicProfilesSubscriber(props) {
     profileTrackNameKey = null,
     higlassServer = 'https://higlass.io/api/v1',
     assembly = 'hg38',
+    title = 'Genomic Profiles',
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -232,7 +239,7 @@ export default function GenomicProfilesSubscriber(props) {
   return (
     <div className="higlass-title-wrapper">
       <TitleInfo
-        title="Genomic Profiles"
+        title={title}
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady={isReady}

@@ -5,7 +5,7 @@ import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
-import { useExpressionMatrixData } from '../data-hooks';
+import { useExpressionMatrixData, useGeneSelection } from '../data-hooks';
 import ExpressionHistogram from './ExpressionHistogram';
 
 const EXPRESSION_HISTOGRAM_DATA_TYPES = ['expression-matrix'];
@@ -52,6 +52,10 @@ export default function ExpressionHistogramSubscriber(props) {
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
+  // Get data from loaders using the data hooks.
+  const [expressionData] = useGeneSelection(
+    loaders, dataset, setItemIsReady, false, geneSelection,
+  );
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
     ? geneSelection[0]
@@ -60,18 +64,15 @@ export default function ExpressionHistogramSubscriber(props) {
   // From the expression matrix and the list of selected genes,
   // generate the array of data points for the histogram.
   const data = useMemo(() => {
-    if (firstGeneSelected && expressionMatrix) {
-      const numGenes = expressionMatrix.cols.length;
-      const geneIndex = expressionMatrix.cols.indexOf(firstGeneSelected);
-      if (geneIndex !== -1) {
-        // Create new cellColors map based on the selected gene.
-        return expressionMatrix.rows.map((cellId, cellIndex) => {
-          const value = expressionMatrix.matrix[cellIndex * numGenes + geneIndex];
-          const normValue = value * 100 / 255;
-          return { value: normValue, gene: firstGeneSelected };
-        });
-      }
-    } else if (expressionMatrix) {
+    if (firstGeneSelected && expressionMatrix && expressionData) {
+      // Create new cellColors map based on the selected gene.
+      return Array.from(expressionData[0]).map((_, index) => {
+        const value = expressionData[0][index];
+        const normValue = value * 100 / 255;
+        return { value: normValue, gene: firstGeneSelected };
+      });
+    }
+    if (expressionMatrix) {
       const numGenes = expressionMatrix.cols.length;
       return expressionMatrix.rows.map((cellId, cellIndex) => {
         const values = expressionMatrix.matrix
@@ -81,7 +82,7 @@ export default function ExpressionHistogramSubscriber(props) {
       });
     }
     return null;
-  }, [expressionMatrix, firstGeneSelected]);
+  }, [expressionMatrix, firstGeneSelected, expressionData]);
 
   return (
     <TitleInfo

@@ -5,18 +5,46 @@ import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
 import { mergeCellSets } from '../utils';
-import { useCellsData, useCellSetsData, useExpressionMatrixData } from '../data-hooks';
+import {
+  useCellsData,
+  useCellSetsData,
+  useExpressionMatrixData,
+  useGeneSelection,
+} from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import {
   useCoordination, useLoaders,
   useSetComponentHover, useSetComponentViewInfo,
 } from '../../app/state/hooks';
-import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import {
+  COMPONENT_COORDINATION_TYPES,
+} from '../../app/state/coordination';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 
 const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 
+/**
+ * @param {object} props
+ * @param {number} props.uuid The unique identifier for this component.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {string} props.title The component title.
+ * @param {boolean} props.transpose Whether to
+ * render as cell-by-gene or gene-by-cell.
+ * @param {string} props.observationsLabelOverride The singular
+ * form of the name of the observation.
+ * @param {string} props.observationsPluralLabelOverride The
+ * plural form of the name of the observation.
+ * @param {string} props.variablesLabelOverride The singular
+ * form of the name of the variable.
+ * @param {string} props.variablesPluralLabelOverride The plural
+ * form of the name of the variable.
+ * @param {boolean} props.disableTooltip Whether to disable the
+ * tooltip on mouse hover.
+ */
 export default function HeatmapSubscriber(props) {
   const {
     uuid,
@@ -27,6 +55,7 @@ export default function HeatmapSubscriber(props) {
     variablesLabelOverride: variablesLabel = 'gene',
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     disableTooltip = false,
+    title = 'Heatmap',
   } = props;
 
   const loaders = useLoaders();
@@ -54,6 +83,8 @@ export default function HeatmapSubscriber(props) {
     setHeatmapTargetY: setTargetY,
     setCellHighlight,
     setGeneHighlight,
+    setCellSetSelection,
+    setCellSetColor,
     setGeneExpressionColormapRange: setHeatmapControls,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
 
@@ -79,7 +110,14 @@ export default function HeatmapSubscriber(props) {
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
-  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, false);
+  const [expressionData] = useGeneSelection(
+    loaders, dataset, setItemIsReady, false, geneSelection,
+  );
+  const [cellSets] = useCellSetsData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    { setCellSetSelection, setCellSetColor },
+    { cellSetSelection, cellSetColor },
+  );
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
@@ -87,13 +125,14 @@ export default function HeatmapSubscriber(props) {
 
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
-    expressionMatrix,
+    expressionData: expressionData && expressionData[0],
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-  }), [cellColorEncoding, geneSelection, mergedCellSets,
-    cellSetColor, cellSetSelection, expressionMatrix]);
+    expressionDataAttrs: expressionMatrix,
+  }), [cellColorEncoding, mergedCellSets, geneSelection,
+    cellSetColor, cellSetSelection, expressionData, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
@@ -120,7 +159,7 @@ export default function HeatmapSubscriber(props) {
   const selectedCount = cellColors.size;
   return (
     <TitleInfo
-      title="Heatmap"
+      title={title}
       info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)} × ${genesCount} ${pluralize(variablesLabel, variablesPluralLabel, genesCount)},
              with ${selectedCount} ${pluralize(observationsLabel, observationsPluralLabel, selectedCount)} selected`}
       urls={urls}

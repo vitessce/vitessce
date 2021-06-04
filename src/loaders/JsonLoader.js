@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
 import AbstractLoader from './AbstractLoader';
 import { LoaderFetchError, LoaderValidationError, AbstractLoaderError } from './errors/index';
+import LoaderResult from './LoaderResult';
 
 import cellsSchema from '../schemas/cells.schema.json';
 import moleculesSchema from '../schemas/molecules.schema.json';
@@ -45,7 +46,7 @@ export default class JsonLoader extends AbstractLoader {
         }
         const [valid, reason] = this.validate(data);
         if (valid) {
-          return Promise.resolve({ data, url });
+          return Promise.resolve(new LoaderResult(data, url));
         }
         return Promise.reject(new LoaderValidationError(type, fileType, url, reason));
       });

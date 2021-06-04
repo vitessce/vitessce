@@ -3,6 +3,7 @@ import range from 'lodash/range';
 import clustersSchema from '../schemas/clusters.schema.json';
 import JsonLoader from './JsonLoader';
 import { AbstractLoaderError } from './errors';
+import LoaderResult from './LoaderResult';
 
 export default class ClustersJsonAsMatrixZarrLoader extends JsonLoader {
   constructor(params) {
@@ -38,6 +39,6 @@ export default class ClustersJsonAsMatrixZarrLoader extends JsonLoader {
     // Need to wrap the NestedArray to mock the HTTPStore-based array
     // which returns promises.
     const arr = { data: Uint8Array.from(normalizedFlatMatrix) };
-    return Promise.resolve({ data: [attrs, arr], url });
+    return Promise.resolve(new LoaderResult([attrs, arr], url));
   }
 }

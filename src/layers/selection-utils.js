@@ -1,5 +1,5 @@
 import { COORDINATE_SYSTEM } from 'deck.gl';
-import { DataFilterExtension } from '@deck.gl/extensions';
+import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-line import/no-extraneous-dependencies
 import SelectionLayer from './SelectionLayer';
 
 /**

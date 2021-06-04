@@ -7,8 +7,6 @@ die() { set +v; echo "$*" 1>&2 ; sleep 1; exit 1; }
 # Race condition truncates logs on Travis: "sleep" might help.
 # https://github.com/travis-ci/travis-ci/issues/6018
 
-export CI=true
-
 PATH=$PATH:`npm bin`
 
 start changelog
@@ -27,9 +25,12 @@ npm test
 end test
 
 start cypress
-npm start & wait-on http://localhost:3000/
-cypress run
-echo 'NOTE: Server is still running.'
+# Cypress fails randomly on GH Actions so we only run this locally.
+if [ "$CI" != 'true' ]; then
+  npm start & wait-on http://localhost:3000/
+  npm run cypress:run
+  echo 'NOTE: Server is still running.'
+fi
 end cypress
 
 start schema

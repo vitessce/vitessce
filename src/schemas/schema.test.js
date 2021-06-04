@@ -6,7 +6,7 @@ import expect from 'expect';
 
 describe('schemas', () => {
   [
-    'config',
+    'config-1.0.1',
     'cells',
     'clusters',
     'genes',
@@ -20,7 +20,7 @@ describe('schemas', () => {
     describe(schemaFile, () => {
       const schema = require(`./${schemaFile}`);
       let validate;
-      if (type === 'config') {
+      if (type === 'config-1.0.1') {
         const cellSets = require('./cell-sets.schema.json');
         const raster = require('./raster.schema.json');
         validate = new Ajv()

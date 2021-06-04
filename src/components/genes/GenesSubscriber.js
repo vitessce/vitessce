@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
-import { useExpressionMatrixData } from '../data-hooks';
+import { useExpressionAttrs } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -10,6 +10,20 @@ import Genes from './Genes';
 
 const GENES_DATA_TYPES = ['expression-matrix'];
 
+/**
+ * A subscriber component for a gene listing component.
+ * @param {object} props
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {string} props.title The component title.
+ * @param {string} props.variablesLabelOverride The singular form
+ * of the name of the variable.
+ * @param {string} props.variablesPluralLabelOverride The plural
+ * form of the name of the variable.
+ */
 export default function GenesSubscriber(props) {
   const {
     coordinationScopes,
@@ -17,6 +31,7 @@ export default function GenesSubscriber(props) {
     variablesLabelOverride: variablesLabel = 'gene',
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
+    title = 'Expression Levels',
   } = props;
 
   const loaders = useLoaders();
@@ -47,10 +62,10 @@ export default function GenesSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [expressionMatrix] = useExpressionMatrixData(
+  const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
-  const geneList = expressionMatrix ? expressionMatrix.cols : [];
+  const geneList = attrs ? attrs.cols : [];
   const numGenes = geneList.length;
 
   function setGeneSelectionAndColorEncoding(newSelection) {
@@ -60,7 +75,7 @@ export default function GenesSubscriber(props) {
 
   return (
     <TitleInfo
-      title="Expression Levels"
+      title={title}
       info={`${numGenes} ${pluralize(variablesLabel, variablesPluralLabel, numGenes)}`}
       theme={theme}
       // Virtual scroll is used but this allows for the same styling as a scroll component

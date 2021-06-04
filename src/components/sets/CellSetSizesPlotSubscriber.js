@@ -19,12 +19,14 @@ const CELL_SET_SIZES_DATA_TYPES = ['cell-sets'];
  * @param {function} props.onReady The function to call when the subscriptions
  * have been made.
  * @param {string} props.theme The name of the current Vitessce theme.
+ * @param {string} props.title The component title.
  */
 export default function CellSetSizesPlotSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
     theme,
+    title = 'Cell Set Sizes',
   } = props;
 
   const loaders = useLoaders();
@@ -35,6 +37,9 @@ export default function CellSetSizesPlotSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     additionalCellSets,
+  }, {
+    setCellSetSelection,
+    setCellSetColor,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetSizes, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
@@ -51,7 +56,11 @@ export default function CellSetSizesPlotSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cellSets] = useCellSetsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cellSets] = useCellSetsData(
+    loaders, dataset, setItemIsReady, addUrl, true,
+    { setCellSetSelection, setCellSetColor },
+    { cellSetSelection, cellSetColor },
+  );
 
   const mergedCellSets = useMemo(
     () => mergeCellSets(cellSets, additionalCellSets),
@@ -60,14 +69,14 @@ export default function CellSetSizesPlotSubscriber(props) {
 
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
-  const data = useMemo(() => (mergedCellSets && cellSetSelection
+  const data = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
     ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor)
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor]);
 
   return (
     <TitleInfo
-      title="Cell Set Sizes"
+      title={title}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

@@ -1,6 +1,10 @@
 # Adapted from https://github.com/vega/vega/blob/4b945e22905c610ccc2bdd28471a6f1f80aa1636/.github/workflows/test.yml
 name: Test
-on: [push, pull_request]
+on:
+  push:
+    branches:
+    - master
+  pull_request:
 
 jobs:
   test:
@@ -17,10 +21,6 @@ jobs:
     
     name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
     
-    # We want to run on external PRs, but not on our own internal PRs as they'll be run
-    # by the push to the branch.
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
-    
     steps:
       - uses: actions/checkout@v2
       - name: Setup Node ${{ matrix.node }}
@@ -33,4 +33,15 @@ jobs:
         run: ./test.sh
         env:
           NODE_OPTIONS: '--max_old_space_size=4096'
-        
+  cypress-run:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: cypress-io/github-action@v2
+        with:
+          start: npm start, npm run start:fixtures
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+          browser: chrome
+          headless: true

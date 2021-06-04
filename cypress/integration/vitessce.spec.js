@@ -12,7 +12,7 @@ Cypress.on('window:before:load', (win) => {
   delete win.fetch; // eslint-disable-line no-param-reassign
 });
 
-describe('Vitessce', () => {
+describe('Vitessce Mocked Routes', () => {
   beforeEach(() => {
     // Any request we do not explicitly route will return 404,
     // so we won't end up depending on outside resources by accident.
@@ -40,7 +40,7 @@ describe('Vitessce', () => {
   });
 
   it('loads details', () => {
-    cy.visit('/?dataset=codeluppi-2018');
+    cy.visit('/?dataset=codeluppi-2018&debug=true');
 
     // Data Set:
     cy.contains('Spatial organization');
@@ -77,5 +77,25 @@ describe('Vitessce', () => {
   it('loads a warning message for undefined dataset config', () => {
     cy.visit('/?dataset=nonexistent-dataset');
     cy.contains('No such dataset');
+  });
+});
+
+describe('Vitessce Zarr Store Routes', () => {
+  it('loads AnnData zarr store', () => {
+    // 8080 is serving the loader fixtures directory.
+    cy.visit('/?url=http://127.0.0.1:8080/anndata/good-config.json&debug=true');
+    cy.contains('UMAP');
+    // This should exist as per the create-fixtures.py file.
+    cy.contains('gene_0');
+  });
+
+  it('loads OME-TIFF', () => {
+    // 8080 is serving the loader fixtures directory.
+    cy.visit('/?url=http://127.0.0.1:8080/ome/good-config.json&debug=true');
+    cy.contains('Multi Channel Test');
+    // This is a 3-channel image
+    cy.contains('Channel 0');
+    cy.contains('Channel 1');
+    cy.contains('Channel 2');
   });
 });

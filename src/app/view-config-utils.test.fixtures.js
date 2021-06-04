@@ -1,4 +1,5 @@
-export const legacyViewConfig = {
+/* eslint-disable camelcase */
+export const legacyViewConfig0_1_0 = {
   version: '0.1.0',
   public: true,
   name: 'My config name',
@@ -52,8 +53,8 @@ export const legacyViewConfig = {
   }],
 };
 
-export const upgradedViewConfig = {
-  version: '1.0.0',
+export const upgradedLegacyViewConfig0_1_0 = {
+  version: '1.0.1',
   public: true,
   name: 'My config name',
   description: 'My config description',
@@ -160,8 +161,152 @@ export const upgradedViewConfig = {
     },
   ],
 };
-export const initializedViewConfig = {
+
+export const legacyViewConfig1_0_0 = {
   version: '1.0.0',
+  public: true,
+  name: 'My config name',
+  description: 'My config description',
+  initStrategy: 'auto',
+  coordinationSpace: {
+    dataset: {
+      A: 'A',
+    },
+    spatialLayers: {
+      A: [
+        { type: 'cells', radius: 10, visible: true },
+        { type: 'molecules', visible: false },
+        { type: 'raster', index: 2 },
+        { type: 'raster', index: 3 },
+      ],
+    },
+  },
+  datasets: [
+    {
+      files: [],
+      name: 'A',
+      uid: 'A',
+    },
+  ],
+  layout: [
+    {
+      component: 'description',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialLayers: 'A',
+      },
+      h: 2,
+      props: {
+        description: 'My component description',
+      },
+      w: 3,
+      x: 9,
+      y: 0,
+    },
+    {
+      component: 'spatial',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialLayers: 'A',
+      },
+      h: 4,
+      props: {
+        cellRadius: 50,
+        view: {
+          target: [
+            3800,
+            -900,
+            0,
+          ],
+          zoom: -4.4,
+        },
+      },
+      w: 4,
+      x: 5,
+      y: 0,
+    },
+  ],
+};
+
+export const upgradedLegacyViewConfig1_0_0 = {
+  version: '1.0.1',
+  public: true,
+  name: 'My config name',
+  description: 'My config description',
+  initStrategy: 'auto',
+  coordinationSpace: {
+    dataset: {
+      A: 'A',
+    },
+    spatialRasterLayers: {
+      A: [
+        { index: 2 },
+        { index: 3 },
+      ],
+    },
+    spatialCellsLayer: {
+      A: { radius: 10, visible: true },
+    },
+    spatialMoleculesLayer: {
+      A: { visible: false },
+    },
+    spatialNeighborhoodsLayer: {
+      A: null,
+    },
+  },
+  datasets: [
+    {
+      files: [],
+      name: 'A',
+      uid: 'A',
+    },
+  ],
+  layout: [
+    {
+      component: 'description',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialRasterLayers: 'A',
+      },
+      h: 2,
+      props: {
+        description: 'My component description',
+      },
+      w: 3,
+      x: 9,
+      y: 0,
+    },
+    {
+      component: 'spatial',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialRasterLayers: 'A',
+        spatialCellsLayer: 'A',
+        spatialMoleculesLayer: 'A',
+        spatialNeighborhoodsLayer: 'A',
+      },
+      h: 4,
+      props: {
+        cellRadius: 50,
+        view: {
+          target: [
+            3800,
+            -900,
+            0,
+          ],
+          zoom: -4.4,
+        },
+      },
+      w: 4,
+      x: 5,
+      y: 0,
+    },
+  ],
+};
+
+
+export const initializedViewConfig = {
+  version: '1.0.1',
   public: true,
   name: 'My config name',
   description: 'My config description',
@@ -230,7 +375,16 @@ export const initializedViewConfig = {
     geneSelection: {
       A: null,
     },
-    spatialLayers: {
+    spatialRasterLayers: {
+      A: null,
+    },
+    spatialCellsLayer: {
+      A: null,
+    },
+    spatialMoleculesLayer: {
+      A: null,
+    },
+    spatialNeighborhoodsLayer: {
       A: null,
     },
     spatialRotation: {
@@ -281,7 +435,7 @@ export const initializedViewConfig = {
       component: 'description',
       coordinationScopes: {
         dataset: 'A',
-        spatialLayers: 'A',
+        spatialRasterLayers: 'A',
       },
       h: 2,
       props: {
@@ -347,7 +501,10 @@ export const initializedViewConfig = {
         geneExpressionColormapRange: 'A',
         geneHighlight: 'A',
         geneSelection: 'A',
-        spatialLayers: 'A',
+        spatialRasterLayers: 'A',
+        spatialCellsLayer: 'A',
+        spatialMoleculesLayer: 'A',
+        spatialNeighborhoodsLayer: 'A',
         spatialRotation: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',

@@ -8,12 +8,24 @@ import Description from './Description';
 
 const DESCRIPTION_DATA_TYPES = ['raster'];
 
+/**
+ * A subscriber component for a text description component.
+ * Also renders a table containing image metadata.
+ * @param {object} props
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {string} props.title The component title.
+ */
 export default function DescriptionSubscriber(props) {
   const {
     coordinationScopes,
     description: descriptionOverride,
     removeGridComponent,
     theme,
+    title = 'Data Set',
   } = props;
 
   const loaders = useLoaders();
@@ -21,7 +33,7 @@ export default function DescriptionSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    spatialLayers: layers,
+    spatialRasterLayers: rasterLayers,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.description, coordinationScopes);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -42,24 +54,24 @@ export default function DescriptionSubscriber(props) {
 
   const metadata = useMemo(() => {
     const result = new Map();
-    if (layers && layers.length > 0 && raster && imageLayerMeta && imageLayerLoaders) {
-      const rasterLayers = layers.filter(layer => layer.type === 'raster');
+    if (rasterLayers && rasterLayers.length > 0 && raster && imageLayerMeta && imageLayerLoaders) {
       rasterLayers.forEach((layer) => {
         if (imageLayerMeta[layer.index]) {
           // Want to ensure that layer index is a string.
+          const { format } = imageLayerLoaders[layer.index].metadata;
           result.set(`${layer.index}`, {
-            name: raster.layers[layer.index].name,
-            metadata: imageLayerLoaders[layer.index].getMetadata(),
+            name: raster.meta[layer.index].name,
+            metadata: format && format(),
           });
         }
       });
     }
     return result;
-  }, [raster, layers, imageLayerMeta, imageLayerLoaders]);
+  }, [raster, rasterLayers, imageLayerMeta, imageLayerLoaders]);
 
   return (
     <TitleInfo
-      title="Data Set"
+      title={title}
       removeGridComponent={removeGridComponent}
       isScroll
       theme={theme}
