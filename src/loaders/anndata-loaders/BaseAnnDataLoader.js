@@ -104,8 +104,26 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
       path,
       mode: 'r',
     }).then(async (z) => {
-      let data = [];
+      let data;
       let item = 0;
+      const parseAndMergeTextBytes = (dbytes) => {
+        const text = parseVlenUtf8(dbytes);
+        if (!data) {
+          data = text;
+        } else {
+          data = data.concat(text);
+        }
+      };
+      const mergeBytes = (dbytes) => {
+        if (!data) {
+          data = dbytes;
+        } else {
+          const tmp = new Uint8Array(dbytes.buffer.byteLength + data.buffer.byteLength);
+          tmp.set(new Uint8Array(data.buffer), 0);
+          tmp.set(dbytes, data.buffer.byteLength);
+          data = tmp;
+        }
+      };
       // eslint-disable-next-line no-constant-condition
       while (true) {
         try {
@@ -113,11 +131,12 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
           const buf = await store.getItem(`${z.keyPrefix}${String(item)}`);
           // eslint-disable-next-line no-await-in-loop
           const dbytes = await z.compressor.decode(buf);
-          if (z.meta.filters[0].id === 'vlen-utf8') {
-            const text = parseVlenUtf8(dbytes);
-            data = data.concat(text);
+          // Use vlenutf-8 decoding if necessary and merge `data` as a normal array.
+          if (Array.isArray(z.meta.filters) && z.meta.filters[0].id === 'vlen-utf8') {
+            parseAndMergeTextBytes(dbytes);
+          // Otherwise just merge the bytes as a typed array.
           } else {
-            data = data.concat(dbytes);
+            mergeBytes(dbytes);
           }
           item += 1;
         } catch (err) {

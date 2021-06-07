@@ -21,6 +21,7 @@
 - `bitmask` color texture creation assumed that `cellColors` prop was only rgb, but it can be rgba.
 - Fix bug where quadtree wouldn't work with only scatterplot.
 - Fix controller padding bug.
+- Ensure `VlenUtf8` filter is only used/checked when necessary.
 
 ## [1.1.9](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-07
 
