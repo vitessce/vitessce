@@ -5,7 +5,6 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import Slider from '@material-ui/core/Slider';
-
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
@@ -16,6 +15,7 @@ import {
   StyledExpansionPanelDetails,
   StyledExpansionPanelSummary,
   StyledInputLabel,
+  OverflowEllipsisGrid,
 } from './styles';
 
 import { GLOBAL_LABELS } from '../spatial/constants';
@@ -267,7 +267,7 @@ export default function LayerController(props) {
         aria-controls={`layer-${name}-controls`}
       >
         <Grid container direction="column" m={1} justify="center">
-          <Grid item>{name}</Grid>
+          <OverflowEllipsisGrid item>{name}</OverflowEllipsisGrid>
           {!isExpanded && (
             <Grid container direction="row" alignItems="center" justify="center">
               <Grid item xs={6}>
