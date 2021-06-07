@@ -42,9 +42,9 @@ export const spraggins2020 = {
   ],
 };
 
-export const patterson2020 = {
+export const neumann2020 = {
   version: '1.0.1',
-  name: 'Neumann et al. 2020',
+  name: 'Neumann et al., 2020',
   description: 'Four registered imaging modalities (PAS, IMS, AF) from HuBMAP collection HBM876.XNRH.336',
   datasets: [
     {
