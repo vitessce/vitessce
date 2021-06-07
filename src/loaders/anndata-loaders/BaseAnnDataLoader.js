@@ -131,8 +131,10 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
           const buf = await store.getItem(`${z.keyPrefix}${String(item)}`);
           // eslint-disable-next-line no-await-in-loop
           const dbytes = await z.compressor.decode(buf);
+          // Use vlenutf-8 decoding if necessary and merge `data` as a normal array.
           if (Array.isArray(z.meta.filters) && z.meta.filters[0].id === 'vlen-utf8') {
             parseAndMergeTextBytes(dbytes);
+          // Otherwise just merge the bytes as a typed array.
           } else {
             mergeBytes(dbytes);
           }
