@@ -18,6 +18,7 @@ import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import ScatterplotOptions from './ScatterplotOptions';
+import StatusBar from '../shared-plot-status/StatusBar';
 import {
   useCoordination,
   useLoaders,
@@ -220,6 +221,9 @@ export default function ScatterplotSubscriber(props) {
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
         />
+      )}
+      statusBar={(
+        <StatusBar />
       )}
     >
       <Scatterplot

@@ -118,7 +118,7 @@ function ClosePaneButton(props) {
 export default function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
-    isReady, options,
+    isReady, options, statusBar,
   } = props;
   // eslint-disable-next-line no-nested-ternary
   const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
@@ -151,6 +151,7 @@ export default function TitleInfo(props) {
       <div className={childClassName}>
         { !isReady && <LoadingIndicator /> }
         {children}
+        { isReady && statusBar }
       </div>
     </>
     // "pl-2" only matters when the window is very narrow.
