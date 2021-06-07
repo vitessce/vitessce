@@ -5,7 +5,6 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import Slider from '@material-ui/core/Slider';
-import InputLabel from '@material-ui/core/InputLabel';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -14,9 +13,9 @@ import LayerOptions from './LayerOptions';
 
 import {
   useControllerSectionStyles,
-  useSmallInputLabelStyles,
   StyledExpansionPanelDetails,
   StyledExpansionPanelSummary,
+  StyledInputLabel,
 } from './styles';
 
 import { GLOBAL_LABELS } from '../spatial/constants';
@@ -255,7 +254,6 @@ export default function LayerController(props) {
   }
 
   const controllerSectionClasses = useControllerSectionStyles();
-  const closedOpacityLabelClasses = useSmallInputLabelStyles();
 
   return (
     <ExpansionPanel
@@ -273,7 +271,7 @@ export default function LayerController(props) {
           {!isExpanded && (
             <Grid container direction="row" alignItems="center" justify="center">
               <Grid item xs={6}>
-                <InputLabel htmlFor={`layer-${name}-opacity-closed`} classes={closedOpacityLabelClasses}>Opacity:</InputLabel>
+                <StyledInputLabel htmlFor={`layer-${name}-opacity-closed`}>Opacity:</StyledInputLabel>
               </Grid>
               <Grid item xs={6}>
                 <Slider

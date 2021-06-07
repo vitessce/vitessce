@@ -1,6 +1,7 @@
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import InputLabel from '@material-ui/core/InputLabel';
 
 export const useOptionStyles = makeStyles(theme => ({
   paper: {
@@ -45,11 +46,13 @@ export const StyledExpansionPanelDetails = withStyles(() => ({
 
 export const StyledExpansionPanelSummary = withStyles(theme => ({
   root: {
-    top: theme.spacing(-1),
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     padding: '0px 8px',
+  },
+  content: {
+    margin: '4px 0px',
   },
   expanded: {
     marginBottom: theme.spacing(-3),
@@ -65,8 +68,8 @@ export const StyledExpansionPanelSummary = withStyles(theme => ({
   },
 }))(ExpansionPanelSummary);
 
-export const useSmallInputLabelStyles = makeStyles(() => ({
+export const StyledInputLabel = withStyles(() => ({
   root: {
     fontSize: '14px',
   },
-}));
+}))(InputLabel);
