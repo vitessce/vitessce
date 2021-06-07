@@ -3,7 +3,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import InputLabel from '@material-ui/core/InputLabel';
 
-export const useOptionStyles = makeStyles(theme => ({
+export const useOptionStyles = withStyles(theme => ({
   paper: {
     backgroundColor: theme.palette.background.paper,
   },
@@ -47,7 +47,6 @@ export const StyledExpansionPanelDetails = withStyles(() => ({
 export const StyledExpansionPanelSummary = withStyles(theme => ({
   root: {
     textOverflow: 'ellipsis',
-    overflow: 'hidden',
     whiteSpace: 'nowrap',
     padding: '0px 8px',
   },
