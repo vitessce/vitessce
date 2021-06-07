@@ -293,6 +293,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       sliders: layerDef.channels.map(c => c.slider),
       visibilities: layerDef.channels.map(c => c.visible),
       resolution: layerDef.resolution,
+      renderingMode: layerDef.renderingMode,
     };
 
     if (!loader || !layerProps) return null;
@@ -346,7 +347,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       modelMatrix,
       transparentColor: layerProps.transparentColor,
       resolution: layerProps.resolution,
-      renderingMode: 'Maximum Intensity Projection',
+      renderingMode: layerProps.renderingMode,
       pickable: false,
     });
   }

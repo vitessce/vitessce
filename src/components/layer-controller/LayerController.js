@@ -86,6 +86,7 @@ export default function LayerController(props) {
     opacity,
     channels,
     transparentColor,
+    renderingMode,
   } = layer;
   const firstSelection = channels[0]?.selection || {};
 
@@ -117,6 +118,9 @@ export default function LayerController(props) {
   }
   function setTransparentColor(v) {
     handleLayerChange({ ...layer, transparentColor: v });
+  }
+  function setRenderingMode(v) {
+    handleLayerChange({ ...layer, renderingMode: v });
   }
 
   function handleMultiPropertyChange(obj) {
@@ -376,6 +380,8 @@ export default function LayerController(props) {
             use3D={use3D}
             loader={loader}
             handleMultiPropertyChange={handleMultiPropertyChange}
+            handleRenderingModeChange={setRenderingMode}
+            renderingMode={renderingMode}
           />
           {!isRgb(loader) ? channelControllers : null}
           {!isRgb(loader) && (

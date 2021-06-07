@@ -293,7 +293,8 @@
           "description": "Determines the extent of the channel slider input element in the layer controller."
         },
         "resolution": {
-          "type": "number"
+          "type": "number",
+          "description": "Resolution of 3D volumetric rendering"
         },
         "xSlice": {
           "oneOf": [
@@ -308,6 +309,10 @@
               "description": "No slicing"
             }
           ]
+        },
+        "renderingMode": {
+          "type": "string",
+           "description": "Rendering mode of 3D volumetric rendering"
         },
         "ySlice": {
           "oneOf": [

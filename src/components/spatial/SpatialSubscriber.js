@@ -86,8 +86,6 @@ export default function SpatialSubscriber(props) {
     setSpatialTargetY: setTargetY,
     setSpatialTargetZ: setTargetZ,
     setSpatialRotationX: setRotationX,
-    setSpatialRotationY: setRotationY,
-    setSpatialRotationZ: setRotationZ,
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialRasterLayers: setRasterLayers,
     setSpatialCellsLayer: setCellsLayer,
@@ -263,8 +261,6 @@ export default function SpatialSubscriber(props) {
           zoom: newZoom,
           target,
           rotationX: newRotationX,
-          rotationY: newRotationY,
-          rotationZ: newRotationZ,
           rotationOrbit: newRotationOrbit,
         }) => {
           setZoom(newZoom);
@@ -272,8 +268,6 @@ export default function SpatialSubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2]);
           setRotationX(newRotationX);
-          setRotationY(newRotationY);
-          setRotationZ(newRotationZ);
           setRotationOrbit(newRotationOrbit);
         }}
         layers={layers}
