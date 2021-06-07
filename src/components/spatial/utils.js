@@ -389,7 +389,7 @@ export function getLayerLoaderTuple(data, use3D) {
   const loader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
     ? data : data[0];
   if (use3D) {
-    return [VolumeLayer, loader];
+    return [VolumeLayer, Array.isArray(loader) ? loader : [loader]];
   }
   const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;
   return [Layer, loader];

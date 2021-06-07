@@ -346,7 +346,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       modelMatrix,
       transparentColor: layerProps.transparentColor,
       resolution: layerProps.resolution,
-      renderingMode: 'Additive',
+      renderingMode: 'Maximum Intensity Projection',
       pickable: false,
     });
   }
