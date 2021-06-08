@@ -3,6 +3,7 @@ import { getConfig, listConfigs } from './api';
 import Welcome from './Welcome';
 import Warning from './Warning';
 import Vitessce from './Vitessce';
+import VitessceSidebar from '../sidebar/VitessceSidebar';
 
 import '../css/index.scss';
 import '../../node_modules/react-grid-layout/css/styles.css';
@@ -103,14 +104,16 @@ export function createApp(params) {
   if (datasetId) {
     const config = getConfig(datasetId);
     return (
-      <Vitessce
-        config={config}
-        rowHeight={rowHeight}
-        theme={theme}
-        // eslint-disable-next-line no-console
-        onConfigChange={(debug ? console.log : undefined)}
-        validateOnConfigChange={debug}
-      />
+      <VitessceSidebar>
+        <Vitessce
+          config={config}
+          rowHeight={rowHeight}
+          theme={theme}
+          // eslint-disable-next-line no-console
+          onConfigChange={(debug ? console.log : undefined)}
+          validateOnConfigChange={debug}
+        />
+      </VitessceSidebar>
     );
   }
   if (datasetUrl) {
