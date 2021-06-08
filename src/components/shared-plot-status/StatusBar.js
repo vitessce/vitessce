@@ -9,13 +9,17 @@ import { useStyles } from './styles';
 export default function StatusBar(props) {
   const {
     children,
+    coordinationValues,
+    info,
   } = props;
 
   const classes = useStyles();
-
+  
+  const title = `Dataset: ${coordinationValues.dataset}`;
+  
   return (
     <Box className={classes.box}>
-      <span className={classes.statusText}>Test</span>
+      <span className={classes.statusText} title={title}>{info}</span>
     </Box>
   );
 }

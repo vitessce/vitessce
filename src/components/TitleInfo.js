@@ -117,7 +117,7 @@ function ClosePaneButton(props) {
 
 export default function TitleInfo(props) {
   const {
-    title, info, children, isScroll, isSpatial, removeGridComponent, urls,
+    title, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, statusBar,
   } = props;
   // eslint-disable-next-line no-nested-ternary
@@ -131,7 +131,6 @@ export default function TitleInfo(props) {
         </div>
         <span className="details pl-2 align-items-end">
           <span className="d-flex justify-content-between">
-            {info}
             { options && (
               <PlotOptions
                 options={options}

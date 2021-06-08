@@ -58,7 +58,11 @@ export default function ScatterplotSubscriber(props) {
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
   // Get "props" from the coordination space.
-  const [{
+  const [
+    coordinationValues,
+    coordinationSetters,
+  ] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
+  const {
     dataset,
     embeddingZoom: zoom,
     embeddingTargetX: targetX,
@@ -76,7 +80,8 @@ export default function ScatterplotSubscriber(props) {
     embeddingCellSetLabelsVisible: cellSetLabelsVisible,
     embeddingCellSetLabelSize: cellSetLabelSize,
     embeddingCellRadius: cellRadius,
-  }, {
+  } = coordinationValues;
+  const {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
     setEmbeddingTargetY: setTargetY,
@@ -91,7 +96,7 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingCellSetLabelsVisible: setCellSetLabelsVisible,
     setEmbeddingCellSetLabelSize: setCellSetLabelSize,
     setEmbeddingCellRadius: setCellRadius,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
+  } = coordinationSetters;
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -202,7 +207,6 @@ export default function ScatterplotSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -223,7 +227,10 @@ export default function ScatterplotSubscriber(props) {
         />
       )}
       statusBar={(
-        <StatusBar />
+        <StatusBar
+          coordinationValues={coordinationValues}
+          info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
+        />
       )}
     >
       <Scatterplot
