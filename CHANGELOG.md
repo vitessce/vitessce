@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.10](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-19
+
+### Added
 - Add support for bitmasks to `Spatial` component and raster schema.
 - Worker pool for processing heatmap tiles.
 
@@ -14,6 +20,8 @@
 - Fix bug where polygons or centroids would show under the `bitmask`.
 - `bitmask` color texture creation assumed that `cellColors` prop was only rgb, but it can be rgba.
 - Fix bug where quadtree wouldn't work with only scatterplot.
+- Fix controller padding bug.
+- Ensure `VlenUtf8` filter is only used/checked when necessary.
 
 ## [1.1.9](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-07
 
