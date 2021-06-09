@@ -28,6 +28,7 @@
     "@luma.gl/core": "^8.4.0",
     "@material-ui/core": "^4.8.3",
     "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.58",
     "@turf/boolean-contains": "^6.0.1",
     "@turf/boolean-overlap": "^6.0.1",
     "@turf/boolean-point-in-polygon": "^6.0.1",

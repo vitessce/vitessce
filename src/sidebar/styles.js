@@ -14,10 +14,13 @@ export const useStyles = makeStyles(() => ({
     height: '100vh',
     float: 'left',
     '& svg': {
-      width: '30px',
-      height: '30px',
-      margin: '3px',
+      width: '26px',
+      height: '26px',
+      margin: '5px',
     }
+  },
+  topLink: {
+    marginBottom: '10px',
   },
   actionContainer: {
     position: 'relative',
@@ -29,23 +32,30 @@ export const useStyles = makeStyles(() => ({
       color: 'rgb(34, 34, 34)',
       
     },
-    '& svg:hover + label': {
-      display: 'inline-block',
+    '& svg:hover + ul': {
+      display: 'block',
     },
-    '& label': {
-      display: 'none',
+    '& > ul:hover': {
+      display: 'block',
+    },
+    '& ul': {
       float: 'right',
       overflow: 'visible',
       position: 'absolute',
       zIndex: 100,
       backgroundColor: 'rgba(255, 255, 255, 0.9)',
       boxShadow: '4px 4px 10px rgba(0, 0, 0, 0.5)',
-      marginLeft: '3px',
-      borderRadius: '5px',
-      padding: '3px',
+      marginLeft: '2px',
+      borderRadius: '4px',
+      padding: '4px',
       whiteSpace: 'nowrap',
       verticalAlign: 'middle',
       marginTop: '6px',
+    },
+    '& > ul': {
+      display: 'none',
+      top: '-3px',
+      left: '36px',
     },
   },
   mainContainer: {
@@ -53,5 +63,19 @@ export const useStyles = makeStyles(() => ({
     height: '100%',
     float: 'left',
   },
+  treeRoot: {
+    flexGrow: 1,
+  },
+  treeItemLabel: {
+    backgroundColor: 'transparent !important',
+    paddingRight: '5px',
+  },
+  treeItemIconContainer: {
+    maxWidth: '15px',
+    width: 'auto',
+    '& > svg': {
+      height: '20px',
+    }
+  }
 }));
 
