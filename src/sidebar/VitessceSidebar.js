@@ -34,6 +34,7 @@ function ActionPopover(props) {
         className={classes.treeRoot}
         defaultCollapseIcon={<ArrowDropDownIcon />}
         defaultExpandIcon={<ArrowRightIcon />}
+        disableSelection
       >
         <TreeItem nodeId="1" label={title} classes={treeItemClasses} />
       </TreeView>
@@ -50,6 +51,8 @@ export default function VitessceSidebar(props) {
     enableShareViaLink,
     enableThemeToggle,
     
+    componentsToAdd,
+    onAddComponent,
     onToggleTheme,
   } = props;
   
@@ -63,23 +66,38 @@ export default function VitessceSidebar(props) {
           <SidebarLogoSVG title="Powered by Vitessce" />
         </a>
       ) : null}
-      <ActionPopover icon={<UndoIcon />} title="Undo" />
-      <ActionPopover icon={<RedoIcon />} title="Redo" />
-      <div className={classes.actionContainer}>
-        <AddToPhotosIcon />
-        <TreeView
-          className={classes.treeRoot}
-          defaultCollapseIcon={<ArrowDropDownIcon />}
-          defaultExpandIcon={<ArrowRightIcon />}
-        >
-          <TreeItem nodeId="1" label="Add component" classes={treeItemClasses}>
-            <TreeItem nodeId="2" label="Scatterplot" classes={treeItemClasses} />
-            <TreeItem nodeId="3" label="Spatial" classes={treeItemClasses} />
-            <TreeItem nodeId="4" label="Heatmap" classes={treeItemClasses} />
-          </TreeItem>
-        </TreeView>
-      </div>
-      <ActionPopover icon={<LinkIcon />} title="Share via link" />
+      {enableUndo ? (
+        <ActionPopover icon={<UndoIcon />} title="Undo" />
+      ) : null}
+      {enableRedo ? (
+        <ActionPopover icon={<RedoIcon />} title="Redo" />
+      ) : null}
+      {enableAddComponent ? (
+        <div className={classes.actionContainer}>
+          <AddToPhotosIcon />
+          <TreeView
+            className={classes.treeRoot}
+            defaultCollapseIcon={<ArrowDropDownIcon />}
+            defaultExpandIcon={<ArrowRightIcon />}
+            disableSelection
+          >
+            <TreeItem nodeId="1" label="Add component" classes={treeItemClasses}>
+              {componentsToAdd.map((c, i) => (
+                <TreeItem
+                  key={c.label}
+                  nodeId={`${i+2}`}
+                  label={c.label}
+                  classes={treeItemClasses}
+                  onLabelClick={() => onAddComponent(c.value)}
+                />
+              ))}
+            </TreeItem>
+          </TreeView>
+        </div>
+      ) : null}
+      {enableShareViaLink ? (
+        <ActionPopover icon={<LinkIcon />} title="Share via link" />
+      ) : null}
       {enableThemeToggle ? (
         <ActionPopover icon={<InvertColorsIcon />} title="Toggle theme" onClick={onToggleTheme} />
       ) : null}

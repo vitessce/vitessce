@@ -16,7 +16,7 @@ export const useStyles = makeStyles(() => ({
     '& svg': {
       width: '26px',
       height: '26px',
-      margin: '5px',
+      padding: '5px',
     }
   },
   topLink: {
@@ -30,7 +30,6 @@ export const useStyles = makeStyles(() => ({
     },
     '& svg:hover': {
       color: 'rgb(34, 34, 34)',
-      
     },
     '& svg:hover + ul': {
       display: 'block',
@@ -57,6 +56,24 @@ export const useStyles = makeStyles(() => ({
       top: '-3px',
       left: '36px',
     },
+    '& > ul::before': {
+      content: '""',
+      width: '2px',
+      backgroundColor: 'transparent',
+      height: '100%',
+      left: '-2px',
+      top: 0,
+      position: 'absolute',
+    },
+    '& > ul li ul::before': {
+      content: '""',
+      width: '100%',
+      backgroundColor: 'transparent',
+      height: '2px',
+      top: '-2px',
+      left: 0,
+      position: 'absolute',
+    },
   },
   mainContainer: {
     width: 'calc(100% - 36px)',
@@ -74,7 +91,7 @@ export const useStyles = makeStyles(() => ({
     maxWidth: '15px',
     width: 'auto',
     '& > svg': {
-      height: '20px',
+      height: '18px',
     }
   }
 }));

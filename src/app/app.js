@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useRef, useState } from 'react';
 import { getConfig, listConfigs } from './api';
 import Welcome from './Welcome';
@@ -111,6 +112,35 @@ export function createApp(params) {
         // eslint-disable-next-line no-console
         onConfigChange={(debug ? console.log : undefined)}
         validateOnConfigChange={debug}
+        componentsToAdd={[
+          {
+            label: 'Description',
+            value: {
+              component: 'description',
+              props: {
+                description: "This component was added by the sidebar.",
+              },
+              x: 9, y: 0, w: 3, h: 2,
+            },
+          },
+          {
+            label: 'Another description',
+            value: {
+              component: 'description',
+              props: {
+                description: "Hello world.",
+              },
+              x: 0, y: 0, w: 3, h: 2,
+            },
+          },
+          {
+            label: 'Cell set sizes',
+            value: {
+              component: 'cellSetSizes',
+              x: 5, y: 4, w: 4, h: 4,
+            },
+          },
+        ]}
       />
     );
   }
