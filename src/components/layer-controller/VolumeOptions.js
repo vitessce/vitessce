@@ -67,10 +67,10 @@ const Slicer = ({
         alignItems="center"
         key={label}
       >
-        <Grid item xs={1} style={{ marginBottom: 8 }}>
+        <Grid item xs={1}>
           <Typography
             className={!use3D ? classes.disabled : classes.enabled}
-            style={{ marginTop: 4 }}
+            style={{ marginBottom: 0 }}
           >
             {label}:
           </Typography>
@@ -97,7 +97,7 @@ const Slicer = ({
     <>
       <Typography
         className={!use3D ? classes.disabled : classes.enabled}
-        style={{ marginTop: 16 }}
+        style={{ marginTop: 16, marginBottom: 0 }}
       >
         Clipping Planes:{' '}
       </Typography>{' '}
@@ -165,7 +165,10 @@ const CameraOptions = ({
           disabled={!use3D}
           checked={useFixedAxis}
         />
-        <Typography className={!use3D ? classes.disabled : classes.enabled}>
+        <Typography
+          className={!use3D ? classes.disabled : classes.enabled}
+          style={{ marginBottom: 0 }}
+        >
           Fix Camera Axis
         </Typography>
       </Grid>
@@ -181,9 +184,14 @@ const CameraOptions = ({
         })
         }
         disabled={!use3D}
-        style={{ padding: 0 }}
+        style={{ padding: 0, marginBottom: 2 }}
       >
-        Re-Center
+        <Typography
+          className={!use3D ? classes.disabled : classes.enabled}
+          style={{ marginBottom: 0 }}
+        >
+          Re-Center
+        </Typography>
       </Button>
     </Grid>
   );
@@ -193,7 +201,6 @@ const CameraOptions = ({
       direction="row"
       justify="space-between"
       alignItems="center"
-      style={{ marginTop: 16 }}
     >
       {[toggleFixedAxisButton, reCenterButton]}
     </Grid>
