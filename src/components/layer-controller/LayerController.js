@@ -15,7 +15,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import LayerOptions from './LayerOptions';
-
+import VolumeOptions from './VolumeOptions';
 import {
   useExpansionPanelStyles,
   useExpansionPanelSummaryStyles,
@@ -349,8 +349,19 @@ export default function LayerController(props) {
           aria-label="simple tabs example"
           style={{ height: '24px', minHeight: '24px' }}
         >
-          <Tab label="Channels" style={{ fontSize: '.75rem', bottom: 12 }} />
-          <Tab label="Volume" style={{ fontSize: '.75rem', bottom: 12 }} />
+          <Tab
+            label="Channels"
+            style={{
+              fontSize: '.75rem', bottom: 12, width: '50%', minWidth: '50%',
+            }}
+            disableRipple
+          />
+          <Tab
+            label="Volume"
+            style={{
+              fontSize: '.75rem', bottom: 12, width: '50%', minWidth: '50%',
+            }}
+          />
         </Tabs>
         <TabPanel value={tab} index={0}>
           <LayerOptions
@@ -397,6 +408,11 @@ export default function LayerController(props) {
               Add Channel
             </Button>
           )}
+        </TabPanel>
+        <TabPanel value={tab} index={1}>
+          <VolumeOptions
+            loader={loader}
+          />
         </TabPanel>
         <Button
           onClick={handleLayerRemove}

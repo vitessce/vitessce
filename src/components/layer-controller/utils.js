@@ -88,3 +88,30 @@ export function getBoundingCube(loader) {
   ];
   return [xSlice, ySlice, zSlice];
 }
+
+
+export function abbreviateNumber(value) {
+  // Return an abbreviated representation of value, in 5 characters or less.
+
+  const maxLength = 5;
+  let maxNaiveDigits = maxLength;
+
+  /* eslint-disable no-plusplus */
+  if (!Number.isInteger(value)) { --maxNaiveDigits; } // Wasted on "."
+  if (value < 1) { --maxNaiveDigits; } // Wasted on "0."
+  /* eslint-disable no-plusplus */
+
+
+  const naive = Intl.NumberFormat(
+    'en-US',
+    {
+      maximumSignificantDigits: maxNaiveDigits,
+      useGrouping: false,
+    },
+  ).format(value);
+  if (naive.length <= maxLength) return naive;
+
+  // "e+9" consumes 3 characters, so if we even had two significant digits,
+  // it would take take us to six characters, including the decimal point.
+  return value.toExponential(0);
+}
