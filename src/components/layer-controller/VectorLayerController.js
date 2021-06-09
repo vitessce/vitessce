@@ -5,7 +5,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
-import { useExpansionPanelStyles } from './styles';
+import { useControllerSectionStyles } from './styles';
 
 export default function VectorLayerController(props) {
   const {
@@ -31,14 +31,13 @@ export default function VectorLayerController(props) {
     handleLayerChange({ ...layer, visible: v });
   }
 
-  const classes = useExpansionPanelStyles();
+  const classes = useControllerSectionStyles();
   return (
     <Grid item style={{ marginTop: '10px' }}>
       <Paper className={classes.root}>
         <Typography
           style={{
-            paddingTop: '15px',
-            paddingLeft: '10px',
+            padding: '15px 8px 0px 8px',
             marginBottom: '-5px',
           }}
         >
