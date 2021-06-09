@@ -294,6 +294,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       visibilities: layerDef.channels.map(c => c.visible),
       resolution: layerDef.resolution,
       renderingMode: layerDef.renderingMode,
+      xSlice: layerDef.xSlice,
+      ySlice: layerDef.ySlice,
+      zSlice: layerDef.zSlice,
     };
 
     if (!loader || !layerProps) return null;
@@ -349,6 +352,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       resolution: layerProps.resolution,
       renderingMode: layerProps.renderingMode,
       pickable: false,
+      xSlice: layerProps.xSlice,
+      ySlice: layerProps.ySlice,
+      zSlice: layerProps.zSlice,
     });
   }
 

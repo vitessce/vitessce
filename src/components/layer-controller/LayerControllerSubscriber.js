@@ -37,18 +37,30 @@ function LayerControllerSubscriber(props) {
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
-  const [{
-    dataset,
-    use3D,
-    spatialRasterLayers: rasterLayers,
-    spatialCellsLayer: cellsLayer,
-    spatialMoleculesLayer: moleculesLayer,
-  }, {
-    setSpatialRasterLayers: setRasterLayers,
-    setSpatialCellsLayer: setCellsLayer,
-    setSpatialMoleculesLayer: setMoleculesLayer,
-    setUse3D,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.layerController, coordinationScopes);
+  const [
+    {
+      dataset,
+      use3D,
+      spatialRasterLayers: rasterLayers,
+      spatialCellsLayer: cellsLayer,
+      spatialMoleculesLayer: moleculesLayer,
+    },
+    {
+      setSpatialRasterLayers: setRasterLayers,
+      setSpatialCellsLayer: setCellsLayer,
+      setSpatialMoleculesLayer: setMoleculesLayer,
+      setSpatialTargetX: setTargetX,
+      setSpatialTargetY: setTargetY,
+      setSpatialTargetZ: setTargetZ,
+      setSpatialRotationX: setRotationX,
+      setSpatialRotationOrbit: setRotationOrbit,
+      setSpatialZoom: setZoom,
+      setUse3D,
+    },
+  ] = useCoordination(
+    COMPONENT_COORDINATION_TYPES.layerController,
+    coordinationScopes,
+  );
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     LAYER_CONTROLLER_DATA_TYPES,
@@ -169,6 +181,19 @@ function LayerControllerSubscriber(props) {
                   shouldShowColormap={isRaster}
                   use3D={use3D}
                   setUse3D={setUse3D}
+                  setViewState={({
+                    zoom: newZoom,
+                    target,
+                    rotationX: newRotationX,
+                    rotationOrbit: newRotationOrbit,
+                  }) => {
+                    setZoom(newZoom);
+                    setTargetX(target[0]);
+                    setTargetY(target[1]);
+                    setTargetZ(target[2]);
+                    setRotationX(newRotationX);
+                    setRotationOrbit(newRotationOrbit);
+                  }}
                 />
               </Grid>
             ) : null;

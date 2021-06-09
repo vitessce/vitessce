@@ -5,7 +5,6 @@ import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
-import { RENDERING_MODES } from '@hms-dbmi/viv';
 
 import { getBoundingCube } from './utils';
 import { COLORMAP_OPTIONS } from '../utils';
@@ -54,6 +53,7 @@ function VolumeDropdown({
   handleMultiPropertyChange,
   resolution: currResolution,
 }) {
+  console.log(currResolution); // eslint-disable-line
   const { data: loader } = loaderWithMeta;
   const handleChange = (resolution) => {
     // eslint-disable-next-line no-unused-expressions
@@ -201,30 +201,6 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
 }
 
 /**
- * Wrapper for the dropdown that chooses the domain type.
- * @prop {string} value Currently selected value (i.e 'Max/Min').
- * @prop {string} inputId Css id.
- * @prop {function} handleChange Callback for every change in domain.
- */
-function RenderingModeSelect({ value, inputId, handleChange }) {
-  return (
-    <Select
-      native
-      onChange={e => handleChange(e.target.value)}
-      value={value}
-      inputProps={{ name: 'rendering-mode-selector', id: inputId }}
-      style={{ width: '100%' }}
-    >
-      {Object.values(RENDERING_MODES).map(name => (
-        <option key={name} value={name}>
-          {name}
-        </option>
-      ))}
-    </Select>
-  );
-}
-
-/**
  * Wrapper for the slider that chooses global selections (z, t etc.).
  * @prop {string} field The dimension this selects for (z, t etc.).
  * @prop {number} value Currently selected index (1, 4, etc.).
@@ -309,7 +285,6 @@ function LayerOptions({
   handleGlobalChannelsSelectionChange,
   handleSliderChange,
   handleDomainChange,
-  handleRenderingModeChange,
   transparentColor,
   channels,
   labels,
@@ -325,7 +300,6 @@ function LayerOptions({
   selections,
   handleMultiPropertyChange,
   resolution,
-  renderingMode,
 }) {
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
   const hasZStack = shape[labels.indexOf('z')] > 1;
@@ -377,18 +351,6 @@ function LayerOptions({
                   value={domainType || DEFAULT_RASTER_DOMAIN_TYPE}
                   handleChange={(value) => {
                     handleDomainChange(value);
-                  }}
-                />
-              </LayerOption>
-            </Grid>
-          )}
-          {use3D && (
-            <Grid item>
-              <LayerOption name="Rendering Mode" inputId="rendering-mode-selector">
-                <RenderingModeSelect
-                  value={renderingMode}
-                  handleChange={(value) => {
-                    handleRenderingModeChange(value);
                   }}
                 />
               </LayerOption>

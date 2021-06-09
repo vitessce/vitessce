@@ -78,7 +78,7 @@ export default function LayerController(props) {
     handleLayerRemove, handleLayerChange,
     shouldShowTransparentColor,
     shouldShowDomain, shouldShowColormap, ChannelController,
-    use3D, setUse3D,
+    use3D, setUse3D, setViewState,
   } = props;
 
   const {
@@ -87,6 +87,11 @@ export default function LayerController(props) {
     channels,
     transparentColor,
     renderingMode,
+    xSlice,
+    ySlice,
+    zSlice,
+    useFixedAxis,
+    resolution,
   } = layer;
   const firstSelection = channels[0]?.selection || {};
 
@@ -125,6 +130,14 @@ export default function LayerController(props) {
 
   function handleMultiPropertyChange(obj) {
     handleLayerChange({ ...layer, ...obj });
+  }
+
+  function handleSlicerSetting(slice, val) {
+    handleLayerChange({ ...layer, [`${slice}Slice`]: val });
+  }
+
+  function hanldeFixedAxisChange() {
+    handleLayerChange({ ...layer, useFixedAxis: !layer.useFixedAxis });
   }
 
   function setChannelsAndDomainType(newChannels, newDomainType) {
@@ -352,14 +365,20 @@ export default function LayerController(props) {
           <Tab
             label="Channels"
             style={{
-              fontSize: '.75rem', bottom: 12, width: '50%', minWidth: '50%',
+              fontSize: '.75rem',
+              bottom: 12,
+              width: '50%',
+              minWidth: '50%',
             }}
             disableRipple
           />
           <Tab
             label="Volume"
             style={{
-              fontSize: '.75rem', bottom: 12, width: '50%', minWidth: '50%',
+              fontSize: '.75rem',
+              bottom: 12,
+              width: '50%',
+              minWidth: '50%',
             }}
           />
         </Tabs>
@@ -391,8 +410,7 @@ export default function LayerController(props) {
             use3D={use3D}
             loader={loader}
             handleMultiPropertyChange={handleMultiPropertyChange}
-            handleRenderingModeChange={setRenderingMode}
-            renderingMode={renderingMode}
+            resolution={resolution}
           />
           {!isRgb(loader) ? channelControllers : null}
           {!isRgb(loader) && (
@@ -412,6 +430,16 @@ export default function LayerController(props) {
         <TabPanel value={tab} index={1}>
           <VolumeOptions
             loader={loader}
+            handleSlicerSetting={handleSlicerSetting}
+            hanldeFixedAxisChange={hanldeFixedAxisChange}
+            setViewState={setViewState}
+            handleRenderingModeChange={setRenderingMode}
+            renderingMode={renderingMode}
+            useFixedAxis={useFixedAxis}
+            xSlice={xSlice}
+            ySlice={ySlice}
+            zSlice={zSlice}
+            use3D={use3D}
           />
         </TabPanel>
         <Button
