@@ -50,7 +50,6 @@
               "spatialRotationY": { "type": "string" },
               "spatialRotationZ": { "type": "string" },
               "spatialRotationOrbit": { "type": "string" },
-              "use3D": { "type": "string" },
               "useFixedAxis": { "type": "string" },
               "heatmapZoomX": { "type": "string" },
               "heatmapZoomY": { "type": "string" },
@@ -345,6 +344,12 @@
         },
         "type": {
           "type": "string"
+        },
+        "use3D": {
+          "type": "boolean"
+        },
+        "useFixedAxis": {
+         "type": "boolean"
         }
       }
     },
@@ -550,19 +555,6 @@
           "type": "object",
           "patternProperties": {
             ".": { "type": "number" }
-          }
-        },
-        "use3D": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "boolean" }
-          }
-        },
-
-        "useFixedAxis": {
-         "type": "object",
-          "patternProperties": {
-            ".": { "type": "boolean" }
           }
         },
         "spatialTargetX": {

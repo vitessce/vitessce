@@ -41,11 +41,17 @@ function LayerControllerSubscriber(props) {
   const [
     {
       dataset,
-      use3D,
-      useFixedAxis,
       spatialRasterLayers: rasterLayers,
       spatialCellsLayer: cellsLayer,
       spatialMoleculesLayer: moleculesLayer,
+      spatialZoom: zoom,
+      spatialTargetX: targetX,
+      spatialTargetY: targetY,
+      spatialTargetZ: targetZ,
+      spatialRotationX: rotationX,
+      spatialRotationY: rotationY,
+      spatialRotationZ: rotationZ,
+      spatialRotationOrbit: rotationOrbit,
     },
     {
       setSpatialRasterLayers: setRasterLayers,
@@ -57,8 +63,6 @@ function LayerControllerSubscriber(props) {
       setSpatialRotationX: setRotationX,
       setSpatialRotationOrbit: setRotationOrbit,
       setSpatialZoom: setZoom,
-      setUseFixedAxis,
-      setUse3D,
     },
   ] = useCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
@@ -180,13 +184,17 @@ function LayerControllerSubscriber(props) {
                   handleLayerRemove={() => handleRasterLayerRemove(i)}
                   ChannelController={ChannelController}
                   shouldShowTransparentColor={isRaster}
-                  useFixedAxis={useFixedAxis}
-                  setUseFixedAxis={setUseFixedAxis}
                   shouldShowDomain={isRaster}
                   shouldShowColormap={isRaster}
-                  use3D={use3D}
-                  setUse3D={setUse3D}
                   disable3D={disable3D}
+                  viewState={{
+                    zoom,
+                    target: [targetX, targetY, targetZ],
+                    rotationX,
+                    rotationY,
+                    rotationZ,
+                    rotationOrbit,
+                  }}
                   setViewState={({
                     zoom: newZoom,
                     target,
