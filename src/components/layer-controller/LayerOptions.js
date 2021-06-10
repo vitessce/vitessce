@@ -53,6 +53,7 @@ function VolumeDropdown({
   handleMultiPropertyChange,
   resolution: currResolution,
   hanldeFixedAxisChange,
+  disable3D,
 }) {
   const { data: loader } = loaderWithMeta;
   const handleChange = (val) => {
@@ -73,12 +74,17 @@ function VolumeDropdown({
       hanldeFixedAxisChange(false);
     }
   };
+  const { labels, shape } = Array.isArray(loader) ? loader[0] : loader;
+  const hasZStack = shape[labels.indexOf('z')] > 1;
   return (
     <>
       <Select
         native
         value={currResolution}
-        onChange={e => handleChange(e.target.value === '2D' ? e.target.value : Number(e.target.value))}
+        onChange={e => handleChange(
+          e.target.value === '2D' ? e.target.value : Number(e.target.value),
+        )
+        }
       >
         {
           <option key="2D" value="2D">
@@ -101,7 +107,11 @@ function VolumeDropdown({
                   <option
                     key={`(${height}, ${width}, ${depthDownsampled})`}
                     value={resolution}
-                    disabled={resolution !== currResolution && use3D}
+                    disabled={
+                      (resolution !== currResolution && use3D)
+                      || disable3D
+                      || !hasZStack
+                    }
                   >
                     {`3D: ${resolution}x Downsampled, ~${formatBytes(
                       totalBytes,
@@ -292,8 +302,6 @@ function LayerOptions({
   handleDomainChange,
   transparentColor,
   channels,
-  labels,
-  shape,
   domainType,
   isRgb,
   shouldShowTransparentColor,
@@ -306,12 +314,13 @@ function LayerOptions({
   handleMultiPropertyChange,
   resolution,
   hanldeFixedAxisChange,
+  disable3D,
 }) {
+  const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
-  const hasZStack = shape[labels.indexOf('z')] > 1;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
-      {hasZStack && (
+      {(
         <VolumeDropdown
           use3D={use3D}
           hanldeFixedAxisChange={hanldeFixedAxisChange}
@@ -322,6 +331,7 @@ function LayerOptions({
           selections={selections}
           handleMultiPropertyChange={handleMultiPropertyChange}
           resolution={resolution}
+          disable3D={disable3D}
         />
       )}
       {hasDimensionsAndChannels

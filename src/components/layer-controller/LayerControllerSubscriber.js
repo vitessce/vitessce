@@ -32,6 +32,7 @@ function LayerControllerSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
+    disable3D,
   } = props;
 
   const loaders = useLoaders();
@@ -185,6 +186,7 @@ function LayerControllerSubscriber(props) {
                   shouldShowColormap={isRaster}
                   use3D={use3D}
                   setUse3D={setUse3D}
+                  disable3D={disable3D}
                   setViewState={({
                     zoom: newZoom,
                     target,

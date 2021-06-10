@@ -78,7 +78,7 @@ export default function LayerController(props) {
     handleLayerRemove, handleLayerChange,
     shouldShowTransparentColor,
     shouldShowDomain, shouldShowColormap, ChannelController,
-    use3D, setUse3D, setViewState, useFixedAxis, setUseFixedAxis,
+    use3D, setUse3D, setViewState, useFixedAxis, setUseFixedAxis, disable3D,
   } = props;
 
   const {
@@ -100,7 +100,7 @@ export default function LayerController(props) {
   const handleTabChange = (event, newTab) => {
     setTab(newTab);
   };
-  const { labels, shape } = Array.isArray(data) ? data[data.length - 1] : data;
+  const { labels } = Array.isArray(data) ? data[data.length - 1] : data;
   const [domainType, setDomainType] = useState(layer.domainType);
   const [isExpanded, setIsExpanded] = useState(true);
   const [globalLabelValues, setGlobalLabelValues] = useState(
@@ -364,8 +364,6 @@ export default function LayerController(props) {
         <TabPanel value={tab} index={0}>
           <LayerOptions
             channels={channels}
-            labels={labels}
-            shape={shape}
             opacity={opacity}
             colormap={colormap}
             transparentColor={transparentColor}
@@ -391,6 +389,7 @@ export default function LayerController(props) {
             handleMultiPropertyChange={handleMultiPropertyChange}
             resolution={resolution}
             hanldeFixedAxisChange={setUseFixedAxis}
+            disable3D={disable3D}
           />
           {!isRgb(loader) ? channelControllers : null}
           {!isRgb(loader) && (
