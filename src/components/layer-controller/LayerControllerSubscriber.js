@@ -180,7 +180,7 @@ function LayerControllerSubscriber(props) {
                   ChannelController={ChannelController}
                   shouldShowTransparentColor={isRaster}
                   useFixedAxis={useFixedAxis}
-                  setUseFixedAxis={() => setUseFixedAxis(!useFixedAxis)}
+                  setUseFixedAxis={setUseFixedAxis}
                   shouldShowDomain={isRaster}
                   shouldShowColormap={isRaster}
                   use3D={use3D}

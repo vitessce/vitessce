@@ -47,26 +47,30 @@ const canLoadResolution = (loader, resolution) => {
 };
 
 function VolumeDropdown({
-  use3D,
   setUse3D,
+  use3D,
   loader: loaderWithMeta,
   handleMultiPropertyChange,
   resolution: currResolution,
+  hanldeFixedAxisChange,
 }) {
   const { data: loader } = loaderWithMeta;
-  const handleChange = (resolution) => {
-    // eslint-disable-next-line no-unused-expressions
-    if (use3D) {
-      handleMultiPropertyChange({
-        resolution,
-      });
-      setUse3D(!use3D);
-    } else {
+  const handleChange = (val) => {
+    // val is the resolution not null, which indicates 2D
+    const shouldUse3D = typeof val === 'number';
+    if (shouldUse3D) {
       const [xSlice, ySlice, zSlice] = getBoundingCube(loader);
       handleMultiPropertyChange({
-        resolution, xSlice, ySlice, zSlice,
+        resolution: val,
+        xSlice,
+        ySlice,
+        zSlice,
       });
-      setUse3D(!use3D);
+      setUse3D(shouldUse3D);
+    } else {
+      setUse3D(shouldUse3D);
+      handleMultiPropertyChange({ resolution: val });
+      hanldeFixedAxisChange(false);
     }
   };
   return (
@@ -74,12 +78,10 @@ function VolumeDropdown({
       <Select
         native
         value={currResolution}
-        onChange={e => handleChange(Number(e.target.value))}
+        onChange={e => handleChange(e.target.value === '2D' ? e.target.value : Number(e.target.value))}
       >
         {
-          <option
-            key="2D"
-          >
+          <option key="2D" value="2D">
             2D Visualization
           </option>
         }
@@ -96,7 +98,11 @@ function VolumeDropdown({
                   totalBytes,
                 } = getStatsForResolution(loader, resolution);
                 return (
-                  <option key={`(${height}, ${width}, ${depthDownsampled})`} value={resolution}>
+                  <option
+                    key={`(${height}, ${width}, ${depthDownsampled})`}
+                    value={resolution}
+                    disabled={resolution !== currResolution && use3D}
+                  >
                     {`3D: ${resolution}x Downsampled, ~${formatBytes(
                       totalBytes,
                     )} per channel, (${height}, ${width}, ${depthDownsampled})`}
@@ -299,6 +305,7 @@ function LayerOptions({
   selections,
   handleMultiPropertyChange,
   resolution,
+  hanldeFixedAxisChange,
 }) {
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
   const hasZStack = shape[labels.indexOf('z')] > 1;
@@ -307,6 +314,7 @@ function LayerOptions({
       {hasZStack && (
         <VolumeDropdown
           use3D={use3D}
+          hanldeFixedAxisChange={hanldeFixedAxisChange}
           setUse3D={setUse3D}
           loader={loader}
           handleSliderChange={handleSliderChange}

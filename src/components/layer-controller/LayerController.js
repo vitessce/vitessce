@@ -390,6 +390,7 @@ export default function LayerController(props) {
             loader={loader}
             handleMultiPropertyChange={handleMultiPropertyChange}
             resolution={resolution}
+            hanldeFixedAxisChange={setUseFixedAxis}
           />
           {!isRgb(loader) ? channelControllers : null}
           {!isRgb(loader) && (

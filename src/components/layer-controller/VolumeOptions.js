@@ -160,7 +160,7 @@ const CameraOptions = ({
     <Grid item xs="auto" key="toggle-fixed-axis">
       <Grid container direction="row">
         <Checkbox
-          onClick={hanldeFixedAxisChange}
+          onClick={() => hanldeFixedAxisChange(!useFixedAxis)}
           style={{ padding: 0 }}
           disabled={!use3D}
           checked={useFixedAxis}
