@@ -211,7 +211,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
               }),
           ]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
           layers={
-            gl && viewState.target.every(i => typeof i === 'number')
+            gl && viewState.target.slice(0, use3D ? 3 : 2).every(i => typeof i === 'number')
               ? layers
               : []
           }
