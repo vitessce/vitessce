@@ -54,6 +54,7 @@ export default function VitessceSidebar(props) {
     componentsToAdd,
     onAddComponent,
     onToggleTheme,
+    onShareViaLink,
   } = props;
   
   const classes = useStyles();
@@ -96,7 +97,7 @@ export default function VitessceSidebar(props) {
         </div>
       ) : null}
       {enableShareViaLink ? (
-        <ActionPopover icon={<LinkIcon />} title="Share via link" />
+        <ActionPopover icon={<LinkIcon />} title="Share via link" onClick={onShareViaLink} />
       ) : null}
       {enableThemeToggle ? (
         <ActionPopover icon={<InvertColorsIcon />} title="Toggle theme" onClick={onToggleTheme} />

@@ -6,6 +6,19 @@ import VitessceSidebar from './VitessceSidebar';
 import Vitessce from '../app/Vitessce';
 import { useStyles } from './styles';
 
+function defaultGenerateShareUrl(configToShare) {
+  return `http://localhost:3000/?url=data:,${encodeURIComponent(JSON.stringify(configToShare))}`;
+}
+
+function copyToClipBoard(url) {
+  const dummy = document.createElement('input');
+  document.body.appendChild(dummy);
+  dummy.setAttribute('value', url);
+  dummy.select();
+  document.execCommand('copy');
+  document.body.removeChild(dummy);
+}
+
 export default function VitessceWithSidebarConsumer(props) {
   const {
     config: configProp,
@@ -19,6 +32,7 @@ export default function VitessceWithSidebarConsumer(props) {
     enableAddComponent = true,
     enableShareViaLink = true,
     enableThemeToggle = true,
+    generateShareUrl = defaultGenerateShareUrl,
   } = props;
   
   const classes = useStyles();
@@ -45,6 +59,9 @@ export default function VitessceWithSidebarConsumer(props) {
         }}
         onToggleTheme={() => {
           setTheme((theme === "light" ? "dark" : "light"));
+        }}
+        onShareViaLink={() => {
+          copyToClipBoard(generateShareUrl(configRef.current));
         }}
       />
       <div className={classes.mainContainer}>

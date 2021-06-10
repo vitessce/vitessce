@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 
 export const useStyles = makeStyles(() => ({
   appContainer: {
-    backgroundColor: 'blue',
     boxSizing: 'border-box',
     width: '100%',
     height: '100%',
