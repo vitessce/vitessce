@@ -53,7 +53,6 @@ function VolumeDropdown({
   handleMultiPropertyChange,
   resolution: currResolution,
 }) {
-  console.log(currResolution); // eslint-disable-line
   const { data: loader } = loaderWithMeta;
   const handleChange = (resolution) => {
     // eslint-disable-next-line no-unused-expressions

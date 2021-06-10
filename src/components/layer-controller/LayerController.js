@@ -78,7 +78,7 @@ export default function LayerController(props) {
     handleLayerRemove, handleLayerChange,
     shouldShowTransparentColor,
     shouldShowDomain, shouldShowColormap, ChannelController,
-    use3D, setUse3D, setViewState,
+    use3D, setUse3D, setViewState, useFixedAxis, setUseFixedAxis,
   } = props;
 
   const {
@@ -90,7 +90,6 @@ export default function LayerController(props) {
     xSlice,
     ySlice,
     zSlice,
-    useFixedAxis,
     resolution,
   } = layer;
   const firstSelection = channels[0]?.selection || {};
@@ -134,10 +133,6 @@ export default function LayerController(props) {
 
   function handleSlicerSetting(slice, val) {
     handleLayerChange({ ...layer, [`${slice}Slice`]: val });
-  }
-
-  function hanldeFixedAxisChange() {
-    handleLayerChange({ ...layer, useFixedAxis: !layer.useFixedAxis });
   }
 
   function setChannelsAndDomainType(newChannels, newDomainType) {
@@ -415,7 +410,7 @@ export default function LayerController(props) {
           <VolumeOptions
             loader={loader}
             handleSlicerSetting={handleSlicerSetting}
-            hanldeFixedAxisChange={hanldeFixedAxisChange}
+            hanldeFixedAxisChange={setUseFixedAxis}
             setViewState={setViewState}
             handleRenderingModeChange={setRenderingMode}
             renderingMode={renderingMode}

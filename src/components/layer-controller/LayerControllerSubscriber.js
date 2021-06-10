@@ -41,6 +41,7 @@ function LayerControllerSubscriber(props) {
     {
       dataset,
       use3D,
+      useFixedAxis,
       spatialRasterLayers: rasterLayers,
       spatialCellsLayer: cellsLayer,
       spatialMoleculesLayer: moleculesLayer,
@@ -55,6 +56,7 @@ function LayerControllerSubscriber(props) {
       setSpatialRotationX: setRotationX,
       setSpatialRotationOrbit: setRotationOrbit,
       setSpatialZoom: setZoom,
+      setUseFixedAxis,
       setUse3D,
     },
   ] = useCoordination(
@@ -177,6 +179,8 @@ function LayerControllerSubscriber(props) {
                   handleLayerRemove={() => handleRasterLayerRemove(i)}
                   ChannelController={ChannelController}
                   shouldShowTransparentColor={isRaster}
+                  useFixedAxis={useFixedAxis}
+                  setUseFixedAxis={() => setUseFixedAxis(!useFixedAxis)}
                   shouldShowDomain={isRaster}
                   shouldShowColormap={isRaster}
                   use3D={use3D}

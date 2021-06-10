@@ -51,6 +51,7 @@
               "spatialRotationZ": { "type": "string" },
               "spatialRotationOrbit": { "type": "string" },
               "use3D": { "type": "string" },
+              "useFixedAxis": { "type": "string" },
               "heatmapZoomX": { "type": "string" },
               "heatmapZoomY": { "type": "string" },
               "heatmapTargetX": { "type": "string" },
@@ -314,10 +315,6 @@
           "type": "string",
            "description": "Rendering mode of 3D volumetric rendering"
         },
-        "useFixedAxis": {
-          "type": "boolean",
-           "description": "Whether or not the axis of rotation should be fixed for 3D"
-        },
         "ySlice": {
           "oneOf": [
             {
@@ -557,6 +554,13 @@
         },
         "use3D": {
           "type": "object",
+          "patternProperties": {
+            ".": { "type": "boolean" }
+          }
+        },
+
+        "useFixedAxis": {
+         "type": "object",
           "patternProperties": {
             ".": { "type": "boolean" }
           }

@@ -80,6 +80,7 @@ export default function SpatialSubscriber(props) {
     cellColorEncoding,
     additionalCellSets,
     use3D,
+    useFixedAxis,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -288,6 +289,7 @@ export default function SpatialSubscriber(props) {
         }}
         updateViewInfo={setComponentViewInfo}
         use3D={use3D}
+        useFixedAxis={useFixedAxis}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber
