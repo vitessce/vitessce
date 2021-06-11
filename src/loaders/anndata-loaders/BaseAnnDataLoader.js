@@ -1,45 +1,7 @@
 import { openArray } from 'zarr';
 import range from 'lodash/range';
 import AbstractZarrLoader from '../AbstractZarrLoader';
-
-const readFloat32FromUint8 = (bytes) => {
-  if (bytes.length !== 4) {
-    throw new Error('readFloat32 only takes in length 4 byte buffers');
-  }
-  return new Int32Array(bytes.buffer)[0];
-};
-
-const HEADER_LENGTH = 4;
-
-/**
-   * Method for decoding text arrays from zarr.
-   * Largerly a port of https://github.com/zarr-developers/numcodecs/blob/2c1aff98e965c3c4747d9881d8b8d4aad91adb3a/numcodecs/vlen.pyx#L135-L178
-   * @returns {string[]} An array of strings.
-   */
-function parseVlenUtf8(buffer) {
-  const decoder = new TextDecoder();
-  let data = 0;
-  const dataEnd = data + buffer.length;
-  const length = readFloat32FromUint8(buffer.slice(data, HEADER_LENGTH));
-  if (buffer.length < HEADER_LENGTH) {
-    throw new Error('corrupt buffer, missing or truncated header');
-  }
-  data += HEADER_LENGTH;
-  const output = new Array(length);
-  for (let i = 0; i < length; i += 1) {
-    if (data + 4 > dataEnd) {
-      throw new Error('corrupt buffer, data seem truncated');
-    }
-    const l = readFloat32FromUint8(buffer.slice(data, data + 4));
-    data += 4;
-    if (data + l > dataEnd) {
-      throw new Error('corrupt buffer, data seem truncated');
-    }
-    output[i] = decoder.decode(buffer.slice(data, data + l));
-    data += l;
-  }
-  return output;
-}
+import TextDecodingPool from './TextDecodingPool';
 
 /**
  * A base AnnData loader which has all shared methods for more comlpex laoders,
@@ -106,12 +68,14 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
       mode: 'r',
     }).then(async (z) => {
       let data;
-      const parseAndMergeTextBytes = (dbytes) => {
-        const text = parseVlenUtf8(dbytes);
+      const Pool = new TextDecodingPool();
+      const parseAndMergeTextBytes = async (dbytes, index) => {
+        const text = await Pool.process(dbytes);
         if (!data) {
           data = text;
         } else {
-          data = data.concat(text);
+          const insertion = z.meta.chunks[0] * index;
+          data = data.slice(0, insertion).concat(text).concat(data.slice(insertion));
         }
       };
       const mergeBytes = (dbytes) => {
@@ -128,15 +92,15 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
       const requests = range(numRequests).map(async item => store.getItem(`${z.keyPrefix}${String(item)}`)
         .then(buf => z.compressor.decode(buf)));
       const dbytesArr = await Promise.all(requests);
-      dbytesArr.forEach((dbytes) => {
+      await Promise.all(dbytesArr.map(async (dbytes, index) => {
         // Use vlenutf-8 decoding if necessary and merge `data` as a normal array.
         if (Array.isArray(z.meta.filters) && z.meta.filters[0].id === 'vlen-utf8') {
-          parseAndMergeTextBytes(dbytes);
+          await parseAndMergeTextBytes(dbytes, index);
           // Otherwise just merge the bytes as a typed array.
         } else {
           mergeBytes(dbytes);
         }
-      });
+      }));
       const {
         meta: {
           shape: [length],
