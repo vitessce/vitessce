@@ -285,7 +285,7 @@ export default function LayerController(props) {
                 setVisible(!visible);
               }}
               style={{
-                marginRight: 4, marginBottom: 2, padding: 0, minWidth: 0,
+                marginRight: 8, marginBottom: 2, padding: 0, minWidth: 0,
               }}
             >
               <Visibility />
