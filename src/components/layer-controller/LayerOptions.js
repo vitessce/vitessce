@@ -52,6 +52,7 @@ function VolumeDropdown({
   handleMultiPropertyChange,
   resolution: currResolution,
   disable3D,
+  setRasterLayerCallback,
 }) {
   const { data: loader } = loaderWithMeta;
   const handleChange = (val) => {
@@ -66,6 +67,7 @@ function VolumeDropdown({
         zSlice,
         use3D: shouldUse3D,
       });
+      setRasterLayerCallback(null);
     } else {
       handleMultiPropertyChange({ resolution: val, use3D: shouldUse3D, useFixedAxis: false });
     }
@@ -309,6 +311,7 @@ function LayerOptions({
   handleMultiPropertyChange,
   resolution,
   disable3D,
+  setRasterLayerCallback,
 }) {
   const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
@@ -324,6 +327,7 @@ function LayerOptions({
           handleMultiPropertyChange={handleMultiPropertyChange}
           resolution={resolution}
           disable3D={disable3D}
+          setRasterLayerCallback={setRasterLayerCallback}
         />
       )}
       {hasDimensionsAndChannels

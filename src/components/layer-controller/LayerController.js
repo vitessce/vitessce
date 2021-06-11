@@ -78,7 +78,7 @@ export default function LayerController(props) {
     handleLayerRemove, handleLayerChange,
     shouldShowTransparentColor,
     shouldShowDomain, shouldShowColormap, ChannelController,
-    setViewState, disable3D, viewState,
+    setViewState, disable3D, viewState, setRasterLayerCallback,
   } = props;
 
   const {
@@ -253,16 +253,19 @@ export default function LayerController(props) {
           // value is the actual change, like { channel: "DAPI" }.
           const update = { [property]: value };
           if (property === 'selection') {
-            update.selection = { ...globalLabelValues, ...update.selection };
-            const loaderSelection = [
-              { ...channels[channelId][property], ...value },
-            ];
-            const { sliders } = await getDomainsAndSliders(
-              loader, loaderSelection, domainType,
-            );
-            [update.slider] = sliders;
+            setRasterLayerCallback(async () => {
+              update.selection = { ...globalLabelValues, ...update.selection };
+              const loaderSelection = [
+                { ...channels[channelId][property], ...value },
+              ];
+              const { sliders } = await getDomainsAndSliders(
+                loader, loaderSelection, domainType,
+              );
+              [update.slider] = sliders;
+              setChannel({ ...c, ...update }, channelId);
+              setRasterLayerCallback(null);
+            });
           }
-          setChannel({ ...c, ...update }, channelId);
         };
         const handleChannelRemove = () => {
           removeChannel(channelId);
@@ -297,6 +300,7 @@ export default function LayerController(props) {
             handlePropertyChange={handleChannelPropertyChange}
             handleChannelRemove={handleChannelRemove}
             handleIQRUpdate={handleIQRUpdate}
+            setRasterLayerCallback={setRasterLayerCallback}
           />
         );
       },
@@ -394,6 +398,7 @@ export default function LayerController(props) {
             handleMultiPropertyChange={handleMultiPropertyChange}
             resolution={resolution}
             disable3D={disable3D}
+            setRasterLayerCallback={setRasterLayerCallback}
           />
           {!isRgb(loader) ? channelControllers : null}
           {!isRgb(loader) && (

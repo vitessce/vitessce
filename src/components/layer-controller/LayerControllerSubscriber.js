@@ -9,7 +9,7 @@ import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady } from '../hooks';
 import { useCellsData, useMoleculesData, useRasterData } from '../data-hooks';
-import { useCoordination, useLoaders } from '../../app/state/hooks';
+import { useCoordination, useLoaders, useAuxiliaryCoordination } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
@@ -65,6 +65,18 @@ function LayerControllerSubscriber(props) {
       setSpatialZoom: setZoom,
     },
   ] = useCoordination(
+    COMPONENT_COORDINATION_TYPES.layerController,
+    coordinationScopes,
+  );
+
+  const [
+    {
+      spatialRasterLayers: rasterLayersCallbacks,
+    },
+    {
+      setSpatialRasterLayers: setRasterLayersCallbacks,
+    },
+  ] = useAuxiliaryCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
@@ -168,6 +180,11 @@ function LayerControllerSubscriber(props) {
             const ChannelController = isRaster
               ? RasterChannelController
               : BitmaskChannelController;
+            const setRasterLayerCallback = (cb) => {
+              const newRasterLayersCallbacks = [...rasterLayersCallbacks];
+              newRasterLayersCallbacks[i] = cb;
+              setRasterLayersCallbacks(newRasterLayersCallbacks);
+            };
             return loader && layerMeta ? (
               <Grid
                 // eslint-disable-next-line react/no-array-index-key
@@ -187,6 +204,8 @@ function LayerControllerSubscriber(props) {
                   shouldShowDomain={isRaster}
                   shouldShowColormap={isRaster}
                   disable3D={disable3D}
+                  rasterLayersCallbacks={rasterLayersCallbacks}
+                  setRasterLayerCallback={setRasterLayerCallback}
                   viewState={{
                     zoom,
                     target: [targetX, targetY, targetZ],
