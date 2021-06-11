@@ -4,6 +4,7 @@
 
 ### Changed
 - Cache cell set polygon outputs and do not calculate them unless requested.
+- Clean up `getFlatArrDecompressed` fetching.
 
 ## [1.1.10](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-19
 
