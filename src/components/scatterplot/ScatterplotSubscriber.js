@@ -150,11 +150,9 @@ export default function ScatterplotSubscriber(props) {
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetSelection, cellSetColor, expressionData, attrs]);
 
-  const [haveCellSetPolygonsBeenCalculated,
-    setHaveCellSetPolygonsBeenCalculated] = useState(false);
-  const [cellSetPolygonCache, setCellSetPolygonCache] = useState(null);
+  const [cellSetPolygonCache, setCellSetPolygonCache] = useState({});
   const cellSetPolygons = useMemo(() => {
-    if (!haveCellSetPolygonsBeenCalculated && cellSetPolygonsVisible) {
+    if (cellSetPolygonsVisible && !cellSetPolygonCache[cellSetSelection]) {
       const newCellSetPolygons = getCellSetPolygons({
         cells,
         mapping,
@@ -162,12 +160,11 @@ export default function ScatterplotSubscriber(props) {
         cellSetSelection,
         cellSetColor,
       });
-      setHaveCellSetPolygonsBeenCalculated(true);
-      setCellSetPolygonCache(newCellSetPolygons);
+      setCellSetPolygonCache({ ...cellSetPolygonCache, [cellSetSelection]: newCellSetPolygons });
       return newCellSetPolygons;
     }
-    return cellSetPolygonCache;
-  }, [haveCellSetPolygonsBeenCalculated, cellSetPolygonsVisible, cellSetPolygonCache,
+    return cellSetPolygonCache[cellSetSelection];
+  }, [cellSetPolygonsVisible, cellSetPolygonCache,
     cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
