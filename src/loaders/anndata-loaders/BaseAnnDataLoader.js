@@ -125,7 +125,8 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
         }
       };
       const numRequests = Math.ceil(z.meta.shape[0] / z.meta.chunks[0]);
-      const requests = range(numRequests).map(async item => store.getItem(`${z.keyPrefix}${String(item)}`).then(buf => z.compressor.decode(buf)));
+      const requests = range(numRequests).map(async item => store.getItem(`${z.keyPrefix}${String(item)}`)
+        .then(buf => z.compressor.decode(buf)));
       const dbytesArr = await Promise.all(requests);
       dbytesArr.forEach((dbytes) => {
         // Use vlenutf-8 decoding if necessary and merge `data` as a normal array.
