@@ -260,8 +260,12 @@ export default function LayerController(props) {
           const update = { [property]: value };
           if (property === 'selection') {
             setIsLoading(true);
+            update.selection = {
+              ...globalLabelValues,
+              ...update.selection,
+            };
+            setChannel({ ...c, ...update }, channelId);
             setRasterLayerCallback(async () => {
-              update.selection = { ...globalLabelValues, ...update.selection };
               const loaderSelection = [
                 { ...channels[channelId][property], ...value },
               ];
@@ -273,6 +277,8 @@ export default function LayerController(props) {
               setRasterLayerCallback(null);
               setIsLoading(false);
             });
+          } else {
+            setChannel({ ...c, ...update }, channelId);
           }
         };
         const handleChannelRemove = () => {

@@ -6,7 +6,6 @@ import Select from '@material-ui/core/Select';
 /**
  * Dropdown for selecting a channel.
  * @prop {function} handleChange Callback for each new selection.
- * @prop {boolean} disableOptions Whether or not to allow options.
  * @prop {array} channelOptions List of available selections, like ['DAPI', 'FITC', ...].
  * @prop {number} selectionIndex Current numeric index of a selection.
  */

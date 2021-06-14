@@ -102,13 +102,12 @@ export default function SpatialSubscriber(props) {
 
   const [
     {
-      spatialRasterLayers: rasterLayersCallbacks = [],
+      rasterLayersCallbacks = [],
     },
   ] = useAuxiliaryCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
-
 
   const use3D = rasterLayers?.some(l => l.use3D);
   const useFixedAxis = rasterLayers?.some(l => l.useFixedAxis);
