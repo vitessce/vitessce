@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { extent } from 'd3-array';
 import clamp from 'lodash/clamp';
+import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
@@ -150,9 +151,13 @@ export default function ScatterplotSubscriber(props) {
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetSelection, cellSetColor, expressionData, attrs]);
 
-  const [cellSetPolygonCache, setCellSetPolygonCache] = useState({});
+  // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
+  // where the keys are cellSetSelection arrays.
+  const [cellSetPolygonCache, setCellSetPolygonCache] = useState([]);
+  const cacheHas = (cache, key) => cache.findIndex(el => isEqual(el[0], key)) !== -1;
+  const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
   const cellSetPolygons = useMemo(() => {
-    if (cellSetPolygonsVisible && !cellSetPolygonCache[cellSetSelection]) {
+    if (cellSetPolygonsVisible && !cacheHas(cellSetPolygonCache, cellSetSelection)) {
       const newCellSetPolygons = getCellSetPolygons({
         cells,
         mapping,
@@ -160,10 +165,10 @@ export default function ScatterplotSubscriber(props) {
         cellSetSelection,
         cellSetColor,
       });
-      setCellSetPolygonCache({ ...cellSetPolygonCache, [cellSetSelection]: newCellSetPolygons });
+      setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
       return newCellSetPolygons;
     }
-    return cellSetPolygonCache[cellSetSelection];
+    return cacheGet(cellSetPolygonCache, cellSetSelection);
   }, [cellSetPolygonsVisible, cellSetPolygonCache,
     cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
 
