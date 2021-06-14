@@ -75,7 +75,7 @@ function LayerControllerSubscriber(props) {
       rasterLayersIsChannelLoading: areLoadingRasterChannnels = [],
     },
     {
-      setSpatialRasterLayers: setRasterLayersCallbacks,
+      setRasterLayersCallbacks,
       setRasterLayersIsChannelLoading: setAreLoadingRasterChannnels,
     },
   ] = useAuxiliaryCoordination(

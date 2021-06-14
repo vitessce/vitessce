@@ -182,7 +182,7 @@ export function useCoordination(parameters, coordinationScopes) {
 }
 
 const coordinationScopesMap = {
-  rasterLayers: ['rasterLayersCallbacks', 'rasterLayersIsChannelLoading'],
+  spatialRasterLayers: ['rasterLayersCallbacks', 'rasterLayersIsChannelLoading'],
 };
 
 const mapCoordinationScopes = (coordinationScopes) => {
@@ -193,7 +193,11 @@ const mapCoordinationScopes = (coordinationScopes) => {
       newCoordinationScopes[coordinationType || key] = coordinationScopes[key];
     });
   });
+  return newCoordinationScopes;
 };
+
+const mapParameters = parameters => parameters
+  .map(parameter => coordinationScopesMap[parameter]).filter(Boolean).flat();
 
 /**
  * The useAuxiliaryCoordination hook returns both the
@@ -214,9 +218,10 @@ const mapCoordinationScopes = (coordinationScopes) => {
 export function useAuxiliaryCoordination(parameters, coordinationScopes) {
   const setCoordinationValue = useAuxiliaryStore(state => state.setCoordinationValue);
   const mappedCoordinationScopes = mapCoordinationScopes(coordinationScopes);
+  const mappedParameters = mapParameters(parameters);
   const values = useAuxiliaryStore((state) => {
     const { auxiliaryStore } = state;
-    return fromEntries(parameters.map((parameter) => {
+    return fromEntries(mappedParameters.map((parameter) => {
       if (auxiliaryStore && auxiliaryStore[parameter]) {
         const value = auxiliaryStore[parameter][mappedCoordinationScopes[parameter]];
         return [parameter, value];
@@ -224,8 +229,7 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
       return [parameter, undefined];
     }));
   }, shallow);
-
-  const setters = fromEntries(parameters.map((parameter) => {
+  const setters = fromEntries(mappedParameters.map((parameter) => {
     const setterName = `set${capitalize(parameter)}`;
     const setterFunc = value => setCoordinationValue({
       parameter,
