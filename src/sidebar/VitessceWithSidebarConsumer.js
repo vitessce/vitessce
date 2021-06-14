@@ -32,6 +32,8 @@ export default function VitessceWithSidebarConsumer(props) {
     enableAddComponent = true,
     enableShareViaLink = true,
     enableThemeToggle = true,
+    enableEditViewConfig = true,
+    enableClearViewConfig = true,
     generateShareUrl = defaultGenerateShareUrl,
   } = props;
   
@@ -49,6 +51,8 @@ export default function VitessceWithSidebarConsumer(props) {
         enableAddComponent={enableAddComponent}
         enableShareViaLink={enableShareViaLink}
         enableThemeToggle={enableThemeToggle}
+        enableEditViewConfig={enableEditViewConfig}
+        enableClearViewConfig={enableClearViewConfig}
         
         componentsToAdd={COMPONENT_NAMES}
         
@@ -62,6 +66,12 @@ export default function VitessceWithSidebarConsumer(props) {
         }}
         onShareViaLink={() => {
           copyToClipBoard(generateShareUrl(configRef.current));
+        }}
+        onEditViewConfig={() => {
+          console.log("Editing view config");
+        }}
+        onClearViewConfig={() => {
+          console.log("Clearing view config");
         }}
       />
       <div className={classes.mainContainer}>

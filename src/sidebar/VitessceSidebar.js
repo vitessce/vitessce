@@ -50,11 +50,15 @@ export default function VitessceSidebar(props) {
     enableAddComponent,
     enableShareViaLink,
     enableThemeToggle,
+    enableEditViewConfig,
+    enableClearViewConfig,
     
     componentsToAdd,
     onAddComponent,
     onToggleTheme,
     onShareViaLink,
+    onEditViewConfig,
+    onClearViewConfig,
   } = props;
   
   const classes = useStyles();
@@ -105,6 +109,12 @@ export default function VitessceSidebar(props) {
       ) : null}
       {enableThemeToggle ? (
         <ActionPopover icon={<InvertColorsIcon />} title="Toggle theme" onClick={onToggleTheme} />
+      ) : null}
+      {enableEditViewConfig ? (
+        <ActionPopover icon={<CodeIcon />} title="Edit view config" onClick={onEditViewConfig} />
+      ) : null}
+      {enableClearViewConfig ? (
+        <ActionPopover icon={<NewIcon />} title="Clear view config" onClick={onClearViewConfig} />
       ) : null}
     </div>
   );

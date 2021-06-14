@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useReducer } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
@@ -9,38 +10,14 @@ import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import SettingsIcon from '@material-ui/icons/Settings';
 import CloseIcon from '@material-ui/icons/Close';
 
+import Box from '@material-ui/core/Box';
+import Card from '@material-ui/core/Card';
+
 import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
 import LoadingIndicator from './LoadingIndicator';
 import { PopperMenu } from './shared-mui/components';
 
-const useStyles = makeStyles(theme => ({
-  iconButton: {
-    border: 'none',
-    marginLeft: 0,
-    background: 'none',
-    color: theme.palette.primaryForeground,
-    paddingLeft: '0.25em',
-    paddingRight: '0.25em',
-    borderRadius: '2px',
-    '&:hover': {
-      backgroundColor: theme.palette.primaryBackgroundLight,
-    },
-    '&:first-child': {
-      marginLeft: '0.75em',
-    },
-    '&:last-child': {
-      marginRight: '0.25em',
-    },
-    '& svg': {
-      width: '0.7em',
-      height: '0.7em',
-      verticalAlign: 'middle',
-    },
-  },
-  downloadLink: {
-    color: theme.palette.primaryForeground,
-  },
-}));
+import { useStyles } from './title-info-styles';
 
 function SettingsIconWithArrow({ open }) {
   return (
@@ -120,15 +97,11 @@ export default function TitleInfo(props) {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options,
   } = props;
-  // eslint-disable-next-line no-nested-ternary
-  const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
+  const classes = useStyles({ isScroll, isSpatial });
   return (
-    // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
-      <div className="title d-flex justify-content-between align-items-baseline">
-        <div className="justify-content-between d-flex align-items-end">
-          <span>{title}</span>
-        </div>
+      <Box className={classes.titleBox}>
+        {title}
         <span className="details pl-2 align-items-end">
           <span className="d-flex justify-content-between">
             {info}
@@ -147,12 +120,11 @@ export default function TitleInfo(props) {
             />
           </span>
         </span>
-      </div>
-      <div className={childClassName}>
+      </Box>
+      <Card className={classes.card}>
         { !isReady && <LoadingIndicator /> }
         {children}
-      </div>
+      </Card>
     </>
-    // "pl-2" only matters when the window is very narrow.
   );
 }

@@ -73,6 +73,9 @@ export const useStyles = makeStyles(() => ({
       left: 0,
       position: 'absolute',
     },
+    '& > ul li ul li:hover': {
+      backgroundColor: 'rgb(194, 194, 194)',
+    },
   },
   mainContainer: {
     width: 'calc(100% - 36px)',
