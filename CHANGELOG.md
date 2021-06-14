@@ -5,6 +5,7 @@
 - Global visibility button next to name in layer controller.
 
 ### Changed
+- Fix bitmask remove button style.
 
 ## [1.1.10](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-19
 
