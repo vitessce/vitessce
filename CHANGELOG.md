@@ -5,6 +5,9 @@
 - Global visibility button next to name in layer controller.
 
 ### Changed
+- Cache cell set polygon outputs and do not calculate them unless requested.
+  - Modify the cache to use an array of tuples, since using an array as an object key results in conversion to string.
+- Clean up `getFlatArrDecompressed` fetching.
 - Fix bitmask remove button style.
 
 ## [1.1.10](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-19
