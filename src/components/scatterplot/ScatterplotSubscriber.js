@@ -157,7 +157,11 @@ export default function ScatterplotSubscriber(props) {
   const cacheHas = (cache, key) => cache.findIndex(el => isEqual(el[0], key)) !== -1;
   const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
   const cellSetPolygons = useMemo(() => {
-    if (cellSetPolygonsVisible && !cacheHas(cellSetPolygonCache, cellSetSelection)) {
+    if ((cellSetLabelsVisible || cellSetPolygonsVisible)
+      && !cacheHas(cellSetPolygonCache, cellSetSelection)
+      && mergedCellSets?.tree?.length
+      && Object.values(cells).length
+      && cellSetColor?.length) {
       const newCellSetPolygons = getCellSetPolygons({
         cells,
         mapping,
@@ -169,8 +173,9 @@ export default function ScatterplotSubscriber(props) {
       return newCellSetPolygons;
     }
     return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
-  }, [cellSetPolygonsVisible, cellSetPolygonCache,
+  }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible,
     cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
+
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
