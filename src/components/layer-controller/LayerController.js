@@ -325,7 +325,7 @@ export default function LayerController(props) {
   const controllerSectionClasses = useControllerSectionStyles();
 
   const setAreAllChannelsLoading = (val) => {
-    const newAreLayerChannelsLoading = [...areLayerChannelsLoading].map(() => val);
+    const newAreLayerChannelsLoading = channels.map(() => val);
     setAreLayerChannelsLoading(newAreLayerChannelsLoading);
   };
 
