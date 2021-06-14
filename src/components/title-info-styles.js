@@ -60,26 +60,37 @@ export const useStyles = makeStyles(theme => ({
     color: theme.palette.primaryForeground,
   }),
   tab: {
-    flexBasis: 'inherit',
-    flexShrink: 0,
+    flexShrink: '1',
     minHeight: '0px',
+    padding: '6px 8px',
   },
   labelTab: {
     textAlign: 'left',
     fontWeight: '300',
     '& span': {
       alignItems: 'start',
-    }
+      fontSize: '14px',
+    },
+    minWidth: '0px',
+    flexBasis: '1',
+    flexGrow: '1',
   },
   iconTab: {
+    alignItems: 'end',
+    flexBasis: 'auto',
+    flexGrow: '0',
     minWidth: '0px',
     '& svg': {
-      width: '20px',
-      height: '20px'
+      width: '18px',
+      height: '18px'
     }
   },
   tabsRoot: {
     minHeight: '0px',
+    width: '100%',
+  },
+  tabsScroller: {
+    width: '100%',
   },
   tabsIndicator: {
     backgroundColor: 'transparent',
@@ -89,6 +100,7 @@ export const useStyles = makeStyles(theme => ({
     borderTopLeftRadius: '4px',
     borderTopRightRadius: '4px',
     height: '100%',
+    cursor: 'grab',
   }
 }));
 

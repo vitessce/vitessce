@@ -104,42 +104,31 @@ export default function TitleInfo(props) {
   const classes = useStyles({ isScroll, isSpatial });
   const [value, setValue] = useState(0);
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    console.log({ ...event });
+    if(newValue === 4) {
+      removeGridComponent();
+    } else {
+      setValue(newValue);
+    }
   };
   return (
     <>
-      <Box className={classes.titleBox}>
+      <Box className={`title ${classes.titleBox}`}>
         <Tabs
-          classes={{ root: classes.tabsRoot, indicator: classes.tabsIndicator }}
+          classes={{ root: classes.tabsRoot, scroller: classes.tabsScroller, indicator: classes.tabsIndicator }}
           value={value}
           onChange={handleChange}
           variant="fullWidth"
           indicatorColor="primary"
           textColor="primary"
-          aria-label="icon tabs example"
+          aria-label="tabs"
         >
           <Tab label={title} aria-label={title} className={`${classes.tab} ${classes.labelTab}`} />
           <Tab icon={<EditIcon />} aria-label="values" className={`${classes.tab} ${classes.iconTab}`} />
-          <Tab icon={<LeakAddIcon />} aria-label="scopes"  className={`${classes.tab} ${classes.iconTab}`}/>
+          <Tab icon={<LeakAddIcon />} aria-label="scopes" className={`${classes.tab} ${classes.iconTab}`}/>
+          <Tab icon={<CloudDownloadIcon />} aria-label="downloads" className={`${classes.tab} ${classes.iconTab}`}/>
+          <Tab icon={<CloseIcon />} aria-label="close" className={`${classes.tab} ${classes.iconTab}`}/>
         </Tabs>
-      
-        <span className="details pl-2 align-items-end">
-          <span className="d-flex justify-content-between">
-            { options && (
-              <PlotOptions
-                options={options}
-              />
-            ) }
-            {urls && urls.length > 0 && (
-              <DownloadOptions
-                urls={urls}
-              />
-            )}
-            <ClosePaneButton
-              removeGridComponent={removeGridComponent}
-            />
-          </span>
-        </span>
       </Box>
       <Card className={classes.card}>
         { !isReady && <LoadingIndicator /> }
