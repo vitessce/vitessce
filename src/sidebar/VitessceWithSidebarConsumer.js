@@ -6,6 +6,8 @@ import VitessceSidebar from './VitessceSidebar';
 import Vitessce from '../app/Vitessce';
 import { useStyles } from './styles';
 
+import { COMPONENT_NAMES } from '../app/names';
+
 function defaultGenerateShareUrl(configToShare) {
   return `http://localhost:3000/?url=data:,${encodeURIComponent(JSON.stringify(configToShare))}`;
 }
@@ -23,8 +25,6 @@ export default function VitessceWithSidebarConsumer(props) {
   const {
     config: configProp,
     theme: themeProp,
-    
-    componentsToAdd = [],
     
     enableLogo = true,
     enableUndo = true,
@@ -50,7 +50,7 @@ export default function VitessceWithSidebarConsumer(props) {
         enableShareViaLink={enableShareViaLink}
         enableThemeToggle={enableThemeToggle}
         
-        componentsToAdd={componentsToAdd}
+        componentsToAdd={COMPONENT_NAMES}
         
         onAddComponent={(c) => {
           const nextConfig = cloneDeep(configRef.current);

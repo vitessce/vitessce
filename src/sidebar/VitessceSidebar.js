@@ -83,13 +83,17 @@ export default function VitessceSidebar(props) {
             disableSelection
           >
             <TreeItem nodeId="1" label="Add component" classes={treeItemClasses}>
-              {componentsToAdd.map((c, i) => (
+              {Object.entries(componentsToAdd).map(([componentKey, componentName], i) => (
                 <TreeItem
-                  key={c.label}
+                  key={componentKey}
                   nodeId={`${i+2}`}
-                  label={c.label}
+                  label={componentName}
                   classes={treeItemClasses}
-                  onLabelClick={() => onAddComponent(c.value)}
+                  onLabelClick={() => onAddComponent({
+                    component: componentKey,
+                    tab: "main",
+                    x: 0, y: 0, w: 1, h: 1,
+                  })}
                 />
               ))}
             </TreeItem>

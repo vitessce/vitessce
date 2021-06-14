@@ -24,6 +24,11 @@
           "y": { "type": "integer" },
           "w": { "type": "integer" },
           "h": { "type": "integer" },
+          "tab": {
+            "type": "string",
+            "description": "Which tab should be visible? The main visualization, the coordination value editor, or the coordination scope editor?",
+            "enum": ["main", "values", "scopes"]
+          },
           "coordinationScopes": {
             "type": "object",
             "description": "Component-level coordination scope mappings define which coordination object values a particular component can read and write, for each coordination type.",
