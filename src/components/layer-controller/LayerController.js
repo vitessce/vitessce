@@ -79,6 +79,7 @@ export default function LayerController(props) {
     shouldShowTransparentColor,
     shouldShowDomain, shouldShowColormap, ChannelController,
     setViewState, disable3D, viewState, setRasterLayerCallback,
+    setAreLayerChannelsLoading, areLayerChannelsLoading,
   } = props;
 
   const {
@@ -270,6 +271,11 @@ export default function LayerController(props) {
         const handleChannelRemove = () => {
           removeChannel(channelId);
         };
+        const setIsLoading = (val) => {
+          const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
+          newAreLayerChannelsLoading[channelId] = val;
+          setAreLayerChannelsLoading(newAreLayerChannelsLoading);
+        };
         const handleIQRUpdate = async () => {
           const { data: loaderData } = loader;
           const source = Array.isArray(loaderData) ? loaderData[loaderData.length - 1] : loaderData;
@@ -301,6 +307,8 @@ export default function LayerController(props) {
             handleChannelRemove={handleChannelRemove}
             handleIQRUpdate={handleIQRUpdate}
             setRasterLayerCallback={setRasterLayerCallback}
+            isLoading={areLayerChannelsLoading[channelId]}
+            setIsLoading={setIsLoading}
           />
         );
       },
@@ -308,6 +316,11 @@ export default function LayerController(props) {
   }
 
   const controllerSectionClasses = useControllerSectionStyles();
+
+  const setAreAllChannelsLoading = (val) => {
+    const newAreLayerChannelsLoading = [...areLayerChannelsLoading].map(() => val);
+    setAreLayerChannelsLoading(newAreLayerChannelsLoading);
+  };
 
   return (
     <ExpansionPanel
@@ -399,6 +412,7 @@ export default function LayerController(props) {
             resolution={resolution}
             disable3D={disable3D}
             setRasterLayerCallback={setRasterLayerCallback}
+            setAreAllChannelsLoading={setAreAllChannelsLoading}
           />
           {!isRgb(loader) ? channelControllers : null}
           {!isRgb(loader) && (

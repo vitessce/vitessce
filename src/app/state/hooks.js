@@ -183,13 +183,16 @@ export function useCoordination(parameters, coordinationScopes) {
 }
 
 const coordinationScopesMap = {
-  rasterLayers: 'rasterLayersCallbacks',
+  rasterLayers: ['rasterLayersCallbacks', 'rasterLayersIsChannelLoading'],
 };
 
 const mapCoordinationScopes = (coordinationScopes) => {
   const newCoordinationScopes = {};
   Object.keys(coordinationScopes).forEach((key) => {
-    newCoordinationScopes[coordinationScopesMap[key] || key] = coordinationScopes[key];
+    const newCoordinationTypes = coordinationScopesMap[key] || [];
+    newCoordinationTypes.forEach((coordinationType) => {
+      newCoordinationScopes[coordinationType || key] = coordinationScopes[key];
+    });
   });
 };
 

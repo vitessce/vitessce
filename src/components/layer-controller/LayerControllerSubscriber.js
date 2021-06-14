@@ -72,9 +72,11 @@ function LayerControllerSubscriber(props) {
   const [
     {
       spatialRasterLayers: rasterLayersCallbacks,
+      rasterLayersIsChannelLoading: areLoadingRasterChannnels,
     },
     {
       setSpatialRasterLayers: setRasterLayersCallbacks,
+      setRasterLayersIsChannelLoading: setAreLoadingRasterChannnels,
     },
   ] = useAuxiliaryCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
@@ -185,6 +187,12 @@ function LayerControllerSubscriber(props) {
               newRasterLayersCallbacks[i] = cb;
               setRasterLayersCallbacks(newRasterLayersCallbacks);
             };
+            const areLayerChannelsLoading = areLoadingRasterChannnels[i];
+            const setAreLayerChannelsLoading = (v) => {
+              const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
+              newAreLayerChannelsLoading[i] = v;
+              setAreLoadingRasterChannnels(newAreLayerChannelsLoading);
+            };
             return loader && layerMeta ? (
               <Grid
                 // eslint-disable-next-line react/no-array-index-key
@@ -227,6 +235,8 @@ function LayerControllerSubscriber(props) {
                     setRotationX(newRotationX);
                     setRotationOrbit(newRotationOrbit);
                   }}
+                  setAreLayerChannelsLoading={setAreLayerChannelsLoading}
+                  areLayerChannelsLoading={areLayerChannelsLoading}
                 />
               </Grid>
             ) : null;
