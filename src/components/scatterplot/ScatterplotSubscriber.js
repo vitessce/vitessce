@@ -168,7 +168,7 @@ export default function ScatterplotSubscriber(props) {
       setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
       return newCellSetPolygons;
     }
-    return cacheGet(cellSetPolygonCache, cellSetSelection);
+    return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
   }, [cellSetPolygonsVisible, cellSetPolygonCache,
     cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
 
