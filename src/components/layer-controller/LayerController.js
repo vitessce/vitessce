@@ -7,6 +7,8 @@ import AddIcon from '@material-ui/icons/Add';
 import Slider from '@material-ui/core/Slider';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 
 import LayerOptions from './LayerOptions';
 
@@ -75,6 +77,13 @@ export default function LayerController(props) {
       .filter(field => typeof firstSelection[field] === 'number')
       .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
   );
+
+  function setVisible(v) {
+    const newChannels = [...channels];
+    // eslint-disable-next-line no-param-reassign,no-return-assign
+    newChannels.forEach(ch => (ch.visible = v));
+    handleLayerChange({ ...layer, channels: newChannels });
+  }
 
   function setColormap(v) {
     handleLayerChange({ ...layer, colormap: v });
@@ -254,7 +263,8 @@ export default function LayerController(props) {
   }
 
   const controllerSectionClasses = useControllerSectionStyles();
-
+  const visible = channels.some(ch => ch.visible);
+  const Visibility = visible ? VisibilityIcon : VisibilityOffIcon;
   return (
     <ExpansionPanel
       className={controllerSectionClasses.root}
@@ -267,7 +277,21 @@ export default function LayerController(props) {
         aria-controls={`layer-${name}-controls`}
       >
         <Grid container direction="column" m={1} justify="center">
-          <OverflowEllipsisGrid item>{name}</OverflowEllipsisGrid>
+          <OverflowEllipsisGrid item>
+            <Button
+              onClick={(e) => {
+                // Needed to prevent affecting the expansion panel from changing
+                e.stopPropagation();
+                setVisible(!visible);
+              }}
+              style={{
+                marginRight: 8, marginBottom: 2, padding: 0, minWidth: 0,
+              }}
+            >
+              <Visibility />
+            </Button>
+            {name}
+          </OverflowEllipsisGrid>
           {!isExpanded && (
             <Grid container direction="row" alignItems="center" justify="center">
               <Grid item xs={6}>
