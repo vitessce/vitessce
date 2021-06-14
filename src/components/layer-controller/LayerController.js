@@ -247,6 +247,11 @@ export default function LayerController(props) {
     channelControllers = channels.map(
       // c is an object like { color, selection, slider, visible }.
       (c, channelId) => {
+        const setIsLoading = (val) => {
+          const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
+          newAreLayerChannelsLoading[channelId] = val;
+          setAreLayerChannelsLoading(newAreLayerChannelsLoading);
+        };
         // Change one property of a channel (for now - soon
         // nested structures allowing for multiple z/t selecitons at once, for example).
         const handleChannelPropertyChange = async (property, value) => {
@@ -254,6 +259,7 @@ export default function LayerController(props) {
           // value is the actual change, like { channel: "DAPI" }.
           const update = { [property]: value };
           if (property === 'selection') {
+            setIsLoading(true);
             setRasterLayerCallback(async () => {
               update.selection = { ...globalLabelValues, ...update.selection };
               const loaderSelection = [
@@ -265,16 +271,12 @@ export default function LayerController(props) {
               [update.slider] = sliders;
               setChannel({ ...c, ...update }, channelId);
               setRasterLayerCallback(null);
+              setIsLoading(false);
             });
           }
         };
         const handleChannelRemove = () => {
           removeChannel(channelId);
-        };
-        const setIsLoading = (val) => {
-          const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
-          newAreLayerChannelsLoading[channelId] = val;
-          setAreLayerChannelsLoading(newAreLayerChannelsLoading);
         };
         const handleIQRUpdate = async () => {
           const { data: loaderData } = loader;
@@ -308,7 +310,6 @@ export default function LayerController(props) {
             handleIQRUpdate={handleIQRUpdate}
             setRasterLayerCallback={setRasterLayerCallback}
             isLoading={areLayerChannelsLoading[channelId]}
-            setIsLoading={setIsLoading}
           />
         );
       },

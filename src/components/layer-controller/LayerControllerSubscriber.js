@@ -71,8 +71,8 @@ function LayerControllerSubscriber(props) {
 
   const [
     {
-      spatialRasterLayers: rasterLayersCallbacks,
-      rasterLayersIsChannelLoading: areLoadingRasterChannnels,
+      spatialRasterLayers: rasterLayersCallbacks = [],
+      rasterLayersIsChannelLoading: areLoadingRasterChannnels = [],
     },
     {
       setSpatialRasterLayers: setRasterLayersCallbacks,
@@ -187,7 +187,7 @@ function LayerControllerSubscriber(props) {
               newRasterLayersCallbacks[i] = cb;
               setRasterLayersCallbacks(newRasterLayersCallbacks);
             };
-            const areLayerChannelsLoading = areLoadingRasterChannnels[i];
+            const areLayerChannelsLoading = areLoadingRasterChannnels[i] || [];
             const setAreLayerChannelsLoading = (v) => {
               const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
               newAreLayerChannelsLoading[i] = v;

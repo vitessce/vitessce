@@ -52,7 +52,7 @@ function abbreviateNumber(value) {
  * @prop {array} domain Current max/min allowable slider values.
  */
 function ChannelSlider({
-  color, slider = [0, 0], handleChange, domain = [0, 0], dtype,
+  color, slider = [0, 0], handleChange, domain = [0, 0], dtype, disabled,
 }) {
   const [min, max] = domain;
   const handleChangeDebounced = useCallback(
@@ -71,6 +71,7 @@ function ChannelSlider({
       step={step}
       orientation="horizontal"
       style={{ color, marginTop: '7px' }}
+      disabled={disabled}
     />
   );
 }
@@ -88,7 +89,6 @@ function ChannelSlider({
  * @prop {function} handleChannelRemove When a channel is removed, this is called.
  * @prop {function} handleIQRUpdate When the IQR button is clicked, this is called.
  * @prop {number} selectionIndex The current numeric index of the selection.
- * @prop {boolean} disableOptions Whether or not channel options are be disabled (default: false).
  */
 function RasterChannelController({
   visibility = false,
@@ -106,7 +106,7 @@ function RasterChannelController({
   handleChannelRemove,
   handleIQRUpdate,
   selectionIndex,
-  disableOptions = false,
+  isLoading,
 }) {
   const { dtype } = getSourceFromLoader(loader);
   const [domain, setDomain] = useState(null);
@@ -174,8 +174,8 @@ function RasterChannelController({
           <ChannelSelectionDropdown
             handleChange={v => handlePropertyChange('selection', createSelection(v))}
             selectionIndex={selectionIndex}
-            disableOptions={disableOptions}
             channelOptions={channelOptions}
+            disabled={isLoading}
           />
         </Grid>
         <Grid item xs={1} style={{ marginTop: '4px' }}>
@@ -183,6 +183,7 @@ function RasterChannelController({
             handlePropertyChange={handlePropertyChange}
             handleChannelRemove={handleChannelRemove}
             handleIQRUpdate={handleIQRUpdate}
+            disabled={isLoading}
           />
         </Grid>
       </Grid>
@@ -192,6 +193,7 @@ function RasterChannelController({
             color={rgbColor}
             checked={visibility}
             toggle={() => handlePropertyChange('visible', !visibility)}
+            disabled={isLoading}
           />
         </Grid>
         <Grid item xs={9}>
@@ -202,6 +204,7 @@ function RasterChannelController({
               domain={domain}
               dtype={dtype}
               handleChange={v => handlePropertyChange('slider', v)}
+              disabled={isLoading}
             />
           )}
         </Grid>

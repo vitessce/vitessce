@@ -159,7 +159,6 @@ export function useCoordination(parameters, coordinationScopes) {
 
   const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
-    console.log(coordinationSpace, coordinationScopes, parameters); // eslint-disable-line
     return fromEntries(parameters.map((parameter) => {
       if (coordinationSpace && coordinationSpace[parameter]) {
         const value = coordinationSpace[parameter][coordinationScopes[parameter]];
