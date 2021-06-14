@@ -55,7 +55,7 @@ function BitmaskChannelController({
         />
       </Grid>
       <Grid item xs={1}>
-        <IconButton onClick={handleChannelRemove} style={{ padding: 6 }}>
+        <IconButton onClick={handleChannelRemove} style={{ padding: '6px 6px 6px 0px' }}>
           <RemoveCircleIcon />
         </IconButton>
       </Grid>
