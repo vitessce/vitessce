@@ -43,7 +43,7 @@ export const useStyles = makeStyles(theme => ({
     flex: '1 1 auto',
     minHeight: '1px',
     padding: '0.75rem',
-    marginTop: '0.5rem !important',
+    marginTop: '0px !important',
     marginBottom: '0.5rem !important',
     position: 'relative',
     flexDirection: 'column',
@@ -59,5 +59,36 @@ export const useStyles = makeStyles(theme => ({
     ),
     color: theme.palette.primaryForeground,
   }),
+  tab: {
+    flexBasis: 'inherit',
+    flexShrink: 0,
+    minHeight: '0px',
+  },
+  labelTab: {
+    textAlign: 'left',
+    fontWeight: '300',
+    '& span': {
+      alignItems: 'start',
+    }
+  },
+  iconTab: {
+    minWidth: '0px',
+    '& svg': {
+      width: '20px',
+      height: '20px'
+    }
+  },
+  tabsRoot: {
+    minHeight: '0px',
+  },
+  tabsIndicator: {
+    backgroundColor: 'transparent',
+    borderLeft: '2px solid #545454',
+    borderTop: '2px solid #545454',
+    borderRight: '2px solid #545454',
+    borderTopLeftRadius: '4px',
+    borderTopRightRadius: '4px',
+    height: '100%',
+  }
 }));
 
