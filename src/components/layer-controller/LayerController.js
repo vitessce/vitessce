@@ -82,6 +82,7 @@ export default function LayerController(props) {
     shouldShowDomain, shouldShowColormap, ChannelController,
     setViewState, disable3D, viewState, setRasterLayerCallback,
     setAreLayerChannelsLoading, areLayerChannelsLoading, disabled,
+    spatialHeight, spatialWidth,
   } = props;
 
   const {
@@ -477,6 +478,8 @@ export default function LayerController(props) {
             zSlice={zSlice}
             use3D={use3D}
             viewState={viewState}
+            spatialHeight={spatialHeight}
+            spatialWidth={spatialWidth}
           />
         </TabPanel>
         <Button

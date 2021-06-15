@@ -7,9 +7,14 @@ import BitmaskChannelController from './BitmaskChannelController';
 import VectorLayerController from './VectorLayerController';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
-import { useReady } from '../hooks';
+import { useReady, useWindowDimensions } from '../hooks';
 import { useCellsData, useMoleculesData, useRasterData } from '../data-hooks';
-import { useCoordination, useLoaders, useAuxiliaryCoordination } from '../../app/state/hooks';
+import {
+  useCoordination,
+  useLoaders,
+  useAuxiliaryCoordination,
+  useViewConfigStore,
+} from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
@@ -82,6 +87,10 @@ function LayerControllerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
+  const viewConfig = useViewConfigStore(state => state.viewConfig);
+  const spatialDims = viewConfig.layout.filter(l => l.component === 'spatial')
+    .find(l => l.coordinationScopes.spatialRasterLayers === coordinationScopes.spatialRasterLayers);
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     LAYER_CONTROLLER_DATA_TYPES,
@@ -239,6 +248,8 @@ function LayerControllerSubscriber(props) {
                   }}
                   setAreLayerChannelsLoading={setAreLayerChannelsLoading}
                   areLayerChannelsLoading={areLayerChannelsLoading}
+                  spatialHeight={windowHeight * spatialDims.h / 12}
+                  spatialWidth={windowWidth * spatialDims.w / 12}
                 />
               </Grid>
             ) : null;
