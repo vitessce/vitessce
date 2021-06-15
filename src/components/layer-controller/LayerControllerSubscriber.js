@@ -68,8 +68,8 @@ function LayerControllerSubscriber(props) {
 
   const [
     {
-      spatialRasterLayers: rasterLayersCallbacks = [],
-      rasterLayersIsChannelLoading: areLoadingRasterChannnels = [],
+      spatialRasterLayers: rasterLayersCallbacks,
+      rasterLayersIsChannelLoading: areLoadingRasterChannnels,
     },
     {
       setRasterLayersCallbacks,
@@ -184,13 +184,13 @@ function LayerControllerSubscriber(props) {
               ? RasterChannelController
               : BitmaskChannelController;
             const setRasterLayerCallback = (cb) => {
-              const newRasterLayersCallbacks = [...rasterLayersCallbacks];
+              const newRasterLayersCallbacks = [...(rasterLayersCallbacks || [])];
               newRasterLayersCallbacks[i] = cb;
               setRasterLayersCallbacks(newRasterLayersCallbacks);
             };
-            const areLayerChannelsLoading = areLoadingRasterChannnels[i] || [];
+            const areLayerChannelsLoading = (areLoadingRasterChannnels || [])[i] || [];
             const setAreLayerChannelsLoading = (v) => {
-              const newAreLoadingRasterChannnels = [...areLoadingRasterChannnels];
+              const newAreLoadingRasterChannnels = [...(areLoadingRasterChannnels || [])];
               newAreLoadingRasterChannnels[i] = v;
               setAreLoadingRasterChannnels(newAreLoadingRasterChannnels);
             };

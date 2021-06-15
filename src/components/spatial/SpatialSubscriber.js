@@ -102,7 +102,7 @@ export default function SpatialSubscriber(props) {
 
   const [
     {
-      rasterLayersCallbacks = [],
+      rasterLayersCallbacks,
     },
   ] = useAuxiliaryCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
@@ -272,13 +272,6 @@ export default function SpatialSubscriber(props) {
           rotationX: newRotationX,
           rotationOrbit: newRotationOrbit,
         }) => {
-          // eslint-disable-next-line no-console
-          console.log({
-            zoom,
-            target,
-            rotationX,
-            rotationOrbit,
-          });
           setZoom(newZoom);
           setTargetX(target[0]);
           setTargetY(target[1]);
