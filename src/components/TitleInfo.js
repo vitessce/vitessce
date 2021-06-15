@@ -94,10 +94,10 @@ function ClosePaneButton(props) {
 export default function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
-    isReady, coordinationValues, coordinationScopes, tab = "main", setTab,
+    isReady, coordinationValueEditor, coordinationScopeEditor, tab = "main", setTab,
   } = props;
   
-  const TABS = ["main", "values", "scopes", "downloads", "help"];
+  const TABS = ["main", "scopes", "values", "downloads", "help"];
   const tabIndex = TABS.indexOf(tab);
   const isMainTab = tab === "main";
   
@@ -108,7 +108,7 @@ export default function TitleInfo(props) {
   );
   const help = (<p>Help</p>);
   
-  const tabContent = [children, coordinationValues, coordinationScopes, downloads, help];
+  const tabContent = [children, coordinationScopeEditor, coordinationValueEditor, downloads, help];
   
   const handleTabChange = (event, newTabIndex) => {
     //console.log({ ...event });
@@ -132,8 +132,8 @@ export default function TitleInfo(props) {
           aria-label="tabs"
         >
           <Tab label={title} aria-label={title} className={`${classes.tab} ${classes.labelTab}`} />
-          <Tab icon={<EditIcon />} aria-label="values" className={`${classes.tab} ${classes.iconTab}`} />
           <Tab icon={<LeakAddIcon />} aria-label="scopes" className={`${classes.tab} ${classes.iconTab}`} />
+          <Tab icon={<EditIcon />} aria-label="values" className={`${classes.tab} ${classes.iconTab}`} />
           <Tab icon={<CloudDownloadIcon />} aria-label="downloads" className={`${classes.tab} ${classes.iconTab}`} />
           <Tab icon={<HelpIcon />} aria-label="help" className={`${classes.tab} ${classes.iconTab}`} />
           <Tab icon={<CloseIcon />} aria-label="close" className={`${classes.tab} ${classes.iconTab}`} />
@@ -141,8 +141,14 @@ export default function TitleInfo(props) {
       </Box>
       <Card className={classes.card}>
         { !isReady && <LoadingIndicator /> }
-        {children}
-        {!isMainTab ? tabContent[tabIndex] : null}
+        <div className={classes.mainTabContainer}>
+          {children}
+        </div>
+        {!isMainTab ? (
+          <div className={classes.auxTabContainer}>
+            {tabContent[tabIndex]}
+          </div>
+        ) : null}
         {isMainTab && info && info.length ? (
           <span className={classes.info}>{info}</span>
         ) : null}

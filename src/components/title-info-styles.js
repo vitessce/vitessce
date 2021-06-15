@@ -47,7 +47,7 @@ export const useStyles = makeStyles(theme => ({
     marginBottom: '0.5rem !important',
     position: 'relative',
     flexDirection: 'column',
-    minWidth: '0',
+    minWidth: '0px',
     wordWrap: 'break-word',
     backgroundClip: 'border-box',
     borderRadius: '0.25rem',
@@ -121,5 +121,29 @@ export const useStyles = makeStyles(theme => ({
     padding: '2px 4px',
     borderRadius: '2px',
   }),
+  mainTabContainer: {
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    minWidth: '0px',
+    wordWrap: 'break-word',
+    backgroundClip: 'border-box',
+    flex: '1 1 auto',
+    minHeight: '1px',
+    boxSizing: 'border-box',
+    padding: '0',
+    margin: '0',
+    zIndex: '1'
+  },
+  auxTabContainer: {
+    backgroundColor: 'rgb(0, 0, 0, 0.8)',
+    position: 'absolute',
+    top: '0',
+    left: '0',
+    padding: '0',
+    width: '100%',
+    height: '100%',
+    zIndex: '2'
+  },
 }));
 

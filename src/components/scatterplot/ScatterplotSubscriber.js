@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
@@ -18,6 +19,7 @@ import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import ScatterplotOptions from './ScatterplotOptions';
+import ScatterplotCoordinations from './ScatterplotCoordinations';
 import {
   useCoordination,
   useLoaders,
@@ -94,7 +96,11 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingCellSetLabelsVisible: setCellSetLabelsVisible,
     setEmbeddingCellSetLabelSize: setCellSetLabelSize,
     setEmbeddingCellRadius: setCellRadius,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
+  }, potentialScopes] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
+  
+  const setCoordinationScope = (coordinationType, requiresAddition, nextScopeName) => {
+    console.log(coordinationType, requiresAddition, nextScopeName);
+  };
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -212,7 +218,15 @@ export default function ScatterplotSubscriber(props) {
       isReady={isReady}
       tab={tab}
       setTab={setTab}
-      coordinationValues={(
+      coordinationScopeEditor={(
+        <ScatterplotCoordinations
+          types={COMPONENT_COORDINATION_TYPES.scatterplot}
+          currentScopes={coordinationScopes}
+          potentialScopes={potentialScopes}
+          onChangeScope={setCoordinationScope}
+        />
+      )}
+      coordinationValueEditor={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}
           cellRadius={cellRadius}

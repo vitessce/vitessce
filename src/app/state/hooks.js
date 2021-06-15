@@ -169,7 +169,18 @@ export function useCoordination(parameters, coordinationScopes) {
     return [setterName, setterFunc];
   }));
 
-  return [values, setters];
+  const potentialScopes = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    return fromEntries(parameters.map((parameter) => {
+      if (coordinationSpace && coordinationSpace[parameter]) {
+        const parameterScopeNames = Object.keys(coordinationSpace[parameter]);
+        return [parameter, parameterScopeNames];
+      }
+      return [parameter, []];
+    }));
+  }, shallow);
+
+  return [values, setters, potentialScopes];
 }
 
 /**

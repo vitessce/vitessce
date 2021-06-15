@@ -436,7 +436,7 @@ export const configs = {
           embeddingCellSetPolygonsVisible: 'A',
           embeddingCellRadius: 'A',
         },
-        tab: 'values',
+        tab: 'scopes',
         x: 0, y: 2, w: 5, h: 4 },
       { component: 'spatial',
         props: {

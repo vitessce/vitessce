@@ -41,4 +41,7 @@ export const useStyles = makeStyles(theme => ({
       fontSize: '.875rem',
     },
   },
+  tabBox: {
+    padding: '10px',
+  },
 }));

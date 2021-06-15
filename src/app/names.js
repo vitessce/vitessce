@@ -20,6 +20,8 @@ export const COMPONENT_NAMES = {
 
 // Human-readable names of coordination types.
 export const COORDINATION_TYPE_NAMES = {
+  [COORDINATION_TYPES.DATASET]: "Dataset",
+  [COORDINATION_TYPES.EMBEDDING_TYPE]: "Embedding Type",
   [COORDINATION_TYPES.EMBEDDING_ZOOM]: "Embedding Zoom",
   [COORDINATION_TYPES.EMBEDDING_ROTATION]: "Embedding Rotation",
   [COORDINATION_TYPES.EMBEDDING_TARGET_X]: "Embedding Target X",
