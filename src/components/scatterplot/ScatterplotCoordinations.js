@@ -42,7 +42,7 @@ function ScopeSelect(props) {
       </TableCell>
       <TableCell className={classes.inputCell}>
         <div>
-          <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+          <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick} classes={{ text: classes.menuSelectButtonText }}>
             {value}<ArrowDropDownIcon />
           </Button>
           <Menu

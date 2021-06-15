@@ -44,4 +44,7 @@ export const useStyles = makeStyles(theme => ({
   tabBox: {
     padding: '10px',
   },
+  menuSelectButtonText: {
+    padding: '6px 16px !important',
+  },
 }));

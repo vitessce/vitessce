@@ -28,6 +28,7 @@ import {
   useSetComponentViewInfo,
   useTab,
   useSetTab,
+  useSetCoordinationScope,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -62,6 +63,7 @@ export default function ScatterplotSubscriber(props) {
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
   const tab = useTab(uuid);
   const setTab = useSetTab(uuid);
+  const setCoordinationScope = useSetCoordinationScope(uuid);
 
   // Get "props" from the coordination space.
   const [{
@@ -99,10 +101,6 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingCellRadius: setCellRadius,
   }, potentialScopes] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
   
-  const setCoordinationScope = (coordinationType, requiresAddition, nextScopeName) => {
-    console.log(coordinationType, requiresAddition, nextScopeName);
-  };
-
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -242,7 +240,13 @@ export default function ScatterplotSubscriber(props) {
           types={COMPONENT_COORDINATION_TYPES.scatterplot}
           currentScopes={coordinationScopes}
           potentialScopes={potentialScopes}
-          onChangeScope={setCoordinationScope}
+          onChangeScope={(cType, nextScopeName, requiresNewScope) => {
+            if(!requiresNewScope) {
+              setCoordinationScope({ parameter: cType, scope: nextScopeName });
+            } else {
+              
+            }
+          }}
         />
       )}
       coordinationValueEditor={(

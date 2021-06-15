@@ -69,6 +69,20 @@ export const useViewConfigStore = create(set => ({
       },
     };
   }),
+  setCoordinationScope: (i, { parameter, scope }) => set((state) => {
+    const newLayout = state.viewConfig.layout.slice();
+    if (newLayout[i].coordinationScopes) {
+      newLayout[i].coordinationScopes[parameter] = scope;
+    } else {
+      newLayout[i].coordinationScopes = { parameter: scope };
+    }
+    return {
+      viewConfig: {
+        ...state.viewConfig,
+        layout: newLayout,
+      },
+    };
+  }),
 }));
 
 /**
@@ -178,7 +192,20 @@ export function useCoordination(parameters, coordinationScopes) {
       }
       return [parameter, []];
     }));
-  }, shallow);
+  }, (objA, objB) => {
+    const aKeys = Object.keys(objA);
+    const bKeys = Object.keys(objB);
+    if (aKeys.length !== bKeys.length) {
+      return false;
+    }
+    // eslint-disable-next-line no-restricted-syntax
+    for (const aKey of aKeys) {
+      if (!objB[aKey] || objA[aKey].length !== objB[aKey].length) {
+        return false;
+      }
+    }
+    return true;
+  });
 
   return [values, setters, potentialScopes];
 }
@@ -266,6 +293,18 @@ export function useSetViewConfig() {
   const setViewConfigRef = useRef(useViewConfigStore.getState().setViewConfig);
   const setViewConfig = setViewConfigRef.current;
   return setViewConfig;
+}
+
+/**
+ * Obtain the component tab setter function from
+ * the global app state.
+ * @returns {function} The set component tab function
+ * in the `useViewConfigStore` store.
+ */
+export function useSetCoordinationScope(uuid) {
+  const setCoordinationScopeRef = useRef(useViewConfigStore.getState().setCoordinationScope);
+  const setCoordinationScope = params => setCoordinationScopeRef.current(uuid, params);
+  return setCoordinationScope;
 }
 
 /**
