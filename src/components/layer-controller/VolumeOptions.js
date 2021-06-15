@@ -152,7 +152,6 @@ const CameraOptions = ({
   setViewState,
   useFixedAxis,
   use3D,
-  viewState,
   spatialHeight,
   spatialWidth,
   loader,
@@ -183,7 +182,6 @@ const CameraOptions = ({
           const defaultViewState = getDefaultInitialViewState(loader.data,
             { height: spatialHeight, width: spatialWidth }, 1.5, use3D);
           setViewState({
-            ...viewState,
             ...defaultViewState,
             rotationX: 0,
             rotationOrbit: 0,
@@ -224,7 +222,6 @@ const VolumeOptions = ({
   zSlice,
   use3D,
   loader,
-  viewState,
   spatialHeight,
   spatialWidth,
 }) => (
@@ -247,7 +244,6 @@ const VolumeOptions = ({
       setViewState={setViewState}
       useFixedAxis={useFixedAxis}
       use3D={use3D}
-      viewState={viewState}
       loader={loader}
       spatialHeight={spatialHeight}
       spatialWidth={spatialWidth}

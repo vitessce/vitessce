@@ -49,14 +49,6 @@ function LayerControllerSubscriber(props) {
       spatialRasterLayers: rasterLayers,
       spatialCellsLayer: cellsLayer,
       spatialMoleculesLayer: moleculesLayer,
-      spatialZoom: zoom,
-      spatialTargetX: targetX,
-      spatialTargetY: targetY,
-      spatialTargetZ: targetZ,
-      spatialRotationX: rotationX,
-      spatialRotationY: rotationY,
-      spatialRotationZ: rotationZ,
-      spatialRotationOrbit: rotationOrbit,
     },
     {
       setSpatialRasterLayers: setRasterLayers,
@@ -225,14 +217,6 @@ function LayerControllerSubscriber(props) {
                   disabled={typeof layerIs3DIndex === 'number' && layerIs3DIndex !== -1 && layerIs3DIndex !== i}
                   rasterLayersCallbacks={rasterLayersCallbacks}
                   setRasterLayerCallback={setRasterLayerCallback}
-                  viewState={{
-                    zoom,
-                    target: [targetX, targetY, targetZ],
-                    rotationX,
-                    rotationY,
-                    rotationZ,
-                    rotationOrbit,
-                  }}
                   setViewState={({
                     zoom: newZoom,
                     target,

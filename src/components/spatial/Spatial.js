@@ -237,8 +237,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createScaleBarLayer() {
     const {
-      viewState, width, height, imageLayerLoaders = {}, use3D,
+      viewState, width, height, imageLayerLoaders = {}, layers,
     } = this.props;
+    const use3D = (layers || []).some(i => i.use3D);
     // Just get the first layer/loader since they should all be spatially
     // resolved and therefore have the same unit size scale.
     const loaders = Object.values(imageLayerLoaders);

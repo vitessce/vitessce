@@ -109,9 +109,6 @@ export default function SpatialSubscriber(props) {
     coordinationScopes,
   );
 
-  const use3D = rasterLayers?.some(l => l.use3D);
-  const useFixedAxis = rasterLayers?.some(l => l.useFixedAxis);
-
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     SPATIAL_DATA_TYPES,
@@ -183,7 +180,7 @@ export default function SpatialSubscriber(props) {
         cells,
         imageLayerLoaders,
         useRaster: Boolean(loaders[dataset].loaders.raster),
-        use3D,
+        use3D: layers.some(l => l.use3D),
       });
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);
@@ -191,7 +188,7 @@ export default function SpatialSubscriber(props) {
       setZoom(initialZoom);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom, use3D]);
+  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom, layers]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
@@ -275,6 +272,13 @@ export default function SpatialSubscriber(props) {
           rotationX: newRotationX,
           rotationOrbit: newRotationOrbit,
         }) => {
+          // eslint-disable-next-line no-console
+          console.log({
+            zoom,
+            target,
+            rotationX,
+            rotationOrbit,
+          });
           setZoom(newZoom);
           setTargetX(target[0]);
           setTargetY(target[1]);
@@ -299,8 +303,6 @@ export default function SpatialSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
-        use3D={use3D}
-        useFixedAxis={useFixedAxis}
         rasterLayersCallbacks={rasterLayersCallbacks}
       />
       {!disableTooltip && (
