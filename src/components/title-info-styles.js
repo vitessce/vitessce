@@ -53,7 +53,7 @@ export const useStyles = makeStyles(theme => ({
     borderRadius: '0.25rem',
     display: 'flex',
     overflowY: (props.isScroll ? 'auto' : 'inherit'),
-    backgroundColor: (props.isScroll
+    backgroundColor: (props.isScroll || !props.isMainTab
       ? theme.palette.primaryBackground
       : (props.isSpatial ? 'black' : theme.palette.secondaryBackground)
     ),
@@ -63,6 +63,7 @@ export const useStyles = makeStyles(theme => ({
     flexShrink: '1',
     minHeight: '0px',
     padding: '6px 8px',
+    color: `${theme.palette.primaryForeground} !important`,
   },
   labelTab: {
     textAlign: 'left',
@@ -92,15 +93,33 @@ export const useStyles = makeStyles(theme => ({
   tabsScroller: {
     width: '100%',
   },
-  tabsIndicator: {
+  tabsIndicator: props => ({
     backgroundColor: 'transparent',
-    borderLeft: '2px solid #545454',
-    borderTop: '2px solid #545454',
-    borderRight: '2px solid #545454',
+    borderLeft: `2px solid ${theme.palette.primaryBackground}`,
+    borderTop: `2px solid ${theme.palette.primaryBackground}`,
+    borderRight: `2px solid ${theme.palette.primaryBackground}`,
     borderTopLeftRadius: '4px',
     borderTopRightRadius: '4px',
     height: '100%',
     cursor: 'grab',
-  }
+    opacity: (props.isMainTab ? '0' : '1'),
+  }),
+  info: props => ({
+    position: 'absolute',
+    bottom: '0',
+    right: '0',
+    backgroundColor: (props.isScroll
+      ? theme.palette.primaryBackground
+      : (props.isSpatial ? 'black' : theme.palette.secondaryBackground)
+    ),
+    color: (props.isScroll
+      ? theme.palette.primaryForeground
+      : (props.isSpatial ? 'white' : theme.palette.secondaryForeground)
+    ),
+    opacity: '0.8',
+    fontSize: '10px',
+    padding: '2px 4px',
+    borderRadius: '2px',
+  }),
 }));
 

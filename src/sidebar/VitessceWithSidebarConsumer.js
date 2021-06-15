@@ -25,6 +25,8 @@ export default function VitessceWithSidebarConsumer(props) {
   const {
     config: configProp,
     theme: themeProp,
+    onConfigChange,
+    validateOnConfigChange,
     
     enableLogo = true,
     enableUndo = true,
@@ -79,7 +81,11 @@ export default function VitessceWithSidebarConsumer(props) {
           config={prevConfig}
           onConfigChange={(newConfig) => {
             configRef.current = newConfig;
+            if(onConfigChange) {
+              onConfigChange(newConfig);
+            }
           }}
+          validateOnConfigChange={validateOnConfigChange}
           theme={theme}
         />
       </div>

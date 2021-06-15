@@ -17,6 +17,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import CloseIcon from '@material-ui/icons/Close';
 import EditIcon from '@material-ui/icons/Edit';
 import LeakAddIcon from '@material-ui/icons/LeakAdd';
+import HelpIcon from '@material-ui/icons/Help';
 
 import LoadingIndicator from './LoadingIndicator';
 import { PopperMenu } from './shared-mui/components';
@@ -60,16 +61,10 @@ function CloudDownloadIconWithArrow({ open }) {
 
 function DownloadOptions(props) {
   const { urls } = props;
-  const [open, toggle] = useReducer(v => !v, false);
+  
   const classes = useStyles();
   return (
-    <PopperMenu
-      open={open}
-      toggle={toggle}
-      buttonIcon={<CloudDownloadIconWithArrow open={open} />}
-      buttonClassName={classes.iconButton}
-      placement="bottom-end"
-    >
+    <>
       {urls.map(({ url, name }) => (
         <MenuItem dense key={url}>
           <Link underline="none" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
@@ -77,7 +72,7 @@ function DownloadOptions(props) {
           </Link>
         </MenuItem>
       ))}
-    </PopperMenu>
+    </>
   );
 }
 
@@ -99,25 +94,38 @@ function ClosePaneButton(props) {
 export default function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
-    isReady, options,
+    isReady, coordinationValues, coordinationScopes, tab = "main", setTab,
   } = props;
-  const classes = useStyles({ isScroll, isSpatial });
-  const [value, setValue] = useState(0);
-  const handleChange = (event, newValue) => {
-    console.log({ ...event });
-    if(newValue === 4) {
+  
+  const TABS = ["main", "values", "scopes", "downloads", "help"];
+  const tabIndex = TABS.indexOf(tab);
+  const isMainTab = tab === "main";
+  
+  const classes = useStyles({ isScroll, isSpatial, isMainTab });
+  
+  const downloads = (
+      <DownloadOptions urls={urls} />
+  );
+  const help = (<p>Help</p>);
+  
+  const tabContent = [children, coordinationValues, coordinationScopes, downloads, help];
+  
+  const handleTabChange = (event, newTabIndex) => {
+    //console.log({ ...event });
+    if(newTabIndex === TABS.length) {
       removeGridComponent();
     } else {
-      setValue(newValue);
+      setTab(TABS[newTabIndex]);
     }
   };
+  
   return (
     <>
       <Box className={`title ${classes.titleBox}`}>
         <Tabs
           classes={{ root: classes.tabsRoot, scroller: classes.tabsScroller, indicator: classes.tabsIndicator }}
-          value={value}
-          onChange={handleChange}
+          value={tabIndex}
+          onChange={handleTabChange}
           variant="fullWidth"
           indicatorColor="primary"
           textColor="primary"
@@ -125,15 +133,18 @@ export default function TitleInfo(props) {
         >
           <Tab label={title} aria-label={title} className={`${classes.tab} ${classes.labelTab}`} />
           <Tab icon={<EditIcon />} aria-label="values" className={`${classes.tab} ${classes.iconTab}`} />
-          <Tab icon={<LeakAddIcon />} aria-label="scopes" className={`${classes.tab} ${classes.iconTab}`}/>
-          <Tab icon={<CloudDownloadIcon />} aria-label="downloads" className={`${classes.tab} ${classes.iconTab}`}/>
-          <Tab icon={<CloseIcon />} aria-label="close" className={`${classes.tab} ${classes.iconTab}`}/>
+          <Tab icon={<LeakAddIcon />} aria-label="scopes" className={`${classes.tab} ${classes.iconTab}`} />
+          <Tab icon={<CloudDownloadIcon />} aria-label="downloads" className={`${classes.tab} ${classes.iconTab}`} />
+          <Tab icon={<HelpIcon />} aria-label="help" className={`${classes.tab} ${classes.iconTab}`} />
+          <Tab icon={<CloseIcon />} aria-label="close" className={`${classes.tab} ${classes.iconTab}`} />
         </Tabs>
       </Box>
       <Card className={classes.card}>
         { !isReady && <LoadingIndicator /> }
-        {children}
-        {info}
+        {tabContent[tabIndex]}
+        {isMainTab && info && info.length ? (
+          <span className={classes.info}>{info}</span>
+        ) : null}
       </Card>
     </>
   );

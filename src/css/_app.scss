@@ -77,21 +77,6 @@
         padding-right: 10px;
     }
 
-    /* Fix grid title rendering on Safari 12.0.
-        Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
-    .d-flex {
-        flex-shrink: 0;
-    }
-
-    /* Tool styles */
-    .title {
-        color: map-get($theme-colors, "primary-foreground");
-        overflow-x: hidden;
-    }
-
-    .card {
-        border: 1px solid map-get($theme-colors, "card-border");
-    }
 
     .bg-black {
         background-color: map-get($global-colors, "black");
@@ -114,9 +99,6 @@
         color: map-get($theme-colors, "secondary-foreground");
     }
 
-    .scroll {
-        overflow-y: auto;
-    }
 
     .details {
         font-size: 80%;

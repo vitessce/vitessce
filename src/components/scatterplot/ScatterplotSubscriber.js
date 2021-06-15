@@ -23,6 +23,8 @@ import {
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
+  useTab,
+  useSetTab,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -55,6 +57,8 @@ export default function ScatterplotSubscriber(props) {
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
+  const tab = useTab(uuid);
+  const setTab = useSetTab(uuid);
 
   // Get "props" from the coordination space.
   const [{
@@ -206,7 +210,9 @@ export default function ScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
-      options={(
+      tab={tab}
+      setTab={setTab}
+      coordinationValues={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}
           cellRadius={cellRadius}

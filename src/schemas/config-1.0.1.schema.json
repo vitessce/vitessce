@@ -27,7 +27,7 @@
           "tab": {
             "type": "string",
             "description": "Which tab should be visible? The main visualization, the coordination value editor, or the coordination scope editor?",
-            "enum": ["main", "values", "scopes"]
+            "enum": ["main", "values", "scopes", "downloads", "help"]
           },
           "coordinationScopes": {
             "type": "object",

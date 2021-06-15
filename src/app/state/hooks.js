@@ -59,6 +59,16 @@ export const useViewConfigStore = create(set => ({
       },
     };
   }),
+  setTab: (i, newTab) => set((state) => {
+    const newLayout = state.viewConfig.layout.slice();
+    newLayout[i].tab = newTab;
+    return {
+      viewConfig: {
+        ...state.viewConfig,
+        layout: newLayout,
+      },
+    };
+  }),
 }));
 
 /**
@@ -193,13 +203,36 @@ export function useRemoveComponent() {
 }
 
 /**
- * Obtain the component prop setter function from
+ * Obtain the change layout setter function from
  * the global app state.
- * @returns {function} The set component props function
- * in the `useViewInfoStore` store.
+ * @returns {function} The change layout function
+ * in the `useViewConfigStore` store.
  */
 export function useChangeLayout() {
   return useViewConfigStore(state => state.changeLayout);
+}
+
+/**
+ * Obtain the current tab for a particular component from
+ * the global app state.
+ * @returns {string} The tab name for the component
+ * in the `useViewConfigStore` store.
+ */
+export function useTab(uuid) {
+  return useViewConfigStore(state => state.viewConfig?.layout?.[uuid]?.tab);
+}
+
+
+/**
+ * Obtain the component tab setter function from
+ * the global app state.
+ * @returns {function} The set component tab function
+ * in the `useViewConfigStore` store.
+ */
+export function useSetTab(uuid) {
+  const setTabRef = useRef(useViewConfigStore.getState().setTab);
+  const setTab = newTab => setTabRef.current(uuid, newTab);
+  return setTab;
 }
 
 /**
