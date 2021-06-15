@@ -3,6 +3,26 @@
 ### Added
 
 - Global visibility button next to name in layer controller.
+- Added the `<VitessceWithSidebar />` component.
+  - Implemented a sidebar with support for:
+    - Adding components
+    - Changing theme
+    - Getting a shareable link with the current view config
+    - TODO: view config JSON editor
+    - TODO: clear the view config
+    - TODO: download the view config
+    - TODO: add a prop to hide the sidebar completely
+  - Implemented a component-level tab interface
+    - Added a `tab` field to the component definition schema in the view config
+  - Implemented a tab for updating coordination scopes
+    - TODO: finish "Add new scope" button
+    - TODO: generalize to more than just the scatterplot
+  - Implemented a tab for updating coordination values for the current coordination scopes
+    - TODO: generalize to more than just the scatterplot
+    - TODO: define the input type for all coordination types
+    - TODO: generalize to all coordination types which have supported inputs
+    - TODO: add tests which check that human-readable names have been defined for all coordination types
+  - Moved component status text to bottom right corner
 
 ### Changed
 - Cache cell set polygon outputs and do not calculate them unless requested.
