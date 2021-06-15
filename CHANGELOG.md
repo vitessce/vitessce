@@ -6,6 +6,7 @@
 - Added the `<VitessceWithSidebar />` component.
   - Implemented a sidebar with support for:
     - Adding components
+      - TODO: make sure all components support being initialized with incomplete coordination state (make sure this does not result in a crash)
     - Changing theme
     - Getting a shareable link with the current view config
     - TODO: view config JSON editor
