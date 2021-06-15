@@ -141,7 +141,8 @@ export default function TitleInfo(props) {
       </Box>
       <Card className={classes.card}>
         { !isReady && <LoadingIndicator /> }
-        {tabContent[tabIndex]}
+        {children}
+        {!isMainTab ? tabContent[tabIndex] : null}
         {isMainTab && info && info.length ? (
           <span className={classes.info}>{info}</span>
         ) : null}

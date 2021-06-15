@@ -95,7 +95,7 @@ export default function VitessceSidebar(props) {
                   classes={treeItemClasses}
                   onLabelClick={() => onAddComponent({
                     component: componentKey,
-                    tab: "main",
+                    tab: "values",
                     x: 0, y: 0, w: 1, h: 1,
                   })}
                 />

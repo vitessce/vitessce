@@ -372,7 +372,7 @@ export const configs = {
   },
   'dries-2019': {
     name: 'Dries',
-    version: '1.0.0',
+    version: '1.0.1',
     description: driesDescription,
     public: true,
     datasets: [
@@ -436,6 +436,7 @@ export const configs = {
           embeddingCellSetPolygonsVisible: 'A',
           embeddingCellRadius: 'A',
         },
+        tab: 'values',
         x: 0, y: 2, w: 5, h: 4 },
       { component: 'spatial',
         props: {
