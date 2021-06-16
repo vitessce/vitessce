@@ -22,6 +22,7 @@ import { initialize, upgrade } from './view-config-utils';
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
+  productionPrefix: 'Vitessce',
 });
 
 /**

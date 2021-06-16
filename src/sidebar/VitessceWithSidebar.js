@@ -8,6 +8,7 @@ import VitessceWithSidebarConsumer from './VitessceWithSidebarConsumer';
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
+  productionPrefix: 'VitessceWithSidebar',
 });
 
 export default function VitessceWithSidebar(props) {
