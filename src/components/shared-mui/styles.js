@@ -36,7 +36,7 @@ export const muiTheme = {
       secondaryBackgroundDim: '#444444',
       secondaryForeground: '#D3D3D3',
       outlinePending: '#db765d',
-      outlineCurrent: '#5f9ada',
+      outlineCurrent: '#89a05f',
     },
     props: {
       MuiButtonBase: {
@@ -61,7 +61,7 @@ export const muiTheme = {
       secondaryBackgroundDim: '#C0C0C0',
       secondaryForeground: '#222222',
       outlinePending: '#d25435',
-      outlineCurrent: '#3781d1',
+      outlineCurrent: '#6c8938',
     },
     props: {
       MuiButtonBase: {

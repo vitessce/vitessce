@@ -460,6 +460,108 @@ export const configs = {
         x: 0, y: 0, w: 5, h: 4 },
     ],
   },
+  'coordination-scatterplots': {
+    name: 'Dries',
+    version: '1.0.1',
+    description: driesDescription,
+    public: true,
+    datasets: [
+      {
+        uid: 'dries-2019',
+        name: 'Dries 2019',
+        files: driesBase.layers.map(file => ({
+          type: file.type.toLowerCase(),
+          fileType: file.fileType,
+          url: file.url,
+        })),
+      },
+    ],
+    initStrategy: 'auto',
+    coordinationSpace: {
+      embeddingType: {
+        TSNE: 't-SNE',
+        UMAP: 'UMAP',
+      },
+      embeddingCellSetPolygonsVisible: {
+        A: false,
+      },
+      embeddingCellSetLabelsVisible: {
+        A: false,
+      },
+      embeddingCellSetLabelSize: {
+        A: 16,
+      },
+      embeddingCellRadius: {
+        A: 1,
+      },
+      embeddingZoom: {
+        A: 3,
+        B: 3,
+        C: 10,
+      },
+      spatialZoom: {
+        A: -4.4,
+      },
+      spatialTargetX: {
+        A: 3800,
+      },
+      spatialTargetY: {
+        A: -900,
+      },
+    },
+    layout: [
+      { component: 'description',
+        props: {
+          description: 'Demo of sidebar and coordination interface.',
+        },
+        x: 9, y: 0, w: 3, h: 2 },
+      { component: 'status',
+        x: 9, y: 2, w: 3, h: 2 },
+      { component: 'scatterplot',
+        coordinationScopes: {
+          embeddingType: 'TSNE',
+          embeddingZoom: 'A',
+          embeddingCellSetLabelsVisible: 'A',
+          embeddingCellSetLabelSize: 'A',
+          embeddingCellSetPolygonsVisible: 'A',
+          embeddingCellRadius: 'A',
+        },
+        tab: 'main',
+        x: 5, y: 4, w: 4, h: 4 },
+      { component: 'scatterplot',
+        coordinationScopes: {
+          embeddingType: 'TSNE',
+          embeddingZoom: 'B',
+          embeddingCellSetLabelsVisible: 'A',
+          embeddingCellSetLabelSize: 'A',
+          embeddingCellSetPolygonsVisible: 'A',
+          embeddingCellRadius: 'A',
+        },
+        tab: 'main',
+        x: 0, y: 2, w: 5, h: 4 },
+      { component: 'scatterplot',
+        coordinationScopes: {
+          embeddingType: 'TSNE',
+          embeddingZoom: 'B',
+          embeddingCellSetLabelsVisible: 'A',
+          embeddingCellSetLabelSize: 'A',
+          embeddingCellSetPolygonsVisible: 'A',
+          embeddingCellRadius: 'A',
+        },
+        tab: 'main',
+        x: 5, y: 0, w: 4, h: 4 },
+      { component: 'scatterplot',
+        coordinationScopes: {
+          embeddingType: 'UMAP',
+          embeddingZoom: 'C',
+          embeddingCellSetLabelsVisible: 'A',
+          embeddingCellSetLabelSize: 'A',
+          embeddingCellSetPolygonsVisible: 'A',
+          embeddingCellRadius: 'A',
+        },
+        x: 0, y: 0, w: 5, h: 4 },
+    ],
+  },
   'wang-2019': {
     name: 'Wang',
     version: '1.0.0',
