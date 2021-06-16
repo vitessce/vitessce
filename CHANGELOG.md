@@ -3,6 +3,7 @@
 ### Added
 
 - Global visibility button next to name in layer controller.
+- Add indication to Y axis title of cell set expression violin plot when log-transformation is active.
 
 ### Changed
 - Cache cell set polygon outputs and do not calculate them unless requested.

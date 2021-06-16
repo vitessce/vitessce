@@ -21,6 +21,8 @@ import { colorArrayToString } from './utils';
  * @param {number} props.marginBottom The size of the margin
  * on the bottom of the plot, to account for long x-axis labels.
  * Default is allowing the component to automatically determine the margin.
+ * @param {boolean} props.useGeneExpressionTransform Boolean representing
+ * whether or not the expression values are log-transformed.
  */
 export default function CellSetExpressionPlot(props) {
   const {
@@ -32,6 +34,7 @@ export default function CellSetExpressionPlot(props) {
     height,
     marginRight = 90,
     marginBottom,
+    useGeneExpressionTransform,
   } = props;
   // Get the max characters in an axis label for autsizing the bottom margin.
   const maxCharactersForLabel = data.reduce((acc, val) => {
@@ -148,7 +151,11 @@ export default function CellSetExpressionPlot(props) {
         orient: 'left',
         scale: 'yscale',
         zindex: 1,
-        title: 'Normalized Expression Value',
+        // title: useGeneExpressionTransform
+        //   ? 'Log-Normalized Expression Values' : 'Normalized Expression Values',
+        title: useGeneExpressionTransform
+          ? ['Log-Transformed', 'Normalized Expression Values']
+          : 'Normalized Expression Values',
       },
       {
         orient: 'bottom',
