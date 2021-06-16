@@ -58,6 +58,9 @@ export const useStyles = makeStyles(theme => ({
       : (props.isSpatial ? 'black' : theme.palette.secondaryBackground)
     ),
     color: theme.palette.primaryForeground,
+    border: props.outlineType ? (
+      `3px ${props.outlineType.startsWith("current") ? 'solid' : 'dashed'} ${props.outlineType === 'current' ? theme.palette.outlineCurrent : theme.palette.outlinePending}`
+    ) : `3px solid transparent`,
   }),
   tab: {
     flexShrink: '1',

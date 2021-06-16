@@ -95,13 +95,14 @@ export default function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, coordinationValueEditor, coordinationScopeEditor, tab = "main", setTab,
+    outlineType,
   } = props;
   
   const TABS = ["main", "scopes", "values", "downloads", "help"];
   const tabIndex = TABS.indexOf(tab);
   const isMainTab = tab === "main";
   
-  const classes = useStyles({ isScroll, isSpatial, isMainTab });
+  const classes = useStyles({ isScroll, isSpatial, isMainTab, outlineType });
   
   const downloads = (
       <DownloadOptions urls={urls} />

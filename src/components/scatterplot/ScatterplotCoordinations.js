@@ -14,6 +14,19 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { getNextScope } from '../../utils';
 import { COORDINATION_TYPE_NAMES } from '../../app/names';
 
+function HoverableMenuItem(props) {
+  const {
+    children,
+    isSelected,
+  } = props;
+    
+  return (
+    <MenuItem
+      {...props}
+      style={{ backgroundColor: (isSelected ? 'dimgray' : 'transparent') }}
+    >{children}</MenuItem>
+  );
+}
 
 function ScopeSelect(props) {
   const {
@@ -21,6 +34,7 @@ function ScopeSelect(props) {
     value,
     options,
     onValueChange,
+    onCoordinationHover,
   } = props;
 
   const classes = useStyles();
@@ -42,7 +56,18 @@ function ScopeSelect(props) {
       </TableCell>
       <TableCell className={classes.inputCell}>
         <div>
-          <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick} classes={{ text: classes.menuSelectButtonText }}>
+          <Button
+            aria-controls="simple-menu"
+            aria-haspopup="true"
+            onClick={handleClick}
+            classes={{ text: classes.menuSelectButtonText }}
+            onMouseOver={() => {
+              onCoordinationHover(value, "current");
+            }}
+            onMouseOut={() => {
+              onCoordinationHover(value, null);
+            }}
+          >
             {value}<ArrowDropDownIcon />
           </Button>
           <Menu
@@ -53,10 +78,20 @@ function ScopeSelect(props) {
             onClose={handleClose}
           >
             {options.map((option) => (
-              <MenuItem key={option} onClick={() => {
-                onValueChange(option, false);
-                handleClose();
-              }}>{option}</MenuItem>
+              <HoverableMenuItem
+                key={option}
+                isSelected={(option === value)}
+                onClick={() => {
+                  onValueChange(option, false);
+                  handleClose();
+                }}
+                onMouseOver={() => {
+                  onCoordinationHover(option, (option === value ? "current" : "pending"));
+                }}
+                onMouseOut={() => {
+                  onCoordinationHover(option, null);
+                }}
+              >{option}</HoverableMenuItem>
             ))}
             <MenuItem onClick={() => {
               onValueChange(getNextScope(options), true);
@@ -75,6 +110,7 @@ export default function ScatterplotCoordinations(props) {
     currentScopes,
     potentialScopes,
     onChangeScope,
+    onCoordinationHover,
   } = props;
 
   const classes = useStyles();
@@ -90,6 +126,7 @@ export default function ScatterplotCoordinations(props) {
             value={currentScopes[cType]}
             options={potentialScopes[cType]}
             onValueChange={(nextScopeName, requiresNewScope) => onChangeScope(cType, nextScopeName, requiresNewScope)}
+            onCoordinationHover={(cScope, cStatus) => onCoordinationHover(cType, cScope, cStatus)}
           />
         ))}
       </OptionsContainer>

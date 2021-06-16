@@ -7,6 +7,7 @@
   - Implemented a sidebar with support for:
     - Adding components
       - TODO: make sure all components support being initialized with incomplete coordination state (make sure this does not result in a crash)
+      - TODO: fix component removal bug: assign unique internal IDs to each component when the view config loads initially and upon adding components, then use these IDs as react `key` props
     - Changing theme
     - Getting a shareable link with the current view config
     - TODO: view config JSON editor
@@ -16,13 +17,14 @@
   - Implemented a component-level tab interface
     - Added a `tab` field to the component definition schema in the view config
   - Implemented a tab for updating coordination scopes
-    - TODO: finish "Add new scope" button
     - TODO: generalize to more than just the scatterplot
+    - TODO: highlight all other components which are hooked to the same coordination scope, when the select option is hovered in the coordination scope editor
   - Implemented a tab for updating coordination values for the current coordination scopes
     - TODO: generalize to more than just the scatterplot
     - TODO: define the input type for all coordination types
     - TODO: generalize to all coordination types which have supported inputs
     - TODO: add tests which check that human-readable names have been defined for all coordination types
+    - TODO: highlight all other components which are hooked to the same coordination scope, when the coordination type is hovered in the coordination value editor
   - Moved component status text to bottom right corner
 
 ### Changed

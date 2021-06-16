@@ -29,6 +29,9 @@ import {
   useTab,
   useSetTab,
   useSetCoordinationScope,
+  useSetCoordinationValue,
+  useCoordinationHover,
+  useSetCoordinationHover,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -64,8 +67,16 @@ export default function ScatterplotSubscriber(props) {
   const tab = useTab(uuid);
   const setTab = useSetTab(uuid);
   const setCoordinationScope = useSetCoordinationScope(uuid);
+  const setCoordinationValue = useSetCoordinationValue();
+  
 
   // Get "props" from the coordination space.
+  const [
+    coordinationValues,
+    coordinationSetters,
+    potentialScopes,
+  ] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
+  
   const [{
     dataset,
     embeddingZoom: zoom,
@@ -99,7 +110,10 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingCellSetLabelsVisible: setCellSetLabelsVisible,
     setEmbeddingCellSetLabelSize: setCellSetLabelSize,
     setEmbeddingCellRadius: setCellRadius,
-  }, potentialScopes] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
+  }] = [coordinationValues, coordinationSetters];
+  
+  const coordinationOutlineType = useCoordinationHover(uuid, coordinationScopes);
+  const setCoordinationHover = useSetCoordinationHover(uuid);
   
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -235,6 +249,7 @@ export default function ScatterplotSubscriber(props) {
       isReady={isReady}
       tab={tab}
       setTab={setTab}
+      outlineType={coordinationOutlineType}
       coordinationScopeEditor={(
         <ScatterplotCoordinations
           types={COMPONENT_COORDINATION_TYPES.scatterplot}
@@ -244,8 +259,16 @@ export default function ScatterplotSubscriber(props) {
             if(!requiresNewScope) {
               setCoordinationScope({ parameter: cType, scope: nextScopeName });
             } else {
-              
+              setCoordinationValue({ parameter: cType, scope: nextScopeName, value: coordinationValues[cType] });
+              setCoordinationScope({ parameter: cType, scope: nextScopeName });
             }
+          }}
+          onCoordinationHover={(cType, cScope, cStatus) => {
+            setCoordinationHover({
+              coordinationTypeHover: cType,
+              coordinationScopeHover: cScope,
+              coordinationStatusHover: cStatus,
+            })
           }}
         />
       )}
@@ -262,6 +285,13 @@ export default function ScatterplotSubscriber(props) {
           setCellSetPolygonsVisible={setCellSetPolygonsVisible}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
+          onCoordinationHover={(cType, cScope, cStatus) => {
+            setCoordinationHover({
+              coordinationTypeHover: cType,
+              coordinationScopeHover: cScope,
+              coordinationStatusHover: cStatus,
+            })
+          }}
         />
       )}
     >

@@ -96,7 +96,24 @@ const useHoverStore = create(set => ({
   // for tooltip interactions. This value should be a unique
   // component ID, such as its index in the view config layout.
   componentHover: null,
+  // Which coordination type is currently hovered?
+  coordinationTypeHover: null,
+  // Which coordination scope is currently hovered?
+  coordinationScopeHover: null,
+  // Is the current hover interaction based on a current state,
+  // or is it based on a potential/"pending" state.
+  // This can take the string values "current" or "pending".
+  coordinationStatusHover: null,
+  // Setter functions
   setComponentHover: componentHover => set({ componentHover }),
+  setCoordinationHover: (i, {
+    coordinationTypeHover, coordinationScopeHover, coordinationStatusHover,
+  }) => set({
+    componentHover: i,
+    coordinationTypeHover,
+    coordinationScopeHover,
+    coordinationStatusHover,
+  }),
 }));
 
 /**
@@ -308,6 +325,18 @@ export function useSetCoordinationScope(uuid) {
 }
 
 /**
+ * Obtain the component tab setter function from
+ * the global app state.
+ * @returns {function} The set component tab function
+ * in the `useViewConfigStore` store.
+ */
+export function useSetCoordinationValue() {
+  const setCoordinationValueRef = useRef(useViewConfigStore.getState().setCoordinationValue);
+  const setCoordinationValue = params => setCoordinationValueRef.current(params);
+  return setCoordinationValue;
+}
+
+/**
  * Obtain the component hover value from
  * the global app state.
  * @returns {number} The hovered component ID
@@ -325,6 +354,54 @@ export function useComponentHover() {
  */
 export function useSetComponentHover() {
   return useHoverStore(state => state.setComponentHover);
+}
+
+/**
+ * Obtain the component hover value from
+ * the global app state.
+ * @returns {number} The hovered component ID
+ * in the `useHoverStore` store.
+ */
+export function useCoordinationHover(uuid, coordinationScopes) {
+  const hoverState = useHoverStore(state => ({
+    componentHover: state.componentHover,
+    coordinationTypeHover: state.coordinationTypeHover,
+    coordinationScopeHover: state.coordinationScopeHover,
+    coordinationStatusHover: state.coordinationStatusHover,
+  }), shallow);
+  if (
+    hoverState.componentHover !== null
+    && hoverState.coordinationTypeHover
+    && hoverState.coordinationScopeHover
+    && hoverState.coordinationStatusHover
+    && coordinationScopes[hoverState.coordinationTypeHover]
+    && (
+      coordinationScopes[hoverState.coordinationTypeHover] === hoverState.coordinationScopeHover
+      || (hoverState.coordinationStatusHover === 'pending' && hoverState.componentHover === uuid)
+    )
+  ) {
+    if (
+      coordinationScopes[hoverState.coordinationTypeHover] === hoverState.coordinationScopeHover
+      && hoverState.coordinationStatusHover === 'pending'
+      && hoverState.componentHover !== uuid
+    ) {
+      return 'current-pending';
+    }
+    return hoverState.coordinationStatusHover;
+  }
+  return null;
+}
+
+/**
+ * Obtain the component hover setter function from
+ * the global app state.
+ * @returns {function} The component hover setter function
+ * in the `useHoverStore` store.
+ */
+export function useSetCoordinationHover(uuid) {
+  const setCoordinationHoverRef = useRef(useHoverStore.getState().setCoordinationHover);
+  const setCoordinationHover = params => setCoordinationHoverRef.current(uuid, params);
+  return setCoordinationHover;
 }
 
 /**
