@@ -19,11 +19,13 @@ function HoverableMenuItem(props) {
     children,
     isSelected,
   } = props;
+  
+  const classes = useStyles({ optionIsSelected: isSelected });
     
   return (
     <MenuItem
       {...props}
-      style={{ backgroundColor: (isSelected ? 'dimgray' : 'transparent') }}
+      className={classes.menuSelectOption}
     >{children}</MenuItem>
   );
 }
@@ -83,6 +85,7 @@ function ScopeSelect(props) {
                 isSelected={(option === value)}
                 onClick={() => {
                   onValueChange(option, false);
+                  onCoordinationHover(option, "current");
                   handleClose();
                 }}
                 onMouseOver={() => {

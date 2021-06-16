@@ -18,7 +18,7 @@
     - Added a `tab` field to the component definition schema in the view config
   - Implemented a tab for updating coordination scopes
     - TODO: generalize to more than just the scatterplot
-    - TODO: highlight all other components which are hooked to the same coordination scope, when the select option is hovered in the coordination scope editor
+    - Highlight all other components which are hooked to the same coordination scope, when the select option is hovered in the coordination scope editor
   - Implemented a tab for updating coordination values for the current coordination scopes
     - TODO: generalize to more than just the scatterplot
     - TODO: define the input type for all coordination types

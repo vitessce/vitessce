@@ -139,7 +139,7 @@ export const useStyles = makeStyles(theme => ({
     zIndex: '1'
   },
   auxTabContainer: {
-    backgroundColor: 'rgb(0, 0, 0, 0.8)',
+    backgroundColor: theme.palette.primaryBackground,
     position: 'absolute',
     top: '0',
     left: '0',

@@ -47,4 +47,10 @@ export const useStyles = makeStyles(theme => ({
   menuSelectButtonText: {
     padding: '6px 16px !important',
   },
+  menuSelectOption: props => ({
+    backgroundColor: (props.optionIsSelected ? theme.palette.outlineCurrent : 'transparent'),
+    '&:hover': {
+      backgroundColor: (props.optionIsSelected ? theme.palette.outlineCurrent : undefined),
+    },
+  }),
 }));
