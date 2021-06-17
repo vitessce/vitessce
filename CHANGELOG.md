@@ -7,10 +7,11 @@
   - Implemented a sidebar with support for:
     - Adding components
       - TODO: make sure all components support being initialized with incomplete coordination state (make sure this does not result in a crash)
-      - TODO: fix component removal bug: assign unique internal IDs to each component when the view config loads initially and upon adding components, then use these IDs as react `key` props
+      - TODO: fix component removal bug: assign unique IDs to each component when the view config loads initially and upon adding components, then use these IDs as react `key` props
     - Changing theme
     - Getting a shareable link with the current view config
     - TODO: view config JSON editor
+      - Lazy load the editor
     - TODO: clear the view config
     - TODO: download the view config
     - TODO: add a prop to hide the sidebar completely
@@ -25,7 +26,12 @@
     - TODO: generalize to all coordination types which have supported inputs
     - TODO: add tests which check that human-readable names have been defined for all coordination types
     - TODO: highlight all other components which are hooked to the same coordination scope, when the coordination type is hovered in the coordination value editor
+    - TODO: hide `select` inputs when there is only 1 option, such as for `dataset` or `embeddingType`
   - Moved component status text to bottom right corner
+  - TODO: add an `editable` field to the view config, like in HiGlass
+    - If `editable` is false:
+      - Hide the `x` close buttons on each view
+      - Hide the coordination scope editor
 
 ### Changed
 - Cache cell set polygon outputs and do not calculate them unless requested.
