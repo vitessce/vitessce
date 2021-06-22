@@ -68,7 +68,7 @@ function LayerControllerSubscriber(props) {
 
   const [
     {
-      spatialRasterLayers: rasterLayersCallbacks,
+      rasterLayersCallbacks,
       rasterLayersIsChannelLoading: areLoadingRasterChannnels,
     },
     {
