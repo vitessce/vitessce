@@ -32,7 +32,7 @@ function LayerControllerSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
-    disable3D,
+    disable3D = {},
   } = props;
 
   const loaders = useLoaders();
@@ -143,9 +143,7 @@ function LayerControllerSubscriber(props) {
   ).every(l => !l?.metadata?.isBitmask);
   // Only want to show vector cells controller if there is no bitmask
   const canShowCellVecmask = hasNoBitmask;
-  const layerIs3D = rasterLayers?.find && rasterLayers.find(layer => layer.is3D)?.name;
-  const layerIs3DIndex = rasterLayers?.findIndexOf && rasterLayers.findIndexOf(layer => layer.is3D);
-
+  const layerIs3DIndex = rasterLayers?.findIndex && rasterLayers.findIndex(layer => layer.use3D);
   return (
     <TitleInfo
       title={title}
@@ -214,7 +212,7 @@ function LayerControllerSubscriber(props) {
                   shouldShowDomain={isRaster}
                   shouldShowColormap={isRaster}
                   disable3D={(disable3D || {})[layer.name]
-                    || (layerIs3D !== layer.name && layerIs3DIndex !== index)}
+                    || (typeof layerIs3DIndex === 'number' && layerIs3DIndex !== -1 && layerIs3DIndex !== i)}
                   rasterLayersCallbacks={rasterLayersCallbacks}
                   setRasterLayerCallback={setRasterLayerCallback}
                   viewState={{
