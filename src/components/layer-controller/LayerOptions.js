@@ -5,6 +5,7 @@ import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
+import { getDefaultInitialViewState } from '@hms-dbmi/viv';
 
 import { getBoundingCube } from './utils';
 import { COLORMAP_OPTIONS } from '../utils';
@@ -53,6 +54,9 @@ function VolumeDropdown({
   disable3D,
   setRasterLayerCallback,
   setAreAllChannelsLoading,
+  setViewState,
+  spatialHeight,
+  spatialWidth,
 }) {
   const { data: loader } = loaderWithMeta;
   const handleChange = (val) => {
@@ -72,11 +76,25 @@ function VolumeDropdown({
         setAreAllChannelsLoading(false);
         setRasterLayerCallback(null);
       });
+      const defaultViewState = getDefaultInitialViewState(loader,
+        { height: spatialHeight, width: spatialWidth }, 1.5, true);
+      setViewState({
+        ...defaultViewState,
+        rotationX: 0,
+        rotationOrbit: 0,
+      });
     } else {
       handleMultiPropertyChange({ resolution: val, use3D: shouldUse3D, useFixedAxis: false });
       setRasterLayerCallback(() => {
         setAreAllChannelsLoading(false);
         setRasterLayerCallback(null);
+      });
+      const defaultViewState = getDefaultInitialViewState(loader,
+        { height: spatialHeight, width: spatialWidth }, 0.1, false);
+      setViewState({
+        ...defaultViewState,
+        rotationX: 0,
+        rotationOrbit: 0,
       });
     }
   };
@@ -320,6 +338,9 @@ function LayerOptions({
   disable3D,
   setRasterLayerCallback,
   setAreAllChannelsLoading,
+  setViewState,
+  spatialHeight,
+  spatialWidth,
 }) {
   const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
@@ -336,6 +357,9 @@ function LayerOptions({
           disable3D={disable3D}
           setRasterLayerCallback={setRasterLayerCallback}
           setAreAllChannelsLoading={setAreAllChannelsLoading}
+          setViewState={setViewState}
+          spatialHeight={spatialHeight}
+          spatialWidth={spatialWidth}
         />
       )}
       {hasDimensionsAndChannels

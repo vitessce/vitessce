@@ -448,6 +448,9 @@ export default function LayerController(props) {
             disable3D={disable3D}
             setRasterLayerCallback={setRasterLayerCallback}
             setAreAllChannelsLoading={setAreAllChannelsLoading}
+            setViewState={setViewState}
+            spatialHeight={spatialHeight}
+            spatialWidth={spatialWidth}
           />
           {!isRgb(loader) ? channelControllers : null}
           {!isRgb(loader) && (
