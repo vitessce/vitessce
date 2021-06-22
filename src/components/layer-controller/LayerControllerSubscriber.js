@@ -143,6 +143,8 @@ function LayerControllerSubscriber(props) {
   ).every(l => !l?.metadata?.isBitmask);
   // Only want to show vector cells controller if there is no bitmask
   const canShowCellVecmask = hasNoBitmask;
+  const layerIs3D = rasterLayers?.find && rasterLayers.find(layer => layer.is3D)?.name;
+  const layerIs3DIndex = rasterLayers?.findIndexOf && rasterLayers.findIndexOf(layer => layer.is3D);
 
   return (
     <TitleInfo
@@ -211,7 +213,8 @@ function LayerControllerSubscriber(props) {
                   shouldShowTransparentColor={isRaster}
                   shouldShowDomain={isRaster}
                   shouldShowColormap={isRaster}
-                  disable3D={disable3D}
+                  disable3D={(disable3D || {})[layer.name]
+                    || (layerIs3D !== layer.name && layerIs3DIndex !== index)}
                   rasterLayersCallbacks={rasterLayersCallbacks}
                   setRasterLayerCallback={setRasterLayerCallback}
                   viewState={{
