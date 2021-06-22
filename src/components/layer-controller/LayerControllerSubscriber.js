@@ -189,9 +189,9 @@ function LayerControllerSubscriber(props) {
             };
             const areLayerChannelsLoading = (areLoadingRasterChannnels || [])[i] || [];
             const setAreLayerChannelsLoading = (v) => {
-              const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
-              newAreLayerChannelsLoading[i] = v;
-              setAreLoadingRasterChannnels(newAreLayerChannelsLoading);
+              const newAreLoadingRasterChannnels = [...(areLoadingRasterChannnels || [])];
+              newAreLoadingRasterChannnels[i] = v;
+              setAreLoadingRasterChannnels(newAreLoadingRasterChannnels);
             };
             return loader && layerMeta ? (
               <Grid

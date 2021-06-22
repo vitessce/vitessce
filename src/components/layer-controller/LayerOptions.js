@@ -69,10 +69,16 @@ function VolumeDropdown({
         zSlice,
         use3D: shouldUse3D,
       });
-      setRasterLayerCallback(() => setAreAllChannelsLoading(false));
+      setRasterLayerCallback(() => {
+        setAreAllChannelsLoading(false);
+        setRasterLayerCallback(null);
+      });
     } else {
       handleMultiPropertyChange({ resolution: val, use3D: shouldUse3D, useFixedAxis: false });
-      setRasterLayerCallback(() => setAreAllChannelsLoading(false));
+      setRasterLayerCallback(() => {
+        setAreAllChannelsLoading(false);
+        setRasterLayerCallback(null);
+      });
     }
   };
   const { labels, shape } = Array.isArray(loader) ? loader[0] : loader;
