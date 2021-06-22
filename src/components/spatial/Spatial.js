@@ -335,7 +335,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(
       data,
-      this.props.use3D,
+      layerDef.use3D,
     );
 
     return new Layer({
@@ -363,8 +363,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createImageLayers() {
     const { layers, imageLayerLoaders = {}, rasterLayersCallbacks = [] } = this.props;
+    const use3D = (layers || []).some(i => i.use3D);
     return (layers || [])
       .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
+      .filter(layer => (use3D ? layer.use3D === use3D : true))
       .map((layer, i) => this.createImageLayer(
         { ...layer, callback: rasterLayersCallbacks[i] }, imageLayerLoaders[layer.index], i,
       ));
