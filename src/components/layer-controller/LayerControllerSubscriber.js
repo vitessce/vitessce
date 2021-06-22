@@ -213,6 +213,7 @@ function LayerControllerSubscriber(props) {
                   shouldShowColormap={isRaster}
                   disable3D={(disable3D || {})[layer.name]
                     || (typeof layerIs3DIndex === 'number' && layerIs3DIndex !== -1 && layerIs3DIndex !== i)}
+                  disabled={typeof layerIs3DIndex === 'number' && layerIs3DIndex !== -1 && layerIs3DIndex !== i}
                   rasterLayersCallbacks={rasterLayersCallbacks}
                   setRasterLayerCallback={setRasterLayerCallback}
                   viewState={{

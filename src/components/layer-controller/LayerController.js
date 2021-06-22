@@ -81,7 +81,7 @@ export default function LayerController(props) {
     shouldShowTransparentColor,
     shouldShowDomain, shouldShowColormap, ChannelController,
     setViewState, disable3D, viewState, setRasterLayerCallback,
-    setAreLayerChannelsLoading, areLayerChannelsLoading,
+    setAreLayerChannelsLoading, areLayerChannelsLoading, disabled,
   } = props;
 
   const {
@@ -339,13 +339,13 @@ export default function LayerController(props) {
   };
 
   const visible = channels.some(ch => ch.visible);
-  const Visibility = visible ? VisibilityIcon : VisibilityOffIcon;
+  const Visibility = (!disabled && visible) ? VisibilityIcon : VisibilityOffIcon;
   return (
     <ExpansionPanel
       className={controllerSectionClasses.root}
-      onChange={(e, expanded) => setIsExpanded(expanded && e?.target?.attributes?.role?.value === 'presentation')}
+      onChange={(e, expanded) => !disabled && setIsExpanded(expanded && e?.target?.attributes?.role?.value === 'presentation')}
       TransitionProps={{ enter: false }}
-      expanded={isExpanded}
+      expanded={!disabled && isExpanded}
     >
       <StyledExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
@@ -355,9 +355,11 @@ export default function LayerController(props) {
           <OverflowEllipsisGrid item>
             <Button
               onClick={(e) => {
-                // Needed to prevent affecting the expansion panel from changing
-                e.stopPropagation();
-                setVisible(!visible);
+                if (!disabled) {
+                  // Needed to prevent affecting the expansion panel from changing
+                  e.stopPropagation();
+                  setVisible(!visible);
+                }
               }}
               style={{
                 marginRight: 8, marginBottom: 2, padding: 0, minWidth: 0,
@@ -367,7 +369,7 @@ export default function LayerController(props) {
             </Button>
             {name}
           </OverflowEllipsisGrid>
-          {!isExpanded && !use3D && (
+          {!disabled && !isExpanded && !use3D && (
             <Grid container direction="row" alignItems="center" justify="center">
               <Grid item xs={6}>
                 <StyledInputLabel htmlFor={`layer-${name}-opacity-closed`}>Opacity:</StyledInputLabel>
