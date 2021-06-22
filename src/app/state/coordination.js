@@ -23,8 +23,6 @@ export const COORDINATION_TYPES = {
   SPATIAL_ROTATION_Y: 'spatialRotationY',
   SPATIAL_ROTATION_Z: 'spatialRotationZ',
   SPATIAL_ROTATION_ORBIT: 'spatialRotationOrbit',
-  USE_3D: 'use3D',
-  USE_FIXED_AXIS: 'useFixedAxis',
   HEATMAP_ZOOM_X: 'heatmapZoomX',
   HEATMAP_ZOOM_Y: 'heatmapZoomY',
   HEATMAP_TARGET_X: 'heatmapTargetX',
