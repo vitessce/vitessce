@@ -37,7 +37,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * @param {object} params.viewState The next deck.gl viewState.
    */
   onViewStateChange({ viewState: nextViewState }) {
-    const { setViewState, useFixedAxis, viewState } = this.props;
+    const { setViewState, viewState, layers } = this.props;
+    const useFixedAxis = layers?.some(l => l.useFixedAxis);
     setViewState({
       ...nextViewState,
       target: useFixedAxis ? viewState.target : nextViewState.target,
@@ -176,10 +177,11 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    */
   render() {
     const {
-      deckRef, viewState, uuid, layers: layerProps, use3D,
+      deckRef, viewState, uuid, layers: layerProps,
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
+    const use3D = layerProps.some(l => l.use3D);
 
     const showCellSelectionTools = this.cellsLayer !== null
       || (this.cellsEntries.length && this.cellsEntries[0][1].xy);

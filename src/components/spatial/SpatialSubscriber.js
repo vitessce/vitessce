@@ -110,7 +110,6 @@ export default function SpatialSubscriber(props) {
   );
 
   const use3D = rasterLayers?.some(l => l.use3D);
-  const useFixedAxis = rasterLayers?.some(l => l.useFixedAxis);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -299,8 +298,6 @@ export default function SpatialSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
-        use3D={use3D}
-        useFixedAxis={useFixedAxis}
         rasterLayersCallbacks={rasterLayersCallbacks}
       />
       {!disableTooltip && (
