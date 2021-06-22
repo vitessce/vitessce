@@ -163,7 +163,7 @@ const CameraOptions = ({
           onClick={() => hanldeFixedAxisChange(!useFixedAxis)}
           style={{ padding: 0 }}
           disabled={!use3D}
-          checked={useFixedAxis}
+          checked={Boolean(useFixedAxis)}
         />
         <Typography
           className={!use3D ? classes.disabled : classes.enabled}
@@ -184,14 +184,12 @@ const CameraOptions = ({
         })
         }
         disabled={!use3D}
-        style={{ padding: 0, marginBottom: 2 }}
+        style={{
+          padding: 0,
+          marginBottom: 6,
+        }}
       >
-        <Typography
-          className={!use3D ? classes.disabled : classes.enabled}
-          style={{ marginBottom: 0 }}
-        >
-          Re-Center
-        </Typography>
+        Re-Center
       </Button>
     </Grid>
   );

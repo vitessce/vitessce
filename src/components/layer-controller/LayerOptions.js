@@ -47,12 +47,10 @@ const canLoadResolution = (loader, resolution) => {
 };
 
 function VolumeDropdown({
-  setUse3D,
   use3D,
   loader: loaderWithMeta,
   handleMultiPropertyChange,
   resolution: currResolution,
-  hanldeFixedAxisChange,
   disable3D,
 }) {
   const { data: loader } = loaderWithMeta;
@@ -66,12 +64,10 @@ function VolumeDropdown({
         xSlice,
         ySlice,
         zSlice,
+        use3D: shouldUse3D,
       });
-      setUse3D(shouldUse3D);
     } else {
-      setUse3D(shouldUse3D);
-      handleMultiPropertyChange({ resolution: val });
-      hanldeFixedAxisChange(false);
+      handleMultiPropertyChange({ resolution: val, use3D: shouldUse3D, useFixedAxis: false });
     }
   };
   const { labels, shape } = Array.isArray(loader) ? loader[0] : loader;
@@ -308,12 +304,10 @@ function LayerOptions({
   shouldShowDomain,
   shouldShowColormap,
   use3D,
-  setUse3D,
   loader,
   selections,
   handleMultiPropertyChange,
   resolution,
-  hanldeFixedAxisChange,
   disable3D,
 }) {
   const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
@@ -323,8 +317,6 @@ function LayerOptions({
       {(
         <VolumeDropdown
           use3D={use3D}
-          hanldeFixedAxisChange={hanldeFixedAxisChange}
-          setUse3D={setUse3D}
           loader={loader}
           handleSliderChange={handleSliderChange}
           handleDomainChange={handleDomainChange}

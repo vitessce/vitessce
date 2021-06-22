@@ -79,8 +79,6 @@ export default function SpatialSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
-    use3D,
-    useFixedAxis,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -100,6 +98,10 @@ export default function SpatialSubscriber(props) {
     setAdditionalCellSets,
     setMoleculeHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
+
+
+  const use3D = rasterLayers?.some(l => l.use3D);
+  const useFixedAxis = rasterLayers?.some(l => l.useFixedAxis);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(

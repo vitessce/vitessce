@@ -78,7 +78,7 @@ export default function LayerController(props) {
     handleLayerRemove, handleLayerChange,
     shouldShowTransparentColor,
     shouldShowDomain, shouldShowColormap, ChannelController,
-    use3D, setUse3D, setViewState, useFixedAxis, setUseFixedAxis, disable3D,
+    setViewState, disable3D, viewState,
   } = props;
 
   const {
@@ -91,6 +91,8 @@ export default function LayerController(props) {
     ySlice,
     zSlice,
     resolution,
+    use3D,
+    useFixedAxis,
   } = layer;
   const firstSelection = channels[0]?.selection || {};
 
@@ -141,6 +143,10 @@ export default function LayerController(props) {
       channels: newChannels,
       domainType: newDomainType,
     });
+  }
+
+  function setUseFixedAxis(val) {
+    handleLayerChange({ ...layer, useFixedAxis: val });
   }
 
   function setChannel(v, i) {
@@ -383,12 +389,10 @@ export default function LayerController(props) {
             shouldShowTransparentColor={shouldShowTransparentColor}
             shouldShowDomain={shouldShowDomain}
             shouldShowColormap={shouldShowColormap}
-            setUse3D={setUse3D}
             use3D={use3D}
             loader={loader}
             handleMultiPropertyChange={handleMultiPropertyChange}
             resolution={resolution}
-            hanldeFixedAxisChange={setUseFixedAxis}
             disable3D={disable3D}
           />
           {!isRgb(loader) ? channelControllers : null}
@@ -419,6 +423,7 @@ export default function LayerController(props) {
             ySlice={ySlice}
             zSlice={zSlice}
             use3D={use3D}
+            viewState={viewState}
           />
         </TabPanel>
         <Button
