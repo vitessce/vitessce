@@ -47,7 +47,6 @@ const canLoadResolution = (loader, resolution) => {
 };
 
 function VolumeDropdown({
-  use3D,
   loader: loaderWithMeta,
   handleMultiPropertyChange,
   resolution: currResolution,
@@ -115,8 +114,7 @@ function VolumeDropdown({
                     key={`(${height}, ${width}, ${depthDownsampled})`}
                     value={resolution}
                     disabled={
-                      (resolution !== currResolution && use3D)
-                      || disable3D
+                      disable3D
                       || !hasZStack
                     }
                   >
@@ -329,7 +327,6 @@ function LayerOptions({
     <Grid container direction="column" style={{ width: '100%' }}>
       {(
         <VolumeDropdown
-          use3D={use3D}
           loader={loader}
           handleSliderChange={handleSliderChange}
           handleDomainChange={handleDomainChange}
