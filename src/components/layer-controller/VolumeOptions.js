@@ -8,8 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Slider from '@material-ui/core/Slider';
-// eslint-disable-next-line import/no-unresolved
-import { RENDERING_MODES } from '@hms-dbmi/viv';
+import { RENDERING_MODES, getDefaultInitialViewState } from '@hms-dbmi/viv';
 import { abbreviateNumber, getBoundingCube } from './utils';
 
 const useSlicerStyles = makeStyles(theme => createStyles({
@@ -153,7 +152,9 @@ const CameraOptions = ({
   setViewState,
   useFixedAxis,
   use3D,
-  viewState,
+  spatialHeight,
+  spatialWidth,
+  loader,
 }) => {
   const classes = useCameraStyles();
   const toggleFixedAxisButton = (
@@ -177,11 +178,15 @@ const CameraOptions = ({
   const reCenterButton = (
     <Grid item xs="auto" key="recenter">
       <Button
-        onClick={() => setViewState({
-          ...viewState,
-          rotationX: 0,
-          rotationOrbit: 0,
-        })
+        onClick={() => {
+          const defaultViewState = getDefaultInitialViewState(loader.data,
+            { height: spatialHeight, width: spatialWidth }, 1.5, use3D);
+          setViewState({
+            ...defaultViewState,
+            rotationX: 0,
+            rotationOrbit: 0,
+          });
+        }
         }
         disabled={!use3D}
         style={{
@@ -217,7 +222,8 @@ const VolumeOptions = ({
   zSlice,
   use3D,
   loader,
-  viewState,
+  spatialHeight,
+  spatialWidth,
 }) => (
   <>
     <RenderingModeSelect
@@ -238,7 +244,9 @@ const VolumeOptions = ({
       setViewState={setViewState}
       useFixedAxis={useFixedAxis}
       use3D={use3D}
-      viewState={viewState}
+      loader={loader}
+      spatialHeight={spatialHeight}
+      spatialWidth={spatialWidth}
     />
   </>
 );
