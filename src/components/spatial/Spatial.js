@@ -297,6 +297,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       xSlice: layerDef.xSlice,
       ySlice: layerDef.ySlice,
       zSlice: layerDef.zSlice,
+      callback: layerDef.callback,
     };
 
     if (!loader || !layerProps) return null;
@@ -329,6 +330,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         cellColorHeight: this.color.height,
         cellColorWidth: this.color.width,
         excludeBackground: true,
+        onViewportLoad: layerProps.callback,
       });
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(
@@ -355,15 +357,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
       xSlice: layerProps.xSlice,
       ySlice: layerProps.ySlice,
       zSlice: layerProps.zSlice,
+      onViewportLoad: layerProps.callback,
     });
   }
 
   createImageLayers() {
-    const { layers, imageLayerLoaders = {} } = this.props;
+    const { layers, imageLayerLoaders = {}, rasterLayersCallbacks = [] } = this.props;
     return (layers || [])
       .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
       .map((layer, i) => this.createImageLayer(
-        layer, imageLayerLoaders[layer.index], i,
+        { ...layer, callback: rasterLayersCallbacks[i] }, imageLayerLoaders[layer.index], i,
       ));
   }
 
@@ -530,7 +533,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight', 'use3D'].some(shallowDiff)) {
+    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight', 'use3D', 'rasterLayersCallbacks'].some(shallowDiff)) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();

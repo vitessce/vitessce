@@ -6,13 +6,12 @@ import Select from '@material-ui/core/Select';
 /**
  * Dropdown for selecting a channel.
  * @prop {function} handleChange Callback for each new selection.
- * @prop {boolean} disableOptions Whether or not to allow options.
  * @prop {array} channelOptions List of available selections, like ['DAPI', 'FITC', ...].
  * @prop {number} selectionIndex Current numeric index of a selection.
  */
 export function ChannelSelectionDropdown({
   handleChange,
-  disableOptions,
+  disabled,
   channelOptions,
   selectionIndex,
 }) {
@@ -23,7 +22,7 @@ export function ChannelSelectionDropdown({
       onChange={e => handleChange(Number(e.target.value))}
     >
       {channelOptions.map((opt, i) => (
-        <option disabled={disableOptions} key={opt} value={i}>
+        <option disabled={disabled} key={opt} value={i}>
           {opt}
         </option>
       ))}
@@ -37,11 +36,14 @@ export function ChannelSelectionDropdown({
  * @prop {boolean} checked Whether or not this channel is "on".
  * @prop {function} toggle Callback for toggling on/off.
  */
-export function ChannelVisibilityCheckbox({ color, checked, toggle }) {
+export function ChannelVisibilityCheckbox({
+  color, checked, toggle, disabled,
+}) {
   return (
     <Checkbox
       onChange={toggle}
       checked={checked}
+      disabled={disabled}
       style={{ color, '&$checked': { color } }}
     />
   );

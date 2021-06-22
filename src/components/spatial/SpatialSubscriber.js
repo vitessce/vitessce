@@ -22,6 +22,7 @@ import {
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
+  useAuxiliaryCoordination,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -99,6 +100,14 @@ export default function SpatialSubscriber(props) {
     setMoleculeHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
+  const [
+    {
+      rasterLayersCallbacks,
+    },
+  ] = useAuxiliaryCoordination(
+    COMPONENT_COORDINATION_TYPES.layerController,
+    coordinationScopes,
+  );
 
   const use3D = rasterLayers?.some(l => l.use3D);
   const useFixedAxis = rasterLayers?.some(l => l.useFixedAxis);
@@ -292,6 +301,7 @@ export default function SpatialSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
         use3D={use3D}
         useFixedAxis={useFixedAxis}
+        rasterLayersCallbacks={rasterLayersCallbacks}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber

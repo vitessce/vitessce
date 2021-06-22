@@ -52,11 +52,14 @@ function VolumeDropdown({
   handleMultiPropertyChange,
   resolution: currResolution,
   disable3D,
+  setRasterLayerCallback,
+  setAreAllChannelsLoading,
 }) {
   const { data: loader } = loaderWithMeta;
   const handleChange = (val) => {
     // val is the resolution not null, which indicates 2D
     const shouldUse3D = typeof val === 'number';
+    setAreAllChannelsLoading(true);
     if (shouldUse3D) {
       const [xSlice, ySlice, zSlice] = getBoundingCube(loader);
       handleMultiPropertyChange({
@@ -66,8 +69,10 @@ function VolumeDropdown({
         zSlice,
         use3D: shouldUse3D,
       });
+      setRasterLayerCallback(() => setAreAllChannelsLoading(false));
     } else {
       handleMultiPropertyChange({ resolution: val, use3D: shouldUse3D, useFixedAxis: false });
+      setRasterLayerCallback(() => setAreAllChannelsLoading(false));
     }
   };
   const { labels, shape } = Array.isArray(loader) ? loader[0] : loader;
@@ -309,6 +314,8 @@ function LayerOptions({
   handleMultiPropertyChange,
   resolution,
   disable3D,
+  setRasterLayerCallback,
+  setAreAllChannelsLoading,
 }) {
   const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
@@ -324,6 +331,8 @@ function LayerOptions({
           handleMultiPropertyChange={handleMultiPropertyChange}
           resolution={resolution}
           disable3D={disable3D}
+          setRasterLayerCallback={setRasterLayerCallback}
+          setAreAllChannelsLoading={setAreAllChannelsLoading}
         />
       )}
       {hasDimensionsAndChannels

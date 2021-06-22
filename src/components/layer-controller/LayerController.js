@@ -78,7 +78,8 @@ export default function LayerController(props) {
     handleLayerRemove, handleLayerChange,
     shouldShowTransparentColor,
     shouldShowDomain, shouldShowColormap, ChannelController,
-    setViewState, disable3D, viewState,
+    setViewState, disable3D, viewState, setRasterLayerCallback,
+    setAreLayerChannelsLoading, areLayerChannelsLoading,
   } = props;
 
   const {
@@ -246,6 +247,11 @@ export default function LayerController(props) {
     channelControllers = channels.map(
       // c is an object like { color, selection, slider, visible }.
       (c, channelId) => {
+        const setIsLoading = (val) => {
+          const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
+          newAreLayerChannelsLoading[channelId] = val;
+          setAreLayerChannelsLoading(newAreLayerChannelsLoading);
+        };
         // Change one property of a channel (for now - soon
         // nested structures allowing for multiple z/t selecitons at once, for example).
         const handleChannelPropertyChange = async (property, value) => {
@@ -253,16 +259,27 @@ export default function LayerController(props) {
           // value is the actual change, like { channel: "DAPI" }.
           const update = { [property]: value };
           if (property === 'selection') {
-            update.selection = { ...globalLabelValues, ...update.selection };
-            const loaderSelection = [
-              { ...channels[channelId][property], ...value },
-            ];
-            const { sliders } = await getDomainsAndSliders(
-              loader, loaderSelection, domainType,
-            );
-            [update.slider] = sliders;
+            setIsLoading(true);
+            update.selection = {
+              ...globalLabelValues,
+              ...update.selection,
+            };
+            setChannel({ ...c, ...update }, channelId);
+            setRasterLayerCallback(async () => {
+              const loaderSelection = [
+                { ...channels[channelId][property], ...value },
+              ];
+              const { sliders } = await getDomainsAndSliders(
+                loader, loaderSelection, domainType,
+              );
+              [update.slider] = sliders;
+              setChannel({ ...c, ...update }, channelId);
+              setRasterLayerCallback(null);
+              setIsLoading(false);
+            });
+          } else {
+            setChannel({ ...c, ...update }, channelId);
           }
-          setChannel({ ...c, ...update }, channelId);
         };
         const handleChannelRemove = () => {
           removeChannel(channelId);
@@ -297,6 +314,8 @@ export default function LayerController(props) {
             handlePropertyChange={handleChannelPropertyChange}
             handleChannelRemove={handleChannelRemove}
             handleIQRUpdate={handleIQRUpdate}
+            setRasterLayerCallback={setRasterLayerCallback}
+            isLoading={areLayerChannelsLoading[channelId]}
           />
         );
       },
@@ -304,6 +323,11 @@ export default function LayerController(props) {
   }
 
   const controllerSectionClasses = useControllerSectionStyles();
+
+  const setAreAllChannelsLoading = (val) => {
+    const newAreLayerChannelsLoading = [...areLayerChannelsLoading].map(() => val);
+    setAreLayerChannelsLoading(newAreLayerChannelsLoading);
+  };
 
   return (
     <ExpansionPanel
@@ -394,6 +418,8 @@ export default function LayerController(props) {
             handleMultiPropertyChange={handleMultiPropertyChange}
             resolution={resolution}
             disable3D={disable3D}
+            setRasterLayerCallback={setRasterLayerCallback}
+            setAreAllChannelsLoading={setAreAllChannelsLoading}
           />
           {!isRgb(loader) ? channelControllers : null}
           {!isRgb(loader) && (
