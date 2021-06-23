@@ -75,3 +75,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-06-07: [ilan-gold/v1.1.10](https://s3.amazonaws.com/vitessce-data/demos/2021-06-07/d27e952d/index.html)
 - 2021-06-07: [ilan-gold/v1.1.10](https://s3.amazonaws.com/vitessce-data/demos/2021-06-07/e4f25c8b/index.html)
 - 2021-06-22: [ilan-gold/3d_perf](https://s3.amazonaws.com/vitessce-data/demos/2021-06-22/0cd77f08/index.html)
+- 2021-06-23: [ilan-gold/3d_perf](https://s3.amazonaws.com/vitessce-data/demos/2021-06-23/8b9d90e3/index.html)
