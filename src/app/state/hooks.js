@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import shallow from 'zustand/shallow';
 import { fromEntries, capitalize } from '../../utils';
@@ -168,7 +168,7 @@ export function useCoordination(parameters, coordinationScopes) {
     }));
   }, shallow);
 
-  const setters = fromEntries(parameters.map((parameter) => {
+  const setters = useMemo(() => fromEntries(parameters.map((parameter) => {
     const setterName = `set${capitalize(parameter)}`;
     const setterFunc = value => setCoordinationValue({
       parameter,
@@ -176,7 +176,7 @@ export function useCoordination(parameters, coordinationScopes) {
       value,
     });
     return [setterName, setterFunc];
-  }));
+  })), [parameters, coordinationScopes]);
 
   return [values, setters];
 }
@@ -229,7 +229,7 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
       return [parameter, undefined];
     }));
   }, shallow);
-  const setters = fromEntries(mappedParameters.map((parameter) => {
+  const setters = useMemo(() => fromEntries(mappedParameters.map((parameter) => {
     const setterName = `set${capitalize(parameter)}`;
     const setterFunc = value => setCoordinationValue({
       parameter,
@@ -237,7 +237,7 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
       value,
     });
     return [setterName, setterFunc];
-  }));
+  })), [parameters, coordinationScopes]);
 
   return [values, setters];
 }
