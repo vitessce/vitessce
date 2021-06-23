@@ -176,6 +176,7 @@ export function useCoordination(parameters, coordinationScopes) {
       value,
     });
     return [setterName, setterFunc];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [parameters, coordinationScopes]);
 
   return [values, setters];
@@ -237,6 +238,7 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
       value,
     });
     return [setterName, setterFunc];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [parameters, coordinationScopes]);
 
   return [values, setters];
