@@ -50,7 +50,6 @@
               "spatialRotationY": { "type": "string" },
               "spatialRotationZ": { "type": "string" },
               "spatialRotationOrbit": { "type": "string" },
-              "useFixedAxis": { "type": "string" },
               "heatmapZoomX": { "type": "string" },
               "heatmapZoomY": { "type": "string" },
               "heatmapTargetX": { "type": "string" },

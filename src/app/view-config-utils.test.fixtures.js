@@ -390,6 +390,18 @@ export const initializedViewConfig = {
     spatialRotation: {
       A: 0,
     },
+    spatialRotationOrbit: {
+      A: 0,
+    },
+    spatialRotationX: {
+      A: null,
+    },
+    spatialRotationY: {
+      A: null,
+    },
+    spatialRotationZ: {
+      A: null,
+    },
     spatialTargetX: {
       A: 3800,
     },
@@ -397,7 +409,7 @@ export const initializedViewConfig = {
       A: -900,
     },
     spatialTargetZ: {
-      A: 0,
+      A: null,
     },
     spatialZoom: {
       A: -4.4,
@@ -506,6 +518,10 @@ export const initializedViewConfig = {
         spatialMoleculesLayer: 'A',
         spatialNeighborhoodsLayer: 'A',
         spatialRotation: 'A',
+        spatialRotationOrbit: 'A',
+        spatialRotationX: 'A',
+        spatialRotationY: 'A',
+        spatialRotationZ: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',
         spatialTargetZ: 'A',
