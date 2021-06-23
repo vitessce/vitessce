@@ -266,7 +266,7 @@ function LayerControllerSubscriber(props) {
     const loader = imageLayerLoaders[index];
     const newChannels = await initializeLayerChannels(
       loader,
-      rasterLayers[index].use3d,
+      (rasterLayers[index] || {}).use3d,
     );
     const newLayer = {
       index,
