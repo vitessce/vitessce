@@ -469,7 +469,7 @@ export default function LayerController(props) {
             </Button>
           )}
         </TabPanel>
-        <TabPanel value={tab} index={1}>
+        <TabPanel value={tab} index={1} style={{ marginTop: 4 }}>
           <VolumeOptions
             loader={loader}
             handleSlicerSetting={handleSlicerSetting}
