@@ -181,7 +181,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
-    const use3d = layerProps.some(l => l.use3d);
+    const use3d = (layerProps || []).some(l => l.use3d);
 
     const showCellSelectionTools = this.cellsLayer !== null
       || (this.cellsEntries.length && this.cellsEntries[0][1].xy);
