@@ -47,7 +47,7 @@ const LayerControllerMemoized = React.memo(
       setAreLoadingRasterChannnels,
       handleRasterLayerChange,
       handleRasterLayerRemove,
-      disable3D,
+      disable3d,
       layerIs3DIndex,
       setZoom,
       setTargetX,
@@ -134,8 +134,8 @@ const LayerControllerMemoized = React.memo(
                     shouldShowColormap={isRaster}
                     // Disable 3D if given explicit instructions to do so
                     // or if another layer is using 3D mode.
-                    disable3D={
-                      (disable3D || {})[layer.name]
+                    disable3d={
+                      (disable3d || {})[layer.name]
                       || (typeof layerIs3DIndex === 'number'
                         && layerIs3DIndex !== -1
                         && layerIs3DIndex !== i)
@@ -189,6 +189,7 @@ const LayerControllerMemoized = React.memo(
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
+ * @param {Object} props.disable3d Which layers should have 3D disabled (from `raster.json` names).
  */
 function LayerControllerSubscriber(props) {
   const {
@@ -196,7 +197,7 @@ function LayerControllerSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
-    disable3D,
+    disable3d,
   } = props;
 
   const loaders = useLoaders();
@@ -331,7 +332,7 @@ function LayerControllerSubscriber(props) {
       setAreLoadingRasterChannnels={setAreLoadingRasterChannnels}
       handleRasterLayerChange={handleRasterLayerChange}
       handleRasterLayerRemove={handleRasterLayerRemove}
-      disable3D={disable3D}
+      disable3d={disable3d}
       layerIs3DIndex={layerIs3DIndex}
       setZoom={setZoom}
       setTargetX={setTargetX}

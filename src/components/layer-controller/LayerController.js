@@ -81,7 +81,7 @@ export default function LayerController(props) {
     handleLayerRemove, handleLayerChange,
     shouldShowTransparentColor,
     shouldShowDomain, shouldShowColormap, ChannelController,
-    setViewState, disable3D, setRasterLayerCallback,
+    setViewState, disable3d, setRasterLayerCallback,
     setAreLayerChannelsLoading, areLayerChannelsLoading, disabled,
     spatialHeight, spatialWidth,
   } = props;
@@ -453,7 +453,7 @@ export default function LayerController(props) {
             loader={loader}
             handleMultiPropertyChange={handleMultiPropertyChange}
             resolution={resolution}
-            disable3D={disable3D}
+            disable3d={disable3d}
             setRasterLayerCallback={setRasterLayerCallback}
             setAreAllChannelsLoading={setAreAllChannelsLoading}
             setViewState={setViewState}

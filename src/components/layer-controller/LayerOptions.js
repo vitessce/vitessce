@@ -54,7 +54,7 @@ const canLoadResolution = (loader, resolution) => {
  * @prop {function} handleMultiPropertyChange Function to propgate multiple layer changes at once.
  * This prevents updates from overridding each other.
  * @prop {number} resolution Current 3D resolution.
- * @prop {boolean} disable3D Whether or not to enable 3D selection
+ * @prop {boolean} disable3d Whether or not to enable 3D selection
  * @prop {function} setRasterLayerCallback Setter for callbacks that fire after raster/volume loads.
  * @prop {function} setAreAllChannelsLoading Setter for whether or not a given channel is loading.
  * @prop {Object} setViewState Setter for the current view state.
@@ -67,7 +67,7 @@ function VolumeDropdown({
   loader: loaderWithMeta,
   handleMultiPropertyChange,
   resolution: currResolution,
-  disable3D,
+  disable3d,
   setRasterLayerCallback,
   setAreAllChannelsLoading,
   setViewState,
@@ -177,7 +177,7 @@ function VolumeDropdown({
                     key={`(${height}, ${width}, ${depthDownsampled})`}
                     value={resolution}
                     disabled={
-                      disable3D
+                      disable3d
                       || !hasZStack
                     }
                   >
@@ -379,7 +379,7 @@ function LayerOptions({
   loader,
   handleMultiPropertyChange,
   resolution,
-  disable3D,
+  disable3d,
   setRasterLayerCallback,
   setAreAllChannelsLoading,
   setViewState,
@@ -398,7 +398,7 @@ function LayerOptions({
           channels={channels}
           handleMultiPropertyChange={handleMultiPropertyChange}
           resolution={resolution}
-          disable3D={disable3D}
+          disable3d={disable3d}
           setRasterLayerCallback={setRasterLayerCallback}
           setAreAllChannelsLoading={setAreAllChannelsLoading}
           setViewState={setViewState}
