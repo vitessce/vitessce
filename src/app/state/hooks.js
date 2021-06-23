@@ -62,6 +62,18 @@ export const useViewConfigStore = create(set => ({
 }));
 
 /**
+ * Hook for getting components' layout from the view config based on
+ * matching all coordination scopes.
+ * @returns {Object} The components' layout.
+ */
+export const useComponentLayout = (component, scopes, coordinationScopes) => useViewConfigStore(
+  state => state.viewConfig.layout.filter(l => l.component === component).filter(
+    l => scopes.every(scope => l.coordinationScopes[scope]
+          === coordinationScopes[scope]),
+  ),
+);
+
+/**
  * The useAuxiliaryStore hook is initialized via the zustand
  * create() function, which sets up both the state variables
  * and the reducer-type functions.

@@ -13,7 +13,7 @@ import {
   useCoordination,
   useLoaders,
   useAuxiliaryCoordination,
-  useViewConfigStore,
+  useComponentLayout,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
@@ -53,7 +53,7 @@ const LayerControllerMemoized = React.memo(
       setRotationOrbit,
       windowHeight,
       windowWidth,
-      spatialDims,
+      spatialLayout,
       handleImageAdd,
     } = props;
     return (
@@ -154,8 +154,8 @@ const LayerControllerMemoized = React.memo(
                     }}
                     setAreLayerChannelsLoading={setAreLayerChannelsLoading}
                     areLayerChannelsLoading={areLayerChannelsLoading}
-                    spatialHeight={(windowHeight * spatialDims.h) / 12}
-                    spatialWidth={(windowWidth * spatialDims.w) / 12}
+                    spatialHeight={(windowHeight * spatialLayout.h) / 12}
+                    spatialWidth={(windowWidth * spatialLayout.w) / 12}
                   />
                 </Grid>
               ) : null;
@@ -230,12 +230,7 @@ function LayerControllerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
-  const spatialDims = useViewConfigStore(state => state.viewConfig.layout
-    .filter(l => l.component === 'spatial')
-    .find(
-      l => l.coordinationScopes.spatialRasterLayers
-          === coordinationScopes.spatialRasterLayers,
-    ));
+  const [spatialLayout] = useComponentLayout('spatial', ['spatialRasterLayers'], coordinationScopes);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -333,7 +328,7 @@ function LayerControllerSubscriber(props) {
       setRotationOrbit={setRotationOrbit}
       windowHeight={windowHeight}
       windowWidth={windowWidth}
-      spatialDims={spatialDims}
+      spatialLayout={spatialLayout}
       handleImageAdd={handleImageAdd}
     />
   );
