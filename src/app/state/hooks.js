@@ -190,7 +190,7 @@ const AUXILIARY_COORDINATION_TYPES_MAP = {
 const mapCoordinationScopes = (coordinationScopes) => {
   const newCoordinationScopes = {};
   Object.keys(coordinationScopes).forEach((key) => {
-    const newCoordinationTypes = coordinationScopesMap[key] || [];
+    const newCoordinationTypes = AUXILIARY_COORDINATION_TYPES_MAP[key] || [];
     newCoordinationTypes.forEach((coordinationType) => {
       newCoordinationScopes[coordinationType || key] = coordinationScopes[key];
     });
@@ -199,7 +199,7 @@ const mapCoordinationScopes = (coordinationScopes) => {
 };
 
 const mapParameters = parameters => parameters
-  .map(parameter => coordinationScopesMap[parameter]).filter(Boolean).flat();
+  .map(parameter => AUXILIARY_COORDINATION_TYPES_MAP[parameter]).filter(Boolean).flat();
 
 /**
  * The useAuxiliaryCoordination hook returns both the
