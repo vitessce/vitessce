@@ -67,9 +67,7 @@ export default function VitessceSidebar(props) {
   return (
     <div className={classes.sidebarContainer}>
       {enableLogo ? (
-        <a href="http://vitessce.io" target="_blank" className={classes.topLink}>
-          <SidebarLogoSVG title="Powered by Vitessce" />
-        </a>
+        <ActionPopover icon={<SidebarLogoSVG title="Visualization" />} title="Visualization" />
       ) : null}
       {enableUndo ? (
         <ActionPopover icon={<UndoIcon />} title="Undo" />

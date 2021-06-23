@@ -12,11 +12,12 @@ export const useStyles = makeStyles(() => ({
     width: '36px',
     height: '100vh',
     float: 'left',
+    paddingTop: '7px',
     '& svg': {
-      width: '26px',
-      height: '26px',
-      padding: '5px',
-    }
+      width: '22px',
+      height: '22px',
+      padding: '7px',
+    },
   },
   topLink: {
     marginBottom: '10px',
