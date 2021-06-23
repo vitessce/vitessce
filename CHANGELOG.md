@@ -7,8 +7,12 @@
     - Add new coordination types `spatialRotationX` `spatialRotationY` `spatialRotationZ` `spatialRotationOrbit` and update `spatialRasterLayers` with new parts
     - Add spatial view state coordination types to `LayerController`
     - Update UI for `LayerController`
+- Add indication to Y axis title of cell set expression violin plot when log-transformation is active.
 
 ### Changed
+- Cache cell set polygon outputs and do not calculate them unless requested.
+  - Modify the cache to use an array of tuples, since using an array as an object key results in conversion to string.
+- Clean up `getFlatArrDecompressed` fetching.
 - Fix bitmask remove button style.
 
 ## [1.1.10](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-19
