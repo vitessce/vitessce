@@ -62,7 +62,7 @@ export const useViewConfigStore = create(set => ({
 }));
 
 /**
- * The useViewConfigStore hook is initialized via the zustand
+ * The useAuxiliaryStore hook is initialized via the zustand
  * create() function, which sets up both the state variables
  * and the reducer-type functions.
  * Reference: https://github.com/react-spring/zustand
@@ -177,12 +177,13 @@ export function useCoordination(parameters, coordinationScopes) {
     });
     return [setterName, setterFunc];
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [parameters, coordinationScopes]);
 
   return [values, setters];
 }
 
-const coordinationScopesMap = {
+const AUXILIARY_COORDINATION_TYPES_MAP = {
   spatialRasterLayers: ['rasterLayersCallbacks', 'rasterLayersIsChannelLoading'],
 };
 
