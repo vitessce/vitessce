@@ -12,6 +12,11 @@ function getWindowDimensions() {
   };
 }
 
+/**
+ * Custom hook, gets the full window dimensions.
+ * @returns {array} `[width, height]` where width and height
+ * are numbers.
+ */
 export function useWindowDimensions() {
   const [windowDimensions, setWindowDimensions] = useState(
     getWindowDimensions(),

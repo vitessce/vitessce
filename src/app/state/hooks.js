@@ -66,6 +66,11 @@ export const useViewConfigStore = create(set => ({
  * create() function, which sets up both the state variables
  * and the reducer-type functions.
  * Reference: https://github.com/react-spring/zustand
+ * It is meant to be used for non-viewconfig-based coordination between components.
+ * For example, as currently happens, the layer controller can coordinate
+ * on-load callbacks with spatial view based on whether or not they are
+ * coordinated via `spatialRasterLayers` - the callbacks are not part of the view config
+ * though so they live here.
  * @returns {function} The useStore hook.
  */
 export const useAuxiliaryStore = create(set => ({
@@ -187,6 +192,14 @@ const AUXILIARY_COORDINATION_TYPES_MAP = {
   spatialRasterLayers: ['rasterLayersCallbacks', 'rasterLayersIsChannelLoading'],
 };
 
+/**
+ * The maps the coordination types of incoming scopes to new types
+ * for the auxiliary store.
+ * @param {object} coordinationScopes Mapping of coordination types
+ * to scope names.
+ * @returns {object} Mapping of coordination types
+ * to new scope names for the auxiliary store.
+ */
 const mapCoordinationScopes = (coordinationScopes) => {
   const newCoordinationScopes = {};
   Object.keys(coordinationScopes).forEach((key) => {
