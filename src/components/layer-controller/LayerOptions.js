@@ -47,6 +47,22 @@ const canLoadResolution = (loader, resolution) => {
   return totalBytes < maxSize;
 };
 
+
+/**
+ * Wrapper for the dropdown that selects a colormap (None, viridis, magma, etc.).
+ * @prop {Object} loader Loader object with metadata.
+ * @prop {function} handleMultiPropertyChange Function to propgate multiple layer changes at once.
+ * This prevents updates from overridding each other.
+ * @prop {number} resolution Current 3D resolution.
+ * @prop {boolean} disable3D Whether or not to enable 3D selection
+ * @prop {function} setRasterLayerCallback Setter for callbacks that fire after raster/volume loads.
+ * @prop {function} setAreAllChannelsLoading Setter for whether or not a given channel is loading.
+ * @prop {Object} setViewState Setter for the current view state.
+ * @prop {number} spatialHeight Height of the spatial component.
+ * @prop {number} spatialWidth Width of the spatial component.
+ * @prop {object} channels Channels object.
+ * @prop {boolean} use3d Whether or not 3D is enabled for this layer.
+ */
 function VolumeDropdown({
   loader: loaderWithMeta,
   handleMultiPropertyChange,
@@ -63,7 +79,7 @@ function VolumeDropdown({
   const selections = channels.map(i => i.selection);
   const { data: loader } = loaderWithMeta;
   const handleChange = async (val) => {
-    // val is the resolution not null, which indicates 2D
+    // val is the resolution - null indicates 2D
     const shouldUse3D = typeof val === 'number';
     setAreAllChannelsLoading(true);
     setRasterLayerCallback(() => {
@@ -92,6 +108,7 @@ function VolumeDropdown({
           ch.slider = sliders[i];
         });
       }
+      // Update all properties at once to avoid overriding calls.
       handleMultiPropertyChange(propertiesChanged);
       const defaultViewState = getDefaultInitialViewState(loader,
         { height: spatialHeight, width: spatialWidth }, 1.5, true);
@@ -109,6 +126,7 @@ function VolumeDropdown({
         // eslint-disable-next-line no-param-reassign
         ch.slider = sliders[i];
       });
+      // Update all properties at once to avoid overriding calls.
       handleMultiPropertyChange({
         resolution: val,
         use3d: shouldUse3D,

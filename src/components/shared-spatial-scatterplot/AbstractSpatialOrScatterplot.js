@@ -41,6 +41,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const useFixedAxis = layers?.some(l => l.useFixedAxis);
     setViewState({
       ...nextViewState,
+      // If the axis is fixed, just use the current target in state i.e don't change target.
       target: useFixedAxis ? viewState.target : nextViewState.target,
     });
   }

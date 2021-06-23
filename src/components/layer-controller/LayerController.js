@@ -211,6 +211,7 @@ export default function LayerController(props) {
       loader,
       loaderSelection,
       value,
+      use3d,
     );
 
     // If it's the right-most slider, we take the minimum of that and the new value.
@@ -238,7 +239,7 @@ export default function LayerController(props) {
     const mouseUp = event.type === 'mouseup';
     // Only update domains on a mouseup event for the same reason as above.
     const { sliders } = mouseUp
-      ? await getDomainsAndSliders(loader, loaderSelection, domainType)
+      ? await getDomainsAndSliders(loader, loaderSelection, domainType, use3d)
       : { domains: [], sliders: [] };
     if (mouseUp) {
       const newChannels = channels.map((c, i) => ({
@@ -258,6 +259,7 @@ export default function LayerController(props) {
     channelControllers = channels.map(
       // c is an object like { color, selection, slider, visible }.
       (c, channelId) => {
+        // Update the auxiliary store with the current loading state of a channel.
         const setIsLoading = (val) => {
           const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
           newAreLayerChannelsLoading[channelId] = val;
@@ -265,23 +267,27 @@ export default function LayerController(props) {
         };
         // Change one property of a channel (for now - soon
         // nested structures allowing for multiple z/t selecitons at once, for example).
-        const handleChannelPropertyChange = async (property, value) => {
+        const handleChannelPropertyChange = (property, value) => {
           // property is something like "selection" or "slider."
           // value is the actual change, like { channel: "DAPI" }.
           const update = { [property]: value };
           if (property === 'selection') {
+            // Channel is loading until the layer callback is called
+            // by the layer, which fetches the raster data.
             setIsLoading(true);
             update.selection = {
               ...globalLabelValues,
               ...update.selection,
             };
             setChannel({ ...c, ...update }, channelId);
+            // Call back for raster layer handles update of UI
+            // like sliders and the loading state of the channel.
             setRasterLayerCallback(async () => {
               const loaderSelection = [
                 { ...channels[channelId][property], ...value },
               ];
               const { sliders } = await getDomainsAndSliders(
-                loader, loaderSelection, domainType,
+                loader, loaderSelection, domainType, use3d,
               );
               [update.slider] = sliders;
               setChannel({ ...c, ...update }, channelId);

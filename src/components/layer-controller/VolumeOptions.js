@@ -157,7 +157,7 @@ const CameraOptions = ({
   loader,
 }) => {
   const classes = useCameraStyles();
-  const toggleFixedAxisButton = (
+  const ToggleFixedAxisButton = (
     <Grid item xs="auto" key="toggle-fixed-axis">
       <Grid container direction="row">
         <Checkbox
@@ -175,7 +175,7 @@ const CameraOptions = ({
       </Grid>
     </Grid>
   );
-  const reCenterButton = (
+  const ReCenterButton = (
     <Grid item xs="auto" key="recenter">
       <Button
         onClick={() => {
@@ -205,7 +205,7 @@ const CameraOptions = ({
       justify="space-between"
       alignItems="center"
     >
-      {[toggleFixedAxisButton, reCenterButton]}
+      {[ToggleFixedAxisButton, ReCenterButton]}
     </Grid>
   );
 };

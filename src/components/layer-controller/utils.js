@@ -1,7 +1,7 @@
 import { getChannelStats } from '@hms-dbmi/viv';
 import { Matrix4 } from 'math.gl';
 
-export async function getSingleSelectionStats2D({ loader, selection }) {
+async function getSingleSelectionStats2D({ loader, selection }) {
   const data = Array.isArray(loader) ? loader[loader.length - 1] : loader;
   const raster = await data.getRaster({ selection });
   const selectionStats = getChannelStats(raster.data);
@@ -9,7 +9,7 @@ export async function getSingleSelectionStats2D({ loader, selection }) {
   return { domain, slider };
 }
 
-export async function getSingleSelectionStats3D({ loader, selection }) {
+async function getSingleSelectionStats3D({ loader, selection }) {
   const lowResSource = loader[loader.length - 1];
   const { shape, labels } = lowResSource;
   // eslint-disable-next-line no-bitwise
@@ -46,6 +46,14 @@ export async function getSingleSelectionStats3D({ loader, selection }) {
   };
 }
 
+
+/**
+ * Get bounding cube for a given loader i.e [[0, width], [0, height], [0, depth]]
+ * @param {Object} loader PixelSource|PixelSource[]
+ * @param {[]} selection Selection for stats.
+ * @param {boolean} use3d Whether or not to get 3d stats.
+ * @returns {Object} { domains, sliders }
+ */
 export const getSingleSelectionStats = async ({ loader, selection, use3d }) => {
   const getStats = use3d
     ? getSingleSelectionStats3D
@@ -65,6 +73,7 @@ export const getMultiSelectionStats = async ({ loader, selections, use3d }) => {
 /**
  * Get physical size scaling Matrix4
  * @param {Object} loader PixelSource
+ * @returns {Object} matrix
  */
 export function getPhysicalSizeScalingMatrix(loader) {
   const { x, y, z } = loader?.meta?.physicalSizes ?? {};
@@ -76,6 +85,11 @@ export function getPhysicalSizeScalingMatrix(loader) {
   return new Matrix4().identity();
 }
 
+/**
+ * Get bounding cube for a given loader
+ * @param {Object} loader PixelSource|PixelSource[]
+ * @returns {Array} [0, width], [0, height], [0, depth]]
+ */
 export function getBoundingCube(loader) {
   const source = Array.isArray(loader) ? loader[0] : loader;
   const { shape, labels } = source;

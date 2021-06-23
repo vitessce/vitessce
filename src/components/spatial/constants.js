@@ -10,6 +10,8 @@ export const DEFAULT_RASTER_LAYER_PROPS = {
   domainType: DEFAULT_RASTER_DOMAIN_TYPE,
   transparentColor: [0, 0, 0],
   renderingMode: RENDERING_MODES.ADDITIVE,
+  use3d: false,
+  useFixedAxis: false,
 };
 
 export const DEFAULT_MOLECULES_LAYER = {

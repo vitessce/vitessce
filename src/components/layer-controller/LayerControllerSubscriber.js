@@ -21,6 +21,10 @@ import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
 
 const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
 
+// LayerController is memoized to prevent updates from prop changes that
+// are caused by view state updates i.e zooming and panning within
+// the actual Spatial component.  Re-rendering this component is very
+// expensive so we have to be careful with props in this file in general.
 const LayerControllerMemoized = React.memo(
   (props) => {
     const {
@@ -93,6 +97,8 @@ const LayerControllerMemoized = React.memo(
               const ChannelController = isRaster
                 ? RasterChannelController
                 : BitmaskChannelController;
+              // Set up the call back mechanism so that each layer manages
+              // callbacks/loading state for itself and its channels.
               const setRasterLayerCallback = (cb) => {
                 const newRasterLayersCallbacks = [
                   ...(rasterLayersCallbacks || []),
@@ -126,6 +132,8 @@ const LayerControllerMemoized = React.memo(
                     shouldShowTransparentColor={isRaster}
                     shouldShowDomain={isRaster}
                     shouldShowColormap={isRaster}
+                    // Disable 3D if given explicit instructions to do so
+                    // or if another layer is using 3D mode.
                     disable3D={
                       (disable3D || {})[layer.name]
                       || (typeof layerIs3DIndex === 'number'
@@ -220,16 +228,19 @@ function LayerControllerSubscriber(props) {
   const [
     {
       rasterLayersCallbacks,
-      rasterLayersIsChannelLoading: areLoadingRasterChannnels,
+      areLoadingRasterChannnels,
     },
     {
       setRasterLayersCallbacks,
-      setRasterLayersIsChannelLoading: setAreLoadingRasterChannnels,
+      setAreLoadingRasterChannnels,
     },
   ] = useAuxiliaryCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
+  // Spatial layout + window size is needed for the "re-center" button to work properly.
+  // Dimensions of the Spatial component can be inferred and used for resetting view state to
+  // a nice, centered view.
   const [spatialLayout] = useComponentLayout('spatial', ['spatialRasterLayers'], coordinationScopes);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
@@ -262,6 +273,8 @@ function LayerControllerSubscriber(props) {
     { spatialMoleculesLayer: moleculesLayer },
   );
 
+  // useCallback prevents new functions from propogating
+  // changes to the underlying component.
   const handleImageAdd = useCallback(async (index) => {
     const loader = imageLayerLoaders[index];
     const newChannels = await initializeLayerChannels(

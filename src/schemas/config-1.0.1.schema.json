@@ -50,6 +50,7 @@
               "spatialRotationY": { "type": "string" },
               "spatialRotationZ": { "type": "string" },
               "spatialRotationOrbit": { "type": "string" },
+              "spatialOrbitAxis": { "type": "string" },
               "heatmapZoomX": { "type": "string" },
               "heatmapZoomY": { "type": "string" },
               "heatmapTargetX": { "type": "string" },
@@ -647,6 +648,20 @@
                   "description": "If null is provided, value will be automatically set. Only useful for 3D viewing."
                 },
                 { "type": "number" }
+              ]
+            }
+          }
+        },
+        "spatialOrbitAxis": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided, value will be automatically set. Only useful for 3D viewing."
+                },
+                { "type": "string" }
               ]
             }
           }

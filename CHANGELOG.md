@@ -4,7 +4,7 @@
 - Global visibility button next to name in layer controller.
 - Volumetric ray casting from `Viv`
     - Upgrade `Viv` to 0.10.3
-    - Add new coordination types `spatialRotationX` `spatialRotationY` `spatialRotationZ` `spatialRotationOrbit` and update `spatialRasterLayers` with new parts
+    - Add new coordination types `spatialRotationX` `spatialRotationY` `spatialRotationZ` `spatialRotationOrbit` `spatialOrbitAxis` and update `spatialRasterLayers` with new parts
     - Add spatial view state coordination types to `LayerController`
     - Update UI for `LayerController`
 - Add indication to Y axis title of cell set expression violin plot when log-transformation is active.

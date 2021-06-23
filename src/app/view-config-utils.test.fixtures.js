@@ -393,6 +393,9 @@ export const initializedViewConfig = {
     spatialRotationOrbit: {
       A: 0,
     },
+    spatialOrbitAxis: {
+      A: 'Y',
+    },
     spatialRotationX: {
       A: null,
     },
@@ -519,6 +522,7 @@ export const initializedViewConfig = {
         spatialNeighborhoodsLayer: 'A',
         spatialRotation: 'A',
         spatialRotationOrbit: 'A',
+        spatialOrbitAxis: 'A',
         spatialRotationX: 'A',
         spatialRotationY: 'A',
         spatialRotationZ: 'A',

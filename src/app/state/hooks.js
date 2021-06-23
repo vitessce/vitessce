@@ -194,14 +194,13 @@ export function useCoordination(parameters, coordinationScopes) {
     });
     return [setterName, setterFunc];
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [parameters, coordinationScopes]);
 
   return [values, setters];
 }
 
 const AUXILIARY_COORDINATION_TYPES_MAP = {
-  spatialRasterLayers: ['rasterLayersCallbacks', 'rasterLayersIsChannelLoading'],
+  spatialRasterLayers: ['rasterLayersCallbacks', 'areLoadingRasterChannnels'],
 };
 
 /**
