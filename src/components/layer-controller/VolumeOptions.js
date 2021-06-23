@@ -33,7 +33,7 @@ const Slicer = ({
   zSlice,
   handleSlicerSetting,
   loader,
-  use3D,
+  use3d,
 }) => {
   const [xSliceInit, ySliceInit, zSliceInit] = getBoundingCube(loader.data);
   const sliceValuesAndSetSliceFunctions = [
@@ -68,7 +68,7 @@ const Slicer = ({
       >
         <Grid item xs={1}>
           <Typography
-            className={!use3D ? classes.disabled : classes.enabled}
+            className={!use3d ? classes.disabled : classes.enabled}
             style={{ marginBottom: 0 }}
           >
             {label}:
@@ -76,8 +76,8 @@ const Slicer = ({
         </Grid>
         <Grid item xs={11}>
           <Slider
-            disabled={!use3D}
-            className={!use3D ? classes.disabled : classes.enabled}
+            disabled={!use3d}
+            className={!use3d ? classes.disabled : classes.enabled}
             value={val}
             onChange={(e, v) => setVal(v)}
             valueLabelDisplay="auto"
@@ -95,7 +95,7 @@ const Slicer = ({
   return (
     <>
       <Typography
-        className={!use3D ? classes.disabled : classes.enabled}
+        className={!use3d ? classes.disabled : classes.enabled}
         style={{ marginTop: 16, marginBottom: 0 }}
       >
         Clipping Planes:{' '}
@@ -110,22 +110,22 @@ const renderingOptions = Object.values(RENDERING_MODES);
 function RenderingModeSelect({
   handleRenderingModeChange,
   renderingMode,
-  use3D,
+  use3d,
 }) {
   // Empty option allows for displaying the title of the dropdown fully in the UI.
-  const options = !use3D ? [...renderingOptions, ''] : renderingOptions;
+  const options = !use3d ? [...renderingOptions, ''] : renderingOptions;
   return (
     <FormControl fullWidth>
       <InputLabel htmlFor="rendering-mode-select">Rendering Mode</InputLabel>
       <Select
         native
         onChange={e => handleRenderingModeChange(e.target.value)}
-        value={use3D ? renderingMode : ''}
+        value={use3d ? renderingMode : ''}
         inputProps={{
           name: 'rendering-mode',
           id: 'rendering-mode-select',
         }}
-        disabled={!use3D}
+        disabled={!use3d}
       >
         {options.map(name => (
           <option key={name} value={name}>
@@ -151,7 +151,7 @@ const CameraOptions = ({
   hanldeFixedAxisChange,
   setViewState,
   useFixedAxis,
-  use3D,
+  use3d,
   spatialHeight,
   spatialWidth,
   loader,
@@ -163,11 +163,11 @@ const CameraOptions = ({
         <Checkbox
           onClick={() => hanldeFixedAxisChange(!useFixedAxis)}
           style={{ padding: 0 }}
-          disabled={!use3D}
+          disabled={!use3d}
           checked={Boolean(useFixedAxis)}
         />
         <Typography
-          className={!use3D ? classes.disabled : classes.enabled}
+          className={!use3d ? classes.disabled : classes.enabled}
           style={{ marginBottom: 0 }}
         >
           Fix Camera Axis
@@ -180,7 +180,7 @@ const CameraOptions = ({
       <Button
         onClick={() => {
           const defaultViewState = getDefaultInitialViewState(loader.data,
-            { height: spatialHeight, width: spatialWidth }, 1.5, use3D);
+            { height: spatialHeight, width: spatialWidth }, 1.5, use3d);
           setViewState({
             ...defaultViewState,
             rotationX: 0,
@@ -188,7 +188,7 @@ const CameraOptions = ({
           });
         }
         }
-        disabled={!use3D}
+        disabled={!use3d}
         style={{
           padding: 0,
           marginBottom: 6,
@@ -220,7 +220,7 @@ const VolumeOptions = ({
   xSlice,
   ySlice,
   zSlice,
-  use3D,
+  use3d,
   loader,
   spatialHeight,
   spatialWidth,
@@ -229,21 +229,21 @@ const VolumeOptions = ({
     <RenderingModeSelect
       handleRenderingModeChange={handleRenderingModeChange}
       renderingMode={renderingMode}
-      use3D={use3D}
+      use3d={use3d}
     />
     <Slicer
       xSlice={xSlice}
       ySlice={ySlice}
       zSlice={zSlice}
       handleSlicerSetting={handleSlicerSetting}
-      use3D={use3D}
+      use3d={use3d}
       loader={loader}
     />
     <CameraOptions
       hanldeFixedAxisChange={hanldeFixedAxisChange}
       setViewState={setViewState}
       useFixedAxis={useFixedAxis}
-      use3D={use3D}
+      use3d={use3d}
       loader={loader}
       spatialHeight={spatialHeight}
       spatialWidth={spatialWidth}

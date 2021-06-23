@@ -1,5 +1,4 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { getChannelStats } from '@hms-dbmi/viv';
 
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
@@ -9,6 +8,7 @@ import isEqual from 'lodash/isEqual';
 import ChannelOptions from './ChannelOptions';
 import { DOMAINS } from './constants';
 import { getSourceFromLoader } from '../../utils';
+import { getMultiSelectionStats } from './utils';
 import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls';
 
 // Returns an rgb string for display, and changes the color (arr)
@@ -107,55 +107,55 @@ function RasterChannelController({
   handleIQRUpdate,
   selectionIndex,
   isLoading,
+  use3d: newUse3d,
 }) {
   const { dtype } = getSourceFromLoader(loader);
   const [domain, setDomain] = useState(null);
   const [domainType, setDomainType] = useState(null);
+  const [use3d, setUse3d] = useState(null);
   const [selection, setSelection] = useState([{ ...channels[channelId].selection }]);
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {
-    let mounted = true;
     if (dtype && loader && channels) {
-      const loaderSelection = [
-        { ...channels[channelId].selection },
-      ];
+      const loaderSelection = [{ ...channels[channelId].selection }];
       let domains;
       const hasDomainChanged = newDomainType !== domainType;
+      const has3dChanged = use3d !== newUse3d;
       const hasSelectionChanged = !isEqual(loaderSelection, selection);
-      if (hasDomainChanged || hasSelectionChanged) {
+      if (hasDomainChanged || hasSelectionChanged || has3dChanged) {
+        setUse3d(newUse3d);
         if (newDomainType === 'Full') {
           domains = [DOMAINS[dtype]];
           const [newDomain] = domains;
-          if (mounted) {
+          setDomain(newDomain);
+          setDomainType(newDomainType);
+          if (hasSelectionChanged) {
+            setSelection(loaderSelection);
+          } if (has3dChanged) {
+            setUse3d(newUse3d);
+          }
+        } else {
+          getMultiSelectionStats({
+            loader: loader.data,
+            selections: loaderSelection,
+            use3d: newUse3d,
+          }).then((stats) => {
+            // eslint-disable-next-line prefer-destructuring
+            domains = stats.domains;
+            const [newDomain] = domains;
             setDomain(newDomain);
             setDomainType(newDomainType);
             if (hasSelectionChanged) {
               setSelection(loaderSelection);
-            }
-          }
-        } else {
-          const source = getSourceFromLoader(loader);
-          Promise.all(
-            loaderSelection.map(sel => source.getRaster({ selection: sel })),
-          ).then((raster) => {
-            const stats = raster.map(({ data: d }) => getChannelStats(d));
-            domains = stats.map(stat => stat.domain);
-            const [newDomain] = domains;
-            if (mounted) {
-              setDomain(newDomain);
-              setDomainType(newDomainType);
-              if (hasSelectionChanged) {
-                setSelection(loaderSelection);
-              }
+            } if (has3dChanged) {
+              setUse3d(newUse3d);
             }
           });
         }
       }
     }
-    return () => { mounted = false; };
-  }, [domainType, channels, channelId, loader, dtype, newDomainType, selection]);
-
+  }, [domainType, channels, channelId, loader, dtype, newDomainType, selection, newUse3d, use3d]);
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
   *  index of the image along that particular dimension.

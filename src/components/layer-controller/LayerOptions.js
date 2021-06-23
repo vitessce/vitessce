@@ -7,7 +7,7 @@ import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 import { getDefaultInitialViewState } from '@hms-dbmi/viv';
 
-import { getBoundingCube } from './utils';
+import { getBoundingCube, getMultiSelectionStats } from './utils';
 import { COLORMAP_OPTIONS } from '../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
 
@@ -57,25 +57,42 @@ function VolumeDropdown({
   setViewState,
   spatialHeight,
   spatialWidth,
+  channels,
+  use3d,
 }) {
+  const selections = channels.map(i => i.selection);
   const { data: loader } = loaderWithMeta;
-  const handleChange = (val) => {
+  const handleChange = async (val) => {
     // val is the resolution not null, which indicates 2D
     const shouldUse3D = typeof val === 'number';
     setAreAllChannelsLoading(true);
+    setRasterLayerCallback(() => {
+      setAreAllChannelsLoading(false);
+      setRasterLayerCallback(null);
+    });
     if (shouldUse3D) {
       const [xSlice, ySlice, zSlice] = getBoundingCube(loader);
-      handleMultiPropertyChange({
+      const propertiesChanged = {
         resolution: val,
         xSlice,
         ySlice,
         zSlice,
-        use3D: shouldUse3D,
-      });
-      setRasterLayerCallback(() => {
-        setAreAllChannelsLoading(false);
-        setRasterLayerCallback(null);
-      });
+        use3d: shouldUse3D,
+      };
+      // Only make the fetch if needed i.e if the 3d was just being turned on.
+      if (!use3d) {
+        const { sliders } = await getMultiSelectionStats({
+          loader,
+          selections,
+          use3d: shouldUse3D,
+        });
+        propertiesChanged.channels = [...channels];
+        propertiesChanged.channels.forEach((ch, i) => {
+          // eslint-disable-next-line no-param-reassign
+          ch.slider = sliders[i];
+        });
+      }
+      handleMultiPropertyChange(propertiesChanged);
       const defaultViewState = getDefaultInitialViewState(loader,
         { height: spatialHeight, width: spatialWidth }, 1.5, true);
       setViewState({
@@ -84,10 +101,19 @@ function VolumeDropdown({
         rotationOrbit: 0,
       });
     } else {
-      handleMultiPropertyChange({ resolution: val, use3D: shouldUse3D, useFixedAxis: false });
-      setRasterLayerCallback(() => {
-        setAreAllChannelsLoading(false);
-        setRasterLayerCallback(null);
+      const { sliders } = await getMultiSelectionStats({
+        loader, selections, use3d: shouldUse3D,
+      });
+      const newChannels = [...channels];
+      newChannels.forEach((ch, i) => {
+        // eslint-disable-next-line no-param-reassign
+        ch.slider = sliders[i];
+      });
+      handleMultiPropertyChange({
+        resolution: val,
+        use3d: shouldUse3D,
+        useFixedAxis: false,
+        channels: newChannels,
       });
       const defaultViewState = getDefaultInitialViewState(loader,
         { height: spatialHeight, width: spatialWidth }, 0.1, false);
@@ -330,9 +356,8 @@ function LayerOptions({
   shouldShowTransparentColor,
   shouldShowDomain,
   shouldShowColormap,
-  use3D,
+  use3d,
   loader,
-  selections,
   handleMultiPropertyChange,
   resolution,
   disable3D,
@@ -346,12 +371,12 @@ function LayerOptions({
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
-      {(
+      {
         <VolumeDropdown
           loader={loader}
           handleSliderChange={handleSliderChange}
           handleDomainChange={handleDomainChange}
-          selections={selections}
+          channels={channels}
           handleMultiPropertyChange={handleMultiPropertyChange}
           resolution={resolution}
           disable3D={disable3D}
@@ -360,10 +385,11 @@ function LayerOptions({
           setViewState={setViewState}
           spatialHeight={spatialHeight}
           spatialWidth={spatialWidth}
+          use3d={use3d}
         />
-      )}
+      }
       {hasDimensionsAndChannels
-        && !use3D
+        && !use3d
         && globalControlLabels.map(
           field => shape[labels.indexOf(field)] > 1 && (
           <LayerOption name={field} inputId={`${field}-slider`} key={field}>
@@ -403,14 +429,14 @@ function LayerOptions({
           )}
         </>
       ) : null}
-      {!use3D && (
+      {!use3d && (
         <Grid item>
           <LayerOption name="Opacity" inputId="opacity-slider">
             <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
           </LayerOption>
         </Grid>
       )}
-      {shouldShowTransparentColor && !use3D && (
+      {shouldShowTransparentColor && !use3d && (
         <Grid item>
           <LayerOption
             name="Zero Transparent"

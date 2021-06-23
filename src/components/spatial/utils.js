@@ -2,7 +2,6 @@
 import shortNumber from 'short-number';
 import isEqual from 'lodash/isEqual';
 import {
-  getChannelStats,
   getDefaultInitialViewState,
   MultiscaleImageLayer,
   ImageLayer,
@@ -19,6 +18,7 @@ import {
   DEFAULT_LAYER_TYPE_ORDERING,
 } from './constants';
 import BitmaskLayer from '../../layers/BitmaskLayer';
+import { getMultiSelectionStats } from '../layer-controller/utils';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
@@ -99,28 +99,26 @@ export function isInterleaved(shape) {
  * @returns {object[]} An array of selected channels with default
  * domain/slider settings.
  */
-export async function initializeLayerChannels(loader) {
+export async function initializeLayerChannels(loader, use3d) {
   const result = [];
   const source = getSourceFromLoader(loader);
   // Add channel automatically as the first avaialable value for each dimension.
   let defaultSelection = buildDefaultSelection(source);
   defaultSelection = isInterleaved(source.shape)
     ? [{ ...defaultSelection[0], c: 0 }] : defaultSelection;
-  // Get stats because initial value is Min/Max for domainType.
-  const raster = await Promise.all(
-    defaultSelection.map(selection => source.getRaster({ selection })),
-  );
-  const stats = raster.map(({ data: d }) => getChannelStats(d));
+  const stats = await getMultiSelectionStats({
+    loader: loader.data, selections: defaultSelection, use3d,
+  });
 
   const domains = isRgb(loader)
     ? [[0, 255], [0, 255], [0, 255]]
-    : stats.map(stat => stat.domain);
+    : stats.domains;
   const colors = isRgb(loader)
     ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
     : null;
   const sliders = isRgb(loader)
     ? [[0, 255], [0, 255], [0, 255]]
-    : stats.map(stat => stat.autoSliders);
+    : stats.sliders;
 
   defaultSelection.forEach((selection, i) => {
     const domain = domains[i];
@@ -303,14 +301,14 @@ export function getInitialSpatialTargets({
   cells,
   imageLayerLoaders,
   useRaster,
-  use3D,
+  use3d,
 }) {
   let initialTargetX = -Infinity;
   let initialTargetY = -Infinity;
   let initialTargetZ = -Infinity;
   let initialZoom = -Infinity;
   // Some backoff from completely filling the screen.
-  const zoomBackoff = use3D ? 1.5 : 0.1;
+  const zoomBackoff = use3d ? 1.5 : 0.1;
   const cellValues = Object.values(cells);
   if (imageLayerLoaders.length > 0 && useRaster) {
     for (let i = 0; i < imageLayerLoaders.length; i += 1) {
@@ -319,7 +317,7 @@ export function getInitialSpatialTargets({
         imageLayerLoaders[i].data,
         viewSize,
         zoomBackoff,
-        use3D,
+        use3d,
       );
       if (target[0] > initialTargetX) {
         // eslint-disable-next-line prefer-destructuring
@@ -385,10 +383,10 @@ export function getInitialSpatialTargets({
  * @param {object} data PixelSource | PixelSource[]
  * @returns {Array} [Layer, PixelSource | PixelSource[]] tuple.
  */
-export function getLayerLoaderTuple(data, use3D) {
+export function getLayerLoaderTuple(data, use3d) {
   const loader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
     ? data : data[0];
-  if (use3D) {
+  if (use3d) {
     return [VolumeLayer, Array.isArray(loader) ? loader : [loader]];
   }
   const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;

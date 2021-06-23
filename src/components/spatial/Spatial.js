@@ -239,7 +239,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       viewState, width, height, imageLayerLoaders = {}, layers,
     } = this.props;
-    const use3D = (layers || []).some(i => i.use3D);
+    const use3d = (layers || []).some(i => i.use3d);
     // Just get the first layer/loader since they should all be spatially
     // resolved and therefore have the same unit size scale.
     const loaders = Object.values(imageLayerLoaders);
@@ -249,7 +249,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const source = getSourceFromLoader(loader);
     if (!source.meta) return null;
     const { physicalSizes } = source.meta;
-    if (physicalSizes && !use3D) {
+    if (physicalSizes && !use3d) {
       const { x } = physicalSizes;
       const { unit, size } = x;
       if (unit && size) {
@@ -336,12 +336,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(
       data,
-      layerDef.use3D,
+      layerDef.use3d,
     );
 
     return new Layer({
       loader: layerLoader,
-      id: `${this.props.use3D ? 'volume' : 'image'}-layer-${
+      id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${
         layerDef.index
       }-${i}`,
       colorValues: layerProps.colors,
@@ -364,10 +364,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createImageLayers() {
     const { layers, imageLayerLoaders = {}, rasterLayersCallbacks = [] } = this.props;
-    const use3D = (layers || []).some(i => i.use3D);
+    const use3d = (layers || []).some(i => i.use3d);
     return (layers || [])
       .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
-      .filter(layer => (use3D ? layer.use3D === use3D : true))
+      .filter(layer => (use3d ? layer.use3d === use3d : true))
       .map((layer, i) => this.createImageLayer(
         { ...layer, callback: rasterLayersCallbacks[i] }, imageLayerLoaders[layer.index], i,
       ));
@@ -536,7 +536,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight', 'use3D', 'rasterLayersCallbacks'].some(shallowDiff)) {
+    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight', 'rasterLayersCallbacks'].some(shallowDiff)) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();

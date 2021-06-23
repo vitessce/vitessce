@@ -345,7 +345,7 @@
         "type": {
           "type": "string"
         },
-        "use3D": {
+        "use3d": {
           "type": "boolean"
         },
         "useFixedAxis": {

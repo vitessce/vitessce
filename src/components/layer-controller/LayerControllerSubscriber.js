@@ -269,7 +269,10 @@ function LayerControllerSubscriber(props) {
 
   const handleImageAdd = useCallback(async (index) => {
     const loader = imageLayerLoaders[index];
-    const newChannels = await initializeLayerChannels(loader);
+    const newChannels = await initializeLayerChannels(
+      loader,
+      rasterLayers[index].use3d,
+    );
     const newLayer = {
       index,
       modelMatrix: imageLayerMeta[index]?.metadata?.transform?.matrix,
@@ -298,7 +301,7 @@ function LayerControllerSubscriber(props) {
   ).every(l => !l?.metadata?.isBitmask);
   // Only want to show vector cells controller if there is no bitmask
   const canShowCellVecmask = hasNoBitmask;
-  const layerIs3DIndex = rasterLayers?.findIndex && rasterLayers.findIndex(layer => layer.use3D);
+  const layerIs3DIndex = rasterLayers?.findIndex && rasterLayers.findIndex(layer => layer.use3d);
   return (
     <LayerControllerMemoized
       title={title}

@@ -181,7 +181,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
-    const use3D = layerProps.some(l => l.use3D);
+    const use3d = layerProps.some(l => l.use3d);
 
     const showCellSelectionTools = this.cellsLayer !== null
       || (this.cellsEntries.length && this.cellsEntries[0][1].xy);
@@ -206,7 +206,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
           views={[
-            use3D
+            use3d
               ? new OrbitView({ id: 'orbit', controller: true, orbitAxis: 'Y' })
               : new OrthographicView({
                 id: 'ortho',

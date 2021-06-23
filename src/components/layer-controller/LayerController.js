@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getChannelStats, MAX_SLIDERS_AND_CHANNELS } from '@hms-dbmi/viv';
+import { MAX_SLIDERS_AND_CHANNELS, getChannelStats } from '@hms-dbmi/viv';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -22,6 +22,7 @@ import {
   StyledInputLabel,
   OverflowEllipsisGrid,
 } from './styles';
+import { getMultiSelectionStats } from './utils';
 
 import { GLOBAL_LABELS } from '../spatial/constants';
 import { getSourceFromLoader, isRgb } from '../../utils';
@@ -48,17 +49,17 @@ function TabPanel(props) {
 
 
 // Set the domain of the sliders based on either a full range or min/max.
-async function getDomainsAndSliders(loader, loaderSelection, domainType) {
+async function getDomainsAndSliders(loader, loaderSelection, domainType, use3d) {
   let domains;
-  const source = getSourceFromLoader(loader);
-  const raster = await Promise.all(
-    loaderSelection.map(selection => source.getRaster({ selection })),
-  );
-  const stats = raster.map(({ data: d }) => getChannelStats(d));
-  const sliders = stats.map(stat => stat.autoSliders);
+  const stats = await getMultiSelectionStats({
+    loader: loader.data, selections: loaderSelection, use3d,
+  });
+  const { sliders } = stats;
   if (domainType === 'Min/Max') {
-    domains = stats.map(stat => stat.domain);
+    // eslint-disable-next-line prefer-destructuring
+    domains = stats.domains;
   } if (domainType === 'Full') {
+    const source = getSourceFromLoader(loader);
     domains = loaderSelection.map(() => DOMAINS[source.dtype]);
   }
   return { domains, sliders };
@@ -95,7 +96,7 @@ export default function LayerController(props) {
     ySlice,
     zSlice,
     resolution,
-    use3D,
+    use3d,
     useFixedAxis,
   } = layer;
   const firstSelection = channels[0]?.selection || {};
@@ -188,7 +189,7 @@ export default function LayerController(props) {
         ? (globalLabelValues[label] || 0)
         : 0;
     });
-    const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType);
+    const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType, use3d);
     const domain = domains[0];
     const slider = sliders[0] || domain;
     const color = [255, 255, 255];
@@ -326,6 +327,7 @@ export default function LayerController(props) {
             handleIQRUpdate={handleIQRUpdate}
             setRasterLayerCallback={setRasterLayerCallback}
             isLoading={areLayerChannelsLoading[channelId]}
+            use3d={use3d}
           />
         );
       },
@@ -370,7 +372,7 @@ export default function LayerController(props) {
             </Button>
             {name}
           </OverflowEllipsisGrid>
-          {!disabled && !isExpanded && !use3D && (
+          {!disabled && !isExpanded && !use3d && (
             <Grid container direction="row" alignItems="center" justify="center">
               <Grid item xs={6}>
                 <StyledInputLabel htmlFor={`layer-${name}-opacity-closed`}>Opacity:</StyledInputLabel>
@@ -441,7 +443,7 @@ export default function LayerController(props) {
             shouldShowTransparentColor={shouldShowTransparentColor}
             shouldShowDomain={shouldShowDomain}
             shouldShowColormap={shouldShowColormap}
-            use3D={use3D}
+            use3d={use3d}
             loader={loader}
             handleMultiPropertyChange={handleMultiPropertyChange}
             resolution={resolution}
@@ -479,7 +481,7 @@ export default function LayerController(props) {
             xSlice={xSlice}
             ySlice={ySlice}
             zSlice={zSlice}
-            use3D={use3D}
+            use3d={use3d}
             spatialHeight={spatialHeight}
             spatialWidth={spatialWidth}
           />

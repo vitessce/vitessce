@@ -109,7 +109,7 @@ export default function SpatialSubscriber(props) {
     coordinationScopes,
   );
 
-  const use3D = rasterLayers?.some(l => l.use3D);
+  const use3d = rasterLayers?.some(l => l.use3d);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -182,7 +182,7 @@ export default function SpatialSubscriber(props) {
         cells,
         imageLayerLoaders,
         useRaster: Boolean(loaders[dataset].loaders.raster),
-        use3D,
+        use3d,
       });
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);
@@ -190,7 +190,7 @@ export default function SpatialSubscriber(props) {
       setZoom(initialZoom);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom, use3D]);
+  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom, use3d]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
