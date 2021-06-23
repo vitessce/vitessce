@@ -137,8 +137,9 @@ function VolumeDropdown({
         { height: spatialHeight, width: spatialWidth }, 0.1, false);
       setViewState({
         ...defaultViewState,
-        rotationX: 0,
-        rotationOrbit: 0,
+        rotationX: null,
+        rotationOrbit: null,
+        orbitAxis: null,
       });
     }
   };
