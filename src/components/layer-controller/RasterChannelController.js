@@ -117,6 +117,7 @@ function RasterChannelController({
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {
+    let mounted = true;
     if (dtype && loader && channels) {
       const loaderSelection = [{ ...channels[channelId].selection }];
       let domains;
@@ -124,16 +125,17 @@ function RasterChannelController({
       const has3dChanged = use3d !== newUse3d;
       const hasSelectionChanged = !isEqual(loaderSelection, selection);
       if (hasDomainChanged || hasSelectionChanged || has3dChanged) {
-        setUse3d(newUse3d);
         if (newDomainType === 'Full') {
           domains = [DOMAINS[dtype]];
           const [newDomain] = domains;
-          setDomain(newDomain);
-          setDomainType(newDomainType);
-          if (hasSelectionChanged) {
-            setSelection(loaderSelection);
-          } if (has3dChanged) {
-            setUse3d(newUse3d);
+          if (mounted) {
+            setDomain(newDomain);
+            setDomainType(newDomainType);
+            if (hasSelectionChanged) {
+              setSelection(loaderSelection);
+            } if (has3dChanged) {
+              setUse3d(newUse3d);
+            }
           }
         } else {
           getMultiSelectionStats({
@@ -144,17 +146,20 @@ function RasterChannelController({
             // eslint-disable-next-line prefer-destructuring
             domains = stats.domains;
             const [newDomain] = domains;
-            setDomain(newDomain);
-            setDomainType(newDomainType);
-            if (hasSelectionChanged) {
-              setSelection(loaderSelection);
-            } if (has3dChanged) {
-              setUse3d(newUse3d);
+            if (mounted) {
+              setDomain(newDomain);
+              setDomainType(newDomainType);
+              if (hasSelectionChanged) {
+                setSelection(loaderSelection);
+              } if (has3dChanged) {
+                setUse3d(newUse3d);
+              }
             }
           });
         }
       }
     }
+    return () => { mounted = false; console.log('here'); }; // eslint-disable-line
   }, [domainType, channels, channelId, loader, dtype, newDomainType, selection, newUse3d, use3d]);
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
