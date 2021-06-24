@@ -2,6 +2,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import InputLabel from '@material-ui/core/InputLabel';
+import Slider from '@material-ui/core/Slider';
 import Grid from '@material-ui/core/Grid';
 
 
@@ -79,3 +80,12 @@ export const OverflowEllipsisGrid = withStyles(() => ({
     textOverflow: 'ellipsis',
   },
 }))(Grid);
+
+export const StyledSelectionSlider = withStyles(() => ({
+  root: {
+    marginTop: '7px',
+  },
+  markActive: {
+    backgroundColor: 'rgba(128, 128, 128, 0.7)',
+  },
+}))(Slider);

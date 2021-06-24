@@ -10,6 +10,7 @@ import { getDefaultInitialViewState } from '@hms-dbmi/viv';
 import { getBoundingCube, getMultiSelectionStats } from './utils';
 import { COLORMAP_OPTIONS } from '../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
+import { StyledSelectionSlider } from './styles';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 
@@ -297,7 +298,7 @@ function GlobalSelectionSlider({
   possibleValues,
 }) {
   return (
-    <Slider
+    <StyledSelectionSlider
       value={value}
       // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
       // we have the two handlers.
@@ -317,7 +318,6 @@ function GlobalSelectionSlider({
       min={Number(possibleValues[0])}
       max={Number(possibleValues.slice(-1))}
       orientation="horizontal"
-      style={{ marginTop: '7px' }}
       step={null}
     />
   );
