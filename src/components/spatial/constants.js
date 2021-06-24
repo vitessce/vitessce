@@ -12,7 +12,6 @@ export const DEFAULT_RASTER_LAYER_PROPS = {
   transparentColor: [0, 0, 0],
   renderingMode: RENDERING_MODES.ADDITIVE,
   use3d: false,
-  useFixedAxis: false,
 };
 
 export const DEFAULT_MOLECULES_LAYER = {

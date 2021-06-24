@@ -51,6 +51,7 @@
               "spatialRotationZ": { "type": "string" },
               "spatialRotationOrbit": { "type": "string" },
               "spatialOrbitAxis": { "type": "string" },
+              "useFixedAxis": { "type": "string" },
               "heatmapZoomX": { "type": "string" },
               "heatmapZoomY": { "type": "string" },
               "heatmapTargetX": { "type": "string" },
@@ -347,9 +348,6 @@
         },
         "use3d": {
           "type": "boolean"
-        },
-        "useFixedAxis": {
-         "type": "boolean"
         },
         "visible": {
           "type": "boolean",
@@ -666,6 +664,20 @@
                   "description": "If null is provided, value will be automatically set. Only useful for 3D viewing."
                 },
                 { "type": "string" }
+              ]
+            }
+          }
+        },
+        "useFixedAxis": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "Whether or not to have a fixed axis for the camera. Only useful for 3D viewing."
+                },
+                { "type": "boolean" }
               ]
             }
           }

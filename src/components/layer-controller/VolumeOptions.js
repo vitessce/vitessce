@@ -1,6 +1,4 @@
 import React from 'react';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
@@ -8,7 +6,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Slider from '@material-ui/core/Slider';
-import { RENDERING_MODES, getDefaultInitialViewState } from '@hms-dbmi/viv';
+import { RENDERING_MODES } from '@hms-dbmi/viv';
 import { abbreviateNumber, getBoundingCube } from './utils';
 
 const useSlicerStyles = makeStyles(theme => createStyles({
@@ -137,93 +135,15 @@ function RenderingModeSelect({
   );
 }
 
-const useCameraStyles = makeStyles(theme => createStyles({
-  enabled: {
-    marginLeft: '4px',
-  },
-  disabled: {
-    color: theme.palette.text.disabled,
-    marginLeft: '4px',
-  },
-}));
-
-const CameraOptions = ({
-  hanldeFixedAxisChange,
-  setViewState,
-  useFixedAxis,
-  use3d,
-  spatialHeight,
-  spatialWidth,
-  loader,
-}) => {
-  const classes = useCameraStyles();
-  const ToggleFixedAxisButton = (
-    <Grid item xs="auto" key="toggle-fixed-axis">
-      <Grid container direction="row">
-        <Checkbox
-          onClick={() => hanldeFixedAxisChange(!useFixedAxis)}
-          style={{ padding: 0 }}
-          disabled={!use3d}
-          checked={Boolean(useFixedAxis)}
-        />
-        <Typography
-          className={!use3d ? classes.disabled : classes.enabled}
-          style={{ marginBottom: 0 }}
-        >
-          Fix Camera Axis
-        </Typography>
-      </Grid>
-    </Grid>
-  );
-  const ReCenterButton = (
-    <Grid item xs="auto" key="recenter">
-      <Button
-        onClick={() => {
-          const defaultViewState = getDefaultInitialViewState(loader.data,
-            { height: spatialHeight, width: spatialWidth }, 1.5, use3d);
-          setViewState({
-            ...defaultViewState,
-            rotationX: 0,
-            rotationOrbit: 0,
-          });
-        }
-        }
-        disabled={!use3d}
-        style={{
-          padding: 0,
-          marginBottom: 6,
-        }}
-      >
-        Re-Center
-      </Button>
-    </Grid>
-  );
-  return (
-    <Grid
-      container
-      direction="row"
-      justify="space-between"
-      alignItems="center"
-    >
-      {[ToggleFixedAxisButton, ReCenterButton]}
-    </Grid>
-  );
-};
-
 const VolumeOptions = ({
   handleSlicerSetting,
-  hanldeFixedAxisChange,
-  setViewState,
   handleRenderingModeChange,
   renderingMode,
-  useFixedAxis,
   xSlice,
   ySlice,
   zSlice,
   use3d,
   loader,
-  spatialHeight,
-  spatialWidth,
 }) => (
   <>
     <RenderingModeSelect
@@ -238,15 +158,6 @@ const VolumeOptions = ({
       handleSlicerSetting={handleSlicerSetting}
       use3d={use3d}
       loader={loader}
-    />
-    <CameraOptions
-      hanldeFixedAxisChange={hanldeFixedAxisChange}
-      setViewState={setViewState}
-      useFixedAxis={useFixedAxis}
-      use3d={use3d}
-      loader={loader}
-      spatialHeight={spatialHeight}
-      spatialWidth={spatialWidth}
     />
   </>
 );

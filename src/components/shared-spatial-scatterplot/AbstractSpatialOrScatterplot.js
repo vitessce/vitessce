@@ -37,12 +37,14 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * @param {object} params.viewState The next deck.gl viewState.
    */
   onViewStateChange({ viewState: nextViewState }) {
-    const { setViewState, viewState, layers } = this.props;
-    const useFixedAxis = layers?.some(l => l.useFixedAxis);
+    const {
+      setViewState, viewState, layers, useFixedAxis,
+    } = this.props;
+    const use3d = layers?.some(l => l.use3d);
     setViewState({
       ...nextViewState,
       // If the axis is fixed, just use the current target in state i.e don't change target.
-      target: useFixedAxis ? viewState.target : nextViewState.target,
+      target: useFixedAxis && use3d ? viewState.target : nextViewState.target,
     });
   }
 

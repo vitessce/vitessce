@@ -97,7 +97,6 @@ export default function LayerController(props) {
     zSlice,
     resolution,
     use3d,
-    useFixedAxis,
   } = layer;
   const firstSelection = channels[0]?.selection || {};
 
@@ -152,10 +151,6 @@ export default function LayerController(props) {
       channels: newChannels,
       domainType: newDomainType,
     });
-  }
-
-  function setUseFixedAxis(val) {
-    handleLayerChange({ ...layer, useFixedAxis: val });
   }
 
   function setChannel(v, i) {
@@ -476,17 +471,12 @@ export default function LayerController(props) {
           <VolumeOptions
             loader={loader}
             handleSlicerSetting={handleSlicerSetting}
-            hanldeFixedAxisChange={setUseFixedAxis}
-            setViewState={setViewState}
             handleRenderingModeChange={setRenderingMode}
             renderingMode={renderingMode}
-            useFixedAxis={useFixedAxis}
             xSlice={xSlice}
             ySlice={ySlice}
             zSlice={zSlice}
             use3d={use3d}
-            spatialHeight={spatialHeight}
-            spatialWidth={spatialWidth}
           />
         </TabPanel>
         <Button

@@ -81,6 +81,7 @@ export default function SpatialSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
+    useFixedAxis,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -100,6 +101,7 @@ export default function SpatialSubscriber(props) {
     setCellColorEncoding,
     setAdditionalCellSets,
     setMoleculeHighlight,
+    setUseFixedAxis,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [
@@ -231,6 +233,22 @@ export default function SpatialSubscriber(props) {
     return null;
   };
 
+  const setViewState = ({
+    zoom: newZoom,
+    target,
+    rotationX: newRotationX,
+    rotationOrbit: newRotationOrbit,
+    orbitAxis: newOrbitAxis,
+  }) => {
+    setZoom(newZoom);
+    setTargetX(target[0]);
+    setTargetY(target[1]);
+    setTargetZ(target[2]);
+    setRotationX(newRotationX);
+    setRotationOrbit(newRotationOrbit);
+    setOrbitAxis(newOrbitAxis);
+  };
+
   const subtitle = makeSpatialSubtitle({
     observationsCount: cellsCount,
     observationsLabel,
@@ -254,6 +272,13 @@ export default function SpatialSubscriber(props) {
           observationsLabel={observationsLabel}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
+          setUseFixedAxis={setUseFixedAxis}
+          setViewState={setViewState}
+          useFixedAxis={useFixedAxis}
+          use3d={use3d}
+          height={height}
+          width={width}
+          loader={imageLayerLoaders[rasterLayers?.findIndex(l => l.use3d)]}
         />
       )}
     >
@@ -271,21 +296,7 @@ export default function SpatialSubscriber(props) {
           rotationOrbit,
           orbitAxis,
         }}
-        setViewState={({
-          zoom: newZoom,
-          target,
-          rotationX: newRotationX,
-          rotationOrbit: newRotationOrbit,
-          orbitAxis: newOrbitAxis,
-        }) => {
-          setZoom(newZoom);
-          setTargetX(target[0]);
-          setTargetY(target[1]);
-          setTargetZ(target[2]);
-          setRotationX(newRotationX);
-          setRotationOrbit(newRotationOrbit);
-          setOrbitAxis(newOrbitAxis);
-        }}
+        setViewState={setViewState}
         layers={layers}
         cells={cells}
         cellFilter={cellFilter}
@@ -304,6 +315,7 @@ export default function SpatialSubscriber(props) {
         }}
         updateViewInfo={setComponentViewInfo}
         rasterLayersCallbacks={rasterLayersCallbacks}
+        useFixedAxis={useFixedAxis}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber
