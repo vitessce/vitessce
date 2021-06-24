@@ -125,7 +125,10 @@ export async function initializeLayerChannels(loader, use3d) {
     const slider = sliders[i];
     const channel = {
       selection,
-      color: colors ? colors[i] : VIEWER_PALETTE[i],
+      // eslint-disable-next-line no-nested-ternary
+      color: colors ? colors[i]
+        : defaultSelection.length !== 1
+          ? VIEWER_PALETTE[i] : [255, 255, 255],
       visible: true,
       slider: slider || domain,
     };
