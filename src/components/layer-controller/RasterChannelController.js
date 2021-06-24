@@ -161,7 +161,7 @@ function RasterChannelController({
         }
       }
     }
-    return () => { mounted = false; console.log('here'); }; // eslint-disable-line
+    return () => { mounted = false; };
   }, [domainType, channels, channelId, loader, dtype, newDomainType, selection, newUse3d, use3d]);
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
