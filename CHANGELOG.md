@@ -3,6 +3,7 @@
 ### Added
 
 - Global visibility button next to name in layer controller.
+- Global visbiility prop per layer in `spatialRasterLayers`.
 - Add indication to Y axis title of cell set expression violin plot when log-transformation is active.
 
 ### Changed

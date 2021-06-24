@@ -79,10 +79,7 @@ export default function LayerController(props) {
   );
 
   function setVisible(v) {
-    const newChannels = [...channels];
-    // eslint-disable-next-line no-param-reassign,no-return-assign
-    newChannels.forEach(ch => (ch.visible = v));
-    handleLayerChange({ ...layer, channels: newChannels });
+    handleLayerChange({ ...layer, visible: v });
   }
 
   function setColormap(v) {
@@ -263,7 +260,7 @@ export default function LayerController(props) {
   }
 
   const controllerSectionClasses = useControllerSectionStyles();
-  const visible = channels.some(ch => ch.visible);
+  const { visible } = layer;
   const Visibility = visible ? VisibilityIcon : VisibilityOffIcon;
   return (
     <ExpansionPanel
