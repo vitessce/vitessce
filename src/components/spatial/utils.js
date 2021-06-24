@@ -149,11 +149,14 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   }
   // Get the minimum physical among all the current images.
   const minPhysicalSize = sources.reduce((acc, source) => {
+    const hasZPhyscialSize = source.meta?.physicalSizes?.z?.size;
     const sizes = [
       unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
       unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
-      unit(`${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace('µ', 'u')),
     ];
+    if (hasZPhyscialSize) {
+      sizes.push(unit(`${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace('µ', 'u')));
+    }
     acc[0] = (acc[0] === undefined || compare(sizes[0], acc[0]) === -1) ? sizes[0] : acc[0];
     acc[1] = (acc[1] === undefined || compare(sizes[1], acc[1]) === -1) ? sizes[1] : acc[1];
     acc[2] = (acc[2] === undefined || compare(sizes[2], acc[2]) === -1) ? sizes[2] : acc[2];
@@ -161,15 +164,22 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   }, []);
   const imageMetaWithTransform = imageMeta.map((meta, j) => {
     const source = sources[j];
+    const hasZPhyscialSize = source.meta?.physicalSizes?.z?.size;
     const sizes = [
       unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
       unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
-      unit(`${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace('µ', 'u')),
     ];
+    if (hasZPhyscialSize) {
+      sizes.push(unit(`${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace('µ', 'u')));
+    }
     // Find the ratio of the sizes to get the scaling factor.
     const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));
+    // Add in z dimension needed for Matrix4 scale API.
+    if (!scale[2]) {
+      scale[2] = 1;
+    }
     // no need to store/use identity scaling
-    if (isEqual(scale, [1, 1])) {
+    if (isEqual(scale, [1, 1, 1])) {
       return meta;
     }
     // Make sure to scale the z direction by one.
