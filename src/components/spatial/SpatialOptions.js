@@ -1,11 +1,8 @@
 import React from 'react';
-import { Matrix4 } from 'math.gl';
 import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import { getDefaultInitialViewState } from '@hms-dbmi/viv';
 import OptionsContainer from '../shared-plot-options/OptionsContainer';
 import CellColorEncodingOption from '../shared-plot-options/CellColorEncodingOption';
 
@@ -42,41 +39,6 @@ const ToggleFixedAxisButton = ({
     </TableRow>
   );
 };
-const ReCenterButton = ({
-  setViewState,
-  height,
-  width,
-  loader,
-  use3d,
-  modelMatrix,
-}) => {
-  const classes = useStyles();
-  return (
-    <TableRow>
-      <TableCell className={classes.button}>
-        <Button
-          onClick={() => {
-            const defaultViewState = getDefaultInitialViewState(
-              loader.data,
-              { height, width },
-              1.5,
-              use3d,
-              new Matrix4(modelMatrix),
-            );
-            setViewState({
-              ...defaultViewState,
-              rotationX: 0,
-              rotationOrbit: 0,
-            });
-          }}
-          disabled={!use3d}
-        >
-          Re-Center
-        </Button>
-      </TableCell>
-    </TableRow>
-  );
-};
 
 export default function SpatialOptions(props) {
   const {
@@ -84,13 +46,8 @@ export default function SpatialOptions(props) {
     cellColorEncoding,
     setCellColorEncoding,
     setUseFixedAxis,
-    setViewState,
     useFixedAxis,
     use3d,
-    height,
-    width,
-    loader,
-    modelMatrix,
   } = props;
 
   return (
@@ -104,14 +61,6 @@ export default function SpatialOptions(props) {
         setUseFixedAxis={setUseFixedAxis}
         useFixedAxis={useFixedAxis}
         use3d={use3d}
-      />
-      <ReCenterButton
-        setViewState={setViewState}
-        use3d={use3d}
-        height={height}
-        width={width}
-        loader={loader}
-        modelMatrix={modelMatrix}
       />
     </OptionsContainer>
   );

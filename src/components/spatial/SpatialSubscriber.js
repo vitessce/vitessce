@@ -273,13 +273,8 @@ export default function SpatialSubscriber(props) {
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
           setUseFixedAxis={setUseFixedAxis}
-          setViewState={setViewState}
           useFixedAxis={useFixedAxis}
           use3d={use3d}
-          height={height}
-          width={width}
-          loader={imageLayerLoaders[rasterLayers?.findIndex(l => l.use3d)]}
-          modelMatrix={rasterLayers?.find(l => l.modelMatrix)}
         />
       )}
     >

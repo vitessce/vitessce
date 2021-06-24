@@ -479,6 +479,10 @@ export default function LayerController(props) {
             ySlice={ySlice}
             zSlice={zSlice}
             use3d={use3d}
+            setViewState={setViewState}
+            spatialHeight={spatialHeight}
+            spatialWidth={spatialWidth}
+            modelMatrix={modelMatrix}
           />
         </TabPanel>
         <Button

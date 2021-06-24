@@ -1,12 +1,14 @@
 import React from 'react';
+import { Matrix4 } from 'math.gl';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Slider from '@material-ui/core/Slider';
-import { RENDERING_MODES } from '@hms-dbmi/viv';
+import { RENDERING_MODES, getDefaultInitialViewState } from '@hms-dbmi/viv';
 import { abbreviateNumber, getBoundingCube } from './utils';
 
 const useSlicerStyles = makeStyles(theme => createStyles({
@@ -135,6 +137,42 @@ function RenderingModeSelect({
   );
 }
 
+const ReCenterButton = ({
+  setViewState,
+  use3d,
+  spatialHeight,
+  spatialWidth,
+  loader,
+  modelMatrix,
+}) => (
+  <Grid item xs="auto" key="recenter">
+    <Button
+      onClick={() => {
+        const defaultViewState = getDefaultInitialViewState(
+          loader.data,
+          { height: spatialHeight, width: spatialWidth },
+          1.5,
+          use3d,
+          new Matrix4(modelMatrix),
+        );
+        setViewState({
+          ...defaultViewState,
+          rotationX: 0,
+          rotationOrbit: 0,
+        });
+      }
+        }
+      disabled={!use3d}
+      style={{
+        padding: 0,
+        marginBottom: 6,
+      }}
+    >
+        Re-Center
+    </Button>
+  </Grid>
+);
+
 const VolumeOptions = ({
   handleSlicerSetting,
   handleRenderingModeChange,
@@ -144,6 +182,10 @@ const VolumeOptions = ({
   zSlice,
   use3d,
   loader,
+  setViewState,
+  spatialHeight,
+  spatialWidth,
+  modelMatrix,
 }) => (
   <>
     <RenderingModeSelect
@@ -158,6 +200,14 @@ const VolumeOptions = ({
       handleSlicerSetting={handleSlicerSetting}
       use3d={use3d}
       loader={loader}
+    />
+    <ReCenterButton
+      setViewState={setViewState}
+      use3d={use3d}
+      spatialHeight={spatialHeight}
+      spatialWidth={spatialWidth}
+      loader={loader}
+      modelMatrix={modelMatrix}
     />
   </>
 );
