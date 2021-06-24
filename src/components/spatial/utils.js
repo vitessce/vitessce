@@ -152,9 +152,11 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
     const sizes = [
       unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
       unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace('µ', 'u')),
     ];
     acc[0] = (acc[0] === undefined || compare(sizes[0], acc[0]) === -1) ? sizes[0] : acc[0];
     acc[1] = (acc[1] === undefined || compare(sizes[1], acc[1]) === -1) ? sizes[1] : acc[1];
+    acc[2] = (acc[2] === undefined || compare(sizes[2], acc[2]) === -1) ? sizes[2] : acc[2];
     return acc;
   }, []);
   const imageMetaWithTransform = imageMeta.map((meta, j) => {
@@ -162,6 +164,7 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
     const sizes = [
       unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
       unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace('µ', 'u')),
     ];
     // Find the ratio of the sizes to get the scaling factor.
     const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));
@@ -170,7 +173,7 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
       return meta;
     }
     // Make sure to scale the z direction by one.
-    const matrix = new Matrix4().scale([...scale, 1]);
+    const matrix = new Matrix4().scale([...scale]);
     const newMeta = { ...meta };
     newMeta.metadata = {
       ...newMeta.metadata,

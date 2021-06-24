@@ -97,6 +97,7 @@ export default function LayerController(props) {
     zSlice,
     resolution,
     use3d,
+    modelMatrix,
   } = layer;
   const firstSelection = channels[0]?.selection || {};
 
@@ -451,6 +452,7 @@ export default function LayerController(props) {
             setViewState={setViewState}
             spatialHeight={spatialHeight}
             spatialWidth={spatialWidth}
+            modelMatrix={modelMatrix}
           />
           {!isRgb(loader) ? channelControllers : null}
           {!isRgb(loader) && (

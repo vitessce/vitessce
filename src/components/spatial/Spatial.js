@@ -367,11 +367,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createImageLayers() {
     const { layers, imageLayerLoaders = {}, rasterLayersCallbacks = [] } = this.props;
     const use3d = (layers || []).some(i => i.use3d);
+    const use3dIndex = (layers || []).findIndex(i => i.use3d);
     return (layers || [])
       .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
       .filter(layer => (use3d ? layer.use3d === use3d : true))
       .map((layer, i) => this.createImageLayer(
-        { ...layer, callback: rasterLayersCallbacks[i] }, imageLayerLoaders[layer.index], i,
+        { ...layer, callback: rasterLayersCallbacks[use3d ? use3dIndex : i] },
+        imageLayerLoaders[layer.index], i,
       ));
   }
 

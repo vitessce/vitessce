@@ -1,4 +1,5 @@
 import React from 'react';
+import { Matrix4 } from 'math.gl';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import TableCell from '@material-ui/core/TableCell';
@@ -47,6 +48,7 @@ const ReCenterButton = ({
   width,
   loader,
   use3d,
+  modelMatrix,
 }) => {
   const classes = useStyles();
   return (
@@ -59,6 +61,7 @@ const ReCenterButton = ({
               { height, width },
               1.5,
               use3d,
+              new Matrix4(modelMatrix),
             );
             setViewState({
               ...defaultViewState,
@@ -87,6 +90,7 @@ export default function SpatialOptions(props) {
     height,
     width,
     loader,
+    modelMatrix,
   } = props;
 
   return (
@@ -107,6 +111,7 @@ export default function SpatialOptions(props) {
         height={height}
         width={width}
         loader={loader}
+        modelMatrix={modelMatrix}
       />
     </OptionsContainer>
   );

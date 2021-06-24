@@ -1,5 +1,6 @@
 import React from 'react';
 import range from 'lodash/range';
+import { Matrix4 } from 'math.gl';
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -76,6 +77,7 @@ function VolumeDropdown({
   spatialWidth,
   channels,
   use3d,
+  modelMatrix,
 }) {
   const selections = channels.map(i => i.selection);
   const { data: loader } = loaderWithMeta;
@@ -112,7 +114,7 @@ function VolumeDropdown({
       // Update all properties at once to avoid overriding calls.
       handleMultiPropertyChange(propertiesChanged);
       const defaultViewState = getDefaultInitialViewState(loader,
-        { height: spatialHeight, width: spatialWidth }, 1.5, true);
+        { height: spatialHeight, width: spatialWidth }, 1.5, true, new Matrix4(modelMatrix));
       setViewState({
         ...defaultViewState,
         rotationX: 0,
@@ -135,7 +137,7 @@ function VolumeDropdown({
         channels: newChannels,
       });
       const defaultViewState = getDefaultInitialViewState(loader,
-        { height: spatialHeight, width: spatialWidth }, 0.1, false);
+        { height: spatialHeight, width: spatialWidth }, 0.1, false, new Matrix4(modelMatrix));
       setViewState({
         ...defaultViewState,
         rotationX: null,
@@ -385,6 +387,7 @@ function LayerOptions({
   setViewState,
   spatialHeight,
   spatialWidth,
+  modelMatrix,
 }) {
   const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
@@ -405,6 +408,7 @@ function LayerOptions({
           spatialHeight={spatialHeight}
           spatialWidth={spatialWidth}
           use3d={use3d}
+          modelMatrix={modelMatrix}
         />
       }
       {hasDimensionsAndChannels

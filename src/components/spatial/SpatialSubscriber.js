@@ -279,6 +279,7 @@ export default function SpatialSubscriber(props) {
           height={height}
           width={width}
           loader={imageLayerLoaders[rasterLayers?.findIndex(l => l.use3d)]}
+          modelMatrix={rasterLayers?.find(l => l.modelMatrix)}
         />
       )}
     >
