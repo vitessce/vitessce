@@ -417,6 +417,9 @@ export const initializedViewConfig = {
     spatialZoom: {
       A: -4.4,
     },
+    spatialAxisFixed: {
+      A: true,
+    },
     additionalCellSets: {
       A: null,
     },
@@ -529,6 +532,7 @@ export const initializedViewConfig = {
         spatialTargetX: 'A',
         spatialTargetY: 'A',
         spatialTargetZ: 'A',
+        spatialAxisFixed: 'A',
         spatialZoom: 'A',
         additionalCellSets: 'A',
         moleculeHighlight: 'A',
