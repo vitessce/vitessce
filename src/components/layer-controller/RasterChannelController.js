@@ -117,6 +117,8 @@ function RasterChannelController({
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {
+    // Use mounted to prevent state updates/re-renders after the component has been unmounted.
+    // All state updates should happen within the mounted check.
     let mounted = true;
     if (dtype && loader && channels) {
       const loaderSelection = [{ ...channels[channelId].selection }];
