@@ -3,6 +3,7 @@ export const GLOBAL_LABELS = ['z', 't'];
 export const DEFAULT_RASTER_DOMAIN_TYPE = 'Min/Max';
 
 export const DEFAULT_RASTER_LAYER_PROPS = {
+  visible: true,
   colormap: null,
   opacity: 1,
   domainType: DEFAULT_RASTER_DOMAIN_TYPE,

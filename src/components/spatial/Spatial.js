@@ -291,7 +291,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       transparentColor: layerDef.transparentColor,
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
-      visibilities: layerDef.channels.map(c => c.visible),
+      visibilities: layerDef.channels.map(
+        c => (!layerDef.visible && typeof layerDef.visible === 'boolean' ? false : c.visible),
+      ),
     };
 
     if (!loader || !layerProps) return null;
