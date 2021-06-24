@@ -51,7 +51,7 @@
               "spatialRotationZ": { "type": "string" },
               "spatialRotationOrbit": { "type": "string" },
               "spatialOrbitAxis": { "type": "string" },
-              "useFixedAxis": { "type": "string" },
+              "spatialAxisFixed": { "type": "string" },
               "heatmapZoomX": { "type": "string" },
               "heatmapZoomY": { "type": "string" },
               "heatmapTargetX": { "type": "string" },
@@ -668,7 +668,7 @@
             }
           }
         },
-        "useFixedAxis": {
+        "spatialAxisFixed": {
           "type": "object",
           "patternProperties": {
             ".": {

@@ -81,7 +81,7 @@ export default function SpatialSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
-    useFixedAxis,
+    spatialAxisFixed,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -101,7 +101,7 @@ export default function SpatialSubscriber(props) {
     setCellColorEncoding,
     setAdditionalCellSets,
     setMoleculeHighlight,
-    setUseFixedAxis,
+    setSpatialAxisFixed,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [
@@ -272,8 +272,8 @@ export default function SpatialSubscriber(props) {
           observationsLabel={observationsLabel}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
-          setUseFixedAxis={setUseFixedAxis}
-          useFixedAxis={useFixedAxis}
+          setSpatialAxisFixed={setSpatialAxisFixed}
+          spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
         />
       )}
@@ -311,7 +311,7 @@ export default function SpatialSubscriber(props) {
         }}
         updateViewInfo={setComponentViewInfo}
         rasterLayersCallbacks={rasterLayersCallbacks}
-        useFixedAxis={useFixedAxis}
+        spatialAxisFixed={spatialAxisFixed}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber

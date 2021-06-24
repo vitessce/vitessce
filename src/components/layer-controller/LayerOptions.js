@@ -133,7 +133,7 @@ function VolumeDropdown({
       handleMultiPropertyChange({
         resolution: val,
         use3d: shouldUse3D,
-        useFixedAxis: false,
+        spatialAxisFixed: false,
         channels: newChannels,
       });
       const defaultViewState = getDefaultInitialViewState(loader,

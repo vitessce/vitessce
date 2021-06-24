@@ -38,13 +38,13 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    */
   onViewStateChange({ viewState: nextViewState }) {
     const {
-      setViewState, viewState, layers, useFixedAxis,
+      setViewState, viewState, layers, spatialAxisFixed,
     } = this.props;
     const use3d = layers?.some(l => l.use3d);
     setViewState({
       ...nextViewState,
       // If the axis is fixed, just use the current target in state i.e don't change target.
-      target: useFixedAxis && use3d ? viewState.target : nextViewState.target,
+      target: spatialAxisFixed && use3d ? viewState.target : nextViewState.target,
     });
   }
 

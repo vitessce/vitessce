@@ -19,8 +19,8 @@ const useStyles = makeStyles(() => createStyles({
 }));
 
 const ToggleFixedAxisButton = ({
-  setUseFixedAxis,
-  useFixedAxis,
+  setSpatialAxisFixed,
+  spatialAxisFixed,
   use3d,
 }) => {
   const classes = useStyles();
@@ -31,9 +31,9 @@ const ToggleFixedAxisButton = ({
       </TableCell>
       <TableCell className={classes.box}>
         <Checkbox
-          onClick={() => setUseFixedAxis(!useFixedAxis)}
+          onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
           disabled={!use3d}
-          checked={Boolean(useFixedAxis)}
+          checked={Boolean(spatialAxisFixed)}
         />
       </TableCell>
     </TableRow>
@@ -45,8 +45,8 @@ export default function SpatialOptions(props) {
     observationsLabel,
     cellColorEncoding,
     setCellColorEncoding,
-    setUseFixedAxis,
-    useFixedAxis,
+    setSpatialAxisFixed,
+    spatialAxisFixed,
     use3d,
   } = props;
 
@@ -58,8 +58,8 @@ export default function SpatialOptions(props) {
         setCellColorEncoding={setCellColorEncoding}
       />
       <ToggleFixedAxisButton
-        setUseFixedAxis={setUseFixedAxis}
-        useFixedAxis={useFixedAxis}
+        setSpatialAxisFixed={setSpatialAxisFixed}
+        spatialAxisFixed={spatialAxisFixed}
         use3d={use3d}
       />
     </OptionsContainer>
