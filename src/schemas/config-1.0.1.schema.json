@@ -350,6 +350,10 @@
         },
         "useFixedAxis": {
          "type": "boolean"
+        },
+        "visible": {
+          "type": "boolean",
+          "description": "Determines whether this entire layer will be rendered in the spatial component."
         }
       }
     },

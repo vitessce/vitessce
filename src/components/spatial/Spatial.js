@@ -292,13 +292,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
       transparentColor: layerDef.transparentColor,
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
-      visibilities: layerDef.channels.map(c => c.visible),
       resolution: layerDef.resolution,
       renderingMode: layerDef.renderingMode,
       xSlice: layerDef.xSlice,
       ySlice: layerDef.ySlice,
       zSlice: layerDef.zSlice,
       callback: layerDef.callback,
+      visibilities: layerDef.channels.map(
+        c => (!layerDef.visible && typeof layerDef.visible === 'boolean' ? false : c.visible),
+      ),
     };
 
     if (!loader || !layerProps) return null;

@@ -7,6 +7,7 @@
     - Add new coordination types `spatialRotationX` `spatialRotationY` `spatialRotationZ` `spatialRotationOrbit` `spatialOrbitAxis` and update `spatialRasterLayers` with new parts
     - Add spatial view state coordination types to `LayerController`
     - Update UI for `LayerController`
+- Global visbiility prop per layer in `spatialRasterLayers`.
 - Add indication to Y axis title of cell set expression violin plot when log-transformation is active.
 
 ### Changed
