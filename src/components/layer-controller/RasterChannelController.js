@@ -204,16 +204,14 @@ function RasterChannelController({
           />
         </Grid>
         <Grid item xs={9}>
-          {domain && (
-            <ChannelSlider
-              color={rgbColor}
-              slider={slider}
-              domain={domain}
-              dtype={dtype}
-              handleChange={v => handlePropertyChange('slider', v)}
-              disabled={isLoading}
-            />
-          )}
+          <ChannelSlider
+            color={rgbColor}
+            slider={slider}
+            domain={domain || DOMAINS[dtype]}
+            dtype={dtype}
+            handleChange={v => handlePropertyChange('slider', v)}
+            disabled={isLoading}
+          />
         </Grid>
       </Grid>
     </Grid>

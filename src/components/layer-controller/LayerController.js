@@ -184,12 +184,24 @@ export default function LayerController(props) {
     });
     const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType, use3d);
     const domain = domains[0];
-    const slider = sliders[0] || domain;
+    const slider = domain;
     const color = [255, 255, 255];
     const visible = true;
-    addChannel({
+    const newChannelId = channels.length;
+    const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
+    newAreLayerChannelsLoading[newChannelId] = true;
+    setAreLayerChannelsLoading(newAreLayerChannelsLoading);
+    const channel = {
       selection, slider, visible, color,
+    };
+    setRasterLayerCallback(() => {
+      setChannel({ ...channel, slider: sliders[0] }, newChannelId);
+      const areLayerChannelsLoadingCallback = [...newAreLayerChannelsLoading];
+      areLayerChannelsLoadingCallback[newChannelId] = false;
+      setAreLayerChannelsLoading(areLayerChannelsLoadingCallback);
+      setRasterLayerCallback(null);
     });
+    addChannel(channel);
   };
 
   const handleDomainChange = async (value) => {
