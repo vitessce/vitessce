@@ -418,7 +418,7 @@ export const initializedViewConfig = {
       A: -4.4,
     },
     spatialAxisFixed: {
-      A: true,
+      A: false,
     },
     additionalCellSets: {
       A: null,
