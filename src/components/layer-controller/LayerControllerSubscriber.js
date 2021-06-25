@@ -135,7 +135,7 @@ const LayerControllerMemoized = React.memo(
                     // Disable 3D if given explicit instructions to do so
                     // or if another layer is using 3D mode.
                     disable3d={
-                      (disable3d || {})[layer.name]
+                      (disable3d || []).indexOf(layerMeta.name) >= 0
                       || (typeof layerIs3DIndex === 'number'
                         && layerIs3DIndex !== -1
                         && layerIs3DIndex !== i)
