@@ -1,5 +1,4 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { getChannelStats } from '@hms-dbmi/viv';
 
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
@@ -9,6 +8,7 @@ import isEqual from 'lodash/isEqual';
 import ChannelOptions from './ChannelOptions';
 import { DOMAINS } from './constants';
 import { getSourceFromLoader } from '../../utils';
+import { getMultiSelectionStats } from './utils';
 import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls';
 
 // Returns an rgb string for display, and changes the color (arr)
@@ -52,7 +52,7 @@ function abbreviateNumber(value) {
  * @prop {array} domain Current max/min allowable slider values.
  */
 function ChannelSlider({
-  color, slider = [0, 0], handleChange, domain = [0, 0], dtype,
+  color, slider = [0, 0], handleChange, domain = [0, 0], dtype, disabled,
 }) {
   const [min, max] = domain;
   const handleChangeDebounced = useCallback(
@@ -71,6 +71,7 @@ function ChannelSlider({
       step={step}
       orientation="horizontal"
       style={{ color, marginTop: '7px' }}
+      disabled={disabled}
     />
   );
 }
@@ -88,7 +89,6 @@ function ChannelSlider({
  * @prop {function} handleChannelRemove When a channel is removed, this is called.
  * @prop {function} handleIQRUpdate When the IQR button is clicked, this is called.
  * @prop {number} selectionIndex The current numeric index of the selection.
- * @prop {boolean} disableOptions Whether or not channel options are be disabled (default: false).
  */
 function RasterChannelController({
   visibility = false,
@@ -106,24 +106,27 @@ function RasterChannelController({
   handleChannelRemove,
   handleIQRUpdate,
   selectionIndex,
-  disableOptions = false,
+  isLoading,
+  use3d: newUse3d,
 }) {
   const { dtype } = getSourceFromLoader(loader);
   const [domain, setDomain] = useState(null);
   const [domainType, setDomainType] = useState(null);
+  const [use3d, setUse3d] = useState(null);
   const [selection, setSelection] = useState([{ ...channels[channelId].selection }]);
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {
+    // Use mounted to prevent state updates/re-renders after the component has been unmounted.
+    // All state updates should happen within the mounted check.
     let mounted = true;
     if (dtype && loader && channels) {
-      const loaderSelection = [
-        { ...channels[channelId].selection },
-      ];
+      const loaderSelection = [{ ...channels[channelId].selection }];
       let domains;
       const hasDomainChanged = newDomainType !== domainType;
+      const has3dChanged = use3d !== newUse3d;
       const hasSelectionChanged = !isEqual(loaderSelection, selection);
-      if (hasDomainChanged || hasSelectionChanged) {
+      if (hasDomainChanged || hasSelectionChanged || has3dChanged) {
         if (newDomainType === 'Full') {
           domains = [DOMAINS[dtype]];
           const [newDomain] = domains;
@@ -132,21 +135,26 @@ function RasterChannelController({
             setDomainType(newDomainType);
             if (hasSelectionChanged) {
               setSelection(loaderSelection);
+            } if (has3dChanged) {
+              setUse3d(newUse3d);
             }
           }
         } else {
-          const source = getSourceFromLoader(loader);
-          Promise.all(
-            loaderSelection.map(sel => source.getRaster({ selection: sel })),
-          ).then((raster) => {
-            const stats = raster.map(({ data: d }) => getChannelStats(d));
-            domains = stats.map(stat => stat.domain);
+          getMultiSelectionStats({
+            loader: loader.data,
+            selections: loaderSelection,
+            use3d: newUse3d,
+          }).then((stats) => {
+            // eslint-disable-next-line prefer-destructuring
+            domains = stats.domains;
             const [newDomain] = domains;
             if (mounted) {
               setDomain(newDomain);
               setDomainType(newDomainType);
               if (hasSelectionChanged) {
                 setSelection(loaderSelection);
+              } if (has3dChanged) {
+                setUse3d(newUse3d);
               }
             }
           });
@@ -154,8 +162,7 @@ function RasterChannelController({
       }
     }
     return () => { mounted = false; };
-  }, [domainType, channels, channelId, loader, dtype, newDomainType, selection]);
-
+  }, [domainType, channels, channelId, loader, dtype, newDomainType, selection, newUse3d, use3d]);
   /* A valid selection is defined by an object where the keys are
   *  the name of a dimension of the data, and the values are the
   *  index of the image along that particular dimension.
@@ -174,8 +181,8 @@ function RasterChannelController({
           <ChannelSelectionDropdown
             handleChange={v => handlePropertyChange('selection', createSelection(v))}
             selectionIndex={selectionIndex}
-            disableOptions={disableOptions}
             channelOptions={channelOptions}
+            disabled={isLoading}
           />
         </Grid>
         <Grid item xs={1} style={{ marginTop: '4px' }}>
@@ -183,6 +190,7 @@ function RasterChannelController({
             handlePropertyChange={handlePropertyChange}
             handleChannelRemove={handleChannelRemove}
             handleIQRUpdate={handleIQRUpdate}
+            disabled={isLoading}
           />
         </Grid>
       </Grid>
@@ -192,18 +200,18 @@ function RasterChannelController({
             color={rgbColor}
             checked={visibility}
             toggle={() => handlePropertyChange('visible', !visibility)}
+            disabled={isLoading}
           />
         </Grid>
         <Grid item xs={9}>
-          {domain && (
-            <ChannelSlider
-              color={rgbColor}
-              slider={slider}
-              domain={domain}
-              dtype={dtype}
-              handleChange={v => handlePropertyChange('slider', v)}
-            />
-          )}
+          <ChannelSlider
+            color={rgbColor}
+            slider={slider}
+            domain={domain || DOMAINS[dtype]}
+            dtype={dtype}
+            handleChange={v => handlePropertyChange('slider', v)}
+            disabled={isLoading}
+          />
         </Grid>
       </Grid>
     </Grid>

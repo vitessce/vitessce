@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import shallow from 'zustand/shallow';
 import { fromEntries, capitalize } from '../../utils';
@@ -59,6 +59,42 @@ export const useViewConfigStore = create(set => ({
       },
     };
   }),
+}));
+
+/**
+ * Hook for getting components' layout from the view config based on
+ * matching all coordination scopes.
+ * @returns {Object} The components' layout.
+ */
+export const useComponentLayout = (component, scopes, coordinationScopes) => useViewConfigStore(
+  state => state.viewConfig.layout.filter(l => l.component === component).filter(
+    l => scopes.every(scope => l.coordinationScopes[scope]
+          === coordinationScopes[scope]),
+  ),
+);
+
+/**
+ * The useAuxiliaryStore hook is initialized via the zustand
+ * create() function, which sets up both the state variables
+ * and the reducer-type functions.
+ * Reference: https://github.com/react-spring/zustand
+ * It is meant to be used for non-viewconfig-based coordination between components.
+ * For example, as currently happens, the layer controller can coordinate
+ * on-load callbacks with spatial view based on whether or not they are
+ * coordinated via `spatialRasterLayers` - the callbacks are not part of the view config
+ * though so they live here.
+ * @returns {function} The useStore hook.
+ */
+export const useAuxiliaryStore = create(set => ({
+  auxiliaryStore: null,
+  setCoordinationValue: ({ parameter, scope, value }) => set(state => ({
+    auxiliaryStore: {
+      ...state.auxiliaryStore,
+      [parameter]: {
+        [scope]: value,
+      },
+    },
+  })),
 }));
 
 /**
@@ -149,7 +185,7 @@ export function useCoordination(parameters, coordinationScopes) {
     }));
   }, shallow);
 
-  const setters = fromEntries(parameters.map((parameter) => {
+  const setters = useMemo(() => fromEntries(parameters.map((parameter) => {
     const setterName = `set${capitalize(parameter)}`;
     const setterFunc = value => setCoordinationValue({
       parameter,
@@ -157,7 +193,78 @@ export function useCoordination(parameters, coordinationScopes) {
       value,
     });
     return [setterName, setterFunc];
-  }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  })), [parameters, coordinationScopes]);
+
+  return [values, setters];
+}
+
+const AUXILIARY_COORDINATION_TYPES_MAP = {
+  spatialRasterLayers: ['rasterLayersCallbacks', 'areLoadingRasterChannnels'],
+};
+
+/**
+ * The maps the coordination types of incoming scopes to new types
+ * for the auxiliary store.
+ * @param {object} coordinationScopes Mapping of coordination types
+ * to scope names.
+ * @returns {object} Mapping of coordination types
+ * to new scope names for the auxiliary store.
+ */
+const mapCoordinationScopes = (coordinationScopes) => {
+  const newCoordinationScopes = {};
+  Object.keys(coordinationScopes).forEach((key) => {
+    const newCoordinationTypes = AUXILIARY_COORDINATION_TYPES_MAP[key] || [];
+    newCoordinationTypes.forEach((coordinationType) => {
+      newCoordinationScopes[coordinationType || key] = coordinationScopes[key];
+    });
+  });
+  return newCoordinationScopes;
+};
+
+const mapParameters = parameters => parameters
+  .map(parameter => AUXILIARY_COORDINATION_TYPES_MAP[parameter]).filter(Boolean).flat();
+
+/**
+ * The useAuxiliaryCoordination hook returns both the
+ * values and setter functions for the auxiliary coordination objects
+ * in a particular coordination scope mapping.
+ * This hook is intended to be used within the ___Subscriber
+ * components to allow them to "hook into" only those auxiliary coordination
+ * objects and setter functions of relevance, for example "on load" callbacks.
+ * @param {string[]} parameters Array of coordination types.
+ * @param {object} coordinationScopes Mapping of coordination types
+ * to scope names.
+ * @returns {array} Returns a tuple [values, setters]
+ * where values is an object containing all coordination values,
+ * and setters is an object containing all coordination setter
+ * functions for the values in `values`, named with a "set"
+ * prefix.
+ */
+export function useAuxiliaryCoordination(parameters, coordinationScopes) {
+  const setCoordinationValue = useAuxiliaryStore(state => state.setCoordinationValue);
+  const mappedCoordinationScopes = mapCoordinationScopes(coordinationScopes);
+  const mappedParameters = mapParameters(parameters);
+  const values = useAuxiliaryStore((state) => {
+    const { auxiliaryStore } = state;
+    return fromEntries(mappedParameters.map((parameter) => {
+      if (auxiliaryStore && auxiliaryStore[parameter]) {
+        const value = auxiliaryStore[parameter][mappedCoordinationScopes[parameter]];
+        return [parameter, value];
+      }
+      return [parameter, undefined];
+    }));
+  }, shallow);
+  const setters = useMemo(() => fromEntries(mappedParameters.map((parameter) => {
+    const setterName = `set${capitalize(parameter)}`;
+    const setterFunc = value => setCoordinationValue({
+      parameter,
+      scope: mappedCoordinationScopes[parameter],
+      value,
+    });
+    return [setterName, setterFunc];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  })), [parameters, coordinationScopes]);
 
   return [values, setters];
 }
