@@ -383,6 +383,7 @@ export function getInitialSpatialTargets({
     }
     initialTargetX = xExtent[0] + xRange / 2;
     initialTargetY = yExtent[0] + yRange / 2;
+    initialTargetZ = null;
     initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
   } else {
     return {
