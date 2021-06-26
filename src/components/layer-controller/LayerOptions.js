@@ -163,7 +163,7 @@ function VolumeDropdown({
             2D Visualization
           </option>
         }
-        {Array.from({ length: loader.length })
+        {hasZStack && Array.from({ length: loader.length })
           .fill(0)
           // eslint-disable-next-line no-unused-vars
           .map((_, resolution) => {
