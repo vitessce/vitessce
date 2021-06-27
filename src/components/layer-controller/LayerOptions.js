@@ -163,7 +163,7 @@ function VolumeDropdown({
             2D Visualization
           </option>
         }
-        {hasZStack && Array.from({ length: loader.length })
+        {Array.from({ length: loader.length })
           .fill(0)
           // eslint-disable-next-line no-unused-vars
           .map((_, resolution) => {
@@ -391,9 +391,11 @@ function LayerOptions({
 }) {
   const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
+  const hasZStack = shape[labels.indexOf('z')] > 1;
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
-      {
+      {hasZStack
+        && (
         <VolumeDropdown
           loader={loader}
           handleSliderChange={handleSliderChange}
@@ -410,6 +412,7 @@ function LayerOptions({
           use3d={use3d}
           modelMatrix={modelMatrix}
         />
+        )
       }
       {hasDimensionsAndChannels
         && !use3d
