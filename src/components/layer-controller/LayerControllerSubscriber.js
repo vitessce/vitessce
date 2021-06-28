@@ -253,8 +253,9 @@ function LayerControllerSubscriber(props) {
     return {};
   }, [layerControllerRef]);
   const {
-    clientHeight: componentHeight, width: componentWidth,
+    clientHeight: componentHeight, clientWidth: componentWidth,
   } = getVitessceContainer();
+  console.log(componentHeight, componentWidth); // eslint-disable-line
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     LAYER_CONTROLLER_DATA_TYPES,
