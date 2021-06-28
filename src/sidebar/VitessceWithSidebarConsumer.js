@@ -8,6 +8,8 @@ import { useStyles } from './styles';
 
 import { COMPONENT_NAMES } from '../app/names';
 
+import EditorOverlay from './overlays/EditorOverlay';
+
 function defaultGenerateShareUrl(configToShare) {
   return `http://localhost:3000/?url=data:,${encodeURIComponent(JSON.stringify(configToShare))}`;
 }
@@ -44,6 +46,8 @@ export default function VitessceWithSidebarConsumer(props) {
   const configRef = useRef();
   const [theme, setTheme] = useState(themeProp);
   
+  const [tab, setTab] = useState(1);
+  
   return (
     <div className={classes.appContainer}>
       <VitessceSidebar
@@ -75,6 +79,9 @@ export default function VitessceWithSidebarConsumer(props) {
         onClearViewConfig={() => {
           console.log("Clearing view config");
         }}
+        
+        tab={tab}
+        setTab={setTab}
       />
       <div className={classes.mainContainer}>
         <Vitessce
@@ -88,6 +95,11 @@ export default function VitessceWithSidebarConsumer(props) {
           validateOnConfigChange={validateOnConfigChange}
           theme={theme}
         />
+        {tab == 1 ? (
+          <EditorOverlay
+          
+          />
+        ) : null}
       </div>
     </div>
   );

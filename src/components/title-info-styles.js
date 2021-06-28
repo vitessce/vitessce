@@ -66,6 +66,7 @@ export const useStyles = makeStyles(theme => ({
     color: `${theme.palette.primaryForeground} !important`,
   },
   titleText: {
+    marginBottom: '0 !important',
     fontWeight: '300 !important',
     fontSize: '14px !important',
     minWidth: '0px',

@@ -12,7 +12,8 @@ export const useStyles = makeStyles(() => ({
     width: '36px',
     height: '100vh',
     float: 'left',
-    paddingTop: '7px',
+    display: 'flex',
+    flexDirection: 'column',
     '& svg': {
       width: '22px',
       height: '22px',
@@ -96,6 +97,22 @@ export const useStyles = makeStyles(() => ({
     '& > svg': {
       height: '18px',
     }
+  },
+  sidebarTop: {
+    paddingTop: '5px',
+    flexGrow: '1',
+    flexShrink: '0',
+  },
+  sidebarBottom: {
+    paddingBottom: '5px',
+    flexGrow: '0',
+    flexShrink: '1',
+  },
+  tabs: {
+    verticalAlign: 'bottom',
+  },
+  tabRoot: {
+    minWidth: '0px',
   }
 }));
 

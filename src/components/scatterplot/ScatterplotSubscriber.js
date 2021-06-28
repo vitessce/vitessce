@@ -20,7 +20,6 @@ import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import ScatterplotOptions from './ScatterplotOptions';
-import ScatterplotCoordinations from './ScatterplotCoordinations';
 import {
   useCoordination,
   useLoaders,

@@ -1,11 +1,15 @@
 /* eslint-disable */
-import React from 'react';
+import React, { useState } from 'react';
+
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 import TreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
+import EditIcon from '@material-ui/icons/Edit';
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
 import AddToPhotosIcon from '@material-ui/icons/AddToPhotos';
@@ -59,61 +63,49 @@ export default function VitessceSidebar(props) {
     onShareViaLink,
     onEditViewConfig,
     onClearViewConfig,
+    
+    tab,
+    setTab,
   } = props;
   
   const classes = useStyles();
   const treeItemClasses = { label: classes.treeItemLabel, iconContainer: classes.treeItemIconContainer };
   
+  function handleTabChange(event, value) {
+    setTab(value);
+  }
+  
   return (
     <div className={classes.sidebarContainer}>
-      {enableLogo ? (
-        <ActionPopover icon={<SidebarLogoSVG title="Visualization" />} title="Visualization" />
-      ) : null}
-      {enableUndo ? (
-        <ActionPopover icon={<UndoIcon />} title="Undo" />
-      ) : null}
-      {enableRedo ? (
-        <ActionPopover icon={<RedoIcon />} title="Redo" />
-      ) : null}
-      {enableAddComponent ? (
-        <div className={classes.actionContainer}>
-          <AddToPhotosIcon />
-          <TreeView
-            className={classes.treeRoot}
-            defaultCollapseIcon={<ArrowDropDownIcon />}
-            defaultExpandIcon={<ArrowRightIcon />}
-            disableSelection
-          >
-            <TreeItem nodeId="1" label="Add component" classes={treeItemClasses}>
-              {Object.entries(componentsToAdd).map(([componentKey, componentName], i) => (
-                <TreeItem
-                  key={componentKey}
-                  nodeId={`${i+2}`}
-                  label={componentName}
-                  classes={treeItemClasses}
-                  onLabelClick={() => onAddComponent({
-                    component: componentKey,
-                    tab: "values",
-                    x: 0, y: 0, w: 1, h: 1,
-                  })}
-                />
-              ))}
-            </TreeItem>
-          </TreeView>
-        </div>
-      ) : null}
-      {enableShareViaLink ? (
-        <ActionPopover icon={<LinkIcon />} title="Share via link" onClick={onShareViaLink} />
-      ) : null}
-      {enableThemeToggle ? (
-        <ActionPopover icon={<InvertColorsIcon />} title="Toggle theme" onClick={onToggleTheme} />
-      ) : null}
-      {enableEditViewConfig ? (
-        <ActionPopover icon={<CodeIcon />} title="Edit view config" onClick={onEditViewConfig} />
-      ) : null}
-      {enableClearViewConfig ? (
-        <ActionPopover icon={<NewIcon />} title="Clear view config" onClick={onClearViewConfig} />
-      ) : null}
+      <div className={classes.sidebarTop}>
+        {enableUndo ? (
+          <ActionPopover icon={<UndoIcon />} title="Undo" />
+        ) : null}
+        {enableRedo ? (
+          <ActionPopover icon={<RedoIcon />} title="Redo" />
+        ) : null}
+  
+        {enableShareViaLink ? (
+          <ActionPopover icon={<LinkIcon />} title="Share via link" onClick={onShareViaLink} />
+        ) : null}
+        {enableThemeToggle ? (
+          <ActionPopover icon={<InvertColorsIcon />} title="Toggle theme" onClick={onToggleTheme} />
+        ) : null}
+      </div>
+      <div className={classes.sidebarBottom}>
+        <Tabs
+          orientation="vertical"
+          value={tab}
+          onChange={handleTabChange}
+          className={classes.tabs}
+          aria-label="View or Edit"
+          indicatorColor="primary"
+          textColor="primary"
+        >
+          <Tab icon={<SidebarLogoSVG />} aria-label="view" classes={{ root: classes.tabRoot }} />
+          <Tab icon={<EditIcon />} aria-label="edit" classes={{ root: classes.tabRoot }} />
+        </Tabs>
+      </div>
     </div>
   );
 }
