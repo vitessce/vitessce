@@ -147,3 +147,36 @@ export function useUrls() {
 
   return [urls, addUrl, resetUrls];
 }
+
+
+/**
+ * Custom hook, subscribes to the width and height of the closest .vitessce-container
+ * element and updates upon window resize events.
+ * @param {Ref} ref A React ref object within the `.vitessce-container`.
+ * @returns {array} `[width, height]` where width and height
+ * are numbers.
+ */
+export function useClosestVitessceContainerSize(ref) {
+  const [height, setHeight] = useState();
+  const [width, setWidth] = useState();
+
+  useEffect(() => {
+    function onWindowResize() {
+      if (ref.current) {
+        const {
+          clientHeight: componentHeight, clientWidth: componentWidth,
+        } = ref.current.closest('.vitessce-container');
+        setWidth(componentWidth);
+        setHeight(componentHeight);
+      }
+    }
+    const onResizeDebounced = debounce(onWindowResize, 100, { trailing: true });
+    window.addEventListener('resize', onResizeDebounced);
+    onWindowResize();
+    return () => {
+      window.removeEventListener('resize', onResizeDebounced);
+    };
+  }, [ref]);
+
+  return [width, height];
+}

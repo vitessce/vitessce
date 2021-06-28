@@ -9,7 +9,7 @@ import BitmaskChannelController from './BitmaskChannelController';
 import VectorLayerController from './VectorLayerController';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
-import { useReady } from '../hooks';
+import { useReady, useClosestVitessceContainerSize } from '../hooks';
 import { useCellsData, useMoleculesData, useRasterData } from '../data-hooks';
 import {
   useCoordination,
@@ -246,15 +246,7 @@ function LayerControllerSubscriber(props) {
   // a nice, centered view.
   const [spatialLayout] = useComponentLayout('spatial', ['spatialRasterLayers'], coordinationScopes);
   const layerControllerRef = useRef();
-  const getVitessceContainer = useCallback(() => {
-    if (layerControllerRef.current) {
-      return layerControllerRef.current.closest('.vitessce-container');
-    }
-    return {};
-  }, [layerControllerRef]);
-  const {
-    clientHeight: componentHeight, width: componentWidth,
-  } = getVitessceContainer();
+  const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     LAYER_CONTROLLER_DATA_TYPES,
