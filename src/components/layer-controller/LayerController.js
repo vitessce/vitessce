@@ -355,7 +355,7 @@ export default function LayerController(props) {
   const { visible } = layer;
   const Visibility = visible ? VisibilityIcon : VisibilityOffIcon;
   // Only show Volume tabs if 3D is available.
-  const useVolumeTabs = !disable3d && shape[labels.indexOf('z')];
+  const useVolumeTabs = !disable3d && shape[labels.indexOf('z')] > 1;
   const FullController = (
     <>
       <LayerOptions
