@@ -20,7 +20,7 @@
     "react-dom": "^16.8.6"
   },
   "dependencies": {
-    "@hms-dbmi/viv": "^0.9.4",
+    "@hms-dbmi/viv": "^0.10.4",
     "@loaders.gl/3d-tiles": "^2.3.0",
     "@loaders.gl/core": "^2.3.0",
     "@loaders.gl/images": "^2.3.0",

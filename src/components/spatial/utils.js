@@ -2,10 +2,10 @@
 import shortNumber from 'short-number';
 import isEqual from 'lodash/isEqual';
 import {
-  getChannelStats,
   getDefaultInitialViewState,
   MultiscaleImageLayer,
   ImageLayer,
+  VolumeLayer,
 } from '@hms-dbmi/viv';
 import { extent } from 'd3-array';
 import { Matrix4 } from 'math.gl';
@@ -18,6 +18,7 @@ import {
   DEFAULT_LAYER_TYPE_ORDERING,
 } from './constants';
 import BitmaskLayer from '../../layers/BitmaskLayer';
+import { getMultiSelectionStats } from '../layer-controller/utils';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
@@ -98,35 +99,36 @@ export function isInterleaved(shape) {
  * @returns {object[]} An array of selected channels with default
  * domain/slider settings.
  */
-export async function initializeLayerChannels(loader) {
+export async function initializeLayerChannels(loader, use3d) {
   const result = [];
   const source = getSourceFromLoader(loader);
   // Add channel automatically as the first avaialable value for each dimension.
   let defaultSelection = buildDefaultSelection(source);
   defaultSelection = isInterleaved(source.shape)
     ? [{ ...defaultSelection[0], c: 0 }] : defaultSelection;
-  // Get stats because initial value is Min/Max for domainType.
-  const raster = await Promise.all(
-    defaultSelection.map(selection => source.getRaster({ selection })),
-  );
-  const stats = raster.map(({ data: d }) => getChannelStats(d));
+  const stats = await getMultiSelectionStats({
+    loader: loader.data, selections: defaultSelection, use3d,
+  });
 
   const domains = isRgb(loader)
     ? [[0, 255], [0, 255], [0, 255]]
-    : stats.map(stat => stat.domain);
+    : stats.domains;
   const colors = isRgb(loader)
     ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
     : null;
   const sliders = isRgb(loader)
     ? [[0, 255], [0, 255], [0, 255]]
-    : stats.map(stat => stat.autoSliders);
+    : stats.sliders;
 
   defaultSelection.forEach((selection, i) => {
     const domain = domains[i];
     const slider = sliders[i];
     const channel = {
       selection,
-      color: colors ? colors[i] : VIEWER_PALETTE[i],
+      // eslint-disable-next-line no-nested-ternary
+      color: colors ? colors[i]
+        : defaultSelection.length !== 1
+          ? VIEWER_PALETTE[i] : [255, 255, 255],
       visible: true,
       slider: slider || domain,
     };
@@ -150,28 +152,41 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   }
   // Get the minimum physical among all the current images.
   const minPhysicalSize = sources.reduce((acc, source) => {
+    const hasZPhyscialSize = source.meta?.physicalSizes?.z?.size;
     const sizes = [
       unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
       unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
     ];
+    if (hasZPhyscialSize) {
+      sizes.push(unit(`${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace('µ', 'u')));
+    }
     acc[0] = (acc[0] === undefined || compare(sizes[0], acc[0]) === -1) ? sizes[0] : acc[0];
     acc[1] = (acc[1] === undefined || compare(sizes[1], acc[1]) === -1) ? sizes[1] : acc[1];
+    acc[2] = (acc[2] === undefined || compare(sizes[2], acc[2]) === -1) ? sizes[2] : acc[2];
     return acc;
   }, []);
   const imageMetaWithTransform = imageMeta.map((meta, j) => {
     const source = sources[j];
+    const hasZPhyscialSize = source.meta?.physicalSizes?.z?.size;
     const sizes = [
       unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
       unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
     ];
+    if (hasZPhyscialSize) {
+      sizes.push(unit(`${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace('µ', 'u')));
+    }
     // Find the ratio of the sizes to get the scaling factor.
     const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));
+    // Add in z dimension needed for Matrix4 scale API.
+    if (!scale[2]) {
+      scale[2] = 1;
+    }
     // no need to store/use identity scaling
-    if (isEqual(scale, [1, 1])) {
+    if (isEqual(scale, [1, 1, 1])) {
       return meta;
     }
     // Make sure to scale the z direction by one.
-    const matrix = new Matrix4().scale([...scale, 1]);
+    const matrix = new Matrix4().scale([...scale]);
     const newMeta = { ...meta };
     newMeta.metadata = {
       ...newMeta.metadata,
@@ -302,12 +317,14 @@ export function getInitialSpatialTargets({
   cells,
   imageLayerLoaders,
   useRaster,
+  use3d,
 }) {
   let initialTargetX = -Infinity;
   let initialTargetY = -Infinity;
+  let initialTargetZ = -Infinity;
   let initialZoom = -Infinity;
   // Some backoff from completely filling the screen.
-  const zoomBackoff = 0.1;
+  const zoomBackoff = use3d ? 1.5 : 0.1;
   const cellValues = Object.values(cells);
   if (imageLayerLoaders.length > 0 && useRaster) {
     for (let i = 0; i < imageLayerLoaders.length; i += 1) {
@@ -316,6 +333,7 @@ export function getInitialSpatialTargets({
         imageLayerLoaders[i].data,
         viewSize,
         zoomBackoff,
+        use3d,
       );
       if (target[0] > initialTargetX) {
         // eslint-disable-next-line prefer-destructuring
@@ -326,6 +344,13 @@ export function getInitialSpatialTargets({
         // eslint-disable-next-line prefer-destructuring
         initialTargetY = target[1];
         initialZoom = newViewStateZoom;
+      }
+      if (target[2] > initialTargetZ) {
+        // eslint-disable-next-line prefer-destructuring
+        initialTargetZ = target[2];
+        initialZoom = newViewStateZoom;
+      } else {
+        initialTargetZ = null;
       }
     }
   } else if (cellValues.length > 0
@@ -358,11 +383,16 @@ export function getInitialSpatialTargets({
     }
     initialTargetX = xExtent[0] + xRange / 2;
     initialTargetY = yExtent[0] + yRange / 2;
+    initialTargetZ = null;
     initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
   } else {
-    return { initialTargetX: null, initialTargetY: null, initialZoom: null };
+    return {
+      initialTargetX: null, initialTargetY: null, initialTargetZ: null, initialZoom: null,
+    };
   }
-  return { initialTargetX, initialTargetY, initialZoom };
+  return {
+    initialTargetX, initialTargetY, initialZoom, initialTargetZ,
+  };
 }
 
 /**
@@ -370,10 +400,13 @@ export function getInitialSpatialTargets({
  * @param {object} data PixelSource | PixelSource[]
  * @returns {Array} [Layer, PixelSource | PixelSource[]] tuple.
  */
-export function getLayerLoaderTuple(data) {
-  const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;
+export function getLayerLoaderTuple(data, use3d) {
   const loader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
     ? data : data[0];
+  if (use3d) {
+    return [VolumeLayer, Array.isArray(loader) ? loader : [loader]];
+  }
+  const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;
   return [Layer, loader];
 }
 
