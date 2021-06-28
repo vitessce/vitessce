@@ -255,7 +255,6 @@ function LayerControllerSubscriber(props) {
   const {
     clientHeight: componentHeight, clientWidth: componentWidth,
   } = getVitessceContainer();
-  console.log(componentHeight, componentWidth); // eslint-disable-line
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     LAYER_CONTROLLER_DATA_TYPES,
