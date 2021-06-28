@@ -4,37 +4,6 @@ import {
 import debounce from 'lodash/debounce';
 import { useGridResize, useEmitGridResize } from '../app/state/hooks';
 
-function getWindowDimensions() {
-  const { innerWidth: width, innerHeight: height } = window;
-  return {
-    width,
-    height,
-  };
-}
-
-/**
- * Custom hook, gets the full window dimensions.
- * @returns {array} `[width, height]` where width and height
- * are numbers.
- */
-export function useWindowDimensions() {
-  const [windowDimensions, setWindowDimensions] = useState(
-    getWindowDimensions(),
-  );
-
-  useEffect(() => {
-    function handleResize() {
-      setWindowDimensions(getWindowDimensions());
-    }
-    const onResizeDebounced = debounce(handleResize, 100, { trailing: true });
-
-    window.addEventListener('resize', onResizeDebounced);
-    return () => window.removeEventListener('resize', onResizeDebounced);
-  }, []);
-
-  return windowDimensions;
-}
-
 /**
  * Custom hook, subscribes to GRID_RESIZE and window resize events.
  * @returns {array} `[width, height, containerRef]` where width and height

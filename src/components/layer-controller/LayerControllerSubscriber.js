@@ -1,5 +1,7 @@
 /* eslint-disable dot-notation */
-import React, { useEffect, useCallback } from 'react';
+import React, {
+  useEffect, useCallback, useRef, forwardRef,
+} from 'react';
 import Grid from '@material-ui/core/Grid';
 import TitleInfo from '../TitleInfo';
 import RasterChannelController from './RasterChannelController';
@@ -7,7 +9,7 @@ import BitmaskChannelController from './BitmaskChannelController';
 import VectorLayerController from './VectorLayerController';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
-import { useReady, useWindowDimensions } from '../hooks';
+import { useReady } from '../hooks';
 import { useCellsData, useMoleculesData, useRasterData } from '../data-hooks';
 import {
   useCoordination,
@@ -26,7 +28,7 @@ const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
 // the actual Spatial component.  Re-rendering this component is very
 // expensive so we have to be careful with props in this file in general.
 const LayerControllerMemoized = React.memo(
-  (props) => {
+  forwardRef((props, ref) => {
     const {
       title,
       removeGridComponent,
@@ -55,8 +57,8 @@ const LayerControllerMemoized = React.memo(
       setTargetZ,
       setRotationX,
       setRotationOrbit,
-      windowHeight,
-      windowWidth,
+      componentHeight,
+      componentWidth,
       spatialLayout,
       handleImageAdd,
     } = props;
@@ -68,7 +70,7 @@ const LayerControllerMemoized = React.memo(
         theme={theme}
         isReady={isReady}
       >
-        <div className="layer-controller-container">
+        <div className="layer-controller-container" ref={ref}>
           {moleculesLayer && (
             <VectorLayerController
               key={`${dataset}-molecules`}
@@ -162,8 +164,8 @@ const LayerControllerMemoized = React.memo(
                     }}
                     setAreLayerChannelsLoading={setAreLayerChannelsLoading}
                     areLayerChannelsLoading={areLayerChannelsLoading}
-                    spatialHeight={(windowHeight * spatialLayout.h) / 12}
-                    spatialWidth={(windowWidth * spatialLayout.w) / 12}
+                    spatialHeight={(componentHeight * spatialLayout.h) / 12}
+                    spatialWidth={(componentWidth * spatialLayout.w) / 12}
                   />
                 </Grid>
               ) : null;
@@ -177,7 +179,7 @@ const LayerControllerMemoized = React.memo(
         </div>
       </TitleInfo>
     );
-  },
+  }),
 );
 
 /**
@@ -243,7 +245,16 @@ function LayerControllerSubscriber(props) {
   // Dimensions of the Spatial component can be inferred and used for resetting view state to
   // a nice, centered view.
   const [spatialLayout] = useComponentLayout('spatial', ['spatialRasterLayers'], coordinationScopes);
-  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const layerControllerRef = useRef();
+  const getVitessceContainer = useCallback(() => {
+    if (layerControllerRef.current) {
+      return layerControllerRef.current.closest('.vitessce-container');
+    }
+    return {};
+  }, [layerControllerRef]);
+  const {
+    clientHeight: componentHeight, width: componentWidth,
+  } = getVitessceContainer();
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     LAYER_CONTROLLER_DATA_TYPES,
@@ -313,6 +324,7 @@ function LayerControllerSubscriber(props) {
   const layerIs3DIndex = rasterLayers?.findIndex && rasterLayers.findIndex(layer => layer.use3d);
   return (
     <LayerControllerMemoized
+      ref={layerControllerRef}
       title={title}
       removeGridComponent={removeGridComponent}
       theme={theme}
@@ -340,8 +352,8 @@ function LayerControllerSubscriber(props) {
       setTargetZ={setTargetZ}
       setRotationX={setRotationX}
       setRotationOrbit={setRotationOrbit}
-      windowHeight={windowHeight}
-      windowWidth={windowWidth}
+      componentHeight={componentHeight}
+      componentWidth={componentWidth}
       spatialLayout={spatialLayout}
       handleImageAdd={handleImageAdd}
     />
