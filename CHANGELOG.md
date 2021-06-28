@@ -4,6 +4,7 @@
 
 ### Changed
 - Use component height for determining 3D sizing.
+  - Use state rather than computing every render.
 
 ## [1.1.11](https://www.npmjs.com/package/vitessce/v/1.1.11) - 2021-06-25
 
