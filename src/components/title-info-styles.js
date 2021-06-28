@@ -58,9 +58,6 @@ export const useStyles = makeStyles(theme => ({
       : (props.isSpatial ? 'black' : theme.palette.secondaryBackground)
     ),
     color: theme.palette.primaryForeground,
-    border: props.outlineType ? (
-      `3px ${props.outlineType.startsWith("current") ? 'solid' : 'dashed'} ${props.outlineType === 'current' ? theme.palette.outlineCurrent : theme.palette.outlinePending}`
-    ) : `3px solid transparent`,
   }),
   tab: {
     flexShrink: '1',
@@ -68,16 +65,14 @@ export const useStyles = makeStyles(theme => ({
     padding: '6px 8px',
     color: `${theme.palette.primaryForeground} !important`,
   },
-  labelTab: {
-    textAlign: 'left',
-    fontWeight: '300',
-    '& span': {
-      alignItems: 'start',
-      fontSize: '14px',
-    },
+  titleText: {
+    fontWeight: '300 !important',
+    fontSize: '14px !important',
     minWidth: '0px',
+    width: '100%',
     flexBasis: '1',
     flexGrow: '1',
+    color: `${theme.palette.primaryForeground} !important`,
   },
   iconTab: {
     alignItems: 'end',
@@ -91,7 +86,6 @@ export const useStyles = makeStyles(theme => ({
   },
   tabsRoot: {
     minHeight: '0px',
-    width: '100%',
   },
   tabsScroller: {
     width: '100%',
@@ -105,7 +99,7 @@ export const useStyles = makeStyles(theme => ({
     borderTopRightRadius: '4px',
     height: '100%',
     cursor: 'grab',
-    opacity: (props.isMainTab ? '0' : '1'),
+    opacity: '1',
   }),
   info: props => ({
     position: 'absolute',

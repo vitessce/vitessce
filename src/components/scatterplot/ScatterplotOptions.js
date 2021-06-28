@@ -46,7 +46,6 @@ export default function ScatterplotOptions(props) {
 
   return (
     <Box className={classes.tabBox}>
-      <h5>Edit coordination values</h5>
       <OptionsContainer>
         <TableRow>
           <TableCell className={classes.labelCell}>

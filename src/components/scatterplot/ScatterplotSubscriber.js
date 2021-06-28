@@ -247,32 +247,7 @@ export default function ScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
-      tab={tab}
-      setTab={setTab}
-      outlineType={coordinationOutlineType}
-      coordinationScopeEditor={(
-        <ScatterplotCoordinations
-          types={COMPONENT_COORDINATION_TYPES.scatterplot}
-          currentScopes={coordinationScopes}
-          potentialScopes={potentialScopes}
-          onChangeScope={(cType, nextScopeName, requiresNewScope) => {
-            if(!requiresNewScope) {
-              setCoordinationScope({ parameter: cType, scope: nextScopeName });
-            } else {
-              setCoordinationValue({ parameter: cType, scope: nextScopeName, value: coordinationValues[cType] });
-              setCoordinationScope({ parameter: cType, scope: nextScopeName });
-            }
-          }}
-          onCoordinationHover={(cType, cScope, cStatus) => {
-            setCoordinationHover({
-              coordinationTypeHover: cType,
-              coordinationScopeHover: cScope,
-              coordinationStatusHover: cStatus,
-            })
-          }}
-        />
-      )}
-      coordinationValueEditor={(
+      options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}
           cellRadius={cellRadius}
@@ -293,6 +268,9 @@ export default function ScatterplotSubscriber(props) {
             })
           }}
         />
+      )}
+      help={(
+        <p>Help</p>
       )}
     >
       <Scatterplot

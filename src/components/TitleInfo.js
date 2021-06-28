@@ -13,10 +13,9 @@ import Tab from '@material-ui/core/Tab';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
-import SettingsIcon from '@material-ui/icons/Settings';
 import CloseIcon from '@material-ui/icons/Close';
-import EditIcon from '@material-ui/icons/Edit';
-import LeakAddIcon from '@material-ui/icons/LeakAdd';
+import SettingsIcon from '@material-ui/icons/Settings';
+import BubbleChartIcon from '@material-ui/icons/BubbleChart';
 import HelpIcon from '@material-ui/icons/Help';
 
 import LoadingIndicator from './LoadingIndicator';
@@ -94,22 +93,22 @@ function ClosePaneButton(props) {
 export default function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
-    isReady, coordinationValueEditor, coordinationScopeEditor, tab = "main", setTab,
-    outlineType,
+    isReady, options, help,
   } = props;
   
-  const TABS = ["main", "scopes", "values", "downloads", "help"];
+  const [tab, setTab] = useState("main");
+  
+  const TABS = ["main", "options", "help", ...(urls ? ["downloads"] : [])];
   const tabIndex = TABS.indexOf(tab);
   const isMainTab = tab === "main";
   
-  const classes = useStyles({ isScroll, isSpatial, isMainTab, outlineType });
+  const classes = useStyles({ isScroll, isSpatial, isMainTab });
   
   const downloads = (
       <DownloadOptions urls={urls} />
   );
-  const help = (<p>Help</p>);
   
-  const tabContent = [children, coordinationScopeEditor, coordinationValueEditor, downloads, help];
+  const tabContent = [children, options, help, ...(urls ? [downloads] : [])];
   
   const handleTabChange = (event, newTabIndex) => {
     //console.log({ ...event });
@@ -123,6 +122,7 @@ export default function TitleInfo(props) {
   return (
     <>
       <Box className={`title ${classes.titleBox}`}>
+        <h2 className={classes.titleText}>{title}</h2>
         <Tabs
           classes={{ root: classes.tabsRoot, scroller: classes.tabsScroller, indicator: classes.tabsIndicator }}
           value={tabIndex}
@@ -132,11 +132,12 @@ export default function TitleInfo(props) {
           textColor="primary"
           aria-label="tabs"
         >
-          <Tab label={title} aria-label={title} className={`${classes.tab} ${classes.labelTab}`} />
-          <Tab icon={<LeakAddIcon />} aria-label="scopes" className={`${classes.tab} ${classes.iconTab}`} />
-          <Tab icon={<EditIcon />} aria-label="values" className={`${classes.tab} ${classes.iconTab}`} />
-          <Tab icon={<CloudDownloadIcon />} aria-label="downloads" className={`${classes.tab} ${classes.iconTab}`} />
+          <Tab icon={<BubbleChartIcon />} aria-label="main" className={`${classes.tab} ${classes.iconTab}`} />
+          <Tab icon={<SettingsIcon />} aria-label="values" className={`${classes.tab} ${classes.iconTab}`} />
           <Tab icon={<HelpIcon />} aria-label="help" className={`${classes.tab} ${classes.iconTab}`} />
+          {urls ? (
+            <Tab icon={<CloudDownloadIcon />} aria-label="downloads" className={`${classes.tab} ${classes.iconTab}`} />
+          ) : null}
           <Tab icon={<CloseIcon />} aria-label="close" className={`${classes.tab} ${classes.iconTab}`} />
         </Tabs>
       </Box>
