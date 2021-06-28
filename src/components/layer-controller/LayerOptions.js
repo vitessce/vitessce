@@ -395,6 +395,7 @@ function LayerOptions({
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       {hasZStack
+        && !disable3d
         && (
         <VolumeDropdown
           loader={loader}
