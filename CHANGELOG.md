@@ -1,4 +1,4 @@
-## In Progress
+## [1.1.10](https://www.npmjs.com/package/vitessce/v/1.1.11) - 2021-06-25
 
 ### Added
 - Global visibility button next to name in layer controller.
@@ -18,7 +18,7 @@
 - Don't show 3D dropdown if only 2D is available.
 - Don't show Volume tab (or any tabs) when 3D is not available.
 
-## [1.1.10](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-19
+## [1.1.10](https://www.npmjs.com/package/vitessce/v/1.1.10) - 2021-05-19
 
 ### Added
 - Add support for bitmasks to `Spatial` component and raster schema.
