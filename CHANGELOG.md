@@ -16,6 +16,7 @@
 - Clean up `getFlatArrDecompressed` fetching.
 - Fix bitmask remove button style.
 - Offsets error message gives the URL that failed, and the HTTP status.
+- Don't show 3D dropdown if only 2D is available.
 
 ## [1.1.10](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-19
 
