@@ -267,6 +267,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createImageLayer(rawLayerDef, loader, i) {
+    console.log(rawLayerDef); // eslint-disable-line
     const layerDef = {
       ...rawLayerDef,
       channels: rawLayerDef.channels
