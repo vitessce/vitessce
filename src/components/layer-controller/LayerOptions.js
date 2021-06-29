@@ -137,7 +137,7 @@ function VolumeDropdown({
         channels: newChannels,
       });
       const defaultViewState = getDefaultInitialViewState(loader,
-        { height: spatialHeight, width: spatialWidth }, 0.1, false, new Matrix4(modelMatrix));
+        { height: spatialHeight, width: spatialWidth }, 0.5, false, new Matrix4(modelMatrix));
       setViewState({
         ...defaultViewState,
         rotationX: null,
