@@ -9,7 +9,7 @@ import BitmaskChannelController from './BitmaskChannelController';
 import VectorLayerController from './VectorLayerController';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
-import { useReady, useClosestVitessceContainerSize } from '../hooks';
+import { useReady, useClosestVitessceContainerSize, useWindowDimensions } from '../hooks';
 import { useCellsData, useMoleculesData, useRasterData } from '../data-hooks';
 import {
   useCoordination,
@@ -247,6 +247,7 @@ function LayerControllerSubscriber(props) {
   const [spatialLayout] = useComponentLayout('spatial', ['spatialRasterLayers'], coordinationScopes);
   const layerControllerRef = useRef();
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
     LAYER_CONTROLLER_DATA_TYPES,
@@ -344,8 +345,9 @@ function LayerControllerSubscriber(props) {
       setTargetZ={setTargetZ}
       setRotationX={setRotationX}
       setRotationOrbit={setRotationOrbit}
-      componentHeight={componentHeight}
-      componentWidth={componentWidth}
+      // Fall back to window for height and width.
+      componentHeight={componentHeight || windowHeight}
+      componentWidth={componentWidth || windowWidth}
       spatialLayout={spatialLayout}
       handleImageAdd={handleImageAdd}
     />
