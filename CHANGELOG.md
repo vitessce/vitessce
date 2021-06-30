@@ -1,6 +1,8 @@
 
 ### Added
 - Add loader for `GeoJSON` polygons/points as cells.  QuPath outputs GeoJSON for annotations.
+- Updated `GeoJSON` loader to support the Baysor custom format
+- Added coordination types for selection of molecules
 
 ### Changed
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details. 
