@@ -75,6 +75,7 @@ export default function SpatialSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
+    moleculeSelection,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -251,6 +252,7 @@ export default function SpatialSubscriber(props) {
         cellHighlight={cellHighlight}
         cellColors={cellColors}
         molecules={molecules}
+        moleculeSelection={moleculeSelection}
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}

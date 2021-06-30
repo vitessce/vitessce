@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
 
@@ -74,6 +75,63 @@ const vanderbiltBase = {
 // can affect the z-index of plot tooltips due to the
 // resulting ordering of elements in the DOM.
 export const configs = {
+  'baysor-gut': {
+    name: 'Baysor gut dataset',
+    version: '1.0.1',
+    description: "Baysor gut example",
+    public: true,
+    datasets: [
+      {
+        uid: 'baysor-gut-2021',
+        name: 'Baysor gut 2021',
+        description: 'Petukhov et al. 2021, Cell segmentation in imaging-based spatial transcriptomics',
+        files: [
+          {
+            type: 'cells',
+            fileType: 'geojson',
+            url: 'http://localhost:8081/poly_per_z_0.json'
+          },
+          {
+            type: 'expression-matrix',
+            fileType: 'anndata-expression-matrix.zarr',
+            url: 'http://localhost:8081/segmentation.zarr',
+            options: {
+              matrix: "X",
+            }
+          },
+          {
+            type: 'molecules',
+            fileType: 'molecules.json',
+            url: 'http://localhost:8081/molecules.json'
+          }
+        ]
+      },
+    ],
+    initStrategy: 'auto',
+    coordinationSpace: {
+      
+    },
+    layout: [
+      { component: 'description',
+        x: 0, y: 0, w: 2, h: 2 },
+      { component: 'layerController',
+        x: 0, y: 1, w: 2, h: 4,
+      },
+      { component: 'status',
+        x: 0, y: 5, w: 2, h: 2 },
+      { component: 'genes',
+        x: 6, y: 0, w: 2, h: 12 },
+      { component: 'heatmap',
+        x: 8, y: 0, w: 4, h: 12 },
+      { component: 'spatial',
+        coordinationScopes: {
+          spatialZoom: 'A',
+          spatialTargetX: 'A',
+          spatialTargetY: 'A',
+        },
+        x: 2, y: 0, w: 4, h: 12 },
+    ],
+  },
   'just-scatter': {
     version: '0.1.0',
     public: false,

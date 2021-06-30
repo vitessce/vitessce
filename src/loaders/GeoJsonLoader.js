@@ -1,3 +1,4 @@
+/* eslint-disable */
 import centroid from '@turf/centroid';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 
@@ -24,28 +25,29 @@ export default class GeoJsonLoader extends JsonLoader {
       if (response.ok) {
         const geoJson = await response.json();
         const cellsJson = {};
-        if (!(geoJson.every(cell => cell.geometry.type === 'Polygon')
-          || geoJson.every(cell => cell.geometry.type === 'Point'))) {
+        if (!(geoJson.every(cell => cell.type === 'Polygon')
+          || geoJson.every(cell => cell.type === 'Point'))) {
           this.rejectGeoJson('Vitessce only accepts GeoJSON that is excusively Points (i.e centroids) or Polygons');
         }
         geoJson.forEach((cell, index) => {
-          if (cell.geometry.type === 'Polygon') {
+          if (cell.type === 'Polygon') {
             const points = turfFeatureCollection(
-              cell.geometry.coordinates[0].map(turfPoint),
+              cell.coordinates[0].map(turfPoint),
             );
-            if (cell.geometry.coordinates.length > 1) {
+            if (cell.coordinates.length > 1) {
               console.warn('Vitessce only accepts polygons with no holes.  Only the first ring will be used');
             }
             cellsJson[String(index)] = {
-              poly: cell.geometry.coordinates[0],
+              poly: cell.coordinates[0],
               xy: centroid(points).geometry.coordinates,
             };
           } else {
             cellsJson[String(index)] = {
-              xy: cell.geometry.coordinates[0],
+              xy: cell.coordinates[0],
             };
           }
         });
+        console.log(cellsJson);
         return cellsJson;
       }
       return Promise.reject(

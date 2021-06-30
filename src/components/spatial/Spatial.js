@@ -1,6 +1,8 @@
+/* eslint-disable */
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-line import/no-extraneous-dependencies
 import { Matrix4 } from 'math.gl';
 import { ScaleBarLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
 import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
@@ -169,8 +171,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       setMoleculeHighlight,
       getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
       getMoleculePosition = d => [d[0], d[1], 0],
+      moleculeSelection,
     } = this.props;
     const { moleculesEntries } = this;
+    console.log(moleculeSelection); // eslint-disable-line
 
     return new ScatterplotLayer({
       id: MOLECULES_LAYER_ID,
@@ -185,6 +189,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getPosition: getMoleculePosition,
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
+      getFilterValue: moleculeEntry => (
+        moleculeSelection
+          ? (moleculeSelection.includes(moleculeEntry[3]) ? 1 : 0)
+          : 1 // If nothing is selected, everything is selected.
+      ),
+      extensions: [new DataFilterExtension({ filterSize: 1 })],
+      filterRange: [1, 1],
       onHover: (info) => {
         if (setMoleculeHighlight) {
           if (info.object) {
@@ -193,6 +204,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
             setMoleculeHighlight(null);
           }
         }
+      },
+      updateTriggers: {
+        getFilterValue: [moleculeSelection],
       },
     });
   }
@@ -507,7 +521,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'molecules'].some(shallowDiff)) {
+    if (['layers', 'molecules', 'moleculeSelection'].some(shallowDiff)) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
       this.forceUpdate();
