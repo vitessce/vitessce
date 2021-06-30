@@ -206,7 +206,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       moleculeSelection,
     } = this.props;
     const { moleculesEntries } = this;
-    console.log(moleculeSelection); // eslint-disable-line
 
     return new ScatterplotLayer({
       id: MOLECULES_LAYER_ID,
