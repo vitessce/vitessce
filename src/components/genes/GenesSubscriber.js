@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+/* eslint-disable */
+import React, { useEffect, useMemo } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
-import { useExpressionAttrs } from '../data-hooks';
+import { useExpressionAttrs, useMoleculesData } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { PALETTE } from '../utils';
 
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
@@ -32,6 +34,7 @@ export default function GenesSubscriber(props) {
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
     title = 'Expression Levels',
+    enableMoleculeSelection = true,
   } = props;
 
   const loaders = useLoaders();
@@ -42,11 +45,13 @@ export default function GenesSubscriber(props) {
     geneSelection,
     geneFilter,
     cellColorEncoding,
+    moleculeSelection,
   }, {
     setGeneSelection,
     setGeneFilter,
     setGeneHighlight,
     setCellColorEncoding,
+    setMoleculeSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -72,11 +77,30 @@ export default function GenesSubscriber(props) {
   );
   const geneList = attrs ? attrs.cols : [];
   const numGenes = geneList.length;
+  
+  const [molecules] = useMoleculesData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+  );
 
   function setGeneSelectionAndColorEncoding(newSelection) {
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
+    if(enableMoleculeSelection) {
+      setMoleculeSelection(newSelection);
+    }
   }
+  
+  const geneColors = useMemo(() => {
+    const result = {};
+    if (molecules) {
+      const moleculeIds = Object.keys(molecules);
+      moleculeIds.forEach((geneId, index) => {
+        const [r, g, b] = PALETTE[index % PALETTE.length];
+        result[geneId] = `rgb(${r}, ${g}, ${b})`;
+      });
+    }
+    return result;
+  }, [molecules]);
 
   return (
     <TitleInfo
@@ -94,6 +118,7 @@ export default function GenesSubscriber(props) {
       <Genes
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
         geneList={geneList}
+        geneColors={geneColors}
         geneSelection={geneSelection}
         geneFilter={geneFilter}
         setGeneSelection={setGeneSelectionAndColorEncoding}

@@ -32,6 +32,7 @@ export default function SelectableTable(props) {
     onChange,
     idKey = 'id',
     valueKey = 'value',
+    colorKey = 'color',
     allowMultiple = false,
     allowUncheck = false,
     showTableHead = true,
@@ -131,6 +132,7 @@ export default function SelectableTable(props) {
         !isSelected(data[index][idKey]) || !hasColorEncoding,
       )}
     >
+      <span style={{ backgroundColor: data[index][colorKey], width: '20px', height: '20px' }} />
       <div className={`input-container ${hiddenInputsClass} table-cell`}>
         <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>
           <input
