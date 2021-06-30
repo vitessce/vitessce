@@ -67,3 +67,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-05-10: [ilan-gold/bitmask_layer](https://s3.amazonaws.com/vitessce-data/demos/2021-05-10/5534473/index.html)
 - 2021-05-13: [ilan-gold/bitmask_layer](https://s3.amazonaws.com/vitessce-data/demos/2021-05-13/004005d/index.html)
 - 2021-05-14: [ilan-gold/bitmask_layer](https://s3.amazonaws.com/vitessce-data/demos/2021-05-14/6686ccb/index.html)
+- 2021-06-30: [keller-mark/baysor-support](https://s3.amazonaws.com/vitessce-data/demos/2021-06-30/da4be4d3/index.html)

@@ -47,7 +47,6 @@ export default class GeoJsonLoader extends JsonLoader {
             };
           }
         });
-        console.log(cellsJson);
         return cellsJson;
       }
       return Promise.reject(
