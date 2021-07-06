@@ -249,23 +249,22 @@ export default function LayerController(props) {
     const canUpdateChannels = event.type === 'mouseup' || event.type === 'keydown';
     // Only update domains on a mouseup event for the same reason as above.
     if (canUpdateChannels) {
+      setAreAllChannelsLoading(true);
       getDomainsAndSliders(loader, loaderSelection, domainType, use3d).then(({ sliders }) => {
         const newChannelsWithSelection = channels.map(c => ({
           ...c,
           selection: { ...c.selection, ...selection },
         }));
-        setChannels(newChannelsWithSelection);
-        setAreAllChannelsLoading(true);
-        const newChannelsWithSliders = [...newChannelsWithSelection].map(
-          (c, i) => ({
-            ...c,
-            slider: sliders[i],
-          }),
-        );
-        setChannels(newChannelsWithSliders);
         setRasterLayerCallback(() => {
-          setAreAllChannelsLoading(false);
           setRasterLayerCallback(null);
+          setAreAllChannelsLoading(false);
+          const newChannelsWithSliders = [...newChannelsWithSelection].map(
+            (c, i) => ({
+              ...c,
+              slider: sliders[i],
+            }),
+          );
+          setChannels(newChannelsWithSliders);
         });
         setChannels(newChannelsWithSelection);
       });
