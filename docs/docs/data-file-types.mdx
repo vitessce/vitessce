@@ -185,10 +185,14 @@ const dataset = vc
 `}
   />
   
-  Note that the expression matrix file loader fetches the entire matrix and stores it in memory.
-  If this causes performance issues, you may [add a subset of the matrix](#store-a-subset-of-x) to the Zarr store.
+  While the expression matrix file loader does not fetch the entire matrix and store it in memory, displaying a heatmap will fetch whatever
+  genes are needed for the heatmap.  Similarly, selecting a gene to display over a scatterplot or spatial component can be costly
+  if the expression matrix is not stored properly.
+  In both cases, a poor chunking strategy can lead to too much data being requested for every gene selection/gene needed for the heatmap.
+  If you experience performance issues, you may [use or store a subset of the matrix](#use-or-store-a-subset-of-x) to the Zarr store.
 
-  The following snippet uses a Zarr store in which `obsm/X_top_200_genes` contains a 200-gene subset of `X`:
+  The following snippet uses a Zarr store in which `var/highly_variable` provides a boolean filter of `X` for displaying a heatmap of
+  highly variable genes:
 
   <ViewConfigTabs
 json={`
@@ -199,11 +203,13 @@ json={`
     "options": {
       // Matrix provides the location of an
       // obs-by-var (cell-by-gene) matrix to load into memory.
-      "matrix": "obsm/X_top_200_genes",
-      // Genes filter is a boolean list which defines
-      // the subset of genes contained in the matrix,
-      // and must be defined if the matrix is a subset of AnnData.X
-      "geneFilter": "var/highly_variable"
+      "matrix": "obsm/X",
+      // Matrix genes filter is a boolean list which defines
+      // the subset of genes contained in the matrix to be visualized in the heatmap.
+      // All of the genes in `var` will display in the `Genes` component though.
+      // Use `geneFilter` instead if you only want to show a subset of the genes there
+      // (this must be defined if the matrix is a subset of AnnData.X).
+      "matrixGeneFilter": "var/highly_variable"
     }
   }
 `}
@@ -211,11 +217,13 @@ js={`
 const options = {
   // Matrix provides the location of an
   // obs-by-var (cell-by-gene) matrix to load into memory.
-  "matrix": "obsm/X_top_200_genes",
-  // Genes filter is a boolean list which defines
-  // the subset of genes contained in the matrix,
-  // and must be defined if the matrix is a subset of AnnData.X
-  "geneFilter": "var/highly_variable"
+  "matrix": "obsm/X",
+  // Matrix genes filter is a boolean list which defines
+  // the subset of genes contained in the matrix to be visualized in the heatmap.
+  // All of the genes in `var` will display in the `Genes` component though.
+  // Use `geneFilter` instead if you only want to show a subset of the genes there
+  // (this must be defined if the matrix is a subset of AnnData.X).
+  "matrixGeneFilter": "var/highly_variable"
 };
 const dataset = vc
   .addDataset("My dataset")
@@ -644,6 +652,7 @@ Use AnnData's [`read_h5ad`](https://anndata.readthedocs.io/en/latest/anndata.rea
 
 ```python
 from anndata import read_h5ad
+import zarr
 
 adata = read_h5ad('path/to/my_dataset.h5ad')
 adata.write_zarr('my_store.zarr')
@@ -651,17 +660,43 @@ adata.write_zarr('my_store.zarr')
 
 Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) family of native file types.
 
-#### Store a subset of X
+#### Use or Store a subset of X
 
-When the full expression matrix `adata.X` is large, there may be performance costs if Vitessce tries to load the full matrix for visualization.
-If only interested in a subset of the expression matrix, a smaller matrix can be stored as multi-dimensional observation array in `adata.obsm`.
+When the full expression matrix `adata.X` is large, there may be performance costs if Vitessce tries to load the full matrix for visualization, whether it be a heatmap
+or just loading genes to overlay on a spatial or scatterplot component.
+To offset this there are two things you can do:
+1. Use CSC format or chunk the zarr store efficiently (the later is recommended at the moment, see below) so that the UI remains responsive when selecting a gene to load into the client.
+Every time a gene is selected (or the heatmap is loaded), the client will use Zarr to fetch all the "cell x gene" information needed for rendering - however, a poor chunking strategy
+can result in too much data be loaded (and then not used).  To remedy this, we recommend passing in the `chunk_size` argument to `write_zarr` so that the data is chunked in a manner that allows
+remote sources (like browsers) to fetch only the genes (and all cells) necessary for efficient display - to this end the chunk size is usually something like `[num_cells, small_number]`
+so every chunk contains all the cells, but only a few genes.  That way, when you select a gene, only a small chunk of data is fetched for rendering and little is wasted.  Ideally, at most
+one small request is made for every selection.  You are welcome to try different chunking strategies as you see fit though!
+2. If only interested in a subset of the expression matrix for a heatmap, a filter (`matrixGeneFilter` in the view config) for the matrix can be stored as a boolean array in `var`.
+In this case, it is the `highly_variable` key from the `sc.pp.highly_variable_genes` call below.  This will not alter the genes displayed in the `Genes` component (use `geneFilter` for that in the view config).
 
 ```python
 import scanpy as sc
 from anndata import read_h5ad
+import zarr
 
 adata = read_h5ad('path/to/my_dataset.h5ad')
 
+# Adds the `highly_variable` key to `var`
+sc.pp.highly_variable_genes(adata, n_top_genes=200)
+# If the matrix is sparse, it's best for performance to
+# use non-sparse formats + chunking to keep the UI responsive.
+# In the future, we should be able to use CSC sparse data natively
+# and get equal performance with chunking:
+# https://github.com/theislab/anndata/issues/524 
+# but for now, it is still not as good (although not unusable).
+if isinstance(adata.X, sparse.spmatrix):
+    adata.X = adata.X.todense() # Or adata.X.tocsc() if you need to.
+adata.write_zarr(zarr_path, [adata.shape[0], VAR_CHUNK_SIZE])  # VAR_CHUNK_SIZE should be something small like 10
+```
+
+Alternatively, a smaller matrix can be stored as multi-dimensional observation array in `adata.obsm` and used in conjunction with the `geneFilter` part of the view config.
+
+```python
 sc.pp.highly_variable_genes(adata, n_top_genes=200)
 adata.obsm['X_top_200_genes'] = adata[:, adata.var['highly_variable']].X.copy()
 adata.write_zarr('my_store.zarr')
