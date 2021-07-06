@@ -52,6 +52,7 @@ export default function DataTypesTable(props) {
                                 <li>Zarr</li>
                             </ul>
                         </li>
+                        <li><a href={useBaseUrl('/docs/data-file-types/index.html#rasterome-zarr')}><code>raster.ome-zarr</code></a></li>
                     </ul></td>
                     <td></td>
                 </tr>

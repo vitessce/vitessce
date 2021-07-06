@@ -206,8 +206,8 @@ json={`
       "matrix": "obsm/X",
       // Matrix genes filter is a boolean list which defines
       // the subset of genes contained in the matrix to be visualized in the heatmap.
-      // All of the genes in `var` will display in the `Genes` component though.
-      // Use `geneFilter` instead if you only want to show a subset of the genes there
+      // All of the genes in \`var\` will display in the \`Genes\` component though.
+      // Use \`geneFilter\` instead if you only want to show a subset of the genes there
       // (this must be defined if the matrix is a subset of AnnData.X).
       "matrixGeneFilter": "var/highly_variable"
     }
@@ -220,8 +220,8 @@ const options = {
   "matrix": "obsm/X",
   // Matrix genes filter is a boolean list which defines
   // the subset of genes contained in the matrix to be visualized in the heatmap.
-  // All of the genes in `var` will display in the `Genes` component though.
-  // Use `geneFilter` instead if you only want to show a subset of the genes there
+  // All of the genes in \`var\` will display in the \`Genes\` component though.
+  // Use \`geneFilter\` instead if you only want to show a subset of the genes there
   // (this must be defined if the matrix is a subset of AnnData.X).
   "matrixGeneFilter": "var/highly_variable"
 };
@@ -419,7 +419,7 @@ const dataset = vc
   :::note
 
 
-- View config file definition snippet with an OME-TIFF and its bitmask:
+- View config file definition snippet with an OME-TIFF image and segmentation bitmask:
 
   <ViewConfigTabs
 json={`
@@ -603,6 +603,30 @@ const dataset = vc
     dt.RASTER,
     ft.RASTER_JSON,
     options
+  );
+`}
+  />
+
+
+### `raster.ome-zarr`
+
+- View config file definition snippet:
+
+  <ViewConfigTabs
+json={`
+  {
+    "url": "http://example.com/my_image.ome.zarr",
+    "type": "raster",
+    "fileType": "raster.ome-zarr"
+  }
+`}
+js={`
+const dataset = vc
+  .addDataset("My dataset")
+  .addFile(
+    "url": "http://example.com/my_image.ome.zarr",
+    dt.RASTER,
+    ft.RASTER_OME_ZARR
   );
 `}
   />
