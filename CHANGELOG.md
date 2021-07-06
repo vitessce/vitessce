@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Change bitmask rendering to only display a unique pixel value instead of blending.
 - Use component height for determining 3D sizing.
   - Use state rather than computing every render.
 
