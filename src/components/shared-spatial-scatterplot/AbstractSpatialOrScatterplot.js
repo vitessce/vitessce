@@ -96,26 +96,29 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   // eslint-disable-next-line consistent-return
   onHover(info) {
     const { coordinate, layer, sourceLayer } = info;
-    const { setCellHighlight, cellHighlight, setComponentHover } = this.props;
+    const {
+      setCellHighlight, cellHighlight, setComponentHover, layers,
+    } = this.props;
+    const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
     if (!setCellHighlight) {
       return null;
     }
     if (!sourceLayer || !coordinate) {
-      if (cellHighlight) {
+      if (cellHighlight && hasBitmask) {
         setCellHighlight('');
       }
       return null;
     }
     const { channelData, bounds } = sourceLayer.props;
     if (!channelData) {
-      if (cellHighlight) {
+      if (cellHighlight && hasBitmask) {
         setCellHighlight('');
       }
       return null;
     }
     const { data, width } = channelData;
     if (!data) {
-      if (cellHighlight) {
+      if (cellHighlight && hasBitmask) {
         setCellHighlight('');
       }
       return null;
