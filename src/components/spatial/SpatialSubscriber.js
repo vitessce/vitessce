@@ -22,6 +22,7 @@ import {
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
+  useAuxiliaryCoordination,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -64,6 +65,11 @@ export default function SpatialSubscriber(props) {
     spatialTargetX: targetX,
     spatialTargetY: targetY,
     spatialTargetZ: targetZ,
+    spatialRotationX: rotationX,
+    spatialRotationY: rotationY,
+    spatialRotationZ: rotationZ,
+    spatialRotationOrbit: rotationOrbit,
+    spatialOrbitAxis: orbitAxis,
     spatialRasterLayers: rasterLayers,
     spatialCellsLayer: cellsLayer,
     spatialMoleculesLayer: moleculesLayer,
@@ -75,11 +81,15 @@ export default function SpatialSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
+    spatialAxisFixed,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
     setSpatialTargetY: setTargetY,
     setSpatialTargetZ: setTargetZ,
+    setSpatialRotationX: setRotationX,
+    setSpatialRotationOrbit: setRotationOrbit,
+    setSpatialOrbitAxis: setOrbitAxis,
     setSpatialRasterLayers: setRasterLayers,
     setSpatialCellsLayer: setCellsLayer,
     setSpatialMoleculesLayer: setMoleculesLayer,
@@ -91,7 +101,19 @@ export default function SpatialSubscriber(props) {
     setCellColorEncoding,
     setAdditionalCellSets,
     setMoleculeHighlight,
+    setSpatialAxisFixed,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
+
+  const [
+    {
+      rasterLayersCallbacks,
+    },
+  ] = useAuxiliaryCoordination(
+    COMPONENT_COORDINATION_TYPES.layerController,
+    coordinationScopes,
+  );
+
+  const use3d = rasterLayers?.some(l => l.use3d);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -156,19 +178,23 @@ export default function SpatialSubscriber(props) {
 
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
-      const { initialTargetX, initialTargetY, initialZoom } = getInitialSpatialTargets({
+      const {
+        initialTargetX, initialTargetY, initialTargetZ, initialZoom,
+      } = getInitialSpatialTargets({
         width,
         height,
         cells,
         imageLayerLoaders,
         useRaster: Boolean(loaders[dataset].loaders.raster),
+        use3d,
       });
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);
+      setTargetZ(initialTargetZ);
       setZoom(initialZoom);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom]);
+  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom, use3d]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
@@ -207,6 +233,22 @@ export default function SpatialSubscriber(props) {
     return null;
   };
 
+  const setViewState = ({
+    zoom: newZoom,
+    target,
+    rotationX: newRotationX,
+    rotationOrbit: newRotationOrbit,
+    orbitAxis: newOrbitAxis,
+  }) => {
+    setZoom(newZoom);
+    setTargetX(target[0]);
+    setTargetY(target[1]);
+    setTargetZ(target[2]);
+    setRotationX(newRotationX);
+    setRotationOrbit(newRotationOrbit);
+    setOrbitAxis(newOrbitAxis);
+  };
+
   const subtitle = makeSpatialSubtitle({
     observationsCount: cellsCount,
     observationsLabel,
@@ -230,6 +272,9 @@ export default function SpatialSubscriber(props) {
           observationsLabel={observationsLabel}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
+          setSpatialAxisFixed={setSpatialAxisFixed}
+          spatialAxisFixed={spatialAxisFixed}
+          use3d={use3d}
         />
       )}
     >
@@ -238,13 +283,16 @@ export default function SpatialSubscriber(props) {
         uuid={uuid}
         width={width}
         height={height}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
-        setViewState={({ zoom: newZoom, target }) => {
-          setZoom(newZoom);
-          setTargetX(target[0]);
-          setTargetY(target[1]);
-          setTargetZ(target[2]);
+        viewState={{
+          zoom,
+          target: [targetX, targetY, targetZ],
+          rotationX,
+          rotationY,
+          rotationZ,
+          rotationOrbit,
+          orbitAxis,
         }}
+        setViewState={setViewState}
         layers={layers}
         cells={cells}
         cellFilter={cellFilter}
@@ -262,15 +310,17 @@ export default function SpatialSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
+        rasterLayersCallbacks={rasterLayersCallbacks}
+        spatialAxisFixed={spatialAxisFixed}
       />
       {!disableTooltip && (
-      <SpatialTooltipSubscriber
-        parentUuid={uuid}
-        cellHighlight={cellHighlight}
-        width={width}
-        height={height}
-        getCellInfo={getCellInfo}
-      />
+        <SpatialTooltipSubscriber
+          parentUuid={uuid}
+          cellHighlight={cellHighlight}
+          width={width}
+          height={height}
+          getCellInfo={getCellInfo}
+        />
       )}
     </TitleInfo>
   );

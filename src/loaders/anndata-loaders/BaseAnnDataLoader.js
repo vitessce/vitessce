@@ -1,4 +1,5 @@
-import { openArray, KeyError } from 'zarr';
+import { openArray } from 'zarr';
+import range from 'lodash/range';
 import AbstractZarrLoader from '../AbstractZarrLoader';
 
 const readFloat32FromUint8 = (bytes) => {
@@ -104,29 +105,38 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
       path,
       mode: 'r',
     }).then(async (z) => {
-      let data = [];
-      let item = 0;
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          const buf = await store.getItem(`${z.keyPrefix}${String(item)}`);
-          // eslint-disable-next-line no-await-in-loop
-          const dbytes = await z.compressor.decode(buf);
-          if (z.meta.filters[0].id === 'vlen-utf8') {
-            const text = parseVlenUtf8(dbytes);
-            data = data.concat(text);
-          } else {
-            data = data.concat(dbytes);
-          }
-          item += 1;
-        } catch (err) {
-          if (err instanceof KeyError) {
-            break;
-          }
-          throw err;
+      let data;
+      const parseAndMergeTextBytes = (dbytes) => {
+        const text = parseVlenUtf8(dbytes);
+        if (!data) {
+          data = text;
+        } else {
+          data = data.concat(text);
         }
-      }
+      };
+      const mergeBytes = (dbytes) => {
+        if (!data) {
+          data = dbytes;
+        } else {
+          const tmp = new Uint8Array(dbytes.buffer.byteLength + data.buffer.byteLength);
+          tmp.set(new Uint8Array(data.buffer), 0);
+          tmp.set(dbytes, data.buffer.byteLength);
+          data = tmp;
+        }
+      };
+      const numRequests = Math.ceil(z.meta.shape[0] / z.meta.chunks[0]);
+      const requests = range(numRequests).map(async item => store.getItem(`${z.keyPrefix}${String(item)}`)
+        .then(buf => z.compressor.decode(buf)));
+      const dbytesArr = await Promise.all(requests);
+      dbytesArr.forEach((dbytes) => {
+        // Use vlenutf-8 decoding if necessary and merge `data` as a normal array.
+        if (Array.isArray(z.meta.filters) && z.meta.filters[0].id === 'vlen-utf8') {
+          parseAndMergeTextBytes(dbytes);
+          // Otherwise just merge the bytes as a typed array.
+        } else {
+          mergeBytes(dbytes);
+        }
+      });
       const {
         meta: {
           shape: [length],
