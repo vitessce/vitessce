@@ -418,7 +418,8 @@ const dataset = vc
 
   :::note
 
-- View config file definition snippet with an OME-TIFF:
+
+- View config file definition snippet with an OME-TIFF and its bitmask:
 
   <ViewConfigTabs
 json={`
@@ -426,6 +427,7 @@ json={`
     "type": "raster",
     "fileType": "raster.json",
     "options": {
+      "renderLayers": ["My OME-TIFF Image", "My OME-TIFF Mask"],
       "schemaVersion": "0.0.2",
       "images": [
         {
@@ -444,6 +446,14 @@ json={`
               ]
             }
           }
+        },
+        {
+          "name": "My OME-TIFF Mask",
+          "url": "http://example.com/my_mask.ome.tif",
+          "type": "ome-tiff",
+          "metadata": {
+            "isBitmask": true
+          }
         }
       ]
     }
@@ -451,6 +461,7 @@ json={`
 `}
 js={`
 const options = {
+   "renderLayers": ["My OME-TIFF Image", "My OME-TIFF Mask"],
   "schemaVersion": "0.0.2",
   "images": [
     {
@@ -468,6 +479,14 @@ const options = {
             0, 0, 0, 1
           ]
         }
+      }
+    },
+    {
+      "name": "My OME-TIFF Mask",
+      "url": "http://example.com/my_mask.ome.tif",
+      "type": "ome-tiff",
+      "metadata": {
+        "isBitmask": true
       }
     }
   ]
