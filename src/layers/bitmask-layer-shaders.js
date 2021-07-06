@@ -49,7 +49,7 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn){
   float sampledData = texture(dataTex, coord).r;
   vec4 hoveredColor = float(sampledData == hovered && sampledData > 0. && hovered > 0.) * vec4(0., 0., 1., 1.);
   // Colors are laid out corresponding to ids in row-major order in the texture.  So if width of the texture is 10, and you want ID 25,
-  // you need coordinate (2, 4) (i.e 2 rows down, and 5 columns over indexed from 0 for a total of 25 units covered in row major order).
+  // you need coordinate (1, 4) (i.e 2 rows down, and 5 columns over indexed from 0 for a total of 25 units covered in row major order).
   vec2 colorTexCoord = vec2(mod(sampledData, colorTexWidth) / colorTexWidth, floor(sampledData / colorTexWidth) / (colorTexHeight - 1.));
   vec4 sampledColor = vec4(texture(colorTex, colorTexCoord).rgb, 1.);
   // Only return a color if the data is non-zero.
@@ -61,7 +61,7 @@ void main() {
   gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelIsOn[0]);
 
   // If the sampled color and the currently stored color (gl_FragColor) are identical, don't blend and use the sampled color,
-  // otherwise just use the currently stored color.
+  // otherwise just use the currently stored color.  Repeat this for all channels.
   vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelIsOn[1]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
   sampledColor = sampleAndGetColor(channel2, vTexCoord, channelIsOn[2]);
