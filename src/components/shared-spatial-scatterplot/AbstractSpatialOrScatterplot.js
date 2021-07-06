@@ -96,22 +96,31 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   // eslint-disable-next-line consistent-return
   onHover(info) {
     const { coordinate, layer, sourceLayer } = info;
-    const { setCellHighlight, cellHighlight, setComponentHover } = this.props;
-    if (!sourceLayer) {
-      return null;
-    }
+    const {
+      setCellHighlight, cellHighlight, setComponentHover, layers,
+    } = this.props;
+    const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
     if (!setCellHighlight) {
       return null;
     }
-    if (!coordinate) {
+    if (!sourceLayer || !coordinate) {
+      if (cellHighlight && hasBitmask) {
+        setCellHighlight(null);
+      }
       return null;
     }
     const { channelData, bounds } = sourceLayer.props;
     if (!channelData) {
+      if (cellHighlight && hasBitmask) {
+        setCellHighlight(null);
+      }
       return null;
     }
     const { data, width } = channelData;
     if (!data) {
+      if (cellHighlight && hasBitmask) {
+        setCellHighlight(null);
+      }
       return null;
     }
     // Tiled layer needs a custom layerZoomScale.
@@ -137,7 +146,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           setComponentHover();
         }
         // eslint-disable-next-line no-unused-expressions
-        setCellHighlight(cellId ? String(cellId) : '');
+        setCellHighlight(cellId ? String(cellId) : null);
       }
     }
   }

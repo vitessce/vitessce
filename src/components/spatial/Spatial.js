@@ -417,7 +417,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdateCellColors() {
     const color = this.randomColorData;
     const { size } = this.props.cellColors;
-    if (size) {
+    if (typeof size === 'number') {
       const cellIds = this.props.cellColors.keys();
       color.data = new Uint8Array(color.height * color.width * 3).fill(128);
       // 0th cell id is the empty space of the image i.e black color.
