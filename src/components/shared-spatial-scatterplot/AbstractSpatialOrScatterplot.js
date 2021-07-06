@@ -97,21 +97,27 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   onHover(info) {
     const { coordinate, layer, sourceLayer } = info;
     const { setCellHighlight, cellHighlight, setComponentHover } = this.props;
-    if (!sourceLayer) {
-      return null;
-    }
     if (!setCellHighlight) {
       return null;
     }
-    if (!coordinate) {
+    if (!sourceLayer || !coordinate) {
+      if (cellHighlight) {
+        setCellHighlight('');
+      }
       return null;
     }
     const { channelData, bounds } = sourceLayer.props;
     if (!channelData) {
+      if (cellHighlight) {
+        setCellHighlight('');
+      }
       return null;
     }
     const { data, width } = channelData;
     if (!data) {
+      if (cellHighlight) {
+        setCellHighlight('');
+      }
       return null;
     }
     // Tiled layer needs a custom layerZoomScale.
