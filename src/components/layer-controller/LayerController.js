@@ -255,6 +255,8 @@ export default function LayerController(props) {
           ...c,
           selection: { ...c.selection, ...selection },
         }));
+        // Set the callback before changing the selection
+        // so the callback is used when the layer (re)loads its data.
         setRasterLayerCallback(() => {
           setRasterLayerCallback(null);
           setAreAllChannelsLoading(false);
