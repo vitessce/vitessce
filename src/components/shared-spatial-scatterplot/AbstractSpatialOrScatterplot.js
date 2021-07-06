@@ -105,21 +105,21 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     }
     if (!sourceLayer || !coordinate) {
       if (cellHighlight && hasBitmask) {
-        setCellHighlight('');
+        setCellHighlight(null);
       }
       return null;
     }
     const { channelData, bounds } = sourceLayer.props;
     if (!channelData) {
       if (cellHighlight && hasBitmask) {
-        setCellHighlight('');
+        setCellHighlight(null);
       }
       return null;
     }
     const { data, width } = channelData;
     if (!data) {
       if (cellHighlight && hasBitmask) {
-        setCellHighlight('');
+        setCellHighlight(null);
       }
       return null;
     }
@@ -146,7 +146,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           setComponentHover();
         }
         // eslint-disable-next-line no-unused-expressions
-        setCellHighlight(cellId ? String(cellId) : '');
+        setCellHighlight(cellId ? String(cellId) : null);
       }
     }
   }
