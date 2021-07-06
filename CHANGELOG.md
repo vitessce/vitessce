@@ -3,9 +3,11 @@
 ### Added
 
 ### Changed
+- Change bitmask rendering to only display a unique pixel value instead of blending.
 - Use component height for determining 3D sizing.
   - Use state rather than computing every render.
 - Fix cell highlight bug with bitmask where tooltip information remains on screen after no longer highlighting.
+- No selection of cells in bitmask now results in default "grey" color instead of the last selected cell set.
 
 ## [1.1.11](https://www.npmjs.com/package/vitessce/v/1.1.11) - 2021-06-25
 
