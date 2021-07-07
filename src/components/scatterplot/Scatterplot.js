@@ -1,4 +1,6 @@
+/* eslint-disable */
 import React, { forwardRef } from 'react';
+import GL from '@luma.gl/constants';
 import { PolygonLayer, TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
 import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
@@ -27,9 +29,10 @@ const makeDefaultGetCellPosition = mapping => (cellEntry) => {
   return [mappedCell[0], -mappedCell[1], 0];
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
-const makeDefaultGetCellColors = cellColors => cellEntry => (
-  cellColors && cellColors.get(cellEntry[0])
-) || DEFAULT_COLOR;
+const makeDefaultGetCellColors = (cellColors, cellOpacityScale) => (cellEntry) => {
+  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR;
+  return [255 * 0.5294117647058824, 255 * 0.6666666666666666, 255 * 0.8313725490196079, 255 * (a || 1) * cellOpacityScale];
+};
 const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
   cellSelection
     ? cellSelection.includes(cellEntry[0])
@@ -92,8 +95,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       theme,
       mapping,
       getCellPosition = makeDefaultGetCellPosition(mapping),
-      cellRadiusScale = 0.2,
-      cellOpacity = 1.0,
+      cellRadiusScale = 1.0,
+      cellOpacityScale = 1.0,
       cellFilter,
       cellSelection,
       setCellHighlight,
@@ -102,7 +105,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         cellsEntries.length === cellSelection.length ? null : cellSelection,
       ),
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors),
+      getCellColor = makeDefaultGetCellColors(cellColors, cellOpacityScale),
       onCellClick,
     } = this.props;
     const filteredCellsEntries = (cellFilter
@@ -113,17 +116,28 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       id: CELLS_LAYER_ID,
       backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
       isSelected: getCellIsSelected,
-      opacity: cellOpacity,
-      radiusScale: cellRadiusScale,
+      opacity: 1.0,
+      radiusUnits: 'pixels',
+      radiusScale: 1,
       radiusMinPixels: 1,
-      radiusMaxPixels: 10,
+      radiusMaxPixels: 30,
       getPosition: getCellPosition,
       getColor: getCellColor,
+      getRadius: cellRadiusScale,
       getLineWidth: 0,
       onClick: (info) => {
         if (onCellClick) {
           onCellClick(info);
         }
+      },
+      parameters: {
+        [GL.BLEND]: true,
+        [GL.SRC_COLOR]: GL.SRC_ALPHA,
+        [GL.DST_COLOR]: GL.ONE,
+        [GL.SRC_ALPHA]: GL.ONE,
+        [GL.DST_ALPHA]: GL.ONE,
+        [GL.BLEND_EQUATION_RGB]: GL.FUNC_REVERSE_SUBTRACT,
+        [GL.BLEND_EQUATION_ALPHA]: GL.FUNC_ADD,
       },
       ...cellLayerDefaultProps(
         filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
@@ -299,7 +313,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     }
 
     if ([
-      'cells', 'cellFilter', 'cellSelection', 'cellColors', 'cellRadiusScale',
+      'cells', 'cellFilter', 'cellSelection', 'cellColors',
+      'cellRadiusScale', 'cellOpacityScale',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();

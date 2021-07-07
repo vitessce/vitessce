@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
@@ -51,6 +52,13 @@ export default function ScatterplotSubscriber(props) {
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
     title: titleOverride,
+
+    // Point size at which we switch to using opacity rather than size to make the points smaller.
+    minimumPointDeviceSize = 1.5,
+    // Average fill density.
+    rho = 0.15,
+    // Gamma
+    gamma = 2.2,
   } = props;
 
   const loaders = useLoaders();
@@ -125,7 +133,8 @@ export default function ScatterplotSubscriber(props) {
   const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
-  const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
+  const [cellRadiusScale, setCellRadiusScale] = useState(1.0);
+  const [cellOpacityScale, setCellOpacityScale] = useState(0.5);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
@@ -179,10 +188,7 @@ export default function ScatterplotSubscriber(props) {
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
-  // After cells have loaded or changed,
-  // compute the cell radius scale based on the
-  // extents of the cell coordinates on the x/y axes.
-  useEffect(() => {
+  const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     const cellValues = cells && Object.values(cells);
     if (cellValues?.length) {
       const cellCoordinates = Object.values(cells)
@@ -191,12 +197,88 @@ export default function ScatterplotSubscriber(props) {
       const yExtent = extent(cellCoordinates, c => c[1]);
       const xRange = xExtent[1] - xExtent[0];
       const yRange = yExtent[1] - yExtent[0];
-      const diagonalLength = Math.sqrt((xRange ** 2) + (yRange ** 2));
-      // The 300 value here is a heuristic.
-      const newScale = clamp(diagonalLength / 300, 0, 0.2);
-      if (newScale) {
-        setCellRadiusScale(newScale);
-      } if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+      return [xRange, yRange, xExtent, yExtent, cellValues.length];
+    }
+    return [null, null, null, null, null];
+  }, [cells, mapping]);
+
+  // After cells have loaded or changed,
+  // compute the cell radius scale based on the
+  // extents of the cell coordinates on the x/y axes.
+  useEffect(() => {
+    if(yRange) {
+
+      function getPointSizeDevicePixels(devicePixelRatio, zoom, yRange, height) {
+        // Size of a point, in units of the Y axis.
+        const pointYAxisSize = 0.001;
+        // Point size minimum, in screen pixels.
+        const pointScreenSizeMin = 1 / devicePixelRatio;
+        // Point size maximum, in screen pixels.
+        const pointScreenSizeMax = 10;
+        const pixelRatio = 1;
+
+        const scaleFactor = 2 ** zoom;
+        const yAxisRange = 2.0 / ((yRange * scaleFactor) / height);
+
+        // The height as a fraction of the current y range, then converted to device pixels
+        const heightFraction = pointYAxisSize / yAxisRange;
+        const deviceSize = heightFraction * height;
+
+        const pointSizeDevicePixels = clamp(
+          deviceSize,
+          pointScreenSizeMin * pixelRatio,
+          pointScreenSizeMax * pixelRatio
+        );
+        return pointSizeDevicePixels;
+      }
+      
+      const pointSizeDevicePixels = getPointSizeDevicePixels(window.devicePixelRatio, zoom, yRange, height);
+      setCellRadiusScale(pointSizeDevicePixels);
+
+      // Point size.
+      const p = pointSizeDevicePixels;
+
+      const aspectRatio = width / height;
+
+      // Compute the plot's x and y range from the view matrix, though these could come from any source
+      const scaleFactor = 2 ** zoom;
+      const X = 2.0 / ((xRange * scaleFactor) / width);
+      const Y = 2.0 / ((yRange * scaleFactor) / height);
+      const X0 = 25 * aspectRatio;
+      const Y0 = 25;
+
+      
+
+      // Viewport size, in device pixels
+      const W = width;
+      const H = height;
+
+      // Number of points
+      const N = numCells;
+
+      let alpha = ((rho * H * H) / (N * p * p)) * (X0 / X) * (Y0 / Y);
+
+      // Points are circles, so only (pi r^2) of the unit square is filled so we
+      // slightly increase the alpha accordingly.
+      alpha *=  1.0 / (0.25 * Math.PI);
+
+      // If the pixels shrink below the minimum permitted size, then we adjust the opacity instead
+      // and apply clamping of the point size in the vertex shader. Note that we add 0.5 since we
+      // slightly inrease the size of points during rendering to accommodate SDF-style antialiasing.
+      const clampedPointDeviceSize = Math.max(minimumPointDeviceSize, p);
+
+      // We square this since we're concerned with the ratio of *areas*.
+      alpha *= Math.pow(p / clampedPointDeviceSize, 2.0);
+
+      // And finally, we clamp to the range [0, 1]. We should really clamp this to 1 / precision
+      // on the low end, depending on the data type of the destination so that we never render *nothing*.
+      const nextCellOpacityScale = clamp(alpha, 0.0, 1.0);
+
+      setCellOpacityScale(nextCellOpacityScale);
+
+      console.log(pointSizeDevicePixels, nextCellOpacityScale);
+      
+      if (typeof targetX !== 'number' || typeof targetY !== 'number') {
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
@@ -207,7 +289,7 @@ export default function ScatterplotSubscriber(props) {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cells, mapping]);
+  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping, width, height, zoom]);
 
   const getCellInfo = useCallback((cellId) => {
     const cellInfo = cells[cellId];
@@ -259,15 +341,16 @@ export default function ScatterplotSubscriber(props) {
         cellHighlight={cellHighlight}
         cellColors={cellColors}
         cellSetPolygons={cellSetPolygons}
-
         cellSetLabelSize={cellSetLabelSize}
         cellSetLabelsVisible={cellSetLabelsVisible}
         cellSetPolygonsVisible={cellSetPolygonsVisible}
-
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
-        cellRadiusScale={cellRadiusScale * cellRadius}
+
+        cellRadiusScale={cellRadiusScale}
+        cellOpacityScale={cellOpacityScale}
+
         setComponentHover={() => {
           setComponentHover(uuid);
         }}

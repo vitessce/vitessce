@@ -74,6 +74,42 @@ const vanderbiltBase = {
 // can affect the z-index of plot tooltips due to the
 // resulting ordering of elements in the DOM.
 export const configs = {
+  'overplot-opacity': {
+    name: 'Overplotting solution',
+    version: '1.0.0',
+    description: 'https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds',
+    public: true,
+    datasets: [
+      {
+        uid: 'rossler-attractor',
+        name: 'Rössler Attractor',
+        files: [
+          {
+            url: '',
+            type: 'cells',
+            fileType: 'rossler-attractor',
+          },
+        ],
+      },
+    ],
+    initStrategy: 'auto',
+    coordinationSpace: {
+      embeddingType: {
+        A: 'rossler',
+      },
+    },
+    layout: [
+      { component: 'description',
+        x: 0, y: 0, w: 2, h: 6 },
+      { component: 'status',
+        x: 0, y: 6, w: 2, h: 6 },
+      { component: 'scatterplot',
+        coordinationScopes: {
+          embeddingType: 'A',
+        },
+        x: 2, y: 0, w: 10, h: 12 },
+    ],
+  },
   'just-scatter': {
     version: '0.1.0',
     public: false,
