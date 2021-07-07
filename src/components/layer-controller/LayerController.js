@@ -171,6 +171,11 @@ export default function LayerController(props) {
     handleLayerChange({ ...layer, channels: newChannels });
   }
 
+  const setAreAllChannelsLoading = (val) => {
+    const newAreLayerChannelsLoading = channels.map(() => val);
+    setAreLayerChannelsLoading(newAreLayerChannelsLoading);
+  };
+
   // Handles adding a channel, creating a default selection
   // for the current global settings and domain type.
   const handleChannelAdd = async () => {
@@ -241,18 +246,30 @@ export default function LayerController(props) {
       ...channel.selection,
       ...selection,
     }));
-    const mouseUp = event.type === 'mouseup';
+    const canUpdateChannels = event.type === 'mouseup' || event.type === 'keydown';
     // Only update domains on a mouseup event for the same reason as above.
-    const { sliders } = mouseUp
-      ? await getDomainsAndSliders(loader, loaderSelection, domainType, use3d)
-      : { domains: [], sliders: [] };
-    if (mouseUp) {
-      const newChannels = channels.map((c, i) => ({
-        ...c,
-        slider: sliders[i],
-        selection: { ...c.selection, ...selection },
-      }));
-      setChannels(newChannels);
+    if (canUpdateChannels) {
+      setAreAllChannelsLoading(true);
+      getDomainsAndSliders(loader, loaderSelection, domainType, use3d).then(({ sliders }) => {
+        const newChannelsWithSelection = channels.map(c => ({
+          ...c,
+          selection: { ...c.selection, ...selection },
+        }));
+        // Set the callback before changing the selection
+        // so the callback is used when the layer (re)loads its data.
+        setRasterLayerCallback(() => {
+          setRasterLayerCallback(null);
+          setAreAllChannelsLoading(false);
+          const newChannelsWithSliders = [...newChannelsWithSelection].map(
+            (c, i) => ({
+              ...c,
+              slider: sliders[i],
+            }),
+          );
+          setChannels(newChannelsWithSliders);
+        });
+        setChannels(newChannelsWithSelection);
+      });
     }
     setGlobalLabelValues(prev => ({ ...prev, ...selection }));
   };
@@ -346,11 +363,6 @@ export default function LayerController(props) {
   }
 
   const controllerSectionClasses = useControllerSectionStyles();
-
-  const setAreAllChannelsLoading = (val) => {
-    const newAreLayerChannelsLoading = channels.map(() => val);
-    setAreLayerChannelsLoading(newAreLayerChannelsLoading);
-  };
 
   const { visible } = layer;
   const Visibility = visible ? VisibilityIcon : VisibilityOffIcon;

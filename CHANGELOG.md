@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Attach on load callbacks and loading indicators to layer controller when using (global) selection slider.
 
 ### Changed
 - Change bitmask rendering to only display a unique pixel value instead of blending.
