@@ -25,19 +25,19 @@ export default class AnnDataLoader extends AbstractZarrLoader {
    */
   loadCellSetIds(cellSetZarrLocation) {
     const { store } = this;
-    if (this.cellSets) {
-      return this.cellSets;
+    if (!this.cellSets) {
+      this.cellSets = {};
+    } if (cellSetZarrLocation.every(setName => this.cellSets[setName])) {
+      return Promise.all(cellSetZarrLocation.map(setName => this.cellSets[setName]));
     }
-    this.cellSets = Promise.all(
-      cellSetZarrLocation.map(async (setName) => {
+    cellSetZarrLocation.forEach((setName) => {
+      this.cellSets[setName] = (async () => {
         const { categories } = await this.getJson(`${setName}/.zattrs`);
         let categoriesValues;
         if (categories) {
           const { dtype } = await this.getJson(`/obs/${categories}/.zarray`);
           if (dtype === '|O') {
-            categoriesValues = await this.getFlatArrDecompressed(
-              `/obs/${categories}`,
-            );
+            categoriesValues = await this.getFlatArrDecompressed(`/obs/${categories}`);
           }
         }
         const cellSetsArr = await openArray({
@@ -51,9 +51,9 @@ export default class AnnDataLoader extends AbstractZarrLoader {
           i => (!categoriesValues ? String(i) : categoriesValues[i]),
         );
         return mappedCellSetValues;
-      }),
-    );
-    return this.cellSets;
+      })();
+    });
+    return Promise.all(cellSetZarrLocation.map(setName => this.cellSets[setName]));
   }
 
   /**

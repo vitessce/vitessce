@@ -382,17 +382,19 @@ export function upgradeFrom1_0_1(config) {
       url: '',
     };
     dataset.files.forEach((file) => {
-      newAnnDataFile.type.push(file.type);
-      // Create the new options made up of the old options.
-      if (file.type !== 'cell-sets') {
-        newAnnDataFile.options = {
-          ...newAnnDataFile.options,
-          ...file.options,
-        };
-      } else {
-        newAnnDataFile.options.cellSets = file.options;
+      if (file.fileType.includes('anndata')) {
+        newAnnDataFile.type.push(file.type);
+        // Create the new options made up of the old options.
+        if (file.type !== 'cell-sets') {
+          newAnnDataFile.options = {
+            ...newAnnDataFile.options,
+            ...file.options,
+          };
+        } else {
+          newAnnDataFile.options.cellSets = file.options;
+        }
+        newAnnDataFile.url = file.url;
       }
-      newAnnDataFile.url = file.url;
     });
     newConfig.datasets[index].files.push(newAnnDataFile);
   });
