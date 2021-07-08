@@ -381,6 +381,7 @@ export function upgradeFrom1_0_1(config) {
       type: [],
       url: '',
     };
+    const hasAnnDataFile = dataset.files.some(file => file.fileType.includes('anndata'));
     dataset.files.forEach((file) => {
       if (file.fileType.includes('anndata')) {
         newAnnDataFile.type.push(file.type);
@@ -396,7 +397,9 @@ export function upgradeFrom1_0_1(config) {
         newAnnDataFile.url = file.url;
       }
     });
-    newConfig.datasets[index].files.push(newAnnDataFile);
+    if (hasAnnDataFile) {
+      newConfig.datasets[index].files.push(newAnnDataFile);
+    }
   });
   return {
     ...newConfig,
