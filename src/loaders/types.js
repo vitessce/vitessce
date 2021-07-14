@@ -1,5 +1,6 @@
 import JsonLoader from './JsonLoader';
 import MatrixZarrLoader from './MatrixZarrLoader';
+import MoleculesJsonLoader from './MoleculesJsonLoader';
 import GenesJsonAsMatrixZarrLoader from './GenesJsonAsMatrixZarrLoader';
 import ClustersJsonAsMatrixZarrLoader from './ClustersJsonAsMatrixZarrLoader';
 import RasterJsonLoader from './RasterJsonLoader';
@@ -16,7 +17,7 @@ export const fileTypeToLoader = {
   'clusters.json': ClustersJsonAsMatrixZarrLoader,
   'genes.json': GenesJsonAsMatrixZarrLoader,
   'cells.json': JsonLoader,
-  'molecules.json': JsonLoader,
+  'molecules.json': MoleculesJsonLoader,
   'neighborhoods.json': JsonLoader,
   'raster.json': RasterJsonLoader,
   'raster.ome-zarr': OmeZarrLoader,

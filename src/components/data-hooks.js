@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import equal from 'fast-deep-equal';
+import { extent } from 'd3-array';
 import { capitalize } from '../utils';
 import { useSetWarning } from '../app/state/hooks';
 import {
@@ -445,10 +446,11 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
  * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
- * @returns {array} [molecules, moleculesCount, locationsCount] where
+ * @returns {array} [molecules, moleculesCount, locationsCount, dimRanges] where
  * molecules is an object,
- * moleculesCount is the number of unique molecule types, and
- * locationsCount is the number of molecules.
+ * moleculesCount is the number of unique molecule types,
+ * locationsCount is the number of molecules, and
+ * dimRanges is the range of values for each dimension.
  */
 export function useMoleculesData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
@@ -457,6 +459,7 @@ export function useMoleculesData(
   const [molecules, setMolecules] = useState();
   const [moleculesCount, setMoleculesCount] = useState(0);
   const [locationsCount, setLocationsCount] = useState(0);
+  const [dimRanges, setDimRanges] = useState({});
 
   const setWarning = useSetWarning();
 
@@ -474,6 +477,8 @@ export function useMoleculesData(
         setLocationsCount(Object.values(data)
           .map(l => l.length)
           .reduce((a, b) => a + b, 0));
+        const zExtent = extent(Object.values(data).flatMap(l => l.map(d => d[2])));
+        setDimRanges({ z: { min: zExtent[0], max: zExtent[1], step: 1 } });
         addUrl(url, 'Molecules');
         const coordinationValuesOrDefault = {
           spatialMoleculesLayer: DEFAULT_MOLECULES_LAYER,
@@ -499,7 +504,7 @@ export function useMoleculesData(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
-  return [molecules, moleculesCount, locationsCount];
+  return [molecules, moleculesCount, locationsCount, dimRanges];
 }
 
 /**

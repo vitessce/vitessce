@@ -11,6 +11,7 @@ import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubsc
 import GenomicProfilesSubscriber from '../components/higlass/GenomicProfilesSubscriber';
 import ExpressionHistogramSubscriber from '../components/genes/ExpressionHistogramSubscriber';
 import CellSetExpressionPlotSubscriber from '../components/sets/CellSetExpressionPlotSubscriber';
+import DimensionControllerSubscriber from '../components/dimension-controller/DimensionControllerSubscriber';
 
 const registry = {
   description: DescriptionSubscriber,
@@ -21,6 +22,7 @@ const registry = {
   spatial: SpatialSubscriber,
   heatmap: HeatmapSubscriber,
   layerController: LayerControllerSubscriber,
+  dimensionController: DimensionControllerSubscriber,
   cellSetSizes: CellSetSizesPlotSubscriber,
   expressionHistogram: ExpressionHistogramSubscriber,
   genomicProfiles: GenomicProfilesSubscriber,
