@@ -22,6 +22,7 @@ import {
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
+  useAuxiliaryCoordination,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -64,6 +65,11 @@ export default function SpatialSubscriber(props) {
     spatialTargetX: targetX,
     spatialTargetY: targetY,
     spatialTargetZ: targetZ,
+    spatialRotationX: rotationX,
+    spatialRotationY: rotationY,
+    spatialRotationZ: rotationZ,
+    spatialRotationOrbit: rotationOrbit,
+    spatialOrbitAxis: orbitAxis,
     spatialRasterLayers: rasterLayers,
     spatialCellsLayer: cellsLayer,
     spatialMoleculesLayer: moleculesLayer,
@@ -76,11 +82,15 @@ export default function SpatialSubscriber(props) {
     cellColorEncoding,
     additionalCellSets,
     moleculeSelection,
+    spatialAxisFixed,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
     setSpatialTargetY: setTargetY,
     setSpatialTargetZ: setTargetZ,
+    setSpatialRotationX: setRotationX,
+    setSpatialRotationOrbit: setRotationOrbit,
+    setSpatialOrbitAxis: setOrbitAxis,
     setSpatialRasterLayers: setRasterLayers,
     setSpatialCellsLayer: setCellsLayer,
     setSpatialMoleculesLayer: setMoleculesLayer,
@@ -92,7 +102,19 @@ export default function SpatialSubscriber(props) {
     setCellColorEncoding,
     setAdditionalCellSets,
     setMoleculeHighlight,
+    setSpatialAxisFixed,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
+
+  const [
+    {
+      rasterLayersCallbacks,
+    },
+  ] = useAuxiliaryCoordination(
+    COMPONENT_COORDINATION_TYPES.layerController,
+    coordinationScopes,
+  );
+
+  const use3d = rasterLayers?.some(l => l.use3d);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [isReady, setItemIsReady, resetReadyItems] = useReady(
@@ -136,39 +158,44 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, false,
   );
   // eslint-disable-next-line no-unused-vars
-  const [raster, imageLayerLoaders] = useRasterData(
+  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialRasterLayers: setRasterLayers },
     { spatialRasterLayers: rasterLayers },
   );
 
   const layers = useMemo(() => {
-    const shouldWaitForRaster = loaders[dataset].loaders.raster;
-    // Only want to show cells once the dataset has loaded because centroids are often not visible.
-    const canPassInCellsLayer = shouldWaitForRaster ? rasterLayers : true;
+    // Only want to pass in cells layer once if there is not `bitmask`.
+    // We pass in the cells data regardless because it is needed for selection,
+    // but the rendering layer itself is not needed.
+    const canPassInCellsLayer = !imageLayerMeta.some(l => l?.metadata?.isBitmask);
     return [
       ...(moleculesLayer ? [{ ...moleculesLayer, type: 'molecules' }] : []),
       ...((cellsLayer && canPassInCellsLayer) ? [{ ...cellsLayer, type: 'cells' }] : []),
       ...(neighborhoodsLayer ? [{ ...neighborhoodsLayer, type: 'neighborhoods' }] : []),
       ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: l.type || 'raster' })) : []),
     ];
-  }, [cellsLayer, dataset, loaders, moleculesLayer, neighborhoodsLayer, rasterLayers]);
+  }, [cellsLayer, moleculesLayer, neighborhoodsLayer, rasterLayers, imageLayerMeta]);
 
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
-      const { initialTargetX, initialTargetY, initialZoom } = getInitialSpatialTargets({
+      const {
+        initialTargetX, initialTargetY, initialTargetZ, initialZoom,
+      } = getInitialSpatialTargets({
         width,
         height,
         cells,
         imageLayerLoaders,
         useRaster: Boolean(loaders[dataset].loaders.raster),
+        use3d,
       });
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);
+      setTargetZ(initialTargetZ);
       setZoom(initialZoom);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom]);
+  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom, use3d]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
@@ -207,6 +234,22 @@ export default function SpatialSubscriber(props) {
     return null;
   };
 
+  const setViewState = ({
+    zoom: newZoom,
+    target,
+    rotationX: newRotationX,
+    rotationOrbit: newRotationOrbit,
+    orbitAxis: newOrbitAxis,
+  }) => {
+    setZoom(newZoom);
+    setTargetX(target[0]);
+    setTargetY(target[1]);
+    setTargetZ(target[2]);
+    setRotationX(newRotationX);
+    setRotationOrbit(newRotationOrbit);
+    setOrbitAxis(newOrbitAxis);
+  };
+
   const subtitle = makeSpatialSubtitle({
     observationsCount: cellsCount,
     observationsLabel,
@@ -230,6 +273,9 @@ export default function SpatialSubscriber(props) {
           observationsLabel={observationsLabel}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
+          setSpatialAxisFixed={setSpatialAxisFixed}
+          spatialAxisFixed={spatialAxisFixed}
+          use3d={use3d}
         />
       )}
     >
@@ -238,13 +284,16 @@ export default function SpatialSubscriber(props) {
         uuid={uuid}
         width={width}
         height={height}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
-        setViewState={({ zoom: newZoom, target }) => {
-          setZoom(newZoom);
-          setTargetX(target[0]);
-          setTargetY(target[1]);
-          setTargetZ(target[2]);
+        viewState={{
+          zoom,
+          target: [targetX, targetY, targetZ],
+          rotationX,
+          rotationY,
+          rotationZ,
+          rotationOrbit,
+          orbitAxis,
         }}
+        setViewState={setViewState}
         layers={layers}
         cells={cells}
         cellFilter={cellFilter}
@@ -263,15 +312,17 @@ export default function SpatialSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
+        rasterLayersCallbacks={rasterLayersCallbacks}
+        spatialAxisFixed={spatialAxisFixed}
       />
       {!disableTooltip && (
-      <SpatialTooltipSubscriber
-        parentUuid={uuid}
-        cellHighlight={cellHighlight}
-        width={width}
-        height={height}
-        getCellInfo={getCellInfo}
-      />
+        <SpatialTooltipSubscriber
+          parentUuid={uuid}
+          cellHighlight={cellHighlight}
+          width={width}
+          height={height}
+          getCellInfo={getCellInfo}
+        />
       )}
     </TitleInfo>
   );

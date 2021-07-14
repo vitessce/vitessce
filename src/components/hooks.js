@@ -4,6 +4,37 @@ import {
 import debounce from 'lodash/debounce';
 import { useGridResize, useEmitGridResize } from '../app/state/hooks';
 
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return {
+    width,
+    height,
+  };
+}
+
+/**
+ * Custom hook, gets the full window dimensions.
+ * @returns {array} `[width, height]` where width and height
+ * are numbers.
+ */
+export function useWindowDimensions() {
+  const [windowDimensions, setWindowDimensions] = useState(
+    getWindowDimensions(),
+  );
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+    const onResizeDebounced = debounce(handleResize, 100, { trailing: true });
+
+    window.addEventListener('resize', onResizeDebounced);
+    return () => window.removeEventListener('resize', onResizeDebounced);
+  }, []);
+
+  return windowDimensions;
+}
+
 /**
  * Custom hook, subscribes to GRID_RESIZE and window resize events.
  * @returns {array} `[width, height, containerRef]` where width and height
@@ -146,4 +177,36 @@ export function useUrls() {
   }, [setUrls]);
 
   return [urls, addUrl, resetUrls];
+}
+
+/**
+ * Custom hook, subscribes to the width and height of the closest .vitessce-container
+ * element and updates upon window resize events.
+ * @param {Ref} ref A React ref object within the `.vitessce-container`.
+ * @returns {array} `[width, height]` where width and height
+ * are numbers.
+ */
+export function useClosestVitessceContainerSize(ref) {
+  const [height, setHeight] = useState();
+  const [width, setWidth] = useState();
+
+  useEffect(() => {
+    function onWindowResize() {
+      if (ref.current) {
+        const {
+          clientHeight: componentHeight, clientWidth: componentWidth,
+        } = ref.current.closest('.vitessce-container');
+        setWidth(componentWidth);
+        setHeight(componentHeight);
+      }
+    }
+    const onResizeDebounced = debounce(onWindowResize, 100, { trailing: true });
+    window.addEventListener('resize', onResizeDebounced);
+    onWindowResize();
+    return () => {
+      window.removeEventListener('resize', onResizeDebounced);
+    };
+  }, [ref]);
+
+  return [width, height];
 }

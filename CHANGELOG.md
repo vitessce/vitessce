@@ -1,14 +1,58 @@
 ## In Progress
 
 ### Added
-- Add support for bitmasks to `Spatial` component and raster schema.
+- Attach on load callbacks and loading indicators to layer controller when using (global) selection slider.
 - Add loader for `GeoJSON` polygons/points as cells.  QuPath outputs GeoJSON for annotations.
 - Updated `GeoJSON` loader to support the Baysor custom format
 - Added coordination types for selection of molecules
 
 ### Changed
+- Change bitmask rendering to only display a unique pixel value instead of blending.
+- Use component height for determining 3D sizing.
+  - Use state rather than computing every render.
+- Fix cell highlight bug with bitmask where tooltip information remains on screen after no longer highlighting.
+- No selection of cells in bitmask now results in default "grey" color instead of the last selected cell set.
+- Cache computation of internal data structures on `AnnData` zarr loaders.
+- Upgrade zarr.js to 0.4.0
+
+## [1.1.11](https://www.npmjs.com/package/vitessce/v/1.1.11) - 2021-06-25
+
+### Added
+- Global visibility button next to name in layer controller.
+- Volumetric ray casting from `Viv`
+    - Upgrade `Viv` to 0.10.4
+    - Add new coordination types `spatialRotationX` `spatialRotationY` `spatialRotationZ` `spatialRotationOrbit` `spatialOrbitAxis` and update `spatialRasterLayers` with new parts
+    - Add spatial view state coordination types to `LayerController`
+    - Update UI for `LayerController`
+- Global visbiility prop per layer in `spatialRasterLayers`.
+- Add indication to Y axis title of cell set expression violin plot when log-transformation is active.
+
+### Changed
+- Cache cell set polygon outputs and do not calculate them unless requested.
+  - Modify the cache to use an array of tuples, since using an array as an object key results in conversion to string.
+- Clean up `getFlatArrDecompressed` fetching.
+- Fix bitmask remove button style.
+- Don't show 3D dropdown if only 2D is available.
+- Don't show Volume tab (or any tabs) when 3D is not available.
+
+## [1.1.10](https://www.npmjs.com/package/vitessce/v/1.1.10) - 2021-05-19
+
+### Added
+- Add support for bitmasks to `Spatial` component and raster schema.
+- Worker pool for processing heatmap tiles.
+
+### Changed
 - Use GH Action for Cypress specifically due to random failures on OME-TIFF example.
 - Use raster loader for initial view state when present instead of cells.
+- Fix `VlenUtf8` parsing for zarr.
+- Fix bug where adding/removing layers only adds a `bitmask` controller.
+- Fix condition for showing lasso with bitmask and/or centroids.
+- Fix 0's displaying when selection is not enabled for `Spatial`.
+- Fix bug where polygons or centroids would show under the `bitmask`.
+- `bitmask` color texture creation assumed that `cellColors` prop was only rgb, but it can be rgba.
+- Fix bug where quadtree wouldn't work with only scatterplot.
+- Fix controller padding bug.
+- Ensure `VlenUtf8` filter is only used/checked when necessary.
 
 ## [1.1.9](https://www.npmjs.com/package/vitessce/v/1.1.9) - 2021-05-07
 

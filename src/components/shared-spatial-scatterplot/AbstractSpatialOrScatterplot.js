@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import DeckGL, { OrthographicView } from 'deck.gl';
+import DeckGL, { OrthographicView, OrbitView } from 'deck.gl';
 import ToolMenu from './ToolMenu';
 import { DEFAULT_GL_OPTIONS } from '../utils';
 import { getCursor, getCursorWithTool } from './cursor';
@@ -37,8 +37,15 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * @param {object} params.viewState The next deck.gl viewState.
    */
   onViewStateChange({ viewState: nextViewState }) {
-    const { setViewState } = this.props;
-    setViewState(nextViewState);
+    const {
+      setViewState, viewState, layers, spatialAxisFixed,
+    } = this.props;
+    const use3d = layers?.some(l => l.use3d);
+    setViewState({
+      ...nextViewState,
+      // If the axis is fixed, just use the current target in state i.e don't change target.
+      target: spatialAxisFixed && use3d ? viewState.target : nextViewState.target,
+    });
   }
 
   /**
@@ -89,22 +96,31 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   // eslint-disable-next-line consistent-return
   onHover(info) {
     const { coordinate, layer, sourceLayer } = info;
-    const { setCellHighlight, cellHighlight, setComponentHover } = this.props;
-    if (!sourceLayer) {
-      return null;
-    }
+    const {
+      setCellHighlight, cellHighlight, setComponentHover, layers,
+    } = this.props;
+    const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
     if (!setCellHighlight) {
       return null;
     }
-    if (!coordinate) {
+    if (!sourceLayer || !coordinate) {
+      if (cellHighlight && hasBitmask) {
+        setCellHighlight(null);
+      }
       return null;
     }
     const { channelData, bounds } = sourceLayer.props;
     if (!channelData) {
+      if (cellHighlight && hasBitmask) {
+        setCellHighlight(null);
+      }
       return null;
     }
     const { data, width } = channelData;
     if (!data) {
+      if (cellHighlight && hasBitmask) {
+        setCellHighlight(null);
+      }
       return null;
     }
     // Tiled layer needs a custom layerZoomScale.
@@ -130,7 +146,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           setComponentHover();
         }
         // eslint-disable-next-line no-unused-expressions
-        setCellHighlight(cellId ? String(cellId) : '');
+        setCellHighlight(cellId ? String(cellId) : null);
       }
     }
   }
@@ -177,13 +193,15 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
+    const use3d = (layerProps || []).some(l => l.use3d);
 
-    const showCellSelectionTools = this.cellsLayer !== null || layerProps.findIndex(l => l.type === 'cells') > 0;
-    const showPanTool = this.cellsLayer !== null || layerProps.findIndex(l => l.type === 'bitmask') > 0;
-    // For large datasets, the visual quality takes only a small
+    const showCellSelectionTools = this.cellsLayer !== null
+      || (this.cellsEntries.length && this.cellsEntries[0][1].xy);
+    const showPanTool = this.cellsLayer !== null || layerProps.findIndex(l => l.type === 'bitmask' || l.type === 'raster') >= 0;
+    // For large datasets or ray casting, the visual quality takes only a small
     // hit in exchange for much better performance by setting this to false:
     // https://deck.gl/docs/api-reference/core/deck#usedevicepixels
-    const useDevicePixels = this.cellsEntries.length < 100000;
+    const useDevicePixels = this.cellsEntries.length < 100000 && !use3d;
 
     return (
       <>
@@ -199,14 +217,24 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         <DeckGL
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
-          views={[new OrthographicView({ id: 'ortho' })]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
-          layers={(gl && viewState.target.every(i => typeof i === 'number')) ? layers : ([])}
+          views={[
+            use3d
+              ? new OrbitView({ id: 'orbit', controller: true, orbitAxis: 'Y' })
+              : new OrthographicView({
+                id: 'ortho',
+              }),
+          ]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
+          layers={
+            gl && viewState.target.slice(0, 2).every(i => typeof i === 'number')
+              ? layers
+              : []
+          }
           glOptions={DEFAULT_GL_OPTIONS}
           onWebGLInitialized={this.onWebGLInitialized}
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           useDevicePixels={useDevicePixels}
-          controller={tool ? ({ dragPan: false }) : true}
+          controller={tool ? { dragPan: false } : true}
           getCursor={tool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
         >

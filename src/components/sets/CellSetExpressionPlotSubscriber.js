@@ -103,6 +103,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
             theme={theme}
             width={width}
             height={height}
+            useGeneExpressionTransform={useGeneExpressionTransform}
           />
         ) : (
           <span>Select a gene.</span>

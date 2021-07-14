@@ -250,8 +250,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createScaleBarLayer() {
     const {
-      viewState, width, height, imageLayerLoaders = {},
+      viewState, width, height, imageLayerLoaders = {}, layers,
     } = this.props;
+    const use3d = (layers || []).some(i => i.use3d);
     // Just get the first layer/loader since they should all be spatially
     // resolved and therefore have the same unit size scale.
     const loaders = Object.values(imageLayerLoaders);
@@ -261,7 +262,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const source = getSourceFromLoader(loader);
     if (!source.meta) return null;
     const { physicalSizes } = source.meta;
-    if (physicalSizes) {
+    if (physicalSizes && !use3d) {
       const { x } = physicalSizes;
       const { unit, size } = x;
       if (unit && size) {
@@ -304,7 +305,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
       transparentColor: layerDef.transparentColor,
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
-      visibilities: layerDef.channels.map(c => c.visible),
+      resolution: layerDef.resolution,
+      renderingMode: layerDef.renderingMode,
+      xSlice: layerDef.xSlice,
+      ySlice: layerDef.ySlice,
+      zSlice: layerDef.zSlice,
+      callback: layerDef.callback,
+      visibilities: layerDef.channels.map(
+        c => (!layerDef.visible && typeof layerDef.visible === 'boolean' ? false : c.visible),
+      ),
     };
 
     if (!loader || !layerProps) return null;
@@ -337,15 +346,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
         cellColorHeight: this.color.height,
         cellColorWidth: this.color.width,
         excludeBackground: true,
+        onViewportLoad: layerProps.callback,
       });
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(
       data,
-      rawLayerDef.isBitmask,
+      layerDef.use3d,
     );
+
     return new Layer({
       loader: layerLoader,
-      id: `image-layer-${layerDef.index}-${i}`,
+      id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${
+        layerDef.index
+      }-${i}`,
       colorValues: layerProps.colors,
       sliderValues: layerProps.sliders,
       loaderSelection,
@@ -354,15 +367,26 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colormap: layerProps.colormap,
       modelMatrix,
       transparentColor: layerProps.transparentColor,
+      resolution: layerProps.resolution,
+      renderingMode: layerProps.renderingMode,
+      pickable: false,
+      xSlice: layerProps.xSlice,
+      ySlice: layerProps.ySlice,
+      zSlice: layerProps.zSlice,
+      onViewportLoad: layerProps.callback,
     });
   }
 
   createImageLayers() {
-    const { layers, imageLayerLoaders = {} } = this.props;
+    const { layers, imageLayerLoaders = {}, rasterLayersCallbacks = [] } = this.props;
+    const use3d = (layers || []).some(i => i.use3d);
+    const use3dIndex = (layers || []).findIndex(i => i.use3d);
     return (layers || [])
       .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
+      .filter(layer => (use3d ? layer.use3d === use3d : true))
       .map((layer, i) => this.createImageLayer(
-        layer, imageLayerLoaders[layer.index], i,
+        { ...layer, callback: rasterLayersCallbacks[use3d ? use3dIndex : i] },
+        imageLayerLoaders[layer.index], i,
       ));
   }
 
@@ -396,16 +420,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdateCellsLayer() {
     const { layers } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'cells');
-    const hasBitmaskLayers = (layers || []).find(
-      layer => layer.type === 'bitmask',
-    );
-    if (layerDef
-      && this.cellsEntries.length
-      // Only use cellsEntries in quadtree calculation if there is
-      // centroid data in the cells (i.e not just ids).
-      // eslint-disable-next-line no-unused-vars
-      && this.cellsEntries[0][1].xy
-      && !hasBitmaskLayers) {
+    if (layerDef) {
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {
       this.cellsLayer = null;
@@ -415,7 +430,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdateCellColors() {
     const color = this.randomColorData;
     const { size } = this.props.cellColors;
-    if (size) {
+    if (typeof size === 'number') {
       const cellIds = this.props.cellColors.keys();
       color.data = new Uint8Array(color.height * color.width * 3).fill(128);
       // 0th cell id is the empty space of the image i.e black color.
@@ -427,7 +442,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         if (id > 0) {
           const cellColor = this.props.cellColors.get(id);
           if (cellColor) {
-            color.data.set(cellColor, Number(id) * 3);
+            color.data.set(cellColor.slice(0, 3), Number(id) * 3);
           }
         }
       }
@@ -538,7 +553,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight'].some(shallowDiff)) {
+    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight', 'rasterLayersCallbacks'].some(shallowDiff)) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();
