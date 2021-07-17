@@ -3,7 +3,8 @@ import React, { forwardRef } from 'react';
 import GL from '@luma.gl/constants';
 import { PolygonLayer, TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
-import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
+import { DynamicOpacityScatterplotLayer, getSelectionLayers } from '../../layers';
+
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
 import {
   createCellsQuadTree,
@@ -112,11 +113,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
 
-    return new SelectableScatterplotLayer({
+    return new DynamicOpacityScatterplotLayer({
       id: CELLS_LAYER_ID,
       backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
       isSelected: getCellIsSelected,
-      opacity: 1.0,
+      opacity: 0.5,
       radiusUnits: 'pixels',
       radiusScale: 1,
       radiusMinPixels: 1,
@@ -131,13 +132,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         }
       },
       parameters: {
-        [GL.BLEND]: true,
-        [GL.SRC_COLOR]: GL.SRC_ALPHA,
-        [GL.DST_COLOR]: GL.ONE,
-        [GL.SRC_ALPHA]: GL.ONE,
-        [GL.DST_ALPHA]: GL.ONE,
+        [GL.BLEND]: false,
+        [GL.BLEND_SRC_RGB]: GL.SRC_ALPHA,
+        [GL.BLEND_DST_RGB]: GL.ONE,
+        [GL.BLEND_SRC_ALPHA]: GL.ONE,
+        [GL.BLEND_DST_ALPHA]: GL.ONE,
         [GL.BLEND_EQUATION_RGB]: GL.FUNC_REVERSE_SUBTRACT,
         [GL.BLEND_EQUATION_ALPHA]: GL.FUNC_ADD,
+        [GL.DEPTH]: false,
       },
       ...cellLayerDefaultProps(
         filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
@@ -237,7 +239,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     return [
       cellsLayer,
       ...cellSetsLayers,
-      ...this.createSelectionLayers(),
+      /*...this.createSelectionLayers(),*/
     ];
   }
 

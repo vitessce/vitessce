@@ -7,3 +7,5 @@ export { getSelectionLayers } from './selection-utils';
 export { default as HeatmapBitmapLayer } from './HeatmapBitmapLayer';
 export { default as PixelatedBitmapLayer } from './PixelatedBitmapLayer';
 export { default as HeatmapCompositeTextLayer } from './HeatmapCompositeTextLayer';
+
+export { default as DynamicOpacityScatterplotLayer } from './DynamicOpacityScatterplotLayer';

@@ -1,13 +1,14 @@
-import { CompositeLayer, ScatterplotLayer } from 'deck.gl';
+import { CompositeLayer } from 'deck.gl';
+import DynamicOpacityScatterplotLayer from './DynamicOpacityScatterplotLayer';
 
 import { overlayBaseProps } from './selection-utils';
 
 export default class SelectableScatterplotLayer extends CompositeLayer {
   renderLayers() {
     const props = overlayBaseProps(this.props);
-    const base = new ScatterplotLayer(props.base);
-    const overlay = new ScatterplotLayer(props.overlay);
-    return [base, overlay];
+    const base = new DynamicOpacityScatterplotLayer(props.base);
+    // const overlay = new ScatterplotLayer(props.overlay);
+    return [base];
   }
 }
 
