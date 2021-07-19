@@ -54,11 +54,9 @@ export default function ScatterplotSubscriber(props) {
     title: titleOverride,
 
     // Point size at which we switch to using opacity rather than size to make the points smaller.
-    minimumPointDeviceSize = 1.5,
+    minimumPointSize = 1.5,
     // Average fill density.
-    rho = 0.15,
-    // Gamma
-    gamma = 2.2,
+    avgFillDensity = 1/5,
   } = props;
 
   const loaders = useLoaders();
@@ -218,6 +216,7 @@ export default function ScatterplotSubscriber(props) {
         const pixelRatio = 1;
 
         const scaleFactor = 2 ** zoom;
+        // TODO: use both width and height.
         const yAxisRange = 2.0 / ((yRange * scaleFactor) / height);
 
         // The height as a fraction of the current y range, then converted to device pixels
@@ -235,7 +234,7 @@ export default function ScatterplotSubscriber(props) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(window.devicePixelRatio, zoom, yRange, height);
       setCellRadiusScale(pointSizeDevicePixels);
 
-      function getPointOpacity(zoom, width, height, numCells) {
+      function getPointOpacity(zoom, width, height, numCells, avgFillDensity) {
         const scaleFactor = 2 ** zoom;
         
         // Viewport size, in device pixels.
@@ -245,22 +244,20 @@ export default function ScatterplotSubscriber(props) {
         // Number of points.
         const N = numCells;
 
-        const targetShare = 1/500;
+        const targetShare = avgFillDensity;
         const fractionOfTotalVisible = 1/scaleFactor**2;
         const pixelArea = W * H;
         const totalPoints = N;
-        const alpha =  ( targetShare * (pixelArea / 8) / (totalPoints * (Math.exp(Math.log(scaleFactor) * .35) ** 2)) ) / fractionOfTotalVisible;
-        console.log(zoom, alpha);
+        const alpha =  ( (targetShare/50) * pixelArea / (totalPoints * (Math.exp(Math.log(scaleFactor) * .35) ** 2)) ) / fractionOfTotalVisible;
         
         const pointOpacity =  alpha > 1 ? 1 : alpha < 1/255 ? 1.01/255 : alpha;
         return pointOpacity;
       }
 
-      const nextCellOpacityScale = getPointOpacity(zoom, width, height, numCells);
+      const nextCellOpacityScale = getPointOpacity(zoom, width, height, numCells, avgFillDensity);
 
       setCellOpacityScale(nextCellOpacityScale);
 
-      console.log(pointSizeDevicePixels, nextCellOpacityScale);
       
       if (typeof targetX !== 'number' || typeof targetY !== 'number') {
         const newTargetX = xExtent[0] + xRange / 2;
@@ -273,7 +270,7 @@ export default function ScatterplotSubscriber(props) {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping, width, height, zoom]);
+  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping, width, height, zoom, avgFillDensity]);
 
   const getCellInfo = useCallback((cellId) => {
     const cellInfo = cells[cellId];

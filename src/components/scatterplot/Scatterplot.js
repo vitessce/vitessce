@@ -32,7 +32,7 @@ const makeDefaultGetCellPosition = mapping => (cellEntry) => {
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
 const makeDefaultGetCellColors = (cellColors, cellOpacityScale) => (cellEntry) => {
   const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR;
-  return [255 * 0.5294117647058824, 255 * 0.6666666666666666, 255 * 0.8313725490196079, 255 * (a || 1) * cellOpacityScale];
+  return [r, g, b, 255 * (a || 1) * cellOpacityScale];
 };
 const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
   cellSelection
