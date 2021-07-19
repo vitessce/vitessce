@@ -31,6 +31,7 @@ uniform bool filled;
 
 varying vec4 vFillColor;
 varying vec4 vLineColor;
+varying float vOpacity;
 varying vec2 unitPosition;
 varying float innerUnitRadius;
 varying float outerRadiusPixels;
@@ -65,8 +66,13 @@ void main(void) {
   gl_Position = project_position_to_clipspace(instancePositions, instancePositions64Low, offset, geometry.position);
   DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
 
-  vec4 color = vec4(0.0);
-  DECKGL_FILTER_COLOR(color, geometry);
+  vOpacity = opacity;
+
+  // Apply opacity to instance color, or return instance picking color
+  vFillColor = vec4(instanceFillColors.rgb, opacity);
+  DECKGL_FILTER_COLOR(vFillColor, geometry);
+  vLineColor = vec4(instanceLineColors.rgb, opacity);
+  DECKGL_FILTER_COLOR(vLineColor, geometry);
 }
 `;
 
@@ -93,6 +99,8 @@ precision highp float;
 varying vec2 unitPosition;
 varying float innerUnitRadius;
 varying float outerRadiusPixels;
+varying vec4 vFillColor;
+varying float vOpacity;
 
 void main(void) {
   geometry.uv = unitPosition;
@@ -102,8 +110,7 @@ void main(void) {
     discard;
   }
   vec4 pointColor = rdbu(0.1);
-  gl_FragColor = pointColor;
-  gl_FragColor.a = 0.3;
+  gl_FragColor = vFillColor;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);
 }
 `;

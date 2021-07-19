@@ -235,44 +235,28 @@ export default function ScatterplotSubscriber(props) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(window.devicePixelRatio, zoom, yRange, height);
       setCellRadiusScale(pointSizeDevicePixels);
 
-      // Point size.
-      const p = pointSizeDevicePixels;
+      function getPointOpacity(zoom, width, height, numCells) {
+        const scaleFactor = 2 ** zoom;
+        
+        // Viewport size, in device pixels.
+        const W = width;
+        const H = height;
 
-      const aspectRatio = width / height;
+        // Number of points.
+        const N = numCells;
 
-      // Compute the plot's x and y range from the view matrix, though these could come from any source
-      const scaleFactor = 2 ** zoom;
-      const X = 2.0 / ((xRange * scaleFactor) / width);
-      const Y = 2.0 / ((yRange * scaleFactor) / height);
-      const X0 = 25 * aspectRatio;
-      const Y0 = 25;
+        const targetShare = 1/500;
+        const fractionOfTotalVisible = 1/scaleFactor**2;
+        const pixelArea = W * H;
+        const totalPoints = N;
+        const alpha =  ( targetShare * (pixelArea / 8) / (totalPoints * (Math.exp(Math.log(scaleFactor) * .35) ** 2)) ) / fractionOfTotalVisible;
+        console.log(zoom, alpha);
+        
+        const pointOpacity =  alpha > 1 ? 1 : alpha < 1/255 ? 1.01/255 : alpha;
+        return pointOpacity;
+      }
 
-      
-
-      // Viewport size, in device pixels
-      const W = width;
-      const H = height;
-
-      // Number of points
-      const N = numCells;
-
-      let alpha = ((rho * H * H) / (N * p * p)) * (X0 / X) * (Y0 / Y);
-
-      // Points are circles, so only (pi r^2) of the unit square is filled so we
-      // slightly increase the alpha accordingly.
-      alpha *=  1.0 / (0.25 * Math.PI);
-
-      // If the pixels shrink below the minimum permitted size, then we adjust the opacity instead
-      // and apply clamping of the point size in the vertex shader. Note that we add 0.5 since we
-      // slightly inrease the size of points during rendering to accommodate SDF-style antialiasing.
-      const clampedPointDeviceSize = Math.max(minimumPointDeviceSize, p);
-
-      // We square this since we're concerned with the ratio of *areas*.
-      alpha *= Math.pow(p / clampedPointDeviceSize, 2.0);
-
-      // And finally, we clamp to the range [0, 1]. We should really clamp this to 1 / precision
-      // on the low end, depending on the data type of the destination so that we never render *nothing*.
-      const nextCellOpacityScale = clamp(alpha, 0.0, 1.0);
+      const nextCellOpacityScale = getPointOpacity(zoom, width, height, numCells);
 
       setCellOpacityScale(nextCellOpacityScale);
 

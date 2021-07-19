@@ -117,7 +117,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       id: CELLS_LAYER_ID,
       backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
       isSelected: getCellIsSelected,
-      opacity: 0.5,
+      opacity: cellOpacityScale,
       radiusUnits: 'pixels',
       radiusScale: 1,
       radiusMinPixels: 1,
@@ -132,14 +132,16 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         }
       },
       parameters: {
-        [GL.BLEND]: false,
+        [GL.BLEND]: true,
+        [GL.BLEND_EQUATION_ALPHA]: GL.FUNC_ADD,
+        /*[GL.BLEND]: false,
         [GL.BLEND_SRC_RGB]: GL.SRC_ALPHA,
         [GL.BLEND_DST_RGB]: GL.ONE,
         [GL.BLEND_SRC_ALPHA]: GL.ONE,
         [GL.BLEND_DST_ALPHA]: GL.ONE,
         [GL.BLEND_EQUATION_RGB]: GL.FUNC_REVERSE_SUBTRACT,
         [GL.BLEND_EQUATION_ALPHA]: GL.FUNC_ADD,
-        [GL.DEPTH]: false,
+        [GL.DEPTH]: false,*/
       },
       ...cellLayerDefaultProps(
         filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
