@@ -344,7 +344,8 @@
             ]
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "enum": ["raster", "bitmask"]
           },
           "use3d": {
             "type": "boolean"
