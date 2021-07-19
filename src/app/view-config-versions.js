@@ -18,6 +18,7 @@ import {
  * Add a new schema and upgrade function here when bumping the view config version.
  * The latest view config version should always have a null value instead of an upgrade function.
  */
+export const LATEST_VERSION = '1.0.2';
 export const UPGRADE_FUNCTIONS = {
   '0.1.0': [new Ajv().compile(configSchema0_1_0), upgradeFrom0_1_0],
   '1.0.0': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_0), upgradeFrom1_0_0],
