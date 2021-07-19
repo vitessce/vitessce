@@ -7,7 +7,7 @@ import {
   COMPONENT_COORDINATION_TYPES,
   AUTO_INDEPENDENT_COORDINATION_TYPES,
 } from './state/coordination';
-import { UPGRADE_FUNCTIONS } from './view-config-versions';
+import { SCHEMA_HANDLERS } from './view-config-versions';
 
 /**
  * Get a list of all unique scope names for a
@@ -177,14 +177,14 @@ export function upgradeAndValidate(oldConfig) {
   do {
     fromVersion = nextConfig.version;
 
-    if (!Object.keys(UPGRADE_FUNCTIONS).includes(fromVersion)) {
+    if (!Object.keys(SCHEMA_HANDLERS).includes(fromVersion)) {
       return [{
         title: 'Config validation failed',
         preformatted: 'Unknown config version.',
       }, false];
     }
 
-    [validateFunction, upgradeFunction] = UPGRADE_FUNCTIONS[fromVersion];
+    [validateFunction, upgradeFunction] = SCHEMA_HANDLERS[fromVersion];
 
     // Validate under the legacy schema before upgrading.
     const validLegacy = validateFunction(nextConfig);

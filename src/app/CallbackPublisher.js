@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { UPGRADE_FUNCTIONS, LATEST_VERSION } from './view-config-versions';
+import { SCHEMA_HANDLERS, LATEST_VERSION } from './view-config-versions';
 import { useViewConfigStore, useLoaders, useWarning } from './state/hooks';
 
 function validateViewConfig(viewConfig) {
   // Need the try-catch here since Zustand will actually
   // just catch and ignore errors in its subscription callbacks.
   try {
-    const validate = UPGRADE_FUNCTIONS[LATEST_VERSION][0];
+    const validate = SCHEMA_HANDLERS[LATEST_VERSION][0];
     const valid = validate(viewConfig);
     if (!valid) {
       const failureReason = JSON.stringify(validate.errors, null, 2);
