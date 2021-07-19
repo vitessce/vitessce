@@ -2,6 +2,7 @@
 
 ### Added
 - Attach on load callbacks and loading indicators to layer controller when using (global) selection slider.
+- Added a new view config version `1.0.2` with corresponding upgrade function to fix backwards compatibility of the layer controller. The upgrade function sets the prop `globalDisable3d` for any layer controller components to keep the previous 2D-only functionality that older view configs would expect.
 
 ### Changed
 - Change bitmask rendering to only display a unique pixel value instead of blending.
