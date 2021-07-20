@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import uuidv4 from 'uuid/v4';
+import cloneDeep from 'lodash/cloneDeep';
 import { getNextScope, capitalize } from '../utils';
 import {
   COMPONENT_COORDINATION_TYPES,
@@ -218,8 +219,20 @@ export function upgradeFrom1_0_1(config) {
     return newComponent;
   });
 
+  // Enforce bitmask or raster as spatial raster layer type, defaulting
+  // to raster layer if it is not one of bitmask or raster from the old config.
+
+  const newConfig = cloneDeep(config);
+  Object.keys((newConfig?.coordinationSpace?.spatialRasterLayers || {})).forEach((key) => {
+    if (newConfig.coordinationSpace.spatialRasterLayers[key]) {
+      newConfig.coordinationSpace.spatialRasterLayers[key].forEach((layer, index) => {
+        newConfig.coordinationSpace.spatialRasterLayers[key][index].type = ['bitmask', 'raster'].includes(layer.type) ? layer.type : 'raster';
+      });
+    }
+  });
+
   return {
-    ...config,
+    ...newConfig,
     layout,
     version: '1.0.2',
   };
