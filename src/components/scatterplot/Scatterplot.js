@@ -108,6 +108,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellColors,
       getCellColor = makeDefaultGetCellColors(cellColors, cellOpacityScale),
       onCellClick,
+      geneExpressionColormapRange = [0.0, 1.0],
     } = this.props;
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
@@ -126,6 +127,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getColor: getCellColor,
       getRadius: cellRadiusScale,
       getLineWidth: 0,
+      colorScaleLo: geneExpressionColormapRange[0],
+      colorScaleHi: geneExpressionColormapRange[1],
       onClick: (info) => {
         if (onCellClick) {
           onCellClick(info);
@@ -319,6 +322,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if ([
       'cells', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadiusScale', 'cellOpacityScale',
+      'geneExpressionColormapRange',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();

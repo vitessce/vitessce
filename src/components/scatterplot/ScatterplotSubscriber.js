@@ -82,6 +82,7 @@ export default function ScatterplotSubscriber(props) {
     embeddingCellSetLabelsVisible: cellSetLabelsVisible,
     embeddingCellSetLabelSize: cellSetLabelSize,
     embeddingCellRadius: cellRadius,
+    geneExpressionColormapRange,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -328,10 +329,9 @@ export default function ScatterplotSubscriber(props) {
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
-
         cellRadiusScale={cellRadiusScale}
         cellOpacityScale={cellOpacityScale}
-
+        geneExpressionColormapRange={geneExpressionColormapRange}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}

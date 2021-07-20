@@ -10,7 +10,7 @@ export default class RosslerAttractorLoader extends AbstractLoader {
       url, requestInit, type, fileType,
     } = this;
     
-    const N = 1e6;
+    const N = 5e5;
 
     const cells = {};
     let xn = 2.644838333129883,

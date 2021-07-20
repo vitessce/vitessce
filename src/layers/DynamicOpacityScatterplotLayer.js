@@ -9,6 +9,8 @@ const DEFAULT_COLOR = [0, 0, 0, 255];
 
 const defaultProps = {
   colormap: { type: 'string', value: 'plasma', compare: true },
+  colorScaleLo: { type: 'number', value: 0.0, compare: true },
+  colorScaleHi: { type: 'number', value: 1.0, compare: true },
 
   radiusUnits: 'meters',
   radiusScale: { type: 'number', min: 0, value: 1 },
@@ -28,6 +30,7 @@ const defaultProps = {
   getFillColor: { type: 'accessor', value: DEFAULT_COLOR },
   getLineColor: { type: 'accessor', value: DEFAULT_COLOR },
   getLineWidth: { type: 'accessor', value: 1 },
+  getExpressionValue: { type: 'accessor', value: 1 },
 
   // deprecated
   strokeWidth: { deprecatedFor: 'getLineWidth' },
@@ -53,6 +56,12 @@ export default class DynamicOpacityScatterplotLayer extends Layer {
         fp64: this.use64bitPositions(),
         transition: true,
         accessor: 'getPosition',
+      },
+      instanceExpressionValue: {
+        size: 1,
+        transition: true,
+        accessor: 'getExpressionValue',
+        defaultValue: 1,
       },
       instanceRadius: {
         size: 1,
@@ -110,6 +119,8 @@ export default class DynamicOpacityScatterplotLayer extends Layer {
       lineWidthScale,
       lineWidthMinPixels,
       lineWidthMaxPixels,
+      colorScaleLo,
+      colorScaleHi,
     } = this.props;
 
     const pointRadiusMultiplier = radiusUnits === 'pixels' ? viewport.metersPerPixel : 1;
@@ -126,6 +137,7 @@ export default class DynamicOpacityScatterplotLayer extends Layer {
         lineWidthScale: lineWidthScale * lineWidthMultiplier,
         lineWidthMinPixels,
         lineWidthMaxPixels,
+        uColorScaleRange: [colorScaleLo, colorScaleHi],
       })
       .draw();
   }

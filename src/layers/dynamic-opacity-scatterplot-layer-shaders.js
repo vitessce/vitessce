@@ -18,6 +18,7 @@ attribute float instanceLineWidths;
 attribute vec4 instanceFillColors;
 attribute vec4 instanceLineColors;
 attribute vec3 instancePickingColors;
+attribute float instanceExpressionValue;
 
 uniform float opacity;
 uniform float radiusScale;
@@ -96,6 +97,8 @@ precision highp float;
 #pragma glslify: magma = require("glsl-colormap/magma")
 #pragma glslify: plasma = require("glsl-colormap/plasma")
 
+uniform vec2 uColorScaleRange;
+
 varying vec2 unitPosition;
 varying float innerUnitRadius;
 varying float outerRadiusPixels;
@@ -109,8 +112,13 @@ void main(void) {
   if (inCircle == 0.0) {
     discard;
   }
-  vec4 pointColor = rdbu(0.1);
-  gl_FragColor = vFillColor;
+
+
+  float intensityMean = vFillColor.r;
+  float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
+
+  gl_FragColor = __colormap(clamp(scaledIntensityMean, 0.0, 1.0));
+  gl_FragColor.a = vOpacity;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);
 }
 `;
