@@ -2,10 +2,12 @@
 import expect from 'expect';
 import {
   getExistingScopesForCoordinationType,
-  upgradeFrom0_1_0,
-  upgradeFrom1_0_0,
   initialize,
 } from './view-config-utils';
+import {
+  upgradeFrom0_1_0,
+  upgradeFrom1_0_0,
+} from './view-config-upgraders';
 import {
   legacyViewConfig0_1_0,
   upgradedLegacyViewConfig0_1_0,
