@@ -124,7 +124,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       radiusMinPixels: 1,
       radiusMaxPixels: 30,
       getPosition: getCellPosition,
-      getColor: getCellColor,
+      getFillColor: getCellColor,
       getRadius: cellRadiusScale,
       getLineWidth: 0,
       colorScaleLo: geneExpressionColormapRange[0],

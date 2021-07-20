@@ -1,6 +1,11 @@
 ## In Progress
 
 ### Added
+- TODO: Added cell opacity modes
+    - Static mode
+    - Dynamic mode
+    - Confidence score mode
+- Switched to performing quantitative color mapping on the scatterplot shaders for fast responses to colormap slider interactions.
 
 ### Changed
 - Change bitmask rendering to only display a unique pixel value instead of blending.

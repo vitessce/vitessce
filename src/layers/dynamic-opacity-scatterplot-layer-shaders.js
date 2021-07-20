@@ -29,6 +29,7 @@ uniform float lineWidthMinPixels;
 uniform float lineWidthMaxPixels;
 uniform float stroked;
 uniform bool filled;
+uniform bool isExpressionMode;
 
 varying vec4 vFillColor;
 varying vec4 vLineColor;

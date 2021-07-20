@@ -56,7 +56,7 @@ export default function ScatterplotSubscriber(props) {
     // Point size at which we switch to using opacity rather than size to make the points smaller.
     minimumPointSize = 1.5,
     // Average fill density.
-    avgFillDensity = 1/5,
+    avgFillDensity,
   } = props;
 
   const loaders = useLoaders();
@@ -245,7 +245,11 @@ export default function ScatterplotSubscriber(props) {
         // Number of points.
         const N = numCells;
 
-        const targetShare = avgFillDensity;
+        let targetShare = avgFillDensity;
+        if(!targetShare) {
+          targetShare = Math.min(1, 1/(Math.pow(10, Math.log10(N) - 3)));
+        }
+
         const fractionOfTotalVisible = 1/scaleFactor**2;
         const pixelArea = W * H;
         const totalPoints = N;

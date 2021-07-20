@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-import { Layer, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
-import { Model, Geometry } from '@luma.gl/core';
+import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
+import { ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 
 import { vertexShader, fragmentShader } from './dynamic-opacity-scatterplot-layer-shaders';
 
@@ -38,10 +37,25 @@ const defaultProps = {
   getColor: { deprecatedFor: ['getFillColor', 'getLineColor'] },
 };
 
-export default class DynamicOpacityScatterplotLayer extends Layer {
+export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
+  /**
+   * Copy of getShaders from Layer (grandparent, parent of BitmapLayer).
+   * Reference: https://github.com/visgl/deck.gl/blob/0afd4e99a6199aeec979989e0c361c97e6c17a16/modules/core/src/lib/layer.js#L302
+   * @param {object} shaders
+   * @returns {object} Merged shaders.
+   */
+  // eslint-disable-next-line no-underscore-dangle
+  _getShaders(shaders) {
+    this.props.extensions.forEach((extension) => {
+      // eslint-disable-next-line no-param-reassign
+      shaders = _mergeShaders(shaders, extension.getShaders.call(this, extension));
+    });
+    return shaders;
+  }
+
   getShaders() {
     const { colormap } = this.props;
-    return super.getShaders({
+    return this._getShaders({
       vs: vertexShader,
       fs: fragmentShader.replace('__colormap', colormap),
       modules: [project32, picking],
@@ -49,61 +63,15 @@ export default class DynamicOpacityScatterplotLayer extends Layer {
   }
 
   initializeState() {
+    super.initializeState();
     this.getAttributeManager().addInstanced({
-      instancePositions: {
-        size: 3,
-        type: GL.DOUBLE,
-        fp64: this.use64bitPositions(),
-        transition: true,
-        accessor: 'getPosition',
-      },
       instanceExpressionValue: {
         size: 1,
         transition: true,
         accessor: 'getExpressionValue',
         defaultValue: 1,
       },
-      instanceRadius: {
-        size: 1,
-        transition: true,
-        accessor: 'getRadius',
-        defaultValue: 1,
-      },
-      instanceFillColors: {
-        size: this.props.colorFormat.length,
-        transition: true,
-        normalized: true,
-        type: GL.UNSIGNED_BYTE,
-        accessor: 'getFillColor',
-        defaultValue: [0, 0, 0, 255],
-      },
-      instanceLineColors: {
-        size: this.props.colorFormat.length,
-        transition: true,
-        normalized: true,
-        type: GL.UNSIGNED_BYTE,
-        accessor: 'getLineColor',
-        defaultValue: [0, 0, 0, 255],
-      },
-      instanceLineWidths: {
-        size: 1,
-        transition: true,
-        accessor: 'getLineWidth',
-        defaultValue: 1,
-      },
     });
-  }
-
-  updateState({ props, oldProps, changeFlags }) {
-    super.updateState({ props, oldProps, changeFlags });
-    if (changeFlags.extensionsChanged) {
-      const { gl } = this.context;
-      if (this.state.model) {
-        this.state.model.delete();
-      }
-      this.setState({ model: this._getModel(gl) });
-      this.getAttributeManager().invalidateAll();
-    }
   }
 
   draw({ uniforms }) {
@@ -140,26 +108,6 @@ export default class DynamicOpacityScatterplotLayer extends Layer {
         uColorScaleRange: [colorScaleLo, colorScaleHi],
       })
       .draw();
-  }
-
-  _getModel(gl) {
-    // a square that minimally cover the unit circle
-    const positions = [-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0];
-
-    return new Model(
-      gl,
-      Object.assign(this.getShaders(), {
-        id: this.props.id,
-        geometry: new Geometry({
-          drawMode: GL.TRIANGLE_FAN,
-          vertexCount: 4,
-          attributes: {
-            positions: { size: 3, value: new Float32Array(positions) },
-          },
-        }),
-        isInstanced: true,
-      }),
-    );
   }
 }
 
