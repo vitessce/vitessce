@@ -75,42 +75,46 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
   }
 
   async load() {
-    const [mappings, xy, poly, cellNames, factors] = await Promise.all([
-      this.loadMappings(),
-      this.loadXy(),
-      this.loadPoly(),
-      this.loadCellNames(),
-      this.loadFactors(),
-    ]);
-    const cells = {};
-    cellNames.forEach((name, i) => {
-      cells[name] = {};
-      if (mappings) {
-        mappings.forEach(({ coordinationName, arr }) => {
-          if (!cells[name].mappings) {
-            cells[name].mappings = {};
+    if (!this.cells) {
+      this.cells = Promise.all([
+        this.loadMappings(),
+        this.loadXy(),
+        this.loadPoly(),
+        this.loadCellNames(),
+        this.loadFactors(),
+      ]).then(([mappings, xy, poly, cellNames, factors]) => {
+        const cells = {};
+        cellNames.forEach((name, i) => {
+          cells[name] = {};
+          if (mappings) {
+            mappings.forEach(({ coordinationName, arr }) => {
+              if (!cells[name].mappings) {
+                cells[name].mappings = {};
+              }
+              const { dims } = this.options.mappings[coordinationName];
+              cells[name].mappings[coordinationName] = dims.map(
+                dim => arr.data[i][dim],
+              );
+            });
           }
-          const { dims } = this.options.mappings[coordinationName];
-          cells[name].mappings[coordinationName] = dims.map(
-            dim => arr.data[i][dim],
-          );
+          if (xy) {
+            cells[name].xy = xy.data[i];
+          }
+          if (poly) {
+            cells[name].poly = poly.data[i];
+          }
+          if (factors) {
+            const factorsObj = {};
+            factors.forEach(
+              // eslint-disable-next-line no-return-assign
+              (factor, j) => (factorsObj[this.options.factors[j].split('/').slice(-1)] = factor[i]),
+            );
+            cells[name].factors = factorsObj;
+          }
         });
-      }
-      if (xy) {
-        cells[name].xy = xy.data[i];
-      }
-      if (poly) {
-        cells[name].poly = poly.data[i];
-      }
-      if (factors) {
-        const factorsObj = {};
-        factors.forEach(
-          // eslint-disable-next-line no-return-assign
-          (factor, j) => (factorsObj[this.options.factors[j].split('/').slice(-1)] = factor[i]),
-        );
-        cells[name].factors = factorsObj;
-      }
-    });
-    return Promise.resolve(new LoaderResult(cells, null));
+        return cells;
+      });
+    }
+    return Promise.resolve(new LoaderResult(await this.cells, null));
   }
 }
