@@ -50,6 +50,7 @@ const LayerControllerMemoized = React.memo(
       handleRasterLayerChange,
       handleRasterLayerRemove,
       disable3d,
+      globalDisable3d,
       layerIs3DIndex,
       setZoom,
       setTargetX,
@@ -95,7 +96,7 @@ const LayerControllerMemoized = React.memo(
               const loader = imageLayerLoaders[index];
               const layerMeta = imageLayerMeta[index];
               // Could also be bitmask at the moment.
-              const isRaster = layer.type === 'raster';
+              const isRaster = !layerMeta?.metadata?.isBitmask;
               const ChannelController = isRaster
                 ? RasterChannelController
                 : BitmaskChannelController;
@@ -137,7 +138,8 @@ const LayerControllerMemoized = React.memo(
                     // Disable 3D if given explicit instructions to do so
                     // or if another layer is using 3D mode.
                     disable3d={
-                      (disable3d || []).indexOf(layerMeta.name) >= 0
+                      globalDisable3d
+                      || (disable3d || []).indexOf(layerMeta.name) >= 0
                       || (typeof layerIs3DIndex === 'number'
                         && layerIs3DIndex !== -1
                         && layerIs3DIndex !== i)
@@ -192,6 +194,7 @@ const LayerControllerMemoized = React.memo(
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
  * @param {Object} props.disable3d Which layers should have 3D disabled (from `raster.json` names).
+ * @param {Object} props.globalDisable3d Disable 3D for all layers. Overrides the `disable3d` prop.
  */
 function LayerControllerSubscriber(props) {
   const {
@@ -200,6 +203,7 @@ function LayerControllerSubscriber(props) {
     theme,
     title = 'Spatial Layers',
     disable3d,
+    globalDisable3d,
   } = props;
 
   const loaders = useLoaders();
@@ -338,6 +342,7 @@ function LayerControllerSubscriber(props) {
       handleRasterLayerChange={handleRasterLayerChange}
       handleRasterLayerRemove={handleRasterLayerRemove}
       disable3d={disable3d}
+      globalDisable3d={globalDisable3d}
       layerIs3DIndex={layerIs3DIndex}
       setZoom={setZoom}
       setTargetX={setTargetX}
