@@ -1,16 +1,21 @@
 /* eslint-disable no-underscore-dangle */
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
-
+import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { vertexShader, fragmentShader } from './dynamic-opacity-scatterplot-layer-shaders';
 
 const DEFAULT_COLOR = [0, 0, 0, 255];
 
 const defaultProps = {
+  /* Custom props for DynamicOpacityScatterplotLayer */
   colormap: { type: 'string', value: 'plasma', compare: true },
   colorScaleLo: { type: 'number', value: 0.0, compare: true },
   colorScaleHi: { type: 'number', value: 1.0, compare: true },
+  isExpressionMode: false,
+  getExpressionValue: { type: 'accessor', value: 0 },
+  getSelectionState: { type: 'accessor', value: 0.0 },
 
+  /* Props copied from ScatterplotLayer */
   radiusUnits: 'meters',
   radiusScale: { type: 'number', min: 0, value: 1 },
   radiusMinPixels: { type: 'number', min: 0, value: 0 }, //  min point radius in pixels
@@ -29,7 +34,6 @@ const defaultProps = {
   getFillColor: { type: 'accessor', value: DEFAULT_COLOR },
   getLineColor: { type: 'accessor', value: DEFAULT_COLOR },
   getLineWidth: { type: 'accessor', value: 1 },
-  getExpressionValue: { type: 'accessor', value: 1 },
 
   // deprecated
   strokeWidth: { deprecatedFor: 'getLineWidth' },
@@ -39,7 +43,7 @@ const defaultProps = {
 
 export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
   /**
-   * Copy of getShaders from Layer (grandparent, parent of BitmapLayer).
+   * Copy of getShaders from Layer (grandparent, parent of ScatterplotLayer).
    * Reference: https://github.com/visgl/deck.gl/blob/0afd4e99a6199aeec979989e0c361c97e6c17a16/modules/core/src/lib/layer.js#L302
    * @param {object} shaders
    * @returns {object} Merged shaders.
@@ -71,6 +75,13 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
         accessor: 'getExpressionValue',
         defaultValue: 1,
       },
+      instanceSelectionState: {
+        size: 1,
+        transition: true,
+        accessor: 'getSelectionState',
+        type: GL.UNSIGNED_BYTE,
+        defaultValue: 1,
+      },
     });
   }
 
@@ -89,6 +100,7 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
       lineWidthMaxPixels,
       colorScaleLo,
       colorScaleHi,
+      isExpressionMode,
     } = this.props;
 
     const pointRadiusMultiplier = radiusUnits === 'pixels' ? viewport.metersPerPixel : 1;
@@ -106,6 +118,7 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
         lineWidthMinPixels,
         lineWidthMaxPixels,
         uColorScaleRange: [colorScaleLo, colorScaleHi],
+        uIsExpressionMode: isExpressionMode,
       })
       .draw();
   }

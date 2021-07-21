@@ -109,6 +109,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getCellColor = makeDefaultGetCellColors(cellColors, cellOpacityScale),
       onCellClick,
       geneExpressionColormapRange = [0.0, 1.0],
+      cellColorEncoding,
     } = this.props;
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
@@ -124,27 +125,16 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       radiusMinPixels: 1,
       radiusMaxPixels: 30,
       getPosition: getCellPosition,
-      getFillColor: getCellColor,
+      getColor: getCellColor,
       getRadius: cellRadiusScale,
       getLineWidth: 0,
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
+      isExpressionMode: (cellColorEncoding === "geneSelection"),
       onClick: (info) => {
         if (onCellClick) {
           onCellClick(info);
         }
-      },
-      parameters: {
-        [GL.BLEND]: true,
-        [GL.BLEND_EQUATION_ALPHA]: GL.FUNC_ADD,
-        /*[GL.BLEND]: false,
-        [GL.BLEND_SRC_RGB]: GL.SRC_ALPHA,
-        [GL.BLEND_DST_RGB]: GL.ONE,
-        [GL.BLEND_SRC_ALPHA]: GL.ONE,
-        [GL.BLEND_DST_ALPHA]: GL.ONE,
-        [GL.BLEND_EQUATION_RGB]: GL.FUNC_REVERSE_SUBTRACT,
-        [GL.BLEND_EQUATION_ALPHA]: GL.FUNC_ADD,
-        [GL.DEPTH]: false,*/
       },
       ...cellLayerDefaultProps(
         filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
@@ -322,7 +312,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if ([
       'cells', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadiusScale', 'cellOpacityScale',
-      'geneExpressionColormapRange',
+      'geneExpressionColormapRange', 'cellColorEncoding',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();

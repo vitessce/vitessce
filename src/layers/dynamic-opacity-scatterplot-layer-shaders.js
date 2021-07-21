@@ -19,6 +19,7 @@ attribute vec4 instanceFillColors;
 attribute vec4 instanceLineColors;
 attribute vec3 instancePickingColors;
 attribute float instanceExpressionValue;
+attribute float instanceSelectionState;
 
 uniform float opacity;
 uniform float radiusScale;
@@ -27,9 +28,8 @@ uniform float radiusMaxPixels;
 uniform float lineWidthScale;
 uniform float lineWidthMinPixels;
 uniform float lineWidthMaxPixels;
-uniform float stroked;
 uniform bool filled;
-uniform bool isExpressionMode;
+uniform bool uIsExpressionMode;
 
 varying vec4 vFillColor;
 varying vec4 vLineColor;
@@ -37,6 +37,7 @@ varying float vOpacity;
 varying vec2 unitPosition;
 varying float innerUnitRadius;
 varying float outerRadiusPixels;
+varying float vStroked;
 
 void main(void) {
   geometry.worldPosition = instancePositions;
@@ -53,8 +54,13 @@ void main(void) {
     lineWidthMinPixels, lineWidthMaxPixels
   );
 
+  float stroked = instanceSelectionState;
+
   // outer radius needs to offset by half stroke width
   outerRadiusPixels += stroked * lineWidthPixels / 2.0;
+  if(stroked == 1.0) {
+    outerRadiusPixels += 3.0;
+  }
 
   // position on the containing square in [-1, 1] space
   unitPosition = positions.xy;
@@ -69,6 +75,7 @@ void main(void) {
   DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
 
   vOpacity = opacity;
+  vStroked = stroked;
 
   // Apply opacity to instance color, or return instance picking color
   vFillColor = vec4(instanceFillColors.rgb, opacity);
@@ -99,27 +106,40 @@ precision highp float;
 #pragma glslify: plasma = require("glsl-colormap/plasma")
 
 uniform vec2 uColorScaleRange;
+uniform bool uIsExpressionMode;
 
 varying vec2 unitPosition;
 varying float innerUnitRadius;
 varying float outerRadiusPixels;
 varying vec4 vFillColor;
 varying float vOpacity;
+varying float vStroked;
 
 void main(void) {
   geometry.uv = unitPosition;
   float distToCenter = length(unitPosition) * outerRadiusPixels;
-  float inCircle = smoothedge(distToCenter, outerRadiusPixels);
-  if (inCircle == 0.0) {
+  float inInnerCircle = smoothedge(distToCenter, outerRadiusPixels - 4.0);
+
+  float inOuterCircle = smoothedge(distToCenter, outerRadiusPixels);
+  if (inOuterCircle == 0.0) {
     discard;
   }
 
-
   float intensityMean = vFillColor.r;
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
-
-  gl_FragColor = __colormap(clamp(scaledIntensityMean, 0.0, 1.0));
+  if(uIsExpressionMode) {
+    gl_FragColor = __colormap(clamp(scaledIntensityMean, 0.0, 1.0));
+  } else {
+    gl_FragColor = vFillColor;
+  }
   gl_FragColor.a = vOpacity;
+
+  if (vStroked == 1.0 && inOuterCircle == 1.0 && inInnerCircle == 0.0) {
+    gl_FragColor.a = 0.0;
+  } else if(vStroked == 1.0) {
+    gl_FragColor.a = 1.0;
+  }
+
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);
 }
 `;

@@ -3,7 +3,6 @@ import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
 import { extent } from 'd3-array';
-import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
@@ -26,6 +25,10 @@ import {
   useSetComponentHover,
   useSetComponentViewInfo,
 } from '../../app/state/hooks';
+import {
+  getPointSizeDevicePixels,
+  getPointOpacity,
+} from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
@@ -205,64 +208,12 @@ export default function ScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    if(yRange) {
-
-      function getPointSizeDevicePixels(devicePixelRatio, zoom, yRange, height) {
-        // Size of a point, in units of the Y axis.
-        const pointYAxisSize = 0.001;
-        // Point size minimum, in screen pixels.
-        const pointScreenSizeMin = 1 / devicePixelRatio;
-        // Point size maximum, in screen pixels.
-        const pointScreenSizeMax = 10;
-        const pixelRatio = 1;
-
-        const scaleFactor = 2 ** zoom;
-        // TODO: use both width and height.
-        const yAxisRange = 2.0 / ((yRange * scaleFactor) / height);
-
-        // The height as a fraction of the current y range, then converted to device pixels
-        const heightFraction = pointYAxisSize / yAxisRange;
-        const deviceSize = heightFraction * height;
-
-        const pointSizeDevicePixels = clamp(
-          deviceSize,
-          pointScreenSizeMin * pixelRatio,
-          pointScreenSizeMax * pixelRatio
-        );
-        return pointSizeDevicePixels;
-      }
-      
-      const pointSizeDevicePixels = getPointSizeDevicePixels(window.devicePixelRatio, zoom, yRange, height);
+    if(xRange && yRange) {
+      const pointSizeDevicePixels = getPointSizeDevicePixels(window.devicePixelRatio, zoom, xRange, yRange, width, height);
       setCellRadiusScale(pointSizeDevicePixels);
 
-      function getPointOpacity(zoom, width, height, numCells, avgFillDensity) {
-        const scaleFactor = 2 ** zoom;
-        
-        // Viewport size, in device pixels.
-        const W = width;
-        const H = height;
-
-        // Number of points.
-        const N = numCells;
-
-        let targetShare = avgFillDensity;
-        if(!targetShare) {
-          targetShare = Math.min(1, 1/(Math.pow(10, Math.log10(N) - 3)));
-        }
-
-        const fractionOfTotalVisible = 1/scaleFactor**2;
-        const pixelArea = W * H;
-        const totalPoints = N;
-        const alpha =  ( (targetShare/50) * pixelArea / (totalPoints * (Math.exp(Math.log(scaleFactor) * .35) ** 2)) ) / fractionOfTotalVisible;
-        
-        const pointOpacity =  alpha > 1 ? 1 : alpha < 1/255 ? 1.01/255 : alpha;
-        return pointOpacity;
-      }
-
       const nextCellOpacityScale = getPointOpacity(zoom, width, height, numCells, avgFillDensity);
-
       setCellOpacityScale(nextCellOpacityScale);
-
       
       if (typeof targetX !== 'number' || typeof targetY !== 'number') {
         const newTargetX = xExtent[0] + xRange / 2;
@@ -335,6 +286,7 @@ export default function ScatterplotSubscriber(props) {
         setCellHighlight={setCellHighlight}
         cellRadiusScale={cellRadiusScale}
         cellOpacityScale={cellOpacityScale}
+        cellColorEncoding={cellColorEncoding}
         geneExpressionColormapRange={geneExpressionColormapRange}
         setComponentHover={() => {
           setComponentHover(uuid);
