@@ -60,10 +60,10 @@ export function nodeToHeight(currNode, level = 0) {
  */
 export function getNodeLength(currNode) {
   if (!currNode) {
-    return [];
+    return 0;
   }
   if (!currNode.children) {
-    return (currNode.set.length || []);
+    return (currNode.set?.length || 0);
   }
   return currNode.children.reduce((acc, curr) => acc + getNodeLength(curr), 0);
 }
