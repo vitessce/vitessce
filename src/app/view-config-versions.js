@@ -4,7 +4,7 @@ import configSchema0_1_0 from '../schemas/config-0.1.0.schema.json';
 import configSchema1_0_0 from '../schemas/config-1.0.0.schema.json';
 import configSchema1_0_1 from '../schemas/config-1.0.1.schema.json';
 import configSchema1_0_2 from '../schemas/config-1.0.2.schema.json';
-import configSchema1_0_3 from '../schemas/config-1.0.3.schema.json';
+import configSchema1_0_3 from '../schemas/config-1.0.3.schema.json'; // eslint-disable-line import/no-unresolved
 
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';

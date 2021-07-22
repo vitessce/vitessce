@@ -250,13 +250,13 @@ export function upgradeFrom1_0_2(config) {
     const newAnnDataFile = {
       fileType: 'anndata.zarr',
       options: {},
-      type: [],
+      contains: [],
       url: '',
     };
     const hasAnnDataFile = dataset.files.some(file => file.fileType.includes('anndata'));
     dataset.files.forEach((file) => {
       if (file.fileType.includes('anndata')) {
-        newAnnDataFile.type.push(file.type);
+        newAnnDataFile.contains.push(file.type);
         // Create the new options made up of the old options.
         if (file.type !== 'cell-sets') {
           newAnnDataFile.options = {

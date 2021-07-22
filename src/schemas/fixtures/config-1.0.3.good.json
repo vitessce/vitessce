@@ -1,0 +1,43 @@
+{
+  "version": "1.0.3",
+  "name": "fake view config",
+  "description": "Spatial organization of the fake cortex",
+  "datasets": [
+    {
+      "uid": "fake",
+      "name": "fake",
+      "files": [
+        {
+          "fileType": "anndata.zarr",
+          "options": {
+            "mappings": {
+              "UMAP": {
+                "key": "obsm/X_umap",
+                "dims": [0, 1]
+              }
+            },
+            "cellSets": [
+              {
+                "groupName": "fake",
+                "setName": "obs/fake"
+              }
+            ],
+            "matrix": "X"
+          },
+          "contains": ["cells", "cell-sets", "expression-matrix"],
+          "url": "https://example.com/fake-anndata.zarr"
+        }
+      ]
+    }
+  ],
+  "initStrategy": "auto",
+  "coordinationSpace": {
+    "embeddingType": {
+      "UMAP": "UMAP"
+    }
+  },
+  "layout": [
+      { "component": "FooBar", "x": 0, "y": 0, "w": 1, "h": 1  },
+      { "component": "FooBar", "props": { "foo": "bar" }, "x": 1, "y": 1, "w": 1, "h": 1 }
+    ],
+}

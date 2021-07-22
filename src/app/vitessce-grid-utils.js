@@ -105,8 +105,8 @@ export function createLoaders(datasets, configDescription) {
       const matchingLoaderClass = fileTypeToLoader[file.fileType] || JsonLoader;
       // eslint-disable-next-line new-cap
       const loader = new matchingLoaderClass(file);
-      if (Array.isArray(file.type)) {
-        file.type.forEach((type) => {
+      if (file.contains) {
+        file.contains.forEach((type) => {
           datasetLoaders.loaders[type] = loader;
         });
       } else {

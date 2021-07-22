@@ -427,10 +427,16 @@
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type", "fileType"],
+              "oneOf": [
+                { "required":
+                  [  "type", "fileType" ] },
+                { "required":
+                  [ "contains", "fileType" ] }
+              ],
               "properties": {
                 "name": { "type": "string" },
-                "type": { "oneOf": [{ "type": "string" }, {"type": "array", "items": { "type": "string" }}] },
+                "type": { "type": "string" },
+                "contains": {"type": "array", "items": { "type": "string" }},
                 "fileType": { "type": "string" },
                 "url": { "type": "string" },
                 "options": { "oneOf": [{ "$ref": "#/definitions/annData" }, { "$ref": "https://github.com/hubmapconsortium/vitessce/#raster" }] },
