@@ -59,7 +59,7 @@ void main(void) {
   // outer radius needs to offset by half stroke width
   outerRadiusPixels += stroked * lineWidthPixels / 2.0;
   if(stroked == 1.0) {
-    outerRadiusPixels += 3.0;
+    outerRadiusPixels += (0.05 / radiusScale);
   }
 
   // position on the containing square in [-1, 1] space

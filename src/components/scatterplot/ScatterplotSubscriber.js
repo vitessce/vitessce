@@ -84,7 +84,10 @@ export default function ScatterplotSubscriber(props) {
     embeddingCellSetPolygonsVisible: cellSetPolygonsVisible,
     embeddingCellSetLabelsVisible: cellSetLabelsVisible,
     embeddingCellSetLabelSize: cellSetLabelSize,
-    embeddingCellRadius: cellRadius,
+    embeddingCellRadius: cellRadiusFixed,
+    embeddingCellRadiusMode: cellRadiusMode,
+    embeddingCellOpacity: cellOpacityFixed,
+    embeddingCellOpacityMode: cellOpacityMode,
     geneExpressionColormapRange,
   }, {
     setEmbeddingZoom: setZoom,
@@ -100,7 +103,10 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingCellSetPolygonsVisible: setCellSetPolygonsVisible,
     setEmbeddingCellSetLabelsVisible: setCellSetLabelsVisible,
     setEmbeddingCellSetLabelSize: setCellSetLabelSize,
-    setEmbeddingCellRadius: setCellRadius,
+    setEmbeddingCellRadius: setCellRadiusFixed,
+    setEmbeddingCellRadiusMode: setCellRadiusMode,
+    setEmbeddingCellOpacity: setCellOpacityFixed,
+    setEmbeddingCellOpacityMode: setCellOpacityMode,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -135,8 +141,8 @@ export default function ScatterplotSubscriber(props) {
   const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
-  const [cellRadiusScale, setCellRadiusScale] = useState(1.0);
-  const [cellOpacityScale, setCellOpacityScale] = useState(0.5);
+  const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
+  const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
@@ -210,10 +216,10 @@ export default function ScatterplotSubscriber(props) {
   useEffect(() => {
     if(xRange && yRange) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(window.devicePixelRatio, zoom, xRange, yRange, width, height);
-      setCellRadiusScale(pointSizeDevicePixels);
+      setDynamicCellRadius(pointSizeDevicePixels);
 
       const nextCellOpacityScale = getPointOpacity(zoom, width, height, numCells, avgFillDensity);
-      setCellOpacityScale(nextCellOpacityScale);
+      setDynamicCellOpacity(nextCellOpacityScale);
       
       if (typeof targetX !== 'number' || typeof targetY !== 'number') {
         const newTargetX = xExtent[0] + xRange / 2;
@@ -236,6 +242,26 @@ export default function ScatterplotSubscriber(props) {
     };
   }, [cells, observationsLabel]);
 
+  const cellRadius = useMemo(() => {
+    if(cellRadiusMode == "absolute") {
+      return cellRadiusFixed;
+    } else if(cellRadiusMode == "relative") {
+      return cellRadiusFixed;
+    } else if(cellRadiusMode == "dynamic") {
+      return dynamicCellRadius;
+    }
+  }, [cellRadiusMode, dynamicCellRadius, cellRadiusFixed]);
+
+  const cellOpacity = useMemo(() => {
+    if(cellOpacityMode == "static") {
+      return cellOpacityFixed;
+    } else if(cellOpacityMode == "cellSetSelection") {
+      return null;
+    } else if(cellOpacityMode == "dynamic") {
+      return dynamicCellOpacity;
+    }
+  }, [cellOpacityMode, dynamicCellOpacity, cellOpacityFixed]);
+
   return (
     <TitleInfo
       title={title}
@@ -247,8 +273,14 @@ export default function ScatterplotSubscriber(props) {
       options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}
-          cellRadius={cellRadius}
-          setCellRadius={setCellRadius}
+          cellRadius={cellRadiusFixed}
+          setCellRadius={setCellRadiusFixed}
+          cellRadiusMode={cellRadiusMode}
+          setCellRadiusMode={setCellRadiusMode}
+          cellOpacity={cellOpacityFixed}
+          setCellOpacity={setCellOpacityFixed}
+          cellOpacityMode={cellOpacityMode}
+          setCellOpacityMode={setCellOpacityMode}
           cellSetLabelsVisible={cellSetLabelsVisible}
           setCellSetLabelsVisible={setCellSetLabelsVisible}
           cellSetLabelSize={cellSetLabelSize}
@@ -284,8 +316,8 @@ export default function ScatterplotSubscriber(props) {
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
-        cellRadiusScale={cellRadiusScale}
-        cellOpacityScale={cellOpacityScale}
+        cellRadius={cellRadius}
+        cellOpacity={cellOpacity}
         cellColorEncoding={cellColorEncoding}
         geneExpressionColormapRange={geneExpressionColormapRange}
         setComponentHover={() => {

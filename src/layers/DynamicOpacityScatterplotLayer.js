@@ -16,12 +16,12 @@ const defaultProps = {
   getSelectionState: { type: 'accessor', value: 0.0 },
 
   /* Props copied from ScatterplotLayer */
-  radiusUnits: 'meters',
+  radiusUnits: 'pixels',
   radiusScale: { type: 'number', min: 0, value: 1 },
   radiusMinPixels: { type: 'number', min: 0, value: 0 }, //  min point radius in pixels
   radiusMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER }, // max point radius in pixels
 
-  lineWidthUnits: 'meters',
+  lineWidthUnits: 'pixels',
   lineWidthScale: { type: 'number', min: 0, value: 1 },
   lineWidthMinPixels: { type: 'number', min: 0, value: 0 },
   lineWidthMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER },
@@ -79,8 +79,8 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
         size: 1,
         transition: true,
         accessor: 'getSelectionState',
-        type: GL.UNSIGNED_BYTE,
-        defaultValue: 1,
+        type: GL.FLOAT,
+        defaultValue: 0.0,
       },
     });
   }

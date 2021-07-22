@@ -41,6 +41,9 @@
                 "embeddingCellSetLabelsVisible": { "type": "string" },
                 "embeddingCellSetLabelSize": { "type": "string" },
                 "embeddingCellRadius": { "type": "string" },
+                "embeddingCellOpacity": { "type": "string" },
+                "embeddingCellRadiusMode": { "type": "string" },
+                "embeddingCellOpacityMode": { "type": "string" },
                 "spatialZoom": { "type": "string" },
                 "spatialRotation": { "type": "string" },
                 "spatialTargetX": { "type": "string" },
@@ -538,7 +541,39 @@
           "embeddingCellRadius": {
             "type": "object",
             "patternProperties": {
-              ".": { "type": "number" }
+              ".": {
+                "type": "number",
+                "description": "The cell radius value, used when embeddingCellRadiusMode is absolute or relative."
+              }
+            }
+          },
+          "embeddingCellOpacity": {
+            "type": "object",
+            "patternProperties": {
+                ".": {
+                  "type": "number",
+                  "description": "The cell opacity value, used when embeddingCellOpacityMode is static."
+                }
+            }
+          },
+          "embeddingCellRadiusMode": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "string",
+                "enum": ["absolute", "relative", "dynamic"],
+                "description": "Should data points representing cells be assigned an absolute (not based on zoom level), relative (based on zoom level), or dynamic (based on zoom level and data extent) radius?"
+              }
+            }
+          },
+          "embeddingCellOpacityMode": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "string",
+                "enum": ["static", "dynamic", "cellSetSelection"],
+                "description": "Should data points representing cells be assigned a static (fixed), dynamic (based on zoom level and data extent), or cellSetSelection (based on the confidence score provided with the annotations for the currently-selected cell sets) opacity?"
+              }
             }
           },
           "spatialZoom": {
@@ -853,7 +888,11 @@
           "cellColorEncoding": {
             "type": "object",
             "patternProperties": {
-              ".": { "type": "string" }
+              ".": {
+                "type": "string",
+                "enum": ["geneSelection", "cellSetSelection"],
+                "description": "How should data points representing cells be colored?"
+              }
             }
           },
           "geneFilter": {

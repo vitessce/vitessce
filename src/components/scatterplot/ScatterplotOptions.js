@@ -1,8 +1,10 @@
+/* eslint-disable */
 import React from 'react';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slider from '@material-ui/core/Slider';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
+import Select from '@material-ui/core/Select';
 import { capitalize } from '../../utils';
 import { useStyles } from '../shared-plot-options/styles';
 import OptionsContainer from '../shared-plot-options/OptionsContainer';
@@ -13,6 +15,12 @@ export default function ScatterplotOptions(props) {
     observationsLabel,
     cellRadius,
     setCellRadius,
+    cellRadiusMode,
+    setCellRadiusMode,
+    cellOpacity,
+    setCellOpacity,
+    cellOpacityMode,
+    setCellOpacityMode,
     cellSetLabelsVisible,
     setCellSetLabelsVisible,
     cellSetLabelSize,
@@ -27,8 +35,20 @@ export default function ScatterplotOptions(props) {
 
   const classes = useStyles();
 
+  function handleCellRadiusModeChange(event) {
+    setCellRadiusMode(event.target.value);
+  }
+
+  function handleCellOpacityModeChange(event) {
+    setCellOpacityMode(event.target.value);
+  }
+
   function handleRadiusChange(event, value) {
     setCellRadius(value);
+  }
+
+  function handleOpacityChange(event, value) {
+    setCellOpacity(value);
   }
 
   function handleLabelVisibilityChange(event) {
@@ -45,6 +65,11 @@ export default function ScatterplotOptions(props) {
 
   return (
     <OptionsContainer>
+      <CellColorEncodingOption
+        observationsLabel={observationsLabel}
+        cellColorEncoding={cellColorEncoding}
+        setCellColorEncoding={setCellColorEncoding}
+      />
       <TableRow>
         <TableCell className={classes.labelCell}>
           {observationsLabelNice} Set Labels Visible
@@ -92,27 +117,81 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
+        <TableCell className={classes.labelCell} htmlFor="cell-radius-mode-select">
+          {observationsLabelNice} Radius Mode
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Select
+            native
+            className={classes.select}
+            value={cellRadiusMode}
+            onChange={handleCellRadiusModeChange}
+            inputProps={{
+              id: 'cell-radius-mode-select',
+            }}
+          >
+            <option value="absolute">Absolute</option>
+            <option value="relative">Relative</option>
+            <option value="dynamic">Dynamic</option>
+          </Select>
+        </TableCell>
+      </TableRow>
+      <TableRow>
         <TableCell className={classes.labelCell}>
           {observationsLabelNice} Radius
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Slider
+            disabled={!(cellRadiusMode === "absolute" || cellRadiusMode === "relative")}
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={cellRadius}
             onChange={handleRadiusChange}
             aria-labelledby="cell-radius-slider"
             valueLabelDisplay="auto"
-            step={0.25}
-            min={0.25}
-            max={8}
+            step={0.01}
+            min={0.01}
+            max={10}
           />
         </TableCell>
       </TableRow>
-      <CellColorEncodingOption
-        observationsLabel={observationsLabel}
-        cellColorEncoding={cellColorEncoding}
-        setCellColorEncoding={setCellColorEncoding}
-      />
+      <TableRow>
+        <TableCell className={classes.labelCell} htmlFor="cell-opacity-mode-select">
+          {observationsLabelNice} Opacity Mode
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Select
+            native
+            className={classes.select}
+            value={cellOpacityMode}
+            onChange={handleCellOpacityModeChange}
+            inputProps={{
+              id: 'cell-opacity-mode-select',
+            }}
+          >
+            <option value="static">Static</option>
+            <option value="dynamic">Dynamic</option>
+            <option value="cellSetSelection">Cell Set Encoding</option>
+          </Select>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell}>
+          {observationsLabelNice} Opacity
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Slider
+            disabled={cellOpacityMode !== "static"}
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            value={cellOpacity}
+            onChange={handleOpacityChange}
+            aria-labelledby="cell-opacity-slider"
+            valueLabelDisplay="auto"
+            step={0.05}
+            min={0.0}
+            max={1.0}
+          />
+        </TableCell>
+      </TableRow>
     </OptionsContainer>
   );
 }
