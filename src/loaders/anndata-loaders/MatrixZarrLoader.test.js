@@ -5,7 +5,7 @@ import BaseAnnDataLoader from './BaseAnnDataLoader';
 const createMatrixLoader = (config) => {
   const baseLoader = new BaseAnnDataLoader(config);
   return new MatrixZarrLoader(baseLoader);
-}
+};
 
 describe('loaders/MatrixZarrLoader', () => {
   it('loadGeneNames returns gene names', async () => {

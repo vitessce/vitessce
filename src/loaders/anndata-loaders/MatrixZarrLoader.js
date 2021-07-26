@@ -2,6 +2,7 @@
 import { openArray, slice } from 'zarr';
 import { extent } from 'd3-array';
 import LoaderResult from '../LoaderResult';
+import { DerivedAnnDataLoader } from './BaseAnnDataLoader';
 
 const normalize = (arr) => {
   const [min, max] = extent(arr);
@@ -30,12 +31,7 @@ const concatenateColumnVectors = (arr) => {
 /**
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
-export default class MatrixZarrLoader {
-
-  constructor(baseLoader) {
-    this.baseLoader = baseLoader;
-  }
-
+export default class MatrixZarrLoader extends DerivedAnnDataLoader {
   /**
    * Class method for loading the genes list from AnnData.var.
    * @returns {Promise} A promise for the zarr array contianing the gene names.
@@ -170,7 +166,7 @@ export default class MatrixZarrLoader {
 
   /**
    * Class method for loading row oriented (CSR) sparse data from zarr.
-   * 
+   *
    * @returns {Object} A { data: Float32Array } contianing the CellXGene matrix.
    */
   async _loadCSRSparseCellXGene() {

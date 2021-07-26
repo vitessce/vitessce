@@ -160,3 +160,12 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
     return this.cellNames;
   }
 }
+
+
+export class DerivedAnnDataLoader {
+  /** @param {BaseAnnDataLoader} */
+  constructor(baseLoader) {
+    /** @type {BaseAnnDataLoader} */
+    this.baseLoader = baseLoader;
+  }
+}
