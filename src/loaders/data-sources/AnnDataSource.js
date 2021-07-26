@@ -1,6 +1,6 @@
 import { openArray } from 'zarr';
 import range from 'lodash/range';
-import AbstractZarrLoader from '../AbstractZarrLoader';
+import ZarrDataSource from './ZarrDataSource';
 
 const readFloat32FromUint8 = (bytes) => {
   if (bytes.length !== 4) {
@@ -45,7 +45,7 @@ function parseVlenUtf8(buffer) {
  * A base AnnData loader which has all shared methods for more comlpex laoders,
  * like loading cell names and ids. It inherits from AbstractLoader.
  */
-export default class BaseAnnDataLoader extends AbstractZarrLoader {
+export default class AnnDataSource extends ZarrDataSource {
   /**
    * Class method for loading cell set ids.
    * Takes the location as an argument because this is shared across objects,
@@ -158,14 +158,5 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
     this.cellNames = this.getJson('obs/.zattrs')
       .then(({ _index }) => this.getFlatArrDecompressed(`/obs/${_index}`));
     return this.cellNames;
-  }
-}
-
-
-export class DerivedAnnDataLoader {
-  /** @param {BaseAnnDataLoader} */
-  constructor(baseLoader) {
-    /** @type {BaseAnnDataLoader} */
-    this.baseLoader = baseLoader;
   }
 }

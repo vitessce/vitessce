@@ -1,10 +1,10 @@
 import expect from 'expect';
 import MatrixZarrLoader from './MatrixZarrLoader';
-import BaseAnnDataLoader from './BaseAnnDataLoader';
+import { AnnDataSource } from '../data-sources';
 
 const createMatrixLoader = (config) => {
-  const baseLoader = new BaseAnnDataLoader(config);
-  return new MatrixZarrLoader(baseLoader);
+  const source = new AnnDataSource(config);
+  return new MatrixZarrLoader(source, config);
 };
 
 describe('loaders/MatrixZarrLoader', () => {

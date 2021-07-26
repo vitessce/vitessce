@@ -1,9 +1,9 @@
 import { loadOmeZarr } from '@hms-dbmi/viv';
-import AbstractZarrLoader from './AbstractZarrLoader';
 import { AbstractLoaderError } from './errors';
 import LoaderResult from './LoaderResult';
 
 import { initializeRasterLayersAndChannels } from '../components/spatial/utils';
+import AbstractTwoStepLoader from './AbstractTwoStepLoader';
 
 function hexToRgb(hex) {
   const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
@@ -14,9 +14,9 @@ function hexToRgb(hex) {
   ];
 }
 
-export default class OmeZarrLoader extends AbstractZarrLoader {
+export default class OmeZarrLoader extends AbstractTwoStepLoader {
   async load() {
-    const payload = await this.getJson('.zattrs').catch(reason => Promise.resolve(reason));
+    const payload = await this.dataSource.getJson('.zattrs').catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
     }

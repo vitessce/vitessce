@@ -94,7 +94,7 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
  */
 export function createLoaders(datasets, configDescription) {
   const result = {};
-  const baseLoaders = {};
+  const dataSources = {};
   datasets.forEach((dataset) => {
     const datasetLoaders = {
       name: dataset.name,
@@ -106,12 +106,13 @@ export function createLoaders(datasets, configDescription) {
       const matchingLoaderClass = fileTypeToLoader[file.fileType] || JsonLoader;
       let loader;
       if (Array.isArray(matchingLoaderClass)) {
-        const [BaseLoaderClass, LoaderClass] = matchingLoaderClass;
+        const [DataSourceClass, LoaderClass] = matchingLoaderClass;
         // Create _one_ BaseLoaderClass instance per URL. Derived loaders share this object.
-        if (!(file.url in baseLoaders)) {
-          baseLoaders[file.url] = new BaseLoaderClass(file);
+        if (!(file.url in DataSourceClass)) {
+          const { url, requestInit } = file;
+          dataSources[file.url] = new DataSourceClass({ url, requestInit });
         }
-        loader = new LoaderClass(baseLoaders[file.url]);
+        loader = new LoaderClass(dataSources[file.url], file);
       } else {
         // eslint-disable-next-line new-cap
         loader = new matchingLoaderClass(file);
