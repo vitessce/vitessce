@@ -7,21 +7,23 @@ import {
 import {
   SETS_DATATYPE_CELL,
 } from '../../components/sets/constants';
-import BaseAnnDataLoader from './BaseAnnDataLoader';
 import LoaderResult from '../LoaderResult';
 
 /**
  * Loader for converting zarr into the cell sets json schema.
  */
-export default class CellSetsZarrLoader extends BaseAnnDataLoader {
+export default class CellSetsZarrLoader {
+  constructor(baseLoader) {
+    this.baseLoader = baseLoader;
+  }
   async load() {
     if (!this.cellSetsTree) {
-      const { options } = this;
+      const { options } = this.baseLoader;
       // eslint-disable-next-line camelcase
       const cellSetZarrLocation = options.map(({ setName }) => setName);
       this.cellSetsTree = Promise.all([
-        this.loadCellNames(),
-        this.loadCellSetIds(cellSetZarrLocation),
+        this.baseLoader.loadCellNames(),
+        this.baseLoader.loadCellSetIds(cellSetZarrLocation),
       ]).then((data) => {
         const [cellNames, cellSets] = data;
         const cellSetsTree = treeInitialize(SETS_DATATYPE_CELL);

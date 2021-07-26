@@ -94,6 +94,7 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
  */
 export function createLoaders(datasets, configDescription) {
   const result = {};
+  const baseLoaders = {};
   datasets.forEach((dataset) => {
     const datasetLoaders = {
       name: dataset.name,
@@ -103,8 +104,18 @@ export function createLoaders(datasets, configDescription) {
     dataset.files.forEach((file) => {
       // Fall back to JsonLoader if a loader is not found for the file type.
       const matchingLoaderClass = fileTypeToLoader[file.fileType] || JsonLoader;
-      // eslint-disable-next-line new-cap
-      datasetLoaders.loaders[file.type] = new matchingLoaderClass(file);
+      let loader;
+      if (Array.isArray(matchingLoaderClass)) {
+        const [BaseLoaderClass, LoaderClass] = matchingLoaderClass;
+        if (!(file.url in baseLoaders)) {
+          baseLoaders[file.url] = new BaseLoaderClass(file);
+        }
+        loader = new LoaderClass(baseLoaders[file.url]);
+      } else {
+        // eslint-disable-next-line new-cap
+        loader = new matchingLoaderClass(file);
+      }
+      datasetLoaders.loaders[file.type] = loader;
     });
     result[dataset.uid] = datasetLoaders;
   });

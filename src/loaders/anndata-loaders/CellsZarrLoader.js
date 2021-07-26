@@ -1,10 +1,12 @@
-import BaseAnnDataLoader from './BaseAnnDataLoader';
 import LoaderResult from '../LoaderResult';
 
 /**
  * Loader for converting zarr into the cell json schema.
  */
-export default class CellsZarrLoader extends BaseAnnDataLoader {
+export default class CellsZarrLoader {
+  constructor(baseLoader) {
+    this.baseLoader = baseLoader;
+  }
   /**
    * Class method for loading spatial cell centroids.
    * @returns {Promise} A promise for an array of tuples/triples for cell centroids.
@@ -15,7 +17,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
       return this.xy;
     }
     if (!this.xy && xy) {
-      this.xy = this.loadNumeric(xy);
+      this.xy = this.baseLoader.loadNumeric(xy);
       return this.xy;
     }
     this.xy = Promise.resolve(null);
@@ -32,7 +34,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
       return this.poly;
     }
     if (!this.poly && poly) {
-      this.poly = this.loadNumeric(poly);
+      this.poly = this.baseLoader.loadNumeric(poly);
       return this.poly;
     }
     this.poly = Promise.resolve(null);
@@ -52,7 +54,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
       this.mappings = Promise.all(
         Object.keys(mappings).map(async (coordinationName) => {
           const { key } = mappings[coordinationName];
-          return { coordinationName, arr: await this.loadNumeric(key) };
+          return { coordinationName, arr: await this.baseLoader.loadNumeric(key) };
         }),
       );
       return this.mappings;
@@ -69,7 +71,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
   loadFactors() {
     const { factors } = this.options || {};
     if (factors) {
-      return this.loadCellSetIds(factors);
+      return this.baseLoader.loadCellSetIds(factors);
     }
     return Promise.resolve(null);
   }
@@ -80,8 +82,8 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
         this.loadMappings(),
         this.loadXy(),
         this.loadPoly(),
-        this.loadCellNames(),
-        this.loadFactors(),
+        this.baseLoader.loadCellNames(),
+        this.baseLoader.loadFactors(),
       ]).then(([mappings, xy, poly, cellNames, factors]) => {
         const cells = {};
         cellNames.forEach((name, i) => {
@@ -91,7 +93,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
               if (!cells[name].mappings) {
                 cells[name].mappings = {};
               }
-              const { dims } = this.options.mappings[coordinationName];
+              const { dims } = this.baseLoader.options.mappings[coordinationName];
               cells[name].mappings[coordinationName] = dims.map(
                 dim => arr.data[i][dim],
               );
@@ -107,7 +109,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
             const factorsObj = {};
             factors.forEach(
               // eslint-disable-next-line no-return-assign
-              (factor, j) => (factorsObj[this.options.factors[j].split('/').slice(-1)] = factor[i]),
+              (factor, j) => (factorsObj[this.baseLoader.options.factors[j].split('/').slice(-1)] = factor[i]),
             );
             cells[name].factors = factorsObj;
           }
@@ -115,6 +117,6 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
         return cells;
       });
     }
-    return Promise.resolve(new LoaderResult(await this.cells, null));
+    return Promise.resolve(new LoaderResult(await this.baseLoader.cells, null));
   }
 }
