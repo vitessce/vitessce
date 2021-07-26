@@ -4,15 +4,17 @@ import LoaderResult from '../LoaderResult';
  * Loader for converting zarr into the cell json schema.
  */
 export default class CellsZarrLoader {
+
   constructor(baseLoader) {
     this.baseLoader = baseLoader;
   }
+
   /**
    * Class method for loading spatial cell centroids.
    * @returns {Promise} A promise for an array of tuples/triples for cell centroids.
    */
   loadXy() {
-    const { xy } = this.options || {};
+    const { xy } = this.baseLoader.options || {};
     if (this.xy) {
       return this.xy;
     }
@@ -29,7 +31,7 @@ export default class CellsZarrLoader {
    * @returns {Promise} A promise for an array of arrays for cell polygons.
    */
   loadPoly() {
-    const { poly } = (this.options || {});
+    const { poly } = (this.baseLoader.options || {});
     if (this.poly) {
       return this.poly;
     }
@@ -46,7 +48,7 @@ export default class CellsZarrLoader {
    * @returns {Promise} A promise for an array of tuples of coordinates.
    */
   loadMappings() {
-    const { mappings } = (this.options || {});
+    const { mappings } = (this.baseLoader.options || {});
     if (this.mappings) {
       return this.mappings;
     }
@@ -69,7 +71,7 @@ export default class CellsZarrLoader {
    * where subarray is a clustering/factor.
    */
   loadFactors() {
-    const { factors } = this.options || {};
+    const { factors } = this.baseLoader.options || {};
     if (factors) {
       return this.baseLoader.loadCellSetIds(factors);
     }
@@ -83,7 +85,7 @@ export default class CellsZarrLoader {
         this.loadXy(),
         this.loadPoly(),
         this.baseLoader.loadCellNames(),
-        this.baseLoader.loadFactors(),
+        this.loadFactors(),
       ]).then(([mappings, xy, poly, cellNames, factors]) => {
         const cells = {};
         cellNames.forEach((name, i) => {
@@ -117,6 +119,6 @@ export default class CellsZarrLoader {
         return cells;
       });
     }
-    return Promise.resolve(new LoaderResult(await this.baseLoader.cells, null));
+    return Promise.resolve(new LoaderResult(await this.cells, null));
   }
 }

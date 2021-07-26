@@ -31,9 +31,11 @@ const concatenateColumnVectors = (arr) => {
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
 export default class MatrixZarrLoader {
+
   constructor(baseLoader) {
     this.baseLoader = baseLoader;
   }
+
   /**
    * Class method for loading the genes list from AnnData.var.
    * @returns {Promise} A promise for the zarr array contianing the gene names.
@@ -51,8 +53,7 @@ export default class MatrixZarrLoader {
     if (this.geneNames) {
       return this.geneNames;
     }
-    this.geneNames = this.baseLoader.getFlatArrDecompressed(`var/${_index}`).then(data => data.filter((_, j) => !geneFilter || geneFilter[j]));
-    return this.geneNames;
+    this.geneNames = this.baseLoader.getFlatArrDecompressed(`var/${_index}`).then(data => data.filter((_, j) => !geneFilter || geneFilter[j])); return this.geneNames;
   }
 
   /**
@@ -62,7 +63,7 @@ export default class MatrixZarrLoader {
    */
   async _getFilteredGenes(filterZarr) {
     const filter = await this.baseLoader.getFlatArrDecompressed(filterZarr);
-    const geneNames = await this.baseLoader.loadGeneNames();
+    const geneNames = await this.loadGeneNames();
     const genes = geneNames.filter((_, i) => filter[i]);
     return genes;
   }
@@ -169,6 +170,7 @@ export default class MatrixZarrLoader {
 
   /**
    * Class method for loading row oriented (CSR) sparse data from zarr.
+   * 
    * @returns {Object} A { data: Float32Array } contianing the CellXGene matrix.
    */
   async _loadCSRSparseCellXGene() {
@@ -178,7 +180,7 @@ export default class MatrixZarrLoader {
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
       const {
         options: { matrix },
-      } = this;
+      } = this.baseLoader;
       const { shape } = await this.baseLoader.getJson(`${matrix}/.zattrs`);
       const [rows, cols, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
@@ -214,7 +216,7 @@ export default class MatrixZarrLoader {
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
       const {
         options: { matrix },
-      } = this;
+      } = this.baseLoader;
       const { shape } = await this.baseLoader.getJson(`${matrix}/.zattrs`);
       const [cols, rows, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
@@ -334,7 +336,7 @@ export default class MatrixZarrLoader {
    * @returns {Object} { data: { rows, cols }, url } containing row and col labels for the matrix.
    */
   loadAttrs() {
-    return Promise.all([this.baseLoader.loadCellNames(), this.baseLoader.loadGeneNames()]).then(
+    return Promise.all([this.baseLoader.loadCellNames(), this.loadGeneNames()]).then(
       (d) => {
         const [cellNames, geneNames] = d;
         const attrs = { rows: cellNames, cols: geneNames };
@@ -352,7 +354,7 @@ export default class MatrixZarrLoader {
         const [{ data: attrs }, cellXGene] = d;
         const {
           options: { matrixGeneFilter: matrixGeneFilterZarr },
-        } = this;
+        } = this.baseLoader;
         // In order to return the correct gene list with the heatmap data,
         // we need to filter the columns of attrs so it matches the cellXGene data.
         if (matrixGeneFilterZarr) {

@@ -13,12 +13,14 @@ import LoaderResult from '../LoaderResult';
  * Loader for converting zarr into the cell sets json schema.
  */
 export default class CellSetsZarrLoader {
+
   constructor(baseLoader) {
     this.baseLoader = baseLoader;
   }
+
   async load() {
     if (!this.cellSetsTree) {
-      const { options } = this.baseLoader;
+      // const { options } = this.baseLoader;
       // eslint-disable-next-line camelcase
       const cellSetZarrLocation = options.map(({ setName }) => setName);
       this.cellSetsTree = Promise.all([

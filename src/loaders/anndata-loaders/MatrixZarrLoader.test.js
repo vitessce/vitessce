@@ -1,10 +1,15 @@
 import expect from 'expect';
 import MatrixZarrLoader from './MatrixZarrLoader';
+import BaseAnnDataLoader from './BaseAnnDataLoader';
 
+const createMatrixLoader = (config) => {
+  const baseLoader = new BaseAnnDataLoader(config);
+  return new MatrixZarrLoader(baseLoader);
+}
 
 describe('loaders/MatrixZarrLoader', () => {
   it('loadGeneNames returns gene names', async () => {
-    const loader = new MatrixZarrLoader({
+    const loader = createMatrixLoader({
       url: 'http://127.0.0.1:8080/anndata/anndata-dense.zarr', options: { matrix: 'X' },
     });
     const names = await loader.loadGeneNames();
@@ -13,15 +18,15 @@ describe('loaders/MatrixZarrLoader', () => {
 
   it('loadGeneSelection matches across storage methods', async () => {
     const selection = { selection: ['gene_1', 'gene_5'] };
-    const loaderCsr = new MatrixZarrLoader({
+    const loaderCsr = createMatrixLoader({
       url: 'http://127.0.0.1:8080/anndata/anndata-csr.zarr', options: { matrix: 'X' },
     });
     const csrSelection = await loaderCsr.loadGeneSelection(selection);
-    const loaderDense = new MatrixZarrLoader({
+    const loaderDense = createMatrixLoader({
       url: 'http://127.0.0.1:8080/anndata/anndata-dense.zarr', options: { matrix: 'X' },
     });
     const denseSelection = await loaderDense.loadGeneSelection(selection);
-    const loaderCsc = new MatrixZarrLoader({
+    const loaderCsc = createMatrixLoader({
       url: 'http://127.0.0.1:8080/anndata/anndata-csc.zarr', options: { matrix: 'X' },
     });
     const cscSelection = await loaderCsc.loadGeneSelection(selection);
@@ -30,15 +35,15 @@ describe('loaders/MatrixZarrLoader', () => {
   });
 
   it('loadCellXGene matches across storage methods', async () => {
-    const loaderCsr = new MatrixZarrLoader({
+    const loaderCsr = createMatrixLoader({
       url: 'http://127.0.0.1:8080/anndata/anndata-csr.zarr', options: { matrix: 'X' },
     });
     const csrMatrix = await loaderCsr.loadCellXGene();
-    const loaderDense = new MatrixZarrLoader({
+    const loaderDense = createMatrixLoader({
       url: 'http://127.0.0.1:8080/anndata/anndata-dense.zarr', options: { matrix: 'X' },
     });
     const denseMatrix = await loaderDense.loadCellXGene();
-    const loaderCsc = new MatrixZarrLoader({
+    const loaderCsc = createMatrixLoader({
       url: 'http://127.0.0.1:8080/anndata/anndata-csc.zarr', options: { matrix: 'X' },
     });
     const cscMatrix = await loaderCsc.loadCellXGene();
