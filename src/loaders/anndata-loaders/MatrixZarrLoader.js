@@ -2,7 +2,7 @@
 import { openArray, slice } from 'zarr';
 import { extent } from 'd3-array';
 import LoaderResult from '../LoaderResult';
-import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import AnnDataLoader from './AnnDataLoader';
 
 const normalize = (arr) => {
   const [min, max] = extent(arr);
@@ -31,27 +31,29 @@ const concatenateColumnVectors = (arr) => {
 /**
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
-export default class MatrixZarrLoader extends AbstractTwoStepLoader {
+export default class MatrixZarrLoader extends AnnDataLoader {
   /**
    * Class method for loading the genes list from AnnData.var,
    * filtered if a there is a `geneFilterZarr` present in the view config.
    * @returns {Promise} A promise for the zarr array contianing the gene names.
    */
-  async loadGeneNames() {
-    if (this.geneNames) {
-      return this.geneNames;
+  async loadFilteredGeneNames() {
+    if (this.filteredGeneNames) {
+      return this.filteredGeneNames;
     }
     const { geneFilter: geneFilterZarr } = this.options;
     let geneFilter;
     if (geneFilterZarr) {
       geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
     }
-    const geneNames = this.dataSource.loadVarIndex();
-    if (this.geneNames) {
-      return this.geneNames;
+    const geneNames = this.loadGeneNames();
+    if (this.filteredGeneNames) {
+      return this.filteredGeneNames;
     }
-    this.geneNames = geneNames.then(data => data.filter((_, j) => !geneFilter || geneFilter[j]));
-    return this.geneNames;
+    this.filteredGeneNames = geneNames.then(
+      data => data.filter((_, j) => !geneFilter || geneFilter[j]),
+    );
+    return this.filteredGeneNames;
   }
 
   /**
@@ -61,7 +63,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    */
   async _getFilteredGenes(filterZarr) {
     const filter = await this.dataSource.getFlatArrDecompressed(filterZarr);
-    const geneNames = await this.loadGeneNames();
+    const geneNames = await this.loadFilteredGeneNames();
     const genes = geneNames.filter((_, i) => filter[i]);
     return genes;
   }
@@ -72,7 +74,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Array} A list of integer indices.
    */
   async _getGeneIndices(selection) {
-    const geneNames = await this.loadGeneNames();
+    const geneNames = await this.loadFilteredGeneNames();
     return selection.map(gene => geneNames.indexOf(gene));
   }
 
@@ -91,7 +93,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Number} The number of genes.
    */
   async _getNumGenes() {
-    const genes = await this.loadGeneNames();
+    const genes = await this.loadFilteredGeneNames();
     return genes.length;
   }
 
@@ -263,7 +265,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
         async (cellXGene) => {
           const filteredGenes = await this._getFilteredGenes(matrixGeneFilter);
           const numGenesFiltered = filteredGenes.length;
-          const geneNames = await this.loadGeneNames();
+          const geneNames = await this.loadFilteredGeneNames();
           const numGenes = geneNames.length;
           const numCells = await this._getNumCells();
           const cellXGeneMatrixFiltered = new Float32Array(
@@ -324,16 +326,14 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Object} { data: { rows, cols }, url } containing row and col labels for the matrix.
    */
   loadAttrs() {
-    return Promise.all([this.dataSource.loadObsIndex(), this.loadGeneNames()]).then(
-      (d) => {
-        const [cellNames, geneNames] = d;
-        const attrs = { rows: cellNames, cols: geneNames };
-        return {
-          data: attrs,
-          url: null,
-        };
-      },
-    );
+    return Promise.all([this.loadCellNames(), this.loadFilteredGeneNames()]).then((d) => {
+      const [cellNames, geneNames] = d;
+      const attrs = { rows: cellNames, cols: geneNames };
+      return {
+        data: attrs,
+        url: null,
+      };
+    });
   }
 
   load() {
