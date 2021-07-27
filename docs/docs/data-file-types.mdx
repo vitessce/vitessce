@@ -703,6 +703,10 @@ adata.write_zarr('my_store.zarr')
 
 Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) family of native file types.
 
+:::note
+The ids in the `obs` part of the `AnnData` store must match the other data files with which you wish to coordinate outside the `AnnData` store.  For example, if you have a bitmask that you wish to use with an `AnnData` store, the ids in `obs` need to be the very integers from each segmentation the bitmask.
+:::
+
 #### Use or Store a subset of X
 
 When the full expression matrix `adata.X` is large, there may be performance costs if Vitessce tries to load the full matrix for visualization, whether it be a heatmap
