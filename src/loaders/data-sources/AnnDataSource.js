@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { openArray } from 'zarr';
 import range from 'lodash/range';
 import ZarrDataSource from './ZarrDataSource';
@@ -46,6 +47,12 @@ function parseVlenUtf8(buffer) {
  * like loading cell names and ids. It inherits from AbstractLoader.
  */
 export default class AnnDataSource extends ZarrDataSource {
+  constructor(...args) {
+    super(...args);
+    /** @type {Map<string, Promise<Array<string>>}} */
+    this.cellSets = new Map();
+  }
+
   /**
    * Class method for loading cell set ids.
    * Takes the location as an argument because this is shared across objects,
@@ -54,34 +61,38 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
   loadCellSetIds(cellSetZarrLocation) {
-    const { store } = this;
-    if (this.cellSets) {
-      return this.cellSets;
-    }
-    this.cellSets = Promise.all(
-      cellSetZarrLocation.map(async (setName) => {
-        const { categories } = await this.getJson(`${setName}/.zattrs`);
-        let categoriesValues;
-        if (categories) {
-          const { dtype } = await this.getJson(`/obs/${categories}/.zarray`);
-          if (dtype === '|O') {
-            categoriesValues = await this.getFlatArrDecompressed(`/obs/${categories}`);
-          }
-        }
-        const cellSetsArr = await openArray({
-          store,
-          path: setName,
-          mode: 'r',
+    const cellSetsPromises = cellSetZarrLocation.map((setName) => {
+      if (!this.cellSets.has(setName)) {
+        const cellSetPromise = this._loadCellSet(setName).catch((err) => {
+          // clear from cache if promise rejects
+          this.cellSets.delete(setName);
+          // propagate error
+          throw err;
         });
-        const cellSetsValues = await cellSetsArr.get();
-        const { data } = cellSetsValues;
-        const mappedCellSetValues = Array.from(data).map(
-          i => (!categoriesValues ? String(i) : categoriesValues[i]),
-        );
-        return mappedCellSetValues;
-      }),
+        this.cellSets.set(setName, cellSetPromise);
+      }
+      return this.cellSets.get(setName);
+    });
+    return Promise.all(cellSetsPromises);
+  }
+
+  async _loadCellSet(setName) {
+    const { store } = this;
+    const { categories } = await this.getJson(`${setName}/.zattrs`);
+    let categoriesValues;
+    if (categories) {
+      const { dtype } = await this.getJson(`/obs/${categories}/.zarray`);
+      if (dtype === '|O') {
+        categoriesValues = await this.getFlatArrDecompressed(`/obs/${categories}`);
+      }
+    }
+    const cellSetsArr = await openArray({ store, path: setName, mode: 'r' });
+    const cellSetsValues = await cellSetsArr.get();
+    const { data } = cellSetsValues;
+    const mappedCellSetValues = Array.from(data).map(
+      i => (!categoriesValues ? String(i) : categoriesValues[i]),
     );
-    return this.cellSets;
+    return mappedCellSetValues;
   }
 
   /**
