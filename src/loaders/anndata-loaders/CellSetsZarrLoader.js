@@ -20,8 +20,8 @@ export default class CellSetsZarrLoader extends AbstractTwoStepLoader {
       // eslint-disable-next-line camelcase
       const cellSetZarrLocation = options.map(({ setName }) => setName);
       this.cellSetsTree = Promise.all([
-        this.dataSource.loadCellNames(),
-        this.dataSource.loadCellSetIds(cellSetZarrLocation),
+        this.dataSource.loadObsIndex(),
+        this.dataSource.loadObsVariables(cellSetZarrLocation),
       ]).then((data) => {
         const [cellNames, cellSets] = data;
         const cellSetsTree = treeInitialize(SETS_DATATYPE_CELL);

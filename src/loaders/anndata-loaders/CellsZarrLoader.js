@@ -69,9 +69,13 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
   loadFactors() {
     const { factors } = (this.options || {});
     if (factors) {
-      return this.dataSource.loadCellSetIds(factors);
+      return this.dataSource.loadObsVariables(factors);
     }
     return Promise.resolve(null);
+  }
+
+  loadCellNames() {
+    return this.dataSource.loadObsIndex();
   }
 
   async load() {
@@ -80,7 +84,7 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
         this.loadMappings(),
         this.loadXy(),
         this.loadPoly(),
-        this.dataSource.loadCellNames(),
+        this.loadCellNames(),
         this.loadFactors(),
       ]).then(([mappings, xy, poly, cellNames, factors]) => {
         const cells = {};

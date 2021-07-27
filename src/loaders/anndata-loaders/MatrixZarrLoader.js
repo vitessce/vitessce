@@ -33,7 +33,8 @@ const concatenateColumnVectors = (arr) => {
  */
 export default class MatrixZarrLoader extends AbstractTwoStepLoader {
   /**
-   * Class method for loading the genes list from AnnData.var.
+   * Class method for loading the genes list from AnnData.var,
+   * filtered if a there is a `geneFilterZarr` present in the view config.
    * @returns {Promise} A promise for the zarr array contianing the gene names.
    */
   async loadGeneNames() {
@@ -45,11 +46,12 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
     if (geneFilterZarr) {
       geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
     }
-    const { _index } = await this.dataSource.getJson('var/.zattrs');
+    const geneNames = this.dataSource.loadVarIndex();
     if (this.geneNames) {
       return this.geneNames;
     }
-    this.geneNames = this.dataSource.getFlatArrDecompressed(`var/${_index}`).then(data => data.filter((_, j) => !geneFilter || geneFilter[j])); return this.geneNames;
+    this.geneNames = geneNames.then(data => data.filter((_, j) => !geneFilter || geneFilter[j]));
+    return this.geneNames;
   }
 
   /**
@@ -79,7 +81,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Number} The number of cells.
    */
   async _getNumCells() {
-    const cells = await this.dataSource.loadCellNames();
+    const cells = await this.dataSource.loadObsIndex();
     return cells.length;
   }
 
@@ -89,8 +91,8 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Number} The number of genes.
    */
   async _getNumGenes() {
-    const cells = await this.loadGeneNames();
-    return cells.length;
+    const genes = await this.loadGeneNames();
+    return genes.length;
   }
 
   /**
@@ -322,7 +324,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Object} { data: { rows, cols }, url } containing row and col labels for the matrix.
    */
   loadAttrs() {
-    return Promise.all([this.dataSource.loadCellNames(), this.loadGeneNames()]).then(
+    return Promise.all([this.dataSource.loadObsIndex(), this.loadGeneNames()]).then(
       (d) => {
         const [cellNames, geneNames] = d;
         const attrs = { rows: cellNames, cols: geneNames };

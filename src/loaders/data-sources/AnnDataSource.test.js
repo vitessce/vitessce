@@ -10,19 +10,19 @@ describe('sources/AnnDataSource', () => {
     expect(zGroup.zarr_format).toEqual(2);
   });
 
-  it('loadCellSetIds returns ids for location in store', async () => {
+  it('loadObsVariables returns ids for location in store', async () => {
     const dataSource = new AnnDataSource({
       url: 'http://127.0.0.1:8080/anndata/anndata-dense.zarr',
     });
-    const ids = await dataSource.loadCellSetIds(['obs/leiden']);
+    const ids = await dataSource.loadObsVariables(['obs/leiden']);
     expect(ids).toEqual([['1', '1', '2']]);
   });
 
-  it('loadCellNames returns names', async () => {
+  it('loadObsIndex returns names', async () => {
     const dataSource = new AnnDataSource({
       url: 'http://127.0.0.1:8080/anndata/anndata-dense.zarr',
     });
-    const names = await dataSource.loadCellNames();
+    const names = await dataSource.loadObsIndex();
     expect(names).toEqual(['CTG', 'GCA', 'CTG']);
   });
 });
