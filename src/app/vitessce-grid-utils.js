@@ -108,7 +108,7 @@ export function createLoaders(datasets, configDescription) {
       if (Array.isArray(matchingLoaderClass)) {
         const [DataSourceClass, LoaderClass] = matchingLoaderClass;
         // Create _one_ BaseLoaderClass instance per URL. Derived loaders share this object.
-        if (!(file.url in DataSourceClass)) {
+        if (!(file.url in dataSources)) {
           const { url, requestInit } = file;
           dataSources[file.url] = new DataSourceClass({ url, requestInit });
         }
