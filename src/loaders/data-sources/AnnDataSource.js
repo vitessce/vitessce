@@ -49,7 +49,7 @@ function parseVlenUtf8(buffer) {
 export default class AnnDataSource extends ZarrDataSource {
   constructor(...args) {
     super(...args);
-    /** @type {Map<string, Promise<Array<string>>}} */
+    /** @type {Map<string, Promise<string[]>} */
     this.cellSets = new Map();
   }
 
@@ -57,7 +57,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * Class method for loading cell set ids.
    * Takes the location as an argument because this is shared across objects,
    * which have different ways of specifying location.
-   * @param {Array} cellSetZarrLocation An array of strings like obs.leiden or obs.bulk_labels.
+   * @param {string[]} cellSetZarrLocation An array of strings like obs.leiden or obs.bulk_labels.
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
   loadCellSetIds(cellSetZarrLocation) {
