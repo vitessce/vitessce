@@ -8,11 +8,11 @@ const createMatrixLoader = (config) => {
 };
 
 describe('loaders/MatrixZarrLoader', () => {
-  it('loadGeneNames returns gene names', async () => {
+  it('loadFilteredGeneNames returns gene names', async () => {
     const loader = createMatrixLoader({
       url: 'http://127.0.0.1:8080/anndata/anndata-dense.zarr', options: { matrix: 'X' },
     });
-    const names = await loader.loadGeneNames();
+    const names = await loader.loadFilteredGeneNames();
     expect(names).toEqual(Array.from({ length: 15 }).map((_, i) => `gene_${i}`));
   });
 

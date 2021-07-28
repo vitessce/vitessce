@@ -14,14 +14,18 @@ import LoaderResult from '../LoaderResult';
  * Loader for converting zarr into the cell sets json schema.
  */
 export default class CellSetsZarrLoader extends AbstractTwoStepLoader {
+  loadCellSetIds() {
+    const { options } = this;
+    const cellSetZarrLocation = options.map(({ setName }) => setName);
+    return this.dataSource.loadObsVariables(cellSetZarrLocation);
+  }
+
   async load() {
     if (!this.cellSetsTree) {
       const { options } = this;
-      // eslint-disable-next-line camelcase
-      const cellSetZarrLocation = options.map(({ setName }) => setName);
       this.cellSetsTree = Promise.all([
-        this.dataSource.loadCellNames(),
-        this.dataSource.loadCellSetIds(cellSetZarrLocation),
+        this.dataSource.loadObsIndex(),
+        this.loadCellSetIds(),
       ]).then((data) => {
         const [cellNames, cellSets] = data;
         const cellSetsTree = treeInitialize(SETS_DATATYPE_CELL);

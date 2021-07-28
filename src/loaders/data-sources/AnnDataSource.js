@@ -50,35 +50,35 @@ export default class AnnDataSource extends ZarrDataSource {
   constructor(...args) {
     super(...args);
     /** @type {Map<string, Promise<string[]>} */
-    this.cellSets = new Map();
+    this.obsPromises = new Map();
   }
 
   /**
-   * Class method for loading cell set ids.
+   * Class method for loading obs variables.
    * Takes the location as an argument because this is shared across objects,
    * which have different ways of specifying location.
-   * @param {string[]} cellSetZarrLocation An array of strings like obs.leiden or obs.bulk_labels.
+   * @param {string[]} obsPaths An array of strings like "obs/leiden" or "obs/bulk_labels."
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
-  loadCellSetIds(cellSetZarrLocation) {
-    const cellSetsPromises = cellSetZarrLocation.map((setName) => {
-      if (!this.cellSets.has(setName)) {
-        const cellSetPromise = this._loadCellSet(setName).catch((err) => {
+  loadObsVariables(obsPaths) {
+    const obsPromises = obsPaths.map((obsPath) => {
+      if (!this.obsPromises.has(obsPath)) {
+        const obsPromise = this._loadObsVariable(obsPath).catch((err) => {
           // clear from cache if promise rejects
-          this.cellSets.delete(setName);
+          this.obsPromises.delete(obsPath);
           // propagate error
           throw err;
         });
-        this.cellSets.set(setName, cellSetPromise);
+        this.obsPromises.set(obsPath, obsPromise);
       }
-      return this.cellSets.get(setName);
+      return this.obsPromises.get(obsPath);
     });
-    return Promise.all(cellSetsPromises);
+    return Promise.all(obsPromises);
   }
 
-  async _loadCellSet(setName) {
+  async _loadObsVariable(obs) {
     const { store } = this;
-    const { categories } = await this.getJson(`${setName}/.zattrs`);
+    const { categories } = await this.getJson(`${obs}/.zattrs`);
     let categoriesValues;
     if (categories) {
       const { dtype } = await this.getJson(`/obs/${categories}/.zarray`);
@@ -86,13 +86,13 @@ export default class AnnDataSource extends ZarrDataSource {
         categoriesValues = await this.getFlatArrDecompressed(`/obs/${categories}`);
       }
     }
-    const cellSetsArr = await openArray({ store, path: setName, mode: 'r' });
-    const cellSetsValues = await cellSetsArr.get();
-    const { data } = cellSetsValues;
-    const mappedCellSetValues = Array.from(data).map(
+    const obsArr = await openArray({ store, path: obs, mode: 'r' });
+    const obsValues = await obsArr.get();
+    const { data } = obsValues;
+    const mappedObsValues = Array.from(data).map(
       i => (!categoriesValues ? String(i) : categoriesValues[i]),
     );
-    return mappedCellSetValues;
+    return mappedObsValues;
   }
 
   /**
@@ -109,6 +109,12 @@ export default class AnnDataSource extends ZarrDataSource {
     }).then(arr => arr.get());
   }
 
+  /**
+   * A common method for loading flattened data
+   * i.e that which has shape [n] where n is a natural number.
+   * @param {string} path A path to a flat array location, like obs/_index
+   * @returns {Array} The data from the zarr array.
+   */
   getFlatArrDecompressed(path) {
     const { store } = this;
     return openArray({
@@ -159,15 +165,28 @@ export default class AnnDataSource extends ZarrDataSource {
   }
 
   /**
-   * Class method for loading the cell names from obs.
-   * @returns {Promise} An promise for a zarr array containing the names.
+   * Class method for loading the obs index.
+   * @returns {Promise} An promise for a zarr array containing the indices.
    */
-  loadCellNames() {
-    if (this.cellNames) {
-      return this.cellNames;
+  loadObsIndex() {
+    if (this.obsIndex) {
+      return this.obsIndex;
     }
-    this.cellNames = this.getJson('obs/.zattrs')
+    this.obsIndex = this.getJson('obs/.zattrs')
       .then(({ _index }) => this.getFlatArrDecompressed(`/obs/${_index}`));
-    return this.cellNames;
+    return this.obsIndex;
+  }
+
+  /**
+   * Class method for loading the var index.
+   * @returns {Promise} An promise for a zarr array containing the indices.
+   */
+  loadVarIndex() {
+    if (this.varIndex) {
+      return this.varIndex;
+    }
+    this.varIndex = this.getJson('var/.zattrs')
+      .then(({ _index }) => this.getFlatArrDecompressed(`/var/${_index}`));
+    return this.varIndex;
   }
 }

@@ -33,23 +33,25 @@ const concatenateColumnVectors = (arr) => {
  */
 export default class MatrixZarrLoader extends AbstractTwoStepLoader {
   /**
-   * Class method for loading the genes list from AnnData.var.
+   * Class method for loading the genes list from AnnData.var,
+   * filtered if a there is a `geneFilterZarr` present in the view config.
    * @returns {Promise} A promise for the zarr array contianing the gene names.
    */
-  async loadGeneNames() {
-    if (this.geneNames) {
-      return this.geneNames;
+  async loadFilteredGeneNames() {
+    if (this.filteredGeneNames) {
+      return this.filteredGeneNames;
     }
     const { geneFilter: geneFilterZarr } = this.options;
-    let geneFilter;
-    if (geneFilterZarr) {
-      geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
-    }
-    const { _index } = await this.dataSource.getJson('var/.zattrs');
-    if (this.geneNames) {
-      return this.geneNames;
-    }
-    this.geneNames = this.dataSource.getFlatArrDecompressed(`var/${_index}`).then(data => data.filter((_, j) => !geneFilter || geneFilter[j])); return this.geneNames;
+    const getFilterFn = async () => {
+      if (!geneFilterZarr) return data => data;
+      const geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
+      return data => data.filter((_, j) => geneFilter[j]);
+    };
+
+    this.filteredGeneNames = Promise
+      .all([this.dataSource.loadVarIndex(), getFilterFn()])
+      .then(([data, filter]) => filter(data));
+    return this.filteredGeneNames;
   }
 
   /**
@@ -59,7 +61,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    */
   async _getFilteredGenes(filterZarr) {
     const filter = await this.dataSource.getFlatArrDecompressed(filterZarr);
-    const geneNames = await this.loadGeneNames();
+    const geneNames = await this.loadFilteredGeneNames();
     const genes = geneNames.filter((_, i) => filter[i]);
     return genes;
   }
@@ -70,7 +72,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Array} A list of integer indices.
    */
   async _getGeneIndices(selection) {
-    const geneNames = await this.loadGeneNames();
+    const geneNames = await this.loadFilteredGeneNames();
     return selection.map(gene => geneNames.indexOf(gene));
   }
 
@@ -79,7 +81,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Number} The number of cells.
    */
   async _getNumCells() {
-    const cells = await this.dataSource.loadCellNames();
+    const cells = await this.dataSource.loadObsIndex();
     return cells.length;
   }
 
@@ -89,8 +91,8 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Number} The number of genes.
    */
   async _getNumGenes() {
-    const cells = await this.loadGeneNames();
-    return cells.length;
+    const genes = await this.loadFilteredGeneNames();
+    return genes.length;
   }
 
   /**
@@ -261,7 +263,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
         async (cellXGene) => {
           const filteredGenes = await this._getFilteredGenes(matrixGeneFilter);
           const numGenesFiltered = filteredGenes.length;
-          const geneNames = await this.loadGeneNames();
+          const geneNames = await this.loadFilteredGeneNames();
           const numGenes = geneNames.length;
           const numCells = await this._getNumCells();
           const cellXGeneMatrixFiltered = new Float32Array(
@@ -322,16 +324,15 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Object} { data: { rows, cols }, url } containing row and col labels for the matrix.
    */
   loadAttrs() {
-    return Promise.all([this.dataSource.loadCellNames(), this.loadGeneNames()]).then(
-      (d) => {
+    return Promise.all([this.dataSource.loadObsIndex(), this.loadFilteredGeneNames()])
+      .then((d) => {
         const [cellNames, geneNames] = d;
         const attrs = { rows: cellNames, cols: geneNames };
         return {
           data: attrs,
           url: null,
         };
-      },
-    );
+      });
   }
 
   load() {
