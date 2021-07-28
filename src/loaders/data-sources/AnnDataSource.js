@@ -61,17 +61,17 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
   loadObsVariables(obsPaths) {
-    const obsPromises = obsPaths.map((obsLocation) => {
-      if (!this.obsPromises.has(obsLocation)) {
-        const obsPromise = this._loadObsVariable(obsLocation).catch((err) => {
+    const obsPromises = obsPaths.map((obsPath) => {
+      if (!this.obsPromises.has(obsPath)) {
+        const obsPromise = this._loadObsVariable(obsPath).catch((err) => {
           // clear from cache if promise rejects
-          this.obsPromises.delete(obsLocation);
+          this.obsPromises.delete(obsPath);
           // propagate error
           throw err;
         });
-        this.obsPromises.set(obsLocation, obsPromise);
+        this.obsPromises.set(obsPath, obsPromise);
       }
-      return this.obsPromises.get(obsLocation);
+      return this.obsPromises.get(obsPath);
     });
     return Promise.all(obsPromises);
   }
