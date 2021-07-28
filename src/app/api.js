@@ -103,8 +103,26 @@ export const configs = {
             type: 'molecules',
             fileType: 'molecules.json',
             url: 'http://localhost:8081/molecules.json'
-          }
-        ]
+          },
+          {
+            type: 'raster',
+            fileType: 'raster.json',
+            options: {
+              images: [
+                {
+                  metadata: {
+                    isBitmask: false,
+                  },
+                  name: "Stains",
+                  type: "ome-tiff",
+                  url: "http://localhost:8081/stains/selected.ome.tiff"
+                },
+              ],
+              schemaVersion: "0.0.2",
+              usePhysicalSizeScaling: false,
+            },
+          },
+        ],
       },
     ],
     initStrategy: 'auto',
