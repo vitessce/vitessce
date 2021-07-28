@@ -1,10 +1,10 @@
-import AnnDataLoader from './AnnDataLoader';
 import LoaderResult from '../LoaderResult';
+import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 
 /**
  * Loader for converting zarr into the cell json schema.
  */
-export default class CellsZarrLoader extends AnnDataLoader {
+export default class CellsZarrLoader extends AbstractTwoStepLoader {
   /**
    * Class method for loading spatial cell centroids.
    * @returns {Promise} A promise for an array of tuples/triples for cell centroids.
@@ -80,7 +80,7 @@ export default class CellsZarrLoader extends AnnDataLoader {
         this.loadMappings(),
         this.loadXy(),
         this.loadPoly(),
-        this.loadCellNames(),
+        this.dataSource.loadObsIndex(),
         this.loadFactors(),
       ]).then(([mappings, xy, poly, cellNames, factors]) => {
         const cells = {};

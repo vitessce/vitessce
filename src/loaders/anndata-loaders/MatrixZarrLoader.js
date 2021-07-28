@@ -2,7 +2,7 @@
 import { openArray, slice } from 'zarr';
 import { extent } from 'd3-array';
 import LoaderResult from '../LoaderResult';
-import AnnDataLoader from './AnnDataLoader';
+import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 
 const normalize = (arr) => {
   const [min, max] = extent(arr);
@@ -31,7 +31,7 @@ const concatenateColumnVectors = (arr) => {
 /**
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
-export default class MatrixZarrLoader extends AnnDataLoader {
+export default class MatrixZarrLoader extends AbstractTwoStepLoader {
   /**
    * Class method for loading the genes list from AnnData.var,
    * filtered if a there is a `geneFilterZarr` present in the view config.
@@ -46,11 +46,7 @@ export default class MatrixZarrLoader extends AnnDataLoader {
     if (geneFilterZarr) {
       geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
     }
-    const geneNames = this.loadGeneNames();
-    if (this.filteredGeneNames) {
-      return this.filteredGeneNames;
-    }
-    this.filteredGeneNames = geneNames.then(
+    this.filteredGeneNames = this.dataSource.loadVarIndex().then(
       data => data.filter((_, j) => !geneFilter || geneFilter[j]),
     );
     return this.filteredGeneNames;
@@ -326,14 +322,15 @@ export default class MatrixZarrLoader extends AnnDataLoader {
    * @returns {Object} { data: { rows, cols }, url } containing row and col labels for the matrix.
    */
   loadAttrs() {
-    return Promise.all([this.loadCellNames(), this.loadFilteredGeneNames()]).then((d) => {
-      const [cellNames, geneNames] = d;
-      const attrs = { rows: cellNames, cols: geneNames };
-      return {
-        data: attrs,
-        url: null,
-      };
-    });
+    return Promise.all([this.dataSource.loadObsIndex(), this.loadFilteredGeneNames()])
+      .then((d) => {
+        const [cellNames, geneNames] = d;
+        const attrs = { rows: cellNames, cols: geneNames };
+        return {
+          data: attrs,
+          url: null,
+        };
+      });
   }
 
   load() {

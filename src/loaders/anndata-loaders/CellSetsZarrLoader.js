@@ -7,13 +7,13 @@ import {
 import {
   SETS_DATATYPE_CELL,
 } from '../../components/sets/constants';
-import AnnDataLoader from './AnnDataLoader';
+import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 import LoaderResult from '../LoaderResult';
 
 /**
  * Loader for converting zarr into the cell sets json schema.
  */
-export default class CellSetsZarrLoader extends AnnDataLoader {
+export default class CellSetsZarrLoader extends AbstractTwoStepLoader {
   loadCellSetIds() {
     const { options } = this;
     const cellSetZarrLocation = options.map(({ setName }) => setName);
@@ -24,7 +24,7 @@ export default class CellSetsZarrLoader extends AnnDataLoader {
     if (!this.cellSetsTree) {
       const { options } = this;
       this.cellSetsTree = Promise.all([
-        this.loadCellNames(),
+        this.dataSource.loadObsIndex(),
         this.loadCellSetIds(),
       ]).then((data) => {
         const [cellNames, cellSets] = data;

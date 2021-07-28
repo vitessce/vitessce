@@ -57,11 +57,11 @@ export default class AnnDataSource extends ZarrDataSource {
    * Class method for loading obs variables.
    * Takes the location as an argument because this is shared across objects,
    * which have different ways of specifying location.
-   * @param {string[]} obsLocations An array of strings like obs/leiden or obs/bulk_labels.
+   * @param {string[]} obsPaths An array of strings like "obs/leiden" or "obs/bulk_labels."
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
-  loadObsVariables(obsLocations) {
-    const obsPromises = obsLocations.map((obsLocation) => {
+  loadObsVariables(obsPaths) {
+    const obsPromises = obsPaths.map((obsLocation) => {
       if (!this.obsPromises.has(obsLocation)) {
         const obsPromise = this._loadObsVariable(obsLocation).catch((err) => {
           // clear from cache if promise rejects
@@ -112,7 +112,7 @@ export default class AnnDataSource extends ZarrDataSource {
   /**
    * A common method for loading flattened data
    * i.e that which has shape [n] where n is a natural number.
-   * @param {string[]} path A path to a flat array location, like obs/_index
+   * @param {string} path A path to a flat array location, like obs/_index
    * @returns {Array} The data from the zarr array.
    */
   getFlatArrDecompressed(path) {
