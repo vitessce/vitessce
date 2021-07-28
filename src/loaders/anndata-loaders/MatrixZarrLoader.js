@@ -42,13 +42,15 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
       return this.filteredGeneNames;
     }
     const { geneFilter: geneFilterZarr } = this.options;
-    let geneFilter;
-    if (geneFilterZarr) {
-      geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
-    }
-    this.filteredGeneNames = this.dataSource.loadVarIndex().then(
-      data => data.filter((_, j) => !geneFilter || geneFilter[j]),
-    );
+    const getFilterFn = async () => {
+      if (!geneFilterZarr) return data => data;
+      const geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
+      return data => data.filter((_, j) => geneFilter[j]);
+    };
+
+    this.filteredGeneNames = Promise
+      .all([this.dataSource.loadVarIndex(), getFilterFn()])
+      .then(([data, filter]) => filter(data));
     return this.filteredGeneNames;
   }
 
