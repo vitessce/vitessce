@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Introduce two-step data loaders for AnnData "files".
 
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20
 
