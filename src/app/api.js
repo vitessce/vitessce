@@ -144,16 +144,19 @@ export const configs = {
                 selection: { c: 0, t: 0, z: 0 },
                 color: [0, 0, 255],
                 visible: true,
+                slider: [0, 255],
               },
               {
                 selection: { c: 1, t: 0, z: 0 },
                 color: [0, 255, 0],
                 visible: true,
+                slider: [0, 255],
               },
               {
                 selection: { c: 2, t: 0, z: 0 },
                 color: [255, 0, 0],
                 visible: true,
+                slider: [0, 255],
               }
             ]
           }
@@ -164,13 +167,13 @@ export const configs = {
       { component: 'description',
         x: 0, y: 0, w: 2, h: 2 },
       { component: 'layerController',
-        x: 0, y: 1, w: 2, h: 4,
+        x: 0, y: 1, w: 2, h: 8,
         coordinationScopes: {
           spatialRasterLayers: "A",
         }
       },
       { component: 'status',
-        x: 0, y: 5, w: 2, h: 2 },
+        x: 0, y: 10, w: 2, h: 2 },
       { component: 'genes',
         x: 6, y: 0, w: 2, h: 12 },
       { component: 'heatmap',
