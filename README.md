@@ -29,6 +29,8 @@ For more information, see the [glossary](./GLOSSARY.md).
 The demo features data from several collaborators,
 with preprocessing done by [`vitessce-data`](https://github.com/hms-dbmi/vitessce-data).
 
+You can also use the demo website for visualizing your own data via view configs passed in as url parameters.  If you are storing a `json` view configuration on a remote server, the url will look something like `http://vitessce.io/?url=https://example.com/my_config.json`.  Otherwise, if you have a view configuration that is not stored somewhere that can be accessed via a web server, you can do something like `http://vitessce.io/?url=data:,{"name":"FAKE", "version": "0.1.0", "description":"fake dataset", "layers":[], "staticLayout":[{"component":"description", "props":{"description": "Hello World"}, "x":0, "y": 0, "w": 2, "h": 2}]}` where `data:` prepends the actual view config.
+
 ## Usage
 
 Vitessce components can be used in React projects by installing the package from NPM:
