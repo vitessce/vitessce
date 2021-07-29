@@ -8,6 +8,9 @@ import '../css/index.scss';
 import '../../node_modules/react-grid-layout/css/styles.css';
 import '../../node_modules/react-resizable/css/styles.css';
 
+import useDatasets from '../hooks/useDatasets';
+import datasetsLocal from './datasets';
+
 function AwaitResponse(props) {
   const {
     response,
@@ -91,7 +94,7 @@ function validateTheme(theme) {
  * website be rendered? Optional. By default, false.
  * @returns A component, either <Welcome/> or <Vitessce/> depending on the URL params.
  */
-export function createApp(params) {
+function App(params) {
   const { rowHeight = null, showBetaHeader = false } = params;
   const urlParams = new URLSearchParams(window.location.search);
   const datasetId = urlParams.get('dataset');
@@ -100,8 +103,21 @@ export function createApp(params) {
   const showAll = urlParams.get('show') === 'all';
   const theme = validateTheme(urlParams.get('theme'));
 
+  const datasetsRemote = useDatasets(process.env.REACT_APP_URL_DATASETS);
+  const sourceData = process.env.REACT_APP_URL_DATASETS || 'local';
+  const datasets = sourceData === 'local' ? datasetsLocal : datasetsRemote;
+
+  if (datasets === 'loading') {
+    return (
+      <Warning
+        title="Loading..."
+        theme={theme}
+      />
+    );
+  }
+
   if (datasetId) {
-    const config = getConfig(datasetId);
+    const config = getConfig(datasets, datasetId);
     return (
       <Vitessce
         config={config}
@@ -127,6 +143,20 @@ export function createApp(params) {
       <AwaitResponse response={responsePromise} theme={theme} />
     );
   }
-  const configs = listConfigs(showAll);
+  const configs = listConfigs(datasets, showAll);
   return (<Welcome configs={configs} theme={theme} showBetaHeader={showBetaHeader} />);
+}
+
+/**
+ * Convenience function for creating the minimal Vitessce demo and demo listing
+ * components based on the current URL parameters.
+ * @param {object} params
+ * @param {number|null} params.rowHeight The row height to pass to the Vitessce grid.
+ * Optional. By default, null.
+ * @param {boolean} showBetaHeader Should the header which links to the beta documentation
+ * website be rendered? Optional. By default, false.
+ * @returns An <App/> component.
+ */
+export function createApp(params) {
+  return <App params={params} />;
 }

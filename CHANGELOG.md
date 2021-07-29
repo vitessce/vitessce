@@ -2,6 +2,8 @@
 
 ### Added
 
+- Implement hook to fetch dataset definition from remote source.
+
 ### Changed
 
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20
