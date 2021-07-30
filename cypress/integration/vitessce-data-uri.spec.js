@@ -88,7 +88,7 @@ describe('Vitessce Data URIs', () => {
       ]
     };
     loadConfig(config);
-    cy.contains('Error HTTP status fetching cells.');
+    cy.contains('JsonSource Error HTTP Status fetching from https://example.com/bad-url.json');
   });
 
   it('handles errors from bad view config v0.1.0', () => {
