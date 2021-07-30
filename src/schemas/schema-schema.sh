@@ -5,8 +5,9 @@ die() { set +v; echo "$*" 1>&2 ; exit 1; }
 
 # This is a totally ad-hoc script to ensure some consistency in our schemas.
 # We want to be sure that each "properties" also specifies "additionalProperties" and "required".
-SCHEMA_DIR=`dirname $0`
+
 FAILURES=$(
+  SCHEMA_DIR=`dirname $0`
   for SCHEMA in $SCHEMA_DIR/*.schema.json; do
     export SCHEMA
     grep -B2 '"properties"' $SCHEMA \
@@ -19,16 +20,3 @@ if [[ $FAILURES ]]; then
   die "Check that 'additionalProperties' & 'required' & 'properties' are provided:
 $FAILURES"
 fi
-
-for SCHEMA in $SCHEMA_DIR/config-*.schema.json; do
-  SCHEMA_NAME=`basename $SCHEMA`
-  SCHEMA_RESPONSE=`curl -s https://raw.githubusercontent.com/vitessce/vitessce/master/src/schemas/$SCHEMA_NAME`
-  if [ "$SCHEMA_RESPONSE" == "404: Not Found" ]; then
-    echo "Schema $SCHEMA is not in production yet."
-  else
-    DIFFERENCE=`diff --ignore-all-space $SCHEMA <(echo "$SCHEMA_RESPONSE")`
-    if [[ ! -z $DIFFERENCE ]]; then
-      die "$SCHEMA has changed.  Please do not change existing schema; instead, make a new schema."
-    fi
-  fi
-done
