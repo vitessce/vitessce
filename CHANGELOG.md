@@ -5,7 +5,8 @@
 ### Changed
 - Introduce two-step data loaders for AnnData "files".
 - Update README to have more info on using view configs via url parameters.
-- 
+- Add a check for schema changes - schemas may not be updated once published, only new ones added.
+
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20
 
 ### Added
