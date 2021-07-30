@@ -5,8 +5,9 @@ die() { set +v; echo "$*" 1>&2 ; exit 1; }
 
 # This is a totally ad-hoc script to ensure some consistency in our schemas.
 # We want to be sure that each "properties" also specifies "additionalProperties" and "required".
-SCHEMA_DIR=`dirname $0`
+
 FAILURES=$(
+  SCHEMA_DIR=`dirname $0`
   for SCHEMA in $SCHEMA_DIR/*.schema.json; do
     export SCHEMA
     grep -B2 '"properties"' $SCHEMA \
