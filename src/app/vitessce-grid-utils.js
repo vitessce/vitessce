@@ -1,7 +1,7 @@
 import {
   useState, useEffect, useRef,
 } from 'react';
-import { fileTypeToLoader } from '../loaders/types';
+import { fileTypeToLoaderAndSource } from '../loaders/types';
 import JsonLoader from '../loaders/JsonLoader';
 
 /**
@@ -103,7 +103,7 @@ export function createLoaders(datasets, configDescription) {
     };
     dataset.files.forEach((file) => {
       // Fall back to JsonLoader if a loader is not found for the file type.
-      const matchingLoaderClass = fileTypeToLoader[file.fileType] || JsonLoader;
+      const matchingLoaderClass = fileTypeToLoaderAndSource[file.fileType] || JsonLoader;
       const [DataSourceClass, LoaderClass] = matchingLoaderClass;
       // Create _one_ BaseLoaderClass instance per URL. Derived loaders share this object.
       if (!(file.url in dataSources)) {
