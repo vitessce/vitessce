@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
-import AbstractLoader from './AbstractLoader';
-import { LoaderFetchError, LoaderValidationError, AbstractLoaderError } from './errors/index';
+import AbstractTwoStepLoader from './AbstractTwoStepLoader';
+import { LoaderValidationError, AbstractLoaderError } from './errors/index';
 import LoaderResult from './LoaderResult';
 
 import cellsSchema from '../schemas/cells.schema.json';
@@ -17,9 +17,9 @@ const typeToSchema = {
   'cell-sets': cellSetsSchema,
 };
 
-export default class JsonLoader extends AbstractLoader {
-  constructor(params) {
-    super(params);
+export default class JsonLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
 
     const { type } = params;
     this.schema = typeToSchema[type];
@@ -27,19 +27,12 @@ export default class JsonLoader extends AbstractLoader {
 
   load() {
     const {
-      url, requestInit, type, fileType,
+      url, type, fileType,
     } = this;
     if (this.data) {
       return this.data;
     }
-    this.data = fetch(url, requestInit)
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        return Promise.reject(new LoaderFetchError(type, fileType, url, response.headers));
-      })
-      .catch(reason => Promise.resolve(reason))
+    this.data = this.dataSource.data
       .then((data) => {
         if (data instanceof AbstractLoaderError) {
           return Promise.reject(data);

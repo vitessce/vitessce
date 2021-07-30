@@ -104,19 +104,13 @@ export function createLoaders(datasets, configDescription) {
     dataset.files.forEach((file) => {
       // Fall back to JsonLoader if a loader is not found for the file type.
       const matchingLoaderClass = fileTypeToLoader[file.fileType] || JsonLoader;
-      let loader;
-      if (Array.isArray(matchingLoaderClass)) {
-        const [DataSourceClass, LoaderClass] = matchingLoaderClass;
-        // Create _one_ BaseLoaderClass instance per URL. Derived loaders share this object.
-        if (!(file.url in dataSources)) {
-          const { url, requestInit } = file;
-          dataSources[file.url] = new DataSourceClass({ url, requestInit });
-        }
-        loader = new LoaderClass(dataSources[file.url], file);
-      } else {
-        // eslint-disable-next-line new-cap
-        loader = new matchingLoaderClass(file);
+      const [DataSourceClass, LoaderClass] = matchingLoaderClass;
+      // Create _one_ BaseLoaderClass instance per URL. Derived loaders share this object.
+      if (!(file.url in dataSources)) {
+        const { url, requestInit } = file;
+        dataSources[file.url] = new DataSourceClass({ url, requestInit });
       }
+      const loader = new LoaderClass(dataSources[file.url], file);
       datasetLoaders.loaders[file.type] = loader;
     });
     result[dataset.uid] = datasetLoaders;

@@ -5,7 +5,8 @@
 ### Changed
 - Introduce two-step data loaders for AnnData "files".
 - Update README to have more info on using view configs via url parameters.
-- 
+- Make two-step data loaders universal for all file types.
+
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20
 
 ### Added

@@ -7,8 +7,8 @@ import LoaderResult from './LoaderResult';
 import { initializeCellSetColor } from '../components/sets/cell-set-utils';
 
 export default class CellSetsJsonLoader extends JsonLoader {
-  constructor(params) {
-    super(params);
+  constructor(dataSource, params) {
+    super(dataSource, params);
 
     this.schema = cellSetsSchema;
   }
