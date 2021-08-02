@@ -4,8 +4,8 @@ import { AbstractLoaderError } from './errors';
 import LoaderResult from './LoaderResult';
 
 export default class GenesJsonAsMatrixZarrLoader extends JsonLoader {
-  constructor(params) {
-    super(params);
+  constructor(dataSource, params) {
+    super(dataSource, params);
 
     this.schema = genesSchema;
   }
