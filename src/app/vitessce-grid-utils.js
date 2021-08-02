@@ -3,6 +3,7 @@ import {
 } from 'react';
 import { fileTypeToLoaderAndSource } from '../loaders/types';
 import JsonLoader from '../loaders/JsonLoader';
+import { JsonSource } from '../loaders/data-sources';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -103,7 +104,8 @@ export function createLoaders(datasets, configDescription) {
     };
     dataset.files.forEach((file) => {
       // Fall back to JsonLoader if a loader is not found for the file type.
-      const matchingLoaderClass = fileTypeToLoaderAndSource[file.fileType] || JsonLoader;
+      const matchingLoaderClass = fileTypeToLoaderAndSource[file.fileType]
+        || [JsonSource, JsonLoader];
       const [DataSourceClass, LoaderClass] = matchingLoaderClass;
       // Create _one_ BaseLoaderClass instance per URL. Derived loaders share this object.
       if (!(file.url in dataSources)) {

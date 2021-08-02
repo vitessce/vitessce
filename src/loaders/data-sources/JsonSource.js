@@ -5,6 +5,12 @@ export default class JsonSource {
   constructor({ url, requestInit }) {
     this._fetch = () => fetch(url, requestInit);
     this._url = url;
+    this._requestInit = requestInit;
+  }
+
+  set url(url) {
+    this._fetch = () => fetch(url, this._requestInit);
+    this._url = url;
   }
 
   get data() {

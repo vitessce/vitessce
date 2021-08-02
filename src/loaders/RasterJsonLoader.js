@@ -76,12 +76,12 @@ async function initLoader(imageData) {
 
 export default class RasterLoader extends JsonLoader {
   constructor(dataSource, params) {
-    super(dataSource, params);
     const { url, options } = params;
     if (!url && options) {
-      this.url = URL.createObjectURL(new Blob([JSON.stringify(options)]));
-      this.options = undefined;
+      // eslint-disable-next-line no-param-reassign, no-underscore-dangle
+      dataSource.url = URL.createObjectURL(new Blob([JSON.stringify(options)]));
     }
+    super(dataSource, params);
     this.schema = rasterSchema;
   }
 
