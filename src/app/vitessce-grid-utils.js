@@ -101,9 +101,7 @@ export function createLoaders(datasets, configDescription) {
       loaders: {},
     };
     dataset.files.forEach((file) => {
-      // Fall back to JsonLoader if a loader is not found for the file type.
-      const matchingLoaderClass = getSourceAndLoaderFromFileType(file.fileType);
-      const [DataSourceClass, LoaderClass] = matchingLoaderClass;
+      const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(file.fileType);
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
       if (!(file.url in dataSources)) {
         const { url, requestInit } = file;
