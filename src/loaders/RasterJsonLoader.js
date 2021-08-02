@@ -78,7 +78,7 @@ export default class RasterLoader extends JsonLoader {
   constructor(dataSource, params) {
     const { url, options } = params;
     if (!url && options) {
-      // eslint-disable-next-line no-param-reassign, no-underscore-dangle
+      // eslint-disable-next-line no-param-reassign
       dataSource.url = URL.createObjectURL(new Blob([JSON.stringify(options)]));
     }
     super(dataSource, params);
