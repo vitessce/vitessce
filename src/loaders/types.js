@@ -12,7 +12,7 @@ import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
 
 const ANNDATA = 'anndata';
 
-export const fileTypeToLoaderAndSource = {
+const fileTypeToLoaderAndSource = {
   'expression-matrix.zarr': [ZarrDataSource, MatrixZarrLoader],
   'clusters.json': [JsonSource, ClustersJsonAsMatrixZarrLoader],
   'genes.json': [JsonSource, GenesJsonAsMatrixZarrLoader],
@@ -27,3 +27,7 @@ export const fileTypeToLoaderAndSource = {
   [`${ANNDATA}-expression-matrix.zarr`]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],
   'genomic-profiles.zarr': [ZarrDataSource, GenomicProfilesZarrLoader],
 };
+
+export function getSourceAndLoaderFromFileType(type) {
+  return fileTypeToLoaderAndSource[type] || [JsonSource, JsonLoader];
+}

@@ -3,19 +3,13 @@ import DataSourceFetchError from '../errors/DataSourceFetchError';
 
 export default class JsonSource {
   constructor({ url, requestInit }) {
-    this._fetch = () => fetch(url, requestInit);
-    this._url = url;
-    this._requestInit = requestInit;
-  }
-
-  set url(url) {
-    this._fetch = () => fetch(url, this._requestInit);
-    this._url = url;
+    this.url = url;
+    this.requestInit = requestInit;
   }
 
   get data() {
     if (this._data) return this._data;
-    this._data = this._fetch().then((response) => {
+    this._data = fetch(this.url, this.requestInit).then((response) => {
       if (!response.ok) {
         return Promise.reject(new DataSourceFetchError('JsonSource', this._url, response.headers));
       }
