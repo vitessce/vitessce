@@ -37,11 +37,6 @@ const defaultProps = {
   getFillColor: { type: 'accessor', value: DEFAULT_COLOR },
   getLineColor: { type: 'accessor', value: DEFAULT_COLOR },
   getLineWidth: { type: 'accessor', value: 1 },
-
-  // deprecated
-  strokeWidth: { deprecatedFor: 'getLineWidth' },
-  outline: { deprecatedFor: 'stroked' },
-  getColor: { deprecatedFor: ['getFillColor', 'getLineColor'] },
 };
 
 export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {

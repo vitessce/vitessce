@@ -35,15 +35,16 @@ uniform bool filled;
 uniform bool uIsExpressionMode;
 uniform bool uIsAbsoluteRadiusMode;
 
+
 varying vec4 vFillColor;
 varying vec4 vLineColor;
 varying vec2 unitPosition;
 varying float innerUnitRadius;
 varying float outerRadiusPixels;
 // Custom varyings for Vitessce:
-varying float vOpacity;
 varying float vExpressionValue;
 varying float vSelectionState;
+
 
 void main(void) {
   geometry.worldPosition = instancePositions;
@@ -53,11 +54,6 @@ void main(void) {
     project_size_to_pixel(radiusScale * instanceRadius),
     radiusMinPixels, radiusMaxPixels
   );
-
-  if(instanceSelectionState == 1.0) {
-    // For selected points, do not vary size by zoom level.
-    outerRadiusPixels = radiusMaxPixels / 4.0;
-  }
   
   // Multiply out line width and clamp to limits
   float lineWidthPixels = clamp(
@@ -77,8 +73,6 @@ void main(void) {
   DECKGL_FILTER_SIZE(offset, geometry);
   gl_Position = project_position_to_clipspace(instancePositions, instancePositions64Low, offset, geometry.position);
   DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
-
-  vOpacity = opacity;
 
   // Apply opacity to instance color, or return instance picking color
   vFillColor = vec4(instanceFillColors.rgb, opacity);
@@ -111,43 +105,39 @@ precision highp float;
 #pragma glslify: magma = require("glsl-colormap/magma")
 #pragma glslify: plasma = require("glsl-colormap/plasma")
 
+
 // Custom uniforms for Vitessce:
+uniform float opacity;
 uniform vec2 uColorScaleRange;
 uniform bool uIsExpressionMode;
+
 
 varying vec2 unitPosition;
 varying float innerUnitRadius;
 varying float outerRadiusPixels;
 varying vec4 vFillColor;
 // Custom varyings for Vitessce:
-varying float vOpacity;
 varying float vExpressionValue;
 varying float vSelectionState;
 
+
 void main(void) {
   geometry.uv = unitPosition;
+  
   float distToCenter = length(unitPosition) * outerRadiusPixels;
-  float inInnerCircle = smoothedge(distToCenter, outerRadiusPixels);
+  float inCircle = smoothedge(distToCenter, outerRadiusPixels);
 
-  float inOuterCircle = smoothedge(distToCenter, outerRadiusPixels);
-  if (inOuterCircle == 0.0) {
+  if (inCircle == 0.0) {
     discard;
   }
 
-  float intensityMean = vExpressionValue;
-  float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
+  float scaledExpressionValue = (vExpressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
   if(uIsExpressionMode) {
-    gl_FragColor = __colormap(clamp(scaledIntensityMean, 0.0, 1.0));
+    gl_FragColor = __colormap(clamp(scaledExpressionValue, 0.0, 1.0));
   } else {
     gl_FragColor = vFillColor;
   }
-  gl_FragColor.a = vOpacity;
-
-  if (vSelectionState == 1.0 && inOuterCircle == 1.0 && inInnerCircle == 0.0) {
-    gl_FragColor.a = 0.0;
-  } else if(vSelectionState == 1.0) {
-    gl_FragColor.a = 1.0;
-  }
+  gl_FragColor.a = opacity;
 
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);
 }
