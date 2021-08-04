@@ -38,15 +38,23 @@ varying vec2 unitPosition;
 varying float innerUnitRadius;
 varying float outerRadiusPixels;
 varying float vStroked;
+varying float vExpressionValue;
 
 void main(void) {
   geometry.worldPosition = instancePositions;
 
+  float stroked = instanceSelectionState;
+
   // Multiply out radius and clamp to limits
   outerRadiusPixels = clamp(
-    project_size_to_pixel(radiusScale * instanceRadius),
+    project_size_to_pixel(radiusScale * instanceRadius + (stroked * 5.0)),
     radiusMinPixels, radiusMaxPixels
   );
+
+  if(stroked == 1.0) {
+    // For selected points, do not vary size by zoom level.
+    outerRadiusPixels = radiusMaxPixels / 4.0;
+  }
   
   // Multiply out line width and clamp to limits
   float lineWidthPixels = clamp(
@@ -54,13 +62,10 @@ void main(void) {
     lineWidthMinPixels, lineWidthMaxPixels
   );
 
-  float stroked = instanceSelectionState;
+ 
 
   // outer radius needs to offset by half stroke width
   outerRadiusPixels += stroked * lineWidthPixels / 2.0;
-  if(stroked == 1.0) {
-    outerRadiusPixels += (0.05 / radiusScale);
-  }
 
   // position on the containing square in [-1, 1] space
   unitPosition = positions.xy;
@@ -76,6 +81,8 @@ void main(void) {
 
   vOpacity = opacity;
   vStroked = stroked;
+
+  vExpressionValue = instanceExpressionValue / 255.0;
 
   // Apply opacity to instance color, or return instance picking color
   vFillColor = vec4(instanceFillColors.rgb, opacity);
@@ -114,18 +121,19 @@ varying float outerRadiusPixels;
 varying vec4 vFillColor;
 varying float vOpacity;
 varying float vStroked;
+varying float vExpressionValue;
 
 void main(void) {
   geometry.uv = unitPosition;
   float distToCenter = length(unitPosition) * outerRadiusPixels;
-  float inInnerCircle = smoothedge(distToCenter, outerRadiusPixels - 4.0);
+  float inInnerCircle = smoothedge(distToCenter, outerRadiusPixels);
 
   float inOuterCircle = smoothedge(distToCenter, outerRadiusPixels);
   if (inOuterCircle == 0.0) {
     discard;
   }
 
-  float intensityMean = vFillColor.r;
+  float intensityMean = vExpressionValue;
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
   if(uIsExpressionMode) {
     gl_FragColor = __colormap(clamp(scaledIntensityMean, 0.0, 1.0));

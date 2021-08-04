@@ -141,6 +141,7 @@ export default function ScatterplotSubscriber(props) {
   const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
+
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
@@ -262,6 +263,16 @@ export default function ScatterplotSubscriber(props) {
     }
   }, [cellOpacityMode, dynamicCellOpacity, cellOpacityFixed]);
 
+  const getExpressionValue = useCallback((entry) => {
+    const cellId = entry[0];
+    if(attrs && attrs.rows && expressionData && expressionData[0]) {
+      const cellIndex = attrs.rows.indexOf(cellId);
+      const val = expressionData[0][cellIndex];
+      return val;
+    }
+    return 0;
+  }, [attrs, expressionData, geneSelection, cellColorEncoding]);
+
   return (
     <TitleInfo
       title={title}
@@ -324,6 +335,7 @@ export default function ScatterplotSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
+        getExpressionValue={getExpressionValue}
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber

@@ -107,6 +107,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       ),
       cellColors,
       getCellColor = makeDefaultGetCellColors(cellColors, cellOpacity),
+      getExpressionValue,
       onCellClick,
       geneExpressionColormapRange = [0.0, 1.0],
       cellColorEncoding,
@@ -114,6 +115,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
+    
+    // console.log(cellColors);
     
 
     return new DynamicOpacityScatterplotLayer({
@@ -124,7 +127,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       radiusMinPixels: 1,
       radiusMaxPixels: 30,
       getPosition: getCellPosition,
-      getColor: getCellColor,
+      getFillColor: getCellColor,
+      getExpressionValue: getExpressionValue,
       getRadius: 1,
       getLineWidth: 0,
       getSelectionState: getCellIsSelected,
@@ -138,6 +142,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       },
       updateTriggers: {
         getSelectionState: cellSelection,
+        getExpressionValue: getExpressionValue,
+        getFillColor: cellSelection,
       },
       ...cellLayerDefaultProps(
         filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
@@ -315,7 +321,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if ([
       'cells', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity',
-      'geneExpressionColormapRange', 'cellColorEncoding',
+      'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
