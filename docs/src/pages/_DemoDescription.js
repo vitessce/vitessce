@@ -4,9 +4,8 @@ import Loadable from 'react-loadable';
 import registry from '@generated/registry';
 
 function DemoDescription(props) {
-    const { demo } = props;
+  const { demo } = props;
 
-    console.log(demo);
 
   // Try to get the Description component from the markdown file in
   // the docs/demos/ directory (if one exists).
@@ -15,8 +14,6 @@ function DemoDescription(props) {
       Object.values(registry)
         .find(c => c[1] === `@site/docs/demos/${demo}.md`)
   ) : null;
-
-  console.log(chunkRegistry);
 
   let Description = () => null;
   if(chunkRegistry) {
