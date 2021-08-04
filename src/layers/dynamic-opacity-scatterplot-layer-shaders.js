@@ -18,8 +18,10 @@ attribute float instanceLineWidths;
 attribute vec4 instanceFillColors;
 attribute vec4 instanceLineColors;
 attribute vec3 instancePickingColors;
+// Custom attributes for Vitessce:
 attribute float instanceExpressionValue;
 attribute float instanceSelectionState;
+
 
 uniform float opacity;
 uniform float radiusScale;
@@ -29,29 +31,30 @@ uniform float lineWidthScale;
 uniform float lineWidthMinPixels;
 uniform float lineWidthMaxPixels;
 uniform bool filled;
+// Custom uniforms for Vitessce:
 uniform bool uIsExpressionMode;
+uniform bool uIsAbsoluteRadiusMode;
 
 varying vec4 vFillColor;
 varying vec4 vLineColor;
-varying float vOpacity;
 varying vec2 unitPosition;
 varying float innerUnitRadius;
 varying float outerRadiusPixels;
-varying float vStroked;
+// Custom varyings for Vitessce:
+varying float vOpacity;
 varying float vExpressionValue;
+varying float vSelectionState;
 
 void main(void) {
   geometry.worldPosition = instancePositions;
 
-  float stroked = instanceSelectionState;
-
   // Multiply out radius and clamp to limits
   outerRadiusPixels = clamp(
-    project_size_to_pixel(radiusScale * instanceRadius + (stroked * 5.0)),
+    project_size_to_pixel(radiusScale * instanceRadius),
     radiusMinPixels, radiusMaxPixels
   );
 
-  if(stroked == 1.0) {
+  if(instanceSelectionState == 1.0) {
     // For selected points, do not vary size by zoom level.
     outerRadiusPixels = radiusMaxPixels / 4.0;
   }
@@ -62,17 +65,13 @@ void main(void) {
     lineWidthMinPixels, lineWidthMaxPixels
   );
 
- 
-
-  // outer radius needs to offset by half stroke width
-  outerRadiusPixels += stroked * lineWidthPixels / 2.0;
 
   // position on the containing square in [-1, 1] space
   unitPosition = positions.xy;
   geometry.uv = unitPosition;
   geometry.pickingColor = instancePickingColors;
 
-  innerUnitRadius = 1.0 - stroked * lineWidthPixels / outerRadiusPixels;
+  innerUnitRadius = lineWidthPixels / outerRadiusPixels;
   
   vec3 offset = positions * project_pixel_size(outerRadiusPixels);
   DECKGL_FILTER_SIZE(offset, geometry);
@@ -80,15 +79,15 @@ void main(void) {
   DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
 
   vOpacity = opacity;
-  vStroked = stroked;
-
-  vExpressionValue = instanceExpressionValue / 255.0;
 
   // Apply opacity to instance color, or return instance picking color
   vFillColor = vec4(instanceFillColors.rgb, opacity);
   DECKGL_FILTER_COLOR(vFillColor, geometry);
   vLineColor = vec4(instanceLineColors.rgb, opacity);
   DECKGL_FILTER_COLOR(vLineColor, geometry);
+
+  vExpressionValue = instanceExpressionValue / 255.0;
+  vSelectionState = instanceSelectionState;
 }
 `;
 
@@ -112,6 +111,7 @@ precision highp float;
 #pragma glslify: magma = require("glsl-colormap/magma")
 #pragma glslify: plasma = require("glsl-colormap/plasma")
 
+// Custom uniforms for Vitessce:
 uniform vec2 uColorScaleRange;
 uniform bool uIsExpressionMode;
 
@@ -119,9 +119,10 @@ varying vec2 unitPosition;
 varying float innerUnitRadius;
 varying float outerRadiusPixels;
 varying vec4 vFillColor;
+// Custom varyings for Vitessce:
 varying float vOpacity;
-varying float vStroked;
 varying float vExpressionValue;
+varying float vSelectionState;
 
 void main(void) {
   geometry.uv = unitPosition;
@@ -142,9 +143,9 @@ void main(void) {
   }
   gl_FragColor.a = vOpacity;
 
-  if (vStroked == 1.0 && inOuterCircle == 1.0 && inInnerCircle == 0.0) {
+  if (vSelectionState == 1.0 && inOuterCircle == 1.0 && inInnerCircle == 0.0) {
     gl_FragColor.a = 0.0;
-  } else if(vStroked == 1.0) {
+  } else if(vSelectionState == 1.0) {
     gl_FragColor.a = 1.0;
   }
 

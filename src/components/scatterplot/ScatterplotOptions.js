@@ -9,6 +9,7 @@ import { capitalize } from '../../utils';
 import { useStyles } from '../shared-plot-options/styles';
 import OptionsContainer from '../shared-plot-options/OptionsContainer';
 import CellColorEncodingOption from '../shared-plot-options/CellColorEncodingOption';
+import { GLSL_COLORMAPS } from '../../layers/constants';
 
 export default function ScatterplotOptions(props) {
   const {
@@ -29,6 +30,8 @@ export default function ScatterplotOptions(props) {
     setCellSetPolygonsVisible,
     cellColorEncoding,
     setCellColorEncoding,
+    geneExpressionColormap,
+    setGeneExpressionColormap,
   } = props;
 
   const observationsLabelNice = capitalize(observationsLabel);
@@ -61,6 +64,10 @@ export default function ScatterplotOptions(props) {
 
   function handlePolygonVisibilityChange(event) {
     setCellSetPolygonsVisible(event.target.checked);
+  }
+
+  function handleGeneExpressionColormapChange(event) {
+    setGeneExpressionColormap(event.target.value);
   }
 
   return (
@@ -190,6 +197,26 @@ export default function ScatterplotOptions(props) {
             min={0.0}
             max={1.0}
           />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
+          Gene Expression Colormap
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Select
+            native
+            className={classes.select}
+            value={geneExpressionColormap}
+            onChange={handleGeneExpressionColormapChange}
+            inputProps={{
+              id: 'gene-expression-colormap-select',
+            }}
+          >
+            {GLSL_COLORMAPS.map((cmap) => (
+              <option key={cmap} value={cmap}>{cmap}</option>
+            ))}
+          </Select>
         </TableCell>
       </TableRow>
     </OptionsContainer>

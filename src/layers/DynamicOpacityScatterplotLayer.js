@@ -1,17 +1,20 @@
+/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
+import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants';
 import { vertexShader, fragmentShader } from './dynamic-opacity-scatterplot-layer-shaders';
 
 const DEFAULT_COLOR = [0, 0, 0, 255];
 
 const defaultProps = {
   /* Custom props for DynamicOpacityScatterplotLayer */
-  colormap: { type: 'string', value: 'plasma', compare: true },
+  colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
   colorScaleLo: { type: 'number', value: 0.0, compare: true },
   colorScaleHi: { type: 'number', value: 1.0, compare: true },
   isExpressionMode: false,
+  isAbsoluteRadiusMode: false,
   getExpressionValue: { type: 'accessor', value: 0 },
   getSelectionState: { type: 'accessor', value: 0.0 },
 
@@ -48,7 +51,6 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
    * @param {object} shaders
    * @returns {object} Merged shaders.
    */
-  // eslint-disable-next-line no-underscore-dangle
   _getShaders(shaders) {
     this.props.extensions.forEach((extension) => {
       // eslint-disable-next-line no-param-reassign
@@ -59,11 +61,33 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
 
   getShaders() {
     const { colormap } = this.props;
+    const fragmentShaderWithColormap = (GLSL_COLORMAPS.includes(colormap)
+      ? fragmentShader.replace(COLORMAP_SHADER_PLACEHOLDER, colormap)
+      : fragmentShader.replace(COLORMAP_SHADER_PLACEHOLDER, GLSL_COLORMAP_DEFAULT)
+    );
     return this._getShaders({
       vs: vertexShader,
-      fs: fragmentShader.replace('__colormap', colormap),
+      fs: fragmentShaderWithColormap,
       modules: [project32, picking],
     });
+  }
+
+  /**
+   * Invalidate the shaders if the colormap has changed, since the new
+   * shader needs string replacement.
+   * Reference: https://github.com/visgl/deck.gl/blob/f3b2aab/modules/layers/src/scatterplot-layer/scatterplot-layer.js#L102 
+   * Reference: https://github.com/hms-dbmi/viv/blob/7e113ab2a8551fd7b2807318e1df1788aab3dad4/src/layers/XRLayer/XRLayer.js#L145
+   * @param {object} param0 
+   */
+  updateState({props, oldProps, changeFlags}) {
+    super.updateState({props, oldProps, changeFlags});
+    if (props.colormap !== oldProps.colormap) {
+      const { gl } = this.context;
+      // eslint-disable-next-line no-unused-expressions
+      this.state.model?.delete();
+      this.state.model = this._getModel(gl);
+      this.getAttributeManager().invalidateAll();
+    }
   }
 
   initializeState() {
@@ -101,6 +125,7 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
       colorScaleLo,
       colorScaleHi,
       isExpressionMode,
+      isAbsoluteRadiusMode,
     } = this.props;
 
     const pointRadiusMultiplier = radiusUnits === 'pixels' ? viewport.metersPerPixel : 1;
@@ -119,6 +144,7 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
         lineWidthMaxPixels,
         uColorScaleRange: [colorScaleLo, colorScaleHi],
         uIsExpressionMode: isExpressionMode,
+        uIsAbsoluteRadiusMode: isAbsoluteRadiusMode,
       })
       .draw();
   }

@@ -1,13 +1,20 @@
 ## In Progress
 
 ### Added
-- TODO: Added cell opacity modes
+- Added cell opacity modes
+    - Dynamic mode (default)
     - Static mode
-    - Dynamic mode
-    - Confidence score mode
-- Switched to performing quantitative color mapping on the scatterplot shaders for fast responses to colormap slider interactions.
+    - Cell set encoding mode (based on confidence score for cell set assignment)
+- Added cell radius modes
+    - Dynamic mode (default)
+    - Absolute (independent of zoom level)
+    - Relative (based on zoom level)
 
 ### Changed
+- Switched to performing quantitative color mapping on the scatterplot shaders to enable (fast) responses to the heatmap colormap slider interactions.
+- Switched to performing selected cell coloring on the shaders (rather than using a second scatterplot layer).
+- Updated scatterplot and heatmap shaders to take the `geneExpressionColormap` coordination value into account.
+
 
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20
 
@@ -27,6 +34,7 @@
     - The layer `type` should not be used, since it is currently expected to be either `"raster"` or `"bitmask"`, but previously was allowed to be any string including `"t"`. Instead, need to detect whether the layer is a bitmask layer using `layerMeta.metadata.isBitmask` defined in the `raster.json` file definition.
     - The `visible` property was previously only available for channels. Now, there is a per-layer `visible` property, but old view configs may not contain this. Therefore, we need to explicitly check that the value is a boolean rather than simply falsy `undefined` or `null`.
     - Enforce `type` of `spatialRasterLayers` layer as `bitmask` or `raster`.
+
 
 ## [1.1.11](https://www.npmjs.com/package/vitessce/v/1.1.11) - 2021-06-25
 

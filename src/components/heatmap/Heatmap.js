@@ -72,6 +72,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     height: viewHeight,
     expressionMatrix: expression,
     cellColors,
+    geneExpressionColormap,
     clearPleaseWait,
     setComponentHover,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
@@ -345,6 +346,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         ],
         aggSizeX,
         aggSizeY,
+        colormap: geneExpressionColormap,
         colorScaleLo,
         colorScaleHi,
         updateTriggers: {
@@ -357,7 +359,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       .current.map((tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile));
     return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
-    aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels, xTiles]);
+    aggSizeX, aggSizeY, geneExpressionColormap, colorScaleLo, colorScaleHi,
+    axisLeftLabels, axisTopLabels, xTiles]);
 
 
   // Map cell and gene names to arrays with indices,

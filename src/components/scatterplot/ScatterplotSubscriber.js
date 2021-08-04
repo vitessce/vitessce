@@ -88,6 +88,7 @@ export default function ScatterplotSubscriber(props) {
     embeddingCellRadiusMode: cellRadiusMode,
     embeddingCellOpacity: cellOpacityFixed,
     embeddingCellOpacityMode: cellOpacityMode,
+    geneExpressionColormap,
     geneExpressionColormapRange,
   }, {
     setEmbeddingZoom: setZoom,
@@ -107,6 +108,7 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingCellRadiusMode: setCellRadiusMode,
     setEmbeddingCellOpacity: setCellOpacityFixed,
     setEmbeddingCellOpacityMode: setCellOpacityMode,
+    setGeneExpressionColormap,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -300,6 +302,8 @@ export default function ScatterplotSubscriber(props) {
           setCellSetPolygonsVisible={setCellSetPolygonsVisible}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
+          geneExpressionColormap={geneExpressionColormap}
+          setGeneExpressionColormap={setGeneExpressionColormap}
         />
       )}
     >
@@ -328,8 +332,10 @@ export default function ScatterplotSubscriber(props) {
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
         cellRadius={cellRadius}
+        cellRadiusMode={cellRadiusMode}
         cellOpacity={cellOpacity}
         cellColorEncoding={cellColorEncoding}
+        geneExpressionColormap={geneExpressionColormap}
         geneExpressionColormapRange={geneExpressionColormapRange}
         setComponentHover={() => {
           setComponentHover(uuid);

@@ -75,6 +75,7 @@ export default function HeatmapSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
+    geneExpressionColormap,
     geneExpressionColormapRange: heatmapControls,
   }, {
     setHeatmapZoomX: setZoomX,
@@ -185,6 +186,7 @@ export default function HeatmapSubscriber(props) {
         uuid={uuid}
         expressionMatrix={expressionMatrix}
         cellColors={cellColors}
+        geneExpressionColormap={geneExpressionColormap}
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
