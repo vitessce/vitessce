@@ -4,7 +4,7 @@ function getConfig() {
   // Instantiate a view config object.
   const vc = new vapi.VitessceConfig('HBM485.TBWH.322', 'Large intestine snATAC-seq HuBMAP dataset with genomic data visualization powered by HiGlass');
   // Add a dataset and its files.
-  const baseUrl = 'https://s3.amazonaws.com/vitessce-data/0.0.32/master_release/human_intestine_2020_hubmap';
+  const baseUrl = 'https://vitessce-data.s3.amazonaws.com/0.0.32/master_release/human_intestine_2020_hubmap';
   const dataset = vc
     .addDataset('HBM485.TBWH.322', 'Human large intestine, snATAC-seq')
     .addFile(`${baseUrl}/human_intestine_2020_hubmap.cells.json`, vapi.dt.CELLS, vapi.ft.CELLS_JSON)

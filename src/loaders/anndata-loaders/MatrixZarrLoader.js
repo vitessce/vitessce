@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 import { openArray, slice } from 'zarr';
 import { extent } from 'd3-array';
-import BaseAnnDataLoader from './BaseAnnDataLoader';
 import LoaderResult from '../LoaderResult';
+import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 
 const normalize = (arr) => {
   const [min, max] = extent(arr);
@@ -31,26 +31,27 @@ const concatenateColumnVectors = (arr) => {
 /**
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
-export default class MatrixZarrLoader extends BaseAnnDataLoader {
+export default class MatrixZarrLoader extends AbstractTwoStepLoader {
   /**
-   * Class method for loading the genes list from AnnData.var.
+   * Class method for loading the genes list from AnnData.var,
+   * filtered if a there is a `geneFilterZarr` present in the view config.
    * @returns {Promise} A promise for the zarr array contianing the gene names.
    */
-  async loadGeneNames() {
-    if (this.geneNames) {
-      return this.geneNames;
+  async loadFilteredGeneNames() {
+    if (this.filteredGeneNames) {
+      return this.filteredGeneNames;
     }
     const { geneFilter: geneFilterZarr } = this.options;
-    let geneFilter;
-    if (geneFilterZarr) {
-      geneFilter = await this.getFlatArrDecompressed(geneFilterZarr);
-    }
-    const { _index } = await this.getJson('var/.zattrs');
-    if (this.geneNames) {
-      return this.geneNames;
-    }
-    this.geneNames = this.getFlatArrDecompressed(`var/${_index}`).then(data => data.filter((_, j) => !geneFilter || geneFilter[j]));
-    return this.geneNames;
+    const getFilterFn = async () => {
+      if (!geneFilterZarr) return data => data;
+      const geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
+      return data => data.filter((_, j) => geneFilter[j]);
+    };
+
+    this.filteredGeneNames = Promise
+      .all([this.dataSource.loadVarIndex(), getFilterFn()])
+      .then(([data, filter]) => filter(data));
+    return this.filteredGeneNames;
   }
 
   /**
@@ -59,8 +60,8 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    * @returns {Array} A list of filtered genes.
    */
   async _getFilteredGenes(filterZarr) {
-    const filter = await this.getFlatArrDecompressed(filterZarr);
-    const geneNames = await this.loadGeneNames();
+    const filter = await this.dataSource.getFlatArrDecompressed(filterZarr);
+    const geneNames = await this.loadFilteredGeneNames();
     const genes = geneNames.filter((_, i) => filter[i]);
     return genes;
   }
@@ -71,7 +72,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    * @returns {Array} A list of integer indices.
    */
   async _getGeneIndices(selection) {
-    const geneNames = await this.loadGeneNames();
+    const geneNames = await this.loadFilteredGeneNames();
     return selection.map(gene => geneNames.indexOf(gene));
   }
 
@@ -80,7 +81,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    * @returns {Number} The number of cells.
    */
   async _getNumCells() {
-    const cells = await this.loadCellNames();
+    const cells = await this.dataSource.loadObsIndex();
     return cells.length;
   }
 
@@ -90,8 +91,8 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    * @returns {Number} The number of genes.
    */
   async _getNumGenes() {
-    const cells = await this.loadGeneNames();
-    return cells.length;
+    const genes = await this.loadFilteredGeneNames();
+    return genes.length;
   }
 
   /**
@@ -99,10 +100,8 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    * @returns {Array} A list of promises pointing to the indptr, indices, and data of the matrix.
    */
   async _openSparseArrays() {
-    const {
-      options: { matrix },
-      store,
-    } = this;
+    const { options: { matrix } } = this;
+    const { store } = this.dataSource;
     if (this.sparseArrays) {
       return this.sparseArrays;
     }
@@ -167,6 +166,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
 
   /**
    * Class method for loading row oriented (CSR) sparse data from zarr.
+   *
    * @returns {Object} A { data: Float32Array } contianing the CellXGene matrix.
    */
   async _loadCSRSparseCellXGene() {
@@ -174,10 +174,8 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       return this._sparseMatrix;
     }
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
-      const {
-        options: { matrix },
-      } = this;
-      const { shape } = await this.getJson(`${matrix}/.zattrs`);
+      const { options: { matrix } } = this;
+      const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
       const [rows, cols, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
           const { data } = await arr.getRaw(null);
@@ -210,10 +208,8 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
       return this._sparseMatrix;
     }
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
-      const {
-        options: { matrix },
-      } = this;
-      const { shape } = await this.getJson(`${matrix}/.zattrs`);
+      const { options: { matrix } } = this;
+      const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
       const [cols, rows, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
           const { data } = await arr.getRaw(null);
@@ -242,15 +238,13 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    * @returns {Promise} A promise for the zarr array contianing the cell x gene data.
    */
   async loadCellXGene() {
-    const { store } = this;
+    const { store } = this.dataSource;
     if (this.cellXGene) {
       return this.cellXGene;
     }
-    const {
-      options: { matrix, matrixGeneFilter },
-    } = this;
+    const { options: { matrix, matrixGeneFilter } } = this;
     if (!this._matrixZattrs) {
-      this._matrixZattrs = await this.getJson(`${matrix}/.zattrs`);
+      this._matrixZattrs = await this.dataSource.getJson(`${matrix}/.zattrs`);
     }
     const encodingType = this._matrixZattrs['encoding-type'];
     if (!matrixGeneFilter) {
@@ -269,7 +263,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         async (cellXGene) => {
           const filteredGenes = await this._getFilteredGenes(matrixGeneFilter);
           const numGenesFiltered = filteredGenes.length;
-          const geneNames = await this.loadGeneNames();
+          const geneNames = await this.loadFilteredGeneNames();
           const numGenes = geneNames.length;
           const numCells = await this._getNumCells();
           const cellXGeneMatrixFiltered = new Float32Array(
@@ -300,12 +294,10 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    * @returns {Object} { data } containing an array of gene expression data.
    */
   async loadGeneSelection({ selection, shouldNormalize = true }) {
-    const {
-      options: { matrix },
-      store,
-    } = this;
+    const { options: { matrix } } = this;
+    const { store } = this.dataSource;
     if (!this._matrixZattrs) {
-      this._matrixZattrs = await this.getJson(`${matrix}/.zattrs`);
+      this._matrixZattrs = await this.dataSource.getJson(`${matrix}/.zattrs`);
     }
     const encodingType = this._matrixZattrs['encoding-type'];
     let genes;
@@ -332,16 +324,15 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
    * @returns {Object} { data: { rows, cols }, url } containing row and col labels for the matrix.
    */
   loadAttrs() {
-    return Promise.all([this.loadCellNames(), this.loadGeneNames()]).then(
-      (d) => {
+    return Promise.all([this.dataSource.loadObsIndex(), this.loadFilteredGeneNames()])
+      .then((d) => {
         const [cellNames, geneNames] = d;
         const attrs = { rows: cellNames, cols: geneNames };
         return {
           data: attrs,
           url: null,
         };
-      },
-    );
+      });
   }
 
   load() {
@@ -354,7 +345,7 @@ export default class MatrixZarrLoader extends BaseAnnDataLoader {
         // In order to return the correct gene list with the heatmap data,
         // we need to filter the columns of attrs so it matches the cellXGene data.
         if (matrixGeneFilterZarr) {
-          const matrixGeneFilter = await this.getFlatArrDecompressed(
+          const matrixGeneFilter = await this.dataSource.getFlatArrDecompressed(
             matrixGeneFilterZarr,
           );
           attrs.cols = attrs.cols.filter((_, i) => matrixGeneFilter[i]);

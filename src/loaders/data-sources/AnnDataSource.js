@@ -1,6 +1,7 @@
+/* eslint-disable no-underscore-dangle */
 import { openArray } from 'zarr';
 import range from 'lodash/range';
-import AbstractZarrLoader from '../AbstractZarrLoader';
+import ZarrDataSource from './ZarrDataSource';
 
 const readFloat32FromUint8 = (bytes) => {
   if (bytes.length !== 4) {
@@ -45,43 +46,53 @@ function parseVlenUtf8(buffer) {
  * A base AnnData loader which has all shared methods for more comlpex laoders,
  * like loading cell names and ids. It inherits from AbstractLoader.
  */
-export default class BaseAnnDataLoader extends AbstractZarrLoader {
+export default class AnnDataSource extends ZarrDataSource {
+  constructor(...args) {
+    super(...args);
+    /** @type {Map<string, Promise<string[]>} */
+    this.obsPromises = new Map();
+  }
+
   /**
-   * Class method for loading cell set ids.
+   * Class method for loading obs variables.
    * Takes the location as an argument because this is shared across objects,
    * which have different ways of specifying location.
-   * @param {Array} cellSetZarrLocation An array of strings like obs.leiden or obs.bulk_labels.
+   * @param {string[]} obsPaths An array of strings like "obs/leiden" or "obs/bulk_labels."
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
-  loadCellSetIds(cellSetZarrLocation) {
-    const { store } = this;
-    if (this.cellSets) {
-      return this.cellSets;
-    }
-    this.cellSets = Promise.all(
-      cellSetZarrLocation.map(async (setName) => {
-        const { categories } = await this.getJson(`${setName}/.zattrs`);
-        let categoriesValues;
-        if (categories) {
-          const { dtype } = await this.getJson(`/obs/${categories}/.zarray`);
-          if (dtype === '|O') {
-            categoriesValues = await this.getFlatArrDecompressed(`/obs/${categories}`);
-          }
-        }
-        const cellSetsArr = await openArray({
-          store,
-          path: setName,
-          mode: 'r',
+  loadObsVariables(obsPaths) {
+    const obsPromises = obsPaths.map((obsPath) => {
+      if (!this.obsPromises.has(obsPath)) {
+        const obsPromise = this._loadObsVariable(obsPath).catch((err) => {
+          // clear from cache if promise rejects
+          this.obsPromises.delete(obsPath);
+          // propagate error
+          throw err;
         });
-        const cellSetsValues = await cellSetsArr.get();
-        const { data } = cellSetsValues;
-        const mappedCellSetValues = Array.from(data).map(
-          i => (!categoriesValues ? String(i) : categoriesValues[i]),
-        );
-        return mappedCellSetValues;
-      }),
+        this.obsPromises.set(obsPath, obsPromise);
+      }
+      return this.obsPromises.get(obsPath);
+    });
+    return Promise.all(obsPromises);
+  }
+
+  async _loadObsVariable(obs) {
+    const { store } = this;
+    const { categories } = await this.getJson(`${obs}/.zattrs`);
+    let categoriesValues;
+    if (categories) {
+      const { dtype } = await this.getJson(`/obs/${categories}/.zarray`);
+      if (dtype === '|O') {
+        categoriesValues = await this.getFlatArrDecompressed(`/obs/${categories}`);
+      }
+    }
+    const obsArr = await openArray({ store, path: obs, mode: 'r' });
+    const obsValues = await obsArr.get();
+    const { data } = obsValues;
+    const mappedObsValues = Array.from(data).map(
+      i => (!categoriesValues ? String(i) : categoriesValues[i]),
     );
-    return this.cellSets;
+    return mappedObsValues;
   }
 
   /**
@@ -98,6 +109,12 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
     }).then(arr => arr.get());
   }
 
+  /**
+   * A common method for loading flattened data
+   * i.e that which has shape [n] where n is a natural number.
+   * @param {string} path A path to a flat array location, like obs/_index
+   * @returns {Array} The data from the zarr array.
+   */
   getFlatArrDecompressed(path) {
     const { store } = this;
     return openArray({
@@ -126,7 +143,7 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
       };
       const numRequests = Math.ceil(z.meta.shape[0] / z.meta.chunks[0]);
       const requests = range(numRequests).map(async item => store.getItem(`${z.keyPrefix}${String(item)}`)
-        .then(buf => z.compressor.decode(buf)));
+        .then(buf => z.compressor.then(compressor => compressor.decode(buf))));
       const dbytesArr = await Promise.all(requests);
       dbytesArr.forEach((dbytes) => {
         // Use vlenutf-8 decoding if necessary and merge `data` as a normal array.
@@ -148,15 +165,28 @@ export default class BaseAnnDataLoader extends AbstractZarrLoader {
   }
 
   /**
-   * Class method for loading the cell names from obs.
-   * @returns {Promise} An promise for a zarr array containing the names.
+   * Class method for loading the obs index.
+   * @returns {Promise} An promise for a zarr array containing the indices.
    */
-  loadCellNames() {
-    if (this.cellNames) {
-      return this.cellNames;
+  loadObsIndex() {
+    if (this.obsIndex) {
+      return this.obsIndex;
     }
-    this.cellNames = this.getJson('obs/.zattrs')
+    this.obsIndex = this.getJson('obs/.zattrs')
       .then(({ _index }) => this.getFlatArrDecompressed(`/obs/${_index}`));
-    return this.cellNames;
+    return this.obsIndex;
+  }
+
+  /**
+   * Class method for loading the var index.
+   * @returns {Promise} An promise for a zarr array containing the indices.
+   */
+  loadVarIndex() {
+    if (this.varIndex) {
+      return this.varIndex;
+    }
+    this.varIndex = this.getJson('var/.zattrs')
+      .then(({ _index }) => this.getFlatArrDecompressed(`/var/${_index}`));
+    return this.varIndex;
   }
 }

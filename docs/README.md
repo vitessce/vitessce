@@ -37,7 +37,7 @@ cd ..
 ./push-docs.sh
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+For more information about building and deploying the docs site, see the main [README](../README.md#staging-app-demos-and-docs).
 
 ## Troubleshooting
 

@@ -1,21 +1,21 @@
-import BaseAnnDataLoader from './BaseAnnDataLoader';
 import LoaderResult from '../LoaderResult';
+import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 
 /**
  * Loader for converting zarr into the cell json schema.
  */
-export default class CellsZarrLoader extends BaseAnnDataLoader {
+export default class CellsZarrLoader extends AbstractTwoStepLoader {
   /**
    * Class method for loading spatial cell centroids.
    * @returns {Promise} A promise for an array of tuples/triples for cell centroids.
    */
   loadXy() {
-    const { xy } = this.options || {};
+    const { xy } = (this.options || {});
     if (this.xy) {
       return this.xy;
     }
     if (!this.xy && xy) {
-      this.xy = this.loadNumeric(xy);
+      this.xy = this.dataSource.loadNumeric(xy);
       return this.xy;
     }
     this.xy = Promise.resolve(null);
@@ -32,7 +32,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
       return this.poly;
     }
     if (!this.poly && poly) {
-      this.poly = this.loadNumeric(poly);
+      this.poly = this.dataSource.loadNumeric(poly);
       return this.poly;
     }
     this.poly = Promise.resolve(null);
@@ -52,7 +52,7 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
       this.mappings = Promise.all(
         Object.keys(mappings).map(async (coordinationName) => {
           const { key } = mappings[coordinationName];
-          return { coordinationName, arr: await this.loadNumeric(key) };
+          return { coordinationName, arr: await this.dataSource.loadNumeric(key) };
         }),
       );
       return this.mappings;
@@ -67,50 +67,54 @@ export default class CellsZarrLoader extends BaseAnnDataLoader {
    * where subarray is a clustering/factor.
    */
   loadFactors() {
-    const { factors } = this.options || {};
+    const { factors } = (this.options || {});
     if (factors) {
-      return this.loadCellSetIds(factors);
+      return this.dataSource.loadObsVariables(factors);
     }
     return Promise.resolve(null);
   }
 
   async load() {
-    const [mappings, xy, poly, cellNames, factors] = await Promise.all([
-      this.loadMappings(),
-      this.loadXy(),
-      this.loadPoly(),
-      this.loadCellNames(),
-      this.loadFactors(),
-    ]);
-    const cells = {};
-    cellNames.forEach((name, i) => {
-      cells[name] = {};
-      if (mappings) {
-        mappings.forEach(({ coordinationName, arr }) => {
-          if (!cells[name].mappings) {
-            cells[name].mappings = {};
+    if (!this.cells) {
+      this.cells = Promise.all([
+        this.loadMappings(),
+        this.loadXy(),
+        this.loadPoly(),
+        this.dataSource.loadObsIndex(),
+        this.loadFactors(),
+      ]).then(([mappings, xy, poly, cellNames, factors]) => {
+        const cells = {};
+        cellNames.forEach((name, i) => {
+          cells[name] = {};
+          if (mappings) {
+            mappings.forEach(({ coordinationName, arr }) => {
+              if (!cells[name].mappings) {
+                cells[name].mappings = {};
+              }
+              const { dims } = this.options.mappings[coordinationName];
+              cells[name].mappings[coordinationName] = dims.map(
+                dim => arr.data[i][dim],
+              );
+            });
           }
-          const { dims } = this.options.mappings[coordinationName];
-          cells[name].mappings[coordinationName] = dims.map(
-            dim => arr.data[i][dim],
-          );
+          if (xy) {
+            cells[name].xy = xy.data[i];
+          }
+          if (poly) {
+            cells[name].poly = poly.data[i];
+          }
+          if (factors) {
+            const factorsObj = {};
+            factors.forEach(
+              // eslint-disable-next-line no-return-assign
+              (factor, j) => (factorsObj[this.options.factors[j].split('/').slice(-1)] = factor[i]),
+            );
+            cells[name].factors = factorsObj;
+          }
         });
-      }
-      if (xy) {
-        cells[name].xy = xy.data[i];
-      }
-      if (poly) {
-        cells[name].poly = poly.data[i];
-      }
-      if (factors) {
-        const factorsObj = {};
-        factors.forEach(
-          // eslint-disable-next-line no-return-assign
-          (factor, j) => (factorsObj[this.options.factors[j].split('/').slice(-1)] = factor[i]),
-        );
-        cells[name].factors = factorsObj;
-      }
-    });
-    return Promise.resolve(new LoaderResult(cells, null));
+        return cells;
+      });
+    }
+    return Promise.resolve(new LoaderResult(await this.cells, null));
   }
 }
