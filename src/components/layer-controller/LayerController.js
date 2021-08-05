@@ -83,7 +83,7 @@ export default function LayerController(props) {
     shouldShowDomain, shouldShowColormap, ChannelController,
     setViewState, disable3d, setRasterLayerCallback,
     setAreLayerChannelsLoading, areLayerChannelsLoading, disabled,
-    spatialHeight, spatialWidth,
+    spatialHeight, spatialWidth, disableChannelsIfRgbDetected,
   } = props;
 
   const {
@@ -369,6 +369,7 @@ export default function LayerController(props) {
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
   // Only show Volume tabs if 3D is available.
   const useVolumeTabs = !disable3d && shape[labels.indexOf('z')] > 1;
+  console.log(isRgb(loader) , disableChannelsIfRgbDetected ); // eslint-disable-line
   const FullController = (
     <>
       <LayerOptions
@@ -385,7 +386,7 @@ export default function LayerController(props) {
         handleColormapChange={setColormap}
         handleGlobalChannelsSelectionChange={handleGlobalChannelsSelectionChange}
         handleTransparentColorChange={setTransparentColor}
-        isRgb={isRgb(loader)}
+        disableChannelsIfRgbDetected={isRgb(loader) && disableChannelsIfRgbDetected}
         handleDomainChange={handleDomainChange}
         shouldShowTransparentColor={shouldShowTransparentColor}
         shouldShowDomain={shouldShowDomain}
@@ -402,19 +403,19 @@ export default function LayerController(props) {
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
       />
-      {!isRgb(loader) ? channelControllers : null}
-      {!isRgb(loader) && (
-      <Button
-        disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
-        onClick={handleChannelAdd}
-        fullWidth
-        variant="outlined"
-        style={buttonStyles}
-        startIcon={<AddIcon />}
-        size="small"
-      >
+      {isRgb(loader) && disableChannelsIfRgbDetected ? null : channelControllers}
+      {isRgb(loader) && disableChannelsIfRgbDetected ? null : (
+        <Button
+          disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
+          onClick={handleChannelAdd}
+          fullWidth
+          variant="outlined"
+          style={buttonStyles}
+          startIcon={<AddIcon />}
+          size="small"
+        >
                 Add Channel
-      </Button>
+        </Button>
       )}
     </>
   );

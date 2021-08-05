@@ -1,7 +1,7 @@
 ## In Progress
 
 ### Added
-
+- `disableChannelsIfRgbDetected` prop for turning of channel controllers when rgb is detected.
 ### Changed
 - Introduce two-step data loaders for AnnData "files".
 - Update README to have more info on using view configs via url parameters.
