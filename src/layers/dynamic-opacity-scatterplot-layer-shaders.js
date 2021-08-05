@@ -98,12 +98,17 @@ export const fragmentShader = glsl`
 
 precision highp float;
 
-#pragma glslify: rdbu = require("glsl-colormap/rdbu")
-#pragma glslify: jet = require("glsl-colormap/jet")
-#pragma glslify: viridis = require("glsl-colormap/viridis")
-#pragma glslify: inferno = require("glsl-colormap/inferno")
-#pragma glslify: magma = require("glsl-colormap/magma")
 #pragma glslify: plasma = require("glsl-colormap/plasma")
+#pragma glslify: viridis = require("glsl-colormap/viridis")
+#pragma glslify: greys = require("glsl-colormap/greys")
+#pragma glslify: magma = require("glsl-colormap/magma")
+#pragma glslify: jet = require("glsl-colormap/jet")
+#pragma glslify: hot = require("glsl-colormap/hot")
+#pragma glslify: bone = require("glsl-colormap/bone")
+#pragma glslify: copper = require("glsl-colormap/copper")
+#pragma glslify: summer = require("glsl-colormap/summer")
+#pragma glslify: density = require("glsl-colormap/density")
+#pragma glslify: inferno = require("glsl-colormap/inferno")
 
 
 // Custom uniforms for Vitessce:

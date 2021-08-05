@@ -562,7 +562,7 @@
               ".": {
                 "type": "string",
                 "enum": ["static", "dynamic"],
-                "description": "Should data points representing cells be assigned an absolute (not based on zoom level), relative (based on zoom level), or dynamic (based on zoom level and data extent) radius?"
+                "description": "Should data points representing cells be assigned a static or dynamic (based on zoom level and data extent) radius?"
               }
             }
           },
@@ -571,8 +571,8 @@
             "patternProperties": {
               ".": {
                 "type": "string",
-                "enum": ["static", "dynamic", "cellSetSelection"],
-                "description": "Should data points representing cells be assigned a static (fixed), dynamic (based on zoom level and data extent), or cellSetSelection (based on the confidence score provided with the annotations for the currently-selected cell sets) opacity?"
+                "enum": ["static", "dynamic"],
+                "description": "Should data points representing cells be assigned a static (fixed) or dynamic (based on zoom level and data extent) opacity?"
               }
             }
           },

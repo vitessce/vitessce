@@ -176,7 +176,6 @@ export default function ScatterplotOptions(props) {
           >
             <option value="static">Static</option>
             <option value="dynamic">Dynamic</option>
-            <option value="cellSetSelection">Cell Set Encoding</option>
           </Select>
         </TableCell>
       </TableRow>
