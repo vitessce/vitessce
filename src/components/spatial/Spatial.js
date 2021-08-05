@@ -1,9 +1,10 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
-import { ScatterplotLayer, PolygonLayer, COORDINATE_SYSTEM } from 'deck.gl';
+import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
+import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { Matrix4 } from 'math.gl';
 import { ScaleBarLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
-import { SelectablePolygonLayer, getSelectionLayers } from '../../layers';
+import { getSelectionLayers, SelectablePolygonLayer } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import { getSourceFromLoader } from '../../utils';
 import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';

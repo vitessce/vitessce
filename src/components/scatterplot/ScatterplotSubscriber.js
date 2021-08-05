@@ -246,9 +246,7 @@ export default function ScatterplotSubscriber(props) {
   }, [cells, observationsLabel]);
 
   const cellRadius = useMemo(() => {
-    if(cellRadiusMode == "absolute") {
-      return cellRadiusFixed;
-    } else if(cellRadiusMode == "relative") {
+    if(cellRadiusMode == "static") {
       return cellRadiusFixed;
     } else if(cellRadiusMode == "dynamic") {
       return dynamicCellRadius;

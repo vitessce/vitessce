@@ -137,8 +137,7 @@ export default function ScatterplotOptions(props) {
               id: 'cell-radius-mode-select',
             }}
           >
-            <option value="absolute">Absolute</option>
-            <option value="relative">Relative</option>
+            <option value="static">Static</option>
             <option value="dynamic">Dynamic</option>
           </Select>
         </TableCell>
@@ -149,7 +148,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Slider
-            disabled={!(cellRadiusMode === "absolute" || cellRadiusMode === "relative")}
+            disabled={cellRadiusMode !== "static"}
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={cellRadius}
             onChange={handleRadiusChange}

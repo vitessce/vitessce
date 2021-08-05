@@ -561,7 +561,7 @@
             "patternProperties": {
               ".": {
                 "type": "string",
-                "enum": ["absolute", "relative", "dynamic"],
+                "enum": ["static", "dynamic"],
                 "description": "Should data points representing cells be assigned an absolute (not based on zoom level), relative (based on zoom level), or dynamic (based on zoom level and data extent) radius?"
               }
             }

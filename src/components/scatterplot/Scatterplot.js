@@ -1,10 +1,8 @@
 /* eslint-disable */
 import React, { forwardRef } from 'react';
-import GL from '@luma.gl/constants';
 import { PolygonLayer, TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
 import { DynamicOpacityScatterplotLayer, getSelectionLayers } from '../../layers';
-
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
 import {
   createCellsQuadTree,
@@ -137,7 +135,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
       isExpressionMode: (cellColorEncoding === "geneSelection"),
-      isAbsoluteRadiusMode: (cellRadiusMode === "absolute"),
+      isAbsoluteRadiusMode: (cellRadiusMode === "static"),
       colormap: geneExpressionColormap,
       onClick: (info) => {
         if (onCellClick) {

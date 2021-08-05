@@ -1,5 +1,5 @@
 import React from 'react';
-import { COORDINATE_SYSTEM } from 'deck.gl';
+import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import {
   SETS_DATATYPE_CELL,
   HIERARCHICAL_SCHEMAS,
