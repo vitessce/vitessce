@@ -80,7 +80,7 @@ function Info() {
         Source Code
       </h5>
       <ul>
-        <li><a href="https://github.com/hubmapconsortium/vitessce">GitHub</a></li>
+        <li><a href="https://github.com/vitessce/vitessce">GitHub</a></li>
         <li><a href="https://www.npmjs.com/package/vitessce">NPM</a></li>
       </ul>
       <h5 className="info-section-text">
