@@ -1,15 +1,10 @@
 /* eslint-disable */
 import AbstractLoader from './AbstractLoader';
-import { LoaderFetchError, LoaderValidationError, AbstractLoaderError } from './errors/index';
 import LoaderResult from './LoaderResult';
 
 export default class RosslerAttractorLoader extends AbstractLoader {
 
   load() {
-    const {
-      url, requestInit, type, fileType,
-    } = this;
-    
     const N = 5e5;
 
     const cells = {};

@@ -51,6 +51,7 @@ const LayerControllerMemoized = React.memo(
       handleRasterLayerRemove,
       disable3d,
       globalDisable3d,
+      disableChannelsIfRgbDetected,
       layerIs3DIndex,
       setZoom,
       setTargetX,
@@ -149,6 +150,7 @@ const LayerControllerMemoized = React.memo(
                       && layerIs3DIndex !== -1
                       && layerIs3DIndex !== i
                     }
+                    disableChannelsIfRgbDetected={disableChannelsIfRgbDetected}
                     rasterLayersCallbacks={rasterLayersCallbacks}
                     setRasterLayerCallback={setRasterLayerCallback}
                     setViewState={({
@@ -204,6 +206,7 @@ function LayerControllerSubscriber(props) {
     title = 'Spatial Layers',
     disable3d,
     globalDisable3d,
+    disableChannelsIfRgbDetected,
   } = props;
 
   const loaders = useLoaders();
@@ -344,6 +347,7 @@ function LayerControllerSubscriber(props) {
       disable3d={disable3d}
       globalDisable3d={globalDisable3d}
       layerIs3DIndex={layerIs3DIndex}
+      disableChannelsIfRgbDetected={disableChannelsIfRgbDetected}
       setZoom={setZoom}
       setTargetX={setTargetX}
       setTargetY={setTargetY}

@@ -237,3 +237,30 @@ export function upgradeFrom1_0_1(config) {
     version: '1.0.2',
   };
 }
+
+export function upgradeFrom1_0_2(config) {
+  // Need to add the globalDisable3d prop to any layer controller views,
+  // to match the previous lack of 3D auto-detection behavior.
+
+  const layout = config.layout.map((component) => {
+    const newComponent = { ...component };
+    if (newComponent.component === 'layerController') {
+      newComponent.props = {
+        ...newComponent.props,
+        disableChannelsIfRgbDetected: true,
+      };
+    }
+    return newComponent;
+  });
+
+  // Enforce bitmask or raster as spatial raster layer type, defaulting
+  // to raster layer if it is not one of bitmask or raster from the old config.
+
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    layout,
+    version: '1.0.3',
+  };
+}
