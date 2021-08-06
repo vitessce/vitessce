@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- `disableChannelsIfRgbDetected` prop for turning of channel controllers when rgb is detected.
 - Added cell opacity modes
     - Dynamic mode (default)
     - Static mode
@@ -13,9 +14,10 @@
 ### Changed
 - Introduce two-step data loaders for AnnData "files".
 - Update README to have more info on using view configs via url parameters.
+- Add a check for schema changes - schemas may not be updated once published, only new ones added.
 - Make two-step data loaders universal for all file types.
 - Upgrade `higlass-zarr-datafetchers` to 0.2.1 to prevent the latest Zarr.js from making failed HEAD requests.
-- `disableChannelsIfRgbDetected` prop for turning of channel controllers when rgb is detected.
+- Replace "hubmapconsortium/vitessce" with "vitessce/vitessce"
 - Switched to performing quantitative color mapping on the scatterplot shaders to enable (fast) responses to the heatmap colormap slider interactions.
 - Switched to performing selected cell coloring on the shaders (rather than using a second scatterplot layer).
 - Updated scatterplot and heatmap shaders to take the `geneExpressionColormap` coordination value into account.
