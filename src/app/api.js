@@ -76,7 +76,7 @@ const vanderbiltBase = {
 export const configs = {
   'overplot-opacity': {
     name: 'Overplotting solution',
-    version: '1.0.0',
+    version: '1.0.4',
     description: 'https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds',
     public: true,
     datasets: [
