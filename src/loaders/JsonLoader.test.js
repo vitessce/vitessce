@@ -7,7 +7,7 @@ import cellsBadFixture from '../schemas/fixtures/cells.bad.json';
 describe('loaders/JsonLoader', () => {
   describe('validation against JSON schema', () => {
     it('can validate against a schema when data looks good', () => {
-      const loader = new JsonLoader({
+      const loader = new JsonLoader(null, {
         type: 'cells',
       });
       expect(loader.schema).toBeDefined();
@@ -17,7 +17,7 @@ describe('loaders/JsonLoader', () => {
     });
 
     it('can validate against a schema when data looks bad', () => {
-      const loader = new JsonLoader({
+      const loader = new JsonLoader(null, {
         type: 'cells',
       });
       expect(loader.schema).toBeDefined();
