@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.13](https://www.npmjs.com/package/vitessce/v/1.1.13) - 2021-08-10
+
+### Added
 - `disableChannelsIfRgbDetected` prop for turning of channel controllers when rgb is detected.
 
 ### Changed
