@@ -263,15 +263,27 @@ export default function ScatterplotSubscriber(props) {
     }
   }, [cellOpacityMode, dynamicCellOpacity, cellOpacityFixed]);
 
+  const [cellIdMap, cellIndexMap] = useMemo(() => {
+    const m1 = {};
+    const m2 = {};
+    if(attrs && attrs.rows) {
+      for(let i = 0; i < attrs.rows.length; i++) {
+        m1[attrs.rows[i]] = i;
+        m2[i] = attrs.rows[i];
+      }
+    }
+    return [m1, m2];
+  }, [attrs]);
+
   const getExpressionValue = useCallback((entry) => {
     const cellId = entry[0];
-    if(attrs && attrs.rows && expressionData && expressionData[0]) {
-      const cellIndex = attrs.rows.indexOf(cellId);
+    if(cellIdMap && expressionData && expressionData[0]) {
+      const cellIndex = cellIdMap[cellId];
       const val = expressionData[0][cellIndex];
       return val;
     }
     return 0;
-  }, [attrs, expressionData, geneSelection, cellColorEncoding]);
+  }, [cellIdMap, expressionData, geneSelection, cellColorEncoding]);
 
   return (
     <TitleInfo
