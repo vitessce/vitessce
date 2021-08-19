@@ -330,6 +330,18 @@ export const initializedViewConfig = {
     dataset: {
       A: 'A',
     },
+    embeddingCellOpacity: {
+      A: 1,
+    },
+    embeddingCellOpacityMode: {
+      A: 'dynamic',
+    },
+    embeddingCellRadius: {
+      A: 1,
+    },
+    embeddingCellRadiusMode: {
+      A: 'dynamic',
+    },
     embeddingRotation: {
       A: 0,
     },
@@ -347,9 +359,6 @@ export const initializedViewConfig = {
     },
     embeddingZoom: {
       A: 3,
-    },
-    embeddingCellRadius: {
-      A: 1,
     },
     embeddingCellSetLabelSize: {
       A: 14,
@@ -473,13 +482,16 @@ export const initializedViewConfig = {
         cellSetSelection: 'A',
         cellSetColor: 'A',
         dataset: 'A',
+        embeddingCellOpacity: 'A',
+        embeddingCellOpacityMode: 'A',
+        embeddingCellRadius: 'A',
+        embeddingCellRadiusMode: 'A',
         embeddingRotation: 'A',
         embeddingTargetX: 'A',
         embeddingTargetY: 'A',
         embeddingTargetZ: 'A',
         embeddingType: 't-SNE',
         embeddingZoom: 'A',
-        embeddingCellRadius: 'A',
         embeddingCellSetLabelSize: 'A',
         embeddingCellSetLabelsVisible: 'A',
         embeddingCellSetPolygonsVisible: 'A',

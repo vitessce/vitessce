@@ -1,8 +1,10 @@
+/* eslint-disable */
 import clamp from 'lodash/clamp';
 
 // Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
 // Reference: https://observablehq.com/@bmschmidt/dot-density-election-maps-with-webgl
 export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange, width, height) {
+  console.log("getPointSizeDevicePixels", devicePixelRatio, zoom, xRange, yRange, width, height);
   // Size of a point, in units of the diagonal axis.
   const pointSize = 0.001;
   // Point size maximum, in screen pixels.
@@ -27,12 +29,15 @@ export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange,
     pointScreenSizeMin,
     pointScreenSizeMax,
   );
+  console.log(pointSizeDevicePixels);
   return pointSizeDevicePixels;
 }
 
 // Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
 // Reference: https://observablehq.com/@bmschmidt/dot-density-election-maps-with-webgl
 export function getPointOpacity(zoom, width, height, numCells, avgFillDensity) {
+  console.log("getPointOpacity", zoom, width, height, numCells, avgFillDensity);
+  
   const scaleFactor = 2 ** zoom;
 
   const W = width;
@@ -53,5 +58,6 @@ export function getPointOpacity(zoom, width, height, numCells, avgFillDensity) {
   ) / fractionOfTotalVisible;
 
   const pointOpacity = clamp(alpha, 1.01 / 255, 1.0);
+  console.log(pointOpacity);
   return pointOpacity;
 }
