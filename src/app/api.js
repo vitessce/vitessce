@@ -115,7 +115,7 @@ export const configs = {
                   },
                   name: "Stains",
                   type: "ome-tiff",
-                  url: "http://localhost:8000/stains/selected.ome.tiff"
+                  url: "https://storage.googleapis.com/vitessce-demo-data/baysor-mouse-ileum/stains/selected.ome.tiff"
                 },
               ],
               schemaVersion: "0.0.2",
