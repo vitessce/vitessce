@@ -1,5 +1,7 @@
 import clamp from 'lodash/clamp';
 
+// Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
+// Reference: https://observablehq.com/@bmschmidt/dot-density-election-maps-with-webgl
 export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange, width, height) {
   // Size of a point, in units of the diagonal axis.
   const pointSize = 0.001;
@@ -28,6 +30,8 @@ export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange,
   return pointSizeDevicePixels;
 }
 
+// Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
+// Reference: https://observablehq.com/@bmschmidt/dot-density-election-maps-with-webgl
 export function getPointOpacity(zoom, width, height, numCells, avgFillDensity) {
   const scaleFactor = 2 ** zoom;
 
