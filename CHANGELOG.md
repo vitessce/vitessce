@@ -23,8 +23,7 @@
 - Make two-step data loaders universal for all file types.
 - Upgrade `higlass-zarr-datafetchers` to 0.2.1 to prevent the latest Zarr.js from making failed HEAD requests.
 - Replace "hubmapconsortium/vitessce" with "vitessce/vitessce"
-- Switched to performing quantitative color mapping on the scatterplot shaders to enable (fast) responses to the heatmap colormap slider interactions.
-- Switched to performing selected cell coloring on the shaders (rather than using a second scatterplot layer).
+- Switched to performing quantitative color mapping on the scatterplot shaders to enable fast responses to the heatmap colormap slider interactions.
 - Updated scatterplot and heatmap shaders to take the `geneExpressionColormap` coordination value into account.
 - Fixed performance issue involving selection of many cells by using `Set.has` rather than `Array.includes`.
 
@@ -48,7 +47,6 @@
     - The layer `type` should not be used, since it is currently expected to be either `"raster"` or `"bitmask"`, but previously was allowed to be any string including `"t"`. Instead, need to detect whether the layer is a bitmask layer using `layerMeta.metadata.isBitmask` defined in the `raster.json` file definition.
     - The `visible` property was previously only available for channels. Now, there is a per-layer `visible` property, but old view configs may not contain this. Therefore, we need to explicitly check that the value is a boolean rather than simply falsy `undefined` or `null`.
     - Enforce `type` of `spatialRasterLayers` layer as `bitmask` or `raster`.
-
 
 ## [1.1.11](https://www.npmjs.com/package/vitessce/v/1.1.11) - 2021-06-25
 
