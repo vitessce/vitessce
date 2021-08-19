@@ -1,11 +1,11 @@
 {
   "name": "vitessce",
-  "version": "1.1.12",
+  "version": "1.1.13",
   "description": "Vitessce app and React component library",
   "author": "C McCallum",
   "homepage": "http://vitessce.io/",
   "license": "MIT",
-  "repository": "https://github.com/hubmapconsortium/vitessce/",
+  "repository": "https://github.com/vitessce/vitessce/",
   "keywords": [
     "react-component"
   ],
@@ -50,7 +50,7 @@
     "glslify": "^7.0.0",
     "higlass": "1.11.4",
     "higlass-register": "^0.3.0",
-    "higlass-zarr-datafetchers": "^0.2.0",
+    "higlass-zarr-datafetchers": "^0.2.1",
     "json2csv": "^4.5.2",
     "lodash": "^4.17.15",
     "lz-string": "^1.4.4",

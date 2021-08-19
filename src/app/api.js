@@ -77,7 +77,7 @@ const vanderbiltBase = {
 export const configs = {
   'baysor-gut': {
     name: 'Baysor gut dataset',
-    version: '1.0.2',
+    version: '1.0.3',
     description: "Baysor gut example",
     public: true,
     datasets: [
@@ -115,7 +115,7 @@ export const configs = {
                   },
                   name: "Stains",
                   type: "ome-tiff",
-                  url: "https://storage.googleapis.com/vitessce-demo-data/baysor-mouse-ileum/stains/selected.ome.tiff"
+                  url: "http://localhost:8000/stains/selected.ome.tiff"
                 },
               ],
               schemaVersion: "0.0.2",

@@ -9,21 +9,27 @@ import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import GeoJsonLoader from './GeoJsonLoader';
 
+import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
+
 const ANNDATA = 'anndata';
 
-export const fileTypeToLoader = {
-  'expression-matrix.zarr': MatrixZarrLoader,
-  'clusters.json': ClustersJsonAsMatrixZarrLoader,
-  'genes.json': GenesJsonAsMatrixZarrLoader,
-  'cells.json': JsonLoader,
-  'molecules.json': JsonLoader,
-  'neighborhoods.json': JsonLoader,
-  'raster.json': RasterJsonLoader,
-  'raster.ome-zarr': OmeZarrLoader,
-  'cell-sets.json': CellSetsJsonLoader,
-  [`${ANNDATA}-cell-sets.zarr`]: AnnDataLoaders.CellSetsZarrLoader,
-  [`${ANNDATA}-cells.zarr`]: AnnDataLoaders.CellsZarrLoader,
-  [`${ANNDATA}-expression-matrix.zarr`]: AnnDataLoaders.MatrixZarrLoader,
-  'genomic-profiles.zarr': GenomicProfilesZarrLoader,
-  geojson: GeoJsonLoader,
+const fileTypeToLoaderAndSource = {
+  'expression-matrix.zarr': [ZarrDataSource, MatrixZarrLoader],
+  'clusters.json': [JsonSource, ClustersJsonAsMatrixZarrLoader],
+  'genes.json': [JsonSource, GenesJsonAsMatrixZarrLoader],
+  'cells.json': [JsonSource, JsonLoader],
+  'molecules.json': [JsonSource, JsonLoader],
+  'neighborhoods.json': [JsonSource, JsonLoader],
+  'raster.json': [JsonSource, RasterJsonLoader],
+  'raster.ome-zarr': [ZarrDataSource, OmeZarrLoader],
+  'cell-sets.json': [JsonSource, CellSetsJsonLoader],
+  [`${ANNDATA}-cell-sets.zarr`]: [AnnDataSource, AnnDataLoaders.CellSetsZarrLoader],
+  [`${ANNDATA}-cells.zarr`]: [AnnDataSource, AnnDataLoaders.CellsZarrLoader],
+  [`${ANNDATA}-expression-matrix.zarr`]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],
+  'genomic-profiles.zarr': [ZarrDataSource, GenomicProfilesZarrLoader],
+  geojson: [JsonSource, GeoJsonLoader],
 };
+
+export function getSourceAndLoaderFromFileType(type) {
+  return fileTypeToLoaderAndSource[type] || [JsonSource, JsonLoader];
+}

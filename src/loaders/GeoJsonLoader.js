@@ -1,15 +1,13 @@
 /* eslint-disable */
 import centroid from '@turf/centroid';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
+import AbstractTwoStepLoader from './AbstractTwoStepLoader';
+import { AbstractLoaderError, LoaderValidationError } from './errors/index';
+import LoaderResult from './LoaderResult';
 
-import cells from '../schemas/cells.schema.json';
-import JsonLoader from './JsonLoader';
-import { LoaderFetchError, LoaderValidationError } from './errors/index';
-
-export default class GeoJsonLoader extends JsonLoader {
-  constructor(params) {
-    super(params);
-    this.schema = cells;
+export default class GeoJsonLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
   }
 
   rejectGeoJson(reason) {
@@ -17,17 +15,21 @@ export default class GeoJsonLoader extends JsonLoader {
     return Promise.reject(new LoaderValidationError(type, fileType, url, reason));
   }
 
-  loadJson() {
-    const {
-      url, requestInit, type, fileType,
-    } = this;
-    return fetch(url, requestInit).then(async (response) => {
-      if (response.ok) {
-        const geoJson = await response.json();
+  async load() {
+    const { url } = this;
+    if (this.data) {
+      return this.data;
+    }
+    this.data = this.dataSource.data
+      .then((geoJson) => {
+        if (geoJson instanceof AbstractLoaderError) {
+          return Promise.reject(geoJson);
+        }
+        
         const cellsJson = {};
         if (!(geoJson.every(cell => cell.type === 'Polygon')
           || geoJson.every(cell => cell.type === 'Point'))) {
-          this.rejectGeoJson('Vitessce only accepts GeoJSON that is excusively Points (i.e centroids) or Polygons');
+          return this.rejectGeoJson('Vitessce only accepts GeoJSON that is excusively Points (i.e centroids) or Polygons');
         }
         geoJson.forEach((cell, index) => {
           if (cell.type === 'Polygon') {
@@ -47,11 +49,9 @@ export default class GeoJsonLoader extends JsonLoader {
             };
           }
         });
-        return cellsJson;
-      }
-      return Promise.reject(
-        new LoaderFetchError(type, fileType, url, response.headers),
-      );
-    });
+
+        return Promise.resolve(new LoaderResult(cellsJson, url));
+      });
+    return this.data;
   }
 }

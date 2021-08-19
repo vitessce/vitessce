@@ -302,7 +302,7 @@ function GlobalSelectionSlider({
   return (
     <StyledSelectionSlider
       value={value}
-      // See https://github.com/hubmapconsortium/vitessce-image-viewer/issues/176 for why
+      // See https://github.com/hms-dbmi/viv/issues/176 for why
       // we have the two handlers.
       onChange={
         (event, newValue) => {
@@ -357,7 +357,7 @@ function LayerOption({ name, inputId, children }) {
  * @prop {array} channels Current channel object for inferring the current global selection.
  * @prop {array} dimensions Currently available dimensions (channel, z, t etc.).
  * @prop {string} domainType One of Max/Min or Full (soon presets as well).
- * @prop {boolean} isRgb Whether or not the image is rgb (so we don't need colormap controllers).
+ * @prop {boolean} disableChannelsIfRgbDetected Whether or not we need colormap controllers if RGB.
  */
 function LayerOptions({
   colormap,
@@ -373,7 +373,7 @@ function LayerOptions({
   transparentColor,
   channels,
   domainType,
-  isRgb,
+  disableChannelsIfRgbDetected,
   shouldShowTransparentColor,
   shouldShowDomain,
   shouldShowColormap,
@@ -429,7 +429,7 @@ function LayerOptions({
           </LayerOption>
           ),
         )}
-      {!isRgb ? (
+      {!disableChannelsIfRgbDetected ? (
         <>
           {shouldShowColormap && (
             <Grid item>
