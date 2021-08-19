@@ -13,7 +13,6 @@ const defaultProps = {
   colorScaleLo: { type: 'number', value: 0.0, compare: true },
   colorScaleHi: { type: 'number', value: 1.0, compare: true },
   isExpressionMode: false,
-  isAbsoluteRadiusMode: false,
   getExpressionValue: { type: 'accessor', value: 0 },
   getSelectionState: { type: 'accessor', value: 0.0 },
 
@@ -119,7 +118,6 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
       colorScaleLo,
       colorScaleHi,
       isExpressionMode,
-      isAbsoluteRadiusMode,
     } = this.props;
 
     const pointRadiusMultiplier = radiusUnits === 'pixels' ? viewport.metersPerPixel : 1;
@@ -138,7 +136,6 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
         lineWidthMaxPixels,
         uColorScaleRange: [colorScaleLo, colorScaleHi],
         uIsExpressionMode: isExpressionMode,
-        uIsAbsoluteRadiusMode: isAbsoluteRadiusMode,
       })
       .draw();
   }

@@ -115,7 +115,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       geneExpressionColormap,
       geneExpressionColormapRange = [0.0, 1.0],
       cellColorEncoding,
-      cellRadiusMode,
     } = this.props;
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
@@ -137,7 +136,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
       isExpressionMode: (cellColorEncoding === 'geneSelection'),
-      isAbsoluteRadiusMode: (cellRadiusMode === 'static'),
       colormap: geneExpressionColormap,
       onClick: (info) => {
         if (onCellClick) {

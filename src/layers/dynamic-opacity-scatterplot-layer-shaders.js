@@ -33,7 +33,6 @@ uniform float lineWidthMaxPixels;
 uniform bool filled;
 // Custom uniforms for Vitessce:
 uniform bool uIsExpressionMode;
-uniform bool uIsAbsoluteRadiusMode;
 
 
 varying vec4 vFillColor;

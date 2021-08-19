@@ -330,7 +330,6 @@ export default function ScatterplotSubscriber(props) {
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
         cellRadius={cellRadius}
-        cellRadiusMode={cellRadiusMode}
         cellOpacity={cellOpacity}
         cellColorEncoding={cellColorEncoding}
         geneExpressionColormap={geneExpressionColormap}
