@@ -256,23 +256,19 @@ export default function ScatterplotSubscriber(props) {
   const cellOpacity = useMemo(() => {
     if(cellOpacityMode == "static") {
       return cellOpacityFixed;
-    } else if(cellOpacityMode == "cellSetSelection") {
-      return null;
     } else if(cellOpacityMode == "dynamic") {
       return dynamicCellOpacity;
     }
   }, [cellOpacityMode, dynamicCellOpacity, cellOpacityFixed]);
 
-  const [cellIdMap, cellIndexMap] = useMemo(() => {
+  const cellIdMap = useMemo(() => {
     const m1 = {};
-    const m2 = {};
     if(attrs && attrs.rows) {
       for(let i = 0; i < attrs.rows.length; i++) {
         m1[attrs.rows[i]] = i;
-        m2[i] = attrs.rows[i];
       }
     }
-    return [m1, m2];
+    return m1;
   }, [attrs]);
 
   const getExpressionValue = useCallback((entry) => {

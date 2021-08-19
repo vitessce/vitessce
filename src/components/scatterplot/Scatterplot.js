@@ -32,11 +32,17 @@ const makeDefaultGetCellColors = (cellColors, cellOpacityScale) => (cellEntry) =
   const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR;
   return [r, g, b, 255 * (a || 1) * cellOpacityScale];
 };
-const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
-  cellSelection
-    ? (cellSelection.includes(cellEntry[0]) ? 1.0 : 0.0)
-    : 0.0
-);
+const makeDefaultGetCellIsSelected = cellSelection => {
+  if(cellSelection) {
+    // For performance, convert the Array to a Set instance.
+    // Set.has() is faster than Array.includes().
+    const cellSelectionSet = new Set(cellSelection);
+    return cellEntry => (
+      cellSelectionSet.has(cellEntry[0]) ? 1.0 : 0.0
+    );
+  }
+  return () => 0.0;
+};
 
 /**
  * React component which renders a scatterplot from cell data, typically tSNE or PCA.
