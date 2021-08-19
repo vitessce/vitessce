@@ -89,3 +89,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-07-20: [release_1.1.12](https://s3.amazonaws.com/vitessce-data/demos/2021-07-20/8c2fa377/index.html)
 - 2021-07-29: [keller-mark/overplot-opacity](https://s3.amazonaws.com/vitessce-data/demos/2021-07-29/8aee9059/index.html)
 - 2021-08-05: [keller-mark/overplot-opacity](https://s3.amazonaws.com/vitessce-data/demos/2021-08-05/3e0d7269/index.html)
+- 2021-08-10: [release_1.1.13](https://s3.amazonaws.com/vitessce-data/demos/2021-08-10/34a77a03/index.html)
