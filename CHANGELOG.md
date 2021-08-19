@@ -9,11 +9,11 @@
 ### Added
 - `disableChannelsIfRgbDetected` prop for turning of channel controllers when rgb is detected.
 - Added cell opacity modes
-    - Dynamic mode (default)
-    - Static mode
+    - Auto mode (default)
+    - Manual mode
 - Added cell radius modes
-    - Dynamic mode (default)
-    - Static mode
+    - Auto mode (default)
+    - Manual mode
 - Added a slider for `geneExpressionColormapRange` to the `ScatterplotOptions` component.
 
 ### Changed

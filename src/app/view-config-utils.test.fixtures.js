@@ -334,13 +334,13 @@ export const initializedViewConfig = {
       A: 1,
     },
     embeddingCellOpacityMode: {
-      A: 'dynamic',
+      A: 'auto',
     },
     embeddingCellRadius: {
       A: 1,
     },
     embeddingCellRadiusMode: {
-      A: 'dynamic',
+      A: 'auto',
     },
     embeddingRotation: {
       A: 0,

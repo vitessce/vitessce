@@ -142,8 +142,8 @@ export default function ScatterplotOptions(props) {
               id: 'cell-radius-mode-select',
             }}
           >
-            <option value="static">Static</option>
-            <option value="dynamic">Dynamic</option>
+            <option value="auto">Auto</option>
+            <option value="manual">Manual</option>
           </Select>
         </TableCell>
       </TableRow>
@@ -153,7 +153,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Slider
-            disabled={cellRadiusMode !== 'static'}
+            disabled={cellRadiusMode !== 'manual'}
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={cellRadius}
             onChange={handleRadiusChange}
@@ -179,8 +179,8 @@ export default function ScatterplotOptions(props) {
               id: 'cell-opacity-mode-select',
             }}
           >
-            <option value="static">Static</option>
-            <option value="dynamic">Dynamic</option>
+            <option value="auto">Auto</option>
+            <option value="manual">Manual</option>
           </Select>
         </TableCell>
       </TableRow>
@@ -190,7 +190,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Slider
-            disabled={cellOpacityMode !== 'static'}
+            disabled={cellOpacityMode !== 'manual'}
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={cellOpacity}
             onChange={handleOpacityChange}

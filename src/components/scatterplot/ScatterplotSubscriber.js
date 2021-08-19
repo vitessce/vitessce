@@ -245,8 +245,8 @@ export default function ScatterplotSubscriber(props) {
     };
   }, [cells, observationsLabel]);
 
-  const cellRadius = (cellRadiusMode == "static" ? cellRadiusFixed : dynamicCellRadius);
-  const cellOpacity = (cellOpacityMode == "static" ? cellOpacityFixed : dynamicCellOpacity);
+  const cellRadius = (cellRadiusMode == "manual" ? cellRadiusFixed : dynamicCellRadius);
+  const cellOpacity = (cellOpacityMode == "manual" ? cellOpacityFixed : dynamicCellOpacity);
 
   // Get a mapping from cell ID to row index in the gene expression matrix.
   const cellIdMap = useMemo(() => {
