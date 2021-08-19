@@ -1,4 +1,3 @@
-/* eslint-disable */
 import expect from 'expect';
 import { getPointSizeDevicePixels, getPointOpacity } from './dynamic-opacity';
 
@@ -12,11 +11,10 @@ describe('dynamic-opacity.js', () => {
       const width = 1000;
       const height = 650;
       const pointSize = getPointSizeDevicePixels(
-        devicePixelRatio, zoom, xRange, yRange, width, height
+        devicePixelRatio, zoom, xRange, yRange, width, height,
       );
       expect(pointSize).toBeCloseTo(0.5);
     });
-
   });
   describe('getPointOpacity', () => {
     it('calculates point opacity', () => {
@@ -26,10 +24,9 @@ describe('dynamic-opacity.js', () => {
       const numCells = 500000;
       const avgFillDensity = undefined;
       const pointOpacity = getPointOpacity(
-        zoom, width, height, numCells, avgFillDensity
+        zoom, width, height, numCells, avgFillDensity,
       );
       expect(pointOpacity).toBeCloseTo(0.005);
     });
-
   });
 });

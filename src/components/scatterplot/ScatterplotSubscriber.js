@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
@@ -204,11 +203,11 @@ export default function ScatterplotSubscriber(props) {
     if (cellValues?.length) {
       const cellCoordinates = Object.values(cells)
         .map(c => c.mappings[mapping]);
-      const xExtent = extent(cellCoordinates, c => c[0]);
-      const yExtent = extent(cellCoordinates, c => c[1]);
-      const xRange = xExtent[1] - xExtent[0];
-      const yRange = yExtent[1] - yExtent[0];
-      return [xRange, yRange, xExtent, yExtent, cellValues.length];
+      const xE = extent(cellCoordinates, c => c[0]);
+      const yE = extent(cellCoordinates, c => c[1]);
+      const xR = xE[1] - xE[0];
+      const yR = yE[1] - yE[0];
+      return [xR, yR, xE, yE, cellValues.length];
     }
     return [null, null, null, null, null];
   }, [cells, mapping]);
@@ -217,13 +216,17 @@ export default function ScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    if(xRange && yRange) {
-      const pointSizeDevicePixels = getPointSizeDevicePixels(window.devicePixelRatio, zoom, xRange, yRange, width, height);
+    if (xRange && yRange) {
+      const pointSizeDevicePixels = getPointSizeDevicePixels(
+        window.devicePixelRatio, zoom, xRange, yRange, width, height,
+      );
       setDynamicCellRadius(pointSizeDevicePixels);
 
-      const nextCellOpacityScale = getPointOpacity(zoom, width, height, numCells, averageFillDensity);
+      const nextCellOpacityScale = getPointOpacity(
+        zoom, width, height, numCells, averageFillDensity,
+      );
       setDynamicCellOpacity(nextCellOpacityScale);
-      
+
       if (typeof targetX !== 'number' || typeof targetY !== 'number') {
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
@@ -235,7 +238,8 @@ export default function ScatterplotSubscriber(props) {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping, width, height, zoom, averageFillDensity]);
+  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping,
+    width, height, zoom, averageFillDensity]);
 
   const getCellInfo = useCallback((cellId) => {
     const cellInfo = cells[cellId];
@@ -245,14 +249,15 @@ export default function ScatterplotSubscriber(props) {
     };
   }, [cells, observationsLabel]);
 
-  const cellRadius = (cellRadiusMode == "manual" ? cellRadiusFixed : dynamicCellRadius);
-  const cellOpacity = (cellOpacityMode == "manual" ? cellOpacityFixed : dynamicCellOpacity);
+  const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
+  const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
   // Get a mapping from cell ID to row index in the gene expression matrix.
   const cellIdMap = useMemo(() => {
     const result = {};
-    if(attrs && attrs.rows) {
-      for(let i = 0; i < attrs.rows.length; i++) {
+    if (attrs && attrs.rows) {
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < attrs.rows.length; i++) {
         result[attrs.rows[i]] = i;
       }
     }
@@ -263,13 +268,13 @@ export default function ScatterplotSubscriber(props) {
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useCallback((entry) => {
     const cellId = entry[0];
-    if(cellIdMap && expressionData && expressionData[0]) {
+    if (cellIdMap && expressionData && expressionData[0]) {
       const cellIndex = cellIdMap[cellId];
       const val = expressionData[0][cellIndex];
       return val;
     }
     return 0;
-  }, [cellIdMap, expressionData, geneSelection, cellColorEncoding]);
+  }, [cellIdMap, expressionData]);
 
   return (
     <TitleInfo
