@@ -66,13 +66,13 @@ const Heatmap = forwardRef((props, deckRef) => {
     theme,
     viewState: rawViewState,
     setViewState,
-    setHeatmapControls,
-    heatmapControls = [0, 1],
     width: viewWidth,
     height: viewHeight,
     expressionMatrix: expression,
     cellColors,
-    geneExpressionColormap,
+    colormap,
+    colormapRange,
+    setColormapRange,
     clearPleaseWait,
     setComponentHover,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
@@ -105,15 +105,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const dataRef = useRef();
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
-  const [colorScaleLo, setColorScaleLo] = useState(heatmapControls[0]);
-  const [colorScaleHi, setColorScaleHi] = useState(heatmapControls[1]);
 
-  // Callback function for the color scale slider change event.
-  const onColorScaleChange = useCallback((event, newValue) => {
-    setColorScaleLo(newValue[0]);
-    setColorScaleHi(newValue[1]);
-    setHeatmapControls(newValue);
-  }, [setHeatmapControls]);
 
   // Since we are storing the tile data in a ref,
   // and updating it asynchronously when the worker finishes,
@@ -346,9 +338,9 @@ const Heatmap = forwardRef((props, deckRef) => {
         ],
         aggSizeX,
         aggSizeY,
-        colormap: geneExpressionColormap,
-        colorScaleLo,
-        colorScaleHi,
+        colormap,
+        colorScaleLo: colormapRange[0],
+        colorScaleHi: colormapRange[1],
         updateTriggers: {
           image: [axisLeftLabels, axisTopLabels],
           bounds: [tileHeight, tileWidth],
@@ -359,7 +351,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       .current.map((tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile));
     return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
-    aggSizeX, aggSizeY, geneExpressionColormap, colorScaleLo, colorScaleHi,
+    aggSizeX, aggSizeY, colormap, colormapRange,
     axisLeftLabels, axisTopLabels, xTiles]);
 
 
@@ -567,9 +559,8 @@ const Heatmap = forwardRef((props, deckRef) => {
         onHover={onHover}
       />
       <HeatmapControls
-        colorScaleLo={colorScaleLo}
-        colorScaleHi={colorScaleHi}
-        onColorScaleChange={onColorScaleChange}
+        colormapRange={colormapRange}
+        setColormapRange={setColormapRange}
       />
     </>
   );

@@ -1,4 +1,3 @@
-/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
@@ -70,12 +69,12 @@ export default class DynamicOpacityScatterplotLayer extends ScatterplotLayer {
   /**
    * Invalidate the shaders if the colormap has changed, since the new
    * shader needs string replacement.
-   * Reference: https://github.com/visgl/deck.gl/blob/f3b2aab/modules/layers/src/scatterplot-layer/scatterplot-layer.js#L102 
+   * Reference: https://github.com/visgl/deck.gl/blob/f3b2aab/modules/layers/src/scatterplot-layer/scatterplot-layer.js#L102
    * Reference: https://github.com/hms-dbmi/viv/blob/7e113ab2a8551fd7b2807318e1df1788aab3dad4/src/layers/XRLayer/XRLayer.js#L145
-   * @param {object} param0 
+   * @param {object} param0
    */
-  updateState({props, oldProps, changeFlags}) {
-    super.updateState({props, oldProps, changeFlags});
+  updateState({ props, oldProps, changeFlags }) {
+    super.updateState({ props, oldProps, changeFlags });
     if (props.colormap !== oldProps.colormap) {
       const { gl } = this.context;
       // eslint-disable-next-line no-unused-expressions

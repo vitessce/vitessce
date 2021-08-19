@@ -21,17 +21,20 @@ const useStyles = makeStyles(() => ({
 
 export default function HeatmapControls(props) {
   const {
-    colorScaleLo,
-    colorScaleHi,
-    onColorScaleChange,
+    colormapRange,
+    setColormapRange,
   } = props;
   const classes = useStyles();
+
+  function onColorScaleChange(event, value) {
+    setColormapRange(value);
+  }
 
   return (
     <Box component="div" m={1} className={classes.box}>
       <Slider
         orientation="vertical"
-        value={[colorScaleLo, colorScaleHi]}
+        value={colormapRange}
         onChange={onColorScaleChange}
         aria-labelledby="colorscale-slider"
         min={0.0}

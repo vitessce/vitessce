@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React from 'react';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slider from '@material-ui/core/Slider';
@@ -154,7 +153,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Slider
-            disabled={cellRadiusMode !== "static"}
+            disabled={cellRadiusMode !== 'static'}
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={cellRadius}
             onChange={handleRadiusChange}
@@ -191,7 +190,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Slider
-            disabled={cellOpacityMode !== "static"}
+            disabled={cellOpacityMode !== 'static'}
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={cellOpacity}
             onChange={handleOpacityChange}
@@ -217,7 +216,7 @@ export default function ScatterplotOptions(props) {
               id: 'gene-expression-colormap-select',
             }}
           >
-            {GLSL_COLORMAPS.map((cmap) => (
+            {GLSL_COLORMAPS.map(cmap => (
               <option key={cmap} value={cmap}>{cmap}</option>
             ))}
           </Select>

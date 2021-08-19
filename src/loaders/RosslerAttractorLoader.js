@@ -1,37 +1,40 @@
-/* eslint-disable */
+/* eslint-disable no-plusplus */
 import AbstractLoader from './AbstractLoader';
 import LoaderResult from './LoaderResult';
 
 export default class RosslerAttractorLoader extends AbstractLoader {
-
+  // eslint-disable-next-line class-methods-use-this
   load() {
     const N = 5e5;
 
     const cells = {};
-    let xn = 2.644838333129883,
-      yn = 4.060488700866699,
-      zn = 2.8982460498809814;
-    let xn1, yn1, zn1;
-    let a = 0.2;
-    let b = 0.2;
-    let c = 5.7;
-    let dt = 0.006;
-    for (var i = 0; i <= N; i++) {
+    let xn = 2.644838333129883;
+    let yn = 4.060488700866699;
+    let zn = 2.8982460498809814;
+    let xn1;
+    let yn1;
+    let zn1;
+    const a = 0.2;
+    const b = 0.2;
+    const c = 5.7;
+    const dt = 0.006;
+
+    for (let i = 0; i <= N; i++) {
       let dx = -yn - zn;
       let dy = xn + a * yn;
       let dz = b + zn * (xn - c);
 
-      let xh = xn + 0.5 * dt * dx;
-      let yh = yn + 0.5 * dt * dy;
-      let zh = zn + 0.5 * dt * dz;
+      const xh = xn + 0.5 * dt * dx;
+      const yh = yn + 0.5 * dt * dy;
+      const zh = zn + 0.5 * dt * dz;
 
       dx = -yh - zh;
       dy = xh + a * yh;
       dz = b + zh * (xh - c);
 
-      let xn1 = xn + dt * dx;
-      let yn1 = yn + dt * dy;
-      let zn1 = zn + dt * dz;
+      xn1 = xn + dt * dx;
+      yn1 = yn + dt * dy;
+      zn1 = zn + dt * dz;
 
       cells[`cell_${i}`] = {
         mappings: {

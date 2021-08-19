@@ -44,6 +44,8 @@ const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title An override value for the component title.
+ * @param {number} props.averageFillDensity Override the average fill density calculation
+ * when using dynamic opacity mode.
  */
 export default function ScatterplotSubscriber(props) {
   const {
@@ -55,11 +57,8 @@ export default function ScatterplotSubscriber(props) {
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
     title: titleOverride,
-
-    // Point size at which we switch to using opacity rather than size to make the points smaller.
-    minimumPointSize = 1.5,
-    // Average fill density.
-    avgFillDensity,
+    // Average fill density for dynamic opacity calculation.
+    averageFillDensity,
   } = props;
 
   const loaders = useLoaders();
@@ -222,7 +221,7 @@ export default function ScatterplotSubscriber(props) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(window.devicePixelRatio, zoom, xRange, yRange, width, height);
       setDynamicCellRadius(pointSizeDevicePixels);
 
-      const nextCellOpacityScale = getPointOpacity(zoom, width, height, numCells, avgFillDensity);
+      const nextCellOpacityScale = getPointOpacity(zoom, width, height, numCells, averageFillDensity);
       setDynamicCellOpacity(nextCellOpacityScale);
       
       if (typeof targetX !== 'number' || typeof targetY !== 'number') {
@@ -236,7 +235,7 @@ export default function ScatterplotSubscriber(props) {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping, width, height, zoom, avgFillDensity]);
+  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping, width, height, zoom, averageFillDensity]);
 
   const getCellInfo = useCallback((cellId) => {
     const cellInfo = cells[cellId];
@@ -246,32 +245,22 @@ export default function ScatterplotSubscriber(props) {
     };
   }, [cells, observationsLabel]);
 
-  const cellRadius = useMemo(() => {
-    if(cellRadiusMode == "static") {
-      return cellRadiusFixed;
-    } else if(cellRadiusMode == "dynamic") {
-      return dynamicCellRadius;
-    }
-  }, [cellRadiusMode, dynamicCellRadius, cellRadiusFixed]);
+  const cellRadius = (cellRadiusMode == "static" ? cellRadiusFixed : dynamicCellRadius);
+  const cellOpacity = (cellOpacityMode == "static" ? cellOpacityFixed : dynamicCellOpacity);
 
-  const cellOpacity = useMemo(() => {
-    if(cellOpacityMode == "static") {
-      return cellOpacityFixed;
-    } else if(cellOpacityMode == "dynamic") {
-      return dynamicCellOpacity;
-    }
-  }, [cellOpacityMode, dynamicCellOpacity, cellOpacityFixed]);
-
+  // Get a mapping from cell ID to row index in the gene expression matrix.
   const cellIdMap = useMemo(() => {
-    const m1 = {};
+    const result = {};
     if(attrs && attrs.rows) {
       for(let i = 0; i < attrs.rows.length; i++) {
-        m1[attrs.rows[i]] = i;
+        result[attrs.rows[i]] = i;
       }
     }
-    return m1;
+    return result;
   }, [attrs]);
 
+  // Set up a getter function for gene expression values, to be used
+  // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useCallback((entry) => {
     const cellId = entry[0];
     if(cellIdMap && expressionData && expressionData[0]) {

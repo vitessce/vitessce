@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { forwardRef } from 'react';
 import { PolygonLayer, TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
@@ -32,8 +31,8 @@ const makeDefaultGetCellColors = (cellColors, cellOpacityScale) => (cellEntry) =
   const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR;
   return [r, g, b, 255 * (a || 1) * cellOpacityScale];
 };
-const makeDefaultGetCellIsSelected = cellSelection => {
-  if(cellSelection) {
+const makeDefaultGetCellIsSelected = (cellSelection) => {
+  if (cellSelection) {
     // For performance, convert the Array to a Set instance.
     // Set.has() is faster than Array.includes().
     const cellSelectionSet = new Set(cellSelection);
@@ -121,9 +120,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
-    
-    // console.log(cellColors);
-    
 
     return new DynamicOpacityScatterplotLayer({
       id: CELLS_LAYER_ID,
@@ -134,14 +130,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       radiusMaxPixels: 30,
       getPosition: getCellPosition,
       getFillColor: getCellColor,
-      getExpressionValue: getExpressionValue,
+      getExpressionValue,
       getRadius: 1,
       getLineWidth: 0,
       getSelectionState: getCellIsSelected,
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
-      isExpressionMode: (cellColorEncoding === "geneSelection"),
-      isAbsoluteRadiusMode: (cellRadiusMode === "static"),
+      isExpressionMode: (cellColorEncoding === 'geneSelection'),
+      isAbsoluteRadiusMode: (cellRadiusMode === 'static'),
       colormap: geneExpressionColormap,
       onClick: (info) => {
         if (onCellClick) {
@@ -150,8 +146,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       },
       updateTriggers: {
         getSelectionState: cellSelection,
-        getExpressionValue: getExpressionValue,
-        getFillColor: cellSelection,
+        getExpressionValue,
+        getFillColor: [cellColorEncoding, cellSelection, cellColors],
         colormap: geneExpressionColormap,
       },
       ...cellLayerDefaultProps(

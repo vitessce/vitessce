@@ -78,7 +78,7 @@ export const configs = {
     name: 'Overplotting solution',
     version: '1.0.4',
     description: 'https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds',
-    public: true,
+    public: false,
     datasets: [
       {
         uid: 'rossler-attractor',
