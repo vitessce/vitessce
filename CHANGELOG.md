@@ -5,11 +5,10 @@
 - Added cell opacity modes
     - Dynamic mode (default)
     - Static mode
-    - Cell set encoding mode (based on confidence score for cell set assignment)
 - Added cell radius modes
     - Dynamic mode (default)
-    - Absolute (independent of zoom level)
-    - Relative (based on zoom level)
+    - Static mode
+- Added a slider for `geneExpressionColormapRange` to the `ScatterplotOptions` component.
 
 ### Changed
 - Introduce two-step data loaders for AnnData "files".
@@ -21,6 +20,7 @@
 - Switched to performing quantitative color mapping on the scatterplot shaders to enable (fast) responses to the heatmap colormap slider interactions.
 - Switched to performing selected cell coloring on the shaders (rather than using a second scatterplot layer).
 - Updated scatterplot and heatmap shaders to take the `geneExpressionColormap` coordination value into account.
+- Fixed performance issue involving selection of many cells by using `Set.has` rather than `Array.includes`.
 
 
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20

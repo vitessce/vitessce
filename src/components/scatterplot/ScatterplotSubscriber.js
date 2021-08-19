@@ -109,6 +109,7 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingCellOpacity: setCellOpacityFixed,
     setEmbeddingCellOpacityMode: setCellOpacityMode,
     setGeneExpressionColormap,
+    setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -310,6 +311,8 @@ export default function ScatterplotSubscriber(props) {
           setCellColorEncoding={setCellColorEncoding}
           geneExpressionColormap={geneExpressionColormap}
           setGeneExpressionColormap={setGeneExpressionColormap}
+          geneExpressionColormapRange={geneExpressionColormapRange}
+          setGeneExpressionColormapRange={setGeneExpressionColormapRange}
         />
       )}
     >

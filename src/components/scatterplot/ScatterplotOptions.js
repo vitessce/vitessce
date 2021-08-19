@@ -32,6 +32,8 @@ export default function ScatterplotOptions(props) {
     setCellColorEncoding,
     geneExpressionColormap,
     setGeneExpressionColormap,
+    geneExpressionColormapRange,
+    setGeneExpressionColormapRange,
   } = props;
 
   const observationsLabelNice = capitalize(observationsLabel);
@@ -68,6 +70,10 @@ export default function ScatterplotOptions(props) {
 
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
+  }
+
+  function handleColormapRangeChange(event, value) {
+    setGeneExpressionColormapRange(value);
   }
 
   return (
@@ -215,6 +221,23 @@ export default function ScatterplotOptions(props) {
               <option key={cmap} value={cmap}>{cmap}</option>
             ))}
           </Select>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell}>
+          Gene Expression Colormap Range
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Slider
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            value={geneExpressionColormapRange}
+            onChange={handleColormapRangeChange}
+            aria-labelledby="gene-expression-colormap-range-slider"
+            valueLabelDisplay="auto"
+            step={0.005}
+            min={0.0}
+            max={1.0}
+          />
         </TableCell>
       </TableRow>
     </OptionsContainer>
