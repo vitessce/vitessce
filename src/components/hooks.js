@@ -125,9 +125,10 @@ export function useDeckCanvasSize() {
  * (outside a function component / render function),
  * otherwise strange bugs may occur.
  * @returns {array} An array
- * [isReady, setItemIsReady, resetReadyItems]
+ * [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems]
  * where isReady is the boolean value,
  * setItemIsReady marks one item as ready,
+ * setItemIsNotReady marks one item as not ready,
  * and resetReadyItem marks all items as waiting.
  */
 export function useReady(supportedItems) {
@@ -143,6 +144,15 @@ export function useReady(supportedItems) {
     });
   }, [setWaiting]);
 
+  const setItemIsNotReady = useCallback((notReadyItem) => {
+    setWaiting((waitingItems) => {
+      const nextWaitingItems = [...waitingItems, notReadyItem];
+      // eslint-disable-next-line no-console
+      console.log(`waiting on ${nextWaitingItems.length}: ${JSON.stringify(nextWaitingItems)}`);
+      return nextWaitingItems;
+    });
+  }, [setWaiting]);
+
   const resetReadyItems = useCallback(() => {
     setWaiting(items);
     // eslint-disable-next-line no-console
@@ -151,7 +161,7 @@ export function useReady(supportedItems) {
 
   const isReady = waiting.length === 0;
 
-  return [isReady, setItemIsReady, resetReadyItems];
+  return [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems];
 }
 
 /**

@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Add loading callbacks for gene selection.
 
 ### Changed
 

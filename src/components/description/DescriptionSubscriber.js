@@ -36,7 +36,12 @@ export default function DescriptionSubscriber(props) {
     spatialRasterLayers: rasterLayers,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.description, coordinationScopes);
 
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+  const [
+    isReady,
+    setItemIsReady,
+    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    resetReadyItems,
+  ] = useReady(
     DESCRIPTION_DATA_TYPES,
   );
 

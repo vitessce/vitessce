@@ -44,7 +44,12 @@ export default function CellSetExpressionPlotSubscriber(props) {
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+  const [
+    isReady,
+    setItemIsReady,
+    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    resetReadyItems,
+  ] = useReady(
     CELL_SET_EXPRESSION_DATA_TYPES,
   );
 
@@ -63,7 +68,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [expressionData] = useGeneSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection,
+    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
   const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,
