@@ -102,6 +102,8 @@ export default function SpatialSubscriber(props) {
     setAdditionalCellSets,
     setMoleculeHighlight,
     setSpatialAxisFixed,
+    geneExpressionColormap,
+    geneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [
@@ -312,6 +314,10 @@ export default function SpatialSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
         rasterLayersCallbacks={rasterLayersCallbacks}
         spatialAxisFixed={spatialAxisFixed}
+        geneExpressionColormap={geneExpressionColormap}
+        geneExpressionColormapRange={geneExpressionColormapRange}
+        expressionData={expressionData}
+        cellColorEncoding={cellColorEncoding}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber

@@ -91,6 +91,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       width: 2048,
     };
     this.color = { ...this.randomColorData };
+    this.expression = {
+      data: new Uint8Array(2048 * 2048),
+      // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
+      height: 2048,
+      width: 2048,
+    };
 
     // Initialize data and layers.
     this.onUpdateCellsData();
@@ -315,6 +321,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       modelMatrix = new Matrix4(layerDef.modelMatrix);
     }
     if (rawLayerDef.type === 'bitmask') {
+      const {
+        geneExpressionColormap,
+        geneExpressionColormapRange = [0.0, 1.0],
+        cellColorEncoding,
+      } = this.props;
       return new MultiscaleImageLayer({
         // `bitmask` is used by the AbstractSpatialOrScatterplot
         // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
@@ -331,10 +342,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // has to do with the fact that we don't have it in the `defaultProps`,
         // could be wrong though.
         cellColorData: this.color.data,
-        cellColorHeight: this.color.height,
-        cellColorWidth: this.color.width,
+        cellTexHeight: this.color.height,
+        cellTexWidth: this.color.width,
         excludeBackground: true,
         onViewportLoad: layerProps.callback,
+        colorScaleLo: geneExpressionColormapRange[0],
+        colorScaleHi: geneExpressionColormapRange[1],
+        isExpressionMode: cellColorEncoding === 'geneSelection',
+        colormap: geneExpressionColormap,
+        expressionData: this.expression.data,
       });
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(
@@ -438,6 +454,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.color = color;
   }
 
+  onUpdateExpressionData() {
+    const { expressionData } = this.props;
+    if (expressionData[0]?.length) {
+      this.expression.data.set(expressionData[0]);
+    }
+  }
+
   onUpdateMoleculesData() {
     const { molecules = {} } = this.props;
     const moleculesEntries = Object
@@ -514,6 +537,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (['cellColors'].some(shallowDiff)) {
       // Cells Color layer props changed.
       this.onUpdateCellColors();
+      this.forceUpdate();
+    }
+
+    if (['expressionData'].some(shallowDiff)) {
+      // Expression data prop changed.
+      this.onUpdateExpressionData();
       this.forceUpdate();
     }
 

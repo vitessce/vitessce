@@ -3,6 +3,7 @@ import { project32, picking } from '@deck.gl/core'; // eslint-disable-line impor
 import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
 import { fs, vs } from './bitmask-layer-shaders';
+import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants';
 
 function padWithDefault(arr, defaultValue, padWidth) {
   const newArr = [...arr];
@@ -15,6 +16,7 @@ function padWithDefault(arr, defaultValue, padWidth) {
 const defaultProps = {
   hoveredCell: { type: 'number', value: null, compare: true },
   cellColor: { type: 'object', value: null, compare: true },
+  colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
 };
 
 /**
@@ -24,8 +26,11 @@ const defaultProps = {
 export default class BitmaskLayer extends XRLayer {
   // eslint-disable-next-line class-methods-use-this
   getShaders() {
+    const { colormap } = this.props;
     return {
-      fs,
+      fs: GLSL_COLORMAPS.includes(colormap)
+        ? fs.replace(COLORMAP_SHADER_PLACEHOLDER, colormap)
+        : fs.replace(COLORMAP_SHADER_PLACEHOLDER, GLSL_COLORMAP_DEFAULT),
       vs,
       modules: [project32, picking],
     };
@@ -33,13 +38,30 @@ export default class BitmaskLayer extends XRLayer {
 
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
-    if (props.cellColor?.data !== oldProps.cellColor?.data) {
+    if (props.cellColorData !== oldProps.cellColorData) {
       this.setColorTexture();
+    } if (props.colormap !== oldProps.colormap) {
+      const { gl } = this.context;
+      if (this.state.model) {
+        this.state.model.delete();
+      }
+      // eslint-disable-next-line no-underscore-dangle
+      this.setState({ model: this._getModel(gl) });
+
+      this.getAttributeManager().invalidateAll();
+    } if (props.expressionDataData !== oldProps.expressionDataData) {
+      const { expressionData, cellTexHeight, cellTexWidth } = this.props.expressionData;
+      const expressionTex = this.dataToTexture(
+        expressionData,
+        cellTexWidth,
+        cellTexHeight,
+      );
+      this.setState({ expressionTex });
     }
   }
 
   setColorTexture() {
-    const { height, width, data } = this.props.cellColor;
+    const { cellColorData: data, cellTexHeight: height, cellTexWidth: width } = this.props;
     const colorTex = new Texture2D(this.context.gl, {
       width,
       height,
@@ -64,8 +86,16 @@ export default class BitmaskLayer extends XRLayer {
 
   draw(opts) {
     const { uniforms } = opts;
-    const { channelIsOn, hoveredCell } = this.props;
-    const { textures, model, colorTex } = this.state;
+    const {
+      channelIsOn,
+      hoveredCell,
+      colorScaleLo,
+      colorScaleHi,
+      isExpressionMode,
+    } = this.props;
+    const {
+      textures, model, colorTex, expressionTex,
+    } = this.state;
     // Render the image
     if (textures && model && colorTex) {
       model
@@ -73,6 +103,7 @@ export default class BitmaskLayer extends XRLayer {
           Object.assign({}, uniforms, {
             hovered: hoveredCell || 0,
             colorTex,
+            expressionTex,
             colorTexHeight: colorTex.height,
             colorTexWidth: colorTex.width,
             channelIsOn: padWithDefault(
@@ -81,6 +112,8 @@ export default class BitmaskLayer extends XRLayer {
               // There are six texture entries on the shaders
               6 - channelIsOn.length,
             ),
+            uColorScaleRange: [colorScaleLo, colorScaleHi],
+            uIsExpressionMode: isExpressionMode,
             ...textures,
           }),
         )
