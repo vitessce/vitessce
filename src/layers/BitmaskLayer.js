@@ -15,8 +15,9 @@ function padWithDefault(arr, defaultValue, padWidth) {
 
 const defaultProps = {
   hoveredCell: { type: 'number', value: null, compare: true },
-  cellColor: { type: 'object', value: null, compare: true },
+  cellColorData: { type: 'object', value: null, compare: true },
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
+  expressionData: { type: 'object', value: null, compare: true },
 };
 
 /**
@@ -40,6 +41,14 @@ export default class BitmaskLayer extends XRLayer {
     super.updateState({ props, oldProps, changeFlags });
     if (props.cellColorData !== oldProps.cellColorData) {
       this.setColorTexture();
+    } if (props.expressionData !== oldProps.expressionData) {
+      const { expressionData, cellTexHeight, cellTexWidth } = this.props;
+      const expressionTex = this.dataToTexture(
+        expressionData,
+        cellTexWidth,
+        cellTexHeight,
+      );
+      this.setState({ expressionTex });
     } if (props.colormap !== oldProps.colormap) {
       const { gl } = this.context;
       if (this.state.model) {
@@ -49,14 +58,6 @@ export default class BitmaskLayer extends XRLayer {
       this.setState({ model: this._getModel(gl) });
 
       this.getAttributeManager().invalidateAll();
-    } if (props.expressionDataData !== oldProps.expressionDataData) {
-      const { expressionData, cellTexHeight, cellTexWidth } = this.props.expressionData;
-      const expressionTex = this.dataToTexture(
-        expressionData,
-        cellTexWidth,
-        cellTexHeight,
-      );
-      this.setState({ expressionTex });
     }
   }
 

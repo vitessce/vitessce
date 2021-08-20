@@ -229,6 +229,18 @@ export default function SpatialSubscriber(props) {
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetColor, cellSetSelection, expressionData, attrs]);
 
+  const shiftedExpressionData = useMemo(() => {
+    if (attrs?.rows && expressionData) {
+      const result = new Uint8Array(Number(attrs.rows[attrs.rows.length - 1]) + 1);
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < attrs.rows.length; i++) {
+        const id = attrs.rows[i];
+        result.set(expressionData[0].slice(i, i + 1), Number(id));
+      }
+      return [result];
+    } return [new Uint8Array()];
+  }, [attrs, expressionData]);
+
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const getCellInfo = (cellId) => {
@@ -327,7 +339,7 @@ export default function SpatialSubscriber(props) {
         spatialAxisFixed={spatialAxisFixed}
         geneExpressionColormap={geneExpressionColormap}
         geneExpressionColormapRange={geneExpressionColormapRange}
-        expressionData={expressionData}
+        expressionData={shiftedExpressionData}
         cellColorEncoding={cellColorEncoding}
       />
       {!disableTooltip && (

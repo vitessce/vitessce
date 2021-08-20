@@ -457,6 +457,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdateExpressionData() {
     const { expressionData } = this.props;
     if (expressionData[0]?.length) {
+      this.expression.data = new Uint8Array(this.expression.height * this.expression.width);
       this.expression.data.set(expressionData[0]);
     }
   }

@@ -441,10 +441,6 @@ export function renderSubBitmaskLayers(props) {
   ];
   return new BitmaskLayer(props, {
     channelData: data,
-    cellTexHeight: props.cellTexHeight,
-    cellTexWidth: props.cellTexWidth,
-    cellColorData: props.cellColorData,
-    expressionData: props.expressionData,
     // Uncomment to help debugging - shades the tile being hovered over.
     // autoHighlight: true,
     // highlightColor: [80, 80, 80, 50],
