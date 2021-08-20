@@ -81,7 +81,12 @@ export default function GenomicProfilesSubscriber(props) {
   );
 
   // eslint-disable-next-line no-unused-vars
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+  const [
+    isReady,
+    setItemIsReady,
+    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    resetReadyItems,
+  ] = useReady(
     GENOMIC_PROFILES_DATA_TYPES,
   );
     // eslint-disable-next-line no-unused-vars

@@ -37,7 +37,12 @@ export default function ExpressionHistogramSubscriber(props) {
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+  const [
+    isReady,
+    setItemIsReady,
+    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    resetReadyItems,
+  ] = useReady(
     EXPRESSION_HISTOGRAM_DATA_TYPES,
   );
 
@@ -54,7 +59,7 @@ export default function ExpressionHistogramSubscriber(props) {
   );
   // Get data from loaders using the data hooks.
   const [expressionData] = useGeneSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection,
+    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
