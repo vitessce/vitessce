@@ -3,15 +3,12 @@
 export const GLSL_COLORMAPS = [
   'plasma',
   'viridis',
-  'greys',
-  'magma',
   'jet',
-  'hot',
-  'bone',
-  'copper',
+  'cool',
+  'spring',
   'summer',
-  'density',
-  'inferno',
+  'autumn',
+  'winter',
 ];
 export const GLSL_COLORMAP_DEFAULT = 'plasma';
 export const COLORMAP_SHADER_PLACEHOLDER = '__colormap';
