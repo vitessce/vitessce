@@ -140,11 +140,9 @@ void main(void) {
   }
 
   float scaledExpressionValue = (vExpressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
-  if(uIsExpressionMode) {
-    gl_FragColor = __colormap(clamp(scaledExpressionValue, 0.0, 1.0));
-  } else {
-    gl_FragColor = vFillColor;
-  }
+  // If the scatterplot is in expression mode, use the quantitative colormap function.
+  // If the scatterplot is in cell set mode, use the assigned cell color value.
+  gl_FragColor = float(uIsExpressionMode) * __colormap(clamp(scaledExpressionValue, 0.0, 1.0)) + (1.0 - float(uIsExpressionMode)) * vFillColor;
   gl_FragColor.a = opacity;
 
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);
