@@ -44,7 +44,12 @@ export default function CellSetSizesPlotSubscriber(props) {
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+  const [
+    isReady,
+    setItemIsReady,
+    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    resetReadyItems,
+  ] = useReady(
     CELL_SET_SIZES_DATA_TYPES,
   );
 
