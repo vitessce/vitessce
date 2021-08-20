@@ -570,7 +570,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'imageLayerLoaders', 'cellColors', 'cellHighlight', 'rasterLayersCallbacks'].some(shallowDiff)) {
+    if (
+      [
+        'layers',
+        'imageLayerLoaders',
+        'cellColors',
+        'cellHighlight',
+        'geneExpressionColormapRange',
+        'expressionData',
+        'rasterLayersCallbacks',
+        'geneExpressionColormap',
+      ].some(shallowDiff)
+    ) {
       // Image layers changed.
       this.onUpdateImages();
       this.forceUpdate();

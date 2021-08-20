@@ -2,11 +2,15 @@ import React from 'react';
 import Checkbox from '@material-ui/core/Checkbox';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
+import Select from '@material-ui/core/Select';
+import Slider from '@material-ui/core/Slider';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import OptionsContainer from '../shared-plot-options/OptionsContainer';
+import { useStyles } from '../shared-plot-options/styles';
 import CellColorEncodingOption from '../shared-plot-options/CellColorEncodingOption';
+import { GLSL_COLORMAPS } from '../../layers/constants';
 
-const useStyles = makeStyles(() => createStyles({
+const useToggleStyles = makeStyles(() => createStyles({
   cameraLabel: {
     padding: '0px 0px 0px 16px',
   },
@@ -23,7 +27,7 @@ const ToggleFixedAxisButton = ({
   spatialAxisFixed,
   use3d,
 }) => {
-  const classes = useStyles();
+  const classes = useToggleStyles();
   return (
     <TableRow>
       <TableCell className={classes.cameraLabel}>
@@ -48,7 +52,20 @@ export default function SpatialOptions(props) {
     setSpatialAxisFixed,
     spatialAxisFixed,
     use3d,
+    geneExpressionColormap,
+    setGeneExpressionColormap,
+    geneExpressionColormapRange,
+    setGeneExpressionColormapRange,
   } = props;
+
+  function handleGeneExpressionColormapChange(event) {
+    setGeneExpressionColormap(event.target.value);
+  }
+
+  function handleColormapRangeChange(event, value) {
+    setGeneExpressionColormapRange(value);
+  }
+  const classes = useStyles();
 
   return (
     <OptionsContainer>
@@ -62,6 +79,43 @@ export default function SpatialOptions(props) {
         spatialAxisFixed={spatialAxisFixed}
         use3d={use3d}
       />
+      <TableRow>
+        <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
+          Gene Expression Colormap
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Select
+            native
+            className={classes.select}
+            value={geneExpressionColormap}
+            onChange={handleGeneExpressionColormapChange}
+            inputProps={{
+              id: 'gene-expression-colormap-select',
+            }}
+          >
+            {GLSL_COLORMAPS.map(cmap => (
+              <option key={cmap} value={cmap}>{cmap}</option>
+            ))}
+          </Select>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell}>
+          Gene Expression Colormap Range
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Slider
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            value={geneExpressionColormapRange}
+            onChange={handleColormapRangeChange}
+            aria-labelledby="gene-expression-colormap-range-slider"
+            valueLabelDisplay="auto"
+            step={0.005}
+            min={0.0}
+            max={1.0}
+          />
+        </TableCell>
+      </TableRow>
     </OptionsContainer>
   );
 }

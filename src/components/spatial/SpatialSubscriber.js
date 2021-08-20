@@ -82,6 +82,8 @@ export default function SpatialSubscriber(props) {
     cellColorEncoding,
     additionalCellSets,
     spatialAxisFixed,
+    geneExpressionColormap,
+    geneExpressionColormapRange,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -102,8 +104,8 @@ export default function SpatialSubscriber(props) {
     setAdditionalCellSets,
     setMoleculeHighlight,
     setSpatialAxisFixed,
-    geneExpressionColormap,
-    geneExpressionColormapRange,
+    setGeneExpressionColormap,
+    setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [
@@ -121,7 +123,7 @@ export default function SpatialSubscriber(props) {
   const [
     isReady,
     setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    setItemIsNotReady,
     resetReadyItems,
   ] = useReady(
     SPATIAL_DATA_TYPES,
@@ -282,6 +284,10 @@ export default function SpatialSubscriber(props) {
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
+          geneExpressionColormap={geneExpressionColormap}
+          setGeneExpressionColormap={setGeneExpressionColormap}
+          geneExpressionColormapRange={geneExpressionColormapRange}
+          setGeneExpressionColormapRange={setGeneExpressionColormapRange}
         />
       )}
     >
