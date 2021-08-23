@@ -28,9 +28,9 @@ const makeDefaultGetCellPosition = mapping => (cellEntry) => {
   return [mappedCell[0], -mappedCell[1], 0];
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
-const makeDefaultGetCellColors = (cellColors, cellOpacity) => (cellEntry) => {
+const makeDefaultGetCellColors = cellColors => (cellEntry) => {
   const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR;
-  return [r, g, b, 255 * (a || 1) * cellOpacity];
+  return [r, g, b, 255 * (a || 1)];
 };
 const makeDefaultGetCellIsSelected = (cellSelection) => {
   if (cellSelection) {
@@ -110,7 +110,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         cellsEntries.length === cellSelection.length ? null : cellSelection,
       ),
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, cellOpacity),
+      getCellColor = makeDefaultGetCellColors(cellColors),
       getExpressionValue,
       onCellClick,
       geneExpressionColormap,
@@ -129,7 +129,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       radiusMinPixels: 0,
       radiusMaxPixels: 10,
       getPosition: getCellPosition,
-      getColor: getCellColor,
+      getFillColor: getCellColor,
+      getLineColor: getCellColor,
       getExpressionValue,
       getLineWidth: 0,
       extensions: [new ScaledExpressionExtension()],
@@ -145,7 +146,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       updateTriggers: {
         isSelected: cellSelection,
         getExpressionValue,
-        getColor: [cellColorEncoding, cellSelection, cellColors],
+        getFillColor: [cellColorEncoding, cellSelection, cellColors],
+        getLineColor: [cellColorEncoding, cellSelection, cellColors],
       },
       ...cellLayerDefaultProps(
         filteredCellsEntries, undefined, setCellHighlight, setComponentHover,

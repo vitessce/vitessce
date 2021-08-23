@@ -24,9 +24,9 @@ const makeDefaultGetCellPolygon = radius => (cellEntry) => {
   const cell = cellEntry[1];
   return cell.poly?.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
 };
-const makeDefaultGetCellColors = (cellColors, cellOpacity) => (cellEntry) => {
+const makeDefaultGetCellColors = cellColors => (cellEntry) => {
   const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR;
-  return [r, g, b, 255 * (a || 1) * cellOpacity];
+  return [r, g, b, 255 * (a || 1)];
 };
 const makeDefaultGetCellIsSelected = (cellSelection) => {
   if (cellSelection) {
