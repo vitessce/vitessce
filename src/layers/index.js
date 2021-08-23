@@ -1,5 +1,4 @@
 // Selection Layers
-export { default as SelectablePolygonLayer } from './SelectablePolygonLayer';
 export { getSelectionLayers } from './selection-utils';
 
 // Heatmap Layers
