@@ -76,12 +76,14 @@ export default class ScaledExpressionExtension extends LayerExtension {
     const {
       topModel, sideModel, models, model,
     } = this.state;
-
+    // scatterplot-layer model
     // eslint-disable-next-line no-unused-expressions
     model?.setUniforms({
       uColorScaleRange: [colorScaleLo, colorScaleHi],
       uIsExpressionMode: isExpressionMode,
     });
+
+    // polygon-layer models from sublayers
     // eslint-disable-next-line no-unused-expressions
     models?.forEach(m => m.setUniforms({
       uColorScaleRange: [colorScaleLo, colorScaleHi],
