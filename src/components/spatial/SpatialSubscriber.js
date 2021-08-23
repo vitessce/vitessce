@@ -279,6 +279,31 @@ export default function SpatialSubscriber(props) {
     subobservationsPluralLabel,
     locationsCount,
   });
+
+  // Get a mapping from cell ID to row index in the gene expression matrix.
+  const cellIdMap = useMemo(() => {
+    const result = {};
+    if (attrs && attrs.rows) {
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < attrs.rows.length; i++) {
+        result[attrs.rows[i]] = i;
+      }
+    }
+    return result;
+  }, [attrs]);
+
+  // Set up a getter function for gene expression values, to be used
+  // by the DeckGL layer to obtain values for instanced attributes.
+  const getExpressionValue = useCallback((entry) => {
+    const cellId = entry[0];
+    if (cellIdMap && expressionData && expressionData[0]) {
+      const cellIndex = cellIdMap[cellId];
+      const val = expressionData[0][cellIndex];
+      return val;
+    }
+    return 0;
+  }, [cellIdMap, expressionData]);
+
   return (
     <TitleInfo
       title={title}
@@ -341,6 +366,7 @@ export default function SpatialSubscriber(props) {
         geneExpressionColormapRange={geneExpressionColormapRange}
         expressionData={shiftedExpressionData}
         cellColorEncoding={cellColorEncoding}
+        getExpressionValue={getExpressionValue}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber

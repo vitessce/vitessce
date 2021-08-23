@@ -4,7 +4,7 @@ import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import
 import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { Matrix4 } from 'math.gl';
 import { ScaleBarLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
-import { getSelectionLayers, SelectablePolygonLayer } from '../../layers';
+import { getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
 import { getSourceFromLoader } from '../../utils';
 import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
@@ -12,6 +12,7 @@ import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/Abstract
 import {
   createCellsQuadTree,
 } from '../shared-spatial-scatterplot/quadtree';
+import { ScaledExpressionExtension } from '../../layer-extensions';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
@@ -23,14 +24,21 @@ const makeDefaultGetCellPolygon = radius => (cellEntry) => {
   const cell = cellEntry[1];
   return cell.poly?.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
 };
-const makeDefaultGetCellColors = cellColors => cellEntry => (
-  cellColors && cellColors.get(cellEntry[0])
-) || DEFAULT_COLOR;
-const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
-  cellSelection
-    ? cellSelection.includes(cellEntry[0])
-    : true // If nothing is selected, everything is selected.
-);
+const makeDefaultGetCellColors = (cellColors, cellOpacity) => (cellEntry) => {
+  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR;
+  return [r, g, b, 255 * (a || 1) * cellOpacity];
+};
+const makeDefaultGetCellIsSelected = (cellSelection) => {
+  if (cellSelection) {
+    // For performance, convert the Array to a Set instance.
+    // Set.has() is faster than Array.includes().
+    const cellSelectionSet = new Set(cellSelection);
+    return cellEntry => (
+      cellSelectionSet.has(cellEntry[0]) ? 1.0 : 0.0
+    );
+  }
+  return () => 0.0;
+};
 
 /**
  * React component which expresses the spatial relationships between cells and molecules.
@@ -127,6 +135,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       onCellClick,
       lineWidthScale = 10,
       lineWidthMaxPixels = 2,
+      geneExpressionColormapRange,
+      cellColorEncoding,
+      getExpressionValue,
+      geneExpressionColormap,
     } = this.props;
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
@@ -136,14 +148,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // so we need to flip it for rendering tooltips.
     const flipYTooltip = true;
 
-    return new SelectablePolygonLayer({
+    return new PolygonLayer({
       id: CELLS_LAYER_ID,
       backgroundColor: [0, 0, 0],
       isSelected: getCellIsSelected,
       getPolygon: getCellPolygon,
       updateTriggers: {
-        getFillColor: [opacity],
         getLineWidth: [stroked],
+        isSelected: cellSelection,
+        getExpressionValue,
+        getFillColor: [opacity, cellColorEncoding, cellSelection, cellColors],
+        getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        colormap: geneExpressionColormap,
+        colorScaleLo: geneExpressionColormapRange[0],
+        colorScaleHi: geneExpressionColormapRange[1],
+        isExpressionMode: cellColorEncoding === 'geneSelection',
       },
       getFillColor: (cellEntry) => {
         const color = getCellColor(cellEntry);
@@ -164,9 +183,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getLineWidth: stroked ? 1 : 0,
       lineWidthScale,
       lineWidthMaxPixels,
+      getExpressionValue,
+      extensions: [new ScaledExpressionExtension()],
+      colorScaleLo: geneExpressionColormapRange[0],
+      colorScaleHi: geneExpressionColormapRange[1],
+      isExpressionMode: cellColorEncoding === 'geneSelection',
+      colormap: geneExpressionColormap,
       ...cellLayerDefaultProps(
-        filteredCellsEntries, undefined, setCellHighlight,
-        setComponentHover, flipYTooltip,
+        filteredCellsEntries,
+        undefined,
+        setCellHighlight,
+        setComponentHover,
+        flipYTooltip,
       ),
     });
   }

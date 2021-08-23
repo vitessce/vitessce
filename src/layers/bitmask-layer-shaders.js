@@ -76,7 +76,7 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn){
   vec2 colorTexCoord = vec2(mod(sampledData, colorTexWidth) / colorTexWidth, floor(sampledData / colorTexWidth) / (colorTexHeight - 1.));
   float expressionValue = texture(expressionTex, colorTexCoord).r / 255.;
   float scaledExpressionValue = (expressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
-  vec4 sampledColor = float(uIsExpressionMode) * __colormap(clamp(scaledExpressionValue, 0.0, 1.0)) +  (1. - float(uIsExpressionMode)) * vec4(texture(colorTex, colorTexCoord).rgb, 1.);
+  vec4 sampledColor = float(uIsExpressionMode) * COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)) +  (1. - float(uIsExpressionMode)) * vec4(texture(colorTex, colorTexCoord).rgb, 1.);
   // Only return a color if the data is non-zero.
   return max(0., min(sampledData, 1.)) * float(isOn) * (sampledColor + hoveredColor);
 }

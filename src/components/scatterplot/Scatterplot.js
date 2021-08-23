@@ -1,13 +1,14 @@
 import React, { forwardRef } from 'react';
-import { PolygonLayer, TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { PolygonLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
-import { DynamicOpacityScatterplotLayer, getSelectionLayers } from '../../layers';
+import { getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
 import {
   createCellsQuadTree,
 } from '../shared-spatial-scatterplot/quadtree';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import { forceCollideRects } from '../shared-spatial-scatterplot/force-collide-rects';
+import { ScaledExpressionExtension } from '../../layer-extensions';
 
 const CELLS_LAYER_ID = 'scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
@@ -119,20 +120,19 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
-
-    return new DynamicOpacityScatterplotLayer({
+    return new ScatterplotLayer({
       id: CELLS_LAYER_ID,
       backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
+      isSelected: getCellIsSelected,
       opacity: cellOpacity,
       radiusScale: cellRadius,
-      radiusMinPixels: 1,
-      radiusMaxPixels: 30,
+      radiusMinPixels: 0,
+      radiusMaxPixels: 10,
       getPosition: getCellPosition,
-      getFillColor: getCellColor,
+      getColor: getCellColor,
       getExpressionValue,
-      getRadius: 1,
       getLineWidth: 0,
-      getSelectionState: getCellIsSelected,
+      extensions: [new ScaledExpressionExtension()],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
       isExpressionMode: (cellColorEncoding === 'geneSelection'),
@@ -143,9 +143,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         }
       },
       updateTriggers: {
-        getSelectionState: cellSelection,
+        isSelected: cellSelection,
         getExpressionValue,
-        getFillColor: [cellColorEncoding, cellSelection, cellColors],
+        getColor: [cellColorEncoding, cellSelection, cellColors],
         colormap: geneExpressionColormap,
       },
       ...cellLayerDefaultProps(

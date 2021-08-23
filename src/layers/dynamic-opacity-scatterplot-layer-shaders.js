@@ -141,7 +141,7 @@ void main(void) {
 
   float scaledExpressionValue = (vExpressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
   if(uIsExpressionMode) {
-    gl_FragColor = __colormap(clamp(scaledExpressionValue, 0.0, 1.0));
+    gl_FragColor = COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0));
   } else {
     gl_FragColor = vFillColor;
   }
