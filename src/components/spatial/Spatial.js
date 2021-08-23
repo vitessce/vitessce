@@ -159,10 +159,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getExpressionValue,
         getFillColor: [opacity, cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
-        colormap: geneExpressionColormap,
-        colorScaleLo: geneExpressionColormapRange[0],
-        colorScaleHi: geneExpressionColormapRange[1],
-        isExpressionMode: cellColorEncoding === 'geneSelection',
       },
       getFillColor: (cellEntry) => {
         const color = getCellColor(cellEntry);

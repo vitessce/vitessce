@@ -146,7 +146,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         isSelected: cellSelection,
         getExpressionValue,
         getColor: [cellColorEncoding, cellSelection, cellColors],
-        colormap: geneExpressionColormap,
       },
       ...cellLayerDefaultProps(
         filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
