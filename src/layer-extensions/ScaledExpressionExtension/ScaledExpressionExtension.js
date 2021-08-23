@@ -5,7 +5,6 @@ import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } fr
 import module from './shader-module';
 
 const defaultProps = {
-  /* Custom props for DynamicOpacityScatterplotLayer */
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
   colorScaleLo: { type: 'number', value: 0.0, compare: true },
   colorScaleHi: { type: 'number', value: 1.0, compare: true },
