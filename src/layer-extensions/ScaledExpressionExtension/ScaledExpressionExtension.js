@@ -54,7 +54,7 @@ export default class ScaledExpressionExtension extends LayerExtension {
     }
   }
 
-  initializeState() {
+  initializeState(context, extension) {
     const attributeManager = this.getAttributeManager();
     if (attributeManager) {
       attributeManager.add({
@@ -64,11 +64,9 @@ export default class ScaledExpressionExtension extends LayerExtension {
           transition: true,
           accessor: 'getExpressionValue',
           defaultValue: 1,
-          // Need to be clear that this is not instanced,
-          // probably because polygons are not uniformly sized,
-          // although this appears to be `undefined` when not set by default,
-          // which is not one of the options since this is a 0 - 1 boolean.
-          divisor: 0,
+          // PolygonLayer needs not-intsanced attribute but
+          // ScatterplotLayer needs instanced.
+          divisor: Number(extension.opts.instanced),
         },
       });
     }

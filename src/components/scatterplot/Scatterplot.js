@@ -133,7 +133,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getLineColor: getCellColor,
       getExpressionValue,
       getLineWidth: 0,
-      extensions: [new ScaledExpressionExtension()],
+      extensions: [new ScaledExpressionExtension({ instanced: true })],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
       isExpressionMode: (cellColorEncoding === 'geneSelection'),
