@@ -73,7 +73,6 @@ export default class ScaledExpressionExtension extends LayerExtension {
   }
 
   draw() {
-    console.log(this) // eslint-disable-line 
     const {
       colorScaleLo,
       colorScaleHi,
