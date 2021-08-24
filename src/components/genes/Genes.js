@@ -5,7 +5,6 @@ export default function Genes(props) {
   const {
     hasColorEncoding,
     geneList = [],
-    geneColors = {},
     geneSelection = [],
     geneFilter = null,
     setGeneSelection,
@@ -30,11 +29,7 @@ export default function Genes(props) {
     .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
     .sort((a, b) => a.localeCompare(b))
     .map(
-      gene => ({
-        name: gene,
-        value: (geneSelection ? geneSelection.includes(gene) : false),
-        color: geneColors[gene],
-      }),
+      gene => ({ name: gene, value: (geneSelection ? geneSelection.includes(gene) : false) }),
     );
 
   const handleChange = (event) => {
@@ -56,7 +51,6 @@ export default function Genes(props) {
         hasColorEncoding={hasColorEncoding}
         idKey="name"
         valueKey="value"
-        colorKey="color"
         onChange={onChange}
         allowUncheck={false}
         showTableHead={false}

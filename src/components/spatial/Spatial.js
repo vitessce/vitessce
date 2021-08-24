@@ -173,7 +173,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getMoleculeColor = d => d[1].rgb,
       getMoleculePosition = d => d[1].spatial,
       getMoleculeNormal = d => [-1, 0, 0],
-      moleculeSelection,
+      moleculeSelectionIndices,
     } = this.props;
     const { moleculesEntries } = this;
 
@@ -185,17 +185,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
       autoHighlight: true,
       opacity: layerDef.opacity,
       visible: layerDef.visible,
-      radiusPixels: 2,
+      pointSize: 2,
       getPosition: getMoleculePosition,
       getNormal: getMoleculeNormal,
       getColor: getMoleculeColor,
       getFilterValue: moleculeEntry => (
-        moleculeSelection
-          ? (moleculeSelection.includes(moleculeEntry[3]) ? 1 : 0)
+        moleculeSelectionIndices
+          ? (moleculeSelectionIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
           : 1 // If nothing is selected, everything is selected.
       ),
-      //extensions: [new DataFilterExtension({ filterSize: 1 })],
-      //filterRange: [1, 1],
+      extensions: [new DataFilterExtension({ filterSize: 1 })],
+      filterRange: [1, 1],
       onHover: (info) => {
         if (setMoleculeHighlight) {
           if (info.object) {
@@ -206,7 +206,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         }
       },
       updateTriggers: {
-        getFilterValue: [moleculeSelection],
+        getFilterValue: [moleculeSelectionIndices],
       },
     });
   }
@@ -380,8 +380,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createImageLayers() {
     const { layers, imageLayerLoaders = {}, rasterLayersCallbacks = [] } = this.props;
-    const use3d = (layers || []).some(i => i.use3d);
-    const use3dIndex = (layers || []).findIndex(i => i.use3d);
+    const use3d = null;
+    const use3dIndex = -1;
     return (layers || [])
       .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
       .filter(layer => (use3d ? layer.use3d === use3d : true))
@@ -533,7 +533,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'molecules', 'moleculeSelection'].some(shallowDiff)) {
+    if (['layers', 'molecules', 'moleculeSelectionIndices'].some(shallowDiff)) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
       this.forceUpdate();

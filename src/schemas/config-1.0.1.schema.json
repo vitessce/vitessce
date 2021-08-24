@@ -77,9 +77,7 @@
               "genomicTargetX": { "type": "string" },
               "genomicTargetY": { "type": "string" },
               "additionalCellSets": { "type": "string" },
-              "moleculeHighlight": { "type": "string" },
-              "moleculeFilter": { "type": "string" },
-              "moleculeSelection": { "type": "string" }
+              "moleculeHighlight": { "type": "string" }
             }
           }
         }
@@ -973,34 +971,6 @@
                   "description": "If null is provided, no molecule will be highlighted initially."
                 },
                 { "type": "string" }
-              ]
-            }
-          }
-        },
-        "moleculeFilter": {
-          "type": "object",
-          "patternProperties": {
-            ".": {
-              "oneOf": [
-                {
-                  "type": "null",
-                  "description": "If null is provided, no molecules will be filtered out."
-                },
-                { "type": "array", "items": { "type": "string" } }
-              ]
-            }
-          }
-        },
-        "moleculeSelection": {
-          "type": "object",
-          "patternProperties": {
-            ".": {
-              "oneOf": [
-                {
-                  "type": "null",
-                  "description": "If null is provided, no molecules will be selected."
-                },
-                { "type": "array", "items": { "type": "string" } }
               ]
             }
           }
