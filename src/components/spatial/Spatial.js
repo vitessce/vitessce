@@ -2,7 +2,8 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { PolygonLayer, ScatterplotLayer, PointCloudLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-line import/no-extraneous-dependencies
 import { Matrix4 } from 'math.gl';
 import {
   ScaleBarLayer,
@@ -201,32 +202,32 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createMoleculesLayer(layerDef) {
     const {
       setMoleculeHighlight,
-      getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
-      getMoleculePosition = d => [d[0], d[1], 0],
+      getMoleculeColor = d => d[1].rgb,
+      getMoleculePosition = d => d[1].spatial,
+      getMoleculeNormal = d => [-1, 0, 0],
       moleculeSelection,
     } = this.props;
     const { moleculesEntries } = this;
 
-    return new ScatterplotLayer({
+    return new PointCloudLayer({
       id: MOLECULES_LAYER_ID,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: moleculesEntries,
       pickable: true,
       autoHighlight: true,
-      radiusMaxPixels: 3,
       opacity: layerDef.opacity,
       visible: layerDef.visible,
-      getPointRadius: layerDef.radius,
+      radiusPixels: 2,
       getPosition: getMoleculePosition,
-      getLineColor: getMoleculeColor,
-      getFillColor: getMoleculeColor,
+      getNormal: getMoleculeNormal,
+      getColor: getMoleculeColor,
       getFilterValue: moleculeEntry => (
         moleculeSelection
           ? (moleculeSelection.includes(moleculeEntry[3]) ? 1 : 0)
           : 1 // If nothing is selected, everything is selected.
       ),
-      extensions: [new DataFilterExtension({ filterSize: 1 })],
-      filterRange: [1, 1],
+      //extensions: [new DataFilterExtension({ filterSize: 1 })],
+      //filterRange: [1, 1],
       onHover: (info) => {
         if (setMoleculeHighlight) {
           if (info.object) {
@@ -528,9 +529,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   onUpdateMoleculesData() {
     const { molecules = {} } = this.props;
-    const moleculesEntries = Object.entries(molecules).flatMap(
-      ([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]),
-    );
+    const moleculesEntries = Object
+      .entries(molecules);
     this.moleculesEntries = moleculesEntries;
   }
 

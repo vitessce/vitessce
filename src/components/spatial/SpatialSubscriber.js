@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useMemo, useCallback } from 'react';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';

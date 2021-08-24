@@ -20,7 +20,7 @@ import { DEFAULT_COORDINATION_VALUES } from '../app/state/coordination';
  */
 function warn(error, setWarning) {
   setWarning(error.message);
-  console.warn(error.message);
+  console.warn(error);
   if (error instanceof AbstractLoaderError) {
     error.warnInConsole();
   }
@@ -480,10 +480,6 @@ export function useMoleculesData(
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         setMolecules(data);
-        setMoleculesCount(Object.keys(data).length);
-        setLocationsCount(Object.values(data)
-          .map(l => l.length)
-          .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
         const coordinationValuesOrDefault = {
           spatialMoleculesLayer: DEFAULT_MOLECULES_LAYER,
