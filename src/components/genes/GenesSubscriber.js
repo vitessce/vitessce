@@ -89,18 +89,6 @@ export default function GenesSubscriber(props) {
       setMoleculeSelection(newSelection);
     }
   }
-  
-  const geneColors = useMemo(() => {
-    const result = {};
-    if (molecules) {
-      const moleculeIds = Object.keys(molecules);
-      moleculeIds.forEach((geneId, index) => {
-        const [r, g, b] = PALETTE[index % PALETTE.length];
-        result[geneId] = `rgb(${r}, ${g}, ${b})`;
-      });
-    }
-    return result;
-  }, [molecules]);
 
   return (
     <TitleInfo
@@ -118,7 +106,6 @@ export default function GenesSubscriber(props) {
       <Genes
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
         geneList={geneList}
-        geneColors={geneColors}
         geneSelection={geneSelection}
         geneFilter={geneFilter}
         setGeneSelection={setGeneSelectionAndColorEncoding}

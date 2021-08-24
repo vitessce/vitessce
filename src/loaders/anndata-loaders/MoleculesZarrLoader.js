@@ -45,10 +45,10 @@ export default class MoleculesZarrLoader extends AbstractTwoStepLoader {
    * @returns {Promise} A promise for an array of an array of strings of ids,
    * where subarray is a clustering/factor.
    */
-  loadCellIds() {
-    const { cellKey } = (this.options || {});
-    if (cellKey) {
-      return this.dataSource._loadObsVariable(cellKey);
+  loadCellIndices() {
+    const { cellIndex } = (this.options || {});
+    if (cellIndex) {
+      return this.dataSource.loadNumeric(cellIndex);
     }
     return Promise.resolve(null);
   }
@@ -58,10 +58,10 @@ export default class MoleculesZarrLoader extends AbstractTwoStepLoader {
    * @returns {Promise} A promise for an array of an array of strings of ids,
    * where subarray is a clustering/factor.
    */
-  loadGeneIds() {
-    const { geneKey } = (this.options || {});
-    if (geneKey) {
-      return this.dataSource._loadObsVariable(geneKey);
+  loadGeneIndices() {
+    const { geneIndex } = (this.options || {});
+    if (geneIndex) {
+      return this.dataSource.loadNumeric(geneIndex);
     }
     return Promise.resolve(null);
   }
@@ -69,12 +69,12 @@ export default class MoleculesZarrLoader extends AbstractTwoStepLoader {
   async load() {
     if (!this.molecules) {
       this.molecules = Promise.all([
-        //this.loadCellIds(),
-        //this.loadGeneIds(),
+        this.loadCellIndices(),
+        this.loadGeneIndices(),
         this.loadSpatial(),
         this.loadRgb(),
         this.dataSource.loadObsIndex(),
-      ]).then(([spatial, rgb, moleculeNames]) => {
+      ]).then(([cellIndices, geneIndices, spatial, rgb, moleculeNames]) => {
         const molecules = {};
         moleculeNames.forEach((name, i) => {
           molecules[name] = {};
@@ -84,14 +84,12 @@ export default class MoleculesZarrLoader extends AbstractTwoStepLoader {
           if (rgb) {
             molecules[name].rgb = rgb.data[i];
           }
-          /*
-          if (cellIds) {
-            molecules[name].cellId = cellIds.data[i];
+          if (cellIndices) {
+            molecules[name].cellIndex = cellIndices.data[i];
           }
-          if (geneIds) {
-            molecules[name].geneId = geneIds.data[i];
+          if (geneIndices) {
+            molecules[name].geneIndex = geneIndices.data[i];
           }
-          */
         });
         return molecules;
       });
