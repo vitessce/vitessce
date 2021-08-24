@@ -27,8 +27,12 @@ export default function HiGlassSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [width, height, containerRef] = useGridItemSize();
 
-  // eslint-disable-next-line no-unused-vars
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+  const [
+    isReady,
+    setItemIsReady, // eslint-disable-line no-unused-vars
+    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    resetReadyItems, // eslint-disable-line no-unused-vars
+  ] = useReady(
     HIGLASS_DATA_TYPES,
   );
   // eslint-disable-next-line no-unused-vars

@@ -1,7 +1,9 @@
 ## In Progress
 
 ### Added
+- Add loading callbacks for gene selection.
 - Added coordination types for selection of molecules.
+
 
 ### Changed
 - Updated `GeoJSON` loader to support the Baysor custom format.

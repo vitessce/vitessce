@@ -86,7 +86,7 @@ export const configs = {
         name: 'Baysor gut 2021',
         description: 'Petukhov et al. 2021, Cell segmentation in imaging-based spatial transcriptomics',
         files: [
-          {
+          /*{
             type: 'cells',
             fileType: 'geojson',
             url: 'http://localhost:8000/poly_per_z_0.json'
@@ -109,7 +109,7 @@ export const configs = {
               cellKey: "obs/cell_id",
               geneKey: "obs/gene_id"
             },
-          },
+          },*/
           {
             type: 'raster',
             fileType: 'raster.json',
@@ -118,6 +118,7 @@ export const configs = {
                 {
                   metadata: {
                     isBitmask: false,
+                    isPyramid: true,
                   },
                   name: "Stains",
                   type: "ome-tiff",
@@ -133,64 +134,19 @@ export const configs = {
     ],
     initStrategy: 'auto',
     coordinationSpace: {
-      spatialRasterLayers: {
-        A: [
-          {
-            index: 0,
-            type: 'raster',
-            domainType: 'Min/Max',
-            use3d: false,
-            visible: true,
-            transparentColor: null,
-            renderingMode: 'Additive',
-            colormap: null,
-            opacity: 1,
-            channels: [
-              {
-                selection: { c: 0, t: 0, z: 0 },
-                color: [0, 0, 255],
-                visible: true,
-                slider: [0, 255],
-              },
-              {
-                selection: { c: 1, t: 0, z: 0 },
-                color: [0, 255, 0],
-                visible: true,
-                slider: [0, 255],
-              },
-              {
-                selection: { c: 2, t: 0, z: 0 },
-                color: [255, 0, 0],
-                visible: true,
-                slider: [0, 255],
-              }
-            ]
-          }
-        ]
-      }
     },
     layout: [
       { component: 'description',
         x: 0, y: 0, w: 2, h: 2 },
       { component: 'layerController',
-        x: 0, y: 1, w: 2, h: 8,
-        coordinationScopes: {
-          spatialRasterLayers: "A",
-        }
-      },
+        x: 0, y: 1, w: 2, h: 8 },
       { component: 'status',
         x: 0, y: 10, w: 2, h: 2 },
-      { component: 'genes',
+      /*{ component: 'genes',
         x: 6, y: 0, w: 2, h: 12 },
       { component: 'heatmap',
-        x: 8, y: 0, w: 4, h: 12 },
+        x: 8, y: 0, w: 4, h: 12 },*/
       { component: 'spatial',
-        coordinationScopes: {
-          spatialZoom: 'A',
-          spatialTargetX: 'A',
-          spatialTargetY: 'A',
-          spatialRasterLayers: "A",
-        },
         x: 2, y: 0, w: 4, h: 12 },
     ],
   },

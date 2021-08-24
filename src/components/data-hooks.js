@@ -306,7 +306,14 @@ export function useExpressionMatrixData(
  * @returns {array} [geneData] where geneData is an array [Uint8Array, ..., Uint8Array]
  * for however many genes are in the selection.
  */
-export function useGeneSelection(loaders, dataset, setItemIsReady, isRequired, selection) {
+export function useGeneSelection(
+  loaders,
+  dataset,
+  setItemIsReady,
+  isRequired,
+  selection,
+  setItemIsNotReady,
+) {
   const [geneData, setGeneData] = useState();
 
   const setWarning = useSetWarning();
@@ -321,6 +328,7 @@ export function useGeneSelection(loaders, dataset, setItemIsReady, isRequired, s
     }
     const loader = loaders[dataset].loaders['expression-matrix'];
     if (loader) {
+      setItemIsNotReady('expression-matrix');
       const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
       if (implementsGeneSelection) {
         loaders[dataset].loaders['expression-matrix']
@@ -330,6 +338,7 @@ export function useGeneSelection(loaders, dataset, setItemIsReady, isRequired, s
             if (!payload) return;
             const { data } = payload;
             setGeneData(data);
+            setItemIsReady('expression-matrix');
           });
       } else {
         loader.load().catch(e => warn(e, setWarning)).then((payload) => {
@@ -347,6 +356,7 @@ export function useGeneSelection(loaders, dataset, setItemIsReady, isRequired, s
             return expressionData;
           });
           setGeneData(expressionDataForSelection);
+          setItemIsReady('expression-matrix');
         });
       }
     } else {
