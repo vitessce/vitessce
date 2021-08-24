@@ -89,20 +89,26 @@ export const configs = {
           {
             type: 'cells',
             fileType: 'geojson',
-            url: 'https://storage.googleapis.com/vitessce-demo-data/baysor-mouse-ileum/poly_per_z_0.json'
+            url: 'http://localhost:8000/poly_per_z_0.json'
           },
           {
             type: 'expression-matrix',
             fileType: 'anndata-expression-matrix.zarr',
-            url: 'https://storage.googleapis.com/vitessce-demo-data/baysor-mouse-ileum/segmentation.zarr',
+            url: 'http://localhost:8000/cells.zarr',
             options: {
               matrix: "X",
             }
           },
           {
             type: 'molecules',
-            fileType: 'molecules.json',
-            url: 'https://storage.googleapis.com/vitessce-demo-data/baysor-mouse-ileum/molecules.json'
+            fileType: 'anndata-molecules.zarr',
+            url: 'http://localhost:8000/molecules.zarr',
+            options: {
+              spatial: "obsm/spatial",
+              rgb: "obsm/rgb",
+              cellKey: "obs/cell_id",
+              geneKey: "obs/gene_id"
+            },
           },
           {
             type: 'raster',
@@ -115,7 +121,7 @@ export const configs = {
                   },
                   name: "Stains",
                   type: "ome-tiff",
-                  url: "https://storage.googleapis.com/vitessce-demo-data/baysor-mouse-ileum/stains/selected.ome.tiff"
+                  url: "http://localhost:8000/stains/selected.ome.tiff"
                 },
               ],
               schemaVersion: "0.0.2",
