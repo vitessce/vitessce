@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-// eslint-disable-next-line import/no-extraneous-dependencies
+/* eslint-disable import/no-extraneous-dependencies */
+import GL from '@luma.gl/constants';
 import { LayerExtension } from '@deck.gl/core';
 import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants';
 import module from './shader-module';
@@ -56,12 +57,18 @@ export default class ScaledExpressionExtension extends LayerExtension {
   initializeState() {
     const attributeManager = this.getAttributeManager();
     if (attributeManager) {
-      attributeManager.addInstanced({
+      attributeManager.add({
         instanceExpressionValue: {
+          type: GL.FLOAT,
           size: 1,
           transition: true,
           accessor: 'getExpressionValue',
           defaultValue: 1,
+          // Need to be clear that this is not instanced,
+          // probably because polygons are not uniformly sized,
+          // although this appears to be `undefined` when not set by default,
+          // which is not one of the options since this is a 0 - 1 boolean.
+          divisor: 0,
         },
       });
     }
