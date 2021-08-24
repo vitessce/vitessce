@@ -58,7 +58,7 @@ export default class ScaledExpressionExtension extends LayerExtension {
     const attributeManager = this.getAttributeManager();
     if (attributeManager) {
       attributeManager.add({
-        instanceExpressionValue: {
+        expressionValue: {
           type: GL.FLOAT,
           size: 1,
           transition: true,
@@ -75,6 +75,7 @@ export default class ScaledExpressionExtension extends LayerExtension {
   }
 
   draw() {
+    console.log(this) // eslint-disable-line 
     const {
       colorScaleLo,
       colorScaleHi,

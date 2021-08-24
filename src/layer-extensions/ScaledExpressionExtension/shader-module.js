@@ -24,7 +24,7 @@ const vs = glsl`
 #pragma glslify: winter = require("glsl-colormap/winter")
 
 // Custom attributes for Vitessce:
-attribute float instanceExpressionValue;
+attribute float expressionValue;
 
 // Custom uniforms for Vitessce:
 uniform vec2 uColorScaleRange;
@@ -35,8 +35,8 @@ uniform bool uIsExpressionMode;
 const inject = {
   'vs:DECKGL_FILTER_COLOR': `
     if(uIsExpressionMode) {
-      float expressionValue = instanceExpressionValue / 255.0;
-      float scaledExpressionValue = (expressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
+      float normalziedExpressionValue = expressionValue / 255.0;
+      float scaledExpressionValue = (normalziedExpressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
       color.rgb = COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)).rgb;
     }
   `,
