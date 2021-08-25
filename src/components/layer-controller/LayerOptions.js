@@ -8,47 +8,16 @@ import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 import { getDefaultInitialViewState } from '@hms-dbmi/viv';
 
-import { getBoundingCube, getMultiSelectionStats } from './utils';
+import {
+  getBoundingCube, getMultiSelectionStats, formatBytes,
+  getStatsForResolution,
+  canLoadResolution,
+} from './utils';
 import { COLORMAP_OPTIONS } from '../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
 import { StyledSelectionSlider } from './styles';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
-
-function formatBytes(bytes, decimals = 2) {
-  if (bytes === 0) return '0 Bytes';
-
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  // eslint-disable-next-line no-restricted-properties
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-}
-
-const getStatsForResolution = (loader, resolution) => {
-  const { shape, labels } = loader[resolution];
-  const height = shape[labels.indexOf('y')];
-  const width = shape[labels.indexOf('x')];
-  const depth = shape[labels.indexOf('z')];
-  const depthDownsampled = Math.floor(depth / (2 ** resolution));
-  // Check memory allocation limits for Float32Array (used in XR3DLayer for rendering)
-  const totalBytes = 4 * height * width * depthDownsampled;
-  return {
-    height, width, depthDownsampled, totalBytes,
-  };
-};
-
-const canLoadResolution = (loader, resolution) => {
-  const { totalBytes } = getStatsForResolution(loader, resolution);
-  const maxHeapSize = window.performance?.memory
-    && window.performance?.memory?.jsHeapSizeLimit / 2;
-  const maxSize = maxHeapSize || (2 ** 31) - 1;
-  return totalBytes < maxSize;
-};
-
 
 /**
  * Wrapper for the dropdown that selects a colormap (None, viridis, magma, etc.).
@@ -392,27 +361,32 @@ function LayerOptions({
   const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
   const hasZStack = shape[labels.indexOf('z')] > 1;
+  // Only show volume button if we can actually view resolutions.
+  const hasViewableResolutions = Boolean(Array.from({
+    length: loader.length,
+  }).filter((_, res) => canLoadResolution(loader, res)).length);
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       {hasZStack
         && !disable3d
+        && hasViewableResolutions
         && (
-        <VolumeDropdown
-          loader={loader}
-          handleSliderChange={handleSliderChange}
-          handleDomainChange={handleDomainChange}
-          channels={channels}
-          handleMultiPropertyChange={handleMultiPropertyChange}
-          resolution={resolution}
-          disable3d={disable3d}
-          setRasterLayerCallback={setRasterLayerCallback}
-          setAreAllChannelsLoading={setAreAllChannelsLoading}
-          setViewState={setViewState}
-          spatialHeight={spatialHeight}
-          spatialWidth={spatialWidth}
-          use3d={use3d}
-          modelMatrix={modelMatrix}
-        />
+          <VolumeDropdown
+            loader={loader}
+            handleSliderChange={handleSliderChange}
+            handleDomainChange={handleDomainChange}
+            channels={channels}
+            handleMultiPropertyChange={handleMultiPropertyChange}
+            resolution={resolution}
+            disable3d={disable3d}
+            setRasterLayerCallback={setRasterLayerCallback}
+            setAreAllChannelsLoading={setAreAllChannelsLoading}
+            setViewState={setViewState}
+            spatialHeight={spatialHeight}
+            spatialWidth={spatialWidth}
+            use3d={use3d}
+            modelMatrix={modelMatrix}
+          />
         )
       }
       {hasDimensionsAndChannels
