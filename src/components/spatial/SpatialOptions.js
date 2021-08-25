@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import debounce from 'lodash/debounce';
+
 import Checkbox from '@material-ui/core/Checkbox';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
@@ -65,6 +67,11 @@ export default function SpatialOptions(props) {
   function handleColormapRangeChange(event, value) {
     setGeneExpressionColormapRange(value);
   }
+  const handleColormapRangeChangeDebounced = useCallback(
+    debounce(handleColormapRangeChange, 5, { trailing: true }),
+    [handleColormapRangeChange],
+  );
+
   const classes = useStyles();
 
   return (
@@ -107,7 +114,7 @@ export default function SpatialOptions(props) {
           <Slider
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={geneExpressionColormapRange}
-            onChange={handleColormapRangeChange}
+            onChange={handleColormapRangeChangeDebounced}
             aria-labelledby="gene-expression-colormap-range-slider"
             valueLabelDisplay="auto"
             step={0.005}

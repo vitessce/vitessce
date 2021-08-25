@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import debounce from 'lodash/debounce';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slider from '@material-ui/core/Slider';
 import TableCell from '@material-ui/core/TableCell';
@@ -74,6 +75,10 @@ export default function ScatterplotOptions(props) {
   function handleColormapRangeChange(event, value) {
     setGeneExpressionColormapRange(value);
   }
+  const handleColormapRangeChangeDebounced = useCallback(
+    debounce(handleColormapRangeChange, 5, { trailing: true }),
+    [handleColormapRangeChange],
+  );
 
   return (
     <OptionsContainer>
@@ -230,7 +235,7 @@ export default function ScatterplotOptions(props) {
           <Slider
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={geneExpressionColormapRange}
-            onChange={handleColormapRangeChange}
+            onChange={handleColormapRangeChangeDebounced}
             aria-labelledby="gene-expression-colormap-range-slider"
             valueLabelDisplay="auto"
             step={0.005}
