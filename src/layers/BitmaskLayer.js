@@ -29,11 +29,14 @@ export default class BitmaskLayer extends XRLayer {
   getShaders() {
     const { colormap } = this.props;
     return {
-      fs: GLSL_COLORMAPS.includes(colormap)
-        ? fs.replace(COLORMAP_SHADER_PLACEHOLDER, colormap)
-        : fs.replace(COLORMAP_SHADER_PLACEHOLDER, GLSL_COLORMAP_DEFAULT),
+      fs,
       vs,
       modules: [project32, picking],
+      defines: {
+        [COLORMAP_SHADER_PLACEHOLDER]: GLSL_COLORMAPS.includes(colormap)
+          ? colormap
+          : GLSL_COLORMAP_DEFAULT,
+      },
     };
   }
 
