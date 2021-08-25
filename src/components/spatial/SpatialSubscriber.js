@@ -229,9 +229,15 @@ export default function SpatialSubscriber(props) {
   }), [cellColorEncoding, geneSelection, mergedCellSets,
     cellSetColor, cellSetSelection, expressionData, attrs]);
 
-  const shiftedExpressionData = useMemo(() => {
-    if (attrs?.rows && expressionData) {
-      const result = new Uint8Array(Number(attrs.rows[attrs.rows.length - 1]) + 1);
+  // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
+  // where each cell id indexes into the array.
+  // Cell ids in `attrs.rows` do not necessaryily correspond to indices in that array, though,
+  // so we create a "shifted" array where this is the case.
+  const shiftedExpressionDataForBitmask = useMemo(() => {
+    const hasBitmask = imageLayerMeta.some(l => l?.metadata?.isBitmask);
+    if (attrs?.rows && expressionData && hasBitmask) {
+      const maxId = attrs.rows.reduce((max, curr) => Math.max(max, Number(curr)));
+      const result = new Uint8Array(maxId + 1);
       // eslint-disable-next-line no-plusplus
       for (let i = 0; i < attrs.rows.length; i++) {
         const id = attrs.rows[i];
@@ -239,7 +245,7 @@ export default function SpatialSubscriber(props) {
       }
       return [result];
     } return [new Uint8Array()];
-  }, [attrs, expressionData]);
+  }, [attrs, expressionData, imageLayerMeta]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
@@ -339,7 +345,7 @@ export default function SpatialSubscriber(props) {
         spatialAxisFixed={spatialAxisFixed}
         geneExpressionColormap={geneExpressionColormap}
         geneExpressionColormapRange={geneExpressionColormapRange}
-        expressionData={shiftedExpressionData}
+        expressionData={shiftedExpressionDataForBitmask}
         cellColorEncoding={cellColorEncoding}
       />
       {!disableTooltip && (
