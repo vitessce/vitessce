@@ -552,7 +552,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     if ([
-      'layers', 'cells', 'cellFilter', 'cellSelection', 'cellColors',
+      'layers',
+      'cells',
+      'cellFilter',
+      'cellSelection',
+      'cellColors',
+      'geneExpressionColormapRange',
+      'cellColorEncoding',
+      'geneExpressionColormap',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
