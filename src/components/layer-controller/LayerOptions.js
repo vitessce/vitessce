@@ -371,22 +371,22 @@ function LayerOptions({
         && !disable3d
         && hasViewableResolutions
         && (
-          <VolumeDropdown
-            loader={loader}
-            handleSliderChange={handleSliderChange}
-            handleDomainChange={handleDomainChange}
-            channels={channels}
-            handleMultiPropertyChange={handleMultiPropertyChange}
-            resolution={resolution}
-            disable3d={disable3d}
-            setRasterLayerCallback={setRasterLayerCallback}
-            setAreAllChannelsLoading={setAreAllChannelsLoading}
-            setViewState={setViewState}
-            spatialHeight={spatialHeight}
-            spatialWidth={spatialWidth}
-            use3d={use3d}
-            modelMatrix={modelMatrix}
-          />
+        <VolumeDropdown
+          loader={loader}
+          handleSliderChange={handleSliderChange}
+          handleDomainChange={handleDomainChange}
+          channels={channels}
+          handleMultiPropertyChange={handleMultiPropertyChange}
+          resolution={resolution}
+          disable3d={disable3d}
+          setRasterLayerCallback={setRasterLayerCallback}
+          setAreAllChannelsLoading={setAreAllChannelsLoading}
+          setViewState={setViewState}
+          spatialHeight={spatialHeight}
+          spatialWidth={spatialWidth}
+          use3d={use3d}
+          modelMatrix={modelMatrix}
+        />
         )
       }
       {hasDimensionsAndChannels
