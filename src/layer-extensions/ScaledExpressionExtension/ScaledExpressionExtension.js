@@ -28,24 +28,31 @@ export default class ScaledExpressionExtension extends LayerExtension {
     };
   }
 
-  /**
-   * Invalidate the shaders if the colormap has changed, since the new
-   * shader needs string replacement.
-   * Reference: https://github.com/visgl/deck.gl/blob/f3b2aab/modules/layers/src/scatterplot-layer/scatterplot-layer.js#L102
-   * Reference: https://github.com/hms-dbmi/viv/blob/7e113ab2a8551fd7b2807318e1df1788aab3dad4/src/layers/XRLayer/XRLayer.js#L145
-   * @param {object} param0
-   */
   updateState({ props, oldProps }) {
     if (props.colormap !== oldProps.colormap) {
       const { gl } = this.context;
+      // Normal single model layers, like ScatterplotLayer
       if (this.state.model) {
         // eslint-disable-next-line no-unused-expressions
         this.state.model?.delete();
         this.state.model = this._getModel(gl);
-      } else if (this.state.models) {
-        // eslint-disable-next-line no-unused-expressions
-        this.state.models?.forEach(model => model?.delete());
-        this.setState(this._getModels(this.context.gl));
+      } else {
+        // Special handling for PolygonLayer sublayer models.
+        if (this.state.models) {
+          // eslint-disable-next-line no-unused-expressions
+          this.state.models?.forEach(model => model?.delete());
+        }
+        if (this.state.topModel) {
+           // eslint-disable-next-line no-unused-expressions
+           this.state.topModel?.delete();
+        }
+        if (this.state.sideModel) {
+           // eslint-disable-next-line no-unused-expressions
+           this.state.sideModel?.delete();
+        }
+        if (this._getModels) {
+          this.setState(this._getModels(this.context.gl));
+        }
       }
       const attributeManager = this.getAttributeManager();
       if (attributeManager) {
@@ -57,6 +64,8 @@ export default class ScaledExpressionExtension extends LayerExtension {
   initializeState(context, extension) {
     const attributeManager = this.getAttributeManager();
     if (attributeManager) {
+      // This attributes is the array of expression data needed for
+      // coloring cells against the colormap.
       attributeManager.add({
         expressionValue: {
           type: GL.FLOAT,
@@ -81,14 +90,14 @@ export default class ScaledExpressionExtension extends LayerExtension {
     const {
       topModel, sideModel, models, model,
     } = this.state;
-    // scatterplot-layer model
+    // ScatterplotLayer model
     // eslint-disable-next-line no-unused-expressions
     model?.setUniforms({
       uColorScaleRange: [colorScaleLo, colorScaleHi],
       uIsExpressionMode: isExpressionMode,
     });
 
-    // polygon-layer models from sublayers
+    // PolygonLayer models from sublayers
     // eslint-disable-next-line no-unused-expressions
     models?.forEach(m => m.setUniforms({
       uColorScaleRange: [colorScaleLo, colorScaleHi],
