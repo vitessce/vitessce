@@ -116,7 +116,12 @@ export default function SpatialSubscriber(props) {
   const use3d = rasterLayers?.some(l => l.use3d);
 
   const [urls, addUrl, resetUrls] = useUrls();
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+  const [
+    isReady,
+    setItemIsReady,
+    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    resetReadyItems,
+  ] = useReady(
     SPATIAL_DATA_TYPES,
   );
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -151,7 +156,7 @@ export default function SpatialSubscriber(props) {
     { cellSetSelection, cellSetColor },
   );
   const [expressionData] = useGeneSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection,
+    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
   const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,

@@ -93,7 +93,12 @@ export default function HeatmapSubscriber(props) {
   const variablesTitle = capitalize(variablesPluralLabel);
 
   const [isRendering, setIsRendering] = useState(false);
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+  const [
+    isReady,
+    setItemIsReady,
+    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    resetReadyItems,
+  ] = useReady(
     HEATMAP_DATA_TYPES,
   );
   const [urls, addUrl, resetUrls] = useUrls();
@@ -112,7 +117,7 @@ export default function HeatmapSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, true,
   );
   const [expressionData] = useGeneSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection,
+    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
