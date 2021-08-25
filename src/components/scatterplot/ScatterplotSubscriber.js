@@ -5,7 +5,9 @@ import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import {
+  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
+} from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
 import {
@@ -257,29 +259,9 @@ export default function ScatterplotSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
-  // Get a mapping from cell ID to row index in the gene expression matrix.
-  const cellIdMap = useMemo(() => {
-    const result = {};
-    if (attrs && attrs.rows) {
-      // eslint-disable-next-line no-plusplus
-      for (let i = 0; i < attrs.rows.length; i++) {
-        result[attrs.rows[i]] = i;
-      }
-    }
-    return result;
-  }, [attrs]);
-
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useCallback((entry) => {
-    const cellId = entry[0];
-    if (cellIdMap && expressionData && expressionData[0]) {
-      const cellIndex = cellIdMap[cellId];
-      const val = expressionData[0][cellIndex];
-      return val;
-    }
-    return 0;
-  }, [cellIdMap, expressionData]);
+  const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
 
   return (
     <TitleInfo
