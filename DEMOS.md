@@ -93,3 +93,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-08-10: [release_1.1.13](https://s3.amazonaws.com/vitessce-data/demos/2021-08-10/34a77a03/index.html)
 >>>>>>> 451a467c237feabe5efe2a7b12739a821f8cbfca
 - 2021-08-19: [keller-mark/baysor-support](https://s3.amazonaws.com/vitessce-data/demos/2021-08-19/bdee94ce/index.html)
+- 2021-08-24: [keller-mark/baysor-anndata-molecules](https://s3.amazonaws.com/vitessce-data/demos/2021-08-24/f02537ff/index.html)
