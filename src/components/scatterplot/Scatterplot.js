@@ -126,15 +126,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       isSelected: getCellIsSelected,
       opacity: cellOpacity,
       radiusScale: cellRadius,
-      radiusMinPixels: 0,
-      radiusMaxPixels: 10,
+      radiusMinPixels: 1,
+      radiusMaxPixels: 30,
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
       getPosition: getCellPosition,
       getFillColor: getCellColor,
       getLineColor: getCellColor,
-      // This seems to be the best value so the `auto` value seems to make sense.
-      getRadius: 2,
+      getRadius: 1,
       getExpressionValue,
       getLineWidth: 0,
       extensions: [new ScaledExpressionExtension({ instanced: true })],
