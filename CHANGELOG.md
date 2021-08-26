@@ -4,6 +4,7 @@
 - Add loading callbacks for gene selection.
 
 ### Changed
+- Prevent heatmap re-ordering when gene selection is made.
 
 ## [1.1.13](https://www.npmjs.com/package/vitessce/v/1.1.13) - 2021-08-10
 
