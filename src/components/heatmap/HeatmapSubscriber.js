@@ -9,7 +9,6 @@ import {
   useCellsData,
   useCellSetsData,
   useExpressionMatrixData,
-  useGeneSelection,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import {
@@ -73,7 +72,6 @@ export default function HeatmapSubscriber(props) {
     geneHighlight,
     cellSetSelection,
     cellSetColor,
-    cellColorEncoding,
     additionalCellSets,
     geneExpressionColormap,
     geneExpressionColormapRange,
@@ -116,9 +114,6 @@ export default function HeatmapSubscriber(props) {
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
-  const [expressionData] = useGeneSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
-  );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setCellSetSelection, setCellSetColor },
@@ -130,15 +125,15 @@ export default function HeatmapSubscriber(props) {
   ), [cellSets, additionalCellSets]);
 
   const cellColors = useMemo(() => getCellColors({
-    cellColorEncoding,
-    expressionData: expressionData && expressionData[0],
+    // Only show cell set selection on heatmap labels.
+    cellColorEncoding: 'cellSetSelection',
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
     expressionDataAttrs: expressionMatrix,
-  }), [cellColorEncoding, mergedCellSets, geneSelection,
-    cellSetColor, cellSetSelection, expressionData, expressionMatrix]);
+  }), [mergedCellSets, geneSelection,
+    cellSetColor, cellSetSelection, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
