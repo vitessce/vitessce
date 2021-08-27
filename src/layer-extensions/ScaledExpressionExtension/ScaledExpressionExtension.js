@@ -2,7 +2,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import GL from '@luma.gl/constants';
 import { LayerExtension } from '@deck.gl/core';
-import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants';
+import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from '../../layers/constants';
 import module from './shader-module';
 
 const defaultProps = {
