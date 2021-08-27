@@ -44,7 +44,7 @@ export function cellLayerDefaultProps(cells, updateStatus, setCellHighlight, set
   };
 }
 
-export const DEFAULT_COLOR = [128, 128, 128];
+export const DEFAULT_COLOR = [50, 50, 50];
 
 // From https://personal.sron.nl/~pault/#sec:qualitative
 export const PALETTE = [
