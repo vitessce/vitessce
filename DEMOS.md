@@ -90,3 +90,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-08-10: [release_1.1.13](https://s3.amazonaws.com/vitessce-data/demos/2021-08-10/34a77a03/index.html)
 - 2021-08-19: [keller-mark/overplot-opacity](https://s3.amazonaws.com/vitessce-data/demos/2021-08-19/67c6243e/index.html)
 - 2021-08-27: [ilan-gold/selection_layer_extension](https://s3.amazonaws.com/vitessce-data/demos/2021-08-27/500d5dc8/index.html)
+- 2021-08-27: [ilan-gold/selection_layer_extension](https://s3.amazonaws.com/vitessce-data/demos/2021-08-27/c92acec4/index.html)
