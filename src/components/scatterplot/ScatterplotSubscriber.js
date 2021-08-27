@@ -257,10 +257,8 @@ export default function ScatterplotSubscriber(props) {
   }, [cells, observationsLabel]);
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
-  const getCellIsSelected = useCallback((cellEntry) => {
-    if(Math.floor(Math.random() * 1000) % 100 === 0) console.log((cellSelectionSet || new Set([])).has(cellEntry[0]) ? 1.0 : 0.0) // eslint-disable-line
-    return (cellSelectionSet || new Set([])).has(cellEntry[0]) ? 1.0 : 0.0;
-  }, [cellSelectionSet]);
+  const getCellIsSelected = useCallback(cellEntry => (
+    (cellSelectionSet || new Set([])).has(cellEntry[0]) ? 1.0 : 0.0), [cellSelectionSet]);
 
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
