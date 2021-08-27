@@ -8,7 +8,6 @@ import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { max } from 'd3-array';
-import HeatmapControls from './HeatmapControls';
 import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
 import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
@@ -75,7 +74,6 @@ const Heatmap = forwardRef((props, deckRef) => {
     cellColors,
     colormap,
     colormapRange,
-    setColormapRange,
     clearPleaseWait,
     setComponentHover,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
@@ -505,67 +503,61 @@ const Heatmap = forwardRef((props, deckRef) => {
   }
 
   return (
-    <>
-      <DeckGL
-        id={`deckgl-overlay-${uuid}`}
-        ref={deckRef}
-        views={[
-          // Note that there are multiple views here,
-          // but only one viewState.
-          new OrthographicView({
-            id: 'heatmap',
-            controller: true,
-            x: offsetLeft,
-            y: offsetTop,
-            width: matrixWidth,
-            height: matrixHeight,
-          }),
-          new OrthographicView({
-            id: 'axisLeft',
-            controller: false,
-            x: (transpose ? COLOR_BAR_SIZE : 0),
-            y: offsetTop,
-            width: axisOffsetLeft,
-            height: matrixHeight,
-          }),
-          new OrthographicView({
-            id: 'axisTop',
-            controller: false,
-            x: offsetLeft,
-            y: (transpose ? 0 : COLOR_BAR_SIZE),
-            width: matrixWidth,
-            height: axisOffsetTop,
-          }),
-          new OrthographicView({
-            id: 'colorsLeft',
-            controller: false,
-            x: axisOffsetLeft,
-            y: offsetTop,
-            width: COLOR_BAR_SIZE - AXIS_MARGIN,
-            height: matrixHeight,
-          }),
-          new OrthographicView({
-            id: 'colorsTop',
-            controller: false,
-            x: offsetLeft,
-            y: axisOffsetTop,
-            width: matrixWidth,
-            height: COLOR_BAR_SIZE - AXIS_MARGIN,
-          }),
-        ]}
-        layers={layers}
-        layerFilter={layerFilter}
-        getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
-        glOptions={DEFAULT_GL_OPTIONS}
-        onViewStateChange={onViewStateChange}
-        viewState={viewState}
-        onHover={onHover}
-      />
-      <HeatmapControls
-        colormapRange={colormapRange}
-        setColormapRange={setColormapRange}
-      />
-    </>
+    <DeckGL
+      id={`deckgl-overlay-${uuid}`}
+      ref={deckRef}
+      views={[
+        // Note that there are multiple views here,
+        // but only one viewState.
+        new OrthographicView({
+          id: 'heatmap',
+          controller: true,
+          x: offsetLeft,
+          y: offsetTop,
+          width: matrixWidth,
+          height: matrixHeight,
+        }),
+        new OrthographicView({
+          id: 'axisLeft',
+          controller: false,
+          x: (transpose ? COLOR_BAR_SIZE : 0),
+          y: offsetTop,
+          width: axisOffsetLeft,
+          height: matrixHeight,
+        }),
+        new OrthographicView({
+          id: 'axisTop',
+          controller: false,
+          x: offsetLeft,
+          y: (transpose ? 0 : COLOR_BAR_SIZE),
+          width: matrixWidth,
+          height: axisOffsetTop,
+        }),
+        new OrthographicView({
+          id: 'colorsLeft',
+          controller: false,
+          x: axisOffsetLeft,
+          y: offsetTop,
+          width: COLOR_BAR_SIZE - AXIS_MARGIN,
+          height: matrixHeight,
+        }),
+        new OrthographicView({
+          id: 'colorsTop',
+          controller: false,
+          x: offsetLeft,
+          y: axisOffsetTop,
+          width: matrixWidth,
+          height: COLOR_BAR_SIZE - AXIS_MARGIN,
+        }),
+      ]}
+      layers={layers}
+      layerFilter={layerFilter}
+      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
+      glOptions={DEFAULT_GL_OPTIONS}
+      onViewStateChange={onViewStateChange}
+      viewState={viewState}
+      onHover={onHover}
+    />
   );
 });
 

@@ -20,6 +20,7 @@ import {
 } from '../../app/state/coordination';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
+import HeatmapOptions from './HeatmapOptions';
 
 const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 
@@ -85,6 +86,7 @@ export default function HeatmapSubscriber(props) {
     setCellSetSelection,
     setCellSetColor,
     setGeneExpressionColormapRange,
+    setGeneExpressionColormap,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
 
   const observationsTitle = capitalize(observationsPluralLabel);
@@ -167,6 +169,14 @@ export default function HeatmapSubscriber(props) {
       theme={theme}
       removeGridComponent={removeGridComponent}
       isReady={isReady && !isRendering}
+      options={(
+        <HeatmapOptions
+          geneExpressionColormap={geneExpressionColormap}
+          setGeneExpressionColormap={setGeneExpressionColormap}
+          geneExpressionColormapRange={geneExpressionColormapRange}
+          setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+        />
+      )}
     >
       <Heatmap
         ref={deckRef}
