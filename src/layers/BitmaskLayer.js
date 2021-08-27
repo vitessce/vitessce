@@ -44,7 +44,8 @@ export default class BitmaskLayer extends XRLayer {
     super.updateState({ props, oldProps, changeFlags });
     if (props.cellColorData !== oldProps.cellColorData) {
       this.setColorTexture();
-    } if (props.expressionData !== oldProps.expressionData) {
+    }
+    if (props.expressionData !== oldProps.expressionData) {
       const { expressionData, cellTexHeight, cellTexWidth } = this.props;
       const expressionTex = this.dataToTexture(
         expressionData,
@@ -52,7 +53,8 @@ export default class BitmaskLayer extends XRLayer {
         cellTexHeight,
       );
       this.setState({ expressionTex });
-    } if (props.colormap !== oldProps.colormap) {
+    }
+    if (props.colormap !== oldProps.colormap) {
       const { gl } = this.context;
       if (this.state.model) {
         this.state.model.delete();
