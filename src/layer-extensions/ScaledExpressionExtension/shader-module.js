@@ -35,8 +35,8 @@ uniform bool uIsExpressionMode;
 const inject = {
   'vs:DECKGL_FILTER_COLOR': `
     if(uIsExpressionMode) {
-      float normalziedExpressionValue = expressionValue / 255.0;
-      float scaledExpressionValue = (normalziedExpressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
+      float normalizedExpressionValue = expressionValue / 255.0;
+      float scaledExpressionValue = (normalizedExpressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
       color.rgb = COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)).rgb;
     }
   `,

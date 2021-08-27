@@ -2,7 +2,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import GL from '@luma.gl/constants';
 import { LayerExtension } from '@deck.gl/core';
-import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants';
+import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from '../../layers/constants';
 import module from './shader-module';
 
 const defaultProps = {
@@ -15,7 +15,6 @@ const defaultProps = {
 };
 
 export default class ScaledExpressionExtension extends LayerExtension {
-  // eslint-disable-next-line class-methods-use-this
   getShaders() {
     const { colormap } = this.props;
     return {
@@ -90,29 +89,21 @@ export default class ScaledExpressionExtension extends LayerExtension {
     const {
       topModel, sideModel, models, model,
     } = this.state;
-    // ScatterplotLayer model
-    // eslint-disable-next-line no-unused-expressions
-    model?.setUniforms({
+    const uniforms = {
       uColorScaleRange: [colorScaleLo, colorScaleHi],
       uIsExpressionMode: isExpressionMode,
-    });
+    };
+    // ScatterplotLayer model
+    // eslint-disable-next-line no-unused-expressions
+    model?.setUniforms(uniforms);
 
     // PolygonLayer models from sublayers
     // eslint-disable-next-line no-unused-expressions
-    models?.forEach(m => m.setUniforms({
-      uColorScaleRange: [colorScaleLo, colorScaleHi],
-      uIsExpressionMode: isExpressionMode,
-    }));
+    models?.forEach(m => m.setUniforms(uniforms));
     // eslint-disable-next-line no-unused-expressions
-    topModel?.setUniforms({
-      uColorScaleRange: [colorScaleLo, colorScaleHi],
-      uIsExpressionMode: isExpressionMode,
-    });
+    topModel?.setUniforms(uniforms);
     // eslint-disable-next-line no-unused-expressions
-    sideModel?.setUniforms({
-      uColorScaleRange: [colorScaleLo, colorScaleHi],
-      uIsExpressionMode: isExpressionMode,
-    });
+    sideModel?.setUniforms(uniforms);
   }
 }
 
