@@ -232,7 +232,7 @@ export default function ScatterplotSubscriber(props) {
       setDynamicCellRadius(pointSizeDevicePixels);
 
       const nextCellOpacityScale = getPointOpacity(
-        zoom, width, height, numCells, averageFillDensity,
+        zoom, xRange, yRange, width, height, numCells, averageFillDensity,
       );
       setDynamicCellOpacity(nextCellOpacityScale);
 
