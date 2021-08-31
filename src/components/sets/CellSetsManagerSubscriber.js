@@ -555,7 +555,7 @@ export default function CellSetsManagerSubscriber(props) {
   function onExportLevelZeroNodeJSON(nodePath) {
     const {
       treeToExport, nodeName,
-    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL, cellSetColor);
+    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL, cellSetColor, theme);
     downloadForUser(
       handleExportJSON(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_JSON}`,
@@ -566,7 +566,7 @@ export default function CellSetsManagerSubscriber(props) {
   function onExportLevelZeroNodeTabular(nodePath) {
     const {
       treeToExport, nodeName,
-    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL, cellSetColor);
+    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL, cellSetColor, theme);
     downloadForUser(
       handleExportTabular(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_TABULAR}`,
@@ -622,6 +622,7 @@ export default function CellSetsManagerSubscriber(props) {
         hasCheckedSetsToUnion={cellSetSelection?.length > 1}
         hasCheckedSetsToIntersect={cellSetSelection?.length > 1}
         hasCheckedSetsToComplement={cellSetSelection?.length > 0}
+        theme={theme}
       />
     </TitleInfo>
   );

@@ -174,7 +174,8 @@ export default function ScatterplotSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     expressionDataAttrs: attrs,
-  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    theme,
+  }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
     cellSetSelection, cellSetColor, expressionData, attrs]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
@@ -194,12 +195,13 @@ export default function ScatterplotSubscriber(props) {
         cellSets: mergedCellSets,
         cellSetSelection,
         cellSetColor,
+        theme,
       });
       setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
       return newCellSetPolygons;
     }
     return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
-  }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible,
+  }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
     cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
 
 
@@ -255,6 +257,10 @@ export default function ScatterplotSubscriber(props) {
       ...(cellInfo ? cellInfo.factors : {}),
     };
   }, [cells, observationsLabel]);
+
+  const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
+  const getCellIsSelected = useCallback(cellEntry => (
+    (cellSelectionSet || new Set([])).has(cellEntry[0]) ? 1.0 : 0.0), [cellSelectionSet]);
 
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
@@ -331,6 +337,8 @@ export default function ScatterplotSubscriber(props) {
         }}
         updateViewInfo={setComponentViewInfo}
         getExpressionValue={getExpressionValue}
+        getCellIsSelected={getCellIsSelected}
+
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber

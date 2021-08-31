@@ -5,7 +5,7 @@ import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disa
 import { Matrix4 } from 'math.gl';
 import { ScaleBarLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
 import { getSelectionLayers } from '../../layers';
-import { cellLayerDefaultProps, PALETTE, DEFAULT_COLOR } from '../utils';
+import { cellLayerDefaultProps, PALETTE, getDefaultColor } from '../utils';
 import { getSourceFromLoader } from '../../utils';
 import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
@@ -24,8 +24,8 @@ const makeDefaultGetCellPolygon = radius => (cellEntry) => {
   const cell = cellEntry[1];
   return cell.poly?.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
 };
-const makeDefaultGetCellColors = cellColors => (cellEntry) => {
-  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR;
+const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
+  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 const makeDefaultGetCellIsSelected = (cellSelection) => {
@@ -71,6 +71,7 @@ const makeDefaultGetCellIsSelected = (cellSelection) => {
  * @param {function} props.updateViewInfo Handler for DeckGL viewport updates,
  * used when rendering tooltips and crosshairs.
  * @param {function} props.onCellClick Getter function for cell layer onClick.
+ * @param {string} props.theme "light" or "dark" for the vitessce theme
  */
 class Spatial extends AbstractSpatialOrScatterplot {
   constructor(props) {
@@ -122,6 +123,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = layerDef;
     const { cellsEntries } = this;
     const {
+      theme,
       cellFilter,
       cellSelection,
       setCellHighlight,
@@ -130,7 +132,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         cellsEntries.length === cellSelection.length ? null : cellSelection,
       ),
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors),
+      getCellColor = makeDefaultGetCellColors(cellColors, theme),
       getCellPolygon = makeDefaultGetCellPolygon(radius),
       onCellClick,
       lineWidthScale = 10,

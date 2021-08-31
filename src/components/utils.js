@@ -44,7 +44,12 @@ export function cellLayerDefaultProps(cells, updateStatus, setCellHighlight, set
   };
 }
 
-export const DEFAULT_COLOR = [128, 128, 128];
+export const DEFAULT_DARK_COLOR = [50, 50, 50];
+export const DEFAULT_LIGHT_COLOR = [200, 200, 200];
+
+export function getDefaultColor(theme) {
+  return theme === 'dark' ? DEFAULT_DARK_COLOR : DEFAULT_LIGHT_COLOR;
+}
 
 // From https://personal.sron.nl/~pault/#sec:qualitative
 export const PALETTE = [

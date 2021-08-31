@@ -228,7 +228,8 @@ export default function SpatialSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     expressionDataAttrs: attrs,
-  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    theme,
+  }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
     cellSetColor, cellSetSelection, expressionData, attrs]);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
@@ -355,6 +356,7 @@ export default function SpatialSubscriber(props) {
         expressionData={shiftedExpressionDataForBitmask}
         cellColorEncoding={cellColorEncoding}
         getExpressionValue={getExpressionValue}
+        theme={theme}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber
