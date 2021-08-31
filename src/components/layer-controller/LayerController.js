@@ -22,7 +22,10 @@ import {
   StyledInputLabel,
   OverflowEllipsisGrid,
 } from './styles';
-import { getMultiSelectionStats } from './utils';
+import {
+  getMultiSelectionStats,
+  canLoadResolution,
+} from './utils';
 
 import { GLOBAL_LABELS } from '../spatial/constants';
 import { getSourceFromLoader, isRgb } from '../../utils';
@@ -368,7 +371,10 @@ export default function LayerController(props) {
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
   // Only show Volume tabs if 3D is available.
-  const useVolumeTabs = !disable3d && shape[labels.indexOf('z')] > 1;
+  const hasViewableResolutions = Boolean(Array.from({
+    length: loader.length,
+  }).filter((_, res) => canLoadResolution(loader, res)).length);
+  const useVolumeTabs = !disable3d && shape[labels.indexOf('z')] > 1 && hasViewableResolutions;
   const FullController = (
     <>
       <LayerOptions
