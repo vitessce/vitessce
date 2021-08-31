@@ -16,6 +16,8 @@ describe('<Heatmap/>', () => {
         theme="dark"
         width={100}
         height={100}
+        colormap="plasma"
+        colormapRange={[0.0, 1.0]}
         expressionMatrix={expressionMatrix}
         cellColors={cellColors}
         transpose

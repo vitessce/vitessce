@@ -2,11 +2,12 @@ import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
 import { extent } from 'd3-array';
-import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import {
+  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
+} from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
 import {
@@ -25,6 +26,10 @@ import {
   useSetComponentHover,
   useSetComponentViewInfo,
 } from '../../app/state/hooks';
+import {
+  getPointSizeDevicePixels,
+  getPointOpacity,
+} from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
@@ -40,6 +45,8 @@ const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title An override value for the component title.
+ * @param {number} props.averageFillDensity Override the average fill density calculation
+ * when using dynamic opacity mode.
  */
 export default function ScatterplotSubscriber(props) {
   const {
@@ -51,6 +58,8 @@ export default function ScatterplotSubscriber(props) {
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
     title: titleOverride,
+    // Average fill density for dynamic opacity calculation.
+    averageFillDensity,
   } = props;
 
   const loaders = useLoaders();
@@ -75,7 +84,12 @@ export default function ScatterplotSubscriber(props) {
     embeddingCellSetPolygonsVisible: cellSetPolygonsVisible,
     embeddingCellSetLabelsVisible: cellSetLabelsVisible,
     embeddingCellSetLabelSize: cellSetLabelSize,
-    embeddingCellRadius: cellRadius,
+    embeddingCellRadius: cellRadiusFixed,
+    embeddingCellRadiusMode: cellRadiusMode,
+    embeddingCellOpacity: cellOpacityFixed,
+    embeddingCellOpacityMode: cellOpacityMode,
+    geneExpressionColormap,
+    geneExpressionColormapRange,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -90,7 +104,12 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingCellSetPolygonsVisible: setCellSetPolygonsVisible,
     setEmbeddingCellSetLabelsVisible: setCellSetLabelsVisible,
     setEmbeddingCellSetLabelSize: setCellSetLabelSize,
-    setEmbeddingCellRadius: setCellRadius,
+    setEmbeddingCellRadius: setCellRadiusFixed,
+    setEmbeddingCellRadiusMode: setCellRadiusMode,
+    setEmbeddingCellOpacity: setCellOpacityFixed,
+    setEmbeddingCellOpacityMode: setCellOpacityMode,
+    setGeneExpressionColormap,
+    setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -130,7 +149,9 @@ export default function ScatterplotSubscriber(props) {
   const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
-  const [cellRadiusScale, setCellRadiusScale] = useState(0.2);
+
+  const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
+  const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
@@ -153,7 +174,8 @@ export default function ScatterplotSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     expressionDataAttrs: attrs,
-  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    theme,
+  }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
     cellSetSelection, cellSetColor, expressionData, attrs]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
@@ -173,35 +195,48 @@ export default function ScatterplotSubscriber(props) {
         cellSets: mergedCellSets,
         cellSetSelection,
         cellSetColor,
+        theme,
       });
       setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
       return newCellSetPolygons;
     }
     return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
-  }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible,
+  }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
     cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
 
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
-  // After cells have loaded or changed,
-  // compute the cell radius scale based on the
-  // extents of the cell coordinates on the x/y axes.
-  useEffect(() => {
+  const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     const cellValues = cells && Object.values(cells);
     if (cellValues?.length) {
       const cellCoordinates = Object.values(cells)
         .map(c => c.mappings[mapping]);
-      const xExtent = extent(cellCoordinates, c => c[0]);
-      const yExtent = extent(cellCoordinates, c => c[1]);
-      const xRange = xExtent[1] - xExtent[0];
-      const yRange = yExtent[1] - yExtent[0];
-      const diagonalLength = Math.sqrt((xRange ** 2) + (yRange ** 2));
-      // The 300 value here is a heuristic.
-      const newScale = clamp(diagonalLength / 300, 0, 0.2);
-      if (newScale) {
-        setCellRadiusScale(newScale);
-      } if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+      const xE = extent(cellCoordinates, c => c[0]);
+      const yE = extent(cellCoordinates, c => c[1]);
+      const xR = xE[1] - xE[0];
+      const yR = yE[1] - yE[0];
+      return [xR, yR, xE, yE, cellValues.length];
+    }
+    return [null, null, null, null, null];
+  }, [cells, mapping]);
+
+  // After cells have loaded or changed,
+  // compute the cell radius scale based on the
+  // extents of the cell coordinates on the x/y axes.
+  useEffect(() => {
+    if (xRange && yRange) {
+      const pointSizeDevicePixels = getPointSizeDevicePixels(
+        window.devicePixelRatio, zoom, xRange, yRange, width, height,
+      );
+      setDynamicCellRadius(pointSizeDevicePixels);
+
+      const nextCellOpacityScale = getPointOpacity(
+        zoom, xRange, yRange, width, height, numCells, averageFillDensity,
+      );
+      setDynamicCellOpacity(nextCellOpacityScale);
+
+      if (typeof targetX !== 'number' || typeof targetY !== 'number') {
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
@@ -212,7 +247,8 @@ export default function ScatterplotSubscriber(props) {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cells, mapping]);
+  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping,
+    width, height, zoom, averageFillDensity]);
 
   const getCellInfo = useCallback((cellId) => {
     const cellInfo = cells[cellId];
@@ -221,6 +257,17 @@ export default function ScatterplotSubscriber(props) {
       ...(cellInfo ? cellInfo.factors : {}),
     };
   }, [cells, observationsLabel]);
+
+  const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
+  const getCellIsSelected = useCallback(cellEntry => (
+    (cellSelectionSet || new Set([])).has(cellEntry[0]) ? 1.0 : 0.0), [cellSelectionSet]);
+
+  const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
+  const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
+
+  // Set up a getter function for gene expression values, to be used
+  // by the DeckGL layer to obtain values for instanced attributes.
+  const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
 
   return (
     <TitleInfo
@@ -233,8 +280,14 @@ export default function ScatterplotSubscriber(props) {
       options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}
-          cellRadius={cellRadius}
-          setCellRadius={setCellRadius}
+          cellRadius={cellRadiusFixed}
+          setCellRadius={setCellRadiusFixed}
+          cellRadiusMode={cellRadiusMode}
+          setCellRadiusMode={setCellRadiusMode}
+          cellOpacity={cellOpacityFixed}
+          setCellOpacity={setCellOpacityFixed}
+          cellOpacityMode={cellOpacityMode}
+          setCellOpacityMode={setCellOpacityMode}
           cellSetLabelsVisible={cellSetLabelsVisible}
           setCellSetLabelsVisible={setCellSetLabelsVisible}
           cellSetLabelSize={cellSetLabelSize}
@@ -243,6 +296,10 @@ export default function ScatterplotSubscriber(props) {
           setCellSetPolygonsVisible={setCellSetPolygonsVisible}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
+          geneExpressionColormap={geneExpressionColormap}
+          setGeneExpressionColormap={setGeneExpressionColormap}
+          geneExpressionColormapRange={geneExpressionColormapRange}
+          setGeneExpressionColormapRange={setGeneExpressionColormapRange}
         />
       )}
     >
@@ -264,19 +321,24 @@ export default function ScatterplotSubscriber(props) {
         cellHighlight={cellHighlight}
         cellColors={cellColors}
         cellSetPolygons={cellSetPolygons}
-
         cellSetLabelSize={cellSetLabelSize}
         cellSetLabelsVisible={cellSetLabelsVisible}
         cellSetPolygonsVisible={cellSetPolygonsVisible}
-
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
-        cellRadiusScale={cellRadiusScale * cellRadius}
+        cellRadius={cellRadius}
+        cellOpacity={cellOpacity}
+        cellColorEncoding={cellColorEncoding}
+        geneExpressionColormap={geneExpressionColormap}
+        geneExpressionColormapRange={geneExpressionColormapRange}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
+        getExpressionValue={getExpressionValue}
+        getCellIsSelected={getCellIsSelected}
+
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber

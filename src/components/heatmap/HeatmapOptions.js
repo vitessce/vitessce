@@ -1,64 +1,22 @@
 import React, { useCallback } from 'react';
 import debounce from 'lodash/debounce';
-
-import Checkbox from '@material-ui/core/Checkbox';
+import Slider from '@material-ui/core/Slider';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import Select from '@material-ui/core/Select';
-import Slider from '@material-ui/core/Slider';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
-import OptionsContainer from '../shared-plot-options/OptionsContainer';
 import { useStyles } from '../shared-plot-options/styles';
-import CellColorEncodingOption from '../shared-plot-options/CellColorEncodingOption';
+import OptionsContainer from '../shared-plot-options/OptionsContainer';
 import { GLSL_COLORMAPS } from '../../layers/constants';
 
-const useToggleStyles = makeStyles(() => createStyles({
-  cameraLabel: {
-    padding: '0px 0px 0px 16px',
-  },
-  box: {
-    padding: '0px',
-  },
-  button: {
-    padding: '0px 0px 0px 8px',
-  },
-}));
-
-const ToggleFixedAxisButton = ({
-  setSpatialAxisFixed,
-  spatialAxisFixed,
-  use3d,
-}) => {
-  const classes = useToggleStyles();
-  return (
-    <TableRow>
-      <TableCell className={classes.cameraLabel}>
-      Fix Camera Axis
-      </TableCell>
-      <TableCell className={classes.box}>
-        <Checkbox
-          onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
-          disabled={!use3d}
-          checked={Boolean(spatialAxisFixed)}
-        />
-      </TableCell>
-    </TableRow>
-  );
-};
-
-export default function SpatialOptions(props) {
+export default function HeatmapOptions(props) {
   const {
-    observationsLabel,
-    cellColorEncoding,
-    setCellColorEncoding,
-    setSpatialAxisFixed,
-    spatialAxisFixed,
-    use3d,
     geneExpressionColormap,
     setGeneExpressionColormap,
     geneExpressionColormapRange,
     setGeneExpressionColormapRange,
   } = props;
+
+  const classes = useStyles();
 
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
@@ -72,20 +30,8 @@ export default function SpatialOptions(props) {
     [handleColormapRangeChange],
   );
 
-  const classes = useStyles();
-
   return (
     <OptionsContainer>
-      <CellColorEncodingOption
-        observationsLabel={observationsLabel}
-        cellColorEncoding={cellColorEncoding}
-        setCellColorEncoding={setCellColorEncoding}
-      />
-      <ToggleFixedAxisButton
-        setSpatialAxisFixed={setSpatialAxisFixed}
-        spatialAxisFixed={spatialAxisFixed}
-        use3d={use3d}
-      />
       <TableRow>
         <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
           Gene Expression Colormap

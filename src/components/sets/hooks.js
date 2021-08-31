@@ -16,11 +16,13 @@ import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-ut
  * @param {array} geneSelection Array of selected genes.
  * @param {array} cellSetSelection Array of selected cell set paths.
  * @param {object[]} cellSetColor Array of objects with properties
+ * @param {string} theme "light" or "dark" for the vitessce theme
  * `path` and `color`.
  */
 export function useExpressionByCellSet(
   expressionData, expressionDataAttrs, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor, useGeneExpressionTransform,
+  theme,
 ) {
   const mergedCellSets = useMemo(
     () => mergeCellSets(cellSets, additionalCellSets),
@@ -34,7 +36,9 @@ export function useExpressionByCellSet(
         && geneSelection && geneSelection.length >= 1
         && expressionData
     ) {
-      const cellObjects = treeToObjectsBySetNames(mergedCellSets, cellSetSelection, cellSetColor);
+      const cellObjects = treeToObjectsBySetNames(
+        mergedCellSets, cellSetSelection, cellSetColor, theme,
+      );
 
       const firstGeneSelected = geneSelection[0];
       // Create new cellColors map based on the selected gene.
@@ -54,15 +58,15 @@ export function useExpressionByCellSet(
       return [exprValues, exprMax];
     }
     return [null, null];
-  }, [expressionData, expressionDataAttrs, geneSelection,
+  }, [expressionData, expressionDataAttrs, geneSelection, theme,
     mergedCellSets, cellSetSelection, cellSetColor, useGeneExpressionTransform]);
 
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
   const setArr = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor)
+    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
     : []
-  ), [mergedCellSets, cellSetSelection, cellSetColor]);
+  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
   return [expressionArr, setArr, expressionMax];
 }

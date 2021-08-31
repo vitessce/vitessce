@@ -20,6 +20,7 @@ import {
 } from '../../app/state/coordination';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
+import HeatmapOptions from './HeatmapOptions';
 
 const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 
@@ -73,7 +74,8 @@ export default function HeatmapSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     additionalCellSets,
-    geneExpressionColormapRange: heatmapControls,
+    geneExpressionColormap,
+    geneExpressionColormapRange,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -83,7 +85,8 @@ export default function HeatmapSubscriber(props) {
     setGeneHighlight,
     setCellSetSelection,
     setCellSetColor,
-    setGeneExpressionColormapRange: setHeatmapControls,
+    setGeneExpressionColormapRange,
+    setGeneExpressionColormap,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
 
   const observationsTitle = capitalize(observationsPluralLabel);
@@ -131,7 +134,8 @@ export default function HeatmapSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     expressionDataAttrs: expressionMatrix,
-  }), [mergedCellSets, geneSelection,
+    theme,
+  }), [mergedCellSets, geneSelection, theme,
     cellSetColor, cellSetSelection, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {
@@ -166,6 +170,14 @@ export default function HeatmapSubscriber(props) {
       theme={theme}
       removeGridComponent={removeGridComponent}
       isReady={isReady && !isRendering}
+      options={(
+        <HeatmapOptions
+          geneExpressionColormap={geneExpressionColormap}
+          setGeneExpressionColormap={setGeneExpressionColormap}
+          geneExpressionColormapRange={geneExpressionColormapRange}
+          setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+        />
+      )}
     >
       <Heatmap
         ref={deckRef}
@@ -177,14 +189,15 @@ export default function HeatmapSubscriber(props) {
           setTargetX(target[0]);
           setTargetY(target[1]);
         }}
-        heatmapControls={heatmapControls}
-        setHeatmapControls={setHeatmapControls}
+        colormapRange={geneExpressionColormapRange}
+        setColormapRange={setGeneExpressionColormapRange}
         height={height}
         width={width}
         theme={theme}
         uuid={uuid}
         expressionMatrix={expressionMatrix}
         cellColors={cellColors}
+        colormap={geneExpressionColormap}
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
