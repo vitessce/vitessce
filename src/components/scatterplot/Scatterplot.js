@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import { PolygonLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
 import { getSelectionLayers } from '../../layers';
-import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
+import { cellLayerDefaultProps, getDefaultColor } from '../utils';
 import {
   createCellsQuadTree,
 } from '../shared-spatial-scatterplot/quadtree';
@@ -28,8 +28,8 @@ const makeDefaultGetCellPosition = mapping => (cellEntry) => {
   return [mappedCell[0], -mappedCell[1], 0];
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
-const makeDefaultGetCellColors = cellColors => (cellEntry) => {
-  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || DEFAULT_COLOR;
+const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
+  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 
@@ -97,7 +97,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       setComponentHover,
       getCellIsSelected,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors),
+      getCellColor = makeDefaultGetCellColors(cellColors, theme),
       getExpressionValue,
       onCellClick,
       geneExpressionColormap,

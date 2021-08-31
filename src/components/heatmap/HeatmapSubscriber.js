@@ -134,7 +134,8 @@ export default function HeatmapSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     expressionDataAttrs: expressionMatrix,
-  }), [mergedCellSets, geneSelection,
+    theme,
+  }), [mergedCellSets, geneSelection, theme,
     cellSetColor, cellSetSelection, expressionMatrix]);
 
   const getCellInfo = useCallback((cellId) => {

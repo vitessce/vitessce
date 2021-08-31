@@ -80,6 +80,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
     expressionData, attrs, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor, useGeneExpressionTransform,
+    theme,
   );
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
