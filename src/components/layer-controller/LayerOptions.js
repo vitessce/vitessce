@@ -363,8 +363,8 @@ function LayerOptions({
   const hasZStack = shape[labels.indexOf('z')] > 1;
   // Only show volume button if we can actually view resolutions.
   const hasViewableResolutions = Boolean(Array.from({
-    length: loader.length,
-  }).filter((_, res) => canLoadResolution(loader, res)).length);
+    length: loader.data.length,
+  }).filter((_, res) => canLoadResolution(loader.data, res)).length);
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       {hasZStack
