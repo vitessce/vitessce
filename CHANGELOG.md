@@ -17,7 +17,7 @@
 - Make two-step data loaders universal for all file types.
 - Upgrade `higlass-zarr-datafetchers` to 0.2.1 to prevent the latest Zarr.js from making failed HEAD requests.
 - Replace "hubmapconsortium/vitessce" with "vitessce/vitessce"
-- Improve handling of large, thin volumes.
+- Improve handling of large, thin volumes.  Those that cannot be loaded at all should not be shown with volume options.
 
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20
 
