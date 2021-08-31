@@ -8,7 +8,6 @@ import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { max } from 'd3-array';
-import HeatmapControls from './HeatmapControls';
 import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
 import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
@@ -59,6 +58,9 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
  * @param {boolean} props.transpose By default, false.
  * @param {string} props.variablesTitle By default, 'Genes'.
  * @param {string} props.observationsTitle By default, 'Cells'.
+ * @param {string} props.colormap The name of the colormap function to use.
+ * @param {array} props.colormapRange A tuple [lower, upper] to adjust the color scale.
+ * @param {function} props.setColormapRange The setter function for colormapRange.
  */
 const Heatmap = forwardRef((props, deckRef) => {
   const {
@@ -66,12 +68,12 @@ const Heatmap = forwardRef((props, deckRef) => {
     theme,
     viewState: rawViewState,
     setViewState,
-    setHeatmapControls,
-    heatmapControls = [0, 1],
     width: viewWidth,
     height: viewHeight,
     expressionMatrix: expression,
     cellColors,
+    colormap,
+    colormapRange,
     clearPleaseWait,
     setComponentHover,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
@@ -104,15 +106,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const dataRef = useRef();
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
-  const [colorScaleLo, setColorScaleLo] = useState(heatmapControls[0]);
-  const [colorScaleHi, setColorScaleHi] = useState(heatmapControls[1]);
 
-  // Callback function for the color scale slider change event.
-  const onColorScaleChange = useCallback((event, newValue) => {
-    setColorScaleLo(newValue[0]);
-    setColorScaleHi(newValue[1]);
-    setHeatmapControls(newValue);
-  }, [setHeatmapControls]);
 
   // Since we are storing the tile data in a ref,
   // and updating it asynchronously when the worker finishes,
@@ -345,8 +339,9 @@ const Heatmap = forwardRef((props, deckRef) => {
         ],
         aggSizeX,
         aggSizeY,
-        colorScaleLo,
-        colorScaleHi,
+        colormap,
+        colorScaleLo: colormapRange[0],
+        colorScaleHi: colormapRange[1],
         updateTriggers: {
           image: [axisLeftLabels, axisTopLabels],
           bounds: [tileHeight, tileWidth],
@@ -357,7 +352,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       .current.map((tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile));
     return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
-    aggSizeX, aggSizeY, colorScaleLo, colorScaleHi, axisLeftLabels, axisTopLabels, xTiles]);
+    aggSizeX, aggSizeY, colormap, colormapRange,
+    axisLeftLabels, axisTopLabels, xTiles]);
 
 
   // Map cell and gene names to arrays with indices,
@@ -507,68 +503,61 @@ const Heatmap = forwardRef((props, deckRef) => {
   }
 
   return (
-    <>
-      <DeckGL
-        id={`deckgl-overlay-${uuid}`}
-        ref={deckRef}
-        views={[
-          // Note that there are multiple views here,
-          // but only one viewState.
-          new OrthographicView({
-            id: 'heatmap',
-            controller: true,
-            x: offsetLeft,
-            y: offsetTop,
-            width: matrixWidth,
-            height: matrixHeight,
-          }),
-          new OrthographicView({
-            id: 'axisLeft',
-            controller: false,
-            x: (transpose ? COLOR_BAR_SIZE : 0),
-            y: offsetTop,
-            width: axisOffsetLeft,
-            height: matrixHeight,
-          }),
-          new OrthographicView({
-            id: 'axisTop',
-            controller: false,
-            x: offsetLeft,
-            y: (transpose ? 0 : COLOR_BAR_SIZE),
-            width: matrixWidth,
-            height: axisOffsetTop,
-          }),
-          new OrthographicView({
-            id: 'colorsLeft',
-            controller: false,
-            x: axisOffsetLeft,
-            y: offsetTop,
-            width: COLOR_BAR_SIZE - AXIS_MARGIN,
-            height: matrixHeight,
-          }),
-          new OrthographicView({
-            id: 'colorsTop',
-            controller: false,
-            x: offsetLeft,
-            y: axisOffsetTop,
-            width: matrixWidth,
-            height: COLOR_BAR_SIZE - AXIS_MARGIN,
-          }),
-        ]}
-        layers={layers}
-        layerFilter={layerFilter}
-        getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
-        glOptions={DEFAULT_GL_OPTIONS}
-        onViewStateChange={onViewStateChange}
-        viewState={viewState}
-        onHover={onHover}
-      />
-      <HeatmapControls
-        colorScaleLo={colorScaleLo}
-        colorScaleHi={colorScaleHi}
-        onColorScaleChange={onColorScaleChange}
-      />
-    </>
+    <DeckGL
+      id={`deckgl-overlay-${uuid}`}
+      ref={deckRef}
+      views={[
+        // Note that there are multiple views here,
+        // but only one viewState.
+        new OrthographicView({
+          id: 'heatmap',
+          controller: true,
+          x: offsetLeft,
+          y: offsetTop,
+          width: matrixWidth,
+          height: matrixHeight,
+        }),
+        new OrthographicView({
+          id: 'axisLeft',
+          controller: false,
+          x: (transpose ? COLOR_BAR_SIZE : 0),
+          y: offsetTop,
+          width: axisOffsetLeft,
+          height: matrixHeight,
+        }),
+        new OrthographicView({
+          id: 'axisTop',
+          controller: false,
+          x: offsetLeft,
+          y: (transpose ? 0 : COLOR_BAR_SIZE),
+          width: matrixWidth,
+          height: axisOffsetTop,
+        }),
+        new OrthographicView({
+          id: 'colorsLeft',
+          controller: false,
+          x: axisOffsetLeft,
+          y: offsetTop,
+          width: COLOR_BAR_SIZE - AXIS_MARGIN,
+          height: matrixHeight,
+        }),
+        new OrthographicView({
+          id: 'colorsTop',
+          controller: false,
+          x: offsetLeft,
+          y: axisOffsetTop,
+          width: matrixWidth,
+          height: COLOR_BAR_SIZE - AXIS_MARGIN,
+        }),
+      ]}
+      layers={layers}
+      layerFilter={layerFilter}
+      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
+      glOptions={DEFAULT_GL_OPTIONS}
+      onViewStateChange={onViewStateChange}
+      viewState={viewState}
+      onHover={onHover}
+    />
   );
 });
 

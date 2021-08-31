@@ -4,7 +4,7 @@ import { dsvFormat } from 'd3-dsv';
 import { parse as json2csv } from 'json2csv';
 import { colorArrayToString, colorStringToArray } from './utils';
 import { nodeTransform } from './cell-set-utils';
-import { DEFAULT_COLOR } from '../utils';
+import { getDefaultColor } from '../utils';
 import {
   HIERARCHICAL_SCHEMAS, TABULAR_SCHEMAS,
   MIME_TYPE_JSON, MIME_TYPE_TABULAR,
@@ -49,10 +49,12 @@ export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
  * Handler for JSON imports. Validates and upgrades against the hierarchical sets schema.
  * @param {string} result The data passed from the FileReader as a string.
  * @param {string} datatype The data type to validate against.
+ * @param {string} theme "light" or "dark" for the vitessce theme
  * @returns {object} The imported tree object.
  * @throws {Error} Throws error if validation fails or if the datatype does not match.
  */
-export function handleImportJSON(result, datatype) {
+// eslint-disable-next-line no-unused-vars
+export function handleImportJSON(result, datatype, theme) {
   let importData = JSON.parse(result);
   // Validate the imported file.
   importData = tryUpgradeTreeToLatestSchema(importData, datatype);
@@ -63,15 +65,16 @@ export function handleImportJSON(result, datatype) {
  * Handler for tabular imports. Validates against the tabular sets schema.
  * @param {string} result The data passed from the FileReader as a string.
  * @param {string} datatype The data type to validate against.
+ * @param {string} theme "light" or "dark" for the vitessce theme
  * @returns {object} The imported tree object.
  * @throws {Error} Throws error if validation fails or if the datatype does not match.
  */
-export function handleImportTabular(result, datatype) {
+export function handleImportTabular(result, datatype, theme) {
   const dsvParser = dsvFormat(SEPARATOR_TABULAR);
   const importData = dsvParser.parse(result, row => ({
     groupName: row.groupName,
     setName: row.setName,
-    setColor: (row.setColor ? colorStringToArray(row.setColor) : DEFAULT_COLOR),
+    setColor: (row.setColor ? colorStringToArray(row.setColor) : getDefaultColor(theme)),
     obsId: row.obsId,
     predictionScore: (
       (

@@ -91,6 +91,7 @@ export function getCellColors(params) {
     cellSets, cellSetSelection,
     cellSetColor,
     expressionDataAttrs,
+    theme,
   } = params;
   if (cellColorEncoding === 'geneSelection' && expressionData && expressionDataAttrs) {
     // TODO: allow other color maps.
@@ -107,7 +108,7 @@ export function getCellColors(params) {
     // is not a required part of the schema.
     // The `initializeSets` function fills in any empty colors
     // with defaults and returns the processed tree object.
-    return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor);
+    return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor, theme);
   }
   return new Map();
 }

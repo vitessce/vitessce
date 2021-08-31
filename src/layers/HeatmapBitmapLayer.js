@@ -1,13 +1,15 @@
+/* eslint-disable no-underscore-dangle */
 import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D } from '@luma.gl/core';
 import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE } from './heatmap-constants';
+import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants';
 import { vertexShader, fragmentShader } from './heatmap-bitmap-layer-shaders';
 
 const defaultProps = {
   image: { type: 'object', value: null, async: true },
-  colormap: { type: 'string', value: 'plasma', compare: true },
+  colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
   bounds: { type: 'array', value: [1, 0, 0, 1], compare: true },
   aggSizeX: { type: 'number', value: 8.0, compare: true },
   aggSizeY: { type: 'number', value: 8.0, compare: true },
@@ -26,7 +28,6 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * @param {object} shaders
    * @returns {object} Merged shaders.
    */
-  // eslint-disable-next-line no-underscore-dangle
   _getShaders(shaders) {
     this.props.extensions.forEach((extension) => {
       // eslint-disable-next-line no-param-reassign
@@ -35,22 +36,33 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
     return shaders;
   }
 
-  updateState(args) {
-    super.updateState(args);
-    this.loadTexture(this.props.image);
-  }
-
   /**
    * Need to override to provide custom shaders.
    */
   getShaders() {
     const { colormap } = this.props;
-    // eslint-disable-next-line no-underscore-dangle
+    const fragmentShaderWithColormap = (GLSL_COLORMAPS.includes(colormap)
+      ? fragmentShader.replace(COLORMAP_SHADER_PLACEHOLDER, colormap)
+      : fragmentShader.replace(COLORMAP_SHADER_PLACEHOLDER, GLSL_COLORMAP_DEFAULT)
+    );
     return this._getShaders({
       vs: vertexShader,
-      fs: fragmentShader.replace('__colormap', colormap),
+      fs: fragmentShaderWithColormap,
       modules: [project32, picking],
     });
+  }
+
+  updateState(args) {
+    super.updateState(args);
+    this.loadTexture(this.props.image);
+    const { props, oldProps } = args;
+    if (props.colormap !== oldProps.colormap) {
+      const { gl } = this.context;
+      // eslint-disable-next-line no-unused-expressions
+      this.state.model?.delete();
+      this.state.model = this._getModel(gl);
+      this.getAttributeManager().invalidateAll();
+    }
   }
 
   /**

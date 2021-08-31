@@ -264,3 +264,12 @@ export function upgradeFrom1_0_2(config) {
     version: '1.0.3',
   };
 }
+
+export function upgradeFrom1_0_3(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.4',
+  };
+}

@@ -420,7 +420,9 @@ export function renderSubBitmaskLayers(props) {
     y,
     z,
   } = props.tile;
-  const { data, id, loader } = props;
+  const {
+    data, id, loader,
+  } = props;
   // Only render in positive coorinate system
   if ([left, bottom, right, top].some(v => v < 0) || !data) {
     return null;
@@ -439,11 +441,6 @@ export function renderSubBitmaskLayers(props) {
   ];
   return new BitmaskLayer(props, {
     channelData: data,
-    cellColor: {
-      data: props.cellColorData,
-      height: props.cellColorHeight,
-      width: props.cellColorWidth,
-    },
     // Uncomment to help debugging - shades the tile being hovered over.
     // autoHighlight: true,
     // highlightColor: [80, 80, 80, 50],
