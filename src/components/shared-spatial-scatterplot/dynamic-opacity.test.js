@@ -21,10 +21,12 @@ describe('dynamic-opacity.js', () => {
       const zoom = null;
       const width = 1000;
       const height = 650;
+      const xRange = 20;
+      const yRange = 18;
       const numCells = 500000;
       const avgFillDensity = undefined;
       const pointOpacity = getPointOpacity(
-        zoom, width, height, numCells, avgFillDensity,
+        zoom, xRange, yRange, width, height, numCells, avgFillDensity,
       );
       expect(pointOpacity).toBeCloseTo(0.005);
     });
