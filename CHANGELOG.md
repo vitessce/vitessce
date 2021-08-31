@@ -28,7 +28,7 @@
 - Switched to performing quantitative color mapping on the scatterplot shaders to enable fast responses to the heatmap colormap slider interactions.
 - Updated scatterplot and heatmap shaders to take the `geneExpressionColormap` coordination value into account.
 - Fixed performance issue involving selection of many cells by using `Set.has` rather than `Array.includes`.
-
+- Improve handling of large, thin volumes.
 
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20
 
