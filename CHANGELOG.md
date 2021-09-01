@@ -25,10 +25,10 @@
 - Make two-step data loaders universal for all file types.
 - Upgrade `higlass-zarr-datafetchers` to 0.2.1 to prevent the latest Zarr.js from making failed HEAD requests.
 - Replace "hubmapconsortium/vitessce" with "vitessce/vitessce"
+- Improve handling of large, thin volumes.  Those that cannot be loaded at all should not be shown with volume options.
 - Switched to performing quantitative color mapping on the scatterplot shaders to enable fast responses to the heatmap colormap slider interactions.
 - Updated scatterplot and heatmap shaders to take the `geneExpressionColormap` coordination value into account.
 - Fixed performance issue involving selection of many cells by using `Set.has` rather than `Array.includes`.
-- Improve handling of large, thin volumes.
 
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20
 
