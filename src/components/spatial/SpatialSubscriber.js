@@ -2,7 +2,9 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import {
+  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
+} from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import {
   useCellsData,
@@ -84,6 +86,8 @@ export default function SpatialSubscriber(props) {
     additionalCellSets,
     moleculeSelection,
     spatialAxisFixed,
+    geneExpressionColormap,
+    geneExpressionColormapRange,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -104,6 +108,8 @@ export default function SpatialSubscriber(props) {
     setAdditionalCellSets,
     setMoleculeHighlight,
     setSpatialAxisFixed,
+    setGeneExpressionColormap,
+    setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [
@@ -121,7 +127,7 @@ export default function SpatialSubscriber(props) {
   const [
     isReady,
     setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    setItemIsNotReady,
     resetReadyItems,
   ] = useReady(
     SPATIAL_DATA_TYPES,
@@ -224,8 +230,27 @@ export default function SpatialSubscriber(props) {
     cellSetSelection,
     cellSetColor,
     expressionDataAttrs: attrs,
-  }), [cellColorEncoding, geneSelection, mergedCellSets,
+    theme,
+  }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
     cellSetColor, cellSetSelection, expressionData, attrs]);
+
+  // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
+  // where each cell id indexes into the array.
+  // Cell ids in `attrs.rows` do not necessaryily correspond to indices in that array, though,
+  // so we create a "shifted" array where this is the case.
+  const shiftedExpressionDataForBitmask = useMemo(() => {
+    const hasBitmask = imageLayerMeta.some(l => l?.metadata?.isBitmask);
+    if (attrs?.rows && expressionData && hasBitmask) {
+      const maxId = attrs.rows.reduce((max, curr) => Math.max(max, Number(curr)));
+      const result = new Uint8Array(maxId + 1);
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < attrs.rows.length; i++) {
+        const id = attrs.rows[i];
+        result.set(expressionData[0].slice(i, i + 1), Number(id));
+      }
+      return [result];
+    } return [new Uint8Array()];
+  }, [attrs, expressionData, imageLayerMeta]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
@@ -273,6 +298,11 @@ export default function SpatialSubscriber(props) {
     subobservationsPluralLabel,
     locationsCount,
   });
+
+  // Set up a getter function for gene expression values, to be used
+  // by the DeckGL layer to obtain values for instanced attributes.
+  const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
+
   return (
     <TitleInfo
       title={title}
@@ -290,6 +320,10 @@ export default function SpatialSubscriber(props) {
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
+          geneExpressionColormap={geneExpressionColormap}
+          setGeneExpressionColormap={setGeneExpressionColormap}
+          geneExpressionColormapRange={geneExpressionColormapRange}
+          setGeneExpressionColormapRange={setGeneExpressionColormapRange}
         />
       )}
     >
@@ -328,6 +362,12 @@ export default function SpatialSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
         rasterLayersCallbacks={rasterLayersCallbacks}
         spatialAxisFixed={spatialAxisFixed}
+        geneExpressionColormap={geneExpressionColormap}
+        geneExpressionColormapRange={geneExpressionColormapRange}
+        expressionData={shiftedExpressionDataForBitmask}
+        cellColorEncoding={cellColorEncoding}
+        getExpressionValue={getExpressionValue}
+        theme={theme}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber

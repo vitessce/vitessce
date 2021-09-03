@@ -1,13 +1,14 @@
 import React, { forwardRef } from 'react';
-import { PolygonLayer, TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { PolygonLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
-import { SelectableScatterplotLayer, getSelectionLayers } from '../../layers';
-import { cellLayerDefaultProps, DEFAULT_COLOR } from '../utils';
+import { getSelectionLayers } from '../../layers';
+import { cellLayerDefaultProps, getDefaultColor } from '../utils';
 import {
   createCellsQuadTree,
 } from '../shared-spatial-scatterplot/quadtree';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import { forceCollideRects } from '../shared-spatial-scatterplot/force-collide-rects';
+import { ScaledExpressionExtension, SelectionExtension } from '../../layer-extensions';
 
 const CELLS_LAYER_ID = 'scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
@@ -27,14 +28,10 @@ const makeDefaultGetCellPosition = mapping => (cellEntry) => {
   return [mappedCell[0], -mappedCell[1], 0];
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
-const makeDefaultGetCellColors = cellColors => cellEntry => (
-  cellColors && cellColors.get(cellEntry[0])
-) || DEFAULT_COLOR;
-const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
-  cellSelection
-    ? cellSelection.includes(cellEntry[0])
-    : true // If nothing is selected, everything is selected.
-);
+const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
+  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || getDefaultColor(theme);
+  return [r, g, b, 255 * (a || 1)];
+};
 
 /**
  * React component which renders a scatterplot from cell data, typically tSNE or PCA.
@@ -49,7 +46,7 @@ const makeDefaultGetCellIsSelected = cellSelection => cellEntry => (
  * @param {Map} props.cellColors Mapping of cell IDs to colors.
  * @param {array} props.cellSelection Array of selected cell IDs.
  * @param {array} props.cellFilter Array of filtered cell IDs. By default, null.
- * @param {number} props.cellRadiusScale The value for `radiusScale` to pass
+ * @param {number} props.cellRadius The value for `radiusScale` to pass
  * to the deck.gl cells ScatterplotLayer.
  * @param {number} props.cellOpacity The value for `opacity` to pass
  * to the deck.gl cells ScatterplotLayer.
@@ -92,42 +89,63 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       theme,
       mapping,
       getCellPosition = makeDefaultGetCellPosition(mapping),
-      cellRadiusScale = 0.2,
+      cellRadius = 1.0,
       cellOpacity = 1.0,
       cellFilter,
       cellSelection,
       setCellHighlight,
       setComponentHover,
-      getCellIsSelected = makeDefaultGetCellIsSelected(
-        cellsEntries.length === cellSelection.length ? null : cellSelection,
-      ),
+      getCellIsSelected,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors),
+      getCellColor = makeDefaultGetCellColors(cellColors, theme),
+      getExpressionValue,
       onCellClick,
+      geneExpressionColormap,
+      geneExpressionColormapRange = [0.0, 1.0],
+      cellColorEncoding,
     } = this.props;
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
-
-    return new SelectableScatterplotLayer({
+    return new ScatterplotLayer({
       id: CELLS_LAYER_ID,
       backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
-      isSelected: getCellIsSelected,
+      getCellIsSelected,
       opacity: cellOpacity,
-      radiusScale: cellRadiusScale,
+      radiusScale: cellRadius,
       radiusMinPixels: 1,
-      radiusMaxPixels: 10,
+      radiusMaxPixels: 30,
+      // Our radius pixel setters measure in pixels.
+      radiusUnits: 'pixels',
       getPosition: getCellPosition,
-      getColor: getCellColor,
+      getFillColor: getCellColor,
+      getLineColor: getCellColor,
+      getRadius: 1,
+      getExpressionValue,
       getLineWidth: 0,
+      extensions: [
+        new ScaledExpressionExtension({ instanced: true }),
+        new SelectionExtension({ instanced: true }),
+      ],
+      colorScaleLo: geneExpressionColormapRange[0],
+      colorScaleHi: geneExpressionColormapRange[1],
+      isExpressionMode: (cellColorEncoding === 'geneSelection'),
+      colormap: geneExpressionColormap,
       onClick: (info) => {
         if (onCellClick) {
           onCellClick(info);
         }
       },
+      updateTriggers: {
+        getExpressionValue,
+        getFillColor: [cellColorEncoding, cellSelection, cellColors],
+        getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getCellIsSelected,
+      },
       ...cellLayerDefaultProps(
         filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
       ),
+      stroked: 0,
     });
   }
 
@@ -299,7 +317,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     }
 
     if ([
-      'cells', 'cellFilter', 'cellSelection', 'cellColors', 'cellRadiusScale',
+      'cells', 'cellFilter', 'cellSelection', 'cellColors',
+      'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
+      'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();

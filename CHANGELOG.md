@@ -7,11 +7,19 @@
 
 ### Changed
 - Updated `GeoJSON` loader to support the Baysor custom format.
+- Prevent heatmap re-ordering when gene selection is made.
 
 ## [1.1.13](https://www.npmjs.com/package/vitessce/v/1.1.13) - 2021-08-10
 
 ### Added
 - `disableChannelsIfRgbDetected` prop for turning of channel controllers when rgb is detected.
+- Added cell opacity modes
+    - Auto mode (default)
+    - Manual mode
+- Added cell radius modes
+    - Auto mode (default)
+    - Manual mode
+- Added a slider for `geneExpressionColormapRange` to the `ScatterplotOptions` component.
 
 ### Changed
 - Introduce two-step data loaders for AnnData "files".
@@ -20,6 +28,10 @@
 - Make two-step data loaders universal for all file types.
 - Upgrade `higlass-zarr-datafetchers` to 0.2.1 to prevent the latest Zarr.js from making failed HEAD requests.
 - Replace "hubmapconsortium/vitessce" with "vitessce/vitessce"
+- Improve handling of large, thin volumes.  Those that cannot be loaded at all should not be shown with volume options.
+- Switched to performing quantitative color mapping on the scatterplot shaders to enable fast responses to the heatmap colormap slider interactions.
+- Updated scatterplot and heatmap shaders to take the `geneExpressionColormap` coordination value into account.
+- Fixed performance issue involving selection of many cells by using `Set.has` rather than `Array.includes`.
 
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20
 

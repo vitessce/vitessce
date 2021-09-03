@@ -87,10 +87,8 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-06-28: [release_1.1.11](https://s3.amazonaws.com/vitessce-data/demos/2021-06-28/f1848949/index.html)
 - 2021-07-06: [ilan-gold/change_bitmask_blending](https://s3.amazonaws.com/vitessce-data/demos/2021-07-06/3d665a44/index.html)
 - 2021-07-20: [release_1.1.12](https://s3.amazonaws.com/vitessce-data/demos/2021-07-20/8c2fa377/index.html)
-<<<<<<< HEAD
-- 2021-06-30: [keller-mark/baysor-support](https://s3.amazonaws.com/vitessce-data/demos/2021-06-30/da4be4d3/index.html)- 2021-07-29: [keller-mark/baysor-support](https://s3.amazonaws.com/vitessce-data/demos/2021-07-29/1dcf6c44/index.html)
-=======
 - 2021-08-10: [release_1.1.13](https://s3.amazonaws.com/vitessce-data/demos/2021-08-10/34a77a03/index.html)
->>>>>>> 451a467c237feabe5efe2a7b12739a821f8cbfca
-- 2021-08-19: [keller-mark/baysor-support](https://s3.amazonaws.com/vitessce-data/demos/2021-08-19/bdee94ce/index.html)
-- 2021-08-24: [keller-mark/baysor-anndata-molecules](https://s3.amazonaws.com/vitessce-data/demos/2021-08-24/f02537ff/index.html)
+- 2021-08-19: [keller-mark/overplot-opacity](https://s3.amazonaws.com/vitessce-data/demos/2021-08-19/67c6243e/index.html)
+- 2021-08-27: [ilan-gold/selection_layer_extension](https://s3.amazonaws.com/vitessce-data/demos/2021-08-27/500d5dc8/index.html)
+- 2021-08-27: [ilan-gold/selection_layer_extension](https://s3.amazonaws.com/vitessce-data/demos/2021-08-27/c92acec4/index.html)
+- 2021-08-31: [ilan-gold/selection_layer_extension](https://s3.amazonaws.com/vitessce-data/demos/2021-08-31/046b5d5a/index.html)
