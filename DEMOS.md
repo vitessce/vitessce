@@ -92,3 +92,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-08-27: [ilan-gold/selection_layer_extension](https://s3.amazonaws.com/vitessce-data/demos/2021-08-27/500d5dc8/index.html)
 - 2021-08-27: [ilan-gold/selection_layer_extension](https://s3.amazonaws.com/vitessce-data/demos/2021-08-27/c92acec4/index.html)
 - 2021-08-31: [ilan-gold/selection_layer_extension](https://s3.amazonaws.com/vitessce-data/demos/2021-08-31/046b5d5a/index.html)
+- 2021-09-01: [release_1.1.14](https://s3.amazonaws.com/vitessce-data/demos/2021-09-01/a79318a9/index.html)
