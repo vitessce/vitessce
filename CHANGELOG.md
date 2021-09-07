@@ -1,8 +1,15 @@
 
 ### Added
+<<<<<<< HEAD
 - Add loader for `GeoJSON` polygons/points as cells.  QuPath outputs GeoJSON for annotations.
 - Updated `GeoJSON` loader to support the Baysor custom format
 - Added coordination types for selection of molecules
+=======
+- Add loading callbacks for gene selection.
+- Added coordination types for selection of molecules.
+- Added `cells.geojson` loader to support the Baysor cell segmentation polygon format.
+- Added `anndata-molecules.zarr` loader to support the Baysor molecules format.
+>>>>>>> b82f94e5 (WIP: clean up branch)
 
 ### Changed
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details. 

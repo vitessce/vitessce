@@ -20,7 +20,7 @@ import { DEFAULT_COORDINATION_VALUES } from '../app/state/coordination';
  */
 function warn(error, setWarning) {
   setWarning(error.message);
-  console.warn(error);
+  console.warn(error.message);
   if (error instanceof AbstractLoaderError) {
     error.warnInConsole();
   }
