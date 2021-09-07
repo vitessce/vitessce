@@ -266,7 +266,7 @@ export default function SpatialSubscriber(props) {
     return null;
   };
 
-  const moleculeSelectionIndices = useMemo(() => {
+  const moleculeSelectionGeneIndices = useMemo(() => {
     if (attrs && attrs.cols && moleculeSelection && moleculeSelection.length > 0) {
       return moleculeSelection.map(geneName => attrs.cols.indexOf(geneName));
     }
@@ -367,7 +367,7 @@ export default function SpatialSubscriber(props) {
         cellHighlight={cellHighlight}
         cellColors={cellColors}
         molecules={molecules}
-        moleculeSelectionIndices={moleculeSelectionIndices}
+        moleculeSelectionGeneIndices={moleculeSelectionGeneIndices}
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
@@ -204,7 +203,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       setMoleculeHighlight,
       getMoleculeColor = d => d[1].rgb,
       getMoleculePosition = d => [d[1].spatial[0], d[1].spatial[1]],
-      moleculeSelectionIndices,
+      moleculeSelectionGeneIndices,
     } = this.props;
     const { moleculesEntries } = this;
 
@@ -222,8 +221,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       getFilterValue: moleculeEntry => (
-        moleculeSelectionIndices
-          ? (moleculeSelectionIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
+        moleculeSelectionGeneIndices
+          ? (moleculeSelectionGeneIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
           : 1 // If nothing is selected, everything is selected.
       ),
       extensions: [new DataFilterExtension({ filterSize: 1 })],
@@ -238,7 +237,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         }
       },
       updateTriggers: {
-        getFilterValue: [moleculeSelectionIndices],
+        getFilterValue: [moleculeSelectionGeneIndices],
       },
     });
   }
@@ -249,7 +248,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getMoleculeColor = d => d[1].rgb,
       getMoleculePosition = d => d[1].spatial,
       getMoleculeNormal = d => [-1, 0, 0],
-      moleculeSelectionIndices,
+      moleculeSelectionGeneIndices,
     } = this.props;
     const { moleculesEntries } = this;
 
@@ -266,8 +265,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getNormal: getMoleculeNormal,
       getColor: getMoleculeColor,
       getFilterValue: moleculeEntry => (
-        moleculeSelectionIndices
-          ? (moleculeSelectionIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
+        moleculeSelectionGeneIndices
+          ? (moleculeSelectionGeneIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
           : 1 // If nothing is selected, everything is selected.
       ),
       extensions: [new DataFilterExtension({ filterSize: 1 })],
@@ -282,7 +281,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         }
       },
       updateTriggers: {
-        getFilterValue: [moleculeSelectionIndices],
+        getFilterValue: [moleculeSelectionGeneIndices],
       },
     });
   }
@@ -670,7 +669,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'molecules', 'moleculeSelectionIndices'].some(shallowDiff)) {
+    if (['layers', 'molecules', 'moleculeSelectionGeneIndices'].some(shallowDiff)) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
       this.forceUpdate();
