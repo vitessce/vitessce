@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MAX_SLIDERS_AND_CHANNELS, getChannelStats } from '@hms-dbmi/viv';
 
 import Grid from '@material-ui/core/Grid';
@@ -102,7 +102,16 @@ export default function LayerController(props) {
     use3d,
     modelMatrix,
   } = layer;
-  const firstSelection = channels[0]?.selection || {};
+  // Channels are used in a lot of callbacks and change handlers
+  // so ensuring they have an up to date copy of the data ensures consistency.
+  // See: https://github.com/vitessce/vitessce/issues/1036
+  const channelRef = useRef(channels);
+  useEffect(() => {
+    channelRef.current = channels;
+    return undefined;
+  }, [channels]);
+
+  const firstSelection = channelRef.current[0]?.selection || {};
 
   const { data, channels: channelOptions } = loader;
   const [tab, setTab] = useState(0);
@@ -158,24 +167,24 @@ export default function LayerController(props) {
   }
 
   function setChannel(v, i) {
-    const newChannels = [...channels];
+    const newChannels = [...channelRef.current];
     newChannels[i] = v;
     handleLayerChange({ ...layer, channels: newChannels });
   }
 
   function addChannel(v) {
-    const newChannels = [...channels, v];
+    const newChannels = [...channelRef.current, v];
     handleLayerChange({ ...layer, channels: newChannels });
   }
 
   function removeChannel(i) {
-    const newChannels = [...channels];
+    const newChannels = [...channelRef.current];
     newChannels.splice(i, 1);
     handleLayerChange({ ...layer, channels: newChannels });
   }
 
   const setAreAllChannelsLoading = (val) => {
-    const newAreLayerChannelsLoading = channels.map(() => val);
+    const newAreLayerChannelsLoading = channelRef.current.map(() => val);
     setAreLayerChannelsLoading(newAreLayerChannelsLoading);
   };
 
@@ -195,7 +204,7 @@ export default function LayerController(props) {
     const slider = domain;
     const color = [255, 255, 255];
     const visible = true;
-    const newChannelId = channels.length;
+    const newChannelId = channelRef.current.length;
     const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
     newAreLayerChannelsLoading[newChannelId] = true;
     setAreLayerChannelsLoading(newAreLayerChannelsLoading);
@@ -214,10 +223,10 @@ export default function LayerController(props) {
 
   const handleDomainChange = async (value) => {
     setDomainType(value);
-    const loaderSelection = channels.map(
+    const loaderSelection = channelRef.current.map(
       channel => channel.selection,
     );
-    let sliders = channels.map(
+    let sliders = channelRef.current.map(
       channel => channel.slider,
     );
     const { domains } = await getDomainsAndSliders(
@@ -239,13 +248,13 @@ export default function LayerController(props) {
       },
     );
 
-    const newChannels = channels.map((c, i) => ({ ...c, slider: sliders[i] }));
+    const newChannels = channelRef.current.map((c, i) => ({ ...c, slider: sliders[i] }));
     setChannelsAndDomainType(newChannels, value);
   };
 
   // This call updates all channel selections with new global selection from the UI.
   const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
-    const loaderSelection = channels.map(channel => ({
+    const loaderSelection = channelRef.current.map(channel => ({
       ...channel.selection,
       ...selection,
     }));
@@ -254,7 +263,7 @@ export default function LayerController(props) {
     if (canUpdateChannels) {
       setAreAllChannelsLoading(true);
       getDomainsAndSliders(loader, loaderSelection, domainType, use3d).then(({ sliders }) => {
-        const newChannelsWithSelection = channels.map(c => ({
+        const newChannelsWithSelection = channelRef.current.map(c => ({
           ...c,
           selection: { ...c.selection, ...selection },
         }));
@@ -281,7 +290,7 @@ export default function LayerController(props) {
   if (labels.length > 0) {
     const channelLabel = labels.find(c => c === 'channel' || c === 'c') || labels[0];
     // Create the channel controllers for each channel.
-    channelControllers = channels.map(
+    channelControllers = channelRef.current.map(
       // c is an object like { color, selection, slider, visible }.
       (c, channelId) => {
         // Update the auxiliary store with the current loading state of a channel.
@@ -309,7 +318,7 @@ export default function LayerController(props) {
             // like sliders and the loading state of the channel.
             setRasterLayerCallback(async () => {
               const loaderSelection = [
-                { ...channels[channelId][property], ...value },
+                { ...channelRef.current[channelId][property], ...value },
               ];
               const { sliders } = await getDomainsAndSliders(
                 loader, loaderSelection, domainType, use3d,
@@ -330,7 +339,7 @@ export default function LayerController(props) {
           const { data: loaderData } = loader;
           const source = Array.isArray(loaderData) ? loaderData[loaderData.length - 1] : loaderData;
           const raster = await source.getRaster({
-            selection: channels[channelId].selection,
+            selection: channelRef.current[channelId].selection,
           });
           const stats = getChannelStats(raster.data);
           const { q1, q3 } = stats;
@@ -345,7 +354,7 @@ export default function LayerController(props) {
             selectionIndex={c.selection[channelLabel]}
             slider={c.slider}
             color={c.color}
-            channels={channels}
+            channels={channelRef.current}
             channelId={channelId}
             domainType={domainType}
             loader={loader}
@@ -378,7 +387,7 @@ export default function LayerController(props) {
   const FullController = (
     <>
       <LayerOptions
-        channels={channels}
+        channels={channelRef.current}
         opacity={opacity}
         colormap={colormap}
         transparentColor={transparentColor}
@@ -411,7 +420,7 @@ export default function LayerController(props) {
       {isRgb(loader) && disableChannelsIfRgbDetected ? null : channelControllers}
       {isRgb(loader) && disableChannelsIfRgbDetected ? null : (
         <Button
-          disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
+          disabled={channelRef.current.length === MAX_SLIDERS_AND_CHANNELS}
           onClick={handleChannelAdd}
           fullWidth
           variant="outlined"
