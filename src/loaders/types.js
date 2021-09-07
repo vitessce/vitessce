@@ -25,10 +25,10 @@ const fileTypeToLoaderAndSource = {
   'cell-sets.json': [JsonSource, CellSetsJsonLoader],
   [`${ANNDATA}-cell-sets.zarr`]: [AnnDataSource, AnnDataLoaders.CellSetsZarrLoader],
   [`${ANNDATA}-cells.zarr`]: [AnnDataSource, AnnDataLoaders.CellsZarrLoader],
-  [`${ANNDATA}-molecules.zarr`]: [AnnDataSource, AnnDataLoaders.MoleculesZarrLoader],
   [`${ANNDATA}-expression-matrix.zarr`]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],
+  [`${ANNDATA}-molecules.zarr`]: [AnnDataSource, AnnDataLoaders.MoleculesZarrLoader],
   'genomic-profiles.zarr': [ZarrDataSource, GenomicProfilesZarrLoader],
-  geojson: [JsonSource, GeoJsonLoader],
+  'cells.geojson': [JsonSource, GeoJsonLoader],
 };
 
 export function getSourceAndLoaderFromFileType(type) {
