@@ -15,7 +15,7 @@ export const DEFAULT_RASTER_LAYER_PROPS = {
 };
 
 export const DEFAULT_MOLECULES_LAYER = {
-  opacity: 1, radius: 20, visible: true, use3d: true,
+  opacity: 1, radius: 20, visible: true, use3d: false,
 };
 export const DEFAULT_CELLS_LAYER = {
   opacity: 1, radius: 50, visible: true, stroked: false,

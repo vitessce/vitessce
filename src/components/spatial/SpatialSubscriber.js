@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useEffect, useMemo, useCallback } from 'react';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
@@ -266,12 +265,11 @@ export default function SpatialSubscriber(props) {
   };
 
   const moleculeSelectionIndices = useMemo(() => {
-    if(attrs && attrs.cols && moleculeSelection && moleculeSelection.length > 0) {
+    if (attrs && attrs.cols && moleculeSelection && moleculeSelection.length > 0) {
       return moleculeSelection.map(geneName => attrs.cols.indexOf(geneName));
     }
+    return null;
   }, [moleculeSelection, attrs]);
-
-  console.log(moleculeSelectionIndices);
 
   const setViewState = ({
     zoom: newZoom,

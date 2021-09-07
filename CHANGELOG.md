@@ -3,7 +3,7 @@
 ### Added
 - Add loading callbacks for gene selection.
 - Added coordination types for selection of molecules.
-- Added `GeoJSON` loader to support the Baysor cell segmentation polygon format.
+- Added `cells.geojson` loader to support the Baysor cell segmentation polygon format.
 - Added `anndata-molecules.zarr` loader to support the Baysor molecules format.
 
 ### Changed
@@ -43,7 +43,6 @@
 
 ### Added
 - Attach on load callbacks and loading indicators to layer controller when using (global) selection slider.
-- Add loader for `GeoJSON` polygons/points as cells.  QuPath outputs GeoJSON for annotations.
 - Added a new view config version `1.0.2` with corresponding upgrade function to fix backwards compatibility of the layer controller. The upgrade function sets the prop `globalDisable3d` for any layer controller components to keep the previous 2D-only functionality that older view configs would expect.
 
 ### Changed

@@ -77,7 +77,7 @@ const vanderbiltBase = {
 export const configs = {
   'baysor-gut': {
     name: 'Baysor gut dataset',
-    version: '1.0.3',
+    version: '1.0.4',
     description: "Baysor gut example",
     public: true,
     datasets: [
@@ -88,8 +88,8 @@ export const configs = {
         files: [
           {
             type: 'cells',
-            fileType: 'geojson',
-            url: 'https://storage.googleapis.com/vitessce-demo-data/baysor-mouse-ileum/poly_per_z_0.json'
+            fileType: 'cells.geojson',
+            url: 'https://storage.googleapis.com/vitessce-demo-data/baysor-mouse-ileum/poly_per_z_5.json'
           },
           {
             type: 'expression-matrix',
@@ -167,6 +167,11 @@ export const configs = {
             ]
           }
         ]
+      },
+      spatialMoleculesLayer: {
+        A: {
+          opacity: 1, radius: 20, visible: true, use3d: true,
+        },
       }
     },
     layout: [
@@ -176,6 +181,7 @@ export const configs = {
         x: 0, y: 1, w: 2, h: 8,
         coordinationScopes: {
           spatialRasterLayers: "A",
+          spatialMoleculesLayer: "A",
         }
       },
       { component: 'status',
@@ -187,6 +193,7 @@ export const configs = {
       { component: 'spatial',
         coordinationScopes: {
           spatialRasterLayers: "A",
+          spatialMoleculesLayer: "A",
         },
         x: 2, y: 0, w: 4, h: 12 },
     ],

@@ -2,7 +2,8 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import { PolygonLayer, PointCloudLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { PolygonLayer, PointCloudLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-line import/no-extraneous-dependencies
 import { Matrix4 } from 'math.gl';
 import { ScaleBarLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
 import { getSelectionLayers } from '../../layers';
@@ -198,7 +199,51 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
-  createMoleculesLayer(layerDef) {
+  createMoleculesLayer2d(layerDef) {
+    const {
+      setMoleculeHighlight,
+      getMoleculeColor = d => d[1].rgb,
+      getMoleculePosition = d => [d[1].spatial[0], d[1].spatial[1]],
+      moleculeSelectionIndices,
+    } = this.props;
+    const { moleculesEntries } = this;
+
+    return new ScatterplotLayer({
+      id: MOLECULES_LAYER_ID,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: moleculesEntries,
+      pickable: true,
+      autoHighlight: true,
+      radiusMaxPixels: 3,
+      opacity: layerDef.opacity,
+      visible: layerDef.visible,
+      getRadius: layerDef.radius,
+      getPosition: getMoleculePosition,
+      getLineColor: getMoleculeColor,
+      getFillColor: getMoleculeColor,
+      getFilterValue: moleculeEntry => (
+        moleculeSelectionIndices
+          ? (moleculeSelectionIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
+          : 1 // If nothing is selected, everything is selected.
+      ),
+      extensions: [new DataFilterExtension({ filterSize: 1 })],
+      filterRange: [1, 1],
+      onHover: (info) => {
+        if (setMoleculeHighlight) {
+          if (info.object) {
+            setMoleculeHighlight(info.object[3]);
+          } else {
+            setMoleculeHighlight(null);
+          }
+        }
+      },
+      updateTriggers: {
+        getFilterValue: [moleculeSelectionIndices],
+      },
+    });
+  }
+
+  createMoleculesLayer3d(layerDef) {
     const {
       setMoleculeHighlight,
       getMoleculeColor = d => d[1].rgb,
@@ -512,7 +557,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const { layers } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'molecules');
     if (layerDef) {
-      this.moleculesLayer = this.createMoleculesLayer(layerDef);
+      if(layerDef.use3d) {
+        this.moleculesLayer = this.createMoleculesLayer3d(layerDef);
+      } else {
+        this.moleculesLayer = this.createMoleculesLayer2d(layerDef);
+      }
+      
     } else {
       this.moleculesLayer = null;
     }
