@@ -1,11 +1,10 @@
-/* eslint-disable */
 import centroid from '@turf/centroid';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 
 import cells from '../schemas/cells.schema.json';
 import JsonLoader from './JsonLoader';
 import LoaderResult from './LoaderResult';
-import { LoaderValidationError } from './errors/index';
+import { LoaderValidationError, AbstractLoaderError } from './errors/index';
 
 export default class GeoJsonLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -27,28 +26,31 @@ export default class GeoJsonLoader extends JsonLoader {
     }
     this.data = this.dataSource.data
       .then((geoJson) => {
-        const cellsJson = {};
-        if (!(geoJson.every(cell => cell.type === 'Polygon')
-          || geoJson.every(cell => cell.type === 'Point'))) {
-          this.rejectGeoJson('Vitessce only accepts GeoJSON that is excusively Points (i.e centroids) or Polygons');
+        if (geoJson instanceof AbstractLoaderError) {
+          return Promise.reject(geoJson);
         }
-        geoJson.forEach((cell, index) => {
-          if (cell.type === 'Polygon') {
-            const points = turfFeatureCollection(
-              cell.coordinates[0].map(turfPoint),
-            );
-            if (cell.coordinates.length > 1) {
-              console.warn('Vitessce only accepts polygons with no holes.  Only the first ring will be used');
-            }
-            cellsJson[String(index)] = {
-              poly: cell.coordinates[0],
-              xy: centroid(points).geometry.coordinates,
-            };
-          } else {
-            cellsJson[String(index)] = {
-              xy: cell.coordinates[0],
-            };
+
+        if (!(geoJson && geoJson.type && geoJson.geometries && geoJson.type === 'GeometryCollection' && Array.isArray(geoJson.geometries))) {
+          return this.rejectGeoJson('Vitessce only accepts GeoJSON that is a GeometryCollection.');
+        }
+
+        const geoJsonGeometries = geoJson.geometries;
+        if (!geoJsonGeometries.every(cell => cell && cell.type && cell.type === 'Polygon')) {
+          return this.rejectGeoJson('Vitessce only accepts GeoJSON that is a GeometryCollection of Polygons.');
+        }
+
+        const cellsJson = {};
+        geoJsonGeometries.forEach((cell, index) => {
+          const points = turfFeatureCollection(
+            cell.coordinates[0].map(turfPoint),
+          );
+          if (cell.coordinates.length > 1) {
+            console.warn('Vitessce only accepts polygons with no holes.  Only the first ring will be used.');
           }
+          cellsJson[String(index)] = {
+            poly: cell.coordinates[0],
+            xy: centroid(points).geometry.coordinates,
+          };
         });
         console.log(cellsJson); // eslint-disable-line
         return Promise.resolve(new LoaderResult(cellsJson, url));

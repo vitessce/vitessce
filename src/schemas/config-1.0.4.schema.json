@@ -172,6 +172,30 @@
         }
       }
     },
+    "annDataMolecules": {
+      "type": "object",
+      "description": "The properties of this object are the configuration for how to fetch the molecules table",
+      "additionalProperties": false,
+      "required": ["spatial"],
+      "properties": {
+        "spatial": {
+          "type": "string",
+          "description": ""
+        },
+        "rgb": {
+          "type": "string",
+          "description": ""
+        },
+        "cellIndex": {
+          "type": "string",
+          "description": ""
+        },
+        "geneIndex": {
+          "type": "string",
+          "description": ""
+        }
+      }
+    },
     "requestInit": {
       "type": "object",
       "description": "The properties of this object correspond to the parameters of the JavaScript fetch() function.",
@@ -373,6 +397,9 @@
         },
         "opacity": {
           "type": "number"
+        },
+        "use3d": {
+          "type": "boolean"
         }
       }
     },
@@ -443,7 +470,13 @@
                 "type": { "type": "string" },
                 "fileType": { "type": "string" },
                 "url": { "type": "string" },
-                "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "https://github.com/vitessce/vitessce/#raster" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
+                "options": { "oneOf": [
+                  { "$ref": "https://github.com/vitessce/vitessce/#raster" },
+                  { "$ref": "#/definitions/annDataCells" },
+                  { "$ref": "#/definitions/annDataCellSets" },
+                  { "$ref": "#/definitions/annDataExpressionMatrix" },
+                  { "$ref": "#/definitions/annDataMolecules" }
+                ] },
                 "requestInit": { "$ref": "#/definitions/requestInit" }
               }
             }

@@ -1,11 +1,9 @@
-/* eslint-disable */
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
-import { useExpressionAttrs, useMoleculesData } from '../data-hooks';
+import { useExpressionAttrs } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { PALETTE } from '../utils';
 
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
@@ -25,6 +23,8 @@ const GENES_DATA_TYPES = ['expression-matrix'];
  * of the name of the variable.
  * @param {string} props.variablesPluralLabelOverride The plural
  * form of the name of the variable.
+ * @param {boolean} props.enableToggling Should selecting a previously checked
+ * row result in un-checking? By default, true.
  */
 export default function GenesSubscriber(props) {
   const {
@@ -35,6 +35,7 @@ export default function GenesSubscriber(props) {
     theme,
     title = 'Expression Levels',
     enableMoleculeSelection = true,
+    enableToggling = true,
   } = props;
 
   const loaders = useLoaders();
@@ -45,7 +46,6 @@ export default function GenesSubscriber(props) {
     geneSelection,
     geneFilter,
     cellColorEncoding,
-    moleculeSelection,
   }, {
     setGeneSelection,
     setGeneFilter,
@@ -77,15 +77,11 @@ export default function GenesSubscriber(props) {
   );
   const geneList = attrs ? attrs.cols : [];
   const numGenes = geneList.length;
-  
-  const [molecules] = useMoleculesData(
-    loaders, dataset, setItemIsReady, addUrl, false,
-  );
 
   function setGeneSelectionAndColorEncoding(newSelection) {
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
-    if(enableMoleculeSelection) {
+    if (enableMoleculeSelection) {
       setMoleculeSelection(newSelection);
     }
   }
@@ -104,6 +100,7 @@ export default function GenesSubscriber(props) {
       urls={urls}
     >
       <Genes
+        enableToggling={enableToggling}
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
         geneList={geneList}
         geneSelection={geneSelection}

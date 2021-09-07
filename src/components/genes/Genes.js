@@ -8,6 +8,7 @@ export default function Genes(props) {
     geneSelection = [],
     geneFilter = null,
     setGeneSelection,
+    enableToggling,
   } = props;
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,6 +23,8 @@ export default function Genes(props) {
   function onChange(selection) {
     if (setGeneSelection && selection && selection.name) {
       setGeneSelection([selection.name]);
+    } else if (setGeneSelection && !selection) {
+      setGeneSelection(null);
     }
   }
 
@@ -52,7 +55,7 @@ export default function Genes(props) {
         idKey="name"
         valueKey="value"
         onChange={onChange}
-        allowUncheck={false}
+        allowUncheck={enableToggling}
         showTableHead={false}
       />
     </>
