@@ -1,4 +1,3 @@
-/* eslint-disable */
 import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 

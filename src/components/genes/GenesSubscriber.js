@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
-import { useExpressionAttrs } from '../data-hooks';
+import { useExpressionAttrs, useMoleculesData } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
@@ -23,6 +23,7 @@ const GENES_DATA_TYPES = ['expression-matrix'];
  * of the name of the variable.
  * @param {string} props.variablesPluralLabelOverride The plural
  * form of the name of the variable.
+ * @param {boolean} props.enableMoleculeSelection Should selecting a gene also select molecules with the same name?
  * @param {boolean} props.enableToggling Should selecting a previously checked
  * row result in un-checking? By default, true.
  */
@@ -82,6 +83,8 @@ export default function GenesSubscriber(props) {
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
     if (enableMoleculeSelection) {
+      // TODO: allow a many-to-one mapping from molecules to genes,
+      // rather than assuming the molecule ID is the same as the gene ID.
       setMoleculeSelection(newSelection);
     }
   }
