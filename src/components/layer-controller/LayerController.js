@@ -102,6 +102,9 @@ export default function LayerController(props) {
     use3d,
     modelMatrix,
   } = layer;
+  // Channels are used in a lot of callbacks and change handlers
+  // so ensuring they have an up to date copy of the data ensures consistency.
+  // See: https://github.com/vitessce/vitessce/issues/1036
   const channelRef = useRef(channels);
   useEffect(() => {
     channelRef.current = channels;
