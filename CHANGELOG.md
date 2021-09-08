@@ -4,6 +4,7 @@
 
 ### Changed
 - Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.
+- deck.gl should be pinned to minor version
 
 ## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01
 
