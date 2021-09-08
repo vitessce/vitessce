@@ -80,9 +80,7 @@
               "genomicTargetX": { "type": "string" },
               "genomicTargetY": { "type": "string" },
               "additionalCellSets": { "type": "string" },
-              "moleculeHighlight": { "type": "string" },
-              "moleculeFilter": { "type": "string" },
-              "moleculeSelection": { "type": "string" }
+              "moleculeHighlight": { "type": "string" }
             }
           }
         }
@@ -171,30 +169,6 @@
         "matrixGeneFilter": {
           "type": "string",
            "description": "The location in the AnnData store of a filter for the matrix data (used in heatmap and histogram), like 'var.highly_variable.''"
-        }
-      }
-    },
-    "annDataMolecules": {
-      "type": "object",
-      "description": "The properties of this object are the configuration for how to fetch the molecules table",
-      "additionalProperties": false,
-      "required": ["spatial"],
-      "properties": {
-        "spatial": {
-          "type": "string",
-          "description": ""
-        },
-        "rgb": {
-          "type": "string",
-          "description": ""
-        },
-        "cellIndex": {
-          "type": "string",
-          "description": ""
-        },
-        "geneIndex": {
-          "type": "string",
-          "description": ""
         }
       }
     },
@@ -399,9 +373,6 @@
         },
         "opacity": {
           "type": "number"
-        },
-        "use3d": {
-          "type": "boolean"
         }
       }
     },
@@ -472,13 +443,7 @@
                 "type": { "type": "string" },
                 "fileType": { "type": "string" },
                 "url": { "type": "string" },
-                "options": { "oneOf": [
-                  { "$ref": "https://github.com/vitessce/vitessce/#raster" },
-                  { "$ref": "#/definitions/annDataCells" },
-                  { "$ref": "#/definitions/annDataCellSets" },
-                  { "$ref": "#/definitions/annDataExpressionMatrix" },
-                  { "$ref": "#/definitions/annDataMolecules" }
-                ] },
+                "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "https://github.com/vitessce/vitessce/#raster" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
                 "requestInit": { "$ref": "#/definitions/requestInit" }
               }
             }
@@ -1046,34 +1011,6 @@
                   "description": "If null is provided, no molecule will be highlighted initially."
                 },
                 { "type": "string" }
-              ]
-            }
-          }
-        },
-        "moleculeFilter": {
-          "type": "object",
-          "patternProperties": {
-            ".": {
-              "oneOf": [
-                {
-                  "type": "null",
-                  "description": "If null is provided, no molecules will be filtered out."
-                },
-                { "type": "array", "items": { "type": "string" } }
-              ]
-            }
-          }
-        },
-        "moleculeSelection": {
-          "type": "object",
-          "patternProperties": {
-            ".": {
-              "oneOf": [
-                {
-                  "type": "null",
-                  "description": "If null is provided, no molecules will be selected."
-                },
-                { "type": "array", "items": { "type": "string" } }
               ]
             }
           }

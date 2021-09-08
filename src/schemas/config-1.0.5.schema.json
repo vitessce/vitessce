@@ -41,6 +41,9 @@
                 "embeddingCellSetLabelsVisible": { "type": "string" },
                 "embeddingCellSetLabelSize": { "type": "string" },
                 "embeddingCellRadius": { "type": "string" },
+                "embeddingCellOpacity": { "type": "string" },
+                "embeddingCellRadiusMode": { "type": "string" },
+                "embeddingCellOpacityMode": { "type": "string" },
                 "spatialZoom": { "type": "string" },
                 "spatialRotation": { "type": "string" },
                 "spatialTargetX": { "type": "string" },
@@ -77,7 +80,9 @@
                 "genomicTargetX": { "type": "string" },
                 "genomicTargetY": { "type": "string" },
                 "additionalCellSets": { "type": "string" },
-                "moleculeHighlight": { "type": "string" }
+                "moleculeHighlight": { "type": "string" },
+                "moleculeFilter": { "type": "string" },
+                "moleculeSelection": { "type": "string" }
               }
             }
           }
@@ -166,6 +171,30 @@
           "matrixGeneFilter": {
             "type": "string",
              "description": "The location in the AnnData store of a filter for the matrix data (used in heatmap and histogram), like 'var.highly_variable.''"
+          }
+        }
+      },
+      "annDataMolecules": {
+        "type": "object",
+        "description": "The properties of this object are the configuration for how to fetch the molecules table",
+        "additionalProperties": false,
+        "required": ["spatial"],
+        "properties": {
+          "spatial": {
+            "type": "string",
+            "description": ""
+          },
+          "rgb": {
+            "type": "string",
+            "description": ""
+          },
+          "cellIndex": {
+            "type": "string",
+            "description": ""
+          },
+          "geneIndex": {
+            "type": "string",
+            "description": ""
           }
         }
       },
@@ -370,6 +399,9 @@
           },
           "opacity": {
             "type": "number"
+          },
+          "use3d": {
+            "type": "boolean"
           }
         }
       },
@@ -440,7 +472,13 @@
                   "type": { "type": "string" },
                   "fileType": { "type": "string" },
                   "url": { "type": "string" },
-                  "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "https://github.com/vitessce/vitessce/#raster" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
+                  "options": { "oneOf": [
+                    { "$ref": "https://github.com/vitessce/vitessce/#raster" },
+                    { "$ref": "#/definitions/annDataCells" },
+                    { "$ref": "#/definitions/annDataCellSets" },
+                    { "$ref": "#/definitions/annDataExpressionMatrix" },
+                    { "$ref": "#/definitions/annDataMolecules" }
+                  ] },
                   "requestInit": { "$ref": "#/definitions/requestInit" }
                 }
               }
@@ -538,7 +576,39 @@
           "embeddingCellRadius": {
             "type": "object",
             "patternProperties": {
-              ".": { "type": "number" }
+              ".": {
+                "type": "number",
+                "description": "The cell radius value, used when embeddingCellRadiusMode is absolute or relative."
+              }
+            }
+          },
+          "embeddingCellOpacity": {
+            "type": "object",
+            "patternProperties": {
+                ".": {
+                  "type": "number",
+                  "description": "The cell opacity value, used when embeddingCellOpacityMode is static."
+                }
+            }
+          },
+          "embeddingCellRadiusMode": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "string",
+                "enum": ["manual", "auto"],
+                "description": "Should data points representing cells be assigned a static (manual) or dynamic (auto, based on zoom level and data extent) radius?"
+              }
+            }
+          },
+          "embeddingCellOpacityMode": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "string",
+                "enum": ["manual", "auto"],
+                "description": "Should data points representing cells be assigned a static (manual) or dynamic (auto, based on zoom level and data extent) opacity?"
+              }
             }
           },
           "spatialZoom": {
@@ -853,7 +923,11 @@
           "cellColorEncoding": {
             "type": "object",
             "patternProperties": {
-              ".": { "type": "string" }
+              ".": {
+                "type": "string",
+                "enum": ["geneSelection", "cellSetSelection"],
+                "description": "How should data points representing cells be colored?"
+              }
             }
           },
           "geneFilter": {
@@ -975,6 +1049,34 @@
                 ]
               }
             }
+          },
+          "moleculeFilter": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided, no molecules will be filtered out."
+                  },
+                  { "type": "array", "items": { "type": "string" } }
+                ]
+              }
+            }
+          },
+          "moleculeSelection": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided, no molecules will be selected."
+                  },
+                  { "type": "array", "items": { "type": "string" } }
+                ]
+              }
+            }
           }
         }
       },
@@ -986,7 +1088,7 @@
       },
       "version": {
         "type": "string",
-        "enum": ["1.0.3"],
+        "enum": ["1.0.5"],
         "description": "The schema version for the view config."
       }
     }

@@ -221,6 +221,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       getFilterValue: moleculeEntry => (
+        // eslint-disable-next-line no-nested-ternary
         moleculeSelectionGeneIndices
           ? (moleculeSelectionGeneIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
           : 1 // If nothing is selected, everything is selected.
@@ -247,7 +248,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       setMoleculeHighlight,
       getMoleculeColor = d => d[1].rgb,
       getMoleculePosition = d => d[1].spatial,
-      getMoleculeNormal = d => [-1, 0, 0],
+      getMoleculeNormal = () => [-1, 0, 0],
       moleculeSelectionGeneIndices,
     } = this.props;
     const { moleculesEntries } = this;
@@ -265,6 +266,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getNormal: getMoleculeNormal,
       getColor: getMoleculeColor,
       getFilterValue: moleculeEntry => (
+        // eslint-disable-next-line no-nested-ternary
         moleculeSelectionGeneIndices
           ? (moleculeSelectionGeneIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
           : 1 // If nothing is selected, everything is selected.
@@ -556,12 +558,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const { layers } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'molecules');
     if (layerDef) {
-      if(layerDef.use3d) {
+      if (layerDef.use3d) {
         this.moleculesLayer = this.createMoleculesLayer3d(layerDef);
       } else {
         this.moleculesLayer = this.createMoleculesLayer2d(layerDef);
       }
-      
     } else {
       this.moleculesLayer = null;
     }

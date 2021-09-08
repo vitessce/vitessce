@@ -77,7 +77,7 @@ const vanderbiltBase = {
 export const configs = {
   'baysor-gut': {
     name: 'Baysor gut dataset',
-    version: '1.0.4',
+    version: '1.0.5',
     description: "Baysor gut example",
     public: true,
     datasets: [

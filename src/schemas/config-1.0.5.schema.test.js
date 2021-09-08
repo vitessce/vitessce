@@ -1,6 +1,6 @@
 import expect from 'expect';
 import { COORDINATION_TYPES } from '../app/state/coordination';
-import viewConfigSchema from './config-1.0.4.schema.json';
+import viewConfigSchema from './config-1.0.5.schema.json';
 
 describe('view config schema', () => {
   describe('coordination types', () => {

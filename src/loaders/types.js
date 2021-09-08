@@ -7,7 +7,7 @@ import OmeZarrLoader from './OmeZarrLoader';
 import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
-import GeoJsonLoader from './GeoJsonLoader';
+import CellsGeoJsonLoader from './CellsGeoJsonLoader';
 
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
 
@@ -28,7 +28,7 @@ const fileTypeToLoaderAndSource = {
   [`${ANNDATA}-expression-matrix.zarr`]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],
   [`${ANNDATA}-molecules.zarr`]: [AnnDataSource, AnnDataLoaders.MoleculesZarrLoader],
   'genomic-profiles.zarr': [ZarrDataSource, GenomicProfilesZarrLoader],
-  'cells.geojson': [JsonSource, GeoJsonLoader],
+  'cells.geojson': [JsonSource, CellsGeoJsonLoader],
 };
 
 export function getSourceAndLoaderFromFileType(type) {

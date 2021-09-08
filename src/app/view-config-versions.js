@@ -6,6 +6,7 @@ import configSchema1_0_1 from '../schemas/config-1.0.1.schema.json';
 import configSchema1_0_2 from '../schemas/config-1.0.2.schema.json';
 import configSchema1_0_3 from '../schemas/config-1.0.3.schema.json';
 import configSchema1_0_4 from '../schemas/config-1.0.4.schema.json';
+import configSchema1_0_5 from '../schemas/config-1.0.5.schema.json';
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
 import {
@@ -14,6 +15,7 @@ import {
   upgradeFrom1_0_1,
   upgradeFrom1_0_2,
   upgradeFrom1_0_3,
+  upgradeFrom1_0_4,
 } from './view-config-upgraders';
 
 /**
@@ -28,5 +30,6 @@ export const SCHEMA_HANDLERS = {
   '1.0.1': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_1), upgradeFrom1_0_1],
   '1.0.2': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_2), upgradeFrom1_0_2],
   '1.0.3': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_3), upgradeFrom1_0_3],
-  '1.0.4': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_4), null],
+  '1.0.4': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_4), upgradeFrom1_0_4],
+  '1.0.5': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_5), null],
 };

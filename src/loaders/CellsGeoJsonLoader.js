@@ -4,7 +4,7 @@ import AbstractTwoStepLoader from './AbstractTwoStepLoader';
 import { AbstractLoaderError, LoaderValidationError } from './errors/index';
 import LoaderResult from './LoaderResult';
 
-export default class GeoJsonLoader extends AbstractTwoStepLoader {
+export default class CellsGeoJsonLoader extends AbstractTwoStepLoader {
   rejectGeoJson(reason) {
     const { url, type, fileType } = this;
     return Promise.reject(new LoaderValidationError(type, fileType, url, reason));
