@@ -9,4 +9,4 @@ Fixes #
 -
 #### Checklist
  - [ ] Ensure PR works with all demos on the vitessce.io homepage
- - [ ] Open (draft) PR's into [`vitessce-python`](https://github.com/vitessce/vitessce-python) and [`vitessce-r`](https://github.com/vitessce/vitessce-r) if the schema has changed
+ - [ ] Open (draft) PR's into [`vitessce-python`](https://github.com/vitessce/vitessce-python) and [`vitessce-r`](https://github.com/vitessce/vitessce-r) if this is a release PR
