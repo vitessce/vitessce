@@ -6,7 +6,7 @@ import JsonLoader from './JsonLoader';
 import LoaderResult from './LoaderResult';
 import { LoaderValidationError, AbstractLoaderError } from './errors/index';
 
-export default class GeoJsonLoader extends JsonLoader {
+export default class CellsGeoJsonLoader extends JsonLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
     this.schema = cells;
