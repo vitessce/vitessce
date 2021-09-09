@@ -1,15 +1,12 @@
 
 ### Added
-<<<<<<< HEAD
 - Add loader for `GeoJSON` polygons/points as cells.  QuPath outputs GeoJSON for annotations.
 - Updated `GeoJSON` loader to support the Baysor custom format
 - Added coordination types for selection of molecules
-=======
 - Add loading callbacks for gene selection.
 - Added coordination types for selection of molecules.
 - Added `cells.geojson` loader to support the Baysor cell segmentation polygon format.
 - Added `anndata-molecules.zarr` loader to support the Baysor molecules format.
->>>>>>> b82f94e5 (WIP: clean up branch)
 
 ### Changed
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details.
@@ -74,6 +71,19 @@
 - Fix bug introduced by #1037 that broke channel removal/addition.
 - Fix setting default schema values for properties that are not in the current deck.gl view state (for example, the z direction for `target`).
 - Moved creation of `useViewConfigStore` and `useAuxiliaryStore` to the `ViewConfigProvider` and `AuxiliaryProvider` contexts (rather than creating global stores).
+=======
+- PR template including reminder for potential R and python package PR's when version schema changes.
+- Added coordination types for selection of molecules.
+- Added `cells.geojson` loader to support the Baysor cell segmentation polygon format.
+- Added `anndata-molecules.zarr` loader to support the Baysor molecules format.
+- Added support for multiple gene selection via `shift+click`.
+- Added a `use3d` option for `spatialMoleculesLayer` to enable a point-cloud rendering of 3D molecules data.
+
+### Changed
+- Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.
+- deck.gl should be pinned to minor version
+- Changed the `molecules.json` loader class to reflect the new internal data structure for molecules.
+>>>>>>> b1a78dfc (Changelog)
 
 ## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01
 
