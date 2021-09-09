@@ -1,16 +1,17 @@
 ## In Progress
 
 ### Added
-- Add loading callbacks for gene selection.
+- PR template including reminder for potential R and python package PR's when version schema changes.
 - Added coordination types for selection of molecules.
 - Added `cells.geojson` loader to support the Baysor cell segmentation polygon format.
 - Added `anndata-molecules.zarr` loader to support the Baysor molecules format.
+- Added support for multiple gene selection via `shift+click`.
+- Added a `use3d` option for `spatialMoleculesLayer` to enable a point-cloud rendering of 3D molecules data.
 
 ### Changed
-- Prevent heatmap re-ordering when gene selection is made.
-- PR template including reminder for potential R and python package PR's when version schema changes.
 - Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.
 - deck.gl should be pinned to minor version
+- Changed the `molecules.json` loader class to reflect the new internal data structure for molecules.
 
 ## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01
 
