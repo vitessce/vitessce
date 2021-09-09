@@ -271,6 +271,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getPosition: getMoleculePosition,
       getNormal: getMoleculeNormal,
       getColor: getMoleculeColor,
+      material: {
+        ambient: 1.0,
+        diffuse: 1.0,
+        shininess: 18,
+        specularColor: [255, 255, 255],
+      },
       getFilterValue: moleculeEntry => (
         // eslint-disable-next-line no-nested-ternary
         moleculeSelectionGeneIndices
