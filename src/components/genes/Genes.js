@@ -21,10 +21,8 @@ export default function Genes(props) {
   }, [searchTerm, geneList]);
 
   function onChange(selection) {
-    if (setGeneSelection && selection && selection.name) {
-      setGeneSelection([selection.name]);
-    } else if (setGeneSelection && !selection) {
-      setGeneSelection(null);
+    if (setGeneSelection && selection && Array.isArray(selection)) {
+      setGeneSelection(selection.map(s => s.name));
     }
   }
 
@@ -55,6 +53,7 @@ export default function Genes(props) {
         idKey="name"
         valueKey="value"
         onChange={onChange}
+        allowMultiple="shift+click"
         allowUncheck={enableToggling}
         showTableHead={false}
       />
