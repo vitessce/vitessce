@@ -24,7 +24,7 @@ const GENES_DATA_TYPES = ['expression-matrix'];
  * @param {string} props.variablesPluralLabelOverride The plural
  * form of the name of the variable.
  * @param {boolean} props.enableMoleculeSelection Should selecting a gene also
- * select molecules with the same name?
+ * select molecules with the same name? By default, false.
  * @param {boolean} props.enableToggling Should selecting a previously checked
  * row result in un-checking? By default, true.
  */
@@ -36,7 +36,7 @@ export default function GenesSubscriber(props) {
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
     title = 'Expression Levels',
-    enableMoleculeSelection = true,
+    enableMoleculeSelection = false,
     enableToggling = true,
   } = props;
 
