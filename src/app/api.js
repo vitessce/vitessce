@@ -187,6 +187,9 @@ export const configs = {
       { component: 'status',
         x: 0, y: 10, w: 2, h: 2 },
       { component: 'genes',
+        props: {
+          enableMoleculeSelection: true,
+        },
         x: 6, y: 0, w: 2, h: 12 },
       { component: 'heatmap',
         x: 8, y: 0, w: 4, h: 12 },

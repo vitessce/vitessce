@@ -5,6 +5,7 @@ import ClustersJsonAsMatrixZarrLoader from './ClustersJsonAsMatrixZarrLoader';
 import RasterJsonLoader from './RasterJsonLoader';
 import OmeZarrLoader from './OmeZarrLoader';
 import CellSetsJsonLoader from './CellSetsJsonLoader';
+import MoleculesJsonLoader from './MoleculesJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import CellsGeoJsonLoader from './CellsGeoJsonLoader';
@@ -18,7 +19,7 @@ const fileTypeToLoaderAndSource = {
   'clusters.json': [JsonSource, ClustersJsonAsMatrixZarrLoader],
   'genes.json': [JsonSource, GenesJsonAsMatrixZarrLoader],
   'cells.json': [JsonSource, JsonLoader],
-  'molecules.json': [JsonSource, JsonLoader],
+  'molecules.json': [JsonSource, MoleculesJsonLoader],
   'neighborhoods.json': [JsonSource, JsonLoader],
   'raster.json': [JsonSource, RasterJsonLoader],
   'raster.ome-zarr': [ZarrDataSource, OmeZarrLoader],
