@@ -288,21 +288,16 @@ export async function initializeRasterLayersAndChannels(
  * @param {number} params.subobservationsCount
  * @param {string} params.subobservationsLabel
  * @param {string} params.subobservationsPluralLabel
- * @param {number} params.locationsCount
  * @returns {string} The subtitle string,
  * with info about items with zero counts omitted.
  */
 export function makeSpatialSubtitle({
   observationsCount, observationsLabel, observationsPluralLabel,
   subobservationsCount, subobservationsLabel, subobservationsPluralLabel,
-  locationsCount,
 }) {
   const parts = [];
   if (subobservationsCount > 0) {
-    let part = `${subobservationsCount} ${pluralize(subobservationsLabel, subobservationsPluralLabel, subobservationsCount)}`;
-    if (locationsCount > 0) {
-      part += ` at ${shortNumber(locationsCount)} locations`;
-    }
+    const part = `${shortNumber(subobservationsCount)} ${pluralize(subobservationsLabel, subobservationsPluralLabel, subobservationsCount)}`;
     parts.push(part);
   }
   if (observationsCount > 0) {

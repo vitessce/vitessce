@@ -6,7 +6,7 @@ import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-lin
 import { Matrix4 } from 'math.gl';
 import { ScaleBarLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
 import { getSelectionLayers } from '../../layers';
-import { cellLayerDefaultProps, getDefaultColor } from '../utils';
+import { cellLayerDefaultProps, PALETTE, getDefaultColor } from '../utils';
 import { getSourceFromLoader } from '../../utils';
 import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
@@ -39,6 +39,12 @@ const makeDefaultGetCellIsSelected = (cellSelection) => {
     );
   }
   return () => 0.0;
+};
+const makeDefaultGetMoleculeColors = () => (moleculeEntry) => {
+  if (moleculeEntry[1].rgb) {
+    return moleculeEntry[1].rgb;
+  }
+  return PALETTE[moleculeEntry[1].geneIndex % PALETTE.length];
 };
 
 /**
@@ -201,7 +207,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createMoleculesLayer2d(layerDef) {
     const {
       setMoleculeHighlight,
-      getMoleculeColor = d => d[1].rgb,
+      getMoleculeColor = makeDefaultGetMoleculeColors(),
       getMoleculePosition = d => [d[1].spatial[0], d[1].spatial[1]],
       moleculeSelectionGeneIndices,
     } = this.props;
@@ -214,11 +220,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       pickable: true,
       autoHighlight: true,
       radiusMaxPixels: 3,
+      stroked: false,
       opacity: layerDef.opacity,
       visible: layerDef.visible,
       getRadius: layerDef.radius,
       getPosition: getMoleculePosition,
-      getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       getFilterValue: moleculeEntry => (
         // eslint-disable-next-line no-nested-ternary
@@ -246,7 +252,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createMoleculesLayer3d(layerDef) {
     const {
       setMoleculeHighlight,
-      getMoleculeColor = d => d[1].rgb,
+      getMoleculeColor = makeDefaultGetMoleculeColors(),
       getMoleculePosition = d => d[1].spatial,
       getMoleculeNormal = () => [-1, 0, 0],
       moleculeSelectionGeneIndices,
@@ -467,8 +473,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createImageLayers() {
     const { layers, imageLayerLoaders = {}, rasterLayersCallbacks = [] } = this.props;
-    const use3d = null;
-    const use3dIndex = -1;
+    const use3d = (layers || []).some(i => i.type === 'raster' && i.use3d);
+    const use3dIndex = (layers || []).findIndex(i => i.type === 'raster' && i.use3d);
     return (layers || [])
       .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
       .filter(layer => (use3d ? layer.use3d === use3d : true))

@@ -147,7 +147,7 @@ export default function SpatialSubscriber(props) {
     { setSpatialCellsLayer: setCellsLayer },
     { spatialCellsLayer: cellsLayer },
   );
-  const [molecules, moleculesCount, locationsCount] = useMoleculesData(
+  const [molecules, moleculesCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialMoleculesLayer: setMoleculesLayer },
     { spatialMoleculesLayer: moleculesLayer },
@@ -294,7 +294,6 @@ export default function SpatialSubscriber(props) {
     subobservationsCount: moleculesCount,
     subobservationsLabel,
     subobservationsPluralLabel,
-    locationsCount,
   });
 
   // Set up a getter function for gene expression values, to be used
