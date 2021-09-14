@@ -288,7 +288,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       if (unit && size) {
         return new ScaleBarLayer({
           id: 'scalebar-layer',
-          loader,
           unit,
           size,
           viewState: { ...viewState, width, height },
