@@ -24,6 +24,6 @@ describe('<Heatmap/>', () => {
         viewState={{ zoom: 0, target: [0, 0] }}
       />,
     );
-    expect(wrapper.find('#deckgl-wrapper').length).toEqual(1);
+    expect(wrapper.find('#deckgl-overlay-heatmap-0-wrapper').length).toEqual(1);
   });
 });
