@@ -20,7 +20,7 @@
     "react-dom": "^16.8.6"
   },
   "dependencies": {
-    "@hms-dbmi/viv": "file:../vitessce-image-viewer/hms-dbmi-viv-0.10.5.tgz",
+    "@hms-dbmi/viv": "^0.10.6",
     "@loaders.gl/3d-tiles": "^3.0.0",
     "@loaders.gl/core": "^3.0.0",
     "@loaders.gl/images": "^3.0.0",
