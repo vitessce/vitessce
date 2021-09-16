@@ -1,27 +1,12 @@
 import React, {
   useMemo, useEffect, useRef, Suspense, useState,
 } from 'react';
-import ReactDOM from 'react-dom';
-import dynamicImportPolyfill from 'dynamic-import-polyfill';
 import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
-import packageJson from '../../../package.json';
-import { createWarningComponent, asEsModule } from '../utils';
 import { useGridItemSize } from '../hooks';
-import {
-  useCoordination,
-} from '../../app/state/hooks';
+import { useCoordination } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
-const PIXI_BUNDLE_VERSION = packageJson.dependencies['window-pixi'];
-const HIGLASS_BUNDLE_VERSION = packageJson.dependencies.higlass;
-const BUNDLE_FILE_EXT = process.env.NODE_ENV === 'development' ? 'js' : 'min.js';
-const PIXI_BUNDLE_URL = `https://unpkg.com/window-pixi@${PIXI_BUNDLE_VERSION}/dist/pixi.${BUNDLE_FILE_EXT}`;
-const HIGLASS_BUNDLE_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.${BUNDLE_FILE_EXT}`;
-
-
-// Initialize the dynamic __import__() function.
-dynamicImportPolyfill.initialize();
 
 // Register the zarr-multivec plugin data fetcher.
 // References:
@@ -34,31 +19,9 @@ register(
 
 // Lazy load the HiGlass React component,
 // using dynamic imports with absolute URLs.
-const HiGlassComponent = React.lazy(() => {
-  if (!window.React) {
-    window.React = React;
-  }
-  if (!window.ReactDOM) {
-    window.ReactDOM = ReactDOM;
-  }
-  return new Promise((resolve) => {
-    const handleImportError = (e) => {
-      console.warn(e);
-      resolve(asEsModule(createWarningComponent({
-        title: 'Could not load HiGlass',
-        message: 'The HiGlass scripts could not be dynamically imported.',
-      })));
-    };
-      // eslint-disable-next-line no-undef
-    __import__(PIXI_BUNDLE_URL).then(() => {
-      // eslint-disable-next-line no-undef
-      __import__(HIGLASS_BUNDLE_URL).then(() => {
-        // React.lazy promise must return an ES module with the
-        // component as the default export.
-        resolve(asEsModule(window.hglib.HiGlassComponent));
-      }).catch(handleImportError);
-    }).catch(handleImportError);
-  });
+const LazyHiGlassComponent = React.lazy(async () => {
+  const { HiGlassComponent } = await import('higlass');
+  return { default: HiGlassComponent };
 });
 
 // Use an arbitrary size for normalization of the zoom level.
@@ -209,7 +172,7 @@ export default function HiGlassLazy(props) {
     <div className="higlass-wrapper-parent">
       <div className="higlass-wrapper" ref={containerRef} style={{ height: `${height}px` }}>
         <Suspense fallback={<div>Loading...</div>}>
-          <HiGlassComponent
+          <LazyHiGlassComponent
             ref={setHgInstance}
             zoomFixed={false}
             viewConfig={hgViewConfig}
