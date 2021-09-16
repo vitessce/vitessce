@@ -215,10 +215,3 @@ export function createWarningComponent(props) {
     );
   };
 }
-
-export function asEsModule(component) {
-  return {
-    __esModule: true,
-    default: component,
-  };
-}
