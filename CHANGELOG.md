@@ -7,6 +7,7 @@
 - Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.
 - deck.gl should be pinned to minor version
 - Upgrade Viv to 0.10.6 and deck.gl to 8.5
+- Add esbuild script to generate ES Module library bundle
 
 ## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01
 
