@@ -6,7 +6,10 @@ const path = require("path");
 const pkg = require('../package.json');
 
 /**
- * Generates an independent bundle as 
+ * Generates an independent bundle and inlines a worker script 
+ * as a default export. Import must end with `.worker`.
+ *
+ * import Worker from '../../path/to/my-worker.worker';
  *
  * @return {import('esbuild').Plugin}
  */
