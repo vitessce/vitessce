@@ -630,6 +630,31 @@ export function useRasterData(
       loaders[dataset].loaders.raster.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url: urls, coordinationValues } = payload;
+
+        /*
+        We need to merge the spatialRasterLayers properties because there are multiplesub-properties
+        that can be incomplete (for example colors without silders,
+        or just special selection choices).  Thus we merge the initial values into the (auto) values
+        from the `payload` and then null out the initial values so that `initCoordinationSpace`
+        sets the coordiantion value for raster layers.
+        */
+        // eslint-disable-next-line no-unused-expressions
+        initialCoordinationValues?.spatialRasterLayers
+        && coordinationValues.spatialRasterLayers.forEach((layer, layerIndex) => {
+          layer.channels.forEach((channel, channelIndex) => {
+            // eslint-disable-next-line no-param-reassign
+            layer.channels[channelIndex] = {
+              ...layer.channels[channelIndex],
+              ...initialCoordinationValues.spatialRasterLayers[layerIndex].channels[channelIndex],
+            };
+          });
+        });
+        const newInitialCoordinationValues = {
+          ...(initialCoordinationValues || {}),
+          spatialRasterLayers: null,
+        };
+
+
         setRaster(data);
         urls.forEach(([url, name]) => {
           addUrl(url, name);
@@ -640,7 +665,7 @@ export function useRasterData(
         initCoordinationSpace(
           coordinationValues,
           coordinationSetters,
-          initialCoordinationValues,
+          newInitialCoordinationValues,
         );
         setItemIsReady('raster');
       });
