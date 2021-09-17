@@ -96,6 +96,8 @@
     "dotenv-expand": "5.1.0",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.2",
+    "esbuild": "^0.12.28",
+    "esbuild-plugin-sass": "^0.6.0",
     "eslint": "^6.6.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-react-app": "^5.2.0",
@@ -156,6 +158,7 @@
   "scripts": {
     "build-demo:prod": "node scripts/build-demo.js production",
     "build-lib:prod": "node scripts/build-lib.js production",
+    "build-lib:esm": "node scripts/build-esm.js",
     "build-demo:dev": "node scripts/build-demo.js development",
     "build-lib:dev": "node scripts/build-lib.js development",
     "build:prod": "npm run build-demo:prod && npm run build-lib:prod",
