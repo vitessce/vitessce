@@ -632,23 +632,28 @@ export function useRasterData(
         const { data, url: urls, coordinationValues } = payload;
 
         /*
-        We need to merge the spatialRasterLayers properties because there are multiplesub-properties
-        that can be incomplete (for example colors without silders,
+        We need to merge the spatialRasterLayers properties because there are multiple
+        sub-properties that can be incomplete (for example colors without silders,
         or just special selection choices).  Thus we merge the initial values into the (auto) values
         from the `payload` and then null out the initial values so that `initCoordinationSpace`
         sets the coordiantion value for raster layers.
         */
         // eslint-disable-next-line no-unused-expressions
-        initialCoordinationValues?.spatialRasterLayers
-        && coordinationValues.spatialRasterLayers.forEach((layer, layerIndex) => {
-          layer.channels.forEach((channel, channelIndex) => {
+        if (initialCoordinationValues?.spatialRasterLayers) {
+          coordinationValues.spatialRasterLayers.forEach((layer, layerIndex) => {
+            const initialLayer = initialCoordinationValues.spatialRasterLayers[layerIndex];
+            const newChannels = layer.channels.map((channel, channelIndex) => ({
+              ...channel,
+              ...initialLayer.channels[channelIndex],
+            }));
             // eslint-disable-next-line no-param-reassign
-            layer.channels[channelIndex] = {
-              ...layer.channels[channelIndex],
-              ...initialCoordinationValues.spatialRasterLayers[layerIndex].channels[channelIndex],
+            coordinationValues.spatialRasterLayers[layerIndex] = {
+              ...layer,
+              ...initialLayer,
+              channels: newChannels,
             };
           });
-        });
+        }
         const newInitialCoordinationValues = {
           ...(initialCoordinationValues || {}),
           spatialRasterLayers: null,
