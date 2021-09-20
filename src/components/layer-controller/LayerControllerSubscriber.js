@@ -64,6 +64,7 @@ const LayerControllerMemoized = React.memo(
       spatialLayout,
       handleImageAdd,
     } = props;
+    const shouldShowImageLayerButton = Boolean(imageLayerLoaders?.length > 1);
     return (
       <TitleInfo
         title={title}
@@ -170,12 +171,12 @@ const LayerControllerMemoized = React.memo(
                     areLayerChannelsLoading={areLayerChannelsLoading}
                     spatialHeight={(componentHeight * spatialLayout.h) / 12}
                     spatialWidth={(componentWidth * spatialLayout.w) / 12}
-                    shouldShowRemoveLayerButton={Boolean(imageLayerLoaders?.length > 1)}
+                    shouldShowRemoveLayerButton={shouldShowImageLayerButton}
                   />
                 </Grid>
               ) : null;
             })}
-          {imageLayerLoaders?.length > 1
+          {shouldShowImageLayerButton
             ? (
               <Grid item>
                 <ImageAddButton
