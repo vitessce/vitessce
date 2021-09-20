@@ -316,6 +316,8 @@ export default function SpatialSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       options={
+        // Only show button if there is expression or 3D data because only cells data
+        // does not have any options (i.e for color encoding, you need to switch to expression data)
         canShow3DOptions || hasExpressionData ? (
           <SpatialOptions
             observationsLabel={observationsLabel}
