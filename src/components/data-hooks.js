@@ -630,6 +630,42 @@ export function useRasterData(
       loaders[dataset].loaders.raster.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url: urls, coordinationValues } = payload;
+
+        /*
+        We need to merge the spatialRasterLayers properties because there are multiple
+        sub-properties that can be incomplete (for example colors without silders,
+        or just special selection choices).  Thus we merge the initial values into the (auto) values
+        from the `payload` and then null out the initial values so that `initCoordinationSpace`
+        sets the coordiantion value for raster layers.
+        */
+        // eslint-disable-next-line no-unused-expressions
+        if (initialCoordinationValues?.spatialRasterLayers) {
+          initialCoordinationValues.spatialRasterLayers
+            .forEach((initialLayer, initialLayerIndex) => {
+              const layerIndex = initialLayer.index;
+              const layer = coordinationValues.spatialRasterLayers
+                .find(l => l.index === layerIndex);
+              if (initialLayer && layer) {
+                const newChannels = initialLayer.channels.map((initialChannel) => {
+                  const channel = layer.channels
+                    .find(c => equal(c.selection, initialChannel.selection));
+                  return {
+                    ...channel,
+                    ...initialChannel,
+                  };
+                });
+                // eslint-disable-next-line no-param-reassign
+                initialCoordinationValues.spatialRasterLayers[initialLayerIndex] = {
+                  ...layer,
+                  ...initialLayer,
+                  channels: newChannels,
+                };
+              }
+            });
+        }
+        const newInitialCoordinationValues = initialCoordinationValues || coordinationValues;
+
+
         setRaster(data);
         urls.forEach(([url, name]) => {
           addUrl(url, name);
@@ -640,7 +676,7 @@ export function useRasterData(
         initCoordinationSpace(
           coordinationValues,
           coordinationSetters,
-          initialCoordinationValues,
+          newInitialCoordinationValues,
         );
         setItemIsReady('raster');
       });
