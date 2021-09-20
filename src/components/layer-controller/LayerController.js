@@ -24,11 +24,11 @@ import {
 } from './styles';
 import {
   getMultiSelectionStats,
-  canLoadResolution,
 } from './utils';
 
 import { GLOBAL_LABELS } from '../spatial/constants';
 import { getSourceFromLoader, isRgb } from '../../utils';
+import { canLoadResolution } from '../utils';
 import { DOMAINS } from './constants';
 
 
