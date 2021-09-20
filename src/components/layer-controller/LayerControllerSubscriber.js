@@ -170,16 +170,20 @@ const LayerControllerMemoized = React.memo(
                     areLayerChannelsLoading={areLayerChannelsLoading}
                     spatialHeight={(componentHeight * spatialLayout.h) / 12}
                     spatialWidth={(componentWidth * spatialLayout.w) / 12}
+                    shouldShowRemoveLayerButton={Boolean(imageLayerLoaders?.length > 1)}
                   />
                 </Grid>
               ) : null;
             })}
-          <Grid item>
-            <ImageAddButton
-              imageOptions={imageLayerMeta}
-              handleImageAdd={handleImageAdd}
-            />
-          </Grid>
+          {imageLayerLoaders?.length > 1
+            ? (
+              <Grid item>
+                <ImageAddButton
+                  imageOptions={imageLayerMeta}
+                  handleImageAdd={handleImageAdd}
+                />
+              </Grid>
+            ) : null}
         </div>
       </TitleInfo>
     );
