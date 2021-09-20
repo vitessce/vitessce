@@ -640,24 +640,30 @@ export function useRasterData(
         */
         // eslint-disable-next-line no-unused-expressions
         if (initialCoordinationValues?.spatialRasterLayers) {
-          coordinationValues.spatialRasterLayers.forEach((layer, layerIndex) => {
-            const initialLayer = initialCoordinationValues.spatialRasterLayers[layerIndex];
-            const newChannels = layer.channels.map((channel, channelIndex) => ({
-              ...channel,
-              ...initialLayer.channels[channelIndex],
-            }));
-            // eslint-disable-next-line no-param-reassign
-            coordinationValues.spatialRasterLayers[layerIndex] = {
-              ...layer,
-              ...initialLayer,
-              channels: newChannels,
-            };
-          });
+          initialCoordinationValues.spatialRasterLayers
+            .forEach((initialLayer, initialLayerIndex) => {
+              const layerIndex = initialLayer.index;
+              const layer = coordinationValues.spatialRasterLayers
+                .find(l => l.index === layerIndex);
+              if (initialLayer && layer) {
+                const newChannels = initialLayer.channels.map((initialChannel) => {
+                  const channel = layer.channels
+                    .find(c => equal(c.selection, initialChannel.selection));
+                  return {
+                    ...channel,
+                    ...initialChannel,
+                  };
+                });
+                // eslint-disable-next-line no-param-reassign
+                initialCoordinationValues.spatialRasterLayers[initialLayerIndex] = {
+                  ...layer,
+                  ...initialLayer,
+                  channels: newChannels,
+                };
+              }
+            });
         }
-        const newInitialCoordinationValues = {
-          ...(initialCoordinationValues || {}),
-          spatialRasterLayers: null,
-        };
+        const newInitialCoordinationValues = initialCoordinationValues || coordinationValues;
 
 
         setRaster(data);
