@@ -9,6 +9,7 @@
 - Upgrade Viv to 0.10.6 and deck.gl to 8.5
 - Don't show image layer buttons if there is only one layer.
 - Fix spatial options to only show what is necessary and display at all if necessary.
+- Fix setting default schema values for properties that are not in the current deck.gl view state (for example, the z direction for `target`).
 
 ## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01
 
