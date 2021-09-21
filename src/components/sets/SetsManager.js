@@ -5,10 +5,10 @@ import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
 import { nodeToRenderProps } from './cell-set-utils';
-import { DEFAULT_COLOR } from '../utils';
+import { getDefaultColor } from '../utils';
 import { pathToKey } from './utils';
 
-function processNode(node, prevPath, setColor) {
+function processNode(node, prevPath, setColor, theme) {
   const nodePath = [...prevPath, node.name];
   return {
     ...node,
@@ -16,14 +16,14 @@ function processNode(node, prevPath, setColor) {
       children: node.children
         .map(c => processNode(c, nodePath, setColor)),
     }) : {}),
-    color: setColor?.find(d => isEqual(d.path, nodePath))?.color || DEFAULT_COLOR,
+    color: setColor?.find(d => isEqual(d.path, nodePath))?.color || getDefaultColor(theme),
   };
 }
 
-function processSets(sets, setColor) {
+function processSets(sets, setColor, theme) {
   return {
     ...sets,
-    tree: sets ? sets.tree.map(lzn => processNode(lzn, [], setColor)) : [],
+    tree: sets ? sets.tree.map(lzn => processNode(lzn, [], setColor, theme)) : [],
   };
 }
 
@@ -86,9 +86,11 @@ function getAllKeys(node, path = []) {
  * complement of the (union of the) sets associated with the currently-checked nodes.
  * @prop {function} onView Function to call when a user wants to view the sets
  * associated with the currently-checked nodes.
+ * @prop {string} theme "light" or "dark" for the vitessce theme
  */
 export default function SetsManager(props) {
   const {
+    theme,
     sets,
     additionalSets,
     setColor, // TODO: use this
@@ -133,11 +135,11 @@ export default function SetsManager(props) {
   const [isEditingNodeName, setIsEditingNodeName] = useState(null);
 
   const processedSets = useMemo(() => processSets(
-    sets, setColor,
-  ), [sets, setColor]);
+    sets, setColor, theme,
+  ), [sets, setColor, theme]);
   const processedAdditionalSets = useMemo(() => processSets(
-    additionalSets, setColor,
-  ), [additionalSets, setColor]);
+    additionalSets, setColor, theme,
+  ), [additionalSets, setColor, theme]);
 
   const additionalSetKeys = (processedAdditionalSets
     ? processedAdditionalSets.tree.flatMap(v => getAllKeys(v, []))
@@ -166,6 +168,7 @@ export default function SetsManager(props) {
       const newPath = [...currPath, node.name];
       return (
         <TreeNode
+          theme={theme}
           key={pathToKey(newPath)}
           {...nodeToRenderProps(node, newPath, setColor)}
 
@@ -202,7 +205,7 @@ export default function SetsManager(props) {
           onDragStart={() => setIsDragging(true)}
           onDragEnd={() => setIsDragging(false)}
         >
-          {renderTreeNodes(node.children, readOnly, newPath)}
+          {renderTreeNodes(node.children, readOnly, newPath, theme)}
         </TreeNode>
       );
     });
@@ -229,7 +232,7 @@ export default function SetsManager(props) {
             info.expanded,
           )}
         >
-          {renderTreeNodes(processedSets.tree, true, [])}
+          {renderTreeNodes(processedSets.tree, true, [], theme)}
         </Tree>
         <Tree
           draggable /* TODO */
@@ -255,7 +258,7 @@ export default function SetsManager(props) {
             onDropNode(dropKey, dragKey, dropPosition, dropToGap);
           }}
         >
-          {renderTreeNodes(processedAdditionalSets.tree, false, [])}
+          {renderTreeNodes(processedAdditionalSets.tree, false, [], theme)}
         </Tree>
 
         <PlusButton

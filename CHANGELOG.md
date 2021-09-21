@@ -1,13 +1,43 @@
 ## In Progress
 
 ### Added
+- PR template including reminder for potential R and python package PR's when version schema changes.
 - Added a new documentation site.
+
+### Changed
+- Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.
+- deck.gl should be pinned to minor version
+- Upgrade Viv to 0.10.6 and deck.gl to 8.5
+
+## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01
+
+### Added
+- Add loading callbacks for gene selection.
+- Added cell opacity modes
+    - Auto mode (default)
+    - Manual mode
+- Added cell radius modes
+    - Auto mode (default)
+    - Manual mode
+- Added a slider for `geneExpressionColormapRange` to the `ScatterplotOptions` component.
+### Changed
+- Prevent heatmap re-ordering when gene selection is made.
+- Improve handling of large, thin volumes.  Those that cannot be loaded at all should not be shown with volume options.
+- Switched to performing quantitative color mapping on the scatterplot shaders to enable fast responses to the heatmap colormap slider interactions.
+- Updated scatterplot and heatmap shaders to take the `geneExpressionColormap` coordination value into account.
+## [1.1.13](https://www.npmjs.com/package/vitessce/v/1.1.13) - 2021-08-10
+
+### Added
+- `disableChannelsIfRgbDetected` prop for turning of channel controllers when rgb is detected.
 
 ### Changed
 - Introduce two-step data loaders for AnnData "files".
 - Update README to have more info on using view configs via url parameters.
+- Add a check for schema changes - schemas may not be updated once published, only new ones added.
 - Make two-step data loaders universal for all file types.
 - Upgrade `higlass-zarr-datafetchers` to 0.2.1 to prevent the latest Zarr.js from making failed HEAD requests.
+- Replace "hubmapconsortium/vitessce" with "vitessce/vitessce"
+- Fixed performance issue involving selection of many cells by using `Set.has` rather than `Array.includes`.
 
 ## [1.1.12](https://www.npmjs.com/package/vitessce/v/1.1.12) - 2021-07-20
 

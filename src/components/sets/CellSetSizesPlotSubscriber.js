@@ -44,7 +44,12 @@ export default function CellSetSizesPlotSubscriber(props) {
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();
-  const [isReady, setItemIsReady, resetReadyItems] = useReady(
+  const [
+    isReady,
+    setItemIsReady,
+    setItemIsNotReady, // eslint-disable-line no-unused-vars
+    resetReadyItems,
+  ] = useReady(
     CELL_SET_SIZES_DATA_TYPES,
   );
 
@@ -70,9 +75,9 @@ export default function CellSetSizesPlotSubscriber(props) {
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
   const data = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor)
+    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
     : []
-  ), [mergedCellSets, cellSetSelection, cellSetColor]);
+  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
   return (
     <TitleInfo

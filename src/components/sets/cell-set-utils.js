@@ -9,7 +9,7 @@ import concaveman from 'concaveman';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
-import { DEFAULT_COLOR, PALETTE } from '../utils';
+import { getDefaultColor, PALETTE } from '../utils';
 import { pathToKey } from './utils';
 
 /**
@@ -301,14 +301,18 @@ export function treeExport(currTree, datatype) {
  * Export the tree by clearing tree state and all node states,
  * and filter so that only the level zero node of interest is included.
  * @param {object} currTree A tree object.
- * @param {string} nodeKey The key of the node of interest.
+ * @param {string} nodePath The path of the node of interest.
+ * @param {string} dataType Datatype (i.e cell sets)
+ * @param {Array} cellSetColors Array of objects of cell set colors and paths
+ * @param {string} theme "light" or "dark" for the vitessce theme
  * @returns {object} { treeToExport, nodeName }
  * Tree with one level zero node, and with state removed.
  */
-export function treeExportLevelZeroNode(currTree, nodePath, datatype, cellSetColors) {
+export function treeExportLevelZeroNode(currTree, nodePath, datatype, cellSetColors, theme) {
   const node = treeFindNodeByNamePath(currTree, nodePath);
   const nodeWithColors = nodeTransformAll(node, () => true, (n, nPath) => {
-    const nodeColor = cellSetColors?.find(c => isEqual(c.path, nPath))?.color ?? DEFAULT_COLOR;
+    const nodeColor = cellSetColors?.find(c => isEqual(c.path, nPath))?.color
+      ?? getDefaultColor(theme);
     return {
       ...n,
       color: nodeColor.slice(0, 3),
@@ -395,11 +399,12 @@ function colorMixWithUncertainty(originalColor, p, mixingColor = [128, 128, 128]
  * representing set "paths".
  * @param {object[]} cellSetColor Array of objects with the
  * properties `path` and `color`.
+ * @param {string} theme "light" or "dark" for the vitessce theme
  * @returns {array} Tuple of [cellIds, cellColors]
  * where cellIds is an array of strings,
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
-export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetColor) {
+export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetColor, theme) {
   let cellColorsArray = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
@@ -407,7 +412,7 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
       const nodeSet = nodeToSet(node);
       const nodeColor = (
         cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
-        || DEFAULT_COLOR
+        || getDefaultColor(theme)
       );
       cellColorsArray = [
         ...cellColorsArray,
@@ -429,11 +434,12 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
  * @param {array} selectedNamePaths Array of arrays of strings,
  * representing set "paths".
  * @param {object[]} setColor Array of objects with the
- * properties `path` and `color`.
+ * properties `path` and `color`
+ * @param {string} theme "light" or "dark" for the vitessce theme.
  * @returns {object[]} Array of objects with properties
  * `obsId`, `name`, and `color`.
  */
-export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor) {
+export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, theme) {
   let cellsArray = [];
   for (let i = 0; i < selectedNamePaths.length; i += 1) {
     const setNamePath = selectedNamePaths[i];
@@ -442,7 +448,7 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor) {
       const nodeSet = nodeToSet(node);
       const nodeColor = (
         setColor?.find(d => isEqual(d.path, setNamePath))?.color
-        || DEFAULT_COLOR
+        || getDefaultColor(theme)
       );
       cellsArray = cellsArray.concat(nodeSet.map(([cellId]) => ({
         obsId: cellId,
@@ -455,7 +461,7 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor) {
 }
 
 export function treeToCellPolygonsBySetNames(
-  currTree, cells, mapping, selectedNamePaths, cellSetColor,
+  currTree, cells, mapping, selectedNamePaths, cellSetColor, theme,
 ) {
   const cellSetPolygons = [];
   selectedNamePaths.forEach((setNamePath) => {
@@ -464,7 +470,7 @@ export function treeToCellPolygonsBySetNames(
       const nodeSet = nodeToSet(node);
       const nodeColor = (
         cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
-        || DEFAULT_COLOR
+        || getDefaultColor(theme)
       );
       const cellPositions = nodeSet
         .map(([cellId]) => ([
@@ -503,17 +509,19 @@ export function treeToCellPolygonsBySetNames(
  * representing set "paths".
  * @param {object[]} setColor Array of objects with the
  * properties `path` and `color`.
+ * @param {string} theme "light" or "dark" for the vitessce theme
  * @returns {object[]} Array of objects
  * with the properties `name`, `size`, `key`,
  * and `color`.
  */
-export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor) {
+export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor, theme) {
   const sizes = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = setColor?.find(d => isEqual(d.path, setNamePath))?.color || DEFAULT_COLOR;
+      const nodeColor = setColor?.find(d => isEqual(d.path, setNamePath))?.color
+        || getDefaultColor(theme);
       sizes.push({
         key: generateKey(),
         name: node.name,
@@ -629,9 +637,12 @@ export function getCellSetPolygons(params) {
     cellSets,
     cellSetSelection,
     cellSetColor,
+    theme,
   } = params;
   if (cellSetSelection && cellSetSelection.length > 0 && cellSets && cells) {
-    return treeToCellPolygonsBySetNames(cellSets, cells, mapping, cellSetSelection, cellSetColor);
+    return treeToCellPolygonsBySetNames(
+      cellSets, cells, mapping, cellSetSelection, cellSetColor, theme,
+    );
   }
   return [];
 }

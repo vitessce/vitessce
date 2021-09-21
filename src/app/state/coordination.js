@@ -15,11 +15,11 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.EMBEDDING_CELL_SET_LABELS_VISIBLE]: false,
   [CoordinationType.EMBEDDING_CELL_SET_LABEL_SIZE]: 14,
   [CoordinationType.EMBEDDING_CELL_RADIUS]: 1,
+  [CoordinationType.EMBEDDING_CELL_RADIUS_MODE]: 'auto',
+  [CoordinationType.EMBEDDING_CELL_OPACITY]: 1,
+  [CoordinationType.EMBEDDING_CELL_OPACITY_MODE]: 'auto',
   [CoordinationType.SPATIAL_ZOOM]: null,
   [CoordinationType.SPATIAL_ROTATION]: 0,
-  [CoordinationType.SPATIAL_TARGET_X]: null,
-  [CoordinationType.SPATIAL_TARGET_Y]: null,
-  [CoordinationType.SPATIAL_TARGET_Z]: 0,
   [CoordinationType.SPATIAL_TARGET_X]: null,
   [CoordinationType.SPATIAL_TARGET_Y]: null,
   [CoordinationType.SPATIAL_TARGET_Z]: null,
@@ -64,16 +64,6 @@ export const DEFAULT_COORDINATION_VALUES = {
 // (after auto-initialization) behave
 // like "legacy" Vitessce (pre-coordination model).
 export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
-  CoordinationType.SPATIAL_ZOOM,
-  CoordinationType.SPATIAL_TARGET_X,
-  CoordinationType.SPATIAL_TARGET_Y,
-  CoordinationType.SPATIAL_TARGET_Z,
-  CoordinationType.SPATIAL_ROTATION_X,
-  CoordinationType.SPATIAL_ROTATION_Y,
-  CoordinationType.SPATIAL_ROTATION_Z,
-  CoordinationType.SPATIAL_AXIS_FIXED,
-  CoordinationType.SPATIAL_ROTATION_ORBIT,
-  CoordinationType.SPATIAL_ORBIT_AXIS,
   CoordinationType.HEATMAP_ZOOM_X,
   CoordinationType.HEATMAP_ZOOM_Y,
   CoordinationType.HEATMAP_TARGET_X,
@@ -86,6 +76,7 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
   CoordinationType.EMBEDDING_CELL_SET_LABELS_VISIBLE,
   CoordinationType.EMBEDDING_CELL_SET_LABEL_SIZE,
   CoordinationType.EMBEDDING_CELL_RADIUS,
+  CoordinationType.EMBEDDING_CELL_OPACITY,
 ];
 
 /**
@@ -109,6 +100,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.EMBEDDING_CELL_SET_LABELS_VISIBLE,
     CoordinationType.EMBEDDING_CELL_SET_LABEL_SIZE,
     CoordinationType.EMBEDDING_CELL_RADIUS,
+    CoordinationType.EMBEDDING_CELL_RADIUS_MODE,
+    CoordinationType.EMBEDDING_CELL_OPACITY,
+    CoordinationType.EMBEDDING_CELL_OPACITY_MODE,
     CoordinationType.CELL_FILTER,
     CoordinationType.CELL_HIGHLIGHT,
     CoordinationType.CELL_SET_SELECTION,

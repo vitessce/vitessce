@@ -221,6 +221,7 @@ function getResolveInfo(paths, additionalModulePaths, useTypeScript, shouldDoPro
       // TODO: Track this issue
       // https://github.com/mapbox/concaveman/issues/18
       tinyqueue: require.resolve('tinyqueue'),
+      'txml/txml': 'txml/dist/txml',
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
       'react-native': 'react-native-web',

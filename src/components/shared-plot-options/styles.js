@@ -17,7 +17,7 @@ export const useStyles = makeStyles(theme => ({
   slider: {
     color: theme.palette.primaryForeground,
     minWidth: '60px',
-    padding: '10px 0 6px 0',
+    padding: '10px 0 10px 0',
   },
   sliderValueLabel: {
     '& span': {
@@ -28,6 +28,7 @@ export const useStyles = makeStyles(theme => ({
   },
   tableContainer: {
     overflow: 'hidden',
+    overflowX: 'hidden !important',
   },
   labelCell: {
     padding: '2px 8px 2px 16px',
