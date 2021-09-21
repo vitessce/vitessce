@@ -275,10 +275,10 @@ export default function SpatialSubscriber(props) {
     setZoom(newZoom);
     setTargetX(target[0]);
     setTargetY(target[1]);
-    setTargetZ(target[2]);
+    setTargetZ(target[2] || null);
     setRotationX(newRotationX);
     setRotationOrbit(newRotationOrbit);
-    setOrbitAxis(newOrbitAxis);
+    setOrbitAxis(newOrbitAxis || null);
   };
 
   const subtitle = makeSpatialSubtitle({
