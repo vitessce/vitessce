@@ -87,6 +87,7 @@ export default function LayerController(props) {
     setViewState, disable3d, setRasterLayerCallback,
     setAreLayerChannelsLoading, areLayerChannelsLoading, disabled,
     spatialHeight, spatialWidth, disableChannelsIfRgbDetected,
+    shouldShowRemoveLayerButton,
   } = props;
 
   const {
@@ -535,15 +536,17 @@ export default function LayerController(props) {
             </TabPanel>
           </>
         ) : FullController}
-        <Button
-          onClick={handleLayerRemove}
-          fullWidth
-          variant="outlined"
-          style={buttonStyles}
-          size="small"
-        >
+        {shouldShowRemoveLayerButton ? (
+          <Button
+            onClick={handleLayerRemove}
+            fullWidth
+            variant="outlined"
+            style={buttonStyles}
+            size="small"
+          >
           Remove Image Layer
-        </Button>
+          </Button>
+        ) : null}
       </StyledExpansionPanelDetails>
     </ExpansionPanel>
   );

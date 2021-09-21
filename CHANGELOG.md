@@ -7,6 +7,7 @@
 - Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.
 - deck.gl should be pinned to minor version
 - Upgrade Viv to 0.10.6 and deck.gl to 8.5
+- Don't show image layer buttons if there is only one layer.
 - Fix spatial options to only show what is necessary and display at all if necessary.
 
 ## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01

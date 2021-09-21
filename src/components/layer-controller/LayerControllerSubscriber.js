@@ -63,7 +63,11 @@ const LayerControllerMemoized = React.memo(
       componentWidth,
       spatialLayout,
       handleImageAdd,
+      enableLayerButtonsWithOneLayer,
     } = props;
+    const shouldShowImageLayerButton = Boolean(
+      enableLayerButtonsWithOneLayer || imageLayerLoaders?.length > 1,
+    );
     return (
       <TitleInfo
         title={title}
@@ -170,16 +174,20 @@ const LayerControllerMemoized = React.memo(
                     areLayerChannelsLoading={areLayerChannelsLoading}
                     spatialHeight={(componentHeight * spatialLayout.h) / 12}
                     spatialWidth={(componentWidth * spatialLayout.w) / 12}
+                    shouldShowRemoveLayerButton={shouldShowImageLayerButton}
                   />
                 </Grid>
               ) : null;
             })}
-          <Grid item>
-            <ImageAddButton
-              imageOptions={imageLayerMeta}
-              handleImageAdd={handleImageAdd}
-            />
-          </Grid>
+          {shouldShowImageLayerButton
+            ? (
+              <Grid item>
+                <ImageAddButton
+                  imageOptions={imageLayerMeta}
+                  handleImageAdd={handleImageAdd}
+                />
+              </Grid>
+            ) : null}
         </div>
       </TitleInfo>
     );
@@ -196,7 +204,11 @@ const LayerControllerMemoized = React.memo(
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
  * @param {Object} props.disable3d Which layers should have 3D disabled (from `raster.json` names).
- * @param {Object} props.globalDisable3d Disable 3D for all layers. Overrides the `disable3d` prop.
+ * @param {boolean} props.globalDisable3d Disable 3D for all layers. Overrides the `disable3d` prop.
+ * @param {boolean} props.disableChannelsIfRgbDetected Disable channel controls if an
+ * RGB image is detected i.e 3 channel 8 bit.
+ * @param {boolean} props.enableLayerButtonsWithOneLayer If there is only one layer,
+ * show the the layer add/remove buttons.
  */
 function LayerControllerSubscriber(props) {
   const {
@@ -207,6 +219,7 @@ function LayerControllerSubscriber(props) {
     disable3d,
     globalDisable3d,
     disableChannelsIfRgbDetected,
+    enableLayerButtonsWithOneLayer,
   } = props;
 
   const loaders = useLoaders();
@@ -353,6 +366,7 @@ function LayerControllerSubscriber(props) {
       globalDisable3d={globalDisable3d}
       layerIs3DIndex={layerIs3DIndex}
       disableChannelsIfRgbDetected={disableChannelsIfRgbDetected}
+      enableLayerButtonsWithOneLayer={enableLayerButtonsWithOneLayer}
       setZoom={setZoom}
       setTargetX={setTargetX}
       setTargetY={setTargetY}
