@@ -98,6 +98,7 @@
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.2",
     "esbuild": "^0.12.28",
+    "esbuild-plugin-babel": "^0.2.3",
     "esbuild-plugin-sass": "^0.6.0",
     "eslint": "^6.6.0",
     "eslint-config-airbnb": "^17.1.0",

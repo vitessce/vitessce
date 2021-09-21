@@ -1,11 +1,17 @@
-const esbuild = require("esbuild");
-const sassPlugin = require("esbuild-plugin-sass");
-const svgr = require("@svgr/core").default;
-const babel = require('@babel/core');
-const fs = require("fs");
-const path = require("path");
-const pkg = require('../package.json');
+import * as esbuild from "esbuild";
+import sassPlugin from "esbuild-plugin-sass";
+import babel from 'esbuild-plugin-babel'
+import svgr from "@svgr/core"
 
+import * as fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url"
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const pkg = JSON.parse(
+  await fs.promises.readFile(path.resolve(__dirname, '../package.json'))
+);
 /**
  * Generates an independent bundle and inlines a worker script 
  * as a default export. Import must end with `.worker`.
@@ -69,7 +75,7 @@ const svgPlugin = {
   setup(build) {
     build.onLoad({ filter: /\.svg$/ }, async (args) => {
       const svg = await fs.promises.readFile(args.path, "utf-8");
-      let contents = await svgr(svg, {}, { filePath: args.path });
+      let contents = await svgr.default(svg, {}, { filePath: args.path });
       contents = contents.replace(
         "export default ",
         "export const ReactComponent = ",
@@ -94,9 +100,10 @@ const external = [
 // Need to include `@hms-dbmi/viv` so that we can transpile down to es6 for HuBMAP
 ].filter(name => name !== '@hms-dbmi/viv');
 
+const outdir = path.resolve(__dirname, '../dist/esm');
 esbuild.build({
   entryPoints: [path.resolve(__dirname, "../src/index.js")],
-  outdir: path.resolve(__dirname, '../dist/esm'),
+  outdir: outdir,
   format: 'esm',
   bundle: true,
   target: 'es6',
@@ -106,6 +113,9 @@ esbuild.build({
     pluginInlineWorker(),
     sassPlugin(),
     svgPlugin,
+    babel({
+      filter: /\/.*shader/,
+    })
   ],
   loader: { '.js': 'jsx' },
 });
