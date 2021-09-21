@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.15](https://www.npmjs.com/package/vitessce/v/1.1.15) - 2021-09-21
+
+### Added
 - PR template including reminder for potential R and python package PR's when version schema changes.
 
 ### Changed
