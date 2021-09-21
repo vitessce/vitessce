@@ -1,6 +1,7 @@
 const esbuild = require("esbuild");
 const sassPlugin = require("esbuild-plugin-sass");
 const svgr = require("@svgr/core").default;
+const babel = require('@babel/core');
 const fs = require("fs");
 const path = require("path");
 const pkg = require('../package.json');
@@ -13,7 +14,7 @@ const pkg = require('../package.json');
  *
  * @return {import('esbuild').Plugin}
  */
-const PluginInlineWorker = () => {
+const pluginInlineWorker = () => {
   const namespace = "inline-worker";
   return {
     name: namespace,
@@ -86,20 +87,23 @@ const external = [
   '@babel/*',
   '@turf/*',
   '@math.gl/*',
+  '@deck.gl/*',
   '@nebula.gl/*',
   'gl-matrix/*',
-  '@mapbox/*',
-];
+  '@mapbox/*'
+// Need to include `@hms-dbmi/viv` so that we can transpile down to es6 for HuBMAP
+].filter(name => name !== '@hms-dbmi/viv');
 
 esbuild.build({
   entryPoints: [path.resolve(__dirname, "../src/index.js")],
   outdir: path.resolve(__dirname, '../dist/esm'),
   format: 'esm',
   bundle: true,
+  target: 'es6',
   external: external,
   sourcemap: true,
   plugins: [
-    PluginInlineWorker(),
+    pluginInlineWorker(),
     sassPlugin(),
     svgPlugin,
   ],
