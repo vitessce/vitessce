@@ -160,7 +160,7 @@
   "scripts": {
     "build-demo:prod": "node scripts/build-demo.js production",
     "build-lib:prod": "node scripts/build-lib.js production",
-    "build-lib:esm": "node scripts/build-esm.js",
+    "build-lib:esm": "NODE_ENV=production node scripts/build-esm.mjs",
     "build-demo:dev": "node scripts/build-demo.js development",
     "build-lib:dev": "node scripts/build-lib.js development",
     "build:prod": "npm run build-demo:prod && npm run build-lib:prod && npm run build-lib:esm",
