@@ -312,7 +312,7 @@ export default function ScatterplotSubscriber(props) {
           setZoom(newZoom);
           setTargetX(target[0]);
           setTargetY(target[1]);
-          setTargetZ(target[2]);
+          setTargetZ(target[2] || 0);
         }}
         cells={cells}
         mapping={mapping}
