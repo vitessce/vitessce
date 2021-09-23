@@ -112,7 +112,7 @@ export default function LayerController(props) {
     return undefined;
   }, [channels]);
 
-  const firstSelection = channelRef.current[0]?.selection || {};
+  const firstSelection = channels[0]?.selection || {};
 
   const { data, channels: channelOptions } = loader;
   const [tab, setTab] = useState(0);
@@ -205,7 +205,7 @@ export default function LayerController(props) {
     const slider = domain;
     const color = [255, 255, 255];
     const visible = true;
-    const newChannelId = channelRef.current.length;
+    const newChannelId = channels.length;
     const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
     newAreLayerChannelsLoading[newChannelId] = true;
     setAreLayerChannelsLoading(newAreLayerChannelsLoading);
@@ -224,10 +224,10 @@ export default function LayerController(props) {
 
   const handleDomainChange = async (value) => {
     setDomainType(value);
-    const loaderSelection = channelRef.current.map(
+    const loaderSelection = channels.map(
       channel => channel.selection,
     );
-    let sliders = channelRef.current.map(
+    let sliders = channels.map(
       channel => channel.slider,
     );
     const { domains } = await getDomainsAndSliders(
@@ -249,13 +249,13 @@ export default function LayerController(props) {
       },
     );
 
-    const newChannels = channelRef.current.map((c, i) => ({ ...c, slider: sliders[i] }));
+    const newChannels = channels.map((c, i) => ({ ...c, slider: sliders[i] }));
     setChannelsAndDomainType(newChannels, value);
   };
 
   // This call updates all channel selections with new global selection from the UI.
   const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
-    const loaderSelection = channelRef.current.map(channel => ({
+    const loaderSelection = channels.map(channel => ({
       ...channel.selection,
       ...selection,
     }));
@@ -264,7 +264,7 @@ export default function LayerController(props) {
     if (canUpdateChannels) {
       setAreAllChannelsLoading(true);
       getDomainsAndSliders(loader, loaderSelection, domainType, use3d).then(({ sliders }) => {
-        const newChannelsWithSelection = channelRef.current.map(c => ({
+        const newChannelsWithSelection = channels.map(c => ({
           ...c,
           selection: { ...c.selection, ...selection },
         }));
@@ -291,7 +291,7 @@ export default function LayerController(props) {
   if (labels.length > 0) {
     const channelLabel = labels.find(c => c === 'channel' || c === 'c') || labels[0];
     // Create the channel controllers for each channel.
-    channelControllers = channelRef.current.map(
+    channelControllers = channels.map(
       // c is an object like { color, selection, slider, visible }.
       (c, channelId) => {
         // Update the auxiliary store with the current loading state of a channel.
@@ -319,7 +319,7 @@ export default function LayerController(props) {
             // like sliders and the loading state of the channel.
             setRasterLayerCallback(async () => {
               const loaderSelection = [
-                { ...channelRef.current[channelId][property], ...value },
+                { ...channels[channelId][property], ...value },
               ];
               const { sliders } = await getDomainsAndSliders(
                 loader, loaderSelection, domainType, use3d,
@@ -340,7 +340,7 @@ export default function LayerController(props) {
           const { data: loaderData } = loader;
           const source = Array.isArray(loaderData) ? loaderData[loaderData.length - 1] : loaderData;
           const raster = await source.getRaster({
-            selection: channelRef.current[channelId].selection,
+            selection: channels[channelId].selection,
           });
           const stats = getChannelStats(raster.data);
           const { q1, q3 } = stats;
@@ -355,7 +355,7 @@ export default function LayerController(props) {
             selectionIndex={c.selection[channelLabel]}
             slider={c.slider}
             color={c.color}
-            channels={channelRef.current}
+            channels={channels}
             channelId={channelId}
             domainType={domainType}
             loader={loader}
@@ -388,7 +388,7 @@ export default function LayerController(props) {
   const FullController = (
     <>
       <LayerOptions
-        channels={channelRef.current}
+        channels={channels}
         opacity={opacity}
         colormap={colormap}
         transparentColor={transparentColor}
@@ -421,7 +421,7 @@ export default function LayerController(props) {
       {isRgb(loader) && disableChannelsIfRgbDetected ? null : channelControllers}
       {isRgb(loader) && disableChannelsIfRgbDetected ? null : (
         <Button
-          disabled={channelRef.current.length === MAX_SLIDERS_AND_CHANNELS}
+          disabled={channels.length === MAX_SLIDERS_AND_CHANNELS}
           onClick={handleChannelAdd}
           fullWidth
           variant="outlined"
