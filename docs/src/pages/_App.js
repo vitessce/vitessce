@@ -27,11 +27,9 @@ import styles from './styles.module.css';
 
 const JSON_TRANSLATION_KEY = 'vitessceJsonTranslation';
 
-const validate = new Ajv()
-      .addSchema(cellSetsSchema)
-      .addSchema(rasterSchema)
-      .compile(configSchema);
+import { SCHEMA_HANDLERS, LATEST_VERSION } from '../../../src/app/view-config-versions';
 
+const validate = SCHEMA_HANDLERS[LATEST_VERSION][0];
 
 // To simplify the JS editor, the user only needs to write
 // the inner part of the createConfig() function,
