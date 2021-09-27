@@ -4,6 +4,7 @@ import React, {
 import { VitessceGridLayout } from './vitessce-grid-layout';
 import { useRowHeight, createLoaders } from './vitessce-grid-utils';
 import {
+  useViewConfigStore,
   useSetViewConfig,
   useSetLoaders,
   useEmitGridResize,
@@ -43,7 +44,7 @@ export default function VitessceGrid(props) {
     onResize();
   }, [rowHeight, onResize]);
 
-  const setViewConfig = useSetViewConfig();
+  const setViewConfig = useSetViewConfig(useViewConfigStore);
   const setLoaders = useSetLoaders();
   const removeComponent = useRemoveComponent();
   const changeLayout = useChangeLayout();

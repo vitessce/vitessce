@@ -1,7 +1,14 @@
 import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
+import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
 import { fromEntries, capitalize } from '../../utils';
+
+const { Provider: ViewConfigProviderLocal, useStore: useViewConfigStoreLocal } = createContext();
+
+export const ViewConfigProvider = ViewConfigProviderLocal;
+export const useViewConfigStore = useViewConfigStoreLocal;
+
 
 /**
  * The useViewConfigStore hook is initialized via the zustand
@@ -10,7 +17,7 @@ import { fromEntries, capitalize } from '../../utils';
  * Reference: https://github.com/react-spring/zustand
  * @returns {function} The useStore hook.
  */
-export const useViewConfigStore = create(set => ({
+export const createViewConfigStore = () => create(set => ({
   // State:
   // The viewConfig is an object which must conform to the schema
   // found in src/schemas/config.schema.json.
@@ -325,8 +332,9 @@ export function useSetLoaders() {
  * @returns {function} The view config setter function
  * in the `useViewConfigStore` store.
  */
-export function useSetViewConfig() {
-  const setViewConfigRef = useRef(useViewConfigStore.getState().setViewConfig);
+export function useSetViewConfig(useViewConfigStore2) {
+  console.log(useViewConfigStore2); // eslint-disable-line
+  const setViewConfigRef = useRef(useViewConfigStore2.getState().setViewConfig);
   const setViewConfig = setViewConfigRef.current;
   return setViewConfig;
 }

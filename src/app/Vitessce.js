@@ -6,6 +6,7 @@ import {
 } from '@material-ui/core/styles';
 import isEqual from 'lodash/isEqual';
 import { muiTheme } from '../components/shared-mui/styles';
+import { ViewConfigProvider, createViewConfigStore } from './state/hooks';
 
 import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
@@ -89,19 +90,21 @@ export default function Vitessce(props) {
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
-        <VitessceGrid
-          config={configOrWarning}
-          getComponent={getComponent}
-          rowHeight={rowHeight}
-          height={height}
-          theme={theme}
-        />
-        <CallbackPublisher
-          onWarn={onWarn}
-          onConfigChange={onConfigChange}
-          onLoaderChange={onLoaderChange}
-          validateOnConfigChange={validateOnConfigChange}
-        />
+        <ViewConfigProvider createStore={createViewConfigStore}>
+          <VitessceGrid
+            config={configOrWarning}
+            getComponent={getComponent}
+            rowHeight={rowHeight}
+            height={height}
+            theme={theme}
+          />
+          <CallbackPublisher
+            onWarn={onWarn}
+            onConfigChange={onConfigChange}
+            onLoaderChange={onLoaderChange}
+            validateOnConfigChange={validateOnConfigChange}
+          />
+        </ViewConfigProvider>
       </ThemeProvider>
     </StylesProvider>
   ) : (
