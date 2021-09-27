@@ -37,7 +37,7 @@ describe('VitessceGrid.js', () => {
           <AuxiliaryProvider createStore={createAuxiliaryStore}>
             <VitessceGrid config={config} getComponent={getComponent} />
           </AuxiliaryProvider>
-        </ViewConfigProvider>
+        </ViewConfigProvider>,
       );
       expect(wrapper.debug()).toContain('FakeComponent!');
     });
