@@ -347,8 +347,8 @@ export function useSetLoaders() {
  * @returns {function} The view config setter function
  * in the `useViewConfigStore` store.
  */
-export function useSetViewConfig(useViewConfigStoreApi2) {
-  const setViewConfigRef = useRef(useViewConfigStoreApi2.getState().setViewConfig);
+export function useSetViewConfig(viewConfigStoreApi) {
+  const setViewConfigRef = useRef(viewConfigStoreApi.getState().setViewConfig);
   const setViewConfig = setViewConfigRef.current;
   return setViewConfig;
 }
