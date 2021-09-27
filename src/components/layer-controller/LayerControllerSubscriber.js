@@ -172,8 +172,8 @@ const LayerControllerMemoized = React.memo(
                     }}
                     setAreLayerChannelsLoading={setAreLayerChannelsLoading}
                     areLayerChannelsLoading={areLayerChannelsLoading}
-                    spatialHeight={(componentHeight * spatialLayout.h) / 12}
-                    spatialWidth={(componentWidth * spatialLayout.w) / 12}
+                    spatialHeight={(componentHeight * (spatialLayout ? spatialLayout.h : 1)) / 12}
+                    spatialWidth={(componentWidth * (spatialLayout ? spatialLayout.w : 1)) / 12}
                     shouldShowRemoveLayerButton={shouldShowImageLayerButton}
                   />
                 </Grid>
