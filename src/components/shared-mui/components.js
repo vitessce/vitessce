@@ -69,11 +69,11 @@ export function PopperMenu(props) {
         anchorEl={anchorRef}
         placement={placement}
       >
-        <MuiPaper>
-          <ClickAwayListener onClickAway={toggle}>
+        <ClickAwayListener onClickAway={toggle}>
+          <MuiPaper>
             <MenuList>{children}</MenuList>
-          </ClickAwayListener>
-        </MuiPaper>
+          </MuiPaper>
+        </ClickAwayListener>
       </MuiPopper>
     </>
   );

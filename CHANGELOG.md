@@ -12,7 +12,7 @@
 - Fix bug introduced by #1037 that broke channel removal/addition.
 - Fix setting default schema values for properties that are not in the current deck.gl view state (for example, the z direction for `target`).
 - Moved creation of `useViewConfigStore` and `useAuxiliaryStore` to the `ViewConfigProvider` and `AuxiliaryProvider` contexts (rather than creating global stores).
-
+- Fix `ClickAwayListener` component wrapping
 ## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01
 
 ### Added
