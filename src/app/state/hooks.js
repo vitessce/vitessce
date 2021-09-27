@@ -4,10 +4,25 @@ import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
 import { fromEntries, capitalize } from '../../utils';
 
-const { Provider: ViewConfigProviderLocal, useStore: useViewConfigStoreLocal } = createContext();
+// Reference: https://github.com/pmndrs/zustand#react-context
+// Reference: https://github.com/pmndrs/zustand/blob/e47ea03/tests/context.test.tsx#L60
+const {
+  Provider: ViewConfigProviderLocal,
+  useStore: useViewConfigStoreLocal,
+  useStoreApi: useViewConfigStoreApiLocal,
+} = createContext();
 
 export const ViewConfigProvider = ViewConfigProviderLocal;
 export const useViewConfigStore = useViewConfigStoreLocal;
+export const useViewConfigStoreApi = useViewConfigStoreApiLocal;
+
+const {
+  Provider: AuxiliaryProviderLocal,
+  useStore: useAuxiliaryStoreLocal,
+} = createContext();
+
+export const AuxiliaryProvider = AuxiliaryProviderLocal;
+export const useAuxiliaryStore = useAuxiliaryStoreLocal;
 
 
 /**
@@ -92,7 +107,7 @@ export const useComponentLayout = (component, scopes, coordinationScopes) => use
  * though so they live here.
  * @returns {function} The useStore hook.
  */
-export const useAuxiliaryStore = create(set => ({
+export const createAuxiliaryStore = () => create(set => ({
   auxiliaryStore: null,
   setCoordinationValue: ({ parameter, scope, value }) => set(state => ({
     auxiliaryStore: {
@@ -332,9 +347,8 @@ export function useSetLoaders() {
  * @returns {function} The view config setter function
  * in the `useViewConfigStore` store.
  */
-export function useSetViewConfig(useViewConfigStore2) {
-  console.log(useViewConfigStore2); // eslint-disable-line
-  const setViewConfigRef = useRef(useViewConfigStore2.getState().setViewConfig);
+export function useSetViewConfig(useViewConfigStoreApi2) {
+  const setViewConfigRef = useRef(useViewConfigStoreApi2.getState().setViewConfig);
   const setViewConfig = setViewConfigRef.current;
   return setViewConfig;
 }
