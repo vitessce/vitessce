@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Fix bitmask picking/highlighting.
 
 ## [1.1.15](https://www.npmjs.com/package/vitessce/v/1.1.15) - 2021-09-21
 
