@@ -102,7 +102,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       setCellHighlight, cellHighlight, setComponentHover, layers,
     } = this.props;
     const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
-    if (!setCellHighlight) {
+    if (!setCellHighlight || !tile) {
       return null;
     }
     if (!layer || !coordinate) {
