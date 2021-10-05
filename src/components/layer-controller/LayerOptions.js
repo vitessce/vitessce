@@ -9,11 +9,14 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { getDefaultInitialViewState } from '@hms-dbmi/viv';
 
 import {
-  getBoundingCube, getMultiSelectionStats, formatBytes,
-  getStatsForResolution,
-  canLoadResolution,
+  getBoundingCube, getMultiSelectionStats,
 } from './utils';
-import { COLORMAP_OPTIONS } from '../utils';
+import {
+  COLORMAP_OPTIONS,
+  canLoadResolution,
+  formatBytes,
+  getStatsForResolution,
+} from '../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
 import { StyledSelectionSlider } from './styles';
 

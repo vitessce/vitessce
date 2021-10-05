@@ -58,6 +58,9 @@ export default function SpatialOptions(props) {
     setGeneExpressionColormap,
     geneExpressionColormapRange,
     setGeneExpressionColormapRange,
+    canShowExpressionOptions,
+    canShowColorEncodingOption,
+    canShow3DOptions,
   } = props;
 
   function handleGeneExpressionColormapChange(event) {
@@ -76,53 +79,61 @@ export default function SpatialOptions(props) {
 
   return (
     <OptionsContainer>
-      <CellColorEncodingOption
-        observationsLabel={observationsLabel}
-        cellColorEncoding={cellColorEncoding}
-        setCellColorEncoding={setCellColorEncoding}
-      />
-      <ToggleFixedAxisButton
-        setSpatialAxisFixed={setSpatialAxisFixed}
-        spatialAxisFixed={spatialAxisFixed}
-        use3d={use3d}
-      />
-      <TableRow>
-        <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
+      {canShowColorEncodingOption ? (
+        <CellColorEncodingOption
+          observationsLabel={observationsLabel}
+          cellColorEncoding={cellColorEncoding}
+          setCellColorEncoding={setCellColorEncoding}
+        />
+      ) : null}
+      {canShow3DOptions ? (
+        <ToggleFixedAxisButton
+          setSpatialAxisFixed={setSpatialAxisFixed}
+          spatialAxisFixed={spatialAxisFixed}
+          use3d={use3d}
+        />
+      ) : null}
+      {canShowExpressionOptions ? (
+        <>
+          <TableRow>
+            <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
           Gene Expression Colormap
-        </TableCell>
-        <TableCell className={classes.inputCell}>
-          <Select
-            native
-            className={classes.select}
-            value={geneExpressionColormap}
-            onChange={handleGeneExpressionColormapChange}
-            inputProps={{
-              id: 'gene-expression-colormap-select',
-            }}
-          >
-            {GLSL_COLORMAPS.map(cmap => (
-              <option key={cmap} value={cmap}>{cmap}</option>
-            ))}
-          </Select>
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell className={classes.labelCell}>
+            </TableCell>
+            <TableCell className={classes.inputCell}>
+              <Select
+                native
+                className={classes.select}
+                value={geneExpressionColormap}
+                onChange={handleGeneExpressionColormapChange}
+                inputProps={{
+                  id: 'gene-expression-colormap-select',
+                }}
+              >
+                {GLSL_COLORMAPS.map(cmap => (
+                  <option key={cmap} value={cmap}>{cmap}</option>
+                ))}
+              </Select>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className={classes.labelCell}>
           Gene Expression Colormap Range
-        </TableCell>
-        <TableCell className={classes.inputCell}>
-          <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
-            value={geneExpressionColormapRange}
-            onChange={handleColormapRangeChangeDebounced}
-            aria-labelledby="gene-expression-colormap-range-slider"
-            valueLabelDisplay="auto"
-            step={0.005}
-            min={0.0}
-            max={1.0}
-          />
-        </TableCell>
-      </TableRow>
+            </TableCell>
+            <TableCell className={classes.inputCell}>
+              <Slider
+                classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+                value={geneExpressionColormapRange}
+                onChange={handleColormapRangeChangeDebounced}
+                aria-labelledby="gene-expression-colormap-range-slider"
+                valueLabelDisplay="auto"
+                step={0.005}
+                min={0.0}
+                max={1.0}
+              />
+            </TableCell>
+          </TableRow>
+        </>
+      ) : null}
     </OptionsContainer>
   );
 }
