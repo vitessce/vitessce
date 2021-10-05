@@ -5,7 +5,7 @@ async function getSingleSelectionStats2D({ loader, selection }) {
   const data = Array.isArray(loader) ? loader[loader.length - 1] : loader;
   const raster = await data.getRaster({ selection });
   const selectionStats = getChannelStats(raster.data);
-  const { domain, autoSliders: slider } = selectionStats;
+  const { domain, contrastLimits: slider } = selectionStats;
   return { domain, slider };
 }
 
@@ -33,19 +33,18 @@ async function getSingleSelectionStats3D({ loader, selection }) {
     ],
     slider: [
       Math.min(
-        stats0.autoSliders[0],
-        statsMid.autoSliders[0],
-        statsTop.autoSliders[0],
+        stats0.contrastLimits[0],
+        statsMid.contrastLimits[0],
+        statsTop.contrastLimits[0],
       ),
       Math.max(
-        stats0.autoSliders[1],
-        statsMid.autoSliders[1],
-        statsTop.autoSliders[1],
+        stats0.contrastLimits[1],
+        statsMid.contrastLimits[1],
+        statsTop.contrastLimits[1],
       ),
     ],
   };
 }
-
 
 /**
  * Get bounding cube for a given loader i.e [[0, width], [0, height], [0, depth]]
@@ -103,7 +102,6 @@ export function getBoundingCube(loader) {
   return [xSlice, ySlice, zSlice];
 }
 
-
 export function abbreviateNumber(value) {
   // Return an abbreviated representation of value, in 5 characters or less.
 
@@ -111,18 +109,18 @@ export function abbreviateNumber(value) {
   let maxNaiveDigits = maxLength;
 
   /* eslint-disable no-plusplus */
-  if (!Number.isInteger(value)) { --maxNaiveDigits; } // Wasted on "."
-  if (value < 1) { --maxNaiveDigits; } // Wasted on "0."
+  if (!Number.isInteger(value)) {
+    --maxNaiveDigits;
+  } // Wasted on "."
+  if (value < 1) {
+    --maxNaiveDigits;
+  } // Wasted on "0."
   /* eslint-disable no-plusplus */
 
-
-  const naive = Intl.NumberFormat(
-    'en-US',
-    {
-      maximumSignificantDigits: maxNaiveDigits,
-      useGrouping: false,
-    },
-  ).format(value);
+  const naive = Intl.NumberFormat('en-US', {
+    maximumSignificantDigits: maxNaiveDigits,
+    useGrouping: false,
+  }).format(value);
   if (naive.length <= maxLength) return naive;
 
   // "e+9" consumes 3 characters, so if we even had two significant digits,
