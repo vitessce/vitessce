@@ -1,6 +1,6 @@
 import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
-import createContext from 'zustand/context'; // eslint-disable-line
+import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
 import { fromEntries, capitalize } from '../../utils';
 
