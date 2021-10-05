@@ -3,6 +3,10 @@ import Adapter from 'enzyme-adapter-react-16';
 import { mount, configure } from 'enzyme';
 import expect from 'expect';
 import VitessceGrid from './VitessceGrid';
+import {
+  ViewConfigProvider, createViewConfigStore,
+  AuxiliaryProvider, createAuxiliaryStore,
+} from './state/hooks';
 
 configure({ adapter: new Adapter() });
 
@@ -28,7 +32,13 @@ describe('VitessceGrid.js', () => {
         return <p>FakeComponent!</p>;
       }
       const getComponent = () => FakeComponent;
-      const wrapper = mount(<VitessceGrid config={config} getComponent={getComponent} />);
+      const wrapper = mount(
+        <ViewConfigProvider createStore={createViewConfigStore}>
+          <AuxiliaryProvider createStore={createAuxiliaryStore}>
+            <VitessceGrid config={config} getComponent={getComponent} />
+          </AuxiliaryProvider>
+        </ViewConfigProvider>,
+      );
       expect(wrapper.debug()).toContain('FakeComponent!');
     });
   });

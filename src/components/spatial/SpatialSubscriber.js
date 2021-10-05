@@ -4,7 +4,7 @@ import { capitalize } from '../../utils';
 import {
   useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
 } from '../hooks';
-import { setCellSelection, mergeCellSets } from '../utils';
+import { setCellSelection, mergeCellSets, canLoadResolution } from '../utils';
 import {
   useCellsData,
   useCellSetsData,
@@ -54,6 +54,8 @@ export default function SpatialSubscriber(props) {
     theme,
     disableTooltip = false,
     title = 'Spatial',
+    disable3d,
+    globalDisable3d,
   } = props;
 
   const loaders = useLoaders();
@@ -273,10 +275,10 @@ export default function SpatialSubscriber(props) {
     setZoom(newZoom);
     setTargetX(target[0]);
     setTargetY(target[1]);
-    setTargetZ(target[2]);
+    setTargetZ(target[2] || null);
     setRotationX(newRotationX);
     setRotationOrbit(newRotationOrbit);
-    setOrbitAxis(newOrbitAxis);
+    setOrbitAxis(newOrbitAxis || null);
   };
 
   const subtitle = makeSpatialSubtitle({
@@ -292,6 +294,17 @@ export default function SpatialSubscriber(props) {
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
+  const hasExpressionData = loaders[dataset].loaders['expression-matrix'];
+  const hasCellsData = loaders[dataset].loaders.cells
+    || imageLayerMeta.some(l => l?.metadata?.isBitmask);
+  const canLoad3DLayers = imageLayerLoaders.some(loader => Boolean(
+    Array.from({
+      length: loader.data.length,
+    }).filter((_, res) => canLoadResolution(loader.data, res)).length,
+  ));
+  // Only show 3D options if we can theoretically load the data and it is allowed to be loaded.
+  const canShow3DOptions = canLoad3DLayers
+    && !(disable3d?.length === imageLayerLoaders.length) && !globalDisable3d;
 
   return (
     <TitleInfo
@@ -302,20 +315,27 @@ export default function SpatialSubscriber(props) {
       theme={theme}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
-      options={(
-        <SpatialOptions
-          observationsLabel={observationsLabel}
-          cellColorEncoding={cellColorEncoding}
-          setCellColorEncoding={setCellColorEncoding}
-          setSpatialAxisFixed={setSpatialAxisFixed}
-          spatialAxisFixed={spatialAxisFixed}
-          use3d={use3d}
-          geneExpressionColormap={geneExpressionColormap}
-          setGeneExpressionColormap={setGeneExpressionColormap}
-          geneExpressionColormapRange={geneExpressionColormapRange}
-          setGeneExpressionColormapRange={setGeneExpressionColormapRange}
-        />
-      )}
+      options={
+        // Only show button if there is expression or 3D data because only cells data
+        // does not have any options (i.e for color encoding, you need to switch to expression data)
+        canShow3DOptions || hasExpressionData ? (
+          <SpatialOptions
+            observationsLabel={observationsLabel}
+            cellColorEncoding={cellColorEncoding}
+            setCellColorEncoding={setCellColorEncoding}
+            setSpatialAxisFixed={setSpatialAxisFixed}
+            spatialAxisFixed={spatialAxisFixed}
+            use3d={use3d}
+            geneExpressionColormap={geneExpressionColormap}
+            setGeneExpressionColormap={setGeneExpressionColormap}
+            geneExpressionColormapRange={geneExpressionColormapRange}
+            setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+            canShowExpressionOptions={hasExpressionData}
+            canShowColorEncodingOption={hasCellsData && hasExpressionData}
+            canShow3DOptions={canShow3DOptions}
+          />
+        ) : null
+      }
     >
       <Spatial
         ref={deckRef}

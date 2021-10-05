@@ -95,28 +95,39 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
 
   // eslint-disable-next-line consistent-return
   onHover(info) {
-    const { coordinate, layer, sourceLayer } = info;
+    const {
+      coordinate, sourceLayer: layer, tile,
+    } = info;
     const {
       setCellHighlight, cellHighlight, setComponentHover, layers,
     } = this.props;
     const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
-    if (!setCellHighlight) {
+    if (!setCellHighlight || !tile) {
       return null;
     }
-    if (!sourceLayer || !coordinate) {
+    if (!layer || !coordinate) {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
       }
       return null;
     }
-    const { channelData, bounds } = sourceLayer.props;
-    if (!channelData) {
+    const { content, bbox, z } = tile;
+    if (!content) {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
       }
       return null;
     }
-    const { data, width } = channelData;
+    const { data, width, height } = content;
+    const {
+      left, right, top, bottom,
+    } = bbox;
+    const bounds = [
+      left,
+      data.height < layer.tileSize ? height : bottom,
+      data.width < layer.tileSize ? width : right,
+      top,
+    ];
     if (!data) {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
@@ -124,15 +135,11 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       return null;
     }
     // Tiled layer needs a custom layerZoomScale.
-    if (sourceLayer.id.includes('bitmask')) {
-      const { tileSize } = layer.props.loader[0];
-      const { z } = sourceLayer.props.tileId;
+    if (layer.id.includes('bitmask')) {
       // The zoomed out layer needs to use the fixed zoom at which it is rendered.
-      // See the following for why we have this calculation with 512:
-      // https://github.com/visgl/deck.gl/blob/2b15bc459c6534ea38ce1153f254ce0901f51d6f/modules/geo-layers/src/tile-layer/utils.js#L130.
       const layerZoomScale = Math.max(
         1,
-        2 ** Math.round(-z + Math.log2(512 / tileSize)),
+        2 ** Math.round(-z),
       );
       const dataCoords = [
         Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),

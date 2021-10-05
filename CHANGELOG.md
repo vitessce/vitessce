@@ -1,6 +1,13 @@
 ## In Progress
 
 ### Added
+
+### Changed
+- Fix bitmask picking/highlighting.
+
+## [1.1.15](https://www.npmjs.com/package/vitessce/v/1.1.15) - 2021-09-21
+
+### Added
 - PR template including reminder for potential R and python package PR's when version schema changes.
 - Added a new documentation site.
 
@@ -8,6 +15,11 @@
 - Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.
 - deck.gl should be pinned to minor version
 - Upgrade Viv to 0.10.6 and deck.gl to 8.5
+- Don't show image layer buttons if there is only one layer.
+- Fix spatial options to only show what is necessary and display at all if necessary.
+- Fix bug introduced by #1037 that broke channel removal/addition.
+- Fix setting default schema values for properties that are not in the current deck.gl view state (for example, the z direction for `target`).
+- Moved creation of `useViewConfigStore` and `useAuxiliaryStore` to the `ViewConfigProvider` and `AuxiliaryProvider` contexts (rather than creating global stores).
 
 ## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01
 
