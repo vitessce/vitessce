@@ -1,11 +1,10 @@
 
 export const baseJson = `{
-  "version": "1.0.1",
+  "version": "1.0.4",
   "name": "My config",
-  "description": "",
+  "description": "Test",
   "datasets": [],
   "coordinationSpace": {},
-  "layout": [],
   "initStrategy": "auto"
 }`;
   
@@ -46,7 +45,7 @@ vc.layout(
 return vc.toJSON();`;
   
 export const exampleJson = `{
-  "version": "1.0.1",
+  "version": "1.0.4",
   "name": "My example config",
   "description": "This demonstrates the JSON schema",
   "datasets": [

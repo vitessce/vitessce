@@ -7,4 +7,4 @@ Multimodal molecular imaging data collected from the Left Kidney of a 58 year ol
 
 #### Citation
 
-Neumann E, Patterson N, Anderson D, Sharman K, Migas L, Allen J, Brewer M, Harvey J, Yang H, Harris R, Fogo A, deCaestecker M, Gutierrez D, Caprioli R, Van de Plas R, Spraggins J. Multimodal Molecular Imaging of Human Kidney Tissue From a 58 Year Old Black or African American Male Donor \[Internet\]. HuBMAP Consortium; 2020. Available from: https://doi.org/10.35079/hbm876.xnrh.336
+Neumann E, Patterson N, Anderson D, Sharman K, Migas L, Allen J, Brewer M, Harvey J, Yang H, Harris R, Fogo A, deCaestecker M, Gutierrez D, Caprioli R, Van de Plas R, Spraggins J. Multimodal Molecular Imaging of Human Kidney Tissue From a 58 Year Old Black or African American Male Donor. HuBMAP Consortium; 2020. Available from: https://doi.org/10.35079/hbm876.xnrh.336

@@ -23,14 +23,14 @@ The Vitessce view config defines the datasets (and the URLs to the files they co
 
 :::note
 
-The full view config JSON schema can be found [here](https://github.com/vitessce/vitessce/blob/master/src/schemas/config.schema.json).
+The full view config JSON schema can be found [here](https://github.com/vitessce/vitessce/tree/master/src/schemas/).
 
 :::
 
 ### `name`
 - Type: `string`
 
-A name for the view config. This name may be displayed in the website `<title>`, for example. Although this field is required, you are welcome to use the empty string.
+A name for the view config. Although this field is required, you are welcome to use the empty string.
 
 ### `version`
 
@@ -40,7 +40,11 @@ The view config schema version.
 
 |Value|Notes|
 |-------|-----|
-| `1.0.0`| Support for the coordination space was added in this version. We recommend that you use this version. |
+| `1.0.0`| Support for the coordination space was added in this version. |
+| `1.0.1`| The `spatialLayers` coordination type was split into `spatialRasterLayers`, `spatialCellsLayer`, `spatialMoleculesLayer`, and `spatialNeighborhoodsLayer` in this version. |
+| `1.0.2`| Auto-detection of 3D images was added in this version. |
+| `1.0.3`| Channel sliders for RGB images was added in this version. |
+| `1.0.4`| The coordination types `embeddingCellOpacity`, `embeddingCellRadiusMode`, and `embeddingCellOpacityMode` were added in this version. |
 
 ### `initStrategy`
 - Type: `string`
@@ -160,12 +164,12 @@ The keys of each object (at the first level) in the coordination space represent
     "spatialZoom": {
         "SZ1": 2
     },
-    "spatialLayers": {
-        "SL1": [
+    "spatialCellsLayers": {
+        "SCL1": [
             { "type": "cells", "opacity": 1, "radius": 50, "visible": true }
         ],
-        "SL2": [
-            { "type": "molecules", "opacity": 1, "radius": 20, "visible": true }
+        "SCL2": [
+            { "type": "cells", "opacity": 1, "radius": 20, "visible": true }
         ]
     }
 },

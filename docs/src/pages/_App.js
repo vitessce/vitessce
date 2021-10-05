@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState, useReducer } from 'react';
-import Ajv from 'ajv';
 import clsx from 'clsx';
 import { QueryParamProvider, useQueryParam, StringParam, BooleanParam } from 'use-query-params';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -14,10 +13,6 @@ import {
   CoordinationType, Component, DataType, FileType,
 } from '../../../dist/umd/production/index.min.js';
 
-import configSchema from '../../../src/schemas/config-1.0.1.schema.json';
-import cellSetsSchema from '../../../src/schemas/cell-sets.schema.json';
-import rasterSchema from '../../../src/schemas/raster.schema.json';
-
 import { getHighlightTheme } from './_highlight-theme';
 import { baseJs, baseJson, exampleJs, exampleJson } from './_live-editor-examples';
 
@@ -27,9 +22,8 @@ import styles from './styles.module.css';
 
 const JSON_TRANSLATION_KEY = 'vitessceJsonTranslation';
 
-import { SCHEMA_HANDLERS, LATEST_VERSION } from '../../../src/app/view-config-versions';
+import { upgradeAndValidate } from '../../../src/app/view-config-utils';
 
-const validate = SCHEMA_HANDLERS[LATEST_VERSION][0];
 
 // To simplify the JS editor, the user only needs to write
 // the inner part of the createConfig() function,
@@ -222,13 +216,8 @@ function AppConsumer() {
   }, [url, edit, demo]);
 
   function validateConfig(nextConfig) {
-    const valid = validate(JSON.parse(nextConfig));
-
-    let failureReason = '';
-    if (!valid) {
-      failureReason = validate.errors;
-    }
-    return [valid, failureReason];
+    const [failureReason, upgradeSuccess] = upgradeAndValidate(JSON.parse(nextConfig));
+    return [upgradeSuccess, failureReason];
   }
 
   function handleEditorGo() {
