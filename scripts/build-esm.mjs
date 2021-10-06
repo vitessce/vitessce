@@ -1,4 +1,4 @@
-import * as esbuild from 'esbuild';
+import esbuild from 'esbuild';
 import sassPlugin from 'esbuild-plugin-sass';
 import babel from 'esbuild-plugin-babel';
 import svgr from '@svgr/core';
