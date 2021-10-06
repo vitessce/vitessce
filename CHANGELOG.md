@@ -4,6 +4,7 @@
 
 ### Changed
 - Fix bitmask picking/highlighting.
+- Upgrade `Viv` to 0.11.0
 - Add esbuild script to generate ES Module library bundle
 
 ## [1.1.15](https://www.npmjs.com/package/vitessce/v/1.1.15) - 2021-09-21

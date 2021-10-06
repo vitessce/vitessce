@@ -20,7 +20,7 @@
     "react-dom": "^16.8.6"
   },
   "dependencies": {
-    "@hms-dbmi/viv": "^0.10.6",
+    "@hms-dbmi/viv": "^0.11.0",
     "@loaders.gl/3d-tiles": "^3.0.0",
     "@loaders.gl/core": "^3.0.0",
     "@loaders.gl/images": "^3.0.0",
@@ -79,6 +79,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.14.5",
     "@svgr/webpack": "5.3.1",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",

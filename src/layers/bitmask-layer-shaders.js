@@ -56,7 +56,7 @@ uniform float colorTexHeight;
 uniform float colorTexWidth;
 uniform float hovered;
 // range
-uniform bool channelIsOn[6];
+uniform bool channelsVisible[6];
 
 // Expression mapping
 uniform vec2 uColorScaleRange;
@@ -83,19 +83,19 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn){
 
 void main() {
 
-  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelIsOn[0]);
+  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0]);
 
   // If the sampled color and the currently stored color (gl_FragColor) are identical, don't blend and use the sampled color,
   // otherwise just use the currently stored color.  Repeat this for all channels.
-  vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelIsOn[1]);
+  vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel2, vTexCoord, channelIsOn[2]);
+  sampledColor = sampleAndGetColor(channel2, vTexCoord, channelsVisible[2]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel3, vTexCoord, channelIsOn[3]);
+  sampledColor = sampleAndGetColor(channel3, vTexCoord, channelsVisible[3]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel4, vTexCoord, channelIsOn[4]);
+  sampledColor = sampleAndGetColor(channel4, vTexCoord, channelsVisible[4]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel5, vTexCoord, channelIsOn[5]);
+  sampledColor = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
   // Apply the opacity if there is pixel data, and if the pixel data is empty i.e no segmentation, use 0 opacity.
   gl_FragColor = vec4(gl_FragColor.rgb, (gl_FragColor.rgb == vec3(0., 0., 0.)) ? 0.0 : opacity);

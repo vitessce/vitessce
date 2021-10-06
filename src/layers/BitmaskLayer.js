@@ -3,7 +3,11 @@ import { project32, picking } from '@deck.gl/core'; // eslint-disable-line impor
 import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
 import { fs, vs } from './bitmask-layer-shaders';
-import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants';
+import {
+  GLSL_COLORMAPS,
+  GLSL_COLORMAP_DEFAULT,
+  COLORMAP_SHADER_PLACEHOLDER,
+} from './constants';
 
 function padWithDefault(arr, defaultValue, padWidth) {
   const newArr = [...arr];
@@ -67,7 +71,11 @@ export default class BitmaskLayer extends XRLayer {
   }
 
   setColorTexture() {
-    const { cellColorData: data, cellTexHeight: height, cellTexWidth: width } = this.props;
+    const {
+      cellColorData: data,
+      cellTexHeight: height,
+      cellTexWidth: width,
+    } = this.props;
     const colorTex = new Texture2D(this.context.gl, {
       width,
       height,
@@ -93,7 +101,7 @@ export default class BitmaskLayer extends XRLayer {
   draw(opts) {
     const { uniforms } = opts;
     const {
-      channelIsOn,
+      channelsVisible,
       hoveredCell,
       colorScaleLo,
       colorScaleHi,
@@ -112,11 +120,11 @@ export default class BitmaskLayer extends XRLayer {
             expressionTex,
             colorTexHeight: colorTex.height,
             colorTexWidth: colorTex.width,
-            channelIsOn: padWithDefault(
-              channelIsOn,
+            channelsVisible: padWithDefault(
+              channelsVisible,
               false,
               // There are six texture entries on the shaders
-              6 - channelIsOn.length,
+              6 - channelsVisible.length,
             ),
             uColorScaleRange: [colorScaleLo, colorScaleHi],
             uIsExpressionMode: isExpressionMode,
