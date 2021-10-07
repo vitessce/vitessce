@@ -18,7 +18,9 @@ The terms "component" and "view" are used interchangeably thoughout this documen
 
 ### `scatterplot`
 
-The scatterplot component displays 2-dimensional (pre-computed) embeddings / projections (such as t-SNE or UMAP). Use with the `embeddingType` coordination type to specify which embedding to use when mapping cells onto scatterplot points. Use with datasets containing the `cells` data type. Optionally, the `cell-sets` and `genes` data types can be used for coloring cells on the plot.
+The scatterplot component displays 2-dimensional (pre-computed) embeddings / projections (such as t-SNE or UMAP).
+Use with the `embeddingType` coordination type to specify which embedding to use when mapping cells onto scatterplot points.
+Use with datasets containing the `cells` data type. Optionally, the `cell-sets` and `genes` data types can be used for coloring cells on the plot.
 
 <ComponentImage filename="scatterplot.png" alt="Screenshot of Scatterplot Component" />
 <ComponentImage filename="scatterplot-2.png" alt="Screenshot of Scatterplot Component" />
@@ -41,13 +43,16 @@ The spatial component is meant to display data with spatial coordinates, includi
 
 ### `layerController`
 
-The layer controller component provides an interface for manipulating the visualization layers displayed in the `spatial` component. The corresponding `spatial` component(s) can be specified through the [`spatialLayers`](/docs/coordination-types/index.html#spatialLayers) coordination type.
+The layer controller component provides an interface for manipulating the visualization layers displayed in the `spatial` component.
+The image layers are coordinated through the [`spatialRasterLayers`](/docs/coordination-types/index.html#spatialRasterLayers) coordination type.
 
 <ComponentImage filename="layerController.png" alt="Screenshot of Layer Controller Component" />
 
 ### `genomicProfiles`
 
-The genomic profiles component displays genome browser tracks (using the `genomic-profiles` data type) containing bar plots, where the genome is along the x-axis and the value at each genome position is encoded with a bar along the y-axis. Genome tracks may be colored by corresponding cell set color assignments if the `cell-sets` data type is available in the same dataset, coordinated on the [`cellSetSelection`](/docs/coordination-types/index.html#cellSetSelection) coordination type. This component was implemented with [HiGlass](https://higlass.io/).
+The genomic profiles component displays genome browser tracks (using the `genomic-profiles` data type) containing bar plots, where the genome is along the x-axis and the value at each genome position is encoded with a bar along the y-axis.
+Genome tracks may be colored by corresponding cell set color assignments if the `cell-sets` data type is available in the same dataset, coordinated on the [`cellSetSelection`](/docs/coordination-types/index.html#cellSetSelection) coordination type.
+This component was implemented with [HiGlass](https://higlass.io/).
 
 <ComponentImage filename="genomicProfiles.png" alt="Screenshot of Genomic Profiles Component" />
 

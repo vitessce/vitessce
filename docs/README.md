@@ -10,8 +10,6 @@ This documentation site depends on the Vitessce production library located in `.
 cd ..
 npm install
 npm run build-lib:prod
-npm link docs/node_modules/react
-cd docs
 ```
 
 ## Installation
@@ -20,6 +18,8 @@ Install the docusaurus dependencies.
 
 ```sh
 npm install
+cd ..
+npm link docs/node_modules/react
 ```
 
 ## Local Development
