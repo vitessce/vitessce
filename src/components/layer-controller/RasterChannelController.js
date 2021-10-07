@@ -9,12 +9,17 @@ import ChannelOptions from './ChannelOptions';
 import { DOMAINS } from './constants';
 import { getSourceFromLoader } from '../../utils';
 import { getMultiSelectionStats } from './utils';
-import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls';
+import {
+  ChannelSelectionDropdown,
+  ChannelVisibilityCheckbox,
+} from './shared-channel-controls';
 
 // Returns an rgb string for display, and changes the color (arr)
 // to use a grey for light theme + white color or if the colormap is on.
 export const toRgbUIString = (on, arr, theme) => {
-  const color = (on || (theme === 'light' && arr.every(i => i === 255))) ? [220, 220, 220] : arr;
+  const color = on || (theme === 'light' && arr.every(i => i === 255))
+    ? [220, 220, 220]
+    : arr;
   return `rgb(${color})`;
 };
 
@@ -25,18 +30,18 @@ function abbreviateNumber(value) {
   let maxNaiveDigits = maxLength;
 
   /* eslint-disable no-plusplus */
-  if (!Number.isInteger(value)) { --maxNaiveDigits; } // Wasted on "."
-  if (value < 1) { --maxNaiveDigits; } // Wasted on "0."
+  if (!Number.isInteger(value)) {
+    --maxNaiveDigits;
+  } // Wasted on "."
+  if (value < 1) {
+    --maxNaiveDigits;
+  } // Wasted on "0."
   /* eslint-disable no-plusplus */
 
-
-  const naive = Intl.NumberFormat(
-    'en-US',
-    {
-      maximumSignificantDigits: maxNaiveDigits,
-      useGrouping: false,
-    },
-  ).format(value);
+  const naive = Intl.NumberFormat('en-US', {
+    maximumSignificantDigits: maxNaiveDigits,
+    useGrouping: false,
+  }).format(value);
   if (naive.length <= maxLength) return naive;
 
   // "e+9" consumes 3 characters, so if we even had two significant digits,
@@ -52,11 +57,17 @@ function abbreviateNumber(value) {
  * @prop {array} domain Current max/min allowable slider values.
  */
 function ChannelSlider({
-  color, slider = [0, 0], handleChange, domain = [0, 0], dtype, disabled,
+  color,
+  slider = [0, 0],
+  handleChange,
+  domain = [0, 0],
+  dtype,
+  disabled,
 }) {
   const [min, max] = domain;
   const handleChangeDebounced = useCallback(
-    debounce(handleChange, 3, { trailing: true }), [handleChange],
+    debounce(handleChange, 3, { trailing: true }),
+    [handleChange],
   );
   const step = max - min < 500 && dtype === 'Float32' ? (max - min) / 500 : 1;
   return (
@@ -113,7 +124,9 @@ function RasterChannelController({
   const [domain, setDomain] = useState(null);
   const [domainType, setDomainType] = useState(null);
   const [use3d, setUse3d] = useState(null);
-  const [selection, setSelection] = useState([{ ...channels[channelId].selection }]);
+  const [selection, setSelection] = useState([
+    { ...channels[channelId].selection },
+  ]);
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {
@@ -121,11 +134,11 @@ function RasterChannelController({
     // All state updates should happen within the mounted check.
     let mounted = true;
     if (dtype && loader && channels) {
-      const loaderSelection = [{ ...channels[channelId].selection }];
+      const selections = [{ ...channels[channelId].selection }];
       let domains;
       const hasDomainChanged = newDomainType !== domainType;
       const has3dChanged = use3d !== newUse3d;
-      const hasSelectionChanged = !isEqual(loaderSelection, selection);
+      const hasSelectionChanged = !isEqual(selections, selection);
       if (hasDomainChanged || hasSelectionChanged || has3dChanged) {
         if (newDomainType === 'Full') {
           domains = [DOMAINS[dtype]];
@@ -134,15 +147,16 @@ function RasterChannelController({
             setDomain(newDomain);
             setDomainType(newDomainType);
             if (hasSelectionChanged) {
-              setSelection(loaderSelection);
-            } if (has3dChanged) {
+              setSelection(selections);
+            }
+            if (has3dChanged) {
               setUse3d(newUse3d);
             }
           }
         } else {
           getMultiSelectionStats({
             loader: loader.data,
-            selections: loaderSelection,
+            selections,
             use3d: newUse3d,
           }).then((stats) => {
             // eslint-disable-next-line prefer-destructuring
@@ -152,8 +166,9 @@ function RasterChannelController({
               setDomain(newDomain);
               setDomainType(newDomainType);
               if (hasSelectionChanged) {
-                setSelection(loaderSelection);
-              } if (has3dChanged) {
+                setSelection(selections);
+              }
+              if (has3dChanged) {
                 setUse3d(newUse3d);
               }
             }
@@ -161,25 +176,38 @@ function RasterChannelController({
         }
       }
     }
-    return () => { mounted = false; };
-  }, [domainType, channels, channelId, loader, dtype, newDomainType, selection, newUse3d, use3d]);
+    return () => {
+      mounted = false;
+    };
+  }, [
+    domainType,
+    channels,
+    channelId,
+    loader,
+    dtype,
+    newDomainType,
+    selection,
+    newUse3d,
+    use3d,
+  ]);
   /* A valid selection is defined by an object where the keys are
-  *  the name of a dimension of the data, and the values are the
-  *  index of the image along that particular dimension.
-  *
-  *  Since we currently only support making a selection along one
-  *  addtional dimension (i.e. the dropdown just has channels or mz)
-  *  we have a helper function to create the selection.
-  *
-  *  e.g { channel: 2 } // channel dimension, third channel
-  */
+   *  the name of a dimension of the data, and the values are the
+   *  index of the image along that particular dimension.
+   *
+   *  Since we currently only support making a selection along one
+   *  addtional dimension (i.e. the dropdown just has channels or mz)
+   *  we have a helper function to create the selection.
+   *
+   *  e.g { channel: 2 } // channel dimension, third channel
+   */
   const createSelection = index => ({ [dimName]: index });
   return (
     <Grid container direction="column" m={1} justify="center">
       <Grid container direction="row" justify="space-between">
         <Grid item xs={10}>
           <ChannelSelectionDropdown
-            handleChange={v => handlePropertyChange('selection', createSelection(v))}
+            handleChange={v => handlePropertyChange('selection', createSelection(v))
+            }
             selectionIndex={selectionIndex}
             channelOptions={channelOptions}
             disabled={isLoading}
