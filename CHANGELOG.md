@@ -5,6 +5,9 @@
 ### Changed
 - Fix bitmask picking/highlighting.
 - Upgrade `Viv` to 0.11.0
+- Fixed radius size of "edit handle" points rendered by the nebula.gl `EditableGeoJsonLayer` within `SelectionLayer`.
+
+
 ## [1.1.15](https://www.npmjs.com/package/vitessce/v/1.1.15) - 2021-09-21
 
 ### Added

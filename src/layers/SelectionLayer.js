@@ -8,7 +8,9 @@ import booleanWithin from '@turf/boolean-within';
 import booleanContains from '@turf/boolean-contains';
 import booleanOverlap from '@turf/boolean-overlap';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { EditableGeoJsonLayer, SELECTION_TYPE } from 'nebula.gl';
+import { ScatterplotLayer } from '@deck.gl/layers';
+import { SELECTION_TYPE } from 'nebula.gl';
+import { EditableGeoJsonLayer } from '@nebula.gl/layers';
 import { DrawRectangleMode, DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
 
 const EDIT_TYPE_ADD = 'addFeature';
@@ -161,6 +163,24 @@ export default class SelectionLayer extends CompositeLayer {
               // We want to select an empty array to clear any previous selection.
               onSelect({ pickingInfos: [] });
             }
+          },
+          _subLayerProps: {
+            guides: {
+              pointType: 'circle',
+              _subLayerProps: {
+                'points-circle': {
+                  // Styling for editHandles goes here.
+                  // Reference: https://github.com/uber/nebula.gl/issues/618#issuecomment-898466319
+                  type: ScatterplotLayer,
+                  radiusScale: 1,
+                  stroked: true,
+                  getLineWidth: 1,
+                  radiusMinPixels: 1,
+                  radiusMaxPixels: 3,
+                  getRadius: 2,
+                },
+              },
+            },
           },
           ...inheritedProps,
         }),
