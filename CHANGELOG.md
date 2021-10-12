@@ -6,7 +6,7 @@
 - Fix bitmask picking/highlighting.
 - Upgrade `Viv` to 0.11.0
 - Fixed radius size of "edit handle" points rendered by the nebula.gl `EditableGeoJsonLayer` within `SelectionLayer`.
-
+- Fix channel options button bug where it thinks it is being clicked twice by using `preventDefault`.
 
 ## [1.1.15](https://www.npmjs.com/package/vitessce/v/1.1.15) - 2021-09-21
 

@@ -70,7 +70,7 @@ export function PopperMenu(props) {
         placement={placement}
       >
         <MuiPaper>
-          <ClickAwayListener onClickAway={toggle}>
+          <ClickAwayListener onClickAway={(e) => { e.preventDefault(); toggle(); }}>
             <MenuList>{children}</MenuList>
           </ClickAwayListener>
         </MuiPaper>
