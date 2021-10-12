@@ -273,3 +273,12 @@ export function upgradeFrom1_0_3(config) {
     version: '1.0.4',
   };
 }
+
+export function upgradeFrom1_0_4(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.5',
+  };
+}

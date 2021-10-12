@@ -62,16 +62,22 @@ export default class AnnDataSource extends ZarrDataSource {
    */
   loadObsVariables(obsPaths) {
     const obsPromises = obsPaths.map((obsPath) => {
-      if (!this.obsPromises.has(obsPath)) {
-        const obsPromise = this._loadObsVariable(obsPath).catch((err) => {
-          // clear from cache if promise rejects
-          this.obsPromises.delete(obsPath);
-          // propagate error
-          throw err;
-        });
-        this.obsPromises.set(obsPath, obsPromise);
+      const getObsCol = (obsCol) => {
+        if (!this.obsPromises.has(obsCol)) {
+          const obsPromise = this._loadObsVariable(obsCol).catch((err) => {
+            // clear from cache if promise rejects
+            this.obsPromises.delete(obsCol);
+            // propagate error
+            throw err;
+          });
+          this.obsPromises.set(obsCol, obsPromise);
+        }
+        return this.obsPromises.get(obsCol);
+      };
+      if (Array.isArray(obsPath)) {
+        return Promise.resolve(Promise.all(obsPath.map(getObsCol)));
       }
-      return this.obsPromises.get(obsPath);
+      return getObsCol(obsPath);
     });
     return Promise.all(obsPromises);
   }
