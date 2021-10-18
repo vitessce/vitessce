@@ -103,11 +103,12 @@ export function createLoaders(datasets, configDescription) {
     dataset.files.forEach((file) => {
       const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(file.fileType);
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
-      if (!(file.url in dataSources)) {
-        const { url, requestInit } = file;
-        dataSources[file.url] = new DataSourceClass({ url, requestInit });
+      const { url, options, requestInit } = file;
+      const fileId = url || JSON.stringify(options);
+      if (!(fileId in dataSources)) {
+        dataSources[fileId] = new DataSourceClass({ url, requestInit });
       }
-      const loader = new LoaderClass(dataSources[file.url], file);
+      const loader = new LoaderClass(dataSources[fileId], file);
       datasetLoaders.loaders[file.type] = loader;
     });
     result[dataset.uid] = datasetLoaders;
