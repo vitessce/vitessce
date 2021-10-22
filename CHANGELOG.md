@@ -1,11 +1,13 @@
 ## In Progress
 
 ### Added
+- Add esbuild script to generate ES Module library bundle
 
 ### Changed
 - Fix bitmask picking/highlighting.
 - Upgrade `Viv` to 0.11.0
-- Add esbuild script to generate ES Module library bundle
+- Fixed radius size of "edit handle" points rendered by the nebula.gl `EditableGeoJsonLayer` within `SelectionLayer`.
+- Fixed incorrect cacheing of data sources by URL when URL is undefined (for instance, the `raster.json` data type may use `options` in place of `url`).
 
 ## [1.1.15](https://www.npmjs.com/package/vitessce/v/1.1.15) - 2021-09-21
 
