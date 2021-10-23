@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Added support for passing an array to `setNames` within `options` objects for the `anndata-cell-sets.zarr` file type, which enables creating cell set hierarchies based on coarse-to-fine columns in `adata.obs`.
 
 ### Changed
 - Fix bitmask picking/highlighting.
