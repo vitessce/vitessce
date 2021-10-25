@@ -1,5 +1,5 @@
 /* eslint-disable no-control-regex */
-import { InternSet, InternMap } from 'internmap';
+import { InternMap } from 'internmap';
 import {
   treeInitialize,
   nodeAppendChild,
@@ -22,22 +22,23 @@ export function dataToCellSetsTree(data, options) {
     };
     if (cellSetIds.length > 0 && Array.isArray(cellSetIds[0])) {
       // Multi-level case.
-      let levels = new InternSet([], JSON.stringify);
-      cellNames.forEach((id, i) => {
-        const classes = cellSetIds.map(col => col[i]);
-        levels.add(classes);
-      });
-      levels = Array(...levels);
-
       const levelSets = new InternMap([], JSON.stringify);
-      levels.forEach((level) => {
-        levelSets.set(level, []);
-      });
 
       cellNames.forEach((id, i) => {
         const classes = cellSetIds.map(col => col[i]);
-        levelSets.get(classes).push([id, null]);
+        if (levelSets.has(classes)) {
+          levelSets.get(classes).push([id, null]);
+        } else {
+          levelSets.set(classes, [[id, null]]);
+        }
       });
+
+      const levels = Array.from(levelSets.keys());
+
+      const getNextLevelNames = (levelSuffixes) => {
+        const nextLevelNames = Array.from(new Set(levelSuffixes.map(l => l[0])));
+        return nextLevelNames.sort((a, b) => a.localeCompare(b));
+      };
 
       // Recursive function to create nodes.
       const getNode = (parentLevelPrefixes, currLevelName, childLevelSuffixes) => {
@@ -62,7 +63,7 @@ export function dataToCellSetsTree(data, options) {
             );
           } else {
             // Recursion, run getNode() on each of the unique names at the next level.
-            const nextLevelNames = Array(...new Set(childLevelSuffixes.map(l => l[0])));
+            const nextLevelNames = getNextLevelNames(childLevelSuffixes);
 
             resultNode.children = nextLevelNames
               .map(nextLevelName => getNode(
@@ -78,7 +79,7 @@ export function dataToCellSetsTree(data, options) {
         return resultNode;
       };
       // Start the recursion.
-      const levelOneNodes = Array(...new Set(levels.map(l => l[0])))
+      const levelOneNodes = getNextLevelNames(levels)
         .map(levelOneName => getNode(
           [],
           levelOneName,
