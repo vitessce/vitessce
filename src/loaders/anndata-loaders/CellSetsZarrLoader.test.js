@@ -33,11 +33,11 @@ describe('loaders/CellSetsZarrLoader', () => {
                   name: 'B cell',
                   children: [
                     {
-                        name: 'CD19-',
-                        set: [
-                          ['cell_2', null],
-                          ['cell_3', null],
-                        ],
+                      name: 'CD19-',
+                      set: [
+                        ['cell_2', null],
+                        ['cell_3', null],
+                      ],
                     },
                     {
                       name: 'CD19+',
