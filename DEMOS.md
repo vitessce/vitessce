@@ -95,3 +95,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-09-01: [release_1.1.14](https://s3.amazonaws.com/vitessce-data/demos/2021-09-01/a79318a9/index.html)
 - 2021-09-21: [release_1.1.15](https://s3.amazonaws.com/vitessce-data/demos/2021-09-21/d7de0793/index.html)
 - 2021-09-21: [release_1.1.15](https://s3.amazonaws.com/vitessce-data/demos/2021-09-21/99f06871/index.html)
+- 2021-10-12: [keller-mark/anndata-cell-sets-tree](https://s3.amazonaws.com/vitessce-data/demos/2021-10-12/51c20af9/index.html)
