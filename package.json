@@ -14,7 +14,7 @@
     "src"
   ],
   "main": "dist/umd/production/index.min.js",
-  "module": "dist/es/production/index.min.js",
+  "module": "dist/esm/index.js",
   "peerDependencies": {
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
@@ -28,6 +28,7 @@
     "@luma.gl/core": "~8.5.7",
     "@material-ui/core": "^4.8.3",
     "@material-ui/icons": "^4.9.1",
+    "@turf/area": "^6.5.0",
     "@turf/boolean-contains": "^6.0.1",
     "@turf/boolean-overlap": "^6.0.1",
     "@turf/boolean-point-in-polygon": "^6.0.1",
@@ -99,6 +100,9 @@
     "dotenv-expand": "5.1.0",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.2",
+    "esbuild": "^0.12.28",
+    "esbuild-plugin-babel": "^0.2.3",
+    "esbuild-plugin-sass": "^0.6.0",
     "eslint": "^6.6.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-react-app": "^5.2.0",
@@ -126,7 +130,7 @@
     "karma-webpack": "4.0.2",
     "mini-css-extract-plugin": "0.9.0",
     "mocha": "7.1.0",
-    "node-sass": "^5.0.0",
+    "node-sass": "^6.0.0",
     "object.fromentries": "^2.0.2",
     "optimize-css-assets-webpack-plugin": "5.0.3",
     "pnp-webpack-plugin": "1.6.0",
@@ -159,9 +163,10 @@
   "scripts": {
     "build-demo:prod": "node scripts/build-demo.js production",
     "build-lib:prod": "node scripts/build-lib.js production",
+    "build-lib:esm": "NODE_ENV=production node scripts/build-esm.mjs",
     "build-demo:dev": "node scripts/build-demo.js development",
     "build-lib:dev": "node scripts/build-lib.js development",
-    "build:prod": "npm run build-demo:prod && npm run build-lib:prod",
+    "build:prod": "npm run build-demo:prod && npm run build-lib:prod && npm run build-lib:esm",
     "build:dev": "npm run build-demo:dev && npm run build-lib:dev",
     "prepublishOnly": "npm run build-lib:prod",
     "clean": "rm -r dist-demo dist",

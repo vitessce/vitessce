@@ -152,6 +152,26 @@ The `vitessce` package is published to the NPM registry by Travis when the versi
 
 Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the [web interface](https://travis-ci.org/github/vitessce/vitessce/settings) (Settings -> Environment Variables).
 
+## Bundling
+
+Vitessce provides a pure ESM export intended for bundlers (e.g. Vite, Webpack, Rollup).
+Most modern bundlers should work out of the box, however bundling with legacy Webpack (<5.0) 
+requires adding the following [resolution alias](https://webpack.js.org/configuration/resolve/#resolvealias)
+to your `webpack.config.js`.
+
+```javascript
+module.exports = {
+  //...
+  resolve: {
+    alias: {
+      'txml/txml': 'txml/dist/txml'
+    },
+  },
+};
+```
+
+This fix is temporary and will no longer be necessary after the [next release of Viv](https://github.com/vitessce/vitessce/pull/1049#issuecomment-939520471).
+
 ## Related Subsidiary Projects
 
 - [Viv](https://github.com/hms-dbmi/viv): A library for multiscale visualization of high-resolution multiplexed tissue data on the web.
