@@ -52,6 +52,7 @@
     "higlass": "1.11.4",
     "higlass-register": "^0.3.0",
     "higlass-zarr-datafetchers": "^0.2.1",
+    "internmap": "^2.0.3",
     "json2csv": "^4.5.2",
     "lodash": "^4.17.15",
     "lz-string": "^1.4.4",
