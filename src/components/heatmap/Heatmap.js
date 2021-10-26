@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
@@ -76,6 +77,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     colormapRange,
     clearPleaseWait,
     setComponentHover,
+    // TODO: set to false for actual PR
+    hideTopLabels = true,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
     setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
@@ -84,6 +87,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     variablesTitle = 'Genes',
     observationsTitle = 'Cells',
   } = props;
+
+
 
   const viewState = {
     ...rawViewState,
@@ -358,7 +363,7 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
-  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, d]), [axisTopLabels]);
+  const axisTopLabelData = useMemo(() => hideTopLabels ? [] : axisTopLabels.map((d, i) => [i, d]), [axisTopLabels]);
   const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d]), [axisLeftLabels]);
 
   // Generate the axis label, axis title, and loading indicator text layers.
