@@ -170,6 +170,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (!expression) {
       return [0, 0];
     }
+
+
     return [
       max(expression.rows.map(cellId => cellId.length)),
       max(expression.cols.map(geneId => geneId.length)),
@@ -180,10 +182,10 @@ const Heatmap = forwardRef((props, deckRef) => {
   const height = axisLeftLabels.length;
 
   const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(
-    transpose, geneLabelMaxLength, cellLabelMaxLength,
+    transpose, geneLabelMaxLength, cellLabelMaxLength
   );
 
-  const offsetTop = axisOffsetTop + COLOR_BAR_SIZE;
+  const offsetTop = axisOffsetTop + COLOR_BAR_SIZE * 2;
   const offsetLeft = axisOffsetLeft + COLOR_BAR_SIZE;
 
   const matrixWidth = viewWidth - offsetLeft;
@@ -452,7 +454,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       }))
     : []), [cellColorsTiles, matrixTop, matrixLeft, matrixHeight,
     matrixWidth, tileWidth, tileHeight, transpose]);
-
+    
   const layers = heatmapLayers
     .concat(textLayers)
     .concat(cellColorsLayers);
@@ -507,6 +509,11 @@ const Heatmap = forwardRef((props, deckRef) => {
     setGeneHighlight(varId || null);
   }
 
+  // console.log(AXIS_MARGIN)
+  console.log(`offsetTop: ${offsetTop}`)
+  console.log(`axisOffsetTop: ${axisOffsetTop}`)
+  console.log(`AXIS_MARGIN: ${AXIS_MARGIN}`)
+
   return (
     <DeckGL
       id={`deckgl-overlay-${uuid}`}
@@ -522,6 +529,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           width: matrixWidth,
           height: matrixHeight,
         }),
+        
         new OrthographicView({
           id: 'axisLeft',
           controller: false,
@@ -538,6 +546,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           width: matrixWidth,
           height: axisOffsetTop,
         }),
+
         new OrthographicView({
           id: 'colorsLeft',
           controller: false,
@@ -545,6 +554,14 @@ const Heatmap = forwardRef((props, deckRef) => {
           y: offsetTop,
           width: COLOR_BAR_SIZE - AXIS_MARGIN,
           height: matrixHeight,
+        }),
+        new OrthographicView({
+          id: 'colorsTop',
+          controller: false,
+          x: offsetLeft,
+          y: axisOffsetTop + COLOR_BAR_SIZE,
+          width: matrixWidth,
+          height: COLOR_BAR_SIZE - AXIS_MARGIN,
         }),
         new OrthographicView({
           id: 'colorsTop',
