@@ -1,6 +1,12 @@
 ## In Progress
 
 ### Added
+
+### Changed
+
+## [1.1.16](https://www.npmjs.com/package/vitessce/v/1.1.16) - 2021-10-26
+
+### Added
 - Added support for passing an array to `setNames` within `options` objects for the `anndata-cell-sets.zarr` file type, which enables creating cell set hierarchies based on coarse-to-fine columns in `adata.obs`.
 - Add esbuild script to generate ES Module library bundle
 
