@@ -193,8 +193,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       transpose, geneLabelMaxLength, cellLabelMaxLength
       );
       
-      const offsetTop = axisOffsetTop + COLOR_BAR_SIZE * numCellColorTracks;
-      const offsetLeft = axisOffsetLeft + COLOR_BAR_SIZE * numCellColorTracks;
+      const offsetTop = axisOffsetTop + COLOR_BAR_SIZE * (transpose ? numCellColorTracks : 1);
+      const offsetLeft = axisOffsetLeft + COLOR_BAR_SIZE *  (transpose ? 1 : numCellColorTracks);
       
       const matrixWidth = viewWidth - offsetLeft;
       const matrixHeight = viewHeight - offsetTop;
@@ -552,7 +552,6 @@ const Heatmap = forwardRef((props, deckRef) => {
                       }
                       
                       const cellColorsViews = useMemo(() => {
-                        
                         
                         const result = [...Array(numCellColorTracks).keys()].map(track => {
 
