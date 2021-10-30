@@ -87,11 +87,14 @@ export function layerFilter({ layer, viewport }) {
     return layer.id.startsWith('axisTop');
   } if (viewport.id === 'heatmap') {
     return layer.id.startsWith('heatmap');
-  } if (viewport.id === 'colorsLeft') {
-    return layer.id.startsWith('colorsLeft');
-  } if (viewport.id === 'colorsTop') {
-    return layer.id.startsWith('colorsTop');
+  } if (viewport.id.startsWith('colorsLeft')) {
+    const matches = layer.id.match(/-(\d)/);
+    if (matches) return layer.id.startsWith(`colorsLeftLayer-${matches[1]}`);
+  } if (viewport.id.startsWith('colorsTop')) {
+    const matches = layer.id.match(/-(\d)/);
+    if (matches) return layer.id.startsWith(`colorsTopLayer-${matches[1]}`);
   }
+
   return false;
 }
 
