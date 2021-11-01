@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import IconButton from '@material-ui/core/IconButton';
@@ -46,35 +47,44 @@ export function PopperMenu(props) {
   const {
     buttonIcon,
     open,
-    toggle,
+    setOpen,
     children,
     placement,
     buttonClassName,
   } = props;
   const anchorRef = useRef(null);
   const classes = styles();
+
+  const handleClick = () => {
+    setOpen(prev => !prev);
+  };
+
+  const handleClickAway = () => {
+    setOpen(false);
+  };
+
   return (
-    <>
-      <IconButton
-        onClick={toggle}
-        size="small"
-        ref={anchorRef}
-        className={buttonClassName}
-      >
-        {buttonIcon}
-      </IconButton>
-      <MuiPopper
-        className={classes.popper}
-        open={open}
-        anchorEl={anchorRef}
-        placement={placement}
-      >
-        <MuiPaper>
-          <ClickAwayListener onClickAway={toggle}>
+    <ClickAwayListener onClickAway={handleClickAway}>
+      <Box style={{ position: 'relative' }}>
+        <IconButton
+          onClick={handleClick}
+          size="small"
+          ref={anchorRef}
+          className={buttonClassName}
+        >
+          {buttonIcon}
+        </IconButton>
+        <MuiPopper
+          className={classes.popper}
+          open={open}
+          anchorEl={anchorRef}
+          placement={placement}
+        >
+          <MuiPaper>
             <MenuList>{children}</MenuList>
-          </ClickAwayListener>
-        </MuiPaper>
-      </MuiPopper>
-    </>
+          </MuiPaper>
+        </MuiPopper>
+      </Box>
+    </ClickAwayListener>
   );
 }

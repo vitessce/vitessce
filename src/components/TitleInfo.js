@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -53,12 +53,12 @@ function SettingsIconWithArrow({ open }) {
 
 function PlotOptions(props) {
   const { options } = props;
-  const [open, toggle] = useReducer(v => !v, false);
+  const [open, setOpen] = useState(false);
   const classes = useStyles();
   return (
     <PopperMenu
       open={open}
-      toggle={toggle}
+      setOpen={setOpen}
       buttonIcon={<SettingsIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
@@ -79,12 +79,12 @@ function CloudDownloadIconWithArrow({ open }) {
 
 function DownloadOptions(props) {
   const { urls } = props;
-  const [open, toggle] = useReducer(v => !v, false);
+  const [open, setOpen] = useState(false);
   const classes = useStyles();
   return (
     <PopperMenu
       open={open}
-      toggle={toggle}
+      setOpen={setOpen}
       buttonIcon={<CloudDownloadIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
