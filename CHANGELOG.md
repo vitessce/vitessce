@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Updated the `build-lib:prod` npm script in `package.json` to generate the `esm` build in addition to the `umd` build.
 
 ## [1.1.16](https://www.npmjs.com/package/vitessce/v/1.1.16) - 2021-10-26
 
