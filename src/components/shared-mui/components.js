@@ -1,10 +1,8 @@
-import React, { useRef } from 'react';
-import Box from '@material-ui/core/Box';
+import React, { useRef, useCallback } from 'react';
 import Popover from '@material-ui/core/Popover';
 import IconButton from '@material-ui/core/IconButton';
 import MenuList from '@material-ui/core/MenuList';
 import { styles } from './styles';
-
 
 export function MuiSpan(props) {
   const { children } = props;
@@ -32,8 +30,15 @@ export function PopperMenu(props) {
 
   const id = open ? 'v-popover-menu' : undefined;
 
+  const getTooltipContainer = useCallback(() => {
+    if (anchorRef.current) {
+      return anchorRef.current.closest('.vitessce-container');
+    }
+    return null;
+  }, [anchorRef]);
+
   return (
-    <Box style={{ position: 'relative' }}>
+    <span style={{ position: 'relative' }}>
       <IconButton
         aria-describedby={id}
         onClick={handleClick}
@@ -47,6 +52,7 @@ export function PopperMenu(props) {
         id={id}
         open={open}
         anchorEl={anchorRef && anchorRef.current}
+        container={getTooltipContainer}
         onClose={handleClose}
         anchorOrigin={{
           vertical: 'bottom',
@@ -61,6 +67,6 @@ export function PopperMenu(props) {
       >
         <MenuList>{children}</MenuList>
       </Popover>
-    </Box>
+    </span>
   );
 }
