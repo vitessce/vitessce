@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { CompositeLayer } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { PIXELATED_TEXTURE_PARAMETERS } from './heatmap-constants';
@@ -13,6 +14,8 @@ const defaultProps = {
   },
   transparentColor: { type: 'color', value: [0, 0, 0, 0] },
   tintColor: { type: 'color', value: [255, 255, 255] },
+  pickable: true,
+  onHover: (x) => console.log(x),
 };
 
 export default class PixelatedBitmapLayer extends CompositeLayer {
