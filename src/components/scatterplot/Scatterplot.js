@@ -54,6 +54,7 @@ const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
  * (used by the selection layer).
  * @param {function} props.getCellPosition Getter function for cell [x, y, z] position.
  * @param {function} props.getCellColor Getter function for cell color as [r, g, b] array.
+ * @param {function} props.getExpressionValue Getter function for cell expression value.
  * @param {function} props.getCellIsSelected Getter function for cell layer isSelected.
  * @param {function} props.setCellSelection
  * @param {function} props.setCellHighlight
