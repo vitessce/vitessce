@@ -4,12 +4,13 @@ import React, {
 } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
-import { OrthographicView } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
+import { OrthographicView, COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { max } from 'd3-array';
 import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
+import { TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
 import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
 import {
@@ -31,6 +32,9 @@ import {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
   COLOR_BAR_SIZE,
   AXIS_MARGIN,
+  THEME_TO_TEXT_COLOR,
+  AXIS_FONT_FAMILY,
+  AXIS_LABEL_TEXT_SIZE
 } from '../../layers/heatmap-constants';
 import HeatmapWorkerPool from './HeatmapWorkerPool';
 /**
@@ -75,6 +79,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     height: viewHeight,
     expressionMatrix: expression,
     cellColors,
+    trackLabels,
     colormap,
     colormapRange,
     clearPleaseWait,
@@ -92,6 +97,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   } = props;
 
   // mockup of proposed multiple cellColors object
+  trackLabels = ['louvain', 'samples'];
+  
   if (cellColors) {
     let result = [];
     for (const [key, value] of cellColors.entries()) {
@@ -403,6 +410,19 @@ const Heatmap = forwardRef((props, deckRef) => {
                   axisOffsetLeft,
                   axisOffsetTop,
                 }),
+                new TextLayer({
+                  id: 'trackLabels',
+                  coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+                  data: trackLabels,
+                  getText: d => d,
+                  getTextAnchor: 'start',
+                  getColor: () => THEME_TO_TEXT_COLOR[theme],
+                  getSize: AXIS_LABEL_TEXT_SIZE,
+                  getPosition: d => [0, trackLabels.indexOf(d) * COLOR_BAR_SIZE],
+                  getAngle: 0,
+                  fontFamily: AXIS_FONT_FAMILY,
+      
+                })
               ];
               
               useEffect(() => {
@@ -641,6 +661,14 @@ const Heatmap = forwardRef((props, deckRef) => {
                             y: (transpose ? 0 : COLOR_BAR_SIZE),
                             width: matrixWidth,
                             height: axisOffsetTop,
+                          }),
+                          new OrthographicView({
+                            id: 'axisTracks',
+                            controller: false,
+                            x: (transpose ? COLOR_BAR_SIZE : 0),
+                            y: COLOR_BAR_SIZE,
+                            width: axisOffsetLeft,
+                            height: COLOR_BAR_SIZE * numCellColorTracks,
                           }),
                           ...cellColorsViews
                           ,
