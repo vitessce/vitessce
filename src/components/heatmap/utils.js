@@ -1,3 +1,4 @@
+/* eslint-disable */
 import clamp from 'lodash/clamp';
 import range from 'lodash/range';
 
@@ -207,4 +208,35 @@ export function heatmapToMousePosition(colI, rowI, {
     }
   }
   return [zoomedMouseX, zoomedMouseY];
+}
+
+/**
+ * Convert a mouse coordinate (x, y) to a heatmap coordinate (col index, row index).
+ * @param {number} mouseX The mouse X of interest.
+ * @param {number} mouseY The mouse Y of interest.
+ * @param {object} param2 An object containing current sizes and scale factors.
+ * @returns {number[]} [colI, rowI]
+ */
+export function mouseToTrackPosition(mouseX, mouseY, {
+  axisOffsetTop, axisOffsetLeft, offsetTop, offsetLeft, colorBarSize, numCellColorTracks, transpose
+}) {
+
+
+    const cellPosition = transpose ? mouseX - offsetLeft : mouseY - offsetTop;
+    const trackPosition = transpose ? mouseY - axisOffsetTop : mouseX - axisOffsetLeft;
+
+    const tracksWidth = numCellColorTracks * colorBarSize;
+
+    if (cellPosition < 0 || trackPosition < 0 || trackPosition > tracksWidth) {
+      console.log('outside of cell color tracks');
+      return [null, null];
+    }
+    
+
+  const trackI = Math.floor(trackPosition / colorBarSize);
+
+  console.log(cellPosition, trackI)
+
+  return [1, 1];
+  
 }

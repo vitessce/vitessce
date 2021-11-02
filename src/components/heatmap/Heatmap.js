@@ -24,6 +24,7 @@ import {
   getAxisSizes,
   mouseToHeatmapPosition,
   heatmapToMousePosition,
+  mouseToTrackPosition,
 } from './utils';
 import {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
@@ -503,6 +504,8 @@ const Heatmap = forwardRef((props, deckRef) => {
                   
                   // Set up the onHover function.
                   function onHover(info, event) {
+                    console.log(info)
+                    console.log(event)
                     if (!expression) {
                       return;
                     }
@@ -518,6 +521,19 @@ const Heatmap = forwardRef((props, deckRef) => {
                       numRows: height,
                       numCols: width,
                     });
+
+                    const [cellI, trackI] = mouseToTrackPosition(mouseX, mouseY, {
+                      axisOffsetTop,
+                      axisOffsetLeft,
+                      offsetTop,
+                      offsetLeft,
+                      colorBarSize: COLOR_BAR_SIZE,
+                      numCellColorTracks,
+                      transpose
+                    })
+
+
+                    
                     
                     if (colI === null) {
                       if (transpose) {
