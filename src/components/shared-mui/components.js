@@ -1,6 +1,6 @@
 import React, { useRef, useCallback } from 'react';
-import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
 import IconButton from '@material-ui/core/IconButton';
 import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
