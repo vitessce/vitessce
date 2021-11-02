@@ -125,13 +125,15 @@ export default function TitleInfo(props) {
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
-      <div className="title d-flex justify-content-between align-items-baseline">
-        <div className="justify-content-between d-flex align-items-end">
-          <span>{title}</span>
+      <div className="title">
+        <div className="title-left">
+          {title}
         </div>
-        <span className="details pl-2 align-items-end">
-          <span className="d-flex justify-content-between">
+        <span className="title-right">
+          <span className="title-info">
             {info}
+          </span>
+          <span className="title-buttons">
             { options && (
               <PlotOptions
                 options={options}
