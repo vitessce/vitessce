@@ -89,6 +89,7 @@
         overflow-x: hidden;
         display: flex;
         flex-direction: row;
+        flex-shrink: 0;
         .title-left {
             flex-shrink: 1;
             text-overflow: ellipsis;
