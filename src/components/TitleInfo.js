@@ -26,7 +26,7 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primaryBackgroundLight,
     },
     '&:first-child': {
-      marginLeft: '0.75em',
+      marginLeft: '0.25em',
     },
     '&:last-child': {
       marginRight: '0.25em',
@@ -35,6 +35,7 @@ const useStyles = makeStyles(theme => ({
       width: '0.7em',
       height: '0.7em',
       verticalAlign: 'middle',
+      overflow: 'visible',
     },
   },
   downloadLink: {
@@ -129,26 +130,24 @@ export default function TitleInfo(props) {
         <div className="title-left">
           {title}
         </div>
-        <span className="title-right">
-          <span className="title-info">
-            {info}
-          </span>
-          <span className="title-buttons">
-            { options && (
-              <PlotOptions
-                options={options}
-              />
-            ) }
-            {urls && urls.length > 0 && (
-              <DownloadOptions
-                urls={urls}
-              />
-            )}
-            <ClosePaneButton
-              removeGridComponent={removeGridComponent}
+        <div className="title-info" title={info}>
+          {info}
+        </div>
+        <div className="title-buttons">
+          { options && (
+            <PlotOptions
+              options={options}
             />
-          </span>
-        </span>
+          ) }
+          {urls && urls.length > 0 && (
+            <DownloadOptions
+              urls={urls}
+            />
+          )}
+          <ClosePaneButton
+            removeGridComponent={removeGridComponent}
+          />
+        </div>
       </div>
       <div className={childClassName}>
         { !isReady && <LoadingIndicator /> }
