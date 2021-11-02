@@ -106,6 +106,10 @@ export function createDefaultUpdateGenesHover(componentName) {
   return hoverInfo => console.warn(`${componentName} updateGenesHover: ${hoverInfo.geneId}`);
 }
 
+export function createDefaultUpdateTracksHover(componentName) {
+  return hoverInfo => console.warn(`${componentName} updateTracksHover: ${hoverInfo}`);
+}
+
 export function createDefaultUpdateViewInfo(componentName) {
   return viewInfo => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
 }

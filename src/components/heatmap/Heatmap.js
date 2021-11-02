@@ -16,6 +16,7 @@ import {
   DEFAULT_GL_OPTIONS,
   createDefaultUpdateCellsHover,
   createDefaultUpdateGenesHover,
+  createDefaultUpdateTracksHover,
   createDefaultUpdateViewInfo,
   copyUint8Array,
 } from '../utils';
@@ -82,6 +83,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     hideTopLabels = false,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
     setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
+    setTrackHighlight = createDefaultUpdateTracksHover('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
     setIsRendering = () => {},
     transpose = false,
@@ -504,12 +506,35 @@ const Heatmap = forwardRef((props, deckRef) => {
                   
                   // Set up the onHover function.
                   function onHover(info, event) {
-                    console.log(info)
-                    console.log(event)
                     if (!expression) {
                       return;
                     }
+
                     const { x: mouseX, y: mouseY } = event.offsetCenter;
+
+                    const [cellI, trackI] = mouseToTrackPosition(mouseX, mouseY, {
+                      axisOffsetTop,
+                      axisOffsetLeft,
+                      offsetTop,
+                      offsetLeft,
+                      colorBarSize: COLOR_BAR_SIZE,
+                      numCellColorTracks,
+                      transpose,
+                      targetX,
+                      targetY,
+                      scaleFactor,
+                      matrixWidth,
+                      matrixHeight,
+                      numRows: height,
+                      numCols: width,
+                    });
+
+                    if (trackI === null || cellI === null) {
+                      setTrackHighlight(null);
+                    } else {
+                      setTrackHighlight([cellI, trackI]);
+                    }
+
                     const [colI, rowI] = mouseToHeatmapPosition(mouseX, mouseY, {
                       offsetLeft,
                       offsetTop,
@@ -521,19 +546,6 @@ const Heatmap = forwardRef((props, deckRef) => {
                       numRows: height,
                       numCols: width,
                     });
-
-                    const [cellI, trackI] = mouseToTrackPosition(mouseX, mouseY, {
-                      axisOffsetTop,
-                      axisOffsetLeft,
-                      offsetTop,
-                      offsetLeft,
-                      colorBarSize: COLOR_BAR_SIZE,
-                      numCellColorTracks,
-                      transpose
-                    })
-
-
-                    
                     
                     if (colI === null) {
                       if (transpose) {

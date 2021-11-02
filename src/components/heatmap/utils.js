@@ -211,14 +211,27 @@ export function heatmapToMousePosition(colI, rowI, {
 }
 
 /**
- * Convert a mouse coordinate (x, y) to a heatmap coordinate (col index, row index).
+ * Convert a mouse coordinate (x, y) to a heatmap color bar coordinate (cell index, track index).
  * @param {number} mouseX The mouse X of interest.
  * @param {number} mouseY The mouse Y of interest.
  * @param {object} param2 An object containing current sizes and scale factors.
- * @returns {number[]} [colI, rowI]
+ * @returns {number[]} [cellI, trackI]
  */
 export function mouseToTrackPosition(mouseX, mouseY, {
-  axisOffsetTop, axisOffsetLeft, offsetTop, offsetLeft, colorBarSize, numCellColorTracks, transpose
+  axisOffsetTop, 
+  axisOffsetLeft, 
+  offsetTop, 
+  offsetLeft, 
+  colorBarSize,
+  numCellColorTracks, 
+  transpose,
+  targetX, 
+  targetY,
+  scaleFactor,
+  matrixWidth,
+  matrixHeight,
+  numRows,
+  numCols,
 }) {
 
 
@@ -227,16 +240,33 @@ export function mouseToTrackPosition(mouseX, mouseY, {
 
     const tracksWidth = numCellColorTracks * colorBarSize;
 
+    // outside of cell color tracks
     if (cellPosition < 0 || trackPosition < 0 || trackPosition > tracksWidth) {
-      console.log('outside of cell color tracks');
       return [null, null];
     }
     
+    // Determine the trackI and cellI values based on the current viewState.
+    const trackI = Math.floor(trackPosition / colorBarSize);
+    
+    let cellI;
+    if (transpose) {
+      const viewMouseX = mouseX - offsetLeft;
+      const bboxTargetX = targetX * scaleFactor + matrixWidth * scaleFactor / 2;
+      const bboxLeft = bboxTargetX - matrixWidth / 2;
+      const zoomedOffsetLeft = bboxLeft / (matrixWidth * scaleFactor);
+      const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactor);
+      const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
+      cellI = Math.floor(zoomedMouseX * numCols);
 
-  const trackI = Math.floor(trackPosition / colorBarSize);
+    } else {
+      const viewMouseY = mouseY - axisOffsetTop;
+      const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
+      const bboxTop = bboxTargetY - matrixHeight / 2;
+      const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
+      const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);
+      const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
+      cellI = Math.floor(zoomedMouseY * numRows);
+    }
 
-  console.log(cellPosition, trackI)
-
-  return [1, 1];
-  
+    return [cellI, trackI];
 }
