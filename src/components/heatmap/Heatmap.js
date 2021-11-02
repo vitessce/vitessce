@@ -559,7 +559,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                           if (transpose) {
                             viewProps = {
                               id: `colorsTop-${track}`,
-                              controller: false,
+                              controller: true,
                               x: offsetLeft,
                               y: axisOffsetTop + track * COLOR_BAR_SIZE,
                               width: matrixWidth,
@@ -568,7 +568,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                           } else {
                             viewProps = {
                               id: `colorsLeft-${track}`,
-                              controller: false,
+                              controller: true,
                               x: axisOffsetLeft + track * COLOR_BAR_SIZE,
                               y: offsetTop,
                               width: COLOR_BAR_SIZE - AXIS_MARGIN,
