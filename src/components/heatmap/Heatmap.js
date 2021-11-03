@@ -654,7 +654,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                             id: 'axisLeft',
                             controller: false,
                             x: (transpose ? COLOR_BAR_SIZE : 0),
-                            y: offsetTop + 1000,
+                            y: offsetTop,
                             width: axisOffsetLeft,
                             height: matrixHeight,
                           }),
