@@ -252,7 +252,7 @@ export function heatmapToMousePosition(colI, rowI, {
  * @param {object} param2 An object containing current sizes and scale factors.
  * @returns {number[]} [cellI, trackI]
  */
-export function mouseToTrackPosition(mouseX, mouseY, {
+export function mouseToCellColorPosition(mouseX, mouseY, {
   axisOffsetTop, 
   axisOffsetLeft, 
   offsetTop, 

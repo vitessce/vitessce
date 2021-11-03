@@ -24,7 +24,7 @@ import {
   getAxisSizes,
   mouseToHeatmapPosition,
   heatmapToMousePosition,
-  mouseToTrackPosition,
+  mouseToCellColorPosition,
 } from './utils';
 import {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
@@ -525,7 +525,7 @@ const Heatmap = forwardRef((props, deckRef) => {
 
                     const { x: mouseX, y: mouseY } = event.offsetCenter;
 
-                    const [cellI, trackI] = mouseToTrackPosition(mouseX, mouseY, {
+                    const [cellI, trackI] = mouseToCellColorPosition(mouseX, mouseY, {
                       axisOffsetTop,
                       axisOffsetLeft,
                       offsetTop,
@@ -559,7 +559,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                       numRows: height,
                       numCols: width,
                     });
-                    
+
                     if (colI === null) {
                       if (transpose) {
                         setCellHighlight(null);
