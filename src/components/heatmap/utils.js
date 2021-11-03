@@ -84,15 +84,26 @@ export function getCellByGeneTile(view, {
 export function layerFilter({ layer, viewport }) {
   if (viewport.id === 'axisLeft') {
     return layer.id.startsWith('axisLeft');
+    
   } if (viewport.id === 'axisTop') {
     return layer.id.startsWith('axisTop');
-  } if (viewport.id == 'cellColorLabels') {
-    return layer.id.startsWith('cellColorLabels');
+
+  } if (viewport.id.startsWith('cellColorLabel-')) {
+    const matches = layer.id.match(/-(\d)/);
+
+    if (matches) {
+      return layer.id.startsWith(`cellColorLabel-${matches[1]}`);
+    }
+
   } if (viewport.id === 'heatmap') {
     return layer.id.startsWith('heatmap');
+
   } if (viewport.id.startsWith('colorsLeft')) {
     const matches = layer.id.match(/-(\d)/);
-    if (matches) return layer.id.startsWith(`colorsLeftLayer-${matches[1]}`);
+    if (matches) {
+      return layer.id.startsWith(`colorsLeftLayer-${matches[1]}`);
+    }
+    
   } if (viewport.id.startsWith('colorsTop')) {
     const matches = layer.id.match(/-(\d)/);
     if (matches) return layer.id.startsWith(`colorsTopLayer-${matches[1]}`);

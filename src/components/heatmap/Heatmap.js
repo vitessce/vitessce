@@ -589,7 +589,6 @@ const Heatmap = forwardRef((props, deckRef) => {
                       }
                       
                       const cellColorsViews = useMemo(() => {
-                        
                         const result = [...Array(numCellColorTracks).keys()].map(track => {
 
                           let viewProps;
@@ -619,6 +618,27 @@ const Heatmap = forwardRef((props, deckRef) => {
                         return result;
                       }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop, offsetTop, axisOffsetLeft, matrixHeight, matrixWidth]) 
 
+                      const cellColorsLabelsViews = useMemo(() => {
+                        const result = [...Array(numCellColorTracks).keys()].map((track) => {
+                          console.log('trackDebug');
+                          console.log(track);
+                          return (
+                          new OrthographicView({
+                            id: `cellColorLabel-${track}`,
+                            controller: false,
+                            x: (transpose ? COLOR_BAR_SIZE : 0),
+                            y: axisOffsetTop + track * COLOR_BAR_SIZE,
+                            width: axisOffsetLeft,
+                            height: COLOR_BAR_SIZE,
+                          })
+                        )})
+                        
+                        return result;
+                      }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop, offsetTop, axisOffsetLeft, matrixHeight, matrixWidth]) 
+
+                      console.log('debugSizes');
+                      console.log(COLOR_BAR_SIZE, numCellColorTracks); 
+
                       return (
                         <DeckGL
                         id={`deckgl-overlay-${uuid}`}
@@ -626,41 +646,33 @@ const Heatmap = forwardRef((props, deckRef) => {
                         views={[
                           // Note that there are multiple views here,
                           // but only one viewState.
-                          new OrthographicView({
-                            id: 'heatmap',
-                            controller: true,
-                            x: offsetLeft,
-                            y: offsetTop,
-                            width: matrixWidth,
-                            height: matrixHeight,
-                          }),
+                          // new OrthographicView({
+                          //   id: 'heatmap',
+                          //   controller: true,
+                          //   x: offsetLeft,
+                          //   y: offsetTop,
+                          //   width: matrixWidth,
+                          //   height: matrixHeight,
+                          // }),
                           
-                          new OrthographicView({
-                            id: 'axisLeft',
-                            controller: false,
-                            x: (transpose ? COLOR_BAR_SIZE : 0),
-                            y: offsetTop,
-                            width: axisOffsetLeft,
-                            height: matrixHeight,
-                          }),
-                          new OrthographicView({
-                            id: 'axisTop',
-                            controller: false,
-                            x: offsetLeft,
-                            y: (transpose ? 0 : COLOR_BAR_SIZE),
-                            width: matrixWidth,
-                            height: axisOffsetTop,
-                          }),
-                          new OrthographicView({
-                            id: 'cellColorLabels',
-                            controller: false,
-                            x: (transpose ? COLOR_BAR_SIZE : 0),
-                            y: COLOR_BAR_SIZE,
-                            width: axisOffsetLeft,
-                            height: COLOR_BAR_SIZE * numCellColorTracks,
-                          }),
+                          // new OrthographicView({
+                          //   id: 'axisLeft',
+                          //   controller: false,
+                          //   x: (transpose ? COLOR_BAR_SIZE : 0),
+                          //   y: offsetTop + 1000,
+                          //   width: axisOffsetLeft,
+                          //   height: matrixHeight,
+                          // }),
+                          // new OrthographicView({
+                          //   id: 'axisTop',
+                          //   controller: false,
+                          //   x: offsetLeft,
+                          //   y: (transpose ? 0 : COLOR_BAR_SIZE),
+                          //   width: matrixWidth,
+                          //   height: axisOffsetTop,
+                          // }),
+                          ...cellColorsLabelsViews,
                           ...cellColorsViews
-                          ,
                         ]}
                         layers={layers}
                         layerFilter={layerFilter}

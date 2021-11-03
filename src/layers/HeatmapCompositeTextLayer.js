@@ -11,6 +11,10 @@ import {
   COLOR_BAR_SIZE,
 } from './heatmap-constants';
 
+const cellColorLabelLayer = (() => {
+
+})
+
 export default class HeatmapCompositeTextLayer extends CompositeLayer {
   _renderAxisTopLayers() {
     const {
@@ -20,6 +24,10 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
     } = this.props;
     const showAxisTopLabels = cellWidth >= AXIS_LABEL_TEXT_SIZE;
     const axisLabelTop = targetY + (axisOffsetTop - AXIS_MARGIN) / 2 / scaleFactor;
+
+    console.log('cellColorLabelsDataDebug');
+    console.log(cellColorLabelsData);
+
     return [
       new TextLayer({
         id: 'axisTopLabels',
@@ -55,13 +63,27 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
         },
       }),
       new TextLayer({
-        id: 'cellColorLabels',
+        id: 'cellColorLabel-0',
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        data: cellColorLabelsData,
+        data: [cellColorLabelsData[0]],
         getText: d => d[1],
         getTextAnchor: 'start',
         getColor: () => THEME_TO_TEXT_COLOR[theme],
         getSize: AXIS_LABEL_TEXT_SIZE,
+        // getPosition: d => [0, 0],
+        getPosition: d => [0, d[0] * COLOR_BAR_SIZE],
+        getAngle: 0,
+        fontFamily: AXIS_FONT_FAMILY,
+      }),
+      new TextLayer({
+        id: 'cellColorLabel-1',
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: [cellColorLabelsData[1]],
+        getText: d => 'QUETAL',
+        getTextAnchor: 'start',
+        getColor: () => THEME_TO_TEXT_COLOR[theme],
+        getSize: AXIS_LABEL_TEXT_SIZE,
+        // getPosition: d => [0, 0],
         getPosition: d => [0, d[0] * COLOR_BAR_SIZE],
         getAngle: 0,
         fontFamily: AXIS_FONT_FAMILY,
