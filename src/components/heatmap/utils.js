@@ -4,6 +4,9 @@ import range from 'lodash/range';
 
 import {
   AXIS_LABEL_TEXT_SIZE,
+  AXIS_FONT_FAMILY,
+  AXIS_MARGIN,
+  COLOR_BAR_SIZE,
   AXIS_MIN_SIZE,
   AXIS_MAX_SIZE,
 } from '../../layers/heatmap-constants';
@@ -111,22 +114,46 @@ export function layerFilter({ layer, viewport }) {
  * Get the size of the left and top heatmap axes,
  * taking into account the maximum label string lengths.
  * @param {boolean} transpose Is the heatmap transposed?
- * @param {number} geneLabelMaxLength What is the maximum length gene label?
- * @param {number} cellLabelMaxLength What is the maximum length cell label?
+ * @param {number} longestGeneLabel longest gene label
+ * @param {number} longestCellLabel longest cell label
  * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
  */
-export function getAxisSizes(transpose, geneLabelMaxLength, cellLabelMaxLength) {
+export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel) {
+
+  const font = `${AXIS_LABEL_TEXT_SIZE}px ${AXIS_FONT_FAMILY}`
+  const geneLabelMaxWidth = getTextWidth(longestGeneLabel, font) + AXIS_MARGIN;
+  const cellLabelMaxWidth = getTextWidth(longestCellLabel, font) + AXIS_MARGIN;
+
+
   const axisOffsetLeft = clamp(
-    (transpose ? geneLabelMaxLength : cellLabelMaxLength) * AXIS_LABEL_TEXT_SIZE,
+    (transpose ? geneLabelMaxWidth : cellLabelMaxWidth),
     AXIS_MIN_SIZE,
     AXIS_MAX_SIZE,
-  );
-  const axisOffsetTop = clamp(
-    (transpose ? cellLabelMaxLength : geneLabelMaxLength) * AXIS_LABEL_TEXT_SIZE,
+    );
+    const axisOffsetTop = clamp(
+    (transpose ? cellLabelMaxWidth : geneLabelMaxWidth),
     AXIS_MIN_SIZE,
     AXIS_MAX_SIZE,
   );
   return [axisOffsetLeft, axisOffsetTop];
+}
+
+
+/**
+  * Uses canvas.measureText to compute and return the width of the given text of given font in pixels.
+  * 
+  * @param {String} text The text to be rendered.
+  * @param {String} font The css font descriptor that text is to be rendered with (e.g. "bold 14px verdana").
+  * 
+  * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+  */
+ function getTextWidth(text, font) {
+  // re-use canvas object for better performance
+  const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+  const context = canvas.getContext("2d");
+  context.font = font;
+  const metrics = context.measureText(text);
+  return metrics.width;
 }
 
 /**

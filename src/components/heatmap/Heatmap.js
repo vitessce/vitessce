@@ -8,9 +8,7 @@ import { OrthographicView, COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-d
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
-import { max } from 'd3-array';
 import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
-import { TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
 import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
 import {
@@ -32,9 +30,6 @@ import {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
   COLOR_BAR_SIZE,
   AXIS_MARGIN,
-  THEME_TO_TEXT_COLOR,
-  AXIS_FONT_FAMILY,
-  AXIS_LABEL_TEXT_SIZE
 } from '../../layers/heatmap-constants';
 import HeatmapWorkerPool from './HeatmapWorkerPool';
 /**
@@ -85,7 +80,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     clearPleaseWait,
     setComponentHover,
     // TODO: set to false for actual PR
-    hideTopLabels = false,
+    hideTopLabels = true,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
     setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
     setTrackHighlight = createDefaultUpdateTracksHover('Heatmap'),
@@ -97,7 +92,12 @@ const Heatmap = forwardRef((props, deckRef) => {
   } = props;
 
   // mockup of proposed multiple cellColors object
-  cellColorLabels = ['louvain', 'samples'];
+  cellColorLabels = ['louvain - ', 'samples - '];
+
+
+  if (expression) {
+    expression.cols = expression.cols.map(gene => gene + ' - ')
+  }
   
   if (cellColors) {
     let result = [];
@@ -184,15 +184,14 @@ const Heatmap = forwardRef((props, deckRef) => {
       }
     }, [expression, transpose]);
     
-    const [cellLabelMaxLength, geneLabelMaxLength] = useMemo(() => {
+    const [longestCellLabel, longestGeneLabel] = useMemo(() => {
       if (!expression) {
-        return [0, 0];
+        return ['', ''];
       }
       
-      
       return [
-        max(expression.rows.map(cellId => cellId.length)),
-        max(expression.cols.map(geneId => geneId.length)),
+        expression.rows.reduce((a, b) => a.length > b.length ? a : b),
+        [...expression.cols, ...cellColorLabels].reduce((a, b) => a.length > b.length ? a : b),
       ];
     }, [expression]);
     
@@ -200,11 +199,11 @@ const Heatmap = forwardRef((props, deckRef) => {
     const height = axisLeftLabels.length;
     
     const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(
-      transpose, geneLabelMaxLength, cellLabelMaxLength
+      transpose, longestGeneLabel, longestCellLabel
       );
       
-      const offsetTop = axisOffsetTop + COLOR_BAR_SIZE * (transpose ? numCellColorTracks : 1);
-      const offsetLeft = axisOffsetLeft + COLOR_BAR_SIZE *  (transpose ? 1 : numCellColorTracks);
+      const offsetTop = axisOffsetTop + COLOR_BAR_SIZE * (transpose ? numCellColorTracks : 0);
+      const offsetLeft = axisOffsetLeft + COLOR_BAR_SIZE * (transpose ? 0 : numCellColorTracks);
       
       const matrixWidth = viewWidth - offsetLeft;
       const matrixHeight = viewHeight - offsetTop;
@@ -624,7 +623,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                           new OrthographicView({
                             id: `cellColorLabel-${track}`,
                             controller: false,
-                            x: (transpose ? COLOR_BAR_SIZE : 0),
+                            x: 0,
                             y: axisOffsetTop + track * COLOR_BAR_SIZE,
                             width: axisOffsetLeft,
                             height: COLOR_BAR_SIZE,
@@ -653,7 +652,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                           new OrthographicView({
                             id: 'axisLeft',
                             controller: false,
-                            x: (transpose ? COLOR_BAR_SIZE : 0),
+                            x: 0,
                             y: offsetTop,
                             width: axisOffsetLeft,
                             height: matrixHeight,
@@ -662,7 +661,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                             id: 'axisTop',
                             controller: false,
                             x: offsetLeft,
-                            y: (transpose ? 0 : COLOR_BAR_SIZE),
+                            y: 0,
                             width: matrixWidth,
                             height: axisOffsetTop,
                           }),
@@ -676,6 +675,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                         onViewStateChange={onViewStateChange}
                         viewState={viewState}
                         onHover={onHover}
+                        useDevicePixels={2}
                         />
                         );
                       });
