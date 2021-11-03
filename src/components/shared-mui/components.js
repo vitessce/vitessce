@@ -1,11 +1,11 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef } from 'react';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import IconButton from '@material-ui/core/IconButton';
 import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Fade from '@material-ui/core/Fade';
-import { VITESSCE_CONTAINER } from '../classNames';
+import { useVitessceContainer } from '../hooks';
 import { styles } from './styles';
 
 export function MuiSpan(props) {
@@ -36,12 +36,7 @@ export function PopperMenu(props) {
 
   const id = open ? 'v-popover-menu' : undefined;
 
-  const getTooltipContainer = useCallback(() => {
-    if (anchorRef.current) {
-      return anchorRef.current.closest(`.${VITESSCE_CONTAINER}`);
-    }
-    return null;
-  }, [anchorRef]);
+  const getTooltipContainer = useVitessceContainer(anchorRef);
 
   return (
     <div ref={anchorRef} className={classes.container}>
