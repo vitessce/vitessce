@@ -88,24 +88,19 @@ export function layerFilter({ layer, viewport }) {
   } if (viewport.id === 'axisTop') {
     return layer.id.startsWith('axisTop');
 
-  } if (viewport.id.startsWith('cellColorLabel-')) {
-    const matches = layer.id.match(/-(\d)/);
-
-    if (matches) {
-      return layer.id.startsWith(`cellColorLabel-${matches[1]}`);
-    }
+  } if (viewport.id.startsWith('cellColorLabel')) {
+    const matches = viewport.id.match(/-(\d)/);
+    if (matches) return layer.id.startsWith(`cellColorLabelLayer-${matches[1]}`);
 
   } if (viewport.id === 'heatmap') {
     return layer.id.startsWith('heatmap');
 
   } if (viewport.id.startsWith('colorsLeft')) {
-    const matches = layer.id.match(/-(\d)/);
-    if (matches) {
-      return layer.id.startsWith(`colorsLeftLayer-${matches[1]}`);
-    }
+    const matches = viewport.id.match(/-(\d)/);
+    if (matches) return layer.id.startsWith(`colorsLeftLayer-${matches[1]}`);
     
   } if (viewport.id.startsWith('colorsTop')) {
-    const matches = layer.id.match(/-(\d)/);
+    const matches = viewport.id.match(/-(\d)/);
     if (matches) return layer.id.startsWith(`colorsTopLayer-${matches[1]}`);
   }
 
