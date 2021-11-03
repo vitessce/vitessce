@@ -86,8 +86,8 @@ export function layerFilter({ layer, viewport }) {
     return layer.id.startsWith('axisLeft');
   } if (viewport.id === 'axisTop') {
     return layer.id.startsWith('axisTop');
-  } if (viewport.id == 'axisTracks') {
-    return layer.id.startsWith('trackLabels');
+  } if (viewport.id == 'cellColorLabels') {
+    return layer.id.startsWith('cellColorLabels');
   } if (viewport.id === 'heatmap') {
     return layer.id.startsWith('heatmap');
   } if (viewport.id.startsWith('colorsLeft')) {

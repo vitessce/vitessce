@@ -79,7 +79,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     height: viewHeight,
     expressionMatrix: expression,
     cellColors,
-    trackLabels,
+    cellColorLabels,
     colormap,
     colormapRange,
     clearPleaseWait,
@@ -97,7 +97,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   } = props;
 
   // mockup of proposed multiple cellColors object
-  trackLabels = ['louvain', 'samples'];
+  cellColorLabels = ['louvain', 'samples'];
   
   if (cellColors) {
     let result = [];
@@ -385,6 +385,7 @@ const Heatmap = forwardRef((props, deckRef) => {
               // to prepare to render the names in TextLayers.
               const axisTopLabelData = useMemo(() => hideTopLabels ? [] : axisTopLabels.map((d, i) => [i, d]), [axisTopLabels]);
               const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d]), [axisLeftLabels]);
+              const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d]), [cellColorLabels]);
               
               // Generate the axis label, axis title, and loading indicator text layers.
               const textLayers = [
@@ -409,20 +410,8 @@ const Heatmap = forwardRef((props, deckRef) => {
                   axisTopTitle,
                   axisOffsetLeft,
                   axisOffsetTop,
+                  cellColorLabelsData,
                 }),
-                new TextLayer({
-                  id: 'trackLabels',
-                  coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-                  data: trackLabels,
-                  getText: d => d,
-                  getTextAnchor: 'start',
-                  getColor: () => THEME_TO_TEXT_COLOR[theme],
-                  getSize: AXIS_LABEL_TEXT_SIZE,
-                  getPosition: d => [0, trackLabels.indexOf(d) * COLOR_BAR_SIZE],
-                  getAngle: 0,
-                  fontFamily: AXIS_FONT_FAMILY,
-      
-                })
               ];
               
               useEffect(() => {
@@ -663,7 +652,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                             height: axisOffsetTop,
                           }),
                           new OrthographicView({
-                            id: 'axisTracks',
+                            id: 'cellColorLabels',
                             controller: false,
                             x: (transpose ? COLOR_BAR_SIZE : 0),
                             y: COLOR_BAR_SIZE,
