@@ -421,7 +421,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                   setNumCellColorTracks(1);
                 } else {
                   // will either be [R, G, B] or array of arrays of [R, G, B] if multiple tracks
-                  const firstCellColors = cellColors.get(cellOrdering[0]);
+                  const firstCellColors = cellColors.values().next().value;
                   const numCellColorTracks = typeof firstCellColors[0] === 'number' ? 1 : firstCellColors.length;
                   setNumCellColorTracks(numCellColorTracks);
                 }
@@ -455,7 +455,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                       if (rowI < cellOrdering.length) {
                         cellId = cellOrdering[rowI];
                         color = cellColors.get(cellId);
-                        if (typeof color[0] !== 'numeric') color = color[track];
+                        if (color && typeof color[0] !== 'numeric') color = color[track];
 
                         offset = (transpose ? tileY : (TILE_SIZE - tileY - 1)) * 4;
                         if (color) {
