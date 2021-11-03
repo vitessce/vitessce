@@ -18,7 +18,7 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [],
         name: 'My config',
-        version: '1.0.0',
+        version: '1.0.4',
       });
     });
     it('can add a dataset', () => {
@@ -40,7 +40,7 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [],
         name: 'My config',
-        version: '1.0.0',
+        version: '1.0.4',
       });
     });
     it('can add a file to a dataset', () => {
@@ -72,7 +72,7 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [],
         name: 'My config',
-        version: '1.0.0',
+        version: '1.0.4',
       });
     });
 
@@ -122,7 +122,7 @@ describe('src/api/VitessceConfig.js', () => {
           },
         ],
         name: 'My config',
-        version: '1.0.0',
+        version: '1.0.4',
       });
     });
     it('can add a coordination scope', () => {
@@ -201,7 +201,7 @@ describe('src/api/VitessceConfig.js', () => {
           },
         ],
         name: 'My config',
-        version: '1.0.0',
+        version: '1.0.4',
       });
     });
 
@@ -287,7 +287,7 @@ describe('src/api/VitessceConfig.js', () => {
           },
         ],
         name: 'My config',
-        version: '1.0.0',
+        version: '1.0.4',
       });
     });
 
@@ -350,7 +350,7 @@ describe('src/api/VitessceConfig.js', () => {
           },
         ],
         name: 'My config',
-        version: '1.0.0',
+        version: '1.0.4',
       });
     });
 
@@ -417,7 +417,7 @@ describe('src/api/VitessceConfig.js', () => {
           },
         ],
         name: 'My config',
-        version: '1.0.0',
+        version: '1.0.4',
       });
     });
   });
