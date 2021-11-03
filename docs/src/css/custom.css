@@ -115,39 +115,6 @@ div[role='tooltip'] table td, div[role='tooltip'] table th {
 }
 
 
-.tableOfContents_node_modules-\@docusaurus-theme-classic-lib-theme-TOC- .table-of-contents__link code {
-  overflow: visible;
-  white-space: nowrap;
-}
-
-.codeBlock_node_modules-\@docusaurus-theme-classic-lib-theme-CodeBlock- {
-  overflow-x: scroll;
-  background-color: var(--code-block-background);
-}
-
-.codeBlockLines_node_modules-\@docusaurus-theme-classic-lib-theme-CodeBlock- {
-  overflow-x: auto;
-  float: none;
-}
-
-@media (min-width: 997px) and (max-width: 1320px) {
-  .docItemWrapper_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
-    margin: 0;
-  }
-}
-
-@media (min-width: 997px) {
-  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
-    width: calc(100% - var(--doc-sidebar-width));
-  }
-}
-
-@media (max-width: 997px) {
-  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
-    max-width: 100%;
-  }
-}
-
 .ar-16x9 {
   aspect-ratio: 16 / 9;
 }

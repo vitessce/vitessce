@@ -12,16 +12,17 @@
     "clear": "docusaurus clear"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.69",
-    "@docusaurus/preset-classic": "2.0.0-alpha.69",
-    "@docusaurus/theme-live-codeblock": "2.0.0-alpha.69",
+    "@docusaurus/core": "2.0.0-beta.9",
+    "@docusaurus/preset-classic": "2.0.0-beta.9",
+    "@docusaurus/theme-live-codeblock": "2.0.0-beta.9",
     "@mdx-js/react": "^1.6.21",
     "babel-preset-react-app": "^9.1.2",
     "clsx": "^1.1.1",
     "copy-text-to-clipboard": "^2.2.0",
     "docusaurus-plugin-sass": "^0.1.11",
     "lodash": "^4.17.20",
-    "monaco-editor-webpack-plugin": "^3.0.1",
+    "monaco-editor": "^0.29.1",
+    "monaco-editor-webpack-plugin": "^5.0.0",
     "prism-react-renderer": "^1.1.1",
     "query-string": "^6.13.7",
     "react": "^16.8.6",
@@ -29,8 +30,9 @@
     "react-dropzone": "^11.2.4",
     "react-live": "^2.2.3",
     "react-loadable": "^5.5.0",
-    "react-monaco-editor": "^0.42.0",
-    "use-query-params": "^1.1.9"
+    "react-monaco-editor": "^0.46.0",
+    "use-query-params": "^1.1.9",
+    "vitessce": "file:.."
   },
   "browserslist": {
     "production": [

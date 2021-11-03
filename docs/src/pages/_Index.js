@@ -41,7 +41,7 @@ function VitessceAppStyles() {
 
 function IndexConsumer() {
 
-    const editBaseUrl = useBaseUrl('/app/index.html?edit=1&url=');
+    const editBaseUrl = useBaseUrl('/app/?edit=1&url=');
 
     const [demo, setDemo] = useQueryParam('dataset', StringParam);
     const [debug, setDebug] = useQueryParam('debug', BooleanParam);

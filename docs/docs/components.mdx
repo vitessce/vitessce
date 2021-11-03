@@ -9,7 +9,7 @@ import ComponentImage from '../src/pages/_ComponentImage';
 
 ## Overview
 
-Vitessce supports several components for visualization of single-cell data, and several controller components for updating visualization parameters. The component names found on this page are all valid values for the field [`layout[].component`](/docs/view-config-json/index.html#layout) in the view config. On this page you will also find screenshots of each component.
+Vitessce supports several components for visualization of single-cell data, and several controller components for updating visualization parameters. The component names found on this page are all valid values for the field [`layout[].component`](/docs/view-config-json/#layout) in the view config. On this page you will also find screenshots of each component.
 
 :::note
 The terms "component" and "view" are used interchangeably thoughout this documentation.
@@ -44,14 +44,14 @@ The spatial component is meant to display data with spatial coordinates, includi
 ### `layerController`
 
 The layer controller component provides an interface for manipulating the visualization layers displayed in the `spatial` component.
-The image layers are coordinated through the [`spatialRasterLayers`](/docs/coordination-types/index.html#spatialRasterLayers) coordination type.
+The image layers are coordinated through the [`spatialRasterLayers`](/docs/coordination-types/#spatialRasterLayers) coordination type.
 
 <ComponentImage filename="layerController.png" alt="Screenshot of Layer Controller Component" />
 
 ### `genomicProfiles`
 
 The genomic profiles component displays genome browser tracks (using the `genomic-profiles` data type) containing bar plots, where the genome is along the x-axis and the value at each genome position is encoded with a bar along the y-axis.
-Genome tracks may be colored by corresponding cell set color assignments if the `cell-sets` data type is available in the same dataset, coordinated on the [`cellSetSelection`](/docs/coordination-types/index.html#cellSetSelection) coordination type.
+Genome tracks may be colored by corresponding cell set color assignments if the `cell-sets` data type is available in the same dataset, coordinated on the [`cellSetSelection`](/docs/coordination-types/#cellSetSelection) coordination type.
 This component was implemented with [HiGlass](https://higlass.io/).
 
 <ComponentImage filename="genomicProfiles.png" alt="Screenshot of Genomic Profiles Component" />
@@ -70,7 +70,7 @@ The cell sets component displays an interactive list of (potentially hierarchica
 
 ### `cellSetSizes`
 
-The cell set sizes component displays a bar plot with the currently-selected cell sets (using the `cell-sets` data type and [`cellSetSelection`](/docs/coordination-types/index.html#cellSetSelection) coordination type) on the x-axis and bars representing their size (by number of cells) on the y-axis. This component was implemented with [Vega-Lite](https://vega.github.io/vega-lite/).
+The cell set sizes component displays a bar plot with the currently-selected cell sets (using the `cell-sets` data type and [`cellSetSelection`](/docs/coordination-types/#cellSetSelection) coordination type) on the x-axis and bars representing their size (by number of cells) on the y-axis. This component was implemented with [Vega-Lite](https://vega.github.io/vega-lite/).
 
 <ComponentImage filename="cellSetSizes.png" alt="Screenshot of Cell Set Sizes Component" />
 

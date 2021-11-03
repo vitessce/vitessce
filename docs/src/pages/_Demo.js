@@ -1,7 +1,7 @@
 import React from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useThemeContext from '@theme/hooks/useThemeContext';
-import { Vitessce } from '../../../dist/umd/production/index.min.js';
+import { Vitessce } from 'vitessce/dist/esm/index';
 import DemoDescription from './_DemoDescription';
 import ErrorBoundary from './_ErrorBoundary';
 
@@ -23,7 +23,7 @@ function Demo(props) {
         config,
     } = props;
 
-    const baseUrl = useBaseUrl('/app/index.html?edit=1&url=');
+    const baseUrl = useBaseUrl('/app/?edit=1&url=');
 
     return (
         <>

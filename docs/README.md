@@ -1,15 +1,15 @@
 # Vitessce Documentation
 
-This documentation website was built using [Docusaurus 2](https://v2.docusaurus.io/).
+This documentation website was built using [Docusaurus](https://docusaurus.io/).
 
 ## Prepare
 
-This documentation site depends on the Vitessce production library located in `../dist/`.
+This documentation site depends on the Vitessce production library located in `../dist/esm/`.
 
 ```sh
 cd ..
 npm install
-npm run build-lib:prod
+npm run build-lib:esm
 ```
 
 ## Installation

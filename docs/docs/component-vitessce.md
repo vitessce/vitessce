@@ -29,7 +29,7 @@ export default function MyApp() {
 ### `config`
 - Type: `object`
 
-This parameter takes a Vitessce view config as a JSON object. Please visit our [view config](/docs/view-config-json/index.html) documentation pages for more details.
+This parameter takes a Vitessce view config as a JSON object. Please visit our [view config](/docs/view-config-json) documentation pages for more details.
 
 ### `height`
 - Type: `number`

@@ -18,7 +18,7 @@ function DemoList(props) {
         configs,
     } = props;
 
-    const baseUrl = useBaseUrl('/index.html?dataset=');
+    const baseUrl = useBaseUrl('/?dataset=');
 
     const demos = publicConfigs.map(key => ([key, configs[key]]));
     return (

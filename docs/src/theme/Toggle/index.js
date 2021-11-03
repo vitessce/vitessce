@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState, useRef, memo } from 'react';
 import clsx from 'clsx';
-import Toggle from 'react-toggle';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useIsBrowser from '@docusaurus/useIsBrowser';
 
 import styles from './styles.module.css';
 
@@ -20,12 +19,64 @@ const Light = () => (
   </span>
 );
 
+// Based on react-toggle (https://github.com/aaronshaf/react-toggle/).
+const Toggle = memo(
+  ({
+    className,
+    icons,
+    checked: defaultChecked,
+    disabled,
+    onChange,
+  }) => {
+    const [checked, setChecked] = useState(defaultChecked);
+    const [focused, setFocused] = useState(false);
+    const inputRef = useRef();
+
+    return (
+      <div
+        className={clsx(styles.toggle, className, {
+          [styles.toggleChecked]: checked,
+          [styles.toggleFocused]: focused,
+          [styles.toggleDisabled]: disabled,
+        })}>
+        <div
+          className={styles.toggleTrack}
+          role="button"
+          tabIndex={-1}
+          onClick={() => inputRef.current?.click()}>
+          <div className={styles.toggleTrackCheck}>{icons.checked}</div>
+          <div className={styles.toggleTrackX}>{icons.unchecked}</div>
+          <div className={styles.toggleTrackThumb} />
+        </div>
+
+        <input
+          ref={inputRef}
+          checked={checked}
+          type="checkbox"
+          className={styles.toggleScreenReader}
+          aria-label="Switch between dark and light mode"
+          onChange={onChange}
+          onClick={() => setChecked(!checked)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              inputRef.current?.click();
+            }
+          }}
+        />
+      </div>
+    );
+  },
+);
+
+
 function VitessceToggle(props) {
-  const { isClient } = useDocusaurusContext();
+  const isBrowser = useIsBrowser();
 
   return (
     <Toggle
-      disabled={!isClient}
+      disabled={!isBrowser}
       icons={{
         checked: <Dark />,
         unchecked: <Light />,

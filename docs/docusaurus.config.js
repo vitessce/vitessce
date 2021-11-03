@@ -7,11 +7,13 @@ module.exports = {
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
+  trailingSlash: true,
   organizationName: 'vitessce', // Usually your GitHub org/user name.
   projectName: 'vitessce', // Usually your repo name.
   themes: ['@docusaurus/theme-live-codeblock'],
   plugins: [
     path.resolve(__dirname, 'monaco-editor-plugin'),
+    path.resolve(__dirname, 'vitessce-plugin'),
   ],
   themeConfig: {
     colorMode: {
@@ -26,23 +28,23 @@ module.exports = {
     navbar: {
       title: 'Vitessce',
       logo: {
-        href: '/index.html',
+        href: '/',
         alt: 'Vitessce Logo',
         src: 'img/logo-v.png',
       },
       items: [
         {
-          to: 'app/index.html',
+          to: 'app',
           label: 'App',
           position: 'left',
         },
         {
-          to: 'demos/index.html',
+          to: 'demos',
           label: 'Demos',
           position: 'left',
         },
         {
-          to: 'docs/index.html',
+          to: 'docs',
           activeBasePath: 'docs',
           label: 'Documentation',
           position: 'left',
@@ -74,7 +76,7 @@ module.exports = {
           items: [
             {
               label: 'JavaScript',
-              to: 'docs/index.html',
+              to: 'docs',
             },
             {
               label: 'Python',
@@ -134,7 +136,7 @@ module.exports = {
         theme: {
           customCss: [
             require.resolve('./src/css/custom.css'),
-            require.resolve('../dist/umd/production/static/css/index.css'),
+            require.resolve('../dist/esm/index.css'),
           ],
         },
       },

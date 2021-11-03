@@ -9,7 +9,7 @@ slug: /view-config-json
 
 Writing view configs directly as JSON can be tedious and error-prone.
 Our object-oriented view config APIs may be easier to use:
-- [JavaScript View Config API](/docs/view-config-js/index.html)
+- [JavaScript View Config API](/docs/view-config-js/)
 - [Python View Config API](https://vitessce.github.io/vitessce-python/api_config.html)
 - [R View Config API](https://vitessce.github.io/vitessce-r/reference/VitessceConfig.html#examples)
 
@@ -17,7 +17,7 @@ Our object-oriented view config APIs may be easier to use:
 
 ## Overview
 
-The Vitessce view config defines the datasets (and the URLs to the files they contain) and the individual visualization components that the data will be mapped onto. The view config also stores the [coordination space](/docs/coordination/index.html#coordination-space) and defines whether multiple views are linked to each other (and on which properties they are linked, if any).
+The Vitessce view config defines the datasets (and the URLs to the files they contain) and the individual visualization components that the data will be mapped onto. The view config also stores the [coordination space](/docs/coordination/#coordination-space) and defines whether multiple views are linked to each other (and on which properties they are linked, if any).
 
 ## Required properties
 
@@ -78,9 +78,9 @@ A human-readable name for the dataset. Optional.
 #### `files`
 - Type: `object[]`
 
-The files array stores a list of file objects for a dataset. Each dataset may have one file of each `type`. File objects must contain a `type` ("data type") and `fileType` ("file type"). All file types require a `url` string, with the exception of [`raster.json`](/docs/data-file-types/index.html#rasterjson) which may point to multiple image URLs via an `options` object. We don't associate any semantics with URL strings.
+The files array stores a list of file objects for a dataset. Each dataset may have one file of each `type`. File objects must contain a `type` ("data type") and `fileType` ("file type"). All file types require a `url` string, with the exception of [`raster.json`](/docs/data-file-types/#rasterjson) which may point to multiple image URLs via an `options` object. We don't associate any semantics with URL strings.
 
-For more information about data types and file types, please visit our [Data Types and File Types](/docs/data-types-file-types/index.html) documentation page.
+For more information about data types and file types, please visit our [Data Types and File Types](/docs/data-types-file-types/) documentation page.
 
 ```json
 ...,
@@ -117,9 +117,9 @@ For more information about data types and file types, please visit our [Data Typ
 
 The layout property defines which visualization (and controller) components will be rendered, how they will be arranged on the screen, and optionally how they will map onto coordination scopes. Each layout object represents one "component" or "view", and must contain a component name `component`, width `w` and height `h`, and horizontal position `x` and vertical position `y`. Components are arranged in a grid with 12 columns and a dynamic number of rows. Optionally, each component may contain the properties `coordinationScopes` and `props`.
 
-For more information about the components that are available, please visit the [Visualization Components](/docs/components/index.html) documentation page.
+For more information about the components that are available, please visit the [Visualization Components](/docs/components/) documentation page.
 
-For more information about the coordination types that are available, please visit the [Coordination Types](/docs/coordination-types/index.html) documentation page.
+For more information about the coordination types that are available, please visit the [Coordination Types](/docs/coordination-types/) documentation page.
 
 ```json
 ...,

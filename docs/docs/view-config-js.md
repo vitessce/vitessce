@@ -65,7 +65,7 @@ Add a view to the config.
 
 #### Parameters:
 - `dataset` (`VitessceConfigDataset`) - A dataset instance to be used for the data visualized in this view.
-- `component` (`string`) - A component name. A full list of components can be found on the [components](/docs/components/index.html) documentation page. We recommend using the [`Component`](/docs/components/index.html#constants) constant values rather than writing strings directly.
+- `component` (`string`) - A component name. A full list of components can be found on the [components](/docs/components/) documentation page. We recommend using the [`Component`](/docs/components/#constants) constant values rather than writing strings directly.
 - `extra` (`object`) - An optional object with extra parameters.
     - `mapping` (`string`) - A convenience parameter for setting the `embeddingType` coordination scope value. This parameter is only applicable when adding the `scatterplot` component. Optional.
     - `x` (`number`) - The horizontal position of the view. Must be an integer between 0 and 11. Optional.
@@ -94,7 +94,7 @@ A convenience function for setting up new coordination scopes across a set of vi
 
 #### Parameters:
 - `views` (`VitessceConfigView[]`) - An array of view objects to coordinate together.
-- `cTypes` (`string[]`) - The coordination types on which to coordinate the views. We recommend using the [`CoordinationType`](/docs/coordination-types/index.html#constants) constant values rather than writing strings directly.
+- `cTypes` (`string[]`) - The coordination types on which to coordinate the views. We recommend using the [`CoordinationType`](/docs/coordination-types/#constants) constant values rather than writing strings directly.
 - `cValues` (`array`) - Initial values for each coordination type. Should have the same length as the `cTypes` array. Optional.
 
 #### Returns:
@@ -146,7 +146,7 @@ vc.layout(hconcat(v1, vconcat(v2, v3)));
 Add scope(s) for new coordination type(s) to the config. See also `VitessceConfig.linkViews()`.
 
 #### Parameters:
-- `...cTypes` (variable number of `string`) - A variable number of coordination types. We recommend using the [`CoordinationType`](/docs/coordination-types/index.html#constants) constant values rather than writing strings directly.
+- `...cTypes` (variable number of `string`) - A variable number of coordination types. We recommend using the [`CoordinationType`](/docs/coordination-types/#constants) constant values rather than writing strings directly.
 
 #### Returns:
 - Type: `VitessceConfigCoordinationScope[]`
@@ -398,8 +398,8 @@ This class is not meant to be instantiated directly, but instances will be creat
 
 #### Parameters:
 - `url` (`string|undefined`) - The URL for the file, pointing to either a local or remote location. We don't associate any semantics with URL strings.
-- `dataType` (`string`) - The type of data stored in the file. Must be compatible with the specified [file type](/docs/data-types-file-types/index.html). We recommend using the [`DataType`](/docs/data-types-file-types/index.html#constants) constant values rather than writing strings directly.
-- `fileType` (`string`) - The file type. Must be compatible with the specified [data type](/docs/data-types-file-types/index.html). We recommend using the [`FileType`](/docs/data-types-file-types/index.html#constants) constant values rather than writing strings directly.
+- `dataType` (`string`) - The type of data stored in the file. Must be compatible with the specified [file type](/docs/data-types-file-types/). We recommend using the [`DataType`](/docs/data-types-file-types/#constants) constant values rather than writing strings directly.
+- `fileType` (`string`) - The file type. Must be compatible with the specified [data type](/docs/data-types-file-types/). We recommend using the [`FileType`](/docs/data-types-file-types/#constants) constant values rather than writing strings directly.
 - `options` (`object|array|null`) -  An optional object or array which may provide additional parameters to the loader class corresponding to the specified `fileType`.
 
 #### Returns:

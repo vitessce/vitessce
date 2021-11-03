@@ -21,11 +21,15 @@ echo '{
 }' > docs/version.json
 
 # Build library...
-npm run build-lib:prod
-npm link docs/node_modules/react
+npm run build-lib:esm
 
 # Build docs site...
 cd docs
+npm install
+cd ..
+npm link docs/node_modules/react
+cd docs
+
 # We need to build the docs site twice:
 # 1. With baseUrl: "/" which may be copied to vitessce.io (by running ./copy-prod.sh).
 # 2. With baseUrl: "/vitessce-data/docs/2020-12-19/b416e16/" for the staging and versioned access.

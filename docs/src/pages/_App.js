@@ -11,7 +11,7 @@ import copy from 'copy-text-to-clipboard';
 import {
   VitessceConfig, hconcat, vconcat,
   CoordinationType, Component, DataType, FileType,
-} from '../../../dist/umd/production/index.min.js';
+} from 'vitessce/dist/esm/index';
 
 import { getHighlightTheme } from './_highlight-theme';
 import { baseJs, baseJson, exampleJs, exampleJson } from './_live-editor-examples';
@@ -120,7 +120,7 @@ const scope = {
 };
 
 function AppConsumer() {
-  const baseUrl = useBaseUrl('/index.html?url=');
+  const baseUrl = useBaseUrl('/?url=');
   const [demo, setDemo] = useQueryParam('dataset', StringParam);
   const [url, setUrl] = useQueryParam('url', StringParam);
   const [edit, setEdit] = useQueryParam('edit', BooleanParam);
@@ -278,7 +278,7 @@ function AppConsumer() {
           {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error, null, 2)}</pre>}
           <p className={styles.viewConfigEditorInfo}>
             To use Vitessce, enter a&nbsp;
-            <a href={useBaseUrl('/docs/view-config-json/index.html')}>view config</a>
+            <a href={useBaseUrl('/docs/view-config-json/')}>view config</a>
             &nbsp;using the editor below.
             &nbsp;<button onClick={tryExample}>Try an example</button>&nbsp;
             {showReset && <button onClick={resetEditor}>Reset the editor</button>}

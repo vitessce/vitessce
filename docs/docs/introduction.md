@@ -14,13 +14,13 @@ Vitessce can be used in JavaScript, Python, or R.
 
 ### Web application
 
-Vitessce can be used as a standalone web application on the [App](/app/index.html) page of this website, where you will find a text editor for configing Vitessce with JSON or JavaScript syntax.
+Vitessce can be used as a standalone web application on the [App](/app/) page of this website, where you will find a text editor for configing Vitessce with JSON or JavaScript syntax.
 
 ### Embedded component
 
 Vitessce can be used as a React component embedded in another web application.
 For example, the [HuBMAP Data Portal](https://portal.hubmapconsortium.org/) currently embeds Vitessce for visualization of HuBMAP datasets.
-Visit our [React Component](/docs/component-overview/index.html) documentation pages to learn more about using the Vitessce component.
+Visit our [React Component](/docs/component-overview/) documentation pages to learn more about using the Vitessce component.
 
 ### Python Jupyter widget
 
@@ -53,8 +53,8 @@ The diagram below highlights how Vitessce is composed of a top-level `<Vitessce/
 
 ## Configuration
 
-When using the top-level `<Vitessce/>` component (or the Python/R widgets), a [JSON-based configuration](/docs/view-config-json/index.html) termed the "view config" defines how data is retrieved, which visualization components are rendered, and how different components are coordinated.
-To simplify the configuration process, we also provide object-oriented APIs for generating view configs in [JavaScript](/docs/view-config-js/index.html), [Python](https://vitessce.github.io/vitessce-python/api_config.html), and [R](https://vitessce.github.io/vitessce-r/reference/VitessceConfig.html#examples).
+When using the top-level `<Vitessce/>` component (or the Python/R widgets), a [JSON-based configuration](/docs/view-config-json/) termed the "view config" defines how data is retrieved, which visualization components are rendered, and how different components are coordinated.
+To simplify the configuration process, we also provide object-oriented APIs for generating view configs in [JavaScript](/docs/view-config-js/), [Python](https://vitessce.github.io/vitessce-python/api_config.html), and [R](https://vitessce.github.io/vitessce-r/reference/VitessceConfig.html#examples).
 
 
 ## Integrations

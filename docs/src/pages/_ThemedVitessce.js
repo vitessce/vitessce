@@ -8,7 +8,7 @@ export default function ThemedVitessce(props) {
     return (
       <BrowserOnly>
         {() => {
-          const Vitessce = require('../../../dist/umd/production/index.min.js').Vitessce;
+          const Vitessce = require('vitessce/dist/esm/index.js').Vitessce;
           return (<Vitessce
             theme={isDarkTheme ? "dark" : "light"}
             {...props}

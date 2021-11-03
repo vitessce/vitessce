@@ -43,4 +43,4 @@ For each component, a subset of coordination types may be specified. This helps 
 
 ## The component registry
 
-Once the component has been developed, add a key for the component in the component registry [here](https://github.com/vitessce/vitessce/blob/master/src/app/component-registry.js). This key is the string that will be used to specify the component in the `component` property of the [layout](/docs/view-config-json/index.html#layout) array in JSON view configurations.
+Once the component has been developed, add a key for the component in the component registry [here](https://github.com/vitessce/vitessce/blob/master/src/app/component-registry.js). This key is the string that will be used to specify the component in the `component` property of the [layout](/docs/view-config-json/#layout) array in JSON view configurations.
