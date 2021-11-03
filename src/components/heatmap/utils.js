@@ -6,7 +6,7 @@ import {
   AXIS_LABEL_TEXT_SIZE,
   AXIS_FONT_FAMILY,
   AXIS_MARGIN,
-  COLOR_BAR_SIZE,
+  AXIS_PADDING,
   AXIS_MIN_SIZE,
   AXIS_MAX_SIZE,
 } from '../../layers/heatmap-constants';
@@ -121,8 +121,8 @@ export function layerFilter({ layer, viewport }) {
 export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel) {
 
   const font = `${AXIS_LABEL_TEXT_SIZE}px ${AXIS_FONT_FAMILY}`
-  const geneLabelMaxWidth = getTextWidth(longestGeneLabel, font) + AXIS_MARGIN;
-  const cellLabelMaxWidth = getTextWidth(longestCellLabel, font) + AXIS_MARGIN;
+  const geneLabelMaxWidth = getTextWidth(longestGeneLabel, font) + AXIS_MARGIN + AXIS_PADDING;
+  const cellLabelMaxWidth = getTextWidth(longestCellLabel, font) + AXIS_MARGIN + AXIS_PADDING;
 
 
   const axisOffsetLeft = clamp(

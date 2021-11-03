@@ -48,6 +48,8 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
 * and cols is a list of gene ID strings.
 * @param {Map} props.cellColors Map of cell ID to color. Optional.
 * If defined, the key ordering is used to order the cell axis of the heatmap.
+* @param {array} props.cellColorLabels array of labels to place beside cell color
+* tracks. Only works for transpose=true.
 * @param {function} props.clearPleaseWait The clear please wait callback,
 * called when the expression matrix has loaded (is not null).
 * @param {function} props.setCellHighlight Callback function called on
@@ -80,7 +82,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     clearPleaseWait,
     setComponentHover,
     // TODO: set to false for actual PR
-    hideTopLabels = true,
+    hideTopLabels = false,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
     setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
     setTrackHighlight = createDefaultUpdateTracksHover('Heatmap'),
@@ -91,12 +93,13 @@ const Heatmap = forwardRef((props, deckRef) => {
     observationsTitle = 'Cells',
   } = props;
 
-  // mockup of proposed multiple cellColors object
-  cellColorLabels = ['louvain - ', 'samples - '];
-
+  // ==== adjust/mock things for testing purposes
+  cellColorLabels = transpose ? ['louvain - ', 'samples - '] : [];
 
   if (expression) {
-    expression.cols = expression.cols.map(gene => gene + ' - ')
+    expression.cols = transpose ?  
+    expression.cols.map(gene => gene + ' - ') :
+    expression.cols.map(gene => ' - ' + gene)
   }
   
   if (cellColors) {
@@ -106,6 +109,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
     cellColors = new Map(result);
   }
+
+  // ==== 
   
   const viewState = {
     ...rawViewState,
@@ -619,16 +624,17 @@ const Heatmap = forwardRef((props, deckRef) => {
 
                       const cellColorsLabelsViews = useMemo(() => {
                         const result = range(numCellColorTracks).map((track) => {
-                          return (
-                          new OrthographicView({
+
+                          return new OrthographicView({
                             id: `cellColorLabel-${track}`,
                             controller: false,
                             x: 0,
                             y: axisOffsetTop + track * COLOR_BAR_SIZE,
                             width: axisOffsetLeft,
                             height: COLOR_BAR_SIZE,
-                          })
-                        )})
+                          });
+                          
+                        });
                         
                         return result;
                       }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop, offsetTop, axisOffsetLeft, matrixHeight, matrixWidth]) 
