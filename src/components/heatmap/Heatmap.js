@@ -90,7 +90,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     variablesTitle = 'Genes',
     observationsTitle = 'Cells',
   } = props;
-  
+
   const viewState = {
     ...rawViewState,
     target: (transpose ? [rawViewState.target[1], rawViewState.target[0]] : rawViewState.target),
@@ -177,7 +177,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         expression.rows.reduce((a, b) => a.length > b.length ? a : b),
         [...expression.cols, ...cellColorLabels].reduce((a, b) => a.length > b.length ? a : b),
       ];
-    }, [expression]);
+    }, [expression, cellColorLabels]);
     
     const width = axisTopLabels.length;
     const height = axisLeftLabels.length;
@@ -409,8 +409,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                   setNumCellColorTracks(numCellColorTracks);
                 }
                 
-                
-              }, [cellColors, transpose]);
+              }, [cellColors, transpose, axisTopLabels, axisLeftLabels]);
               
               
               // Create the left color bar with a BitmapLayer.
@@ -460,7 +459,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                 })
                 
                 return result;
-              }, [cellColors, transpose, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
+              }, [cellColors, transpose, axisTopLabels, axisLeftLabels, xTiles, yTiles, numCellColorTracks]);
               
               
               const cellColorsLayersList = useMemo(() => {
