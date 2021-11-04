@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
  * @prop {function} handleIQRUpdate Callback for IQR slider update.
  */
 function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUpdate }) {
-  const [open, toggle] = useReducer(v => !v, false);
+  const [open, setOpen] = useState(false);
 
   const classes = useStyles();
 
@@ -35,14 +35,14 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
   };
 
   const handleRemove = () => {
-    toggle();
+    setOpen(false);
     handleChannelRemove();
   };
 
   return (
     <PopperMenu
       open={open}
-      toggle={toggle}
+      setOpen={setOpen}
       buttonIcon={<MoreVertIcon fontSize="small" />}
       buttonClassName={classes.menuButton}
     >
