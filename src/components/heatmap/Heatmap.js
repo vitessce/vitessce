@@ -94,13 +94,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   } = props;
 
   // ==== adjust/mock things for testing purposes
-  cellColorLabels = transpose ? ['louvain - ', 'samples - '] : [];
-
-  if (expression) {
-    expression.cols = transpose ?  
-    expression.cols.map(gene => gene + ' - ') :
-    expression.cols.map(gene => ' - ' + gene)
-  }
+  cellColorLabels = transpose ? ['louvain', 'samples'] : [];
   
   if (cellColors) {
     let result = [];
@@ -387,9 +381,9 @@ const Heatmap = forwardRef((props, deckRef) => {
               
               // Map cell and gene names to arrays with indices,
               // to prepare to render the names in TextLayers.
-              const axisTopLabelData = useMemo(() => hideTopLabels ? [] : axisTopLabels.map((d, i) => [i, d]), [axisTopLabels]);
-              const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d]), [axisLeftLabels]);
-              const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d]), [cellColorLabels]);
+              const axisTopLabelData = useMemo(() => hideTopLabels ? [] : axisTopLabels.map((d, i) => [i, ' - ' + d]), [axisTopLabels]);
+              const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d + ' - ']), [axisLeftLabels]);
+              const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d + ' - ']), [cellColorLabels]);
               
               // Generate the axis label, axis title, and loading indicator text layers.
               const textLayers = [
