@@ -81,8 +81,6 @@ const Heatmap = forwardRef((props, deckRef) => {
     colormapRange,
     clearPleaseWait,
     setComponentHover,
-    // TODO: set to false for actual PR
-    hideTopLabels = false,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
     setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
     setTrackHighlight = createDefaultUpdateTracksHover('Heatmap'),
@@ -381,7 +379,7 @@ const Heatmap = forwardRef((props, deckRef) => {
               
               // Map cell and gene names to arrays with indices,
               // to prepare to render the names in TextLayers.
-              const axisTopLabelData = useMemo(() => hideTopLabels ? [] : axisTopLabels.map((d, i) => [i, ' - ' + d]), [axisTopLabels]);
+              const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, ' - ' + d]), [axisTopLabels]);
               const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d + ' - ']), [axisLeftLabels]);
               const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d + ' - ']), [cellColorLabels]);
               
@@ -506,7 +504,6 @@ const Heatmap = forwardRef((props, deckRef) => {
                   matrixWidth, tileWidth, tileHeight, transpose]);
                   
                   
-                  
                   const layers = heatmapLayers
                   .concat(textLayers)
                   .concat(...cellColorsLayersList);
@@ -589,28 +586,29 @@ const Heatmap = forwardRef((props, deckRef) => {
                       const cellColorsViews = useMemo(() => {
                         const result = range(numCellColorTracks).map(track => {
 
-                          let viewProps;
+                          let view;
                           if (transpose) {
-                            viewProps = {
+                            view = new OrthographicView({
                               id: `colorsTop-${track}`,
                               controller: true,
                               x: offsetLeft,
                               y: axisOffsetTop + track * COLOR_BAR_SIZE,
                               width: matrixWidth,
                               height: COLOR_BAR_SIZE - AXIS_MARGIN,
-                            }
+                            })
+                            
                           } else {
-                            viewProps = {
+                            view = new OrthographicView({
                               id: `colorsLeft-${track}`,
                               controller: true,
                               x: axisOffsetLeft + track * COLOR_BAR_SIZE,
                               y: offsetTop,
                               width: COLOR_BAR_SIZE - AXIS_MARGIN,
                               height: matrixHeight,
-                            }
+                            })
                           }
                           
-                          return new OrthographicView(viewProps);
+                          return view;
                         })
                         
                         return result;
