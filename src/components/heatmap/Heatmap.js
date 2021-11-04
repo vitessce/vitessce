@@ -67,7 +67,7 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
 * @param {function} props.setColormapRange The setter function for colormapRange.
 */
 const Heatmap = forwardRef((props, deckRef) => {
-  let {
+  const {
     uuid,
     theme,
     viewState: rawViewState,
@@ -76,7 +76,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     height: viewHeight,
     expressionMatrix: expression,
     cellColors,
-    cellColorLabels,
+    cellColorLabels = [],
     colormap,
     colormapRange,
     clearPleaseWait,
@@ -90,19 +90,6 @@ const Heatmap = forwardRef((props, deckRef) => {
     variablesTitle = 'Genes',
     observationsTitle = 'Cells',
   } = props;
-
-  // ==== adjust/mock things for testing purposes
-  cellColorLabels = transpose ? ['louvain', 'samples'] : [];
-  
-  if (cellColors) {
-    let result = [];
-    for (const [key, value] of cellColors.entries()) {
-      result.push([key, [value, value]])
-    }
-    cellColors = new Map(result);
-  }
-
-  // ==== 
   
   const viewState = {
     ...rawViewState,
@@ -379,9 +366,9 @@ const Heatmap = forwardRef((props, deckRef) => {
               
               // Map cell and gene names to arrays with indices,
               // to prepare to render the names in TextLayers.
-              const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, ' - ' + d]), [axisTopLabels]);
-              const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d + ' - ']), [axisLeftLabels]);
-              const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d + ' - ']), [cellColorLabels]);
+              const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, '- ' + d]), [axisTopLabels]);
+              const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d + ' -']), [axisLeftLabels]);
+              const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d + ' -']), [cellColorLabels]);
               
               // Generate the axis label, axis title, and loading indicator text layers.
               const textLayers = [
@@ -451,7 +438,9 @@ const Heatmap = forwardRef((props, deckRef) => {
                       if (rowI < cellOrdering.length) {
                         cellId = cellOrdering[rowI];
                         color = cellColors.get(cellId);
-                        if (color && typeof color[0] !== 'numeric') color = color[track];
+
+                        // allows color to be [R, G, B] or array of arrays of [R, G, B]
+                        if (typeof color[0] !== 'number') color = color[track];
 
                         offset = (transpose ? tileY : (TILE_SIZE - tileY - 1)) * 4;
                         if (color) {
@@ -596,7 +585,7 @@ const Heatmap = forwardRef((props, deckRef) => {
                               width: matrixWidth,
                               height: COLOR_BAR_SIZE - AXIS_MARGIN,
                             })
-                            
+
                           } else {
                             view = new OrthographicView({
                               id: `colorsLeft-${track}`,
