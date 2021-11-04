@@ -9,6 +9,9 @@ module.exports = function(context, options) {
     name: 'vitessce-docusaurus-plugin',
     configureWebpack(config, isServer, utils) {
       return {
+        mergeStrategy: {
+          'module.rules': 'prepend',
+        },
         module: {
           rules: [
             {

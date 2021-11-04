@@ -5,7 +5,7 @@ import useThemeContext from '@theme/hooks/useThemeContext';
 import Home from './_Home';
 import Demo from './_Demo';
 
-import { Vitessce } from '../../../dist/umd/production/index.min.js';
+import { Vitessce } from 'vitessce/dist/esm/index.js';
 
 import { configs } from '../../../src/demo/configs';
 
