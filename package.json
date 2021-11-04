@@ -168,6 +168,7 @@
     "build:prod": "npm run build-demo:prod && npm run build-lib:prod",
     "build:dev": "npm run build-demo:dev && npm run build-lib:dev",
     "prepublishOnly": "npm run build-lib:prod",
+    "prepare": "npm run build-lib:prod",
     "clean": "rm -r dist-demo dist",
     "start": "node scripts/start-demo.js",
     "start:fixtures": "http-server src/loaders/fixtures/ --cors=\"*\" -s",
