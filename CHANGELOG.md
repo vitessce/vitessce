@@ -3,6 +3,12 @@
 ### Added
 
 ### Changed
+
+## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
+
+### Added
+
+### Changed
 - Updated the `build-lib:prod` npm script in `package.json` to generate the `esm` build in addition to the `umd` build.
 - Fixed bug preventing opening of the popper menu for channel colors in the spatial layer controller component.
 
