@@ -1,19 +1,13 @@
 import React from 'react';
-import BrowserOnly from '@docusaurus/BrowserOnly';
 import useThemeContext from '@theme/hooks/useThemeContext';
+import { Vitessce } from 'vitessce/dist/esm/index';
 
-// Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
 export default function ThemedVitessce(props) {
     const { isDarkTheme } = useThemeContext();
     return (
-      <BrowserOnly>
-        {() => {
-          const Vitessce = require('vitessce/dist/esm/index.js').Vitessce;
-          return (<Vitessce
-            theme={isDarkTheme ? "dark" : "light"}
-            {...props}
-            />);
-        }}
-      </BrowserOnly>
+      <Vitessce
+        theme={isDarkTheme ? "dark" : "light"}
+        {...props}
+      />
     );
 }

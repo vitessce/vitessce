@@ -1,21 +1,10 @@
 import React from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import useThemeContext from '@theme/hooks/useThemeContext';
-import { Vitessce } from 'vitessce/dist/esm/index';
+import ThemedVitessce from './_ThemedVitessce';
 import DemoDescription from './_DemoDescription';
 import ErrorBoundary from './_ErrorBoundary';
 
 import styles from './styles.module.css';
-
-function ThemedVitessce(props) {
-    const { isDarkTheme } = useThemeContext();
-    return (
-        <Vitessce
-            theme={isDarkTheme ? "dark" : "light"}
-            {...props}
-        />
-    );
-}
 
 function Demo(props) {
     const {

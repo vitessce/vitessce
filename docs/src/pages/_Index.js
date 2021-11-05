@@ -1,25 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { QueryParamProvider, useQueryParam, StringParam, BooleanParam } from 'use-query-params';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import useThemeContext from '@theme/hooks/useThemeContext';
 import Home from './_Home';
 import Demo from './_Demo';
-
-import { Vitessce } from 'vitessce/dist/esm/index';
+import ThemedVitessce from './_ThemedVitessce';
 
 import { configs } from '../../../src/demo/configs';
 
 import styles from './styles.module.css';
-
-function ThemedVitessce(props) {
-    const { isDarkTheme } = useThemeContext();
-    return (
-      <Vitessce
-        theme={isDarkTheme ? "dark" : "light"}
-        {...props}
-      />
-    );
-}
 
 function VitessceAppStyles() {
     return (
