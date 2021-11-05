@@ -6,10 +6,6 @@ export function fromEntries(iterable) {
     .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {});
 }
 
-export function range(length) {
-  return [...Array(length).keys()];
-}
-
 /**
  * Select between a singular and plural version of a word,
  * based on an item count.

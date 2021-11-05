@@ -1,14 +1,8 @@
 import expect from 'expect';
 
-import { range, getNextScope } from './utils';
+import { getNextScope } from './utils';
 
 describe('src/utils.js', () => {
-  describe('range', () => {
-    it('works like python', () => {
-      expect(range(4)).toEqual([0, 1, 2, 3]);
-    });
-  });
-
   describe('getNextScope', () => {
     it('generates a new scope name without conflicts', () => {
       expect(getNextScope([])).toEqual('A');

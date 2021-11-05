@@ -8,7 +8,7 @@
     "build-root": "export USE_SIMPLE_CSS_MINIFIER=true && docusaurus build --out-dir dist-root",
     "build-versioned": "export USE_SIMPLE_CSS_MINIFIER=true && docusaurus build --out-dir dist-versioned",
     "swizzle": "docusaurus swizzle --danger",
-    "serve": "docusaurus serve --port 3001 --dir dist-root",
+    "serve": "docusaurus serve --port 3002 --dir dist-root",
     "clear": "docusaurus clear"
   },
   "dependencies": {

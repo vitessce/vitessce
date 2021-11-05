@@ -26,7 +26,7 @@ function Demo(props) {
     const baseUrl = useBaseUrl('/app/?edit=1&url=');
 
     return (
-        <>
+        <div>
             <div className={styles.demoHeaderContainer}>
                 <h4 className={styles.demoHeaderText}>Demo</h4>
                 <h1 className={styles.demoHeaderText}>{config.name}</h1>
@@ -52,7 +52,7 @@ function Demo(props) {
                     </a>
                 </div>
             </main>
-        </>
+        </div>
     );
 }
 
