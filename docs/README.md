@@ -14,13 +14,15 @@ npm run build-lib:esm
 
 ## Installation
 
-Install the docusaurus dependencies.
+Install the docusaurus dependencies. 
 
 ```sh
 npm install
 cd ..
 npm link docs/node_modules/react
 ```
+
+Note: the `npm link` line must be run after any `npm install`, to prevent two React versions from being bundled.
 
 ## Local Development
 

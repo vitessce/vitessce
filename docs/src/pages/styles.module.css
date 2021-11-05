@@ -283,6 +283,7 @@
 
 .viewConfigEditorMain {
   padding-bottom: 4rem;
+  position: relative;
 }
 
 .copyButtonContainer {

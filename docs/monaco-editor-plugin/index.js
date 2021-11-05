@@ -13,15 +13,6 @@ module.exports = function(context, options) {
     name: 'monaco-editor-docusaurus-plugin',
     configureWebpack(config, isServer, utils) {
       return {
-        module: {
-          rules: [
-            {
-              test: /\.ttf$/,
-              include: MONACO_DIR,
-              use: ['file-loader']
-            }
-          ]
-        },
         plugins: (!isServer ? [
             new MonacoWebpackPlugin({
               languages: ['json', 'javascript']
