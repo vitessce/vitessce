@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import Tooltip from './Tooltip';
 
@@ -22,6 +23,8 @@ export default function Tooltip2D(props) {
     y,
     parentWidth,
     parentHeight,
+    parentTop,
+    parentLeft,
     children,
   } = props;
   // Check if out of bounds.
@@ -39,6 +42,8 @@ export default function Tooltip2D(props) {
           y={y}
           parentWidth={parentWidth}
           parentHeight={parentHeight}
+          parentTop={parentTop}
+          parentLeft={parentLeft}
         >
           {children}
         </Tooltip>
