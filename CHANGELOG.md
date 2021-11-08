@@ -5,6 +5,7 @@
 ### Changed
 - Updated the `build-lib:prod` npm script in `package.json` to generate the `esm` build in addition to the `umd` build.
 - Fixed bug preventing opening of the popper menu for channel colors in the spatial layer controller component.
+- Fixed bug where the border of polygons did not show expression values.  Needed to make sure instanced attributes were used when appropriate.
 
 ## [1.1.16](https://www.npmjs.com/package/vitessce/v/1.1.16) - 2021-10-26
 
