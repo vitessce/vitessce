@@ -12,13 +12,7 @@ export const styles = makeStyles(() => ({
     opacity: 0.9,
     padding: '5px',
     pointerEvents: 'none',
-    '& table > tbody > tr > th': {
-      fontSize: '80%',
-      opacity: 0.8,
-      outline: 0,
-      padding: '0 2px',
-    },
-    '& table > tbody > tr > td': {
+    '& table > tbody > tr > th, & table > tbody > tr > td': {
       fontSize: '80%',
       opacity: 0.8,
       outline: 0,
