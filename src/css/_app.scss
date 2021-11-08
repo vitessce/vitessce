@@ -90,14 +90,12 @@
         display: flex;
         flex-direction: row;
         flex-shrink: 0;
-        z-index: 4;
         .title-left {
             flex-shrink: 1;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
         .title-info {
-            z-index: 4;
             width: 100%;
             text-overflow: ellipsis;
             white-space: nowrap;

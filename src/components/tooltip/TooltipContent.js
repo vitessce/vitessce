@@ -8,12 +8,12 @@ export default function TooltipContent(props) {
   return (
     <table>
       <tbody>
-        {info ? Object.entries(info).map(([key, value]) => (
+        {Object.entries(info).map(([key, value]) => (
           <tr key={key}>
             <th>{key}</th>
             <td>{value}</td>
           </tr>
-        )) : null}
+        ))}
       </tbody>
     </table>
   );
