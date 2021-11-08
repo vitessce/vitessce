@@ -5,10 +5,7 @@
     position: absolute;
     pointer-events: none;
     box-sizing: border-box;
-  }
-
-  .cell-emphasis-crosshair {
-      background-color: map-get($theme-colors, "secondary-foreground");
+    background-color: map-get($theme-colors, "secondary-foreground");
   }
 
 }
