@@ -71,7 +71,6 @@ export const useHashParam = (key, defaultValue, varType) => {
         if(unmounted) {
             return;
         }
-        console.log("handleHashChange");
         const nextValue = getTypedHashParam(key, varType);
         setInnerValue(nextValue);
     };

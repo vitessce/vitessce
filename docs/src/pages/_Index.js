@@ -12,23 +12,6 @@ import { configs } from '../../../src/demo/configs';
 
 import styles from './styles.module.css';
 
-function VitessceAppStyles() {
-    return (
-        <style>{`   
-            .footer {
-                display: none;
-            }
-            .navbar__item {
-                opacity: 0.2;
-                transition: opacity 0.25s;
-            }
-            .navbar:hover .navbar__item {
-                opacity: 1;
-            }
-        `}</style>
-    );
-}
-
 function IndexWithHashParams() {
   const setHashParams = useSetHashParams();
   const [demo, setDemo] = useHashParam('dataset', undefined, 'string');
@@ -50,76 +33,75 @@ function IndexWithHashParams() {
   }
 
   useEffect(() => {
-    console.log("url", url);
-      let unmounted = false;
-      async function processParams() {
-        if (url) {
-          setLoading(true);
-          try {
-            const response = await fetch(url);
+    let unmounted = false;
+    async function processParams() {
+      if (url) {
+        setLoading(true);
+        try {
+          const response = await fetch(url);
+          if(unmounted) {
+            return;
+          }
+          if(response.ok) {
+            const responseText = await response.text();
             if(unmounted) {
               return;
             }
-            if(response.ok) {
-              const responseText = await response.text();
-              if(unmounted) {
-                return;
+            if(edit) {
+              // User wants to edit the URL-based config.
+              try {
+                const responseJson = JSON.parse(responseText);
+                setPendingJson(JSON.stringify(responseJson, null, 2));
+              } catch(e) {
+                // However, this may be an invalid JSON object
+                // so we can just let the user edit the unformatted string.
+                setPendingJson(responseText);
               }
-              if(edit) {
-                // User wants to edit the URL-based config.
-                try {
-                  const responseJson = JSON.parse(responseText);
-                  setPendingJson(JSON.stringify(responseJson, null, 2));
-                } catch(e) {
-                  // However, this may be an invalid JSON object
-                  // so we can just let the user edit the unformatted string.
-                  setPendingJson(responseText);
-                }
-                setError(null);
-              } else {
-                try {
-                  const responseJson = JSON.parse(responseText);
-                  setValidConfig(responseJson);
-                } catch(e) {
-                  setError({
-                    title: "Error parsing JSON",
-                    message: "Error executing JSON.parse",
-                  });
-                }
-              }
-              setLoading(false);
+              setError(null);
             } else {
-              setError({
-                title: "Fetch response not OK",
-                message: response.statusText,
-              });
-              setLoading(false);
-              clearConfigs();
+              try {
+                const responseJson = JSON.parse(responseText);
+                setValidConfig(responseJson);
+              } catch(e) {
+                setError({
+                  title: "Error parsing JSON",
+                  message: "Error executing JSON.parse",
+                });
+              }
             }
-          } catch(e) {
+            setLoading(false);
+          } else {
             setError({
-              title: "Fetch error",
-              message: e.message,
+              title: "Fetch response not OK",
+              message: response.statusText,
             });
             setLoading(false);
             clearConfigs();
           }
-        } else if(demo && configs[demo]) {
-          setValidConfig(configs[demo]);
-          setPendingJson(JSON.stringify(configs[demo], null, 2));
-          setError(null);
-          setLoading(false);
-        } else {
-          setError(null);
+        } catch(e) {
+          setError({
+            title: "Fetch error",
+            message: e.message,
+          });
           setLoading(false);
           clearConfigs();
         }
+      } else if(demo && configs[demo]) {
+        setValidConfig(configs[demo]);
+        setPendingJson(JSON.stringify(configs[demo], null, 2));
+        setError(null);
+        setLoading(false);
+      } else {
+        setError(null);
+        setLoading(false);
+        clearConfigs();
       }
-      processParams();
-      return () => {
-        unmounted = true;
-      };
-    }, [edit, url, demo]);
+    }
+    processParams();
+    return () => {
+      unmounted = true;
+    };
+  }, [edit, url, demo]);
 
   function handleEdit() {
     setHashParams({
@@ -131,6 +113,7 @@ function IndexWithHashParams() {
 
   function setUrlFromEditor(nextUrl) {
     setHashParams({
+      dataset: undefined,
       url: nextUrl,
       edit: false,
     });
@@ -157,19 +140,18 @@ function IndexWithHashParams() {
         />
       ) : null}
       <main className="vitessce-app">
-          <VitessceAppStyles />
-          <ThemedVitessce
-            validateOnConfigChange={debug}
-            onConfigChange={debug ? console.log : undefined}
-            config={validConfig}
-          />
-          <div className={styles.vitessceClear}>
-            <button
-              className={styles.vitessceClearButton}
-              onClick={handleEdit}>
-              Edit
-            </button>
-          </div>
+        <ThemedVitessce
+          validateOnConfigChange={debug}
+          onConfigChange={debug ? console.log : undefined}
+          config={validConfig}
+        />
+        <div className={styles.vitessceClear}>
+          <button
+            className={styles.vitessceClearButton}
+            onClick={handleEdit}>
+            Edit
+          </button>
+        </div>
       </main>
     </div>
   ) : (!loading ? (
