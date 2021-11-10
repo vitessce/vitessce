@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -26,7 +26,7 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primaryBackgroundLight,
     },
     '&:first-child': {
-      marginLeft: '0.75em',
+      marginLeft: '0.25em',
     },
     '&:last-child': {
       marginRight: '0.25em',
@@ -35,6 +35,7 @@ const useStyles = makeStyles(theme => ({
       width: '0.7em',
       height: '0.7em',
       verticalAlign: 'middle',
+      overflow: 'visible',
     },
   },
   downloadLink: {
@@ -53,12 +54,12 @@ function SettingsIconWithArrow({ open }) {
 
 function PlotOptions(props) {
   const { options } = props;
-  const [open, toggle] = useReducer(v => !v, false);
+  const [open, setOpen] = useState(false);
   const classes = useStyles();
   return (
     <PopperMenu
       open={open}
-      toggle={toggle}
+      setOpen={setOpen}
       buttonIcon={<SettingsIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
@@ -79,12 +80,12 @@ function CloudDownloadIconWithArrow({ open }) {
 
 function DownloadOptions(props) {
   const { urls } = props;
-  const [open, toggle] = useReducer(v => !v, false);
+  const [open, setOpen] = useState(false);
   const classes = useStyles();
   return (
     <PopperMenu
       open={open}
-      toggle={toggle}
+      setOpen={setOpen}
       buttonIcon={<CloudDownloadIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
@@ -125,28 +126,28 @@ export default function TitleInfo(props) {
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
-      <div className="title d-flex justify-content-between align-items-baseline">
-        <div className="justify-content-between d-flex align-items-end">
-          <span>{title}</span>
+      <div className="title">
+        <div className="title-left">
+          {title}
         </div>
-        <span className="details pl-2 align-items-end">
-          <span className="d-flex justify-content-between">
-            {info}
-            { options && (
-              <PlotOptions
-                options={options}
-              />
-            ) }
-            {urls && urls.length > 0 && (
-              <DownloadOptions
-                urls={urls}
-              />
-            )}
-            <ClosePaneButton
-              removeGridComponent={removeGridComponent}
+        <div className="title-info" title={info}>
+          {info}
+        </div>
+        <div className="title-buttons">
+          { options && (
+            <PlotOptions
+              options={options}
             />
-          </span>
-        </span>
+          ) }
+          {urls && urls.length > 0 && (
+            <DownloadOptions
+              urls={urls}
+            />
+          )}
+          <ClosePaneButton
+            removeGridComponent={removeGridComponent}
+          />
+        </div>
       </div>
       <div className={childClassName}>
         { !isReady && <LoadingIndicator /> }

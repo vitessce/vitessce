@@ -5,16 +5,17 @@ export const styles = makeStyles(() => ({
   paper: {
     maxHeight: 200,
     overflow: 'auto',
-    zIndex: 1500,
+  },
+  container: {
+    position: 'relative',
+    left: 0,
+    top: 0,
   },
   span: {
     width: '70px',
     textAlign: 'center',
     paddingLeft: '2px',
     paddingRight: '2px',
-  },
-  popper: {
-    zIndex: 4,
   },
 }));
 

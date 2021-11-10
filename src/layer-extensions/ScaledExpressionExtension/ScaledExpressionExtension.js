@@ -60,7 +60,12 @@ export default class ScaledExpressionExtension extends LayerExtension {
     }
   }
 
-  initializeState(context, extension) {
+  initializeState() {
+    const layer = this.getCurrentLayer();
+    // No need to run this on layers that don't have a `draw` call.
+    if (layer.isComposite) {
+      return;
+    }
     const attributeManager = this.getAttributeManager();
     if (attributeManager) {
       // This attributes is the array of expression data needed for
@@ -72,9 +77,10 @@ export default class ScaledExpressionExtension extends LayerExtension {
           transition: true,
           accessor: 'getExpressionValue',
           defaultValue: 1,
-          // PolygonLayer needs not-intsanced attribute but
-          // ScatterplotLayer needs instanced.
-          divisor: Number(extension.opts.instanced),
+          // PolygonLayer fill needs not-intsanced attribute but
+          // ScatterplotLayer and the PolygonLayer stroke needs instanced.
+          // So use another attribute's divisor property as a proxy for this divisor.
+          divisor: Object.values(attributeManager.attributes)[0].settings.divisor,
         },
       });
     }
