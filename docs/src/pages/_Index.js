@@ -156,7 +156,9 @@ function IndexWithHashParams() {
     </div>
   ) : (!loading ? (
     <Home />
-  ) : null));
+  ) : (
+    <p>Loading...</p>
+  )));
 }
 
 function IndexWithQueryParamRedirect() {

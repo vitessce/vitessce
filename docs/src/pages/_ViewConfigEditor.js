@@ -1,26 +1,18 @@
-import React, { useCallback, useEffect, useState, useReducer } from 'react';
-import clsx from 'clsx';
+import React, { useCallback, useState } from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
-import ControlledEditor from './_ControlledEditor';
+import ThemedControlledEditor from './_ThemedControlledEditor';
 import { LiveProvider, LiveContext, LiveError, LivePreview } from 'react-live';
-import Highlight, { defaultProps } from "prism-react-renderer";
-import copy from 'copy-text-to-clipboard';
 import {
   VitessceConfig, hconcat, vconcat,
   CoordinationType, Component, DataType, FileType,
 } from 'vitessce/dist/esm/index';
-
-import { getHighlightTheme } from './_highlight-theme';
 import { baseJs, baseJson, exampleJs, exampleJson } from './_live-editor-examples';
-
-
-import styles from './styles.module.css';
-
-const JSON_TRANSLATION_KEY = 'vitessceJsonTranslation';
+import JsonHighlight, { JSON_TRANSLATION_KEY } from './_JsonHighlight';
 
 import { upgradeAndValidate } from '../../../src/app/view-config-utils';
+
+import styles from './styles.module.css';
 
 
 // To simplify the JS editor, the user only needs to write
@@ -37,69 +29,6 @@ function transformCode(code) {
       <Highlight json={vcJson} />
     );
   }`;
-}
-
-function ThemedControlledEditor(props) {
-  const { isDarkTheme } = useThemeContext();
-  return <ControlledEditor
-    {...props}
-    theme={(isDarkTheme ? "vs-dark" : "GitHub")}
-    height="60vh"
-    options={{
-      fontSize: 14,
-      minimap: {
-        enabled: false,
-      },
-      contextmenu: false,
-    }}
-  />
-}
-
-function JsonHighlight(props) {
-  const { json } = props;
-  const { isDarkTheme } = useThemeContext();
-  const highlightTheme = getHighlightTheme(isDarkTheme);
-  const [showCopied, setShowCopied] = useState(false);
-
-  const jsonCode = JSON.stringify(json, null, 2);
-  
-  const handleCopyCode = () => {
-      copy(jsonCode);
-      setShowCopied(true);
-      setTimeout(() => setShowCopied(false), 2000);
-  };
-
-  useEffect(() => {
-    // Put the current translation on the window for easy retrieval.
-    // There is probably a cleaner way to do this.
-    window[JSON_TRANSLATION_KEY] = jsonCode;
-  });
-  
-  // Adapted from https://github.com/FormidableLabs/prism-react-renderer/blob/master/README.md#usage
-  return (
-    <Highlight {...defaultProps} code={jsonCode} language="json" theme={highlightTheme}>
-      {({ className, style, tokens, getLineProps, getTokenProps }) => (
-        <div className={styles.copyButtonContainer}>
-          <pre className={clsx(className, styles.viewConfigPreviewJSCode)} style={style}>
-            {tokens.map((line, i) => (
-              <div {...getLineProps({ line, key: i })}>
-                {line.map((token, key) => (
-                  <span {...getTokenProps({ token, key })} />
-                ))}
-              </div>
-            ))}
-          </pre>
-          <button
-            type="button"
-            aria-label="Copy code to clipboard"
-            className={styles.copyButton}
-            onClick={handleCopyCode}>
-            {showCopied ? 'Copied' : 'Copy'}
-          </button>
-        </div>
-      )}
-    </Highlight>
-  );
 }
 
 const scope = {
@@ -129,7 +58,8 @@ export default function ViewConfigEditor(props) {
     setUrl,
   } = props;
 
-  const viewConfigDocsUrl = useBaseUrl('/docs/view-config-json/');
+  const viewConfigDocsJsUrl = useBaseUrl('/docs/view-config-js/');
+  const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
   
   const [pendingUrl, setPendingUrl] = useState('');
   const [pendingFileContents, setPendingFileContents] = useState('');
@@ -212,7 +142,7 @@ export default function ViewConfigEditor(props) {
           {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error, null, 2)}</pre>}
           <p className={styles.viewConfigEditorInfo}>
             To use Vitessce, enter a&nbsp;
-            <a href={viewConfigDocsUrl}>view config</a>
+            <a href={syntaxType === "JS" ? viewConfigDocsJsUrl : viewConfigDocsJsonUrl}>view config</a>
             &nbsp;using the editor below.
             &nbsp;<button onClick={tryExample}>Try an example</button>&nbsp;
             {showReset && <button onClick={resetEditor}>Reset the editor</button>}
