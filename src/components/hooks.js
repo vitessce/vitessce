@@ -3,6 +3,7 @@ import {
 } from 'react';
 import debounce from 'lodash/debounce';
 import { useGridResize, useEmitGridResize } from '../app/state/hooks';
+import { VITESSCE_CONTAINER } from './classNames';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -10,6 +11,15 @@ function getWindowDimensions() {
     width,
     height,
   };
+}
+
+export function useVitessceContainer(ref) {
+  return useCallback(() => {
+    if (ref.current) {
+      return ref.current.closest(`.${VITESSCE_CONTAINER}`);
+    }
+    return null;
+  }, [ref]);
 }
 
 /**

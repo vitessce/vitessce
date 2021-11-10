@@ -1,5 +1,6 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef } from 'react';
 import RcTooltip from 'rc-tooltip';
+import { useVitessceContainer } from '../hooks';
 
 /**
  * This is a small wrapper around the Tooltip component from the rc-tooltip library,
@@ -14,13 +15,7 @@ import RcTooltip from 'rc-tooltip';
 export default function HelpTooltip(props) {
   const { title, content, overlayClassName } = props;
   const spanRef = useRef();
-
-  const getTooltipContainer = useCallback(() => {
-    if (spanRef.current) {
-      return spanRef.current.closest('.vitessce-container');
-    }
-    return null;
-  }, [spanRef]);
+  const getTooltipContainer = useVitessceContainer(spanRef);
 
   const overlay = title || content;
 
