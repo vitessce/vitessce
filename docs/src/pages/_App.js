@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useReducer } from 'react';
 import clsx from 'clsx';
-import { QueryParamProvider, useQueryParam, StringParam, BooleanParam } from 'use-query-params';
+import useHashParam from './_use-hash-param';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
@@ -119,11 +119,13 @@ const scope = {
   Highlight: JsonHighlight,
 };
 
-function AppConsumer() {
-  const baseUrl = useBaseUrl('/?url=');
-  const [demo, setDemo] = useQueryParam('dataset', StringParam);
-  const [url, setUrl] = useQueryParam('url', StringParam);
-  const [edit, setEdit] = useQueryParam('edit', BooleanParam);
+export default function App() {
+  const baseUrl = useBaseUrl('/#?url=');
+
+  const [demo, setDemo] = useHashParam('dataset', undefined, 'string');
+  const [debug, setDebug] = useHashParam('debug', false, 'boolean');
+  const [url, setUrl] = useHashParam('url', undefined, 'string');
+  const [edit, setEdit] = useHashParam('edit', true, 'boolean');
   const [i, increment] = useReducer(v => v+1, 1);
 
   const [error, setError] = useState(null);
@@ -365,14 +367,5 @@ function AppConsumer() {
           </div>
         </main>
       )
-  );
-}
-
-// Reference: https://github.com/pbeshai/use-query-params#usage
-export default function App() {
-  return(
-    <QueryParamProvider>
-      <AppConsumer />
-    </QueryParamProvider>
   );
 }

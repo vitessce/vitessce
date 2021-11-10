@@ -34,7 +34,7 @@ module.exports = {
       },
       items: [
         {
-          to: 'app',
+          href: '/#?edit=true',
           label: 'App',
           position: 'left',
         },
