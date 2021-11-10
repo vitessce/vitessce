@@ -5,6 +5,7 @@ export const baseJson = `{
   "description": "Test",
   "datasets": [],
   "coordinationSpace": {},
+  "layout": [],
   "initStrategy": "auto"
 }`;
   

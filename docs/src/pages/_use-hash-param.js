@@ -96,7 +96,7 @@ export const useHashParam = (key, defaultValue, varType) => {
 };
 
 export const useSetHashParams = () => {
-    return useCallback((values, location = window.location) => {
+    return (values, location = window.location) => {
         const [prefix, searchParams] = getHashSearchParams(location);
         
         Object.entries(values).forEach(([key, value]) => {
@@ -109,5 +109,5 @@ export const useSetHashParams = () => {
       
         const search = searchParams.toString();
         location.hash = search ? `${prefix}?${search}` : prefix;
-    });
+    };
 }

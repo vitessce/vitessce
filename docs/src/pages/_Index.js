@@ -50,6 +50,7 @@ function IndexWithHashParams() {
   }
 
   useEffect(() => {
+    console.log("url", url);
       let unmounted = false;
       async function processParams() {
         if (url) {
@@ -78,7 +79,7 @@ function IndexWithHashParams() {
               } else {
                 try {
                   const responseJson = JSON.parse(responseText);
-                  setValidConfig(JSON.stringify(responseJson, null, 2));
+                  setValidConfig(responseJson);
                 } catch(e) {
                   setError({
                     title: "Error parsing JSON",
