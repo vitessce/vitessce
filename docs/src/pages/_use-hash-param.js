@@ -57,7 +57,7 @@ const wrapHistoryMethod = (methodName) => {
     };
 };
 
-const useHashParam = (key, defaultValue, varType) => {
+export const useHashParam = (key, defaultValue, varType) => {
   const [innerValue, setInnerValue] = useState(getTypedHashParam(key, varType));
 
   useEffect(() => {
@@ -95,4 +95,19 @@ const useHashParam = (key, defaultValue, varType) => {
   return [innerValue === undefined ? defaultValue : innerValue, setValue];
 };
 
-export default useHashParam;
+export const useSetHashParams = () => {
+    return useCallback((values, location = window.location) => {
+        const [prefix, searchParams] = getHashSearchParams(location);
+        
+        Object.entries(values).forEach(([key, value]) => {
+            if (typeof value === 'undefined' || value === '') {
+                searchParams.delete(key);
+            } else {
+                searchParams.set(key, value);
+            }
+        });
+      
+        const search = searchParams.toString();
+        location.hash = search ? `${prefix}?${search}` : prefix;
+    });
+}

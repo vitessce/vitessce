@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState, useReducer } from 'react';
 import clsx from 'clsx';
-import { useHashParam } from './_use-hash-param';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
@@ -16,7 +15,6 @@ import {
 import { getHighlightTheme } from './_highlight-theme';
 import { baseJs, baseJson, exampleJs, exampleJson } from './_live-editor-examples';
 
-import { configs } from '../../../src/demo/configs';
 
 import styles from './styles.module.css';
 
@@ -119,28 +117,25 @@ const scope = {
   Highlight: JsonHighlight,
 };
 
-export default function App() {
-  const baseUrl = useBaseUrl('/#?url=');
+export default function ViewConfigEditor(props) {
+  const {
+    pendingJson,
+    setPendingJson,
+    pendingJs,
+    setPendingJs,
+    error,
+    setError,
+    loading,
+    setUrl,
+  } = props;
 
-  const [demo, setDemo] = useHashParam('dataset', undefined, 'string');
-  const [debug, setDebug] = useHashParam('debug', false, 'boolean');
-  const [url, setUrl] = useHashParam('url', undefined, 'string');
-  const [edit, setEdit] = useHashParam('edit', true, 'boolean');
-  const [i, increment] = useReducer(v => v+1, 1);
-
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [validConfig, setValidConfig] = useState(null);
+  const viewConfigDocsUrl = useBaseUrl('/docs/view-config-json/');
   
-  const [pendingConfig, setPendingConfig] = useState(baseJson);
   const [pendingUrl, setPendingUrl] = useState('');
   const [pendingFileContents, setPendingFileContents] = useState('');
 
-  const [pendingJs, setPendingJs] = useState(baseJs);
-
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
-
 
   const onDrop = useCallback(acceptedFiles => {
     if(acceptedFiles.length === 1) {
@@ -155,68 +150,6 @@ export default function App() {
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxFiles: 1});
 
-  useEffect(() => {
-    let unmounted = false;
-    async function processParams() {
-      if (url) {
-        setLoading(true);
-        try {
-          const response = await fetch(url);
-          if(unmounted) {
-            return;
-          }
-          if(response.ok) {
-            const responseText = await response.text();
-            if(unmounted) {
-              return;
-            }
-            if(edit) {
-              // User wants to edit the URL-based config.
-              try {
-                // Ideally, this is valid JSON and we can
-                // use JSON.stringify to add nice indentation.
-                const responseJson = JSON.parse(responseText);
-                setPendingConfig(JSON.stringify(responseJson, null, 2));
-              } catch(e) {
-                // However, this may be an invalid JSON object
-                // so we can just let the user edit the unformatted string.
-                setPendingConfig(responseText);
-              }
-              setError(null);
-            }
-            setLoading(false);
-          } else {
-            setError({
-              title: "Fetch response not OK",
-              message: response.statusText,
-            });
-            setLoading(false);
-            setPendingConfig('{}');
-          }
-        } catch(e) {
-          setError({
-            title: "Fetch error",
-            message: e.message,
-          });
-          setLoading(false);
-          setPendingConfig('{}');
-        }
-      } else if(demo && configs[demo]) {
-        setPendingConfig(JSON.stringify(configs[demo], null, 2));
-        setError(null);
-        setLoading(false);
-      } else {
-        setPendingConfig(baseJson);
-        setError(null);
-        setLoading(false);
-      }
-    }
-    processParams();
-    return () => {
-      unmounted = true;
-    };
-  }, [url, edit, demo]);
-
   function validateConfig(nextConfig) {
     const [failureReason, upgradeSuccess] = upgradeAndValidate(JSON.parse(nextConfig));
     return [upgradeSuccess, failureReason];
@@ -225,12 +158,11 @@ export default function App() {
   function handleEditorGo() {
     let nextUrl;
     if(loadFrom === 'editor') {
-      let nextConfig = pendingConfig;
+      let nextConfig = pendingJson;
       if(syntaxType === "JS") {
         nextConfig = window[JSON_TRANSLATION_KEY];
       }
       nextUrl = 'data:,' + encodeURIComponent(nextConfig);
-
       const [valid, failureReason] = validateConfig(nextConfig);
       if(!valid) {
         setError(failureReason);
@@ -241,7 +173,7 @@ export default function App() {
     } else if(loadFrom === 'file') {
       nextUrl = 'data:,' + encodeURIComponent(pendingFileContents);
     }
-    window.location.href = baseUrl + nextUrl;
+    setUrl(nextUrl);
   }
 
   function handleUrlChange(event) {
@@ -255,7 +187,7 @@ export default function App() {
 
   function tryExample() {
     if(syntaxType === "JSON") {
-      setPendingConfig(exampleJson);
+      setPendingJson(exampleJson);
     } else {
       setPendingJs(exampleJs);
     }
@@ -264,13 +196,13 @@ export default function App() {
 
   function resetEditor() {
     if(syntaxType === "JSON") {
-      setPendingConfig(baseJson);
+      setPendingJson(baseJson);
     } else {
       setPendingJs(baseJs);
     }
   }
 
-  const showReset = syntaxType === "JSON" && pendingConfig !== baseJson || syntaxType === "JS" && pendingJs !== baseJs;
+  const showReset = syntaxType === "JSON" && pendingJson !== baseJson || syntaxType === "JS" && pendingJs !== baseJs;
 
   return (
       loading ? (
@@ -280,7 +212,7 @@ export default function App() {
           {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error, null, 2)}</pre>}
           <p className={styles.viewConfigEditorInfo}>
             To use Vitessce, enter a&nbsp;
-            <a href={useBaseUrl('/docs/view-config-json/')}>view config</a>
+            <a href={viewConfigDocsUrl}>view config</a>
             &nbsp;using the editor below.
             &nbsp;<button onClick={tryExample}>Try an example</button>&nbsp;
             {showReset && <button onClick={resetEditor}>Reset the editor</button>}
@@ -298,9 +230,9 @@ export default function App() {
               {syntaxType === "JSON" ? (
                 <>
                   <ThemedControlledEditor
-                    value={pendingConfig}
+                    value={pendingJson}
                     onChange={(value) => {
-                      setPendingConfig(value);
+                      setPendingJson(value);
                       setLoadFrom('editor');
                     }}
                     language="json"
