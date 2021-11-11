@@ -1,7 +1,6 @@
 ---
-id: develop-component
-title: Component development
-slug: /develop-component
+id: dev-add-component
+title: Internal components
 ---
 
 This page walks through the steps required to create a new visualization component.

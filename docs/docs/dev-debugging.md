@@ -1,8 +1,7 @@
 ---
-id: component-debugging
+id: dev-debugging
 title: 'Debugging'
 sidebar_label: Debugging
-slug: /component-debugging
 ---
 
 

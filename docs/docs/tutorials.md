@@ -1,8 +1,8 @@
 ---
-id: tutorial-overview
+id: tutorials
 title: 'Tutorials'
 sidebar_label: Overview
-slug: /tutorial-overview
+slug: /tutorials
 ---
 
 In the following tutorial pages, we walk through full examples consisting of data conversion and view configuration.

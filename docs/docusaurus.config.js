@@ -11,10 +11,6 @@ module.exports = {
   organizationName: 'vitessce', // Usually your GitHub org/user name.
   projectName: 'vitessce', // Usually your repo name.
   themes: ['@docusaurus/theme-live-codeblock'],
-  plugins: [
-    path.resolve(__dirname, 'plugins', 'monaco-editor-plugin'),
-    path.resolve(__dirname, 'plugins', 'vitessce-plugin'),
-  ],
   themeConfig: {
     colorMode: {
       defaultMode: 'light',
@@ -39,14 +35,20 @@ module.exports = {
           position: 'left',
         },
         {
-          to: 'demos',
-          label: 'Demos',
+          to: 'examples',
+          label: 'Examples',
           position: 'left',
         },
         {
-          to: 'docs',
-          activeBasePath: 'docs',
-          label: 'Documentation',
+          type: 'doc',
+          docId: 'introduction',
+          label: 'Docs',
+          position: 'left',
+        },
+        {
+          type: 'doc',
+          docId: 'tutorials',
+          label: 'Tutorials',
           position: 'left',
         },
         {
@@ -125,13 +127,10 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl:
-            'https://github.com/vitessce/vitessce/edit/master/docs/',
+          editUrl: 'https://github.com/vitessce/vitessce/edit/master/docs/',
         },
         blog: {
           showReadingTime: true,
-          editUrl:
-            'https://github.com/vitessce/vitessce/edit/master/docs/blog/',
         },
         theme: {
           customCss: [
@@ -141,6 +140,10 @@ module.exports = {
         },
       },
     ],
+  ],
+  plugins: [
+    path.resolve(__dirname, 'plugins', 'monaco-editor-plugin'),
+    path.resolve(__dirname, 'plugins', 'vitessce-plugin'),
   ],
   scripts: [
     {

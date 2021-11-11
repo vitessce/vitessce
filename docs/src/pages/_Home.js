@@ -60,7 +60,7 @@ export default function Home() {
   const { siteConfig = {} } = context;
   const { isDarkTheme } = useThemeContext();
 
-  const introUrl = useBaseUrl('/docs/');
+  const introUrl = useBaseUrl('/docs/platforms/');
   const logoUrl = useBaseUrl(`/img/logo-vitessce-${(isDarkTheme ? 'dark' : 'light')}.png`);
 
   return (

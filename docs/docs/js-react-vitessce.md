@@ -1,7 +1,6 @@
 ---
-id: component-vitessce
-title: Vitessce Component
-slug: /component-vitessce
+id: js-react-vitessce
+title: React component
 ---
 
 The top-level `<Vitessce/>` component can be used as one would any other React component.
