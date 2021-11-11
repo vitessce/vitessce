@@ -1,4 +1,3 @@
-
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useState, useRef, memo } from 'react';
 import clsx from 'clsx';
