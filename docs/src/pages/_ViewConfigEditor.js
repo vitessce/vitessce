@@ -1,28 +1,18 @@
-import React, { useCallback, useEffect, useState, useReducer } from 'react';
-import clsx from 'clsx';
-import { QueryParamProvider, useQueryParam, StringParam, BooleanParam } from 'use-query-params';
+import React, { useCallback, useState } from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import useThemeContext from '@theme/hooks/useThemeContext';
 import { useDropzone } from 'react-dropzone';
-import ControlledEditor from './_ControlledEditor';
+import ThemedControlledEditor from './_ThemedControlledEditor';
 import { LiveProvider, LiveContext, LiveError, LivePreview } from 'react-live';
-import Highlight, { defaultProps } from "prism-react-renderer";
-import copy from 'copy-text-to-clipboard';
 import {
   VitessceConfig, hconcat, vconcat,
   CoordinationType, Component, DataType, FileType,
 } from 'vitessce/dist/esm/index';
-
-import { getHighlightTheme } from './_highlight-theme';
 import { baseJs, baseJson, exampleJs, exampleJson } from './_live-editor-examples';
-
-import { configs } from '../../../src/demo/configs';
-
-import styles from './styles.module.css';
-
-const JSON_TRANSLATION_KEY = 'vitessceJsonTranslation';
+import JsonHighlight, { JSON_TRANSLATION_KEY } from './_JsonHighlight';
 
 import { upgradeAndValidate } from '../../../src/app/view-config-utils';
+
+import styles from './styles.module.css';
 
 
 // To simplify the JS editor, the user only needs to write
@@ -41,69 +31,6 @@ function transformCode(code) {
   }`;
 }
 
-function ThemedControlledEditor(props) {
-  const { isDarkTheme } = useThemeContext();
-  return <ControlledEditor
-    {...props}
-    theme={(isDarkTheme ? "vs-dark" : "GitHub")}
-    height="60vh"
-    options={{
-      fontSize: 14,
-      minimap: {
-        enabled: false,
-      },
-      contextmenu: false,
-    }}
-  />
-}
-
-function JsonHighlight(props) {
-  const { json } = props;
-  const { isDarkTheme } = useThemeContext();
-  const highlightTheme = getHighlightTheme(isDarkTheme);
-  const [showCopied, setShowCopied] = useState(false);
-
-  const jsonCode = JSON.stringify(json, null, 2);
-  
-  const handleCopyCode = () => {
-      copy(jsonCode);
-      setShowCopied(true);
-      setTimeout(() => setShowCopied(false), 2000);
-  };
-
-  useEffect(() => {
-    // Put the current translation on the window for easy retrieval.
-    // There is probably a cleaner way to do this.
-    window[JSON_TRANSLATION_KEY] = jsonCode;
-  });
-  
-  // Adapted from https://github.com/FormidableLabs/prism-react-renderer/blob/master/README.md#usage
-  return (
-    <Highlight {...defaultProps} code={jsonCode} language="json" theme={highlightTheme}>
-      {({ className, style, tokens, getLineProps, getTokenProps }) => (
-        <div className={styles.copyButtonContainer}>
-          <pre className={clsx(className, styles.viewConfigPreviewJSCode)} style={style}>
-            {tokens.map((line, i) => (
-              <div {...getLineProps({ line, key: i })}>
-                {line.map((token, key) => (
-                  <span {...getTokenProps({ token, key })} />
-                ))}
-              </div>
-            ))}
-          </pre>
-          <button
-            type="button"
-            aria-label="Copy code to clipboard"
-            className={styles.copyButton}
-            onClick={handleCopyCode}>
-            {showCopied ? 'Copied' : 'Copy'}
-          </button>
-        </div>
-      )}
-    </Highlight>
-  );
-}
-
 const scope = {
   VitessceConfig: VitessceConfig,
   hconcat: hconcat,
@@ -119,26 +46,26 @@ const scope = {
   Highlight: JsonHighlight,
 };
 
-function AppConsumer() {
-  const baseUrl = useBaseUrl('/?url=');
-  const [demo, setDemo] = useQueryParam('dataset', StringParam);
-  const [url, setUrl] = useQueryParam('url', StringParam);
-  const [edit, setEdit] = useQueryParam('edit', BooleanParam);
-  const [i, increment] = useReducer(v => v+1, 1);
+export default function ViewConfigEditor(props) {
+  const {
+    pendingJson,
+    setPendingJson,
+    pendingJs,
+    setPendingJs,
+    error,
+    setError,
+    loading,
+    setUrl,
+  } = props;
 
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [validConfig, setValidConfig] = useState(null);
+  const viewConfigDocsJsUrl = useBaseUrl('/docs/view-config-js/');
+  const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
   
-  const [pendingConfig, setPendingConfig] = useState(baseJson);
   const [pendingUrl, setPendingUrl] = useState('');
   const [pendingFileContents, setPendingFileContents] = useState('');
 
-  const [pendingJs, setPendingJs] = useState(baseJs);
-
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
-
 
   const onDrop = useCallback(acceptedFiles => {
     if(acceptedFiles.length === 1) {
@@ -153,68 +80,6 @@ function AppConsumer() {
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxFiles: 1});
 
-  useEffect(() => {
-    let unmounted = false;
-    async function processParams() {
-      if (url) {
-        setLoading(true);
-        try {
-          const response = await fetch(url);
-          if(unmounted) {
-            return;
-          }
-          if(response.ok) {
-            const responseText = await response.text();
-            if(unmounted) {
-              return;
-            }
-            if(edit) {
-              // User wants to edit the URL-based config.
-              try {
-                // Ideally, this is valid JSON and we can
-                // use JSON.stringify to add nice indentation.
-                const responseJson = JSON.parse(responseText);
-                setPendingConfig(JSON.stringify(responseJson, null, 2));
-              } catch(e) {
-                // However, this may be an invalid JSON object
-                // so we can just let the user edit the unformatted string.
-                setPendingConfig(responseText);
-              }
-              setError(null);
-            }
-            setLoading(false);
-          } else {
-            setError({
-              title: "Fetch response not OK",
-              message: response.statusText,
-            });
-            setLoading(false);
-            setPendingConfig('{}');
-          }
-        } catch(e) {
-          setError({
-            title: "Fetch error",
-            message: e.message,
-          });
-          setLoading(false);
-          setPendingConfig('{}');
-        }
-      } else if(demo && configs[demo]) {
-        setPendingConfig(JSON.stringify(configs[demo], null, 2));
-        setError(null);
-        setLoading(false);
-      } else {
-        setPendingConfig(baseJson);
-        setError(null);
-        setLoading(false);
-      }
-    }
-    processParams();
-    return () => {
-      unmounted = true;
-    };
-  }, [url, edit, demo]);
-
   function validateConfig(nextConfig) {
     const [failureReason, upgradeSuccess] = upgradeAndValidate(JSON.parse(nextConfig));
     return [upgradeSuccess, failureReason];
@@ -223,12 +88,11 @@ function AppConsumer() {
   function handleEditorGo() {
     let nextUrl;
     if(loadFrom === 'editor') {
-      let nextConfig = pendingConfig;
+      let nextConfig = pendingJson;
       if(syntaxType === "JS") {
         nextConfig = window[JSON_TRANSLATION_KEY];
       }
       nextUrl = 'data:,' + encodeURIComponent(nextConfig);
-
       const [valid, failureReason] = validateConfig(nextConfig);
       if(!valid) {
         setError(failureReason);
@@ -239,7 +103,7 @@ function AppConsumer() {
     } else if(loadFrom === 'file') {
       nextUrl = 'data:,' + encodeURIComponent(pendingFileContents);
     }
-    window.location.href = baseUrl + nextUrl;
+    setUrl(nextUrl);
   }
 
   function handleUrlChange(event) {
@@ -253,7 +117,7 @@ function AppConsumer() {
 
   function tryExample() {
     if(syntaxType === "JSON") {
-      setPendingConfig(exampleJson);
+      setPendingJson(exampleJson);
     } else {
       setPendingJs(exampleJs);
     }
@@ -262,13 +126,13 @@ function AppConsumer() {
 
   function resetEditor() {
     if(syntaxType === "JSON") {
-      setPendingConfig(baseJson);
+      setPendingJson(baseJson);
     } else {
       setPendingJs(baseJs);
     }
   }
 
-  const showReset = syntaxType === "JSON" && pendingConfig !== baseJson || syntaxType === "JS" && pendingJs !== baseJs;
+  const showReset = syntaxType === "JSON" && pendingJson !== baseJson || syntaxType === "JS" && pendingJs !== baseJs;
 
   return (
       loading ? (
@@ -278,7 +142,7 @@ function AppConsumer() {
           {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error, null, 2)}</pre>}
           <p className={styles.viewConfigEditorInfo}>
             To use Vitessce, enter a&nbsp;
-            <a href={useBaseUrl('/docs/view-config-json/')}>view config</a>
+            <a href={syntaxType === "JS" ? viewConfigDocsJsUrl : viewConfigDocsJsonUrl}>view config</a>
             &nbsp;using the editor below.
             &nbsp;<button onClick={tryExample}>Try an example</button>&nbsp;
             {showReset && <button onClick={resetEditor}>Reset the editor</button>}
@@ -296,9 +160,9 @@ function AppConsumer() {
               {syntaxType === "JSON" ? (
                 <>
                   <ThemedControlledEditor
-                    value={pendingConfig}
+                    value={pendingJson}
                     onChange={(value) => {
-                      setPendingConfig(value);
+                      setPendingJson(value);
                       setLoadFrom('editor');
                     }}
                     language="json"
@@ -365,14 +229,5 @@ function AppConsumer() {
           </div>
         </main>
       )
-  );
-}
-
-// Reference: https://github.com/pbeshai/use-query-params#usage
-export default function App() {
-  return(
-    <QueryParamProvider>
-      <AppConsumer />
-    </QueryParamProvider>
   );
 }

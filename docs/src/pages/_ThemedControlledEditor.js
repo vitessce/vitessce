@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import MonacoEditor from 'react-monaco-editor';
+import useThemeContext from '@theme/hooks/useThemeContext';
 
 function ControlledEditor(props) {
   const {
@@ -23,4 +24,20 @@ function ControlledEditor(props) {
   );
 }
 
-export default ControlledEditor;
+function ThemedControlledEditor(props) {
+  const { isDarkTheme } = useThemeContext();
+  return <ControlledEditor
+    {...props}
+    theme={(isDarkTheme ? "vs-dark" : "GitHub")}
+    height="60vh"
+    options={{
+      fontSize: 14,
+      minimap: {
+        enabled: false,
+      },
+      contextmenu: false,
+    }}
+  />
+}
+
+export default ThemedControlledEditor;

@@ -1,18 +1,14 @@
 import React from 'react';
-import useBaseUrl from '@docusaurus/useBaseUrl';
-import ThemedVitessce from './_ThemedVitessce';
 import DemoDescription from './_DemoDescription';
 import ErrorBoundary from './_ErrorBoundary';
 
 import styles from './styles.module.css';
 
-function Demo(props) {
+function DemoHeader(props) {
     const {
         demo,
         config,
     } = props;
-
-    const baseUrl = useBaseUrl('/app/?edit=1&url=');
 
     return (
         <div>
@@ -27,22 +23,8 @@ function Demo(props) {
                     </ErrorBoundary>
                 </div>
             </div>
-            <main className={'vitessce-app'}>
-                <ThemedVitessce
-                    validateOnConfigChange={false}
-                    config={config}
-                />
-                <div className={styles.vitessceClear}>
-                    <a
-                        className={styles.vitessceClearButton}
-                        href={baseUrl + 'data:,' + encodeURIComponent(JSON.stringify(config))}
-                    >
-                    Edit
-                    </a>
-                </div>
-            </main>
         </div>
     );
 }
 
-export default Demo;
+export default DemoHeader;
