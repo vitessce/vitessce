@@ -11,21 +11,21 @@ function DemoDescription(props) {
   // the docs/demos/ directory (if one exists).
   // Adapted from https://github.com/facebook/docusaurus/blob/cf97662/packages/docusaurus/src/client/exports/ComponentCreator.tsx#L56
   const chunkRegistry = registry ? (
-      Object.values(registry)
-        .find(c => c[1] === `@site/docs/demos/${demo}.md`)
+    Object.values(registry)
+      .find(c => c[1] === `@site/docs/demos/${demo}.md`)
   ) : null;
 
   let Description = () => null;
-  if(chunkRegistry) {
+  if (chunkRegistry) {
     const [optsLoader, optsModules, optsWebpack] = chunkRegistry;
 
-    if(optsLoader && optsModules && optsWebpack) {
-        Description = Loadable({
-            loading: Loading,
-            loader: optsLoader,
-            modules: optsModules,
-            webpack: () => optsWebpack,
-        });
+    if (optsLoader && optsModules && optsWebpack) {
+      Description = Loadable({
+        loading: Loading,
+        loader: optsLoader,
+        modules: optsModules,
+        webpack: () => optsWebpack,
+      });
     }
   }
 

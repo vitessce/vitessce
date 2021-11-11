@@ -12,8 +12,8 @@ module.exports = {
   projectName: 'vitessce', // Usually your repo name.
   themes: ['@docusaurus/theme-live-codeblock'],
   plugins: [
-    path.resolve(__dirname, 'monaco-editor-plugin'),
-    path.resolve(__dirname, 'vitessce-plugin'),
+    path.resolve(__dirname, 'plugins', 'monaco-editor-plugin'),
+    path.resolve(__dirname, 'plugins', 'vitessce-plugin'),
   ],
   themeConfig: {
     colorMode: {

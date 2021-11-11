@@ -1,9 +1,10 @@
+/* eslint-disable global-require */
 import React from 'react';
 import Layout from '@theme/Layout';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 
 // Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
-export default function WrappedDemos(props) {
+export default function WrappedDemos() {
   return (
     <Layout
       title="Demos"
@@ -21,4 +22,3 @@ export default function WrappedDemos(props) {
     </Layout>
   );
 }
-

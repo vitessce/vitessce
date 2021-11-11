@@ -8,12 +8,12 @@ export const baseJson = `{
   "layout": [],
   "initStrategy": "auto"
 }`;
-  
+
 export const baseJs = `const vc = new VitessceConfig("My config");
 
 // Return the view config as JSON.
 return vc.toJSON();`;
-  
+
 export const exampleJs = `// Instantiate a view config object.
 const vc = new VitessceConfig("My example config", "This demonstrates the JavaScript API");
 // Add a dataset and its files.
@@ -44,7 +44,7 @@ vc.layout(
 
 // Return the view config as JSON.
 return vc.toJSON();`;
-  
+
 export const exampleJson = `{
   "version": "1.0.4",
   "name": "My example config",

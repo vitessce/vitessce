@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import useThemeContext from '@theme/hooks/useThemeContext';
-import Highlight, { defaultProps } from "prism-react-renderer";
+import Highlight, { defaultProps } from 'prism-react-renderer';
 import copy from 'copy-text-to-clipboard';
 import { getHighlightTheme } from './_highlight-theme';
 
@@ -16,11 +16,11 @@ export default function JsonHighlight(props) {
   const [showCopied, setShowCopied] = useState(false);
 
   const jsonCode = JSON.stringify(json, null, 2);
-  
+
   const handleCopyCode = () => {
-      copy(jsonCode);
-      setShowCopied(true);
-      setTimeout(() => setShowCopied(false), 2000);
+    copy(jsonCode);
+    setShowCopied(true);
+    setTimeout(() => setShowCopied(false), 2000);
   };
 
   useEffect(() => {
@@ -28,11 +28,13 @@ export default function JsonHighlight(props) {
     // There is probably a cleaner way to do this.
     window[JSON_TRANSLATION_KEY] = jsonCode;
   });
-  
+
   // Adapted from https://github.com/FormidableLabs/prism-react-renderer/blob/master/README.md#usage
   return (
     <Highlight {...defaultProps} code={jsonCode} language="json" theme={highlightTheme}>
-      {({ className, style, tokens, getLineProps, getTokenProps }) => (
+      {({
+        className, style, tokens, getLineProps, getTokenProps,
+      }) => (
         <div className={styles.copyButtonContainer}>
           <pre className={clsx(className, styles.viewConfigPreviewJSCode)} style={style}>
             {tokens.map((line, i) => (
@@ -47,7 +49,8 @@ export default function JsonHighlight(props) {
             type="button"
             aria-label="Copy code to clipboard"
             className={styles.copyButton}
-            onClick={handleCopyCode}>
+            onClick={handleCopyCode}
+          >
             {showCopied ? 'Copied' : 'Copy'}
           </button>
         </div>

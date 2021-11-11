@@ -9,7 +9,8 @@
     "build-versioned": "export USE_SIMPLE_CSS_MINIFIER=true && docusaurus build --out-dir dist-versioned",
     "swizzle": "docusaurus swizzle --danger",
     "serve": "docusaurus serve --port 3002 --dir dist-root",
-    "clear": "docusaurus clear"
+    "clear": "docusaurus clear",
+    "lint-fix": "eslint -c .eslintrc.yml --ext .js --fix src/"
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-beta.9",
@@ -33,6 +34,18 @@
     "react-monaco-editor": "^0.43.0",
     "use-query-params": "^1.1.9",
     "vitessce": "file:.."
+  },
+  "devDependencies": {
+    "eslint": "^6.6.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-react-app": "^5.2.0",
+    "eslint-loader": "3.0.3",
+    "eslint-plugin-cypress": "^2.2.1",
+    "eslint-plugin-flowtype": "4.6.0",
+    "eslint-plugin-import": "2.20.0",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-react": "7.18.0",
+    "eslint-plugin-react-hooks": "^1.6.1"
   },
   "browserslist": {
     "production": [

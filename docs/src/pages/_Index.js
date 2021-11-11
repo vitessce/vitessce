@@ -1,7 +1,11 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-console */
 import React, { useState, useEffect } from 'react';
-import { QueryParamProvider, useQueryParam, StringParam, BooleanParam } from 'use-query-params';
-import { useHashParam, useSetHashParams } from './_use-hash-param';
+import {
+  QueryParamProvider, useQueryParam, StringParam,
+} from 'use-query-params';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import { useHashParam, useSetHashParams } from './_use-hash-param';
 import Home from './_Home';
 import DemoHeader from './_DemoHeader';
 import ThemedVitessce from './_ThemedVitessce';
@@ -14,10 +18,10 @@ import styles from './styles.module.css';
 
 function IndexWithHashParams() {
   const setHashParams = useSetHashParams();
-  const [demo, setDemo] = useHashParam('dataset', undefined, 'string');
-  const [debug, setDebug] = useHashParam('debug', false, 'boolean');
-  const [url, setUrl] = useHashParam('url', undefined, 'string');
-  const [edit, setEdit] = useHashParam('edit', false, 'boolean');
+  const [demo] = useHashParam('dataset', undefined, 'string');
+  const [debug] = useHashParam('debug', false, 'boolean');
+  const [url] = useHashParam('url', undefined, 'string');
+  const [edit] = useHashParam('edit', false, 'boolean');
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,20 +43,20 @@ function IndexWithHashParams() {
         setLoading(true);
         try {
           const response = await fetch(url);
-          if(unmounted) {
+          if (unmounted) {
             return;
           }
-          if(response.ok) {
+          if (response.ok) {
             const responseText = await response.text();
-            if(unmounted) {
+            if (unmounted) {
               return;
             }
-            if(edit) {
+            if (edit) {
               // User wants to edit the URL-based config.
               try {
                 const responseJson = JSON.parse(responseText);
                 setPendingJson(JSON.stringify(responseJson, null, 2));
-              } catch(e) {
+              } catch (e) {
                 // However, this may be an invalid JSON object
                 // so we can just let the user edit the unformatted string.
                 setPendingJson(responseText);
@@ -62,31 +66,31 @@ function IndexWithHashParams() {
               try {
                 const responseJson = JSON.parse(responseText);
                 setValidConfig(responseJson);
-              } catch(e) {
+              } catch (e) {
                 setError({
-                  title: "Error parsing JSON",
-                  message: "Error executing JSON.parse",
+                  title: 'Error parsing JSON',
+                  message: 'Error executing JSON.parse',
                 });
               }
             }
             setLoading(false);
           } else {
             setError({
-              title: "Fetch response not OK",
+              title: 'Fetch response not OK',
               message: response.statusText,
             });
             setLoading(false);
             clearConfigs();
           }
-        } catch(e) {
+        } catch (e) {
           setError({
-            title: "Fetch error",
+            title: 'Fetch error',
             message: e.message,
           });
           setLoading(false);
           clearConfigs();
         }
-      } else if(demo && configs[demo]) {
+      } else if (demo && configs[demo]) {
         setValidConfig(configs[demo]);
         setPendingJson(JSON.stringify(configs[demo], null, 2));
         setError(null);
@@ -106,7 +110,7 @@ function IndexWithHashParams() {
   function handleEdit() {
     setHashParams({
       dataset: undefined,
-      url: 'data:,' + encodeURIComponent(JSON.stringify(validConfig)),
+      url: `data:,${encodeURIComponent(JSON.stringify(validConfig))}`,
       edit: true,
     });
   }
@@ -118,7 +122,7 @@ function IndexWithHashParams() {
       edit: false,
     });
   }
-  
+
   return (edit ? (
     <ViewConfigEditor
       pendingJson={pendingJson}
@@ -147,8 +151,10 @@ function IndexWithHashParams() {
         />
         <div className={styles.vitessceClear}>
           <button
+            type="button"
             className={styles.vitessceClearButton}
-            onClick={handleEdit}>
+            onClick={handleEdit}
+          >
             Edit
           </button>
         </div>
@@ -168,15 +174,15 @@ function IndexWithQueryParamRedirect() {
   const baseUrl = useBaseUrl('/#?');
   const [demo] = useQueryParam('dataset', StringParam);
   const [url] = useQueryParam('url', StringParam);
-  
+
   useEffect(() => {
     const hasQueryParams = demo || url;
-    if(hasQueryParams) {
-      const params = (demo ? 'dataset=' + demo : 'url=' + url);
+    if (hasQueryParams) {
+      const params = (demo ? `dataset=${demo}` : `url=${url}`);
       window.location.href = baseUrl + params;
     }
   }, [baseUrl, demo, url]);
-  
+
   return (<IndexWithHashParams />);
 }
 

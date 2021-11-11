@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 import React from 'react';
 import Layout from '@theme/Layout';
 import BrowserOnly from '@docusaurus/BrowserOnly';

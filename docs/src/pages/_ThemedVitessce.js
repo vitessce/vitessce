@@ -4,7 +4,7 @@ import { Vitessce } from 'vitessce/dist/esm/index';
 
 function VitessceAppStyles() {
   return (
-      <style>{`   
+    <style>{`   
           .footer {
               display: none;
           }
@@ -15,7 +15,8 @@ function VitessceAppStyles() {
           .navbar:hover .navbar__item {
               opacity: 1;
           }
-      `}</style>
+      `}
+    </style>
   );
 }
 
@@ -26,7 +27,7 @@ export default function ThemedVitessce(props) {
     <>
       <VitessceAppStyles />
       <Vitessce
-        theme={isDarkTheme ? "dark" : "light"}
+        theme={isDarkTheme ? 'dark' : 'light'}
         {...props}
       />
     </>

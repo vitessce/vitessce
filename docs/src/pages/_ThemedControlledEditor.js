@@ -7,14 +7,14 @@ function ControlledEditor(props) {
     onChange,
   } = props;
 
-  const editorDidMount = useCallback((editor, monaco) => {
+  const editorDidMount = useCallback((editor) => {
     editor.focus();
   }, []);
 
-  const onChangeInternal = useCallback((newValue, e) => {
+  const onChangeInternal = useCallback((newValue) => {
     onChange(newValue);
-  });
-  
+  }, [onChange]);
+
   return (
     <MonacoEditor
       {...props}
@@ -26,18 +26,20 @@ function ControlledEditor(props) {
 
 function ThemedControlledEditor(props) {
   const { isDarkTheme } = useThemeContext();
-  return <ControlledEditor
-    {...props}
-    theme={(isDarkTheme ? "vs-dark" : "GitHub")}
-    height="60vh"
-    options={{
-      fontSize: 14,
-      minimap: {
-        enabled: false,
-      },
-      contextmenu: false,
-    }}
-  />
+  return (
+    <ControlledEditor
+      {...props}
+      theme={(isDarkTheme ? 'vs-dark' : 'GitHub')}
+      height="60vh"
+      options={{
+        fontSize: 14,
+        minimap: {
+          enabled: false,
+        },
+        contextmenu: false,
+      }}
+    />
+  );
 }
 
 export default ThemedControlledEditor;

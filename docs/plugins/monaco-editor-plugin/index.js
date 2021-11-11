@@ -1,3 +1,4 @@
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 // We need to make a custome Docusaurus plugin to be able to configure webpack
 // for the react-monaco-editor component.
@@ -6,22 +7,14 @@
 // Reference: https://github.com/react-monaco-editor/react-monaco-editor#using-with-webpack
 module.exports = function(context, options) {
   return {
-    name: 'vitessce-docusaurus-plugin',
+    name: 'monaco-editor-docusaurus-plugin',
     configureWebpack(config, isServer, utils) {
       return {
-        mergeStrategy: {
-          'module.rules': 'prepend',
-        },
-        module: {
-          rules: [
-            {
-              test: /\.m?js/,
-              resolve: {
-                fullySpecified: false
-              }
-            }
-          ]
-        },
+        plugins: (!isServer ? [
+            new MonacoWebpackPlugin({
+              languages: ['json', 'javascript']
+            })
+        ] : []),
       };
     },
   };

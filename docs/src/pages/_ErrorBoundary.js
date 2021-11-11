@@ -1,26 +1,30 @@
 import React from 'react';
 
 export default class ErrorBoundary extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = { hasError: false };
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  // eslint-disable-next-line no-unused-vars
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+
+  // eslint-disable-next-line no-unused-vars
+  componentDidCatch(error, errorInfo) {
+    // eslint-disable-next-line no-console
+    console.log('Error rendering demo markdown description.');
+  }
+
+  render() {
+    const { hasError } = this.state;
+    if (hasError) {
+      // Quietly error.
+      return null;
     }
-    
-    static getDerivedStateFromError(error) {
-      // Update state so the next render will show the fallback UI.
-      return { hasError: true };
-    }
-  
-    componentDidCatch(error, errorInfo) {
-      console.log("Error rendering demo markdown description.");
-    }
-  
-    render() {
-      if (this.state.hasError) {
-        // Quietly error.
-        return null;
-      }
-  
-      return this.props.children; 
-    }
+    const { children } = this.props;
+    return children;
+  }
 }

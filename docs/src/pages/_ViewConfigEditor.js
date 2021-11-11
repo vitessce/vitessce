@@ -1,13 +1,18 @@
+/* eslint-disable no-nested-ternary */
 import React, { useCallback, useState } from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { useDropzone } from 'react-dropzone';
-import ThemedControlledEditor from './_ThemedControlledEditor';
-import { LiveProvider, LiveContext, LiveError, LivePreview } from 'react-live';
+import {
+  LiveProvider, LiveContext, LiveError, LivePreview,
+} from 'react-live';
 import {
   VitessceConfig, hconcat, vconcat,
   CoordinationType, Component, DataType, FileType,
 } from 'vitessce/dist/esm/index';
-import { baseJs, baseJson, exampleJs, exampleJson } from './_live-editor-examples';
+import ThemedControlledEditor from './_ThemedControlledEditor';
+import {
+  baseJs, baseJson, exampleJs, exampleJson,
+} from './_live-editor-examples';
 import JsonHighlight, { JSON_TRANSLATION_KEY } from './_JsonHighlight';
 
 import { upgradeAndValidate } from '../../../src/app/view-config-utils';
@@ -32,13 +37,13 @@ function transformCode(code) {
 }
 
 const scope = {
-  VitessceConfig: VitessceConfig,
-  hconcat: hconcat,
-  vconcat: vconcat,
-  Component: Component,
-  DataType: DataType,
-  FileType: FileType,
-  CoordinationType: CoordinationType,
+  VitessceConfig,
+  hconcat,
+  vconcat,
+  Component,
+  DataType,
+  FileType,
+  CoordinationType,
   cm: Component,
   dt: DataType,
   ft: FileType,
@@ -60,15 +65,15 @@ export default function ViewConfigEditor(props) {
 
   const viewConfigDocsJsUrl = useBaseUrl('/docs/view-config-js/');
   const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
-  
+
   const [pendingUrl, setPendingUrl] = useState('');
   const [pendingFileContents, setPendingFileContents] = useState('');
 
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
 
-  const onDrop = useCallback(acceptedFiles => {
-    if(acceptedFiles.length === 1) {
+  const onDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles.length === 1) {
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         const { result } = reader;
@@ -78,7 +83,7 @@ export default function ViewConfigEditor(props) {
       reader.readAsText(acceptedFiles[0]);
     }
   }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxFiles: 1});
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxFiles: 1 });
 
   function validateConfig(nextConfig) {
     const [failureReason, upgradeSuccess] = upgradeAndValidate(JSON.parse(nextConfig));
@@ -87,21 +92,21 @@ export default function ViewConfigEditor(props) {
 
   function handleEditorGo() {
     let nextUrl;
-    if(loadFrom === 'editor') {
+    if (loadFrom === 'editor') {
       let nextConfig = pendingJson;
-      if(syntaxType === "JS") {
+      if (syntaxType === 'JS') {
         nextConfig = window[JSON_TRANSLATION_KEY];
       }
-      nextUrl = 'data:,' + encodeURIComponent(nextConfig);
+      nextUrl = `data:,${encodeURIComponent(nextConfig)}`;
       const [valid, failureReason] = validateConfig(nextConfig);
-      if(!valid) {
+      if (!valid) {
         setError(failureReason);
         return;
       }
-    } else if(loadFrom === 'url') {
+    } else if (loadFrom === 'url') {
       nextUrl = pendingUrl;
-    } else if(loadFrom === 'file') {
-      nextUrl = 'data:,' + encodeURIComponent(pendingFileContents);
+    } else if (loadFrom === 'file') {
+      nextUrl = `data:,${encodeURIComponent(pendingFileContents)}`;
     }
     setUrl(nextUrl);
   }
@@ -116,7 +121,7 @@ export default function ViewConfigEditor(props) {
   }
 
   function tryExample() {
-    if(syntaxType === "JSON") {
+    if (syntaxType === 'JSON') {
       setPendingJson(exampleJson);
     } else {
       setPendingJs(exampleJs);
@@ -125,109 +130,121 @@ export default function ViewConfigEditor(props) {
   }
 
   function resetEditor() {
-    if(syntaxType === "JSON") {
+    if (syntaxType === 'JSON') {
       setPendingJson(baseJson);
     } else {
       setPendingJs(baseJs);
     }
   }
 
-  const showReset = syntaxType === "JSON" && pendingJson !== baseJson || syntaxType === "JS" && pendingJs !== baseJs;
+  const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
 
   return (
-      loading ? (
-        <pre>Loading...</pre>
-      ) : (
-        <main className={styles.viewConfigEditorMain}>
-          {error && <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error, null, 2)}</pre>}
-          <p className={styles.viewConfigEditorInfo}>
+    loading ? (
+      <pre>Loading...</pre>
+    ) : (
+      <main className={styles.viewConfigEditorMain}>
+        {error && (
+          <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error, null, 2)}</pre>
+        )}
+        <p className={styles.viewConfigEditorInfo}>
             To use Vitessce, enter a&nbsp;
-            <a href={syntaxType === "JS" ? viewConfigDocsJsUrl : viewConfigDocsJsonUrl}>view config</a>
-            &nbsp;using the editor below.
-            &nbsp;<button onClick={tryExample}>Try an example</button>&nbsp;
-            {showReset && <button onClick={resetEditor}>Reset the editor</button>}
-          </p>
-          <div className={styles.viewConfigEditorType}>
-            <label>
-              <select className={styles.viewConfigEditorTypeSelect} value={syntaxType} onChange={handleSyntaxChange}>
-                <option value="JSON">JSON</option>
-                <option value="JS">JS</option>
-              </select>
-            </label>
-          </div>
-          <div className={styles.viewConfigEditorInputsSplit}>
-            <div className={styles.viewConfigEditor}>
-              {syntaxType === "JSON" ? (
-                <>
-                  <ThemedControlledEditor
-                    value={pendingJson}
-                    onChange={(value) => {
-                      setPendingJson(value);
-                      setLoadFrom('editor');
-                    }}
-                    language="json"
-                  />
-                </>
-              ) : (
-                <div className={styles.viewConfigEditorPreviewJSSplit}>
-                  <LiveProvider code={pendingJs} scope={scope} transformCode={transformCode}>
-                    <LiveContext.Consumer>
-                      {({ code, disabled, onChange }) => (
-                        <div className={styles.viewConfigEditorJS}>
-                          <ThemedControlledEditor
-                            value={code}
-                            onChange={(value) => {
-                              setPendingJs(value);
-                              setLoadFrom('editor');
-                            }}
-                            language="javascript"
-                          />
-                        </div>
-                      )}
-                    </LiveContext.Consumer>
-                    <div className={styles.viewConfigPreviewErrorSplit}>
-                      <p className={styles.livePreviewHeader}>Translation to JSON</p>
-                      <div className={styles.viewConfigPreviewScroll}>
-                        <LiveError className={styles.viewConfigErrorJS} />
-                        <LivePreview className={styles.viewConfigPreviewJS} />
+          <a href={syntaxType === 'JS' ? viewConfigDocsJsUrl : viewConfigDocsJsonUrl}>view config</a>
+            &nbsp;using the editor below.&nbsp;
+          <button type="button" onClick={tryExample}>Try an example</button>&nbsp;
+          {showReset && <button type="button" onClick={resetEditor}>Reset the editor</button>}
+        </p>
+        <div className={styles.viewConfigEditorType}>
+          <label htmlFor="editor-syntax">
+            <select
+              className={styles.viewConfigEditorTypeSelect}
+              value={syntaxType}
+              onChange={handleSyntaxChange}
+              id="editor-syntax"
+            >
+              <option value="JSON">JSON</option>
+              <option value="JS">JS</option>
+            </select>
+          </label>
+        </div>
+        <div className={styles.viewConfigEditorInputsSplit}>
+          <div className={styles.viewConfigEditor}>
+            {syntaxType === 'JSON' ? (
+              <>
+                <ThemedControlledEditor
+                  value={pendingJson}
+                  onChange={(value) => {
+                    setPendingJson(value);
+                    setLoadFrom('editor');
+                  }}
+                  language="json"
+                />
+              </>
+            ) : (
+              <div className={styles.viewConfigEditorPreviewJSSplit}>
+                <LiveProvider code={pendingJs} scope={scope} transformCode={transformCode}>
+                  <LiveContext.Consumer>
+                    {({ code }) => (
+                      <div className={styles.viewConfigEditorJS}>
+                        <ThemedControlledEditor
+                          value={code}
+                          onChange={(value) => {
+                            setPendingJs(value);
+                            setLoadFrom('editor');
+                          }}
+                          language="javascript"
+                        />
                       </div>
-                    </div>
-                  </LiveProvider>
-                </div>
-              )}
-            </div>
-            <div className={styles.viewConfigInputs}>
-              <div className={styles.viewConfigInputUrlOrFile}>
-                <p className={styles.viewConfigInputUrlOrFileText}>
-                  Alternatively, provide a URL or drag &amp; drop a view config file.
-                </p>
-                <div className={styles.viewConfigInputUrlOrFileSplit}>
-                  <input
-                    type="text"
-                    className={styles.viewConfigUrlInput}
-                    placeholder="Enter a URL"
-                    value={pendingUrl}
-                    onChange={handleUrlChange}
-                  />
-                  <div {...getRootProps()} className={styles.dropzone}>
-                    <input {...getInputProps()} className={styles.dropzoneInfo} />
-                    {isDragActive ?
-                      <span>Drop the file here ...</span> :
-                      (pendingFileContents ? (
-                        <span>Successfully read the file.</span>
-                      ) : (
-                      <span>Drop a file</span>
-                      )
                     )}
+                  </LiveContext.Consumer>
+                  <div className={styles.viewConfigPreviewErrorSplit}>
+                    <p className={styles.livePreviewHeader}>Translation to JSON</p>
+                    <div className={styles.viewConfigPreviewScroll}>
+                      <LiveError className={styles.viewConfigErrorJS} />
+                      <LivePreview className={styles.viewConfigPreviewJS} />
+                    </div>
                   </div>
+                </LiveProvider>
+              </div>
+            )}
+          </div>
+          <div className={styles.viewConfigInputs}>
+            <div className={styles.viewConfigInputUrlOrFile}>
+              <p className={styles.viewConfigInputUrlOrFileText}>
+                  Alternatively, provide a URL or drag &amp; drop a view config file.
+              </p>
+              <div className={styles.viewConfigInputUrlOrFileSplit}>
+                <input
+                  type="text"
+                  className={styles.viewConfigUrlInput}
+                  placeholder="Enter a URL"
+                  value={pendingUrl}
+                  onChange={handleUrlChange}
+                />
+                <div {...getRootProps()} className={styles.dropzone}>
+                  <input {...getInputProps()} className={styles.dropzoneInfo} />
+                  {isDragActive
+                    ? <span>Drop the file here ...</span>
+                    : (pendingFileContents ? (
+                      <span>Successfully read the file.</span>
+                    ) : (
+                      <span>Drop a file</span>
+                    )
+                    )}
                 </div>
               </div>
-              <div className={styles.viewConfigInputButton}>
-                <button className={styles.viewConfigGo} onClick={handleEditorGo}>Load from {loadFrom}</button>
-              </div>
+            </div>
+            <div className={styles.viewConfigInputButton}>
+              <button
+                type="button"
+                className={styles.viewConfigGo}
+                onClick={handleEditorGo}
+              >Load from {loadFrom}
+              </button>
             </div>
           </div>
-        </main>
-      )
+        </div>
+      </main>
+    )
   );
 }
