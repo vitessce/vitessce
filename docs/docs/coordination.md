@@ -1,17 +1,16 @@
 ---
 id: coordination
-title: Coordination Model
-sidebar_label: Coordination Model
+title: Coordinated Multiple Views
+sidebar_label: Coordinated Multiple Views
 slug: /coordination
 ---
 
 Vitessce supports *coordinated multiple views*, meaning that visualizations can be linked together on many properties.
-
-The implementation of coordinated multiple views in Vitessce follows a coordination model proposed by Boukhelifa and Rodgers ([Information Visualization 2003](https://kar.kent.ac.uk/13874/1/cmvev.pdf)). The coordination details live in the Vitessce view config.
+The implementation of coordinated multiple views in Vitessce follows a coordination model proposed by Boukhelifa and Rodgers ([Information Visualization 2003](https://kar.kent.ac.uk/13874/1/cmvev.pdf)).
 
 ## Graph Representation
 
-We can think about the coordination model as a graph in which there are three types of nodes: coordination types, coordination scopes, and views.
+The coordination model can be represented as a graph in which there are three types of nodes: coordination types, coordination scopes, and views.
 
 [![Coordination model as graph representation - multiple coordination types - node encoding](https://docs.google.com/drawings/d/e/2PACX-1vRdNNkA8lCXj62edJMB7i6dvDxYxlv127sg9ZvtS7fLMCatG5jh3AyD1A6yqnhTFqi5YIft-T1nsBIT/pub?w=800)](https://docs.google.com/drawings/d/1w64tYpHgkxgoUlmYw02HKM6q2GDiz_ev77TZFhqywi4/edit)
 
@@ -21,7 +20,7 @@ We can think about the coordination model as a graph in which there are three ty
 The approach or architecture used to achieve view coordination ([Roberts 2007](https://kar.kent.ac.uk/14569/1/Coordinated_%26_Multiple.pdf)).
 
 ### Coordination Type
-The property or parameter being coordinated, such as "spatial rotation" or "heatmap zoom" or "gene expression colormap". Vitessce further requires that coordination type values conform to a JSON schema, for instance a primitive number or a more complex array or object schema.
+The property or parameter being coordinated, such as "spatial rotation" or "heatmap zoom" or "gene expression colormap". Vitessce further requires that coordination type values conform to a JSON schema, for instance a primitive number or a more complex array or object schema. The [Coordination Types](/docs/coordination-types/) page lists all coordinate-able properties.
 
 ### Coordination Scope
 A named instance of a coordination type. Each `(coordination type, view)` tuple may map onto a different coordination scope. Views are "coordinated" if they are linked to a common coordination scope. Views may update their `(coordination type, coordination scope)` tuples if changes to the coordinated view connections are initiated by the user.

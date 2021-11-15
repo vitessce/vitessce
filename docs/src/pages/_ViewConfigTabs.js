@@ -19,7 +19,7 @@ export default function ViewConfigTabs(props) {
     withJsonLink = false,
   } = props;
 
-  const baseUrl = useBaseUrl('/?#edit=1&url=data:,');
+  const baseUrl = useBaseUrl('/#?edit=true&url=data:,');
   const jsonLink = baseUrl + encodeURIComponent(json);
 
   return (

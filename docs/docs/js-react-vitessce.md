@@ -3,7 +3,7 @@ id: js-react-vitessce
 title: React component
 ---
 
-The top-level `<Vitessce/>` component can be used as one would any other React component.
+The `vitessce` package exports the `Vitessce` React component. The component props are described below.
 
 ```jsx
 import React from 'react';

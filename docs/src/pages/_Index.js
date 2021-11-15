@@ -16,6 +16,45 @@ import { configs } from '../../../src/demo/configs';
 
 import styles from './styles.module.css';
 
+function AppStyles(props) {
+  const {
+    dimNavbar = false,
+  } = props;
+  return (
+    <style>{`
+        .navbar__brand + a.navbar__item.navbar__link {
+          color: var(--ifm-navbar-link-hover-color);
+          text-decoration: none;
+        }
+        ${dimNavbar ? (`
+        .footer {
+          display: none;
+        }
+        .navbar__item {
+          opacity: 0.2;
+          transition: opacity 0.25s;
+        }
+        .navbar:hover .navbar__item {
+          opacity: 1;
+        }
+        `) : ''}
+      `}
+    </style>
+  );
+}
+
+function DemoStyles() {
+  return (
+    <style>{`
+         .navbar__brand + a.navbar__item.navbar__link + a.navbar__item.navbar__link {
+            color: var(--ifm-navbar-link-hover-color);
+            text-decoration: none;
+          }
+      `}
+    </style>
+  );
+}
+
 function IndexWithHashParams() {
   const setHashParams = useSetHashParams();
   const [demo] = useHashParam('dataset', undefined, 'string');
@@ -124,25 +163,33 @@ function IndexWithHashParams() {
   }
 
   return (edit ? (
-    <ViewConfigEditor
-      pendingJson={pendingJson}
-      setPendingJson={setPendingJson}
-      pendingJs={pendingJs}
-      setPendingJs={setPendingJs}
-      error={error}
-      setError={setError}
-      loading={loading}
-      setLoading={setLoading}
-      setUrl={setUrlFromEditor}
-    />
+    <>
+      <AppStyles />
+      <ViewConfigEditor
+        pendingJson={pendingJson}
+        setPendingJson={setPendingJson}
+        pendingJs={pendingJs}
+        setPendingJs={setPendingJs}
+        error={error}
+        setError={setError}
+        loading={loading}
+        setLoading={setLoading}
+        setUrl={setUrlFromEditor}
+      />
+    </>
   ) : validConfig ? (
     <div>
       {demo && Object.keys(configs).includes(demo) ? (
-        <DemoHeader
-          demo={demo}
-          config={configs[demo]}
-        />
-      ) : null}
+        <>
+          <DemoStyles />
+          <DemoHeader
+            demo={demo}
+            config={configs[demo]}
+          />
+        </>
+      ) : (
+        <AppStyles dimNavbar />
+      )}
       <main className="vitessce-app">
         <ThemedVitessce
           validateOnConfigChange={debug}

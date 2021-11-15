@@ -3,12 +3,13 @@ module.exports = {
     {
       type: 'category',
       label: 'Getting Started',
+      collapsed: false,
       items: [
         'introduction',
         'components',
+        'data-types-file-types',
         'coordination',
         'coordination-types',
-        'data-types-file-types',
         'platforms'
       ],
     },
@@ -18,6 +19,7 @@ module.exports = {
       items: [
         'view-config-json',
         'view-config-js',
+        'constants',
         'troubleshooting'
       ],
     },
@@ -42,8 +44,7 @@ module.exports = {
       label: 'Developer Docs',
       items: [
         'dev-overview',
-        'dev-add-component',
-        'dev-debugging'
+        'dev-add-component'
       ],
     },
     {

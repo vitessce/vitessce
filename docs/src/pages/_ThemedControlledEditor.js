@@ -32,6 +32,7 @@ function ThemedControlledEditor(props) {
       theme={(isDarkTheme ? 'vs-dark' : 'GitHub')}
       height="60vh"
       options={{
+        automaticLayout: true,
         fontSize: 14,
         minimap: {
           enabled: false,
