@@ -13,6 +13,7 @@
 - Fixed bug preventing opening of the popper menu for channel colors in the spatial layer controller component.
 - Fixed bug where the border of polygons did not show expression values.  Needed to make sure instanced attributes were used when appropriate.
 - Fixed tooltip z-index bug by switching a custom implementation to the MUI `<Popper/>` component.
+- Updated styles of `<ChannelSelectionDropdown/>` to prevent text cutoff.
 
 ## [1.1.16](https://www.npmjs.com/package/vitessce/v/1.1.16) - 2021-10-26
 
