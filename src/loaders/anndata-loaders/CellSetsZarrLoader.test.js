@@ -12,7 +12,7 @@ describe('loaders/CellSetsZarrLoader', () => {
           ['CD19+', 'CD19-', 'CD19-', 'Retinal bipolar neuron'],
         ],
       ],
-      [undefined]
+      [undefined],
     ];
     const options = [
       { groupName: 'Subclass Levels', setName: ['obs/L1', 'obs/L2', 'obs/L3'] },
@@ -78,7 +78,7 @@ describe('loaders/CellSetsZarrLoader', () => {
       [
         ['Immune', 'Immune', 'Immune', 'Neuron'],
       ],
-      [undefined]
+      [undefined],
     ];
     const options = [
       { groupName: 'Subclass Level 1', setName: 'obs/L1' },
@@ -121,7 +121,7 @@ describe('loaders/CellSetsZarrLoader', () => {
       ],
       [
         [0.25, 0.5, 0.6, 0.1],
-      ]
+      ],
     ];
     const options = [
       { groupName: 'Subclass Level 1', setName: 'obs/L1' },
