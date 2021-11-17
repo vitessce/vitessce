@@ -3,7 +3,7 @@ import Select from '@material-ui/core/Select';
 import { useStyles } from './styles';
 
 export default function OptionSelect(props) {
-  const { classes: classesProp = {} } = props
+  const { classes: classesProp = {} } = props;
   const classes = useStyles();
   return (
     <Select
