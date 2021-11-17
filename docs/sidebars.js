@@ -1,11 +1,14 @@
 module.exports = {
   docs: [
     {
+      type: 'doc',
+      id: 'introduction'
+    },
+    {
       type: 'category',
-      label: 'Getting Started',
+      label: 'Concepts',
       collapsed: false,
       items: [
-        'introduction',
         'components',
         'data-types-file-types',
         'coordination',

@@ -150,9 +150,9 @@ For more information about the coordination types that are available, please vis
 ### `coordinationSpace`
 - Type: `object`
 
-The coordination space stores the values associated with each coordination object. It may be helpful to recall that the coordination **space** is analogous to computer memory which stores values of variables, and the coordination **scope names** are analogous to references to different locations in memory.
+The [coordination space](/docs/coordination/#coordination-space) stores the values associated with each [coordination object](/docs/coordination/#coordination-object). It may be helpful to recall that the coordination **space** is analogous to computer memory which stores values of variables, and the coordination **scope names** are analogous to references to different locations in memory.
 
-The keys of each object (at the first level) in the coordination space represent coordination types. The keys of each coordination type object represent coordination scope names. The types of values that each coordination scope can take can be as simple as a single number or as complex as an array or object, and depend on the types of values supported by its coordination type.
+The keys of each object (at the first level) in the coordination space represent [coordination types](/docs/coordination/#coordination-type). The keys of each coordination type object represent [coordination scope](/docs/coordination/#coordination-scope) names. The types of values that each coordination scope can take can be as simple as a single number or as complex as an array or object, and depend on the types of values supported by its coordination type.
 
 ```json
 ...,

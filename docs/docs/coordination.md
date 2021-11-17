@@ -16,6 +16,8 @@ The coordination model can be represented as a graph in which there are three ty
 
 ## Glossary
 
+The following terms have been adapted from the information visualization literature and are used throughout the Vitessce documentation.
+
 ### Coordination Model
 The approach or architecture used to achieve view coordination ([Roberts 2007](https://kar.kent.ac.uk/14569/1/Coordinated_%26_Multiple.pdf)).
 
