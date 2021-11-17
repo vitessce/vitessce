@@ -89,7 +89,7 @@ export function dataToCellSetsTree(data, options) {
       levelZeroNode.children = levelOneNodes;
     } else {
       // Single-level case.
-      const uniqueCellSetIds = Array(...new Set(cellSetIds)).sort();
+      const uniqueCellSetIds = Array.from(new Set(cellSetIds)).sort();
       const clusters = {};
       // eslint-disable-next-line no-return-assign
       uniqueCellSetIds.forEach(id => (clusters[id] = { name: id, set: [] }));
