@@ -9,6 +9,7 @@ export const useSelectStyles = makeStyles(() => ({
   selectRoot: {
     padding: 0,
     height: 'auto',
+    margin: '4px 0',
   },
 }));
 
