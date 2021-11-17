@@ -4,10 +4,10 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Slider from '@material-ui/core/Slider';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import Select from '@material-ui/core/Select';
 import { capitalize } from '../../utils';
 import { useStyles } from '../shared-plot-options/styles';
 import OptionsContainer from '../shared-plot-options/OptionsContainer';
+import OptionSelect from '../shared-plot-options/OptionSelect';
 import CellColorEncodingOption from '../shared-plot-options/CellColorEncodingOption';
 import { GLSL_COLORMAPS } from '../../layers/constants';
 
@@ -138,8 +138,7 @@ export default function ScatterplotOptions(props) {
           {observationsLabelNice} Radius Mode
         </TableCell>
         <TableCell className={classes.inputCell}>
-          <Select
-            native
+          <OptionSelect
             className={classes.select}
             value={cellRadiusMode}
             onChange={handleCellRadiusModeChange}
@@ -149,7 +148,7 @@ export default function ScatterplotOptions(props) {
           >
             <option value="auto">Auto</option>
             <option value="manual">Manual</option>
-          </Select>
+          </OptionSelect>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -175,8 +174,7 @@ export default function ScatterplotOptions(props) {
           {observationsLabelNice} Opacity Mode
         </TableCell>
         <TableCell className={classes.inputCell}>
-          <Select
-            native
+          <OptionSelect
             className={classes.select}
             value={cellOpacityMode}
             onChange={handleCellOpacityModeChange}
@@ -186,7 +184,7 @@ export default function ScatterplotOptions(props) {
           >
             <option value="auto">Auto</option>
             <option value="manual">Manual</option>
-          </Select>
+          </OptionSelect>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -212,8 +210,7 @@ export default function ScatterplotOptions(props) {
           Gene Expression Colormap
         </TableCell>
         <TableCell className={classes.inputCell}>
-          <Select
-            native
+          <OptionSelect
             className={classes.select}
             value={geneExpressionColormap}
             onChange={handleGeneExpressionColormapChange}
@@ -224,7 +221,7 @@ export default function ScatterplotOptions(props) {
             {GLSL_COLORMAPS.map(cmap => (
               <option key={cmap} value={cmap}>{cmap}</option>
             ))}
-          </Select>
+          </OptionSelect>
         </TableCell>
       </TableRow>
       <TableRow>
