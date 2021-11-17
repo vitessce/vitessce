@@ -1,6 +1,7 @@
 ## In Progress
 
 ### Added
+- Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
 
 ### Changed
 - Updated the `build-lib:prod` npm script in `package.json` to generate the `esm` build in addition to the `umd` build.
