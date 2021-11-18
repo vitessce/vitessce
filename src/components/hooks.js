@@ -257,3 +257,16 @@ export function useExpressionValueGetter({ attrs, expressionData }) {
   }, [cellIdMap, expressionData]);
   return getExpressionValue;
 }
+
+export function useCellSetScoreGetter(cellColors) {
+  // Set up a getter function for cell set score values, to be used
+  // by the DeckGL layer to obtain values for instanced attributes.
+  const getCellSetScoreValue = useCallback((entry) => {
+    const cellId = entry[0];
+    if (cellColors.has(cellId)) {
+      return cellColors.get(cellId);
+    }
+    return 0;
+  }, [cellColors]);
+  return getCellSetScoreValue;
+}

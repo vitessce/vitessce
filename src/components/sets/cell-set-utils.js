@@ -427,6 +427,34 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
 }
 
 /**
+ * Given a tree with state, get the cellIds and cellColors,
+ * based on the nodes currently marked as "visible".
+ * @param {object} currTree A tree object.
+ *  @param {array} selectedNamePaths Array of arrays of strings,
+ * representing set "paths".
+ * @returns {array} Tuple of [cellIds, cellColors]
+ * where cellIds is an array of strings,
+ * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
+ */
+export function treeToScores(currTree, selectedNamePaths) {
+  let cellColorsArray = [];
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      cellColorsArray = [
+        ...cellColorsArray,
+        ...nodeSet.map(([cellId, prob]) => [
+          cellId,
+          (isNil(prob) ? 0 : prob),
+        ]),
+      ];
+    }
+  });
+  return new Map(cellColorsArray);
+}
+
+/**
  * Given a tree with state, get an array of
  * objects with cellIds and cellColors,
  * based on the nodes currently marked as "visible".

@@ -168,7 +168,9 @@ export default function CellSetsManagerSubscriber(props) {
     if (lzn) {
       const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
       setCellSetSelection(newCellSetSelection);
-      setCellSetColorEncoding();
+      if (cellColorEncoding === 'geneSelection') {
+        setCellSetColorEncoding();
+      }
     }
   }
 

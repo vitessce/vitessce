@@ -35,6 +35,7 @@ export default function CellColorEncodingOption(props) {
           }}
         >
           <option value="cellSetSelection">Cell Sets</option>
+          <option value="cellSetSelectionScore">Cell Set Score</option>
           <option value="geneSelection">Gene Expression</option>
         </OptionSelect>
       </TableCell>

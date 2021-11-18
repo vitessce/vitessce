@@ -28,8 +28,8 @@ const makeDefaultGetCellPosition = mapping => (cellEntry) => {
   return [mappedCell[0], -mappedCell[1], 0];
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
-const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
-  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || getDefaultColor(theme);
+const makeDefaultGetCellColors = (cellColors, theme, cellColorEncoding) => (cellEntry) => {
+  const [r, g, b, a] = (cellColors && cellColorEncoding !== 'cellSetSelectionScore' && cellColors.get(cellEntry[0])) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 
@@ -97,12 +97,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       setComponentHover,
       getCellIsSelected,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, theme),
+      cellColorEncoding,
+      getCellColor = makeDefaultGetCellColors(cellColors, theme, cellColorEncoding),
       getExpressionValue,
+      getCellSetScoreValue,
       onCellClick,
       geneExpressionColormap,
       geneExpressionColormapRange = [0.0, 1.0],
-      cellColorEncoding,
     } = this.props;
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
@@ -122,6 +123,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getLineColor: getCellColor,
       getRadius: 1,
       getExpressionValue,
+      getCellSetScoreValue,
       getLineWidth: 0,
       extensions: [
         new ScaledExpressionExtension(),
@@ -130,6 +132,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
       isExpressionMode: (cellColorEncoding === 'geneSelection'),
+      isCellSetScoreMode: (cellColorEncoding === 'cellSetSelectionScore'),
       colormap: geneExpressionColormap,
       onClick: (info) => {
         if (onCellClick) {
@@ -138,6 +141,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       },
       updateTriggers: {
         getExpressionValue,
+        getCellSetScoreValue,
         getFillColor: [cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
         getCellIsSelected,

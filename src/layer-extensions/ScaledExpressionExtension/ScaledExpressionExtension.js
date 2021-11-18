@@ -10,7 +10,9 @@ const defaultProps = {
   colorScaleLo: { type: 'number', value: 0.0, compare: true },
   colorScaleHi: { type: 'number', value: 1.0, compare: true },
   isExpressionMode: false,
+  isCellSetScoreMode: false,
   getExpressionValue: { type: 'accessor', value: 0 },
+  getCellSetScoreValue: { type: 'accessor', value: 0 },
   getSelectionState: { type: 'accessor', value: 0.0 },
 };
 
@@ -83,6 +85,19 @@ export default class ScaledExpressionExtension extends LayerExtension {
           divisor: Object.values(attributeManager.attributes)[0].settings.divisor,
         },
       });
+      attributeManager.add({
+        cellSetScore: {
+          type: GL.FLOAT,
+          size: 1,
+          transition: true,
+          accessor: 'getCellSetScoreValue',
+          defaultValue: 1,
+          // PolygonLayer fill needs not-intsanced attribute but
+          // ScatterplotLayer and the PolygonLayer stroke needs instanced.
+          // So use another attribute's divisor property as a proxy for this divisor.
+          divisor: Object.values(attributeManager.attributes)[0].settings.divisor,
+        },
+      });
     }
   }
 
@@ -91,6 +106,7 @@ export default class ScaledExpressionExtension extends LayerExtension {
       colorScaleLo,
       colorScaleHi,
       isExpressionMode,
+      isCellSetScoreMode,
     } = this.props;
     const {
       topModel, sideModel, models, model,
@@ -98,6 +114,7 @@ export default class ScaledExpressionExtension extends LayerExtension {
     const uniforms = {
       uColorScaleRange: [colorScaleLo, colorScaleHi],
       uIsExpressionMode: isExpressionMode,
+      uIsCellSetScoreMode: isCellSetScoreMode,
     };
     // ScatterplotLayer model
     // eslint-disable-next-line no-unused-expressions

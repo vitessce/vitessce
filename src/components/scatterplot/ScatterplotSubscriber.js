@@ -6,7 +6,8 @@ import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
 import {
-  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
+  useDeckCanvasSize, useReady, useUrls,
+  useExpressionValueGetter, useCellSetScoreGetter,
 } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
@@ -268,6 +269,7 @@ export default function ScatterplotSubscriber(props) {
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
+  const getCellSetScoreValue = useCellSetScoreGetter(cellColors);
 
   return (
     <TitleInfo
@@ -337,6 +339,7 @@ export default function ScatterplotSubscriber(props) {
         }}
         updateViewInfo={setComponentViewInfo}
         getExpressionValue={getExpressionValue}
+        getCellSetScoreValue={getCellSetScoreValue}
         getCellIsSelected={getCellIsSelected}
 
       />

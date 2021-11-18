@@ -25,10 +25,12 @@ const vs = glsl`
 
 // Custom attributes for Vitessce:
 attribute float expressionValue;
+attribute float cellSetScore;
 
 // Custom uniforms for Vitessce:
 uniform vec2 uColorScaleRange;
 uniform bool uIsExpressionMode;
+uniform bool uIsCellSetScoreMode;
 
 `;
 
@@ -38,6 +40,11 @@ const inject = {
       float normalizedExpressionValue = expressionValue / 255.0;
       float scaledExpressionValue = (normalizedExpressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
       color.rgb = COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)).rgb;
+    }
+    if(uIsCellSetScoreMode) {
+      float normalizedScoreValue = cellSetScore;
+      float scaledScoreValue = (normalizedScoreValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
+      color.rgb = COLORMAP_FUNC(clamp(scaledScoreValue, 0.0, 1.0)).rgb;
     }
   `,
 };

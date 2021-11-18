@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
-import { treeToCellColorsBySetNames } from './sets/cell-set-utils';
+import { treeToCellColorsBySetNames, treeToScores } from './sets/cell-set-utils';
 
 // The functions defined here have been adapted from d3-interpolate,
 // d3-color, and d3-scale-chromatic.
@@ -103,12 +103,16 @@ export function getCellColors(params) {
       colors.set(expressionDataAttrs.rows[i], cellColor);
     }
     return colors;
-  } if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
+  }
+  if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
     // Cell sets can potentially lack set colors since the color property
     // is not a required part of the schema.
     // The `initializeSets` function fills in any empty colors
     // with defaults and returns the processed tree object.
     return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor, theme);
+  }
+  if (cellColorEncoding === 'cellSetSelectionScore' && cellSetSelection && cellSets) {
+    return treeToScores(cellSets, cellSetSelection);
   }
   return new Map();
 }
