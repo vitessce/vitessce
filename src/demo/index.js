@@ -10,5 +10,5 @@ const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.has('small')) {
   renderComponent(createApp({ rowHeight: 100 }), 'small-app');
 } else {
-  renderComponent(createApp({ showBetaHeader: true }), 'full-app');
+  renderComponent(createApp(), 'full-app');
 }
