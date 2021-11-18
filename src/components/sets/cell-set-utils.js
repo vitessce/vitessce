@@ -520,7 +520,7 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor, 
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = setColor.find(d => isEqual(d.path, setNamePath))?.color
+      const nodeColor = setColor?.find(d => isEqual(d.path, setNamePath))?.color
         || getDefaultColor(theme);
       sizes.push({
         key: generateKey(),

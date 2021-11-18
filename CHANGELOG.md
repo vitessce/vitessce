@@ -32,6 +32,7 @@
 
 ### Added
 - PR template including reminder for potential R and python package PR's when version schema changes.
+- Added a new documentation site.
 
 ### Changed
 - Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.
