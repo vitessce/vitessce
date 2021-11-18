@@ -101,3 +101,7 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-11-11: [release_1.1.17](https://s3.amazonaws.com/vitessce-data/demos/2021-11-11/e8bf561/index.html)
 - 2021-11-12: [release_1.1.17](https://s3.amazonaws.com/vitessce-data/demos/2021-11-12/35452ec/index.html)
 - 2021-11-17: [release_1.1.17](https://s3.amazonaws.com/vitessce-data/demos/2021-11-17/db07d05/index.html)
+
+After this point, we push the Vitessce documentation to vitessce.io rather than the minimal Vitessce demo website.
+
+- 2021-11-18: [keller-mark/docs](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2021-11-18/11f9decb/index.html)

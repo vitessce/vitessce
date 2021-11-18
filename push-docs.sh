@@ -52,7 +52,7 @@ aws s3 cp --recursive $VERSIONED_DIST_DIR s3://$BUCKET/$VERSIONED_DOCS_URL_PATH
 VERSIONED_TARGET_URL="http://$BUCKET.s3-website-us-east-1.amazonaws.com/$VERSIONED_DOCS_URL_PATH/index.html"
 COPY_TARGET_URL="https://s3.amazonaws.com/$ROOT_DOCS_URL_PATH/index.html"
 
-echo "- $DATE: [$BRANCH]($VERSIONED_TARGET_URL)" >> ../DOCS.md
+echo "- $DATE: [$BRANCH]($VERSIONED_TARGET_URL)" >> ../DEMOS.md
 
 echo "Deployed to $VERSIONED_TARGET_URL"
 echo "Copy to $COPY_TARGET_URL"
