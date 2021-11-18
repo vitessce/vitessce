@@ -215,3 +215,50 @@ export function createWarningComponent(props) {
     );
   };
 }
+
+export function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  // eslint-disable-next-line no-restricted-properties
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+export const getStatsForResolution = (loader, resolution) => {
+  const { shape, labels } = loader[resolution];
+  const height = shape[labels.indexOf('y')];
+  const width = shape[labels.indexOf('x')];
+  const depth = shape[labels.indexOf('z')];
+  // eslint-disable-next-line no-bitwise
+  const depthDownsampled = Math.max(1, depth >> resolution);
+  // Check memory allocation limits for Float32Array (used in XR3DLayer for rendering)
+  const totalBytes = 4 * height * width * depthDownsampled;
+  return {
+    height, width, depthDownsampled, totalBytes,
+  };
+};
+
+export const canLoadResolution = (loader, resolution) => {
+  const {
+    totalBytes, height, width, depthDownsampled,
+  } = getStatsForResolution(
+    loader,
+    resolution,
+  );
+  const maxHeapSize = window.performance?.memory
+    && window.performance?.memory?.jsHeapSizeLimit / 2;
+  const maxSize = maxHeapSize || (2 ** 31) - 1;
+  // 2048 is a normal texture size limit although some browsers go larger.
+  return (
+    totalBytes < maxSize
+    && height <= 2048
+    && depthDownsampled <= 2048
+    && width <= 2048
+    && depthDownsampled > 1
+  );
+};

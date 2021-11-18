@@ -5,7 +5,7 @@ async function getSingleSelectionStats2D({ loader, selection }) {
   const data = Array.isArray(loader) ? loader[loader.length - 1] : loader;
   const raster = await data.getRaster({ selection });
   const selectionStats = getChannelStats(raster.data);
-  const { domain, autoSliders: slider } = selectionStats;
+  const { domain, contrastLimits: slider } = selectionStats;
   return { domain, slider };
 }
 
@@ -33,19 +33,18 @@ async function getSingleSelectionStats3D({ loader, selection }) {
     ],
     slider: [
       Math.min(
-        stats0.autoSliders[0],
-        statsMid.autoSliders[0],
-        statsTop.autoSliders[0],
+        stats0.contrastLimits[0],
+        statsMid.contrastLimits[0],
+        statsTop.contrastLimits[0],
       ),
       Math.max(
-        stats0.autoSliders[1],
-        statsMid.autoSliders[1],
-        statsTop.autoSliders[1],
+        stats0.contrastLimits[1],
+        statsMid.contrastLimits[1],
+        statsTop.contrastLimits[1],
       ),
     ],
   };
 }
-
 
 /**
  * Get bounding cube for a given loader i.e [[0, width], [0, height], [0, depth]]
@@ -103,7 +102,6 @@ export function getBoundingCube(loader) {
   return [xSlice, ySlice, zSlice];
 }
 
-
 export function abbreviateNumber(value) {
   // Return an abbreviated representation of value, in 5 characters or less.
 
@@ -111,69 +109,21 @@ export function abbreviateNumber(value) {
   let maxNaiveDigits = maxLength;
 
   /* eslint-disable no-plusplus */
-  if (!Number.isInteger(value)) { --maxNaiveDigits; } // Wasted on "."
-  if (value < 1) { --maxNaiveDigits; } // Wasted on "0."
+  if (!Number.isInteger(value)) {
+    --maxNaiveDigits;
+  } // Wasted on "."
+  if (value < 1) {
+    --maxNaiveDigits;
+  } // Wasted on "0."
   /* eslint-disable no-plusplus */
 
-
-  const naive = Intl.NumberFormat(
-    'en-US',
-    {
-      maximumSignificantDigits: maxNaiveDigits,
-      useGrouping: false,
-    },
-  ).format(value);
+  const naive = Intl.NumberFormat('en-US', {
+    maximumSignificantDigits: maxNaiveDigits,
+    useGrouping: false,
+  }).format(value);
   if (naive.length <= maxLength) return naive;
 
   // "e+9" consumes 3 characters, so if we even had two significant digits,
   // it would take take us to six characters, including the decimal point.
   return value.toExponential(0);
 }
-
-
-export function formatBytes(bytes, decimals = 2) {
-  if (bytes === 0) return '0 Bytes';
-
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  // eslint-disable-next-line no-restricted-properties
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-}
-
-export const getStatsForResolution = (loader, resolution) => {
-  const { shape, labels } = loader[resolution];
-  const height = shape[labels.indexOf('y')];
-  const width = shape[labels.indexOf('x')];
-  const depth = shape[labels.indexOf('z')];
-  // eslint-disable-next-line no-bitwise
-  const depthDownsampled = Math.max(1, depth >> resolution);
-  // Check memory allocation limits for Float32Array (used in XR3DLayer for rendering)
-  const totalBytes = 4 * height * width * depthDownsampled;
-  return {
-    height, width, depthDownsampled, totalBytes,
-  };
-};
-
-export const canLoadResolution = (loader, resolution) => {
-  const {
-    totalBytes, height, width, depthDownsampled,
-  } = getStatsForResolution(
-    loader,
-    resolution,
-  );
-  const maxHeapSize = window.performance?.memory
-    && window.performance?.memory?.jsHeapSizeLimit / 2;
-  const maxSize = maxHeapSize || (2 ** 31) - 1;
-  // 2048 is a normal texture size limit although some browsers go larger.
-  return (
-    totalBytes < maxSize
-    && height <= 2048
-    && depthDownsampled <= 2048
-    && width <= 2048
-    && depthDownsampled > 1
-  );
-};

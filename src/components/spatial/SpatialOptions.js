@@ -4,12 +4,12 @@ import debounce from 'lodash/debounce';
 import Checkbox from '@material-ui/core/Checkbox';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import Select from '@material-ui/core/Select';
 import Slider from '@material-ui/core/Slider';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import OptionsContainer from '../shared-plot-options/OptionsContainer';
 import { useStyles } from '../shared-plot-options/styles';
+import OptionsContainer from '../shared-plot-options/OptionsContainer';
 import CellColorEncodingOption from '../shared-plot-options/CellColorEncodingOption';
+import OptionSelect from '../shared-plot-options/OptionSelect';
 import { GLSL_COLORMAPS } from '../../layers/constants';
 
 const useToggleStyles = makeStyles(() => createStyles({
@@ -58,6 +58,9 @@ export default function SpatialOptions(props) {
     setGeneExpressionColormap,
     geneExpressionColormapRange,
     setGeneExpressionColormapRange,
+    canShowExpressionOptions,
+    canShowColorEncodingOption,
+    canShow3DOptions,
   } = props;
 
   function handleGeneExpressionColormapChange(event) {
@@ -76,53 +79,60 @@ export default function SpatialOptions(props) {
 
   return (
     <OptionsContainer>
-      <CellColorEncodingOption
-        observationsLabel={observationsLabel}
-        cellColorEncoding={cellColorEncoding}
-        setCellColorEncoding={setCellColorEncoding}
-      />
-      <ToggleFixedAxisButton
-        setSpatialAxisFixed={setSpatialAxisFixed}
-        spatialAxisFixed={spatialAxisFixed}
-        use3d={use3d}
-      />
-      <TableRow>
-        <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
+      {canShowColorEncodingOption ? (
+        <CellColorEncodingOption
+          observationsLabel={observationsLabel}
+          cellColorEncoding={cellColorEncoding}
+          setCellColorEncoding={setCellColorEncoding}
+        />
+      ) : null}
+      {canShow3DOptions ? (
+        <ToggleFixedAxisButton
+          setSpatialAxisFixed={setSpatialAxisFixed}
+          spatialAxisFixed={spatialAxisFixed}
+          use3d={use3d}
+        />
+      ) : null}
+      {canShowExpressionOptions ? (
+        <>
+          <TableRow>
+            <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
           Gene Expression Colormap
-        </TableCell>
-        <TableCell className={classes.inputCell}>
-          <Select
-            native
-            className={classes.select}
-            value={geneExpressionColormap}
-            onChange={handleGeneExpressionColormapChange}
-            inputProps={{
-              id: 'gene-expression-colormap-select',
-            }}
-          >
-            {GLSL_COLORMAPS.map(cmap => (
-              <option key={cmap} value={cmap}>{cmap}</option>
-            ))}
-          </Select>
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell className={classes.labelCell}>
+            </TableCell>
+            <TableCell className={classes.inputCell}>
+              <OptionSelect
+                className={classes.select}
+                value={geneExpressionColormap}
+                onChange={handleGeneExpressionColormapChange}
+                inputProps={{
+                  id: 'gene-expression-colormap-select',
+                }}
+              >
+                {GLSL_COLORMAPS.map(cmap => (
+                  <option key={cmap} value={cmap}>{cmap}</option>
+                ))}
+              </OptionSelect>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className={classes.labelCell}>
           Gene Expression Colormap Range
-        </TableCell>
-        <TableCell className={classes.inputCell}>
-          <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
-            value={geneExpressionColormapRange}
-            onChange={handleColormapRangeChangeDebounced}
-            aria-labelledby="gene-expression-colormap-range-slider"
-            valueLabelDisplay="auto"
-            step={0.005}
-            min={0.0}
-            max={1.0}
-          />
-        </TableCell>
-      </TableRow>
+            </TableCell>
+            <TableCell className={classes.inputCell}>
+              <Slider
+                classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+                value={geneExpressionColormapRange}
+                onChange={handleColormapRangeChangeDebounced}
+                aria-labelledby="gene-expression-colormap-range-slider"
+                valueLabelDisplay="auto"
+                step={0.005}
+                min={0.0}
+                max={1.0}
+              />
+            </TableCell>
+          </TableRow>
+        </>
+      ) : null}
     </OptionsContainer>
   );
 }

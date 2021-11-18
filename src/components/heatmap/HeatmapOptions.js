@@ -3,9 +3,9 @@ import debounce from 'lodash/debounce';
 import Slider from '@material-ui/core/Slider';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import Select from '@material-ui/core/Select';
 import { useStyles } from '../shared-plot-options/styles';
 import OptionsContainer from '../shared-plot-options/OptionsContainer';
+import OptionSelect from '../shared-plot-options/OptionSelect';
 import { GLSL_COLORMAPS } from '../../layers/constants';
 
 export default function HeatmapOptions(props) {
@@ -37,8 +37,7 @@ export default function HeatmapOptions(props) {
           Gene Expression Colormap
         </TableCell>
         <TableCell className={classes.inputCell}>
-          <Select
-            native
+          <OptionSelect
             className={classes.select}
             value={geneExpressionColormap}
             onChange={handleGeneExpressionColormapChange}
@@ -49,7 +48,7 @@ export default function HeatmapOptions(props) {
             {GLSL_COLORMAPS.map(cmap => (
               <option key={cmap} value={cmap}>{cmap}</option>
             ))}
-          </Select>
+          </OptionSelect>
         </TableCell>
       </TableRow>
       <TableRow>

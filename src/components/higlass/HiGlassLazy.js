@@ -7,7 +7,6 @@ import { useGridItemSize } from '../hooks';
 import { useCoordination } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
-
 // Register the zarr-multivec plugin data fetcher.
 // References:
 // https://github.com/higlass/higlass-register

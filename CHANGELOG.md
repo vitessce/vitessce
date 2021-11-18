@@ -1,13 +1,49 @@
 ## In Progress
 
 ### Added
+
+### Changed
+- Usage of native dynamic imports for HiGlass.
+
+## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
+
+### Added
+
+### Changed
+- Updated the `build-lib:prod` npm script in `package.json` to generate the `esm` build in addition to the `umd` build.
+- Fixed bug preventing opening of the popper menu for channel colors in the spatial layer controller component.
+- Fixed bug where the border of polygons did not show expression values.  Needed to make sure instanced attributes were used when appropriate.
+- Fixed tooltip z-index bug by switching a custom implementation to the MUI `<Popper/>` component.
+- Changed `Array(...new Set(x))` to `Array.from(new Set(x))` in `CellSetsZarrLoader.js` to prevent compilation of the former to `Array.apply(void 0, new Set(x))`.
+- Updated styles of `<ChannelSelectionDropdown/>` to prevent text cutoff.
+
+## [1.1.16](https://www.npmjs.com/package/vitessce/v/1.1.16) - 2021-10-26
+
+### Added
+- Added support for passing an array to `setNames` within `options` objects for the `anndata-cell-sets.zarr` file type, which enables creating cell set hierarchies based on coarse-to-fine columns in `adata.obs`.
+- Add esbuild script to generate ES Module library bundle
+
+### Changed
+- Fix bitmask picking/highlighting.
+- Upgrade `Viv` to 0.11.0
+- Fixed radius size of "edit handle" points rendered by the nebula.gl `EditableGeoJsonLayer` within `SelectionLayer`.
+- Fixed incorrect cacheing of data sources by URL when URL is undefined (for instance, the `raster.json` data type may use `options` in place of `url`).
+
+## [1.1.15](https://www.npmjs.com/package/vitessce/v/1.1.15) - 2021-09-21
+
+### Added
 - PR template including reminder for potential R and python package PR's when version schema changes.
+- Added a new documentation site.
 
 ### Changed
 - Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.
 - deck.gl should be pinned to minor version
 - Upgrade Viv to 0.10.6 and deck.gl to 8.5
-- Usage native dynamic imports for HiGlass
+- Don't show image layer buttons if there is only one layer.
+- Fix spatial options to only show what is necessary and display at all if necessary.
+- Fix bug introduced by #1037 that broke channel removal/addition.
+- Fix setting default schema values for properties that are not in the current deck.gl view state (for example, the z direction for `target`).
+- Moved creation of `useViewConfigStore` and `useAuxiliaryStore` to the `ViewConfigProvider` and `AuxiliaryProvider` contexts (rather than creating global stores).
 
 ## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01
 

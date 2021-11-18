@@ -425,6 +425,7 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
                   require.resolve('babel-preset-react-app/dependencies'),
                   { helpers: true },
                 ],
+                { plugins: ['@babel/plugin-proposal-class-properties'] },
               ],
               cacheDirectory: true,
               // See #6846 for context on why cacheCompression is disabled

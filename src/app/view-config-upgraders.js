@@ -273,3 +273,15 @@ export function upgradeFrom1_0_3(config) {
     version: '1.0.4',
   };
 }
+
+// Added in version 1.0.5:
+// - Support for an array of strings in the setName property within options array items
+//   for the anndata-cell-sets.zarr file type.
+export function upgradeFrom1_0_4(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.5',
+  };
+}

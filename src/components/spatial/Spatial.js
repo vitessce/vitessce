@@ -9,9 +9,7 @@ import { cellLayerDefaultProps, PALETTE, getDefaultColor } from '../utils';
 import { getSourceFromLoader } from '../../utils';
 import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
-import {
-  createCellsQuadTree,
-} from '../shared-spatial-scatterplot/quadtree';
+import { createCellsQuadTree } from '../shared-spatial-scatterplot/quadtree';
 import { ScaledExpressionExtension } from '../../layer-extensions';
 
 const CELLS_LAYER_ID = 'cells-layer';
@@ -33,9 +31,7 @@ const makeDefaultGetCellIsSelected = (cellSelection) => {
     // For performance, convert the Array to a Set instance.
     // Set.has() is faster than Array.includes().
     const cellSelectionSet = new Set(cellSelection);
-    return cellEntry => (
-      cellSelectionSet.has(cellEntry[0]) ? 1.0 : 0.0
-    );
+    return cellEntry => (cellSelectionSet.has(cellEntry[0]) ? 1.0 : 0.0);
   }
   return () => 0.0;
 };
@@ -92,9 +88,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
-      data: new Uint8Array(2048 * 2048 * 3).map(
-        (_, j) => (j < 4 ? 0 : Math.round(255 * Math.random())),
-      ),
+      data: new Uint8Array(2048 * 2048 * 3)
+        .map((_, j) => (j < 4 ? 0 : Math.round(255 * Math.random()))),
       // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
       height: 2048,
       width: 2048,
@@ -142,9 +137,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getExpressionValue,
       geneExpressionColormap,
     } = this.props;
-    const filteredCellsEntries = (cellFilter
+    const filteredCellsEntries = cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
-      : cellsEntries);
+      : cellsEntries;
 
     // Graphics rendering has the y-axis positive going south,
     // so we need to flip it for rendering tooltips.
@@ -182,7 +177,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       lineWidthScale,
       lineWidthMaxPixels,
       getExpressionValue,
-      extensions: [new ScaledExpressionExtension({ instanced: false })],
+      extensions: [new ScaledExpressionExtension()],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
       isExpressionMode: cellColorEncoding === 'geneSelection',
@@ -255,7 +250,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
-    const { viewState, getCellCoords = defaultGetCellCoords, setCellSelection } = this.props;
+    const {
+      viewState,
+      getCellCoords = defaultGetCellCoords,
+      setCellSelection,
+    } = this.props;
     const { tool } = this.state;
     const { cellsQuadTree } = this;
     return getSelectionLayers(
@@ -270,7 +269,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createScaleBarLayer() {
     const {
-      viewState, width, height, imageLayerLoaders = {}, layers,
+      viewState,
+      width,
+      height,
+      imageLayerLoaders = {},
+      layers,
     } = this.props;
     const use3d = (layers || []).some(i => i.use3d);
     // Just get the first layer/loader since they should all be spatially
@@ -301,21 +304,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createImageLayer(rawLayerDef, loader, i) {
     const layerDef = {
       ...rawLayerDef,
-      channels: rawLayerDef.channels
-        .filter(channel => channel.selection && channel.color && channel.slider),
+      channels: rawLayerDef.channels.filter(
+        channel => channel.selection && channel.color && channel.slider,
+      ),
     };
 
-    // We need to keep the same loaderSelection array reference,
+    // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
-    // since loaderSelection is one of its `updateTriggers`.
+    // since selections is one of its `updateTriggers`.
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
-    let loaderSelection;
+    let selections;
     const nextLoaderSelection = layerDef.channels.map(c => c.selection);
     const prevLoaderSelection = this.layerLoaderSelections[layerDef.index];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
-      loaderSelection = prevLoaderSelection;
+      selections = prevLoaderSelection;
     } else {
-      loaderSelection = nextLoaderSelection;
+      selections = nextLoaderSelection;
       this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
     }
     const layerProps = {
@@ -330,17 +334,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ySlice: layerDef.ySlice,
       zSlice: layerDef.zSlice,
       callback: layerDef.callback,
-      visibilities: layerDef.channels.map(
-        c => (!layerDef.visible && typeof layerDef.visible === 'boolean' ? false : c.visible),
-      ),
+      visibilities: layerDef.channels.map(c => (!layerDef.visible && typeof layerDef.visible === 'boolean'
+        ? false
+        : c.visible)),
     };
 
     if (!loader || !layerProps) return null;
-    const { metadata: { transform }, data } = loader;
+    const {
+      metadata: { transform },
+      data,
+    } = loader;
     let modelMatrix;
     if (transform) {
       const { scale, translate } = transform;
-      modelMatrix = new Matrix4().translate([translate.x, translate.y, 0]).scale(scale);
+      modelMatrix = new Matrix4()
+        .translate([translate.x, translate.y, 0])
+        .scale(scale);
     } else if (layerDef.modelMatrix) {
       // eslint-disable-next-line prefer-destructuring
       modelMatrix = new Matrix4(layerDef.modelMatrix);
@@ -355,13 +364,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // `bitmask` is used by the AbstractSpatialOrScatterplot
         // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
         id: `bitmask-layer-${layerDef.index}-${i}`,
-        channelIsOn: layerProps.visibilities,
+        channelsVisible: layerProps.visibilities,
         opacity: layerProps.opacity,
         modelMatrix,
         hoveredCell: Number(this.props.cellHighlight),
         renderSubLayers: renderSubBitmaskLayers,
         loader: data,
-        loaderSelection,
+        selections,
         // For some reason, deck.gl doesn't recognize the prop diffing
         // unless these are separated out.  I don't think it's a bug, just
         // has to do with the fact that we don't have it in the `defaultProps`,
@@ -378,20 +387,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
         expressionData: this.expression.data,
       });
     }
-    const [Layer, layerLoader] = getLayerLoaderTuple(
-      data,
-      layerDef.use3d,
-    );
+    const [Layer, layerLoader] = getLayerLoaderTuple(data, layerDef.use3d);
 
     return new Layer({
       loader: layerLoader,
-      id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${
-        layerDef.index
-      }-${i}`,
-      colorValues: layerProps.colors,
-      sliderValues: layerProps.sliders,
-      loaderSelection,
-      channelIsOn: layerProps.visibilities,
+      id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,
+      colors: layerProps.colors,
+      contrastLimits: layerProps.sliders,
+      selections,
+      channelsVisible: layerProps.visibilities,
       opacity: layerProps.opacity,
       colormap: layerProps.colormap,
       modelMatrix,
@@ -407,24 +411,26 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createImageLayers() {
-    const { layers, imageLayerLoaders = {}, rasterLayersCallbacks = [] } = this.props;
+    const {
+      layers,
+      imageLayerLoaders = {},
+      rasterLayersCallbacks = [],
+    } = this.props;
     const use3d = (layers || []).some(i => i.use3d);
     const use3dIndex = (layers || []).findIndex(i => i.use3d);
     return (layers || [])
-      .filter(layer => (layer.type === 'raster' || layer.type === 'bitmask'))
+      .filter(layer => layer.type === 'raster' || layer.type === 'bitmask')
       .filter(layer => (use3d ? layer.use3d === use3d : true))
       .map((layer, i) => this.createImageLayer(
         { ...layer, callback: rasterLayersCallbacks[use3d ? use3dIndex : i] },
-        imageLayerLoaders[layer.index], i,
+        imageLayerLoaders[layer.index],
+        i,
       ));
   }
 
   getLayers() {
     const {
-      imageLayers,
-      cellsLayer,
-      neighborhoodsLayer,
-      moleculesLayer,
+      imageLayers, cellsLayer, neighborhoodsLayer, moleculesLayer,
     } = this;
     return [
       ...imageLayers,
@@ -437,10 +443,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellsData() {
-    const {
-      cells = {},
-      getCellCoords = defaultGetCellCoords,
-    } = this.props;
+    const { cells = {}, getCellCoords = defaultGetCellCoords } = this.props;
     const cellsEntries = Object.entries(cells);
     this.cellsEntries = cellsEntries;
     this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
@@ -461,8 +464,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const { size } = this.props.cellColors;
     if (typeof size === 'number') {
       const cellIds = this.props.cellColors.keys();
-      color.data = new Uint8Array(color.height * color.width * 3)
-        .fill(getDefaultColor(this.props.theme)[0]);
+      color.data = new Uint8Array(color.height * color.width * 3).fill(
+        getDefaultColor(this.props.theme)[0],
+      );
       // 0th cell id is the empty space of the image i.e black color.
       color.data[0] = 0;
       color.data[1] = 0;
@@ -483,18 +487,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdateExpressionData() {
     const { expressionData } = this.props;
     if (expressionData[0]?.length) {
-      this.expression.data = new Uint8Array(this.expression.height * this.expression.width);
+      this.expression.data = new Uint8Array(
+        this.expression.height * this.expression.width,
+      );
       this.expression.data.set(expressionData[0]);
     }
   }
 
   onUpdateMoleculesData() {
     const { molecules = {} } = this.props;
-    const moleculesEntries = Object
-      .entries(molecules)
-      .flatMap(([molecule, coords], index) => coords.map(([x, y]) => [
-        x, y, index, molecule,
-      ]));
+    const moleculesEntries = Object.entries(molecules).flatMap(
+      ([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]),
+    );
     this.moleculesEntries = moleculesEntries;
   }
 
@@ -510,14 +514,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   onUpdateNeighborhoodsData() {
     const { neighborhoods = {} } = this.props;
-    const neighborhoodsEntries = Object
-      .entries(neighborhoods);
+    const neighborhoodsEntries = Object.entries(neighborhoods);
     this.neighborhoodsEntries = neighborhoodsEntries;
   }
 
   onUpdateNeighborhoodsLayer() {
     const { layers } = this.props;
-    const layerDef = (layers || []).find(layer => layer.type === 'neighborhoods');
+    const layerDef = (layers || []).find(
+      layer => layer.type === 'neighborhoods',
+    );
     if (layerDef) {
       this.neighborhoodsLayer = this.createNeighborhoodsLayer(layerDef);
     } else {
@@ -546,23 +551,25 @@ class Spatial extends AbstractSpatialOrScatterplot {
   componentDidUpdate(prevProps) {
     this.viewInfoDidUpdate();
 
-    const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
+    const shallowDiff = propName => prevProps[propName] !== this.props[propName];
     if (['cells'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
       this.forceUpdate();
     }
 
-    if ([
-      'layers',
-      'cells',
-      'cellFilter',
-      'cellSelection',
-      'cellColors',
-      'geneExpressionColormapRange',
-      'cellColorEncoding',
-      'geneExpressionColormap',
-    ].some(shallowDiff)) {
+    if (
+      [
+        'layers',
+        'cells',
+        'cellFilter',
+        'cellSelection',
+        'cellColors',
+        'geneExpressionColormapRange',
+        'cellColorEncoding',
+        'geneExpressionColormap',
+      ].some(shallowDiff)
+    ) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
       this.forceUpdate();
@@ -632,5 +639,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
  * access the grandchild DeckGL ref,
  * but we are using a class component.
  */
-const SpatialWrapper = forwardRef((props, deckRef) => <Spatial {...props} deckRef={deckRef} />);
+const SpatialWrapper = forwardRef((props, deckRef) => (
+  <Spatial {...props} deckRef={deckRef} />
+));
 export default SpatialWrapper;
