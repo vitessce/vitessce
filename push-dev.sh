@@ -20,8 +20,12 @@ echo '{
 npm run build-demo:prod
 
 DIST_DIR='dist-demo/'
-# and add an error page for vitessce.io...
+# and add an error page for dev.vitessce.io
 cp error.html $DIST_DIR
+# and add a robots.txt since we do not want to publicize dev.vitessce.io
+echo 'User-agent: *
+Disallow: /' > $DIST_DIR/robots.txt
+
 # and push to S3.
 aws s3 cp --recursive $DIST_DIR s3://$DEMO_URL_PATH
 TARGET_URL="https://s3.amazonaws.com/$DEMO_URL_PATH/index.html"
