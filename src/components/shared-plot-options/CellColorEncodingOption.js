@@ -1,8 +1,8 @@
 import React from 'react';
-import Select from '@material-ui/core/Select';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import { capitalize } from '../../utils';
+import OptionSelect from './OptionSelect';
 import { useStyles } from './styles';
 
 export default function CellColorEncodingOption(props) {
@@ -26,8 +26,7 @@ export default function CellColorEncodingOption(props) {
         {observationsLabelNice} Color Encoding
       </TableCell>
       <TableCell className={classes.inputCell}>
-        <Select
-          native
+        <OptionSelect
           className={classes.select}
           value={cellColorEncoding}
           onChange={handleColorEncodingChange}
@@ -37,7 +36,7 @@ export default function CellColorEncodingOption(props) {
         >
           <option value="cellSetSelection">Cell Sets</option>
           <option value="geneSelection">Gene Expression</option>
-        </Select>
+        </OptionSelect>
       </TableCell>
     </TableRow>
   );

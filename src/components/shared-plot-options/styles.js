@@ -42,4 +42,8 @@ export const useStyles = makeStyles(theme => ({
       fontSize: '.875rem',
     },
   },
+  selectRoot: {
+    padding: 0,
+    height: 'auto',
+  },
 }));
