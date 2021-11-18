@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Updated deployment scripts to push the documentation site to `vitessce.io` rather than `beta.vitessce.io`.
 
 ## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
 
