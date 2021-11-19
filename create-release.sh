@@ -61,7 +61,7 @@ printf '%s\n%s\n' "
 
 " "$(cat CHANGELOG.md)" > CHANGELOG.md
 
-git add CHANGELOG.md
+git add CHANGELOG.md package.json package-lock.json
 git commit -m "Release for $NEXT_VERSION_WITH_V. Commit by create-release.sh"
 
 # Push dev and docs site.
