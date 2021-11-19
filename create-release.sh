@@ -44,12 +44,12 @@ fi
 
 DATE=`date "+%Y-%m-%d"`
 
+# Bump the version.
+NEXT_VERSION_WITH_V=$( npm version "$1" --no-git-tag-version )
+NEXT_VERSION=${NEXT_VERSION_WITH_V:1}
+
 # Make a new branch for the release.
 git checkout -b "release-$NEXT_VERSION_WITH_V"
-
-# Bump the version.
-NEXT_VERSION_WITH_V=$( npm version "$1" )
-NEXT_VERSION=${NEXT_VERSION_WITH_V:1}
 
 # Update CHANGELOG
 printf '%s\n%s\n' "
