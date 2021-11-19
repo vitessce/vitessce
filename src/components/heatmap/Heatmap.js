@@ -398,18 +398,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   ];
 
   useEffect(() => {
-    const cellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
-
-    if (!cellColors || !cellColors.size || !cellOrdering.length) {
-      setNumCellColorTracks(1);
-    } else {
-      // will either be [R, G, B] or array of arrays of [R, G, B] if multiple tracks
-      const firstCellColors = cellColors.values().next().value;
-      const numCellColorTracks = typeof firstCellColors[0] === 'number' ? 1 : firstCellColors.length;
-      setNumCellColorTracks(numCellColorTracks);
-    }
-
-  }, [cellColors, transpose, axisTopLabels, axisLeftLabels]);
+    setNumCellColorTracks(cellColorLabels.length);
+  }, [cellColorLabels]);
 
 
   // Create the left color bar with a BitmapLayer.
