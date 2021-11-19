@@ -197,6 +197,7 @@ export default function HeatmapSubscriber(props) {
         uuid={uuid}
         expressionMatrix={expressionMatrix}
         cellColors={cellColors}
+        cellColorLabels={['clusters']}
         colormap={geneExpressionColormap}
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
