@@ -22,8 +22,10 @@ AWS_ACCT=$(aws iam list-account-aliases --query 'AccountAliases[0]')
 if [[ "$AWS_ACCT" != "gehlenborglab" ]]; then
     read -p "You are not logged into the lab account in the AWS CLI. Are you sure you want to make a release from this account? [y/n]" -n 1 -r
     echo # move to a new line
-    if ! [[ $REPLY =~ ^[Yy]$ ]]
+    if [[ $REPLY =~ ^[Yy]$ ]]
     then
+        echo "Logged into the lab account"
+    else
         exit
     fi
 fi
@@ -32,13 +34,18 @@ BRANCH=`git rev-parse --abbrev-ref HEAD`
 if [[ "$BRANCH" != "master" ]]; then
     read -p "You are not on the master branch. Are you sure you want to make a release from this branch? [y/n]" -n 1 -r
     echo # move to a new line
-    if ! [[ $REPLY =~ ^[Yy]$ ]]
+    if [[ $REPLY =~ ^[Yy]$ ]]
     then
+        echo "Continuing the release"
+    else
         exit
     fi
 fi
 
 DATE=`date "+%Y-%m-%d"`
+
+# Make a new branch for the release.
+git checkout -b "release-$NEXT_VERSION_WITH_V"
 
 # Bump the version.
 NEXT_VERSION_WITH_V=$( npm version "$1" )
@@ -54,9 +61,7 @@ printf '%s\n%s\n' "
 
 " "$(cat CHANGELOG.md)" > CHANGELOG.md
 
-# Make a new branch for the release.
-git checkout -b "release-$NEXT_VERSION_WITH_V"
-git add CHANGELOG.md package.json package-lock.json
+git add CHANGELOG.md
 git commit -m "Release for $NEXT_VERSION_WITH_V. Commit by create-release.sh"
 
 # Push dev and docs site.
