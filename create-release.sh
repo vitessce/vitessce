@@ -71,4 +71,4 @@ git add src/version.json DEMOS.md DOCS.md
 git commit -m "Demo for $NEXT_VERSION_WITH_V. Commit by create-release.sh"
 
 # Make a pull request.
-#gh pr create --draft --base master --title "Release $NEXT_VERSION_WITH_V"
+gh pr create --draft --base master --title "Release $NEXT_VERSION_WITH_V"
