@@ -1,6 +1,6 @@
-## In Progress
 
 ### Added
+- Added the `./create-release.sh` Bash script to automate some steps of the release process.
 
 ### Changed
 - Update deployment scripts to push the documentation site to `vitessce.io` and the minimal demo to `dev.vitessce.io`.
