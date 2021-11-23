@@ -429,9 +429,10 @@ const Heatmap = forwardRef((props, deckRef) => {
             color = cellColors.get(cellId);
 
             offset = (transpose ? tileY : (TILE_SIZE - tileY - 1)) * 4;
+
             if (color) {
               // allows color to be [R, G, B] or array of arrays of [R, G, B]
-              if (typeof color[0] !== 'number') color = color[track];
+              if (typeof color[0] !== 'number') color = color[track] ?? getDefaultColor(theme);
 
               const [rValue, gValue, bValue] = color;
               tileData[offset + 0] = rValue;
