@@ -6,6 +6,7 @@
 /demo/dist
 npm-debug.log*
 venv
+/eslint/node_modules
 
 # misc
 .DS_Store
