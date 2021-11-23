@@ -18,6 +18,7 @@ import {
   createDefaultUpdateTracksHover,
   createDefaultUpdateViewInfo,
   copyUint8Array,
+  getDefaultColor,
 } from '../utils';
 import {
   layerFilter,
