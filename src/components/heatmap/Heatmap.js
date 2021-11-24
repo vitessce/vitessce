@@ -514,7 +514,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (trackI === null || cellI === null) {
       setTrackHighlight(null);
     } else {
-      setTrackHighlight([cellI, trackI]);
+      setTrackHighlight([cellI, trackI, mouseX, mouseY]);
     }
 
     const [colI, rowI] = mouseToHeatmapPosition(mouseX, mouseY, {
