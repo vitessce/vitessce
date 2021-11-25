@@ -142,7 +142,11 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (!expression) {
       return;
     }
-    const newCellOrdering = expression.rows; 
+
+    const newCellOrdering = (!cellColors || cellColors.size === 0
+      ? expression.rows
+      : Array.from(cellColors.keys())
+    );
 
     const oldCellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
 
