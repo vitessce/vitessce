@@ -268,40 +268,38 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
   numRows,
   numCols,
 }) {
+  const cellPosition = transpose ? mouseX - offsetLeft : mouseY - offsetTop;
+  const trackPosition = transpose ? mouseY - axisOffsetTop : mouseX - axisOffsetLeft;
 
+  const tracksWidth = numCellColorTracks * colorBarSize;
 
-    const cellPosition = transpose ? mouseX - offsetLeft : mouseY - offsetTop;
-    const trackPosition = transpose ? mouseY - axisOffsetTop : mouseX - axisOffsetLeft;
+  // outside of cell color tracks
+  if (cellPosition < 0 || trackPosition < 0 || trackPosition > tracksWidth) {
+    return [null, null];
+  }
+  
+  // Determine the trackI and cellI values based on the current viewState.
+  const trackI = Math.floor(trackPosition / colorBarSize);
+  
+  let cellI;
+  if (transpose) {
+    const viewMouseX = mouseX - offsetLeft;
+    const bboxTargetX = targetX * scaleFactor + matrixWidth * scaleFactor / 2;
+    const bboxLeft = bboxTargetX - matrixWidth / 2;
+    const zoomedOffsetLeft = bboxLeft / (matrixWidth * scaleFactor);
+    const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactor);
+    const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
+    cellI = Math.floor(zoomedMouseX * numCols);
 
-    const tracksWidth = numCellColorTracks * colorBarSize;
+  } else {
+    const viewMouseY = mouseY - axisOffsetTop;
+    const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
+    const bboxTop = bboxTargetY - matrixHeight / 2;
+    const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
+    const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);
+    const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
+    cellI = Math.floor(zoomedMouseY * numRows);
+  }
 
-    // outside of cell color tracks
-    if (cellPosition < 0 || trackPosition < 0 || trackPosition > tracksWidth) {
-      return [null, null];
-    }
-    
-    // Determine the trackI and cellI values based on the current viewState.
-    const trackI = Math.floor(trackPosition / colorBarSize);
-    
-    let cellI;
-    if (transpose) {
-      const viewMouseX = mouseX - offsetLeft;
-      const bboxTargetX = targetX * scaleFactor + matrixWidth * scaleFactor / 2;
-      const bboxLeft = bboxTargetX - matrixWidth / 2;
-      const zoomedOffsetLeft = bboxLeft / (matrixWidth * scaleFactor);
-      const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactor);
-      const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
-      cellI = Math.floor(zoomedMouseX * numCols);
-
-    } else {
-      const viewMouseY = mouseY - axisOffsetTop;
-      const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
-      const bboxTop = bboxTargetY - matrixHeight / 2;
-      const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
-      const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);
-      const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
-      cellI = Math.floor(zoomedMouseY * numRows);
-    }
-
-    return [cellI, trackI];
+  return [cellI, trackI];
 }
