@@ -74,6 +74,9 @@ export default class AnnDataSource extends ZarrDataSource {
         }
         return this.obsPromises.get(obsCol);
       };
+      if (!obsPath) {
+        return Promise.resolve(undefined);
+      }
       if (Array.isArray(obsPath)) {
         return Promise.resolve(Promise.all(obsPath.map(getObsCol)));
       }
