@@ -3,6 +3,7 @@
 ### Added
 
 ### Changed
+- Fix selection issue for bitmasks in external applications.
 
 ## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
 
