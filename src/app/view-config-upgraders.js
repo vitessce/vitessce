@@ -285,3 +285,16 @@ export function upgradeFrom1_0_4(config) {
     version: '1.0.5',
   };
 }
+
+
+// Added in version 1.0.6:
+// - Support for the scoreName property within options array items
+//   for the anndata-cell-sets.zarr file type.
+export function upgradeFrom1_0_5(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.6',
+  };
+}

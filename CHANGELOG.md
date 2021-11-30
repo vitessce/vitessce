@@ -1,9 +1,12 @@
 ## In Progress
 
 ### Added
+- Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
+- Added a new documentation site.
 
 ### Changed
 - Fix selection issue for bitmasks in external applications.
+- Update deployment scripts to push the documentation site to `vitessce.io` and the minimal demo to `dev.vitessce.io`.
 
 ## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
 
@@ -33,7 +36,6 @@
 
 ### Added
 - PR template including reminder for potential R and python package PR's when version schema changes.
-- Added a new documentation site.
 
 ### Changed
 - Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.

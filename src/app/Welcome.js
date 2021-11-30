@@ -105,14 +105,9 @@ function Info() {
 }
 
 export default function Welcome(props) {
-  const { configs, theme, showBetaHeader } = props;
+  const { configs, theme } = props;
   return (
     <div className={`vitessce-container vitessce-theme-${theme} welcome-container`}>
-      {showBetaHeader && (
-        <div className="welcome-beta-header">
-          <p>Visit <a href="http://beta.vitessce.io">beta.vitessce.io</a> to view the next version of the Vitessce home page and documentation!</p>
-        </div>
-      )}
       <div className="react-grid-layout container-fluid" style={{ height: 'max(100vh, 100%)' }}>
         <div className="row">
           <div className="welcome-col-left">

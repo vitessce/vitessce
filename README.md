@@ -58,41 +58,32 @@ $ aws iam list-account-aliases --query 'AccountAliases[0]'
 "gehlenborglab"
 ```
 
-### Staging: Minimal Demo
+### Staging
 
-To build the current branch and push the "minimal" demo site to S3, run this script:
+To build the current branch and push the "minimal" demo and docs sites to S3, run this script:
 ```
-$ ./push-demo.sh
+$ ./push-demos.sh
 ```
 
-This will build the demo, push to S3, and finally open the demo deployment in your browser.
+This will build the demo and docs, push both to S3, and finally open the docs deployment in your browser.
 
-### Release: Minimal Demo
+### Release: Dev
 
-If you haven't already, push a fresh demo site and
+If you haven't already, push a fresh demo site with `./push-dev.sh` and
 do a last [manual test](TESTING.md) of the deployment.
+If it looks good, copy it to dev.vitessce.io:
+
+```
+$ ./copy-dev.sh https://{url returned by push-demo.sh}
+```
+
+### Release: Docs
+
+If you haven't already, push a fresh docs site with `./push-docs.sh`.
 If it looks good, copy it to vitessce.io:
 
 ```
-$ ./copy-prod.sh https://{url returned by push-demo.sh}
-```
-
-### Staging: App, Demos, and Docs
-
-To build the current branch and push the public-facing docs/app/demo site to S3, run this script:
-```
-$ ./push-docs.sh
-```
-
-This will build the library and docs, push to S3, and finally open the docs deployment in your browser.
-
-### Release: App, Demos, and Docs
-
-If you haven't already, push a fresh docs site.
-If it looks good, copy it to beta.vitessce.io:
-
-```
-$ ./copy-beta.sh https://{url returned by push-docs.sh}
+$ ./copy-docs.sh https://{url returned by push-docs.sh}
 ```
 
 ### Release: NPM package
