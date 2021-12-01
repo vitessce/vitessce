@@ -1,9 +1,23 @@
 ## In Progress
 
 ### Added
+- Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
+- Added a new documentation site.
+
+### Changed
+- Update deployment scripts to push the documentation site to `vitessce.io` and the minimal demo to `dev.vitessce.io`.
+
+## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
+
+### Added
 
 ### Changed
 - Updated the `build-lib:prod` npm script in `package.json` to generate the `esm` build in addition to the `umd` build.
+- Fixed bug preventing opening of the popper menu for channel colors in the spatial layer controller component.
+- Fixed bug where the border of polygons did not show expression values.  Needed to make sure instanced attributes were used when appropriate.
+- Fixed tooltip z-index bug by switching a custom implementation to the MUI `<Popper/>` component.
+- Changed `Array(...new Set(x))` to `Array.from(new Set(x))` in `CellSetsZarrLoader.js` to prevent compilation of the former to `Array.apply(void 0, new Set(x))`.
+- Updated styles of `<ChannelSelectionDropdown/>` to prevent text cutoff.
 
 ## [1.1.16](https://www.npmjs.com/package/vitessce/v/1.1.16) - 2021-10-26
 

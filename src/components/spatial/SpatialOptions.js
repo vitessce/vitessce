@@ -4,12 +4,12 @@ import debounce from 'lodash/debounce';
 import Checkbox from '@material-ui/core/Checkbox';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import Select from '@material-ui/core/Select';
 import Slider from '@material-ui/core/Slider';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import OptionsContainer from '../shared-plot-options/OptionsContainer';
 import { useStyles } from '../shared-plot-options/styles';
+import OptionsContainer from '../shared-plot-options/OptionsContainer';
 import CellColorEncodingOption from '../shared-plot-options/CellColorEncodingOption';
+import OptionSelect from '../shared-plot-options/OptionSelect';
 import { GLSL_COLORMAPS } from '../../layers/constants';
 
 const useToggleStyles = makeStyles(() => createStyles({
@@ -100,8 +100,7 @@ export default function SpatialOptions(props) {
           Gene Expression Colormap
             </TableCell>
             <TableCell className={classes.inputCell}>
-              <Select
-                native
+              <OptionSelect
                 className={classes.select}
                 value={geneExpressionColormap}
                 onChange={handleGeneExpressionColormapChange}
@@ -112,7 +111,7 @@ export default function SpatialOptions(props) {
                 {GLSL_COLORMAPS.map(cmap => (
                   <option key={cmap} value={cmap}>{cmap}</option>
                 ))}
-              </Select>
+              </OptionSelect>
             </TableCell>
           </TableRow>
           <TableRow>

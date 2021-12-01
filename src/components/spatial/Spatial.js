@@ -177,7 +177,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       lineWidthScale,
       lineWidthMaxPixels,
       getExpressionValue,
-      extensions: [new ScaledExpressionExtension({ instanced: false })],
+      extensions: [new ScaledExpressionExtension()],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
       isExpressionMode: cellColorEncoding === 'geneSelection',

@@ -4,37 +4,9 @@ import Popper from '@material-ui/core/Popper';
 import IconButton from '@material-ui/core/IconButton';
 import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Fade from '@material-ui/core/Fade';
+import { useVitessceContainer } from '../hooks';
 import { styles } from './styles';
-
-function MuiPopper(props) {
-  const classes = styles();
-  const {
-    anchorEl,
-    open,
-    placement = 'bottom-start',
-    children,
-  } = props;
-  return (
-    <Popper
-      className={classes.popper}
-      open={open}
-      anchorEl={anchorEl.current}
-      placement={placement}
-    >
-      {children}
-    </Popper>
-  );
-}
-
-function MuiPaper(props) {
-  const { children } = props;
-  const classes = styles();
-  return (
-    <Paper className={classes.paper} elevation={4}>
-      {children}
-    </Paper>
-  );
-}
 
 export function MuiSpan(props) {
   const { children } = props;
@@ -46,35 +18,55 @@ export function PopperMenu(props) {
   const {
     buttonIcon,
     open,
-    toggle,
+    setOpen,
     children,
-    placement,
     buttonClassName,
   } = props;
-  const anchorRef = useRef(null);
   const classes = styles();
+
+  const anchorRef = useRef();
+
+  const handleClick = () => {
+    setOpen(prev => !prev);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const id = open ? 'v-popover-menu' : undefined;
+
+  const getTooltipContainer = useVitessceContainer(anchorRef);
+
   return (
-    <>
+    <div ref={anchorRef} className={classes.container}>
       <IconButton
-        onClick={toggle}
+        aria-describedby={id}
+        onClick={handleClick}
         size="small"
-        ref={anchorRef}
         className={buttonClassName}
       >
         {buttonIcon}
       </IconButton>
-      <MuiPopper
-        className={classes.popper}
+      <Popper
+        id={id}
         open={open}
-        anchorEl={anchorRef}
-        placement={placement}
+        anchorEl={anchorRef && anchorRef.current}
+        container={getTooltipContainer}
+        onClose={handleClose}
+        placement="bottom-end"
+        transition
       >
-        <MuiPaper>
-          <ClickAwayListener onClickAway={toggle}>
-            <MenuList>{children}</MenuList>
+        {({ TransitionProps }) => (
+          <ClickAwayListener onClickAway={handleClose}>
+            <Fade {...TransitionProps} timeout={100}>
+              <Paper elevation={4} className={classes.paper}>
+                <MenuList>{children}</MenuList>
+              </Paper>
+            </Fade>
           </ClickAwayListener>
-        </MuiPaper>
-      </MuiPopper>
-    </>
+        )}
+      </Popper>
+    </div>
   );
 }

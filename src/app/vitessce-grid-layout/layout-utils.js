@@ -1,4 +1,4 @@
-import { range } from '../../utils';
+import range from 'lodash/range';
 
 export const COMPONENT_ID_PREFIX = 'i';
 

@@ -5,6 +5,13 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Slider from '@material-ui/core/Slider';
 import Grid from '@material-ui/core/Grid';
 
+export const useSelectStyles = makeStyles(() => ({
+  selectRoot: {
+    padding: 0,
+    height: 'auto',
+    margin: '4px 0',
+  },
+}));
 
 export const useOptionStyles = withStyles(theme => ({
   paper: {

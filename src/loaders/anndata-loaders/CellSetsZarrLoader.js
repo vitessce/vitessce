@@ -12,7 +12,7 @@ import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 import LoaderResult from '../LoaderResult';
 
 export function dataToCellSetsTree(data, options) {
-  const [cellNames, cellSets] = data;
+  const [cellNames, cellSets, cellSetScores] = data;
   const cellSetsTree = treeInitialize(SETS_DATATYPE_CELL);
   cellSets.forEach((cellSetIds, j) => {
     const name = options[j].groupName;
@@ -89,11 +89,16 @@ export function dataToCellSetsTree(data, options) {
       levelZeroNode.children = levelOneNodes;
     } else {
       // Single-level case.
-      const uniqueCellSetIds = Array(...new Set(cellSetIds)).sort();
+      // Check for the optional corresponding confidence score column name.
+      const uniqueCellSetIds = Array.from(new Set(cellSetIds)).sort();
       const clusters = {};
       // eslint-disable-next-line no-return-assign
       uniqueCellSetIds.forEach(id => (clusters[id] = { name: id, set: [] }));
-      cellSetIds.forEach((id, i) => clusters[id].set.push([cellNames[i], null]));
+      if (cellSetScores[j]) {
+        cellSetIds.forEach((id, i) => clusters[id].set.push([cellNames[i], cellSetScores[j][i]]));
+      } else {
+        cellSetIds.forEach((id, i) => clusters[id].set.push([cellNames[i], null]));
+      }
       Object.values(clusters).forEach(
         // eslint-disable-next-line no-return-assign
         cluster => (levelZeroNode = nodeAppendChild(levelZeroNode, cluster)),
@@ -114,12 +119,19 @@ export default class CellSetsZarrLoader extends AbstractTwoStepLoader {
     return this.dataSource.loadObsVariables(cellSetZarrLocation);
   }
 
+  loadCellSetScores() {
+    const { options } = this;
+    const cellSetScoreZarrLocation = options.map(option => option.scoreName || undefined);
+    return this.dataSource.loadObsVariables(cellSetScoreZarrLocation);
+  }
+
   async load() {
     if (!this.cellSetsTree) {
       const { options } = this;
       this.cellSetsTree = Promise.all([
         this.dataSource.loadObsIndex(),
         this.loadCellSetIds(),
+        this.loadCellSetScores(),
       ]).then(data => dataToCellSetsTree(data, options));
     }
     const cellSetsTree = await this.cellSetsTree;

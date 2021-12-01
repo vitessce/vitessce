@@ -125,7 +125,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getExpressionValue,
       getLineWidth: 0,
       extensions: [
-        new ScaledExpressionExtension({ instanced: true }),
+        new ScaledExpressionExtension(),
         new SelectionExtension({ instanced: true }),
       ],
       colorScaleLo: geneExpressionColormapRange[0],

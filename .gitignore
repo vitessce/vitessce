@@ -15,6 +15,7 @@ venv
 .env.test.local
 .env.production.local
 default.profraw
+.nova/
 
 # Created and deleted during build
 .babelrc
