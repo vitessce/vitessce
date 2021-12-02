@@ -615,9 +615,12 @@ export function initializeCellSetColor(cellSets, cellSetColor) {
 
     const nodeColor = nextCellSetColor.find(d => isEqual(d.path, nodePath));
     if (!nodeColor) {
+      // If there is a color for the node specified via the cell set tree,
+      // then use it. Otherwise, use a color from the default color palette.
+      const nodeColorArray = (node.color ? node.color : PALETTE[index % PALETTE.length]);
       nextCellSetColor.push({
         path: nodePath,
-        color: PALETTE[index % PALETTE.length],
+        color: nodeColorArray,
       });
     }
     nodeCountPerTreePerLevel[treeIndex][hierarchyLevel] += 1;
