@@ -1,8 +1,8 @@
-## In Progress
 
 ### Added
 - Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
 - Added a new documentation site.
+- Added the `./create-release.sh` Bash script to automate some steps of the release process.
 
 ### Changed
 - Fix selection issue for bitmasks in external applications.

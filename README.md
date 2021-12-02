@@ -67,32 +67,42 @@ $ ./push-demos.sh
 
 This will build the demo and docs, push both to S3, and finally open the docs deployment in your browser.
 
-### Release: Dev
+### Release
 
-If you haven't already, push a fresh demo site with `./push-dev.sh` and
-do a last [manual test](TESTING.md) of the deployment.
-If it looks good, copy it to dev.vitessce.io:
+To make a release of the dev site, docs site, and NPM package:
 
 ```
-$ ./copy-dev.sh https://{url returned by push-demo.sh}
+$ ./create-release.sh patch
 ```
 
-### Release: Docs
+This script does the following:
+- Checks out a new branch for the release
+- Runs `npm version (major | minor | patch)` (depending on the first argument passed to the script)
+- Pushes staging demos via `./push-demos.sh`
+- Updates the CHANGELOG.md
+- Makes a pull request using the GitHub CLI `gh pr create`
 
-If you haven't already, push a fresh docs site with `./push-docs.sh`.
-If it looks good, copy it to vitessce.io:
+#### Publish staged development site
+
+After doing a [manual test](TESTING.md) of the deployment of the dev site,
+if it looks good, copy it to dev.vitessce.io:
 
 ```
-$ ./copy-docs.sh https://{url returned by push-docs.sh}
+$ ./copy-dev.sh https://{url returned by create-release.sh or push-demos.sh}
 ```
 
-### Release: NPM package
+#### Publish staged docs to vitessce.io
 
-The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update:
-- Check out a new branch for the release,
-    - Update the CHANGELOG.md to remove the "in progress" text from the current version heading.
-    - Update the version by running `npm version [major | minor | patch]` (note: this will add a git commit and a git tag).
-- Make a pull request to merge from the release branch into `master`.
+After doing a manual test of the deployment of the docs,
+if it looks good, copy it to vitessce.io:
+
+```
+$ ./copy-docs.sh https://{url returned by create-release.sh or push-demos.sh}
+```
+
+#### Publish the NPM package
+
+The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update, make a pull request to merge from the release branch into `master`.
 
 Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the [web interface](https://travis-ci.org/github/vitessce/vitessce/settings) (Settings -> Environment Variables).
 
