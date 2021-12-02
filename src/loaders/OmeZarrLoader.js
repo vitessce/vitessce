@@ -22,7 +22,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     }
 
     const loader = await loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
-    const { metadata } = loader;
+    const { metadata, data } = loader;
 
     const { omero } = metadata;
 
@@ -36,11 +36,27 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     const t = rdefs.defaultT ?? 0;
     const z = rdefs.defaultZ ?? 0;
 
+    const filterSelection = (sel) => {
+      // Remove selection keys for which there is no dimension.
+      if (data.length > 0) {
+        const nextSel = {};
+        // eslint-disable-next-line prefer-destructuring
+        const labels = data[0].labels;
+        Object.keys(sel).forEach((key) => {
+          if (labels.includes(key)) {
+            nextSel[key] = sel[key];
+          }
+        });
+        return nextSel;
+      }
+      return sel;
+    };
+
     const imagesWithLoaderCreators = [
       {
         name: omero.name,
         channels: channels.map((channel, i) => ({
-          selection: { z, t, c: i },
+          selection: filterSelection({ z, t, c: i }),
           slider: [channel.window.start, channel.window.end],
           color: hexToRgb(channel.color),
         })),

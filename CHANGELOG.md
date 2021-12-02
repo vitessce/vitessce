@@ -8,6 +8,7 @@
 - Fix selection issue for bitmasks in external applications.
 - Update deployment scripts to push the documentation site to `vitessce.io` and the minimal demo to `dev.vitessce.io`.
 - Fix bug preventing user-defined colors provided via `cell-sets.json` from being used in the visualization.
+- Towards support for OME-NGFF v0.3.
 
 ## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
 
