@@ -20,14 +20,7 @@ fi
 
 AWS_ACCT=$(aws iam list-account-aliases --query 'AccountAliases[0]')
 if [[ "$AWS_ACCT" != "gehlenborglab" ]]; then
-    read -p "You are not logged into the lab account in the AWS CLI. Are you sure you want to make a release from this account? [y/n]" -n 1 -r
-    echo # move to a new line
-    if [[ $REPLY =~ ^[Yy]$ ]]
-    then
-        echo "Logged into the lab account"
-    else
-        exit
-    fi
+    die "Deployment requires authentication with the lab account in the AWS CLI (aws)."
 fi
 
 BRANCH=`git rev-parse --abbrev-ref HEAD`
