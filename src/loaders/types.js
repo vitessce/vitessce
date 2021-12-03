@@ -6,10 +6,16 @@ import GenesJsonAsMatrixZarrLoader from './GenesJsonAsMatrixZarrLoader';
 import ClustersJsonAsMatrixZarrLoader from './ClustersJsonAsMatrixZarrLoader';
 import RasterJsonLoader from './RasterJsonLoader';
 import OmeZarrLoader from './OmeZarrLoader';
+import OmeTiffLoader from './OmeTiffLoader';
 import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
-import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
+import {
+  AnnDataSource,
+  ZarrDataSource,
+  JsonSource,
+  OmeTiffDataSource,
+} from './data-sources';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
@@ -20,6 +26,7 @@ export const fileTypeToLoaderAndSource = {
   [FileType.NEIGHBORHOODS_JSON]: [JsonSource, JsonLoader],
   [FileType.RASTER_JSON]: [JsonSource, RasterJsonLoader],
   [FileType.RASTER_OME_ZARR]: [ZarrDataSource, OmeZarrLoader],
+  [FileType.RASTER_OME_TIFF]: [OmeTiffDataSource, OmeTiffLoader],
   [FileType.CELL_SETS_JSON]: [JsonSource, CellSetsJsonLoader],
   [FileType.ANNDATA_CELL_SETS_ZARR]: [AnnDataSource, AnnDataLoaders.CellSetsZarrLoader],
   [FileType.ANNDATA_CELLS_ZARR]: [AnnDataSource, AnnDataLoaders.CellsZarrLoader],

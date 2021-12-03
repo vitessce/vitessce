@@ -298,3 +298,14 @@ export function upgradeFrom1_0_5(config) {
     version: '1.0.6',
   };
 }
+
+// Added in version 1.0.7:
+// - Support for the raster.ome-tiff file type.
+export function upgradeFrom1_0_6(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.7',
+  };
+}

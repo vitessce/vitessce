@@ -31,6 +31,7 @@ export const FileType = {
   MOLECULES_JSON: 'molecules.json',
   NEIGHBORHOODS_JSON: 'neighborhoods.json',
   RASTER_JSON: 'raster.json',
+  RASTER_OME_TIFF: 'raster.ome-tiff',
   RASTER_OME_ZARR: 'raster.ome-zarr',
   CLUSTERS_JSON: 'clusters.json',
   GENES_JSON: 'genes.json',
