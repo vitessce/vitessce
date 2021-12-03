@@ -11,6 +11,7 @@ const publicConfigs = [
   'neumann-2020',
   'satija-2020',
   'sn-atac-seq-hubmap-2020',
+  'blin-2019',
 ];
 
 function DemoList(props) {

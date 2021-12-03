@@ -67,22 +67,30 @@ export default function DataTypesTable() {
         <tr>
           <td>
             <code>raster</code>
-            <br /> Multi-scale multiplexed imaging data, including pointers
-            to OME-TIFF files and Zarr stores.
+            <br />
+            Multi-scale multiplexed imaging data, including OME-TIFF files and OME-NGFF stores.
           </td>
           <td>
             <ul>
               <li>
+                <a href={useBaseUrl('/docs/data-file-types/#rasterome-zarr')}>
+                  <code>raster.ome-zarr</code>
+                </a> (OME-NGFF)
+              </li>
+              <li>
                 <a href={useBaseUrl('/docs/data-file-types/#rasterjson')}><code>raster.json</code></a>
                 <ul>
                   <li>OME-TIFF</li>
-                  <li>Zarr</li>
+                  <li>Bioformats-Zarr (precursor to OME-NGFF)</li>
                 </ul>
               </li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#rasterome-zarr')}><code>raster.ome-zarr</code></a></li>
             </ul>
           </td>
-          <td />
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#proprietary-image-formats')}>Proprietary Formats</a></li>
+            </ul>
+          </td>
         </tr>
         <tr>
           <td>
