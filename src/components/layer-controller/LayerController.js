@@ -8,7 +8,7 @@ import Slider from '@material-ui/core/Slider';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import Accordion from '@material-ui/core/Accordion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
@@ -17,8 +17,8 @@ import LayerOptions from './LayerOptions';
 import VolumeOptions from './VolumeOptions';
 import {
   useControllerSectionStyles,
-  StyledExpansionPanelDetails,
-  StyledExpansionPanelSummary,
+  StyledAccordionDetails,
+  StyledAccordionSummary,
   StyledInputLabel,
   OverflowEllipsisGrid,
 } from './styles';
@@ -464,7 +464,7 @@ export default function LayerController(props) {
     </>
   );
   return (
-    <ExpansionPanel
+    <Accordion
       className={controllerSectionClasses.root}
       onChange={(e, expanded) => !disabled
         && setIsExpanded(
@@ -474,11 +474,11 @@ export default function LayerController(props) {
       TransitionProps={{ enter: false }}
       expanded={!disabled && isExpanded}
     >
-      <StyledExpansionPanelSummary
-        expandIcon={<ExpandMoreIcon />}
+      <StyledAccordionSummary
+        expandIcon={<ExpandMoreIcon role="presentation" />}
         aria-controls={`layer-${name}-controls`}
       >
-        <Grid container direction="column" m={1} justify="center">
+        <Grid container direction="column" m={1} justifyContent="center">
           <OverflowEllipsisGrid item>
             <Button
               onClick={(e) => {
@@ -505,7 +505,7 @@ export default function LayerController(props) {
               container
               direction="row"
               alignItems="center"
-              justify="center"
+              justifyContent="center"
             >
               <Grid item xs={6}>
                 <StyledInputLabel htmlFor={`layer-${name}-opacity-closed`}>
@@ -528,8 +528,8 @@ export default function LayerController(props) {
             </Grid>
           )}
         </Grid>
-      </StyledExpansionPanelSummary>
-      <StyledExpansionPanelDetails>
+      </StyledAccordionSummary>
+      <StyledAccordionDetails>
         {useVolumeTabs ? (
           <>
             <Tabs
@@ -592,7 +592,7 @@ export default function LayerController(props) {
             Remove Image Layer
           </Button>
         ) : null}
-      </StyledExpansionPanelDetails>
-    </ExpansionPanel>
+      </StyledAccordionDetails>
+    </Accordion>
   );
 }
