@@ -312,7 +312,7 @@ function GlobalSelectionSlider({
  */
 function LayerOption({ name, inputId, children }) {
   return (
-    <Grid container direction="row" alignItems="center" justify="center">
+    <Grid container direction="row" alignItems="center" justifyContent="center">
       <Grid item xs={6}>
         <InputLabel htmlFor={inputId}>{name}:</InputLabel>
       </Grid>

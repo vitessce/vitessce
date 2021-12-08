@@ -8,7 +8,9 @@
 - Fix selection issue for bitmasks in external applications.
 - Update deployment scripts to push the documentation site to `vitessce.io` and the minimal demo to `dev.vitessce.io`.
 - Fix bug preventing user-defined colors provided via `cell-sets.json` from being used in the visualization.
-- Towards support for OME-NGFF v0.3.
+- Upgrade `@material-ui/core` dependency from `4.8.3` to `4.12.3` in package-lock.json.
+- Fix issues in the `LayerController` related to MUI's change from `ExpansionPanel` to `Accordion`.
+- Added support for OME-NGFF v0.3 by upgrading Viv to `0.12.0`
 
 ## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
 
