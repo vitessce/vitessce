@@ -21,7 +21,7 @@
     "clsx": "^1.1.1",
     "copy-text-to-clipboard": "^2.2.0",
     "docusaurus-plugin-sass": "^0.1.11",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "monaco-editor": "^0.28.0",
     "monaco-editor-webpack-plugin": "^4.0.0",
     "prism-react-renderer": "^1.1.1",
