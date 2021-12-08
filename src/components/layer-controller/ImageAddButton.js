@@ -37,6 +37,7 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
       setOpen={setOpen}
       buttonIcon={<ImageAddIcon />}
       buttonClassName={classes.addButton}
+      placement="bottom-start"
     >
       {imageOptions.map((imgData, i) => (
         <MenuItem dense key={imgData.name} onClick={() => handleAdd(i)}>

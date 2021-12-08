@@ -21,6 +21,7 @@ export function PopperMenu(props) {
     setOpen,
     children,
     buttonClassName,
+    placement = 'bottom-end',
   } = props;
   const classes = styles();
 
@@ -54,7 +55,7 @@ export function PopperMenu(props) {
         anchorEl={anchorRef && anchorRef.current}
         container={getTooltipContainer}
         onClose={handleClose}
-        placement="bottom-end"
+        placement={placement}
         transition
       >
         {({ TransitionProps }) => (
