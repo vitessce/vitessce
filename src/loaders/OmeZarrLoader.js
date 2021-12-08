@@ -54,7 +54,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
 
     const imagesWithLoaderCreators = [
       {
-        name: omero.name,
+        name: omero.name || 'Image',
         channels: channels.map((channel, i) => ({
           selection: filterSelection({ z, t, c: i }),
           slider: [channel.window.start, channel.window.end],

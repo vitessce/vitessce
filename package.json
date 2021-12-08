@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@babel/runtime": "7.8.7",
-    "@hms-dbmi/viv": "^0.11.0",
+    "@hms-dbmi/viv": "^0.12.0",
     "@loaders.gl/3d-tiles": "^3.0.0",
     "@loaders.gl/core": "^3.0.0",
     "@loaders.gl/images": "^3.0.0",

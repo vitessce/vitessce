@@ -6,7 +6,7 @@ export const omeNgffLegacy = {
   version: '1.0.6',
   name: blinName,
   description: blinDescription,
-  public: true,
+  public: false,
   datasets: [
     {
       uid: '179706',
