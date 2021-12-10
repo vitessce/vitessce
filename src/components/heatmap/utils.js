@@ -118,12 +118,11 @@ export function layerFilter({ layer, viewport }) {
  * @param {number} longestCellLabel longest cell label
  * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
  */
-export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel) {
+export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel, hideObservationsLabels) {
 
   const font = `${AXIS_LABEL_TEXT_SIZE}pt ${AXIS_FONT_FAMILY}`
   const geneLabelMaxWidth = getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
-  const cellLabelMaxWidth = getTextWidth(longestCellLabel, font) + AXIS_PADDING;
-
+  const cellLabelMaxWidth = hideObservationsLabels ? 0 : getTextWidth(longestCellLabel, font) + AXIS_PADDING ;
 
   const axisOffsetLeft = clamp(
     (transpose ? geneLabelMaxWidth : cellLabelMaxWidth),
