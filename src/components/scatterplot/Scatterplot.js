@@ -117,6 +117,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       radiusMaxPixels: 30,
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
+      lineWidthUnits: 'pixels',
       getPosition: getCellPosition,
       getFillColor: getCellColor,
       getLineColor: getCellColor,
