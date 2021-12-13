@@ -2,6 +2,7 @@ export const Component = {
   DESCRIPTION: 'description',
   STATUS: 'status',
   GENES: 'genes',
+  PEAKS: 'peaks',
   CELL_SETS: 'cellSets',
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
@@ -17,6 +18,7 @@ export const DataType = {
   CELLS: 'cells',
   CELL_SETS: 'cell-sets',
   EXPRESSION_MATRIX: 'expression-matrix',
+  PEAK_MATRIX: 'peak-matrix',
   GENOMIC_PROFILES: 'genomic-profiles',
   MOLECULES: 'molecules',
   NEIGHBORHOODS: 'neighborhoods',
@@ -37,6 +39,10 @@ export const FileType = {
   ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
   ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
+  MUDATA_CELL_SETS_ZARR: 'mudata-cell-sets.zarr',
+  MUDATA_CELLS_ZARR: 'mudata-cells.zarr',
+  MUDATA_EXPRESSION_MATRIX_ZARR: 'mudata-expression-matrix.zarr',
+  MUDATA_PEAK_MATRIX_ZARR: 'mudata-peak-matrix.zarr',
 };
 
 /**
@@ -81,6 +87,9 @@ export const CoordinationType = {
   GENE_FILTER: 'geneFilter',
   GENE_HIGHLIGHT: 'geneHighlight',
   GENE_SELECTION: 'geneSelection',
+  PEAK_FILTER: 'peakFilter',
+  PEAK_HIGHLIGHT: 'peakHighlight',
+  PEAK_SELECTION: 'peakSelection',
   GENE_EXPRESSION_COLORMAP: 'geneExpressionColormap',
   GENE_EXPRESSION_TRANSFORM: 'geneExpressionTransform',
   GENE_EXPRESSION_COLORMAP_RANGE: 'geneExpressionColormapRange',
