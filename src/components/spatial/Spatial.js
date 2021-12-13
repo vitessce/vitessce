@@ -327,10 +327,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
       selections = nextLoaderSelection;
       this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
     }
+    const useTransparentColor = (!layerDef.visible
+      && typeof layerDef.visible === 'boolean')
+      || Boolean(layerDef.transparentColor);
+    const transparentColor = useTransparentColor ? [0, 0, 0] : null;
     const layerProps = {
       colormap: layerDef.colormap,
       opacity: layerDef.opacity,
-      transparentColor: layerDef.transparentColor,
+      useTransparentColor,
+      transparentColor,
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
       resolution: layerDef.resolution,
@@ -413,7 +418,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colormap: layerProps.colormap,
       modelMatrix,
       transparentColor: layerProps.transparentColor,
-      useTransparentColor: Boolean(layerProps.transparentColor),
+      useTransparentColor: layerProps.useTransparentColor,
       resolution: layerProps.resolution,
       renderingMode: layerProps.renderingMode,
       pickable: false,
