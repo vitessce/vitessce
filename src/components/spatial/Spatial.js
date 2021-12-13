@@ -413,6 +413,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colormap: layerProps.colormap,
       modelMatrix,
       transparentColor: layerProps.transparentColor,
+      useTransparentColor: Boolean(layerProps.transparentColor),
       resolution: layerProps.resolution,
       renderingMode: layerProps.renderingMode,
       pickable: false,
