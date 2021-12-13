@@ -3,7 +3,12 @@ import isEqual from 'lodash/isEqual';
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { Matrix4 } from 'math.gl';
-import { ScaleBarLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
+import {
+  ScaleBarLayer,
+  MultiscaleImageLayer,
+  AdditiveColormapExtension,
+  ColorPaletteExtension,
+} from '@hms-dbmi/viv';
 import { getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, PALETTE, getDefaultColor } from '../utils';
 import { getSourceFromLoader } from '../../utils';
@@ -389,6 +394,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(data, layerDef.use3d);
 
+    const extensions = (layerDef.use3d ? [] : [
+      ...(layerProps.colormap ? [
+        new AdditiveColormapExtension(),
+      ] : [
+        new ColorPaletteExtension(),
+      ]),
+    ]);
+
     return new Layer({
       loader: layerLoader,
       id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,
@@ -407,6 +420,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ySlice: layerProps.ySlice,
       zSlice: layerProps.zSlice,
       onViewportLoad: layerProps.callback,
+      extensions,
     });
   }
 
