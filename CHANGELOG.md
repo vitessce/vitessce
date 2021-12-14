@@ -1,13 +1,15 @@
-## In Progress
 
 ### Added
 - Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
 - Added a new documentation site.
+- Added the `./create-release.sh` Bash script to automate some steps of the release process.
 
 ### Changed
 - Fix selection issue for bitmasks in external applications.
 - Update deployment scripts to push the documentation site to `vitessce.io` and the minimal demo to `dev.vitessce.io`.
 - Fix bug preventing user-defined colors provided via `cell-sets.json` from being used in the visualization.
+- Upgrade `@material-ui/core` dependency from `4.8.3` to `4.12.3` in package-lock.json.
+- Fix issues in the `LayerController` related to MUI's change from `ExpansionPanel` to `Accordion`.
 - Usage of native dynamic imports for HiGlass.
 
 ## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04

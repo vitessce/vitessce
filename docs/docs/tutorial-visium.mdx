@@ -35,8 +35,7 @@ Use `conda install` to install the required Python packages.
 We will be using [Scanpy](https://scanpy.readthedocs.io/en/stable/index.html) to access the sample Visium dataset with the [visium_sge](https://scanpy.readthedocs.io/en/stable/api/scanpy.datasets.visium_sge.html) function. We will be using the [leiden](https://scanpy.readthedocs.io/en/stable/api/scanpy.tl.leiden.html#scanpy.tl.leiden) function of Scanpy which depends on the `leidenalg` package.
 
 ```sh
-conda install -c bioconda scanpy>=1.6.0
-conda install -c conda-forge leidenalg>=0.8.3
+conda install -c conda-forge scanpy>=1.6.0 leidenalg>=0.8.3
 ```
 
 We will be using SciPy to perform [hierarchical clustering](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html) along the gene axis of the cell-by-gene matrix to obtain an optimal gene ordering of genes for the heatmap visualization.
