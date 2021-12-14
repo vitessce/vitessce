@@ -267,19 +267,20 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
   numRows,
   numCols,
 }) {
+
   const cellPosition = transpose ? mouseX - offsetLeft : mouseY - offsetTop;
   const trackPosition = transpose ? mouseY - axisOffsetTop : mouseX - axisOffsetLeft;
 
   const tracksWidth = numCellColorTracks * colorBarSize;
 
   // outside of cell color tracks
-  if (cellPosition < 0 || trackPosition < 0 || trackPosition > tracksWidth) {
+  if (cellPosition < 0 || trackPosition < 0 || trackPosition >= tracksWidth) {
     return [null, null];
   }
   
   // Determine the trackI and cellI values based on the current viewState.
   const trackI = Math.floor(trackPosition / colorBarSize);
-  
+
   let cellI;
   if (transpose) {
     const viewMouseX = mouseX - offsetLeft;
