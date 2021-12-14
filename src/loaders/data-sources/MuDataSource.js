@@ -37,12 +37,15 @@ export default class MuDataSource extends AnnDataSource {
    * @returns {Promise} An promise for a zarr array containing the indices.
    */
   loadVarIndex(path = null) {
-    if (this.varIndex) {
-      return this.varIndex;
+    if (!this.varIndex) {
+      this.varIndex = {};
+    }
+    if (this.varIndex[path]) {
+      return this.varIndex[path];
     }
     const varPath = `${dirname(path)}/var`;
-    this.varIndex = this.getJson(`${varPath}/.zattrs`)
+    this.varIndex[path] = this.getJson(`${varPath}/.zattrs`)
       .then(({ _index }) => this.getFlatArrDecompressed(`${varPath}/${_index}`));
-    return this.varIndex;
+    return this.varIndex[path];
   }
 }

@@ -3,10 +3,12 @@ import { Component } from './constants';
 import DescriptionSubscriber from '../components/description/DescriptionSubscriber';
 import StatusSubscriber from '../components/status/StatusSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
+import PeaksSubscriber from '../components/peaks/PeaksSubscriber';
 import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscriber';
 import ScatterplotSubscriber from '../components/scatterplot/ScatterplotSubscriber';
 import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
-import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
+import GeneHeatmapSubscriber from '../components/heatmap/GeneHeatmapSubscriber';
+import PeakHeatmapSubscriber from '../components/heatmap/PeakHeatmapSubscriber';
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
 import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubscriber';
@@ -19,10 +21,13 @@ const registry = {
   [Component.DESCRIPTION]: DescriptionSubscriber,
   [Component.STATUS]: StatusSubscriber,
   [Component.GENES]: GenesSubscriber,
+  [Component.PEAKS]: PeaksSubscriber,
   [Component.CELL_SETS]: CellSetsManagerSubscriber,
   [Component.SCATTERPLOT]: ScatterplotSubscriber,
   [Component.SPATIAL]: SpatialSubscriber,
-  [Component.HEATMAP]: HeatmapSubscriber,
+  [Component.HEATMAP]: GeneHeatmapSubscriber,
+  [Component.GENE_HEATMAP]: GeneHeatmapSubscriber,
+  [Component.PEAK_HEATMAP]: PeakHeatmapSubscriber,
   [Component.LAYER_CONTROLLER]: LayerControllerSubscriber,
   [Component.CELL_SET_SIZES]: CellSetSizesPlotSubscriber,
   [Component.GENOMIC_PROFILES]: GenomicProfilesSubscriber,

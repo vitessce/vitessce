@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
-import { useExpressionAttrs } from '../data-hooks';
+import { usePeakAttrs } from '../data-hooks';
 import { Component, DataType } from '../../app/constants';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 import TitleInfo from '../TitleInfo';
-import Genes from './Genes';
+import Genes from '../genes/Genes';
 
-const GENES_DATA_TYPES = [DataType.EXPRESSION_MATRIX];
+const PEAKS_DATA_TYPES = [DataType.PEAK_MATRIX];
 
 /**
  * A subscriber component for a gene listing component.
@@ -25,14 +25,14 @@ const GENES_DATA_TYPES = [DataType.EXPRESSION_MATRIX];
  * @param {string} props.variablesPluralLabelOverride The plural
  * form of the name of the variable.
  */
-export default function GenesSubscriber(props) {
+export default function PeaksSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
-    variablesLabelOverride: variablesLabel = 'gene',
+    variablesLabelOverride: variablesLabel = 'peak',
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
-    title = 'Expression Levels',
+    title = 'Peaks',
   } = props;
 
   const loaders = useLoaders();
@@ -40,15 +40,15 @@ export default function GenesSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    geneSelection,
-    geneFilter,
+    peakSelection: geneSelection,
+    peakFilter: geneFilter,
     cellColorEncoding,
   }, {
-    setGeneSelection,
-    setGeneFilter,
-    setGeneHighlight,
+    setPeakSelection: setGeneSelection,
+    setPeakFilter: setGeneFilter,
+    setPeakHighlight: setGeneHighlight,
     setCellColorEncoding,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.GENES], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.PEAKS], coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [
@@ -57,7 +57,7 @@ export default function GenesSubscriber(props) {
     setItemIsNotReady, // eslint-disable-line no-unused-vars
     resetReadyItems,
   ] = useReady(
-    GENES_DATA_TYPES,
+    PEAKS_DATA_TYPES,
   );
 
   // Reset file URLs and loader progress when the dataset has changed.
@@ -68,7 +68,7 @@ export default function GenesSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [attrs] = useExpressionAttrs(
+  const [attrs] = usePeakAttrs(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
   const geneList = attrs ? attrs.cols : [];
@@ -76,7 +76,7 @@ export default function GenesSubscriber(props) {
 
   function setGeneSelectionAndColorEncoding(newSelection) {
     setGeneSelection(newSelection);
-    setCellColorEncoding('geneSelection');
+    setCellColorEncoding('peakSelection');
   }
 
   return (
@@ -93,7 +93,7 @@ export default function GenesSubscriber(props) {
       urls={urls}
     >
       <Genes
-        hasColorEncoding={cellColorEncoding === 'geneSelection'}
+        hasColorEncoding={cellColorEncoding === 'peakSelection'}
         geneList={geneList}
         geneSelection={geneSelection}
         geneFilter={geneFilter}

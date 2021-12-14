@@ -91,6 +91,8 @@ export function getCellColors(params) {
     cellSets, cellSetSelection,
     cellSetColor,
     expressionDataAttrs,
+    peakDataAttrs,
+    peakData,
     theme,
   } = params;
   if (cellColorEncoding === 'geneSelection' && expressionData && expressionDataAttrs) {
@@ -103,7 +105,19 @@ export function getCellColors(params) {
       colors.set(expressionDataAttrs.rows[i], cellColor);
     }
     return colors;
-  } if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
+  }
+  if (cellColorEncoding === 'peakSelection' && peakData && peakDataAttrs) {
+    // TODO: allow other color maps.
+    const peakCountColormap = interpolatePlasma;
+    const colors = new Map();
+    for (let i = 0; i < peakData.length; i += 1) {
+      const value = peakData[i];
+      const cellColor = peakCountColormap(value / 255);
+      colors.set(peakDataAttrs.rows[i], cellColor);
+    }
+    return colors;
+  }
+  if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
     // Cell sets can potentially lack set colors since the color property
     // is not a required part of the schema.
     // The `initializeSets` function fills in any empty colors

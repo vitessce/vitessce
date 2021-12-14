@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
@@ -14,12 +15,15 @@ import {
   useCellsData,
   useCellSetsData,
   useGeneSelection,
+  usePeakSelection,
   useExpressionAttrs,
+  usePeakAttrs,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
-import Scatterplot from './Scatterplot';
-import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
-import ScatterplotOptions from './ScatterplotOptions';
+import {
+  DataType,
+  Component,
+} from '../../app/constants';
 import {
   useCoordination,
   useLoaders,
@@ -32,7 +36,13 @@ import {
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
-const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
+import Scatterplot from './Scatterplot';
+import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
+import ScatterplotOptions from './ScatterplotOptions';
+
+const SCATTERPLOT_DATA_TYPES = [
+  DataType.CELLS, DataType.EXPRESSION_MATRIX, DataType.CELL_SETS, DataType.PEAK_MATRIX,
+];
 
 /**
  * A subscriber component for the scatterplot.
@@ -77,6 +87,7 @@ export default function ScatterplotSubscriber(props) {
     cellFilter,
     cellHighlight,
     geneSelection,
+    peakSelection,
     cellSetSelection,
     cellSetColor,
     cellColorEncoding,
@@ -90,6 +101,8 @@ export default function ScatterplotSubscriber(props) {
     embeddingCellOpacityMode: cellOpacityMode,
     geneExpressionColormap,
     geneExpressionColormapRange,
+    peakCountColormap,
+    peakCountColormapRange,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -110,7 +123,9 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingCellOpacityMode: setCellOpacityMode,
     setGeneExpressionColormap,
     setGeneExpressionColormapRange,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
+    setPeakCountColormap,
+    setPeakCountColormapRange,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SCATTERPLOT], coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -146,7 +161,13 @@ export default function ScatterplotSubscriber(props) {
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
+  const [peakData] = usePeakSelection(
+    loaders, dataset, setItemIsReady, false, peakSelection, setItemIsNotReady,
+  );
   const [attrs] = useExpressionAttrs(
+    loaders, dataset, setItemIsReady, addUrl, false,
+  );
+  const [peakAttrs] = usePeakAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
 
@@ -169,14 +190,17 @@ export default function ScatterplotSubscriber(props) {
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionData: expressionData && expressionData[0],
+    peakData: peakData && peakData[0],
     geneSelection,
+    peakSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
     expressionDataAttrs: attrs,
+    peakDataAttrs: peakAttrs,
     theme,
-  }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
-    cellSetSelection, cellSetColor, expressionData, attrs]);
+  }), [cellColorEncoding, geneSelection, peakSelection, mergedCellSets, theme,
+    cellSetSelection, cellSetColor, expressionData, attrs, peakData, peakAttrs]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
