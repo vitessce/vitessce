@@ -27,7 +27,12 @@ export default class ClustersJsonAsMatrixZarrLoader extends JsonLoader {
     // Normalize values by converting to one-byte integers.
     // Normalize for each gene (column) independently.
     const normalizedMatrix = matrix.map((col) => {
-      const [min, max] = extent(col);
+      let [min, max] = extent(col);
+      if (min === max && max === 0) {
+        max = 1;
+      } else if (min === max) {
+        min = max - 1;
+      }
       const normalize = d => Math.floor(((d - min) / (max - min)) * 255);
       return col.map(normalize);
     });
