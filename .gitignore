@@ -15,6 +15,7 @@ venv
 .env.production.local
 default.profraw
 .nova/
+*.tgz
 
 # Created and deleted during build
 .babelrc

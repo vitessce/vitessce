@@ -112,23 +112,23 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_store.zarr",
-    "type": "cell-sets",
-    "fileType": "anndata-cell-sets.zarr",
-    // Options defines which columns contain cell sets (clustering results) in the cell sets component.
-    // The groupName is the display name and the setName is the path within the Zarr store.
-    "options": [
-      {
-        "groupName": "Ledien",
-        "setName": "obs/leiden"
-      },
-      {
-        "groupName": "Cell Type",
-        "setName": "obs/cell_type"
-      },
-    ]
-  }
+{
+  "url": "http://example.com/my_store.zarr",
+  "type": "cell-sets",
+  "fileType": "anndata-cell-sets.zarr",
+  // Options defines which columns contain cell sets (clustering results) in the cell sets component.
+  // The groupName is the display name and the setName is the path within the Zarr store.
+  "options": [
+    {
+      "groupName": "Ledien",
+      "setName": "obs/leiden"
+    },
+    {
+      "groupName": "Cell Type",
+      "setName": "obs/cell_type"
+    },
+  ]
+}
 `}
 js={`
 // Options defines which columns contain cell sets (clustering results) in the cell sets component.
@@ -161,14 +161,14 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_store.zarr",
-    "type": "expression-matrix",
-    "fileType": "anndata-expression-matrix.zarr",
-    "options": {
-      "matrix": "X"
-    }
+{
+  "url": "http://example.com/my_store.zarr",
+  "type": "expression-matrix",
+  "fileType": "anndata-expression-matrix.zarr",
+  "options": {
+    "matrix": "X"
   }
+}
 `}
 js={`
 const options = {
@@ -196,22 +196,22 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_store.zarr",
-    "type": "expression-matrix",
-    "fileType": "anndata-expression-matrix.zarr",
-    "options": {
-      // Matrix provides the location of an
-      // obs-by-var (cell-by-gene) matrix to load into memory.
-      "matrix": "obsm/X",
-      // Matrix genes filter is a boolean list which defines
-      // the subset of genes contained in the matrix to be visualized in the heatmap.
-      // All of the genes in \`var\` will display in the \`Genes\` component though.
-      // Use \`geneFilter\` instead if you only want to show a subset of the genes there
-      // (this must be defined if the matrix is a subset of AnnData.X).
-      "matrixGeneFilter": "var/highly_variable"
-    }
+{
+  "url": "http://example.com/my_store.zarr",
+  "type": "expression-matrix",
+  "fileType": "anndata-expression-matrix.zarr",
+  "options": {
+    // Matrix provides the location of an
+    // obs-by-var (cell-by-gene) matrix to load into memory.
+    "matrix": "obsm/X",
+    // Matrix genes filter is a boolean list which defines
+    // the subset of genes contained in the matrix to be visualized in the heatmap.
+    // All of the genes in \`var\` will display in the \`Genes\` component though.
+    // Use \`geneFilter\` instead if you only want to show a subset of the genes there
+    // (this must be defined if the matrix is a subset of AnnData.X).
+    "matrixGeneFilter": "var/highly_variable"
   }
+}
 `}
 js={`
 const options = {
@@ -245,11 +245,11 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_cells.json",
-    "type": "cells",
-    "fileType": "cells.json"
-  }
+{
+  "url": "http://example.com/my_cells.json",
+  "type": "cells",
+  "fileType": "cells.json"
+}
 `}
 js={`
 const dataset = vc
@@ -272,11 +272,11 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_cell_sets.json",
-    "type": "cell-sets",
-    "fileType": "cell-sets.json"
-  }
+{
+  "url": "http://example.com/my_cell_sets.json",
+  "type": "cell-sets",
+  "fileType": "cell-sets.json"
+}
 `}
 js={`
 const dataset = vc
@@ -299,11 +299,11 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_molecules.json",
-    "type": "molecules",
-    "fileType": "molecules.json"
-  }
+{
+  "url": "http://example.com/my_molecules.json",
+  "type": "molecules",
+  "fileType": "molecules.json"
+}
 `}
 js={`
 const dataset = vc
@@ -330,11 +330,11 @@ For large expression matrices, we recommend using the more compact Zarr `express
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_matrix_a.json",
-    "type": "expression-matrix",
-    "fileType": "genes.json"
-  }
+{
+  "url": "http://example.com/my_matrix_a.json",
+  "type": "expression-matrix",
+  "fileType": "genes.json"
+}
 `}
 js={`
 const dataset = vc
@@ -366,11 +366,11 @@ For large expression matrices, we recommend using the more compact Zarr `express
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_matrix_b.json",
-    "type": "expression-matrix",
-    "fileType": "clusters.json"
-  }
+{
+  "url": "http://example.com/my_matrix_b.json",
+  "type": "expression-matrix",
+  "fileType": "clusters.json"
+}
 `}
 js={`
 const dataset = vc
@@ -390,11 +390,11 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_matrix.zarr",
-    "type": "expression-matrix",
-    "fileType": "expression-matrix.zarr"
-  }
+{
+  "url": "http://example.com/my_matrix.zarr",
+  "type": "expression-matrix",
+  "fileType": "expression-matrix.zarr"
+}
 `}
 js={`
 const dataset = vc
@@ -423,45 +423,45 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "type": "raster",
-    "fileType": "raster.json",
-    "options": {
-      "renderLayers": ["My OME-TIFF Image", "My OME-TIFF Mask"],
-      "schemaVersion": "0.0.2",
-      "images": [
-        {
-          "name": "My OME-TIFF Image",
-          "url": "http://example.com/my_image.ome.tif",
-          "type": "ome-tiff",
-          "metadata": {
-            "transform": {
-              // An optional transformation matrix
-              // in column-major order.
-              "matrix": [
-                0.81915098, -0.57357901, 0, 3264.76514684,
-                0.57357502, 0.819152, 0, 556.50440621,
-                0, 0, 1, 0,
-                0, 0, 0, 1
-              ]
-            }
-          }
-        },
-        {
-          "name": "My OME-TIFF Mask",
-          "url": "http://example.com/my_mask.ome.tif",
-          "type": "ome-tiff",
-          "metadata": {
-            "isBitmask": true
+{
+  "type": "raster",
+  "fileType": "raster.json",
+  "options": {
+    "renderLayers": ["My OME-TIFF Image", "My OME-TIFF Mask"],
+    "schemaVersion": "0.0.2",
+    "images": [
+      {
+        "name": "My OME-TIFF Image",
+        "url": "http://example.com/my_image.ome.tif",
+        "type": "ome-tiff",
+        "metadata": {
+          "transform": {
+            // An optional transformation matrix
+            // in column-major order.
+            "matrix": [
+              0.81915098, -0.57357901, 0, 3264.76514684,
+              0.57357502, 0.819152, 0, 556.50440621,
+              0, 0, 1, 0,
+              0, 0, 0, 1
+            ]
           }
         }
-      ]
-    }
+      },
+      {
+        "name": "My OME-TIFF Mask",
+        "url": "http://example.com/my_mask.ome.tif",
+        "type": "ome-tiff",
+        "metadata": {
+          "isBitmask": true
+        }
+      }
+    ]
   }
+}
 `}
 js={`
 const options = {
-   "renderLayers": ["My OME-TIFF Image", "My OME-TIFF Mask"],
+  "renderLayers": ["My OME-TIFF Image", "My OME-TIFF Mask"],
   "schemaVersion": "0.0.2",
   "images": [
     {
@@ -506,52 +506,52 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "type": "raster",
-    "fileType": "raster.json",
-    "options": {
-      "schemaVersion": "0.0.2",
-      "images": [
-        {
-          "name": "My Bioformats-Zarr Image",
-          "url": "http://example.com/my_image.zarr",
-          "type": "zarr",
-          "metadata": {
-            "dimensions": [
-              {
-                "field": "channel",
-                "type": "nominal",
-                "values": [
-                  "DAPI - Hoechst (nuclei)",
-                  "FITC - Laminin (basement membrane)",
-                  "Cy3 - Synaptopodin (glomerular)",
-                  "Cy5 - THP (thick limb)"
-                ]
-              },
-              {
-                "field": "y",
-                "type": "quantitative",
-                "values": null
-              },
-              {
-                "field": "x",
-                "type": "quantitative",
-                "values": null
-              }
-            ],
-            "isPyramid": true,
-            "transform": {
-              "translate": {
-                "y": 0,
-                "x": 0
-              },
-              "scale": 1
+{
+  "type": "raster",
+  "fileType": "raster.json",
+  "options": {
+    "schemaVersion": "0.0.2",
+    "images": [
+      {
+        "name": "My Bioformats-Zarr Image",
+        "url": "http://example.com/my_image.zarr",
+        "type": "zarr",
+        "metadata": {
+          "dimensions": [
+            {
+              "field": "channel",
+              "type": "nominal",
+              "values": [
+                "DAPI - Hoechst (nuclei)",
+                "FITC - Laminin (basement membrane)",
+                "Cy3 - Synaptopodin (glomerular)",
+                "Cy5 - THP (thick limb)"
+              ]
+            },
+            {
+              "field": "y",
+              "type": "quantitative",
+              "values": null
+            },
+            {
+              "field": "x",
+              "type": "quantitative",
+              "values": null
             }
+          ],
+          "isPyramid": true,
+          "transform": {
+            "translate": {
+              "y": 0,
+              "x": 0
+            },
+            "scale": 1
           }
         }
-      ]
-    }
+      }
+    ]
   }
+}
 `}
 js={`
 const options = {
@@ -610,15 +610,32 @@ const dataset = vc
 
 ### `raster.ome-zarr`
 
+Vitessce supports [OME-NGFF](https://ngff.openmicroscopy.org/latest/) images saved as Zarr stores and a subset of OME-NGFF features via the `raster.ome-zarr` file type.
+The following table lists the support for different OME-NGFF features:
+
+| Feature | Supported by Vitessce |
+|-----|-----|
+| Downsampling along Z axis | N |
+| `omero` field | Y |
+| multiscales with a scaling factor other than 2 | N |
+| URL (not only S3) | Y |
+| `multiscales[].axes` (added in v0.3) | Y |
+| 3D view | Y |
+| labels | N |
+| HCS plate | N |
+
+To compare Vitessce to other OME-NGFF clients, see the [table](https://github.com/ome/ngff/issues/71) listing the OME-NGFF features supported by other clients.
+We welcome feature requests or pull requests to add support for the remaining features to Vitessce.
+
 - View config file definition snippet:
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_image.ome.zarr",
-    "type": "raster",
-    "fileType": "raster.ome-zarr"
-  }
+{
+  "url": "http://example.com/my_image.ome.zarr",
+  "type": "raster",
+  "fileType": "raster.ome-zarr"
+}
 `}
 js={`
 const dataset = vc
@@ -641,11 +658,11 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_neighborhoods.json",
-    "type": "neighborhoods",
-    "fileType": "neighborhoods.json"
-  }
+{
+  "url": "http://example.com/my_neighborhoods.json",
+  "type": "neighborhoods",
+  "fileType": "neighborhoods.json"
+}
 `}
 js={`
 const dataset = vc
@@ -664,11 +681,11 @@ const dataset = vc
 
   <ViewConfigTabs
 json={`
-  {
-    "url": "http://example.com/my_genomic_profiles.zarr",
-    "type": "genomic-profiles",
-    "fileType": "genomic-profiles.zarr"
-  }
+{
+  "url": "http://example.com/my_genomic_profiles.zarr",
+  "type": "genomic-profiles",
+  "fileType": "genomic-profiles.zarr"
+}
 `}
 js={`
 const dataset = vc
@@ -776,3 +793,23 @@ The Vitessce R package can be used to [convert Seurat objects](https://vitessce.
 ### SnapATAC
 
 The Vitessce Python package can be used to [convert SnapATAC outputs](https://vitessce.github.io/vitessce-python/data_examples.html) to the [`genomic-profiles.zarr`](#genomic-profileszarr), [`cells.json`](#cellsjson), and [`cell-sets.json`](#cell-setsjson) file types.
+
+### Proprietary Image Formats
+
+The [Bio-Formats](https://www.glencoesoftware.com/blog/2019/12/09/converting-whole-slide-images-to-OME-TIFF.html) suite of tools can be used to convert from proprietary image formats to one of the open standard [OME file formats](http://www.openmicroscopy.org/ome-files/) supported by Vitessce.
+
+:::tip
+The [Data Preparation](http://viv.gehlenborglab.org/#data-preparation) section of the Viv documentation is a helpful resource for learning about converting to OME formats.
+:::
+
+#### Conversion to OME-TIFF
+
+[OME-TIFF](https://docs.openmicroscopy.org/ome-model/6.0.0/index.html#ome-tiff) images are supported via the [`raster.json`](#rasterjson) file type.
+
+#### Conversion to OME-NGFF
+
+[OME-NGFF](https://ngff.openmicroscopy.org/latest/) images saved as Zarr stores are supported via the [`raster.ome-zarr`](#rasterome-zarr) file type.
+
+:::tip
+The [`ome-zarr`](https://pypi.org/project/ome-zarr/) Python package can be used to read the metadata of  `OME-Zarr` images.
+:::

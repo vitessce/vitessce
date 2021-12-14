@@ -8,6 +8,8 @@ import { spraggins2020, neumann2020 } from './view-configs/spraggins';
 import { satija2020 } from './view-configs/satija';
 import { justHiglass } from './view-configs/rao';
 import { scAtacSeq10xPbmc } from './view-configs/tenx';
+import { blin2019 } from './view-configs/blin';
+import { omeNgffLegacy } from './view-configs/ome-ngff-legacy';
 import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap';
 import {
   embeddingZoomConfig,
@@ -41,6 +43,8 @@ export const configs = {
   'satija-2020': satija2020,
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
+  'blin-2019': blin2019,
+  'ome-ngff-v0.1': omeNgffLegacy,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': notPublic(codeluppi2018),
   vanderbilt: notPublic(spraggins2020),
