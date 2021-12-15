@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import equal from 'fast-deep-equal';
 import { capitalize } from '../utils';
+import { DataType } from '../app/constants';
 import { useSetWarning } from '../app/state/hooks';
 import {
   AbstractLoaderError,
@@ -119,8 +120,9 @@ export function useCellsData(
       return;
     }
 
-    if (loaders[dataset].loaders.cells) {
-      loaders[dataset].loaders.cells.load().catch(e => warn(e, setWarning)).then((payload) => {
+    const loader = loaders[dataset].loaders[DataType.CELLS];
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         setCells(data);
@@ -137,15 +139,15 @@ export function useCellsData(
           coordinationValuesOrDefault,
           coordinationSetters, initialCoordinationValues,
         );
-        setItemIsReady('cells');
+        setItemIsReady(DataType.CELLS);
       });
     } else {
       setCells({});
       setCellsCount(0);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'cells', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.CELLS, null, null), setWarning);
       } else {
-        setItemIsReady('cells');
+        setItemIsReady(DataType.CELLS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -190,9 +192,10 @@ export function useCellSetsData(
       return;
     }
 
-    if (loaders[dataset].loaders['cell-sets']) {
+    const loader = loaders[dataset].loaders[DataType.CELL_SETS];
+    if (loader) {
       // Load the data initially.
-      loaders[dataset].loaders['cell-sets'].load().catch(e => warn(e, setWarning)).then((payload) => {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         setCellSets(data);
@@ -202,20 +205,95 @@ export function useCellSetsData(
           coordinationSetters,
           initialCoordinationValues,
         );
-        setItemIsReady('cell-sets');
+        setItemIsReady(DataType.CELL_SETS);
       });
     } else {
       setCellSets(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'cell-sets', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.CELL_SETS, null, null), setWarning);
       } else {
-        setItemIsReady('cell-sets');
+        setItemIsReady(DataType.CELL_SETS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   return [cellSets];
+}
+
+
+/**
+ * Get (potentially filtered) data from an expression matrix data type loader,
+ * updating "ready" and URL state appropriately.
+ * Throw warnings if the data is marked as required.
+ * Subscribe to loader updates.  Should not be used in conjunction (called in the same component)
+ * with useExpressionAttrs as this returns a potentially filtered set of attributes
+ * specifically for the returned expression data.
+ * @param {object} loaders The object mapping
+ * datasets and data types to loader instances.
+ * @param {string} dataset The key for a dataset,
+ * used to identify which loader to use.
+ * @param {function} setItemIsReady A function to call
+ * when done loading.
+ * @param {function} addUrl A function to call to update
+ * the URL list.
+ * @param {boolean} isRequired Should a warning be thrown if
+ * loading is unsuccessful?
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} initialCoordinationValues Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
+ * @returns {array} [expressionMatrix] where
+ * expressionMatrix is an object with
+ * shape { cols, rows, matrix }.
+ */
+function useMatrixData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues,
+  dataType, dataTypeLabel,
+) {
+  const [matrix, setMatrix] = useState();
+
+  const setWarning = useSetWarning();
+
+  useEffect(() => {
+    if (!loaders[dataset]) {
+      return;
+    }
+
+    const loader = loaders[dataset].loaders[dataType];
+    if (loaders[dataset].loaders[dataType]) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
+        if (!payload) return;
+        const { data, url, coordinationValues } = payload;
+        const [attrs, arr] = data;
+        setMatrix({
+          cols: attrs.cols,
+          rows: attrs.rows,
+          matrix: arr.data,
+        });
+        addUrl(url, dataTypeLabel);
+        initCoordinationSpace(
+          coordinationValues,
+          coordinationSetters,
+          initialCoordinationValues,
+        );
+        setItemIsReady(dataType);
+      });
+    } else {
+      setMatrix(null);
+      if (isRequired) {
+        warn(new LoaderNotFoundError(dataset, dataType, null, null), setWarning);
+      } else {
+        setItemIsReady(dataType);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
+
+  return [matrix];
 }
 
 /**
@@ -249,45 +327,11 @@ export function useExpressionMatrixData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues,
 ) {
-  const [expressionMatrix, setExpressionMatrix] = useState();
-
-  const setWarning = useSetWarning();
-
-  useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url, coordinationValues } = payload;
-        const [attrs, arr] = data;
-        setExpressionMatrix({
-          cols: attrs.cols,
-          rows: attrs.rows,
-          matrix: arr.data,
-        });
-        addUrl(url, 'Expression Matrix');
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setItemIsReady('expression-matrix');
-      });
-    } else {
-      setExpressionMatrix(null);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
-      } else {
-        setItemIsReady('expression-matrix');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
-  return [expressionMatrix];
+  return useMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues,
+    DataType.EXPRESSION_MATRIX, 'Expression Matrix',
+  );
 }
 
 
@@ -322,7 +366,40 @@ export function usePeakMatrixData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues,
 ) {
-  const [peakMatrix, setPeakMatrix] = useState();
+  return useMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues,
+    DataType.PEAK_MATRIX, 'Peak Matrix',
+  );
+}
+
+/**
+ * Get data from the expression matrix data type loader for a given gene selection.
+ * Throw warnings if the data is marked as required.
+ * Subscribe to loader updates.
+ * @param {object} loaders The object mapping
+ * datasets and data types to loader instances.
+ * @param {string} dataset The key for a dataset,
+ * used to identify which loader to use.
+ * @param {function} setItemIsReady A function to call
+ * when done loading.
+ * @param {boolean} isRequired Should a warning be thrown if
+ * loading is unsuccessful?
+ * @param {boolean} selection A list of gene names to get expression data for.
+ * @returns {array} [geneData] where geneData is an array [Uint8Array, ..., Uint8Array]
+ * for however many genes are in the selection.
+ */
+function useVarSelection(
+  loaders,
+  dataset,
+  setItemIsReady,
+  isRequired,
+  selection,
+  setItemIsNotReady,
+  dataType,
+  loadFuncName,
+) {
+  const [varData, setVarData] = useState();
 
   const setWarning = useSetWarning();
 
@@ -330,37 +407,54 @@ export function usePeakMatrixData(
     if (!loaders[dataset]) {
       return;
     }
-
-    if (loaders[dataset].loaders['peak-matrix']) {
-      loaders[dataset].loaders['peak-matrix'].load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url, coordinationValues } = payload;
-        const [attrs, arr] = data;
-        setPeakMatrix({
-          cols: attrs.cols,
-          rows: attrs.rows,
-          matrix: arr.data,
-        });
-        addUrl(url, 'Peak Matrix');
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setItemIsReady('peak-matrix');
-      });
-    } else {
-      setPeakMatrix(null);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'peak-matrix', null, null), setWarning);
+    if (!selection) {
+      setItemIsReady(dataType);
+      return;
+    }
+    const loader = loaders[dataset].loaders[dataType];
+    if (loader) {
+      setItemIsNotReady(dataType);
+      const implementsVarSelection = typeof loader[loadFuncName] === 'function';
+      if (implementsVarSelection) {
+        loaders[dataset].loaders[dataType][loadFuncName]({ selection })
+          .catch(e => warn(e, setWarning))
+          .then((payload) => {
+            if (!payload) return;
+            const { data } = payload;
+            setVarData(data);
+            setItemIsReady(dataType);
+          });
       } else {
-        setItemIsReady('peak-matrix');
+        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
+          if (!payload) return;
+          const { data } = payload;
+          const [attrs, { data: matrix }] = data;
+          const expressionDataForSelection = selection.map((sel) => {
+            const geneIndex = attrs.cols.indexOf(sel);
+            const numGenes = attrs.cols.length;
+            const numCells = attrs.rows.length;
+            const expressionData = new Uint8Array(numCells);
+            for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
+              expressionData[cellIndex] = matrix[cellIndex * numGenes + geneIndex];
+            }
+            return expressionData;
+          });
+          setVarData(expressionDataForSelection);
+          setItemIsReady(dataType);
+        });
+      }
+    } else {
+      setVarData(null);
+      if (isRequired) {
+        warn(new LoaderNotFoundError(dataset, dataType, null, null), setWarning);
+      } else {
+        setItemIsReady(dataType);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loaders, dataset, selection]);
 
-  return [peakMatrix];
+  return [varData];
 }
 
 /**
@@ -387,63 +481,16 @@ export function useGeneSelection(
   selection,
   setItemIsNotReady,
 ) {
-  const [geneData, setGeneData] = useState();
-
-  const setWarning = useSetWarning();
-
-  useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-    if (!selection) {
-      setItemIsReady('expression-matrix');
-      return;
-    }
-    const loader = loaders[dataset].loaders['expression-matrix'];
-    if (loader) {
-      setItemIsNotReady('expression-matrix');
-      const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
-      if (implementsGeneSelection) {
-        loaders[dataset].loaders['expression-matrix']
-          .loadGeneSelection({ selection })
-          .catch(e => warn(e, setWarning))
-          .then((payload) => {
-            if (!payload) return;
-            const { data } = payload;
-            setGeneData(data);
-            setItemIsReady('expression-matrix');
-          });
-      } else {
-        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
-          const { data } = payload;
-          const [attrs, { data: matrix }] = data;
-          const expressionDataForSelection = selection.map((sel) => {
-            const geneIndex = attrs.cols.indexOf(sel);
-            const numGenes = attrs.cols.length;
-            const numCells = attrs.rows.length;
-            const expressionData = new Uint8Array(numCells);
-            for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
-              expressionData[cellIndex] = matrix[cellIndex * numGenes + geneIndex];
-            }
-            return expressionData;
-          });
-          setGeneData(expressionDataForSelection);
-          setItemIsReady('expression-matrix');
-        });
-      }
-    } else {
-      setGeneData(null);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
-      } else {
-        setItemIsReady('expression-matrix');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset, selection]);
-
-  return [geneData];
+  return useVarSelection(
+    loaders,
+    dataset,
+    setItemIsReady,
+    isRequired,
+    selection,
+    setItemIsNotReady,
+    DataType.EXPRESSION_MATRIX,
+    'loadGeneSelection',
+  );
 }
 
 /**
@@ -470,7 +517,40 @@ export function usePeakSelection(
   selection,
   setItemIsNotReady,
 ) {
-  const [geneData, setGeneData] = useState();
+  return useVarSelection(
+    loaders,
+    dataset,
+    setItemIsReady,
+    isRequired,
+    selection,
+    setItemIsNotReady,
+    DataType.PEAK_MATRIX,
+    'loadGeneSelection',
+  );
+}
+
+/**
+ * Get the attributes for the expression matrix data type loader,
+ * i.e names of cells and genes.
+ * Throw warnings if the data is marked as required.
+ * Subscribe to loader updates.  Should not be used in conjunction (called in the same component)
+ * with useExpressionMatrixData.
+ * @param {object} loaders The object mapping
+ * datasets and data types to loader instances.
+ * @param {string} dataset The key for a dataset,
+ * used to identify which loader to use.
+ * @param {function} setItemIsReady A function to call
+ * when done loading.
+ * @param {function} addUrl A function to call to update
+ * the URL list.
+ * @param {boolean} isRequired Should a warning be thrown if
+ * loading is unsuccessful?
+ * @returns {object} [attrs] { rows, cols } object containing cell and gene names.
+ */
+function useMatrixAttrs(
+  loaders, dataset, setItemIsReady, addUrl, isRequired, dataType, dataTypeLabel,
+) {
+  const [attrs, setAttrs] = useState();
 
   const setWarning = useSetWarning();
 
@@ -478,55 +558,38 @@ export function usePeakSelection(
     if (!loaders[dataset]) {
       return;
     }
-    if (!selection) {
-      setItemIsReady('peak-matrix');
-      return;
-    }
-    const loader = loaders[dataset].loaders['peak-matrix'];
+    const loader = loaders[dataset].loaders[dataType];
     if (loader) {
-      setItemIsNotReady('peak-matrix');
-      const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
-      if (implementsGeneSelection) {
-        loaders[dataset].loaders['peak-matrix']
-          .loadGeneSelection({ selection })
-          .catch(e => warn(e, setWarning))
-          .then((payload) => {
-            if (!payload) return;
-            const { data } = payload;
-            setGeneData(data);
-            setItemIsReady('peak-matrix');
-          });
+      const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
+      if (implementsLoadAttrs) {
+        loader.loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
+          if (!payload) return;
+          const { data, url } = payload;
+          setAttrs(data);
+          addUrl(url, dataTypeLabel);
+          setItemIsReady(dataType);
+        });
       } else {
         loader.load().catch(e => warn(e, setWarning)).then((payload) => {
           if (!payload) return;
-          const { data } = payload;
-          const [attrs, { data: matrix }] = data;
-          const expressionDataForSelection = selection.map((sel) => {
-            const geneIndex = attrs.cols.indexOf(sel);
-            const numGenes = attrs.cols.length;
-            const numCells = attrs.rows.length;
-            const expressionData = new Uint8Array(numCells);
-            for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
-              expressionData[cellIndex] = matrix[cellIndex * numGenes + geneIndex];
-            }
-            return expressionData;
-          });
-          setGeneData(expressionDataForSelection);
-          setItemIsReady('peak-matrix');
+          const { data, url } = payload;
+          setAttrs(data[0]);
+          addUrl(url, dataTypeLabel);
+          setItemIsReady(dataType);
         });
       }
     } else {
-      setGeneData(null);
+      setAttrs(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'peak-matrix', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, dataType, null, null), setWarning);
       } else {
-        setItemIsReady('peak-matrix');
+        setItemIsReady(dataType);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset, selection]);
+  }, [loaders, dataset]);
 
-  return [geneData];
+  return [attrs];
 }
 
 /**
@@ -548,46 +611,10 @@ export function usePeakSelection(
  * @returns {object} [attrs] { rows, cols } object containing cell and gene names.
  */
 export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isRequired) {
-  const [attrs, setAttrs] = useState();
-
-  const setWarning = useSetWarning();
-
-  useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-    const loader = loaders[dataset].loaders['expression-matrix'];
-    if (loader) {
-      const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
-      if (implementsLoadAttrs) {
-        loader.loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
-          const { data, url } = payload;
-          setAttrs(data);
-          addUrl(url, 'Expression Matrix');
-          setItemIsReady('expression-matrix');
-        });
-      } else {
-        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
-          const { data, url } = payload;
-          setAttrs(data[0]);
-          addUrl(url, 'Expression Matrix');
-          setItemIsReady('expression-matrix');
-        });
-      }
-    } else {
-      setAttrs(null);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
-      } else {
-        setItemIsReady('expression-matrix');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
-  return [attrs];
+  return useMatrixAttrs(
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    DataType.EXPRESSION_MATRIX, 'Expression Matrix',
+  );
 }
 
 /**
@@ -609,46 +636,10 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
  * @returns {object} [attrs] { rows, cols } object containing cell and gene names.
  */
 export function usePeakAttrs(loaders, dataset, setItemIsReady, addUrl, isRequired) {
-  const [attrs, setAttrs] = useState();
-
-  const setWarning = useSetWarning();
-
-  useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-    const loader = loaders[dataset].loaders['peak-matrix'];
-    if (loader) {
-      const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
-      if (implementsLoadAttrs) {
-        loader.loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
-          const { data, url } = payload;
-          setAttrs(data);
-          addUrl(url, 'Peak Matrix');
-          setItemIsReady('peak-matrix');
-        });
-      } else {
-        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
-          const { data, url } = payload;
-          setAttrs(data[0]);
-          addUrl(url, 'Peak Matrix');
-          setItemIsReady('peak-matrix');
-        });
-      }
-    } else {
-      setAttrs(null);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'peak-matrix', null, null), setWarning);
-      } else {
-        setItemIsReady('peak-matrix');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
-  return [attrs];
+  return useMatrixAttrs(
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    DataType.PEAK_MATRIX, 'Peak Matrix',
+  );
 }
 
 /**
@@ -692,8 +683,9 @@ export function useMoleculesData(
       return;
     }
 
-    if (loaders[dataset].loaders.molecules) {
-      loaders[dataset].loaders.molecules.load().catch(e => warn(e, setWarning)).then((payload) => {
+    const loader = loaders[dataset].loaders[DataType.MOLECULES];
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         setMolecules(data);
@@ -711,16 +703,16 @@ export function useMoleculesData(
           coordinationSetters,
           initialCoordinationValues,
         );
-        setItemIsReady('molecules');
+        setItemIsReady(DataType.MOLECULES);
       });
     } else {
       setMolecules({});
       setMoleculesCount(0);
       setLocationsCount(0);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'molecules', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.MOLECULES, null, null), setWarning);
       } else {
-        setItemIsReady('molecules');
+        setItemIsReady(DataType.MOLECULES);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -766,8 +758,8 @@ export function useNeighborhoodsData(
       return;
     }
 
-    if (loaders[dataset].loaders.neighborhoods) {
-      loaders[dataset].loaders.neighborhoods.load().catch(e => warn(e, setWarning))
+    if (loaders[dataset].loaders[DataType.NEIGHBORHOODS]) {
+      loaders[dataset].loaders[DataType.NEIGHBORHOODS].load().catch(e => warn(e, setWarning))
         .then((payload) => {
           if (!payload) return;
           const { data, url, coordinationValues } = payload;
@@ -782,14 +774,14 @@ export function useNeighborhoodsData(
             coordinationSetters,
             initialCoordinationValues,
           );
-          setItemIsReady('neighborhoods');
+          setItemIsReady(DataType.NEIGHBORHOODS);
         });
     } else {
       setNeighborhoods({});
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'neighborhoods', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.NEIGHBORHOODS, null, null), setWarning);
       } else {
-        setItemIsReady('neighborhoods');
+        setItemIsReady(DataType.NEIGHBORHOODS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -843,8 +835,9 @@ export function useRasterData(
       return;
     }
 
-    if (loaders[dataset].loaders.raster) {
-      loaders[dataset].loaders.raster.load().catch(e => warn(e, setWarning)).then((payload) => {
+    const loader = loaders[dataset].loaders[DataType.RASTER];
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url: urls, coordinationValues } = payload;
         setRaster(data);
@@ -859,7 +852,7 @@ export function useRasterData(
           coordinationSetters,
           initialCoordinationValues,
         );
-        setItemIsReady('raster');
+        setItemIsReady(DataType.RASTER);
       });
     } else {
       // There was no raster loader for this dataset,
@@ -867,9 +860,9 @@ export function useRasterData(
       setImageLayerLoaders([]);
       setImageLayerMeta([]);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'raster', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.RASTER, null, null), setWarning);
       } else {
-        setItemIsReady('raster');
+        setItemIsReady(DataType.RASTER);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -914,8 +907,8 @@ export function useGenomicProfilesData(
       return;
     }
 
-    if (loaders[dataset].loaders['genomic-profiles']) {
-      loaders[dataset].loaders['genomic-profiles'].load().catch(e => warn(e, setWarning))
+    if (loaders[dataset].loaders[DataType.GENOMIC_PROFILES]) {
+      loaders[dataset].loaders[DataType.GENOMIC_PROFILES].load().catch(e => warn(e, setWarning))
         .then((payload) => {
           if (!payload) return;
           const { data, url, coordinationValues } = payload;
@@ -926,14 +919,14 @@ export function useGenomicProfilesData(
             coordinationSetters,
             initialCoordinationValues,
           );
-          setItemIsReady('genomic-profiles');
+          setItemIsReady(DataType.GENOMIC_PROFILES);
         });
     } else {
       setGenomicProfilesAttrs(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'genomic-profiles', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.GENOMIC_PROFILES, null, null), setWarning);
       } else {
-        setItemIsReady('genomic-profiles');
+        setItemIsReady(DataType.GENOMIC_PROFILES);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
