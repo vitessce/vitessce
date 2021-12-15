@@ -63,7 +63,10 @@ precision mediump float;
 // The texture (GL.LUMINANCE & Uint8Array).
 uniform sampler2D uBitmapTexture;
 
-// What are the dimensions of the texture (width, height)?
+// What are the dimensions of the data (width, height)?
+uniform vec2 uDataSize;
+
+// What are the dimensions of the textured representation
 uniform vec2 uTextureSize;
 
 // How many consecutive pixels should be aggregated together along each axis?
@@ -72,14 +75,42 @@ uniform vec2 uAggSize;
 // What are the values of the color scale sliders?
 uniform vec2 uColorScaleRange;
 
+// Tile #
+uniform float x;
+uniform float y;
+
+// True tile size
+uniform float tileWidth;
+uniform float tileHeight;
+
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
 varying vec2 vTexCoord;
 
+vec2 transformCoordinate(vec2 coord) {
+  // True pixel coordinate on scale of uDataSize
+  vec2 viewCoord = vec2(floor(coord.x * uDataSize.x), floor(coord.y * uDataSize.y));
+  // Compute single value index into data array
+  float index = viewCoord.y * uDataSize.x + viewCoord.x;
+  float textureX = (floor( index / uTextureSize.x )) / uTextureSize.x;
+  float textureY = (index - (floor( index / uTextureSize.x ) * uTextureSize.x)) / uTextureSize.y;
+  vec2 texturedCoord = vec2(textureX, textureY);
+  return texturedCoord;
+}
+
+
 void main(void) {
+
+  // Compute offset for each texture call in 0-1 texture coordinates for the given tile
+  float xOffset = (x * tileWidth) / uDataSize.x;
+  float yOffset = (y * tileHeight) / uDataSize.y;
+  // Compute the texCoord in "offset coordinates," only ranging from (x * tileWidth) / uDataSize.x to ((x + 1) * tileWidth) / uDataSize.x
+  vec2 vTexCoordOffset = vec2(xOffset + (vTexCoord.x * tileWidth / uDataSize.x), yOffset + (vTexCoord.y * tileHeight / uDataSize.y));
+
   // Compute 1 pixel in texture coordinates
-  vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
+  vec2 onePixel = vec2(1.0, 1.0) / uDataSize;
   
-  vec2 viewCoord = vec2(floor(vTexCoord.x * uTextureSize.x), floor(vTexCoord.y * uTextureSize.y));
+  // True pixel coordinate on scale of uDataSize
+  vec2 viewCoord = vec2(floor(vTexCoord.x * uDataSize.x), floor(vTexCoord.y * uDataSize.y));
 
   // Compute (x % aggSizeX, y % aggSizeY).
   // These values will be the number of values to the left / above the current position to consider.
@@ -108,7 +139,9 @@ void main(void) {
       }
 
       offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
-      intensitySum += texture2D(uBitmapTexture, vTexCoord + offsetPixels).r;
+      // intensitySum += texture2D(uBitmapTexture, vTexCoord + offsetPixels).r;
+      // Want the transformed coordinate of the true coordinate
+      intensitySum += texture2D(uBitmapTexture, transformCoordinate(vTexCoordOffset + offsetPixels)).r;
     }
   }
   

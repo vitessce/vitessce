@@ -318,6 +318,16 @@ const Heatmap = forwardRef((props, deckRef) => {
     setIsRendering(backlog.length > 0);
   }, [backlog, setIsRendering]);
 
+  const paddedExpression = useMemo(() => {
+    const newExpression = new Uint8Array(4096 * 4096).fill(0);
+    if (expression?.matrix) {
+      expression.matrix.forEach((i, j) => {
+        newExpression[j] = i;
+      });
+    }
+    return newExpression;
+  }, [expression]);
+
   // Update the heatmap tiles if:
   // - new tiles are available (`tileIteration` has changed), or
   // - the matrix bounds have changed, or
@@ -327,10 +337,14 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (!tilesRef.current || backlog.length) {
       return [];
     }
-    function getLayer(i, j, tile) {
+    // eslint-disable-next-line no-unused-vars
+    function getLayer(i, j, _tile) {
+      const { rows, cols } = expression;
+      console.log(i, j, tileWidth, tileHeight) // eslint-disable-line
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
-        image: tile,
+        image: paddedExpression,
+        dimensions: [rows.length, cols.length],
         bounds: [
           matrixLeft + j * tileWidth,
           matrixTop + i * tileHeight,
@@ -340,6 +354,9 @@ const Heatmap = forwardRef((props, deckRef) => {
         aggSizeX,
         aggSizeY,
         colormap,
+        tileId: [i, j],
+        tileWidth,
+        tileHeight,
         colorScaleLo: colormapRange[0],
         colorScaleHi: colormapRange[1],
         updateTriggers: {
@@ -353,7 +370,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
     aggSizeX, aggSizeY, colormap, colormapRange,
-    axisLeftLabels, axisTopLabels, xTiles]);
+    axisLeftLabels, axisTopLabels, xTiles, paddedExpression]);
 
 
   // Map cell and gene names to arrays with indices,
