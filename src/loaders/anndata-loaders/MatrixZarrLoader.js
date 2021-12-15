@@ -5,7 +5,12 @@ import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 
 const normalize = (arr) => {
-  const [min, max] = extent(arr);
+  let [min, max] = extent(arr);
+  if (min === max && max === 0) {
+    max = 1;
+  } else if (min === max) {
+    min = max - 1;
+  }
   const ratio = 255 / (max - min);
   const data = new Uint8Array(
     arr.map(i => Math.floor((i - min) * ratio)),
@@ -38,8 +43,12 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Promise} A promise for the zarr array contianing the gene names.
    */
   async loadFilteredGeneNames() {
-    if (this.filteredGeneNames) {
-      return this.filteredGeneNames;
+    const { options: { matrix } } = this;
+    if (!this.filteredGeneNames) {
+      this.filteredGeneNames = {};
+    }
+    if (this.filteredGeneNames[matrix]) {
+      return this.filteredGeneNames[matrix];
     }
     const { geneFilter: geneFilterZarr } = this.options;
     const getFilterFn = async () => {
@@ -48,10 +57,10 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
       return data => data.filter((_, j) => geneFilter[j]);
     };
 
-    this.filteredGeneNames = Promise
-      .all([this.dataSource.loadVarIndex(), getFilterFn()])
+    this.filteredGeneNames[matrix] = Promise
+      .all([this.dataSource.loadVarIndex(matrix), getFilterFn()])
       .then(([data, filter]) => filter(data));
-    return this.filteredGeneNames;
+    return this.filteredGeneNames[matrix];
   }
 
   /**

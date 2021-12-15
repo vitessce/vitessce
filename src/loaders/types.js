@@ -9,7 +9,10 @@ import OmeZarrLoader from './OmeZarrLoader';
 import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
-import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
+import {
+  AnnDataSource, MuDataSource,
+  ZarrDataSource, JsonSource,
+} from './data-sources';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
@@ -24,6 +27,10 @@ export const fileTypeToLoaderAndSource = {
   [FileType.ANNDATA_CELL_SETS_ZARR]: [AnnDataSource, AnnDataLoaders.CellSetsZarrLoader],
   [FileType.ANNDATA_CELLS_ZARR]: [AnnDataSource, AnnDataLoaders.CellsZarrLoader],
   [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],
+  [FileType.MUDATA_CELL_SETS_ZARR]: [MuDataSource, AnnDataLoaders.CellSetsZarrLoader],
+  [FileType.MUDATA_CELLS_ZARR]: [MuDataSource, AnnDataLoaders.CellsZarrLoader],
+  [FileType.MUDATA_EXPRESSION_MATRIX_ZARR]: [MuDataSource, AnnDataLoaders.MatrixZarrLoader],
+  [FileType.MUDATA_PEAK_MATRIX_ZARR]: [MuDataSource, AnnDataLoaders.MatrixZarrLoader],
   [FileType.GENOMIC_PROFILES_ZARR]: [ZarrDataSource, GenomicProfilesZarrLoader],
 };
 

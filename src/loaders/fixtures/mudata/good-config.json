@@ -1,0 +1,133 @@
+{
+  "version": "1.0.6",
+  "name": "3ac0768d61c6c84f0ec59d766e123e05",
+  "datasets": [
+    {
+      "uid": "40334a99-2be7-4904-bc75-102609fe53e9",
+      "name": "40334a99-2be7-4904-bc75-102609fe53e9",
+      "files": [
+        {
+          "type": "cells",
+          "fileType": "mudata-cells.zarr",
+          "url": "http://127.0.0.1:8080/mudata/mudata-dense.zarr",
+          "options": {
+            "mappings": {
+              "UMAP": {
+                "key": "mod/rna/obsm/X_umap",
+                "dims": [0, 1]
+              },
+              "LSI": {
+                "key": "mod/atac/obsm/X_lsi",
+                "dims": [0, 1]
+              },
+              "MOFA": {
+                "key": "obsm/X_mofa",
+                "dims": [0, 1]
+              }
+            },
+            "factors": ["mod/rna/obs/leiden"]
+          },
+          "requestInit": {
+            "method": "GET",
+            "headers": { "x-foo": "FAKE" },
+            "mode": "cors",
+            "credentials": "omit",
+            "cache": "no-store",
+            "redirect": "error",
+            "referrer": "FAKE",
+            "integrity": "FAKE"
+          }
+        },
+        {
+          "type": "cell-sets",
+          "fileType": "mudata-cell-sets.zarr",
+          "url": "http://127.0.0.1:8080/mudata/mudata-dense.zarr",
+          "options": [
+            {
+              "groupName": "RNA Ledien",
+              "setName": "mod/rna/obs/leiden"
+            },
+            {
+              "groupName": "ATAC Ledien",
+              "setName": "mod/atac/obs/leiden"
+            },
+            {
+              "groupName": "Joint Ledien",
+              "setName": "obs/leiden"
+            }
+          ],
+          "requestInit": {
+            "method": "GET",
+            "headers": { "x-foo": "FAKE" },
+            "mode": "cors",
+            "credentials": "omit",
+            "cache": "no-store",
+            "redirect": "error",
+            "referrer": "FAKE",
+            "integrity": "FAKE"
+          }
+        },
+        {
+          "type": "expression-matrix",
+          "fileType": "mudata-expression-matrix.zarr",
+          "url": "http://127.0.0.1:8080/mudata/mudata-dense.zarr",
+          "options": {
+            "matrix": "mod/rna/X"
+          },
+          "requestInit": {
+            "method": "GET",
+            "headers": { "x-foo": "FAKE" },
+            "mode": "cors",
+            "credentials": "omit",
+            "cache": "no-store",
+            "redirect": "error",
+            "referrer": "FAKE",
+            "integrity": "FAKE"
+          }
+        }
+      ]
+    }
+  ],
+  "initStrategy": "auto",
+  "coordinationSpace": {
+    "embeddingType": {
+      "UMAP": "UMAP"
+    }
+  },
+  "layout": [
+    {
+      "component": "cellSets",
+      "h": 3,
+      "w": 3,
+      "x": 9,
+      "y": 0,
+      "coordinationScopes": {}
+    },
+    {
+      "component": "genes",
+      "h": 3,
+      "w": 3,
+      "x": 9,
+      "y": 3,
+      "coordinationScopes": {}
+    },
+    {
+      "component": "scatterplot",
+      "h": 3,
+      "w": 5,
+      "x": 0,
+      "y": 0,
+      "coordinationScopes": {
+        "embeddingType": "UMAP"
+      }
+    },
+    {
+      "component": "heatmap",
+      "h": 3,
+      "w": 9,
+      "x": 0,
+      "y": 3,
+      "coordinationScopes": {}
+    }
+  ]
+}

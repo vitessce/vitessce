@@ -236,6 +236,19 @@ const dataset = vc
 `}
   />
 
+### MuData as Zarr
+
+[MuData](https://github.com/PMBio/mudata) is the multi-modal generalization of AnnData.
+See the [AnnData as Zarr](#anndata-as-zarr) section for more information.
+
+#### `mudata-cells.zarr`
+
+#### `mudata-cell-sets.zarr`
+
+#### `anndata-expression-matrix.zarr`
+
+
+
 ### `cells.json`
 
 - [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/cells.schema.json)
@@ -708,7 +721,7 @@ Here we provide tips for conversion from common single-cell file types.
 
 #### Convert to Zarr
 
-Use AnnData's [`read_h5ad`](https://anndata.readthedocs.io/en/latest/anndata.read_loom.html) function to load the file as an AnnData object, then use the [`.write_zarr`](https://anndata.readthedocs.io/en/latest/anndata.AnnData.write_zarr.html) function to convert to a Zarr store. 
+Use AnnData's [`read_h5ad`](https://anndata.readthedocs.io/en/latest/generated/anndata.read_h5ad.html) function to load the file as an AnnData object, then use the [`.write_zarr`](https://anndata.readthedocs.io/en/latest/anndata.AnnData.write_zarr.html) function to convert to a Zarr store. 
 
 ```python
 from anndata import read_h5ad
@@ -772,7 +785,7 @@ Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) famil
 
 #### Convert to Zarr via AnnData
 
-Use AnnData's [`read_loom`](https://anndata.readthedocs.io/en/latest/anndata.read_loom.html) function to load the Loom file as an AnnData object, then use the [`.write_zarr`](https://anndata.readthedocs.io/en/latest/anndata.AnnData.write_zarr.html) function to convert to a Zarr store. 
+Use AnnData's [`read_loom`](https://anndata.readthedocs.io/en/latest/generated/anndata.read_loom.html) function to load the Loom file as an AnnData object, then use the [`.write_zarr`](https://anndata.readthedocs.io/en/latest/anndata.AnnData.write_zarr.html) function to convert to a Zarr store. 
 
 ```python
 from anndata import read_loom
@@ -785,6 +798,20 @@ adata.write_zarr('my_store.zarr')
 ```
 
 Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) family of native file types.
+
+### MuData as h5mu
+
+Use MuData's [`read_h5mu`](https://mudata.readthedocs.io/en/latest/api/generated/mudata.read_h5mu.html) function to load the file as an AnnData object, then use the [`.write_zarr`](https://mudata.readthedocs.io/en/latest/api/generated/mudata.write_zarr.html) function to convert to a Zarr store. 
+
+```python
+from mudata import read_h5mu
+import zarr
+
+mdata = read_h5mu('path/to/my_dataset.h5mu')
+mdata.write_zarr('my_store.zarr')
+```
+
+Converted outputs can be used with the [MuData as Zarr](#mudata-as-zarr) family of native file types.
 
 ### Seurat
 

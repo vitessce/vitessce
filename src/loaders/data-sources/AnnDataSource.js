@@ -17,7 +17,7 @@ const HEADER_LENGTH = 4;
    * Largerly a port of https://github.com/zarr-developers/numcodecs/blob/2c1aff98e965c3c4747d9881d8b8d4aad91adb3a/numcodecs/vlen.pyx#L135-L178
    * @returns {string[]} An array of strings.
    */
-function parseVlenUtf8(buffer) {
+export function parseVlenUtf8(buffer) {
   const decoder = new TextDecoder();
   let data = 0;
   const dataEnd = data + buffer.length;
@@ -44,7 +44,7 @@ function parseVlenUtf8(buffer) {
 
 /**
  * A base AnnData loader which has all shared methods for more comlpex laoders,
- * like loading cell names and ids. It inherits from AbstractLoader.
+ * like loading cell names and ids. It inherits from ZarrDataSource.
  */
 export default class AnnDataSource extends ZarrDataSource {
   constructor(...args) {

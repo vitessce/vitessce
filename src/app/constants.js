@@ -37,6 +37,10 @@ export const FileType = {
   ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
   ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
+  MUDATA_CELL_SETS_ZARR: 'mudata-cell-sets.zarr',
+  MUDATA_CELLS_ZARR: 'mudata-cells.zarr',
+  MUDATA_EXPRESSION_MATRIX_ZARR: 'mudata-expression-matrix.zarr',
+  MUDATA_PEAK_MATRIX_ZARR: 'mudata-peak-matrix.zarr',
 };
 
 /**
