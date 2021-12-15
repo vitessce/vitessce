@@ -1,17 +1,22 @@
-/* eslint-disable */
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable react/no-array-index-key */
 import React from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
-import {useThemeConfig} from '@docusaurus/theme-common';
+import { useThemeConfig } from '@docusaurus/theme-common';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import isInternalUrl from '@docusaurus/isInternalUrl';
-import styles from './styles.module.css';
 import ThemedImage from '@theme/ThemedImage';
 import IconExternalLink from '@theme/IconExternalLink';
+import styles from './styles.module.css';
 
+// This component has been swizzled from docusaurus
+// so that we can include the Vitessce version information.
 import version from '../../../../src/version.json';
 
-function FooterLink({to, href, label, prependBaseUrlToHref, ...props}) {
+function FooterLink({
+  to, href, label, prependBaseUrlToHref, ...props
+}) {
   const toUrl = useBaseUrl(to);
   const normalizedHref = useBaseUrl(href, {
     forcePrependBaseUrl: true,
@@ -21,12 +26,13 @@ function FooterLink({to, href, label, prependBaseUrlToHref, ...props}) {
       className="footer__link-item"
       {...(href
         ? {
-            href: prependBaseUrlToHref ? normalizedHref : href,
-          }
+          href: prependBaseUrlToHref ? normalizedHref : href,
+        }
         : {
-            to: toUrl,
-          })}
-      {...props}>
+          to: toUrl,
+        })}
+      {...props}
+    >
       {href && !isInternalUrl(href) ? (
         <span>
           {label}
@@ -39,7 +45,9 @@ function FooterLink({to, href, label, prependBaseUrlToHref, ...props}) {
   );
 }
 
-function FooterLogo({sources, alt, width, height}) {
+function FooterLogo({
+  sources, alt, width, height,
+}) {
   return (
     <ThemedImage
       className="footer__logo"
@@ -52,8 +60,8 @@ function FooterLogo({sources, alt, width, height}) {
 }
 
 function Footer() {
-  const {footer} = useThemeConfig();
-  const {copyright, links = [], logo = {}} = footer || {};
+  const { footer } = useThemeConfig();
+  const { copyright, links = [], logo = {} } = footer || {};
   const sources = {
     light: useBaseUrl(logo.src),
     dark: useBaseUrl(logo.srcDark || logo.src),
@@ -67,7 +75,8 @@ function Footer() {
     <footer
       className={clsx('footer', {
         'footer--dark': footer.style === 'dark',
-      })}>
+      })}
+    >
       <div className="container">
         {links && links.length > 0 && (
           <div className="row footer__links">
@@ -76,28 +85,26 @@ function Footer() {
                 {linkItem.title != null ? (
                   <div className="footer__title">{linkItem.title}</div>
                 ) : null}
-                {linkItem.items != null &&
-                Array.isArray(linkItem.items) &&
-                linkItem.items.length > 0 ? (
+                {linkItem.items != null
+                && Array.isArray(linkItem.items)
+                && linkItem.items.length > 0 ? (
                   <ul className="footer__items">
-                    {linkItem.items.map((item, key) =>
-                      item.html ? (
-                        <li
-                          key={key}
-                          className="footer__item" // Developer provided the HTML, so assume it's safe.
+                    {linkItem.items.map((item, key) => (item.html ? (
+                      <li
+                        key={key}
+                        className="footer__item" // Developer provided the HTML, so assume it's safe.
                           // eslint-disable-next-line react/no-danger
-                          dangerouslySetInnerHTML={{
-                            __html: item.html,
-                          }}
-                        />
-                      ) : (
-                        <li key={item.href || item.to} className="footer__item">
-                          <FooterLink {...item} />
-                        </li>
-                      ),
-                    )}
+                        dangerouslySetInnerHTML={{
+                          __html: item.html,
+                        }}
+                      />
+                    ) : (
+                      <li key={item.href || item.to} className="footer__item">
+                        <FooterLink {...item} />
+                      </li>
+                    )))}
                   </ul>
-                ) : null}
+                  ) : null}
               </div>
             ))}
           </div>
@@ -129,7 +136,10 @@ function Footer() {
                   }}
                 />
                 <p className="info-section-text">
-                  This deployment: branch=<code>{version.branch}</code>, hash=<code>{version.hash}</code>, date={version.date}
+                  This deployment:&nbsp;
+                  branch=<code>{version.branch}</code>,&nbsp;
+                  hash=<code>{version.hash}</code>,&nbsp;
+                  date={version.date}
                 </p>
               </div>
             ) : null}
