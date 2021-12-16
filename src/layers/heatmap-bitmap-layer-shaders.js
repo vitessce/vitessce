@@ -83,6 +83,9 @@ uniform float y;
 uniform float tileWidth;
 uniform float tileHeight;
 
+uniform float xTiles;
+uniform float yTiles;
+
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
 varying vec2 vTexCoord;
 
@@ -101,59 +104,60 @@ vec2 transformCoordinate(vec2 coord) {
 void main(void) {
 
   // Compute offset for each texture call in 0-1 texture coordinates for the given tile
-  float xOffset = (x * tileWidth) / uDataSize.x;
-  float yOffset = (y * tileHeight) / uDataSize.y;
+  float xOffset = (x / xTiles);
+  float yOffset = (y / yTiles);
   // Compute the texCoord in "offset coordinates," only ranging from (x * tileWidth) / uDataSize.x to ((x + 1) * tileWidth) / uDataSize.x
-  vec2 vTexCoordOffset = vec2(xOffset + (vTexCoord.x * tileWidth / uDataSize.x), yOffset + (vTexCoord.y * tileHeight / uDataSize.y));
+  vec2 vTexCoordOffset = vec2(xOffset + (vTexCoord.x * tileWidth / uDataSize.x), yOffset + ((1. - vTexCoord.y) * tileHeight / uDataSize.y));
 
-  // Compute 1 pixel in texture coordinates
-  vec2 onePixel = vec2(1.0, 1.0) / uDataSize;
+  gl_FragColor = vec4(vTexCoord.x, 0., 0., 1.);
+  // // Compute 1 pixel in texture coordinates
+  // vec2 onePixel = vec2(1.0, 1.0) / uDataSize;
   
-  // True pixel coordinate on scale of uDataSize
-  vec2 viewCoord = vec2(floor(vTexCoord.x * uDataSize.x), floor(vTexCoord.y * uDataSize.y));
+  // // True pixel coordinate on scale of uDataSize
+  // vec2 viewCoord = vec2(floor(vTexCoord.x * uDataSize.x), floor(vTexCoord.y * uDataSize.y));
 
-  // Compute (x % aggSizeX, y % aggSizeY).
-  // These values will be the number of values to the left / above the current position to consider.
-  vec2 modAggSize = vec2(-1.0 * mod(viewCoord.x, uAggSize.x), -1.0 * mod(viewCoord.y, uAggSize.y));
+  // // Compute (x % aggSizeX, y % aggSizeY).
+  // // These values will be the number of values to the left / above the current position to consider.
+  // vec2 modAggSize = vec2(-1.0 * mod(viewCoord.x, uAggSize.x), -1.0 * mod(viewCoord.y, uAggSize.y));
 
-  // Take the sum of values along each axis.
-  float intensitySum = 0.0;
-  vec2 offsetPixels = vec2(0.0, 0.0);
+  // // Take the sum of values along each axis.
+  // float intensitySum = 0.0;
+  // vec2 offsetPixels = vec2(0.0, 0.0);
 
-  for(int i = 0; i < 16; i++) {
-    // Check to break outer loop early.
-    // Uniforms cannot be used as conditions in GLSL for loops.
-    if(float(i) >= uAggSize.y) {
-      // Done in the y direction.
-      break;
-    }
+  // for(int i = 0; i < 16; i++) {
+  //   // Check to break outer loop early.
+  //   // Uniforms cannot be used as conditions in GLSL for loops.
+  //   if(float(i) >= uAggSize.y) {
+  //     // Done in the y direction.
+  //     break;
+  //   }
 
-    offsetPixels = vec2(offsetPixels.x, (modAggSize.y + float(i)) * onePixel.y);
+  //   offsetPixels = vec2(offsetPixels.x, (modAggSize.y + float(i)) * onePixel.y);
 
-    for(int j = 0; j < 16; j++) {
-      // Check to break inner loop early.
-      // Uniforms cannot be used as conditions in GLSL for loops.
-      if(float(j) >= uAggSize.x) {
-        // Done in the x direction.
-        break;
-      }
+  //   for(int j = 0; j < 16; j++) {
+  //     // Check to break inner loop early.
+  //     // Uniforms cannot be used as conditions in GLSL for loops.
+  //     if(float(j) >= uAggSize.x) {
+  //       // Done in the x direction.
+  //       break;
+  //     }
 
-      offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
-      // intensitySum += texture2D(uBitmapTexture, vTexCoord + offsetPixels).r;
-      // Want the transformed coordinate of the true coordinate
-      intensitySum += texture2D(uBitmapTexture, transformCoordinate(vTexCoordOffset + offsetPixels)).r;
-    }
-  }
+  //     offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
+  //     // intensitySum += texture2D(uBitmapTexture, vTexCoord + offsetPixels).r;
+  //     // Want the transformed coordinate of the true coordinate
+  //     intensitySum += texture2D(uBitmapTexture, transformCoordinate(vTexCoordOffset + offsetPixels)).r;
+  //   }
+  // }
   
-  // Compute the mean value.
-  float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
+  // // Compute the mean value.
+  // float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
   
-  // Re-scale using the color scale slider values.
-  float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
+  // // Re-scale using the color scale slider values.
+  // float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
 
-  gl_FragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
+  // gl_FragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
 
-  geometry.uv = vTexCoord;
-  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
+  // geometry.uv = vTexCoord;
+  // DECKGL_FILTER_COLOR(gl_FragColor, geometry);
 }
 `;

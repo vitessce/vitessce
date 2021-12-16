@@ -83,6 +83,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       tileWidth,
       tileHeight,
       dimensions,
+      xTiles,
+      yTiles,
     } = this.props;
     // Render the image
     if (bitmapTexture && model) {
@@ -98,6 +100,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
             y,
             tileWidth,
             tileHeight,
+            xTiles,
+            yTiles,
           }),
         )
         .draw();
