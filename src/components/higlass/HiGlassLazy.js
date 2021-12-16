@@ -11,10 +11,12 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import mySpec from './spec.json';
 
 const PIXI_BUNDLE_VERSION = packageJson.dependencies['window-pixi'];
-const GOSLING_BUNDLE_VERSION = '0.9.8';
+const HIGLASS_BUNDLE_VERSION = packageJson.dependencies['higlass'];
+const GOSLING_BUNDLE_VERSION = '0.9.14';
 const BUNDLE_FILE_EXT = process.env.NODE_ENV === 'development' ? 'js' : 'min.js';
 const PIXI_BUNDLE_URL = `https://unpkg.com/window-pixi@${PIXI_BUNDLE_VERSION}/dist/pixi.${BUNDLE_FILE_EXT}`;
-const GOSLING_BUNDLE_URL = `https://unpkg.com/gosling.js@${GOSLING_BUNDLE_VERSION}/dist/gosling.js`;
+const HIGLASS_BUNDLE_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.${BUNDLE_FILE_EXT}`;
+const GOSLING_BUNDLE_URL = `https://unpkg.com/gosling.js@${GOSLING_BUNDLE_VERSION}/dist/gosling.${BUNDLE_FILE_EXT}`;
 
 // Initialize the dynamic __import__() function.
 if (dynamicImportPolyfill) {
@@ -38,13 +40,16 @@ const LazyGoslingComponent = React.lazy(() => {
         message: 'The Gosling scripts could not be dynamically imported.',
       })));
     };
-      // eslint-disable-next-line no-undef
+    // eslint-disable-next-line no-undef
     __import__(PIXI_BUNDLE_URL).then(() => {
       // eslint-disable-next-line no-undef
-      __import__(GOSLING_BUNDLE_URL).then(() => {
-        // React.lazy promise must return an ES module with the
-        // component as the default export.
-        resolve(asEsModule(window.gosling.GoslingComponent));
+      __import__(HIGLASS_BUNDLE_URL).then(() => {
+        // eslint-disable-next-line no-undef
+        __import__(GOSLING_BUNDLE_URL).then(() => {
+          // React.lazy promise must return an ES module with the
+          // component as the default export.
+          resolve(asEsModule(window.gosling.GoslingComponent));
+        }).catch(handleImportError);
       }).catch(handleImportError);
     }).catch(handleImportError);
   });
