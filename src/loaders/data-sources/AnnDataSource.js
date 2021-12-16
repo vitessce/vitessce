@@ -17,7 +17,7 @@ const HEADER_LENGTH = 4;
    * Largerly a port of https://github.com/zarr-developers/numcodecs/blob/2c1aff98e965c3c4747d9881d8b8d4aad91adb3a/numcodecs/vlen.pyx#L135-L178
    * @returns {string[]} An array of strings.
    */
-export function parseVlenUtf8(buffer) {
+function parseVlenUtf8(buffer) {
   const decoder = new TextDecoder();
   let data = 0;
   const dataEnd = data + buffer.length;
