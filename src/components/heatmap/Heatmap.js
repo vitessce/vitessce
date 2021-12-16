@@ -4,6 +4,7 @@ import React, {
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
 import { OrthographicView } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
+import { Matrix4 } from 'math.gl';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
@@ -328,15 +329,15 @@ const Heatmap = forwardRef((props, deckRef) => {
       return [];
     }
     function getLayer(i, j, tile) {
+      const modelMatrix = new Matrix4()
+        .translate([matrixLeft + j * tileWidth, matrixTop + i * tileHeight, 0])
+        .scale([tileWidth, tileHeight, 0]);
+
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
         image: tile,
-        bounds: [
-          matrixLeft + j * tileWidth,
-          matrixTop + i * tileHeight,
-          matrixLeft + (j + 1) * tileWidth,
-          matrixTop + (i + 1) * tileHeight,
-        ],
+        modelMatrix,
+        bounds: [0, 0, 1, 1],
         aggSizeX,
         aggSizeY,
         colormap,
