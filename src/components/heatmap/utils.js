@@ -118,12 +118,11 @@ export function layerFilter({ layer, viewport }) {
  * @param {number} longestCellLabel longest cell label
  * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
  */
-export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel) {
+export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel, hideObservationsLabels) {
 
   const font = `${AXIS_LABEL_TEXT_SIZE}pt ${AXIS_FONT_FAMILY}`
   const geneLabelMaxWidth = getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
-  const cellLabelMaxWidth = getTextWidth(longestCellLabel, font) + AXIS_PADDING;
-
+  const cellLabelMaxWidth = hideObservationsLabels ? 0 : getTextWidth(longestCellLabel, font) + AXIS_PADDING ;
 
   const axisOffsetLeft = clamp(
     (transpose ? geneLabelMaxWidth : cellLabelMaxWidth),
@@ -268,19 +267,20 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
   numRows,
   numCols,
 }) {
+
   const cellPosition = transpose ? mouseX - offsetLeft : mouseY - offsetTop;
   const trackPosition = transpose ? mouseY - axisOffsetTop : mouseX - axisOffsetLeft;
 
   const tracksWidth = numCellColorTracks * colorBarSize;
 
   // outside of cell color tracks
-  if (cellPosition < 0 || trackPosition < 0 || trackPosition > tracksWidth) {
+  if (cellPosition < 0 || trackPosition < 0 || trackPosition >= tracksWidth) {
     return [null, null];
   }
   
   // Determine the trackI and cellI values based on the current viewState.
   const trackI = Math.floor(trackPosition / colorBarSize);
-  
+
   let cellI;
   if (transpose) {
     const viewMouseX = mouseX - offsetLeft;
