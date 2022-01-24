@@ -131,7 +131,7 @@ This fix is temporary and will no longer be necessary after the [next release of
 - [Viv](https://github.com/hms-dbmi/viv): A library for multiscale visualization of high-resolution multiplexed tissue data on the web.
 - [HiGlass](https://github.com/higlass/higlass): A library for multiscale visualization of genomic data on the web.
 - [vitessce-python](https://github.com/vitessce/vitessce-python): Python API and Jupyter widget.
-- [vitessce-r](https://github.com/vitessce/vitessce-r): R API and R htmlwidget.
+- [vitessceR](https://github.com/vitessce/vitessceR): R API and R htmlwidget.
 - [vitessce-data](https://github.com/hms-dbmi/vitessce-data): Scripts to generate sample data
 
 ## Old presentations
