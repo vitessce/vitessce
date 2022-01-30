@@ -2,6 +2,7 @@
 ### Added
 
 ### Changed
+- Introduce obs x feature generalizations [#1128](https://github.com/vitessce/vitessce/issues/1128)
 
 ## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
 

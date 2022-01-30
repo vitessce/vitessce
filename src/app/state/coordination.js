@@ -6,18 +6,62 @@ import { CoordinationType, Component } from '../constants';
  * auto initialization strategy.
  */
 export const DEFAULT_COORDINATION_VALUES = {
+  [CoordinationType.OBS_TYPE]: 'cell',
+  [CoordinationType.OBS_FILTER]: null,
+  [CoordinationType.OBS_HIGHLIGHT]: null,
+  [CoordinationType.OBS_SELECTION]: null,
+  [CoordinationType.OBS_SET_SELECTION]: null,
+  [CoordinationType.OBS_SET_HIGHLIGHT]: null,
+  [CoordinationType.OBS_SET_COLOR]: null,
+  [CoordinationType.OBS_COLOR_ENCODING]: 'obsSetSelection',
+
+  [CoordinationType.SUB_OBS_TYPE]: 'molecule',
+  [CoordinationType.SUB_OBS_FILTER]: null,
+  [CoordinationType.SUB_OBS_HIGHLIGHT]: null,
+  [CoordinationType.SUB_OBS_SELECTION]: null,
+  [CoordinationType.SUB_OBS_SET_SELECTION]: null,
+  [CoordinationType.SUB_OBS_SET_HIGHLIGHT]: null,
+  [CoordinationType.SUB_OBS_SET_COLOR]: null,
+  [CoordinationType.SUB_OBS_COLOR_ENCODING]: 'subObsSetSelection',
+
+  [CoordinationType.FEATURE_TYPE]: 'gene',
+  [CoordinationType.FEATURE_FILTER]: null,
+  [CoordinationType.FEATURE_HIGHLIGHT]: null,
+  [CoordinationType.FEATURE_SELECTION]: null,
+  [CoordinationType.FEATURE_SET_SELECTION]: null,
+  [CoordinationType.FEATURE_SET_HIGHLIGHT]: null,
+  [CoordinationType.FEATURE_SET_COLOR]: null,
+
+  [CoordinationType.SUB_FEATURE_TYPE]: 'transcript',
+  [CoordinationType.SUB_FEATURE_FILTER]: null,
+  [CoordinationType.SUB_FEATURE_HIGHLIGHT]: null,
+  [CoordinationType.SUB_FEATURE_SELECTION]: null,
+  [CoordinationType.SUB_FEATURE_SET_SELECTION]: null,
+  [CoordinationType.SUB_FEATURE_SET_HIGHLIGHT]: null,
+  [CoordinationType.SUB_FEATURE_SET_COLOR]: null,
+
+  [CoordinationType.FEATURE_VALUE_TYPE]: 'expression',
+  [CoordinationType.FEATURE_VALUE_COLORMAP]: 'plasma',
+  [CoordinationType.FEATURE_VALUE_COLORMAP_RANGE]: [0.0, 1.0],
+  [CoordinationType.FEATURE_VALUE_TRANSFORM]: null,
+
+  [CoordinationType.SUB_FEATURE_VALUE_TYPE]: 'intensity',
+  [CoordinationType.SUB_FEATURE_VALUE_COLORMAP]: 'plasma',
+  [CoordinationType.SUB_FEATURE_VALUE_COLORMAP_RANGE]: [0.0, 1.0],
+  [CoordinationType.SUB_FEATURE_VALUE_TRANSFORM]: null,
+
   [CoordinationType.EMBEDDING_ZOOM]: null,
   [CoordinationType.EMBEDDING_ROTATION]: 0,
   [CoordinationType.EMBEDDING_TARGET_X]: null,
   [CoordinationType.EMBEDDING_TARGET_Y]: null,
   [CoordinationType.EMBEDDING_TARGET_Z]: 0,
-  [CoordinationType.EMBEDDING_CELL_SET_POLYGONS_VISIBLE]: false,
-  [CoordinationType.EMBEDDING_CELL_SET_LABELS_VISIBLE]: false,
-  [CoordinationType.EMBEDDING_CELL_SET_LABEL_SIZE]: 14,
-  [CoordinationType.EMBEDDING_CELL_RADIUS]: 1,
-  [CoordinationType.EMBEDDING_CELL_RADIUS_MODE]: 'auto',
-  [CoordinationType.EMBEDDING_CELL_OPACITY]: 1,
-  [CoordinationType.EMBEDDING_CELL_OPACITY_MODE]: 'auto',
+  [CoordinationType.EMBEDDING_CELL_SET_POLYGONS_VISIBLE]: false, // change name
+  [CoordinationType.EMBEDDING_CELL_SET_LABELS_VISIBLE]: false, // change name
+  [CoordinationType.EMBEDDING_CELL_SET_LABEL_SIZE]: 14, // change name
+  [CoordinationType.EMBEDDING_CELL_RADIUS]: 1, // change name
+  [CoordinationType.EMBEDDING_CELL_RADIUS_MODE]: 'auto', // change name
+  [CoordinationType.EMBEDDING_CELL_OPACITY]: 1, // change name
+  [CoordinationType.EMBEDDING_CELL_OPACITY_MODE]: 'auto', // change name
   [CoordinationType.SPATIAL_ZOOM]: null,
   [CoordinationType.SPATIAL_ROTATION]: 0,
   [CoordinationType.SPATIAL_TARGET_X]: null,
@@ -30,31 +74,31 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SPATIAL_ROTATION_ORBIT]: 0,
   [CoordinationType.SPATIAL_ORBIT_AXIS]: 'Y',
   [CoordinationType.SPATIAL_RASTER_LAYERS]: null,
-  [CoordinationType.SPATIAL_CELLS_LAYER]: null,
-  [CoordinationType.SPATIAL_MOLECULES_LAYER]: null,
+  [CoordinationType.SPATIAL_CELLS_LAYER]: null, // change name
+  [CoordinationType.SPATIAL_MOLECULES_LAYER]: null, // change name
   [CoordinationType.SPATIAL_NEIGHBORHOODS_LAYER]: null,
   [CoordinationType.HEATMAP_ZOOM_X]: 0,
   [CoordinationType.HEATMAP_ZOOM_Y]: 0,
   [CoordinationType.HEATMAP_TARGET_X]: 0,
   [CoordinationType.HEATMAP_TARGET_Y]: 0,
-  [CoordinationType.GENE_EXPRESSION_COLORMAP]: 'plasma',
-  [CoordinationType.GENE_EXPRESSION_COLORMAP_RANGE]: [0.0, 1.0],
-  [CoordinationType.GENE_EXPRESSION_TRANSFORM]: null,
-  [CoordinationType.GENE_FILTER]: null,
-  [CoordinationType.GENE_HIGHLIGHT]: null,
-  [CoordinationType.GENE_SELECTION]: null,
-  [CoordinationType.CELL_FILTER]: null,
-  [CoordinationType.CELL_HIGHLIGHT]: null,
-  [CoordinationType.CELL_SET_SELECTION]: null,
-  [CoordinationType.CELL_SET_HIGHLIGHT]: null,
-  [CoordinationType.CELL_SET_COLOR]: null,
-  [CoordinationType.CELL_COLOR_ENCODING]: 'cellSetSelection',
+  [CoordinationType.GENE_EXPRESSION_COLORMAP]: 'plasma', // deprecate
+  [CoordinationType.GENE_EXPRESSION_COLORMAP_RANGE]: [0.0, 1.0], // deprecate
+  [CoordinationType.GENE_EXPRESSION_TRANSFORM]: null, // deprecate
+  [CoordinationType.GENE_FILTER]: null, // deprecate
+  [CoordinationType.GENE_HIGHLIGHT]: null, // deprecate
+  [CoordinationType.GENE_SELECTION]: null, // deprecate
+  [CoordinationType.CELL_FILTER]: null, // deprecate
+  [CoordinationType.CELL_HIGHLIGHT]: null, // deprecate
+  [CoordinationType.CELL_SET_SELECTION]: null, // deprecate
+  [CoordinationType.CELL_SET_HIGHLIGHT]: null, // deprecate
+  [CoordinationType.CELL_SET_COLOR]: null, // deprecate
+  [CoordinationType.CELL_COLOR_ENCODING]: 'cellSetSelection', // deprecate
   [CoordinationType.GENOMIC_ZOOM_X]: 0,
   [CoordinationType.GENOMIC_ZOOM_Y]: 0,
   [CoordinationType.GENOMIC_TARGET_X]: 1549999999.5,
   [CoordinationType.GENOMIC_TARGET_Y]: 1549999999.5,
-  [CoordinationType.ADDITIONAL_CELL_SETS]: null,
-  [CoordinationType.MOLECULE_HIGHLIGHT]: null,
+  [CoordinationType.ADDITIONAL_CELL_SETS]: null, // deprecate
+  [CoordinationType.MOLECULE_HIGHLIGHT]: null, // deprecate
 };
 
 // The following coordination types should be

@@ -9,6 +9,7 @@ import configSchema1_0_4 from '../schemas/config-1.0.4.schema.json';
 import configSchema1_0_5 from '../schemas/config-1.0.5.schema.json';
 import configSchema1_0_6 from '../schemas/config-1.0.6.schema.json';
 import configSchema1_0_7 from '../schemas/config-1.0.7.schema.json';
+import configSchema1_1_0 from '../schemas/config-1.1.0.schema.json';
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
 import {
@@ -20,6 +21,8 @@ import {
   upgradeFrom1_0_4,
   upgradeFrom1_0_5,
   upgradeFrom1_0_6,
+  upgradeFrom1_0_7,
+  // TODO
 } from './view-config-upgraders';
 
 /**
@@ -27,7 +30,7 @@ import {
  * Add a new schema and upgrade function here when bumping the view config version.
  * The latest view config version should always have a null value instead of an upgrade function.
  */
-export const LATEST_VERSION = '1.0.7';
+export const LATEST_VERSION = '1.1.0';
 export const SCHEMA_HANDLERS = {
   '0.1.0': [new Ajv().compile(configSchema0_1_0), upgradeFrom0_1_0],
   '1.0.0': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_0), upgradeFrom1_0_0],
@@ -37,5 +40,7 @@ export const SCHEMA_HANDLERS = {
   '1.0.4': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_4), upgradeFrom1_0_4],
   '1.0.5': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_5), upgradeFrom1_0_5],
   '1.0.6': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_6), upgradeFrom1_0_6],
-  '1.0.7': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_7), null],
+  '1.0.7': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_7), upgradeFrom1_0_7],
+  // TODO
+  '1.1.0': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_1_0), null],
 };

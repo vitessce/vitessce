@@ -310,3 +310,192 @@ export function upgradeFrom1_0_6(config) {
     version: '1.0.7',
   };
 }
+
+// TODO
+
+// Added in version 1.1.0:
+// - obs x feature and subObs x subFeature generalizations.
+export function upgradeFrom1_0_7(config) { // TODO: update name
+  const newConfig = cloneDeep(config);
+
+  // Convert specific coordination scopes to general ones.
+  const scopeAnalogies = {
+    cellFilter: 'obsFilter',
+    cellHighlight: 'obsHighlight',
+    cellSelection: 'obsSelection',
+    cellSetSelection: 'obsSetSelection',
+    cellSetHighlight: 'obsSetHighlight',
+    cellSetColor: 'obsSetColor',
+    geneFilter: 'featureFilter',
+    geneHighlight: 'featureHighlight',
+    geneSelection: 'featureSelection',
+    geneExpressionColormap: 'featureValueColormap',
+    geneExpressionColormapRange: 'featureValueColormapRange',
+    cellColorEncoding: 'obsColorEncoding',
+    spatialCellsLayer: 'spatialObsLayer',
+    spatialMoleculesLayer: 'spatialSubObsLayer',
+    additionalCellSets: 'additionalObsSets',
+    moleculeHighlight: 'subObsHighlight',
+    embeddingCellSetPolygonsVisible: 'embeddingObsSetPolygonsVisible',
+    embeddingCellSetLabelsVisible: 'embeddingObsSetLabelsVisible',
+    embeddingCellSetLabelSize: 'embeddingObsSetLabelSize',
+    embeddingCellRadius: 'embeddingObsRadius',
+    embeddingCellRadiusMode: 'embeddingObsRadiusMode',
+    embeddingCellOpacity: 'embeddingObsOpacity',
+    embeddingCellOpacityMode: 'embeddingObsOpacityMode',
+  };
+
+  const coordinationSpace = { ...config.coordinationSpace };
+
+  Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
+    if (coordinationSpace[oldKey]) {
+      coordinationSpace[newKey] = coordinationSpace[oldKey];
+      delete coordinationSpace[oldKey];
+    }
+  });
+
+  // Use obsType, subObsType, featureType, subFeatureType
+  // rather than component-specific labelOverride props.
+  const typeScopes = {
+    obsType: {},
+    subObsType: {},
+    featureType: {},
+    subFeatureType: {},
+  };
+
+  const typeAnalogies = {
+    observationsLabelOverride: 'obsType',
+    subobservationsLabelOverride: 'subObsType',
+    variablesLabelOverride: 'featureType',
+  };
+
+  const componentAnalogies = {
+    genes: 'features',
+    cellSets: 'obsSets',
+    cellSetSizes: 'obsSetSizes',
+    cellSetExpression: 'obsSetFeatureDistribution',
+    expressionHistogram: 'featureValueHistogram',
+    heatmap: 'obsFeatureHeatmap',
+  };
+
+  const layout = config.layout.map((component) => {
+    const newComponent = { ...component };
+    const { coordinationScopes = {}, props = {} } = newComponent;
+
+    Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
+      if (coordinationScopes[oldKey]) {
+        coordinationScopes[newKey] = coordinationScopes[oldKey];
+        delete coordinationScopes[oldKey];
+      }
+    });
+
+    Object.entries(typeAnalogies).forEach(([oldKey, newKey]) => {
+      if (props[oldKey]) {
+        const nextScope = getNextScope(Object.keys(typeScopes[newKey]));
+        typeScopes[newKey][nextScope] = props[oldKey];
+        coordinationScopes[newKey] = nextScope;
+        delete props[oldKey];
+      }
+    });
+
+    const newComponentName = (
+      componentAnalogies[component.component]
+      || component.component
+    );
+
+    return {
+      ...newComponent,
+      component: newComponentName,
+      coordinationScopes,
+      props,
+    };
+  });
+
+  const dataTypeAnalogies = {
+    cells: {
+      dataType: 'obs',
+      entityTypes: {
+        obsType: 'cell',
+      },
+    },
+    molecules: {
+      dataType: 'subObs',
+      entityTypes: {
+        subObsType: 'molecule',
+        subFeatureType: 'isoform',
+      },
+    },
+    'cell-sets': {
+      dataType: 'obsSets',
+      entityTypes: {
+        obsType: 'cell',
+      },
+    },
+    'expression-matrix': {
+      dataType: 'obsFeatureMatrix',
+      entityTypes: {
+        obsType: 'cell',
+        featureType: 'gene',
+      },
+    },
+    'genomic-profiles': {
+      dataType: 'genomicProfiles',
+      entityTypes: {},
+    },
+  };
+  // eslint-disable-next-line
+  const fileTypeAnalogies = {
+    'cell-sets.json': 'cellSets.json',
+    'expression-matrix.zarr': 'expressionMatrix.zarr',
+    'genomic-profiles.zarr': 'genomicProfiles.zarr',
+    'clusters.json': 'expressionMatrix.json',
+    'anndata-cell-sets.zarr': 'anndataObsSets.zarr',
+    'anndata-cells.zarr': 'anndataObs.zarr',
+    'anndata-expression-matrix.zarr': 'anndataObsFeatureMatrix.zarr',
+  };
+
+  const datasets = config.datasets.map((dataset) => {
+    const { files = [] } = dataset;
+    const newFiles = files.map((file) => {
+      const oldDataType = file.type;
+      const oldFileType = file.fileType;
+      let dataType = oldDataType;
+      let fileType = oldFileType;
+      let entityTypes = {};
+      if (dataTypeAnalogies[oldDataType]) {
+        // eslint-disable-next-line prefer-destructuring
+        dataType = dataTypeAnalogies[oldDataType].dataType;
+        // eslint-disable-next-line prefer-destructuring
+        entityTypes = dataTypeAnalogies[oldDataType].entityTypes;
+      }
+      if (fileTypeAnalogies[oldFileType]) {
+        fileType = fileTypeAnalogies[oldFileType];
+      }
+      // Convert `type` to `dataType`.
+      // eslint-disable-next-line no-param-reassign
+      delete file.type;
+      return {
+        ...file,
+        dataType,
+        fileType,
+        entityTypes,
+      };
+    });
+
+    return {
+      ...dataset,
+      files: newFiles,
+    };
+  });
+
+  return {
+    ...newConfig,
+    version: '1.1.0',
+    datasets,
+    coordinationSpace: {
+      ...coordinationSpace,
+      ...typeScopes,
+    },
+    layout,
+  };
+}
