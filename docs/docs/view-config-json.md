@@ -10,7 +10,7 @@ slug: /view-config-json
 While Vitessce always uses a JSON-based view configuration internally, an object-oriented view config API may be easier to use:
 - [JavaScript View Config API](/docs/view-config-js/)
 - [Python View Config API](https://vitessce.github.io/vitessce-python/api_config.html)
-- [R View Config API](https://vitessce.github.io/vitessce-r/reference/VitessceConfig.html#examples)
+- [R View Config API](https://vitessce.github.io/vitessceR/reference/VitessceConfig.html#examples)
 
 :::
 

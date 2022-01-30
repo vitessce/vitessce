@@ -57,7 +57,7 @@ module.exports = {
           position: 'left',
         },
         {
-          href: 'https://vitessce.github.io/vitessce-r/',
+          href: 'https://vitessce.github.io/vitessceR/',
           label: 'R Package',
           position: 'left',
         },
@@ -86,7 +86,7 @@ module.exports = {
             },
             {
               label: 'R',
-              href: 'https://github.com/vitessce/vitessce-r',
+              href: 'https://github.com/vitessce/vitessceR',
             },
           ],
         },

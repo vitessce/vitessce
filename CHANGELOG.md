@@ -13,6 +13,7 @@
 - Added support for OME-NGFF v0.3 by upgrading Viv to `0.12.0`
 - Bump dependency versions based on `npm audit` and dependabot pull requests.
 - Updated Heatmap `layerFilter` function to reflect [changes between deck.gl 8.5 and 8.6 ](https://deck.gl/docs/upgrade-guide#layer-filtering)
+- Updated R package URLs (to reflect repo name change from `vitessce-r` to `vitessceR`).
 
 
 ## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
