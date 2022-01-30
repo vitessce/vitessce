@@ -298,3 +298,40 @@ export function upgradeFrom1_0_5(config) {
     version: '1.0.6',
   };
 }
+
+// Added in version 1.1.0:
+// - obs x feature and subObs x subFeature generalizations.
+export function upgradeFrom1_0_6(config) {
+  const newConfig = cloneDeep(config);
+
+  const analogies = {
+    'cellFilter': 'obsFilter',
+    'cellHighlight': 'obsHighlight',
+    'cellSelection': 'obsSelection',
+    'cellSetSelection': 'obsSetSelection',
+    'cellSetHighlight': 'obsSetHighlight',
+    'cellSetColor': 'obsSetColor',
+    'geneFilter': 'featureFilter',
+    'geneHighlight': 'featureHighlight',
+    'geneSelection': 'featureSelection',
+    'geneExpressionColormap': 'featureValueColormap',
+    'geneExpressionColormapRange': 'featureValueColormapRange',
+    'cellColorEncoding': 'obsColorEncoding',
+    'spatialCellsLayer': 'spatialObsLayer',
+    'spatialMoleculesLayer': 'spatialSubObsLayer',
+    'additionalCellSets': 'additionalObsSets',
+    'moleculeHighlight': 'subObsHighlight',
+    'embeddingCellSetPolygonsVisible': 'embeddingObsSetPolygonsVisible',
+    'embeddingCellSetLabelsVisible': 'embeddingObsSetLabelsVisible',
+    'embeddingCellSetLabelSize': 'embeddingObsSetLabelSize',
+    'embeddingCellRadius': 'embeddingObsRadius',
+    'embeddingCellRadiusMode': 'embeddingObsRadiusMode',
+    'embeddingCellOpacity': 'embeddingObsOpacity',
+    'embeddingCellOpacityMode': 'embeddingObsOpacityMode',
+  }
+
+  return {
+    ...newConfig,
+    version: '1.1.0',
+  };
+}
