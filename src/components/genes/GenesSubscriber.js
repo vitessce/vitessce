@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { pluralize } from '../../utils';
+import { capitalize, pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
 import { useExpressionAttrs } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
@@ -29,10 +29,8 @@ export default function GenesSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
-    variablesLabelOverride: variablesLabel = 'gene',
-    variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
-    title = 'Expression Levels',
+    title: titleProp,
   } = props;
 
   const loaders = useLoaders();
@@ -40,6 +38,7 @@ export default function GenesSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    featureType,
     featureSelection: geneSelection,
     featureFilter: geneFilter,
     obsColorEncoding: cellColorEncoding,
@@ -49,6 +48,8 @@ export default function GenesSubscriber(props) {
     setFeatureHighlight: setGeneHighlight,
     setObsColorEncoding: setCellColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.GENES], coordinationScopes);
+
+  const title = titleProp || `${capitalize(featureType)} Selection`;
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [
@@ -82,7 +83,7 @@ export default function GenesSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      info={`${numGenes} ${pluralize(variablesLabel, variablesPluralLabel, numGenes)}`}
+      info={`${numGenes} ${pluralize(featureType, `${featureType}s`, numGenes)}`}
       theme={theme}
       // Virtual scroll is used but this allows for the same styling as a scroll component
       // even though this no longer uses the TitleInfo component's

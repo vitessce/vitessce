@@ -1,24 +1,33 @@
 export const Component = {
   DESCRIPTION: 'description',
   STATUS: 'status',
-  GENES: 'genes',
-  CELL_SETS: 'cellSets',
+  GENES: 'genes', // deprecate
+  FEATURES: 'features',
+  CELL_SETS: 'cellSets', // deprecate
+  OBS_SETS: 'obsSets',
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
-  CELL_SET_SIZES: 'cellSetSizes',
+  CELL_SET_SIZES: 'cellSetSizes', // deprecate
+  OBS_SET_SIZES: 'obsSetSizes',
   GENOMIC_PROFILES: 'genomicProfiles',
-  CELL_SET_EXPRESSION: 'cellSetExpression',
-  EXPRESSION_HISTOGRAM: 'expressionHistogram',
+  CELL_SET_EXPRESSION: 'cellSetExpression', // deprecate
+  OBS_SET_FEATURE_DISTRIBUTION: 'obsSetFeatureDistribution',
+  EXPRESSION_HISTOGRAM: 'expressionHistogram', // deprecate
+  FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
 };
 
 export const DataType = {
-  CELLS: 'cells',
-  CELL_SETS: 'cell-sets',
-  EXPRESSION_MATRIX: 'expression-matrix',
+  CELLS: 'cells', // deprecate
+  OBS: 'obs',
+  CELL_SETS: 'cell-sets', // deprecate
+  OBS_SETS: 'obs-sets',
+  EXPRESSION_MATRIX: 'expression-matrix', // deprecate
+  OBS_FEATURE_MATRIX: 'obs-feature-matrix',
   GENOMIC_PROFILES: 'genomic-profiles',
-  MOLECULES: 'molecules',
+  MOLECULES: 'molecules', // deprecate
+  SUB_OBS: 'sub-obs',
   NEIGHBORHOODS: 'neighborhoods',
   RASTER: 'raster',
 };
@@ -34,9 +43,12 @@ export const FileType = {
   RASTER_OME_ZARR: 'raster.ome-zarr',
   CLUSTERS_JSON: 'clusters.json',
   GENES_JSON: 'genes.json',
-  ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
-  ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
-  ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
+  ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr', // deprecate
+  ANNDATA_OBS_SETS_ZARR: 'anndata-obs-sets.zarr',
+  ANNDATA_CELLS_ZARR: 'anndata-cells.zarr', // deprecate
+  ANNDATA_OBS_ZARR: 'anndata-obs.zarr',
+  ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr', // deprecate
+  ANNDATA_OBS_FEATURE_MATRIX_ZARR: 'anndata-obs-feature-matrix.zarr',
 };
 
 /**
@@ -109,13 +121,6 @@ export const CoordinationType = {
   EMBEDDING_OBS_RADIUS_MODE: 'embeddingObsRadiusMode',
   EMBEDDING_OBS_OPACITY: 'embeddingObsOpacity',
   EMBEDDING_OBS_OPACITY_MODE: 'embeddingObsOpacityMode',
-  EMBEDDING_CELL_SET_POLYGONS_VISIBLE: 'embeddingCellSetPolygonsVisible', // deprecate
-  EMBEDDING_CELL_SET_LABELS_VISIBLE: 'embeddingCellSetLabelsVisible', // deprecate
-  EMBEDDING_CELL_SET_LABEL_SIZE: 'embeddingCellSetLabelSize', // deprecate
-  EMBEDDING_CELL_RADIUS: 'embeddingCellRadius', // deprecate
-  EMBEDDING_CELL_RADIUS_MODE: 'embeddingCellRadiusMode', // deprecate
-  EMBEDDING_CELL_OPACITY: 'embeddingCellOpacity', // deprecate
-  EMBEDDING_CELL_OPACITY_MODE: 'embeddingCellOpacityMode', // deprecate
   SPATIAL_ZOOM: 'spatialZoom',
   SPATIAL_ROTATION: 'spatialRotation',
   SPATIAL_TARGET_X: 'spatialTargetX',
@@ -131,21 +136,7 @@ export const CoordinationType = {
   HEATMAP_ZOOM_Y: 'heatmapZoomY',
   HEATMAP_TARGET_X: 'heatmapTargetX',
   HEATMAP_TARGET_Y: 'heatmapTargetY',
-  CELL_FILTER: 'cellFilter', // deprecate
-  CELL_HIGHLIGHT: 'cellHighlight', // deprecate
-  CELL_SET_SELECTION: 'cellSetSelection', // deprecate
-  CELL_SET_HIGHLIGHT: 'cellSetHighlight', // deprecate
-  CELL_SET_COLOR: 'cellSetColor', // deprecate
-  GENE_FILTER: 'geneFilter', // deprecate
-  GENE_HIGHLIGHT: 'geneHighlight', // deprecate
-  GENE_SELECTION: 'geneSelection', // deprecate
-  GENE_EXPRESSION_COLORMAP: 'geneExpressionColormap', // deprecate
-  GENE_EXPRESSION_TRANSFORM: 'geneExpressionTransform', // deprecate
-  GENE_EXPRESSION_COLORMAP_RANGE: 'geneExpressionColormapRange', // deprecate
-  CELL_COLOR_ENCODING: 'cellColorEncoding', // deprecate
   SPATIAL_RASTER_LAYERS: 'spatialRasterLayers',
-  SPATIAL_CELLS_LAYER: 'spatialCellsLayer', // deprecate
-  SPATIAL_MOLECULES_LAYER: 'spatialMoleculesLayer', // deprecate
   SPATIAL_OBS_LAYER: 'spatialObsLayer',
   SPATIAL_SUB_OBS_LAYER: 'spatialSubObsLayer',
   SPATIAL_NEIGHBORHOODS_LAYER: 'spatialNeighborhoodsLayer',
@@ -157,6 +148,4 @@ export const CoordinationType = {
   ADDITIONAL_SUB_OBS_SETS: 'additionalSubObsSets',
   ADDITIONAL_FEATURE_SETS: 'additionalFeatureSets',
   ADDITIONAL_SUB_FEATURE_SETS: 'additionalSubFeatureSets',
-  ADDITIONAL_CELL_SETS: 'additionalCellSets', // deprecate
-  MOLECULE_HIGHLIGHT: 'moleculeHighlight', // deprecate
 };

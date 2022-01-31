@@ -21,6 +21,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
 import { Component, DataType } from '../../app/constants';
+import { capitalize } from '../../utils';
 
 const LAYER_CONTROLLER_DATA_TYPES = [DataType.RASTER];
 
@@ -32,6 +33,8 @@ const LayerControllerMemoized = React.memo(
   forwardRef((props, ref) => {
     const {
       title,
+      obsType,
+      subObsType,
       removeGridComponent,
       theme,
       isReady,
@@ -81,7 +84,7 @@ const LayerControllerMemoized = React.memo(
           {moleculesLayer && (
             <VectorLayerController
               key={`${dataset}-molecules`}
-              label="Molecules"
+              label={`${capitalize(subObsType)}s`}
               layerType="molecules"
               layer={moleculesLayer}
               handleLayerChange={setMoleculesLayer}
@@ -90,7 +93,7 @@ const LayerControllerMemoized = React.memo(
           {cellsLayer && canShowCellVecmask && (
             <VectorLayerController
               key={`${dataset}-cells`}
-              label="Cell Segmentations"
+              label={`${capitalize(obsType)}s`}
               layerType="cells"
               layer={cellsLayer}
               handleLayerChange={setCellsLayer}
@@ -229,6 +232,8 @@ function LayerControllerSubscriber(props) {
   const [
     {
       dataset,
+      obsType,
+      subObsType,
       spatialRasterLayers: rasterLayers,
       spatialObsLayer: cellsLayer,
       spatialSubObsLayer: moleculesLayer,
@@ -345,6 +350,8 @@ function LayerControllerSubscriber(props) {
     <LayerControllerMemoized
       ref={layerControllerRef}
       title={title}
+      obsType={obsType}
+      subObsType={subObsType}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}

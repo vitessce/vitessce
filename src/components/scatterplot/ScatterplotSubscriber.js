@@ -56,9 +56,7 @@ export default function ScatterplotSubscriber(props) {
     removeGridComponent,
     theme,
     disableTooltip = false,
-    observationsLabelOverride: observationsLabel = 'cell',
-    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
-    title: titleOverride,
+    title: titleProp,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
   } = props;
@@ -70,6 +68,7 @@ export default function ScatterplotSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
     embeddingZoom: zoom,
     embeddingTargetX: targetX,
     embeddingTargetY: targetY,
@@ -113,6 +112,9 @@ export default function ScatterplotSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SCATTERPLOT], coordinationScopes);
 
+  const observationsLabel = obsType;
+  const observationsPluralLabel = `${obsType}s`;
+
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
   const [
@@ -124,7 +126,7 @@ export default function ScatterplotSubscriber(props) {
     SCATTERPLOT_DATA_TYPES,
   );
 
-  const title = titleOverride || `Scatterplot (${mapping})`;
+  const title = titleProp || `Scatterplot (${mapping})`;
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
