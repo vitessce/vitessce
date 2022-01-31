@@ -93,7 +93,7 @@ export function getCellColors(params) {
     expressionDataAttrs,
     theme,
   } = params;
-  if (cellColorEncoding === 'geneSelection' && expressionData && expressionDataAttrs) {
+  if (cellColorEncoding === 'featureSelection' && expressionData && expressionDataAttrs) {
     // TODO: allow other color maps.
     const geneExpColormap = interpolatePlasma;
     const colors = new Map();
@@ -103,7 +103,7 @@ export function getCellColors(params) {
       colors.set(expressionDataAttrs.rows[i], cellColor);
     }
     return colors;
-  } if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
+  } if (cellColorEncoding === 'obsSetSelection' && cellSetSelection && cellSets) {
     // Cell sets can potentially lack set colors since the color property
     // is not a required part of the schema.
     // The `initializeSets` function fills in any empty colors

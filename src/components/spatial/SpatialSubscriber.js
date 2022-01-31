@@ -27,9 +27,11 @@ import {
   useAuxiliaryCoordination,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { Component, DataType } from '../../app/constants';
 
 const SPATIAL_DATA_TYPES = [
-  'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix',
+  DataType.CELLS, DataType.MOLECULES, DataType.RASTER,
+  DataType.CELL_SETS, DataType.EXPRESSION_MATRIX,
 ];
 
 /**
@@ -75,19 +77,19 @@ export default function SpatialSubscriber(props) {
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
     spatialRasterLayers: rasterLayers,
-    spatialCellsLayer: cellsLayer,
-    spatialMoleculesLayer: moleculesLayer,
+    spatialObsLayer: cellsLayer,
+    spatialSubObsLayer: moleculesLayer,
     spatialNeighborhoodsLayer: neighborhoodsLayer,
-    cellFilter,
-    cellHighlight,
-    geneSelection,
-    cellSetSelection,
-    cellSetColor,
-    cellColorEncoding,
-    additionalCellSets,
+    obsFilter: cellFilter,
+    obsHighlight: cellHighlight,
+    featureSelection: geneSelection,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    obsColorEncoding: cellColorEncoding,
+    additionalObsSets: additionalCellSets,
     spatialAxisFixed,
-    geneExpressionColormap,
-    geneExpressionColormapRange,
+    featureValueColormap: geneExpressionColormap,
+    featureValueColormapRange: geneExpressionColormapRange,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -97,20 +99,20 @@ export default function SpatialSubscriber(props) {
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
     setSpatialRasterLayers: setRasterLayers,
-    setSpatialCellsLayer: setCellsLayer,
-    setSpatialMoleculesLayer: setMoleculesLayer,
+    setSpatialObsLayer: setCellsLayer,
+    setSpatialSubObsLayer: setMoleculesLayer,
     setSpatialNeighborhoodsLayer: setNeighborhoodsLayer,
-    setCellFilter,
-    setCellSetSelection,
-    setCellHighlight,
-    setCellSetColor,
-    setCellColorEncoding,
-    setAdditionalCellSets,
-    setMoleculeHighlight,
+    setObsFilter: setCellFilter,
+    setObsSetSelection: setCellSetSelection,
+    setObsHighlight: setCellHighlight,
+    setObsSetColor: setCellSetColor,
+    setObsColorEncoding: setCellColorEncoding,
+    setAdditionalObsSets: setAdditionalCellSets,
+    setSubObsHighlight: setMoleculeHighlight,
     setSpatialAxisFixed,
-    setGeneExpressionColormap,
-    setGeneExpressionColormapRange,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
+    setFeatureValueColormap: setGeneExpressionColormap,
+    setFeatureValueColormapRange: setGeneExpressionColormapRange,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SPATIAL], coordinationScopes);
 
   const [
     {
@@ -145,13 +147,13 @@ export default function SpatialSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialCellsLayer: setCellsLayer },
-    { spatialCellsLayer: cellsLayer },
+    { setSpatialObsLayer: setCellsLayer },
+    { spatialObsLayer: cellsLayer },
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialMoleculesLayer: setMoleculesLayer },
-    { spatialMoleculesLayer: moleculesLayer },
+    { setSpatialSubObsLayer: setMoleculesLayer },
+    { spatialSubObsLayer: moleculesLayer },
   );
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -160,8 +162,8 @@ export default function SpatialSubscriber(props) {
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setCellSetSelection, setCellSetColor },
-    { cellSetSelection, cellSetColor },
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
   );
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
@@ -182,8 +184,8 @@ export default function SpatialSubscriber(props) {
     // but the rendering layer itself is not needed.
     const canPassInCellsLayer = !imageLayerMeta.some(l => l?.metadata?.isBitmask);
     return [
-      ...(moleculesLayer ? [{ ...moleculesLayer, type: 'molecules' }] : []),
-      ...((cellsLayer && canPassInCellsLayer) ? [{ ...cellsLayer, type: 'cells' }] : []),
+      ...(moleculesLayer ? [{ ...moleculesLayer, type: 'molecules' }] : []), // TODO
+      ...((cellsLayer && canPassInCellsLayer) ? [{ ...cellsLayer, type: 'cells' }] : []), // TODO
       ...(neighborhoodsLayer ? [{ ...neighborhoodsLayer, type: 'neighborhoods' }] : []),
       ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: (l.type && ['raster', 'bitmask'].includes(l.type) ? l.type : 'raster') })) : []),
     ];

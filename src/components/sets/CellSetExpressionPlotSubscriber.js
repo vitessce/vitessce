@@ -8,6 +8,7 @@ import { useExpressionByCellSet } from './hooks';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 
 import CellSetExpressionPlot from './CellSetExpressionPlot';
+import { Component } from '../../app/constants';
 
 const CELL_SET_EXPRESSION_DATA_TYPES = ['cell-sets', 'expression-matrix'];
 
@@ -33,14 +34,17 @@ export default function CellSetExpressionPlotSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    geneSelection,
-    geneExpressionTransform,
-    cellSetSelection,
-    cellSetColor,
-    additionalCellSets,
+    featureSelection: geneSelection,
+    featureValueTransform: geneExpressionTransform,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    additionalObsSets: additionalCellSets,
   }, {
-    setGeneExpressionTransform,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetExpression, coordinationScopes);
+    setFeatureValueTransform: setGeneExpressionTransform,
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[Component.CELL_SET_EXPRESSION],
+    coordinationScopes,
+  );
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();

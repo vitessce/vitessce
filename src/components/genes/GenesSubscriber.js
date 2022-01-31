@@ -75,7 +75,7 @@ export default function GenesSubscriber(props) {
 
   function setGeneSelectionAndColorEncoding(newSelection) {
     setGeneSelection(newSelection);
-    setCellColorEncoding('geneSelection');
+    setCellColorEncoding('featureSelection');
   }
 
   return (
@@ -92,7 +92,7 @@ export default function GenesSubscriber(props) {
       urls={urls}
     >
       <Genes
-        hasColorEncoding={cellColorEncoding === 'geneSelection'}
+        hasColorEncoding={cellColorEncoding === 'featureSelection'}
         geneList={geneList}
         geneSelection={geneSelection}
         geneFilter={geneFilter}
