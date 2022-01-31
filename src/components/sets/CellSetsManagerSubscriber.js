@@ -55,6 +55,7 @@ import {
 } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
 import { Component, DataType } from '../../app/constants';
+import { capitalize } from '../../utils';
 
 const CELL_SETS_DATA_TYPES = [DataType.CELLS, DataType.CELL_SETS];
 
@@ -74,7 +75,7 @@ export default function CellSetsManagerSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    title = 'Cell Sets',
+    title: titleProp,
   } = props;
 
   const loaders = useLoaders();
@@ -83,6 +84,7 @@ export default function CellSetsManagerSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
@@ -93,6 +95,8 @@ export default function CellSetsManagerSubscriber(props) {
     setObsSetColor: setCellSetColor,
     setAdditionalObsSets: setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.CELL_SETS], coordinationScopes);
+
+  const title = titleProp || `${capitalize(obsType)} Sets`;
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [

@@ -49,10 +49,6 @@ export default function SpatialSubscriber(props) {
     uuid,
     coordinationScopes,
     removeGridComponent,
-    observationsLabelOverride: observationsLabel = 'cell',
-    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
-    subobservationsLabelOverride: subobservationsLabel = 'molecule',
-    subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
     theme,
     disableTooltip = false,
     title = 'Spatial',
@@ -67,6 +63,8 @@ export default function SpatialSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    subObsType,
     spatialZoom: zoom,
     spatialTargetX: targetX,
     spatialTargetY: targetY,
@@ -113,6 +111,11 @@ export default function SpatialSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SPATIAL], coordinationScopes);
+
+  const observationsLabel = obsType;
+  const observationsPluralLabel = `${obsType}s`;
+  const subobservationsLabel = subObsType;
+  const subobservationsPluralLabel = `${subObsType}s`;
 
   const [
     {

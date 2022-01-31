@@ -8,6 +8,7 @@ import { useCellSetsData } from '../data-hooks';
 import { treeToSetSizesBySetNames } from './cell-set-utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
 import { Component, DataType } from '../../app/constants';
+import { capitalize } from '../../utils';
 
 const CELL_SET_SIZES_DATA_TYPES = [DataType.CELL_SETS];
 
@@ -27,7 +28,7 @@ export default function CellSetSizesPlotSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    title = 'Cell Set Sizes',
+    title: titleProp,
   } = props;
 
   const loaders = useLoaders();
@@ -35,6 +36,7 @@ export default function CellSetSizesPlotSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
@@ -42,6 +44,8 @@ export default function CellSetSizesPlotSubscriber(props) {
     setObsSetSelection: setCellSetSelection,
     setObsSetColor: setCellSetColor,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.CELL_SET_SIZES], coordinationScopes);
+
+  const title = titleProp || `${capitalize(obsType)} Set Sizes`;
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();
