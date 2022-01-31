@@ -5,8 +5,9 @@ import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Description from './Description';
+import { Component, DataType } from '../../app/constants';
 
-const DESCRIPTION_DATA_TYPES = ['raster'];
+const DESCRIPTION_DATA_TYPES = [DataType.RASTER];
 
 /**
  * A subscriber component for a text description component.
@@ -34,7 +35,7 @@ export default function DescriptionSubscriber(props) {
   const [{
     dataset,
     spatialRasterLayers: rasterLayers,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.description, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.DESCRIPTION], coordinationScopes);
 
   const [
     isReady,

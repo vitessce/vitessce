@@ -7,6 +7,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
+import { Component } from '../../app/constants';
 
 const GENES_DATA_TYPES = ['expression-matrix'];
 
@@ -39,15 +40,15 @@ export default function GenesSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    geneSelection,
-    geneFilter,
-    cellColorEncoding,
+    featureSelection: geneSelection,
+    featureFilter: geneFilter,
+    obsColorEncoding: cellColorEncoding,
   }, {
-    setGeneSelection,
-    setGeneFilter,
-    setGeneHighlight,
-    setCellColorEncoding,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
+    setFeatureSelection: setGeneSelection,
+    setFeatureFilter: setGeneFilter,
+    setFeatureHighlight: setGeneHighlight,
+    setObsColorEncoding: setCellColorEncoding,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.GENES], coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [

@@ -20,8 +20,9 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
+import { Component, DataType } from '../../app/constants';
 
-const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
+const LAYER_CONTROLLER_DATA_TYPES = [DataType.RASTER];
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -229,13 +230,13 @@ function LayerControllerSubscriber(props) {
     {
       dataset,
       spatialRasterLayers: rasterLayers,
-      spatialCellsLayer: cellsLayer,
-      spatialMoleculesLayer: moleculesLayer,
+      spatialObsLayer: cellsLayer,
+      spatialSubObsLayer: moleculesLayer,
     },
     {
       setSpatialRasterLayers: setRasterLayers,
-      setSpatialCellsLayer: setCellsLayer,
-      setSpatialMoleculesLayer: setMoleculesLayer,
+      setSpatialObsLayer: setCellsLayer,
+      setSpatialSubObsLayer: setMoleculesLayer,
       setSpatialTargetX: setTargetX,
       setSpatialTargetY: setTargetY,
       setSpatialTargetZ: setTargetZ,
@@ -244,7 +245,7 @@ function LayerControllerSubscriber(props) {
       setSpatialZoom: setZoom,
     },
   ] = useCoordination(
-    COMPONENT_COORDINATION_TYPES.layerController,
+    COMPONENT_COORDINATION_TYPES[Component.LAYER_CONTROLLER],
     coordinationScopes,
   );
 
@@ -294,13 +295,13 @@ function LayerControllerSubscriber(props) {
 
   useCellsData(
     loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialCellsLayer: setCellsLayer },
-    { spatialCellsLayer: cellsLayer },
+    { setSpatialObsLayer: setCellsLayer },
+    { spatialObsLayer: cellsLayer },
   );
   useMoleculesData(
     loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialMoleculesLayer: setMoleculesLayer },
-    { spatialMoleculesLayer: moleculesLayer },
+    { setSpatialSubObsLayer: setMoleculesLayer },
+    { spatialSubObsLayer: moleculesLayer },
   );
 
   // useCallback prevents new functions from propogating
