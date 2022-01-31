@@ -11,9 +11,9 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useGenomicProfilesData } from '../data-hooks';
 import HiGlassLazy from './HiGlassLazy';
-import { Component } from '../../app/constants';
+import { Component, DataType } from '../../app/constants';
 
-const GENOMIC_PROFILES_DATA_TYPES = ['genomic-profiles'];
+const GENOMIC_PROFILES_DATA_TYPES = [DataType.GENOMIC_PROFILES];
 
 const REFERENCE_TILESETS = {
   hg38: {
