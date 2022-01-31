@@ -8,9 +8,9 @@ import { useExpressionByCellSet } from './hooks';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 
 import CellSetExpressionPlot from './CellSetExpressionPlot';
-import { Component } from '../../app/constants';
+import { Component, DataType } from '../../app/constants';
 
-const CELL_SET_EXPRESSION_DATA_TYPES = ['cell-sets', 'expression-matrix'];
+const CELL_SET_EXPRESSION_DATA_TYPES = [DataType.CELL_SETS, DataType.EXPRESSION_MATRIX];
 
 /**
  * A subscriber component for `CellSetExpressionPlot`,

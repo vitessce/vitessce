@@ -21,9 +21,9 @@ import {
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
-import { Component } from '../../app/constants';
+import { Component, DataType } from '../../app/constants';
 
-const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
+const HEATMAP_DATA_TYPES = [DataType.CELLS, DataType.CELL_SETS, DataType.EXPRESSION_MATRIX];
 
 /**
  * @param {object} props

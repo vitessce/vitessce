@@ -55,13 +55,13 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.EMBEDDING_TARGET_X]: null,
   [CoordinationType.EMBEDDING_TARGET_Y]: null,
   [CoordinationType.EMBEDDING_TARGET_Z]: 0,
-  [CoordinationType.EMBEDDING_CELL_SET_POLYGONS_VISIBLE]: false, // change name
-  [CoordinationType.EMBEDDING_CELL_SET_LABELS_VISIBLE]: false, // change name
-  [CoordinationType.EMBEDDING_CELL_SET_LABEL_SIZE]: 14, // change name
-  [CoordinationType.EMBEDDING_CELL_RADIUS]: 1, // change name
-  [CoordinationType.EMBEDDING_CELL_RADIUS_MODE]: 'auto', // change name
-  [CoordinationType.EMBEDDING_CELL_OPACITY]: 1, // change name
-  [CoordinationType.EMBEDDING_CELL_OPACITY_MODE]: 'auto', // change name
+  [CoordinationType.EMBEDDING_OBS_SET_POLYGONS_VISIBLE]: false,
+  [CoordinationType.EMBEDDING_OBS_SET_LABELS_VISIBLE]: false,
+  [CoordinationType.EMBEDDING_OBS_SET_LABEL_SIZE]: 14,
+  [CoordinationType.EMBEDDING_OBS_RADIUS]: 1,
+  [CoordinationType.EMBEDDING_OBS_RADIUS_MODE]: 'auto',
+  [CoordinationType.EMBEDDING_OBS_OPACITY]: 1,
+  [CoordinationType.EMBEDDING_OBS_OPACITY_MODE]: 'auto',
   [CoordinationType.SPATIAL_ZOOM]: null,
   [CoordinationType.SPATIAL_ROTATION]: 0,
   [CoordinationType.SPATIAL_TARGET_X]: null,
@@ -74,8 +74,8 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SPATIAL_ROTATION_ORBIT]: 0,
   [CoordinationType.SPATIAL_ORBIT_AXIS]: 'Y',
   [CoordinationType.SPATIAL_RASTER_LAYERS]: null,
-  [CoordinationType.SPATIAL_CELLS_LAYER]: null, // change name
-  [CoordinationType.SPATIAL_MOLECULES_LAYER]: null, // change name
+  [CoordinationType.SPATIAL_OBS_LAYER]: null,
+  [CoordinationType.SPATIAL_SUB_OBS_LAYER]: null,
   [CoordinationType.SPATIAL_NEIGHBORHOODS_LAYER]: null,
   [CoordinationType.HEATMAP_ZOOM_X]: 0,
   [CoordinationType.HEATMAP_ZOOM_Y]: 0,
@@ -97,6 +97,9 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.GENOMIC_ZOOM_Y]: 0,
   [CoordinationType.GENOMIC_TARGET_X]: 1549999999.5,
   [CoordinationType.GENOMIC_TARGET_Y]: 1549999999.5,
+  [CoordinationType.ADDITIONAL_OBS_SETS]: null,
+  [CoordinationType.ADDITIONAL_SUB_OBS_SETS]: null,
+  [CoordinationType.ADDITIONAL_FEATURE_SETS]: null,
   [CoordinationType.ADDITIONAL_CELL_SETS]: null, // deprecate
   [CoordinationType.MOLECULE_HIGHLIGHT]: null, // deprecate
 };

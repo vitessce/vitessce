@@ -7,9 +7,9 @@ import { mergeCellSets } from '../utils';
 import { useCellSetsData } from '../data-hooks';
 import { treeToSetSizesBySetNames } from './cell-set-utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
-import { Component } from '../../app/constants';
+import { Component, DataType } from '../../app/constants';
 
-const CELL_SET_SIZES_DATA_TYPES = ['cell-sets'];
+const CELL_SET_SIZES_DATA_TYPES = [DataType.CELL_SETS];
 
 /**
  * A subscriber component for `CellSetSizePlot`,
