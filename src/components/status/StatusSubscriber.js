@@ -27,24 +27,33 @@ export default function StatusSubscriber(props) {
 
   // Get "props" from the coordination space.
   const [{
-    cellHighlight,
-    geneHighlight,
-    moleculeHighlight,
+    obsType,
+    subObsType,
+    featureType,
+    subFeatureType,
+    obsHighlight: cellHighlight,
+    featureHighlight: geneHighlight,
+    subObsHighlight: moleculeHighlight,
+    subFeatureHighlight: transcriptHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.STATUS], coordinationScopes);
 
   const warn = useWarning();
 
   const infos = [
     ...(cellHighlight
-      ? [`Hovered cell ${cellHighlight}`]
+      ? [`Hovered ${obsType} ${cellHighlight}`]
       : []
     ),
     ...(geneHighlight
-      ? [`Hovered gene ${geneHighlight}`]
+      ? [`Hovered ${featureType} ${geneHighlight}`]
       : []
     ),
     ...(moleculeHighlight
-      ? [`Hovered gene ${moleculeHighlight}`]
+      ? [`Hovered ${subObsType} ${moleculeHighlight}`]
+      : []
+    ),
+    ...(transcriptHighlight
+      ? [`Hovered ${subFeatureType} ${transcriptHighlight}`]
       : []
     ),
   ];

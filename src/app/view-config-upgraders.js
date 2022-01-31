@@ -304,7 +304,8 @@ export function upgradeFrom1_0_5(config) {
 export function upgradeFrom1_0_6(config) {
   const newConfig = cloneDeep(config);
 
-  const analogies = {
+  // Convert specific coordination scopes to general ones.
+  const scopeAnalogies = {
     cellFilter: 'obsFilter',
     cellHighlight: 'obsHighlight',
     cellSelection: 'obsSelection',
@@ -332,32 +333,62 @@ export function upgradeFrom1_0_6(config) {
 
   const coordinationSpace = { ...config.coordinationSpace };
 
-  Object.entries(analogies).forEach(([oldKey, newKey]) => {
+  Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
     if (coordinationSpace[oldKey]) {
       coordinationSpace[newKey] = coordinationSpace[oldKey];
       delete coordinationSpace[oldKey];
     }
   });
 
+  // Use obsType, subObsType, featureType, subFeatureType
+  // rather than component-specific labelOverride props.
+  const typeScopes = {
+    obsType: {},
+    subObsType: {},
+    featureType: {},
+    subFeatureType: {},
+  };
+
+  const typeAnalogies = {
+    observationsLabelOverride: 'obsType',
+    subobservationsLabelOverride: 'subObsType',
+    variablesLabelOverride: 'featureType',
+  };
+
   const layout = config.layout.map((component) => {
     const newComponent = { ...component };
-    if (newComponent.coordinationScopes) {
-      const { coordinationScopes } = newComponent;
-      Object.entries(analogies).forEach(([oldKey, newKey]) => {
-        if (coordinationScopes[oldKey]) {
-          coordinationScopes[newKey] = coordinationScopes[oldKey];
-          delete coordinationScopes[oldKey];
-        }
-      });
-      newComponent.coordinationScopes = coordinationScopes;
-    }
-    return newComponent;
+    const { coordinationScopes = {}, props = {} } = newComponent;
+
+    Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
+      if (coordinationScopes[oldKey]) {
+        coordinationScopes[newKey] = coordinationScopes[oldKey];
+        delete coordinationScopes[oldKey];
+      }
+    });
+
+    Object.entries(typeAnalogies).forEach(([oldKey, newKey]) => {
+      if (props[oldKey]) {
+        const nextScope = getNextScope(Object.keys(typeScopes[newKey]));
+        typeScopes[newKey][nextScope] = props[oldKey];
+        coordinationScopes[newKey] = nextScope;
+        delete props[oldKey];
+      }
+    });
+
+    return {
+      ...newComponent,
+      coordinationScopes,
+      props,
+    };
   });
 
   return {
     ...newConfig,
     version: '1.1.0',
-    coordinationSpace,
+    coordinationSpace: {
+      ...coordinationSpace,
+      ...typeScopes,
+    },
     layout,
   };
 }

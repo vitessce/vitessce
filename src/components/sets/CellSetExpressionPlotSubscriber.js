@@ -9,6 +9,7 @@ import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 
 import CellSetExpressionPlot from './CellSetExpressionPlot';
 import { Component, DataType } from '../../app/constants';
+import { capitalize } from '../../utils';
 
 const CELL_SET_EXPRESSION_DATA_TYPES = [DataType.CELL_SETS, DataType.EXPRESSION_MATRIX];
 
@@ -27,6 +28,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
+    title: titleProp,
   } = props;
 
   const loaders = useLoaders();
@@ -34,6 +36,8 @@ export default function CellSetExpressionPlotSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureValueType,
     featureSelection: geneSelection,
     featureValueTransform: geneExpressionTransform,
     obsSetSelection: cellSetSelection,
@@ -90,9 +94,12 @@ export default function CellSetExpressionPlotSubscriber(props) {
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
     ? geneSelection[0]
     : null;
+
+  const title = titleProp || `${capitalize(featureValueType)} by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`;
+
   return (
     <TitleInfo
-      title={`Expression by Cell Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title={title}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

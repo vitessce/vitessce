@@ -51,10 +51,6 @@ export default function HeatmapSubscriber(props) {
     uuid,
     coordinationScopes,
     removeGridComponent, theme, transpose,
-    observationsLabelOverride: observationsLabel = 'cell',
-    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
-    variablesLabelOverride: variablesLabel = 'gene',
-    variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     disableTooltip = false,
     title = 'Heatmap',
   } = props;
@@ -66,6 +62,8 @@ export default function HeatmapSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
     heatmapZoomX: zoomX,
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
@@ -89,6 +87,12 @@ export default function HeatmapSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.HEATMAP], coordinationScopes);
+
+  const observationsLabel = obsType;
+  const variablesLabel = featureType;
+
+  const observationsPluralLabel = `${obsType}s`;
+  const variablesPluralLabel = `${featureType}s`;
 
   const observationsTitle = capitalize(observationsPluralLabel);
   const variablesTitle = capitalize(variablesPluralLabel);

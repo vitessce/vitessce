@@ -32,7 +32,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.FEATURE_SET_HIGHLIGHT]: null,
   [CoordinationType.FEATURE_SET_COLOR]: null,
 
-  [CoordinationType.SUB_FEATURE_TYPE]: 'transcript',
+  [CoordinationType.SUB_FEATURE_TYPE]: 'isoform',
   [CoordinationType.SUB_FEATURE_FILTER]: null,
   [CoordinationType.SUB_FEATURE_HIGHLIGHT]: null,
   [CoordinationType.SUB_FEATURE_SELECTION]: null,
@@ -81,18 +81,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.HEATMAP_ZOOM_Y]: 0,
   [CoordinationType.HEATMAP_TARGET_X]: 0,
   [CoordinationType.HEATMAP_TARGET_Y]: 0,
-  [CoordinationType.GENE_EXPRESSION_COLORMAP]: 'plasma', // deprecate
-  [CoordinationType.GENE_EXPRESSION_COLORMAP_RANGE]: [0.0, 1.0], // deprecate
-  [CoordinationType.GENE_EXPRESSION_TRANSFORM]: null, // deprecate
-  [CoordinationType.GENE_FILTER]: null, // deprecate
-  [CoordinationType.GENE_HIGHLIGHT]: null, // deprecate
-  [CoordinationType.GENE_SELECTION]: null, // deprecate
-  [CoordinationType.CELL_FILTER]: null, // deprecate
-  [CoordinationType.CELL_HIGHLIGHT]: null, // deprecate
-  [CoordinationType.CELL_SET_SELECTION]: null, // deprecate
-  [CoordinationType.CELL_SET_HIGHLIGHT]: null, // deprecate
-  [CoordinationType.CELL_SET_COLOR]: null, // deprecate
-  [CoordinationType.CELL_COLOR_ENCODING]: 'cellSetSelection', // deprecate
+
   [CoordinationType.GENOMIC_ZOOM_X]: 0,
   [CoordinationType.GENOMIC_ZOOM_Y]: 0,
   [CoordinationType.GENOMIC_TARGET_X]: 1549999999.5,
@@ -100,8 +89,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.ADDITIONAL_OBS_SETS]: null,
   [CoordinationType.ADDITIONAL_SUB_OBS_SETS]: null,
   [CoordinationType.ADDITIONAL_FEATURE_SETS]: null,
-  [CoordinationType.ADDITIONAL_CELL_SETS]: null, // deprecate
-  [CoordinationType.MOLECULE_HIGHLIGHT]: null, // deprecate
+  [CoordinationType.ADDITIONAL_SUB_FEATURE_SETS]: null,
 };
 
 // The following coordination types should be
@@ -137,6 +125,9 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
 export const COMPONENT_COORDINATION_TYPES = {
   [Component.SCATTERPLOT]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.EMBEDDING_TYPE,
     CoordinationType.EMBEDDING_ZOOM,
     CoordinationType.EMBEDDING_ROTATION,
@@ -164,6 +155,12 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.SPATIAL]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.SUB_OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.SUB_FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
+    CoordinationType.SUB_FEATURE_VALUE_TYPE,
     CoordinationType.SPATIAL_ZOOM,
     CoordinationType.SPATIAL_ROTATION,
     CoordinationType.SPATIAL_RASTER_LAYERS,
@@ -194,6 +191,9 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.HEATMAP]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.HEATMAP_ZOOM_X,
     CoordinationType.HEATMAP_ZOOM_Y,
     CoordinationType.HEATMAP_TARGET_X,
@@ -213,6 +213,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.CELL_SETS]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
@@ -222,6 +223,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.CELL_SET_SIZES]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
@@ -229,6 +231,12 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.STATUS]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.SUB_OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.SUB_FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
+    CoordinationType.SUB_FEATURE_VALUE_TYPE,
     CoordinationType.OBS_HIGHLIGHT,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.OBS_SET_HIGHLIGHT,
@@ -236,6 +244,8 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.GENES]: [
     CoordinationType.DATASET,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_FILTER,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,
@@ -244,6 +254,9 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.CELL_SET_EXPRESSION]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_SELECTION,
     CoordinationType.FEATURE_VALUE_TRANSFORM,
     CoordinationType.OBS_SET_SELECTION,
@@ -253,10 +266,17 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.EXPRESSION_HISTOGRAM]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_SELECTION,
   ],
   [Component.LAYER_CONTROLLER]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.SUB_OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.SUB_FEATURE_TYPE,
     CoordinationType.SPATIAL_RASTER_LAYERS,
     CoordinationType.SPATIAL_OBS_LAYER,
     CoordinationType.SPATIAL_SUB_OBS_LAYER,
@@ -273,6 +293,9 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.GENOMIC_ZOOM_X,
     CoordinationType.GENOMIC_ZOOM_Y,
     CoordinationType.GENOMIC_TARGET_X,
@@ -291,6 +314,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   higlass: [
     CoordinationType.DATASET,
+    CoordinationType.FEATURE_TYPE,
     CoordinationType.GENOMIC_ZOOM_X,
     CoordinationType.GENOMIC_ZOOM_Y,
     CoordinationType.GENOMIC_TARGET_X,
