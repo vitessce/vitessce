@@ -130,7 +130,7 @@ export function useCellsData(
         // spatial cells layer coordination value
         // using the cell layer singleton.
         const coordinationValuesOrDefault = {
-          spatialCellsLayer: DEFAULT_CELLS_LAYER,
+          spatialObsLayer: DEFAULT_CELLS_LAYER,
           ...coordinationValues,
         };
         initCoordinationSpace(
@@ -486,7 +486,7 @@ export function useMoleculesData(
           .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
         const coordinationValuesOrDefault = {
-          spatialMoleculesLayer: DEFAULT_MOLECULES_LAYER,
+          spatialSubObsLayer: DEFAULT_MOLECULES_LAYER,
           ...coordinationValues,
         };
         initCoordinationSpace(

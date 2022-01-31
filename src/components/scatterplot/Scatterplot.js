@@ -130,7 +130,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       ],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
-      isExpressionMode: (cellColorEncoding === 'geneSelection'),
+      isExpressionMode: (cellColorEncoding === 'featureSelection'),
       colormap: geneExpressionColormap,
       onClick: (info) => {
         if (onCellClick) {

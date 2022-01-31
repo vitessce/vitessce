@@ -1151,6 +1151,62 @@
               }
             }
           },
+          "embeddingObsSetPolygonsVisible": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "type": "boolean" }
+            }
+          },
+          "embeddingObsSetLabelsVisible": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "type": "boolean" }
+            }
+          },
+          "embeddingObsSetLabelSize": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "type": "number" }
+            }
+          },
+          "embeddingObsRadius": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "number",
+                "description": "The obs radius value, used when embeddingObsRadiusMode is absolute or relative."
+              }
+            }
+          },
+          "embeddingObsOpacity": {
+            "type": "object",
+            "patternProperties": {
+                ".": {
+                  "type": "number",
+                  "description": "The obs opacity value, used when embeddingObsOpacityMode is static."
+                }
+            }
+          },
+          "embeddingObsRadiusMode": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "string",
+                "enum": ["manual", "auto"],
+                "description": "Should data points representing obs be assigned a static (manual) or dynamic (auto, based on zoom level and data extent) radius?"
+              }
+            }
+          },
+          "embeddingObsOpacityMode": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "string",
+                "enum": ["manual", "auto"],
+                "description": "Should data points representing obs be assigned a static (manual) or dynamic (auto, based on zoom level and data extent) opacity?"
+              }
+            }
+          },
           "spatialZoom": {
             "type": "object",
             "patternProperties": {
@@ -1321,6 +1377,20 @@
               }
             }
           },
+          "spatialObsLayer": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
+                  },
+                  { "$ref": "#/definitions/cellsLayer" }
+                ]
+              }
+            }
+          },
           "spatialNeighborhoodsLayer": {
             "type": "object",
             "patternProperties": {
@@ -1336,6 +1406,20 @@
             }
           },
           "spatialMoleculesLayer": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
+                  },
+                  { "$ref": "#/definitions/moleculesLayer" }
+                ]
+              }
+            }
+          },
+          "spatialSubObsLayer": {
             "type": "object",
             "patternProperties": {
               ".": {
@@ -1561,6 +1645,70 @@
             }
           },
           "additionalCellSets": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided, no cell will be highlighted initially."
+                  },
+                  {
+                    "$ref": "https://github.com/vitessce/vitessce/#cell-sets"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalObsSets": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided, no cell will be highlighted initially."
+                  },
+                  {
+                    "$ref": "https://github.com/vitessce/vitessce/#cell-sets"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalSubObsSets": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided, no cell will be highlighted initially."
+                  },
+                  {
+                    "$ref": "https://github.com/vitessce/vitessce/#cell-sets"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalFeatureSets": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided, no cell will be highlighted initially."
+                  },
+                  {
+                    "$ref": "https://github.com/vitessce/vitessce/#cell-sets"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalSubFeatureSets": {
             "type": "object",
             "patternProperties": {
               ".": {

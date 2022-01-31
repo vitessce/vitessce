@@ -312,10 +312,9 @@ export function upgradeFrom1_0_6(config) {
 }
 
 // TODO
-
 // Added in version 1.1.0:
 // - obs x feature and subObs x subFeature generalizations.
-export function upgradeFrom1_0_7(config) { // TODO: update name
+export function upgradeFrom1_0_7(config) {
   const newConfig = cloneDeep(config);
 
   // Convert specific coordination scopes to general ones.

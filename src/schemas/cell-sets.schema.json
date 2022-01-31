@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://github.com/vitessce/vitessce/#cell-sets",
-    "title": "Vitessce cell sets data",
+    "title": "Vitessce hierarchical sets data",
     "type": "object",
     "definitions": {
         "stringArray": {
@@ -171,8 +171,7 @@
                     "enum": ["0.1.3"]
                 },
                 "datatype": {
-                    "type": "string",
-                    "enum": ["cell"]
+                    "type": "string"
                 },
                 "tree": {
                     "type": "array",

@@ -21,6 +21,7 @@ import {
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
+import { Component } from '../../app/constants';
 
 const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 
@@ -68,26 +69,26 @@ export default function HeatmapSubscriber(props) {
     heatmapZoomX: zoomX,
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
-    geneSelection,
-    cellHighlight,
-    geneHighlight,
-    cellSetSelection,
-    cellSetColor,
-    additionalCellSets,
-    geneExpressionColormap,
-    geneExpressionColormapRange,
+    featureSelection: geneSelection,
+    obsHighlight: cellHighlight,
+    featureHighlight: geneHighlight,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    additionalObsSets: additionalCellSets,
+    featureValueColormap: geneExpressionColormap,
+    featureValueColormapRange: geneExpressionColormapRange,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
     setHeatmapTargetX: setTargetX,
     setHeatmapTargetY: setTargetY,
-    setCellHighlight,
-    setGeneHighlight,
-    setCellSetSelection,
-    setCellSetColor,
-    setGeneExpressionColormapRange,
-    setGeneExpressionColormap,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
+    setObsHighlight: setCellHighlight,
+    setFeatureHighlight: setGeneHighlight,
+    setObsSetSelection: setCellSetSelection,
+    setObsSetColor: setCellSetColor,
+    setFeatureValueColormap: setGeneExpressionColormap,
+    setFeatureValueColormapRange: setGeneExpressionColormapRange,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.HEATMAP], coordinationScopes);
 
   const observationsTitle = capitalize(observationsPluralLabel);
   const variablesTitle = capitalize(variablesPluralLabel);
@@ -128,7 +129,7 @@ export default function HeatmapSubscriber(props) {
 
   const cellColors = useMemo(() => getCellColors({
     // Only show cell set selection on heatmap labels.
-    cellColorEncoding: 'cellSetSelection',
+    cellColorEncoding: 'obsSetSelection',
     geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,

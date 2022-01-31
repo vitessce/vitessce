@@ -11,6 +11,7 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useGenomicProfilesData } from '../data-hooks';
 import HiGlassLazy from './HiGlassLazy';
+import { Component } from '../../app/constants';
 
 const GENOMIC_PROFILES_DATA_TYPES = ['genomic-profiles'];
 
@@ -73,10 +74,10 @@ export default function GenomicProfilesSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    cellSetColor,
-    cellSetSelection,
+    obsSetColor: cellSetColor,
+    obsSetSelection: cellSetSelection,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES.genomicProfiles,
+    COMPONENT_COORDINATION_TYPES[Component.GENOMIC_PROFILES],
     coordinationScopes,
   );
 

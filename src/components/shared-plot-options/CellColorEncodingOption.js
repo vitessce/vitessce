@@ -34,8 +34,8 @@ export default function CellColorEncodingOption(props) {
             id: 'cell-color-encoding-select',
           }}
         >
-          <option value="cellSetSelection">Cell Sets</option>
-          <option value="geneSelection">Gene Expression</option>
+          <option value="obsSetSelection">Obs Sets</option>
+          <option value="featureSelection">Feature Value</option>
         </OptionSelect>
       </TableCell>
     </TableRow>
