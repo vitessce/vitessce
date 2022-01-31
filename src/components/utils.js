@@ -187,7 +187,7 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
     },
   ]);
   setCellSetSelection([nextPath]);
-  setCellColorEncoding('cellSetSelection');
+  setCellColorEncoding('obsSetSelection');
 }
 
 export function mergeCellSets(cellSets, additionalCellSets) {

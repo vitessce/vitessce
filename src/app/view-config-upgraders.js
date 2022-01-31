@@ -305,33 +305,59 @@ export function upgradeFrom1_0_6(config) {
   const newConfig = cloneDeep(config);
 
   const analogies = {
-    'cellFilter': 'obsFilter',
-    'cellHighlight': 'obsHighlight',
-    'cellSelection': 'obsSelection',
-    'cellSetSelection': 'obsSetSelection',
-    'cellSetHighlight': 'obsSetHighlight',
-    'cellSetColor': 'obsSetColor',
-    'geneFilter': 'featureFilter',
-    'geneHighlight': 'featureHighlight',
-    'geneSelection': 'featureSelection',
-    'geneExpressionColormap': 'featureValueColormap',
-    'geneExpressionColormapRange': 'featureValueColormapRange',
-    'cellColorEncoding': 'obsColorEncoding',
-    'spatialCellsLayer': 'spatialObsLayer',
-    'spatialMoleculesLayer': 'spatialSubObsLayer',
-    'additionalCellSets': 'additionalObsSets',
-    'moleculeHighlight': 'subObsHighlight',
-    'embeddingCellSetPolygonsVisible': 'embeddingObsSetPolygonsVisible',
-    'embeddingCellSetLabelsVisible': 'embeddingObsSetLabelsVisible',
-    'embeddingCellSetLabelSize': 'embeddingObsSetLabelSize',
-    'embeddingCellRadius': 'embeddingObsRadius',
-    'embeddingCellRadiusMode': 'embeddingObsRadiusMode',
-    'embeddingCellOpacity': 'embeddingObsOpacity',
-    'embeddingCellOpacityMode': 'embeddingObsOpacityMode',
-  }
+    cellFilter: 'obsFilter',
+    cellHighlight: 'obsHighlight',
+    cellSelection: 'obsSelection',
+    cellSetSelection: 'obsSetSelection',
+    cellSetHighlight: 'obsSetHighlight',
+    cellSetColor: 'obsSetColor',
+    geneFilter: 'featureFilter',
+    geneHighlight: 'featureHighlight',
+    geneSelection: 'featureSelection',
+    geneExpressionColormap: 'featureValueColormap',
+    geneExpressionColormapRange: 'featureValueColormapRange',
+    cellColorEncoding: 'obsColorEncoding',
+    spatialCellsLayer: 'spatialObsLayer',
+    spatialMoleculesLayer: 'spatialSubObsLayer',
+    additionalCellSets: 'additionalObsSets',
+    moleculeHighlight: 'subObsHighlight',
+    embeddingCellSetPolygonsVisible: 'embeddingObsSetPolygonsVisible',
+    embeddingCellSetLabelsVisible: 'embeddingObsSetLabelsVisible',
+    embeddingCellSetLabelSize: 'embeddingObsSetLabelSize',
+    embeddingCellRadius: 'embeddingObsRadius',
+    embeddingCellRadiusMode: 'embeddingObsRadiusMode',
+    embeddingCellOpacity: 'embeddingObsOpacity',
+    embeddingCellOpacityMode: 'embeddingObsOpacityMode',
+  };
+
+  const coordinationSpace = { ...config.coordinationSpace };
+
+  Object.entries(analogies).forEach(([oldKey, newKey]) => {
+    if (coordinationSpace[oldKey]) {
+      coordinationSpace[newKey] = coordinationSpace[oldKey];
+      delete coordinationSpace[oldKey];
+    }
+  });
+
+  const layout = config.layout.map((component) => {
+    const newComponent = { ...component };
+    if (newComponent.coordinationScopes) {
+      const { coordinationScopes } = newComponent;
+      Object.entries(analogies).forEach(([oldKey, newKey]) => {
+        if (coordinationScopes[oldKey]) {
+          coordinationScopes[newKey] = coordinationScopes[oldKey];
+          delete coordinationScopes[oldKey];
+        }
+      });
+      newComponent.coordinationScopes = coordinationScopes;
+    }
+    return newComponent;
+  });
 
   return {
     ...newConfig,
     version: '1.1.0',
+    coordinationSpace,
+    layout,
   };
 }

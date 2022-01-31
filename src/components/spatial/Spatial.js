@@ -185,7 +185,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       extensions: [new ScaledExpressionExtension()],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
-      isExpressionMode: cellColorEncoding === 'geneSelection',
+      isExpressionMode: cellColorEncoding === 'featureSelection',
       colormap: geneExpressionColormap,
       ...cellLayerDefaultProps(
         filteredCellsEntries,
@@ -392,7 +392,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         onViewportLoad: layerProps.callback,
         colorScaleLo: geneExpressionColormapRange[0],
         colorScaleHi: geneExpressionColormapRange[1],
-        isExpressionMode: cellColorEncoding === 'geneSelection',
+        isExpressionMode: cellColorEncoding === 'featureSelection',
         colormap: geneExpressionColormap,
         expressionData: this.expression.data,
       });

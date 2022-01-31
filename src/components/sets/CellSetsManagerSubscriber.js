@@ -54,8 +54,9 @@ import {
   getNextNumberedNodeName,
 } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
+import { Component, DataType } from '../../app/constants';
 
-const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
+const CELL_SETS_DATA_TYPES = [DataType.CELLS, DataType.CELL_SETS];
 
 /**
  * A subscriber wrapper around the SetsManager component
@@ -82,16 +83,16 @@ export default function CellSetsManagerSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    cellSetSelection,
-    cellSetColor,
-    additionalCellSets,
-    cellColorEncoding,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    additionalObsSets: additionalCellSets,
+    obsColorEncoding: cellColorEncoding,
   }, {
-    setCellSetSelection,
-    setCellColorEncoding,
-    setCellSetColor,
-    setAdditionalCellSets,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
+    setObsSetSelection: setCellSetSelection,
+    setObsColorEncoding: setCellColorEncoding,
+    setObsSetColor: setCellSetColor,
+    setAdditionalObsSets: setAdditionalCellSets,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.CELL_SETS], coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [
@@ -117,8 +118,8 @@ export default function CellSetsManagerSubscriber(props) {
   const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, true,
-    { setCellSetSelection, setCellSetColor },
-    { cellSetSelection, cellSetColor },
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
   );
 
   // Validate and upgrade the additionalCellSets.
@@ -141,7 +142,7 @@ export default function CellSetsManagerSubscriber(props) {
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
   function setCellSetColorEncoding() {
-    setCellColorEncoding('cellSetSelection');
+    setCellColorEncoding('obsSetSelection');
   }
 
   // Merged cell sets are only to be used for convenience when reading
@@ -598,7 +599,7 @@ export default function CellSetsManagerSubscriber(props) {
         levelSelection={checkedLevel}
         setSelection={cellSetSelection}
         setExpansion={cellSetExpansion}
-        hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
+        hasColorEncoding={cellColorEncoding === 'obsSetSelection'}
         draggable
         datatype={SETS_DATATYPE_CELL}
         onError={setWarning}
