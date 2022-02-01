@@ -30,8 +30,8 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { Component, DataType } from '../../app/constants';
 
 const SPATIAL_DATA_TYPES = [
-  DataType.CELLS, DataType.MOLECULES, DataType.RASTER,
-  DataType.CELL_SETS, DataType.EXPRESSION_MATRIX,
+  DataType.OBS, DataType.SUB_OBS, DataType.RASTER,
+  DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX,
 ];
 
 /**
@@ -64,7 +64,11 @@ export default function SpatialSubscriber(props) {
   const [{
     dataset,
     obsType,
+    featureType,
     subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
     spatialZoom: zoom,
     spatialTargetX: targetX,
     spatialTargetY: targetY,
@@ -112,6 +116,15 @@ export default function SpatialSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SPATIAL], coordinationScopes);
 
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
+
   const observationsLabel = obsType;
   const observationsPluralLabel = `${obsType}s`;
   const subobservationsLabel = subObsType;
@@ -149,34 +162,34 @@ export default function SpatialSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, false,
     { setSpatialObsLayer: setCellsLayer },
     { spatialObsLayer: cellsLayer },
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, false,
     { setSpatialSubObsLayer: setMoleculesLayer },
     { spatialSubObsLayer: moleculesLayer },
   );
   const [neighborhoods] = useNeighborhoodsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, false,
     { setSpatialNeighborhoodsLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodsLayer: neighborhoodsLayer },
   );
   const [cellSets] = useCellSetsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
   );
   const [expressionData] = useGeneSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+    loaders, dataset, entityTypes, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
   const [attrs] = useExpressionAttrs(
-    loaders, dataset, setItemIsReady, addUrl, false,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, false,
   );
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, false,
     { setSpatialRasterLayers: setRasterLayers },
     { spatialRasterLayers: rasterLayers },
   );

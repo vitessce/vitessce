@@ -1,4 +1,6 @@
 /* eslint-disable no-plusplus */
+import { DATA_TYPE_ENTITY_TYPES_MAPPING } from './app/constants';
+import { DEFAULT_ENTITY_TYPE_VALUES } from './app/state/coordination';
 
 // Adapted from https://github.com/feross/fromentries/blob/29b52a850bb3a47c390937631c2638edf3443942/index.js
 export function fromEntries(iterable) {
@@ -98,4 +100,12 @@ export function isRgb(loader) {
   const { shape, dtype, labels } = source;
   const channelSize = shape[labels.indexOf('c')];
   return (channelSize === 3) && dtype === 'Uint8';
+}
+
+export function getEntityTypeKey(dataType, entityTypes) {
+  const entityTypeNames = DATA_TYPE_ENTITY_TYPES_MAPPING[dataType];
+  const entityTypeArr = entityTypeNames.map(name => (
+    entityTypes[name] || DEFAULT_ENTITY_TYPE_VALUES[name]
+  ));
+  return entityTypeArr;
 }

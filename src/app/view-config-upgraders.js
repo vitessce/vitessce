@@ -355,6 +355,15 @@ export function upgradeFrom1_0_6(config) {
     variablesLabelOverride: 'featureType',
   };
 
+  const componentAnalogies = {
+    genes: 'features',
+    cellSets: 'obsSets',
+    cellSetSizes: 'obsSetSizes',
+    cellSetExpression: 'obsSetFeatureDistribution',
+    expressionHistogram: 'featureValueHistogram',
+    heatmap: 'obsFeatureHeatmap',
+  };
+
   const layout = config.layout.map((component) => {
     const newComponent = { ...component };
     const { coordinationScopes = {}, props = {} } = newComponent;
@@ -375,16 +384,100 @@ export function upgradeFrom1_0_6(config) {
       }
     });
 
+    const newComponentName = (
+      componentAnalogies[component.component]
+      || component.component
+    );
+
     return {
       ...newComponent,
+      component: newComponentName,
       coordinationScopes,
       props,
+    };
+  });
+
+  const dataTypeAnalogies = {
+    cells: {
+      dataType: 'obs',
+      entityTypes: {
+        obsType: 'cell',
+      },
+    },
+    molecules: {
+      dataType: 'subObs',
+      entityTypes: {
+        subObsType: 'molecule',
+        subFeatureType: 'isoform',
+      },
+    },
+    'cell-sets': {
+      dataType: 'obsSets',
+      entityTypes: {
+        obsType: 'cell',
+      },
+    },
+    'expression-matrix': {
+      dataType: 'obsFeatureMatrix',
+      entityTypes: {
+        obsType: 'cell',
+        featureType: 'gene',
+      },
+    },
+    'genomic-profiles': {
+      dataType: 'genomicProfiles',
+      entityTypes: {},
+    },
+  };
+  // eslint-disable-next-line
+  const fileTypeAnalogies = {
+    'cell-sets.json': 'cellSets.json',
+    'expression-matrix.zarr': 'expressionMatrix.zarr',
+    'genomic-profiles.zarr': 'genomicProfiles.zarr',
+    'clusters.json': 'expressionMatrix.json',
+    'anndata-cell-sets.zarr': 'anndataObsSets.zarr',
+    'anndata-cells.zarr': 'anndataObs.zarr',
+    'anndata-expression-matrix.zarr': 'anndataObsFeatureMatrix.zarr',
+  };
+
+  const datasets = config.datasets.map((dataset) => {
+    const { files = [] } = dataset;
+    const newFiles = files.map((file) => {
+      const oldDataType = file.type;
+      const oldFileType = file.fileType;
+      let dataType = oldDataType;
+      let fileType = oldFileType;
+      let entityTypes = {};
+      if (dataTypeAnalogies[oldDataType]) {
+        // eslint-disable-next-line prefer-destructuring
+        dataType = dataTypeAnalogies[oldDataType].dataType;
+        // eslint-disable-next-line prefer-destructuring
+        entityTypes = dataTypeAnalogies[oldDataType].entityTypes;
+      }
+      if (fileTypeAnalogies[oldFileType]) {
+        fileType = fileTypeAnalogies[oldFileType];
+      }
+      // Convert `type` to `dataType`.
+      // eslint-disable-next-line no-param-reassign
+      delete file.type;
+      return {
+        ...file,
+        dataType,
+        fileType,
+        entityTypes,
+      };
+    });
+
+    return {
+      ...dataset,
+      files: newFiles,
     };
   });
 
   return {
     ...newConfig,
     version: '1.1.0',
+    datasets,
     coordinationSpace: {
       ...coordinationSpace,
       ...typeScopes,
