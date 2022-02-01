@@ -10,7 +10,7 @@ import CellSetSizesPlot from './CellSetSizesPlot';
 import { Component, DataType } from '../../app/constants';
 import { capitalize } from '../../utils';
 
-const CELL_SET_SIZES_DATA_TYPES = [DataType.CELL_SETS];
+const CELL_SET_SIZES_DATA_TYPES = [DataType.OBS_SETS];
 
 /**
  * A subscriber component for `CellSetSizePlot`,
@@ -37,13 +37,27 @@ export default function CellSetSizesPlotSubscriber(props) {
   const [{
     dataset,
     obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
   }, {
     setObsSetSelection: setCellSetSelection,
     setObsSetColor: setCellSetColor,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.CELL_SET_SIZES], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.OBS_SET_SIZES], coordinationScopes);
+
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
 
   const title = titleProp || `${capitalize(obsType)} Set Sizes`;
 
@@ -67,7 +81,7 @@ export default function CellSetSizesPlotSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [cellSets] = useCellSetsData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
   );

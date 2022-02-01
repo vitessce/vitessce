@@ -23,7 +23,7 @@ import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
 import { Component, DataType } from '../../app/constants';
 
-const HEATMAP_DATA_TYPES = [DataType.CELLS, DataType.CELL_SETS, DataType.EXPRESSION_MATRIX];
+const HEATMAP_DATA_TYPES = [DataType.OBS, DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX];
 
 /**
  * @param {object} props
@@ -64,6 +64,10 @@ export default function HeatmapSubscriber(props) {
     dataset,
     obsType,
     featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
     heatmapZoomX: zoomX,
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
@@ -87,6 +91,15 @@ export default function HeatmapSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.HEATMAP], coordinationScopes);
+
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
 
   const observationsLabel = obsType;
   const variablesLabel = featureType;
@@ -117,12 +130,12 @@ export default function HeatmapSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cells] = useCellsData(loaders, dataset, entityTypes, setItemIsReady, addUrl, true);
   const [expressionMatrix] = useExpressionMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, true,
   );
   const [cellSets] = useCellSetsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, false,
     { setCellSetSelection, setCellSetColor },
     { cellSetSelection, cellSetColor },
   );

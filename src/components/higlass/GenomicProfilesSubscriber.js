@@ -74,12 +74,27 @@ export default function GenomicProfilesSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
     obsSetColor: cellSetColor,
     obsSetSelection: cellSetSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[Component.GENOMIC_PROFILES],
     coordinationScopes,
   );
+
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
 
   // eslint-disable-next-line no-unused-vars
   const [
@@ -94,7 +109,7 @@ export default function GenomicProfilesSubscriber(props) {
   const [urls, addUrl, resetUrls] = useUrls();
 
   const [genomicProfilesAttrs] = useGenomicProfilesData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, true,
   );
 
   const hgViewConfig = useMemo(() => {

@@ -1,54 +1,98 @@
 export const Component = {
   DESCRIPTION: 'description',
   STATUS: 'status',
-  GENES: 'genes', // deprecate
   FEATURES: 'features',
-  CELL_SETS: 'cellSets', // deprecate
   OBS_SETS: 'obsSets',
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
-  HEATMAP: 'heatmap',
+  HEATMAP: 'obsFeatureHeatmap',
   LAYER_CONTROLLER: 'layerController',
-  CELL_SET_SIZES: 'cellSetSizes', // deprecate
   OBS_SET_SIZES: 'obsSetSizes',
   GENOMIC_PROFILES: 'genomicProfiles',
-  CELL_SET_EXPRESSION: 'cellSetExpression', // deprecate
   OBS_SET_FEATURE_DISTRIBUTION: 'obsSetFeatureDistribution',
-  EXPRESSION_HISTOGRAM: 'expressionHistogram', // deprecate
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
 };
 
 export const DataType = {
-  CELLS: 'cells', // deprecate
   OBS: 'obs',
-  CELL_SETS: 'cell-sets', // deprecate
-  OBS_SETS: 'obs-sets',
-  EXPRESSION_MATRIX: 'expression-matrix', // deprecate
-  OBS_FEATURE_MATRIX: 'obs-feature-matrix',
-  GENOMIC_PROFILES: 'genomic-profiles',
-  MOLECULES: 'molecules', // deprecate
-  SUB_OBS: 'sub-obs',
+  OBS_SETS: 'obsSets',
+  OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
+  GENOMIC_PROFILES: 'genomicProfiles',
+  SUB_OBS: 'subObs',
+  SUB_OBS_SETS: 'subObsSets',
+  SUB_OBS_SUB_FEATURE_MATRIX: 'subObsSubFeatureMatrix',
   NEIGHBORHOODS: 'neighborhoods',
   RASTER: 'raster',
+  SUB_OBS_MAPPING: 'subObsMapping',
+  SUB_FEATURE_MAPPING: 'subFeatureMapping',
+};
+
+export const EntityTypes = {
+  OBS_TYPE: 'obsType',
+  SUB_OBS_TYPE: 'subObsType',
+  FEATURE_TYPE: 'featureType',
+  SUB_FEATURE_TYPE: 'subFeatureType',
+  FEATURE_VALUE_TYPE: 'featureValueType',
+  SUB_FEATURE_VALUE_TYPE: 'subFeatureValueType',
 };
 
 export const FileType = {
   CELLS_JSON: 'cells.json',
-  CELL_SETS_JSON: 'cell-sets.json',
-  EXPRESSION_MATRIX_ZARR: 'expression-matrix.zarr',
-  GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
+  CELL_SETS_JSON: 'cellSets.json',
+  EXPRESSION_MATRIX_ZARR: 'expressionMatrix.zarr',
+  GENOMIC_PROFILES_ZARR: 'genomicProfiles.zarr',
   MOLECULES_JSON: 'molecules.json',
   NEIGHBORHOODS_JSON: 'neighborhoods.json',
   RASTER_JSON: 'raster.json',
   RASTER_OME_ZARR: 'raster.ome-zarr',
-  CLUSTERS_JSON: 'clusters.json',
+  EXPRESSION_MATRIX_JSON: 'expressionMatrix.json',
   GENES_JSON: 'genes.json',
-  ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr', // deprecate
-  ANNDATA_OBS_SETS_ZARR: 'anndata-obs-sets.zarr',
-  ANNDATA_CELLS_ZARR: 'anndata-cells.zarr', // deprecate
-  ANNDATA_OBS_ZARR: 'anndata-obs.zarr',
-  ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr', // deprecate
-  ANNDATA_OBS_FEATURE_MATRIX_ZARR: 'anndata-obs-feature-matrix.zarr',
+  ANNDATA_OBS_SETS_ZARR: 'anndataObsSets.zarr',
+  ANNDATA_OBS_ZARR: 'anndataObs.zarr',
+  ANNDATA_OBS_FEATURE_MATRIX_ZARR: 'anndataObsFeatureMatrix.zarr',
+  SUB_OBS_MAPPING_JSON: 'subObsMapping.json',
+  SUB_FEATURE_MAPPING_JSON: 'subFeatureMapping.json',
+};
+
+// Which file types are supported by each data type?
+export const FILE_TYPE_DATA_TYPE_MAPPING = {
+  [FileType.CELLS_JSON]: DataType.OBS,
+  [FileType.CELL_SETS_JSON]: DataType.OBS_SETS,
+  [FileType.EXPRESSION_MATRIX_ZARR]: DataType.OBS_FEATURE_MATRIX,
+  [FileType.GENOMIC_PROFILES_ZARR]: DataType.GENOMIC_PROFILES,
+  [FileType.MOLECULES_JSON]: DataType.SUB_OBS,
+  [FileType.NEIGHBORHOODS_JSON]: DataType.NEIGHBORHOODS,
+  [FileType.RASTER_JSON]: DataType.RASTER,
+  [FileType.RASTER_OME_ZARR]: DataType.RASTER,
+  [FileType.EXPRESSION_MATRIX_JSON]: DataType.OBS_FEATURE_MATRIX,
+  [FileType.GENES_JSON]: DataType.OBS_FEATURE_MATRIX,
+  [FileType.ANNDATA_OBS_ZARR]: DataType.OBS,
+  [FileType.ANNDATA_OBS_SETS_ZARR]: DataType.OBS_SETS,
+  [FileType.ANNDATA_OBS_FEATURE_MATRIX_ZARR]: DataType.OBS_FEATURE_MATRIX,
+  [FileType.SUB_OBS_MAPPING_JSON]: DataType.SUB_OBS_MAPPING,
+  [FileType.SUB_FEATURE_MAPPING_JSON]: DataType.SUB_FEATURE_MAPPING,
+};
+
+// Which entity types are used for each data type?
+export const DATA_TYPE_ENTITY_TYPES_MAPPING = {
+  [DataType.OBS]: [EntityTypes.OBS_TYPE],
+  [DataType.OBS_SETS]: [EntityTypes.OBS_TYPE],
+  [DataType.OBS_FEATURE_MATRIX]: [
+    EntityTypes.OBS_TYPE,
+    EntityTypes.FEATURE_TYPE,
+    EntityTypes.FEATURE_VALUE_TYPE,
+  ],
+  [DataType.SUB_OBS]: [EntityTypes.SUB_OBS_TYPE],
+  [DataType.SUB_OBS_SETS]: [EntityTypes.SUB_OBS_TYPE],
+  [DataType.SUB_OBS_MAPPING]: [EntityTypes.SUB_OBS_TYPE, EntityTypes.OBS_TYPE],
+  [DataType.SUB_OBS_SUB_FEATURE_MATRIX]: [
+    EntityTypes.SUB_OBS_TYPE,
+    EntityTypes.SUB_FEATURE_TYPE,
+    EntityTypes.SUB_FEATURE_VALUE_TYPE,
+  ],
+  [DataType.NEIGHBORHOODS]: [],
+  [DataType.RASTER]: [],
+  [DataType.SUB_FEATURE_MAPPING]: [EntityTypes.SUB_FEATURE_TYPE, EntityTypes.FEATURE_TYPE],
 };
 
 /**

@@ -502,11 +502,24 @@
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["type", "fileType"],
+                "required": ["dataType", "fileType"],
                 "properties": {
                   "name": { "type": "string" },
-                  "type": { "type": "string" },
+                  "dataType": { "type": "string" },
                   "fileType": { "type": "string" },
+                  "entityTypes": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [],
+                      "properties": {
+                        "obsType": { "type": "string" },
+                        "featureType": { "type": "string" },
+                        "subObsType": { "type": "string" },
+                        "subFeatureType": { "type": "string" },
+                        "featureValueType": { "type": "string" },
+                        "subFeatureValueType": { "type": "string" }
+                      }
+                  },
                   "url": { "type": "string" },
                   "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "https://github.com/vitessce/vitessce/#raster" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
                   "requestInit": { "$ref": "#/definitions/requestInit" }

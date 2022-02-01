@@ -7,9 +7,9 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
-import { Component } from '../../app/constants';
+import { Component, DataType } from '../../app/constants';
 
-const GENES_DATA_TYPES = ['expression-matrix'];
+const GENES_DATA_TYPES = [DataType.OBS_FEATURE_MATRIX];
 
 /**
  * A subscriber component for a gene listing component.
@@ -38,7 +38,12 @@ export default function GenesSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
     featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
     featureSelection: geneSelection,
     featureFilter: geneFilter,
     obsColorEncoding: cellColorEncoding,
@@ -47,7 +52,16 @@ export default function GenesSubscriber(props) {
     setFeatureFilter: setGeneFilter,
     setFeatureHighlight: setGeneHighlight,
     setObsColorEncoding: setCellColorEncoding,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.GENES], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.FEATURES], coordinationScopes);
+
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
 
   const title = titleProp || `${capitalize(featureType)} Selection`;
 
@@ -70,7 +84,7 @@ export default function GenesSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [attrs] = useExpressionAttrs(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, true,
   );
   const geneList = attrs ? attrs.cols : [];
   const numGenes = geneList.length;

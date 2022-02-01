@@ -11,7 +11,7 @@ import CellSetExpressionPlot from './CellSetExpressionPlot';
 import { Component, DataType } from '../../app/constants';
 import { capitalize } from '../../utils';
 
-const CELL_SET_EXPRESSION_DATA_TYPES = [DataType.CELL_SETS, DataType.EXPRESSION_MATRIX];
+const CELL_SET_EXPRESSION_DATA_TYPES = [DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX];
 
 /**
  * A subscriber component for `CellSetExpressionPlot`,
@@ -37,7 +37,11 @@ export default function CellSetExpressionPlotSubscriber(props) {
   const [{
     dataset,
     obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
     featureValueType,
+    subFeatureValueType,
     featureSelection: geneSelection,
     featureValueTransform: geneExpressionTransform,
     obsSetSelection: cellSetSelection,
@@ -46,9 +50,18 @@ export default function CellSetExpressionPlotSubscriber(props) {
   }, {
     setFeatureValueTransform: setGeneExpressionTransform,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[Component.CELL_SET_EXPRESSION],
+    COMPONENT_COORDINATION_TYPES[Component.OBS_SET_FEATURE_DISTRIBUTION],
     coordinationScopes,
   );
+
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();
@@ -76,13 +89,13 @@ export default function CellSetExpressionPlotSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [expressionData] = useGeneSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+    loaders, dataset, entityTypes, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
   const [attrs] = useExpressionAttrs(
-    loaders, dataset, setItemIsReady, addUrl, false,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, false,
   );
   const [cellSets] = useCellSetsData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, true,
   );
 
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
@@ -123,7 +136,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
             useGeneExpressionTransform={useGeneExpressionTransform}
           />
         ) : (
-          <span>Select a gene.</span>
+          <span>Select a {featureType}.</span>
         )}
       </div>
     </TitleInfo>

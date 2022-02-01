@@ -1,12 +1,24 @@
 import { CoordinationType, Component } from '../constants';
 
+export const DEFAULT_ENTITY_TYPE_VALUES = {
+  [CoordinationType.OBS_TYPE]: 'cell',
+  [CoordinationType.SUB_OBS_TYPE]: 'molecule',
+  [CoordinationType.FEATURE_TYPE]: 'gene',
+  [CoordinationType.SUB_FEATURE_TYPE]: 'isoform',
+  [CoordinationType.FEATURE_VALUE_TYPE]: 'expression',
+  [CoordinationType.SUB_FEATURE_VALUE_TYPE]: 'intensity',
+};
+
+export const ENTITY_COORDINATION_TYPES = Object
+  .keys(DEFAULT_ENTITY_TYPE_VALUES);
+
 /**
  * Coordination types may have default values,
  * which can be defined here, and used by the
  * auto initialization strategy.
  */
 export const DEFAULT_COORDINATION_VALUES = {
-  [CoordinationType.OBS_TYPE]: 'cell',
+  ...DEFAULT_ENTITY_TYPE_VALUES,
   [CoordinationType.OBS_FILTER]: null,
   [CoordinationType.OBS_HIGHLIGHT]: null,
   [CoordinationType.OBS_SELECTION]: null,
@@ -15,7 +27,6 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.OBS_SET_COLOR]: null,
   [CoordinationType.OBS_COLOR_ENCODING]: 'obsSetSelection',
 
-  [CoordinationType.SUB_OBS_TYPE]: 'molecule',
   [CoordinationType.SUB_OBS_FILTER]: null,
   [CoordinationType.SUB_OBS_HIGHLIGHT]: null,
   [CoordinationType.SUB_OBS_SELECTION]: null,
@@ -24,7 +35,6 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SUB_OBS_SET_COLOR]: null,
   [CoordinationType.SUB_OBS_COLOR_ENCODING]: 'subObsSetSelection',
 
-  [CoordinationType.FEATURE_TYPE]: 'gene',
   [CoordinationType.FEATURE_FILTER]: null,
   [CoordinationType.FEATURE_HIGHLIGHT]: null,
   [CoordinationType.FEATURE_SELECTION]: null,
@@ -32,7 +42,6 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.FEATURE_SET_HIGHLIGHT]: null,
   [CoordinationType.FEATURE_SET_COLOR]: null,
 
-  [CoordinationType.SUB_FEATURE_TYPE]: 'isoform',
   [CoordinationType.SUB_FEATURE_FILTER]: null,
   [CoordinationType.SUB_FEATURE_HIGHLIGHT]: null,
   [CoordinationType.SUB_FEATURE_SELECTION]: null,
@@ -40,12 +49,10 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SUB_FEATURE_SET_HIGHLIGHT]: null,
   [CoordinationType.SUB_FEATURE_SET_COLOR]: null,
 
-  [CoordinationType.FEATURE_VALUE_TYPE]: 'expression',
   [CoordinationType.FEATURE_VALUE_COLORMAP]: 'plasma',
   [CoordinationType.FEATURE_VALUE_COLORMAP_RANGE]: [0.0, 1.0],
   [CoordinationType.FEATURE_VALUE_TRANSFORM]: null,
 
-  [CoordinationType.SUB_FEATURE_VALUE_TYPE]: 'intensity',
   [CoordinationType.SUB_FEATURE_VALUE_COLORMAP]: 'plasma',
   [CoordinationType.SUB_FEATURE_VALUE_COLORMAP_RANGE]: [0.0, 1.0],
   [CoordinationType.SUB_FEATURE_VALUE_TRANSFORM]: null,
@@ -125,9 +132,7 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
 export const COMPONENT_COORDINATION_TYPES = {
   [Component.SCATTERPLOT]: [
     CoordinationType.DATASET,
-    CoordinationType.OBS_TYPE,
-    CoordinationType.FEATURE_TYPE,
-    CoordinationType.FEATURE_VALUE_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.EMBEDDING_TYPE,
     CoordinationType.EMBEDDING_ZOOM,
     CoordinationType.EMBEDDING_ROTATION,
@@ -155,12 +160,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.SPATIAL]: [
     CoordinationType.DATASET,
-    CoordinationType.OBS_TYPE,
-    CoordinationType.SUB_OBS_TYPE,
-    CoordinationType.FEATURE_TYPE,
-    CoordinationType.SUB_FEATURE_TYPE,
-    CoordinationType.FEATURE_VALUE_TYPE,
-    CoordinationType.SUB_FEATURE_VALUE_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.SPATIAL_ZOOM,
     CoordinationType.SPATIAL_ROTATION,
     CoordinationType.SPATIAL_RASTER_LAYERS,
@@ -191,9 +191,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.HEATMAP]: [
     CoordinationType.DATASET,
-    CoordinationType.OBS_TYPE,
-    CoordinationType.FEATURE_TYPE,
-    CoordinationType.FEATURE_VALUE_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.HEATMAP_ZOOM_X,
     CoordinationType.HEATMAP_ZOOM_Y,
     CoordinationType.HEATMAP_TARGET_X,
@@ -211,9 +209,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.CELL_SETS]: [
+  [Component.OBS_SETS]: [
     CoordinationType.DATASET,
-    CoordinationType.OBS_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
@@ -221,9 +219,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.FEATURE_SELECTION,
   ],
-  [Component.CELL_SET_SIZES]: [
+  [Component.OBS_SET_SIZES]: [
     CoordinationType.DATASET,
-    CoordinationType.OBS_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
@@ -231,32 +229,24 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.STATUS]: [
     CoordinationType.DATASET,
-    CoordinationType.OBS_TYPE,
-    CoordinationType.SUB_OBS_TYPE,
-    CoordinationType.FEATURE_TYPE,
-    CoordinationType.SUB_FEATURE_TYPE,
-    CoordinationType.FEATURE_VALUE_TYPE,
-    CoordinationType.SUB_FEATURE_VALUE_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.OBS_HIGHLIGHT,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.SUB_OBS_HIGHLIGHT,
   ],
-  [Component.GENES]: [
+  [Component.FEATURES]: [
     CoordinationType.DATASET,
-    CoordinationType.FEATURE_TYPE,
-    CoordinationType.FEATURE_VALUE_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.FEATURE_FILTER,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.OBS_SET_SELECTION,
   ],
-  [Component.CELL_SET_EXPRESSION]: [
+  [Component.OBS_SET_FEATURE_DISTRIBUTION]: [
     CoordinationType.DATASET,
-    CoordinationType.OBS_TYPE,
-    CoordinationType.FEATURE_TYPE,
-    CoordinationType.FEATURE_VALUE_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.FEATURE_SELECTION,
     CoordinationType.FEATURE_VALUE_TRANSFORM,
     CoordinationType.OBS_SET_SELECTION,
@@ -264,19 +254,14 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.EXPRESSION_HISTOGRAM]: [
+  [Component.FEATURE_VALUE_HISTOGRAM]: [
     CoordinationType.DATASET,
-    CoordinationType.OBS_TYPE,
-    CoordinationType.FEATURE_TYPE,
-    CoordinationType.FEATURE_VALUE_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.FEATURE_SELECTION,
   ],
   [Component.LAYER_CONTROLLER]: [
     CoordinationType.DATASET,
-    CoordinationType.OBS_TYPE,
-    CoordinationType.SUB_OBS_TYPE,
-    CoordinationType.FEATURE_TYPE,
-    CoordinationType.SUB_FEATURE_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.SPATIAL_RASTER_LAYERS,
     CoordinationType.SPATIAL_OBS_LAYER,
     CoordinationType.SPATIAL_SUB_OBS_LAYER,
@@ -293,9 +278,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,
-    CoordinationType.OBS_TYPE,
-    CoordinationType.FEATURE_TYPE,
-    CoordinationType.FEATURE_VALUE_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.GENOMIC_ZOOM_X,
     CoordinationType.GENOMIC_ZOOM_Y,
     CoordinationType.GENOMIC_TARGET_X,
@@ -310,11 +293,12 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.DESCRIPTION]: [
     CoordinationType.DATASET,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.SPATIAL_RASTER_LAYERS,
   ],
   higlass: [
     CoordinationType.DATASET,
-    CoordinationType.FEATURE_TYPE,
+    ...ENTITY_COORDINATION_TYPES,
     CoordinationType.GENOMIC_ZOOM_X,
     CoordinationType.GENOMIC_ZOOM_Y,
     CoordinationType.GENOMIC_TARGET_X,
