@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import equal from 'fast-deep-equal';
-import { capitalize } from '../utils';
+import { capitalize, getEntityTypeKey } from '../utils';
 import { useSetWarning } from '../app/state/hooks';
 import {
   AbstractLoaderError,
@@ -12,6 +12,7 @@ import {
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
 import { DEFAULT_COORDINATION_VALUES } from '../app/state/coordination';
+import { DataType } from '../app/constants';
 
 /**
  * Warn via publishing to the console
@@ -106,7 +107,7 @@ export function useDescription(loaders, dataset) {
  * number of items in the cells object.
  */
 export function useCellsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, entityTypes, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues,
 ) {
   const [cells, setCells] = useState({});
@@ -118,9 +119,10 @@ export function useCellsData(
     if (!loaders[dataset]) {
       return;
     }
-
-    if (loaders[dataset].loaders.cells) {
-      loaders[dataset].loaders.cells.load().catch(e => warn(e, setWarning)).then((payload) => {
+    const entityTypeKey = getEntityTypeKey(DataType.OBS, entityTypes);
+    const loader = loaders[dataset].loaders[DataType.OBS]?.get(entityTypeKey);
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         setCells(data);
@@ -137,15 +139,15 @@ export function useCellsData(
           coordinationValuesOrDefault,
           coordinationSetters, initialCoordinationValues,
         );
-        setItemIsReady('cells');
+        setItemIsReady(DataType.OBS);
       });
     } else {
       setCells({});
       setCellsCount(0);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'cells', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.OBS, null, null), setWarning);
       } else {
-        setItemIsReady('cells');
+        setItemIsReady(DataType.OBS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -178,7 +180,7 @@ export function useCellsData(
  * cellSets is a sets tree object.
  */
 export function useCellSetsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, entityTypes, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues,
 ) {
   const [cellSets, setCellSets] = useState();
@@ -189,10 +191,11 @@ export function useCellSetsData(
     if (!loaders[dataset]) {
       return;
     }
-
-    if (loaders[dataset].loaders['cell-sets']) {
+    const entityTypeKey = getEntityTypeKey(DataType.OBS_SETS, entityTypes);
+    const loader = loaders[dataset].loaders[DataType.OBS_SETS]?.get(entityTypeKey);
+    if (loader) {
       // Load the data initially.
-      loaders[dataset].loaders['cell-sets'].load().catch(e => warn(e, setWarning)).then((payload) => {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         setCellSets(data);
@@ -202,14 +205,14 @@ export function useCellSetsData(
           coordinationSetters,
           initialCoordinationValues,
         );
-        setItemIsReady('cell-sets');
+        setItemIsReady(DataType.OBS_SETS);
       });
     } else {
       setCellSets(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'cell-sets', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.OBS_SETS, null, null), setWarning);
       } else {
-        setItemIsReady('cell-sets');
+        setItemIsReady(DataType.OBS_SETS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -246,7 +249,7 @@ export function useCellSetsData(
  * shape { cols, rows, matrix }.
  */
 export function useExpressionMatrixData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, entityTypes, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues,
 ) {
   const [expressionMatrix, setExpressionMatrix] = useState();
@@ -257,9 +260,10 @@ export function useExpressionMatrixData(
     if (!loaders[dataset]) {
       return;
     }
-
-    if (loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].load().catch(e => warn(e, setWarning)).then((payload) => {
+    const entityTypeKey = getEntityTypeKey(DataType.OBS_FEATURE_MATRIX, entityTypes);
+    const loader = loaders[dataset].loaders[DataType.OBS_FEATURE_MATRIX]?.get(entityTypeKey);
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         const [attrs, arr] = data;
@@ -274,14 +278,14 @@ export function useExpressionMatrixData(
           coordinationSetters,
           initialCoordinationValues,
         );
-        setItemIsReady('expression-matrix');
+        setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       });
     } else {
       setExpressionMatrix(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
       } else {
-        setItemIsReady('expression-matrix');
+        setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -309,6 +313,7 @@ export function useExpressionMatrixData(
 export function useGeneSelection(
   loaders,
   dataset,
+  entityTypes,
   setItemIsReady,
   isRequired,
   selection,
@@ -323,22 +328,23 @@ export function useGeneSelection(
       return;
     }
     if (!selection) {
-      setItemIsReady('expression-matrix');
+      setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       return;
     }
-    const loader = loaders[dataset].loaders['expression-matrix'];
+    const entityTypeKey = getEntityTypeKey(DataType.OBS_FEATURE_MATRIX, entityTypes);
+    const loader = loaders[dataset].loaders[DataType.OBS_FEATURE_MATRIX]?.get(entityTypeKey);
     if (loader) {
-      setItemIsNotReady('expression-matrix');
+      setItemIsNotReady(DataType.OBS_FEATURE_MATRIX);
       const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
       if (implementsGeneSelection) {
-        loaders[dataset].loaders['expression-matrix']
+        loader
           .loadGeneSelection({ selection })
           .catch(e => warn(e, setWarning))
           .then((payload) => {
             if (!payload) return;
             const { data } = payload;
             setGeneData(data);
-            setItemIsReady('expression-matrix');
+            setItemIsReady(DataType.OBS_FEATURE_MATRIX);
           });
       } else {
         loader.load().catch(e => warn(e, setWarning)).then((payload) => {
@@ -356,15 +362,15 @@ export function useGeneSelection(
             return expressionData;
           });
           setGeneData(expressionDataForSelection);
-          setItemIsReady('expression-matrix');
+          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
         });
       }
     } else {
       setGeneData(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
       } else {
-        setItemIsReady('expression-matrix');
+        setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -391,7 +397,10 @@ export function useGeneSelection(
  * loading is unsuccessful?
  * @returns {object} [attrs] { rows, cols } object containing cell and gene names.
  */
-export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isRequired) {
+export function useExpressionAttrs(
+  loaders, dataset, entityTypes,
+  setItemIsReady, addUrl, isRequired,
+) {
   const [attrs, setAttrs] = useState();
 
   const setWarning = useSetWarning();
@@ -400,7 +409,8 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
     if (!loaders[dataset]) {
       return;
     }
-    const loader = loaders[dataset].loaders['expression-matrix'];
+    const entityTypeKey = getEntityTypeKey(DataType.OBS_FEATURE_MATRIX, entityTypes);
+    const loader = loaders[dataset].loaders[DataType.OBS_FEATURE_MATRIX]?.get(entityTypeKey);
     if (loader) {
       const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
       if (implementsLoadAttrs) {
@@ -409,7 +419,7 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
           const { data, url } = payload;
           setAttrs(data);
           addUrl(url, 'Expression Matrix');
-          setItemIsReady('expression-matrix');
+          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
         });
       } else {
         loader.load().catch(e => warn(e, setWarning)).then((payload) => {
@@ -417,15 +427,15 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
           const { data, url } = payload;
           setAttrs(data[0]);
           addUrl(url, 'Expression Matrix');
-          setItemIsReady('expression-matrix');
+          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
         });
       }
     } else {
       setAttrs(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
       } else {
-        setItemIsReady('expression-matrix');
+        setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -461,7 +471,7 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
  * locationsCount is the number of molecules.
  */
 export function useMoleculesData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, entityTypes, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues,
 ) {
   const [molecules, setMolecules] = useState();
@@ -474,9 +484,10 @@ export function useMoleculesData(
     if (!loaders[dataset]) {
       return;
     }
-
-    if (loaders[dataset].loaders.molecules) {
-      loaders[dataset].loaders.molecules.load().catch(e => warn(e, setWarning)).then((payload) => {
+    const entityTypeKey = getEntityTypeKey(DataType.SUB_OBS, entityTypes);
+    const loader = loaders[dataset].loaders[DataType.SUB_OBS]?.get(entityTypeKey);
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         setMolecules(data);
@@ -494,16 +505,16 @@ export function useMoleculesData(
           coordinationSetters,
           initialCoordinationValues,
         );
-        setItemIsReady('molecules');
+        setItemIsReady(DataType.SUB_OBS);
       });
     } else {
       setMolecules({});
       setMoleculesCount(0);
       setLocationsCount(0);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'molecules', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.SUB_OBS, null, null), setWarning);
       } else {
-        setItemIsReady('molecules');
+        setItemIsReady(DataType.SUB_OBS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -537,7 +548,7 @@ export function useMoleculesData(
  * neighborhoods is an object.
  */
 export function useNeighborhoodsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, entityTypes, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues,
 ) {
   const [neighborhoods, setNeighborhoods] = useState();
@@ -548,9 +559,10 @@ export function useNeighborhoodsData(
     if (!loaders[dataset]) {
       return;
     }
-
-    if (loaders[dataset].loaders.neighborhoods) {
-      loaders[dataset].loaders.neighborhoods.load().catch(e => warn(e, setWarning))
+    const entityTypeKey = getEntityTypeKey(DataType.NEIGHBORHOODS, entityTypes);
+    const loader = loaders[dataset].loaders[DataType.NEIGHBORHOODS]?.get(entityTypeKey);
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning))
         .then((payload) => {
           if (!payload) return;
           const { data, url, coordinationValues } = payload;
@@ -565,14 +577,14 @@ export function useNeighborhoodsData(
             coordinationSetters,
             initialCoordinationValues,
           );
-          setItemIsReady('neighborhoods');
+          setItemIsReady(DataType.NEIGHBORHOODS);
         });
     } else {
       setNeighborhoods({});
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'neighborhoods', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.NEIGHBORHOODS, null, null), setWarning);
       } else {
-        setItemIsReady('neighborhoods');
+        setItemIsReady(DataType.NEIGHBORHOODS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -608,7 +620,7 @@ export function useNeighborhoodsData(
  * imageLayerMeta is an object.
  */
 export function useRasterData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, entityTypes, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues,
 ) {
   const [raster, setRaster] = useState();
@@ -625,9 +637,10 @@ export function useRasterData(
     if (!loaders[dataset]) {
       return;
     }
-
-    if (loaders[dataset].loaders.raster) {
-      loaders[dataset].loaders.raster.load().catch(e => warn(e, setWarning)).then((payload) => {
+    const entityTypeKey = getEntityTypeKey(DataType.RASTER, entityTypes);
+    const loader = loaders[dataset].loaders[DataType.RASTER]?.get(entityTypeKey);
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url: urls, coordinationValues } = payload;
         setRaster(data);
@@ -642,7 +655,7 @@ export function useRasterData(
           coordinationSetters,
           initialCoordinationValues,
         );
-        setItemIsReady('raster');
+        setItemIsReady(DataType.RASTER);
       });
     } else {
       // There was no raster loader for this dataset,
@@ -650,9 +663,9 @@ export function useRasterData(
       setImageLayerLoaders([]);
       setImageLayerMeta([]);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'raster', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.RASTER, null, null), setWarning);
       } else {
-        setItemIsReady('raster');
+        setItemIsReady(DataType.RASTER);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -685,7 +698,7 @@ export function useRasterData(
  * neighborhoods is an object.
  */
 export function useGenomicProfilesData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, entityTypes, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues,
 ) {
   const [genomicProfilesAttrs, setGenomicProfilesAttrs] = useState();
@@ -696,9 +709,10 @@ export function useGenomicProfilesData(
     if (!loaders[dataset]) {
       return;
     }
-
-    if (loaders[dataset].loaders['genomic-profiles']) {
-      loaders[dataset].loaders['genomic-profiles'].load().catch(e => warn(e, setWarning))
+    const entityTypeKey = getEntityTypeKey(DataType.GENOMIC_PROFILES, entityTypes);
+    const loader = loaders[dataset].loaders[DataType.GENOMIC_PROFILES]?.get(entityTypeKey);
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning))
         .then((payload) => {
           if (!payload) return;
           const { data, url, coordinationValues } = payload;
@@ -709,14 +723,14 @@ export function useGenomicProfilesData(
             coordinationSetters,
             initialCoordinationValues,
           );
-          setItemIsReady('genomic-profiles');
+          setItemIsReady(DataType.GENOMIC_PROFILES);
         });
     } else {
       setGenomicProfilesAttrs(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'genomic-profiles', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.GENOMIC_PROFILES, null, null), setWarning);
       } else {
-        setItemIsReady('genomic-profiles');
+        setItemIsReady(DataType.GENOMIC_PROFILES);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

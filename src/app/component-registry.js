@@ -18,20 +18,15 @@ import CellSetExpressionPlotSubscriber from '../components/sets/CellSetExpressio
 const registry = {
   [Component.DESCRIPTION]: DescriptionSubscriber,
   [Component.STATUS]: StatusSubscriber,
-  [Component.GENES]: GenesSubscriber, // deprecate
   [Component.FEATURES]: GenesSubscriber,
-  [Component.CELL_SETS]: CellSetsManagerSubscriber, // deprecate
   [Component.OBS_SETS]: CellSetsManagerSubscriber,
   [Component.SCATTERPLOT]: ScatterplotSubscriber,
   [Component.SPATIAL]: SpatialSubscriber,
   [Component.HEATMAP]: HeatmapSubscriber,
   [Component.LAYER_CONTROLLER]: LayerControllerSubscriber,
-  [Component.CELL_SET_SIZES]: CellSetSizesPlotSubscriber, // deprecate
   [Component.OBS_SET_SIZES]: CellSetSizesPlotSubscriber,
   [Component.GENOMIC_PROFILES]: GenomicProfilesSubscriber,
-  [Component.EXPRESSION_HISTOGRAM]: ExpressionHistogramSubscriber, // deprecate
   [Component.FEATURE_VALUE_HISTOGRAM]: ExpressionHistogramSubscriber,
-  [Component.CELL_SET_EXPRESSION]: CellSetExpressionPlotSubscriber, // deprecate
   [Component.OBS_SET_FEATURE_DISTRIBUTION]: CellSetExpressionPlotSubscriber,
   // The plain higlass component does not abstract away the HiGlass view config,
   // so we probably want to avoid documenting it, only use it for development purposes.

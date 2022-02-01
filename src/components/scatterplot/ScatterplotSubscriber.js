@@ -33,7 +33,7 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { Component, DataType } from '../../app/constants';
 
-const SCATTERPLOT_DATA_TYPES = [DataType.CELLS, DataType.EXPRESSION_MATRIX, DataType.CELL_SETS];
+const SCATTERPLOT_DATA_TYPES = [DataType.OBS, DataType.OBS_FEATURE_MATRIX, DataType.OBS_SETS];
 
 /**
  * A subscriber component for the scatterplot.
@@ -69,6 +69,11 @@ export default function ScatterplotSubscriber(props) {
   const [{
     dataset,
     obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
     embeddingZoom: zoom,
     embeddingTargetX: targetX,
     embeddingTargetY: targetY,
@@ -112,6 +117,15 @@ export default function ScatterplotSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SCATTERPLOT], coordinationScopes);
 
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
+
   const observationsLabel = obsType;
   const observationsPluralLabel = `${obsType}s`;
 
@@ -136,10 +150,13 @@ export default function ScatterplotSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cells, cellsCount] = useCellsData(
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, true,
+  );
   const [cellSets] = useCellSetsData(
     loaders,
     dataset,
+    entityTypes,
     setItemIsReady,
     addUrl,
     false,
@@ -147,10 +164,10 @@ export default function ScatterplotSubscriber(props) {
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
   );
   const [expressionData] = useGeneSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+    loaders, dataset, entityTypes, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
   const [attrs] = useExpressionAttrs(
-    loaders, dataset, setItemIsReady, addUrl, false,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, false,
   );
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);

@@ -1,14 +1,15 @@
 import React, { useMemo, useEffect } from 'react';
 import { sum } from 'd3-array';
-
 import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 import { useExpressionMatrixData, useGeneSelection } from '../data-hooks';
 import ExpressionHistogram from './ExpressionHistogram';
+import { Component, DataType } from '../../app/constants';
+import { capitalize } from '../../utils';
 
-const EXPRESSION_HISTOGRAM_DATA_TYPES = ['expression-matrix'];
+const EXPRESSION_HISTOGRAM_DATA_TYPES = [DataType.OBS_FEATURE_MATRIX];
 
 /**
  * A subscriber component for `ExpressionHistogram`,
@@ -32,8 +33,25 @@ export default function ExpressionHistogramSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
     geneSelection,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.expressionHistogram, coordinationScopes);
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[Component.FEATURE_VALUE_HISTOGRAM], coordinationScopes,
+  );
+
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();
@@ -55,11 +73,11 @@ export default function ExpressionHistogramSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [expressionMatrix] = useExpressionMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, true,
   );
   // Get data from loaders using the data hooks.
   const [expressionData] = useGeneSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+    loaders, dataset, entityTypes, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
@@ -91,7 +109,7 @@ export default function ExpressionHistogramSubscriber(props) {
 
   return (
     <TitleInfo
-      title={`Expression Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title={`${capitalize(featureValueType)} Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

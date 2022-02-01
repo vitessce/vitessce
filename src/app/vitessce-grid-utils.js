@@ -1,7 +1,9 @@
+import { InternMap } from 'internmap';
 import {
   useState, useEffect, useRef,
 } from 'react';
 import { getSourceAndLoaderFromFileType } from '../loaders/types';
+import { getEntityTypeKey } from '../utils';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -83,6 +85,7 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
   return [rowHeight, containerRef];
 }
 
+
 /**
  * Create a mapping from dataset ID to loader objects by data type.
  * @param {object[]} datasets The datasets array from the view config.
@@ -103,13 +106,23 @@ export function createLoaders(datasets, configDescription) {
     dataset.files.forEach((file) => {
       const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(file.fileType);
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
-      const { url, options, requestInit } = file;
+      const {
+        url, options, requestInit,
+        dataType, entityTypes,
+      } = file;
       const fileId = url || JSON.stringify(options);
       if (!(fileId in dataSources)) {
         dataSources[fileId] = new DataSourceClass({ url, requestInit });
       }
       const loader = new LoaderClass(dataSources[fileId], file);
-      datasetLoaders.loaders[file.type] = loader;
+      const entityTypeKey = getEntityTypeKey(dataType, entityTypes);
+      if (datasetLoaders.loaders[dataType]) {
+        datasetLoaders.loaders[dataType].set(entityTypeKey, loader);
+      } else {
+        datasetLoaders.loaders[dataType] = new InternMap([
+          [entityTypeKey, loader],
+        ], JSON.stringify);
+      }
     });
     result[dataset.uid] = datasetLoaders;
   });

@@ -233,7 +233,11 @@ function LayerControllerSubscriber(props) {
     {
       dataset,
       obsType,
+      featureType,
       subObsType,
+      subFeatureType,
+      featureValueType,
+      subFeatureValueType,
       spatialRasterLayers: rasterLayers,
       spatialObsLayer: cellsLayer,
       spatialSubObsLayer: moleculesLayer,
@@ -253,6 +257,15 @@ function LayerControllerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[Component.LAYER_CONTROLLER],
     coordinationScopes,
   );
+
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
 
   const [
     {
@@ -293,18 +306,18 @@ function LayerControllerSubscriber(props) {
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
-    loaders, dataset, setItemIsReady, () => { }, false,
+    loaders, dataset, entityTypes, setItemIsReady, () => { }, false,
     { setSpatialRasterLayers: setRasterLayers },
     { spatialRasterLayers: rasterLayers },
   );
 
   useCellsData(
-    loaders, dataset, setItemIsReady, () => {}, false,
+    loaders, dataset, entityTypes, setItemIsReady, () => {}, false,
     { setSpatialObsLayer: setCellsLayer },
     { spatialObsLayer: cellsLayer },
   );
   useMoleculesData(
-    loaders, dataset, setItemIsReady, () => {}, false,
+    loaders, dataset, entityTypes, setItemIsReady, () => {}, false,
     { setSpatialSubObsLayer: setMoleculesLayer },
     { spatialSubObsLayer: moleculesLayer },
   );

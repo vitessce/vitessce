@@ -34,8 +34,23 @@ export default function DescriptionSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
     spatialRasterLayers: rasterLayers,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.DESCRIPTION], coordinationScopes);
+
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
 
   const [
     isReady,
@@ -55,7 +70,7 @@ export default function DescriptionSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
-    loaders, dataset, setItemIsReady, () => {}, false,
+    loaders, dataset, entityTypes, setItemIsReady, () => {}, false,
   );
 
   const metadata = useMemo(() => {

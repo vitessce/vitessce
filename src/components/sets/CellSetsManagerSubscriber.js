@@ -57,7 +57,7 @@ import { useCellsData, useCellSetsData } from '../data-hooks';
 import { Component, DataType } from '../../app/constants';
 import { capitalize } from '../../utils';
 
-const CELL_SETS_DATA_TYPES = [DataType.CELLS, DataType.CELL_SETS];
+const CELL_SETS_DATA_TYPES = [DataType.OBS, DataType.OBS_SETS];
 
 /**
  * A subscriber wrapper around the SetsManager component
@@ -85,6 +85,11 @@ export default function CellSetsManagerSubscriber(props) {
   const [{
     dataset,
     obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
@@ -94,7 +99,16 @@ export default function CellSetsManagerSubscriber(props) {
     setObsColorEncoding: setCellColorEncoding,
     setObsSetColor: setCellSetColor,
     setAdditionalObsSets: setAdditionalCellSets,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.CELL_SETS], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.OBS_SETS], coordinationScopes);
+
+  const entityTypes = {
+    obsType,
+    featureType,
+    subObsType,
+    subFeatureType,
+    featureValueType,
+    subFeatureValueType,
+  };
 
   const title = titleProp || `${capitalize(obsType)} Sets`;
 
@@ -119,9 +133,9 @@ export default function CellSetsManagerSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cells] = useCellsData(loaders, dataset, entityTypes, setItemIsReady, addUrl, true);
   const [cellSets] = useCellSetsData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+    loaders, dataset, entityTypes, setItemIsReady, addUrl, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
   );
