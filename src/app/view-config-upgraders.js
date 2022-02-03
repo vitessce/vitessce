@@ -298,3 +298,15 @@ export function upgradeFrom1_0_5(config) {
     version: '1.0.6',
   };
 }
+
+// Added in version next:
+// - moleculeSelection
+// - use3d property for spatialMoleculesLayer object
+export function upgradeFrom1_0_6(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: 'next',
+  };
+}
