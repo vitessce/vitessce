@@ -37,6 +37,8 @@ export const FileType = {
   ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
   ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
+  ANNDATA_MOLECULES_ZARR: 'anndata-molecules.zarr',
+  CELLS_GEOJSON: 'cells.geojson',
 };
 
 /**

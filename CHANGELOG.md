@@ -19,6 +19,11 @@
 - Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
 - Added a new documentation site.
 - Added the `./create-release.sh` Bash script to automate some steps of the release process.
+- Added coordination types for selection of molecules.
+- Added `cells.geojson` loader to support the Baysor cell segmentation polygon format.
+- Added `anndata-molecules.zarr` loader to support the Baysor molecules format.
+- Added support for multiple gene selection via `shift+click`.
+- Added a `use3d` option for `spatialMoleculesLayer` to enable a point-cloud rendering of 3D molecules data.
 
 ### Changed
 - Fix selection issue for bitmasks in external applications.
