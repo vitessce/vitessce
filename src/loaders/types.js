@@ -25,8 +25,9 @@ export const fileTypeToLoaderAndSource = {
   [FileType.ANNDATA_CELL_SETS_ZARR]: [AnnDataSource, AnnDataLoaders.CellSetsZarrLoader],
   [FileType.ANNDATA_CELLS_ZARR]: [AnnDataSource, AnnDataLoaders.CellsZarrLoader],
   [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],
+  [FileType.ANNDATA_MOLECULES_ZARR]: [AnnDataSource, AnnDataLoaders.MoleculesZarrLoader],
   [FileType.GENOMIC_PROFILES_ZARR]: [ZarrDataSource, GenomicProfilesZarrLoader],
-  'qupath-cells.json': [JsonSource, CellsGeoJsonLoader],
+  [FileType.CELLS_GEOJSON]: [JsonSource, CellsGeoJsonLoader],
 };
 
 export function getSourceAndLoaderFromFileType(type) {
