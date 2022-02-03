@@ -59,7 +59,7 @@ function Info() {
         Vitessce is a visual integration tool for exploration of spatial single cell experiments.
         Its modular design is optimized for scalable, linked visualizations that support the
         spatial and non-spatial representation of tissue-, cell- and molecule-level data.
-        Vitessce integrates the <a href="https://github.com/hms-dbmi/viv">Viv library</a> to visualize
+        Vitessce integrates the <a href="http://viv.gehlenborglab.org/">Viv library</a> to visualize
         highly multiplexed, high-resolution, high-bit depth image data directly from
         OME-TIFF files and Bio-Formats-compatible Zarr stores.
       </p>
@@ -105,14 +105,9 @@ function Info() {
 }
 
 export default function Welcome(props) {
-  const { configs, theme, showBetaHeader } = props;
+  const { configs, theme } = props;
   return (
     <div className={`vitessce-container vitessce-theme-${theme} welcome-container`}>
-      {showBetaHeader && (
-        <div className="welcome-beta-header">
-          <p>Visit <a href="http://beta.vitessce.io">beta.vitessce.io</a> to view the next version of the Vitessce home page and documentation!</p>
-        </div>
-      )}
       <div className="react-grid-layout container-fluid" style={{ height: 'max(100vh, 100%)' }}>
         <div className="row">
           <div className="welcome-col-left">

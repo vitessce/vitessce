@@ -117,6 +117,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       radiusMaxPixels: 30,
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
+      lineWidthUnits: 'pixels',
       getPosition: getCellPosition,
       getFillColor: getCellColor,
       getLineColor: getCellColor,
@@ -124,7 +125,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getExpressionValue,
       getLineWidth: 0,
       extensions: [
-        new ScaledExpressionExtension({ instanced: true }),
+        new ScaledExpressionExtension(),
         new SelectionExtension({ instanced: true }),
       ],
       colorScaleLo: geneExpressionColormapRange[0],

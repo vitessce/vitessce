@@ -87,12 +87,10 @@ function validateTheme(theme) {
  * @param {object} params
  * @param {number|null} params.rowHeight The row height to pass to the Vitessce grid.
  * Optional. By default, null.
- * @param {boolean} showBetaHeader Should the header which links to the beta documentation
- * website be rendered? Optional. By default, false.
  * @returns A component, either <Welcome/> or <Vitessce/> depending on the URL params.
  */
 export function createApp(params) {
-  const { rowHeight = null, showBetaHeader = false } = params;
+  const { rowHeight = null } = params || {};
   const urlParams = new URLSearchParams(window.location.search);
   const datasetId = urlParams.get('dataset');
   const debug = urlParams.get('debug') === 'true';
@@ -128,5 +126,5 @@ export function createApp(params) {
     );
   }
   const configs = listConfigs(showAll);
-  return (<Welcome configs={configs} theme={theme} showBetaHeader={showBetaHeader} />);
+  return (<Welcome configs={configs} theme={theme} />);
 }

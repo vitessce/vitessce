@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MAX_SLIDERS_AND_CHANNELS, getChannelStats } from '@hms-dbmi/viv';
+import { MAX_CHANNELS, getChannelStats } from '@hms-dbmi/viv';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -8,7 +8,7 @@ import Slider from '@material-ui/core/Slider';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import Accordion from '@material-ui/core/Accordion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
@@ -17,20 +17,17 @@ import LayerOptions from './LayerOptions';
 import VolumeOptions from './VolumeOptions';
 import {
   useControllerSectionStyles,
-  StyledExpansionPanelDetails,
-  StyledExpansionPanelSummary,
+  StyledAccordionDetails,
+  StyledAccordionSummary,
   StyledInputLabel,
   OverflowEllipsisGrid,
 } from './styles';
-import {
-  getMultiSelectionStats,
-  canLoadResolution,
-} from './utils';
+import { getMultiSelectionStats } from './utils';
 
 import { GLOBAL_LABELS } from '../spatial/constants';
 import { getSourceFromLoader, isRgb } from '../../utils';
+import { canLoadResolution } from '../utils';
 import { DOMAINS } from './constants';
-
 
 function TabPanel(props) {
   const {
@@ -50,25 +47,31 @@ function TabPanel(props) {
   );
 }
 
-
 // Set the domain of the sliders based on either a full range or min/max.
-async function getDomainsAndSliders(loader, loaderSelection, domainType, use3d) {
+async function getDomainsAndSliders(loader, selections, domainType, use3d) {
   let domains;
   const stats = await getMultiSelectionStats({
-    loader: loader.data, selections: loaderSelection, use3d,
+    loader: loader.data,
+    selections,
+    use3d,
   });
   const { sliders } = stats;
   if (domainType === 'Min/Max') {
     // eslint-disable-next-line prefer-destructuring
     domains = stats.domains;
-  } if (domainType === 'Full') {
+  }
+  if (domainType === 'Full') {
     const source = getSourceFromLoader(loader);
-    domains = loaderSelection.map(() => DOMAINS[source.dtype]);
+    domains = selections.map(() => DOMAINS[source.dtype]);
   }
   return { domains, sliders };
 }
 
-const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400 };
+const buttonStyles = {
+  borderStyle: 'dashed',
+  marginTop: '10px',
+  fontWeight: 400,
+};
 
 /**
  * Controller for the various imaging options (color, opactiy, sliders etc.)
@@ -80,13 +83,26 @@ const buttonStyles = { borderStyle: 'dashed', marginTop: '10px', fontWeight: 400
  */
 export default function LayerController(props) {
   const {
-    layer, name, loader, theme,
-    handleLayerRemove, handleLayerChange,
+    layer,
+    name,
+    loader,
+    theme,
+    handleLayerRemove,
+    handleLayerChange,
     shouldShowTransparentColor,
-    shouldShowDomain, shouldShowColormap, ChannelController,
-    setViewState, disable3d, setRasterLayerCallback,
-    setAreLayerChannelsLoading, areLayerChannelsLoading, disabled,
-    spatialHeight, spatialWidth, disableChannelsIfRgbDetected,
+    shouldShowDomain,
+    shouldShowColormap,
+    ChannelController,
+    setViewState,
+    disable3d,
+    setRasterLayerCallback,
+    setAreLayerChannelsLoading,
+    areLayerChannelsLoading,
+    disabled,
+    spatialHeight,
+    spatialWidth,
+    disableChannelsIfRgbDetected,
+    shouldShowRemoveLayerButton,
   } = props;
 
   const {
@@ -111,7 +127,7 @@ export default function LayerController(props) {
     return undefined;
   }, [channels]);
 
-  const firstSelection = channelRef.current[0]?.selection || {};
+  const firstSelection = channels[0]?.selection || {};
 
   const { data, channels: channelOptions } = loader;
   const [tab, setTab] = useState(0);
@@ -123,9 +139,9 @@ export default function LayerController(props) {
   const [domainType, setDomainType] = useState(layer.domainType);
   const [isExpanded, setIsExpanded] = useState(true);
   const [globalLabelValues, setGlobalLabelValues] = useState(
-    GLOBAL_LABELS
-      .filter(field => typeof firstSelection[field] === 'number')
-      .reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
+    GLOBAL_LABELS.filter(
+      field => typeof firstSelection[field] === 'number',
+    ).reduce((o, key) => ({ ...o, [key]: firstSelection[key] }), {}),
   );
 
   function setVisible(v) {
@@ -196,20 +212,28 @@ export default function LayerController(props) {
       // Set new image to default selection for non-global selections (0)
       // and use current global selection otherwise.
       selection[label] = GLOBAL_LABELS.includes(label)
-        ? (globalLabelValues[label] || 0)
+        ? globalLabelValues[label] || 0
         : 0;
     });
-    const { domains, sliders } = await getDomainsAndSliders(loader, [selection], domainType, use3d);
+    const { domains, sliders } = await getDomainsAndSliders(
+      loader,
+      [selection],
+      domainType,
+      use3d,
+    );
     const domain = domains[0];
     const slider = domain;
     const color = [255, 255, 255];
     const visible = true;
-    const newChannelId = channelRef.current.length;
+    const newChannelId = channels.length;
     const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
     newAreLayerChannelsLoading[newChannelId] = true;
     setAreLayerChannelsLoading(newAreLayerChannelsLoading);
     const channel = {
-      selection, slider, visible, color,
+      selection,
+      slider,
+      visible,
+      color,
     };
     setRasterLayerCallback(() => {
       setChannel({ ...channel, slider: sliders[0] }, newChannelId);
@@ -223,38 +247,29 @@ export default function LayerController(props) {
 
   const handleDomainChange = async (value) => {
     setDomainType(value);
-    const loaderSelection = channelRef.current.map(
-      channel => channel.selection,
-    );
-    let sliders = channelRef.current.map(
-      channel => channel.slider,
-    );
+    const selections = channels.map(channel => channel.selection);
+    let sliders = channels.map(channel => channel.slider);
     const { domains } = await getDomainsAndSliders(
       loader,
-      loaderSelection,
+      selections,
       value,
       use3d,
     );
 
     // If it's the right-most slider, we take the minimum of that and the new value.
     // Otherwise, we use the maximum of the left-hand side and the new value.
-    sliders = sliders.map(
-      (slider, i) => {
-        const [left, right] = slider;
-        return [
-          Math.max(left, domains[i][0]),
-          Math.min(right, domains[i][1]),
-        ];
-      },
-    );
+    sliders = sliders.map((slider, i) => {
+      const [left, right] = slider;
+      return [Math.max(left, domains[i][0]), Math.min(right, domains[i][1])];
+    });
 
-    const newChannels = channelRef.current.map((c, i) => ({ ...c, slider: sliders[i] }));
+    const newChannels = channels.map((c, i) => ({ ...c, slider: sliders[i] }));
     setChannelsAndDomainType(newChannels, value);
   };
 
   // This call updates all channel selections with new global selection from the UI.
   const handleGlobalChannelsSelectionChange = async ({ selection, event }) => {
-    const loaderSelection = channelRef.current.map(channel => ({
+    const selections = channels.map(channel => ({
       ...channel.selection,
       ...selection,
     }));
@@ -262,26 +277,28 @@ export default function LayerController(props) {
     // Only update domains on a mouseup event for the same reason as above.
     if (canUpdateChannels) {
       setAreAllChannelsLoading(true);
-      getDomainsAndSliders(loader, loaderSelection, domainType, use3d).then(({ sliders }) => {
-        const newChannelsWithSelection = channelRef.current.map(c => ({
-          ...c,
-          selection: { ...c.selection, ...selection },
-        }));
-        // Set the callback before changing the selection
-        // so the callback is used when the layer (re)loads its data.
-        setRasterLayerCallback(() => {
-          setRasterLayerCallback(null);
-          setAreAllChannelsLoading(false);
-          const newChannelsWithSliders = [...newChannelsWithSelection].map(
-            (c, i) => ({
-              ...c,
-              slider: sliders[i],
-            }),
-          );
-          setChannels(newChannelsWithSliders);
-        });
-        setChannels(newChannelsWithSelection);
-      });
+      getDomainsAndSliders(loader, selections, domainType, use3d).then(
+        ({ sliders }) => {
+          const newChannelsWithSelection = channels.map(c => ({
+            ...c,
+            selection: { ...c.selection, ...selection },
+          }));
+          // Set the callback before changing the selection
+          // so the callback is used when the layer (re)loads its data.
+          setRasterLayerCallback(() => {
+            setRasterLayerCallback(null);
+            setAreAllChannelsLoading(false);
+            const newChannelsWithSliders = [...newChannelsWithSelection].map(
+              (c, i) => ({
+                ...c,
+                slider: sliders[i],
+              }),
+            );
+            setChannels(newChannelsWithSliders);
+          });
+          setChannels(newChannelsWithSelection);
+        },
+      );
     }
     setGlobalLabelValues(prev => ({ ...prev, ...selection }));
   };
@@ -290,7 +307,7 @@ export default function LayerController(props) {
   if (labels.length > 0) {
     const channelLabel = labels.find(c => c === 'channel' || c === 'c') || labels[0];
     // Create the channel controllers for each channel.
-    channelControllers = channelRef.current.map(
+    channelControllers = channels.map(
       // c is an object like { color, selection, slider, visible }.
       (c, channelId) => {
         // Update the auxiliary store with the current loading state of a channel.
@@ -317,11 +334,14 @@ export default function LayerController(props) {
             // Call back for raster layer handles update of UI
             // like sliders and the loading state of the channel.
             setRasterLayerCallback(async () => {
-              const loaderSelection = [
-                { ...channelRef.current[channelId][property], ...value },
+              const selections = [
+                { ...channels[channelId][property], ...value },
               ];
               const { sliders } = await getDomainsAndSliders(
-                loader, loaderSelection, domainType, use3d,
+                loader,
+                selections,
+                domainType,
+                use3d,
               );
               [update.slider] = sliders;
               setChannel({ ...c, ...update }, channelId);
@@ -337,9 +357,11 @@ export default function LayerController(props) {
         };
         const handleIQRUpdate = async () => {
           const { data: loaderData } = loader;
-          const source = Array.isArray(loaderData) ? loaderData[loaderData.length - 1] : loaderData;
+          const source = Array.isArray(loaderData)
+            ? loaderData[loaderData.length - 1]
+            : loaderData;
           const raster = await source.getRaster({
-            selection: channelRef.current[channelId].selection,
+            selection: channels[channelId].selection,
           });
           const stats = getChannelStats(raster.data);
           const { q1, q3 } = stats;
@@ -354,7 +376,7 @@ export default function LayerController(props) {
             selectionIndex={c.selection[channelLabel]}
             slider={c.slider}
             color={c.color}
-            channels={channelRef.current}
+            channels={channels}
             channelId={channelId}
             domainType={domainType}
             loader={loader}
@@ -380,27 +402,33 @@ export default function LayerController(props) {
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
   // Only show Volume tabs if 3D is available.
-  const hasViewableResolutions = Boolean(Array.from({
-    length: loader.data.length,
-  }).filter((_, res) => canLoadResolution(loader.data, res)).length);
+  const hasViewableResolutions = Boolean(
+    Array.from({
+      length: loader.data.length,
+    }).filter((_, res) => canLoadResolution(loader.data, res)).length,
+  );
   const useVolumeTabs = !disable3d && shape[labels.indexOf('z')] > 1 && hasViewableResolutions;
   const FullController = (
     <>
       <LayerOptions
-        channels={channelRef.current}
+        channels={channels}
         opacity={opacity}
         colormap={colormap}
         transparentColor={transparentColor}
         domainType={domainType}
-      // Only allow for global dimension controllers that
-      // exist in the `dimensions` part of the loader.
+        // Only allow for global dimension controllers that
+        // exist in the `dimensions` part of the loader.
         globalControlLabels={labels.filter(label => GLOBAL_LABELS.includes(label))}
         globalLabelValues={globalLabelValues}
         handleOpacityChange={setOpacity}
         handleColormapChange={setColormap}
-        handleGlobalChannelsSelectionChange={handleGlobalChannelsSelectionChange}
+        handleGlobalChannelsSelectionChange={
+          handleGlobalChannelsSelectionChange
+        }
         handleTransparentColorChange={setTransparentColor}
-        disableChannelsIfRgbDetected={isRgb(loader) && disableChannelsIfRgbDetected}
+        disableChannelsIfRgbDetected={
+          isRgb(loader) && disableChannelsIfRgbDetected
+        }
         handleDomainChange={handleDomainChange}
         shouldShowTransparentColor={shouldShowTransparentColor}
         shouldShowDomain={shouldShowDomain}
@@ -417,10 +445,12 @@ export default function LayerController(props) {
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
       />
-      {isRgb(loader) && disableChannelsIfRgbDetected ? null : channelControllers}
+      {isRgb(loader) && disableChannelsIfRgbDetected
+        ? null
+        : channelControllers}
       {isRgb(loader) && disableChannelsIfRgbDetected ? null : (
         <Button
-          disabled={channelRef.current.length === MAX_SLIDERS_AND_CHANNELS}
+          disabled={channels.length === MAX_CHANNELS}
           onClick={handleChannelAdd}
           fullWidth
           variant="outlined"
@@ -428,35 +458,42 @@ export default function LayerController(props) {
           startIcon={<AddIcon />}
           size="small"
         >
-                Add Channel
+          Add Channel
         </Button>
       )}
     </>
   );
   return (
-    <ExpansionPanel
+    <Accordion
       className={controllerSectionClasses.root}
-      onChange={(e, expanded) => !disabled && setIsExpanded(expanded && e?.target?.attributes?.role?.value === 'presentation')}
+      onChange={(e, expanded) => !disabled
+        && setIsExpanded(
+          expanded && e?.target?.attributes?.role?.value === 'presentation',
+        )
+      }
       TransitionProps={{ enter: false }}
       expanded={!disabled && isExpanded}
     >
-      <StyledExpansionPanelSummary
-        expandIcon={<ExpandMoreIcon />}
+      <StyledAccordionSummary
+        expandIcon={<ExpandMoreIcon role="presentation" />}
         aria-controls={`layer-${name}-controls`}
       >
-        <Grid container direction="column" m={1} justify="center">
+        <Grid container direction="column" m={1} justifyContent="center">
           <OverflowEllipsisGrid item>
             <Button
               onClick={(e) => {
                 if (!disabled) {
                   // Needed to prevent affecting the expansion panel from changing
                   e.stopPropagation();
-                  const nextVisible = (typeof visible === 'boolean' ? !visible : false);
+                  const nextVisible = typeof visible === 'boolean' ? !visible : false;
                   setVisible(nextVisible);
                 }
               }}
               style={{
-                marginRight: 8, marginBottom: 2, padding: 0, minWidth: 0,
+                marginRight: 8,
+                marginBottom: 2,
+                padding: 0,
+                minWidth: 0,
               }}
             >
               <Visibility />
@@ -464,9 +501,16 @@ export default function LayerController(props) {
             {name}
           </OverflowEllipsisGrid>
           {!disabled && !isExpanded && !use3d && (
-            <Grid container direction="row" alignItems="center" justify="center">
+            <Grid
+              container
+              direction="row"
+              alignItems="center"
+              justifyContent="center"
+            >
               <Grid item xs={6}>
-                <StyledInputLabel htmlFor={`layer-${name}-opacity-closed`}>Opacity:</StyledInputLabel>
+                <StyledInputLabel htmlFor={`layer-${name}-opacity-closed`}>
+                  Opacity:
+                </StyledInputLabel>
               </Grid>
               <Grid item xs={6}>
                 <Slider
@@ -484,8 +528,8 @@ export default function LayerController(props) {
             </Grid>
           )}
         </Grid>
-      </StyledExpansionPanelSummary>
-      <StyledExpansionPanelDetails>
+      </StyledAccordionSummary>
+      <StyledAccordionDetails>
         {useVolumeTabs ? (
           <>
             <Tabs
@@ -534,17 +578,21 @@ export default function LayerController(props) {
               />
             </TabPanel>
           </>
-        ) : FullController}
-        <Button
-          onClick={handleLayerRemove}
-          fullWidth
-          variant="outlined"
-          style={buttonStyles}
-          size="small"
-        >
-          Remove Image Layer
-        </Button>
-      </StyledExpansionPanelDetails>
-    </ExpansionPanel>
+        ) : (
+          FullController
+        )}
+        {shouldShowRemoveLayerButton ? (
+          <Button
+            onClick={handleLayerRemove}
+            fullWidth
+            variant="outlined"
+            style={buttonStyles}
+            size="small"
+          >
+            Remove Image Layer
+          </Button>
+        ) : null}
+      </StyledAccordionDetails>
+    </Accordion>
   );
 }

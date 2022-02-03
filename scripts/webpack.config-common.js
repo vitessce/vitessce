@@ -221,6 +221,7 @@ function getResolveInfo(paths, additionalModulePaths, useTypeScript, shouldDoPro
       // TODO: Track this issue
       // https://github.com/mapbox/concaveman/issues/18
       tinyqueue: require.resolve('tinyqueue'),
+      'txml/txml': 'txml/dist/txml',
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
       'react-native': 'react-native-web',
@@ -349,7 +350,7 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
         use: [
           {
             options: {
-              cache: true,
+              cache: false,
               formatter: require.resolve('react-dev-utils/eslintFormatter'),
               eslintPath: require.resolve('eslint'),
               resolvePluginsRelativeTo: __dirname,
@@ -424,6 +425,7 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
                   require.resolve('babel-preset-react-app/dependencies'),
                   { helpers: true },
                 ],
+                { plugins: ['@babel/plugin-proposal-class-properties'] },
               ],
               cacheDirectory: true,
               // See #6846 for context on why cacheCompression is disabled

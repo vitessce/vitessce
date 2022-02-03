@@ -1,9 +1,11 @@
 import React, {
   useEffect,
+  useCallback,
 } from 'react';
 import { VitessceGridLayout } from './vitessce-grid-layout';
 import { useRowHeight, createLoaders } from './vitessce-grid-utils';
 import {
+  useViewConfigStoreApi,
   useSetViewConfig,
   useSetLoaders,
   useEmitGridResize,
@@ -11,6 +13,9 @@ import {
   useChangeLayout,
   useLayout,
 } from './state/hooks';
+import {
+  useClosestVitessceContainerSize,
+} from '../components/hooks';
 
 const padding = 10;
 const margin = 5;
@@ -38,16 +43,23 @@ export default function VitessceGrid(props) {
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
   const onResize = useEmitGridResize();
 
+  const [componentWidth] = useClosestVitessceContainerSize(containerRef);
+
   // When the row height has changed, publish a GRID_RESIZE event.
   useEffect(() => {
     onResize();
   }, [rowHeight, onResize]);
 
-  const setViewConfig = useSetViewConfig();
+  const viewConfigStoreApi = useViewConfigStoreApi();
+  const setViewConfig = useSetViewConfig(viewConfigStoreApi);
   const setLoaders = useSetLoaders();
   const removeComponent = useRemoveComponent();
   const changeLayout = useChangeLayout();
   const layout = useLayout();
+
+  const changeLayoutPostMount = useCallback(() => (
+    componentWidth > 0 ? changeLayout : () => {}
+  ), [changeLayout, componentWidth]);
 
   // Update the view config and loaders in the global state.
   useEffect(() => {
@@ -77,7 +89,7 @@ export default function VitessceGrid(props) {
           margin={margin}
           padding={padding}
           onRemoveComponent={removeComponent}
-          onLayoutChange={changeLayout}
+          onLayoutChange={changeLayoutPostMount}
           reactGridLayoutProps={{
             onResize,
             onResizeStop: onResize,

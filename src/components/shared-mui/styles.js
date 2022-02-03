@@ -1,11 +1,15 @@
-import { makeStyles, createMuiTheme } from '@material-ui/core/styles';
+import { makeStyles, createTheme } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
 
 export const styles = makeStyles(() => ({
   paper: {
     maxHeight: 200,
     overflow: 'auto',
-    zIndex: 1500,
+  },
+  container: {
+    position: 'relative',
+    left: 0,
+    top: 0,
   },
   span: {
     width: '70px',
@@ -13,13 +17,10 @@ export const styles = makeStyles(() => ({
     paddingLeft: '2px',
     paddingRight: '2px',
   },
-  popper: {
-    zIndex: 4,
-  },
 }));
 
 export const muiTheme = {
-  dark: createMuiTheme({
+  dark: createTheme({
     palette: {
       type: 'dark',
       primary: grey,
@@ -42,7 +43,7 @@ export const muiTheme = {
       },
     },
   }),
-  light: createMuiTheme({
+  light: createTheme({
     palette: {
       type: 'light',
       primary: grey,
