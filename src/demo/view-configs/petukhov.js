@@ -129,7 +129,7 @@ export const petukhov2021 = {
         opacity: 1,
         radius: 20,
         visible: true,
-        use3d: true,
+        use3d: false,
       },
     },
   },
