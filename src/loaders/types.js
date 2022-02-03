@@ -9,6 +9,7 @@ import OmeZarrLoader from './OmeZarrLoader';
 import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
+import QuPathCellsJsonLoader from './QuPathCellsJsonLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
 
 export const fileTypeToLoaderAndSource = {
@@ -25,6 +26,7 @@ export const fileTypeToLoaderAndSource = {
   [FileType.ANNDATA_CELLS_ZARR]: [AnnDataSource, AnnDataLoaders.CellsZarrLoader],
   [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],
   [FileType.GENOMIC_PROFILES_ZARR]: [ZarrDataSource, GenomicProfilesZarrLoader],
+  [FileType.QUPATH_CELLS_JSON]: [JsonSource, QuPathCellsJsonLoader],
 };
 
 export function getSourceAndLoaderFromFileType(type) {

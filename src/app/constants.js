@@ -37,6 +37,7 @@ export const FileType = {
   ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
   ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
+  QUPATH_CELLS_JSON: 'qupath-cells.json',
 };
 
 /**
