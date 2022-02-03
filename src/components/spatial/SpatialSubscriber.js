@@ -62,8 +62,6 @@ export default function SpatialSubscriber(props) {
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
-  console.log(coordinationScopes); // eslint-disable-line
-
   // Get "props" from the coordination space.
   const [{
     dataset,
@@ -270,7 +268,7 @@ export default function SpatialSubscriber(props) {
 
   const moleculeSelectionGeneIndices = useMemo(() => {
     if (attrs && attrs.cols && moleculeSelection && moleculeSelection.length > 0) {
-      return [[1, 2]];
+      return moleculeSelection.map(geneName => attrs.cols.indexOf(geneName));
     }
     return null;
   }, [moleculeSelection, attrs]);
