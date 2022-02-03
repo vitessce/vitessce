@@ -146,7 +146,6 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.CELL_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_CELL_SETS,
     CoordinationType.MOLECULE_HIGHLIGHT,
-    CoordinationType.MOLECULE_FILTER,
     CoordinationType.MOLECULE_SELECTION,
   ],
   [Component.HEATMAP]: [

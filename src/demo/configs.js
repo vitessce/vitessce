@@ -18,6 +18,7 @@ import {
   embeddingCellSetPolygonsVisibleConfig,
 } from './view-configs/coordination-types/index';
 import { petukhov2021 } from './view-configs/petukhov';
+import { borm2022 } from './view-configs/borm';
 
 
 export const coordinationTypeConfigs = {
@@ -47,6 +48,7 @@ export const configs = {
   'blin-2019': blin2019,
   'ome-ngff-v0.1': omeNgffLegacy,
   'petukhov-2021': petukhov2021,
+  'borm-2022': borm2022,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': notPublic(codeluppi2018),
   vanderbilt: notPublic(spraggins2020),
