@@ -85,6 +85,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       tileJ,
       numXTiles,
       numYTiles,
+      tileStretching,
     } = this.props;
 
     // Render the image
@@ -98,12 +99,11 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
             uTextureSize: [TILE_SIZE, TILE_SIZE],
             uAggSize: [aggSizeX, aggSizeY],
             uColorScaleRange: [colorScaleLo, colorScaleHi],
-            tileI,
-            tileJ,
-            dataI: 0,
-            dataJ: 0,
-            numXTiles,
-            numYTiles,
+            tileIJ: [tileI, tileJ],
+            dataIJ: [0, 0],
+            tileStretching,
+            numTiles: [numXTiles, numYTiles],
+            numData: [1, 1],
           }),
         )
         .draw();
@@ -140,8 +140,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
           format: GL.LUMINANCE,
           dataFormat: GL.LUMINANCE,
           type: GL.UNSIGNED_BYTE,
-          width: TILE_SIZE,
-          height: TILE_SIZE,
+          width: DATA_TEXTURE_SIZE,
+          height: DATA_TEXTURE_SIZE,
         }),
       });
     }

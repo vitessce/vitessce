@@ -30,6 +30,7 @@ import {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
   COLOR_BAR_SIZE,
   AXIS_MARGIN,
+  DATA_TEXTURE_SIZE,
 } from '../../layers/heatmap-constants';
 import HeatmapWorkerPool from './HeatmapWorkerPool';
 /**
@@ -197,8 +198,12 @@ const Heatmap = forwardRef((props, deckRef) => {
   const widthRatio = 1 - (TILE_SIZE - (width % TILE_SIZE)) / (xTiles * TILE_SIZE);
   const heightRatio = 1 - (TILE_SIZE - (height % TILE_SIZE)) / (yTiles * TILE_SIZE);
 
+  console.log(widthRatio, heightRatio);
+
   const tileWidth = (matrixWidth / widthRatio) / (xTiles);
   const tileHeight = (matrixHeight / heightRatio) / (yTiles);
+
+  console.log(tileWidth, tileHeight);
 
   const scaleFactor = 2 ** viewState.zoom;
   const cellHeight = (matrixHeight * scaleFactor) / height;
@@ -321,7 +326,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   }, [backlog, setIsRendering]);
 
   const paddedExpression = useMemo(() => {
-    const newExpression = new Uint8Array(4096 * 4096).fill(0);
+    const newExpression = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE).fill(0);
     if (expression?.matrix) {
       expression.matrix.forEach((i, j) => {
         newExpression[j] = i;
@@ -329,6 +334,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
     return newExpression;
   }, [expression]);
+
+  console.log(paddedExpression);
 
   // Update the heatmap tiles if:
   // - new tiles are available (`tileIteration` has changed), or
@@ -346,12 +353,13 @@ const Heatmap = forwardRef((props, deckRef) => {
         .scale([tileWidth, tileHeight, 0]);
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
-        image: tile,
+        image: paddedExpression,
         bounds: [0, 0, 1, 1],
         tileI: i,
         tileJ: j,
         numXTiles: xTiles,
         numYTiles: yTiles,
+        tileStretching: [widthRatio, heightRatio],
         modelMatrix,
         origDataSize: [cols.length, rows.length],
         aggSizeX,
@@ -369,6 +377,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       .current.map((tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile));
     return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
+    widthRatio, heightRatio,
     aggSizeX, aggSizeY, colormap, colormapRange,
     axisLeftLabels, axisTopLabels, xTiles, paddedExpression]);
 
