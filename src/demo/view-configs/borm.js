@@ -16,7 +16,6 @@ export const borm2022 = {
           options: {
             spatial: 'obsm/spatial',
             rgb: 'obsm/rgb',
-            geneIndex: 'obs/gene_index',
           },
         },
       ],
@@ -24,8 +23,11 @@ export const borm2022 = {
   ],
   initStrategy: 'auto',
   coordinationSpace: {
-    moleculeSelection: {
-      A: ['Actb'],
+    spatialTargetX: {
+      A: -24682,
+    },
+    spatialTargetY: {
+      A: -25433,
     },
     spatialMoleculesLayer: {
       A: {
@@ -55,7 +57,8 @@ export const borm2022 = {
       component: 'spatial',
       coordinationScopes: {
         spatialMoleculesLayer: 'A',
-        moleculeSelection: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
       },
       x: 2,
       y: 0,
