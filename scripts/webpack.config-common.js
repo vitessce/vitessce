@@ -350,7 +350,7 @@ function getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap) 
         use: [
           {
             options: {
-              cache: false,
+              cache: true,
               formatter: require.resolve('react-dev-utils/eslintFormatter'),
               eslintPath: require.resolve('eslint'),
               resolvePluginsRelativeTo: __dirname,
