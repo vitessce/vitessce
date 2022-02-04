@@ -85,35 +85,18 @@ varying vec2 vTexCoord;
 
 vec2 transformCoordinate(vec2 coord) {
   // True pixel coordinate on scale of uOrigDataSize
-  vec2 viewCoord = vec2(floor(coord.x * uOrigDataSize.x), floor(coord.y * uOrigDataSize.y));
+  vec2 viewCoord = vec2(floor(coord.y * uOrigDataSize.y), floor(coord.x * uOrigDataSize.x));
   // Compute single value index into data array
   float index = viewCoord.y * uOrigDataSize.x + viewCoord.x;
   float textureX = (floor( index / uReshapedDataSize.x )) / uReshapedDataSize.x;
   float textureY = (index - (floor( index / uReshapedDataSize.x ) * uReshapedDataSize.x)) / uReshapedDataSize.y;
-  vec2 texturedCoord = vec2(textureX, textureY);
+  vec2 texturedCoord = vec2(textureY, textureX);
   return texturedCoord;
 }
 
 void main(void) {
   // Compute 1 pixel in texture coordinates
   vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
-
-  // vTexCoord values are between 0 and 1.
-  // viewCoord is between 0 and TILE_SIZE.
-  vec2 tileViewCoord = vec2(
-    floor(vTexCoord.x * uTextureSize.x),
-    floor(vTexCoord.y * uTextureSize.y)
-  );
-  vec2 absoluteViewCoord = vec2(
-    tileIJ.x * uTextureSize.x + tileViewCoord.x,
-    tileIJ.y * uTextureSize.y + tileViewCoord.y
-  );
-
-  vec2 vTexCoordAbsolute = vec2(
-    absoluteViewCoord.x / (uTextureSize.x * numTiles.x),
-    absoluteViewCoord.y / (uTextureSize.y * numTiles.y)
-  );
-
   
   float xOffset = (tileIJ.x / numTiles.x);
   float yOffset = (tileIJ.y / numTiles.y);
@@ -122,16 +105,9 @@ void main(void) {
     yOffset + ((1. - vTexCoord.y) * uTextureSize.y / uOrigDataSize.y)
   );
 
-  //vTexCoordAbsolute = vec2(0.1, 0.5);
-
   vec2 vTexCoordTransformed = transformCoordinate(vTexCoordOffset);
-
-  //gl_FragColor = vec4(vTexCoord.x, 0., 0., 1.);
-
   
-
-  //float intensitySum = texture2D(uBitmapTexture, vTexCoord).r;
-  float intensitySum = texture2D(uBitmapTexture, vec2(vTexCoordTransformed.y, vTexCoordTransformed.x)).r;
+  float intensitySum = texture2D(uBitmapTexture, vTexCoordTransformed).r;
   float intensityMean = intensitySum;
 
   // Re-scale using the color scale slider values.
