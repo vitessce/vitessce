@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
@@ -8,6 +9,7 @@ import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { max } from 'd3-array';
+import { Matrix4 } from 'math.gl';
 import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
 import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
@@ -318,6 +320,16 @@ const Heatmap = forwardRef((props, deckRef) => {
     setIsRendering(backlog.length > 0);
   }, [backlog, setIsRendering]);
 
+  const paddedExpression = useMemo(() => {
+    const newExpression = new Uint8Array(4096 * 4096).fill(0);
+    if (expression?.matrix) {
+      expression.matrix.forEach((i, j) => {
+        newExpression[j] = i;
+      });
+    }
+    return newExpression;
+  }, [expression]);
+
   // Update the heatmap tiles if:
   // - new tiles are available (`tileIteration` has changed), or
   // - the matrix bounds have changed, or
@@ -328,15 +340,20 @@ const Heatmap = forwardRef((props, deckRef) => {
       return [];
     }
     function getLayer(i, j, tile) {
+      const { rows, cols } = expression;
+      const modelMatrix = new Matrix4()
+        .translate([matrixLeft + j * tileWidth, matrixTop + i * tileHeight, 0])
+        .scale([tileWidth, tileHeight, 0]);
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
         image: tile,
-        bounds: [
-          matrixLeft + j * tileWidth,
-          matrixTop + i * tileHeight,
-          matrixLeft + (j + 1) * tileWidth,
-          matrixTop + (i + 1) * tileHeight,
-        ],
+        bounds: [0, 0, 1, 1],
+        tileI: i,
+        tileJ: j,
+        numXTiles: xTiles,
+        numYTiles: yTiles,
+        modelMatrix,
+        origDataSize: [cols.length, rows.length],
         aggSizeX,
         aggSizeY,
         colormap,
@@ -353,7 +370,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
     aggSizeX, aggSizeY, colormap, colormapRange,
-    axisLeftLabels, axisTopLabels, xTiles]);
+    axisLeftLabels, axisTopLabels, xTiles, paddedExpression]);
 
 
   // Map cell and gene names to arrays with indices,

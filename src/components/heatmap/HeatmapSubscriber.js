@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useEffect, useState, useCallback, useMemo,
 } from 'react';
@@ -112,7 +113,7 @@ export default function HeatmapSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, false);
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
@@ -121,6 +122,8 @@ export default function HeatmapSubscriber(props) {
     { setCellSetSelection, setCellSetColor },
     { cellSetSelection, cellSetColor },
   );
+
+  console.log(expressionMatrix);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
