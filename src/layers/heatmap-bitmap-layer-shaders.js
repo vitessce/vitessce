@@ -69,7 +69,6 @@ uniform vec2 uReshapedDataSize;
 uniform vec2 tileIJ;
 uniform vec2 dataIJ;
 uniform vec2 numTiles;
-uniform vec2 tileStretching;
 
 // What are the dimensions of the texture (width, height)?
 uniform vec2 uTextureSize;

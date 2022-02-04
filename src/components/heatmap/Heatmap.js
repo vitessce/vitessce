@@ -359,7 +359,6 @@ const Heatmap = forwardRef((props, deckRef) => {
         tileJ: j,
         numXTiles: xTiles,
         numYTiles: yTiles,
-        tileStretching: [widthRatio, heightRatio],
         modelMatrix,
         origDataSize: [cols.length, rows.length],
         aggSizeX,
@@ -377,7 +376,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       .current.map((tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile));
     return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
-    widthRatio, heightRatio,
     aggSizeX, aggSizeY, colormap, colormapRange,
     axisLeftLabels, axisTopLabels, xTiles, paddedExpression]);
 

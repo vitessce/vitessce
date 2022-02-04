@@ -85,7 +85,6 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       tileJ,
       numXTiles,
       numYTiles,
-      tileStretching,
     } = this.props;
 
     // Render the image
@@ -101,7 +100,6 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
             uColorScaleRange: [colorScaleLo, colorScaleHi],
             tileIJ: [tileI, tileJ],
             dataIJ: [0, 0],
-            tileStretching,
             numTiles: [numXTiles, numYTiles],
             numData: [1, 1],
           }),
