@@ -85,6 +85,7 @@ export default function SpatialSubscriber(props) {
     cellSetColor,
     cellColorEncoding,
     additionalCellSets,
+    moleculeSelection,
     spatialAxisFixed,
     geneExpressionColormap,
     geneExpressionColormapRange,
@@ -148,7 +149,7 @@ export default function SpatialSubscriber(props) {
     { setSpatialCellsLayer: setCellsLayer },
     { spatialCellsLayer: cellsLayer },
   );
-  const [molecules, moleculesCount, locationsCount] = useMoleculesData(
+  const [molecules, moleculesCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialMoleculesLayer: setMoleculesLayer },
     { spatialMoleculesLayer: moleculesLayer },
@@ -265,6 +266,13 @@ export default function SpatialSubscriber(props) {
     return null;
   };
 
+  const moleculeSelectionGeneIndices = useMemo(() => {
+    if (attrs && attrs.cols && moleculeSelection && moleculeSelection.length > 0) {
+      return moleculeSelection.map(geneName => attrs.cols.indexOf(geneName));
+    }
+    return null;
+  }, [moleculeSelection, attrs]);
+
   const setViewState = ({
     zoom: newZoom,
     target,
@@ -288,7 +296,6 @@ export default function SpatialSubscriber(props) {
     subobservationsCount: moleculesCount,
     subobservationsLabel,
     subobservationsPluralLabel,
-    locationsCount,
   });
 
   // Set up a getter function for gene expression values, to be used
@@ -359,6 +366,7 @@ export default function SpatialSubscriber(props) {
         cellHighlight={cellHighlight}
         cellColors={cellColors}
         molecules={molecules}
+        moleculeSelectionGeneIndices={moleculeSelectionGeneIndices}
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}

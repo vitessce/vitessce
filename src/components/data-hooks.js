@@ -455,10 +455,9 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
  * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
- * @returns {array} [molecules, moleculesCount, locationsCount] where
- * molecules is an object,
- * moleculesCount is the number of unique molecule types, and
- * locationsCount is the number of molecules.
+ * @returns {array} [molecules, moleculesCount] where
+ * molecules is an object, and
+ * moleculesCount is the number of molecules.
  */
 export function useMoleculesData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
@@ -466,7 +465,6 @@ export function useMoleculesData(
 ) {
   const [molecules, setMolecules] = useState();
   const [moleculesCount, setMoleculesCount] = useState(0);
-  const [locationsCount, setLocationsCount] = useState(0);
 
   const setWarning = useSetWarning();
 
@@ -481,9 +479,6 @@ export function useMoleculesData(
         const { data, url, coordinationValues } = payload;
         setMolecules(data);
         setMoleculesCount(Object.keys(data).length);
-        setLocationsCount(Object.values(data)
-          .map(l => l.length)
-          .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
         const coordinationValuesOrDefault = {
           spatialMoleculesLayer: DEFAULT_MOLECULES_LAYER,
@@ -499,7 +494,6 @@ export function useMoleculesData(
     } else {
       setMolecules({});
       setMoleculesCount(0);
-      setLocationsCount(0);
       if (isRequired) {
         warn(new LoaderNotFoundError(dataset, 'molecules', null, null), setWarning);
       } else {
@@ -509,7 +503,7 @@ export function useMoleculesData(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
-  return [molecules, moleculesCount, locationsCount];
+  return [molecules, moleculesCount];
 }
 
 /**

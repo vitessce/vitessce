@@ -1,7 +1,8 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { PolygonLayer, PointCloudLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-line import/no-extraneous-dependencies
 import { Matrix4 } from 'math.gl';
 import {
   ScaleBarLayer,
@@ -39,6 +40,12 @@ const makeDefaultGetCellIsSelected = (cellSelection) => {
     return cellEntry => (cellSelectionSet.has(cellEntry[0]) ? 1.0 : 0.0);
   }
   return () => 0.0;
+};
+const makeDefaultGetMoleculeColors = () => (moleculeEntry) => {
+  if (moleculeEntry[1].rgb) {
+    return moleculeEntry[1].rgb;
+  }
+  return PALETTE[moleculeEntry[1].geneIndex % PALETTE.length];
 };
 
 /**
@@ -197,11 +204,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
-  createMoleculesLayer(layerDef) {
+  createMoleculesLayer2d(layerDef) {
     const {
       setMoleculeHighlight,
-      getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
-      getMoleculePosition = d => [d[0], d[1], 0],
+      getMoleculeColor = makeDefaultGetMoleculeColors(),
+      getMoleculePosition = d => [d[1].spatial[0], d[1].spatial[1]],
+      moleculeSelectionGeneIndices,
     } = this.props;
     const { moleculesEntries } = this;
 
@@ -212,12 +220,20 @@ class Spatial extends AbstractSpatialOrScatterplot {
       pickable: true,
       autoHighlight: true,
       radiusMaxPixels: 3,
+      stroked: false,
       opacity: layerDef.opacity,
       visible: layerDef.visible,
       getRadius: layerDef.radius,
       getPosition: getMoleculePosition,
-      getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
+      getFilterValue: moleculeEntry => (
+        // eslint-disable-next-line no-nested-ternary
+        moleculeSelectionGeneIndices
+          ? (moleculeSelectionGeneIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
+          : 1 // If nothing is selected, everything is selected.
+      ),
+      extensions: [new DataFilterExtension({ filterSize: 1 })],
+      filterRange: [1, 1],
       onHover: (info) => {
         if (setMoleculeHighlight) {
           if (info.object) {
@@ -226,6 +242,60 @@ class Spatial extends AbstractSpatialOrScatterplot {
             setMoleculeHighlight(null);
           }
         }
+      },
+      updateTriggers: {
+        getFilterValue: [moleculeSelectionGeneIndices],
+      },
+    });
+  }
+
+  createMoleculesLayer3d(layerDef) {
+    const {
+      setMoleculeHighlight,
+      getMoleculeColor = makeDefaultGetMoleculeColors(),
+      getMoleculePosition = d => d[1].spatial,
+      getMoleculeNormal = () => [-1, 0, 0],
+      moleculeSelectionGeneIndices,
+    } = this.props;
+    const { moleculesEntries } = this;
+
+    return new PointCloudLayer({
+      id: MOLECULES_LAYER_ID,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: moleculesEntries,
+      pickable: true,
+      autoHighlight: true,
+      opacity: layerDef.opacity,
+      visible: layerDef.visible,
+      pointSize: 2,
+      getPosition: getMoleculePosition,
+      getNormal: getMoleculeNormal,
+      getColor: getMoleculeColor,
+      material: {
+        ambient: 1.0,
+        diffuse: 1.0,
+        shininess: 18,
+        specularColor: [255, 255, 255],
+      },
+      getFilterValue: moleculeEntry => (
+        // eslint-disable-next-line no-nested-ternary
+        moleculeSelectionGeneIndices
+          ? (moleculeSelectionGeneIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
+          : 1 // If nothing is selected, everything is selected.
+      ),
+      extensions: [new DataFilterExtension({ filterSize: 1 })],
+      filterRange: [1, 1],
+      onHover: (info) => {
+        if (setMoleculeHighlight) {
+          if (info.object) {
+            setMoleculeHighlight(info.object[3]);
+          } else {
+            setMoleculeHighlight(null);
+          }
+        }
+      },
+      updateTriggers: {
+        getFilterValue: [moleculeSelectionGeneIndices],
       },
     });
   }
@@ -432,12 +502,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createImageLayers() {
     const {
-      layers,
-      imageLayerLoaders = {},
-      rasterLayersCallbacks = [],
+      layers, imageLayerLoaders = {}, rasterLayersCallbacks = [],
     } = this.props;
-    const use3d = (layers || []).some(i => i.use3d);
-    const use3dIndex = (layers || []).findIndex(i => i.use3d);
+    const use3d = (layers || []).some(i => i.type === 'raster' && i.use3d);
+    const use3dIndex = (layers || []).findIndex(i => i.type === 'raster' && i.use3d);
     return (layers || [])
       .filter(layer => layer.type === 'raster' || layer.type === 'bitmask')
       .filter(layer => (use3d ? layer.use3d === use3d : true))
@@ -516,9 +584,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   onUpdateMoleculesData() {
     const { molecules = {} } = this.props;
-    const moleculesEntries = Object.entries(molecules).flatMap(
-      ([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]),
-    );
+    const moleculesEntries = Object
+      .entries(molecules);
     this.moleculesEntries = moleculesEntries;
   }
 
@@ -526,7 +593,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const { layers } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'molecules');
     if (layerDef) {
-      this.moleculesLayer = this.createMoleculesLayer(layerDef);
+      if (layerDef.use3d) {
+        this.moleculesLayer = this.createMoleculesLayer3d(layerDef);
+      } else {
+        this.moleculesLayer = this.createMoleculesLayer2d(layerDef);
+      }
     } else {
       this.moleculesLayer = null;
     }
@@ -613,7 +684,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'molecules'].some(shallowDiff)) {
+    if (['layers', 'molecules', 'moleculeSelectionGeneIndices'].some(shallowDiff)) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
       this.forceUpdate();

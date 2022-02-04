@@ -23,6 +23,10 @@ const GENES_DATA_TYPES = ['expression-matrix'];
  * of the name of the variable.
  * @param {string} props.variablesPluralLabelOverride The plural
  * form of the name of the variable.
+ * @param {boolean} props.enableMoleculeSelection Should selecting a gene also
+ * select molecules with the same name? By default, false.
+ * @param {boolean} props.enableToggling Should selecting a previously checked
+ * row result in un-checking? By default, true.
  */
 export default function GenesSubscriber(props) {
   const {
@@ -32,6 +36,8 @@ export default function GenesSubscriber(props) {
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
     title = 'Expression Levels',
+    enableMoleculeSelection = false,
+    enableToggling = true,
   } = props;
 
   const loaders = useLoaders();
@@ -47,6 +53,7 @@ export default function GenesSubscriber(props) {
     setGeneFilter,
     setGeneHighlight,
     setCellColorEncoding,
+    setMoleculeSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -76,6 +83,11 @@ export default function GenesSubscriber(props) {
   function setGeneSelectionAndColorEncoding(newSelection) {
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
+    if (enableMoleculeSelection) {
+      // TODO: allow a many-to-one mapping from molecules to genes,
+      // rather than assuming the molecule ID is the same as the gene ID.
+      setMoleculeSelection(newSelection);
+    }
   }
 
   return (
@@ -92,6 +104,7 @@ export default function GenesSubscriber(props) {
       urls={urls}
     >
       <Genes
+        enableToggling={enableToggling}
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
         geneList={geneList}
         geneSelection={geneSelection}

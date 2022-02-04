@@ -55,6 +55,8 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.GENOMIC_TARGET_Y]: 1549999999.5,
   [CoordinationType.ADDITIONAL_CELL_SETS]: null,
   [CoordinationType.MOLECULE_HIGHLIGHT]: null,
+  [CoordinationType.MOLECULE_HIGHLIGHT]: null,
+  [CoordinationType.MOLECULE_SELECTION]: null,
 };
 
 // The following coordination types should be
@@ -144,6 +146,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.CELL_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_CELL_SETS,
     CoordinationType.MOLECULE_HIGHLIGHT,
+    CoordinationType.MOLECULE_SELECTION,
   ],
   [Component.HEATMAP]: [
     CoordinationType.DATASET,
@@ -194,6 +197,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GENE_SELECTION,
     CoordinationType.CELL_COLOR_ENCODING,
     CoordinationType.CELL_SET_SELECTION,
+    CoordinationType.MOLECULE_SELECTION,
   ],
   [Component.CELL_SET_EXPRESSION]: [
     CoordinationType.DATASET,
