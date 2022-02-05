@@ -176,6 +176,7 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
+  console.log(width, height);
 
   const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(
     transpose, geneLabelMaxLength, cellLabelMaxLength,
@@ -325,17 +326,22 @@ const Heatmap = forwardRef((props, deckRef) => {
     setIsRendering(backlog.length > 0);
   }, [backlog, setIsRendering]);
 
-  const paddedExpression = useMemo(() => {
-    const newExpression = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE).fill(0);
-    if (expression?.matrix) {
+
+  const paddedExpressions = useMemo(() => {
+    const numDataTiles = Math.ceil((width*height) / (DATA_TEXTURE_SIZE*DATA_TEXTURE_SIZE));
+    const result = range(numDataTiles).map(dataTileI => new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE).fill(0));
+    console.log("numDataTiles", width, height, numDataTiles, result);
+    if (expression?.matrix && result.length > 0) {
       expression.matrix.forEach((i, j) => {
-        newExpression[j] = i;
+        const dataTileI = Math.floor(j / (DATA_TEXTURE_SIZE*DATA_TEXTURE_SIZE));
+        const dataTileOffset = dataTileI * (DATA_TEXTURE_SIZE*DATA_TEXTURE_SIZE);
+        result[dataTileI][j - dataTileOffset] = i;
       });
     }
-    return newExpression;
-  }, [expression]);
+    return result;
+  }, [expression, width, height]);
 
-  console.log(paddedExpression);
+  console.log(paddedExpressions);
 
   // Update the heatmap tiles if:
   // - new tiles are available (`tileIteration` has changed), or
@@ -351,16 +357,21 @@ const Heatmap = forwardRef((props, deckRef) => {
       const modelMatrix = new Matrix4()
         .translate([matrixLeft + j * tileWidth, matrixTop + i * tileHeight, 0])
         .scale([tileWidth, tileHeight, 0]);
+      
+      const dataI = Math.floor((i*xTiles+j)*(TILE_SIZE*TILE_SIZE)/(DATA_TEXTURE_SIZE*DATA_TEXTURE_SIZE));
+      console.log("dataI", i, j, dataI);
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
-        image: paddedExpression,
+        image: paddedExpressions[dataI],
         bounds: [0, 0, 1, 1],
         tileI: i,
         tileJ: j,
+        dataI: dataI,
+        dataTileOffset: dataI * (DATA_TEXTURE_SIZE*DATA_TEXTURE_SIZE),
         numXTiles: xTiles,
         numYTiles: yTiles,
         modelMatrix,
-        origDataSize: [cols.length, rows.length],
+        origDataSize: [width, height],
         aggSizeX,
         aggSizeY,
         colormap,
@@ -377,7 +388,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
     aggSizeX, aggSizeY, colormap, colormapRange,
-    axisLeftLabels, axisTopLabels, xTiles, paddedExpression]);
+    axisLeftLabels, axisTopLabels, xTiles, paddedExpressions]);
 
 
   // Map cell and gene names to arrays with indices,

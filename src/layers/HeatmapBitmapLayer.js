@@ -83,6 +83,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       origDataSize,
       tileI,
       tileJ,
+      dataI,
+      dataTileOffset,
       numXTiles,
       numYTiles,
     } = this.props;
@@ -99,7 +101,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
             uAggSize: [aggSizeX, aggSizeY],
             uColorScaleRange: [colorScaleLo, colorScaleHi],
             tileIJ: [tileI, tileJ],
-            dataIJ: [0, 0],
+            dataI: dataI,
+            dataTileOffset: dataTileOffset,
             numTiles: [numXTiles, numYTiles],
             numData: [1, 1],
           }),

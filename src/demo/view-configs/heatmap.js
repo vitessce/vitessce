@@ -1,63 +1,104 @@
 /* eslint-disable */
-
-const linnarssonName = 'Heatmap';
-const linnarssonDescription = 'Demo for heatmap development';
-const linnarssonBase = {
-    name: 'heatmap',
-    description: '',
-    version: '1.0.6',
-    initStrategy: 'auto',
-    datasets: [
+import {
+  makeDatasetNameToJsonFiles,
+  getS3Url, vapi,
+} from '../utils';
+export const heatmapOnly = {
+  name: 'heatmap',
+  description: '',
+  version: '1.0.6',
+  initStrategy: 'auto',
+  datasets: [
+    {
+      uid: 'test',
+      name: 'Test',
+      files: [
         {
-        uid: 'test',
-        name: 'Test',
-        files: [
-            {
-            url: '',
-            type: 'expression-matrix',
-            fileType: 'in-memory-matrix'
-            },
-        ],
+          url: '',
+          type: 'expression-matrix',
+          fileType: 'in-memory-matrix'
         },
-    ],
-};
-
-  export const heatmapOnly = {
-    ...linnarssonBase,
-    public: true,
-    coordinationSpace: {
-
+      ],
     },
-    layout: [
-      {
-        component: 'description',
-        props: {
-          description: `${linnarssonName}: ${linnarssonDescription}`,
+  ],
+  public: true,
+  coordinationSpace: {
+
+  },
+  layout: [
+    {
+      component: 'description',
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 6,
+    },
+    
+    {
+      component: 'status',
+      x: 0,
+      y: 6,
+      w: 2,
+      h: 6,
+    },
+    {
+      component: 'heatmap',
+      props: {
+        transpose: false,
+      },
+      x: 2,
+      y: 0,
+      w: 10,
+      h: 12,
+    },
+  ],
+};
+export const heatmapOnly2 = {
+  name: 'heatmap',
+  description: '',
+  version: '1.0.6',
+  initStrategy: 'auto',
+  datasets: [
+    {
+      uid: 'test',
+      name: 'Test',
+      files: [
+        {
+          ...makeDatasetNameToJsonFiles('linnarsson')('clusters'),
+          type: 'expression-matrix',
         },
-        x: 0,
-        y: 0,
-        w: 2,
-        h: 6,
+      ],
+    },
+  ],
+  public: true,
+  coordinationSpace: {
+
+  },
+  layout: [
+    {
+      component: 'description',
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 6,
+    },
+   
+    {
+      component: 'status',
+      x: 0,
+      y: 6,
+      w: 2,
+      h: 6,
+    },
+    {
+      component: 'heatmap',
+      props: {
+        transpose: false,
       },
-     
-      {
-        component: 'status',
-        x: 0,
-        y: 6,
-        w: 2,
-        h: 6,
-      },
-      {
-        component: 'heatmap',
-        props: {
-          transpose: true,
-        },
-        x: 2,
-        y: 0,
-        w: 10,
-        h: 12,
-      },
-    ],
-  };
-  
-  
+      x: 2,
+      y: 0,
+      w: 10,
+      h: 12,
+    },
+  ],
+};

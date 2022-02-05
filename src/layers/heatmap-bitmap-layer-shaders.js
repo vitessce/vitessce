@@ -67,7 +67,8 @@ uniform vec2 uOrigDataSize;
 uniform vec2 uReshapedDataSize;
 
 uniform vec2 tileIJ;
-uniform vec2 dataIJ;
+uniform float dataI;
+uniform float dataTileOffset;
 uniform vec2 numTiles;
 
 // What are the dimensions of the texture (width, height)?
@@ -84,7 +85,7 @@ varying vec2 vTexCoord;
 
 vec2 transformCoordinate(vec2 coord) {
   // True pixel coordinate on scale of uOrigDataSize
-  vec2 viewCoord = vec2(floor(coord.y * uOrigDataSize.y), floor(coord.x * uOrigDataSize.x));
+  vec2 viewCoord = vec2(floor(coord.x * uOrigDataSize.x), floor(coord.y * uOrigDataSize.y));
   // Compute single value index into data array
   float index = viewCoord.y * uOrigDataSize.x + viewCoord.x;
   float textureX = (floor( index / uReshapedDataSize.x )) / uReshapedDataSize.x;
