@@ -1,5 +1,13 @@
 
 ### Added
+
+### Changed
+
+## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
+
+
+
+### Added
 - Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
 - Added a new documentation site.
 - Added the `./create-release.sh` Bash script to automate some steps of the release process.
