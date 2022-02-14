@@ -9,7 +9,7 @@ import DataTypesTable from '../src/pages/_DataTypesTable';
 Vitessce supports several **data types** ([`datasets[].files[].type`](/docs/view-config-json/#files) in the JSON-based view config) which denote in an abstract sense the type of observations contained in a file. For each data type, Vitessce may support multiple **file types** ([`datasets[].files[].fileType`](/docs/view-config-json/#files)) which denote specific schemas and file formats that Vitessce knows how to read.
 
 
-For example, a file that conforms to the `cells` data type may contain embedding (e.g. UMAP and PCA) coordinates for each cell. But depending on which file format is more convenient, you may opt to use the `cells.json` or `anndata-cells.zarr` file type.
+For example, a file that conforms to the `obs` data type may contain cell-level observations, such as cell IDs and embedding (e.g. UMAP and PCA) coordinates for each cell. But depending on which file format is more convenient, you may opt to use the `cells.json` or `anndataObs.zarr` file type.
 
 ## Data Types and File Types
 

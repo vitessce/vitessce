@@ -11,14 +11,15 @@ export default function DataTypesTable() {
       <tbody>
         <tr>
           <td>
-            <code>cells</code>
-            <br /> Cells, their positions (spatially and for dimensionality-reduction scatterplots),
+            <code>obs</code>
+            <br />Observations:
+            e.g., cells, their positions (spatially and for dimensionality-reduction scatterplots),
             their segmentations as polygons, and other per-cell attributes.
           </td>
           <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#cellsjson')}><code>cells.json</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-cellszarr')}><code>anndata-cells.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndataobszarr')}><code>anndataObs.zarr</code></a></li>
             </ul>
           </td>
           <td>
@@ -32,8 +33,9 @@ export default function DataTypesTable() {
         </tr>
         <tr>
           <td>
-            <code>molecules</code>
-            <br /> Spatially-resolved molecules such as individual RNA molecules
+            <code>subObs</code>
+            <br />Sub-observations:
+            e.g., spatially-resolved molecules such as individual RNA molecules
             measured by FISH assays.
           </td>
           <td>
@@ -45,14 +47,15 @@ export default function DataTypesTable() {
         </tr>
         <tr>
           <td>
-            <code>cell-sets</code>
-            <br /> Lists or hierarchies of cell sets,
-            used to store cell type assignments or automated clustering results.
+            <code>obsSets</code>
+            <br /> Observation sets:
+            e.g., cell sets (lists or hierarchies of cells),
+            to represent cell type assignments or clustering results.
           </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#cell-setsjson')}><code>cell-sets.json</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-cell-setszarr')}><code>anndata-cell-sets.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#cellsetsjson')}><code>cellSets.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndataobssetszarr')}><code>anndataObsSets.zarr</code></a></li>
             </ul>
           </td>
           <td>
@@ -94,14 +97,15 @@ export default function DataTypesTable() {
         </tr>
         <tr>
           <td>
-            <code>expression-matrix</code>
-            <br /> Gene expression matrices.
+            <code>obsFeatureMatrix</code>
+            <br /> Observation-by-feature matrix:
+            e.g., cell-by-gene expression matrix.
           </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#expression-matrixzarr')}><code>expression-matrix.zarr</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-expression-matrixzarr')}><code>anndata-expression-matrix.zarr</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#clustersjson')}><code>clusters.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#expressionmatrixzarr')}><code>expressionMatrix.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndataobsfeaturematrixzarr')}><code>anndataObsFeatureMatrix.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#expressionmatrixjson')}><code>expressionMatrix.json</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#genesjson')}><code>genes.json</code></a></li>
             </ul>
           </td>
@@ -123,8 +127,8 @@ export default function DataTypesTable() {
           <td />
         </tr>
         <tr>
-          <td><code>genomic-profiles</code><br /> Genomic profiles, such as ATAC-seq profiles.</td>
-          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#genomic-profileszarr')}><code>genomic-profiles.zarr</code></a></li></ul></td>
+          <td><code>genomicProfiles</code><br /> Genomic profiles, such as ATAC-seq profiles.</td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#genomicprofileszarr')}><code>genomicProfiles.zarr</code></a></li></ul></td>
           <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#snapatac')}>SnapATAC</a></li>
