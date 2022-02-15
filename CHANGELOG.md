@@ -1,5 +1,13 @@
 
 ### Added
+
+### Changed
+
+## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
+
+
+
+### Added
 - Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
 - Added a new documentation site.
 - Added the `./create-release.sh` Bash script to automate some steps of the release process.
@@ -14,6 +22,7 @@
 - Bump dependency versions based on `npm audit` and dependabot pull requests.
 - Updated Heatmap `layerFilter` function to reflect [changes between deck.gl 8.5 and 8.6 ](https://deck.gl/docs/upgrade-guide#layer-filtering)
 - Updated R package URLs (to reflect repo name change from `vitessce-r` to `vitessceR`).
+- Bump deck.gl version from `8.6.0` to `8.6.7` and bump viv version from `0.12.0` to `0.12.5` to fix [GLSL errors for 3d on chrome](https://github.com/hubmapconsortium/portal-ui/issues/2419#) issue.
 
 
 ## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
