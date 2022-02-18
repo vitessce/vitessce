@@ -2,10 +2,10 @@
 ### Added
 
 ### Changed
+- Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details. 
+
 
 ## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
-
-
 
 ### Added
 - Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
