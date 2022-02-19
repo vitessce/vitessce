@@ -33,8 +33,8 @@ import {
     initStrategy: 'auto',
     coordinationSpace: {
       dataset: {
-          A: 'dries-1',
-          B: 'dries-2',
+          REFERENCE: 'dries-1',
+          QUERY: 'dries-2',
       },
       embeddingType: {
         TSNE: 't-SNE',
@@ -87,8 +87,8 @@ import {
       {
         component: 'queryReferenceScatterplot',
         coordinationScopes: {
-          dataset: ['A', 'B'],
-          embeddingType: { A: 'TSNE', B:'UMAP' },
+          dataset: ['REFERENCE', 'QUERY'],
+          embeddingType: { REFERENCE: 'TSNE', QUERY:'UMAP' },
           embeddingZoom: 'TSNE',
           embeddingCellSetLabelsVisible: 'A',
           embeddingCellSetLabelSize: 'A',

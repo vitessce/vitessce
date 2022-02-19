@@ -1,8 +1,10 @@
+/* eslint-disable */
 import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
 import { fromEntries, capitalize } from '../../utils';
+import { CoordinationType } from '../constants';
 
 // Reference: https://github.com/pmndrs/zustand#react-context
 // Reference: https://github.com/pmndrs/zustand/blob/e47ea03/tests/context.test.tsx#L60
@@ -219,6 +221,27 @@ export function useCoordination(parameters, coordinationScopes) {
   })), [parameters, coordinationScopes]);
 
   return [values, setters];
+}
+
+
+export function useDatasetUids(coordinationScopes) {
+  const parameter = CoordinationType.DATASET;
+  const datasetScopes = coordinationScopes[parameter];
+
+  // Mapping from dataset coordination scope name to dataset uid
+  const datasetUids = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    return fromEntries(datasetScopes.map((datasetScope) => {
+      if (coordinationSpace && coordinationSpace[parameter]) {
+        const value = coordinationSpace[parameter][datasetScope];
+        return [datasetScope, value];
+      }
+      return [datasetScope, undefined];
+    }));
+  }, shallow);
+
+  //return useCoordination([CoordinationType.DATASET], coordinationScopes);
+  return datasetUids;
 }
 
 

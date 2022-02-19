@@ -18,7 +18,7 @@ import {
   useExpressionAttrs,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
-import Scatterplot from './Scatterplot';
+import QRScatterplot from './QRScatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import ScatterplotOptions from './ScatterplotOptions';
 import {
@@ -26,6 +26,7 @@ import {
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
+  useDatasetUids,
 } from '../../app/state/hooks';
 import {
   getPointSizeDevicePixels,
@@ -49,7 +50,7 @@ const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
  * @param {number} props.averageFillDensity Override the average fill density calculation
  * when using dynamic opacity mode.
  */
-export default function ScatterplotSubscriber(props) {
+export default function QRScatterplotSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
@@ -67,17 +68,17 @@ export default function ScatterplotSubscriber(props) {
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
-  const { dataset: datasetScopes } = coordinationScopes;
-  const [refDataset, qryDataset] = datasetScopes;
-
+  const datasetUids = useDatasetUids(coordinationScopes);
+  const refScope = "QUERY";
+  const qryScope = "REFERENCE"
+  const refDataset = datasetUids[refScope];
+  const qryDataset = datasetUids[qryScope];
   // Get "props" from the coordination space.
   const [cValues, cSetters] = useMultiDatasetCoordination(
     COMPONENT_COORDINATION_TYPES.queryReferenceScatterplot,
     coordinationScopes,
   );
-
-  console.log(cValues);
-
+  
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
   const [
@@ -89,7 +90,7 @@ export default function ScatterplotSubscriber(props) {
     SCATTERPLOT_DATA_TYPES,
   );
 
-  const title = titleOverride || `Query & Reference Scatterplot (${cValues[qryDataset].embeddingType}, ${cValues[refDataset].embeddingType})`;
+  const title = titleOverride || `Query & Reference Scatterplot (${cValues[qryScope].embeddingType}, ${cValues[refScope].embeddingType})`;
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
@@ -101,14 +102,15 @@ export default function ScatterplotSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [qryCells, qryCellsCount] = useCellsData(loaders, qryDataset, setItemIsReady, addUrl, true);
   const [refCells, refCellsCount] = useCellsData(loaders, refDataset, setItemIsReady, addUrl, true);
+
   const [qryCellSets] = useCellSetsData(
     loaders,
     qryDataset,
     setItemIsReady,
     addUrl,
     false,
-    { setCellSetSelection: cSetters[qryDataset].setCellSelection, setCellSetColor: cSetters[qryDataset].setCellSetColor },
-    { cellSetSelection: cValues[qryDataset].cellSetSelection, cellSetColor: cValues[qryDataset].cellSetColor },
+    { setCellSetSelection: cSetters[qryScope].setCellSelection, setCellSetColor: cSetters[qryScope].setCellSetColor },
+    { cellSetSelection: cValues[qryScope].cellSetSelection, cellSetColor: cValues[qryScope].cellSetColor },
   );
   const [refCellSets] = useCellSetsData(
     loaders,
@@ -116,50 +118,50 @@ export default function ScatterplotSubscriber(props) {
     setItemIsReady,
     addUrl,
     false,
-    { setCellSetSelection: cSetters[refDataset].setCellSelection, setCellSetColor: cSetters[refDataset].setCellSetColor },
-    { cellSetSelection: cValues[refDataset].cellSetSelection, cellSetColor: cValues[refDataset].cellSetColor },
+    { setCellSetSelection: cSetters[refScope].setCellSelection, setCellSetColor: cSetters[refScope].setCellSetColor },
+    { cellSetSelection: cValues[refScope].cellSetSelection, cellSetColor: cValues[refScope].cellSetColor },
   );
 
   const [qryExpressionData] = useGeneSelection(
-    loaders, qryDataset, setItemIsReady, false, cValues[qryDataset].geneSelection, setItemIsNotReady,
+    loaders, qryDataset, setItemIsReady, false, cValues[qryScope].geneSelection, setItemIsNotReady,
   );
   const [qryAttrs] = useExpressionAttrs(
     loaders, qryDataset, setItemIsReady, addUrl, false,
   );
   
 
-  const [dynamicCellRadius, setDynamicCellRadius] = useState(cValues[qryDataset].embeddingCellRadius);
-  const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cValues[qryDataset].embeddingCellOpacity);
+  const [dynamicCellRadius, setDynamicCellRadius] = useState(cValues[qryScope].embeddingCellRadius);
+  const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cValues[qryScope].embeddingCellOpacity);
 
   // TODO: determine if query and reference should use same cell sets
   const mergedQryCellSets = useMemo(() => mergeCellSets(
-    qryCellSets, cValues[qryDataset].additionalCellSets,
-  ), [qryCellSets, cValues[qryDataset].additionalCellSets]);
+    qryCellSets, cValues[qryScope].additionalCellSets,
+  ), [qryCellSets, cValues[qryScope].additionalCellSets]);
 
   const mergedRefCellSets = useMemo(() => mergeCellSets(
-    refCellSets, cValues[refDataset].additionalCellSets,
-  ), [refCellSets, cValues[refDataset].additionalCellSets]);
+    refCellSets, cValues[refScope].additionalCellSets,
+  ), [refCellSets, cValues[refScope].additionalCellSets]);
 
   const setQryCellSelectionProp = useCallback((v) => {
-    cSetters[qryDataset].setCellSelection(
-      v, cValues[qryDataset].additionalCellSets, cValues[qryDataset].cellSetColor,
-      cSetters[qryDataset].setCellSetSelection, cSetters[qryDataset].setAdditionalCellSets, cSetters[qryDataset].setCellSetColor,
-      cSetters[qryDataset].setCellColorEncoding,
+    setCellSelection(
+      v, cValues[qryScope].additionalCellSets, cValues[qryScope].cellSetColor,
+      cSetters[qryScope].setCellSetSelection, cSetters[qryScope].setAdditionalCellSets, cSetters[qryScope].setCellSetColor,
+      cSetters[qryScope].setCellColorEncoding,
     );
-  }, [cValues[qryDataset].additionalCellSets, cValues[qryDataset].cellSetColor, cSetters[qryDataset].setCellColorEncoding,
-  cSetters[qryDataset].setAdditionalCellSets, cSetters[qryDataset].setCellSetColor, cSetters[qryDataset].setCellSetSelection]);
+  }, [cValues[qryScope].additionalCellSets, cValues[qryScope].cellSetColor, cSetters[qryScope].setCellColorEncoding,
+  cSetters[qryScope].setAdditionalCellSets, cSetters[qryScope].setCellSetColor, cSetters[qryScope].setCellSetSelection]);
 
   const qryCellColors = useMemo(() => getCellColors({
-    cellColorEncoding: cValues[qryDataset].cellColorEncoding,
+    cellColorEncoding: cValues[qryScope].cellColorEncoding,
     // expressionData: expressionData && expressionData[0],
-    geneSelection: cValues[qryDataset].geneSelection,
+    geneSelection: cValues[qryScope].geneSelection,
     cellSets: mergedQryCellSets,
-    cellSetSelection: cValues[qryDataset].cellSetSelection,
-    cellSetColor: cValues[qryDataset].cellSetColor,
+    cellSetSelection: cValues[qryScope].cellSetSelection,
+    cellSetColor: cValues[qryScope].cellSetColor,
     // expressionDataAttrs: attrs,
     theme,
-  }), [cValues[qryDataset].cellColorEncoding, cValues[qryDataset].geneSelection, mergedQryCellSets, theme,
-  cValues[qryDataset].cellSetSelection, cValues[qryDataset].cellSetColor/*, expressionData, attrs*/]);
+  }), [cValues[qryScope].cellColorEncoding, cValues[qryScope].geneSelection, mergedQryCellSets, theme,
+  cValues[qryScope].cellSetSelection, cValues[qryScope].cellSetColor/*, expressionData, attrs*/]);
   
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -167,25 +169,25 @@ export default function ScatterplotSubscriber(props) {
   const cacheHas = (cache, key) => cache.findIndex(el => isEqual(el[0], key)) !== -1;
   const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
   const qryCellSetPolygons = useMemo(() => {
-    if ((cValues[qryDataset].embeddingCellSetLabelsVisible || cValues[qryDataset].embeddingCellSetPolygonsVisible)
-      && !cacheHas(qryCellSetPolygonCache, cValues[qryDataset].cellSetSelection)
+    if ((cValues[qryScope].embeddingCellSetLabelsVisible || cValues[qryScope].embeddingCellSetPolygonsVisible)
+      && !cacheHas(qryCellSetPolygonCache, cValues[qryScope].cellSetSelection)
       && mergedQryCellSets?.tree?.length
       && Object.values(qryCells).length
-      && cValues[qryDataset].cellSetColor?.length) {
+      && cValues[qryScope].cellSetColor?.length) {
       const newCellSetPolygons = getCellSetPolygons({
         cells: qryCells,
-        mapping: cValues[qryDataset].embeddingType,
+        mapping: cValues[qryScope].embeddingType,
         cellSets: mergedQryCellSets,
-        cellSetSelection: cValues[qryDataset].cellSetSelection,
-        cellSetColor: cValues[qryDataset].cellSetColor,
+        cellSetSelection: cValues[qryScope].cellSetSelection,
+        cellSetColor: cValues[qryScope].cellSetColor,
         theme,
       });
-      setQryCellSetPolygonCache(cache => [...cache, [cValues[qryDataset].cellSetSelection, newCellSetPolygons]]);
+      setQryCellSetPolygonCache(cache => [...cache, [cValues[qryScope].cellSetSelection, newCellSetPolygons]]);
       return newCellSetPolygons;
     }
-    return cacheGet(qryCellSetPolygonCache, cValues[qryDataset].cellSetSelection) || [];
-  }, [cValues[qryDataset].embeddingCellSetLabelsVisible, qryCellSetPolygonCache, cValues[qryDataset].embeddingCellSetPolygonsVisible, theme,
-    qryCells, cValues[qryDataset].embeddingType, mergedQryCellSets, cValues[qryDataset].cellSetSelection, cValues[qryDataset].cellSetColor]);
+    return cacheGet(qryCellSetPolygonCache, cValues[qryScope].cellSetSelection) || [];
+  }, [cValues[qryScope].embeddingCellSetLabelsVisible, qryCellSetPolygonCache, cValues[qryScope].embeddingCellSetPolygonsVisible, theme,
+    qryCells, cValues[qryScope].embeddingType, mergedQryCellSets, cValues[qryScope].cellSetSelection, cValues[qryScope].cellSetColor]);
 
 
   const qryCellSelection = useMemo(() => Array.from(qryCellColors.keys()), [qryCellColors]);
@@ -194,7 +196,7 @@ export default function ScatterplotSubscriber(props) {
     const cellValues = qryCells && Object.values(qryCells);
     if (cellValues?.length) {
       const cellCoordinates = Object.values(qryCells)
-        .map(c => c.mappings[cValues[qryDataset].embeddingType]);
+        .map(c => c.mappings[cValues[qryScope].embeddingType]);
       const xE = extent(cellCoordinates, c => c[0]);
       const yE = extent(cellCoordinates, c => c[1]);
       const xR = xE[1] - xE[0];
@@ -202,7 +204,7 @@ export default function ScatterplotSubscriber(props) {
       return [xR, yR, xE, yE, cellValues.length];
     }
     return [null, null, null, null, null];
-  }, [qryCells, cValues[qryDataset].embeddingType]);
+  }, [qryCells, cValues[qryScope].embeddingType]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -210,12 +212,12 @@ export default function ScatterplotSubscriber(props) {
   useEffect(() => {
     if (xRange && yRange) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
-        window.devicePixelRatio, cValues[qryDataset].embeddingZoom, xRange, yRange, width, height,
+        window.devicePixelRatio, cValues[qryScope].embeddingZoom, xRange, yRange, width, height,
       );
       setDynamicCellRadius(pointSizeDevicePixels);
 
       const nextCellOpacityScale = getPointOpacity(
-        cValues[qryDataset].embeddingZoom, xRange, yRange, width, height, numCells, averageFillDensity,
+        cValues[qryScope].embeddingZoom, xRange, yRange, width, height, numCells, averageFillDensity,
       );
       setDynamicCellOpacity(nextCellOpacityScale);
 
@@ -223,15 +225,15 @@ export default function ScatterplotSubscriber(props) {
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
-        setTargetX(newTargetX);
+        cSetters[qryScope].setEmbeddingTargetX(newTargetX);
         // Graphics rendering has the y-axis going south so we need to multiply by negative one.
-        setTargetY(-newTargetY);
-        setZoom(newZoom);
+        cSetters[qryScope].setEmbeddingTargetY(-newTargetY);
+        cSetters[qryScope].setEmbeddingZoom(newZoom);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells, qryCells, cValues[qryDataset].embeddingType,
-    width, height, cValues[qryDataset].embeddingZoom, averageFillDensity]);
+  }, [xRange, yRange, xExtent, yExtent, numCells, qryCells, cValues[qryScope].embeddingType,
+    width, height, averageFillDensity]);
 
   const getCellInfo = useCallback((cellId) => {
     const cellInfo = qryCells[cellId];
@@ -245,12 +247,12 @@ export default function ScatterplotSubscriber(props) {
   const getCellIsSelected = useCallback(cellEntry => (
     (cellSelectionSet || new Set([])).has(cellEntry[0]) ? 1.0 : 0.0), [cellSelectionSet]);
 
-  const cellRadius = (cValues[qryDataset].embeddingCellRadiusMode === 'manual' ? cValues[qryDataset].embeddingCellRadius : dynamicCellRadius);
-  const cellOpacity = (cValues[qryDataset].embeddingCellOpacityMode === 'manual' ? cValues[qryDataset].embeddingCellOpacity : dynamicCellOpacity);
+  const cellRadius = (cValues[qryScope].embeddingCellRadiusMode === 'manual' ? cValues[qryScope].embeddingCellRadius : dynamicCellRadius);
+  const cellOpacity = (cValues[qryScope].embeddingCellOpacityMode === 'manual' ? cValues[qryScope].embeddingCellOpacity : dynamicCellOpacity);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  //const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
+  const getExpressionValue = useExpressionValueGetter({ attrs: qryAttrs, expressionData: qryExpressionData });
 
   return (
     <TitleInfo
@@ -288,54 +290,54 @@ export default function ScatterplotSubscriber(props) {
       )}
       */
     >
-      <Scatterplot
+      <QRScatterplot
         ref={deckRef}
         uuid={uuid}
         theme={theme}
         viewState={{
-          zoom: cValues[qryDataset].embeddingZoom,
+          zoom: cValues[qryScope].embeddingZoom,
           target: [
-            cValues[qryDataset].embeddingTargetX,
-            cValues[qryDataset].embeddingTargetY,
-            cValues[qryDataset].embeddingTargetZ
+            cValues[qryScope].embeddingTargetX,
+            cValues[qryScope].embeddingTargetY,
+            cValues[qryScope].embeddingTargetZ
           ]
         }}
         setViewState={({ zoom: newZoom, target }) => {
-          cSetters[qryDataset].setEmbeddingZoom(newZoom);
-          cSetters[qryDataset].setEmbeddingTargetX(target[0]);
-          cSetters[qryDataset].setEmbeddingTargetY(target[1]);
-          cSetters[qryDataset].setEmbeddingTargetZ(target[2] || 0);
+          cSetters[qryScope].setEmbeddingZoom(newZoom);
+          cSetters[qryScope].setEmbeddingTargetX(target[0]);
+          cSetters[qryScope].setEmbeddingTargetY(target[1]);
+          cSetters[qryScope].setEmbeddingTargetZ(target[2] || 0);
         }}
         cells={qryCells}
-        mapping={cValues[qryDataset].embeddingType}
-        cellFilter={cValues[qryDataset].cellFilter}
+        mapping={cValues[qryScope].embeddingType}
+        cellFilter={cValues[qryScope].cellFilter}
         cellSelection={qryCellSelection}
-        cellHighlight={cValues[qryDataset].cellHighlight}
+        cellHighlight={cValues[qryScope].cellHighlight}
         cellColors={qryCellColors}
         cellSetPolygons={qryCellSetPolygons}
-        cellSetLabelSize={cValues[qryDataset].embeddingCellSetLabelSize}
-        cellSetLabelsVisible={cValues[qryDataset].embeddingCellSetLabelsVisible}
-        cellSetPolygonsVisible={cValues[qryDataset].embeddingCellSetPolygonsVisible}
-        setCellFilter={cSetters[qryDataset].setCellFilter}
+        cellSetLabelSize={cValues[qryScope].embeddingCellSetLabelSize}
+        cellSetLabelsVisible={cValues[qryScope].embeddingCellSetLabelsVisible}
+        cellSetPolygonsVisible={cValues[qryScope].embeddingCellSetPolygonsVisible}
+        setCellFilter={cSetters[qryScope].setCellFilter}
         setCellSelection={setQryCellSelectionProp}
-        setCellHighlight={cSetters[qryDataset].setCellHighlight}
+        setCellHighlight={cSetters[qryScope].setCellHighlight}
         cellRadius={cellRadius}
         cellOpacity={cellOpacity}
-        cellColorEncoding={cValues[qryDataset].cellColorEncoding}
-        geneExpressionColormap={cValues[qryDataset].geneExpressionColormap}
-        geneExpressionColormapRange={cValues[qryDataset].geneExpressionColormapRange}
+        cellColorEncoding={cValues[qryScope].cellColorEncoding}
+        geneExpressionColormap={cValues[qryScope].geneExpressionColormap}
+        geneExpressionColormapRange={cValues[qryScope].geneExpressionColormapRange}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
-        //getExpressionValue={getExpressionValue}
+        getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
 
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber
         parentUuid={uuid}
-        cellHighlight={cValues[qryDataset].cellHighlight}
+        cellHighlight={cValues[qryScope].cellHighlight}
         width={width}
         height={height}
         getCellInfo={getCellInfo}
