@@ -3,6 +3,7 @@ import {
   justScatter, justScatterExpression, justSpatial, codeluppi2018,
 } from './view-configs/codeluppi';
 import { eng2019 } from './view-configs/eng';
+import { xaiConfig } from './view-configs/xai';
 import { wang2018 } from './view-configs/wang';
 import { spraggins2020, neumann2020 } from './view-configs/spraggins';
 import { satija2020 } from './view-configs/satija';
@@ -50,4 +51,5 @@ export const configs = {
   vanderbilt: notPublic(spraggins2020),
   'dries-2019': notPublic(eng2019),
   ...coordinationTypeConfigs,
+  xai: xaiConfig,
 };

@@ -298,3 +298,15 @@ export function upgradeFrom1_0_5(config) {
     version: '1.0.6',
   };
 }
+
+// Added in version xai:
+// - Support for an array in the dataset coordination scope for "multi-dataset" components.
+// - Support for per-dataset component coordination scopes for each coordination type.
+export function upgradeFrom1_0_6(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: 'xai',
+  };
+}

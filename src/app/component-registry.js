@@ -13,7 +13,7 @@ import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubsc
 import GenomicProfilesSubscriber from '../components/higlass/GenomicProfilesSubscriber';
 import ExpressionHistogramSubscriber from '../components/genes/ExpressionHistogramSubscriber';
 import CellSetExpressionPlotSubscriber from '../components/sets/CellSetExpressionPlotSubscriber';
-
+import { QRScatterplotSubscriber } from '../components/scatterplot';
 
 const registry = {
   [Component.DESCRIPTION]: DescriptionSubscriber,
@@ -21,6 +21,7 @@ const registry = {
   [Component.GENES]: GenesSubscriber,
   [Component.CELL_SETS]: CellSetsManagerSubscriber,
   [Component.SCATTERPLOT]: ScatterplotSubscriber,
+  [Component.QUERY_REFERENCE_SCATTERPLOT]: QRScatterplotSubscriber,
   [Component.SPATIAL]: SpatialSubscriber,
   [Component.HEATMAP]: HeatmapSubscriber,
   [Component.LAYER_CONTROLLER]: LayerControllerSubscriber,

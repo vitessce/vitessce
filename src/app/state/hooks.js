@@ -221,6 +221,64 @@ export function useCoordination(parameters, coordinationScopes) {
   return [values, setters];
 }
 
+
+export function useMultiDatasetCoordination(parameters, coordinationScopes) {
+  const setCoordinationValue = useViewConfigStore(state => state.setCoordinationValue);
+
+  const { dataset: datasetScopes } = coordinationScopes;
+  if (!Array.isArray(datasetScopes)) {
+    console.error('useMultiDatasetCoordination requires an array of dataset coordination scopes.');
+  }
+
+  const values = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    return fromEntries(datasetScopes.map((datasetScope) => {
+      const datasetValues = fromEntries(parameters.map((parameter) => {
+        if (coordinationSpace && coordinationSpace[parameter]) {
+          let value;
+          if (typeof coordinationScopes[parameter] === 'object') {
+            value = coordinationSpace[parameter][coordinationScopes[parameter][datasetScope]];
+          } else if (typeof coordinationScopes[parameter] === 'string') {
+            value = coordinationSpace[parameter][coordinationScopes[parameter]];
+          } else {
+            console.error(`coordination scope for ${parameter} must be of type string or object.`);
+          }
+          return [parameter, value];
+        }
+        return [parameter, undefined];
+      }));
+      return [datasetScope, datasetValues];
+    }));
+  }, shallow);
+
+  const setters = useMemo(() => fromEntries(datasetScopes.map((datasetScope) => {
+    const datasetSetters = fromEntries(parameters.map((parameter) => {
+      const setterName = `set${capitalize(parameter)}`;
+      let setterFunc;
+      if (typeof coordinationScopes[parameter] === 'object') {
+        setterFunc = value => setCoordinationValue({
+          parameter,
+          scope: coordinationScopes[parameter][datasetScope],
+          value,
+        });
+      } else if (typeof coordinationScopes[parameter] === 'string') {
+        setterFunc = value => setCoordinationValue({
+          parameter,
+          scope: coordinationScopes[parameter],
+          value,
+        });
+      } else {
+        console.error(`coordination scope for ${parameter} must be of type string or object.`);
+      }
+      return [setterName, setterFunc];
+    }));
+    return [datasetScope, datasetSetters];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  })), [parameters, coordinationScopes]);
+
+  return [values, setters];
+}
+
 const AUXILIARY_COORDINATION_TYPES_MAP = {
   spatialRasterLayers: ['rasterLayersCallbacks', 'areLoadingRasterChannnels'],
 };

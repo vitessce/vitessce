@@ -4,6 +4,7 @@ export const Component = {
   GENES: 'genes',
   CELL_SETS: 'cellSets',
   SCATTERPLOT: 'scatterplot',
+  QUERY_REFERENCE_SCATTERPLOT: 'queryReferenceScatterplot',
   SPATIAL: 'spatial',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
@@ -12,6 +13,10 @@ export const Component = {
   CELL_SET_EXPRESSION: 'cellSetExpression',
   EXPRESSION_HISTOGRAM: 'expressionHistogram',
 };
+
+export const MULTI_DATASET_COMPONENTS = [
+  Component.QUERY_REFERENCE_SCATTERPLOT,
+];
 
 export const DataType = {
   CELLS: 'cells',
