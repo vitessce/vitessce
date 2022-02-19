@@ -1,6 +1,7 @@
 /* eslint-disable */
 import React, { forwardRef } from 'react';
-import { PolygonLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { PolygonLayer, TextLayer, ScatterplotLayer, PointCloudLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { HeatmapLayer } from '@deck.gl/aggregation-layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
 import { getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, getDefaultColor } from '../utils';
@@ -10,14 +11,16 @@ import {
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import { forceCollideRects } from '../shared-spatial-scatterplot/force-collide-rects';
 import { ScaledExpressionExtension, SelectionExtension } from '../../layer-extensions';
+import { Matrix4 } from "@math.gl/core";
 
-const CELLS_LAYER_ID = 'scatterplot';
+const REF_LAYER_ID = 'ref-scatterplot';
+const QRY_LAYER_ID = 'qry-scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
 const NUM_FORCE_SIMULATION_TICKS = 100;
 const LABEL_UPDATE_ZOOM_DELTA = 0.25;
 
 // Default getter function props.
-const makeDefaultGetCellPosition = mapping => (cellEntry) => {
+const makeDefaultGetCellPosition = (mapping, zVal) => (cellEntry) => {
   const { mappings } = cellEntry[1];
   if (!(mapping in mappings)) {
     const available = Object.keys(mappings).map(s => `"${s}"`).join(', ');
@@ -26,7 +29,7 @@ const makeDefaultGetCellPosition = mapping => (cellEntry) => {
   const mappedCell = mappings[mapping];
   // The negative applied to the y-axis is because
   // graphics rendering has the y-axis positive going south.
-  return [mappedCell[0], -mappedCell[1], 0];
+  return [mappedCell[0]*100, -mappedCell[1]*100, zVal]; // TODO: fix upstream
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
 const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
@@ -73,23 +76,82 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
     // All instance variables used in this class:
     this.cellsEntries = [];
     this.cellsQuadTree = null;
-    this.cellsLayer = null;
+    this.qryCellsLayer = null;
+    this.refCellsLayer = null;
     this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
 
     // Initialize data and layers.
-    this.onUpdateCellsData();
-    this.onUpdateCellsLayer();
+    this.onUpdateRefCellsData();
+    this.onUpdateQryCellsData();
+    this.onUpdateRefCellsLayer();
+    this.onUpdateQryCellsLayer();
     this.onUpdateCellSetsLayers();
   }
 
-  createCellsLayer() {
+  createRefCellsLayer() {
     const { cellsEntries } = this;
     const {
       theme,
       mapping,
-      getCellPosition = makeDefaultGetCellPosition(mapping),
+      getCellPosition = makeDefaultGetCellPosition(mapping, 0),
+      cellRadius = 1.0,
+      cellOpacity = 1.0,
+      cellFilter,
+      cellSelection,
+      setCellHighlight,
+      setComponentHover,
+      getCellIsSelected,
+      cellColors,
+      getCellColor = makeDefaultGetCellColors(cellColors, theme),
+      getExpressionValue,
+      onCellClick,
+      geneExpressionColormap,
+      geneExpressionColormapRange = [0.0, 1.0],
+      cellColorEncoding,
+    } = this.props;
+    const filteredCellsEntries = (cellFilter
+      ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
+      : cellsEntries);
+    return new HeatmapLayer({
+      id: REF_LAYER_ID,
+      radiusScale: cellRadius,
+      radiusMinPixels: 1,
+      radiusMaxPixels: 30,
+      getPolygonOffset: () => ([0, 100]),
+      //modelMatrix: new Matrix4().makeTranslation(0, 0, 1),
+      // Our radius pixel setters measure in pixels.
+      radiusUnits: 'pixels',
+      lineWidthUnits: 'pixels',
+      getPosition: getCellPosition,
+      getFillColor: getCellColor,
+      getLineColor: getCellColor,
+      getPointRadius: 1,
+      getExpressionValue,
+      getLineWidth: 0,
+      colorScaleLo: geneExpressionColormapRange[0],
+      colorScaleHi: geneExpressionColormapRange[1],
+      isExpressionMode: (cellColorEncoding === 'geneSelection'),
+      colormap: geneExpressionColormap,
+      updateTriggers: {
+        getExpressionValue,
+        getFillColor: [cellColorEncoding, cellSelection, cellColors],
+        getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getCellIsSelected,
+      },
+      ...cellLayerDefaultProps(
+        filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
+      ),
+    });
+  }
+
+  createQryCellsLayer() {
+    const { cellsEntries } = this;
+    const {
+      theme,
+      mapping,
+      getCellPosition = makeDefaultGetCellPosition(mapping, 2),
       cellRadius = 1.0,
       cellOpacity = 1.0,
       cellFilter,
@@ -109,13 +171,13 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
       : cellsEntries);
     return new ScatterplotLayer({
-      id: CELLS_LAYER_ID,
-      backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
-      getCellIsSelected,
+      id: QRY_LAYER_ID,
       opacity: cellOpacity,
-      radiusScale: cellRadius,
+      radiusScale: cellRadius/100, // TODO: fix upstream
       radiusMinPixels: 1,
       radiusMaxPixels: 30,
+      // Reference: http://pessimistress.github.io/deck.gl/docs/api-reference/core/layer#getpolygonoffset
+      getPolygonOffset: () => ([0, -10000]), // TODO: determine optimal value
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
@@ -125,10 +187,6 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
       getPointRadius: 1,
       getExpressionValue,
       getLineWidth: 0,
-      extensions: [
-        new ScaledExpressionExtension(),
-        new SelectionExtension({ instanced: true }),
-      ],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
       isExpressionMode: (cellColorEncoding === 'geneSelection'),
@@ -147,7 +205,6 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
       ...cellLayerDefaultProps(
         filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
       ),
-      stroked: 0,
     });
   }
 
@@ -214,7 +271,7 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
     return result;
   }
 
-  createSelectionLayers() {
+  createQrySelectionLayers() {
     const {
       viewState,
       mapping,
@@ -227,7 +284,7 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
     return getSelectionLayers(
       tool,
       viewState.zoom,
-      CELLS_LAYER_ID,
+      QRY_LAYER_ID,
       getCellCoords,
       setCellSelection,
       cellsQuadTree,
@@ -237,29 +294,41 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
 
   getLayers() {
     const {
-      cellsLayer,
+      refCellsLayer,
+      qryCellsLayer,
       cellSetsLayers,
     } = this;
     return [
-      cellsLayer,
-      ...cellSetsLayers,
-      ...this.createSelectionLayers(),
+      qryCellsLayer,
+      refCellsLayer,
+      //...cellSetsLayers,
+      //...this.createQrySelectionLayers(),
+      // TODO: ref selection layers
     ];
   }
 
-  onUpdateCellsData() {
+  onUpdateQryCellsData() {
     const {
       cells = {},
       mapping,
       getCellCoords = makeDefaultGetCellCoords(mapping),
     } = this.props;
     const cellsEntries = Object.entries(cells);
+    // TODO: store in qryCells___ variables
     this.cellsEntries = cellsEntries;
     this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
   }
 
-  onUpdateCellsLayer() {
-    this.cellsLayer = this.createCellsLayer();
+  onUpdateRefCellsData() {
+    // TODO
+  }
+
+  onUpdateQryCellsLayer() {
+    this.qryCellsLayer = this.createQryCellsLayer();
+  }
+
+  onUpdateRefCellsLayer() {
+    this.refCellsLayer = this.createRefCellsLayer();
   }
 
   onUpdateCellSetsLayers(onlyViewStateChange) {
@@ -294,7 +363,7 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
   viewInfoDidUpdate() {
     const {
       mapping,
-      getCellPosition = makeDefaultGetCellPosition(mapping),
+      getCellPosition = makeDefaultGetCellPosition(mapping, 0),
     } = this.props;
     super.viewInfoDidUpdate(cell => getCellPosition([null, cell]));
   }
@@ -314,7 +383,8 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
     if (['cells'].some(shallowDiff)) {
       // Cells data changed.
-      this.onUpdateCellsData();
+      this.onUpdateQryCellsData();
+      this.onUpdateRefCellsData();
       this.forceUpdate();
     }
 
@@ -324,7 +394,8 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {
       // Cells layer props changed.
-      this.onUpdateCellsLayer();
+      this.onUpdateQryCellsLayer();
+      this.onUpdateRefCellsLayer();
       this.forceUpdate();
     }
     if ([

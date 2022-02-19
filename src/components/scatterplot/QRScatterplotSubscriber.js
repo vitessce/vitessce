@@ -78,7 +78,7 @@ export default function QRScatterplotSubscriber(props) {
     COMPONENT_COORDINATION_TYPES.queryReferenceScatterplot,
     coordinationScopes,
   );
-  
+
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
   const [
@@ -197,8 +197,8 @@ export default function QRScatterplotSubscriber(props) {
     if (cellValues?.length) {
       const cellCoordinates = Object.values(qryCells)
         .map(c => c.mappings[cValues[qryScope].embeddingType]);
-      const xE = extent(cellCoordinates, c => c[0]);
-      const yE = extent(cellCoordinates, c => c[1]);
+      const xE = extent(cellCoordinates, c => c[0]*100); // TODO: fix upstream
+      const yE = extent(cellCoordinates, c => c[1]*100); // TODO: fix upstream
       const xR = xE[1] - xE[0];
       const yR = yE[1] - yE[0];
       return [xR, yR, xE, yE, cellValues.length];

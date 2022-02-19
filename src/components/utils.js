@@ -20,7 +20,6 @@ export function cellLayerDefaultProps(cells, updateStatus, setCellHighlight, set
     autoHighlight: true,
     stroked: true,
     filled: true,
-    getElevation: 0,
     onHover: (info) => {
       // Notify the parent component that its child component is
       // the "hover source".
