@@ -18,7 +18,7 @@ import {
   useExpressionAttrs,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
-import QRScatterplot from './QRScatterplot';
+import QRComparisonScatterplot from './QRComparisonScatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import ScatterplotOptions from './ScatterplotOptions';
 import {
@@ -33,6 +33,7 @@ import {
   getPointOpacity,
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { Component } from '../../app/constants';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
@@ -50,7 +51,7 @@ const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
  * @param {number} props.averageFillDensity Override the average fill density calculation
  * when using dynamic opacity mode.
  */
-export default function QRScatterplotSubscriber(props) {
+export default function QRComparisonScatterplotSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
@@ -75,7 +76,7 @@ export default function QRScatterplotSubscriber(props) {
   const qryDataset = datasetUids[qryScope];
   // Get "props" from the coordination space.
   const [cValues, cSetters] = useMultiDatasetCoordination(
-    COMPONENT_COORDINATION_TYPES.queryReferenceScatterplot,
+    COMPONENT_COORDINATION_TYPES[Component.QR_COMPARISON_SCATTERPLOT],
     coordinationScopes,
   );
   const [qryValues, qrySetters] = [cValues[qryScope], cSetters[qryScope]];
@@ -293,7 +294,7 @@ export default function QRScatterplotSubscriber(props) {
         />
       )}
     >
-      <QRScatterplot
+      <QRComparisonScatterplot
         ref={deckRef}
         uuid={uuid}
         theme={theme}

@@ -66,7 +66,7 @@ const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
  * (lasso/pan/rectangle selection tools).
  * @param {function} props.onCellClick Getter function for cell layer onClick.
  */
-class QRScatterplot extends AbstractSpatialOrScatterplot {
+class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
   constructor(props) {
     super(props);
 
@@ -432,10 +432,10 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
  * access the grandchild DeckGL ref,
  * but we are using a class component.
  */
-const QRScatterplotWrapper = forwardRef((props, deckRef) => (
-  <QRScatterplot
+const QRComparisonScatterplotWrapper = forwardRef((props, deckRef) => (
+  <QRComparisonScatterplot
     {...props}
     deckRef={deckRef}
   />
 ));
-export default QRScatterplotWrapper;
+export default QRComparisonScatterplotWrapper;

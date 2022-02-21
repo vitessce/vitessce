@@ -99,7 +99,7 @@ export const xaiConfig = {
         h: 7,
       },
       {
-        component: 'queryReferenceScatterplot',
+        component: 'qrComparisonScatterplot',
         coordinationScopes: {
           dataset: ['REFERENCE', 'QUERY'],
           embeddingType: { REFERENCE: 'TSNE', QUERY:'UMAP' },
@@ -117,7 +117,7 @@ export const xaiConfig = {
         h: 12,
       },
       {
-        component: 'scatterplot',
+        component: 'qrSupportingScatterplot',
         props: {
           title: 'Supporting View',
         },
@@ -138,7 +138,7 @@ export const xaiConfig = {
         h: 5,
       },
       {
-        component: 'scatterplot',
+        component: 'qrSupportingScatterplot',
         props: {
           title: 'Supporting View',
         },

@@ -4,7 +4,6 @@ export const Component = {
   GENES: 'genes',
   CELL_SETS: 'cellSets',
   SCATTERPLOT: 'scatterplot',
-  QUERY_REFERENCE_SCATTERPLOT: 'queryReferenceScatterplot',
   SPATIAL: 'spatial',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
@@ -12,6 +11,10 @@ export const Component = {
   GENOMIC_PROFILES: 'genomicProfiles',
   CELL_SET_EXPRESSION: 'cellSetExpression',
   EXPRESSION_HISTOGRAM: 'expressionHistogram',
+  QR_COMPARISON_SCATTERPLOT: 'qrComparisonScatterplot',
+  QR_SUPPORTING_SCATTERPLOT: 'qrSupportingScatterplot',
+  QR_GENE_EXPRESSION: 'qrGeneExpression',
+  QR_CELL_SETS: 'qrCellSets',
 };
 
 export const MULTI_DATASET_COMPONENTS = [
