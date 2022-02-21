@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Ajv from 'ajv';
 import AbstractTwoStepLoader from './AbstractTwoStepLoader';
 import { LoaderValidationError, AbstractLoaderError } from './errors/index';
@@ -39,6 +40,13 @@ export default class JsonLoader extends AbstractTwoStepLoader {
         }
         const [valid, reason] = this.validate(data);
         if (valid) {
+          if (type === 'cells') {
+            Object.keys(data).forEach(cellId => {
+              Object.keys(data[cellId].mappings).forEach(mapping => {
+                data[cellId].mappings[mapping] = [data[cellId].mappings[mapping][0]*100, data[cellId].mappings[mapping][1]*100]
+              })
+            });
+          }
           return Promise.resolve(new LoaderResult(data, url));
         }
         return Promise.reject(new LoaderValidationError(type, fileType, url, reason));

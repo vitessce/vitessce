@@ -29,7 +29,7 @@ const makeDefaultGetCellPosition = (mapping, zVal) => (cellEntry) => {
   const mappedCell = mappings[mapping];
   // The negative applied to the y-axis is because
   // graphics rendering has the y-axis positive going south.
-  return [mappedCell[0]*100, -mappedCell[1]*100, zVal]; // TODO: fix upstream
+  return [mappedCell[0], -mappedCell[1], zVal]; // TODO: fix upstream
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
 const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
@@ -116,9 +116,18 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
       : cellsEntries);
     return new HeatmapLayer({
       id: REF_LAYER_ID,
+      radiusPixels: 40,
       radiusScale: cellRadius,
       radiusMinPixels: 1,
       radiusMaxPixels: 30,
+      colorRange: [
+        [247,247,247],
+        [217,217,217],
+        [189,189,189],
+        [150,150,150],
+        [99,99,99],
+        [37,37,37]
+      ],
       getPolygonOffset: () => ([0, 100]),
       //modelMatrix: new Matrix4().makeTranslation(0, 0, 1),
       // Our radius pixel setters measure in pixels.
@@ -173,11 +182,11 @@ class QRScatterplot extends AbstractSpatialOrScatterplot {
     return new ScatterplotLayer({
       id: QRY_LAYER_ID,
       opacity: cellOpacity,
-      radiusScale: cellRadius/100, // TODO: fix upstream
+      radiusScale: cellRadius, // TODO: fix upstream
       radiusMinPixels: 1,
       radiusMaxPixels: 30,
       // Reference: http://pessimistress.github.io/deck.gl/docs/api-reference/core/layer#getpolygonoffset
-      getPolygonOffset: () => ([0, -10000]), // TODO: determine optimal value
+      getPolygonOffset: () => ([0, -100]), // TODO: determine optimal value
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
