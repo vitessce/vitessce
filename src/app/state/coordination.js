@@ -173,6 +173,15 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_CELL_SETS,
     CoordinationType.GENE_SELECTION,
   ],
+  [Component.QUERY_REFERENCE_CELL_SETS]: [
+    CoordinationType.DATASET,
+    CoordinationType.CELL_SET_SELECTION,
+    CoordinationType.CELL_SET_HIGHLIGHT,
+    CoordinationType.CELL_SET_COLOR,
+    CoordinationType.CELL_COLOR_ENCODING,
+    CoordinationType.ADDITIONAL_CELL_SETS,
+    CoordinationType.GENE_SELECTION,
+  ],
   [Component.CELL_SET_SIZES]: [
     CoordinationType.DATASET,
     CoordinationType.CELL_SET_SELECTION,

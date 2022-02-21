@@ -72,7 +72,7 @@ export const eng2019 = {
       h: 2,
     },
     {
-      component: 'cellSets',
+      component: 'queryReferenceCellSets',
       x: 9,
       y: 4,
       w: 3,

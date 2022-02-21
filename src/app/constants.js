@@ -11,6 +11,7 @@ export const Component = {
   GENOMIC_PROFILES: 'genomicProfiles',
   CELL_SET_EXPRESSION: 'cellSetExpression',
   EXPRESSION_HISTOGRAM: 'expressionHistogram',
+  QUERY_REFERENCE_CELL_SETS: 'queryReferenceCellSets',
 };
 
 export const DataType = {
