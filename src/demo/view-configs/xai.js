@@ -78,13 +78,6 @@ export const xaiConfig = {
     },
     layout: [
       {
-        component: 'genes',
-        x: 9,
-        y: 0,
-        w: 3,
-        h: 10,
-      },
-      {
         component: 'status',
         x: 9,
         y: 10,
@@ -92,7 +85,14 @@ export const xaiConfig = {
         h: 2,
       },
       {
-        component: 'cellSets',
+        component: 'qrGeneExpression',
+        x: 9,
+        y: 0,
+        w: 3,
+        h: 10,
+      },
+      {
+        component: 'qrCellSets',
         x: 5,
         y: 0,
         w: 4,
