@@ -19,6 +19,7 @@ import {
 } from './view-configs/coordination-types/index';
 import { petukhov2021 } from './view-configs/petukhov';
 import { borm2022 } from './view-configs/borm';
+import { merfish2022 } from './view-configs/merfish';
 
 
 export const coordinationTypeConfigs = {
@@ -49,6 +50,7 @@ export const configs = {
   'ome-ngff-v0.1': omeNgffLegacy,
   'petukhov-2021': petukhov2021,
   'borm-2022': borm2022,
+  'merfish-2022': merfish2022,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': notPublic(codeluppi2018),
   vanderbilt: notPublic(spraggins2020),
