@@ -3,6 +3,7 @@
 
 ### Changed
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details. 
+- Fixed layer controller raster channel slider bug, related to [MUI slider issue](https://github.com/mui/material-ui/issues/20896).
 
 
 ## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
