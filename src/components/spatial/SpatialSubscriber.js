@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useMemo, useCallback } from 'react';
 import TitleInfo from '../TitleInfo';
 import { capitalize } from '../../utils';
@@ -149,11 +150,14 @@ export default function SpatialSubscriber(props) {
     { setSpatialCellsLayer: setCellsLayer },
     { spatialCellsLayer: cellsLayer },
   );
-  const [molecules, moleculesCount] = useMoleculesData(
+  const [molecules, moleculesCount, moleculesByFOV] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialMoleculesLayer: setMoleculesLayer },
     { spatialMoleculesLayer: moleculesLayer },
   );
+  
+  const moleculesByFOVLoader = moleculesByFOV ? loaders[dataset].loaders.molecules : null;
+
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialNeighborhoodsLayer: setNeighborhoodsLayer },
@@ -366,6 +370,8 @@ export default function SpatialSubscriber(props) {
         cellHighlight={cellHighlight}
         cellColors={cellColors}
         molecules={molecules}
+        moleculesByFOV={moleculesByFOV}
+        moleculesByFOVLoader={moleculesByFOVLoader}
         moleculeSelectionGeneIndices={moleculeSelectionGeneIndices}
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}

@@ -31,7 +31,8 @@ module.exports = {
       label: 'Data Preparation',
       items: [
         'data-file-types',
-        'data-hosting'
+        'data-hosting',
+        'data-troubleshooting'
       ],
     },
     {
