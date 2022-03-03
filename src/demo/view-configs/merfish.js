@@ -10,22 +10,30 @@ export const merfish2022 = {
       name: 'MERFISH mouse ileum',
       description: 'Imaging-based spatial transcriptomics',
       files: [
-        /*{
+        {
           type: 'molecules',
-          fileType: 'merfish-molecules.tdb',
-          url: 'http://localhost:8000/adata.tdb',
-          options: { },
-        },*/
+          fileType: 'anndata-molecules-by-fov.zarr',
+          url: 'http://localhost:8000/data/processed/barcodes.zarr',
+        },
         {
           type: 'raster',
           fileType: 'raster.ome-zarr',
-          url: 'http://localhost:8000/fov.zarr',
+          url: 'http://localhost:8000/data/processed/fov.zarr',
         },
       ],
     },
   ],
   initStrategy: 'auto',
   coordinationSpace: {
+    spatialTargetX: {
+      A: -9000.0
+    },
+    spatialTargetY: {
+      A: -1100.0,
+    },
+    spatialZoom: {
+      A: 1.0,
+    },
     spatialRasterLayers: {
       A: [
         {
@@ -142,6 +150,9 @@ export const merfish2022 = {
     {
       component: 'spatial',
       coordinationScopes: {
+        spatialZoom: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
         //spatialRasterLayers: 'A',
         //spatialMoleculesLayer: 'A',
       },

@@ -1,8 +1,10 @@
+/* eslint-disable */
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { PolygonLayer, PointCloudLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-line import/no-extraneous-dependencies
+import { TileLayer } from '@deck.gl/geo-layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { Matrix4 } from 'math.gl';
 import {
   ScaleBarLayer,
@@ -201,6 +203,80 @@ class Spatial extends AbstractSpatialOrScatterplot {
         setComponentHover,
         flipYTooltip,
       ),
+    });
+  }
+
+  createMoleculesLayer2dByFOV(layerDef) {
+    const {
+      setMoleculeHighlight,
+      getMoleculeColor = makeDefaultGetMoleculeColors(),
+      getMoleculePosition = d => [d[1].spatial[0], d[1].spatial[1]],
+      moleculeSelectionGeneIndices,
+      moleculesByFOVLoader,
+    } = this.props;
+
+    // References:
+    // - https://github.com/hms-dbmi/viv/blob/master/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L142
+    // - https://deck.gl/docs/api-reference/geo-layers/tile-layer
+    return new TileLayer({
+      id: MOLECULES_LAYER_ID,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      tileSize: 256,
+      maxZoom: 0,
+      getTileData: moleculesByFOVLoader?.getTileData,
+
+      renderSubLayers: props => {
+        console.log(props);
+        const {
+          bbox: { left, bottom, right, top},
+          x, y, z,
+        } = props.tile;
+        const { data, id, loader, maxZoom } = props;
+
+        const bounds = [left, bottom, right, top];
+
+        return new ScatterplotLayer(props, {
+          id: `${MOLECULES_LAYER_ID}-sub-layer-${bounds}-${id}`,
+          data: data,
+          bounds: bounds,
+          tileId: { x, y, z },
+
+          pickable: true,
+          autoHighlight: true,
+          radiusMaxPixels: 3,
+          stroked: false,
+          opacity: layerDef.opacity,
+          visible: layerDef.visible,
+          getRadius: layerDef.radius,
+          getPosition: getMoleculePosition,
+          getFillColor: getMoleculeColor,
+          /*
+          getFilterValue: moleculeEntry => (
+            // eslint-disable-next-line no-nested-ternary
+            moleculeSelectionGeneIndices
+              ? (moleculeSelectionGeneIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
+              : 1 // If nothing is selected, everything is selected.
+          ),
+          extensions: [new DataFilterExtension({ filterSize: 1 })],
+          filterRange: [1, 1],
+          onHover: (info) => {
+            if (setMoleculeHighlight) {
+              if (info.object) {
+                setMoleculeHighlight(info.object[3]);
+              } else {
+                setMoleculeHighlight(null);
+              }
+            }
+          },
+          updateTriggers: {
+            getFilterValue: [moleculeSelectionGeneIndices],
+          },
+          */
+        });
+      },
+      updateTriggers: {
+        getTileData: [moleculesByFOVLoader],
+      },
     });
   }
 
@@ -588,11 +664,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateMoleculesLayer() {
-    const { layers } = this.props;
+    const { layers, moleculesByFOV, moleculesByFOVLoader } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'molecules');
     if (layerDef) {
       if (layerDef.use3d) {
         this.moleculesLayer = this.createMoleculesLayer3d(layerDef);
+      } else if (moleculesByFOV) {
+        this.moleculesLayer = this.createMoleculesLayer2dByFOV(layerDef);
       } else {
         this.moleculesLayer = this.createMoleculesLayer2d(layerDef);
       }
@@ -682,7 +760,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'molecules', 'moleculeSelectionGeneIndices'].some(shallowDiff)) {
+    if (['layers', 'molecules', 'moleculeSelectionGeneIndices', 'moleculesByFOV', 'moleculesByFOVLoader'].some(shallowDiff)) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
       this.forceUpdate();

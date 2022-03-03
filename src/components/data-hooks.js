@@ -1,5 +1,7 @@
+/* eslint-disable */
 import { useState, useEffect } from 'react';
 import equal from 'fast-deep-equal';
+import sum from 'lodash/sum';
 import { capitalize } from '../utils';
 import { useSetWarning } from '../app/state/hooks';
 import {
@@ -12,6 +14,7 @@ import {
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
 import { DEFAULT_COORDINATION_VALUES } from '../app/state/coordination';
+import MoleculesByFOVZarrLoader from '../loaders/anndata-loaders/MoleculesByFOVZarrLoader';
 
 /**
  * Warn via publishing to the console
@@ -465,6 +468,7 @@ export function useMoleculesData(
 ) {
   const [molecules, setMolecules] = useState();
   const [moleculesCount, setMoleculesCount] = useState(0);
+  const [byFOV, setByFOV] = useState(false);
 
   const setWarning = useSetWarning();
 
@@ -477,8 +481,14 @@ export function useMoleculesData(
       loaders[dataset].loaders.molecules.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
-        setMolecules(data);
-        setMoleculesCount(Object.keys(data).length);
+        if (loaders[dataset].loaders.molecules instanceof MoleculesByFOVZarrLoader) {
+          const { barcodeIndices, barcodeCounts } = data;
+          setMoleculesCount(sum(barcodeCounts.data.map(sum)));
+          setByFOV(true);
+        } else {
+          setMolecules(data);
+          setMoleculesCount(Object.keys(data).length);
+        }
         addUrl(url, 'Molecules');
         const coordinationValuesOrDefault = {
           spatialMoleculesLayer: DEFAULT_MOLECULES_LAYER,
@@ -503,7 +513,7 @@ export function useMoleculesData(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
-  return [molecules, moleculesCount];
+  return [molecules, moleculesCount, byFOV];
 }
 
 /**

@@ -26,6 +26,9 @@ export const fileTypeToLoaderAndSource = {
   [FileType.ANNDATA_CELLS_ZARR]: [AnnDataSource, AnnDataLoaders.CellsZarrLoader],
   [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],
   [FileType.ANNDATA_MOLECULES_ZARR]: [AnnDataSource, AnnDataLoaders.MoleculesZarrLoader],
+  [FileType.ANNDATA_MOLECULES_BY_FOV_ZARR]: [
+    AnnDataSource, AnnDataLoaders.MoleculesByFOVZarrLoader,
+  ],
   [FileType.GENOMIC_PROFILES_ZARR]: [ZarrDataSource, GenomicProfilesZarrLoader],
   [FileType.CELLS_GEOJSON]: [JsonSource, CellsGeoJsonLoader],
 };

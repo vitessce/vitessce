@@ -119,6 +119,21 @@ export default class AnnDataSource extends ZarrDataSource {
   }
 
   /**
+   * Class method for loading general numeric arrays.
+   * @param {string} path A string like obsm.X_pca.
+   * @param {array} sliceParam The slicing parameter for ZarrArray.get()
+   * @returns {Promise} A promise for a zarr array containing the data.
+   */
+  loadNumericSlice(path, sliceParam) {
+    const { store } = this;
+    return openArray({
+      store,
+      path,
+      mode: 'r',
+    }).then(arr => arr.get(sliceParam));
+  }
+
+  /**
    * A common method for loading flattened data
    * i.e that which has shape [n] where n is a natural number.
    * @param {string} path A path to a flat array location, like obs/_index

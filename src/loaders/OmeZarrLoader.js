@@ -1,9 +1,11 @@
+/* eslint-disable */
 import { loadOmeZarr } from '@hms-dbmi/viv';
 import { AbstractLoaderError } from './errors';
 import LoaderResult from './LoaderResult';
 
 import { initializeRasterLayersAndChannels } from '../components/spatial/utils';
 import AbstractTwoStepLoader from './AbstractTwoStepLoader';
+import { Matrix4 } from 'math.gl';
 
 function hexToRgb(hex) {
   const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
@@ -24,7 +26,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     const loader = await loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
     const { metadata, data } = loader;
 
-    const { omero } = metadata;
+    const { omero, fov } = metadata;
 
     if (!omero) {
       console.error('Path for image not valid');
@@ -51,7 +53,23 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       }
       return sel;
     };
+    
+    const layerMeta = {};
 
+    if(fov) {
+      // Custom transformation for MERFISH images.
+      // metadata.fov is not part of the OME-NGFF standard.
+      layerMeta.metadata = {
+        transform: {
+          matrix: (
+            new Matrix4()
+              .translate([fov.x_start, fov.y_start, 0])
+              .scale([(fov.x_end - fov.x_start) / 2048, (fov.y_end - fov.y_start) / 2048, 1])
+          ).toArray(),
+        },
+      };
+    }
+    
     const imagesWithLoaderCreators = [
       {
         name: omero.name || 'Image',
@@ -61,6 +79,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
           color: hexToRgb(channel.color),
         })),
         loaderCreator: async () => ({ ...loader, channels: channels.map(c => c.label) }),
+        ...layerMeta,
       },
     ];
 
