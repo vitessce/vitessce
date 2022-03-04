@@ -285,12 +285,12 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
   createQrySelectionLayers() {
     const {
       viewState,
-      mapping,
+      qryMapping: mapping,
       getCellCoords = makeDefaultGetCellCoords(mapping),
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
-    const { cellsQuadTree } = this;
+    const { qryCellsQuadTree: cellsQuadTree } = this;
     const flipYTooltip = true;
     return getSelectionLayers(
       tool,
@@ -313,7 +313,7 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
       qryCellsLayer,
       refCellsLayer,
       //...cellSetsLayers,
-      //...this.createQrySelectionLayers(),
+      ...this.createQrySelectionLayers(),
       // TODO: ref selection layers
     ];
   }

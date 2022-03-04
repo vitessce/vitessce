@@ -3,7 +3,8 @@ import React from 'react';
 import version from '../version.json';
 
 function DatasetList(props) {
-  const { configs, theme } = props;
+  const { configs } = props;
+  const theme = 'light';
   const aClassName = 'list-group-item list-group-item-action flex-column align-items-start bg-secondary';
   const links = configs.map(
     ({ id, name, description }) => (

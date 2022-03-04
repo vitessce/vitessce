@@ -31,7 +31,7 @@ export default function QRGeneExpressionSubscriber(props) {
     variablesLabelOverride: variablesLabel = 'gene',
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
-    title = 'Expression Levels',
+    title = 'Gene Expression',
   } = props;
 
   const loaders = useLoaders();

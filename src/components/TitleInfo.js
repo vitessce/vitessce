@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
@@ -139,14 +140,14 @@ export default function TitleInfo(props) {
               options={options}
             />
           ) }
-          {urls && urls.length > 0 && (
+          {/*urls && urls.length > 0 && (
             <DownloadOptions
               urls={urls}
             />
-          )}
-          <ClosePaneButton
+          )*/}
+          {/*<ClosePaneButton
             removeGridComponent={removeGridComponent}
-          />
+          />*/}
         </div>
       </div>
       <div className={childClassName}>

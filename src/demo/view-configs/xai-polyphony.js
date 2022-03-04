@@ -6,7 +6,7 @@ const zarrPath = 'http://localhost:7777/files/zarr';
 export const polyphonyConfig = {
     name: 'Polyphony',
     version: 'xai',
-    description: '',
+    description: 'Fine-tune the Polyphony model by selecting or rejecting anchor cell sets.',
     public: true,
     datasets: [{
             uid: 'ref',
