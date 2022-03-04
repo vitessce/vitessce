@@ -14,6 +14,7 @@
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details.
 - Upgrade Viv to 0.12.6 to fix shader compilation issue with interleaved RGB images
 - Fixed layer controller raster channel slider bug, related to [MUI slider issue](https://github.com/mui/material-ui/issues/20896).
+- Changed the `molecules.json` loader class to reflect the new internal data structure for molecules.
 
 ## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
 
@@ -21,11 +22,6 @@
 - Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
 - Added a new documentation site.
 - Added the `./create-release.sh` Bash script to automate some steps of the release process.
-- Added coordination types for selection of molecules.
-- Added `cells.geojson` loader to support the Baysor cell segmentation polygon format.
-- Added `anndata-molecules.zarr` loader to support the Baysor molecules format.
-- Added support for multiple gene selection via `shift+click`.
-- Added a `use3d` option for `spatialMoleculesLayer` to enable a point-cloud rendering of 3D molecules data.
 
 ### Changed
 - Fix selection issue for bitmasks in external applications.
@@ -78,11 +74,6 @@
 - Fix bug introduced by #1037 that broke channel removal/addition.
 - Fix setting default schema values for properties that are not in the current deck.gl view state (for example, the z direction for `target`).
 - Moved creation of `useViewConfigStore` and `useAuxiliaryStore` to the `ViewConfigProvider` and `AuxiliaryProvider` contexts (rather than creating global stores).
-
-### Changed
-- Fix channel settings consistency issue while channels are loading for 3D/large imaging datasets.
-- deck.gl should be pinned to minor version
-- Changed the `molecules.json` loader class to reflect the new internal data structure for molecules.
 
 ## [1.1.14](https://www.npmjs.com/package/vitessce/v/1.1.14) - 2021-09-01
 
