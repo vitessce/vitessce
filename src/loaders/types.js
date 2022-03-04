@@ -7,7 +7,7 @@ import ClustersJsonAsMatrixZarrLoader from './ClustersJsonAsMatrixZarrLoader';
 import RasterJsonLoader from './RasterJsonLoader';
 import OmeZarrLoader from './OmeZarrLoader';
 import CellSetsJsonLoader from './CellSetsJsonLoader';
-import AnnDataLoaders from './anndata-loaders';
+import AnnDataZarrLoaders from './anndata-zarr-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
 
@@ -21,9 +21,9 @@ export const fileTypeToLoaderAndSource = {
   [FileType.RASTER_JSON]: [JsonSource, RasterJsonLoader],
   [FileType.RASTER_OME_ZARR]: [ZarrDataSource, OmeZarrLoader],
   [FileType.CELL_SETS_JSON]: [JsonSource, CellSetsJsonLoader],
-  [FileType.ANNDATA_CELL_SETS_ZARR]: [AnnDataSource, AnnDataLoaders.CellSetsZarrLoader],
-  [FileType.ANNDATA_CELLS_ZARR]: [AnnDataSource, AnnDataLoaders.CellsZarrLoader],
-  [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],
+  [FileType.ANNDATA_CELL_SETS_ZARR]: [AnnDataSource, AnnDataZarrLoaders.CellSetsZarrLoader],
+  [FileType.ANNDATA_CELLS_ZARR]: [AnnDataSource, AnnDataZarrLoaders.CellsZarrLoader],
+  [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: [AnnDataSource, AnnDataZarrLoaders.MatrixZarrLoader],
   [FileType.GENOMIC_PROFILES_ZARR]: [ZarrDataSource, GenomicProfilesZarrLoader],
 };
 

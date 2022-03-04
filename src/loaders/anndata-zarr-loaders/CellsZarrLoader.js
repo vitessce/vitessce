@@ -1,6 +1,8 @@
 import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 
+const EMBEDDING_SCALE_FACTOR = 5000;
+
 /**
  * Loader for converting zarr into the cell json schema.
  */
@@ -93,7 +95,7 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
               }
               const { dims } = this.options.mappings[coordinationName];
               cells[name].mappings[coordinationName] = dims.map(
-                dim => arr.data[i][dim],
+                dim => arr.data[i][dim] * EMBEDDING_SCALE_FACTOR,
               );
             });
           }

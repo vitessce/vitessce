@@ -53,5 +53,5 @@ export const configs = {
   'dries-2019': notPublic(eng2019),
   ...coordinationTypeConfigs,
   xai: xaiConfig,
-  polyphony: polyphonyConfig,
+  'xai-polyphony': polyphonyConfig,
 };
