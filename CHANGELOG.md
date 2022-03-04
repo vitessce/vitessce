@@ -3,7 +3,7 @@
 
 ### Changed
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details. 
-
+- Upgrade Viv to 0.12.6 to fix shader compilation issue with interleaved RGB images
 
 ## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
 
