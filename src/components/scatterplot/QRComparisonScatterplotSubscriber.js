@@ -107,6 +107,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const [qryCells, qryCellsCount] = useCellsData(loaders, qryDataset, setItemIsReady, addUrl, true);
   const [refCells, refCellsCount] = useCellsData(loaders, refDataset, setItemIsReady, addUrl, true);
 
+
   //console.log(qryCells);
 
   const [qryCellSets] = useCellSetsData(
@@ -135,7 +136,14 @@ export default function QRComparisonScatterplotSubscriber(props) {
     loaders, qryDataset, setItemIsReady, addUrl, false,
   );
   
-
+  const [refExpressionData] = useGeneSelection(
+    loaders, refDataset, setItemIsReady, false, refValues.geneSelection, setItemIsNotReady,
+  );
+  const [refAttrs] = useExpressionAttrs(
+    loaders, refDataset, setItemIsReady, addUrl, false,
+  );
+  
+  
   const [dynamicCellRadius, setDynamicCellRadius] = useState(qryValues.embeddingCellRadius);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(qryValues.embeddingCellOpacity);
 
@@ -157,6 +165,15 @@ export default function QRComparisonScatterplotSubscriber(props) {
   }, [qryValues.additionalCellSets, qryValues.cellSetColor, qrySetters.setCellColorEncoding,
   qrySetters.setAdditionalCellSets, qrySetters.setCellSetColor, qrySetters.setCellSetSelection]);
 
+  const setRefCellSelectionProp = useCallback((v) => {
+    setCellSelection(
+      v, refValues.additionalCellSets, refValues.cellSetColor,
+      refSetters.setCellSetSelection, refSetters.setAdditionalCellSets, refSetters.setCellSetColor,
+      refSetters.setCellColorEncoding,
+    );
+  }, [refValues.additionalCellSets, refValues.cellSetColor, refSetters.setCellColorEncoding,
+  refSetters.setAdditionalCellSets, refSetters.setCellSetColor, refSetters.setCellSetSelection]);
+
   const qryCellColors = useMemo(() => getCellColors({
     cellColorEncoding: qryValues.cellColorEncoding,
     expressionData: qryExpressionData && qryExpressionData[0],
@@ -168,6 +185,9 @@ export default function QRComparisonScatterplotSubscriber(props) {
     theme,
   }), [qryValues.cellColorEncoding, qryValues.geneSelection, mergedQryCellSets, theme,
   qryValues.cellSetSelection, qryValues.cellSetColor, qryExpressionData, qryAttrs]);
+
+  // TODO: do we need to visualize colors for the reference cells?
+  // TODO: do we need to visualize polygons for the reference cell sets?
   
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -198,6 +218,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
 
   const qryCellSelection = useMemo(() => Array.from(qryCellColors.keys()), [qryCellColors]);
 
+  // TODO: do the reference dataset embedding coordinates have the same ranges as in the query dataset?
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     const cellValues = qryCells && Object.values(qryCells);
     if (cellValues?.length) {
@@ -241,7 +262,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
   }, [xRange, yRange, xExtent, yExtent, numCells, qryCells, qryValues.embeddingType,
     width, height, averageFillDensity]);
 
-  const getCellInfo = useCallback((cellId) => {
+  const getQryCellInfo = useCallback((cellId) => {
     const cellInfo = qryCells[cellId];
     return {
       [`${capitalize(observationsLabel)} ID`]: cellId,
@@ -258,7 +279,9 @@ export default function QRComparisonScatterplotSubscriber(props) {
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useExpressionValueGetter({ attrs: qryAttrs, expressionData: qryExpressionData });
+  const getQryExpressionValue = useExpressionValueGetter({ attrs: qryAttrs, expressionData: qryExpressionData });
+
+  // TODO: do we need to get expression values for the reference dataset?
 
   return (
     <TitleInfo
@@ -312,8 +335,10 @@ export default function QRComparisonScatterplotSubscriber(props) {
           qrySetters.setEmbeddingTargetY(target[1]);
           qrySetters.setEmbeddingTargetZ(target[2] || 0);
         }}
-        cells={qryCells}
-        mapping={qryValues.embeddingType}
+        qryCells={qryCells}
+        refCells={refCells}
+        qryMapping={qryValues.embeddingType}
+        refMapping={refValues.embeddingType}
         cellFilter={qryValues.cellFilter}
         cellSelection={qryCellSelection}
         cellHighlight={qryValues.cellHighlight}
@@ -334,7 +359,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
-        getExpressionValue={getExpressionValue}
+        getExpressionValue={getQryExpressionValue}
         getCellIsSelected={getCellIsSelected}
 
       />
@@ -344,7 +369,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
         cellHighlight={qryValues.cellHighlight}
         width={width}
         height={height}
-        getCellInfo={getCellInfo}
+        getCellInfo={getQryCellInfo}
       />
       )}
     </TitleInfo>

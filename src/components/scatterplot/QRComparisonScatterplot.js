@@ -74,8 +74,10 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
     // in React state, this component
     // uses instance variables.
     // All instance variables used in this class:
-    this.cellsEntries = [];
-    this.cellsQuadTree = null;
+    this.qryCellsEntries = [];
+    this.qryCellsQuadTree = null;
+    this.refCellsEntries = [];
+    this.refCellsQuadTree = null;
     this.qryCellsLayer = null;
     this.refCellsLayer = null;
     this.cellSetsForceSimulation = forceCollideRects();
@@ -91,10 +93,10 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createRefCellsLayer() {
-    const { cellsEntries } = this;
+    const { refCellsEntries: cellsEntries } = this;
     const {
       theme,
-      mapping,
+      refMapping: mapping,
       getCellPosition = makeDefaultGetCellPosition(mapping, 0),
       cellRadius = 1.0,
       cellOpacity = 1.0,
@@ -156,10 +158,10 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createQryCellsLayer() {
-    const { cellsEntries } = this;
+    const { qryCellsEntries: cellsEntries } = this;
     const {
       theme,
-      mapping,
+      qryMapping: mapping,
       getCellPosition = makeDefaultGetCellPosition(mapping, 2),
       cellRadius = 1.0,
       cellOpacity = 1.0,
@@ -318,18 +320,24 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
 
   onUpdateQryCellsData() {
     const {
-      cells = {},
-      mapping,
+      qryCells: cells = {},
+      qryMapping: mapping,
       getCellCoords = makeDefaultGetCellCoords(mapping),
     } = this.props;
     const cellsEntries = Object.entries(cells);
-    // TODO: store in qryCells___ variables
-    this.cellsEntries = cellsEntries;
-    this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
+    this.qryCellsEntries = cellsEntries;
+    this.qryCellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
   }
 
   onUpdateRefCellsData() {
-    // TODO
+    const {
+      refCells: cells = {},
+      refMapping: mapping,
+      getCellCoords = makeDefaultGetCellCoords(mapping),
+    } = this.props;
+    const cellsEntries = Object.entries(cells);
+    this.refCellsEntries = cellsEntries;
+    this.refCellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
   }
 
   onUpdateQryCellsLayer() {
@@ -371,10 +379,30 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
 
   viewInfoDidUpdate() {
     const {
-      mapping,
+      qryCells: cells,
+      qryMapping: mapping,
       getCellPosition = makeDefaultGetCellPosition(mapping, 0),
+      updateViewInfo,
+      uuid,
     } = this.props;
-    super.viewInfoDidUpdate(cell => getCellPosition([null, cell]));
+    const { viewport } = this;
+
+    const getCellCoords = cell => getCellPosition([null, cell]);
+    
+    if (updateViewInfo && viewport) {
+      updateViewInfo({
+        uuid,
+        project: (cellId) => {
+          const cell = cells[cellId];
+          try {
+            const [positionX, positionY] = getCellCoords(cell);
+            return viewport.project([positionX, positionY]);
+          } catch (e) {
+            return [null, null];
+          }
+        },
+      });
+    }
   }
 
   /**
@@ -390,15 +418,19 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
-    if (['cells'].some(shallowDiff)) {
+    if (['qryCells'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateQryCellsData();
+      this.forceUpdate();
+    }
+    if (['refCells'].some(shallowDiff)) {
+      // Cells data changed.
       this.onUpdateRefCellsData();
       this.forceUpdate();
     }
 
     if ([
-      'cells', 'cellFilter', 'cellSelection', 'cellColors',
+      'refCells', 'qryCells', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {
