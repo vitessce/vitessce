@@ -53,7 +53,7 @@ export const xaiConfig = {
     },
     embeddingCellRadius: {
       comparison: 2,
-      supporting: 1,
+      supporting: 2,
     },
     embeddingCellRadiusMode: {
       comparison: 'manual',
@@ -66,15 +66,15 @@ export const xaiConfig = {
     },
     embeddingZoom: {
       comparison: -11.004,
-      supporting: -13.054,
+      supporting: -9.759924983868524,
     },
     embeddingTargetX: {
       comparison: -73966,
-      supporting: 126004,
+      supporting: 486922.5927960748,
     },
     embeddingTargetY: {
       comparison: -9676,
-      supporting: -69900,
+      supporting: -495212.7271243755,
     },
   },
   layout: [
@@ -110,6 +110,9 @@ export const xaiConfig = {
         embeddingCellRadius: 'comparison',
         embeddingCellRadiusMode: 'comparison',
         embeddingCellSetLabelsVisible: 'comparison',
+      },
+      props: {
+        supportingUuid: 5,
       },
       x: 0,
       y: 0,

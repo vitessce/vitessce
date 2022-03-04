@@ -77,6 +77,8 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
 
+    this.hideToolsOverride = true;
+
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();

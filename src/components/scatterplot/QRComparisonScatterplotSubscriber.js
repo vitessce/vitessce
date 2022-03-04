@@ -27,6 +27,7 @@ import {
   useSetComponentHover,
   useSetComponentViewInfo,
   useDatasetUids,
+  useComponentViewInfo,
 } from '../../app/state/hooks';
 import {
   getPointSizeDevicePixels,
@@ -54,6 +55,7 @@ const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 export default function QRComparisonScatterplotSubscriber(props) {
   const {
     uuid,
+    supportingUuid = null,
     coordinationScopes,
     removeGridComponent,
     theme,
@@ -68,6 +70,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
+  const supportingViewInfo = useComponentViewInfo(supportingUuid);
 
   const datasetUids = useDatasetUids(coordinationScopes);
   const refScope = "QUERY";
@@ -147,7 +150,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const [dynamicCellRadius, setDynamicCellRadius] = useState(qryValues.embeddingCellRadius);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(qryValues.embeddingCellOpacity);
 
-  // TODO: determine if query and reference should use same cell sets
+  // TODO(scXAI): determine if query and reference should use same cell sets
   const mergedQryCellSets = useMemo(() => mergeCellSets(
     qryCellSets, qryValues.additionalCellSets,
   ), [qryCellSets, qryValues.additionalCellSets]);
@@ -186,8 +189,8 @@ export default function QRComparisonScatterplotSubscriber(props) {
   }), [qryValues.cellColorEncoding, qryValues.geneSelection, mergedQryCellSets, theme,
   qryValues.cellSetSelection, qryValues.cellSetColor, qryExpressionData, qryAttrs]);
 
-  // TODO: do we need to visualize colors for the reference cells?
-  // TODO: do we need to visualize polygons for the reference cell sets?
+  // TODO(scXAI): do we need to visualize colors for the reference cells?
+  // TODO(scXAI): do we need to visualize polygons for the reference cell sets?
   
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -218,7 +221,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
 
   const qryCellSelection = useMemo(() => Array.from(qryCellColors.keys()), [qryCellColors]);
 
-  // TODO: do the reference dataset embedding coordinates have the same ranges as in the query dataset?
+  // TODO(scXAI): do the reference dataset embedding coordinates have the same ranges as in the query dataset?
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     const cellValues = qryCells && Object.values(qryCells);
     if (cellValues?.length) {
@@ -281,7 +284,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
   // by the DeckGL layer to obtain values for instanced attributes.
   const getQryExpressionValue = useExpressionValueGetter({ attrs: qryAttrs, expressionData: qryExpressionData });
 
-  // TODO: do we need to get expression values for the reference dataset?
+  // TODO(scXAI): do we need to get expression values for the reference dataset?
 
   return (
     <TitleInfo
@@ -335,6 +338,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
           qrySetters.setEmbeddingTargetY(target[1]);
           qrySetters.setEmbeddingTargetZ(target[2] || 0);
         }}
+        supportingBounds={supportingViewInfo?.bounds}
         qryCells={qryCells}
         refCells={refCells}
         qryMapping={qryValues.embeddingType}

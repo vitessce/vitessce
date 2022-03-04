@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { PureComponent } from 'react';
 import DeckGL, { OrthographicView, OrbitView } from 'deck.gl';
 import ToolMenu from './ToolMenu';
@@ -179,6 +180,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
             return [null, null];
           }
         },
+        bounds: viewport.getBounds(),
       });
     }
   }
@@ -213,15 +215,17 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
 
     return (
       <>
-        <ToolMenu
-          activeTool={tool}
-          setActiveTool={this.onToolChange}
-          visibleTools={{
-            pan: showPanTool,
-            selectRectangle: showCellSelectionTools,
-            selectLasso: showCellSelectionTools,
-          }}
-        />
+        {this.hideToolsOverride ? null : (
+          <ToolMenu
+            activeTool={tool}
+            setActiveTool={this.onToolChange}
+            visibleTools={{
+              pan: showPanTool,
+              selectRectangle: showCellSelectionTools,
+              selectLasso: showCellSelectionTools,
+            }}
+          />
+        )}
         <DeckGL
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}

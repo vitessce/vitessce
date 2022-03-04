@@ -3,6 +3,7 @@ import React, { forwardRef } from 'react';
 import { PolygonLayer, TextLayer, ScatterplotLayer, PointCloudLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { HeatmapLayer } from '@deck.gl/aggregation-layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
+import bboxPolygon from '@turf/bbox-polygon';
 import { getSelectionLayers } from '../../layers';
 import { cellLayerDefaultProps, getDefaultColor } from '../utils';
 import {
@@ -29,7 +30,7 @@ const makeDefaultGetCellPosition = (mapping, zVal) => (cellEntry) => {
   const mappedCell = mappings[mapping];
   // The negative applied to the y-axis is because
   // graphics rendering has the y-axis positive going south.
-  return [mappedCell[0], -mappedCell[1], zVal]; // TODO: fix upstream
+  return [mappedCell[0], -mappedCell[1], zVal];
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
 const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
@@ -80,6 +81,7 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
     this.refCellsQuadTree = null;
     this.qryCellsLayer = null;
     this.refCellsLayer = null;
+    this.supportingBoundsLayer = null;
     this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
@@ -90,6 +92,7 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
     this.onUpdateRefCellsLayer();
     this.onUpdateQryCellsLayer();
     this.onUpdateCellSetsLayers();
+    this.onUpdateSupportingBoundsLayer();
   }
 
   createRefCellsLayer() {
@@ -219,6 +222,24 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
     });
   }
 
+  createSupportingBoundsLayer() {
+    const { supportingBounds } = this.props;
+    return new PolygonLayer({
+      id: 'supporting-bounds',
+      data: [
+        bboxPolygon(supportingBounds).geometry.coordinates,
+      ],
+      pickable: false,
+      stroked: true,
+      filled: false,
+      wireframe: true,
+      lineWidthMinPixels: 1,
+      getPolygon: d => d,
+      getLineColor: [80, 80, 80],
+      getLineWidth: 1,
+    });
+  }
+
   createCellSetsLayers() {
     const {
       theme,
@@ -308,13 +329,15 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
       refCellsLayer,
       qryCellsLayer,
       cellSetsLayers,
+      supportingBoundsLayer,
     } = this;
     return [
       qryCellsLayer,
       refCellsLayer,
       //...cellSetsLayers,
+      supportingBoundsLayer,
       ...this.createQrySelectionLayers(),
-      // TODO: ref selection layers
+      // TODO(scXAI): reference selection layers?
     ];
   }
 
@@ -346,6 +369,13 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
 
   onUpdateRefCellsLayer() {
     this.refCellsLayer = this.createRefCellsLayer();
+  }
+
+  onUpdateSupportingBoundsLayer() {
+    const { supportingBounds } = this.props;
+    if(supportingBounds) {
+      this.supportingBoundsLayer = this.createSupportingBoundsLayer();
+    }
   }
 
   onUpdateCellSetsLayers(onlyViewStateChange) {
@@ -450,6 +480,10 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
     if (shallowDiff('viewState')) {
       // The viewState prop has changed (due to zoom or pan).
       this.onUpdateCellSetsLayers(true);
+      this.forceUpdate();
+    }
+    if (shallowDiff('supportingBounds')) {
+      this.onUpdateSupportingBoundsLayer();
       this.forceUpdate();
     }
   }

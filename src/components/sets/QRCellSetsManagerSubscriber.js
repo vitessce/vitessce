@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useEffect,
   useState,
@@ -78,6 +79,8 @@ export default function QRCellSetsManagerSubscriber(props) {
 
   const loaders = useLoaders();
   const setWarning = useSetWarning();
+
+  // TODO(scXAI): use multi-dataset coordination.
 
   // Get "props" from the coordination space.
   const [{

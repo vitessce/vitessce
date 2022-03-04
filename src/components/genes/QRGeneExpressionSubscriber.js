@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
@@ -35,6 +36,8 @@ export default function QRGeneExpressionSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+
+  // TODO(scXAI): use multi-dataset coordination.
 
   // Get "props" from the coordination space.
   const [{
