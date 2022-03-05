@@ -87,6 +87,9 @@ export const xaiConfig = {
     },
     {
       component: 'qrGeneExpression',
+      coordinationScopes: {
+        dataset: ['REFERENCE', 'QUERY'],
+      },
       x: 9,
       y: 0,
       w: 3,
@@ -94,6 +97,9 @@ export const xaiConfig = {
     },
     {
       component: 'qrCellSets',
+      coordinationScopes: {
+        dataset: ['REFERENCE', 'QUERY'],
+      },
       x: 5,
       y: 0,
       w: 4,

@@ -72,6 +72,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
   const supportingViewInfo = useComponentViewInfo(supportingUuid);
 
+  // Use multi-dataset coordination.
   const datasetUids = useDatasetUids(coordinationScopes);
   const refScope = "QUERY";
   const qryScope = "REFERENCE"
@@ -83,7 +84,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
     coordinationScopes,
   );
   const [qryValues, qrySetters] = [cValues[qryScope], cSetters[qryScope]];
-  const [refValues, refSetters] = [cValues[refScope], cSetters[refScope]]; 
+  const [refValues, refSetters] = [cValues[refScope], cSetters[refScope]];
 
 
   const [urls, addUrl, resetUrls] = useUrls();

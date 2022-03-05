@@ -7,9 +7,10 @@ import React, {
 import isEqual from 'lodash/isEqual';
 import packageJson from '../../../package.json';
 import {
-  useCoordination,
+  useMultiDatasetCoordination,
   useLoaders,
   useSetWarning,
+  useDatasetUids,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import QRCellSetsManager from './QRCellSetsManager';
@@ -55,6 +56,7 @@ import {
   getNextNumberedNodeName,
 } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
+import { Component } from '../../app/constants';
 
 const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
 
@@ -80,8 +82,21 @@ export default function QRCellSetsManagerSubscriber(props) {
   const loaders = useLoaders();
   const setWarning = useSetWarning();
 
-  // TODO(scXAI): use multi-dataset coordination.
+  // Use multi-dataset coordination.
+  const datasetUids = useDatasetUids(coordinationScopes);
+  const refScope = "QUERY";
+  const qryScope = "REFERENCE"
+  const refDataset = datasetUids[refScope];
+  const qryDataset = datasetUids[qryScope];
+  // Get "props" from the coordination space.
+  const [cValues, cSetters] = useMultiDatasetCoordination(
+    COMPONENT_COORDINATION_TYPES[Component.QR_CELL_SETS],
+    coordinationScopes,
+  );
+  const [qryValues, qrySetters] = [cValues[qryScope], cSetters[qryScope]];
+  const [refValues, refSetters] = [cValues[refScope], cSetters[refScope]];
 
+    /*
   // Get "props" from the coordination space.
   const [{
     dataset,
@@ -96,6 +111,9 @@ export default function QRCellSetsManagerSubscriber(props) {
     setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
 
+  const [cellSetExpansion, setCellSetExpansion] = useState([]);
+  */
+
   const [urls, addUrl, resetUrls] = useUrls();
   const [
     isReady,
@@ -106,24 +124,30 @@ export default function QRCellSetsManagerSubscriber(props) {
     CELL_SETS_DATA_TYPES,
   );
 
-  const [cellSetExpansion, setCellSetExpansion] = useState([]);
-
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-    setCellSetExpansion([]);
+    /*setCellSetExpansion([]);*/
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loaders, qryDataset, refDataset]);
 
+  
   // Get data from loaders using the data hooks.
-  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [cellSets] = useCellSetsData(
-    loaders, dataset, setItemIsReady, addUrl, true,
-    { setCellSetSelection, setCellSetColor },
-    { cellSetSelection, cellSetColor },
+  const [qryCells] = useCellsData(loaders, qryDataset, setItemIsReady, addUrl, true);
+  const [refCells] = useCellsData(loaders, refDataset, setItemIsReady, addUrl, true);
+  const [qryCellSets] = useCellSetsData(
+    loaders, qryDataset, setItemIsReady, addUrl, true,
+    { setCellSetSelection: qrySetters.setCellSetSelection, setCellSetColor: qrySetters.setCellSetColor },
+    { cellSetSelection: qryValues.cellSetSelection, cellSetColor: qryValues.cellSetColor },
   );
-
+  const [refCellSets] = useCellSetsData(
+    loaders, refDataset, setItemIsReady, addUrl, true,
+    { setCellSetSelection: refSetters.setCellSetSelection, setCellSetColor: refSetters.setCellSetColor },
+    { cellSetSelection: refValues.cellSetSelection, cellSetColor: refValues.cellSetColor },
+  );
+  
+  /*
   // Validate and upgrade the additionalCellSets.
   useEffect(() => {
     if (additionalCellSets) {
@@ -585,6 +609,8 @@ export default function QRCellSetsManagerSubscriber(props) {
       FILE_EXTENSION_JSON,
     );
   }
+  */
+
   return (
     <TitleInfo
       title={title}
@@ -594,7 +620,8 @@ export default function QRCellSetsManagerSubscriber(props) {
       theme={theme}
       isReady={isReady}
     >
-      <QRCellSetsManager
+      <p>TODO(scXAI): cell sets component<br/>(src/components/sets/QRCellSetsManagerSubscriber.js)</p>
+      {/*<QRCellSetsManager
         setColor={cellSetColor}
         sets={cellSets}
         additionalSets={additionalCellSets}
@@ -626,7 +653,7 @@ export default function QRCellSetsManagerSubscriber(props) {
         hasCheckedSetsToIntersect={cellSetSelection?.length > 1}
         hasCheckedSetsToComplement={cellSetSelection?.length > 0}
         theme={theme}
-      />
+      />*/}
     </TitleInfo>
   );
 }

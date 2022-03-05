@@ -3,8 +3,14 @@ import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
 import { useExpressionAttrs } from '../data-hooks';
-import { useCoordination, useLoaders } from '../../app/state/hooks';
+import {
+  useMultiDatasetCoordination,
+  useDatasetUids,
+  useCoordination,
+  useLoaders,
+} from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { Component } from '../../app/constants';
 
 import TitleInfo from '../TitleInfo';
 import QRGeneExpression from './QRGeneExpression';
@@ -37,8 +43,21 @@ export default function QRGeneExpressionSubscriber(props) {
 
   const loaders = useLoaders();
 
-  // TODO(scXAI): use multi-dataset coordination.
+  // Use multi-dataset coordination.
+  const datasetUids = useDatasetUids(coordinationScopes);
+  const refScope = "QUERY";
+  const qryScope = "REFERENCE"
+  const refDataset = datasetUids[refScope];
+  const qryDataset = datasetUids[qryScope];
+  // Get "props" from the coordination space.
+  const [cValues, cSetters] = useMultiDatasetCoordination(
+    COMPONENT_COORDINATION_TYPES[Component.QR_GENE_EXPRESSION],
+    coordinationScopes,
+  );
+  const [qryValues, qrySetters] = [cValues[qryScope], cSetters[qryScope]];
+  const [refValues, refSetters] = [cValues[refScope], cSetters[refScope]];
 
+  /*
   // Get "props" from the coordination space.
   const [{
     dataset,
@@ -51,6 +70,7 @@ export default function QRGeneExpressionSubscriber(props) {
     setGeneHighlight,
     setCellColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
+  */
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [
@@ -67,12 +87,18 @@ export default function QRGeneExpressionSubscriber(props) {
     resetUrls();
     resetReadyItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loaders, qryDataset, refDataset]);
 
+  
   // Get data from loaders using the data hooks.
-  const [attrs] = useExpressionAttrs(
-    loaders, dataset, setItemIsReady, addUrl, true,
+  const [qryAttrs] = useExpressionAttrs(
+    loaders, qryDataset, setItemIsReady, addUrl, true,
   );
+  const [refAttrs] = useExpressionAttrs(
+    loaders, refDataset, setItemIsReady, addUrl, true,
+  );
+
+  /*
   const geneList = attrs ? attrs.cols : [];
   const numGenes = geneList.length;
 
@@ -80,11 +106,11 @@ export default function QRGeneExpressionSubscriber(props) {
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
   }
+  */
 
   return (
     <TitleInfo
       title={title}
-      info={`${numGenes} ${pluralize(variablesLabel, variablesPluralLabel, numGenes)}`}
       theme={theme}
       // Virtual scroll is used but this allows for the same styling as a scroll component
       // even though this no longer uses the TitleInfo component's
@@ -94,7 +120,8 @@ export default function QRGeneExpressionSubscriber(props) {
       isReady={isReady}
       urls={urls}
     >
-      <QRGeneExpression
+      <p>TODO(scXAI): gene expression component<br/>(src/components/genes/QRGeneExpressionSubscriber.js)</p>
+      {/*<QRGeneExpression
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
         geneList={geneList}
         geneSelection={geneSelection}
@@ -102,7 +129,7 @@ export default function QRGeneExpressionSubscriber(props) {
         setGeneSelection={setGeneSelectionAndColorEncoding}
         setGeneFilter={setGeneFilter}
         setGeneHighlight={setGeneHighlight}
-      />
+      />*/}
     </TitleInfo>
   );
 }
