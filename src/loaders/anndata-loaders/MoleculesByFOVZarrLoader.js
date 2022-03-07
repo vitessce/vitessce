@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { slice } from 'zarr';
+import range from 'lodash/range';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
 import bboxPolygon from '@turf/bbox-polygon';
 import booleanIntersects from '@turf/boolean-intersects';
@@ -11,12 +12,19 @@ import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
  * Loader for converting zarr into the cell json schema.
  */
 export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
+
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    this.getTileData = this.getTileData.bind(this);
+  }
+
+
   /**
    * Class method for loading spatial cell centroids.
    * @returns {Promise} A promise for an array of tuples/triples for cell centroids.
    */
   loadSpatialByFOV(fov) {
-    const spatial = 'obsm/spatial';
+    const spatial = 'uns/spatial';
     if (!this.spatial) {
       this.spatial = {};
     }
@@ -25,7 +33,8 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
     }
     this.spatial[fov] = this.dataSource.loadNumericSlice(
       spatial,
-      [slice(null), slice(null), fov, slice(null)],
+      [fov, slice(0, 4), slice(0, 3), slice(0, 100)],
+      // TODO: [fov, null, null, null] or [fov, barcode_id, slice(0, max_barcodes_for_barcode_id), null]
     );
     return this.spatial[fov];
   }
@@ -46,6 +55,8 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
     this.barcodeByFovCounts = Promise.resolve(null);
     return this.barcodeByFovCounts;
   }
+
+  // TODO(merfish): load barcode names
 
   /**
    * Class method for loading factors, which are cell set ids.
@@ -82,13 +93,41 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
     ];
   }
 
-  getTileData(tile) {
-    const { fov } = this.molecules || {};
+  async getTileData(tile) {
+    const { fov,  } = await this.molecules;
     const { x, y, z, bbox, signal } = tile;
     const { left, top, right, bottom } = bbox;
 
-    console.log(fov);
-    console.log(JSON.stringify(tile));
+    const tilePolygon = bboxPolygon([left, top, right, bottom]);
+    const intersectingFov = fov.map(fovObj => ({
+      ...fovObj,
+      intersectsTile: booleanIntersects(tilePolygon, fovObj.polygon),
+    })).filter(fovObj => fovObj.intersectsTile);
+
+    //console.log(intersectingFov);
+    //console.log(JSON.stringify(tile));
+
+    const intersectingPromises = intersectingFov.map(fovObj => {
+      return this.loadSpatialByFOV(fovObj.id);
+    });
+
+    return Promise.all(intersectingPromises).then(intersectingData => {
+      //console.log(intersectingData);
+      const result = [];
+      intersectingData.forEach((fovData, fovIndex) => {
+        fovData.data.forEach((barcodeData, barcodeTypeIndex) => {
+          range(fovData.shape[2]).forEach((moleculeIndex) => {
+            result.push({
+              barcodeIndex: barcodeTypeIndex,
+              position: [barcodeData[0][moleculeIndex], barcodeData[1][moleculeIndex]],
+            });
+          })
+        })
+      });
+      return result;
+    });
+
+    //console.log(await this.dataSource.loadNumericSlice('uns/spatial', [0, 0, slice(0, 100), null]))
 
     return Promise.resolve([]);
   }
@@ -101,14 +140,17 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
         this.dataSource.loadObsIndex(),
         ...this.loadFovBounds(),
       ]).then(([barcodeIndices, barcodeCounts, obsIndex, fovIds, fovXStarts, fovXEnds, fovYStarts, fovYEnds]) => {
+
+        const fov = range(fovIds.data.length).map((i) => ({
+          id: fovIds.data[i],
+          polygon: bboxPolygon([ fovXStarts.data[i], fovYStarts.data[i], fovXEnds.data[i], fovYEnds.data[i] ]),
+        }));
+
         const moleculesMetadata = {
           barcodeIndices,
           barcodeCounts,
           obsIndex,
-          fov: fovIds.data.map((fovId, i) => ({
-            id: fovId,
-            polygon: bboxPolygon([ fovXStarts.data[i], fovYStarts.data[i], fovXEnds.data[i], fovYEnds.data[i] ]),
-          })),
+          fov,
         };
         return moleculesMetadata;
       });

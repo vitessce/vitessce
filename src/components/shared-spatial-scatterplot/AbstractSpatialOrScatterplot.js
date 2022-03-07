@@ -124,8 +124,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = bbox;
     const bounds = [
       left,
-      data.height < layer.tileSize ? height : bottom,
-      data.width < layer.tileSize ? width : right,
+      data && data.height < layer.tileSize ? height : bottom,
+      data && data.width < layer.tileSize ? width : right,
       top,
     ];
     if (!data) {

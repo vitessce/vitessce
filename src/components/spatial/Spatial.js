@@ -223,10 +223,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       tileSize: 256,
       maxZoom: 0,
+      minZoom: -Number.NEGATIVE_INFINITY,
+      // TODO(merfish): figure out a good minZoom
       getTileData: moleculesByFOVLoader?.getTileData,
 
       renderSubLayers: props => {
-        console.log(props);
+        //console.log(props);
         const {
           bbox: { left, bottom, right, top},
           x, y, z,
@@ -248,8 +250,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
           opacity: layerDef.opacity,
           visible: layerDef.visible,
           getRadius: layerDef.radius,
-          getPosition: getMoleculePosition,
-          getFillColor: getMoleculeColor,
+          getPosition: d => d.position,
+          getFillColor: d => PALETTE[d.barcodeIndex % PALETTE.length],
           /*
           getFilterValue: moleculeEntry => (
             // eslint-disable-next-line no-nested-ternary
@@ -272,6 +274,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
             getFilterValue: [moleculeSelectionGeneIndices],
           },
           */
+          updateTriggers: {
+            opacity: [layerDef.opacity],
+            visible: [layerDef.visible]
+          },
         });
       },
       updateTriggers: {
