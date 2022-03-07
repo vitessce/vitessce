@@ -146,6 +146,9 @@ export default function QRCellSetsManagerSubscriber(props) {
     { setCellSetSelection: refSetters.setCellSetSelection, setCellSetColor: refSetters.setCellSetColor },
     { cellSetSelection: refValues.cellSetSelection, cellSetColor: refValues.cellSetColor },
   );
+
+  // console.log("query", qryCellSets);
+  // console.log("reference", refCellSets);
   
   /*
   // Validate and upgrade the additionalCellSets.

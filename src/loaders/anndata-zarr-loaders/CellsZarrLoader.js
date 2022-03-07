@@ -24,6 +24,20 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
     return this.xy;
   }
 
+  loadAnchorCluster() {
+    const { anchorCluster } = (this.options || {});
+    if (this.anchorCluster) {
+      return this.anchorCluster;
+    }
+    if (!this.anchorCluster && anchorCluster) {
+      // TODO(scXAI): load entire matrix, not single column.
+      this.anchorCluster = this.dataSource.loadNumeric(anchorCluster);
+      return this.anchorCluster;
+    }
+    this.anchorCluster = Promise.resolve(null);
+    return this.anchorCluster;
+  }
+
   /**
    * Class method for loading spatial cell polygons.
    * @returns {Promise} A promise for an array of arrays for cell polygons.
@@ -84,7 +98,8 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
         this.loadPoly(),
         this.dataSource.loadObsIndex(),
         this.loadFactors(),
-      ]).then(([mappings, xy, poly, cellNames, factors]) => {
+        this.loadAnchorCluster(),
+      ]).then(([mappings, xy, poly, cellNames, factors, anchorCluster]) => {
         const cells = {};
         cellNames.forEach((name, i) => {
           cells[name] = {};
@@ -101,6 +116,9 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
           }
           if (xy) {
             cells[name].xy = xy.data[i];
+          }
+          if (anchorCluster) {
+            cells[name].anchorCluster = anchorCluster.data[i];
           }
           if (poly) {
             cells[name].poly = poly.data[i];

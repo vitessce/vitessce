@@ -160,6 +160,10 @@
               "type": "string"
             }
           },
+          "anchorCluster": {
+            "type": "string",
+            "description": "Path to the anchor_cluster matrix in the AnnData store, like 'obsm/anchor_cluster'"
+          },
           "mappings": {
             "patternProperties": {
               ".": {

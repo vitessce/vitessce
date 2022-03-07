@@ -11,11 +11,13 @@ export const polyphonyConfig = {
     datasets: [{
             uid: 'ref',
             name: 'Pancreas reference',
-            files: [{
+            files: [
+                {
                     type: vapi.dt.CELLS,
                     fileType: vapi.ft.ANNDATA_CELLS_ZARR,
-                    url: `${zarrPath}/pancreasreference.zarr`,
+                    url: `${zarrPath}/pancreas_easy/reference.zarr`,
                     options: {
+                        anchorCluster: "obsm/anchor_cluster",
                         mappings: {
                             UMAP: {
                                 key: "obsm/X_umap",
@@ -30,22 +32,26 @@ export const polyphonyConfig = {
                 {
                     type: vapi.dt.CELL_SETS,
                     fileType: vapi.ft.ANNDATA_CELL_SETS_ZARR,
-                    url: `${zarrPath}/pancreasreference.zarr`,
-                    options: [{
-                        groupName: "Cell Type",
-                        setName: "obs/cell_type"
-                    }]
+                    url: `${zarrPath}/pancreas_easy/reference.zarr`,
+                    options: [
+                        {
+                            groupName: "Cell Type",
+                            setName: "obs/cell_type"
+                        }
+                    ]
                 },
             ],
         },
         {
             uid: 'qry',
             name: 'Pancreas query',
-            files: [{
+            files: [
+                {
                     type: vapi.dt.CELLS,
                     fileType: vapi.ft.ANNDATA_CELLS_ZARR,
-                    url: `${zarrPath}/pancreasquery.zarr`,
+                    url: `${zarrPath}/pancreas_easy/query.zarr`,
                     options: {
+                        anchorCluster: "obsm/anchor_cluster",
                         mappings: {
                             UMAP: {
                                 key: "obsm/X_umap",
@@ -53,18 +59,33 @@ export const polyphonyConfig = {
                             },
                         },
                         factors: [
-                            "obs/cell_type"
+                            "obs/cell_type",
+                            //"obs/prediction",
+                            //"obs/label"
                         ]
                     }
                 },
                 {
                     type: vapi.dt.CELL_SETS,
                     fileType: vapi.ft.ANNDATA_CELL_SETS_ZARR,
-                    url: `${zarrPath}/pancreasquery.zarr`,
-                    options: [{
-                        groupName: "Cell Type",
-                        setName: "obs/cell_type"
-                    }]
+                    url: `${zarrPath}/pancreas_easy/query.zarr`,
+                    // TODO(scXAI): support
+                    // - obs/prediction
+                    // - obs/label
+                    options: [
+                        {
+                            groupName: "Cell Type",
+                            setName: "obs/cell_type"
+                        },
+                        /*{
+                            groupName: "Prediction",
+                            setName: "obs/prediction"
+                        },
+                        {
+                            groupName: "Label",
+                            setName: "obs/label"
+                        }*/
+                    ]
                 },
             ],
         },
