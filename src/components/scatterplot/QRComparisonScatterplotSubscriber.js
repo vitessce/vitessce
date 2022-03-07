@@ -112,7 +112,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const [refCells, refCellsCount] = useCellsData(loaders, refDataset, setItemIsReady, addUrl, true);
 
 
-  console.log(qryCells);
+ // console.log(qryCells);
 
   const [qryCellSets] = useCellSetsData(
     loaders,

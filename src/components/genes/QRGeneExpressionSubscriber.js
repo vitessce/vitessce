@@ -98,8 +98,8 @@ export default function QRGeneExpressionSubscriber(props) {
     loaders, refDataset, setItemIsReady, addUrl, true,
   );
 
-  console.log("query", qryAttrs);
-  console.log("reference", refAttrs);
+  // console.log("query", qryAttrs);
+  // console.log("reference", refAttrs);
 
   /*
   const geneList = attrs ? attrs.cols : [];
