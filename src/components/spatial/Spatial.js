@@ -231,9 +231,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       minZoom: -Number.NEGATIVE_INFINITY,
       // TODO(merfish): figure out a good minZoom
       getTileData: getTileData,
-
       renderSubLayers: props => {
-        //console.log(props);
         const {
           bbox: { left, bottom, right, top},
           x, y, z,

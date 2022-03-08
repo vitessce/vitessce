@@ -332,7 +332,6 @@ function LayerControllerSubscriber(props) {
         const allZ = newLayer.channels.map(c => c.selection.z);
         if(every(allZ, zVal => zVal === firstZ)) {
           setSpatialSliceZ(firstZ);
-          console.log("setting spatial slice z", firstZ);
         }
       }
     }

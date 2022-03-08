@@ -121,16 +121,11 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
       intersectsTile: booleanIntersects(tilePolygon, fovObj.polygon),
     })).filter(fovObj => fovObj.intersectsTile);
 
-    //console.log(intersectingFov);
-    //console.log(JSON.stringify(tile));
-
     const intersectingPromises = intersectingFov.map(fovObj => {
       return this.loadSpatialByFOV(zSlice, fovObj.id);
     });
 
     return Promise.all(intersectingPromises).then(intersectingData => {
-      
-
       const numBarcodes = sum(intersectingData.map(fovData => fovData?.[0].shape?.[1] || 0));
       if(numBarcodes === 0) {
         return {
@@ -153,28 +148,12 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
         }
       });
 
+      // Reference: https://deck.gl/docs/developer-guide/performance#supply-binary-blobs-to-the-data-prop
       return {
         src: { xVals, yVals, barcodeIndices },
         length: numBarcodes,
       };
-
-      // TODO: allocate TypedArrays, then fill
-      /*const result = [];
-      intersectingData.forEach((fovData, fovIndex) => {
-        fovData.data.forEach((barcodeData, barcodeTypeIndex) => {
-          range(fovData.shape[2]).forEach((moleculeIndex) => {
-            result.push({
-              barcodeIndex: barcodeTypeIndex,
-              position: [barcodeData[0][moleculeIndex], barcodeData[1][moleculeIndex]],
-            });
-          })
-        })
-      });
-      return result;*/
     });
-
-    //console.log(await this.dataSource.loadNumericSlice('uns/spatial', [0, 0, slice(0, 100), null]))
-
     return Promise.resolve([]);
   }
 
