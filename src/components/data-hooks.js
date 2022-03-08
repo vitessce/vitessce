@@ -15,6 +15,7 @@ import {
 } from './spatial/constants';
 import { DEFAULT_COORDINATION_VALUES } from '../app/state/coordination';
 import MoleculesByFOVZarrLoader from '../loaders/anndata-loaders/MoleculesByFOVZarrLoader';
+import GenesByFOVZarrLoader from '../loaders/anndata-loaders/GenesByFOVZarrLoader';
 
 /**
  * Warn via publishing to the console
@@ -330,7 +331,7 @@ export function useGeneSelection(
       return;
     }
     const loader = loaders[dataset].loaders['expression-matrix'];
-    if (loader) {
+    if (loader && !(loader instanceof GenesByFOVZarrLoader)) {
       setItemIsNotReady('expression-matrix');
       const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
       if (implementsGeneSelection) {
@@ -415,7 +416,7 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
           setItemIsReady('expression-matrix');
         });
       } else {
-        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
+        loader.load().then((payload) => {
           if (!payload) return;
           const { data, url } = payload;
           setAttrs(data[0]);

@@ -226,19 +226,24 @@ class Spatial extends AbstractSpatialOrScatterplot {
     return new TileLayer({
       id: MOLECULES_LAYER_ID,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      tileSize: 256,
+      tileSize: 512,
       maxZoom: 0,
-      minZoom: -Number.NEGATIVE_INFINITY,
+      minZoom: 0,
+      zoomOffset: 100,
+      refinementStrategy: 'best-available',
       // TODO(merfish): figure out a good minZoom
       getTileData: getTileData,
       renderSubLayers: props => {
         const {
-          bbox: { left, bottom, right, top},
-          x, y, z,
+          bbox: { left, bottom, right, top },
+          x, y, z
         } = props.tile;
+        console.log(z, x, y);
         const { data, id, loader, maxZoom } = props;
 
         const bounds = [left, bottom, right, top];
+
+        const opacity = (data.zSlice !== sliceZ) ? 0.05 : layerDef.opacity;
 
         return new ScatterplotLayer(props, {
           id: `${MOLECULES_LAYER_ID}-sub-layer-${bounds}-${id}`,
@@ -250,7 +255,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           autoHighlight: true,
           radiusMaxPixels: 3,
           stroked: false,
-          opacity: layerDef.opacity,
+          opacity: opacity,
           visible: layerDef.visible,
           getRadius: layerDef.radius,
           getPosition: (object, { index, data, target }) => {
@@ -262,15 +267,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
           getFillColor: (object, { index, data }) => {
             return PALETTE[data.src.barcodeIndices[index] % PALETTE.length];
           },
-          /*
-          getFilterValue: moleculeEntry => (
-            // eslint-disable-next-line no-nested-ternary
-            moleculeSelectionGeneIndices
-              ? (moleculeSelectionGeneIndices.includes(moleculeEntry[1].geneIndex) ? 1 : 0)
+          getFilterValue: (object, { index, data }) => {
+            return moleculeSelectionGeneIndices
+              ? (moleculeSelectionGeneIndices.includes(data.src.barcodeIndices[index]) ? 1 : 0)
               : 1 // If nothing is selected, everything is selected.
-          ),
+          },
           extensions: [new DataFilterExtension({ filterSize: 1 })],
           filterRange: [1, 1],
+          /*
           onHover: (info) => {
             if (setMoleculeHighlight) {
               if (info.object) {
@@ -280,18 +284,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
               }
             }
           },
-          updateTriggers: {
-            getFilterValue: [moleculeSelectionGeneIndices],
-          },
           */
           updateTriggers: {
-            opacity: [layerDef.opacity],
-            visible: [layerDef.visible]
+            opacity: [opacity],
+            getFilterValue: [moleculeSelectionGeneIndices],
           },
         });
       },
       updateTriggers: {
         getTileData: [moleculesByFOVLoader, sliceZ],
+        renderSubLayers: [
+          sliceZ,
+          layerDef.opacity,
+          layerDef.visible,
+          layerDef.radius,
+          moleculeSelectionGeneIndices
+        ],
       },
     });
   }

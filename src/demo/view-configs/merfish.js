@@ -16,6 +16,11 @@ export const merfish2022 = {
           url: 'http://localhost:8000/data/processed/barcodes.zarr',
         },
         {
+          type: 'expression-matrix',
+          fileType: 'anndata-genes-by-fov.zarr',
+          url: 'http://localhost:8000/data/processed/barcodes.zarr',
+        },
+        {
           type: 'raster',
           fileType: 'raster.ome-zarr',
           url: 'http://localhost:8000/data/processed/fov.zarr',
@@ -141,16 +146,16 @@ export const merfish2022 = {
       w: 2,
       h: 2,
     },
-    /*{
+    {
       component: 'genes',
       props: {
         enableMoleculeSelection: true,
       },
-      x: 6,
+      x: 10,
       y: 0,
       w: 2,
       h: 12,
-    },*/
+    },
     {
       component: 'spatial',
       coordinationScopes: {
@@ -163,7 +168,7 @@ export const merfish2022 = {
       },
       x: 2,
       y: 0,
-      w: 4,
+      w: 8,
       h: 12,
     },
   ],

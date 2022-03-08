@@ -38,7 +38,6 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
     // Get the max number of barcodes for this (z, fov) tuple.
     const { barcodeCounts } = await this.molecules;
     const maxBarcodesByFOV = barcodeCounts.data[zSlice][fov];
-    console.log("maxBarcodesByFOV", zSlice, fov, maxBarcodesByFOV);
     const spatialResult = this.dataSource.loadNumericSlice(
       spatial,
       [zSlice, fov, slice(0, 2), slice(0, maxBarcodesByFOV)],
@@ -50,10 +49,6 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
     this.spatial.set(key, spatialResult);
     this.barcodes.set(key, barcodesResult);
     return [await spatialResult, await barcodesResult];
-  }
-
-  loadBarcodeTypesByFOV(zSlice, fov) {
-    // TODO
   }
 
   /**
@@ -71,21 +66,6 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
     }
     this.barcodeByFovCounts = Promise.resolve(null);
     return this.barcodeByFovCounts;
-  }
-
-  // TODO(merfish): load barcode names
-
-  /**
-   * Class method for loading factors, which are cell set ids.
-   * @returns {Promise} A promise for an array of an array of strings of ids,
-   * where subarray is a clustering/factor.
-   */
-  loadBarcodeIndices() {
-    const barcodeIndex = 'var/barcode_id';
-    if (barcodeIndex) {
-      return this.dataSource.loadNumeric(barcodeIndex);
-    }
-    return Promise.resolve(null);
   }
 
   /**
@@ -111,7 +91,7 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
   }
 
   async getTileData(tile, zSlice) {
-    const { fov,  } = await this.molecules;
+    const { fov } = await this.molecules;
     const { x, y, z, bbox, signal } = tile;
     const { left, top, right, bottom } = bbox;
 
@@ -151,20 +131,18 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
       // Reference: https://deck.gl/docs/developer-guide/performance#supply-binary-blobs-to-the-data-prop
       return {
         src: { xVals, yVals, barcodeIndices },
+        zSlice: zSlice,
         length: numBarcodes,
       };
     });
-    return Promise.resolve([]);
   }
 
   async load() {
     if (!this.molecules) {
       this.molecules = Promise.all([
-        this.loadBarcodeIndices(),
         this.loadBarcodeCounts(),
-        this.dataSource.loadObsIndex(),
         ...this.loadFovBounds(),
-      ]).then(([barcodeIndices, barcodeCounts, obsIndex, fovIds, fovXStarts, fovXEnds, fovYStarts, fovYEnds]) => {
+      ]).then(([barcodeCounts, fovIds, fovXStarts, fovXEnds, fovYStarts, fovYEnds]) => {
 
         const fov = range(fovIds.data.length).map((i) => ({
           id: fovIds.data[i],
@@ -172,9 +150,7 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
         }));
 
         const moleculesMetadata = {
-          barcodeIndices,
           barcodeCounts,
-          obsIndex,
           fov,
         };
         return moleculesMetadata;

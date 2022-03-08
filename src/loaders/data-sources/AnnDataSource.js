@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import { openArray } from 'zarr';
 import range from 'lodash/range';
@@ -60,11 +61,11 @@ export default class AnnDataSource extends ZarrDataSource {
    * @param {string[]} obsPaths An array of strings like "obs/leiden" or "obs/bulk_labels."
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
-  loadObsVariables(obsPaths) {
+  loadObsColumns(obsPaths) {
     const obsPromises = obsPaths.map((obsPath) => {
       const getObsCol = (obsCol) => {
         if (!this.obsPromises.has(obsCol)) {
-          const obsPromise = this._loadObsVariable(obsCol).catch((err) => {
+          const obsPromise = this._loadObsColumn(obsCol).catch((err) => {
             // clear from cache if promise rejects
             this.obsPromises.delete(obsCol);
             // propagate error
@@ -85,17 +86,30 @@ export default class AnnDataSource extends ZarrDataSource {
     return Promise.all(obsPromises);
   }
 
-  async _loadObsVariable(obs) {
+  async _loadObsColumn(col) {
+    return this._loadColumn('obs', col);
+  }
+
+  async _loadVarColumn(col) {
+    return this._loadColumn('var', col);
+  }
+
+  async _loadColumn(prefix, col) {
     const { store } = this;
-    const { categories } = await this.getJson(`${obs}/.zattrs`);
+    const { categories } = await this.getJson(`${col}/.zattrs`);
     let categoriesValues;
     if (categories) {
-      const { dtype } = await this.getJson(`/obs/${categories}/.zarray`);
+      const { dtype } = await this.getJson(`/${prefix}/${categories}/.zarray`);
       if (dtype === '|O') {
-        categoriesValues = await this.getFlatArrDecompressed(`/obs/${categories}`);
+        categoriesValues = await this.getFlatArrDecompressed(`/${prefix}/${categories}`);
+      }
+    } else {
+      const { dtype } = await this.getJson(`/${col}/.zarray`);
+      if (dtype === '|O') {
+        return await this.getFlatArrDecompressed(col);
       }
     }
-    const obsArr = await openArray({ store, path: obs, mode: 'r' });
+    const obsArr = await openArray({ store, path: col, mode: 'r' });
     const obsValues = await obsArr.get();
     const { data } = obsValues;
     const mappedObsValues = Array.from(data).map(
