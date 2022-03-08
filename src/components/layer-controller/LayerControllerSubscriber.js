@@ -1,7 +1,9 @@
+/* eslint-disable */
 /* eslint-disable dot-notation */
 import React, {
   useEffect, useCallback, useRef, forwardRef,
 } from 'react';
+import every from 'lodash/every';
 import Grid from '@material-ui/core/Grid';
 import TitleInfo from '../TitleInfo';
 import RasterChannelController from './RasterChannelController';
@@ -242,6 +244,7 @@ function LayerControllerSubscriber(props) {
       setSpatialRotationX: setRotationX,
       setSpatialRotationOrbit: setRotationOrbit,
       setSpatialZoom: setZoom,
+      setSpatialSliceZ,
     },
   ] = useCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
@@ -323,6 +326,16 @@ function LayerControllerSubscriber(props) {
   }, [imageLayerLoaders, imageLayerMeta, rasterLayers, setRasterLayers]);
 
   const handleRasterLayerChange = useCallback((newLayer, i) => {
+    if(rasterLayers && rasterLayers.length === 1 && i === 0) {
+      const firstZ = newLayer?.channels?.[0].selection?.z;
+      if(firstZ !== undefined && firstZ !== null) {
+        const allZ = newLayer.channels.map(c => c.selection.z);
+        if(every(allZ, zVal => zVal === firstZ)) {
+          setSpatialSliceZ(firstZ);
+          console.log("setting spatial slice z", firstZ);
+        }
+      }
+    }
     const newLayers = [...rasterLayers];
     newLayers[i] = newLayer;
     setRasterLayers(newLayers);

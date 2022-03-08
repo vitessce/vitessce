@@ -72,6 +72,10 @@ export const CoordinationType = {
   SPATIAL_ROTATION_ORBIT: 'spatialRotationOrbit',
   SPATIAL_ORBIT_AXIS: 'spatialOrbitAxis',
   SPATIAL_AXIS_FIXED: 'spatialAxisFixed',
+  SPATIAL_SLICE_Z: 'spatialSliceZ', // global selection of a single Z slice in the DATA (when in the 2D dimensionMode)
+  SPATIAL_SLICE_T: 'spatialSliceT',
+  SPATIAL_DIMENSION_MODE: 'spatialDimensionMode', // global spatial 2D vs 3D mode. One of "2D", "volume".
+  SPATIAL_VOLUME_RENDERING_MODE: 'spatialVolumeRenderingMode', // global spatial volume rendering method. One of "maximumIntensityProjection", "minimumIntensityProjection", "additive".
   HEATMAP_ZOOM_X: 'heatmapZoomX',
   HEATMAP_ZOOM_Y: 'heatmapZoomY',
   HEATMAP_TARGET_X: 'heatmapTargetX',

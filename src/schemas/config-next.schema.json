@@ -55,6 +55,7 @@
                 "spatialRotationOrbit": { "type": "string" },
                 "spatialOrbitAxis": { "type": "string" },
                 "spatialAxisFixed": { "type": "string" },
+                "spatialSliceZ": { "type": "string" },
                 "heatmapZoomX": { "type": "string" },
                 "heatmapZoomY": { "type": "string" },
                 "heatmapTargetX": { "type": "string" },
@@ -765,6 +766,20 @@
                     "description": "Whether or not to have a fixed axis for the camera. Only useful for 3D viewing."
                   },
                   { "type": "boolean" }
+                ]
+              }
+            }
+          },
+          "spatialSliceZ": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": ""
+                  },
+                  { "type": "number" }
                 ]
               }
             }

@@ -208,12 +208,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createMoleculesLayer2dByFOV(layerDef) {
     const {
+      sliceZ,
       setMoleculeHighlight,
       getMoleculeColor = makeDefaultGetMoleculeColors(),
       getMoleculePosition = d => [d[1].spatial[0], d[1].spatial[1]],
       moleculeSelectionGeneIndices,
       moleculesByFOVLoader,
     } = this.props;
+
+    const getTileData = (props) => {
+      return moleculesByFOVLoader?.getTileData(props, sliceZ);
+    };
 
     // References:
     // - https://github.com/hms-dbmi/viv/blob/master/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L142
@@ -225,7 +230,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       maxZoom: 0,
       minZoom: -Number.NEGATIVE_INFINITY,
       // TODO(merfish): figure out a good minZoom
-      getTileData: moleculesByFOVLoader?.getTileData,
+      getTileData: getTileData,
 
       renderSubLayers: props => {
         //console.log(props);
@@ -250,8 +255,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
           opacity: layerDef.opacity,
           visible: layerDef.visible,
           getRadius: layerDef.radius,
-          getPosition: d => d.position,
-          getFillColor: d => PALETTE[d.barcodeIndex % PALETTE.length],
+          getPosition: (object, { index, data, target }) => {
+            target[0] = data.src.xVals[index];
+            target[1] = data.src.yVals[index];
+            target[2] = 0;
+            return target;
+          },
+          getFillColor: (object, { index, data }) => {
+            return PALETTE[data.src.barcodeIndices[index] % PALETTE.length];
+          },
           /*
           getFilterValue: moleculeEntry => (
             // eslint-disable-next-line no-nested-ternary
@@ -281,7 +293,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         });
       },
       updateTriggers: {
-        getTileData: [moleculesByFOVLoader],
+        getTileData: [moleculesByFOVLoader, sliceZ],
       },
     });
   }

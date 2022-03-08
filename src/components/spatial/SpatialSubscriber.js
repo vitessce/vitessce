@@ -75,6 +75,7 @@ export default function SpatialSubscriber(props) {
     spatialRotationZ: rotationZ,
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
+    spatialSliceZ,
     spatialRasterLayers: rasterLayers,
     spatialCellsLayer: cellsLayer,
     spatialMoleculesLayer: moleculesLayer,
@@ -373,6 +374,7 @@ export default function SpatialSubscriber(props) {
         moleculesByFOV={moleculesByFOV}
         moleculesByFOVLoader={moleculesByFOVLoader}
         moleculeSelectionGeneIndices={moleculeSelectionGeneIndices}
+        sliceZ={spatialSliceZ}
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}

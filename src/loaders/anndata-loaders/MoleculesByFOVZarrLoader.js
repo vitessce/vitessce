@@ -1,12 +1,13 @@
 /* eslint-disable */
 import { slice } from 'zarr';
 import range from 'lodash/range';
-import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
 import bboxPolygon from '@turf/bbox-polygon';
 import booleanIntersects from '@turf/boolean-intersects';
+import { InternMap } from 'internmap';
 
 import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import sum from 'lodash/sum';
 
 /**
  * Loader for converting zarr into the cell json schema.
@@ -23,20 +24,36 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
    * Class method for loading spatial cell centroids.
    * @returns {Promise} A promise for an array of tuples/triples for cell centroids.
    */
-  loadSpatialByFOV(fov) {
+  async loadSpatialByFOV(zSlice, fov) {
     const spatial = 'uns/spatial';
+    const barcodes = 'uns/barcode';
+    const key = [zSlice, fov];
     if (!this.spatial) {
-      this.spatial = {};
+      this.spatial = new InternMap([], JSON.stringify);
+      this.barcodes = new InternMap([], JSON.stringify);
     }
-    if (this.spatial[fov]) {
-      return this.spatial[fov];
+    if (this.spatial.has(key)) {
+      return [this.spatial.get(key), this.barcodes.get(key)];
     }
-    this.spatial[fov] = this.dataSource.loadNumericSlice(
+    // Get the max number of barcodes for this (z, fov) tuple.
+    const { barcodeCounts } = await this.molecules;
+    const maxBarcodesByFOV = barcodeCounts.data[zSlice][fov];
+    console.log("maxBarcodesByFOV", zSlice, fov, maxBarcodesByFOV);
+    const spatialResult = this.dataSource.loadNumericSlice(
       spatial,
-      [fov, slice(0, 4), slice(0, 3), slice(0, 100)],
-      // TODO: [fov, null, null, null] or [fov, barcode_id, slice(0, max_barcodes_for_barcode_id), null]
+      [zSlice, fov, slice(0, 2), slice(0, maxBarcodesByFOV)],
     );
-    return this.spatial[fov];
+    const barcodesResult = this.dataSource.loadNumericSlice(
+      barcodes,
+      [zSlice, fov, 0, slice(0, maxBarcodesByFOV)],
+    );
+    this.spatial.set(key, spatialResult);
+    this.barcodes.set(key, barcodesResult);
+    return [await spatialResult, await barcodesResult];
+  }
+
+  loadBarcodeTypesByFOV(zSlice, fov) {
+    // TODO
   }
 
   /**
@@ -44,7 +61,7 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
    * @returns {Promise} A promise for an array of arrays for cell polygons.
    */
   loadBarcodeCounts() {
-    const barcodeByFovCounts = 'varm/counts';
+    const barcodeByFovCounts = 'uns/counts';
     if (this.barcodeByFovCounts) {
       return this.barcodeByFovCounts;
     }
@@ -93,7 +110,7 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
     ];
   }
 
-  async getTileData(tile) {
+  async getTileData(tile, zSlice) {
     const { fov,  } = await this.molecules;
     const { x, y, z, bbox, signal } = tile;
     const { left, top, right, bottom } = bbox;
@@ -108,12 +125,41 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
     //console.log(JSON.stringify(tile));
 
     const intersectingPromises = intersectingFov.map(fovObj => {
-      return this.loadSpatialByFOV(fovObj.id);
+      return this.loadSpatialByFOV(zSlice, fovObj.id);
     });
 
     return Promise.all(intersectingPromises).then(intersectingData => {
-      //console.log(intersectingData);
-      const result = [];
+      
+
+      const numBarcodes = sum(intersectingData.map(fovData => fovData?.[0].shape?.[1] || 0));
+      if(numBarcodes === 0) {
+        return {
+          src: [],
+          length: 0,
+        };
+      }
+      const xVals = new Float32Array(numBarcodes);
+      const yVals = new Float32Array(numBarcodes);
+      const barcodeIndices = new Uint16Array(numBarcodes);
+
+      let offset = 0;
+      intersectingData.forEach((fovData) => {
+        if(fovData && fovData.length === 2 && fovData[0].data && fovData[1].data && fovData[0].data.length === 2) {
+          xVals.set(fovData[0].data[0], offset);
+          yVals.set(fovData[0].data[1], offset);
+          barcodeIndices.set(fovData[1].data, offset);
+
+          offset += fovData[0].shape[1];
+        }
+      });
+
+      return {
+        src: { xVals, yVals, barcodeIndices },
+        length: numBarcodes,
+      };
+
+      // TODO: allocate TypedArrays, then fill
+      /*const result = [];
       intersectingData.forEach((fovData, fovIndex) => {
         fovData.data.forEach((barcodeData, barcodeTypeIndex) => {
           range(fovData.shape[2]).forEach((moleculeIndex) => {
@@ -124,7 +170,7 @@ export default class MoleculesByFOVZarrLoader extends AbstractTwoStepLoader {
           })
         })
       });
-      return result;
+      return result;*/
     });
 
     //console.log(await this.dataSource.loadNumericSlice('uns/spatial', [0, 0, slice(0, 100), null]))

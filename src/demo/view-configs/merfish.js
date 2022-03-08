@@ -34,6 +34,9 @@ export const merfish2022 = {
     spatialZoom: {
       A: 1.0,
     },
+    spatialSliceZ: {
+      A: 0,
+    },
     spatialRasterLayers: {
       A: [
         {
@@ -126,6 +129,7 @@ export const merfish2022 = {
       w: 2,
       h: 8,
       coordinationScopes: {
+        spatialSliceZ: 'A',
         //spatialRasterLayers: 'A',
         //spatialMoleculesLayer: 'A',
       },
@@ -150,6 +154,7 @@ export const merfish2022 = {
     {
       component: 'spatial',
       coordinationScopes: {
+        spatialSliceZ: 'A',
         spatialZoom: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',
