@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, {
-  useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
+  useState, useCallback, useMemo, useEffect, forwardRef,
 } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
@@ -9,7 +9,6 @@ import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
 import { max } from 'd3-array';
-import { Matrix4 } from 'math.gl';
 import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
 import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
@@ -18,7 +17,6 @@ import {
   createDefaultUpdateCellsHover,
   createDefaultUpdateGenesHover,
   createDefaultUpdateViewInfo,
-  copyUint8Array,
 } from '../utils';
 import {
   layerFilter,
@@ -32,7 +30,8 @@ import {
   AXIS_MARGIN,
   DATA_TEXTURE_SIZE,
 } from '../../layers/heatmap-constants';
-import HeatmapWorkerPool from './HeatmapWorkerPool';
+
+const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
 /**
  * A heatmap component for cell x gene matrices.
  * @param {object} props
@@ -97,38 +96,15 @@ const Heatmap = forwardRef((props, deckRef) => {
   const axisLeftTitle = (transpose ? variablesTitle : observationsTitle);
   const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
 
-  const workerPool = useMemo(() => new HeatmapWorkerPool(), []);
-
   useEffect(() => {
     if (clearPleaseWait && expression) {
       clearPleaseWait('expression-matrix');
     }
   }, [clearPleaseWait, expression]);
 
-  const tilesRef = useRef();
-  const dataRef = useRef();
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
 
-
-  // Since we are storing the tile data in a ref,
-  // and updating it asynchronously when the worker finishes,
-  // we need to tie it to a piece of state through this iteration value.
-  const [tileIteration, incTileIteration] = useReducer(i => i + 1, 0);
-
-  // We need to keep a backlog of the tasks for the worker thread,
-  // since the array buffer can only be held by one thread at a time.
-  const [backlog, setBacklog] = useState([]);
-
-  // Store a reference to the matrix Uint8Array in the dataRef,
-  // since we need to access its array buffer to transfer
-  // it back and forth from the worker thread.
-  useEffect(() => {
-    // Store the expression matrix Uint8Array in the dataRef.
-    if (expression && expression.matrix) {
-      dataRef.current = copyUint8Array(expression.matrix);
-    }
-  }, [dataRef, expression]);
 
   // Check if the ordering of axis labels needs to be changed,
   // for example if the cells "selected" (technically just colored)
@@ -174,6 +150,14 @@ const Heatmap = forwardRef((props, deckRef) => {
     ];
   }, [expression]);
 
+  const expressionRowLookUp = useMemo(() => {
+    const lookUp = {}
+    if (expression?.rows) {
+      expression.rows.forEach((cell, j) => (lookUp[cell] = j));
+    }
+    return lookUp;
+  }, [expression])
+
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
 
@@ -213,8 +197,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   const aggSizeY = clamp(2 ** Math.ceil(Math.log2(1 / cellHeight)), MIN_ROW_AGG, MAX_ROW_AGG);
 
   const [targetX, targetY] = viewState.target;
-
-  console.log(axisTopLabels, axisLeftLabels); // eslint-disable-line
 
   // Emit the viewInfo object on viewState updates
   // (used by tooltips / crosshair elements).
@@ -266,94 +248,36 @@ const Heatmap = forwardRef((props, deckRef) => {
       target: (transpose ? [nextTarget[1], nextTarget[0]] : nextTarget),
     });
   }, [matrixRight, matrixBottom, transpose, setViewState]);
-
-  // If `expression` or `cellOrdering` have changed,
-  // then new tiles need to be generated,
-  // so add a new task to the backlog.
-  useEffect(() => {
-    if (!expression) {
-      return;
-    }
-    // Use a uuid to give the task a unique ID,
-    // to help identify where in the list it is located
-    // after the worker thread asynchronously sends the data back
-    // to this thread.
-    if (
-      axisTopLabels && axisLeftLabels && xTiles && yTiles
-    ) {
-      setBacklog(prev => [...prev, uuidv4()]);
-    }
-  }, [dataRef, expression, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
-
-  // When the backlog has updated, a new worker job can be submitted if:
-  // - the backlog has length >= 1 (at least one job is waiting), and
-  // - buffer.byteLength is not zero, so the worker does not currently "own" the buffer.
-  useEffect(() => {
-    if (backlog.length < 1) {
-      return;
-    }
-    const curr = backlog[backlog.length - 1];
-    if (dataRef.current && dataRef.current.buffer.byteLength) {
-      const { rows, cols, matrix } = expression;
-      // const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
-      //   curr,
-      //   tileI: i,
-      //   tileJ: j,
-      //   tileSize: TILE_SIZE,
-      //   cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
-      //   rows,
-      //   cols,
-      //   transpose,
-      //   data: matrix.buffer.slice(),
-      // })));
-      const process = () => {
-        const tiles = range(yTiles * xTiles).map(i => ({ tile: 'foo', buffer: new Uint8Array() }))
-        tilesRef.current = tiles.map(i => i.tile);
-        incTileIteration();
-        dataRef.current = new Uint8Array(tiles[0].buffer);
-        const { curr: currWork } = tiles[0];
-        setBacklog([]);
-      };
-      process();
-    }
-  }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose, xTiles, yTiles, workerPool]);
-
-  useEffect(() => {
-    setIsRendering(backlog.length > 0);
-  }, [backlog, setIsRendering]);
-
   const paddedExpression = useMemo(() => {
-    const newExpression = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE).fill(0);
+    setIsRendering(true);
     const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
     if (expression?.matrix && cellOrdering.length) {
       let newIndex = 0;
-      cellOrdering.forEach((cell, cellOrderingIndex) => {
+      for (let cellOrderingIndex = 0; cellOrderingIndex < cellOrdering.length;  cellOrderingIndex+=1) {
+        const cell = cellOrdering[cellOrderingIndex]
         newIndex = transpose ? cellOrderingIndex : newIndex;
-        const cellIndex = expression.rows.indexOf(cell);
-        expression.cols.forEach((_, geneIndex) => {
+        const cellIndex = expressionRowLookUp[cell];
+        for (let geneIndex = 0; geneIndex < expression.cols.length;  geneIndex+=1) {
           const index = cellIndex * expression.cols.length + geneIndex;
-          newExpression[newIndex] = expression.matrix[index];
+          paddedExpressionContainer[newIndex] = expression.matrix[index];
           newIndex = transpose ? newIndex + cellOrdering.length : newIndex + 1;
-        });
-      })
+        };
+      }
     }
-    return newExpression;
-  }, [expression, axisLeftLabels, axisTopLabels, transpose]);
+    setIsRendering(false);
+    return paddedExpressionContainer;
+  }, [expression, axisLeftLabels, axisTopLabels, transpose, expressionRowLookUp]);
 
 
   // Update the heatmap tiles if:
-  // - new tiles are available (`tileIteration` has changed), or
   // - the matrix bounds have changed, or
   // - the `aggSizeX` or `aggSizeY` have changed, or
   // - the cell ordering has changed.
   const heatmapLayers = useMemo(() => {
-    if (!tilesRef.current || backlog.length) {
-      return [];
-    }
-    function getLayer(i, j, tile) {
+    function getLayer(i, j) {
       const { rows, cols } = expression;
       return new HeatmapBitmapLayer({
-        id: `heatmapLayer-${tileIteration}-${i}-${j}`,
+        id: `heatmapLayer-${i}-${j}`,
         image: paddedExpression,
         bounds: [
           matrixLeft + j * tileWidth,
@@ -377,10 +301,11 @@ const Heatmap = forwardRef((props, deckRef) => {
         },
       });
     }
-    const layers = tilesRef
-      .current.map((tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile));
+    const layers = range(yTiles * xTiles).map((index) =>
+      getLayer(Math.floor(index / xTiles), index % xTiles)
+    );
     return layers;
-  }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
+  }, [matrixLeft, tileWidth, matrixTop, tileHeight,
     aggSizeX, aggSizeY, colormap, colormapRange,
     axisLeftLabels, axisTopLabels, xTiles, paddedExpression, transpose]);
 

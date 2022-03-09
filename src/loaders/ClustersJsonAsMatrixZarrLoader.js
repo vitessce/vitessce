@@ -39,7 +39,6 @@ export default class ClustersJsonAsMatrixZarrLoader extends JsonLoader {
     // Need to wrap the NestedArray to mock the HTTPStore-based array
     // which returns promises.
     const arr = { data: Uint8Array.from(normalizedFlatMatrix) };
-    console.log([attrs, arr]); // eslint-disable-line
     return Promise.resolve(new LoaderResult([attrs, arr], url));
   }
 }

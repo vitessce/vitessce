@@ -1,27 +1,11 @@
 /* eslint-disable no-unused-vars */
 import clamp from 'lodash/clamp';
-import range from 'lodash/range';
 
 import {
   AXIS_LABEL_TEXT_SIZE,
   AXIS_MIN_SIZE,
   AXIS_MAX_SIZE,
 } from '../../layers/heatmap-constants';
-
-export function getGeneByCellTile(view, {
-  tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
-}) {
-  const tileData = new Uint8Array(tileSize * tileSize);
-  return tileData;
-}
-
-export function getCellByGeneTile(view, {
-  tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
-}) {
-  const tileData = new Uint8Array(tileSize * tileSize);
-
-  return tileData;
-}
 
 /**
  * Called before a layer is drawn to determine whether it should be rendered.
