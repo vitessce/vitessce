@@ -55,7 +55,8 @@ const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 export default function QRComparisonScatterplotSubscriber(props) {
   const {
     uuid,
-    supportingUuid = null,
+    qrySupportingUuid = null,
+    refSupportingUuid = null,
     coordinationScopes,
     removeGridComponent,
     theme,
@@ -70,12 +71,13 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
-  const supportingViewInfo = useComponentViewInfo(supportingUuid);
+  const qrySupportingViewInfo = useComponentViewInfo(qrySupportingUuid);
+  const refSupportingViewInfo = useComponentViewInfo(refSupportingUuid);
 
   // Use multi-dataset coordination.
   const datasetUids = useDatasetUids(coordinationScopes);
-  const refScope = "QUERY";
-  const qryScope = "REFERENCE"
+  const refScope = "REFERENCE";
+  const qryScope = "QUERY"
   const refDataset = datasetUids[refScope];
   const qryDataset = datasetUids[qryScope];
   // Get "props" from the coordination space.
@@ -339,7 +341,8 @@ export default function QRComparisonScatterplotSubscriber(props) {
           qrySetters.setEmbeddingTargetY(target[1]);
           qrySetters.setEmbeddingTargetZ(target[2] || 0);
         }}
-        supportingBounds={supportingViewInfo?.bounds}
+        qrySupportingBounds={qrySupportingViewInfo?.bounds}
+        refSupportingBounds={refSupportingViewInfo?.bounds}
         qryCells={qryCells}
         refCells={refCells}
         qryMapping={qryValues.embeddingType}

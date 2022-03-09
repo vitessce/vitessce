@@ -13,7 +13,6 @@ export const Component = {
   EXPRESSION_HISTOGRAM: 'expressionHistogram',
   QR_COMPARISON_SCATTERPLOT: 'qrComparisonScatterplot',
   QR_SUPPORTING_SCATTERPLOT: 'qrSupportingScatterplot',
-  QR_GENE_EXPRESSION: 'qrGeneExpression',
   QR_CELL_SETS: 'qrCellSets',
 };
 

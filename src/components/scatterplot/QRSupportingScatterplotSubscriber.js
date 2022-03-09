@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
@@ -127,7 +128,8 @@ export default function QRSupportingScatterplotSubscriber(props) {
     SCATTERPLOT_DATA_TYPES,
   );
 
-  const title = titleOverride || `Scatterplot (${mapping})`;
+  const isQuery = coordinationScopes.dataset === "QUERY";
+  const title = isQuery ? `Supporting View (Query)` : '(Reference)';
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {

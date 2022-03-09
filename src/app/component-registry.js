@@ -18,7 +18,6 @@ import {
   QRSupportingScatterplotSubscriber,
 } from '../components/scatterplot';
 import { QRCellSetsManagerSubscriber } from '../components/sets';
-import { QRGeneExpressionSubscriber } from '../components/genes';
 
 const registry = {
   [Component.DESCRIPTION]: DescriptionSubscriber,
@@ -35,7 +34,6 @@ const registry = {
   [Component.CELL_SET_EXPRESSION]: CellSetExpressionPlotSubscriber,
   [Component.QR_COMPARISON_SCATTERPLOT]: QRComparisonScatterplotSubscriber,
   [Component.QR_SUPPORTING_SCATTERPLOT]: QRSupportingScatterplotSubscriber,
-  [Component.QR_GENE_EXPRESSION]: QRGeneExpressionSubscriber,
   [Component.QR_CELL_SETS]: QRCellSetsManagerSubscriber,
   // The plain higlass component does not abstract away the HiGlass view config,
   // so we probably want to avoid documenting it, only use it for development purposes.

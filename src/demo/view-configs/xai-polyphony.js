@@ -95,48 +95,111 @@ export const polyphonyConfig = {
         dataset: {
             REFERENCE: 'ref',
             QUERY: 'qry',
-        },
-        embeddingType: {
-            UMAP: 'UMAP',
-        },
-        embeddingCellSetPolygonsVisible: {
-            A: false,
-        },
-        embeddingCellSetLabelsVisible: {
-            A: true,
-        },
-        embeddingCellSetLabelSize: {
-            A: 16,
-        },
-        embeddingCellRadius: {
-            A: 1,
-        },
-        embeddingZoom: {
-            A: 3,
-        },
-        embeddingTargetX: {
-            A: 3,
-        },
-        embeddingTargetY: {
-            A: 3,
-        },
+          },
+          embeddingType: {
+            ref: 'UMAP',
+            qry: 'UMAP',
+          },
+          embeddingCellRadius: {
+            comparison: 2,
+            supporting: 2,
+          },
+          embeddingCellRadiusMode: {
+            comparison: 'manual',
+            supporting: 'manual'
+          },
+          embeddingCellSetLabelsVisible: {
+            comparison: false,
+            qrySupporting: false,
+            refSupporting: true
+          },
+          embeddingZoom: {
+            comparison: -11.004,
+            supporting: -6.5096321603007645,
+          },
+          embeddingTargetX: {
+            comparison: -73966,
+            qrySupporting: -79507.95986692146,
+            refSupporting: -79507.95986692146,
+          },
+          embeddingTargetY: {
+            comparison: -9676,
+            qrySupporting: -29525.795911851183,
+            refSupporting: -29525.795911851183,
+          },
     },
-    layout: [{
-        component: 'qrComparisonScatterplot',
-        coordinationScopes: {
-            dataset: ['REFERENCE', 'QUERY'],
-            embeddingType: { REFERENCE: 'UMAP', QUERY: 'UMAP' },
-            embeddingZoom: 'A',
-            embeddingTargetX: 'A',
-            embeddingTargetY: 'A',
-            embeddingCellSetLabelsVisible: 'A',
-            embeddingCellSetLabelSize: 'A',
-            embeddingCellSetPolygonsVisible: 'A',
-            embeddingCellRadius: 'A',
-        },
-        x: 0,
-        y: 0,
-        w: 5,
-        h: 12,
-    }],
+    layout: [
+        {
+            component: 'status',
+            x: 11,
+            y: 7,
+            w: 1,
+            h: 5,
+          },
+          {
+            component: 'qrCellSets',
+            coordinationScopes: {
+              dataset: ['REFERENCE', 'QUERY'],
+            },
+            x: 5,
+            y: 0,
+            w: 7,
+            h: 7,
+          },
+          {
+            component: 'qrComparisonScatterplot',
+            coordinationScopes: {
+              dataset: ['REFERENCE', 'QUERY'],
+              embeddingType: { REFERENCE: 'ref', QUERY: 'qry' },
+              embeddingZoom: 'comparison',
+              embeddingTargetX: 'comparison',
+              embeddingTargetY: 'comparison',
+              embeddingCellRadius: 'comparison',
+              embeddingCellRadiusMode: 'comparison',
+              embeddingCellSetLabelsVisible: 'comparison',
+            },
+            props: {
+              qrySupportingUuid: 3,
+              refSupportingUuid: 4,
+            },
+            x: 0,
+            y: 0,
+            w: 5,
+            h: 12,
+          },
+          {
+            component: 'qrSupportingScatterplot',
+            coordinationScopes: {
+              dataset: 'QUERY',
+              embeddingType: 'qry',
+              embeddingZoom: 'supporting',
+              embeddingTargetX: 'qrySupporting',
+              embeddingTargetY: 'qrySupporting',
+              embeddingCellRadius: 'supporting',
+              embeddingCellRadiusMode: 'supporting',
+              embeddingCellSetLabelsVisible: 'qrySupporting',
+            },
+            x: 5,
+            y: 7,
+            w: 3,
+            h: 5,
+          },
+          {
+            component: 'qrSupportingScatterplot',
+            coordinationScopes: {
+              dataset: 'REFERENCE',
+              embeddingType: 'ref',
+              embeddingZoom: 'supporting',
+              embeddingTargetX: 'refSupporting',
+              embeddingTargetY: 'refSupporting',
+              embeddingCellRadius: 'supporting',
+              embeddingCellRadiusMode: 'supporting',
+              embeddingCellSetLabelsVisible: 'refSupporting',
+            },
+            x: 8,
+            y: 7,
+            w: 3,
+            h: 5,
+          },
+    ],
 };

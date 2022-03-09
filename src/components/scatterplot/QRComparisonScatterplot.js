@@ -223,11 +223,12 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createSupportingBoundsLayer() {
-    const { supportingBounds } = this.props;
+    const { qrySupportingBounds, refSupportingBounds } = this.props;
     return new PolygonLayer({
       id: 'supporting-bounds',
       data: [
-        bboxPolygon(supportingBounds).geometry.coordinates,
+        bboxPolygon(qrySupportingBounds).geometry.coordinates,
+        bboxPolygon(refSupportingBounds).geometry.coordinates,
       ],
       pickable: false,
       stroked: true,
@@ -372,8 +373,8 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateSupportingBoundsLayer() {
-    const { supportingBounds } = this.props;
-    if(supportingBounds) {
+    const { qrySupportingBounds, refSupportingBounds } = this.props;
+    if(qrySupportingBounds && refSupportingBounds) {
       this.supportingBoundsLayer = this.createSupportingBoundsLayer();
     }
   }
@@ -482,7 +483,7 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
       this.onUpdateCellSetsLayers(true);
       this.forceUpdate();
     }
-    if (shallowDiff('supportingBounds')) {
+    if (['qrySupportingBounds', 'refSupportingBounds'].some(shallowDiff)) {
       this.onUpdateSupportingBoundsLayer();
       this.forceUpdate();
     }

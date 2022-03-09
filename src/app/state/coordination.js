@@ -314,13 +314,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.CELL_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_CELL_SETS,
     CoordinationType.GENE_SELECTION,
-  ],
-  [Component.QR_GENE_EXPRESSION]: [
-    CoordinationType.DATASET,
     CoordinationType.GENE_FILTER,
     CoordinationType.GENE_HIGHLIGHT,
-    CoordinationType.GENE_SELECTION,
-    CoordinationType.CELL_COLOR_ENCODING,
-    CoordinationType.CELL_SET_SELECTION,
   ],
 };

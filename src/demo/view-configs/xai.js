@@ -1,8 +1,5 @@
 /* eslint-disable */
-import {
-  makeDatasetNameToJsonFiles,
-  getS3Url, vapi,
-} from '../utils';
+import { vapi } from '../utils';
 
 const linnarssonDataTypes = [
   'cells',
@@ -22,22 +19,42 @@ export const xaiConfig = {
       uid: 'ref',
       name: 'Reference dataset',
       files: [
-        ...linnarssonDataTypes.map(makeDatasetNameToJsonFiles('linnarsson')),
         {
-          ...makeDatasetNameToJsonFiles('linnarsson')('clusters'),
-          type: 'expression-matrix',
+          "type": "cells",
+          "fileType": "cells.json",
+          "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cells.json"
         },
+        {
+          "type": "cell-sets",
+          "fileType": "cell-sets.json",
+          "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json"
+        },
+        {
+          "type": "expression-matrix",
+          "fileType": "clusters.json",
+          "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json"
+        }
       ],
     },
     {
       uid: 'qry',
       name: 'Query dataset',
       files: [
-        ...linnarssonDataTypes.map(makeDatasetNameToJsonFiles('linnarsson')),
         {
-          ...makeDatasetNameToJsonFiles('linnarsson')('clusters'),
-          type: 'expression-matrix',
+          "type": "cells",
+          "fileType": "cells.json",
+          "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cells.json"
         },
+        {
+          "type": "cell-sets",
+          "fileType": "cell-sets.json",
+          "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json"
+        },
+        {
+          "type": "expression-matrix",
+          "fileType": "clusters.json",
+          "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json"
+        }
       ],
     },
   ],
@@ -70,30 +87,22 @@ export const xaiConfig = {
     },
     embeddingTargetX: {
       comparison: -73966,
-      supporting: 486922.5927960748,
+      qrySupporting: 486922.5927960748,
+      refSupporting: 486922.5927960748,
     },
     embeddingTargetY: {
       comparison: -9676,
-      supporting: -495212.7271243755,
+      qrySupporting: -495212.7271243755,
+      refSupporting: -495212.7271243755,
     },
   },
   layout: [
     {
       component: 'status',
-      x: 9,
-      y: 10,
-      w: 3,
-      h: 2,
-    },
-    {
-      component: 'qrGeneExpression',
-      coordinationScopes: {
-        dataset: ['REFERENCE', 'QUERY'],
-      },
-      x: 9,
-      y: 0,
-      w: 3,
-      h: 10,
+      x: 11,
+      y: 7,
+      w: 1,
+      h: 5,
     },
     {
       component: 'qrCellSets',
@@ -102,7 +111,7 @@ export const xaiConfig = {
       },
       x: 5,
       y: 0,
-      w: 4,
+      w: 7,
       h: 7,
     },
     {
@@ -118,7 +127,8 @@ export const xaiConfig = {
         embeddingCellSetLabelsVisible: 'comparison',
       },
       props: {
-        supportingUuid: 5,
+        qrySupportingUuid: 3,
+        refSupportingUuid: 4,
       },
       x: 0,
       y: 0,
@@ -127,42 +137,36 @@ export const xaiConfig = {
     },
     {
       component: 'qrSupportingScatterplot',
-      props: {
-        title: 'Supporting View',
-      },
       coordinationScopes: {
         dataset: 'QUERY',
         embeddingType: 'qry',
         embeddingZoom: 'supporting',
-        embeddingTargetX: 'supporting',
-        embeddingTargetY: 'supporting',
+        embeddingTargetX: 'qrySupporting',
+        embeddingTargetY: 'qrySupporting',
         embeddingCellRadius: 'supporting',
         embeddingCellRadiusMode: 'supporting',
         embeddingCellSetLabelsVisible: 'qrySupporting',
       },
       x: 5,
       y: 7,
-      w: 2,
+      w: 3,
       h: 5,
     },
     {
       component: 'qrSupportingScatterplot',
-      props: {
-        title: ' ',
-      },
       coordinationScopes: {
         dataset: 'REFERENCE',
         embeddingType: 'ref',
         embeddingZoom: 'supporting',
-        embeddingTargetX: 'supporting',
-        embeddingTargetY: 'supporting',
+        embeddingTargetX: 'refSupporting',
+        embeddingTargetY: 'refSupporting',
         embeddingCellRadius: 'supporting',
         embeddingCellRadiusMode: 'supporting',
         embeddingCellSetLabelsVisible: 'refSupporting',
       },
-      x: 7,
+      x: 8,
       y: 7,
-      w: 2,
+      w: 3,
       h: 5,
     },
   ],
