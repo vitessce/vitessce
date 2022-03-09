@@ -325,6 +325,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       visible: layerDef.visible,
       getRadius: layerDef.radius,
       getPosition: getMoleculePosition,
+      // TODO(merfish): try using different color and radius for moleculeSelectionGeneIndices (rather than the filtering extension).
       getFillColor: getMoleculeColor,
       getFilterValue: moleculeEntry => (
         // eslint-disable-next-line no-nested-ternary
