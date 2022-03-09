@@ -12,16 +12,21 @@ import { pathToKey } from './utils';
 
 
 /**
- * A generic hierarchical set manager component.
+ * A query+reference cell set manager component.
  */
 export default function QRCellSetsManager(props) {
   const {
-    
+    qryPredictionSets,
+    qryLabelSets,
+    refCellTypeSets,
   } = props;
 
   return (
-    <div>
-      <p>TODO(scXAI): cell sets component<br/>(src/components/sets/QRCellSetsManagerSubscriber.js)</p>
+    <div className="qrCellSets">
+      <p>TODO(scXAI): src/components/sets/QRCellSetsManagerSubscriber.js</p>
+      {qryPredictionSets.map(node => (
+        <div>{node.name}</div>
+      ))}
     </div>
   );
 }

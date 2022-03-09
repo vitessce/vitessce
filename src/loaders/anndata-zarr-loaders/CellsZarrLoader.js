@@ -25,13 +25,13 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
   }
 
   loadAnchorCluster() {
-    const { anchorCluster } = (this.options || {});
+    const { anchorMat } = (this.options || {});
     if (this.anchorCluster) {
       return this.anchorCluster;
     }
-    if (!this.anchorCluster && anchorCluster) {
+    if (!this.anchorCluster && anchorMat) {
       // TODO(scXAI): load entire matrix, not single column.
-      this.anchorCluster = this.dataSource.loadNumeric(anchorCluster);
+      this.anchorCluster = this.dataSource.loadNumeric(anchorMat);
       return this.anchorCluster;
     }
     this.anchorCluster = Promise.resolve(null);
@@ -99,7 +99,7 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
         this.dataSource.loadObsIndex(),
         this.loadFactors(),
         this.loadAnchorCluster(),
-      ]).then(([mappings, xy, poly, cellNames, factors, anchorCluster]) => {
+      ]).then(([mappings, xy, poly, cellNames, factors, anchorMat]) => {
         const cells = {};
         cellNames.forEach((name, i) => {
           cells[name] = {};
@@ -117,8 +117,8 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
           if (xy) {
             cells[name].xy = xy.data[i];
           }
-          if (anchorCluster) {
-            cells[name].anchorCluster = anchorCluster.data[i];
+          if (anchorMat) {
+            cells[name].anchorRow = anchorMat.data[i];
           }
           if (poly) {
             cells[name].poly = poly.data[i];

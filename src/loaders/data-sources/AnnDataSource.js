@@ -94,6 +94,11 @@ export default class AnnDataSource extends ZarrDataSource {
       if (dtype === '|O') {
         categoriesValues = await this.getFlatArrDecompressed(`/obs/${categories}`);
       }
+    } else {
+      const { dtype } = await this.getJson(`/${obs}/.zarray`);
+      if (dtype === '|O') {
+        return this.getFlatArrDecompressed(obs);
+      }
     }
     const obsArr = await openArray({ store, path: obs, mode: 'r' });
     const obsValues = await obsArr.get();

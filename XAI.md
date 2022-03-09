@@ -3,7 +3,7 @@
 ### View config documentation
 
 - Query+reference components all assume that there are two special dataset coordination scope names: `QUERY` and `REFERENCE`.
-
+- New `cell-sets-xai` data type.
 
 #### Change List
 - Adds new visualization components which support multiple datasets

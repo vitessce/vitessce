@@ -60,6 +60,10 @@ import { Component } from '../../app/constants';
 
 const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 
+const QRY_PREDICTION_KEY = 'Prediction';
+const QRY_LABEL_KEY = 'Label';
+const REF_CELL_TYPE_KEY = 'Cell Type';
+
 /**
  * A subscriber wrapper around the SetsManager component
  * for the 'cell' datatype.
@@ -146,6 +150,10 @@ export default function QRCellSetsManagerSubscriber(props) {
   console.log("query", qryCellSets);
   console.log("reference", refCellSets);
 
+  const qryPredictionSets = qryCellSets?.tree?.find(n => n.name === QRY_PREDICTION_KEY)?.children || [];
+  const qryLabelSets = qryCellSets?.tree?.find(n => n.name === QRY_LABEL_KEY)?.children || [];
+  const refCellTypeSets = refCellSets?.tree?.find(n => n.name === REF_CELL_TYPE_KEY)?.children || [];
+
   return (
     <TitleInfo
       title={title}
@@ -154,7 +162,9 @@ export default function QRCellSetsManagerSubscriber(props) {
       isReady={isReady}
     >
       <QRCellSetsManager
-        
+        qryPredictionSets={qryPredictionSets}
+        qryLabelSets={qryLabelSets}
+        refCellTypeSets={refCellTypeSets}
       />
     </TitleInfo>
   );

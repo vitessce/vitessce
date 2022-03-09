@@ -17,7 +17,7 @@ export const polyphonyConfig = {
                     fileType: vapi.ft.ANNDATA_CELLS_ZARR,
                     url: `${zarrPath}/pancreas_easy/reference.zarr`,
                     options: {
-                        anchorCluster: "obsm/anchor_cluster",
+                        anchorMat: "obsm/anchor_mat",
                         mappings: {
                             UMAP: {
                                 key: "obsm/X_umap",
@@ -51,7 +51,7 @@ export const polyphonyConfig = {
                     fileType: vapi.ft.ANNDATA_CELLS_ZARR,
                     url: `${zarrPath}/pancreas_easy/query.zarr`,
                     options: {
-                        anchorCluster: "obsm/anchor_cluster",
+                        anchorMat: "obsm/anchor_mat",
                         mappings: {
                             UMAP: {
                                 key: "obsm/X_umap",
@@ -59,8 +59,7 @@ export const polyphonyConfig = {
                             },
                         },
                         factors: [
-                            "obs/cell_type",
-                            //"obs/prediction",
+                            "obs/prediction",
                             //"obs/label"
                         ]
                     }
@@ -69,19 +68,12 @@ export const polyphonyConfig = {
                     type: vapi.dt.CELL_SETS,
                     fileType: vapi.ft.ANNDATA_CELL_SETS_ZARR,
                     url: `${zarrPath}/pancreas_easy/query.zarr`,
-                    // TODO(scXAI): support
-                    // - obs/prediction
-                    // - obs/label
                     options: [
                         {
-                            groupName: "Cell Type",
-                            setName: "obs/cell_type"
-                        },
-                        /*{
                             groupName: "Prediction",
                             setName: "obs/prediction"
                         },
-                        {
+                        /*{
                             groupName: "Label",
                             setName: "obs/label"
                         }*/
@@ -95,6 +87,10 @@ export const polyphonyConfig = {
         dataset: {
             REFERENCE: 'ref',
             QUERY: 'qry',
+          },
+          cellSetSelection: {
+            ref: null,
+            qry: null,
           },
           embeddingType: {
             ref: 'UMAP',
@@ -140,6 +136,7 @@ export const polyphonyConfig = {
             component: 'qrCellSets',
             coordinationScopes: {
               dataset: ['REFERENCE', 'QUERY'],
+              cellSetSelection: { REFERENCE: 'ref', QUERY: 'qry' },
             },
             x: 5,
             y: 0,
@@ -150,6 +147,7 @@ export const polyphonyConfig = {
             component: 'qrComparisonScatterplot',
             coordinationScopes: {
               dataset: ['REFERENCE', 'QUERY'],
+              cellSetSelection: { REFERENCE: 'ref', QUERY: 'qry' },
               embeddingType: { REFERENCE: 'ref', QUERY: 'qry' },
               embeddingZoom: 'comparison',
               embeddingTargetX: 'comparison',
@@ -178,6 +176,7 @@ export const polyphonyConfig = {
               embeddingCellRadius: 'supporting',
               embeddingCellRadiusMode: 'supporting',
               embeddingCellSetLabelsVisible: 'qrySupporting',
+              cellSetSelection: 'qry',
             },
             x: 5,
             y: 7,
@@ -195,6 +194,7 @@ export const polyphonyConfig = {
               embeddingCellRadius: 'supporting',
               embeddingCellRadiusMode: 'supporting',
               embeddingCellSetLabelsVisible: 'refSupporting',
+              cellSetSelection: 'ref',
             },
             x: 8,
             y: 7,
