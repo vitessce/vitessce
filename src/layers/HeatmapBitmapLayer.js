@@ -86,7 +86,20 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       numXTiles,
       numYTiles,
     } = this.props;
-
+    console.log(
+       Object.assign({}, uniforms, {
+            uBitmapTexture: bitmapTexture,
+            uOrigDataSize: origDataSize,
+            uReshapedDataSize: [DATA_TEXTURE_SIZE, DATA_TEXTURE_SIZE],
+            uTextureSize: [TILE_SIZE, TILE_SIZE],
+            uAggSize: [aggSizeX, aggSizeY],
+            uColorScaleRange: [colorScaleLo, colorScaleHi],
+            tileIJ: [tileI, tileJ],
+            dataIJ: [0, 0],
+            numTiles: [numXTiles, numYTiles],
+            numData: [1, 1],
+          }),
+        )
     // Render the image
     if (bitmapTexture && model) {
       model

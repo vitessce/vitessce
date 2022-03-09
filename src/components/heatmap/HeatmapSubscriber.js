@@ -123,8 +123,6 @@ export default function HeatmapSubscriber(props) {
     { cellSetSelection, cellSetColor },
   );
 
-  console.log(expressionMatrix);
-
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);

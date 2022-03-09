@@ -195,16 +195,14 @@ const Heatmap = forwardRef((props, deckRef) => {
   const xTiles = Math.ceil(width / TILE_SIZE);
   const yTiles = Math.ceil(height / TILE_SIZE);
 
-  const widthRatio = 1 - (TILE_SIZE - (width % TILE_SIZE)) / (xTiles * TILE_SIZE);
-  const heightRatio = 1 - (TILE_SIZE - (height % TILE_SIZE)) / (yTiles * TILE_SIZE);
-
-  console.log(widthRatio, heightRatio);
-
+  const widthRatio =
+    1 - (TILE_SIZE - (width % TILE_SIZE)) / (xTiles * TILE_SIZE);
+  const heightRatio =
+    1 - (TILE_SIZE - (height % TILE_SIZE)) / (yTiles * TILE_SIZE);
+  
+  
   const tileWidth = (matrixWidth / widthRatio) / (xTiles);
   const tileHeight = (matrixHeight / heightRatio) / (yTiles);
-
-  console.log(tileWidth, tileHeight);
-
   const scaleFactor = 2 ** viewState.zoom;
   const cellHeight = (matrixHeight * scaleFactor) / height;
   const cellWidth = (matrixWidth * scaleFactor) / width;
@@ -215,6 +213,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   const aggSizeY = clamp(2 ** Math.ceil(Math.log2(1 / cellHeight)), MIN_ROW_AGG, MAX_ROW_AGG);
 
   const [targetX, targetY] = viewState.target;
+
+  console.log(axisTopLabels, axisLeftLabels); // eslint-disable-line
 
   // Emit the viewInfo object on viewState updates
   // (used by tooltips / crosshair elements).
@@ -295,27 +295,24 @@ const Heatmap = forwardRef((props, deckRef) => {
     const curr = backlog[backlog.length - 1];
     if (dataRef.current && dataRef.current.buffer.byteLength) {
       const { rows, cols, matrix } = expression;
-      const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
-        curr,
-        tileI: i,
-        tileJ: j,
-        tileSize: TILE_SIZE,
-        cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
-        rows,
-        cols,
-        transpose,
-        data: matrix.buffer.slice(),
-      })));
-      const process = async () => {
-        const tiles = await Promise.all(promises.flat());
+      // const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
+      //   curr,
+      //   tileI: i,
+      //   tileJ: j,
+      //   tileSize: TILE_SIZE,
+      //   cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
+      //   rows,
+      //   cols,
+      //   transpose,
+      //   data: matrix.buffer.slice(),
+      // })));
+      const process = () => {
+        const tiles = range(yTiles * xTiles).map(i => ({ tile: 'foo', buffer: new Uint8Array() }))
         tilesRef.current = tiles.map(i => i.tile);
         incTileIteration();
         dataRef.current = new Uint8Array(tiles[0].buffer);
         const { curr: currWork } = tiles[0];
-        setBacklog((prev) => {
-          const currIndex = prev.indexOf(currWork);
-          return prev.slice(currIndex + 1, prev.length);
-        });
+        setBacklog([]);
       };
       process();
     }
@@ -327,15 +324,22 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   const paddedExpression = useMemo(() => {
     const newExpression = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE).fill(0);
-    if (expression?.matrix) {
-      expression.matrix.forEach((i, j) => {
-        newExpression[j] = i;
-      });
+    const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
+    if (expression?.matrix && cellOrdering.length) {
+      let newIndex = 0;
+      cellOrdering.forEach((cell, cellOrderingIndex) => {
+        newIndex = transpose ? cellOrderingIndex : newIndex;
+        const cellIndex = expression.rows.indexOf(cell);
+        expression.cols.forEach((_, geneIndex) => {
+          const index = cellIndex * expression.cols.length + geneIndex;
+          newExpression[newIndex] = expression.matrix[index];
+          newIndex = transpose ? newIndex + cellOrdering.length : newIndex + 1;
+        });
+      })
     }
     return newExpression;
-  }, [expression]);
+  }, [expression, axisLeftLabels, axisTopLabels, transpose]);
 
-  console.log(paddedExpression);
 
   // Update the heatmap tiles if:
   // - new tiles are available (`tileIteration` has changed), or
@@ -348,19 +352,20 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
     function getLayer(i, j, tile) {
       const { rows, cols } = expression;
-      const modelMatrix = new Matrix4()
-        .translate([matrixLeft + j * tileWidth, matrixTop + i * tileHeight, 0])
-        .scale([tileWidth, tileHeight, 0]);
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
         image: paddedExpression,
-        bounds: [0, 0, 1, 1],
+        bounds: [
+          matrixLeft + j * tileWidth,
+          matrixTop + i * tileHeight,
+          matrixLeft + (j + 1) * tileWidth,
+          matrixTop + (i + 1) * tileHeight,
+        ],
         tileI: i,
         tileJ: j,
         numXTiles: xTiles,
         numYTiles: yTiles,
-        modelMatrix,
-        origDataSize: [cols.length, rows.length],
+        origDataSize: transpose ? [cols.length, rows.length] : [rows.length, cols.length],
         aggSizeX,
         aggSizeY,
         colormap,
@@ -377,7 +382,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     return layers;
   }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
     aggSizeX, aggSizeY, colormap, colormapRange,
-    axisLeftLabels, axisTopLabels, xTiles, paddedExpression]);
+    axisLeftLabels, axisTopLabels, xTiles, paddedExpression, transpose]);
 
 
   // Map cell and gene names to arrays with indices,

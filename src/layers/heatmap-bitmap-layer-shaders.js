@@ -63,6 +63,7 @@ precision mediump float;
 // The texture (GL.LUMINANCE & Uint8Array).
 uniform sampler2D uBitmapTexture;
 
+// height x width of the data matrix (i.e x and y are flipped compared to the graphics convention)
 uniform vec2 uOrigDataSize;
 uniform vec2 uReshapedDataSize;
 
@@ -82,11 +83,22 @@ uniform vec2 uColorScaleRange;
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
 varying vec2 vTexCoord;
 
-vec2 transformCoordinate(vec2 coord) {
+vec2 dataCoordinateFromvTexCoord(vec2 coord) {
+  float xOffset = (tileIJ.y / numTiles.x);
+  float yOffset = (tileIJ.x / numTiles.y);
+  vec2 vTexCoordOffset = vec2(
+    xOffset + (coord.x * uTextureSize.x / uOrigDataSize.y),
+    yOffset + ((1. - coord.y) * uTextureSize.y / uOrigDataSize.x)
+  );
+
   // True pixel coordinate on scale of uOrigDataSize
-  vec2 viewCoord = vec2(floor(coord.y * uOrigDataSize.y), floor(coord.x * uOrigDataSize.x));
+  vec2 viewCoord = vec2(floor(vTexCoordOffset.x * uOrigDataSize.y), floor(vTexCoordOffset.y * uOrigDataSize.x));
+  return viewCoord;
+}
+
+vec2 transformDataCoordinate(vec2 viewCoord) {
   // Compute single value index into data array
-  float index = viewCoord.y * uOrigDataSize.x + viewCoord.x;
+  float index = viewCoord.y * uOrigDataSize.y + viewCoord.x;
   float textureX = (floor( index / uReshapedDataSize.x )) / uReshapedDataSize.x;
   float textureY = (index - (floor( index / uReshapedDataSize.x ) * uReshapedDataSize.x)) / uReshapedDataSize.y;
   vec2 texturedCoord = vec2(textureY, textureX);
@@ -94,20 +106,39 @@ vec2 transformCoordinate(vec2 coord) {
 }
 
 void main(void) {
-  // Compute 1 pixel in texture coordinates
   vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
+  vec2 viewCoordTransformed = dataCoordinateFromvTexCoord(vTexCoord);
+  vec2 vTexCoordTransformed = transformDataCoordinate(viewCoordTransformed);
   
-  float xOffset = (tileIJ.x / numTiles.x);
-  float yOffset = (tileIJ.y / numTiles.y);
-  vec2 vTexCoordOffset = vec2(
-    xOffset + (vTexCoord.x * uTextureSize.x / uOrigDataSize.x),
-    yOffset + ((1. - vTexCoord.y) * uTextureSize.y / uOrigDataSize.y)
-  );
+  // Compute (x % aggSizeX, y % aggSizeY).
+  // These values will be the number of values to the left / above the current position to consider.
+  vec2 modAggSize = vec2(-1.0 * mod(viewCoordTransformed.x, uAggSize.x), -1.0 * mod(viewCoordTransformed.y, uAggSize.y));
+  // Take the sum of values along each axis.
+  float intensitySum = 0.0;
+  vec2 offsetPixels = vec2(0.0, 0.0);
+  for(int i = 0; i < 16; i++) {
+    // Check to break outer loop early.
+    // Uniforms cannot be used as conditions in GLSL for loops.
+    if(float(i) >= uAggSize.y) {
+      // Done in the y direction.
+      break;
+    }
+    offsetPixels = vec2(offsetPixels.x, (modAggSize.y + float(i)) * onePixel.y);
+    for(int j = 0; j < 16; j++) {
+      // Check to break inner loop early.
+      // Uniforms cannot be used as conditions in GLSL for loops.
+      if(float(j) >= uAggSize.x) {
+        // Done in the x direction.
+        break;
+      }
+      offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
+      intensitySum += texture2D(uBitmapTexture, vTexCoordTransformed + offsetPixels).r;
+    }
+  }
+  
+  // Compute the mean value.
+  float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
 
-  vec2 vTexCoordTransformed = transformCoordinate(vTexCoordOffset);
-  
-  float intensitySum = texture2D(uBitmapTexture, vTexCoordTransformed).r;
-  float intensityMean = intensitySum;
 
   // Re-scale using the color scale slider values.
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));

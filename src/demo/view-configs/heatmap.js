@@ -49,9 +49,6 @@ const linnarssonBase = {
       },
       {
         component: 'heatmap',
-        props: {
-          transpose: true,
-        },
         x: 2,
         y: 0,
         w: 10,
