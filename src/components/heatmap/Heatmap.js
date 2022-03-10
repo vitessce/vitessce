@@ -31,7 +31,12 @@ import {
 } from '../../layers/heatmap-constants';
 
 // Only allocate the memory once for the container
-const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
+const paddedExpressionContainers = [
+  new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
+  new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
+  new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
+  new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
+];
 
 /**
  * A heatmap component for cell x gene matrices.
@@ -251,7 +256,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   }, [matrixRight, matrixBottom, transpose, setViewState]);
 
   // Create the padded expression matrix for holding data which can then be bound to the GPU.
-  const paddedExpression = useMemo(() => {
+  const paddedExpressions = useMemo(() => {
     setIsRendering(true);
     const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
     if (expression?.matrix && cellOrdering.length) {
@@ -264,13 +269,17 @@ const Heatmap = forwardRef((props, deckRef) => {
         const cellIndex = expressionRowLookUp[cell];
         for (let geneIndex = 0; geneIndex < expression.cols.length; geneIndex += 1) {
           const index = cellIndex * expression.cols.length + geneIndex;
-          paddedExpressionContainer[newIndex] = expression.matrix[index];
-          newIndex = transpose ? newIndex + cellOrdering.length : newIndex + 1;
+          const container = Math.floor(newIndex / (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE));
+          newIndex === DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE * 2 && console.log(transpose, index, cellIndex, geneIndex, newIndex, container); // eslint-disable-line
+          paddedExpressionContainers[container][
+            newIndex % (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE)
+          ] = expression.matrix[index];
+          newIndex = (transpose ? newIndex + cellOrdering.length : newIndex + 1);
         }
       }
     }
     setIsRendering(false);
-    return paddedExpressionContainer;
+    return [...paddedExpressionContainers];
   }, [setIsRendering, transpose, axisTopLabels, axisLeftLabels, expression, expressionRowLookUp]);
 
 
@@ -284,7 +293,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       const { cols } = expression;
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${i}-${j}`,
-        image: paddedExpression,
+        images: paddedExpressions,
         bounds: [
           matrixLeft + j * tileWidth,
           matrixTop + i * tileHeight,
@@ -311,7 +320,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     const layers = range(yTiles * xTiles)
       .map(index => getLayer(Math.floor(index / xTiles), index % xTiles));
     return layers;
-  }, [yTiles, xTiles, expression, paddedExpression, matrixLeft,
+  }, [yTiles, xTiles, expression, paddedExpressions, matrixLeft,
     tileWidth, matrixTop, tileHeight, transpose, aggSizeX, aggSizeY,
     colormap, colormapRange, axisLeftLabels, axisTopLabels]);
 

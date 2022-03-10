@@ -61,7 +61,10 @@ precision mediump float;
 #pragma glslify: winter = require("glsl-colormap/winter")
 
 // The texture (GL.LUMINANCE & Uint8Array).
-uniform sampler2D uBitmapTexture;
+uniform sampler2D uBitmapTexture0;
+uniform sampler2D uBitmapTexture1;
+uniform sampler2D uBitmapTexture2;
+uniform sampler2D uBitmapTexture3;
 
 // height x width of the data matrix (i.e x and y are flipped compared to the graphics convention)
 uniform vec2 uOrigDataSize;
@@ -83,22 +86,28 @@ uniform vec2 uColorScaleRange;
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
 varying vec2 vTexCoord;
 
-vec2 dataCoordinateFromvTexCoord(vec2 coord) {
+vec2 offsetvTexcoord(vec2 coord) {
   float xOffset = (tileIJ.y / numTiles.x);
   float yOffset = (tileIJ.x / numTiles.y);
   vec2 vTexCoordOffset = vec2(
     xOffset + (coord.x * uTextureSize.x / uOrigDataSize.y),
     yOffset + ((1. - coord.y) * uTextureSize.y / uOrigDataSize.x)
   );
+  return vTexCoordOffset;
+}
 
+vec2 dataCoordinateFromvTexCoordOffset(vec2 vTexCoordOffset) {
+  
   // True pixel coordinate on scale of uOrigDataSize
   vec2 viewCoord = vec2(floor(vTexCoordOffset.x * uOrigDataSize.y), floor(vTexCoordOffset.y * uOrigDataSize.x));
   return viewCoord;
 }
 
-vec2 transformDataCoordinate(vec2 viewCoord) {
-  // Compute single value index into data array
-  float index = viewCoord.y * uOrigDataSize.y + viewCoord.x;
+float getIndexFromViewCoord(vec2 viewCoord) {
+  return viewCoord.y * uOrigDataSize.y + viewCoord.x;
+}
+
+vec2 transformDataCoordinate(float index) {
   float textureX = (floor( index / uReshapedDataSize.x )) / uReshapedDataSize.x;
   float textureY = (index - (floor( index / uReshapedDataSize.x ) * uReshapedDataSize.x)) / uReshapedDataSize.y;
   vec2 texturedCoord = vec2(textureY, textureX);
@@ -108,8 +117,12 @@ vec2 transformDataCoordinate(vec2 viewCoord) {
 void main(void) {
   // Compute 1 pixel in texture coordinates
   vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
-  vec2 viewCoordTransformed = dataCoordinateFromvTexCoord(vTexCoord);
-  vec2 vTexCoordTransformed = transformDataCoordinate(viewCoordTransformed);
+  vec2 vTexCoordOffset = offsetvTexcoord(vTexCoord);
+  vec2 viewCoordTransformed = dataCoordinateFromvTexCoordOffset(vTexCoordOffset);
+  float indexFull = getIndexFromViewCoord(viewCoordTransformed);
+  float index = indexFull - (floor(indexFull / (uReshapedDataSize.x * uReshapedDataSize.y)) * (uReshapedDataSize.x * uReshapedDataSize.y));
+  float container = floor(indexFull / (uReshapedDataSize.x * uReshapedDataSize.y));
+  vec2 vTexCoordTransformed = transformDataCoordinate(index);
   
   // Compute (x % aggSizeX, y % aggSizeY).
   // These values will be the number of values to the left / above the current position to consider.
@@ -135,17 +148,20 @@ void main(void) {
         break;
       }
       offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
-      intensitySum += texture2D(uBitmapTexture, vTexCoordTransformed + offsetPixels).r;
+      intensitySum += float(container == 0.) * texture2D(uBitmapTexture0, vTexCoordTransformed + offsetPixels).r;
+      intensitySum += float(container == 1.) * texture2D(uBitmapTexture1, vTexCoordTransformed + offsetPixels).r;
+      intensitySum += float(container == 2.) * texture2D(uBitmapTexture2, vTexCoordTransformed + offsetPixels).r;
+      intensitySum += float(container == 3.) * texture2D(uBitmapTexture3, vTexCoordTransformed + offsetPixels).r;
     }
   }
   
   // Compute the mean value.
-  float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
+  float intensityMean = (tileIJ.y / numTiles.x) + (vTexCoord.x * uTextureSize.x / uOrigDataSize.y);
   
   // Re-scale using the color scale slider values.
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
 
-  gl_FragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
+  gl_FragColor = COLORMAP_FUNC(clamp(intensityMean, 0.0, 1.0));
 
   geometry.uv = vTexCoord;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);
