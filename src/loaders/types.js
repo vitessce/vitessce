@@ -10,7 +10,6 @@ import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
-import InMemoryMatrixLoader from './InMemoryMatrixLoader';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
@@ -26,7 +25,6 @@ export const fileTypeToLoaderAndSource = {
   [FileType.ANNDATA_CELLS_ZARR]: [AnnDataSource, AnnDataLoaders.CellsZarrLoader],
   [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],
   [FileType.GENOMIC_PROFILES_ZARR]: [ZarrDataSource, GenomicProfilesZarrLoader],
-  'in-memory-matrix': [JsonSource, InMemoryMatrixLoader],
 };
 
 export function getSourceAndLoaderFromFileType(type) {

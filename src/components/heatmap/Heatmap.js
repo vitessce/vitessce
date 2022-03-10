@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useState, useCallback, useMemo, useEffect, forwardRef,
 } from 'react';
@@ -31,7 +30,9 @@ import {
   DATA_TEXTURE_SIZE,
 } from '../../layers/heatmap-constants';
 
+// Only allocate the memory once for the container
 const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
+
 /**
  * A heatmap component for cell x gene matrices.
  * @param {object} props
@@ -150,13 +151,16 @@ const Heatmap = forwardRef((props, deckRef) => {
     ];
   }, [expression]);
 
+  // Creating a look up dictionary once is faster than calling indexOf many times
+  // i.e when cell ordering changes.
   const expressionRowLookUp = useMemo(() => {
-    const lookUp = {}
+    const lookUp = {};
     if (expression?.rows) {
+      // eslint-disable-next-line no-return-assign
       expression.rows.forEach((cell, j) => (lookUp[cell] = j));
     }
     return lookUp;
-  }, [expression])
+  }, [expression]);
 
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
@@ -179,12 +183,10 @@ const Heatmap = forwardRef((props, deckRef) => {
   const xTiles = Math.ceil(width / TILE_SIZE);
   const yTiles = Math.ceil(height / TILE_SIZE);
 
-  const widthRatio =
-    1 - (TILE_SIZE - (width % TILE_SIZE)) / (xTiles * TILE_SIZE);
-  const heightRatio =
-    1 - (TILE_SIZE - (height % TILE_SIZE)) / (yTiles * TILE_SIZE);
-  
-  
+  const widthRatio = 1 - (TILE_SIZE - (width % TILE_SIZE)) / (xTiles * TILE_SIZE);
+  const heightRatio = 1 - (TILE_SIZE - (height % TILE_SIZE)) / (yTiles * TILE_SIZE);
+
+
   const tileWidth = (matrixWidth / widthRatio) / (xTiles);
   const tileHeight = (matrixHeight / heightRatio) / (yTiles);
   const scaleFactor = 2 ** viewState.zoom;
@@ -248,25 +250,29 @@ const Heatmap = forwardRef((props, deckRef) => {
       target: (transpose ? [nextTarget[1], nextTarget[0]] : nextTarget),
     });
   }, [matrixRight, matrixBottom, transpose, setViewState]);
+
+  // Create the padded expression matrix for holding data which can then be bound to the GPU.
   const paddedExpression = useMemo(() => {
     setIsRendering(true);
     const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
     if (expression?.matrix && cellOrdering.length) {
       let newIndex = 0;
-      for (let cellOrderingIndex = 0; cellOrderingIndex < cellOrdering.length;  cellOrderingIndex+=1) {
-        const cell = cellOrdering[cellOrderingIndex]
+      for (
+        let cellOrderingIndex = 0; cellOrderingIndex < cellOrdering.length; cellOrderingIndex += 1
+      ) {
+        const cell = cellOrdering[cellOrderingIndex];
         newIndex = transpose ? cellOrderingIndex : newIndex;
         const cellIndex = expressionRowLookUp[cell];
-        for (let geneIndex = 0; geneIndex < expression.cols.length;  geneIndex+=1) {
+        for (let geneIndex = 0; geneIndex < expression.cols.length; geneIndex += 1) {
           const index = cellIndex * expression.cols.length + geneIndex;
           paddedExpressionContainer[newIndex] = expression.matrix[index];
           newIndex = transpose ? newIndex + cellOrdering.length : newIndex + 1;
-        };
+        }
       }
     }
     setIsRendering(false);
     return paddedExpressionContainer;
-  }, [expression, axisLeftLabels, axisTopLabels, transpose, expressionRowLookUp]);
+  }, [setIsRendering, transpose, axisTopLabels, axisLeftLabels, expression, expressionRowLookUp]);
 
 
   // Update the heatmap tiles if:
@@ -301,13 +307,12 @@ const Heatmap = forwardRef((props, deckRef) => {
         },
       });
     }
-    const layers = range(yTiles * xTiles).map((index) =>
-      getLayer(Math.floor(index / xTiles), index % xTiles)
-    );
+    const layers = range(yTiles * xTiles)
+      .map(index => getLayer(Math.floor(index / xTiles), index % xTiles));
     return layers;
-  }, [matrixLeft, tileWidth, matrixTop, tileHeight,
-    aggSizeX, aggSizeY, colormap, colormapRange,
-    axisLeftLabels, axisTopLabels, xTiles, paddedExpression, transpose]);
+  }, [yTiles, xTiles, expression, paddedExpression, matrixLeft,
+    tileWidth, matrixTop, tileHeight, transpose, aggSizeX, aggSizeY,
+    colormap, colormapRange, axisLeftLabels, axisTopLabels]);
 
 
   // Map cell and gene names to arrays with indices,

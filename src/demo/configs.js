@@ -17,8 +17,6 @@ import {
   embeddingTargetYConfig,
   embeddingCellSetPolygonsVisibleConfig,
 } from './view-configs/coordination-types/index';
-import { heatmapOnly } from './view-configs/heatmap';
-
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -46,7 +44,6 @@ export const configs = {
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   'blin-2019': blin2019,
   'ome-ngff-v0.1': omeNgffLegacy,
-  'just-heatmap': heatmapOnly,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': notPublic(codeluppi2018),
   vanderbilt: notPublic(spraggins2020),

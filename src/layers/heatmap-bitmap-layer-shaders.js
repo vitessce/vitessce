@@ -106,6 +106,7 @@ vec2 transformDataCoordinate(vec2 viewCoord) {
 }
 
 void main(void) {
+  // Compute 1 pixel in texture coordinates
   vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
   vec2 viewCoordTransformed = dataCoordinateFromvTexCoord(vTexCoord);
   vec2 vTexCoordTransformed = transformDataCoordinate(viewCoordTransformed);
@@ -123,7 +124,9 @@ void main(void) {
       // Done in the y direction.
       break;
     }
+
     offsetPixels = vec2(offsetPixels.x, (modAggSize.y + float(i)) * onePixel.y);
+
     for(int j = 0; j < 16; j++) {
       // Check to break inner loop early.
       // Uniforms cannot be used as conditions in GLSL for loops.
@@ -139,10 +142,9 @@ void main(void) {
   // Compute the mean value.
   float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
 
-
   // Re-scale using the color scale slider values.
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
-  
+
   gl_FragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
 
   geometry.uv = vTexCoord;
