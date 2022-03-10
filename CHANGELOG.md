@@ -5,6 +5,7 @@
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details.
 - Upgrade Viv to 0.12.6 to fix shader compilation issue with interleaved RGB images
 - Fixed layer controller raster channel slider bug, related to [MUI slider issue](https://github.com/mui/material-ui/issues/20896).
+- Speed up heatmap load times (including when cell ordering changes) by implementing a custom indexing scheme on the shaders (see `src/components/heatmap/heatmap-indexing.pdf` for more info)
 
 ## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
 

@@ -1,0 +1,65 @@
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage[english]{babel}
+\usepackage{amsmath, amsthm, amssymb, fancyhdr, enumitem, bbm}
+
+
+% figure support
+\usepackage{import}
+\usepackage{xifthen}
+\pdfminorversion=7
+\usepackage{pdfpages}
+\usepackage{transparent}
+\newcommand{\incfig}[1]{%
+	\def\svgwidth{\columnwidth}
+	\import{./figures/}{#1.pdf_tex}
+}
+
+\pdfsuppresswarningpagegroup=1
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textsc{Ilan Gold, vitessce-heatmap}}
+
+\newcommand{\Rr}{\mathbb{R}}
+\newcommand{\Qq}{\mathbb{Q}}
+\newcommand{\Zz}{\mathbb{Z}}
+\newcommand{\Cc}{\mathbb{C}}
+
+\newtheorem*{theorem*}{Theorem}
+\newtheorem*{lemma*}{Lemma}
+\newtheorem*{corollary*}{Corollary}
+\newtheorem*{definition*}{Definition}
+\newtheorem*{remark*}{Remark}
+\newtheorem*{example*}{Example}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}                                                                                                                                                         \newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{example}{Example}
+
+\begin{document}
+
+	\begin{center}
+		\Large{\textsc{Heatmap Indexing}}
+	\end{center}
+
+	We first define a \textbf{data matrix} $M \in \Rr^{n\times m}$.  We then have a \textbf{tile size} $\tau$ so that we have  $\left\lceil \frac{n}{\tau} \right\rceil = R$ row tiles and $\left\lceil \frac{m}{\tau} \right\rceil = C $ column tiles.  Because this data matrix cannot fit on the GPU it must be reshaped into a $M^{*} \in \Rr^{p \times p}$ \textbf{reshaped matrix} where $p$ is the max texture size on the computer (we assume that  $mn < p^{2}$ otherwise this doesn't work).  
+
+	The data is thus reshaped into this new matrix in row major order under the mapping $\phi: \{0, \ldots, n - 1\} \times \{0, \ldots, m-1\}  \to \{0, \ldots p-1\}^{2}$ \[
+	\phi:	(i, j) \to \left( \left\lfloor  \frac{\left( i * m \right) + j}{p}\right\rfloor, (\left( i * m \right) + j) - p \left\lfloor \frac{\left( i * m \right) + j}{p}\right\rfloor   \right) 
+	.\] 
+	Assume we have some fragment within a tile \[
+		F = \left( \left( a, b \right), \left( x, y \right)   \right) \in [0,1]^{2} \times \left( \{0, \ldots, C - 1\} \times \{0, \ldots, R-1\}  \right) = \mathcal{F}
+		\] defined by \textbf{fragment coordinates} $\left( a, b \right) \in [0,1]^{2}$, in normalized fragment space, and $\left( x,y \right) \in   \{0, \ldots, C - 1\} \times \{0, \ldots, R-1\}  $ the \textbf{tile coordinates}. Note that we are following the graphics convention, not the matrix convention - for matrices, the first coordinate represents row number (i.e going "up and down") but in graphics, the first coordinate represents the lateral coordinate, in this case for both the coordiante and the fragment coordinate.  
+
+		In summary, every fragment in the total fragment space $\mathcal{F}$ (over all tiles) is described by what tile it is in, $\left( x, y \right) $, and the coordinates within that tile in normalized fragment space $(a,b)$. We are then able to define the coordinates of the tile in terms of the original data matrix coordinates by the mapping $\psi: \mathcal{F} \to \{0, \ldots, n - 1\} \times \{0, \ldots, m-1\}  $ \[
+		\psi: (\left( a, b \right), \left( x, y \right) = T) \to \left( y * \tau + \left\lfloor b * \tau \right\rfloor, x * \tau + \left\lfloor a * \tau \right\rfloor \right)   
+	.\]  
+	This mapping takes the $[0,1]$ fragment, finds the coordinate within the tile that is correct independent of the underlying data (this is the floor term), and then offsets this coordinate by which tile of the data matrix we are in.
+
+	Thus the mapping $\phi \circ \psi: \mathcal{F} \to \{0, \ldots p-1\}^{2} $ is a mapping from a fragment within a given tile to a spot on the reshaped data matrix, and this mapping only relies on knowing $m, n, p, \tau$ and  $F$, all of which are accessible for every fragment by binding these parameters as uniforms.  By then normalizing the image of $\phi \circ \psi$ i.e dividing both coordinates by  $p$, we would get a final coordinate  in $[0, 1]^{2}$ which can be used to sample the reshaped data texture.
+\end{document}
