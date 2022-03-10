@@ -279,8 +279,9 @@ const Heatmap = forwardRef((props, deckRef) => {
   // - the `aggSizeX` or `aggSizeY` have changed, or
   // - the cell ordering has changed.
   const heatmapLayers = useMemo(() => {
+    const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
     function getLayer(i, j) {
-      const { rows, cols } = expression;
+      const { cols } = expression;
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${i}-${j}`,
         image: paddedExpression,
@@ -294,7 +295,8 @@ const Heatmap = forwardRef((props, deckRef) => {
         tileJ: j,
         numXTiles: xTiles,
         numYTiles: yTiles,
-        origDataSize: transpose ? [cols.length, rows.length] : [rows.length, cols.length],
+        origDataSize:
+          transpose ? [cols.length, cellOrdering.length] : [cellOrdering.length, cols.length],
         aggSizeX,
         aggSizeY,
         colormap,
