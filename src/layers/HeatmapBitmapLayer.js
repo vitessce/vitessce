@@ -1,4 +1,3 @@
-/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
@@ -86,6 +85,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       numXTiles,
       numYTiles,
     } = this.props;
+
     // Render the image
     if (bitmapTexture && model) {
       model

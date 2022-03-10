@@ -141,7 +141,7 @@ void main(void) {
   
   // Compute the mean value.
   float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
-
+  
   // Re-scale using the color scale slider values.
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
 
