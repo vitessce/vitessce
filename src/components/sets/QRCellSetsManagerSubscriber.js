@@ -69,6 +69,7 @@ export default function QRCellSetsManagerSubscriber(props) {
   const qryScope = "QUERY"
   const refDataset = datasetUids[refScope];
   const qryDataset = datasetUids[qryScope];
+
   // Get "props" from the coordination space.
   const [cValues, cSetters] = useMultiDatasetCoordination(
     COMPONENT_COORDINATION_TYPES[Component.QR_CELL_SETS],
@@ -89,16 +90,17 @@ export default function QRCellSetsManagerSubscriber(props) {
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-    /*setCellSetExpansion([]);*/
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, qryDataset, refDataset]);
 
+  // Get the cells data loader for the query and reference datasets.
   const qryLoader = loaders[qryDataset].loaders.cells;
   const refLoader = loaders[refDataset].loaders.cells;
-
+  // Get the loader options (from the view config file definition).
   const qryOptions = qryLoader?.options;
   const refOptions = refLoader?.options;
-  
+
+  // Load the data.
   // Cell IDs
   const [qryCellsIndex, qryGenesIndex] = useAnnDataIndices(loaders, qryDataset, setItemIsReady, true);
   const [refCellsIndex, refGenesIndex] = useAnnDataIndices(loaders, refDataset, setItemIsReady, true);
@@ -135,6 +137,7 @@ export default function QRCellSetsManagerSubscriber(props) {
   const [qryEmbedding, qryEmbeddingStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.embeddings[qryValues.embeddingType]?.path, 'columnNumeric', iteration, setItemIsReady, false);
   const [refEmbedding, refEmbeddingStatus] = useAnnDataStatic(loaders, refDataset, refOptions?.embeddings[refValues.embeddingType]?.path, 'columnNumeric', setItemIsReady, false);  
   
+  
 
   return (
     <TitleInfo
@@ -142,12 +145,21 @@ export default function QRCellSetsManagerSubscriber(props) {
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
+      isScroll
     >
-      {/*<QRCellSetsManager
+      <QRCellSetsManager
         qryPredictionSets={qryPredictionSets}
         qryLabelSets={qryLabelSets}
         refCellTypeSets={refCellTypeSets}
-      />*/}
+
+        qryDiffGeneNames={qryDiffGeneNames}
+        qryDiffGeneScores={qryDiffGeneScores}
+        refDiffGeneNames={refDiffGeneNames}
+        refDiffGeneScores={refDiffGeneScores}
+
+        refDiffGeneScoreThreshold={15}
+        qryDiffGeneScoreThreshold={15}
+      />
     </TitleInfo>
   );
 }

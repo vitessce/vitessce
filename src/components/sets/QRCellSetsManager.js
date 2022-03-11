@@ -19,14 +19,42 @@ export default function QRCellSetsManager(props) {
     qryPredictionSets,
     qryLabelSets,
     refCellTypeSets,
+
+    qryDiffGeneNames,
+    qryDiffGeneScores,
+    refDiffGeneNames,
+    refDiffGeneScores,
+
+    refDiffGeneScoreThreshold,
+    qryDiffGeneScoreThreshold,
   } = props;
+
+  const qryTopGenesLists = useMemo(() => {
+    if(qryDiffGeneNames && qryDiffGeneScores && qryDiffGeneScoreThreshold) {
+      const result = {};
+      qryDiffGeneScores.data.forEach((clusterScores, clusterIndex) => {
+        const maxIndex = clusterScores.findIndex(el => el < qryDiffGeneScoreThreshold);
+        result[clusterIndex] = {
+          names: qryDiffGeneNames[clusterIndex].slice(0, maxIndex),
+          scores: clusterScores.slice(0, maxIndex),
+        };
+      });
+      return result;
+    }
+    return null;
+  }, [qryDiffGeneNames, qryDiffGeneScores, qryDiffGeneScoreThreshold]);
 
   return (
     <div className="qrCellSets">
-      <p>TODO(scXAI): src/components/sets/QRCellSetsManagerSubscriber.js</p>
-      {qryPredictionSets.map(node => (
-        <div>{node.name}</div>
-      ))}
+      <h4>Top genes for each query cluster at score threshold {qryDiffGeneScoreThreshold}</h4>
+      {qryTopGenesLists ? Object.entries(qryTopGenesLists).map(([clusterIndex, clusterResults]) => (
+        <div key={clusterIndex}>
+          <b>Cluster {clusterIndex}: </b>
+          {clusterResults.names.map(geneName => (
+            <span key={geneName}>{geneName}, &nbsp;</span>
+          ))}
+        </div>
+      )) : null}
     </div>
   );
 }
