@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import equal from 'fast-deep-equal';
 import { capitalize } from '../utils';
 import { useSetWarning } from '../app/state/hooks';
@@ -13,6 +13,8 @@ import {
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
 import { DEFAULT_COORDINATION_VALUES } from '../app/state/coordination';
+
+import { dataToCellSetsTree } from '../loaders/anndata-zarr-loaders/CellSetsZarrLoader';
 
 /**
  * Warn via publishing to the console
@@ -813,4 +815,74 @@ export function useAnnDataDynamic(
   }, [loaders, dataset, path]);
 
   return [dynamicData, status];
+}
+
+export function useAnnDataIndices(
+  loaders, dataset, setItemIsReady, isRequired,
+  coordinationSetters, initialCoordinationValues,
+) {
+  const [obsIndex, setObsIndex] = useState();
+  const [varIndex, setVarIndex] = useState();
+
+  const setWarning = useSetWarning();
+
+  useEffect(() => {
+    if (!loaders[dataset]) {
+      return;
+    }
+
+    if (loaders[dataset].loaders['cells']) {
+      loaders[dataset].loaders['cells'].loadIndices().catch(e => warn(e, setWarning)).then((payload) => {
+        if (!payload) return;
+        const { data } = payload;
+        setObsIndex(data[0]);
+        setVarIndex(data[1]);
+        setItemIsReady('cells');
+      });
+    } else {
+      setObsIndex(null);
+      setVarIndex(null);
+      if (isRequired) {
+        warn(new LoaderNotFoundError(dataset, 'cells', null, null), setWarning);
+      } else {
+        setItemIsReady('cells');
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
+
+  return [obsIndex, varIndex];
+}
+
+/**
+ * Convert a 2D array of gene indices to a 2D array of gene names, using an index array.
+ * @param {*} qryGenesIndex 
+ * @param {*} qryDiffGeneNameIndices 
+ * @returns 
+ */
+export function useDiffGeneNames(qryGenesIndex, qryDiffGeneNameIndices) {
+  const qryDiffGeneNames = useMemo(() => {
+    if(qryDiffGeneNameIndices && qryGenesIndex) {
+      const result = [];
+      qryDiffGeneNameIndices.data.forEach(row => {
+        const rowResult = [];
+        row.forEach(i => rowResult.push(qryGenesIndex[i]));
+        result.push(rowResult);
+      });
+      return result;
+    }
+    return null;
+  }, [qryGenesIndex, qryDiffGeneNameIndices]);
+  return qryDiffGeneNames;
+}
+
+export function useCellSetsTree(qryCellsIndex, qryFeatureColumn) {
+  const tree = useMemo(() => {
+    if(qryCellsIndex && qryFeatureColumn) {
+      const result = dataToCellSetsTree([qryCellsIndex, [qryFeatureColumn], []], [{ groupName: '__feature__' }]);
+      return result.tree[0].children;
+    }
+    return null;
+  }, [qryCellsIndex, qryFeatureColumn]);
+  return tree;
 }

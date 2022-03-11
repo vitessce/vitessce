@@ -18,9 +18,6 @@ export const polyphonyConfig = {
             fileType: vapi.ft.ANNDATA_CELLS_ZARR,
             url: `${zarrPath}/pancreas_easy/reference.zarr`,
             options: {
-              observations: {
-                path: 'obs/index'
-              },
               expressionMatrix: {
                 path: 'X'
               },
@@ -29,7 +26,7 @@ export const polyphonyConfig = {
               },
               differentialGenes: {
                 names: {
-                  path: 'uns/rank_genes_groups/_names'
+                  path: 'uns/rank_genes_groups/_names_indices'
                 },
                 scores: {
                   path: 'uns/rank_genes_groups/_scores'
@@ -62,9 +59,6 @@ export const polyphonyConfig = {
               fileType: vapi.ft.ANNDATA_CELLS_ZARR,
               url: `${zarrPath}/pancreas_easy/query.zarr`,
               options: {
-                observations: {
-                  path: 'obs/index'
-                },
                 expressionMatrix: {
                   path: 'X'
                 },
@@ -73,7 +67,7 @@ export const polyphonyConfig = {
                 },
                 differentialGenes: {
                   names: {
-                    path: 'uns/rank_genes_groups/_names'
+                    path: 'uns/rank_genes_groups/_names_indices'
                   },
                   scores: {
                     path: 'uns/rank_genes_groups/_scores'
@@ -159,6 +153,7 @@ export const polyphonyConfig = {
             coordinationScopes: {
               dataset: ['REFERENCE', 'QUERY'],
               cellSetSelection: { REFERENCE: 'ref', QUERY: 'qry' },
+              embeddingType: { REFERENCE: 'ref', QUERY: 'qry' },
             },
             x: 5,
             y: 0,

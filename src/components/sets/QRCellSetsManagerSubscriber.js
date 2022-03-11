@@ -19,10 +19,11 @@ import QRCellSetsManager from './QRCellSetsManager';
 import TitleInfo from '../TitleInfo';
 import { useUrls, useReady } from '../hooks';
 import {
-  useCellsData, useCellSetsData, useGeneSelection, useExpressionAttrs,
-  useAnnDataStatic, useAnnDataDynamic
+  useAnnDataStatic, useAnnDataDynamic, useAnnDataIndices,
+  useDiffGeneNames, useCellSetsTree,
 } from '../data-hooks';
 import { Component } from '../../app/constants';
+import range from 'lodash/range';
 
 const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 
@@ -31,6 +32,7 @@ const QRY_LABEL_KEY = 'Label';
 const REF_CELL_TYPE_KEY = 'Cell Type';
 
 const iteration = 1;
+
 
 /**
  * A subscriber wrapper around the SetsManager component
@@ -98,13 +100,21 @@ export default function QRCellSetsManagerSubscriber(props) {
   const refOptions = refLoader?.options;
   
   // Cell IDs
-  const [qryCellsIndex] = useAnnDataStatic(loaders, qryDataset, qryOptions?.observations?.path, 'columnString', setItemIsReady, true);
-  const [refCellsIndex] = useAnnDataStatic(loaders, refDataset, refOptions?.observations?.path, 'columnString', setItemIsReady, true);
+  const [qryCellsIndex, qryGenesIndex] = useAnnDataIndices(loaders, qryDataset, setItemIsReady, true);
+  const [refCellsIndex, refGenesIndex] = useAnnDataIndices(loaders, refDataset, setItemIsReady, true);
 
   // Cell sets
   const [refCellType] = useAnnDataStatic(loaders, refDataset, refOptions?.features?.cellType?.path, 'columnString', setItemIsReady, false);
   const [qryPrediction, qryPredictionStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.prediction?.path, 'columnString', iteration, setItemIsReady, false);
   const [qryLabel, qryLabelStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.label?.path, 'columnString', iteration, setItemIsReady, false);
+
+  const qryPredictionSets = useCellSetsTree(qryCellsIndex, qryPrediction);
+  const qryLabelSets = useCellSetsTree(qryCellsIndex, qryLabel);
+  const refCellTypeSets = useCellSetsTree(refCellsIndex, refCellType);
+
+  // Anchor matrix
+  const [qryAnchorMatrix, qryAnchorMatrixStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.anchorMatrix?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [refAnchorMatrix, refAnchorMatrixStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.anchorMatrix?.path, 'columnNumeric', iteration, setItemIsReady, false);
 
   // Anchor cluster
   const [qryAnchorCluster, qryAnchorClusterStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.anchorCluster?.path, 'columnNumeric', iteration, setItemIsReady, false);
@@ -112,10 +122,19 @@ export default function QRCellSetsManagerSubscriber(props) {
   const [qryAnchorDist, qryAnchorDistStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.anchorDist?.path, 'columnNumeric', iteration, setItemIsReady, false);
 
   // Differential expression
-  const [qryDiffGeneNames, qryDiffGeneNamesStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.differentialGenes?.names?.path, 'columnString', iteration, setItemIsReady, false);
+  const [qryDiffGeneNameIndices, qryDiffGeneNamesStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.differentialGenes?.names?.path, 'columnNumeric', iteration, setItemIsReady, false);
   const [qryDiffGeneScores, qryDiffGeneScoresStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.differentialGenes?.scores?.path, 'columnNumeric', iteration, setItemIsReady, false);
 
-  console.log(qryDiffGeneNames);
+  const [refDiffGeneNameIndices, refDiffGeneNamesStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.differentialGenes?.names?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [refDiffGeneScores, refDiffGeneScoresStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.differentialGenes?.scores?.path, 'columnNumeric', iteration, setItemIsReady, false);
+
+  const qryDiffGeneNames = useDiffGeneNames(qryGenesIndex, qryDiffGeneNameIndices);
+  const refDiffGeneNames = useDiffGeneNames(refGenesIndex,refDiffGeneNameIndices);
+
+  // Embeddings
+  const [qryEmbedding, qryEmbeddingStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.embeddings[qryValues.embeddingType]?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [refEmbedding, refEmbeddingStatus] = useAnnDataStatic(loaders, refDataset, refOptions?.embeddings[refValues.embeddingType]?.path, 'columnNumeric', setItemIsReady, false);  
+  
 
   return (
     <TitleInfo

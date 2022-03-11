@@ -316,5 +316,6 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GENE_SELECTION,
     CoordinationType.GENE_FILTER,
     CoordinationType.GENE_HIGHLIGHT,
+    CoordinationType.EMBEDDING_TYPE,
   ],
 };

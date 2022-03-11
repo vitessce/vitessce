@@ -134,6 +134,16 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
     ]);
   }
 
+  async loadIndices() {
+    if (!this.cells) {
+      this.indices = Promise.all([
+        this.dataSource.loadObsIndex(),
+        this.dataSource.loadVarIndex(),
+      ]);
+    }
+    return Promise.resolve(new LoaderResult(await this.indices, null));
+  }
+
   async load() {
     if (!this.cells) {
       this.cells = Promise.all([
