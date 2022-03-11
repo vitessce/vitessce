@@ -134,8 +134,8 @@ export default function QRCellSetsManagerSubscriber(props) {
   const refDiffGeneNames = useDiffGeneNames(refGenesIndex,refDiffGeneNameIndices);
 
   // Embeddings
-  const [qryEmbedding, qryEmbeddingStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.embeddings[qryValues.embeddingType]?.path, 'columnNumeric', iteration, setItemIsReady, false);
-  const [refEmbedding, refEmbeddingStatus] = useAnnDataStatic(loaders, refDataset, refOptions?.embeddings[refValues.embeddingType]?.path, 'columnNumeric', setItemIsReady, false);  
+  const [qryEmbedding, qryEmbeddingStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.embeddings[qryValues.embeddingType]?.path, 'embeddingNumeric', iteration, setItemIsReady, false);
+  const [refEmbedding, refEmbeddingStatus] = useAnnDataStatic(loaders, refDataset, refOptions?.embeddings[refValues.embeddingType]?.path, 'embeddingNumeric', setItemIsReady, false);  
   
   
 

@@ -16,6 +16,11 @@ import {
   useCellSetsData,
   useGeneSelection,
   useExpressionAttrs,
+  useAnnDataStatic,
+  useAnnDataDynamic,
+  useAnnDataIndices,
+  useCellSetsTree,
+  useDiffGeneNames,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import QRComparisonScatterplot from './QRComparisonScatterplot';
@@ -36,7 +41,7 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { Component } from '../../app/constants';
 
-const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
+const iteration = 1;
 
 /**
  * A subscriber component for the scatterplot.
@@ -96,9 +101,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
     setItemIsReady,
     setItemIsNotReady, // eslint-disable-line no-unused-vars
     resetReadyItems,
-  ] = useReady(
-    SCATTERPLOT_DATA_TYPES,
-  );
+  ] = useReady([]); // TODO(scXAI): update to support query+reference anndata paths.
 
   const title = titleOverride || `Comparison View (${qryValues.embeddingType})`;
 
@@ -109,31 +112,50 @@ export default function QRComparisonScatterplotSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, qryDataset, refDataset]);
 
-  // Get data from loaders using the data hooks.
-  const [qryCells, qryCellsCount] = useCellsData(loaders, qryDataset, setItemIsReady, addUrl, true);
-  const [refCells, refCellsCount] = useCellsData(loaders, refDataset, setItemIsReady, addUrl, true);
+  // Get the cells data loader for the query and reference datasets.
+  const qryLoader = loaders[qryDataset].loaders.cells;
+  const refLoader = loaders[refDataset].loaders.cells;
+  // Get the loader options (from the view config file definition).
+  const qryOptions = qryLoader?.options;
+  const refOptions = refLoader?.options;
 
+  // Load the data.
+  // Cell IDs
+  const [qryCellsIndex, qryGenesIndex] = useAnnDataIndices(loaders, qryDataset, setItemIsReady, true);
+  const [refCellsIndex, refGenesIndex] = useAnnDataIndices(loaders, refDataset, setItemIsReady, true);
 
- // console.log(qryCells);
+  // Cell sets
+  const [refCellType] = useAnnDataStatic(loaders, refDataset, refOptions?.features?.cellType?.path, 'columnString', setItemIsReady, false);
+  const [qryPrediction, qryPredictionStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.prediction?.path, 'columnString', iteration, setItemIsReady, false);
+  const [qryLabel, qryLabelStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.label?.path, 'columnString', iteration, setItemIsReady, false);
 
-  const [qryCellSets] = useCellSetsData(
-    loaders,
-    qryDataset,
-    setItemIsReady,
-    addUrl,
-    false,
-    { setCellSetSelection: qrySetters.setCellSelection, setCellSetColor: qrySetters.setCellSetColor },
-    { cellSetSelection: qryValues.cellSetSelection, cellSetColor: qryValues.cellSetColor },
-  );
-  const [refCellSets] = useCellSetsData(
-    loaders,
-    refDataset,
-    setItemIsReady,
-    addUrl,
-    false,
-    { setCellSetSelection: refSetters.setCellSelection, setCellSetColor: refSetters.setCellSetColor },
-    { cellSetSelection: refValues.cellSetSelection, cellSetColor: refValues.cellSetColor },
-  );
+  const qryPredictionSets = useCellSetsTree(qryCellsIndex, qryPrediction);
+  const qryLabelSets = useCellSetsTree(qryCellsIndex, qryLabel);
+  const refCellTypeSets = useCellSetsTree(refCellsIndex, refCellType);
+
+  // Anchor matrix
+  const [qryAnchorMatrix, qryAnchorMatrixStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.anchorMatrix?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [refAnchorMatrix, refAnchorMatrixStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.anchorMatrix?.path, 'columnNumeric', iteration, setItemIsReady, false);
+
+  // Anchor cluster
+  const [qryAnchorCluster, qryAnchorClusterStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.anchorCluster?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [refAnchorCluster, refAnchorClusterStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.features?.anchorCluster?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [qryAnchorDist, qryAnchorDistStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.anchorDist?.path, 'columnNumeric', iteration, setItemIsReady, false);
+
+  // Differential expression
+  const [qryDiffGeneNameIndices, qryDiffGeneNamesStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.differentialGenes?.names?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [qryDiffGeneScores, qryDiffGeneScoresStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.differentialGenes?.scores?.path, 'columnNumeric', iteration, setItemIsReady, false);
+
+  const [refDiffGeneNameIndices, refDiffGeneNamesStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.differentialGenes?.names?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [refDiffGeneScores, refDiffGeneScoresStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.differentialGenes?.scores?.path, 'columnNumeric', iteration, setItemIsReady, false);
+
+  const qryDiffGeneNames = useDiffGeneNames(qryGenesIndex, qryDiffGeneNameIndices);
+  const refDiffGeneNames = useDiffGeneNames(refGenesIndex,refDiffGeneNameIndices);
+
+  // Embeddings
+  const [qryEmbedding, qryEmbeddingStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.embeddings[qryValues.embeddingType]?.path, 'embeddingNumeric', iteration, setItemIsReady, false);
+  const [refEmbedding, refEmbeddingStatus] = useAnnDataStatic(loaders, refDataset, refOptions?.embeddings[refValues.embeddingType]?.path, 'embeddingNumeric', setItemIsReady, false);
+  console.log(qryEmbedding);
 
   const [qryExpressionData] = useGeneSelection(
     loaders, qryDataset, setItemIsReady, false, qryValues.geneSelection, setItemIsNotReady,
@@ -153,14 +175,14 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const [dynamicCellRadius, setDynamicCellRadius] = useState(qryValues.embeddingCellRadius);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(qryValues.embeddingCellOpacity);
 
-  // TODO(scXAI): determine if query and reference should use same cell sets
+  // TODO(scXAI): determine if query and reference should use same cell sets tree
   const mergedQryCellSets = useMemo(() => mergeCellSets(
-    qryCellSets, qryValues.additionalCellSets,
-  ), [qryCellSets, qryValues.additionalCellSets]);
+    qryPredictionSets, qryValues.additionalCellSets,
+  ), [qryPredictionSets, qryValues.additionalCellSets]);
 
   const mergedRefCellSets = useMemo(() => mergeCellSets(
-    refCellSets, refValues.additionalCellSets,
-  ), [refCellSets, refValues.additionalCellSets]);
+    refCellTypeSets, refValues.additionalCellSets,
+  ), [refCellTypeSets, refValues.additionalCellSets]);
 
   const setQryCellSelectionProp = useCallback((v) => {
     setCellSelection(
@@ -204,11 +226,12 @@ export default function QRComparisonScatterplotSubscriber(props) {
     if ((qryValues.embeddingCellSetLabelsVisible || qryValues.embeddingCellSetPolygonsVisible)
       && !cacheHas(qryCellSetPolygonCache, qryValues.cellSetSelection)
       && mergedQryCellSets?.tree?.length
-      && Object.values(qryCells).length
+      && qryEmbedding
+      && qryCellsIndex
       && qryValues.cellSetColor?.length) {
       const newCellSetPolygons = getCellSetPolygons({
-        cells: qryCells,
-        mapping: qryValues.embeddingType,
+        cells: qryCellsIndex,
+        embedding: qryEmbedding,
         cellSets: mergedQryCellSets,
         cellSetSelection: qryValues.cellSetSelection,
         cellSetColor: qryValues.cellSetColor,
@@ -219,25 +242,25 @@ export default function QRComparisonScatterplotSubscriber(props) {
     }
     return cacheGet(qryCellSetPolygonCache, qryValues.cellSetSelection) || [];
   }, [qryValues.embeddingCellSetLabelsVisible, qryCellSetPolygonCache, qryValues.embeddingCellSetPolygonsVisible, theme,
-    qryCells, qryValues.embeddingType, mergedQryCellSets, qryValues.cellSetSelection, qryValues.cellSetColor]);
+    qryCellsIndex, qryEmbedding, mergedQryCellSets, qryValues.cellSetSelection, qryValues.cellSetColor]);
 
 
   const qryCellSelection = useMemo(() => Array.from(qryCellColors.keys()), [qryCellColors]);
 
   // TODO(scXAI): do the reference dataset embedding coordinates have the same ranges as in the query dataset?
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
-    const cellValues = qryCells && Object.values(qryCells);
+    const cellValues = qryEmbedding;
     if (cellValues?.length) {
-      const cellCoordinates = Object.values(qryCells)
-        .map(c => c.mappings[qryValues.embeddingType]);
-      const xE = extent(cellCoordinates, c => c[0]);
-      const yE = extent(cellCoordinates, c => c[1]);
+      const xVals = qryEmbedding.data.map(d => d[0]);
+      const yVals = qryEmbedding.data.map(d => d[1]);
+      const xE = extent(xVals);
+      const yE = extent(yVals);
       const xR = xE[1] - xE[0];
       const yR = yE[1] - yE[0];
-      return [xR, yR, xE, yE, cellValues.length];
+      return [xR, yR, xE, yE, cellValues.shape[1]];
     }
     return [null, null, null, null, null];
-  }, [qryCells, qryValues.embeddingType]);
+  }, [qryCellsIndex, qryEmbedding, qryValues.embeddingType]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -265,16 +288,17 @@ export default function QRComparisonScatterplotSubscriber(props) {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells, qryCells, qryValues.embeddingType,
+  }, [xRange, yRange, xExtent, yExtent, numCells, qryValues.embeddingType,
     width, height, averageFillDensity]);
 
   const getQryCellInfo = useCallback((cellId) => {
-    const cellInfo = qryCells[cellId];
+    //const cellInfo = qryCells[cellId];
+    const cellInfo = {};
     return {
       [`${capitalize(observationsLabel)} ID`]: cellId,
       ...(cellInfo ? cellInfo.factors : {}),
     };
-  }, [qryCells, observationsLabel]);
+  }, [observationsLabel]);
 
   const cellSelectionSet = useMemo(() => new Set(qryCellSelection), [qryCellSelection]);
   const getCellIsSelected = useCallback(cellEntry => (
@@ -288,6 +312,8 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const getQryExpressionValue = useExpressionValueGetter({ attrs: qryAttrs, expressionData: qryExpressionData });
 
   // TODO(scXAI): do we need to get expression values for the reference dataset?
+
+  const qryCellsCount = qryCellsIndex?.length;
 
   return (
     <TitleInfo
@@ -343,8 +369,12 @@ export default function QRComparisonScatterplotSubscriber(props) {
         }}
         qrySupportingBounds={qrySupportingViewInfo?.bounds}
         refSupportingBounds={refSupportingViewInfo?.bounds}
-        qryCells={qryCells}
-        refCells={refCells}
+        // qryCells={qryCells}
+        // refCells={refCells}
+        qryCellsIndex={qryCellsIndex}
+        refCellsIndex={refCellsIndex}
+        qryEmbedding={qryEmbedding}
+        refEmbedding={refEmbedding}
         qryMapping={qryValues.embeddingType}
         refMapping={refValues.embeddingType}
         cellFilter={qryValues.cellFilter}

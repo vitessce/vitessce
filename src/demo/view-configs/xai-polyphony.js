@@ -48,6 +48,14 @@ export const polyphonyConfig = {
               },
             }
           },
+          {
+            type: vapi.dt.EXPRESSION_MATRIX,
+            fileType: vapi.ft.ANNDATA_EXPRESSION_MATRIX_ZARR,
+            url: `${zarrPath}/pancreas_easy/reference.zarr`,
+            options: {
+              matrix: "X"
+            }
+          },
         ],
       },
       {
@@ -94,6 +102,14 @@ export const polyphonyConfig = {
                   }
                 },
               }
+          },
+          {
+            type: vapi.dt.EXPRESSION_MATRIX,
+            fileType: vapi.ft.ANNDATA_EXPRESSION_MATRIX_ZARR,
+            url: `${zarrPath}/pancreas_easy/query.zarr`,
+            options: {
+              matrix: "X"
+            }
           },
         ],
       },
@@ -159,7 +175,7 @@ export const polyphonyConfig = {
             y: 0,
             w: 7,
             h: 7,
-          },/*
+          },
           {
             component: 'qrComparisonScatterplot',
             coordinationScopes: {
@@ -182,7 +198,7 @@ export const polyphonyConfig = {
             w: 5,
             h: 12,
           },
-          {
+          /*{
             component: 'qrSupportingScatterplot',
             coordinationScopes: {
               dataset: 'QUERY',

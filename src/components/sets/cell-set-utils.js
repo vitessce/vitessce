@@ -461,7 +461,7 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, t
 }
 
 export function treeToCellPolygonsBySetNames(
-  currTree, cells, mapping, selectedNamePaths, cellSetColor, theme,
+  currTree, cells, embedding, selectedNamePaths, cellSetColor, theme,
 ) {
   const cellSetPolygons = [];
   selectedNamePaths.forEach((setNamePath) => {
@@ -474,8 +474,8 @@ export function treeToCellPolygonsBySetNames(
       );
       const cellPositions = nodeSet
         .map(([cellId]) => ([
-          cells[cellId]?.mappings[mapping][0],
-          -cells[cellId]?.mappings[mapping][1],
+          embedding.data[cells.indexOf(cellId)][0],
+          -embedding.data[cells.indexOf(cellId)][1],
         ]))
         .filter(cell => cell.every(i => typeof i === 'number'));
 
@@ -636,7 +636,7 @@ export function initializeCellSetColor(cellSets, cellSetColor) {
 export function getCellSetPolygons(params) {
   const {
     cells,
-    mapping,
+    embedding,
     cellSets,
     cellSetSelection,
     cellSetColor,
@@ -644,7 +644,7 @@ export function getCellSetPolygons(params) {
   } = params;
   if (cellSetSelection && cellSetSelection.length > 0 && cellSets && cells) {
     return treeToCellPolygonsBySetNames(
-      cellSets, cells, mapping, cellSetSelection, cellSetColor, theme,
+      cellSets, cells, embedding, cellSetSelection, cellSetColor, theme,
     );
   }
   return [];

@@ -879,8 +879,9 @@ export function useDiffGeneNames(qryGenesIndex, qryDiffGeneNameIndices) {
 export function useCellSetsTree(qryCellsIndex, qryFeatureColumn) {
   const tree = useMemo(() => {
     if(qryCellsIndex && qryFeatureColumn) {
+      // TODO(scXAI): support multiple qryFeatureColumns and corresponding names.
       const result = dataToCellSetsTree([qryCellsIndex, [qryFeatureColumn], []], [{ groupName: '__feature__' }]);
-      return result.tree[0].children;
+      return result;
     }
     return null;
   }, [qryCellsIndex, qryFeatureColumn]);

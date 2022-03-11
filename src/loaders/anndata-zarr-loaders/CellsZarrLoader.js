@@ -8,7 +8,7 @@ const EMBEDDING_SCALE_FACTOR = 5000;
 const DTYPES = {
   COLUMN_NUMERIC: 'columnNumeric',
   COLUMN_STRING: 'columnString',
-  MATRIX_NUMERIC: 'matrixNumeric'
+  EMBEDDING_NUMERIC: 'embeddingNumeric',
 }
 
 /**
@@ -18,8 +18,6 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
 
   constructor(dataSource, params) {
     super(dataSource, params);
-
-    console.log(this.options);
 
     this.data = {
       static: {},
@@ -33,10 +31,8 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
       result = this.dataSource.loadColumnNumeric(path);
     } else if(dtype === DTYPES.COLUMN_STRING) {
       result = this.dataSource.loadColumnString(path);
-    } else if(dtype === DTYPES.MATRIX_NUMERIC) {
-      // TODO: write new function based on MatrixZarrLoader since might be sparse, etc.
-      // e.g. this.dataSource.loadMatrix()
-      result = this.dataSource.loadMatrixNumeric(path);
+    } else if(dtype === DTYPES.EMBEDDING_NUMERIC) {
+      result = this.dataSource.loadEmbeddingNumeric(path);
     } else {
       console.warn(dtype, "dtype not recognized");
     }
@@ -54,7 +50,6 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
       result = this.data.static[path] = Promise.resolve(null);
     }
     this.data.static[path] = result;
-    console.log(result);
     return result;
   }
 

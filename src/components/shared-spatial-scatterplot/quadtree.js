@@ -1,4 +1,5 @@
 import { quadtree } from 'd3-quadtree';
+import range from 'lodash/range';
 
 /**
  * Create a d3-quadtree object for cells data points.
@@ -8,19 +9,19 @@ import { quadtree } from 'd3-quadtree';
  * spatial/scatterplot coordinates [x, y].
  * @returns {object} Quadtree instance.
  */
-export function createCellsQuadTree(cellsEntries, getCellCoords) {
+export function createCellsQuadTree(embedding) {
   // Use the cellsEntries variable since it is already
   // an array, converted by Object.entries().
   // Only use cellsEntries in quadtree calculation if there is
   // centroid data in the cells (i.e not just ids).
   // eslint-disable-next-line no-unused-vars
-  if (!cellsEntries || !cellsEntries.length || !getCellCoords(cellsEntries[0][1])) {
+  if (!embedding || !embedding.data) {
     // Abort if the cells data is not yet available.
     return null;
   }
   const tree = quadtree()
-    .x(d => getCellCoords(d[1])[0])
-    .y(d => getCellCoords(d[1])[1])
-    .addAll(cellsEntries);
+    .x(i => embedding.data[0][i])
+    .y(i => embedding.data[1][i])
+    .addAll(range(embedding.shape[1]));
   return tree;
 }
