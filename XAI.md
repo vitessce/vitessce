@@ -3,7 +3,45 @@
 ### View config documentation
 
 - Query+reference components all assume that there are two special dataset coordination scope names: `QUERY` and `REFERENCE`.
-- New `cell-sets-xai` data type.
+
+- All data provided through the `cells` data type and `CellsZarrLoader`, using this file definition structure in the view config:
+
+```js
+{
+  type: 'cells',
+  fileType: 'anndata-cells.zarr',
+  url: `${zarrPath}/pancreas_easy/reference.zarr`,
+  options: {
+    expressionMatrix: {
+      path: 'X'
+    },
+    anchorMatrix: {
+      path: 'obsm/anchor_mat'
+    },
+    differentialGenes: {
+      names: {
+        path: 'uns/rank_genes_groups/_names'
+      },
+      scores: {
+        path: 'uns/rank_genes_groups/_scores'
+      }
+    },
+    features: {
+      cellType: {
+        path: 'obs/cell_type'
+      },
+      anchorCluster: {
+        path: 'obs/anchor_cluster'
+      }
+    },
+    embeddings: {
+      UMAP: {
+        path: 'obsm/X_umap'
+      }
+    },
+  }
+},
+```
 
 #### Change List
 - Adds new visualization components which support multiple datasets

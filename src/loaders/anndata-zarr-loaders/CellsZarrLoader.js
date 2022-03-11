@@ -1,136 +1,147 @@
+/* eslint-disable */
 import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import { InternMap } from 'internmap';
 
 const EMBEDDING_SCALE_FACTOR = 5000;
+
+const DTYPES = {
+  COLUMN_NUMERIC: 'columnNumeric',
+  COLUMN_STRING: 'columnString',
+  MATRIX_NUMERIC: 'matrixNumeric'
+}
 
 /**
  * Loader for converting zarr into the cell json schema.
  */
 export default class CellsZarrLoader extends AbstractTwoStepLoader {
+
+  constructor(dataSource, params) {
+    super(dataSource, params);
+
+    console.log(this.options);
+
+    this.data = {
+      static: {},
+      dynamic: {},
+    };
+  }
+
+  loadByDtype(path, dtype) {
+    let result;
+    if(dtype === DTYPES.COLUMN_NUMERIC) {
+      result = this.dataSource.loadColumnNumeric(path);
+    } else if(dtype === DTYPES.COLUMN_STRING) {
+      result = this.dataSource.loadColumnString(path);
+    } else if(dtype === DTYPES.MATRIX_NUMERIC) {
+      // TODO: write new function based on MatrixZarrLoader since might be sparse, etc.
+      // e.g. this.dataSource.loadMatrix()
+      result = this.dataSource.loadMatrixNumeric(path);
+    } else {
+      console.warn(dtype, "dtype not recognized");
+    }
+    return result;
+  }
+
+  loadStatic(path, dtype) {
+    if (this.data.static[path]) {
+      return this.data.static[path];
+    }
+    let result;
+    if (!this.data.static[path] && path) {
+      result = this.loadByDtype(path, dtype);
+    } else {
+      result = this.data.static[path] = Promise.resolve(null);
+    }
+    this.data.static[path] = result;
+    console.log(result);
+    return result;
+  }
+
+  loadDynamic(path, dtype, iteration) {
+    if(!this.data.dynamic[path]) {
+      this.data.dynamic[path] = new InternMap([], JSON.stringify);
+    }
+    if (this.data.dynamic[path].has(iteration)) {
+      return this.data.dynamic[path].get(iteration);
+    }
+    let result;
+    if (!this.data.dynamic[path].has(iteration) && path) {
+      result = this.loadByDtype(path, dtype);
+    } else {
+      result = Promise.resolve(null);
+    }
+    this.data.dynamic[path].set(iteration, result);
+    return result;
+  }
+
+  loadStaticOrDynamic(path, dtype, dynamic, iteration) {
+    if(dynamic) {
+      return this.loadDynamic(path, dtype, iteration);
+    } else {
+      return this.loadStatic(path, dtype);
+    }
+  }
+
   /**
    * Class method for loading spatial cell centroids.
    * @returns {Promise} A promise for an array of tuples/triples for cell centroids.
    */
-  loadXy() {
-    const { xy } = (this.options || {});
-    if (this.xy) {
-      return this.xy;
-    }
-    if (!this.xy && xy) {
-      this.xy = this.dataSource.loadNumeric(xy);
-      return this.xy;
-    }
-    this.xy = Promise.resolve(null);
-    return this.xy;
+  loadExpressionMatrix() {
+    const { expressionMatrix } = (this.options || {});
+    const path = expressionMatrix.path;
+    return this.loadStaticOrDynamic(path, DTYPES.MATRIX_NUMERIC, false, null);
   }
 
-  loadAnchorCluster() {
-    const { anchorMat } = (this.options || {});
-    if (this.anchorCluster) {
-      return this.anchorCluster;
-    }
-    if (!this.anchorCluster && anchorMat) {
-      // TODO(scXAI): load entire matrix, not single column.
-      this.anchorCluster = this.dataSource.loadNumeric(anchorMat);
-      return this.anchorCluster;
-    }
-    this.anchorCluster = Promise.resolve(null);
-    return this.anchorCluster;
+  loadAnchorMatrix(iteration) {
+    const { anchorMatrix } = (this.options || {});
+    const path = anchorMatrix.path;
+    return this.loadStaticOrDynamic(path, DTYPES.MATRIX_NUMERIC, true, iteration);
   }
 
-  /**
-   * Class method for loading spatial cell polygons.
-   * @returns {Promise} A promise for an array of arrays for cell polygons.
-   */
-  loadPoly() {
-    const { poly } = (this.options || {});
-    if (this.poly) {
-      return this.poly;
-    }
-    if (!this.poly && poly) {
-      this.poly = this.dataSource.loadNumeric(poly);
-      return this.poly;
-    }
-    this.poly = Promise.resolve(null);
-    return this.poly;
+  loadFeature(key, dynamic, iteration) {
+    const { features } = (this.options || {});
+    const path = features[key].path;
+    return this.loadStaticOrDynamic(path, DTYPES.COLUMN_STRING, dynamic, iteration);
   }
 
-  /**
-   * Class method for loading various mappings, like UMAP or tSNE cooridnates.
-   * @returns {Promise} A promise for an array of tuples of coordinates.
-   */
-  loadMappings() {
-    const { mappings } = (this.options || {});
-    if (this.mappings) {
-      return this.mappings;
-    }
-    if (!this.mappings && mappings) {
-      this.mappings = Promise.all(
-        Object.keys(mappings).map(async (coordinationName) => {
-          const { key } = mappings[coordinationName];
-          return { coordinationName, arr: await this.dataSource.loadNumeric(key) };
-        }),
-      );
-      return this.mappings;
-    }
-    this.mappings = Promise.resolve(null);
-    return this.mappings;
+  loadAnchorCluster(iteration) {
+    const { features } = (this.options || {});
+    const { anchorCluster } = features;
+    const path = anchorCluster.path;
+    return this.loadStaticOrDynamic(path, DTYPES.COLUMN_NUMERIC, true, iteration);
   }
 
-  /**
-   * Class method for loading factors, which are cell set ids.
-   * @returns {Promise} A promise for an array of an array of strings of ids,
-   * where subarray is a clustering/factor.
-   */
-  loadFactors() {
-    const { factors } = (this.options || {});
-    if (factors) {
-      return this.dataSource.loadObsVariables(factors);
-    }
-    return Promise.resolve(null);
+  loadAnchorDist(iteration) {
+    const { features } = (this.options || {});
+    const { anchorDist } = features;
+    const path = anchorDist.path;
+    return this.loadStaticOrDynamic(path, DTYPES.COLUMN_NUMERIC, true, iteration);
+  }
+
+  loadEmbedding(key, dynamic, iteration) {
+    const { embeddings } = (this.options || {});
+    const path = embeddings[key].path;
+    return this.loadStaticOrDynamic(path, DTYPES.MATRIX_NUMERIC, dynamic, iteration);
+  }
+  
+  loadDifferentialGenes(iteration) {
+    const { differentialGenes } = (this.options || {});
+    const { names, scores } = differentialGenes;
+    return Promise.all([
+      this.loadStaticOrDynamic(names.path, DTYPES.COLUMN_STRING, true, iteration),
+      this.loadStaticOrDynamic(scores.path, DTYPES.COLUMN_NUMERIC, true, iteration),
+    ]);
   }
 
   async load() {
     if (!this.cells) {
       this.cells = Promise.all([
-        this.loadMappings(),
-        this.loadXy(),
-        this.loadPoly(),
         this.dataSource.loadObsIndex(),
-        this.loadFactors(),
-        this.loadAnchorCluster(),
-      ]).then(([mappings, xy, poly, cellNames, factors, anchorMat]) => {
+      ]).then(([cellNames]) => {
         const cells = {};
         cellNames.forEach((name, i) => {
           cells[name] = {};
-          if (mappings) {
-            mappings.forEach(({ coordinationName, arr }) => {
-              if (!cells[name].mappings) {
-                cells[name].mappings = {};
-              }
-              const { dims } = this.options.mappings[coordinationName];
-              cells[name].mappings[coordinationName] = dims.map(
-                dim => arr.data[i][dim] * EMBEDDING_SCALE_FACTOR,
-              );
-            });
-          }
-          if (xy) {
-            cells[name].xy = xy.data[i];
-          }
-          if (anchorMat) {
-            cells[name].anchorRow = anchorMat.data[i];
-          }
-          if (poly) {
-            cells[name].poly = poly.data[i];
-          }
-          if (factors) {
-            const factorsObj = {};
-            factors.forEach(
-              // eslint-disable-next-line no-return-assign
-              (factor, j) => (factorsObj[this.options.factors[j].split('/').slice(-1)] = factor[i]),
-            );
-            cells[name].factors = factorsObj;
-          }
         });
         return cells;
       });

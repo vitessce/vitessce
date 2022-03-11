@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect } from 'react';
 import equal from 'fast-deep-equal';
 import { capitalize } from '../utils';
@@ -723,4 +724,93 @@ export function useGenomicProfilesData(
   }, [loaders, dataset]);
 
   return [genomicProfilesAttrs];
+}
+
+
+/**
+ * Get data from an AnnData store.
+ * @param {object} loaders The object mapping
+ * datasets and data types to loader instances.
+ * @param {string} dataset The key for a dataset,
+ * used to identify which loader to use.
+ * @param {function} setItemIsReady A function to call
+ * when done loading.
+ * @param {function} addUrl A function to call to update
+ * the URL list.
+ * @param {boolean} isRequired Should a warning be thrown if
+ * loading is unsuccessful?
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} initialCoordinationValues Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
+ * @returns {array} [staticData]
+ */
+export function useAnnDataStatic(
+  loaders, dataset, path, dtype, setItemIsReady, isRequired,
+  coordinationSetters, initialCoordinationValues,
+) {
+  const [staticData, setStaticData] = useState();
+
+  const setWarning = useSetWarning();
+
+  useEffect(() => {
+    if (!loaders[dataset] || !path) {
+      return;
+    }
+
+    if (loaders[dataset].loaders['cells']) {
+      loaders[dataset].loaders['cells'].loadStatic(path, dtype).catch(e => warn(e, setWarning)).then((payload) => {
+        if (!payload) return;
+        setStaticData(payload);
+        setItemIsReady(path);
+      });
+    } else {
+      setStaticData(null);
+      if (isRequired) {
+        warn(new LoaderNotFoundError(dataset, 'cells', path, null), setWarning);
+      } else {
+        setItemIsReady(path);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset, path]);
+
+  return [staticData];
+}
+
+export function useAnnDataDynamic(
+  loaders, dataset, path, dtype, iteration, setItemIsReady, isRequired,
+  coordinationSetters, initialCoordinationValues,
+) {
+  const [dynamicData, setDynamicData] = useState();
+  const [status, setStatus] = useState();
+
+  const setWarning = useSetWarning();
+
+  useEffect(() => {
+    if (!loaders[dataset] || !path) {
+      return;
+    }
+
+    if (loaders[dataset].loaders['cells']) {
+      loaders[dataset].loaders['cells'].loadDynamic(path, dtype, iteration).catch(e => warn(e, setWarning)).then((payload) => {
+        if (!payload) return;
+        setDynamicData(payload);
+        setItemIsReady(path);
+        setStatus(200);
+      });
+    } else {
+      setDynamicData(null);
+      if (isRequired) {
+        warn(new LoaderNotFoundError(dataset, 'cells', path, null), setWarning);
+      } else {
+        setItemIsReady(path);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset, path]);
+
+  return [dynamicData, status];
 }

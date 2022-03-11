@@ -8,79 +8,101 @@ export const polyphonyConfig = {
     version: 'xai',
     description: 'Fine-tune the Polyphony model by selecting or rejecting anchor cell sets.',
     public: true,
-    datasets: [{
-            uid: 'ref',
-            name: 'Pancreas reference',
-            files: [
-                {
-                    type: vapi.dt.CELLS,
-                    fileType: vapi.ft.ANNDATA_CELLS_ZARR,
-                    url: `${zarrPath}/pancreas_easy/reference.zarr`,
-                    options: {
-                        anchorMat: "obsm/anchor_mat",
-                        mappings: {
-                            UMAP: {
-                                key: "obsm/X_umap",
-                                dims: [0, 1]
-                            },
-                        },
-                        factors: [
-                            "obs/cell_type"
-                        ]
-                    }
+    datasets: [
+      {
+        uid: 'ref',
+        name: 'Pancreas reference',
+        files: [
+          {
+            type: vapi.dt.CELLS,
+            fileType: vapi.ft.ANNDATA_CELLS_ZARR,
+            url: `${zarrPath}/pancreas_easy/reference.zarr`,
+            options: {
+              observations: {
+                path: 'obs/index'
+              },
+              expressionMatrix: {
+                path: 'X'
+              },
+              anchorMatrix: {
+                path: 'obsm/anchor_mat'
+              },
+              differentialGenes: {
+                names: {
+                  path: 'uns/rank_genes_groups/_names'
                 },
-                {
-                    type: vapi.dt.CELL_SETS,
-                    fileType: vapi.ft.ANNDATA_CELL_SETS_ZARR,
-                    url: `${zarrPath}/pancreas_easy/reference.zarr`,
-                    options: [
-                        {
-                            groupName: "Cell Type",
-                            setName: "obs/cell_type"
-                        }
-                    ]
+                scores: {
+                  path: 'uns/rank_genes_groups/_scores'
+                }
+              },
+              features: {
+                cellType: {
+                  path: 'obs/cell_type'
                 },
-            ],
-        },
-        {
-            uid: 'qry',
-            name: 'Pancreas query',
-            files: [
-                {
-                    type: vapi.dt.CELLS,
-                    fileType: vapi.ft.ANNDATA_CELLS_ZARR,
-                    url: `${zarrPath}/pancreas_easy/query.zarr`,
-                    options: {
-                        anchorMat: "obsm/anchor_mat",
-                        mappings: {
-                            UMAP: {
-                                key: "obsm/X_umap",
-                                dims: [0, 1]
-                            },
-                        },
-                        factors: [
-                            "obs/prediction",
-                            //"obs/label"
-                        ]
-                    }
+                anchorCluster: {
+                  path: 'obs/anchor_cluster'
+                }
+              },
+              embeddings: {
+                UMAP: {
+                  path: 'obsm/X_umap',
+                  dims: [0, 1]
+                }
+              },
+            }
+          },
+        ],
+      },
+      {
+        uid: 'qry',
+        name: 'Pancreas query',
+        files: [
+          {
+              type: vapi.dt.CELLS,
+              fileType: vapi.ft.ANNDATA_CELLS_ZARR,
+              url: `${zarrPath}/pancreas_easy/query.zarr`,
+              options: {
+                observations: {
+                  path: 'obs/index'
                 },
-                {
-                    type: vapi.dt.CELL_SETS,
-                    fileType: vapi.ft.ANNDATA_CELL_SETS_ZARR,
-                    url: `${zarrPath}/pancreas_easy/query.zarr`,
-                    options: [
-                        {
-                            groupName: "Prediction",
-                            setName: "obs/prediction"
-                        },
-                        /*{
-                            groupName: "Label",
-                            setName: "obs/label"
-                        }*/
-                    ]
+                expressionMatrix: {
+                  path: 'X'
                 },
-            ],
-        },
+                anchorMatrix: {
+                  path: 'obsm/anchor_mat'
+                },
+                differentialGenes: {
+                  names: {
+                    path: 'uns/rank_genes_groups/_names'
+                  },
+                  scores: {
+                    path: 'uns/rank_genes_groups/_scores'
+                  }
+                },
+                features: {
+                  prediction: {
+                    path: 'obs/prediction'
+                  },
+                  label: {
+                    path: 'obs/label'
+                  },
+                  anchorDist: {
+                    path: 'obs/anchor_dist'
+                  },
+                  anchorCluster: {
+                    path: 'obs/anchor_cluster'
+                  }
+                },
+                embeddings: {
+                  UMAP: {
+                    path: 'obsm/X_umap',
+                    dims: [0, 1]
+                  }
+                },
+              }
+          },
+        ],
+      },
     ],
     initStrategy: 'auto',
     coordinationSpace: {
@@ -142,7 +164,7 @@ export const polyphonyConfig = {
             y: 0,
             w: 7,
             h: 7,
-          },
+          },/*
           {
             component: 'qrComparisonScatterplot',
             coordinationScopes: {
@@ -200,6 +222,6 @@ export const polyphonyConfig = {
             y: 7,
             w: 3,
             h: 5,
-          },
+          },*/
     ],
 };

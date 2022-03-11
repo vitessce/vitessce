@@ -4,6 +4,10 @@ import {
   ThemeProvider, StylesProvider,
   createGenerateClassName,
 } from '@material-ui/core/styles';
+import {
+  QueryClient,
+  QueryClientProvider,
+} from 'react-query';
 import isEqual from 'lodash/isEqual';
 import { muiTheme } from '../components/shared-mui/styles';
 import {
@@ -20,6 +24,8 @@ import { initialize, upgradeAndValidate } from './view-config-utils';
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
 });
+
+const queryClient = new QueryClient();
 
 /**
  * The Vitessce component.
@@ -94,21 +100,23 @@ export default function Vitessce(props) {
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
         <ViewConfigProvider createStore={createViewConfigStore}>
-          <AuxiliaryProvider createStore={createAuxiliaryStore}>
-            <VitessceGrid
-              config={configOrWarning}
-              getComponent={getComponent}
-              rowHeight={rowHeight}
-              height={height}
-              theme={theme}
-            />
-            <CallbackPublisher
-              onWarn={onWarn}
-              onConfigChange={onConfigChange}
-              onLoaderChange={onLoaderChange}
-              validateOnConfigChange={validateOnConfigChange}
-            />
-          </AuxiliaryProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuxiliaryProvider createStore={createAuxiliaryStore}>
+              <VitessceGrid
+                config={configOrWarning}
+                getComponent={getComponent}
+                rowHeight={rowHeight}
+                height={height}
+                theme={theme}
+              />
+              <CallbackPublisher
+                onWarn={onWarn}
+                onConfigChange={onConfigChange}
+                onLoaderChange={onLoaderChange}
+                validateOnConfigChange={validateOnConfigChange}
+              />
+            </AuxiliaryProvider>
+          </QueryClientProvider>
         </ViewConfigProvider>
       </ThemeProvider>
     </StylesProvider>

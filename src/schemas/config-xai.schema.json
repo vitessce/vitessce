@@ -145,45 +145,39 @@
         "additionalProperties": false,
         "required": [],
         "properties": {
-          "xy": {
-            "type": "string",
-            "description": "The location in the AnnData store of cell centroids, like 'obsm/X_centroids.'"
+          "observations": {
+            "type": "object",
+            "description": ""
           },
-          "poly": {
-            "type": "string",
-            "description": "The location in the AnnData store of cell polygon outlines, like 'obsm/X_polygons.'"
+          "expressionMatrix": {
+            "type": "object",
+            "description": ""
           },
-          "factors": {
-            "type": "array",
-            "description": "List of locations in the AnnData store of cell sets, like 'obs/louvain'",
-            "items": {
-              "type": "string"
-            }
+          "anchorMatrix": {
+            "type": "object",
+            "description": ""
           },
-          "anchorMat": {
-            "type": "string",
-            "description": "Path to the anchor_mat matrix in the AnnData store, like 'obsm/anchor_mat'"
-          },
-          "mappings": {
+          "differentialGenes": {
             "patternProperties": {
               ".": {
                 "type": "object",
-                "description": "An object containing key-values for mappings like { UMAP: { key: 'obsm/X_umap', dims: [0, 1] } }.",
-                "additionalProperties": false,
-                "required": ["key"],
-                "properties": {
-                  "key": {
-                    "type": "string",
-                    "description": "Where to look in the AnnData store for this mapping, like 'obsm/X_umap.'"
-                  },
-                  "dims": {
-                    "type": "array",
-                    "description": "Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca",
-                    "minItems": 2,
-                    "maxItems": 2,
-                    "items": { "type": "number" }
-                  }
-                }
+                "description": ""
+              }
+            }
+          },
+          "features": {
+            "patternProperties": {
+              ".": {
+                "type": "object",
+                "description": ""
+              }
+            }
+          },
+          "embeddings": {
+            "patternProperties": {
+              ".": {
+                "type": "object",
+                "description": ""
               }
             }
           }

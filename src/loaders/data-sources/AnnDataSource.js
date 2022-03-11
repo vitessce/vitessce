@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import { openArray } from 'zarr';
 import range from 'lodash/range';
@@ -11,6 +12,18 @@ const readFloat32FromUint8 = (bytes) => {
 };
 
 const HEADER_LENGTH = 4;
+
+function basename(path) {
+  return path.split('/').reverse()[0];
+}
+
+function dirname(path) {
+  const arr = path.split('/');
+  arr.pop();
+  return arr.join('/');
+}
+
+
 
 /**
    * Method for decoding text arrays from zarr.
@@ -64,7 +77,7 @@ export default class AnnDataSource extends ZarrDataSource {
     const obsPromises = obsPaths.map((obsPath) => {
       const getObsCol = (obsCol) => {
         if (!this.obsPromises.has(obsCol)) {
-          const obsPromise = this._loadObsVariable(obsCol).catch((err) => {
+          const obsPromise = this._loadObsColumn(obsCol).catch((err) => {
             // clear from cache if promise rejects
             this.obsPromises.delete(obsCol);
             // propagate error
@@ -85,22 +98,32 @@ export default class AnnDataSource extends ZarrDataSource {
     return Promise.all(obsPromises);
   }
 
-  async _loadObsVariable(obs) {
+  async _loadObsColumn(col) {
+    return this._loadColumn(col);
+  }
+
+  async _loadVarColumn(col) {
+    return this._loadColumn(col);
+  }
+
+  async _loadColumn(path) {
+    const col = path;
+    const prefix = dirname(path);
     const { store } = this;
-    const { categories } = await this.getJson(`${obs}/.zattrs`);
+    const { categories } = await this.getJson(`${col}/.zattrs`);
     let categoriesValues;
     if (categories) {
-      const { dtype } = await this.getJson(`/obs/${categories}/.zarray`);
+      const { dtype } = await this.getJson(`/${prefix}/${categories}/.zarray`);
       if (dtype === '|O') {
-        categoriesValues = await this.getFlatArrDecompressed(`/obs/${categories}`);
+        categoriesValues = await this.getFlatArrDecompressed(`/${prefix}/${categories}`);
       }
     } else {
-      const { dtype } = await this.getJson(`/${obs}/.zarray`);
+      const { dtype } = await this.getJson(`/${col}/.zarray`);
       if (dtype === '|O') {
-        return this.getFlatArrDecompressed(obs);
+        return this.getFlatArrDecompressed(col);
       }
     }
-    const obsArr = await openArray({ store, path: obs, mode: 'r' });
+    const obsArr = await openArray({ store, path: col, mode: 'r' });
     const obsValues = await obsArr.get();
     const { data } = obsValues;
     const mappedObsValues = Array.from(data).map(
@@ -108,6 +131,7 @@ export default class AnnDataSource extends ZarrDataSource {
     );
     return mappedObsValues;
   }
+
 
   /**
    * Class method for loading general numeric arrays.
@@ -121,6 +145,24 @@ export default class AnnDataSource extends ZarrDataSource {
       path,
       mode: 'r',
     }).then(arr => arr.get());
+  }
+
+  async loadColumnNumeric(path) {
+    const { store } = this;
+    return openArray({
+      store,
+      path,
+      mode: 'r',
+    }).then(arr => arr.get());
+  }
+
+  async loadColumnString(path) {
+    return this._loadColumn(path);
+  }
+
+  async loadMatrixNumeric(path) {
+    // TODO(scXAI): implement based on MatrixZarrLoader.
+    return Promise.resolve(null);
   }
 
   /**
