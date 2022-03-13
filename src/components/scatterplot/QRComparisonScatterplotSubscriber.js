@@ -9,7 +9,7 @@ import { pluralize, capitalize } from '../../utils';
 import {
   useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
 } from '../hooks';
-import { setCellSelection, mergeCellSets } from '../utils';
+import { setCellSelection, mergeCellSets, PALETTE } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
 import {
   useCellsData,
@@ -21,6 +21,7 @@ import {
   useAnnDataIndices,
   useCellSetsTree,
   useDiffGeneNames,
+  useInitialCellSetSelection,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import QRComparisonScatterplot from './QRComparisonScatterplot';
@@ -129,9 +130,8 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const [qryPrediction, qryPredictionStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.prediction?.path, 'columnString', iteration, setItemIsReady, false);
   const [qryLabel, qryLabelStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.label?.path, 'columnString', iteration, setItemIsReady, false);
 
-  const qryPredictionSets = useCellSetsTree(qryCellsIndex, qryPrediction);
-  const qryLabelSets = useCellSetsTree(qryCellsIndex, qryLabel);
-  const refCellTypeSets = useCellSetsTree(refCellsIndex, refCellType);
+  const qryCellSets = useCellSetsTree(qryCellsIndex, [qryPrediction, qryLabel], ["Prediction", "Label"]);
+  const refCellSets = useCellSetsTree(refCellsIndex, [refCellType], ["Cell Type"]);
 
   // Anchor matrix
   const [qryAnchorMatrix, qryAnchorMatrixStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.anchorMatrix?.path, 'columnNumeric', iteration, setItemIsReady, false);
@@ -155,7 +155,6 @@ export default function QRComparisonScatterplotSubscriber(props) {
   // Embeddings
   const [qryEmbedding, qryEmbeddingStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.embeddings[qryValues.embeddingType]?.path, 'embeddingNumeric', iteration, setItemIsReady, false);
   const [refEmbedding, refEmbeddingStatus] = useAnnDataStatic(loaders, refDataset, refOptions?.embeddings[refValues.embeddingType]?.path, 'embeddingNumeric', setItemIsReady, false);
-  console.log(qryEmbedding);
 
   const [qryExpressionData] = useGeneSelection(
     loaders, qryDataset, setItemIsReady, false, qryValues.geneSelection, setItemIsNotReady,
@@ -177,12 +176,18 @@ export default function QRComparisonScatterplotSubscriber(props) {
 
   // TODO(scXAI): determine if query and reference should use same cell sets tree
   const mergedQryCellSets = useMemo(() => mergeCellSets(
-    qryPredictionSets, qryValues.additionalCellSets,
-  ), [qryPredictionSets, qryValues.additionalCellSets]);
+    qryCellSets, qryValues.additionalCellSets,
+  ), [qryCellSets, qryValues.additionalCellSets]);
 
   const mergedRefCellSets = useMemo(() => mergeCellSets(
-    refCellTypeSets, refValues.additionalCellSets,
-  ), [refCellTypeSets, refValues.additionalCellSets]);
+    refCellSets, refValues.additionalCellSets,
+  ), [refCellSets, refValues.additionalCellSets]);
+  
+
+  // Initialize cell set colors and selections.
+  useInitialCellSetSelection(mergedQryCellSets, qryValues, qrySetters, "Prediction");
+  useInitialCellSetSelection(mergedRefCellSets, refValues, refSetters, "Cell Type");
+
 
   const setQryCellSelectionProp = useCallback((v) => {
     setCellSelection(
@@ -213,6 +218,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
     theme,
   }), [qryValues.cellColorEncoding, qryValues.geneSelection, mergedQryCellSets, theme,
   qryValues.cellSetSelection, qryValues.cellSetColor, qryExpressionData, qryAttrs]);
+
 
   // TODO(scXAI): do we need to visualize colors for the reference cells?
   // TODO(scXAI): do we need to visualize polygons for the reference cell sets?

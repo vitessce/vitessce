@@ -16,9 +16,8 @@ import { pathToKey } from './utils';
  */
 export default function QRCellSetsManager(props) {
   const {
-    qryPredictionSets,
-    qryLabelSets,
-    refCellTypeSets,
+    qryCellSets,
+    refCellSets,
 
     qryDiffGeneNames,
     qryDiffGeneScores,

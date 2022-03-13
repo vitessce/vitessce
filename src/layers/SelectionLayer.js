@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-underscore-dangle */
 // File adopted from nebula.gl's SelectionLayer
@@ -123,7 +124,7 @@ export default class SelectionLayer extends CompositeLayer {
       // Check if this is a leaf node.
       if (node.data
         && booleanPointInPolygon(
-          turfPoint([].slice.call(getCellCoords(node.data[1]))), selectedPolygon,
+          turfPoint([].slice.call(getCellCoords(node.data))), selectedPolygon,
         )
       ) {
         // This node has data, so it is a leaf node representing one data point,

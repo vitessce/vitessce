@@ -26,7 +26,7 @@ export default function ToolMenu(props) {
   const {
     setActiveTool,
     activeTool,
-    visibleTools = { pan: true, selectRectangle: true, selectLasso: true },
+    visibleTools = { pan: true, selectRectangle: false, selectLasso: true },
   } = props;
   return (
     <div className="tool">

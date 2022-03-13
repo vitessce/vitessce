@@ -189,6 +189,17 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
   setCellColorEncoding('cellSetSelection');
 }
 
+export function mergeMultipleCellSets(multipleCellSets, additionalCellSets) {
+  return {
+    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_CELL].latestVersion,
+    datatype: SETS_DATATYPE_CELL,
+    tree: [
+      ...(multipleCellSets.flatMap(cellSets => (cellSets ? cellSets.tree : []))),
+      ...(additionalCellSets ? additionalCellSets.tree : []),
+    ],
+  };
+}
+
 export function mergeCellSets(cellSets, additionalCellSets) {
   return {
     version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_CELL].latestVersion,

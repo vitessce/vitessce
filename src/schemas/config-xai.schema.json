@@ -920,9 +920,17 @@
             "type": "object",
             "patternProperties": {
               ".": {
-                "type": "string",
-                "enum": ["geneSelection", "cellSetSelection"],
-                "description": "How should data points representing cells be colored?"
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided, no genes will be filtered out initially."
+                  },
+                  {
+                    "type": "string",
+                    "enum": ["geneSelection", "cellSetSelection"],
+                    "description": "How should data points representing cells be colored?"
+                  }
+                ]
               }
             }
           },

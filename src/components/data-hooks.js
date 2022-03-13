@@ -15,6 +15,7 @@ import {
 import { DEFAULT_COORDINATION_VALUES } from '../app/state/coordination';
 
 import { dataToCellSetsTree } from '../loaders/anndata-zarr-loaders/CellSetsZarrLoader';
+import { PALETTE } from './utils';
 
 /**
  * Warn via publishing to the console
@@ -876,14 +877,36 @@ export function useDiffGeneNames(qryGenesIndex, qryDiffGeneNameIndices) {
   return qryDiffGeneNames;
 }
 
-export function useCellSetsTree(qryCellsIndex, qryFeatureColumn) {
+export function useCellSetsTree(qryCellsIndex, qryFeatureColumns, qryFeatureColumnNames) {
   const tree = useMemo(() => {
-    if(qryCellsIndex && qryFeatureColumn) {
+    if(qryCellsIndex && qryFeatureColumns && qryFeatureColumnNames) {
       // TODO(scXAI): support multiple qryFeatureColumns and corresponding names.
-      const result = dataToCellSetsTree([qryCellsIndex, [qryFeatureColumn], []], [{ groupName: '__feature__' }]);
+      const result = dataToCellSetsTree([qryCellsIndex, qryFeatureColumns.filter(col => Array.isArray(col)), []], qryFeatureColumnNames.map(colname => ({ groupName: colname })).filter((col, i) => Array.isArray(qryFeatureColumns[i])));
       return result;
     }
     return null;
-  }, [qryCellsIndex, qryFeatureColumn]);
+  }, [qryCellsIndex, ...qryFeatureColumns, ...qryFeatureColumnNames]);
   return tree;
+}
+
+export function useInitialCellSetSelection(mergedQryCellSets, qryValues, qrySetters, parentKey) {
+  useEffect(() => {
+    if(qryValues.cellSetColor !== null || qryValues.cellSetSelection !== null || qryValues.cellColorEncoding !== null) {
+      return;
+    }
+
+    const parentKey = "Prediction";
+    const node = mergedQryCellSets.tree.find(n => n.name === parentKey);
+    if(node) {
+      const newSelection = node.children.map(n => ([parentKey, n.name]));
+      qrySetters.setCellSetSelection(newSelection);
+
+      const newColors = newSelection.map((path, i) => ({
+        color: PALETTE[i % PALETTE.length],
+        path: path,
+      }));
+      qrySetters.setCellSetColor(newColors);
+      qrySetters.setCellColorEncoding("cellSetSelection");
+    }
+  }, [mergedQryCellSets, parentKey, qryValues.cellSetColor, qryValues.cellSetSelection, qryValues.cellColorEncoding]);
 }

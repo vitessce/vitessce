@@ -97,7 +97,7 @@ export function dataToCellSetsTree(data, options) {
       if (cellSetScores[j]) {
         cellSetIds.forEach((id, i) => clusters[id].set.push([cellNames[i], cellSetScores[j][i]]));
       } else {
-        cellSetIds.forEach((id, i) => clusters[id].set.push(cellNames[i]));
+        cellSetIds.forEach((id, i) => clusters[id].set.push([cellNames[i], null]));
       }
       Object.values(clusters).forEach(
         // eslint-disable-next-line no-return-assign

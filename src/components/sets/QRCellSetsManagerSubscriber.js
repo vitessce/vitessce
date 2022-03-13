@@ -110,9 +110,8 @@ export default function QRCellSetsManagerSubscriber(props) {
   const [qryPrediction, qryPredictionStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.prediction?.path, 'columnString', iteration, setItemIsReady, false);
   const [qryLabel, qryLabelStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.label?.path, 'columnString', iteration, setItemIsReady, false);
 
-  const qryPredictionSets = useCellSetsTree(qryCellsIndex, qryPrediction);
-  const qryLabelSets = useCellSetsTree(qryCellsIndex, qryLabel);
-  const refCellTypeSets = useCellSetsTree(refCellsIndex, refCellType);
+  const qryCellSets = useCellSetsTree(qryCellsIndex, [qryPrediction, qryLabel], ["Prediction", "Label"]);
+  const refCellSets = useCellSetsTree(refCellsIndex, [refCellType], ["Cell Type"]);
 
   // Anchor matrix
   const [qryAnchorMatrix, qryAnchorMatrixStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.anchorMatrix?.path, 'columnNumeric', iteration, setItemIsReady, false);
@@ -148,9 +147,8 @@ export default function QRCellSetsManagerSubscriber(props) {
       isScroll
     >
       <QRCellSetsManager
-        qryPredictionSets={qryPredictionSets}
-        qryLabelSets={qryLabelSets}
-        refCellTypeSets={refCellTypeSets}
+        qryCellSets={qryCellSets}
+        refCellSets={refCellSets}
 
         qryDiffGeneNames={qryDiffGeneNames}
         qryDiffGeneScores={qryDiffGeneScores}

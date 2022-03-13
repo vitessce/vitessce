@@ -221,7 +221,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
             setActiveTool={this.onToolChange}
             visibleTools={{
               pan: showPanTool,
-              selectRectangle: showCellSelectionTools,
+              selectRectangle: false,
               selectLasso: showCellSelectionTools,
             }}
           />

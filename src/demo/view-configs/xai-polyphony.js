@@ -124,6 +124,14 @@ export const polyphonyConfig = {
             ref: null,
             qry: null,
           },
+          cellSetColor: {
+            ref: null,
+            qry: null,
+          },
+          cellColorEncoding: {
+            ref: null,
+            qry: null,
+          },
           embeddingType: {
             ref: 'UMAP',
             qry: 'UMAP',
@@ -169,6 +177,8 @@ export const polyphonyConfig = {
             coordinationScopes: {
               dataset: ['REFERENCE', 'QUERY'],
               cellSetSelection: { REFERENCE: 'ref', QUERY: 'qry' },
+              cellSetColor: { REFERENCE: 'ref', QUERY: 'qry' },
+              cellColorEncoding: { REFERENCE: 'ref', QUERY: 'qry' },
               embeddingType: { REFERENCE: 'ref', QUERY: 'qry' },
             },
             x: 5,
@@ -181,6 +191,8 @@ export const polyphonyConfig = {
             coordinationScopes: {
               dataset: ['REFERENCE', 'QUERY'],
               cellSetSelection: { REFERENCE: 'ref', QUERY: 'qry' },
+              cellSetColor: { REFERENCE: 'ref', QUERY: 'qry' },
+              cellColorEncoding: { REFERENCE: 'ref', QUERY: 'qry' },
               embeddingType: { REFERENCE: 'ref', QUERY: 'qry' },
               embeddingZoom: 'comparison',
               embeddingTargetX: 'comparison',

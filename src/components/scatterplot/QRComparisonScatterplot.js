@@ -34,8 +34,8 @@ const makeDefaultGetCellPosition = (mapping, zVal) => (cellEntry) => {
   return [mappedCell[0], -mappedCell[1], zVal];
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
-const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
-  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || getDefaultColor(theme);
+const makeDefaultGetCellColors = (cellColors, qryCellsIndex, theme) => (cellEntry, { index }) => {
+  const [r, g, b, a] = (cellColors && qryCellsIndex && cellColors.get(qryCellsIndex[index])) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 
@@ -110,7 +110,8 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
       setComponentHover,
       getCellIsSelected,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, theme),
+      refCellsIndex,
+      getCellColor = makeDefaultGetCellColors(cellColors, refCellsIndex, theme),
       getExpressionValue,
       onCellClick,
       geneExpressionColormap,
@@ -150,7 +151,7 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
       lineWidthUnits: 'pixels',
       getPosition: (object, { index, data, target }) => {
         target[0] = data.src[0][index];
-        target[1] = data.src[1][index];
+        target[1] = -data.src[1][index];
         target[2] = 0;
         return target;
       },
@@ -183,8 +184,9 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
       setCellHighlight,
       setComponentHover,
       getCellIsSelected,
+      qryCellsIndex,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, theme),
+      getCellColor = makeDefaultGetCellColors(cellColors, qryCellsIndex, theme),
       getExpressionValue,
       onCellClick,
       geneExpressionColormap,
@@ -216,17 +218,11 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
       lineWidthUnits: 'pixels',
       getPosition: (object, { index, data, target }) => {
         target[0] = data.src[0][index];
-        target[1] = data.src[1][index];
+        target[1] = -data.src[1][index];
         target[2] = 0;
         return target;
       },
-      getFillColor: (object, { index, data, target }) => {
-        // TODO(scXAI)
-        target[0] = 255;
-        target[1] = 0;
-        target[2] = 0;
-        return target;
-      },
+      getFillColor: getCellColor,
       getPointRadius: 1,
       getExpressionValue,
       getLineWidth: 0,
@@ -331,20 +327,24 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createQrySelectionLayers() {
+    const { qryCellsEntries: cellsEntries } = this;
     const {
       viewState,
-      qryMapping: mapping,
-      getCellCoords = makeDefaultGetCellCoords(mapping),
       setCellSelection,
+      qryCellsIndex,
     } = this.props;
     const { tool } = this.state;
     const { qryCellsQuadTree: cellsQuadTree } = this;
     const flipYTooltip = true;
+    
+    const getCellCoords = (i) => ([cellsEntries.data[0][i], cellsEntries.data[1][i], 0]);
+
     return getSelectionLayers(
       tool,
       viewState.zoom,
       QRY_LAYER_ID,
       getCellCoords,
+      qryCellsIndex,
       setCellSelection,
       cellsQuadTree,
       flipYTooltip,
@@ -363,7 +363,7 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
       refCellsLayer,
       //...cellSetsLayers,
       supportingBoundsLayer,
-      //...this.createQrySelectionLayers(),
+      ...this.createQrySelectionLayers(),
       // TODO(scXAI): reference selection layers?
     ];
   }

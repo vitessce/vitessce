@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
 import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
@@ -474,8 +475,8 @@ export function treeToCellPolygonsBySetNames(
       );
       const cellPositions = nodeSet
         .map(([cellId]) => ([
-          embedding.data[cells.indexOf(cellId)][0],
-          -embedding.data[cells.indexOf(cellId)][1],
+          embedding.data[0][cells.indexOf(cellId)],
+          -embedding.data[1][cells.indexOf(cellId)],
         ]))
         .filter(cell => cell.every(i => typeof i === 'number'));
 
