@@ -130,7 +130,6 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
       },
       pickable: true,
       autoHighlight: true,
-      stroked: true,
       filled: true,
       radiusPixels: 40,
       radiusScale: cellRadius,
@@ -205,7 +204,7 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
       },
       pickable: true,
       autoHighlight: true,
-      stroked: true,
+      stroked: false,
       filled: true,
       opacity: cellOpacity,
       radiusScale: cellRadius, // TODO: fix upstream
@@ -249,14 +248,14 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
     return new PolygonLayer({
       id: 'supporting-bounds',
       data: [
-        bboxPolygon(qrySupportingBounds).geometry.coordinates,
-        bboxPolygon(refSupportingBounds).geometry.coordinates,
+        ...(qrySupportingBounds ? [bboxPolygon(qrySupportingBounds).geometry.coordinates] : []),
+        ...(refSupportingBounds ? [bboxPolygon(refSupportingBounds).geometry.coordinates] : []),
       ],
       pickable: false,
       stroked: true,
       filled: false,
       wireframe: true,
-      lineWidthMinPixels: 1,
+      lineWidthMaxPixels: 2,
       getPolygon: d => d,
       getLineColor: [80, 80, 80],
       getLineWidth: 1,
@@ -402,7 +401,7 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
 
   onUpdateSupportingBoundsLayer() {
     const { qrySupportingBounds, refSupportingBounds } = this.props;
-    if(qrySupportingBounds && refSupportingBounds) {
+    if(qrySupportingBounds || refSupportingBounds) {
       this.supportingBoundsLayer = this.createSupportingBoundsLayer();
     }
   }
@@ -446,6 +445,7 @@ class QRComparisonScatterplot extends AbstractSpatialOrScatterplot {
     } = this.props;
     const { viewport } = this;
 
+    // TODO(scXAI): update
     const getCellCoords = cell => getCellPosition([null, cell]);
     
     if (updateViewInfo && viewport) {

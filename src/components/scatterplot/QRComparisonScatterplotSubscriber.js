@@ -142,6 +142,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const [refAnchorCluster, refAnchorClusterStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.features?.anchorCluster?.path, 'columnNumeric', iteration, setItemIsReady, false);
   const [qryAnchorDist, qryAnchorDistStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.anchorDist?.path, 'columnNumeric', iteration, setItemIsReady, false);
 
+  console.log(qryAnchorCluster);
   // Differential expression
   const [qryDiffGeneNameIndices, qryDiffGeneNamesStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.differentialGenes?.names?.path, 'columnNumeric', iteration, setItemIsReady, false);
   const [qryDiffGeneScores, qryDiffGeneScoresStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.differentialGenes?.scores?.path, 'columnNumeric', iteration, setItemIsReady, false);
@@ -256,7 +257,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
   // TODO(scXAI): do the reference dataset embedding coordinates have the same ranges as in the query dataset?
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     const cellValues = qryEmbedding;
-    if (cellValues?.length) {
+    if (cellValues?.data) {
       const xVals = qryEmbedding.data.map(d => d[0]);
       const yVals = qryEmbedding.data.map(d => d[1]);
       const xE = extent(xVals);
@@ -266,7 +267,7 @@ export default function QRComparisonScatterplotSubscriber(props) {
       return [xR, yR, xE, yE, cellValues.shape[1]];
     }
     return [null, null, null, null, null];
-  }, [qryCellsIndex, qryEmbedding, qryValues.embeddingType]);
+  }, [qryEmbedding, qryValues.embeddingType]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the

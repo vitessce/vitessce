@@ -16,6 +16,12 @@ import {
   useCellSetsData,
   useGeneSelection,
   useExpressionAttrs,
+  useAnnDataStatic,
+  useAnnDataDynamic,
+  useAnnDataIndices,
+  useCellSetsTree,
+  useDiffGeneNames,
+  useInitialCellSetSelection,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import QRSupportingScatterplot from './QRSupportingScatterplot';
@@ -36,6 +42,8 @@ import { Component } from '../../app/constants';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
+const iteration = 1;
+
 /**
  * A subscriber component for the scatterplot.
  * @param {object} props
@@ -50,7 +58,7 @@ const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
  * @param {number} props.averageFillDensity Override the average fill density calculation
  * when using dynamic opacity mode.
  */
-export default function QRSupportingScatterplotSubscriber(props) {
+export default function QRSupportingScatterplotQuerySubscriber(props) {
   const {
     uuid,
     coordinationScopes,
@@ -62,6 +70,7 @@ export default function QRSupportingScatterplotSubscriber(props) {
     title: titleOverride,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
+    zoomOffset = 1,
   } = props;
 
   const loaders = useLoaders();
@@ -113,7 +122,7 @@ export default function QRSupportingScatterplotSubscriber(props) {
     setGeneExpressionColormap,
     setGeneExpressionColormapRange,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[Component.QR_SUPPORTING_SCATTERPLOT],
+    COMPONENT_COORDINATION_TYPES[Component.QR_SUPPORTING_SCATTERPLOT_QUERY],
     coordinationScopes,
   );
 
@@ -124,9 +133,7 @@ export default function QRSupportingScatterplotSubscriber(props) {
     setItemIsReady,
     setItemIsNotReady, // eslint-disable-line no-unused-vars
     resetReadyItems,
-  ] = useReady(
-    SCATTERPLOT_DATA_TYPES,
-  );
+  ] = useReady([]);
 
   const isQuery = coordinationScopes.dataset === "QUERY";
   const title = isQuery ? `Supporting View (Query)` : '(Reference)';
@@ -138,23 +145,30 @@ export default function QRSupportingScatterplotSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
-  // Get data from loaders using the data hooks.
-  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [cellSets] = useCellSetsData(
-    loaders,
-    dataset,
-    setItemIsReady,
-    addUrl,
-    false,
-    { setCellSetSelection, setCellSetColor },
-    { cellSetSelection, cellSetColor },
-  );
+  const loader = loaders[dataset].loaders.cells;
+  const options = loader?.options;
+
+  // Load the data.
+  // Cell IDs
+  const [cellsIndex, genesIndex] = useAnnDataIndices(loaders, dataset, setItemIsReady, true);
+
+  // Cell sets
+  const [qryPrediction, qryPredictionStatus] = useAnnDataDynamic(loaders, dataset, options?.features?.prediction?.path, 'columnString', iteration, setItemIsReady, false);
+  const [qryLabel, qryLabelStatus] = useAnnDataDynamic(loaders, dataset, options?.features?.label?.path, 'columnString', iteration, setItemIsReady, false);
+
+  const cellSets = useCellSetsTree(cellsIndex, [qryPrediction, qryLabel], ["Prediction", "Label"]);
+
+  // Embeddings
+  const [embedding, embeddingStatus] = useAnnDataDynamic(loaders, dataset, options?.embeddings[mapping]?.path, 'embeddingNumeric', iteration, setItemIsReady, false);
+
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
   const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
+  
+  
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
@@ -193,11 +207,12 @@ export default function QRSupportingScatterplotSubscriber(props) {
     if ((cellSetLabelsVisible || cellSetPolygonsVisible)
       && !cacheHas(cellSetPolygonCache, cellSetSelection)
       && mergedCellSets?.tree?.length
-      && Object.values(cells).length
+      && embedding
+      && cellsIndex
       && cellSetColor?.length) {
       const newCellSetPolygons = getCellSetPolygons({
-        cells,
-        mapping,
+        cells: cellsIndex,
+        embedding: embedding,
         cellSets: mergedCellSets,
         cellSetSelection,
         cellSetColor,
@@ -208,24 +223,24 @@ export default function QRSupportingScatterplotSubscriber(props) {
     }
     return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
   }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
-    cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
+    cellsIndex, embedding, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
 
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
-    const cellValues = cells && Object.values(cells);
-    if (cellValues?.length) {
-      const cellCoordinates = Object.values(cells)
-        .map(c => c.mappings[mapping]);
-      const xE = extent(cellCoordinates, c => c[0]);
-      const yE = extent(cellCoordinates, c => c[1]);
+    const cellValues = embedding;
+    if (cellValues?.data) {
+      const xVals = embedding.data.map(d => d[0]);
+      const yVals = embedding.data.map(d => d[1]);
+      const xE = extent(xVals);
+      const yE = extent(yVals);
       const xR = xE[1] - xE[0];
       const yR = yE[1] - yE[0];
-      return [xR, yR, xE, yE, cellValues.length];
+      return [xR, yR, xE, yE, cellValues.shape[1]];
     }
     return [null, null, null, null, null];
-  }, [cells, mapping]);
+  }, [embedding, mapping]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -249,24 +264,25 @@ export default function QRSupportingScatterplotSubscriber(props) {
         setTargetX(newTargetX);
         // Graphics rendering has the y-axis going south so we need to multiply by negative one.
         setTargetY(-newTargetY);
-        setZoom(newZoom);
+        setZoom(newZoom + zoomOffset);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping,
-    width, height, zoom, averageFillDensity]);
+  }, [xRange, yRange, xExtent, yExtent, numCells, mapping,
+    width, height, zoom, averageFillDensity, zoomOffset]);
 
   const getCellInfo = useCallback((cellId) => {
-    const cellInfo = cells[cellId];
+    //const cellInfo = cells[cellId];
+    const cellInfo = {};
     return {
       [`${capitalize(observationsLabel)} ID`]: cellId,
       ...(cellInfo ? cellInfo.factors : {}),
     };
-  }, [cells, observationsLabel]);
+  }, [observationsLabel]);
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
   const getCellIsSelected = useCallback(cellEntry => (
-    (cellSelectionSet || new Set([])).has(cellEntry[0]) ? 1.0 : 0.0), [cellSelectionSet]);
+    (cellSelectionSet || new Set([])).has(cellEntry) ? 1.0 : 0.0), [cellSelectionSet]);
 
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
@@ -278,7 +294,7 @@ export default function QRSupportingScatterplotSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
+      info={`${numCells} ${pluralize(observationsLabel, observationsPluralLabel, numCells)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -320,7 +336,8 @@ export default function QRSupportingScatterplotSubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2] || 0);
         }}
-        cells={cells}
+        cellsIndex={cellsIndex}
+        embedding={embedding}
         mapping={mapping}
         cellFilter={cellFilter}
         cellSelection={cellSelection}

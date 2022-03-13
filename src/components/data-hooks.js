@@ -895,7 +895,6 @@ export function useInitialCellSetSelection(mergedQryCellSets, qryValues, qrySett
       return;
     }
 
-    const parentKey = "Prediction";
     const node = mergedQryCellSets.tree.find(n => n.name === parentKey);
     if(node) {
       const newSelection = node.children.map(n => ([parentKey, n.name]));

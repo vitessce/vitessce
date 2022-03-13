@@ -1,4 +1,6 @@
+/* eslint-disable */
 import React, { forwardRef } from 'react';
+import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { PolygonLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
 import { getSelectionLayers } from '../../layers';
@@ -28,8 +30,8 @@ const makeDefaultGetCellPosition = mapping => (cellEntry) => {
   return [mappedCell[0], -mappedCell[1], 0];
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
-const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
-  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || getDefaultColor(theme);
+const makeDefaultGetCellColors = (cellColors, qryCellsIndex, theme) => (cellEntry, { index }) => {
+  const [r, g, b, a] = (cellColors && qryCellsIndex && cellColors.get(qryCellsIndex[index])) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 
@@ -70,7 +72,7 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
     // in React state, this component
     // uses instance variables.
     // All instance variables used in this class:
-    this.cellsEntries = [];
+    this.cellsEntries = {};
     this.cellsQuadTree = null;
     this.cellsLayer = null;
     this.cellSetsForceSimulation = forceCollideRects();
@@ -89,8 +91,6 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
     const { cellsEntries } = this;
     const {
       theme,
-      mapping,
-      getCellPosition = makeDefaultGetCellPosition(mapping),
       cellRadius = 1.0,
       cellOpacity = 1.0,
       cellFilter,
@@ -98,8 +98,9 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
       setCellHighlight,
       setComponentHover,
       getCellIsSelected,
+      cellsIndex,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, theme),
+      getCellColor = makeDefaultGetCellColors(cellColors, cellsIndex, theme),
       getExpressionValue,
       onCellClick,
       geneExpressionColormap,
@@ -111,6 +112,15 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
       : cellsEntries);
     return new ScatterplotLayer({
       id: CELLS_LAYER_ID,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      data: {
+        src: cellsEntries.data,
+        length: cellsEntries.shape[1]
+      },
+      pickable: true,
+      autoHighlight: true,
+      stroked: false,
+      filled: true,
       backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
       getCellIsSelected,
       opacity: cellOpacity,
@@ -120,9 +130,13 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
-      getPosition: getCellPosition,
+      getPosition: (object, { index, data, target }) => {
+        target[0] = data.src[0][index];
+        target[1] = -data.src[1][index];
+        target[2] = 0;
+        return target;
+      },
       getFillColor: getCellColor,
-      getLineColor: getCellColor,
       getPointRadius: 1,
       getExpressionValue,
       getLineWidth: 0,
@@ -145,10 +159,6 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
         getCellIsSelected,
       },
-      ...cellLayerDefaultProps(
-        filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
-      ),
-      stroked: 0,
     });
   }
 
@@ -216,20 +226,24 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
+    const { qryCellsEntries: cellsEntries } = this;
     const {
       viewState,
-      mapping,
-      getCellCoords = makeDefaultGetCellCoords(mapping),
       setCellSelection,
+      cellsIndex,
     } = this.props;
     const { tool } = this.state;
     const { cellsQuadTree } = this;
     const flipYTooltip = true;
+
+    const getCellCoords = (i) => ([cellsEntries.data[0][i], cellsEntries.data[1][i], 0]);
+
     return getSelectionLayers(
       tool,
       viewState.zoom,
       CELLS_LAYER_ID,
       getCellCoords,
+      cellsIndex,
       setCellSelection,
       cellsQuadTree,
       flipYTooltip,
@@ -250,17 +264,18 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
 
   onUpdateCellsData() {
     const {
-      cells = {},
-      mapping,
-      getCellCoords = makeDefaultGetCellCoords(mapping),
+      embedding
     } = this.props;
-    const cellsEntries = Object.entries(cells);
-    this.cellsEntries = cellsEntries;
-    this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
+    if(embedding && embedding.data) {
+      this.cellsEntries = embedding;
+      this.cellsQuadTree = createCellsQuadTree(embedding);
+    }
   }
 
   onUpdateCellsLayer() {
-    this.cellsLayer = this.createCellsLayer();
+    if(this.cellsEntries.data) {
+      this.cellsLayer = this.createCellsLayer();
+    }
   }
 
   onUpdateCellSetsLayers(onlyViewStateChange) {
@@ -297,6 +312,7 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
       mapping,
       getCellPosition = makeDefaultGetCellPosition(mapping),
     } = this.props;
+    // TODO(scXAI): update
     super.viewInfoDidUpdate(cell => getCellPosition([null, cell]));
   }
 
@@ -313,14 +329,14 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
-    if (['cells'].some(shallowDiff)) {
+    if (['embedding'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
       this.forceUpdate();
     }
 
     if ([
-      'cells', 'cellFilter', 'cellSelection', 'cellColors',
+      'embedding', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {

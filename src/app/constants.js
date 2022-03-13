@@ -12,7 +12,8 @@ export const Component = {
   CELL_SET_EXPRESSION: 'cellSetExpression',
   EXPRESSION_HISTOGRAM: 'expressionHistogram',
   QR_COMPARISON_SCATTERPLOT: 'qrComparisonScatterplot',
-  QR_SUPPORTING_SCATTERPLOT: 'qrSupportingScatterplot',
+  QR_SUPPORTING_SCATTERPLOT_QUERY: 'qrSupportingScatterplotQuery',
+  QR_SUPPORTING_SCATTERPLOT_REFERENCE: 'qrSupportingScatterplotReference',
   QR_CELL_SETS: 'qrCellSets',
 };
 
