@@ -1,5 +1,70 @@
 @mixin xai($theme-name, $theme-colors) {
   .qrCellSets {
-    border: 1px solid blue;
+    border: 0px solid blue;
   }
+  .qrCellSetsTableContainer {
+    width: 100%;
+    display: flex;
+  }
+  .qrCellSetsTableLeft {
+    flex: 40%;
+    .qrCellSetsTableRow {
+      width: 100%;
+    }
+  }
+  .qrCellSetsTableRight {
+    flex: 60%;
+    overflow-x: auto;
+
+    .qrCellSetsTableRightInner {
+      .qrCellSetsTableRow {
+        width: 1000px;
+      }
+    }
+  }
+  
+  .qrCellSetsTableRow {
+    display: inline-block;
+    height: 30px;
+    max-height: 30px;
+    min-width: 2px;
+    border: 1px solid green;
+    overflow-y: hidden;
+    .colArrow {
+      width: 20px;
+    }
+    .colName {
+      width: 80px;
+    }
+    .colPrediction, .colSimilarity {
+      width: 120px;
+    }
+    .colEdit {
+      width: 20px;
+    }
+    .colTopGenes {
+      width: 120px;
+    }
+    .colGeneResult {
+      width: 30px;
+      height: 30px;
+      overflow: hidden;
+    }
+  }
+  .qrCellSetsTableArrow {
+    display: inline-block;
+    height: 30px;
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+  .qrCellSetsTableHead {
+    vertical-align: top;
+    display: inline-block;
+    height: 30px;
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+  
 }

@@ -23,7 +23,9 @@ import {
   useDiffGeneNames, useCellSetsTree,
 } from '../data-hooks';
 import { Component } from '../../app/constants';
+import { setCellSelection, mergeCellSets, PALETTE } from '../utils';
 import range from 'lodash/range';
+
 
 const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 
@@ -132,11 +134,14 @@ export default function QRCellSetsManagerSubscriber(props) {
   const qryDiffGeneNames = useDiffGeneNames(qryGenesIndex, qryDiffGeneNameIndices);
   const refDiffGeneNames = useDiffGeneNames(refGenesIndex,refDiffGeneNameIndices);
 
-  // Embeddings
-  const [qryEmbedding, qryEmbeddingStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.embeddings[qryValues.embeddingType]?.path, 'embeddingNumeric', iteration, setItemIsReady, false);
-  const [refEmbedding, refEmbeddingStatus] = useAnnDataStatic(loaders, refDataset, refOptions?.embeddings[refValues.embeddingType]?.path, 'embeddingNumeric', setItemIsReady, false);  
-  
-  
+  const mergedQryCellSets = useMemo(() => mergeCellSets(
+    qryCellSets, qryValues.additionalCellSets,
+  ), [qryCellSets, qryValues.additionalCellSets]);
+
+  const mergedRefCellSets = useMemo(() => mergeCellSets(
+    refCellSets, refValues.additionalCellSets,
+  ), [refCellSets, refValues.additionalCellSets]);
+
 
   return (
     <TitleInfo
@@ -147,8 +152,12 @@ export default function QRCellSetsManagerSubscriber(props) {
       isScroll
     >
       <QRCellSetsManager
-        qryCellSets={qryCellSets}
-        refCellSets={refCellSets}
+        qryCellSets={mergedQryCellSets}
+        refCellSets={mergedRefCellSets}
+
+        qryAnchorCluster={qryAnchorCluster}
+        refAnchorCluster={refAnchorCluster}
+        qryAnchorDist={qryAnchorDist}
 
         qryDiffGeneNames={qryDiffGeneNames}
         qryDiffGeneScores={qryDiffGeneScores}
