@@ -25,6 +25,7 @@ import {
 import { Component } from '../../app/constants';
 import { setCellSelection, mergeCellSets, PALETTE } from '../utils';
 import range from 'lodash/range';
+import sumBy from 'lodash/sumBy';
 
 
 const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
@@ -53,6 +54,8 @@ export default function QRCellSetsManagerSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Cell Sets',
+    refDiffGeneScoreThreshold = 15,
+    qryDiffGeneScoreThreshold = 15,
   } = props;
 
   const loaders = useLoaders();
@@ -142,6 +145,43 @@ export default function QRCellSetsManagerSubscriber(props) {
     refCellSets, refValues.additionalCellSets,
   ), [refCellSets, refValues.additionalCellSets]);
 
+  const qryTopGenesLists = useMemo(() => {
+    if(qryDiffGeneNames && qryDiffGeneScores && qryDiffGeneScoreThreshold && qryPrediction && qryAnchorCluster && qryCellSets && qryValues.cellSetColor) {
+      console.log(qryPrediction, qryAnchorCluster);
+      const parentKey = "Prediction";
+      const predictionNode = qryCellSets.tree.find(n => n.name === parentKey);
+      const predictionPaths = predictionNode.children.map(n => ([parentKey, n.name]));
+
+      const result = {};
+      qryDiffGeneScores.data.forEach((clusterScores, clusterIndex) => {
+        const maxIndex = clusterScores.findIndex(el => el < qryDiffGeneScoreThreshold);
+        result[clusterIndex] = {
+          names: qryDiffGeneNames[clusterIndex].slice(0, maxIndex),
+          scores: clusterScores.slice(0, maxIndex),
+          predictionProportions: predictionPaths.map(path => {
+            const [prefix, setName] = path;
+            const color = qryValues.cellSetColor.find(o => isEqual(path, o.path))?.color;
+            let numCellsInCluster = 0.0;
+            let numCellsInClusterAndSet = 0.0;
+            qryAnchorCluster.data.forEach((v, i) => {
+              numCellsInCluster += (v === clusterIndex ? 1 : 0);
+              numCellsInClusterAndSet += (v === clusterIndex && qryPrediction[i] === setName ? 1 : 0);
+            });
+            const proportion = numCellsInClusterAndSet / numCellsInCluster;
+            return {
+              name: setName,
+              color: color,
+              proportion: proportion,
+            };
+          }),
+        };
+      });
+      console.log(result)
+      return result;
+    }
+    return null;
+  }, [qryDiffGeneNames, qryDiffGeneScores, qryDiffGeneScoreThreshold, qryPrediction, qryAnchorCluster, qryCellSets, qryValues.cellSetColor]);
+
 
   return (
     <TitleInfo
@@ -159,13 +199,9 @@ export default function QRCellSetsManagerSubscriber(props) {
         refAnchorCluster={refAnchorCluster}
         qryAnchorDist={qryAnchorDist}
 
-        qryDiffGeneNames={qryDiffGeneNames}
-        qryDiffGeneScores={qryDiffGeneScores}
-        refDiffGeneNames={refDiffGeneNames}
-        refDiffGeneScores={refDiffGeneScores}
+        qryTopGenesLists={qryTopGenesLists}
 
-        refDiffGeneScoreThreshold={15}
-        qryDiffGeneScoreThreshold={15}
+        
       />
     </TitleInfo>
   );

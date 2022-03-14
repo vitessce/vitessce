@@ -38,6 +38,9 @@
     }
     .colPrediction, .colSimilarity {
       width: 120px;
+      .predictionBar {
+        float: left;
+      }
     }
     .colEdit {
       width: 20px;
@@ -49,6 +52,39 @@
       width: 30px;
       height: 30px;
       overflow: hidden;
+      svg {
+        width: 30px;
+        height: 30px;
+        rect {
+          stroke-width: 8px !important;
+          stroke: #999 !important;
+          fill: #999 !important;
+        }
+        &.signifInBoth {
+          circle:nth-child(2) {
+            stroke-width: 12px !important;
+            stroke: #999 !important;
+          }
+          circle:nth-child(3) {
+            fill: #999 !important;
+          }
+        }
+        &.signifInRef {
+          circle:nth-child(2) {
+            stroke-width: 12px !important;
+            stroke: #999 !important;
+          }
+        }
+        &.signifInQry {
+          circle:nth-child(1) {
+            stroke-width: 12px !important;
+            stroke: #999 !important;
+          }
+          circle:nth-child(2) {
+            fill: #999 !important;
+          }
+        }
+      }
     }
   }
   .qrCellSetsTableArrow {
@@ -66,5 +102,11 @@
     top: 0;
     left: 0;
   }
-  
+  .signifIconTooltip {
+    position: absolute;
+    height: 30px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+    border: 1px solid gray;
+  }
 }

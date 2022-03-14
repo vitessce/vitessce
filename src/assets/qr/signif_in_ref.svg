@@ -1,0 +1,90 @@
+<svg
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 210 210"
+   height="210mm"
+   width="210mm">
+  <defs
+     id="defs2">
+    <clipPath
+       id="clipPath1047"
+       clipPathUnits="userSpaceOnUse">
+      <ellipse
+         ry="99.750954"
+         rx="99.750961"
+         style="fill:none;stroke:#000000;stroke-width:5.49809;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="ellipse1049"
+         cx="100"
+         cy="100" />
+    </clipPath>
+  </defs>
+  <g
+     id="layer1">
+    <g
+       clip-path="url(#clipPath1047)"
+       id="g1041">
+      <rect
+         transform="rotate(45)"
+         y="-98.396385"
+         x="49.350285"
+         height="200"
+         width="5"
+         id="rect855-2-9-8"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.99999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <circle
+         style="fill:none;stroke:#000000;stroke-width:5.36399;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path833"
+         cx="100"
+         cy="100"
+         r="97.318008" />
+      <rect
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.99999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect855"
+         width="5"
+         height="200"
+         x="106.32711"
+         y="-99.478081"
+         transform="rotate(45)" />
+      <rect
+         transform="rotate(45)"
+         y="-99.465462"
+         x="137.01469"
+         height="200"
+         width="5"
+         id="rect855-8"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.99999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         transform="rotate(45)"
+         y="-99.999992"
+         x="169.62158"
+         height="200"
+         width="5"
+         id="rect855-2"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.99999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.99999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect855-2-9"
+         width="5"
+         height="200"
+         x="201.69392"
+         y="-98.930923"
+         transform="rotate(45)" />
+      <rect
+         transform="rotate(45)"
+         y="-94.120071"
+         x="228.95541"
+         height="200"
+         width="5"
+         id="rect855-2-9-2"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.99999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.99999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect855-2-9-8-0"
+         width="5"
+         height="200"
+         x="77.680855"
+         y="-104.27631"
+         transform="rotate(45)" />
+    </g>
+  </g>
+</svg>
