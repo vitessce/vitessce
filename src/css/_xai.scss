@@ -10,6 +10,8 @@
     flex: 40%;
     .qrCellSetsTableRow {
       width: 100%;
+      overflow-y: hidden;
+      margin-bottom: -6px;
     }
   }
   .qrCellSetsTableRight {
@@ -18,6 +20,7 @@
 
     .qrCellSetsTableRightInner {
       .qrCellSetsTableRow {
+        overflow-y: visible;
         width: 1000px;
       }
     }
@@ -28,8 +31,7 @@
     height: 30px;
     max-height: 30px;
     min-width: 2px;
-    border: 1px solid green;
-    overflow-y: hidden;
+    border: 0px solid green;
     .colArrow {
       width: 20px;
     }
@@ -51,7 +53,7 @@
     .colGeneResult {
       width: 30px;
       height: 30px;
-      overflow: hidden;
+      overflow: visible;
       svg {
         width: 30px;
         height: 30px;
@@ -105,8 +107,12 @@
   .signifIconTooltip {
     position: absolute;
     height: 30px;
-    background-color: rgba(255, 255, 255, 0.8);
+    width: 100px;
+    text-align: left;
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 5px;
-    border: 1px solid gray;
+    box-shadow: 5px 5px 5px rgba(110, 110, 110, 0.5);
+    z-index: 100;
   }
 }

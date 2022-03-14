@@ -909,3 +909,36 @@ export function useInitialCellSetSelection(mergedQryCellSets, qryValues, qrySett
     }
   }, [mergedQryCellSets, parentKey, qryValues.cellSetColor, qryValues.cellSetSelection, qryValues.cellColorEncoding]);
 }
+
+export function useAnchors(
+  loader, iteration, setItemIsReady, isRequired,
+) {
+  const [result, setResult] = useState();
+
+  const setWarning = useSetWarning();
+
+  useEffect(() => {
+    if (!loader) {
+      return;
+    }
+
+    if (loader) {
+      loader.anchorGet(iteration).catch(e => warn(e, setWarning)).then((payload) => {
+        if (!payload) return;
+        console.log(payload);
+        setResult(payload)
+        setItemIsReady('anchors');
+      });
+    } else {
+      setResult(null);
+      if (isRequired) {
+        warn(new LoaderNotFoundError(dataset, 'anchors', null, null), setWarning);
+      } else {
+        setItemIsReady('anchors');
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loader, iteration]);
+
+  return [result];
+}

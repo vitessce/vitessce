@@ -2,6 +2,7 @@
 import React, {
   useEffect,
   useState,
+  useCallback,
   useMemo,
 } from 'react';
 import {
@@ -21,6 +22,7 @@ import { useUrls, useReady } from '../hooks';
 import {
   useAnnDataStatic, useAnnDataDynamic, useAnnDataIndices,
   useDiffGeneNames, useCellSetsTree,
+  useAnchors,
 } from '../data-hooks';
 import { Component } from '../../app/constants';
 import { setCellSelection, mergeCellSets, PALETTE } from '../utils';
@@ -34,7 +36,6 @@ const QRY_PREDICTION_KEY = 'Prediction';
 const QRY_LABEL_KEY = 'Label';
 const REF_CELL_TYPE_KEY = 'Cell Type';
 
-const iteration = 1;
 
 
 /**
@@ -58,6 +59,7 @@ export default function QRCellSetsManagerSubscriber(props) {
     qryDiffGeneScoreThreshold = 15,
   } = props;
 
+  const [iteration, setIteration] = useState(1);
   const loaders = useLoaders();
   const setWarning = useSetWarning();
 
@@ -104,6 +106,8 @@ export default function QRCellSetsManagerSubscriber(props) {
   // Get the loader options (from the view config file definition).
   const qryOptions = qryLoader?.options;
   const refOptions = refLoader?.options;
+
+  const [anchors, anchorsStatus] = useAnchors(qryLoader, iteration, setItemIsReady);
 
   // Load the data.
   // Cell IDs
@@ -152,21 +156,23 @@ export default function QRCellSetsManagerSubscriber(props) {
       const predictionNode = qryCellSets.tree.find(n => n.name === parentKey);
       const predictionPaths = predictionNode.children.map(n => ([parentKey, n.name]));
 
-      const result = {};
-      qryDiffGeneScores.data.forEach((clusterScores, clusterIndex) => {
-        const maxIndex = clusterScores.findIndex(el => el < qryDiffGeneScoreThreshold);
-        result[clusterIndex] = {
-          names: qryDiffGeneNames[clusterIndex].slice(0, maxIndex),
-          scores: clusterScores.slice(0, maxIndex),
+      const NUM_GENES = 20;
+
+      const result = {
+        confirmed: {},
+        unjustified: {},
+        user_selection: {}
+      };
+      anchors.unjustified.forEach((anchorObj, clusterIndex) => {
+        result.unjustified[anchorObj.id] = {
+
+          names: anchorObj.rank_genes_groups.name_indice.slice(0, NUM_GENES),
+          scores: anchorObj.rank_genes_groups.score.slice(0, NUM_GENES),
           predictionProportions: predictionPaths.map(path => {
             const [prefix, setName] = path;
             const color = qryValues.cellSetColor.find(o => isEqual(path, o.path))?.color;
-            let numCellsInCluster = 0.0;
-            let numCellsInClusterAndSet = 0.0;
-            qryAnchorCluster.data.forEach((v, i) => {
-              numCellsInCluster += (v === clusterIndex ? 1 : 0);
-              numCellsInClusterAndSet += (v === clusterIndex && qryPrediction[i] === setName ? 1 : 0);
-            });
+            const numCellsInCluster = anchorObj.cells.length;
+            const numCellsInClusterAndSet = anchorObj.cells.filter(cellObj => setName === qryPrediction[qryCellsIndex.indexOf(cellObj.cell_id)]).length;
             const proportion = numCellsInClusterAndSet / numCellsInCluster;
             return {
               name: setName,
@@ -176,12 +182,25 @@ export default function QRCellSetsManagerSubscriber(props) {
           }),
         };
       });
-      console.log(result)
-      return result;
+      return result.unjustified;
     }
     return null;
-  }, [qryDiffGeneNames, qryDiffGeneScores, qryDiffGeneScoreThreshold, qryPrediction, qryAnchorCluster, qryCellSets, qryValues.cellSetColor]);
+  }, [qryDiffGeneNames, qryDiffGeneScores, qryDiffGeneScoreThreshold, qryPrediction, qryCellsIndex, anchors, qryCellSets, qryValues.cellSetColor]);
 
+
+  const onDeleteAnchors = useCallback((anchorId) => {
+    qryLoader.anchorDelete(anchorId).then(result => {
+      console.log(result);
+      setIteration(iter => iter+1);
+    });
+  });
+
+  const onConfirmAnchors = useCallback((anchorId) => {
+    qryLoader.anchorConfirm(anchorId).then(result => {
+      console.log(result);
+      setIteration(iter => iter+1);
+    });
+  });
 
   return (
     <TitleInfo
@@ -201,7 +220,8 @@ export default function QRCellSetsManagerSubscriber(props) {
 
         qryTopGenesLists={qryTopGenesLists}
 
-        
+        onDeleteAnchors={onDeleteAnchors}
+        onConfirmAnchors={onConfirmAnchors}
       />
     </TitleInfo>
   );

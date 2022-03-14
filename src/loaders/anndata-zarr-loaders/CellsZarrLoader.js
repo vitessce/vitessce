@@ -1,6 +1,7 @@
 /* eslint-disable */
 import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import DataSourceFetchError from '../errors/DataSourceFetchError';
 import { InternMap } from 'internmap';
 
 const EMBEDDING_SCALE_FACTOR = 5000;
@@ -10,6 +11,10 @@ const DTYPES = {
   COLUMN_STRING: 'columnString',
   EMBEDDING_NUMERIC: 'embeddingNumeric',
 }
+
+const HEADERS = {
+  'Content-Type': 'application/json',
+};
 
 /**
  * Loader for converting zarr into the cell json schema.
@@ -22,7 +27,108 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
     this.data = {
       static: {},
       dynamic: {},
+      anchors: new InternMap([], JSON.stringify),
     };
+  }
+
+  anchorGetNoCache() {
+    const { apiRoot } = this.options || {};
+    const data = fetch(apiRoot, { method: 'GET' }).then((response) => {
+      if (!response.ok) {
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, response.headers));
+      }
+      return response.json();
+    // eslint-disable-next-line no-console
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, {})));
+    return data;
+  }
+
+  anchorGet(iteration) {
+    if (this.data.anchors.has(iteration)) {
+      return this.data.anchors.get(iteration);
+    }
+    let result;
+    if (!this.data.anchors.has(iteration)) {
+      result = this.anchorGetNoCache();
+    } else {
+      result = Promise.resolve(null);
+    }
+    this.data.anchors.set(iteration, result);
+    return result;
+  }
+
+  /**
+   * Confirm an anchor set.
+   * @param {string} anchorId 
+   * @returns 
+   */
+  anchorConfirm(anchorId) {
+    const { apiRoot } = this.options || {};
+    const body = {
+      operation: 'confirm',
+      anchor_id: anchorId,
+    };
+    const data = fetch(apiRoot, { method: 'PUT', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
+      if (!response.ok) {
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', null, {}));
+      }
+      return response.json();
+    // eslint-disable-next-line no-console
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', null, {})));
+    return data;
+  }
+
+  anchorRefine(anchorId, anchorCells) {
+    const { apiRoot } = this.options || {};
+    const body = {
+      operation: 'refine',
+      anchor: {
+        id: anchorId,
+        cells: anchorCells,
+      }
+    };
+    const data = fetch(apiRoot, { method: 'PUT', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
+      if (!response.ok) {
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, response.headers));
+      }
+      return response.json();
+    // eslint-disable-next-line no-console
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, {})));
+    return data;
+  }
+
+  anchorAdd(anchorId, anchorCells) {
+    const { apiRoot } = this.options || {};
+    const body = {
+      operation: 'add',
+      anchor: {
+        id: anchorId,
+        cells: anchorCells,
+      }
+    };
+    const data = fetch(apiRoot, { method: 'PUT', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
+      if (!response.ok) {
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, response.headers));
+      }
+      return response.json();
+    // eslint-disable-next-line no-console
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, {})));
+    return data;
+  }
+
+  anchorDelete(anchorId) {
+    const { apiRoot } = this.options || {};
+    const body = {
+      anchor_id: anchorId,
+    };
+    const data = fetch(apiRoot, { method: 'DELETE', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
+      if (!response.ok) {
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, response.headers));
+      }
+      return response.json();
+    // eslint-disable-next-line no-console
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, {})));
+    return data;
   }
 
   loadByDtype(path, dtype) {

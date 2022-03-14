@@ -16,9 +16,8 @@ import IconButton from '@material-ui/core/IconButton';
 import ArrowRight from '@material-ui/icons/ArrowRight';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import MoreVert from '@material-ui/icons/MoreVert';
-import Popover from '@material-ui/core/Popover';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Portal from '@material-ui/core/Portal';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 
 import { ReactComponent as SignifInQry } from '../../assets/qr/signif_in_qry.svg';
@@ -52,7 +51,6 @@ function SignificanceIcon(props) {
     if(iconRef && iconRef.current) {
       const handleMouseEnter = () => {
         setOpen(true);
-        console.log(x, y);
       };
       const handleMouseLeave = () => {
         setOpen(false);
@@ -79,13 +77,9 @@ function SignificanceIcon(props) {
         <SignifInQry className="signifInQry" />
       ) : null)))}
     </span>
-    {(outerRef && outerRef.current && open ? (
-      <Portal
-        container={getTooltipContainer}
-      >
-        <div className="signifIconTooltip" style={{ top: `${y - 40}px`, left: `${x}px` }}>{geneName}</div>
-      </Portal>
-    ) : null)}
+    {true ?
+      <div className="signifIconTooltip" style={{ top: `-30px`, left: `0px`, display: (open ? 'inline-block' : 'none') }}>{geneName}</div>
+     : null}
   </div>);
 }
 
@@ -93,9 +87,35 @@ function SignificanceIcon(props) {
 const barWidth = 120;
 
 function TableRowLeft(props) {
-  const { clusterIndex, clusterResults } = props;
+  const {
+    clusterIndex, clusterResults,
+    onDeleteAnchors,
+    onConfirmAnchors,
+  } = props;
 
   const classes = useStyles();
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  function handleDeleteAnchors() {
+    handleClose();
+    console.log("deleting", clusterIndex)
+    onDeleteAnchors(clusterIndex);
+  }
+
+  function handleConfirmAnchors() {
+    handleClose();
+    console.log("confirming", clusterIndex)
+    onConfirmAnchors(clusterIndex);
+  }
 
   return (
     <div className="qrCellSetsTableRow" key={clusterIndex}>
@@ -117,9 +137,24 @@ function TableRowLeft(props) {
       </div>
       <div className="qrCellSetsTableHead colSimilarity"></div>
       <div className="qrCellSetsTableHead colEdit">
-        <IconButton component="span" classes={{ root: classes.arrowButtonRoot }}>
+        <IconButton component="span" classes={{ root: classes.arrowButtonRoot }} onClick={handleClick}>
           <MoreVert />
         </IconButton>
+        <Menu
+          id="simple-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+        >
+          <MenuItem onClick={handleConfirmAnchors}>Confirm</MenuItem>
+          <MenuItem onClick={handleDeleteAnchors}>Reject</MenuItem>
+          <MenuItem onClick={handleClose}>Edit</MenuItem>
+        </Menu>
       </div>
     </div>
   );
@@ -155,6 +190,9 @@ export default function QRCellSetsManager(props) {
     refCellSets,
 
     qryTopGenesLists,
+
+    onDeleteAnchors,
+    onConfirmAnchors,
   } = props;
 
   const classes = useStyles();
@@ -172,7 +210,11 @@ export default function QRCellSetsManager(props) {
             <div className="qrCellSetsTableHead colEdit"></div>
           </div>
           {qryTopGenesLists ? Object.entries(qryTopGenesLists).map(([clusterIndex, clusterResults]) => (
-            <TableRowLeft key={clusterIndex} clusterIndex={clusterIndex} clusterResults={clusterResults} />
+            <TableRowLeft
+              key={clusterIndex} clusterIndex={clusterIndex} clusterResults={clusterResults}
+              onDeleteAnchors={onDeleteAnchors}
+              onConfirmAnchors={onConfirmAnchors}
+            />
           )) : null}
         </div>
         <div className="qrCellSetsTableRight">
