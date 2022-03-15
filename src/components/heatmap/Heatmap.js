@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
-import { OrthographicView, COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
+import { OrthographicView } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
@@ -178,8 +178,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
 
     return [
-      expression.rows.reduce((a, b) => a.length > b.length ? a : b),
-      [...expression.cols, ...cellColorLabels].reduce((a, b) => a.length > b.length ? a : b),
+      expression.rows.reduce((a, b) => (a.length > b.length ? a : b)),
+      [...expression.cols, ...cellColorLabels].reduce((a, b) => (a.length > b.length ? a : b)),
     ];
   }, [expression, cellColorLabels]);
 
@@ -231,16 +231,16 @@ const Heatmap = forwardRef((props, deckRef) => {
         const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
         return heatmapToMousePosition(
           colI, rowI, {
-          offsetLeft,
-          offsetTop,
-          targetX: viewState.target[0],
-          targetY: viewState.target[1],
-          scaleFactor,
-          matrixWidth,
-          matrixHeight,
-          numRows: height,
-          numCols: width,
-        },
+            offsetLeft,
+            offsetTop,
+            targetX: viewState.target[0],
+            targetY: viewState.target[1],
+            scaleFactor,
+            matrixWidth,
+            matrixHeight,
+            numRows: height,
+            numCols: width,
+          },
         );
       },
     });
@@ -370,9 +370,9 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
-  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, '- ' + d]), [axisTopLabels]);
-  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d + ' -']), [axisLeftLabels]);
-  const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d + ' -']), [cellColorLabels]);
+  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, `- ${d}`]), [axisTopLabels]);
+  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, `${d} -`]), [axisLeftLabels]);
+  const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, `${d} -`]), [cellColorLabels]);
 
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
@@ -452,14 +452,14 @@ const Heatmap = forwardRef((props, deckRef) => {
       });
 
       return trackResult;
-    })
+    });
 
     return result;
-  }, [cellColors, transpose, axisTopLabels, axisLeftLabels, xTiles, yTiles, numCellColorTracks]);
+  }, [cellColors, transpose, axisTopLabels,
+    axisLeftLabels, numCellColorTracks, xTiles, yTiles, theme]);
 
 
   const cellColorsLayersList = useMemo(() => {
-
     if (!cellColorsTilesList) {
       return [];
     }
@@ -480,10 +480,9 @@ const Heatmap = forwardRef((props, deckRef) => {
           matrixTop + (i + 1) * tileHeight,
         ]),
       }))
-      : []))
+      : []));
 
     return (result);
-
   }, [cellColorsTilesList, matrixTop, matrixLeft, matrixHeight,
     matrixWidth, tileWidth, tileHeight, transpose]);
 
@@ -572,8 +571,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   }
 
   const cellColorsViews = useMemo(() => {
-    const result = range(numCellColorTracks).map(track => {
-
+    const result = range(numCellColorTracks).map((track) => {
       let view;
       if (transpose) {
         view = new OrthographicView({
@@ -583,8 +581,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           y: axisOffsetTop + track * COLOR_BAR_SIZE,
           width: matrixWidth,
           height: COLOR_BAR_SIZE - AXIS_MARGIN,
-        })
-
+        });
       } else {
         view = new OrthographicView({
           id: `colorsLeft-${track}`,
@@ -593,31 +590,28 @@ const Heatmap = forwardRef((props, deckRef) => {
           y: offsetTop,
           width: COLOR_BAR_SIZE - AXIS_MARGIN,
           height: matrixHeight,
-        })
+        });
       }
 
       return view;
-    })
-
-    return result;
-  }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop, offsetTop, axisOffsetLeft, matrixHeight, matrixWidth])
-
-  const cellColorsLabelsViews = useMemo(() => {
-    const result = range(numCellColorTracks).map((track) => {
-
-      return new OrthographicView({
-        id: `cellColorLabel-${track}`,
-        controller: false,
-        x: 0,
-        y: axisOffsetTop + track * COLOR_BAR_SIZE,
-        width: axisOffsetLeft,
-        height: COLOR_BAR_SIZE,
-      });
-
     });
 
     return result;
-  }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop, offsetTop, axisOffsetLeft, matrixHeight, matrixWidth])
+  }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop,
+    offsetTop, axisOffsetLeft, matrixHeight, matrixWidth]);
+
+  const cellColorsLabelsViews = useMemo(() => {
+    const result = range(numCellColorTracks).map(track => new OrthographicView({
+      id: `cellColorLabel-${track}`,
+      controller: false,
+      x: 0,
+      y: axisOffsetTop + track * COLOR_BAR_SIZE,
+      width: axisOffsetLeft,
+      height: COLOR_BAR_SIZE,
+    }));
+
+    return result;
+  }, [numCellColorTracks, axisOffsetTop, axisOffsetLeft]);
 
   return (
     <DeckGL
@@ -652,7 +646,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           height: axisOffsetTop,
         }),
         ...cellColorsLabelsViews,
-        ...cellColorsViews
+        ...cellColorsViews,
       ]}
       layers={layers}
       layerFilter={layerFilter}
