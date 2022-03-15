@@ -64,7 +64,7 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
  * @param {string} props.observationsTitle By default, 'Cells'.
  * @param {number} props.useDevicePixels By default, 1. Higher values
  * e.g. 2 increase text sharpness.
- * @param {boolean} props.hideObservationLabels By default 'false'
+ * @param {boolean} props.hideObservationLabels By default false.
  * @param {string} props.colormap The name of the colormap function to use.
  * @param {array} props.colormapRange A tuple [lower, upper] to adjust the color scale.
  * @param {function} props.setColormapRange The setter function for colormapRange.
