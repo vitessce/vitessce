@@ -62,7 +62,7 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
 * @param {boolean} props.transpose By default, false.
 * @param {string} props.variablesTitle By default, 'Genes'.
 * @param {string} props.observationsTitle By default, 'Cells'.
-* @param {boolean} props.hideTopLabels By default 'false'
+* @param {boolean} props.hideObservationLabels By default 'false'
 * @param {string} props.colormap The name of the colormap function to use.
 * @param {array} props.colormapRange A tuple [lower, upper] to adjust the color scale.
 * @param {function} props.setColormapRange The setter function for colormapRange.
@@ -90,7 +90,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     transpose = false,
     variablesTitle = 'Genes',
     observationsTitle = 'Cells',
-    hideTopLabels = false
+    hideObservationLabels = false,
   } = props;
 
   const viewState = {
@@ -187,7 +187,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const height = axisLeftLabels.length;
 
   const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(
-    transpose, longestGeneLabel, longestCellLabel, hideTopLabels
+    transpose, longestGeneLabel, longestCellLabel, hideObservationLabels,
   );
 
   const offsetTop = axisOffsetTop + COLOR_BAR_SIZE * (transpose ? numCellColorTracks : 0);
@@ -398,7 +398,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       axisOffsetLeft,
       axisOffsetTop,
       cellColorLabelsData,
-      hideTopLabels
+      hideObservationLabels,
     }),
   ];
 

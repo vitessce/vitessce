@@ -114,15 +114,16 @@ export function layerFilter({ layer, viewport }) {
  * Get the size of the left and top heatmap axes,
  * taking into account the maximum label string lengths.
  * @param {boolean} transpose Is the heatmap transposed?
- * @param {number} longestGeneLabel longest gene label
- * @param {number} longestCellLabel longest cell label
+ * @param {String} longestGeneLabel longest gene label
+ * @param {String} longestCellLabel longest cell label
+ * @param {boolean} hideObservationLabels are cell labels hidden? Increases vertical space for heatmap
  * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
  */
-export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel, hideObservationsLabels) {
+export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel, hideObservationLabels) {
 
   const font = `${AXIS_LABEL_TEXT_SIZE}pt ${AXIS_FONT_FAMILY}`
   const geneLabelMaxWidth = getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
-  const cellLabelMaxWidth = hideObservationsLabels ? 0 : getTextWidth(longestCellLabel, font) + AXIS_PADDING ;
+  const cellLabelMaxWidth = hideObservationLabels ? 0 : getTextWidth(longestCellLabel, font) + AXIS_PADDING ;
 
   const axisOffsetLeft = clamp(
     (transpose ? geneLabelMaxWidth : cellLabelMaxWidth),
