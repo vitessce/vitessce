@@ -213,7 +213,7 @@ export default function HeatmapSubscriber(props) {
         parentUuid={uuid}
         width={width}
         height={height}
-        transpose={false}
+        transpose={transpose}
         getCellInfo={getCellInfo}
         getGeneInfo={getGeneInfo}
         cellHighlight={cellHighlight}
