@@ -88,7 +88,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
     setTrackHighlight = createDefaultUpdateTracksHover('Heatmap'),
     updateViewInfo = createDefaultUpdateViewInfo('Heatmap'),
-    setIsRendering = () => { },
+    setIsRendering = () => {},
     transpose = false,
     variablesTitle = 'Genes',
     observationsTitle = 'Cells',
