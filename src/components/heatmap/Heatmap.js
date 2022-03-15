@@ -62,6 +62,8 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
 * @param {boolean} props.transpose By default, false.
 * @param {string} props.variablesTitle By default, 'Genes'.
 * @param {string} props.observationsTitle By default, 'Cells'.
+* @param {number} props.useDevicePixels By default, 1. Higher values
+* e.g. 2 increase text sharpness.
 * @param {boolean} props.hideObservationLabels By default 'false'
 * @param {string} props.colormap The name of the colormap function to use.
 * @param {array} props.colormapRange A tuple [lower, upper] to adjust the color scale.
@@ -90,6 +92,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     transpose = false,
     variablesTitle = 'Genes',
     observationsTitle = 'Cells',
+    useDevicePixels = 1,
     hideObservationLabels = false,
   } = props;
 
@@ -655,7 +658,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       onViewStateChange={onViewStateChange}
       viewState={viewState}
       onHover={onHover}
-      useDevicePixels={2}
+      useDevicePixels={useDevicePixels}
     />
   );
 });
