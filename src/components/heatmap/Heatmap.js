@@ -33,42 +33,42 @@ import {
 } from '../../layers/heatmap-constants';
 import HeatmapWorkerPool from './HeatmapWorkerPool';
 /**
-* A heatmap component for cell x gene matrices.
-* @param {object} props
-* @param {string} props.uuid The uuid of this component,
-* used by tooltips to determine whether to render a tooltip or
-* a crosshair.
-* @param {string} props.theme The current theme name.
-* @param {object} props.initialViewState The initial viewState for
-* DeckGL.
-* @param {number} props.width The width of the canvas.
-* @param {number} props.height The height of the canvas.
-* @param {object} props.expressionMatrix An object { rows, cols, matrix },
-* where matrix is a flat Uint8Array, rows is a list of cell ID strings,
-* and cols is a list of gene ID strings.
-* @param {Map} props.cellColors Map of cell ID to color. Optional.
-* If defined, the key ordering is used to order the cell axis of the heatmap.
-* @param {array} props.cellColorLabels array of labels to place beside cell color
-* tracks. Only works for transpose=true.
-* @param {function} props.clearPleaseWait The clear please wait callback,
-* called when the expression matrix has loaded (is not null).
-* @param {function} props.setCellHighlight Callback function called on
-* hover with the cell ID. Optional.
-* @param {function} props.setGeneHighlight Callback function called on
-* hover with the gene ID. Optional.
-* @param {function} props.updateViewInfo Callback function that gets called with an
-* object { uuid, project() } where project is a function that maps (cellId, geneId)
-* to canvas (x,y) coordinates. Used to show tooltips. Optional.
-* @param {boolean} props.transpose By default, false.
-* @param {string} props.variablesTitle By default, 'Genes'.
-* @param {string} props.observationsTitle By default, 'Cells'.
-* @param {number} props.useDevicePixels By default, 1. Higher values
-* e.g. 2 increase text sharpness.
-* @param {boolean} props.hideObservationLabels By default 'false'
-* @param {string} props.colormap The name of the colormap function to use.
-* @param {array} props.colormapRange A tuple [lower, upper] to adjust the color scale.
-* @param {function} props.setColormapRange The setter function for colormapRange.
-*/
+ * A heatmap component for cell x gene matrices.
+ * @param {object} props
+ * @param {string} props.uuid The uuid of this component,
+ * used by tooltips to determine whether to render a tooltip or
+ * a crosshair.
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.initialViewState The initial viewState for
+ * DeckGL.
+ * @param {number} props.width The width of the canvas.
+ * @param {number} props.height The height of the canvas.
+ * @param {object} props.expressionMatrix An object { rows, cols, matrix },
+ * where matrix is a flat Uint8Array, rows is a list of cell ID strings,
+ * and cols is a list of gene ID strings.
+ * @param {Map} props.cellColors Map of cell ID to color. Optional.
+ * If defined, the key ordering is used to order the cell axis of the heatmap.
+ * @param {array} props.cellColorLabels array of labels to place beside cell color
+ * tracks. Only works for transpose=true.
+ * @param {function} props.clearPleaseWait The clear please wait callback,
+ * called when the expression matrix has loaded (is not null).
+ * @param {function} props.setCellHighlight Callback function called on
+ * hover with the cell ID. Optional.
+ * @param {function} props.setGeneHighlight Callback function called on
+ * hover with the gene ID. Optional.
+ * @param {function} props.updateViewInfo Callback function that gets called with an
+ * object { uuid, project() } where project is a function that maps (cellId, geneId)
+ * to canvas (x,y) coordinates. Used to show tooltips. Optional.
+ * @param {boolean} props.transpose By default, false.
+ * @param {string} props.variablesTitle By default, 'Genes'.
+ * @param {string} props.observationsTitle By default, 'Cells'.
+ * @param {number} props.useDevicePixels By default, 1. Higher values
+ * e.g. 2 increase text sharpness.
+ * @param {boolean} props.hideObservationLabels By default 'false'
+ * @param {string} props.colormap The name of the colormap function to use.
+ * @param {array} props.colormapRange A tuple [lower, upper] to adjust the color scale.
+ * @param {function} props.setColormapRange The setter function for colormapRange.
+ */
 const Heatmap = forwardRef((props, deckRef) => {
   const {
     uuid,
