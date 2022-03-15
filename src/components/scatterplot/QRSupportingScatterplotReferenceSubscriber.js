@@ -42,7 +42,6 @@ import { Component } from '../../app/constants';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
-const iteration = 1;
 
 /**
  * A subscriber component for the scatterplot.
@@ -101,6 +100,7 @@ export default function QRSupportingScatterplotReferenceSubscriber(props) {
     embeddingCellOpacityMode: cellOpacityMode,
     geneExpressionColormap,
     geneExpressionColormapRange,
+    apiIteration: iteration,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,

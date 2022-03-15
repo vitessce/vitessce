@@ -31,7 +31,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function SignificanceIcon(props) {
-  const { inRef, inQry, geneName } = props;
+  const { inRef, inQry, scoreRef, scoreQry, geneName } = props;
+
+  const scoreRefStr = Number(scoreRef).toFixed(2);
+  const scoreQryStr = Number(scoreQry).toFixed(2);
 
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
@@ -78,7 +81,11 @@ function SignificanceIcon(props) {
       ) : null)))}
     </span>
     {true ?
-      <div className="signifIconTooltip" style={{ top: `-30px`, left: `0px`, display: (open ? 'inline-block' : 'none') }}>{geneName}</div>
+      <div className="signifIconTooltip" style={{ top: `30px`, left: `0px`, display: (open ? 'inline-block' : 'none') }}>
+        {geneName}<br/>
+        Score in Query: {inQry ? (<b>{scoreQryStr}</b>) : (<span>{scoreQryStr}</span>)}<br/>
+        Score in Reference: {inRef ? (<b>{scoreRefStr}</b>) : (<span>{scoreRefStr}</span>)}
+      </div>
      : null}
   </div>);
 }
@@ -88,9 +95,11 @@ const barWidth = 120;
 
 function TableRowLeft(props) {
   const {
+    anchorType,
     clusterIndex, clusterResults,
     onDeleteAnchors,
     onConfirmAnchors,
+    onEditAnchors,
   } = props;
 
   const classes = useStyles();
@@ -117,6 +126,11 @@ function TableRowLeft(props) {
     onConfirmAnchors(clusterIndex);
   }
 
+  function handleEdit() {
+    handleClose();
+    onEditAnchors(clusterIndex);
+  }
+
   return (
     <div className="qrCellSetsTableRow" key={clusterIndex}>
       <div className="qrCellSetsTableArrow colArrow">
@@ -124,26 +138,31 @@ function TableRowLeft(props) {
           <ArrowRight />
         </IconButton>
       </div>
-      <div className="qrCellSetsTableHead colName">
-        Cluster {clusterIndex}
+      <div className="qrCellSetsTableHead colName" title={`${clusterIndex} (${anchorType})`}>
+        {anchorType === 'confirmed' ? (
+          <b>{clusterIndex}</b>
+        ) : (<span>{clusterIndex}</span>)}
       </div>
       <div className="qrCellSetsTableHead colPrediction">
         {clusterResults.predictionProportions.map((predictionObj) => (
-          <div className="predictionBar" key={predictionObj.name} style={{ height: '30px', width: `${barWidth*predictionObj.proportion}px`, backgroundColor: `rgb(${predictionObj.color[0]}, ${predictionObj.color[1]}, ${predictionObj.color[2]})`}}>
+          <div className="predictionBar" key={predictionObj.name} title={`${predictionObj.name} (${Number(predictionObj.proportion).toFixed(2)})`} style={{ marginTop: '4px', height: '22px', width: `${barWidth*predictionObj.proportion}px`, backgroundColor: `rgb(${predictionObj.color[0]}, ${predictionObj.color[1]}, ${predictionObj.color[2]})`}}>
 
           </div>
         ))}
         
       </div>
-      <div className="qrCellSetsTableHead colSimilarity"></div>
+      <div className="qrCellSetsTableHead colSimilarity">
+        <div className="predictionBar" title={`Median Anchor Distance (${Number(clusterResults.latentDist).toFixed(2)})`} style={{ marginTop: '4px', marginLeft: '4px', height: '22px', width: `${(barWidth-4)*clusterResults.latentDist}px`, backgroundColor: `rgb(110, 110, 110)`}}>
+
+        </div>
+      </div>
       <div className="qrCellSetsTableHead colEdit">
         <IconButton component="span" classes={{ root: classes.arrowButtonRoot }} onClick={handleClick}>
           <MoreVert />
         </IconButton>
         <Menu
-          id="simple-menu"
+          id={`menu-${clusterResults.id}`}
           anchorEl={anchorEl}
-          keepMounted
           open={Boolean(anchorEl)}
           onClose={handleClose}
           transformOrigin={{
@@ -151,9 +170,9 @@ function TableRowLeft(props) {
             horizontal: 'left',
           }}
         >
-          <MenuItem onClick={handleConfirmAnchors}>Confirm</MenuItem>
-          <MenuItem onClick={handleDeleteAnchors}>Reject</MenuItem>
-          <MenuItem onClick={handleClose}>Edit</MenuItem>
+          {anchorType === 'unjustified' ? (<MenuItem onClick={handleConfirmAnchors}>Confirm</MenuItem>) : null}
+          {anchorType !== 'user_selection' ? (<MenuItem onClick={handleDeleteAnchors}>Reject</MenuItem>) : null}
+          {anchorType === 'unjustified' ? (<MenuItem onClick={handleEdit}>Edit</MenuItem>) : null}
         </Menu>
       </div>
     </div>
@@ -170,9 +189,15 @@ function TableRowRight(props) {
 
   return (
     <div className="qrCellSetsTableRow" key={clusterIndex}>
-      {clusterResults.names.map(geneName => (
+      {clusterResults.names.map((geneName, geneIndex) => (
         <div className="qrCellSetsTableHead colGeneResult" key={geneName}>
-          <SignificanceIcon inRef={true} inQry={true} geneName={geneName} />
+          <SignificanceIcon
+            inRef={clusterResults.significances[geneIndex].ref}
+            inQry={clusterResults.significances[geneIndex].qry}
+            scoreRef={clusterResults.scores[geneIndex].ref}
+            scoreQry={clusterResults.scores[geneIndex].qry}
+            geneName={geneName}
+          />
         </div>
       ))}
     </div>
@@ -193,6 +218,7 @@ export default function QRCellSetsManager(props) {
 
     onDeleteAnchors,
     onConfirmAnchors,
+    onEditAnchors,
   } = props;
 
   const classes = useStyles();
@@ -209,12 +235,16 @@ export default function QRCellSetsManager(props) {
             <div className="qrCellSetsTableHead colSimilarity">Similarity</div>
             <div className="qrCellSetsTableHead colEdit"></div>
           </div>
-          {qryTopGenesLists ? Object.entries(qryTopGenesLists).map(([clusterIndex, clusterResults]) => (
-            <TableRowLeft
-              key={clusterIndex} clusterIndex={clusterIndex} clusterResults={clusterResults}
-              onDeleteAnchors={onDeleteAnchors}
-              onConfirmAnchors={onConfirmAnchors}
-            />
+          {qryTopGenesLists ? Object.entries(qryTopGenesLists).map(([anchorType, anchorResults]) => (
+            Object.entries(anchorResults).map(([clusterIndex, clusterResults]) => (
+              <TableRowLeft
+                key={clusterIndex} clusterIndex={clusterIndex} clusterResults={clusterResults}
+                anchorType={anchorType}
+                onDeleteAnchors={onDeleteAnchors}
+                onConfirmAnchors={onConfirmAnchors}
+                onEditAnchors={onEditAnchors}
+              />
+            ))
           )) : null}
         </div>
         <div className="qrCellSetsTableRight">
@@ -222,8 +252,10 @@ export default function QRCellSetsManager(props) {
             <div className="qrCellSetsTableRow">
               <div className="qrCellSetsTableHead colTopGenes">Top genes</div>
             </div>
-            {qryTopGenesLists ? Object.entries(qryTopGenesLists).map(([clusterIndex, clusterResults]) => (
-              <TableRowRight key={clusterIndex} clusterIndex={clusterIndex} clusterResults={clusterResults} />
+            {qryTopGenesLists ? Object.entries(qryTopGenesLists).map(([anchorType, anchorResults]) => (
+              Object.entries(anchorResults).map(([clusterIndex, clusterResults]) => (
+                <TableRowRight key={clusterIndex} clusterIndex={clusterIndex} clusterResults={clusterResults} />
+              ))
             )) : null}
           </div>
         </div>

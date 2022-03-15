@@ -22,7 +22,7 @@ import { useUrls, useReady } from '../hooks';
 import {
   useAnnDataStatic, useAnnDataDynamic, useAnnDataIndices,
   useDiffGeneNames, useCellSetsTree,
-  useAnchors,
+  useAnchors, useInitialCellSetSelection,
 } from '../data-hooks';
 import { Component } from '../../app/constants';
 import { setCellSelection, mergeCellSets, PALETTE } from '../utils';
@@ -59,7 +59,6 @@ export default function QRCellSetsManagerSubscriber(props) {
     qryDiffGeneScoreThreshold = 15,
   } = props;
 
-  const [iteration, setIteration] = useState(1);
   const loaders = useLoaders();
   const setWarning = useSetWarning();
 
@@ -84,6 +83,8 @@ export default function QRCellSetsManagerSubscriber(props) {
   );
   const [qryValues, qrySetters] = [cValues[qryScope], cSetters[qryScope]];
   const [refValues, refSetters] = [cValues[refScope], cSetters[refScope]];
+
+  const iteration = qryValues.apiIteration;
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [
@@ -132,13 +133,9 @@ export default function QRCellSetsManagerSubscriber(props) {
   const [qryAnchorDist, qryAnchorDistStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.anchorDist?.path, 'columnNumeric', iteration, setItemIsReady, false);
 
   // Differential expression
-  const [qryDiffGeneNameIndices, qryDiffGeneNamesStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.differentialGenes?.names?.path, 'columnNumeric', iteration, setItemIsReady, false);
-  const [qryDiffGeneScores, qryDiffGeneScoresStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.differentialGenes?.scores?.path, 'columnNumeric', iteration, setItemIsReady, false);
-
   const [refDiffGeneNameIndices, refDiffGeneNamesStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.differentialGenes?.names?.path, 'columnNumeric', iteration, setItemIsReady, false);
   const [refDiffGeneScores, refDiffGeneScoresStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.differentialGenes?.scores?.path, 'columnNumeric', iteration, setItemIsReady, false);
 
-  const qryDiffGeneNames = useDiffGeneNames(qryGenesIndex, qryDiffGeneNameIndices);
   const refDiffGeneNames = useDiffGeneNames(refGenesIndex,refDiffGeneNameIndices);
 
   const mergedQryCellSets = useMemo(() => mergeCellSets(
@@ -149,67 +146,130 @@ export default function QRCellSetsManagerSubscriber(props) {
     refCellSets, refValues.additionalCellSets,
   ), [refCellSets, refValues.additionalCellSets]);
 
+  // Initialize cell set colors and selections.
+  useInitialCellSetSelection(mergedQryCellSets, qryValues, qrySetters, "Prediction");
+  useInitialCellSetSelection(mergedRefCellSets, refValues, refSetters, "Cell Type");
+
   const qryTopGenesLists = useMemo(() => {
-    if(qryDiffGeneNames && qryDiffGeneScores && qryDiffGeneScoreThreshold && qryPrediction && qryAnchorCluster && qryCellSets && qryValues.cellSetColor) {
-      console.log(qryPrediction, qryAnchorCluster);
+    if(refDiffGeneNames && refDiffGeneScores && qryPrediction && qryCellSets && qryValues.cellSetColor) {
       const parentKey = "Prediction";
       const predictionNode = qryCellSets.tree.find(n => n.name === parentKey);
       const predictionPaths = predictionNode.children.map(n => ([parentKey, n.name]));
 
       const NUM_GENES = 20;
 
-      const result = {
-        confirmed: {},
-        unjustified: {},
-        user_selection: {}
-      };
-      anchors.unjustified.forEach((anchorObj, clusterIndex) => {
-        result.unjustified[anchorObj.id] = {
-
-          names: anchorObj.rank_genes_groups.name_indice.slice(0, NUM_GENES),
-          scores: anchorObj.rank_genes_groups.score.slice(0, NUM_GENES),
-          predictionProportions: predictionPaths.map(path => {
-            const [prefix, setName] = path;
-            const color = qryValues.cellSetColor.find(o => isEqual(path, o.path))?.color;
-            const numCellsInCluster = anchorObj.cells.length;
-            const numCellsInClusterAndSet = anchorObj.cells.filter(cellObj => setName === qryPrediction[qryCellsIndex.indexOf(cellObj.cell_id)]).length;
-            const proportion = numCellsInClusterAndSet / numCellsInCluster;
-            return {
-              name: setName,
-              color: color,
-              proportion: proportion,
-            };
-          }),
-        };
+      const result = {};
+      Object.keys(anchors).forEach(anchorType => {
+        result[anchorType] = {};
+        anchors[anchorType].forEach((anchorObj, clusterIndex) => {
+          const refClusterTopGeneNames = refDiffGeneNames[anchorObj.anchor_ref_id].slice(0, NUM_GENES);
+          const refClusterAllGeneNames = refDiffGeneNames[anchorObj.anchor_ref_id];
+          const refClusterAllGeneScores = refDiffGeneScores.data[anchorObj.anchor_ref_id];
+          
+          let qryClusterAllGeneNames = [];
+          let qryClusterAllGeneScores = [];
+          if(!Array.isArray(anchorObj.rank_genes_groups)) {
+            qryClusterAllGeneNames = anchorObj.rank_genes_groups.name_indice;
+            qryClusterAllGeneScores = anchorObj.rank_genes_groups.score;
+          } else {
+            qryClusterAllGeneNames = anchorObj.rank_genes_groups.map(v => v.name_indice);
+            qryClusterAllGeneScores = anchorObj.rank_genes_groups.map(v => v.score);
+          }
+          const qryClusterTopGeneNames = qryClusterAllGeneNames.slice(0, NUM_GENES);
+  
+          const topGeneNames = Array.from(new Set([...qryClusterTopGeneNames, ...refClusterTopGeneNames]));
+  
+          result[anchorType][anchorObj.id] = {
+            id: anchorObj.id,
+            names: topGeneNames,
+            scores: topGeneNames.map(name => ({
+              qry: qryClusterAllGeneScores[qryClusterAllGeneNames.indexOf(name)],
+              ref: refClusterAllGeneScores[refClusterAllGeneNames.indexOf(name)],
+            })),
+            significances: topGeneNames.map(name => ({
+              qry: qryClusterTopGeneNames.includes(name),
+              ref: refClusterTopGeneNames.includes(name),
+            })),
+            latentDist: anchorObj.anchor_dist_median,
+            predictionProportions: predictionPaths.map(path => {
+              const [prefix, setName] = path;
+              const color = qryValues.cellSetColor.find(o => isEqual(path, o.path))?.color;
+              const numCellsInCluster = anchorObj.cells.length;
+              const numCellsInClusterAndSet = anchorObj.cells.filter(cellObj => setName === qryPrediction[qryCellsIndex.indexOf(cellObj.cell_id)]).length;
+              const proportion = numCellsInClusterAndSet / numCellsInCluster;
+              return {
+                name: setName,
+                color: color,
+                proportion: proportion,
+              };
+            }),
+          };
+        });
       });
-      return result.unjustified;
+      return result;
     }
     return null;
-  }, [qryDiffGeneNames, qryDiffGeneScores, qryDiffGeneScoreThreshold, qryPrediction, qryCellsIndex, anchors, qryCellSets, qryValues.cellSetColor]);
+  }, [refDiffGeneNames, refDiffGeneScores, qryDiffGeneScoreThreshold, qryPrediction, qryCellsIndex, anchors, qryCellSets, qryValues.cellSetColor]);
 
 
   const onDeleteAnchors = useCallback((anchorId) => {
     qryLoader.anchorDelete(anchorId).then(result => {
       console.log(result);
-      setIteration(iter => iter+1);
+      qrySetters.setApiIteration(qryValues.apiIteration+1);
     });
-  });
+  }, [qryValues.apiIteration]);
 
   const onConfirmAnchors = useCallback((anchorId) => {
     qryLoader.anchorConfirm(anchorId).then(result => {
       console.log(result);
-      setIteration(iter => iter+1);
+      qrySetters.setApiIteration(qryValues.apiIteration+1);
     });
-  });
+  }, [qryValues.apiIteration]);
 
-  return (
-    <TitleInfo
-      title={title}
-      removeGridComponent={removeGridComponent}
-      theme={theme}
-      isReady={isReady}
-      isScroll
-    >
+  const onEditAnchors = (anchorId) => {
+    qrySetters.setAnchorEditMode({ mode: 'lasso', anchorId: anchorId });
+  };
+
+  function resetCellSets() {
+    qrySetters.setAdditionalCellSets(null);
+    const parentKey = "Prediction";
+    const node = mergedQryCellSets.tree.find(n => n.name === parentKey);
+    if(node) {
+      const newSelection = node.children.map(n => ([parentKey, n.name]));
+      qrySetters.setCellSetSelection(newSelection);
+
+      const newColors = newSelection.map((path, i) => ({
+        color: PALETTE[i % PALETTE.length],
+        path: path,
+      }));
+      qrySetters.setCellSetColor(newColors);
+      qrySetters.setCellColorEncoding("cellSetSelection");
+    }
+  }
+
+  useEffect(() => {
+    console.log(qryValues.additionalCellSets);
+    if(qryValues.anchorEditMode?.mode === 'lasso' && qryValues.additionalCellSets?.tree?.[0]?.children?.length === 1) {
+      const anchorId = qryValues.anchorEditMode.anchorId;
+      const cellIds = qryValues.additionalCellSets.tree[0].children[0].set.map(c => ({ cell_id: c[0] }));
+      qryLoader.anchorRefine(anchorId, cellIds).then(result => {
+        console.log(result);
+        qrySetters.setApiIteration(qryValues.apiIteration+1);
+        resetCellSets();
+      });
+    } else if(qryValues.anchorEditMode === null && qryValues.additionalCellSets?.tree?.[0]?.children?.length === 1) {
+      const cellIds = qryValues.additionalCellSets.tree[0].children[0].set.map(c => ({ cell_id: c[0] }));
+      const anchorId = `user-${qryValues.apiIteration}`;
+      qryLoader.anchorAdd(anchorId, cellIds).then(result => {
+        console.log(result);
+        qrySetters.setApiIteration(qryValues.apiIteration+1);
+        resetCellSets();
+      });
+    }
+  }, [qryValues.anchorEditMode, qryValues.additionalCellSets]);
+
+  const manager = useMemo(() => {
+    return (
       <QRCellSetsManager
         qryCellSets={mergedQryCellSets}
         refCellSets={mergedRefCellSets}
@@ -222,7 +282,20 @@ export default function QRCellSetsManagerSubscriber(props) {
 
         onDeleteAnchors={onDeleteAnchors}
         onConfirmAnchors={onConfirmAnchors}
+        onEditAnchors={onEditAnchors}
       />
+    );
+  }, [qryTopGenesLists]); 
+
+  return (
+    <TitleInfo
+      title={title}
+      removeGridComponent={removeGridComponent}
+      theme={theme}
+      isReady={isReady}
+      isScroll
+    >
+      {manager}
     </TitleInfo>
   );
 }

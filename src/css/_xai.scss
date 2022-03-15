@@ -21,7 +21,7 @@
     .qrCellSetsTableRightInner {
       .qrCellSetsTableRow {
         overflow-y: visible;
-        width: 1000px;
+        width: 1400px;
       }
     }
   }
@@ -55,8 +55,10 @@
       height: 30px;
       overflow: visible;
       svg {
-        width: 30px;
-        height: 30px;
+        width: 22px;
+        height: 22px;
+        margin-top: 4px;
+        margin-left: 4px;
         rect {
           stroke-width: 8px !important;
           stroke: #999 !important;
@@ -106,8 +108,8 @@
   }
   .signifIconTooltip {
     position: absolute;
-    height: 30px;
-    width: 100px;
+    height: 80px;
+    width: 200px;
     text-align: left;
     padding: 5px;
     background-color: rgba(255, 255, 255, 0.9);

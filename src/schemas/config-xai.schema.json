@@ -96,7 +96,8 @@
                 "genomicTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "genomicTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "additionalCellSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "moleculeHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" }
+                "moleculeHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+                "apiIteration": { "$ref": "#/definitions/componentCoordinationScopeValue" }
               }
             }
           }
@@ -1050,6 +1051,20 @@
                     "description": "If null is provided, no molecule will be highlighted initially."
                   },
                   { "type": "string" }
+                ]
+              }
+            }
+          },
+          "apiIteration": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided, no molecule will be highlighted initially."
+                  },
+                  { "type": "number" }
                 ]
               }
             }

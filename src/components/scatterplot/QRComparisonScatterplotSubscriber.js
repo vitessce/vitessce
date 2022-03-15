@@ -42,8 +42,6 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { Component } from '../../app/constants';
 
-const iteration = 1;
-
 /**
  * A subscriber component for the scatterplot.
  * @param {object} props
@@ -93,6 +91,8 @@ export default function QRComparisonScatterplotSubscriber(props) {
   );
   const [qryValues, qrySetters] = [cValues[qryScope], cSetters[qryScope]];
   const [refValues, refSetters] = [cValues[refScope], cSetters[refScope]];
+
+  const iteration = qryValues.apiIteration;
 
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -182,11 +182,6 @@ export default function QRComparisonScatterplotSubscriber(props) {
   const mergedRefCellSets = useMemo(() => mergeCellSets(
     refCellSets, refValues.additionalCellSets,
   ), [refCellSets, refValues.additionalCellSets]);
-  
-
-  // Initialize cell set colors and selections.
-  useInitialCellSetSelection(mergedQryCellSets, qryValues, qrySetters, "Prediction");
-  useInitialCellSetSelection(mergedRefCellSets, refValues, refSetters, "Cell Type");
 
 
   const setQryCellSelectionProp = useCallback((v) => {

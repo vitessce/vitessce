@@ -103,4 +103,6 @@ export const CoordinationType = {
   GENOMIC_TARGET_Y: 'genomicTargetY',
   ADDITIONAL_CELL_SETS: 'additionalCellSets',
   MOLECULE_HIGHLIGHT: 'moleculeHighlight',
+  API_ITERATION: 'apiIteration',
+  ANCHOR_EDIT_MODE: 'anchorEditMode',
 };
