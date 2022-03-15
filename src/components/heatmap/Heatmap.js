@@ -77,7 +77,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     height: viewHeight,
     expressionMatrix: expression,
     cellColors,
-    cellColorLabels = [],
+    cellColorLabels = [''],
     colormap,
     colormapRange,
     clearPleaseWait,
@@ -372,7 +372,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   // to prepare to render the names in TextLayers.
   const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, `- ${d}`]), [axisTopLabels]);
   const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, `${d} -`]), [axisLeftLabels]);
-  const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, `${d} -`]), [cellColorLabels]);
+  const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && `${d} -`]), [cellColorLabels]);
 
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
