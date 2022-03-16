@@ -1,4 +1,6 @@
 @mixin xai($theme-name, $theme-colors) {
+
+  /* Cell Sets component */
   .qrCellSets {
     border: 0px solid blue;
   }
@@ -7,7 +9,7 @@
     display: flex;
   }
   .qrCellSetsTableLeft {
-    flex: 40%;
+    flex: 50%;
     .qrCellSetsTableRow {
       width: 100%;
       overflow-y: hidden;
@@ -15,8 +17,9 @@
     }
   }
   .qrCellSetsTableRight {
-    flex: 60%;
+    flex: 50%;
     overflow-x: auto;
+    overflow-y: hidden;
 
     .qrCellSetsTableRightInner {
       .qrCellSetsTableRow {
@@ -116,5 +119,39 @@
     border-radius: 5px;
     box-shadow: 5px 5px 5px rgba(110, 110, 110, 0.5);
     z-index: 100;
+  }
+
+
+  /* Status component */
+  .qrStatus {
+    display: flex;
+    flex-direction: row;
+    & > div {
+      width: 25%;
+    }
+
+    .qrStatusCompletion {
+      padding: 5px;
+      display: flex;
+      .qrStatusCompletionInfo {
+        padding: 2px;
+        font-size: 13px;
+        margin-left: 5px;
+        color: rgb(110, 110, 110);
+      }
+    }
+    .qrStatusInstructions {
+      padding: 7px;
+      font-size: 13px;
+      color: #1976d2;
+    }
+    .qrStatusModel {
+      padding: 10px;
+      text-align: right;
+    }
+  }
+
+  .react-grid-item > .react-resizable-handle {
+    display: none;
   }
 }

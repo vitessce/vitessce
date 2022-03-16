@@ -1,8 +1,10 @@
+/* eslint-disable */
 import React from 'react';
 import { useCoordination, useWarning } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Status from './Status';
+import { Component } from '../../app/constants';
 
 /**
  * A subscriber component for the status component,
@@ -21,7 +23,7 @@ export default function StatusSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    title = 'Status',
+    title = 'Polyphony',
   } = props;
 
   // Get "props" from the coordination space.
@@ -29,7 +31,7 @@ export default function StatusSubscriber(props) {
     cellHighlight,
     geneHighlight,
     moleculeHighlight,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.status, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.STATUS], coordinationScopes);
 
   const warn = useWarning();
 
@@ -54,7 +56,6 @@ export default function StatusSubscriber(props) {
       title={title}
       theme={theme}
       removeGridComponent={removeGridComponent}
-      isScroll
       isReady
     >
       <Status warn={warn} info={info} />

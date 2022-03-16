@@ -28,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
   arrowButtonRoot: {
     padding: '0px',
   },
+  menuPaper: {
+    transform: 'translate(0, 40px) !important',
+  }
 }));
 
 function SignificanceIcon(props) {
@@ -169,6 +172,7 @@ function TableRowLeft(props) {
             vertical: 'top',
             horizontal: 'left',
           }}
+          classes={{ paper: classes.menuPaper }}
         >
           {anchorType === 'unjustified' ? (<MenuItem onClick={handleConfirmAnchors}>Confirm</MenuItem>) : null}
           <MenuItem onClick={handleDeleteAnchors}>Reject</MenuItem>

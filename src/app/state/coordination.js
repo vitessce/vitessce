@@ -189,6 +189,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GENE_HIGHLIGHT,
     CoordinationType.CELL_SET_HIGHLIGHT,
     CoordinationType.MOLECULE_HIGHLIGHT,
+    CoordinationType.ANCHOR_API_STATE,
+    CoordinationType.MODEL_API_STATE,
+    CoordinationType.ANCHOR_EDIT_MODE,
   ],
   [Component.GENES]: [
     CoordinationType.DATASET,
