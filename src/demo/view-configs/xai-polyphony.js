@@ -67,7 +67,7 @@ export const polyphonyConfig = {
               fileType: vapi.ft.ANNDATA_CELLS_ZARR,
               url: `${zarrPath}/pancreas_easy/query.zarr`,
               options: {
-                apiRoot: 'http://localhost:7777/api/anchor',
+                apiRoot: 'http://localhost:7777/api',
                 expressionMatrix: {
                   path: 'X'
                 },

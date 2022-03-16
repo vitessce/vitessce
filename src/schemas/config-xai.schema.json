@@ -97,7 +97,9 @@
                 "genomicTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "additionalCellSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "moleculeHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "apiIteration": { "$ref": "#/definitions/componentCoordinationScopeValue" }
+                "anchorApiState": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+                "modelApiState": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+                "anchorEditMode": { "$ref": "#/definitions/componentCoordinationScopeValue" }
               }
             }
           }
@@ -1055,16 +1057,44 @@
               }
             }
           },
-          "apiIteration": {
+          "anchorApiState": {
             "type": "object",
             "patternProperties": {
               ".": {
                 "oneOf": [
                   {
                     "type": "null",
-                    "description": "If null is provided, no molecule will be highlighted initially."
+                    "description": ""
                   },
-                  { "type": "number" }
+                  { "type": "object" }
+                ]
+              }
+            }
+          },
+          "modelApiState": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": ""
+                  },
+                  { "type": "object" }
+                ]
+              }
+            }
+          },
+          "anchorEditMode": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": ""
+                  },
+                  { "type": "object" }
                 ]
               }
             }

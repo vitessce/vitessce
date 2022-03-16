@@ -1,9 +1,11 @@
+/* eslint-disable */
 import {
   useRef, useState, useEffect, useCallback, useMemo,
 } from 'react';
 import debounce from 'lodash/debounce';
 import { useGridResize, useEmitGridResize } from '../app/state/hooks';
 import { VITESSCE_CONTAINER } from './classNames';
+import every from 'lodash/every';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -141,35 +143,23 @@ export function useDeckCanvasSize() {
  * setItemIsNotReady marks one item as not ready,
  * and resetReadyItem marks all items as waiting.
  */
-export function useReady(supportedItems) {
-  const items = supportedItems;
-  const [waiting, setWaiting] = useState(items);
+export function useReady(statusValues) {
 
   const setItemIsReady = useCallback((readyItem) => {
-    setWaiting((waitingItems) => {
-      const nextWaitingItems = waitingItems.filter(item => item !== readyItem);
-      // eslint-disable-next-line no-console
-      console.log(`cleared ${readyItem}; waiting on ${nextWaitingItems.length}: ${JSON.stringify(nextWaitingItems)}`);
-      return nextWaitingItems;
-    });
-  }, [setWaiting]);
+    console.log(`cleared ${readyItem}`);
+  }, []);
 
   const setItemIsNotReady = useCallback((notReadyItem) => {
-    setWaiting((waitingItems) => {
-      const nextWaitingItems = [...waitingItems, notReadyItem];
-      // eslint-disable-next-line no-console
-      console.log(`waiting on ${nextWaitingItems.length}: ${JSON.stringify(nextWaitingItems)}`);
-      return nextWaitingItems;
-    });
-  }, [setWaiting]);
+
+  }, []);
 
   const resetReadyItems = useCallback(() => {
-    setWaiting(items);
-    // eslint-disable-next-line no-console
-    console.log(`waiting on ${items.length}: ${JSON.stringify(items)}`);
-  }, [setWaiting, items]);
+   
+  }, []);
 
-  const isReady = waiting.length === 0;
+  const isReady = useMemo(() => {
+    return every(statusValues, val => val === 'success');
+  }, statusValues);
 
   return [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems];
 }

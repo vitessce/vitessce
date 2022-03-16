@@ -91,7 +91,7 @@ function SignificanceIcon(props) {
 }
 
 
-const barWidth = 120;
+const barWidth = 120 - 2;
 
 function TableRowLeft(props) {
   const {
@@ -171,7 +171,7 @@ function TableRowLeft(props) {
           }}
         >
           {anchorType === 'unjustified' ? (<MenuItem onClick={handleConfirmAnchors}>Confirm</MenuItem>) : null}
-          {anchorType !== 'user_selection' ? (<MenuItem onClick={handleDeleteAnchors}>Reject</MenuItem>) : null}
+          <MenuItem onClick={handleDeleteAnchors}>Reject</MenuItem>
           {anchorType === 'unjustified' ? (<MenuItem onClick={handleEdit}>Edit</MenuItem>) : null}
         </Menu>
       </div>

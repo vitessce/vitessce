@@ -100,7 +100,7 @@ export default function QRSupportingScatterplotReferenceSubscriber(props) {
     embeddingCellOpacityMode: cellOpacityMode,
     geneExpressionColormap,
     geneExpressionColormapRange,
-    apiIteration: iteration,
+    modelApiState,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -125,6 +125,8 @@ export default function QRSupportingScatterplotReferenceSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[Component.QR_SUPPORTING_SCATTERPLOT_REFERENCE],
     coordinationScopes,
   );
+
+  const iteration = modelApiState.iteration;
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();

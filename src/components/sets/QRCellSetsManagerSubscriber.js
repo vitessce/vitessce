@@ -83,8 +83,12 @@ export default function QRCellSetsManagerSubscriber(props) {
   );
   const [qryValues, qrySetters] = [cValues[qryScope], cSetters[qryScope]];
   const [refValues, refSetters] = [cValues[refScope], cSetters[refScope]];
-
-  const iteration = qryValues.apiIteration;
+  
+  const anchorApiState = qryValues.anchorApiState;
+  const anchorIteration = anchorApiState.iteration;
+  const anchorStatus = anchorApiState.status;
+  const modelIteration = qryValues.modelApiState.iteration;
+  const modelStatus = qryValues.modelApiState.status;
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [
@@ -92,7 +96,7 @@ export default function QRCellSetsManagerSubscriber(props) {
     setItemIsReady,
     setItemIsNotReady, // eslint-disable-line no-unused-vars
     resetReadyItems,
-  ] = useReady([]);
+  ] = useReady([anchorStatus, modelStatus]);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
@@ -108,7 +112,7 @@ export default function QRCellSetsManagerSubscriber(props) {
   const qryOptions = qryLoader?.options;
   const refOptions = refLoader?.options;
 
-  const [anchors, anchorsStatus] = useAnchors(qryLoader, iteration, setItemIsReady);
+  const [anchors, anchorsStatus] = useAnchors(qryLoader, anchorIteration, setItemIsReady);
 
   // Load the data.
   // Cell IDs
@@ -117,24 +121,24 @@ export default function QRCellSetsManagerSubscriber(props) {
 
   // Cell sets
   const [refCellType] = useAnnDataStatic(loaders, refDataset, refOptions?.features?.cellType?.path, 'columnString', setItemIsReady, false);
-  const [qryPrediction, qryPredictionStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.prediction?.path, 'columnString', iteration, setItemIsReady, false);
-  const [qryLabel, qryLabelStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.label?.path, 'columnString', iteration, setItemIsReady, false);
+  const [qryPrediction, qryPredictionStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.prediction?.path, 'columnString', modelIteration, setItemIsReady, false);
+  const [qryLabel, qryLabelStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.label?.path, 'columnString', modelIteration, setItemIsReady, false);
 
   const qryCellSets = useCellSetsTree(qryCellsIndex, [qryPrediction, qryLabel], ["Prediction", "Label"]);
   const refCellSets = useCellSetsTree(refCellsIndex, [refCellType], ["Cell Type"]);
 
   // Anchor matrix
-  const [qryAnchorMatrix, qryAnchorMatrixStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.anchorMatrix?.path, 'columnNumeric', iteration, setItemIsReady, false);
-  const [refAnchorMatrix, refAnchorMatrixStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.anchorMatrix?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [qryAnchorMatrix, qryAnchorMatrixStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.anchorMatrix?.path, 'columnNumeric', modelIteration, setItemIsReady, false);
+  const [refAnchorMatrix, refAnchorMatrixStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.anchorMatrix?.path, 'columnNumeric', modelIteration, setItemIsReady, false);
 
   // Anchor cluster
-  const [qryAnchorCluster, qryAnchorClusterStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.anchorCluster?.path, 'columnNumeric', iteration, setItemIsReady, false);
-  const [refAnchorCluster, refAnchorClusterStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.features?.anchorCluster?.path, 'columnNumeric', iteration, setItemIsReady, false);
-  const [qryAnchorDist, qryAnchorDistStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.anchorDist?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [qryAnchorCluster, qryAnchorClusterStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.anchorCluster?.path, 'columnNumeric', modelIteration, setItemIsReady, false);
+  const [refAnchorCluster, refAnchorClusterStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.features?.anchorCluster?.path, 'columnNumeric', modelIteration, setItemIsReady, false);
+  const [qryAnchorDist, qryAnchorDistStatus] = useAnnDataDynamic(loaders, qryDataset, qryOptions?.features?.anchorDist?.path, 'columnNumeric', modelIteration, setItemIsReady, false);
 
   // Differential expression
-  const [refDiffGeneNameIndices, refDiffGeneNamesStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.differentialGenes?.names?.path, 'columnNumeric', iteration, setItemIsReady, false);
-  const [refDiffGeneScores, refDiffGeneScoresStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.differentialGenes?.scores?.path, 'columnNumeric', iteration, setItemIsReady, false);
+  const [refDiffGeneNameIndices, refDiffGeneNamesStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.differentialGenes?.names?.path, 'columnNumeric', modelIteration, setItemIsReady, false);
+  const [refDiffGeneScores, refDiffGeneScoresStatus] = useAnnDataDynamic(loaders, refDataset, refOptions?.differentialGenes?.scores?.path, 'columnNumeric', modelIteration, setItemIsReady, false);
 
   const refDiffGeneNames = useDiffGeneNames(refGenesIndex,refDiffGeneNameIndices);
 
@@ -213,24 +217,30 @@ export default function QRCellSetsManagerSubscriber(props) {
 
 
   const onDeleteAnchors = useCallback((anchorId) => {
-    qryLoader.anchorDelete(anchorId).then(result => {
-      console.log(result);
-      qrySetters.setApiIteration(qryValues.apiIteration+1);
-    });
-  }, [qryValues.apiIteration]);
+    if(anchorApiState.status === 'success') {
+      qrySetters.setAnchorApiState({ ...anchorApiState, status: 'loading' });
+      qryLoader.anchorDelete(anchorId).then(() => {
+        qrySetters.setAnchorApiState({ ...anchorApiState, iteration: anchorApiState.iteration+1, status: 'success' });
+      });
+    }
+  }, [anchorApiState]);
 
   const onConfirmAnchors = useCallback((anchorId) => {
-    qryLoader.anchorConfirm(anchorId).then(result => {
-      console.log(result);
-      qrySetters.setApiIteration(qryValues.apiIteration+1);
-    });
-  }, [qryValues.apiIteration]);
+    if(anchorApiState.status === 'success') {
+      qrySetters.setAnchorApiState({ ...anchorApiState, status: 'loading' });
+      qryLoader.anchorConfirm(anchorId).then(result => {
+        console.log(result);
+        qrySetters.setAnchorApiState({ ...anchorApiState, iteration: anchorApiState.iteration+1, status: 'success' });
+      });
+    }
+  }, [anchorApiState]);
 
   const onEditAnchors = (anchorId) => {
     qrySetters.setAnchorEditMode({ mode: 'lasso', anchorId: anchorId });
   };
 
   function resetCellSets() {
+    qrySetters.setAnchorEditMode(null);
     qrySetters.setAdditionalCellSets(null);
     const parentKey = "Prediction";
     const node = mergedQryCellSets.tree.find(n => n.name === parentKey);
@@ -248,25 +258,29 @@ export default function QRCellSetsManagerSubscriber(props) {
   }
 
   useEffect(() => {
-    console.log(qryValues.additionalCellSets);
-    if(qryValues.anchorEditMode?.mode === 'lasso' && qryValues.additionalCellSets?.tree?.[0]?.children?.length === 1) {
-      const anchorId = qryValues.anchorEditMode.anchorId;
-      const cellIds = qryValues.additionalCellSets.tree[0].children[0].set.map(c => ({ cell_id: c[0] }));
-      qryLoader.anchorRefine(anchorId, cellIds).then(result => {
-        console.log(result);
-        qrySetters.setApiIteration(qryValues.apiIteration+1);
-        resetCellSets();
-      });
-    } else if(qryValues.anchorEditMode === null && qryValues.additionalCellSets?.tree?.[0]?.children?.length === 1) {
-      const cellIds = qryValues.additionalCellSets.tree[0].children[0].set.map(c => ({ cell_id: c[0] }));
-      const anchorId = `user-${qryValues.apiIteration}`;
-      qryLoader.anchorAdd(anchorId, cellIds).then(result => {
-        console.log(result);
-        qrySetters.setApiIteration(qryValues.apiIteration+1);
-        resetCellSets();
-      });
+    if(anchorApiState.status === 'success') {
+      console.log(qryValues.additionalCellSets);
+      if(qryValues.anchorEditMode?.mode === 'lasso' && qryValues.additionalCellSets?.tree?.[0]?.children?.length === 1) {
+        const anchorId = qryValues.anchorEditMode.anchorId;
+        const cellIds = qryValues.additionalCellSets.tree[0].children[0].set.map(c => ({ cell_id: c[0] }));
+        qrySetters.setAnchorApiState({ ...anchorApiState, status: 'loading' });
+        qryLoader.anchorRefine(anchorId, cellIds).then(result => {
+          console.log(result);
+          qrySetters.setAnchorApiState({ ...anchorApiState, iteration: anchorApiState.iteration+1, status: 'success' });
+          resetCellSets();
+        });
+      } else if(qryValues.anchorEditMode === null && qryValues.additionalCellSets?.tree?.[0]?.children?.length === 1) {
+        const cellIds = qryValues.additionalCellSets.tree[0].children[0].set.map(c => ({ cell_id: c[0] }));
+        const anchorId = `user-${anchorApiState.iteration}`; // TODO(scXAI)
+        qrySetters.setAnchorApiState({ ...anchorApiState, status: 'loading' });
+        qryLoader.anchorAdd(anchorId, cellIds).then(result => {
+          console.log(result);
+          qrySetters.setAnchorApiState({ ...anchorApiState, iteration: anchorApiState.iteration+1, status: 'success' });
+          resetCellSets();
+        });
+      }
     }
-  }, [qryValues.anchorEditMode, qryValues.additionalCellSets]);
+  }, [qryValues.additionalCellSets]);
 
   const manager = useMemo(() => {
     return (

@@ -55,7 +55,8 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.GENOMIC_TARGET_Y]: 1549999999.5,
   [CoordinationType.ADDITIONAL_CELL_SETS]: null,
   [CoordinationType.MOLECULE_HIGHLIGHT]: null,
-  [CoordinationType.API_ITERATION]: 1,
+  [CoordinationType.ANCHOR_API_STATE]: { iteration: 1, status: 'success', message: null },
+  [CoordinationType.MODEL_API_STATE]: { iteration: 1, status: 'success', message: null },
   [CoordinationType.ANCHOR_EDIT_MODE]: null,
 };
 
@@ -280,7 +281,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GENE_EXPRESSION_COLORMAP_RANGE,
     CoordinationType.CELL_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_CELL_SETS,
-    CoordinationType.API_ITERATION,
+    CoordinationType.ANCHOR_API_STATE,
+    CoordinationType.MODEL_API_STATE,
     CoordinationType.ANCHOR_EDIT_MODE,
   ],
   [Component.QR_SUPPORTING_SCATTERPLOT_QUERY]: [
@@ -309,7 +311,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GENE_EXPRESSION_COLORMAP_RANGE,
     CoordinationType.CELL_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_CELL_SETS,
-    CoordinationType.API_ITERATION,
+    CoordinationType.ANCHOR_API_STATE,
+    CoordinationType.MODEL_API_STATE,
+    CoordinationType.ANCHOR_EDIT_MODE,
   ],
   [Component.QR_SUPPORTING_SCATTERPLOT_REFERENCE]: [
     CoordinationType.DATASET,
@@ -337,7 +341,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GENE_EXPRESSION_COLORMAP_RANGE,
     CoordinationType.CELL_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_CELL_SETS,
-    CoordinationType.API_ITERATION,
+    CoordinationType.ANCHOR_API_STATE,
+    CoordinationType.MODEL_API_STATE,
+    CoordinationType.ANCHOR_EDIT_MODE,
   ],
   [Component.QR_CELL_SETS]: [
     CoordinationType.DATASET,
@@ -350,7 +356,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GENE_FILTER,
     CoordinationType.GENE_HIGHLIGHT,
     CoordinationType.EMBEDDING_TYPE,
-    CoordinationType.API_ITERATION,
+    CoordinationType.ANCHOR_API_STATE,
+    CoordinationType.MODEL_API_STATE,
     CoordinationType.ANCHOR_EDIT_MODE,
   ],
 };

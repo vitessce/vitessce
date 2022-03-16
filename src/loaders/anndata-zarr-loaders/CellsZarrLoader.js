@@ -24,22 +24,39 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
 
+    const { apiRoot } = this.options || {};
+    this.anchorApi = `${apiRoot}/anchor`;
+    this.modelApi = `${apiRoot}/model_update`;
+
     this.data = {
       static: {},
       dynamic: {},
       anchors: new InternMap([], JSON.stringify),
+      models: new InternMap([], JSON.stringify),
     };
   }
 
   anchorGetNoCache() {
-    const { apiRoot } = this.options || {};
-    const data = fetch(apiRoot, { method: 'GET' }).then((response) => {
+    const { anchorApi } = this;
+    const data = fetch(anchorApi, { method: 'GET' }).then((response) => {
       if (!response.ok) {
-        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, response.headers));
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', anchorApi, response.headers));
       }
       return response.json();
     // eslint-disable-next-line no-console
-    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, {})));
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', anchorApi, {})));
+    return data;
+  }
+
+  modelGetNoCache() {
+    const { modelApi } = this;
+    const data = fetch(modelApi, { method: 'GET' }).then((response) => {
+      if (!response.ok) {
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', modelApi, response.headers));
+      }
+      return response.json();
+    // eslint-disable-next-line no-console
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', modelApi, {})));
     return data;
   }
 
@@ -57,29 +74,43 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
     return result;
   }
 
+  modelGet(iteration) {
+    if (this.data.models.has(iteration)) {
+      return this.data.models.get(iteration);
+    }
+    let result;
+    if (!this.data.models.has(iteration)) {
+      result = this.modelGetNoCache();
+    } else {
+      result = Promise.resolve(null);
+    }
+    this.data.models.set(iteration, result);
+    return result;
+  }
+
   /**
    * Confirm an anchor set.
    * @param {string} anchorId 
    * @returns 
    */
   anchorConfirm(anchorId) {
-    const { apiRoot } = this.options || {};
+    const { anchorApi } = this;
     const body = {
       operation: 'confirm',
       anchor_id: anchorId,
     };
-    const data = fetch(apiRoot, { method: 'PUT', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
+    const data = fetch(anchorApi, { method: 'PUT', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
       if (!response.ok) {
-        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', null, {}));
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', anchorApi, {}));
       }
       return response.json();
     // eslint-disable-next-line no-console
-    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', null, {})));
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', anchorApi, {})));
     return data;
   }
 
   anchorRefine(anchorId, anchorCells) {
-    const { apiRoot } = this.options || {};
+    const { anchorApi } = this;
     const body = {
       operation: 'refine',
       anchor: {
@@ -87,18 +118,18 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
         cells: anchorCells,
       }
     };
-    const data = fetch(apiRoot, { method: 'PUT', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
+    const data = fetch(anchorApi, { method: 'PUT', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
       if (!response.ok) {
-        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, response.headers));
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', anchorApi, response.headers));
       }
       return response.json();
     // eslint-disable-next-line no-console
-    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, {})));
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', anchorApi, {})));
     return data;
   }
 
   anchorAdd(anchorId, anchorCells) {
-    const { apiRoot } = this.options || {};
+    const { anchorApi } = this;
     const body = {
       operation: 'add',
       anchor: {
@@ -106,28 +137,28 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
         cells: anchorCells,
       }
     };
-    const data = fetch(apiRoot, { method: 'PUT', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
+    const data = fetch(anchorApi, { method: 'PUT', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
       if (!response.ok) {
-        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, response.headers));
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', anchorApi, response.headers));
       }
       return response.json();
     // eslint-disable-next-line no-console
-    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, {})));
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', anchorApi, {})));
     return data;
   }
 
   anchorDelete(anchorId) {
-    const { apiRoot } = this.options || {};
+    const { anchorApi } = this;
     const body = {
       anchor_id: anchorId,
     };
-    const data = fetch(apiRoot, { method: 'DELETE', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
+    const data = fetch(anchorApi, { method: 'DELETE', headers: HEADERS, body: JSON.stringify(body) }).then((response) => {
       if (!response.ok) {
-        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, response.headers));
+        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', anchorApi, response.headers));
       }
       return response.json();
     // eslint-disable-next-line no-console
-    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', apiRoot, {})));
+    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', anchorApi, {})));
     return data;
   }
 
