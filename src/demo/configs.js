@@ -17,7 +17,7 @@ import {
   embeddingTargetYConfig,
   embeddingCellSetPolygonsVisibleConfig,
 } from './view-configs/coordination-types/index';
-
+import { heatmapOnly } from './view-configs/heatmap';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -49,5 +49,6 @@ export const configs = {
   'linnarsson-2018': notPublic(codeluppi2018),
   vanderbilt: notPublic(spraggins2020),
   'dries-2019': notPublic(eng2019),
+  'heatmap-only': heatmapOnly,
   ...coordinationTypeConfigs,
 };

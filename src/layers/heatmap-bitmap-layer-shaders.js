@@ -87,11 +87,11 @@ uniform vec2 uColorScaleRange;
 varying vec2 vTexCoord;
 
 vec2 offsetvTexcoord(vec2 coord) {
-  float xOffset = (tileIJ.y / numTiles.x);
-  float yOffset = (tileIJ.x / numTiles.y);
+  float xTileToDataRatio = uTextureSize.x / uOrigDataSize.y;
+  float yTileToDataRatio = uTextureSize.y / uOrigDataSize.x;
   vec2 vTexCoordOffset = vec2(
-    xOffset + (coord.x * uTextureSize.x / uOrigDataSize.y),
-    yOffset + ((1. - coord.y) * uTextureSize.y / uOrigDataSize.x)
+    (tileIJ.y * xTileToDataRatio) + (coord.x * xTileToDataRatio),
+    (tileIJ.x * yTileToDataRatio) + ((1. - coord.y) * yTileToDataRatio)
   );
   return vTexCoordOffset;
 }
@@ -148,20 +148,19 @@ void main(void) {
         break;
       }
       offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
-      intensitySum += float(container == 0.) * texture2D(uBitmapTexture0, vTexCoordTransformed + offsetPixels).r;
-      intensitySum += float(container == 1.) * texture2D(uBitmapTexture1, vTexCoordTransformed + offsetPixels).r;
-      intensitySum += float(container == 2.) * texture2D(uBitmapTexture2, vTexCoordTransformed + offsetPixels).r;
-      intensitySum += float(container == 3.) * texture2D(uBitmapTexture3, vTexCoordTransformed + offsetPixels).r;
+      intensitySum += float(abs(container - 0.) < .1) * texture2D(uBitmapTexture0, vTexCoordTransformed + offsetPixels).r;
+      intensitySum += float(abs(container - 1.) < .1) * texture2D(uBitmapTexture1, vTexCoordTransformed + offsetPixels).r;
+      intensitySum += float(abs(container - 2.) < .1) * texture2D(uBitmapTexture2, vTexCoordTransformed + offsetPixels).r;
+      intensitySum += float(abs(container - 3.) < .1) * texture2D(uBitmapTexture3, vTexCoordTransformed + offsetPixels).r;
     }
   }
   
   // Compute the mean value.
-  float intensityMean = (tileIJ.y / numTiles.x) + (vTexCoord.x * uTextureSize.x / uOrigDataSize.y);
-  
+  float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
   // Re-scale using the color scale slider values.
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
 
-  gl_FragColor = COLORMAP_FUNC(clamp(intensityMean, 0.0, 1.0));
+  gl_FragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
 
   geometry.uv = vTexCoord;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);

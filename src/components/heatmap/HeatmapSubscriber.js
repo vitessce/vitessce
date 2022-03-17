@@ -112,7 +112,7 @@ export default function HeatmapSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, false);
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
