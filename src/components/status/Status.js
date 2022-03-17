@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '4px 0',
     fontSize: '14px',
     fontWeight: 400,
+    minWidth: '0 !important',
     '& svg': {
       width: '18px',
       height: '18px',
@@ -33,7 +34,22 @@ const useStyles = makeStyles((theme) => ({
     color: '#1976d2',
   },
   tabLabelIcon: {
-    minHeight: 0
+    minHeight: 0,
+    '& :first-child': {
+      marginBottom: '0 !important',
+      marginRight: '4px !important',
+    }
+  },
+  tabWrapper: {
+    height: '32px',
+    flexDirection: 'row',
+  },
+  tabsRoot: {
+    minHeight: '0px',
+    height: '100%',
+  },
+  tabsFlexContainer: {
+    height: '100%',
   },
   tabsIndicator: {
     backgroundColor: '#1976d2',
@@ -45,6 +61,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '12px !important',
     lineHeight: '12px !important',
     marginTop: '-3px'
+  },
+  circularProgressTextBox: {
+    height: '43px',
   },
   updateButtonRoot: {
     color: '#fff',
@@ -69,6 +88,7 @@ function CircularProgressWithLabel(props) {
         display="flex"
         alignItems="center"
         justifyContent="center"
+        classes={{ root: classes.circularProgressTextBox }}
       >
         <Typography classes={{ root: classes.circularProgressText }} variant="caption" component="div" color="textSecondary">{`${Math.round(
           props.value,
@@ -79,23 +99,29 @@ function CircularProgressWithLabel(props) {
 }
 
 export default function Status(props) {
-  const { info, warn } = props;
+  const {
+    warn,
+
+    numAnchorSetsConfirmed,
+    numAnchorSetsTotal,
+    numQueryCellsConfirmed,
+    numQueryCellsTotal,
+
+    onUpdateModel,
+    modelStatus,
+  } = props;
   const classes = useStyles();
 
   const [value, setValue] = useState(0);
-  const [progress, setProgress] = useState(90);
+  const progress = numQueryCellsTotal === null ? 0 : 100 * (numQueryCellsConfirmed / numQueryCellsTotal);
 
   const valueToInstructions = [
     'Use the Cell Sets view to confirm, reject, or edit anchor sets.',
     'To add an anchor set, use the Lasso tool in the Comparison View.',
-    'To edit an anchor set, click the three-dot menu next to a set of interest in the Cell Sets view.'
-
-  ]
+    'To edit an anchor set, click the three-dot menu next to a set of interest in the Cell Sets view.',
+  ];
 
   const messages = [];
-  if (info) {
-    messages.push(<p className="details" key="info">{info}</p>);
-  }
   if (warn) {
     messages.push(<p className="alert alert-warning my-0 details" key="warn">{warn}</p>);
   }
@@ -104,7 +130,7 @@ export default function Status(props) {
     setValue(newValue);
   };
 
-  const tabClasses = { root: classes.tabRoot, selected: classes.tabSelected, labelIcon: classes.tabLabelIcon };
+  const tabClasses = { root: classes.tabRoot, selected: classes.tabSelected, labelIcon: classes.tabLabelIcon, wrapper: classes.tabWrapper };
 
 
   return (
@@ -113,33 +139,44 @@ export default function Status(props) {
         <CircularProgressWithLabel value={progress} />
         <Box position="relative" display="inline-flex">
           <span className="qrStatusCompletionInfo">
-            You have confirmed n of N anchor sets, comprising m of M query cells.
+            {numQueryCellsTotal === null ? (<span>Loading data...</span>) : (
+              <span>You have confirmed {numAnchorSetsConfirmed} of {numAnchorSetsTotal} anchor sets, comprising {numQueryCellsConfirmed} of {numQueryCellsTotal} query cells.</span>
+            )}
           </span>
         </Box>
       </div>
       <div className="qrStatusMode">
         <Tabs
+          variant="fullWidth"
           value={value}
           onChange={handleChange}
-          classes={{ indicator: classes.tabsIndicator }}
+          classes={{ root: classes.tabsRoot, indicator: classes.tabsIndicator, flexContainer: classes.tabsFlexContainer }}
         >
-          <Tab label="Explore" icon={<Navigation />} classes={tabClasses} />
-          <Tab label="Add" icon={<Add />} classes={tabClasses} />
-          <Tab label="Edit" icon={<Edit />} disabled classes={tabClasses} />
+          <Tab label="Explore" fullWidth icon={<Navigation />} classes={tabClasses} />
+          <Tab label="Add" fullWidth icon={<Add />} classes={tabClasses} />
+          <Tab label="Edit" fullWidth icon={<Edit />} disabled classes={tabClasses} />
         </Tabs>
       </div>
       <div className="qrStatusInstructions">
         {valueToInstructions[value]}
       </div>
       <div className="qrStatusModel">
-        <Button
-          classes={{ root: classes.updateButtonRoot }}
-          variant="contained"
-          startIcon={<Update />}
-          disableElevation
-        >
-          Update Model
-        </Button>
+        {modelStatus === 'loading' ? (
+          <CircularProgress
+            classes={{ root: classes.circularProgressRoot }}
+          />
+        ) : (
+          <Button
+            onClick={onUpdateModel}
+            size="small"
+            classes={{ root: classes.updateButtonRoot }}
+            variant="contained"
+            startIcon={<Update />}
+            disableElevation
+          >
+            Update Model
+          </Button>
+        )}
       </div>
     </div>
   );

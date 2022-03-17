@@ -142,7 +142,7 @@ function TableRowLeft(props) {
         </IconButton>
       </div>
       <div className="qrCellSetsTableHead colName" title={`${clusterIndex} (${anchorType})`}>
-        {anchorType === 'confirmed' ? (
+        {anchorType !== 'unjustified' ? (
           <b>{clusterIndex}</b>
         ) : (<span>{clusterIndex}</span>)}
       </div>
@@ -175,7 +175,7 @@ function TableRowLeft(props) {
           classes={{ paper: classes.menuPaper }}
         >
           {anchorType === 'unjustified' ? (<MenuItem onClick={handleConfirmAnchors}>Confirm</MenuItem>) : null}
-          <MenuItem onClick={handleDeleteAnchors}>Reject</MenuItem>
+          <MenuItem onClick={handleDeleteAnchors}>Delete</MenuItem>
           {anchorType === 'unjustified' ? (<MenuItem onClick={handleEdit}>Edit</MenuItem>) : null}
         </Menu>
       </div>

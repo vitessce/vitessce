@@ -176,6 +176,13 @@ export const polyphonyConfig = {
     layout: [
         {
             component: 'status',
+            coordinationScopes: {
+              dataset: ['REFERENCE', 'QUERY'],
+              cellSetSelection: { REFERENCE: 'ref', QUERY: 'qry' },
+              cellSetColor: { REFERENCE: 'ref', QUERY: 'qry' },
+              cellColorEncoding: { REFERENCE: 'ref', QUERY: 'qry' },
+              embeddingType: { REFERENCE: 'ref', QUERY: 'qry' },
+            },
             x: 0,
             y: 0,
             w: 12,

@@ -16,6 +16,32 @@ const HEADERS = {
   'Content-Type': 'application/json',
 };
 
+// Reference: https://github.com/github/fetch/issues/175#issuecomment-125779262
+// Reference: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Synchronous_and_Asynchronous_Requests#example_using_a_timeout
+function fetchLong(url, timeout) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.timeout = timeout; // time in milliseconds
+
+    xhr.onload = () => {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          resolve({ status: xhr.responseText });
+        } else {
+          reject(xhr.statusText);
+        }
+      }
+    };
+
+    xhr.ontimeout = () => {
+      reject("The request for " + url + " timed out.");
+    };
+
+    xhr.send(null);
+  });
+}
+
 /**
  * Loader for converting zarr into the cell json schema.
  */
@@ -50,13 +76,10 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
 
   modelGetNoCache() {
     const { modelApi } = this;
-    const data = fetch(modelApi, { method: 'GET' }).then((response) => {
-      if (!response.ok) {
-        return Promise.reject(new DataSourceFetchError('CellsZarrLoader', modelApi, response.headers));
-      }
-      return response.json();
-    // eslint-disable-next-line no-console
-    }).catch(() => Promise.reject(new DataSourceFetchError('CellsZarrLoader', modelApi, {})));
+    const data = fetchLong(modelApi, 600000).catch((e) => {
+      console.error(e);
+      Promise.reject(new DataSourceFetchError('CellsZarrLoader', modelApi, {}));
+    });
     return data;
   }
 

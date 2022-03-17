@@ -126,6 +126,7 @@
   .qrStatus {
     display: flex;
     flex-direction: row;
+    height: 100%;
     & > div {
       width: 25%;
     }
@@ -146,8 +147,11 @@
       color: #1976d2;
     }
     .qrStatusModel {
-      padding: 10px;
-      text-align: right;
+      margin-right: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
     }
   }
 
