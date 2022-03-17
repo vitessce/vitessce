@@ -8,7 +8,7 @@ import {
 } from '../../layers/heatmap-constants';
 
 export function getGeneByCellTile(view, {
-  tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
+  tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, expressionRowLookUp,
 }) {
   const tileData = new Uint8Array(tileSize * tileSize);
   let offset;
@@ -23,7 +23,7 @@ export function getGeneByCellTile(view, {
     // Need to iterate over cells in the outer loop.
     cellI = (tileJ * tileSize) + j;
     if (cellI < numCells) {
-      sortedCellI = cells.indexOf(cellOrdering[cellI]);
+      sortedCellI = expressionRowLookUp[cellOrdering[cellI]];
       if (sortedCellI >= -1) {
         tileSizeRange.forEach((i) => {
           geneI = (tileI * tileSize) + i;
@@ -38,7 +38,7 @@ export function getGeneByCellTile(view, {
 }
 
 export function getCellByGeneTile(view, {
-  tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, cells,
+  tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, expressionRowLookUp,
 }) {
   const tileData = new Uint8Array(tileSize * tileSize);
   let offset;
@@ -53,7 +53,7 @@ export function getCellByGeneTile(view, {
     // Need to iterate over cells in the outer loop.
     cellI = (tileI * tileSize) + i;
     if (cellI < numCells) {
-      sortedCellI = cells.indexOf(cellOrdering[cellI]);
+      sortedCellI = expressionRowLookUp[cellOrdering[cellI]];
       if (sortedCellI >= -1) {
         tileSizeRange.forEach((j) => {
           geneI = (tileJ * tileSize) + j;

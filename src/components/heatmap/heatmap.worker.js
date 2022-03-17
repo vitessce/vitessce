@@ -29,6 +29,7 @@ function getTile({
   cols,
   data,
   transpose,
+  expressionRowLookUp,
 }) {
   const view = new Uint8Array(data);
 
@@ -47,6 +48,7 @@ function getTile({
       numGenes,
       cellOrdering,
       cells: rows,
+      expressionRowLookUp,
     },
   );
   return [{ tile: result, buffer: data, curr }, [data]];
