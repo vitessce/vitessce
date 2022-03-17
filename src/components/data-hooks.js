@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { useState, useEffect, useMemo } from 'react';
 import equal from 'fast-deep-equal';
+import isEqual from 'lodash/isEqual';
 import { capitalize } from '../utils';
 import { useSetWarning } from '../app/state/hooks';
 import {
@@ -941,4 +942,69 @@ export function useAnchors(
   }, [loader, iteration]);
 
   return [result];
+}
+
+export function useProcessedAnchorSets(
+  anchors, refDiffGeneNames, refDiffGeneScores, qryPrediction, qryCellsIndex, qryCellSets, cellSetColor, parentKey
+) {
+  const qryTopGenesLists = useMemo(() => {
+    if(anchors && refDiffGeneNames && refDiffGeneScores && qryPrediction && qryCellsIndex && qryCellSets && cellSetColor) {
+      const predictionNode = qryCellSets.tree.find(n => n.name === parentKey);
+      const predictionPaths = predictionNode.children.map(n => ([parentKey, n.name]));
+
+      const NUM_GENES = 20;
+
+      const result = {};
+      Object.keys(anchors).forEach(anchorType => {
+        result[anchorType] = {};
+        anchors[anchorType].forEach((anchorObj, clusterIndex) => {
+          const refClusterTopGeneNames = refDiffGeneNames[anchorObj.anchor_ref_id].slice(0, NUM_GENES);
+          const refClusterAllGeneNames = refDiffGeneNames[anchorObj.anchor_ref_id];
+          const refClusterAllGeneScores = refDiffGeneScores.data[anchorObj.anchor_ref_id];
+          
+          let qryClusterAllGeneNames = [];
+          let qryClusterAllGeneScores = [];
+          if(!Array.isArray(anchorObj.rank_genes_groups)) {
+            qryClusterAllGeneNames = anchorObj.rank_genes_groups.name_indice;
+            qryClusterAllGeneScores = anchorObj.rank_genes_groups.score;
+          } else {
+            qryClusterAllGeneNames = anchorObj.rank_genes_groups.map(v => v.name_indice);
+            qryClusterAllGeneScores = anchorObj.rank_genes_groups.map(v => v.score);
+          }
+          const qryClusterTopGeneNames = qryClusterAllGeneNames.slice(0, NUM_GENES);
+  
+          const topGeneNames = Array.from(new Set([...qryClusterTopGeneNames, ...refClusterTopGeneNames]));
+  
+          result[anchorType][anchorObj.id] = {
+            id: anchorObj.id,
+            names: topGeneNames,
+            scores: topGeneNames.map(name => ({
+              qry: qryClusterAllGeneScores[qryClusterAllGeneNames.indexOf(name)],
+              ref: refClusterAllGeneScores[refClusterAllGeneNames.indexOf(name)],
+            })),
+            significances: topGeneNames.map(name => ({
+              qry: qryClusterTopGeneNames.includes(name),
+              ref: refClusterTopGeneNames.includes(name),
+            })),
+            latentDist: anchorObj.anchor_dist_median,
+            predictionProportions: predictionPaths.map(path => {
+              const [prefix, setName] = path;
+              const color = cellSetColor.find(o => isEqual(path, o.path))?.color;
+              const numCellsInCluster = anchorObj.cells.length;
+              const numCellsInClusterAndSet = anchorObj.cells.filter(cellObj => setName === qryPrediction[qryCellsIndex.indexOf(cellObj.cell_id)]).length;
+              const proportion = numCellsInClusterAndSet / numCellsInCluster;
+              return {
+                name: setName,
+                color: color,
+                proportion: proportion,
+              };
+            }),
+          };
+        });
+      });
+      return result;
+    }
+    return null;
+  }, [anchors, refDiffGeneNames, refDiffGeneScores, qryPrediction, qryCellsIndex, anchors, qryCellSets, cellSetColor, parentKey]);
+  return qryTopGenesLists;
 }

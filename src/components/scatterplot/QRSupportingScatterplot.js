@@ -106,6 +106,8 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
       geneExpressionColormap,
       geneExpressionColormapRange = [0.0, 1.0],
       cellColorEncoding,
+      anchorSetFocus,
+      anchorSetHighlight,
     } = this.props;
     const filteredCellsEntries = (cellFilter
       ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
@@ -119,7 +121,7 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
       },
       pickable: true,
       autoHighlight: true,
-      stroked: false,
+      stroked: true,
       filled: true,
       backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
       getCellIsSelected,
@@ -137,9 +139,20 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
         return target;
       },
       getFillColor: getCellColor,
-      getPointRadius: 1,
+      getLineColor: [60, 60, 60],
+      getRadius: (object, { index }) => {
+        if(anchorSetFocus && anchorSetHighlight && anchorSetHighlight.includes(index)) {
+          return 3;
+        }
+        return 1;
+      },
       getExpressionValue,
-      getLineWidth: 0,
+      getLineWidth: (object, { index }) => {
+        if(anchorSetFocus && anchorSetHighlight && anchorSetHighlight.includes(index)) {
+          return 1;
+        }
+        return 0;
+      },
       extensions: [
         new ScaledExpressionExtension(),
         new SelectionExtension({ instanced: true }),
@@ -157,6 +170,7 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
         getExpressionValue,
         getFillColor: [cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getPointRadius: [anchorSetFocus, anchorSetHighlight],
         getCellIsSelected,
       },
     });
@@ -336,7 +350,7 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
     }
 
     if ([
-      'embedding', 'cellFilter', 'cellSelection', 'cellColors',
+      'embedding', 'anchorSetFocus', 'anchorSetHighlight', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {

@@ -58,6 +58,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.ANCHOR_API_STATE]: { iteration: 1, status: 'success', message: null },
   [CoordinationType.MODEL_API_STATE]: { iteration: 1, status: 'success', message: null },
   [CoordinationType.ANCHOR_EDIT_MODE]: null,
+  [CoordinationType.ANCHOR_SET_HIGHLIGHT]: null,
 };
 
 // The following coordination types should be
@@ -287,6 +288,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANCHOR_API_STATE,
     CoordinationType.MODEL_API_STATE,
     CoordinationType.ANCHOR_EDIT_MODE,
+    CoordinationType.ANCHOR_SET_FOCUS,
+    CoordinationType.ANCHOR_SET_HIGHLIGHT,
   ],
   [Component.QR_SUPPORTING_SCATTERPLOT_QUERY]: [
     CoordinationType.DATASET,
@@ -317,6 +320,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANCHOR_API_STATE,
     CoordinationType.MODEL_API_STATE,
     CoordinationType.ANCHOR_EDIT_MODE,
+    CoordinationType.ANCHOR_SET_FOCUS,
+    CoordinationType.ANCHOR_SET_HIGHLIGHT,
   ],
   [Component.QR_SUPPORTING_SCATTERPLOT_REFERENCE]: [
     CoordinationType.DATASET,
@@ -347,6 +352,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANCHOR_API_STATE,
     CoordinationType.MODEL_API_STATE,
     CoordinationType.ANCHOR_EDIT_MODE,
+    CoordinationType.ANCHOR_SET_FOCUS,
+    CoordinationType.ANCHOR_SET_HIGHLIGHT,
   ],
   [Component.QR_CELL_SETS]: [
     CoordinationType.DATASET,
@@ -362,5 +369,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANCHOR_API_STATE,
     CoordinationType.MODEL_API_STATE,
     CoordinationType.ANCHOR_EDIT_MODE,
+    CoordinationType.ANCHOR_SET_FOCUS,
+    CoordinationType.ANCHOR_SET_HIGHLIGHT,
   ],
 };

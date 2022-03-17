@@ -22,6 +22,7 @@ import {
   useCellSetsTree,
   useDiffGeneNames,
   useInitialCellSetSelection,
+  useAnchors,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import QRSupportingScatterplot from './QRSupportingScatterplot';
@@ -101,6 +102,9 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
     geneExpressionColormap,
     geneExpressionColormapRange,
     modelApiState,
+    anchorApiState,
+    anchorSetHighlight, // cell indices
+    anchorSetFocus, // anchor set ID
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -121,12 +125,17 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
     setEmbeddingCellOpacityMode: setCellOpacityMode,
     setGeneExpressionColormap,
     setGeneExpressionColormapRange,
+    setAnchorSetHighlight,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[Component.QR_SUPPORTING_SCATTERPLOT_QUERY],
     coordinationScopes,
   );
 
-  const iteration = modelApiState.iteration;
+  const modelIteration = modelApiState.iteration;
+  const modelStatus = modelApiState.status;
+
+  const anchorIteration = anchorApiState.iteration;
+  const anchorStatus = anchorApiState.status;
 
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -136,7 +145,7 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
     setItemIsReady,
     setItemIsNotReady, // eslint-disable-line no-unused-vars
     resetReadyItems,
-  ] = useReady([]);
+  ] = useReady([modelStatus, anchorStatus]);
 
   const isQuery = coordinationScopes.dataset === "QUERY";
   const title = isQuery ? `Supporting View (Query)` : '(Reference)';
@@ -156,13 +165,13 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
   const [cellsIndex, genesIndex] = useAnnDataIndices(loaders, dataset, setItemIsReady, true);
 
   // Cell sets
-  const [qryPrediction, qryPredictionStatus] = useAnnDataDynamic(loaders, dataset, options?.features?.prediction?.path, 'columnString', iteration, setItemIsReady, false);
-  const [qryLabel, qryLabelStatus] = useAnnDataDynamic(loaders, dataset, options?.features?.label?.path, 'columnString', iteration, setItemIsReady, false);
+  const [qryPrediction, qryPredictionStatus] = useAnnDataDynamic(loaders, dataset, options?.features?.prediction?.path, 'columnString', modelIteration, setItemIsReady, false);
+  const [qryLabel, qryLabelStatus] = useAnnDataDynamic(loaders, dataset, options?.features?.label?.path, 'columnString', modelIteration, setItemIsReady, false);
 
   const cellSets = useCellSetsTree(cellsIndex, [qryPrediction, qryLabel], ["Prediction", "Label"]);
 
   // Embeddings
-  const [embedding, embeddingStatus] = useAnnDataDynamic(loaders, dataset, options?.embeddings[mapping]?.path, 'embeddingNumeric', iteration, setItemIsReady, false);
+  const [embedding, embeddingStatus] = useAnnDataDynamic(loaders, dataset, options?.embeddings[mapping]?.path, 'embeddingNumeric', modelIteration, setItemIsReady, false);
 
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
@@ -170,6 +179,36 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
   const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
+
+  const [anchors, anchorsStatus] = useAnchors(loader, anchorIteration, setItemIsReady);
+
+  useEffect(() => {
+    // TODO(scXAI): debounce?
+    console.log("anchor set highlight", anchorSetFocus, anchors);
+    if(anchorSetFocus && cellsIndex && embedding) {
+      const anchorId = anchorSetFocus;
+      const anchorGroup = Object.values(anchors).find(anchorSets => anchorSets.map(o => o.id).includes(anchorId));
+      const anchorObj = anchorGroup.find(o => o.id === anchorId);
+      const cellIds = anchorObj.cells.map(c => c.cell_id);
+      const cellIndices = cellIds.map(cellId => cellsIndex.indexOf(cellId));
+
+      const xVals = cellIndices.map(i => embedding.data[0][i]);
+      const yVals = cellIndices.map(i => -embedding.data[1][i]);
+      const xE = extent(xVals);
+      const yE = extent(yVals);
+      const xR = xE[1] - xE[0];
+      const yR = yE[1] - yE[0];
+
+      const newTargetX = xE[0] + xR / 2;
+      const newTargetY = yE[0] + yR / 2;
+      const newZoom = Math.log2(Math.min(width / xR, height / yR));
+      setTargetX(newTargetX);
+      // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+      setTargetY(newTargetY);
+      setZoom(newZoom);
+      setAnchorSetHighlight(cellIndices);
+    }
+  }, [anchorSetFocus]);
   
   
 
@@ -339,6 +378,8 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2] || 0);
         }}
+        anchorSetFocus={anchorSetFocus}
+        anchorSetHighlight={anchorSetHighlight}
         cellsIndex={cellsIndex}
         embedding={embedding}
         mapping={mapping}
