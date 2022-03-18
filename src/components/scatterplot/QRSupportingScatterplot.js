@@ -79,7 +79,7 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
 
-    this.hideToolsOverride = true;
+    this.hideToolsOverride = false;
 
     // Initialize data and layers.
     this.onUpdateCellsData();
@@ -240,13 +240,13 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
-    const { qryCellsEntries: cellsEntries } = this;
+    const { cellsEntries } = this;
     const {
       viewState,
       setCellSelection,
       cellsIndex,
     } = this.props;
-    const { tool } = this.state;
+    const tool = super.getTool();
     const { cellsQuadTree } = this;
     const flipYTooltip = true;
 
@@ -369,6 +369,9 @@ class QRSupportingScatterplot extends AbstractSpatialOrScatterplot {
     if (shallowDiff('viewState')) {
       // The viewState prop has changed (due to zoom or pan).
       this.onUpdateCellSetsLayers(true);
+      this.forceUpdate();
+    }
+    if (shallowDiff('anchorEditTool')) {
       this.forceUpdate();
     }
   }

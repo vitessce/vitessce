@@ -105,7 +105,8 @@ export const CoordinationType = {
   MOLECULE_HIGHLIGHT: 'moleculeHighlight',
   ANCHOR_API_STATE: 'anchorApiState',
   MODEL_API_STATE: 'modelApiState',
-  ANCHOR_EDIT_MODE: 'anchorEditMode',
+  ANCHOR_EDIT_TOOL: 'anchorEditTool', // Is the user lassoing? Either 'lasso' or null.
+  ANCHOR_EDIT_MODE: 'anchorEditMode', // Which anchor set is the user currently editing?
   ANCHOR_SET_FOCUS: 'anchorSetFocus', // Which anchor set to focus?
   ANCHOR_SET_HIGHLIGHT: 'anchorSetHighlight', // After the anchorSetFocus has been set by QRCellSetsManagerSubscriber, a supporting plot will call setAnchorSetHighlight(cellIndices).
   EMBEDDING_VISIBLE: 'embeddingVisible', // Whether the embedding is visible. Intended to be used by the comparison view to determine whether to show the reference or query only.

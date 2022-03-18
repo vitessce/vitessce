@@ -161,8 +161,12 @@ export default function QRCellSetsManagerSubscriber(props) {
 
   const onHighlightAnchors = useCallback((anchorId) => {
     qrySetters.setAnchorSetFocus(anchorId);
-    // TODO(scXAI): highlight reference corresponding anchor set?
-  }, [qrySetters]);
+    
+    // Highlight corresponding reference anchor set.
+    const anchorGroup = Object.values(anchors).find(anchorSets => anchorSets.map(o => o.id).includes(anchorId));
+    const anchorObj = anchorGroup.find(o => o.id === anchorId);
+    refSetters.setAnchorSetFocus(anchorObj.anchor_ref_id);
+  }, [anchors, qrySetters, refSetters]);
 
 
   const onDeleteAnchors = useCallback((anchorId) => {
@@ -187,10 +191,14 @@ export default function QRCellSetsManagerSubscriber(props) {
   const onEditAnchors = useCallback((anchorId) => {
     onHighlightAnchors(anchorId);
     qrySetters.setAnchorEditMode({ mode: 'lasso', anchorId: anchorId });
+    qrySetters.setAnchorEditTool('lasso');
   }, [onHighlightAnchors]);
 
-  function resetCellSets() {
-    qrySetters.setAnchorEditMode(null);
+  function resetCellSets(goodSelection) {
+    if(goodSelection) {
+      qrySetters.setAnchorEditMode(null);
+      qrySetters.setAnchorEditTool(null);
+    }
     qrySetters.setAdditionalCellSets(null);
     const parentKey = "Prediction";
     const node = mergedQryCellSets.tree.find(n => n.name === parentKey);
@@ -208,27 +216,41 @@ export default function QRCellSetsManagerSubscriber(props) {
   }
 
   useEffect(() => {
-    if(anchorApiState.status === 'success') {
-      console.log(qryValues.additionalCellSets);
-      if(qryValues.anchorEditMode?.mode === 'lasso' && qryValues.additionalCellSets?.tree?.[0]?.children?.length === 1) {
-        const anchorId = qryValues.anchorEditMode.anchorId;
-        const cellIds = qryValues.additionalCellSets.tree[0].children[0].set.map(c => ({ cell_id: c[0] }));
-        qrySetters.setAnchorApiState({ ...anchorApiState, status: 'loading' });
-        qryLoader.anchorRefine(anchorId, cellIds).then(result => {
-          console.log(result);
-          qrySetters.setAnchorApiState({ ...anchorApiState, iteration: anchorApiState.iteration+1, status: 'success' });
-          resetCellSets();
-        });
-      } else if(qryValues.anchorEditMode === null && qryValues.additionalCellSets?.tree?.[0]?.children?.length === 1) {
-        const cellIds = qryValues.additionalCellSets.tree[0].children[0].set.map(c => ({ cell_id: c[0] }));
-        const anchorId = `user-${anchorApiState.iteration}`; // TODO(scXAI)
-        qrySetters.setAnchorApiState({ ...anchorApiState, status: 'loading' });
-        qryLoader.anchorAdd(anchorId, cellIds).then(result => {
-          console.log(result);
-          qrySetters.setAnchorApiState({ ...anchorApiState, iteration: anchorApiState.iteration+1, status: 'success' });
-          resetCellSets();
-        });
-      }
+    if(anchorApiState.status !== 'success'){
+      // Still in loading mode or had a previous error.
+      return;
+    }
+    if(qryValues.additionalCellSets?.tree?.[0]?.children?.length !== 1 || qryValues.additionalCellSets.tree[0].children[0].set.length < 2) {
+      // Selected set does not exist or it contains 0 or 1 cells.
+      resetCellSets(false);
+      return;
+    }
+    // Set exists, now just determine whether it is an addition or an edit.
+    if(qryValues.anchorEditMode?.mode === 'lasso') {
+      const anchorId = qryValues.anchorEditMode.anchorId;
+      const cellIds = qryValues.additionalCellSets.tree[0].children[0].set.map(c => ({ cell_id: c[0] }));
+      qrySetters.setAnchorApiState({ ...anchorApiState, status: 'loading' });
+      qryLoader.anchorRefine(anchorId, cellIds).then(result => {
+        console.log(result);
+        qrySetters.setAnchorApiState({ ...anchorApiState, iteration: anchorApiState.iteration+1, status: 'success' });
+        resetCellSets(true);
+
+        const prevAnchorId = qryValues.anchorSetFocus;
+        qrySetters.setAnchorSetFocus(null);
+        setTimeout(() => {
+          qrySetters.setAnchorSetFocus(prevAnchorId);
+        }, 200);
+      });
+    } else if(qryValues.anchorEditMode === null) {
+      const cellIds = qryValues.additionalCellSets.tree[0].children[0].set.map(c => ({ cell_id: c[0] }));
+      const anchorId = `user-${anchorApiState.iteration}`; // TODO(scXAI)
+      qrySetters.setAnchorApiState({ ...anchorApiState, status: 'loading' });
+      qryLoader.anchorAdd(anchorId, cellIds).then(result => {
+        console.log(result);
+        qrySetters.setAnchorApiState({ ...anchorApiState, iteration: anchorApiState.iteration+1, status: 'success' });
+        resetCellSets(true);
+        qrySetters.setAnchorSetFocus(null);
+      });
     }
   }, [qryValues.additionalCellSets]);
 

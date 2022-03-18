@@ -40,6 +40,13 @@
     }
     .colName {
       width: 100px;
+      button {
+        font-weight: normal;
+        border: 0;
+        margin: 0;
+        background: transparent;
+        display: inline-block;
+      }
     }
     .colPrediction, .colSimilarity {
       width: 120px;

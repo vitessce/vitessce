@@ -4,6 +4,7 @@ import DeckGL, { OrthographicView, OrbitView } from 'deck.gl';
 import ToolMenu from './ToolMenu';
 import { DEFAULT_GL_OPTIONS } from '../utils';
 import { getCursor, getCursorWithTool } from './cursor';
+import { SELECTION_TYPE } from 'nebula.gl';
 
 /**
  * Abstract class component intended to be inherited by
@@ -92,6 +93,12 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   // eslint-disable-next-line class-methods-use-this
   getLayers() {
     return [];
+  }
+
+  getTool() {
+    const { anchorEditTool } = this.props;
+    const tool = anchorEditTool === 'lasso' ? SELECTION_TYPE.POLYGON : null;
+    return tool;
   }
 
   // eslint-disable-next-line consistent-return
@@ -201,7 +208,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       cells,
       deckRef, viewState, uuid, layers: layerProps,
     } = this.props;
-    const { gl, tool } = this.state;
+    const { gl } = this.state;
+    const tool = this.getTool();
     const layers = this.getLayers();
     const use3d = false;
 
@@ -215,17 +223,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
 
     return (
       <>
-        {this.hideToolsOverride ? null : (
-          <ToolMenu
-            activeTool={tool}
-            setActiveTool={this.onToolChange}
-            visibleTools={{
-              pan: showPanTool,
-              selectRectangle: false,
-              selectLasso: showCellSelectionTools,
-            }}
-          />
-        )}
         <DeckGL
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}

@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
@@ -109,16 +109,23 @@ export default function Status(props) {
 
     onUpdateModel,
     modelStatus,
+
+    anchorEditTool,
+    setAnchorEditTool,
+
+    anchorEditMode,
+    setAnchorEditMode,
+    clearAnchorSetFocus,
   } = props;
   const classes = useStyles();
 
-  const [value, setValue] = useState(0);
+  const value = (anchorEditTool === null ? 0 : (anchorEditMode === null ? 1 : 2));
   const progress = numQueryCellsTotal === null ? 0 : 100 * (numQueryCellsConfirmed / numQueryCellsTotal);
 
   const valueToInstructions = [
-    'Use the Cell Sets view to confirm, reject, or edit anchor sets.',
-    'To add an anchor set, use the Lasso tool in the Comparison View.',
-    'To edit an anchor set, click the three-dot menu next to a set of interest in the Cell Sets view.',
+    '',
+    'You are currently adding an anchor set. Use the lasso tool in the Supporting View (Query) to select cells.',
+    `You are currently editing anchor set ${anchorEditMode?.anchorId}. Use the lasso tool in the Supporting View (Query) to select cells.`,
   ];
 
   const messages = [];
@@ -127,7 +134,15 @@ export default function Status(props) {
   }
   
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    if(newValue === 0) {
+      clearAnchorSetFocus();
+      setAnchorEditTool(null);
+      setAnchorEditMode(null);
+    }
+    if(newValue === 1) {
+      setAnchorEditTool('lasso');
+      setAnchorEditMode(null);
+    }
   };
 
   const tabClasses = { root: classes.tabRoot, selected: classes.tabSelected, labelIcon: classes.tabLabelIcon, wrapper: classes.tabWrapper };
@@ -154,7 +169,7 @@ export default function Status(props) {
         >
           <Tab label="Explore" fullWidth icon={<Navigation />} classes={tabClasses} />
           <Tab label="Add" fullWidth icon={<Add />} classes={tabClasses} />
-          <Tab label="Edit" fullWidth icon={<Edit />} disabled classes={tabClasses} />
+          <Tab label="Edit" fullWidth icon={<Edit />} disabled classes={tabClasses} title="To edit an anchor set, click the three-dot menu next to a set of interest in the Cell Sets view."/>
         </Tabs>
       </div>
       <div className="qrStatusInstructions">

@@ -99,7 +99,10 @@
                 "moleculeHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "anchorApiState": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "modelApiState": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "anchorEditMode": { "$ref": "#/definitions/componentCoordinationScopeValue" }
+                "anchorEditTool": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+                "anchorEditMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+                "anchorSetFocus": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+                "anchorSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" }
               }
             }
           }
@@ -1085,6 +1088,20 @@
               }
             }
           },
+          "anchorEditTool": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": ""
+                  },
+                  { "type": "string" }
+                ]
+              }
+            }
+          },
           "anchorEditMode": {
             "type": "object",
             "patternProperties": {
@@ -1095,6 +1112,34 @@
                     "description": ""
                   },
                   { "type": "object" }
+                ]
+              }
+            }
+          },
+          "anchorSetFocus": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": ""
+                  },
+                  { "type": "string" }
+                ]
+              }
+            }
+          },
+          "anchorSetHighlight": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "oneOf": [
+                  {
+                    "type": "null",
+                    "description": ""
+                  },
+                  { "type": "array" }
                 ]
               }
             }

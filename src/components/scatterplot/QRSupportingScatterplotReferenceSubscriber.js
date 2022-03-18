@@ -39,6 +39,7 @@ import {
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { Component } from '../../app/constants';
+import sum from 'lodash/sum';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
@@ -101,6 +102,9 @@ export default function QRSupportingScatterplotReferenceSubscriber(props) {
     geneExpressionColormap,
     geneExpressionColormapRange,
     modelApiState,
+    anchorApiState,
+    anchorSetHighlight, // cell indices
+    anchorSetFocus, // anchor set ID
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -121,10 +125,17 @@ export default function QRSupportingScatterplotReferenceSubscriber(props) {
     setEmbeddingCellOpacityMode: setCellOpacityMode,
     setGeneExpressionColormap,
     setGeneExpressionColormapRange,
+    setAnchorSetHighlight,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[Component.QR_SUPPORTING_SCATTERPLOT_REFERENCE],
     coordinationScopes,
   );
+
+  const modelIteration = modelApiState.iteration;
+  const modelStatus = modelApiState.status;
+
+  const anchorIteration = anchorApiState.iteration;
+  const anchorStatus = anchorApiState.status;
 
   const iteration = modelApiState.iteration;
 
@@ -135,7 +146,7 @@ export default function QRSupportingScatterplotReferenceSubscriber(props) {
     setItemIsReady,
     setItemIsNotReady, // eslint-disable-line no-unused-vars
     resetReadyItems,
-  ] = useReady([]);
+  ] = useReady([modelStatus, anchorStatus]);
 
   const isQuery = coordinationScopes.dataset === "QUERY";
   const title = isQuery ? `Supporting View (Query)` : '(Reference)';
@@ -154,6 +165,8 @@ export default function QRSupportingScatterplotReferenceSubscriber(props) {
   // Cell IDs
   const [cellsIndex, genesIndex] = useAnnDataIndices(loaders, dataset, setItemIsReady, true);
 
+  const [refAnchorCluster, refAnchorClusterStatus] = useAnnDataDynamic(loaders, dataset, options?.features?.anchorCluster?.path, 'columnNumeric', modelIteration, setItemIsReady, false);
+
   // Cell sets
   const [refCellType] = useAnnDataStatic(loaders, dataset, options?.features?.cellType?.path, 'columnString', setItemIsReady, false);
 
@@ -168,6 +181,40 @@ export default function QRSupportingScatterplotReferenceSubscriber(props) {
   const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, false,
   );
+
+
+
+  useEffect(() => {
+    // TODO(scXAI): debounce?
+    if(anchorSetFocus && cellsIndex && embedding && refAnchorCluster) {
+      const anchorId = anchorSetFocus;
+      
+      // TODO: use refAnchorCluster to get the matching cell indices.
+
+      const cellIndices = []
+      refAnchorCluster.data.forEach((clusterId, i) => {
+        if(clusterId === anchorId) {
+          cellIndices.push(i);
+        }
+      });
+
+      const xVals = cellIndices.map(i => embedding.data[0][i]);
+      const yVals = cellIndices.map(i => -embedding.data[1][i]);
+      const xE = extent(xVals);
+      const yE = extent(yVals);
+      const xR = xE[1] - xE[0];
+      const yR = yE[1] - yE[0];
+
+      const newTargetX = sum(xVals) / xVals.length;
+      const newTargetY = sum(yVals) / yVals.length;
+      const newZoom = Math.log2(Math.min(width / xR, height / yR));
+      setTargetX(newTargetX);
+      // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+      setTargetY(newTargetY);
+      setZoom(newZoom);
+      setAnchorSetHighlight(cellIndices);
+    }
+  }, [anchorSetFocus]);
   
   
 
@@ -337,6 +384,8 @@ export default function QRSupportingScatterplotReferenceSubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2] || 0);
         }}
+        anchorSetFocus={anchorSetFocus}
+        anchorSetHighlight={anchorSetHighlight}
         cellsIndex={cellsIndex}
         embedding={embedding}
         mapping={mapping}

@@ -102,6 +102,13 @@ export default function StatusSubscriber(props) {
     }
     return [null, null, null, null];
   }, [anchors, qryCellsIndex]);
+
+  const clearAnchorSetFocus = useCallback(() => {
+    qrySetters.setAnchorSetFocus(null);
+    qrySetters.setAnchorSetHighlight(null);
+    refSetters.setAnchorSetFocus(null);
+    refSetters.setAnchorSetHighlight(null);
+  }, [qrySetters, refSetters]);
   
 
   return (
@@ -119,6 +126,14 @@ export default function StatusSubscriber(props) {
         numQueryCellsTotal={numQueryCellsTotal}
         onUpdateModel={onUpdateModel}
         modelStatus={modelStatus}
+
+
+        anchorEditTool={qryValues.anchorEditTool}
+        setAnchorEditTool={qrySetters.setAnchorEditTool}
+
+        anchorEditMode={qryValues.anchorEditMode}
+        setAnchorEditMode={qrySetters.setAnchorEditMode}
+        clearAnchorSetFocus={clearAnchorSetFocus}
       />
     </TitleInfo>
   );

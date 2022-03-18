@@ -2,6 +2,7 @@
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
+import {LinearInterpolator} from '@deck.gl/core';
 import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
@@ -40,6 +41,8 @@ import {
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { Component } from '../../app/constants';
+import sum from 'lodash/sum';
+import { TRANSITION_EVENTS } from 'deck.gl';
 
 const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
@@ -101,6 +104,8 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
     embeddingCellOpacityMode: cellOpacityMode,
     geneExpressionColormap,
     geneExpressionColormapRange,
+    anchorEditMode, // anchor edit mode
+    anchorEditTool, // anchor edit tool. either 'lasso' or null.
     modelApiState,
     anchorApiState,
     anchorSetHighlight, // cell indices
@@ -130,6 +135,10 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
     COMPONENT_COORDINATION_TYPES[Component.QR_SUPPORTING_SCATTERPLOT_QUERY],
     coordinationScopes,
   );
+
+  const [transitionInterpolator, setTransitionInterpolator] = useState(undefined);
+  const [transitionDuration, setTransitionDuration] = useState(undefined);
+
 
   const modelIteration = modelApiState.iteration;
   const modelStatus = modelApiState.status;
@@ -184,8 +193,7 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
 
   useEffect(() => {
     // TODO(scXAI): debounce?
-    console.log("anchor set highlight", anchorSetFocus, anchors);
-    if(anchorSetFocus && cellsIndex && embedding) {
+    if(anchors && anchorSetFocus && cellsIndex && embedding) {
       const anchorId = anchorSetFocus;
       const anchorGroup = Object.values(anchors).find(anchorSets => anchorSets.map(o => o.id).includes(anchorId));
       const anchorObj = anchorGroup.find(o => o.id === anchorId);
@@ -199,9 +207,13 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
       const xR = xE[1] - xE[0];
       const yR = yE[1] - yE[0];
 
-      const newTargetX = xE[0] + xR / 2;
-      const newTargetY = yE[0] + yR / 2;
+      const newTargetX = sum(xVals) / xVals.length;
+      const newTargetY = sum(yVals) / yVals.length;
       const newZoom = Math.log2(Math.min(width / xR, height / yR));
+
+      setTransitionDuration(800);
+      setTransitionInterpolator(new LinearInterpolator({ transitionProps: ['target', 'zoom'] }));
+
       setTargetX(newTargetX);
       // Graphics rendering has the y-axis going south so we need to multiply by negative one.
       setTargetY(newTargetY);
@@ -210,6 +222,10 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
     }
   }, [anchorSetFocus]);
   
+  const onTransitionEnd = useCallback((val) => {
+    setTransitionDuration(undefined);
+    setTransitionInterpolator(undefined);
+  }, []);
   
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
@@ -371,13 +387,21 @@ export default function QRSupportingScatterplotQuerySubscriber(props) {
         ref={deckRef}
         uuid={uuid}
         theme={theme}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        viewState={{
+          zoom,
+          target: [targetX, targetY, targetZ],
+          transitionDuration,
+          transitionInterpolator,
+          transitionInterruption: TRANSITION_EVENTS.IGNORE,
+          onTransitionEnd
+        }}
         setViewState={({ zoom: newZoom, target }) => {
           setZoom(newZoom);
           setTargetX(target[0]);
           setTargetY(target[1]);
           setTargetZ(target[2] || 0);
         }}
+        anchorEditTool={anchorEditTool}
         anchorSetFocus={anchorSetFocus}
         anchorSetHighlight={anchorSetHighlight}
         cellsIndex={cellsIndex}
