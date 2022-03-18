@@ -213,6 +213,18 @@ export default function QRComparisonScatterplotSubscriber(props) {
   }), [qryValues.cellColorEncoding, qryValues.geneSelection, mergedQryCellSets, theme,
   qryValues.cellSetSelection, qryValues.cellSetColor, qryExpressionData, qryAttrs]);
 
+  const refCellColors = useMemo(() => getCellColors({
+    cellColorEncoding: refValues.cellColorEncoding,
+    expressionData: refExpressionData && refExpressionData[0],
+    geneSelection: refValues.geneSelection,
+    cellSets: mergedRefCellSets,
+    cellSetSelection: refValues.cellSetSelection,
+    cellSetColor: refValues.cellSetColor,
+    expressionDataAttrs: refAttrs,
+    theme,
+  }), [refValues.cellColorEncoding, refValues.geneSelection, mergedRefCellSets, theme,
+  refValues.cellSetSelection, refValues.cellSetColor, refExpressionData, refAttrs]);
+
 
   // TODO(scXAI): do we need to visualize colors for the reference cells?
   // TODO(scXAI): do we need to visualize polygons for the reference cell sets?
@@ -377,10 +389,12 @@ export default function QRComparisonScatterplotSubscriber(props) {
         refEmbedding={refEmbedding}
         qryMapping={qryValues.embeddingType}
         refMapping={refValues.embeddingType}
+        refCellSets={refCellSets}
         cellFilter={qryValues.cellFilter}
         cellSelection={qryCellSelection}
         cellHighlight={qryValues.cellHighlight}
-        cellColors={qryCellColors}
+        qryCellColors={qryCellColors}
+        refCellColors={refCellColors}
         cellSetPolygons={qryCellSetPolygons}
         cellSetLabelSize={qryValues.embeddingCellSetLabelSize}
         cellSetLabelsVisible={qryValues.embeddingCellSetLabelsVisible}
