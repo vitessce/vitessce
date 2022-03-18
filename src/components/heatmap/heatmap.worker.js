@@ -17,6 +17,8 @@ import { getCellByGeneTile, getGeneByCellTile } from './utils';
  * @param {ArrayBuffer} params.data The array buffer.
  * Need to transfer back to main thread when done.
  * @param {boolean} params.transpose Is the heatmap transposed?
+ * @param {boolean} params.expressionRowLookUp A lookup table for the array index of a given cell.
+ * This is needed for performance reasons instead of calling `indexOf` repeatedly.
  * @returns {array} [message, transfers]
  */
 function getTile({
