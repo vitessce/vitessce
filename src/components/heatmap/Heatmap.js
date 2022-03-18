@@ -299,14 +299,13 @@ const Heatmap = forwardRef((props, deckRef) => {
     const curr = backlog[backlog.length - 1];
     if (dataRef.current
       && dataRef.current.buffer.byteLength && Object.keys(expressionRowLookUp).length > 0) {
-      const { rows, cols, matrix } = expression;
+      const { cols, matrix } = expression;
       const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
         curr,
         tileI: i,
         tileJ: j,
         tileSize: TILE_SIZE,
         cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
-        rows,
         cols,
         transpose,
         data: matrix.buffer.slice(),

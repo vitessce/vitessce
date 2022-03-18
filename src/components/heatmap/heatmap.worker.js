@@ -10,8 +10,6 @@ import { getCellByGeneTile, getGeneByCellTile } from './utils';
  * @param {number} params.yTiles How many tiles required in the y direction?
  * @param {number} params.tileSize How many entries along each tile axis?
  * @param {string[]} params.cellOrdering The current ordering of cells.
- * @param {string[]} params.rows The name of each row (cell ID).
- * Does not take transpose into account (always cells).
  * @param {string[]} params.cols The name of each column (gene ID).
  * Does not take transpose into account (always genes).
  * @param {ArrayBuffer} params.data The array buffer.
@@ -27,7 +25,6 @@ function getTile({
   tileJ,
   tileSize,
   cellOrdering,
-  rows,
   cols,
   data,
   transpose,
@@ -49,7 +46,6 @@ function getTile({
       numCells,
       numGenes,
       cellOrdering,
-      cells: rows,
       expressionRowLookUp,
     },
   );
