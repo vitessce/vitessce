@@ -17,6 +17,8 @@ import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import { createCellsQuadTree } from '../shared-spatial-scatterplot/quadtree';
 import { ScaledExpressionExtension } from '../../layer-extensions';
+import { Tile3DLayer } from 'deck.gl';
+import { OBJLoader } from '@loaders.gl/obj';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
@@ -450,16 +452,17 @@ class Obj extends AbstractSpatialOrScatterplot {
   }
 
   getLayers() {
-    const {
-      imageLayers, cellsLayer, neighborhoodsLayer, moleculesLayer,
-    } = this;
     return [
-      ...imageLayers,
-      cellsLayer,
-      neighborhoodsLayer,
-      moleculesLayer,
-      this.createScaleBarLayer(),
-      ...this.createSelectionLayers(),
+      new Tile3DLayer({
+        id: 'tile-3d-layer',
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        // Tileset entry point: Indexed 3D layer file url
+        data: 'http://localhost:8000/hulls.obj',
+        loader: OBJLoader,
+        onTilesetLoad: (tileset) => {
+          console.log(tileset);
+        }
+      }),
     ];
   }
 

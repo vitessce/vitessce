@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { PureComponent } from 'react';
 import DeckGL, { OrthographicView, OrbitView } from 'deck.gl';
 import ToolMenu from './ToolMenu';
@@ -225,11 +226,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
           views={[
-            use3d
-              ? new OrbitView({ id: 'orbit', controller: true, orbitAxis: 'Y' })
-              : new OrthographicView({
-                id: 'ortho',
-              }),
+            new OrbitView({ id: 'orbit', controller: true, orbitAxis: 'Y' })
           ]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
           layers={
             gl && viewState.target.slice(0, 2).every(i => typeof i === 'number')
