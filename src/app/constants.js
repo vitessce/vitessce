@@ -5,6 +5,7 @@ export const Component = {
   CELL_SETS: 'cellSets',
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
+  SPATIAL_OBJ: 'obj',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
   CELL_SET_SIZES: 'cellSetSizes',
