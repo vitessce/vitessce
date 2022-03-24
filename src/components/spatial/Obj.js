@@ -3,6 +3,7 @@ import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
 import { Matrix4 } from 'math.gl';
 import {
   ScaleBarLayer,
@@ -17,7 +18,6 @@ import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import { createCellsQuadTree } from '../shared-spatial-scatterplot/quadtree';
 import { ScaledExpressionExtension } from '../../layer-extensions';
-import { Tile3DLayer } from 'deck.gl';
 import { OBJLoader } from '@loaders.gl/obj';
 
 const CELLS_LAYER_ID = 'cells-layer';
@@ -453,15 +453,20 @@ class Obj extends AbstractSpatialOrScatterplot {
 
   getLayers() {
     return [
-      new Tile3DLayer({
-        id: 'tile-3d-layer',
+      new SimpleMeshLayer({
+        id: 'simple-mesh',
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: [{
+          test: 1,
+        }],
         // Tileset entry point: Indexed 3D layer file url
-        data: 'http://localhost:8000/hulls.obj',
-        loader: OBJLoader,
-        onTilesetLoad: (tileset) => {
-          console.log(tileset);
-        }
+        mesh: 'http://localhost:8000/hulls.obj',
+        loaders: [OBJLoader],
+        getColor: d => {
+          console.log(d);
+          return [255, 255, 255];
+        },
+        getOrientation: d => [0, 90, 0]
       }),
     ];
   }
