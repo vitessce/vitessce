@@ -3,7 +3,7 @@ import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
-import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
+import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { Matrix4 } from 'math.gl';
 import {
   ScaleBarLayer,
@@ -18,7 +18,9 @@ import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import { createCellsQuadTree } from '../shared-spatial-scatterplot/quadtree';
 import { ScaledExpressionExtension } from '../../layer-extensions';
-import { OBJLoader } from '@loaders.gl/obj';
+import { GLBLoader, GLTFLoader } from '@loaders.gl/gltf';
+import { fetchFile, parse, registerLoaders } from '@loaders.gl/core';
+import { DracoLoader, DracoWorkerLoader } from '@loaders.gl/draco';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
@@ -452,21 +454,29 @@ class Obj extends AbstractSpatialOrScatterplot {
   }
 
   getLayers() {
-    const { objUrl } = this.props;
-    console.log(objUrl);
+    const { glbUrl } = this.props;
+    console.log(glbUrl);
+    if(!glbUrl) {
+      return [];
+    }
+    //const gltf = parse(fetchFile(glbUrl), GLTFLoader, { DracoLoader, gltf: { decompressMeshes: true, postProcess: true } });
+
     return [
-      new SimpleMeshLayer({
-        id: 'simple-mesh',
+      new ScenegraphLayer({
+        id: 'scenegraph-layer',
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
         data: [{
           test: 1,
         }],
-        mesh: objUrl,
-        loaders: [OBJLoader],
-        getColor: d => {
-          return [255, 255, 255];
+        pickable: true,
+        scenegraph: glbUrl,
+        loaders: [GLTFLoader],
+        getOrientation: d => [0, 0, 0],
+        _animations: {
+          '*': {speed: 5}
         },
-        getOrientation: d => [0, 0, 0]
+        sizeScale: 500,
+        _lighting: 'pbr'
       }),
     ];
   }

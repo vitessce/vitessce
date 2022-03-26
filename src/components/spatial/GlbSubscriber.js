@@ -16,7 +16,7 @@ import {
   useExpressionAttrs,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
-import Obj from './Obj';
+import Glb from './Glb';
 import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils';
@@ -338,7 +338,7 @@ export default function SpatialSubscriber(props) {
         ) : null
       }
     >
-      <Obj
+      <Glb
         ref={deckRef}
         uuid={uuid}
         width={width}
@@ -352,7 +352,7 @@ export default function SpatialSubscriber(props) {
           rotationOrbit,
           orbitAxis,
         }}
-        objUrl={loaders[dataset]?.loaders?.cells?.url}
+        glbUrl={loaders[dataset]?.loaders?.cells?.url}
         setViewState={setViewState}
         layers={layers}
         cells={cells}

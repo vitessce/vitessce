@@ -6,6 +6,7 @@ export const Component = {
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
   SPATIAL_OBJ: 'obj',
+  SPATIAL_GLB: 'glb',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
   CELL_SET_SIZES: 'cellSetSizes',
@@ -38,6 +39,8 @@ export const FileType = {
   ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
   ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
+  CELLS_OBJ: 'cells.obj',
+  CELLS_GLB: 'cells.glb',
 };
 
 /**

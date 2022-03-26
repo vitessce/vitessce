@@ -14,6 +14,7 @@ import GenomicProfilesSubscriber from '../components/higlass/GenomicProfilesSubs
 import ExpressionHistogramSubscriber from '../components/genes/ExpressionHistogramSubscriber';
 import CellSetExpressionPlotSubscriber from '../components/sets/CellSetExpressionPlotSubscriber';
 import ObjSubscriber from '../components/spatial/ObjSubscriber';
+import GlbSubscriber from '../components/spatial/GlbSubscriber';
 
 
 const registry = {
@@ -24,6 +25,7 @@ const registry = {
   [Component.SCATTERPLOT]: ScatterplotSubscriber,
   [Component.SPATIAL]: SpatialSubscriber,
   [Component.SPATIAL_OBJ]: ObjSubscriber,
+  [Component.SPATIAL_GLB]: GlbSubscriber,
   [Component.HEATMAP]: HeatmapSubscriber,
   [Component.LAYER_CONTROLLER]: LayerControllerSubscriber,
   [Component.CELL_SET_SIZES]: CellSetSizesPlotSubscriber,

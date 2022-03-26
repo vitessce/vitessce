@@ -1,4 +1,4 @@
-
+/* eslint-disable */
 
 const blinName = 'HuBMAP OBJ example';
 const blinDescription = '';
@@ -11,13 +11,24 @@ export const hubmapObj2022 = {
     {
       uid: 'hubmap-obj-2022',
       name: 'HuBMAP OBJ file',
-      files: [],
+      files: [
+        /*{
+          type: 'cells',
+          fileType: 'cells.obj',
+          url: 'http://localhost:8000/hulls.obj',
+        },*/
+        {
+          type: 'cells',
+          fileType: 'cells.glb',
+          url: 'http://localhost:8000/cubes.glb',
+        },
+      ],
     },
   ],
   initStrategy: 'auto',
   layout: [
     {
-      component: 'obj',
+      component: 'glb',
       x: 0,
       y: 0,
       w: 8,
