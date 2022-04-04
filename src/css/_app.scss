@@ -87,6 +87,38 @@
     .title {
         color: map-get($theme-colors, "primary-foreground");
         overflow-x: hidden;
+        display: flex;
+        flex-direction: row;
+        flex-shrink: 0;
+        .title-left {
+            flex-shrink: 1;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .title-info {
+            width: 100%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            font-size: 80%;
+            opacity: .8;
+            padding: 0 0.25rem;
+            justify-content: center;
+            line-height: 25px;
+            flex-shrink: 1;
+            text-align: right;
+        }
+        .title-buttons {
+            display: flex;
+            flex-direction: row;
+            flex-grow: 1;
+            flex-shrink: 0;
+            justify-content: right;
+            div {
+                display: inline-block;
+            }
+        }
+        
     }
 
     .card {

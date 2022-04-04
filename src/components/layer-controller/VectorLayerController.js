@@ -43,7 +43,7 @@ export default function VectorLayerController(props) {
         >
           {label}
         </Typography>
-        <Grid container direction="row" justify="space-between">
+        <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={2}>
             <Checkbox color="primary" checked={isOn} onChange={(e, v) => handleCheckBoxChange(v)} />
           </Grid>

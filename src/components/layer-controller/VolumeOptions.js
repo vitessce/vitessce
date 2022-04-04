@@ -10,6 +10,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Slider from '@material-ui/core/Slider';
 import { RENDERING_MODES, getDefaultInitialViewState } from '@hms-dbmi/viv';
 import { abbreviateNumber, getBoundingCube } from './utils';
+import { useSelectStyles } from './styles';
 
 const useSlicerStyles = makeStyles(theme => createStyles({
   enabled: {},
@@ -62,7 +63,7 @@ const Slicer = ({
       <Grid
         container
         direction="row"
-        justify="flex-start"
+        justifyContent="flex-start"
         alignItems="center"
         key={label}
       >
@@ -112,6 +113,7 @@ function RenderingModeSelect({
   renderingMode,
   use3d,
 }) {
+  const classes = useSelectStyles();
   // Empty option allows for displaying the title of the dropdown fully in the UI.
   const options = !use3d ? [...renderingOptions, ''] : renderingOptions;
   return (
@@ -126,6 +128,7 @@ function RenderingModeSelect({
           id: 'rendering-mode-select',
         }}
         disabled={!use3d}
+        classes={{ root: classes.selectRoot }}
       >
         {options.map(name => (
           <option key={name} value={name}>

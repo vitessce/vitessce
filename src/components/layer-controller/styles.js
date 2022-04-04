@@ -1,10 +1,17 @@
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
 import InputLabel from '@material-ui/core/InputLabel';
 import Slider from '@material-ui/core/Slider';
 import Grid from '@material-ui/core/Grid';
 
+export const useSelectStyles = makeStyles(() => ({
+  selectRoot: {
+    padding: 0,
+    height: 'auto',
+    margin: '4px 0',
+  },
+}));
 
 export const useOptionStyles = withStyles(theme => ({
   paper: {
@@ -40,14 +47,14 @@ export const useControllerSectionStyles = makeStyles(() => ({
   },
 }));
 
-export const StyledExpansionPanelDetails = withStyles(() => ({
+export const StyledAccordionDetails = withStyles(() => ({
   root: {
     ...sharedControllerStyles,
     padding: '8px 8px 24px 8px',
   },
-}))(ExpansionPanelDetails);
+}))(AccordionDetails);
 
-export const StyledExpansionPanelSummary = withStyles(theme => ({
+export const StyledAccordionSummary = withStyles(theme => ({
   root: {
     padding: '0px 8px',
   },
@@ -64,7 +71,7 @@ export const StyledExpansionPanelSummary = withStyles(theme => ({
       top: theme.spacing(-1.3),
     },
   },
-}))(ExpansionPanelSummary);
+}))(AccordionSummary);
 
 export const StyledInputLabel = withStyles(() => ({
   root: {

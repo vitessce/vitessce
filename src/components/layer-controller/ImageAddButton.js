@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -22,11 +22,11 @@ function ImageAddIcon() {
 }
 
 function ImageAddButton({ imageOptions, handleImageAdd }) {
-  const [open, toggle] = useReducer(v => !v, false);
+  const [open, setOpen] = useState(false);
   const classes = useStyles();
 
   const handleAdd = (imgData) => {
-    toggle();
+    setOpen(prev => !prev);
     handleImageAdd(imgData);
   };
 
@@ -34,9 +34,10 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
   return (
     <PopperMenu
       open={open}
-      toggle={toggle}
+      setOpen={setOpen}
       buttonIcon={<ImageAddIcon />}
       buttonClassName={classes.addButton}
+      placement="bottom-start"
     >
       {imageOptions.map((imgData, i) => (
         <MenuItem dense key={imgData.name} onClick={() => handleAdd(i)}>

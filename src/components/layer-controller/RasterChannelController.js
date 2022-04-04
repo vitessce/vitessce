@@ -65,6 +65,13 @@ function ChannelSlider({
   disabled,
 }) {
   const [min, max] = domain;
+  const sliderCopy = slider.slice();
+  if (slider[0] < min) {
+    sliderCopy[0] = min;
+  }
+  if (slider[1] > max) {
+    sliderCopy[1] = max;
+  }
   const handleChangeDebounced = useCallback(
     debounce(handleChange, 3, { trailing: true }),
     [handleChange],
@@ -202,8 +209,8 @@ function RasterChannelController({
    */
   const createSelection = index => ({ [dimName]: index });
   return (
-    <Grid container direction="column" m={1} justify="center">
-      <Grid container direction="row" justify="space-between">
+    <Grid container direction="column" m={1} justifyContent="center">
+      <Grid container direction="row" justifyContent="space-between">
         <Grid item xs={10}>
           <ChannelSelectionDropdown
             handleChange={v => handlePropertyChange('selection', createSelection(v))
@@ -222,7 +229,7 @@ function RasterChannelController({
           />
         </Grid>
       </Grid>
-      <Grid container direction="row" justify="space-between">
+      <Grid container direction="row" justifyContent="space-between">
         <Grid item xs={2}>
           <ChannelVisibilityCheckbox
             color={rgbColor}

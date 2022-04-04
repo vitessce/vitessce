@@ -2,6 +2,7 @@ import React from 'react';
 
 import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
+import { useSelectStyles } from './styles';
 
 /**
  * Dropdown for selecting a channel.
@@ -16,8 +17,10 @@ export function ChannelSelectionDropdown({
   channelOptions,
   selectionIndex,
 }) {
+  const classes = useSelectStyles();
   return (
     <Select
+      classes={{ root: classes.selectRoot }}
       native
       value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}

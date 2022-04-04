@@ -1,11 +1,9 @@
-/* eslint-disable */
 import clamp from 'lodash/clamp';
 import range from 'lodash/range';
 
 import {
   AXIS_LABEL_TEXT_SIZE,
   AXIS_FONT_FAMILY,
-  AXIS_MARGIN,
   AXIS_PADDING,
   AXIS_MIN_SIZE,
   AXIS_MAX_SIZE,
@@ -87,22 +85,27 @@ export function getCellByGeneTile(view, {
 export function layerFilter({ layer, viewport }) {
   if (viewport.id === 'axisLeft') {
     return layer.id.startsWith('axisLeft');
-    
-  } if (viewport.id === 'axisTop') {
-    return layer.id.startsWith('axisTop');
+  }
 
-  } if (viewport.id.startsWith('cellColorLabel')) {
+  if (viewport.id === 'axisTop') {
+    return layer.id.startsWith('axisTop');
+  }
+
+  if (viewport.id.startsWith('cellColorLabel')) {
     const matches = viewport.id.match(/-(\d)/);
     if (matches) return layer.id.startsWith(`cellColorLabelLayer-${matches[1]}`);
+  }
 
-  } if (viewport.id === 'heatmap') {
+  if (viewport.id === 'heatmap') {
     return layer.id.startsWith('heatmap');
+  }
 
-  } if (viewport.id.startsWith('colorsLeft')) {
+  if (viewport.id.startsWith('colorsLeft')) {
     const matches = viewport.id.match(/-(\d)/);
     if (matches) return layer.id.startsWith(`colorsLeftLayer-${matches[1]}`);
-    
-  } if (viewport.id.startsWith('colorsTop')) {
+  }
+
+  if (viewport.id.startsWith('colorsTop')) {
     const matches = viewport.id.match(/-(\d)/);
     if (matches) return layer.id.startsWith(`colorsTopLayer-${matches[1]}`);
   }
@@ -111,48 +114,51 @@ export function layerFilter({ layer, viewport }) {
 }
 
 /**
+ * Uses canvas.measureText to compute and return the width of the given text
+ * of given font in pixels.
+ *
+ * @param {String} text The text to be rendered.
+ * @param {String} font The css font descriptor that text is to be rendered
+ * with (e.g. "bold 14px verdana").
+ *
+ * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+ */
+function getTextWidth(text, font) {
+  // re-use canvas object for better performance
+  const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
+  const context = canvas.getContext('2d');
+  context.font = font;
+  const metrics = context.measureText(text);
+  return metrics.width;
+}
+
+/**
  * Get the size of the left and top heatmap axes,
  * taking into account the maximum label string lengths.
  * @param {boolean} transpose Is the heatmap transposed?
- * @param {number} longestGeneLabel longest gene label
- * @param {number} longestCellLabel longest cell label
+ * @param {String} longestGeneLabel longest gene label
+ * @param {String} longestCellLabel longest cell label
+ * @param {boolean} hideObservationLabels are cell labels hidden?
+ * Increases vertical space for heatmap
  * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
  */
-export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel, hideObservationsLabels) {
-
-  const font = `${AXIS_LABEL_TEXT_SIZE}pt ${AXIS_FONT_FAMILY}`
+export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel, hideObservationLabels) {
+  const font = `${AXIS_LABEL_TEXT_SIZE}pt ${AXIS_FONT_FAMILY}`;
   const geneLabelMaxWidth = getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
-  const cellLabelMaxWidth = hideObservationsLabels ? 0 : getTextWidth(longestCellLabel, font) + AXIS_PADDING ;
+  const cellLabelMaxWidth = hideObservationLabels
+    ? 0 : getTextWidth(longestCellLabel, font) + AXIS_PADDING;
 
   const axisOffsetLeft = clamp(
     (transpose ? geneLabelMaxWidth : cellLabelMaxWidth),
     AXIS_MIN_SIZE,
     AXIS_MAX_SIZE,
-    );
-    const axisOffsetTop = clamp(
+  );
+  const axisOffsetTop = clamp(
     (transpose ? cellLabelMaxWidth : geneLabelMaxWidth),
     AXIS_MIN_SIZE,
     AXIS_MAX_SIZE,
   );
   return [axisOffsetLeft, axisOffsetTop];
-}
-
-
-/**
-  * Uses canvas.measureText to compute and return the width of the given text of given font in pixels.
-  * 
-  * @param {String} text The text to be rendered.
-  * @param {String} font The css font descriptor that text is to be rendered with (e.g. "bold 14px verdana").
-  * 
-  * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
-  */
- function getTextWidth(text, font) {
-  // re-use canvas object for better performance
-  const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
-  const context = canvas.getContext("2d");
-  context.font = font;
-  const metrics = context.measureText(text);
-  return metrics.width;
 }
 
 /**
@@ -252,14 +258,14 @@ export function heatmapToMousePosition(colI, rowI, {
  * @returns {number[]} [cellI, trackI]
  */
 export function mouseToCellColorPosition(mouseX, mouseY, {
-  axisOffsetTop, 
-  axisOffsetLeft, 
-  offsetTop, 
-  offsetLeft, 
+  axisOffsetTop,
+  axisOffsetLeft,
+  offsetTop,
+  offsetLeft,
   colorBarSize,
-  numCellColorTracks, 
+  numCellColorTracks,
   transpose,
-  targetX, 
+  targetX,
   targetY,
   scaleFactor,
   matrixWidth,
@@ -267,7 +273,6 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
   numRows,
   numCols,
 }) {
-
   const cellPosition = transpose ? mouseX - offsetLeft : mouseY - offsetTop;
   const trackPosition = transpose ? mouseY - axisOffsetTop : mouseX - axisOffsetLeft;
 
@@ -277,7 +282,7 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
   if (cellPosition < 0 || trackPosition < 0 || trackPosition >= tracksWidth) {
     return [null, null];
   }
-  
+
   // Determine the trackI and cellI values based on the current viewState.
   const trackI = Math.floor(trackPosition / colorBarSize);
 
@@ -290,7 +295,6 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
     const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactor);
     const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
     cellI = Math.floor(zoomedMouseX * numCols);
-
   } else {
     const viewMouseY = mouseY - axisOffsetTop;
     const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;

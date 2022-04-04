@@ -63,7 +63,7 @@ const PASS_THROUGH_PROPS = [
   'lineDashJustified',
   'getLineColor',
   'getFillColor',
-  'getRadius',
+  'getPointRadius',
   'getLineWidth',
   'getLineDashArray',
   'getTentativeLineDashArray',
@@ -122,7 +122,10 @@ export default class SelectionLayer extends CompositeLayer {
 
       // Check if this is a leaf node.
       if (node.data
-        && booleanPointInPolygon(turfPoint(getCellCoords(node.data[1])), selectedPolygon)) {
+        && booleanPointInPolygon(
+          turfPoint([].slice.call(getCellCoords(node.data[1]))), selectedPolygon,
+        )
+      ) {
         // This node has data, so it is a leaf node representing one data point,
         // and we have verified that the point is in the selected polygon.
         pickingInfos.push(node.data);
@@ -177,7 +180,7 @@ export default class SelectionLayer extends CompositeLayer {
                   getLineWidth: 1,
                   radiusMinPixels: 1,
                   radiusMaxPixels: 3,
-                  getRadius: 2,
+                  getPointRadius: 2,
                 },
               },
             },

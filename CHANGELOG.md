@@ -1,9 +1,44 @@
-## In Progress
+
+### Added
+- Added a roadmap page to the documentation.
+
+### Changed
+- Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details.
+- Upgrade Viv to 0.12.6 to fix shader compilation issue with interleaved RGB images
+- Fixed layer controller raster channel slider bug, related to [MUI slider issue](https://github.com/mui/material-ui/issues/20896).
+- Started to update the documentation to use the term "view" rather than "component".
+
+## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
+
+### Added
+- Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
+- Added a new documentation site.
+- Added the `./create-release.sh` Bash script to automate some steps of the release process.
+
+### Changed
+- Fix selection issue for bitmasks in external applications.
+- Update deployment scripts to push the documentation site to `vitessce.io` and the minimal demo to `dev.vitessce.io`.
+- Fix bug preventing user-defined colors provided via `cell-sets.json` from being used in the visualization.
+- Upgrade `@material-ui/core` dependency from `4.8.3` to `4.12.3` in package-lock.json.
+- Fix issues in the `LayerController` related to MUI's change from `ExpansionPanel` to `Accordion`.
+- Added support for OME-NGFF v0.3 by upgrading Viv to `0.12.0`
+- Bump dependency versions based on `npm audit` and dependabot pull requests.
+- Updated Heatmap `layerFilter` function to reflect [changes between deck.gl 8.5 and 8.6 ](https://deck.gl/docs/upgrade-guide#layer-filtering)
+- Updated R package URLs (to reflect repo name change from `vitessce-r` to `vitessceR`).
+- Bump deck.gl version from `8.6.0` to `8.6.7` and bump viv version from `0.12.0` to `0.12.5` to fix [GLSL errors for 3d on chrome](https://github.com/hubmapconsortium/portal-ui/issues/2419#) issue.
+
+
+## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
 
 ### Added
 
 ### Changed
 - Updated the `build-lib:prod` npm script in `package.json` to generate the `esm` build in addition to the `umd` build.
+- Fixed bug preventing opening of the popper menu for channel colors in the spatial layer controller component.
+- Fixed bug where the border of polygons did not show expression values.  Needed to make sure instanced attributes were used when appropriate.
+- Fixed tooltip z-index bug by switching a custom implementation to the MUI `<Popper/>` component.
+- Changed `Array(...new Set(x))` to `Array.from(new Set(x))` in `CellSetsZarrLoader.js` to prevent compilation of the former to `Array.apply(void 0, new Set(x))`.
+- Updated styles of `<ChannelSelectionDropdown/>` to prevent text cutoff.
 
 ## [1.1.16](https://www.npmjs.com/package/vitessce/v/1.1.16) - 2021-10-26
 
@@ -99,6 +134,7 @@
   - Modify the cache to use an array of tuples, since using an array as an object key results in conversion to string.
 - Clean up `getFlatArrDecompressed` fetching.
 - Fix bitmask remove button style.
+- Offsets error message gives the URL that failed, and the HTTP status.
 - Don't show 3D dropdown if only 2D is available.
 - Don't show Volume tab (or any tabs) when 3D is not available.
 

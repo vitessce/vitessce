@@ -18,7 +18,7 @@ import {
   getStatsForResolution,
 } from '../utils';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '../spatial/constants';
-import { StyledSelectionSlider } from './styles';
+import { StyledSelectionSlider, useSelectStyles } from './styles';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 
@@ -51,6 +51,7 @@ function VolumeDropdown({
   use3d,
   modelMatrix,
 }) {
+  const classes = useSelectStyles();
   const selections = channels.map(i => i.selection);
   const { data: loader } = loaderWithMeta;
   const handleChange = async (val) => {
@@ -129,6 +130,7 @@ function VolumeDropdown({
           e.target.value === '2D' ? e.target.value : Number(e.target.value),
         )
         }
+        classes={{ root: classes.selectRoot }}
       >
         {
           <option key="2D" value="2D">
@@ -178,6 +180,7 @@ function VolumeDropdown({
  * @prop {function} handleChange Callback for every change in colormap.
  */
 function ColormapSelect({ value, inputId, handleChange }) {
+  const classes = useSelectStyles();
   return (
     <Select
       native
@@ -185,6 +188,7 @@ function ColormapSelect({ value, inputId, handleChange }) {
       value={value}
       inputProps={{ name: 'colormap', id: inputId }}
       style={{ width: '100%' }}
+      classes={{ root: classes.selectRoot }}
     >
       <option aria-label="None" value="">None</option>
       {COLORMAP_OPTIONS.map(name => (
@@ -241,6 +245,7 @@ function OpacitySlider({ value, handleChange }) {
  * @prop {function} handleChange Callback for every change in domain.
  */
 function SliderDomainSelector({ value, inputId, handleChange }) {
+  const classes = useSelectStyles();
   return (
     <Select
       native
@@ -248,6 +253,7 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
       value={value}
       inputProps={{ name: 'domain-selector', id: inputId }}
       style={{ width: '100%' }}
+      classes={{ root: classes.selectRoot }}
     >
       {DOMAIN_OPTIONS.map(name => (
         <option key={name} value={name}>
@@ -306,7 +312,7 @@ function GlobalSelectionSlider({
  */
 function LayerOption({ name, inputId, children }) {
   return (
-    <Grid container direction="row" alignItems="center" justify="center">
+    <Grid container direction="row" alignItems="center" justifyContent="center">
       <Grid item xs={6}>
         <InputLabel htmlFor={inputId}>{name}:</InputLabel>
       </Grid>
