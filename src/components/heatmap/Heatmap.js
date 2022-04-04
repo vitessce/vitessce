@@ -175,14 +175,20 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
   }, [expression, transpose]);
 
+  const getLongestString = strings => strings.reduce(
+    (prevLongest, currentValue) => (
+      prevLongest.length > currentValue.length ? prevLongest : currentValue
+    ),
+  );
+
   const [longestCellLabel, longestGeneLabel] = useMemo(() => {
     if (!expression) {
       return ['', ''];
     }
 
     return [
-      expression.rows.reduce((a, b) => (a.length > b.length ? a : b)),
-      [...expression.cols, ...cellColorLabels].reduce((a, b) => (a.length > b.length ? a : b)),
+      getLongestString(expression.rows),
+      getLongestString([...expression.cols, ...cellColorLabels]),
     ];
   }, [expression, cellColorLabels]);
 
