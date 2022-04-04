@@ -3,6 +3,8 @@ import range from 'lodash/range';
 
 import {
   AXIS_LABEL_TEXT_SIZE,
+  AXIS_FONT_FAMILY,
+  AXIS_PADDING,
   AXIS_MIN_SIZE,
   AXIS_MAX_SIZE,
 } from '../../layers/heatmap-constants';
@@ -83,34 +85,76 @@ export function getCellByGeneTile(view, {
 export function layerFilter({ layer, viewport }) {
   if (viewport.id === 'axisLeft') {
     return layer.id.startsWith('axisLeft');
-  } if (viewport.id === 'axisTop') {
-    return layer.id.startsWith('axisTop');
-  } if (viewport.id === 'heatmap') {
-    return layer.id.startsWith('heatmap');
-  } if (viewport.id === 'colorsLeft') {
-    return layer.id.startsWith('colorsLeft');
-  } if (viewport.id === 'colorsTop') {
-    return layer.id.startsWith('colorsTop');
   }
+
+  if (viewport.id === 'axisTop') {
+    return layer.id.startsWith('axisTop');
+  }
+
+  if (viewport.id.startsWith('cellColorLabel')) {
+    const matches = viewport.id.match(/-(\d)/);
+    if (matches) return layer.id.startsWith(`cellColorLabelLayer-${matches[1]}`);
+  }
+
+  if (viewport.id === 'heatmap') {
+    return layer.id.startsWith('heatmap');
+  }
+
+  if (viewport.id.startsWith('colorsLeft')) {
+    const matches = viewport.id.match(/-(\d)/);
+    if (matches) return layer.id.startsWith(`colorsLeftLayer-${matches[1]}`);
+  }
+
+  if (viewport.id.startsWith('colorsTop')) {
+    const matches = viewport.id.match(/-(\d)/);
+    if (matches) return layer.id.startsWith(`colorsTopLayer-${matches[1]}`);
+  }
+
   return false;
+}
+
+/**
+ * Uses canvas.measureText to compute and return the width of the given text
+ * of given font in pixels.
+ *
+ * @param {String} text The text to be rendered.
+ * @param {String} font The css font descriptor that text is to be rendered
+ * with (e.g. "bold 14px verdana").
+ *
+ * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+ */
+function getTextWidth(text, font) {
+  // re-use canvas object for better performance
+  const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
+  const context = canvas.getContext('2d');
+  context.font = font;
+  const metrics = context.measureText(text);
+  return metrics.width;
 }
 
 /**
  * Get the size of the left and top heatmap axes,
  * taking into account the maximum label string lengths.
  * @param {boolean} transpose Is the heatmap transposed?
- * @param {number} geneLabelMaxLength What is the maximum length gene label?
- * @param {number} cellLabelMaxLength What is the maximum length cell label?
+ * @param {String} longestGeneLabel longest gene label
+ * @param {String} longestCellLabel longest cell label
+ * @param {boolean} hideObservationLabels are cell labels hidden?
+ * Increases vertical space for heatmap
  * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
  */
-export function getAxisSizes(transpose, geneLabelMaxLength, cellLabelMaxLength) {
+export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel, hideObservationLabels) {
+  const font = `${AXIS_LABEL_TEXT_SIZE}pt ${AXIS_FONT_FAMILY}`;
+  const geneLabelMaxWidth = getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
+  const cellLabelMaxWidth = hideObservationLabels
+    ? 0 : getTextWidth(longestCellLabel, font) + AXIS_PADDING;
+
   const axisOffsetLeft = clamp(
-    (transpose ? geneLabelMaxLength : cellLabelMaxLength) * AXIS_LABEL_TEXT_SIZE,
+    (transpose ? geneLabelMaxWidth : cellLabelMaxWidth),
     AXIS_MIN_SIZE,
     AXIS_MAX_SIZE,
   );
   const axisOffsetTop = clamp(
-    (transpose ? cellLabelMaxLength : geneLabelMaxLength) * AXIS_LABEL_TEXT_SIZE,
+    (transpose ? cellLabelMaxWidth : geneLabelMaxWidth),
     AXIS_MIN_SIZE,
     AXIS_MAX_SIZE,
   );
@@ -204,4 +248,62 @@ export function heatmapToMousePosition(colI, rowI, {
     }
   }
   return [zoomedMouseX, zoomedMouseY];
+}
+
+/**
+ * Convert a mouse coordinate (x, y) to a heatmap color bar coordinate (cell index, track index).
+ * @param {number} mouseX The mouse X of interest.
+ * @param {number} mouseY The mouse Y of interest.
+ * @param {object} param2 An object containing current sizes and scale factors.
+ * @returns {number[]} [cellI, trackI]
+ */
+export function mouseToCellColorPosition(mouseX, mouseY, {
+  axisOffsetTop,
+  axisOffsetLeft,
+  offsetTop,
+  offsetLeft,
+  colorBarSize,
+  numCellColorTracks,
+  transpose,
+  targetX,
+  targetY,
+  scaleFactor,
+  matrixWidth,
+  matrixHeight,
+  numRows,
+  numCols,
+}) {
+  const cellPosition = transpose ? mouseX - offsetLeft : mouseY - offsetTop;
+  const trackPosition = transpose ? mouseY - axisOffsetTop : mouseX - axisOffsetLeft;
+
+  const tracksWidth = numCellColorTracks * colorBarSize;
+
+  // outside of cell color tracks
+  if (cellPosition < 0 || trackPosition < 0 || trackPosition >= tracksWidth) {
+    return [null, null];
+  }
+
+  // Determine the trackI and cellI values based on the current viewState.
+  const trackI = Math.floor(trackPosition / colorBarSize);
+
+  let cellI;
+  if (transpose) {
+    const viewMouseX = mouseX - offsetLeft;
+    const bboxTargetX = targetX * scaleFactor + matrixWidth * scaleFactor / 2;
+    const bboxLeft = bboxTargetX - matrixWidth / 2;
+    const zoomedOffsetLeft = bboxLeft / (matrixWidth * scaleFactor);
+    const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactor);
+    const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
+    cellI = Math.floor(zoomedMouseX * numCols);
+  } else {
+    const viewMouseY = mouseY - axisOffsetTop;
+    const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
+    const bboxTop = bboxTargetY - matrixHeight / 2;
+    const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
+    const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);
+    const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
+    cellI = Math.floor(zoomedMouseY * numRows);
+  }
+
+  return [cellI, trackI];
 }
