@@ -1,5 +1,13 @@
 
 ### Added
+
+### Changed
+
+## [1.1.19](https://www.npmjs.com/package/vitessce/v/1.1.19) - 2022-03-30
+
+
+
+### Added
 - Added a roadmap page to the documentation.
 
 ### Changed
