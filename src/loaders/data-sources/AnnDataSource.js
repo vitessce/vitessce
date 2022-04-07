@@ -50,58 +50,69 @@ export default class AnnDataSource extends ZarrDataSource {
   constructor(...args) {
     super(...args);
     /** @type {Map<string, Promise<string[]>} */
-    this.obsPromises = new Map();
+    this.promises = new Map();
+  }
+
+  loadObsVariables(paths) {
+    return this._loadVariables(paths, true);
+  }
+
+  loadVarVariables(paths) {
+    return this._loadVariables(paths, false);
   }
 
   /**
    * Class method for loading obs variables.
    * Takes the location as an argument because this is shared across objects,
    * which have different ways of specifying location.
-   * @param {string[]} obsPaths An array of strings like "obs/leiden" or "obs/bulk_labels."
+   * @param {string[]} paths An array of strings like "obs/leiden" or "obs/bulk_labels."
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
-  loadObsVariables(obsPaths) {
-    const obsPromises = obsPaths.map((obsPath) => {
-      const getObsCol = (obsCol) => {
-        if (!this.obsPromises.has(obsCol)) {
-          const obsPromise = this._loadObsVariable(obsCol).catch((err) => {
+  _loadVariables(paths, isObs) {
+    const promises = paths.map((path) => {
+      const getCol = (col) => {
+        if (!this.promises.has(col)) {
+          const obsPromise = this._loadVariable(col, isObs).catch((err) => {
             // clear from cache if promise rejects
-            this.obsPromises.delete(obsCol);
+            this.promises.delete(col);
             // propagate error
             throw err;
           });
-          this.obsPromises.set(obsCol, obsPromise);
+          this.promises.set(col, obsPromise);
         }
-        return this.obsPromises.get(obsCol);
+        return this.promises.get(col);
       };
-      if (!obsPath) {
+      if (!path) {
         return Promise.resolve(undefined);
       }
-      if (Array.isArray(obsPath)) {
-        return Promise.resolve(Promise.all(obsPath.map(getObsCol)));
+      if (Array.isArray(path)) {
+        return Promise.resolve(Promise.all(path.map(getCol)));
       }
-      return getObsCol(obsPath);
+      return getCol(path);
     });
-    return Promise.all(obsPromises);
+    return Promise.all(promises);
   }
 
-  async _loadObsVariable(obs) {
+  async _loadVariable(path, isObs) {
     const { store } = this;
-    const { categories } = await this.getJson(`${obs}/.zattrs`);
+    const col = isObs ? 'obs' : 'var';
+    const { categories } = await this.getJson(`${path}/.zattrs`);
     let categoriesValues;
     if (categories) {
-      const { dtype } = await this.getJson(`/obs/${categories}/.zarray`);
+      const { dtype } = await this.getJson(`/${col}/${categories}/.zarray`);
       if (dtype === '|O') {
-        categoriesValues = await this.getFlatArrDecompressed(`/obs/${categories}`);
+        categoriesValues = await this.getFlatArrDecompressed(
+          `/${col}/${categories}`,
+        );
       }
     }
-    const obsArr = await openArray({ store, path: obs, mode: 'r' });
-    const obsValues = await obsArr.get();
-    const { data } = obsValues;
-    const mappedObsValues = Array.from(data).map(
+    const arr = await openArray({ store, path, mode: 'r' });
+    const values = await arr.get();
+    const { data } = values;
+    const mappedValues = Array.from(data).map(
       i => (!categoriesValues ? String(i) : categoriesValues[i]),
     );
-    return mappedObsValues;
+    return mappedValues;
   }
 
   /**
@@ -132,6 +143,7 @@ export default class AnnDataSource extends ZarrDataSource {
       mode: 'r',
     }).then(async (z) => {
       let data;
+      console.log(path, z); // eslint-disable-line
       const parseAndMergeTextBytes = (dbytes) => {
         const text = parseVlenUtf8(dbytes);
         if (!data) {
@@ -144,19 +156,25 @@ export default class AnnDataSource extends ZarrDataSource {
         if (!data) {
           data = dbytes;
         } else {
-          const tmp = new Uint8Array(dbytes.buffer.byteLength + data.buffer.byteLength);
+          const tmp = new Uint8Array(
+            dbytes.buffer.byteLength + data.buffer.byteLength,
+          );
           tmp.set(new Uint8Array(data.buffer), 0);
           tmp.set(dbytes, data.buffer.byteLength);
           data = tmp;
         }
       };
       const numRequests = Math.ceil(z.meta.shape[0] / z.meta.chunks[0]);
-      const requests = range(numRequests).map(async item => store.getItem(`${z.keyPrefix}${String(item)}`)
+      const requests = range(numRequests).map(async item => store
+        .getItem(`${z.keyPrefix}${String(item)}`)
         .then(buf => z.compressor.then(compressor => compressor.decode(buf))));
       const dbytesArr = await Promise.all(requests);
       dbytesArr.forEach((dbytes) => {
         // Use vlenutf-8 decoding if necessary and merge `data` as a normal array.
-        if (Array.isArray(z.meta.filters) && z.meta.filters[0].id === 'vlen-utf8') {
+        if (
+          Array.isArray(z.meta.filters)
+          && z.meta.filters[0].id === 'vlen-utf8'
+        ) {
           parseAndMergeTextBytes(dbytes);
           // Otherwise just merge the bytes as a typed array.
         } else {
@@ -181,8 +199,7 @@ export default class AnnDataSource extends ZarrDataSource {
     if (this.obsIndex) {
       return this.obsIndex;
     }
-    this.obsIndex = this.getJson('obs/.zattrs')
-      .then(({ _index }) => this.getFlatArrDecompressed(`/obs/${_index}`));
+    this.obsIndex = this.getJson('obs/.zattrs').then(({ _index }) => this.getFlatArrDecompressed(`/obs/${_index}`));
     return this.obsIndex;
   }
 
@@ -194,8 +211,21 @@ export default class AnnDataSource extends ZarrDataSource {
     if (this.varIndex) {
       return this.varIndex;
     }
-    this.varIndex = this.getJson('var/.zattrs')
-      .then(({ _index }) => this.getFlatArrDecompressed(`/var/${_index}`));
+    this.varIndex = this.getJson('var/.zattrs').then(({ _index }) => this.getFlatArrDecompressed(`/var/${_index}`));
     return this.varIndex;
+  }
+
+  /**
+   * Class method for loading the var alias.
+   * @returns {Promise} An promise for a zarr array containing the aliased names.
+   */
+  async loadVarAlias(varPath) {
+    if (this.varAlias) {
+      return this.varAlias;
+    }
+    [this.varAlias] = await this.loadVarVariables([varPath]);
+    const index = await this.loadVarIndex();
+    this.varAlias = this.varAlias.map((val, ind) => val || index[ind]);
+    return this.varAlias;
   }
 }

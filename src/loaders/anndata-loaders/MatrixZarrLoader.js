@@ -41,16 +41,19 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
     if (this.filteredGeneNames) {
       return this.filteredGeneNames;
     }
-    const { geneFilter: geneFilterZarr } = this.options;
+    const { geneFilter: geneFilterZarr, geneAlias } = this.options;
     const getFilterFn = async () => {
       if (!geneFilterZarr) return data => data;
       const geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
       return data => data.filter((_, j) => geneFilter[j]);
     };
-
-    this.filteredGeneNames = Promise
-      .all([this.dataSource.loadVarIndex(), getFilterFn()])
-      .then(([data, filter]) => filter(data));
+    const geneNamesPromise = geneAlias
+      ? this.dataSource.loadVarAlias(geneAlias)
+      : this.dataSource.loadVarIndex();
+    this.filteredGeneNames = Promise.all([
+      geneNamesPromise,
+      getFilterFn(),
+    ]).then(([data, filter]) => filter(data));
     return this.filteredGeneNames;
   }
 
@@ -327,6 +330,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
     return Promise.all([this.dataSource.loadObsIndex(), this.loadFilteredGeneNames()])
       .then((d) => {
         const [cellNames, geneNames] = d;
+        console.log(geneNames); // eslint-disable-line
         const attrs = { rows: cellNames, cols: geneNames };
         return {
           data: attrs,

@@ -10,7 +10,7 @@ describe('sources/AnnDataSource', () => {
     expect(zGroup.zarr_format).toEqual(2);
   });
 
-  it('loadObsVariables returns ids for location in store', async () => {
+  it('loadVariables returns ids for location in store', async () => {
     const dataSource = new AnnDataSource({
       url: 'http://127.0.0.1:8080/anndata/anndata-dense.zarr',
     });
