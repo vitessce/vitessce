@@ -1,6 +1,7 @@
 
 ### Added
 - Added a roadmap page to the documentation.
+- Support `var` alias for AnnData to display altenrative gene names via new `geneAlias` field.
 
 ### Changed
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details.
