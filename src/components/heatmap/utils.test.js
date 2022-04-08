@@ -9,9 +9,9 @@ describe('heatmap tiling utils', () => {
   it('creates cell x gene tiles (transpose = false)', () => {
     const arr = expressionMatrix.matrix;
     const numGenes = expressionMatrix.cols.length;
-    const expressionRowLookUp = {};
+    const expressionRowLookUp = new Map();
     // eslint-disable-next-line no-return-assign
-    expressionMatrix.rows.forEach((i, j) => expressionRowLookUp[i] = j);
+    expressionMatrix.rows.forEach((i, j) => expressionRowLookUp.set(i, j));
     const cellOrdering = expressionMatrix.rows; // no re-ordering
     const numCells = cellOrdering.length;
     // Tile (0, 0)
@@ -48,9 +48,9 @@ describe('heatmap tiling utils', () => {
     const numGenes = expressionMatrix.cols.length;
     const cellOrdering = expressionMatrix.rows; // no re-ordering
     const numCells = cellOrdering.length;
-    const expressionRowLookUp = {};
+    const expressionRowLookUp = new Map();
     // eslint-disable-next-line no-return-assign
-    expressionMatrix.rows.forEach((i, j) => (expressionRowLookUp[i] = j));
+    expressionMatrix.rows.forEach((i, j) => expressionRowLookUp.set(i, j));
     const tile00 = getGeneByCellTile(arr, {
       tileSize: 3, numCells, numGenes, tileI: 0, tileJ: 0, cellOrdering, expressionRowLookUp,
     });
@@ -80,9 +80,9 @@ describe('heatmap tiling utils', () => {
   it('creates cell x gene tiles (transpose = false) with re-ordered cells', () => {
     const arr = expressionMatrix.matrix;
     const numGenes = expressionMatrix.cols.length;
-    const expressionRowLookUp = {};
+    const expressionRowLookUp = new Map();
     // eslint-disable-next-line no-return-assign
-    expressionMatrix.rows.forEach((i, j) => (expressionRowLookUp[i] = j));
+    expressionMatrix.rows.forEach((i, j) => expressionRowLookUp.set(i, j));
     const cellOrdering = Array.from(cellColors.keys());
     const numCells = cellOrdering.length;
     // Tile (0, 0)

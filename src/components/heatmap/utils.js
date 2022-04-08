@@ -23,7 +23,7 @@ export function getGeneByCellTile(view, {
     // Need to iterate over cells in the outer loop.
     cellI = (tileJ * tileSize) + j;
     if (cellI < numCells) {
-      sortedCellI = expressionRowLookUp[cellOrdering[cellI]];
+      sortedCellI = expressionRowLookUp.get(cellOrdering[cellI]);
       if (sortedCellI >= -1) {
         tileSizeRange.forEach((i) => {
           geneI = (tileI * tileSize) + i;
@@ -53,7 +53,7 @@ export function getCellByGeneTile(view, {
     // Need to iterate over cells in the outer loop.
     cellI = (tileI * tileSize) + i;
     if (cellI < numCells) {
-      sortedCellI = expressionRowLookUp[cellOrdering[cellI]];
+      sortedCellI = expressionRowLookUp.get(cellOrdering[cellI]);
       if (sortedCellI >= -1) {
         tileSizeRange.forEach((j) => {
           geneI = (tileJ * tileSize) + j;

@@ -174,10 +174,10 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Creating a look up dictionary once is faster than calling indexOf many times
   // i.e when cell ordering changes.
   const expressionRowLookUp = useMemo(() => {
-    const lookUp = {};
+    const lookUp = new Map();
     if (expression?.rows) {
       // eslint-disable-next-line no-return-assign
-      expression.rows.forEach((cell, j) => (lookUp[cell] = j));
+      expression.rows.forEach((cell, j) => (lookUp.set(cell, j)));
     }
     return lookUp;
   }, [expression]);
@@ -298,7 +298,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
     const curr = backlog[backlog.length - 1];
     if (dataRef.current
-      && dataRef.current.buffer.byteLength && Object.keys(expressionRowLookUp).length > 0) {
+      && dataRef.current.buffer.byteLength && expressionRowLookUp.size > 0) {
       const { cols, matrix } = expression;
       const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
         curr,
