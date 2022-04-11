@@ -330,7 +330,6 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
     return Promise.all([this.dataSource.loadObsIndex(), this.loadFilteredGeneNames()])
       .then((d) => {
         const [cellNames, geneNames] = d;
-        console.log(geneNames); // eslint-disable-line
         const attrs = { rows: cellNames, cols: geneNames };
         return {
           data: attrs,

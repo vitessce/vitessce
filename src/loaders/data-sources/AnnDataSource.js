@@ -143,7 +143,6 @@ export default class AnnDataSource extends ZarrDataSource {
       mode: 'r',
     }).then(async (z) => {
       let data;
-      console.log(path, z); // eslint-disable-line
       const parseAndMergeTextBytes = (dbytes) => {
         const text = parseVlenUtf8(dbytes);
         if (!data) {
