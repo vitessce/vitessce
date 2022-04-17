@@ -35,7 +35,7 @@ A name for the view config. Although this field is required, you are welcome to 
 
 - Type: `string`
 
-The view config schema version.
+The view config schema version. The documentation pages here are based on the latest version.
 
 |Value|Notes|
 |-------|-----|
@@ -47,6 +47,7 @@ The view config schema version.
 | `1.0.5`| Adds support for providing an array of columns (rather than a single column) for the value of the `setName` property within options array items for the `anndata-cell-sets.zarr` file type (to specify a cell set hierarcy). |
 | `1.0.6`| The `scoreName` property within the options array items for the `anndata-cell-sets.zarr` file type was added in this version. |
 | `1.0.7`| The `geneAlias` option for the `anndata-expression-matrix.zarr` file type was added in this version. |
+| `1.1.0` (latest) | Generalizations for observation x feature matrix use cases ([pull request](https://github.com/vitessce/vitessce/pull/1152)). Changes coordination type names, data type names, file type names, and component names. Adds coordination types such as `obsType` and `featureType`. Adds the `entityTypes` property to file definition objects. |
 
 ### `initStrategy`
 - Type: `string`
@@ -93,13 +94,13 @@ For more information about data types and file types, please visit our [Data Typ
         "files": [
             {
                 "url": "http://example.com/a.json",
-                "type": "cells",
+                "type": "obs",
                 "fileType": "cells.json"
             },
             {
                 "url": "http://example.com/b.json",
-                "type": "cell-sets",
-                "fileType": "cell-sets.json"
+                "type": "obsSets",
+                "fileType": "cellSets.json"
             },
             {
                 "type": "raster",

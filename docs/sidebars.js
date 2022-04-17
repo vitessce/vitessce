@@ -11,6 +11,7 @@ module.exports = {
       items: [
         'components',
         'data-types-file-types',
+        'entity-types',
         'coordination',
         'coordination-types',
         'platforms'
