@@ -1,5 +1,24 @@
 
 ### Added
+
+### Changed
+
+## [1.1.19](https://www.npmjs.com/package/vitessce/v/1.1.19) - 2022-03-30
+
+
+
+### Added
+- Added a roadmap page to the documentation.
+
+### Changed
+- Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details.
+- Upgrade Viv to 0.12.6 to fix shader compilation issue with interleaved RGB images
+- Fixed layer controller raster channel slider bug, related to [MUI slider issue](https://github.com/mui/material-ui/issues/20896).
+- Started to update the documentation to use the term "view" rather than "component".
+
+## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
+
+### Added
 - Added the `scoreName` property to the view config schema for the `anndata-cell-sets.zarr` file type.
 - Added a new documentation site.
 - Added the `./create-release.sh` Bash script to automate some steps of the release process.
@@ -14,6 +33,7 @@
 - Bump dependency versions based on `npm audit` and dependabot pull requests.
 - Updated Heatmap `layerFilter` function to reflect [changes between deck.gl 8.5 and 8.6 ](https://deck.gl/docs/upgrade-guide#layer-filtering)
 - Updated R package URLs (to reflect repo name change from `vitessce-r` to `vitessceR`).
+- Bump deck.gl version from `8.6.0` to `8.6.7` and bump viv version from `0.12.0` to `0.12.5` to fix [GLSL errors for 3d on chrome](https://github.com/hubmapconsortium/portal-ui/issues/2419#) issue.
 
 
 ## [1.1.17](https://www.npmjs.com/package/vitessce/v/1.1.17) - 2021-11-04
@@ -122,6 +142,7 @@
   - Modify the cache to use an array of tuples, since using an array as an object key results in conversion to string.
 - Clean up `getFlatArrDecompressed` fetching.
 - Fix bitmask remove button style.
+- Offsets error message gives the URL that failed, and the HTTP status.
 - Don't show 3D dropdown if only 2D is available.
 - Don't show Volume tab (or any tabs) when 3D is not available.
 

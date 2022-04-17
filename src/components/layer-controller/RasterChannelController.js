@@ -65,6 +65,13 @@ function ChannelSlider({
   disabled,
 }) {
   const [min, max] = domain;
+  const sliderCopy = slider.slice();
+  if (slider[0] < min) {
+    sliderCopy[0] = min;
+  }
+  if (slider[1] > max) {
+    sliderCopy[1] = max;
+  }
   const handleChangeDebounced = useCallback(
     debounce(handleChange, 3, { trailing: true }),
     [handleChange],

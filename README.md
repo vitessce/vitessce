@@ -4,16 +4,33 @@
 
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
-- [Latest release demo](http://vitessce.io/)
-- [Previous demos](DEMOS.md)
-- [Previous releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
+- [Latest demos and documentation](http://vitessce.io/)
+- [Sandbox environment](http://vitessce.io/#?edit=true)
+- [Older demos](DEMOS.md)
+- [Older releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
 
-![Screenshot of Vitessce with Linnarsson data](https://user-images.githubusercontent.com/1216518/93336741-2b60c880-f7f6-11ea-8b82-7e1e0ea45e43.png)
+<table><tr>
+<td>    
+<img src="https://user-images.githubusercontent.com/1216518/93336741-2b60c880-f7f6-11ea-8b82-7e1e0ea45e43.png" width="500" alt="Screenshot of Vitessce with Linnarsson data" />
+</td>
+<td>
+<img src="https://user-images.githubusercontent.com/1216518/93337080-a4f8b680-f7f6-11ea-9e53-2c73cc661b94.png" width="500" alt="Same data, zoomed in to cellular scale" />
+</td>
+</tr></table>
 
-![Same data, zoomed in to cellular scale](https://user-images.githubusercontent.com/1216518/93337080-a4f8b680-f7f6-11ea-9e53-2c73cc661b94.png)
+## Why Vitessce
 
+### Interactive
 
-You can also use the demo website for visualizing your own data via view configs passed in as url parameters.  If you are storing a `json` view configuration on a remote server, the url will look something like `http://vitessce.io/?url=https://example.com/my_config.json`.  Otherwise, if you have a view configuration that is not stored somewhere that can be accessed via a web server, you can do something like `http://vitessce.io/?url=data:,{"name":"FAKE", "version": "0.1.0", "description":"fake dataset", "layers":[], "staticLayout":[{"component":"description", "props":{"description": "Hello World"}, "x":0, "y": 0, "w": 2, "h": 2}]}` where `data:` prepends the actual view config.
+Vitessce consists of reusable interactive components including a scatterplot, spatial+imaging plot, genome browser tracks, statistical plots, and controller components, built on web technologies such as WebGL.
+
+### Integrative
+
+Vitessce enables visual analysis of multi-modal assay types which probe biological systems through techniques such as microscopy, genomics, and transcriptomics.
+
+### Serverless
+
+Visualize large datasets stored in static cloud object stores such as AWS S3. No need to manage or pay for expensive compute infrastructure for visualization purposes.
 
 ## Usage
 
@@ -23,7 +40,7 @@ Vitessce components can be used in React projects by installing the package from
 npm install vitessce
 ```
 
-For more details, please visit the [documentation](http://beta.vitessce.io/docs/).
+For more details, please visit the [documentation](http://vitessce.io/docs/js-overview/).
 
 ## Development
 
