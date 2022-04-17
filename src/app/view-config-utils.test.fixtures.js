@@ -305,137 +305,28 @@ export const upgradedLegacyViewConfig1_0_0 = {
 };
 
 
-export const initializedViewConfig = {
-  version: '1.0.1',
-  public: true,
+export const legacyViewConfig1_0_6 = {
+  version: '1.0.6',
   name: 'My config name',
   description: 'My config description',
   initStrategy: 'auto',
   coordinationSpace: {
-    cellColorEncoding: {
-      A: 'cellSetSelection',
-    },
-    cellFilter: {
-      A: null,
-    },
-    cellHighlight: {
-      A: null,
-    },
-    cellSetHighlight: {
-      A: null,
-    },
-    cellSetSelection: {
-      A: null,
-    },
     dataset: {
       A: 'A',
     },
-    embeddingCellOpacity: {
-      A: 1,
-    },
-    embeddingCellOpacityMode: {
-      A: 'auto',
-    },
-    embeddingCellRadius: {
-      A: 1,
-    },
-    embeddingCellRadiusMode: {
-      A: 'auto',
-    },
-    embeddingRotation: {
-      A: 0,
-    },
-    embeddingTargetX: {
-      A: 0,
-    },
-    embeddingTargetY: {
-      A: 0,
-    },
-    embeddingTargetZ: {
-      A: 0,
-    },
-    embeddingType: {
-      't-SNE': 't-SNE',
-    },
-    embeddingZoom: {
-      A: 3,
-    },
-    embeddingCellSetLabelSize: {
-      A: 14,
-    },
-    embeddingCellSetLabelsVisible: {
-      A: false,
-    },
-    embeddingCellSetPolygonsVisible: {
-      A: false,
-    },
-    geneExpressionColormap: {
-      A: 'plasma',
-    },
-    geneExpressionColormapRange: {
+    spatialRasterLayers: {
       A: [
-        0,
-        1,
+        { index: 2 },
+        { index: 3 },
       ],
     },
-    geneHighlight: {
-      A: null,
-    },
-    geneSelection: {
-      A: null,
-    },
-    spatialRasterLayers: {
-      A: null,
-    },
     spatialCellsLayer: {
-      A: null,
+      A: { radius: 10, visible: true },
     },
     spatialMoleculesLayer: {
-      A: null,
+      A: { visible: false },
     },
     spatialNeighborhoodsLayer: {
-      A: null,
-    },
-    spatialRotation: {
-      A: 0,
-    },
-    spatialRotationOrbit: {
-      A: 0,
-    },
-    spatialOrbitAxis: {
-      A: 'Y',
-    },
-    spatialRotationX: {
-      A: null,
-    },
-    spatialRotationY: {
-      A: null,
-    },
-    spatialRotationZ: {
-      A: null,
-    },
-    spatialTargetX: {
-      A: 3800,
-    },
-    spatialTargetY: {
-      A: -900,
-    },
-    spatialTargetZ: {
-      A: null,
-    },
-    spatialZoom: {
-      A: -4.4,
-    },
-    spatialAxisFixed: {
-      A: false,
-    },
-    additionalCellSets: {
-      A: null,
-    },
-    cellSetColor: {
-      A: null,
-    },
-    moleculeHighlight: {
       A: null,
     },
   },
@@ -473,67 +364,296 @@ export const initializedViewConfig = {
       y: 0,
     },
     {
-      component: 'scatterplot',
+      component: 'spatial',
       coordinationScopes: {
-        cellColorEncoding: 'A',
-        cellFilter: 'A',
-        cellHighlight: 'A',
-        cellSetHighlight: 'A',
-        cellSetSelection: 'A',
-        cellSetColor: 'A',
         dataset: 'A',
-        embeddingCellOpacity: 'A',
-        embeddingCellOpacityMode: 'A',
-        embeddingCellRadius: 'A',
-        embeddingCellRadiusMode: 'A',
-        embeddingRotation: 'A',
-        embeddingTargetX: 'A',
-        embeddingTargetY: 'A',
-        embeddingTargetZ: 'A',
-        embeddingType: 't-SNE',
-        embeddingZoom: 'A',
-        embeddingCellSetLabelSize: 'A',
-        embeddingCellSetLabelsVisible: 'A',
-        embeddingCellSetPolygonsVisible: 'A',
-        geneExpressionColormap: 'A',
-        geneExpressionColormapRange: 'A',
-        geneHighlight: 'A',
-        geneSelection: 'A',
-        additionalCellSets: 'A',
+        spatialRasterLayers: 'A',
+        spatialCellsLayer: 'A',
+        spatialMoleculesLayer: 'A',
+        spatialNeighborhoodsLayer: 'A',
       },
       h: 4,
-      props: {
-        mapping: 't-SNE',
-        view: {
-          target: [
-            0,
-            0,
-            0,
-          ],
-          zoom: 3,
+      props: {},
+      w: 4,
+      x: 5,
+      y: 0,
+    },
+  ],
+};
+
+export const upgradedLegacyViewConfig1_0_6 = {
+  version: '1.1.0',
+  name: 'My config name',
+  description: 'My config description',
+  initStrategy: 'auto',
+  coordinationSpace: {
+    dataset: {
+      A: 'A',
+    },
+    featureType: {},
+    obsType: {},
+    subFeatureType: {},
+    subObsType: {},
+    spatialRasterLayers: {
+      A: [
+        { index: 2 },
+        { index: 3 },
+      ],
+    },
+    spatialObsLayer: {
+      A: { radius: 10, visible: true },
+    },
+    spatialSubObsLayer: {
+      A: { visible: false },
+    },
+    spatialNeighborhoodsLayer: {
+      A: null,
+    },
+  },
+  datasets: [
+    {
+      files: [
+        {
+          fileType: 'cells.json',
+          dataType: 'obs',
+          entityTypes: {
+            obsType: 'cell',
+          },
+          url: 'https://example.com/cells.json',
         },
+        {
+          fileType: 'cellSets.json',
+          dataType: 'obsSets',
+          entityTypes: {
+            obsType: 'cell',
+          },
+          url: 'https://example.com/cell-sets.json',
+        },
+      ],
+      name: 'A',
+      uid: 'A',
+    },
+  ],
+  layout: [
+    {
+      component: 'description',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialRasterLayers: 'A',
       },
-      w: 5,
-      x: 0,
-      y: 2,
+      h: 2,
+      props: {
+        description: 'My component description',
+      },
+      w: 3,
+      x: 9,
+      y: 0,
     },
     {
       component: 'spatial',
       coordinationScopes: {
-        cellColorEncoding: 'A',
-        cellFilter: 'A',
-        cellHighlight: 'A',
-        cellSetHighlight: 'A',
-        cellSetSelection: 'A',
-        cellSetColor: 'A',
         dataset: 'A',
-        geneExpressionColormap: 'A',
-        geneExpressionColormapRange: 'A',
-        geneHighlight: 'A',
-        geneSelection: 'A',
         spatialRasterLayers: 'A',
-        spatialCellsLayer: 'A',
-        spatialMoleculesLayer: 'A',
+        spatialObsLayer: 'A',
+        spatialSubObsLayer: 'A',
+        spatialNeighborhoodsLayer: 'A',
+      },
+      h: 4,
+      props: {},
+      w: 4,
+      x: 5,
+      y: 0,
+    },
+  ],
+};
+
+
+export const initializedViewConfig = {
+  version: '1.1.0',
+  name: 'My config name',
+  description: 'My config description',
+  initStrategy: 'auto',
+  coordinationSpace: {
+    obsColorEncoding: {
+      A: 'obsSetSelection',
+    },
+    obsFilter: {
+      A: null,
+    },
+    obsHighlight: {
+      A: null,
+    },
+    obsSetHighlight: {
+      A: null,
+    },
+    obsSetSelection: {
+      A: null,
+    },
+    dataset: {
+      A: 'A',
+    },
+    featureValueColormap: {
+      A: 'plasma',
+    },
+    featureValueColormapRange: {
+      A: [
+        0,
+        1,
+      ],
+    },
+    featureHighlight: {
+      A: null,
+    },
+    featureSelection: {
+      A: null,
+    },
+    spatialRasterLayers: {
+      A: [
+        { index: 2 },
+        { index: 3 },
+      ],
+    },
+    spatialObsLayer: {
+      A: {
+        radius: 10,
+        visible: true,
+      },
+    },
+    spatialSubObsLayer: {
+      A: { visible: false },
+    },
+    spatialNeighborhoodsLayer: {
+      A: null,
+    },
+    spatialRotation: {
+      A: 0,
+    },
+    spatialRotationOrbit: {
+      A: 0,
+    },
+    spatialOrbitAxis: {
+      A: 'Y',
+    },
+    spatialRotationX: {
+      A: null,
+    },
+    spatialRotationY: {
+      A: null,
+    },
+    spatialRotationZ: {
+      A: null,
+    },
+    spatialTargetX: {
+      A: null,
+    },
+    spatialTargetY: {
+      A: null,
+    },
+    spatialTargetZ: {
+      A: null,
+    },
+    spatialZoom: {
+      A: null,
+    },
+    spatialAxisFixed: {
+      A: false,
+    },
+    additionalObsSets: {
+      A: null,
+    },
+    obsSetColor: {
+      A: null,
+    },
+    subObsHighlight: {
+      A: null,
+    },
+    featureType: {
+      A: 'gene',
+    },
+    featureValueType: {
+      A: 'expression',
+    },
+    obsType: {
+      A: 'cell',
+    },
+    subFeatureType: {
+      A: 'isoform',
+    },
+    subFeatureValueType: {
+      A: 'intensity',
+    },
+    subObsType: {
+      A: 'molecule',
+    },
+  },
+  datasets: [
+    {
+      files: [
+        {
+          fileType: 'cells.json',
+          dataType: 'obs',
+          entityTypes: {
+            obsType: 'cell',
+          },
+          url: 'https://example.com/cells.json',
+        },
+        {
+          fileType: 'cellSets.json',
+          dataType: 'obsSets',
+          entityTypes: {
+            obsType: 'cell',
+          },
+          url: 'https://example.com/cell-sets.json',
+        },
+      ],
+      name: 'A',
+      uid: 'A',
+    },
+  ],
+  layout: [
+    {
+      component: 'description',
+      coordinationScopes: {
+        dataset: 'A',
+        featureType: 'A',
+        featureValueType: 'A',
+        obsType: 'A',
+        spatialRasterLayers: 'A',
+        subFeatureType: 'A',
+        subFeatureValueType: 'A',
+        subObsType: 'A',
+      },
+      h: 2,
+      props: {
+        description: 'My component description',
+      },
+      w: 3,
+      x: 9,
+      y: 0,
+    },
+    {
+      component: 'spatial',
+      coordinationScopes: {
+        obsColorEncoding: 'A',
+        obsFilter: 'A',
+        obsHighlight: 'A',
+        obsSetHighlight: 'A',
+        obsSetSelection: 'A',
+        obsSetColor: 'A',
+        dataset: 'A',
+        featureType: 'A',
+        featureValueType: 'A',
+        obsType: 'A',
+        subFeatureType: 'A',
+        subFeatureValueType: 'A',
+        subObsType: 'A',
+        featureValueColormap: 'A',
+        featureValueColormapRange: 'A',
+        featureHighlight: 'A',
+        featureSelection: 'A',
+        spatialRasterLayers: 'A',
+        spatialObsLayer: 'A',
+        spatialSubObsLayer: 'A',
         spatialNeighborhoodsLayer: 'A',
         spatialRotation: 'A',
         spatialRotationOrbit: 'A',
@@ -546,21 +666,11 @@ export const initializedViewConfig = {
         spatialTargetZ: 'A',
         spatialAxisFixed: 'A',
         spatialZoom: 'A',
-        additionalCellSets: 'A',
-        moleculeHighlight: 'A',
+        additionalObsSets: 'A',
+        subObsHighlight: 'A',
       },
       h: 4,
-      props: {
-        cellRadius: 50,
-        view: {
-          target: [
-            3800,
-            -900,
-            0,
-          ],
-          zoom: -4.4,
-        },
-      },
+      props: {},
       w: 4,
       x: 5,
       y: 0,

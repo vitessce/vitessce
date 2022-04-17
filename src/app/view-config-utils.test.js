@@ -7,6 +7,7 @@ import {
 import {
   upgradeFrom0_1_0,
   upgradeFrom1_0_0,
+  upgradeFrom1_0_6,
 } from './view-config-upgraders';
 import {
   legacyViewConfig0_1_0,
@@ -14,6 +15,8 @@ import {
   legacyViewConfig1_0_0,
   upgradedLegacyViewConfig1_0_0,
   initializedViewConfig,
+  legacyViewConfig1_0_6,
+  upgradedLegacyViewConfig1_0_6,
 } from './view-config-utils.test.fixtures';
 
 describe('src/app/view-config-utils.js', () => {
@@ -51,15 +54,18 @@ describe('src/app/view-config-utils.js', () => {
     it('upgrade view config from v1.0.0 to v1.0.1', () => {
       expect(upgradeFrom1_0_0(legacyViewConfig1_0_0)).toEqual(upgradedLegacyViewConfig1_0_0);
     });
+    it('upgrade view config from v1.0.6 to v1.1.0', () => {
+      expect(upgradeFrom1_0_6(legacyViewConfig1_0_6)).toEqual(upgradedLegacyViewConfig1_0_6);
+    });
   });
 
   describe('initialize', () => {
     it('initializes coordination space and component coordination scopes when initStrategy is auto', () => {
-      expect(initialize(upgradedLegacyViewConfig0_1_0)).toEqual(initializedViewConfig);
+      expect(initialize(upgradedLegacyViewConfig1_0_6)).toEqual(initializedViewConfig);
     });
 
     it('does not change the result when initialized twice when initStrategy is auto', () => {
-      const firstResult = initialize(upgradedLegacyViewConfig0_1_0);
+      const firstResult = initialize(upgradedLegacyViewConfig1_0_6);
       expect(firstResult).toEqual(initializedViewConfig);
       const secondResult = initialize(firstResult);
       expect(secondResult).toEqual(initializedViewConfig);
