@@ -1,4 +1,3 @@
-
 ### Added
 
 ### Changed
@@ -16,6 +15,8 @@
 - Use a hash table lookup instead of calling `indexOf` repeatedly for the heatmap component tiling.
 - Fix `molecules` layer sizing
 
+
+
 ## [1.1.19](https://www.npmjs.com/package/vitessce/v/1.1.19) - 2022-03-30
 
 ### Added
@@ -26,6 +27,7 @@
 - Upgrade Viv to 0.12.6 to fix shader compilation issue with interleaved RGB images
 - Fixed layer controller raster channel slider bug, related to [MUI slider issue](https://github.com/mui/material-ui/issues/20896).
 - Started to update the documentation to use the term "view" rather than "component".
+
 
 ## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
 
