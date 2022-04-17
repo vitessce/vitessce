@@ -46,7 +46,7 @@ The view config schema version. The documentation pages here are based on the la
 | `1.0.4`| The coordination types `embeddingCellOpacity`, `embeddingCellRadiusMode`, and `embeddingCellOpacityMode` were added in this version. |
 | `1.0.5`| Support for an array of strings in the `setName` property within `options` array items for the `anndata-cell-sets.zarr` file type. |
 | `1.0.6`| Support for the `scoreName` property within `options` array items for the `anndata-cell-sets.zarr `file type.|
-| `1.1.0` (latest) | Generalizations for observation x feature matrix use cases ([pull request](https://github.com/vitessce/vitessce/pull/1152)). Changes coordination type names, data type names, file type names, and component names. Adds coordination types such as `obsType` and `featureType`. Adds the `entityTypes` property to file definition objects. |
+| `1.1.0` (latest) | Generalizations for observation x feature matrix use cases ([pull request](https://github.com/vitessce/vitessce/pull/1197)). Changes coordination type names, data type names, file type names, and component names. Adds coordination types such as `obsType` and `featureType`. Adds the `entityTypes` property to file definition objects. |
 
 ### `initStrategy`
 - Type: `string`
