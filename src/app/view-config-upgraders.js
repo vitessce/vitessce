@@ -2,9 +2,6 @@
 import uuidv4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
 import { getNextScope, capitalize } from '../utils';
-import {
-  COMPONENT_COORDINATION_TYPES,
-} from './state/coordination';
 
 /**
  * A helper function for the `upgrade()` function,
@@ -180,7 +177,26 @@ export function upgradeFrom1_0_0(config) {
 
     function replaceCoordinationScope(layerType) {
       const isRaster = layerType === 'raster';
-      if (COMPONENT_COORDINATION_TYPES[newComponent.component].includes(`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`)) {
+
+      const OLD_COMPONENT_COORDINATION_TYPES = {
+        spatial: [
+          'spatialRasterLayers',
+          'spatialCellsLayer',
+          'spatialMoleculesLayer',
+          'spatialNeighborhoodsLayer',
+        ],
+        layerController: [
+          'spatialRasterLayers',
+          'spatialCellsLayer',
+          'spatialMoleculesLayer',
+          'spatialNeighborhoodsLayer',
+        ],
+        description: [
+          'spatialRasterLayers',
+        ],
+      };
+
+      if (OLD_COMPONENT_COORDINATION_TYPES[newComponent.component]?.includes(`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`)) {
         newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = newComponent.coordinationScopes.spatialLayers;
       }
     }

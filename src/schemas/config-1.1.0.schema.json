@@ -45,6 +45,7 @@
                 "subObsSelection": { "type": "string" },
                 "subObsSetSelection": { "type": "string" },
                 "subObsSetHighlight": { "type": "string" },
+                "subObsSetColor": { "type": "string" },
                 "subObsColorEncoding": { "type": "string" },
                 "featureType": { "type": "string" },
                 "featureFilter": { "type": "string" },
@@ -105,30 +106,9 @@
                 "genomicTargetX": { "type": "string" },
                 "genomicTargetY": { "type": "string" },
                 "additionalObsSets": { "type": "string" },
-
-                "embeddingCellSetPolygonsVisible": { "type": "string" },
-                "embeddingCellSetLabelsVisible": { "type": "string" },
-                "embeddingCellSetLabelSize": { "type": "string" },
-                "embeddingCellRadius": { "type": "string" },
-                "embeddingCellOpacity": { "type": "string" },
-                "embeddingCellRadiusMode": { "type": "string" },
-                "embeddingCellOpacityMode": { "type": "string" },
-                "cellFilter": { "type": "string" },
-                "cellHighlight": { "type": "string" },
-                "cellSetSelection": { "type": "string" },
-                "cellSetHighlight": { "type": "string" },
-                "cellSetColor": { "type": "string" },
-                "geneFilter": { "type": "string" },
-                "geneHighlight": { "type": "string" },
-                "geneSelection": { "type": "string" },
-                "geneExpressionTransform": { "type": "string" },
-                "geneExpressionColormap": { "type": "string" },
-                "geneExpressionColormapRange": { "type": "string" },
-                "cellColorEncoding": { "type": "string" },
-                "spatialCellsLayer": { "type": "string" },
-                "spatialMoleculesLayer": { "type": "string" },
-                "additionalCellSets": { "type": "string" },
-                "moleculeHighlight": { "type": "string" }
+                "additionalSubObsSets": { "type": "string" },
+                "additionalFeatureSets": { "type": "string" },
+                "additionalSubFeatureSets": { "type": "string" }
               }
             }
           }
@@ -1108,62 +1088,6 @@
               ".": { "type": "string" }
             }
           },
-          "embeddingCellSetPolygonsVisible": {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "boolean" }
-            }
-          },
-          "embeddingCellSetLabelsVisible": {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "boolean" }
-            }
-          },
-          "embeddingCellSetLabelSize": {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "number" }
-            }
-          },
-          "embeddingCellRadius": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "type": "number",
-                "description": "The cell radius value, used when embeddingCellRadiusMode is absolute or relative."
-              }
-            }
-          },
-          "embeddingCellOpacity": {
-            "type": "object",
-            "patternProperties": {
-                ".": {
-                  "type": "number",
-                  "description": "The cell opacity value, used when embeddingCellOpacityMode is static."
-                }
-            }
-          },
-          "embeddingCellRadiusMode": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "type": "string",
-                "enum": ["manual", "auto"],
-                "description": "Should data points representing cells be assigned a static (manual) or dynamic (auto, based on zoom level and data extent) radius?"
-              }
-            }
-          },
-          "embeddingCellOpacityMode": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "type": "string",
-                "enum": ["manual", "auto"],
-                "description": "Should data points representing cells be assigned a static (manual) or dynamic (auto, based on zoom level and data extent) opacity?"
-              }
-            }
-          },
           "embeddingObsSetPolygonsVisible": {
             "type": "object",
             "patternProperties": {
@@ -1376,20 +1300,6 @@
               }
             }
           },
-          "spatialCellsLayer": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
-                  },
-                  { "$ref": "#/definitions/cellsLayer" }
-                ]
-              }
-            }
-          },
           "spatialObsLayer": {
             "type": "object",
             "patternProperties": {
@@ -1414,20 +1324,6 @@
                     "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                   },
                   { "$ref": "#/definitions/neighborhoodsLayer" }
-                ]
-              }
-            }
-          },
-          "spatialMoleculesLayer": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
-                  },
-                  { "$ref": "#/definitions/moleculesLayer" }
                 ]
               }
             }
@@ -1470,169 +1366,6 @@
               ".": { "type": "number" }
             }
           },
-          "cellFilter": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no cells will be filtered out initially."
-                  },
-                  { "type": "array", "items": { "type": "string" } }
-                ]
-              }
-            }
-          },
-          "cellHighlight": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no cell will be highlighted initially."
-                  },
-                  { "type": "string" }
-                ]
-              }
-            }
-          },
-          "cellSetSelection": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided and auto cell set initialization is enabled, cell set selections will be automatically initialized."
-                  },
-                  { "type": "array" }
-                ]
-              }
-            }
-          },
-          "cellSetHighlight": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no cell sets will be highlighted initially."
-                  },
-                  { "type": "string" }
-                ]
-              }
-            }
-          },
-          "cellSetColor": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, cell set colors will be automatically initialized."
-                  },
-                  {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": ["path", "color"],
-                      "properties": {
-                        "path": {
-                          "type": "array",
-                          "items": { "type": "string" }
-                        },
-                        "color": {
-                          "type": "array",
-                          "items": { "type": "number" }
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          "cellColorEncoding": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "type": "string",
-                "enum": ["geneSelection", "cellSetSelection"],
-                "description": "How should data points representing cells be colored?"
-              }
-            }
-          },
-          "geneFilter": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no genes will be filtered out initially."
-                  },
-                  { "type": "array", "items": { "type": "string" } }
-                ]
-              }
-            }
-          },
-          "geneHighlight": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no genes will be highlighted initially."
-                  },
-                  { "type": "string" }
-                ]
-              }
-            }
-          },
-          "geneSelection": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  { "type": "array", "items": { "type": "string" } }
-                ]
-              }
-            }
-          },
-          "geneExpressionTransform": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  { "type": "string", "pattern": "log1p" }
-                ]
-              }
-            }
-          },
-          "geneExpressionColormap": {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "string" }
-            }
-          },
-          "geneExpressionColormapRange": {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "array", "items": { "type": "number" } }
-            }
-          },
           "genomicZoomX": {
             "type": "object",
             "patternProperties": {
@@ -1655,22 +1388,6 @@
             "type": "object",
             "patternProperties": {
               ".": { "type": "number" }
-            }
-          },
-          "additionalCellSets": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no cell will be highlighted initially."
-                  },
-                  {
-                    "$ref": "https://github.com/vitessce/vitessce/#cell-sets"
-                  }
-                ]
-              }
             }
           },
           "additionalObsSets": {
@@ -1733,20 +1450,6 @@
                   {
                     "$ref": "https://github.com/vitessce/vitessce/#cell-sets"
                   }
-                ]
-              }
-            }
-          },
-          "moleculeHighlight": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no molecule will be highlighted initially."
-                  },
-                  { "type": "string" }
                 ]
               }
             }
