@@ -34,6 +34,7 @@
   ],
   ...
   ```
+- Adds support for plugin views.
 
 ### Changed
 - Merged dependabot PRs.
