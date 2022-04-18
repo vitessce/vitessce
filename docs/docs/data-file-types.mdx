@@ -204,7 +204,10 @@ json={`
     // All of the genes in \`var\` will display in the \`Genes\` component though.
     // Use \`geneFilter\` instead if you only want to show a subset of the genes there
     // (this must be defined if the matrix is a subset of AnnData.X).
-    "matrixGeneFilter": "var/highly_variable"
+    "matrixGeneFilter": "var/highly_variable",
+    // The gene alias property supports specifying a column containing
+    // alternative gene identifiers.
+    "geneAlias": "var/hugo_symbol"
   }
 }
 `}
@@ -218,7 +221,10 @@ const options = {
   // All of the genes in \`var\` will display in the \`Genes\` component though.
   // Use \`geneFilter\` instead if you only want to show a subset of the genes there
   // (this must be defined if the matrix is a subset of AnnData.X).
-  "matrixGeneFilter": "var/highly_variable"
+  "matrixGeneFilter": "var/highly_variable",
+  // The gene alias property supports specifying a column containing
+  // alternative gene identifiers.
+  "geneAlias": "var/hugo_symbol"
 };
 const dataset = vc
   .addDataset("My dataset")

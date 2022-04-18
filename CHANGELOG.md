@@ -1,15 +1,13 @@
 
 ### Added
+- Support `var` alias for AnnData to display altenrative gene names via new `geneAlias` field.
 
 ### Changed
 
 ## [1.1.19](https://www.npmjs.com/package/vitessce/v/1.1.19) - 2022-03-30
 
-
-
 ### Added
 - Added a roadmap page to the documentation.
-- Support `var` alias for AnnData to display altenrative gene names via new `geneAlias` field.
 
 ### Changed
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details.

@@ -300,7 +300,8 @@ export function upgradeFrom1_0_5(config) {
 }
 
 // Added in version 1.0.7:
-// - Support for aliasing the gene list to a different var
+// - Support for aliasing the gene identifiers using a different var dataframe column
+// via a new `geneAlias` option for the `anndata-expression-matrix.zarr` fileType.
 export function upgradeFrom1_0_6(config) {
   const newConfig = cloneDeep(config);
 
