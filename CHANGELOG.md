@@ -1,5 +1,6 @@
 
 ### Added
+- Adds support for plugin views.
 
 ### Changed
 
