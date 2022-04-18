@@ -298,3 +298,18 @@ export function upgradeFrom1_0_5(config) {
     version: '1.0.6',
   };
 }
+
+// TODO: merge with PR containing v1.0.7
+
+// Added in version 1.0.8:
+// - Support for multiple `dataset` coordination scopes and
+// dataset-specific coordination scope mappings for all
+// other coordination types.
+export function upgradeFrom1_0_6(config) { // TODO change name to upgradeFrom1_0_7
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.8',
+  };
+}

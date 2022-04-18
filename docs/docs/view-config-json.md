@@ -44,6 +44,7 @@ The view config schema version.
 | `1.0.2`| Auto-detection of 3D images was added in this version. |
 | `1.0.3`| Channel sliders for RGB images was added in this version. |
 | `1.0.4`| The coordination types `embeddingCellOpacity`, `embeddingCellRadiusMode`, and `embeddingCellOpacityMode` were added in this version. |
+| `1.0.8`| Support for multi-dataset views and dataset-specific coordination scope mappings was added in this version. |
 
 ### `initStrategy`
 - Type: `string`

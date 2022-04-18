@@ -2,6 +2,7 @@ import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
+import { CoordinationType } from '../constants';
 import { fromEntries, capitalize } from '../../utils';
 
 // Reference: https://github.com/pmndrs/zustand#react-context
@@ -215,6 +216,99 @@ export function useCoordination(parameters, coordinationScopes) {
       value,
     });
     return [setterName, setterFunc];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  })), [parameters, coordinationScopes]);
+
+  return [values, setters];
+}
+
+/**
+ * Get a mapping from dataset coordination scopes to dataset UIDs.
+ * @param {object} coordinationScopes The coordination scope mapping object for a view.
+ * @returns {object} Mapping from dataset coordination scope names to dataset UIDs.
+ */
+export function useDatasetUids(coordinationScopes) {
+  const parameter = CoordinationType.DATASET;
+  const datasetScopes = coordinationScopes[parameter];
+
+  // Mapping from dataset coordination scope name to dataset uid
+  const datasetUids = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    // Convert a single scope to an array of scopes to be consistent.
+    const datasetScopesArr = Array.isArray(datasetScopes) ? datasetScopes : [datasetScopes];
+    return fromEntries(datasetScopesArr.map((datasetScope) => {
+      if (coordinationSpace && coordinationSpace[parameter]) {
+        const value = coordinationSpace[parameter][datasetScope];
+        return [datasetScope, value];
+      }
+      return [datasetScope, undefined];
+    }));
+  }, shallow);
+
+  return datasetUids;
+}
+
+/**
+ * Use coordination values and coordination setter functions corresponding to
+ * dataset-specific coordination scopes for each coordination type.
+ * @param {string[]} parameters An array of coordination types supported by a view.
+ * @param {object} coordinationScopes The coordination scope mapping object for a view.
+ * @returns {array} [cValues, cSetters] where
+ * cValues is a mapping from coordination scope name to { coordinationType: coordinationValue },
+ * and cSetters is a mapping from coordination scope name to { setCoordinationType }
+ * setter functions.
+ */
+export function useMultiDatasetCoordination(parameters, coordinationScopes) {
+  const setCoordinationValue = useViewConfigStore(state => state.setCoordinationValue);
+
+  const datasetScopes = coordinationScopes[CoordinationType.DATASET];
+
+  // Convert a single scope to an array of scopes to be consistent.
+  const datasetScopesArr = Array.isArray(datasetScopes) ? datasetScopes : [datasetScopes];
+
+  const values = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    return fromEntries(datasetScopesArr.map((datasetScope) => {
+      const datasetValues = fromEntries(parameters.map((parameter) => {
+        if (coordinationSpace && coordinationSpace[parameter]) {
+          let value;
+          if (typeof coordinationScopes[parameter] === 'object') {
+            value = coordinationSpace[parameter][coordinationScopes[parameter][datasetScope]];
+          } else if (typeof coordinationScopes[parameter] === 'string') {
+            value = coordinationSpace[parameter][coordinationScopes[parameter]];
+          } else {
+            console.error(`coordination scope for ${parameter} must be of type string or object.`);
+          }
+          return [parameter, value];
+        }
+        return [parameter, undefined];
+      }));
+      return [datasetScope, datasetValues];
+    }));
+  }, shallow);
+
+  const setters = useMemo(() => fromEntries(datasetScopesArr.map((datasetScope) => {
+    const datasetSetters = fromEntries(parameters.map((parameter) => {
+      const setterName = `set${capitalize(parameter)}`;
+      let setterFunc;
+      if (typeof coordinationScopes[parameter] === 'object') {
+        setterFunc = value => setCoordinationValue({
+          parameter,
+          scope: coordinationScopes[parameter][datasetScope],
+          value,
+        });
+      } else if (typeof coordinationScopes[parameter] === 'string') {
+        setterFunc = value => setCoordinationValue({
+          parameter,
+          scope: coordinationScopes[parameter],
+          value,
+        });
+      } else {
+        console.error(`coordination scope for ${parameter} must be of type string or object.`);
+      }
+      return [setterName, setterFunc];
+    }));
+    return [datasetScope, datasetSetters];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [parameters, coordinationScopes]);
 
