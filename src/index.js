@@ -59,7 +59,7 @@ export {
   FileType,
   CoordinationType,
   // Plugin registration functions
-  registerPluginFileType,
+  registerPluginCoordinationType,
   registerPluginViewType,
   // Exports for plugins
   // (not guaranteed to be compatible across different Vitessce versions)
