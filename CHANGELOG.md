@@ -1,6 +1,6 @@
 
 ### Added
-- Adds support for plugin views.
+- Adds support for plugin view types and plugin coordination types.
 
 ### Changed
 

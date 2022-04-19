@@ -11,6 +11,8 @@ import { scAtacSeq10xPbmc } from './view-configs/tenx';
 import { blin2019 } from './view-configs/blin';
 import { omeNgffLegacy } from './view-configs/ome-ngff-legacy';
 import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap';
+import { pluginViewTest } from './view-configs/plugin-view';
+import { pluginCoordinationTest } from './view-configs/plugin-coordination';
 import {
   embeddingZoomConfig,
   embeddingTargetXConfig,
@@ -49,5 +51,7 @@ export const configs = {
   'linnarsson-2018': notPublic(codeluppi2018),
   vanderbilt: notPublic(spraggins2020),
   'dries-2019': notPublic(eng2019),
+  'plugin-view': notPublic(pluginViewTest),
+  'plugin-coordination': notPublic(pluginCoordinationTest),
   ...coordinationTypeConfigs,
 };

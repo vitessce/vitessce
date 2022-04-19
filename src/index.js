@@ -7,8 +7,8 @@ import {
   Vitessce,
   encodeConfInUrl,
   decodeURLParamsToConf,
-  registerPluginFileType,
   registerPluginViewType,
+  registerPluginCoordinationType,
 } from './app';
 import {
   VitessceConfig,

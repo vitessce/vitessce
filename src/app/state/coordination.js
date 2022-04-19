@@ -1,4 +1,10 @@
+import { fromEntries } from '../../utils';
 import { CoordinationType, Component } from '../constants';
+import {
+  getPluginCoordinationTypeDefaults,
+  getPluginViewTypes,
+  getPluginCoordinationTypesForViewType,
+} from '../plugins';
 
 /**
  * Coordination types may have default values,
@@ -56,6 +62,15 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.ADDITIONAL_CELL_SETS]: null,
   [CoordinationType.MOLECULE_HIGHLIGHT]: null,
 };
+
+// Need to do this in a function since the plugin coordination
+// types are dynamic.
+export function getDefaultCoordinationValues() {
+  return {
+    ...DEFAULT_COORDINATION_VALUES,
+    ...getPluginCoordinationTypeDefaults(),
+  };
+}
 
 // The following coordination types should be
 // initialized to independent scopes when
@@ -253,3 +268,15 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GENE_SELECTION,
   ],
 };
+
+// Need to do this in a function since the plugin coordination
+// types are dynamic.
+export function getComponentCoordinationTypes() {
+  return {
+    ...COMPONENT_COORDINATION_TYPES,
+    ...fromEntries(getPluginViewTypes().map(viewType => ([
+      viewType,
+      getPluginCoordinationTypesForViewType(viewType),
+    ]))),
+  };
+}
