@@ -3,11 +3,11 @@
 import packageJson from '../../package.json';
 import { getNextScope } from '../utils';
 import {
-  DEFAULT_COORDINATION_VALUES,
-  COMPONENT_COORDINATION_TYPES,
   AUTO_INDEPENDENT_COORDINATION_TYPES,
+  getComponentCoordinationTypes,
+  getDefaultCoordinationValues,
 } from './state/coordination';
-import { CoordinationType } from './constants';
+import { getCoordinationTypes } from './constants';
 import { SCHEMA_HANDLERS } from './view-config-versions';
 
 /**
@@ -35,6 +35,7 @@ export function getExistingScopesForCoordinationType(config, coordinationType) {
  * @returns {object} The new view config.
  */
 function coordinateComponentsTogether(config, coordinationType, scopeValue) {
+  const componentCoordinationTypes = getComponentCoordinationTypes();
   const scopeName = getNextScope(getExistingScopesForCoordinationType(config, coordinationType));
   const newConfig = {
     ...config,
@@ -53,7 +54,7 @@ function coordinateComponentsTogether(config, coordinationType, scopeValue) {
         // Only set the coordination scope if this component uses this coordination type,
         // and the component is missing a coordination scope for this coordination type.
         ...((
-          COMPONENT_COORDINATION_TYPES[component.component].includes(coordinationType)
+          componentCoordinationTypes[component.component].includes(coordinationType)
           && !component.coordinationScopes?.[coordinationType]
         ) ? {
           // Only set the new scope name if the scope name
@@ -76,6 +77,7 @@ function coordinateComponentsTogether(config, coordinationType, scopeValue) {
  * @returns {object} The new view config.
  */
 function coordinateComponentsIndependent(config, coordinationType, scopeValue) {
+  const componentCoordinationTypes = getComponentCoordinationTypes();
   const newConfig = {
     ...config,
     layout: [...config.layout],
@@ -84,7 +86,7 @@ function coordinateComponentsIndependent(config, coordinationType, scopeValue) {
   newConfig.layout.forEach((component, i) => {
     // Only set the coordination scope if this component uses this coordination type,
     // and the component is missing a coordination scope for this coordination type.
-    if (COMPONENT_COORDINATION_TYPES[component.component].includes(coordinationType)
+    if (componentCoordinationTypes[component.component].includes(coordinationType)
       && !component.coordinationScopes?.[coordinationType]
     ) {
       const scopeName = getNextScope([
@@ -116,19 +118,23 @@ function initializeAuto(config) {
   let newConfig = config;
   const { layout, datasets } = newConfig;
 
+  const componentCoordinationTypes = getComponentCoordinationTypes();
+  const defaultCoordinationValues = getDefaultCoordinationValues();
+  const coordinationTypes = getCoordinationTypes();
+
   // For each coordination type, check whether it requires initialization.
-  Object.values(CoordinationType).forEach((coordinationType) => {
+  coordinationTypes.forEach((coordinationType) => {
     // A coordination type requires coordination if at least one component is missing
     // a (coordination type, coordination scope) tuple.
     // Components may only use a subset of all coordination types.
     const requiresCoordination = !layout
       .every(c => (
-        !COMPONENT_COORDINATION_TYPES[c.component].includes(coordinationType)
+        (!componentCoordinationTypes[c.component].includes(coordinationType))
                 || c.coordinationScopes?.[coordinationType]
       ));
     if (requiresCoordination) {
       // Note that the default value may be undefined.
-      let defaultValue = DEFAULT_COORDINATION_VALUES[coordinationType];
+      let defaultValue = defaultCoordinationValues[coordinationType];
       // Check whether this is the special 'dataset' coordination type.
       if (coordinationType === 'dataset' && datasets.length >= 1) {
         // Use the first dataset ID as the default
