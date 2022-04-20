@@ -1,11 +1,11 @@
 ---
 id: tutorial-gh-pages
-title: 'Tutorial: Deploy Vitessce instance GitHub Pages'
+title: 'Tutorial: Deploy Vitessce instance to GitHub Pages'
 sidebar_label: GitHub Pages Deployment
 slug: /tutorial-gh-pages
 ---
 
-This tutorial covers how to embed Vitessce as a React component in a website that can be deployed to the GitHub Pages free static website hosting service.
+This tutorial covers how to embed Vitessce as a React component in a website that can be deployed to [GitHub Pages](https://pages.github.com/) (GitHub's free static website hosting service).
 
 ## NodeJS and NPM environment setup
 
@@ -22,14 +22,14 @@ npm --version
 
 ## React app setup
 
-Use [create react app](https://create-react-app.dev/docs/getting-started) to initialize a new React project.
+Use [Create React App](https://create-react-app.dev/docs/getting-started) to initialize a new React project:
 
 ```sh
 npm init react-app vitessce-demo-gh-pages --use-npm
 cd vitessce-demo-gh-pages
 ```
 
-Initialize the folder as a Git repository.
+Initialize the new React app directory as a Git repository:
 
 ```sh
 git init
@@ -47,7 +47,7 @@ git push -u origin main
 ```
 
 
-Install [craco](https://github.com/gsoft-inc/craco) which enables customization of the Webpack configuration.
+Install [craco](https://github.com/gsoft-inc/craco) which enables customization of the Webpack configuration:
 
 ```sh
 npm install @craco/craco@5.8.0 --save-dev
@@ -199,7 +199,7 @@ body {
 ## Data deployment
 
 When you deploy the React app to the internet via GitHub Pages, the data URLs referenced in your Vitessce configuration (defined in `src/my-view-config.js`) must point to static files that are hosted remotely on the internet.
-AWS S3 is one example of a static file hosting service (object storage system) that can be configured such that other websites (e.g., GitHub Pages sites) can load its hosted files.
+AWS S3 is one example of a static file hosting service (in this case, an object storage system) that can be configured such that other websites (e.g., GitHub Pages sites) can load its hosted files.
 
 If you are using AWS S3 to host the data that is referenced in your Vitessce configuration, ensure that the S3 bucket is configured according to our [AWS S3 data hosting](/docs/data-hosting/#aws-s3) documentation.
 
@@ -207,8 +207,7 @@ If you are using AWS S3 to host the data that is referenced in your Vitessce con
 ## GitHub Pages deployment
 
 To deploy a website to GitHub pages one time, the [`gh-pages`](https://www.npmjs.com/package/gh-pages#command-line-utility) package can be installed from NPM and run as a command line utility.
-
-However, in this tutorial we will describe how to use a [GitHub Action](https://docs.github.com/en/actions) to automatically re-deploy the React app to the GitHub Pages website on every push to the main branch of its GitHub repository.
+However, in this tutorial we will describe how to use a [GitHub Action](https://docs.github.com/en/actions) which will automatically re-deploy the React app to the GitHub Pages website upon each push to the main branch of its GitHub repository.
 
 Create a new file at `.github/workflows/deploy.yml` with the following contents:
 
@@ -243,14 +242,14 @@ jobs:
 
 ### Create a Personal access token
 
-To allow the GitHub Action to modify modify the `gh-pages` branch of the repository, we need to provide it with a Personal access token that has the appropriate permissions.
-
+To allow the GitHub Action to modify the `gh-pages` branch of the repository, we need to provide it with a Personal access token that has the appropriate permissions.
 This can be generated in GitHub by going to the user Settings page and then Developer settings (or https://github.com/settings/tokens).
+
 Click "Generate new token" (which may require you to log in).
 
 Provide a name and update the expiration date appropriately.
 
-Under "Select scopes" check `repo` (the sub-checkboxes should then be checked automatically).
+Under "Select scopes", check `repo` (the sub-checkboxes should then be checked automatically).
 
 Once the token has been generated, copy it to somewhere safe to keep track of it.
 
@@ -275,7 +274,7 @@ In `package.json` (replacing `my-username` with your GitHub username):
 ```
 
 
-## Commit and push to GitHub
+### Commit and push to GitHub
 
 The changes to the Git repository will need to be committed and pushed to GitHub in order for the GitHub Action to be executed and the GitHub Pages site to be subsequently deployed.
 
