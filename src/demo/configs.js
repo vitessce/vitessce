@@ -13,6 +13,7 @@ import { omeNgffLegacy } from './view-configs/ome-ngff-legacy';
 import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap';
 import { pluginViewTest } from './view-configs/plugin-view';
 import { pluginCoordinationTest } from './view-configs/plugin-coordination';
+import { pluginFileTypeTest } from './view-configs/plugin-filetype';
 import {
   embeddingZoomConfig,
   embeddingTargetXConfig,
@@ -53,5 +54,6 @@ export const configs = {
   'dries-2019': notPublic(eng2019),
   'plugin-view': notPublic(pluginViewTest),
   'plugin-coordination': notPublic(pluginCoordinationTest),
+  'plugin-file-type': notPublic(pluginFileTypeTest),
   ...coordinationTypeConfigs,
 };

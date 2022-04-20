@@ -1,4 +1,5 @@
 import { FileType } from '../app/constants';
+import { getPluginFileType } from '../app/plugins';
 
 import JsonLoader from './JsonLoader';
 import MatrixZarrLoader from './MatrixZarrLoader';
@@ -28,5 +29,12 @@ export const fileTypeToLoaderAndSource = {
 };
 
 export function getSourceAndLoaderFromFileType(type) {
-  return fileTypeToLoaderAndSource[type] || [JsonSource, JsonLoader];
+  if (fileTypeToLoaderAndSource[type]) {
+    return fileTypeToLoaderAndSource[type];
+  }
+  if (getPluginFileType(type)) {
+    return getPluginFileType(type);
+  }
+  // Fallback to JSON.
+  return [JsonSource, JsonLoader];
 }
