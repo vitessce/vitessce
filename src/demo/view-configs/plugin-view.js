@@ -1,5 +1,5 @@
-/* eslint-disable */
-import React, { useEffect } from 'react';
+/* eslint-disable react/button-has-type */
+import React from 'react';
 import {
   registerPluginViewType,
 } from '../../app/plugins';
@@ -10,7 +10,6 @@ import {
 import TitleInfo from '../../components/TitleInfo';
 import {
   useCoordination,
-  useLoaders,
 } from '../../app/state/hooks';
 
 function MyPluginView(props) {
@@ -20,7 +19,7 @@ function MyPluginView(props) {
   } = props;
 
   function handleClick() {
-    setSpatialZoom(-10 + Math.random()*10);
+    setSpatialZoom(-10 + Math.random() * 10);
   }
   return (
     <div>
@@ -40,12 +39,9 @@ function MyPluginViewSubscriber(props) {
     title = 'My plugin view',
   } = props;
 
-  const loaders = useLoaders();
-
   // Get "props" from the coordination space.
   const [{
-    dataset,
-    spatialZoom
+    spatialZoom,
   }, {
     setSpatialZoom,
   }] = useCoordination(
@@ -56,13 +52,12 @@ function MyPluginViewSubscriber(props) {
     coordinationScopes,
   );
 
-
   return (
     <TitleInfo
       title={title}
       theme={theme}
       removeGridComponent={removeGridComponent}
-      isReady={true}
+      isReady
     >
       <MyPluginView
         spatialZoom={spatialZoom}
@@ -79,7 +74,7 @@ registerPluginViewType(
   [
     CoordinationType.DATASET,
     CoordinationType.SPATIAL_ZOOM,
-  ]
+  ],
 );
 
 // Use the plugin view in the configuration.
@@ -94,10 +89,10 @@ export const pluginViewTest = {
       name: 'Plugin test dataset',
       files: [
         {
-          "type": "raster",
-          "fileType": "raster.json",
-          "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/spraggins/spraggins.raster.json"
-        }
+          type: 'raster',
+          fileType: 'raster.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/spraggins/spraggins.raster.json',
+        },
       ],
     },
   ],
@@ -140,5 +135,3 @@ export const pluginViewTest = {
     },
   ],
 };
-
-

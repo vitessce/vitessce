@@ -1,7 +1,6 @@
-/* eslint-disable */
-import range from "lodash/range";
-import JsonLoader from "../../loaders/JsonLoader";
-import LoaderResult from "../../loaders/LoaderResult";
+import range from 'lodash/range';
+import JsonLoader from '../../loaders/JsonLoader';
+import LoaderResult from '../../loaders/LoaderResult';
 import JsonSource from '../../loaders/data-sources/JsonSource';
 import {
   registerPluginFileType,
@@ -12,32 +11,35 @@ const numCells = 60;
 const numGenes = 90;
 
 class InMemoryCellsLoader extends JsonLoader {
+  // eslint-disable-next-line class-methods-use-this
   async load() {
     const data = fromEntries(range(numCells).map(i => ([`cell_${i}`, {
-      "mappings": {
-        "random": [
-         Math.random(),
-         Math.random()
-        ]
-       },
-       "genes": {},
-       "xy": [
+      mappings: {
+        random: [
+          Math.random(),
+          Math.random(),
+        ],
+      },
+      genes: {},
+      xy: [
         Math.random(),
-        Math.random()
-       ],
+        Math.random(),
+      ],
     }])));
-    
+
     return Promise.resolve(new LoaderResult(data, null));
   }
 }
 
 class InMemoryMatrixLoader extends JsonLoader {
+  // eslint-disable-next-line class-methods-use-this
   async load() {
     const data = {
       rows: Array.from({ length: numGenes }, (i, j) => `gene_${j}`),
       cols: Array.from({ length: numCells }, (i, j) => `cell_${j}`),
-      matrix: Array.from({ length: numGenes }, (i, j) =>
-        Array.from({ length: numCells }, (l, k) => Math.random()*100),
+      matrix: Array.from(
+        { length: numGenes },
+        () => Array.from({ length: numCells }, () => Math.random() * 100),
       ),
     };
     const { rows, cols, matrix } = data;
@@ -50,13 +52,12 @@ class InMemoryMatrixLoader extends JsonLoader {
     // Normalize for each gene (column) independently.
     const normalizedMatrix = matrix.map((col) => {
       const [min, max] = [0, 1];
-      const normalize = (d) => Math.floor(((d - min) / (max - min)) * 255);
+      const normalize = d => Math.floor(((d - min) / (max - min)) * 255);
       return col.map(normalize);
     });
     // Transpose the normalized matrix.
-    const tNormalizedMatrix = range(shape[0]).map((i) =>
-      range(shape[1]).map((j) => normalizedMatrix[j][i])
-    );
+    const tNormalizedMatrix = range(shape[0])
+      .map(i => range(shape[1]).map(j => normalizedMatrix[j][i]));
     // Flatten the transposed matrix.
     const normalizedFlatMatrix = tNormalizedMatrix.flat();
     // Need to wrap the NestedArray to mock the HTTPStore-based array
@@ -88,15 +89,15 @@ export const pluginFileTypeTest = {
       name: 'Plugin test dataset',
       files: [
         {
-          "type": "expression-matrix",
-          "fileType": 'in-memory-matrix',
-          "url": ""
+          type: 'expression-matrix',
+          fileType: 'in-memory-matrix',
+          url: '',
         },
         {
-          "type": "cells",
-          "fileType": 'in-memory-cells',
-          "url": ""
-        }
+          type: 'cells',
+          fileType: 'in-memory-cells',
+          url: '',
+        },
       ],
     },
   ],

@@ -1,8 +1,7 @@
-/* eslint-disable */
-import React, { useEffect } from 'react';
+import React from 'react';
 import Slider from '@material-ui/core/Slider';
 import {
-    registerPluginCoordinationType,
+  registerPluginCoordinationType,
   registerPluginViewType,
 } from '../../app/plugins';
 import {
@@ -12,7 +11,6 @@ import {
 import TitleInfo from '../../components/TitleInfo';
 import {
   useCoordination,
-  useLoaders,
 } from '../../app/state/hooks';
 
 function MyPluginSlider(props) {
@@ -46,12 +44,9 @@ function MyPluginSliderSubscriber(props) {
     title = 'My plugin slider',
   } = props;
 
-  const loaders = useLoaders();
-
   // Get "props" from the coordination space.
   const [{
-    dataset,
-    myCustomCoordinationType
+    myCustomCoordinationType,
   }, {
     setMyCustomCoordinationType,
   }] = useCoordination(
@@ -67,7 +62,7 @@ function MyPluginSliderSubscriber(props) {
       title={title}
       theme={theme}
       removeGridComponent={removeGridComponent}
-      isReady={true}
+      isReady
     >
       <MyPluginSlider
         myCustomCoordinationType={myCustomCoordinationType}
@@ -88,8 +83,8 @@ registerPluginViewType(
   MyPluginSliderSubscriber,
   [
     CoordinationType.DATASET,
-    'myCustomCoordinationType'
-  ]
+    'myCustomCoordinationType',
+  ],
 );
 
 // Use the plugin view in the configuration.
@@ -163,5 +158,3 @@ export const pluginCoordinationTest = {
     },
   ],
 };
-
-
