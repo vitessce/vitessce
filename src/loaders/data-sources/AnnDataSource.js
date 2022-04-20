@@ -12,6 +12,12 @@ const readFloat32FromUint8 = (bytes) => {
 
 const HEADER_LENGTH = 4;
 
+function dirname(path) {
+  const arr = path.split('/');
+  arr.pop();
+  return arr.join('/');
+}
+
 /**
    * Method for decoding text arrays from zarr.
    * Largerly a port of https://github.com/zarr-developers/numcodecs/blob/2c1aff98e965c3c4747d9881d8b8d4aad91adb3a/numcodecs/vlen.pyx#L135-L178
@@ -53,12 +59,12 @@ export default class AnnDataSource extends ZarrDataSource {
     this.promises = new Map();
   }
 
-  loadObsVariables(paths) {
-    return this._loadVariables(paths, true);
+  loadObsColumns(paths) {
+    return this._loadColumns(paths);
   }
 
-  loadVarVariables(paths) {
-    return this._loadVariables(paths, false);
+  loadVarColumns(paths) {
+    return this._loadColumns(paths);
   }
 
   /**
@@ -68,11 +74,11 @@ export default class AnnDataSource extends ZarrDataSource {
    * @param {string[]} paths An array of strings like "obs/leiden" or "obs/bulk_labels."
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
-  _loadVariables(paths, isObs) {
+  _loadColumns(paths) {
     const promises = paths.map((path) => {
       const getCol = (col) => {
         if (!this.promises.has(col)) {
-          const obsPromise = this._loadVariable(col, isObs).catch((err) => {
+          const obsPromise = this._loadColumn(col).catch((err) => {
             // clear from cache if promise rejects
             this.promises.delete(col);
             // propagate error
@@ -93,17 +99,22 @@ export default class AnnDataSource extends ZarrDataSource {
     return Promise.all(promises);
   }
 
-  async _loadVariable(path, isObs) {
+  async _loadColumn(path) {
     const { store } = this;
-    const col = isObs ? 'obs' : 'var';
+    const prefix = dirname(path);
     const { categories } = await this.getJson(`${path}/.zattrs`);
     let categoriesValues;
     if (categories) {
-      const { dtype } = await this.getJson(`/${col}/${categories}/.zarray`);
+      const { dtype } = await this.getJson(`/${prefix}/${categories}/.zarray`);
       if (dtype === '|O') {
         categoriesValues = await this.getFlatArrDecompressed(
-          `/${col}/${categories}`,
+          `/${prefix}/${categories}`,
         );
+      }
+    } else {
+      const { dtype } = await this.getJson(`/${path}/.zarray`);
+      if (dtype === '|O') {
+        return this.getFlatArrDecompressed(path);
       }
     }
     const arr = await openArray({ store, path, mode: 'r' });
@@ -222,7 +233,7 @@ export default class AnnDataSource extends ZarrDataSource {
     if (this.varAlias) {
       return this.varAlias;
     }
-    [this.varAlias] = await this.loadVarVariables([varPath]);
+    [this.varAlias] = await this.loadVarColumns([varPath]);
     const index = await this.loadVarIndex();
     this.varAlias = this.varAlias.map((val, ind) => val || index[ind]);
     return this.varAlias;
