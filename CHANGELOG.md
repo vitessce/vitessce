@@ -1,5 +1,6 @@
 
 ### Added
+- Add a tutorial that describes how to deploy a Vitessce web app to GitHub pages.
 
 ### Changed
 

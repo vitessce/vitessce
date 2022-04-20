@@ -1,0 +1,298 @@
+---
+id: tutorial-gh-pages
+title: 'Tutorial: Deploy Vitessce instance GitHub Pages'
+sidebar_label: GitHub Pages Deployment
+slug: /tutorial-gh-pages
+---
+
+This tutorial covers how to embed Vitessce as a React component in a website that can be deployed to the GitHub Pages free static website hosting service.
+
+## NodeJS and NPM environment setup
+
+Be sure to install [NodeJS](https://nodejs.org/en/download/releases/) v14.0.0 and NPM v6.14.16.
+
+```sh
+node --version
+```
+
+```sh
+npm install -g npm@6.14.16
+npm --version
+```
+
+## React app setup
+
+Use [create react app](https://create-react-app.dev/docs/getting-started) to initialize a new React project.
+
+```sh
+npm init react-app vitessce-demo-gh-pages --use-npm
+cd vitessce-demo-gh-pages
+```
+
+Initialize the folder as a Git repository.
+
+```sh
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+```
+
+Make a new GitHub repository (https://github.com/new) (here I called the repository `vitessce-demo-gh-pages`) and set it as the remote origin:
+
+```sh
+# Replace my-username with your GitHub username in the following line:
+git remote add origin git@github.com:my-username/vitessce-demo-gh-pages.git
+git push -u origin main
+```
+
+
+Install [craco](https://github.com/gsoft-inc/craco) which enables customization of the Webpack configuration.
+
+```sh
+npm install @craco/craco@5.8.0 --save-dev
+```
+
+Install Vitessce:
+
+```sh
+npm install vitessce --save
+```
+
+Create a new file `craco.config.js` with the following contents (see the Vitessce [README](https://github.com/vitessce/vitessce#bundling) for why this is required):
+
+```js
+module.exports = {
+  webpack: {
+    configure: {
+      resolve: {
+        alias: {
+          'txml/txml': 'txml/dist/txml',
+        },
+      },
+    },
+  },
+};
+```
+
+## React app development
+
+Make a new file `src/my-view-config.js`:
+
+```js
+export const myViewConfig = {
+  version: "1.0.4",
+  name: "My example config",
+  description: "This demonstrates the JSON schema",
+  datasets: [
+    {
+      uid: "D1",
+      name: "Dries",
+      files: [
+        {
+          url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json",
+          type: "cells",
+          fileType: "cells.json"
+        },
+        {
+          url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json",
+          type: "cell-sets",
+          fileType: "cell-sets.json"
+        }
+      ]
+    }
+  ],
+  coordinationSpace: {
+    dataset: {
+      A: "D1"
+    },
+    embeddingType: {
+      A: "UMAP",
+      B: "t-SNE"
+    },
+    embeddingZoom: {
+      A: 2.5
+    }
+  },
+  layout: [
+    {
+      component: "scatterplot",
+      coordinationScopes: {
+        dataset: "A",
+        embeddingType: "A",
+        embeddingZoom: "A"
+      },
+      x: 6, y: 0, w: 6, h: 6
+    },
+    {
+      component: "scatterplot",
+      coordinationScopes: {
+        dataset: "A",
+        embeddingType: "B",
+        embeddingZoom: "A"
+      },
+      x: 0, y: 0, w: 6, h: 6
+    },
+    {
+      component: "cellSets",
+      coordinationScopes: {
+        dataset: "A"
+      },
+      x: 0, y: 6, w: 6, h: 6
+    },
+    {
+      component: "cellSetSizes",
+      coordinationScopes: {
+        dataset: "A"
+      },
+      x: 6, y: 6, w: 6, h: 6
+    }
+  ],
+  initStrategy: "auto"
+};
+```
+
+In `src/App.js`:
+
+```js
+import React from 'react';
+import { Vitessce } from 'vitessce';
+import { myViewConfig } from './my-view-config';
+import 'vitessce/dist/es/production/static/css/index.css';
+
+export default function App() {
+  return (
+    <Vitessce
+      config={myViewConfig}
+      theme="light"
+    />
+  );
+}
+```
+
+In `src/index.css` (which is imported by `src/index.js`):
+
+```css
+html {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  margin: 0;
+}
+
+.vitessce-container {
+  height: max(100%, 100vh);
+  width: 100%;
+}
+```
+
+## Data deployment
+
+When you deploy the React app to the internet via GitHub Pages, the data URLs referenced in your Vitessce configuration (defined in `src/my-view-config.js`) must point to static files that are hosted remotely on the internet.
+AWS S3 is one example of a static file hosting service (object storage system) that can be configured such that other websites (e.g., GitHub Pages sites) can load its hosted files.
+
+If you are using AWS S3 to host the data that is referenced in your Vitessce configuration, ensure that the S3 bucket is configured according to our [AWS S3 data hosting](/docs/data-hosting/#aws-s3) documentation.
+
+
+## GitHub Pages deployment
+
+To deploy a website to GitHub pages one time, the [`gh-pages`](https://www.npmjs.com/package/gh-pages#command-line-utility) package can be installed from NPM and run as a command line utility.
+
+However, in this tutorial we will describe how to use a [GitHub Action](https://docs.github.com/en/actions) to automatically re-deploy the React app to the GitHub Pages website on every push to the main branch of its GitHub repository.
+
+Create a new file at `.github/workflows/deploy.yml` with the following contents:
+
+```yml
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-18.04
+    name: Build React app and deploy to GitHub Pages
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: Install NPM dependencies
+        run: npm ci
+      - name: Build React app
+        run: npm run build
+      - name: Deploy docs to gh-pages branch
+        uses: alex-page/blazing-fast-gh-pages-deploy@v1.1.0
+        with:
+          repo-token: ${{ secrets.GH_TOKEN }}
+          site-directory: build
+```
+
+### Create a Personal access token
+
+To allow the GitHub Action to modify modify the `gh-pages` branch of the repository, we need to provide it with a Personal access token that has the appropriate permissions.
+
+This can be generated in GitHub by going to the user Settings page and then Developer settings (or https://github.com/settings/tokens).
+Click "Generate new token" (which may require you to log in).
+
+Provide a name and update the expiration date appropriately.
+
+Under "Select scopes" check `repo` (the sub-checkboxes should then be checked automatically).
+
+Once the token has been generated, copy it to somewhere safe to keep track of it.
+
+### Set the Personal access token as a Repository secret
+
+In the GitHub repository's Settings tab, go to Security > Secrets > Actions.
+
+Click the "New repository secret" button.
+
+Name the secret `GH_TOKEN`, and provide the Personal access token as the value.
+
+### Set the homepage property in package.json
+
+In order for relative file paths to be [resolved correctly](https://create-react-app.dev/docs/deployment#building-for-relative-paths), specify the GitHub pages URL as the website's homepage.
+
+In `package.json` (replacing `my-username` with your GitHub username):
+
+```json
+  ...,
+  "homepage": "https://my-username.github.io/vitessce-demo-gh-pages/",
+  ...,
+```
+
+
+## Commit and push to GitHub
+
+The changes to the Git repository will need to be committed and pushed to GitHub in order for the GitHub Action to be executed and the GitHub Pages site to be subsequently deployed.
+
+```sh
+git add .
+git commit -m "Second commit"
+git push
+```
+
+## Test the deployment
+
+Check that the GitHub Action has executed successfully in the "Actions" tab of the GitHub page for the repository.
+Then, go to the GitHub Pages URL to load the website (replacing `my-username` with your GitHub username):
+
+https://my-username.github.io/vitessce-demo-gh-pages/
+
+## Complete example
+
+For reference, a complete example can be found in the [`vitessce-demo-gh-pages`](https://github.com/keller-mark/vitessce-demo-gh-pages) GitHub repository
+with corresponding deployment at https://keller-mark.github.io/vitessce-demo-gh-pages/.
