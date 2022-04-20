@@ -21,7 +21,7 @@ import {
   FileType,
   CoordinationType,
 } from './app/constants';
-// For plugin views to use:
+// For plugin view types:
 import TitleInfo from './components/TitleInfo';
 import { useReady, useUrls } from './components/hooks';
 import {
@@ -40,6 +40,18 @@ import {
   useCoordination,
   useLoaders,
 } from './app/state/hooks';
+// For plugin file type:
+import {
+  JsonLoader,
+  LoaderResult,
+  AbstractTwoStepLoader,
+  AnnDataLoaders,
+} from './loaders';
+import {
+  JsonSource,
+  ZarrDataSource,
+  AnnDataSource,
+} from './loaders/data-sources';
 
 
 export {
@@ -78,4 +90,11 @@ export {
   useNeighborhoodsData,
   useRasterData,
   useGenomicProfilesData,
+  JsonLoader,
+  LoaderResult,
+  AbstractTwoStepLoader,
+  AnnDataLoaders,
+  JsonSource,
+  ZarrDataSource,
+  AnnDataSource,
 };
