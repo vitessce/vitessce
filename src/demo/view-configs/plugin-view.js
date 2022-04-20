@@ -85,7 +85,7 @@ registerPluginViewType(
 // Use the plugin view in the configuration.
 export const pluginViewTest = {
   name: 'Test plugin view types',
-  version: '1.0.0',
+  version: '1.0.6',
   description: 'Demonstration of a basic plugin view implementation.',
   public: true,
   datasets: [
