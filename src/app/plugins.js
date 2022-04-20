@@ -4,6 +4,9 @@ export const PLUGIN_COORDINATION_TYPES_KEY = '__VITESSCE_PLUGIN_COORDINATION_TYP
 export const PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY = '__VITESSCE_PLUGIN_COORDINATION_TYPES_PER_VIEW__';
 
 // Reference: https://github.com/higlass/higlass-register/blob/master/src/index.js
+// TODO: rather than the registration functions and storing things on the window object,
+// should plugins be provided as props to the main <Vitessce/> React component
+// and stored via some React context?
 window[PLUGIN_VIEW_TYPES_KEY] = window[PLUGIN_VIEW_TYPES_KEY] || {};
 window[PLUGIN_COORDINATION_TYPES_KEY] = window[PLUGIN_COORDINATION_TYPES_KEY] || {};
 window[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY] = (
