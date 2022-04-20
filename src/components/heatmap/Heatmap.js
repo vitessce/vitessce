@@ -171,6 +171,17 @@ const Heatmap = forwardRef((props, deckRef) => {
     ];
   }, [expression]);
 
+  // Creating a look up dictionary once is faster than calling indexOf many times
+  // i.e when cell ordering changes.
+  const expressionRowLookUp = useMemo(() => {
+    const lookUp = new Map();
+    if (expression?.rows) {
+      // eslint-disable-next-line no-return-assign
+      expression.rows.forEach((cell, j) => (lookUp.set(cell, j)));
+    }
+    return lookUp;
+  }, [expression]);
+
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
 
@@ -286,18 +297,19 @@ const Heatmap = forwardRef((props, deckRef) => {
       return;
     }
     const curr = backlog[backlog.length - 1];
-    if (dataRef.current && dataRef.current.buffer.byteLength) {
-      const { rows, cols, matrix } = expression;
+    if (dataRef.current
+      && dataRef.current.buffer.byteLength && expressionRowLookUp.size > 0) {
+      const { cols, matrix } = expression;
       const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
         curr,
         tileI: i,
         tileJ: j,
         tileSize: TILE_SIZE,
         cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
-        rows,
         cols,
         transpose,
         data: matrix.buffer.slice(),
+        expressionRowLookUp,
       })));
       const process = async () => {
         const tiles = await Promise.all(promises.flat());
@@ -312,7 +324,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       };
       process();
     }
-  }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose, xTiles, yTiles, workerPool]);
+  }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose,
+    xTiles, yTiles, workerPool, expressionRowLookUp]);
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
