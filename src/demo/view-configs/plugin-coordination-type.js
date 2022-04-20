@@ -88,7 +88,7 @@ registerPluginViewType(
 );
 
 // Use the plugin view in the configuration.
-export const pluginCoordinationTest = {
+export const pluginCoordinationType = {
   name: 'Test plugin views and coordination types',
   version: '1.0.6',
   description: 'Demonstration of a plugin coordination type implementation. The left sliders should be coordinated, while the right sliders are independent.',
