@@ -104,3 +104,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2021-11-19: [keller-mark/docs-publish-2](https://s3.amazonaws.com/vitessce-data/demos/2021-11-19/6710a228/index.html)
 - 2022-02-14: [release-v1.1.18](https://s3.amazonaws.com/vitessce-data/demos/2022-02-14/87373735/index.html)
 - 2022-03-30: [release-v1.1.19](https://s3.amazonaws.com/vitessce-data/demos/2022-03-30/2d1eba78/index.html)
+- 2022-04-21: [keller-mark/initial-plugin-support](https://s3.amazonaws.com/vitessce-data/demos/2022-04-21/83afd866/index.html)
