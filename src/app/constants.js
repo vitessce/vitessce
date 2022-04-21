@@ -13,10 +13,6 @@ export const Component = {
   EXPRESSION_HISTOGRAM: 'expressionHistogram',
 };
 
-export const MULTI_DATASET_COMPONENTS = [
-  Component.DESCRIPTION,
-];
-
 export const DataType = {
   CELLS: 'cells',
   CELL_SETS: 'cell-sets',
