@@ -1,5 +1,6 @@
 
 ### Added
+- Add a tutorial that describes how to deploy a Vitessce web app to GitHub pages.
 - Support `var` alias for AnnData to display altenrative gene names via new `geneAlias` field.
 
 ### Changed
