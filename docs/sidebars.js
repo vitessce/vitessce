@@ -66,7 +66,8 @@ module.exports = {
       collapsed: false,
       items: [
         'tutorials',
-        'tutorial-visium'
+        'tutorial-visium',
+        'tutorial-gh-pages',
       ],
     },
   ],
