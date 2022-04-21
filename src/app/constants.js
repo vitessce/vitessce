@@ -1,5 +1,3 @@
-import { getPluginCoordinationTypes } from './plugins';
-
 export const Component = {
   DESCRIPTION: 'description',
   STATUS: 'status',
@@ -98,10 +96,3 @@ export const CoordinationType = {
   ADDITIONAL_CELL_SETS: 'additionalCellSets',
   MOLECULE_HIGHLIGHT: 'moleculeHighlight',
 };
-
-export function getCoordinationTypes() {
-  return [
-    ...Object.values(CoordinationType),
-    ...getPluginCoordinationTypes(),
-  ];
-}

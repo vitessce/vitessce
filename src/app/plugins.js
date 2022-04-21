@@ -1,3 +1,10 @@
+import { fromEntries } from '../utils';
+import { CoordinationType } from './constants';
+import {
+  COMPONENT_COORDINATION_TYPES,
+  DEFAULT_COORDINATION_VALUES,
+} from './state/coordination';
+
 export const PLUGIN_VIEW_TYPES_KEY = '__VITESSCE_PLUGIN_VIEW_TYPES__';
 export const PLUGIN_COORDINATION_TYPES_KEY = '__VITESSCE_PLUGIN_COORDINATION_TYPES__';
 export const PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY = '__VITESSCE_PLUGIN_COORDINATION_TYPES_PER_VIEW__';
@@ -59,7 +66,7 @@ export function registerPluginFileType(
 }
 
 
-// Plugin getter functions
+// Plugin getter functions.
 
 export function getPluginViewTypes() {
   return Object.keys(window[PLUGIN_VIEW_TYPES_KEY]);
@@ -86,4 +93,34 @@ export function getPluginCoordinationTypesForViewType(viewType) {
 
 export function getPluginFileType(fileType) {
   return window[PLUGIN_FILE_TYPES_KEY][fileType];
+}
+
+// Getters that depend on plugins.
+
+export function getCoordinationTypes() {
+  return [
+    ...Object.values(CoordinationType),
+    ...getPluginCoordinationTypes(),
+  ];
+}
+
+// Need to do this in a function since the plugin coordination
+// types are dynamic.
+export function getDefaultCoordinationValues() {
+  return {
+    ...DEFAULT_COORDINATION_VALUES,
+    ...getPluginCoordinationTypeDefaults(),
+  };
+}
+
+// Need to do this in a function since the plugin coordination
+// types are dynamic.
+export function getComponentCoordinationTypes() {
+  return {
+    ...COMPONENT_COORDINATION_TYPES,
+    ...fromEntries(getPluginViewTypes().map(viewType => ([
+      viewType,
+      getPluginCoordinationTypesForViewType(viewType),
+    ]))),
+  };
 }

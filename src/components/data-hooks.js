@@ -11,7 +11,7 @@ import {
   DEFAULT_CELLS_LAYER,
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
-import { getDefaultCoordinationValues } from '../app/state/coordination';
+import { getDefaultCoordinationValues } from '../app/plugins';
 
 /**
  * Warn via publishing to the console
