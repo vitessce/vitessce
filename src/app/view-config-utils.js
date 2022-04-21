@@ -4,10 +4,12 @@ import packageJson from '../../package.json';
 import { getNextScope } from '../utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
+} from './state/coordination';
+import {
   getComponentCoordinationTypes,
   getDefaultCoordinationValues,
-} from './state/coordination';
-import { getCoordinationTypes } from './constants';
+  getCoordinationTypes,
+} from './plugins';
 import { SCHEMA_HANDLERS } from './view-config-versions';
 
 /**
