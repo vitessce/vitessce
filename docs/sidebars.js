@@ -47,7 +47,8 @@ module.exports = {
       label: 'Developer Docs',
       items: [
         'dev-overview',
-        'dev-add-component'
+        'dev-add-component',
+        'dev-plugins'
       ],
     },
     {
@@ -68,6 +69,9 @@ module.exports = {
         'tutorials',
         'tutorial-visium',
         'tutorial-gh-pages',
+        'tutorial-plugin-view-type',
+        'tutorial-plugin-coordination-type',
+        'tutorial-plugin-file-type',
       ],
     },
   ],
