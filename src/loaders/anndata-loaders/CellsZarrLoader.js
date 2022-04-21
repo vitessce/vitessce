@@ -69,7 +69,7 @@ export default class CellsZarrLoader extends AbstractTwoStepLoader {
   loadFactors() {
     const { factors } = (this.options || {});
     if (factors) {
-      return this.dataSource.loadObsVariables(factors);
+      return this.dataSource.loadObsColumns(factors);
     }
     return Promise.resolve(null);
   }
