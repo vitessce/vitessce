@@ -1,0 +1,120 @@
+---
+id: dev-plugins
+title: Plugin development
+---
+
+Vitessce supports plugin view types, coordination types, and file types.
+
+Plugin view types and coordination types can enable development of interactive visualizations to support custom use cases (i.e., use cases beyond those supported by existing view types).
+Plugin file types can enable loading data that is stored in custom file formats.
+
+:::caution
+
+Note that we cannot guarantee that future versions of Vitessce will not break existing plugins.
+For instance, we do not make any guarantees that exported helper functions such as React data-loading hooks (e.g., `useRasterData`, `useExpressionMatrixData`, etc.) will not be removed or will have a consistent function signature across Vitessce versions.
+Therefore, __plugin developers should be sure to document which version(s) of Vitessce that plugins have been developed under__.
+
+:::
+
+:::tip
+
+If you believe a plugin would be applicable to the wider Vitessce user base, we encourage contributing it back to the Vitessce core via a pull request, which can also facilitate us to support the view type or file type in future Vitessce versions.
+
+:::
+
+:::note
+
+Currently, plugins can be defined and registered in JavaScript.
+There is not yet a straightforward way to expose plugins to the Python or R widgets (nor is there currently a way to develop plugins in Python/R directly).
+Hopefully we can make this possible in the future.
+
+:::
+
+## Plugin view types
+
+Plugin views must be implemented as React components.
+They must be registered so that the React component can be associated with a name that can be used as a value for the field [`layout[].component`](/docs/view-config-json/#layout) in the view config.
+
+### `registerPluginViewType(viewType, reactComponent, coordinationTypes)`
+
+#### Parameters:
+- `viewType` (`string`) - A name for the plugin view type.
+- `reactComponent` (`function`) - A React function component.
+- `coordinationType` (`string[]`) - A list of coordination types supported by this component.
+
+```js
+import { registerPluginViewType, CoordinationType } from 'vitessce';
+
+// ...
+// Omitted: definition of a React component
+// in some function called MyCustomZoomControllerSubscriber.
+// ...
+
+registerPluginViewType(
+  'myCustomZoomController',
+  MyCustomZoomControllerSubscriber,
+  [
+    CoordinationType.DATASET,
+    CoordinationType.SPATIAL_ZOOM,
+  ],
+);
+```
+
+For a full example, see the [Plugin View Type Development tutorial](/docs/tutorial-plugin-view-type/).
+
+
+
+## Plugin coordination types
+
+Plugin coordination types must be registered to provide a default value, and so that views can subscribe to coordination value updates.
+
+### `registerPluginCoordinationType(coordinationType, defaultValue)`
+
+#### Parameters:
+- `coordinationType` (`string`) - A name for the plugin coordination type.
+- `defaultValue` (`any`) - A default value for the coordination type. Used for initialization if the initial value is `undefined`.
+
+```js
+import { registerPluginCoordinationType } from 'vitessce';
+
+registerPluginCoordinationType(
+  'myCustomCoordinationType',
+  0.75,
+);
+```
+
+For a full example, see the [Plugin Coordination Type Development tutorial](/docs/tutorial-plugin-coordination-type/).
+
+
+## Plugin file types
+
+
+Plugin file types must be implemented as a pair of JavaScript classes (a data source class and a data loader class).
+They must be registered so that the file type can be associated with a name that can be used as a value for the field [`datasets[].files[].fileType`](/docs/view-config-json/#datasets) in the view config.
+
+### `registerPluginFileType(fileType, dataType, dataLoaderClass, dataSourceClass)`
+
+#### Parameters:
+- `fileType` (`string`) - A name for the plugin file type.
+- `dataType` (`string`) - A name for the data type associated with the plugin file type. Can be an existing data type.
+- `dataLoaderClass` (`class`) - A data loader class definition. Its constructor takes two parameters: `dataSource`, `fileDefinition` where `dataSource` is a data source instance and `fileDefinition` is the file definition JSON object from the view config.
+- `dataSourceClass` (`class`) - A data source class definition. Can be an existing data source class. Its constructor takes one parameter: an object with the file URL `{ url }`.
+
+```js
+import { registerPluginFileType } from 'vitessce';
+
+// ...
+// Omitted: definition of the classes
+// MyCustomExpressionMatrixDataLoader and MyCustomExpressionMatrixDataSource.
+// ...
+
+registerPluginFileType(
+  'myCustomExpressionMatrixFormat.xyz',
+  'expression-matrix',
+  MyCustomExpressionMatrixDataLoader,
+  MyCustomExpressionMatrixDataSource,
+);
+```
+
+For a full example, see the [Plugin File Type Development tutorial](/docs/tutorial-plugin-file-type/).
+
