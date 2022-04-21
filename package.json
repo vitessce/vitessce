@@ -133,7 +133,7 @@
     "karma-webpack": "4.0.2",
     "mini-css-extract-plugin": "0.9.0",
     "mocha": "7.1.0",
-    "node-sass": "^6.0.0",
+    "node-sass": "^7.0.0",
     "object.fromentries": "^2.0.2",
     "optimize-css-assets-webpack-plugin": "5.0.3",
     "pnp-webpack-plugin": "1.6.0",
