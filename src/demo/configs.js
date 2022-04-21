@@ -11,16 +11,18 @@ import { scAtacSeq10xPbmc } from './view-configs/tenx';
 import { blin2019 } from './view-configs/blin';
 import { omeNgffLegacy } from './view-configs/ome-ngff-legacy';
 import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap';
-import { pluginViewType } from './view-configs/plugin-view-type';
-import { pluginCoordinationType } from './view-configs/plugin-coordination-type';
-import { pluginFileType } from './view-configs/plugin-file-type';
 import {
   embeddingZoomConfig,
   embeddingTargetXConfig,
   embeddingTargetYConfig,
   embeddingCellSetPolygonsVisibleConfig,
 } from './view-configs/coordination-types/index';
-
+/*
+// Commented out since `window` usage is not supported by docusaurus's SSR.
+import { pluginViewType } from './view-configs/plugin-view-type';
+import { pluginCoordinationType } from './view-configs/plugin-coordination-type';
+import { pluginFileType } from './view-configs/plugin-file-type';
+*/
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -52,8 +54,11 @@ export const configs = {
   'linnarsson-2018': notPublic(codeluppi2018),
   vanderbilt: notPublic(spraggins2020),
   'dries-2019': notPublic(eng2019),
+  /*
+  // Commented out since `window` usage is not supported by docusaurus's SSR.
   'plugin-view-type': notPublic(pluginViewType),
   'plugin-coordination-type': notPublic(pluginCoordinationType),
   'plugin-file-type': notPublic(pluginFileType),
+  */
   ...coordinationTypeConfigs,
 };
