@@ -76,8 +76,15 @@ export default function Vitessce(props) {
     const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(config);
     if (upgradeSuccess) {
       // Initialize the view config according to the initStrategy.
-      const initializedConfig = initialize(upgradedConfig);
-      return [initializedConfig, true];
+      try {
+        const initializedConfig = initialize(upgradedConfig);
+        return [initializedConfig, true];
+      } catch (e) {
+        return [{
+          title: 'View config initialization failed.',
+          unformatted: e.message,
+        }, false];
+      }
     }
     return [upgradedConfig, false];
   }, [config]);

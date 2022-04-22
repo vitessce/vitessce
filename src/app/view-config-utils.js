@@ -6,6 +6,8 @@ import { getNextScope } from '../utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
 } from './state/coordination';
+import { getViewTypes } from './component-registry';
+import { getFileTypes } from '../loaders/types';
 import {
   getComponentCoordinationTypes,
   getDefaultCoordinationValues,
@@ -178,7 +180,23 @@ export function initialize(config) {
   const allCoordinationTypes = getCoordinationTypes();
   const unknownCoordinationTypes = difference(coordinationTypesInConfig, allCoordinationTypes);
   if (unknownCoordinationTypes.length > 0) {
-    console.error(`The following coordination types are not recognized: [${unknownCoordinationTypes}].\nIf these are plugin coordination types, ensure that they have been properly registered.`);
+    throw new Error(`The following coordination types are not recognized: [${unknownCoordinationTypes}].\nIf these are plugin coordination types, ensure that they have been properly registered.`);
+  }
+  // Add a log message when there are views in the layout that are neither
+  // core views nor registered plugin views.
+  const viewTypesInConfig = config.layout.map(c => c.component);
+  const allViewTypes = getViewTypes();
+  const unknownViewTypes = difference(viewTypesInConfig, allViewTypes);
+  if (unknownViewTypes.length > 0) {
+    throw new Error(`The following view types are not recognized: [${unknownViewTypes}].\nIf these are plugin view types, ensure that they have been properly registered.`);
+  }
+  // Add a log message when there are file definitions with neither
+  // core nor registered plugin file types.
+  const fileTypesInConfig = config.datasets.flatMap(d => d.files.map(f => f.fileType));
+  const allFileTypes = getFileTypes();
+  const unknownFileTypes = difference(fileTypesInConfig, allFileTypes);
+  if (unknownFileTypes.length > 0) {
+    throw new Error(`The following file types are not recognized: [${unknownFileTypes}].\nIf these are plugin file types, ensure that they have been properly registered.`);
   }
   if (config.initStrategy === 'auto') {
     return initializeAuto(config);
