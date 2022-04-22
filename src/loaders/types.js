@@ -1,5 +1,5 @@
 import { FileType } from '../app/constants';
-import { getPluginFileType } from '../app/plugins';
+import { getPluginFileType, getPluginFileTypes } from '../app/plugins';
 
 import JsonLoader from './JsonLoader';
 import MatrixZarrLoader from './MatrixZarrLoader';
@@ -37,4 +37,11 @@ export function getSourceAndLoaderFromFileType(type) {
   }
   // Fallback to JSON.
   return [JsonSource, JsonLoader];
+}
+
+export function getFileTypes() {
+  return [
+    ...Object.keys(fileTypeToLoaderAndSource),
+    ...getPluginFileTypes(),
+  ];
 }

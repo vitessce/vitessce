@@ -1,5 +1,5 @@
 import { Component } from './constants';
-import { getPluginViewType } from './plugins';
+import { getPluginViewType, getPluginViewTypes } from './plugins';
 
 import DescriptionSubscriber from '../components/description/DescriptionSubscriber';
 import StatusSubscriber from '../components/status/StatusSubscriber';
@@ -42,4 +42,11 @@ export function getComponent(name) {
     }
   }
   return component;
+}
+
+export function getViewTypes() {
+  return [
+    ...Object.keys(registry),
+    ...getPluginViewTypes(),
+  ];
 }

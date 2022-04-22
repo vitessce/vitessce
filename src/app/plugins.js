@@ -91,6 +91,10 @@ export function getPluginCoordinationTypesForViewType(viewType) {
   return [];
 }
 
+export function getPluginFileTypes() {
+  return Object.keys(window[PLUGIN_FILE_TYPES_KEY]);
+}
+
 export function getPluginFileType(fileType) {
   return window[PLUGIN_FILE_TYPES_KEY][fileType];
 }
