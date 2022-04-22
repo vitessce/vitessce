@@ -47,6 +47,7 @@ The view config schema version.
 | `1.0.5`| Adds support for providing an array of columns (rather than a single column) for the value of the `setName` property within options array items for the `anndata-cell-sets.zarr` file type (to specify a cell set hierarcy). |
 | `1.0.6`| The `scoreName` property within the options array items for the `anndata-cell-sets.zarr` file type was added in this version. |
 | `1.0.7`| The `geneAlias` option for the `anndata-expression-matrix.zarr` file type was added in this version. |
+| `1.0.9`| Support for plugin coordination types was added in this version. |
 
 ### `initStrategy`
 - Type: `string`
