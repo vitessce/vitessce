@@ -121,7 +121,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getPosition: getCellPosition,
       getFillColor: getCellColor,
       getLineColor: getCellColor,
-      getPointRadius: 1,
+      getRadius: 1,
       getExpressionValue,
       getLineWidth: 0,
       extensions: [

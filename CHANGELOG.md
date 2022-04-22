@@ -2,11 +2,20 @@
 - Adds support for plugin view types and plugin coordination types.
 
 ### Added
+
+### Changed
+
+## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
+
+
+
+### Added
 - Add a tutorial that describes how to deploy a Vitessce web app to GitHub pages.
 - Support `var` alias for AnnData to display altenrative gene names via new `geneAlias` field.
 
 ### Changed
 - Use a hash table lookup instead of calling `indexOf` repeatedly for the heatmap component tiling.
+- Fix `molecules` layer sizing
 
 ## [1.1.19](https://www.npmjs.com/package/vitessce/v/1.1.19) - 2022-03-30
 

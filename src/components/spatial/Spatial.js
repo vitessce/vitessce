@@ -214,7 +214,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       radiusMaxPixels: 3,
       opacity: layerDef.opacity,
       visible: layerDef.visible,
-      getPointRadius: layerDef.radius,
+      getRadius: layerDef.radius,
       getPosition: getMoleculePosition,
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
