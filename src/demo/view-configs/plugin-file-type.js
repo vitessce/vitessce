@@ -80,7 +80,7 @@ registerPluginFileType(
 // Use the plugin file type in the configuration.
 export const pluginFileType = {
   name: 'Test plugin file types',
-  version: '1.0.6',
+  version: '1.0.9',
   description: 'Demonstration of a basic plugin file type implementation.',
   public: true,
   datasets: [

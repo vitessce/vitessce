@@ -48,6 +48,7 @@ The view config schema version.
 | `1.0.6`| The `scoreName` property within the options array items for the `anndata-cell-sets.zarr` file type was added in this version. |
 | `1.0.7`| The `geneAlias` option for the `anndata-expression-matrix.zarr` file type was added in this version. |
 | `1.0.8`| Support for multi-dataset views and dataset-specific coordination scope mappings was added in this version. |
+| `1.0.9`| Support for plugin coordination types was added in this version. |
 
 ### `initStrategy`
 - Type: `string`
