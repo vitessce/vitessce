@@ -1,5 +1,6 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
+import difference from 'lodash/difference';
 import packageJson from '../../package.json';
 import { getNextScope } from '../utils';
 import {
@@ -170,6 +171,15 @@ function initializeAuto(config) {
  * @param {object} config The view config prop.
  */
 export function initialize(config) {
+  // Add a log message when there are additionalProperties in the coordination space that
+  // do not appear in the view config JSON schema,
+  // with a note that this indicates either a mistake or custom coordination type usage.
+  const coordinationTypesInConfig = Object.keys(config.coordinationSpace || {});
+  const allCoordinationTypes = getCoordinationTypes();
+  const unknownCoordinationTypes = difference(coordinationTypesInConfig, allCoordinationTypes);
+  if (unknownCoordinationTypes.length > 0) {
+    console.error(`The following coordination types are not recognized: [${unknownCoordinationTypes}].\nIf these are plugin coordination types, ensure that they have been properly registered.`);
+  }
   if (config.initStrategy === 'auto') {
     return initializeAuto(config);
   }

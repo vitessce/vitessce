@@ -311,15 +311,26 @@ export function upgradeFrom1_0_6(config) {
   };
 }
 
+<<<<<<< HEAD
 // Added in version 1.0.8:
 // - Support for multiple `dataset` coordination scopes and
 // dataset-specific coordination scope mappings for all
 // other coordination types.
 export function upgradeFrom1_0_7(config) {
+=======
+
+// Added in version 1.0.9:
+// - Support for plugin coordination types.
+export function upgradeFrom1_0_8(config) {
+>>>>>>> 8230d16f (Add console error)
   const newConfig = cloneDeep(config);
 
   return {
     ...newConfig,
+<<<<<<< HEAD
     version: '1.0.8',
+=======
+    version: '1.0.9',
+>>>>>>> 8230d16f (Add console error)
   };
 }
