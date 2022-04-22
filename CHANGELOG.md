@@ -1,13 +1,10 @@
 
-- Adds support for plugin view types and plugin coordination types.
-
 ### Added
+- Add support for plugin view types, coordination types, and file types.
 
 ### Changed
 
 ## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
-
-
 
 ### Added
 - Add a tutorial that describes how to deploy a Vitessce web app to GitHub pages.
