@@ -5,6 +5,7 @@
 
 ### Changed
 - Use a hash table lookup instead of calling `indexOf` repeatedly for the heatmap component tiling.
+- Fix `molecules` layer sizing
 
 ## [1.1.19](https://www.npmjs.com/package/vitessce/v/1.1.19) - 2022-03-30
 
