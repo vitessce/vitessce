@@ -1,0 +1,91 @@
+{
+  "coordinationSpace": {
+    "dataset": { "A": "A" },
+    "embeddingType": { "A": "UMAP" }
+  },
+  "datasets": [
+    {
+      "files": [
+        {
+          "fileType": "anndata-cells.zarr",
+          "options": {
+            "factors": [
+              "obs/marker_gene_0",
+              "obs/marker_gene_1",
+              "obs/marker_gene_2",
+              "obs/marker_gene_3",
+              "obs/marker_gene_4"
+            ],
+            "mappings": { "UMAP": { "dims": [0, 1], "key": "obsm/X_umap" } }
+          },
+          "type": "cells",
+          "url": "https://assets.hubmapconsortium.org/c6bb00096b0cf40751f9d6003fb730c7/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
+        },
+        {
+          "fileType": "anndata-cell-sets.zarr",
+          "options": [{ "groupName": "Leiden", "setName": "obs/leiden" }],
+          "type": "cell-sets",
+          "url": "https://assets.hubmapconsortium.org/c6bb00096b0cf40751f9d6003fb730c7/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
+        },
+        {
+          "fileType": "anndata-expression-matrix.zarr",
+          "options": {
+            "matrix": "X",
+            "matrixGeneFilter": "var/marker_genes_for_heatmap",
+            "geneAlias": "var/hugo_symbol"
+          },
+          "type": "expression-matrix",
+          "url": "https://assets.hubmapconsortium.org/c6bb00096b0cf40751f9d6003fb730c7/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
+        }
+      ],
+      "name": "c6bb00096b0cf40751f9d6003fb730c7",
+      "uid": "A"
+    }
+  ],
+  "description": "",
+  "initStrategy": "auto",
+  "layout": [
+    {
+      "component": "scatterplot",
+      "coordinationScopes": { "dataset": "A", "embeddingType": "A" },
+      "h": 6,
+      "w": 4,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "component": "cellSetExpression",
+      "coordinationScopes": { "dataset": "A" },
+      "h": 6,
+      "w": 5,
+      "x": 4,
+      "y": 0
+    },
+    {
+      "component": "cellSets",
+      "coordinationScopes": { "dataset": "A" },
+      "h": 3,
+      "w": 3,
+      "x": 9,
+      "y": 0
+    },
+    {
+      "component": "genes",
+      "coordinationScopes": { "dataset": "A" },
+      "h": 3,
+      "w": 3,
+      "x": 9,
+      "y": 4
+    },
+    {
+      "component": "heatmap",
+      "coordinationScopes": { "dataset": "A" },
+      "h": 4,
+      "w": 12,
+      "x": 0,
+      "y": 6
+    }
+  ],
+  "name": "c6bb00096b0cf40751f9d6003fb730c7",
+  "version": "1.0.7"
+}
