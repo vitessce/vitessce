@@ -27,7 +27,7 @@
             "coordinationScopes": {
               "type": "object",
               "description": "Component-level coordination scope mappings define which coordination object values a particular component can read and write, for each coordination type.",
-              "additionalProperties": true,
+              "additionalProperties": false,
               "required": [],
               "properties": {
                 "dataset": { "type": "string" },
@@ -471,7 +471,7 @@
       "coordinationSpace": {
         "type": "object",
         "description": "The coordination space stores the values for each scope of each coordination object.",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [],
         "properties": {
           "dataset": {
