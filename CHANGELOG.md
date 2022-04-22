@@ -2,6 +2,27 @@
 - Merged dependabot PRs.
 
 ### Added
+<<<<<<< HEAD
+=======
+
+### Changed
+
+## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
+
+
+
+### Added
+
+### Changed
+
+## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
+
+
+
+### Added
+- Add a tutorial that describes how to deploy a Vitessce web app to GitHub pages.
+- Support `var` alias for AnnData to display altenrative gene names via new `geneAlias` field.
+>>>>>>> 3b7ec326 (Release v1.1.20 (#1202))
 - Adds new view config schema version `1.0.8` to support multiple `dataset` coordination scopes and dataset-specific coordination scope mappings for all other coordination types
 ```js
 datasets: [
