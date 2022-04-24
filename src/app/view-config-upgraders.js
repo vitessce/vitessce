@@ -315,6 +315,18 @@ export function upgradeFrom1_0_5(config) {
   };
 }
 
+// Added in version 1.0.7:
+// - Support for aliasing the gene identifiers using a different var dataframe column
+// via a new `geneAlias` option for the `anndata-expression-matrix.zarr` fileType.
+export function upgradeFrom1_0_6(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.7',
+  };
+}
+
 // Added in version 1.1.0:
 // - obs x feature and subObs x subFeature generalizations.
 export function upgradeFrom1_0_7(config) {
