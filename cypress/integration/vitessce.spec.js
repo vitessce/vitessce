@@ -106,4 +106,11 @@ describe('Vitessce plugin support', () => {
     cy.visit('/?dataset=plugin-view-type&debug=true');
     cy.contains('Try a random zoom level');
   });
+
+  it('renders a view based on a plugin file type', () => {
+    // 8080 is serving the loader fixtures directory.
+    cy.visit('/?dataset=plugin-file-type&debug=true');
+    cy.contains('60 cells');
+    cy.contains('90 genes');
+  });
 });

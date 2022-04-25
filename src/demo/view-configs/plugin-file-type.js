@@ -35,11 +35,10 @@ class InMemoryMatrixLoader extends JsonLoader {
   // eslint-disable-next-line class-methods-use-this
   async load() {
     const data = {
-      rows: Array.from({ length: numGenes }, (i, j) => `gene_${j}`),
-      cols: Array.from({ length: numCells }, (i, j) => `cell_${j}`),
-      matrix: Array.from(
-        { length: numGenes },
-        i => Array.from({ length: numCells }, j => i + j),
+      rows: range(numGenes).map(j => `gene_${j}`),
+      cols: range(numCells).map(j => `cell_${j}`),
+      matrix: range(numGenes).map(
+        i => range(numCells).map(j => i + j + 1),
       ),
     };
     const { rows, cols, matrix } = data;
