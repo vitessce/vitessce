@@ -1,4 +1,6 @@
 
+- Merged dependabot PRs.
+
 ### Added
 
 ### Changed
