@@ -38,6 +38,7 @@ import {
 } from './components/data-hooks';
 import {
   useCoordination,
+  useMultiDatasetCoordination,
   useLoaders,
 } from './app/state/hooks';
 // For plugin file type:
@@ -79,6 +80,7 @@ export {
   useReady,
   useUrls,
   useCoordination,
+  useMultiDatasetCoordination,
   useLoaders,
   useDescription,
   useCellsData,
