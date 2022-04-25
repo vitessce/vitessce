@@ -17,7 +17,7 @@ The methods of this object (and the objects its methods return) allow you to man
 When you are ready to render the Vitessce component, you can use the `.toJSON()` method to translate the `VitessceConfig` object to a plain JSON object.
 
 
-### `constructor(name, description)`
+### `constructor([name, description, schemaVersion])`
 
 Construct a Vitessce view config object.
 
@@ -25,6 +25,7 @@ Construct a Vitessce view config object.
 #### Parameters:
 - `name` (`string`) - A name for the view config.
 - `description` (`string`) - A description for the view config. Optional.
+- `schemaVersion` (`string`) - The view config schema [version](/docs/view-config-json/#version). Optional. By default, uses the latest version.
 
 ```js {3}
 import { VitessceConfig } from 'vitessce';
@@ -59,7 +60,7 @@ const dataset = vc.addDataset("My dataset")
 ```
 
 
-### `addView(dataset, component, extra)`
+### `addView(dataset, component, [extra])`
 
 Add a view to the config.
 
@@ -394,13 +395,14 @@ vc.layout(vconcat(v1, v2));
 
 This class is not meant to be instantiated directly, but instances will be created and returned by the `VitessceConfig.addDataset()` method.
 
-### `addFile(url, dataType, fileType, options = null)`
+### `addFile(url, dataType, fileType, [entityTypes, options])`
 
 #### Parameters:
 - `url` (`string|undefined`) - The URL for the file, pointing to either a local or remote location. We don't associate any semantics with URL strings.
-- `dataType` (`string`) - The type of data stored in the file. Must be compatible with the specified [file type](/docs/data-types-file-types/). We recommend using the [`DataType`](/docs/data-types-file-types/#constants) constant values rather than writing strings directly.
-- `fileType` (`string`) - The file type. Must be compatible with the specified [data type](/docs/data-types-file-types/). We recommend using the [`FileType`](/docs/data-types-file-types/#constants) constant values rather than writing strings directly.
-- `options` (`object|array|null`) -  An optional object or array which may provide additional parameters to the loader class corresponding to the specified `fileType`.
+- `dataType` (`string`) - The type of data stored in the file. Must be compatible with the specified [file type](/docs/data-types-file-types/). We recommend using the [`DataType`](/docs/constants/#data-types) constant values rather than writing strings directly.
+- `fileType` (`string`) - The file type. Must be compatible with the specified [data type](/docs/data-types-file-types/). We recommend using the [`FileType`](/docs/constants/#file-types) constant values rather than writing strings directly.
+- `entityTypes` (`object|null`) - The entity type mapping. Must be compatible with the specified [data type](/docs/data-types-file-types/). We recommend using the [`EntityTypes`](/docs/constants/#entity-types) constant values rather than writing strings directly. By default, `null` to use the default entity type mapping.
+- `options` (`object|array|null`) -  An optional object or array which may provide additional parameters to the loader class corresponding to the specified `fileType`. By default, `null`.
 
 #### Returns:
 - Type: `VitessceConfigDataset`

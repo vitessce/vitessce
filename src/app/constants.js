@@ -92,6 +92,7 @@ export const DATA_TYPE_ENTITY_TYPES_MAPPING = {
   ],
   [DataType.NEIGHBORHOODS]: [],
   [DataType.RASTER]: [],
+  [DataType.GENOMIC_PROFILES]: [],
   [DataType.SUB_FEATURE_MAPPING]: [EntityTypes.SUB_FEATURE_TYPE, EntityTypes.FEATURE_TYPE],
 };
 

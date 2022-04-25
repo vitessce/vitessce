@@ -1,17 +1,18 @@
 import React from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
+import { DataType, DATA_TYPE_ENTITY_TYPES_MAPPING } from '../../../src/app/constants';
 
 export default function DataTypesTable() {
   return (
     <table className={styles.dataTypesTable}>
       <thead>
-        <tr><th>Data Type</th><th>File Types</th><th>Convert from...</th></tr>
+        <tr><th>Data Type</th><th>File Types</th><th><a href={useBaseUrl('/docs/entity-types/')}>Entity Types</a></th><th>Convert from...</th></tr>
       </thead>
       <tbody>
         <tr>
           <td>
-            <code>obs</code>
+            <code>{DataType.OBS}</code>
             <br />Observations:
             e.g., cells, their positions (spatially and for dimensionality-reduction scatterplots),
             their segmentations as polygons, and other per-cell attributes.
@@ -21,6 +22,15 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#cellsjson')}><code>cells.json</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#anndataobszarr')}><code>anndataObs.zarr</code></a></li>
             </ul>
+          </td>
+          <td>
+            {DATA_TYPE_ENTITY_TYPES_MAPPING[DataType.OBS]
+              .map((entityType, i, entityTypes) => (
+                <>
+                  <code>{entityType}</code>
+                  {i < entityTypes.length - 1 ? (<span>,&nbsp;<br /></span>) : null}
+                </>
+              ))}
           </td>
           <td>
             <ul>
@@ -43,6 +53,15 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#moleculesjson')}><code>molecules.json</code></a></li>
             </ul>
           </td>
+          <td>
+            {DATA_TYPE_ENTITY_TYPES_MAPPING[DataType.SUB_OBS]
+              .map((entityType, i, entityTypes) => (
+                <>
+                  <code>{entityType}</code>
+                  {i < entityTypes.length - 1 ? (<span>,&nbsp;<br /></span>) : null}
+                </>
+              ))}
+          </td>
           <td />
         </tr>
         <tr>
@@ -57,6 +76,15 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#cellsetsjson')}><code>cellSets.json</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#anndataobssetszarr')}><code>anndataObsSets.zarr</code></a></li>
             </ul>
+          </td>
+          <td>
+            {DATA_TYPE_ENTITY_TYPES_MAPPING[DataType.OBS_SETS]
+              .map((entityType, i, entityTypes) => (
+                <>
+                  <code>{entityType}</code>
+                  {i < entityTypes.length - 1 ? (<span>,&nbsp;<br /></span>) : null}
+                </>
+              ))}
           </td>
           <td>
             <ul>
@@ -90,6 +118,15 @@ export default function DataTypesTable() {
             </ul>
           </td>
           <td>
+            {DATA_TYPE_ENTITY_TYPES_MAPPING[DataType.RASTER]
+              .map((entityType, i, entityTypes) => (
+                <>
+                  <code>{entityType}</code>
+                  {i < entityTypes.length - 1 ? (<span>,&nbsp;<br /></span>) : null}
+                </>
+              ))}
+          </td>
+          <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#proprietary-image-formats')}>Proprietary Formats</a></li>
             </ul>
@@ -110,6 +147,15 @@ export default function DataTypesTable() {
             </ul>
           </td>
           <td>
+            {DATA_TYPE_ENTITY_TYPES_MAPPING[DataType.OBS_FEATURE_MATRIX]
+              .map((entityType, i, entityTypes) => (
+                <>
+                  <code>{entityType}</code>
+                  {i < entityTypes.length - 1 ? (<span>,&nbsp;<br /></span>) : null}
+                </>
+              ))}
+          </td>
+          <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
@@ -124,11 +170,29 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#neighborhoodsjson')}><code>neighborhoods.json</code></a></li>
             </ul>
           </td>
+          <td>
+            {DATA_TYPE_ENTITY_TYPES_MAPPING[DataType.NEIGHBORHOODS]
+              .map((entityType, i, entityTypes) => (
+                <>
+                  <code>{entityType}</code>
+                  {i < entityTypes.length - 1 ? (<span>,&nbsp;<br /></span>) : null}
+                </>
+              ))}
+          </td>
           <td />
         </tr>
         <tr>
           <td><code>genomicProfiles</code><br /> Genomic profiles, such as ATAC-seq profiles.</td>
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#genomicprofileszarr')}><code>genomicProfiles.zarr</code></a></li></ul></td>
+          <td>
+            {DATA_TYPE_ENTITY_TYPES_MAPPING[DataType.GENOMIC_PROFILES]
+              .map((entityType, i, entityTypes) => (
+                <>
+                  <code>{entityType}</code>
+                  {i < entityTypes.length - 1 ? (<span>,&nbsp;<br /></span>) : null}
+                </>
+              ))}
+          </td>
           <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#snapatac')}>SnapATAC</a></li>

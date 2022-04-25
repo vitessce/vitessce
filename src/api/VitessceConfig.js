@@ -1,5 +1,6 @@
 import { getNextScope, fromEntries } from '../utils';
 import { CoordinationType } from '../app/constants';
+import { LATEST_VERSION } from '../app/view-config-versions';
 
 
 /**
@@ -11,15 +12,17 @@ export class VitessceConfigDatasetFile {
    * @param {string} url The URL to the file.
    * @param {string} dataType The type of data contained in the file.
    * @param {string} fileType The file type.
+   * @param {object|null} entityTypes The entity type mapping.
    * @param {object|array|null} options An optional object or array
    * which may provide additional parameters to the loader class
    * corresponding to the specified fileType.
    */
-  constructor(url, dataType, fileType, options) {
+  constructor(url, dataType, fileType, entityTypes, options) {
     this.file = {
       url,
       type: dataType,
       fileType,
+      ...(entityTypes !== null ? { entityTypes } : {}),
       ...(options !== null ? { options } : {}),
     };
   }
@@ -56,14 +59,15 @@ export class VitessceConfigDataset {
    * @param {string|undefined} url The URL to the file.
    * @param {string} dataType The type of data contained in the file.
    * @param {string} fileType The file type.
+   * @param {object} entityTypes The entity type mapping.
    * @param {object|array} options An optional object or array
    * which may provide additional parameters to the loader class
    * corresponding to the specified fileType.
    * @returns {VitessceConfigDataset} This, to allow chaining.
    */
-  addFile(url, dataType, fileType, options = null) {
+  addFile(url, dataType, fileType, entityTypes = null, options = null) {
     this.dataset.files.push(
-      new VitessceConfigDatasetFile(url, dataType, fileType, options),
+      new VitessceConfigDatasetFile(url, dataType, fileType, entityTypes, options),
     );
     return this;
   }
@@ -229,10 +233,11 @@ export class VitessceConfig {
    * Construct a new view config instance.
    * @param {string} name A name for the config. Optional.
    * @param {string} description A description for the config. Optional.
+   * @param {string} schemaVersion The view config schema version. Optional.
    */
-  constructor(name = undefined, description = undefined) {
+  constructor(name = undefined, description = undefined, schemaVersion = undefined) {
     this.config = {
-      version: '1.0.7',
+      version: schemaVersion || LATEST_VERSION,
       name,
       description,
       datasets: [],
@@ -431,6 +436,8 @@ export class VitessceConfig {
           f.url,
           f.type,
           f.fileType,
+          f.entityTypes,
+          f.options,
         );
       });
     });

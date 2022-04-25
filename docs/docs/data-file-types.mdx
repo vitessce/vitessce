@@ -95,6 +95,7 @@ const dataset = vc
     "http://example.com/my_store.zarr",
     dt.CELLS,
     ft.ANNDATA_CELLS_ZARR,
+    null,
     options
   );
 `}
@@ -144,6 +145,7 @@ const dataset = vc
     "http://example.com/my_store.zarr",
     dt.CELL_SETS,
     ft.ANNDATA_CELL_SETS_ZARR,
+    null,
     options
   );
 `}
@@ -175,6 +177,7 @@ const dataset = vc
     "http://example.com/my_store.zarr",
     dt.EXPRESSION_MATRIX,
     ft.ANNDATA_EXPRESSION_MATRIX_ZARR,
+    null,
     options
   );
 `}
@@ -232,6 +235,7 @@ const dataset = vc
     "http://example.com/my_store.zarr",
     dt.EXPRESSION_MATRIX,
     ft.ANNDATA_EXPRESSION_MATRIX_ZARR,
+    null,
     options
   );
 `}
@@ -258,7 +262,8 @@ const dataset = vc
   .addFile(
     "http://example.com/my_cells.json",
     dt.CELLS,
-    ft.CELLS_JSON
+    ft.CELLS_JSON,
+    null,
   );
 `}
   />
@@ -285,7 +290,7 @@ const dataset = vc
   .addFile(
     "http://example.com/my_cell_sets.json",
     dt.CELL_SETS,
-    ft.CELL_SETS_JSON
+    ft.CELL_SETS_JSON,
   );
 `}
   />
@@ -498,6 +503,7 @@ const dataset = vc
     undefined,
     dt.RASTER,
     ft.RASTER_JSON,
+    null,
     options
   );
 `}
@@ -603,6 +609,7 @@ const dataset = vc
     undefined,
     dt.RASTER,
     ft.RASTER_JSON,
+    null,
     options
   );
 `}

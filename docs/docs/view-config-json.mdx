@@ -4,6 +4,9 @@ title: View Configs via JSON
 sidebar_label: View Configs via JSON
 slug: /view-config-json
 ---
+import {
+  DiffViewConfigSchema,
+} from '../src/pages/_DiffViewConfigSchema';
 
 :::tip
 
@@ -49,6 +52,8 @@ The view config schema version. The documentation pages here are based on the la
 | `1.0.7`| The `geneAlias` option for the `anndata-expression-matrix.zarr` file type was added in this version. |
 | `1.1.0` | Generalizations for observation x feature matrix use cases. Changes coordination type names, data type names, file type names, and component names. Adds coordination types such as `obsType` and `featureType`. Adds the `entityTypes` property to file definition objects. |
 
+<DiffViewConfigSchema />
+
 ### `initStrategy`
 - Type: `string`
 
@@ -83,7 +88,7 @@ A human-readable name for the dataset. Optional.
 
 The files array stores a list of file objects for a dataset. Each dataset may have one file of each `type`. File objects must contain a `type` ("data type") and `fileType` ("file type"). All file types require a `url` string, with the exception of [`raster.json`](/docs/data-file-types/#rasterjson) which may point to multiple image URLs via an `options` object. We don't associate any semantics with URL strings.
 
-For more information about data types and file types, please visit our [Data Types and File Types](/docs/data-types-file-types/) documentation page.
+For more information about data types, file types, and entity types, please visit our [Data Types and File Types](/docs/data-types-file-types/) and [Entity Types](/docs/entity-types/) documentation pages.
 
 ```json
 ...,
@@ -95,12 +100,18 @@ For more information about data types and file types, please visit our [Data Typ
             {
                 "url": "http://example.com/a.json",
                 "type": "obs",
-                "fileType": "cells.json"
+                "fileType": "cells.json",
+                "entityTypes": {
+                    "obsType": "cell"
+                }
             },
             {
                 "url": "http://example.com/b.json",
                 "type": "obsSets",
-                "fileType": "cellSets.json"
+                "fileType": "cellSets.json",
+                "entityTypes": {
+                    "obsType": "cell"
+                }
             },
             {
                 "type": "raster",
