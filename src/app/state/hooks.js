@@ -272,10 +272,12 @@ export function useMultiDatasetCoordination(parameters, coordinationScopes) {
       const datasetValues = fromEntries(parameters.map((parameter) => {
         if (coordinationSpace && coordinationSpace[parameter]) {
           let value;
-          if (typeof coordinationScopes[parameter] === 'object') {
-            value = coordinationSpace[parameter][coordinationScopes[parameter][datasetScope]];
-          } else if (typeof coordinationScopes[parameter] === 'string') {
-            value = coordinationSpace[parameter][coordinationScopes[parameter]];
+          const parameterSpace = coordinationSpace[parameter];
+          const parameterScope = coordinationScopes[parameter];
+          if (typeof parameterScope === 'object') {
+            value = parameterSpace[parameterScope[datasetScope]];
+          } else if (typeof parameterScope === 'string') {
+            value = parameterSpace[parameterScope];
           } else {
             console.error(`coordination scope for ${parameter} must be of type string or object.`);
           }
@@ -291,16 +293,17 @@ export function useMultiDatasetCoordination(parameters, coordinationScopes) {
     const datasetSetters = fromEntries(parameters.map((parameter) => {
       const setterName = `set${capitalize(parameter)}`;
       let setterFunc;
-      if (typeof coordinationScopes[parameter] === 'object') {
+      const parameterScope = coordinationScopes[parameter];
+      if (typeof parameterScope === 'object') {
         setterFunc = value => setCoordinationValue({
           parameter,
-          scope: coordinationScopes[parameter][datasetScope],
+          scope: parameterScope[datasetScope],
           value,
         });
-      } else if (typeof coordinationScopes[parameter] === 'string') {
+      } else if (typeof parameterScope === 'string') {
         setterFunc = value => setCoordinationValue({
           parameter,
-          scope: coordinationScopes[parameter],
+          scope: parameterScope,
           value,
         });
       } else {
