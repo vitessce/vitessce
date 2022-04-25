@@ -92,7 +92,7 @@ export const pluginCoordinationType = {
   name: 'Test plugin views and coordination types',
   version: '1.0.9',
   description: 'Demonstration of a plugin coordination type implementation. The left sliders should be coordinated, while the right sliders are independent.',
-  public: true,
+  public: false,
   datasets: [
     {
       uid: 'plugin-test-dataset',

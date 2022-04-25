@@ -99,3 +99,11 @@ describe('Vitessce Zarr Store Routes', () => {
     cy.contains('Channel 2');
   });
 });
+
+describe('Vitessce plugin support', () => {
+  it('renders a plugin view', () => {
+    // 8080 is serving the loader fixtures directory.
+    cy.visit('/?dataset=plugin-view-type&debug=true');
+    cy.contains('Try a random zoom level');
+  });
+});

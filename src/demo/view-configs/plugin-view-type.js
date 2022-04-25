@@ -82,7 +82,7 @@ export const pluginViewType = {
   name: 'Test plugin view types',
   version: '1.0.9',
   description: 'Demonstration of a basic plugin view implementation.',
-  public: true,
+  public: false,
   datasets: [
     {
       uid: 'plugin-test-dataset',

@@ -39,7 +39,7 @@ class InMemoryMatrixLoader extends JsonLoader {
       cols: Array.from({ length: numCells }, (i, j) => `cell_${j}`),
       matrix: Array.from(
         { length: numGenes },
-        () => Array.from({ length: numCells }, () => Math.random() * 100),
+        i => Array.from({ length: numCells }, j => i + j),
       ),
     };
     const { rows, cols, matrix } = data;
@@ -82,7 +82,7 @@ export const pluginFileType = {
   name: 'Test plugin file types',
   version: '1.0.9',
   description: 'Demonstration of a basic plugin file type implementation.',
-  public: true,
+  public: false,
   datasets: [
     {
       uid: 'plugin-test-dataset',
