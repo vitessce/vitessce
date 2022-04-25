@@ -32,8 +32,9 @@ export function getSourceAndLoaderFromFileType(type) {
   if (fileTypeToLoaderAndSource[type]) {
     return fileTypeToLoaderAndSource[type];
   }
-  if (getPluginFileType(type)) {
-    return getPluginFileType(type);
+  const pluginFileType = getPluginFileType(type);
+  if (pluginFileType) {
+    return pluginFileType;
   }
   // Fallback to JSON.
   return [JsonSource, JsonLoader];

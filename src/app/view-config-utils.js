@@ -162,6 +162,34 @@ function initializeAuto(config) {
   return newConfig;
 }
 
+export function checkTypes(config) {
+  // Add a log message when there are additionalProperties in the coordination space that
+  // do not appear in the view config JSON schema,
+  // with a note that this indicates either a mistake or custom coordination type usage.
+  const coordinationTypesInConfig = Object.keys(config.coordinationSpace || {});
+  const allCoordinationTypes = getCoordinationTypes();
+  const unknownCoordinationTypes = difference(coordinationTypesInConfig, allCoordinationTypes);
+  if (unknownCoordinationTypes.length > 0) {
+    return [false, `The following coordination types are not recognized: [${unknownCoordinationTypes}].\nIf these are plugin coordination types, ensure that they have been properly registered.`];
+  }
+  // Add a log message when there are views in the layout that are neither
+  // core views nor registered plugin views.
+  const viewTypesInConfig = config.layout.map(c => c.component);
+  const allViewTypes = getViewTypes();
+  const unknownViewTypes = difference(viewTypesInConfig, allViewTypes);
+  if (unknownViewTypes.length > 0) {
+    return [false, `The following view types are not recognized: [${unknownViewTypes}].\nIf these are plugin view types, ensure that they have been properly registered.`];
+  }
+  // Add a log message when there are file definitions with neither
+  // core nor registered plugin file types.
+  const fileTypesInConfig = config.datasets.flatMap(d => d.files.map(f => f.fileType));
+  const allFileTypes = getFileTypes();
+  const unknownFileTypes = difference(fileTypesInConfig, allFileTypes);
+  if (unknownFileTypes.length > 0) {
+    return [false, `The following file types are not recognized: [${unknownFileTypes}].\nIf these are plugin file types, ensure that they have been properly registered.`];
+  }
+  return [true, 'All view types, coordination types, and file types that appear in the view config are recognized.'];
+}
 
 /**
  * Initialize the view config:
@@ -173,31 +201,6 @@ function initializeAuto(config) {
  * @param {object} config The view config prop.
  */
 export function initialize(config) {
-  // Add a log message when there are additionalProperties in the coordination space that
-  // do not appear in the view config JSON schema,
-  // with a note that this indicates either a mistake or custom coordination type usage.
-  const coordinationTypesInConfig = Object.keys(config.coordinationSpace || {});
-  const allCoordinationTypes = getCoordinationTypes();
-  const unknownCoordinationTypes = difference(coordinationTypesInConfig, allCoordinationTypes);
-  if (unknownCoordinationTypes.length > 0) {
-    throw new Error(`The following coordination types are not recognized: [${unknownCoordinationTypes}].\nIf these are plugin coordination types, ensure that they have been properly registered.`);
-  }
-  // Add a log message when there are views in the layout that are neither
-  // core views nor registered plugin views.
-  const viewTypesInConfig = config.layout.map(c => c.component);
-  const allViewTypes = getViewTypes();
-  const unknownViewTypes = difference(viewTypesInConfig, allViewTypes);
-  if (unknownViewTypes.length > 0) {
-    throw new Error(`The following view types are not recognized: [${unknownViewTypes}].\nIf these are plugin view types, ensure that they have been properly registered.`);
-  }
-  // Add a log message when there are file definitions with neither
-  // core nor registered plugin file types.
-  const fileTypesInConfig = config.datasets.flatMap(d => d.files.map(f => f.fileType));
-  const allFileTypes = getFileTypes();
-  const unknownFileTypes = difference(fileTypesInConfig, allFileTypes);
-  if (unknownFileTypes.length > 0) {
-    throw new Error(`The following file types are not recognized: [${unknownFileTypes}].\nIf these are plugin file types, ensure that they have been properly registered.`);
-  }
   if (config.initStrategy === 'auto') {
     return initializeAuto(config);
   }

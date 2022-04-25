@@ -15,7 +15,7 @@ import VitessceGrid from './VitessceGrid';
 import Warning from './Warning';
 import CallbackPublisher from './CallbackPublisher';
 import { getComponent } from './component-registry';
-import { initialize, upgradeAndValidate } from './view-config-utils';
+import { checkTypes, initialize, upgradeAndValidate } from './view-config-utils';
 
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
@@ -76,15 +76,15 @@ export default function Vitessce(props) {
     const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(config);
     if (upgradeSuccess) {
       // Initialize the view config according to the initStrategy.
-      try {
+      const [typeCheckSuccess, typeCheckMessage] = checkTypes(upgradedConfig);
+      if (typeCheckSuccess) {
         const initializedConfig = initialize(upgradedConfig);
         return [initializedConfig, true];
-      } catch (e) {
-        return [{
-          title: 'View config initialization failed.',
-          unformatted: e.message,
-        }, false];
       }
+      return [{
+        title: 'View config initialization failed.',
+        unformatted: typeCheckMessage,
+      }, false];
     }
     return [upgradedConfig, false];
   }, [config]);

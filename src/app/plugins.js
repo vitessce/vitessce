@@ -11,9 +11,6 @@ export const PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY = '__VITESSCE_PLUGIN_COORDIN
 export const PLUGIN_FILE_TYPES_KEY = '__VITESSCE_PLUGIN_FILE_TYPES__';
 
 // Reference: https://github.com/higlass/higlass-register/blob/master/src/index.js
-// TODO: rather than the registration functions and storing things on the window object,
-// should plugins be provided as props to the main <Vitessce/> React component
-// and stored via some React context?
 window[PLUGIN_VIEW_TYPES_KEY] = window[PLUGIN_VIEW_TYPES_KEY] || {};
 window[PLUGIN_COORDINATION_TYPES_KEY] = window[PLUGIN_COORDINATION_TYPES_KEY] || {};
 window[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY] = (
@@ -24,7 +21,6 @@ window[PLUGIN_FILE_TYPES_KEY] = window[PLUGIN_FILE_TYPES_KEY] || {};
 /**
  * Register a new coordination type.
  * @param {string} typeName Name for the new coordination type.
- * @param {string[]} supportedViews A list of view types that should support this coordination type.
  * @param {*} defaultValue A default value for the coordination type.
  */
 export function registerPluginCoordinationType(typeName, defaultValue) {
@@ -40,14 +36,15 @@ export function registerPluginCoordinationType(typeName, defaultValue) {
 export function registerPluginViewType(viewType, viewSubscriberReactComponent, coordinationTypes) {
   window[PLUGIN_VIEW_TYPES_KEY][viewType] = viewSubscriberReactComponent;
   // Register the supported coordination types.
-  if (Array.isArray(window[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY][viewType])) {
+  const pluginTypesPerView = window[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY];
+  if (Array.isArray(pluginTypesPerView[viewType])) {
     coordinationTypes.forEach((coordinationType) => {
-      if (!window[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY][viewType].includes(coordinationType)) {
-        window[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY][viewType].push(coordinationType);
+      if (!pluginTypesPerView[viewType].includes(coordinationType)) {
+        pluginTypesPerView[viewType].push(coordinationType);
       }
     });
   } else {
-    window[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY][viewType] = coordinationTypes;
+    pluginTypesPerView[viewType] = coordinationTypes;
   }
 }
 
