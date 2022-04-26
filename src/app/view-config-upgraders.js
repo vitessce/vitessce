@@ -323,3 +323,14 @@ export function upgradeFrom1_0_7(config) {
     version: '1.0.8',
   };
 }
+
+// Added in version 1.0.9:
+// - Support for plugin coordination types.
+export function upgradeFrom1_0_8(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.9',
+  };
+}

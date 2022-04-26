@@ -34,6 +34,7 @@
   ],
   ...
   ```
+- Add support for plugin view types, coordination types, and file types.
 
 ### Changed
 - Merged dependabot PRs.
@@ -41,14 +42,7 @@
 
 ## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
 
-### Added
-- Add a tutorial that describes how to deploy a Vitessce web app to GitHub pages.
-- Support `var` alias for AnnData to display altenrative gene names via new `geneAlias` field.
 
-### Changed
-
-
-## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
 
 ### Added
 - Add a tutorial that describes how to deploy a Vitessce web app to GitHub pages.

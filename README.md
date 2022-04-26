@@ -143,6 +143,32 @@ module.exports = {
 
 This fix is temporary and will no longer be necessary after the [next release of Viv](https://github.com/vitessce/vitessce/pull/1049#issuecomment-939520471).
 
+
+## Version bumps
+
+In this project we try to follow semantic versioning.
+The following are examples of things that would require a major, minor, or patch type of bump.
+
+### Patch version bumps
+
+Bug fixes, minor feature improvements, additional view types, additional coordination types, and additional file type implementations are possible in a patch version bump.
+
+When a coordination type is added, it must be reflected by a new view config JSON schema with an incremented `version` property, and a new view config upgrade function to enable previous view config versions to remain compatible.
+The default schema version parameter of the `VitessceConfig` constructor may also change to reflect the new schema version.
+
+### Minor version bumps
+
+An exported helper function or React component for plugin views had a change in props or function signature.
+Major feature improvements or additions.
+
+### Major version bumps
+
+The exported constant values changed, such as view types and coordination types, such that previous code using these values may no longer run successfully.
+React props of the main `<Vitessce />` component changed.
+Major behavior changes or interface updates.
+Changes to the directory structure or filenames in the `dist/` directory that could result in broken import statements.
+
+
 ## Related repositories
 
 - [Viv](https://github.com/hms-dbmi/viv): A library for multiscale visualization of high-resolution multiplexed tissue data on the web.
