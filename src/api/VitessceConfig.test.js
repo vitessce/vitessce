@@ -21,6 +21,29 @@ describe('src/api/VitessceConfig.js', () => {
         version: '2.0.0',
       });
     });
+    it('should throw an error when attempting to construct view config schemas before v2.0.0', () => {
+      const tryFailureConstructor = () => (new VitessceConfig('My config', 'My description', '1.0.2'));
+      expect(tryFailureConstructor).toThrow();
+    });
+    it('should throw an error when attempting to load view config schemas before v2.0.0', () => {
+      const tryFailureMethod = () => VitessceConfig.fromJSON({
+        coordinationSpace: {
+          dataset: {
+            A: 'A',
+          },
+        },
+        datasets: [{
+          name: 'My dataset',
+          uid: 'A',
+          files: [],
+        }],
+        initStrategy: 'auto',
+        layout: [],
+        name: 'My config',
+        version: '1.0.2',
+      });
+      expect(tryFailureMethod).toThrow();
+    });
     it('can add a dataset', () => {
       const config = new VitessceConfig('My config');
       config.addDataset('My dataset');

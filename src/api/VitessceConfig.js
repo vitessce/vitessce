@@ -1,5 +1,7 @@
+import semver from 'semver';
 import { getNextScope, fromEntries } from '../utils';
 import { CoordinationType } from '../app/constants';
+
 
 /**
  * Class representing a file within a Vitessce config dataset.
@@ -236,6 +238,9 @@ export class VitessceConfig {
    * @param {string} schemaVersion The view config schema version. Optional.
    */
   constructor(name = undefined, description = undefined, schemaVersion = undefined) {
+    if (schemaVersion && semver.lt(schemaVersion, '2.0.0')) {
+      throw new Error('The VitessceConfig class in Vitessce JavaScript package versions 2.0.0 and above does not support constructing view configs with schema versions below 2.0.0. However, Vitessce supports JSON configurations with all view config schema versions. To proceed, either downgrade to a previous Vitessce package version to construct the view config and then use the toJSON function, or construct the view config using JSON directly.');
+    }
     this.config = {
       version: schemaVersion || '2.0.0',
       name,
@@ -428,8 +433,8 @@ export class VitessceConfig {
    * the config parameter.
    */
   static fromJSON(config) {
-    const { name, description, version } = config;
-    const vc = new VitessceConfig(name, description, version);
+    const { name, description, version: schemaVersion } = config;
+    const vc = new VitessceConfig(name, description, schemaVersion);
     config.datasets.forEach((d) => {
       const newDataset = vc.addDataset(d.name, d.description, { uid: d.uid });
       d.files.forEach((f) => {
