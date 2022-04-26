@@ -20,7 +20,7 @@ export class VitessceConfigDatasetFile {
   constructor(url, dataType, fileType, entityTypes, options) {
     this.file = {
       url,
-      type: dataType,
+      dataType,
       fileType,
       ...(entityTypes !== null ? { entityTypes } : {}),
       ...(options !== null ? { options } : {}),
@@ -96,8 +96,9 @@ export class VitessceConfigView {
    * @param {number} y The y-coordinate of the view in the layout.
    * @param {number} w The width of the view in the layout.
    * @param {number} h The height of the view in the layout.
+   * @param {string} uid A unique identifier for the view.
    */
-  constructor(viewType, coordinationScopes, x, y, w, h) {
+  constructor(viewType, coordinationScopes, x, y, w, h, uid) {
     this.view = {
       viewType,
       coordinationScopes,
@@ -105,6 +106,7 @@ export class VitessceConfigView {
       y,
       w,
       h,
+      uid,
     };
   }
 
@@ -306,7 +308,8 @@ export class VitessceConfig {
     const coordinationScopes = {
       [CoordinationType.DATASET]: datasetScope,
     };
-    const newView = new VitessceConfigView(viewType, coordinationScopes, x, y, w, h);
+    const nextUid = `view-${this.config.layout.length}`;
+    const newView = new VitessceConfigView(viewType, coordinationScopes, x, y, w, h, nextUid);
     if (mapping) {
       const [etScope] = this.addCoordination(CoordinationType.EMBEDDING_TYPE);
       etScope.setValue(mapping);
@@ -427,14 +430,14 @@ export class VitessceConfig {
    * the config parameter.
    */
   static fromJSON(config) {
-    const { name, description } = config;
-    const vc = new VitessceConfig(name, description);
+    const { name, description, version } = config;
+    const vc = new VitessceConfig(name, description, version);
     config.datasets.forEach((d) => {
       const newDataset = vc.addDataset(d.name, d.description, { uid: d.uid });
       d.files.forEach((f) => {
         newDataset.addFile(
           f.url,
-          f.type,
+          f.dataType,
           f.fileType,
           f.entityTypes,
           f.options,
@@ -453,7 +456,10 @@ export class VitessceConfig {
       }
     });
     config.layout.forEach((c) => {
-      const newView = new VitessceConfigView(c.viewType, c.coordinationScopes, c.x, c.y, c.w, c.h);
+      const newView = new VitessceConfigView(
+        c.viewType, c.coordinationScopes,
+        c.x, c.y, c.w, c.h, c.uid,
+      );
       vc.config.layout.push(newView);
     });
     return vc;

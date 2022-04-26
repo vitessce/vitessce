@@ -14,13 +14,14 @@ describe('VitessceGrid.js', () => {
   describe('<VitessceGrid />', () => {
     it('renders', () => {
       const config = {
-        version: '1.0.0',
+        version: '2.0.0',
         description: 'fake description',
         datasets: [],
         name: 'fake name',
         layout: [
           {
-            component: 'FakeComponent',
+            viewType: 'FakeComponent',
+            uid: 'fake',
             props: { description: 'fake prop description' },
             x: 0,
             y: 0,

@@ -305,8 +305,8 @@ export const upgradedLegacyViewConfig1_0_0 = {
 };
 
 
-export const legacyViewConfig1_0_6 = {
-  version: '1.0.6',
+export const legacyViewConfig1_0_9 = {
+  version: '1.0.9',
   name: 'My config name',
   description: 'My config description',
   initStrategy: 'auto',
@@ -381,8 +381,8 @@ export const legacyViewConfig1_0_6 = {
   ],
 };
 
-export const upgradedLegacyViewConfig1_0_6 = {
-  version: '1.1.0',
+export const upgradedLegacyViewConfig1_0_9 = {
+  version: '2.0.0',
   name: 'My config name',
   description: 'My config description',
   initStrategy: 'auto',
@@ -436,7 +436,8 @@ export const upgradedLegacyViewConfig1_0_6 = {
   ],
   layout: [
     {
-      component: 'description',
+      uid: 'view-0',
+      viewType: 'description',
       coordinationScopes: {
         dataset: 'A',
         spatialRasterLayers: 'A',
@@ -450,7 +451,8 @@ export const upgradedLegacyViewConfig1_0_6 = {
       y: 0,
     },
     {
-      component: 'spatial',
+      uid: 'view-1',
+      viewType: 'spatial',
       coordinationScopes: {
         dataset: 'A',
         spatialRasterLayers: 'A',
@@ -469,7 +471,7 @@ export const upgradedLegacyViewConfig1_0_6 = {
 
 
 export const initializedViewConfig = {
-  version: '1.1.0',
+  version: '2.0.0',
   name: 'My config name',
   description: 'My config description',
   initStrategy: 'auto',
@@ -612,7 +614,8 @@ export const initializedViewConfig = {
   ],
   layout: [
     {
-      component: 'description',
+      uid: 'view-0',
+      viewType: 'description',
       coordinationScopes: {
         dataset: 'A',
         featureType: 'A',
@@ -632,7 +635,8 @@ export const initializedViewConfig = {
       y: 0,
     },
     {
-      component: 'spatial',
+      uid: 'view-1',
+      viewType: 'spatial',
       coordinationScopes: {
         obsColorEncoding: 'A',
         obsFilter: 'A',

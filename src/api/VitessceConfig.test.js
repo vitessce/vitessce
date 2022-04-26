@@ -47,8 +47,9 @@ describe('src/api/VitessceConfig.js', () => {
       const config = new VitessceConfig('My config', 'My config description');
       config.addDataset('My dataset', 'My dataset description').addFile(
         'http://example.com/cells.json',
-        'cells',
+        'obs',
         'cells.json',
+        { obsType: 'cell' },
       );
 
       const configJSON = config.toJSON();
@@ -64,15 +65,18 @@ describe('src/api/VitessceConfig.js', () => {
           uid: 'A',
           files: [{
             url: 'http://example.com/cells.json',
-            type: 'cells',
+            dataType: 'obs',
             fileType: 'cells.json',
+            entityTypes: {
+              obsType: 'cell',
+            },
           }],
         }],
         description: 'My config description',
         initStrategy: 'auto',
         layout: [],
         name: 'My config',
-        version: '1.0.4',
+        version: '2.0.0',
       });
     });
 
@@ -100,6 +104,7 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [
           {
+            uid: 'view-0',
             viewType: 'description',
             coordinationScopes: {
               dataset: 'A',
@@ -110,6 +115,7 @@ describe('src/api/VitessceConfig.js', () => {
             h: 1,
           },
           {
+            uid: 'view-1',
             viewType: 'obsScatterplot',
             coordinationScopes: {
               dataset: 'A',
@@ -172,6 +178,7 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [
           {
+            uid: 'view-0',
             viewType: 'obsScatterplot',
             coordinationScopes: {
               dataset: 'A',
@@ -186,6 +193,7 @@ describe('src/api/VitessceConfig.js', () => {
             h: 1,
           },
           {
+            uid: 'view-1',
             viewType: 'obsScatterplot',
             coordinationScopes: {
               dataset: 'A',
@@ -258,7 +266,8 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [
           {
-            component: 'scatterplot',
+            uid: 'view-0',
+            viewType: 'scatterplot',
             coordinationScopes: {
               dataset: 'A',
               embeddingType: 'A',
@@ -272,7 +281,8 @@ describe('src/api/VitessceConfig.js', () => {
             h: 1,
           },
           {
-            component: 'scatterplot',
+            uid: 'view-1',
+            viewType: 'scatterplot',
             coordinationScopes: {
               dataset: 'A',
               embeddingType: 'B',
@@ -287,7 +297,7 @@ describe('src/api/VitessceConfig.js', () => {
           },
         ],
         name: 'My config',
-        version: '1.0.4',
+        version: '2.0.0',
       });
     });
 
@@ -318,7 +328,8 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [
           {
-            component: 'spatial',
+            uid: 'view-0',
+            viewType: 'spatial',
             coordinationScopes: {
               dataset: 'A',
             },
@@ -328,7 +339,8 @@ describe('src/api/VitessceConfig.js', () => {
             h: 12,
           },
           {
-            component: 'scatterplot',
+            uid: 'view-1',
+            viewType: 'scatterplot',
             coordinationScopes: {
               dataset: 'A',
               embeddingType: 'A',
@@ -339,7 +351,8 @@ describe('src/api/VitessceConfig.js', () => {
             h: 6,
           },
           {
-            component: 'status',
+            uid: 'view-2',
+            viewType: 'status',
             coordinationScopes: {
               dataset: 'A',
             },
@@ -350,7 +363,7 @@ describe('src/api/VitessceConfig.js', () => {
           },
         ],
         name: 'My config',
-        version: '1.0.4',
+        version: '2.0.0',
       });
     });
 
@@ -385,7 +398,8 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [
           {
-            component: 'spatial',
+            uid: 'view-0',
+            viewType: 'spatial',
             coordinationScopes: {
               dataset: 'A',
             },
@@ -395,7 +409,8 @@ describe('src/api/VitessceConfig.js', () => {
             h: 12,
           },
           {
-            component: 'scatterplot',
+            uid: 'view-1',
+            viewType: 'scatterplot',
             coordinationScopes: {
               dataset: 'A',
               embeddingType: 'A',
@@ -406,7 +421,8 @@ describe('src/api/VitessceConfig.js', () => {
             h: 6,
           },
           {
-            component: 'status',
+            uid: 'view-2',
+            viewType: 'status',
             coordinationScopes: {
               dataset: 'A',
             },
@@ -417,7 +433,7 @@ describe('src/api/VitessceConfig.js', () => {
           },
         ],
         name: 'My config',
-        version: '1.0.4',
+        version: '2.0.0',
       });
     });
   });
