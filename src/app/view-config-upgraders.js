@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import uuidv4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
+import { InternSet } from 'internmap';
 import { getNextScope, capitalize } from '../utils';
 
 /**
@@ -418,6 +419,8 @@ export function upgradeFrom1_0_9(config) {
     scatterplot: 'obsScatterplot',
   };
 
+  const overridesFromProps = new InternSet([], JSON.stringify);
+
   const layout = config.layout.map((component, i) => {
     const newComponent = { ...component };
     const { coordinationScopes = {}, props = {} } = newComponent;
@@ -434,6 +437,11 @@ export function upgradeFrom1_0_9(config) {
         const nextScope = getNextScope(Object.keys(typeScopes[newKey]));
         typeScopes[newKey][nextScope] = props[oldKey];
         coordinationScopes[newKey] = nextScope;
+        // Not perfect since not also scoped to a dataset,
+        // so edge case exists when there is >1 dataset, but this
+        // is sufficient for the configs in the HuBMAP portal
+        // which currently only deal with single datasets.
+        overridesFromProps.add([newKey, props[oldKey]]);
         delete props[oldKey];
       }
     });
@@ -526,9 +534,26 @@ export function upgradeFrom1_0_9(config) {
       };
     });
 
+    // Add extra file definitions to deal with the fact that views that previously
+    // had props like "variablesLabelOverride" will now have non-default
+    // entity types in the coordination space, and will therefore
+    // now require file definitions with corresponding
+    // entity type mappings in order to load the data they are expecting.
+    const extraFiles = Array.from(overridesFromProps)
+      .flatMap(([entityType, val]) => newFiles
+        .filter(f => Object.keys(f.entityTypes).includes(entityType))
+        .map((file) => {
+          const newFile = { ...file, entityTypes: { ...file.entityTypes } };
+          newFile.entityTypes[entityType] = val;
+          return newFile;
+        }));
+
     return {
       ...dataset,
-      files: newFiles,
+      files: [
+        ...newFiles,
+        ...extraFiles,
+      ],
     };
   });
 

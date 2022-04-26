@@ -95,6 +95,9 @@ export const eng2019 = {
         embeddingCellSetPolygonsVisible: 'A',
         embeddingCellRadius: 'A',
       },
+      props: {
+        observationsLabelOverride: 'spot',
+      },
       x: 0,
       y: 2,
       w: 5,

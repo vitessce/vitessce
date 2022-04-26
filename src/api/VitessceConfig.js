@@ -1,7 +1,5 @@
 import { getNextScope, fromEntries } from '../utils';
 import { CoordinationType } from '../app/constants';
-import { LATEST_VERSION } from '../app/view-config-versions';
-
 
 /**
  * Class representing a file within a Vitessce config dataset.
@@ -239,7 +237,7 @@ export class VitessceConfig {
    */
   constructor(name = undefined, description = undefined, schemaVersion = undefined) {
     this.config = {
-      version: schemaVersion || LATEST_VERSION,
+      version: schemaVersion || '2.0.0',
       name,
       description,
       datasets: [],
