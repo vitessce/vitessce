@@ -1,8 +1,44 @@
 
 ### Added
+- Adds new view config schema version `1.0.8` to support multiple `dataset` coordination scopes and dataset-specific coordination scope mappings for all other coordination types
+  ```js
+  datasets: [
+    { uid: 'my-query', ... },
+    { uid: 'some-atlas', ... },
+  ],
+  coordinationSpace: {
+    dataset: {
+      REFERENCE: 'some-atlas',
+      QUERY: 'my-query',
+    },
+    embeddingType: {
+      common: 'UMAP',
+    },
+    embeddingZoom: {
+      refZoom: 2,
+      qryZoom: 4,
+    },
+    ...,
+  },
+  layout: [
+    {
+      component: 'qrComparisonScatterplot',
+      coordinationScopes: {
+        dataset: ['REFERENCE', 'QUERY'],
+        embeddingType: 'common',
+        embeddingZoom: { REFERENCE: 'refZoom', QUERY: 'qryZoom' },
+      },
+      x: 0, y: 0, w: 5, h: 12,
+    },
+    ...,
+  ],
+  ...
+  ```
+- Add support for plugin view types, coordination types, and file types.
 
 ### Changed
-- Introduce obs x feature generalizations [#1128](https://github.com/vitessce/vitessce/issues/1128)
+- Merged dependabot PRs.
+- Introduce obs x feature generalizations.
 
 ## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
 
@@ -14,6 +50,7 @@
 - Use a hash table lookup instead of calling `indexOf` repeatedly for the heatmap component tiling.
 - Fix `molecules` layer sizing
 
+
 ## [1.1.19](https://www.npmjs.com/package/vitessce/v/1.1.19) - 2022-03-30
 
 ### Added
@@ -24,6 +61,7 @@
 - Upgrade Viv to 0.12.6 to fix shader compilation issue with interleaved RGB images
 - Fixed layer controller raster channel slider bug, related to [MUI slider issue](https://github.com/mui/material-ui/issues/20896).
 - Started to update the documentation to use the term "view" rather than "component".
+
 
 ## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
 

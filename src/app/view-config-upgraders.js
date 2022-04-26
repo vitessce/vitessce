@@ -327,9 +327,34 @@ export function upgradeFrom1_0_6(config) {
   };
 }
 
+// Added in version 1.0.8:
+// - Support for multiple `dataset` coordination scopes and
+// dataset-specific coordination scope mappings for all
+// other coordination types.
+export function upgradeFrom1_0_7(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.8',
+  };
+}
+
+// Added in version 1.0.9:
+// - Support for plugin coordination types.
+export function upgradeFrom1_0_8(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.9',
+  };
+}
+
+
 // Added in version 1.1.0:
 // - obs x feature and subObs x subFeature generalizations.
-export function upgradeFrom1_0_7(config) {
+export function upgradeFrom1_0_9(config) {
   const newConfig = cloneDeep(config);
 
   // Convert specific coordination scopes to general ones.

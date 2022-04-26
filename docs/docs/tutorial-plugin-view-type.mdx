@@ -1,0 +1,157 @@
+---
+id: tutorial-plugin-view-type
+title: 'Tutorial: Develop a plugin view type'
+sidebar_label: Plugin View Type
+---
+
+See the [plugin view type development](/docs/dev-plugins/#plugin-view-types) documentation for more details.
+
+### Minimal example
+
+```js
+import React from 'react';
+import {
+  Vitessce,
+  CoordinationType,
+  registerPluginViewType,
+  TitleInfo,
+  useCoordination,
+} from 'vitessce';
+import 'vitessce/dist/es/production/static/css/index.css';
+import './index.css';
+
+function MyCustomZoomController(props) {
+  const {
+    spatialZoom,
+    setSpatialZoom,
+  } = props;
+
+  function handleClick() {
+    setSpatialZoom(-10 + Math.random() * 10);
+  }
+  return (
+    <div>
+      <p>Zoom level: <b>{spatialZoom}</b></p>
+      <p>
+        <button onClick={handleClick}>Try a random zoom level</button>
+      </p>
+    </div>
+  );
+}
+
+function MyCustomZoomControllerSubscriber(props) {
+  const {
+    coordinationScopes,
+    removeGridComponent,
+    theme,
+    title = 'My plugin view',
+  } = props;
+
+  // Get "props" from the coordination space.
+  const [{
+    spatialZoom,
+  }, {
+    setSpatialZoom,
+  }] = useCoordination(
+    [
+      CoordinationType.DATASET,
+      CoordinationType.SPATIAL_ZOOM,
+    ],
+    coordinationScopes,
+  );
+
+  return (
+    <TitleInfo
+      title={title}
+      theme={theme}
+      removeGridComponent={removeGridComponent}
+      isReady
+    >
+      <MyCustomZoomController
+        spatialZoom={spatialZoom}
+        setSpatialZoom={setSpatialZoom}
+      />
+    </TitleInfo>
+  );
+}
+
+// Register the plugin view type.
+registerPluginViewType(
+  'myCustomZoomController',
+  MyCustomZoomControllerSubscriber,
+  [
+    CoordinationType.DATASET,
+    CoordinationType.SPATIAL_ZOOM,
+  ],
+);
+
+// Use the plugin view in the configuration.
+const configWithPluginViewType = {
+  name: 'Test plugin view types',
+  version: '1.0.9',
+  description: 'Demonstration of a basic plugin view implementation.',
+  public: true,
+  datasets: [
+    {
+      uid: 'plugin-test-dataset',
+      name: 'Plugin test dataset',
+      files: [
+        {
+          type: 'raster',
+          fileType: 'raster.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/spraggins/spraggins.raster.json',
+        },
+      ],
+    },
+  ],
+  initStrategy: 'auto',
+  coordinationSpace: {
+    spatialZoom: {
+      A: -6.5,
+    },
+  },
+  layout: [
+    {
+      component: 'description',
+      props: {
+        title: 'Description',
+      },
+      x: 10,
+      y: 0,
+      w: 2,
+      h: 2,
+    },
+    {
+      component: 'spatial',
+      coordinationScopes: {
+        spatialZoom: 'A',
+      },
+      x: 2,
+      y: 0,
+      w: 8,
+      h: 2,
+    },
+    {
+      component: 'myCustomZoomController',
+      coordinationScopes: {
+        spatialZoom: 'A',
+      },
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 2,
+    },
+  ],
+};
+
+export default function MyApp() {
+  return (
+    <Vitessce
+      config={configWithPluginViewType}
+      height={800}
+      theme="light"
+    />
+  );
+}
+```
+
