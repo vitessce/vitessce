@@ -22,7 +22,7 @@ Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
 ### Interactive
 
-Vitessce consists of reusable interactive components including a scatterplot, spatial+imaging plot, genome browser tracks, statistical plots, and controller components, built on web technologies such as WebGL.
+Vitessce consists of reusable interactive views including a scatterplot, spatial+imaging plot, genome browser tracks, statistical plots, and control views, built on web technologies such as WebGL.
 
 ### Integrative
 
@@ -34,7 +34,7 @@ Visualize large datasets stored in static cloud object stores such as AWS S3. No
 
 ## Usage
 
-Vitessce components can be used in React projects by installing the package from NPM:
+Vitessce can be used in React projects by installing the package from NPM:
 
 ```sh
 npm install vitessce

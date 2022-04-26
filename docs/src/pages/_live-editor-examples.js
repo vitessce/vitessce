@@ -1,6 +1,6 @@
 
 export const baseJson = `{
-  "version": "1.0.4",
+  "version": "2.0.0",
   "name": "My config",
   "description": "Test",
   "datasets": [],
@@ -20,17 +20,17 @@ const vc = new VitessceConfig("My example config", "This demonstrates the JavaSc
 const baseUrl = "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries";
 const dataset = vc
   .addDataset("Dries")
-  .addFile(baseUrl + '/dries.cells.json', dt.CELLS, ft.CELLS_JSON)
-  .addFile(baseUrl + '/dries.cell-sets.json', dt.CELL_SETS, ft.CELL_SETS_JSON);
+  .addFile(baseUrl + '/dries.cells.json', dt.OBS, ft.CELLS_JSON)
+  .addFile(baseUrl + '/dries.cell-sets.json', dt.OBS_SETS, ft.CELL_SETS_JSON);
 // Add components.
 // Use mapping: "UMAP" so that cells are mapped to the UMAP positions from the JSON file.
-const umap = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "UMAP" });
+const umap = vc.addView(dataset, vt.OBS_SCATTERPLOT, { mapping: "UMAP" });
 // Use mapping: "t-SNE" so that cells are mapped to the t-SNE positions from the JSON file.
-const tsne = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "t-SNE" });
+const tsne = vc.addView(dataset, vt.OBS_SCATTERPLOT, { mapping: "t-SNE" });
 // Add the cell sets controller component.
-const cellSetsManager = vc.addView(dataset, cm.CELL_SETS);
+const cellSetsManager = vc.addView(dataset, vt.OBS_SETS);
 // Add the cell set sizes bar plot component.
-const cellSetSizesPlot = vc.addView(dataset, cm.CELL_SET_SIZES);
+const cellSetSizesPlot = vc.addView(dataset, vt.OBS_SET_SIZES);
 // Link the zoom levels of the two scatterplots.
 vc.linkViews([umap, tsne], [ct.EMBEDDING_ZOOM], [2.5]);
 // Try un-commenting the line below to link center points of the two scatterplots!
@@ -46,23 +46,23 @@ vc.layout(
 return vc.toJSON();`;
 
 export const exampleJson = `{
-  "version": "1.0.4",
+  "version": "2.0.0",
   "name": "My example config",
   "description": "This demonstrates the JSON schema",
   "datasets": [
     {
-      "uid": "D1",
+      "uid": "d1",
       "name": "Dries",
       "files": [
         {
           "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json",
-          "type": "cells",
+          "dataType": "obs",
           "fileType": "cells.json"
         },
         {
           "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json",
-          "type": "cell-sets",
-          "fileType": "cell-sets.json"
+          "dataType": "obsSets",
+          "fileType": "cellSets.json"
         }
       ]
     }
@@ -81,7 +81,8 @@ export const exampleJson = `{
   },
   "layout": [
     {
-      "component": "scatterplot",
+      "viewType": "scatterplot",
+      "uid": "v1",
       "coordinationScopes": {
         "dataset": "A",
         "embeddingType": "A",
@@ -93,7 +94,8 @@ export const exampleJson = `{
       "h": 6
     },
     {
-      "component": "scatterplot",
+      "viewType": "scatterplot",
+      "uid": "v2",
       "coordinationScopes": {
         "dataset": "A",
         "embeddingType": "B",
@@ -105,7 +107,8 @@ export const exampleJson = `{
       "h": 6
     },
     {
-      "component": "cellSets",
+      "viewType": "cellSets",
+      "uid": "v3",
       "coordinationScopes": {
         "dataset": "A"
       },
@@ -115,7 +118,8 @@ export const exampleJson = `{
       "h": 6
     },
     {
-      "component": "cellSetSizes",
+      "viewType": "cellSetSizes",
+      "uid": "v4",
       "coordinationScopes": {
         "dataset": "A"
       },

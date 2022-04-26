@@ -16,7 +16,7 @@ import {
   vconcat,
 } from './api';
 import {
-  Component,
+  ViewType,
   DataType,
   FileType,
   CoordinationType,
@@ -67,7 +67,7 @@ export {
   VitessceConfig,
   hconcat,
   vconcat,
-  Component,
+  ViewType,
   DataType,
   FileType,
   CoordinationType,

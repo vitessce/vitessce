@@ -1,4 +1,4 @@
-import { CoordinationType, Component } from '../constants';
+import { CoordinationType, ViewType } from '../constants';
 
 export const DEFAULT_ENTITY_TYPE_VALUES = {
   [CoordinationType.OBS_TYPE]: 'cell',
@@ -130,7 +130,7 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
    * Keys here are the component registry keys.
    */
 export const COMPONENT_COORDINATION_TYPES = {
-  [Component.SCATTERPLOT]: [
+  [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.EMBEDDING_TYPE,
@@ -158,7 +158,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.SPATIAL]: [
+  [ViewType.SPATIAL]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.SPATIAL_ZOOM,
@@ -189,7 +189,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.SUB_OBS_HIGHLIGHT,
   ],
-  [Component.HEATMAP]: [
+  [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.HEATMAP_ZOOM_X,
@@ -209,7 +209,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.OBS_SETS]: [
+  [ViewType.OBS_SETS]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.OBS_SET_SELECTION,
@@ -219,7 +219,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.FEATURE_SELECTION,
   ],
-  [Component.OBS_SET_SIZES]: [
+  [ViewType.OBS_SET_SIZES]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.OBS_SET_SELECTION,
@@ -227,7 +227,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.STATUS]: [
+  [ViewType.STATUS]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.OBS_HIGHLIGHT,
@@ -235,7 +235,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.SUB_OBS_HIGHLIGHT,
   ],
-  [Component.FEATURES]: [
+  [ViewType.FEATURES]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.FEATURE_FILTER,
@@ -244,7 +244,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.OBS_SET_SELECTION,
   ],
-  [Component.OBS_SET_FEATURE_DISTRIBUTION]: [
+  [ViewType.OBS_SET_FEATURE_DISTRIBUTION]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.FEATURE_SELECTION,
@@ -254,12 +254,12 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.FEATURE_VALUE_HISTOGRAM]: [
+  [ViewType.FEATURE_VALUE_HISTOGRAM]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.FEATURE_SELECTION,
   ],
-  [Component.LAYER_CONTROLLER]: [
+  [ViewType.LAYER_CONTROLLER]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.SPATIAL_RASTER_LAYERS,
@@ -276,7 +276,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION_ORBIT,
     CoordinationType.SPATIAL_ORBIT_AXIS,
   ],
-  [Component.GENOMIC_PROFILES]: [
+  [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.GENOMIC_ZOOM_X,
@@ -291,7 +291,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.DESCRIPTION]: [
+  [ViewType.DESCRIPTION]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.SPATIAL_RASTER_LAYERS,

@@ -7,7 +7,10 @@ slug: /view-config-js
 
 ## Overview
 
-The Vitessce view config defines how data is retrieved, which visualization components are rendered, and how different components are coordinated. Ultimately, this configuration must be a JSON object when it is passed to the `<Vitessce/>` React component's `config` prop. Writing large JSON objects by hand can be difficult and prevents from using variables for more easily maintainable string constants, so we have developed object-oriented APIs to simplify this process. There are corresponding APIs in [Python](https://vitessce.github.io/vitessce-python/) and [R](https://vitessce.github.io/vitessceR/) if one of those languages is more familiar to you.
+The Vitessce view config defines how data is retrieved, which views are rendered, and how different views are coordinated.
+Ultimately, this configuration must be a JSON object when it is passed to the `<Vitessce/>` React component's [`config`](/docs/js-react-vitessce/#config) prop.
+
+Writing large JSON objects by hand can be difficult and prevents from using variables for more easily maintainable string constants, so we have developed object-oriented APIs to simplify this process. There are corresponding APIs in [Python](https://vitessce.github.io/vitessce-python/) and [R](https://vitessce.github.io/vitessceR/) if one of those languages is more familiar to you.
 
 
 ## `VitessceConfig`
@@ -54,19 +57,19 @@ const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset")
     .addFile(
         "http://example.com/my-cells-data.json",
-        dt.CELLS,
+        dt.OBS,
         ft.CELLS_JSON,
     );
 ```
 
 
-### `addView(dataset, component, [extra])`
+### `addView(dataset, viewType, [extra])`
 
 Add a view to the config.
 
 #### Parameters:
 - `dataset` (`VitessceConfigDataset`) - A dataset instance to be used for the data visualized in this view.
-- `component` (`string`) - A component name. A full list of components can be found on the [components](/docs/components/) documentation page. We recommend using the [`Component`](/docs/components/#constants) constant values rather than writing strings directly.
+- `viewType` (`string`) - A view type name. A full list of view types can be found on the [view types](/docs/components/) documentation page. We recommend using the [`ViewType`](/docs/constants/#view-types) constant values rather than writing strings directly.
 - `extra` (`object`) - An optional object with extra parameters.
     - `mapping` (`string`) - A convenience parameter for setting the `embeddingType` coordination scope value. This parameter is only applicable when adding the `scatterplot` component. Optional.
     - `x` (`number`) - The horizontal position of the view. Must be an integer between 0 and 11. Optional.
@@ -80,12 +83,12 @@ Add a view to the config.
 Returns the instance for the new view.
 
 ```js {5-6}
-import { VitessceConfig, Component as cm } from 'vitessce';
+import { VitessceConfig, ViewType as vt } from 'vitessce';
 
 const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "X_umap" });
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.OBS_SCATTERPLOT, { mapping: "X_umap" });
 ```
 
 
@@ -104,12 +107,12 @@ A convenience function for setting up new coordination scopes across a set of vi
 Returns `this` to allow chaining.
 
 ```js {7-11}
-import { VitessceConfig, Component as cm, CoordinationType as ct } from 'vitessce';
+import { VitessceConfig, ViewType as vt, CoordinationType as ct } from 'vitessce';
 
 const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SPATIAL);
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
 vc.linkViews(
     [v1, v2]
     [ct.SPATIAL_ZOOM, ct.SPATIAL_TARGET_X, ct.SPATIAL_TARGET_Y]
@@ -131,13 +134,13 @@ Create a multi-view layout based on (potentially recursive) view concatenations.
 Returns `this` to allow chaining.
 
 ```js {8}
-import { VitessceConfig, Component as cm, hconcat, vconcat } from 'vitessce';
+import { VitessceConfig, ViewType as vt, hconcat, vconcat } from 'vitessce';
 
 const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SPATIAL);
-const v3 = vc.addView(dataset, cm.SPATIAL);
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
+const v3 = vc.addView(dataset, vt.SPATIAL);
 vc.layout(hconcat(v1, vconcat(v2, v3)));
 ```
 
@@ -155,12 +158,12 @@ Add scope(s) for new coordination type(s) to the config. See also `VitessceConfi
 Returns the instances for the new scope objects corresponding to each coordination type. These can be linked to views via the `VitessceConfigView.use_coordination()` method.
 
 ```js {7-11}
-import { VitessceConfig, Component as cm, CoordinationType as ct } from 'vitessce';
+import { VitessceConfig, ViewType as vt, CoordinationType as ct } from 'vitessce';
 
 const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SPATIAL);
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
 const [zoomScope, xScope, yScope] = vc.addCoordination(
     ct.SPATIAL_ZOOM,
     ct.SPATIAL_TARGET_X,
@@ -184,11 +187,11 @@ Convert the view config instance to a JSON object.
 Returns the config instance as a JSON object.
 
 ```js {6}
-import { VitessceConfig, Component as cm } from 'vitessce';
+import { VitessceConfig, ViewType as vt } from 'vitessce';
 
 const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset");
-vc.layout(vc.addView(dataset, cm.SPATIAL));
+vc.layout(vc.addView(dataset, vt.SPATIAL));
 const vcJson = vc.toJSON();
 ```
 
@@ -218,12 +221,12 @@ const vc = VitessceConfig.fromJSON(myConfig);
 Helper function to allow horizontal concatenation of views in the Vitessce grid layout.
 
 ```js {7}
-import { VitessceConfig, Component as cm, hconcat } from 'vitessce';
+import { VitessceConfig, ViewType as vt, hconcat } from 'vitessce';
 
 const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SPATIAL);
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
 vc.layout(hconcat(v1, v2));
 ```
 
@@ -301,12 +304,12 @@ vc.layout(hconcat(v1, v2));
 Helper function to allow vertical concatenation of views in the Vitessce grid layout.
 
 ```js {7}
-import { VitessceConfig, Component as cm, vconcat } from 'vitessce';
+import { VitessceConfig, ViewType as vt, vconcat } from 'vitessce';
 
 const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SPATIAL);
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
 vc.layout(vconcat(v1, v2));
 ```
 
@@ -401,7 +404,7 @@ This class is not meant to be instantiated directly, but instances will be creat
 - `url` (`string|undefined`) - The URL for the file, pointing to either a local or remote location. We don't associate any semantics with URL strings.
 - `dataType` (`string`) - The type of data stored in the file. Must be compatible with the specified [file type](/docs/data-types-file-types/). We recommend using the [`DataType`](/docs/constants/#data-types) constant values rather than writing strings directly.
 - `fileType` (`string`) - The file type. Must be compatible with the specified [data type](/docs/data-types-file-types/). We recommend using the [`FileType`](/docs/constants/#file-types) constant values rather than writing strings directly.
-- `entityTypes` (`object|null`) - The entity type mapping. Must be compatible with the specified [data type](/docs/data-types-file-types/). We recommend using the [`EntityTypes`](/docs/constants/#entity-types) constant values rather than writing strings directly. By default, `null` to use the default entity type mapping.
+- `entityTypes` (`object|null`) - The entity type mapping. Must be compatible with the specified [data type](/docs/data-types-file-types/). We recommend using the [`EntityTypes`](/docs/constants/#entity-types) constant values rather than writing strings directly. By default, `null` to use the default entity type mapping. (__Added in v2.0.0__)
 - `options` (`object|array|null`) -  An optional object or array which may provide additional parameters to the loader class corresponding to the specified `fileType`. By default, `null`.
 
 #### Returns:
@@ -416,7 +419,7 @@ const vc = new VitessceConfig("My config");
 const dataset = vc.addDataset("My dataset")
     .addFile(
         "http://example.com/my-cells-data.json",
-        dt.CELLS,
+        dt.OBS,
         ft.CELLS_JSON,
     );
 ```

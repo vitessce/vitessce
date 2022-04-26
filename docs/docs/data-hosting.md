@@ -127,7 +127,7 @@ And make sure that the `url` values in your Vitessce view config point to the lo
         "name": "My amazing dataset",
         "files": [
             {
-                "type": "cells",
+                "dataType": "obs",
                 "fileType": "cells.json",
                 "url": "http://localhost:9000/path/to/my-local-file.json"
             }

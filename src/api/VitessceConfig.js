@@ -271,7 +271,7 @@ export class VitessceConfig {
    * Add a new view to the config.
    * @param {VitessceConfigDataset} dataset The dataset instance which defines the data
    * that will be displayed in the view.
-   * @param {string} component A component name, such as "scatterplot" or "spatial".
+   * @param {string} viewType A view type name, such as "obsScatterplot" or "spatial".
    * @param {object} options Extra options for the component.
    * @param {number} options.x The x-coordinate for the view in the grid layout.
    * @param {number} options.y The y-coordinate for the view in the grid layout.
@@ -281,7 +281,7 @@ export class VitessceConfig {
    * coordination value. Only applicable if the component is "scatterplot".
    * @returns {VitessceConfigView} A new view instance.
    */
-  addView(dataset, component, options) {
+  addView(dataset, viewType, options) {
     const {
       x = 0,
       y = 0,

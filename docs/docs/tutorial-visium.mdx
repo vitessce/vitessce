@@ -240,8 +240,8 @@ const dataset = vc
   .addDataset("my-visium-dataset")
   .addFile(
     "http://localhost:9000/V1_Human_Lymph_Node.zarr",
-    dt.CELLS,
-    ft.ANNDATA_CELLS_ZARR,
+    dt.OBS,
+    ft.ANNDATA_OBS_ZARR,
     null,
     {
       "mappings": {
@@ -314,10 +314,10 @@ Next, we can define the visualization components:
   js={`
 ...
 const pcaPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.OBS_SCATTERPLOT)
   .useCoordination(ET1);
 const umapPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.OBS_SCATTERPLOT)
   .useCoordination(ET2);
 ...
   `}
@@ -386,8 +386,8 @@ const dataset = vc
   .addDataset("my-visium-dataset")
   .addFile(
     "http://localhost:9000/V1_Human_Lymph_Node.zarr",
-    dt.CELLS,
-    ft.ANNDATA_CELLS_ZARR,
+    dt.OBS,
+    ft.ANNDATA_OBS_ZARR,
     null,
     {
       "mappings": {
@@ -406,10 +406,10 @@ const [ET1, ET2] = vc.addCoordination("embeddingType", "embeddingType");
 ET1.setValue("PCA");
 ET2.setValue("UMAP");
 const pcaPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.OBS_SCATTERPLOT)
   .useCoordination(ET1);
 const umapPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.OBS_SCATTERPLOT)
   .useCoordination(ET2);
 vc.layout(hconcat(pcaPlot, umapPlot));
 return vc.toJSON();

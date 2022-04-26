@@ -18,7 +18,7 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [],
         name: 'My config',
-        version: '1.0.4',
+        version: '2.0.0',
       });
     });
     it('can add a dataset', () => {
@@ -40,7 +40,7 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [],
         name: 'My config',
-        version: '1.0.4',
+        version: '2.0.0',
       });
     });
     it('can add a file to a dataset', () => {
@@ -80,7 +80,7 @@ describe('src/api/VitessceConfig.js', () => {
       const config = new VitessceConfig('My config');
       const dataset = config.addDataset('My dataset');
       config.addView(dataset, 'description');
-      config.addView(dataset, 'scatterplot', { mapping: 'PCA' });
+      config.addView(dataset, 'obsScatterplot', { mapping: 'PCA' });
 
       const configJSON = config.toJSON();
       expect(configJSON).toEqual({
@@ -100,7 +100,7 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [
           {
-            component: 'description',
+            viewType: 'description',
             coordinationScopes: {
               dataset: 'A',
             },
@@ -110,7 +110,7 @@ describe('src/api/VitessceConfig.js', () => {
             h: 1,
           },
           {
-            component: 'scatterplot',
+            viewType: 'obsScatterplot',
             coordinationScopes: {
               dataset: 'A',
               embeddingType: 'A',
@@ -122,14 +122,14 @@ describe('src/api/VitessceConfig.js', () => {
           },
         ],
         name: 'My config',
-        version: '1.0.4',
+        version: '2.0.0',
       });
     });
     it('can add a coordination scope', () => {
       const config = new VitessceConfig('My config');
       const dataset = config.addDataset('My dataset');
-      const pca = config.addView(dataset, 'scatterplot', { mapping: 'PCA' });
-      const tsne = config.addView(dataset, 'scatterplot', { mapping: 't-SNE' });
+      const pca = config.addView(dataset, 'obsScatterplot', { mapping: 'PCA' });
+      const tsne = config.addView(dataset, 'obsScatterplot', { mapping: 't-SNE' });
 
       const [ezScope, etxScope, etyScope] = config.addCoordination(
         CoordinationType.EMBEDDING_ZOOM,
@@ -172,7 +172,7 @@ describe('src/api/VitessceConfig.js', () => {
         initStrategy: 'auto',
         layout: [
           {
-            component: 'scatterplot',
+            viewType: 'obsScatterplot',
             coordinationScopes: {
               dataset: 'A',
               embeddingType: 'A',
@@ -186,7 +186,7 @@ describe('src/api/VitessceConfig.js', () => {
             h: 1,
           },
           {
-            component: 'scatterplot',
+            viewType: 'obsScatterplot',
             coordinationScopes: {
               dataset: 'A',
               embeddingType: 'B',
@@ -201,7 +201,7 @@ describe('src/api/VitessceConfig.js', () => {
           },
         ],
         name: 'My config',
-        version: '1.0.4',
+        version: '2.0.0',
       });
     });
 

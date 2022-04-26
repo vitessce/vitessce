@@ -1,9 +1,9 @@
-export const Component = {
+export const ViewType = {
   DESCRIPTION: 'description',
   STATUS: 'status',
   FEATURES: 'features',
   OBS_SETS: 'obsSets',
-  SCATTERPLOT: 'scatterplot',
+  OBS_SCATTERPLOT: 'obsScatterplot',
   SPATIAL: 'spatial',
   HEATMAP: 'obsFeatureHeatmap',
   LAYER_CONTROLLER: 'layerController',

@@ -352,7 +352,7 @@ export function upgradeFrom1_0_8(config) {
 }
 
 
-// Added in version 1.1.0:
+// Added in version 2.0.0:
 // - obs x feature and subObs x subFeature generalizations.
 export function upgradeFrom1_0_9(config) {
   const newConfig = cloneDeep(config);
@@ -417,7 +417,7 @@ export function upgradeFrom1_0_9(config) {
     heatmap: 'obsFeatureHeatmap',
   };
 
-  const layout = config.layout.map((component) => {
+  const layout = config.layout.map((component, i) => {
     const newComponent = { ...component };
     const { coordinationScopes = {}, props = {} } = newComponent;
 
@@ -444,7 +444,8 @@ export function upgradeFrom1_0_9(config) {
 
     return {
       ...newComponent,
-      component: newComponentName,
+      uid: `view-${i}`,
+      viewType: newComponentName,
       coordinationScopes,
       props,
     };
@@ -529,7 +530,7 @@ export function upgradeFrom1_0_9(config) {
 
   return {
     ...newConfig,
-    version: '1.1.0',
+    version: '2.0.0',
     datasets,
     coordinationSpace: {
       ...coordinationSpace,

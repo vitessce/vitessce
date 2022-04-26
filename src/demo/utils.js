@@ -2,7 +2,7 @@ import {
   VitessceConfig, hconcat, vconcat,
 } from '../api/index';
 import {
-  Component as cm,
+  ViewType as vt,
   DataType as dt,
   FileType as ft,
   CoordinationType as ct,
@@ -34,7 +34,7 @@ export const vapi = {
   VitessceConfig,
   hconcat,
   vconcat,
-  cm,
+  vt,
   dt,
   ft,
   ct,
