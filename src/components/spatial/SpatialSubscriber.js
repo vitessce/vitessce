@@ -27,7 +27,7 @@ import {
   useAuxiliaryCoordination,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { Component, DataType } from '../../app/constants';
+import { ViewType, DataType } from '../../app/constants';
 
 const SPATIAL_DATA_TYPES = [
   DataType.OBS, DataType.SUB_OBS, DataType.RASTER,
@@ -114,7 +114,7 @@ export default function SpatialSubscriber(props) {
     setSpatialAxisFixed,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SPATIAL], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const entityTypes = {
     obsType,

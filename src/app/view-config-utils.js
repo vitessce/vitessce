@@ -59,7 +59,7 @@ function coordinateComponentsTogether(config, coordinationType, scopeValue) {
         // Only set the coordination scope if this component uses this coordination type,
         // and the component is missing a coordination scope for this coordination type.
         ...((
-          componentCoordinationTypes[component.component].includes(coordinationType)
+          componentCoordinationTypes[component.viewType].includes(coordinationType)
           && !component.coordinationScopes?.[coordinationType]
         ) ? {
           // Only set the new scope name if the scope name
@@ -91,7 +91,7 @@ function coordinateComponentsIndependent(config, coordinationType, scopeValue) {
   newConfig.layout.forEach((component, i) => {
     // Only set the coordination scope if this component uses this coordination type,
     // and the component is missing a coordination scope for this coordination type.
-    if (componentCoordinationTypes[component.component].includes(coordinationType)
+    if (componentCoordinationTypes[component.viewType].includes(coordinationType)
       && !component.coordinationScopes?.[coordinationType]
     ) {
       const scopeName = getNextScope([
@@ -134,7 +134,7 @@ function initializeAuto(config) {
     // Components may only use a subset of all coordination types.
     const requiresCoordination = !layout
       .every(c => (
-        (!componentCoordinationTypes[c.component].includes(coordinationType))
+        (!componentCoordinationTypes[c.viewType].includes(coordinationType))
                 || c.coordinationScopes?.[coordinationType]
       ));
     if (requiresCoordination) {
@@ -174,7 +174,7 @@ export function checkTypes(config) {
   }
   // Add a log message when there are views in the layout that are neither
   // core views nor registered plugin views.
-  const viewTypesInConfig = config.layout.map(c => c.component);
+  const viewTypesInConfig = config.layout.map(c => c.viewType);
   const allViewTypes = getViewTypes();
   const unknownViewTypes = difference(viewTypesInConfig, allViewTypes);
   if (unknownViewTypes.length > 0) {
@@ -188,6 +188,9 @@ export function checkTypes(config) {
   if (unknownFileTypes.length > 0) {
     return [false, `The following file types are not recognized: [${unknownFileTypes}].\nIf these are plugin file types, ensure that they have been properly registered.`];
   }
+  // TODO: check that uids are unique for datasets and views.
+  // TODO: check that data types, view types, and entity types match.
+
   return [true, 'All view types, coordination types, and file types that appear in the view config are recognized.'];
 }
 

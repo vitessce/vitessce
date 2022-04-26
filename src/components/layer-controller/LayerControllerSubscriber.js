@@ -20,7 +20,7 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
-import { Component, DataType } from '../../app/constants';
+import { ViewType, DataType } from '../../app/constants';
 import { capitalize } from '../../utils';
 
 const LAYER_CONTROLLER_DATA_TYPES = [DataType.RASTER];
@@ -254,7 +254,7 @@ function LayerControllerSubscriber(props) {
       setSpatialZoom: setZoom,
     },
   ] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[Component.LAYER_CONTROLLER],
+    COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER],
     coordinationScopes,
   );
 

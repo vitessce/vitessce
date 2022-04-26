@@ -19,7 +19,7 @@ describe('VitessceGridLayout.js', () => {
         600: [0, 2, 4, 8],
       },
       components: [
-        { component: 'FakeComponent',
+        { viewType: 'FakeComponent',
           props: { text: 'Hello World' },
           x: 0, y: 0, w: 2 },
       ],

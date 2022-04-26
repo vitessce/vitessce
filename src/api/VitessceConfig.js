@@ -89,7 +89,7 @@ export class VitessceConfigDataset {
 export class VitessceConfigView {
   /**
    * Construct a new view instance.
-   * @param {string} component The name of the Vitessce component type.
+   * @param {string} viewType The name of the Vitessce component type.
    * @param {object} coordinationScopes A mapping from coordination type
    * names to coordination scope names.
    * @param {number} x The x-coordinate of the view in the layout.
@@ -97,9 +97,9 @@ export class VitessceConfigView {
    * @param {number} w The width of the view in the layout.
    * @param {number} h The height of the view in the layout.
    */
-  constructor(component, coordinationScopes, x, y, w, h) {
+  constructor(viewType, coordinationScopes, x, y, w, h) {
     this.view = {
-      component,
+      viewType,
       coordinationScopes,
       x,
       y,
@@ -306,7 +306,7 @@ export class VitessceConfig {
     const coordinationScopes = {
       [CoordinationType.DATASET]: datasetScope,
     };
-    const newView = new VitessceConfigView(component, coordinationScopes, x, y, w, h);
+    const newView = new VitessceConfigView(viewType, coordinationScopes, x, y, w, h);
     if (mapping) {
       const [etScope] = this.addCoordination(CoordinationType.EMBEDDING_TYPE);
       etScope.setValue(mapping);
@@ -453,7 +453,7 @@ export class VitessceConfig {
       }
     });
     config.layout.forEach((c) => {
-      const newView = new VitessceConfigView(c.component, c.coordinationScopes, c.x, c.y, c.w, c.h);
+      const newView = new VitessceConfigView(c.viewType, c.coordinationScopes, c.x, c.y, c.w, c.h);
       vc.config.layout.push(newView);
     });
     return vc;

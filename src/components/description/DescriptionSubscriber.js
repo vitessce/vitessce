@@ -5,7 +5,7 @@ import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Description from './Description';
-import { Component, DataType } from '../../app/constants';
+import { ViewType, DataType } from '../../app/constants';
 
 const DESCRIPTION_DATA_TYPES = [DataType.RASTER];
 
@@ -41,7 +41,7 @@ export default function DescriptionSubscriber(props) {
     featureValueType,
     subFeatureValueType,
     spatialRasterLayers: rasterLayers,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.DESCRIPTION], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.DESCRIPTION], coordinationScopes);
 
   const entityTypes = {
     obsType,

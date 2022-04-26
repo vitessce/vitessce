@@ -12,9 +12,9 @@ function getConfig() {
     .addFile(`${baseUrl}/human_intestine_2020_hubmap.genomic-profiles.zarr`, vapi.dt.GENOMIC_PROFILES, vapi.ft.GENOMIC_PROFILES_ZARR);
     // Add components.
     // Use mapping: "UMAP" so that cells are mapped to the UMAP positions from the JSON file.
-  const umap = vc.addView(dataset, vapi.cm.SCATTERPLOT, { mapping: 'UMAP' });
-  const cellSetsManager = vc.addView(dataset, vapi.cm.CELL_SETS);
-  const genomicProfiles = vc.addView(dataset, vapi.cm.GENOMIC_PROFILES);
+  const umap = vc.addView(dataset, vapi.vt.SCATTERPLOT, { mapping: 'UMAP' });
+  const cellSetsManager = vc.addView(dataset, vapi.vt.OBS_SETS);
+  const genomicProfiles = vc.addView(dataset, vapi.vt.GENOMIC_PROFILES);
 
   // Try un-commenting the line below to link center points of the two scatterplots!
   // vc.linkViews([umap, tsne], [ct.EMBEDDING_TARGET_X, ct.EMBEDDING_TARGET_Y], [0, 0]);

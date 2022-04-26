@@ -3,7 +3,7 @@ import { useCoordination, useWarning } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Status from './Status';
-import { Component } from '../../app/constants';
+import { ViewType } from '../../app/constants';
 
 /**
  * A subscriber component for the status component,
@@ -35,7 +35,7 @@ export default function StatusSubscriber(props) {
     featureHighlight: geneHighlight,
     subObsHighlight: moleculeHighlight,
     subFeatureHighlight: transcriptHighlight,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.STATUS], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.STATUS], coordinationScopes);
 
   const warn = useWarning();
 

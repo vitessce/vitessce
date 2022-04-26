@@ -118,7 +118,7 @@ json={`
   "url": "http://example.com/my_store.zarr",
   "dataType": "obsSets",
   "fileType": "anndataObsSets.zarr",
-  // Options defines which columns contain cell sets (clustering results) in the cell sets component.
+  // Options defines which columns contain cell sets (clustering results) in the cell sets view.
   // The groupName is the display name and the setName is the path within the Zarr store.
   "options": [
     {
@@ -133,7 +133,7 @@ json={`
 }
 `}
 js={`
-// Options defines which columns contain cell sets (clustering results) in the cell sets component.
+// Options defines which columns contain cell sets (clustering results) in the cell sets view.
 // The groupName is the display name and the setName is the path within the Zarr store.
 const options = [
   {
@@ -190,7 +190,7 @@ const dataset = vc
   />
   
 While the expression matrix file loader does not fetch the entire matrix and store it in memory, displaying a heatmap will fetch whatever
-genes are needed for the heatmap.  Similarly, selecting a gene to display over a scatterplot or spatial component can be costly
+genes are needed for the heatmap.  Similarly, selecting a gene to display over a scatterplot or spatial view can be costly
 if the expression matrix is not stored properly.
 In both cases, a poor chunking strategy can lead to too much data being requested for every gene selection/gene needed for the heatmap.
 If you experience performance issues, you may [use or store a subset of the matrix](#use-or-store-a-subset-of-x) to the Zarr store.
@@ -210,7 +210,7 @@ json={`
     "matrix": "obsm/X",
     // Matrix genes filter is a boolean list which defines
     // the subset of genes contained in the matrix to be visualized in the heatmap.
-    // All of the genes in \`var\` will display in the \`Genes\` component though.
+    // All of the genes in \`var\` will display in the \`Genes\` view though.
     // Use \`geneFilter\` instead if you only want to show a subset of the genes there
     // (this must be defined if the matrix is a subset of AnnData.X).
     "matrixGeneFilter": "var/highly_variable",
@@ -227,7 +227,7 @@ const options = {
   "matrix": "obsm/X",
   // Matrix genes filter is a boolean list which defines
   // the subset of genes contained in the matrix to be visualized in the heatmap.
-  // All of the genes in \`var\` will display in the \`Genes\` component though.
+  // All of the genes in \`var\` will display in the \`Genes\` view though.
   // Use \`geneFilter\` instead if you only want to show a subset of the genes there
   // (this must be defined if the matrix is a subset of AnnData.X).
   "matrixGeneFilter": "var/highly_variable",
@@ -740,7 +740,7 @@ The ids in the `obs` part of the `AnnData` store must match the other data files
 #### Use or Store a subset of X
 
 When the full expression matrix `adata.X` is large, there may be performance costs if Vitessce tries to load the full matrix for visualization, whether it be a heatmap
-or just loading genes to overlay on a spatial or scatterplot component.
+or just loading genes to overlay on a spatial or scatterplot view.
 To offset this there are two things you can do:
 1. Use CSC format or chunk the zarr store efficiently (the later is recommended at the moment, see below) so that the UI remains responsive when selecting a gene to load into the client.
 Every time a gene is selected (or the heatmap is loaded), the client will use Zarr to fetch all the "cell x gene" information needed for rendering - however, a poor chunking strategy
@@ -749,7 +749,7 @@ remote sources (like browsers) to fetch only the genes (and all cells) necessary
 so every chunk contains all the cells, but only a few genes.  That way, when you select a gene, only a small chunk of data is fetched for rendering and little is wasted.  Ideally, at most
 one small request is made for every selection.  You are welcome to try different chunking strategies as you see fit though!
 2. If only interested in a subset of the expression matrix for a heatmap, a filter (`matrixGeneFilter` in the view config) for the matrix can be stored as a boolean array in `var`.
-In this case, it is the `highly_variable` key from the `sc.pp.highly_variable_genes` call below.  This will not alter the genes displayed in the `Genes` component (use `geneFilter` for that in the view config).
+In this case, it is the `highly_variable` key from the `sc.pp.highly_variable_genes` call below.  This will not alter the genes displayed in the `Genes` view (use `geneFilter` for that in the view config).
 
 ```python
 import scanpy as sc

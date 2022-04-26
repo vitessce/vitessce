@@ -20,7 +20,7 @@ const registry = {
   [ViewType.STATUS]: StatusSubscriber,
   [ViewType.FEATURES]: GenesSubscriber,
   [ViewType.OBS_SETS]: CellSetsManagerSubscriber,
-  [ViewType.SCATTERPLOT]: ScatterplotSubscriber,
+  [ViewType.OBS_SCATTERPLOT]: ScatterplotSubscriber,
   [ViewType.SPATIAL]: SpatialSubscriber,
   [ViewType.HEATMAP]: HeatmapSubscriber,
   [ViewType.LAYER_CONTROLLER]: LayerControllerSubscriber,

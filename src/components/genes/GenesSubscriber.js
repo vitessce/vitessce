@@ -7,7 +7,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
-import { Component, DataType } from '../../app/constants';
+import { ViewType, DataType } from '../../app/constants';
 
 const GENES_DATA_TYPES = [DataType.OBS_FEATURE_MATRIX];
 
@@ -52,7 +52,7 @@ export default function GenesSubscriber(props) {
     setFeatureFilter: setGeneFilter,
     setFeatureHighlight: setGeneHighlight,
     setObsColorEncoding: setCellColorEncoding,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.FEATURES], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.FEATURES], coordinationScopes);
 
   const entityTypes = {
     obsType,

@@ -17,7 +17,7 @@ Vitessce can load single-cell data from a variety of file types.
 
 ### Configuration
 
-A [JSON-based configuration](/docs/view-config-json/) termed the "view config" defines how data is retrieved, which visualization components are rendered, and how different components are coordinated.
+A [JSON-based configuration](/docs/view-config-json/) termed the "view config" defines how data is retrieved, which views are rendered, and how different views are coordinated.
 To simplify the configuration process, we also provide object-oriented APIs for generating view configs in [JavaScript](/docs/view-config-js/), [Python](https://vitessce.github.io/vitessce-python/api_config.html), and [R](https://vitessce.github.io/vitessceR/reference/VitessceConfig.html#examples).
 
 ### Views

@@ -71,7 +71,7 @@ Add a view to the config.
 - `dataset` (`VitessceConfigDataset`) - A dataset instance to be used for the data visualized in this view.
 - `viewType` (`string`) - A view type name. A full list of view types can be found on the [view types](/docs/components/) documentation page. We recommend using the [`ViewType`](/docs/constants/#view-types) constant values rather than writing strings directly.
 - `extra` (`object`) - An optional object with extra parameters.
-    - `mapping` (`string`) - A convenience parameter for setting the `embeddingType` coordination scope value. This parameter is only applicable when adding the `scatterplot` component. Optional.
+    - `mapping` (`string`) - A convenience parameter for setting the `embeddingType` coordination scope value. This parameter is only applicable when adding the `obsScatterplot` view. Optional.
     - `x` (`number`) - The horizontal position of the view. Must be an integer between 0 and 11. Optional.
     - `y` (`number`) - The vertical position of the view. Must be an integer between 0 and 11. Optional.
     - `w` (`number`) - The width of the view. Must be an integer between 1 and 12. Optional.
@@ -426,7 +426,7 @@ const dataset = vc.addDataset("My dataset")
 
 ## `VitessceConfigView`
 
-`VitessceConfigView` is a class used to represent a view (i.e. visualization or controller component) in the Vitessce view config layout.
+`VitessceConfigView` is a class used to represent a view in the Vitessce view config layout.
 
 This class is not meant to be instantiated directly, but instances will be created and returned by the `VitessceConfig.addView()` method.
 

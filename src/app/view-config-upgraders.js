@@ -415,6 +415,7 @@ export function upgradeFrom1_0_9(config) {
     cellSetExpression: 'obsSetFeatureDistribution',
     expressionHistogram: 'featureValueHistogram',
     heatmap: 'obsFeatureHeatmap',
+    scatterplot: 'obsScatterplot',
   };
 
   const layout = config.layout.map((component, i) => {
@@ -443,11 +444,14 @@ export function upgradeFrom1_0_9(config) {
     );
 
     return {
-      ...newComponent,
       uid: `view-${i}`,
       viewType: newComponentName,
       coordinationScopes,
       props,
+      x: newComponent.x,
+      y: newComponent.y,
+      w: newComponent.w,
+      h: newComponent.h,
     };
   });
 

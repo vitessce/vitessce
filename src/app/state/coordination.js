@@ -130,7 +130,7 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
    * Keys here are the component registry keys.
    */
 export const COMPONENT_COORDINATION_TYPES = {
-  [ViewType.SCATTERPLOT]: [
+  [ViewType.OBS_SCATTERPLOT]: [
     CoordinationType.DATASET,
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.EMBEDDING_TYPE,

@@ -7,7 +7,7 @@ import { mergeCellSets } from '../utils';
 import { useCellSetsData } from '../data-hooks';
 import { treeToSetSizesBySetNames } from './cell-set-utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
-import { Component, DataType } from '../../app/constants';
+import { ViewType, DataType } from '../../app/constants';
 import { capitalize } from '../../utils';
 
 const CELL_SET_SIZES_DATA_TYPES = [DataType.OBS_SETS];
@@ -48,7 +48,7 @@ export default function CellSetSizesPlotSubscriber(props) {
   }, {
     setObsSetSelection: setCellSetSelection,
     setObsSetColor: setCellSetColor,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.OBS_SET_SIZES], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES], coordinationScopes);
 
   const entityTypes = {
     obsType,

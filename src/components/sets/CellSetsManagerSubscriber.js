@@ -54,7 +54,7 @@ import {
   getNextNumberedNodeName,
 } from '../utils';
 import { useCellsData, useCellSetsData } from '../data-hooks';
-import { Component, DataType } from '../../app/constants';
+import { ViewType, DataType } from '../../app/constants';
 import { capitalize } from '../../utils';
 
 const CELL_SETS_DATA_TYPES = [DataType.OBS, DataType.OBS_SETS];
@@ -99,7 +99,7 @@ export default function CellSetsManagerSubscriber(props) {
     setObsColorEncoding: setCellColorEncoding,
     setObsSetColor: setCellSetColor,
     setAdditionalObsSets: setAdditionalCellSets,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.OBS_SETS], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS], coordinationScopes);
 
   const entityTypes = {
     obsType,

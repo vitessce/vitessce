@@ -57,9 +57,8 @@ export const createViewConfigStore = () => create(set => ({
       },
     },
   })),
-  removeComponent: i => set((state) => {
-    const newLayout = state.viewConfig.layout.slice();
-    newLayout.splice(i, 1);
+  removeComponent: uid => set((state) => {
+    const newLayout = state.viewConfig.layout.filter(c => c.uid !== uid);
     return {
       viewConfig: {
         ...state.viewConfig,
@@ -90,7 +89,7 @@ export const createViewConfigStore = () => create(set => ({
  * @returns {Object} The components' layout.
  */
 export const useComponentLayout = (component, scopes, coordinationScopes) => useViewConfigStore(
-  state => state.viewConfig.layout.filter(l => l.component === component).filter(
+  state => state.viewConfig.layout.filter(l => l.viewType === component).filter(
     l => scopes.every(scope => l.coordinationScopes[scope]
           === coordinationScopes[scope]),
   ),
