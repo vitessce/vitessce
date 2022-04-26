@@ -10,8 +10,9 @@ Plugin file types can enable loading data that is stored in custom file formats.
 
 :::caution
 
-Note that we cannot guarantee that future versions of Vitessce will not break existing plugins.
-For instance, we do not make any guarantees that exported helper functions such as React data-loading hooks (e.g., `useRasterData`, `useExpressionMatrixData`, etc.) will not be removed or will have a consistent function signature across Vitessce versions.
+Note that because Vitessce is still under development we do not guarantee that __minor__ version bumps of Vitessce will not break existing plugins.
+For instance, we do not make guarantees that exported helper functions such as React data-loading hooks (e.g., `useRasterData`, `useExpressionMatrixData`, etc.) will not be removed or will have a consistent function signature across Vitessce minor versions.
+However, we will keep them consistent across __patch__ versions within the same minor version.
 Therefore, __plugin developers should be sure to document which version(s) of Vitessce that plugins have been developed under__.
 
 :::
