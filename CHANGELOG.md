@@ -1,5 +1,13 @@
 
 ### Added
+
+### Changed
+
+## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
+
+
+
+### Added
 - Adds new view config schema version `1.0.8` to support multiple `dataset` coordination scopes and dataset-specific coordination scope mappings for all other coordination types
   ```js
   datasets: [
