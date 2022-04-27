@@ -9,6 +9,7 @@ import {
   decodeURLParamsToConf,
   registerPluginViewType,
   registerPluginCoordinationType,
+  registerPluginFileType,
 } from './app';
 import {
   VitessceConfig,
@@ -74,6 +75,7 @@ export {
   // Plugin registration functions
   registerPluginCoordinationType,
   registerPluginViewType,
+  registerPluginFileType,
   // Exports for plugins
   // (not guaranteed to be compatible across different Vitessce versions)
   TitleInfo,
