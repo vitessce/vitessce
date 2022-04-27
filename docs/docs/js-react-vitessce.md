@@ -9,7 +9,7 @@ The `vitessce` package exports the `Vitessce` React component. The component pro
 import React from 'react';
 import { Vitessce } from 'vitessce';
 import myViewConfig from './my-view-config';
-import 'vitessce/dist/es/production/static/css/index.css';
+import 'vitessce/dist/es/production/index.css';
 import './index.css';
 
 export default function MyApp() {
@@ -102,7 +102,7 @@ import ReactDOM from 'react-dom';
 import dynamicImportPolyfill from 'dynamic-import-polyfill';
 import packageJson from '../../package.json';
 import { createWarningComponent, asEsModule } from '../utils';
-import 'vitessce/es/production/static/css/index.css';
+import 'vitessce/es/production/index.css';
 
 const VITESSCE_BUNDLE_VERSION = packageJson.dependencies.vitessce;
 const VITESSCE_BUNDLE_URL = `https://unpkg.com/vitessce@${VITESSCE_BUNDLE_VERSION}/dist/umd/production/index.min.js`;

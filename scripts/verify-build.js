@@ -13,7 +13,7 @@ for(let environment of LIB_ENVIRONMENTS) {
         const extension = (environment === 'production' && target !== 'es' ? 'min.js' : 'js')
         // Construct path to index.js and index.css files.
         const indexJs = path.join(paths.libBuild, target, environment, `index.${extension}`);
-        const indexCss = path.join(paths.libBuild, target, environment, 'static', 'css', 'index.css');
+        const indexCss = path.join(paths.libBuild, target, environment, 'index.css');
         expectedLibFiles.push(indexJs);
         expectedLibFiles.push(indexCss);
     }
