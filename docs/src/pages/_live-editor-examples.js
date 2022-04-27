@@ -81,7 +81,7 @@ export const exampleJson = `{
   },
   "layout": [
     {
-      "viewType": "scatterplot",
+      "viewType": "obsScatterplot",
       "uid": "v1",
       "coordinationScopes": {
         "dataset": "A",
@@ -94,7 +94,7 @@ export const exampleJson = `{
       "h": 6
     },
     {
-      "viewType": "scatterplot",
+      "viewType": "obsScatterplot",
       "uid": "v2",
       "coordinationScopes": {
         "dataset": "A",
@@ -107,7 +107,7 @@ export const exampleJson = `{
       "h": 6
     },
     {
-      "viewType": "cellSets",
+      "viewType": "obsSets",
       "uid": "v3",
       "coordinationScopes": {
         "dataset": "A"
@@ -118,7 +118,7 @@ export const exampleJson = `{
       "h": 6
     },
     {
-      "viewType": "cellSetSizes",
+      "viewType": "obsSetSizes",
       "uid": "v4",
       "coordinationScopes": {
         "dataset": "A"

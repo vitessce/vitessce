@@ -2,7 +2,7 @@ module.exports = {
   docs: [
     {
       type: 'doc',
-      id: 'introduction'
+      id: 'introduction',
     },
     {
       type: 'category',
@@ -14,18 +14,12 @@ module.exports = {
         'entity-types',
         'coordination',
         'coordination-types',
-        'platforms'
+        'platforms',
       ],
     },
     {
-      type: 'category',
-      label: 'View Configs',
-      items: [
-        'view-config-json',
-        'view-config-js',
-        'constants',
-        'troubleshooting'
-      ],
+      type: 'doc',
+      id: 'view-config-json',
     },
     {
       type: 'category',
@@ -40,26 +34,23 @@ module.exports = {
       label: 'JavaScript API',
       items: [
         'js-overview',
+        'view-config-js',
+        'constants',
         'js-react-vitessce',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Developer Docs',
-      items: [
-        'dev-overview',
         'dev-add-component',
-        'dev-plugins'
+        'dev-plugins',
+        'troubleshooting',
+        'upgrade-v1-to-v2',
       ],
     },
     {
       type: 'doc',
-      id: 'roadmap'
+      id: 'roadmap',
     },
     {
       type: 'doc',
-      id: 'about'
-    } 
+      id: 'about',
+    },
   ],
   tutorials: [
     {

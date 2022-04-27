@@ -12,6 +12,12 @@ Ultimately, this configuration must be a JSON object when it is passed to the `<
 
 Writing large JSON objects by hand can be difficult and prevents from using variables for more easily maintainable string constants, so we have developed object-oriented APIs to simplify this process. There are corresponding APIs in [Python](https://vitessce.github.io/vitessce-python/) and [R](https://vitessce.github.io/vitessceR/) if one of those languages is more familiar to you.
 
+:::caution
+
+The `VitessceConfig` changed between versions `1.x.x` and `2.0.0` of the JavaScript package.
+To learn how to make existing v1 code compatible with the v2 package, see the [v1 to v2 upgrade guide](/docs/upgrade-v1-to-v2/).
+
+:::
 
 ## `VitessceConfig`
 

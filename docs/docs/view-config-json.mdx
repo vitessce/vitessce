@@ -13,16 +13,6 @@ import {
 The Vitessce __view config__ defines datasets (and the URLs to their associated data files) and views that will be used to visualize and interact with the data.
 The view config also stores the [coordination space](/docs/coordination/) (i.e., the state of the views) and defines which views and properties are coordinated.
 
-:::tip
-
-Vitessce uses a JSON-based view configuration internally.
-However, we provide language-specific object-oriented view config APIs as alternative ways to construct configurations:
-- [JavaScript View Config API](/docs/view-config-js/)
-- [Python View Config API](https://vitessce.github.io/vitessce-python/api_config.html)
-- [R View Config API](https://vitessce.github.io/vitessceR/reference/VitessceConfig.html#examples)
-
-:::
-
 
 ## Required properties
 
@@ -206,3 +196,13 @@ When the coordination space is entirely or partially omitted from the view confi
 - Type: `string`
 
 An optional description for the view config.
+
+:::tip
+
+Vitessce uses a JSON-based view configuration internally.
+However, we provide language-specific object-oriented view config APIs as alternative ways to construct configurations:
+- [JavaScript View Config API](/docs/view-config-js/)
+- [Python View Config API](https://vitessce.github.io/vitessce-python/api_config.html)
+- [R View Config API](https://vitessce.github.io/vitessceR/reference/VitessceConfig.html#examples)
+
+:::
