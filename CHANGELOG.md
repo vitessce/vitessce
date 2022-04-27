@@ -35,6 +35,7 @@
   ...
   ```
 - Add support for plugin view types, coordination types, and file types.
+- Added more exports in `src/index.js` to better support plugin development.
 
 ### Changed
 - Merged dependabot PRs.

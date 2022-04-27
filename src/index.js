@@ -9,6 +9,7 @@ import {
   decodeURLParamsToConf,
   registerPluginViewType,
   registerPluginCoordinationType,
+  registerPluginFileType,
 } from './app';
 import {
   VitessceConfig,
@@ -40,6 +41,13 @@ import {
   useCoordination,
   useMultiDatasetCoordination,
   useLoaders,
+  useViewConfigStore,
+  useViewConfigStoreApi,
+  useSetComponentHover,
+  useSetComponentViewInfo,
+  useComponentViewInfo,
+  useSetWarning,
+  useWarning,
 } from './app/state/hooks';
 // For plugin file type:
 import {
@@ -74,6 +82,7 @@ export {
   // Plugin registration functions
   registerPluginCoordinationType,
   registerPluginViewType,
+  registerPluginFileType,
   // Exports for plugins
   // (not guaranteed to be compatible across different Vitessce versions)
   TitleInfo,
@@ -82,6 +91,13 @@ export {
   useCoordination,
   useMultiDatasetCoordination,
   useLoaders,
+  useViewConfigStore,
+  useViewConfigStoreApi,
+  useSetComponentHover,
+  useSetComponentViewInfo,
+  useComponentViewInfo,
+  useSetWarning,
+  useWarning,
   useDescription,
   useCellsData,
   useCellSetsData,
