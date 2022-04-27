@@ -16,13 +16,6 @@ for(let environment of LIB_ENVIRONMENTS) {
         const indexCss = path.join(paths.libBuild, target, environment, 'static', 'css', 'index.css');
         expectedLibFiles.push(indexJs);
         expectedLibFiles.push(indexCss);
-
-        // Construct paths to {component_dir}.js files.
-        const componentNames = Object.keys(paths.libOtherJs);
-        for(let componentName of componentNames) {
-            const componentJs = path.join(paths.libBuild, target, environment, `${componentName}.${extension}`);
-            expectedLibFiles.push(componentJs);
-        }
     }
 }
 

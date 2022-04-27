@@ -2,8 +2,9 @@ import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
+import fromEntries from 'object.fromentries';
 import { CoordinationType } from '../constants';
-import { fromEntries, capitalize } from '../../utils';
+import { capitalize } from '../../utils';
 
 // Reference: https://github.com/pmndrs/zustand#react-context
 // Reference: https://github.com/pmndrs/zustand/blob/e47ea03/tests/context.test.tsx#L60

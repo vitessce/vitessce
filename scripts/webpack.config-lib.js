@@ -65,7 +65,7 @@ module.exports = function(paths, environment, target) {
         devtool: devtoolInfo,
         entry: {
             index: paths.libIndexJs,
-            ...paths.libOtherJs
+            ...paths.libOtherJs,
         },
         output: {
             // The build folder.

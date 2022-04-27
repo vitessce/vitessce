@@ -2,7 +2,8 @@
 import uuidv4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
 import { InternSet } from 'internmap';
-import { getNextScope, capitalize } from '../utils';
+import { capitalize } from '../utils';
+import { getNextScope } from '../view-configs/utils';
 
 /**
  * A helper function for the `upgrade()` function,

@@ -1,13 +1,15 @@
 import expect from 'expect';
-import { CoordinationType } from '../app/constants';
+import { CoordinationType } from './v2-constants';
 import {
   VitessceConfig,
+} from './v2-api';
+import {
   hconcat,
   vconcat,
-} from './VitessceConfig';
+} from '../common';
 
-describe('src/api/VitessceConfig.js', () => {
-  describe('VitessceConfig', () => {
+describe('src/view-configs/api/v2/v2-api.js', () => {
+  describe('VitessceConfigV2', () => {
     it('can be instantiated', () => {
       const config = new VitessceConfig('My config');
 

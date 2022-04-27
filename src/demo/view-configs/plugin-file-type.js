@@ -1,11 +1,11 @@
 import range from 'lodash/range';
+import fromEntries from 'object.fromentries';
 import JsonLoader from '../../loaders/JsonLoader';
 import LoaderResult from '../../loaders/LoaderResult';
 import JsonSource from '../../loaders/data-sources/JsonSource';
 import {
   registerPluginFileType,
 } from '../../app/plugins';
-import { fromEntries } from '../../utils';
 
 const numCells = 60;
 const numGenes = 90;

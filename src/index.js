@@ -14,7 +14,7 @@ import {
   VitessceConfig,
   hconcat,
   vconcat,
-} from './api';
+} from './view-configs/api/index';
 import {
   ViewType,
   DataType,

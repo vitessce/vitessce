@@ -2,7 +2,7 @@
 /* eslint-disable camelcase */
 import difference from 'lodash/difference';
 import packageJson from '../../package.json';
-import { getNextScope } from '../utils';
+import { getNextScope } from '../view-configs/utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
 } from './state/coordination';

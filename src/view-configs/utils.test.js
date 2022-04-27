@@ -2,7 +2,7 @@ import expect from 'expect';
 
 import { getNextScope } from './utils';
 
-describe('src/utils.js', () => {
+describe('src/view-configs/utils.js', () => {
   describe('getNextScope', () => {
     it('generates a new scope name without conflicts', () => {
       expect(getNextScope([])).toEqual('A');

@@ -1,6 +1,10 @@
 import semver from 'semver';
-import { getNextScope, fromEntries } from '../utils';
-import { CoordinationType } from '../app/constants';
+import fromEntries from 'object.fromentries';
+import { getNextScope } from '../../utils';
+import {
+  VitessceConfigViewHConcat, VitessceConfigViewVConcat,
+} from '../common';
+import { CoordinationType } from './v1-constants';
 
 
 /**
@@ -12,17 +16,15 @@ export class VitessceConfigDatasetFile {
    * @param {string} url The URL to the file.
    * @param {string} dataType The type of data contained in the file.
    * @param {string} fileType The file type.
-   * @param {object|null} entityTypes The entity type mapping.
    * @param {object|array|null} options An optional object or array
    * which may provide additional parameters to the loader class
    * corresponding to the specified fileType.
    */
-  constructor(url, dataType, fileType, entityTypes, options) {
+  constructor(url, dataType, fileType, options) {
     this.file = {
       url,
-      dataType,
+      type: dataType,
       fileType,
-      ...(entityTypes !== null ? { entityTypes } : {}),
       ...(options !== null ? { options } : {}),
     };
   }
@@ -59,15 +61,14 @@ export class VitessceConfigDataset {
    * @param {string|undefined} url The URL to the file.
    * @param {string} dataType The type of data contained in the file.
    * @param {string} fileType The file type.
-   * @param {object} entityTypes The entity type mapping.
    * @param {object|array} options An optional object or array
    * which may provide additional parameters to the loader class
    * corresponding to the specified fileType.
    * @returns {VitessceConfigDataset} This, to allow chaining.
    */
-  addFile(url, dataType, fileType, entityTypes = null, options = null) {
+  addFile(url, dataType, fileType, options = null) {
     this.dataset.files.push(
-      new VitessceConfigDatasetFile(url, dataType, fileType, entityTypes, options),
+      new VitessceConfigDatasetFile(url, dataType, fileType, options),
     );
     return this;
   }
@@ -89,24 +90,22 @@ export class VitessceConfigDataset {
 export class VitessceConfigView {
   /**
    * Construct a new view instance.
-   * @param {string} viewType The name of the Vitessce component type.
+   * @param {string} component The name of the Vitessce component type.
    * @param {object} coordinationScopes A mapping from coordination type
    * names to coordination scope names.
    * @param {number} x The x-coordinate of the view in the layout.
    * @param {number} y The y-coordinate of the view in the layout.
    * @param {number} w The width of the view in the layout.
    * @param {number} h The height of the view in the layout.
-   * @param {string} uid A unique identifier for the view.
    */
-  constructor(viewType, coordinationScopes, x, y, w, h, uid) {
+  constructor(component, coordinationScopes, x, y, w, h) {
     this.view = {
-      viewType,
+      component,
       coordinationScopes,
       x,
       y,
       w,
       h,
-      uid,
     };
   }
 
@@ -162,46 +161,6 @@ export class VitessceConfigView {
 }
 
 /**
- * Class representing a horizontal concatenation of views.
- */
-export class VitessceConfigViewHConcat {
-  constructor(views) {
-    this.views = views;
-  }
-}
-
-/**
- * Class representing a vertical concatenation of views.
- */
-export class VitessceConfigViewVConcat {
-  constructor(views) {
-    this.views = views;
-  }
-}
-
-/**
- * A helper function to create a horizontal concatenation of views.
- * @param  {...(VitessceConfigView|VitessceConfigViewHConcat|VitessceConfigViewVConcat)} views A
- * variable number of views or view concatenations.
- * @returns {VitessceConfigViewHConcat} A new horizontal view concatenation instance.
- */
-export function hconcat(...views) {
-  const vcvhc = new VitessceConfigViewHConcat(views);
-  return vcvhc;
-}
-
-/**
- * A helper function to create a vertical concatenation of views.
- * @param  {...(VitessceConfigView|VitessceConfigViewHConcat|VitessceConfigViewVConcat)} views A
- * variable number of views or view concatenations.
- * @returns {VitessceConfigViewVConcat} A new vertical view concatenation instance.
- */
-export function vconcat(...views) {
-  const vcvvc = new VitessceConfigViewVConcat(views);
-  return vcvvc;
-}
-
-/**
  * Class representing a coordination scope in the coordination space.
  */
 export class VitessceConfigCoordinationScope {
@@ -235,14 +194,13 @@ export class VitessceConfig {
    * Construct a new view config instance.
    * @param {string} name A name for the config. Optional.
    * @param {string} description A description for the config. Optional.
-   * @param {string} schemaVersion The view config schema version. Optional.
    */
   constructor(name = undefined, description = undefined, schemaVersion = undefined) {
-    if (schemaVersion && semver.lt(schemaVersion, '2.0.0')) {
-      throw new Error('The VitessceConfig class in Vitessce JavaScript package versions 2.0.0 and above does not support constructing view configs with schema versions below 2.0.0. However, Vitessce supports JSON configurations with all view config schema versions. To proceed, either downgrade to a previous Vitessce package version to construct the view config and then use the toJSON function, or construct the view config using JSON directly.');
+    if (schemaVersion && semver.gte(schemaVersion, '2.0.0')) {
+      throw new Error('This class supports schema versions below 2.0.0.');
     }
     this.config = {
-      version: schemaVersion || '2.0.0',
+      version: schemaVersion || '1.0.7',
       name,
       description,
       datasets: [],
@@ -276,7 +234,7 @@ export class VitessceConfig {
    * Add a new view to the config.
    * @param {VitessceConfigDataset} dataset The dataset instance which defines the data
    * that will be displayed in the view.
-   * @param {string} viewType A view type name, such as "obsScatterplot" or "spatial".
+   * @param {string} component A component name, such as "scatterplot" or "spatial".
    * @param {object} options Extra options for the component.
    * @param {number} options.x The x-coordinate for the view in the grid layout.
    * @param {number} options.y The y-coordinate for the view in the grid layout.
@@ -286,7 +244,7 @@ export class VitessceConfig {
    * coordination value. Only applicable if the component is "scatterplot".
    * @returns {VitessceConfigView} A new view instance.
    */
-  addView(dataset, viewType, options) {
+  addView(dataset, component, options) {
     const {
       x = 0,
       y = 0,
@@ -311,8 +269,7 @@ export class VitessceConfig {
     const coordinationScopes = {
       [CoordinationType.DATASET]: datasetScope,
     };
-    const nextUid = `view-${this.config.layout.length}`;
-    const newView = new VitessceConfigView(viewType, coordinationScopes, x, y, w, h, nextUid);
+    const newView = new VitessceConfigView(component, coordinationScopes, x, y, w, h);
     if (mapping) {
       const [etScope] = this.addCoordination(CoordinationType.EMBEDDING_TYPE);
       etScope.setValue(mapping);
@@ -434,16 +391,17 @@ export class VitessceConfig {
    */
   static fromJSON(config) {
     const { name, description, version: schemaVersion } = config;
+    if (schemaVersion && semver.gte(schemaVersion, '2.0.0')) {
+      throw new Error('This class supports schema versions below 2.0.0.');
+    }
     const vc = new VitessceConfig(name, description, schemaVersion);
     config.datasets.forEach((d) => {
       const newDataset = vc.addDataset(d.name, d.description, { uid: d.uid });
       d.files.forEach((f) => {
         newDataset.addFile(
           f.url,
-          f.dataType,
+          f.type,
           f.fileType,
-          f.entityTypes,
-          f.options,
         );
       });
     });
@@ -459,10 +417,7 @@ export class VitessceConfig {
       }
     });
     config.layout.forEach((c) => {
-      const newView = new VitessceConfigView(
-        c.viewType, c.coordinationScopes,
-        c.x, c.y, c.w, c.h, c.uid,
-      );
+      const newView = new VitessceConfigView(c.component, c.coordinationScopes, c.x, c.y, c.w, c.h);
       vc.config.layout.push(newView);
     });
     return vc;

@@ -1,4 +1,4 @@
-import { fromEntries } from '../utils';
+import fromEntries from 'object.fromentries';
 import { CoordinationType } from './constants';
 import {
   COMPONENT_COORDINATION_TYPES,
