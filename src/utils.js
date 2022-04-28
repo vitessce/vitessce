@@ -1,5 +1,7 @@
-import { DATA_TYPE_ENTITY_TYPES_MAPPING } from './app/constants';
-import { DEFAULT_ENTITY_TYPE_VALUES } from './app/state/coordination';
+import {
+  getDefaultEntityTypeValues,
+  getDataTypeEntityTypesMapping,
+} from './app/plugins';
 
 /**
  * Select between a singular and plural version of a word,
@@ -47,9 +49,11 @@ export function isRgb(loader) {
 }
 
 export function getEntityTypeKey(dataType, entityTypes) {
-  const entityTypeNames = DATA_TYPE_ENTITY_TYPES_MAPPING[dataType];
+  const defaultEntityTypeValues = getDefaultEntityTypeValues();
+  const dataTypeEntityTypesMapping = getDataTypeEntityTypesMapping();
+  const entityTypeNames = dataTypeEntityTypesMapping[dataType];
   const entityTypeArr = entityTypeNames.map(name => (
-    entityTypes[name] || DEFAULT_ENTITY_TYPE_VALUES[name]
+    entityTypes[name] || defaultEntityTypeValues[name]
   ));
   return entityTypeArr;
 }

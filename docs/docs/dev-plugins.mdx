@@ -119,3 +119,41 @@ registerPluginFileType(
 
 For a full example, see the [Plugin File Type Development tutorial](/docs/tutorial-plugin-file-type/).
 
+
+## Plugin entity types
+
+Plugin entity types must be registered to provide a default value.
+
+### `registerPluginEntityType(entityType, defaultValue)`
+
+#### Parameters:
+- `entityType` (`string`) - A name for the plugin entity type.
+- `defaultValue` (`string`) - A default value for the entity type. Used for file definitions where the entity type value is `undefined`.
+
+```js
+import { registerPluginEntityType } from 'vitessce';
+
+registerPluginEntityType(
+  'sequenceType',
+  'nucleotide',
+);
+```
+
+## Plugin data types
+
+Plugin data types must be registered to provide the set of supported entity types.
+
+### `registerPluginDataType(dataType, entityTypes)`
+
+#### Parameters:
+- `dataType` (`string`) - A name for the plugin data type.
+- `entityTypes` (`string[]`) - An array of supported entity types.
+
+```js
+import { registerPluginDataType } from 'vitessce';
+
+registerPluginDataType(
+  'sequence',
+  ['obsType', 'sequenceType'],
+);
+```
