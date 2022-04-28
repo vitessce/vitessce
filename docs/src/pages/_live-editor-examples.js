@@ -9,13 +9,13 @@ export const baseJson = `{
   "initStrategy": "auto"
 }`;
 
-export const baseJs = `const vc = new VitessceConfig("My config");
+export const baseJs = `const vc = new VitessceConfig('2.0.0', 'My config');
 
 // Return the view config as JSON.
 return vc.toJSON();`;
 
 export const exampleJs = `// Instantiate a view config object.
-const vc = new VitessceConfig("My example config", "This demonstrates the JavaScript API");
+const vc = new VitessceConfig('2.0.0', 'My example config', 'This demonstrates the JavaScript API');
 // Add a dataset and its files.
 const baseUrl = "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries";
 const dataset = vc
@@ -69,7 +69,7 @@ export const exampleJson = `{
   ],
   "coordinationSpace": {
     "dataset": {
-      "A": "D1"
+      "A": "d1"
     },
     "embeddingType": {
       "A": "UMAP",

@@ -197,16 +197,16 @@ export class VitessceConfigCoordinationScope {
 export class VitessceConfig {
   /**
    * Construct a new view config instance.
+   * @param {string} schemaVersion The view config schema version. Required.
    * @param {string} name A name for the config. Optional.
    * @param {string} description A description for the config. Optional.
-   * @param {string} schemaVersion The view config schema version. Optional.
    */
-  constructor(name = undefined, description = undefined, schemaVersion = undefined) {
+  constructor(schemaVersion, name = undefined, description = undefined) {
     if (schemaVersion && semver.lt(schemaVersion, '2.0.0')) {
       throw new Error('This class supports schema versions 2.0.0 and above.');
     }
     this.config = {
-      version: schemaVersion || '2.0.0',
+      version: schemaVersion,
       name,
       description,
       datasets: [],
@@ -401,7 +401,7 @@ export class VitessceConfig {
     if (schemaVersion && semver.lt(schemaVersion, '2.0.0')) {
       throw new Error('This class supports schema versions 2.0.0 and above.');
     }
-    const vc = new VitessceConfig(name, description, schemaVersion);
+    const vc = new VitessceConfig(schemaVersion, name, description);
     config.datasets.forEach((d) => {
       const newDataset = vc.addDataset(d.name, d.description, { uid: d.uid });
       d.files.forEach((f) => {

@@ -108,7 +108,7 @@ export function createLoaders(datasets, configDescription) {
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
       const {
         url, options, requestInit,
-        dataType, entityTypes,
+        dataType, entityTypes = {},
       } = file;
       const fileId = url || JSON.stringify(options);
       if (!(fileId in dataSources)) {

@@ -12,7 +12,7 @@ import {
 describe('src/view-configs/api/VitessceConfig.js', () => {
   describe('VitessceConfig', () => {
     it('can be instantiated', () => {
-      const config = new VitessceConfig('My config');
+      const config = new VitessceConfig('2.0.0', 'My config');
 
       const configJSON = config.toJSON();
       expect(configJSON).toEqual({
@@ -25,11 +25,11 @@ describe('src/view-configs/api/VitessceConfig.js', () => {
       });
     });
     it('should return a v1 instance when the schemaVersion parameter is v1.0.0', () => {
-      const vc = new VitessceConfig('My config', 'My description', '1.0.0');
+      const vc = new VitessceConfig('1.0.0', 'My config', 'My description');
       expect(vc).toBeInstanceOf(VitessceConfigV1);
     });
     it('should return a v2 instance when the schemaVersion parameter is v2.0.0', () => {
-      const vc = new VitessceConfig('My config', 'My description', '2.0.0');
+      const vc = new VitessceConfig('2.0.0', 'My config', 'My description');
       expect(vc).toBeInstanceOf(VitessceConfigV2);
     });
   });

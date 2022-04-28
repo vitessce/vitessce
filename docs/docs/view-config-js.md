@@ -26,20 +26,20 @@ The methods of this object (and the objects its methods return) allow you to man
 When you are ready to render the Vitessce component, you can use the `.toJSON()` method to translate the `VitessceConfig` object to a plain JSON object.
 
 
-### `constructor([name, description, schemaVersion])`
+### `constructor(schemaVersion, [name, description])`
 
 Construct a Vitessce view config object.
 
 
 #### Parameters:
+- `schemaVersion` (`string`) - The view config schema [version](/docs/view-config-json/#version). Required. (__Changed in v2.0.0__)
 - `name` (`string`) - A name for the view config.
 - `description` (`string`) - A description for the view config. Optional.
-- `schemaVersion` (`string`) - The view config schema [version](/docs/view-config-json/#version). Optional. By default, uses the latest version.
 
 ```js {3}
 import { VitessceConfig } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig('2.0.0', 'My config');
 ```
 
 
@@ -59,7 +59,7 @@ Returns the instance for the new dataset.
 ```js {4}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig('2.0.0', 'My config');
 const dataset = vc.addDataset("My dataset")
     .addFile(
         "http://example.com/my-cells-data.json",
@@ -91,7 +91,7 @@ Returns the instance for the new view.
 ```js {5-6}
 import { VitessceConfig, ViewType as vt } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig('2.0.0', 'My config');
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.OBS_SCATTERPLOT, { mapping: "X_umap" });
@@ -115,7 +115,7 @@ Returns `this` to allow chaining.
 ```js {7-11}
 import { VitessceConfig, ViewType as vt, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig('2.0.0', 'My config');
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.SPATIAL);
@@ -142,7 +142,7 @@ Returns `this` to allow chaining.
 ```js {8}
 import { VitessceConfig, ViewType as vt, hconcat, vconcat } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig('2.0.0', 'My config');
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.SPATIAL);
@@ -166,7 +166,7 @@ Returns the instances for the new scope objects corresponding to each coordinati
 ```js {7-11}
 import { VitessceConfig, ViewType as vt, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig('2.0.0', 'My config');
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.SPATIAL);
@@ -195,7 +195,7 @@ Returns the config instance as a JSON object.
 ```js {6}
 import { VitessceConfig, ViewType as vt } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig('2.0.0', 'My config');
 const dataset = vc.addDataset("My dataset");
 vc.layout(vc.addView(dataset, vt.SPATIAL));
 const vcJson = vc.toJSON();
@@ -229,7 +229,7 @@ Helper function to allow horizontal concatenation of views in the Vitessce grid 
 ```js {7}
 import { VitessceConfig, ViewType as vt, hconcat } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig('2.0.0', 'My config');
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.SPATIAL);
@@ -312,7 +312,7 @@ Helper function to allow vertical concatenation of views in the Vitessce grid la
 ```js {7}
 import { VitessceConfig, ViewType as vt, vconcat } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig('2.0.0', 'My config');
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.SPATIAL);
@@ -421,7 +421,7 @@ Returns `this` to allow chaining.
 ```js {5-9}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig('2.0.0', 'My config');
 const dataset = vc.addDataset("My dataset")
     .addFile(
         "http://example.com/my-cells-data.json",
