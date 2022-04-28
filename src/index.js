@@ -40,6 +40,7 @@ import {
 import {
   useCoordination,
   useMultiDatasetCoordination,
+  useDatasetUids,
   useLoaders,
   useViewConfigStore,
   useViewConfigStoreApi,
@@ -91,6 +92,7 @@ export {
   useUrls,
   useCoordination,
   useMultiDatasetCoordination,
+  useDatasetUids,
   useLoaders,
   useViewConfigStore,
   useViewConfigStoreApi,
