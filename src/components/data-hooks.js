@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import equal from 'fast-deep-equal';
-import { capitalize, getEntityTypeKey } from '../utils';
+import { capitalize } from '../utils';
+import { getEntityTypeKey } from '../app/entity-types';
 import { useSetWarning } from '../app/state/hooks';
 import {
   AbstractLoaderError,

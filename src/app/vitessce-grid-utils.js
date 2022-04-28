@@ -3,7 +3,7 @@ import {
   useState, useEffect, useRef,
 } from 'react';
 import { getSourceAndLoaderFromFileType } from '../loaders/types';
-import { getEntityTypeKey } from '../utils';
+import { getEntityTypeKey } from './entity-types';
 
 /**
  * Return the bottom coordinate of the layout.

@@ -1,8 +1,3 @@
-import {
-  getDefaultEntityTypeValues,
-  getDataTypeEntityTypesMapping,
-} from './app/plugins';
-
 /**
  * Select between a singular and plural version of a word,
  * based on an item count.
@@ -46,14 +41,4 @@ export function isRgb(loader) {
   const { shape, dtype, labels } = source;
   const channelSize = shape[labels.indexOf('c')];
   return (channelSize === 3) && dtype === 'Uint8';
-}
-
-export function getEntityTypeKey(dataType, entityTypes) {
-  const defaultEntityTypeValues = getDefaultEntityTypeValues();
-  const dataTypeEntityTypesMapping = getDataTypeEntityTypesMapping();
-  const entityTypeNames = dataTypeEntityTypesMapping[dataType];
-  const entityTypeArr = entityTypeNames.map(name => (
-    entityTypes[name] || defaultEntityTypeValues[name]
-  ));
-  return entityTypeArr;
 }
