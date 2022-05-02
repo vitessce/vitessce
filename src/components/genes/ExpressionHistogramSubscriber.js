@@ -35,10 +35,7 @@ export default function ExpressionHistogramSubscriber(props) {
     dataset,
     obsType,
     featureType,
-    subObsType,
-    subFeatureType,
     featureValueType,
-    subFeatureValueType,
     geneSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_VALUE_HISTOGRAM], coordinationScopes,
@@ -47,10 +44,7 @@ export default function ExpressionHistogramSubscriber(props) {
   const entityTypes = {
     obsType,
     featureType,
-    subObsType,
-    subFeatureType,
     featureValueType,
-    subFeatureValueType,
   };
 
   const [width, height, containerRef] = useGridItemSize();

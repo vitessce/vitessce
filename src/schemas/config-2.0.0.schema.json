@@ -4,6 +4,12 @@
     "title": "Vitessce data set",
     "type": "object",
     "definitions": {
+      "stringOrStringArray": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "array", "items": {"type": "string"} }
+        ]
+      },
       "componentCoordinationScopeValue": {
         "oneOf": [
           { "type": "string" },
@@ -42,12 +48,7 @@
               "additionalProperties": true,
               "required": [],
               "properties": {
-                "dataset": {
-                  "oneOf": [
-                    { "type": "string" },
-                    { "type": "array", "items": {"type": "string"} }
-                  ]
-                },
+                "dataset": { "$ref": "#/definitions/stringOrStringArray" },
                 "obsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "obsFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "obsHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -56,14 +57,6 @@
                 "obsSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "obsSetColor": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "obsColorEncoding": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subObsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subObsFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subObsHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subObsSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subObsSetSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subObsSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subObsSetColor": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subObsColorEncoding": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "featureType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "featureFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "featureHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -71,21 +64,10 @@
                 "featureSetSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "featureSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "featureSetColor": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureSetSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureSetColor": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "featureValueType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "featureValueColormap": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "featureValueColormapRange": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "featureValueTransform": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureValueType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureValueColormap": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureValueColormapRange": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "subFeatureValueTransform": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "embeddingType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "embeddingZoom": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "embeddingRotation": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -116,16 +98,13 @@
                 "heatmapTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "spatialRasterLayers": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "spatialObsLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialSubObsLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "spatialNeighborhoodsLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "genomicZoomX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "genomicZoomY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "genomicTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "genomicTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
                 "additionalObsSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "additionalSubObsSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "additionalFeatureSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "additionalSubFeatureSets": { "$ref": "#/definitions/componentCoordinationScopeValue" }
+                "additionalFeatureSets": { "$ref": "#/definitions/componentCoordinationScopeValue" }
               }
             }
           }
@@ -513,12 +492,9 @@
                       "additionalProperties": false,
                       "required": [],
                       "properties": {
-                        "obsType": { "type": "string" },
-                        "featureType": { "type": "string" },
-                        "subObsType": { "type": "string" },
-                        "subFeatureType": { "type": "string" },
-                        "featureValueType": { "type": "string" },
-                        "subFeatureValueType": { "type": "string" }
+                        "obsType": { "$ref": "#/definitions/stringOrStringArray" },
+                        "featureType": { "$ref": "#/definitions/stringOrStringArray" },
+                        "featureValueType": { "$ref": "#/definitions/stringOrStringArray" }
                       }
                   },
                   "url": { "type": "string" },
@@ -659,123 +635,6 @@
               }
             }
           },
-          "subObsType": {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "string" }
-            }
-          },
-          "subObsFilter": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no observations will be filtered out initially."
-                  },
-                  { "type": "array", "items": { "type": "string" } }
-                ]
-              }
-            }
-          },
-          "subObsHighlight": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no observation will be highlighted initially."
-                  },
-                  { "type": "string" }
-                ]
-              }
-            }
-          },
-          "subObsSelection": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no observations will be selected initially."
-                  },
-                  { "type": "array", "items": { "type": "string" } }
-                ]
-              }
-            }
-          },
-          "subObsSetSelection": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided and auto obs set initialization is enabled, obs set selections will be automatically initialized."
-                  },
-                  { "type": "array" }
-                ]
-              }
-            }
-          },
-          "subObsSetHighlight": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no observation sets will be highlighted initially."
-                  },
-                  { "type": "string" }
-                ]
-              }
-            }
-          },
-          "subObsSetColor": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, observation set colors will be automatically initialized."
-                  },
-                  {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": ["path", "color"],
-                      "properties": {
-                        "path": {
-                          "type": "array",
-                          "items": { "type": "string" }
-                        },
-                        "color": {
-                          "type": "array",
-                          "items": { "type": "number" }
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          "subObsColorEncoding": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "type": "string",
-                "enum": ["subFeatureSelection", "subObsSetSelection"],
-                "description": "How should data points representing observations be colored?"
-              }
-            }
-          },
           "featureType": {
             "type": "object",
             "patternProperties": {
@@ -883,113 +742,6 @@
               }
             }
           },
-          "subFeatureType": {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "string" }
-            }
-          },
-          "subFeatureFilter": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no observations will be filtered out initially."
-                  },
-                  { "type": "array", "items": { "type": "string" } }
-                ]
-              }
-            }
-          },
-          "subFeatureHighlight": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no observation will be highlighted initially."
-                  },
-                  { "type": "string" }
-                ]
-              }
-            }
-          },
-          "subFeatureSelection": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no observations will be selected initially."
-                  },
-                  { "type": "array", "items": { "type": "string" } }
-                ]
-              }
-            }
-          },
-          "subFeatureSetSelection": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided and auto obs set initialization is enabled, obs set selections will be automatically initialized."
-                  },
-                  { "type": "array" }
-                ]
-              }
-            }
-          },
-          "subFeatureSetHighlight": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no observation sets will be highlighted initially."
-                  },
-                  { "type": "string" }
-                ]
-              }
-            }
-          },
-          "subFeatureSetColor": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, observation set colors will be automatically initialized."
-                  },
-                  {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": ["path", "color"],
-                      "properties": {
-                        "path": {
-                          "type": "array",
-                          "items": { "type": "string" }
-                        },
-                        "color": {
-                          "type": "array",
-                          "items": { "type": "number" }
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          },
           "featureValueType": {
             "type": "object",
             "patternProperties": {
@@ -1016,37 +768,6 @@
             }
           },
           "featureValueColormapRange": {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "array", "items": { "type": "number" } }
-            }
-          },
-          "subFeatureValueType": {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "string" }
-            }
-          },
-          "subFeatureValueTransform": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  { "type": "string", "pattern": "log1p" }
-                ]
-              }
-            }
-          },
-          "subFeatureValueColormap": {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "string" }
-            }
-          },
-          "subFeatureValueColormapRange": {
             "type": "object",
             "patternProperties": {
               ".": { "type": "array", "items": { "type": "number" } }
@@ -1349,20 +1070,6 @@
               }
             }
           },
-          "spatialSubObsLayer": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
-                  },
-                  { "$ref": "#/definitions/moleculesLayer" }
-                ]
-              }
-            }
-          },
           "heatmapZoomX": {
             "type": "object",
             "patternProperties": {
@@ -1427,39 +1134,7 @@
               }
             }
           },
-          "additionalSubObsSets": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no cell will be highlighted initially."
-                  },
-                  {
-                    "$ref": "https://github.com/vitessce/vitessce/#cell-sets"
-                  }
-                ]
-              }
-            }
-          },
           "additionalFeatureSets": {
-            "type": "object",
-            "patternProperties": {
-              ".": {
-                "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided, no cell will be highlighted initially."
-                  },
-                  {
-                    "$ref": "https://github.com/vitessce/vitessce/#cell-sets"
-                  }
-                ]
-              }
-            }
-          },
-          "additionalSubFeatureSets": {
             "type": "object",
             "patternProperties": {
               ".": {

@@ -16,11 +16,14 @@ export default function DataTypesTable() {
             <br />Observations:
             e.g., cells, their positions (spatially and for dimensionality-reduction scatterplots),
             their segmentations as polygons, and other per-cell attributes.
+            Or, spatially-resolved molecules such as individual RNA molecules
+            measured by FISH assays.
           </td>
           <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#cellsjson')}><code>cells.json</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#anndataobszarr')}><code>anndataObs.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#moleculesjson')}><code>molecules.json</code></a></li>
             </ul>
           </td>
           <td>
@@ -40,29 +43,6 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#snapatac')}>SnapATAC</a></li>
             </ul>
           </td>
-        </tr>
-        <tr>
-          <td>
-            <code>subObs</code>
-            <br />Sub-observations:
-            e.g., spatially-resolved molecules such as individual RNA molecules
-            measured by FISH assays.
-          </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#moleculesjson')}><code>molecules.json</code></a></li>
-            </ul>
-          </td>
-          <td>
-            {DATA_TYPE_ENTITY_TYPES_MAPPING[DataType.SUB_OBS]
-              .map((entityType, i, entityTypes) => (
-                <>
-                  <code>{entityType}</code>
-                  {i < entityTypes.length - 1 ? (<span>,&nbsp;<br /></span>) : null}
-                </>
-              ))}
-          </td>
-          <td />
         </tr>
         <tr>
           <td>

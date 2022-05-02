@@ -36,20 +36,14 @@ export default function DescriptionSubscriber(props) {
     dataset,
     obsType,
     featureType,
-    subObsType,
-    subFeatureType,
     featureValueType,
-    subFeatureValueType,
     spatialRasterLayers: rasterLayers,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.DESCRIPTION], coordinationScopes);
 
   const entityTypes = {
     obsType,
     featureType,
-    subObsType,
-    subFeatureType,
     featureValueType,
-    subFeatureValueType,
   };
 
   const [

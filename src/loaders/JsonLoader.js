@@ -8,7 +8,6 @@ import moleculesSchema from '../schemas/molecules.schema.json';
 import neighborhoodsSchema from '../schemas/neighborhoods.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
-import mappingSchema from '../schemas/mapping.schema.json';
 import { FileType } from '../app/constants';
 
 const fileTypeToSchema = {
@@ -17,8 +16,6 @@ const fileTypeToSchema = {
   [FileType.NEIGHBORHOODS_JSON]: neighborhoodsSchema,
   [FileType.RASTER_JSON]: rasterSchema,
   [FileType.CELL_SETS_JSON]: cellSetsSchema,
-  [FileType.SUB_OBS_MAPPING_JSON]: mappingSchema,
-  [FileType.SUB_FEATURE_MAPPING_JSON]: mappingSchema,
 };
 
 export default class JsonLoader extends AbstractTwoStepLoader {

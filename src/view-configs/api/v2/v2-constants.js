@@ -18,22 +18,14 @@ export const DataType = {
   OBS_SETS: 'obsSets',
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
   GENOMIC_PROFILES: 'genomicProfiles',
-  SUB_OBS: 'subObs',
-  SUB_OBS_SETS: 'subObsSets',
-  SUB_OBS_SUB_FEATURE_MATRIX: 'subObsSubFeatureMatrix',
   NEIGHBORHOODS: 'neighborhoods',
   RASTER: 'raster',
-  SUB_OBS_MAPPING: 'subObsMapping',
-  SUB_FEATURE_MAPPING: 'subFeatureMapping',
 };
 
 export const EntityTypes = {
   OBS_TYPE: 'obsType',
-  SUB_OBS_TYPE: 'subObsType',
   FEATURE_TYPE: 'featureType',
-  SUB_FEATURE_TYPE: 'subFeatureType',
   FEATURE_VALUE_TYPE: 'featureValueType',
-  SUB_FEATURE_VALUE_TYPE: 'subFeatureValueType',
 };
 
 export const FileType = {
@@ -50,8 +42,6 @@ export const FileType = {
   ANNDATA_OBS_SETS_ZARR: 'anndataObsSets.zarr',
   ANNDATA_OBS_ZARR: 'anndataObs.zarr',
   ANNDATA_OBS_FEATURE_MATRIX_ZARR: 'anndataObsFeatureMatrix.zarr',
-  SUB_OBS_MAPPING_JSON: 'subObsMapping.json',
-  SUB_FEATURE_MAPPING_JSON: 'subFeatureMapping.json',
 };
 
 /**
@@ -71,16 +61,6 @@ export const CoordinationType = {
   OBS_SET_COLOR: 'obsSetColor',
   OBS_COLOR_ENCODING: 'obsColorEncoding', // values: obsSetSelection, featureSelection, obsColor
 
-  // Sub-observation type (e.g., molecule)
-  SUB_OBS_TYPE: 'subObsType',
-  SUB_OBS_FILTER: 'subObsFilter',
-  SUB_OBS_HIGHLIGHT: 'subObsHighlight',
-  SUB_OBS_SELECTION: 'subObsSelection',
-  SUB_OBS_SET_SELECTION: 'subObsSetSelection',
-  SUB_OBS_SET_HIGHLIGHT: 'subObsSetHighlight',
-  SUB_OBS_SET_COLOR: 'subObsSetColor',
-  SUB_OBS_COLOR_ENCODING: 'subObsColorEncoding', // values: subObsSetSelection, subFeatureSelection, subObsColor
-
   // Feature type (e.g., gene)
   FEATURE_TYPE: 'featureType',
   FEATURE_FILTER: 'featureFilter',
@@ -90,26 +70,11 @@ export const CoordinationType = {
   FEATURE_SET_HIGHLIGHT: 'featureSetHighlight',
   FEATURE_SET_COLOR: 'featureSetColor',
 
-  // Sub-feature type (e.g., transcript)
-  SUB_FEATURE_TYPE: 'subFeatureType',
-  SUB_FEATURE_FILTER: 'subFeatureFilter',
-  SUB_FEATURE_HIGHLIGHT: 'subFeatureHighlight',
-  SUB_FEATURE_SELECTION: 'subFeatureSelection',
-  SUB_FEATURE_SET_SELECTION: 'subFeatureSetSelection',
-  SUB_FEATURE_SET_HIGHLIGHT: 'subFeatureSetHighlight',
-  SUB_FEATURE_SET_COLOR: 'subFeatureSetColor',
-
   // Feature value type (e.g., expression)
   FEATURE_VALUE_TYPE: 'featureValueType',
   FEATURE_VALUE_COLORMAP: 'featureValueColormap',
   FEATURE_VALUE_COLORMAP_RANGE: 'featureValueColormapRange',
   FEATURE_VALUE_TRANSFORM: 'featureValueTransform',
-
-  // Sub-feature value type (e.g., intensity)
-  SUB_FEATURE_VALUE_TYPE: 'subFeatureValueType',
-  SUB_FEATURE_VALUE_COLORMAP: 'subFeatureValueColormap',
-  SUB_FEATURE_VALUE_COLORMAP_RANGE: 'subFeatureValueColormapRange',
-  SUB_FEATURE_VALUE_TRANSFORM: 'subFeatureValueTransform',
 
   EMBEDDING_TYPE: 'embeddingType',
   EMBEDDING_ZOOM: 'embeddingZoom',
@@ -141,14 +106,11 @@ export const CoordinationType = {
   HEATMAP_TARGET_Y: 'heatmapTargetY',
   SPATIAL_RASTER_LAYERS: 'spatialRasterLayers',
   SPATIAL_OBS_LAYER: 'spatialObsLayer',
-  SPATIAL_SUB_OBS_LAYER: 'spatialSubObsLayer',
   SPATIAL_NEIGHBORHOODS_LAYER: 'spatialNeighborhoodsLayer',
   GENOMIC_ZOOM_X: 'genomicZoomX',
   GENOMIC_ZOOM_Y: 'genomicZoomY',
   GENOMIC_TARGET_X: 'genomicTargetX',
   GENOMIC_TARGET_Y: 'genomicTargetY',
   ADDITIONAL_OBS_SETS: 'additionalObsSets',
-  ADDITIONAL_SUB_OBS_SETS: 'additionalSubObsSets',
   ADDITIONAL_FEATURE_SETS: 'additionalFeatureSets',
-  ADDITIONAL_SUB_FEATURE_SETS: 'additionalSubFeatureSets',
 };

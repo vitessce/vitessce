@@ -64,10 +64,7 @@ export default function HeatmapSubscriber(props) {
     dataset,
     obsType,
     featureType,
-    subObsType,
-    subFeatureType,
     featureValueType,
-    subFeatureValueType,
     heatmapZoomX: zoomX,
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
@@ -95,10 +92,7 @@ export default function HeatmapSubscriber(props) {
   const entityTypes = {
     obsType,
     featureType,
-    subObsType,
-    subFeatureType,
     featureValueType,
-    subFeatureValueType,
   };
 
   const observationsLabel = obsType;

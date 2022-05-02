@@ -30,7 +30,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { ViewType, DataType } from '../../app/constants';
 
 const SPATIAL_DATA_TYPES = [
-  DataType.OBS, DataType.SUB_OBS, DataType.RASTER,
+  DataType.OBS, DataType.RASTER,
   DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX,
 ];
 

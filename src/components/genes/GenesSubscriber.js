@@ -40,10 +40,7 @@ export default function GenesSubscriber(props) {
     dataset,
     obsType,
     featureType,
-    subObsType,
-    subFeatureType,
     featureValueType,
-    subFeatureValueType,
     featureSelection: geneSelection,
     featureFilter: geneFilter,
     obsColorEncoding: cellColorEncoding,
@@ -57,10 +54,7 @@ export default function GenesSubscriber(props) {
   const entityTypes = {
     obsType,
     featureType,
-    subObsType,
-    subFeatureType,
     featureValueType,
-    subFeatureValueType,
   };
 
   const title = titleProp || `${capitalize(featureType)} Selection`;

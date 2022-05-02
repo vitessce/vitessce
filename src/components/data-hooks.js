@@ -486,8 +486,8 @@ export function useMoleculesData(
     if (!loaders[dataset]) {
       return;
     }
-    const entityTypeKey = getEntityTypeKey(DataType.SUB_OBS, entityTypes);
-    const loader = loaders[dataset].loaders[DataType.SUB_OBS]?.get(entityTypeKey);
+    const entityTypeKey = getEntityTypeKey(DataType.OBS, entityTypes);
+    const loader = loaders[dataset].loaders[DataType.OBS]?.get(entityTypeKey);
     if (loader) {
       loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
@@ -507,16 +507,16 @@ export function useMoleculesData(
           coordinationSetters,
           initialCoordinationValues,
         );
-        setItemIsReady(DataType.SUB_OBS);
+        setItemIsReady(DataType.OBS);
       });
     } else {
       setMolecules({});
       setMoleculesCount(0);
       setLocationsCount(0);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, DataType.SUB_OBS, null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.OBS, null, null), setWarning);
       } else {
-        setItemIsReady(DataType.SUB_OBS);
+        setItemIsReady(DataType.OBS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

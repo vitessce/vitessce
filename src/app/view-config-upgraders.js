@@ -355,7 +355,7 @@ export function upgradeFrom1_0_8(config) {
 
 
 // Added in version 2.0.0:
-// - obs x feature and subObs x subFeature generalizations.
+// - obs x feature generalizations.
 export function upgradeFrom1_0_9(config) {
   const newConfig = cloneDeep(config);
 
@@ -374,9 +374,9 @@ export function upgradeFrom1_0_9(config) {
     geneExpressionColormapRange: 'featureValueColormapRange',
     cellColorEncoding: 'obsColorEncoding',
     spatialCellsLayer: 'spatialObsLayer',
-    spatialMoleculesLayer: 'spatialSubObsLayer',
+    spatialMoleculesLayer: 'spatialObsLayer', // TODO
     additionalCellSets: 'additionalObsSets',
-    moleculeHighlight: 'subObsHighlight',
+    moleculeHighlight: 'obsHighlight',
     embeddingCellSetPolygonsVisible: 'embeddingObsSetPolygonsVisible',
     embeddingCellSetLabelsVisible: 'embeddingObsSetLabelsVisible',
     embeddingCellSetLabelSize: 'embeddingObsSetLabelSize',
@@ -395,18 +395,15 @@ export function upgradeFrom1_0_9(config) {
     }
   });
 
-  // Use obsType, subObsType, featureType, subFeatureType
+  // Use obsType, featureType
   // rather than component-specific labelOverride props.
   const typeScopes = {
     obsType: {},
-    subObsType: {},
     featureType: {},
-    subFeatureType: {},
   };
 
   const typeAnalogies = {
     observationsLabelOverride: 'obsType',
-    subobservationsLabelOverride: 'subObsType',
     variablesLabelOverride: 'featureType',
   };
 
@@ -472,10 +469,10 @@ export function upgradeFrom1_0_9(config) {
       },
     },
     molecules: {
-      dataType: 'subObs',
+      dataType: 'obs',
       entityTypes: {
-        subObsType: 'molecule',
-        subFeatureType: 'isoform',
+        obsType: 'molecule',
+        featureType: 'isoform',
       },
     },
     'cell-sets': {

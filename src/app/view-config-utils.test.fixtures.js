@@ -392,8 +392,6 @@ export const upgradedLegacyViewConfig1_0_9 = {
     },
     featureType: {},
     obsType: {},
-    subFeatureType: {},
-    subObsType: {},
     spatialRasterLayers: {
       A: [
         { index: 2 },
@@ -402,9 +400,6 @@ export const upgradedLegacyViewConfig1_0_9 = {
     },
     spatialObsLayer: {
       A: { radius: 10, visible: true },
-    },
-    spatialSubObsLayer: {
-      A: { visible: false },
     },
     spatialNeighborhoodsLayer: {
       A: null,
@@ -457,7 +452,6 @@ export const upgradedLegacyViewConfig1_0_9 = {
         dataset: 'A',
         spatialRasterLayers: 'A',
         spatialObsLayer: 'A',
-        spatialSubObsLayer: 'A',
         spatialNeighborhoodsLayer: 'A',
       },
       h: 4,
@@ -521,9 +515,6 @@ export const initializedViewConfig = {
         visible: true,
       },
     },
-    spatialSubObsLayer: {
-      A: { visible: false },
-    },
     spatialNeighborhoodsLayer: {
       A: null,
     },
@@ -566,9 +557,6 @@ export const initializedViewConfig = {
     obsSetColor: {
       A: null,
     },
-    subObsHighlight: {
-      A: null,
-    },
     featureType: {
       A: 'gene',
     },
@@ -577,15 +565,6 @@ export const initializedViewConfig = {
     },
     obsType: {
       A: 'cell',
-    },
-    subFeatureType: {
-      A: 'isoform',
-    },
-    subFeatureValueType: {
-      A: 'intensity',
-    },
-    subObsType: {
-      A: 'molecule',
     },
   },
   datasets: [
@@ -622,9 +601,6 @@ export const initializedViewConfig = {
         featureValueType: 'A',
         obsType: 'A',
         spatialRasterLayers: 'A',
-        subFeatureType: 'A',
-        subFeatureValueType: 'A',
-        subObsType: 'A',
       },
       h: 2,
       props: {
@@ -648,16 +624,12 @@ export const initializedViewConfig = {
         featureType: 'A',
         featureValueType: 'A',
         obsType: 'A',
-        subFeatureType: 'A',
-        subFeatureValueType: 'A',
-        subObsType: 'A',
         featureValueColormap: 'A',
         featureValueColormapRange: 'A',
         featureHighlight: 'A',
         featureSelection: 'A',
         spatialRasterLayers: 'A',
         spatialObsLayer: 'A',
-        spatialSubObsLayer: 'A',
         spatialNeighborhoodsLayer: 'A',
         spatialRotation: 'A',
         spatialRotationOrbit: 'A',
@@ -671,7 +643,6 @@ export const initializedViewConfig = {
         spatialAxisFixed: 'A',
         spatialZoom: 'A',
         additionalObsSets: 'A',
-        subObsHighlight: 'A',
       },
       h: 4,
       props: {},

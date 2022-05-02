@@ -2,11 +2,8 @@ import { CoordinationType, ViewType } from '../constants';
 
 export const DEFAULT_ENTITY_TYPE_VALUES = {
   [CoordinationType.OBS_TYPE]: 'cell',
-  [CoordinationType.SUB_OBS_TYPE]: 'molecule',
   [CoordinationType.FEATURE_TYPE]: 'gene',
-  [CoordinationType.SUB_FEATURE_TYPE]: 'isoform',
   [CoordinationType.FEATURE_VALUE_TYPE]: 'expression',
-  [CoordinationType.SUB_FEATURE_VALUE_TYPE]: 'intensity',
 };
 
 export const ENTITY_COORDINATION_TYPES = Object
@@ -27,14 +24,6 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.OBS_SET_COLOR]: null,
   [CoordinationType.OBS_COLOR_ENCODING]: 'obsSetSelection',
 
-  [CoordinationType.SUB_OBS_FILTER]: null,
-  [CoordinationType.SUB_OBS_HIGHLIGHT]: null,
-  [CoordinationType.SUB_OBS_SELECTION]: null,
-  [CoordinationType.SUB_OBS_SET_SELECTION]: null,
-  [CoordinationType.SUB_OBS_SET_HIGHLIGHT]: null,
-  [CoordinationType.SUB_OBS_SET_COLOR]: null,
-  [CoordinationType.SUB_OBS_COLOR_ENCODING]: 'subObsSetSelection',
-
   [CoordinationType.FEATURE_FILTER]: null,
   [CoordinationType.FEATURE_HIGHLIGHT]: null,
   [CoordinationType.FEATURE_SELECTION]: null,
@@ -42,20 +31,9 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.FEATURE_SET_HIGHLIGHT]: null,
   [CoordinationType.FEATURE_SET_COLOR]: null,
 
-  [CoordinationType.SUB_FEATURE_FILTER]: null,
-  [CoordinationType.SUB_FEATURE_HIGHLIGHT]: null,
-  [CoordinationType.SUB_FEATURE_SELECTION]: null,
-  [CoordinationType.SUB_FEATURE_SET_SELECTION]: null,
-  [CoordinationType.SUB_FEATURE_SET_HIGHLIGHT]: null,
-  [CoordinationType.SUB_FEATURE_SET_COLOR]: null,
-
   [CoordinationType.FEATURE_VALUE_COLORMAP]: 'plasma',
   [CoordinationType.FEATURE_VALUE_COLORMAP_RANGE]: [0.0, 1.0],
   [CoordinationType.FEATURE_VALUE_TRANSFORM]: null,
-
-  [CoordinationType.SUB_FEATURE_VALUE_COLORMAP]: 'plasma',
-  [CoordinationType.SUB_FEATURE_VALUE_COLORMAP_RANGE]: [0.0, 1.0],
-  [CoordinationType.SUB_FEATURE_VALUE_TRANSFORM]: null,
 
   [CoordinationType.EMBEDDING_ZOOM]: null,
   [CoordinationType.EMBEDDING_ROTATION]: 0,
@@ -82,7 +60,6 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SPATIAL_ORBIT_AXIS]: 'Y',
   [CoordinationType.SPATIAL_RASTER_LAYERS]: null,
   [CoordinationType.SPATIAL_OBS_LAYER]: null,
-  [CoordinationType.SPATIAL_SUB_OBS_LAYER]: null,
   [CoordinationType.SPATIAL_NEIGHBORHOODS_LAYER]: null,
   [CoordinationType.HEATMAP_ZOOM_X]: 0,
   [CoordinationType.HEATMAP_ZOOM_Y]: 0,
@@ -94,9 +71,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.GENOMIC_TARGET_X]: 1549999999.5,
   [CoordinationType.GENOMIC_TARGET_Y]: 1549999999.5,
   [CoordinationType.ADDITIONAL_OBS_SETS]: null,
-  [CoordinationType.ADDITIONAL_SUB_OBS_SETS]: null,
   [CoordinationType.ADDITIONAL_FEATURE_SETS]: null,
-  [CoordinationType.ADDITIONAL_SUB_FEATURE_SETS]: null,
 };
 
 // The following coordination types should be
@@ -165,7 +140,6 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION,
     CoordinationType.SPATIAL_RASTER_LAYERS,
     CoordinationType.SPATIAL_OBS_LAYER,
-    CoordinationType.SPATIAL_SUB_OBS_LAYER,
     CoordinationType.SPATIAL_NEIGHBORHOODS_LAYER,
     CoordinationType.SPATIAL_TARGET_X,
     CoordinationType.SPATIAL_TARGET_Y,
@@ -187,7 +161,6 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
-    CoordinationType.SUB_OBS_HIGHLIGHT,
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
@@ -233,7 +206,6 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_HIGHLIGHT,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.OBS_SET_HIGHLIGHT,
-    CoordinationType.SUB_OBS_HIGHLIGHT,
   ],
   [ViewType.FEATURES]: [
     CoordinationType.DATASET,
@@ -264,7 +236,6 @@ export const COMPONENT_COORDINATION_TYPES = {
     ...ENTITY_COORDINATION_TYPES,
     CoordinationType.SPATIAL_RASTER_LAYERS,
     CoordinationType.SPATIAL_OBS_LAYER,
-    CoordinationType.SPATIAL_SUB_OBS_LAYER,
     CoordinationType.SPATIAL_NEIGHBORHOODS_LAYER,
     CoordinationType.SPATIAL_ZOOM,
     CoordinationType.SPATIAL_TARGET_X,
