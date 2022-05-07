@@ -432,7 +432,8 @@ export function upgradeFrom1_0_9(config) {
       toPerSpatialRasterLayerScopes[srlScope] = {};
       toPerSpatialRasterChannelScopes[srlScope] = {};
       srlValue.forEach((layerDef, layerIndex) => {
-        // TODO: check layerDef.type === "raster"
+        // TODO: filter for only layerDef.type === "raster"
+        // TODO: handle layerDef.type === "bitmask" as spatialSegmentationLayer
         const layerScope = `${srlScope}_layer${layerIndex}`;
         toSpatialRasterLayerScope[srlScope].push(layerScope);
         newSpatialRasterLayer[layerScope] = layerDef.index;
