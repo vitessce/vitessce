@@ -43,7 +43,7 @@ export const spraggins2020 = {
 };
 
 export const neumann2020 = {
-  version: '1.0.1',
+  version: '1.0.8',
   name: 'Neumann et al., 2020',
   description: 'Four registered imaging modalities (PAS, IMS, AF) from HuBMAP collection HBM876.XNRH.336',
   datasets: [
@@ -90,11 +90,32 @@ export const neumann2020 = {
       ],
     },
   ],
-  coordinationSpace: {},
+  coordinationSpace: {
+    spatialRasterLayers: {
+      A: [{
+        index: 0,
+        type: 'raster',
+        visible: true,
+        opacity: 1,
+        colormap: null,
+        domainType: 'Full',
+        channels: [
+          {
+            visible: true,
+            selection: { c: 2, z: 3, t: 5 },
+            color: [255, 0, 0],
+            slider: [0, 100],
+          },
+        ],
+      }],
+    },
+  },
   layout: [
     {
       component: 'spatial',
-      coordinationScopes: {},
+      coordinationScopes: {
+        spatialRasterLayers: 'A',
+      },
       x: 0,
       y: 0,
       w: 9,
@@ -102,7 +123,9 @@ export const neumann2020 = {
     },
     {
       component: 'layerController',
-      coordinationScopes: {},
+      coordinationScopes: {
+        spatialRasterLayers: 'A',
+      },
       x: 9,
       y: 0,
       w: 3,

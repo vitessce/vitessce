@@ -14,13 +14,13 @@ import {
   VitessceConfig,
   hconcat,
   vconcat,
-} from './view-configs/api/index';
-import {
+  Component,
   ViewType,
   DataType,
   FileType,
   CoordinationType,
-} from './app/constants';
+  EntityTypes,
+} from './view-configs/api/index';
 // For plugin view types:
 import TitleInfo from './components/TitleInfo';
 import { useReady, useUrls } from './components/hooks';
@@ -67,10 +67,12 @@ export {
   VitessceConfig,
   hconcat,
   vconcat,
+  Component,
   ViewType,
   DataType,
   FileType,
   CoordinationType,
+  EntityTypes,
   // Plugin registration functions
   registerPluginCoordinationType,
   registerPluginViewType,

@@ -4,22 +4,42 @@
     "title": "Vitessce data set",
     "type": "object",
     "definitions": {
+      "rgbColor": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": { 
+          "type": "number",
+          "description": "One of R G or B (0 - 255)." 
+        },
+        "description": "Color"
+      },
+      "spatialSlice": {
+        "oneOf": [
+          {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "Slice bounds"
+          },
+          {
+            "type": "null",
+            "description": "No slicing"
+          }
+        ]
+      },
       "stringOrStringArray": {
         "oneOf": [
           { "type": "string" },
           { "type": "array", "items": {"type": "string"} }
         ]
       },
-      "componentCoordinationScopeValue": {
-        "oneOf": [
-          { "type": "string" },
-          {
-            "type": "object",
-            "patternProperties": {
-              ".": { "type": "string" }
-            }
-          }
-        ]
+      "componentCoordinationScopeByValue": {
+        "type": "object",
+        "description": "Keys are coordination scopes for the coordinationScopesBy key, values are coordination scopes for the direct parent coordination type.",
+        "patternProperties": {
+          ".": { "$ref": "#/definitions/stringOrStringArray" }
+        }
       },
       "components": {
         "description": "The layout array defines the views, or components, rendered in the grid.",
@@ -49,62 +69,104 @@
               "required": [],
               "properties": {
                 "dataset": { "$ref": "#/definitions/stringOrStringArray" },
-                "obsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "obsFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "obsHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "obsSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "obsSetSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "obsSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "obsSetColor": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "obsColorEncoding": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureSetSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureSetColor": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureValueType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureValueColormap": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureValueColormapRange": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "featureValueTransform": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingZoom": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingRotation": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingTargetZ": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingObsSetPolygonsVisible": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingObsSetLabelsVisible": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingObsSetLabelSize": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingObsRadius": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingObsOpacity": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingObsRadiusMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "embeddingObsOpacityMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialZoom": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialRotation": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialTargetZ": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialRotationX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialRotationY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialRotationZ": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialRotationOrbit": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialOrbitAxis": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialAxisFixed": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "heatmapZoomX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "heatmapZoomY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "heatmapTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "heatmapTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialRasterLayers": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialObsLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "spatialNeighborhoodsLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "genomicZoomX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "genomicZoomY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "genomicTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "genomicTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "additionalObsSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-                "additionalFeatureSets": { "$ref": "#/definitions/componentCoordinationScopeValue" }
+                "spatialRasterLayer": { "$ref": "#/definitions/stringOrStringArray" },
+                "spatialSegmentationLayer": { "$ref": "#/definitions/stringOrStringArray" },
+                "spatialPointLayer": { "type": "string" },
+                "spatialNeighborhoodLayer": { "type": "string" },
+                
+                "spatialTargetT": { "type": "string" },
+                "spatialTargetC": { "type": "string" },
+                "spatialRenderingMode": { "type": "string" },
+                "spatialSliceX": { "type": "string" },
+                "spatialSliceY": { "type": "string" },
+                "spatialSliceZ": { "type": "string" },
+
+                "spatialPointRadius": { "type": "string" },
+
+                "spatialLayerVisible": { "type": "string" },
+                "spatialLayerOpacity": { "type": "string" },
+
+                "spatialRasterChannel": { "$ref": "#/definitions/stringOrStringArray" },
+                "spatialRasterChannelVisible": { "type": "string" },
+                "spatialRasterModelMatrix": { "type": "string" },
+                "spatialRasterColor": { "type": "string" },
+                "spatialRasterColormap": { "type": "string" },
+                "spatialRasterColormapRange": { "type": "string" },
+                "spatialRasterColormapRangeSliderType": { "type": "string" },
+                "spatialRasterVolumeRenderingMethod": { "type": "string" },
+                
+                "obsType": { "type": "string" },
+                "obsFilter": { "type": "string" },
+                "obsHighlight": { "type": "string" },
+                "obsSelection": { "type": "string" },
+                "obsSetSelection": { "type": "string" },
+                "obsSetHighlight": { "type": "string" },
+                "obsSetColor": { "type": "string" },
+                "obsColorEncoding": { "type": "string" },
+                "featureType": { "type": "string" },
+                "featureFilter": { "type": "string" },
+                "featureHighlight": { "type": "string" },
+                "featureSelection": { "type": "string" },
+                "featureSetSelection": { "type": "string" },
+                "featureSetHighlight": { "type": "string" },
+                "featureSetColor": { "type": "string" },
+                "featureValueType": { "type": "string" },
+                "featureValueColormap": { "type": "string" },
+                "featureValueColormapRange": { "type": "string" },
+                "featureValueTransform": { "type": "string" },
+                "embeddingType": { "type": "string" },
+                "embeddingZoom": { "type": "string" },
+                "embeddingRotation": { "type": "string" },
+                "embeddingTargetX": { "type": "string" },
+                "embeddingTargetY": { "type": "string" },
+                "embeddingTargetZ": { "type": "string" },
+                "embeddingObsSetPolygonsVisible": { "type": "string" },
+                "embeddingObsSetLabelsVisible": { "type": "string" },
+                "embeddingObsSetLabelSize": { "type": "string" },
+                "embeddingObsRadius": { "type": "string" },
+                "embeddingObsOpacity": { "type": "string" },
+                "embeddingObsRadiusMode": { "type": "string" },
+                "embeddingObsOpacityMode": { "type": "string" },
+                "spatialZoom": { "type": "string" },
+                "spatialRotation": { "type": "string" },
+                "spatialTargetX": { "type": "string" },
+                "spatialTargetY": { "type": "string" },
+                "spatialTargetZ": { "type": "string" },
+                "spatialRotationX": { "type": "string" },
+                "spatialRotationY": { "type": "string" },
+                "spatialRotationZ": { "type": "string" },
+                "spatialRotationOrbit": { "type": "string" },
+                "spatialOrbitAxis": { "type": "string" },
+                "spatialAxisFixed": { "type": "string" },
+                "heatmapZoomX": { "type": "string" },
+                "heatmapZoomY": { "type": "string" },
+                "heatmapTargetX": { "type": "string" },
+                "heatmapTargetY": { "type": "string" },
+                "genomicZoomX": { "type": "string" },
+                "genomicZoomY": { "type": "string" },
+                "genomicTargetX": { "type": "string" },
+                "genomicTargetY": { "type": "string" },
+                "additionalObsSets": { "type": "string" },
+                "additionalFeatureSets": { "type": "string" }
+              }
+            },
+            "coordinationScopesBy": {
+              "type": "object",
+              "description": "Component-level and coordination type-level coordination scope mappings. Keys are coordination types.",
+              "additionalProperties": true,
+              "required": [],
+              "patternProperties": {
+                ".": {
+                  "type": "object",
+                  "description": "Coordination type-level coordination scope mappings. Keys are coordination types. Values are objects.",
+                  "additionalProperties": true,
+                  "required": [],
+                  "patternProperties": {
+                    ".": {
+                      "$ref": "#/definitions/componentCoordinationScopeByValue"
+                    }
+                  }
+                }
               }
             }
           }
@@ -250,213 +312,6 @@
           "integrity": {
             "type": "string"
           }
-        }
-      },
-      "rasterLayer": {
-        "description": "The properties of this object are the rendering settings for the raster layer.",
-        "additionalProperties": false,
-        "required": ["channels", "colormap", "index", "opacity"],
-        "properties": {
-          "channels": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["selection"],
-              "properties": {
-                "color": {
-                  "type": "array",
-                  "items": { "type": "number" },
-                  "description": "The color to use when rendering this channel under the null colormap."
-                },
-                "selection": {
-                  "type": "object",
-                  "description": "Determines the channel selection, e.g. some Z and time slice."
-                },
-                "slider": {
-                  "type": "array",
-                  "items": { "type": "number" },
-                  "description": "Determines the range for color mapping."
-                },
-                "visible": {
-                  "type": "boolean",
-                  "description": "Determines whether this channel of the layer will be rendered in the spatial component."
-                }
-              }
-            }
-          },
-          "colormap": {
-            "oneOf": [
-              {
-                "type": "string",
-                "description": "The name of the colormap to use for this layer."
-              },
-              {
-                "type": "null",
-                "description": "Use the solid color definitions."
-              }
-            ]
-          },
-          "transparentColor": {
-            "oneOf": [
-              {
-                "type": "array",
-                "minItems": 3,
-                "maxItems": 3,
-                "items": { 
-                  "type": "number",
-                  "description": "One of R G or B (0 - 255)." 
-                },
-                "description": "Determines the color to be set to opacity 0"
-              },
-              {
-                "type": "null",
-                "description": "No selection."
-              }
-            ]
-          },
-          "index": {
-            "type": "number",
-            "description": "The index of the layer among the array of layers available in the image file."
-          },
-          "opacity": {
-            "type": "number"
-          },
-          "modelMatrix": {
-            "oneOf": [
-              {
-                "type": "array",
-                "minItems": 16,
-                "maxItems": 16,
-                "description": "transformation matrix for this layer"
-              },
-              {
-                "type": "null",
-                "description": "Use no transformation."
-              }
-            ]
-          },
-          "domainType": {
-            "type": "string",
-            "enum": ["Full", "Min/Max"],
-            "description": "Determines the extent of the channel slider input element in the layer controller."
-          },
-          "resolution": {
-            "type": "number",
-            "description": "Resolution of 3D volumetric rendering"
-          },
-          "xSlice": {
-            "oneOf": [
-              {
-                "type": "array",
-                "minItems": 2,
-                "maxItems": 2,
-                "description": "Slice bounds"
-              },
-              {
-                "type": "null",
-                "description": "No slicing"
-              }
-            ]
-          },
-          "renderingMode": {
-            "type": "string",
-             "description": "Rendering mode of 3D volumetric rendering"
-          },
-          "ySlice": {
-            "oneOf": [
-              {
-                "type": "array",
-                "minItems": 2,
-                "maxItems": 2,
-                "description": "Slice bounds"
-              },
-              {
-                "type": "null",
-                "description": "No slicing"
-              }
-            ]
-          },
-          "zSlice": {
-            "oneOf": [
-              {
-                "type": "array",
-                "minItems": 2,
-                "maxItems": 2,
-                "description": "Slice bounds"
-              },
-              {
-                "type": "null",
-                "description": "No slicing"
-              }
-            ]
-          },
-          "type": {
-            "type": "string",
-            "enum": ["raster", "bitmask"]
-          },
-          "use3d": {
-            "type": "boolean"
-          },
-          "visible": {
-            "type": "boolean",
-            "description": "Determines whether this entire layer will be rendered in the spatial component."
-          }
-        }
-      },
-      "moleculesLayer": {
-        "type": "object",
-        "description": "The properties of this object are the rendering settings for the molecules layer.",
-        "additionalProperties": false,
-        "required": ["visible", "radius", "opacity"],
-        "properties": {
-          "visible": {
-            "type": "boolean"
-          },
-          "radius": {
-            "type": "number"
-          },
-          "opacity": {
-            "type": "number"
-          }
-        }
-      },
-      "cellsLayer": {
-        "type": "object",
-        "description": "The properties of this object are the rendering settings for the cells layer.",
-        "additionalProperties": false,
-        "required": ["visible", "stroked", "radius", "opacity"],
-        "properties": {
-          "visible": {
-            "type": "boolean"
-          },
-          "stroked": {
-            "type": "boolean"
-          },
-          "radius": {
-            "type": "number"
-          },
-          "opacity": {
-            "type": "number"
-          }
-        }
-      },
-      "neighborhoodsLayer": {
-        "type": "object",
-        "description": "The properties of this object are the rendering settings for the neighborhoods layer.",
-        "additionalProperties": false,
-        "required": ["visible"],
-        "properties": {
-          "visible": {
-            "type": "boolean"
-          }
-        }
-      },
-      "spatialRasterLayers": {
-        "type": "array",
-        "description": "Array of Spatial Layers",
-        "items": {
-          "$ref": "#/definitions/rasterLayer"
         }
       }
     },
@@ -944,6 +799,32 @@
               }
             }
           },
+          "spatialTargetT": {
+            "type": "object",
+            "patternProperties": {
+              ".":  { "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided, value will be automatically set."
+                  },
+                  { "type": "number" }
+                ]
+              }
+            }
+          },
+          "spatialTargetC": {
+            "type": "object",
+            "patternProperties": {
+              ".":  { "oneOf": [
+                  {
+                    "type": "null",
+                    "description": "If null is provided, value will be automatically set."
+                  },
+                  { "type": "number" }
+                ]
+              }
+            }
+          },
           "spatialRotationX": {
             "type": "object",
             "patternProperties": {
@@ -1028,44 +909,169 @@
               }
             }
           },
-          "spatialRasterLayers": {
+          "spatialSliceX": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "$ref": "#/definitions/spatialSlice" }
+            }
+          },
+          "spatialSliceY": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "$ref": "#/definitions/spatialSlice" }
+            }
+          },
+          "spatialSliceZ": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "$ref": "#/definitions/spatialSlice" }
+            }
+          },
+          "spatialRasterLayer": {
             "type": "object",
             "patternProperties": {
               ".": {
                 "oneOf": [
-                  {
-                    "type": "null",
-                    "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
-                  },
-                  { "$ref": "#/definitions/spatialRasterLayers" }
+                  { "type": "string" },
+                  { "type": "number" }
                 ]
               }
             }
           },
-          "spatialObsLayer": {
+          "spatialSegmentationLayer": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "type": "string" }
+            }
+          },
+          "spatialPointLayer": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "type": "string" }
+            }
+          },
+          "spatialNeighborhoodLayer": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "type": "string" }
+            }
+          },
+          "spatialRasterChannel": {
+            "type": "object",
+            "patternProperties": {
+              ".": { "type": "string" }
+            }
+          },
+          "spatialPointRadius": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "number",
+                "description": "The point radius value."
+              }
+            }
+          },
+          "spatialLayerVisible": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "boolean",
+                "description": "Whether the layer is visible."
+              }
+            }
+          },
+          "spatialRasterChannelVisible": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "boolean",
+                "description": "Whether the channel is visible."
+              }
+            }
+          },
+          "spatialRasterColor": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "$ref": "#/definitions/rgbColor"
+              }
+            }
+          },
+          "spatialRasterColormap": {
             "type": "object",
             "patternProperties": {
               ".": {
                 "oneOf": [
                   {
-                    "type": "null",
-                    "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
+                    "type": "string",
+                    "description": "The name of the colormap to use for this layer."
                   },
-                  { "$ref": "#/definitions/cellsLayer" }
+                  {
+                    "type": "null",
+                    "description": "Use the solid color definitions."
+                  }
                 ]
               }
             }
           },
-          "spatialNeighborhoodsLayer": {
+          "spatialRasterColormapRange": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "array",
+                "items": { "type": "number" }
+              }
+            }
+          },
+          "spatialRasterColormapSliderRangeType": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "string",
+                "enum": ["Min/Max", "Full"],
+                "description": "Which endpoints to use for the slider input."
+              }
+            }
+          },
+          "spatialRenderingMode": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "string"
+              }
+            }
+          },
+          "spatialRasterVolumeRenderingMethod": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "string"
+              }
+            }
+          },
+          "spatialLayerOpacity": {
+            "type": "object",
+            "patternProperties": {
+              ".": {
+                "type": "number"
+              }
+            }
+          },
+          "spatialModelMatrix": {
             "type": "object",
             "patternProperties": {
               ".": {
                 "oneOf": [
                   {
-                    "type": "null",
-                    "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
+                    "type": "array",
+                    "minItems": 16,
+                    "maxItems": 16,
+                    "description": "transformation matrix for this layer"
                   },
-                  { "$ref": "#/definitions/neighborhoodsLayer" }
+                  {
+                    "type": "null",
+                    "description": "Use no transformation."
+                  }
                 ]
               }
             }

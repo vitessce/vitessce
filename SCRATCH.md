@@ -198,7 +198,7 @@ layout: [
       // one of:
       // - dataset
       // - spatialRasterLayer
-      // - spatialBitmaskLayer
+      // - spatialSegmentationLayer
       // - spatialPointLayer
       // - spatialRasterChannel
       dataset: { },

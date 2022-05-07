@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable camelcase */
 import uuidv4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
@@ -373,8 +374,10 @@ export function upgradeFrom1_0_9(config) {
     geneExpressionColormap: 'featureValueColormap',
     geneExpressionColormapRange: 'featureValueColormapRange',
     cellColorEncoding: 'obsColorEncoding',
-    spatialCellsLayer: 'spatialObsLayer',
-    spatialMoleculesLayer: 'spatialObsLayer', // TODO
+    spatialRasterLayers: 'spatialRasterLayer', // plural to singular
+    spatialCellsLayer: 'spatialSegmentationLayer',
+    spatialMoleculesLayer: 'spatialPointLayer',
+    spatialNeighborhoodsLayer: 'spatialNeighborhoodLayer',
     additionalCellSets: 'additionalObsSets',
     moleculeHighlight: 'obsHighlight',
     embeddingCellSetPolygonsVisible: 'embeddingObsSetPolygonsVisible',
@@ -394,6 +397,110 @@ export function upgradeFrom1_0_9(config) {
       delete coordinationSpace[oldKey];
     }
   });
+
+  const toSpatialRasterLayerScope = {};
+  const toPerSpatialRasterLayerScopes = {};
+  const toPerSpatialRasterChannelScopes = {};
+  if (coordinationSpace.spatialRasterLayer) {
+    const rasterLayerScopeAnalogies = {
+      visible: 'spatialLayerVisible',
+      xSlice: 'spatialSliceX',
+      ySlice: 'spatialSliceY',
+      zSlice: 'spatialSliceZ',
+      colormap: 'spatialRasterColormap',
+      domainType: 'spatialRasterColormapSliderRangeType',
+      use3d: 'spatialRenderingMode',
+      renderingMode: 'spatialRasterVolumeRenderingMethod',
+      opacity: 'spatialLayerOpacity',
+      modelMatrix: 'spatialModelMatrix',
+    };
+    const rasterChannelScopeAnalogies = {
+      visible: 'spatialRasterChannelVisible',
+      color: 'spatialRasterColor',
+      slider: 'spatialRasterColormapRange',
+    };
+    const rasterSelectionScopeAnalogies = {
+      c: 'spatialTargetC',
+      channel: 'spatialTargetC',
+      z: 'spatialTargetZ',
+      t: 'spatialTargetT',
+    };
+    const newSpatialRasterLayer = {};
+    const newSpatialRasterChannel = {};
+    Object.entries(coordinationSpace.spatialRasterLayer).forEach(([srlScope, srlValue]) => {
+      toSpatialRasterLayerScope[srlScope] = [];
+      toPerSpatialRasterLayerScopes[srlScope] = {};
+      toPerSpatialRasterChannelScopes[srlScope] = {};
+      srlValue.forEach((layerDef, layerIndex) => {
+        // TODO: check layerDef.type === "raster"
+        const layerScope = `${srlScope}_layer${layerIndex}`;
+        toSpatialRasterLayerScope[srlScope].push(layerScope);
+        newSpatialRasterLayer[layerScope] = layerDef.index;
+        Object.entries(rasterLayerScopeAnalogies).forEach(([oldKey, newKey]) => {
+          // Do layer-level conversions.
+          if (layerDef[oldKey]) {
+            if (!coordinationSpace[newKey]) {
+              coordinationSpace[newKey] = {};
+            }
+            if (oldKey === 'use3d') {
+              coordinationSpace[newKey][layerScope] = layerDef[oldKey] ? '3D' : '2D';
+            } else {
+              coordinationSpace[newKey][layerScope] = layerDef[oldKey];
+            }
+          }
+          if (!toPerSpatialRasterLayerScopes[srlScope][newKey]) {
+            toPerSpatialRasterLayerScopes[srlScope][newKey] = {};
+          }
+          toPerSpatialRasterLayerScopes[srlScope][newKey][layerScope] = layerScope;
+        });
+        // Do channel-level conversions.
+        if (layerDef.channels) {
+          const spatialRasterChannelScope = [];
+          layerDef.channels.forEach((channelDef, channelIndex) => {
+            const channelScope = `${srlScope}_layer${layerIndex}_channel${channelIndex}`;
+            spatialRasterChannelScope.push(channelScope);
+            newSpatialRasterChannel[channelScope] = channelScope;
+            Object.entries(rasterChannelScopeAnalogies).forEach(([oldKey, newKey]) => {
+              // Do layer-level conversions.
+              if (channelDef[oldKey]) {
+                if (!coordinationSpace[newKey]) {
+                  coordinationSpace[newKey] = {};
+                }
+                coordinationSpace[newKey][channelScope] = channelDef[oldKey];
+              }
+              if (!toPerSpatialRasterChannelScopes[srlScope][newKey]) {
+                toPerSpatialRasterChannelScopes[srlScope][newKey] = {};
+              }
+              toPerSpatialRasterChannelScopes[srlScope][newKey][channelScope] = channelScope;
+            });
+            if (channelDef.selection) {
+              const selectionDef = channelDef.selection;
+              Object.entries(rasterSelectionScopeAnalogies).forEach(([oldKey, newKey]) => {
+                if (selectionDef[oldKey]) {
+                  if (!coordinationSpace[newKey]) {
+                    coordinationSpace[newKey] = {};
+                  }
+                  coordinationSpace[newKey][channelScope] = selectionDef[oldKey];
+                }
+                if (!toPerSpatialRasterChannelScopes[srlScope][newKey]) {
+                  toPerSpatialRasterChannelScopes[srlScope][newKey] = {};
+                }
+                toPerSpatialRasterChannelScopes[srlScope][newKey][channelScope] = channelScope;
+              });
+            }
+          });
+          if (!toPerSpatialRasterLayerScopes[srlScope].spatialRasterChannel) {
+            toPerSpatialRasterLayerScopes[srlScope].spatialRasterChannel = {};
+          }
+          toPerSpatialRasterLayerScopes[srlScope].spatialRasterChannel[layerScope] = spatialRasterChannelScope;
+        }
+      });
+    });
+    delete coordinationSpace.spatialRasterLayer;
+    coordinationSpace.spatialRasterLayer = newSpatialRasterLayer;
+    delete coordinationSpace.spatialRasterChannel;
+    coordinationSpace.spatialRasterChannel = newSpatialRasterChannel;
+  }
 
   // Use obsType, featureType
   // rather than component-specific labelOverride props.
@@ -421,7 +528,9 @@ export function upgradeFrom1_0_9(config) {
 
   const layout = config.layout.map((component, i) => {
     const newComponent = { ...component };
+    const viewType = component.component;
     const { coordinationScopes = {}, props = {} } = newComponent;
+    const coordinationScopesBy = {};
 
     Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
       if (coordinationScopes[oldKey]) {
@@ -429,6 +538,16 @@ export function upgradeFrom1_0_9(config) {
         delete coordinationScopes[oldKey];
       }
     });
+    if(['spatial', 'layerController'].includes(viewType)) {
+      const oldScope = (
+        coordinationScopes.spatialRasterLayer ? 
+        coordinationScopes.spatialRasterLayer :
+        Object.keys(toSpatialRasterLayerScope)[0]
+      );
+      coordinationScopes.spatialRasterLayer = toSpatialRasterLayerScope[oldScope];
+      coordinationScopesBy.spatialRasterLayer = toPerSpatialRasterLayerScopes[oldScope];
+      coordinationScopesBy.spatialRasterChannel = toPerSpatialRasterChannelScopes[oldScope];
+    }
 
     Object.entries(typeAnalogies).forEach(([oldKey, newKey]) => {
       if (props[oldKey]) {
@@ -445,14 +564,14 @@ export function upgradeFrom1_0_9(config) {
     });
 
     const newComponentName = (
-      componentAnalogies[component.component]
-      || component.component
+      componentAnalogies[viewType] || viewType
     );
 
     return {
       uid: `view-${i}`,
       viewType: newComponentName,
       coordinationScopes,
+      coordinationScopesBy,
       props,
       x: newComponent.x,
       y: newComponent.y,
@@ -555,7 +674,7 @@ export function upgradeFrom1_0_9(config) {
     };
   });
 
-  return {
+  const result = {
     ...newConfig,
     version: '2.0.0',
     datasets,
@@ -565,4 +684,6 @@ export function upgradeFrom1_0_9(config) {
     },
     layout,
   };
+  console.log(result);
+  return result;
 }
