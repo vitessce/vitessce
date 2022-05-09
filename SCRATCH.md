@@ -100,6 +100,18 @@ coordinationSpace: {
     // the image file contents OR the options array for an image should define the mapping if it does not use the default axis key (e.g., "t" for OME-NGFF)
     A: 0,
   },
+  spatialSliceX: {
+    // TODO: switch from the current value in spatialRasterLayer[].xSlice
+    A: [0, 100],
+  },
+  spatialSliceY: {
+    // TODO: switch from the current value in spatialRasterLayer[].ySlice
+    A: [0, 100],
+  },
+  spatialSliceZ: {
+    // TODO: switch from the current value in spatialRasterLayer[].zSlice
+    A: [0, 100],
+  },
   spatialPointRadius: {
     // TODO: switch from the current value in spatialMoleculesLayer[].radius:
     molecule: 5,
@@ -135,7 +147,7 @@ coordinationSpace: {
     IMSPosMode: null,
     IMSNegMode: null,
   },
-  spatialRasterColormapRangeType: {
+  spatialRasterColormapSliderRangeType: {
     // TODO: switch from the current value in spatialRasterLayer[].domainType:
     PAS: "Min/Max",
     AF: "Min/Max",
@@ -168,6 +180,7 @@ coordinationSpace: {
     molecule: 1,
   },
   spatialModelMatrix: {
+    // TODO: switch from the current value in spatialRasterLayer[].modelMatrix:
     IMS: [20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
   },
 },
