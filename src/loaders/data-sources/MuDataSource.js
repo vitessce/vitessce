@@ -53,7 +53,7 @@ export default class MuDataSource extends AnnDataSource {
    * Class method for loading the var alias.
    * @returns {Promise} An promise for a zarr array containing the aliased names.
    */
-   async loadVarAlias(matrixPath, varPath) {
+  async loadVarAlias(matrixPath, varPath) {
     if (!this.varAlias) {
       this.varAlias = {};
     }
