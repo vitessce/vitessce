@@ -247,9 +247,6 @@ export const codeluppi2018 = {
     },
     {
       component: 'genes',
-      props: {
-        enableMultiSelect: true,
-      },
       x: 9,
       y: 0,
       w: 3,
