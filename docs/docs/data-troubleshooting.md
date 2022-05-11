@@ -1,7 +1,6 @@
 ---
 id: data-troubleshooting
-title: Data preparation troubleshooting
-sidebar_label: Troubleshooting
+title: Data Troubleshooting
 slug: /data-troubleshooting
 ---
 
