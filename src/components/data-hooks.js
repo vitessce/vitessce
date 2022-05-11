@@ -5,6 +5,7 @@ import { useSetWarning } from '../app/state/hooks';
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
+  DatasetNotFoundError,
 } from '../loaders/errors/index';
 import {
   DEFAULT_MOLECULES_LAYER,
@@ -624,6 +625,11 @@ export function useRasterData(
 
   useEffect(() => {
     if (!loaders[dataset]) {
+      if (isRequired) {
+        warn(new DatasetNotFoundError(dataset), setWarning);
+      } else {
+        setItemIsReady('raster');
+      }
       return;
     }
 

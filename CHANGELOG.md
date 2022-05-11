@@ -39,6 +39,7 @@
 
 ### Changed
 - Merged dependabot PRs.
+- Allow `Description` component to render without a dataset.
 
 
 ## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
