@@ -36,6 +36,7 @@
   ```
 - Add support for plugin view types, coordination types, and file types.
 - Added more exports in `src/index.js` to better support plugin development.
+- Added `enableMultiSelect` prop for `GenesSubscriber`. Current built-in views do not display multiple gene selections but plugin views could use this functionality.
 
 ### Changed
 - Merged dependabot PRs.
