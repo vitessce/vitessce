@@ -62,6 +62,7 @@ import {
   JsonSource,
   ZarrDataSource,
   AnnDataSource,
+  MuDataSource,
 } from './loaders/data-sources';
 
 
@@ -119,4 +120,5 @@ export {
   JsonSource,
   ZarrDataSource,
   AnnDataSource,
+  MuDataSource,
 };
