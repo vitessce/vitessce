@@ -43,22 +43,27 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Promise} A promise for the zarr array contianing the gene names.
    */
   async loadFilteredGeneNames() {
-    const { options: { matrix } } = this;
+    const {
+      geneFilter: geneFilterZarr,
+      geneAlias,
+      matrix,
+    } = this.options;
     if (!this.filteredGeneNames) {
       this.filteredGeneNames = {};
     }
     if (this.filteredGeneNames[matrix]) {
       return this.filteredGeneNames[matrix];
     }
-    const { geneFilter: geneFilterZarr } = this.options;
     const getFilterFn = async () => {
       if (!geneFilterZarr) return data => data;
       const geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
       return data => data.filter((_, j) => geneFilter[j]);
     };
-
+    const geneNamesPromise = geneAlias
+      ? this.dataSource.loadVarAlias(matrix, geneAlias)
+      : this.dataSource.loadVarIndex(matrix);
     this.filteredGeneNames[matrix] = Promise
-      .all([this.dataSource.loadVarIndex(matrix), getFilterFn()])
+      .all([geneNamesPromise, getFilterFn()])
       .then(([data, filter]) => filter(data));
     return this.filteredGeneNames[matrix];
   }

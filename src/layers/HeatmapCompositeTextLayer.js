@@ -100,10 +100,11 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
   }
 
   renderLayers() {
-    return [
-      this._renderAxisTopLayers(),
-      this._renderAxisLeftLayers(),
-    ];
+    const { axis } = this.props;
+    if (axis === 'left') {
+      return this._renderAxisLeftLayers();
+    }
+    return this._renderAxisTopLayers();
   }
 }
 

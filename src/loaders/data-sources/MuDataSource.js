@@ -48,4 +48,22 @@ export default class MuDataSource extends AnnDataSource {
       .then(({ _index }) => this.getFlatArrDecompressed(`${varPath}/${_index}`));
     return this.varIndex[path];
   }
+
+  /**
+   * Class method for loading the var alias.
+   * @returns {Promise} An promise for a zarr array containing the aliased names.
+   */
+   async loadVarAlias(matrixPath, varPath) {
+    if (!this.varAlias) {
+      this.varAlias = {};
+    }
+    if (this.varAlias[varPath]) {
+      return this.varAlias[varPath];
+    }
+    const [varAliasData] = await this.loadVarColumns([varPath]);
+    this.varAlias[varPath] = varAliasData;
+    const index = await this.loadVarIndex(matrixPath);
+    this.varAlias[varPath] = this.varAlias.map((val, ind) => val || index[ind]);
+    return this.varAlias[varPath];
+  }
 }

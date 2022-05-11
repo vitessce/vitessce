@@ -18,7 +18,6 @@ import {
   embeddingCellSetPolygonsVisibleConfig,
 } from './view-configs/coordination-types/index';
 
-
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
   [vapi.ct.EMBEDDING_TARGET_X]: embeddingTargetXConfig,

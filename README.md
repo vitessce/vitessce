@@ -4,16 +4,33 @@
 
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
-- [Latest release demo](http://vitessce.io/)
-- [Previous demos](DEMOS.md)
-- [Previous releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
+- [Latest demos and documentation](http://vitessce.io/)
+- [Sandbox environment](http://vitessce.io/#?edit=true)
+- [Older demos](DEMOS.md)
+- [Older releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
 
-![Screenshot of Vitessce with Linnarsson data](https://user-images.githubusercontent.com/1216518/93336741-2b60c880-f7f6-11ea-8b82-7e1e0ea45e43.png)
+<table><tr>
+<td>    
+<img src="https://user-images.githubusercontent.com/1216518/93336741-2b60c880-f7f6-11ea-8b82-7e1e0ea45e43.png" width="500" alt="Screenshot of Vitessce with Linnarsson data" />
+</td>
+<td>
+<img src="https://user-images.githubusercontent.com/1216518/93337080-a4f8b680-f7f6-11ea-9e53-2c73cc661b94.png" width="500" alt="Same data, zoomed in to cellular scale" />
+</td>
+</tr></table>
 
-![Same data, zoomed in to cellular scale](https://user-images.githubusercontent.com/1216518/93337080-a4f8b680-f7f6-11ea-9e53-2c73cc661b94.png)
+## Why Vitessce
 
+### Interactive
 
-You can also use the demo website for visualizing your own data via view configs passed in as url parameters.  If you are storing a `json` view configuration on a remote server, the url will look something like `http://vitessce.io/?url=https://example.com/my_config.json`.  Otherwise, if you have a view configuration that is not stored somewhere that can be accessed via a web server, you can do something like `http://vitessce.io/?url=data:,{"name":"FAKE", "version": "0.1.0", "description":"fake dataset", "layers":[], "staticLayout":[{"component":"description", "props":{"description": "Hello World"}, "x":0, "y": 0, "w": 2, "h": 2}]}` where `data:` prepends the actual view config.
+Vitessce consists of reusable interactive components including a scatterplot, spatial+imaging plot, genome browser tracks, statistical plots, and controller components, built on web technologies such as WebGL.
+
+### Integrative
+
+Vitessce enables visual analysis of multi-modal assay types which probe biological systems through techniques such as microscopy, genomics, and transcriptomics.
+
+### Serverless
+
+Visualize large datasets stored in static cloud object stores such as AWS S3. No need to manage or pay for expensive compute infrastructure for visualization purposes.
 
 ## Usage
 
@@ -23,7 +40,7 @@ Vitessce components can be used in React projects by installing the package from
 npm install vitessce
 ```
 
-For more details, please visit the [documentation](http://beta.vitessce.io/docs/).
+For more details, please visit the [documentation](http://vitessce.io/docs/js-overview/).
 
 ## Development
 
@@ -125,6 +142,32 @@ module.exports = {
 ```
 
 This fix is temporary and will no longer be necessary after the [next release of Viv](https://github.com/vitessce/vitessce/pull/1049#issuecomment-939520471).
+
+
+## Version bumps
+
+In this project we try to follow semantic versioning.
+The following are examples of things that would require a major, minor, or patch type of bump.
+
+### Patch version bumps
+
+Bug fixes, minor feature improvements, additional view types, additional coordination types, and additional file type implementations are possible in a patch version bump.
+
+When a coordination type is added, it must be reflected by a new view config JSON schema with an incremented `version` property, and a new view config upgrade function to enable previous view config versions to remain compatible.
+The default schema version parameter of the `VitessceConfig` constructor may also change to reflect the new schema version.
+
+### Minor version bumps
+
+An exported helper function or React component for plugin views had a change in props or function signature.
+Major feature improvements or additions.
+
+### Major version bumps
+
+The exported constant values changed, such as view types and coordination types, such that previous code using these values may no longer run successfully.
+React props of the main `<Vitessce />` component changed.
+Major behavior changes or interface updates.
+Changes to the directory structure or filenames in the `dist/` directory that could result in broken import statements.
+
 
 ## Related repositories
 
