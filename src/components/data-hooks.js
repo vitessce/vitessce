@@ -12,7 +12,7 @@ import {
   DEFAULT_CELLS_LAYER,
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
-import { DEFAULT_COORDINATION_VALUES } from '../app/state/coordination';
+import { getDefaultCoordinationValues } from '../app/plugins';
 
 /**
  * Warn via publishing to the console
@@ -42,11 +42,12 @@ function initCoordinationSpace(values, setters, initialValues) {
   if (!values || !setters) {
     return;
   }
+  const defaultCoordinationValues = getDefaultCoordinationValues();
   Object.entries(values).forEach(([coordinationType, value]) => {
     const setterName = `set${capitalize(coordinationType)}`;
     const setterFunc = setters[setterName];
     const initialValue = initialValues && initialValues[coordinationType];
-    const shouldInit = equal(initialValue, DEFAULT_COORDINATION_VALUES[coordinationType]);
+    const shouldInit = equal(initialValue, defaultCoordinationValues[coordinationType]);
     if (shouldInit && setterFunc) {
       setterFunc(value);
     }

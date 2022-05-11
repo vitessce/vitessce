@@ -47,8 +47,13 @@ module.exports = {
       label: 'Developer Docs',
       items: [
         'dev-overview',
-        'dev-add-component'
+        'dev-add-component',
+        'dev-plugins'
       ],
+    },
+    {
+      type: 'doc',
+      id: 'roadmap'
     },
     {
       type: 'doc',
@@ -62,7 +67,11 @@ module.exports = {
       collapsed: false,
       items: [
         'tutorials',
-        'tutorial-visium'
+        'tutorial-visium',
+        'tutorial-gh-pages',
+        'tutorial-plugin-view-type',
+        'tutorial-plugin-coordination-type',
+        'tutorial-plugin-file-type',
       ],
     },
   ],

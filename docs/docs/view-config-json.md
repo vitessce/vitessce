@@ -10,7 +10,7 @@ slug: /view-config-json
 While Vitessce always uses a JSON-based view configuration internally, an object-oriented view config API may be easier to use:
 - [JavaScript View Config API](/docs/view-config-js/)
 - [Python View Config API](https://vitessce.github.io/vitessce-python/api_config.html)
-- [R View Config API](https://vitessce.github.io/vitessce-r/reference/VitessceConfig.html#examples)
+- [R View Config API](https://vitessce.github.io/vitessceR/reference/VitessceConfig.html#examples)
 
 :::
 
@@ -44,6 +44,11 @@ The view config schema version.
 | `1.0.2`| Auto-detection of 3D images was added in this version. |
 | `1.0.3`| Channel sliders for RGB images was added in this version. |
 | `1.0.4`| The coordination types `embeddingCellOpacity`, `embeddingCellRadiusMode`, and `embeddingCellOpacityMode` were added in this version. |
+| `1.0.5`| Adds support for providing an array of columns (rather than a single column) for the value of the `setName` property within options array items for the `anndata-cell-sets.zarr` file type (to specify a cell set hierarcy). |
+| `1.0.6`| The `scoreName` property within the options array items for the `anndata-cell-sets.zarr` file type was added in this version. |
+| `1.0.7`| The `geneAlias` option for the `anndata-expression-matrix.zarr` file type was added in this version. |
+| `1.0.8`| Support for multi-dataset views and dataset-specific coordination scope mappings was added in this version. |
+| `1.0.9`| Support for plugin coordination types was added in this version. |
 
 ### `initStrategy`
 - Type: `string`

@@ -26,7 +26,7 @@ The Python package also contains helpers which facilitate visualizing data store
 
 ## R htmlwidget
 
-We have developed the [vitessce R package](https://vitessce.github.io/vitessce-r/) for using Vitessce in R environments, including RStudio and Shiny apps.
+We have developed the [vitessce R package](https://vitessce.github.io/vitessceR/) for using Vitessce in R environments, including RStudio and Shiny apps.
 The package contains an R object-oriented API for creating Vitessce configurations (which can be exported to a JSON format).
 
 The R package also contains helpers which facilitate visualizing data stored in common R single-cell formats with Vitessce.

@@ -26,11 +26,6 @@ In the `options` property for file definitions in the Vitessce view config, you 
 The same Zarr store URL can be used for defining multiple files in the view config, for different data types and file types.
 :::
 
-:::caution
-The Zarr file types are not yet compatible with the Vitessce R package because [Zarr is not yet supported in R](https://github.com/vitessce/vitessce-r/issues/7).
-:::
-
-
 #### `anndata-cells.zarr`
 
 - View config file definition snippet:
@@ -209,7 +204,10 @@ json={`
     // All of the genes in \`var\` will display in the \`Genes\` component though.
     // Use \`geneFilter\` instead if you only want to show a subset of the genes there
     // (this must be defined if the matrix is a subset of AnnData.X).
-    "matrixGeneFilter": "var/highly_variable"
+    "matrixGeneFilter": "var/highly_variable",
+    // The gene alias property supports specifying a column containing
+    // alternative gene identifiers.
+    "geneAlias": "var/hugo_symbol"
   }
 }
 `}
@@ -223,7 +221,10 @@ const options = {
   // All of the genes in \`var\` will display in the \`Genes\` component though.
   // Use \`geneFilter\` instead if you only want to show a subset of the genes there
   // (this must be defined if the matrix is a subset of AnnData.X).
-  "matrixGeneFilter": "var/highly_variable"
+  "matrixGeneFilter": "var/highly_variable",
+  // The gene alias property supports specifying a column containing
+  // alternative gene identifiers.
+  "geneAlias": "var/hugo_symbol"
 };
 const dataset = vc
   .addDataset("My dataset")
@@ -788,7 +789,7 @@ Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) famil
 
 ### Seurat
 
-The Vitessce R package can be used to [convert Seurat objects](https://vitessce.github.io/vitessce-r/reference/SeuratWrapper.html) to the [`cells.json`](#cellsjson) and [`cell-sets.json`](#cell-setsjson) file types.
+The Vitessce R package can be used to [convert Seurat objects](https://vitessce.github.io/vitessceR/reference/SeuratWrapper.html) to the [`cells.json`](#cellsjson) and [`cell-sets.json`](#cell-setsjson) file types.
 
 ### SnapATAC
 

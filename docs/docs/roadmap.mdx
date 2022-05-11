@@ -1,0 +1,89 @@
+---
+id: roadmap
+title: Roadmap
+slug: /roadmap
+---
+
+We have many exciting features planned to enable visualization of additional modalities and larger datasets, as well as visualization of multiple datasets simultaneously. This page lists some of the major features we hope to add in the coming months and details about how we currently envision their implementations and use cases.
+
+To read the latest extended description of each feature please see the corresponding GitHub issue. Feel free to comment on issues or start a [discussion](https://github.com/vitessce/vitessce/discussions/new) to provide feedback.
+
+## Feature observation matrix support
+
+<table>
+    <tr>
+        <th>Issue</th>
+        <td><a href="https://github.com/vitessce/vitessce/issues/1128">vitessce#1128</a></td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>Preliminary implementation on <a href="https://github.com/vitessce/vitessce/tree/keller-mark/obs-feature-generalizations">branch</a></td>
+    </tr>
+    <tr>
+        <th>Use case</th>
+        <td>Enable visualization of single-cell datasets containing both cell-by-gene (gene expression) and cell-by-peak (chromatin accessibility) measurements without the need to first create assay-specific data types, views, and coordination types.</td>
+    </tr>
+</table>
+
+
+## More scalable visualization of molecules
+
+<table>
+    <tr>
+        <th>Status</th>
+        <td>Multiple prototype implementations <a href="https://github.com/vitessce/vitessce/tree/keller-mark/merfish-merge">in-progress</a> or <a href="https://github.com/vitessce/vitessce/tree/keller-mark/baysor-v2">complete</a> (<a href="https://s3.amazonaws.com/vitessce-data/demos/2021-10-18/8f814e89/index.html?dataset=petukhov-2021-nat-biotechnol">demo</a>) (reflecting multiple custom file formats). Due to the lack of standard or consensus [cloud-friendly] file formats for this type of data (<a href="https://github.com/ome/ngff/pull/64">ngff#64</a>, <a href="https://github.com/theislab/anndata/issues/609">anndata#609</a>, <a href="https://github.com/ome/ngff/issues/31">ngff#31</a>), official support may ultimately depend on plugin data loaders and views (see below).</td>
+    </tr>
+    <tr>
+        <th>Use case</th>
+        <td>Visualize a MERFISH dataset containing millions of barcodes across hundreds of fields of view, with barcodes rendered as scatterplot points above an individual z-slice of the raw image data.</td>
+    </tr>
+</table>
+
+
+## MuData-Zarr support
+
+<table>
+    <tr>
+        <th>Issue</th>
+        <td><a href="https://github.com/vitessce/vitessce/issues/1119">vitessce#1119</a></td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>In-progress implementation on <a href="https://github.com/vitessce/vitessce/tree/keller-mark/mudata-loaders-v2">branch</a></td>
+    </tr>
+    <tr>
+        <th>Use case</th>
+        <td>Load a multi-modal dataset stored as a MuData object written to a Zarr store.</td>
+    </tr>
+</table>
+
+## R package refactor
+
+<table>
+    <tr>
+        <th>Issue</th>
+        <td><a href="https://github.com/vitessce/vitessceR/issues/56">vitessceR#56</a></td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>Not yet started</td>
+    </tr>
+</table>
+
+
+## Sidebar
+
+<table>
+    <tr>
+        <th>Issue</th>
+        <td><a href="https://github.com/vitessce/vitessce/issues/865">vitessce#865</a></td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>In-progress implementation on <a href="https://github.com/vitessce/vitessce/tree/keller-mark/sidebar-v2">branch</a></td>
+    </tr>
+    <tr>
+        <th>Use case</th>
+        <td>Update the view config, for instance to add a view to the current layout, using a GUI or interactive JSON editor.</td>
+    </tr>
+</table>
