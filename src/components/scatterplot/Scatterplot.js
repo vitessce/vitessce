@@ -19,8 +19,8 @@ const LABEL_UPDATE_ZOOM_DELTA = 0.25;
 const makeDefaultGetCellPosition = mapping => (cellEntry) => {
   const { mappings } = cellEntry[1];
   if (!(mapping in mappings)) {
-    const available = Object.keys(mappings).map(s => `"${s}"`).join(', ');
-    throw new Error(`Expected to find "${mapping}", but available mappings are: ${available}`);
+    console.warn(`Embedding coordinates for mapping "${mapping}" for obs "${cellEntry[0]}" were not found`);
+    return [undefined, undefined, 0];
   }
   const mappedCell = mappings[mapping];
   // The negative applied to the y-axis is because

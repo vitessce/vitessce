@@ -19,8 +19,8 @@ export function createCellsQuadTree(cellsEntries, getCellCoords) {
     return null;
   }
   const tree = quadtree()
-    .x(d => getCellCoords(d[1])[0])
-    .y(d => getCellCoords(d[1])[1])
+    .x(d => getCellCoords(d[1])?.[0])
+    .y(d => getCellCoords(d[1])?.[1])
     .addAll(cellsEntries);
   return tree;
 }

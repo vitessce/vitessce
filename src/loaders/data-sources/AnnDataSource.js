@@ -2,6 +2,8 @@
 import { openArray } from 'zarr';
 import range from 'lodash/range';
 import ZarrDataSource from './ZarrDataSource';
+import { dirname } from './utils';
+
 
 const readFloat32FromUint8 = (bytes) => {
   if (bytes.length !== 4) {
@@ -11,12 +13,6 @@ const readFloat32FromUint8 = (bytes) => {
 };
 
 const HEADER_LENGTH = 4;
-
-function dirname(path) {
-  const arr = path.split('/');
-  arr.pop();
-  return arr.join('/');
-}
 
 /**
    * Method for decoding text arrays from zarr.

@@ -1,36 +1,30 @@
 /* eslint-disable no-underscore-dangle */
-import { openArray } from 'zarr';
 import AnnDataSource from './AnnDataSource';
+import { dirname } from './utils';
 
-function dirname(path) {
-  const pathParts = path.split('/');
-  pathParts.pop();
-  return pathParts.join('/');
-}
 
 /**
  * A base MuData loader which has all shared methods for more comlpex laoders,
  * like loading cell names and ids. It inherits from AnnDataSource.
  */
 export default class MuDataSource extends AnnDataSource {
-  async _loadObsVariable(obs) {
-    const { store } = this;
-    const { categories } = await this.getJson(`${obs}/.zattrs`);
-    let categoriesValues;
-    if (categories) {
-      const { dtype } = await this.getJson(`/${dirname(obs)}/${categories}/.zarray`);
-      if (dtype === '|O') {
-        categoriesValues = await this.getFlatArrDecompressed(`/${dirname(obs)}/${categories}`);
-      }
+  /**
+   * Class method for loading the obs index.
+   * @returns {Promise} An promise for a zarr array containing the indices.
+   */
+  loadObsIndex(path = null) {
+    if (!this.obsIndex) {
+      this.obsIndex = {};
     }
-    const obsArr = await openArray({ store, path: obs, mode: 'r' });
-    const obsValues = await obsArr.get();
-    const { data } = obsValues;
-    const mappedObsValues = Array.from(data).map(
-      i => (!categoriesValues ? String(i) : categoriesValues[i]),
-    );
-    return mappedObsValues;
+    if (this.obsIndex[path]) {
+      return this.obsIndex[path];
+    }
+    const obsPath = path ? `${dirname(path)}/obs` : 'obs';
+    this.obsIndex[path] = this.getJson(`${obsPath}/.zattrs`)
+      .then(({ _index }) => this.getFlatArrDecompressed(`${obsPath}/${_index}`));
+    return this.obsIndex[path];
   }
+
 
   /**
    * Class method for loading the var index.
