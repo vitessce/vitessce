@@ -37,9 +37,11 @@
 - Add support for plugin view types, coordination types, and file types.
 - Added more exports in `src/index.js` to better support plugin development.
 - Added data troubleshooting documentation page.
+- Added more old presentation links to the README.
 
 ### Changed
 - Merged dependabot PRs.
+- Allow `Description` component to render without a dataset.
 
 
 ## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
