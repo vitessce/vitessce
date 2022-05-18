@@ -36,6 +36,7 @@
   ```
 - Add support for plugin view types, coordination types, and file types.
 - Added more exports in `src/index.js` to better support plugin development.
+- Added data troubleshooting documentation page.
 - Added more old presentation links to the README.
 
 ### Changed
