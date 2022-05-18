@@ -59,6 +59,38 @@ export default class AnnDataSource extends ZarrDataSource {
     this.promises = new Map();
   }
 
+  async loadColumnNumeric(path) {
+    const { store } = this;
+    return openArray({
+      store,
+      path,
+      mode: 'r',
+    }).then(arr => arr.get());
+  }
+
+  async loadColumnString(path) {
+    // TODO: move contents of _loadColumn here and remove
+    return this._loadColumn(path);
+  }
+
+  async loadEmbeddingNumeric(path) {
+    const { store } = this;
+    const arr = openArray({
+      store,
+      path,
+      mode: 'r',
+    });
+    return Promise.all([
+      arr.then(arr => arr.get([null, 0])),
+      arr.then(arr => arr.get([null, 1])),
+    ]).then(([x, y]) => {
+      return {
+        data: [x.data, y.data],
+        shape: [2, x.shape[0]]
+      };
+    });
+  }
+
   loadObsColumns(paths) {
     return this._loadColumns(paths);
   }
