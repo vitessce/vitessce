@@ -1,4 +1,5 @@
 export {
+  Component,
   ViewType,
   FileType,
   DataType,

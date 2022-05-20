@@ -373,8 +373,10 @@ export function upgradeFrom1_0_9(config) {
     geneExpressionColormap: 'featureValueColormap',
     geneExpressionColormapRange: 'featureValueColormapRange',
     cellColorEncoding: 'obsColorEncoding',
-    spatialCellsLayer: 'spatialObsLayer',
-    spatialMoleculesLayer: 'spatialObsLayer', // TODO
+    spatialRasterLayers: 'spatialRasterLayer', // plural to singular layers
+    spatialCellsLayer: 'spatialSegmentationLayer',
+    spatialMoleculesLayer: 'spatialPointLayer',
+    spatialNeighborhoodsLayer: 'spatialNeighborhoodLayer', // plural to singular neighborhoods
     additionalCellSets: 'additionalObsSets',
     moleculeHighlight: 'obsHighlight',
     embeddingCellSetPolygonsVisible: 'embeddingObsSetPolygonsVisible',
@@ -408,13 +410,11 @@ export function upgradeFrom1_0_9(config) {
   };
 
   const componentAnalogies = {
-    genes: 'features',
+    genes: 'featureList',
     cellSets: 'obsSets',
     cellSetSizes: 'obsSetSizes',
     cellSetExpression: 'obsSetFeatureDistribution',
-    expressionHistogram: 'featureValueHistogram',
-    heatmap: 'obsFeatureHeatmap',
-    scatterplot: 'obsScatterplot',
+    expressionHistogram: 'featureHistogram',
   };
 
   const overridesFromProps = new InternSet([], JSON.stringify);
@@ -451,7 +451,7 @@ export function upgradeFrom1_0_9(config) {
 
     return {
       uid: `view-${i}`,
-      viewType: newComponentName,
+      component: newComponentName,
       coordinationScopes,
       props,
       x: newComponent.x,
@@ -463,16 +463,15 @@ export function upgradeFrom1_0_9(config) {
 
   const dataTypeAnalogies = {
     cells: {
-      dataType: 'obs',
+      dataType: 'obsIndex',
       entityTypes: {
         obsType: 'cell',
       },
     },
     molecules: {
-      dataType: 'obs',
+      dataType: 'obsIndex',
       entityTypes: {
-        obsType: 'molecule',
-        featureType: 'isoform',
+        obsType: 'transcript',
       },
     },
     'cell-sets': {
@@ -481,24 +480,48 @@ export function upgradeFrom1_0_9(config) {
         obsType: 'cell',
       },
     },
-    'expression-matrix': {
-      dataType: 'obsFeatureMatrix',
+    'expression-matrix': [
+      {
+        dataType: 'obsFeatureMatrix',
+        entityTypes: {
+          obsType: 'cell',
+          featureType: 'gene',
+          featureValueType: 'expression',
+        },
+      },
+      {
+        dataType: 'obsIndex',
+        entityTypes: {
+          obsType: 'cell',
+          featureType: 'id',
+        },
+      },
+      {
+        dataType: 'featureIndex',
+        entityTypes: {
+          featureType: 'gene',
+          featureValueType: 'symbol',
+        },
+      },
+    ],
+    'genomic-profiles': {
+      dataType: 'genomic-profiles',
       entityTypes: {
         obsType: 'cell',
-        featureType: 'gene',
+        featureType: 'position',
+        featureValueType: 'accessibility',
       },
     },
-    'genomic-profiles': {
-      dataType: 'genomicProfiles',
-      entityTypes: {},
+    raster: {
+      dataType: 'raster',
+      entityTypes: {
+        featureType: 'channel',
+        featureValueType: 'intensity',
+      },
     },
   };
   // eslint-disable-next-line
   const fileTypeAnalogies = {
-    'cell-sets.json': 'cellSets.json',
-    'expression-matrix.zarr': 'expressionMatrix.zarr',
-    'genomic-profiles.zarr': 'genomicProfiles.zarr',
-    'clusters.json': 'expressionMatrix.json',
     'anndata-cell-sets.zarr': 'anndataObsSets.zarr',
     'anndata-cells.zarr': 'anndataObs.zarr',
     'anndata-expression-matrix.zarr': 'anndataObsFeatureMatrix.zarr',

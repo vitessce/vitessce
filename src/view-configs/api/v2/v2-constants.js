@@ -1,23 +1,41 @@
 export const ViewType = {
+  // pre-FOM
+  GENES: 'genes',
+  CELL_SETS: 'cellSets',
+  CELL_SET_SIZES: 'cellSetSizes',
+  CELL_SET_EXPRESSION: 'cellSetExpression',
+  EXPRESSION_HISTOGRAM: 'expressionHistogram',
+  // post-FOM
   DESCRIPTION: 'description',
   STATUS: 'status',
   FEATURES: 'features',
   OBS_SETS: 'obsSets',
-  OBS_SCATTERPLOT: 'obsScatterplot',
+  SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
-  HEATMAP: 'obsFeatureHeatmap',
+  HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
   OBS_SET_SIZES: 'obsSetSizes',
   GENOMIC_PROFILES: 'genomicProfiles',
   OBS_SET_FEATURE_DISTRIBUTION: 'obsSetFeatureDistribution',
-  FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
+  FEATURE_HISTOGRAM: 'featureHistogram',
 };
+// Alias for ViewType
+export const Component = ViewType;
 
 export const DataType = {
-  OBS: 'obs',
+  // pre-FOM
+  CELLS: 'cells',
+  CELL_SETS: 'cell-sets',
+  EXPRESSION_MATRIX: 'expression-matrix',
+  MOLECULES: 'molecules',
+  // post-FOM
+  OBS_INDEX: 'obsIndex',
   OBS_SETS: 'obsSets',
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
-  GENOMIC_PROFILES: 'genomicProfiles',
+  OBS_FEATURE_ARRAY: 'obsFeatureArray',
+  OBS_FEATURE_COLUMN: 'obsFeatureColumn',
+  FEATURE_INDEX: 'featureIndex',
+  GENOMIC_PROFILES: 'genomic-profiles',
   NEIGHBORHOODS: 'neighborhoods',
   RASTER: 'raster',
 };
@@ -104,9 +122,10 @@ export const CoordinationType = {
   HEATMAP_ZOOM_Y: 'heatmapZoomY',
   HEATMAP_TARGET_X: 'heatmapTargetX',
   HEATMAP_TARGET_Y: 'heatmapTargetY',
-  SPATIAL_RASTER_LAYERS: 'spatialRasterLayers',
-  SPATIAL_OBS_LAYER: 'spatialObsLayer',
-  SPATIAL_NEIGHBORHOODS_LAYER: 'spatialNeighborhoodsLayer',
+  SPATIAL_RASTER_LAYER: 'spatialRasterLayer',
+  SPATIAL_SEGMENTATION_LAYER: 'spatialSegmentationLayer',
+  SPATIAL_POINT_LAYER: 'spatialPointLayer',
+  SPATIAL_NEIGHBORHOOD_LAYER: 'spatialNeighborhoodLayer',
   GENOMIC_ZOOM_X: 'genomicZoomX',
   GENOMIC_ZOOM_Y: 'genomicZoomY',
   GENOMIC_TARGET_X: 'genomicTargetX',
