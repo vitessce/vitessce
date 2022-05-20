@@ -1,3 +1,4 @@
+// TODO: use proxy to log deprecation messages
 export const Component = {
   DESCRIPTION: 'description',
   STATUS: 'status',
@@ -11,6 +12,11 @@ export const Component = {
   GENOMIC_PROFILES: 'genomicProfiles',
   CELL_SET_EXPRESSION: 'cellSetExpression',
   EXPRESSION_HISTOGRAM: 'expressionHistogram',
+  // FOM components
+  FEATURE_LIST: 'featureList',
+  OBS_SETS: 'obsSets',
+  OBS_SET_SIZES: 'obsSetSizes',
+  FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
 };
 
 export const DataType = {
@@ -21,6 +27,10 @@ export const DataType = {
   MOLECULES: 'molecules',
   NEIGHBORHOODS: 'neighborhoods',
   RASTER: 'raster',
+  // FOM data types
+  OBS: 'obs',
+  FEATURES: 'features',
+  OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
 };
 
 export const FileType = {
@@ -37,6 +47,10 @@ export const FileType = {
   ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
   ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
+  // FOM file types
+  ANNDATA_OBS_ZARR: 'anndataObs.zarr',
+  ANNDATA_OBS_FEATURE_MATRIX_ZARR: 'anndataObsFeatureMatrix.zarr',
+  ANNDATA_FEATURES_ZARR: 'anndataFeatures.zarr',
 };
 
 /**
@@ -95,4 +109,29 @@ export const CoordinationType = {
   GENOMIC_TARGET_Y: 'genomicTargetY',
   ADDITIONAL_CELL_SETS: 'additionalCellSets',
   MOLECULE_HIGHLIGHT: 'moleculeHighlight',
+  // FOM coordination types
+  EMBEDDING_OBS_SET_POLYGONS_VISIBLE: 'embeddingObsSetPolygonsVisible',
+  EMBEDDING_OBS_SET_LABELS_VISIBLE: 'embeddingObsSetLabelsVisible',
+  EMBEDDING_OBS_SET_LABEL_SIZE: 'embeddingObsSetLabelSize',
+  EMBEDDING_OBS_RADIUS: 'embeddingObsRadius',
+  EMBEDDING_OBS_RADIUS_MODE: 'embeddingObsRadiusMode',
+  EMBEDDING_OBS_OPACITY: 'embeddingObsOpacity',
+  EMBEDDING_OBS_OPACITY_MODE: 'embeddingObsOpacityMode',
+  OBS_FILTER: 'obsFilter',
+  OBS_HIGHLIGHT: 'obsHighlight',
+  OBS_SET_SELECTION: 'obsSetSelection',
+  OBS_SET_HIGHLIGHT: 'obsSetHighlight',
+  OBS_SET_COLOR: 'obsSetColor',
+  FEATURE_FILTER: 'featureFilter',
+  FEATURE_HIGHLIGHT: 'featureHighlight',
+  FEATURE_SELECTION: 'featureSelection',
+  FEATURE_VALUE_COLORMAP: 'featureValueColormap',
+  FEATURE_VALUE_TRANSFORM: 'featureValueTransform',
+  FEATURE_VALUE_COLORMAP_RANGE: 'featureValueColormapRange',
+  OBS_COLOR_ENCODING: 'obsColorEncoding',
+  SPATIAL_RASTER_LAYER: 'spatialRasterLayer',
+  SPATIAL_SEGMENTATION_LAYER: 'spatialSegmentationLayer',
+  SPATIAL_POINT_LAYER: 'spatialPointLayer',
+  SPATIAL_NEIGHBORHOOD_LAYER: 'spatialNeighborhoodLayer',
+  ADDITIONAL_OBS_SETS: 'additionalObsSets',
 };
