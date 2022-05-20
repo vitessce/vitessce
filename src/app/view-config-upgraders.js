@@ -370,6 +370,13 @@ export function upgradeFrom1_0_9(config) {
     embeddingCellOpacityMode: 'embeddingObsOpacityMode',
   };
 
+  const valueAnalogies = {
+    cellColorEncoding: {
+      cellSetSelection: 'obsSetSelection',
+      geneSelection: 'featureSelection',
+    },
+  };
+
   const coordinationSpace = { ...config.coordinationSpace };
 
   Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
@@ -407,8 +414,14 @@ export function upgradeFrom1_0_9(config) {
 
     Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
       if (coordinationScopes[oldKey]) {
+        // Convert keys
         coordinationScopes[newKey] = coordinationScopes[oldKey];
         delete coordinationScopes[oldKey];
+        // Convert values
+        if (Object.keys(valueAnalogies).includes(oldKey)) {
+          const oldValue = coordinationScopes[newKey];
+          coordinationScopes[newKey] = valueAnalogies[oldKey][oldValue];
+        }
       }
     });
 
@@ -432,7 +445,6 @@ export function upgradeFrom1_0_9(config) {
     );
 
     return {
-      uid: `view-${i}`, // TODO: move to initialization function.
       component: newComponentName,
       coordinationScopes,
       props,

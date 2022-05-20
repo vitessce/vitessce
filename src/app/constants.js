@@ -150,3 +150,44 @@ export const CoordinationType = {
   SPATIAL_NEIGHBORHOOD_LAYER: 'spatialNeighborhoodLayer',
   ADDITIONAL_OBS_SETS: 'additionalObsSets',
 };
+
+// Keys for anndata cols/arrays.
+export const DATA_KEYS = {
+  // prev: anndata-cells.zarr/mappings/key and mappings/dims
+  // values in files[].options should be { path: '', name: '', dims: [0, 1] }
+  EMBEDDING: 'embedding',
+  // prev: anndata-cells.zarr/xy
+  // values in files[].options should be { path: '' }
+  SPATIAL: 'spatial',
+  // values in files[].options should be { path: '' }
+  // prev: anndata-cells.zarr/poly
+  SEGMENTATION_POLYGON: 'segmentationPolygon',
+  // values in files[].options should be { path: '' }
+  OBS_INDEX: 'obsIndex',
+  // values in files[].options should be { path: '' }
+  OBS_FILTER: 'obsFilter',
+  // values in files[].options should be { path: '' }
+  FEATURE_INDEX: 'featureIndex',
+  // prev: anndata-expression-matrix.zarr/matrixGeneFilter
+  // values in files[].options should be { path: '' }
+  // when using the main X matrix, indicates which features to ignore when loading the data.
+  // Should be a valid var column.
+  FEATURE_FILTER: 'featureFilter',
+  // prev: anndata-expression-matrix.zarr/geneFilter
+  // values in files[].options should be { path: '' }
+  // when using a smaller matrix, indicates which features of
+  // the full var are used in the smaller matrix (like obsm/hvg_subset).
+  // Should be a valid var column.
+  MATRIX_FEATURE_SUBSET: 'matrixFeatureSubset',
+  // prev: anndata-expression-matrix.zarr/geneAlias
+  // values in files[].options should be { path: '' }
+  FEATURE_INDEX_SECONDARY: 'featureIndexSecondary',
+  // values in files[].options should be { path: '' }
+  // Should be a valid array key with shape
+  // (obsIndex.length after filtering by matrixObsSubset if present, featureIndex.length after filtering based on matrixFeatureSubset if present)
+  OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
+  // values in files[].options should be { path: '', name: '' } or { path: ['', '', ...], name: '' }
+  OBS_SET_INDEX: 'obsSetIndex', // prev: anndata-cell-sets.zarr/setName
+  // values in files[].options should be { path: '' } or { path: ['', '', ...], name: '' }
+  OBS_SET_SCORE: 'obsSetScore', // prev: anndata-cell-sets.zarr/scoreName
+};

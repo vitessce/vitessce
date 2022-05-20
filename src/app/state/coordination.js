@@ -1,23 +1,33 @@
-import { CoordinationType, Component } from '../constants';
+import { CoordinationType, Component, EntityTypes } from '../constants';
+
+export const DEFAULT_ENTITY_TYPE_VALUES = {
+  [CoordinationType.OBS_TYPE]: 'cell',
+  [CoordinationType.FEATURE_TYPE]: 'gene',
+  [CoordinationType.FEATURE_VALUE_TYPE]: 'expression',
+};
+
+export const ENTITY_COORDINATION_TYPES = Object
+  .keys(DEFAULT_ENTITY_TYPE_VALUES);
 
 /**
  * Coordination types may have default values,
  * which can be defined here, and used by the
  * auto initialization strategy.
  */
+// TODO: move to constant-relationships
 export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.EMBEDDING_ZOOM]: null,
   [CoordinationType.EMBEDDING_ROTATION]: 0,
   [CoordinationType.EMBEDDING_TARGET_X]: null,
   [CoordinationType.EMBEDDING_TARGET_Y]: null,
   [CoordinationType.EMBEDDING_TARGET_Z]: 0,
-  [CoordinationType.EMBEDDING_CELL_SET_POLYGONS_VISIBLE]: false,
-  [CoordinationType.EMBEDDING_CELL_SET_LABELS_VISIBLE]: false,
-  [CoordinationType.EMBEDDING_CELL_SET_LABEL_SIZE]: 14,
-  [CoordinationType.EMBEDDING_CELL_RADIUS]: 1,
-  [CoordinationType.EMBEDDING_CELL_RADIUS_MODE]: 'auto',
-  [CoordinationType.EMBEDDING_CELL_OPACITY]: 1,
-  [CoordinationType.EMBEDDING_CELL_OPACITY_MODE]: 'auto',
+  [CoordinationType.EMBEDDING_OBS_SET_POLYGONS_VISIBLE]: false,
+  [CoordinationType.EMBEDDING_OBS_SET_LABELS_VISIBLE]: false,
+  [CoordinationType.EMBEDDING_OBS_SET_LABEL_SIZE]: 14,
+  [CoordinationType.EMBEDDING_OBS_RADIUS]: 1,
+  [CoordinationType.EMBEDDING_OBS_RADIUS_MODE]: 'auto',
+  [CoordinationType.EMBEDDING_OBS_OPACITY]: 1,
+  [CoordinationType.EMBEDDING_OBS_OPACITY_MODE]: 'auto',
   [CoordinationType.SPATIAL_ZOOM]: null,
   [CoordinationType.SPATIAL_ROTATION]: 0,
   [CoordinationType.SPATIAL_TARGET_X]: null,
@@ -29,32 +39,31 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SPATIAL_AXIS_FIXED]: false,
   [CoordinationType.SPATIAL_ROTATION_ORBIT]: 0,
   [CoordinationType.SPATIAL_ORBIT_AXIS]: 'Y',
-  [CoordinationType.SPATIAL_RASTER_LAYERS]: null,
-  [CoordinationType.SPATIAL_CELLS_LAYER]: null,
-  [CoordinationType.SPATIAL_MOLECULES_LAYER]: null,
-  [CoordinationType.SPATIAL_NEIGHBORHOODS_LAYER]: null,
+  [CoordinationType.SPATIAL_RASTER_LAYER]: null,
+  [CoordinationType.SPATIAL_SEGMENTATION_LAYER]: null,
+  [CoordinationType.SPATIAL_POINT_LAYER]: null,
+  [CoordinationType.SPATIAL_NEIGHBORHOOD_LAYER]: null,
   [CoordinationType.HEATMAP_ZOOM_X]: 0,
   [CoordinationType.HEATMAP_ZOOM_Y]: 0,
   [CoordinationType.HEATMAP_TARGET_X]: 0,
   [CoordinationType.HEATMAP_TARGET_Y]: 0,
-  [CoordinationType.GENE_EXPRESSION_COLORMAP]: 'plasma',
-  [CoordinationType.GENE_EXPRESSION_COLORMAP_RANGE]: [0.0, 1.0],
-  [CoordinationType.GENE_EXPRESSION_TRANSFORM]: null,
-  [CoordinationType.GENE_FILTER]: null,
-  [CoordinationType.GENE_HIGHLIGHT]: null,
-  [CoordinationType.GENE_SELECTION]: null,
-  [CoordinationType.CELL_FILTER]: null,
-  [CoordinationType.CELL_HIGHLIGHT]: null,
-  [CoordinationType.CELL_SET_SELECTION]: null,
-  [CoordinationType.CELL_SET_HIGHLIGHT]: null,
-  [CoordinationType.CELL_SET_COLOR]: null,
-  [CoordinationType.CELL_COLOR_ENCODING]: 'cellSetSelection',
+  [CoordinationType.FEATURE_VALUE_COLORMAP]: 'plasma',
+  [CoordinationType.FEATURE_VALUE_COLORMAP_RANGE]: [0.0, 1.0],
+  [CoordinationType.FEATURE_VALUE_TRANSFORM]: null,
+  [CoordinationType.FEATURE_FILTER]: null,
+  [CoordinationType.FEATURE_HIGHLIGHT]: null,
+  [CoordinationType.FEATURE_SELECTION]: null,
+  [CoordinationType.OBS_FILTER]: null,
+  [CoordinationType.OBS_HIGHLIGHT]: null,
+  [CoordinationType.OBS_SET_SELECTION]: null,
+  [CoordinationType.OBS_SET_HIGHLIGHT]: null,
+  [CoordinationType.OBS_SET_COLOR]: null,
+  [CoordinationType.OBS_COLOR_ENCODING]: 'obsSetSelection',
   [CoordinationType.GENOMIC_ZOOM_X]: 0,
   [CoordinationType.GENOMIC_ZOOM_Y]: 0,
   [CoordinationType.GENOMIC_TARGET_X]: 1549999999.5,
   [CoordinationType.GENOMIC_TARGET_Y]: 1549999999.5,
-  [CoordinationType.ADDITIONAL_CELL_SETS]: null,
-  [CoordinationType.MOLECULE_HIGHLIGHT]: null,
+  [CoordinationType.ADDITIONAL_OBS_SETS]: null,
 };
 
 // The following coordination types should be
