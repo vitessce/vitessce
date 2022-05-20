@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import uuidv4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
+import { InternSet } from 'internmap';
 import { getNextScope, capitalize } from '../utils';
 import {
   COMPONENT_COORDINATION_TYPES,
@@ -340,10 +341,212 @@ export function upgradeFrom1_0_8(config) {
 export function upgradeFrom1_0_9(config) {
   const newConfig = cloneDeep(config);
 
-  
+  // Convert specific coordination scopes to general ones.
+  const scopeAnalogies = {
+    cellFilter: 'obsFilter',
+    cellHighlight: 'obsHighlight',
+    cellSelection: 'obsSelection',
+    cellSetSelection: 'obsSetSelection',
+    cellSetHighlight: 'obsSetHighlight',
+    cellSetColor: 'obsSetColor',
+    geneFilter: 'featureFilter',
+    geneHighlight: 'featureHighlight',
+    geneSelection: 'featureSelection',
+    geneExpressionColormap: 'featureValueColormap',
+    geneExpressionColormapRange: 'featureValueColormapRange',
+    cellColorEncoding: 'obsColorEncoding',
+    spatialRasterLayers: 'spatialRasterLayer', // singular
+    spatialCellsLayer: 'spatialSegmentationLayer',
+    spatialMoleculesLayer: 'spatialPointLayer',
+    spatialNeighborhoodsLayer: 'spatialNeighborhoodLayer', // singular
+    additionalCellSets: 'additionalObsSets',
+    moleculeHighlight: 'obsHighlight',
+    embeddingCellSetPolygonsVisible: 'embeddingObsSetPolygonsVisible',
+    embeddingCellSetLabelsVisible: 'embeddingObsSetLabelsVisible',
+    embeddingCellSetLabelSize: 'embeddingObsSetLabelSize',
+    embeddingCellRadius: 'embeddingObsRadius',
+    embeddingCellRadiusMode: 'embeddingObsRadiusMode',
+    embeddingCellOpacity: 'embeddingObsOpacity',
+    embeddingCellOpacityMode: 'embeddingObsOpacityMode',
+  };
+
+  const coordinationSpace = { ...config.coordinationSpace };
+
+  Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
+    if (coordinationSpace[oldKey]) {
+      coordinationSpace[newKey] = coordinationSpace[oldKey];
+      delete coordinationSpace[oldKey];
+    }
+  });
+
+  // Use obsType, featureType
+  // rather than component-specific labelOverride props.
+  const typeScopes = {
+    obsType: {},
+    featureType: {},
+  };
+
+  const typeAnalogies = {
+    observationsLabelOverride: 'obsType',
+    variablesLabelOverride: 'featureType',
+  };
+
+  const componentAnalogies = {
+    genes: 'features',
+    cellSets: 'obsSets',
+    cellSetSizes: 'obsSetSizes',
+    cellSetExpression: 'obsSetFeatureDistribution',
+    expressionHistogram: 'featureValueHistogram',
+    heatmap: 'obsFeatureHeatmap',
+    scatterplot: 'obsScatterplot',
+  };
+
+  const overridesFromProps = new InternSet([], JSON.stringify);
+
+  const layout = config.layout.map((component, i) => {
+    const newComponent = { ...component };
+    const { coordinationScopes = {}, props = {} } = newComponent;
+
+    Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
+      if (coordinationScopes[oldKey]) {
+        coordinationScopes[newKey] = coordinationScopes[oldKey];
+        delete coordinationScopes[oldKey];
+      }
+    });
+
+    Object.entries(typeAnalogies).forEach(([oldKey, newKey]) => {
+      if (props[oldKey]) {
+        const nextScope = getNextScope(Object.keys(typeScopes[newKey]));
+        typeScopes[newKey][nextScope] = props[oldKey];
+        coordinationScopes[newKey] = nextScope;
+        // Not perfect since not also scoped to a dataset,
+        // so edge case exists when there is >1 dataset, but this
+        // is sufficient for the configs in the HuBMAP portal
+        // which currently only deal with single datasets.
+        overridesFromProps.add([newKey, props[oldKey]]);
+        delete props[oldKey];
+      }
+    });
+
+    const newComponentName = (
+      componentAnalogies[component.component]
+      || component.component
+    );
+
+    return {
+      uid: `view-${i}`,
+      viewType: newComponentName,
+      coordinationScopes,
+      props,
+      x: newComponent.x,
+      y: newComponent.y,
+      w: newComponent.w,
+      h: newComponent.h,
+    };
+  });
+
+  const dataTypeAnalogies = {
+    cells: {
+      dataType: 'obs',
+      entityTypes: {
+        obsType: 'cell',
+      },
+    },
+    molecules: {
+      dataType: 'obs',
+      entityTypes: {
+        obsType: 'molecule',
+        featureType: 'isoform',
+      },
+    },
+    'cell-sets': {
+      dataType: 'obsSets',
+      entityTypes: {
+        obsType: 'cell',
+      },
+    },
+    'expression-matrix': {
+      dataType: 'obsFeatureMatrix',
+      entityTypes: {
+        obsType: 'cell',
+        featureType: 'gene',
+      },
+    },
+    'genomic-profiles': {
+      dataType: 'genomicProfiles',
+      entityTypes: {},
+    },
+  };
+  // eslint-disable-next-line
+  const fileTypeAnalogies = {
+    'cell-sets.json': 'cellSets.json',
+    'expression-matrix.zarr': 'expressionMatrix.zarr',
+    'genomic-profiles.zarr': 'genomicProfiles.zarr',
+    'clusters.json': 'expressionMatrix.json',
+    'anndata-cell-sets.zarr': 'anndataObsSets.zarr',
+    'anndata-cells.zarr': 'anndataObs.zarr',
+    'anndata-expression-matrix.zarr': 'anndataObsFeatureMatrix.zarr',
+  };
+
+  const datasets = config.datasets.map((dataset) => {
+    const { files = [] } = dataset;
+    const newFiles = files.map((file) => {
+      const oldDataType = file.type;
+      const oldFileType = file.fileType;
+      let dataType = oldDataType;
+      let fileType = oldFileType;
+      let entityTypes = {};
+      if (dataTypeAnalogies[oldDataType]) {
+        // eslint-disable-next-line prefer-destructuring
+        dataType = dataTypeAnalogies[oldDataType].dataType;
+        // eslint-disable-next-line prefer-destructuring
+        entityTypes = dataTypeAnalogies[oldDataType].entityTypes;
+      }
+      if (fileTypeAnalogies[oldFileType]) {
+        fileType = fileTypeAnalogies[oldFileType];
+      }
+      // Convert `type` to `dataType`.
+      // eslint-disable-next-line no-param-reassign
+      delete file.type;
+      return {
+        ...file,
+        dataType,
+        fileType,
+        entityTypes,
+      };
+    });
+
+    // Add extra file definitions to deal with the fact that views that previously
+    // had props like "variablesLabelOverride" will now have non-default
+    // entity types in the coordination space, and will therefore
+    // now require file definitions with corresponding
+    // entity type mappings in order to load the data they are expecting.
+    const extraFiles = Array.from(overridesFromProps)
+      .flatMap(([entityType, val]) => newFiles
+        .filter(f => Object.keys(f.entityTypes).includes(entityType))
+        .map((file) => {
+          const newFile = { ...file, entityTypes: { ...file.entityTypes } };
+          newFile.entityTypes[entityType] = val;
+          return newFile;
+        }));
+
+    return {
+      ...dataset,
+      files: [
+        ...newFiles,
+        ...extraFiles,
+      ],
+    };
+  });
 
   return {
     ...newConfig,
     version: '1.0.10',
+    datasets,
+    coordinationSpace: {
+      ...coordinationSpace,
+      ...typeScopes,
+    },
+    layout,
   };
 }
