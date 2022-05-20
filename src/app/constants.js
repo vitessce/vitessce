@@ -35,6 +35,12 @@ export const DataType = {
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
 };
 
+export const EntityTypes = {
+  OBS_TYPE: 'obsType',
+  FEATURE_TYPE: 'featureType',
+  FEATURE_VALUE_TYPE: 'featureValueType',
+};
+
 export const FileType = {
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',
@@ -51,6 +57,7 @@ export const FileType = {
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
   // FOM file types
   ANNDATA_OBS_ZARR: 'anndataObs.zarr',
+  ANNDATA_OBS_SETS_ZARR: 'anndataObsSets.zarr',
   ANNDATA_OBS_FEATURE_MATRIX_ZARR: 'anndataObsFeatureMatrix.zarr',
   ANNDATA_FEATURES_ZARR: 'anndataFeatures.zarr',
 };
@@ -112,6 +119,12 @@ export const CoordinationType = {
   ADDITIONAL_CELL_SETS: 'additionalCellSets',
   MOLECULE_HIGHLIGHT: 'moleculeHighlight',
   // FOM coordination types
+  // Observation type (e.g., cell)
+  OBS_TYPE: 'obsType',
+  // Feature type (e.g., gene)
+  FEATURE_TYPE: 'featureType',
+  // Feature value type (e.g., expression)
+  FEATURE_VALUE_TYPE: 'featureValueType',
   EMBEDDING_OBS_SET_POLYGONS_VISIBLE: 'embeddingObsSetPolygonsVisible',
   EMBEDDING_OBS_SET_LABELS_VISIBLE: 'embeddingObsSetLabelsVisible',
   EMBEDDING_OBS_SET_LABEL_SIZE: 'embeddingObsSetLabelSize',

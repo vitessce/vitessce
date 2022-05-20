@@ -479,10 +479,6 @@ export function upgradeFrom1_0_9(config) {
   };
   // eslint-disable-next-line
   const fileTypeAnalogies = {
-    'cell-sets.json': 'cellSets.json',
-    'expression-matrix.zarr': 'expressionMatrix.zarr',
-    'genomic-profiles.zarr': 'genomicProfiles.zarr',
-    'clusters.json': 'expressionMatrix.json',
     'anndata-cell-sets.zarr': 'anndataObsSets.zarr',
     'anndata-cells.zarr': 'anndataObs.zarr',
     'anndata-expression-matrix.zarr': 'anndataObsFeatureMatrix.zarr',
