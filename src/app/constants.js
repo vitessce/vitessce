@@ -16,6 +16,7 @@ export const Component = {
   FEATURE_LIST: 'featureList',
   OBS_SETS: 'obsSets',
   OBS_SET_SIZES: 'obsSetSizes',
+  OBS_SET_VALUE_DISTRIBUTION: 'obsSetValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
 };
 
@@ -29,6 +30,7 @@ export const DataType = {
   RASTER: 'raster',
   // FOM data types
   OBS: 'obs',
+  OBS_SETS: 'obsSets',
   FEATURES: 'features',
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
 };

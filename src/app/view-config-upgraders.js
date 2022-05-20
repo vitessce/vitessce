@@ -392,13 +392,11 @@ export function upgradeFrom1_0_9(config) {
   };
 
   const componentAnalogies = {
-    genes: 'features',
+    genes: 'featureList',
     cellSets: 'obsSets',
     cellSetSizes: 'obsSetSizes',
-    cellSetExpression: 'obsSetFeatureDistribution',
+    cellSetExpression: 'obsSetValueDistribution',
     expressionHistogram: 'featureValueHistogram',
-    heatmap: 'obsFeatureHeatmap',
-    scatterplot: 'obsScatterplot',
   };
 
   const overridesFromProps = new InternSet([], JSON.stringify);
@@ -434,8 +432,8 @@ export function upgradeFrom1_0_9(config) {
     );
 
     return {
-      uid: `view-${i}`,
-      viewType: newComponentName,
+      uid: `view-${i}`, // TODO: move to initialization function.
+      component: newComponentName,
       coordinationScopes,
       props,
       x: newComponent.x,
@@ -456,7 +454,9 @@ export function upgradeFrom1_0_9(config) {
       dataType: 'obs',
       entityTypes: {
         obsType: 'molecule',
-        featureType: 'isoform',
+        // TODO: change to 'isoform' once
+        // FISH-based things become isoform-resolved.
+        featureType: 'gene',
       },
     },
     'cell-sets': {
