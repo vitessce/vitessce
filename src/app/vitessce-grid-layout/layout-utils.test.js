@@ -79,18 +79,22 @@ describe('layout-utils.js', () => {
 
   describe('resolveLayout', () => {
     const componentsSpec = [
-      { component: 'NoProps', x: 0, y: 0 },
       {
-        component: 'HasProps', props: { foo: 'bar' }, x: 1, y: 1, w: 1, h: 1,
+        uid: 'i0', viewType: 'NoProps', x: 0, y: 0,
+      },
+      {
+        uid: 'i1', viewType: 'HasProps', props: { foo: 'bar' }, x: 1, y: 1, w: 1, h: 1,
       },
     ];
     const expectedComponents = {
       i0: {
+        uid: 'i0',
         component: 'NoProps',
         coordinationScopes: {},
         props: {},
       },
       i1: {
+        uid: 'i1',
         component: 'HasProps',
         coordinationScopes: {},
         props: {

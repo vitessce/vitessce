@@ -1,6 +1,8 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
 import difference from 'lodash/difference';
+import cloneDeep from 'lodash/cloneDeep';
+import uuidv4 from 'uuid/v4';
 import packageJson from '../../package.json';
 import { getNextScope } from '../utils';
 import {
@@ -201,10 +203,21 @@ export function checkTypes(config) {
  * @param {object} config The view config prop.
  */
 export function initialize(config) {
-  if (config.initStrategy === 'auto') {
-    return initializeAuto(config);
+  let newConfig = cloneDeep(config);
+  if (newConfig.initStrategy === 'auto') {
+    newConfig = initializeAuto(config);
   }
-  return config;
+  const { layout } = newConfig;
+  layout.forEach((view, i) => {
+    // Assign uids for views where they are not present.
+    if (!view.uid) {
+      layout[i].uid = uuidv4();
+    }
+  });
+  return {
+    ...newConfig,
+    layout,
+  };
 }
 
 export function upgradeAndValidate(oldConfig) {
