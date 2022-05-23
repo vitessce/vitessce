@@ -1,5 +1,6 @@
 
 ### Added
+- Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 
 ### Changed
 
