@@ -3,6 +3,11 @@
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 
 ### Changed
+- Change spatial layer coordination type names.
+  - `spatialRasterLayers` -> `spatialRasterLayer`
+  - `spatialCellsLayer` -> `spatialSegmentationLayer`
+  - `spatialMoleculesLayer` -> `spatialPointLayer`
+  - `spatialNeighborhoodsLayer` -> `spatialNeighborhoodLayer`
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 
