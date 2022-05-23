@@ -2,6 +2,9 @@
 ### Added
 
 ### Changed
+- Improved documentation.
+  - More consistently using the term "view type" rather than "component".
+  - Added a config schema version diff tool to the view config JSON documentation page.
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 
