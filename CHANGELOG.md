@@ -3,11 +3,36 @@
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 
 ### Changed
-- Change spatial layer coordination type names.
+- Changed spatial layer coordination type names.
+  - `spatialRasterLayers`` -> ``spatialRasterLayer`
+  - `spatialCellsLayer`` -> ``spatialSegmentationLayer`
+  - `spatialMoleculesLayer`` -> ``spatialPointLayer`
+  - `spatialNeighborhoodsLayer`` -> ``spatialNeighborhoodLayer`
+- Changed cell- and gene-related coordination type names.
+  - `cellFilter` -> `obsFilter`
+  - `cellHighlight` -> `obsHighlight`
+  - `cellSelection` -> `obsSelection`
+  - `cellSetSelection` -> `obsSetSelection`
+  - `cellSetHighlight` -> `obsSetHighlight`
+  - `cellSetColor` -> `obsSetColor`
+  - `geneFilter` -> `featureFilter`
+  - `geneHighlight` -> `featureHighlight`
+  - `geneSelection` -> `featureSelection`
+  - `geneExpressionColormap` -> `featureValueColormap`
+  - `geneExpressionColormapRange` -> `featureValueColormapRange`
+  - `cellColorEncoding` -> `obsColorEncoding`
   - `spatialRasterLayers` -> `spatialRasterLayer`
   - `spatialCellsLayer` -> `spatialSegmentationLayer`
   - `spatialMoleculesLayer` -> `spatialPointLayer`
   - `spatialNeighborhoodsLayer` -> `spatialNeighborhoodLayer`
+  - `additionalCellSets` -> `additionalObsSets`
+  - `embeddingCellSetPolygonsVisible` -> `embeddingObsSetPolygonsVisible`
+  - `embeddingCellSetLabelsVisible` -> `embeddingObsSetLabelsVisible`
+  - `embeddingCellSetLabelSize` -> `embeddingObsSetLabelSize`
+  - `embeddingCellRadius` -> `embeddingObsRadius`
+  - `embeddingCellRadiusMode` -> `embeddingObsRadiusMode`
+  - `embeddingCellOpacity` -> `embeddingObsOpacity`
+  - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 
@@ -774,7 +799,7 @@ and we have a sort-of schema for the schema to make sure these checks are in pla
 - Flexible configuration: load components by name, or have multiple instances
 of the same type of component.
 - Half-baked proof-of-concept integration with HiGlass.
-- Separate registry that holds Name -> Component mappings.
+- Separate registry that holds Name` -> `Component mappings.
 - Easy deployment to vitessce.io.
 - Friendlier error page on AWS deployment.
 - Display current version info in deployed demo.

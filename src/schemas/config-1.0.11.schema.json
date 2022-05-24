@@ -57,13 +57,13 @@
               "embeddingTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingTargetZ": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingCellSetPolygonsVisible": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingCellSetLabelsVisible": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingCellSetLabelSize": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingCellRadius": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingCellOpacity": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingCellRadiusMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingCellOpacityMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingObsSetPolygonsVisible": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingObsSetLabelsVisible": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingObsSetLabelSize": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingObsRadius": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingObsOpacity": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingObsRadiusMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingObsOpacityMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialZoom": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialRotation": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -79,18 +79,18 @@
               "heatmapZoomY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "heatmapTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "heatmapTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "cellFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "cellHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "cellSetSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "cellSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "cellSetColor": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "geneFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "geneHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "geneSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "geneExpressionTransform": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "geneExpressionColormap": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "geneExpressionColormapRange": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "cellColorEncoding": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "obsFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "obsHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "obsSetSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "obsSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "obsSetColor": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "featureFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "featureHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "featureSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "featureValueTransform": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "featureValueColormap": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "featureValueColormapRange": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "obsColorEncoding": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialRasterLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialSegmentationLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialPointLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -99,7 +99,7 @@
               "genomicZoomY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "genomicTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "genomicTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "additionalCellSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "additionalObsSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "moleculeHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" }
             }
           }
@@ -561,25 +561,25 @@
             ".": { "type": "string" }
           }
         },
-        "embeddingCellSetPolygonsVisible": {
+        "embeddingObsSetPolygonsVisible": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "boolean" }
           }
         },
-        "embeddingCellSetLabelsVisible": {
+        "embeddingObsSetLabelsVisible": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "boolean" }
           }
         },
-        "embeddingCellSetLabelSize": {
+        "embeddingObsSetLabelSize": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "number" }
           }
         },
-        "embeddingCellRadius": {
+        "embeddingObsRadius": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -588,7 +588,7 @@
             }
           }
         },
-        "embeddingCellOpacity": {
+        "embeddingObsOpacity": {
           "type": "object",
           "patternProperties": {
               ".": {
@@ -597,7 +597,7 @@
               }
           }
         },
-        "embeddingCellRadiusMode": {
+        "embeddingObsRadiusMode": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -607,7 +607,7 @@
             }
           }
         },
-        "embeddingCellOpacityMode": {
+        "embeddingObsOpacityMode": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -839,7 +839,7 @@
             ".": { "type": "number" }
           }
         },
-        "cellFilter": {
+        "obsFilter": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -853,7 +853,7 @@
             }
           }
         },
-        "cellHighlight": {
+        "obsHighlight": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -867,7 +867,7 @@
             }
           }
         },
-        "cellSetSelection": {
+        "obsSetSelection": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -881,7 +881,7 @@
             }
           }
         },
-        "cellSetHighlight": {
+        "obsSetHighlight": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -895,7 +895,7 @@
             }
           }
         },
-        "cellSetColor": {
+        "obsSetColor": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -926,7 +926,7 @@
             }
           }
         },
-        "cellColorEncoding": {
+        "obsColorEncoding": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -936,7 +936,7 @@
             }
           }
         },
-        "geneFilter": {
+        "featureFilter": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -950,7 +950,7 @@
             }
           }
         },
-        "geneHighlight": {
+        "featureHighlight": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -964,7 +964,7 @@
             }
           }
         },
-        "geneSelection": {
+        "featureSelection": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -977,7 +977,7 @@
             }
           }
         },
-        "geneExpressionTransform": {
+        "featureValueTransform": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -990,13 +990,13 @@
             }
           }
         },
-        "geneExpressionColormap": {
+        "featureValueColormap": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
           }
         },
-        "geneExpressionColormapRange": {
+        "featureValueColormapRange": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "array", "items": { "type": "number" } }
@@ -1026,7 +1026,7 @@
             ".": { "type": "number" }
           }
         },
-        "additionalCellSets": {
+        "additionalObsSets": {
           "type": "object",
           "patternProperties": {
             ".": {

@@ -39,14 +39,14 @@ export default function GenesSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    geneSelection,
-    geneFilter,
-    cellColorEncoding,
+    featureSelection: geneSelection,
+    featureFilter: geneFilter,
+    obsColorEncoding: cellColorEncoding,
   }, {
-    setGeneSelection,
-    setGeneFilter,
-    setGeneHighlight,
-    setCellColorEncoding,
+    setFeatureSelection: setGeneSelection,
+    setFeatureFilter: setGeneFilter,
+    setFeatureHighlight: setGeneHighlight,
+    setObsColorEncoding: setCellColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
