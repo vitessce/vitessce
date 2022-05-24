@@ -8,6 +8,7 @@ import {
 import {
   VitessceConfig, hconcat, vconcat,
   CoordinationType, Component, DataType, FileType,
+  EntityTypes,
 } from 'vitessce/dist/esm/index';
 import ThemedControlledEditor from './_ThemedControlledEditor';
 import {
@@ -43,11 +44,15 @@ const scope = {
   Component,
   DataType,
   FileType,
+  EntityTypes,
   CoordinationType,
-  cm: Component,
   dt: DataType,
   ft: FileType,
+  et: EntityTypes,
   ct: CoordinationType,
+  ViewType: Component,
+  vt: Component,
+  cm: Component,
   Highlight: JsonHighlight,
 };
 

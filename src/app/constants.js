@@ -1,12 +1,14 @@
 import {
   Component as ComponentCurr,
   DataType as DataTypeCurr,
+  EntityTypes as EntityTypesCurr,
   FileType as FileTypeCurr,
   CoordinationType as CoordinationTypeCurr,
 } from './constants-current';
 import {
   Component as ComponentOld,
   DataType as DataTypeOld,
+  EntityTypes as EntityTypesOld,
   FileType as FileTypeOld,
   CoordinationType as CoordinationTypeOld,
 } from './constants-old';
@@ -33,6 +35,10 @@ export const Component = makeConstantWithDeprecationMessage(
 export const DataType = makeConstantWithDeprecationMessage(
   DataTypeCurr,
   DataTypeOld,
+);
+export const EntityTypes = makeConstantWithDeprecationMessage(
+  EntityTypesCurr,
+  EntityTypesOld,
 );
 export const FileType = makeConstantWithDeprecationMessage(
   FileTypeCurr,

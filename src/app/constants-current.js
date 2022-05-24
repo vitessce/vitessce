@@ -23,6 +23,12 @@ export const DataType = {
   RASTER: 'raster',
 };
 
+export const EntityTypes = {
+  OBS_TYPE: 'obsType',
+  FEATURE_TYPE: 'featureType',
+  FEATURE_VALUE_TYPE: 'featureValueType',
+};
+
 export const FileType = {
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',
@@ -45,6 +51,11 @@ export const FileType = {
  */
 export const CoordinationType = {
   DATASET: 'dataset',
+
+  OBS_TYPE: 'obsType',
+  FEATURE_TYPE: 'featureType',
+  FEATURE_VALUE_TYPE: 'featureValueType',
+
   EMBEDDING_TYPE: 'embeddingType',
   EMBEDDING_ZOOM: 'embeddingZoom',
   EMBEDDING_ROTATION: 'embeddingRotation',

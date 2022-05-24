@@ -8,6 +8,8 @@ export const DataType = {};
 
 export const FileType = {};
 
+export const EntityTypes = {};
+
 export const CoordinationType = {
   SPATIAL_LAYERS: [
     'spatialLayers',

@@ -1,14 +1,18 @@
 import { fromEntries } from '../utils';
-import { CoordinationType } from './constants';
+import { CoordinationType, DataType } from './constants';
+import { DATA_TYPE_ENTITY_TYPES_MAPPING } from './constant-relationships';
 import {
   COMPONENT_COORDINATION_TYPES,
   DEFAULT_COORDINATION_VALUES,
+  DEFAULT_ENTITY_TYPE_VALUES,
 } from './state/coordination';
 
 export const PLUGIN_VIEW_TYPES_KEY = '__VITESSCE_PLUGIN_VIEW_TYPES__';
 export const PLUGIN_COORDINATION_TYPES_KEY = '__VITESSCE_PLUGIN_COORDINATION_TYPES__';
 export const PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY = '__VITESSCE_PLUGIN_COORDINATION_TYPES_PER_VIEW__';
 export const PLUGIN_FILE_TYPES_KEY = '__VITESSCE_PLUGIN_FILE_TYPES__';
+export const PLUGIN_DATA_TYPES_KEY = '__VITESSCE_PLUGIN_DATA_TYPES__';
+export const PLUGIN_ENTITY_TYPES_KEY = '__VITESSCE_PLUGIN_ENTITY_TYPES__';
 
 // Reference: https://github.com/higlass/higlass-register/blob/master/src/index.js
 window[PLUGIN_VIEW_TYPES_KEY] = window[PLUGIN_VIEW_TYPES_KEY] || {};
@@ -17,6 +21,8 @@ window[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY] = (
   window[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY] || {}
 );
 window[PLUGIN_FILE_TYPES_KEY] = window[PLUGIN_FILE_TYPES_KEY] || {};
+window[PLUGIN_DATA_TYPES_KEY] = window[PLUGIN_DATA_TYPES_KEY] || {};
+window[PLUGIN_ENTITY_TYPES_KEY] = window[PLUGIN_ENTITY_TYPES_KEY] || {};
 
 /**
  * Register a new coordination type.
@@ -62,6 +68,24 @@ export function registerPluginFileType(
   window[PLUGIN_FILE_TYPES_KEY][fileTypeName] = [dataSourceClass, dataLoaderClass];
 }
 
+/**
+ * Register a new entity type.
+ * @param {string} typeName Name for the new entity type.
+ * @param {string} defaultValue A default value for the entity type.
+ */
+export function registerPluginEntityType(typeName, defaultValue) {
+  window[PLUGIN_ENTITY_TYPES_KEY][typeName] = defaultValue;
+}
+
+/**
+ * Register a new entity type.
+ * @param {string} typeName Name for the new data type.
+ * @param {string[]} entityTypeNames The entity types that this data type supports.
+ */
+export function registerPluginDataType(typeName, entityTypeNames) {
+  window[PLUGIN_DATA_TYPES_KEY][typeName] = entityTypeNames;
+}
+
 
 // Plugin getter functions.
 
@@ -79,6 +103,10 @@ export function getPluginCoordinationTypes() {
 
 export function getPluginCoordinationTypeDefaults() {
   return window[PLUGIN_COORDINATION_TYPES_KEY];
+}
+
+export function getPluginEntityTypeDefaults() {
+  return window[PLUGIN_ENTITY_TYPES_KEY];
 }
 
 export function getPluginCoordinationTypesForViewType(viewType) {
@@ -105,12 +133,41 @@ export function getCoordinationTypes() {
   ];
 }
 
+export function getDataTypes() {
+  return [
+    ...Object.keys(window[PLUGIN_DATA_TYPES_KEY]),
+    ...Object.values(DataType),
+  ];
+}
+
+export function getPluginEntityTypesByDataType() {
+  return window[PLUGIN_DATA_TYPES_KEY];
+}
+
 // Need to do this in a function since the plugin coordination
 // types are dynamic.
 export function getDefaultCoordinationValues() {
   return {
     ...DEFAULT_COORDINATION_VALUES,
     ...getPluginCoordinationTypeDefaults(),
+  };
+}
+
+// Need to do this in a function since the plugin entity
+// types are dynamic.
+export function getDefaultEntityTypeValues() {
+  return {
+    ...DEFAULT_ENTITY_TYPE_VALUES,
+    ...getPluginEntityTypeDefaults(),
+  };
+}
+
+// Need to do this in a function since the plugin data
+// types are dynamic.
+export function getDataTypeEntityTypesMapping() {
+  return {
+    ...DATA_TYPE_ENTITY_TYPES_MAPPING,
+    ...getPluginEntityTypesByDataType(),
   };
 }
 
