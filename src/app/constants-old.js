@@ -37,7 +37,7 @@ export const CoordinationType = {
   // Cell -> Obs
   EMBEDDING_CELL_SET_POLYGONS_VISIBLE: [
     'embeddingCellSetPolygonsVisible',
-    makeChangeMessage('embeddingObsSetPolygonsVisible', '1.0.11')
+    makeChangeMessage('embeddingObsSetPolygonsVisible', '1.0.11'),
   ],
   EMBEDDING_CELL_SET_LABELS_VISIBLE: [
     'embeddingCellSetLabelsVisible',
