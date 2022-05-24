@@ -1,7 +1,7 @@
 
 ### Added
 - Added the `coordinationScopesBy` property for view definitions, to replace the previous implicit mapping of per-dataset coordination scopes:
-  ```js
+  ```diff
   datasets: [
     { uid: 'my-query', ... },
     { uid: 'some-atlas', ... },
@@ -27,7 +27,7 @@
         dataset: ['REFERENCE', 'QUERY'],
         embeddingType: 'common',
       },
-      coordinationScopesBy: {
+  +   coordinationScopesBy: {
         dataset: {
           embeddingZoom: { REFERENCE: 'refZoom', QUERY: 'qryZoom' },
         },
@@ -37,6 +37,21 @@
     ...,
   ],
   ...
+  ```
+    - To upgrade existing code:
+  ```diff
+  export default function MyPluginSubscriber(props) {
+  const {
+    coordinationScopes,
+  +  coordinationScopesBy,
+    // ...
+  } = props;
+  // ...
+  const [cValues, cSetters] = useMultiDatasetCoordination(
+    PLUGIN_COMPONENT_COORDINATION_TYPES[PluginViewType.QR_STATUS],
+    coordinationScopes,
+  +  coordinationScopesBy,
+  );
   ```
 
 ### Changed
