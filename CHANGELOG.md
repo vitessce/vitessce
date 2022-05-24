@@ -1,5 +1,43 @@
 
 ### Added
+- Added the `coordinationScopesBy` property for view definitions, to replace the previous implicit mapping of per-dataset coordination scopes:
+  ```js
+  datasets: [
+    { uid: 'my-query', ... },
+    { uid: 'some-atlas', ... },
+  ],
+  coordinationSpace: {
+    dataset: {
+      REFERENCE: 'some-atlas',
+      QUERY: 'my-query',
+    },
+    embeddingType: {
+      common: 'UMAP',
+    },
+    embeddingZoom: {
+      refZoom: 2,
+      qryZoom: 4,
+    },
+    ...,
+  },
+  layout: [
+    {
+      component: 'qrComparisonScatterplot',
+      coordinationScopes: {
+        dataset: ['REFERENCE', 'QUERY'],
+        embeddingType: 'common',
+      },
+      coordinationScopesBy: {
+        dataset: {
+          embeddingZoom: { REFERENCE: 'refZoom', QUERY: 'qryZoom' },
+        },
+      },
+      x: 0, y: 0, w: 5, h: 12,
+    },
+    ...,
+  ],
+  ...
+  ```
 
 ### Changed
 

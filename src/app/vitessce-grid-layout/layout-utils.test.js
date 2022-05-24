@@ -88,11 +88,13 @@ describe('layout-utils.js', () => {
       i0: {
         component: 'NoProps',
         coordinationScopes: {},
+        coordinationScopesBy: {},
         props: {},
       },
       i1: {
         component: 'HasProps',
         coordinationScopes: {},
+        coordinationScopesBy: {},
         props: {
           foo: 'bar',
         },

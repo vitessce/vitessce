@@ -39,6 +39,7 @@ import {
 } from './components/data-hooks';
 import {
   useCoordination,
+  useComplexCoordination,
   useMultiDatasetCoordination,
   useDatasetUids,
   useLoaders,
@@ -91,6 +92,7 @@ export {
   useReady,
   useUrls,
   useCoordination,
+  useComplexCoordination,
   useMultiDatasetCoordination,
   useDatasetUids,
   useLoaders,
