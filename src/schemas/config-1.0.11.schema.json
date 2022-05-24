@@ -23,6 +23,10 @@
         "additionalProperties": false,
         "required": ["component", "x", "y"],
         "properties": {
+          "uid": {
+            "type": "string",
+            "description": "A unique identifier for the view, to refer to it in getter and setter functions in object-oriented contexts."
+          },
           "component": {
             "type": "string",
             "description": "Specify a component using a name defined in the component registry."
