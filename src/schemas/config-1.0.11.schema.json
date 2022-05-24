@@ -448,7 +448,7 @@
         }
       }
     },
-    "spatialRasterLayers": {
+    "spatialRasterLayer": {
       "type": "array",
       "description": "Array of Spatial Layers",
       "items": {
@@ -768,7 +768,7 @@
                   "type": "null",
                   "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                 },
-                { "$ref": "#/definitions/spatialRasterLayers" }
+                { "$ref": "#/definitions/spatialRasterLayer" }
               ]
             }
           }
