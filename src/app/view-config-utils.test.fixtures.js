@@ -567,3 +567,124 @@ export const initializedViewConfig = {
     },
   ],
 };
+
+export const implicitPerDatasetCoordinations = {
+  version: '1.0.9',
+  name: 'Per-dataset coordinations',
+  description: 'My config description',
+  initStrategy: 'auto',
+  coordinationSpace: {
+    dataset: {
+      A: 'first',
+      B: 'second',
+    },
+    embeddingCellRadius: {
+      small: 2,
+      big: 20,
+    },
+    embeddingCellRadiusMode: {
+      all: 'manual',
+    },
+  },
+  datasets: [
+    {
+      files: [],
+      name: 'First dataset',
+      uid: 'first',
+    },
+    {
+      files: [],
+      name: 'Second dataset',
+      uid: 'second',
+    },
+  ],
+  layout: [
+    {
+      component: 'somePluginView',
+      coordinationScopes: {
+        dataset: ['A', 'B'],
+        embeddingCellRadius: { A: 'small', B: 'big' },
+        embeddingCellRadiusMode: 'all',
+      },
+      h: 4,
+      w: 5,
+      x: 0,
+      y: 2,
+    },
+    {
+      component: 'scatterplot',
+      coordinationScopes: {
+        dataset: 'A',
+        embeddingCellRadius: 'small',
+        embeddingCellRadiusMode: 'all',
+      },
+      h: 4,
+      w: 5,
+      x: 0,
+      y: 2,
+    },
+  ],
+};
+
+
+export const explicitPerDatasetCoordinations = {
+  version: '1.0.12',
+  name: 'Per-dataset coordinations',
+  description: 'My config description',
+  initStrategy: 'auto',
+  coordinationSpace: {
+    dataset: {
+      A: 'first',
+      B: 'second',
+    },
+    embeddingCellRadius: {
+      small: 2,
+      big: 20,
+    },
+    embeddingCellRadiusMode: {
+      all: 'manual',
+    },
+  },
+  datasets: [
+    {
+      files: [],
+      name: 'First dataset',
+      uid: 'first',
+    },
+    {
+      files: [],
+      name: 'Second dataset',
+      uid: 'second',
+    },
+  ],
+  layout: [
+    {
+      component: 'somePluginView',
+      coordinationScopes: {
+        dataset: ['A', 'B'],
+        embeddingCellRadiusMode: 'all',
+      },
+      coordinationScopesBy: {
+        dataset: {
+          embeddingCellRadius: { A: 'small', B: 'big' },
+        },
+      },
+      h: 4,
+      w: 5,
+      x: 0,
+      y: 2,
+    },
+    {
+      component: 'scatterplot',
+      coordinationScopes: {
+        dataset: 'A',
+        embeddingCellRadius: 'small',
+        embeddingCellRadiusMode: 'all',
+      },
+      h: 4,
+      w: 5,
+      x: 0,
+      y: 2,
+    },
+  ],
+};

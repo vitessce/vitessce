@@ -352,7 +352,7 @@ export function upgradeFrom1_0_11(config) {
         dataset: {},
       };
       Object.entries(coordinationScopes).forEach(([coordinationType, coordinationScope]) => {
-        if (typeof coordinationScope === 'object') {
+        if (coordinationType !== 'dataset' && !Array.isArray(coordinationScope) && typeof coordinationScope === 'object') {
           coordinationScopesBy.dataset[coordinationType] = coordinationScope;
           delete coordinationScopes[coordinationType];
         }
