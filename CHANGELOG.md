@@ -1,6 +1,10 @@
 
 ### Added
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
+- Added coordination types for entity types.
+  - `obsType`
+  - `featureType`
+  - `featureValueType`
 
 ### Changed
 - Changed spatial layer coordination type names.
