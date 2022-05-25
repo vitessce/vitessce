@@ -1,6 +1,7 @@
 import {
   useState, useEffect, useRef,
 } from 'react';
+import { InternMap } from 'internmap';
 import { getSourceAndLoaderFromFileType } from '../loaders/types';
 
 /**
@@ -101,15 +102,25 @@ export function createLoaders(datasets, configDescription) {
       loaders: {},
     };
     dataset.files.forEach((file) => {
-      const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(file.fileType);
+      const {
+        url, options, requestInit,
+        type: dataType, fileType,
+        coordinationValues = {},
+      } = file;
+      const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType);
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
-      const { url, options, requestInit } = file;
       const fileId = url || JSON.stringify(options);
       if (!(fileId in dataSources)) {
         dataSources[fileId] = new DataSourceClass({ url, requestInit });
       }
       const loader = new LoaderClass(dataSources[fileId], file);
-      datasetLoaders.loaders[file.type] = loader;
+      if (datasetLoaders.loaders[dataType]) {
+        datasetLoaders.loaders[dataType].set(coordinationValues, loader);
+      } else {
+        datasetLoaders.loaders[dataType] = new InternMap([
+          [coordinationValues, loader],
+        ], JSON.stringify);
+      }
     });
     result[dataset.uid] = datasetLoaders;
   });
