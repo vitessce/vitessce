@@ -1,6 +1,7 @@
 
 ### Added
-- Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
+- Added the property `coordinationValues` for view config file definitions.
+- Added the `useMatchingLoader` hook.
 
 ### Changed
 
