@@ -795,7 +795,7 @@ and we have a sort-of schema for the schema to make sure these checks are in pla
 - Flexible configuration: load components by name, or have multiple instances
 of the same type of component.
 - Half-baked proof-of-concept integration with HiGlass.
-- Separate registry that holds Name` -> `Component mappings.
+- Separate registry that holds Name -> Component mappings.
 - Easy deployment to vitessce.io.
 - Friendlier error page on AWS deployment.
 - Display current version info in deployed demo.
