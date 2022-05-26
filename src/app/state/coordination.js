@@ -29,7 +29,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SPATIAL_AXIS_FIXED]: false,
   [CoordinationType.SPATIAL_ROTATION_ORBIT]: 0,
   [CoordinationType.SPATIAL_ORBIT_AXIS]: 'Y',
-  [CoordinationType.SPATIAL_RASTER_LAYER]: null,
+  [CoordinationType.SPATIAL_IMAGE_LAYER]: null,
   [CoordinationType.SPATIAL_SEGMENTATION_LAYER]: null,
   [CoordinationType.SPATIAL_POINT_LAYER]: null,
   [CoordinationType.SPATIAL_NEIGHBORHOOD_LAYER]: null,
@@ -119,7 +119,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.DATASET,
     CoordinationType.SPATIAL_ZOOM,
     CoordinationType.SPATIAL_ROTATION,
-    CoordinationType.SPATIAL_RASTER_LAYER,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
     CoordinationType.SPATIAL_POINT_LAYER,
     CoordinationType.SPATIAL_NEIGHBORHOOD_LAYER,
@@ -210,7 +210,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.LAYER_CONTROLLER]: [
     CoordinationType.DATASET,
-    CoordinationType.SPATIAL_RASTER_LAYER,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
     CoordinationType.SPATIAL_POINT_LAYER,
     CoordinationType.SPATIAL_NEIGHBORHOOD_LAYER,
@@ -240,7 +240,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.DESCRIPTION]: [
     CoordinationType.DATASET,
-    CoordinationType.SPATIAL_RASTER_LAYER,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
   ],
   higlass: [
     CoordinationType.DATASET,

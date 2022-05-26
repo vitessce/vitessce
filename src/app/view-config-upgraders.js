@@ -345,7 +345,7 @@ export function upgradeFrom1_0_10(config) {
 
   const scopeAnalogies = {
     // Spatial layer types
-    spatialRasterLayers: 'spatialRasterLayer',
+    spatialRasterLayers: 'spatialImageLayer',
     spatialCellsLayer: 'spatialSegmentationLayer',
     spatialMoleculesLayer: 'spatialPointLayer',
     spatialNeighborhoodsLayer: 'spatialNeighborhoodLayer',

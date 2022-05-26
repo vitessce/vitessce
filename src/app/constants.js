@@ -90,7 +90,7 @@ export const CoordinationType = {
   FEATURE_VALUE_TRANSFORM: 'featureValueTransform',
   FEATURE_VALUE_COLORMAP_RANGE: 'featureValueColormapRange',
   OBS_COLOR_ENCODING: 'obsColorEncoding',
-  SPATIAL_RASTER_LAYER: 'spatialRasterLayer',
+  SPATIAL_IMAGE_LAYER: 'spatialImageLayer',
   SPATIAL_SEGMENTATION_LAYER: 'spatialSegmentationLayer',
   SPATIAL_POINT_LAYER: 'spatialPointLayer',
   SPATIAL_NEIGHBORHOOD_LAYER: 'spatialNeighborhoodLayer',

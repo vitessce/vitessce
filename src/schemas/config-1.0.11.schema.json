@@ -91,7 +91,7 @@
               "featureValueColormap": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureValueColormapRange": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "obsColorEncoding": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "spatialRasterLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "spatialImageLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialSegmentationLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialPointLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialNeighborhoodLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -448,7 +448,7 @@
         }
       }
     },
-    "spatialRasterLayer": {
+    "spatialImageLayer": {
       "type": "array",
       "description": "Array of Spatial Layers",
       "items": {
@@ -759,7 +759,7 @@
             }
           }
         },
-        "spatialRasterLayer": {
+        "spatialImageLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -768,7 +768,7 @@
                   "type": "null",
                   "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                 },
-                { "$ref": "#/definitions/spatialRasterLayer" }
+                { "$ref": "#/definitions/spatialImageLayer" }
               ]
             }
           }

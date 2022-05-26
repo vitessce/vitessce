@@ -20,7 +20,7 @@ export const CoordinationType = {
   // Spatial layers
   SPATIAL_RASTER_LAYERS: [
     'spatialRasterLayers',
-    makeChangeMessage('spatialRasterLayer', '1.0.11'),
+    makeChangeMessage('spatialImageLayer', '1.0.11'),
   ],
   SPATIAL_CELLS_LAYER: [
     'spatialCellsLayer',
