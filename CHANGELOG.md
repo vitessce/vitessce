@@ -4,10 +4,10 @@
 
 ### Changed
 - Changed spatial layer coordination type names.
-  - `spatialRasterLayers`` -> ``spatialRasterLayer`
-  - `spatialCellsLayer`` -> ``spatialSegmentationLayer`
-  - `spatialMoleculesLayer`` -> ``spatialPointLayer`
-  - `spatialNeighborhoodsLayer`` -> ``spatialNeighborhoodLayer`
+  - `spatialRasterLayers` -> `spatialImageLayer`
+  - `spatialCellsLayer` -> `spatialSegmentationLayer`
+  - `spatialMoleculesLayer` -> `spatialPointLayer`
+  - `spatialNeighborhoodsLayer` -> `spatialNeighborhoodLayer`
 - Changed cell- and gene-related coordination type names.
   - `cellFilter` -> `obsFilter`
   - `cellHighlight` -> `obsHighlight`
@@ -21,10 +21,6 @@
   - `geneExpressionColormap` -> `featureValueColormap`
   - `geneExpressionColormapRange` -> `featureValueColormapRange`
   - `cellColorEncoding` -> `obsColorEncoding`
-  - `spatialRasterLayers` -> `spatialRasterLayer`
-  - `spatialCellsLayer` -> `spatialSegmentationLayer`
-  - `spatialMoleculesLayer` -> `spatialPointLayer`
-  - `spatialNeighborhoodsLayer` -> `spatialNeighborhoodLayer`
   - `additionalCellSets` -> `additionalObsSets`
   - `embeddingCellSetPolygonsVisible` -> `embeddingObsSetPolygonsVisible`
   - `embeddingCellSetLabelsVisible` -> `embeddingObsSetLabelsVisible`
